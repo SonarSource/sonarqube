@@ -63,7 +63,7 @@ public class CommandFactoryImplTest {
   }
 
   @After
-  public void tearDown() throws Exception {
+  public void tearDown() {
     if (listAppender != null) {
       ListAppender.detachMemoryAppenderToLoggerOf(CommandFactoryImpl.class, listAppender);
     }
@@ -287,7 +287,7 @@ public class CommandFactoryImplTest {
     return newFactory(userProps, System2.INSTANCE);
   }
 
-  private CommandFactoryImpl newFactory(Properties userProps, System2 system2) throws IOException {
+  private CommandFactoryImpl newFactory(Properties userProps, System2 system2) {
     Properties p = new Properties();
     p.setProperty("sonar.path.home", homeDir.getAbsolutePath());
     p.setProperty("sonar.path.temp", tempDir.getAbsolutePath());

@@ -109,7 +109,7 @@ public class OAuth2IdentityProviderTest {
   }
 
   @Test
-  public void authenticate_user_through_ui() throws Exception {
+  public void authenticate_user_through_ui() {
     simulateRedirectionToCallback();
     enablePlugin();
 
@@ -120,7 +120,7 @@ public class OAuth2IdentityProviderTest {
   }
 
   @Test
-  public void redirect_to_requested_page() throws UnsupportedEncodingException {
+  public void redirect_to_requested_page() {
     simulateRedirectionToCallback();
     enablePlugin();
     tester.users().generate(u -> u.setLogin(USER_LOGIN));
@@ -140,7 +140,7 @@ public class OAuth2IdentityProviderTest {
   }
 
   @Test
-  public void display_unauthorized_page_when_authentication_failed_in_callback() throws Exception {
+  public void display_unauthorized_page_when_authentication_failed_in_callback() {
     simulateRedirectionToCallback();
     enablePlugin();
 
@@ -153,7 +153,7 @@ public class OAuth2IdentityProviderTest {
   }
 
   @Test
-  public void fail_to_authenticate_when_not_allowed_to_sign_up() throws Exception {
+  public void fail_to_authenticate_when_not_allowed_to_sign_up() {
     simulateRedirectionToCallback();
     enablePlugin();
     tester.settings().setGlobalSettings("sonar.auth.fake-oauth2-id-provider.allowsUsersToSignUp", "false");

@@ -74,7 +74,7 @@ public class CreateConditionActionTest {
   private WsActionTester ws = new WsActionTester(underTest);
 
   @Test
-  public void create_warning_condition() throws Exception {
+  public void create_warning_condition() {
     OrganizationDto organization = db.organizations().insert();
     logInAsQualityGateAdmin(organization);
     QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization);
@@ -92,7 +92,7 @@ public class CreateConditionActionTest {
   }
 
   @Test
-  public void create_error_condition() throws Exception {
+  public void create_error_condition() {
     OrganizationDto organization = db.organizations().insert();
     logInAsQualityGateAdmin(organization);
     QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization);
@@ -110,7 +110,7 @@ public class CreateConditionActionTest {
   }
 
   @Test
-  public void create_condition_over_leak_period() throws Exception {
+  public void create_condition_over_leak_period() {
     OrganizationDto organization = db.organizations().insert();
     logInAsQualityGateAdmin(organization);
     QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization);
@@ -129,7 +129,7 @@ public class CreateConditionActionTest {
   }
 
   @Test
-  public void default_organization_is_used_when_no_organization_parameter() throws Exception {
+  public void default_organization_is_used_when_no_organization_parameter() {
     logInAsQualityGateAdmin(db.getDefaultOrganization());
     QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(db.getDefaultOrganization());
     OrganizationDto otherOrganization = db.organizations().insert();
@@ -167,7 +167,7 @@ public class CreateConditionActionTest {
   }
 
   @Test
-  public void test_response() throws Exception {
+  public void test_response() {
     OrganizationDto organization = db.organizations().insert();
     logInAsQualityGateAdmin(organization);
     QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization);
@@ -193,7 +193,7 @@ public class CreateConditionActionTest {
   }
 
   @Test
-  public void throw_ForbiddenException_if_not_gate_administrator() throws Exception {
+  public void throw_ForbiddenException_if_not_gate_administrator() {
     OrganizationDto organization = db.organizations().insert();
     QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization);
     MetricDto metric = insertMetric();

@@ -31,7 +31,7 @@ public class ChangesetTest {
   public ExpectedException thrown = ExpectedException.none();
 
   @Test
-  public void create_changeset() throws Exception {
+  public void create_changeset() {
     Changeset underTest = Changeset.newChangesetBuilder()
       .setAuthor("john")
       .setDate(123456789L)
@@ -44,7 +44,7 @@ public class ChangesetTest {
   }
 
   @Test
-  public void create_changeset_with_minimum_fields() throws Exception {
+  public void create_changeset_with_minimum_fields() {
     Changeset underTest = Changeset.newChangesetBuilder()
       .setDate(123456789L)
       .setRevision("rev-1")
@@ -56,7 +56,7 @@ public class ChangesetTest {
   }
 
   @Test
-  public void fail_with_NPE_when_setting_null_revision() throws Exception {
+  public void fail_with_NPE_when_setting_null_revision() {
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("Revision cannot be null");
 
@@ -64,7 +64,7 @@ public class ChangesetTest {
   }
 
   @Test
-  public void fail_with_NPE_when_building_without_revision() throws Exception {
+  public void fail_with_NPE_when_building_without_revision() {
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("Revision cannot be null");
 
@@ -75,7 +75,7 @@ public class ChangesetTest {
   }
 
   @Test
-  public void fail_with_NPE_when_setting_null_date() throws Exception {
+  public void fail_with_NPE_when_setting_null_date() {
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("Date cannot be null");
 
@@ -83,7 +83,7 @@ public class ChangesetTest {
   }
 
   @Test
-  public void fail_with_NPE_when_building_without_date() throws Exception {
+  public void fail_with_NPE_when_building_without_date() {
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("Date cannot be null");
 
@@ -94,7 +94,7 @@ public class ChangesetTest {
   }
 
   @Test
-  public void test_to_string() throws Exception {
+  public void test_to_string() {
     Changeset underTest = Changeset.newChangesetBuilder()
       .setAuthor("john")
       .setDate(123456789L)
@@ -105,7 +105,7 @@ public class ChangesetTest {
   }
 
   @Test
-  public void equals_and_hashcode_are_based_on_revision_alone() throws Exception {
+  public void equals_and_hashcode_are_based_on_revision_alone() {
     Changeset.Builder changesetBuilder = Changeset.newChangesetBuilder()
       .setAuthor("john")
       .setDate(123456789L)

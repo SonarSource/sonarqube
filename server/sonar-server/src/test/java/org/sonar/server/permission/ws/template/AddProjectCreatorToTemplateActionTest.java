@@ -56,7 +56,7 @@ public class AddProjectCreatorToTemplateActionTest extends BasePermissionWsTest<
   }
 
   @Test
-  public void insert_row_when_no_template_permission() throws Exception {
+  public void insert_row_when_no_template_permission() {
     loginAsAdmin(db.getDefaultOrganization());
 
     newRequest()
@@ -68,7 +68,7 @@ public class AddProjectCreatorToTemplateActionTest extends BasePermissionWsTest<
   }
 
   @Test
-  public void update_row_when_existing_template_permission() throws Exception {
+  public void update_row_when_existing_template_permission() {
     loginAsAdmin(db.getDefaultOrganization());
     PermissionTemplateCharacteristicDto characteristic = db.getDbClient().permissionTemplateCharacteristicDao().insert(db.getSession(),
       new PermissionTemplateCharacteristicDto()
@@ -92,7 +92,7 @@ public class AddProjectCreatorToTemplateActionTest extends BasePermissionWsTest<
   }
 
   @Test
-  public void fail_when_template_does_not_exist() throws Exception {
+  public void fail_when_template_does_not_exist() {
     loginAsAdmin(db.getDefaultOrganization());
 
     expectedException.expect(NotFoundException.class);
@@ -104,7 +104,7 @@ public class AddProjectCreatorToTemplateActionTest extends BasePermissionWsTest<
   }
 
   @Test
-  public void fail_if_permission_is_not_a_project_permission() throws Exception {
+  public void fail_if_permission_is_not_a_project_permission() {
     loginAsAdmin(db.getDefaultOrganization());
 
     expectedException.expect(IllegalArgumentException.class);
@@ -116,7 +116,7 @@ public class AddProjectCreatorToTemplateActionTest extends BasePermissionWsTest<
   }
 
   @Test
-  public void fail_if_not_admin_of_default_organization() throws Exception {
+  public void fail_if_not_admin_of_default_organization() {
     userSession.logIn().addPermission(ADMINISTER_QUALITY_GATES, db.getDefaultOrganization());
 
     expectedException.expect(ForbiddenException.class);

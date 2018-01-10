@@ -76,7 +76,7 @@ public class GroupsActionTest extends BasePermissionWsTest<GroupsAction> {
   }
 
   @Test
-  public void search_for_groups_with_one_permission() throws Exception {
+  public void search_for_groups_with_one_permission() {
     loginAsAdmin(db.getDefaultOrganization());
 
     String json = newRequest()
@@ -115,7 +115,7 @@ public class GroupsActionTest extends BasePermissionWsTest<GroupsAction> {
   }
 
   @Test
-  public void search_with_selection() throws Exception {
+  public void search_with_selection() {
     loginAsAdmin(db.getDefaultOrganization());
     String result = newRequest()
       .setParam(PARAM_PERMISSION, SCAN.getKey())
@@ -126,7 +126,7 @@ public class GroupsActionTest extends BasePermissionWsTest<GroupsAction> {
   }
 
   @Test
-  public void search_groups_with_pagination() throws Exception {
+  public void search_groups_with_pagination() {
     loginAsAdmin(db.getDefaultOrganization());
     String result = newRequest()
       .setParam(PARAM_PERMISSION, SCAN.getKey())
@@ -141,7 +141,7 @@ public class GroupsActionTest extends BasePermissionWsTest<GroupsAction> {
   }
 
   @Test
-  public void search_groups_with_query() throws Exception {
+  public void search_groups_with_query() {
     loginAsAdmin(db.getDefaultOrganization());
     String result = newRequest()
       .setParam(PARAM_PERMISSION, SCAN.getKey())
@@ -155,7 +155,7 @@ public class GroupsActionTest extends BasePermissionWsTest<GroupsAction> {
   }
 
   @Test
-  public void search_groups_with_project_permissions() throws Exception {
+  public void search_groups_with_project_permissions() {
     OrganizationDto organizationDto = db.getDefaultOrganization();
     ComponentDto project = db.components().insertComponent(newPrivateProjectDto(organizationDto, "project-uuid"));
     GroupDto group = db.users().insertGroup(organizationDto, "project-group-name");
@@ -180,7 +180,7 @@ public class GroupsActionTest extends BasePermissionWsTest<GroupsAction> {
   }
 
   @Test
-  public void return_also_groups_without_permission_when_search_query() throws Exception {
+  public void return_also_groups_without_permission_when_search_query() {
     OrganizationDto organizationDto = db.getDefaultOrganization();
     ComponentDto project = db.components().insertComponent(newPrivateProjectDto(organizationDto, "project-uuid"));
     GroupDto group = db.users().insertGroup(organizationDto, "group-with-permission");
@@ -203,7 +203,7 @@ public class GroupsActionTest extends BasePermissionWsTest<GroupsAction> {
   }
 
   @Test
-  public void return_only_groups_with_permission_when_no_search_query() throws Exception {
+  public void return_only_groups_with_permission_when_no_search_query() {
     ComponentDto project = db.components().insertComponent(newPrivateProjectDto(db.getDefaultOrganization(), "project-uuid"));
     GroupDto group = db.users().insertGroup(db.getDefaultOrganization(), "project-group-name");
     db.users().insertProjectPermissionOnGroup(group, ISSUE_ADMIN, project);
@@ -222,7 +222,7 @@ public class GroupsActionTest extends BasePermissionWsTest<GroupsAction> {
   }
 
   @Test
-  public void return_anyone_group_when_search_query_and_no_param_permission() throws Exception {
+  public void return_anyone_group_when_search_query_and_no_param_permission() {
     OrganizationDto organizationDto = db.organizations().insert();
     ComponentDto project = db.components().insertComponent(newPrivateProjectDto(organizationDto, "project-uuid"));
     GroupDto group = db.users().insertGroup(organizationDto, "group-with-permission");
@@ -239,7 +239,7 @@ public class GroupsActionTest extends BasePermissionWsTest<GroupsAction> {
   }
 
   @Test
-  public void search_groups_on_views() throws Exception {
+  public void search_groups_on_views() {
     ComponentDto view = db.components().insertComponent(newView(db.getDefaultOrganization(), "view-uuid").setDbKey("view-key"));
     GroupDto group = db.users().insertGroup(db.getDefaultOrganization(), "project-group-name");
     db.users().insertProjectPermissionOnGroup(group, ISSUE_ADMIN, view);
@@ -258,7 +258,7 @@ public class GroupsActionTest extends BasePermissionWsTest<GroupsAction> {
   }
 
   @Test
-  public void fail_if_not_logged_in() throws Exception {
+  public void fail_if_not_logged_in() {
     expectedException.expect(UnauthorizedException.class);
     userSession.anonymous();
 
@@ -268,7 +268,7 @@ public class GroupsActionTest extends BasePermissionWsTest<GroupsAction> {
   }
 
   @Test
-  public void fail_if_insufficient_privileges() throws Exception {
+  public void fail_if_insufficient_privileges() {
     expectedException.expect(ForbiddenException.class);
 
     userSession.logIn("login");
@@ -278,7 +278,7 @@ public class GroupsActionTest extends BasePermissionWsTest<GroupsAction> {
   }
 
   @Test
-  public void fail_if_project_uuid_and_project_key_are_provided() throws Exception {
+  public void fail_if_project_uuid_and_project_key_are_provided() {
     db.components().insertComponent(newPrivateProjectDto(db.organizations().insert(), "project-uuid").setDbKey("project-key"));
 
     expectedException.expect(BadRequestException.class);

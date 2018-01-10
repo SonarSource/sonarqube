@@ -240,7 +240,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
 
     duplicationRepository.add(
       FILE1_REF,
-      new Duplication(new TextBlock(1, 2), Arrays.<Duplicate>asList(new InnerDuplicate(new TextBlock(3, 4)))));
+      new Duplication(new TextBlock(1, 2), Arrays.asList(new InnerDuplicate(new TextBlock(3, 4)))));
 
     underTest.execute();
 

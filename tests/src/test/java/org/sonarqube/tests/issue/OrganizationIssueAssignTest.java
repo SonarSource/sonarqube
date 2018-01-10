@@ -65,7 +65,7 @@ public class OrganizationIssueAssignTest {
   private User user;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     org1 = tester.organizations().generate();
     org2 = tester.organizations().generate();
     user = tester.users().generate();

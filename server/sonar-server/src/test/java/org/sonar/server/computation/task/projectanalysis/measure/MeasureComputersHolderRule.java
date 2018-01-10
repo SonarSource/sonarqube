@@ -39,7 +39,7 @@ public class MeasureComputersHolderRule extends ExternalResource implements Meas
   }
 
   @After
-  public void tearDown() throws Exception {
+  public void tearDown() {
     measureComputers.clear();
   }
 

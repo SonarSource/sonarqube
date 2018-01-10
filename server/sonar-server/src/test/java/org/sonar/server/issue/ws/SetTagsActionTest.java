@@ -166,7 +166,7 @@ public class SetTagsActionTest {
   }
 
   @Test
-  public void insert_entry_in_changelog_when_setting_tags() throws Exception {
+  public void insert_entry_in_changelog_when_setting_tags() {
     IssueDto issueDto = db.issues().insertIssue(newIssue().setTags(singletonList("old-tag")));
     logIn(issueDto);
 
@@ -191,14 +191,14 @@ public class SetTagsActionTest {
   }
 
   @Test
-  public void fail_when_not_authenticated() throws Exception {
+  public void fail_when_not_authenticated() {
     expectedException.expect(UnauthorizedException.class);
 
     call("ABCD", "bug");
   }
 
   @Test
-  public void fail_when_missing_browse_permission() throws Exception {
+  public void fail_when_missing_browse_permission() {
     IssueDto issueDto = db.issues().insertIssue();
     logInAndAddProjectPermission(issueDto, ISSUE_ADMIN);
 

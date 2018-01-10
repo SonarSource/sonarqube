@@ -47,7 +47,7 @@ public class MyBatisTest {
   private MyBatis underTest = new MyBatis(database);
 
   @After
-  public void tearDown() throws Exception {
+  public void tearDown() {
     underTest.stop();
   }
 

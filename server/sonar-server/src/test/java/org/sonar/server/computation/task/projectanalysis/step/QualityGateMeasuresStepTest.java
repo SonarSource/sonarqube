@@ -103,7 +103,7 @@ public class QualityGateMeasuresStepTest {
     // mock response of asText to any argument to return the result of dumbResultTextAnswer method
     when(resultTextConverter.asText(any(Condition.class), any(EvaluationResult.class))).thenAnswer(new Answer<String>() {
       @Override
-      public String answer(InvocationOnMock invocation) throws Throwable {
+      public String answer(InvocationOnMock invocation) {
         Condition condition = (Condition) invocation.getArguments()[0];
         EvaluationResult evaluationResult = (EvaluationResult) invocation.getArguments()[1];
         return dumbResultTextAnswer(condition, evaluationResult.getLevel(), evaluationResult.getValue());
@@ -161,7 +161,7 @@ public class QualityGateMeasuresStepTest {
       .hasQualityGateLevel(OK)
       .hasQualityGateText("");
     assertThat(getQGDetailsMeasure())
-      .hasValue(new QualityGateDetailsData(OK, Collections.<EvaluatedCondition>emptyList(), false).toJson());
+      .hasValue(new QualityGateDetailsData(OK, Collections.emptyList(), false).toJson());
 
     QualityGateStatusHolderAssertions.assertThat(qualityGateStatusHolder)
       .hasStatus(QualityGateStatus.OK)

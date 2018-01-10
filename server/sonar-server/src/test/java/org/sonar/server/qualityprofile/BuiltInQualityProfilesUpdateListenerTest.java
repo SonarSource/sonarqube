@@ -52,7 +52,7 @@ public class BuiltInQualityProfilesUpdateListenerTest {
   private MapSettings settings = new MapSettings();
 
   @Test
-  public void add_profile_to_notification_for_added_rules() throws Exception {
+  public void add_profile_to_notification_for_added_rules() {
     enableNotificationInGlobalSettings();
     Multimap<QProfileName, ActiveRuleChange> profiles = ArrayListMultimap.create();
     Languages languages = new Languages();
@@ -70,7 +70,7 @@ public class BuiltInQualityProfilesUpdateListenerTest {
   }
 
   @Test
-  public void add_profile_to_notification_for_updated_rules() throws Exception {
+  public void add_profile_to_notification_for_updated_rules() {
     enableNotificationInGlobalSettings();
     Multimap<QProfileName, ActiveRuleChange> profiles = ArrayListMultimap.create();
     Languages languages = new Languages();
@@ -88,7 +88,7 @@ public class BuiltInQualityProfilesUpdateListenerTest {
   }
 
   @Test
-  public void add_profile_to_notification_for_removed_rules() throws Exception {
+  public void add_profile_to_notification_for_removed_rules() {
     enableNotificationInGlobalSettings();
     Multimap<QProfileName, ActiveRuleChange> profiles = ArrayListMultimap.create();
     Languages languages = new Languages();
@@ -106,7 +106,7 @@ public class BuiltInQualityProfilesUpdateListenerTest {
   }
 
   @Test
-  public void add_multiple_profiles_to_notification() throws Exception {
+  public void add_multiple_profiles_to_notification() {
     enableNotificationInGlobalSettings();
     Multimap<QProfileName, ActiveRuleChange> profiles = ArrayListMultimap.create();
     Languages languages = new Languages();
@@ -125,7 +125,7 @@ public class BuiltInQualityProfilesUpdateListenerTest {
   }
 
   @Test
-  public void add_start_and_end_dates_to_notification() throws Exception {
+  public void add_start_and_end_dates_to_notification() {
     enableNotificationInGlobalSettings();
     Multimap<QProfileName, ActiveRuleChange> profiles = ArrayListMultimap.create();
     Languages languages = new Languages();

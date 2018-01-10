@@ -114,7 +114,7 @@ public class DeleteActionTest {
   }
 
   @Test
-  public void organization_deletion_also_ensure_that_homepage_on_this_organization_if_it_exists_is_cleared() throws Exception {
+  public void organization_deletion_also_ensure_that_homepage_on_this_organization_if_it_exists_is_cleared() {
     OrganizationDto organization = db.organizations().insert();
     UserDto user = dbClient.userDao().insert(session, newUserDto().setHomepageType("ORGANIZATION").setHomepageParameter(organization.getUuid()));
     session.commit();

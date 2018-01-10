@@ -98,7 +98,7 @@ public class EnableSupportActionTest {
   }
 
   @Test
-  public void enabling_support_creates_default_members_group_and_associate_org_members() throws Exception {
+  public void enabling_support_creates_default_members_group_and_associate_org_members() {
     OrganizationDto defaultOrganization = dbTester.getDefaultOrganization();
     OrganizationDto anotherOrganization = dbTester.organizations().insert();
     UserDto user1 = dbTester.users().insertUser();
@@ -123,7 +123,7 @@ public class EnableSupportActionTest {
   }
 
   @Test
-  public void enabling_support_copy_sonar_users_permissions_to_members_group() throws Exception {
+  public void enabling_support_copy_sonar_users_permissions_to_members_group() {
     OrganizationDto defaultOrganization = dbTester.getDefaultOrganization();
     UserDto user = dbTester.users().insertUser();
     GroupDto sonarUsersGroup = dbTester.users().insertDefaultGroup(defaultOrganization, "sonar-users");
@@ -147,7 +147,7 @@ public class EnableSupportActionTest {
   }
 
   @Test
-  public void enabling_support_copy_sonar_users_permission_templates_to_members_group() throws Exception {
+  public void enabling_support_copy_sonar_users_permission_templates_to_members_group() {
     OrganizationDto defaultOrganization = dbTester.getDefaultOrganization();
     UserDto user = dbTester.users().insertUser();
     GroupDto sonarUsersGroup = dbTester.users().insertDefaultGroup(defaultOrganization, "sonar-users");
@@ -201,7 +201,7 @@ public class EnableSupportActionTest {
   }
 
   @Test
-  public void throw_IAE_when_members_group_already_exists() throws Exception {
+  public void throw_IAE_when_members_group_already_exists() {
     UserDto user = dbTester.users().insertUser();
     dbTester.users().insertDefaultGroup(dbTester.getDefaultOrganization(), "sonar-users");
     dbTester.users().insertGroup(dbTester.getDefaultOrganization(), "Members");

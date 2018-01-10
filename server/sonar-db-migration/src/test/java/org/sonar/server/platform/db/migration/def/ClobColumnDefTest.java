@@ -40,14 +40,14 @@ public class ClobColumnDefTest {
     .build();
 
   @Test
-  public void build_string_column_def() throws Exception {
+  public void build_string_column_def() {
     assertThat(underTest.getName()).isEqualTo("issues");
     assertThat(underTest.isNullable()).isTrue();
     assertThat(underTest.getDefaultValue()).isNull();
   }
 
   @Test
-  public void build_string_column_def_with_only_required_attributes() throws Exception {
+  public void build_string_column_def_with_only_required_attributes() {
     ClobColumnDef def = new ClobColumnDef.Builder()
       .setColumnName("issues")
       .build();
@@ -58,32 +58,32 @@ public class ClobColumnDefTest {
   }
 
   @Test
-  public void generate_sql_type_on_mssql() throws Exception {
+  public void generate_sql_type_on_mssql() {
     assertThat(underTest.generateSqlType(new MsSql())).isEqualTo("NVARCHAR (MAX)");
   }
 
   @Test
-  public void generate_sql_type_on_h2() throws Exception {
+  public void generate_sql_type_on_h2() {
     assertThat(underTest.generateSqlType(new H2())).isEqualTo("CLOB(2147483647)");
   }
 
   @Test
-  public void generate_sql_type_on_mysql() throws Exception {
+  public void generate_sql_type_on_mysql() {
     assertThat(underTest.generateSqlType(new MySql())).isEqualTo("LONGTEXT");
   }
 
   @Test
-  public void generate_sql_type_on_oracle() throws Exception {
+  public void generate_sql_type_on_oracle() {
     assertThat(underTest.generateSqlType(new Oracle())).isEqualTo("CLOB");
   }
 
   @Test
-  public void generate_sql_type_on_postgre() throws Exception {
+  public void generate_sql_type_on_postgre() {
     assertThat(underTest.generateSqlType(new PostgreSql())).isEqualTo("TEXT");
   }
 
   @Test
-  public void fail_with_NPE_if_name_is_null() throws Exception {
+  public void fail_with_NPE_if_name_is_null() {
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("Column name cannot be null");
 
@@ -92,7 +92,7 @@ public class ClobColumnDefTest {
   }
 
   @Test
-  public void fail_with_NPE_if_no_name() throws Exception {
+  public void fail_with_NPE_if_no_name() {
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("Column name cannot be null");
 

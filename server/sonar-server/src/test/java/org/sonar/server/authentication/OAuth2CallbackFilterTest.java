@@ -78,7 +78,7 @@ public class OAuth2CallbackFilterTest {
   }
 
   @Test
-  public void do_get_pattern() throws Exception {
+  public void do_get_pattern() {
     assertThat(underTest.doGetPattern()).isNotNull();
   }
 

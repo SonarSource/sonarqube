@@ -38,14 +38,14 @@ public class ProjectMeasuresQueryTest {
   private ProjectMeasuresQuery underTest = new ProjectMeasuresQuery();
 
   @Test
-  public void empty_query() throws Exception {
+  public void empty_query() {
     assertThat(underTest.getMetricCriteria()).isEmpty();
     assertThat(underTest.getQualityGateStatus()).isEmpty();
     assertThat(underTest.getOrganizationUuid()).isEmpty();
   }
 
   @Test
-  public void add_metric_criterion() throws Exception {
+  public void add_metric_criterion() {
     underTest.addMetricCriterion(MetricCriterion.create("coverage", EQ, 10d));
 
     assertThat(underTest.getMetricCriteria())
@@ -54,7 +54,7 @@ public class ProjectMeasuresQueryTest {
   }
 
   @Test
-  public void isNoData_returns_true_when_no_data() throws Exception {
+  public void isNoData_returns_true_when_no_data() {
     underTest.addMetricCriterion(MetricCriterion.createNoData("coverage"));
 
     assertThat(underTest.getMetricCriteria())
@@ -63,7 +63,7 @@ public class ProjectMeasuresQueryTest {
   }
 
   @Test
-  public void isNoData_returns_false_when_data_exists() throws Exception {
+  public void isNoData_returns_false_when_data_exists() {
     underTest.addMetricCriterion(MetricCriterion.create("coverage", EQ, 10d));
 
     assertThat(underTest.getMetricCriteria())
@@ -72,19 +72,19 @@ public class ProjectMeasuresQueryTest {
   }
 
   @Test
-  public void set_quality_gate_status() throws Exception {
+  public void set_quality_gate_status() {
     underTest.setQualityGateStatus(OK);
 
     assertThat(underTest.getQualityGateStatus().get()).isEqualTo(Level.OK);
   }
 
   @Test
-  public void default_sort_is_by_name() throws Exception {
+  public void default_sort_is_by_name() {
     assertThat(underTest.getSort()).isEqualTo("name");
   }
 
   @Test
-  public void fail_to_set_null_sort() throws Exception {
+  public void fail_to_set_null_sort() {
     expectedException.expect(NullPointerException.class);
     expectedException.expectMessage("Sort cannot be null");
 
@@ -92,7 +92,7 @@ public class ProjectMeasuresQueryTest {
   }
 
   @Test
-  public void fail_to_get_value_when_no_data() throws Exception {
+  public void fail_to_get_value_when_no_data() {
     expectedException.expect(IllegalStateException.class);
     expectedException.expectMessage("The criterion for metric coverage has no data");
 
@@ -100,7 +100,7 @@ public class ProjectMeasuresQueryTest {
   }
 
   @Test
-  public void fail_to_get_operator_when_no_data() throws Exception {
+  public void fail_to_get_operator_when_no_data() {
     expectedException.expect(IllegalStateException.class);
     expectedException.expectMessage("The criterion for metric coverage has no data");
 

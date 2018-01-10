@@ -35,7 +35,7 @@ public class UuidFactoryImplTest {
   }
 
   @Test
-  public void test_format_of_uuid() throws Exception {
+  public void test_format_of_uuid() {
     String uuid = underTest.create();
 
     assertThat(uuid.length()).isGreaterThan(10).isLessThan(40);

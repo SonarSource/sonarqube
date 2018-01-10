@@ -81,13 +81,13 @@ public class IssueCreationDatePluginChangedTest {
   private static Wiser smtpServer;
 
   @BeforeClass
-  public static void setUp() throws Exception {
+  public static void setUp() {
     smtpServer = new Wiser(0);
     smtpServer.start();
   }
 
   @Before
-  public void before() throws InterruptedException, MessagingException, IOException {
+  public void before() {
     ORCHESTRATOR.resetData();
 
     // Configure Sonar
@@ -117,7 +117,7 @@ public class IssueCreationDatePluginChangedTest {
   }
 
   @Test
-  public void should_use_scm_date_for_new_issues_if_plugin_updated() throws InterruptedException, MessagingException, IOException {
+  public void should_use_scm_date_for_new_issues_if_plugin_updated() throws InterruptedException {
     ItUtils.restoreProfile(ORCHESTRATOR, getClass().getResource("/issue/IssueCreationDatePluginChangedTest/profile.xml"));
 
     ORCHESTRATOR.getServer().provisionProject(SAMPLE_PROJECT_KEY, SAMPLE_PROJECT_NAME);

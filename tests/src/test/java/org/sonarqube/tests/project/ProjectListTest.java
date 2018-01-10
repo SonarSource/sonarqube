@@ -43,7 +43,7 @@ public class ProjectListTest {
    * SONAR-3105
    */
   @Test
-  public void test_projects_index_ws() throws IOException {
+  public void test_projects_index_ws() {
     SonarScanner build = SonarScanner.create(projectDir("shared/xoo-sample"));
     orchestrator.executeBuild(build);
 

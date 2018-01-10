@@ -107,7 +107,7 @@ public class QProfilesWsMediumTest {
   }
 
   @Test
-  public void deactivate_rule() throws Exception {
+  public void deactivate_rule() {
     QProfileDto profile = createProfile("java");
     RuleDefinitionDto rule = createRule(profile.getLanguage(), "toto");
     createActiveRule(rule, profile);
@@ -129,7 +129,7 @@ public class QProfilesWsMediumTest {
   }
 
   @Test
-  public void bulk_deactivate_rule() throws Exception {
+  public void bulk_deactivate_rule() {
     QProfileDto profile = createProfile("java");
     RuleDefinitionDto rule0 = createRule(profile.getLanguage(), "toto1");
     RuleDefinitionDto rule1 = createRule(profile.getLanguage(), "toto2");
@@ -156,7 +156,7 @@ public class QProfilesWsMediumTest {
   }
 
   @Test
-  public void bulk_deactivate_rule_not_all() throws Exception {
+  public void bulk_deactivate_rule_not_all() {
     QProfileDto profile = createProfile("java");
     QProfileDto php = createProfile("php");
     RuleDefinitionDto rule0 = createRule(profile.getLanguage(), "toto1");
@@ -183,7 +183,7 @@ public class QProfilesWsMediumTest {
   }
 
   @Test
-  public void bulk_deactivate_rule_by_profile() throws Exception {
+  public void bulk_deactivate_rule_by_profile() {
     QProfileDto profile = createProfile("java");
     RuleDefinitionDto rule0 = createRule(profile.getLanguage(), "hello");
     RuleDefinitionDto rule1 = createRule(profile.getLanguage(), "world");
@@ -207,7 +207,7 @@ public class QProfilesWsMediumTest {
   }
 
   @Test
-  public void activate_rule() throws Exception {
+  public void activate_rule() {
     QProfileDto profile = createProfile("java");
     RuleDefinitionDto rule = createRule(profile.getLanguage(), "toto");
     ruleIndexer.commitAndIndex(dbSession, rule.getKey());
@@ -227,7 +227,7 @@ public class QProfilesWsMediumTest {
   }
 
   @Test
-  public void activate_rule_diff_languages() throws Exception {
+  public void activate_rule_diff_languages() {
     QProfileDto profile = createProfile("java");
     RuleDefinitionDto rule = createRule("php", "toto");
     ruleIndexer.commitAndIndex(dbSession, rule.getKey());
@@ -249,7 +249,7 @@ public class QProfilesWsMediumTest {
   }
 
   @Test
-  public void activate_rule_override_severity() throws Exception {
+  public void activate_rule_override_severity() {
     QProfileDto profile = createProfile("java");
     RuleDefinitionDto rule = createRule(profile.getLanguage(), "toto");
     ruleIndexer.commitAndIndex(dbSession, rule.getKey());
@@ -323,7 +323,7 @@ public class QProfilesWsMediumTest {
   }
 
   @Test
-  public void bulk_activate_rule_by_query() throws Exception {
+  public void bulk_activate_rule_by_query() {
     QProfileDto profile = createProfile("java");
     createRule(profile.getLanguage(), "toto");
     createRule(profile.getLanguage(), "tata");
@@ -356,7 +356,7 @@ public class QProfilesWsMediumTest {
   }
 
   @Test
-  public void bulk_activate_rule_by_query_with_severity() throws Exception {
+  public void bulk_activate_rule_by_query_with_severity() {
     QProfileDto profile = createProfile("java");
     RuleDefinitionDto rule0 = createRule(profile.getLanguage(), "toto");
     RuleDefinitionDto rule1 = createRule(profile.getLanguage(), "tata");
@@ -410,7 +410,7 @@ public class QProfilesWsMediumTest {
   }
 
   @Test
-  public void reset() throws Exception {
+  public void reset() {
     QProfileDto profile = QProfileTesting.newXooP1(organization);
     QProfileDto subProfile = QProfileTesting.newXooP2(organization).setParentKee(QProfileTesting.XOO_P1_KEY);
     dbClient.qualityProfileDao().insert(dbSession, profile, subProfile);

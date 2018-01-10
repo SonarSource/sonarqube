@@ -117,7 +117,7 @@ public class DataChangeTest {
       public void execute(Context context) throws SQLException {
         context.prepareSelect("select id from persons where id>=?").setLong(1, 2L).get(new RowReader<Long>() {
           @Override
-          public Long read(Row row) throws SQLException {
+          public Long read(Row row) {
             throw new IllegalStateException("Unexpected error");
           }
         });
@@ -138,7 +138,7 @@ public class DataChangeTest {
       public void execute(Context context) throws SQLException {
         context.prepareSelect("select id from persons where id>=?").setLong(1, 2L).list(new RowReader<Long>() {
           @Override
-          public Long read(Row row) throws SQLException {
+          public Long read(Row row) {
             throw new IllegalStateException("Unexpected error");
           }
         });
@@ -319,7 +319,7 @@ public class DataChangeTest {
         final Upsert upsert = context.prepareUpsert("update persons set login=?, age=? where id=?");
         context.prepareSelect("select id from persons").scroll(new Select.RowHandler() {
           @Override
-          public void handle(Row row) throws SQLException {
+          public void handle(Row row) {
             throw new IllegalStateException("Unexpected error");
           }
         });
@@ -370,7 +370,7 @@ public class DataChangeTest {
         massUpdate.update("update persons set login=?, age=? where id=?");
         massUpdate.execute(new MassUpdate.Handler() {
           @Override
-          public boolean handle(Row row, SqlStatement update) throws SQLException {
+          public boolean handle(Row row, SqlStatement update) {
             throw new IllegalStateException("Unexpected error");
           }
         });
@@ -390,7 +390,7 @@ public class DataChangeTest {
         massUpdate.update("update persons set login=?, age=? where id=?");
         massUpdate.execute(new MassUpdate.Handler() {
           @Override
-          public boolean handle(Row row, SqlStatement update) throws SQLException {
+          public boolean handle(Row row, SqlStatement update) {
             return false;
           }
         });
@@ -412,7 +412,7 @@ public class DataChangeTest {
         // update is not set
         massUpdate.execute(new MassUpdate.Handler() {
           @Override
-          public boolean handle(Row row, SqlStatement update) throws SQLException {
+          public boolean handle(Row row, SqlStatement update) {
             return false;
           }
         });

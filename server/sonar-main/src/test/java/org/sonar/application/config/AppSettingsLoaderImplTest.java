@@ -97,7 +97,7 @@ public class AppSettingsLoaderImplTest {
   }
 
   @Test
-  public void detectHomeDir_returns_existing_dir() throws Exception {
+  public void detectHomeDir_returns_existing_dir() {
     assertThat(new AppSettingsLoaderImpl(new String[0]).getHomeDir()).exists().isDirectory();
 
   }

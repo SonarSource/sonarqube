@@ -32,7 +32,7 @@ public class MutableMovedFilesRepositoryRule extends ExternalResource implements
   private final Set<Component> componentsWithOriginal = new HashSet<>();
 
   @Override
-  protected void before() throws Throwable {
+  protected void before() {
     this.delegate = new MutableMovedFilesRepositoryImpl();
     this.componentsWithOriginal.clear();
   }

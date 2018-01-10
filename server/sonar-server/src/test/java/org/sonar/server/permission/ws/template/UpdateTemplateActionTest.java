@@ -197,7 +197,7 @@ public class UpdateTemplateActionTest extends BasePermissionWsTest<UpdateTemplat
     call(template.getUuid(), "Finance", null, null);
   }
 
-  private String call(@Nullable String key, @Nullable String name, @Nullable String description, @Nullable String projectPattern) throws Exception {
+  private String call(@Nullable String key, @Nullable String name, @Nullable String description, @Nullable String projectPattern) {
     TestRequest request = newRequest();
     if (key != null) {
       request.setParam(PARAM_ID, key);

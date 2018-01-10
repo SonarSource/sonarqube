@@ -218,7 +218,7 @@ public class MaintainabilityMeasuresVisitorTest {
   }
 
   @Test
-  public void compute_maintainability_debt_ratio_measure() throws Exception {
+  public void compute_maintainability_debt_ratio_measure() {
     treeRootHolder.setRoot(ROOT_PROJECT);
 
     int file1Ncloc = 10;
@@ -250,7 +250,7 @@ public class MaintainabilityMeasuresVisitorTest {
   }
 
   @Test
-  public void compute_maintainability_rating_measure() throws Exception {
+  public void compute_maintainability_rating_measure() {
     treeRootHolder.setRoot(ROOT_PROJECT);
 
     addRawMeasure(NCLOC_KEY, FILE_1_REF, 10);
@@ -273,7 +273,7 @@ public class MaintainabilityMeasuresVisitorTest {
   }
 
   @Test
-  public void compute_effort_to_maintainability_rating_A_measure() throws Exception {
+  public void compute_effort_to_maintainability_rating_A_measure() {
     treeRootHolder.setRoot(ROOT_PROJECT);
 
     int file1Ncloc = 10;
@@ -310,7 +310,7 @@ public class MaintainabilityMeasuresVisitorTest {
   }
 
   @Test
-  public void compute_0_effort_to_maintainability_rating_A_when_effort_is_lower_than_dev_cost() throws Exception {
+  public void compute_0_effort_to_maintainability_rating_A_when_effort_is_lower_than_dev_cost() {
     treeRootHolder.setRoot(ROOT_PROJECT);
 
     addRawMeasure(NCLOC_KEY, FILE_1_REF, 10);
@@ -322,7 +322,7 @@ public class MaintainabilityMeasuresVisitorTest {
   }
 
   @Test
-  public void effort_to_maintainability_rating_A_is_same_as_effort_when_no_dev_cost() throws Exception {
+  public void effort_to_maintainability_rating_A_is_same_as_effort_when_no_dev_cost() {
     treeRootHolder.setRoot(ROOT_PROJECT);
 
     addRawMeasure(TECHNICAL_DEBT_KEY, FILE_1_REF, 100L);

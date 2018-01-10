@@ -54,7 +54,7 @@ public class MyAccountPageTest {
   }
 
   @Test
-  public void should_display_user_details() throws Exception {
+  public void should_display_user_details() {
     Navigation nav = tester.openBrowser();
     nav.openLogin().submitCredentials("account-user", "password").shouldBeLoggedIn();
     nav.open("/account");
@@ -67,7 +67,7 @@ public class MyAccountPageTest {
   }
 
   @Test
-  public void should_change_password() throws Exception {
+  public void should_change_password() {
     Navigation nav = tester.openBrowser();
     nav.openLogin().submitCredentials("account-user", "password").shouldBeLoggedIn();
     nav.open("/account/security");
@@ -80,7 +80,7 @@ public class MyAccountPageTest {
   }
 
   @Test
-  public void should_display_projects() throws Exception {
+  public void should_display_projects() {
     // first, try on empty instance
     runSelenese(orchestrator, "/user/MyAccountPageTest/should_display_no_projects.html");
 

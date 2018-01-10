@@ -79,7 +79,7 @@ public class InternalCeQueueImplTest {
   private InternalCeQueue underTest = new InternalCeQueueImpl(system2, db.getDbClient(), uuidFactory, queueStatus, defaultOrganizationProvider, computeEngineStatus);
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     OrganizationDto defaultOrganization = db.getDefaultOrganization();
     when(defaultOrganizationProvider.get()).thenReturn(DefaultOrganization.newBuilder()
       .setUuid(defaultOrganization.getUuid())
@@ -289,7 +289,7 @@ public class InternalCeQueueImplTest {
   }
 
   @Test
-  public void fail_to_remove_if_not_in_queue() throws Exception {
+  public void fail_to_remove_if_not_in_queue() {
     CeTask task = submit(CeTaskTypes.REPORT, "PROJECT_1");
     underTest.remove(task, CeActivityDto.Status.SUCCESS, null, null);
 
@@ -299,7 +299,7 @@ public class InternalCeQueueImplTest {
   }
 
   @Test
-  public void test_peek() throws Exception {
+  public void test_peek() {
     CeTask task = submit(CeTaskTypes.REPORT, "PROJECT_1");
 
     Optional<CeTask> peek = underTest.peek(WORKER_UUID_1);
@@ -329,7 +329,7 @@ public class InternalCeQueueImplTest {
   }
 
   @Test
-  public void peek_nothing_if_application_status_stopping() throws Exception {
+  public void peek_nothing_if_application_status_stopping() {
     submit(CeTaskTypes.REPORT, "PROJECT_1");
     when(computeEngineStatus.getStatus()).thenReturn(STOPPING);
 
@@ -492,7 +492,7 @@ public class InternalCeQueueImplTest {
   }
 
   @Test
-  public void cancel_pending() throws Exception {
+  public void cancel_pending() {
     CeTask task = submit(CeTaskTypes.REPORT, "PROJECT_1");
     CeQueueDto queueDto = db.getDbClient().ceQueueDao().selectByUuid(db.getSession(), task.getUuid()).get();
 
@@ -521,7 +521,7 @@ public class InternalCeQueueImplTest {
   }
 
   @Test
-  public void fail_to_cancel_if_in_progress() throws Exception {
+  public void fail_to_cancel_if_in_progress() {
     CeTask task = submit(CeTaskTypes.REPORT, "PROJECT_1");
     underTest.peek(WORKER_UUID_2);
     CeQueueDto queueDto = db.getDbClient().ceQueueDao().selectByUuid(db.getSession(), task.getUuid()).get();
@@ -533,7 +533,7 @@ public class InternalCeQueueImplTest {
   }
 
   @Test
-  public void cancelAll_pendings_but_not_in_progress() throws Exception {
+  public void cancelAll_pendings_but_not_in_progress() {
     CeTask inProgressTask = submit(CeTaskTypes.REPORT, "PROJECT_1");
     CeTask pendingTask1 = submit(CeTaskTypes.REPORT, "PROJECT_2");
     CeTask pendingTask2 = submit(CeTaskTypes.REPORT, "PROJECT_3");
@@ -698,7 +698,7 @@ public class InternalCeQueueImplTest {
   }
 
   @Test
-  public void pause_and_resume_submits() throws Exception {
+  public void pause_and_resume_submits() {
     assertThat(underTest.isSubmitPaused()).isFalse();
     underTest.pauseSubmit();
     assertThat(underTest.isSubmitPaused()).isTrue();

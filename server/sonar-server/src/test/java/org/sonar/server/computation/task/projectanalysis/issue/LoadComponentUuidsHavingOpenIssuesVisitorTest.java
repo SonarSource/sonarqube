@@ -39,10 +39,10 @@ public class LoadComponentUuidsHavingOpenIssuesVisitorTest {
 
   BaseIssuesLoader baseIssuesLoader = mock(BaseIssuesLoader.class);
   ComponentsWithUnprocessedIssues componentsWithUnprocessedIssues = mock(ComponentsWithUnprocessedIssues.class);
-  VisitorsCrawler underTest = new VisitorsCrawler(Arrays.<ComponentVisitor>asList(new LoadComponentUuidsHavingOpenIssuesVisitor(baseIssuesLoader, componentsWithUnprocessedIssues)));
+  VisitorsCrawler underTest = new VisitorsCrawler(Arrays.asList(new LoadComponentUuidsHavingOpenIssuesVisitor(baseIssuesLoader, componentsWithUnprocessedIssues)));
 
   @Test
-  public void set_issues_when_visiting_project() throws Exception {
+  public void set_issues_when_visiting_project() {
     when(baseIssuesLoader.loadUuidsOfComponentsWithOpenIssues()).thenReturn(newHashSet("FILE1", "FILE2"));
 
     underTest.visit(ReportComponent.builder(PROJECT, 1).build());
@@ -51,7 +51,7 @@ public class LoadComponentUuidsHavingOpenIssuesVisitorTest {
   }
 
   @Test
-  public void do_nothing_on_not_project_level() throws Exception {
+  public void do_nothing_on_not_project_level() {
     when(baseIssuesLoader.loadUuidsOfComponentsWithOpenIssues()).thenReturn(newHashSet("FILE1", "FILE2"));
 
     underTest.visit(ReportComponent.builder(MODULE, 1).build());

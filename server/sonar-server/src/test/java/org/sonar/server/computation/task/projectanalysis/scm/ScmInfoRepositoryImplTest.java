@@ -64,7 +64,7 @@ public class ScmInfoRepositoryImplTest {
   private ScmInfoRepositoryImpl underTest = new ScmInfoRepositoryImpl(reportReader, dbLoader);
 
   @Test
-  public void read_from_report() throws Exception {
+  public void read_from_report() {
     addChangesetInReport("john", DATE_1, "rev-1");
 
     ScmInfo scmInfo = underTest.getScmInfo(FILE).get();
@@ -82,7 +82,7 @@ public class ScmInfoRepositoryImplTest {
   }
 
   @Test
-  public void read_from_report_even_if_data_in_db_exists() throws Exception {
+  public void read_from_report_even_if_data_in_db_exists() {
     addChangesetInReport("john", DATE_2, "rev-2");
 
     ScmInfo scmInfo = underTest.getScmInfo(FILE).get();
@@ -95,7 +95,7 @@ public class ScmInfoRepositoryImplTest {
   }
 
   @Test
-  public void read_from_db_even_if_data_in_report_exists_when_CopyFromPrevious_is_true() throws Exception {
+  public void read_from_db_even_if_data_in_report_exists_when_CopyFromPrevious_is_true() {
     ScmInfo info = mock(ScmInfo.class);
     when(dbLoader.getScmInfoFromDb(FILE)).thenReturn(info);
 
@@ -107,18 +107,18 @@ public class ScmInfoRepositoryImplTest {
   }
 
   @Test
-  public void return_nothing_when_no_data_in_report_nor_db() throws Exception {
+  public void return_nothing_when_no_data_in_report_nor_db() {
     assertThat(underTest.getScmInfo(FILE)).isAbsent();
   }
 
   @Test
-  public void return_nothing_when_nothing_in_report_and_db_has_no_scm() throws Exception {
+  public void return_nothing_when_nothing_in_report_and_db_has_no_scm() {
     addFileSourceInReport(1);
     assertThat(underTest.getScmInfo(FILE)).isAbsent();
   }
 
   @Test
-  public void fail_with_NPE_when_component_is_null() throws Exception {
+  public void fail_with_NPE_when_component_is_null() {
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("Component cannot be null");
 
@@ -152,7 +152,7 @@ public class ScmInfoRepositoryImplTest {
   }
 
   @Test
-  public void load_scm_info_from_cache_when_already_read() throws Exception {
+  public void load_scm_info_from_cache_when_already_read() {
     addChangesetInReport("john", DATE_1, "rev-1");
     ScmInfo scmInfo = underTest.getScmInfo(FILE).get();
     assertThat(scmInfo.getAllChangesets()).hasSize(1);

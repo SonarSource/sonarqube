@@ -248,7 +248,7 @@ public class AppLoggingTest {
   }
 
   @Test
-  public void no_info_log_from_hazelcast() throws IOException {
+  public void no_info_log_from_hazelcast() {
     settings.getProps().set(CLUSTER_ENABLED, "true");
     underTest.configure();
 

@@ -283,7 +283,7 @@ public class SearchActionTest {
   }
 
   @Test
-  public void fail_when_using_branch_db_uuid() throws Exception {
+  public void fail_when_using_branch_db_uuid() {
     OrganizationDto organization = db.organizations().insert();
     ComponentDto project = db.components().insertMainBranch(organization);
     userSession.logIn().addProjectPermission(UserRole.USER, project);
@@ -330,13 +330,13 @@ public class SearchActionTest {
     return link;
   }
 
-  private SearchWsResponse callByKey(String projectKey) throws IOException {
+  private SearchWsResponse callByKey(String projectKey) {
     return ws.newRequest()
       .setParam(PARAM_PROJECT_KEY, projectKey)
       .executeProtobuf(SearchWsResponse.class);
   }
 
-  private SearchWsResponse callByUuid(String projectUuid) throws IOException {
+  private SearchWsResponse callByUuid(String projectUuid) {
     return ws.newRequest()
       .setParam(PARAM_PROJECT_ID, projectUuid)
       .executeProtobuf(SearchWsResponse.class);

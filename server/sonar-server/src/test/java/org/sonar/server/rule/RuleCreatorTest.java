@@ -445,7 +445,7 @@ public class RuleCreatorTest {
   }
 
   @Test
-  public void fail_to_create_custom_rule_when_unknown_template() throws Exception {
+  public void fail_to_create_custom_rule_when_unknown_template() {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("The template key doesn't exist: java:S001");
 

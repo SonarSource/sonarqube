@@ -129,7 +129,7 @@ public class CreateTemplateActionTest extends BasePermissionWsTest<CreateTemplat
     newRequest("Finance", null, null);
   }
 
-  private TestResponse newRequest(@Nullable String name, @Nullable String description, @Nullable String projectPattern) throws Exception {
+  private TestResponse newRequest(@Nullable String name, @Nullable String description, @Nullable String projectPattern) {
     TestRequest request = newRequest();
     if (name != null) {
       request.setParam(PARAM_NAME, name);

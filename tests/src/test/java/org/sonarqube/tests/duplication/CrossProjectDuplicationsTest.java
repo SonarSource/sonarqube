@@ -79,12 +79,12 @@ public class CrossProjectDuplicationsTest {
   }
 
   @Test
-  public void origin_project_has_no_duplication_as_it_has_not_been_analyzed_twice() throws Exception {
+  public void origin_project_has_no_duplication_as_it_has_not_been_analyzed_twice() {
     assertProjectHasNoDuplication(ORIGIN_PROJECT);
   }
 
   @Test
-  public void duplicate_project_has_duplication_as_it_has_been_analyzed_twice() throws Exception {
+  public void duplicate_project_has_duplication_as_it_has_been_analyzed_twice() {
     Map<String, Double> measures = getMeasuresAsDoubleByMetricKey(orchestrator, DUPLICATE_PROJECT, "duplicated_lines", "duplicated_blocks", "duplicated_files", "duplicated_lines_density");
     assertThat(measures.get("duplicated_lines").intValue()).isEqualTo(27);
     assertThat(measures.get("duplicated_blocks").intValue()).isEqualTo(1);
@@ -93,7 +93,7 @@ public class CrossProjectDuplicationsTest {
   }
 
   @Test
-  public void issue_on_duplicated_blocks_is_generated_on_file() throws Exception {
+  public void issue_on_duplicated_blocks_is_generated_on_file() {
     assertThat(issueRule.search(new SearchRequest().setComponentKeys(singletonList(DUPLICATE_FILE)).setRules(singletonList("common-xoo:DuplicatedBlocks"))).getIssuesList())
       .hasSize(1);
   }
@@ -109,17 +109,17 @@ public class CrossProjectDuplicationsTest {
   }
 
   @Test
-  public void project_with_branch_has_no_duplication() throws Exception {
+  public void project_with_branch_has_no_duplication() {
     assertProjectHasNoDuplication(DUPLICATE_PROJECT + ":" + BRANCH);
   }
 
   @Test
-  public void project_with_exclusion_has_no_duplication() throws Exception {
+  public void project_with_exclusion_has_no_duplication() {
     assertProjectHasNoDuplication(PROJECT_WITH_EXCLUSION);
   }
 
   @Test
-  public void project_without_enough_tokens_has_duplication() throws Exception {
+  public void project_without_enough_tokens_has_duplication() {
     assertProjectHasNoDuplication(PROJECT_WITHOUT_ENOUGH_TOKENS);
   }
 

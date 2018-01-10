@@ -98,13 +98,13 @@ public class MeasureComputerContextImplTest {
   ConfigurationRepository settingsRepository = mock(ConfigurationRepository.class);
 
   @Test
-  public void get_component() throws Exception {
+  public void get_component() {
     MeasureComputerContextImpl underTest = newContext(FILE_1_REF);
     assertThat(underTest.getComponent().getType()).isEqualTo(Component.Type.FILE);
   }
 
   @Test
-  public void get_string_settings() throws Exception {
+  public void get_string_settings() {
     MapSettings serverSettings = new MapSettings();
     serverSettings.setProperty("prop", "value");
     when(settingsRepository.getConfiguration()).thenReturn(serverSettings.asConfig());
@@ -115,7 +115,7 @@ public class MeasureComputerContextImplTest {
   }
 
   @Test
-  public void get_string_array_settings() throws Exception {
+  public void get_string_array_settings() {
     MapSettings serverSettings = new MapSettings();
     serverSettings.setProperty("prop", "1,3.4,8,50");
     when(settingsRepository.getConfiguration()).thenReturn(serverSettings.asConfig());
@@ -126,7 +126,7 @@ public class MeasureComputerContextImplTest {
   }
 
   @Test
-  public void get_measure() throws Exception {
+  public void get_measure() {
     measureRepository.addRawMeasure(FILE_1_REF, NCLOC_KEY, newMeasureBuilder().create(10));
 
     MeasureComputerContextImpl underTest = newContext(FILE_1_REF, NCLOC_KEY, COMMENT_LINES_KEY);
@@ -134,7 +134,7 @@ public class MeasureComputerContextImplTest {
   }
 
   @Test
-  public void fail_with_IAE_when_get_measure_is_called_on_metric_not_in_input_list() throws Exception {
+  public void fail_with_IAE_when_get_measure_is_called_on_metric_not_in_input_list() {
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("Only metrics in [another metric] can be used to load measures");
 
@@ -143,7 +143,7 @@ public class MeasureComputerContextImplTest {
   }
 
   @Test
-  public void get_children_measures() throws Exception {
+  public void get_children_measures() {
     measureRepository.addRawMeasure(FILE_1_REF, NCLOC_KEY, newMeasureBuilder().create(10));
     measureRepository.addRawMeasure(FILE_2_REF, NCLOC_KEY, newMeasureBuilder().create(12));
 
@@ -153,7 +153,7 @@ public class MeasureComputerContextImplTest {
   }
 
   @Test
-  public void get_children_measures_when_one_child_has_no_value() throws Exception {
+  public void get_children_measures_when_one_child_has_no_value() {
     measureRepository.addRawMeasure(FILE_1_REF, NCLOC_KEY, newMeasureBuilder().create(10));
     // No data on file 2
 
@@ -162,7 +162,7 @@ public class MeasureComputerContextImplTest {
   }
 
   @Test
-  public void not_fail_to_get_children_measures_on_output_metric() throws Exception {
+  public void not_fail_to_get_children_measures_on_output_metric() {
     measureRepository.addRawMeasure(FILE_1_REF, INT_METRIC_KEY, newMeasureBuilder().create(10));
 
     MeasureComputerContextImpl underTest = newContext(PROJECT_REF, NCLOC_KEY, INT_METRIC_KEY);
@@ -171,7 +171,7 @@ public class MeasureComputerContextImplTest {
   }
 
   @Test
-  public void fail_with_IAE_when_get_children_measures_is_called_on_metric_not_in_input_list() throws Exception {
+  public void fail_with_IAE_when_get_children_measures_is_called_on_metric_not_in_input_list() {
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("Only metrics in [another metric] can be used to load measures");
 
@@ -180,7 +180,7 @@ public class MeasureComputerContextImplTest {
   }
 
   @Test
-  public void add_int_measure_create_measure_of_type_int_with_right_value() throws Exception {
+  public void add_int_measure_create_measure_of_type_int_with_right_value() {
     MeasureComputerContextImpl underTest = newContext(PROJECT_REF, NCLOC_KEY, INT_METRIC_KEY);
     underTest.addMeasure(INT_METRIC_KEY, 10);
 
@@ -190,7 +190,7 @@ public class MeasureComputerContextImplTest {
   }
 
   @Test
-  public void add_double_measure_create_measure_of_type_double_with_right_value() throws Exception {
+  public void add_double_measure_create_measure_of_type_double_with_right_value() {
     MeasureComputerContextImpl underTest = newContext(PROJECT_REF, NCLOC_KEY, DOUBLE_METRIC_KEY);
     underTest.addMeasure(DOUBLE_METRIC_KEY, 10d);
 
@@ -200,7 +200,7 @@ public class MeasureComputerContextImplTest {
   }
 
   @Test
-  public void add_long_measure_create_measure_of_type_long_with_right_value() throws Exception {
+  public void add_long_measure_create_measure_of_type_long_with_right_value() {
     MeasureComputerContextImpl underTest = newContext(PROJECT_REF, NCLOC_KEY, LONG_METRIC_KEY);
     underTest.addMeasure(LONG_METRIC_KEY, 10L);
 
@@ -210,7 +210,7 @@ public class MeasureComputerContextImplTest {
   }
 
   @Test
-  public void add_string_measure_create_measure_of_type_string_with_right_value() throws Exception {
+  public void add_string_measure_create_measure_of_type_string_with_right_value() {
     MeasureComputerContextImpl underTest = newContext(PROJECT_REF, NCLOC_KEY, STRING_METRIC_KEY);
     underTest.addMeasure(STRING_METRIC_KEY, "data");
 
@@ -220,7 +220,7 @@ public class MeasureComputerContextImplTest {
   }
 
   @Test
-  public void add_boolean_measure_create_measure_of_type_boolean_with_right_value() throws Exception {
+  public void add_boolean_measure_create_measure_of_type_boolean_with_right_value() {
     MeasureComputerContextImpl underTest = newContext(PROJECT_REF, NCLOC_KEY, BOOLEAN_METRIC_KEY);
     underTest.addMeasure(BOOLEAN_METRIC_KEY, true);
 
@@ -230,7 +230,7 @@ public class MeasureComputerContextImplTest {
   }
 
   @Test
-  public void fail_with_IAE_when_add_measure_is_called_on_metric_not_in_output_list() throws Exception {
+  public void fail_with_IAE_when_add_measure_is_called_on_metric_not_in_output_list() {
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("Only metrics in [int_metric_key] can be used to add measures. Metric 'double_metric_key' is not allowed.");
 
@@ -239,7 +239,7 @@ public class MeasureComputerContextImplTest {
   }
 
   @Test
-  public void fail_with_unsupported_operation_when_adding_measure_that_already_exists() throws Exception {
+  public void fail_with_unsupported_operation_when_adding_measure_that_already_exists() {
     thrown.expect(UnsupportedOperationException.class);
     thrown.expectMessage("A measure on metric 'int_metric_key' already exists on component 'fileKey'");
 
@@ -250,7 +250,7 @@ public class MeasureComputerContextImplTest {
   }
 
   @Test
-  public void get_issues() throws Exception {
+  public void get_issues() {
     DefaultIssue issue = new DefaultIssue()
       .setKey("KEY")
       .setRuleKey(RuleKey.of("xoo", "S01"))
@@ -272,7 +272,7 @@ public class MeasureComputerContextImplTest {
   }
 
   private MeasureComputerContextImpl newContext(int componentRef) {
-    return newContext(componentRef, NCLOC_KEY, COMMENT_LINES_KEY, Collections.<DefaultIssue>emptyList());
+    return newContext(componentRef, NCLOC_KEY, COMMENT_LINES_KEY, Collections.emptyList());
   }
 
   private MeasureComputerContextImpl newContext(int componentRef, List<DefaultIssue> issues) {
@@ -280,14 +280,14 @@ public class MeasureComputerContextImplTest {
   }
 
   private MeasureComputerContextImpl newContext(int componentRef, String inputMetric, String outputMetric) {
-    return newContext(componentRef, inputMetric, outputMetric, Collections.<DefaultIssue>emptyList());
+    return newContext(componentRef, inputMetric, outputMetric, Collections.emptyList());
   }
 
   private MeasureComputerContextImpl newContext(int componentRef, String inputMetric, String outputMetric, List<DefaultIssue> issues) {
     componentIssuesRepository.setIssues(componentRef, issues);
 
     MeasureComputer.MeasureComputerDefinition definition = new MeasureComputerDefinitionImpl.BuilderImpl()
-      .setInputMetrics(new String[] {inputMetric})
+      .setInputMetrics(inputMetric)
       .setOutputMetrics(new String[] {outputMetric})
       .build();
 

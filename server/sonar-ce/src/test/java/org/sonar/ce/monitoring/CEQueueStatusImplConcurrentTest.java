@@ -45,7 +45,7 @@ public class CEQueueStatusImplConcurrentTest {
   private CEQueueStatusImpl underTest = new CEQueueStatusImpl(mock(DbClient.class));
 
   @After
-  public void tearDown() throws Exception {
+  public void tearDown() {
     executorService.shutdownNow();
   }
 

@@ -55,6 +55,6 @@ public class ApplyPermissionTemplateQueryTest {
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("No project provided. Please provide at least one project.");
 
-    ApplyPermissionTemplateQuery.create("my_template_key", Collections.<String>emptyList());
+    ApplyPermissionTemplateQuery.create("my_template_key", Collections.emptyList());
   }
 }

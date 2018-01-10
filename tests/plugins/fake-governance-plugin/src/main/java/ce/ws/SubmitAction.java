@@ -46,7 +46,7 @@ public class SubmitAction implements FakeGoVWsAction {
   }
 
   @Override
-  public void handle(Request request, Response response) throws Exception {
+  public void handle(Request request, Response response) {
     String type = request.mandatoryParam(PARAM_TYPE);
 
     CeTaskSubmit.Builder submit = ceQueue.prepareSubmit();

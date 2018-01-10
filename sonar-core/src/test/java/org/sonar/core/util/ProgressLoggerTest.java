@@ -36,7 +36,7 @@ public class ProgressLoggerTest {
   public LogTester logTester = new LogTester();
 
   @Test(timeout = 5_000L)
-  public void log_at_fixed_intervals() throws Exception {
+  public void log_at_fixed_intervals() {
     AtomicLong counter = new AtomicLong(42L);
     ProgressLogger progress = new ProgressLogger("ProgressLoggerTest", counter, Loggers.get(getClass()));
     progress.setPeriodMs(1L);

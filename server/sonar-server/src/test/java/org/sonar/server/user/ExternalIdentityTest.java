@@ -31,14 +31,14 @@ public class ExternalIdentityTest {
   public ExpectedException thrown = ExpectedException.none();
 
   @Test
-  public void create_external_identity() throws Exception {
+  public void create_external_identity() {
     ExternalIdentity externalIdentity = new ExternalIdentity("github", "login");
     assertThat(externalIdentity.getId()).isEqualTo("login");
     assertThat(externalIdentity.getProvider()).isEqualTo("github");
   }
 
   @Test
-  public void fail_with_NPE_when_identity_provider_is_null() throws Exception {
+  public void fail_with_NPE_when_identity_provider_is_null() {
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("Identity provider cannot be null");
 
@@ -46,7 +46,7 @@ public class ExternalIdentityTest {
   }
 
   @Test
-  public void fail_with_NPE_when_identity_id_is_null() throws Exception {
+  public void fail_with_NPE_when_identity_id_is_null() {
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("Identity id cannot be null");
 

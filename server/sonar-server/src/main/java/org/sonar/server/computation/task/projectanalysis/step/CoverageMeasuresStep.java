@@ -45,7 +45,7 @@ import static org.sonar.server.computation.task.projectanalysis.formula.SumFormu
  * Computes coverage measures on files and then aggregates them on higher components.
  */
 public class CoverageMeasuresStep implements ComputationStep {
-  private static final ImmutableList<Formula> COVERAGE_FORMULAS = ImmutableList.<Formula>of(
+  private static final ImmutableList<Formula> COVERAGE_FORMULAS = ImmutableList.of(
     createIntSumFormula(LINES_TO_COVER_KEY),
     createIntSumFormula(UNCOVERED_LINES_KEY),
     createIntSumFormula(CONDITIONS_TO_COVER_KEY),

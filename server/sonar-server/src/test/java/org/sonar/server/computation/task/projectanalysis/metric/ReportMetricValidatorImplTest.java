@@ -44,8 +44,8 @@ public class ReportMetricValidatorImplTest {
   ScannerMetrics scannerMetrics = mock(ScannerMetrics.class);
 
   @Test
-  public void validate_metric() throws Exception {
-    when(scannerMetrics.getMetrics()).thenReturn(ImmutableSet.<Metric>of(new Builder(METRIC_KEY, "name", ValueType.INT).create()));
+  public void validate_metric() {
+    when(scannerMetrics.getMetrics()).thenReturn(ImmutableSet.of(new Builder(METRIC_KEY, "name", ValueType.INT).create()));
     ReportMetricValidator validator = new ReportMetricValidatorImpl(scannerMetrics);
 
     assertThat(validator.validate(METRIC_KEY)).isTrue();
@@ -53,8 +53,8 @@ public class ReportMetricValidatorImplTest {
   }
 
   @Test
-  public void not_validate_metric() throws Exception {
-    when(scannerMetrics.getMetrics()).thenReturn(Collections.<Metric>emptySet());
+  public void not_validate_metric() {
+    when(scannerMetrics.getMetrics()).thenReturn(Collections.emptySet());
     ReportMetricValidator validator = new ReportMetricValidatorImpl(scannerMetrics);
 
     assertThat(validator.validate(METRIC_KEY)).isFalse();
@@ -62,8 +62,8 @@ public class ReportMetricValidatorImplTest {
   }
 
   @Test
-  public void not_generate_new_log_when_validating_twice_the_same_metric() throws Exception {
-    when(scannerMetrics.getMetrics()).thenReturn(Collections.<Metric>emptySet());
+  public void not_generate_new_log_when_validating_twice_the_same_metric() {
+    when(scannerMetrics.getMetrics()).thenReturn(Collections.emptySet());
     ReportMetricValidator validator = new ReportMetricValidatorImpl(scannerMetrics);
 
     assertThat(validator.validate(METRIC_KEY)).isFalse();

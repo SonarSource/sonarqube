@@ -50,7 +50,7 @@ public class MySqlTest {
   }
 
   @Test
-  public void testFetchSizeForScrolling() throws Exception {
+  public void testFetchSizeForScrolling() {
     assertThat(mySql.getScrollDefaultFetchSize()).isEqualTo(Integer.MIN_VALUE);
     assertThat(mySql.getScrollSingleRowFetchSize()).isEqualTo(Integer.MIN_VALUE);
   }

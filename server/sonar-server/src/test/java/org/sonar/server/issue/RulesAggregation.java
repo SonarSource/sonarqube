@@ -75,11 +75,7 @@ public class RulesAggregation {
 
       Rule rule = (Rule) o;
 
-      if (!ruleKey.equals(rule.ruleKey)) {
-        return false;
-      }
-
-      return true;
+      return ruleKey.equals(rule.ruleKey);
     }
 
     @Override

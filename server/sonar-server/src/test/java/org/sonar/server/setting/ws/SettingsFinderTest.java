@@ -62,7 +62,7 @@ public class SettingsFinderTest {
   private SettingsFinder underTest = new SettingsFinder(dbClient, propertyDefinitions);
 
   @Test
-  public void return_global_settings() throws Exception {
+  public void return_global_settings() {
     PropertyDefinition definition = PropertyDefinition.builder("foo").build();
     addDefinitions(definition);
     insertProperties(newGlobalPropertyDto().setKey("foo").setValue("one"));
@@ -75,7 +75,7 @@ public class SettingsFinderTest {
   }
 
   @Test
-  public void return_global_setting_even_if_no_definition() throws Exception {
+  public void return_global_setting_even_if_no_definition() {
     insertProperties(newGlobalPropertyDto().setKey("foo").setValue("one"));
 
     List<Setting> settings = underTest.loadGlobalSettings(dbSession, newHashSet("foo"));
@@ -84,7 +84,7 @@ public class SettingsFinderTest {
   }
 
   @Test
-  public void return_global_settings_with_property_set() throws Exception {
+  public void return_global_settings_with_property_set() {
     addDefinitions(PropertyDefinition.builder("set1")
       .type(PROPERTY_SET)
       .fields(asList(
@@ -109,7 +109,7 @@ public class SettingsFinderTest {
   }
 
   @Test
-  public void return_component_settings() throws Exception {
+  public void return_component_settings() {
     ComponentDto project = componentDb.insertComponent(ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization()));
     addDefinitions(PropertyDefinition.builder("property").defaultValue("default").build());
     insertProperties(newComponentPropertyDto(project).setKey("property").setValue("one"));
@@ -124,7 +124,7 @@ public class SettingsFinderTest {
   }
 
   @Test
-  public void return_component_setting_even_if_no_definition() throws Exception {
+  public void return_component_setting_even_if_no_definition() {
     ComponentDto project = componentDb.insertComponent(ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization()));
     insertProperties(newComponentPropertyDto(project).setKey("property").setValue("one"));
 
@@ -134,7 +134,7 @@ public class SettingsFinderTest {
   }
 
   @Test
-  public void return_component_settings_with_property_set() throws Exception {
+  public void return_component_settings_with_property_set() {
     ComponentDto project = componentDb.insertComponent(ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization()));
     addDefinitions(PropertyDefinition.builder("set1")
       .type(PROPERTY_SET)
@@ -160,7 +160,7 @@ public class SettingsFinderTest {
   }
 
   @Test
-  public void return_module_settings() throws Exception {
+  public void return_module_settings() {
     ComponentDto project = componentDb.insertComponent(ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization()));
     ComponentDto module = componentDb.insertComponent(newModuleDto(project));
     ComponentDto subModule = componentDb.insertComponent(newModuleDto(module));

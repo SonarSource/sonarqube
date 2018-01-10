@@ -197,7 +197,7 @@ public class NodeDetailsTest {
   @Test
   public void NodeDetails_is_Externalizable() throws IOException, ClassNotFoundException {
     NodeDetails source = testSupport.randomNodeDetails();
-    byte[] byteArray = testSupport.serialize(source);
+    byte[] byteArray = NodeDetailsTestSupport.serialize(source);
 
     NodeDetails underTest = (NodeDetails) new ObjectInputStream(new ByteArrayInputStream(byteArray)).readObject();
 

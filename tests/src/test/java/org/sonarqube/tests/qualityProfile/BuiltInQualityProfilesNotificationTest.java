@@ -50,13 +50,13 @@ public class BuiltInQualityProfilesNotificationTest {
   private static UserRule userRule;
 
   @Before
-  public void init() throws Exception {
+  public void init() {
     smtpServer = new Wiser(0);
     smtpServer.start();
   }
 
   @After
-  public void tearDown() throws Exception {
+  public void tearDown() {
     if (orchestrator != null) {
       orchestrator.stop();
     }

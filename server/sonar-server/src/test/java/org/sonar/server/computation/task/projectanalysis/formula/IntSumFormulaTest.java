@@ -166,7 +166,7 @@ public class IntSumFormulaTest {
 
   private static CounterInitializationContext createNoMeasureInInitContext() {
     CounterInitializationContext initContext = mock(CounterInitializationContext.class);
-    when(initContext.getMeasure(LINES_KEY)).thenReturn(Optional.<Measure>absent());
+    when(initContext.getMeasure(LINES_KEY)).thenReturn(Optional.absent());
     return initContext;
   }
 

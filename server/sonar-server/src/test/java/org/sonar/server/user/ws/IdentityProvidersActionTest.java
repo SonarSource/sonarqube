@@ -62,7 +62,7 @@ public class IdentityProvidersActionTest {
   WsActionTester ws = new WsActionTester(new IdentityProvidersAction(identityProviderRepository));
 
   @Test
-  public void json_example() throws IOException {
+  public void json_example() {
     String response = ws.newRequest().execute().getInput();
 
     assertJson(response).isSimilarTo(getClass().getResource("identity_providers-example.json"));

@@ -81,14 +81,14 @@ public class FileActionTest {
   }
 
   @Test
-  public void throw_IAE_when_no_name_parameter() throws Exception {
+  public void throw_IAE_when_no_name_parameter() {
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("The 'name' parameter is missing");
     tester.newRequest().execute();
   }
 
   @Test
-  public void test_definition() throws Exception {
+  public void test_definition() {
     WebService.Action definition = tester.getDef();
     assertThat(definition.isInternal()).isTrue();
     assertThat(definition.isPost()).isFalse();

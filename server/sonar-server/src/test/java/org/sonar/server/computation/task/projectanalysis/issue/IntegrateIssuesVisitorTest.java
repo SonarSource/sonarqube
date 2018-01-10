@@ -139,7 +139,7 @@ public class IntegrateIssuesVisitorTest {
     IssueVisitors issueVisitors = new IssueVisitors(new IssueVisitor[] {issueVisitor});
 
     defaultIssueCaptor = ArgumentCaptor.forClass(DefaultIssue.class);
-    when(movedFilesRepository.getOriginalFile(any(Component.class))).thenReturn(Optional.<MovedFilesRepository.OriginalFile>absent());
+    when(movedFilesRepository.getOriginalFile(any(Component.class))).thenReturn(Optional.absent());
 
     TrackerRawInputFactory rawInputFactory = new TrackerRawInputFactory(treeRootHolder, reportReader, fileSourceRepository, new CommonRuleEngineImpl(), issueFilter);
     TrackerBaseInputFactory baseInputFactory = new TrackerBaseInputFactory(issuesLoader, dbTester.getDbClient(), movedFilesRepository);
@@ -156,7 +156,7 @@ public class IntegrateIssuesVisitorTest {
   }
 
   @Test
-  public void process_new_issue() throws Exception {
+  public void process_new_issue() {
     when(analysisMetadataHolder.isLongLivingBranch()).thenReturn(true);
     ScannerReport.Issue reportIssue = ScannerReport.Issue.newBuilder()
       .setMsg("the message")
@@ -181,7 +181,7 @@ public class IntegrateIssuesVisitorTest {
   }
 
   @Test
-  public void process_existing_issue() throws Exception {
+  public void process_existing_issue() {
 
     RuleKey ruleKey = RuleTesting.XOO_X1;
     // Issue from db has severity major
@@ -214,7 +214,7 @@ public class IntegrateIssuesVisitorTest {
   }
 
   @Test
-  public void execute_issue_visitors() throws Exception {
+  public void execute_issue_visitors() {
     ScannerReport.Issue reportIssue = ScannerReport.Issue.newBuilder()
       .setMsg("the message")
       .setRuleRepository("xoo")
@@ -233,7 +233,7 @@ public class IntegrateIssuesVisitorTest {
   }
 
   @Test
-  public void close_unmatched_base_issue() throws Exception {
+  public void close_unmatched_base_issue() {
     RuleKey ruleKey = RuleTesting.XOO_X1;
     addBaseIssue(ruleKey);
 
@@ -257,7 +257,7 @@ public class IntegrateIssuesVisitorTest {
   }
 
   @Test
-  public void copy_issues_when_creating_new_long_living_branch() throws Exception {
+  public void copy_issues_when_creating_new_long_living_branch() {
 
     when(mergeBranchComponentsUuids.getUuid(FILE_KEY)).thenReturn(FILE_UUID_ON_BRANCH);
     when(mergeBranchComponentUuids.getMergeBranchName()).thenReturn("master");

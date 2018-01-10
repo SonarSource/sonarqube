@@ -82,15 +82,15 @@ public class InstalledActionTest {
   }
 
   @Test
-  public void empty_array_is_returned_when_there_is_not_plugin_installed() throws Exception {
+  public void empty_array_is_returned_when_there_is_not_plugin_installed() {
     String response = tester.newRequest().execute().getInput();
 
     assertJson(response).withStrictArrayOrder().isSimilarTo(JSON_EMPTY_PLUGIN_LIST);
   }
 
   @Test
-  public void empty_array_when_update_center_is_unavailable() throws Exception {
-    when(updateCenterMatrixFactory.getUpdateCenter(false)).thenReturn(Optional.<UpdateCenter>absent());
+  public void empty_array_when_update_center_is_unavailable() {
+    when(updateCenterMatrixFactory.getUpdateCenter(false)).thenReturn(Optional.absent());
 
     String response = tester.newRequest().execute().getInput();
 
@@ -98,7 +98,7 @@ public class InstalledActionTest {
   }
 
   @Test
-  public void empty_fields_are_not_serialized_to_json() throws Exception {
+  public void empty_fields_are_not_serialized_to_json() {
     when(pluginRepository.getPluginInfos()).thenReturn(
       of(new PluginInfo("").setName("").setJarFile(new File(""))));
     db.pluginDbTester().insertPlugin(
@@ -268,7 +268,7 @@ public class InstalledActionTest {
   }
 
   @Test
-  public void plugins_are_sorted_by_name_then_key_and_only_one_plugin_can_have_a_specific_name() throws Exception {
+  public void plugins_are_sorted_by_name_then_key_and_only_one_plugin_can_have_a_specific_name() {
     when(pluginRepository.getPluginInfos()).thenReturn(
       of(
         plugin("A", "name2"),
@@ -369,7 +369,7 @@ public class InstalledActionTest {
   }
 
   @Test
-  public void only_one_plugin_can_have_a_specific_name_and_key() throws Exception {
+  public void only_one_plugin_can_have_a_specific_name_and_key() {
     when(pluginRepository.getPluginInfos()).thenReturn(
       of(
         plugin("A", "name2"),

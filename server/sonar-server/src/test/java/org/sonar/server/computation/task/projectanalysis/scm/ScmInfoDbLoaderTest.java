@@ -77,7 +77,7 @@ public class ScmInfoDbLoaderTest {
   private ScmInfoDbLoader underTest = new ScmInfoDbLoader(analysisMetadataHolder, dbTester.getDbClient(), sourceHashRepository, mergeBranchComponentUuids);
 
   @Test
-  public void returns_ScmInfo_from_DB_if_hashes_are_the_same() throws Exception {
+  public void returns_ScmInfo_from_DB_if_hashes_are_the_same() {
     analysisMetadataHolder.setBaseAnalysis(baseProjectAnalysis);
     analysisMetadataHolder.setBranch(null);
 
@@ -122,7 +122,7 @@ public class ScmInfoDbLoaderTest {
   }
 
   @Test
-  public void returns_absent_when__hashes_are_not_the_same() throws Exception {
+  public void returns_absent_when__hashes_are_not_the_same() {
     analysisMetadataHolder.setBaseAnalysis(baseProjectAnalysis);
     analysisMetadataHolder.setBranch(null);
 
@@ -134,7 +134,7 @@ public class ScmInfoDbLoaderTest {
   }
 
   @Test
-  public void not_read_in_db_on_first_analysis_and_no_merge_branch() throws Exception {
+  public void not_read_in_db_on_first_analysis_and_no_merge_branch() {
     Branch branch = mock(Branch.class);
     when(branch.getMergeBranchUuid()).thenReturn(Optional.empty());
     analysisMetadataHolder.setBaseAnalysis(null);

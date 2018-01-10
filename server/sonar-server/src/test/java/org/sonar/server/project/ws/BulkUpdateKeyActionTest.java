@@ -259,7 +259,7 @@ public class BulkUpdateKeyActionTest {
   }
 
   @Test
-  public void fail_when_using_branch_uuid() throws Exception {
+  public void fail_when_using_branch_uuid() {
     ComponentDto project = db.components().insertMainBranch();
     userSession.logIn().addProjectPermission(UserRole.USER, project);
     ComponentDto branch = db.components().insertProjectBranch(project);

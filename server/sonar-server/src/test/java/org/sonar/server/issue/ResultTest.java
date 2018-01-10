@@ -25,7 +25,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class ResultTest {
   @Test
-  public void test_default_result() throws Exception {
+  public void test_default_result() {
     Result<Object> result = Result.of();
     assertThat(result.ok()).isTrue();
     assertThat(result.errors()).isEmpty();
@@ -38,7 +38,7 @@ public class ResultTest {
   }
 
   @Test
-  public void test_error() throws Exception {
+  public void test_error() {
     Result<Object> result = Result.of();
     result.addError("Something goes wrong");
 
@@ -49,7 +49,7 @@ public class ResultTest {
   }
 
   @Test
-  public void test_l10n_errors() throws Exception {
+  public void test_l10n_errors() {
     Result<Object> result = Result.of();
     Result.Message message = Result.Message.ofL10n("issue.error.123", "10");
     result.addError(message);
@@ -65,7 +65,7 @@ public class ResultTest {
   }
 
   @Test
-  public void test_text_message() throws Exception {
+  public void test_text_message() {
     Result.Message txtMessage = Result.Message.of("the error");
     Result.Message sameMessage = Result.Message.of("the error");
     Result.Message otherMessage = Result.Message.of("other");
@@ -80,7 +80,7 @@ public class ResultTest {
   }
 
   @Test
-  public void test_l10n_message() throws Exception {
+  public void test_l10n_message() {
     Result.Message msg = Result.Message.ofL10n("issue.error.123", "10");
     Result.Message sameMsg = Result.Message.ofL10n("issue.error.123", "10");
     Result.Message msg2 = Result.Message.ofL10n("issue.error.123", "200");

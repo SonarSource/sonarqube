@@ -199,7 +199,7 @@ public class ViewsDuplicationMeasuresTest {
   }
 
   @Test
-  public void compute_and_aggregate_duplicated_lines_density_using_lines() throws Exception {
+  public void compute_and_aggregate_duplicated_lines_density_using_lines() {
     addRawMeasure(PROJECT_VIEW_1_REF, DUPLICATED_LINES_KEY, 2);
     addRawMeasure(PROJECT_VIEW_2_REF, DUPLICATED_LINES_KEY, 3);
     addRawMeasure(PROJECT_VIEW_3_REF, DUPLICATED_LINES_KEY, 4);
@@ -220,7 +220,7 @@ public class ViewsDuplicationMeasuresTest {
   }
 
   @Test
-  public void compute_and_aggregate_duplicated_lines_density_using_nclocs_and_comment_lines() throws Exception {
+  public void compute_and_aggregate_duplicated_lines_density_using_nclocs_and_comment_lines() {
     addRawMeasure(PROJECT_VIEW_1_REF, DUPLICATED_LINES_KEY, 2);
     addRawMeasure(PROJECT_VIEW_2_REF, DUPLICATED_LINES_KEY, 3);
     addRawMeasure(PROJECT_VIEW_3_REF, DUPLICATED_LINES_KEY, 4);
@@ -248,7 +248,7 @@ public class ViewsDuplicationMeasuresTest {
   }
 
   @Test
-  public void compute_duplicated_lines_density_using_only_nclocs() throws Exception {
+  public void compute_duplicated_lines_density_using_only_nclocs() {
     addRawMeasure(PROJECT_VIEW_1_REF, DUPLICATED_LINES_KEY, 2);
     addRawMeasure(PROJECT_VIEW_2_REF, DUPLICATED_LINES_KEY, 3);
 
@@ -267,7 +267,7 @@ public class ViewsDuplicationMeasuresTest {
   }
 
   @Test
-  public void compute_zero_percent_duplicated_lines_density_when_duplicated_lines_are_zero() throws Exception {
+  public void compute_zero_percent_duplicated_lines_density_when_duplicated_lines_are_zero() {
     addRawMeasure(PROJECT_VIEW_1_REF, DUPLICATED_LINES_KEY, 0);
     addRawMeasure(PROJECT_VIEW_2_REF, DUPLICATED_LINES_KEY, 0);
     // no raw measure for PROJECT_VIEW_3_REF
@@ -293,7 +293,7 @@ public class ViewsDuplicationMeasuresTest {
   }
 
   @Test
-  public void not_compute_duplicated_lines_density_when_lines_is_zero() throws Exception {
+  public void not_compute_duplicated_lines_density_when_lines_is_zero() {
     addRawMeasure(PROJECT_VIEW_1_REF, LINES_KEY, 0);
     addRawMeasure(PROJECT_VIEW_2_REF, LINES_KEY, 0);
     // no raw measure for PROJECT_VIEW_3_REF
@@ -307,7 +307,7 @@ public class ViewsDuplicationMeasuresTest {
   }
 
   @Test
-  public void not_compute_duplicated_lines_density_when_ncloc_and_comment_are_zero() throws Exception {
+  public void not_compute_duplicated_lines_density_when_ncloc_and_comment_are_zero() {
     addRawMeasure(PROJECT_VIEW_1_REF, COMMENT_LINES_KEY, 0);
     addRawMeasure(PROJECT_VIEW_2_REF, COMMENT_LINES_KEY, 0);
     // no raw measure for PROJECT_VIEW_3_REF
@@ -327,7 +327,7 @@ public class ViewsDuplicationMeasuresTest {
   }
 
   @Test
-  public void compute_100_percent_duplicated_lines_density() throws Exception {
+  public void compute_100_percent_duplicated_lines_density() {
     addRawMeasure(PROJECT_VIEW_1_REF, DUPLICATED_LINES_KEY, 2);
     addRawMeasure(PROJECT_VIEW_2_REF, DUPLICATED_LINES_KEY, 3);
     // no raw measure for PROJECT_VIEW_3_REF

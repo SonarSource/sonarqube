@@ -52,7 +52,7 @@ public class ServerWsTest {
   }
 
   @Test
-  public void test_example_of_version() throws Exception {
+  public void test_example_of_version() {
     WebService.Action versionAction = tester.action("api/server", "version");
     assertThat(versionAction.responseExampleAsString()).isEqualTo("6.3.0.1234");
   }

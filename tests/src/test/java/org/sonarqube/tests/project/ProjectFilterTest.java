@@ -142,7 +142,6 @@ public class ProjectFilterTest {
     assertThat(searchProjects(new SearchProjectsRequest().setFilter("query = \"nd\" AND ncloc > 50")).getComponentsList())
       .extracting(Component::getKey).containsExactly("project3", "project4");
     assertThat(searchProjects(new SearchProjectsRequest().setFilter("query = \"unknown\" AND ncloc > 50")).getComponentsList()).isEmpty();
-    ;
 
     // Check facets
     assertThat(searchProjects(new SearchProjectsRequest().setFilter("query = \"apache\"").setFacets(singletonList("ncloc"))).getFacets().getFacets(0).getValuesList())
@@ -290,7 +289,7 @@ public class ProjectFilterTest {
     return searchProjects(new SearchProjectsRequest().setOrganization(organization.getKey()).setFilter(filter));
   }
 
-  private SearchProjectsWsResponse searchProjects(SearchProjectsRequest request) throws IOException {
+  private SearchProjectsWsResponse searchProjects(SearchProjectsRequest request) {
     return tester.wsClient().components().searchProjects(request);
   }
 

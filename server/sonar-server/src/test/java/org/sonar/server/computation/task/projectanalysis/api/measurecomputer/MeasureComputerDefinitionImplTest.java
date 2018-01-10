@@ -32,7 +32,7 @@ public class MeasureComputerDefinitionImplTest {
   public ExpectedException thrown = ExpectedException.none();
 
   @Test
-  public void build_measure_computer_definition() throws Exception {
+  public void build_measure_computer_definition() {
     String inputMetric = "ncloc";
     String outputMetric = "comment_density";
     MeasureComputer.MeasureComputerDefinition measureComputer = new MeasureComputerDefinitionImpl.BuilderImpl()
@@ -45,7 +45,7 @@ public class MeasureComputerDefinitionImplTest {
   }
 
   @Test
-  public void build_measure_computer_with_multiple_metrics() throws Exception {
+  public void build_measure_computer_with_multiple_metrics() {
     String[] inputMetrics = {"ncloc", "comment"};
     String[] outputMetrics = {"comment_density_1", "comment_density_2"};
     MeasureComputer.MeasureComputerDefinition measureComputer = new MeasureComputerDefinitionImpl.BuilderImpl()
@@ -58,7 +58,7 @@ public class MeasureComputerDefinitionImplTest {
   }
 
   @Test
-  public void input_metrics_can_be_empty() throws Exception {
+  public void input_metrics_can_be_empty() {
     MeasureComputer.MeasureComputerDefinition measureComputer = new MeasureComputerDefinitionImpl.BuilderImpl()
       .setInputMetrics()
       .setOutputMetrics("comment_density_1", "comment_density_2")
@@ -68,7 +68,7 @@ public class MeasureComputerDefinitionImplTest {
   }
 
   @Test
-  public void input_metrics_is_empty_when_not_set() throws Exception {
+  public void input_metrics_is_empty_when_not_set() {
     MeasureComputer.MeasureComputerDefinition measureComputer = new MeasureComputerDefinitionImpl.BuilderImpl()
       .setOutputMetrics("comment_density_1", "comment_density_2")
       .build();
@@ -77,7 +77,7 @@ public class MeasureComputerDefinitionImplTest {
   }
 
   @Test
-  public void fail_with_NPE_when_null_input_metrics() throws Exception {
+  public void fail_with_NPE_when_null_input_metrics() {
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("Input metrics cannot be null");
 
@@ -87,7 +87,7 @@ public class MeasureComputerDefinitionImplTest {
   }
 
   @Test
-  public void fail_with_NPE_when_one_input_metric_is_null() throws Exception {
+  public void fail_with_NPE_when_one_input_metric_is_null() {
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("Null metric is not allowed");
 
@@ -97,7 +97,7 @@ public class MeasureComputerDefinitionImplTest {
   }
 
   @Test
-  public void fail_with_NPE_when_no_output_metrics() throws Exception {
+  public void fail_with_NPE_when_no_output_metrics() {
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("Output metrics cannot be null");
 
@@ -107,7 +107,7 @@ public class MeasureComputerDefinitionImplTest {
   }
 
   @Test
-  public void fail_with_NPE_when_null_output_metrics() throws Exception {
+  public void fail_with_NPE_when_null_output_metrics() {
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("Output metrics cannot be null");
 
@@ -117,7 +117,7 @@ public class MeasureComputerDefinitionImplTest {
   }
 
   @Test
-  public void fail_with_NPE_when_one_output_metric_is_null() throws Exception {
+  public void fail_with_NPE_when_one_output_metric_is_null() {
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("Null metric is not allowed");
 
@@ -127,7 +127,7 @@ public class MeasureComputerDefinitionImplTest {
   }
 
   @Test
-  public void fail_with_IAE_with_empty_output_metrics() throws Exception {
+  public void fail_with_IAE_with_empty_output_metrics() {
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("At least one output metric must be defined");
 
@@ -137,7 +137,7 @@ public class MeasureComputerDefinitionImplTest {
   }
 
   @Test
-  public void test_equals_and_hashcode() throws Exception {
+  public void test_equals_and_hashcode() {
     MeasureComputer.MeasureComputerDefinition computer = new MeasureComputerDefinitionImpl.BuilderImpl()
       .setInputMetrics("ncloc", "comment")
       .setOutputMetrics("comment_density_1", "comment_density_2")
@@ -164,7 +164,7 @@ public class MeasureComputerDefinitionImplTest {
   }
 
   @Test
-  public void test_to_string() throws Exception {
+  public void test_to_string() {
     assertThat(new MeasureComputerDefinitionImpl.BuilderImpl()
       .setInputMetrics("ncloc", "comment")
       .setOutputMetrics("comment_density_1", "comment_density_2")

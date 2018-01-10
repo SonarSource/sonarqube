@@ -47,7 +47,7 @@ public class PurgeMapperTest {
   }
 
   @After
-  public void tearDown() throws Exception {
+  public void tearDown() {
     if (dbSession != null) {
       dbSession.close();
     }

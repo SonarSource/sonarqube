@@ -41,13 +41,13 @@ public class ListActionTest {
   WsActionTester tester = new WsActionTester(underTest);
 
   @Test
-  public void define() throws Exception {
+  public void define() {
     WebService.Action def = tester.getDef();
     assertThat(def.params()).isEmpty();
   }
 
   @Test
-  public void return_rules_in_protobuf() throws Exception {
+  public void return_rules_in_protobuf() {
     dbTester.rules().insert(RuleTesting.newRule(RuleKey.of("java", "S001")).setConfigKey(null).setName(null));
     dbTester.rules().insert(RuleTesting.newRule(RuleKey.of("java", "S002")).setConfigKey("I002").setName("Rule Two"));
     dbTester.getSession().commit();

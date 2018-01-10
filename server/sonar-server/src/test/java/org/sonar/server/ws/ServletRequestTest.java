@@ -53,7 +53,7 @@ public class ServletRequestTest {
   }
 
   @Test
-  public void getMediaType() throws Exception {
+  public void getMediaType() {
     when(source.getHeader(HttpHeaders.ACCEPT)).thenReturn(MediaTypes.JSON);
     when(source.getRequestURI()).thenReturn("/path/to/resource/search");
 
@@ -61,14 +61,14 @@ public class ServletRequestTest {
   }
 
   @Test
-  public void default_media_type_is_octet_stream() throws Exception {
+  public void default_media_type_is_octet_stream() {
     when(source.getRequestURI()).thenReturn("/path/to/resource/search");
 
     assertThat(underTest.getMediaType()).isEqualTo(MediaTypes.DEFAULT);
   }
 
   @Test
-  public void media_type_taken_in_url_first() throws Exception {
+  public void media_type_taken_in_url_first() {
     when(source.getHeader(HttpHeaders.ACCEPT)).thenReturn(MediaTypes.JSON);
     when(source.getRequestURI()).thenReturn("/path/to/resource/search.protobuf");
 
@@ -142,14 +142,14 @@ public class ServletRequestTest {
   }
 
   @Test
-  public void return_no_input_stream_when_content_type_is_not_multipart() throws Exception {
+  public void return_no_input_stream_when_content_type_is_not_multipart() {
     when(source.getContentType()).thenReturn("multipart/form-data");
 
     assertThat(underTest.readInputStreamParam("param1")).isNull();
   }
 
   @Test
-  public void return_no_input_stream_when_content_type_is_null() throws Exception {
+  public void return_no_input_stream_when_content_type_is_null() {
     when(source.getContentType()).thenReturn(null);
 
     assertThat(underTest.readInputStreamParam("param1")).isNull();
@@ -168,7 +168,7 @@ public class ServletRequestTest {
   }
 
   @Test
-  public void getPath() throws Exception {
+  public void getPath() {
     when(source.getRequestURI()).thenReturn("/sonar/path/to/resource/search");
     when(source.getContextPath()).thenReturn("/sonar");
 

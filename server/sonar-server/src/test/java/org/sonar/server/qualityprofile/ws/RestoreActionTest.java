@@ -88,7 +88,7 @@ public class RestoreActionTest {
   }
 
   @Test
-  public void profile_is_restored_on_default_organization_with_the_name_provided_in_backup() throws Exception {
+  public void profile_is_restored_on_default_organization_with_the_name_provided_in_backup() {
     logInAsQProfileAdministrator(db.getDefaultOrganization());
     TestResponse response = restore("<backup/>", null);
 
@@ -109,7 +109,7 @@ public class RestoreActionTest {
   }
 
   @Test
-  public void profile_is_restored_on_specified_organization_with_the_name_provided_in_backup() throws Exception {
+  public void profile_is_restored_on_specified_organization_with_the_name_provided_in_backup() {
     OrganizationDto org = db.organizations().insert();
     logInAsQProfileAdministrator(org);
     TestResponse response = restore("<backup/>", org.getKey());
@@ -132,7 +132,7 @@ public class RestoreActionTest {
   }
 
   @Test
-  public void throw_IAE_if_backup_is_missing() throws Exception {
+  public void throw_IAE_if_backup_is_missing() {
     logInAsQProfileAdministrator(db.getDefaultOrganization());
 
     expectedException.expect(IllegalArgumentException.class);
@@ -144,7 +144,7 @@ public class RestoreActionTest {
   }
 
   @Test
-  public void throw_ForbiddenException_if_not_profile_administrator_of_default_organization() throws Exception {
+  public void throw_ForbiddenException_if_not_profile_administrator_of_default_organization() {
     userSession.logIn();
 
     expectedException.expect(ForbiddenException.class);
@@ -154,7 +154,7 @@ public class RestoreActionTest {
   }
 
   @Test
-  public void throw_ForbiddenException_if_not_profile_administrator_of_specified_organization() throws Exception {
+  public void throw_ForbiddenException_if_not_profile_administrator_of_specified_organization() {
     OrganizationDto org = db.organizations().insert();
     logInAsQProfileAdministrator(db.getDefaultOrganization());
 
@@ -165,7 +165,7 @@ public class RestoreActionTest {
   }
 
   @Test
-  public void throw_NotFoundException_if_specified_organization_does_not_exist() throws Exception {
+  public void throw_NotFoundException_if_specified_organization_does_not_exist() {
     userSession.logIn();
 
     expectedException.expect(NotFoundException.class);
@@ -175,7 +175,7 @@ public class RestoreActionTest {
   }
 
   @Test
-  public void throw_UnauthorizedException_if_not_logged_in() throws Exception {
+  public void throw_UnauthorizedException_if_not_logged_in() {
     userSession.anonymous();
 
     expectedException.expect(UnauthorizedException.class);

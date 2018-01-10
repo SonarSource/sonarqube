@@ -234,7 +234,7 @@ public class CreateActionTest {
   }
 
   @Test
-  public void test_json() throws Exception {
+  public void test_json() {
     logInAsQProfileAdministrator(db.getDefaultOrganization());
 
     TestResponse response = ws.newRequest()

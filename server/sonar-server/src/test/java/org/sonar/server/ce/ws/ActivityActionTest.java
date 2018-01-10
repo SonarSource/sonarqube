@@ -242,7 +242,7 @@ public class ActivityActionTest {
   }
 
   @Test
-  public void search_activity_by_component_name() throws IOException {
+  public void search_activity_by_component_name() {
     ComponentDto struts = db.components().insertPrivateProject(c -> c.setName("old apache struts"));
     ComponentDto zookeeper = db.components().insertPrivateProject(c -> c.setName("new apache zookeeper"));
     ComponentDto eclipse = db.components().insertPrivateProject(c -> c.setName("eclipse"));
@@ -284,7 +284,7 @@ public class ActivityActionTest {
   }
 
   @Test
-  public void search_task_id_in_queue_ignoring_other_parameters() throws IOException {
+  public void search_task_id_in_queue_ignoring_other_parameters() {
     logInAsSystemAdministrator();
     ComponentDto project = db.components().insertPrivateProject();
     insertQueue("T1", project, IN_PROGRESS);

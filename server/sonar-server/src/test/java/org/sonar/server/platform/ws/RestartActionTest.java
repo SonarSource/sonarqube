@@ -82,7 +82,7 @@ public class RestartActionTest {
   }
 
   @Test
-  public void calls_ProcessCommandWrapper_requestForSQRestart_in_production_mode() throws Exception {
+  public void calls_ProcessCommandWrapper_requestForSQRestart_in_production_mode() {
     when(webServer.isStandalone()).thenReturn(true);
     userSessionRule.logIn().setSystemAdministrator();
 
@@ -93,7 +93,7 @@ public class RestartActionTest {
   }
 
   @Test
-  public void logs_login_of_authenticated_user_requesting_the_restart_in_production_mode() throws Exception {
+  public void logs_login_of_authenticated_user_requesting_the_restart_in_production_mode() {
     when(webServer.isStandalone()).thenReturn(true);
     String login = "BigBother";
     userSessionRule.logIn(login).setSystemAdministrator();

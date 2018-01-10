@@ -39,7 +39,7 @@ public class CeQueueInitializerTest {
   private CeQueueInitializer underTest = new CeQueueInitializer(processingScheduler, cleaningScheduler, mock(CeDistributedInformation.class));
 
   @Test
-  public void clean_queue_then_start_scheduler_of_workers() throws IOException {
+  public void clean_queue_then_start_scheduler_of_workers() {
     underTest.onServerStart(server);
 
     verify(processingScheduler).startScheduling();

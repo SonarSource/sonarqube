@@ -72,7 +72,7 @@ public class IssueWorkflowTest extends AbstractIssueTest {
    * be CLOSED with resolution REMOVED
    */
   @Test
-  public void issue_is_closed_as_removed_when_rule_is_disabled() throws Exception {
+  public void issue_is_closed_as_removed_when_rule_is_disabled() {
     SearchRequest ruleSearchRequest = new SearchRequest().setRules(singletonList("xoo:OneIssuePerLine"));
     List<Issue> issues = issueRule.search(ruleSearchRequest).getIssuesList();
     assertThat(issues).isNotEmpty();

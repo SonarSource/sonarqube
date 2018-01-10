@@ -65,7 +65,7 @@ public class HttpProcess implements Monitored {
     server.setHandler(context);
     context.setHandler(new AbstractHandler() {
       @Override
-      public void handle(String target, Request request, HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws IOException, ServletException {
+      public void handle(String target, Request request, HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws IOException {
         if ("/ping".equals(target)) {
           request.setHandled(true);
           httpServletResponse.getWriter().print("ping");

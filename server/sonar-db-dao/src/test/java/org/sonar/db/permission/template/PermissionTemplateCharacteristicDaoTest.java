@@ -180,7 +180,7 @@ public class PermissionTemplateCharacteristicDaoTest {
   }
 
   @Test
-  public void delete_by_permission_template_id() throws Exception {
+  public void delete_by_permission_template_id() {
     underTest.insert(dbSession, new PermissionTemplateCharacteristicDto()
       .setPermission(UserRole.USER)
       .setTemplateId(1L)

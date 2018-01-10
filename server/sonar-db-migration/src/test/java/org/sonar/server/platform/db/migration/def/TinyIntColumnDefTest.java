@@ -39,7 +39,7 @@ public class TinyIntColumnDefTest {
   public ExpectedException thrown = ExpectedException.none();
 
   @Test
-  public void build_string_column_def() throws Exception {
+  public void build_string_column_def() {
     TinyIntColumnDef def = new TinyIntColumnDef.Builder()
       .setColumnName("foo")
       .setIsNullable(true)
@@ -51,7 +51,7 @@ public class TinyIntColumnDefTest {
   }
 
   @Test
-  public void generate_sql_type() throws Exception {
+  public void generate_sql_type() {
     TinyIntColumnDef def = new TinyIntColumnDef.Builder()
       .setColumnName("foo")
       .setIsNullable(true)
@@ -65,7 +65,7 @@ public class TinyIntColumnDefTest {
   }
 
   @Test
-  public void fail_with_UOE_to_generate_sql_type_when_unknown_dialect() throws Exception {
+  public void fail_with_UOE_to_generate_sql_type_when_unknown_dialect() {
     thrown.expect(UnsupportedOperationException.class);
     thrown.expectMessage("Unknown dialect 'unknown'");
 

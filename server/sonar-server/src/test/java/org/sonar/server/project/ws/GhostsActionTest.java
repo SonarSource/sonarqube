@@ -83,7 +83,7 @@ public class GhostsActionTest {
   }
 
   @Test
-  public void ghost_projects_without_analyzed_projects() throws Exception {
+  public void ghost_projects_without_analyzed_projects() {
     OrganizationDto organization = db.organizations().insert();
     ComponentDto ghost1 = insertGhostProject(organization);
     ComponentDto ghost2 = insertGhostProject(organization);
@@ -115,7 +115,7 @@ public class GhostsActionTest {
   }
 
   @Test
-  public void ghost_projects_with_correct_pagination() throws Exception {
+  public void ghost_projects_with_correct_pagination() {
     OrganizationDto organization = db.organizations().insert();
     for (int i = 1; i <= 10; i++) {
       int count = i;
@@ -139,7 +139,7 @@ public class GhostsActionTest {
   }
 
   @Test
-  public void ghost_projects_with_chosen_fields() throws Exception {
+  public void ghost_projects_with_chosen_fields() {
     OrganizationDto organization = db.organizations().insert();
     insertGhostProject(organization);
     userSessionRule.logIn().addPermission(ADMINISTER, organization);
@@ -156,7 +156,7 @@ public class GhostsActionTest {
   }
 
   @Test
-  public void ghost_projects_with_partial_query_on_name() throws Exception {
+  public void ghost_projects_with_partial_query_on_name() {
     OrganizationDto organization = db.organizations().insert();
     insertGhostProject(organization, dto -> dto.setName("ghost-name-10"));
     insertGhostProject(organization, dto -> dto.setName("ghost-name-11"));
@@ -175,7 +175,7 @@ public class GhostsActionTest {
   }
 
   @Test
-  public void ghost_projects_with_partial_query_on_key() throws Exception {
+  public void ghost_projects_with_partial_query_on_key() {
     OrganizationDto organization = db.organizations().insert();
     insertGhostProject(organization, dto -> dto.setDbKey("ghost-key-1"));
 
@@ -215,7 +215,7 @@ public class GhostsActionTest {
   }
 
   @Test
-  public void ghost_projects_base_on_json_example() throws Exception {
+  public void ghost_projects_base_on_json_example() {
     OrganizationDto organization = db.organizations().insert();
     ComponentDto hBaseProject = ComponentTesting.newPrivateProjectDto(organization, "ce4c03d6-430f-40a9-b777-ad877c00aa4d")
       .setDbKey("org.apache.hbas:hbase")
@@ -243,7 +243,7 @@ public class GhostsActionTest {
   }
 
   @Test
-  public void throws_ForbiddenException_if_not_administrator_of_organization() throws Exception {
+  public void throws_ForbiddenException_if_not_administrator_of_organization() {
     userSessionRule.logIn();
 
     expectedException.expect(ForbiddenException.class);

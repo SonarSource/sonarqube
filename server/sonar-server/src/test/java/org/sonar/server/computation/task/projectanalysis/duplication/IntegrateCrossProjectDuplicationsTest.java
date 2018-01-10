@@ -206,7 +206,7 @@ public class IntegrateCrossProjectDuplicationsTest {
         .setUnit(0, 10)
         .build());
 
-    underTest.computeCpd(ORIGIN_FILE, originBlocks, Collections.<Block>emptyList());
+    underTest.computeCpd(ORIGIN_FILE, originBlocks, Collections.emptyList());
 
     assertNoDuplicationAdded(ORIGIN_FILE);
   }
@@ -272,7 +272,7 @@ public class IntegrateCrossProjectDuplicationsTest {
   }
 
   @Test
-  public void do_not_compute_more_than_one_hundred_duplications_when_too_many_duplicated_references() throws Exception {
+  public void do_not_compute_more_than_one_hundred_duplications_when_too_many_duplicated_references() {
     Collection<Block> originBlocks = new ArrayList<>();
     Collection<Block> duplicatedBlocks = new ArrayList<>();
 
@@ -302,7 +302,7 @@ public class IntegrateCrossProjectDuplicationsTest {
   }
 
   @Test
-  public void do_not_compute_more_than_one_hundred_duplications_when_too_many_duplications() throws Exception {
+  public void do_not_compute_more_than_one_hundred_duplications_when_too_many_duplications() {
     Collection<Block> originBlocks = new ArrayList<>();
     Collection<Block> duplicatedBlocks = new ArrayList<>();
 
@@ -342,7 +342,7 @@ public class IntegrateCrossProjectDuplicationsTest {
   }
 
   private static Duplication crossProjectDuplication(TextBlock original, String otherFileKey, TextBlock duplicate) {
-    return new Duplication(original, Arrays.<Duplicate>asList(new CrossProjectDuplicate(otherFileKey, duplicate)));
+    return new Duplication(original, Arrays.asList(new CrossProjectDuplicate(otherFileKey, duplicate)));
   }
 
   private void assertNoDuplicationAdded(Component file) {

@@ -57,7 +57,7 @@ public class JwtSerializerTest {
   private JwtSerializer underTest = new JwtSerializer(settings.asConfig(), system2, uuidFactory);
 
   @Test
-  public void generate_token() throws Exception {
+  public void generate_token() {
     setSecretKey(A_SECRET_KEY);
     underTest.start();
 
@@ -67,7 +67,7 @@ public class JwtSerializerTest {
   }
 
   @Test
-  public void generate_token_with_expiration_date() throws Exception {
+  public void generate_token_with_expiration_date() {
     setSecretKey(A_SECRET_KEY);
 
     underTest.start();
@@ -82,7 +82,7 @@ public class JwtSerializerTest {
   }
 
   @Test
-  public void generate_token_with_big_expiration_date() throws Exception {
+  public void generate_token_with_big_expiration_date() {
     setSecretKey(A_SECRET_KEY);
     underTest.start();
     Date now = new Date();
@@ -97,7 +97,7 @@ public class JwtSerializerTest {
   }
 
   @Test
-  public void generate_token_with_property() throws Exception {
+  public void generate_token_with_property() {
     setSecretKey(A_SECRET_KEY);
     underTest.start();
 
@@ -109,7 +109,7 @@ public class JwtSerializerTest {
   }
 
   @Test
-  public void decode_token() throws Exception {
+  public void decode_token() {
     setSecretKey(A_SECRET_KEY);
     underTest.start();
     Date now = new Date();
@@ -126,7 +126,7 @@ public class JwtSerializerTest {
   }
 
   @Test
-  public void return_no_token_when_expiration_date_is_reached() throws Exception {
+  public void return_no_token_when_expiration_date_is_reached() {
     setSecretKey(A_SECRET_KEY);
     underTest.start();
 
@@ -141,7 +141,7 @@ public class JwtSerializerTest {
   }
 
   @Test
-  public void return_no_token_when_secret_key_has_changed() throws Exception {
+  public void return_no_token_when_secret_key_has_changed() {
     setSecretKey(A_SECRET_KEY);
     underTest.start();
 
@@ -157,7 +157,7 @@ public class JwtSerializerTest {
   }
 
   @Test
-  public void fail_to_decode_token_when_no_id() throws Exception {
+  public void fail_to_decode_token_when_no_id() {
     setSecretKey(A_SECRET_KEY);
     underTest.start();
 
@@ -175,7 +175,7 @@ public class JwtSerializerTest {
   }
 
   @Test
-  public void fail_to_decode_token_when_no_subject() throws Exception {
+  public void fail_to_decode_token_when_no_subject() {
     setSecretKey(A_SECRET_KEY);
     underTest.start();
 
@@ -193,7 +193,7 @@ public class JwtSerializerTest {
   }
 
   @Test
-  public void fail_to_decode_token_when_no_expiration_date() throws Exception {
+  public void fail_to_decode_token_when_no_expiration_date() {
     setSecretKey(A_SECRET_KEY);
     underTest.start();
 
@@ -211,7 +211,7 @@ public class JwtSerializerTest {
   }
 
   @Test
-  public void fail_to_decode_token_when_no_creation_date() throws Exception {
+  public void fail_to_decode_token_when_no_creation_date() {
     setSecretKey(A_SECRET_KEY);
     underTest.start();
 
@@ -228,7 +228,7 @@ public class JwtSerializerTest {
   }
 
   @Test
-  public void generate_new_secret_key_if_not_set_by_settings() throws Exception {
+  public void generate_new_secret_key_if_not_set_by_settings() {
     assertThat(underTest.getSecretKey()).isNull();
 
     underTest.start();
@@ -238,7 +238,7 @@ public class JwtSerializerTest {
   }
 
   @Test
-  public void load_secret_key_from_settings() throws Exception {
+  public void load_secret_key_from_settings() {
     setSecretKey(A_SECRET_KEY);
 
     underTest.start();
@@ -247,7 +247,7 @@ public class JwtSerializerTest {
   }
 
   @Test
-  public void refresh_token() throws Exception {
+  public void refresh_token() {
     setSecretKey(A_SECRET_KEY);
     underTest.start();
 
@@ -278,7 +278,7 @@ public class JwtSerializerTest {
   }
 
   @Test
-  public void refresh_token_generate_a_new_hash() throws Exception {
+  public void refresh_token_generate_a_new_hash() {
     setSecretKey(A_SECRET_KEY);
     underTest.start();
     String token = underTest.encode(new JwtSession(USER_LOGIN, 30));
@@ -290,7 +290,7 @@ public class JwtSerializerTest {
   }
 
   @Test
-  public void encode_fail_when_not_started() throws Exception {
+  public void encode_fail_when_not_started() {
     expectedException.expect(NullPointerException.class);
     expectedException.expectMessage("org.sonar.server.authentication.JwtSerializer not started");
 
@@ -298,7 +298,7 @@ public class JwtSerializerTest {
   }
 
   @Test
-  public void decode_fail_when_not_started() throws Exception {
+  public void decode_fail_when_not_started() {
     expectedException.expect(NullPointerException.class);
     expectedException.expectMessage("org.sonar.server.authentication.JwtSerializer not started");
 
@@ -306,7 +306,7 @@ public class JwtSerializerTest {
   }
 
   @Test
-  public void refresh_fail_when_not_started() throws Exception {
+  public void refresh_fail_when_not_started() {
     expectedException.expect(NullPointerException.class);
     expectedException.expectMessage("org.sonar.server.authentication.JwtSerializer not started");
 

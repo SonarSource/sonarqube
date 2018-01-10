@@ -32,7 +32,7 @@ import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.component.MergeBranchComponentUuids;
 
 public class TrackerMergeBranchInputFactory {
-  private static final LineHashSequence EMPTY_LINE_HASH_SEQUENCE = new LineHashSequence(Collections.<String>emptyList());
+  private static final LineHashSequence EMPTY_LINE_HASH_SEQUENCE = new LineHashSequence(Collections.emptyList());
 
   private final ComponentIssuesLoader mergeIssuesLoader;
   private final DbClient dbClient;

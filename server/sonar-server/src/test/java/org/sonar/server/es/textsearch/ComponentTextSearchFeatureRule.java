@@ -26,7 +26,7 @@ public class ComponentTextSearchFeatureRule extends ExternalResource {
   private ComponentTextSearchFeature[] features;
 
   @Override
-  protected void before() throws Throwable {
+  protected void before() {
     features = ComponentTextSearchFeatureRepertoire.values();
   }
 

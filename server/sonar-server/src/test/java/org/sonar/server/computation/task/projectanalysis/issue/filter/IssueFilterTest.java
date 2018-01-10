@@ -70,7 +70,7 @@ public class IssueFilterTest {
   ConfigurationRepository settingsRepository = mock(ConfigurationRepository.class);
 
   @Test
-  public void accept_everything_when_no_filter_properties() throws Exception {
+  public void accept_everything_when_no_filter_properties() {
     IssueFilter underTest = newIssueFilter(new MapSettings());
 
     assertThat(underTest.accept(ISSUE_1, COMPONENT_1)).isTrue();
@@ -79,7 +79,7 @@ public class IssueFilterTest {
   }
 
   @Test
-  public void ignore_all() throws Exception {
+  public void ignore_all() {
     IssueFilter underTest = newIssueFilter(newSettings(asList("*", "**"), Collections.emptyList()));
 
     assertThat(underTest.accept(ISSUE_1, COMPONENT_1)).isFalse();
@@ -88,7 +88,7 @@ public class IssueFilterTest {
   }
 
   @Test
-  public void ignore_some_rule_and_component() throws Exception {
+  public void ignore_some_rule_and_component() {
     IssueFilter underTest = newIssueFilter(newSettings(asList("xoo:x1", "**/xoo/File1*"), Collections.emptyList()));
 
     assertThat(underTest.accept(ISSUE_1, COMPONENT_1)).isFalse();
@@ -98,7 +98,7 @@ public class IssueFilterTest {
   }
 
   @Test
-  public void ignore_many_rules() throws Exception {
+  public void ignore_many_rules() {
     IssueFilter underTest = newIssueFilter(newSettings(
       asList("xoo:x1", "**/xoo/File1*", "xoo:x2", "**/xoo/File1*"),
       Collections.emptyList()));
@@ -110,7 +110,7 @@ public class IssueFilterTest {
   }
 
   @Test
-  public void include_all() throws Exception {
+  public void include_all() {
     IssueFilter underTest = newIssueFilter(newSettings(Collections.emptyList(), asList("*", "**")));
 
     assertThat(underTest.accept(ISSUE_1, COMPONENT_1)).isTrue();
@@ -119,7 +119,7 @@ public class IssueFilterTest {
   }
 
   @Test
-  public void include_some_rule_and_component() throws Exception {
+  public void include_some_rule_and_component() {
     IssueFilter underTest = newIssueFilter(newSettings(Collections.emptyList(), asList("xoo:x1", "**/xoo/File1*")));
 
     assertThat(underTest.accept(ISSUE_1, COMPONENT_1)).isTrue();
@@ -130,7 +130,7 @@ public class IssueFilterTest {
   }
 
   @Test
-  public void ignore_and_include_same_rule_and_component() throws Exception {
+  public void ignore_and_include_same_rule_and_component() {
     IssueFilter underTest = newIssueFilter(newSettings(
       asList("xoo:x1", "**/xoo/File1*"),
       asList("xoo:x1", "**/xoo/File1*")));
@@ -143,7 +143,7 @@ public class IssueFilterTest {
   }
 
   @Test
-  public void include_many_rules() throws Exception {
+  public void include_many_rules() {
     IssueFilter underTest = newIssueFilter(newSettings(
       Collections.emptyList(),
       asList("xoo:x1", "**/xoo/File1*", "xoo:x2", "**/xoo/File1*")));
@@ -155,7 +155,7 @@ public class IssueFilterTest {
   }
 
   @Test
-  public void accept_project_issues() throws Exception {
+  public void accept_project_issues() {
     IssueFilter underTest = newIssueFilter(newSettings(
       asList("xoo:x1", "**/xoo/File1*"),
       asList("xoo:x1", "**/xoo/File1*")));
@@ -165,7 +165,7 @@ public class IssueFilterTest {
   }
 
   @Test
-  public void fail_when_only_rule_key_parameter() throws Exception {
+  public void fail_when_only_rule_key_parameter() {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("File path pattern cannot be empty. Please check 'sonar.issue.ignore.multicriteria' settings");
 
@@ -173,7 +173,7 @@ public class IssueFilterTest {
   }
 
   @Test
-  public void fail_when_only_path_parameter() throws Exception {
+  public void fail_when_only_path_parameter() {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Rule key pattern cannot be empty. Please check 'sonar.issue.enforce.multicriteria' settings");
 

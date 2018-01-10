@@ -45,21 +45,21 @@ public class ScmInfoImplTest {
     .build();
 
   @Test
-  public void get_all_changesets() throws Exception {
+  public void get_all_changesets() {
     ScmInfo scmInfo = createScmInfoWithTwoChangestOnFourLines();
 
     assertThat(scmInfo.getAllChangesets()).containsOnly(CHANGESET_1, CHANGESET_2, CHANGESET_1, CHANGESET_1);
   }
 
   @Test
-  public void get_latest_changeset() throws Exception {
+  public void get_latest_changeset() {
     ScmInfo scmInfo = createScmInfoWithTwoChangestOnFourLines();
 
     assertThat(scmInfo.getLatestChangeset()).isEqualTo(CHANGESET_2);
   }
 
   @Test
-  public void get_changeset_for_given_line() throws Exception {
+  public void get_changeset_for_given_line() {
     ScmInfo scmInfo = createScmInfoWithTwoChangestOnFourLines();
 
     assertThat(scmInfo.getChangesetForLine(1)).isEqualTo(CHANGESET_1);
@@ -69,7 +69,7 @@ public class ScmInfoImplTest {
   }
 
   @Test
-  public void exists_for_given_line() throws Exception {
+  public void exists_for_given_line() {
     ScmInfo scmInfo = createScmInfoWithTwoChangestOnFourLines();
 
     assertThat(scmInfo.hasChangesetForLine(1)).isTrue();
@@ -77,15 +77,15 @@ public class ScmInfoImplTest {
   }
 
   @Test
-  public void fail_with_ISE_on_empty_changeset() throws Exception {
+  public void fail_with_ISE_on_empty_changeset() {
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("A ScmInfo must have at least one Changeset and does not support any null one");
 
-    new ScmInfoImpl(Lists.<Changeset>newArrayList());
+    new ScmInfoImpl(Lists.newArrayList());
   }
 
   @Test
-  public void fail_with_IAE_when_line_is_smaller_than_one() throws Exception {
+  public void fail_with_IAE_when_line_is_smaller_than_one() {
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("There's no changeset on line 0");
 
@@ -94,7 +94,7 @@ public class ScmInfoImplTest {
   }
 
   @Test
-  public void fail_with_IAE_when_line_is_bigger_than_changetset_size() throws Exception {
+  public void fail_with_IAE_when_line_is_bigger_than_changetset_size() {
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("There's no changeset on line 5");
 
@@ -103,7 +103,7 @@ public class ScmInfoImplTest {
   }
 
   @Test
-  public void test_to_string() throws Exception {
+  public void test_to_string() {
     ScmInfo scmInfo = createScmInfoWithTwoChangestOnFourLines();
 
     assertThat(scmInfo.toString()).isEqualTo("ScmInfoImpl{" +

@@ -211,7 +211,7 @@ public class ProtobufJsonFormatTest {
   }
 
   @Test
-  public void constructor_is_private() throws Exception {
+  public void constructor_is_private() {
     assertThat(TestUtils.hasOnlyPrivateConstructors(ProtobufJsonFormat.class)).isTrue();
   }
 }

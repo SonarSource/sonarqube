@@ -24,7 +24,6 @@ import java.io.IOException;
 import java.util.Optional;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
@@ -73,7 +72,7 @@ public class ValidateAction extends ServletFilter implements AuthenticationWsAct
   }
 
   @Override
-  public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
+  public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException {
     HttpServletRequest request = (HttpServletRequest) servletRequest;
     HttpServletResponse response = (HttpServletResponse) servletResponse;
 
@@ -104,7 +103,7 @@ public class ValidateAction extends ServletFilter implements AuthenticationWsAct
   }
 
   @Override
-  public void init(FilterConfig filterConfig) throws ServletException {
+  public void init(FilterConfig filterConfig) {
     // Nothing to do
   }
 

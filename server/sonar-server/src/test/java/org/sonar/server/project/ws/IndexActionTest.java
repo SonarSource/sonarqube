@@ -66,7 +66,7 @@ public class IndexActionTest {
   }
 
   @Test
-  public void search_all_projects() throws Exception {
+  public void search_all_projects() {
     insertProjectsAuthorizedForUser(
       ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization()).setDbKey("org.jenkins-ci.plugins:sonar").setName("Jenkins Sonar Plugin"),
       ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization()).setDbKey("org.codehaus.sonar-plugins:sonar-ant-task").setName("Sonar Ant Task"),
@@ -78,7 +78,7 @@ public class IndexActionTest {
   }
 
   @Test
-  public void search_projects_with_modules() throws Exception {
+  public void search_projects_with_modules() {
     ComponentDto project1 = ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization()).setDbKey("org.jenkins-ci.plugins:sonar").setName("Jenkins Sonar Plugin");
     ComponentDto project2 = ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization()).setDbKey("org.codehaus.sonar-plugins:sonar-ant-task").setName("Sonar Ant Task");
     insertProjectsAuthorizedForUser(project1, project2);
@@ -92,7 +92,7 @@ public class IndexActionTest {
   }
 
   @Test
-  public void search_project_by_key() throws Exception {
+  public void search_project_by_key() {
     insertProjectsAuthorizedForUser(
       ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization()).setDbKey("org.jenkins-ci.plugins:sonar").setName("Jenkins Sonar Plugin"),
       ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization()).setDbKey("org.codehaus.sonar-plugins:sonar-ant-task").setName("Sonar Ant Task"),
@@ -104,7 +104,7 @@ public class IndexActionTest {
   }
 
   @Test
-  public void search_project_by_id() throws Exception {
+  public void search_project_by_id() {
     ComponentDto project = ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization()).setDbKey("org.jenkins-ci.plugins:sonar").setName("Jenkins Sonar Plugin");
     insertProjectsAuthorizedForUser(
       project,
@@ -117,7 +117,7 @@ public class IndexActionTest {
   }
 
   @Test
-  public void search_projects_by_name() throws Exception {
+  public void search_projects_by_name() {
     insertProjectsAuthorizedForUser(
       ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization()).setDbKey("org.jenkins-ci.plugins:sonar").setName("Jenkins Sonar Plugin"),
       ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization()).setDbKey("org.codehaus.sonar-plugins:sonar-ant-task").setName("Sonar Ant Task"),
@@ -129,7 +129,7 @@ public class IndexActionTest {
   }
 
   @Test
-  public void search_projects_with_modules_by_name() throws Exception {
+  public void search_projects_with_modules_by_name() {
     ComponentDto project1 = ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization()).setDbKey("org.jenkins-ci.plugins:sonar").setName("Jenkins Sonar Plugin");
     ComponentDto project2 = ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization()).setDbKey("org.codehaus.sonar-plugins:sonar-ant-task").setName("Sonar Ant Task");
     insertProjectsAuthorizedForUser(project1, project2);
@@ -144,7 +144,7 @@ public class IndexActionTest {
   }
 
   @Test
-  public void return_empty_list_when_no_project_match_search() throws Exception {
+  public void return_empty_list_when_no_project_match_search() {
     insertProjectsAuthorizedForUser(
       ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization()).setDbKey("org.jenkins-ci.plugins:sonar").setName("Jenkins Sonar Plugin"),
       ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization()).setDbKey("org.codehaus.sonar-plugins:sonar-ant-task").setName("Sonar Ant Task"),
@@ -156,7 +156,7 @@ public class IndexActionTest {
   }
 
   @Test
-  public void return_only_projects_authorized_for_user() throws Exception {
+  public void return_only_projects_authorized_for_user() {
     insertProjectsAuthorizedForUser(
       ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization()).setDbKey("org.jenkins-ci.plugins:sonar").setName("Jenkins Sonar Plugin"),
       ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization()).setDbKey("org.codehaus.sonar-plugins:sonar-ant-task").setName("Sonar Ant Task"));
@@ -169,7 +169,7 @@ public class IndexActionTest {
   }
 
   @Test
-  public void do_not_verify_permissions_if_user_is_root() throws Exception {
+  public void do_not_verify_permissions_if_user_is_root() {
     ComponentDto project = db.components().insertPrivateProject(p -> p.setDbKey("P1").setName("POne"));
 
     String result = call(null, null, null);

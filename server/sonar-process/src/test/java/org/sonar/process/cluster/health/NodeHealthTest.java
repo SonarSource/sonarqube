@@ -141,7 +141,7 @@ public class NodeHealthTest {
   @Test
   public void class_is_serializable_with_causes() throws IOException, ClassNotFoundException {
     NodeHealth source = testSupport.randomBuilder(1).build();
-    byte[] bytes = testSupport.serialize(source);
+    byte[] bytes = NodeDetailsTestSupport.serialize(source);
 
     NodeHealth underTest = (NodeHealth) new ObjectInputStream(new ByteArrayInputStream(bytes)).readObject();
 
@@ -154,7 +154,7 @@ public class NodeHealthTest {
       .setStatus(randomStatus)
       .setDetails(testSupport.randomNodeDetails());
     NodeHealth source = builder.build();
-    byte[] bytes = testSupport.serialize(source);
+    byte[] bytes = NodeDetailsTestSupport.serialize(source);
 
     NodeHealth underTest = (NodeHealth) new ObjectInputStream(new ByteArrayInputStream(bytes)).readObject();
 

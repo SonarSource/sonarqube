@@ -57,7 +57,7 @@ public class AppActionTest {
   private WsActionTester ws = new WsActionTester(new AppAction(db.getDbClient(), userSession, TestComponentFinder.from(db)));
 
   @Test
-  public void file_info() throws Exception {
+  public void file_info() {
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto directory = db.components().insertComponent(newDirectory(project, "src"));
     ComponentDto file = db.components().insertComponent(newFileDto(project, directory));
@@ -84,7 +84,7 @@ public class AppActionTest {
   }
 
   @Test
-  public void file_on_module() throws Exception {
+  public void file_on_module() {
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto module = db.components().insertComponent(newModuleDto(project));
     ComponentDto directory = db.components().insertComponent(newDirectory(module, "src"));
@@ -114,7 +114,7 @@ public class AppActionTest {
   }
 
   @Test
-  public void file_without_measures() throws Exception {
+  public void file_without_measures() {
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     userSession.logIn("john").addProjectPermission(USER, project);
@@ -130,7 +130,7 @@ public class AppActionTest {
   }
 
   @Test
-  public void file_with_measures() throws Exception {
+  public void file_with_measures() {
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto directory = db.components().insertComponent(newDirectory(project, "src"));
     ComponentDto file = db.components().insertComponent(newFileDto(project, directory));
@@ -308,7 +308,7 @@ public class AppActionTest {
   }
 
   @Test
-  public void fail_when_component_not_found() throws Exception {
+  public void fail_when_component_not_found() {
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
 
@@ -320,7 +320,7 @@ public class AppActionTest {
   }
 
   @Test
-  public void fail_when_branch_not_found() throws Exception {
+  public void fail_when_branch_not_found() {
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto branch = db.components().insertProjectBranch(project);
     ComponentDto file = db.components().insertComponent(newFileDto(branch));
@@ -334,7 +334,7 @@ public class AppActionTest {
   }
 
   @Test
-  public void fail_when_missing_permission() throws Exception {
+  public void fail_when_missing_permission() {
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
 

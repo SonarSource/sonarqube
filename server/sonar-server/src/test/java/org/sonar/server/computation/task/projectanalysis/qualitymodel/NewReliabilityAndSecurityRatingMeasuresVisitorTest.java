@@ -138,7 +138,7 @@ public class NewReliabilityAndSecurityRatingMeasuresVisitorTest {
   }
 
   @Test
-  public void compute_new_security_rating() throws Exception {
+  public void compute_new_security_rating() {
     treeRootHolder.setRoot(ROOT_PROJECT);
     fillComponentIssuesVisitorRule.setIssues(FILE_1_REF,
       newVulnerabilityIssue(10L, MAJOR).setCreationDate(AFTER_LEAK_PERIOD_DATE),
@@ -163,7 +163,7 @@ public class NewReliabilityAndSecurityRatingMeasuresVisitorTest {
   }
 
   @Test
-  public void compute_new_security_rating_to_A_when_no_issue() throws Exception {
+  public void compute_new_security_rating_to_A_when_no_issue() {
     treeRootHolder.setRoot(ROOT_PROJECT);
     fillComponentIssuesVisitorRule.setIssues(FILE_1_REF);
 
@@ -177,7 +177,7 @@ public class NewReliabilityAndSecurityRatingMeasuresVisitorTest {
   }
 
   @Test
-  public void compute_new_security_rating_to_A_when_no_new_issue() throws Exception {
+  public void compute_new_security_rating_to_A_when_no_new_issue() {
     treeRootHolder.setRoot(ROOT_PROJECT);
     fillComponentIssuesVisitorRule.setIssues(FILE_1_REF,
       newVulnerabilityIssue(1L, MAJOR).setCreationDate(BEFORE_LEAK_PERIOD_DATE));
@@ -192,7 +192,7 @@ public class NewReliabilityAndSecurityRatingMeasuresVisitorTest {
   }
 
   @Test
-  public void compute_new_reliability_rating() throws Exception {
+  public void compute_new_reliability_rating() {
     treeRootHolder.setRoot(ROOT_PROJECT);
     fillComponentIssuesVisitorRule.setIssues(FILE_1_REF,
       newBugIssue(10L, MAJOR).setCreationDate(AFTER_LEAK_PERIOD_DATE),
@@ -217,7 +217,7 @@ public class NewReliabilityAndSecurityRatingMeasuresVisitorTest {
   }
 
   @Test
-  public void compute_new_reliability_rating_to_A_when_no_issue() throws Exception {
+  public void compute_new_reliability_rating_to_A_when_no_issue() {
     treeRootHolder.setRoot(ROOT_PROJECT);
     fillComponentIssuesVisitorRule.setIssues(FILE_1_REF);
 
@@ -231,7 +231,7 @@ public class NewReliabilityAndSecurityRatingMeasuresVisitorTest {
   }
 
   @Test
-  public void compute_new_reliability_rating_to_A_when_no_new_issue() throws Exception {
+  public void compute_new_reliability_rating_to_A_when_no_new_issue() {
     treeRootHolder.setRoot(ROOT_PROJECT);
     fillComponentIssuesVisitorRule.setIssues(FILE_1_REF,
       newBugIssue(1L, MAJOR).setCreationDate(BEFORE_LEAK_PERIOD_DATE));
@@ -246,7 +246,7 @@ public class NewReliabilityAndSecurityRatingMeasuresVisitorTest {
   }
 
   @Test
-  public void compute_E_reliability_and_security_rating_on_blocker_issue() throws Exception {
+  public void compute_E_reliability_and_security_rating_on_blocker_issue() {
     treeRootHolder.setRoot(ROOT_PROJECT);
     fillComponentIssuesVisitorRule.setIssues(FILE_1_REF,
       newBugIssue(10L, BLOCKER).setCreationDate(AFTER_LEAK_PERIOD_DATE),
@@ -261,7 +261,7 @@ public class NewReliabilityAndSecurityRatingMeasuresVisitorTest {
   }
 
   @Test
-  public void compute_D_reliability_and_security_rating_on_critical_issue() throws Exception {
+  public void compute_D_reliability_and_security_rating_on_critical_issue() {
     treeRootHolder.setRoot(ROOT_PROJECT);
     fillComponentIssuesVisitorRule.setIssues(FILE_1_REF,
       newBugIssue(10L, CRITICAL).setCreationDate(AFTER_LEAK_PERIOD_DATE),
@@ -276,7 +276,7 @@ public class NewReliabilityAndSecurityRatingMeasuresVisitorTest {
   }
 
   @Test
-  public void compute_C_reliability_and_security_rating_on_major_issue() throws Exception {
+  public void compute_C_reliability_and_security_rating_on_major_issue() {
     treeRootHolder.setRoot(ROOT_PROJECT);
     fillComponentIssuesVisitorRule.setIssues(FILE_1_REF,
       newBugIssue(10L, MAJOR).setCreationDate(AFTER_LEAK_PERIOD_DATE),
@@ -291,7 +291,7 @@ public class NewReliabilityAndSecurityRatingMeasuresVisitorTest {
   }
 
   @Test
-  public void compute_B_reliability_and_security_rating_on_minor_issue() throws Exception {
+  public void compute_B_reliability_and_security_rating_on_minor_issue() {
     treeRootHolder.setRoot(ROOT_PROJECT);
     fillComponentIssuesVisitorRule.setIssues(FILE_1_REF,
       newBugIssue(10L, MINOR).setCreationDate(AFTER_LEAK_PERIOD_DATE),
@@ -306,7 +306,7 @@ public class NewReliabilityAndSecurityRatingMeasuresVisitorTest {
   }
 
   @Test
-  public void compute_A_reliability_and_security_rating_on_info_issue() throws Exception {
+  public void compute_A_reliability_and_security_rating_on_info_issue() {
     treeRootHolder.setRoot(ROOT_PROJECT);
     fillComponentIssuesVisitorRule.setIssues(FILE_1_REF,
       newBugIssue(10L, INFO).setCreationDate(AFTER_LEAK_PERIOD_DATE),

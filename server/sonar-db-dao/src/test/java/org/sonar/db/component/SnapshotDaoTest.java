@@ -190,7 +190,7 @@ public class SnapshotDaoTest {
   }
 
   @Test
-  public void select_first_snapshots() throws Exception {
+  public void select_first_snapshots() {
     ComponentDto project = newPrivateProjectDto(db.getDefaultOrganization());
     db.getDbClient().componentDao().insert(dbSession, project);
 

@@ -33,187 +33,187 @@ public class ProjectMeasuresQueryValidatorTest {
   public ExpectedException expectedException = ExpectedException.none();
 
   @Test
-  public void query_with_empty_metrics_is_valid() throws Exception {
+  public void query_with_empty_metrics_is_valid() {
     ProjectMeasuresQueryValidator.validate(new ProjectMeasuresQuery());
   }
 
   @Test
-  public void filter_by_ncloc_is_valid() throws Exception {
+  public void filter_by_ncloc_is_valid() {
     assertValidFilterKey("ncloc");
   }
 
   @Test
-  public void filter_by_duplicated_lines_density_is_valid() throws Exception {
+  public void filter_by_duplicated_lines_density_is_valid() {
     assertValidFilterKey("duplicated_lines_density");
   }
 
   @Test
-  public void filter_by_coverage_is_valid() throws Exception {
+  public void filter_by_coverage_is_valid() {
     assertValidFilterKey("coverage");
   }
 
   @Test
-  public void filter_by_sqale_rating_is_valid() throws Exception {
+  public void filter_by_sqale_rating_is_valid() {
     assertValidFilterKey("sqale_rating");
   }
 
   @Test
-  public void filter_by_reliability_rating_is_valid() throws Exception {
+  public void filter_by_reliability_rating_is_valid() {
     assertValidFilterKey("reliability_rating");
   }
 
   @Test
-  public void filter_by_security_rating_is_valid() throws Exception {
+  public void filter_by_security_rating_is_valid() {
     assertValidFilterKey("security_rating");
   }
 
   @Test
-  public void filter_by_alert_status_is_valid() throws Exception {
+  public void filter_by_alert_status_is_valid() {
     assertValidFilterKey("alert_status");
   }
 
   @Test
-  public void filter_by_ncloc_language_distribution_is_valid() throws Exception {
+  public void filter_by_ncloc_language_distribution_is_valid() {
     assertValidFilterKey("ncloc_language_distribution");
   }
 
   @Test
-  public void filter_by_new_security_rating_is_valid() throws Exception {
+  public void filter_by_new_security_rating_is_valid() {
     assertValidFilterKey("new_security_rating");
   }
 
   @Test
-  public void filter_by_new_maintainability_rating_is_valid() throws Exception {
+  public void filter_by_new_maintainability_rating_is_valid() {
     assertValidFilterKey("new_maintainability_rating");
   }
 
   @Test
-  public void filter_by_new_coverage_is_valid() throws Exception {
+  public void filter_by_new_coverage_is_valid() {
     assertValidFilterKey("new_coverage");
   }
 
   @Test
-  public void filter_by_new_duplicated_lines_density_is_valid() throws Exception {
+  public void filter_by_new_duplicated_lines_density_is_valid() {
     assertValidFilterKey("new_duplicated_lines_density");
   }
 
   @Test
-  public void filter_by_new_lines_is_valid() throws Exception {
+  public void filter_by_new_lines_is_valid() {
     assertValidFilterKey("new_lines");
   }
 
   @Test
-  public void filter_by_new_reliability_rating_is_valid() throws Exception {
+  public void filter_by_new_reliability_rating_is_valid() {
     assertValidFilterKey("new_reliability_rating");
   }
 
   @Test
-  public void filter_by_bla_is_invalid() throws Exception {
+  public void filter_by_bla_is_invalid() {
     assertInvalidFilterKey("bla");
   }
 
   @Test
-  public void filter_by_bla_and_new_lines_is_invalid() throws Exception {
+  public void filter_by_bla_and_new_lines_is_invalid() {
     assertInvalidFilterKeys("Following metrics are not supported: 'bla'", "bla", "new_lines");
   }
 
   @Test
-  public void filter_by_new_lines_and_bla_is_invalid() throws Exception {
+  public void filter_by_new_lines_and_bla_is_invalid() {
     assertInvalidFilterKeys("Following metrics are not supported: 'bla'", "new_lines", "bla");
   }
 
   @Test
-  public void filter_by_NeW_LiNeS_is_invalid() throws Exception {
+  public void filter_by_NeW_LiNeS_is_invalid() {
     assertInvalidFilterKey("NeW_LiNeS");
   }
 
   @Test
-  public void filter_by_empty_string_is_invalid() throws Exception {
+  public void filter_by_empty_string_is_invalid() {
     assertInvalidFilterKey("");
   }
 
   @Test
-  public void sort_by_ncloc_is_valid() throws Exception {
+  public void sort_by_ncloc_is_valid() {
     assertValidSortKey("ncloc");
   }
 
   @Test
-  public void sort_by_duplicated_lines_density_is_valid() throws Exception {
+  public void sort_by_duplicated_lines_density_is_valid() {
     assertValidSortKey("duplicated_lines_density");
   }
 
   @Test
-  public void sort_by_coverage_is_valid() throws Exception {
+  public void sort_by_coverage_is_valid() {
     assertValidSortKey("coverage");
   }
 
   @Test
-  public void sort_by_sqale_rating_is_valid() throws Exception {
+  public void sort_by_sqale_rating_is_valid() {
     assertValidSortKey("sqale_rating");
   }
 
   @Test
-  public void sort_by_reliability_rating_is_valid() throws Exception {
+  public void sort_by_reliability_rating_is_valid() {
     assertValidSortKey("reliability_rating");
   }
 
   @Test
-  public void sort_by_security_rating_is_valid() throws Exception {
+  public void sort_by_security_rating_is_valid() {
     assertValidSortKey("security_rating");
   }
 
   @Test
-  public void sort_by_alert_status_is_valid() throws Exception {
+  public void sort_by_alert_status_is_valid() {
     assertValidSortKey("alert_status");
   }
 
   @Test
-  public void sort_by_ncloc_language_distribution_is_valid() throws Exception {
+  public void sort_by_ncloc_language_distribution_is_valid() {
     assertValidSortKey("ncloc_language_distribution");
   }
 
   @Test
-  public void sort_by_new_security_rating_is_valid() throws Exception {
+  public void sort_by_new_security_rating_is_valid() {
     assertValidSortKey("new_security_rating");
   }
 
   @Test
-  public void sort_by_new_maintainability_rating_is_valid() throws Exception {
+  public void sort_by_new_maintainability_rating_is_valid() {
     assertValidSortKey("new_maintainability_rating");
   }
 
   @Test
-  public void sort_by_new_coverage_is_valid() throws Exception {
+  public void sort_by_new_coverage_is_valid() {
     assertValidSortKey("new_coverage");
   }
 
   @Test
-  public void sort_by_new_duplicated_lines_density_is_valid() throws Exception {
+  public void sort_by_new_duplicated_lines_density_is_valid() {
     assertValidSortKey("new_duplicated_lines_density");
   }
 
   @Test
-  public void sort_by_new_lines_is_valid() throws Exception {
+  public void sort_by_new_lines_is_valid() {
     assertValidSortKey("new_lines");
   }
 
   @Test
-  public void sort_by_new_reliability_rating_is_valid() throws Exception {
+  public void sort_by_new_reliability_rating_is_valid() {
     assertValidSortKey("new_reliability_rating");
   }
 
   @Test
-  public void sort_by_bla_is_invalid() throws Exception {
+  public void sort_by_bla_is_invalid() {
     assertInvalidSortKey("bla");
   }
 
   @Test
-  public void sort_by_NeW_lInEs_is_invalid() throws Exception {
+  public void sort_by_NeW_lInEs_is_invalid() {
     assertInvalidSortKey("NeW_lInEs");
   }
 
   @Test
-  public void sort_by_empty_string_is_invalid() throws Exception {
+  public void sort_by_empty_string_is_invalid() {
     assertInvalidSortKey("");
   }
 

@@ -824,7 +824,7 @@ public class ComponentTreeBuilderTest {
     private final Map<Integer, ScannerReport.Component> components = new HashMap<>();
 
     @Override
-    protected void before() throws Throwable {
+    protected void before() {
       components.clear();
     }
 

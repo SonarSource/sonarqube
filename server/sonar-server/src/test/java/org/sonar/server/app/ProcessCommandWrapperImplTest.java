@@ -44,7 +44,7 @@ public class ProcessCommandWrapperImplTest {
   private MapSettings settings = new MapSettings();
 
   @Test
-  public void requestSQRestart_throws_IAE_if_process_index_property_not_set() throws Exception {
+  public void requestSQRestart_throws_IAE_if_process_index_property_not_set() {
     ProcessCommandWrapperImpl processCommandWrapper = new ProcessCommandWrapperImpl(settings.asConfig());
 
     expectedException.expect(IllegalArgumentException.class);
@@ -54,7 +54,7 @@ public class ProcessCommandWrapperImplTest {
   }
 
   @Test
-  public void requestSQRestart_throws_IAE_if_process_shared_path_property_not_set() throws Exception {
+  public void requestSQRestart_throws_IAE_if_process_shared_path_property_not_set() {
     settings.setProperty(PROPERTY_PROCESS_INDEX, 1);
     ProcessCommandWrapperImpl processCommandWrapper = new ProcessCommandWrapperImpl(settings.asConfig());
 
@@ -79,7 +79,7 @@ public class ProcessCommandWrapperImplTest {
   }
 
   @Test
-  public void requestSQStop_throws_IAE_if_process_shared_path_property_not_set() throws Exception {
+  public void requestSQStop_throws_IAE_if_process_shared_path_property_not_set() {
     settings.setProperty(PROPERTY_PROCESS_INDEX, 1);
     ProcessCommandWrapperImpl processCommandWrapper = new ProcessCommandWrapperImpl(settings.asConfig());
 
@@ -104,7 +104,7 @@ public class ProcessCommandWrapperImplTest {
   }
 
   @Test
-  public void notifyOperational_throws_IAE_if_process_sharedDir_property_not_set() throws Exception {
+  public void notifyOperational_throws_IAE_if_process_sharedDir_property_not_set() {
     settings.setProperty(PROPERTY_PROCESS_INDEX, 1);
     ProcessCommandWrapperImpl processCommandWrapper = new ProcessCommandWrapperImpl(settings.asConfig());
 
@@ -115,7 +115,7 @@ public class ProcessCommandWrapperImplTest {
   }
 
   @Test
-  public void notifyOperational_throws_IAE_if_process_index_property_not_set() throws Exception {
+  public void notifyOperational_throws_IAE_if_process_index_property_not_set() {
     ProcessCommandWrapperImpl processCommandWrapper = new ProcessCommandWrapperImpl(settings.asConfig());
 
     expectedException.expect(IllegalArgumentException.class);

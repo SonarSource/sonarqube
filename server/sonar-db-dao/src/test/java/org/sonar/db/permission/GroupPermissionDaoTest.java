@@ -447,7 +447,7 @@ public class GroupPermissionDaoTest {
   }
 
   @Test
-  public void selectAllPermissionsByGroupId_on_public_project() throws Exception {
+  public void selectAllPermissionsByGroupId_on_public_project() {
     OrganizationDto org1 = db.organizations().insert();
     GroupDto group1 = db.users().insertGroup(org1, "group1");
     ComponentDto project1 = db.components().insertPublicProject(org1);
@@ -467,7 +467,7 @@ public class GroupPermissionDaoTest {
   }
 
   @Test
-  public void selectAllPermissionsByGroupId_on_private_project() throws Exception {
+  public void selectAllPermissionsByGroupId_on_private_project() {
     OrganizationDto org1 = db.organizations().insert();
     GroupDto group1 = db.users().insertGroup(org1, "group1");
     ComponentDto project1 = db.components().insertPrivateProject(org1);

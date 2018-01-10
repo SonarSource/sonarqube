@@ -375,7 +375,7 @@ public class PropertiesDaoTest {
   }
 
   @Test
-  public void select_component_properties_by_ids() throws Exception {
+  public void select_component_properties_by_ids() {
     ComponentDto project = dbTester.components().insertPrivateProject();
     ComponentDto project2 = dbTester.components().insertPrivateProject();
 
@@ -403,7 +403,7 @@ public class PropertiesDaoTest {
   }
 
   @Test
-  public void select_properties_by_keys_and_component_ids() throws Exception {
+  public void select_properties_by_keys_and_component_ids() {
     ComponentDto project = dbTester.components().insertPrivateProject();
     ComponentDto project2 = dbTester.components().insertPrivateProject();
 
@@ -1008,10 +1008,10 @@ public class PropertiesDaoTest {
     return insertProperty(key, value, resourceId, userId);
   }
 
-  private long insertProperty(String key, @Nullable String value, @Nullable Long resourceId, @Nullable Integer userId) throws SQLException {
+  private long insertProperty(String key, @Nullable String value, @Nullable Long resourceId, @Nullable Integer userId) {
     PropertyDto dto = new PropertyDto().setKey(key)
       .setResourceId(resourceId)
-      .setUserId(userId == null ? null : userId)
+      .setUserId(userId)
       .setValue(value);
     dbTester.properties().insertProperty(dto);
 

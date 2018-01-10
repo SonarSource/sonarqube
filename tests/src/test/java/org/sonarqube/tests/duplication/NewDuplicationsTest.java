@@ -56,7 +56,7 @@ public class NewDuplicationsTest {
   }
 
   @Test
-  public void new_duplications_on_project() throws Exception {
+  public void new_duplications_on_project() {
     Map<String, Measures.Measure> measures = getMeasures("new-duplications");
     assertThat(parseDouble(measures.get("new_lines").getPeriods().getPeriodsValue(0).getValue())).isEqualTo(83d, DEFAULT_OFFSET);
     assertThat(parseDouble(measures.get("new_duplicated_lines").getPeriods().getPeriodsValue(0).getValue())).isEqualTo(71d, DEFAULT_OFFSET);
@@ -65,7 +65,7 @@ public class NewDuplicationsTest {
   }
 
   @Test
-  public void new_duplications_on_directory() throws Exception {
+  public void new_duplications_on_directory() {
     Map<String, Measures.Measure> measures = getMeasures("new-duplications:src/main/xoo/duplicated_lines_with_other_dir1");
     assertThat(parseDouble(measures.get("new_lines").getPeriods().getPeriodsValue(0).getValue())).isEqualTo(24d, DEFAULT_OFFSET);
     assertThat(parseDouble(measures.get("new_duplicated_lines").getPeriods().getPeriodsValue(0).getValue())).isEqualTo(24d, DEFAULT_OFFSET);
@@ -74,7 +74,7 @@ public class NewDuplicationsTest {
   }
 
   @Test
-  public void new_duplications_on_file() throws Exception {
+  public void new_duplications_on_file() {
     Map<String, Measures.Measure> measures = getMeasures("new-duplications:src/main/xoo/duplicated_lines_within_same_file/DuplicatedLinesInSameFile.xoo");
     assertThat(parseDouble(measures.get("new_lines").getPeriods().getPeriodsValue(0).getValue())).isEqualTo(41d, DEFAULT_OFFSET);
     assertThat(parseDouble(measures.get("new_duplicated_lines").getPeriods().getPeriodsValue(0).getValue())).isEqualTo(29d, DEFAULT_OFFSET);

@@ -41,7 +41,7 @@ public class SystemPasscodeWebService implements WebService, RequestHandler {
   }
 
   @Override
-  public void handle(Request request, Response response) throws Exception {
+  public void handle(Request request, Response response) {
     if (!passcode.isValid(request)) {
       response.stream().setStatus(HttpURLConnection.HTTP_UNAUTHORIZED);
     }

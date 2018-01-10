@@ -67,7 +67,7 @@ public class IssueFieldsSetterTest {
   @Test
   public void unassign() {
     issue.setAssignee("morgan");
-    boolean updated = updater.assign(issue, (UserDto) null, context);
+    boolean updated = updater.assign(issue, null, context);
     assertThat(updated).isTrue();
     assertThat(issue.assignee()).isNull();
     assertThat(issue.mustSendNotifications()).isTrue();
@@ -102,7 +102,7 @@ public class IssueFieldsSetterTest {
   }
 
   @Test
-  public void set_new_assignee() throws Exception {
+  public void set_new_assignee() {
     boolean updated = updater.setNewAssignee(issue, "simon", context);
     assertThat(updated).isTrue();
     assertThat(issue.assignee()).isEqualTo("simon");
@@ -113,7 +113,7 @@ public class IssueFieldsSetterTest {
   }
 
   @Test
-  public void not_set_new_assignee_if_new_assignee_is_null() throws Exception {
+  public void not_set_new_assignee_if_new_assignee_is_null() {
     boolean updated = updater.setNewAssignee(issue, null, context);
     assertThat(updated).isFalse();
     assertThat(issue.currentChange()).isNull();
@@ -121,7 +121,7 @@ public class IssueFieldsSetterTest {
   }
 
   @Test
-  public void fail_with_ISE_when_setting_new_assignee_on_already_assigned_issue() throws Exception {
+  public void fail_with_ISE_when_setting_new_assignee_on_already_assigned_issue() {
     issue.setAssignee("simon");
 
     thrown.expect(IllegalStateException.class);
@@ -455,7 +455,7 @@ public class IssueFieldsSetterTest {
   }
 
   @Test
-  public void set_new_author() throws Exception {
+  public void set_new_author() {
     boolean updated = updater.setNewAuthor(issue, "simon", context);
     assertThat(updated).isTrue();
 
@@ -466,7 +466,7 @@ public class IssueFieldsSetterTest {
   }
 
   @Test
-  public void not_set_new_author_if_new_author_is_null() throws Exception {
+  public void not_set_new_author_if_new_author_is_null() {
     boolean updated = updater.setNewAuthor(issue, null, context);
     assertThat(updated).isFalse();
     assertThat(issue.currentChange()).isNull();
@@ -474,7 +474,7 @@ public class IssueFieldsSetterTest {
   }
 
   @Test
-  public void fail_with_ISE_when_setting_new_author_on_issue() throws Exception {
+  public void fail_with_ISE_when_setting_new_author_on_issue() {
     issue.setAuthorLogin("simon");
 
     thrown.expect(IllegalStateException.class);

@@ -49,7 +49,7 @@ public class IdentityProviderRepositoryTest {
     .setEnabled(false);
 
   @Test
-  public void return_enabled_provider() throws Exception {
+  public void return_enabled_provider() {
     IdentityProviderRepository underTest = new IdentityProviderRepository(asList(GITHUB, BITBUCKET, DISABLED));
 
     assertThat(underTest.getEnabledByKey(GITHUB.getKey())).isEqualTo(GITHUB);
@@ -57,7 +57,7 @@ public class IdentityProviderRepositoryTest {
   }
 
   @Test
-  public void fail_on_disabled_provider() throws Exception {
+  public void fail_on_disabled_provider() {
     IdentityProviderRepository underTest = new IdentityProviderRepository(asList(GITHUB, BITBUCKET, DISABLED));
 
     thrown.expect(IllegalArgumentException.class);
@@ -66,7 +66,7 @@ public class IdentityProviderRepositoryTest {
   }
 
   @Test
-  public void return_all_enabled_providers() throws Exception {
+  public void return_all_enabled_providers() {
     IdentityProviderRepository underTest = new IdentityProviderRepository(asList(GITHUB, BITBUCKET, DISABLED));
 
     List<IdentityProvider> providers = underTest.getAllEnabledAndSorted();
@@ -74,7 +74,7 @@ public class IdentityProviderRepositoryTest {
   }
 
   @Test
-  public void return_sorted_enabled_providers() throws Exception {
+  public void return_sorted_enabled_providers() {
     IdentityProviderRepository underTest = new IdentityProviderRepository(asList(GITHUB, BITBUCKET));
 
     List<IdentityProvider> providers = underTest.getAllEnabledAndSorted();
@@ -82,7 +82,7 @@ public class IdentityProviderRepositoryTest {
   }
 
   @Test
-  public void return_nothing_when_no_identity_provider() throws Exception {
+  public void return_nothing_when_no_identity_provider() {
     IdentityProviderRepository underTest = new IdentityProviderRepository();
 
     assertThat(underTest.getAllEnabledAndSorted()).isEmpty();

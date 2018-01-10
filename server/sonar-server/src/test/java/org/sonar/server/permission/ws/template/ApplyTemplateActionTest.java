@@ -105,7 +105,7 @@ public class ApplyTemplateActionTest extends BasePermissionWsTest<ApplyTemplateA
   }
 
   @Test
-  public void apply_template_with_project_uuid_by_template_name() throws Exception {
+  public void apply_template_with_project_uuid_by_template_name() {
     loginAsAdmin(db.getDefaultOrganization());
 
     newRequest()
@@ -191,7 +191,7 @@ public class ApplyTemplateActionTest extends BasePermissionWsTest<ApplyTemplateA
     assertThat(selectProjectPermissionUsers(project, UserRole.ISSUE_ADMIN)).containsExactly(user2.getId());
   }
 
-  private TestResponse newRequest(@Nullable String templateUuid, @Nullable String projectUuid, @Nullable String projectKey) throws Exception {
+  private TestResponse newRequest(@Nullable String templateUuid, @Nullable String projectUuid, @Nullable String projectKey) {
     TestRequest request = newRequest();
     if (templateUuid != null) {
       request.setParam(PARAM_TEMPLATE_ID, templateUuid);

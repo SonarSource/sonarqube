@@ -58,7 +58,7 @@ public class PluginUninstallerTest {
   }
 
   @Test
-  public void uninstall() throws Exception {
+  public void uninstall() {
     when(serverPluginRepository.hasPlugin("plugin")).thenReturn(true);
     underTest.uninstall("plugin");
     verify(serverPluginRepository).uninstall("plugin", uninstallDir);

@@ -64,7 +64,7 @@ public class AddGroupActionTest extends BasePermissionWsTest<AddGroupAction> {
   }
 
   @Test
-  public void add_permission_to_group_referenced_by_its_name() throws Exception {
+  public void add_permission_to_group_referenced_by_its_name() {
     GroupDto group = db.users().insertGroup(db.getDefaultOrganization(), "sonar-administrators");
     loginAsAdmin(db.getDefaultOrganization());
 
@@ -77,7 +77,7 @@ public class AddGroupActionTest extends BasePermissionWsTest<AddGroupAction> {
   }
 
   @Test
-  public void reference_group_by_its_name_in_organization() throws Exception {
+  public void reference_group_by_its_name_in_organization() {
     OrganizationDto org = db.organizations().insert();
     GroupDto group = db.users().insertGroup(org, "the-group");
     loginAsAdmin(org);
@@ -92,7 +92,7 @@ public class AddGroupActionTest extends BasePermissionWsTest<AddGroupAction> {
   }
 
   @Test
-  public void add_permission_to_group_referenced_by_its_id() throws Exception {
+  public void add_permission_to_group_referenced_by_its_id() {
     GroupDto group = db.users().insertGroup(db.getDefaultOrganization(), "sonar-administrators");
     loginAsAdmin(db.getDefaultOrganization());
 
@@ -105,7 +105,7 @@ public class AddGroupActionTest extends BasePermissionWsTest<AddGroupAction> {
   }
 
   @Test
-  public void add_permission_to_project_referenced_by_its_id() throws Exception {
+  public void add_permission_to_project_referenced_by_its_id() {
     GroupDto group = db.users().insertGroup(db.getDefaultOrganization(), "sonar-administrators");
     ComponentDto project = db.components().insertComponent(newPrivateProjectDto(db.getDefaultOrganization(), A_PROJECT_UUID).setDbKey(A_PROJECT_KEY));
     loginAsAdmin(db.getDefaultOrganization());
@@ -121,7 +121,7 @@ public class AddGroupActionTest extends BasePermissionWsTest<AddGroupAction> {
   }
 
   @Test
-  public void add_permission_to_project_referenced_by_its_key() throws Exception {
+  public void add_permission_to_project_referenced_by_its_key() {
     GroupDto group = db.users().insertGroup(db.getDefaultOrganization(), "sonar-administrators");
     ComponentDto project = db.components().insertComponent(newPrivateProjectDto(db.getDefaultOrganization(), A_PROJECT_UUID).setDbKey(A_PROJECT_KEY));
     loginAsAdmin(db.getDefaultOrganization());
@@ -137,7 +137,7 @@ public class AddGroupActionTest extends BasePermissionWsTest<AddGroupAction> {
   }
 
   @Test
-  public void add_with_view_uuid() throws Exception {
+  public void add_with_view_uuid() {
     OrganizationDto organizationDto = db.getDefaultOrganization();
     GroupDto group = db.users().insertGroup(db.getDefaultOrganization(), "sonar-administrators");
     ComponentDto view = db.components().insertComponent(newView(organizationDto, "view-uuid").setDbKey("view-key"));
@@ -154,7 +154,7 @@ public class AddGroupActionTest extends BasePermissionWsTest<AddGroupAction> {
   }
 
   @Test
-  public void fail_if_project_uuid_is_not_found() throws Exception {
+  public void fail_if_project_uuid_is_not_found() {
     GroupDto group = db.users().insertGroup(db.getDefaultOrganization(), "sonar-administrators");
     loginAsAdmin(db.getDefaultOrganization());
 
@@ -167,28 +167,28 @@ public class AddGroupActionTest extends BasePermissionWsTest<AddGroupAction> {
   }
 
   @Test
-  public void fail_when_component_is_a_module() throws Exception {
+  public void fail_when_component_is_a_module() {
     ComponentDto module = db.components().insertComponent(newModuleDto(ComponentTesting.newPrivateProjectDto(db.organizations().insert())));
 
     failIfComponentIsNotAProjectOrView(module);
   }
 
   @Test
-  public void fail_when_component_is_a_directory() throws Exception {
+  public void fail_when_component_is_a_directory() {
     ComponentDto file = db.components().insertComponent(newDirectory(ComponentTesting.newPrivateProjectDto(db.organizations().insert()), "A/B"));
 
     failIfComponentIsNotAProjectOrView(file);
   }
 
   @Test
-  public void fail_when_component_is_a_file() throws Exception {
+  public void fail_when_component_is_a_file() {
     ComponentDto file = db.components().insertComponent(newFileDto(ComponentTesting.newPrivateProjectDto(db.organizations().insert()), null, "file-uuid"));
 
     failIfComponentIsNotAProjectOrView(file);
   }
 
   @Test
-  public void fail_when_component_is_a_subview() throws Exception {
+  public void fail_when_component_is_a_subview() {
     ComponentDto file = db.components().insertComponent(newSubView(ComponentTesting.newView(db.organizations().insert())));
 
     failIfComponentIsNotAProjectOrView(file);
@@ -219,7 +219,7 @@ public class AddGroupActionTest extends BasePermissionWsTest<AddGroupAction> {
   }
 
   @Test
-  public void adding_a_project_permission_fails_if_component_is_not_a_project() throws Exception {
+  public void adding_a_project_permission_fails_if_component_is_not_a_project() {
     OrganizationDto organizationDto = db.getDefaultOrganization();
     GroupDto group = db.users().insertGroup(organizationDto, "sonar-administrators");
     ComponentDto project = db.components().insertComponent(newPrivateProjectDto(organizationDto, A_PROJECT_UUID).setDbKey(A_PROJECT_KEY));
@@ -236,7 +236,7 @@ public class AddGroupActionTest extends BasePermissionWsTest<AddGroupAction> {
   }
 
   @Test
-  public void fail_when_get_request() throws Exception {
+  public void fail_when_get_request() {
     loginAsAdmin(db.getDefaultOrganization());
 
     expectedException.expect(ServerException.class);
@@ -249,7 +249,7 @@ public class AddGroupActionTest extends BasePermissionWsTest<AddGroupAction> {
   }
 
   @Test
-  public void fail_when_group_name_and_group_id_are_missing() throws Exception {
+  public void fail_when_group_name_and_group_id_are_missing() {
     loginAsAdmin(db.getDefaultOrganization());
 
     expectedException.expect(BadRequestException.class);
@@ -261,7 +261,7 @@ public class AddGroupActionTest extends BasePermissionWsTest<AddGroupAction> {
   }
 
   @Test
-  public void fail_when_permission_is_missing() throws Exception {
+  public void fail_when_permission_is_missing() {
     GroupDto group = db.users().insertGroup(db.getDefaultOrganization(), "sonar-administrators");
     loginAsAdmin(db.getDefaultOrganization());
 
@@ -273,7 +273,7 @@ public class AddGroupActionTest extends BasePermissionWsTest<AddGroupAction> {
   }
 
   @Test
-  public void fail_if_not_administrator_of_organization() throws Exception {
+  public void fail_if_not_administrator_of_organization() {
     GroupDto group = db.users().insertGroup();
     loginAsAdmin(db.getDefaultOrganization());
 
@@ -285,7 +285,7 @@ public class AddGroupActionTest extends BasePermissionWsTest<AddGroupAction> {
   }
 
   @Test
-  public void fail_if_administrator_of_other_organization_only() throws Exception {
+  public void fail_if_administrator_of_other_organization_only() {
     OrganizationDto org1 = db.organizations().insert();
     OrganizationDto org2 = db.organizations().insert();
     GroupDto group = db.users().insertGroup(org1, "the-group");
@@ -300,7 +300,7 @@ public class AddGroupActionTest extends BasePermissionWsTest<AddGroupAction> {
   }
 
   @Test
-  public void fail_when_project_uuid_and_project_key_are_provided() throws Exception {
+  public void fail_when_project_uuid_and_project_key_are_provided() {
     GroupDto group = db.users().insertGroup();
     ComponentDto project = db.components().insertComponent(ComponentTesting.newPrivateProjectDto(db.organizations().insert()));
     loginAsAdmin(db.getDefaultOrganization());
@@ -317,7 +317,7 @@ public class AddGroupActionTest extends BasePermissionWsTest<AddGroupAction> {
   }
 
   @Test
-  public void adding_global_permission_fails_if_not_administrator_of_organization() throws Exception {
+  public void adding_global_permission_fails_if_not_administrator_of_organization() {
     GroupDto group = db.users().insertGroup(db.getDefaultOrganization(), "sonar-administrators");
     // user is administrator of another organization
     userSession.logIn().addPermission(ADMINISTER, "anotherOrg");
@@ -331,7 +331,7 @@ public class AddGroupActionTest extends BasePermissionWsTest<AddGroupAction> {
   }
 
   @Test
-  public void adding_project_permission_fails_if_not_administrator_of_project() throws Exception {
+  public void adding_project_permission_fails_if_not_administrator_of_project() {
     GroupDto group = db.users().insertGroup(db.getDefaultOrganization(), "sonar-administrators");
     ComponentDto project = db.components().insertPrivateProject();
     userSession.logIn();
@@ -349,7 +349,7 @@ public class AddGroupActionTest extends BasePermissionWsTest<AddGroupAction> {
    * User is project administrator but not system administrator
    */
   @Test
-  public void adding_project_permission_is_allowed_to_project_administrators() throws Exception {
+  public void adding_project_permission_is_allowed_to_project_administrators() {
     GroupDto group = db.users().insertGroup(db.getDefaultOrganization(), "sonar-administrators");
     ComponentDto project = db.components().insertPrivateProject();
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
@@ -467,7 +467,7 @@ public class AddGroupActionTest extends BasePermissionWsTest<AddGroupAction> {
   }
 
   @Test
-  public void fail_when_using_branch_uuid() throws Exception {
+  public void fail_when_using_branch_uuid() {
     OrganizationDto organization = db.organizations().insert();
     GroupDto group = db.users().insertGroup(organization);
     ComponentDto project = db.components().insertMainBranch(organization);
@@ -485,7 +485,7 @@ public class AddGroupActionTest extends BasePermissionWsTest<AddGroupAction> {
       .execute();
   }
 
-  private void executeRequest(GroupDto groupDto, String permission) throws Exception {
+  private void executeRequest(GroupDto groupDto, String permission) {
     newRequest()
       .setParam(PARAM_GROUP_NAME, groupDto.getName())
       .setParam(PARAM_PERMISSION, permission)

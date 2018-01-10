@@ -148,7 +148,7 @@ public class ChangeParentActionTest {
   }
 
   @Test
-  public void change_parent_with_no_parent_before() throws Exception {
+  public void change_parent_with_no_parent_before() {
     QProfileDto parent1 = createProfile();
     QProfileDto child = createProfile();
 
@@ -175,7 +175,7 @@ public class ChangeParentActionTest {
   }
 
   @Test
-  public void replace_existing_parent() throws Exception {
+  public void replace_existing_parent() {
     QProfileDto parent1 = createProfile();
     QProfileDto parent2 = createProfile();
     QProfileDto child = createProfile();
@@ -206,7 +206,7 @@ public class ChangeParentActionTest {
   }
 
   @Test
-  public void remove_parent() throws Exception {
+  public void remove_parent() {
     QProfileDto parent = createProfile();
     QProfileDto child = createProfile();
 
@@ -231,7 +231,7 @@ public class ChangeParentActionTest {
   }
 
   @Test
-  public void change_parent_with_names() throws Exception {
+  public void change_parent_with_names() {
     QProfileDto parent1 = createProfile();
     QProfileDto parent2 = createProfile();
     QProfileDto child = createProfile();
@@ -293,7 +293,7 @@ public class ChangeParentActionTest {
   }
 
   @Test
-  public void remove_parent_with_empty_key() throws Exception {
+  public void remove_parent_with_empty_key() {
     QProfileDto parent = createProfile();
     QProfileDto child = createProfile();
 
@@ -320,7 +320,7 @@ public class ChangeParentActionTest {
   }
 
   @Test
-  public void as_qprofile_editor() throws Exception {
+  public void as_qprofile_editor() {
     QProfileDto parent1 = createProfile();
     QProfileDto parent2 = createProfile();
     QProfileDto child = createProfile();
@@ -370,7 +370,7 @@ public class ChangeParentActionTest {
   }
 
   @Test
-  public void fail_if_parent_key_and_name_both_set() throws Exception {
+  public void fail_if_parent_key_and_name_both_set() {
     QProfileDto child = createProfile();
 
     assertThat(dbClient.activeRuleDao().selectByProfileUuid(dbSession, child.getKee())).isEmpty();
@@ -387,7 +387,7 @@ public class ChangeParentActionTest {
   }
 
   @Test
-  public void fail_if_profile_key_and_name_both_set() throws Exception {
+  public void fail_if_profile_key_and_name_both_set() {
     QProfileDto child = createProfile();
 
     assertThat(dbClient.activeRuleDao().selectByProfileUuid(dbSession, child.getKee())).isEmpty();
@@ -405,7 +405,7 @@ public class ChangeParentActionTest {
   }
 
   @Test
-  public void fail_if_missing_permission() throws Exception {
+  public void fail_if_missing_permission() {
     userSession.logIn(db.users().insertUser());
 
     QProfileDto child = createProfile();
@@ -420,7 +420,7 @@ public class ChangeParentActionTest {
   }
 
   @Test
-  public void fail_if_missing_permission_for_this_organization() throws Exception {
+  public void fail_if_missing_permission_for_this_organization() {
     OrganizationDto organization2 = db.organizations().insert();
     userSession.logIn(db.users().insertUser()).addPermission(ADMINISTER_QUALITY_PROFILES, organization2.getUuid());
 

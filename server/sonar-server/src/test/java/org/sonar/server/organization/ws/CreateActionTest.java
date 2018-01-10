@@ -152,7 +152,7 @@ public class CreateActionTest {
   }
 
   @Test
-  public void verify_response_example() throws URISyntaxException, IOException {
+  public void verify_response_example() {
     logInAsSystemAdministrator();
     mockForSuccessfulInsert(Uuids.UUID_EXAMPLE_01, SOME_DATE);
     dbTester.qualityGates().insertBuiltInQualityGate();

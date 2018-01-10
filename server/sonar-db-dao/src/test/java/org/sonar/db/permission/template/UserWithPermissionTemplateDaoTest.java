@@ -115,7 +115,7 @@ public class UserWithPermissionTemplateDaoTest {
   }
 
   @Test
-  public void count_users() throws Exception {
+  public void count_users() {
     dbTester.prepareDbUnit(getClass(), "users_with_permissions.xml");
 
     assertThat(underTest.countUserLoginsByQueryAndTemplate(dbSession, newQuery().build(), TEMPLATE_ID)).isEqualTo(3);
@@ -123,7 +123,7 @@ public class UserWithPermissionTemplateDaoTest {
   }
 
   @Test
-  public void select_user_permission_templates_by_template_and_logins() throws Exception {
+  public void select_user_permission_templates_by_template_and_logins() {
     dbTester.prepareDbUnit(getClass(), "users_with_permissions.xml");
 
     assertThat(underTest.selectUserPermissionsByTemplateIdAndUserLogins(dbSession, 50L, singletonList("user1")))

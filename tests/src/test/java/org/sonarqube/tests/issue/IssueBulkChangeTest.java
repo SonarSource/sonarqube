@@ -68,7 +68,7 @@ public class IssueBulkChangeTest extends AbstractIssueTest {
   private ProjectAnalysis xooSampleLittleIssuesAnalysis;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     String qualityProfileKey = projectAnalysisRule.registerProfile("/issue/IssueBulkChangeTest/one-issue-per-line-profile.xml");
     String projectKey = projectAnalysisRule.registerProject("shared/xoo-sample");
     this.xooSampleLittleIssuesAnalysis = projectAnalysisRule.newProjectAnalysis(projectKey)

@@ -35,12 +35,12 @@ public class TestDefaultOrganizationUuidProvider implements DefaultOrganizationU
   }
 
   @Override
-  public String get(DataChange.Context context) throws SQLException {
+  public String get(DataChange.Context context) {
     return organizationUuid;
   }
 
   @Override
-  public String getAndCheck(DataChange.Context context) throws SQLException {
+  public String getAndCheck(DataChange.Context context) {
     return organizationUuid;
   }
 }

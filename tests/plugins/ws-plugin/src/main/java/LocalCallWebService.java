@@ -47,7 +47,7 @@ public final class LocalCallWebService implements WebService {
 
   private class ProtobufHandler implements RequestHandler {
     @Override
-    public void handle(Request request, Response response) throws Exception {
+    public void handle(Request request, Response response) {
       WsClient client = wsClientFactory.newClient(request.localConnector());
 
       Ce.TaskTypesWsResponse ceTaskTypes = client.ce().taskTypes();
@@ -57,7 +57,7 @@ public final class LocalCallWebService implements WebService {
 
   private class JsonHandler implements RequestHandler {
     @Override
-    public void handle(Request request, Response response) throws Exception {
+    public void handle(Request request, Response response) {
       WsClient client = wsClientFactory.newClient(request.localConnector());
 
       WsResponse jsonResponse = client.wsConnector().call(new GetRequest("api/issues/search"));
@@ -70,7 +70,7 @@ public final class LocalCallWebService implements WebService {
 
   private class RequirePermissionHandler implements RequestHandler {
     @Override
-    public void handle(Request request, Response response) throws Exception {
+    public void handle(Request request, Response response) {
       WsClient client = wsClientFactory.newClient(request.localConnector());
 
       WsResponse jsonResponse = client.wsConnector().call(new GetRequest("api/system/info"));

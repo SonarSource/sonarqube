@@ -94,7 +94,7 @@ public class SourceLinesRepositoryImpl implements SourceLinesRepository {
     }
 
     @Override
-    protected void doClose() throws Exception {
+    protected void doClose() {
       delegate.close();
     }
   }

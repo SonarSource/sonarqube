@@ -58,7 +58,7 @@ public class SettingsTestRestartingOrchestrator {
   }
 
   @Test
-  public void test_settings() throws UnsupportedEncodingException {
+  public void test_settings() {
     URL secretKeyUrl = getClass().getResource("/settings/SettingsTest/sonar-secret.txt");
     orchestrator = Orchestrator.builderEnv()
       .addPlugin(pluginArtifact("settings-plugin"))
@@ -85,7 +85,7 @@ public class SettingsTestRestartingOrchestrator {
   }
 
   @Test
-  public void property_relocation() throws UnsupportedEncodingException {
+  public void property_relocation() {
     orchestrator = Orchestrator.builderEnv()
       .addPlugin(pluginArtifact("property-relocation-plugin"))
       .addPlugin(xooPlugin())

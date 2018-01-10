@@ -59,7 +59,7 @@ public class JwtCsrfVerifierTest {
   }
 
   @Test
-  public void generate_state() throws Exception {
+  public void generate_state() {
     String state = underTest.generateState(request, response, TIMEOUT);
     assertThat(state).isNotEmpty();
 
@@ -68,7 +68,7 @@ public class JwtCsrfVerifierTest {
   }
 
   @Test
-  public void verify_state() throws Exception {
+  public void verify_state() {
     mockRequestCsrf(CSRF_STATE);
     mockPostJavaWsRequest();
 
@@ -76,7 +76,7 @@ public class JwtCsrfVerifierTest {
   }
 
   @Test
-  public void fail_with_AuthenticationException_when_state_header_is_not_the_same_as_state_parameter() throws Exception {
+  public void fail_with_AuthenticationException_when_state_header_is_not_the_same_as_state_parameter() {
     mockRequestCsrf("other value");
     mockPostJavaWsRequest();
 
@@ -86,7 +86,7 @@ public class JwtCsrfVerifierTest {
   }
 
   @Test
-  public void fail_with_AuthenticationException_when_state_is_null() throws Exception {
+  public void fail_with_AuthenticationException_when_state_is_null() {
     mockRequestCsrf(CSRF_STATE);
     mockPostJavaWsRequest();
 
@@ -96,7 +96,7 @@ public class JwtCsrfVerifierTest {
   }
 
   @Test
-  public void fail_with_AuthenticationException_when_state_parameter_is_empty() throws Exception {
+  public void fail_with_AuthenticationException_when_state_parameter_is_empty() {
     mockRequestCsrf(CSRF_STATE);
     mockPostJavaWsRequest();
 
@@ -106,7 +106,7 @@ public class JwtCsrfVerifierTest {
   }
 
   @Test
-  public void verify_POST_request() throws Exception {
+  public void verify_POST_request() {
     mockRequestCsrf("other value");
     when(request.getRequestURI()).thenReturn(JAVA_WS_URL);
     when(request.getMethod()).thenReturn("POST");
@@ -117,7 +117,7 @@ public class JwtCsrfVerifierTest {
   }
 
   @Test
-  public void verify_PUT_request() throws Exception {
+  public void verify_PUT_request() {
     mockRequestCsrf("other value");
     when(request.getRequestURI()).thenReturn(JAVA_WS_URL);
     when(request.getMethod()).thenReturn("PUT");
@@ -128,7 +128,7 @@ public class JwtCsrfVerifierTest {
   }
 
   @Test
-  public void verify_DELETE_request() throws Exception {
+  public void verify_DELETE_request() {
     mockRequestCsrf("other value");
     when(request.getRequestURI()).thenReturn(JAVA_WS_URL);
     when(request.getMethod()).thenReturn("DELETE");
@@ -139,7 +139,7 @@ public class JwtCsrfVerifierTest {
   }
 
   @Test
-  public void ignore_GET_request() throws Exception {
+  public void ignore_GET_request() {
     when(request.getRequestURI()).thenReturn(JAVA_WS_URL);
     when(request.getMethod()).thenReturn("GET");
 
@@ -147,13 +147,13 @@ public class JwtCsrfVerifierTest {
   }
 
   @Test
-  public void ignore_not_api_requests() throws Exception {
+  public void ignore_not_api_requests() {
     executeVerifyStateDoesNotFailOnRequest("/events", "POST");
     executeVerifyStateDoesNotFailOnRequest("/favorites", "POST");
   }
 
   @Test
-  public void refresh_state() throws Exception {
+  public void refresh_state() {
     underTest.refreshState(request, response, CSRF_STATE, 30);
 
     verify(response).addCookie(cookieArgumentCaptor.capture());
@@ -161,7 +161,7 @@ public class JwtCsrfVerifierTest {
   }
 
   @Test
-  public void remove_state() throws Exception {
+  public void remove_state() {
     underTest.removeState(request, response);
 
     verify(response).addCookie(cookieArgumentCaptor.capture());

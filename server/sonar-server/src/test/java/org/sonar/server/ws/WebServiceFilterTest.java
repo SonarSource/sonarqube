@@ -62,7 +62,7 @@ public class WebServiceFilterTest {
   }
 
   @Test
-  public void match_declared_web_services() throws Exception {
+  public void match_declared_web_services() {
     initWebServiceEngine(
       newWsUrl("api/issues", "search"),
       newWsUrl("batch", "index"));
@@ -75,7 +75,7 @@ public class WebServiceFilterTest {
   }
 
   @Test
-  public void match_undeclared_web_services_starting_with_api() throws Exception {
+  public void match_undeclared_web_services_starting_with_api() {
     initWebServiceEngine(newWsUrl("api/issues", "search"));
 
     assertThat(underTest.doGetPattern().matches("/api/resources/index")).isTrue();
@@ -83,14 +83,14 @@ public class WebServiceFilterTest {
   }
 
   @Test
-  public void does_not_match_web_services_using_servlet_filter() throws Exception {
+  public void does_not_match_web_services_using_servlet_filter() {
     initWebServiceEngine(newWsUrl("api/authentication", "login").setHandler(ServletFilterHandler.INSTANCE));
 
     assertThat(underTest.doGetPattern().matches("/api/authentication/login")).isFalse();
   }
 
   @Test
-  public void does_not_match_api_properties_ws() throws Exception {
+  public void does_not_match_api_properties_ws() {
     initWebServiceEngine(newWsUrl("api/properties", "index"));
 
     assertThat(underTest.doGetPattern().matches("/api/properties")).isFalse();
@@ -165,7 +165,7 @@ public class WebServiceFilterTest {
     INSTANCE;
 
     @Override
-    public void handle(Request request, Response response) throws Exception {
+    public void handle(Request request, Response response) {
       // Nothing to do
     }
   }

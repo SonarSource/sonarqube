@@ -181,7 +181,7 @@ public class JdbcSettingsTest {
   }
 
   @Test
-  public void driver_dir_does_not_exist() throws Exception {
+  public void driver_dir_does_not_exist() {
     expectedException.expect(MessageException.class);
     expectedException.expectMessage("Directory does not exist: extensions/jdbc-driver/oracle");
 

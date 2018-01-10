@@ -36,7 +36,7 @@ public enum RemovedWebServiceHandler implements RequestHandler {
   INSTANCE;
 
   @Override
-  public void handle(Request request, Response response) throws Exception {
+  public void handle(Request request, Response response) {
     throw new ServerException(HTTP_GONE, String.format("The web service '%s' doesn't exist anymore, please read its documentation to use alternatives", request.getPath()));
   }
 

@@ -76,7 +76,7 @@ public class SettingsTest {
   private static SettingsService adminSettingsService;
 
   @BeforeClass
-  public static void initSettingsService() throws Exception {
+  public static void initSettingsService() {
     userRule.createUser("setting-user", "setting-user");
     userRule.createUser("scanner-user", "scanner-user");
     adminWsClient = newAdminWsClient(orchestrator);
@@ -98,14 +98,14 @@ public class SettingsTest {
   }
 
   @AfterClass
-  public static void tearDown() throws Exception {
+  public static void tearDown() {
     userRule.deactivateUsers("setting-user", "scanner-user");
     // Restore 'Execute Analysis' permission to anyone
     adminWsClient.permissions().addGroup(new AddGroupRequest().setGroupName("anyone").setPermission("scan"));
   }
 
   @After
-  public void reset_settings() throws Exception {
+  public void reset_settings() {
     resetSettings(orchestrator, null, PLUGIN_SETTING_KEY, "globalPropertyChange.received", "hidden", "setting.secured", "setting.license.secured");
   }
 
@@ -169,13 +169,13 @@ public class SettingsTest {
   }
 
   @Test
-  public void multi_values_setting() throws Exception {
+  public void multi_values_setting() {
     adminSettingsService.set(new SetRequest().setKey("multi").setValues(asList("value1", "value2", "value3")));
     assertThat(getSetting("multi", anonymousSettingsService).getValues().getValuesList()).containsOnly("value1", "value2", "value3");
   }
 
   @Test
-  public void property_set_setting() throws Exception {
+  public void property_set_setting() {
     adminSettingsService.set(new SetRequest().setKey("sonar.jira").setFieldValues(asList(
       "{\"key\":\"jira1\", \"url\":\"http://jira1\", \"port\":\"12345\", \"type\":\"A\"}",
       "{\"key\":\"jira2\", \"url\":\"http://jira2\", \"port\":\"54321\"}")));
@@ -186,7 +186,7 @@ public class SettingsTest {
   }
 
   @Test
-  public void return_defined_settings_when_no_key_provided() throws Exception {
+  public void return_defined_settings_when_no_key_provided() {
     adminSettingsService.set(new SetRequest().setKey(PLUGIN_SETTING_KEY).setValue("some value"));
     adminSettingsService.set(new SetRequest().setKey("hidden").setValue("test"));
 

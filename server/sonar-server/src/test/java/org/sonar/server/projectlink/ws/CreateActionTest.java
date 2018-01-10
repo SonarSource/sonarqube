@@ -249,7 +249,7 @@ public class CreateActionTest {
   }
 
   @Test
-  public void fail_when_using_branch_db_uuid() throws Exception {
+  public void fail_when_using_branch_db_uuid() {
     OrganizationDto organization = db.organizations().insert();
     ComponentDto project = db.components().insertMainBranch(organization);
     userSession.logIn().addProjectPermission(UserRole.USER, project);
@@ -289,7 +289,7 @@ public class CreateActionTest {
       ComponentTesting.newPrivateProjectDto(org, PROJECT_UUID).setDbKey(PROJECT_KEY));
   }
 
-  private void createAndTest(ComponentDto project, String name, String url, String type) throws IOException {
+  private void createAndTest(ComponentDto project, String name, String url, String type) {
     ProjectLinks.CreateWsResponse response = ws.newRequest()
       .setMethod("POST")
       .setParam(PARAM_PROJECT_KEY, project.getDbKey())

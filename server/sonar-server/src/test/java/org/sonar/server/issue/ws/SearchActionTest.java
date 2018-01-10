@@ -703,7 +703,7 @@ public class SearchActionTest {
   }
 
   @Test
-  public void fail_when_invalid_format() throws Exception {
+  public void fail_when_invalid_format() {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Date 'wrong-date-input' cannot be parsed as either a date or date+time");
 

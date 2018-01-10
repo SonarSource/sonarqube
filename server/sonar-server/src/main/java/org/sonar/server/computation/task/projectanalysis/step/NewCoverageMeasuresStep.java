@@ -132,7 +132,7 @@ public class NewCoverageMeasuresStep implements ComputationStep {
       if (scmInfoRepository == null) {
         return VIEWS_FORMULAS;
       }
-      return Collections.<Formula<?>>singleton(new NewLinesAndConditionsCoverageFormula(scmInfoRepository));
+      return Collections.singleton(new NewLinesAndConditionsCoverageFormula(scmInfoRepository));
     }
 
     /**

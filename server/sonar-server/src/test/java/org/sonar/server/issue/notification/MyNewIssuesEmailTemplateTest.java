@@ -78,7 +78,7 @@ public class MyNewIssuesEmailTemplateTest {
   }
 
   @Test
-  public void format_email_with_all_fields_filled() throws Exception {
+  public void format_email_with_all_fields_filled() {
     Notification notification = newNotification(32);
     addTags(notification);
     addRules(notification);
@@ -139,7 +139,7 @@ public class MyNewIssuesEmailTemplateTest {
   }
 
   @Test
-  public void format_email_with_no_assignees_tags_nor_components() throws Exception {
+  public void format_email_with_no_assignees_tags_nor_components() {
     Notification notification = newNotification(32)
       .setFieldValue("projectVersion", "52.0");
 
@@ -159,7 +159,7 @@ public class MyNewIssuesEmailTemplateTest {
   }
 
   @Test
-  public void format_email_with_issue_on_branch() throws Exception {
+  public void format_email_with_issue_on_branch() {
     Notification notification = newNotification(32)
       .setFieldValue("projectVersion", "52.0")
       .setFieldValue("branch", "feature1");

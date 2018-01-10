@@ -47,12 +47,12 @@ public class ProjectDashboardTest {
   private String adminUser;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     adminUser = tester.users().generateAdministratorOnDefaultOrganization().getLogin();
   }
 
   @Test
-  public void after_first_analysis() throws Exception {
+  public void after_first_analysis() {
     executeBuild("shared/xoo-sample", "project-for-overview", "Project For Overview");
 
     runSelenese(orchestrator, "/measure/ProjectDashboardTest/test_project_overview_after_first_analysis.html");

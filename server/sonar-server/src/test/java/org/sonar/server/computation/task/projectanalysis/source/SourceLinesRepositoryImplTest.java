@@ -45,21 +45,21 @@ public class SourceLinesRepositoryImplTest {
   SourceLinesRepositoryImpl underTest = new SourceLinesRepositoryImpl(reportReader);
 
   @Test
-  public void read_lines_from_report() throws Exception {
+  public void read_lines_from_report() {
     reportReader.putFileSourceLines(FILE_REF, "line1", "line2");
 
     assertThat(underTest.readLines(createComponent(2))).containsOnly("line1", "line2");
   }
 
   @Test
-  public void read_lines_adds_one_extra_empty_line_when_sourceLine_has_elements_count_equals_to_lineCount_minus_1() throws Exception {
+  public void read_lines_adds_one_extra_empty_line_when_sourceLine_has_elements_count_equals_to_lineCount_minus_1() {
     reportReader.putFileSourceLines(FILE_REF, "line1", "line2");
 
     assertThat(underTest.readLines(createComponent(3))).containsOnly("line1", "line2", "");
   }
 
   @Test
-  public void read_lines_throws_ISE_when_sourceLine_has_less_elements_then_lineCount_minus_1() throws Exception {
+  public void read_lines_throws_ISE_when_sourceLine_has_less_elements_then_lineCount_minus_1() {
     reportReader.putFileSourceLines(FILE_REF, "line1", "line2");
 
     thrown.expect(IllegalStateException.class);
@@ -69,7 +69,7 @@ public class SourceLinesRepositoryImplTest {
   }
 
   @Test
-  public void read_lines_throws_ISE_when_sourceLines_has_more_elements_then_lineCount() throws Exception {
+  public void read_lines_throws_ISE_when_sourceLines_has_more_elements_then_lineCount() {
     reportReader.putFileSourceLines(FILE_REF, "line1", "line2", "line3");
 
     thrown.expect(IllegalStateException.class);
@@ -79,7 +79,7 @@ public class SourceLinesRepositoryImplTest {
   }
 
   @Test
-  public void fail_with_ISE_when_file_has_no_source() throws Exception {
+  public void fail_with_ISE_when_file_has_no_source() {
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("File 'ReportComponent{ref=2, key='FILE_KEY', type=FILE}' has no source code");
 
@@ -90,7 +90,7 @@ public class SourceLinesRepositoryImplTest {
   }
 
   @Test
-  public void fail_with_NPE_to_read_lines_on_null_component() throws Exception {
+  public void fail_with_NPE_to_read_lines_on_null_component() {
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("Component should not be bull");
 
@@ -98,7 +98,7 @@ public class SourceLinesRepositoryImplTest {
   }
 
   @Test
-  public void fail_with_IAE_to_read_lines_on_not_file_component() throws Exception {
+  public void fail_with_IAE_to_read_lines_on_not_file_component() {
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("Component 'ReportComponent{ref=123, key='NotFile', type=PROJECT}' is not a file");
 

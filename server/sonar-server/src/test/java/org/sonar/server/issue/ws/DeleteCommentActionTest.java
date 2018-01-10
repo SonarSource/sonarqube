@@ -68,7 +68,7 @@ public class DeleteCommentActionTest {
     new DeleteCommentAction(userSession, dbClient, new IssueFinder(dbClient, userSession), responseWriter));
 
   @Test
-  public void delete_comment() throws Exception {
+  public void delete_comment() {
     IssueDto issueDto = issueDbTester.insertIssue();
     IssueChangeDto commentDto = issueDbTester.insertComment(issueDto, "john", "please fix it");
     loginAndAddProjectPermission("john", issueDto, USER);
@@ -81,7 +81,7 @@ public class DeleteCommentActionTest {
   }
 
   @Test
-  public void delete_comment_using_deprecated_key_parameter() throws Exception {
+  public void delete_comment_using_deprecated_key_parameter() {
     IssueDto issueDto = issueDbTester.insertIssue();
     IssueChangeDto commentDto = issueDbTester.insertComment(issueDto, "john", "please fix it");
     loginAndAddProjectPermission("john", issueDto, USER);
@@ -94,7 +94,7 @@ public class DeleteCommentActionTest {
   }
 
   @Test
-  public void fail_when_comment_does_not_belong_to_current_user() throws Exception {
+  public void fail_when_comment_does_not_belong_to_current_user() {
     IssueDto issueDto = issueDbTester.insertIssue();
     IssueChangeDto commentDto = issueDbTester.insertComment(issueDto, "john", "please fix it");
     loginAndAddProjectPermission("another", issueDto, USER);
@@ -105,7 +105,7 @@ public class DeleteCommentActionTest {
   }
 
   @Test
-  public void fail_when_comment_has_not_user() throws Exception {
+  public void fail_when_comment_has_not_user() {
     IssueDto issueDto = issueDbTester.insertIssue();
     IssueChangeDto commentDto = issueDbTester.insertComment(issueDto, null, "please fix it");
     loginAndAddProjectPermission("john", issueDto, USER);
@@ -116,7 +116,7 @@ public class DeleteCommentActionTest {
   }
 
   @Test
-  public void fail_when_missing_comment_key() throws Exception {
+  public void fail_when_missing_comment_key() {
     userSession.logIn("john");
 
     expectedException.expect(IllegalArgumentException.class);
@@ -124,7 +124,7 @@ public class DeleteCommentActionTest {
   }
 
   @Test
-  public void fail_when_comment_does_not_exist() throws Exception {
+  public void fail_when_comment_does_not_exist() {
     userSession.logIn("john");
 
     expectedException.expect(NotFoundException.class);
@@ -132,13 +132,13 @@ public class DeleteCommentActionTest {
   }
 
   @Test
-  public void fail_when_not_authenticated() throws Exception {
+  public void fail_when_not_authenticated() {
     expectedException.expect(UnauthorizedException.class);
     call("ABCD");
   }
 
   @Test
-  public void fail_when_not_enough_permission() throws Exception {
+  public void fail_when_not_enough_permission() {
     IssueDto issueDto = issueDbTester.insertIssue();
     IssueChangeDto commentDto = issueDbTester.insertComment(issueDto, "john", "please fix it");
     loginAndAddProjectPermission("john", issueDto, CODEVIEWER);

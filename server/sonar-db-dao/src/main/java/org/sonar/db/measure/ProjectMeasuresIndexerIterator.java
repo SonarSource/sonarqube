@@ -97,13 +97,9 @@ public class ProjectMeasuresIndexerIterator extends CloseableIterator<ProjectMea
   }
 
   public static ProjectMeasuresIndexerIterator create(DbSession session, @Nullable String projectUuid) {
-    try {
-      List<Project> projects = selectProjects(session, projectUuid);
-      PreparedStatement projectsStatement = createMeasuresStatement(session);
-      return new ProjectMeasuresIndexerIterator(projectsStatement, projects);
-    } catch (SQLException e) {
-      throw new IllegalStateException("Fail to execute request to select all project measures", e);
-    }
+    List<Project> projects = selectProjects(session, projectUuid);
+    PreparedStatement projectsStatement = createMeasuresStatement(session);
+    return new ProjectMeasuresIndexerIterator(projectsStatement, projects);
   }
 
   private static List<Project> selectProjects(DbSession session, @Nullable String projectUuid) {
@@ -146,7 +142,7 @@ public class ProjectMeasuresIndexerIterator extends CloseableIterator<ProjectMea
     }
   }
 
-  private static PreparedStatement createMeasuresStatement(DbSession session) throws SQLException {
+  private static PreparedStatement createMeasuresStatement(DbSession session) {
     try {
       String metricNameQuestionMarks = METRIC_KEYS.stream().map(x -> "?").collect(Collectors.joining(","));
       String sql = StringUtils.replace(SQL_MEASURES, "{metricNames}", metricNameQuestionMarks);

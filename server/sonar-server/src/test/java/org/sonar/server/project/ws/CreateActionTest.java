@@ -90,7 +90,7 @@ public class CreateActionTest {
         projectIndexers)));
 
   @Test
-  public void create_project() throws Exception {
+  public void create_project() {
     userSession.addPermission(PROVISION_PROJECTS, db.getDefaultOrganization());
 
     CreateWsResponse response = call(CreateRequest.builder()
@@ -107,7 +107,7 @@ public class CreateActionTest {
   }
 
   @Test
-  public void create_project_with_branch() throws Exception {
+  public void create_project_with_branch() {
     userSession.addPermission(PROVISION_PROJECTS, db.getDefaultOrganization());
 
     CreateWsResponse response = call(CreateRequest.builder()
@@ -122,7 +122,7 @@ public class CreateActionTest {
   }
 
   @Test
-  public void create_project_with_deprecated_parameter() throws Exception {
+  public void create_project_with_deprecated_parameter() {
     OrganizationDto organization = db.organizations().insert();
     userSession.addPermission(PROVISION_PROJECTS, organization);
 
@@ -234,7 +234,7 @@ public class CreateActionTest {
   }
 
   @Test
-  public void fail_when_project_already_exists() throws Exception {
+  public void fail_when_project_already_exists() {
     OrganizationDto organization = db.organizations().insert();
     db.components().insertPublicProject(project -> project.setDbKey(DEFAULT_PROJECT_KEY));
     userSession.addPermission(PROVISION_PROJECTS, organization);
@@ -262,7 +262,7 @@ public class CreateActionTest {
   }
 
   @Test
-  public void fail_when_missing_project_parameter() throws Exception {
+  public void fail_when_missing_project_parameter() {
     userSession.addPermission(PROVISION_PROJECTS, db.getDefaultOrganization());
 
     expectedException.expect(IllegalArgumentException.class);
@@ -272,7 +272,7 @@ public class CreateActionTest {
   }
 
   @Test
-  public void fail_when_missing_name_parameter() throws Exception {
+  public void fail_when_missing_name_parameter() {
     userSession.addPermission(PROVISION_PROJECTS, db.getDefaultOrganization());
 
     expectedException.expect(IllegalArgumentException.class);
@@ -282,7 +282,7 @@ public class CreateActionTest {
   }
 
   @Test
-  public void fail_when_missing_create_project_permission() throws Exception {
+  public void fail_when_missing_create_project_permission() {
     expectedException.expect(ForbiddenException.class);
 
     call(CreateRequest.builder().setKey(DEFAULT_PROJECT_KEY).setName(DEFAULT_PROJECT_NAME).build());

@@ -120,7 +120,7 @@ public class BulkApplyTemplateActionTest extends BasePermissionWsTest<BulkApplyT
   }
 
   @Test
-  public void request_throws_NotFoundException_if_template_with_specified_name_does_not_exist_in_specified_organization() throws Exception {
+  public void request_throws_NotFoundException_if_template_with_specified_name_does_not_exist_in_specified_organization() {
     OrganizationDto otherOrganization = db.organizations().insert();
     loginAsAdmin(otherOrganization);
 
@@ -282,7 +282,7 @@ public class BulkApplyTemplateActionTest extends BasePermissionWsTest<BulkApplyT
   }
 
   @Test
-  public void fail_if_no_template_parameter() throws Exception {
+  public void fail_if_no_template_parameter() {
     loginAsAdmin(db.getDefaultOrganization());
 
     expectedException.expect(BadRequestException.class);
@@ -292,7 +292,7 @@ public class BulkApplyTemplateActionTest extends BasePermissionWsTest<BulkApplyT
   }
 
   @Test
-  public void fail_if_template_name_is_incorrect() throws Exception {
+  public void fail_if_template_name_is_incorrect() {
     loginAsAdmin(db.getDefaultOrganization());
 
     expectedException.expect(NotFoundException.class);
@@ -301,7 +301,7 @@ public class BulkApplyTemplateActionTest extends BasePermissionWsTest<BulkApplyT
     newRequest().setParam(PARAM_TEMPLATE_ID, "unknown-template-uuid").execute();
   }
 
-  private void assertTemplate1AppliedToPublicProject(ComponentDto project) throws Exception {
+  private void assertTemplate1AppliedToPublicProject(ComponentDto project) {
     assertThat(selectProjectPermissionGroups(project, UserRole.ADMIN)).containsExactly(group1.getName());
     assertThat(selectProjectPermissionGroups(project, UserRole.USER)).isEmpty();
     assertThat(selectProjectPermissionUsers(project, UserRole.ADMIN)).isEmpty();
@@ -309,7 +309,7 @@ public class BulkApplyTemplateActionTest extends BasePermissionWsTest<BulkApplyT
     assertThat(selectProjectPermissionUsers(project, UserRole.ISSUE_ADMIN)).containsExactly(user2.getId());
   }
 
-  private void assertTemplate1AppliedToPrivateProject(ComponentDto project) throws Exception {
+  private void assertTemplate1AppliedToPrivateProject(ComponentDto project) {
     assertThat(selectProjectPermissionGroups(project, UserRole.ADMIN)).containsExactly(group1.getName());
     assertThat(selectProjectPermissionGroups(project, UserRole.USER)).containsExactly(group2.getName());
     assertThat(selectProjectPermissionUsers(project, UserRole.ADMIN)).isEmpty();
@@ -317,7 +317,7 @@ public class BulkApplyTemplateActionTest extends BasePermissionWsTest<BulkApplyT
     assertThat(selectProjectPermissionUsers(project, UserRole.ISSUE_ADMIN)).containsExactly(user2.getId());
   }
 
-  private void assertNoPermissionOnProject(ComponentDto project) throws Exception {
+  private void assertNoPermissionOnProject(ComponentDto project) {
     assertThat(selectProjectPermissionGroups(project, UserRole.ADMIN)).isEmpty();
     assertThat(selectProjectPermissionGroups(project, UserRole.CODEVIEWER)).isEmpty();
     assertThat(selectProjectPermissionGroups(project, UserRole.ISSUE_ADMIN)).isEmpty();

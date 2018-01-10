@@ -31,7 +31,7 @@ public class FileAttributesTest {
   public ExpectedException expectedException = ExpectedException.none();
 
   @Test
-  public void create_production_file() throws Exception {
+  public void create_production_file() {
     FileAttributes underTest = new FileAttributes(true, "java", 10);
 
     assertThat(underTest.isUnitTest()).isTrue();
@@ -40,7 +40,7 @@ public class FileAttributesTest {
   }
 
   @Test
-  public void create_unit_test() throws Exception {
+  public void create_unit_test() {
     FileAttributes underTest = new FileAttributes(true, "java", 10);
 
     assertThat(underTest.isUnitTest()).isTrue();
@@ -49,7 +49,7 @@ public class FileAttributesTest {
   }
 
   @Test
-  public void create_without_language() throws Exception {
+  public void create_without_language() {
     FileAttributes underTest = new FileAttributes(true, null, 10);
 
     assertThat(underTest.isUnitTest()).isTrue();
@@ -58,21 +58,21 @@ public class FileAttributesTest {
   }
 
   @Test
-  public void fail_with_IAE_when_lines_is_0() throws Exception {
+  public void fail_with_IAE_when_lines_is_0() {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Number of lines must be greater than zero");
     new FileAttributes(true, "java", 0);
   }
 
   @Test
-  public void fail_with_IAE_when_lines_is_less_than_0() throws Exception {
+  public void fail_with_IAE_when_lines_is_less_than_0() {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Number of lines must be greater than zero");
     new FileAttributes(true, "java", -10);
   }
 
   @Test
-  public void test_toString() throws Exception {
+  public void test_toString() {
     assertThat(new FileAttributes(true, "java", 10).toString()).isEqualTo("FileAttributes{languageKey='java', unitTest=true, lines=10}");
     assertThat(new FileAttributes(false, null, 1).toString()).isEqualTo("FileAttributes{languageKey='null', unitTest=false, lines=1}");
   }

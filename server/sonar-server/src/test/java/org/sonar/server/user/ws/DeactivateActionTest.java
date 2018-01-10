@@ -328,7 +328,7 @@ public class DeactivateActionTest {
   }
 
   @Test
-  public void test_example() throws Exception {
+  public void test_example() {
     UserDto user = insertUser(newUserDto()
       .setLogin("ada.lovelace")
       .setEmail("ada.lovelace@noteg.com")

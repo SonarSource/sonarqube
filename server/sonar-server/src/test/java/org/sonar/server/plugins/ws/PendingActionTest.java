@@ -114,7 +114,7 @@ public class PendingActionTest {
   @Test
   public void empty_arrays_are_returned_when_update_center_is_unavailable() throws Exception {
     logInAsSystemAdministrator();
-    when(updateCenterMatrixFactory.getUpdateCenter(false)).thenReturn(Optional.<UpdateCenter>absent());
+    when(updateCenterMatrixFactory.getUpdateCenter(false)).thenReturn(Optional.absent());
 
     underTest.handle(request, response);
 

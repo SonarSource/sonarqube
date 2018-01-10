@@ -39,7 +39,7 @@ public class ProjectActionTest {
   private WsActionTester ws = new WsActionTester(new ProjectAction(projectDataLoader));
 
   @Test
-  public void project_referentials() throws Exception {
+  public void project_referentials() {
     String projectKey = "org.codehaus.sonar:sonar";
 
     ProjectRepositories projectReferentials = mock(ProjectRepositories.class);
@@ -66,7 +66,7 @@ public class ProjectActionTest {
    * SONAR-7084
    */
   @Test
-  public void do_not_fail_when_a_path_is_null() throws Exception {
+  public void do_not_fail_when_a_path_is_null() {
     String projectKey = "org.codehaus.sonar:sonar";
 
     ProjectRepositories projectRepositories = new ProjectRepositories().addFileData("module-1", null, new FileData(null, null));

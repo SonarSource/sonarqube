@@ -46,26 +46,26 @@ public class UrlSettingsTest {
   }
 
   @Test
-  public void default_url() throws Exception {
+  public void default_url() {
     assertThat(underTest().getBaseUrl()).isEqualTo("http://localhost:9000");
   }
 
   @Test
-  public void base_url_is_configured() throws Exception {
+  public void base_url_is_configured() {
     settings.setProperty("sonar.core.serverBaseURL", "http://mydomain.com");
 
     assertThat(underTest().getBaseUrl()).isEqualTo("http://mydomain.com");
   }
 
   @Test
-  public void is_secured_on_https_server() throws Exception {
+  public void is_secured_on_https_server() {
     settings.setProperty("sonar.core.serverBaseURL", "https://mydomain.com");
 
     assertThat(underTest().isSecured()).isTrue();
   }
 
   @Test
-  public void is_not_secured_if_http() throws Exception {
+  public void is_not_secured_if_http() {
     settings.setProperty("sonar.core.serverBaseURL", "http://mydomain.com");
 
     assertThat(underTest().isSecured()).isFalse();

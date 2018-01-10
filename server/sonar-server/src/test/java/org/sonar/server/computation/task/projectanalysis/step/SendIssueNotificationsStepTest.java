@@ -134,7 +134,7 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
   }
 
   @Test
-  public void send_global_new_issues_notification() throws Exception {
+  public void send_global_new_issues_notification() {
     issueCache.newAppender().append(
       new DefaultIssue().setType(randomRuleType).setEffort(ISSUE_DURATION)
         .setCreationDate(new Date(ANALYSE_DATE)))
@@ -197,7 +197,7 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
   }
 
   @Test
-  public void send_global_new_issues_notification_on_branch() throws Exception {
+  public void send_global_new_issues_notification_on_branch() {
     ComponentDto branch = setUpProjectWithBranch();
     issueCache.newAppender().append(
       new DefaultIssue().setType(randomRuleType).setEffort(ISSUE_DURATION).setCreationDate(new Date(ANALYSE_DATE))).close();
@@ -214,7 +214,7 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
   }
 
   @Test
-  public void do_not_send_global_new_issues_notification_on_branch_if_issue_has_been_backdated() throws Exception {
+  public void do_not_send_global_new_issues_notification_on_branch_if_issue_has_been_backdated() {
     ComponentDto branch = setUpProjectWithBranch();
     issueCache.newAppender().append(
       new DefaultIssue().setType(randomRuleType).setEffort(ISSUE_DURATION).setCreationDate(new Date(ANALYSE_DATE - FIVE_MINUTES_IN_MS))).close();
@@ -227,7 +227,7 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
   }
 
   @Test
-  public void send_new_issues_notification_to_user() throws Exception {
+  public void send_new_issues_notification_to_user() {
     issueCache.newAppender().append(
       new DefaultIssue().setType(randomRuleType).setEffort(ISSUE_DURATION).setAssignee(ISSUE_ASSIGNEE)
         .setCreationDate(new Date(ANALYSE_DATE)))
@@ -300,7 +300,7 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
   }
 
   @Test
-  public void send_new_issues_notification_to_user_only_for_non_backdated_issues() throws Exception {
+  public void send_new_issues_notification_to_user_only_for_non_backdated_issues() {
     Random random = new Random();
     Integer[] efforts = IntStream.range(0, 1 + random.nextInt(10)).mapToObj(i -> 10_000 * i).toArray(Integer[]::new);
     Integer[] backDatedEfforts = IntStream.range(0, 1 + random.nextInt(10)).mapToObj(i -> 10 + random.nextInt(100)).toArray(Integer[]::new);
@@ -337,7 +337,7 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
   }
 
   @Test
-  public void do_not_send_new_issues_notification_to_user_if_issue_is_backdated() throws Exception {
+  public void do_not_send_new_issues_notification_to_user_if_issue_is_backdated() {
     issueCache.newAppender().append(
       new DefaultIssue().setType(randomRuleType).setEffort(ISSUE_DURATION).setAssignee(ISSUE_ASSIGNEE)
         .setCreationDate(new Date(ANALYSE_DATE - FIVE_MINUTES_IN_MS)))
@@ -350,12 +350,12 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
   }
 
   @Test
-  public void send_issues_change_notification() throws Exception {
+  public void send_issues_change_notification() {
     sendIssueChangeNotification(ANALYSE_DATE);
   }
 
   @Test
-  public void send_issues_change_notification_even_if_issue_is_backdated() throws Exception {
+  public void send_issues_change_notification_even_if_issue_is_backdated() {
     sendIssueChangeNotification(ANALYSE_DATE - FIVE_MINUTES_IN_MS);
   }
 
@@ -385,12 +385,12 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
   }
 
   @Test
-  public void send_issues_change_notification_on_branch() throws Exception {
+  public void send_issues_change_notification_on_branch() {
     sendIssueChangeNotificationOnBranch(ANALYSE_DATE);
   }
 
   @Test
-  public void send_issues_change_notification_on_branch_even_if_issue_is_backdated() throws Exception {
+  public void send_issues_change_notification_on_branch_even_if_issue_is_backdated() {
     sendIssueChangeNotificationOnBranch(ANALYSE_DATE - FIVE_MINUTES_IN_MS);
   }
 

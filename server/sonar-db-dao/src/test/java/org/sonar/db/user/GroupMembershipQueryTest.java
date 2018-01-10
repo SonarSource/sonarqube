@@ -31,7 +31,7 @@ public class GroupMembershipQueryTest {
   public ExpectedException expectedException = ExpectedException.none();
 
   @Test
-  public void create_query() throws Exception {
+  public void create_query() {
     GroupMembershipQuery underTest = GroupMembershipQuery.builder()
       .groupSearch("sonar-users")
       .membership(GroupMembershipQuery.IN)

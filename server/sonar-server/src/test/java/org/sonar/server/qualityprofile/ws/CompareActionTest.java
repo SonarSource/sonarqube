@@ -160,21 +160,21 @@ public class CompareActionTest {
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void fail_on_missing_left_param() throws Exception {
+  public void fail_on_missing_left_param() {
     wsTester.newRequest()
       .setParam("rightKey", "polop")
       .execute();
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void fail_on_missing_right_param() throws Exception {
+  public void fail_on_missing_right_param() {
     wsTester.newRequest()
       .setParam("leftKey", "polop")
       .execute();
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void fail_on_left_profile_not_found() throws Exception {
+  public void fail_on_left_profile_not_found() {
     createProfile("xoo", "Right", "xoo-right-12345");
     wsTester.newRequest()
       .setParam("leftKey", "polop")
@@ -183,7 +183,7 @@ public class CompareActionTest {
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void fail_on_right_profile_not_found() throws Exception {
+  public void fail_on_right_profile_not_found() {
     createProfile("xoo", "Left", "xoo-left-12345");
     wsTester.newRequest()
       .setParam("leftKey", "xoo-left-12345")

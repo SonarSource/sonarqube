@@ -45,7 +45,7 @@ public class FakeDoc extends BaseDoc {
   }
 
   public FakeDoc() {
-    super(Maps.<String, Object>newHashMap());
+    super(Maps.newHashMap());
   }
 
   public int getInt() {

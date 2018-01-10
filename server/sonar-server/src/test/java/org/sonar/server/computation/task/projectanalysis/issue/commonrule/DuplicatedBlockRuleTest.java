@@ -66,8 +66,8 @@ public class DuplicatedBlockRuleTest {
   DuplicatedBlockRule underTest = new DuplicatedBlockRule(activeRuleHolder, measureRepository, metricRepository);
 
   @Test
-  public void no_issue_if_no_duplicated_blocks() throws Exception {
-    activeRuleHolder.put(new ActiveRule(RULE_KEY, Severity.CRITICAL, Collections.<String, String>emptyMap(), 1_000L, PLUGIN_KEY));
+  public void no_issue_if_no_duplicated_blocks() {
+    activeRuleHolder.put(new ActiveRule(RULE_KEY, Severity.CRITICAL, Collections.emptyMap(), 1_000L, PLUGIN_KEY));
     measureRepository.addRawMeasure(FILE.getReportAttributes().getRef(), CoreMetrics.DUPLICATED_BLOCKS_KEY, Measure.newMeasureBuilder().create(0));
 
     DefaultIssue issue = underTest.processFile(FILE, "java");
@@ -76,8 +76,8 @@ public class DuplicatedBlockRuleTest {
   }
 
   @Test
-  public void issue_if_duplicated_blocks() throws Exception {
-    activeRuleHolder.put(new ActiveRule(RULE_KEY, Severity.CRITICAL, Collections.<String, String>emptyMap(), 1_000L, PLUGIN_KEY));
+  public void issue_if_duplicated_blocks() {
+    activeRuleHolder.put(new ActiveRule(RULE_KEY, Severity.CRITICAL, Collections.emptyMap(), 1_000L, PLUGIN_KEY));
     measureRepository.addRawMeasure(FILE.getReportAttributes().getRef(), CoreMetrics.DUPLICATED_BLOCKS_KEY, Measure.newMeasureBuilder().create(3));
 
     DefaultIssue issue = underTest.processFile(FILE, "java");

@@ -66,7 +66,7 @@ public class DuplicationMeasures {
     this.measureRepository = measureRepository;
     // will be null for views
     this.duplicationRepository = duplicationRepository;
-    this.formulas = ImmutableList.<Formula>of(new DuplicationFormula(metricRepository, measureRepository));
+    this.formulas = ImmutableList.of(new DuplicationFormula(metricRepository, measureRepository));
   }
 
   /**

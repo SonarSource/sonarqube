@@ -70,7 +70,7 @@ public class DeleteActionTest {
   private WsActionTester tester = new WsActionTester(underTest);
 
   @Test
-  public void delete_custom_rule() throws Exception {
+  public void delete_custom_rule() {
     logInAsQProfileAdministrator();
 
     RuleDefinitionDto templateRule = dbTester.rules().insert(
@@ -97,7 +97,7 @@ public class DeleteActionTest {
   }
 
   @Test
-  public void throw_ForbiddenException_if_not_profile_administrator() throws Exception {
+  public void throw_ForbiddenException_if_not_profile_administrator() {
     userSession.logIn();
 
     thrown.expect(ForbiddenException.class);
@@ -109,7 +109,7 @@ public class DeleteActionTest {
   }
 
   @Test
-  public void throw_UnauthorizedException_if_not_logged_in() throws Exception {
+  public void throw_UnauthorizedException_if_not_logged_in() {
     thrown.expect(UnauthorizedException.class);
 
     tester.newRequest()

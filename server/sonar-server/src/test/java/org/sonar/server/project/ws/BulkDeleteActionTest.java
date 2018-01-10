@@ -86,7 +86,7 @@ public class BulkDeleteActionTest {
   }
 
   @Test
-  public void delete_projects_in_default_organization_if_no_org_provided() throws Exception {
+  public void delete_projects_in_default_organization_if_no_org_provided() {
     userSession.logIn().setRoot();
     OrganizationDto defaultOrganization = db.getDefaultOrganization();
     ComponentDto toDeleteInOrg1 = db.components().insertPrivateProject(org1);
@@ -103,7 +103,7 @@ public class BulkDeleteActionTest {
   }
 
   @Test
-  public void delete_projects_by_keys() throws Exception {
+  public void delete_projects_by_keys() {
     userSession.logIn().setRoot();
     ComponentDto toDeleteInOrg1 = db.components().insertPrivateProject(org1);
     ComponentDto toDeleteInOrg2 = db.components().insertPrivateProject(org1);
@@ -118,7 +118,7 @@ public class BulkDeleteActionTest {
   }
 
   @Test
-  public void projects_that_dont_exist_are_ignored_and_dont_break_bulk_deletion() throws Exception {
+  public void projects_that_dont_exist_are_ignored_and_dont_break_bulk_deletion() {
     userSession.logIn().setRoot();
     ComponentDto toDelete1 = db.components().insertPrivateProject(org1);
     ComponentDto toDelete2 = db.components().insertPrivateProject(org1);
@@ -172,7 +172,7 @@ public class BulkDeleteActionTest {
   }
 
   @Test
-  public void projects_and_views() throws IOException {
+  public void projects_and_views() {
     userSession.logIn().addPermission(ADMINISTER, db.getDefaultOrganization());
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto view = db.components().insertView();
@@ -183,7 +183,7 @@ public class BulkDeleteActionTest {
   }
 
   @Test
-  public void delete_by_key_query_with_partial_match_case_insensitive() throws IOException {
+  public void delete_by_key_query_with_partial_match_case_insensitive() {
     userSession.logIn().addPermission(ADMINISTER, db.getDefaultOrganization());
     ComponentDto matchKeyProject = db.components().insertPrivateProject(p -> p.setDbKey("project-_%-key"));
     ComponentDto matchUppercaseKeyProject = db.components().insertPrivateProject(p -> p.setDbKey("PROJECT-_%-KEY"));
@@ -195,7 +195,7 @@ public class BulkDeleteActionTest {
   }
 
   @Test
-  public void throw_ForbiddenException_if_organization_administrator_does_not_set_organization_parameter() throws Exception {
+  public void throw_ForbiddenException_if_organization_administrator_does_not_set_organization_parameter() {
     userSession.logIn().addPermission(ADMINISTER, org1);
     ComponentDto project = db.components().insertPrivateProject(org1);
 
@@ -210,7 +210,7 @@ public class BulkDeleteActionTest {
   }
 
   @Test
-  public void organization_administrator_deletes_projects_by_keys_in_his_organization() throws Exception {
+  public void organization_administrator_deletes_projects_by_keys_in_his_organization() {
     userSession.logIn().addPermission(ADMINISTER, org1);
     ComponentDto toDelete = db.components().insertPrivateProject(org1);
     ComponentDto cantBeDeleted = db.components().insertPrivateProject(org2);
@@ -224,7 +224,7 @@ public class BulkDeleteActionTest {
   }
 
   @Test
-  public void throw_UnauthorizedException_if_not_logged_in() throws Exception {
+  public void throw_UnauthorizedException_if_not_logged_in() {
     expectedException.expect(UnauthorizedException.class);
     expectedException.expectMessage("Authentication is required");
 
@@ -235,7 +235,7 @@ public class BulkDeleteActionTest {
   }
 
   @Test
-  public void throw_ForbiddenException_if_param_organization_is_not_set_and_not_system_administrator() throws Exception {
+  public void throw_ForbiddenException_if_param_organization_is_not_set_and_not_system_administrator() {
     userSession.logIn().setNonSystemAdministrator();
 
     expectedException.expect(ForbiddenException.class);
@@ -248,7 +248,7 @@ public class BulkDeleteActionTest {
   }
 
   @Test
-  public void throw_ForbiddenException_if_param_organization_is_set_but_not_organization_administrator() throws Exception {
+  public void throw_ForbiddenException_if_param_organization_is_set_but_not_organization_administrator() {
     userSession.logIn();
 
     expectedException.expect(ForbiddenException.class);

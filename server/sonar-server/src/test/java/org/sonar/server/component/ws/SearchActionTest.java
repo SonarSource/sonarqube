@@ -141,7 +141,7 @@ public class SearchActionTest {
   }
 
   @Test
-  public void search_by_key_query() throws IOException {
+  public void search_by_key_query() {
     insertProjectsAuthorizedForUser(
       ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization()).setDbKey("project-_%-key"),
       ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization()).setDbKey("project-key-without-escaped-characters"));
@@ -152,7 +152,7 @@ public class SearchActionTest {
   }
 
   @Test
-  public void search_for_files() throws IOException {
+  public void search_for_files() {
     ComponentDto project = ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization());
     ComponentDto file1 = newFileDto(project).setDbKey("file1");
     ComponentDto file2 = newFileDto(project).setDbKey("file2");
@@ -165,7 +165,7 @@ public class SearchActionTest {
   }
 
   @Test
-  public void search_with_pagination() throws IOException {
+  public void search_with_pagination() {
     OrganizationDto organizationDto = db.organizations().insert();
     List<ComponentDto> componentDtoList = new ArrayList<>();
     for (int i = 1; i <= 9; i++) {
@@ -179,7 +179,7 @@ public class SearchActionTest {
   }
 
   @Test
-  public void search_with_language() throws IOException {
+  public void search_with_language() {
     OrganizationDto organizationDto = db.organizations().insert();
     insertProjectsAuthorizedForUser(
       ComponentTesting.newPrivateProjectDto(organizationDto).setDbKey("java-project").setLanguage("java"),
@@ -191,7 +191,7 @@ public class SearchActionTest {
   }
 
   @Test
-  public void return_only_components_from_projects_on_which_user_has_browse_permission() throws IOException {
+  public void return_only_components_from_projects_on_which_user_has_browse_permission() {
     ComponentDto project1 = ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization());
     ComponentDto file1 = newFileDto(project1).setDbKey("file1");
     ComponentDto file2 = newFileDto(project1).setDbKey("file2");
@@ -208,7 +208,7 @@ public class SearchActionTest {
   }
 
   @Test
-  public void return_project_key() throws IOException {
+  public void return_project_key() {
     ComponentDto project = ComponentTesting.newPublicProjectDto(db.getDefaultOrganization());
     ComponentDto module = ComponentTesting.newModuleDto(project);
     ComponentDto file1 = newFileDto(module).setDbKey("file1");

@@ -57,7 +57,7 @@ public class AbstractCommandTest {
   }
 
   @Test
-  public void constructor_throws_NPE_of_workDir_is_null() throws IOException {
+  public void constructor_throws_NPE_of_workDir_is_null() {
     expectedException.expect(NullPointerException.class);
     expectedException.expectMessage("workDir can't be null");
 

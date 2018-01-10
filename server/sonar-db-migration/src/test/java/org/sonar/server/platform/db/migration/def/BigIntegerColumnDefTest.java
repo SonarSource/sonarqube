@@ -36,7 +36,7 @@ public class BigIntegerColumnDefTest {
   public ExpectedException thrown = ExpectedException.none();
 
   @Test
-  public void build_string_column_def() throws Exception {
+  public void build_string_column_def() {
     BigIntegerColumnDef def = new BigIntegerColumnDef.Builder()
       .setColumnName("issues")
       .setIsNullable(true)
@@ -47,7 +47,7 @@ public class BigIntegerColumnDefTest {
   }
 
   @Test
-  public void build_string_column_def_with_default_values() throws Exception {
+  public void build_string_column_def_with_default_values() {
     BigIntegerColumnDef def = new BigIntegerColumnDef.Builder()
       .setColumnName("issues")
       .build();
@@ -57,7 +57,7 @@ public class BigIntegerColumnDefTest {
   }
 
   @Test
-  public void generate_sql_type() throws Exception {
+  public void generate_sql_type() {
     BigIntegerColumnDef def = new BigIntegerColumnDef.Builder()
       .setColumnName("issues")
       .setIsNullable(true)
@@ -71,7 +71,7 @@ public class BigIntegerColumnDefTest {
   }
 
   @Test
-  public void fail_with_NPE_if_name_is_null() throws Exception {
+  public void fail_with_NPE_if_name_is_null() {
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("Column name cannot be null");
 
@@ -80,7 +80,7 @@ public class BigIntegerColumnDefTest {
   }
 
   @Test
-  public void fail_with_NPE_if_no_name() throws Exception {
+  public void fail_with_NPE_if_no_name() {
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("Column name cannot be null");
 

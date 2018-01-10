@@ -60,7 +60,7 @@ public class EsClientProviderTest {
   }
 
   @Test
-  public void connection_to_local_es_when_cluster_mode_is_disabled() throws Exception {
+  public void connection_to_local_es_when_cluster_mode_is_disabled() {
     settings.setProperty(CLUSTER_ENABLED, false);
     settings.setProperty(ProcessProperties.SEARCH_HOST, localhost);
     settings.setProperty(ProcessProperties.SEARCH_PORT, 8080);
@@ -78,7 +78,7 @@ public class EsClientProviderTest {
   }
 
   @Test
-  public void connection_to_remote_es_nodes_when_cluster_mode_is_enabled_and_local_es_is_disabled() throws Exception {
+  public void connection_to_remote_es_nodes_when_cluster_mode_is_enabled_and_local_es_is_disabled() {
     settings.setProperty(CLUSTER_ENABLED, true);
     settings.setProperty(CLUSTER_NODE_TYPE, "application");
     settings.setProperty(CLUSTER_SEARCH_HOSTS, format("%s:8080,%s:8081", localhost, localhost));
@@ -99,7 +99,7 @@ public class EsClientProviderTest {
   }
 
   @Test
-  public void es_client_provider_must_throw_ISE_when_incorrect_port_is_used_when_search_disabled() throws Exception {
+  public void es_client_provider_must_throw_ISE_when_incorrect_port_is_used_when_search_disabled() {
     settings.setProperty(CLUSTER_ENABLED, true);
     settings.setProperty(CLUSTER_NODE_TYPE, "application");
     settings.setProperty(CLUSTER_SEARCH_HOSTS, format("%s:100000,%s:8081", localhost, localhost));
@@ -111,7 +111,7 @@ public class EsClientProviderTest {
   }
 
   @Test
-  public void es_client_provider_must_throw_ISE_when_incorrect_port_is_used() throws Exception {
+  public void es_client_provider_must_throw_ISE_when_incorrect_port_is_used() {
     settings.setProperty(CLUSTER_ENABLED, true);
     settings.setProperty(CLUSTER_NODE_TYPE, "search");
     settings.setProperty(ProcessProperties.SEARCH_HOST, "localhost");
@@ -124,7 +124,7 @@ public class EsClientProviderTest {
   }
 
   @Test
-  public void es_client_provider_must_add_default_port_when_not_specified() throws Exception {
+  public void es_client_provider_must_add_default_port_when_not_specified() {
     settings.setProperty(CLUSTER_ENABLED, true);
     settings.setProperty(CLUSTER_NODE_TYPE, "application");
     settings.setProperty(CLUSTER_SEARCH_HOSTS, format("%s,%s:8081", localhost, localhost));

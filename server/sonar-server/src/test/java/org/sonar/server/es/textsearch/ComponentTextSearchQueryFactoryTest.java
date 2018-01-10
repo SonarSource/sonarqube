@@ -34,7 +34,7 @@ public class ComponentTextSearchQueryFactoryTest {
   public ExpectedException expectedException = ExpectedException.none();
 
   @Test
-  public void create_query() throws Exception {
+  public void create_query() {
     QueryBuilder result = createQuery(ComponentTextSearchQuery.builder()
       .setQueryText("SonarQube").setFieldKey("key").setFieldName("name").build(),
       ComponentTextSearchFeatureRepertoire.KEY);
@@ -58,7 +58,7 @@ public class ComponentTextSearchQueryFactoryTest {
   }
 
   @Test
-  public void fail_to_create_query_when_no_feature() throws Exception {
+  public void fail_to_create_query_when_no_feature() {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("features cannot be empty");
 
@@ -67,7 +67,7 @@ public class ComponentTextSearchQueryFactoryTest {
   }
 
   @Test
-  public void fail_to_create_query_when_no_query_text() throws Exception {
+  public void fail_to_create_query_when_no_query_text() {
     expectedException.expect(NullPointerException.class);
     expectedException.expectMessage("query text cannot be null");
 
@@ -75,7 +75,7 @@ public class ComponentTextSearchQueryFactoryTest {
   }
 
   @Test
-  public void fail_to_create_query_when_no_field_key() throws Exception {
+  public void fail_to_create_query_when_no_field_key() {
     expectedException.expect(NullPointerException.class);
     expectedException.expectMessage("field key cannot be null");
 
@@ -83,7 +83,7 @@ public class ComponentTextSearchQueryFactoryTest {
   }
 
   @Test
-  public void fail_to_create_query_when_no_field_name() throws Exception {
+  public void fail_to_create_query_when_no_field_name() {
     expectedException.expect(NullPointerException.class);
     expectedException.expectMessage("field name cannot be null");
 

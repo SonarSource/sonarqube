@@ -62,7 +62,7 @@ public class CompressPluginsTest {
   }
 
   @Test
-  public void plugins_installed_ws_should_expose_compressed_plugin() throws JSONException {
+  public void plugins_installed_ws_should_expose_compressed_plugin() {
     WsResponse response = tester.wsClient().wsConnector().call(new GetRequest("api/plugins/installed"));
     String content = response.content();
     JsonParser parser = new JsonParser();

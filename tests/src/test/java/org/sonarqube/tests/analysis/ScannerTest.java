@@ -277,7 +277,7 @@ public class ScannerTest {
    * SONAR-4239
    */
   @Test
-  public void should_display_project_url_after_analysis() throws IOException {
+  public void should_display_project_url_after_analysis() {
     orchestrator.getServer().provisionProject("com.sonarsource.it.samples:multi-modules-sample", "Sonar :: Integration Tests :: Multi-modules Sample");
     orchestrator.getServer().associateProjectToQualityProfile("com.sonarsource.it.samples:multi-modules-sample", "xoo", "one-issue-per-line");
 
@@ -341,7 +341,7 @@ public class ScannerTest {
    * SONAR-4547
    */
   @Test
-  public void display_MessageException_without_stacktrace() throws Exception {
+  public void display_MessageException_without_stacktrace() {
     orchestrator.getServer().provisionProject("sample", "xoo-sample");
     orchestrator.getServer().associateProjectToQualityProfile("sample", "xoo", "one-issue-per-line");
     BuildResult result = scanQuietly("shared/xoo-sample", "raiseMessageException", "true");
@@ -358,7 +358,7 @@ public class ScannerTest {
    * SONAR-4751
    */
   @Test
-  public void file_extensions_are_case_insensitive() throws Exception {
+  public void file_extensions_are_case_insensitive() {
     orchestrator.getServer().provisionProject("case-sensitive-file-extensions", "Case Sensitive");
     orchestrator.getServer().associateProjectToQualityProfile("case-sensitive-file-extensions", "xoo", "one-issue-per-line");
     scan("analysis/case-sensitive-file-extensions");

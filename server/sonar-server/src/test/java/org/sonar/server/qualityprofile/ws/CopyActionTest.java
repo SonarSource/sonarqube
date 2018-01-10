@@ -114,7 +114,7 @@ public class CopyActionTest {
   }
 
   @Test
-  public void create_profile_with_specified_name_and_copy_rules_from_source_profile() throws Exception {
+  public void create_profile_with_specified_name_and_copy_rules_from_source_profile() {
     OrganizationDto organization = db.organizations().insert();
     logInAsQProfileAdministrator(organization);
 
@@ -147,7 +147,7 @@ public class CopyActionTest {
   }
 
   @Test
-  public void copy_rules_on_existing_profile_in_default_organization() throws Exception {
+  public void copy_rules_on_existing_profile_in_default_organization() {
     OrganizationDto organization = db.organizations().insert();
     logInAsQProfileAdministrator(organization);
     QProfileDto sourceProfile = db.qualityProfiles().insert(organization, p -> p.setLanguage(A_LANGUAGE));
@@ -175,7 +175,7 @@ public class CopyActionTest {
   }
 
   @Test
-  public void create_profile_with_same_parent_as_source_profile() throws Exception {
+  public void create_profile_with_same_parent_as_source_profile() {
     OrganizationDto organization = db.organizations().insert();
     logInAsQProfileAdministrator(organization);
 
@@ -256,7 +256,7 @@ public class CopyActionTest {
   }
 
   @Test
-  public void fail_if_parameter_fromKey_is_missing() throws Exception {
+  public void fail_if_parameter_fromKey_is_missing() {
     OrganizationDto organization = db.organizations().insert();
     logInAsQProfileAdministrator(organization);
 
@@ -269,7 +269,7 @@ public class CopyActionTest {
   }
 
   @Test
-  public void fail_if_parameter_toName_is_missing() throws Exception {
+  public void fail_if_parameter_toName_is_missing() {
     OrganizationDto organization = db.organizations().insert();
     logInAsQProfileAdministrator(organization);
 

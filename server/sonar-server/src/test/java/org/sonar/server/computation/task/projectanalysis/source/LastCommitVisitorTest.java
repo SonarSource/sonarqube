@@ -120,7 +120,7 @@ public class LastCommitVisitorTest {
       .build();
     treeRootHolder.setRoot(project);
 
-    VisitorsCrawler underTest = new VisitorsCrawler(Lists.<ComponentVisitor>newArrayList(visitor));
+    VisitorsCrawler underTest = new VisitorsCrawler(Lists.newArrayList(visitor));
     underTest.visit(project);
 
     assertDate(DIR_1_REF, FILE_2_DATE);
@@ -168,7 +168,7 @@ public class LastCommitVisitorTest {
     measureRepository.addRawMeasure(PROJECT_2_REF, LAST_COMMIT_DATE_KEY, newMeasureBuilder().create(PROJECT_2_DATE));
     measureRepository.addRawMeasure(PROJECT_3_REF, LAST_COMMIT_DATE_KEY, newMeasureBuilder().create(PROJECT_3_DATE));
 
-    VisitorsCrawler underTest = new VisitorsCrawler(Lists.<ComponentVisitor>newArrayList(new LastCommitVisitor(metricRepository, measureRepository, scmInfoRepository)));
+    VisitorsCrawler underTest = new VisitorsCrawler(Lists.newArrayList(new LastCommitVisitor(metricRepository, measureRepository, scmInfoRepository)));
     underTest.visit(view);
 
     // second level of sub-views
@@ -183,8 +183,8 @@ public class LastCommitVisitorTest {
   }
 
   @Test
-  public void compute_date_of_file_from_scm_repo() throws Exception {
-    VisitorsCrawler underTest = new VisitorsCrawler(Lists.<ComponentVisitor>newArrayList(new LastCommitVisitor(metricRepository, measureRepository, scmInfoRepository)));
+  public void compute_date_of_file_from_scm_repo() {
+    VisitorsCrawler underTest = new VisitorsCrawler(Lists.newArrayList(new LastCommitVisitor(metricRepository, measureRepository, scmInfoRepository)));
 
     scmInfoRepository.setScmInfo(FILE_1_REF,
       Changeset.newChangesetBuilder()
@@ -214,8 +214,8 @@ public class LastCommitVisitorTest {
   }
 
   @Test
-  public void date_is_not_computed_on_file_if_blame_is_not_in_scm_repo() throws Exception {
-    VisitorsCrawler underTest = new VisitorsCrawler(Lists.<ComponentVisitor>newArrayList(new LastCommitVisitor(metricRepository, measureRepository, scmInfoRepository)));
+  public void date_is_not_computed_on_file_if_blame_is_not_in_scm_repo() {
+    VisitorsCrawler underTest = new VisitorsCrawler(Lists.newArrayList(new LastCommitVisitor(metricRepository, measureRepository, scmInfoRepository)));
     ReportComponent file = createFileComponent(FILE_1_REF);
     treeRootHolder.setRoot(file);
 

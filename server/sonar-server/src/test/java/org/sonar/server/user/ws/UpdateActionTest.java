@@ -68,7 +68,7 @@ public class UpdateActionTest {
 
   private DbClient dbClient = db.getDbClient();
   private DbSession dbSession = db.getSession();
-  private UserIndexer userIndexer = new UserIndexer(dbClient, es.client());;
+  private UserIndexer userIndexer = new UserIndexer(dbClient, es.client());
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
   private TestOrganizationFlags organizationFlags = TestOrganizationFlags.standalone();
 
@@ -131,7 +131,7 @@ public class UpdateActionTest {
   }
 
   @Test
-  public void remove_scm_accounts() throws Exception {
+  public void remove_scm_accounts() {
     createUser();
 
     ws.newRequest()
@@ -158,7 +158,7 @@ public class UpdateActionTest {
   }
 
   @Test
-  public void update_scm_account_having_coma() throws Exception {
+  public void update_scm_account_having_coma() {
     createUser();
 
     ws.newRequest()
@@ -171,7 +171,7 @@ public class UpdateActionTest {
   }
 
   @Test
-  public void update_scm_account_ignores_duplicates() throws Exception {
+  public void update_scm_account_ignores_duplicates() {
     createUser();
 
     ws.newRequest()
@@ -184,7 +184,7 @@ public class UpdateActionTest {
   }
 
   @Test
-  public void update_scm_account_ordered_case_insensitive() throws Exception {
+  public void update_scm_account_ordered_case_insensitive() {
     createUser();
 
     ws.newRequest()
@@ -225,7 +225,7 @@ public class UpdateActionTest {
   }
 
   @Test
-  public void fail_on_missing_permission() throws Exception {
+  public void fail_on_missing_permission() {
     createUser();
     userSession.logIn("polop");
 
@@ -237,7 +237,7 @@ public class UpdateActionTest {
   }
 
   @Test
-  public void fail_on_unknown_user() throws Exception {
+  public void fail_on_unknown_user() {
     expectedException.expect(NotFoundException.class);
 
     ws.newRequest()
@@ -246,7 +246,7 @@ public class UpdateActionTest {
   }
 
   @Test
-  public void fail_on_invalid_email() throws Exception {
+  public void fail_on_invalid_email() {
     createUser();
 
     expectedException.expect(IllegalArgumentException.class);

@@ -54,7 +54,7 @@ public class IntSumCounterTest {
 
   @Test
   public void no_value_when_aggregate_from_context_but_no_measure() {
-    when(counterInitializationContext.getMeasure(anyString())).thenReturn(Optional.<Measure>absent());
+    when(counterInitializationContext.getMeasure(anyString())).thenReturn(Optional.absent());
 
     sumCounter.initialize(counterInitializationContext);
 

@@ -39,7 +39,7 @@ public class SecurityServletFilter implements Filter {
   private static final Set<String> ALLOWED_HTTP_METHODS = ImmutableSet.of("DELETE", "GET", "HEAD", "POST", "PUT");
 
   @Override
-  public void init(FilterConfig filterConfig) throws ServletException {
+  public void init(FilterConfig filterConfig) {
     // nothing
   }
 

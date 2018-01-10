@@ -93,7 +93,7 @@ public class ResetActionTest {
   }
 
   @Test
-  public void remove_global_setting() throws Exception {
+  public void remove_global_setting() {
     logInAsSystemAdministrator();
     definitions.addComponent(PropertyDefinition.builder("foo").build());
     propertyDb.insertProperties(newGlobalPropertyDto().setKey("foo").setValue("one"));
@@ -103,7 +103,7 @@ public class ResetActionTest {
   }
 
   @Test
-  public void remove_global_setting_even_if_not_defined() throws Exception {
+  public void remove_global_setting_even_if_not_defined() {
     logInAsSystemAdministrator();
     propertyDb.insertProperties(newGlobalPropertyDto().setKey("foo").setValue("one"));
 
@@ -112,7 +112,7 @@ public class ResetActionTest {
   }
 
   @Test
-  public void remove_component_setting() throws Exception {
+  public void remove_component_setting() {
     logInAsProjectAdmin();
     definitions.addComponent(PropertyDefinition.builder("foo").onQualifiers(PROJECT).build());
     propertyDb.insertProperties(newComponentPropertyDto(project).setKey("foo").setValue("value"));
@@ -122,7 +122,7 @@ public class ResetActionTest {
   }
 
   @Test
-  public void remove_component_setting_even_if_not_defined() throws Exception {
+  public void remove_component_setting_even_if_not_defined() {
     logInAsProjectAdmin();
     propertyDb.insertProperties(newComponentPropertyDto(project).setKey("foo").setValue("value"));
 
@@ -131,7 +131,7 @@ public class ResetActionTest {
   }
 
   @Test
-  public void remove_hidden_setting() throws Exception {
+  public void remove_hidden_setting() {
     logInAsSystemAdministrator();
     definitions.addComponent(PropertyDefinition.builder("foo").hidden().build());
     propertyDb.insertProperties(newGlobalPropertyDto().setKey("foo").setValue("one"));
@@ -141,7 +141,7 @@ public class ResetActionTest {
   }
 
   @Test
-  public void ignore_project_setting_when_removing_global_setting() throws Exception {
+  public void ignore_project_setting_when_removing_global_setting() {
     logInAsSystemAdministrator();
     propertyDb.insertProperties(newGlobalPropertyDto().setKey("foo").setValue("one"));
     propertyDb.insertProperties(newComponentPropertyDto(project).setKey("foo").setValue("value"));
@@ -153,7 +153,7 @@ public class ResetActionTest {
   }
 
   @Test
-  public void ignore_global_setting_when_removing_project_setting() throws Exception {
+  public void ignore_global_setting_when_removing_project_setting() {
     logInAsProjectAdmin();
     propertyDb.insertProperties(newGlobalPropertyDto().setKey("foo").setValue("one"));
     propertyDb.insertProperties(newComponentPropertyDto(project).setKey("foo").setValue("value"));
@@ -165,7 +165,7 @@ public class ResetActionTest {
   }
 
   @Test
-  public void ignore_user_setting_when_removing_global_setting() throws Exception {
+  public void ignore_user_setting_when_removing_global_setting() {
     logInAsSystemAdministrator();
     UserDto user = dbClient.userDao().insert(dbSession, UserTesting.newUserDto());
     propertyDb.insertProperties(newUserPropertyDto("foo", "one", user));
@@ -175,7 +175,7 @@ public class ResetActionTest {
   }
 
   @Test
-  public void ignore_user_setting_when_removing_project_setting() throws Exception {
+  public void ignore_user_setting_when_removing_project_setting() {
     logInAsProjectAdmin();
     UserDto user = dbClient.userDao().insert(dbSession, UserTesting.newUserDto());
     propertyDb.insertProperties(newUserPropertyDto("foo", "one", user));
@@ -185,14 +185,14 @@ public class ResetActionTest {
   }
 
   @Test
-  public void ignore_unknown_setting_key() throws Exception {
+  public void ignore_unknown_setting_key() {
     logInAsSystemAdministrator();
 
     executeRequestOnGlobalSetting("unknown");
   }
 
   @Test
-  public void remove_setting_by_deprecated_key() throws Exception {
+  public void remove_setting_by_deprecated_key() {
     logInAsSystemAdministrator();
     definitions.addComponent(PropertyDefinition.builder("foo").deprecatedKey("old").build());
     propertyDb.insertProperties(newGlobalPropertyDto().setKey("foo").setValue("one"));
@@ -202,7 +202,7 @@ public class ResetActionTest {
   }
 
   @Test
-  public void remove_setting_on_branch() throws Exception {
+  public void remove_setting_on_branch() {
     ComponentDto project = db.components().insertMainBranch();
     ComponentDto branch = db.components().insertProjectBranch(project);
     definitions.addComponent(PropertyDefinition.builder("foo").onQualifiers(PROJECT).build());
@@ -241,7 +241,7 @@ public class ResetActionTest {
   }
 
   @Test
-  public void throw_ForbiddenException_if_global_setting_and_not_system_administrator() throws Exception {
+  public void throw_ForbiddenException_if_global_setting_and_not_system_administrator() {
     userSession.logIn().setNonSystemAdministrator();
     definitions.addComponent(PropertyDefinition.builder("foo").build());
 
@@ -252,7 +252,7 @@ public class ResetActionTest {
   }
 
   @Test
-  public void throw_ForbiddenException_if_project_setting_and_not_project_administrator() throws Exception {
+  public void throw_ForbiddenException_if_project_setting_and_not_project_administrator() {
     userSession.logIn().addProjectPermission(USER, project);
     definitions.addComponent(PropertyDefinition.builder("foo").build());
 
@@ -263,7 +263,7 @@ public class ResetActionTest {
   }
 
   @Test
-  public void throw_ForbiddenException_if_project_setting_and_system_administrator() throws Exception {
+  public void throw_ForbiddenException_if_project_setting_and_system_administrator() {
     logInAsSystemAdministrator();
     definitions.addComponent(PropertyDefinition.builder("foo").build());
 

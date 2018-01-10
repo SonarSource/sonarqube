@@ -48,7 +48,7 @@ final class LogsIteratorInputStream extends InputStream {
   }
 
   @Override
-  public int read() throws IOException {
+  public int read() {
     if (nextChar == UNSET || nextChar >= buf.length) {
       fill();
       if (nextChar == UNSET) {

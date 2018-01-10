@@ -63,7 +63,7 @@ public class ChangesOnMyIssueNotificationDispatcherTest {
   }
 
   @Test
-  public void test_metadata() throws Exception {
+  public void test_metadata() {
     NotificationDispatcherMetadata metadata = ChangesOnMyIssueNotificationDispatcher.newMetadata();
     assertThat(metadata.getDispatcherKey()).isEqualTo(dispatcher.getKey());
     assertThat(metadata.getProperty(NotificationDispatcherMetadata.GLOBAL_NOTIFICATION)).isEqualTo("true");

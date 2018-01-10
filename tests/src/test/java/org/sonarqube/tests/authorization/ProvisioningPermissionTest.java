@@ -76,7 +76,7 @@ public class ProvisioningPermissionTest {
   }
 
   @AfterClass
-  public static void restoreData() throws Exception {
+  public static void restoreData() {
     tester.wsClient().permissions().addGroup(new AddGroupRequest().setGroupName("anyone").setPermission("provisioning"));
   }
 

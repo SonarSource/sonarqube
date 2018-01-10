@@ -55,7 +55,7 @@ public class HazelcastMemberImplTest {
   private static HazelcastMember member3;
 
   @BeforeClass
-  public static void setUp() throws Exception {
+  public static void setUp() {
     int port1 = NetworkUtilsImpl.INSTANCE.getNextAvailablePort(loopback);
     int port2 = NetworkUtilsImpl.INSTANCE.getNextAvailablePort(loopback);
     int port3 = NetworkUtilsImpl.INSTANCE.getNextAvailablePort(loopback);
@@ -65,7 +65,7 @@ public class HazelcastMemberImplTest {
   }
 
   @AfterClass
-  public static void tearDown() throws Exception {
+  public static void tearDown() {
     member1.close();
     member2.close();
     member3.close();

@@ -118,7 +118,7 @@ public class StartupIndexationTest {
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() {
       if (tester != null) {
         try {
           tester.after();

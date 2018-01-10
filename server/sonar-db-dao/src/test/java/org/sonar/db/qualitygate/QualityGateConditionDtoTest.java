@@ -43,7 +43,7 @@ public class QualityGateConditionDtoTest {
   }
 
   @Test
-  public void validate_operators_for_BOOL() throws Exception {
+  public void validate_operators_for_BOOL() {
     assertThat(isOperatorAllowed("EQ", BOOL)).isTrue();
     assertThat(isOperatorAllowed("NE", BOOL)).isFalse();
     assertThat(isOperatorAllowed("LT", BOOL)).isFalse();
@@ -51,7 +51,7 @@ public class QualityGateConditionDtoTest {
   }
 
   @Test
-  public void validate_operators_for_LEVEL() throws Exception {
+  public void validate_operators_for_LEVEL() {
     assertThat(isOperatorAllowed("EQ", LEVEL)).isTrue();
     assertThat(isOperatorAllowed("NE", LEVEL)).isTrue();
     assertThat(isOperatorAllowed("LT", LEVEL)).isFalse();
@@ -59,7 +59,7 @@ public class QualityGateConditionDtoTest {
   }
 
   @Test
-  public void validate_operators_for_RATING() throws Exception {
+  public void validate_operators_for_RATING() {
     assertThat(isOperatorAllowed("EQ", RATING)).isFalse();
     assertThat(isOperatorAllowed("NE", RATING)).isFalse();
     assertThat(isOperatorAllowed("LT", RATING)).isFalse();
@@ -67,7 +67,7 @@ public class QualityGateConditionDtoTest {
   }
 
   @Test
-  public void validate_operators_for_other_types() throws Exception {
+  public void validate_operators_for_other_types() {
     Arrays.stream(new ValueType[] {STRING, INT, FLOAT, PERCENT, MILLISEC}).forEach(type -> {
       assertThat(isOperatorAllowed("EQ", type)).isTrue();
       assertThat(isOperatorAllowed("NE", type)).isTrue();

@@ -62,7 +62,7 @@ public class LocalAuthenticationTest {
   public Tester tester = new Tester(orchestrator).disableOrganizations();
 
   @After
-  public void resetProperties() throws Exception {
+  public void resetProperties() {
     resetSettings(orchestrator, null, "sonar.forceAuthentication");
   }
 
@@ -154,7 +154,7 @@ public class LocalAuthenticationTest {
   }
 
   @Test
-  public void allow_user_login_with_2_characters() throws Exception {
+  public void allow_user_login_with_2_characters() {
     tester.users().generate(u -> u.setLogin("jo").setPassword("password"));
 
     assertThat(checkAuthenticationWithAuthenticateWebService("jo", "password")).isTrue();
@@ -215,7 +215,7 @@ public class LocalAuthenticationTest {
    * SONAR-7640
    */
   @Test
-  public void authentication_with_any_ws() throws Exception {
+  public void authentication_with_any_ws() {
     tester.users().generate(u -> u.setLogin("test").setPassword("password"));
 
     assertThat(checkAuthenticationWithAnyWS("test", "password").code()).isEqualTo(200);

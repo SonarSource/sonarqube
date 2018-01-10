@@ -96,7 +96,7 @@ public class RegisterMetricsTest {
     dbTester.prepareDbUnit(getClass(), "disable_undefined_metrics.xml");
 
     RegisterMetrics register = new RegisterMetrics(dbClient);
-    register.register(Collections.<Metric>emptyList());
+    register.register(Collections.emptyList());
 
     dbTester.assertDbUnit(getClass(), "disable_undefined_metrics-result.xml", "metrics");
   }

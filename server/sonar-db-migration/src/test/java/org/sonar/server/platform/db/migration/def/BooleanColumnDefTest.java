@@ -37,7 +37,7 @@ public class BooleanColumnDefTest {
   public ExpectedException thrown = ExpectedException.none();
 
   @Test
-  public void build_column_def() throws Exception {
+  public void build_column_def() {
     BooleanColumnDef def = new BooleanColumnDef.Builder()
       .setColumnName("enabled")
       .setIsNullable(false)
@@ -50,7 +50,7 @@ public class BooleanColumnDefTest {
   }
 
   @Test
-  public void build_column_def_with_only_required_attributes() throws Exception {
+  public void build_column_def_with_only_required_attributes() {
     BooleanColumnDef def = new BooleanColumnDef.Builder()
       .setColumnName("enabled")
       .build();
@@ -61,7 +61,7 @@ public class BooleanColumnDefTest {
   }
 
   @Test
-  public void generate_sql_type() throws Exception {
+  public void generate_sql_type() {
     BooleanColumnDef def = new BooleanColumnDef.Builder()
       .setColumnName("enabled")
       .setIsNullable(true)
@@ -75,7 +75,7 @@ public class BooleanColumnDefTest {
   }
 
   @Test
-  public void fail_with_NPE_if_name_is_null() throws Exception {
+  public void fail_with_NPE_if_name_is_null() {
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("Column name cannot be null");
 
@@ -83,7 +83,7 @@ public class BooleanColumnDefTest {
   }
 
   @Test
-  public void fail_with_NPE_if_no_name() throws Exception {
+  public void fail_with_NPE_if_no_name() {
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("Column name cannot be null");
 

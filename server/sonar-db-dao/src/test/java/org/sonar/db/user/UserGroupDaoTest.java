@@ -88,7 +88,7 @@ public class UserGroupDaoTest {
   }
 
   @Test
-  public void delete_by_user() throws Exception {
+  public void delete_by_user() {
     UserDto user1 = dbTester.users().insertUser();
     UserDto user2 = dbTester.users().insertUser();
     GroupDto group1 = dbTester.users().insertGroup();

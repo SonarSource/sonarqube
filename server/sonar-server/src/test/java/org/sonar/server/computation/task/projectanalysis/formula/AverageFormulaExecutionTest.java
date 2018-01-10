@@ -64,7 +64,7 @@ public class AverageFormulaExecutionTest {
   @Before
   public void setUp() throws Exception {
     underTest = FormulaExecutorComponentVisitor.newBuilder(metricRepository, measureRepository)
-      .buildFor(Lists.<Formula>newArrayList(
+      .buildFor(Lists.newArrayList(
         AverageFormula.Builder.newBuilder()
           .setOutputMetricKey(FUNCTION_COMPLEXITY_KEY)
           .setMainMetricKey(COMPLEXITY_IN_FUNCTIONS_KEY)

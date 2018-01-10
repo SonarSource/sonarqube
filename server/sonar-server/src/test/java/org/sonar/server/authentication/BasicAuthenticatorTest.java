@@ -78,7 +78,7 @@ public class BasicAuthenticatorTest {
   private BasicAuthenticator underTest = new BasicAuthenticator(dbClient, credentialsAuthenticator, userTokenAuthenticator, authenticationEvent);
 
   @Test
-  public void authenticate_from_basic_http_header() throws Exception {
+  public void authenticate_from_basic_http_header() {
     when(request.getHeader("Authorization")).thenReturn("Basic " + CREDENTIALS_IN_BASE64);
     when(credentialsAuthenticator.authenticate(LOGIN, PASSWORD, request, BASIC)).thenReturn(USER);
 
@@ -89,7 +89,7 @@ public class BasicAuthenticatorTest {
   }
 
   @Test
-  public void authenticate_from_basic_http_header_with_password_containing_semi_colon() throws Exception {
+  public void authenticate_from_basic_http_header_with_password_containing_semi_colon() {
     String password = "!ascii-only:-)@";
     when(request.getHeader("Authorization")).thenReturn("Basic " + toBase64(LOGIN + ":" + password));
     when(credentialsAuthenticator.authenticate(LOGIN, password, request, BASIC)).thenReturn(USER);
@@ -101,14 +101,14 @@ public class BasicAuthenticatorTest {
   }
 
   @Test
-  public void does_not_authenticate_when_no_authorization_header() throws Exception {
+  public void does_not_authenticate_when_no_authorization_header() {
     underTest.authenticate(request);
 
     verifyZeroInteractions(credentialsAuthenticator, authenticationEvent);
   }
 
   @Test
-  public void does_not_authenticate_when_authorization_header_is_not_BASIC() throws Exception {
+  public void does_not_authenticate_when_authorization_header_is_not_BASIC() {
     when(request.getHeader("Authorization")).thenReturn("OTHER " + CREDENTIALS_IN_BASE64);
 
     underTest.authenticate(request);
@@ -117,7 +117,7 @@ public class BasicAuthenticatorTest {
   }
 
   @Test
-  public void fail_to_authenticate_when_no_login() throws Exception {
+  public void fail_to_authenticate_when_no_login() {
     when(request.getHeader("Authorization")).thenReturn("Basic " + toBase64(":" + PASSWORD));
 
     expectedException.expect(authenticationException().from(Source.local(BASIC)).withoutLogin().andNoPublicMessage());
@@ -129,7 +129,7 @@ public class BasicAuthenticatorTest {
   }
 
   @Test
-  public void fail_to_authenticate_when_invalid_header() throws Exception {
+  public void fail_to_authenticate_when_invalid_header() {
     when(request.getHeader("Authorization")).thenReturn("Basic Invàlid");
 
     expectedException.expect(authenticationException().from(Source.local(BASIC)).withoutLogin().andNoPublicMessage());
@@ -138,7 +138,7 @@ public class BasicAuthenticatorTest {
   }
 
   @Test
-  public void authenticate_from_user_token() throws Exception {
+  public void authenticate_from_user_token() {
     insertUser(UserTesting.newUserDto().setLogin(LOGIN));
     when(userTokenAuthenticator.authenticate("token")).thenReturn(Optional.of(LOGIN));
     when(request.getHeader("Authorization")).thenReturn("Basic " + toBase64("token:"));
@@ -151,7 +151,7 @@ public class BasicAuthenticatorTest {
   }
 
   @Test
-  public void does_not_authenticate_from_user_token_when_token_is_invalid() throws Exception {
+  public void does_not_authenticate_from_user_token_when_token_is_invalid() {
     insertUser(UserTesting.newUserDto().setLogin(LOGIN));
     when(userTokenAuthenticator.authenticate("token")).thenReturn(Optional.empty());
     when(request.getHeader("Authorization")).thenReturn("Basic " + toBase64("token:"));
@@ -165,7 +165,7 @@ public class BasicAuthenticatorTest {
   }
 
   @Test
-  public void does_not_authenticate_from_user_token_when_token_does_not_match_active_user() throws Exception {
+  public void does_not_authenticate_from_user_token_when_token_does_not_match_active_user() {
     insertUser(UserTesting.newUserDto().setLogin(LOGIN));
     when(userTokenAuthenticator.authenticate("token")).thenReturn(Optional.of("Unknown user"));
     when(request.getHeader("Authorization")).thenReturn("Basic " + toBase64("token:"));

@@ -269,7 +269,7 @@ public class NewIndexTest {
   }
 
   @Test
-  public void fail_when_replica_customization_cant_be_parsed() throws Exception {
+  public void fail_when_replica_customization_cant_be_parsed() {
     settings.setProperty(CLUSTER_ENABLED, "true");
     settings.setProperty(ProcessProperties.SEARCH_REPLICAS, "ꝱꝲꝳପ");
     NewIndex.SettingsConfiguration settingsConfiguration = newBuilder(settings.asConfig()).setDefaultNbOfShards(5).build();
@@ -281,7 +281,7 @@ public class NewIndexTest {
   }
 
   @Test
-  public void in_standalone_searchReplicas_is_not_overridable() throws Exception {
+  public void in_standalone_searchReplicas_is_not_overridable() {
     settings.setProperty(ProcessProperties.SEARCH_REPLICAS, "5");
     NewIndex index = new NewIndex("issues", defaultSettingsConfiguration);
 

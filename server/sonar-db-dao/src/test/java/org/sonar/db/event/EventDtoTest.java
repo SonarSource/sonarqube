@@ -26,7 +26,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class EventDtoTest {
 
   @Test
-  public void test_getters_and_setters() throws Exception {
+  public void test_getters_and_setters() {
     EventDto dto = new EventDto()
       .setId(1L)
       .setAnalysisUuid("uuid_1")

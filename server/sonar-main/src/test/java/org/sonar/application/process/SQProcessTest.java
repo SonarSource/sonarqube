@@ -235,7 +235,7 @@ public class SQProcessTest {
   }
 
   @Test
-  public void process_requests_are_listened_on_regular_basis() throws Exception {
+  public void process_requests_are_listened_on_regular_basis() {
     ProcessEventListener listener = mock(ProcessEventListener.class);
     SQProcess underTest = SQProcess.builder(A_PROCESS_ID)
       .addEventListener(listener)

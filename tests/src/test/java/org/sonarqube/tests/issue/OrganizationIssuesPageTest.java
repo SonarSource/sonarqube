@@ -51,7 +51,7 @@ public class OrganizationIssuesPageTest {
   private Users.CreateWsResponse.User user2;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     org1 = tester.organizations().generate();
     org2 = tester.organizations().generate();
     user1 = tester.users().generate();

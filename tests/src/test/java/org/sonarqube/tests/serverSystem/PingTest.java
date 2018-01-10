@@ -33,7 +33,7 @@ public class PingTest {
   public static final Orchestrator orchestrator = Category4Suite.ORCHESTRATOR;
 
   @Test
-  public void ping_answers_pong() throws Exception {
+  public void ping_answers_pong() {
     HttpResponse response = orchestrator.getServer().newHttpCall("/api/system/ping").execute();
 
     assertThat(response.getBodyAsString()).isEqualTo("pong");

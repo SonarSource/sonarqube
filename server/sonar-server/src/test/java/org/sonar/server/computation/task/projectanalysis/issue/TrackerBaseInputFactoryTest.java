@@ -53,7 +53,7 @@ public class TrackerBaseInputFactoryTest {
     when(dbClient.openSession(false)).thenReturn(dbSession);
     when(dbClient.fileSourceDao()).thenReturn(fileSourceDao);
     when(movedFilesRepository.getOriginalFile(any(Component.class)))
-      .thenReturn(Optional.<MovedFilesRepository.OriginalFile>absent());
+      .thenReturn(Optional.absent());
   }
 
   @Test

@@ -32,7 +32,7 @@ public class NewUserTest {
   public ExpectedException expectedException = ExpectedException.none();
 
   @Test
-  public void create_new_user() throws Exception {
+  public void create_new_user() {
     NewUser newUser = NewUser.builder()
       .setLogin("login")
       .setName("name")
@@ -50,7 +50,7 @@ public class NewUserTest {
   }
 
   @Test
-  public void create_new_user_with_minimal_fields() throws Exception {
+  public void create_new_user_with_minimal_fields() {
     NewUser newUser = NewUser.builder().build();
 
     assertThat(newUser.login()).isNull();
@@ -61,7 +61,7 @@ public class NewUserTest {
   }
 
   @Test
-  public void create_new_user_with_authority() throws Exception {
+  public void create_new_user_with_authority() {
     NewUser newUser = NewUser.builder()
       .setLogin("login")
       .setName("name")
@@ -74,7 +74,7 @@ public class NewUserTest {
   }
 
   @Test
-  public void fail_to_set_password_when_external_identity_is_set() throws Exception {
+  public void fail_to_set_password_when_external_identity_is_set() {
     expectedException.expect(IllegalStateException.class);
     expectedException.expectMessage("Password should not be set with an external identity");
 

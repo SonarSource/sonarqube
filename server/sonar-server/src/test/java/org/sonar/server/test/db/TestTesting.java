@@ -58,7 +58,7 @@ public class TestTesting {
   /**
    * Generate random data.
    */
-  public static List<DbFileSources.Test> newRandomTests(int numberOfTests) throws IOException {
+  public static List<DbFileSources.Test> newRandomTests(int numberOfTests) {
     List<DbFileSources.Test> tests = new ArrayList<>();
     for (int i = 1; i <= numberOfTests; i++) {
       DbFileSources.Test.Builder test = DbFileSources.Test.newBuilder()

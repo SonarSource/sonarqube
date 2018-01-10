@@ -157,7 +157,7 @@ public class SuggestionsActionTest {
   }
 
   @Test
-  public void suggestions_without_query_should_contain_recently_browsed() throws Exception {
+  public void suggestions_without_query_should_contain_recently_browsed() {
     ComponentDto project = db.components().insertComponent(newPrivateProjectDto(organization));
 
     componentIndexer.indexOnStartup(null);
@@ -182,7 +182,7 @@ public class SuggestionsActionTest {
   }
 
   @Test
-  public void suggestions_without_query_should_contain_recently_browsed_public_project() throws Exception {
+  public void suggestions_without_query_should_contain_recently_browsed_public_project() {
     ComponentDto project = db.components().insertComponent(newPublicProjectDto(organization));
 
     componentIndexer.indexOnStartup(null);
@@ -206,7 +206,7 @@ public class SuggestionsActionTest {
   }
 
   @Test
-  public void suggestions_without_query_should_not_contain_recently_browsed_without_permission() throws Exception {
+  public void suggestions_without_query_should_not_contain_recently_browsed_without_permission() {
     ComponentDto project = db.components().insertComponent(newPrivateProjectDto(organization));
 
     componentIndexer.indexOnStartup(null);
@@ -222,7 +222,7 @@ public class SuggestionsActionTest {
   }
 
   @Test
-  public void suggestions_without_query_should_contain_favorites() throws Exception {
+  public void suggestions_without_query_should_contain_favorites() {
     ComponentDto project = db.components().insertComponent(newPrivateProjectDto(organization));
     doReturn(singletonList(project)).when(favoriteFinder).list();
 
@@ -247,7 +247,7 @@ public class SuggestionsActionTest {
   }
 
   @Test
-  public void suggestions_without_query_should_not_contain_favorites_without_permission() throws Exception {
+  public void suggestions_without_query_should_not_contain_favorites_without_permission() {
     ComponentDto project = db.components().insertComponent(newPrivateProjectDto(organization));
     doReturn(singletonList(project)).when(favoriteFinder).list();
 
@@ -263,7 +263,7 @@ public class SuggestionsActionTest {
   }
 
   @Test
-  public void suggestions_without_query_should_contain_recently_browsed_favorites() throws Exception {
+  public void suggestions_without_query_should_contain_recently_browsed_favorites() {
     ComponentDto project = db.components().insertComponent(newPrivateProjectDto(organization));
     doReturn(singletonList(project)).when(favoriteFinder).list();
 
@@ -289,7 +289,7 @@ public class SuggestionsActionTest {
   }
 
   @Test
-  public void suggestions_without_query_should_not_contain_matches_that_are_neither_favorites_nor_recently_browsed() throws Exception {
+  public void suggestions_without_query_should_not_contain_matches_that_are_neither_favorites_nor_recently_browsed() {
     ComponentDto project = db.components().insertComponent(newPrivateProjectDto(organization));
 
     componentIndexer.indexOnStartup(null);
@@ -307,7 +307,7 @@ public class SuggestionsActionTest {
   }
 
   @Test
-  public void suggestions_without_query_should_order_results() throws Exception {
+  public void suggestions_without_query_should_order_results() {
     ComponentDto project1 = db.components().insertComponent(newPrivateProjectDto(organization).setName("Alpha"));
     ComponentDto project2 = db.components().insertComponent(newPrivateProjectDto(organization).setName("Bravo"));
     ComponentDto project3 = db.components().insertComponent(newPrivateProjectDto(organization).setName("Charlie"));
@@ -337,7 +337,7 @@ public class SuggestionsActionTest {
   }
 
   @Test
-  public void suggestions_without_query_should_return_empty_qualifiers() throws Exception {
+  public void suggestions_without_query_should_return_empty_qualifiers() {
     ComponentDto project = db.components().insertComponent(newPrivateProjectDto(organization));
     componentIndexer.indexOnAnalysis(project.projectUuid());
     userSessionRule.addProjectPermission(USER, project);
@@ -370,7 +370,7 @@ public class SuggestionsActionTest {
   }
 
   @Test
-  public void exact_match_in_one_qualifier() throws Exception {
+  public void exact_match_in_one_qualifier() {
     ComponentDto project = db.components().insertComponent(newPrivateProjectDto(organization));
 
     componentIndexer.indexOnStartup(null);
@@ -395,7 +395,7 @@ public class SuggestionsActionTest {
   }
 
   @Test
-  public void must_not_search_if_no_valid_tokens_are_provided() throws Exception {
+  public void must_not_search_if_no_valid_tokens_are_provided() {
     ComponentDto project = db.components().insertComponent(newPrivateProjectDto(organization).setName("SonarQube"));
 
     componentIndexer.indexOnStartup(null);
@@ -411,7 +411,7 @@ public class SuggestionsActionTest {
   }
 
   @Test
-  public void should_warn_about_short_inputs() throws Exception {
+  public void should_warn_about_short_inputs() {
     SuggestionsWsResponse response = ws.newRequest()
       .setMethod("POST")
       .setParam(PARAM_QUERY, "validLongToken x")
@@ -421,7 +421,7 @@ public class SuggestionsActionTest {
   }
 
   @Test
-  public void should_warn_about_short_inputs_but_return_results_based_on_other_terms() throws Exception {
+  public void should_warn_about_short_inputs_but_return_results_based_on_other_terms() {
     ComponentDto project = db.components().insertComponent(newPrivateProjectDto(organization).setName("SonarQube"));
 
     componentIndexer.indexOnStartup(null);
@@ -440,7 +440,7 @@ public class SuggestionsActionTest {
   }
 
   @Test
-  public void should_contain_component_names() throws Exception {
+  public void should_contain_component_names() {
     OrganizationDto organization1 = db.organizations().insert(o -> o.setKey("org-1").setName("Organization One"));
 
     ComponentDto project1 = db.components().insertComponent(newPrivateProjectDto(organization1).setName("Project1"));
@@ -459,7 +459,7 @@ public class SuggestionsActionTest {
   }
 
   @Test
-  public void should_contain_organization_names() throws Exception {
+  public void should_contain_organization_names() {
     OrganizationDto organization1 = db.organizations().insert(o -> o.setKey("org-1").setName("Organization One"));
     OrganizationDto organization2 = db.organizations().insert(o -> o.setKey("org-2").setName("Organization Two"));
 
@@ -484,7 +484,7 @@ public class SuggestionsActionTest {
   }
 
   @Test
-  public void should_contain_project_names() throws Exception {
+  public void should_contain_project_names() {
     ComponentDto project = db.components().insertComponent(newPrivateProjectDto(organization));
     db.components().insertComponent(newModuleDto(project).setName("Module1"));
     db.components().insertComponent(newModuleDto(project).setName("Module2"));
@@ -508,7 +508,7 @@ public class SuggestionsActionTest {
   }
 
   @Test
-  public void should_mark_recently_browsed_items() throws Exception {
+  public void should_mark_recently_browsed_items() {
     ComponentDto project = db.components().insertComponent(newPrivateProjectDto(organization));
     ComponentDto module1 = newModuleDto(project).setName("Module1");
     db.components().insertComponent(module1);
@@ -530,7 +530,7 @@ public class SuggestionsActionTest {
   }
 
   @Test
-  public void should_mark_favorite_items() throws Exception {
+  public void should_mark_favorite_items() {
     ComponentDto project = db.components().insertComponent(newPrivateProjectDto(organization));
     ComponentDto favorite = newModuleDto(project).setName("Module1");
     db.components().insertComponent(favorite);
@@ -553,7 +553,7 @@ public class SuggestionsActionTest {
   }
 
   @Test
-  public void should_return_empty_qualifiers() throws Exception {
+  public void should_return_empty_qualifiers() {
     ComponentDto project = db.components().insertComponent(newPrivateProjectDto(organization));
     componentIndexer.indexOnAnalysis(project.projectUuid());
     authorizationIndexerTester.allowOnlyAnyone(project);
@@ -569,7 +569,7 @@ public class SuggestionsActionTest {
   }
 
   @Test
-  public void should_only_provide_project_for_certain_qualifiers() throws Exception {
+  public void should_only_provide_project_for_certain_qualifiers() {
     String query = randomAlphabetic(10);
 
     ComponentDto app = db.components().insertApplication(organization, v -> v.setName(query));

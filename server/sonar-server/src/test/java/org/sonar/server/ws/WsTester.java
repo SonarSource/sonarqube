@@ -263,7 +263,7 @@ public class WsTester {
       return response.output.toByteArray();
     }
 
-    public Result assertJson(String expectedJson) throws Exception {
+    public Result assertJson(String expectedJson) {
       String json = outputAsString();
       JsonAssert.assertJson(json).isSimilarTo(expectedJson);
       return this;
@@ -277,7 +277,7 @@ public class WsTester {
      * @param clazz                the test class
      * @param expectedJsonFilename name of the file containing the expected JSON
      */
-    public Result assertJson(Class clazz, String expectedJsonFilename) throws Exception {
+    public Result assertJson(Class clazz, String expectedJsonFilename) {
       String path = clazz.getSimpleName() + "/" + expectedJsonFilename;
       URL url = clazz.getResource(path);
       if (url == null) {

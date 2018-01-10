@@ -94,7 +94,7 @@ public class NewIssuesEmailTemplateTest {
   }
 
   @Test
-  public void subject_on_branch() throws Exception {
+  public void subject_on_branch() {
     Notification notification = newNotification(32)
       .setFieldValue("branch", "feature1");
 
@@ -104,7 +104,7 @@ public class NewIssuesEmailTemplateTest {
   }
 
   @Test
-  public void format_email_with_all_fields_filled() throws Exception {
+  public void format_email_with_all_fields_filled() {
     Notification notification = newNotification(32)
       .setFieldValue("projectVersion", "42.1.1");
     addAssignees(notification);
@@ -144,7 +144,7 @@ public class NewIssuesEmailTemplateTest {
   }
 
   @Test
-  public void format_email_with_no_assignees_tags_nor_components_nor_version() throws Exception {
+  public void format_email_with_no_assignees_tags_nor_components_nor_version() {
     Notification notification = newNotification(32);
 
     EmailMessage message = template.format(notification);
@@ -174,7 +174,7 @@ public class NewIssuesEmailTemplateTest {
   }
 
   @Test
-  public void format_email_with_issue_on_branch() throws Exception {
+  public void format_email_with_issue_on_branch() {
     Notification notification = newNotification(32)
       .setFieldValue("branch", "feature1");
 
@@ -194,7 +194,7 @@ public class NewIssuesEmailTemplateTest {
   }
 
   @Test
-  public void format_email_with_issue_on_branch_with_version() throws Exception {
+  public void format_email_with_issue_on_branch_with_version() {
     Notification notification = newNotification(32)
       .setFieldValue("branch", "feature1")
       .setFieldValue("projectVersion", "42.1.1");

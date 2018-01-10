@@ -67,7 +67,7 @@ public class ReportFailureNotificationTest {
   private static Wiser smtpServer;
 
   @BeforeClass
-  public static void before() throws Exception {
+  public static void before() {
     smtpServer = new Wiser(0);
     smtpServer.start();
     System.out.println("SMTP Server port: " + smtpServer.getServer().getPort());
@@ -81,7 +81,7 @@ public class ReportFailureNotificationTest {
   }
 
   @Before
-  public void prepare() throws Exception {
+  public void prepare() {
     tester.settings().setGlobalSettings(
       "email.smtp_host.secured", smtpServer.getServer().getHostName(),
       "email.smtp_port.secured", valueOf(smtpServer.getServer().getPort()));

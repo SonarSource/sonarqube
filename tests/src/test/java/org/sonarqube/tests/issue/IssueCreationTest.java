@@ -61,7 +61,7 @@ public class IssueCreationTest extends AbstractIssueTest {
   }
 
   @Test
-  public void plugin_can_override_profile_severity() throws Exception {
+  public void plugin_can_override_profile_severity() {
     ORCHESTRATOR.getServer().provisionProject(SAMPLE_PROJECT_KEY, SAMPLE_PROJECT_KEY);
 
     // The rule "OneBlockerIssuePerFile" is enabled with severity "INFO"

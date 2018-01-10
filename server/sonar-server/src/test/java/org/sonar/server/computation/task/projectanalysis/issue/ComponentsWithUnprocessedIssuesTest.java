@@ -35,14 +35,14 @@ public class ComponentsWithUnprocessedIssuesTest {
   ComponentsWithUnprocessedIssues sut = new ComponentsWithUnprocessedIssues();
 
   @Test
-  public void set_uuids() throws Exception {
+  public void set_uuids() {
     sut.setUuids(newHashSet("ABCD", "EFGH"));
 
     assertThat(sut.getUuids()).containsOnly("ABCD", "EFGH");
   }
 
   @Test
-  public void set_uuids_makes_a_copy_of_input_issues() throws Exception {
+  public void set_uuids_makes_a_copy_of_input_issues() {
     Set<String> issues = newHashSet("ABCD", "EFGH");
     sut.setUuids(issues);
 
@@ -54,7 +54,7 @@ public class ComponentsWithUnprocessedIssuesTest {
   }
 
   @Test
-  public void fail_with_NPE_when_setting_null_uuids() throws Exception {
+  public void fail_with_NPE_when_setting_null_uuids() {
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("Uuids cannot be null");
 
@@ -62,7 +62,7 @@ public class ComponentsWithUnprocessedIssuesTest {
   }
 
   @Test
-  public void fail_with_ISE_when_setting_uuids_twice() throws Exception {
+  public void fail_with_ISE_when_setting_uuids_twice() {
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("Uuids have already been initialized");
 
@@ -71,7 +71,7 @@ public class ComponentsWithUnprocessedIssuesTest {
   }
 
   @Test
-  public void remove_uuid() throws Exception {
+  public void remove_uuid() {
     sut.setUuids(newHashSet("ABCD", "EFGH"));
     sut.remove("ABCD");
 
@@ -79,7 +79,7 @@ public class ComponentsWithUnprocessedIssuesTest {
   }
 
   @Test
-  public void fail_with_ISE_when_removing_uuid_and_not_initialized() throws Exception {
+  public void fail_with_ISE_when_removing_uuid_and_not_initialized() {
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("Uuids have not been initialized yet");
 
@@ -87,7 +87,7 @@ public class ComponentsWithUnprocessedIssuesTest {
   }
 
   @Test
-  public void fail_with_ISE_when_getting_uuid_and_not_initialized() throws Exception {
+  public void fail_with_ISE_when_getting_uuid_and_not_initialized() {
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("Uuids have not been initialized yet");
 

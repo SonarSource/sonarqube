@@ -124,7 +124,7 @@ public class UpdateKeyActionTest {
   }
 
   @Test
-  public void fail_when_using_branch_uuid() throws Exception {
+  public void fail_when_using_branch_uuid() {
     ComponentDto project = db.components().insertMainBranch();
     ComponentDto branch = db.components().insertProjectBranch(project);
 

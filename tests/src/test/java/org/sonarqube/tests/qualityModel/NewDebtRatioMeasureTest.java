@@ -52,7 +52,7 @@ public class NewDebtRatioMeasureTest {
   public Tester tester = new Tester(orchestrator);
 
   @Test
-  public void new_debt_ratio_is_computed_from_new_debt_and_new_ncloc_count_per_file() throws Exception {
+  public void new_debt_ratio_is_computed_from_new_debt_and_new_ncloc_count_per_file() {
     tester.settings().setGlobalSettings("sonar.leak.period", "previous_version");
 
     // run analysis on the day of after the first commit, with 'one-issue-per-line' profile
@@ -76,7 +76,7 @@ public class NewDebtRatioMeasureTest {
   }
 
   @Test
-  public void compute_new_debt_ratio_using_number_days_in_leak_period() throws Exception {
+  public void compute_new_debt_ratio_using_number_days_in_leak_period() {
     tester.settings().setGlobalSettings("sonar.leak.period", "30");
 
     // run analysis on the day of after the first commit, with 'one-issue-per-line' profile

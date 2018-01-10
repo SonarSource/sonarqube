@@ -138,7 +138,7 @@ public class UpdateActionTest {
   @Test
   public void IAE_is_raised_when_update_center_is_unavailable() throws Exception {
     logInAsSystemAdministrator();
-    when(updateCenterFactory.getUpdateCenter(anyBoolean())).thenReturn(Optional.<UpdateCenter>absent());
+    when(updateCenterFactory.getUpdateCenter(anyBoolean())).thenReturn(Optional.absent());
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("No plugin with key 'pluginKey'");

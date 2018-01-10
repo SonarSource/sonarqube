@@ -73,7 +73,7 @@ public class ComponentTagsActionTest {
   }
 
   @Test
-  public void should_return_empty_list() throws Exception {
+  public void should_return_empty_list() {
     TestResponse response = tester.newRequest()
       .setParam("componentUuid", "polop")
       .execute();
@@ -81,7 +81,7 @@ public class ComponentTagsActionTest {
   }
 
   @Test
-  public void should_return_tag_list() throws Exception {
+  public void should_return_tag_list() {
     Map<String, Long> tags = ImmutableMap.<String, Long>builder()
       .put("convention", 2771L)
       .put("brain-overload", 998L)
@@ -105,7 +105,7 @@ public class ComponentTagsActionTest {
   }
 
   @Test
-  public void should_return_tag_list_with_created_after() throws Exception {
+  public void should_return_tag_list_with_created_after() {
     Map<String, Long> tags = ImmutableMap.<String, Long>builder()
       .put("convention", 2771L)
       .put("brain-overload", 998L)

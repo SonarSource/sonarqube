@@ -413,7 +413,7 @@ public class ProjectMeasuresIndexTest {
   }
 
   @Test
-  public void return_only_projects_authorized_for_user() throws Exception {
+  public void return_only_projects_authorized_for_user() {
     indexForUser(USER1, newDoc(PROJECT1), newDoc(PROJECT2));
     indexForUser(USER2, newDoc(PROJECT3));
 
@@ -422,7 +422,7 @@ public class ProjectMeasuresIndexTest {
   }
 
   @Test
-  public void return_only_projects_authorized_for_user_groups() throws Exception {
+  public void return_only_projects_authorized_for_user_groups() {
     indexForGroup(GROUP1, newDoc(PROJECT1), newDoc(PROJECT2));
     indexForGroup(GROUP2, newDoc(PROJECT3));
 
@@ -431,7 +431,7 @@ public class ProjectMeasuresIndexTest {
   }
 
   @Test
-  public void return_only_projects_authorized_for_user_and_groups() throws Exception {
+  public void return_only_projects_authorized_for_user_and_groups() {
     indexForUser(USER1, newDoc(PROJECT1), newDoc(PROJECT2));
     indexForGroup(GROUP1, newDoc(PROJECT3));
 
@@ -440,7 +440,7 @@ public class ProjectMeasuresIndexTest {
   }
 
   @Test
-  public void anonymous_user_can_only_access_projects_authorized_for_anyone() throws Exception {
+  public void anonymous_user_can_only_access_projects_authorized_for_anyone() {
     index(newDoc(PROJECT1));
     indexForUser(USER1, newDoc(PROJECT2));
 
@@ -458,7 +458,7 @@ public class ProjectMeasuresIndexTest {
   }
 
   @Test
-  public void does_not_return_facet_when_no_facets_in_options() throws Exception {
+  public void does_not_return_facet_when_no_facets_in_options() {
     index(
       newDoc(PROJECT1, NCLOC, 10d, COVERAGE_KEY, 30d, MAINTAINABILITY_RATING, 3d)
         .setQualityGateStatus(OK.name()));
@@ -544,7 +544,7 @@ public class ProjectMeasuresIndexTest {
   }
 
   @Test
-  public void facet_ncloc_contains_only_projects_authorized_for_user() throws Exception {
+  public void facet_ncloc_contains_only_projects_authorized_for_user() {
     // User can see these projects
     indexForUser(USER1,
       // docs with ncloc<1K
@@ -693,7 +693,7 @@ public class ProjectMeasuresIndexTest {
   }
 
   @Test
-  public void facet_coverage_contains_only_projects_authorized_for_user() throws Exception {
+  public void facet_coverage_contains_only_projects_authorized_for_user() {
     // User can see these projects
     indexForUser(USER1,
       // 1 doc with no coverage
@@ -847,7 +847,7 @@ public class ProjectMeasuresIndexTest {
   }
 
   @Test
-  public void facet_duplicated_lines_density_contains_only_projects_authorized_for_user() throws Exception {
+  public void facet_duplicated_lines_density_contains_only_projects_authorized_for_user() {
     // User can see these projects
     indexForUser(USER1,
       // docs with no duplication
@@ -1005,7 +1005,7 @@ public class ProjectMeasuresIndexTest {
 
   @Test
   @UseDataProvider("rating_metric_keys")
-  public void facet_on_rating_contains_only_projects_authorized_for_user(String metricKey) throws Exception {
+  public void facet_on_rating_contains_only_projects_authorized_for_user(String metricKey) {
     // User can see these projects
     indexForUser(USER1,
       // 3 docs with rating A
@@ -1096,7 +1096,7 @@ public class ProjectMeasuresIndexTest {
   }
 
   @Test
-  public void facet_quality_gate_contains_only_projects_authorized_for_user() throws Exception {
+  public void facet_quality_gate_contains_only_projects_authorized_for_user() {
     // User can see these projects
     indexForUser(USER1,
       // 2 docs with QG OK
@@ -1209,7 +1209,7 @@ public class ProjectMeasuresIndexTest {
   }
 
   @Test
-  public void facet_languages_contains_only_projects_authorized_for_user() throws Exception {
+  public void facet_languages_contains_only_projects_authorized_for_user() {
     // User can see these projects
     indexForUser(USER1,
       newDoc().setLanguages(singletonList("java")),

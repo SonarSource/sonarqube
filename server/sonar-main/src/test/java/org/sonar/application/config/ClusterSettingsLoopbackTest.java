@@ -52,7 +52,7 @@ public class ClusterSettingsLoopbackTest {
   private NetworkUtils network = spy(NetworkUtilsImpl.INSTANCE);
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     Optional<InetAddress> opt = network.getLocalNonLoopbackIpv4Address();
     assumeThat(opt.isPresent(), CoreMatchers.is(true));
 
@@ -93,7 +93,7 @@ public class ClusterSettingsLoopbackTest {
     new ClusterSettings(network).accept(settings.getProps());
   }
 
-  private TestAppSettings newSettingsForAppNode() throws SocketException {
+  private TestAppSettings newSettingsForAppNode() {
     return new TestAppSettings()
       .set(CLUSTER_ENABLED, "true")
       .set(CLUSTER_NODE_TYPE, "application")
@@ -104,7 +104,7 @@ public class ClusterSettingsLoopbackTest {
       .set(JDBC_URL, "jdbc:mysql://localhost:3306/sonar");
   }
 
-  private TestAppSettings newSettingsForSearchNode() throws SocketException {
+  private TestAppSettings newSettingsForSearchNode() {
     return new TestAppSettings()
       .set(CLUSTER_ENABLED, "true")
       .set(CLUSTER_NODE_TYPE, "search")

@@ -56,7 +56,7 @@ public class TemplateUsersActionTest extends BasePermissionWsTest<TemplateUsersA
   }
 
   @Test
-  public void search_for_users_with_response_example() throws Exception {
+  public void search_for_users_with_response_example() {
     UserDto user1 = insertUser(newUserDto().setLogin("admin").setName("Administrator").setEmail("admin@admin.com"));
     UserDto user2 = insertUser(newUserDto().setLogin("george.orwell").setName("George Orwell").setEmail("george.orwell@1984.net"));
 
@@ -71,7 +71,7 @@ public class TemplateUsersActionTest extends BasePermissionWsTest<TemplateUsersA
   }
 
   @Test
-  public void search_for_users_by_template_name() throws Exception {
+  public void search_for_users_by_template_name() {
     loginAsAdmin(db.getDefaultOrganization());
 
     UserDto user1 = insertUser(newUserDto().setLogin("login-1").setName("name-1").setEmail("email-1"));
@@ -98,7 +98,7 @@ public class TemplateUsersActionTest extends BasePermissionWsTest<TemplateUsersA
   }
 
   @Test
-  public void search_using_text_query() throws Exception {
+  public void search_using_text_query() {
     loginAsAdmin(db.getDefaultOrganization());
 
     UserDto user1 = insertUser(newUserDto().setLogin("login-1").setName("name-1").setEmail("email-1"));
@@ -123,7 +123,7 @@ public class TemplateUsersActionTest extends BasePermissionWsTest<TemplateUsersA
   }
 
   @Test
-  public void search_using_permission() throws Exception {
+  public void search_using_permission() {
     UserDto user1 = insertUser(newUserDto().setLogin("login-1").setName("name-1").setEmail("email-1"));
     UserDto user2 = insertUser(newUserDto().setLogin("login-2").setName("name-2").setEmail("email-2"));
     UserDto user3 = insertUser(newUserDto().setLogin("login-3").setName("name-3").setEmail("email-3"));
@@ -146,7 +146,7 @@ public class TemplateUsersActionTest extends BasePermissionWsTest<TemplateUsersA
   }
 
   @Test
-  public void search_with_pagination() throws Exception {
+  public void search_with_pagination() {
     UserDto user1 = insertUser(newUserDto().setLogin("login-1").setName("name-1").setEmail("email-1"));
     UserDto user2 = insertUser(newUserDto().setLogin("login-2").setName("name-2").setEmail("email-2"));
     UserDto user3 = insertUser(newUserDto().setLogin("login-3").setName("name-3").setEmail("email-3"));
@@ -172,7 +172,7 @@ public class TemplateUsersActionTest extends BasePermissionWsTest<TemplateUsersA
   }
 
   @Test
-  public void users_are_sorted_by_name() throws Exception {
+  public void users_are_sorted_by_name() {
     UserDto user1 = insertUser(newUserDto().setLogin("login-2").setName("name-2"));
     UserDto user2 = insertUser(newUserDto().setLogin("login-3").setName("name-3"));
     UserDto user3 = insertUser(newUserDto().setLogin("login-1").setName("name-1"));
@@ -191,7 +191,7 @@ public class TemplateUsersActionTest extends BasePermissionWsTest<TemplateUsersA
   }
 
   @Test
-  public void empty_result_when_no_user_on_template() throws Exception {
+  public void empty_result_when_no_user_on_template() {
     UserDto user = insertUser(newUserDto().setLogin("login-1").setName("name-1").setEmail("email-1"));
     PermissionTemplateDto template = addTemplateToDefaultOrganization();
     PermissionTemplateDto anotherTemplate = addTemplateToDefaultOrganization();
@@ -206,7 +206,7 @@ public class TemplateUsersActionTest extends BasePermissionWsTest<TemplateUsersA
   }
 
   @Test
-  public void fail_if_not_a_project_permission() throws Exception {
+  public void fail_if_not_a_project_permission() {
     PermissionTemplateDto template = addTemplateToDefaultOrganization();
     loginAsAdmin(db.getDefaultOrganization());
 
@@ -217,7 +217,7 @@ public class TemplateUsersActionTest extends BasePermissionWsTest<TemplateUsersA
   }
 
   @Test
-  public void fail_if_no_template_param() throws Exception {
+  public void fail_if_no_template_param() {
     loginAsAdmin(db.getDefaultOrganization());
 
     expectedException.expect(BadRequestException.class);
@@ -227,7 +227,7 @@ public class TemplateUsersActionTest extends BasePermissionWsTest<TemplateUsersA
   }
 
   @Test
-  public void fail_if_template_does_not_exist() throws Exception {
+  public void fail_if_template_does_not_exist() {
     loginAsAdmin(db.getDefaultOrganization());
 
     expectedException.expect(NotFoundException.class);
@@ -237,7 +237,7 @@ public class TemplateUsersActionTest extends BasePermissionWsTest<TemplateUsersA
   }
 
   @Test
-  public void fail_if_template_uuid_and_name_provided() throws Exception {
+  public void fail_if_template_uuid_and_name_provided() {
     PermissionTemplateDto template = addTemplateToDefaultOrganization();
     loginAsAdmin(db.getDefaultOrganization());
 
@@ -249,7 +249,7 @@ public class TemplateUsersActionTest extends BasePermissionWsTest<TemplateUsersA
   }
 
   @Test
-  public void fail_if_not_logged_in() throws Exception {
+  public void fail_if_not_logged_in() {
     PermissionTemplateDto template = addTemplateToDefaultOrganization();
     userSession.anonymous();
 
@@ -259,7 +259,7 @@ public class TemplateUsersActionTest extends BasePermissionWsTest<TemplateUsersA
   }
 
   @Test
-  public void fail_if_insufficient_privileges() throws Exception {
+  public void fail_if_insufficient_privileges() {
     PermissionTemplateDto template = addTemplateToDefaultOrganization();
     userSession.logIn().addPermission(SCAN, db.getDefaultOrganization());
 

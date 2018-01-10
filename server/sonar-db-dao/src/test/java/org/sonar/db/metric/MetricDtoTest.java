@@ -72,7 +72,7 @@ public class MetricDtoTest {
   }
 
   @Test
-  public void is_data_type() throws Exception {
+  public void is_data_type() {
     assertThat(MetricTesting.newMetricDto().setValueType(INT.name()).isDataType()).isFalse();
 
     assertThat(MetricTesting.newMetricDto().setValueType(DATA.name()).isDataType()).isTrue();

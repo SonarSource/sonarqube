@@ -35,7 +35,7 @@ public class UserDtoTest {
   @Test
   public void encode_scm_accounts() {
     assertThat(UserDto.encodeScmAccounts(null)).isNull();
-    assertThat(UserDto.encodeScmAccounts(Collections.<String>emptyList())).isNull();
+    assertThat(UserDto.encodeScmAccounts(Collections.emptyList())).isNull();
     assertThat(UserDto.encodeScmAccounts(Arrays.asList("foo"))).isEqualTo("\nfoo\n");
     assertThat(UserDto.encodeScmAccounts(Arrays.asList("foo", "bar"))).isEqualTo("\nfoo\nbar\n");
   }
@@ -48,18 +48,18 @@ public class UserDtoTest {
   }
 
   @Test
-  public void encrypt_password() throws Exception {
+  public void encrypt_password() {
     assertThat(UserDto.encryptPassword("PASSWORD", "0242b0b4c0a93ddfe09dd886de50bc25ba000b51")).isEqualTo("540e4fc4be4e047db995bc76d18374a5b5db08cc");
   }
 
   @Test
-  public void fail_to_encrypt_password_when_password_is_null() throws Exception {
+  public void fail_to_encrypt_password_when_password_is_null() {
     expectedException.expect(NullPointerException.class);
     UserDto.encryptPassword(null, "salt");
   }
 
   @Test
-  public void fail_to_encrypt_password_when_salt_is_null() throws Exception {
+  public void fail_to_encrypt_password_when_salt_is_null() {
     expectedException.expect(NullPointerException.class);
     UserDto.encryptPassword("password", null);
   }

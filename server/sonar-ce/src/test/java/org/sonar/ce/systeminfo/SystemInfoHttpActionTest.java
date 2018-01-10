@@ -49,7 +49,7 @@ public class SystemInfoHttpActionTest {
   private SystemInfoHttpAction underTest;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     underTest = new SystemInfoHttpAction(Arrays.asList(stateProvider1, stateProvider2));
   }
 

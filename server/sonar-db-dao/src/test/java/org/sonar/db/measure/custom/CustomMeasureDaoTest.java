@@ -154,7 +154,7 @@ public class CustomMeasureDaoTest {
   }
 
   @Test
-  public void select_by_metric_key_and_text_value() throws Exception {
+  public void select_by_metric_key_and_text_value() {
     db.prepareDbUnit(getClass(), "select_by_metric_key_and_text_value.xml");
 
     List<CustomMeasureDto> result = underTest.selectByMetricKeyAndTextValue(session, "customKey", "value1");

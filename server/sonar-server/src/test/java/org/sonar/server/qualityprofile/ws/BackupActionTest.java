@@ -81,7 +81,7 @@ public class BackupActionTest {
   }
 
   @Test
-  public void returns_backup_of_profile_with_specified_key() throws Exception {
+  public void returns_backup_of_profile_with_specified_key() {
     QProfileDto profile = db.qualityProfiles().insert(db.getDefaultOrganization());
 
     TestResponse response = tester.newRequest().setParam(PARAM_KEY, profile.getKee()).execute();
@@ -91,7 +91,7 @@ public class BackupActionTest {
   }
 
   @Test
-  public void returns_backup_of_profile_with_specified_name_on_default_organization() throws Exception {
+  public void returns_backup_of_profile_with_specified_name_on_default_organization() {
     QProfileDto profile = db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setLanguage(A_LANGUAGE));
 
     TestResponse response = tester.newRequest()
@@ -102,7 +102,7 @@ public class BackupActionTest {
   }
 
   @Test
-  public void returns_backup_of_profile_with_specified_name_and_organization() throws Exception {
+  public void returns_backup_of_profile_with_specified_name_and_organization() {
     OrganizationDto org = db.organizations().insert();
     QProfileDto profile = db.qualityProfiles().insert(org, p -> p.setLanguage(A_LANGUAGE));
 
@@ -115,7 +115,7 @@ public class BackupActionTest {
   }
 
   @Test
-  public void throws_NotFoundException_if_profile_with_specified_key_does_not_exist() throws Exception {
+  public void throws_NotFoundException_if_profile_with_specified_key_does_not_exist() {
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("Quality Profile with key 'missing' does not exist");
 
@@ -123,7 +123,7 @@ public class BackupActionTest {
   }
 
   @Test
-  public void throws_NotFoundException_if_specified_organization_does_not_exist() throws Exception {
+  public void throws_NotFoundException_if_specified_organization_does_not_exist() {
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("No organization with key 'the-missing-org'");
 
@@ -135,7 +135,7 @@ public class BackupActionTest {
   }
 
   @Test
-  public void throws_NotFoundException_if_profile_name_exists_but_in_another_organization() throws Exception {
+  public void throws_NotFoundException_if_profile_name_exists_but_in_another_organization() {
     OrganizationDto org1 = db.organizations().insert();
     QProfileDto profileInOrg1 = db.qualityProfiles().insert(org1, p -> p.setLanguage(A_LANGUAGE));
     OrganizationDto org2 = db.organizations().insert();
@@ -152,7 +152,7 @@ public class BackupActionTest {
   }
 
   @Test
-  public void throws_IAE_if_profile_reference_is_not_set() throws Exception {
+  public void throws_IAE_if_profile_reference_is_not_set() {
     expectedException.expect(IllegalArgumentException.class);
 
     tester.newRequest().execute();

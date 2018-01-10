@@ -158,7 +158,7 @@ public class AddProjectActionTest {
   }
 
   @Test
-  public void change_association_in_default_organization() throws Exception {
+  public void change_association_in_default_organization() {
     logInAsProfileAdmin(db.getDefaultOrganization());
 
     ComponentDto project = db.components().insertPrivateProject(db.getDefaultOrganization());
@@ -174,7 +174,7 @@ public class AddProjectActionTest {
   }
 
   @Test
-  public void changing_association_does_not_change_other_language_associations() throws Exception {
+  public void changing_association_does_not_change_other_language_associations() {
     logInAsProfileAdmin(db.getDefaultOrganization());
     ComponentDto project = db.components().insertPrivateProject(db.getDefaultOrganization());
     QProfileDto profile1Language1 = db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setLanguage(LANGUAGE_1));
@@ -189,7 +189,7 @@ public class AddProjectActionTest {
   }
 
   @Test
-  public void project_administrator_can_change_profile() throws Exception {
+  public void project_administrator_can_change_profile() {
     ComponentDto project = db.components().insertPrivateProject(db.getDefaultOrganization());
     QProfileDto profile = db.qualityProfiles().insert(db.getDefaultOrganization());
     userSession.logIn(db.users().insertUser()).addProjectPermission(UserRole.ADMIN, project);
@@ -269,7 +269,7 @@ public class AddProjectActionTest {
   }
 
   @Test
-  public void fail_when_using_branch_uuid() throws Exception {
+  public void fail_when_using_branch_uuid() {
     OrganizationDto organization = db.organizations().insert();
     ComponentDto project = db.components().insertMainBranch(organization);
     userSession.logIn(db.users().insertUser()).addProjectPermission(UserRole.ADMIN, project);

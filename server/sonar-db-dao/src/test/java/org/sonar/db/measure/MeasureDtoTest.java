@@ -29,7 +29,7 @@ public class MeasureDtoTest {
   MeasureDto underTest = new MeasureDto();
 
   @Test
-  public void test_getter_and_setter() throws Exception {
+  public void test_getter_and_setter() {
     underTest
       .setValue(2d)
       .setData("text value")

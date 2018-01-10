@@ -85,7 +85,7 @@ public class LoginActionTest {
   }
 
   @Test
-  public void do_get_pattern() throws Exception {
+  public void do_get_pattern() {
     assertThat(underTest.doGetPattern().matches("/api/authentication/login")).isTrue();
     assertThat(underTest.doGetPattern().matches("/api/authentication/logout")).isFalse();
     assertThat(underTest.doGetPattern().matches("/foo")).isFalse();

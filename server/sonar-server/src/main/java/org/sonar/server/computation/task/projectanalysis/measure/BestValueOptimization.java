@@ -73,7 +73,7 @@ public class BestValueOptimization implements Predicate<Measure> {
   private static boolean isBestValue(Measure measure, Double bestValue) {
     switch (measure.getValueType()) {
       case BOOLEAN:
-        return bestValue.intValue() == 1 ? measure.getBooleanValue() : !measure.getBooleanValue();
+        return (bestValue.intValue() == 1) == measure.getBooleanValue();
       case INT:
         return bestValue.intValue() == measure.getIntValue();
       case LONG:

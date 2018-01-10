@@ -96,7 +96,7 @@ public class IndexActionTest {
   }
 
   @Test
-  public void fail_when_missing_code_viewer_permission() throws Exception {
+  public void fail_when_missing_code_viewer_permission() {
     ComponentDto project = db.components().insertPrivateProject();
     userSession.addProjectPermission(USER, project);
     ComponentDto file = db.components().insertComponent(newFileDto(project));
@@ -131,7 +131,7 @@ public class IndexActionTest {
       .execute();
   }
 
-  private static DbFileSources.Data newData(String... lines) throws IOException {
+  private static DbFileSources.Data newData(String... lines) {
     DbFileSources.Data.Builder dataBuilder = DbFileSources.Data.newBuilder();
     for (int i = 1; i <= lines.length; i++) {
       dataBuilder.addLinesBuilder()
@@ -142,7 +142,7 @@ public class IndexActionTest {
     return dataBuilder.build();
   }
 
-  private void insertFileWithData(ComponentDto file, DbFileSources.Data fileData) throws IOException {
+  private void insertFileWithData(ComponentDto file, DbFileSources.Data fileData) {
     db.getDbClient().fileSourceDao().insert(db.getSession(), new FileSourceDto()
       .setProjectUuid(file.projectUuid())
       .setFileUuid(file.uuid())

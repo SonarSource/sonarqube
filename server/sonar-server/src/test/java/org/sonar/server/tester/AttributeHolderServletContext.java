@@ -85,7 +85,7 @@ class AttributeHolderServletContext implements ServletContext {
   }
 
   @Override
-  public URL getResource(String s) throws MalformedURLException {
+  public URL getResource(String s) {
     throw new UnsupportedOperationException();
   }
 
@@ -105,7 +105,7 @@ class AttributeHolderServletContext implements ServletContext {
   }
 
   @Override
-  public Servlet getServlet(String s) throws ServletException {
+  public Servlet getServlet(String s) {
     throw new UnsupportedOperationException();
   }
 
@@ -202,7 +202,7 @@ class AttributeHolderServletContext implements ServletContext {
   }
 
   @Override
-  public <T extends Servlet> T createServlet(Class<T> aClass) throws ServletException {
+  public <T extends Servlet> T createServlet(Class<T> aClass) {
     throw new UnsupportedOperationException();
   }
 
@@ -232,7 +232,7 @@ class AttributeHolderServletContext implements ServletContext {
   }
 
   @Override
-  public <T extends Filter> T createFilter(Class<T> aClass) throws ServletException {
+  public <T extends Filter> T createFilter(Class<T> aClass) {
     throw new UnsupportedOperationException();
   }
 
@@ -282,7 +282,7 @@ class AttributeHolderServletContext implements ServletContext {
   }
 
   @Override
-  public <T extends EventListener> T createListener(Class<T> aClass) throws ServletException {
+  public <T extends EventListener> T createListener(Class<T> aClass) {
     throw new UnsupportedOperationException();
   }
 

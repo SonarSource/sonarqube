@@ -26,7 +26,7 @@ import org.sonar.server.es.textsearch.ComponentTextSearchQueryFactory.ComponentT
 public interface ComponentTextSearchFeature {
 
   enum UseCase {
-    GENERATE_RESULTS, CHANGE_ORDER_OF_RESULTS;
+    GENERATE_RESULTS, CHANGE_ORDER_OF_RESULTS
   }
 
   default UseCase getUseCase() {

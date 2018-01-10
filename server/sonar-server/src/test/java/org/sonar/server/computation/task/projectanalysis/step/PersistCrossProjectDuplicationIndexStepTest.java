@@ -97,7 +97,7 @@ public class PersistCrossProjectDuplicationIndexStepTest {
   }
 
   @Test
-  public void persist_cpd_text_block() throws Exception {
+  public void persist_cpd_text_block() {
     when(crossProjectDuplicationStatusHolder.isEnabled()).thenReturn(true);
     reportReader.putDuplicationBlocks(FILE_1_REF, singletonList(CPD_TEXT_BLOCK));
 
@@ -113,7 +113,7 @@ public class PersistCrossProjectDuplicationIndexStepTest {
   }
 
   @Test
-  public void persist_many_cpd_text_blocks() throws Exception {
+  public void persist_many_cpd_text_blocks() {
     when(crossProjectDuplicationStatusHolder.isEnabled()).thenReturn(true);
     reportReader.putDuplicationBlocks(FILE_1_REF, Arrays.asList(
       CPD_TEXT_BLOCK,
@@ -135,9 +135,9 @@ public class PersistCrossProjectDuplicationIndexStepTest {
   }
 
   @Test
-  public void nothing_to_persist_when_no_cpd_text_blocks_in_report() throws Exception {
+  public void nothing_to_persist_when_no_cpd_text_blocks_in_report() {
     when(crossProjectDuplicationStatusHolder.isEnabled()).thenReturn(true);
-    reportReader.putDuplicationBlocks(FILE_1_REF, Collections.<ScannerReport.CpdTextBlock>emptyList());
+    reportReader.putDuplicationBlocks(FILE_1_REF, Collections.emptyList());
 
     underTest.execute();
 
@@ -145,7 +145,7 @@ public class PersistCrossProjectDuplicationIndexStepTest {
   }
 
   @Test
-  public void nothing_to_do_when_cross_project_duplication_is_disabled() throws Exception {
+  public void nothing_to_do_when_cross_project_duplication_is_disabled() {
     when(crossProjectDuplicationStatusHolder.isEnabled()).thenReturn(false);
     reportReader.putDuplicationBlocks(FILE_1_REF, singletonList(CPD_TEXT_BLOCK));
 

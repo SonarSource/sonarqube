@@ -122,7 +122,7 @@ public class WebPagesFilterTest {
     when(servletContext.getResource("/index.html")).thenReturn(getClass().getResource("WebPagesFilterTest/index.html"));
   }
 
-  private void mockPath(String path, String context) throws MalformedURLException {
+  private void mockPath(String path, String context) {
     when(request.getRequestURI()).thenReturn(path);
     when(request.getContextPath()).thenReturn(context);
     when(servletContext.getContextPath()).thenReturn(context);
@@ -167,15 +167,15 @@ public class WebPagesFilterTest {
 
     }
 
-    public void write(byte[] b) throws IOException {
+    public void write(byte[] b) {
       this.buf.append(new String(b));
     }
 
-    public void write(byte[] b, int off, int len) throws IOException {
+    public void write(byte[] b, int off, int len) {
       this.buf.append(new String(b, off, len));
     }
 
-    public void write(int b) throws IOException {
+    public void write(int b) {
       byte[] bytes = new byte[] {(byte) b};
       this.buf.append(new String(bytes));
     }

@@ -44,15 +44,15 @@ public class ActiveRulesHolderImplTest {
   ActiveRulesHolderImpl underTest = new ActiveRulesHolderImpl();
 
   @Test
-  public void get_inactive_rule() throws Exception {
-    underTest.set(Collections.<ActiveRule>emptyList());
+  public void get_inactive_rule() {
+    underTest.set(Collections.emptyList());
     Optional<ActiveRule> activeRule = underTest.get(RULE_KEY);
     assertThat(activeRule.isPresent()).isFalse();
   }
 
   @Test
-  public void get_active_rule() throws Exception {
-    underTest.set(asList(new ActiveRule(RULE_KEY, Severity.BLOCKER, Collections.<String, String>emptyMap(), SOME_DATE, PLUGIN_KEY)));
+  public void get_active_rule() {
+    underTest.set(asList(new ActiveRule(RULE_KEY, Severity.BLOCKER, Collections.emptyMap(), SOME_DATE, PLUGIN_KEY)));
 
     Optional<ActiveRule> activeRule = underTest.get(RULE_KEY);
     assertThat(activeRule.isPresent()).isTrue();
@@ -61,17 +61,17 @@ public class ActiveRulesHolderImplTest {
   }
 
   @Test
-  public void can_not_set_twice() throws Exception {
+  public void can_not_set_twice() {
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("Active rules have already been initialized");
 
-    underTest.set(asList(new ActiveRule(RULE_KEY, Severity.BLOCKER, Collections.<String, String>emptyMap(), 1_000L, PLUGIN_KEY)));
-    underTest.set(Collections.<ActiveRule>emptyList());
+    underTest.set(asList(new ActiveRule(RULE_KEY, Severity.BLOCKER, Collections.emptyMap(), 1_000L, PLUGIN_KEY)));
+    underTest.set(Collections.emptyList());
 
   }
 
   @Test
-  public void can_not_get_if_not_initialized() throws Exception {
+  public void can_not_get_if_not_initialized() {
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("Active rules have not been initialized yet");
 
@@ -79,12 +79,12 @@ public class ActiveRulesHolderImplTest {
   }
 
   @Test
-  public void can_not_set_duplicated_rules() throws Exception {
+  public void can_not_set_duplicated_rules() {
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("Active rule must not be declared multiple times: squid:S001");
 
     underTest.set(asList(
-      new ActiveRule(RULE_KEY, Severity.BLOCKER, Collections.<String, String>emptyMap(), 1_000L, PLUGIN_KEY),
-      new ActiveRule(RULE_KEY, Severity.MAJOR, Collections.<String, String>emptyMap(), 1_000L, PLUGIN_KEY)));
+      new ActiveRule(RULE_KEY, Severity.BLOCKER, Collections.emptyMap(), 1_000L, PLUGIN_KEY),
+      new ActiveRule(RULE_KEY, Severity.MAJOR, Collections.emptyMap(), 1_000L, PLUGIN_KEY)));
   }
 }

@@ -51,7 +51,7 @@ public class DuplicationTest {
     expectedException.expect(NullPointerException.class);
     expectedException.expectMessage("original TextBlock can not be null");
 
-    new Duplication(null, Collections.<Duplicate>emptySet());
+    new Duplication(null, Collections.emptySet());
   }
 
   @Test
@@ -67,7 +67,7 @@ public class DuplicationTest {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("duplicates can not be empty");
 
-    new Duplication(SOME_ORIGINAL_TEXTBLOCK, Collections.<Duplicate>emptySet());
+    new Duplication(SOME_ORIGINAL_TEXTBLOCK, Collections.emptySet());
   }
 
   @Test
@@ -91,7 +91,7 @@ public class DuplicationTest {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Unsupported type of Duplicate " + MyDuplicate.class.getName());
 
-    new Duplication(SOME_ORIGINAL_TEXTBLOCK, ImmutableSet.<Duplicate>of(new MyDuplicate(), new MyDuplicate()));
+    new Duplication(SOME_ORIGINAL_TEXTBLOCK, ImmutableSet.of(new MyDuplicate(), new MyDuplicate()));
   }
 
   private static final class MyDuplicate implements Duplicate {
@@ -152,28 +152,28 @@ public class DuplicationTest {
 
   @Test
   public void equals_compares_on_original_and_duplicates() {
-    Duplication duplication = new Duplication(SOME_ORIGINAL_TEXTBLOCK, Arrays.<Duplicate>asList(new InnerDuplicate(TEXT_BLOCK_1)));
+    Duplication duplication = new Duplication(SOME_ORIGINAL_TEXTBLOCK, Arrays.asList(new InnerDuplicate(TEXT_BLOCK_1)));
 
     assertThat(duplication).isEqualTo(duplication);
-    assertThat(duplication).isEqualTo(new Duplication(SOME_ORIGINAL_TEXTBLOCK, Arrays.<Duplicate>asList(new InnerDuplicate(TEXT_BLOCK_1))));
-    assertThat(duplication).isNotEqualTo(new Duplication(SOME_ORIGINAL_TEXTBLOCK, Arrays.<Duplicate>asList(new InnerDuplicate(TEXT_BLOCK_2))));
-    assertThat(duplication).isNotEqualTo(new Duplication(TEXT_BLOCK_1, Arrays.<Duplicate>asList(new InnerDuplicate(SOME_ORIGINAL_TEXTBLOCK))));
+    assertThat(duplication).isEqualTo(new Duplication(SOME_ORIGINAL_TEXTBLOCK, Arrays.asList(new InnerDuplicate(TEXT_BLOCK_1))));
+    assertThat(duplication).isNotEqualTo(new Duplication(SOME_ORIGINAL_TEXTBLOCK, Arrays.asList(new InnerDuplicate(TEXT_BLOCK_2))));
+    assertThat(duplication).isNotEqualTo(new Duplication(TEXT_BLOCK_1, Arrays.asList(new InnerDuplicate(SOME_ORIGINAL_TEXTBLOCK))));
   }
 
   @Test
   public void hashcode_is_based_on_original_only() {
-    Duplication duplication = new Duplication(SOME_ORIGINAL_TEXTBLOCK, Arrays.<Duplicate>asList(new InnerDuplicate(TEXT_BLOCK_1)));
+    Duplication duplication = new Duplication(SOME_ORIGINAL_TEXTBLOCK, Arrays.asList(new InnerDuplicate(TEXT_BLOCK_1)));
 
-    assertThat(duplication.hashCode()).isEqualTo(new Duplication(SOME_ORIGINAL_TEXTBLOCK, Arrays.<Duplicate>asList(new InnerDuplicate(TEXT_BLOCK_1))).hashCode());
-    assertThat(duplication.hashCode()).isNotEqualTo(new Duplication(SOME_ORIGINAL_TEXTBLOCK, Arrays.<Duplicate>asList(new InnerDuplicate(TEXT_BLOCK_2))).hashCode());
-    assertThat(duplication.hashCode()).isNotEqualTo(new Duplication(TEXT_BLOCK_1, Arrays.<Duplicate>asList(new InnerDuplicate(SOME_ORIGINAL_TEXTBLOCK))).hashCode());
+    assertThat(duplication.hashCode()).isEqualTo(new Duplication(SOME_ORIGINAL_TEXTBLOCK, Arrays.asList(new InnerDuplicate(TEXT_BLOCK_1))).hashCode());
+    assertThat(duplication.hashCode()).isNotEqualTo(new Duplication(SOME_ORIGINAL_TEXTBLOCK, Arrays.asList(new InnerDuplicate(TEXT_BLOCK_2))).hashCode());
+    assertThat(duplication.hashCode()).isNotEqualTo(new Duplication(TEXT_BLOCK_1, Arrays.asList(new InnerDuplicate(SOME_ORIGINAL_TEXTBLOCK))).hashCode());
   }
 
   @Test
   public void verify_toString() {
     Duplication duplication = new Duplication(
       SOME_ORIGINAL_TEXTBLOCK,
-      Arrays.<Duplicate>asList(new InnerDuplicate(TEXT_BLOCK_1)));
+      Arrays.asList(new InnerDuplicate(TEXT_BLOCK_1)));
 
     assertThat(duplication.toString())
       .isEqualTo("Duplication{original=TextBlock{start=1, end=2}, duplicates=[InnerDuplicate{textBlock=TextBlock{start=2, end=2}}]}");

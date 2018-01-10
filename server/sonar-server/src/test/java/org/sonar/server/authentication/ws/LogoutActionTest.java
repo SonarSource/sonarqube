@@ -62,7 +62,7 @@ public class LogoutActionTest {
   private LogoutAction underTest = new LogoutAction(jwtHttpHandler, authenticationEvent);
 
   @Test
-  public void do_get_pattern() throws Exception {
+  public void do_get_pattern() {
     assertThat(underTest.doGetPattern().matches("/api/authentication/logout")).isTrue();
     assertThat(underTest.doGetPattern().matches("/api/authentication/login")).isFalse();
     assertThat(underTest.doGetPattern().matches("/api/authentication/logou")).isFalse();

@@ -71,7 +71,7 @@ public class ComponentUpdaterTest {
     projectIndexers);
 
   @Test
-  public void persist_and_index_when_creating_project() throws Exception {
+  public void persist_and_index_when_creating_project() {
     NewComponent project = NewComponent.newComponentBuilder()
       .setKey(DEFAULT_PROJECT_KEY)
       .setName(DEFAULT_PROJECT_NAME)
@@ -108,7 +108,7 @@ public class ComponentUpdaterTest {
   }
 
   @Test
-  public void persist_private_flag_true_when_creating_project() throws Exception {
+  public void persist_private_flag_true_when_creating_project() {
     OrganizationDto organization = db.organizations().insert();
     NewComponent project = NewComponent.newComponentBuilder()
       .setKey(DEFAULT_PROJECT_KEY)
@@ -122,7 +122,7 @@ public class ComponentUpdaterTest {
   }
 
   @Test
-  public void persist_private_flag_false_when_creating_project() throws Exception {
+  public void persist_private_flag_false_when_creating_project() {
     OrganizationDto organization = db.organizations().insert();
     NewComponent project = NewComponent.newComponentBuilder()
       .setKey(DEFAULT_PROJECT_KEY)
@@ -136,7 +136,7 @@ public class ComponentUpdaterTest {
   }
 
   @Test
-  public void create_project_with_branch() throws Exception {
+  public void create_project_with_branch() {
     ComponentDto project = underTest.create(db.getSession(),
       NewComponent.newComponentBuilder()
         .setKey(DEFAULT_PROJECT_KEY)
@@ -208,7 +208,7 @@ public class ComponentUpdaterTest {
   }
 
   @Test
-  public void apply_default_permission_template() throws Exception {
+  public void apply_default_permission_template() {
     int userId = 42;
     NewComponent project = NewComponent.newComponentBuilder()
       .setKey(DEFAULT_PROJECT_KEY)
@@ -221,7 +221,7 @@ public class ComponentUpdaterTest {
   }
 
   @Test
-  public void add_project_to_user_favorites_if_project_creator_is_defined_in_permission_template() throws Exception {
+  public void add_project_to_user_favorites_if_project_creator_is_defined_in_permission_template() {
     UserDto userDto = db.users().insertUser();
     NewComponent project = NewComponent.newComponentBuilder()
       .setKey(DEFAULT_PROJECT_KEY)
@@ -239,7 +239,7 @@ public class ComponentUpdaterTest {
   }
 
   @Test
-  public void does_not_add_project_to_favorite_when_anonymously_created() throws Exception {
+  public void does_not_add_project_to_favorite_when_anonymously_created() {
     ComponentDto project = underTest.create(db.getSession(),
       NewComponent.newComponentBuilder()
         .setKey(DEFAULT_PROJECT_KEY)
@@ -252,7 +252,7 @@ public class ComponentUpdaterTest {
   }
 
   @Test
-  public void does_not_add_project_to_favorite_when_project_has_no_permission_on_template() throws Exception {
+  public void does_not_add_project_to_favorite_when_project_has_no_permission_on_template() {
     ComponentDto project = underTest.create(db.getSession(),
       NewComponent.newComponentBuilder()
         .setKey(DEFAULT_PROJECT_KEY)
@@ -265,7 +265,7 @@ public class ComponentUpdaterTest {
   }
 
   @Test
-  public void fail_when_project_key_already_exists() throws Exception {
+  public void fail_when_project_key_already_exists() {
     ComponentDto existing = db.components().insertPrivateProject();
 
     expectedException.expect(BadRequestException.class);
@@ -281,7 +281,7 @@ public class ComponentUpdaterTest {
   }
 
   @Test
-  public void fail_when_project_key_already_exists_on_other_organization() throws Exception {
+  public void fail_when_project_key_already_exists_on_other_organization() {
     ComponentDto existing = db.components().insertPrivateProject(db.organizations().insert());
 
     expectedException.expect(BadRequestException.class);
@@ -297,7 +297,7 @@ public class ComponentUpdaterTest {
   }
 
   @Test
-  public void fail_when_key_has_bad_format() throws Exception {
+  public void fail_when_key_has_bad_format() {
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("Malformed key for Project: 1234");
 

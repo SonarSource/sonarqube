@@ -57,7 +57,7 @@ public class ProjectPermissionsTest {
   }
 
   @Test
-  public void test_project_permissions_page_shows_only_single_project() throws Exception {
+  public void test_project_permissions_page_shows_only_single_project() {
     runSelenese(orchestrator, "/projectAdministration/ProjectPermissionsTest/test_project_permissions_page_shows_only_single_project.html");
   }
 

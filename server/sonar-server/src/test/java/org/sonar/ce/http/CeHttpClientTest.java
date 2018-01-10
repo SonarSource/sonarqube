@@ -61,14 +61,14 @@ public class CeHttpClientTest {
   }
 
   @Test
-  public void retrieveSystemInfo_returns_absent_if_process_is_down() throws Exception {
+  public void retrieveSystemInfo_returns_absent_if_process_is_down() {
     Optional<ProtobufSystemInfo.SystemInfo> info = underTest.retrieveSystemInfo();
 
     assertThat(info.isPresent()).isFalse();
   }
 
   @Test
-  public void retrieveSystemInfo_get_information_if_process_is_up() throws Exception {
+  public void retrieveSystemInfo_get_information_if_process_is_up() {
     Buffer response = new Buffer();
     response.read(ProtobufSystemInfo.Section.newBuilder().build().toByteArray());
     server.enqueue(new MockResponse().setBody(response));
@@ -81,7 +81,7 @@ public class CeHttpClientTest {
   }
 
   @Test
-  public void retrieveSystemInfo_throws_ISE_if_http_error() throws Exception {
+  public void retrieveSystemInfo_throws_ISE_if_http_error() {
     server.enqueue(new MockResponse().setResponseCode(500));
 
     // initialize registration of process

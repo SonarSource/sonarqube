@@ -52,7 +52,7 @@ public class UnitTestMeasuresStep implements ComputationStep {
 
   private static final String[] METRICS = new String[] {TESTS_KEY, TEST_ERRORS_KEY, TEST_FAILURES_KEY, TEST_SUCCESS_DENSITY_KEY};
 
-  private static final ImmutableList<Formula> FORMULAS = ImmutableList.<Formula>of(
+  private static final ImmutableList<Formula> FORMULAS = ImmutableList.of(
     createLongSumFormula(TEST_EXECUTION_TIME_KEY),
     createIntSumFormula(SKIPPED_TESTS_KEY),
     new UnitTestsFormula());

@@ -70,7 +70,7 @@ public class SearchActionTest {
   private WsActionTester ws = new WsActionTester(new SearchAction(index));
 
   @Test
-  public void json_example() throws IOException {
+  public void json_example() {
     index(newDoc().setTags(newArrayList("official", "offshore", "playoff")));
 
     String result = ws.newRequest().execute().getInput();

@@ -39,7 +39,7 @@ public class CommonRuleEngineImplTest {
   CommonRuleEngineImpl underTest = new CommonRuleEngineImpl(rule1, rule2);
 
   @Test
-  public void process_files_with_known_language() throws Exception {
+  public void process_files_with_known_language() {
     ReportComponent file = ReportComponent.builder(Component.Type.FILE, 1)
       .setKey("FILE_KEY").setUuid("FILE_UUID")
       .setFileAttributes(new FileAttributes(false, "java", 1))
@@ -53,7 +53,7 @@ public class CommonRuleEngineImplTest {
   }
 
   @Test
-  public void do_not_process_files_with_unknown_language() throws Exception {
+  public void do_not_process_files_with_unknown_language() {
     ReportComponent file = ReportComponent.builder(Component.Type.FILE, 1)
       .setKey("FILE_KEY").setUuid("FILE_UUID")
       .setFileAttributes(new FileAttributes(false, null, 1))
@@ -66,7 +66,7 @@ public class CommonRuleEngineImplTest {
   }
 
   @Test
-  public void do_not_process_non_files() throws Exception {
+  public void do_not_process_non_files() {
     Collection<DefaultIssue> issues = underTest.process(DUMB_PROJECT);
 
     assertThat(issues).isEmpty();

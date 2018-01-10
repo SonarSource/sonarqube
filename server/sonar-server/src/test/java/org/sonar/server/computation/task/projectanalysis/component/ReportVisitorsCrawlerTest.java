@@ -53,7 +53,7 @@ public class ReportVisitorsCrawlerTest {
   private final TestPathAwareVisitor spyPathAwareVisitor = spy(new TestPathAwareVisitor(CrawlerDepthLimit.FILE, POST_ORDER));
 
   @Test
-  public void execute_each_visitor_on_each_level() throws Exception {
+  public void execute_each_visitor_on_each_level() {
     InOrder inOrder = inOrder(spyPostOrderTypeAwareVisitor, spyPathAwareVisitor);
     VisitorsCrawler underTest = new VisitorsCrawler(Arrays.asList(spyPostOrderTypeAwareVisitor, spyPathAwareVisitor));
     underTest.visit(COMPONENT_TREE);
@@ -85,7 +85,7 @@ public class ReportVisitorsCrawlerTest {
   }
 
   @Test
-  public void execute_pre_visitor_before_post_visitor() throws Exception {
+  public void execute_pre_visitor_before_post_visitor() {
     InOrder inOrder = inOrder(spyPreOrderTypeAwareVisitor, spyPostOrderTypeAwareVisitor);
     VisitorsCrawler underTest = new VisitorsCrawler(Arrays.asList(spyPreOrderTypeAwareVisitor, spyPostOrderTypeAwareVisitor));
     underTest.visit(COMPONENT_TREE);
@@ -120,7 +120,7 @@ public class ReportVisitorsCrawlerTest {
   }
 
   @Test
-  public void fail_with_IAE_when_visitor_is_not_path_aware_or_type_aware() throws Exception {
+  public void fail_with_IAE_when_visitor_is_not_path_aware_or_type_aware() {
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("Only TypeAwareVisitor and PathAwareVisitor can be used");
 

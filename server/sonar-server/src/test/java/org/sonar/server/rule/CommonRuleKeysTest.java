@@ -27,12 +27,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class CommonRuleKeysTest {
 
   @Test
-  public void wonderful_test_for_commonRepositoryForLang() throws Exception {
+  public void wonderful_test_for_commonRepositoryForLang() {
     assertThat(CommonRuleKeys.commonRepositoryForLang("java")).isEqualTo("common-java");
   }
 
   @Test
-  public void wonderful_test_to_verify_that_this_class_is_an_helper_class() throws Exception {
+  public void wonderful_test_to_verify_that_this_class_is_an_helper_class() {
     assertThat(TestUtils.hasOnlyPrivateConstructors(CommonRuleKeys.class)).isTrue();
 
   }

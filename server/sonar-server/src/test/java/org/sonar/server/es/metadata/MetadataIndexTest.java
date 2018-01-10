@@ -36,25 +36,25 @@ public class MetadataIndexTest {
   private final String index = randomAlphanumeric(20);
 
   @Test
-  public void type_should_be_not_initialized_by_default() throws Exception {
+  public void type_should_be_not_initialized_by_default() {
     IndexType indexType = new IndexType("examples", "example");
     assertThat(underTest.getInitialized(indexType)).isFalse();
   }
 
   @Test
-  public void type_should_be_initialized_after_explicitly_set_to_initialized() throws Exception {
+  public void type_should_be_initialized_after_explicitly_set_to_initialized() {
     IndexType indexType = new IndexType("examples", "example");
     underTest.setInitialized(indexType, true);
     assertThat(underTest.getInitialized(indexType)).isTrue();
   }
 
   @Test
-  public void hash_should_be_empty_by_default() throws Exception {
+  public void hash_should_be_empty_by_default() {
     assertThat(underTest.getHash(index)).isEmpty();
   }
 
   @Test
-  public void hash_should_be_able_to_be_automatically_set() throws Exception {
+  public void hash_should_be_able_to_be_automatically_set() {
     String hash = randomAlphanumeric(20);
     underTest.setHash(index, hash);
     assertThat(underTest.getHash(index)).hasValue(hash);

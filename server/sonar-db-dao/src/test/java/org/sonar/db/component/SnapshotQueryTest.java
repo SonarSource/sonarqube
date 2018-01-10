@@ -28,7 +28,7 @@ import static org.sonar.db.component.SnapshotQuery.SORT_ORDER.ASC;
 public class SnapshotQueryTest {
 
   @Test
-  public void test_setters_and_getters() throws Exception {
+  public void test_setters_and_getters() {
     SnapshotQuery query = new SnapshotQuery()
       .setComponentUuid("abcd")
       .setIsLast(true)

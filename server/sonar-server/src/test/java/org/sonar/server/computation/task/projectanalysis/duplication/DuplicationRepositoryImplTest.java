@@ -132,7 +132,7 @@ public class DuplicationRepositoryImplTest {
   }
 
   private static Duplication createDuplication(int originalLine, int duplicateLine) {
-    return new Duplication(new TextBlock(originalLine, originalLine), Arrays.<Duplicate>asList(new InnerDuplicate(new TextBlock(duplicateLine, duplicateLine))));
+    return new Duplication(new TextBlock(originalLine, originalLine), Arrays.asList(new InnerDuplicate(new TextBlock(duplicateLine, duplicateLine))));
   }
 
   @DataProvider

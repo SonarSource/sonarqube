@@ -104,7 +104,7 @@ public class InstalledAction implements PluginsWsAction {
     jsonWriter.beginObject();
 
     List<String> additionalFields = request.paramAsStrings(WebService.Param.FIELDS);
-    writePluginInfoList(jsonWriter, pluginInfoList, additionalFields == null ? Collections.<String>emptyList() : additionalFields, pluginDtosByKey);
+    writePluginInfoList(jsonWriter, pluginInfoList, additionalFields == null ? Collections.emptyList() : additionalFields, pluginDtosByKey);
 
     jsonWriter.endObject();
     jsonWriter.close();
@@ -116,7 +116,7 @@ public class InstalledAction implements PluginsWsAction {
 
   private void writePluginInfoList(JsonWriter jsonWriter, Collection<PluginInfo> pluginInfoList, List<String> additionalFields, Map<String, PluginDto> pluginDtos) {
     Map<String, Plugin> compatiblesPluginsFromUpdateCenter = additionalFields.isEmpty()
-      ? Collections.<String, Plugin>emptyMap()
+      ? Collections.emptyMap()
       : compatiblePluginsByKey(updateCenterMatrixFactory);
     pluginWSCommons.writePluginInfoList(jsonWriter, pluginInfoList, compatiblesPluginsFromUpdateCenter, ARRAY_PLUGINS, pluginDtos, compression.getPlugins());
   }

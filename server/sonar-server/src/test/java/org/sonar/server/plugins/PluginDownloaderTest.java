@@ -129,7 +129,7 @@ public class PluginDownloaderTest {
 
   @Test
   public void download_when_update_center_is_unavailable_with_no_exception_thrown() {
-    when(updateCenterMatrixFactory.getUpdateCenter(anyBoolean())).thenReturn(Optional.<UpdateCenter>absent());
+    when(updateCenterMatrixFactory.getUpdateCenter(anyBoolean())).thenReturn(Optional.absent());
 
     Plugin test = Plugin.factory("test");
     Release test10 = new Release(test, "1.0").setDownloadUrl("http://server/test-1.0.jar");

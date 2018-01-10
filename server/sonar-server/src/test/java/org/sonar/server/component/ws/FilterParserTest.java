@@ -42,7 +42,7 @@ public class FilterParserTest {
   public ExpectedException expectedException = ExpectedException.none();
 
   @Test
-  public void parse_filter_having_operator_and_value() throws Exception {
+  public void parse_filter_having_operator_and_value() {
     List<Criterion> criterion = FilterParser.parse("ncloc > 10 and coverage <= 80");
 
     assertThat(criterion)
@@ -53,7 +53,7 @@ public class FilterParserTest {
   }
 
   @Test
-  public void parse_filter_having_operator_and_value_ignores_white_spaces() throws Exception {
+  public void parse_filter_having_operator_and_value_ignores_white_spaces() {
     List<Criterion> criterion = FilterParser.parse("   ncloc    >    10   ");
 
     assertThat(criterion)
@@ -63,7 +63,7 @@ public class FilterParserTest {
   }
 
   @Test
-  public void parse_filter_having_in_operator() throws Exception {
+  public void parse_filter_having_in_operator() {
     List<Criterion> criterion = FilterParser.parse("ncloc in (80,90)");
 
     assertThat(criterion)
@@ -73,7 +73,7 @@ public class FilterParserTest {
   }
 
   @Test
-  public void parse_filter_having_in_operator_ignores_white_spaces() throws Exception {
+  public void parse_filter_having_in_operator_ignores_white_spaces() {
     List<Criterion> criterion = FilterParser.parse("  ncloc  in (  80 ,  90  )  ");
 
     assertThat(criterion)
@@ -83,7 +83,7 @@ public class FilterParserTest {
   }
 
   @Test
-  public void parse_filter_having_only_key() throws Exception {
+  public void parse_filter_having_only_key() {
     List<Criterion> criterion = FilterParser.parse("isFavorite");
 
     assertThat(criterion)
@@ -93,7 +93,7 @@ public class FilterParserTest {
   }
 
   @Test
-  public void parse_filter_having_only_key_ignores_white_spaces() throws Exception {
+  public void parse_filter_having_only_key_ignores_white_spaces() {
     List<Criterion> criterion = FilterParser.parse("  isFavorite   ");
 
     assertThat(criterion)
@@ -103,7 +103,7 @@ public class FilterParserTest {
   }
 
   @Test
-  public void parse_filter_having_different_criterion_types() throws Exception {
+  public void parse_filter_having_different_criterion_types() {
     List<Criterion> criterion = FilterParser.parse(" ncloc  > 10 and  coverage <= 80 and isFavorite ");
 
     assertThat(criterion)
@@ -115,7 +115,7 @@ public class FilterParserTest {
   }
 
   @Test
-  public void parse_filter_with_key_having_underscore() throws Exception {
+  public void parse_filter_with_key_having_underscore() {
     List<Criterion> criterion = FilterParser.parse(" alert_status = OK");
 
     assertThat(criterion)
@@ -125,7 +125,7 @@ public class FilterParserTest {
   }
 
   @Test
-  public void parse_filter_without_any_space_in_criteria() throws Exception {
+  public void parse_filter_without_any_space_in_criteria() {
     List<Criterion> criterion = FilterParser.parse("ncloc>10 and coverage<=80 and tags in (java,platform)");
 
     assertThat(criterion)
@@ -137,7 +137,7 @@ public class FilterParserTest {
   }
 
   @Test
-  public void parse_filter_having_all_operators() throws Exception {
+  public void parse_filter_having_all_operators() {
     List<Criterion> criterion = FilterParser.parse("ncloc < 10 and coverage <= 80 and debt > 50 and duplication >= 56.5 and security_rating = 1 and language in (java,js)");
 
     assertThat(criterion)
@@ -152,7 +152,7 @@ public class FilterParserTest {
   }
 
   @Test
-  public void parse_filter_starting_and_ending_with_double_quotes() throws Exception {
+  public void parse_filter_starting_and_ending_with_double_quotes() {
     assertThat(FilterParser.parse("q = \"Sonar Qube\""))
       .extracting(Criterion::getKey, Criterion::getOperator, Criterion::getValue)
       .containsOnly(
@@ -175,14 +175,14 @@ public class FilterParserTest {
   }
 
   @Test
-  public void accept_empty_query() throws Exception {
+  public void accept_empty_query() {
     List<Criterion> criterion = FilterParser.parse("");
 
     assertThat(criterion).isEmpty();
   }
 
   @Test
-  public void accept_key_ending_by_in() throws Exception {
+  public void accept_key_ending_by_in() {
     List<Criterion> criterion = FilterParser.parse("endingbyin > 10");
 
     assertThat(criterion)
@@ -192,7 +192,7 @@ public class FilterParserTest {
   }
 
   @Test
-  public void search_is_case_insensitive() throws Exception {
+  public void search_is_case_insensitive() {
     List<Criterion> criterion = FilterParser.parse("ncloc > 10 AnD coverage <= 80 AND debt = 10 AND issues = 20");
 
     assertThat(criterion).hasSize(4);

@@ -83,7 +83,7 @@ public class ProjectMeasuresIndexerIteratorTest {
   }
 
   @Test
-  public void return_project_measure_having_leak() throws Exception {
+  public void return_project_measure_having_leak() {
     OrganizationDto organization = dbTester.organizations().insert();
     ComponentDto project = dbTester.components().insertPrivateProject(organization, p -> p.setDbKey("Project-Key").setName("Project Name").setTagsString("platform,java"));
     MetricDto metric = dbTester.measures().insertMetric(m -> m.setValueType(INT.name()).setKey("new_lines"));
@@ -95,7 +95,7 @@ public class ProjectMeasuresIndexerIteratorTest {
   }
 
   @Test
-  public void return_quality_gate_status_measure() throws Exception {
+  public void return_quality_gate_status_measure() {
     OrganizationDto organization = dbTester.organizations().insert();
     ComponentDto project1 = dbTester.components().insertPrivateProject(organization);
     ComponentDto project2 = dbTester.components().insertPrivateProject(organization);
@@ -113,7 +113,7 @@ public class ProjectMeasuresIndexerIteratorTest {
   }
 
   @Test
-  public void does_not_fail_when_quality_gate_has_no_value() throws Exception {
+  public void does_not_fail_when_quality_gate_has_no_value() {
     OrganizationDto organization = dbTester.organizations().insert();
     ComponentDto project = dbTester.components().insertPrivateProject(organization);
     MetricDto metric = dbTester.measures().insertMetric(m -> m.setValueType(LEVEL.name()).setKey("alert_status"));
@@ -125,7 +125,7 @@ public class ProjectMeasuresIndexerIteratorTest {
   }
 
   @Test
-  public void return_language_distribution_measure() throws Exception {
+  public void return_language_distribution_measure() {
     OrganizationDto organization = dbTester.organizations().insert();
     ComponentDto project = dbTester.components().insertPrivateProject(organization);
     MetricDto metric = dbTester.measures().insertMetric(m -> m.setValueType(DATA.name()).setKey("ncloc_language_distribution"));
@@ -138,7 +138,7 @@ public class ProjectMeasuresIndexerIteratorTest {
   }
 
   @Test
-  public void does_not_return_none_numeric_metrics() throws Exception {
+  public void does_not_return_none_numeric_metrics() {
     OrganizationDto organization = dbTester.organizations().insert();
     ComponentDto project = dbTester.components().insertPrivateProject(organization);
     MetricDto dataMetric = dbTester.measures().insertMetric(m -> m.setValueType(DATA.name()).setKey("data"));
@@ -154,7 +154,7 @@ public class ProjectMeasuresIndexerIteratorTest {
   }
 
   @Test
-  public void does_not_return_disabled_metrics() throws Exception {
+  public void does_not_return_disabled_metrics() {
     OrganizationDto organization = dbTester.organizations().insert();
     ComponentDto project = dbTester.components().insertPrivateProject(organization);
     MetricDto disabledMetric = dbTester.measures().insertMetric(m -> m.setValueType(INT.name()).setEnabled(false).setHidden(false).setKey("disabled"));
@@ -166,7 +166,7 @@ public class ProjectMeasuresIndexerIteratorTest {
   }
 
   @Test
-  public void ignore_measure_that_does_not_have_value() throws Exception {
+  public void ignore_measure_that_does_not_have_value() {
     OrganizationDto organization = dbTester.organizations().insert();
     MetricDto metric1 = dbTester.measures().insertMetric(m -> m.setValueType(INT.name()).setKey("coverage"));
     MetricDto metric2 = dbTester.measures().insertMetric(m -> m.setValueType(INT.name()).setKey("ncloc"));
@@ -182,7 +182,7 @@ public class ProjectMeasuresIndexerIteratorTest {
   }
 
   @Test
-  public void ignore_numeric_measure_that_has_text_value_but_not_numeric_value() throws Exception {
+  public void ignore_numeric_measure_that_has_text_value_but_not_numeric_value() {
     OrganizationDto organization = dbTester.organizations().insert();
     MetricDto metric1 = dbTester.measures().insertMetric(m -> m.setValueType(INT.name()).setKey("coverage"));
     MetricDto metric2 = dbTester.measures().insertMetric(m -> m.setValueType(INT.name()).setKey("ncloc"));
@@ -208,7 +208,7 @@ public class ProjectMeasuresIndexerIteratorTest {
   }
 
   @Test
-  public void return_project_without_analysis() throws Exception {
+  public void return_project_without_analysis() {
     ComponentDto project = dbTester.components().insertComponent(ComponentTesting.newPrivateProjectDto(dbTester.organizations().insert()));
     dbClient.snapshotDao().insert(dbSession, newAnalysis(project).setLast(false));
     dbSession.commit();
@@ -221,7 +221,7 @@ public class ProjectMeasuresIndexerIteratorTest {
   }
 
   @Test
-  public void does_not_return_non_active_projects() throws Exception {
+  public void does_not_return_non_active_projects() {
     OrganizationDto organization = dbTester.organizations().insert();
     // Disabled project
     dbTester.components().insertProjectAndSnapshot(ComponentTesting.newPrivateProjectDto(organization).setEnabled(false));
@@ -238,7 +238,7 @@ public class ProjectMeasuresIndexerIteratorTest {
   }
 
   @Test
-  public void return_only_docs_from_given_project() throws Exception {
+  public void return_only_docs_from_given_project() {
     OrganizationDto organization = dbTester.organizations().insert();
     ComponentDto project1 = dbTester.components().insertPrivateProject(organization);
     ComponentDto project2 = dbTester.components().insertPrivateProject(organization);
@@ -259,7 +259,7 @@ public class ProjectMeasuresIndexerIteratorTest {
   }
 
   @Test
-  public void return_nothing_on_unknown_project() throws Exception {
+  public void return_nothing_on_unknown_project() {
     OrganizationDto organization = dbTester.organizations().insert();
     ComponentDto project = dbTester.components().insertPrivateProject(organization);
     dbTester.components().insertSnapshot(project);

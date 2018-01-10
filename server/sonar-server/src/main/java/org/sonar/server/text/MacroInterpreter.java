@@ -31,7 +31,7 @@ public class MacroInterpreter {
   private final List<Macro> macros;
 
   public MacroInterpreter(Server server) {
-    this.macros = ImmutableList.<Macro>of(
+    this.macros = ImmutableList.of(
       new RuleMacro(server.getContextPath())
       );
   }

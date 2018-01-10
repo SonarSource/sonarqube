@@ -97,7 +97,7 @@ public class DeleteActionTest {
   }
 
   @Test
-  public void delete_profile_by_language_and_name_in_default_organization() throws Exception {
+  public void delete_profile_by_language_and_name_in_default_organization() {
     OrganizationDto organization = db.getDefaultOrganization();
     ComponentDto project = db.components().insertPrivateProject(organization);
     QProfileDto profile1 = createProfile(organization);
@@ -228,7 +228,7 @@ public class DeleteActionTest {
   }
 
   @Test
-  public void fail_if_missing_name_parameter() throws Exception {
+  public void fail_if_missing_name_parameter() {
     OrganizationDto organization = db.organizations().insert();
     QProfileDto profile = createProfile(organization);
     logInAsQProfileAdministrator(organization);

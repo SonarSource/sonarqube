@@ -43,21 +43,21 @@ public class MessageTest {
   }
 
   @Test
-  public void fail_when_message_is_null() throws Exception {
+  public void fail_when_message_is_null() {
     expectedException.expect(IllegalArgumentException.class);
 
     Message.of(null);
   }
 
   @Test
-  public void fail_when_message_is_empty() throws Exception {
+  public void fail_when_message_is_empty() {
     expectedException.expect(IllegalArgumentException.class);
 
     Message.of("");
   }
 
   @Test
-  public void test_equals_and_hashcode() throws Exception {
+  public void test_equals_and_hashcode() {
     Message message1 = Message.of("key1%s", "param1");
     Message message2 = Message.of("key2%s", "param2");
     Message message3 = Message.of("key1");

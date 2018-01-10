@@ -62,7 +62,7 @@ public class IssuesRepositoryVisitorTest {
   }
 
   @Test
-  public void feed_component_issues_repo() throws Exception {
+  public void feed_component_issues_repo() {
     DefaultIssue i1 = mock(DefaultIssue.class);
     DefaultIssue i2 = mock(DefaultIssue.class);
 
@@ -75,7 +75,7 @@ public class IssuesRepositoryVisitorTest {
   }
 
   @Test
-  public void empty_component_issues_repo_when_no_issue() throws Exception {
+  public void empty_component_issues_repo_when_no_issue() {
     DefaultIssue i1 = mock(DefaultIssue.class);
     DefaultIssue i2 = mock(DefaultIssue.class);
 

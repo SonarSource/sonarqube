@@ -65,7 +65,7 @@ public class EmbeddedDatabaseTest {
   private EmbeddedDatabase underTest = new EmbeddedDatabase(settings.asConfig(), system2);
 
   @After
-  public void tearDown() throws Exception {
+  public void tearDown() {
     if (underTest != null) {
       underTest.stop();
     }

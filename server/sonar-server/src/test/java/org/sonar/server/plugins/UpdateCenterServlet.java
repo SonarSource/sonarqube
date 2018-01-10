@@ -32,7 +32,7 @@ public class UpdateCenterServlet extends GenericServlet {
   int count = 0;
 
   @Override
-  public void service(ServletRequest request, ServletResponse response) throws ServletException, IOException {
+  public void service(ServletRequest request, ServletResponse response) throws IOException {
     count++;
     Properties props = new Properties();
     props.setProperty("count", String.valueOf(count));

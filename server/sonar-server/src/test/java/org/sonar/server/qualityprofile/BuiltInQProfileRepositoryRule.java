@@ -34,7 +34,7 @@ public class BuiltInQProfileRepositoryRule extends ExternalResource implements B
   private List<BuiltInQProfile> profiles = new ArrayList<>();
 
   @Override
-  protected void before() throws Throwable {
+  protected void before() {
     this.initializeCalled = false;
     this.profiles.clear();
   }

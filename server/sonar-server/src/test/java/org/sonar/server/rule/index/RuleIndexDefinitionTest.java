@@ -73,7 +73,7 @@ public class RuleIndexDefinitionTest {
   }
 
   @Test
-  public void support_long_html_description() throws Exception {
+  public void support_long_html_description() {
     String longText = StringUtils.repeat("The quick brown fox jumps over the lazy dog ", 700);
 
     List<AnalyzeResponse.AnalyzeToken> tokens = analyzeIndexedTokens(longText);

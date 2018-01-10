@@ -66,7 +66,7 @@ public class BackgroundTasksTest {
   }
 
   @Test
-  public void should_not_display_failing_and_search_and_filter_elements_on_project_level_page() throws Exception {
+  public void should_not_display_failing_and_search_and_filter_elements_on_project_level_page() {
     runSelenese(ORCHESTRATOR, "/projectAdministration/BackgroundTasksTest/should_not_display_failing_and_search_and_filter_elements_on_project_level_page.html");
   }
 

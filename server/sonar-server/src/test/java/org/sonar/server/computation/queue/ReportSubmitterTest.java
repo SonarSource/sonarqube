@@ -159,7 +159,7 @@ public class ReportSubmitterTest {
   }
 
   @Test
-  public void provision_project_if_does_not_exist() throws Exception {
+  public void provision_project_if_does_not_exist() {
     OrganizationDto organization = db.organizations().insert();
     userSession
       .addPermission(OrganizationPermission.SCAN, organization.getUuid())

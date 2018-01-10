@@ -63,7 +63,7 @@ public class BootstrappingTest extends AbstractPerfTest {
   }
 
   @Test
-  public void analyzeProjectWith100FlatModules() throws IOException {
+  public void analyzeProjectWith100FlatModules() {
 
     SonarScanner scanner = SonarScanner.create()
       .setProperties(
@@ -107,7 +107,7 @@ public class BootstrappingTest extends AbstractPerfTest {
   }
 
   @Test
-  public void analyzeProjectWith50NestedModules() throws IOException {
+  public void analyzeProjectWith50NestedModules() {
     SonarScanner scanner = SonarScanner.create()
       .setProperties(
         "sonar.projectKey", "many-nested-modules",

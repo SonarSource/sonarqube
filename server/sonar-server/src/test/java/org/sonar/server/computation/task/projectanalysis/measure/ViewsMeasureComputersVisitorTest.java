@@ -116,7 +116,7 @@ public class ViewsMeasureComputersVisitorTest {
   ComponentIssuesRepository componentIssuesRepository = mock(ComponentIssuesRepository.class);
 
   @Test
-  public void compute_plugin_measure() throws Exception {
+  public void compute_plugin_measure() {
     treeRootHolder.setRoot(TREE_WITH_SUB_VIEWS);
 
     addRawMeasure(PROJECT_VIEW_1_REF, NCLOC_KEY, 10);
@@ -132,7 +132,7 @@ public class ViewsMeasureComputersVisitorTest {
 
     measureComputersHolder.addMeasureComputer(MEASURE_COMPUTER);
 
-    VisitorsCrawler visitorsCrawler = new VisitorsCrawler(Arrays.<ComponentVisitor>asList(new MeasureComputersVisitor(metricRepository, measureRepository, null,
+    VisitorsCrawler visitorsCrawler = new VisitorsCrawler(Arrays.asList(new MeasureComputersVisitor(metricRepository, measureRepository, null,
       measureComputersHolder, componentIssuesRepository)));
     visitorsCrawler.visit(treeRootHolder.getRoot());
 
@@ -143,7 +143,7 @@ public class ViewsMeasureComputersVisitorTest {
   }
 
   @Test
-  public void compute_plugin_measure_on_views_tree_having_only_one_view_with_a_project_view() throws Exception {
+  public void compute_plugin_measure_on_views_tree_having_only_one_view_with_a_project_view() {
     treeRootHolder.setRoot(TREE_WITH_DIRECT_PROJECT_VIEW);
 
     addRawMeasure(PROJECT_VIEW_1_REF, NCLOC_KEY, 10);
@@ -155,7 +155,7 @@ public class ViewsMeasureComputersVisitorTest {
 
     measureComputersHolder.addMeasureComputer(MEASURE_COMPUTER);
 
-    VisitorsCrawler visitorsCrawler = new VisitorsCrawler(Arrays.<ComponentVisitor>asList(new MeasureComputersVisitor(metricRepository, measureRepository, null,
+    VisitorsCrawler visitorsCrawler = new VisitorsCrawler(Arrays.asList(new MeasureComputersVisitor(metricRepository, measureRepository, null,
       measureComputersHolder, componentIssuesRepository)));
     visitorsCrawler.visit(treeRootHolder.getRoot());
 
@@ -164,7 +164,7 @@ public class ViewsMeasureComputersVisitorTest {
   }
 
   @Test
-  public void nothing_to_compute_when_no_project_view() throws Exception {
+  public void nothing_to_compute_when_no_project_view() {
     treeRootHolder.setRoot(builder(VIEW, ROOT_REF)
       .addChildren(
         builder(SUBVIEW, VIEW_REF)
@@ -176,7 +176,7 @@ public class ViewsMeasureComputersVisitorTest {
 
     measureComputersHolder.addMeasureComputer(MEASURE_COMPUTER);
 
-    VisitorsCrawler visitorsCrawler = new VisitorsCrawler(Arrays.<ComponentVisitor>asList(new MeasureComputersVisitor(metricRepository, measureRepository, null,
+    VisitorsCrawler visitorsCrawler = new VisitorsCrawler(Arrays.asList(new MeasureComputersVisitor(metricRepository, measureRepository, null,
       measureComputersHolder, componentIssuesRepository)));
     visitorsCrawler.visit(treeRootHolder.getRoot());
 
@@ -187,7 +187,7 @@ public class ViewsMeasureComputersVisitorTest {
   }
 
   @Test
-  public void nothing_to_compute_when_no_measure_computers() throws Exception {
+  public void nothing_to_compute_when_no_measure_computers() {
     treeRootHolder.setRoot(TREE_WITH_SUB_VIEWS);
 
     addRawMeasure(PROJECT_VIEW_1_REF, NCLOC_KEY, 10);
@@ -201,7 +201,7 @@ public class ViewsMeasureComputersVisitorTest {
     addRawMeasure(ROOT_REF, NCLOC_KEY, 50);
     addRawMeasure(ROOT_REF, COMMENT_LINES_KEY, 7);
 
-    VisitorsCrawler visitorsCrawler = new VisitorsCrawler(Arrays.<ComponentVisitor>asList(new MeasureComputersVisitor(metricRepository, measureRepository, null,
+    VisitorsCrawler visitorsCrawler = new VisitorsCrawler(Arrays.asList(new MeasureComputersVisitor(metricRepository, measureRepository, null,
       measureComputersHolder, componentIssuesRepository)));
     visitorsCrawler.visit(treeRootHolder.getRoot());
 

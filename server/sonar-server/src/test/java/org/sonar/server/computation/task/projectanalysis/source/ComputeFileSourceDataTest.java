@@ -32,7 +32,7 @@ public class ComputeFileSourceDataTest {
   public void compute_one_line() {
     ComputeFileSourceData computeFileSourceData = new ComputeFileSourceData(
       newArrayList("line1").iterator(),
-      Lists.<LineReader>newArrayList(new MockLineReader()),
+      Lists.newArrayList(new MockLineReader()),
       1);
 
     ComputeFileSourceData.Data data = computeFileSourceData.compute();
@@ -46,7 +46,7 @@ public class ComputeFileSourceDataTest {
   public void compute_two_lines() {
     ComputeFileSourceData computeFileSourceData = new ComputeFileSourceData(
       newArrayList("line1", "line2").iterator(),
-      Lists.<LineReader>newArrayList(new MockLineReader()),
+      Lists.newArrayList(new MockLineReader()),
       2);
 
     ComputeFileSourceData.Data data = computeFileSourceData.compute();
@@ -61,12 +61,12 @@ public class ComputeFileSourceDataTest {
   public void remove_tabs_and_spaces_in_line_hashes() {
     String refLineHashes = new ComputeFileSourceData(
       newArrayList("line1").iterator(),
-      Lists.<LineReader>newArrayList(new MockLineReader()),
+      Lists.newArrayList(new MockLineReader()),
       1).compute().getLineHashes();
 
     assertThat(new ComputeFileSourceData(
       newArrayList(" line\t \t 1  ").iterator(),
-      Lists.<LineReader>newArrayList(new MockLineReader()),
+      Lists.newArrayList(new MockLineReader()),
       1).compute().getLineHashes()).isEqualTo(refLineHashes);
   }
 
@@ -74,7 +74,7 @@ public class ComputeFileSourceDataTest {
   public void compute_line_hashes_of_empty_lines() {
     assertThat(new ComputeFileSourceData(
       newArrayList("   ").iterator(),
-      Lists.<LineReader>newArrayList(new MockLineReader()),
+      Lists.newArrayList(new MockLineReader()),
       1).compute().getLineHashes()).isEqualTo("");
   }
 

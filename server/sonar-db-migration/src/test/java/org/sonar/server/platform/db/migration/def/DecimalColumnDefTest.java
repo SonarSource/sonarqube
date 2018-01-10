@@ -39,7 +39,7 @@ public class DecimalColumnDefTest {
   public ExpectedException thrown = ExpectedException.none();
 
   @Test
-  public void build_string_column_def() throws Exception {
+  public void build_string_column_def() {
     DecimalColumnDef def = new DecimalColumnDef.Builder()
       .setColumnName("issues")
       .setPrecision(30)
@@ -55,7 +55,7 @@ public class DecimalColumnDefTest {
   }
 
   @Test
-  public void fail_with_NPE_if_name_is_null() throws Exception {
+  public void fail_with_NPE_if_name_is_null() {
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("Column name cannot be null");
 
@@ -64,7 +64,7 @@ public class DecimalColumnDefTest {
   }
 
   @Test
-  public void fail_with_NPE_if_no_name() throws Exception {
+  public void fail_with_NPE_if_no_name() {
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("Column name cannot be null");
 
@@ -73,7 +73,7 @@ public class DecimalColumnDefTest {
   }
 
   @Test
-  public void default_precision_is_38() throws Exception {
+  public void default_precision_is_38() {
     DecimalColumnDef def = new DecimalColumnDef.Builder()
       .setColumnName("issues")
       .setScale(20)
@@ -84,7 +84,7 @@ public class DecimalColumnDefTest {
   }
 
   @Test
-  public void default_precision_is_20() throws Exception {
+  public void default_precision_is_20() {
     DecimalColumnDef def = new DecimalColumnDef.Builder()
       .setColumnName("issues")
       .setPrecision(30)
@@ -95,7 +95,7 @@ public class DecimalColumnDefTest {
   }
 
   @Test
-  public void create_builder_with_only_required_attributes() throws Exception {
+  public void create_builder_with_only_required_attributes() {
     DecimalColumnDef def = new DecimalColumnDef.Builder()
       .setColumnName("issues")
       .build();
@@ -107,7 +107,7 @@ public class DecimalColumnDefTest {
   }
 
   @Test
-  public void generate_sql_type() throws Exception {
+  public void generate_sql_type() {
     DecimalColumnDef def = new DecimalColumnDef.Builder()
       .setColumnName("issues")
       .setPrecision(30)
@@ -123,7 +123,7 @@ public class DecimalColumnDefTest {
   }
 
   @Test
-  public void fail_with_UOE_to_generate_sql_type_when_unknown_dialect() throws Exception {
+  public void fail_with_UOE_to_generate_sql_type_when_unknown_dialect() {
     thrown.expect(UnsupportedOperationException.class);
     thrown.expectMessage("Unknown dialect 'unknown'");
 

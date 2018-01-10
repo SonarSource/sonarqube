@@ -47,7 +47,7 @@ public class CoreDbTester extends AbstractDbTester<CoreTestDb> {
   }
 
   @Override
-  protected void before() throws Throwable {
+  protected void before() {
     db.start();
     db.truncateTables();
   }

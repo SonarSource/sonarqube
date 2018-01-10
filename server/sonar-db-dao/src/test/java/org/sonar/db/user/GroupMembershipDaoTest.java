@@ -87,7 +87,7 @@ public class GroupMembershipDaoTest {
   }
 
   @Test
-  public void count_groups_only_from_given_organization() throws Exception {
+  public void count_groups_only_from_given_organization() {
     OrganizationDto otherOrganization = db.organizations().insert();
     GroupDto otherGroup = db.users().insertGroup(otherOrganization, "sonar-administrators-other_orga");
     db.users().insertMember(group1, user1);

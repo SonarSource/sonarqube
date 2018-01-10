@@ -70,7 +70,7 @@ public class IssueLifecycleTest {
   IssueLifecycle underTest = new IssueLifecycle(analysisMetadataHolder, issueChangeContext, workflow, updater, debtCalculator);
 
   @Test
-  public void initNewOpenIssue() throws Exception {
+  public void initNewOpenIssue() {
     DefaultIssue issue = new DefaultIssue();
     when(debtCalculator.calculate(issue)).thenReturn(DEFAULT_DURATION);
 
@@ -138,7 +138,7 @@ public class IssueLifecycleTest {
   }
 
   @Test
-  public void copiedIssue() throws Exception {
+  public void copiedIssue() {
     DefaultIssue raw = new DefaultIssue()
       .setNew(true)
       .setKey("RAW_KEY")
@@ -202,7 +202,7 @@ public class IssueLifecycleTest {
   }
 
   @Test
-  public void doAutomaticTransition() throws Exception {
+  public void doAutomaticTransition() {
     DefaultIssue issue = new DefaultIssue();
 
     underTest.doAutomaticTransition(issue);
@@ -211,7 +211,7 @@ public class IssueLifecycleTest {
   }
 
   @Test
-  public void mergeExistingOpenIssue() throws Exception {
+  public void mergeExistingOpenIssue() {
     DefaultIssue raw = new DefaultIssue()
       .setNew(true)
       .setKey("RAW_KEY")
@@ -271,7 +271,7 @@ public class IssueLifecycleTest {
   }
 
   @Test
-  public void mergeExistingOpenIssue_with_manual_severity() throws Exception {
+  public void mergeExistingOpenIssue_with_manual_severity() {
     DefaultIssue raw = new DefaultIssue()
       .setNew(true)
       .setKey("RAW_KEY");
@@ -291,7 +291,7 @@ public class IssueLifecycleTest {
   }
 
   @Test
-  public void mergeExistingOpenIssue_with_attributes() throws Exception {
+  public void mergeExistingOpenIssue_with_attributes() {
     DefaultIssue raw = new DefaultIssue()
       .setNew(true)
       .setKey("RAW_KEY");

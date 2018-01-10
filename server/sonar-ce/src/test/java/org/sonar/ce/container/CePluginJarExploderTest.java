@@ -40,7 +40,7 @@ public class CePluginJarExploderTest {
   CePluginJarExploder underTest = new CePluginJarExploder(fs);
 
   @Test
-  public void explode_jar_to_temp_directory() throws Exception {
+  public void explode_jar_to_temp_directory() {
     PluginInfo info = PluginInfo.create(plugin1Jar());
 
     ExplodedPlugin exploded = underTest.explode(info);
@@ -55,7 +55,7 @@ public class CePluginJarExploderTest {
   }
 
   @Test
-  public void plugins_do_not_overlap() throws Exception {
+  public void plugins_do_not_overlap() {
     PluginInfo info1 = PluginInfo.create(plugin1Jar());
     PluginInfo info2 = PluginInfo.create(plugin2Jar());
 

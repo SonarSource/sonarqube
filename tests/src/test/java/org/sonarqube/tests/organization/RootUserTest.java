@@ -62,7 +62,7 @@ public class RootUserTest {
   }
 
   @Test
-  public void last_root_can_not_be_unset_root() throws SQLException {
+  public void last_root_can_not_be_unset_root() {
     expectBadRequestError(() -> tester.wsClient().roots().unsetRoot(new UnsetRootRequest().setLogin(UserRule.ADMIN_LOGIN)));
   }
 

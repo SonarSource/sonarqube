@@ -123,7 +123,7 @@ public class ReliabilityAndSecurityRatingMeasuresVisitorTest {
   }
 
   @Test
-  public void compute_reliability_rating() throws Exception {
+  public void compute_reliability_rating() {
     treeRootHolder.setRoot(ROOT_PROJECT);
     fillComponentIssuesVisitorRule.setIssues(FILE_1_REF, newBugIssue(10L, MAJOR), newBugIssue(1L, MAJOR),
       // Should not be taken into account
@@ -143,7 +143,7 @@ public class ReliabilityAndSecurityRatingMeasuresVisitorTest {
   }
 
   @Test
-  public void compute_security_rating() throws Exception {
+  public void compute_security_rating() {
     treeRootHolder.setRoot(ROOT_PROJECT);
     fillComponentIssuesVisitorRule.setIssues(FILE_1_REF, newVulnerabilityIssue(10L, MAJOR), newVulnerabilityIssue(1L, MAJOR),
       // Should not be taken into account
@@ -163,7 +163,7 @@ public class ReliabilityAndSecurityRatingMeasuresVisitorTest {
   }
 
   @Test
-  public void compute_E_reliability_and_security_rating_on_blocker_issue() throws Exception {
+  public void compute_E_reliability_and_security_rating_on_blocker_issue() {
     treeRootHolder.setRoot(ROOT_PROJECT);
     fillComponentIssuesVisitorRule.setIssues(FILE_1_REF, newBugIssue(10L, BLOCKER), newVulnerabilityIssue(1L, BLOCKER),
       // Should not be taken into account
@@ -176,7 +176,7 @@ public class ReliabilityAndSecurityRatingMeasuresVisitorTest {
   }
 
   @Test
-  public void compute_D_reliability_and_security_rating_on_critical_issue() throws Exception {
+  public void compute_D_reliability_and_security_rating_on_critical_issue() {
     treeRootHolder.setRoot(ROOT_PROJECT);
     fillComponentIssuesVisitorRule.setIssues(FILE_1_REF, newBugIssue(10L, CRITICAL), newVulnerabilityIssue(15L, CRITICAL),
       // Should not be taken into account
@@ -189,7 +189,7 @@ public class ReliabilityAndSecurityRatingMeasuresVisitorTest {
   }
 
   @Test
-  public void compute_C_reliability_and_security_rating_on_major_issue() throws Exception {
+  public void compute_C_reliability_and_security_rating_on_major_issue() {
     treeRootHolder.setRoot(ROOT_PROJECT);
     fillComponentIssuesVisitorRule.setIssues(FILE_1_REF, newBugIssue(10L, MAJOR), newVulnerabilityIssue(15L, MAJOR),
       // Should not be taken into account
@@ -202,7 +202,7 @@ public class ReliabilityAndSecurityRatingMeasuresVisitorTest {
   }
 
   @Test
-  public void compute_B_reliability_and_security_rating_on_minor_issue() throws Exception {
+  public void compute_B_reliability_and_security_rating_on_minor_issue() {
     treeRootHolder.setRoot(ROOT_PROJECT);
     fillComponentIssuesVisitorRule.setIssues(FILE_1_REF, newBugIssue(10L, MINOR), newVulnerabilityIssue(15L, MINOR),
       // Should not be taken into account
@@ -215,7 +215,7 @@ public class ReliabilityAndSecurityRatingMeasuresVisitorTest {
   }
 
   @Test
-  public void compute_A_reliability_and_security_rating_on_info_issue() throws Exception {
+  public void compute_A_reliability_and_security_rating_on_info_issue() {
     treeRootHolder.setRoot(ROOT_PROJECT);
     fillComponentIssuesVisitorRule.setIssues(FILE_1_REF, newBugIssue(10L, INFO), newVulnerabilityIssue(15L, INFO),
       // Should not be taken into account

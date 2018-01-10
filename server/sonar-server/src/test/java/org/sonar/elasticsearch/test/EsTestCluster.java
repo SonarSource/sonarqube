@@ -433,7 +433,7 @@ public final class EsTestCluster {
       return clientWrapper.apply(transportClient);
     }
 
-    void resetClient() throws IOException {
+    void resetClient() {
       if (!closed.get()) {
         Releasables.close(nodeClient, transportClient);
         nodeClient = null;
@@ -501,7 +501,7 @@ public final class EsTestCluster {
     }
   }
 
-  public synchronized void beforeTest(Random random, double transportClientRatio) throws IOException, InterruptedException {
+  public synchronized void beforeTest(Random random, double transportClientRatio) throws IOException {
     assert transportClientRatio >= 0.0 && transportClientRatio <= 1.0;
     logger.debug("Reset test cluster with transport client ratio: [{}]", transportClientRatio);
     this.transportClientRatio = transportClientRatio;
@@ -781,7 +781,7 @@ public final class EsTestCluster {
   /**
    * This method checks all the things that need to be checked after each test
    */
-  public void assertAfterTest() throws IOException {
+  public void assertAfterTest() {
     ensureEstimatedStats();
     assertRequestsFinished();
     for (NodeAndClient nodeAndClient : nodes.values()) {

@@ -59,7 +59,7 @@ public class RemoveUserActionTest {
     new RemoveUserAction(db.getDbClient(), userSession, new GroupWsSupport(db.getDbClient(), defaultOrganizationProvider, new DefaultGroupFinder(db.getDbClient()))));
 
   @Test
-  public void does_nothing_if_user_is_not_in_group() throws Exception {
+  public void does_nothing_if_user_is_not_in_group() {
     // keep an administrator
     insertAnAdministratorInDefaultOrganization();
     insertDefaultGroupOnDefaultOrganization();
@@ -77,7 +77,7 @@ public class RemoveUserActionTest {
   }
 
   @Test
-  public void remove_user_by_group_id() throws Exception {
+  public void remove_user_by_group_id() {
     // keep an administrator
     insertAnAdministratorInDefaultOrganization();
     insertDefaultGroupOnDefaultOrganization();
@@ -95,7 +95,7 @@ public class RemoveUserActionTest {
   }
 
   @Test
-  public void remove_user_by_group_name_in_default_organization() throws Exception {
+  public void remove_user_by_group_name_in_default_organization() {
     insertAnAdministratorInDefaultOrganization();
     insertDefaultGroupOnDefaultOrganization();
     GroupDto group = db.users().insertGroup(db.getDefaultOrganization(), "a_group");
@@ -112,7 +112,7 @@ public class RemoveUserActionTest {
   }
 
   @Test
-  public void remove_user_by_group_name_in_specific_organization() throws Exception {
+  public void remove_user_by_group_name_in_specific_organization() {
     OrganizationDto org = db.organizations().insert();
     db.users().insertDefaultGroup(org);
     GroupDto group = db.users().insertGroup(org, "a_group");
@@ -133,7 +133,7 @@ public class RemoveUserActionTest {
   }
 
   @Test
-  public void remove_user_only_from_one_group() throws Exception {
+  public void remove_user_only_from_one_group() {
     // keep an administrator
     insertAnAdministratorInDefaultOrganization();
     insertDefaultGroupOnDefaultOrganization();
@@ -155,7 +155,7 @@ public class RemoveUserActionTest {
   }
 
   @Test
-  public void response_status_is_no_content() throws Exception {
+  public void response_status_is_no_content() {
     // keep an administrator
     insertAnAdministratorInDefaultOrganization();
     insertDefaultGroupOnDefaultOrganization();
@@ -173,7 +173,7 @@ public class RemoveUserActionTest {
   }
 
   @Test
-  public void fail_if_unknown_group() throws Exception {
+  public void fail_if_unknown_group() {
     UserDto user = db.users().insertUser("my-admin");
 
     expectedException.expect(NotFoundException.class);
@@ -186,7 +186,7 @@ public class RemoveUserActionTest {
   }
 
   @Test
-  public void fail_if_unknown_user() throws Exception {
+  public void fail_if_unknown_user() {
     insertDefaultGroupOnDefaultOrganization();
     GroupDto group = db.users().insertGroup(db.getDefaultOrganization(), "admins");
 
@@ -200,7 +200,7 @@ public class RemoveUserActionTest {
   }
 
   @Test
-  public void throw_ForbiddenException_if_not_administrator_of_organization() throws Exception {
+  public void throw_ForbiddenException_if_not_administrator_of_organization() {
     OrganizationDto org = db.organizations().insert();
     GroupDto group = db.users().insertGroup(org, "a-group");
     UserDto user = db.users().insertUser();
@@ -217,7 +217,7 @@ public class RemoveUserActionTest {
   }
 
   @Test
-  public void fail_to_remove_the_last_administrator() throws Exception {
+  public void fail_to_remove_the_last_administrator() {
     OrganizationDto org = db.organizations().insert();
     db.users().insertDefaultGroup(org);
     GroupDto adminGroup = db.users().insertGroup(org, "sonar-admins");
@@ -236,7 +236,7 @@ public class RemoveUserActionTest {
   }
 
   @Test
-  public void fail_to_remove_user_from_default_group() throws Exception {
+  public void fail_to_remove_user_from_default_group() {
     OrganizationDto organization = db.organizations().insert();
     UserDto user = db.users().insertUser();
     GroupDto defaultGroup = db.users().insertDefaultGroup(organization, "default");

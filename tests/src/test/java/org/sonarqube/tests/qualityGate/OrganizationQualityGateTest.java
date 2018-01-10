@@ -104,7 +104,7 @@ public class OrganizationQualityGateTest {
   }
 
   @Test
-  public void search_projects_only_return_projects_from_quality_gate_organization() throws Exception {
+  public void search_projects_only_return_projects_from_quality_gate_organization() {
     Organization organization = tester.organizations().generate();
     Project project = tester.projects().provision(organization);
     Organization otherOrganization = tester.organizations().generate();
@@ -124,7 +124,7 @@ public class OrganizationQualityGateTest {
   }
 
   @Test
-  public void list_quality_gates_from_organization() throws Exception {
+  public void list_quality_gates_from_organization() {
     Organization organization = tester.organizations().generate();
     Organization otherOrganization = tester.organizations().generate();
     Qualitygates.CreateResponse qualityGate = tester.qGates().generate(organization);

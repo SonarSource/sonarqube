@@ -72,17 +72,17 @@ public class SinceXDaysHistoryTest {
   }
 
   @Test
-  public void check_files_variation() throws Exception {
+  public void check_files_variation() {
     checkMeasure("files", 3);
   }
 
   @Test
-  public void check_issues_variation() throws Exception {
+  public void check_issues_variation() {
     checkMeasure("violations", 45);
   }
 
   @Test
-  public void check_new_issues_measures() throws Exception {
+  public void check_new_issues_measures() {
     checkMeasure("new_violations", 45);
   }
 

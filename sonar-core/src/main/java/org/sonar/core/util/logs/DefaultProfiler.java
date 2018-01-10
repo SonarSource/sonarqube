@@ -283,10 +283,7 @@ class DefaultProfiler extends Profiler {
     if (level == LoggerLevel.TRACE && !logger.isTraceEnabled()) {
       return false;
     }
-    if (level == LoggerLevel.DEBUG && !logger.isDebugEnabled()) {
-      return false;
-    }
-    return true;
+    return level != LoggerLevel.DEBUG || logger.isDebugEnabled();
   }
 
   @Override

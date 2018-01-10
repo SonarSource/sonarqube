@@ -42,21 +42,21 @@ public class ComponentIssuesRepositoryImplTest {
   ComponentIssuesRepositoryImpl sut = new ComponentIssuesRepositoryImpl();
 
   @Test
-  public void get_issues() throws Exception {
+  public void get_issues() {
     sut.setIssues(FILE_1, Arrays.asList(DUMB_ISSUE));
 
     assertThat(sut.getIssues(FILE_1)).containsOnly(DUMB_ISSUE);
   }
 
   @Test
-  public void set_empty_issues() throws Exception {
-    sut.setIssues(FILE_1, Collections.<DefaultIssue>emptyList());
+  public void set_empty_issues() {
+    sut.setIssues(FILE_1, Collections.emptyList());
 
     assertThat(sut.getIssues(FILE_1)).isEmpty();
   }
 
   @Test
-  public void fail_with_NPE_when_setting_issues_with_null_component() throws Exception {
+  public void fail_with_NPE_when_setting_issues_with_null_component() {
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("component cannot be null");
 
@@ -64,7 +64,7 @@ public class ComponentIssuesRepositoryImplTest {
   }
 
   @Test
-  public void fail_with_NPE_when_setting_issues_with_null_issues() throws Exception {
+  public void fail_with_NPE_when_setting_issues_with_null_issues() {
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("issues cannot be null");
 
@@ -72,7 +72,7 @@ public class ComponentIssuesRepositoryImplTest {
   }
 
   @Test
-  public void fail_with_IAE_when_getting_issues_on_different_component() throws Exception {
+  public void fail_with_IAE_when_getting_issues_on_different_component() {
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("Only issues from component '1' are available, but wanted component is '2'.");
 
@@ -81,7 +81,7 @@ public class ComponentIssuesRepositoryImplTest {
   }
 
   @Test
-  public void fail_with_ISE_when_getting_issues_but_issues_are_null() throws Exception {
+  public void fail_with_ISE_when_getting_issues_but_issues_are_null() {
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("Issues have not been initialized");
 

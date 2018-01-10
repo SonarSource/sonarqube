@@ -101,7 +101,7 @@ public class TelemetryDaemonTest {
     new ProjectMeasuresIndex(es.client(), null, system2)), client, settings.asConfig(), internalProperties, system2);
 
   @After
-  public void tearDown() throws Exception {
+  public void tearDown() {
     underTest.stop();
   }
 

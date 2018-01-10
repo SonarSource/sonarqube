@@ -52,7 +52,7 @@ public class ProjectBulkDeletionPageTest {
    * SONAR-2614, SONAR-3805
    */
   @Test
-  public void bulk_deletion_on_selected_projects() throws Exception {
+  public void bulk_deletion_on_selected_projects() {
     Project project1 = tester.projects().provision(p -> p.setName("Foo"));
     Project project2 = tester.projects().provision(p -> p.setName("Bar"));
     Project project3 = tester.projects().provision(p -> p.setName("FooQux"));

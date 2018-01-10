@@ -56,7 +56,7 @@ public class DistributionFormulaExecutionTest {
   @Before
   public void setUp() throws Exception {
     underTest = FormulaExecutorComponentVisitor.newBuilder(metricRepository, measureRepository)
-      .buildFor(Lists.<Formula>newArrayList(new DistributionFormula(FUNCTION_COMPLEXITY_DISTRIBUTION_KEY)));
+      .buildFor(Lists.newArrayList(new DistributionFormula(FUNCTION_COMPLEXITY_DISTRIBUTION_KEY)));
   }
 
   @Test

@@ -94,7 +94,7 @@ public class QualityGateEventsStepTest {
 
   @Test
   public void no_event_if_no_raw_ALERT_STATUS_measure() {
-    when(measureRepository.getRawMeasure(PROJECT_COMPONENT, alertStatusMetric)).thenReturn(Optional.<Measure>absent());
+    when(measureRepository.getRawMeasure(PROJECT_COMPONENT, alertStatusMetric)).thenReturn(Optional.absent());
 
     underTest.execute();
 
@@ -113,7 +113,7 @@ public class QualityGateEventsStepTest {
   }
 
   private static Optional<Measure> of(Measure measure) {
-    return Optional.of((Measure) measure);
+    return Optional.of(measure);
   }
 
   @Test

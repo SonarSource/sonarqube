@@ -79,7 +79,7 @@ public class BackendCleanupTest {
   }
 
   @Test
-  public void clear_indexes() throws Exception {
+  public void clear_indexes() {
     esTester.putDocuments(IssueIndexDefinition.INDEX_TYPE_ISSUE, IssueDocTesting.newDoc());
     esTester.putDocuments(RuleIndexDefinition.INDEX_TYPE_RULE, newRuleDoc());
     esTester.putDocuments(ComponentIndexDefinition.INDEX_TYPE_COMPONENT, newComponentDoc());
@@ -91,7 +91,7 @@ public class BackendCleanupTest {
   }
 
   @Test
-  public void clear_all() throws Exception {
+  public void clear_all() {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
     esTester.putDocuments(IssueIndexDefinition.INDEX_TYPE_ISSUE, IssueDocTesting.newDoc());
     esTester.putDocuments(RuleIndexDefinition.INDEX_TYPE_RULE, newRuleDoc());
@@ -110,7 +110,7 @@ public class BackendCleanupTest {
   }
 
   @Test
-  public void reset_data() throws Exception {
+  public void reset_data() {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
     esTester.putDocuments(IssueIndexDefinition.INDEX_TYPE_ISSUE, IssueDocTesting.newDoc());
     esTester.putDocuments(ViewIndexDefinition.INDEX_TYPE_VIEW, new ViewDoc().setUuid("CDEF").setProjects(newArrayList("DEFG")));

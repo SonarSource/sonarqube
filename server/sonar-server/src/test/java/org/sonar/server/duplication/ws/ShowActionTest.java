@@ -92,7 +92,7 @@ public class ShowActionTest {
   }
 
   @Test
-  public void return_file_with_missing_duplication_data() throws Exception {
+  public void return_file_with_missing_duplication_data() {
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project).setDbKey("foo.js"));
     db.components().insertSnapshot(newAnalysis(project));
@@ -108,7 +108,7 @@ public class ShowActionTest {
   }
 
   @Test
-  public void duplications_by_file_key_and_branch() throws Exception {
+  public void duplications_by_file_key_and_branch() {
     ComponentDto project = db.components().insertMainBranch();
     userSessionRule.addProjectPermission(UserRole.CODEVIEWER, project);
     ComponentDto branch = db.components().insertProjectBranch(project);
@@ -160,14 +160,14 @@ public class ShowActionTest {
   }
 
   @Test
-  public void fail_if_file_does_not_exist() throws Exception {
+  public void fail_if_file_does_not_exist() {
     expectedException.expect(NotFoundException.class);
 
     newBaseRequest().setParam("key", "missing").execute();
   }
 
   @Test
-  public void fail_if_user_is_not_allowed_to_access_project() throws Exception {
+  public void fail_if_user_is_not_allowed_to_access_project() {
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
 
@@ -200,7 +200,7 @@ public class ShowActionTest {
   }
 
   @Test
-  public void fail_when_using_branch_uuid() throws Exception {
+  public void fail_when_using_branch_uuid() {
     OrganizationDto organization = db.organizations().insert();
     ComponentDto project = db.components().insertMainBranch(organization);
     userSessionRule.addProjectPermission(UserRole.CODEVIEWER, project);
@@ -218,7 +218,7 @@ public class ShowActionTest {
     return ws.newRequest();
   }
 
-  private void verifyCallToFileWithDuplications(Function<ComponentDto, TestRequest> requestFactory) throws Exception {
+  private void verifyCallToFileWithDuplications(Function<ComponentDto, TestRequest> requestFactory) {
     ComponentDto project = db.components().insertPrivateProject();
     userSessionRule.addProjectPermission(UserRole.CODEVIEWER, project);
     ComponentDto file = db.components().insertComponent(newFileDto(project).setDbKey("foo.js"));

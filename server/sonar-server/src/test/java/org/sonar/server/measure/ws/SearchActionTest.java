@@ -111,7 +111,7 @@ public class SearchActionTest {
   }
 
   @Test
-  public void return_measures() throws Exception {
+  public void return_measures() {
     ComponentDto project = db.components().insertPrivateProject(db.getDefaultOrganization());
     userSession.addProjectPermission(UserRole.USER, project);
     MetricDto coverage = db.measures().insertMetric(m -> m.setValueType(FLOAT.name()));
@@ -127,7 +127,7 @@ public class SearchActionTest {
   }
 
   @Test
-  public void return_measures_on_leak_period() throws Exception {
+  public void return_measures_on_leak_period() {
     OrganizationDto organization = db.organizations().insert();
     ComponentDto project = db.components().insertPrivateProject(organization);
     userSession.addProjectPermission(UserRole.USER, project);
@@ -147,7 +147,7 @@ public class SearchActionTest {
   }
 
   @Test
-  public void sort_by_metric_key_then_project_name() throws Exception {
+  public void sort_by_metric_key_then_project_name() {
     MetricDto coverage = db.measures().insertMetric(m -> m.setKey("coverage").setValueType(FLOAT.name()));
     MetricDto complexity = db.measures().insertMetric(m -> m.setKey("complexity").setValueType(INT.name()));
     OrganizationDto organization = db.organizations().insert();
@@ -173,7 +173,7 @@ public class SearchActionTest {
   }
 
   @Test
-  public void return_measures_on_view() throws Exception {
+  public void return_measures_on_view() {
     OrganizationDto organization = db.organizations().insert();
     ComponentDto view = db.components().insertPrivatePortfolio(organization);
     userSession.addProjectPermission(UserRole.USER, view);
@@ -191,7 +191,7 @@ public class SearchActionTest {
 
 
   @Test
-  public void return_measures_on_application() throws Exception {
+  public void return_measures_on_application() {
     OrganizationDto organization = db.organizations().insert();
     ComponentDto application = db.components().insertPrivateApplication(organization);
     userSession.addProjectPermission(UserRole.USER, application);
@@ -208,7 +208,7 @@ public class SearchActionTest {
   }
 
   @Test
-  public void return_measures_on_sub_view() throws Exception {
+  public void return_measures_on_sub_view() {
     OrganizationDto organization = db.organizations().insert();
     ComponentDto view = db.components().insertPrivatePortfolio(organization);
     ComponentDto subView = db.components().insertComponent(newSubView(view));

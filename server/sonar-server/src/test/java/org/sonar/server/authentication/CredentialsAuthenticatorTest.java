@@ -66,7 +66,7 @@ public class CredentialsAuthenticatorTest {
   private CredentialsAuthenticator underTest = new CredentialsAuthenticator(dbClient, externalAuthenticator, authenticationEvent);
 
   @Test
-  public void authenticate_local_user() throws Exception {
+  public void authenticate_local_user() {
     insertUser(newUserDto()
       .setLogin(LOGIN)
       .setCryptedPassword(CRYPTED_PASSWORD)
@@ -79,7 +79,7 @@ public class CredentialsAuthenticatorTest {
   }
 
   @Test
-  public void fail_to_authenticate_local_user_when_password_is_wrong() throws Exception {
+  public void fail_to_authenticate_local_user_when_password_is_wrong() {
     insertUser(newUserDto()
       .setLogin(LOGIN)
       .setCryptedPassword("Wrong password")
@@ -96,7 +96,7 @@ public class CredentialsAuthenticatorTest {
   }
 
   @Test
-  public void authenticate_external_user() throws Exception {
+  public void authenticate_external_user() {
     when(externalAuthenticator.authenticate(LOGIN, PASSWORD, request, BASIC)).thenReturn(Optional.of(newUserDto()));
     insertUser(newUserDto()
       .setLogin(LOGIN)
@@ -109,7 +109,7 @@ public class CredentialsAuthenticatorTest {
   }
 
   @Test
-  public void fail_to_authenticate_authenticate_external_user_when_no_external_authentication() throws Exception {
+  public void fail_to_authenticate_authenticate_external_user_when_no_external_authentication() {
     when(externalAuthenticator.authenticate(LOGIN, PASSWORD, request, BASIC_TOKEN)).thenReturn(Optional.empty());
     insertUser(newUserDto()
       .setLogin(LOGIN)
@@ -125,7 +125,7 @@ public class CredentialsAuthenticatorTest {
   }
 
   @Test
-  public void fail_to_authenticate_local_user_that_have_no_password() throws Exception {
+  public void fail_to_authenticate_local_user_that_have_no_password() {
     insertUser(newUserDto()
       .setLogin(LOGIN)
       .setCryptedPassword(null)
@@ -142,7 +142,7 @@ public class CredentialsAuthenticatorTest {
   }
 
   @Test
-  public void fail_to_authenticate_local_user_that_have_no_salt() throws Exception {
+  public void fail_to_authenticate_local_user_that_have_no_salt() {
     insertUser(newUserDto()
       .setLogin(LOGIN)
       .setCryptedPassword(CRYPTED_PASSWORD)

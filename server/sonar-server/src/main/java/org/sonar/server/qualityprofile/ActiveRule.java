@@ -24,7 +24,7 @@ import org.sonar.db.qualityprofile.ActiveRuleKey;
 public interface ActiveRule {
 
   enum Inheritance {
-    NONE, OVERRIDES, INHERITED;
+    NONE, OVERRIDES, INHERITED
   }
 
   long createdAt();

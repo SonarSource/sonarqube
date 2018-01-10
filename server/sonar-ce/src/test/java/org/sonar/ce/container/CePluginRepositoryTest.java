@@ -67,7 +67,7 @@ public class CePluginRepositoryTest {
   }
 
   @Test
-  public void load_plugins() throws Exception {
+  public void load_plugins() {
     String pluginKey = "test";
     when(fs.getInstalledPluginsDir()).thenReturn(new File("src/test/plugins/sonar-test-plugin/target"));
 

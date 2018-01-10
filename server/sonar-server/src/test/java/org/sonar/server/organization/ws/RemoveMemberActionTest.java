@@ -331,7 +331,7 @@ public class RemoveMemberActionTest {
   }
 
   @Test
-  public void remove_org_admin_is_allowed_when_another_org_admin_exists() throws Exception {
+  public void remove_org_admin_is_allowed_when_another_org_admin_exists() {
     OrganizationDto anotherOrganization = db.organizations().insert();
     UserDto admin1 = db.users().insertAdminByUserPermission(anotherOrganization);
     db.organizations().addMember(anotherOrganization, admin1);
@@ -389,8 +389,8 @@ public class RemoveMemberActionTest {
 
   private void insertProperty(String key, @Nullable String value, @Nullable Long resourceId, @Nullable Integer userId) {
     PropertyDto dto = new PropertyDto().setKey(key)
-      .setResourceId(resourceId == null ? null : resourceId)
-      .setUserId(userId == null ? null : userId)
+      .setResourceId(resourceId)
+      .setUserId(userId)
       .setValue(value);
     db.properties().insertProperty(dto);
   }

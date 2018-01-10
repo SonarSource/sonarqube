@@ -142,7 +142,7 @@ public class IssueQueryTest {
   }
 
   @Test
-  public void test_default_query() throws Exception {
+  public void test_default_query() {
     IssueQuery query = IssueQuery.builder().build();
     assertThat(query.issueKeys()).isEmpty();
     assertThat(query.projectUuids()).isEmpty();
