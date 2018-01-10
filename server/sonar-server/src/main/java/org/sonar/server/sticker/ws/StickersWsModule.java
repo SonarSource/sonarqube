@@ -19,11 +19,23 @@
  */
 package org.sonar.server.sticker.ws;
 
+import org.sonar.api.config.Configuration;
+import org.sonar.core.config.WebConstants;
 import org.sonar.core.platform.Module;
 
 public class StickersWsModule extends Module {
+
+  private final Configuration config;
+
+  public StickersWsModule(Configuration config) {
+    this.config = config;
+  }
+
   @Override
   protected void configureModule() {
+    if (!config.getBoolean(WebConstants.SONARCLOUD_ENABLED).orElse(false)) {
+      return;
+    }
     add(
       StickersWs.class,
       QualityGateAction.class,
