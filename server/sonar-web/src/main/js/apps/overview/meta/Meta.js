@@ -27,7 +27,9 @@ import MetaQualityProfiles from './MetaQualityProfiles';
 import AnalysesList from '../events/AnalysesList';
 import MetaSize from './MetaSize';
 import MetaTags from './MetaTags';
-import { areThereCustomOrganizations } from '../../../store/rootReducer';
+import BadgesModal from '../badges/BadgesModal';
+import { areThereCustomOrganizations, getGlobalSettingValue } from '../../../store/rootReducer';
+import { Visibility } from '../../../app/types';
 
 const Meta = ({
   branch,
@@ -38,9 +40,10 @@ const Meta = ({
   onComponentChange,
   onSonarCloud
 }) => {
-  const { qualifier, description, qualityProfiles, qualityGate } = component;
+  const { qualifier, description, qualityProfiles, qualityGate, visibility } = component;
 
   const isProject = qualifier === 'TRK';
+  const isPrivate = visibility === Visibility.Private;
 
   const hasDescription = !!description;
   const hasQualityProfiles = Array.isArray(qualityProfiles) && qualityProfiles.length > 0;
@@ -87,6 +90,10 @@ const Meta = ({
       <MetaKey component={component} />
 
       {hasOrganization && <MetaOrganizationKey component={component} />}
+
+      {onSonarCloud &&
+        isProject &&
+        !isPrivate && <BadgesModal branch={branch} project={component.key} />}
     </div>
   );
 };

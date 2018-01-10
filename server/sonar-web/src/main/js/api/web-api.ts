@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { getJSON } from '../helpers/request';
+import throwGlobalError from '../app/utils/throwGlobalError';
 
 export interface Changelog {
   description: string;
@@ -65,16 +66,20 @@ export interface Example {
   format: string;
 }
 
-export function fetchWebApi(showInternal: boolean = true): Promise<Array<Domain>> {
-  return getJSON('/api/webservices/list', { include_internals: showInternal }).then(r =>
-    r.webServices.map((domain: any) => {
-      const deprecated = !domain.actions.find((action: any) => !action.deprecatedSince);
-      const internal = !domain.actions.find((action: any) => !action.internal);
-      return { ...domain, deprecated, internal };
-    })
-  );
+export function fetchWebApi(showInternal = true): Promise<Domain[]> {
+  return getJSON('/api/webservices/list', { include_internals: showInternal })
+    .then(r =>
+      r.webServices.map((domain: any) => {
+        const deprecated = !domain.actions.find((action: any) => !action.deprecatedSince);
+        const internal = !domain.actions.find((action: any) => !action.internal);
+        return { ...domain, deprecated, internal };
+      })
+    )
+    .catch(throwGlobalError);
 }
 
 export function fetchResponseExample(domain: string, action: string): Promise<Example> {
-  return getJSON('/api/webservices/response_example', { controller: domain, action });
+  return getJSON('/api/webservices/response_example', { controller: domain, action }).catch(
+    throwGlobalError
+  );
 }

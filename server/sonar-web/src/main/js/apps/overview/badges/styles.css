@@ -1,0 +1,85 @@
+/*
+ * SonarQube
+ * Copyright (C) 2009-2018 SonarSource SA
+ * mailto:info AT sonarsource DOT com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+.badges-list {
+  display: flex;
+  justify-content: space-around;
+  justify-content: space-evenly;
+  flex-wrap: nowrap;
+}
+
+.badge-button {
+  display: flex;
+  justify-content: center;
+  padding: var(--gridSize);
+  min-width: 146px;
+  height: 116px;
+  background-color: var(--barBackgroundColor);
+  border: solid 1px var(--barBorderColor);
+  border-radius: 3px;
+  transition: all 0.3s ease;
+}
+
+.badge-button:hover,
+.badge-button:focus,
+.badge-button:active {
+  background-color: var(--barBackgroundColor);
+  border-color: var(--blue);
+  box-shadow: none;
+}
+
+.badge-button.selected {
+  background-color: var(--lightBlue);
+  border-color: var(--darkBlue);
+}
+
+.badge-snippet {
+  position: relative;
+  margin: var(--gridSize) 0;
+  background: var(--gray40);
+  color: var(--snippetFontColor);
+  border-radius: 3px;
+}
+
+.badge-snippet pre {
+  padding: calc(2 * var(--gridSize));
+  padding-bottom: 40px;
+  overflow: auto;
+}
+
+.badge-snippet button {
+  position: absolute;
+  top: auto;
+  top: 40px;
+  right: calc(2 * var(--gridSize));
+  height: var(--smallControlHeight);
+  line-height: 18px;
+  border: 1px solid #fff;
+  color: #fff;
+  font-size: 11px;
+  font-weight: normal;
+  user-select: none;
+}
+
+.badge-snippet button:hover,
+.badge-snippet button:focus,
+.badge-snippet button:active {
+  background-color: #fff;
+  color: var(--gray40);
+}

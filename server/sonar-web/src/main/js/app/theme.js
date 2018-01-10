@@ -38,6 +38,7 @@ module.exports = {
   gray71: '#b4b4b4',
   gray67: '#aaa',
   gray60: '#999',
+  gray40: '#404040',
 
   barBackgroundColor: '#f3f3f3',
   barBorderColor: '#e6e6e6',
@@ -47,6 +48,8 @@ module.exports = {
 
   leakColor: '#fbf3d5',
   leakBorderColor: '#eae3c7',
+
+  snippetFontColor: '#f0f0f0',
 
   // sizes
   gridSize: `${grid}px`,
