@@ -25,9 +25,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.io.IOUtils;
-import org.hamcrest.Description;
-import org.hamcrest.TypeSafeMatcher;
 import org.junit.Test;
+import org.mockito.ArgumentMatcher;
 import org.sonar.api.server.ws.LocalConnector;
 import org.sonarqube.ws.MediaTypes;
 
@@ -87,12 +86,11 @@ public class LocalWsConnectorTest {
     when(connector.call(any(LocalConnector.LocalRequest.class))).thenReturn(response);
   }
 
-  private void verifyRequested(final String expectedMethod, final String expectedPath,
-    final String expectedMediaType,
-    final Map<String, String> expectedParams) {
-    verify(connector).call(argThat(new TypeSafeMatcher<LocalConnector.LocalRequest>() {
+  private void verifyRequested(String expectedMethod, String expectedPath,
+    String expectedMediaType, Map<String, String> expectedParams) {
+    verify(connector).call(argThat(new ArgumentMatcher<LocalConnector.LocalRequest>() {
       @Override
-      protected boolean matchesSafely(LocalConnector.LocalRequest localRequest) {
+      public boolean matches(LocalConnector.LocalRequest localRequest) {
         boolean ok = localRequest.getMethod().equals(expectedMethod) && localRequest.getPath().equals(expectedPath);
         ok &= localRequest.getMediaType().equals(expectedMediaType);
         for (Map.Entry<String, String> expectedParam : expectedParams.entrySet()) {
@@ -101,10 +99,6 @@ public class LocalWsConnectorTest {
           ok &= expectedParam.getValue().equals(localRequest.getParam(paramKey));
         }
         return ok;
-      }
-
-      @Override
-      public void describeTo(Description description) {
       }
     }));
   }
