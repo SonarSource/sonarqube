@@ -2,32 +2,10 @@
 
 exports[`renders 1`] = `
 <ContextNavBar
-  height={92}
+  height={72}
   id="context-navigation"
-  notif={
-    <ComponentNavBgTaskNotif
-      component={
-        Object {
-          "breadcrumbs": Array [
-            Object {
-              "key": "component",
-              "name": "component",
-              "qualifier": "TRK",
-            },
-          ],
-          "key": "component",
-          "name": "component",
-          "organization": "org",
-          "qualifier": "TRK",
-        }
-      }
-      currentTask={undefined}
-      isInProgress={true}
-      isPending={true}
-    />
-  }
 >
-  <ComponentNavHeader
+  <Connect(ComponentNavHeader)
     branches={Array []}
     component={
       Object {
@@ -46,7 +24,7 @@ exports[`renders 1`] = `
     }
     location={Object {}}
   />
-  <ComponentNavMeta
+  <Connect(ComponentNavMeta)
     component={
       Object {
         "breadcrumbs": Array [

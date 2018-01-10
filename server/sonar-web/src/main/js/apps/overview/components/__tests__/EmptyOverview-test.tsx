@@ -17,16 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
+import * as React from 'react';
 import { shallow } from 'enzyme';
 import EmptyOverview from '../EmptyOverview';
 
-it('should render component key', () => {
-  const component = {
-    id: 'id',
-    key: 'abcd',
-    analysisDate: '2016-01-01'
-  };
-  const output = shallow(<EmptyOverview component={component} />);
-  expect(output.find('code').text()).toBe('abcd');
+it('renders', () => {
+  expect(shallow(<EmptyOverview component="abcd" />)).toMatchSnapshot();
+});
+
+it('does not render warning', () => {
+  expect(shallow(<EmptyOverview component="abcd" showWarning={false} />)).toMatchSnapshot();
 });

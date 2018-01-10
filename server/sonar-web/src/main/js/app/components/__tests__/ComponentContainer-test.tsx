@@ -21,17 +21,22 @@ import * as React from 'react';
 import { shallow, mount } from 'enzyme';
 import { ComponentContainer } from '../ComponentContainer';
 import { getBranches } from '../../../api/branches';
+import { getTasksForComponent } from '../../../api/ce';
 import { getComponentData } from '../../../api/components';
 import { getComponentNavigation } from '../../../api/nav';
 
 jest.mock('../../../api/branches', () => ({ getBranches: jest.fn(() => Promise.resolve([])) }));
+jest.mock('../../../api/ce', () => ({
+  getTasksForComponent: jest.fn(() => Promise.resolve({ queue: [] }))
+}));
 jest.mock('../../../api/components', () => ({
   getComponentData: jest.fn(() => Promise.resolve({}))
 }));
 jest.mock('../../../api/nav', () => ({
   getComponentNavigation: jest.fn(() =>
     Promise.resolve({
-      breadcrumbs: [{ key: 'portfolioKey', name: 'portfolio', qualifier: 'VW' }]
+      breadcrumbs: [{ key: 'portfolioKey', name: 'portfolio', qualifier: 'VW' }],
+      key: 'portfolioKey'
     })
   )
 }));
@@ -47,6 +52,7 @@ beforeEach(() => {
   (getBranches as jest.Mock<any>).mockClear();
   (getComponentData as jest.Mock<any>).mockClear();
   (getComponentNavigation as jest.Mock<any>).mockClear();
+  (getTasksForComponent as jest.Mock<any>).mockClear();
 });
 
 it('changes component', () => {
@@ -136,4 +142,22 @@ it('loads organization', async () => {
 
   await new Promise(setImmediate);
   expect(fetchOrganizations).toBeCalledWith(['org']);
+});
+
+it('fetches status', async () => {
+  (getComponentData as jest.Mock<any>).mockImplementationOnce(() =>
+    Promise.resolve({ organization: 'org' })
+  );
+
+  mount(
+    <ComponentContainer
+      fetchOrganizations={jest.fn()}
+      location={{ query: { id: 'foo' } }}
+      organizationsEnabled={true}>
+      <Inner />
+    </ComponentContainer>
+  );
+
+  await new Promise(setImmediate);
+  expect(getTasksForComponent).toBeCalledWith('portfolioKey');
 });

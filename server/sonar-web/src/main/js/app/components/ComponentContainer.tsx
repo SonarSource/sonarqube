@@ -24,10 +24,12 @@ import ComponentNav from './nav/component/ComponentNav';
 import { Branch, Component } from '../types';
 import handleRequiredAuthorization from '../utils/handleRequiredAuthorization';
 import { getBranches } from '../../api/branches';
+import { Task, getTasksForComponent } from '../../api/ce';
 import { getComponentData } from '../../api/components';
 import { getComponentNavigation } from '../../api/nav';
 import { fetchOrganizations } from '../../store/rootActions';
 import { areThereCustomOrganizations } from '../../store/rootReducer';
+import { STATUSES } from '../../apps/background-tasks/constants';
 
 interface Props {
   children: any;
@@ -42,6 +44,9 @@ interface State {
   branches: Branch[];
   loading: boolean;
   component: Component | null;
+  currentTask?: Task;
+  isInProgress?: boolean;
+  isPending?: boolean;
 }
 
 export class ComponentContainer extends React.PureComponent<Props, State> {
@@ -102,6 +107,8 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
             this.setState({ loading: false, branches, component });
           }
         }, onError);
+
+        this.fetchStatus(component);
       },
       onError
     );
@@ -110,6 +117,21 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
   fetchBranches = (component: Component) => {
     const project = component.breadcrumbs.find(({ qualifier }) => qualifier === 'TRK');
     return project ? getBranches(project.key) : Promise.resolve([]);
+  };
+
+  fetchStatus = (component: Component) => {
+    getTasksForComponent(component.key).then(
+      ({ current, queue }) => {
+        if (this.mounted) {
+          this.setState({
+            currentTask: current,
+            isInProgress: queue.some(task => task.status === STATUSES.IN_PROGRESS),
+            isPending: queue.some(task => task.status === STATUSES.PENDING)
+          });
+        }
+      },
+      () => {}
+    );
   };
 
   handleComponentChange = (changes: {}) => {
@@ -149,6 +171,9 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
               branches={branches}
               currentBranch={branch}
               component={component}
+              currentTask={this.state.currentTask}
+              isInProgress={this.state.isInProgress}
+              isPending={this.state.isPending}
               location={this.props.location}
             />
           )}
@@ -161,6 +186,8 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
             branch,
             branches,
             component,
+            isInProgress: this.state.isInProgress,
+            isPending: this.state.isPending,
             onBranchesChange: this.handleBranchesChange,
             onComponentChange: this.handleComponentChange
           })

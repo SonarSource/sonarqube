@@ -17,43 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-/* eslint-disable import/order */
 import * as React from 'react';
-import { mount, shallow } from 'enzyme';
+import { shallow } from 'enzyme';
 import ComponentNav from '../ComponentNav';
-
-jest.mock('../ComponentNavMeta', () => ({
-  // eslint-disable-next-line
-  default: function ComponentNavMeta() {
-    return null;
-  }
-}));
-
-jest.mock('../ComponentNavHeader', () => ({
-  // eslint-disable-next-line
-  default: function ComponentNavHeader() {
-    return null;
-  }
-}));
-
-jest.mock('../ComponentNavMenu', () => ({
-  // eslint-disable-next-line
-  default: function ComponentNavMenu() {
-    return null;
-  }
-}));
-
-jest.mock('../../../RecentHistory', () => ({
-  default: { add: jest.fn() }
-}));
-
-jest.mock('../../../../../api/ce', () => ({
-  getTasksForComponent: jest.fn(() => Promise.resolve({ queue: [] }))
-}));
-
-const getTasksForComponent = require('../../../../../api/ce').getTasksForComponent as jest.Mock<
-  any
->;
 
 const component = {
   breadcrumbs: [{ key: 'component', name: 'component', qualifier: 'TRK' }],
@@ -62,12 +28,6 @@ const component = {
   organization: 'org',
   qualifier: 'TRK'
 };
-
-it('loads status', () => {
-  getTasksForComponent.mockClear();
-  mount(<ComponentNav branches={[]} component={component} location={{}} />);
-  expect(getTasksForComponent).toBeCalledWith('component');
-});
 
 it('renders', () => {
   const wrapper = shallow(<ComponentNav branches={[]} component={component} location={{}} />);
