@@ -1,0 +1,26 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should display correctly 1`] = `
+<button
+  className="js-copy-to-clipboard no-select"
+  data-clipboard-text="foo"
+>
+  copy
+</button>
+`;
+
+exports[`should display correctly 2`] = `
+<Tooltip
+  defaultVisible={true}
+  overlay="copied_action"
+  placement="bottom"
+  trigger="manual"
+>
+  <button
+    className="js-copy-to-clipboard no-select"
+    data-clipboard-text="foo"
+  >
+    copy
+  </button>
+</Tooltip>
+`;
