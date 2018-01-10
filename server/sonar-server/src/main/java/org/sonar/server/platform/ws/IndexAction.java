@@ -80,7 +80,7 @@ public class IndexAction implements WsAction {
       json.beginObject();
       i18n.getPropertyKeys().forEach(messageKey -> json.prop(messageKey, i18n.message(locale, messageKey, messageKey)));
       json.endObject();
-      json.endObject().close();
+      json.endObject();
     }
   }
 }

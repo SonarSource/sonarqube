@@ -30,10 +30,12 @@ import org.apache.commons.io.IOUtils;
 class CacheWriter extends Writer {
   private final StringWriter bufferWriter;
   private final Writer outputWriter;
+  private boolean isClosed;
 
   CacheWriter(Writer outputWriter) {
     this.bufferWriter = new StringWriter();
     this.outputWriter = outputWriter;
+    this.isClosed = false;
   }
 
   @Override
@@ -48,7 +50,12 @@ class CacheWriter extends Writer {
 
   @Override
   public void close() throws IOException {
+    if (isClosed) {
+      return;
+    }
+
     IOUtils.write(bufferWriter.toString(), outputWriter);
     outputWriter.close();
+    this.isClosed = true;
   }
 }
