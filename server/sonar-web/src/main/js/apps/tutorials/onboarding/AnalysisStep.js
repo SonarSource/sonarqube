@@ -29,6 +29,7 @@ import Msvc from './commands/Msvc';
 import ClangGCC from './commands/ClangGCC';
 import Other from './commands/Other';
 import { translate } from '../../../helpers/l10n';
+import { getHostUrl } from '../../../helpers/urls';
 
 /*::
 type Props = {|
@@ -62,8 +63,6 @@ export default class AnalysisStep extends React.PureComponent {
     this.setState({ result: undefined });
     this.props.onReset();
   };
-
-  getHost = () => window.location.origin + window.baseUrl;
 
   renderForm = () => {
     return (
@@ -111,7 +110,7 @@ export default class AnalysisStep extends React.PureComponent {
 
   renderCommandForMaven = () => (
     <JavaMaven
-      host={this.getHost()}
+      host={getHostUrl()}
       organization={this.props.organization}
       token={this.props.token}
     />
@@ -119,7 +118,7 @@ export default class AnalysisStep extends React.PureComponent {
 
   renderCommandForGradle = () => (
     <JavaGradle
-      host={this.getHost()}
+      host={getHostUrl()}
       organization={this.props.organization}
       token={this.props.token}
     />
@@ -128,7 +127,7 @@ export default class AnalysisStep extends React.PureComponent {
   renderCommandForDotNet = () => {
     return (
       <DotNet
-        host={this.getHost()}
+        host={getHostUrl()}
         organization={this.props.organization}
         // $FlowFixMe
         projectKey={this.state.result.projectKey}
@@ -140,7 +139,7 @@ export default class AnalysisStep extends React.PureComponent {
   renderCommandForMSVC = () => {
     return (
       <Msvc
-        host={this.getHost()}
+        host={getHostUrl()}
         organization={this.props.organization}
         // $FlowFixMe
         projectKey={this.state.result.projectKey}
@@ -151,7 +150,7 @@ export default class AnalysisStep extends React.PureComponent {
 
   renderCommandForClangGCC = () => (
     <ClangGCC
-      host={this.getHost()}
+      host={getHostUrl()}
       organization={this.props.organization}
       // $FlowFixMe
       os={this.state.result.os}
@@ -163,7 +162,7 @@ export default class AnalysisStep extends React.PureComponent {
 
   renderCommandForOther = () => (
     <Other
-      host={this.getHost()}
+      host={getHostUrl()}
       organization={this.props.organization}
       // $FlowFixMe
       os={this.state.result.os}
