@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import { withRouter } from 'react-router';
 import { connect } from 'react-redux';
 import MetaKey from './MetaKey';
 import MetaOrganizationKey from './MetaOrganizationKey';
@@ -37,7 +36,7 @@ const Meta = ({
   measures,
   areThereCustomOrganizations,
   onComponentChange,
-  router
+  onSonarCloud
 }) => {
   const { qualifier, description, qualityProfiles, qualityGate } = component;
 
@@ -66,7 +65,6 @@ const Meta = ({
         component={component}
         qualifier={component.qualifier}
         history={history}
-        router={router}
       />
 
       {shouldShowQualityGate && (
@@ -93,8 +91,12 @@ const Meta = ({
   );
 };
 
-const mapStateToProps = state => ({
-  areThereCustomOrganizations: areThereCustomOrganizations(state)
-});
+const mapStateToProps = state => {
+  const sonarCloudSetting = getGlobalSettingValue(state, 'sonar.sonarcloud.enabled');
+  return {
+    areThereCustomOrganizations: areThereCustomOrganizations(state),
+    onSonarCloud: Boolean(sonarCloudSetting && sonarCloudSetting.value === 'true')
+  };
+};
 
-export default connect(mapStateToProps)(withRouter(Meta));
+export default connect(mapStateToProps)(Meta);
