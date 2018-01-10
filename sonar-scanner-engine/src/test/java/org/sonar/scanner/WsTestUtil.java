@@ -21,9 +21,9 @@ package org.sonar.scanner;
 
 import java.io.InputStream;
 import java.io.Reader;
+import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
-import org.hamcrest.BaseMatcher;
-import org.hamcrest.Description;
+import org.mockito.ArgumentMatcher;
 import org.sonar.scanner.bootstrap.ScannerWsClient;
 import org.sonarqube.ws.client.WsRequest;
 import org.sonarqube.ws.client.WsResponse;
@@ -71,7 +71,7 @@ public class WsTestUtil {
     verify(mock).call(argThat(new RequestMatcher(path)));
   }
 
-  private static class RequestMatcher extends BaseMatcher<WsRequest> {
+  private static class RequestMatcher implements ArgumentMatcher<WsRequest> {
     private String path;
 
     public RequestMatcher(String path) {
@@ -79,17 +79,11 @@ public class WsTestUtil {
     }
 
     @Override
-    public boolean matches(Object item) {
+    public boolean matches(@Nullable WsRequest item) {
       if (item == null) {
         return false;
       }
-      WsRequest request = (WsRequest) item;
-      return StringUtils.equals(request.getPath(), path);
-    }
-
-    @Override
-    public void describeTo(Description description) {
-      description.appendText("request path (\"" + path + "\")");
+      return StringUtils.equals(item.getPath(), path);
     }
   }
 }

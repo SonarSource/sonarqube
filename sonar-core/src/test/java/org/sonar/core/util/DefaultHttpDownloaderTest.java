@@ -22,7 +22,6 @@ package org.sonar.core.util;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.Authenticator;
 import java.net.InetSocketAddress;
 import java.net.NoRouteToHostException;
 import java.net.PasswordAuthentication;
@@ -39,7 +38,6 @@ import java.util.Properties;
 import java.util.zip.GZIPOutputStream;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
-import org.hamcrest.TypeSafeMatcher;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Rule;
@@ -295,18 +293,11 @@ public class DefaultHttpDownloaderTest {
 
     new DefaultHttpDownloader.BaseHttpDownloader(system, settings.asConfig(), null);
 
-    verify(system).setDefaultAuthenticator(argThat(new TypeSafeMatcher<Authenticator>() {
-      @Override
-      protected boolean matchesSafely(Authenticator authenticator) {
-        DefaultHttpDownloader.ProxyAuthenticator a = (DefaultHttpDownloader.ProxyAuthenticator) authenticator;
-        PasswordAuthentication authentication = a.getPasswordAuthentication();
-        return authentication.getUserName().equals("the_login") &&
-          new String(authentication.getPassword()).equals("the_passwd");
-      }
-
-      @Override
-      public void describeTo(Description description) {
-      }
+    verify(system).setDefaultAuthenticator(argThat(authenticator -> {
+      DefaultHttpDownloader.ProxyAuthenticator a = (DefaultHttpDownloader.ProxyAuthenticator) authenticator;
+      PasswordAuthentication authentication = a.getPasswordAuthentication();
+      return authentication.getUserName().equals("the_login") &&
+        new String(authentication.getPassword()).equals("the_passwd");
     }));
   }
 

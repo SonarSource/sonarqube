@@ -24,8 +24,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.hamcrest.Description;
-import org.hamcrest.TypeSafeMatcher;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -91,17 +89,10 @@ public class ContextPropertiesPublisherTest {
   }
 
   private void expectWritten(List<ScannerReport.ContextProperty> expected) {
-    verify(writer).writeContextProperties(argThat(new TypeSafeMatcher<Iterable<ScannerReport.ContextProperty>>() {
-      @Override
-      protected boolean matchesSafely(Iterable<ScannerReport.ContextProperty> props) {
-        List<ScannerReport.ContextProperty> copy = Lists.newArrayList(props);
-        copy.removeAll(expected);
-        return copy.isEmpty();
-      }
-
-      @Override
-      public void describeTo(Description description) {
-      }
+    verify(writer).writeContextProperties(argThat(props -> {
+      List<ScannerReport.ContextProperty> copy = Lists.newArrayList(props);
+      copy.removeAll(expected);
+      return copy.isEmpty();
     }));
   }
 
