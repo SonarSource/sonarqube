@@ -19,11 +19,11 @@
  */
 package org.sonar.server.user;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 import java.util.List;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 public class UpdateUser {
 
@@ -31,12 +31,14 @@ public class UpdateUser {
   private String name;
   private String email;
   private List<String> scmAccounts;
+  private List<String> secondaryEmails;
   private String password;
   private ExternalIdentity externalIdentity;
 
   private boolean nameChanged;
   private boolean emailChanged;
   private boolean scmAccountsChanged;
+  private boolean secondaryEmailsChanged;
   private boolean passwordChanged;
   private boolean externalIdentityChanged;
 
@@ -83,6 +85,17 @@ public class UpdateUser {
   }
 
   @CheckForNull
+  public List<String> secondaryEmails() {
+    return secondaryEmails;
+  }
+
+  public UpdateUser setSecondaryEmails(@Nullable List<String> secondaryEmails) {
+    this.secondaryEmails = secondaryEmails;
+    secondaryEmailsChanged = true;
+    return this;
+  }
+
+  @CheckForNull
   public String password() {
     return password;
   }
@@ -117,6 +130,10 @@ public class UpdateUser {
 
   public boolean isScmAccountsChanged() {
     return scmAccountsChanged;
+  }
+
+  public boolean isSecondaryEmailsChanged() {
+    return secondaryEmailsChanged;
   }
 
   public boolean isPasswordChanged() {

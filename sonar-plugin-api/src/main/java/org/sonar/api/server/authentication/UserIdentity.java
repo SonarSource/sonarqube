@@ -42,14 +42,16 @@ public final class UserIdentity {
   private final String login;
   private final String name;
   private final String email;
-  private final boolean groupsProvided;
+  private final Set<String> secondaryEmails;
   private final Set<String> groups;
+  private final boolean groupsProvided;
 
   private UserIdentity(Builder builder) {
     this.providerLogin = builder.providerLogin;
     this.login = builder.login;
     this.name = builder.name;
     this.email = builder.email;
+    this.secondaryEmails = builder.secondaryEmails;
     this.groupsProvided = builder.groupsProvided;
     this.groups = builder.groups;
   }
@@ -87,12 +89,12 @@ public final class UserIdentity {
   }
 
   /**
-   * Return true if groups should be synchronized for this user.
+   * Secondary emails. If defined, these emails will be considered as SCM accounts.
    *
-   * @since 5.5
+   * @since 7.0
    */
-  public boolean shouldSyncGroups() {
-    return groupsProvided;
+  public Set<String> getSecondaryEmails() {
+    return secondaryEmails;
   }
 
   /**
@@ -104,6 +106,15 @@ public final class UserIdentity {
     return groups;
   }
 
+  /**
+   * Return true if groups should be synchronized for this user.
+   *
+   * @since 5.5
+   */
+  public boolean shouldSyncGroups() {
+    return groupsProvided;
+  }
+
   public static Builder builder() {
     return new Builder();
   }
@@ -113,8 +124,9 @@ public final class UserIdentity {
     private String login;
     private String name;
     private String email;
-    private boolean groupsProvided = false;
+    private Set<String> secondaryEmails = new HashSet<>();
     private Set<String> groups = new HashSet<>();
+    private boolean groupsProvided = false;
 
     private Builder() {
     }
@@ -148,6 +160,19 @@ public final class UserIdentity {
      */
     public Builder setEmail(@Nullable String email) {
       this.email = email;
+      return this;
+    }
+
+    /**
+     *
+     * @see UserIdentity#getSecondaryEmails() ()
+     * @throws NullPointerException when emails is null
+     * @since 7.0
+     */
+    public Builder setSecondaryEmails(Set<String> emails) {
+      requireNonNull(emails, "Secondary emails cannot be null");
+      emails.forEach(Builder::validateEmail);
+      this.secondaryEmails = emails;
       return this;
     }
 

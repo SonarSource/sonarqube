@@ -165,10 +165,14 @@ public class UserUpdater {
       setEncryptedPassword(password, userDto);
     }
 
-    List<String> scmAccounts = sanitizeScmAccounts(newUser.scmAccounts());
+    List<String> scmAccounts = sanitizeStringList(newUser.scmAccounts());
     if (scmAccounts != null && !scmAccounts.isEmpty() && validateScmAccounts(dbSession, scmAccounts, login, email, null, messages)) {
       userDto.setScmAccounts(scmAccounts);
     }
+
+    // TODO should we validate that one of the secondary email is already by another user (as email, scm accout or secondary email)
+    // TODO Add unit tests
+    userDto.setSecondaryEmails(sanitizeStringList(newUser.secondaryEmails()));
 
     setExternalIdentity(userDto, newUser.externalIdentity());
     setOnboarded(userDto);
@@ -184,6 +188,11 @@ public class UserUpdater {
     changed |= updateExternalIdentity(update, dto);
     changed |= updatePassword(update, dto, messages);
     changed |= updateScmAccounts(dbSession, update, dto, messages);
+    // TODO Add unit tests
+    if (update.isSecondaryEmailsChanged()) {
+      dto.setSecondaryEmails(update.secondaryEmails());
+      changed = true;
+    }
     checkRequest(messages.isEmpty(), messages);
     return changed;
   }
@@ -226,7 +235,7 @@ public class UserUpdater {
 
   private boolean updateScmAccounts(DbSession dbSession, UpdateUser updateUser, UserDto userDto, List<String> messages) {
     String email = updateUser.email();
-    List<String> scmAccounts = sanitizeScmAccounts(updateUser.scmAccounts());
+    List<String> scmAccounts = sanitizeStringList(updateUser.scmAccounts());
     List<String> existingScmAccounts = userDto.getScmAccountsAsList();
     if (updateUser.isScmAccountsChanged() && !(existingScmAccounts.containsAll(scmAccounts) && scmAccounts.containsAll(existingScmAccounts))) {
       if (!scmAccounts.isEmpty()) {
@@ -350,7 +359,7 @@ public class UserUpdater {
     return isValid;
   }
 
-  private static List<String> sanitizeScmAccounts(@Nullable List<String> scmAccounts) {
+  private static List<String> sanitizeStringList(@Nullable List<String> scmAccounts) {
     if (scmAccounts != null) {
       return new HashSet<>(scmAccounts).stream()
         .map(Strings::emptyToNull)

@@ -33,6 +33,7 @@ public class NewUser {
   private String name;
   private String email;
   private List<String> scmAccounts;
+  private List<String> secondaryEmails;
   private ExternalIdentity externalIdentity;
 
   private NewUser(Builder builder) {
@@ -41,6 +42,7 @@ public class NewUser {
     this.name = builder.name;
     this.email = builder.email;
     this.scmAccounts = builder.scmAccounts;
+    this.secondaryEmails = builder.secondaryEmails;
     this.externalIdentity = builder.externalIdentity;
   }
 
@@ -57,18 +59,12 @@ public class NewUser {
     return email;
   }
 
-  public NewUser setEmail(@Nullable String email) {
-    this.email = email;
-    return this;
-  }
-
   public List<String> scmAccounts() {
     return scmAccounts;
   }
 
-  public NewUser setScmAccounts(List<String> scmAccounts) {
-    this.scmAccounts = scmAccounts;
-    return this;
+  public List<String> secondaryEmails() {
+    return secondaryEmails;
   }
 
   @Nullable
@@ -76,19 +72,9 @@ public class NewUser {
     return password;
   }
 
-  public NewUser setPassword(@Nullable String password) {
-    this.password = password;
-    return this;
-  }
-
   @Nullable
   public ExternalIdentity externalIdentity() {
     return externalIdentity;
-  }
-
-  public NewUser setExternalIdentity(@Nullable ExternalIdentity externalIdentity) {
-    this.externalIdentity = externalIdentity;
-    return this;
   }
 
   public static Builder builder() {
@@ -100,6 +86,7 @@ public class NewUser {
     private String name;
     private String email;
     private List<String> scmAccounts = new ArrayList<>();
+    private List<String> secondaryEmails = new ArrayList<>();
     private String password;
     private ExternalIdentity externalIdentity;
 
@@ -120,6 +107,11 @@ public class NewUser {
 
     public Builder setScmAccounts(List<String> scmAccounts) {
       this.scmAccounts = scmAccounts;
+      return this;
+    }
+
+    public Builder setSecondaryEmails(List<String> secondaryEmails) {
+      this.secondaryEmails = secondaryEmails;
       return this;
     }
 

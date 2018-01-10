@@ -19,22 +19,25 @@
  */
 package org.sonar.db.user;
 
+import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
-import com.google.common.collect.Lists;
-import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.sonar.core.user.DefaultUser;
 
+import static java.util.Collections.emptyList;
 import static java.util.Objects.requireNonNull;
+import static org.sonar.core.util.stream.MoreCollectors.join;
 
 /**
  * @since 3.2
  */
 public class UserDto {
-  public static final char SCM_ACCOUNTS_SEPARATOR = '\n';
+  static final char LINE_BREAK_SEPARATOR = '\n';
+  private static final Splitter LINE_BREAK_SPLITTER = Splitter.on(LINE_BREAK_SEPARATOR).omitEmptyStrings();
+  private static final Joiner LINE_BREAK_JOINER = Joiner.on(LINE_BREAK_SEPARATOR);
 
   private Integer id;
   private String login;
@@ -42,6 +45,7 @@ public class UserDto {
   private String email;
   private boolean active = true;
   private String scmAccounts;
+  private String secondaryEmails;
   private String externalIdentity;
   private String externalIdentityProvider;
   private String cryptedPassword;
@@ -109,34 +113,37 @@ public class UserDto {
     return scmAccounts;
   }
 
-  public List<String> getScmAccountsAsList() {
-    return decodeScmAccounts(scmAccounts);
-  }
-
   public UserDto setScmAccounts(@Nullable String s) {
     this.scmAccounts = s;
     return this;
   }
 
+  public List<String> getScmAccountsAsList() {
+    return decodeLineBreakSeparatedString(scmAccounts);
+  }
+
   public UserDto setScmAccounts(@Nullable List<String> list) {
-    this.scmAccounts = encodeScmAccounts(list);
+    this.scmAccounts = encodeLineBreakSeparatedString(list);
     return this;
   }
 
   @CheckForNull
-  public static String encodeScmAccounts(@Nullable List<String> scmAccounts) {
-    if (scmAccounts != null && !scmAccounts.isEmpty()) {
-      return String.format("%s%s%s", SCM_ACCOUNTS_SEPARATOR, String.join(String.valueOf(SCM_ACCOUNTS_SEPARATOR), scmAccounts), SCM_ACCOUNTS_SEPARATOR);
-    }
-    return null;
+  public String getSecondaryEmails() {
+    return secondaryEmails;
   }
 
-  public static List<String> decodeScmAccounts(@Nullable String dbValue) {
-    if (dbValue == null) {
-      return new ArrayList<>();
-    } else {
-      return Lists.newArrayList(Splitter.on(SCM_ACCOUNTS_SEPARATOR).omitEmptyStrings().split(dbValue));
-    }
+  public List<String> getSecondaryEmailsAsList() {
+    return decodeLineBreakSeparatedString(secondaryEmails);
+  }
+
+  public UserDto setSecondaryEmails(@Nullable String s) {
+    this.secondaryEmails = s;
+    return this;
+  }
+
+  public UserDto setSecondaryEmails(@Nullable List<String> list) {
+    this.secondaryEmails = encodeLineBreakSeparatedString(list);
+    return this;
   }
 
   public String getExternalIdentity() {
@@ -249,17 +256,32 @@ public class UserDto {
     return this;
   }
 
-  public static String encryptPassword(String password, String salt) {
-    requireNonNull(password, "Password cannot be empty");
-    requireNonNull(salt, "Salt cannot be empty");
-    return DigestUtils.sha1Hex("--" + salt + "--" + password + "--");
-  }
-
   public DefaultUser toUser() {
     return new DefaultUser()
       .setLogin(login)
       .setName(name)
       .setEmail(email)
       .setActive(active);
+  }
+
+  public static String encryptPassword(String password, String salt) {
+    requireNonNull(password, "Password cannot be empty");
+    requireNonNull(salt, "Salt cannot be empty");
+    return DigestUtils.sha1Hex("--" + salt + "--" + password + "--");
+  }
+
+  @CheckForNull
+  private static String encodeLineBreakSeparatedString(@Nullable List<String> list) {
+    if (list == null || list.isEmpty()) {
+      return null;
+    }
+    return String.format("%s%s%s",
+      LINE_BREAK_SEPARATOR,
+      list.stream().collect(join(LINE_BREAK_JOINER)),
+      LINE_BREAK_SEPARATOR);
+  }
+
+  private static List<String> decodeLineBreakSeparatedString(@Nullable String dbValue) {
+    return dbValue == null ? emptyList() : LINE_BREAK_SPLITTER.splitToList(dbValue);
   }
 }

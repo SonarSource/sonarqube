@@ -19,6 +19,7 @@
  */
 package org.sonar.server.authentication;
 
+import java.util.Collections;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.junit.Rule;
@@ -26,7 +27,6 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.server.authentication.UserIdentity;
-import org.sonar.api.utils.System2;
 import org.sonar.api.utils.internal.AlwaysIncreasingSystem2;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbTester;
@@ -46,6 +46,7 @@ import org.sonar.server.user.index.UserIndexDefinition;
 import org.sonar.server.user.index.UserIndexer;
 import org.sonar.server.usergroups.DefaultGroupFinder;
 
+import static com.google.common.collect.ImmutableSet.of;
 import static com.google.common.collect.Sets.newHashSet;
 import static java.util.Arrays.stream;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -63,6 +64,7 @@ public class UserIdentityAuthenticatorTest {
     .setLogin(USER_LOGIN)
     .setName("John")
     .setEmail("john@email.com")
+    .setSecondaryEmails(of("john@snow.com", "john@doo.net"))
     .build();
 
   private static TestIdentityProvider IDENTITY_PROVIDER = new TestIdentityProvider()
@@ -99,6 +101,7 @@ public class UserIdentityAuthenticatorTest {
   @Test
   public void authenticate_new_user() {
     organizationFlags.setEnabled(true);
+
     underTest.authenticate(USER_IDENTITY, IDENTITY_PROVIDER, Source.realm(Method.BASIC, IDENTITY_PROVIDER.getName()));
 
     UserDto user = db.users().selectUserByLogin(USER_LOGIN).get();
@@ -108,8 +111,8 @@ public class UserIdentityAuthenticatorTest {
     assertThat(user.getEmail()).isEqualTo("john@email.com");
     assertThat(user.getExternalIdentity()).isEqualTo("johndoo");
     assertThat(user.getExternalIdentityProvider()).isEqualTo("github");
+    assertThat(user.getSecondaryEmailsAsList()).containsExactlyInAnyOrder("john@snow.com", "john@doo.net");
     assertThat(user.isRoot()).isFalse();
-
     checkGroupMembership(user);
   }
 
@@ -180,18 +183,20 @@ public class UserIdentityAuthenticatorTest {
       .setActive(true)
       .setName("Old name")
       .setEmail("Old email")
+      .setSecondaryEmails(Collections.singletonList("old@snow.com"))
       .setExternalIdentity("old identity")
       .setExternalIdentityProvider("old provide"));
 
     underTest.authenticate(USER_IDENTITY, IDENTITY_PROVIDER, Source.local(Method.BASIC));
 
-    UserDto userDto = db.users().selectUserByLogin(USER_LOGIN).get();
-    assertThat(userDto.isActive()).isTrue();
-    assertThat(userDto.getName()).isEqualTo("John");
-    assertThat(userDto.getEmail()).isEqualTo("john@email.com");
-    assertThat(userDto.getExternalIdentity()).isEqualTo("johndoo");
-    assertThat(userDto.getExternalIdentityProvider()).isEqualTo("github");
-    assertThat(userDto.isRoot()).isFalse();
+    UserDto user = db.users().selectUserByLogin(USER_LOGIN).get();
+    assertThat(user.isActive()).isTrue();
+    assertThat(user.getName()).isEqualTo("John");
+    assertThat(user.getEmail()).isEqualTo("john@email.com");
+    assertThat(user.getExternalIdentity()).isEqualTo("johndoo");
+    assertThat(user.getExternalIdentityProvider()).isEqualTo("github");
+    assertThat(user.getSecondaryEmailsAsList()).containsExactlyInAnyOrder("john@snow.com", "john@doo.net");
+    assertThat(user.isRoot()).isFalse();
   }
 
   @Test
@@ -299,6 +304,17 @@ public class UserIdentityAuthenticatorTest {
       .build(), IDENTITY_PROVIDER, Source.sso());
 
     checkGroupMembership(user, groupInDefaultOrg);
+  }
+
+  @Test
+  public void authenticate_existing_user_and_remove_secondary_emails() {
+    organizationFlags.setEnabled(true);
+    UserDto user = db.users().insertUser(u -> u
+      .setSecondaryEmails(Collections.singletonList("old@snow.com")));
+
+    authenticate(user.getLogin());
+
+    assertThat(db.users().selectUserByLogin(user.getLogin()).get().getSecondaryEmailsAsList()).isEmpty();
   }
 
   @Test
