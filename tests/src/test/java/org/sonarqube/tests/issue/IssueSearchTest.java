@@ -19,14 +19,13 @@
  */
 package org.sonarqube.tests.issue;
 
-import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import org.assertj.core.api.AbstractListAssert;
 import org.assertj.core.api.Fail;
+import org.assertj.core.api.ListAssert;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -278,7 +277,7 @@ public class IssueSearchTest extends AbstractIssueTest {
   }
 
   @SafeVarargs
-  private final AbstractListAssert<?, ? extends List<? extends org.sonarqube.ws.Issues.Issue>, org.sonarqube.ws.Issues.Issue> assertSearch(Consumer<SearchRequest>... consumers) {
+  private final ListAssert<org.sonarqube.ws.Issues.Issue> assertSearch(Consumer<SearchRequest>... consumers) {
     return assertThat(searchResponse(consumers).getIssuesList());
   }
 

@@ -75,7 +75,7 @@ public class ProcessLauncherImplTest {
     assertThat(monitor).isNotNull();
     assertThat(processBuilder.started).isTrue();
     assertThat(processBuilder.commands.get(0)).endsWith("java");
-    assertThat(processBuilder.commands).containsSequence(
+    assertThat(processBuilder.commands).containsSubsequence(
       "-Dfoo=bar",
       "-Dfoo2=bar2",
       "-cp",

@@ -28,7 +28,7 @@ public class StateMachineTest {
   public void keep_order_of_state_keys() {
     StateMachine machine = StateMachine.builder().states("OPEN", "RESOLVED", "CLOSED").build();
 
-    assertThat(machine.stateKeys()).containsSequence("OPEN", "RESOLVED", "CLOSED");
+    assertThat(machine.stateKeys()).containsSubsequence("OPEN", "RESOLVED", "CLOSED");
   }
 
   @Test

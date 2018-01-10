@@ -279,7 +279,7 @@ public class ChangelogActionTest {
       .execute()
       .getInput();
 
-    assertThat(response).containsSequence("15:43", "15:42");
+    assertThat(response).containsSubsequence("15:43", "15:42");
   }
 
   @Test

@@ -122,7 +122,7 @@ public class GroupsActionTest extends BasePermissionWsTest<GroupsAction> {
       .execute()
       .getInput();
 
-    assertThat(result).containsSequence(DefaultGroups.ANYONE, "group-1", "group-2");
+    assertThat(result).containsSubsequence(DefaultGroups.ANYONE, "group-1", "group-2");
   }
 
   @Test
