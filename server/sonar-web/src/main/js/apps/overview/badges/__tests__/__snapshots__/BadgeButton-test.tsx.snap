@@ -1,0 +1,39 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should display correctly 1`] = `
+<button
+  className="badge-button"
+  onClick={[Function]}
+>
+  <img
+    alt="overview.badges.marketing.alt"
+    src="http://foo.bar"
+    width="128px"
+  />
+</button>
+`;
+
+exports[`should display correctly 2`] = `
+<button
+  className="badge-button selected"
+  onClick={[Function]}
+>
+  <img
+    alt="overview.badges.marketing.alt"
+    src="http://foo.bar"
+    width="128px"
+  />
+</button>
+`;
+
+exports[`should display correctly 3`] = `
+<button
+  className="badge-button"
+  onClick={[Function]}
+>
+  <img
+    alt="overview.badges.measure.alt"
+    src="http://foo.bar"
+  />
+</button>
+`;
