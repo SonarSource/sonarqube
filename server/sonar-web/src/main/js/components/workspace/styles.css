@@ -34,7 +34,7 @@
   vertical-align: middle;
   margin-right: 10px;
   padding: 3px 10px;
-  background-color: #404040;
+  background-color: var(--gray40);
   color: #fff;
   font-size: var(--smallFontSize);
   font-weight: 300;
@@ -63,7 +63,7 @@
   height: 30px;
   padding: 3px 10px;
   box-sizing: border-box;
-  background-color: #404040;
+  background-color: var(--gray40);
   color: #fff;
   font-weight: 300;
 }

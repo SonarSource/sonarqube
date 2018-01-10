@@ -66,8 +66,8 @@
 .onboarding-command pre {
   padding: 15px;
   border-radius: 2px;
-  background: #404040;
-  color: #f0f0f0;
+  background: var(--gray40);
+  color: var(--snippetFontColor);
   overflow: auto;
 }
 
@@ -88,7 +88,7 @@
 .onboarding-command button:focus,
 .onboarding-command button:active {
   background-color: #fff;
-  color: #404040;
+  color: var(--gray40);
 }
 
 .onboarding-command-oneline pre {
