@@ -50,7 +50,7 @@ public class DefaultProfilerTest {
   }
 
   @Test
-  public void test_levels() throws Exception {
+  public void test_levels() {
     // info by default
     assertThat(underTest.isDebugEnabled()).isFalse();
     assertThat(underTest.isTraceEnabled()).isFalse();

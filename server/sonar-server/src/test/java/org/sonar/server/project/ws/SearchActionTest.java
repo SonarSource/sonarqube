@@ -96,7 +96,7 @@ public class SearchActionTest {
     new SearchAction(db.getDbClient(), userSession, new ProjectsWsSupport(db.getDbClient(), defaultOrganizationProvider, mock(BillingValidationsProxy.class))));
 
   @Test
-  public void search_by_key_query_with_partial_match_case_insensitive() throws IOException {
+  public void search_by_key_query_with_partial_match_case_insensitive() {
     userSession.addPermission(ADMINISTER, db.getDefaultOrganization());
     db.components().insertComponents(
       ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization()).setDbKey("project-_%-key"),
@@ -133,7 +133,7 @@ public class SearchActionTest {
   }
 
   @Test
-  public void search_projects_when_no_qualifier_set() throws IOException {
+  public void search_projects_when_no_qualifier_set() {
     userSession.addPermission(ADMINISTER, db.getDefaultOrganization());
     db.components().insertComponents(
       ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization()).setDbKey(PROJECT_KEY_1),
@@ -145,7 +145,7 @@ public class SearchActionTest {
   }
 
   @Test
-  public void search_projects() throws IOException {
+  public void search_projects() {
     userSession.addPermission(ADMINISTER, db.getDefaultOrganization());
     ComponentDto project = ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization()).setDbKey(PROJECT_KEY_1);
     ComponentDto module = newModuleDto(project);
@@ -162,7 +162,7 @@ public class SearchActionTest {
   }
 
   @Test
-  public void search_views() throws IOException {
+  public void search_views() {
     userSession.addPermission(ADMINISTER, db.getDefaultOrganization());
     db.components().insertComponents(
       ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization()).setDbKey(PROJECT_KEY_1),
@@ -174,7 +174,7 @@ public class SearchActionTest {
   }
 
   @Test
-  public void search_projects_and_views() throws IOException {
+  public void search_projects_and_views() {
     userSession.addPermission(ADMINISTER, db.getDefaultOrganization());
     db.components().insertComponents(
       ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization()).setDbKey(PROJECT_KEY_1),
@@ -186,7 +186,7 @@ public class SearchActionTest {
   }
 
   @Test
-  public void search_on_default_organization_when_no_organization_set() throws IOException {
+  public void search_on_default_organization_when_no_organization_set() {
     userSession.addPermission(ADMINISTER, db.getDefaultOrganization());
     OrganizationDto otherOrganization = db.organizations().insert();
     db.components().insertComponents(
@@ -200,7 +200,7 @@ public class SearchActionTest {
   }
 
   @Test
-  public void search_for_projects_on_given_organization() throws IOException {
+  public void search_for_projects_on_given_organization() {
     OrganizationDto organization1 = db.organizations().insert();
     OrganizationDto organization2 = db.organizations().insert();
     userSession.addPermission(ADMINISTER, organization1);
@@ -244,7 +244,7 @@ public class SearchActionTest {
   }
 
   @Test
-  public void result_is_paginated() throws IOException {
+  public void result_is_paginated() {
     userSession.addPermission(ADMINISTER, db.getDefaultOrganization());
     List<ComponentDto> componentDtoList = new ArrayList<>();
     for (int i = 1; i <= 9; i++) {
@@ -304,7 +304,7 @@ public class SearchActionTest {
   }
 
   @Test
-  public void fail_when_not_system_admin() throws Exception {
+  public void fail_when_not_system_admin() {
     userSession.addPermission(ADMINISTER_QUALITY_PROFILES, db.getDefaultOrganization());
     expectedException.expect(ForbiddenException.class);
 
@@ -312,14 +312,14 @@ public class SearchActionTest {
   }
 
   @Test
-  public void fail_on_unknown_organization() throws Exception {
+  public void fail_on_unknown_organization() {
     expectedException.expect(NotFoundException.class);
 
     call(SearchRequest.builder().setOrganization("unknown").build());
   }
 
   @Test
-  public void fail_on_invalid_qualifier() throws Exception {
+  public void fail_on_invalid_qualifier() {
     userSession.addPermission(ADMINISTER_QUALITY_PROFILES, db.getDefaultOrganization());
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Value of parameter 'qualifiers' (BRC) must be one of: [TRK, VW, APP]");
@@ -386,7 +386,7 @@ public class SearchActionTest {
   }
 
   @Test
-  public void json_example() throws URISyntaxException, IOException {
+  public void json_example() {
     OrganizationDto organization = db.organizations().insertForKey("my-org-1");
     userSession.addPermission(ADMINISTER, organization);
     ComponentDto publicProject = newPrivateProjectDto(organization, "project-uuid-1").setName("Project Name 1").setDbKey("project-key-1").setPrivate(false);

@@ -711,7 +711,7 @@ public class SearchProjectsActionTest {
 
   @Test
   @UseDataProvider("rating_metric_keys")
-  public void return_rating_facet(String ratingMetricKey) throws Exception {
+  public void return_rating_facet(String ratingMetricKey) {
     userSession.logIn();
     OrganizationDto organization = db.organizations().insert();
     MetricDto ratingMetric = db.measures().insertMetric(c -> c.setKey(ratingMetricKey).setValueType(RATING.name()));
@@ -737,7 +737,7 @@ public class SearchProjectsActionTest {
 
   @Test
   @UseDataProvider("new_rating_metric_keys")
-  public void return_new_rating_facet(String newRatingMetricKey) throws Exception {
+  public void return_new_rating_facet(String newRatingMetricKey) {
     userSession.logIn();
     OrganizationDto organization = db.organizations().insert();
     MetricDto newRatingMetric = db.measures().insertMetric(c -> c.setKey(newRatingMetricKey).setValueType(RATING.name()));
@@ -914,7 +914,7 @@ public class SearchProjectsActionTest {
   }
 
   @Test
-  public void default_sort_is_by_ascending_name() throws Exception {
+  public void default_sort_is_by_ascending_name() {
     userSession.logIn();
     OrganizationDto organization = db.getDefaultOrganization();
     insertProject(organization, c -> c.setName("Sonar Java"));
@@ -928,7 +928,7 @@ public class SearchProjectsActionTest {
   }
 
   @Test
-  public void sort_by_name() throws Exception {
+  public void sort_by_name() {
     userSession.logIn();
     OrganizationDto organization = db.getDefaultOrganization();
     insertProject(organization, c -> c.setName("Sonar Java"));
@@ -943,7 +943,7 @@ public class SearchProjectsActionTest {
   }
 
   @Test
-  public void sort_by_coverage_then_by_name() throws Exception {
+  public void sort_by_coverage_then_by_name() {
     userSession.logIn();
     OrganizationDto organizationDto = db.organizations().insert();
     MetricDto coverage = db.measures().insertMetric(c -> c.setKey(COVERAGE).setValueType(INT.name()));
@@ -959,7 +959,7 @@ public class SearchProjectsActionTest {
   }
 
   @Test
-  public void sort_by_quality_gate_then_by_name() throws Exception {
+  public void sort_by_quality_gate_then_by_name() {
     userSession.logIn();
     OrganizationDto organization = db.organizations().insert();
     MetricDto qualityGateStatus = db.measures().insertMetric(c -> c.setKey(QUALITY_GATE_STATUS).setValueType(LEVEL.name()));
@@ -975,7 +975,7 @@ public class SearchProjectsActionTest {
   }
 
   @Test
-  public void sort_by_last_analysis_date() throws Exception {
+  public void sort_by_last_analysis_date() {
     userSession.logIn();
     OrganizationDto organization = db.organizations().insert();
     ComponentDto project1 = db.components().insertPublicProject(organization, p -> p.setDbKey("project1"));

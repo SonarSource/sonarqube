@@ -57,7 +57,7 @@ public class TemplateGroupsActionTest extends BasePermissionWsTest<TemplateGroup
   }
 
   @Test
-  public void template_groups_of_json_example() throws Exception {
+  public void template_groups_of_json_example() {
     GroupDto adminGroup = insertGroupOnDefaultOrganization("sonar-administrators", "System administrators");
     GroupDto userGroup = insertGroupOnDefaultOrganization("sonar-users", "Any new users created will automatically join this group");
 
@@ -104,7 +104,7 @@ public class TemplateGroupsActionTest extends BasePermissionWsTest<TemplateGroup
   }
 
   @Test
-  public void return_all_permissions_of_matching_groups() throws Exception {
+  public void return_all_permissions_of_matching_groups() {
     PermissionTemplateDto template = addTemplateToDefaultOrganization();
 
     GroupDto group1 = db.users().insertGroup(db.getDefaultOrganization(), "group-1-name");
@@ -137,7 +137,7 @@ public class TemplateGroupsActionTest extends BasePermissionWsTest<TemplateGroup
   }
 
   @Test
-  public void search_by_permission() throws Exception {
+  public void search_by_permission() {
     PermissionTemplateDto template = addTemplateToDefaultOrganization();
 
     GroupDto group1 = db.users().insertGroup(db.getDefaultOrganization(), "group-1-name");
@@ -168,7 +168,7 @@ public class TemplateGroupsActionTest extends BasePermissionWsTest<TemplateGroup
   }
 
   @Test
-  public void search_by_template_name() throws Exception {
+  public void search_by_template_name() {
     OrganizationDto defaultOrg = db.getDefaultOrganization();
     GroupDto group1 = db.users().insertGroup(defaultOrg, "group-1-name");
     GroupDto group2 = db.users().insertGroup(defaultOrg, "group-2-name");
@@ -192,7 +192,7 @@ public class TemplateGroupsActionTest extends BasePermissionWsTest<TemplateGroup
   }
 
   @Test
-  public void search_with_pagination() throws Exception {
+  public void search_with_pagination() {
     OrganizationDto defaultOrg = db.getDefaultOrganization();
     PermissionTemplateDto template = addTemplateToDefaultOrganization();
     GroupDto group1 = db.users().insertGroup(defaultOrg, "group-1-name");
@@ -213,7 +213,7 @@ public class TemplateGroupsActionTest extends BasePermissionWsTest<TemplateGroup
   }
 
   @Test
-  public void search_with_text_query() throws Exception {
+  public void search_with_text_query() {
     OrganizationDto defaultOrg = db.getDefaultOrganization();
     PermissionTemplateDto template = addTemplateToDefaultOrganization();
     GroupDto group1 = db.users().insertGroup(defaultOrg, "group-1-name");
@@ -232,7 +232,7 @@ public class TemplateGroupsActionTest extends BasePermissionWsTest<TemplateGroup
   }
 
   @Test
-  public void search_with_text_query_return_all_groups_even_when_no_permission_set() throws Exception {
+  public void search_with_text_query_return_all_groups_even_when_no_permission_set() {
     OrganizationDto defaultOrg = db.getDefaultOrganization();
     PermissionTemplateDto template = addTemplateToDefaultOrganization();
     db.users().insertGroup(defaultOrg, "group-1-name");
@@ -253,7 +253,7 @@ public class TemplateGroupsActionTest extends BasePermissionWsTest<TemplateGroup
   }
 
   @Test
-  public void search_with_text_query_return_anyone_group_even_when_no_permission_set() throws Exception {
+  public void search_with_text_query_return_anyone_group_even_when_no_permission_set() {
     PermissionTemplateDto template = addTemplateToDefaultOrganization();
     GroupDto group = db.users().insertGroup(db.getDefaultOrganization(), "group");
     addGroupToTemplate(newPermissionTemplateGroup(USER, template.getId(), group.getId()));
@@ -270,7 +270,7 @@ public class TemplateGroupsActionTest extends BasePermissionWsTest<TemplateGroup
   }
 
   @Test
-  public void fail_if_not_logged_in() throws Exception {
+  public void fail_if_not_logged_in() {
     PermissionTemplateDto template1 = addTemplateToDefaultOrganization();
     userSession.anonymous();
 
@@ -283,7 +283,7 @@ public class TemplateGroupsActionTest extends BasePermissionWsTest<TemplateGroup
   }
 
   @Test
-  public void fail_if_insufficient_privileges() throws Exception {
+  public void fail_if_insufficient_privileges() {
     PermissionTemplateDto template1 = addTemplateToDefaultOrganization();
     userSession.logIn();
 
@@ -296,7 +296,7 @@ public class TemplateGroupsActionTest extends BasePermissionWsTest<TemplateGroup
   }
 
   @Test
-  public void fail_if_template_uuid_and_name_provided() throws Exception {
+  public void fail_if_template_uuid_and_name_provided() {
     PermissionTemplateDto template1 = addTemplateToDefaultOrganization();
     loginAsAdmin(db.getDefaultOrganization());
 
@@ -310,7 +310,7 @@ public class TemplateGroupsActionTest extends BasePermissionWsTest<TemplateGroup
   }
 
   @Test
-  public void fail_if_template_uuid_nor_name_provided() throws Exception {
+  public void fail_if_template_uuid_nor_name_provided() {
     loginAsAdmin(db.getDefaultOrganization());
 
     expectedException.expect(BadRequestException.class);
@@ -321,7 +321,7 @@ public class TemplateGroupsActionTest extends BasePermissionWsTest<TemplateGroup
   }
 
   @Test
-  public void fail_if_template_is_not_found() throws Exception {
+  public void fail_if_template_is_not_found() {
     loginAsAdmin(db.getDefaultOrganization());
 
     expectedException.expect(NotFoundException.class);
@@ -333,7 +333,7 @@ public class TemplateGroupsActionTest extends BasePermissionWsTest<TemplateGroup
   }
 
   @Test
-  public void fail_if_not_a_project_permission() throws Exception {
+  public void fail_if_not_a_project_permission() {
     loginAsAdmin(db.getDefaultOrganization());
     PermissionTemplateDto template1 = addTemplateToDefaultOrganization();
 

@@ -72,7 +72,7 @@ public class WebhookPostTaskTest {
   private WebhookPostTask underTest = new WebhookPostTask(configurationRepository, payloadFactory, webHooks);
 
   @Before
-  public void wireMocks() throws Exception {
+  public void wireMocks() {
     when(payloadFactory.create(any(ProjectAnalysis.class))).thenReturn(webhookPayload);
     when(configurationRepository.getConfiguration()).thenReturn(configuration);
   }

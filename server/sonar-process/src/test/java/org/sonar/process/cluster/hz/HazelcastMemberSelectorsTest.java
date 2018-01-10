@@ -34,7 +34,7 @@ import static org.sonar.process.cluster.hz.HazelcastMember.Attribute.PROCESS_KEY
 public class HazelcastMemberSelectorsTest {
 
   @Test
-  public void selecting_ce_nodes() throws Exception {
+  public void selecting_ce_nodes() {
     Member member = mock(Member.class);
     MemberSelector underTest = HazelcastMemberSelectors.selectorForProcessIds(COMPUTE_ENGINE);
 
@@ -49,7 +49,7 @@ public class HazelcastMemberSelectorsTest {
   }
 
   @Test
-  public void selecting_web_and_app_nodes() throws Exception {
+  public void selecting_web_and_app_nodes() {
     Member member = mock(Member.class);
     MemberSelector underTest = HazelcastMemberSelectors.selectorForProcessIds(WEB_SERVER, APP);
 

@@ -28,7 +28,7 @@ public class ContextExceptionTest {
   public static final String LABEL = "something wrong";
 
   @Test
-  public void only_label() throws Exception {
+  public void only_label() {
     ContextException e = ContextException.of(LABEL);
     assertThat(e.getMessage()).isEqualTo(LABEL);
     assertThat(e.getRawMessage()).isEqualTo(LABEL);
@@ -36,7 +36,7 @@ public class ContextExceptionTest {
   }
 
   @Test
-  public void only_cause() throws Exception {
+  public void only_cause() {
     Exception cause = new Exception("cause");
     ContextException e = ContextException.of(cause);
     assertThat(e.getMessage()).isEqualTo("java.lang.Exception: cause");
@@ -45,7 +45,7 @@ public class ContextExceptionTest {
   }
 
   @Test
-  public void cause_and_message() throws Exception {
+  public void cause_and_message() {
     Exception cause = new Exception("cause");
     ContextException e = ContextException.of(LABEL, cause);
     assertThat(e.getMessage()).isEqualTo(LABEL);
@@ -54,7 +54,7 @@ public class ContextExceptionTest {
   }
 
   @Test
-  public void addContext() throws Exception {
+  public void addContext() {
     ContextException e = ContextException.of(LABEL)
       .addContext("K1", "V1")
       .addContext("K2", "V2");
@@ -62,7 +62,7 @@ public class ContextExceptionTest {
   }
 
   @Test
-  public void setContext() throws Exception {
+  public void setContext() {
     ContextException e = ContextException.of(LABEL)
       .addContext("K1", "V1")
       .setContext("K1", "V2");
@@ -70,7 +70,7 @@ public class ContextExceptionTest {
   }
 
   @Test
-  public void multiple_context_values() throws Exception {
+  public void multiple_context_values() {
     ContextException e = ContextException.of(LABEL)
       .addContext("K1", "V1")
       .addContext("K1", "V2");
@@ -78,7 +78,7 @@ public class ContextExceptionTest {
   }
 
   @Test
-  public void merge_ContextException() throws Exception {
+  public void merge_ContextException() {
     ContextException cause = ContextException.of("cause").addContext("K1", "V1");
     ContextException e = ContextException.of(cause)
       .addContext("K1", "V11")
@@ -89,7 +89,7 @@ public class ContextExceptionTest {
   }
 
   @Test
-  public void merge_ContextException_with_new_message() throws Exception {
+  public void merge_ContextException_with_new_message() {
     ContextException cause = ContextException.of("cause").addContext("K1", "V1");
     ContextException e = ContextException.of(LABEL, cause).addContext("K2", "V2");
     assertThat(e.getContext("K1")).containsOnly("V1");

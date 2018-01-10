@@ -64,7 +64,7 @@ public class IssueJsonReportTest {
   public Tester tester = new Tester(orchestrator).disableOrganizations();
 
   @Test
-  public void issue_line() throws IOException {
+  public void issue_line() {
     ItUtils.restoreProfile(orchestrator, getClass().getResource(RESOURCE_PATH + "one-issue-per-line.xml"));
     orchestrator.getServer().provisionProject("sample", "xoo-sample");
     orchestrator.getServer().associateProjectToQualityProfile("sample", "xoo", "one-issue-per-line");
@@ -98,7 +98,7 @@ public class IssueJsonReportTest {
   }
 
   @Test
-  public void precise_issue_location() throws IOException {
+  public void precise_issue_location() {
     ItUtils.restoreProfile(orchestrator, getClass().getResource(RESOURCE_PATH + "multiline.xml"));
     orchestrator.getServer().provisionProject("sample-multiline", "xoo-sample");
     orchestrator.getServer().associateProjectToQualityProfile("sample-multiline", "xoo", "multiline");
@@ -299,7 +299,7 @@ public class IssueJsonReportTest {
     return ItUtils.sanitizeTimezones(s);
   }
 
-  private InputStream getResourceInputStream(String resource) throws FileNotFoundException {
+  private InputStream getResourceInputStream(String resource) {
     ResourceLocation res = getResource(resource);
     return getClass().getResourceAsStream(res.getPath());
   }

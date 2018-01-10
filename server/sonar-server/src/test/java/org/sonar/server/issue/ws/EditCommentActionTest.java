@@ -79,7 +79,7 @@ public class EditCommentActionTest {
   }
 
   @Test
-  public void edit_comment() throws Exception {
+  public void edit_comment() {
     IssueDto issueDto = issueDbTester.insertIssue();
     IssueChangeDto commentDto = issueDbTester.insertComment(issueDto, "john", "please fix it");
     loginWithBrowsePermission("john", USER, issueDto);
@@ -95,7 +95,7 @@ public class EditCommentActionTest {
   }
 
   @Test
-  public void edit_comment_using_deprecated_key_parameter() throws Exception {
+  public void edit_comment_using_deprecated_key_parameter() {
     IssueDto issueDto = issueDbTester.insertIssue();
     IssueChangeDto commentDto = issueDbTester.insertComment(issueDto, "john", "please fix it");
     loginWithBrowsePermission("john", USER, issueDto);
@@ -111,7 +111,7 @@ public class EditCommentActionTest {
   }
 
   @Test
-  public void fail_when_comment_does_not_belong_to_current_user() throws Exception {
+  public void fail_when_comment_does_not_belong_to_current_user() {
     IssueDto issueDto = issueDbTester.insertIssue();
     IssueChangeDto commentDto = issueDbTester.insertComment(issueDto, "john", "please fix it");
     loginWithBrowsePermission("another", USER, issueDto);
@@ -122,7 +122,7 @@ public class EditCommentActionTest {
   }
 
   @Test
-  public void fail_when_comment_has_not_user() throws Exception {
+  public void fail_when_comment_has_not_user() {
     IssueDto issueDto = issueDbTester.insertIssue();
     IssueChangeDto commentDto = issueDbTester.insertComment(issueDto, null, "please fix it");
     loginWithBrowsePermission("john", USER, issueDto);
@@ -133,7 +133,7 @@ public class EditCommentActionTest {
   }
 
   @Test
-  public void fail_when_missing_comment_key() throws Exception {
+  public void fail_when_missing_comment_key() {
     userSession.logIn("john");
 
     expectedException.expect(IllegalArgumentException.class);
@@ -141,7 +141,7 @@ public class EditCommentActionTest {
   }
 
   @Test
-  public void fail_when_comment_does_not_exist() throws Exception {
+  public void fail_when_comment_does_not_exist() {
     userSession.logIn("john");
 
     expectedException.expect(NotFoundException.class);
@@ -149,7 +149,7 @@ public class EditCommentActionTest {
   }
 
   @Test
-  public void fail_when_missing_comment_text() throws Exception {
+  public void fail_when_missing_comment_text() {
     userSession.logIn("john");
 
     expectedException.expect(IllegalArgumentException.class);
@@ -157,7 +157,7 @@ public class EditCommentActionTest {
   }
 
   @Test
-  public void fail_when_empty_comment_text() throws Exception {
+  public void fail_when_empty_comment_text() {
     IssueDto issueDto = issueDbTester.insertIssue();
     IssueChangeDto commentDto = issueDbTester.insertComment(issueDto, "john", "please fix it");
     loginWithBrowsePermission("john", USER, issueDto);
@@ -167,13 +167,13 @@ public class EditCommentActionTest {
   }
 
   @Test
-  public void fail_when_not_authenticated() throws Exception {
+  public void fail_when_not_authenticated() {
     expectedException.expect(UnauthorizedException.class);
     call("ABCD", "please fix it");
   }
 
   @Test
-  public void fail_when_not_enough_permission() throws Exception {
+  public void fail_when_not_enough_permission() {
     IssueDto issueDto = issueDbTester.insertIssue();
     IssueChangeDto commentDto = issueDbTester.insertComment(issueDto, "john", "please fix it");
     loginWithBrowsePermission("john", CODEVIEWER, issueDto);

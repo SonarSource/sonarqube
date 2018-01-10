@@ -81,14 +81,14 @@ public class FavoriteUpdaterTest {
 
   private void assertFavorite() {
     assertThat(dbClient.propertiesDao().selectByQuery(PropertyQuery.builder()
-      .setUserId((int) USER_ID)
+      .setUserId(USER_ID)
       .setComponentId(COMPONENT_ID)
       .build(), dbSession)).hasSize(1);
   }
 
   private void assertNoFavorite() {
     assertThat(dbClient.propertiesDao().selectByQuery(PropertyQuery.builder()
-      .setUserId((int) USER_ID)
+      .setUserId(USER_ID)
       .setComponentId(COMPONENT_ID)
       .build(), dbSession)).isEmpty();
   }

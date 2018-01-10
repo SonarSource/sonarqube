@@ -94,7 +94,7 @@ public class MultilineIssuesSensor implements Sensor {
           Integer issueFlowNum = Integer.parseInt(m.group(3));
           TextPointer newPointer = file.newPointer(currentLine, m.end());
           if (!startFlowsPositions.containsKey(issueId)) {
-            startFlowsPositions.put(issueId, HashBasedTable.<Integer, Integer, TextPointer>create());
+            startFlowsPositions.put(issueId, HashBasedTable.create());
           }
           startFlowsPositions.get(issueId).row(issueFlowId).put(issueFlowNum, newPointer);
         }
@@ -106,7 +106,7 @@ public class MultilineIssuesSensor implements Sensor {
           Integer issueFlowNum = Integer.parseInt(m.group(3));
           TextPointer newPointer = file.newPointer(currentLine, m.start());
           if (!endFlowsPositions.containsKey(issueId)) {
-            endFlowsPositions.put(issueId, HashBasedTable.<Integer, Integer, TextPointer>create());
+            endFlowsPositions.put(issueId, HashBasedTable.create());
           }
           endFlowsPositions.get(issueId).row(issueFlowId).put(issueFlowNum, newPointer);
         }

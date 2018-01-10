@@ -82,7 +82,7 @@ public class PluginsTest {
   private static Orchestrator ORCHESTRATOR;
 
   @BeforeClass
-  public static void startServer() throws MalformedURLException {
+  public static void startServer() {
     OrchestratorBuilder builder = Orchestrator.builderEnv()
       .setZipFile(byWildcardMavenFilename(new File("../sonar-application/target"), "sonar*.zip").getFile());
 

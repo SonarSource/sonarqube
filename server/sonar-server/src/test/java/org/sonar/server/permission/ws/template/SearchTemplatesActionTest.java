@@ -168,7 +168,7 @@ public class SearchTemplatesActionTest extends BasePermissionWsTest<SearchTempla
   }
 
   @Test
-  public void search_in_organization() throws Exception {
+  public void search_in_organization() {
     OrganizationDto org = db.organizations().insert();
     PermissionTemplateDto projectDefaultTemplate = db.permissionTemplates().insertTemplate(org);
     db.organizations().setDefaultTemplates(projectDefaultTemplate, null);

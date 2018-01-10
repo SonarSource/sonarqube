@@ -97,7 +97,7 @@ public class BulkIndexerTest {
   }
 
   @Test
-  public void bulk_delete() throws Exception {
+  public void bulk_delete() {
     int max = 500;
     int removeFrom = 200;
     FakeDoc[] docs = new FakeDoc[max];

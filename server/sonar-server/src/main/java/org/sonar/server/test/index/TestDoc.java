@@ -45,7 +45,7 @@ public class TestDoc extends BaseDoc {
 
   @VisibleForTesting
   public TestDoc() {
-    super(Maps.<String, Object>newHashMapWithExpectedSize(10));
+    super(Maps.newHashMapWithExpectedSize(10));
   }
 
   @Override

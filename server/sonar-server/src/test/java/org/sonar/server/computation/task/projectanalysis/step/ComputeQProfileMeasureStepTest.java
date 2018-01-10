@@ -109,7 +109,7 @@ public class ComputeQProfileMeasureStepTest {
   }
 
   @Test
-  public void add_quality_profile_measure_on_project() throws Exception {
+  public void add_quality_profile_measure_on_project() {
     treeRootHolder.setRoot(MULTI_MODULE_PROJECT);
     QualityProfile qpJava = createQProfile(QP_NAME_1, LANGUAGE_KEY_1);
     QualityProfile qpPhp = createQProfile(QP_NAME_2, LANGUAGE_KEY_2);
@@ -122,7 +122,7 @@ public class ComputeQProfileMeasureStepTest {
   }
 
   @Test
-  public void nothing_to_add_when_no_files() throws Exception {
+  public void nothing_to_add_when_no_files() {
     ReportComponent project = ReportComponent.builder(PROJECT, PROJECT_REF).build();
     treeRootHolder.setRoot(project);
 
@@ -132,7 +132,7 @@ public class ComputeQProfileMeasureStepTest {
   }
 
   @Test
-  public void fail_if_report_inconsistant() throws Exception {
+  public void fail_if_report_inconsistant() {
     treeRootHolder.setRoot(MULTI_MODULE_PROJECT);
     QualityProfile qpJava = createQProfile(QP_NAME_1, LANGUAGE_KEY_1);
     analysisMetadataHolder.setQProfilesByLanguage(ImmutableMap.of(LANGUAGE_KEY_1, qpJava));

@@ -60,7 +60,7 @@ public class CrossModuleDuplicationsTest {
   }
 
   @Test
-  public void testDuplications() throws IOException {
+  public void testDuplications() {
     analyzeProject(projectDir, PROJECT_KEY, true);
     verifyDuplicationMeasures(PROJECT_KEY, 2, 54, 2, 56.3);
 
@@ -94,7 +94,7 @@ public class CrossModuleDuplicationsTest {
 
   @Test
   // SONAR-6184
-  public void testDuplicationFix() throws IOException {
+  public void testDuplicationFix() {
     analyzeProject(projectDir, PROJECT_KEY, true);
 
     verifyDuplicationMeasures(PROJECT_KEY + ":module1", 1, 27, 1, 45);

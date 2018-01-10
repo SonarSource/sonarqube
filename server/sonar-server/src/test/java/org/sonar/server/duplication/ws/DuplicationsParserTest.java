@@ -48,7 +48,7 @@ public class DuplicationsParserTest {
   }
 
   @Test
-  public void duplication_on_same_file() throws Exception {
+  public void duplication_on_same_file() {
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     List<DuplicationsParser.Block> blocks = parser.parse(db.getSession(), file, null,
@@ -76,7 +76,7 @@ public class DuplicationsParserTest {
   }
 
   @Test
-  public void duplication_on_same_project() throws Exception {
+  public void duplication_on_same_project() {
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto file1 = db.components().insertComponent(newFileDto(project));
     ComponentDto file2 = db.components().insertComponent(newFileDto(project));
@@ -105,7 +105,7 @@ public class DuplicationsParserTest {
   }
 
   @Test
-  public void duplications_on_different_project() throws Exception {
+  public void duplications_on_different_project() {
     ComponentDto project1 = db.components().insertPrivateProject();
     ComponentDto file1 = db.components().insertComponent(newFileDto(project1));
     ComponentDto file2 = db.components().insertComponent(newFileDto(project1));
@@ -145,7 +145,7 @@ public class DuplicationsParserTest {
   }
 
   @Test
-  public void duplications_on_many_blocks() throws Exception {
+  public void duplications_on_many_blocks() {
     ComponentDto project1 = db.components().insertPrivateProject();
     ComponentDto file1 = db.components().insertComponent(newFileDto(project1)
       .setDbKey("org.codehaus.sonar:sonar-plugin-api:src/main/java/org/sonar/api/utils/command/CommandExecutor.java")
@@ -177,7 +177,7 @@ public class DuplicationsParserTest {
   }
 
   @Test
-  public void duplication_on_not_existing_file() throws Exception {
+  public void duplication_on_not_existing_file() {
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     List<DuplicationsParser.Block> blocks = parser.parse(db.getSession(), file, null,
@@ -238,7 +238,7 @@ public class DuplicationsParserTest {
   }
 
   @Test
-  public void duplication_on_branch() throws Exception {
+  public void duplication_on_branch() {
     ComponentDto project = db.components().insertMainBranch();
     ComponentDto branch = db.components().insertProjectBranch(project);
     ComponentDto file1 = db.components().insertComponent(newFileDto(branch));

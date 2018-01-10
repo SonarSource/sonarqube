@@ -34,7 +34,7 @@ public class ReportScmInfoTest {
   static final int FILE_REF = 1;
 
   @Test
-  public void create_scm_info_with_some_changesets() throws Exception {
+  public void create_scm_info_with_some_changesets() {
     ScmInfo scmInfo = new ReportScmInfo(ScannerReport.Changesets.newBuilder()
       .setComponentRef(FILE_REF)
       .addChangeset(ScannerReport.Changesets.Changeset.newBuilder()
@@ -57,7 +57,7 @@ public class ReportScmInfoTest {
   }
 
   @Test
-  public void return_changeset_for_a_given_line() throws Exception {
+  public void return_changeset_for_a_given_line() {
     ScmInfo scmInfo = new ReportScmInfo(ScannerReport.Changesets.newBuilder()
       .setComponentRef(FILE_REF)
       .addChangeset(ScannerReport.Changesets.Changeset.newBuilder()
@@ -85,7 +85,7 @@ public class ReportScmInfoTest {
   }
 
   @Test
-  public void return_latest_changeset() throws Exception {
+  public void return_latest_changeset() {
     ScmInfo scmInfo = new ReportScmInfo(ScannerReport.Changesets.newBuilder()
       .setComponentRef(FILE_REF)
       .addChangeset(ScannerReport.Changesets.Changeset.newBuilder()
@@ -111,21 +111,21 @@ public class ReportScmInfoTest {
   }
 
   @Test
-  public void fail_with_ISE_when_no_changeset() throws Exception {
+  public void fail_with_ISE_when_no_changeset() {
     thrown.expect(IllegalStateException.class);
 
     new ReportScmInfo(ScannerReport.Changesets.newBuilder().build());
   }
 
   @Test
-  public void fail_with_NPE_when_report_is_null() throws Exception {
+  public void fail_with_NPE_when_report_is_null() {
     thrown.expect(NullPointerException.class);
 
     new ReportScmInfo(null);
   }
 
   @Test
-  public void fail_with_ISE_when_changeset_has_no_revision() throws Exception {
+  public void fail_with_ISE_when_changeset_has_no_revision() {
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("Changeset on line 1 must have a revision");
 
@@ -140,7 +140,7 @@ public class ReportScmInfoTest {
   }
 
   @Test
-  public void fail_with_ISE_when_changeset_has_no_date() throws Exception {
+  public void fail_with_ISE_when_changeset_has_no_date() {
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("Changeset on line 1 must have a date");
 

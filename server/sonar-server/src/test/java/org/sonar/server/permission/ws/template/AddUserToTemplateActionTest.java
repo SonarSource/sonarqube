@@ -70,7 +70,7 @@ public class AddUserToTemplateActionTest extends BasePermissionWsTest<AddUserToT
   }
 
   @Test
-  public void add_user_to_template_by_name() throws Exception {
+  public void add_user_to_template_by_name() {
     loginAsAdmin(db.getDefaultOrganization());
 
     newRequest()
@@ -83,7 +83,7 @@ public class AddUserToTemplateActionTest extends BasePermissionWsTest<AddUserToT
   }
 
   @Test
-  public void add_user_to_template_by_name_and_organization() throws Exception {
+  public void add_user_to_template_by_name_and_organization() {
     OrganizationDto organizationDto = db.organizations().insert();
     PermissionTemplateDto permissionTemplate = db.permissionTemplates().insertTemplate(organizationDto);
     addUserAsMemberOfOrganization(organizationDto);
@@ -175,7 +175,7 @@ public class AddUserToTemplateActionTest extends BasePermissionWsTest<AddUserToT
   }
 
   @Test
-  public void fail_if_organization_does_not_exist() throws Exception {
+  public void fail_if_organization_does_not_exist() {
     loginAsAdmin(db.getDefaultOrganization());
 
     expectedException.expect(NotFoundException.class);
@@ -189,7 +189,7 @@ public class AddUserToTemplateActionTest extends BasePermissionWsTest<AddUserToT
       .execute();  }
 
   @Test
-  public void fail_to_add_permission_when_user_is_not_member_of_given_organization() throws Exception {
+  public void fail_to_add_permission_when_user_is_not_member_of_given_organization() {
     // User is not member of given organization
     OrganizationDto otherOrganization = db.organizations().insert();
     addUserAsMemberOfOrganization(otherOrganization);
@@ -208,7 +208,7 @@ public class AddUserToTemplateActionTest extends BasePermissionWsTest<AddUserToT
       .execute();
   }
 
-  private void newRequest(@Nullable String userLogin, @Nullable String templateKey, @Nullable String permission) throws Exception {
+  private void newRequest(@Nullable String userLogin, @Nullable String templateKey, @Nullable String permission) {
     TestRequest request = newRequest();
     if (userLogin != null) {
       request.setParam(PARAM_USER_LOGIN, userLogin);

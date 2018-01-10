@@ -74,32 +74,32 @@ public class DatabaseCharsetCheckerTest {
   }
 
   @Test
-  public void does_nothing_if_h2() throws Exception {
+  public void does_nothing_if_h2() {
     assertThat(underTest.getHandler(new H2())).isNull();
   }
 
   @Test
-  public void getHandler_returns_MysqlCharsetHandler_if_mysql() throws Exception {
+  public void getHandler_returns_MysqlCharsetHandler_if_mysql() {
     assertThat(underTest.getHandler(new MySql())).isInstanceOf(MysqlCharsetHandler.class);
   }
 
   @Test
-  public void getHandler_returns_MssqlCharsetHandler_if_mssql() throws Exception {
+  public void getHandler_returns_MssqlCharsetHandler_if_mssql() {
     assertThat(underTest.getHandler(new MsSql())).isInstanceOf(MssqlCharsetHandler.class);
   }
 
   @Test
-  public void getHandler_returns_OracleCharsetHandler_if_oracle() throws Exception {
+  public void getHandler_returns_OracleCharsetHandler_if_oracle() {
     assertThat(underTest.getHandler(new Oracle())).isInstanceOf(OracleCharsetHandler.class);
   }
 
   @Test
-  public void getHandler_returns_PostgresCharsetHandler_if_postgres() throws Exception {
+  public void getHandler_returns_PostgresCharsetHandler_if_postgres() {
     assertThat(underTest.getHandler(new PostgreSql())).isInstanceOf(PostgresCharsetHandler.class);
   }
 
   @Test
-  public void getHandler_throws_IAE_if_unsupported_db() throws Exception {
+  public void getHandler_throws_IAE_if_unsupported_db() {
     Dialect unsupportedDialect = mock(Dialect.class);
     when(unsupportedDialect.getId()).thenReturn("foo");
 

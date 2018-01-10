@@ -31,7 +31,7 @@ public class ViewDoc extends BaseDoc {
   }
 
   public ViewDoc() {
-    super(Maps.<String, Object>newHashMap());
+    super(Maps.newHashMap());
   }
 
   @Override

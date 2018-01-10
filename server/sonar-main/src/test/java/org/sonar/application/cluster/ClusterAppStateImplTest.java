@@ -51,7 +51,7 @@ public class ClusterAppStateImplTest {
   public TestRule safeguardTimeout = new DisableOnDebug(Timeout.seconds(60));
 
   @Test
-  public void tryToLockWebLeader_returns_true_only_for_the_first_call() throws Exception {
+  public void tryToLockWebLeader_returns_true_only_for_the_first_call() {
     try (ClusterAppStateImpl underTest = new ClusterAppStateImpl(new TestAppSettings(), newHzMember())) {
       assertThat(underTest.tryToLockWebLeader()).isEqualTo(true);
       assertThat(underTest.tryToLockWebLeader()).isEqualTo(false);
@@ -59,7 +59,7 @@ public class ClusterAppStateImplTest {
   }
 
   @Test
-  public void test_listeners() throws InterruptedException {
+  public void test_listeners() {
     AppStateListener listener = mock(AppStateListener.class);
     try (ClusterAppStateImpl underTest = new ClusterAppStateImpl(new TestAppSettings(), newHzMember())) {
       underTest.addListener(listener);
@@ -106,7 +106,7 @@ public class ClusterAppStateImplTest {
   }
 
   @Test
-  public void registerSonarQubeVersion_throws_ISE_if_initial_version_is_different() throws Exception {
+  public void registerSonarQubeVersion_throws_ISE_if_initial_version_is_different() {
     // Now launch an instance that try to be part of the hzInstance cluster
     try (ClusterAppStateImpl underTest = new ClusterAppStateImpl(new TestAppSettings(), newHzMember())) {
       // Register first version
@@ -121,7 +121,7 @@ public class ClusterAppStateImplTest {
   }
 
   @Test
-  public void registerClusterName_throws_MessageException_if_clusterName_is_different() throws Exception {
+  public void registerClusterName_throws_MessageException_if_clusterName_is_different() {
     try (ClusterAppStateImpl underTest = new ClusterAppStateImpl(new TestAppSettings(), newHzMember())) {
       // Register first version
       underTest.getHazelcastMember().getAtomicReference(CLUSTER_NAME).set("goodClusterName");

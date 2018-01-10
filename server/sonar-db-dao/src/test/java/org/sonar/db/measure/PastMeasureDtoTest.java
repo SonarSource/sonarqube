@@ -26,7 +26,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class PastMeasureDtoTest {
 
   @Test
-  public void test_getter_and_setter() throws Exception {
+  public void test_getter_and_setter() {
     PastMeasureDto dto = new PastMeasureDto()
       .setValue(1d)
       .setMetricId(2);
@@ -37,7 +37,7 @@ public class PastMeasureDtoTest {
   }
 
   @Test
-  public void test_has_value() throws Exception {
+  public void test_has_value() {
     PastMeasureDto measureWithValue = new PastMeasureDto()
       .setValue(1d)
       .setMetricId(2);

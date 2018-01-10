@@ -105,7 +105,7 @@ public class ComponentCleanerServiceTest {
   }
 
   @Test
-  public void fail_with_IAE_if_not_a_project() throws Exception {
+  public void fail_with_IAE_if_not_a_project() {
     mockResourceTypeAsValidProject();
     ComponentDto project = ComponentTesting.newPrivateProjectDto(db.organizations().insert());
     dbClient.componentDao().insert(dbSession, project);
@@ -118,7 +118,7 @@ public class ComponentCleanerServiceTest {
   }
 
   @Test
-  public void fail_to_delete_not_deletable_resource_type() throws Exception {
+  public void fail_to_delete_not_deletable_resource_type() {
     ResourceType resourceType = mock(ResourceType.class);
     when(resourceType.getBooleanProperty("deletable")).thenReturn(false);
     when(mockResourceTypes.get(anyString())).thenReturn(resourceType);
@@ -131,7 +131,7 @@ public class ComponentCleanerServiceTest {
   }
 
   @Test
-  public void fail_to_delete_null_resource_type() throws Exception {
+  public void fail_to_delete_null_resource_type() {
     when(mockResourceTypes.get(anyString())).thenReturn(null);
     ComponentDto project = ComponentTesting.newPrivateProjectDto(db.organizations().insert());
     dbClient.componentDao().insert(dbSession, project);

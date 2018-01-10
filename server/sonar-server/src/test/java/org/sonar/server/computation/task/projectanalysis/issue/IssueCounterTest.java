@@ -139,7 +139,7 @@ public class IssueCounterTest {
   @Rule
   public MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(treeRootHolder, metricRepository);
 
-  private IssueCounter underTest = new IssueCounter(periodsHolder, metricRepository, measureRepository);;
+  private IssueCounter underTest = new IssueCounter(periodsHolder, metricRepository, measureRepository);
 
   @Test
   public void count_issues_by_status() {

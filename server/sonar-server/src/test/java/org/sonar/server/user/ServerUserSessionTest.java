@@ -92,7 +92,7 @@ public class ServerUserSessionTest {
   }
 
   @Test
-  public void anonymous_is_not_logged_in_and_does_not_have_login() throws Exception {
+  public void anonymous_is_not_logged_in_and_does_not_have_login() {
     UserSession session = newAnonymousSession();
 
     assertThat(session.getLogin()).isNull();

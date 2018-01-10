@@ -43,7 +43,7 @@ public class CrossProjectDuplicationStatusHolderImplTest {
   private CrossProjectDuplicationStatusHolderImpl underTest = new CrossProjectDuplicationStatusHolderImpl(analysisMetadataHolder);
 
   @Test
-  public void cross_project_duplication_is_enabled_when_enabled_in_report_and_no_branch() throws Exception {
+  public void cross_project_duplication_is_enabled_when_enabled_in_report_and_no_branch() {
     analysisMetadataHolder
       .setCrossProjectDuplicationEnabled(true)
       .setBranch(newBranch(true));
@@ -54,7 +54,7 @@ public class CrossProjectDuplicationStatusHolderImplTest {
   }
 
   @Test
-  public void cross_project_duplication_is_disabled_when_not_enabled_in_report() throws Exception {
+  public void cross_project_duplication_is_disabled_when_not_enabled_in_report() {
     analysisMetadataHolder
       .setCrossProjectDuplicationEnabled(false)
       .setBranch(newBranch(true));
@@ -65,7 +65,7 @@ public class CrossProjectDuplicationStatusHolderImplTest {
   }
 
   @Test
-  public void cross_project_duplication_is_disabled_when_branch_is_used() throws Exception {
+  public void cross_project_duplication_is_disabled_when_branch_is_used() {
     analysisMetadataHolder
       .setCrossProjectDuplicationEnabled(true)
       .setBranch(newBranch(false));
@@ -76,7 +76,7 @@ public class CrossProjectDuplicationStatusHolderImplTest {
   }
 
   @Test
-  public void cross_project_duplication_is_disabled_when_not_enabled_in_report_and_when_branch_is_used() throws Exception {
+  public void cross_project_duplication_is_disabled_when_not_enabled_in_report_and_when_branch_is_used() {
     analysisMetadataHolder
       .setCrossProjectDuplicationEnabled(false)
       .setBranch(newBranch(false));
@@ -87,7 +87,7 @@ public class CrossProjectDuplicationStatusHolderImplTest {
   }
 
   @Test
-  public void flag_is_build_in_start() throws Exception {
+  public void flag_is_build_in_start() {
     analysisMetadataHolder
       .setCrossProjectDuplicationEnabled(true)
       .setBranch(newBranch(true));
@@ -100,7 +100,7 @@ public class CrossProjectDuplicationStatusHolderImplTest {
   }
 
   @Test
-  public void isEnabled_throws_ISE_when_start_have_not_been_called_before() throws Exception {
+  public void isEnabled_throws_ISE_when_start_have_not_been_called_before() {
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("Flag hasn't been initialized, the start() should have been called before");
 

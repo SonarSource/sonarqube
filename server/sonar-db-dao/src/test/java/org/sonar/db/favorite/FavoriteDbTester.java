@@ -50,7 +50,7 @@ public class FavoriteDbTester {
     List<PropertyDto> result = dbClient.propertiesDao().selectByQuery(PropertyQuery.builder()
       .setKey(PROP_FAVORITE_KEY)
       .setComponentId(componentDto.getId())
-      .setUserId((int) userId)
+      .setUserId(userId)
       .build(), dbSession);
 
     return !result.isEmpty();

@@ -158,7 +158,7 @@ public class UserSessionRule implements TestRule, UserSession {
     };
   }
 
-  protected void before() throws Throwable {
+  protected void before() {
     setCurrentUserSession(currentUserSession);
   }
 

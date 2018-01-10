@@ -54,7 +54,7 @@ public class EsSettingsTest {
   private ListAppender listAppender;
 
   @After
-  public void tearDown() throws Exception {
+  public void tearDown() {
     if (listAppender != null) {
       ListAppender.detachMemoryAppenderToLoggerOf(EsSettings.class, listAppender);
     }
@@ -82,7 +82,7 @@ public class EsSettingsTest {
   }
 
   @Test
-  public void constructor_logs_warning_if_env_variable_ES_JVM_OPTIONS_is_set_and_non_empty() throws IOException {
+  public void constructor_logs_warning_if_env_variable_ES_JVM_OPTIONS_is_set_and_non_empty() {
     this.listAppender = ListAppender.attachMemoryAppenderToLoggerOf(EsSettings.class);
     Props props = minimalProps();
     System2 system2 = mock(System2.class);

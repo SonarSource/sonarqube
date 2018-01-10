@@ -72,7 +72,7 @@ public class StandaloneSystemSectionTest {
   }
 
   @Test
-  public void official_distribution() throws Exception {
+  public void official_distribution() {
     when(officialDistribution.check()).thenReturn(true);
 
     ProtobufSystemInfo.Section protobuf = underTest.toProtobuf();
@@ -80,7 +80,7 @@ public class StandaloneSystemSectionTest {
   }
 
   @Test
-  public void not_an_official_distribution() throws Exception {
+  public void not_an_official_distribution() {
     when(officialDistribution.check()).thenReturn(false);
 
     ProtobufSystemInfo.Section protobuf = underTest.toProtobuf();
@@ -88,7 +88,7 @@ public class StandaloneSystemSectionTest {
   }
 
   @Test
-  public void get_realm() throws Exception {
+  public void get_realm() {
     SecurityRealm realm = mock(SecurityRealm.class);
     when(realm.getName()).thenReturn("LDAP");
     when(securityRealmFactory.getRealm()).thenReturn(realm);
@@ -98,7 +98,7 @@ public class StandaloneSystemSectionTest {
   }
 
   @Test
-  public void no_realm() throws Exception {
+  public void no_realm() {
     when(securityRealmFactory.getRealm()).thenReturn(null);
 
     ProtobufSystemInfo.Section protobuf = underTest.toProtobuf();
@@ -106,7 +106,7 @@ public class StandaloneSystemSectionTest {
   }
 
   @Test
-  public void get_enabled_identity_providers() throws Exception {
+  public void get_enabled_identity_providers() {
     identityProviderRepository.addIdentityProvider(new TestIdentityProvider()
       .setKey("github")
       .setName("GitHub")
@@ -125,7 +125,7 @@ public class StandaloneSystemSectionTest {
   }
 
   @Test
-  public void get_enabled_identity_providers_allowing_users_to_signup() throws Exception {
+  public void get_enabled_identity_providers_allowing_users_to_signup() {
     identityProviderRepository.addIdentityProvider(new TestIdentityProvider()
       .setKey("github")
       .setName("GitHub")

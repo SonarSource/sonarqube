@@ -60,7 +60,7 @@ public class IndexActionTest {
   private WsActionTester ws = new WsActionTester(underTest);
 
   @Test
-  public void allow_client_to_cache_messages() throws Exception {
+  public void allow_client_to_cache_messages() {
     Date now = new Date();
     Date aBitLater = new Date(now.getTime() + 1000);
     when(server.getStartedAt()).thenReturn(now);
@@ -73,7 +73,7 @@ public class IndexActionTest {
   }
 
   @Test
-  public void return_all_l10n_messages_using_accept_header_with_cache_expired() throws Exception {
+  public void return_all_l10n_messages_using_accept_header_with_cache_expired() {
     Date now = new Date();
     Date aBitEarlier = new Date(now.getTime() - 1000);
     when(server.getStartedAt()).thenReturn(now);
@@ -93,7 +93,7 @@ public class IndexActionTest {
   }
 
   @Test
-  public void default_locale_is_english() throws Exception {
+  public void default_locale_is_english() {
     String key1 = "key1";
     String key2 = "key2";
     String key3 = "key3";
@@ -113,7 +113,7 @@ public class IndexActionTest {
   }
 
   @Test
-  public void support_BCP47_formatted_language_tags() throws Exception {
+  public void support_BCP47_formatted_language_tags() {
     String key1 = "key1";
     when(i18n.getPropertyKeys()).thenReturn(ImmutableSet.of(key1));
     when(i18n.message(UK, key1, key1)).thenReturn(key1);
@@ -127,7 +127,7 @@ public class IndexActionTest {
   }
 
   @Test
-  public void fail_when_java_formatted_language_tags() throws Exception {
+  public void fail_when_java_formatted_language_tags() {
     String key1 = "key1";
     when(i18n.getPropertyKeys()).thenReturn(ImmutableSet.of(key1));
     when(i18n.message(UK, key1, key1)).thenReturn(key1);

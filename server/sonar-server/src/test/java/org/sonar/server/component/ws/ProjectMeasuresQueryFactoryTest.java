@@ -52,7 +52,7 @@ public class ProjectMeasuresQueryFactoryTest {
   public UserSessionRule userSession = UserSessionRule.standalone();
 
   @Test
-  public void create_query() throws Exception {
+  public void create_query() {
     List<Criterion> criteria = asList(
       Criterion.builder().setKey("ncloc").setOperator(GT).setValue("10").build(),
       Criterion.builder().setKey("coverage").setOperator(LTE).setValue("80").build());
@@ -67,7 +67,7 @@ public class ProjectMeasuresQueryFactoryTest {
   }
 
   @Test
-  public void fail_when_no_value() throws Exception {
+  public void fail_when_no_value() {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Value cannot be null for 'ncloc'");
 
@@ -76,7 +76,7 @@ public class ProjectMeasuresQueryFactoryTest {
   }
 
   @Test
-  public void fail_when_not_double() throws Exception {
+  public void fail_when_not_double() {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Value 'ten' is not a number");
 
@@ -85,7 +85,7 @@ public class ProjectMeasuresQueryFactoryTest {
   }
 
   @Test
-  public void fail_when_no_operator() throws Exception {
+  public void fail_when_no_operator() {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Operator cannot be null for 'ncloc'");
 
@@ -94,7 +94,7 @@ public class ProjectMeasuresQueryFactoryTest {
   }
 
   @Test
-  public void create_query_on_quality_gate() throws Exception {
+  public void create_query_on_quality_gate() {
     ProjectMeasuresQuery query = newProjectMeasuresQuery(singletonList(Criterion.builder().setKey("alert_status").setOperator(EQ).setValue("OK").build()),
       emptySet());
 
@@ -102,7 +102,7 @@ public class ProjectMeasuresQueryFactoryTest {
   }
 
   @Test
-  public void fail_to_create_query_on_quality_gate_when_operator_is_not_equal() throws Exception {
+  public void fail_to_create_query_on_quality_gate_when_operator_is_not_equal() {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Only equals operator is available for quality gate criteria");
 
@@ -110,7 +110,7 @@ public class ProjectMeasuresQueryFactoryTest {
   }
 
   @Test
-  public void fail_to_create_query_on_quality_gate_when_value_is_incorrect() throws Exception {
+  public void fail_to_create_query_on_quality_gate_when_value_is_incorrect() {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Unknown quality gate status : 'unknown'");
 
@@ -118,7 +118,7 @@ public class ProjectMeasuresQueryFactoryTest {
   }
 
   @Test
-  public void create_query_on_language_using_in_operator() throws Exception {
+  public void create_query_on_language_using_in_operator() {
     ProjectMeasuresQuery query = newProjectMeasuresQuery(
       singletonList(Criterion.builder().setKey("languages").setOperator(IN).setValues(asList("java", "js")).build()),
       emptySet());
@@ -127,7 +127,7 @@ public class ProjectMeasuresQueryFactoryTest {
   }
 
   @Test
-  public void create_query_on_language_using_equals_operator() throws Exception {
+  public void create_query_on_language_using_equals_operator() {
     ProjectMeasuresQuery query = newProjectMeasuresQuery(
       singletonList(Criterion.builder().setKey("languages").setOperator(EQ).setValue("java").build()),
       emptySet());
@@ -136,7 +136,7 @@ public class ProjectMeasuresQueryFactoryTest {
   }
 
   @Test
-  public void fail_to_create_query_on_language_using_in_operator_and_value() throws Exception {
+  public void fail_to_create_query_on_language_using_in_operator_and_value() {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Languages should be set either by using 'languages = java' or 'languages IN (java, js)");
 
@@ -144,7 +144,7 @@ public class ProjectMeasuresQueryFactoryTest {
   }
 
   @Test
-  public void fail_to_create_query_on_language_using_eq_operator_and_values() throws Exception {
+  public void fail_to_create_query_on_language_using_eq_operator_and_values() {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Languages should be set either by using 'languages = java' or 'languages IN (java, js)");
 
@@ -152,7 +152,7 @@ public class ProjectMeasuresQueryFactoryTest {
   }
 
   @Test
-  public void create_query_on_tag_using_in_operator() throws Exception {
+  public void create_query_on_tag_using_in_operator() {
     ProjectMeasuresQuery query = newProjectMeasuresQuery(
       singletonList(Criterion.builder().setKey("tags").setOperator(IN).setValues(asList("java", "js")).build()),
       emptySet());
@@ -161,7 +161,7 @@ public class ProjectMeasuresQueryFactoryTest {
   }
 
   @Test
-  public void create_query_on_tag_using_equals_operator() throws Exception {
+  public void create_query_on_tag_using_equals_operator() {
     ProjectMeasuresQuery query = newProjectMeasuresQuery(
       singletonList(Criterion.builder().setKey("tags").setOperator(EQ).setValue("java").build()),
       emptySet());
@@ -170,7 +170,7 @@ public class ProjectMeasuresQueryFactoryTest {
   }
 
   @Test
-  public void fail_to_create_query_on_tag_using_in_operator_and_value() throws Exception {
+  public void fail_to_create_query_on_tag_using_in_operator_and_value() {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Tags should be set either by using 'tags = java' or 'tags IN (finance, platform)");
 
@@ -178,7 +178,7 @@ public class ProjectMeasuresQueryFactoryTest {
   }
 
   @Test
-  public void fail_to_create_query_on_tag_using_eq_operator_and_values() throws Exception {
+  public void fail_to_create_query_on_tag_using_eq_operator_and_values() {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Tags should be set either by using 'tags = java' or 'tags IN (finance, platform)");
 
@@ -186,7 +186,7 @@ public class ProjectMeasuresQueryFactoryTest {
   }
 
   @Test
-  public void create_query_having_q() throws Exception {
+  public void create_query_having_q() {
     List<Criterion> criteria = singletonList(Criterion.builder().setKey("query").setOperator(EQ).setValue("Sonar Qube").build());
 
     ProjectMeasuresQuery underTest = newProjectMeasuresQuery(criteria, emptySet());
@@ -195,7 +195,7 @@ public class ProjectMeasuresQueryFactoryTest {
   }
 
   @Test
-  public void create_query_having_q_ignore_case_sensitive() throws Exception {
+  public void create_query_having_q_ignore_case_sensitive() {
     List<Criterion> criteria = singletonList(Criterion.builder().setKey("query").setOperator(EQ).setValue("Sonar Qube").build());
 
     ProjectMeasuresQuery underTest = newProjectMeasuresQuery(criteria, emptySet());
@@ -204,7 +204,7 @@ public class ProjectMeasuresQueryFactoryTest {
   }
 
   @Test
-  public void fail_to_create_query_having_q_with_no_value() throws Exception {
+  public void fail_to_create_query_having_q_with_no_value() {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Query is invalid");
 
@@ -213,7 +213,7 @@ public class ProjectMeasuresQueryFactoryTest {
   }
 
   @Test
-  public void fail_to_create_query_having_q_with_other_operator_than_equals() throws Exception {
+  public void fail_to_create_query_having_q_with_other_operator_than_equals() {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Query should only be used with equals operator");
 
@@ -230,7 +230,7 @@ public class ProjectMeasuresQueryFactoryTest {
   }
 
   @Test
-  public void filter_on_projectUuids_if_projectUuid_is_empty_and_criteria_non_empty() throws Exception {
+  public void filter_on_projectUuids_if_projectUuid_is_empty_and_criteria_non_empty() {
     ProjectMeasuresQuery query = newProjectMeasuresQuery(singletonList(Criterion.builder().setKey("ncloc").setOperator(GT).setValue("10").build()),
       emptySet());
 
@@ -238,7 +238,7 @@ public class ProjectMeasuresQueryFactoryTest {
   }
 
   @Test
-  public void filter_on_projectUuids_if_projectUuid_is_non_empty_and_criteria_non_empty() throws Exception {
+  public void filter_on_projectUuids_if_projectUuid_is_non_empty_and_criteria_non_empty() {
     ProjectMeasuresQuery query = newProjectMeasuresQuery(singletonList(Criterion.builder().setKey("ncloc").setOperator(GT).setValue("10").build()),
       Collections.singleton("foo"));
 
@@ -246,21 +246,21 @@ public class ProjectMeasuresQueryFactoryTest {
   }
 
   @Test
-  public void filter_on_projectUuids_if_projectUuid_is_empty_and_criteria_is_empty() throws Exception {
+  public void filter_on_projectUuids_if_projectUuid_is_empty_and_criteria_is_empty() {
     ProjectMeasuresQuery query = newProjectMeasuresQuery(emptyList(), emptySet());
 
     assertThat(query.getProjectUuids()).isPresent();
   }
 
   @Test
-  public void filter_on_projectUuids_if_projectUuid_is_non_empty_and_criteria_empty() throws Exception {
+  public void filter_on_projectUuids_if_projectUuid_is_non_empty_and_criteria_empty() {
     ProjectMeasuresQuery query = newProjectMeasuresQuery(emptyList(), Collections.singleton("foo"));
 
     assertThat(query.getProjectUuids()).isPresent();
   }
 
   @Test
-  public void convert_metric_to_lower_case() throws Exception {
+  public void convert_metric_to_lower_case() {
     ProjectMeasuresQuery query = newProjectMeasuresQuery(asList(
       Criterion.builder().setKey("NCLOC").setOperator(GT).setValue("10").build(),
       Criterion.builder().setKey("coVERage").setOperator(LTE).setValue("80").build()),
@@ -274,7 +274,7 @@ public class ProjectMeasuresQueryFactoryTest {
   }
 
   @Test
-  public void filter_no_data() throws Exception {
+  public void filter_no_data() {
     List<Criterion> criteria = singletonList(Criterion.builder().setKey("duplicated_lines_density").setOperator(EQ).setValue("NO_DATA").build());
 
     ProjectMeasuresQuery underTest = newProjectMeasuresQuery(criteria, emptySet());
@@ -285,7 +285,7 @@ public class ProjectMeasuresQueryFactoryTest {
   }
 
   @Test
-  public void fail_to_use_no_data_with_operator_lower_than() throws Exception {
+  public void fail_to_use_no_data_with_operator_lower_than() {
     List<Criterion> criteria = singletonList(Criterion.builder().setKey("duplicated_lines_density").setOperator(LT).setValue("NO_DATA").build());
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("NO_DATA can only be used with equals operator");
@@ -294,7 +294,7 @@ public class ProjectMeasuresQueryFactoryTest {
   }
 
   @Test
-  public void filter_no_data_with_other_case() throws Exception {
+  public void filter_no_data_with_other_case() {
     List<Criterion> criteria = singletonList(Criterion.builder().setKey("duplicated_lines_density").setOperator(EQ).setValue("nO_DaTa").build());
 
     ProjectMeasuresQuery underTest = newProjectMeasuresQuery(criteria, emptySet());
@@ -305,7 +305,7 @@ public class ProjectMeasuresQueryFactoryTest {
   }
 
   @Test
-  public void accept_empty_query() throws Exception {
+  public void accept_empty_query() {
     ProjectMeasuresQuery result = newProjectMeasuresQuery(emptyList(), emptySet());
 
     assertThat(result.getMetricCriteria()).isEmpty();

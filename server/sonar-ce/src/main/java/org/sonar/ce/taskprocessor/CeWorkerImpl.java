@@ -69,7 +69,7 @@ public class CeWorkerImpl implements CeWorker {
   }
 
   @Override
-  public Result call() throws Exception {
+  public Result call() {
     return withCustomizedThreadName(this::findAndProcessTask);
   }
 

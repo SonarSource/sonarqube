@@ -254,7 +254,7 @@ public class OrganizationTest {
   }
 
   @Test
-  public void return_groups_belonging_to_a_user_on_an_organization() throws Exception {
+  public void return_groups_belonging_to_a_user_on_an_organization() {
     Organization organization = tester.organizations().generate();
     User user = tester.users().generate();
     tester.organizations().service().addMember(new AddMemberRequest().setOrganization(organization.getKey()).setLogin(user.getLogin()));

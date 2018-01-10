@@ -26,7 +26,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ComponentLinkDtoTest {
 
   @Test
-  public void test_getters_and_setters() throws Exception {
+  public void test_getters_and_setters() {
     ComponentLinkDto dto = new ComponentLinkDto()
       .setId(1L)
       .setComponentUuid("ABCD")
@@ -42,7 +42,7 @@ public class ComponentLinkDtoTest {
   }
 
   @Test
-  public void test_provided_types() throws Exception {
+  public void test_provided_types() {
     assertThat(ComponentLinkDto.PROVIDED_TYPES).hasSize(5);
   }
 }

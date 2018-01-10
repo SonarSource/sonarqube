@@ -310,7 +310,7 @@ public class RuleDaoTest {
   }
 
   @Test
-  public void insert() throws Exception {
+  public void insert() {
     RuleDefinitionDto newRule = new RuleDefinitionDto()
       .setRuleKey("NewRuleKey")
       .setRepositoryKey("plugin")

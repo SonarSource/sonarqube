@@ -482,7 +482,7 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
 
   @Override
   public Map<String, String> attributes() {
-    return attributes == null ? Collections.<String, String>emptyMap() : ImmutableMap.copyOf(attributes);
+    return attributes == null ? Collections.emptyMap() : ImmutableMap.copyOf(attributes);
   }
 
   public DefaultIssue setAttributes(@Nullable Map<String, String> map) {

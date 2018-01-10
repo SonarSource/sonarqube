@@ -68,7 +68,7 @@ public class TestResponse {
     return dumbResponse.getHeader(headerKey);
   }
 
-  public void assertJson(String expectedJson) throws Exception {
+  public void assertJson(String expectedJson) {
     JsonAssert.assertJson(getInput()).isSimilarTo(expectedJson);
   }
 
@@ -80,7 +80,7 @@ public class TestResponse {
    * @param clazz                the test class
    * @param expectedJsonFilename name of the file containing the expected JSON
    */
-  public void assertJson(Class clazz, String expectedJsonFilename) throws Exception {
+  public void assertJson(Class clazz, String expectedJsonFilename) {
     String path = clazz.getSimpleName() + "/" + expectedJsonFilename;
     URL url = clazz.getResource(path);
     if (url == null) {

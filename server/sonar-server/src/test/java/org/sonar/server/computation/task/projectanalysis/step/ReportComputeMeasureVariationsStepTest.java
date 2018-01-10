@@ -173,7 +173,7 @@ public class ReportComputeMeasureVariationsStepTest {
   }
 
   @Test
-  public void set_variation_to_raw_value_on_new_component() throws Exception {
+  public void set_variation_to_raw_value_on_new_component() {
     // Project
     SnapshotDto past1ProjectSnapshot = newAnalysis(project).setCreatedAt(1000_000_000L);
     SnapshotDto currentProjectSnapshot = newAnalysis(project).setCreatedAt(2000_000_000L);
@@ -253,7 +253,7 @@ public class ReportComputeMeasureVariationsStepTest {
   }
 
   @Test
-  public void does_not_update_existing_variation() throws Exception {
+  public void does_not_update_existing_variation() {
     SnapshotDto period1ProjectSnapshot = newAnalysis(project);
     dbClient.snapshotDao().insert(session, period1ProjectSnapshot);
     dbClient.measureDao().insert(session, newMeasureDto(NEW_DEBT.getId(), PROJECT_UUID, period1ProjectSnapshot.getUuid(), 60d));

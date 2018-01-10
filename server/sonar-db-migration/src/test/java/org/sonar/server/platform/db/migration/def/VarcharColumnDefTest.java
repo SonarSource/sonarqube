@@ -36,7 +36,7 @@ public class VarcharColumnDefTest {
   public ExpectedException thrown = ExpectedException.none();
 
   @Test
-  public void build_string_column_def() throws Exception {
+  public void build_string_column_def() {
     VarcharColumnDef def = new VarcharColumnDef.Builder()
       .setColumnName("issues")
       .setLimit(10)
@@ -51,7 +51,7 @@ public class VarcharColumnDefTest {
   }
 
   @Test
-  public void build_string_column_def_with_only_required_attributes() throws Exception {
+  public void build_string_column_def_with_only_required_attributes() {
     VarcharColumnDef def = new VarcharColumnDef.Builder()
       .setColumnName("issues")
       .setLimit(10)
@@ -64,7 +64,7 @@ public class VarcharColumnDefTest {
   }
 
   @Test
-  public void generate_sql_type() throws Exception {
+  public void generate_sql_type() {
     VarcharColumnDef def = new VarcharColumnDef.Builder()
       .setColumnName("issues")
       .setLimit(10)
@@ -79,7 +79,7 @@ public class VarcharColumnDefTest {
   }
 
   @Test
-  public void generateSqlType_does_not_set_unit_on_oracle_if_legacy_mode() throws Exception {
+  public void generateSqlType_does_not_set_unit_on_oracle_if_legacy_mode() {
     VarcharColumnDef def = new VarcharColumnDef.Builder()
       .setColumnName("issues")
       .setLimit(10)
@@ -91,7 +91,7 @@ public class VarcharColumnDefTest {
   }
 
   @Test
-  public void fail_with_NPE_if_name_is_null() throws Exception {
+  public void fail_with_NPE_if_name_is_null() {
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("Column name cannot be null");
 
@@ -100,7 +100,7 @@ public class VarcharColumnDefTest {
   }
 
   @Test
-  public void fail_with_NPE_if_no_name() throws Exception {
+  public void fail_with_NPE_if_no_name() {
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("Column name cannot be null");
 
@@ -109,7 +109,7 @@ public class VarcharColumnDefTest {
   }
 
   @Test
-  public void fail_with_NPE_if_size_is_null() throws Exception {
+  public void fail_with_NPE_if_size_is_null() {
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("Limit cannot be null");
 

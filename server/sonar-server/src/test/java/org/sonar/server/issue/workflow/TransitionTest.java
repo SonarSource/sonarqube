@@ -37,7 +37,7 @@ public class TransitionTest {
   Function function2 = mock(Function.class);
 
   @Test
-  public void test_builder() throws Exception {
+  public void test_builder() {
     Transition transition = Transition.builder("close")
       .from("OPEN").to("CLOSED")
       .conditions(condition1, condition2)
@@ -54,7 +54,7 @@ public class TransitionTest {
   }
 
   @Test
-  public void test_simplest_transition() throws Exception {
+  public void test_simplest_transition() {
     Transition transition = Transition.builder("close")
       .from("OPEN").to("CLOSED")
       .build();
@@ -124,7 +124,7 @@ public class TransitionTest {
   }
 
   @Test
-  public void test_equals_and_hashCode() throws Exception {
+  public void test_equals_and_hashCode() {
     Transition t1 = Transition.create("resolve", "OPEN", "RESOLVED");
     Transition t2 = Transition.create("resolve", "REOPENED", "RESOLVED");
     Transition t3 = Transition.create("confirm", "OPEN", "CONFIRMED");
@@ -137,13 +137,13 @@ public class TransitionTest {
   }
 
   @Test
-  public void test_toString() throws Exception {
+  public void test_toString() {
     Transition t1 = Transition.create("resolve", "OPEN", "RESOLVED");
     assertThat(t1.toString()).isEqualTo("OPEN->resolve->RESOLVED");
   }
 
   @Test
-  public void test_automatic_transition() throws Exception {
+  public void test_automatic_transition() {
     Transition transition = Transition.builder("close")
       .from("OPEN").to("CLOSED")
       .automatic()

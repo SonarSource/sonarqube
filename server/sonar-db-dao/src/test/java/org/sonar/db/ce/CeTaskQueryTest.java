@@ -57,7 +57,7 @@ public class CeTaskQueryTest {
    */
   @Test
   public void short_circuited_if_empty_component_uuid_filter() {
-    underTest.setComponentUuids(Collections.<String>emptyList());
+    underTest.setComponentUuids(Collections.emptyList());
     assertThat(underTest.getComponentUuids()).isEmpty();
     assertThat(underTest.isShortCircuitedByComponentUuids()).isTrue();
   }

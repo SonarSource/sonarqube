@@ -45,7 +45,7 @@ public class DatabaseMigrationImplAsynchronousTest {
   private DatabaseMigrationImpl underTest = new DatabaseMigrationImpl(executorService, migrationState, migrationEngine, platform);
 
   @Test
-  public void testName() throws Exception {
+  public void testName() {
     underTest.startIt();
 
     assertThat(taskSuppliedForAsyncProcess).isTrue();

@@ -92,7 +92,7 @@ public class ViewsFormulaExecutorComponentVisitorTest {
   public PeriodHolderRule periodsHolder = new PeriodHolderRule().setPeriod(new Period("some mode", null, 95l, "u1"));
 
   @Test
-  public void verify_aggregation_on_value() throws Exception {
+  public void verify_aggregation_on_value() {
     treeRootHolder.setRoot(BALANCED_COMPONENT_TREE);
     addRawMeasure(PROJECT_VIEW_1_REF, 1, LINES_KEY);
     addRawMeasure(PROJECT_VIEW_2_REF, 2, LINES_KEY);
@@ -114,7 +114,7 @@ public class ViewsFormulaExecutorComponentVisitorTest {
   }
 
   @Test
-  public void verify_multi_metric_formula_support_and_aggregation() throws Exception {
+  public void verify_multi_metric_formula_support_and_aggregation() {
     treeRootHolder.setRoot(BALANCED_COMPONENT_TREE);
     addRawMeasure(PROJECT_VIEW_1_REF, 1, LINES_KEY);
     addRawMeasure(PROJECT_VIEW_2_REF, 2, LINES_KEY);
@@ -132,7 +132,7 @@ public class ViewsFormulaExecutorComponentVisitorTest {
   }
 
   @Test
-  public void verify_aggregation_on_variations() throws Exception {
+  public void verify_aggregation_on_variations() {
     treeRootHolder.setRoot(BALANCED_COMPONENT_TREE);
 
     addRawMeasureWithVariation(PROJECT_VIEW_1_REF, NEW_LINES_TO_COVER_KEY, 10);
@@ -164,7 +164,7 @@ public class ViewsFormulaExecutorComponentVisitorTest {
   }
 
   @Test
-  public void verify_no_measure_added_on_projectView() throws Exception {
+  public void verify_no_measure_added_on_projectView() {
     ViewsComponent project = ViewsComponent.builder(VIEW, ROOT_REF)
       .addChildren(
         ViewsComponent.builder(SUBVIEW, SUBVIEW_1_REF)
@@ -187,7 +187,7 @@ public class ViewsFormulaExecutorComponentVisitorTest {
   }
 
   @Test
-  public void add_measure_even_if_leaf_is_not_a_PROJECT_VIEW() throws Exception {
+  public void add_measure_even_if_leaf_is_not_a_PROJECT_VIEW() {
     ViewsComponent project = ViewsComponent.builder(VIEW, ROOT_REF)
       .addChildren(
         ViewsComponent.builder(SUBVIEW, SUBVIEW_1_REF)

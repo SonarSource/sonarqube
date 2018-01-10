@@ -31,7 +31,6 @@ import java.util.Map;
 import java.util.Optional;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
 import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -70,7 +69,7 @@ public class DeprecatedPropertiesWsFilter extends ServletFilter {
   }
 
   @Override
-  public void doFilter(javax.servlet.ServletRequest servletRequest, javax.servlet.ServletResponse servletResponse, FilterChain chain) throws IOException, ServletException {
+  public void doFilter(javax.servlet.ServletRequest servletRequest, javax.servlet.ServletResponse servletResponse, FilterChain chain) {
     HttpServletRequest request = (HttpServletRequest) servletRequest;
     HttpServletResponse response = (HttpServletResponse) servletResponse;
     RestServletRequest wsRequest = new RestServletRequest(request);
@@ -79,7 +78,7 @@ public class DeprecatedPropertiesWsFilter extends ServletFilter {
   }
 
   @Override
-  public void init(FilterConfig filterConfig) throws ServletException {
+  public void init(FilterConfig filterConfig) {
     // Nothing to do
   }
 

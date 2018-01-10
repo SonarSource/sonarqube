@@ -45,7 +45,7 @@ public class TechnicalDebtTest {
    * SONAR-4716
    */
   @Test
-  public void technical_debt_on_issue() throws Exception {
+  public void technical_debt_on_issue() {
     ItUtils.restoreProfile(orchestrator, getClass().getResource("/qualityModel/one-issue-per-line.xml"));
     orchestrator.getServer().provisionProject("sample", "sample");
     orchestrator.getServer().associateProjectToQualityProfile("sample", "xoo", "one-issue-per-line");

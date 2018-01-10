@@ -89,7 +89,7 @@ public class RuleQueryFactoryTest {
   }
 
   @Test
-  public void create_empty_query() throws Exception {
+  public void create_empty_query() {
     RuleQuery result = execute();
 
     assertThat(result.getKey()).isNull();
@@ -115,7 +115,7 @@ public class RuleQueryFactoryTest {
   }
 
   @Test
-  public void create_query() throws Exception {
+  public void create_query() {
     QProfileDto qualityProfile = dbTester.qualityProfiles().insert(organization);
     QProfileDto compareToQualityProfile = dbTester.qualityProfiles().insert(organization);
 
@@ -167,7 +167,7 @@ public class RuleQueryFactoryTest {
   }
 
   @Test
-  public void use_quality_profiles_language_if_available() throws Exception {
+  public void use_quality_profiles_language_if_available() {
     QProfileDto qualityProfile = dbTester.qualityProfiles().insert(organization);
     String qualityProfileKey = qualityProfile.getKee();
 
@@ -180,7 +180,7 @@ public class RuleQueryFactoryTest {
   }
 
   @Test
-  public void use_specified_languages_if_no_quality_profile_available() throws Exception {
+  public void use_specified_languages_if_no_quality_profile_available() {
     RuleQuery result = execute(
       PARAM_LANGUAGES, "specifiedLanguage");
 
@@ -188,7 +188,7 @@ public class RuleQueryFactoryTest {
   }
 
   @Test
-  public void create_query_add_language_from_profile() throws Exception {
+  public void create_query_add_language_from_profile() {
     QProfileDto profile = dbTester.qualityProfiles().insert(organization, p -> p.setName("Sonar way").setLanguage("xoo").setKee("sonar-way"));
 
     RuleQuery result = execute(
@@ -200,7 +200,7 @@ public class RuleQueryFactoryTest {
   }
 
   @Test
-  public void filter_on_quality_profiles_organization_if_searching_for_actives_with_no_organization_specified() throws Exception {
+  public void filter_on_quality_profiles_organization_if_searching_for_actives_with_no_organization_specified() {
     QProfileDto profile = dbTester.qualityProfiles().insert(organization, p -> p.setName("Sonar way").setLanguage("xoo").setKee("sonar-way"));
 
     RuleQuery result = execute(
@@ -222,7 +222,7 @@ public class RuleQueryFactoryTest {
   }
 
   @Test
-  public void fail_if_organization_and_quality_profile_are_contradictory() throws Exception {
+  public void fail_if_organization_and_quality_profile_are_contradictory() {
     OrganizationDto organization1 = dbTester.organizations().insert();
     OrganizationDto organization2 = dbTester.organizations().insert();
 
@@ -239,7 +239,7 @@ public class RuleQueryFactoryTest {
   }
 
   @Test
-  public void fail_if_organization_and_compare_to_quality_profile_are_contradictory() throws Exception {
+  public void fail_if_organization_and_compare_to_quality_profile_are_contradictory() {
     OrganizationDto organization = dbTester.organizations().insert();
     QProfileDto qualityProfile = dbTester.qualityProfiles().insert(organization);
 
@@ -312,7 +312,7 @@ public class RuleQueryFactoryTest {
     }
 
     @Override
-    public void handle(Request request, Response response) throws Exception {
+    public void handle(Request request, Response response) {
       ruleQuery = ruleQueryFactory.createRuleQuery(dbTester.getSession(), request);
     }
 

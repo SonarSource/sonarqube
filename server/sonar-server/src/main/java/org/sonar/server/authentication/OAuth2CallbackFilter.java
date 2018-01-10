@@ -19,11 +19,9 @@
  */
 package org.sonar.server.authentication;
 
-import java.io.IOException;
 import javax.annotation.CheckForNull;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
@@ -61,7 +59,7 @@ public class OAuth2CallbackFilter extends AuthenticationFilter {
   }
 
   @Override
-  public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
+  public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) {
     HttpServletRequest httpRequest = (HttpServletRequest) request;
     HttpServletResponse httpResponse = (HttpServletResponse) response;
 
@@ -110,7 +108,7 @@ public class OAuth2CallbackFilter extends AuthenticationFilter {
   }
 
   @Override
-  public void init(FilterConfig filterConfig) throws ServletException {
+  public void init(FilterConfig filterConfig) {
     // Nothing to do
   }
 

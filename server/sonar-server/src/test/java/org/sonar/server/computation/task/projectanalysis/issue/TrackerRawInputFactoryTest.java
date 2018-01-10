@@ -70,7 +70,7 @@ public class TrackerRawInputFactoryTest {
   TrackerRawInputFactory underTest = new TrackerRawInputFactory(treeRootHolder, reportReader, fileSourceRepository, commonRuleEngine, issueFilter);
 
   @Test
-  public void load_source_hash_sequences() throws Exception {
+  public void load_source_hash_sequences() {
     fileSourceRepository.addLines(FILE_REF, "line 1;", "line 2;");
     Input<DefaultIssue> input = underTest.create(FILE);
 
@@ -83,7 +83,7 @@ public class TrackerRawInputFactoryTest {
   }
 
   @Test
-  public void load_source_hash_sequences_only_on_files() throws Exception {
+  public void load_source_hash_sequences_only_on_files() {
     Input<DefaultIssue> input = underTest.create(PROJECT);
 
     assertThat(input.getLineHashSequence()).isNotNull();
@@ -91,7 +91,7 @@ public class TrackerRawInputFactoryTest {
   }
 
   @Test
-  public void load_issues_from_report() throws Exception {
+  public void load_issues_from_report() {
     when(issueFilter.accept(any(DefaultIssue.class), eq(FILE))).thenReturn(true);
     fileSourceRepository.addLines(FILE_REF, "line 1;", "line 2;");
     ScannerReport.Issue reportIssue = ScannerReport.Issue.newBuilder()
@@ -124,7 +124,7 @@ public class TrackerRawInputFactoryTest {
   }
 
   @Test
-  public void ignore_issue_from_report() throws Exception {
+  public void ignore_issue_from_report() {
     when(issueFilter.accept(any(DefaultIssue.class), eq(FILE))).thenReturn(false);
     fileSourceRepository.addLines(FILE_REF, "line 1;", "line 2;");
     ScannerReport.Issue reportIssue = ScannerReport.Issue.newBuilder()
@@ -143,7 +143,7 @@ public class TrackerRawInputFactoryTest {
   }
 
   @Test
-  public void ignore_report_issues_on_common_rules() throws Exception {
+  public void ignore_report_issues_on_common_rules() {
     fileSourceRepository.addLines(FILE_REF, "line 1;", "line 2;");
     ScannerReport.Issue reportIssue = ScannerReport.Issue.newBuilder()
       .setMsg("the message")
@@ -159,7 +159,7 @@ public class TrackerRawInputFactoryTest {
   }
 
   @Test
-  public void load_issues_of_compute_engine_common_rules() throws Exception {
+  public void load_issues_of_compute_engine_common_rules() {
     when(issueFilter.accept(any(DefaultIssue.class), eq(FILE))).thenReturn(true);
     fileSourceRepository.addLines(FILE_REF, "line 1;", "line 2;");
     DefaultIssue ceIssue = new DefaultIssue()
@@ -175,7 +175,7 @@ public class TrackerRawInputFactoryTest {
   }
 
   @Test
-  public void ignore_issue_from_common_rule() throws Exception {
+  public void ignore_issue_from_common_rule() {
     when(issueFilter.accept(any(DefaultIssue.class), eq(FILE))).thenReturn(false);
     fileSourceRepository.addLines(FILE_REF, "line 1;", "line 2;");
     DefaultIssue ceIssue = new DefaultIssue()

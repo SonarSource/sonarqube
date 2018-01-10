@@ -152,7 +152,7 @@ public class DuplicationsTest {
   }
 
   @Test
-  public void issues_on_duplicated_blocks_are_generated_on_each_file() throws Exception {
+  public void issues_on_duplicated_blocks_are_generated_on_each_file() {
     assertThat(issueRule.search(new SearchRequest().setRules(singletonList("common-xoo:DuplicatedBlocks"))).getIssuesList()).hasSize(13);
   }
 

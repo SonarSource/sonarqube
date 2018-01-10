@@ -243,7 +243,7 @@ public class IssueCreationDateQPChangedTest extends AbstractIssueTest {
 
     private final String path;
 
-    private SourceCode(String path) {
+    SourceCode(String path) {
       this.path = path;
     }
   }
@@ -256,7 +256,7 @@ public class IssueCreationDateQPChangedTest extends AbstractIssueTest {
     ;
     private final String key;
 
-    private Component(String key) {
+    Component(String key) {
       this.key = key;
     }
 
@@ -275,7 +275,7 @@ public class IssueCreationDateQPChangedTest extends AbstractIssueTest {
 
     private final String path;
 
-    private QProfile(String path) {
+    QProfile(String path) {
       this.path = path;
     }
   }
@@ -343,11 +343,11 @@ public class IssueCreationDateQPChangedTest extends AbstractIssueTest {
 
     private final Date date;
 
-    private IssueCreationDate() {
+    IssueCreationDate() {
       this.date = null;
     }
 
-    private IssueCreationDate(Date date) {
+    IssueCreationDate(Date date) {
       this.date = date;
     }
 

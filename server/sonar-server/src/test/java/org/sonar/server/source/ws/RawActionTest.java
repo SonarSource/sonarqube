@@ -57,7 +57,7 @@ public class RawActionTest {
     new ComponentFinder(db.getDbClient(), resourceTypes)));
 
   @Test
-  public void raw_from_file() throws Exception {
+  public void raw_from_file() {
     ComponentDto project = db.components().insertPrivateProject();
     userSession.addProjectPermission(UserRole.CODEVIEWER, project);
     ComponentDto file = db.components().insertComponent(newFileDto(project));
@@ -75,7 +75,7 @@ public class RawActionTest {
   }
 
   @Test
-  public void raw_from_branch_file() throws Exception {
+  public void raw_from_branch_file() {
     ComponentDto project = db.components().insertMainBranch();
     userSession.addProjectPermission(UserRole.CODEVIEWER, project);
     ComponentDto branch = db.components().insertProjectBranch(project);
@@ -95,7 +95,7 @@ public class RawActionTest {
   }
 
   @Test
-  public void fail_on_unknown_file() throws Exception {
+  public void fail_on_unknown_file() {
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("Component key 'unknown' not found");
 
@@ -105,7 +105,7 @@ public class RawActionTest {
   }
 
   @Test
-  public void fail_on_unknown_branch() throws Exception {
+  public void fail_on_unknown_branch() {
     ComponentDto project = db.components().insertMainBranch();
     userSession.addProjectPermission(UserRole.CODEVIEWER, project);
     ComponentDto branch = db.components().insertProjectBranch(project);
@@ -138,7 +138,7 @@ public class RawActionTest {
   }
 
   @Test
-  public void fail_when_wrong_permission() throws Exception {
+  public void fail_when_wrong_permission() {
     ComponentDto project = db.components().insertPrivateProject();
     userSession.addProjectPermission(UserRole.ISSUE_ADMIN, project);
     ComponentDto file = db.components().insertComponent(newFileDto(project));

@@ -70,7 +70,7 @@ public class SettingsUpdaterTest {
   }
 
   @Test
-  public void delete_global_settings() throws Exception {
+  public void delete_global_settings() {
     definitions.addComponent(PropertyDefinition.builder("foo").build());
     propertyDb.insertProperties(newComponentPropertyDto(project).setKey("foo").setValue("value"));
     propertyDb.insertProperties(newGlobalPropertyDto().setKey("foo").setValue("one"));
@@ -84,7 +84,7 @@ public class SettingsUpdaterTest {
   }
 
   @Test
-  public void delete_component_settings() throws Exception {
+  public void delete_component_settings() {
     definitions.addComponent(PropertyDefinition.builder("foo").build());
     propertyDb.insertProperties(newGlobalPropertyDto().setKey("foo").setValue("value"));
     propertyDb.insertProperties(newComponentPropertyDto(project).setKey("foo").setValue("one"));
@@ -98,7 +98,7 @@ public class SettingsUpdaterTest {
   }
 
   @Test
-  public void does_not_fail_when_deleting_unknown_setting() throws Exception {
+  public void does_not_fail_when_deleting_unknown_setting() {
     propertyDb.insertProperties(newGlobalPropertyDto().setKey("foo").setValue("one"));
 
     underTest.deleteGlobalSettings(dbSession, "unknown");
@@ -107,7 +107,7 @@ public class SettingsUpdaterTest {
   }
 
   @Test
-  public void does_not_delete_user_settings() throws Exception {
+  public void does_not_delete_user_settings() {
     UserDto user = dbClient.userDao().insert(dbSession, UserTesting.newUserDto());
     propertyDb.insertProperties(newUserPropertyDto("foo", "one", user));
     propertyDb.insertProperties(newGlobalPropertyDto().setKey("foo").setValue("one"));
@@ -118,7 +118,7 @@ public class SettingsUpdaterTest {
   }
 
   @Test
-  public void delete_global_property_set() throws Exception {
+  public void delete_global_property_set() {
     definitions.addComponent(PropertyDefinition
       .builder("foo")
       .type(PropertyType.PROPERTY_SET)
@@ -141,7 +141,7 @@ public class SettingsUpdaterTest {
   }
 
   @Test
-  public void delete_component_property_set() throws Exception {
+  public void delete_component_property_set() {
     definitions.addComponent(PropertyDefinition
       .builder("foo")
       .type(PropertyType.PROPERTY_SET)
@@ -164,7 +164,7 @@ public class SettingsUpdaterTest {
   }
 
   @Test
-  public void does_not_fail_when_deleting_unknown_property_set() throws Exception {
+  public void does_not_fail_when_deleting_unknown_property_set() {
     definitions.addComponent(PropertyDefinition
       .builder("foo")
       .type(PropertyType.PROPERTY_SET)
@@ -182,7 +182,7 @@ public class SettingsUpdaterTest {
   }
 
   @Test
-  public void fail_to_delete_global_setting_when_no_setting_key() throws Exception {
+  public void fail_to_delete_global_setting_when_no_setting_key() {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("At least one setting key is required");
 
@@ -190,7 +190,7 @@ public class SettingsUpdaterTest {
   }
 
   @Test
-  public void fail_to_delete_component_setting_when_no_setting_key() throws Exception {
+  public void fail_to_delete_component_setting_when_no_setting_key() {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("At least one setting key is required");
 

@@ -26,7 +26,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class ServerLogsTest {
   @Test
-  public void logs_with_different_computations_take_the_last_one() throws Exception {
+  public void logs_with_different_computations_take_the_last_one() {
     assertThat(ServerLogs.extractComputationTotalTime(Lists.newArrayList(
       "2015.09.29 16:57:45 INFO  web[][o.s.s.c.q.CeWorkerRunnableImpl] Executed task | project=com.github.kevinsawicki:http-request-parent | id=AVAZm9oHIXrp54OmOeQe | time=2283ms",
       "2015.09.29 16:57:45 INFO  web[][o.s.s.c.q.CeWorkerRunnableImpl] Executed task | project=com.github.kevinsawicki:http-request-parent | id=AVAZm9oHIXrp54OmOeQe | time=1234ms")))

@@ -31,7 +31,7 @@ import static org.mockito.Mockito.mock;
 public class CeWsTest {
 
   @Test
-  public void define() throws Exception {
+  public void define() {
     CeWsAction wsAction = new SubmitAction(mock(ReportSubmitter.class), mock(DefaultOrganizationProvider.class));
 
     CeWs ws = new CeWs(wsAction);

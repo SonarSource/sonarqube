@@ -52,7 +52,7 @@ public class PluginsWsTest {
     }
 
     @Override
-    public void handle(Request request, Response response) throws Exception {
+    public void handle(Request request, Response response) {
       // not relevant to test
     }
   }

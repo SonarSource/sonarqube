@@ -150,7 +150,7 @@ public class RenameActionTest {
   }
 
   @Test
-  public void fail_if_parameter_profile_is_missing() throws Exception {
+  public void fail_if_parameter_profile_is_missing() {
     logInAsQProfileAdministrator();
 
     expectedException.expect(IllegalArgumentException.class);
@@ -160,7 +160,7 @@ public class RenameActionTest {
   }
 
   @Test
-  public void fail_if_parameter_name_is_missing() throws Exception {
+  public void fail_if_parameter_name_is_missing() {
     logInAsQProfileAdministrator();
 
     expectedException.expect(IllegalArgumentException.class);
@@ -170,7 +170,7 @@ public class RenameActionTest {
   }
 
   @Test
-  public void fail_if_not_profile_administrator() throws Exception {
+  public void fail_if_not_profile_administrator() {
     OrganizationDto organizationX = db.organizations().insert();
     OrganizationDto organizationY = db.organizations().insert();
     userSession.logIn(db.users().insertUser())
@@ -188,7 +188,7 @@ public class RenameActionTest {
   }
 
   @Test
-  public void fail_if_not_logged_in() throws Exception {
+  public void fail_if_not_logged_in() {
     expectedException.expect(UnauthorizedException.class);
     expectedException.expectMessage("Authentication is required");
 
@@ -196,7 +196,7 @@ public class RenameActionTest {
   }
 
   @Test
-  public void fail_if_profile_does_not_exist() throws Exception {
+  public void fail_if_profile_does_not_exist() {
     logInAsQProfileAdministrator();
 
     expectedException.expect(NotFoundException.class);

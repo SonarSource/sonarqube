@@ -49,7 +49,7 @@ public class MsSqlTest {
   }
 
   @Test
-  public void do_not_support_jtds_since_5_2() throws Exception {
+  public void do_not_support_jtds_since_5_2() {
     assertThat(msSql.matchesJdbcURL("jdbc:jtds:sqlserver://localhost;databaseName=SONAR;SelectMethod=Cursor")).isFalse();
 
   }

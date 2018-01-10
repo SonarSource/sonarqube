@@ -40,7 +40,7 @@ public class KeepOneFilterTest {
   public void shouldOnlyOneSnapshotPerInterval() {
     Filter filter = new KeepOneFilter(DateUtils.parseDate("2011-03-25"), DateUtils.parseDate("2011-08-25"), Calendar.MONTH, "month");
 
-    List<PurgeableAnalysisDto> toDelete = filter.filter(Arrays.<PurgeableAnalysisDto>asList(
+    List<PurgeableAnalysisDto> toDelete = filter.filter(Arrays.asList(
       DbCleanerTestUtils.createAnalysisWithDate("u1", "2010-01-01"), // out of scope -> keep
       DbCleanerTestUtils.createAnalysisWithDate("u2", "2011-05-01"), // may -> keep
       DbCleanerTestUtils.createAnalysisWithDate("u3", "2011-05-02"), // may -> to be deleted
@@ -58,7 +58,7 @@ public class KeepOneFilterTest {
   public void shouldKeepNonDeletableSnapshots() {
     Filter filter = new KeepOneFilter(DateUtils.parseDate("2011-03-25"), DateUtils.parseDate("2011-08-25"), Calendar.MONTH, "month");
 
-    List<PurgeableAnalysisDto> toDelete = filter.filter(Arrays.<PurgeableAnalysisDto>asList(
+    List<PurgeableAnalysisDto> toDelete = filter.filter(Arrays.asList(
       DbCleanerTestUtils.createAnalysisWithDate("u1", "2011-05-01"), // to be deleted
       DbCleanerTestUtils.createAnalysisWithDate("u2", "2011-05-02").setLast(true),
       DbCleanerTestUtils.createAnalysisWithDate("u3", "2011-05-19").setHasEvents(true).setLast(false),

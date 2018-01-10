@@ -109,7 +109,7 @@ public class EsTester extends ExternalResource {
       Random random = new Random();
       cluster.beforeTest(random, random.nextDouble());
       cluster.wipe(NO_TEMPLATES_SURVIVING_WIPE);
-    } catch (IOException | InterruptedException e) {
+    } catch (IOException e) {
       throw new RuntimeException(e);
     }
   }
@@ -146,7 +146,7 @@ public class EsTester extends ExternalResource {
   }
 
   @Override
-  public void before() throws Throwable {
+  public void before() {
     if (cluster == null) {
       init();
     }

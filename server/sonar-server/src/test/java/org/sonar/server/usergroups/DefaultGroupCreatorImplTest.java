@@ -41,7 +41,7 @@ public class DefaultGroupCreatorImplTest {
   private DefaultGroupCreator underTest = new DefaultGroupCreatorImpl(db.getDbClient());
 
   @Test
-  public void create_default_group() throws Exception {
+  public void create_default_group() {
     OrganizationDto organizationDto = db.organizations().insert();
 
     underTest.create(db.getSession(), organizationDto.getUuid());
@@ -54,7 +54,7 @@ public class DefaultGroupCreatorImplTest {
   }
 
   @Test
-  public void fail_with_IAE_when_default_group_already_exist() throws Exception {
+  public void fail_with_IAE_when_default_group_already_exist() {
     OrganizationDto organizationDto = db.organizations().insert();
     PermissionTemplateDto permissionTemplate = db.permissionTemplates().insertTemplate();
     db.organizations().setDefaultTemplates(organizationDto, permissionTemplate.getUuid(), null);

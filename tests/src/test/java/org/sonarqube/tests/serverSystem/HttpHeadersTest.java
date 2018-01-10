@@ -47,7 +47,7 @@ public class HttpHeadersTest {
   }
 
   @Test
-  public void verify_headers_of_base_url() throws Exception {
+  public void verify_headers_of_base_url() {
     Response response = call(orchestrator.getServer().getUrl() + "/");
 
     verifySecurityHeaders(response);
@@ -58,7 +58,7 @@ public class HttpHeadersTest {
   }
 
   @Test
-  public void verify_headers_of_ws() throws Exception {
+  public void verify_headers_of_ws() {
     Response response = call(orchestrator.getServer().getUrl() + "/api/issues/search");
 
     verifySecurityHeaders(response);
@@ -67,7 +67,7 @@ public class HttpHeadersTest {
   }
 
   @Test
-  public void verify_headers_of_images() throws Exception {
+  public void verify_headers_of_images() {
     Response response = call(orchestrator.getServer().getUrl() + "/images/logo.svg");
 
     verifySecurityHeaders(response);
@@ -76,7 +76,7 @@ public class HttpHeadersTest {
   }
 
   @Test
-  public void verify_headers_of_css() throws Exception {
+  public void verify_headers_of_css() {
     Response response = call(orchestrator.getServer().getUrl() + "/css/sonar." + JS_HASH + ".css");
 
     verifySecurityHeaders(response);
@@ -85,7 +85,7 @@ public class HttpHeadersTest {
   }
 
   @Test
-  public void verify_headers_of_js() throws Exception {
+  public void verify_headers_of_js() {
     Response response = call(orchestrator.getServer().getUrl() + "/js/app." + JS_HASH + ".js");
 
     verifySecurityHeaders(response);
@@ -93,7 +93,7 @@ public class HttpHeadersTest {
   }
 
   @Test
-  public void verify_headers_of_images_provided_by_plugins() throws Exception {
+  public void verify_headers_of_images_provided_by_plugins() {
     Response response = call(orchestrator.getServer().getUrl() + "/static/uiextensionsplugin/cute.jpg");
 
     verifySecurityHeaders(response);
@@ -101,7 +101,7 @@ public class HttpHeadersTest {
   }
 
   @Test
-  public void verify_headers_of_js_provided_by_plugins() throws Exception {
+  public void verify_headers_of_js_provided_by_plugins() {
     Response response = call(orchestrator.getServer().getUrl() + "/static/uiextensionsplugin/extension.js");
 
     verifySecurityHeaders(response);
@@ -109,7 +109,7 @@ public class HttpHeadersTest {
   }
 
   @Test
-  public void verify_headers_of_html_provided_by_plugins() throws Exception {
+  public void verify_headers_of_html_provided_by_plugins() {
     Response response = call(orchestrator.getServer().getUrl() + "/static/uiextensionsplugin/file.html");
 
     verifySecurityHeaders(response);

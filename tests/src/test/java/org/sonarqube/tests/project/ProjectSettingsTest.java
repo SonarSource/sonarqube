@@ -101,7 +101,7 @@ public class ProjectSettingsTest {
   }
 
   @Test
-  public void display_module_settings() throws UnsupportedEncodingException {
+  public void display_module_settings() {
     orchestrator.executeBuild(SonarScanner.create(projectDir("shared/xoo-multi-modules-sample")));
 
     tester.openBrowser().logIn().submitCredentials(adminUser)

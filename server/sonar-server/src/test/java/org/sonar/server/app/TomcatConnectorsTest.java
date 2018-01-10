@@ -128,7 +128,7 @@ public class TomcatConnectorsTest {
   }
 
   @Test
-  public void test_max_post_size_for_http_connection() throws Exception {
+  public void test_max_post_size_for_http_connection() {
     Properties properties = new Properties();
 
     Props props = new Props(properties);

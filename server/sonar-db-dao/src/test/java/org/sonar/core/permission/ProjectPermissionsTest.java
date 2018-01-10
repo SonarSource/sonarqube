@@ -27,12 +27,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ProjectPermissionsTest {
 
   @Test
-  public void all_permissions() throws Exception {
+  public void all_permissions() {
     assertThat(ProjectPermissions.ALL).containsExactly(UserRole.ADMIN, UserRole.CODEVIEWER, UserRole.ISSUE_ADMIN, GlobalPermissions.SCAN_EXECUTION, UserRole.USER);
   }
 
   @Test
-  public void all_permissions_as_string() throws Exception {
+  public void all_permissions_as_string() {
     assertThat(ProjectPermissions.ALL_ON_ONE_LINE).isEqualTo("admin, codeviewer, issueadmin, scan, user");
   }
 }

@@ -231,7 +231,7 @@ public class ClusterSettingsTest {
     new ClusterSettings(network).accept(settings.getProps());
   }
 
-  private TestAppSettings newSettingsForAppNode() throws SocketException {
+  private TestAppSettings newSettingsForAppNode() {
     return new TestAppSettings()
       .set(CLUSTER_ENABLED, "true")
       .set(CLUSTER_NODE_TYPE, "application")
@@ -242,7 +242,7 @@ public class ClusterSettingsTest {
       .set(JDBC_URL, "jdbc:mysql://localhost:3306/sonar");
   }
 
-  private TestAppSettings newSettingsForSearchNode() throws SocketException {
+  private TestAppSettings newSettingsForSearchNode() {
     return new TestAppSettings()
       .set(CLUSTER_ENABLED, "true")
       .set(CLUSTER_NODE_TYPE, "search")

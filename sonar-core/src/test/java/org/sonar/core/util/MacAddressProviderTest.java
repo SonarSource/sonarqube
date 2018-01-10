@@ -26,7 +26,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class MacAddressProviderTest {
 
   @Test
-  public void getSecureMungedAddress() throws Exception {
+  public void getSecureMungedAddress() {
     byte[] address = MacAddressProvider.getSecureMungedAddress();
     assertThat(address).isNotEmpty();
     assertThat(address).hasSize(6);

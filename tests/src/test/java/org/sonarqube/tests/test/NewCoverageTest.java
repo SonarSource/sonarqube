@@ -47,7 +47,7 @@ public class NewCoverageTest {
   public Tester tester = new Tester(orchestrator);
 
   @Test
-  public void new_coverage() throws Exception {
+  public void new_coverage() {
     orchestrator.executeBuilds(SonarScanner.create(projectDir("testing/xoo-sample-new-coverage-v1"))
       .setProperty("sonar.projectDate", "2015-02-01")
       .setProperty("sonar.scm.disabled", "false"));

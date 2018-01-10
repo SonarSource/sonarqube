@@ -65,7 +65,7 @@ public class ExecuteAnalysisPermissionTest {
   }
 
   @Test
-  public void should_fail_if_logged_but_no_scan_permission() throws Exception {
+  public void should_fail_if_logged_but_no_scan_permission() {
     executeLoggedAnalysis();
 
     removeGlobalPermission("anyone", "scan");
@@ -90,7 +90,7 @@ public class ExecuteAnalysisPermissionTest {
   }
 
   @Test
-  public void no_need_for_browse_permission_to_scan() throws Exception {
+  public void no_need_for_browse_permission_to_scan() {
     // Do a first analysis, no error
     executeAnonymousAnalysis();
 
@@ -102,7 +102,7 @@ public class ExecuteAnalysisPermissionTest {
   }
 
   @Test
-  public void execute_analysis_with_scan_permission_only_on_project() throws Exception {
+  public void execute_analysis_with_scan_permission_only_on_project() {
     removeGlobalPermission("anyone", "scan");
     addProjectPermission("anyone", PROJECT_KEY, "scan");
 

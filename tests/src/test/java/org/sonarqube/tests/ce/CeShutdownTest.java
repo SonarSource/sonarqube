@@ -133,7 +133,7 @@ public class CeShutdownTest {
       return logsTailer;
     }
 
-    void triggerTask() throws InterruptedException {
+    void triggerTask() {
       orchestrator.executeBuild(SonarScanner.create(new File("projects/shared/xoo-sample"), "sonar.projectKey", "foo"), false);
     }
 
@@ -145,11 +145,11 @@ public class CeShutdownTest {
       return adminWsClient.ce().activityStatus(new ActivityStatusRequest()).getInProgress();
     }
 
-    boolean hasTaskFinishedSuccessfully() throws Exception {
+    boolean hasTaskFinishedSuccessfully() {
       return content.hasLineMatching(Pattern.compile(".* INFO .*Executed task \\| project=foo \\| type=REPORT.*"));
     }
 
-    boolean hasErrorLogs() throws IOException {
+    boolean hasErrorLogs() {
       return content.hasText(" ERROR ");
     }
 
@@ -163,7 +163,7 @@ public class CeShutdownTest {
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() {
       if (stopper != null) {
         stopper.interrupt();
       }

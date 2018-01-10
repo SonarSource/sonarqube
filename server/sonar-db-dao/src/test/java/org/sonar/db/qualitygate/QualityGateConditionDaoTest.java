@@ -40,7 +40,7 @@ public class QualityGateConditionDaoTest {
   private QualityGateConditionDao underTest = dbTester.getDbClient().gateConditionDao();
 
   @Test
-  public void testInsert() throws Exception {
+  public void testInsert() {
     dbTester.prepareDbUnit(getClass(), "insert.xml");
     QualityGateConditionDto newCondition = new QualityGateConditionDto()
       .setQualityGateId(1L).setMetricId(2L).setOperator("GT").setWarningThreshold("10").setErrorThreshold("20").setPeriod(3);
@@ -53,14 +53,14 @@ public class QualityGateConditionDaoTest {
   }
 
   @Test
-  public void testSelectForQualityGate() throws Exception {
+  public void testSelectForQualityGate() {
     dbTester.prepareDbUnit(getClass(), "selectForQualityGate.xml");
     assertThat(underTest.selectForQualityGate(dbSession, 1L)).hasSize(3);
     assertThat(underTest.selectForQualityGate(dbSession, 2L)).hasSize(2);
   }
 
   @Test
-  public void testSelectById() throws Exception {
+  public void testSelectById() {
     dbTester.prepareDbUnit(getClass(), "selectForQualityGate.xml");
     QualityGateConditionDto selectById = underTest.selectById(1L, dbSession);
     assertThat(selectById).isNotNull();
@@ -75,7 +75,7 @@ public class QualityGateConditionDaoTest {
   }
 
   @Test
-  public void testDelete() throws Exception {
+  public void testDelete() {
     dbTester.prepareDbUnit(getClass(), "selectForQualityGate.xml");
 
     underTest.delete(new QualityGateConditionDto().setId(1L), dbSession);
@@ -85,7 +85,7 @@ public class QualityGateConditionDaoTest {
   }
 
   @Test
-  public void testUpdate() throws Exception {
+  public void testUpdate() {
     dbTester.prepareDbUnit(getClass(), "selectForQualityGate.xml");
 
     underTest.update(new QualityGateConditionDto().setId(1L).setMetricId(7L).setOperator(">").setPeriod(1).setWarningThreshold("50").setErrorThreshold("80"), dbSession);

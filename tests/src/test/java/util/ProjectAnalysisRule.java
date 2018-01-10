@@ -98,7 +98,7 @@ public class ProjectAnalysisRule extends ExternalResource {
   }
 
   @Override
-  protected void before() throws Throwable {
+  protected void before() {
     orchestrator.resetData();
   }
 

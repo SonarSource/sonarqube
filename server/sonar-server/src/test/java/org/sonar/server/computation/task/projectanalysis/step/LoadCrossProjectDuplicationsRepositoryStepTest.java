@@ -122,7 +122,7 @@ public class LoadCrossProjectDuplicationsRepositoryStepTest {
   }
 
   @Test
-  public void call_compute_cpd_on_one_duplication() throws Exception {
+  public void call_compute_cpd_on_one_duplication() {
     when(crossProjectDuplicationStatusHolder.isEnabled()).thenReturn(true);
     analysisMetadataHolder.setBaseAnalysis(baseProjectAnalysis);
 
@@ -172,7 +172,7 @@ public class LoadCrossProjectDuplicationsRepositoryStepTest {
   }
 
   @Test
-  public void call_compute_cpd_on_many_duplication() throws Exception {
+  public void call_compute_cpd_on_many_duplication() {
     when(crossProjectDuplicationStatusHolder.isEnabled()).thenReturn(true);
     analysisMetadataHolder.setBaseAnalysis(baseProjectAnalysis);
 
@@ -260,7 +260,7 @@ public class LoadCrossProjectDuplicationsRepositoryStepTest {
   }
 
   @Test
-  public void nothing_to_do_when_cross_project_duplication_is_disabled() throws Exception {
+  public void nothing_to_do_when_cross_project_duplication_is_disabled() {
     when(crossProjectDuplicationStatusHolder.isEnabled()).thenReturn(false);
     analysisMetadataHolder.setBaseAnalysis(baseProjectAnalysis);
 
@@ -295,11 +295,11 @@ public class LoadCrossProjectDuplicationsRepositoryStepTest {
   }
 
   @Test
-  public void nothing_to_do_when_no_cpd_text_blocks_found() throws Exception {
+  public void nothing_to_do_when_no_cpd_text_blocks_found() {
     when(crossProjectDuplicationStatusHolder.isEnabled()).thenReturn(true);
     analysisMetadataHolder.setBaseAnalysis(baseProjectAnalysis);
 
-    batchReportReader.putDuplicationBlocks(FILE_REF, Collections.<ScannerReport.CpdTextBlock>emptyList());
+    batchReportReader.putDuplicationBlocks(FILE_REF, Collections.emptyList());
 
     underTest.execute();
 
@@ -307,7 +307,7 @@ public class LoadCrossProjectDuplicationsRepositoryStepTest {
   }
 
   @Test
-  public void nothing_to_do_when_cpd_text_blocks_exists_but_no_duplicated_found() throws Exception {
+  public void nothing_to_do_when_cpd_text_blocks_exists_but_no_duplicated_found() {
     when(crossProjectDuplicationStatusHolder.isEnabled()).thenReturn(true);
     analysisMetadataHolder.setBaseAnalysis(baseProjectAnalysis);
 

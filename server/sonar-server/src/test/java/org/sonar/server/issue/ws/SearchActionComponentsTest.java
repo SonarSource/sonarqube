@@ -122,7 +122,7 @@ public class SearchActionComponentsTest {
   }
 
   @Test
-  public void issues_on_different_projects() throws Exception {
+  public void issues_on_different_projects() {
     RuleDefinitionDto rule = db.rules().insert(r -> r.setRuleKey(RuleKey.of("xoo", "x1")));
     OrganizationDto organization1 = db.organizations().insert();
     ComponentDto project = db.components().insertPublicProject(organization1);
@@ -148,7 +148,7 @@ public class SearchActionComponentsTest {
   }
 
   @Test
-  public void do_not_return_module_key_on_single_module_projects() throws IOException {
+  public void do_not_return_module_key_on_single_module_projects() {
     ComponentDto project = db.components().insertPublicProject(p -> p.setDbKey("PK1"));
     ComponentDto module = db.components().insertComponent(newModuleDto("M1", project).setDbKey("MK1"));
     ComponentDto file = db.components().insertComponent(newFileDto(module, null, "F1").setDbKey("FK1"));
@@ -664,7 +664,7 @@ public class SearchActionComponentsTest {
   }
 
   @Test
-  public void search_by_application_key() throws Exception {
+  public void search_by_application_key() {
     ComponentDto project1 = db.components().insertPublicProject();
     ComponentDto project2 = db.components().insertPublicProject();
     ComponentDto application = db.components().insertApplication(db.getDefaultOrganization());
@@ -718,7 +718,7 @@ public class SearchActionComponentsTest {
   }
 
   @Test
-  public void search_by_application_and_by_leak() throws Exception {
+  public void search_by_application_and_by_leak() {
     Date now = new Date();
     RuleDefinitionDto rule = db.rules().insert();
     ComponentDto application = db.components().insertApplication(db.getDefaultOrganization());
@@ -749,7 +749,7 @@ public class SearchActionComponentsTest {
   }
 
   @Test
-  public void search_by_application_and_project() throws Exception {
+  public void search_by_application_and_project() {
     ComponentDto project1 = db.components().insertPublicProject();
     ComponentDto project2 = db.components().insertPublicProject();
     ComponentDto application = db.components().insertApplication(db.getDefaultOrganization());
@@ -772,7 +772,7 @@ public class SearchActionComponentsTest {
   }
 
   @Test
-  public void search_by_application_and_project_and_leak() throws Exception {
+  public void search_by_application_and_project_and_leak() {
     Date now = new Date();
     RuleDefinitionDto rule = db.rules().insert();
     ComponentDto application = db.components().insertApplication(db.getDefaultOrganization());
@@ -804,7 +804,7 @@ public class SearchActionComponentsTest {
   }
 
   @Test
-  public void search_by_application_and_by_leak_when_one_project_has_no_leak() throws Exception {
+  public void search_by_application_and_by_leak_when_one_project_has_no_leak() {
     Date now = new Date();
     RuleDefinitionDto rule = db.rules().insert();
     ComponentDto application = db.components().insertApplication(db.getDefaultOrganization());

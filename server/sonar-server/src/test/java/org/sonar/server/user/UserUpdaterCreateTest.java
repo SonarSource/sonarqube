@@ -146,7 +146,7 @@ public class UserUpdaterCreateTest {
   }
 
   @Test
-  public void create_user_with_sq_authority_when_no_authority_set() throws Exception {
+  public void create_user_with_sq_authority_when_no_authority_set() {
     createDefaultGroup();
 
     underTest.createAndCommit(db.getSession(), NewUser.builder()
@@ -163,7 +163,7 @@ public class UserUpdaterCreateTest {
   }
 
   @Test
-  public void create_user_with_identity_provider() throws Exception {
+  public void create_user_with_identity_provider() {
     createDefaultGroup();
 
     underTest.createAndCommit(db.getSession(), NewUser.builder()
@@ -182,7 +182,7 @@ public class UserUpdaterCreateTest {
   }
 
   @Test
-  public void create_user_with_sonarqube_external_identity() throws Exception {
+  public void create_user_with_sonarqube_external_identity() {
     createDefaultGroup();
 
     underTest.createAndCommit(db.getSession(), NewUser.builder()

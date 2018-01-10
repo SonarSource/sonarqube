@@ -37,7 +37,7 @@ public class MeasureComputersHolderImplTest {
   private MeasureComputersHolderImpl underTest = new MeasureComputersHolderImpl();
 
   @Test
-  public void get_measure_computers() throws Exception {
+  public void get_measure_computers() {
     MeasureComputerWrapper measureComputer = mock(MeasureComputerWrapper.class);
     underTest.setMeasureComputers(Collections.singletonList(measureComputer));
 
@@ -54,7 +54,7 @@ public class MeasureComputersHolderImplTest {
 
   @Test
   public void set_measure_computers_supports_empty_arg_is_empty() {
-    underTest.setMeasureComputers(ImmutableList.<MeasureComputerWrapper>of());
+    underTest.setMeasureComputers(ImmutableList.of());
 
     assertThat(underTest.getMeasureComputers()).isEmpty();
   }

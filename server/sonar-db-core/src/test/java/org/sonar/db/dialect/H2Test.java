@@ -47,7 +47,7 @@ public class H2Test {
   }
 
   @Test
-  public void testFetchSizeForScrolling() throws Exception {
+  public void testFetchSizeForScrolling() {
     assertThat(dialect.getScrollDefaultFetchSize()).isEqualTo(200);
   }
 

@@ -167,7 +167,7 @@ public class ListDefinitionsActionTest {
   }
 
   @Test
-  public void return_default_category() throws Exception {
+  public void return_default_category() {
     logIn();
     propertyDefinitions.addComponent(PropertyDefinition.builder("foo").build(), "default");
     propertyDefinitions.addComponent(PropertyDefinition.builder("foo").category("").build(), "default");
@@ -180,7 +180,7 @@ public class ListDefinitionsActionTest {
   }
 
   @Test
-  public void return_single_select_list_property() throws Exception {
+  public void return_single_select_list_property() {
     logIn();
     propertyDefinitions.addComponent(PropertyDefinition
       .builder("foo")
@@ -197,7 +197,7 @@ public class ListDefinitionsActionTest {
   }
 
   @Test
-  public void return_property_set() throws Exception {
+  public void return_property_set() {
     logIn();
     propertyDefinitions.addComponent(PropertyDefinition
       .builder("foo")
@@ -228,7 +228,7 @@ public class ListDefinitionsActionTest {
   }
 
   @Test
-  public void return_license_type_in_property_set() throws Exception {
+  public void return_license_type_in_property_set() {
     logIn();
     propertyDefinitions.addComponent(PropertyDefinition
       .builder("foo")
@@ -280,7 +280,7 @@ public class ListDefinitionsActionTest {
   }
 
   @Test
-  public void return_only_global_properties_when_no_component_parameter() throws Exception {
+  public void return_only_global_properties_when_no_component_parameter() {
     logInAsProjectUser();
     propertyDefinitions.addComponents(asList(
       PropertyDefinition.builder("global").build(),
@@ -294,7 +294,7 @@ public class ListDefinitionsActionTest {
   }
 
   @Test
-  public void return_only_properties_available_for_component_qualifier() throws Exception {
+  public void return_only_properties_available_for_component_qualifier() {
     logInAsProjectUser();
     propertyDefinitions.addComponents(asList(
       PropertyDefinition.builder("global").build(),
@@ -308,7 +308,7 @@ public class ListDefinitionsActionTest {
   }
 
   @Test
-  public void does_not_return_hidden_properties() throws Exception {
+  public void does_not_return_hidden_properties() {
     logInAsAdmin(db.getDefaultOrganization());
     propertyDefinitions.addComponent(PropertyDefinition.builder("foo").hidden().build());
 
@@ -318,7 +318,7 @@ public class ListDefinitionsActionTest {
   }
 
   @Test
-  public void return_license_type() throws Exception {
+  public void return_license_type() {
     logInAsAdmin(db.getDefaultOrganization());
     propertyDefinitions.addComponents(asList(
       PropertyDefinition.builder("plugin.license.secured").type(PropertyType.LICENSE).build(),
@@ -331,7 +331,7 @@ public class ListDefinitionsActionTest {
   }
 
   @Test
-  public void does_not_returned_secured_and_license_settings_when_not_authenticated() throws Exception {
+  public void does_not_returned_secured_and_license_settings_when_not_authenticated() {
     propertyDefinitions.addComponents(asList(
       PropertyDefinition.builder("foo").build(),
       PropertyDefinition.builder("secret.secured").build(),
@@ -344,7 +344,7 @@ public class ListDefinitionsActionTest {
   }
 
   @Test
-  public void return_license_settings_when_authenticated_but_not_admin() throws Exception {
+  public void return_license_settings_when_authenticated_but_not_admin() {
     logInAsProjectUser();
     propertyDefinitions.addComponents(asList(
       PropertyDefinition.builder("foo").build(),
@@ -358,7 +358,7 @@ public class ListDefinitionsActionTest {
   }
 
   @Test
-  public void return_secured_settings_when_not_authenticated_but_with_scan_permission() throws Exception {
+  public void return_secured_settings_when_not_authenticated_but_with_scan_permission() {
     userSession.anonymous().addPermission(SCAN, db.getDefaultOrganization());
     propertyDefinitions.addComponents(asList(
       PropertyDefinition.builder("foo").build(),
@@ -372,7 +372,7 @@ public class ListDefinitionsActionTest {
   }
 
   @Test
-  public void return_secured_and_license_settings_when_system_admin() throws Exception {
+  public void return_secured_and_license_settings_when_system_admin() {
     logInAsAdmin(db.getDefaultOrganization());
     propertyDefinitions.addComponents(asList(
       PropertyDefinition.builder("foo").build(),
@@ -385,7 +385,7 @@ public class ListDefinitionsActionTest {
   }
 
   @Test
-  public void return_secured_and_license_settings_when_project_admin() throws Exception {
+  public void return_secured_and_license_settings_when_project_admin() {
     logInAsProjectAdmin();
     propertyDefinitions.addComponents(asList(
       PropertyDefinition.builder("foo").onQualifiers(PROJECT).build(),
@@ -398,7 +398,7 @@ public class ListDefinitionsActionTest {
   }
 
   @Test
-  public void definitions_on_branch() throws Exception {
+  public void definitions_on_branch() {
     ComponentDto project = db.components().insertMainBranch();
     userSession.logIn().addProjectPermission(USER, project);
     ComponentDto branch = db.components().insertProjectBranch(project);
@@ -415,7 +415,7 @@ public class ListDefinitionsActionTest {
   }
 
   @Test
-  public void fail_when_user_has_not_project_browse_permission() throws Exception {
+  public void fail_when_user_has_not_project_browse_permission() {
     userSession.logIn("project-admin").addProjectPermission(CODEVIEWER, project);
     propertyDefinitions.addComponent(PropertyDefinition.builder("foo").build());
 

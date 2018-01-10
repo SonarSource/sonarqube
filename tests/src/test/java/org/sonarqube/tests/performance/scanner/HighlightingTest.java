@@ -54,7 +54,7 @@ public class HighlightingTest extends AbstractPerfTest {
   public static Orchestrator orchestrator = ScannerPerformanceSuite.ORCHESTRATOR;
 
   @BeforeClass
-  public static void setUp() throws IOException {
+  public static void setUp() {
     // Execute a first analysis to prevent any side effects with cache of plugin JAR files
     orchestrator.executeBuild(newScanner("-Xmx512m -server", "sonar.profile", "one-xoo-issue-per-line"));
   }

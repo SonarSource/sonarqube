@@ -82,7 +82,7 @@ public class EnabledCeWorkerControllerImpl implements EnabledCeWorkerController 
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() {
       map.put(ceWorker, Status.PAUSED);
     }
   }

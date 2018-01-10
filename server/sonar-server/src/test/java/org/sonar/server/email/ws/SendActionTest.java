@@ -70,7 +70,7 @@ public class SendActionTest {
   }
 
   @Test
-  public void fail_when_to_param_is_missing() throws Exception {
+  public void fail_when_to_param_is_missing() {
     logInAsSystemAdministrator();
 
     expectedException.expect(IllegalArgumentException.class);
@@ -79,7 +79,7 @@ public class SendActionTest {
   }
 
   @Test
-  public void fail_when_message_param_is_missing() throws Exception {
+  public void fail_when_message_param_is_missing() {
     logInAsSystemAdministrator();
 
     expectedException.expect(IllegalArgumentException.class);

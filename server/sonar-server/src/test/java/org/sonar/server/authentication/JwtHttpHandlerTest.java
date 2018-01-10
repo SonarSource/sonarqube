@@ -97,7 +97,7 @@ public class JwtHttpHandlerTest {
   }
 
   @Test
-  public void create_token() throws Exception {
+  public void create_token() {
     underTest.generateToken(userDto, request, response);
 
     Optional<Cookie> jwtCookie = findCookie("JWT-SESSION");
@@ -109,7 +109,7 @@ public class JwtHttpHandlerTest {
   }
 
   @Test
-  public void generate_csrf_state_when_creating_token() throws Exception {
+  public void generate_csrf_state_when_creating_token() {
     underTest.generateToken(userDto, request, response);
 
     verify(jwtCsrfVerifier).generateState(request, response, 3 * 24 * 60 * 60);
@@ -120,7 +120,7 @@ public class JwtHttpHandlerTest {
   }
 
   @Test
-  public void generate_token_is_using_session_timeout_from_settings() throws Exception {
+  public void generate_token_is_using_session_timeout_from_settings() {
     int sessionTimeoutInMinutes = 10;
     settings.setProperty("sonar.web.sessionTimeoutInMinutes", sessionTimeoutInMinutes);
 
@@ -132,7 +132,7 @@ public class JwtHttpHandlerTest {
   }
 
   @Test
-  public void session_timeout_property_cannot_be_updated() throws Exception {
+  public void session_timeout_property_cannot_be_updated() {
     int firstSessionTimeoutInMinutes = 10;
     settings.setProperty("sonar.web.sessionTimeoutInMinutes", firstSessionTimeoutInMinutes);
 
@@ -148,7 +148,7 @@ public class JwtHttpHandlerTest {
   }
 
   @Test
-  public void session_timeout_property_cannot_be_zero() throws Exception {
+  public void session_timeout_property_cannot_be_zero() {
     settings.setProperty("sonar.web.sessionTimeoutInMinutes", 0);
 
     expectedException.expect(IllegalArgumentException.class);
@@ -158,7 +158,7 @@ public class JwtHttpHandlerTest {
   }
 
   @Test
-  public void session_timeout_property_cannot_be_negative() throws Exception {
+  public void session_timeout_property_cannot_be_negative() {
     settings.setProperty("sonar.web.sessionTimeoutInMinutes", -10);
 
     expectedException.expect(IllegalArgumentException.class);
@@ -168,7 +168,7 @@ public class JwtHttpHandlerTest {
   }
 
   @Test
-  public void session_timeout_property_cannot_be_greater_than_three_months() throws Exception {
+  public void session_timeout_property_cannot_be_greater_than_three_months() {
     settings.setProperty("sonar.web.sessionTimeoutInMinutes", 4 * 30 * 24 * 60);
 
     expectedException.expect(IllegalArgumentException.class);
@@ -178,7 +178,7 @@ public class JwtHttpHandlerTest {
   }
 
   @Test
-  public void validate_token() throws Exception {
+  public void validate_token() {
     addJwtCookie();
 
     Claims claims = createToken(USER_LOGIN, NOW);
@@ -190,7 +190,7 @@ public class JwtHttpHandlerTest {
   }
 
   @Test
-  public void validate_token_refresh_session_when_refresh_time_is_reached() throws Exception {
+  public void validate_token_refresh_session_when_refresh_time_is_reached() {
     addJwtCookie();
 
     // Token was created 10 days ago and refreshed 6 minutes ago
@@ -204,7 +204,7 @@ public class JwtHttpHandlerTest {
   }
 
   @Test
-  public void validate_token_does_not_refresh_session_when_refresh_time_is_not_reached() throws Exception {
+  public void validate_token_does_not_refresh_session_when_refresh_time_is_not_reached() {
     addJwtCookie();
 
     // Token was created 10 days ago and refreshed 4 minutes ago
@@ -218,7 +218,7 @@ public class JwtHttpHandlerTest {
   }
 
   @Test
-  public void validate_token_does_not_refresh_session_when_disconnected_timeout_is_reached() throws Exception {
+  public void validate_token_does_not_refresh_session_when_disconnected_timeout_is_reached() {
     addJwtCookie();
 
     // Token was created 4 months ago, refreshed 4 minutes ago, and it expired in 5 minutes
@@ -231,7 +231,7 @@ public class JwtHttpHandlerTest {
   }
 
   @Test
-  public void validate_token_does_not_refresh_session_when_user_is_disabled() throws Exception {
+  public void validate_token_does_not_refresh_session_when_user_is_disabled() {
     addJwtCookie();
     UserDto user = addUser(false);
 
@@ -242,7 +242,7 @@ public class JwtHttpHandlerTest {
   }
 
   @Test
-  public void validate_token_does_not_refresh_session_when_token_is_no_more_valid() throws Exception {
+  public void validate_token_does_not_refresh_session_when_token_is_no_more_valid() {
     addJwtCookie();
 
     when(jwtSerializer.decode(JWT_TOKEN)).thenReturn(Optional.empty());
@@ -251,7 +251,7 @@ public class JwtHttpHandlerTest {
   }
 
   @Test
-  public void validate_token_does_nothing_when_no_jwt_cookie() throws Exception {
+  public void validate_token_does_nothing_when_no_jwt_cookie() {
     underTest.validateToken(request, response);
 
     verifyZeroInteractions(httpSession, jwtSerializer);
@@ -259,7 +259,7 @@ public class JwtHttpHandlerTest {
   }
 
   @Test
-  public void validate_token_does_nothing_when_empty_value_in_jwt_cookie() throws Exception {
+  public void validate_token_does_nothing_when_empty_value_in_jwt_cookie() {
     when(request.getCookies()).thenReturn(new Cookie[] {new Cookie("JWT-SESSION", "")});
 
     underTest.validateToken(request, response);
@@ -269,7 +269,7 @@ public class JwtHttpHandlerTest {
   }
 
   @Test
-  public void validate_token_verify_csrf_state() throws Exception {
+  public void validate_token_verify_csrf_state() {
     addJwtCookie();
     Claims claims = createToken(USER_LOGIN, NOW);
     claims.put("xsrfToken", CSRF_STATE);
@@ -281,7 +281,7 @@ public class JwtHttpHandlerTest {
   }
 
   @Test
-  public void validate_token_refresh_state_when_refreshing_token() throws Exception {
+  public void validate_token_refresh_state_when_refreshing_token() {
     addJwtCookie();
 
     // Token was created 10 days ago and refreshed 6 minutes ago
@@ -296,7 +296,7 @@ public class JwtHttpHandlerTest {
   }
 
   @Test
-  public void remove_token() throws Exception {
+  public void remove_token() {
     underTest.removeToken(request, response);
 
     verifyCookie(findCookie("JWT-SESSION").get(), null, 0);

@@ -61,7 +61,7 @@ public class OAuthCsrfVerifierTest {
   }
 
   @Test
-  public void generate_state() throws Exception {
+  public void generate_state() {
     String state = underTest.generateState(request, response);
     assertThat(state).isNotEmpty();
 
@@ -71,7 +71,7 @@ public class OAuthCsrfVerifierTest {
   }
 
   @Test
-  public void verify_state() throws Exception {
+  public void verify_state() {
     String state = "state";
     when(request.getCookies()).thenReturn(new Cookie[] {new Cookie("OAUTHSTATE", sha256Hex(state))});
     when(request.getParameter("state")).thenReturn(state);
@@ -87,7 +87,7 @@ public class OAuthCsrfVerifierTest {
   }
 
   @Test
-  public void fail_with_AuthenticationException_when_state_cookie_is_not_the_same_as_state_parameter() throws Exception {
+  public void fail_with_AuthenticationException_when_state_cookie_is_not_the_same_as_state_parameter() {
     when(request.getCookies()).thenReturn(new Cookie[] {new Cookie("OAUTHSTATE", sha1Hex("state"))});
     when(request.getParameter("state")).thenReturn("other value");
 
@@ -97,7 +97,7 @@ public class OAuthCsrfVerifierTest {
   }
 
   @Test
-  public void fail_with_AuthenticationException_when_state_cookie_is_null() throws Exception {
+  public void fail_with_AuthenticationException_when_state_cookie_is_null() {
     when(request.getCookies()).thenReturn(new Cookie[] {new Cookie("OAUTHSTATE", null)});
     when(request.getParameter("state")).thenReturn("state");
 
@@ -107,7 +107,7 @@ public class OAuthCsrfVerifierTest {
   }
 
   @Test
-  public void fail_with_AuthenticationException_when_state_parameter_is_empty() throws Exception {
+  public void fail_with_AuthenticationException_when_state_parameter_is_empty() {
     when(request.getCookies()).thenReturn(new Cookie[] {new Cookie("OAUTHSTATE", sha1Hex("state"))});
     when(request.getParameter("state")).thenReturn("");
 
@@ -117,7 +117,7 @@ public class OAuthCsrfVerifierTest {
   }
 
   @Test
-  public void fail_with_AuthenticationException_when_cookie_is_missing() throws Exception {
+  public void fail_with_AuthenticationException_when_cookie_is_missing() {
     when(request.getCookies()).thenReturn(new Cookie[] {});
 
     thrown.expect(authenticationException().from(AuthenticationEvent.Source.oauth2(identityProvider)).withoutLogin().andNoPublicMessage());

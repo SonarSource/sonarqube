@@ -232,7 +232,6 @@ public class PopulateRulesMetadataTest {
       this.noteData = seed + "_noteData";
       this.noteUserLogin = seed + "_noteUserLogin";
       this.noteDates = new Dates(seed.hashCode());
-      ;
       return this;
     }
 

@@ -79,7 +79,7 @@ public class HighlightingLineReaderTest {
 
   @Test
   public void nothing_to_read() {
-    HighlightingLineReader highlightingLineReader = newReader(Collections.<TextRange, HighlightingType>emptyMap());
+    HighlightingLineReader highlightingLineReader = newReader(Collections.emptyMap());
 
     DbFileSources.Line.Builder lineBuilder = newBuilder().addLinesBuilder().setLine(1);
     highlightingLineReader.read(lineBuilder);

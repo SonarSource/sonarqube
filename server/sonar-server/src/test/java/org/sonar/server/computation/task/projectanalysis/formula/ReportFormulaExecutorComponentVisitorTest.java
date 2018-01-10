@@ -92,7 +92,7 @@ public class ReportFormulaExecutorComponentVisitorTest {
   public PeriodHolderRule periodsHolder = new PeriodHolderRule().setPeriod(new Period("some mode", null, 95l, "756l"));
 
   @Test
-  public void verify_aggregation_on_value() throws Exception {
+  public void verify_aggregation_on_value() {
     treeRootHolder.setRoot(BALANCED_COMPONENT_TREE);
 
     measureRepository.addRawMeasure(FILE_1_REF, LINES_KEY, newMeasureBuilder().create(10));
@@ -113,7 +113,7 @@ public class ReportFormulaExecutorComponentVisitorTest {
   }
 
   @Test
-  public void verify_multi_metric_formula_support_and_aggregation() throws Exception {
+  public void verify_multi_metric_formula_support_and_aggregation() {
     treeRootHolder.setRoot(BALANCED_COMPONENT_TREE);
 
     measureRepository.addRawMeasure(FILE_1_REF, LINES_KEY, newMeasureBuilder().create(10));
@@ -150,7 +150,7 @@ public class ReportFormulaExecutorComponentVisitorTest {
   }
 
   @Test
-  public void verify_aggregation_on_variation() throws Exception {
+  public void verify_aggregation_on_variation() {
     treeRootHolder.setRoot(BALANCED_COMPONENT_TREE);
 
     measureRepository.addRawMeasure(FILE_1_REF, NEW_LINES_TO_COVER_KEY, createMeasureWithVariation(10));
@@ -171,7 +171,7 @@ public class ReportFormulaExecutorComponentVisitorTest {
   }
 
   @Test
-  public void measures_are_0_when_there_is_no_input_measure() throws Exception {
+  public void measures_are_0_when_there_is_no_input_measure() {
     ReportComponent project = ReportComponent.builder(PROJECT, ROOT_REF)
       .addChildren(
         ReportComponent.builder(MODULE, MODULE_1_REF)
@@ -194,7 +194,7 @@ public class ReportFormulaExecutorComponentVisitorTest {
   }
 
   @Test
-  public void add_measure_even_when_leaf_is_not_FILE() throws Exception {
+  public void add_measure_even_when_leaf_is_not_FILE() {
     ReportComponent project = ReportComponent.builder(PROJECT, ROOT_REF)
       .addChildren(
         ReportComponent.builder(MODULE, MODULE_1_REF)

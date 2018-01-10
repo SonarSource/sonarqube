@@ -78,7 +78,7 @@ public class TagsActionTest {
   }
 
   @Test
-  public void return_tags_from_issues() throws Exception {
+  public void return_tags_from_issues() {
     userSession.logIn();
     insertIssueWithBrowsePermission(insertRuleWithoutTags(), "tag1", "tag2");
     insertIssueWithBrowsePermission(insertRuleWithoutTags(), "tag3", "tag4", "tag5");
@@ -90,7 +90,7 @@ public class TagsActionTest {
   }
 
   @Test
-  public void return_tags_from_rules() throws Exception {
+  public void return_tags_from_rules() {
     userSession.logIn();
     RuleDefinitionDto r = dbTester.rules().insert(setSystemTags("tag1"));
     ruleIndexer.commitAndIndex(dbTester.getSession(), r.getKey());
@@ -109,7 +109,7 @@ public class TagsActionTest {
   }
 
   @Test
-  public void return_tags_from_issue_and_rule_tags() throws Exception {
+  public void return_tags_from_issue_and_rule_tags() {
     userSession.logIn();
     insertIssueWithBrowsePermission(insertRuleWithoutTags(), "tag1", "tag2");
     insertIssueWithBrowsePermission(insertRuleWithoutTags(), "tag3", "tag4", "tag5");
@@ -126,7 +126,7 @@ public class TagsActionTest {
   }
 
   @Test
-  public void return_limited_size() throws Exception {
+  public void return_limited_size() {
     userSession.logIn();
     insertIssueWithBrowsePermission(insertRuleWithoutTags(), "tag1", "tag2");
     insertIssueWithBrowsePermission(insertRuleWithoutTags(), "tag3", "tag4", "tag5");
@@ -139,7 +139,7 @@ public class TagsActionTest {
   }
 
   @Test
-  public void return_tags_matching_query() throws Exception {
+  public void return_tags_matching_query() {
     userSession.logIn();
     insertIssueWithBrowsePermission(insertRuleWithoutTags(), "tag1", "tag2");
     insertIssueWithBrowsePermission(insertRuleWithoutTags(), "tag12", "tag4", "tag5");
@@ -152,7 +152,7 @@ public class TagsActionTest {
   }
 
   @Test
-  public void do_not_return_issues_without_permission() throws Exception {
+  public void do_not_return_issues_without_permission() {
     userSession.logIn();
     insertIssueWithBrowsePermission(insertRuleWithoutTags(), "tag1", "tag2");
     insertIssueWithoutBrowsePermission(insertRuleWithoutTags(), "tag3", "tag4");
@@ -165,7 +165,7 @@ public class TagsActionTest {
   }
 
   @Test
-  public void empty_list() throws Exception {
+  public void empty_list() {
     userSession.logIn();
     String result = ws.newRequest().execute().getInput();
     assertJson(result).isSimilarTo("{\"tags\":[]}");
@@ -185,7 +185,7 @@ public class TagsActionTest {
   }
 
   @Test
-  public void json_example() throws Exception {
+  public void json_example() {
     userSession.logIn();
     insertIssueWithBrowsePermission(insertRuleWithoutTags(), "convention");
 

@@ -69,13 +69,13 @@ public class IndexActionTest {
   }
 
   @Test
-  public void throw_ISE_when_no_file() throws Exception {
+  public void throw_ISE_when_no_file() {
     thrown.expect(IllegalStateException.class);
     tester.newRequest().execute();
   }
 
   @Test
-  public void test_definition() throws Exception {
+  public void test_definition() {
     WebService.Action definition = tester.getDef();
     assertThat(definition.isInternal()).isTrue();
     assertThat(definition.isPost()).isFalse();

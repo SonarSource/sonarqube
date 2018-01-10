@@ -61,7 +61,7 @@ public class RuleDtoTest {
 
   @Test
   public void tags_are_optional() {
-    RuleDto dto = new RuleDto().setTags(Collections.<String>emptySet());
+    RuleDto dto = new RuleDto().setTags(Collections.emptySet());
     assertThat(dto.getTags()).isEmpty();
   }
 }

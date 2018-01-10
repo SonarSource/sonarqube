@@ -76,7 +76,7 @@ public class IndexCreatorTest {
   }
 
   @Test
-  public void mark_all_non_existing_index_types_as_uninitialized() throws Exception {
+  public void mark_all_non_existing_index_types_as_uninitialized() {
     startNewCreator(context -> {
       NewIndex i = context.create("i", SETTINGS_CONFIGURATION);
       i.createType("t1");
@@ -111,7 +111,7 @@ public class IndexCreatorTest {
   }
 
   @Test
-  public void do_not_recreate_index_on_unchanged_definition() throws Exception {
+  public void do_not_recreate_index_on_unchanged_definition() {
     // v1
     startNewCreator(new FakeIndexDefinition());
     IndexType fakeIndexType = new IndexType("fakes", "fake");
@@ -201,12 +201,12 @@ public class IndexCreatorTest {
 
   @CheckForNull
   @SuppressWarnings("unchecked")
-  private Map<String, Object> field(MappingMetaData mapping, String field) throws IOException {
+  private Map<String, Object> field(MappingMetaData mapping, String field) {
     Map<String, Object> props = (Map<String, Object>) mapping.getSourceAsMap().get("properties");
     return (Map<String, Object>) props.get(field);
   }
 
-  private int countMappingFields(MappingMetaData mapping) throws IOException {
+  private int countMappingFields(MappingMetaData mapping) {
     return ((Map) mapping.getSourceAsMap().get("properties")).size();
   }
 

@@ -313,7 +313,7 @@ public class PluginWSCommons {
 
   private static List<Plugin> compatiblePlugins(UpdateCenterMatrixFactory updateCenterMatrixFactory) {
     Optional<UpdateCenter> updateCenter = updateCenterMatrixFactory.getUpdateCenter(false);
-    return updateCenter.isPresent() ? updateCenter.get().findAllCompatiblePlugins() : Collections.<Plugin>emptyList();
+    return updateCenter.isPresent() ? updateCenter.get().findAllCompatiblePlugins() : Collections.emptyList();
   }
 
   static ImmutableMap<String, Plugin> compatiblePluginsByKey(UpdateCenterMatrixFactory updateCenterMatrixFactory) {

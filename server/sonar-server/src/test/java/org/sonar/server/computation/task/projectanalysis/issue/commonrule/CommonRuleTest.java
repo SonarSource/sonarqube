@@ -37,7 +37,7 @@ public class CommonRuleTest {
   public ExpectedException thrown = ExpectedException.none();
 
   @Test
-  public void test_getMinDensityParam() throws Exception {
+  public void test_getMinDensityParam() {
     ActiveRule activeRule = new ActiveRule(RuleTesting.XOO_X1, Severity.MAJOR, ImmutableMap.of("minDensity", "30.5"), 1_000L, PLUGIN_KEY);
     double minDensity = CommonRule.getMinDensityParam(activeRule, "minDensity");
 
@@ -45,16 +45,16 @@ public class CommonRuleTest {
   }
 
   @Test
-  public void getMinDensityParam_fails_if_param_value_is_absent() throws Exception {
+  public void getMinDensityParam_fails_if_param_value_is_absent() {
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("Required parameter [minDensity] is missing on rule [xoo:x1]");
 
-    ActiveRule activeRule = new ActiveRule(RuleTesting.XOO_X1, Severity.MAJOR, ImmutableMap.<String, String>of(), 1_000L, PLUGIN_KEY);
+    ActiveRule activeRule = new ActiveRule(RuleTesting.XOO_X1, Severity.MAJOR, ImmutableMap.of(), 1_000L, PLUGIN_KEY);
     CommonRule.getMinDensityParam(activeRule, "minDensity");
   }
 
   @Test
-  public void getMinDensityParam_fails_if_param_value_is_negative() throws Exception {
+  public void getMinDensityParam_fails_if_param_value_is_negative() {
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("Minimum density of rule [xoo:x1] is incorrect. Got [-30.5] but must be between 0 and 100.");
 
@@ -63,7 +63,7 @@ public class CommonRuleTest {
   }
 
   @Test
-  public void getMinDensityParam_fails_if_param_value_is_greater_than_100() throws Exception {
+  public void getMinDensityParam_fails_if_param_value_is_greater_than_100() {
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("Minimum density of rule [xoo:x1] is incorrect. Got [305] but must be between 0 and 100.");
 

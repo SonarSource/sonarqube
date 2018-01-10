@@ -39,28 +39,28 @@ public class BadRequestExceptionTest {
   }
 
   @Test
-  public void create_exception_from_list() throws Exception {
+  public void create_exception_from_list() {
     BadRequestException underTest = BadRequestException.create(asList("error1", "error2"));
 
     assertThat(underTest.errors()).containsOnly("error1", "error2");
   }
 
   @Test
-  public void create_exception_from_var_args() throws Exception {
+  public void create_exception_from_var_args() {
     BadRequestException underTest = BadRequestException.create("error1", "error2");
 
     assertThat(underTest.errors()).containsOnly("error1", "error2");
   }
 
   @Test
-  public void getMessage_return_first_error() throws Exception {
+  public void getMessage_return_first_error() {
     BadRequestException underTest = BadRequestException.create(asList("error1", "error2"));
 
     assertThat(underTest.getMessage()).isEqualTo("error1");
   }
 
   @Test
-  public void fail_when_creating_exception_with_empty_list() throws Exception {
+  public void fail_when_creating_exception_with_empty_list() {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("At least one error message is required");
 
@@ -68,7 +68,7 @@ public class BadRequestExceptionTest {
   }
 
   @Test
-  public void fail_when_creating_exception_with_one_empty_element() throws Exception {
+  public void fail_when_creating_exception_with_one_empty_element() {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Message cannot be empty");
 
@@ -76,7 +76,7 @@ public class BadRequestExceptionTest {
   }
 
   @Test
-  public void fail_when_creating_exception_with_one_null_element() throws Exception {
+  public void fail_when_creating_exception_with_one_null_element() {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Message cannot be empty");
 

@@ -115,7 +115,7 @@ public class SetDefaultActionTest {
   }
 
   @Test
-  public void set_default_profile_using_key() throws Exception {
+  public void set_default_profile_using_key() {
     logInAsQProfileAdministrator();
 
     checkDefaultProfile(organization, XOO_1_KEY, xoo1Profile.getKee());
@@ -141,7 +141,7 @@ public class SetDefaultActionTest {
   }
 
   @Test
-  public void set_default_profile_using_language_and_name() throws Exception {
+  public void set_default_profile_using_language_and_name() {
     logInAsQProfileAdministrator();
 
     checkDefaultProfile(organization, XOO_1_KEY, xoo1Profile.getKee());
@@ -160,7 +160,7 @@ public class SetDefaultActionTest {
   }
 
   @Test
-  public void should_not_change_other_organizations() throws Exception {
+  public void should_not_change_other_organizations() {
     OrganizationDto organization1 = db.organizations().insert();
     OrganizationDto organization2 = db.organizations().insert();
 
@@ -197,7 +197,7 @@ public class SetDefaultActionTest {
   }
 
   @Test
-  public void fail_to_set_default_profile_using_invalid_key() throws Exception {
+  public void fail_to_set_default_profile_using_invalid_key() {
     logInAsQProfileAdministrator();
 
     expectedException.expect(NotFoundException.class);
@@ -212,7 +212,7 @@ public class SetDefaultActionTest {
   }
 
   @Test
-  public void fail_to_set_default_profile_using_language_and_invalid_name() throws Exception {
+  public void fail_to_set_default_profile_using_language_and_invalid_name() {
     logInAsQProfileAdministrator();
 
     try {
@@ -229,7 +229,7 @@ public class SetDefaultActionTest {
   }
 
   @Test
-  public void fail_if_parameter_profile_key_is_combined_with_parameter_organization() throws Exception {
+  public void fail_if_parameter_profile_key_is_combined_with_parameter_organization() {
     userSessionRule.logIn();
 
     expectedException.expect(IllegalArgumentException.class);
@@ -242,7 +242,7 @@ public class SetDefaultActionTest {
   }
 
   @Test
-  public void throw_ForbiddenException_if_not_profile_administrator() throws Exception {
+  public void throw_ForbiddenException_if_not_profile_administrator() {
     userSessionRule.logIn();
 
     expectedException.expect(ForbiddenException.class);
@@ -254,7 +254,7 @@ public class SetDefaultActionTest {
   }
 
   @Test
-  public void throw_UnauthorizedException_if_not_logged_in() throws Exception {
+  public void throw_UnauthorizedException_if_not_logged_in() {
     expectedException.expect(UnauthorizedException.class);
     expectedException.expectMessage("Authentication is required");
 

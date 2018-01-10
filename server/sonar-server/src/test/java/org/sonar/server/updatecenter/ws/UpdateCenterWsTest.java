@@ -47,7 +47,7 @@ public class UpdateCenterWsTest {
   }
 
   @Test
-  public void define_upload_action() throws Exception {
+  public void define_upload_action() {
     WebService.Controller controller = tester.controller("api/updatecenter");
 
     WebService.Action action = controller.action("upload");

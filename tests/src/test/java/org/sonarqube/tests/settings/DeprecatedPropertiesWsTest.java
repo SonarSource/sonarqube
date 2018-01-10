@@ -82,7 +82,7 @@ public class DeprecatedPropertiesWsTest {
   static SettingsService adminSettingsService;
 
   @BeforeClass
-  public static void init() throws Exception {
+  public static void init() {
     orchestrator.resetData();
     userRule.createUser(USER_LOGIN, "password");
     adminWsClient = newAdminWsClient(orchestrator);
@@ -93,13 +93,13 @@ public class DeprecatedPropertiesWsTest {
   }
 
   @AfterClass
-  public static void resetAfterClass() throws Exception {
+  public static void resetAfterClass() {
     doResetSettings();
     userRule.deactivateUsers(USER_LOGIN);
   }
 
   @Before
-  public void resetBefore() throws Exception {
+  public void resetBefore() {
     doResetSettings();
   }
 
@@ -159,7 +159,7 @@ public class DeprecatedPropertiesWsTest {
   }
 
   @Test
-  public void secured_setting_not_returned_to_not_admin() throws Exception {
+  public void secured_setting_not_returned_to_not_admin() {
     setProperty("setting.secured", "value", null);
 
     // Admin can see the secured setting
@@ -171,7 +171,7 @@ public class DeprecatedPropertiesWsTest {
   }
 
   @Test
-  public void license_setting_not_returned_to_not_logged() throws Exception {
+  public void license_setting_not_returned_to_not_logged() {
     setProperty("setting.license.secured", "value", null);
 
     // Admin and user can see the license setting
@@ -183,7 +183,7 @@ public class DeprecatedPropertiesWsTest {
   }
 
   @Test
-  public void get_all_global_settings() throws Exception {
+  public void get_all_global_settings() {
     List<Properties.Property> properties = getProperties(null);
     assertThat(properties).isNotEmpty();
     assertThat(properties).extracting("key")
@@ -223,7 +223,7 @@ public class DeprecatedPropertiesWsTest {
   }
 
   @Test
-  public void get_all_component_settings() throws Exception {
+  public void get_all_component_settings() {
     List<Properties.Property> properties = getProperties(PROJECT_KEY);
     assertThat(properties).isNotEmpty();
     assertThat(properties).extracting("key")

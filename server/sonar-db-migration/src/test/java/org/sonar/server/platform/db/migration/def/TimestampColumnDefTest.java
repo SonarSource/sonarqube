@@ -37,7 +37,7 @@ public class TimestampColumnDefTest {
   public ExpectedException thrown = ExpectedException.none();
 
   @Test
-  public void build_column_def() throws Exception {
+  public void build_column_def() {
     TimestampColumnDef def = newTimestampColumnDefBuilder()
       .setColumnName("created_at")
       .setIsNullable(false)
@@ -49,7 +49,7 @@ public class TimestampColumnDefTest {
   }
 
   @Test
-  public void build_column_def_with_only_required_attributes() throws Exception {
+  public void build_column_def_with_only_required_attributes() {
     TimestampColumnDef def = newTimestampColumnDefBuilder()
       .setColumnName("created_at")
       .build();
@@ -60,7 +60,7 @@ public class TimestampColumnDefTest {
   }
 
   @Test
-  public void generate_sql_type() throws Exception {
+  public void generate_sql_type() {
     TimestampColumnDef def = newTimestampColumnDefBuilder()
       .setColumnName("created_at")
       .build();
@@ -73,7 +73,7 @@ public class TimestampColumnDefTest {
   }
 
   @Test
-  public void fail_with_NPE_if_name_is_null() throws Exception {
+  public void fail_with_NPE_if_name_is_null() {
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("Column name cannot be null");
 
@@ -81,7 +81,7 @@ public class TimestampColumnDefTest {
   }
 
   @Test
-  public void fail_with_NPE_if_no_name() throws Exception {
+  public void fail_with_NPE_if_no_name() {
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("Column name cannot be null");
 

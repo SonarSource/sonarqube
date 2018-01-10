@@ -89,12 +89,12 @@ public class RealmAuthenticationTest {
 
   @Before
   @After
-  public void resetData() throws Exception {
+  public void resetData() {
     resetSettings(orchestrator, null, USERS_PROPERTY, "sonar.security.updateUserAttributes");
   }
 
   @Before
-  public void initAdminUser() throws Exception {
+  public void initAdminUser() {
     userRule.createAdminUser(ADMIN_USER_LOGIN, ADMIN_USER_LOGIN);
   }
 
@@ -232,7 +232,7 @@ public class RealmAuthenticationTest {
 
   // SONAR-3258
   @Test
-  public void shouldAutomaticallyReactivateDeletedUser() throws Exception {
+  public void shouldAutomaticallyReactivateDeletedUser() {
     // Given clean Sonar installation and no users in external system
 
     // Let's create and delete the user "tester" in Sonar DB
@@ -262,7 +262,7 @@ public class RealmAuthenticationTest {
    * SONAR-7036
    */
   @Test
-  public void update_password_of_technical_user() throws Exception {
+  public void update_password_of_technical_user() {
     // Create user in external authentication
     updateUsersInExtAuth(ImmutableMap.of(USER_LOGIN + ".password", USER_LOGIN));
     verifyAuthenticationIsOk(USER_LOGIN, USER_LOGIN);
@@ -288,7 +288,7 @@ public class RealmAuthenticationTest {
    * SONAR-7640
    */
   @Test
-  public void authentication_with_ws() throws Exception {
+  public void authentication_with_ws() {
     // Given clean Sonar installation and no users in external system
     String login = USER_LOGIN;
     String password = "1234567";

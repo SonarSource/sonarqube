@@ -330,7 +330,7 @@ public class BuildComponentTreeStepTest {
   }
 
   @Test
-  public void set_no_base_project_snapshot_when_no_snapshot() throws Exception {
+  public void set_no_base_project_snapshot_when_no_snapshot() {
     setAnalysisMetadataHolder();
     reportReader.putComponent(componentWithKey(ROOT_REF, PROJECT, REPORT_PROJECT_KEY));
     underTest.execute();
@@ -339,7 +339,7 @@ public class BuildComponentTreeStepTest {
   }
 
   @Test
-  public void set_no_base_project_snapshot_when_no_last_snapshot() throws Exception {
+  public void set_no_base_project_snapshot_when_no_last_snapshot() {
     setAnalysisMetadataHolder();
     OrganizationDto organizationDto = dbTester.organizations().insert();
     ComponentDto project = insertComponent(newPrivateProjectDto(organizationDto, "ABCD").setDbKey(REPORT_PROJECT_KEY));
@@ -352,7 +352,7 @@ public class BuildComponentTreeStepTest {
   }
 
   @Test
-  public void set_base_project_snapshot_when_last_snapshot_exist() throws Exception {
+  public void set_base_project_snapshot_when_last_snapshot_exist() {
     setAnalysisMetadataHolder();
     OrganizationDto organizationDto = dbTester.organizations().insert();
     ComponentDto project = insertComponent(newPrivateProjectDto(organizationDto, "ABCD").setDbKey(REPORT_PROJECT_KEY));

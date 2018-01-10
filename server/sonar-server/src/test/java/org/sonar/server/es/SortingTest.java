@@ -31,7 +31,7 @@ import static org.junit.Assert.fail;
 public class SortingTest {
 
   @Test
-  public void test_definition() throws Exception {
+  public void test_definition() {
     Sorting sorting = new Sorting();
     sorting.add("fileLine", "file");
     sorting.add("fileLine", "line").missingLast().reverse();
@@ -118,7 +118,7 @@ public class SortingTest {
   }
 
   @Test
-  public void default_sorting() throws Exception {
+  public void default_sorting() {
     Sorting sorting = new Sorting();
     sorting.addDefault("file");
 
@@ -126,7 +126,7 @@ public class SortingTest {
     assertThat(fields).hasSize(1);
   }
 
-  private void expectField(FieldSortBuilder field, String expectedField, String expectedMissing, SortOrder expectedSort) throws IllegalAccessException {
+  private void expectField(FieldSortBuilder field, String expectedField, String expectedMissing, SortOrder expectedSort) {
     assertThat(field.getFieldName()).isEqualTo(expectedField);
     assertThat(field.missing()).isEqualTo(expectedMissing);
     assertThat(field.order()).isEqualTo(expectedSort);

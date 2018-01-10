@@ -160,13 +160,13 @@ public class CloseableIteratorTest {
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void wrap_fails_if_iterator_declared_in_other_closeables() throws Exception {
+  public void wrap_fails_if_iterator_declared_in_other_closeables() {
     CloseableIterator iterator = new SimpleCloseableIterator();
     CloseableIterator.wrap(iterator, iterator);
   }
 
   @Test(expected = NullPointerException.class)
-  public void wrap_fails_if_null_closeable() throws Exception {
+  public void wrap_fails_if_null_closeable() {
     CloseableIterator.wrap(new SimpleCloseableIterator(), null);
   }
 
@@ -189,7 +189,7 @@ public class CloseableIteratorTest {
     }
 
     @Override
-    public void close() throws IOException {
+    public void close() {
       // no need to implement it for real
     }
   }

@@ -66,7 +66,7 @@ public class AddUserActionTest extends BasePermissionWsTest<AddUserAction> {
   }
 
   @Test
-  public void add_permission_to_user_on_default_organization_if_organization_is_not_specified() throws Exception {
+  public void add_permission_to_user_on_default_organization_if_organization_is_not_specified() {
     loginAsAdmin(db.getDefaultOrganization());
 
     newRequest()
@@ -78,7 +78,7 @@ public class AddUserActionTest extends BasePermissionWsTest<AddUserAction> {
   }
 
   @Test
-  public void add_permission_to_user_on_specified_organization() throws Exception {
+  public void add_permission_to_user_on_specified_organization() {
     OrganizationDto organization = db.organizations().insert();
     addUserAsMemberOfOrganization(organization);
     loginAsAdmin(organization);
@@ -93,7 +93,7 @@ public class AddUserActionTest extends BasePermissionWsTest<AddUserAction> {
   }
 
   @Test
-  public void add_permission_to_project_referenced_by_its_id() throws Exception {
+  public void add_permission_to_project_referenced_by_its_id() {
     OrganizationDto organization = db.organizations().insert();
     addUserAsMemberOfOrganization(organization);
     ComponentDto project = db.components().insertPrivateProject(organization);
@@ -110,7 +110,7 @@ public class AddUserActionTest extends BasePermissionWsTest<AddUserAction> {
   }
 
   @Test
-  public void add_permission_to_project_referenced_by_its_key() throws Exception {
+  public void add_permission_to_project_referenced_by_its_key() {
     ComponentDto project = db.components().insertPrivateProject();
     loginAsAdmin(db.getDefaultOrganization());
 
@@ -125,7 +125,7 @@ public class AddUserActionTest extends BasePermissionWsTest<AddUserAction> {
   }
 
   @Test
-  public void add_permission_to_view() throws Exception {
+  public void add_permission_to_view() {
     ComponentDto view = db.components().insertComponent(newView(db.getDefaultOrganization(), "view-uuid").setDbKey("view-key"));
     loginAsAdmin(db.getDefaultOrganization());
 
@@ -140,7 +140,7 @@ public class AddUserActionTest extends BasePermissionWsTest<AddUserAction> {
   }
 
   @Test
-  public void fail_when_project_uuid_is_unknown() throws Exception {
+  public void fail_when_project_uuid_is_unknown() {
     loginAsAdmin(db.getDefaultOrganization());
 
     expectedException.expect(NotFoundException.class);
@@ -153,28 +153,28 @@ public class AddUserActionTest extends BasePermissionWsTest<AddUserAction> {
   }
 
   @Test
-  public void fail_when_component_is_a_module() throws Exception {
+  public void fail_when_component_is_a_module() {
     ComponentDto module = db.components().insertComponent(newModuleDto(ComponentTesting.newPrivateProjectDto(db.organizations().insert())));
 
     failIfComponentIsNotAProjectOrView(module);
   }
 
   @Test
-  public void fail_when_component_is_a_directory() throws Exception {
+  public void fail_when_component_is_a_directory() {
     ComponentDto file = db.components().insertComponent(newDirectory(ComponentTesting.newPrivateProjectDto(db.organizations().insert()), "A/B"));
 
     failIfComponentIsNotAProjectOrView(file);
   }
 
   @Test
-  public void fail_when_component_is_a_file() throws Exception {
+  public void fail_when_component_is_a_file() {
     ComponentDto file = db.components().insertComponent(newFileDto(ComponentTesting.newPrivateProjectDto(db.organizations().insert()), null, "file-uuid"));
 
     failIfComponentIsNotAProjectOrView(file);
   }
 
   @Test
-  public void fail_when_component_is_a_subview() throws Exception {
+  public void fail_when_component_is_a_subview() {
     ComponentDto file = db.components().insertComponent(newSubView(ComponentTesting.newView(db.organizations().insert())));
 
     failIfComponentIsNotAProjectOrView(file);
@@ -194,7 +194,7 @@ public class AddUserActionTest extends BasePermissionWsTest<AddUserAction> {
   }
 
   @Test
-  public void fail_when_project_permission_without_project() throws Exception {
+  public void fail_when_project_permission_without_project() {
     loginAsAdmin(db.getDefaultOrganization());
 
     expectedException.expect(BadRequestException.class);
@@ -206,7 +206,7 @@ public class AddUserActionTest extends BasePermissionWsTest<AddUserAction> {
   }
 
   @Test
-  public void fail_when_component_is_not_a_project() throws Exception {
+  public void fail_when_component_is_not_a_project() {
     db.components().insertComponent(newFileDto(newPrivateProjectDto(db.organizations().insert(), "project-uuid"), null, "file-uuid"));
     loginAsAdmin(db.getDefaultOrganization());
 
@@ -220,7 +220,7 @@ public class AddUserActionTest extends BasePermissionWsTest<AddUserAction> {
   }
 
   @Test
-  public void fail_when_get_request() throws Exception {
+  public void fail_when_get_request() {
     loginAsAdmin(db.getDefaultOrganization());
 
     expectedException.expect(ServerException.class);
@@ -233,7 +233,7 @@ public class AddUserActionTest extends BasePermissionWsTest<AddUserAction> {
   }
 
   @Test
-  public void fail_when_user_login_is_missing() throws Exception {
+  public void fail_when_user_login_is_missing() {
     loginAsAdmin(db.getDefaultOrganization());
 
     expectedException.expect(IllegalArgumentException.class);
@@ -244,7 +244,7 @@ public class AddUserActionTest extends BasePermissionWsTest<AddUserAction> {
   }
 
   @Test
-  public void fail_when_permission_is_missing() throws Exception {
+  public void fail_when_permission_is_missing() {
     loginAsAdmin(db.getDefaultOrganization());
 
     expectedException.expect(NotFoundException.class);
@@ -255,7 +255,7 @@ public class AddUserActionTest extends BasePermissionWsTest<AddUserAction> {
   }
 
   @Test
-  public void fail_when_project_uuid_and_project_key_are_provided() throws Exception {
+  public void fail_when_project_uuid_and_project_key_are_provided() {
     db.components().insertPrivateProject();
     loginAsAdmin(db.getDefaultOrganization());
 
@@ -271,7 +271,7 @@ public class AddUserActionTest extends BasePermissionWsTest<AddUserAction> {
   }
 
   @Test
-  public void adding_global_permission_fails_if_not_administrator_of_organization() throws Exception {
+  public void adding_global_permission_fails_if_not_administrator_of_organization() {
     userSession.logIn();
 
     expectedException.expect(ForbiddenException.class);
@@ -283,7 +283,7 @@ public class AddUserActionTest extends BasePermissionWsTest<AddUserAction> {
   }
 
   @Test
-  public void adding_project_permission_fails_if_not_administrator_of_project() throws Exception {
+  public void adding_project_permission_fails_if_not_administrator_of_project() {
     ComponentDto project = db.components().insertPrivateProject();
     userSession.logIn();
 
@@ -300,7 +300,7 @@ public class AddUserActionTest extends BasePermissionWsTest<AddUserAction> {
    * User is project administrator but not system administrator
    */
   @Test
-  public void adding_project_permission_is_allowed_to_project_administrators() throws Exception {
+  public void adding_project_permission_is_allowed_to_project_administrators() {
     ComponentDto project = db.components().insertPrivateProject();
 
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
@@ -331,7 +331,7 @@ public class AddUserActionTest extends BasePermissionWsTest<AddUserAction> {
   }
 
   @Test
-  public void fail_to_add_permission_when_user_is_not_member_of_given_organization() throws Exception {
+  public void fail_to_add_permission_when_user_is_not_member_of_given_organization() {
     // User is not member of given organization
     OrganizationDto otherOrganization = db.organizations().insert();
     addUserAsMemberOfOrganization(otherOrganization);
@@ -400,7 +400,7 @@ public class AddUserActionTest extends BasePermissionWsTest<AddUserAction> {
   }
 
   @Test
-  public void fail_when_using_branch_uuid() throws Exception {
+  public void fail_when_using_branch_uuid() {
     OrganizationDto organization = db.organizations().insert();
     addUserAsMemberOfOrganization(organization);
     ComponentDto project = db.components().insertMainBranch(organization);

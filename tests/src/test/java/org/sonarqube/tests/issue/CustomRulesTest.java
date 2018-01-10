@@ -45,7 +45,7 @@ public class CustomRulesTest extends AbstractIssueTest {
   }
 
   @Test
-  public void analyzeProjectWithCustomRules() throws Exception {
+  public void analyzeProjectWithCustomRules() {
     ORCHESTRATOR.getServer().adminWsClient().post("api/rules/create",
       "template_key", "xoo:TemplateRule",
       "custom_key", "MyCustomRule",

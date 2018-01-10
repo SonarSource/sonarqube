@@ -51,7 +51,7 @@ public class UsersPageTest {
   public Tester tester = new Tester(orchestrator).disableOrganizations();
 
   @Before
-  public void initUsers() throws Exception {
+  public void initUsers() {
     adminUser = tester.users().generateAdministrator(u -> u.setLogin("admin-user").setPassword("admin-user"));
     tester.users().generate(u -> u.setLogin("random-user").setPassword("random-user"));
   }

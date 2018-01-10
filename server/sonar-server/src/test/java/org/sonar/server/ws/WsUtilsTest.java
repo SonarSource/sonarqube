@@ -41,7 +41,7 @@ public class WsUtilsTest {
   public LogTester logger = new LogTester();
 
   @Test
-  public void write_json_by_default() throws Exception {
+  public void write_json_by_default() {
     TestRequest request = new TestRequest();
     DumbResponse response = new DumbResponse();
 
@@ -69,7 +69,7 @@ public class WsUtilsTest {
   }
 
   @Test
-  public void rethrow_error_as_ISE_when_error_writing_message() throws IOException {
+  public void rethrow_error_as_ISE_when_error_writing_message() {
     TestRequest request = new TestRequest();
     request.setMediaType(MediaTypes.PROTOBUF);
 

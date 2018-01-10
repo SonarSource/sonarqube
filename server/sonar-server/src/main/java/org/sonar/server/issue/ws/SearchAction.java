@@ -314,7 +314,7 @@ public class SearchAction implements IssuesWsAction {
   }
 
   @Override
-  public final void handle(Request request, Response response) throws Exception {
+  public final void handle(Request request, Response response) {
     SearchWsResponse searchWsResponse = doHandle(toSearchWsRequest(request), request);
     writeProtobuf(searchWsResponse, request, response);
   }

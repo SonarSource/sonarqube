@@ -52,7 +52,7 @@ public class PostgreSqlTest {
   }
 
   @Test
-  public void testFetchSizeForScrolling() throws Exception {
+  public void testFetchSizeForScrolling() {
     assertThat(dialect.getScrollDefaultFetchSize()).isEqualTo(200);
   }
 

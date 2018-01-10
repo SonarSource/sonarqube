@@ -51,7 +51,7 @@ public class ProjectVisibilityPageTest {
   }
 
   @Test
-  public void return_all_projects_even_when_no_permission() throws Exception {
+  public void return_all_projects_even_when_no_permission() {
     orchestrator.executeBuild(SonarScanner.create(projectDir("shared/xoo-sample")).setProperties("sonar.projectKey", "sample1"));
     orchestrator.executeBuild(SonarScanner.create(projectDir("shared/xoo-sample")).setProperties("sonar.projectKey", "sample2"));
     tester.wsClient().projects().updateVisibility(new UpdateVisibilityRequest().setProject("sample2").setVisibility("private"));

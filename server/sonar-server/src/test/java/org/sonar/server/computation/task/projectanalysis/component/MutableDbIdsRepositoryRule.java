@@ -58,7 +58,7 @@ public class MutableDbIdsRepositoryRule extends ExternalResource implements Muta
   }
 
   @Override
-  protected void before() throws Throwable {
+  protected void before() {
     this.delegate = newDelegate();
   }
 

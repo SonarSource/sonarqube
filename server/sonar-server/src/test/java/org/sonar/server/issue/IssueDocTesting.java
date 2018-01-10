@@ -56,7 +56,7 @@ public class IssueDocTesting {
   }
 
   public static IssueDoc newDoc() {
-    IssueDoc doc = new IssueDoc(Maps.<String, Object>newHashMap());
+    IssueDoc doc = new IssueDoc(Maps.newHashMap());
     doc.setKey(Uuids.createFast());
     doc.setRuleKey(RuleTesting.XOO_X1.toString());
     doc.setType(RuleType.CODE_SMELL);

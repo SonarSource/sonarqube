@@ -113,22 +113,22 @@ public class ReportComplexityMeasuresStepTest {
   private ComputationStep underTest = new ComplexityMeasuresStep(treeRootHolder, metricRepository, measureRepository);
 
   @Test
-  public void aggregate_complexity() throws Exception {
+  public void aggregate_complexity() {
     verify_sum_aggregation(COMPLEXITY_KEY);
   }
 
   @Test
-  public void aggregate_complexity_in_classes() throws Exception {
+  public void aggregate_complexity_in_classes() {
     verify_sum_aggregation(COMPLEXITY_IN_CLASSES_KEY);
   }
 
   @Test
-  public void aggregate_complexity_in_functions() throws Exception {
+  public void aggregate_complexity_in_functions() {
     verify_sum_aggregation(COMPLEXITY_IN_FUNCTIONS_KEY);
   }
 
   @Test
-  public void aggregate_cognitive_complexity() throws Exception {
+  public void aggregate_cognitive_complexity() {
     verify_sum_aggregation(COGNITIVE_COMPLEXITY_KEY);
   }
 
@@ -149,17 +149,17 @@ public class ReportComplexityMeasuresStepTest {
   }
 
   @Test
-  public void aggregate_function_complexity_distribution() throws Exception {
+  public void aggregate_function_complexity_distribution() {
     verify_distribution_aggregation(FUNCTION_COMPLEXITY_DISTRIBUTION_KEY);
   }
 
   @Test
-  public void aggregate_file_complexity_distribution() throws Exception {
+  public void aggregate_file_complexity_distribution() {
     verify_distribution_aggregation(FILE_COMPLEXITY_DISTRIBUTION_KEY);
   }
 
   @Test
-  public void aggregate_class_complexity_distribution() throws Exception {
+  public void aggregate_class_complexity_distribution() {
     verify_distribution_aggregation(CLASS_COMPLEXITY_DISTRIBUTION_KEY);
   }
 
@@ -180,17 +180,17 @@ public class ReportComplexityMeasuresStepTest {
   }
 
   @Test
-  public void compute_and_aggregate_file_complexity() throws Exception {
+  public void compute_and_aggregate_file_complexity() {
     verify_average_compute_and_aggregation(FILE_COMPLEXITY_KEY, COMPLEXITY_KEY, FILES_KEY);
   }
 
   @Test
-  public void compute_and_aggregate_class_complexity() throws Exception {
+  public void compute_and_aggregate_class_complexity() {
     verify_average_compute_and_aggregation(CLASS_COMPLEXITY_KEY, COMPLEXITY_IN_CLASSES_KEY, CLASSES_KEY);
   }
 
   @Test
-  public void compute_and_aggregate_function_complexity() throws Exception {
+  public void compute_and_aggregate_function_complexity() {
     verify_average_compute_and_aggregation(FUNCTION_COMPLEXITY_KEY, COMPLEXITY_IN_FUNCTIONS_KEY, FUNCTIONS_KEY);
   }
 

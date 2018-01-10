@@ -49,7 +49,7 @@ public class IssueFilterExtensionTest extends AbstractIssueTest {
     .withQualityProfile(manyRuleProfileKey);
 
   @Test
-  public void should_filter_files() throws Exception {
+  public void should_filter_files() {
     analysis.withProperties("sonar.exclusions", "**/HelloA1.xoo").run();
 
     List<Issue> issues = searchIssues();

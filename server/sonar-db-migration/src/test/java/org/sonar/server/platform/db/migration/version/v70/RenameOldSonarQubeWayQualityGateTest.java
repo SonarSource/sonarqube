@@ -84,7 +84,7 @@ public class RenameOldSonarQubeWayQualityGateTest {
   }
 
   @Test
-  public void should_log_a_meaningful_info_if_outdated_copy_exists() throws SQLException {
+  public void should_log_a_meaningful_info_if_outdated_copy_exists() {
     insertQualityGate(SONARQUBE_WAY_QUALITY_GATE, false);
     insertQualityGate(SONAR_WAY_OUTDATED_QUALITY_GATE, false);
 

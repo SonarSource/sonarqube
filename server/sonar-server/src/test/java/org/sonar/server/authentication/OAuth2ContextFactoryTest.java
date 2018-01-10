@@ -95,7 +95,7 @@ public class OAuth2ContextFactoryTest {
   }
 
   @Test
-  public void create_context() throws Exception {
+  public void create_context() {
     when(server.getPublicRootUrl()).thenReturn(SECURED_PUBLIC_ROOT_URL);
 
     OAuth2IdentityProvider.InitContext context = newInitContext();
@@ -106,7 +106,7 @@ public class OAuth2ContextFactoryTest {
   }
 
   @Test
-  public void generate_csrf_state() throws Exception {
+  public void generate_csrf_state() {
     OAuth2IdentityProvider.InitContext context = newInitContext();
 
     context.generateCsrfState();
@@ -124,7 +124,7 @@ public class OAuth2ContextFactoryTest {
   }
 
   @Test
-  public void create_callback() throws Exception {
+  public void create_callback() {
     when(server.getPublicRootUrl()).thenReturn(SECURED_PUBLIC_ROOT_URL);
 
     OAuth2IdentityProvider.CallbackContext callback = newCallbackContext();
@@ -135,7 +135,7 @@ public class OAuth2ContextFactoryTest {
   }
 
   @Test
-  public void authenticate() throws Exception {
+  public void authenticate() {
     OAuth2IdentityProvider.CallbackContext callback = newCallbackContext();
 
     callback.authenticate(USER_IDENTITY);
@@ -190,7 +190,7 @@ public class OAuth2ContextFactoryTest {
   }
 
   @Test
-  public void verify_csrf_state() throws Exception {
+  public void verify_csrf_state() {
     OAuth2IdentityProvider.CallbackContext callback = newCallbackContext();
 
     callback.verifyCsrfState();

@@ -46,7 +46,7 @@ public class RootsWsTest {
     }
 
     @Override
-    public void handle(Request request, Response response) throws Exception {
+    public void handle(Request request, Response response) {
 
     }
   }

@@ -126,7 +126,7 @@ public abstract class DatabaseCommands {
     }
 
     @Override
-    protected boolean shouldTruncate(Connection connection, String table) throws SQLException {
+    protected boolean shouldTruncate(Connection connection, String table) {
       // truncate all tables on mssql, else unexpected errors in some tests
       return true;
     }

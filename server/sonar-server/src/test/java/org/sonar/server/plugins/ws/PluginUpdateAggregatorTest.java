@@ -43,7 +43,7 @@ public class PluginUpdateAggregatorTest {
 
   @Test
   public void aggregates_returns_an_empty_collection_when_plugin_collection_is_empty() {
-    assertThat(underTest.aggregate(Collections.<PluginUpdate>emptyList())).isEmpty();
+    assertThat(underTest.aggregate(Collections.emptyList())).isEmpty();
   }
 
   @Test

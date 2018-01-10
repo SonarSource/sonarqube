@@ -53,7 +53,7 @@ public class LanguageDistributionMeasuresStep implements ComputationStep {
 
   private static final String UNKNOWN_LANGUAGE_KEY = "<null>";
 
-  private static final ImmutableList<Formula> FORMULAS = ImmutableList.<Formula>of(new LanguageDistributionFormula());
+  private static final ImmutableList<Formula> FORMULAS = ImmutableList.of(new LanguageDistributionFormula());
 
   private static final String[] LANGUAGE_DISTRIBUTION_FORMULA_METRICS = new String[] {NCLOC_LANGUAGE_DISTRIBUTION_KEY};
 

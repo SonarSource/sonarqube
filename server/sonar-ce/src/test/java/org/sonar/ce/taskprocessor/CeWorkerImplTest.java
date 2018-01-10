@@ -77,7 +77,7 @@ public class CeWorkerImplTest {
   private InOrder inOrder = Mockito.inOrder(taskProcessor, queue, executionListener1, executionListener2);
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     when(enabledCeWorkerController.isEnabled(any(CeWorker.class))).thenReturn(true);
   }
 

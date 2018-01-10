@@ -62,19 +62,19 @@ public class IssueIndexProjectStatisticsTest {
   private IssueIndex underTest = new IssueIndex(esTester.client(), system2, userSessionRule, new AuthorizationTypeSupport(userSessionRule));
 
   @Test
-  public void searchProjectStatistics_returns_empty_list_if_no_input() throws Exception {
+  public void searchProjectStatistics_returns_empty_list_if_no_input() {
     List<ProjectStatistics> result = underTest.searchProjectStatistics(emptyList(), emptyList(), "unknownUser");
     assertThat(result).isEmpty();
   }
 
   @Test
-  public void searchProjectStatistics_returns_empty_list_if_the_input_does_not_match_anything() throws Exception {
+  public void searchProjectStatistics_returns_empty_list_if_the_input_does_not_match_anything() {
     List<ProjectStatistics> result = underTest.searchProjectStatistics(singletonList("unknownProjectUuid"), singletonList(1_111_234_567_890L), "unknownUser");
     assertThat(result).isEmpty();
   }
 
   @Test
-  public void searchProjectStatistics_returns_something() throws Exception {
+  public void searchProjectStatistics_returns_something() {
     OrganizationDto org = newOrganizationDto();
     ComponentDto project = newPrivateProjectDto(org);
     String userLogin = randomAlphanumeric(20);
@@ -87,7 +87,7 @@ public class IssueIndexProjectStatisticsTest {
   }
 
   @Test
-  public void searchProjectStatistics_does_not_return_results_if_assignee_does_not_match() throws Exception {
+  public void searchProjectStatistics_does_not_return_results_if_assignee_does_not_match() {
     OrganizationDto org1 = newOrganizationDto();
     ComponentDto project = newPrivateProjectDto(org1);
     String userLogin1 = randomAlphanumeric(20);
@@ -101,7 +101,7 @@ public class IssueIndexProjectStatisticsTest {
   }
 
   @Test
-  public void searchProjectStatistics_returns_results_if_assignee_matches() throws Exception {
+  public void searchProjectStatistics_returns_results_if_assignee_matches() {
     OrganizationDto org1 = newOrganizationDto();
     ComponentDto project = newPrivateProjectDto(org1);
     String userLogin1 = randomAlphanumeric(20);
@@ -114,7 +114,7 @@ public class IssueIndexProjectStatisticsTest {
   }
 
   @Test
-  public void searchProjectStatistics_returns_results_if_functional_date_is_strictly_after_from_date() throws Exception {
+  public void searchProjectStatistics_returns_results_if_functional_date_is_strictly_after_from_date() {
     OrganizationDto org1 = newOrganizationDto();
     ComponentDto project = newPrivateProjectDto(org1);
     String userLogin1 = randomAlphanumeric(20);
@@ -127,7 +127,7 @@ public class IssueIndexProjectStatisticsTest {
   }
 
   @Test
-  public void searchProjectStatistics_does_not_return_results_if_functional_date_is_same_as_from_date() throws Exception {
+  public void searchProjectStatistics_does_not_return_results_if_functional_date_is_same_as_from_date() {
     OrganizationDto org1 = newOrganizationDto();
     ComponentDto project = newPrivateProjectDto(org1);
     String userLogin1 = randomAlphanumeric(20);
@@ -140,7 +140,7 @@ public class IssueIndexProjectStatisticsTest {
   }
 
   @Test
-  public void searchProjectStatistics_does_not_return_resolved_issues() throws Exception {
+  public void searchProjectStatistics_does_not_return_resolved_issues() {
     OrganizationDto org1 = newOrganizationDto();
     ComponentDto project = newPrivateProjectDto(org1);
     String userLogin1 = randomAlphanumeric(20);
@@ -157,7 +157,7 @@ public class IssueIndexProjectStatisticsTest {
   }
 
   @Test
-  public void searchProjectStatistics_does_not_return_results_if_functional_date_is_before_from_date() throws Exception {
+  public void searchProjectStatistics_does_not_return_results_if_functional_date_is_before_from_date() {
     OrganizationDto org1 = newOrganizationDto();
     ComponentDto project = newPrivateProjectDto(org1);
     String userLogin1 = randomAlphanumeric(20);
@@ -170,7 +170,7 @@ public class IssueIndexProjectStatisticsTest {
   }
 
   @Test
-  public void searchProjectStatistics_returns_issue_count() throws Exception {
+  public void searchProjectStatistics_returns_issue_count() {
     OrganizationDto org1 = newOrganizationDto();
     ComponentDto project = newPrivateProjectDto(org1);
     String userLogin1 = randomAlphanumeric(20);
@@ -186,7 +186,7 @@ public class IssueIndexProjectStatisticsTest {
   }
 
   @Test
-  public void searchProjectStatistics_returns_issue_count_for_multiple_projects() throws Exception {
+  public void searchProjectStatistics_returns_issue_count_for_multiple_projects() {
     OrganizationDto org1 = newOrganizationDto();
     ComponentDto project1 = newPrivateProjectDto(org1);
     ComponentDto project2 = newPrivateProjectDto(org1);
@@ -214,7 +214,7 @@ public class IssueIndexProjectStatisticsTest {
   }
 
   @Test
-  public void searchProjectStatistics_returns_max_date_for_multiple_projects() throws Exception {
+  public void searchProjectStatistics_returns_max_date_for_multiple_projects() {
     OrganizationDto org1 = newOrganizationDto();
     ComponentDto project1 = newPrivateProjectDto(org1);
     ComponentDto project2 = newPrivateProjectDto(org1);
@@ -242,7 +242,7 @@ public class IssueIndexProjectStatisticsTest {
   }
 
   @Test
-  public void searchProjectStatistics_return_branch_issues() throws Exception {
+  public void searchProjectStatistics_return_branch_issues() {
     OrganizationDto organization = newOrganizationDto();
     ComponentDto project = newPrivateProjectDto(organization);
     ComponentDto branch = newProjectBranch(project, newBranchDto(project).setKey("branch"));

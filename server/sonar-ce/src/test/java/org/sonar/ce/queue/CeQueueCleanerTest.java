@@ -83,7 +83,7 @@ public class CeQueueCleanerTest {
     assertThat(dataDao.selectData(dbTester.getSession(), "TASK_2")).isNotPresent();
   }
 
-  private CeQueueDto insertInQueue(String taskUuid, CeQueueDto.Status status) throws IOException {
+  private CeQueueDto insertInQueue(String taskUuid, CeQueueDto.Status status) {
     CeQueueDto dto = new CeQueueDto();
     dto.setTaskType(CeTaskTypes.REPORT);
     dto.setComponentUuid("PROJECT_1");
@@ -94,7 +94,7 @@ public class CeQueueCleanerTest {
     return dto;
   }
 
-  private void insertTaskData(String taskUuid) throws IOException {
+  private void insertTaskData(String taskUuid) {
     dbTester.getDbClient().ceTaskInputDao().insert(dbTester.getSession(), taskUuid, IOUtils.toInputStream("{binary}"));
     dbTester.getSession().commit();
   }

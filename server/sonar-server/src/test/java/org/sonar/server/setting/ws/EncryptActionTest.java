@@ -94,7 +94,7 @@ public class EncryptActionTest {
   }
 
   @Test
-  public void throw_ForbiddenException_if_not_system_administrator() throws Exception {
+  public void throw_ForbiddenException_if_not_system_administrator() {
     userSession.logIn().setNonSystemAdministrator();
 
     expectedException.expect(ForbiddenException.class);

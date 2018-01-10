@@ -50,51 +50,51 @@ public class ServletResponseTest {
   }
 
   @Test
-  public void test_default_header() throws Exception {
+  public void test_default_header() {
     verify(response).setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
   }
 
   @Test
-  public void set_header() throws Exception {
+  public void set_header() {
     underTest.setHeader("header", "value");
 
     verify(response).setHeader("header", "value");
   }
 
   @Test
-  public void get_header() throws Exception {
+  public void get_header() {
     underTest.getHeader("header");
 
     verify(response).getHeader("header");
   }
 
   @Test
-  public void get_header_names() throws Exception {
+  public void get_header_names() {
     underTest.getHeaderNames();
 
     verify(response).getHeaderNames();
   }
 
   @Test
-  public void test_default_status() throws Exception {
+  public void test_default_status() {
     verify(response).setStatus(200);
   }
 
   @Test
-  public void set_status() throws Exception {
+  public void set_status() {
     underTest.stream().setStatus(404);
 
     verify(response).setStatus(404);
   }
 
   @Test
-  public void test_output() throws Exception {
+  public void test_output() {
     assertThat(underTest.stream().output()).isEqualTo(output);
   }
 
 
   @Test
-  public void test_reset() throws Exception {
+  public void test_reset() {
     underTest.stream().reset();
 
     verify(response).reset();

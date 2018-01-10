@@ -233,7 +233,7 @@ public class ProcessLauncherImplTest {
     }
 
     @Override
-    public Process start() throws IOException {
+    public Process start() {
       this.started = true;
       return mock(Process.class);
     }

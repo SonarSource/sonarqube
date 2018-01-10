@@ -49,7 +49,7 @@ public class DifferentialPeriodsTest {
    * SONAR-7093
    */
   @Test
-  public void ensure_leak_period_defined_at_project_level_is_taken_into_account() throws Exception {
+  public void ensure_leak_period_defined_at_project_level_is_taken_into_account() {
     orchestrator.getServer().provisionProject(PROJECT_KEY, PROJECT_KEY);
 
     // Set a global property and a project property to ensure project property is used
@@ -81,7 +81,7 @@ public class DifferentialPeriodsTest {
    * SONAR-7237
    */
   @Test
-  public void ensure_differential_measures_are_computed_when_adding_new_component_after_period() throws Exception {
+  public void ensure_differential_measures_are_computed_when_adding_new_component_after_period() {
     orchestrator.getServer().provisionProject(MULTI_MODULE_PROJECT_KEY, MULTI_MODULE_PROJECT_KEY);
     tester.settings().setProjectSetting(MULTI_MODULE_PROJECT_KEY, "sonar.leak.period", "30");
 
@@ -103,7 +103,7 @@ public class DifferentialPeriodsTest {
   }
 
   @Test
-  public void compute_no_new_lines_measures_when_changes_but_no_scm() throws Exception {
+  public void compute_no_new_lines_measures_when_changes_but_no_scm() {
     orchestrator.getServer().provisionProject(MULTI_MODULE_PROJECT_KEY, MULTI_MODULE_PROJECT_KEY);
     tester.settings().setProjectSetting(MULTI_MODULE_PROJECT_KEY, "sonar.leak.period", "previous_version");
 
@@ -125,7 +125,7 @@ public class DifferentialPeriodsTest {
   }
 
   @Test
-  public void compute_zero_new_lines_measures_when_no_changes_and_scm_available() throws Exception {
+  public void compute_zero_new_lines_measures_when_no_changes_and_scm_available() {
     String projectKey = "sample-scm";
     orchestrator.getServer().provisionProject(projectKey, projectKey);
     tester.settings().setProjectSetting(projectKey, "sonar.leak.period", "previous_version");

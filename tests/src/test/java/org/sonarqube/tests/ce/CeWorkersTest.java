@@ -174,7 +174,7 @@ public class CeWorkersTest {
   }
 
   @Test
-  public void ce_worker_is_resilient_to_OOM_and_RuntimeException_when_starting_or_stopping_analysis_report_container() throws IOException {
+  public void ce_worker_is_resilient_to_OOM_and_RuntimeException_when_starting_or_stopping_analysis_report_container() {
     int initSuccessReportTaskCount = adminWsClient.ce().activity(new ActivityRequest()
       .setType("REPORT")
       .setStatus(ImmutableList.of("SUCCESS")))

@@ -30,7 +30,7 @@ public final class CoreCustomMetrics implements Metrics {
 
   @Override
   public List<Metric> getMetrics() {
-    return ImmutableList.<Metric>of(
+    return ImmutableList.of(
       new Metric.Builder("burned_budget", "Burned budget", Metric.ValueType.FLOAT)
         .setDirection(Metric.DIRECTION_NONE)
         .setQualitative(false)

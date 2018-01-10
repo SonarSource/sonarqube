@@ -53,7 +53,7 @@ public class StopRequestWatcherImplTest {
   private Scheduler scheduler = mock(Scheduler.class);
 
   @Test
-  public void do_not_watch_command_if_disabled() throws IOException {
+  public void do_not_watch_command_if_disabled() {
     enableSetting(false);
     StopRequestWatcherImpl underTest = new StopRequestWatcherImpl(settings, scheduler, commands);
 

@@ -131,7 +131,7 @@ public class CeQueueImplTest {
   }
 
   @Test
-  public void cancel_pending() throws Exception {
+  public void cancel_pending() {
     CeTask task = submit(CeTaskTypes.REPORT, "PROJECT_1");
     CeQueueDto queueDto = db.getDbClient().ceQueueDao().selectByUuid(db.getSession(), task.getUuid()).get();
 
@@ -143,7 +143,7 @@ public class CeQueueImplTest {
   }
 
   @Test
-  public void fail_to_cancel_if_in_progress() throws Exception {
+  public void fail_to_cancel_if_in_progress() {
     submit(CeTaskTypes.REPORT, "PROJECT_1");
     CeQueueDto ceQueueDto = db.getDbClient().ceQueueDao().peek(session, WORKER_UUID, MAX_EXECUTION_COUNT).get();
 
@@ -154,7 +154,7 @@ public class CeQueueImplTest {
   }
 
   @Test
-  public void cancelAll_pendings_but_not_in_progress() throws Exception {
+  public void cancelAll_pendings_but_not_in_progress() {
     CeTask inProgressTask = submit(CeTaskTypes.REPORT, "PROJECT_1");
     CeTask pendingTask1 = submit(CeTaskTypes.REPORT, "PROJECT_2");
     CeTask pendingTask2 = submit(CeTaskTypes.REPORT, "PROJECT_3");
@@ -173,7 +173,7 @@ public class CeQueueImplTest {
   }
 
   @Test
-  public void pause_and_resume_submits() throws Exception {
+  public void pause_and_resume_submits() {
     assertThat(underTest.isSubmitPaused()).isFalse();
     underTest.pauseSubmit();
     assertThat(underTest.isSubmitPaused()).isTrue();

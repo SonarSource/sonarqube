@@ -45,7 +45,7 @@ public class TechnicalDebtAndIssueNewMeasuresTest {
   public Tester tester = new Tester(orchestrator);
 
   @Test
-  public void since_30_days_with_constant_effort() throws Exception {
+  public void since_30_days_with_constant_effort() {
     tester.settings().setGlobalSettings("sonar.leak.period", "30");
     restoreQualityProfile("one-issue-per-line");
     provisionSampleProject();
@@ -83,7 +83,7 @@ public class TechnicalDebtAndIssueNewMeasuresTest {
   }
 
   @Test
-  public void since_30_days_with_effort_change() throws Exception {
+  public void since_30_days_with_effort_change() {
     tester.settings().setGlobalSettings("sonar.leak.period", "30");
     restoreQualityProfile("one-issue-per-line");
     provisionSampleProject();
@@ -121,7 +121,7 @@ public class TechnicalDebtAndIssueNewMeasuresTest {
   }
 
   @Test
-  public void since_previous_version_with_constant_effort() throws Exception {
+  public void since_previous_version_with_constant_effort() {
     tester.settings().setGlobalSettings("sonar.leak.period", "previous_version");
     restoreQualityProfile("one-issue-per-line");
     provisionSampleProject();
@@ -159,7 +159,7 @@ public class TechnicalDebtAndIssueNewMeasuresTest {
   }
 
   @Test
-  public void since_previous_version_with_effort_change() throws Exception {
+  public void since_previous_version_with_effort_change() {
     tester.settings().setGlobalSettings( "sonar.leak.period", "previous_version");
     restoreQualityProfile("one-issue-per-line");
     provisionSampleProject();

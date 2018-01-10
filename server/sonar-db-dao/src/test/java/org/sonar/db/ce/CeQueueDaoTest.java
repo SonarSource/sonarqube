@@ -201,7 +201,7 @@ public class CeQueueDaoTest {
   }
 
   @Test
-  public void test_resetAllToPendingStatus() throws Exception {
+  public void test_resetAllToPendingStatus() {
     insert(TASK_UUID_1, COMPONENT_UUID_1, PENDING);
     insert(TASK_UUID_2, COMPONENT_UUID_1, IN_PROGRESS);
     insert(TASK_UUID_3, COMPONENT_UUID_1, IN_PROGRESS);
@@ -361,7 +361,7 @@ public class CeQueueDaoTest {
   }
 
   @Test
-  public void peek_none_if_no_pendings() throws Exception {
+  public void peek_none_if_no_pendings() {
     assertThat(underTest.peek(db.getSession(), WORKER_UUID_1, MAX_EXECUTION_COUNT).isPresent()).isFalse();
 
     // not pending, but in progress
@@ -370,7 +370,7 @@ public class CeQueueDaoTest {
   }
 
   @Test
-  public void peek_oldest_pending() throws Exception {
+  public void peek_oldest_pending() {
     insert(TASK_UUID_1, COMPONENT_UUID_1, PENDING);
     system2.setNow(INIT_TIME + 3_000_000);
     insert(TASK_UUID_2, COMPONENT_UUID_2, PENDING);
@@ -401,7 +401,7 @@ public class CeQueueDaoTest {
   }
 
   @Test
-  public void do_not_peek_multiple_tasks_on_same_project_at_the_same_time() throws Exception {
+  public void do_not_peek_multiple_tasks_on_same_project_at_the_same_time() {
     // two pending tasks on the same project
     insert(TASK_UUID_1, COMPONENT_UUID_1, PENDING);
     system2.setNow(INIT_TIME + 3_000_000);
@@ -563,7 +563,7 @@ public class CeQueueDaoTest {
       .setTaskType(CeTaskTypes.REPORT)
       .setCreatedAt(100_000L));
 
-    CeTaskQuery query = new CeTaskQuery().setComponentUuids(Collections.<String>emptyList());
+    CeTaskQuery query = new CeTaskQuery().setComponentUuids(Collections.emptyList());
 
     List<CeQueueDto> result = underTest.selectByQueryInDescOrder(db.getSession(), query, 1_000);
     int total = underTest.countByQuery(db.getSession(), query);

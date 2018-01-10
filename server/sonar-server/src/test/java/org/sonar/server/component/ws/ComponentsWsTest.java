@@ -34,7 +34,7 @@ public class ComponentsWsTest {
   private ComponentsWsAction action = new ComponentsWsAction() {
 
     @Override
-    public void handle(Request request, Response response) throws Exception {
+    public void handle(Request request, Response response) {
     }
 
     @Override

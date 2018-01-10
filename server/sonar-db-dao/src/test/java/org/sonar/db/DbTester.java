@@ -319,7 +319,7 @@ public class DbTester extends AbstractDbTester<TestDb> {
     }
 
     @Override
-    public Connection get() throws SQLException {
+    public Connection get() {
       return dbSession.getConnection();
     }
 

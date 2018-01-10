@@ -45,7 +45,7 @@ public class DuplicationLineReaderTest {
 
   @Test
   public void read_nothing() {
-    DuplicationLineReader reader = new DuplicationLineReader(Collections.<Duplication>emptySet());
+    DuplicationLineReader reader = new DuplicationLineReader(Collections.emptySet());
 
     reader.read(line1);
 

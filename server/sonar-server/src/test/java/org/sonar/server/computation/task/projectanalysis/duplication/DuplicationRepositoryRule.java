@@ -61,7 +61,7 @@ public class DuplicationRepositoryRule extends ExternalResource implements Dupli
   }
 
   @Override
-  protected void before() throws Throwable {
+  protected void before() {
     this.delegate = new DuplicationRepositoryImpl();
   }
 
@@ -115,7 +115,7 @@ public class DuplicationRepositoryRule extends ExternalResource implements Dupli
     delegate.add(component,
       new Duplication(
         original,
-        Arrays.<Duplicate>asList(new InProjectDuplicate(componentProvider.getByRef(otherFileRef), duplicate))
+        Arrays.asList(new InProjectDuplicate(componentProvider.getByRef(otherFileRef), duplicate))
       )
       );
 
@@ -131,7 +131,7 @@ public class DuplicationRepositoryRule extends ExternalResource implements Dupli
     delegate.add(componentProvider.getByRef(fileRef),
       new Duplication(
         original,
-        Arrays.<Duplicate>asList(new CrossProjectDuplicate(otherFileKey, duplicate))
+        Arrays.asList(new CrossProjectDuplicate(otherFileKey, duplicate))
       )
       );
 

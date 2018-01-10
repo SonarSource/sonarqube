@@ -66,12 +66,12 @@ public class IssueActionTest extends AbstractIssueTest {
   }
 
   @Test
-  public void no_comments_by_default() throws Exception {
+  public void no_comments_by_default() {
     assertThat(randomIssue.getComments().getCommentsList()).isEmpty();
   }
 
   @Test
-  public void add_comment() throws Exception {
+  public void add_comment() {
     Issues.Comment comment = issuesService.addComment(new AddCommentRequest().setIssue(randomIssue.getKey()).setText("this is my *comment*")).getIssue().getComments().getComments(0);
     assertThat(comment.getKey()).isNotNull();
     assertThat(comment.getHtmlText()).isEqualTo("this is my <strong>comment</strong>");
@@ -90,7 +90,7 @@ public class IssueActionTest extends AbstractIssueTest {
    * SONAR-4450
    */
   @Test
-  public void should_reject_blank_comment() throws Exception {
+  public void should_reject_blank_comment() {
     try {
       issuesService.addComment(new AddCommentRequest().setIssue(randomIssue.getKey()).setText("  "));
       fail();

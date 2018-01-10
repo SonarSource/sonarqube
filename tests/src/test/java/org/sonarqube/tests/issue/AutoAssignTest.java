@@ -60,7 +60,7 @@ public class AutoAssignTest extends AbstractIssueTest {
   }
 
   @After
-  public void resetData() throws Exception {
+  public void resetData() {
     newAdminWsClient(ORCHESTRATOR).wsConnector().call(new PostRequest("api/projects/delete").setParam("project", "AutoAssignTest"));
     deleteAllUsers();
 
@@ -69,7 +69,7 @@ public class AutoAssignTest extends AbstractIssueTest {
   }
 
   @Test
-  public void auto_assign_issues_to_user() throws Exception {
+  public void auto_assign_issues_to_user() {
     // verify that login matches, case-sensitive
     createUser("user1", "User 1", "user1@email.com");
     createUser("USER2", "User 2", "user2@email.com");
@@ -109,7 +109,7 @@ public class AutoAssignTest extends AbstractIssueTest {
   }
 
   @Test
-  public void auto_assign_issues_to_default_assignee() throws Exception {
+  public void auto_assign_issues_to_default_assignee() {
     createUser("user1", "User 1", "user1@email.com");
     createUser("user2", "User 2", "user2@email.com");
     setServerProperty(ORCHESTRATOR, "sonar.issues.defaultAssigneeLogin", "user2");

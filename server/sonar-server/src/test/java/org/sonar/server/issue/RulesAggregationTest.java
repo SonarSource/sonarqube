@@ -62,7 +62,7 @@ public class RulesAggregationTest {
   }
 
   @Test
-  public void test_equals_and_hash_code() throws Exception {
+  public void test_equals_and_hash_code() {
     RulesAggregation.Rule rule = new RulesAggregation.Rule(RuleKey.of("xoo", "S001"), "S001");
     RulesAggregation.Rule ruleSameRuleKey = new RulesAggregation.Rule(RuleKey.of("xoo", "S001"), "S001");
     RulesAggregation.Rule ruleWithDifferentRuleKey = new RulesAggregation.Rule(RuleKey.of("xoo", "S002"), "S002");

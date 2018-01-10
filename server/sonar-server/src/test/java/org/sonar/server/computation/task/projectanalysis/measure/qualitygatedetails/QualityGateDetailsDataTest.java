@@ -31,7 +31,7 @@ import org.sonar.test.JsonAssert;
 public class QualityGateDetailsDataTest {
   @Test(expected = NullPointerException.class)
   public void constructor_throws_NPE_if_Level_arg_is_null() {
-    new QualityGateDetailsData(null, Collections.<EvaluatedCondition>emptyList(), false);
+    new QualityGateDetailsData(null, Collections.emptyList(), false);
   }
 
   @Test(expected = NullPointerException.class)
@@ -41,7 +41,7 @@ public class QualityGateDetailsDataTest {
 
   @Test
   public void verify_json_when_there_is_no_condition() {
-    String actualJson = new QualityGateDetailsData(Measure.Level.OK, Collections.<EvaluatedCondition>emptyList(), false).toJson();
+    String actualJson = new QualityGateDetailsData(Measure.Level.OK, Collections.emptyList(), false).toJson();
 
     JsonAssert.assertJson(actualJson).isSimilarTo("{" +
       "\"level\":\"OK\"," +
@@ -95,10 +95,10 @@ public class QualityGateDetailsDataTest {
 
   @Test
   public void verify_json_for_small_leak() {
-    String actualJson = new QualityGateDetailsData(Measure.Level.OK, Collections.<EvaluatedCondition>emptyList(), false).toJson();
+    String actualJson = new QualityGateDetailsData(Measure.Level.OK, Collections.emptyList(), false).toJson();
     JsonAssert.assertJson(actualJson).isSimilarTo("{\"ignoredConditions\": false}");
 
-    String actualJson2 = new QualityGateDetailsData(Measure.Level.OK, Collections.<EvaluatedCondition>emptyList(), true).toJson();
+    String actualJson2 = new QualityGateDetailsData(Measure.Level.OK, Collections.emptyList(), true).toJson();
     JsonAssert.assertJson(actualJson2).isSimilarTo("{\"ignoredConditions\": true}");
   }
 

@@ -100,7 +100,7 @@ public class FormDataActionTest {
   }
 
   @Test
-  public void verify_example() throws IOException {
+  public void verify_example() {
     userSessionRule.logIn().setSystemAdministrator();
     when(server.getId()).thenReturn("uuid");
     when(stats.getNcloc()).thenReturn(12345L);

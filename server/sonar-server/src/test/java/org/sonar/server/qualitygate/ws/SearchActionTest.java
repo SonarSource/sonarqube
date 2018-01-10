@@ -242,7 +242,7 @@ public class SearchActionTest {
   }
 
   @Test
-  public void test_paging() throws Exception {
+  public void test_paging() {
     OrganizationDto organization = db.organizations().insert();
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate(organization);
     ComponentDto project1 = db.components().insertPublicProject(organization, p -> p.setName("Project 1"));

@@ -50,7 +50,7 @@ public class DebtModelPluginRepositoryTest {
   DebtModelPluginRepository underTest;
 
   @Test
-  public void test_component_initialization() throws Exception {
+  public void test_component_initialization() {
     // we do have the "csharp-model.xml" file in src/test/resources
     PluginInfo csharpPluginMetadata = new PluginInfo("csharp");
 

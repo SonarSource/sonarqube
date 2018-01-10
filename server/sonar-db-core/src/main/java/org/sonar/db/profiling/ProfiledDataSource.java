@@ -22,7 +22,6 @@ package org.sonar.db.profiling;
 import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.sql.SQLFeatureNotSupportedException;
 import java.util.Collection;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.sonar.api.utils.log.Logger;
@@ -334,7 +333,7 @@ public class ProfiledDataSource extends BasicDataSource {
   }
 
   @Override
-  public java.util.logging.Logger getParentLogger() throws SQLFeatureNotSupportedException {
+  public java.util.logging.Logger getParentLogger() {
     return java.util.logging.Logger.getLogger(getClass().getName());
   }
 

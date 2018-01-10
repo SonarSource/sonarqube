@@ -80,7 +80,7 @@ public class IndexActionTest {
   }
 
   @Test
-  public void return_simple_value() throws Exception {
+  public void return_simple_value() {
     logIn();
     definitions.addComponent(PropertyDefinition.builder("foo").build());
     propertyDb.insertProperties(newGlobalPropertyDto().setKey("foo").setValue("one"));
@@ -89,7 +89,7 @@ public class IndexActionTest {
   }
 
   @Test
-  public void return_multi_values() throws Exception {
+  public void return_multi_values() {
     logIn();
     // Property never defined, default value is returned
     definitions.addComponent(PropertyDefinition.builder("default")
@@ -106,7 +106,7 @@ public class IndexActionTest {
   }
 
   @Test
-  public void return_multi_value_with_coma() throws Exception {
+  public void return_multi_value_with_coma() {
     logIn();
     definitions.addComponent(PropertyDefinition.builder("global").multiValues(true).build());
     propertyDb.insertProperties(newGlobalPropertyDto().setKey("global").setValue("three,four%2Cfive"));
@@ -115,7 +115,7 @@ public class IndexActionTest {
   }
 
   @Test
-  public void return_property_set() throws Exception {
+  public void return_property_set() {
     logIn();
     definitions.addComponent(PropertyDefinition
       .builder("foo")
@@ -130,7 +130,7 @@ public class IndexActionTest {
   }
 
   @Test
-  public void return_default_values() throws Exception {
+  public void return_default_values() {
     logIn();
     definitions.addComponent(PropertyDefinition.builder("foo").defaultValue("default").build());
 
@@ -138,7 +138,7 @@ public class IndexActionTest {
   }
 
   @Test
-  public void return_global_values() throws Exception {
+  public void return_global_values() {
     logIn();
     definitions.addComponent(PropertyDefinition.builder("property").defaultValue("default").build());
     propertyDb.insertProperties(
@@ -149,7 +149,7 @@ public class IndexActionTest {
   }
 
   @Test
-  public void return_project_values() throws Exception {
+  public void return_project_values() {
     logInAsProjectUser();
     definitions.addComponent(PropertyDefinition.builder("property").defaultValue("default").build());
     propertyDb.insertProperties(
@@ -161,7 +161,7 @@ public class IndexActionTest {
   }
 
   @Test
-  public void return_global_values_when_project_does_not_exist() throws Exception {
+  public void return_global_values_when_project_does_not_exist() {
     logIn();
     definitions.addComponent(PropertyDefinition.builder("property").defaultValue("default").build());
     propertyDb.insertProperties(
@@ -171,7 +171,7 @@ public class IndexActionTest {
   }
 
   @Test
-  public void return_values_even_if_no_property_definition() throws Exception {
+  public void return_values_even_if_no_property_definition() {
     logIn();
     propertyDb.insertProperties(newGlobalPropertyDto().setKey("globalPropertyWithoutDefinition").setValue("value"));
 
@@ -179,7 +179,7 @@ public class IndexActionTest {
   }
 
   @Test
-  public void return_empty_when_property_def_exists_but_no_value() throws Exception {
+  public void return_empty_when_property_def_exists_but_no_value() {
     logIn();
     definitions.addComponent(PropertyDefinition.builder("foo").build());
 
@@ -187,7 +187,7 @@ public class IndexActionTest {
   }
 
   @Test
-  public void return_nothing_when_unknown_key() throws Exception {
+  public void return_nothing_when_unknown_key() {
     logIn();
     definitions.addComponent(PropertyDefinition.builder("foo").defaultValue("default").build());
     propertyDb.insertProperties(newGlobalPropertyDto().setKey("bar").setValue(""));
@@ -196,7 +196,7 @@ public class IndexActionTest {
   }
 
   @Test
-  public void return_module_values() throws Exception {
+  public void return_module_values() {
     logInAsProjectUser();
     ComponentDto module = componentDb.insertComponent(newModuleDto(project));
     definitions.addComponent(PropertyDefinition.builder("property").defaultValue("default").build());
@@ -209,7 +209,7 @@ public class IndexActionTest {
   }
 
   @Test
-  public void return_inherited_values_on_module() throws Exception {
+  public void return_inherited_values_on_module() {
     logInAsProjectUser();
     ComponentDto module = componentDb.insertComponent(newModuleDto(project));
     definitions.addComponents(asList(
@@ -226,7 +226,7 @@ public class IndexActionTest {
   }
 
   @Test
-  public void return_inherited_values_on_global_setting() throws Exception {
+  public void return_inherited_values_on_global_setting() {
     logIn();
     definitions.addComponents(asList(
       PropertyDefinition.builder("defaultProperty").defaultValue("default").build(),
@@ -238,7 +238,7 @@ public class IndexActionTest {
   }
 
   @Test
-  public void does_not_return_value_of_deprecated_key() throws Exception {
+  public void does_not_return_value_of_deprecated_key() {
     logIn();
     definitions.addComponent(PropertyDefinition.builder("foo").deprecatedKey("deprecated").build());
     propertyDb.insertProperties(newGlobalPropertyDto().setKey("foo").setValue("one"));
@@ -247,7 +247,7 @@ public class IndexActionTest {
   }
 
   @Test
-  public void does_not_returned_secured_and_license_settings_when_not_authenticated() throws Exception {
+  public void does_not_returned_secured_and_license_settings_when_not_authenticated() {
     definitions.addComponents(asList(
       PropertyDefinition.builder("foo").build(),
       PropertyDefinition.builder("secret.secured").build(),
@@ -261,7 +261,7 @@ public class IndexActionTest {
   }
 
   @Test
-  public void does_not_returned_secured_and_license_settings_in_property_set_when_not_authenticated() throws Exception {
+  public void does_not_returned_secured_and_license_settings_in_property_set_when_not_authenticated() {
     definitions.addComponent(PropertyDefinition
       .builder("foo")
       .type(PropertyType.PROPERTY_SET)
@@ -277,7 +277,7 @@ public class IndexActionTest {
   }
 
   @Test
-  public void return_license_with_hash_settings_when_authenticated_but_not_admin() throws Exception {
+  public void return_license_with_hash_settings_when_authenticated_but_not_admin() {
     logInAsProjectUser();
     definitions.addComponents(asList(
       PropertyDefinition.builder("foo").build(),
@@ -295,7 +295,7 @@ public class IndexActionTest {
   }
 
   @Test
-  public void return_secured_and_license_settings_when_system_admin() throws Exception {
+  public void return_secured_and_license_settings_when_system_admin() {
     logInAsSystemAdministrator();
     definitions.addComponents(asList(
       PropertyDefinition.builder("foo").build(),
@@ -311,7 +311,7 @@ public class IndexActionTest {
   }
 
   @Test
-  public void return_secured_and_license_settings_when_project_admin() throws Exception {
+  public void return_secured_and_license_settings_when_project_admin() {
     logInAsProjectAdmin();
     definitions.addComponents(asList(
       PropertyDefinition.builder("foo").build(),
@@ -327,7 +327,7 @@ public class IndexActionTest {
   }
 
   @Test
-  public void return_secured_and_license_settings_in_property_set_when_system_admin() throws Exception {
+  public void return_secured_and_license_settings_in_property_set_when_system_admin() {
     logInAsSystemAdministrator();
     definitions.addComponent(PropertyDefinition
       .builder("foo")
@@ -344,7 +344,7 @@ public class IndexActionTest {
   }
 
   @Test
-  public void return_all_settings_when_no_component_and_no_key() throws Exception {
+  public void return_all_settings_when_no_component_and_no_key() {
     logInAsSystemAdministrator();
     definitions.addComponents(asList(
       PropertyDefinition.builder("foo").build(),
@@ -360,7 +360,7 @@ public class IndexActionTest {
   }
 
   @Test
-  public void return_all_project_settings_when_component_and_no_key() throws Exception {
+  public void return_all_project_settings_when_component_and_no_key() {
     logInAsProjectAdmin();
     definitions.addComponents(asList(
       PropertyDefinition.builder("foo").build(),
@@ -377,7 +377,7 @@ public class IndexActionTest {
   }
 
   @Test
-  public void return_only_one_setting_when_key_is_provided() throws Exception {
+  public void return_only_one_setting_when_key_is_provided() {
     definitions.addComponents(asList(
       PropertyDefinition.builder("foo").build(),
       PropertyDefinition.builder("bar").build()));
@@ -390,7 +390,7 @@ public class IndexActionTest {
   }
 
   @Test
-  public void does_not_fail_when_user_has_not_project_browse_permission() throws Exception {
+  public void does_not_fail_when_user_has_not_project_browse_permission() {
     userSession.logIn("project-admin").addProjectPermission(CODEVIEWER, project);
     definitions.addComponent(PropertyDefinition.builder("foo").build());
     propertyDb.insertProperties(newComponentPropertyDto(project).setKey("foo").setValue("one"));
@@ -399,7 +399,7 @@ public class IndexActionTest {
   }
 
   @Test
-  public void does_not_fail_when_format_is_set_to_json() throws Exception {
+  public void does_not_fail_when_format_is_set_to_json() {
     logIn();
     definitions.addComponent(PropertyDefinition.builder("foo").defaultValue("default").build());
 
@@ -407,7 +407,7 @@ public class IndexActionTest {
   }
 
   @Test
-  public void fail_when_format_is_set_to_xml() throws Exception {
+  public void fail_when_format_is_set_to_xml() {
     logIn();
     definitions.addComponent(PropertyDefinition.builder("foo").defaultValue("default").build());
 

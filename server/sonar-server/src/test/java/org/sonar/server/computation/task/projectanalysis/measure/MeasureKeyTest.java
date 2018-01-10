@@ -42,7 +42,7 @@ public class MeasureKeyTest {
   }
 
   @Test
-  public void test_equals_and_hashcode() throws Exception {
+  public void test_equals_and_hashcode() {
     MeasureKey measureKey = new MeasureKey("metricKey", null);
     MeasureKey measureKey2 = new MeasureKey("metricKey", null);
     MeasureKey anotherMeasureKey = new MeasureKey("anotherMetricKey", null);

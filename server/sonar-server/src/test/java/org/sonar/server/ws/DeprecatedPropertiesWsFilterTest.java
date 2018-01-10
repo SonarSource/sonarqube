@@ -60,7 +60,7 @@ public class DeprecatedPropertiesWsFilterTest {
   }
 
   @Test
-  public void do_get_pattern() throws Exception {
+  public void do_get_pattern() {
     assertThat(underTest.doGetPattern().matches("/api/properties")).isTrue();
     assertThat(underTest.doGetPattern().matches("/api/properties/")).isTrue();
     assertThat(underTest.doGetPattern().matches("/api/properties/my.property")).isTrue();
@@ -305,7 +305,7 @@ public class DeprecatedPropertiesWsFilterTest {
     }
 
     @Override
-    public int read() throws IOException {
+    public int read() {
       return byteArrayInputStream.read();
     }
   }

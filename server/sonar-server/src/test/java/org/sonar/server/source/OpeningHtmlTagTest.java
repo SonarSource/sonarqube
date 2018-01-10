@@ -26,14 +26,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class OpeningHtmlTagTest {
 
   @Test
-  public void test_getters() throws Exception {
+  public void test_getters() {
     OpeningHtmlTag openingHtmlTag = new OpeningHtmlTag(3, "tag");
     assertThat(openingHtmlTag.getStartOffset()).isEqualTo(3);
     assertThat(openingHtmlTag.getCssClass()).isEqualTo("tag");
   }
 
   @Test
-  public void test_equals() throws Exception {
+  public void test_equals() {
     OpeningHtmlTag openingHtmlTag = new OpeningHtmlTag(3, "tag");
     OpeningHtmlTag openingHtmlTagWithSameValues = new OpeningHtmlTag(3, "tag");
     OpeningHtmlTag openingHtmlTagWithDifferentValues = new OpeningHtmlTag(5, "tag2");
@@ -47,7 +47,7 @@ public class OpeningHtmlTagTest {
   }
 
   @Test
-  public void test_hashcode() throws Exception {
+  public void test_hashcode() {
     OpeningHtmlTag openingHtmlTag = new OpeningHtmlTag(3, "tag");
     OpeningHtmlTag openingHtmlTagWithSameValues = new OpeningHtmlTag(3, "tag");
     OpeningHtmlTag openingHtmlTagWithDifferentValue = new OpeningHtmlTag(5, "tag2");

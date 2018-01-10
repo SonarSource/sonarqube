@@ -38,7 +38,7 @@ public class ViewIndexTest {
   ViewIndex index = new ViewIndex(esTester.client());
 
   @Test
-  public void find_all_view_uuids() throws Exception {
+  public void find_all_view_uuids() {
     ViewDoc view1 = new ViewDoc().setUuid("UUID1").setProjects(asList("P1"));
     ViewDoc view2 = new ViewDoc().setUuid("UUID2").setProjects(asList("P2"));
     esTester.putDocuments(INDEX_TYPE_VIEW, view1);

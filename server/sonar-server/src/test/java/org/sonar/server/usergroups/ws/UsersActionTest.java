@@ -56,7 +56,7 @@ public class UsersActionTest {
     new UsersAction(db.getDbClient(), userSession, new GroupWsSupport(db.getDbClient(), defaultOrganizationProvider, new DefaultGroupFinder(db.getDbClient()))));
 
   @Test
-  public void fail_if_unknown_group_id() throws Exception {
+  public void fail_if_unknown_group_id() {
     loginAsAdminOnDefaultOrganization();
 
     expectedException.expect(NotFoundException.class);
@@ -68,7 +68,7 @@ public class UsersActionTest {
   }
 
   @Test
-  public void fail_if_not_admin_of_organization() throws Exception {
+  public void fail_if_not_admin_of_organization() {
     GroupDto group = db.users().insertGroup();
     userSession.logIn("not-admin");
 
@@ -80,7 +80,7 @@ public class UsersActionTest {
   }
 
   @Test
-  public void fail_if_admin_of_other_organization_only() throws Exception {
+  public void fail_if_admin_of_other_organization_only() {
     OrganizationDto org1 = db.organizations().insert();
     OrganizationDto org2 = db.organizations().insert();
     GroupDto group = db.users().insertGroup(org1, "the-group");
@@ -94,7 +94,7 @@ public class UsersActionTest {
   }
 
   @Test
-  public void group_has_no_users() throws Exception {
+  public void group_has_no_users() {
     GroupDto group = db.users().insertGroup();
     loginAsAdminOnDefaultOrganization();
 
@@ -112,7 +112,7 @@ public class UsersActionTest {
   }
 
   @Test
-  public void return_members_by_group_id() throws Exception {
+  public void return_members_by_group_id() {
     GroupDto group = db.users().insertGroup();
     UserDto lovelace = db.users().insertUser(newUserDto().setLogin("ada.login").setName("Ada Lovelace"));
     db.organizations().addMember(db.getDefaultOrganization(), lovelace);
@@ -136,7 +136,7 @@ public class UsersActionTest {
   }
 
   @Test
-  public void references_group_by_its_name() throws Exception {
+  public void references_group_by_its_name() {
     OrganizationDto org = db.organizations().insert();
     GroupDto group = db.users().insertGroup(org, "the-group");
     UserDto lovelace = db.users().insertUser(newUserDto().setLogin("ada.login").setName("Ada Lovelace"));
@@ -162,7 +162,7 @@ public class UsersActionTest {
   }
 
   @Test
-  public void references_group_in_default_organization_by_its_name() throws Exception {
+  public void references_group_in_default_organization_by_its_name() {
     GroupDto group = db.users().insertGroup();
     UserDto lovelace = db.users().insertUser(newUserDto().setLogin("ada.login").setName("Ada Lovelace"));
     db.organizations().addMember(db.getDefaultOrganization(), lovelace);
@@ -186,7 +186,7 @@ public class UsersActionTest {
   }
 
   @Test
-  public void filter_members_by_name() throws Exception {
+  public void filter_members_by_name() {
     GroupDto group = db.users().insertGroup(db.getDefaultOrganization(), "a group");
     UserDto adaLovelace = db.users().insertUser(newUserDto().setLogin("ada").setName("Ada Lovelace"));
     db.organizations().addMember(db.getDefaultOrganization(), adaLovelace);
@@ -202,7 +202,7 @@ public class UsersActionTest {
   }
 
   @Test
-  public void selected_users() throws Exception {
+  public void selected_users() {
     GroupDto group = db.users().insertGroup(db.getDefaultOrganization(), "a group");
     UserDto lovelace = db.users().insertUser(newUserDto().setLogin("ada").setName("Ada Lovelace"));
     db.organizations().addMember(db.getDefaultOrganization(), lovelace);
@@ -232,7 +232,7 @@ public class UsersActionTest {
   }
 
   @Test
-  public void deselected_users() throws Exception {
+  public void deselected_users() {
     GroupDto group = db.users().insertGroup();
     UserDto lovelace = db.users().insertUser(newUserDto().setLogin("ada").setName("Ada Lovelace"));
     db.organizations().addMember(db.getDefaultOrganization(), lovelace);
@@ -255,7 +255,7 @@ public class UsersActionTest {
   }
 
   @Test
-  public void paging() throws Exception {
+  public void paging() {
     GroupDto group = db.users().insertGroup();
     UserDto lovelace = db.users().insertUser(newUserDto().setLogin("ada").setName("Ada Lovelace"));
     db.organizations().addMember(db.getDefaultOrganization(), lovelace);
@@ -295,7 +295,7 @@ public class UsersActionTest {
   }
 
   @Test
-  public void filtering_by_name_email_and_login() throws Exception {
+  public void filtering_by_name_email_and_login() {
     GroupDto group = db.users().insertGroup();
     UserDto lovelace = db.users().insertUser(newUserDto().setLogin("ada.login").setName("Ada Lovelace").setEmail("ada@email.com"));
     db.organizations().addMember(db.getDefaultOrganization(), lovelace);

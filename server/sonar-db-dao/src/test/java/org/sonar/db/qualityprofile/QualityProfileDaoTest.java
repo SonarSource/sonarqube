@@ -575,7 +575,7 @@ public class QualityProfileDaoTest {
   }
 
   @Test
-  public void select_selected_projects() throws Exception {
+  public void select_selected_projects() {
     ComponentDto project1 = db.components().insertPrivateProject(t -> t.setName("Project1 name"), t -> t.setOrganizationUuid(organization.getUuid()));
     ComponentDto project2 = db.components().insertPrivateProject(t -> t.setName("Project2 name"), t -> t.setOrganizationUuid(organization.getUuid()));
     ComponentDto project3 = db.components().insertPrivateProject(t -> t.setName("Project3 name"), t -> t.setOrganizationUuid(organization.getUuid()));
@@ -604,7 +604,7 @@ public class QualityProfileDaoTest {
   }
 
   @Test
-  public void select_deselected_projects() throws Exception {
+  public void select_deselected_projects() {
     ComponentDto project1 = db.components().insertPrivateProject(t -> t.setName("Project1 name"), t -> t.setOrganizationUuid(organization.getUuid()));
     ComponentDto project2 = db.components().insertPrivateProject(t -> t.setName("Project2 name"), t -> t.setOrganizationUuid(organization.getUuid()));
     ComponentDto project3 = db.components().insertPrivateProject(t -> t.setName("Project3 name"), t -> t.setOrganizationUuid(organization.getUuid()));
@@ -632,7 +632,7 @@ public class QualityProfileDaoTest {
   }
 
   @Test
-  public void select_project_associations() throws Exception {
+  public void select_project_associations() {
     ComponentDto project1 = db.components().insertPrivateProject(t -> t.setName("Project1 name"), t -> t.setOrganizationUuid(organization.getUuid()));
     ComponentDto project2 = db.components().insertPrivateProject(t -> t.setName("Project2 name"), t -> t.setOrganizationUuid(organization.getUuid()));
     ComponentDto project3 = db.components().insertPrivateProject(t -> t.setName("Project3 name"), t -> t.setOrganizationUuid(organization.getUuid()));

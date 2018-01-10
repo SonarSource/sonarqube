@@ -44,7 +44,7 @@ public class AuthenticatorsImplTest {
   private Authenticators underTest = new AuthenticatorsImpl(jwtHttpHandler, basicAuthenticator, ssoAuthenticator);
 
   @Test
-  public void authenticate_from_jwt_token() throws Exception {
+  public void authenticate_from_jwt_token() {
     when(ssoAuthenticator.authenticate(request, response)).thenReturn(Optional.empty());
     when(jwtHttpHandler.validateToken(request, response)).thenReturn(Optional.of(user));
 
@@ -53,7 +53,7 @@ public class AuthenticatorsImplTest {
   }
 
   @Test
-  public void authenticate_from_basic_header() throws Exception {
+  public void authenticate_from_basic_header() {
     when(basicAuthenticator.authenticate(request)).thenReturn(Optional.of(user));
     when(ssoAuthenticator.authenticate(request, response)).thenReturn(Optional.empty());
     when(jwtHttpHandler.validateToken(request, response)).thenReturn(Optional.empty());
@@ -66,7 +66,7 @@ public class AuthenticatorsImplTest {
   }
 
   @Test
-  public void authenticate_from_sso() throws Exception {
+  public void authenticate_from_sso() {
     when(ssoAuthenticator.authenticate(request, response)).thenReturn(Optional.of(user));
     when(jwtHttpHandler.validateToken(request, response)).thenReturn(Optional.empty());
 
@@ -78,7 +78,7 @@ public class AuthenticatorsImplTest {
   }
 
   @Test
-  public void return_empty_if_not_authenticated() throws Exception {
+  public void return_empty_if_not_authenticated() {
     when(jwtHttpHandler.validateToken(request, response)).thenReturn(Optional.empty());
     when(ssoAuthenticator.authenticate(request, response)).thenReturn(Optional.empty());
     when(basicAuthenticator.authenticate(request)).thenReturn(Optional.empty());

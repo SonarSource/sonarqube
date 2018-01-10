@@ -83,13 +83,13 @@ public class DropTableBuilderTest {
   }
 
   @Test
-  public void fail_when_dialect_is_null() throws Exception {
+  public void fail_when_dialect_is_null() {
     expectedException.expect(NullPointerException.class);
     new DropTableBuilder(null, "issues");
   }
 
   @Test
-  public void fail_when_table_is_null() throws Exception {
+  public void fail_when_table_is_null() {
     expectedException.expect(NullPointerException.class);
     new DropTableBuilder(new PostgreSql(), null);
   }

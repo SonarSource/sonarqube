@@ -31,7 +31,7 @@ public class NewTest {
   public EsTester es = new EsTester(new ComponentIndexDefinition(new MapSettings().asConfig()));
 
   @Test
-  public void name() throws Exception {
+  public void name() {
     IndicesExistsResponse x = es.client().prepareIndicesExist("components").get();
     System.out.println(x.isExists());
     IndicesExistsResponse x2 = es.client().prepareIndicesExist("components").get();

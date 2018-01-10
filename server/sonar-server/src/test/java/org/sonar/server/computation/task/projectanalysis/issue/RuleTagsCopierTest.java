@@ -63,7 +63,7 @@ public class RuleTagsCopierTest {
   @Test
   public void do_not_copy_tags_if_existing_issue_without_tags() {
     rule.setTags(Sets.newHashSet("bug", "performance"));
-    issue.setNew(false).setTags(Collections.<String>emptyList());
+    issue.setNew(false).setTags(Collections.emptyList());
 
     underTest.onIssue(mock(Component.class), issue);
 

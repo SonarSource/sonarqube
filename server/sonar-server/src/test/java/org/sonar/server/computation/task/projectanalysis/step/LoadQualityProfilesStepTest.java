@@ -50,7 +50,7 @@ public class LoadQualityProfilesStepTest {
   LoadQualityProfilesStep underTest = new LoadQualityProfilesStep(batchReportReader, activeRulesHolder, ruleRepository);
 
   @Test
-  public void feed_active_rules() throws Exception {
+  public void feed_active_rules() {
     ruleRepository.add(XOO_X1)
       .setPluginKey("xoo");
     ruleRepository.add(XOO_X2)
@@ -81,7 +81,7 @@ public class LoadQualityProfilesStepTest {
   }
 
   @Test
-  public void ignore_rules_with_status_REMOVED() throws Exception {
+  public void ignore_rules_with_status_REMOVED() {
     ruleRepository.add(new DumbRule(XOO_X1).setStatus(RuleStatus.REMOVED));
 
     ScannerReport.ActiveRule.Builder batch1 = ScannerReport.ActiveRule.newBuilder()
@@ -95,7 +95,7 @@ public class LoadQualityProfilesStepTest {
   }
 
   @Test
-  public void ignore_not_found_rules() throws Exception {
+  public void ignore_not_found_rules() {
     ScannerReport.ActiveRule.Builder batch1 = ScannerReport.ActiveRule.newBuilder()
       .setRuleRepository(XOO_X1.repository()).setRuleKey(XOO_X1.rule())
       .setSeverity(Constants.Severity.BLOCKER);

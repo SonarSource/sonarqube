@@ -90,7 +90,7 @@ public class ProvisionedActionTest {
   }
 
   @Test
-  public void all_provisioned_projects_without_analyzed_projects() throws Exception {
+  public void all_provisioned_projects_without_analyzed_projects() {
     OrganizationDto org = db.organizations().insert();
     ComponentDto analyzedProject = ComponentTesting.newPrivateProjectDto(org, "analyzed-uuid-1");
     db.components().insertComponents(newProvisionedProject(org, "1"), newProvisionedProject(org, "2"), analyzedProject);
@@ -123,7 +123,7 @@ public class ProvisionedActionTest {
   }
 
   @Test
-  public void provisioned_projects_with_correct_pagination() throws Exception {
+  public void provisioned_projects_with_correct_pagination() {
     OrganizationDto org = db.organizations().insert();
     for (int i = 1; i <= 10; i++) {
       db.components().insertComponent(newProvisionedProject(org, String.valueOf(i)));
@@ -141,7 +141,7 @@ public class ProvisionedActionTest {
   }
 
   @Test
-  public void provisioned_projects_with_desired_fields() throws Exception {
+  public void provisioned_projects_with_desired_fields() {
     OrganizationDto organization = db.organizations().insert();
     db.components().insertComponent(newProvisionedProject(organization, "1"));
     userSessionRule.logIn().addPermission(PROVISION_PROJECTS, organization);
@@ -157,7 +157,7 @@ public class ProvisionedActionTest {
   }
 
   @Test
-  public void provisioned_projects_with_query() throws Exception {
+  public void provisioned_projects_with_query() {
     OrganizationDto org = db.organizations().insert();
     db.components().insertComponents(newProvisionedProject(org, "1"), newProvisionedProject(org, "2"));
     userSessionRule.logIn().addPermission(PROVISION_PROJECTS, org);
@@ -173,7 +173,7 @@ public class ProvisionedActionTest {
   }
 
   @Test
-  public void provisioned_projects_as_defined_in_the_example() throws Exception {
+  public void provisioned_projects_as_defined_in_the_example() {
     OrganizationDto org = db.organizations().insert();
     ComponentDto hBaseProject = ComponentTesting.newPrivateProjectDto(org, "ce4c03d6-430f-40a9-b777-ad877c00aa4d")
       .setDbKey("org.apache.hbas:hbase")
@@ -195,7 +195,7 @@ public class ProvisionedActionTest {
   }
 
   @Test
-  public void fail_when_not_enough_privileges() throws Exception {
+  public void fail_when_not_enough_privileges() {
     OrganizationDto organization = db.organizations().insert();
     db.components().insertComponent(newProvisionedProject(organization, "1"));
     userSessionRule.logIn().addPermission(SCAN, organization);

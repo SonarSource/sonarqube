@@ -52,7 +52,7 @@ public class FileSystemSettingsTest {
   }
 
   @Test
-  public void relative_paths_are_converted_to_absolute_paths() throws Exception {
+  public void relative_paths_are_converted_to_absolute_paths() {
     Props props = new Props(new Properties());
     props.set(PATH_HOME, homeDir.getAbsolutePath());
 

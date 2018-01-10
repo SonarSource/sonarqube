@@ -79,7 +79,7 @@ public class ReportIteratorTest {
   }
 
   @Test(expected = NoSuchElementException.class)
-  public void test_error() throws Exception {
+  public void test_error() {
     underTest = new ReportIterator<>(file, ScannerReport.LineCoverage.parser());
     underTest.next();
 

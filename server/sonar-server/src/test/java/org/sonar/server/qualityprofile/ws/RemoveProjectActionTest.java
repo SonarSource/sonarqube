@@ -125,7 +125,7 @@ public class RemoveProjectActionTest {
   }
 
   @Test
-  public void project_administrator_can_remove_profile() throws Exception {
+  public void project_administrator_can_remove_profile() {
     ComponentDto project = db.components().insertPrivateProject(db.getDefaultOrganization());
     QProfileDto profile = db.qualityProfiles().insert(db.getDefaultOrganization());
     db.qualityProfiles().associateWithProject(project, profile);
@@ -221,7 +221,7 @@ public class RemoveProjectActionTest {
   }
 
   @Test
-  public void fail_when_using_branch_uuid() throws Exception {
+  public void fail_when_using_branch_uuid() {
     OrganizationDto organization = db.organizations().insert();
     ComponentDto project = db.components().insertMainBranch(organization);
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);

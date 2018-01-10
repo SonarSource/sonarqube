@@ -56,7 +56,7 @@ public class IssueTrackingTest extends AbstractIssueTest {
   }
 
   @Test
-  public void close_issues_on_removed_components() throws Exception {
+  public void close_issues_on_removed_components() {
     ORCHESTRATOR.getServer().associateProjectToQualityProfile(SAMPLE_PROJECT_KEY, "xoo", "issue-on-tag-foobar");
 
     // version 1
@@ -81,7 +81,7 @@ public class IssueTrackingTest extends AbstractIssueTest {
    * SONAR-3072
    */
   @Test
-  public void track_issues_based_on_blocks_recognition() throws Exception {
+  public void track_issues_based_on_blocks_recognition() {
     ORCHESTRATOR.getServer().associateProjectToQualityProfile(SAMPLE_PROJECT_KEY, "xoo", "issue-on-tag-foobar");
 
     // version 1
@@ -112,7 +112,7 @@ public class IssueTrackingTest extends AbstractIssueTest {
    * SONAR-4310
    */
   @Test
-  public void track_existing_unchanged_issues_on_module() throws Exception {
+  public void track_existing_unchanged_issues_on_module() {
     // The custom rule on module is enabled
 
     ORCHESTRATOR.getServer().associateProjectToQualityProfile(SAMPLE_PROJECT_KEY, "xoo", "one-issue-per-module");
@@ -139,7 +139,7 @@ public class IssueTrackingTest extends AbstractIssueTest {
    * SONAR-4310
    */
   @Test
-  public void track_existing_unchanged_issues_on_multi_modules() throws Exception {
+  public void track_existing_unchanged_issues_on_multi_modules() {
     // The custom rule on module is enabled
     ORCHESTRATOR.getServer().provisionProject("com.sonarsource.it.samples:multi-modules-sample", "com.sonarsource.it.samples:multi-modules-sample");
     ORCHESTRATOR.getServer().associateProjectToQualityProfile("com.sonarsource.it.samples:multi-modules-sample", "xoo", "one-issue-per-module");

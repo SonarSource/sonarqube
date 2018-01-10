@@ -48,7 +48,7 @@ public class BombActivatorAction implements FakeGoVWsAction {
   }
 
   @Override
-  public void handle(Request request, Response response) throws Exception {
+  public void handle(Request request, Response response) {
     BombType bombType = BombType.valueOf(request.mandatoryParam(PARAM_BOMB_TYPE));
 
     bombConfig.reset();

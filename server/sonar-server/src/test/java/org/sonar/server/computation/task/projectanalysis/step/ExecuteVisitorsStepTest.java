@@ -87,7 +87,7 @@ public class ExecuteVisitorsStepTest {
   }
 
   @Test
-  public void execute_with_type_aware_visitor() throws Exception {
+  public void execute_with_type_aware_visitor() {
     ExecuteVisitorsStep underStep = new ExecuteVisitorsStep(treeRootHolder, singletonList(new TestTypeAwareVisitor()));
 
     measureRepository.addRawMeasure(FILE_1_REF, NCLOC_KEY, newMeasureBuilder().create(1));
@@ -106,7 +106,7 @@ public class ExecuteVisitorsStepTest {
   }
 
   @Test
-  public void execute_with_path_aware_visitor() throws Exception {
+  public void execute_with_path_aware_visitor() {
     ExecuteVisitorsStep underStep = new ExecuteVisitorsStep(treeRootHolder, singletonList(new TestPathAwareVisitor()));
 
     measureRepository.addRawMeasure(FILE_1_REF, NCLOC_KEY, newMeasureBuilder().create(1));

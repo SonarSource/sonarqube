@@ -76,7 +76,7 @@ public class ChangelogActionTest {
   }
 
   @Test
-  public void return_changelog() throws Exception {
+  public void return_changelog() {
     UserDto user = insertUser();
     IssueDto issueDto = db.issues().insertIssue(newIssue());
     userSession.logIn("john").addProjectPermission(USER, project, file);
@@ -93,7 +93,7 @@ public class ChangelogActionTest {
   }
 
   @Test
-  public void changelog_of_file_move_contains_file_names() throws Exception {
+  public void changelog_of_file_move_contains_file_names() {
     RuleDto rule = db.rules().insertRule(newRuleDto());
     ComponentDto project = db.components().insertPrivateProject(db.organizations().insert());
     ComponentDto file1 = db.components().insertComponent(newFileDto(project));
@@ -112,7 +112,7 @@ public class ChangelogActionTest {
   }
 
   @Test
-  public void changelog_of_file_move_is_empty_when_files_does_not_exists() throws Exception {
+  public void changelog_of_file_move_is_empty_when_files_does_not_exists() {
     IssueDto issueDto = db.issues().insertIssue(newIssue());
     userSession.logIn("john").addProjectPermission(USER, project, file);
     db.issues().insertFieldDiffs(issueDto, new FieldDiffs().setDiff("file", "UNKNOWN_1", "UNKNOWN_2").setCreationDate(new Date()));
@@ -125,7 +125,7 @@ public class ChangelogActionTest {
   }
 
   @Test
-  public void return_changelog_on_user_without_email() throws Exception {
+  public void return_changelog_on_user_without_email() {
     UserDto user = db.users().insertUser(UserTesting.newUserDto("john", "John", null));
     IssueDto issueDto = db.issues().insertIssue(newIssue());
     userSession.logIn("john").addProjectPermission(USER, project, file);
@@ -140,7 +140,7 @@ public class ChangelogActionTest {
   }
 
   @Test
-  public void return_changelog_not_having_user() throws Exception {
+  public void return_changelog_not_having_user() {
     IssueDto issueDto = db.issues().insertIssue(newIssue());
     userSession.logIn("john").addProjectPermission(USER, project, file);
     db.issues().insertFieldDiffs(issueDto, new FieldDiffs().setUserLogin(null).setDiff("severity", "MAJOR", "BLOCKER").setCreationDate(new Date()));
@@ -155,7 +155,7 @@ public class ChangelogActionTest {
   }
 
   @Test
-  public void return_changelog_on_none_existing_user() throws Exception {
+  public void return_changelog_on_none_existing_user() {
     IssueDto issueDto = db.issues().insertIssue(newIssue());
     userSession.logIn("john").addProjectPermission(USER, project, file);
     db.issues().insertFieldDiffs(issueDto, new FieldDiffs().setUserLogin("UNKNOWN").setDiff("severity", "MAJOR", "BLOCKER").setCreationDate(new Date()));
@@ -170,7 +170,7 @@ public class ChangelogActionTest {
   }
 
   @Test
-  public void return_multiple_diffs() throws Exception {
+  public void return_multiple_diffs() {
     UserDto user = insertUser();
     IssueDto issueDto = db.issues().insertIssue(newIssue());
     userSession.logIn("john").addProjectPermission(USER, project, file);
@@ -186,7 +186,7 @@ public class ChangelogActionTest {
   }
 
   @Test
-  public void return_changelog_when_no_old_value() throws Exception {
+  public void return_changelog_when_no_old_value() {
     UserDto user = insertUser();
     IssueDto issueDto = db.issues().insertIssue(newIssue());
     userSession.logIn("john").addProjectPermission(USER, project, file);
@@ -199,7 +199,7 @@ public class ChangelogActionTest {
   }
 
   @Test
-  public void return_changelog_when_no_new_value() throws Exception {
+  public void return_changelog_when_no_new_value() {
     UserDto user = insertUser();
     IssueDto issueDto = db.issues().insertIssue(newIssue());
     userSession.logIn("john").addProjectPermission(USER, project, file);
@@ -212,7 +212,7 @@ public class ChangelogActionTest {
   }
 
   @Test
-  public void return_many_changelog() throws Exception {
+  public void return_many_changelog() {
     UserDto user = insertUser();
     IssueDto issueDto = db.issues().insertIssue(newIssue());
     userSession.logIn("john").addProjectPermission(USER, project, file);
@@ -226,7 +226,7 @@ public class ChangelogActionTest {
   }
 
   @Test
-  public void replace_technical_debt_key_by_effort() throws Exception {
+  public void replace_technical_debt_key_by_effort() {
     UserDto user = insertUser();
     IssueDto issueDto = db.issues().insertIssue(newIssue());
     userSession.logIn("john").addProjectPermission(USER, project, file);
@@ -258,7 +258,7 @@ public class ChangelogActionTest {
   }
 
   @Test
-  public void test_example() throws Exception {
+  public void test_example() {
     UserDto user = db.users().insertUser(newUserDto("john.smith", "John Smith", "john@smith.com"));
     IssueDto issueDto = db.issues().insertIssue(newIssue());
     userSession.logIn("john").addProjectPermission(USER, project, file);

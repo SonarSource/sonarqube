@@ -98,7 +98,7 @@ public class TagsActionTest {
   }
 
   @Test
-  public void system_tag() throws Exception {
+  public void system_tag() {
     RuleDefinitionDto r = db.rules().insert(setSystemTags("tag"));
     ruleIndexer.commitAndIndex(db.getSession(), r.getKey());
 
@@ -107,7 +107,7 @@ public class TagsActionTest {
   }
 
   @Test
-  public void tag() throws Exception {
+  public void tag() {
     RuleDefinitionDto r = db.rules().insert(setSystemTags());
     ruleIndexer.commitAndIndex(db.getSession(), r.getKey());
     db.rules().insertOrUpdateMetadata(r, organization, setTags("tag"));

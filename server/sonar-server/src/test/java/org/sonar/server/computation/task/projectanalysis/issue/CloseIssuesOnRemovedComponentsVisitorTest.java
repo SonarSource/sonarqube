@@ -58,11 +58,11 @@ public class CloseIssuesOnRemovedComponentsVisitorTest {
   public void setUp() throws Exception {
     issueCache = new IssueCache(temp.newFile(), System2.INSTANCE);
     underTest = new VisitorsCrawler(
-      Arrays.<ComponentVisitor>asList(new CloseIssuesOnRemovedComponentsVisitor(issuesLoader, componentsWithUnprocessedIssues, issueCache, issueLifecycle)));
+      Arrays.asList(new CloseIssuesOnRemovedComponentsVisitor(issuesLoader, componentsWithUnprocessedIssues, issueCache, issueLifecycle)));
   }
 
   @Test
-  public void close_issue() throws Exception {
+  public void close_issue() {
     String fileUuid = "FILE1";
     String issueUuid = "ABCD";
 
@@ -83,8 +83,8 @@ public class CloseIssuesOnRemovedComponentsVisitorTest {
   }
 
   @Test
-  public void nothing_to_do_when_no_uuid_in_queue() throws Exception {
-    when(componentsWithUnprocessedIssues.getUuids()).thenReturn(Collections.<String>emptySet());
+  public void nothing_to_do_when_no_uuid_in_queue() {
+    when(componentsWithUnprocessedIssues.getUuids()).thenReturn(Collections.emptySet());
 
     underTest.visit(ReportComponent.builder(PROJECT, 1).build());
 
@@ -94,7 +94,7 @@ public class CloseIssuesOnRemovedComponentsVisitorTest {
   }
 
   @Test
-  public void do_nothing_on_module() throws Exception {
+  public void do_nothing_on_module() {
     underTest.visit(ReportComponent.builder(MODULE, 1).build());
 
     verifyZeroInteractions(issueLifecycle);
@@ -103,7 +103,7 @@ public class CloseIssuesOnRemovedComponentsVisitorTest {
   }
 
   @Test
-  public void do_nothing_on_directory() throws Exception {
+  public void do_nothing_on_directory() {
     underTest.visit(ReportComponent.builder(DIRECTORY, 1).build());
 
     verifyZeroInteractions(issueLifecycle);
@@ -112,7 +112,7 @@ public class CloseIssuesOnRemovedComponentsVisitorTest {
   }
 
   @Test
-  public void do_nothing_on_file() throws Exception {
+  public void do_nothing_on_file() {
     underTest.visit(ReportComponent.builder(FILE, 1).build());
 
     verifyZeroInteractions(issueLifecycle);

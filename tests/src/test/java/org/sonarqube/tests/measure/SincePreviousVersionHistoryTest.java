@@ -50,7 +50,7 @@ public class SincePreviousVersionHistoryTest {
   public Tester tester = new Tester(orchestrator);
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     tester.settings().setGlobalSettings("sonar.leak.period", "previous_version");
   }
 

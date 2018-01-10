@@ -56,7 +56,7 @@ public class DefaultTemplatesResolverRule extends ExternalResource implements De
   }
 
   @Override
-  protected void before() throws Throwable {
+  protected void before() {
     this.governanceInstalled = governanceInitiallyInstalled;
   }
 

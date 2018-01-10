@@ -70,7 +70,7 @@ public class SsoAuthenticationTest {
   public static RuleChain ruleChain = RuleChain.outerRule(orchestrator).around(userRule);
 
   @Before
-  public void resetData() throws Exception {
+  public void resetData() {
     userRule.resetUsers();
   }
 
@@ -82,7 +82,7 @@ public class SsoAuthenticationTest {
   }
 
   @Test
-  public void authenticate_with_only_login() throws Exception {
+  public void authenticate_with_only_login() {
     doCall(USER_LOGIN, null, null, null);
 
     userRule.verifyUserExists(USER_LOGIN, USER_LOGIN, null);
@@ -106,7 +106,7 @@ public class SsoAuthenticationTest {
   }
 
   @Test
-  public void synchronize_groups_when_authenticating_existing_user() throws Exception {
+  public void synchronize_groups_when_authenticating_existing_user() {
     userRule.createGroup(GROUP_1);
     userRule.createGroup(GROUP_2);
     userRule.createGroup(GROUP_3);
@@ -119,7 +119,7 @@ public class SsoAuthenticationTest {
   }
 
   @Test
-  public void authentication_with_local_user_is_possible_when_no_header() throws Exception {
+  public void authentication_with_local_user_is_possible_when_no_header() {
     userRule.createUser(USER_LOGIN, "password");
 
     checkLocalAuthentication(USER_LOGIN, "password");

@@ -48,7 +48,7 @@ class ExternalServer extends ExternalResource {
     jetty.setHandler(new AbstractHandler() {
       @Override
       public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response)
-        throws IOException, ServletException {
+        throws IOException {
 
         if ("POST".equalsIgnoreCase(request.getMethod())) {
           String json = request.getReader().lines().collect(Collectors.joining(System.lineSeparator()));

@@ -65,7 +65,7 @@ public class SearchActionTest {
   private WsActionTester ws = new WsActionTester(new SearchAction(db.getDbClient(), userSession, newGroupWsSupport(), new DefaultGroupFinder(db.getDbClient())));
 
   @Test
-  public void search_without_parameters() throws Exception {
+  public void search_without_parameters() {
     insertDefaultGroup(db.getDefaultOrganization(), "users", 0);
     insertGroup(db.getDefaultOrganization(), "admins", 0);
     insertGroup(db.getDefaultOrganization(), "customer1", 0);
@@ -84,7 +84,7 @@ public class SearchActionTest {
   }
 
   @Test
-  public void search_with_members() throws Exception {
+  public void search_with_members() {
     insertDefaultGroup(db.getDefaultOrganization(), "users", 5);
     insertGroup(db.getDefaultOrganization(), "admins", 1);
     insertGroup(db.getDefaultOrganization(), "customer1", 0);
@@ -103,7 +103,7 @@ public class SearchActionTest {
   }
 
   @Test
-  public void search_with_query() throws Exception {
+  public void search_with_query() {
     insertDefaultGroup(db.getDefaultOrganization(), "users", 0);
     insertGroup(db.getDefaultOrganization(), "admins", 0);
     insertGroup(db.getDefaultOrganization(), "customer%_%/1", 0);
@@ -120,7 +120,7 @@ public class SearchActionTest {
   }
 
   @Test
-  public void search_with_paging() throws Exception {
+  public void search_with_paging() {
     insertDefaultGroup(db.getDefaultOrganization(), "users", 0);
     insertGroup(db.getDefaultOrganization(), "admins", 0);
     insertGroup(db.getDefaultOrganization(), "customer1", 0);
@@ -147,7 +147,7 @@ public class SearchActionTest {
   }
 
   @Test
-  public void search_with_fields() throws Exception {
+  public void search_with_fields() {
     insertDefaultGroup(db.getDefaultOrganization(), "sonar-users", 0);
     loginAsDefaultOrgAdmin();
 
@@ -164,7 +164,7 @@ public class SearchActionTest {
   }
 
   @Test
-  public void search_in_organization() throws Exception {
+  public void search_in_organization() {
     OrganizationDto org = db.organizations().insert();
     GroupDto group = db.users().insertDefaultGroup(org, "users");
     // the group in default org is not returned
@@ -178,7 +178,7 @@ public class SearchActionTest {
   }
 
   @Test
-  public void return_default_group() throws Exception {
+  public void return_default_group() {
     db.users().insertDefaultGroup(db.getDefaultOrganization(), "default");
     loginAsDefaultOrgAdmin();
 
@@ -188,7 +188,7 @@ public class SearchActionTest {
   }
 
   @Test
-  public void fail_when_no_default_group() throws Exception {
+  public void fail_when_no_default_group() {
     db.users().insertGroup(db.getDefaultOrganization(), "users");
     loginAsDefaultOrgAdmin();
 
@@ -199,7 +199,7 @@ public class SearchActionTest {
   }
 
   @Test
-  public void fail_when_not_logged_in() throws Exception {
+  public void fail_when_not_logged_in() {
     userSession.anonymous();
 
     expectedException.expect(UnauthorizedException.class);

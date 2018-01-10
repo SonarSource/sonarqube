@@ -44,7 +44,7 @@ public class VersionPluginTest {
   }
 
   @Before
-  public void deleteData() throws IOException {
+  public void deleteData() {
     orchestrator.resetData();
   }
 

@@ -33,13 +33,13 @@ public class ValidationsTest {
   public ExpectedException thrown = ExpectedException.none();
 
   @Test
-  public void accept_valid_table_name() throws Exception {
+  public void accept_valid_table_name() {
     validateColumnName("date_in_ms");
     validateColumnName("date_in_ms_1");
   }
 
   @Test
-  public void fail_with_NPE_if_name_is_null() throws Exception {
+  public void fail_with_NPE_if_name_is_null() {
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("Column name cannot be null");
 

@@ -54,13 +54,13 @@ public class QualityGateNotificationTest {
   private static Wiser smtpServer;
 
   @BeforeClass
-  public static void startSmtpServer() throws Exception {
+  public static void startSmtpServer() {
     smtpServer = new Wiser(0);
     smtpServer.start();
   }
 
   @AfterClass
-  public static void stopSmtpServer() throws Exception {
+  public static void stopSmtpServer() {
     if (smtpServer != null) {
       smtpServer.stop();
     }

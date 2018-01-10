@@ -50,7 +50,7 @@ public class RuleDefinitionsLoaderTest {
   }
 
   @Test
-  public void define_common_rules() throws Exception {
+  public void define_common_rules() {
     CommonRuleDefinitions commonRulesDefinitions = new FakeCommonRuleDefinitions();
     RulesDefinition.Context context = new RuleDefinitionsLoader(mock(DeprecatedRulesDefinitionLoader.class), commonRulesDefinitions, mock(ServerPluginRepository.class),
       new RulesDefinition[] {
@@ -66,7 +66,7 @@ public class RuleDefinitionsLoaderTest {
    * is taken into account. Others are ignored.
    */
   @Test
-  public void plugin_common_rules_are_overridden() throws Exception {
+  public void plugin_common_rules_are_overridden() {
     CommonRuleDefinitions commonRulesDefinitions = new FakeCommonRuleDefinitions();
     RulesDefinition.Context context = new RuleDefinitionsLoader(mock(DeprecatedRulesDefinitionLoader.class), commonRulesDefinitions, mock(ServerPluginRepository.class),
       new RulesDefinition[] {

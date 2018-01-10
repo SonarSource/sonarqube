@@ -81,7 +81,7 @@ public class UserJsonWriter {
     if (user == null) {
       json.beginObject().endObject();
     } else {
-      write(json, user, Collections.<String>emptySet(), CONCISE_FIELDS);
+      write(json, user, Collections.emptySet(), CONCISE_FIELDS);
     }
   }
 

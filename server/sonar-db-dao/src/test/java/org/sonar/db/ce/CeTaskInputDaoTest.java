@@ -66,7 +66,7 @@ public class CeTaskInputDaoTest {
   }
 
   @Test
-  public void fail_to_insert_invalid_row() throws Exception {
+  public void fail_to_insert_invalid_row() {
     expectedException.expectMessage("Fail to insert data of CE task null");
     underTest.insert(dbTester.getSession(), null, IOUtils.toInputStream(SOME_DATA));
   }

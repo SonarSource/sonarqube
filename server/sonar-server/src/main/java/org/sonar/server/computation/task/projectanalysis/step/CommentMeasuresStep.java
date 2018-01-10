@@ -60,7 +60,7 @@ public class CommentMeasuresStep implements ComputationStep {
     this.treeRootHolder = treeRootHolder;
     this.metricRepository = metricRepository;
     this.measureRepository = measureRepository;
-    this.formulas = ImmutableList.<Formula>of(
+    this.formulas = ImmutableList.of(
       createIntSumFormula(COMMENTED_OUT_CODE_LINES_KEY),
       new DocumentationFormula(),
       new CommentDensityFormula());

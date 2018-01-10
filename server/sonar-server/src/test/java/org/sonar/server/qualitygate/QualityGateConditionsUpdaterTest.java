@@ -104,7 +104,7 @@ public class QualityGateConditionsUpdaterTest {
   }
 
   @Test
-  public void fail_to_create_condition_when_condition_on_same_metric_already_exist() throws Exception {
+  public void fail_to_create_condition_when_condition_on_same_metric_already_exist() {
     dbClient.gateConditionDao().insert(new QualityGateConditionDto()
       .setQualityGateId(qualityGateDto.getId())
       .setMetricId(coverageMetricDto.getId())
@@ -117,7 +117,7 @@ public class QualityGateConditionsUpdaterTest {
   }
 
   @Test
-  public void fail_to_create_condition_when_condition_on_same_metric_and_on_leak_period_already_exist() throws Exception {
+  public void fail_to_create_condition_when_condition_on_same_metric_and_on_leak_period_already_exist() {
     dbClient.gateConditionDao().insert(new QualityGateConditionDto()
       .setQualityGateId(qualityGateDto.getId())
       .setMetricId(coverageMetricDto.getId())
@@ -277,7 +277,7 @@ public class QualityGateConditionsUpdaterTest {
   }
 
   @Test
-  public void fail_to_update_condition_when_condition_on_same_metric_already_exist() throws Exception {
+  public void fail_to_update_condition_when_condition_on_same_metric_already_exist() {
     QualityGateConditionDto conditionNotOnLeakPeriod = insertCondition(coverageMetricDto.getId(), "GT", "80", null, null);
     QualityGateConditionDto conditionOnLeakPeriod = insertCondition(coverageMetricDto.getId(), "GT", "80", null, 1);
 

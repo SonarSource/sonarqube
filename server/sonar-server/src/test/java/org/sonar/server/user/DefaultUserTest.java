@@ -26,7 +26,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class DefaultUserTest {
   @Test
-  public void test_object_methods() throws Exception {
+  public void test_object_methods() {
     DefaultUser john = new DefaultUser().setLogin("john").setName("John");
     DefaultUser eric = new DefaultUser().setLogin("eric").setName("Eric");
 

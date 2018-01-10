@@ -72,7 +72,7 @@ public class ServerImplTest {
   }
 
   @Test
-  public void test_startup_information() throws IOException {
+  public void test_startup_information() {
     long time = 123_456_789L;
     when(state.getStartedAt()).thenReturn(time);
 
@@ -80,7 +80,7 @@ public class ServerImplTest {
   }
 
   @Test
-  public void test_id() throws IOException {
+  public void test_id() {
     settings.setProperty(CoreProperties.SERVER_ID, "foo");
 
     assertThat(underTest.getId()).isEqualTo("foo");
@@ -88,7 +88,7 @@ public class ServerImplTest {
   }
 
   @Test
-  public void test_getVersion() throws IOException {
+  public void test_getVersion() {
     Version version = Version.create(6, 1);
     when(runtime.getApiVersion()).thenReturn(version);
 

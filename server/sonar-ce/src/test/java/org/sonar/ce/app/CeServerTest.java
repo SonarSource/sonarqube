@@ -104,7 +104,7 @@ public class CeServerTest {
   }
 
   @Test
-  public void getStatus_does_not_return_OPERATIONAL_until_ComputeEngine_startup_returns() throws InterruptedException, IOException {
+  public void getStatus_does_not_return_OPERATIONAL_until_ComputeEngine_startup_returns() throws IOException {
     BlockingStartupComputeEngine computeEngine = new BlockingStartupComputeEngine(null);
     CeServer ceServer = newCeServer(computeEngine);
 
@@ -122,7 +122,7 @@ public class CeServerTest {
   }
 
   @Test
-  public void getStatus_returns_OPERATIONAL_when_ComputeEngine_startup_throws_any_Exception_or_Error() throws InterruptedException, IOException {
+  public void getStatus_returns_OPERATIONAL_when_ComputeEngine_startup_throws_any_Exception_or_Error() throws IOException {
     Throwable startupException = new Throwable("Faking failing ComputeEngine#startup()");
 
     BlockingStartupComputeEngine computeEngine = new BlockingStartupComputeEngine(startupException);
@@ -152,7 +152,7 @@ public class CeServerTest {
   }
 
   @Test
-  public void awaitStop_throws_ISE_if_called_twice() throws InterruptedException, IOException {
+  public void awaitStop_throws_ISE_if_called_twice() throws IOException {
     final CeServer ceServer = newCeServer();
     ExceptionCatcherWaitingThread waitingThread1 = new ExceptionCatcherWaitingThread(ceServer);
     ExceptionCatcherWaitingThread waitingThread2 = new ExceptionCatcherWaitingThread(ceServer);
@@ -197,7 +197,7 @@ public class CeServerTest {
   }
 
   @Test
-  public void awaitStop_unblocks_when_waiting_for_ComputeEngine_startup_fails() throws InterruptedException, IOException {
+  public void awaitStop_unblocks_when_waiting_for_ComputeEngine_startup_fails() throws IOException {
     CeServer ceServer = newCeServer(new ComputeEngine() {
       @Override
       public void startup() {
@@ -242,7 +242,7 @@ public class CeServerTest {
     return newCeServer(DoNothingComputeEngine.INSTANCE);
   }
 
-  private CeServer newCeServer(ComputeEngine computeEngine) throws IOException {
+  private CeServer newCeServer(ComputeEngine computeEngine) {
     checkState(this.underTest == null, "Only one CeServer can be created per test method");
     this.underTest = new CeServer(
       computeEngine, minimumViableSystem);

@@ -97,7 +97,7 @@ public class NodeDetails implements Externalizable {
   }
 
   @Override
-  public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+  public void readExternal(ObjectInput in) throws IOException {
     this.type = Type.values()[in.readInt()];
     this.name = in.readUTF();
     this.host = in.readUTF();

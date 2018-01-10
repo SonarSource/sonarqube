@@ -46,13 +46,13 @@ public class Migration1304Test {
 
   private ShrinkModuleUuidPathOfProjects shrinkModuleUuidPathOfProjects = new ShrinkModuleUuidPathOfProjects(database) {
     @Override
-    public void execute(Context context) throws SQLException {
+    public void execute(Context context) {
       calls.add(Call.CALL_1);
     }
   };
   private AddBUuidPathToProjects addBUuidPathToProjects = new AddBUuidPathToProjects(database) {
     @Override
-    public void execute(Context context) throws SQLException {
+    public void execute(Context context) {
       calls.add(Call.CALL_2);
     }
   };

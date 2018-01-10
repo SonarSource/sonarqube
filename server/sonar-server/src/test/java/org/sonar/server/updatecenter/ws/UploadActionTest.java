@@ -99,7 +99,7 @@ public class UploadActionTest {
   }
 
   @Test
-  public void fail_when_no_files_param() throws Exception {
+  public void fail_when_no_files_param() {
     logInAsSystemAdministrator();
 
     expectedException.expect(IllegalArgumentException.class);

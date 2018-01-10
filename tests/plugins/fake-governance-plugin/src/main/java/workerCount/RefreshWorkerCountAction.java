@@ -54,7 +54,7 @@ public class RefreshWorkerCountAction implements CeWsAction {
   }
 
   @Override
-  public void handle(Request request, Response response) throws Exception {
+  public void handle(Request request, Response response) {
     String count = request.getParam(PARAM_COUNT).getValue();
     try (DbSession dbSession = dbClient.openSession(false)) {
       dbClient.propertiesDao().saveProperty(new PropertyDto()

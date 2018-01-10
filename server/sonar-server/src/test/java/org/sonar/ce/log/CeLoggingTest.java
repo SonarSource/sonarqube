@@ -47,7 +47,7 @@ public class CeLoggingTest {
   }
 
   @After
-  public void cleanMDC() throws Exception {
+  public void cleanMDC() {
     MDC.clear();
   }
 

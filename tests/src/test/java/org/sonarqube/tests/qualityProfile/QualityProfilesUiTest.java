@@ -54,7 +54,7 @@ public class QualityProfilesUiTest {
   public Tester tester = new Tester(orchestrator).disableOrganizations();
 
   @Before
-  public void initAdminUser() throws Exception {
+  public void initAdminUser() {
     userRule.createAdminUser(ADMIN_USER_LOGIN, ADMIN_USER_LOGIN);
   }
 

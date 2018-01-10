@@ -46,7 +46,7 @@ public abstract class CloseableIterator<O> implements Iterator<O>, AutoCloseable
     }
 
     @Override
-    protected void doClose() throws Exception {
+    protected void doClose() {
       // do nothing
     }
   };
@@ -173,7 +173,7 @@ public abstract class CloseableIterator<O> implements Iterator<O>, AutoCloseable
     }
 
     @Override
-    protected void doClose() throws Exception {
+    protected void doClose() {
       // do nothing
     }
   }

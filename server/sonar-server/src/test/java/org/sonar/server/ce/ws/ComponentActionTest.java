@@ -245,7 +245,7 @@ public class ComponentActionTest {
   }
 
   @Test
-  public void fail_with_404_when_component_does_not_exist() throws Exception {
+  public void fail_with_404_when_component_does_not_exist() {
     expectedException.expect(NotFoundException.class);
     ws.newRequest()
       .setParam(PARAM_COMPONENT, "UNKNOWN")

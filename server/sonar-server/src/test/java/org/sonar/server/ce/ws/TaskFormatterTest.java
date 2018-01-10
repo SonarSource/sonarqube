@@ -75,7 +75,7 @@ public class TaskFormatterTest {
   }
 
   @Test
-  public void formatQueue_with_component_and_other_fields() throws IOException {
+  public void formatQueue_with_component_and_other_fields() {
     String uuid = "COMPONENT_UUID";
     OrganizationDto organizationDto = db.organizations().insert();
     db.components().insertPrivateProject(organizationDto, (t) -> t.setUuid(uuid).setDbKey("COMPONENT_KEY").setName("Component Name"));
@@ -106,7 +106,7 @@ public class TaskFormatterTest {
   }
 
   @Test
-  public void formatQueue_do_not_fail_if_component_not_found() throws Exception {
+  public void formatQueue_do_not_fail_if_component_not_found() {
     CeQueueDto dto = new CeQueueDto();
     dto.setUuid("UUID");
     dto.setTaskType("TYPE");
@@ -139,7 +139,7 @@ public class TaskFormatterTest {
   }
 
   @Test
-  public void formatQueues() throws Exception {
+  public void formatQueues() {
     CeQueueDto dto1 = new CeQueueDto();
     dto1.setUuid("UUID1");
     dto1.setTaskType("TYPE1");

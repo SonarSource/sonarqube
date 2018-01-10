@@ -41,7 +41,7 @@ public class CookiesTest {
   private HttpServletRequest request = mock(HttpServletRequest.class);
 
   @Test
-  public void create_cookie() throws Exception {
+  public void create_cookie() {
     Cookie cookie = newCookieBuilder(request).setName("name").setValue("value").setHttpOnly(true).setExpiry(10).build();
     assertThat(cookie.getName()).isEqualTo("name");
     assertThat(cookie.getValue()).isEqualTo("value");
@@ -52,14 +52,14 @@ public class CookiesTest {
   }
 
   @Test
-  public void create_cookie_without_value() throws Exception {
+  public void create_cookie_without_value() {
     Cookie cookie = newCookieBuilder(request).setName("name").build();
     assertThat(cookie.getName()).isEqualTo("name");
     assertThat(cookie.getValue()).isNull();
   }
 
   @Test
-  public void create_cookie_when_web_context() throws Exception {
+  public void create_cookie_when_web_context() {
     when(request.getContextPath()).thenReturn("/sonarqube");
     Cookie cookie = newCookieBuilder(request).setName("name").setValue("value").setHttpOnly(true).setExpiry(10).build();
     assertThat(cookie.getName()).isEqualTo("name");
@@ -71,28 +71,28 @@ public class CookiesTest {
   }
 
   @Test
-  public void create_not_secured_cookie_when_header_is_not_http() throws Exception {
+  public void create_not_secured_cookie_when_header_is_not_http() {
     when(request.getHeader(HTTPS_HEADER)).thenReturn("http");
     Cookie cookie = newCookieBuilder(request).setName("name").setValue("value").setHttpOnly(true).setExpiry(10).build();
     assertThat(cookie.getSecure()).isFalse();
   }
 
   @Test
-  public void create_secured_cookie_when_X_Forwarded_Proto_header_is_https() throws Exception {
+  public void create_secured_cookie_when_X_Forwarded_Proto_header_is_https() {
     when(request.getHeader(HTTPS_HEADER)).thenReturn("https");
     Cookie cookie = newCookieBuilder(request).setName("name").setValue("value").setHttpOnly(true).setExpiry(10).build();
     assertThat(cookie.getSecure()).isTrue();
   }
 
   @Test
-  public void create_secured_cookie_when_X_Forwarded_Proto_header_is_HTTPS() throws Exception {
+  public void create_secured_cookie_when_X_Forwarded_Proto_header_is_HTTPS() {
     when(request.getHeader(HTTPS_HEADER)).thenReturn("HTTPS");
     Cookie cookie = newCookieBuilder(request).setName("name").setValue("value").setHttpOnly(true).setExpiry(10).build();
     assertThat(cookie.getSecure()).isTrue();
   }
 
   @Test
-  public void find_cookie() throws Exception {
+  public void find_cookie() {
     Cookie cookie = newCookieBuilder(request).setName("name").setValue("value").build();
     when(request.getCookies()).thenReturn(new Cookie[] {cookie});
 
@@ -102,18 +102,18 @@ public class CookiesTest {
   }
 
   @Test
-  public void does_not_fail_to_find_cookie_when_no_cookie() throws Exception {
+  public void does_not_fail_to_find_cookie_when_no_cookie() {
     assertThat(findCookie("unknown", request)).isEmpty();
   }
 
   @Test
-  public void fail_with_NPE_when_cookie_name_is_null() throws Exception {
+  public void fail_with_NPE_when_cookie_name_is_null() {
     expectedException.expect(NullPointerException.class);
     newCookieBuilder(request).setName(null);
   }
 
   @Test
-  public void fail_with_NPE_when_cookie_has_no_name() throws Exception {
+  public void fail_with_NPE_when_cookie_has_no_name() {
     expectedException.expect(NullPointerException.class);
     newCookieBuilder(request).setName(null);
   }

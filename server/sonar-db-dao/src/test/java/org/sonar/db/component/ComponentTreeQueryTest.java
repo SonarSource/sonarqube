@@ -38,7 +38,7 @@ public class ComponentTreeQueryTest {
   public ExpectedException expectedException = ExpectedException.none();
 
   @Test
-  public void create_query() throws Exception {
+  public void create_query() {
     ComponentTreeQuery query = ComponentTreeQuery.builder()
       .setBaseUuid(BASE_UUID)
       .setStrategy(CHILDREN)
@@ -54,7 +54,7 @@ public class ComponentTreeQueryTest {
   }
 
   @Test
-  public void create_minimal_query() throws Exception {
+  public void create_minimal_query() {
     ComponentTreeQuery query = ComponentTreeQuery.builder()
       .setBaseUuid(BASE_UUID)
       .setStrategy(CHILDREN)
@@ -68,7 +68,7 @@ public class ComponentTreeQueryTest {
   }
 
   @Test
-  public void test_getUuidPath() throws Exception {
+  public void test_getUuidPath() {
     assertThat(ComponentTreeQuery.builder().setBaseUuid(BASE_UUID).setStrategy(CHILDREN)
       .build().getUuidPath(newPrivateProjectDto(newOrganizationDto(), "PROJECT_UUID"))).isEqualTo(".PROJECT_UUID.");
 
@@ -77,7 +77,7 @@ public class ComponentTreeQueryTest {
   }
 
   @Test
-  public void fail_when_no_base_uuid() throws Exception {
+  public void fail_when_no_base_uuid() {
     expectedException.expect(NullPointerException.class);
     ComponentTreeQuery.builder()
       .setStrategy(CHILDREN)
@@ -85,7 +85,7 @@ public class ComponentTreeQueryTest {
   }
 
   @Test
-  public void fail_when_no_strategy() throws Exception {
+  public void fail_when_no_strategy() {
     expectedException.expect(NullPointerException.class);
     ComponentTreeQuery.builder()
       .setBaseUuid(BASE_UUID)

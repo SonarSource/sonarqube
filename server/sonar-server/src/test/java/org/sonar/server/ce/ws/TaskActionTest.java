@@ -78,7 +78,7 @@ public class TaskActionTest {
   }
 
   @Test
-  public void task_is_in_queue() throws Exception {
+  public void task_is_in_queue() {
     logInAsRoot();
 
     CeQueueDto queueDto = new CeQueueDto();
@@ -104,7 +104,7 @@ public class TaskActionTest {
   }
 
   @Test
-  public void task_is_archived() throws Exception {
+  public void task_is_archived() {
     logInAsRoot();
 
     CeActivityDto activityDto = createActivityDto(SOME_TASK_UUID);
@@ -252,7 +252,7 @@ public class TaskActionTest {
   }
 
   @Test
-  public void throw_NotFoundException_if_id_does_not_exist() throws Exception {
+  public void throw_NotFoundException_if_id_does_not_exist() {
     logInAsRoot();
 
     expectedException.expect(NotFoundException.class);

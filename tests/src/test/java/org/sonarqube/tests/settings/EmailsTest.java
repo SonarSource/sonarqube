@@ -58,7 +58,7 @@ public class EmailsTest {
   private static Wiser SMTP_SERVER;
 
   @BeforeClass
-  public static void before() throws Exception {
+  public static void before() {
     SMTP_SERVER = new Wiser(0);
     SMTP_SERVER.start();
     System.out.println("SMTP Server port: " + SMTP_SERVER.getServer().getPort());
@@ -77,7 +77,7 @@ public class EmailsTest {
   }
 
   @Test
-  public void update_email_settings() throws Exception {
+  public void update_email_settings() {
     updateEmailSettings("localhost", "42", "noreply@email.com", "The Devil", "[EMAIL]", "ssl", "john", "123456");
 
     Settings.ValuesWsResponse response = tester.settings().service().values(new ValuesRequest()

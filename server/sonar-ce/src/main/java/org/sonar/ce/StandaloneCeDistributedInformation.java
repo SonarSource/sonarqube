@@ -67,7 +67,7 @@ public class StandaloneCeDistributedInformation implements CeDistributedInformat
     }
 
     @Override
-    public void lockInterruptibly() throws InterruptedException {
+    public void lockInterruptibly() {
       // return immediately and never block
     }
 
@@ -78,7 +78,7 @@ public class StandaloneCeDistributedInformation implements CeDistributedInformat
     }
 
     @Override
-    public boolean tryLock(long time, TimeUnit unit) throws InterruptedException {
+    public boolean tryLock(long time, TimeUnit unit) {
       // always succeed
       return true;
     }

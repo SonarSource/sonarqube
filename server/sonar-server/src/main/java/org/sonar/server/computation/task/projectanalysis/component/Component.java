@@ -59,7 +59,7 @@ public interface Component {
   }
 
   enum Status {
-    UNAVAILABLE, SAME, CHANGED, ADDED;
+    UNAVAILABLE, SAME, CHANGED, ADDED
   }
 
   Type getType();

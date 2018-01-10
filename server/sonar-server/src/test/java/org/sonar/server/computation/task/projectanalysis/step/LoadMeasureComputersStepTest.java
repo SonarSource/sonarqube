@@ -57,7 +57,7 @@ public class LoadMeasureComputersStepTest {
   MeasureComputersHolderImpl holder = new MeasureComputersHolderImpl();
 
   @Test
-  public void support_core_metrics_as_input_metrics() throws Exception {
+  public void support_core_metrics_as_input_metrics() {
     MeasureComputer[] computers = new MeasureComputer[] {newMeasureComputer(array(NCLOC_KEY), array(NEW_METRIC_1))};
     ComputationStep underTest = new LoadMeasureComputersStep(holder, array(new TestMetrics()), computers);
     underTest.execute();
@@ -66,7 +66,7 @@ public class LoadMeasureComputersStepTest {
   }
 
   @Test
-  public void support_plugin_metrics_as_input_metrics() throws Exception {
+  public void support_plugin_metrics_as_input_metrics() {
     MeasureComputer[] computers = new MeasureComputer[] {newMeasureComputer(array(NEW_METRIC_1), array(NEW_METRIC_2))};
     ComputationStep underTest = new LoadMeasureComputersStep(holder, array(new TestMetrics()), computers);
     underTest.execute();
@@ -75,7 +75,7 @@ public class LoadMeasureComputersStepTest {
   }
 
   @Test
-  public void sort_computers() throws Exception {
+  public void sort_computers() {
     // Should be the last to be executed
     MeasureComputer measureComputer1 = newMeasureComputer(array(NEW_METRIC_3), array(NEW_METRIC_4));
     // Should be the first to be executed
@@ -95,7 +95,7 @@ public class LoadMeasureComputersStepTest {
   }
 
   @Test
-  public void sort_computers_when_one_computer_has_no_input_metric() throws Exception {
+  public void sort_computers_when_one_computer_has_no_input_metric() {
     // Should be the last to be executed
     MeasureComputer measureComputer1 = newMeasureComputer(array(NEW_METRIC_3), array(NEW_METRIC_4));
     // Should be the first to be executed
@@ -115,7 +115,7 @@ public class LoadMeasureComputersStepTest {
   }
 
   @Test
-  public void fail_with_ISE_when_input_metric_is_unknown() throws Exception {
+  public void fail_with_ISE_when_input_metric_is_unknown() {
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("Metric 'unknown' cannot be used as an input metric as it's not a core metric and no plugin declare this metric");
 
@@ -125,7 +125,7 @@ public class LoadMeasureComputersStepTest {
   }
 
   @Test
-  public void fail_with_ISE_when_output_metric_is_not_define_by_plugin() throws Exception {
+  public void fail_with_ISE_when_output_metric_is_not_define_by_plugin() {
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("Metric 'unknown' cannot be used as an output metric because no plugins declare this metric");
 
@@ -135,7 +135,7 @@ public class LoadMeasureComputersStepTest {
   }
 
   @Test
-  public void fail_with_ISE_when_output_metric_is_a_core_metric() throws Exception {
+  public void fail_with_ISE_when_output_metric_is_a_core_metric() {
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("Metric 'ncloc' cannot be used as an output metric because it's a core metric");
 
@@ -145,7 +145,7 @@ public class LoadMeasureComputersStepTest {
   }
 
   @Test
-  public void not_fail_if_input_metrics_are_same_as_output_metrics() throws Exception {
+  public void not_fail_if_input_metrics_are_same_as_output_metrics() {
     MeasureComputer[] computers = new MeasureComputer[] {newMeasureComputer(array(NEW_METRIC_1), array(NEW_METRIC_1))};
     ComputationStep underTest = new LoadMeasureComputersStep(holder, array(new TestMetrics()), computers);
     underTest.execute();
@@ -154,7 +154,7 @@ public class LoadMeasureComputersStepTest {
   }
 
   @Test
-  public void return_empty_list_when_no_measure_computers() throws Exception {
+  public void return_empty_list_when_no_measure_computers() {
     ComputationStep underTest = new LoadMeasureComputersStep(holder, array(new TestMetrics()));
     underTest.execute();
 
@@ -162,7 +162,7 @@ public class LoadMeasureComputersStepTest {
   }
 
   @Test
-  public void return_empty_list_when_no_metrics_neither_measure_computers() throws Exception {
+  public void return_empty_list_when_no_metrics_neither_measure_computers() {
     ComputationStep underTest = new LoadMeasureComputersStep(holder);
     underTest.execute();
 
@@ -170,7 +170,7 @@ public class LoadMeasureComputersStepTest {
   }
 
   @Test
-  public void fail_with_ISE_when_no_metrics_are_defined_by_plugin_but_measure_computer_use_a_new_metric() throws Exception {
+  public void fail_with_ISE_when_no_metrics_are_defined_by_plugin_but_measure_computer_use_a_new_metric() {
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("Metric 'metric1' cannot be used as an output metric because no plugins declare this metric");
 
@@ -180,7 +180,7 @@ public class LoadMeasureComputersStepTest {
   }
 
   @Test
-  public void fail_with_ISE_when_two_measure_computers_generate_the_same_output_metric() throws Exception {
+  public void fail_with_ISE_when_two_measure_computers_generate_the_same_output_metric() {
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("Output metric 'metric1' is already defined by another measure computer 'TestMeasureComputer'");
 
@@ -190,7 +190,7 @@ public class LoadMeasureComputersStepTest {
   }
 
   @Test
-  public void fail_with_IAE_when_creating_measure_computer_definition_without_using_the_builder_and_with_invalid_output_metrics() throws Exception {
+  public void fail_with_IAE_when_creating_measure_computer_definition_without_using_the_builder_and_with_invalid_output_metrics() {
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("At least one output metric must be defined");
 
@@ -248,7 +248,7 @@ public class LoadMeasureComputersStepTest {
   private static class TestMetrics implements Metrics {
     @Override
     public List<Metric> getMetrics() {
-      return Lists.<Metric>newArrayList(
+      return Lists.newArrayList(
         new Metric.Builder(NEW_METRIC_1, "metric1", DATA).create(),
         new Metric.Builder(NEW_METRIC_2, "metric2", MILLISEC).create(),
         new Metric.Builder(NEW_METRIC_3, "metric3", INT).create(),

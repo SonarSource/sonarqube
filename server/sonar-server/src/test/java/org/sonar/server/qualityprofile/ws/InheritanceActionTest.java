@@ -110,7 +110,7 @@ public class InheritanceActionTest {
   }
 
   @Test
-  public void inheritance_nominal() throws Exception {
+  public void inheritance_nominal() {
     RuleDefinitionDto rule1 = createRule("xoo", "rule1");
     RuleDefinitionDto rule2 = createRule("xoo", "rule2");
     RuleDefinitionDto rule3 = createRule("xoo", "rule3");
@@ -209,7 +209,7 @@ public class InheritanceActionTest {
   }
 
   @Test
-  public void inheritance_no_family() throws Exception {
+  public void inheritance_no_family() {
     // Simple profile, no parent, no child
     QProfileDto remi = createProfile("xoo", "Nobodys Boy", "xoo-nobody-s-boy-01234");
 
@@ -223,7 +223,7 @@ public class InheritanceActionTest {
   }
 
   @Test(expected = NotFoundException.class)
-  public void fail_if_not_found() throws Exception {
+  public void fail_if_not_found() {
     ws.newRequest()
       .setMethod("GET").setParam(PARAM_KEY, "polop").execute();
   }

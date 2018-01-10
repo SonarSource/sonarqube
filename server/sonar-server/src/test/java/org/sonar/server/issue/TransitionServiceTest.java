@@ -60,7 +60,7 @@ public class TransitionServiceTest {
   }
 
   @Test
-  public void list_transitions() throws Exception {
+  public void list_transitions() {
     IssueDto issue = newIssue().setStatus(STATUS_OPEN).setResolution(null);
     userSession.logIn("john").addProjectPermission(ISSUE_ADMIN, ComponentTesting.newPrivateProjectDto(OrganizationTesting.newOrganizationDto(), issue.getProjectUuid()));
 
@@ -70,7 +70,7 @@ public class TransitionServiceTest {
   }
 
   @Test
-  public void list_transitions_returns_only_transitions_that_do_not_requires_issue_admin_permission() throws Exception {
+  public void list_transitions_returns_only_transitions_that_do_not_requires_issue_admin_permission() {
     userSession.logIn("john");
     IssueDto issue = newIssue().setStatus(STATUS_OPEN).setResolution(null);
 
@@ -80,7 +80,7 @@ public class TransitionServiceTest {
   }
 
   @Test
-  public void list_transitions_returns_nothing_when_not_logged() throws Exception {
+  public void list_transitions_returns_nothing_when_not_logged() {
     IssueDto issue = newIssue().setStatus(STATUS_OPEN).setResolution(null);
 
     List<Transition> result = underTest.listTransitions(issue.toDefaultIssue());

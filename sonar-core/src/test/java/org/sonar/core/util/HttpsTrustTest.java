@@ -72,7 +72,7 @@ public class HttpsTrustTest {
   }
 
   @Test
-  public void testAlwaysTrustManager() throws Exception {
+  public void testAlwaysTrustManager() {
     HttpsTrust.AlwaysTrustManager manager = new HttpsTrust.AlwaysTrustManager();
     assertThat(manager.getAcceptedIssuers()).isEmpty();
     // does nothing

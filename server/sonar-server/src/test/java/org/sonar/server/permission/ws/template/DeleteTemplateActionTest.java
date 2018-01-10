@@ -346,7 +346,7 @@ public class DeleteTemplateActionTest {
   }
 
   @Test
-  public void fail_if_both_uuid_and_name_are_provided_without_views() throws Exception {
+  public void fail_if_both_uuid_and_name_are_provided_without_views() {
     userSession.logIn();
 
     expectedException.expect(BadRequestException.class);
@@ -358,7 +358,7 @@ public class DeleteTemplateActionTest {
   }
 
   @Test
-  public void fail_if_both_uuid_and_name_are_provided_with_views() throws Exception {
+  public void fail_if_both_uuid_and_name_are_provided_with_views() {
     userSession.logIn();
 
     expectedException.expect(BadRequestException.class);
@@ -409,7 +409,7 @@ public class DeleteTemplateActionTest {
     return dto;
   }
 
-  private TestResponse newRequestByUuid(WsActionTester actionTester, @Nullable String id) throws Exception {
+  private TestResponse newRequestByUuid(WsActionTester actionTester, @Nullable String id) {
     TestRequest request = actionTester.newRequest().setMethod("POST");
     if (id != null) {
       request.setParam(PARAM_TEMPLATE_ID, id);
@@ -425,7 +425,7 @@ public class DeleteTemplateActionTest {
       permissionTemplateDto == null ? null : permissionTemplateDto.getName());
   }
 
-  private TestResponse newRequestByName(WsActionTester actionTester, @Nullable String organizationKey, @Nullable String name) throws Exception {
+  private TestResponse newRequestByName(WsActionTester actionTester, @Nullable String organizationKey, @Nullable String name) {
     TestRequest request = actionTester.newRequest().setMethod("POST");
     if (organizationKey != null) {
       request.setParam(PARAM_ORGANIZATION, organizationKey);

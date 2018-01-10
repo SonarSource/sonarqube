@@ -147,7 +147,7 @@ public class AvailableActionTest extends AbstractUpdateCenterBasedPluginsWsActio
   @Test
   public void empty_array_is_returned_when_update_center_is_not_accessible() throws Exception {
     logInAsSystemAdministrator();
-    when(updateCenterFactory.getUpdateCenter(anyBoolean())).thenReturn(Optional.<UpdateCenter>absent());
+    when(updateCenterFactory.getUpdateCenter(anyBoolean())).thenReturn(Optional.absent());
 
     underTest.handle(request, response);
 

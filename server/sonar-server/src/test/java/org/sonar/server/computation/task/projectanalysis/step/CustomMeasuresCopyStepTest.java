@@ -160,42 +160,42 @@ public class CustomMeasuresCopyStepTest {
   }
 
   @Test
-  public void test_float_metric_type() throws Exception {
+  public void test_float_metric_type() {
     CustomMeasureDto dto = new CustomMeasureDto();
     dto.setValue(10.0);
     assertThat(dtoToMeasure(dto, new MetricImpl(1, "m", "M", Metric.MetricType.FLOAT)).getDoubleValue()).isEqualTo(10.0);
   }
 
   @Test
-  public void test_int_metric_type() throws Exception {
+  public void test_int_metric_type() {
     CustomMeasureDto dto = new CustomMeasureDto();
     dto.setValue(10.0);
     assertThat(dtoToMeasure(dto, new MetricImpl(1, "m", "M", Metric.MetricType.INT)).getIntValue()).isEqualTo(10);
   }
 
   @Test
-  public void test_long_metric_type() throws Exception {
+  public void test_long_metric_type() {
     CustomMeasureDto dto = new CustomMeasureDto();
     dto.setValue(10.0);
     assertThat(dtoToMeasure(dto, new MetricImpl(1, "m", "M", Metric.MetricType.WORK_DUR)).getLongValue()).isEqualTo(10);
   }
 
   @Test
-  public void test_percent_metric_type() throws Exception {
+  public void test_percent_metric_type() {
     CustomMeasureDto dto = new CustomMeasureDto();
     dto.setValue(10.0);
     assertThat(dtoToMeasure(dto, new MetricImpl(1, "m", "M", Metric.MetricType.PERCENT)).getDoubleValue()).isEqualTo(10);
   }
 
   @Test
-  public void test_string_metric_type() throws Exception {
+  public void test_string_metric_type() {
     CustomMeasureDto dto = new CustomMeasureDto();
     dto.setTextValue("foo");
     assertThat(dtoToMeasure(dto, new MetricImpl(1, "m", "M", Metric.MetricType.STRING)).getStringValue()).isEqualTo("foo");
   }
 
   @Test
-  public void test_string_metric_type_with_null_value() throws Exception {
+  public void test_string_metric_type_with_null_value() {
     CustomMeasureDto dto = new CustomMeasureDto();
     dto.setTextValue(null);
 
@@ -204,7 +204,7 @@ public class CustomMeasuresCopyStepTest {
   }
 
   @Test
-  public void test_data_metric_type_with_null_value() throws Exception {
+  public void test_data_metric_type_with_null_value() {
     CustomMeasureDto dto = new CustomMeasureDto();
     dto.setTextValue(null);
 
@@ -213,7 +213,7 @@ public class CustomMeasuresCopyStepTest {
   }
 
   @Test
-  public void test_ditrib_metric_type_with_null_value() throws Exception {
+  public void test_ditrib_metric_type_with_null_value() {
     CustomMeasureDto dto = new CustomMeasureDto();
     dto.setTextValue(null);
 
@@ -222,14 +222,14 @@ public class CustomMeasuresCopyStepTest {
   }
 
   @Test
-  public void test_LEVEL_metric_type() throws Exception {
+  public void test_LEVEL_metric_type() {
     CustomMeasureDto dto = new CustomMeasureDto();
     dto.setTextValue("OK");
     assertThat(dtoToMeasure(dto, new MetricImpl(1, "m", "M", Metric.MetricType.LEVEL)).getLevelValue()).isEqualTo(Measure.Level.OK);
   }
 
   @Test
-  public void test_boolean_metric_type() throws Exception {
+  public void test_boolean_metric_type() {
     MetricImpl booleanMetric = new MetricImpl(1, "m", "M", Metric.MetricType.BOOL);
     CustomMeasureDto dto = new CustomMeasureDto();
     assertThat(dtoToMeasure(dto.setValue(1.0), booleanMetric).getBooleanValue()).isTrue();

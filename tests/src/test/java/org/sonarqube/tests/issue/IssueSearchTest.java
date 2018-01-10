@@ -80,7 +80,7 @@ public class IssueSearchTest extends AbstractIssueTest {
   }
 
   @Before
-  public void resetProperties() throws Exception {
+  public void resetProperties() {
     setServerProperty(ORCHESTRATOR, "sonar.forceAuthentication", "false");
   }
 
@@ -241,7 +241,7 @@ public class IssueSearchTest extends AbstractIssueTest {
   }
 
   @Test
-  public void return_issue_type() throws Exception {
+  public void return_issue_type() {
     SearchWsResponse issues = searchResponse(r -> r.setRules(singletonList("xoo:OneBugIssuePerLine")));
     assertThat(issues.getIssuesList()).isNotEmpty();
     org.sonarqube.ws.Issues.Issue issue = issues.getIssues(0);
@@ -259,7 +259,7 @@ public class IssueSearchTest extends AbstractIssueTest {
   }
 
   @Test
-  public void search_issues_by_types() throws IOException {
+  public void search_issues_by_types() {
     assertThat(searchResponse(r -> r.setTypes(singletonList("CODE_SMELL"))).getPaging().getTotal()).isEqualTo(142);
     assertThat(searchResponse(r -> r.setTypes(singletonList("BUG"))).getPaging().getTotal()).isEqualTo(106);
     assertThat(searchResponse(r -> r.setTypes(singletonList("VULNERABILITY"))).getPaging().getTotal()).isEqualTo(8);

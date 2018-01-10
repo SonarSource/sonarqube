@@ -69,7 +69,7 @@ public class PermissionTest {
   }
 
   @After
-  public void tearDown() throws Exception {
+  public void tearDown() {
     resetSettings(orchestrator, null, "sonar.forceAuthentication");
     userRule.resetUsers();
   }
@@ -136,7 +136,7 @@ public class PermissionTest {
   }
 
   @Test
-  public void run_scanner_with_user_having_scan_permission_only_on_project() throws Exception {
+  public void run_scanner_with_user_having_scan_permission_only_on_project() {
     userRule.createUser(A_LOGIN, A_PASSWORD);
     orchestrator.getServer().provisionProject("sample", "sample");
     addUserPermission(A_LOGIN, "scan", "sample");

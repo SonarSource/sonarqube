@@ -37,7 +37,7 @@ import org.sonar.server.computation.task.projectanalysis.filemove.MovedFilesRepo
  * Factory of {@link Input} of base data for issue tracking. Data are lazy-loaded.
  */
 public class TrackerBaseInputFactory {
-  private static final LineHashSequence EMPTY_LINE_HASH_SEQUENCE = new LineHashSequence(Collections.<String>emptyList());
+  private static final LineHashSequence EMPTY_LINE_HASH_SEQUENCE = new LineHashSequence(Collections.emptyList());
 
   private final ComponentIssuesLoader issuesLoader;
   private final DbClient dbClient;

@@ -58,7 +58,7 @@ public class ComputeEnginePerfTest extends AbstractPerfTest {
   }
 
   @Before
-  public void before() throws Exception {
+  public void before() {
     orchestrator.resetData();
   }
 

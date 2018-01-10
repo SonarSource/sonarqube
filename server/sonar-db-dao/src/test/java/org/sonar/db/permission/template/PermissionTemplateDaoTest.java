@@ -71,7 +71,7 @@ public class PermissionTemplateDaoTest {
   }
 
   @Test
-  public void should_create_permission_template() throws ParseException {
+  public void should_create_permission_template() {
     PermissionTemplateDto permissionTemplate = underTest.insert(db.getSession(), newPermissionTemplateDto()
       .setUuid("ABCD")
       .setName("my template")

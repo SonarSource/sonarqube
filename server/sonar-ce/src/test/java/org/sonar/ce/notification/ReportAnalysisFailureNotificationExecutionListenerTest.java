@@ -77,7 +77,7 @@ public class ReportAnalysisFailureNotificationExecutionListenerTest {
     notificationService, dbClient, serializer, system2);
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
 
   }
 

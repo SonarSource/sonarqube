@@ -138,7 +138,6 @@ public class TestResultSetIteratorTest {
       entry(FIELD_FILE_UUID, "F1"),
       entry(FIELD_TEST_UUID, "U1"),
       entry(FIELD_NAME, "N1"));
-    ;
     // null values
     assertThat(doc).containsKeys(
       FIELD_DURATION_IN_MS,

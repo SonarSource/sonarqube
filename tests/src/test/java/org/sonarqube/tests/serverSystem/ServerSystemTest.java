@@ -86,7 +86,7 @@ public class ServerSystemTest {
   }
 
   @Test
-  public void http_response_should_be_gzipped() throws IOException {
+  public void http_response_should_be_gzipped() {
     String url = orchestrator.getServer().getUrl() + "/api/rules/search";
     Response metricsResponse = call(url);
     assertThat(metricsResponse.isSuccessful()).as("Response code is %s", metricsResponse.code()).isTrue();

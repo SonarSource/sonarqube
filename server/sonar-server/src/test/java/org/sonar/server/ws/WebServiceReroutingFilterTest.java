@@ -55,7 +55,7 @@ public class WebServiceReroutingFilterTest {
   }
 
   @Test
-  public void do_get_pattern() throws Exception {
+  public void do_get_pattern() {
     assertThat(underTest.doGetPattern().matches("/api/components/update_key")).isTrue();
     assertThat(underTest.doGetPattern().matches("/api/components/bulk_update_key")).isTrue();
     assertThat(underTest.doGetPattern().matches("/api/projects/update_key")).isFalse();

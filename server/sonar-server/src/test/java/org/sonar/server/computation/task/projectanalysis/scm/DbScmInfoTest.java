@@ -46,7 +46,7 @@ public class DbScmInfoTest {
   }
 
   @Test
-  public void return_changeset_for_a_given_line() throws Exception {
+  public void return_changeset_for_a_given_line() {
     DbFileSources.Data.Builder fileDataBuilder = DbFileSources.Data.newBuilder();
     addLine(fileDataBuilder, 1, "john", 123456789L, "rev-1");
     addLine(fileDataBuilder, 2, "henry", 1234567810L, "rev-2");
@@ -65,7 +65,7 @@ public class DbScmInfoTest {
   }
 
   @Test
-  public void return_same_changeset_objects_for_lines_with_same_revision() throws Exception {
+  public void return_same_changeset_objects_for_lines_with_same_revision() {
     DbFileSources.Data.Builder fileDataBuilder = DbFileSources.Data.newBuilder();
     fileDataBuilder.addLinesBuilder().setScmRevision("rev").setScmDate(65L).setLine(1);
     fileDataBuilder.addLinesBuilder().setScmRevision("rev2").setScmDate(6541L).setLine(2);
@@ -80,7 +80,7 @@ public class DbScmInfoTest {
   }
 
   @Test
-  public void return_latest_changeset() throws Exception {
+  public void return_latest_changeset() {
     DbFileSources.Data.Builder fileDataBuilder = DbFileSources.Data.newBuilder();
     addLine(fileDataBuilder, 1, "john", 123456789L, "rev-1");
     // Older changeset
@@ -97,7 +97,7 @@ public class DbScmInfoTest {
   }
 
   @Test
-  public void return_absent_dsm_info_when_no_changeset() throws Exception {
+  public void return_absent_dsm_info_when_no_changeset() {
     DbFileSources.Data.Builder fileDataBuilder = DbFileSources.Data.newBuilder();
     fileDataBuilder.addLinesBuilder().setLine(1);
 
@@ -105,7 +105,7 @@ public class DbScmInfoTest {
   }
 
   @Test
-  public void return_absent_dsm_info_when_changeset_line_has_both_revision_and_date() throws Exception {
+  public void return_absent_dsm_info_when_changeset_line_has_both_revision_and_date() {
     DbFileSources.Data.Builder fileDataBuilder = DbFileSources.Data.newBuilder();
     fileDataBuilder.addLinesBuilder().setLine(1);
     fileDataBuilder.addLinesBuilder().setScmDate(6541L).setLine(2);
@@ -116,7 +116,7 @@ public class DbScmInfoTest {
   }
 
   @Test
-  public void fail_with_ISE_when_changeset_has_no_field() throws Exception {
+  public void fail_with_ISE_when_changeset_has_no_field() {
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("Partial scm information stored in DB for component 'ReportComponent{ref=1, key='FILE_KEY', type=FILE}'. " +
       "Not all lines have SCM info. Can not proceed");
@@ -130,7 +130,7 @@ public class DbScmInfoTest {
   }
 
   @Test
-  public void fail_with_ISE_when_changeset_has_only_revision_field() throws Exception {
+  public void fail_with_ISE_when_changeset_has_only_revision_field() {
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("Partial scm information stored in DB for component 'ReportComponent{ref=1, key='FILE_KEY', type=FILE}'. " +
       "Not all lines have SCM info. Can not proceed");
@@ -144,7 +144,7 @@ public class DbScmInfoTest {
   }
 
   @Test
-  public void fail_with_ISE_when_changeset_has_only_author_field() throws Exception {
+  public void fail_with_ISE_when_changeset_has_only_author_field() {
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("Partial scm information stored in DB for component 'ReportComponent{ref=1, key='FILE_KEY', type=FILE}'. " +
       "Not all lines have SCM info. Can not proceed");

@@ -76,7 +76,7 @@ public class XooBlameCommandTest {
     fs.add(inputFile);
 
     BlameOutput result = mock(BlameOutput.class);
-    when(input.filesToBlame()).thenReturn(Arrays.<InputFile>asList(inputFile));
+    when(input.filesToBlame()).thenReturn(Arrays.asList(inputFile));
     new XooBlameCommand().blame(input, result);
     verify(result).blameResult(inputFile, Arrays.asList(
       new BlameLine().revision("123").author("julien").date(DateUtils.parseDate("2014-12-12")),

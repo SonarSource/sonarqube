@@ -289,7 +289,7 @@ public class UpdateAction implements RulesWsAction {
       .setTemplateRules(templateRules)
       .setRuleParameters(ruleParameters)
       .setTotal(1L);
-    responseBuilder.setRule(mapper.toWsRule(rule.getDefinition(), searchResult, Collections.<String>emptySet(), rule.getMetadata()));
+    responseBuilder.setRule(mapper.toWsRule(rule.getDefinition(), searchResult, Collections.emptySet(), rule.getMetadata()));
 
     return responseBuilder.build();
   }

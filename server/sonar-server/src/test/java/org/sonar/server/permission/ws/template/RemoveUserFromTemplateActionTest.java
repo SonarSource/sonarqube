@@ -70,7 +70,7 @@ public class RemoveUserFromTemplateActionTest extends BasePermissionWsTest<Remov
   }
 
   @Test
-  public void remove_user_from_template_by_name_case_insensitive() throws Exception {
+  public void remove_user_from_template_by_name_case_insensitive() {
     loginAsAdmin(db.getDefaultOrganization());
     newRequest()
       .setParam(PARAM_USER_LOGIN, user.getLogin())
@@ -187,7 +187,7 @@ public class RemoveUserFromTemplateActionTest extends BasePermissionWsTest<Remov
     newRequest(user.getLogin(), "unknown-key", DEFAULT_PERMISSION);
   }
 
-  private void newRequest(@Nullable String userLogin, @Nullable String templateKey, @Nullable String permission) throws Exception {
+  private void newRequest(@Nullable String userLogin, @Nullable String templateKey, @Nullable String permission) {
     TestRequest request = newRequest();
     if (userLogin != null) {
       request.setParam(PARAM_USER_LOGIN, userLogin);

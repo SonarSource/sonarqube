@@ -66,7 +66,7 @@ public class GlobalActionTest {
   private WsActionTester ws;
 
   @Test
-  public void empty_call() throws Exception {
+  public void empty_call() {
     init();
 
     assertJson(call()).isSimilarTo("{" +
@@ -77,7 +77,7 @@ public class GlobalActionTest {
   }
 
   @Test
-  public void return_qualifiers() throws Exception {
+  public void return_qualifiers() {
     init(new Page[] {}, new ResourceTypeTree[] {
       ResourceTypeTree.builder()
         .addType(ResourceType.builder("POL").build())
@@ -97,7 +97,7 @@ public class GlobalActionTest {
   }
 
   @Test
-  public void return_settings() throws Exception {
+  public void return_settings() {
     init();
     settings.setProperty("sonar.lf.logoUrl", "http://example.com/my-custom-logo.png");
     settings.setProperty("sonar.lf.logoWidthPx", 135);
@@ -125,7 +125,7 @@ public class GlobalActionTest {
   }
 
   @Test
-  public void return_deprecated_logo_settings() throws Exception {
+  public void return_deprecated_logo_settings() {
     init();
     settings.setProperty("sonar.lf.logoUrl", "http://example.com/my-custom-logo.png");
     settings.setProperty("sonar.lf.logoWidthPx", 135);
@@ -141,7 +141,7 @@ public class GlobalActionTest {
   }
 
   @Test
-  public void the_returned_global_pages_do_not_include_administration_pages() throws Exception {
+  public void the_returned_global_pages_do_not_include_administration_pages() {
     init(createPages(), new ResourceTypeTree[] {});
 
     assertJson(call()).isSimilarTo("{" +
@@ -159,7 +159,7 @@ public class GlobalActionTest {
   }
 
   @Test
-  public void return_sonarqube_version() throws Exception {
+  public void return_sonarqube_version() {
     init();
     when(server.getVersion()).thenReturn("6.2");
 
@@ -169,7 +169,7 @@ public class GlobalActionTest {
   }
 
   @Test
-  public void functional_version_when_4_digits() throws Exception {
+  public void functional_version_when_4_digits() {
     init();
     when(server.getVersion()).thenReturn("6.3.1.1234");
 
@@ -179,7 +179,7 @@ public class GlobalActionTest {
   }
 
   @Test
-  public void functional_version_when_third_digit_is_0() throws Exception {
+  public void functional_version_when_third_digit_is_0() {
     init();
     when(server.getVersion()).thenReturn("6.3.0.1234");
 
@@ -189,7 +189,7 @@ public class GlobalActionTest {
   }
 
   @Test
-  public void return_if_production_database_or_not() throws Exception {
+  public void return_if_production_database_or_not() {
     init();
     when(dbClient.getDatabase().getDialect()).thenReturn(new MySql());
 
@@ -199,7 +199,7 @@ public class GlobalActionTest {
   }
 
   @Test
-  public void organization_support() throws Exception {
+  public void organization_support() {
     init();
     organizationFlags.setEnabled(true);
 
@@ -210,7 +210,7 @@ public class GlobalActionTest {
   }
 
   @Test
-  public void branch_support() throws Exception {
+  public void branch_support() {
     init();
     branchFeature.setEnabled(true);
     assertJson(call()).isSimilarTo("{\"branchesEnabled\":true}");
@@ -248,7 +248,7 @@ public class GlobalActionTest {
   }
 
   @Test
-  public void test_example_response() throws Exception {
+  public void test_example_response() {
     init(createPages(), new ResourceTypeTree[] {
       ResourceTypeTree.builder()
         .addType(ResourceType.builder("POL").build())

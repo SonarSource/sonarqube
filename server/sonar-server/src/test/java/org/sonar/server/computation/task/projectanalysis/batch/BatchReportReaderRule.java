@@ -204,7 +204,7 @@ public class BatchReportReaderRule implements TestRule, BatchReportReader {
   }
 
   private static <T> CloseableIterator<T> closeableIterator(@Nullable List<T> list) {
-    return list == null ? CloseableIterator.<T>emptyCloseableIterator() : CloseableIterator.from(list.iterator());
+    return list == null ? CloseableIterator.emptyCloseableIterator() : CloseableIterator.from(list.iterator());
   }
 
   public BatchReportReaderRule putSymbols(int componentRef, List<ScannerReport.Symbol> symbols) {

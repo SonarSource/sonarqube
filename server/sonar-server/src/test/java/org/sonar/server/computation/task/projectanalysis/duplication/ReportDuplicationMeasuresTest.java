@@ -267,7 +267,7 @@ public class ReportDuplicationMeasuresTest {
   }
 
   @Test
-  public void compute_and_aggregate_duplicated_lines_density_using_lines() throws Exception {
+  public void compute_and_aggregate_duplicated_lines_density_using_lines() {
     addDuplicatedBlock(FILE_1_REF, 2);
     addDuplicatedBlock(FILE_2_REF, 3);
 
@@ -292,7 +292,7 @@ public class ReportDuplicationMeasuresTest {
   }
 
   @Test
-  public void compute_and_aggregate_duplicated_lines_density_using_nclocs_and_comment_lines() throws Exception {
+  public void compute_and_aggregate_duplicated_lines_density_using_nclocs_and_comment_lines() {
     addDuplicatedBlock(FILE_1_REF, 2);
     addDuplicatedBlock(FILE_2_REF, 3);
 
@@ -324,7 +324,7 @@ public class ReportDuplicationMeasuresTest {
   }
 
   @Test
-  public void compute_duplicated_lines_density_using_only_nclocs() throws Exception {
+  public void compute_duplicated_lines_density_using_only_nclocs() {
     addDuplicatedBlock(FILE_1_REF, 2);
     addDuplicatedBlock(FILE_2_REF, 3);
 
@@ -349,7 +349,7 @@ public class ReportDuplicationMeasuresTest {
   }
 
   @Test
-  public void compute_zero_percent_duplicated_lines_density_when_there_is_no_duplication() throws Exception {
+  public void compute_zero_percent_duplicated_lines_density_when_there_is_no_duplication() {
     addRawMeasure(FILE_1_REF, COMMENT_LINES_KEY, 2);
     addRawMeasure(FILE_2_REF, COMMENT_LINES_KEY, 10);
     addRawMeasure(DIRECTORY_REF, COMMENT_LINES_KEY, 12);
@@ -378,7 +378,7 @@ public class ReportDuplicationMeasuresTest {
   }
 
   @Test
-  public void not_compute_duplicated_lines_density_when_lines_is_zero() throws Exception {
+  public void not_compute_duplicated_lines_density_when_lines_is_zero() {
     addRawMeasure(FILE_1_REF, LINES_KEY, 0);
     addRawMeasure(FILE_2_REF, LINES_KEY, 0);
     addRawMeasure(DIRECTORY_REF, LINES_KEY, 0);
@@ -392,7 +392,7 @@ public class ReportDuplicationMeasuresTest {
   }
 
   @Test
-  public void not_compute_duplicated_lines_density_when_ncloc_and_comment_are_zero() throws Exception {
+  public void not_compute_duplicated_lines_density_when_ncloc_and_comment_are_zero() {
     addRawMeasure(FILE_1_REF, COMMENT_LINES_KEY, 0);
     addRawMeasure(FILE_2_REF, COMMENT_LINES_KEY, 0);
     addRawMeasure(DIRECTORY_REF, COMMENT_LINES_KEY, 0);
@@ -413,7 +413,7 @@ public class ReportDuplicationMeasuresTest {
   }
 
   @Test
-  public void compute_100_percent_duplicated_lines_density() throws Exception {
+  public void compute_100_percent_duplicated_lines_density() {
     addDuplicatedBlock(FILE_1_REF, 2);
     addDuplicatedBlock(FILE_2_REF, 3);
 

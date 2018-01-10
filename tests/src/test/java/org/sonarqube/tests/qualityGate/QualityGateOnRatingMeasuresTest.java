@@ -45,7 +45,7 @@ public class QualityGateOnRatingMeasuresTest {
     .disableOrganizations();
 
   @Test
-  public void generate_warning_qgate_on_rating_metric() throws Exception {
+  public void generate_warning_qgate_on_rating_metric() {
     Project project = tester.projects().provision();
     Qualitygates.CreateResponse qualityGate = tester.qGates().generate();
     tester.qGates().associateProject(qualityGate, project);
@@ -63,7 +63,7 @@ public class QualityGateOnRatingMeasuresTest {
   }
 
   @Test
-  public void generate_error_qgate_on_rating_metric_on_leak_period() throws Exception {
+  public void generate_error_qgate_on_rating_metric_on_leak_period() {
     Project project = tester.projects().provision();
     Qualitygates.CreateResponse qualityGate = tester.qGates().generate();
     tester.qGates().associateProject(qualityGate, project);

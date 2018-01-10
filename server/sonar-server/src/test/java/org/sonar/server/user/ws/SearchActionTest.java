@@ -280,7 +280,7 @@ public class SearchActionTest {
         "}");
   }
 
-  private List<UserDto> injectUsers(int numberOfUsers) throws Exception {
+  private List<UserDto> injectUsers(int numberOfUsers) {
     List<UserDto> userDtos = new ArrayList<>();
     GroupDto group1 = db.users().insertGroup(newGroupDto().setName("sonar-users"));
     GroupDto group2 = db.users().insertGroup(newGroupDto().setName("sonar-admins"));

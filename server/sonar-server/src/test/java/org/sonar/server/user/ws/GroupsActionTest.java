@@ -69,7 +69,7 @@ public class GroupsActionTest {
   private WsActionTester ws = new WsActionTester(new GroupsAction(db.getDbClient(), userSession, defaultOrganizationProvider, new DefaultGroupFinder(db.getDbClient())));
 
   @Test
-  public void empty_groups() throws Exception {
+  public void empty_groups() {
     insertUser();
     insertDefaultGroup("sonar-users", "Sonar Users");
 
@@ -79,7 +79,7 @@ public class GroupsActionTest {
   }
 
   @Test
-  public void return_selected_groups_selected_param_is_set_to_all() throws Exception {
+  public void return_selected_groups_selected_param_is_set_to_all() {
     UserDto user = insertUser();
     GroupDto usersGroup = insertDefaultGroup("sonar-users", "Sonar Users");
     GroupDto adminGroup = insertGroup("sonar-admins", "Sonar Admins");
@@ -95,7 +95,7 @@ public class GroupsActionTest {
   }
 
   @Test
-  public void return_selected_groups_selected_param_is_set_to_selected() throws Exception {
+  public void return_selected_groups_selected_param_is_set_to_selected() {
     UserDto user = insertUser();
     GroupDto usersGroup = insertDefaultGroup("sonar-users", "Sonar Users");
     insertGroup("sonar-admins", "Sonar Admins");
@@ -109,7 +109,7 @@ public class GroupsActionTest {
   }
 
   @Test
-  public void return_selected_groups_selected_param_is_not_set() throws Exception {
+  public void return_selected_groups_selected_param_is_not_set() {
     UserDto user = insertUser();
     GroupDto usersGroup = insertDefaultGroup("sonar-users", "Sonar Users");
     insertGroup("sonar-admins", "Sonar Admins");
@@ -123,7 +123,7 @@ public class GroupsActionTest {
   }
 
   @Test
-  public void return_not_selected_groups_selected_param_is_set_to_deselected() throws Exception {
+  public void return_not_selected_groups_selected_param_is_set_to_deselected() {
     UserDto user = insertUser();
     GroupDto usersGroup = insertDefaultGroup("sonar-users", "Sonar Users");
     GroupDto adminGroup = insertGroup("sonar-admins", "Sonar Admins");
@@ -137,7 +137,7 @@ public class GroupsActionTest {
   }
 
   @Test
-  public void return_group_not_having_description() throws Exception {
+  public void return_group_not_having_description() {
     UserDto user = insertUser();
     GroupDto group = insertDefaultGroup("sonar-users", null);
     addUserToGroup(user, group);
@@ -148,7 +148,7 @@ public class GroupsActionTest {
   }
 
   @Test
-  public void search_with_pagination() throws IOException {
+  public void search_with_pagination() {
     UserDto user = insertUser();
     insertDefaultGroup("sonar-users", "Sonar Users");
     for (int i = 1; i <= 9; i++) {
@@ -168,7 +168,7 @@ public class GroupsActionTest {
   }
 
   @Test
-  public void search_by_text_query() throws Exception {
+  public void search_by_text_query() {
     UserDto user = insertUser();
     GroupDto usersGroup = insertDefaultGroup("sonar-users", "Sonar Users");
     GroupDto adminGroup = insertGroup("sonar-admins", "Sonar Admins");
@@ -181,7 +181,7 @@ public class GroupsActionTest {
   }
 
   @Test
-  public void return_default_group_information() throws Exception {
+  public void return_default_group_information() {
     UserDto user = insertUser();
     GroupDto usersGroup = insertDefaultGroup("sonar-users", "Sonar Users");
     GroupDto adminGroup = insertGroup("sonar-admins", "Sonar Admins");
@@ -197,7 +197,7 @@ public class GroupsActionTest {
   }
 
   @Test
-  public void return_groups_from_given_organization() throws Exception {
+  public void return_groups_from_given_organization() {
     UserDto user = insertUser();
     OrganizationDto organizationDto = db.organizations().insert();
     OrganizationDto otherOrganizationDto = db.organizations().insert();
@@ -218,7 +218,7 @@ public class GroupsActionTest {
   }
 
   @Test
-  public void fail_when_organization_has_no_default_group() throws Exception {
+  public void fail_when_organization_has_no_default_group() {
     UserDto user = insertUser();
     OrganizationDto organizationDto = db.organizations().insert(organization -> organization.setKey("OrgKey"));
     GroupDto group = db.users().insertGroup(organizationDto, "group1");
@@ -231,7 +231,7 @@ public class GroupsActionTest {
   }
 
   @Test
-  public void fail_on_unknown_user() throws Exception {
+  public void fail_on_unknown_user() {
     insertDefaultGroup("sonar-users", "Sonar Users");
 
     expectedException.expect(NotFoundException.class);
@@ -241,7 +241,7 @@ public class GroupsActionTest {
   }
 
   @Test
-  public void fail_on_disabled_user() throws Exception {
+  public void fail_on_disabled_user() {
     UserDto userDto = db.users().insertUser(user -> user.setLogin("disabled").setActive(false));
     insertDefaultGroup("sonar-users", "Sonar Users");
 
@@ -252,7 +252,7 @@ public class GroupsActionTest {
   }
 
   @Test
-  public void fail_on_unknown_organization() throws Exception {
+  public void fail_on_unknown_organization() {
     insertUser();
 
     expectedException.expect(NotFoundException.class);
@@ -262,7 +262,7 @@ public class GroupsActionTest {
   }
 
   @Test
-  public void fail_when_page_size_is_greater_than_500() throws Exception {
+  public void fail_when_page_size_is_greater_than_500() {
     UserDto user = insertUser();
     insertDefaultGroup("sonar-users", "Sonar Users");
 
@@ -275,7 +275,7 @@ public class GroupsActionTest {
   }
 
   @Test
-  public void fail_on_missing_permission() throws Exception {
+  public void fail_on_missing_permission() {
     OrganizationDto organizationDto = db.organizations().insert();
     userSession.logIn().addPermission(ADMINISTER, organizationDto);
 
@@ -285,7 +285,7 @@ public class GroupsActionTest {
   }
 
   @Test
-  public void fail_when_no_permission() throws Exception {
+  public void fail_when_no_permission() {
     userSession.logIn("not-admin");
 
     expectedException.expect(ForbiddenException.class);

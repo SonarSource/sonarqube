@@ -82,7 +82,7 @@ public class SetDefaultTemplateActionTest extends BasePermissionWsTest<SetDefaul
   }
 
   @Test
-  public void update_project_default_template_by_template_name() throws Exception {
+  public void update_project_default_template_by_template_name() {
     OrganizationDto organization = db.organizations().insert();
     PermissionTemplateDto viewDefaultTemplate = db.permissionTemplates().insertTemplate(organization);
     db.organizations().setDefaultTemplates(db.permissionTemplates().insertTemplate(organization),
@@ -186,7 +186,7 @@ public class SetDefaultTemplateActionTest extends BasePermissionWsTest<SetDefaul
     newRequest(template.getUuid(), null);
   }
 
-  private String newRequest(@Nullable String templateUuid, @Nullable String qualifier) throws Exception {
+  private String newRequest(@Nullable String templateUuid, @Nullable String qualifier) {
     TestRequest request = newRequest();
     if (templateUuid != null) {
       request.setParam(PARAM_TEMPLATE_ID, templateUuid);

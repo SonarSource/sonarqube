@@ -61,7 +61,7 @@ public class SourceServiceTest {
   }
 
   @Test
-  public void get_range_of_lines() throws Exception {
+  public void get_range_of_lines() {
     Optional<Iterable<DbFileSources.Line>> linesOpt = underTest.getLines(dbTester.getSession(), FILE_UUID, 5, 7);
     assertThat(linesOpt.isPresent()).isTrue();
     List<DbFileSources.Line> lines = Lists.newArrayList(linesOpt.get());
@@ -72,7 +72,7 @@ public class SourceServiceTest {
   }
 
   @Test
-  public void get_range_of_lines_as_raw_text() throws Exception {
+  public void get_range_of_lines_as_raw_text() {
     Optional<Iterable<String>> linesOpt = underTest.getLinesAsRawText(dbTester.getSession(), FILE_UUID, 5, 7);
     assertThat(linesOpt.isPresent()).isTrue();
     List<String> lines = Lists.newArrayList(linesOpt.get());
@@ -80,7 +80,7 @@ public class SourceServiceTest {
   }
 
   @Test
-  public void get_range_of_lines_as_html() throws Exception {
+  public void get_range_of_lines_as_html() {
     when(htmlDecorator.getDecoratedSourceAsHtml("SOURCE_5", "HIGHLIGHTING_5", "SYMBOLS_5")).thenReturn("HTML_5");
     when(htmlDecorator.getDecoratedSourceAsHtml("SOURCE_6", "HIGHLIGHTING_6", "SYMBOLS_6")).thenReturn("HTML_6");
     when(htmlDecorator.getDecoratedSourceAsHtml("SOURCE_7", "HIGHLIGHTING_7", "SYMBOLS_7")).thenReturn("HTML_7");
@@ -108,14 +108,14 @@ public class SourceServiceTest {
   }
 
   @Test
-  public void getLines_returns_empty_iterable_if_range_is_out_of_scope() throws Exception {
+  public void getLines_returns_empty_iterable_if_range_is_out_of_scope() {
     Optional<Iterable<DbFileSources.Line>> lines = underTest.getLines(dbTester.getSession(), FILE_UUID, 500, 510);
     assertThat(lines.isPresent()).isTrue();
     assertThat(lines.get()).isEmpty();
   }
 
   @Test
-  public void getLines_file_does_not_exist() throws Exception {
+  public void getLines_file_does_not_exist() {
     Optional<Iterable<DbFileSources.Line>> lines = underTest.getLines(dbTester.getSession(), "FILE_DOES_NOT_EXIST", 1, 10);
     assertThat(lines.isPresent()).isFalse();
   }

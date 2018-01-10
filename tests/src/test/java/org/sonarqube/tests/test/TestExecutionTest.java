@@ -62,7 +62,7 @@ public class TestExecutionTest {
   }
 
   @Test
-  public void test_execution_measures() throws Exception {
+  public void test_execution_measures() {
     orchestrator.executeBuilds(SonarScanner.create(projectDir("testing/xoo-sample-with-tests-execution-measures")));
 
     Map<String, Double> measures = getMeasuresAsDoubleByMetricKey(orchestrator, "sample-with-tests",

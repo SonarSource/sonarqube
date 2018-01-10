@@ -53,13 +53,13 @@ public class HtmlSourceDecoratorTest {
   @Test
   public void should_ignore_missing_highlighting() {
     String sourceLine = "    if (toto < 42) {";
-    assertThat(sourceDecorator.getDecoratedSourceAsHtml(sourceLine, (String) null, (String) null)).isEqualTo("    if (toto &lt; 42) {");
-    assertThat(sourceDecorator.getDecoratedSourceAsHtml(sourceLine, "", (String) null)).isEqualTo("    if (toto &lt; 42) {");
+    assertThat(sourceDecorator.getDecoratedSourceAsHtml(sourceLine, null, null)).isEqualTo("    if (toto &lt; 42) {");
+    assertThat(sourceDecorator.getDecoratedSourceAsHtml(sourceLine, "", null)).isEqualTo("    if (toto &lt; 42) {");
   }
 
   @Test
   public void should_ignore_null_source() {
-    assertThat(sourceDecorator.getDecoratedSourceAsHtml(null, (String) null, (String) null)).isNull();
+    assertThat(sourceDecorator.getDecoratedSourceAsHtml(null, null, null)).isNull();
   }
 
   @Test

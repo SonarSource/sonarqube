@@ -25,7 +25,7 @@ public class SuccessfulDistributedCall implements DistributedCall<Long> {
   static final AtomicLong COUNTER = new AtomicLong();
 
   @Override
-  public Long call() throws Exception {
+  public Long call() {
     return COUNTER.getAndIncrement();
   }
 }

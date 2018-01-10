@@ -43,7 +43,7 @@ public class LogOAuthWarningTest {
   private Server server = mock(Server.class);
 
   @Test
-  public void log_warning_at_startup_if_non_secured_base_url_and_oauth_is_installed() throws Exception {
+  public void log_warning_at_startup_if_non_secured_base_url_and_oauth_is_installed() {
     when(server.getPublicRootUrl()).thenReturn("http://mydomain.com");
 
     LogOAuthWarning underTest = new LogOAuthWarning(server, new OAuth2IdentityProvider[1]);
@@ -56,7 +56,7 @@ public class LogOAuthWarningTest {
   }
 
   @Test
-  public void do_not_log_warning_at_startup_if_secured_base_url_and_oauth_is_installed() throws Exception {
+  public void do_not_log_warning_at_startup_if_secured_base_url_and_oauth_is_installed() {
     when(server.getPublicRootUrl()).thenReturn("https://mydomain.com");
 
     LogOAuthWarning underTest = new LogOAuthWarning(server, new OAuth2IdentityProvider[1]);
@@ -69,7 +69,7 @@ public class LogOAuthWarningTest {
   }
 
   @Test
-  public void do_not_log_warning_at_startup_if_non_secured_base_url_but_oauth_is_not_installed() throws Exception {
+  public void do_not_log_warning_at_startup_if_non_secured_base_url_but_oauth_is_not_installed() {
     when(server.getPublicRootUrl()).thenReturn("http://mydomain.com");
 
     LogOAuthWarning underTest = new LogOAuthWarning(server);

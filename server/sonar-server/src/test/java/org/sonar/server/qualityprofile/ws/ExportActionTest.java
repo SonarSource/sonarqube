@@ -191,7 +191,7 @@ public class ExportActionTest {
   }
 
   @Test
-  public void export_default_profile() throws Exception {
+  public void export_default_profile() {
     QProfileDto nonDefaultProfile = createProfile(db.getDefaultOrganization(), false);
     QProfileDto defaultProfile = createProfile(db.getDefaultOrganization(), true);
 
@@ -206,7 +206,7 @@ public class ExportActionTest {
   }
 
   @Test
-  public void throw_NotFoundException_if_profile_with_specified_name_does_not_exist_in_default_organization() throws Exception {
+  public void throw_NotFoundException_if_profile_with_specified_name_does_not_exist_in_default_organization() {
     expectedException.expect(NotFoundException.class);
 
     newWsActionTester().newRequest()
@@ -215,7 +215,7 @@ public class ExportActionTest {
   }
 
   @Test
-  public void throw_IAE_if_export_with_specified_key_does_not_exist() throws Exception {
+  public void throw_IAE_if_export_with_specified_key_does_not_exist() {
     QProfileDto profile = createProfile(db.getDefaultOrganization(), true);
 
     expectedException.expect(IllegalArgumentException.class);
@@ -227,7 +227,7 @@ public class ExportActionTest {
   }
 
   @Test
-  public void return_backup_when_exporter_is_not_specified() throws Exception {
+  public void return_backup_when_exporter_is_not_specified() {
     OrganizationDto organization = db.getDefaultOrganization();
     QProfileDto profile = createProfile(organization, false);
 

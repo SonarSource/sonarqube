@@ -90,7 +90,7 @@ public class QualityProfileEventsStepTest {
 
   @Test
   public void no_event_if_no_base_measure() {
-    when(measureRepository.getBaseMeasure(treeRootHolder.getRoot(), qualityProfileMetric)).thenReturn(Optional.<Measure>absent());
+    when(measureRepository.getBaseMeasure(treeRootHolder.getRoot(), qualityProfileMetric)).thenReturn(Optional.absent());
 
     underTest.execute();
 
@@ -100,7 +100,7 @@ public class QualityProfileEventsStepTest {
   @Test
   public void no_event_if_no_raw_measure() {
     when(measureRepository.getBaseMeasure(treeRootHolder.getRoot(), qualityProfileMetric)).thenReturn(Optional.of(newMeasure()));
-    when(measureRepository.getRawMeasure(treeRootHolder.getRoot(), qualityProfileMetric)).thenReturn(Optional.<Measure>absent());
+    when(measureRepository.getRawMeasure(treeRootHolder.getRoot(), qualityProfileMetric)).thenReturn(Optional.absent());
 
     underTest.execute();
 
@@ -206,7 +206,7 @@ public class QualityProfileEventsStepTest {
     final Set<Event> events = new HashSet<>();
     doAnswer(new Answer() {
       @Override
-      public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
+      public Object answer(InvocationOnMock invocationOnMock) {
         events.add((Event) invocationOnMock.getArguments()[1]);
         return null;
       }
@@ -247,11 +247,11 @@ public class QualityProfileEventsStepTest {
   }
 
   private void mockLanguageNotInRepository(String languageKey) {
-    when(languageRepository.find(languageKey)).thenReturn(Optional.<Language>absent());
+    when(languageRepository.find(languageKey)).thenReturn(Optional.absent());
   }
 
   private void mockNoLanguageInRepository() {
-    when(languageRepository.find(anyString())).thenReturn(Optional.<Language>absent());
+    when(languageRepository.find(anyString())).thenReturn(Optional.absent());
   }
 
   private void mockMeasures(Component component, @Nullable QualityProfile[] previous, @Nullable QualityProfile[] current) {
@@ -286,7 +286,7 @@ public class QualityProfileEventsStepTest {
   }
 
   private static String toJson(@Nullable QualityProfile... qps) {
-    List<QualityProfile> qualityProfiles = qps == null ? Collections.<QualityProfile>emptyList() : Arrays.asList(qps);
+    List<QualityProfile> qualityProfiles = qps == null ? Collections.emptyList() : Arrays.asList(qps);
     return QPMeasureData.toJson(new QPMeasureData(qualityProfiles));
   }
 

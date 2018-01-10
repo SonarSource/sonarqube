@@ -168,7 +168,7 @@ public class AddMemberActionTest {
   }
 
   @Test
-  public void fail_when_organization_has_no_default_group() throws Exception {
+  public void fail_when_organization_has_no_default_group() {
     OrganizationDto organization = db.organizations().insert();
     UserDto user = db.users().insertUser();
 

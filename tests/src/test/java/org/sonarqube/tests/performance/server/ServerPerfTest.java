@@ -102,7 +102,7 @@ public class ServerPerfTest extends AbstractPerfTest {
     return end;
   }
 
-  private static long extractStopDate(List<String> lines) throws IOException {
+  private static long extractStopDate(List<String> lines) {
     Collections.reverse(lines);
     Date end = ServerLogs.extractFirstDate(lines);
     return end.getTime();

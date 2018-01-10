@@ -93,7 +93,7 @@ public class ReportMeasureComputersVisitorTest {
   MeasureComputersHolderImpl measureComputersHolder = new MeasureComputersHolderImpl();
 
   @Test
-  public void compute_plugin_measure() throws Exception {
+  public void compute_plugin_measure() {
     addRawMeasure(FILE_1_REF, NCLOC_KEY, 10);
     addRawMeasure(FILE_1_REF, COMMENT_LINES_KEY, 2);
     addRawMeasure(FILE_2_REF, NCLOC_KEY, 40);
@@ -129,7 +129,7 @@ public class ReportMeasureComputersVisitorTest {
         definition
       )));
 
-    VisitorsCrawler visitorsCrawler = new VisitorsCrawler(Arrays.<ComponentVisitor>asList(new MeasureComputersVisitor(metricRepository, measureRepository, null,
+    VisitorsCrawler visitorsCrawler = new VisitorsCrawler(Arrays.asList(new MeasureComputersVisitor(metricRepository, measureRepository, null,
       measureComputersHolder, componentIssuesRepository)));
     visitorsCrawler.visit(ROOT);
 
@@ -141,7 +141,7 @@ public class ReportMeasureComputersVisitorTest {
   }
 
   @Test
-  public void nothing_to_compute() throws Exception {
+  public void nothing_to_compute() {
     addRawMeasure(FILE_1_REF, NCLOC_KEY, 10);
     addRawMeasure(FILE_1_REF, COMMENT_LINES_KEY, 2);
     addRawMeasure(FILE_2_REF, NCLOC_KEY, 40);
@@ -153,8 +153,8 @@ public class ReportMeasureComputersVisitorTest {
     addRawMeasure(ROOT_REF, NCLOC_KEY, 50);
     addRawMeasure(ROOT_REF, COMMENT_LINES_KEY, 7);
 
-    measureComputersHolder.setMeasureComputers(Collections.<MeasureComputerWrapper>emptyList());
-    VisitorsCrawler visitorsCrawler = new VisitorsCrawler(Arrays.<ComponentVisitor>asList(new MeasureComputersVisitor(metricRepository, measureRepository, null,
+    measureComputersHolder.setMeasureComputers(Collections.emptyList());
+    VisitorsCrawler visitorsCrawler = new VisitorsCrawler(Arrays.asList(new MeasureComputersVisitor(metricRepository, measureRepository, null,
       measureComputersHolder, componentIssuesRepository)));
     visitorsCrawler.visit(ROOT);
 

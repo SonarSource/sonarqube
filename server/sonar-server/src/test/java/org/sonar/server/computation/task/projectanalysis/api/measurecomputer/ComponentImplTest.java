@@ -32,7 +32,7 @@ public class ComponentImplTest {
   public ExpectedException thrown = ExpectedException.none();
 
   @Test
-  public void create_project() throws Exception {
+  public void create_project() {
     ComponentImpl component = new ComponentImpl("Project", Component.Type.PROJECT, null);
 
     assertThat(component.getKey()).isEqualTo("Project");
@@ -40,7 +40,7 @@ public class ComponentImplTest {
   }
 
   @Test
-  public void create_source_file() throws Exception {
+  public void create_source_file() {
     ComponentImpl component = new ComponentImpl("File", Component.Type.FILE, new ComponentImpl.FileAttributesImpl("xoo", false));
 
     assertThat(component.getType()).isEqualTo(Component.Type.FILE);
@@ -49,7 +49,7 @@ public class ComponentImplTest {
   }
 
   @Test
-  public void create_test_file() throws Exception {
+  public void create_test_file() {
     ComponentImpl component = new ComponentImpl("File", Component.Type.FILE, new ComponentImpl.FileAttributesImpl(null, true));
 
     assertThat(component.getType()).isEqualTo(Component.Type.FILE);
@@ -58,7 +58,7 @@ public class ComponentImplTest {
   }
 
   @Test
-  public void fail_with_ISE_when_calling_get_file_attributes_on_not_file() throws Exception {
+  public void fail_with_ISE_when_calling_get_file_attributes_on_not_file() {
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("Only component of type FILE have a FileAttributes object");
 
@@ -67,7 +67,7 @@ public class ComponentImplTest {
   }
 
   @Test
-  public void fail_with_IAE_when_trying_to_create_a_file_without_file_attributes() throws Exception {
+  public void fail_with_IAE_when_trying_to_create_a_file_without_file_attributes() {
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("omponent of type FILE must have a FileAttributes object");
 
@@ -75,7 +75,7 @@ public class ComponentImplTest {
   }
 
   @Test
-  public void fail_with_IAE_when_trying_to_create_not_a_file_with_file_attributes() throws Exception {
+  public void fail_with_IAE_when_trying_to_create_not_a_file_with_file_attributes() {
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("Only component of type FILE have a FileAttributes object");
 
@@ -83,7 +83,7 @@ public class ComponentImplTest {
   }
 
   @Test
-  public void fail_with_NPE_when_creating_component_without_key() throws Exception {
+  public void fail_with_NPE_when_creating_component_without_key() {
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("Key cannot be null");
 
@@ -91,7 +91,7 @@ public class ComponentImplTest {
   }
 
   @Test
-  public void fail_with_NPE_when_creating_component_without_type() throws Exception {
+  public void fail_with_NPE_when_creating_component_without_type() {
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("Type cannot be null");
 
@@ -99,7 +99,7 @@ public class ComponentImplTest {
   }
 
   @Test
-  public void test_equals_and_hashcode() throws Exception {
+  public void test_equals_and_hashcode() {
     ComponentImpl component = new ComponentImpl("Project1", Component.Type.PROJECT, null);
     ComponentImpl sameComponent = new ComponentImpl("Project1", Component.Type.PROJECT, null);
     ComponentImpl anotherComponent = new ComponentImpl("Project2", Component.Type.PROJECT, null);
@@ -115,7 +115,7 @@ public class ComponentImplTest {
   }
 
   @Test
-  public void test_to_string() throws Exception {
+  public void test_to_string() {
     assertThat(new ComponentImpl("File", Component.Type.FILE, new ComponentImpl.FileAttributesImpl("xoo", true)).toString())
       .isEqualTo("ComponentImpl{key=File, type='FILE', fileAttributes=FileAttributesImpl{languageKey='xoo', unitTest=true}}");
   }

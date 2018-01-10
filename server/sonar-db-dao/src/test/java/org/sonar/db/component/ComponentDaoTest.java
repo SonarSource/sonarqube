@@ -375,7 +375,7 @@ public class ComponentDaoTest {
   }
 
   @Test
-  public void fail_with_IAE_select_component_keys_by_qualifiers_on_empty_qualifier() throws Exception {
+  public void fail_with_IAE_select_component_keys_by_qualifiers_on_empty_qualifier() {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Qualifiers cannot be empty");
 
@@ -987,7 +987,7 @@ public class ComponentDaoTest {
   }
 
   @Test
-  public void delete() throws Exception {
+  public void delete() {
     ComponentDto project1 = db.components().insertPrivateProject(db.getDefaultOrganization(), (t) -> t.setDbKey("PROJECT_1"));
     db.components().insertPrivateProject(db.getDefaultOrganization(), (t) -> t.setDbKey("PROJECT_2"));
 

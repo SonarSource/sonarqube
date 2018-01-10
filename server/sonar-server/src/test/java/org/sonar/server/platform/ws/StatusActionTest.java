@@ -72,7 +72,7 @@ public class StatusActionTest {
   }
 
   @Test
-  public void verify_example() throws Exception {
+  public void verify_example() {
     when(platform.status()).thenReturn(Platform.Status.UP);
     restartFlagHolder.unset();
 
@@ -152,7 +152,7 @@ public class StatusActionTest {
   }
 
   @Test
-  public void safety_test_for_new_databaseMigration_status_when_platform_is_SAFEMODE() throws Exception {
+  public void safety_test_for_new_databaseMigration_status_when_platform_is_SAFEMODE() {
     for (DatabaseMigrationState.Status databaseMigrationStatus : filter(asList(DatabaseMigrationState.Status.values()), not(in(SUPPORTED_DATABASE_MIGRATION_STATUSES)))) {
       when(platform.status()).thenReturn(Platform.Status.SAFEMODE);
       when(migrationState.getStatus()).thenReturn(databaseMigrationStatus);
@@ -161,7 +161,7 @@ public class StatusActionTest {
     }
   }
 
-  private void verifyStatus(Platform.Status platformStatus, DatabaseMigrationState.Status databaseMigrationStatus, String expectedStatus) throws Exception {
+  private void verifyStatus(Platform.Status platformStatus, DatabaseMigrationState.Status databaseMigrationStatus, String expectedStatus) {
     when(platform.status()).thenReturn(platformStatus);
     when(migrationState.getStatus()).thenReturn(databaseMigrationStatus);
 

@@ -48,7 +48,7 @@ public class IssueChangelogTest extends AbstractIssueTest {
   }
 
   @Test
-  public void update_changelog_when_assigning_issue_by_user() throws Exception {
+  public void update_changelog_when_assigning_issue_by_user() {
     runProjectAnalysis(ORCHESTRATOR, "shared/xoo-sample");
     Issue issue = searchRandomIssue();
     assertIssueHasNoChange(issue.key());
@@ -66,7 +66,7 @@ public class IssueChangelogTest extends AbstractIssueTest {
   }
 
   @Test
-  public void update_changelog_when_reopening_unresolved_issue_by_scan() throws Exception {
+  public void update_changelog_when_reopening_unresolved_issue_by_scan() {
     runProjectAnalysis(ORCHESTRATOR, "shared/xoo-sample");
     Issue issue = searchRandomIssue();
     assertIssueHasNoChange(issue.key());

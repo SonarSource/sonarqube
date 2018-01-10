@@ -40,7 +40,7 @@ public class ComponentImplTest {
   public ExpectedException thrown = ExpectedException.none();
 
   @Test
-  public void verify_key_uuid_and_name() throws Exception {
+  public void verify_key_uuid_and_name() {
     ComponentImpl component = buildSimpleComponent(FILE, KEY).setUuid(UUID).setName("name").build();
 
     assertThat(component.getKey()).isEqualTo(KEY);
@@ -170,7 +170,7 @@ public class ComponentImplTest {
   }
 
   @Test
-  public void build_with_child() throws Exception {
+  public void build_with_child() {
     ComponentImpl child = builder(FILE)
       .setName("CHILD_NAME")
       .setKey("CHILD_KEY")

@@ -33,7 +33,7 @@ public class ImportersActionTest {
   private WsActionTester ws = new WsActionTester(new ImportersAction(createImporters()));
 
   @Test
-  public void json_example() throws Exception {
+  public void json_example() {
     String result = ws.newRequest().execute().getInput();
 
     assertJson(result).isSimilarTo(ws.getDef().responseExampleAsString());

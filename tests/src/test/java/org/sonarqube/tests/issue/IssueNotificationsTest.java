@@ -118,7 +118,7 @@ public class IssueNotificationsTest {
   }
 
   @After
-  public void after() throws Exception {
+  public void after() {
     clearSmtpMessages();
   }
 

@@ -31,7 +31,7 @@ public class ExportersActionTest {
   private WsActionTester ws = new WsActionTester(new ExportersAction(createExporters()));
 
   @Test
-  public void importers_nominal() throws Exception {
+  public void importers_nominal() {
     String result = ws.newRequest().execute().getInput();
 
     assertJson(result).isSimilarTo(ws.getDef().responseExampleAsString());

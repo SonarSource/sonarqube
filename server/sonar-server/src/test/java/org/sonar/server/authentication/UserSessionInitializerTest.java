@@ -81,7 +81,7 @@ public class UserSessionInitializerTest {
   }
 
   @Test
-  public void check_urls() throws Exception {
+  public void check_urls() {
     assertPathIsNotIgnored("/");
     assertPathIsNotIgnored("/foo");
     assertPathIsNotIgnored("/api/server_id/show");
@@ -113,7 +113,7 @@ public class UserSessionInitializerTest {
   }
 
   @Test
-  public void return_code_401_when_not_authenticated_and_with_force_authentication() throws Exception {
+  public void return_code_401_when_not_authenticated_and_with_force_authentication() {
     ArgumentCaptor<AuthenticationException> exceptionArgumentCaptor = ArgumentCaptor.forClass(AuthenticationException.class);
     when(userSession.isLoggedIn()).thenReturn(false);
     when(authenticators.authenticate(request, response)).thenReturn(Optional.empty());
@@ -132,7 +132,7 @@ public class UserSessionInitializerTest {
   }
 
   @Test
-  public void return_401_and_stop_on_ws() throws Exception {
+  public void return_401_and_stop_on_ws() {
     when(request.getRequestURI()).thenReturn("/api/issues");
     AuthenticationException authenticationException = AuthenticationException.newBuilder().setSource(Source.jwt()).setMessage("Token id hasn't been found").build();
     doThrow(authenticationException).when(authenticators).authenticate(request, response);
@@ -145,7 +145,7 @@ public class UserSessionInitializerTest {
   }
 
   @Test
-  public void return_401_and_stop_on_batch_ws() throws Exception {
+  public void return_401_and_stop_on_batch_ws() {
     when(request.getRequestURI()).thenReturn("/batch/global");
     doThrow(AuthenticationException.newBuilder().setSource(Source.jwt()).setMessage("Token id hasn't been found").build())
       .when(authenticators).authenticate(request, response);

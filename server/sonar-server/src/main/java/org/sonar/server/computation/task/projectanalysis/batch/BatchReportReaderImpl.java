@@ -178,7 +178,7 @@ public class BatchReportReaderImpl implements BatchReportReader {
     }
 
     @Override
-    protected void doClose() throws Exception {
+    protected void doClose() {
       lineIterator.close();
     }
   }

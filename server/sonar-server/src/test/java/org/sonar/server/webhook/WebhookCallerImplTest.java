@@ -97,7 +97,7 @@ public class WebhookCallerImplTest {
   }
 
   @Test
-  public void silently_catch_error_when_url_is_incorrect() throws Exception {
+  public void silently_catch_error_when_url_is_incorrect() {
     Webhook webhook = new Webhook(PROJECT_UUID, CE_TASK_UUID, RandomStringUtils.randomAlphanumeric(40),"my-webhook", "this_is_not_an_url");
 
     WebhookDelivery delivery = newSender().call(webhook, PAYLOAD);
@@ -156,7 +156,7 @@ public class WebhookCallerImplTest {
   }
 
   @Test
-  public void redirects_throws_ISE_if_header_Location_is_missing() throws Exception {
+  public void redirects_throws_ISE_if_header_Location_is_missing() {
     HttpUrl url = server.url("/redirect");
     Webhook webhook = new Webhook(PROJECT_UUID, CE_TASK_UUID, RandomStringUtils.randomAlphanumeric(40),"my-webhook", url.toString());
 
@@ -171,7 +171,7 @@ public class WebhookCallerImplTest {
   }
 
   @Test
-  public void redirects_throws_ISE_if_header_Location_does_not_relate_to_a_supported_protocol() throws Exception {
+  public void redirects_throws_ISE_if_header_Location_does_not_relate_to_a_supported_protocol() {
     HttpUrl url = server.url("/redirect");
     Webhook webhook = new Webhook(PROJECT_UUID, CE_TASK_UUID, RandomStringUtils.randomAlphanumeric(40),"my-webhook", url.toString());
 

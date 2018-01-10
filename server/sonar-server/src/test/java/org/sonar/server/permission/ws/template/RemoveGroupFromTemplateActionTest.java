@@ -73,7 +73,7 @@ public class RemoveGroupFromTemplateActionTest extends BasePermissionWsTest<Remo
   }
 
   @Test
-  public void remove_group_from_template_by_name_case_insensitive() throws Exception {
+  public void remove_group_from_template_by_name_case_insensitive() {
     newRequest()
       .setParam(PARAM_GROUP_NAME, group.getName())
       .setParam(PARAM_PERMISSION, PERMISSION)
@@ -84,7 +84,7 @@ public class RemoveGroupFromTemplateActionTest extends BasePermissionWsTest<Remo
   }
 
   @Test
-  public void remove_group_with_group_id() throws Exception {
+  public void remove_group_with_group_id() {
     newRequest()
       .setParam(PARAM_TEMPLATE_ID, template.getUuid())
       .setParam(PARAM_PERMISSION, PERMISSION)
@@ -172,7 +172,7 @@ public class RemoveGroupFromTemplateActionTest extends BasePermissionWsTest<Remo
     newRequest(group.getName(), "unknown-key", PERMISSION);
   }
 
-  private void newRequest(@Nullable String groupName, @Nullable String templateKey, @Nullable String permission) throws Exception {
+  private void newRequest(@Nullable String groupName, @Nullable String templateKey, @Nullable String permission) {
     TestRequest request = newRequest();
     if (groupName != null) {
       request.setParam(PARAM_GROUP_NAME, groupName);

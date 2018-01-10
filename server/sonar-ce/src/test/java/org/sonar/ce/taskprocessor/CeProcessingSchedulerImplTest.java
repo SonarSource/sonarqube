@@ -391,7 +391,7 @@ public class CeProcessingSchedulerImplTest {
       public ScheduledFuture<?> schedule(final Runnable command, long delay, TimeUnit unit) {
         ScheduledFuture<Void> res = new AbstractPartiallyImplementedScheduledFuture<Void>() {
           @Override
-          public Void get() throws InterruptedException, ExecutionException {
+          public Void get() {
             command.run();
             return null;
           }
@@ -405,7 +405,7 @@ public class CeProcessingSchedulerImplTest {
         ScheduledFuture<V> res = new AbstractPartiallyImplementedScheduledFuture<V>() {
 
           @Override
-          public V get() throws InterruptedException, ExecutionException {
+          public V get() throws ExecutionException {
             try {
               return callable.call();
             } catch (Exception e) {
@@ -422,7 +422,7 @@ public class CeProcessingSchedulerImplTest {
         Future<T> res = new AbstractPartiallyImplementedFuture<T>() {
 
           @Override
-          public T get() throws InterruptedException, ExecutionException {
+          public T get() throws ExecutionException {
             try {
               return task.call();
             } catch (Exception e) {
@@ -473,7 +473,7 @@ public class CeProcessingSchedulerImplTest {
       }
 
       @Override
-      public boolean awaitTermination(long timeout, TimeUnit unit) throws InterruptedException {
+      public boolean awaitTermination(long timeout, TimeUnit unit) {
         throw new UnsupportedOperationException("awaitTermination(long timeout, TimeUnit unit) not implemented");
       }
 
@@ -488,22 +488,22 @@ public class CeProcessingSchedulerImplTest {
       }
 
       @Override
-      public <T> List<Future<T>> invokeAll(Collection<? extends Callable<T>> tasks) throws InterruptedException {
+      public <T> List<Future<T>> invokeAll(Collection<? extends Callable<T>> tasks) {
         throw new UnsupportedOperationException("invokeAll(Collection<? extends Callable<T>> tasks) not implemented");
       }
 
       @Override
-      public <T> List<Future<T>> invokeAll(Collection<? extends Callable<T>> tasks, long timeout, TimeUnit unit) throws InterruptedException {
+      public <T> List<Future<T>> invokeAll(Collection<? extends Callable<T>> tasks, long timeout, TimeUnit unit) {
         throw new UnsupportedOperationException("invokeAll(Collection<? extends Callable<T>> tasks, long timeout, TimeUnit unit) not implemented");
       }
 
       @Override
-      public <T> T invokeAny(Collection<? extends Callable<T>> tasks) throws InterruptedException, ExecutionException {
+      public <T> T invokeAny(Collection<? extends Callable<T>> tasks) {
         throw new UnsupportedOperationException("invokeAny(Collection<? extends Callable<T>> tasks) not implemented");
       }
 
       @Override
-      public <T> T invokeAny(Collection<? extends Callable<T>> tasks, long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
+      public <T> T invokeAny(Collection<? extends Callable<T>> tasks, long timeout, TimeUnit unit) {
         throw new UnsupportedOperationException("invokeAny(Collection<? extends Callable<T>> tasks, long timeout, TimeUnit unit) not implemented");
       }
     }
@@ -542,7 +542,7 @@ public class CeProcessingSchedulerImplTest {
     }
 
     @Override
-    public T get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
+    public T get(long timeout, TimeUnit unit) {
       throw new UnsupportedOperationException("get(long timeout, TimeUnit unit) not implemented");
     }
   }
