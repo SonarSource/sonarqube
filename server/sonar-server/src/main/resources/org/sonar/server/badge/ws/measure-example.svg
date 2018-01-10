@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" height="20" width="191">
+    <linearGradient id="smooth" x2="0" y2="100%">
+        <stop offset="0" stop-color="#bbb" stop-opacity=".1"/>
+        <stop offset="1" stop-opacity=".1"/>
+    </linearGradient>
+    <mask id="round">
+        <rect fill="#fff" height="20" rx="3" width="191"/>
+    </mask>
+    <g mask="url(#round)">
+        <rect fill="#666" height="20" width="136"/>
+        <rect fill="#969696" height="20" width="55" x="136"/>
+        <rect fill="url(#smooth)" height="20" width="191"/>
+    </g>
+    <g fill="#fff" font-family="DejaVu Sans,Verdana,Sans PT,Lucida Grande,Tahoma,Helvetica,Arial,sans-serif"
+       font-size="11" text-anchor="middle">
+        <text fill="#010101" fill-opacity=".3" x="68" y="15">Coverage</text>
+        <text x="68" y="14">Coverage</text>
+        <text fill="#010101" fill-opacity=".3" x="163" y="15">100.0%</text>
+        <text x="163" y="14">100.0%</text>
+    </g>
+</svg>
