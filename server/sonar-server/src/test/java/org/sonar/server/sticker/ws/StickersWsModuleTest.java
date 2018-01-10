@@ -20,6 +20,7 @@
 package org.sonar.server.sticker.ws;
 
 import org.junit.Test;
+import org.sonar.api.config.internal.MapSettings;
 import org.sonar.core.platform.ComponentContainer;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -27,11 +28,26 @@ import static org.sonar.core.platform.ComponentContainer.COMPONENTS_IN_EMPTY_COM
 
 public class StickersWsModuleTest {
 
+  private ComponentContainer container = new ComponentContainer();
+  private MapSettings mapSettings = new MapSettings();
+  private StickersWsModule underTest = new StickersWsModule(mapSettings.asConfig());
+
   @Test
   public void verify_count_of_added_components() {
-    ComponentContainer container = new ComponentContainer();
-    new StickersWsModule().configure(container);
+    mapSettings.setProperty("sonar.sonarcloud.enabled", true);
+
+    underTest.configure(container);
+
     assertThat(container.size()).isEqualTo(COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER + 3);
+  }
+
+  @Test
+  public void no_component_when_not_on_sonar_cloud() {
+    mapSettings.setProperty("sonar.sonarcloud.enabled", false);
+
+    underTest.configure(container);
+
+    assertThat(container.size()).isEqualTo(COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER);
   }
 
 }
