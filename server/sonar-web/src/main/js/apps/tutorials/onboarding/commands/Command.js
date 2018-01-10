@@ -19,9 +19,8 @@
  */
 // @flow
 import React from 'react';
-import Clipboard from 'clipboard';
 import classNames from 'classnames';
-import Tooltip from '../../../../components/controls/Tooltip';
+import ClipboardButton from '../../../../components/controls/ClipboardButton';
 import { translate } from '../../../../helpers/l10n';
 
 /*::
@@ -31,73 +30,21 @@ type Props = {
 };
 */
 
-/*::
-type State = {
-  tooltipShown: boolean
-};
-*/
-
 const s = ' \\' + '\n  ';
 
 export default class Command extends React.PureComponent {
-  /*:: clipboard: Object; */
-  /*:: copyButton: HTMLButtonElement; */
-  /*:: mounted: boolean; */
   /*:: props: Props; */
-  state /*: State */ = { tooltipShown: false };
-
-  componentDidMount() {
-    this.mounted = true;
-    this.clipboard = new Clipboard(this.copyButton);
-    this.clipboard.on('success', this.showTooltip);
-  }
-
-  componentDidUpdate() {
-    this.clipboard.destroy();
-    this.clipboard = new Clipboard(this.copyButton);
-    this.clipboard.on('success', this.showTooltip);
-  }
-
-  componentWillUnmount() {
-    this.mounted = false;
-    this.clipboard.destroy();
-  }
-
-  showTooltip = () => {
-    if (this.mounted) {
-      this.setState({ tooltipShown: true });
-      setTimeout(this.hideTooltip, 1000);
-    }
-  };
-
-  hideTooltip = () => {
-    if (this.mounted) {
-      this.setState({ tooltipShown: false });
-    }
-  };
 
   render() {
     const { command, isWindows } = this.props;
     const commandArray = Array.isArray(command) ? command.filter(line => line != null) : [command];
     const finalCommand = isWindows ? commandArray.join(' ') : commandArray.join(s);
 
-    const button = (
-      <button data-clipboard-text={finalCommand} ref={node => (this.copyButton = node)}>
-        {translate('copy')}
-      </button>
-    );
-
     return (
       <div
         className={classNames('onboarding-command', { 'onboarding-command-windows': isWindows })}>
         <pre>{finalCommand}</pre>
-        {this.state.tooltipShown ? (
-          <Tooltip defaultVisible={true} placement="top" overlay="Copied!" trigger="manual">
-            {button}
-          </Tooltip>
-        ) : (
-          button
-        )}
+        <ClipboardButton copyValue={finalCommand} tooltipPlacement="top" />
       </div>
     );
   }

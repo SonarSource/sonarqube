@@ -12,12 +12,19 @@ bar"
       foo
 bar
     </pre>
-    <button
-      data-clipboard-text="foo
+    <ClipboardButton
+      copyValue="foo
 bar"
+      tooltipPlacement="top"
     >
-      copy
-    </button>
+      <button
+        className="js-copy-to-clipboard no-select"
+        data-clipboard-text="foo
+bar"
+      >
+        copy
+      </button>
+    </ClipboardButton>
   </div>
 </Command>
 `;
