@@ -18,21 +18,18 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import ClipboardButton from '../../../components/controls/ClipboardButton';
-import { translateWithParameters } from '../../../helpers/l10n';
+import { shallow } from 'enzyme';
+import ClipboardButton from '../ClipboardButton';
 
-interface Props {
-  token: { name: string; token: string };
-}
+jest.useFakeTimers();
 
-export default function TokensFormNewToken({ token }: Props) {
-  return (
-    <div className="panel panel-white big-spacer-top">
-      <p className="alert alert-warning">
-        {translateWithParameters('users.tokens.new_token_created', token.name)}
-      </p>
-      <ClipboardButton copyValue={token.token} />
-      <code className="big-spacer-left text-success">{token.token}</code>
-    </div>
-  );
-}
+it('should display correctly', () => {
+  const wrapper = shallow(<ClipboardButton copyValue="foo" />);
+  expect(wrapper).toMatchSnapshot();
+  (wrapper.instance() as ClipboardButton).showTooltip();
+  wrapper.update();
+  expect(wrapper).toMatchSnapshot();
+  jest.runAllTimers();
+  wrapper.update();
+  expect(wrapper.find('Tooltip')).toHaveLength(0);
+});
