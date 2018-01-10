@@ -35,6 +35,7 @@ import org.sonar.core.component.DefaultResourceTypes;
 import org.sonar.core.timemachine.Periods;
 import org.sonar.server.authentication.AuthenticationModule;
 import org.sonar.server.authentication.LogOAuthWarning;
+import org.sonar.server.badge.ws.ProjectBadgesWsModule;
 import org.sonar.server.batch.BatchWsModule;
 import org.sonar.server.branch.BranchFeatureProxyImpl;
 import org.sonar.server.branch.ws.BranchWsModule;
@@ -534,6 +535,9 @@ public class PlatformLevel4 extends PlatformLevel {
 
       // Branch
       BranchFeatureProxyImpl.class,
+
+      // Project badges
+      ProjectBadgesWsModule.class,
 
       // privileged plugins
       PrivilegedPluginsBootstraper.class,
