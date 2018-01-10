@@ -1,0 +1,31 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`does not render warning 1`] = `
+<div
+  className="page page-limited"
+>
+  <div>
+    <h4>
+      key
+    </h4>
+    <code>
+      abcd
+    </code>
+  </div>
+</div>
+`;
+
+exports[`renders 1`] = `
+<div
+  className="page page-limited"
+>
+  <div>
+    <h4>
+      key
+    </h4>
+    <code>
+      abcd
+    </code>
+  </div>
+</div>
+`;

@@ -26,7 +26,7 @@ import RecentHistory from '../../RecentHistory';
 import * as theme from '../../../theme';
 import { Branch, Component } from '../../../types';
 import ContextNavBar from '../../../../components/nav/ContextNavBar';
-import { getTasksForComponent, PendingTask, Task } from '../../../../api/ce';
+import { Task } from '../../../../api/ce';
 import { STATUSES } from '../../../../apps/background-tasks/constants';
 import './ComponentNav.css';
 
@@ -34,51 +34,24 @@ interface Props {
   branches: Branch[];
   currentBranch?: Branch;
   component: Component;
-  location: {};
-}
-
-interface State {
   currentTask?: Task;
   isInProgress?: boolean;
   isPending?: boolean;
+  location: {};
 }
 
-export default class ComponentNav extends React.PureComponent<Props, State> {
+export default class ComponentNav extends React.PureComponent<Props> {
   mounted: boolean;
 
-  state: State = {};
-
   componentDidMount() {
-    this.mounted = true;
-    this.loadStatus();
     this.populateRecentHistory();
   }
 
   componentDidUpdate(prevProps: Props) {
     if (this.props.component.key !== prevProps.component.key) {
-      this.loadStatus();
       this.populateRecentHistory();
     }
   }
-
-  componentWillUnmount() {
-    this.mounted = false;
-  }
-
-  loadStatus = () => {
-    getTasksForComponent(this.props.component.key).then(
-      (r: { queue: PendingTask[]; current: Task }) => {
-        if (this.mounted) {
-          this.setState({
-            currentTask: r.current,
-            isInProgress: r.queue.some(task => task.status === STATUSES.IN_PROGRESS),
-            isPending: r.queue.some(task => task.status === STATUSES.PENDING)
-          });
-        }
-      },
-      () => {}
-    );
-  };
 
   populateRecentHistory = () => {
     const { breadcrumbs } = this.props.component;
@@ -94,7 +67,7 @@ export default class ComponentNav extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const { currentTask, isInProgress, isPending } = this.state;
+    const { currentTask, isInProgress, isPending } = this.props;
     let notifComponent;
     if (isInProgress || isPending || (currentTask && currentTask.status === STATUSES.FAILED)) {
       notifComponent = (

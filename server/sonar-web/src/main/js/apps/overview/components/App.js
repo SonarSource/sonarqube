@@ -37,6 +37,8 @@ type Props = {
     tags: Array<string>,
     organization?: string
   },
+  isInProgress?: bool,
+  isPending?: bool,
   onComponentChange: {} => void,
   router: Object
 };
@@ -83,7 +85,12 @@ export default class App extends React.PureComponent {
     }
 
     if (!component.analysisDate) {
-      return <EmptyOverview component={component} />;
+      return (
+        <EmptyOverview
+          component={component.key}
+          showWarning={!this.props.isPending && !this.props.isInProgress}
+        />
+      );
     }
 
     return (
