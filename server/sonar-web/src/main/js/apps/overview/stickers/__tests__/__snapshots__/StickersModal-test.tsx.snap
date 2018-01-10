@@ -1,0 +1,64 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should display the modal after click 1`] = `
+<React.Fragment>
+  <button
+    onClick={[Function]}
+  >
+    overview.stickers.get_badge
+  </button>
+</React.Fragment>
+`;
+
+exports[`should display the modal after click 2`] = `
+<Modal
+  contentLabel="overview.stickers.title"
+  onRequestClose={[Function]}
+>
+  <header
+    className="modal-head"
+  >
+    <h2>
+      overview.stickers.title
+    </h2>
+  </header>
+  <div
+    className="modal-body"
+  >
+    <p
+      className="big-spacer-bottom"
+    >
+      overview.stickers.description
+    </p>
+    <div
+      className="stickers-list spacer-bottom"
+    >
+      <StickerButton
+        onClick={[Function]}
+        selected={true}
+        type="marketing"
+        url="null/images/stickers/sonarcloud-white.svg"
+      />
+    </div>
+    <p
+      className="text-center note big-spacer-bottom"
+    >
+      overview.stickers.marketing.description
+    </p>
+    <StickerSnippet
+      snippet="null/images/stickers/sonarcloud-white.svg"
+    />
+  </div>
+  <footer
+    className="modal-foot"
+  >
+    <a
+      className="js-modal-close"
+      href="#"
+      onClick={[Function]}
+    >
+      close
+    </a>
+  </footer>
+</Modal>
+`;
