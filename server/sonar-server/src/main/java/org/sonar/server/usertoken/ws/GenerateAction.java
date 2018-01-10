@@ -20,6 +20,7 @@
 package org.sonar.server.usertoken.ws;
 
 import com.google.common.base.Optional;
+import java.util.Date;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -35,6 +36,7 @@ import org.sonarqube.ws.UserTokens;
 import org.sonarqube.ws.UserTokens.GenerateWsResponse;
 
 import static java.net.HttpURLConnection.HTTP_INTERNAL_ERROR;
+import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
@@ -151,6 +153,7 @@ public class GenerateAction implements UserTokensWsAction {
     return UserTokens.GenerateWsResponse.newBuilder()
       .setLogin(userTokenDto.getLogin())
       .setName(userTokenDto.getName())
+      .setCreatedAt(formatDateTime(new Date(userTokenDto.getCreatedAt())))
       .setToken(token)
       .build();
   }
