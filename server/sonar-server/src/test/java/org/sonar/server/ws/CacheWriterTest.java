@@ -21,16 +21,12 @@ package org.sonar.server.ws;
 
 import java.io.IOException;
 import java.io.StringWriter;
-import java.io.Writer;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 
 public class CacheWriterTest {
-  private Writer writer = new StringWriter();
+  private StringWriter writer = new StringWriter();
   private CacheWriter underTest = new CacheWriter(writer);
 
   @Test
@@ -41,16 +37,5 @@ public class CacheWriterTest {
     underTest.close();
 
     assertThat(writer.toString()).isEqualTo("content");
-  }
-
-  @Test
-  public void close_encapsulated_writer_once() throws IOException {
-    writer = mock(Writer.class);
-    underTest = new CacheWriter(writer);
-
-    underTest.close();
-    underTest.close();
-
-    verify(writer, times(1)).close();
   }
 }
