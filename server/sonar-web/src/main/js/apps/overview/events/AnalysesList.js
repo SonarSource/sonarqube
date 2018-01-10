@@ -33,8 +33,7 @@ type Props = {
   branch?: string,
   component: Object,
   history: ?History,
-  qualifier: string,
-  router: { push: ({ pathname: string, query?: {} }) => void }
+  qualifier: string
 };
 */
 
