@@ -19,20 +19,23 @@
  */
 import * as React from 'react';
 import { Link } from 'react-router';
-import { translate } from '../../../helpers/l10n';
 import { Component } from '../types';
+import LinkIcon from '../../../components/icons-components/LinkIcon';
+import { translate } from '../../../helpers/l10n';
+import { getProjectUrl } from '../../../helpers/urls';
 
 interface Props {
   branch?: string;
   component: Component;
 }
 
-export default function ComponentDetach({ component, branch }: Props) {
+export default function ComponentLink({ component, branch }: Props) {
   return (
     <Link
-      to={{ pathname: '/dashboard', query: { branch, id: component.refKey || component.key } }}
-      className="icon-detach"
+      className="link-no-underline"
       title={translate('code.open_component_page')}
-    />
+      to={getProjectUrl(component.refKey || component.key, branch)}>
+      <LinkIcon />
+    </Link>
   );
 }

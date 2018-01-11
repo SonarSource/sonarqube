@@ -327,17 +327,7 @@
   display: block;
   line-height: 18px;
   color: var(--baseFontColor);
-  font-size: 18px;
-  font-weight: 300;
-}
-
-.source-viewer-header-external-link {
-  border-bottom: none;
-}
-
-.source-viewer-header-external-link i {
-  position: relative;
-  top: -4px;
+  font-size: var(--bigFontSize);
 }
 
 .source-viewer-header-actions {

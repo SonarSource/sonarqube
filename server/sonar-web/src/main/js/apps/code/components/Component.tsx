@@ -21,7 +21,7 @@ import * as classNames from 'classnames';
 import * as React from 'react';
 import ComponentName from './ComponentName';
 import ComponentMeasure from './ComponentMeasure';
-import ComponentDetach from './ComponentDetach';
+import ComponentLink from './ComponentLink';
 import ComponentPin from './ComponentPin';
 import { Component as IComponent } from '../types';
 
@@ -90,7 +90,7 @@ export default class Component extends React.PureComponent<Props> {
           componentAction = <ComponentPin branch={branch} component={component} />;
           break;
         default:
-          componentAction = <ComponentDetach branch={branch} component={component} />;
+          componentAction = <ComponentLink branch={branch} component={component} />;
       }
     }
 
