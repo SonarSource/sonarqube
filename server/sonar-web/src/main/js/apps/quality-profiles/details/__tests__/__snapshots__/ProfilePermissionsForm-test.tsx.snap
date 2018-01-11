@@ -3,7 +3,7 @@
 exports[`adds group 1`] = `
 <Modal
   contentLabel="quality_profiles.grant_permissions_to_user_or_group"
-  onRequestClose={[Function]}
+  onRequestClose={[MockFunction]}
 >
   <header
     className="modal-head"
@@ -41,7 +41,7 @@ exports[`adds group 1`] = `
       </button>
       <button
         className="button-link"
-        onClick={[Function]}
+        onClick={[MockFunction]}
         type="reset"
       >
         cancel
@@ -54,7 +54,7 @@ exports[`adds group 1`] = `
 exports[`adds group 2`] = `
 <Modal
   contentLabel="quality_profiles.grant_permissions_to_user_or_group"
-  onRequestClose={[Function]}
+  onRequestClose={[MockFunction]}
 >
   <header
     className="modal-head"
@@ -97,7 +97,7 @@ exports[`adds group 2`] = `
       </button>
       <button
         className="button-link"
-        onClick={[Function]}
+        onClick={[MockFunction]}
         type="reset"
       >
         cancel
@@ -110,7 +110,7 @@ exports[`adds group 2`] = `
 exports[`adds group 3`] = `
 <Modal
   contentLabel="quality_profiles.grant_permissions_to_user_or_group"
-  onRequestClose={[Function]}
+  onRequestClose={[MockFunction]}
 >
   <header
     className="modal-head"
@@ -156,7 +156,7 @@ exports[`adds group 3`] = `
       </button>
       <button
         className="button-link"
-        onClick={[Function]}
+        onClick={[MockFunction]}
         type="reset"
       >
         cancel
@@ -169,7 +169,7 @@ exports[`adds group 3`] = `
 exports[`adds user 1`] = `
 <Modal
   contentLabel="quality_profiles.grant_permissions_to_user_or_group"
-  onRequestClose={[Function]}
+  onRequestClose={[MockFunction]}
 >
   <header
     className="modal-head"
@@ -207,7 +207,7 @@ exports[`adds user 1`] = `
       </button>
       <button
         className="button-link"
-        onClick={[Function]}
+        onClick={[MockFunction]}
         type="reset"
       >
         cancel
@@ -220,7 +220,7 @@ exports[`adds user 1`] = `
 exports[`adds user 2`] = `
 <Modal
   contentLabel="quality_profiles.grant_permissions_to_user_or_group"
-  onRequestClose={[Function]}
+  onRequestClose={[MockFunction]}
 >
   <header
     className="modal-head"
@@ -263,7 +263,7 @@ exports[`adds user 2`] = `
       </button>
       <button
         className="button-link"
-        onClick={[Function]}
+        onClick={[MockFunction]}
         type="reset"
       >
         cancel
@@ -276,7 +276,7 @@ exports[`adds user 2`] = `
 exports[`adds user 3`] = `
 <Modal
   contentLabel="quality_profiles.grant_permissions_to_user_or_group"
-  onRequestClose={[Function]}
+  onRequestClose={[MockFunction]}
 >
   <header
     className="modal-head"
@@ -322,7 +322,7 @@ exports[`adds user 3`] = `
       </button>
       <button
         className="button-link"
-        onClick={[Function]}
+        onClick={[MockFunction]}
         type="reset"
       >
         cancel

@@ -3,7 +3,7 @@
 exports[`renders 1`] = `
 <Modal
   contentLabel=""
-  onRequestClose={[Function]}
+  onRequestClose={[MockFunction]}
 >
   <div />
 </Modal>
@@ -12,7 +12,7 @@ exports[`renders 1`] = `
 exports[`submits 1`] = `
 <Modal
   contentLabel=""
-  onRequestClose={[Function]}
+  onRequestClose={[MockFunction]}
 >
   <button
     disabled={false}
@@ -26,7 +26,7 @@ exports[`submits 1`] = `
 exports[`submits 2`] = `
 <Modal
   contentLabel=""
-  onRequestClose={[Function]}
+  onRequestClose={[MockFunction]}
 >
   <button
     disabled={true}
@@ -40,7 +40,7 @@ exports[`submits 2`] = `
 exports[`submits 3`] = `
 <Modal
   contentLabel=""
-  onRequestClose={[Function]}
+  onRequestClose={[MockFunction]}
 >
   <button
     disabled={false}

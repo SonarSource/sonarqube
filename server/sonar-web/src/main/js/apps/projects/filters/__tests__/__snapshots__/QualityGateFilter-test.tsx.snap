@@ -8,7 +8,7 @@ exports[`renders 1`] = `
       name="projects.facets.quality_gate"
     />
   }
-  onQueryChange={[Function]}
+  onQueryChange={[MockFunction]}
   options={
     Array [
       "OK",

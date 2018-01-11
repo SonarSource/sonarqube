@@ -2,8 +2,8 @@
 
 exports[`creates new project 1`] = `
 <NewProjectForm
-  onDelete={[Function]}
-  onDone={[Function]}
+  onDelete={[MockFunction]}
+  onDone={[MockFunction]}
 >
   <div
     className="big-spacer-top"
@@ -44,8 +44,8 @@ exports[`creates new project 1`] = `
 
 exports[`creates new project 2`] = `
 <NewProjectForm
-  onDelete={[Function]}
-  onDone={[Function]}
+  onDelete={[MockFunction]}
+  onDone={[MockFunction]}
 >
   <div
     className="big-spacer-top"
@@ -83,8 +83,16 @@ exports[`creates new project 2`] = `
 
 exports[`creates new project 3`] = `
 <NewProjectForm
-  onDelete={[Function]}
-  onDone={[Function]}
+  onDelete={[MockFunction]}
+  onDone={
+    [MockFunction] {
+      "calls": Array [
+        Array [
+          "foo",
+        ],
+      ],
+    }
+  }
 >
   <div
     className="big-spacer-top"
@@ -129,8 +137,8 @@ exports[`creates new project 3`] = `
 
 exports[`deletes project 1`] = `
 <NewProjectForm
-  onDelete={[Function]}
-  onDone={[Function]}
+  onDelete={[MockFunction]}
+  onDone={[MockFunction]}
 >
   <div
     className="big-spacer-top"
@@ -175,8 +183,8 @@ exports[`deletes project 1`] = `
 
 exports[`deletes project 2`] = `
 <NewProjectForm
-  onDelete={[Function]}
-  onDone={[Function]}
+  onDelete={[MockFunction]}
+  onDone={[MockFunction]}
 >
   <div
     className="big-spacer-top"
@@ -202,8 +210,14 @@ exports[`deletes project 2`] = `
 
 exports[`deletes project 3`] = `
 <NewProjectForm
-  onDelete={[Function]}
-  onDone={[Function]}
+  onDelete={
+    [MockFunction] {
+      "calls": Array [
+        Array [],
+      ],
+    }
+  }
+  onDone={[MockFunction]}
 >
   <div
     className="big-spacer-top"

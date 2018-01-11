@@ -14,7 +14,7 @@ exports[`should render the comment delete popup correctly 1`] = `
     </div>
     <button
       className="button-red"
-      onClick={[Function]}
+      onClick={[MockFunction]}
     >
       delete
     </button>

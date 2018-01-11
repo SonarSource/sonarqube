@@ -11,11 +11,23 @@ exports[`should open the popup when the button is clicked 1`] = `
         customClass="issue-comment-bubble-popup"
         onComment={[Function]}
         placeholder={undefined}
-        toggleComment={[Function]}
+        toggleComment={
+          [MockFunction] {
+            "calls": Array [
+              Array [],
+            ],
+          }
+        }
       />
     }
     position="bottomleft"
-    togglePopup={[Function]}
+    togglePopup={
+      [MockFunction] {
+        "calls": Array [
+          Array [],
+        ],
+      }
+    }
   >
     <button
       className="button-link issue-action js-issue-comment"
@@ -42,11 +54,11 @@ exports[`should render correctly 1`] = `
         customClass="issue-comment-bubble-popup"
         onComment={[Function]}
         placeholder={undefined}
-        toggleComment={[Function]}
+        toggleComment={[MockFunction]}
       />
     }
     position="bottomleft"
-    togglePopup={[Function]}
+    togglePopup={[MockFunction]}
   >
     <button
       className="button-link issue-action js-issue-comment"

@@ -46,8 +46,8 @@ exports[`render code 1`] = `
         },
       ]
     }
-    onIssueClick={[Function]}
-    onPopupToggle={[Function]}
+    onIssueClick={[MockFunction]}
+    onPopupToggle={[MockFunction]}
     openPopup={null}
     selectedIssue="issue-1"
   />

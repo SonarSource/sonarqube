@@ -5,7 +5,7 @@ exports[`should render 1`] = `
   <ConciseIssueComponent />
   <ConciseIssueBox
     issue={Object {}}
-    onClick={[Function]}
+    onClick={[MockFunction]}
     selected={false}
     selectedFlowIndex={null}
     selectedLocationIndex={null}

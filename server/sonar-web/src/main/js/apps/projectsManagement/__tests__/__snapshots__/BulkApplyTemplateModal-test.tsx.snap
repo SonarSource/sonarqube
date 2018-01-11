@@ -3,7 +3,7 @@
 exports[`bulk applies template to all results 1`] = `
 <Modal
   contentLabel="permission_templates.bulk_apply_permission_template"
-  onRequestClose={[Function]}
+  onRequestClose={[MockFunction]}
 >
   <header
     className="modal-head"
@@ -36,7 +36,7 @@ exports[`bulk applies template to all results 1`] = `
 exports[`bulk applies template to all results 2`] = `
 <Modal
   contentLabel="permission_templates.bulk_apply_permission_template"
-  onRequestClose={[Function]}
+  onRequestClose={[MockFunction]}
 >
   <header
     className="modal-head"
@@ -111,7 +111,7 @@ exports[`bulk applies template to all results 2`] = `
 exports[`bulk applies template to all results 3`] = `
 <Modal
   contentLabel="permission_templates.bulk_apply_permission_template"
-  onRequestClose={[Function]}
+  onRequestClose={[MockFunction]}
 >
   <header
     className="modal-head"
@@ -189,7 +189,7 @@ exports[`bulk applies template to all results 3`] = `
 exports[`bulk applies template to all results 4`] = `
 <Modal
   contentLabel="permission_templates.bulk_apply_permission_template"
-  onRequestClose={[Function]}
+  onRequestClose={[MockFunction]}
 >
   <header
     className="modal-head"
@@ -224,7 +224,7 @@ exports[`bulk applies template to all results 4`] = `
 exports[`bulk applies template to selected results 1`] = `
 <Modal
   contentLabel="permission_templates.bulk_apply_permission_template"
-  onRequestClose={[Function]}
+  onRequestClose={[MockFunction]}
 >
   <header
     className="modal-head"
@@ -257,7 +257,7 @@ exports[`bulk applies template to selected results 1`] = `
 exports[`bulk applies template to selected results 2`] = `
 <Modal
   contentLabel="permission_templates.bulk_apply_permission_template"
-  onRequestClose={[Function]}
+  onRequestClose={[MockFunction]}
 >
   <header
     className="modal-head"
@@ -332,7 +332,7 @@ exports[`bulk applies template to selected results 2`] = `
 exports[`bulk applies template to selected results 3`] = `
 <Modal
   contentLabel="permission_templates.bulk_apply_permission_template"
-  onRequestClose={[Function]}
+  onRequestClose={[MockFunction]}
 >
   <header
     className="modal-head"
@@ -410,7 +410,7 @@ exports[`bulk applies template to selected results 3`] = `
 exports[`bulk applies template to selected results 4`] = `
 <Modal
   contentLabel="permission_templates.bulk_apply_permission_template"
-  onRequestClose={[Function]}
+  onRequestClose={[MockFunction]}
 >
   <header
     className="modal-head"

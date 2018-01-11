@@ -6,7 +6,7 @@ exports[`should render with the total 1`] = `
 >
   <SearchBox
     minLength={2}
-    onChange={[Function]}
+    onChange={[MockFunction]}
     placeholder="search.search_for_users"
   />
   <span
@@ -27,7 +27,7 @@ exports[`should render without the total 1`] = `
 >
   <SearchBox
     minLength={2}
-    onChange={[Function]}
+    onChange={[MockFunction]}
     placeholder="search.search_for_users"
   />
 </div>

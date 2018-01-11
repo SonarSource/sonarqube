@@ -6,18 +6,18 @@ exports[`should render correctly 1`] = `
 >
   <PerspectiveSelect
     className="projects-topbar-item js-projects-perspective-select"
-    onChange={[Function]}
+    onChange={[MockFunction]}
     view="overall"
   />
   <ProjectsSortingSelect
     className="projects-topbar-item js-projects-sorting-select"
     defaultOption="analysis_date"
-    onChange={[Function]}
+    onChange={[MockFunction]}
     selectedSort="size"
     view="overall"
   />
   <SearchFilterContainer
-    onQueryChange={[Function]}
+    onQueryChange={[MockFunction]}
     query={
       Object {
         "search": "test",
@@ -46,18 +46,18 @@ exports[`should render correctly while loading 1`] = `
 >
   <PerspectiveSelect
     className="projects-topbar-item js-projects-perspective-select"
-    onChange={[Function]}
+    onChange={[MockFunction]}
     view="overall"
   />
   <ProjectsSortingSelect
     className="projects-topbar-item js-projects-sorting-select"
     defaultOption="analysis_date"
-    onChange={[Function]}
+    onChange={[MockFunction]}
     selectedSort="size"
     view="overall"
   />
   <SearchFilterContainer
-    onQueryChange={[Function]}
+    onQueryChange={[MockFunction]}
     query={
       Object {
         "search": "test",
@@ -89,7 +89,7 @@ exports[`should render disabled sorting options for visualizations 1`] = `
 >
   <PerspectiveSelect
     className="projects-topbar-item js-projects-perspective-select"
-    onChange={[Function]}
+    onChange={[MockFunction]}
     view="visualizations"
     visualization="coverage"
   />
@@ -103,14 +103,14 @@ exports[`should render disabled sorting options for visualizations 1`] = `
       <ProjectsSortingSelect
         className="js-projects-sorting-select"
         defaultOption="analysis_date"
-        onChange={[Function]}
+        onChange={[MockFunction]}
         selectedSort="size"
         view="visualizations"
       />
     </div>
   </Tooltip>
   <SearchFilterContainer
-    onQueryChange={[Function]}
+    onQueryChange={[MockFunction]}
     query={
       Object {
         "search": "test",
@@ -127,7 +127,7 @@ exports[`should render switch the default sorting option for anonymous users 1`]
 <ProjectsSortingSelect
   className="projects-topbar-item js-projects-sorting-select"
   defaultOption="name"
-  onChange={[Function]}
+  onChange={[MockFunction]}
   selectedSort="size"
   view="overall"
 />
@@ -137,7 +137,7 @@ exports[`should render switch the default sorting option for anonymous users 2`]
 <ProjectsSortingSelect
   className="projects-topbar-item js-projects-sorting-select"
   defaultOption="analysis_date"
-  onChange={[Function]}
+  onChange={[MockFunction]}
   selectedSort="size"
   view="leak"
 />

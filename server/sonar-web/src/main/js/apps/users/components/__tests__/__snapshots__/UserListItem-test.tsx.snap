@@ -29,7 +29,7 @@ exports[`should render correctly 1`] = `
   <td>
     <UserGroups
       groups={Array []}
-      onUpdateUsers={[Function]}
+      onUpdateUsers={[MockFunction]}
       user={
         Object {
           "active": true,
@@ -55,7 +55,7 @@ exports[`should render correctly 1`] = `
   >
     <UserActions
       isCurrentUser={false}
-      onUpdateUsers={[Function]}
+      onUpdateUsers={[MockFunction]}
       user={
         Object {
           "active": true,

@@ -24,8 +24,8 @@ exports[`renders "Show More" link 1`] = `
     allowMore={true}
     key="more-TRK"
     loadingMore={null}
-    onMoreClick={[Function]}
-    onSelect={[Function]}
+    onMoreClick={[MockFunction]}
+    onSelect={[MockFunction]}
     qualifier="TRK"
     selected={false}
   />

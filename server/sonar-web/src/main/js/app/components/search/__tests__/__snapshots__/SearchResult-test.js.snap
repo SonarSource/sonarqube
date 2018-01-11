@@ -13,7 +13,7 @@ exports[`renders favorite 1`] = `
     <Link
       className="navbar-search-item-link"
       data-key="foo"
-      onClick={[Function]}
+      onClick={[MockFunction]}
       onMouseEnter={[Function]}
       onlyActiveOnIndex={false}
       style={Object {}}
@@ -62,7 +62,7 @@ exports[`renders match 1`] = `
     <Link
       className="navbar-search-item-link"
       data-key="foo"
-      onClick={[Function]}
+      onClick={[MockFunction]}
       onMouseEnter={[Function]}
       onlyActiveOnIndex={false}
       style={Object {}}
@@ -110,7 +110,7 @@ exports[`renders organizations 1`] = `
     <Link
       className="navbar-search-item-link"
       data-key="foo"
-      onClick={[Function]}
+      onClick={[MockFunction]}
       onMouseEnter={[Function]}
       onlyActiveOnIndex={false}
       style={Object {}}
@@ -163,7 +163,7 @@ exports[`renders organizations 2`] = `
     <Link
       className="navbar-search-item-link"
       data-key="foo"
-      onClick={[Function]}
+      onClick={[MockFunction]}
       onMouseEnter={[Function]}
       onlyActiveOnIndex={false}
       style={Object {}}
@@ -211,7 +211,7 @@ exports[`renders projects 1`] = `
     <Link
       className="navbar-search-item-link"
       data-key="qwe"
-      onClick={[Function]}
+      onClick={[MockFunction]}
       onMouseEnter={[Function]}
       onlyActiveOnIndex={false}
       style={Object {}}
@@ -264,7 +264,7 @@ exports[`renders recently browsed 1`] = `
     <Link
       className="navbar-search-item-link"
       data-key="foo"
-      onClick={[Function]}
+      onClick={[MockFunction]}
       onMouseEnter={[Function]}
       onlyActiveOnIndex={false}
       style={Object {}}
@@ -312,7 +312,7 @@ exports[`renders selected 1`] = `
     <Link
       className="navbar-search-item-link"
       data-key="foo"
-      onClick={[Function]}
+      onClick={[MockFunction]}
       onMouseEnter={[Function]}
       onlyActiveOnIndex={false}
       style={Object {}}
@@ -358,7 +358,7 @@ exports[`renders selected 2`] = `
     <Link
       className="navbar-search-item-link"
       data-key="foo"
-      onClick={[Function]}
+      onClick={[MockFunction]}
       onMouseEnter={[Function]}
       onlyActiveOnIndex={false}
       style={Object {}}

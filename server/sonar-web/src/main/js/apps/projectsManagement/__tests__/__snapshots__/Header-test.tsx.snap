@@ -3,7 +3,7 @@
 exports[`changes default visibility 1`] = `
 <ChangeVisibilityForm
   onClose={[Function]}
-  onConfirm={[Function]}
+  onConfirm={[MockFunction]}
   organization={
     Object {
       "key": "org",

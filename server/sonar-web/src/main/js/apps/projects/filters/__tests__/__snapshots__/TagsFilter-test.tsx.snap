@@ -15,7 +15,7 @@ exports[`should render maximum 10 tags in the searchbox results 1`] = `
       isLoading={false}
       onInputChange={[Function]}
       onOpen={[Function]}
-      onQueryChange={[Function]}
+      onQueryChange={[MockFunction]}
       options={
         Array [
           Object {
@@ -78,7 +78,7 @@ exports[`should render maximum 10 tags in the searchbox results 1`] = `
       name="projects.facets.tags"
     />
   }
-  onQueryChange={[Function]}
+  onQueryChange={[MockFunction]}
   options={
     Array [
       "lang",
@@ -120,7 +120,7 @@ exports[`should render the tags facet with the selected tags 1`] = `
       isLoading={false}
       onInputChange={[Function]}
       onOpen={[Function]}
-      onQueryChange={[Function]}
+      onQueryChange={[MockFunction]}
       options={Array []}
       organization={undefined}
       property="tags"
@@ -140,7 +140,7 @@ exports[`should render the tags facet with the selected tags 1`] = `
       name="projects.facets.tags"
     />
   }
-  onQueryChange={[Function]}
+  onQueryChange={[MockFunction]}
   options={
     Array [
       "lang",
@@ -243,7 +243,7 @@ exports[`should render the tags facet with the selected tags 2`] = `
     isLoading={false}
     onInputChange={[Function]}
     onOpen={[Function]}
-    onQueryChange={[Function]}
+    onQueryChange={[MockFunction]}
     options={Array []}
     property="tags"
     query={
@@ -272,7 +272,7 @@ exports[`should render the tags without the ones in the facet 1`] = `
       isLoading={false}
       onInputChange={[Function]}
       onOpen={[Function]}
-      onQueryChange={[Function]}
+      onQueryChange={[MockFunction]}
       options={Array []}
       organization={undefined}
       property="tags"
@@ -289,7 +289,7 @@ exports[`should render the tags without the ones in the facet 1`] = `
       name="projects.facets.tags"
     />
   }
-  onQueryChange={[Function]}
+  onQueryChange={[MockFunction]}
   options={
     Array [
       "lang",
@@ -321,7 +321,7 @@ exports[`should render the tags without the ones in the facet 2`] = `
       isLoading={false}
       onInputChange={[Function]}
       onOpen={[Function]}
-      onQueryChange={[Function]}
+      onQueryChange={[MockFunction]}
       options={
         Array [
           Object {
@@ -353,7 +353,7 @@ exports[`should render the tags without the ones in the facet 2`] = `
       name="projects.facets.tags"
     />
   }
-  onQueryChange={[Function]}
+  onQueryChange={[MockFunction]}
   options={
     Array [
       "lang",

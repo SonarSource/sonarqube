@@ -3,7 +3,7 @@
 exports[`changes visibility 1`] = `
 <Modal
   contentLabel="modal form"
-  onRequestClose={[Function]}
+  onRequestClose={[MockFunction]}
 >
   <header
     className="modal-head"
@@ -100,7 +100,7 @@ exports[`changes visibility 1`] = `
 exports[`changes visibility 2`] = `
 <Modal
   contentLabel="modal form"
-  onRequestClose={[Function]}
+  onRequestClose={[MockFunction]}
 >
   <header
     className="modal-head"
@@ -197,7 +197,7 @@ exports[`changes visibility 2`] = `
 exports[`renders disabled 1`] = `
 <Modal
   contentLabel="modal form"
-  onRequestClose={[Function]}
+  onRequestClose={[MockFunction]}
 >
   <header
     className="modal-head"

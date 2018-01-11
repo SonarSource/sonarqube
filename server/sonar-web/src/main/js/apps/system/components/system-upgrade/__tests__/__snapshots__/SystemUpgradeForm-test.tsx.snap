@@ -3,7 +3,7 @@
 exports[`should display correctly 1`] = `
 <Modal
   contentLabel="system.system_upgrade"
-  onRequestClose={[Function]}
+  onRequestClose={[MockFunction]}
 >
   <div
     className="modal-head"

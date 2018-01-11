@@ -4,7 +4,7 @@ exports[`does not show tutorials for anonymous 1`] = `
 <Modal
   contentLabel="help"
   medium={true}
-  onRequestClose={[Function]}
+  onRequestClose={[MockFunction]}
 >
   <div
     className="modal-head"

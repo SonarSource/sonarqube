@@ -8,14 +8,14 @@ exports[`generates token 1`] = `
     }
   }
   finished={false}
-  onContinue={[Function]}
-  onOpen={[Function]}
+  onContinue={[MockFunction]}
+  onOpen={[MockFunction]}
   open={true}
   stepNumber={1}
 >
   <Step
     finished={false}
-    onOpen={[Function]}
+    onOpen={[MockFunction]}
     open={true}
     renderForm={[Function]}
     renderResult={[Function]}
@@ -110,14 +110,14 @@ exports[`generates token 2`] = `
     }
   }
   finished={false}
-  onContinue={[Function]}
-  onOpen={[Function]}
+  onContinue={[MockFunction]}
+  onOpen={[MockFunction]}
   open={true}
   stepNumber={1}
 >
   <Step
     finished={false}
-    onOpen={[Function]}
+    onOpen={[MockFunction]}
     open={true}
     renderForm={[Function]}
     renderResult={[Function]}
@@ -209,14 +209,14 @@ exports[`generates token 3`] = `
     }
   }
   finished={false}
-  onContinue={[Function]}
-  onOpen={[Function]}
+  onContinue={[MockFunction]}
+  onOpen={[MockFunction]}
   open={true}
   stepNumber={1}
 >
   <Step
     finished={false}
-    onOpen={[Function]}
+    onOpen={[MockFunction]}
     open={true}
     renderForm={[Function]}
     renderResult={[Function]}
@@ -307,14 +307,14 @@ exports[`revokes token 1`] = `
     }
   }
   finished={false}
-  onContinue={[Function]}
-  onOpen={[Function]}
+  onContinue={[MockFunction]}
+  onOpen={[MockFunction]}
   open={true}
   stepNumber={1}
 >
   <Step
     finished={false}
-    onOpen={[Function]}
+    onOpen={[MockFunction]}
     open={true}
     renderForm={[Function]}
     renderResult={[Function]}
@@ -405,14 +405,14 @@ exports[`revokes token 2`] = `
     }
   }
   finished={false}
-  onContinue={[Function]}
-  onOpen={[Function]}
+  onContinue={[MockFunction]}
+  onOpen={[MockFunction]}
   open={true}
   stepNumber={1}
 >
   <Step
     finished={false}
-    onOpen={[Function]}
+    onOpen={[MockFunction]}
     open={true}
     renderForm={[Function]}
     renderResult={[Function]}
@@ -484,14 +484,14 @@ exports[`revokes token 3`] = `
     }
   }
   finished={false}
-  onContinue={[Function]}
-  onOpen={[Function]}
+  onContinue={[MockFunction]}
+  onOpen={[MockFunction]}
   open={true}
   stepNumber={1}
 >
   <Step
     finished={false}
-    onOpen={[Function]}
+    onOpen={[MockFunction]}
     open={true}
     renderForm={[Function]}
     renderResult={[Function]}
