@@ -19,6 +19,7 @@
  */
 // @flow
 import React from 'react';
+import { Link } from 'react-router';
 import QualifierIcon from '../shared/QualifierIcon';
 import FavoriteContainer from '../controls/FavoriteContainer';
 import { getPathUrlAsString, getProjectUrl, getComponentIssuesUrl } from '../../helpers/urls';
@@ -179,19 +180,14 @@ export default class SourceViewerHeader extends React.PureComponent {
 
           <div className="source-viewer-header-measure">
             <span className="source-viewer-header-measure-value">
-              <a
-                href={getPathUrlAsString(
-                  getComponentIssuesUrl(project, {
-                    resolved: 'false',
-                    fileUuids: uuid,
-                    branch: this.props.branch
-                  })
-                )}
-                className="source-viewer-header-external-link"
-                target="_blank">
-                {measures.issues != null ? formatMeasure(measures.issues, 'SHORT_INT') : 0}{' '}
-                <i className="icon-detach" />
-              </a>
+              <Link
+                to={getComponentIssuesUrl(project, {
+                  resolved: 'false',
+                  fileUuids: uuid,
+                  branch: this.props.branch
+                })}>
+                {measures.issues != null ? formatMeasure(measures.issues, 'SHORT_INT') : 0}
+              </Link>
             </span>
             <span className="source-viewer-header-measure-label">
               {translate('metric.violations.name')}

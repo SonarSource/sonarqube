@@ -19,6 +19,8 @@
  */
 // @flow
 import React from 'react';
+import { Link } from 'react-router';
+import LinkIcon from '../../../components/icons-components/LinkIcon';
 import QualifierIcon from '../../../components/icons-components/QualifierIcon';
 import { splitPath } from '../../../helpers/path';
 import { getPathUrlAsString, getProjectUrl } from '../../../helpers/urls';
@@ -50,8 +52,7 @@ export default class ComponentCell extends React.PureComponent {
 
     if (['DIR', 'FIL', 'UTS'].includes(component.qualifier)) {
       const parts = splitPath(component.path);
-      head = parts.head;
-      tail = parts.tail;
+      ({ head, tail } = parts);
     }
     return (
       <span title={component.refKey || component.key}>
@@ -77,15 +78,15 @@ export default class ComponentCell extends React.PureComponent {
               {this.renderInner()}
             </a>
           ) : (
-            <a
-              id={'component-measures-component-link-' + component.key}
+            <Link
               className="link-no-underline"
-              href={getPathUrlAsString(getProjectUrl(component.refKey, branch))}>
+              id={'component-measures-component-link-' + component.key}
+              to={getProjectUrl(component.refKey, branch)}>
               <span className="big-spacer-right">
-                <i className="icon-detach" />
+                <LinkIcon />
               </span>
               {this.renderInner()}
-            </a>
+            </Link>
           )}
         </div>
       </td>
