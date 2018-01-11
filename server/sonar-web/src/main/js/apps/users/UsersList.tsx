@@ -27,6 +27,7 @@ interface Props {
   identityProviders: IdentityProvider[];
   onUpdateUsers: () => void;
   organizationsEnabled: boolean;
+  updateTokensCount: (login: string, tokensCount: number) => void;
   users: User[];
 }
 
@@ -35,6 +36,7 @@ export default function UsersList({
   identityProviders,
   onUpdateUsers,
   organizationsEnabled,
+  updateTokensCount,
   users
 }: Props) {
   return (
@@ -60,6 +62,7 @@ export default function UsersList({
               key={user.login}
               onUpdateUsers={onUpdateUsers}
               organizationsEnabled={organizationsEnabled}
+              updateTokensCount={updateTokensCount}
               user={user}
             />
           ))}

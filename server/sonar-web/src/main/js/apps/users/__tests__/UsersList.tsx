@@ -63,6 +63,7 @@ function getWrapper(props = {}) {
       ]}
       onUpdateUsers={jest.fn()}
       organizationsEnabled={true}
+      updateTokensCount={jest.fn()}
       users={users}
       {...props}
     />

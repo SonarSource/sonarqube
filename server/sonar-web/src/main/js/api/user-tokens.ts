@@ -45,26 +45,24 @@ export interface UserToken {
   createdAt: string;
 }
 
-/**
- * List tokens for given user login
- */
+/** List tokens for given user login */
 export function getTokens(login: string): Promise<UserToken[]> {
   return getJSON('/api/user_tokens/search', { login }).then(r => r.userTokens, throwGlobalError);
 }
 
-/**
- * Generate a user token
- */
-export function generateToken(data: {
+export interface NewToken {
+  createdAt: string;
+  login: string;
   name: string;
-  login?: string;
-}): Promise<{ login: string; name: string; token: string }> {
+  token: string;
+}
+
+/** Generate a user token */
+export function generateToken(data: { name: string; login?: string }): Promise<NewToken> {
   return postJSON('/api/user_tokens/generate', data).catch(throwGlobalError);
 }
 
-/**
- * Revoke a user token
- */
+/** Revoke a user token */
 export function revokeToken(data: { name: string; login?: string }): Promise<void | Response> {
   return post('/api/user_tokens/revoke', data).catch(throwGlobalError);
 }

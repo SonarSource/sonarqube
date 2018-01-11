@@ -83,7 +83,7 @@ public class GenerateActionTest {
       .setParam(PARAM_NAME, TOKEN_NAME)
       .execute().getInput();
 
-    assertJson(response).isSimilarTo(getClass().getResource("generate-example.json"));
+    assertJson(response).ignoreFields("createdAt").isSimilarTo(getClass().getResource("generate-example.json"));
   }
 
   @Test
@@ -93,6 +93,7 @@ public class GenerateActionTest {
     GenerateWsResponse response = newRequest(null, TOKEN_NAME);
 
     assertThat(response.getLogin()).isEqualTo(GRACE_HOPPER);
+    assertThat(response.getCreatedAt()).isNotEmpty();
   }
 
   @Test

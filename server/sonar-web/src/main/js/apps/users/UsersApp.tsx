@@ -113,6 +113,12 @@ export default class UsersApp extends React.PureComponent<Props, State> {
     this.context.router.push({ ...this.props.location, query });
   };
 
+  updateTokensCount = (login: string, tokensCount: number) => {
+    this.setState(state => ({
+      users: state.users.map(user => (user.login === login ? { ...user, tokensCount } : user))
+    }));
+  };
+
   render() {
     const query = parseQuery(this.props.location.query);
     const { loading, paging, users } = this.state;
@@ -126,6 +132,7 @@ export default class UsersApp extends React.PureComponent<Props, State> {
           identityProviders={this.state.identityProviders}
           onUpdateUsers={this.fetchUsers}
           organizationsEnabled={this.props.organizationsEnabled}
+          updateTokensCount={this.updateTokensCount}
           users={users}
         />
         {paging !== undefined && (

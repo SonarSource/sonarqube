@@ -45,7 +45,7 @@ it('should display a change password button', () => {
 it('should open the correct forms', () => {
   const wrapper = getWrapper();
   click(wrapper.find('.js-user-tokens'));
-  expect(wrapper.find('TokensForm').exists()).toBeTruthy();
+  expect(wrapper.find('TokensFormModal').exists()).toBeTruthy();
 });
 
 function getWrapper(props = {}) {
@@ -54,6 +54,7 @@ function getWrapper(props = {}) {
       isCurrentUser={false}
       onUpdateUsers={jest.fn()}
       organizationsEnabled={false}
+      updateTokensCount={jest.fn()}
       user={user}
       {...props}
     />

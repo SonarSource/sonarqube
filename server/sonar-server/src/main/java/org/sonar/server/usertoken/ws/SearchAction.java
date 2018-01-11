@@ -19,7 +19,6 @@
  */
 package org.sonar.server.usertoken.ws;
 
-import java.util.Date;
 import java.util.List;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -31,10 +30,10 @@ import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.UserTokens.SearchWsResponse;
 
 import static org.sonar.api.utils.DateUtils.formatDateTime;
-import static org.sonar.server.ws.WsUtils.checkFound;
-import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonar.server.usertoken.ws.UserTokensWsParameters.ACTION_SEARCH;
 import static org.sonar.server.usertoken.ws.UserTokensWsParameters.PARAM_LOGIN;
+import static org.sonar.server.ws.WsUtils.checkFound;
+import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class SearchAction implements UserTokensWsAction {
   private final DbClient dbClient;
@@ -88,7 +87,7 @@ public class SearchAction implements UserTokensWsAction {
       userTokenBuilder
         .clear()
         .setName(userTokenDto.getName())
-        .setCreatedAt(formatDateTime(new Date(userTokenDto.getCreatedAt())));
+        .setCreatedAt(formatDateTime(userTokenDto.getCreatedAt()));
       searchWsResponse.addUserTokens(userTokenBuilder);
     }
 

@@ -29,6 +29,7 @@ message GenerateWsResponse {
   optional string login = 1;
   optional string name = 2;
   optional string token = 3;
+  optional string createdAt = 4;
 }
 
 // WS api/user_tokens/search
