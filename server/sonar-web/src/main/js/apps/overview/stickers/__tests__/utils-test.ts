@@ -20,14 +20,16 @@
 import { getStickerUrl, StickerType } from '../utils';
 
 jest.mock('../../../../helpers/urls', () => ({
-  getHostUrl: () => ''
+  getHostUrl: () => 'host'
 }));
 
 describe('#getStickerUrl', () => {
   it('it should generate correct marketing sticker links', () => {
-    expect(getStickerUrl(StickerType.marketing, {})).toBe('/images/stickers/sonarcloud-white.svg');
+    expect(getStickerUrl(StickerType.marketing, { color: 'white' })).toBe(
+      'host/images/stickers/sonarcloud-white.svg'
+    );
     expect(getStickerUrl(StickerType.marketing, { color: 'orange' })).toBe(
-      '/images/stickers/sonarcloud-orange.svg'
+      'host/images/stickers/sonarcloud-orange.svg'
     );
   });
 });

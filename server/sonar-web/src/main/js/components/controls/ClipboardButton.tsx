@@ -59,7 +59,9 @@ export default class ClipboardButton extends React.PureComponent<Props, State> {
 
   componentWillUnmount() {
     this.mounted = false;
-    this.clipboard.destroy();
+    if (this.clipboard) {
+      this.clipboard.destroy();
+    }
   }
 
   showTooltip = () => {

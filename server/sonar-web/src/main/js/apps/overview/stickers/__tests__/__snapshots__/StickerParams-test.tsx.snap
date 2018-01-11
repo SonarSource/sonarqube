@@ -1,0 +1,36 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should display marketing badge params 1`] = `
+<div>
+  <label
+    className="big-spacer-right"
+    htmlFor="sticker-color"
+  >
+    color
+  </label>
+  <Select
+    className="input-medium"
+    clearable={false}
+    name="sticker-color"
+    onChange={[Function]}
+    options={
+      Array [
+        Object {
+          "label": "overview.stickers.options.colors.white",
+          "value": "white",
+        },
+        Object {
+          "label": "overview.stickers.options.colors.black",
+          "value": "black",
+        },
+        Object {
+          "label": "overview.stickers.options.colors.orange",
+          "value": "orange",
+        },
+      ]
+    }
+    searchable={false}
+    value="white"
+  />
+</div>
+`;

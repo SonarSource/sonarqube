@@ -26,7 +26,7 @@ exports[`should display the modal after click 2`] = `
     className="modal-body"
   >
     <p
-      className="big-spacer-bottom"
+      className="huge-spacer-bottom"
     >
       overview.stickers.description
     </p>
@@ -41,10 +41,20 @@ exports[`should display the modal after click 2`] = `
       />
     </div>
     <p
-      className="text-center note big-spacer-bottom"
+      className="text-center note huge-spacer-bottom"
     >
       overview.stickers.marketing.description
     </p>
+    <StickerParams
+      className="big-spacer-bottom"
+      options={
+        Object {
+          "color": "white",
+        }
+      }
+      type="marketing"
+      updateOptions={[Function]}
+    />
     <StickerSnippet
       snippet="null/images/stickers/sonarcloud-white.svg"
     />
@@ -52,13 +62,12 @@ exports[`should display the modal after click 2`] = `
   <footer
     className="modal-foot"
   >
-    <a
-      className="js-modal-close"
-      href="#"
+    <button
+      className="button-link js-modal-close"
       onClick={[Function]}
     >
       close
-    </a>
+    </button>
   </footer>
 </Modal>
 `;
