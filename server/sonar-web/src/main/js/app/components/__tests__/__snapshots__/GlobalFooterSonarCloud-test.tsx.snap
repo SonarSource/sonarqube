@@ -41,7 +41,7 @@ exports[`should render correctly 1`] = `
       className="page-footer-menu-item"
     >
       <a
-        href="https://twitter.com/sonarqube"
+        href="https://twitter.com/sonarcloud"
       >
         footer.twitter
       </a>

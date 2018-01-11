@@ -39,7 +39,7 @@ export default function GlobalFooterSonarCloud() {
           <a href="https://about.sonarcloud.io/terms.pdf">{translate('footer.terms')}</a>
         </li>
         <li className="page-footer-menu-item">
-          <a href="https://twitter.com/sonarqube">{translate('footer.twitter')}</a>
+          <a href="https://twitter.com/sonarcloud">{translate('footer.twitter')}</a>
         </li>
         <li className="page-footer-menu-item">
           <a href="https://about.sonarcloud.io/get-started/">{translate('footer.get_started')}</a>
