@@ -28,14 +28,14 @@ import static java.util.Objects.requireNonNull;
 
 @Immutable
 public final class Changeset {
-
+  @CheckForNull
   private final String revision;
   private final long date;
   @CheckForNull
   private final String author;
 
   private Changeset(Builder builder) {
-    this.revision = builder.revision.intern();
+    this.revision = builder.revision == null ? null : builder.revision.intern();
     this.author = builder.author == null ? null : builder.author.intern();
     this.date = builder.date;
   }
@@ -54,8 +54,8 @@ public final class Changeset {
       // prevents direct instantiation
     }
 
-    public Builder setRevision(String revision) {
-      this.revision = checkRevision(revision);
+    public Builder setRevision(@Nullable String revision) {
+      this.revision = revision;
       return this;
     }
 
@@ -70,21 +70,16 @@ public final class Changeset {
     }
 
     public Changeset build() {
-      checkRevision(revision);
       checkDate(date);
       return new Changeset(this);
-    }
-
-    private static String checkRevision(String revision) {
-      return requireNonNull(revision, "Revision cannot be null");
     }
 
     private static long checkDate(Long date) {
       return requireNonNull(date, "Date cannot be null");
     }
-
   }
 
+  @CheckForNull
   public String getRevision() {
     return revision;
   }
@@ -108,13 +103,12 @@ public final class Changeset {
     }
 
     Changeset changeset = (Changeset) o;
-
-    return revision.equals(changeset.revision);
+    return Objects.equals(revision, changeset.revision) && Objects.equals(author, changeset.author) && Objects.equals(date, changeset.date);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(revision);
+    return Objects.hash(revision, author, date);
   }
 
   @Override

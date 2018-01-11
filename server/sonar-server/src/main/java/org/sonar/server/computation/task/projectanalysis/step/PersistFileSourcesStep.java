@@ -118,13 +118,13 @@ public class PersistFileSourcesStep implements ComputationStep {
         LineReaders lineReaders = new LineReaders(reportReader, scmInfoRepository, duplicationRepository, file)) {
         ComputeFileSourceData computeFileSourceData = new ComputeFileSourceData(linesIterator, lineReaders.readers(), file.getFileAttributes().getLines());
         ComputeFileSourceData.Data fileSourceData = computeFileSourceData.compute();
-        persistSource(fileSourceData, file.getUuid(), lineReaders.getLatestChange());
+        persistSource(fileSourceData, file.getUuid(), lineReaders.getLatestChangeWithRevision());
       } catch (Exception e) {
         throw new IllegalStateException(String.format("Cannot persist sources of %s", file.getKey()), e);
       }
     }
 
-    private void persistSource(ComputeFileSourceData.Data fileSourceData, String componentUuid, @Nullable Changeset latestChange) {
+    private void persistSource(ComputeFileSourceData.Data fileSourceData, String componentUuid, @Nullable Changeset latestChangeWithRevision) {
       DbFileSources.Data fileData = fileSourceData.getFileSourceData();
 
       byte[] data = FileSourceDto.encodeSourceData(fileData);
@@ -144,14 +144,14 @@ public class PersistFileSourcesStep implements ComputationStep {
           .setLineHashes(lineHashes)
           .setCreatedAt(system2.now())
           .setUpdatedAt(system2.now())
-          .setRevision(computeRevision(latestChange));
+          .setRevision(computeRevision(latestChangeWithRevision));
         dbClient.fileSourceDao().insert(session, dto);
         session.commit();
       } else {
         // Update only if data_hash has changed or if src_hash is missing or revision is missing (progressive migration)
         boolean binaryDataUpdated = !dataHash.equals(previousDto.getDataHash());
         boolean srcHashUpdated = !srcHash.equals(previousDto.getSrcHash());
-        String revision = computeRevision(latestChange);
+        String revision = computeRevision(latestChangeWithRevision);
         boolean revisionUpdated = !ObjectUtils.equals(revision, previousDto.getRevision());
         if (binaryDataUpdated || srcHashUpdated || revisionUpdated) {
           previousDto
@@ -219,11 +219,11 @@ public class PersistFileSourcesStep implements ComputationStep {
     }
 
     @CheckForNull
-    public Changeset getLatestChange() {
+    public Changeset getLatestChangeWithRevision() {
       if (scmLineReader == null) {
         return null;
       }
-      return scmLineReader.getLatestChange();
+      return scmLineReader.getLatestChangeWithRevision();
     }
   }
 

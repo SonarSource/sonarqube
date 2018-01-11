@@ -56,26 +56,7 @@ public class ChangesetTest {
   }
 
   @Test
-  public void fail_with_NPE_when_setting_null_revision() {
-    thrown.expect(NullPointerException.class);
-    thrown.expectMessage("Revision cannot be null");
-
-    Changeset.newChangesetBuilder().setRevision(null);
-  }
-
-  @Test
-  public void fail_with_NPE_when_building_without_revision() {
-    thrown.expect(NullPointerException.class);
-    thrown.expectMessage("Revision cannot be null");
-
-    Changeset.newChangesetBuilder()
-      .setAuthor("john")
-      .setDate(123456789L)
-      .build();
-  }
-
-  @Test
-  public void fail_with_NPE_when_setting_null_date() {
+  public void fail_with_NPE_when_setting_null_date() throws Exception {
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("Date cannot be null");
 
@@ -105,7 +86,7 @@ public class ChangesetTest {
   }
 
   @Test
-  public void equals_and_hashcode_are_based_on_revision_alone() {
+  public void equals_and_hashcode_are_based_on_all_fields() throws Exception {
     Changeset.Builder changesetBuilder = Changeset.newChangesetBuilder()
       .setAuthor("john")
       .setDate(123456789L)
@@ -128,12 +109,12 @@ public class ChangesetTest {
 
     assertThat(changeset).isEqualTo(changeset);
     assertThat(changeset).isEqualTo(sameChangeset);
-    assertThat(changeset).isEqualTo(anotherChangesetWithSameRevision);
+    assertThat(changeset).isNotEqualTo(anotherChangesetWithSameRevision);
     assertThat(changeset).isNotEqualTo(anotherChangeset);
 
     assertThat(changeset.hashCode()).isEqualTo(changeset.hashCode());
     assertThat(changeset.hashCode()).isEqualTo(sameChangeset.hashCode());
-    assertThat(changeset.hashCode()).isEqualTo(anotherChangesetWithSameRevision.hashCode());
+    assertThat(changeset.hashCode()).isNotEqualTo(anotherChangesetWithSameRevision.hashCode());
     assertThat(changeset.hashCode()).isNotEqualTo(anotherChangeset.hashCode());
   }
 }

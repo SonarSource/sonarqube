@@ -29,6 +29,8 @@ public class ScmLineReader implements LineReader {
   private final ScmInfo scmReport;
   @CheckForNull
   private Changeset latestChange;
+  @CheckForNull
+  private Changeset latestChangeWithRevision;
 
   public ScmLineReader(ScmInfo scmReport) {
     this.scmReport = scmReport;
@@ -41,9 +43,16 @@ public class ScmLineReader implements LineReader {
     if (author != null) {
       lineBuilder.setScmAuthor(author);
     }
-    lineBuilder.setScmRevision(changeset.getRevision());
+    String revision = changeset.getRevision();
+    if (revision != null) {
+      lineBuilder.setScmRevision(revision);
+    }
     lineBuilder.setScmDate(changeset.getDate());
     updateLatestChange(changeset);
+
+    if (revision != null) {
+      updateLatestChangeWithRevision(changeset);
+    }
   }
 
   private void updateLatestChange(Changeset newChangeSet) {
@@ -56,6 +65,23 @@ public class ScmLineReader implements LineReader {
         latestChange = newChangeSet;
       }
     }
+  }
+
+  private void updateLatestChangeWithRevision(Changeset newChangeSet) {
+    if (latestChangeWithRevision == null) {
+      latestChangeWithRevision = newChangeSet;
+    } else {
+      long newChangesetDate = newChangeSet.getDate();
+      long latestChangeDate = latestChange.getDate();
+      if (newChangesetDate > latestChangeDate) {
+        latestChange = newChangeSet;
+      }
+    }
+  }
+
+  @CheckForNull
+  public Changeset getLatestChangeWithRevision() {
+    return latestChangeWithRevision;
   }
 
   @CheckForNull
