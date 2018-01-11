@@ -71,7 +71,7 @@ export default class ConciseIssueBox extends React.PureComponent {
       this.props.scroll(this.rootElement);
     } else {
       // otherwise scroll until the the message element is located on top
-      this.props.scroll(this.messageElement, window.innerHeight - 200);
+      this.props.scroll(this.messageElement, window.innerHeight - 250);
     }
   };
 
