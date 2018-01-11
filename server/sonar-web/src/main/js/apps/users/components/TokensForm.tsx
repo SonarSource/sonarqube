@@ -71,6 +71,12 @@ export default class TokensForm extends React.PureComponent<Props, State> {
     );
   };
 
+  updateTokensCount = () => {
+    if (this.props.updateTokensCount) {
+      this.props.updateTokensCount(this.props.login, this.state.tokens.length);
+    }
+  };
+
   handleGenerateToken = (evt: React.SyntheticEvent<HTMLFormElement>) => {
     evt.preventDefault();
     if (this.state.newTokenName.length > 0) {
@@ -78,20 +84,13 @@ export default class TokensForm extends React.PureComponent<Props, State> {
       generateToken({ name: this.state.newTokenName, login: this.props.login }).then(
         newToken => {
           if (this.mounted) {
-            this.setState(
-              state => {
-                const tokens = [
-                  ...state.tokens,
-                  { name: newToken.name, createdAt: newToken.createdAt }
-                ];
-                return { generating: false, newToken, newTokenName: '', tokens };
-              },
-              () => {
-                if (this.props.updateTokensCount) {
-                  this.props.updateTokensCount(this.props.login, this.state.tokens.length);
-                }
-              }
-            );
+            this.setState(state => {
+              const tokens = [
+                ...state.tokens,
+                { name: newToken.name, createdAt: newToken.createdAt }
+              ];
+              return { generating: false, newToken, newTokenName: '', tokens };
+            }, this.updateTokensCount);
           }
         },
         () => {
@@ -108,11 +107,7 @@ export default class TokensForm extends React.PureComponent<Props, State> {
       state => ({
         tokens: state.tokens.filter(token => token.name !== revokedToken.name)
       }),
-      () => {
-        if (this.props.updateTokensCount) {
-          this.props.updateTokensCount(this.props.login, this.state.tokens.length);
-        }
-      }
+      this.updateTokensCount
     );
   };
 
