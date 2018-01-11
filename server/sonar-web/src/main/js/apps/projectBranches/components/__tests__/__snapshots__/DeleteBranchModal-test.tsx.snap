@@ -3,7 +3,7 @@
 exports[`renders 1`] = `
 <Modal
   contentLabel="branches.delete"
-  onRequestClose={[Function]}
+  onRequestClose={[MockFunction]}
 >
   <header
     className="modal-head"
@@ -44,7 +44,7 @@ exports[`renders 1`] = `
 exports[`renders 2`] = `
 <Modal
   contentLabel="branches.delete"
-  onRequestClose={[Function]}
+  onRequestClose={[MockFunction]}
 >
   <header
     className="modal-head"

@@ -3,7 +3,7 @@
 exports[`should display correctly 1`] = `
 <Modal
   contentLabel="marketplace.downgrade_to_community_edition."
-  onRequestClose={[Function]}
+  onRequestClose={[MockFunction]}
 >
   <header
     className="modal-head"

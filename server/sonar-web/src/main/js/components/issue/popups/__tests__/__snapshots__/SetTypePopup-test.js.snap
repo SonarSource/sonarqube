@@ -13,7 +13,7 @@ exports[`should render tags popup correctly 1`] = `
         "CODE_SMELL",
       ]
     }
-    onSelect={[Function]}
+    onSelect={[MockFunction]}
   >
     <SelectListItem
       item="BUG"

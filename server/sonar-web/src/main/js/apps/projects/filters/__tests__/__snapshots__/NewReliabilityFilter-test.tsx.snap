@@ -16,7 +16,7 @@ exports[`renders 1`] = `
     </span>
   }
   name="Reliability"
-  onQueryChange={[Function]}
+  onQueryChange={[MockFunction]}
   property="new_reliability"
   query={Object {}}
 />

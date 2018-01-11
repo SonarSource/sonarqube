@@ -35,9 +35,9 @@ exports[`should render correctly 1`] = `
       <UserListItem
         isCurrentUser={true}
         key="luke"
-        onUpdateUsers={[Function]}
+        onUpdateUsers={[MockFunction]}
         organizationsEnabled={true}
-        updateTokensCount={[Function]}
+        updateTokensCount={[MockFunction]}
         user={
           Object {
             "active": true,
@@ -51,9 +51,9 @@ exports[`should render correctly 1`] = `
       <UserListItem
         isCurrentUser={false}
         key="obi"
-        onUpdateUsers={[Function]}
+        onUpdateUsers={[MockFunction]}
         organizationsEnabled={true}
-        updateTokensCount={[Function]}
+        updateTokensCount={[MockFunction]}
         user={
           Object {
             "active": true,

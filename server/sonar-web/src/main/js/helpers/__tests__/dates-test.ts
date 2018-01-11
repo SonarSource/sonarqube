@@ -85,6 +85,8 @@ it('differenceInDays', () => {
 
 it('differenceInSeconds', () => {
   expect(dates.differenceInSeconds(recentDate, parseDate('2017-08-16T10:00:00.000Z'))).toBe(7200);
-  expect(dates.differenceInSeconds(recentDate, parseDate('2017-08-16T12:00:00.500Z'))).toBe(0);
+  expect(dates.differenceInSeconds(recentDate, parseDate('2017-08-16T12:00:00.500Z'))).toBeCloseTo(
+    0
+  );
   expect(dates.differenceInSeconds(recentDate, oldDate)).toBe(113356800);
 });

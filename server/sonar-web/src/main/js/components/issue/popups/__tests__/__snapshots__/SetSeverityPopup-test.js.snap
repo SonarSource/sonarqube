@@ -15,7 +15,7 @@ exports[`should render tags popup correctly 1`] = `
         "INFO",
       ]
     }
-    onSelect={[Function]}
+    onSelect={[MockFunction]}
   >
     <SelectListItem
       item="BLOCKER"

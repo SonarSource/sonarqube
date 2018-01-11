@@ -70,7 +70,7 @@ exports[`renders 1`] = `
           "login": "foo",
         }
       }
-      onApplyTemplate={[Function]}
+      onApplyTemplate={[MockFunction]}
       project={
         Object {
           "key": "project",
@@ -152,7 +152,7 @@ exports[`renders 2`] = `
           "login": "foo",
         }
       }
-      onApplyTemplate={[Function]}
+      onApplyTemplate={[MockFunction]}
       project={
         Object {
           "key": "project",

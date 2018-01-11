@@ -12,7 +12,7 @@ exports[`should render maximum 10 languages in the searchbox results 1`] = `
   }
   footer={
     <SearchableFilterFooter
-      onQueryChange={[Function]}
+      onQueryChange={[MockFunction]}
       options={
         Array [
           Object {
@@ -75,7 +75,7 @@ exports[`should render maximum 10 languages in the searchbox results 1`] = `
       name="projects.facets.languages"
     />
   }
-  onQueryChange={[Function]}
+  onQueryChange={[MockFunction]}
   options={
     Array [
       "java",
@@ -114,7 +114,7 @@ exports[`should render the languages facet with the selected languages 1`] = `
   }
   footer={
     <SearchableFilterFooter
-      onQueryChange={[Function]}
+      onQueryChange={[MockFunction]}
       options={
         Array [
           Object {
@@ -149,7 +149,7 @@ exports[`should render the languages facet with the selected languages 1`] = `
       name="projects.facets.languages"
     />
   }
-  onQueryChange={[Function]}
+  onQueryChange={[MockFunction]}
   options={
     Array [
       "java",
@@ -267,7 +267,7 @@ exports[`should render the languages facet with the selected languages 2`] = `
     </a>
   </div>
   <SearchableFilterFooter
-    onQueryChange={[Function]}
+    onQueryChange={[MockFunction]}
     options={
       Array [
         Object {
@@ -308,7 +308,7 @@ exports[`should render the languages without the ones in the facet 1`] = `
   }
   footer={
     <SearchableFilterFooter
-      onQueryChange={[Function]}
+      onQueryChange={[MockFunction]}
       options={
         Array [
           Object {
@@ -340,7 +340,7 @@ exports[`should render the languages without the ones in the facet 1`] = `
       name="projects.facets.languages"
     />
   }
-  onQueryChange={[Function]}
+  onQueryChange={[MockFunction]}
   options={
     Array [
       "java",

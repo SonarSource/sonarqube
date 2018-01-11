@@ -8,7 +8,7 @@ exports[`should correctly handle clicks on the button 1`] = `
   tabIndex={0}
 >
   <button
-    onClick={[Function]}
+    onClick={[MockFunction]}
   >
     open
   </button>
@@ -23,7 +23,24 @@ exports[`should correctly handle clicks on the button 2`] = `
   tabIndex={0}
 >
   <button
-    onClick={[Function]}
+    onClick={
+      [MockFunction] {
+        "calls": Array [
+          Array [
+            Object {
+              "currentTarget": Object {
+                "blur": [Function],
+              },
+              "preventDefault": [Function],
+              "stopPropagation": [Function],
+              "target": Object {
+                "blur": [Function],
+              },
+            },
+          ],
+        ],
+      }
+    }
   >
     open
   </button>
@@ -75,7 +92,7 @@ exports[`should render an open popup on the right 1`] = `
   tabIndex={0}
 >
   <button
-    onClick={[Function]}
+    onClick={[MockFunction]}
   >
     open
   </button>
@@ -104,7 +121,7 @@ exports[`should render the popup helper with a closed popup 1`] = `
   tabIndex={0}
 >
   <button
-    onClick={[Function]}
+    onClick={[MockFunction]}
   >
     open
   </button>
@@ -142,7 +159,7 @@ exports[`should render with custom classes 1`] = `
   tabIndex={0}
 >
   <button
-    onClick={[Function]}
+    onClick={[MockFunction]}
   >
     open
   </button>

@@ -3,7 +3,7 @@
 exports[`creates project 1`] = `
 <Modal
   contentLabel="modal form"
-  onRequestClose={[Function]}
+  onRequestClose={[MockFunction]}
 >
   <form
     id="create-project-form"
@@ -122,7 +122,7 @@ exports[`creates project 1`] = `
 exports[`creates project 2`] = `
 <Modal
   contentLabel="modal form"
-  onRequestClose={[Function]}
+  onRequestClose={[MockFunction]}
 >
   <form
     id="create-project-form"
@@ -241,7 +241,7 @@ exports[`creates project 2`] = `
 exports[`creates project 3`] = `
 <Modal
   contentLabel="modal form"
-  onRequestClose={[Function]}
+  onRequestClose={[MockFunction]}
 >
   <form
     id="create-project-form"
@@ -363,7 +363,7 @@ exports[`creates project 3`] = `
 exports[`creates project 4`] = `
 <Modal
   contentLabel="modal form"
-  onRequestClose={[Function]}
+  onRequestClose={[MockFunction]}
 >
   <div>
     <header
@@ -422,7 +422,7 @@ exports[`creates project 4`] = `
 exports[`shows more 1`] = `
 <Modal
   contentLabel="modal form"
-  onRequestClose={[Function]}
+  onRequestClose={[MockFunction]}
 >
   <form
     id="create-project-form"
@@ -541,7 +541,7 @@ exports[`shows more 1`] = `
 exports[`shows more 2`] = `
 <Modal
   contentLabel="modal form"
-  onRequestClose={[Function]}
+  onRequestClose={[MockFunction]}
 >
   <form
     id="create-project-form"

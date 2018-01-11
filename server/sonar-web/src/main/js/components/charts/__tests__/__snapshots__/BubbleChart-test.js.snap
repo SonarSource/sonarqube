@@ -112,7 +112,7 @@ exports[`should render bubbles with click handlers 1`] = `
 <Bubble
   key="0"
   link="foo"
-  onClick={[Function]}
+  onClick={[MockFunction]}
   r={45}
   x={-10}
   y={52.3015873015873}
@@ -136,7 +136,7 @@ exports[`should render bubbles with click handlers 2`] = `
 <Bubble
   key="1"
   link="bar"
-  onClick={[Function]}
+  onClick={[MockFunction]}
   r={33.57142857142857}
   x={-75}
   y={33.57142857142857}

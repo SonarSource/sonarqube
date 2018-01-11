@@ -79,7 +79,7 @@ exports[`renders sorted list of branches 1`] = `
           }
           component="foo"
           key="master"
-          onChange={[Function]}
+          onChange={[MockFunction]}
         />
         <BranchRow
           branch={
@@ -92,7 +92,7 @@ exports[`renders sorted list of branches 1`] = `
           }
           component="foo"
           key="branch-1.0"
-          onChange={[Function]}
+          onChange={[MockFunction]}
         />
         <BranchRow
           branch={
@@ -104,7 +104,7 @@ exports[`renders sorted list of branches 1`] = `
           }
           component="foo"
           key="branch-1.0"
-          onChange={[Function]}
+          onChange={[MockFunction]}
         />
       </tbody>
     </table>

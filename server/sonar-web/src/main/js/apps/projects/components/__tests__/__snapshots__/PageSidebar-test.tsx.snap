@@ -17,7 +17,7 @@ exports[`should render \`leak\` view correctly 1`] = `
     </h3>
   </div>
   <QualityGateFilter
-    onQueryChange={[Function]}
+    onQueryChange={[MockFunction]}
     query={
       Object {
         "view": "leak",
@@ -26,7 +26,7 @@ exports[`should render \`leak\` view correctly 1`] = `
   />
   <React.Fragment>
     <NewReliabilityFilter
-      onQueryChange={[Function]}
+      onQueryChange={[MockFunction]}
       query={
         Object {
           "view": "leak",
@@ -34,7 +34,7 @@ exports[`should render \`leak\` view correctly 1`] = `
       }
     />
     <NewSecurityFilter
-      onQueryChange={[Function]}
+      onQueryChange={[MockFunction]}
       query={
         Object {
           "view": "leak",
@@ -42,7 +42,7 @@ exports[`should render \`leak\` view correctly 1`] = `
       }
     />
     <NewMaintainabilityFilter
-      onQueryChange={[Function]}
+      onQueryChange={[MockFunction]}
       query={
         Object {
           "view": "leak",
@@ -50,7 +50,7 @@ exports[`should render \`leak\` view correctly 1`] = `
       }
     />
     <NewCoverageFilter
-      onQueryChange={[Function]}
+      onQueryChange={[MockFunction]}
       query={
         Object {
           "view": "leak",
@@ -58,7 +58,7 @@ exports[`should render \`leak\` view correctly 1`] = `
       }
     />
     <NewDuplicationsFilter
-      onQueryChange={[Function]}
+      onQueryChange={[MockFunction]}
       query={
         Object {
           "view": "leak",
@@ -66,7 +66,7 @@ exports[`should render \`leak\` view correctly 1`] = `
       }
     />
     <NewLinesFilter
-      onQueryChange={[Function]}
+      onQueryChange={[MockFunction]}
       query={
         Object {
           "view": "leak",
@@ -75,7 +75,7 @@ exports[`should render \`leak\` view correctly 1`] = `
     />
   </React.Fragment>
   <Connect(LanguagesFilter)
-    onQueryChange={[Function]}
+    onQueryChange={[MockFunction]}
     query={
       Object {
         "view": "leak",
@@ -83,7 +83,7 @@ exports[`should render \`leak\` view correctly 1`] = `
     }
   />
   <TagsFilter
-    onQueryChange={[Function]}
+    onQueryChange={[MockFunction]}
     query={
       Object {
         "view": "leak",
@@ -100,14 +100,14 @@ exports[`should render correctly 1`] = `
     className="projects-facets-header clearfix"
   >
     <ClearAll
-      onClearAll={[Function]}
+      onClearAll={[MockFunction]}
     />
     <h3>
       filters
     </h3>
   </div>
   <QualityGateFilter
-    onQueryChange={[Function]}
+    onQueryChange={[MockFunction]}
     query={
       Object {
         "size": "3",
@@ -116,7 +116,7 @@ exports[`should render correctly 1`] = `
   />
   <React.Fragment>
     <ReliabilityFilter
-      onQueryChange={[Function]}
+      onQueryChange={[MockFunction]}
       query={
         Object {
           "size": "3",
@@ -124,7 +124,7 @@ exports[`should render correctly 1`] = `
       }
     />
     <SecurityFilter
-      onQueryChange={[Function]}
+      onQueryChange={[MockFunction]}
       query={
         Object {
           "size": "3",
@@ -132,7 +132,7 @@ exports[`should render correctly 1`] = `
       }
     />
     <MaintainabilityFilter
-      onQueryChange={[Function]}
+      onQueryChange={[MockFunction]}
       query={
         Object {
           "size": "3",
@@ -140,7 +140,7 @@ exports[`should render correctly 1`] = `
       }
     />
     <CoverageFilter
-      onQueryChange={[Function]}
+      onQueryChange={[MockFunction]}
       query={
         Object {
           "size": "3",
@@ -148,7 +148,7 @@ exports[`should render correctly 1`] = `
       }
     />
     <DuplicationsFilter
-      onQueryChange={[Function]}
+      onQueryChange={[MockFunction]}
       query={
         Object {
           "size": "3",
@@ -156,7 +156,7 @@ exports[`should render correctly 1`] = `
       }
     />
     <SizeFilter
-      onQueryChange={[Function]}
+      onQueryChange={[MockFunction]}
       query={
         Object {
           "size": "3",
@@ -166,7 +166,7 @@ exports[`should render correctly 1`] = `
     />
   </React.Fragment>
   <Connect(LanguagesFilter)
-    onQueryChange={[Function]}
+    onQueryChange={[MockFunction]}
     query={
       Object {
         "size": "3",
@@ -174,7 +174,7 @@ exports[`should render correctly 1`] = `
     }
   />
   <TagsFilter
-    onQueryChange={[Function]}
+    onQueryChange={[MockFunction]}
     query={
       Object {
         "size": "3",

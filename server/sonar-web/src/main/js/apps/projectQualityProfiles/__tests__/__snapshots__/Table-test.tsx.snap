@@ -27,7 +27,7 @@ exports[`renders 1`] = `
     <tbody>
       <ProfileRow
         key="java"
-        onChangeProfile={[Function]}
+        onChangeProfile={[MockFunction]}
         possibleProfiles={
           Array [
             Object {
@@ -73,7 +73,7 @@ exports[`renders 1`] = `
       />
       <ProfileRow
         key="js"
-        onChangeProfile={[Function]}
+        onChangeProfile={[MockFunction]}
         possibleProfiles={
           Array [
             Object {

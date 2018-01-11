@@ -48,8 +48,8 @@ exports[`should render the titlebar correctly 1`] = `
               },
             }
           }
-          onFail={[Function]}
-          togglePopup={[Function]}
+          onFail={[MockFunction]}
+          togglePopup={[MockFunction]}
         />
       </li>
       <li
@@ -132,8 +132,8 @@ exports[`should render the titlebar with the filter 1`] = `
               },
             }
           }
-          onFail={[Function]}
-          togglePopup={[Function]}
+          onFail={[MockFunction]}
+          togglePopup={[MockFunction]}
         />
       </li>
       <li
@@ -195,9 +195,9 @@ exports[`should render the titlebar with the filter 1`] = `
               },
             }
           }
-          onFail={[Function]}
-          onFilter={[Function]}
-          togglePopup={[Function]}
+          onFail={[MockFunction]}
+          onFilter={[MockFunction]}
+          togglePopup={[MockFunction]}
         />
       </li>
     </ul>

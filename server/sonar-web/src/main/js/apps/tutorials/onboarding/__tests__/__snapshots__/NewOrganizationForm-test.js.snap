@@ -2,8 +2,8 @@
 
 exports[`creates new organization 1`] = `
 <NewOrganizationForm
-  onDelete={[Function]}
-  onDone={[Function]}
+  onDelete={[MockFunction]}
+  onDone={[MockFunction]}
 >
   <form
     onSubmit={[Function]}
@@ -36,8 +36,8 @@ exports[`creates new organization 1`] = `
 
 exports[`creates new organization 2`] = `
 <NewOrganizationForm
-  onDelete={[Function]}
-  onDone={[Function]}
+  onDelete={[MockFunction]}
+  onDone={[MockFunction]}
 >
   <form
     onSubmit={[Function]}
@@ -67,8 +67,16 @@ exports[`creates new organization 2`] = `
 
 exports[`creates new organization 3`] = `
 <NewOrganizationForm
-  onDelete={[Function]}
-  onDone={[Function]}
+  onDelete={[MockFunction]}
+  onDone={
+    [MockFunction] {
+      "calls": Array [
+        Array [
+          "foo",
+        ],
+      ],
+    }
+  }
 >
   <div>
     <span
@@ -104,8 +112,8 @@ exports[`creates new organization 3`] = `
 
 exports[`deletes organization 1`] = `
 <NewOrganizationForm
-  onDelete={[Function]}
-  onDone={[Function]}
+  onDelete={[MockFunction]}
+  onDone={[MockFunction]}
 >
   <div>
     <span
@@ -141,8 +149,8 @@ exports[`deletes organization 1`] = `
 
 exports[`deletes organization 2`] = `
 <NewOrganizationForm
-  onDelete={[Function]}
-  onDone={[Function]}
+  onDelete={[MockFunction]}
+  onDone={[MockFunction]}
 >
   <div>
     <span
@@ -159,8 +167,14 @@ exports[`deletes organization 2`] = `
 
 exports[`deletes organization 3`] = `
 <NewOrganizationForm
-  onDelete={[Function]}
-  onDone={[Function]}
+  onDelete={
+    [MockFunction] {
+      "calls": Array [
+        Array [],
+      ],
+    }
+  }
+  onDone={[MockFunction]}
 >
   <form
     onSubmit={[Function]}

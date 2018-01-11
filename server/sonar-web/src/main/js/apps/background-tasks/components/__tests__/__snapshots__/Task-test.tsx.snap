@@ -33,8 +33,8 @@ exports[`renders 1`] = `
   />
   <TaskExecutionTime />
   <TaskActions
-    onCancelTask={[Function]}
-    onFilterTask={[Function]}
+    onCancelTask={[MockFunction]}
+    onFilterTask={[MockFunction]}
     task={
       Object {
         "componentName": "foo",

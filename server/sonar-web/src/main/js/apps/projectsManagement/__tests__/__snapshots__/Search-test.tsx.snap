@@ -88,7 +88,7 @@ exports[`render qualifiers filter 1`] = `
             inputClassName="input-medium"
             maxDate="+0"
             name="analyzed-before"
-            onChange={[Function]}
+            onChange={[MockFunction]}
             placeholder="last_analysis_before"
           />
         </td>
@@ -99,7 +99,7 @@ exports[`render qualifiers filter 1`] = `
             checked={false}
             className="link-checkbox-control"
             id="projects-provisioned"
-            onCheck={[Function]}
+            onCheck={[MockFunction]}
             thirdState={false}
           >
             <span
@@ -122,7 +122,7 @@ exports[`render qualifiers filter 1`] = `
         >
           <SearchBox
             minLength={3}
-            onChange={[Function]}
+            onChange={[MockFunction]}
             placeholder="search.search_by_name_or_key"
             value=""
           />
@@ -178,7 +178,7 @@ exports[`renders 1`] = `
             inputClassName="input-medium"
             maxDate="+0"
             name="analyzed-before"
-            onChange={[Function]}
+            onChange={[MockFunction]}
             placeholder="last_analysis_before"
           />
         </td>
@@ -189,7 +189,7 @@ exports[`renders 1`] = `
             checked={false}
             className="link-checkbox-control"
             id="projects-provisioned"
-            onCheck={[Function]}
+            onCheck={[MockFunction]}
             thirdState={false}
           >
             <span
@@ -212,7 +212,7 @@ exports[`renders 1`] = `
         >
           <SearchBox
             minLength={3}
-            onChange={[Function]}
+            onChange={[MockFunction]}
             placeholder="search.search_by_name_or_key"
             value=""
           />

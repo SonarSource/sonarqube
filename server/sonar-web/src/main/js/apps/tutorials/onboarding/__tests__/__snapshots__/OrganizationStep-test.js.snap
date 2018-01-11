@@ -9,14 +9,14 @@ exports[`works with existing organization 1`] = `
     }
   }
   finished={false}
-  onContinue={[Function]}
-  onOpen={[Function]}
+  onContinue={[MockFunction]}
+  onOpen={[MockFunction]}
   open={true}
   stepNumber={1}
 >
   <Step
     finished={false}
-    onOpen={[Function]}
+    onOpen={[MockFunction]}
     open={true}
     renderForm={[Function]}
     renderResult={[Function]}

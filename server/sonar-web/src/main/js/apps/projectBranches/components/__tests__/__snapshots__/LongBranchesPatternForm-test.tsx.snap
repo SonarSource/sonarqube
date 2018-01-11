@@ -3,7 +3,7 @@
 exports[`renders 1`] = `
 <Modal
   contentLabel="branches.detection_of_long_living_branches"
-  onRequestClose={[Function]}
+  onRequestClose={[MockFunction]}
 >
   <header
     className="modal-head"
@@ -13,8 +13,8 @@ exports[`renders 1`] = `
     </h2>
   </header>
   <SettingForm
-    onChange={[Function]}
-    onClose={[Function]}
+    onChange={[MockFunction]}
+    onClose={[MockFunction]}
     project="project"
     setting={
       Object {
