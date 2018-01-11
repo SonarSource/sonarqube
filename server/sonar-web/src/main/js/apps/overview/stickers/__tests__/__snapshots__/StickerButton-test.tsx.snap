@@ -1,27 +1,25 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should display correctly 1`] = `
-<a
+<button
   className="sticker-button"
-  href=""
   onClick={[Function]}
 >
   <img
     alt="overview.stickers.marketing.alt"
     src="http://foo.bar"
   />
-</a>
+</button>
 `;
 
 exports[`should display correctly 2`] = `
-<a
+<button
   className="sticker-button selected"
-  href=""
   onClick={[Function]}
 >
   <img
     alt="overview.stickers.marketing.alt"
     src="http://foo.bar"
   />
-</a>
+</button>
 `;

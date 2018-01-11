@@ -21,6 +21,7 @@ import * as React from 'react';
 import Modal from '../../../components/controls/Modal';
 import StickerButton from './StickerButton';
 import StickerSnippet from './StickerSnippet';
+import StickerParams from './StickerParams';
 import { translate } from '../../../helpers/l10n';
 import { getStickerUrl, StickerType, StickerOptions } from './utils';
 import './styles.css';
@@ -53,10 +54,12 @@ export default class StickersModal extends React.PureComponent<{}, State> {
 
   handleSelectSticker = (selectedType: StickerType) => this.setState({ selectedType });
 
-  handleCancelClick = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
-    event.preventDefault();
-    this.handleClose();
-  };
+  handleUpdateOptions = (options: Partial<StickerOptions>) =>
+    this.setState(state => ({
+      stickerOptions: { ...state.stickerOptions, ...options }
+    }));
+
+  handleCancelClick = () => this.handleClose();
 
   render() {
     const { selectedType, stickerOptions } = this.state;
@@ -70,7 +73,7 @@ export default class StickersModal extends React.PureComponent<{}, State> {
               <h2>{header}</h2>
             </header>
             <div className="modal-body">
-              <p className="big-spacer-bottom">{translate('overview.stickers.description')}</p>
+              <p className="huge-spacer-bottom">{translate('overview.stickers.description')}</p>
               <div className="stickers-list spacer-bottom">
                 <StickerButton
                   onClick={this.handleSelectSticker}
@@ -79,15 +82,21 @@ export default class StickersModal extends React.PureComponent<{}, State> {
                   url={getStickerUrl(StickerType.marketing, stickerOptions)}
                 />
               </div>
-              <p className="text-center note big-spacer-bottom">
+              <p className="text-center note huge-spacer-bottom">
                 {translate('overview.stickers', selectedType, 'description')}
               </p>
+              <StickerParams
+                className="big-spacer-bottom"
+                options={stickerOptions}
+                type={selectedType}
+                updateOptions={this.handleUpdateOptions}
+              />
               <StickerSnippet snippet={getStickerUrl(selectedType, stickerOptions)} />
             </div>
             <footer className="modal-foot">
-              <a className="js-modal-close" href="#" onClick={this.handleCancelClick}>
+              <button className="button-link js-modal-close" onClick={this.handleCancelClick}>
                 {translate('close')}
-              </a>
+              </button>
             </footer>
           </Modal>
         )}

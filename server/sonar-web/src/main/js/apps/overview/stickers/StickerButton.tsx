@@ -30,18 +30,15 @@ interface Props {
 }
 
 export default class StickerButton extends React.PureComponent<Props> {
-  handleClick = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
-    event.preventDefault();
-    this.props.onClick(this.props.type);
-  };
+  handleClick = () => this.props.onClick(this.props.type);
+
   render() {
     return (
-      <a
+      <button
         className={classNames('sticker-button', { selected: this.props.selected })}
-        href=""
         onClick={this.handleClick}>
         <img src={this.props.url} alt={translate('overview.stickers', this.props.type, 'alt')} />
-      </a>
+      </button>
     );
   }
 }
