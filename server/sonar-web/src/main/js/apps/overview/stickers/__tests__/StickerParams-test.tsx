@@ -19,29 +19,23 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import StickerButton from '../StickerButton';
+import StickerParams from '../StickerParams';
 import { StickerType } from '../utils';
-import { click } from '../../../../helpers/testUtils';
 
-it('should display correctly', () => {
-  expect(getWrapper()).toMatchSnapshot();
-  expect(getWrapper({ selected: true })).toMatchSnapshot();
-});
-
-it('should return the sticker type on click', () => {
-  const onClick = jest.fn();
-  const wrapper = getWrapper({ onClick });
-  click(wrapper.find('button'));
-  expect(onClick).toHaveBeenCalledWith(StickerType.marketing);
+it('should display marketing badge params', () => {
+  const updateOptions = jest.fn();
+  const wrapper = getWrapper({ updateOptions });
+  expect(wrapper).toMatchSnapshot();
+  (wrapper.instance() as StickerParams).handleColorChange({ value: 'black' });
+  expect(updateOptions).toHaveBeenCalledWith({ color: 'black' });
 });
 
 function getWrapper(props = {}) {
   return shallow(
-    <StickerButton
-      onClick={jest.fn()}
-      selected={false}
+    <StickerParams
+      options={{ color: 'white' }}
       type={StickerType.marketing}
-      url="http://foo.bar"
+      updateOptions={jest.fn()}
       {...props}
     />
   );

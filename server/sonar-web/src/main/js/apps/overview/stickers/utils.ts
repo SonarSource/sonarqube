@@ -19,20 +19,22 @@
  */
 import { getHostUrl } from '../../../helpers/urls';
 
+export type StickerColors = 'white' | 'black' | 'orange';
+
+export interface StickerOptions {
+  color: StickerColors;
+}
+
 export enum StickerType {
   badge = 'badge',
   card = 'card',
   marketing = 'marketing'
 }
 
-export interface StickerOptions {
-  color?: 'white' | 'black' | 'orange';
-}
-
 export function getStickerUrl(type: StickerType, options: StickerOptions) {
   switch (type) {
     case StickerType.marketing:
-      return `${getHostUrl()}/images/stickers/sonarcloud-${options.color || 'white'}.svg`;
+      return `${getHostUrl()}/images/stickers/sonarcloud-${options.color}.svg`;
     case StickerType.card:
       return '';
     case StickerType.badge:
