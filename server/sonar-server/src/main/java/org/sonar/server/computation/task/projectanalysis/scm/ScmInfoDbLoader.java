@@ -28,41 +28,34 @@ import org.sonar.db.source.FileSourceDto;
 import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.server.computation.task.projectanalysis.analysis.Branch;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
-import org.sonar.server.computation.task.projectanalysis.component.Component.Status;
 import org.sonar.server.computation.task.projectanalysis.component.MergeBranchComponentUuids;
-import org.sonar.server.computation.task.projectanalysis.scm.ScmInfoRepositoryImpl.NoScmInfo;
-import org.sonar.server.computation.task.projectanalysis.source.SourceHashRepository;
 
 public class ScmInfoDbLoader {
   private static final Logger LOGGER = Loggers.get(ScmInfoDbLoader.class);
 
   private final AnalysisMetadataHolder analysisMetadataHolder;
   private final DbClient dbClient;
-  private final SourceHashRepository sourceHashRepository;
   private final MergeBranchComponentUuids mergeBranchComponentUuid;
 
-  public ScmInfoDbLoader(AnalysisMetadataHolder analysisMetadataHolder, DbClient dbClient,
-    SourceHashRepository sourceHashRepository, MergeBranchComponentUuids mergeBranchComponentUuid) {
+  public ScmInfoDbLoader(AnalysisMetadataHolder analysisMetadataHolder, DbClient dbClient, MergeBranchComponentUuids mergeBranchComponentUuid) {
     this.analysisMetadataHolder = analysisMetadataHolder;
     this.dbClient = dbClient;
-    this.sourceHashRepository = sourceHashRepository;
     this.mergeBranchComponentUuid = mergeBranchComponentUuid;
   }
 
-  public ScmInfo getScmInfoFromDb(Component file) {
+  public Optional<DbScmInfo> getScmInfo(Component file) {
     Optional<String> uuid = getFileUUid(file);
-
     if (!uuid.isPresent()) {
-      return NoScmInfo.INSTANCE;
+      return Optional.empty();
     }
 
     LOGGER.trace("Reading SCM info from db for file '{}'", uuid.get());
     try (DbSession dbSession = dbClient.openSession(false)) {
       FileSourceDto dto = dbClient.fileSourceDao().selectSourceByFileUuid(dbSession, uuid.get());
-      if (dto == null || !isDtoValid(file, dto)) {
-        return NoScmInfo.INSTANCE;
+      if (dto == null) {
+        return Optional.empty();
       }
-      return DbScmInfo.create(dto.getSourceData().getLinesList()).orElse(NoScmInfo.INSTANCE);
+      return DbScmInfo.create(dto.getSourceData().getLinesList(), dto.getSrcHash());
     }
   }
 
@@ -80,10 +73,4 @@ public class ScmInfoDbLoader {
     return Optional.empty();
   }
 
-  private boolean isDtoValid(Component file, FileSourceDto dto) {
-    if (file.getStatus() == Status.SAME) {
-      return true;
-    }
-    return sourceHashRepository.getRawSourceHash(file).equals(dto.getSrcHash());
-  }
 }
