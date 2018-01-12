@@ -26,11 +26,11 @@ exports[`renders correctly 1`] = `
         "/d:sonar.login=\\"token\\"",
       ]
     }
-    isWindows={true}
+    isOneLine={true}
   />
   <Command
     command="MsBuild.exe /t:Rebuild"
-    isWindows={true}
+    isOneLine={true}
   />
   <Command
     command={
@@ -39,7 +39,7 @@ exports[`renders correctly 1`] = `
         "/d:sonar.login=\\"token\\"",
       ]
     }
-    isWindows={true}
+    isOneLine={true}
   />
   <p
     className="big-spacer-top markdown"
@@ -78,11 +78,11 @@ exports[`renders correctly 2`] = `
         "/d:sonar.login=\\"token\\"",
       ]
     }
-    isWindows={true}
+    isOneLine={true}
   />
   <Command
     command="MsBuild.exe /t:Rebuild"
-    isWindows={true}
+    isOneLine={true}
   />
   <Command
     command={
@@ -91,7 +91,7 @@ exports[`renders correctly 2`] = `
         "/d:sonar.login=\\"token\\"",
       ]
     }
-    isWindows={true}
+    isOneLine={true}
   />
   <p
     className="big-spacer-top markdown"
