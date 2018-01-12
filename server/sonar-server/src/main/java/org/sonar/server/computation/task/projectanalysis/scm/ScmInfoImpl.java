@@ -19,41 +19,28 @@
  */
 package org.sonar.server.computation.task.projectanalysis.scm;
 
-import com.google.common.base.Predicate;
-import java.util.Arrays;
+import java.util.Comparator;
+import java.util.Map;
+import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
-
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkState;
-import static com.google.common.collect.FluentIterable.from;
-import static com.google.common.collect.Iterables.isEmpty;
-import static java.util.Arrays.asList;
 
 @Immutable
 public class ScmInfoImpl implements ScmInfo {
 
   @CheckForNull
   private final Changeset latestChangeset;
-  private final Changeset[] lineChangesets;
+  private final Map<Integer, Changeset> lineChangesets;
 
-  public ScmInfoImpl(Iterable<Changeset> lineChangesets) {
-    checkState(!isEmpty(lineChangesets), "A ScmInfo must have at least one Changeset and does not support any null one");
-    this.lineChangesets = from(lineChangesets)
-      .filter(CheckNotNull.INSTANCE)
-      .toArray(Changeset.class);
+  public ScmInfoImpl(Map<Integer, Changeset> lineChangesets) {
+    this.lineChangesets = lineChangesets;
     this.latestChangeset = computeLatestChangeset(lineChangesets);
   }
 
-  private static Changeset computeLatestChangeset(Iterable<Changeset> lineChangesets) {
-    Changeset latestChangeset = null;
-    for (Changeset lineChangeset : lineChangesets) {
-      if (latestChangeset == null || lineChangeset.getDate() > latestChangeset.getDate()) {
-        latestChangeset = lineChangeset;
-      }
-    }
-    return latestChangeset;
+  private static Changeset computeLatestChangeset(Map<Integer, Changeset> lineChangesets) {
+    return lineChangesets.values().stream()
+      .collect(Collectors.maxBy(Comparator.comparing(Changeset::getDate)))
+      .orElse(null);
   }
 
   @Override
@@ -63,35 +50,28 @@ public class ScmInfoImpl implements ScmInfo {
 
   @Override
   public Changeset getChangesetForLine(int lineNumber) {
-    checkArgument(lineNumber > 0 && lineNumber <= lineChangesets.length, "There's no changeset on line %s", lineNumber);
-    return lineChangesets[lineNumber - 1];
+    Changeset changeset = lineChangesets.get(lineNumber);
+    if (changeset != null) {
+      return changeset;
+    }
+    throw new IllegalArgumentException("Line " + lineNumber + " doesn't have a changeset");
   }
 
   @Override
   public boolean hasChangesetForLine(int lineNumber) {
-    return lineNumber <= lineChangesets.length;
+    return lineChangesets.containsKey(lineNumber);
   }
 
   @Override
-  public Iterable<Changeset> getAllChangesets() {
-    return asList(lineChangesets);
+  public Map<Integer, Changeset> getAllChangesets() {
+    return lineChangesets;
   }
 
   @Override
   public String toString() {
     return "ScmInfoImpl{" +
       "latestChangeset=" + latestChangeset +
-      ", lineChangesets=" + Arrays.toString(lineChangesets) +
+      ", lineChangesets=" + lineChangesets +
       '}';
-  }
-
-  private enum CheckNotNull implements Predicate<Changeset> {
-    INSTANCE;
-
-    @Override
-    public boolean apply(@Nullable Changeset input) {
-      checkState(input != null, "Null changeset are not allowed");
-      return true;
-    }
   }
 }

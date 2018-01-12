@@ -20,9 +20,10 @@
 package org.sonar.server.computation.task.projectanalysis.scm;
 
 import com.google.common.base.Optional;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import org.junit.rules.ExternalResource;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 
@@ -45,7 +46,8 @@ public class ScmInfoRepositoryRule extends ExternalResource implements ScmInfoRe
   }
 
   public ScmInfoRepositoryRule setScmInfo(int fileRef, Changeset... changesetList) {
-    scmInfoByFileRef.put(fileRef, new ScmInfoImpl(Arrays.asList(changesetList)));
+    Map<Integer, Changeset> changeset = IntStream.rangeClosed(1, changesetList.length).boxed().collect(Collectors.toMap(x -> x, x -> changesetList[x-1]));
+    scmInfoByFileRef.put(fileRef, new ScmInfoImpl(changeset));
     return this;
   }
 }
