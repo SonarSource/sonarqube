@@ -54,8 +54,9 @@ case "$RUN_ACTIVITY" in
       mvn verify \
           -f tests/pom.xml \
           -Dcategory="$CATEGORY" \
-          -Dorchestrator.configUrl="http://infra.internal.sonarsource.com/jenkins/orch-$DB_ENGINE.properties" \
+          -Dorchestrator.configUrl=http://infra.internal.sonarsource.com/jenkins/orch-${DB_ENGINE}.properties \
           -Pwith-db-drivers \
+          -Dorchestrator.browser=chrome \
           -B -e -V
     fi
     ;;

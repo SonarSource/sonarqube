@@ -53,6 +53,7 @@ public class SelenideConfig {
 
   public static WebDriver configure(Orchestrator orchestrator) {
     String browserKey = orchestrator.getConfiguration().getString("orchestrator.browser", Browser.FIREFOX.name());
+    System.out.println("---- Browser: " + browserKey);
     Browser browser = Browser.of(browserKey);
     Configuration.browser = browser.name();
     Configuration.baseUrl = orchestrator.getServer().getUrl();
