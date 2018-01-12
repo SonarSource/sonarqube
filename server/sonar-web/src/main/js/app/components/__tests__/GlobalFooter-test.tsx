@@ -22,34 +22,29 @@ import { shallow } from 'enzyme';
 import GlobalFooter from '../GlobalFooter';
 
 it('should render the only logged in information', () => {
-  expect(shallow(<GlobalFooter productionDatabase={true} />)).toMatchSnapshot();
+  expect(getWrapper()).toMatchSnapshot();
 });
 
 it('should not render the only logged in information', () => {
   expect(
-    shallow(
-      <GlobalFooter
-        hideLoggedInInfo={true}
-        productionDatabase={true}
-        onSonarCloud={{ value: 'false' }}
-        sonarqubeVersion="6.4-SNAPSHOT"
-      />
-    )
+    getWrapper({ hideLoggedInInfo: true, sonarqubeVersion: '6.4-SNAPSHOT' })
   ).toMatchSnapshot();
 });
 
 it('should show the db warning message', () => {
-  expect(shallow(<GlobalFooter productionDatabase={false} />).find('.alert')).toMatchSnapshot();
+  expect(getWrapper({ productionDatabase: false }).find('.alert')).toMatchSnapshot();
 });
 
 it('should display the sq version', () => {
-  expect(
-    shallow(<GlobalFooter productionDatabase={true} sonarqubeVersion="6.4-SNAPSHOT" />)
-  ).toMatchSnapshot();
+  expect(getWrapper({ sonarqubeVersion: '6.4-SNAPSHOT' })).toMatchSnapshot();
 });
 
 it('should render SonarCloud footer', () => {
-  expect(
-    shallow(<GlobalFooter productionDatabase={true} onSonarCloud={{ value: 'true' }} />)
-  ).toMatchSnapshot();
+  expect(getWrapper({}, true)).toMatchSnapshot();
 });
+
+function getWrapper(props = {}, onSonarCloud = false) {
+  return shallow(<GlobalFooter productionDatabase={true} {...props} />, {
+    context: { onSonarCloud }
+  });
+}

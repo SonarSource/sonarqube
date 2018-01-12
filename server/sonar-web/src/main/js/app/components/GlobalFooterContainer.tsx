@@ -18,19 +18,21 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { connect } from 'react-redux';
-import { getAppState, getGlobalSettingValue } from '../../store/rootReducer';
+import { getAppState } from '../../store/rootReducer';
 import GlobalFooter from './GlobalFooter';
 
 interface StateProps {
-  onSonarCloud?: { value: string };
   productionDatabase: boolean;
   sonarqubeVersion?: string;
 }
 
+interface OwnProps {
+  hideLoggedInInfo?: boolean;
+}
+
 const mapStateToProps = (state: any): StateProps => ({
   sonarqubeVersion: getAppState(state).version,
-  productionDatabase: getAppState(state).productionDatabase,
-  onSonarCloud: getGlobalSettingValue(state, 'sonar.sonarcloud.enabled')
+  productionDatabase: getAppState(state).productionDatabase
 });
 
-export default connect(mapStateToProps)(GlobalFooter);
+export default connect<StateProps, {}, OwnProps>(mapStateToProps)(GlobalFooter);

@@ -24,7 +24,7 @@ export default function GlobalFooterSonarCloud() {
   return (
     <div id="footer" className="page-footer page-container">
       <div>
-        © 2008-2018, SonarCloud.io by{' '}
+        © 2008-2018, SonarCloud by{' '}
         <a href="http://www.sonarsource.com" title="SonarSource SA">
           SonarSource SA
         </a>

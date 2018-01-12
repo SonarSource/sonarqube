@@ -91,9 +91,9 @@ class App extends React.PureComponent<Props, State> {
         this.setState({
           branchesEnabled: appState.branchesEnabled,
           canAdmin: appState.canAdmin,
-          onSonarCloud:
-            appState.settings !== undefined &&
-            appState.settings['sonar.sonarcloud.enabled'] === 'true'
+          onSonarCloud: Boolean(
+            appState.settings && appState.settings['sonar.sonarcloud.enabled'] === 'true'
+          )
         });
       }
       return appState;
