@@ -365,7 +365,7 @@ public final class MoreCollectors {
       joiner::join);
   }
 
-  private static <R> BinaryOperator<R> mergeNotSupportedMerger() {
+  public static <R> BinaryOperator<R> mergeNotSupportedMerger() {
     return (m1, m2) -> {
       throw new IllegalStateException("Parallel processing is not supported");
     };

@@ -62,7 +62,7 @@ public class ScmInfoDbLoader {
       if (dto == null || !isDtoValid(file, dto)) {
         return NoScmInfo.INSTANCE;
       }
-      return DbScmInfo.create(file, dto.getSourceData().getLinesList()).or(NoScmInfo.INSTANCE);
+      return DbScmInfo.create(dto.getSourceData().getLinesList()).orElse(NoScmInfo.INSTANCE);
     }
   }
 

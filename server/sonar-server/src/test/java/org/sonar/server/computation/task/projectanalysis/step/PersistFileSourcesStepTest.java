@@ -185,6 +185,39 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
   }
 
   @Test
+  public void persist_scm_some_lines() {
+    initBasicReport(3);
+    scmInfoRepository.setScmInfo(FILE1_REF, Changeset.newChangesetBuilder()
+      .setAuthor("john")
+      .setDate(123456789L)
+      .setRevision("rev-1")
+      .build());
+
+    underTest.execute();
+
+    assertThat(dbTester.countRowsOfTable("file_sources")).isEqualTo(1);
+    FileSourceDto fileSourceDto = dbClient.fileSourceDao().selectSourceByFileUuid(session, FILE1_UUID);
+
+    assertThat(fileSourceDto.getRevision()).isEqualTo("rev-1");
+
+    DbFileSources.Data data = fileSourceDto.getSourceData();
+
+    assertThat(data.getLinesList()).hasSize(3);
+
+    assertThat(data.getLines(0).getScmAuthor()).isEqualTo("john");
+    assertThat(data.getLines(0).getScmDate()).isEqualTo(123456789L);
+    assertThat(data.getLines(0).getScmRevision()).isEqualTo("rev-1");
+
+    assertThat(data.getLines(1).getScmAuthor()).isEmpty();
+    assertThat(data.getLines(1).getScmDate()).isEqualTo(0);
+    assertThat(data.getLines(1).getScmRevision()).isEmpty();
+
+    assertThat(data.getLines(2).getScmAuthor()).isEmpty();
+    assertThat(data.getLines(2).getScmDate()).isEqualTo(0);
+    assertThat(data.getLines(2).getScmRevision()).isEmpty();
+  }
+
+  @Test
   public void persist_highlighting() {
     initBasicReport(1);
 

@@ -357,6 +357,7 @@ public class IssueCreationDateCalculatorTest {
   private void withScmAt(int line, long blame) {
     createMockScmInfo();
     Changeset changeset = Changeset.newChangesetBuilder().setDate(blame).setRevision("1").build();
+    when(scmInfo.hasChangesetForLine(line)).thenReturn(true);
     when(scmInfo.getChangesetForLine(line)).thenReturn(changeset);
   }
 

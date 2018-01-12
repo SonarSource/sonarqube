@@ -19,28 +19,27 @@
  */
 package org.sonar.server.computation.task.projectanalysis.source;
 
-import com.google.common.collect.ImmutableList;
-import java.util.List;
+import com.google.common.collect.ImmutableMap;
+import java.util.Collections;
+import java.util.Map;
 import org.junit.Test;
 import org.sonar.db.protobuf.DbFileSources;
 import org.sonar.server.computation.task.projectanalysis.scm.Changeset;
 import org.sonar.server.computation.task.projectanalysis.scm.ScmInfo;
 import org.sonar.server.computation.task.projectanalysis.scm.ScmInfoImpl;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class ScmLineReaderTest {
 
   @Test
   public void set_scm() {
-    ScmInfo scmInfo = new ScmInfoImpl(newArrayList(
+    ScmInfo scmInfo = new ScmInfoImpl(Collections.singletonMap(1,
       Changeset.newChangesetBuilder()
         .setAuthor("john")
         .setDate(123456789L)
         .setRevision("rev-1")
-        .build()
-      ));
+        .build()));
 
     ScmLineReader lineScm = new ScmLineReader(scmInfo);
 
@@ -54,12 +53,11 @@ public class ScmLineReaderTest {
 
   @Test
   public void set_scm_with_minim_fields() {
-    ScmInfo scmInfo = new ScmInfoImpl(newArrayList(
+    ScmInfo scmInfo = new ScmInfoImpl(Collections.singletonMap(1,
       Changeset.newChangesetBuilder()
         .setDate(123456789L)
         .setRevision("rev-1")
-        .build()
-      ));
+        .build()));
 
     ScmLineReader lineScm = new ScmLineReader(scmInfo);
 
@@ -103,8 +101,16 @@ public class ScmLineReaderTest {
     readLineAndAssertLatestChangeDate(lineScm, 8, changeset2);
   }
 
-  private static List<Changeset> setup8LinesChangeset(Changeset changeset0, Changeset changeset1, Changeset changeset2) {
-    return ImmutableList.of(changeset0, changeset1, changeset1, changeset2, changeset0, changeset1, changeset0, changeset0);
+  private static Map<Integer, Changeset> setup8LinesChangeset(Changeset changeset0, Changeset changeset1, Changeset changeset2) {
+    return ImmutableMap.<Integer, Changeset>builder()
+      .put(1, changeset0)
+      .put(2, changeset1)
+      .put(3, changeset1)
+      .put(4, changeset2)
+      .put(5, changeset0)
+      .put(6, changeset1)
+      .put(7, changeset0)
+      .put(8, changeset0).build();
   }
 
   private void readLineAndAssertLatestChangeDate(ScmLineReader lineScm, int line, Changeset expectedChangeset) {

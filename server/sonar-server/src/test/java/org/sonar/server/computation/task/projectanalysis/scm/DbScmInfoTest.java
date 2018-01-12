@@ -23,11 +23,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.db.protobuf.DbFileSources;
-import org.sonar.server.computation.task.projectanalysis.component.Component;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.guava.api.Assertions.assertThat;
-import static org.sonar.server.computation.task.projectanalysis.component.ReportComponent.builder;
 import static org.sonar.server.source.index.FileSourceTesting.newFakeData;
 
 public class DbScmInfoTest {
@@ -35,12 +32,9 @@ public class DbScmInfoTest {
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
-  static final int FILE_REF = 1;
-  static final Component FILE = builder(Component.Type.FILE, FILE_REF).setKey("FILE_KEY").setUuid("FILE_UUID").build();
-
   @Test
   public void create_scm_info_with_some_changesets() throws Exception {
-    ScmInfo scmInfo = DbScmInfo.create(FILE, newFakeData(10).build().getLinesList()).get();
+    ScmInfo scmInfo = DbScmInfo.create(newFakeData(10).build().getLinesList()).get();
 
     assertThat(scmInfo.getAllChangesets()).hasSize(10);
   }
@@ -54,7 +48,7 @@ public class DbScmInfoTest {
     addLine(fileDataBuilder, 4, "john", 123456789L, "rev-1");
     fileDataBuilder.build();
 
-    ScmInfo scmInfo = DbScmInfo.create(FILE, fileDataBuilder.getLinesList()).get();
+    ScmInfo scmInfo = DbScmInfo.create(fileDataBuilder.getLinesList()).get();
 
     assertThat(scmInfo.getAllChangesets()).hasSize(4);
 
@@ -65,14 +59,14 @@ public class DbScmInfoTest {
   }
 
   @Test
-  public void return_same_changeset_objects_for_lines_with_same_revision() {
+  public void return_same_changeset_objects_for_lines_with_same_fields() throws Exception {
     DbFileSources.Data.Builder fileDataBuilder = DbFileSources.Data.newBuilder();
     fileDataBuilder.addLinesBuilder().setScmRevision("rev").setScmDate(65L).setLine(1);
     fileDataBuilder.addLinesBuilder().setScmRevision("rev2").setScmDate(6541L).setLine(2);
     fileDataBuilder.addLinesBuilder().setScmRevision("rev1").setScmDate(6541L).setLine(3);
-    fileDataBuilder.addLinesBuilder().setScmRevision("rev").setScmDate(6542L).setLine(4);
+    fileDataBuilder.addLinesBuilder().setScmRevision("rev").setScmDate(65L).setLine(4);
 
-    ScmInfo scmInfo = DbScmInfo.create(FILE, fileDataBuilder.getLinesList()).get();
+    ScmInfo scmInfo = DbScmInfo.create(fileDataBuilder.getLinesList()).get();
 
     assertThat(scmInfo.getAllChangesets()).hasSize(4);
 
@@ -88,7 +82,7 @@ public class DbScmInfoTest {
     addLine(fileDataBuilder, 3, "john", 123456789L, "rev-1");
     fileDataBuilder.build();
 
-    ScmInfo scmInfo = DbScmInfo.create(FILE, fileDataBuilder.getLinesList()).get();
+    ScmInfo scmInfo = DbScmInfo.create(fileDataBuilder.getLinesList()).get();
 
     Changeset latestChangeset = scmInfo.getLatestChangeset();
     assertThat(latestChangeset.getAuthor()).isEqualTo("henry");
@@ -101,60 +95,40 @@ public class DbScmInfoTest {
     DbFileSources.Data.Builder fileDataBuilder = DbFileSources.Data.newBuilder();
     fileDataBuilder.addLinesBuilder().setLine(1);
 
-    assertThat(DbScmInfo.create(FILE, fileDataBuilder.getLinesList())).isAbsent();
+    assertThat(DbScmInfo.create(fileDataBuilder.getLinesList())).isNotPresent();
   }
 
   @Test
-  public void return_absent_dsm_info_when_changeset_line_has_both_revision_and_date() {
-    DbFileSources.Data.Builder fileDataBuilder = DbFileSources.Data.newBuilder();
-    fileDataBuilder.addLinesBuilder().setLine(1);
-    fileDataBuilder.addLinesBuilder().setScmDate(6541L).setLine(2);
-    fileDataBuilder.addLinesBuilder().setScmRevision("rev").setLine(3);
-    fileDataBuilder.addLinesBuilder().setScmAuthor("author").setLine(4);
-
-    assertThat(DbScmInfo.create(FILE, fileDataBuilder.getLinesList())).isAbsent();
-  }
-
-  @Test
-  public void fail_with_ISE_when_changeset_has_no_field() {
-    thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("Partial scm information stored in DB for component 'ReportComponent{ref=1, key='FILE_KEY', type=FILE}'. " +
-      "Not all lines have SCM info. Can not proceed");
-
+  public void should_support_some_lines_not_having_scm_info() throws Exception {
     DbFileSources.Data.Builder fileDataBuilder = DbFileSources.Data.newBuilder();
     fileDataBuilder.addLinesBuilder().setScmRevision("rev").setScmDate(543L).setLine(1);
     fileDataBuilder.addLinesBuilder().setLine(2);
     fileDataBuilder.build();
 
-    DbScmInfo.create(FILE, fileDataBuilder.getLinesList()).get().getAllChangesets();
+    assertThat(DbScmInfo.create(fileDataBuilder.getLinesList()).get().getAllChangesets()).hasSize(1);
   }
 
   @Test
-  public void fail_with_ISE_when_changeset_has_only_revision_field() {
-    thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("Partial scm information stored in DB for component 'ReportComponent{ref=1, key='FILE_KEY', type=FILE}'. " +
-      "Not all lines have SCM info. Can not proceed");
-
+  public void filter_out_entries_without_date() throws Exception {
     DbFileSources.Data.Builder fileDataBuilder = DbFileSources.Data.newBuilder();
     fileDataBuilder.addLinesBuilder().setScmRevision("rev").setScmDate(555L).setLine(1);
     fileDataBuilder.addLinesBuilder().setScmRevision("rev-1").setLine(2);
     fileDataBuilder.build();
 
-    DbScmInfo.create(FILE, fileDataBuilder.getLinesList()).get().getAllChangesets();
+    assertThat(DbScmInfo.create(fileDataBuilder.getLinesList()).get().getAllChangesets()).hasSize(1);
+    assertThat(DbScmInfo.create(fileDataBuilder.getLinesList()).get().getChangesetForLine(1).getRevision()).isEqualTo("rev");
   }
 
   @Test
-  public void fail_with_ISE_when_changeset_has_only_author_field() {
-    thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("Partial scm information stored in DB for component 'ReportComponent{ref=1, key='FILE_KEY', type=FILE}'. " +
-      "Not all lines have SCM info. Can not proceed");
-
+  public void should_support_having_no_author() throws Exception {
     DbFileSources.Data.Builder fileDataBuilder = DbFileSources.Data.newBuilder();
+    // gets filtered out
     fileDataBuilder.addLinesBuilder().setScmAuthor("John").setLine(1);
     fileDataBuilder.addLinesBuilder().setScmRevision("rev").setScmDate(555L).setLine(2);
     fileDataBuilder.build();
 
-    DbScmInfo.create(FILE, fileDataBuilder.getLinesList()).get().getAllChangesets();
+    assertThat(DbScmInfo.create(fileDataBuilder.getLinesList()).get().getAllChangesets()).hasSize(1);
+    assertThat(DbScmInfo.create(fileDataBuilder.getLinesList()).get().getChangesetForLine(2).getAuthor()).isNull();
   }
 
   private static void addLine(DbFileSources.Data.Builder dataBuilder, Integer line, String author, Long date, String revision) {

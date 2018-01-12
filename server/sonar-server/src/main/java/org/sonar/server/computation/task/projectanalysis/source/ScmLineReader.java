@@ -38,20 +38,22 @@ public class ScmLineReader implements LineReader {
 
   @Override
   public void read(DbFileSources.Line.Builder lineBuilder) {
-    Changeset changeset = scmReport.getChangesetForLine(lineBuilder.getLine());
-    String author = changeset.getAuthor();
-    if (author != null) {
-      lineBuilder.setScmAuthor(author);
-    }
-    String revision = changeset.getRevision();
-    if (revision != null) {
-      lineBuilder.setScmRevision(revision);
-    }
-    lineBuilder.setScmDate(changeset.getDate());
-    updateLatestChange(changeset);
+    if (scmReport.hasChangesetForLine(lineBuilder.getLine())) {
+      Changeset changeset = scmReport.getChangesetForLine(lineBuilder.getLine());
+      String author = changeset.getAuthor();
+      if (author != null) {
+        lineBuilder.setScmAuthor(author);
+      }
+      String revision = changeset.getRevision();
+      if (revision != null) {
+        lineBuilder.setScmRevision(revision);
+      }
+      lineBuilder.setScmDate(changeset.getDate());
+      updateLatestChange(changeset);
 
-    if (revision != null) {
-      updateLatestChangeWithRevision(changeset);
+      if (revision != null) {
+        updateLatestChangeWithRevision(changeset);
+      }
     }
   }
 
