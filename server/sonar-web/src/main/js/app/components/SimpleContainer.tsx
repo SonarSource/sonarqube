@@ -18,8 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import GlobalFooterContainer from './GlobalFooterContainer';
+import * as PropTypes from 'prop-types';
 import * as theme from '../theme';
+import GlobalLoading from './GlobalLoading';
+import GlobalFooterContainer from './GlobalFooterContainer';
+import { tryGetGlobalNavigation } from '../../api/nav';
 import NavBar from '../../components/nav/NavBar';
 
 interface Props {
@@ -27,19 +30,62 @@ interface Props {
   hideLoggedInInfo?: boolean;
 }
 
-export default function SimpleContainer(props: Props) {
-  return (
-    <div className="global-container">
-      <div className="page-wrapper" id="container">
-        <NavBar className="navbar-global" height={theme.globalNavHeightRaw} />
+interface State {
+  loading: boolean;
+  onSonarCloud: boolean;
+}
 
-        <div id="bd" className="page-wrapper-simple">
-          <div id="nonav" className="page-simple">
-            {props.children}
+export default class SimpleContainer extends React.PureComponent<Props, State> {
+  mounted: boolean;
+
+  static childContextTypes = {
+    onSonarCloud: PropTypes.bool
+  };
+
+  state: State = { loading: true, onSonarCloud: false };
+
+  getChildContext() {
+    return { onSonarCloud: this.state.onSonarCloud };
+  }
+
+  componentDidMount() {
+    this.mounted = true;
+    tryGetGlobalNavigation().then(
+      appState => {
+        if (this.mounted) {
+          this.setState({
+            loading: false,
+            onSonarCloud: Boolean(
+              appState.settings && appState.settings['sonar.sonarcloud.enabled'] === 'true'
+            )
+          });
+        }
+      },
+      () => {}
+    );
+  }
+
+  componentWillUnmount() {
+    this.mounted = false;
+  }
+
+  render() {
+    if (this.state.loading) {
+      return <GlobalLoading />;
+    }
+    return (
+      <div className="global-container">
+        <div className="page-wrapper" id="container">
+          <NavBar className="navbar-global" height={theme.globalNavHeightRaw} />
+
+          <div id="bd" className="page-wrapper-simple">
+            <div id="nonav" className="page-simple">
+              {this.props.children}
+            </div>
           </div>
         </div>
+        <GlobalFooterContainer hideLoggedInInfo={this.props.hideLoggedInInfo} />
       </div>
-      <GlobalFooterContainer hideLoggedInInfo={props.hideLoggedInInfo} />
-    </div>
-  );
+    );
+  }
 }

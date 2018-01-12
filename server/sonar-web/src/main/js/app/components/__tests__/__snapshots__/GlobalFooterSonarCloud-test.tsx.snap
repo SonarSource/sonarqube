@@ -6,7 +6,7 @@ exports[`should render correctly 1`] = `
   id="footer"
 >
   <div>
-    © 2008-2018, SonarCloud.io by
+    © 2008-2018, SonarCloud by
      
     <a
       href="http://www.sonarsource.com"
