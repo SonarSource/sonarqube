@@ -151,17 +151,13 @@ public class IssueCreationDateCalculator extends IssueVisitor {
       }
       if (!involvedLines.isEmpty()) {
         return involvedLines.stream()
+          .filter(scmInfo::hasChangesetForLine)
           .map(scmInfo::getChangesetForLine)
           .max(Comparator.comparingLong(Changeset::getDate));
       }
     }
 
-    Changeset latestChangeset = scmInfo.getLatestChangeset();
-    if (latestChangeset != null) {
-      return Optional.of(latestChangeset);
-    }
-
-    return Optional.empty();
+    return Optional.ofNullable(scmInfo.getLatestChangeset());
   }
 
   private static void addLines(Set<Integer> involvedLines, TextRange range) {
