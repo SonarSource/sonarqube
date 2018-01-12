@@ -38,6 +38,7 @@ export function getStickerUrl(type: StickerType, options: StickerOptions) {
     case StickerType.card:
       return '';
     case StickerType.badge:
+    default:
       return '';
   }
 }
