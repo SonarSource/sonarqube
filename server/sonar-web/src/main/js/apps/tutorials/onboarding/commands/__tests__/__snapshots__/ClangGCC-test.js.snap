@@ -24,7 +24,7 @@ exports[`renders correctly 1`] = `
   />
   <Command
     command="build-wrapper-win-x86-64.exe --out-dir bw-output make clean all"
-    isWindows={true}
+    isOneLine={true}
   />
   <Command
     command={
@@ -38,7 +38,7 @@ exports[`renders correctly 1`] = `
         "-Dsonar.login=token",
       ]
     }
-    isWindows={true}
+    isOneLine={true}
   />
   <p
     className="big-spacer-top markdown"
@@ -75,7 +75,7 @@ exports[`renders correctly 2`] = `
   />
   <Command
     command="build-wrapper-linux-x86-64 --out-dir bw-output make clean all"
-    isWindows={false}
+    isOneLine={true}
   />
   <Command
     command={
@@ -89,7 +89,7 @@ exports[`renders correctly 2`] = `
         "-Dsonar.login=token",
       ]
     }
-    isWindows={false}
+    isOneLine={false}
   />
   <p
     className="big-spacer-top markdown"
@@ -126,7 +126,7 @@ exports[`renders correctly 3`] = `
   />
   <Command
     command="build-wrapper-linux-x86-64 --out-dir bw-output make clean all"
-    isWindows={false}
+    isOneLine={true}
   />
   <Command
     command={
@@ -140,7 +140,7 @@ exports[`renders correctly 3`] = `
         "-Dsonar.login=token",
       ]
     }
-    isWindows={false}
+    isOneLine={false}
   />
   <p
     className="big-spacer-top markdown"
