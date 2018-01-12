@@ -23,23 +23,30 @@ import com.google.common.collect.ImmutableList;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
+import java.util.Date;
 import java.util.EnumSet;
 import java.util.List;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.scanner.protocol.output.ScannerReport;
+import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
 import org.sonar.server.computation.task.projectanalysis.batch.BatchReportReader;
 import org.sonar.server.computation.task.projectanalysis.batch.BatchReportReaderRule;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.component.ReportComponent;
 import org.sonar.server.computation.task.projectanalysis.component.ViewsComponent;
+import org.sonar.server.computation.task.projectanalysis.component.Component.Status;
+import org.sonar.server.computation.task.projectanalysis.source.SourceLinesDiff;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.guava.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.utils.log.LoggerLevel.TRACE;
@@ -49,6 +56,7 @@ import static org.sonar.server.computation.task.projectanalysis.component.Report
 public class ScmInfoRepositoryImplTest {
   static final int FILE_REF = 1;
   static final Component FILE = builder(Component.Type.FILE, FILE_REF).setKey("FILE_KEY").setUuid("FILE_UUID").build();
+  static final Component FILE_SAME = builder(Component.Type.FILE, FILE_REF).setStatus(Status.SAME).setKey("FILE_KEY").setUuid("FILE_UUID").build();
   static final long DATE_1 = 123456789L;
   static final long DATE_2 = 1234567810L;
 
@@ -58,10 +66,18 @@ public class ScmInfoRepositoryImplTest {
   public LogTester logTester = new LogTester();
   @Rule
   public BatchReportReaderRule reportReader = new BatchReportReaderRule();
+  @Rule
+  public AnalysisMetadataHolderRule analysisMetadata = new AnalysisMetadataHolderRule();
 
+  private SourceLinesDiff diff = mock(SourceLinesDiff.class);
   private ScmInfoDbLoader dbLoader = mock(ScmInfoDbLoader.class);
 
-  private ScmInfoRepositoryImpl underTest = new ScmInfoRepositoryImpl(reportReader, dbLoader);
+  private ScmInfoRepositoryImpl underTest = new ScmInfoRepositoryImpl(reportReader, analysisMetadata, dbLoader, diff);
+
+  @Before
+  public void setUp() {
+    analysisMetadata.setAnalysisDate(new Date());
+  }
 
   @Test
   public void read_from_report() {
@@ -74,11 +90,14 @@ public class ScmInfoRepositoryImplTest {
   }
 
   @Test
-  public void getScmInfo_returns_absent_if_CopyFromPrevious_is_false_and_there_is_no_changeset_in_report() {
+  public void getScmInfo_returns_from_DB_if_file_is_unchanged_CopyFromPrevious_is_false_and_there_is_no_changeset_in_report() {
+    ScmInfo info = mock(ScmInfo.class);
+    when(dbLoader.getScmInfoFromDb(FILE_SAME)).thenReturn(info);
     addFileSourceInReport(1);
 
-    assertThat(underTest.getScmInfo(FILE)).isAbsent();
-    verifyZeroInteractions(dbLoader);
+    assertThat(underTest.getScmInfo(FILE_SAME).get()).isSameAs(info);
+    verify(dbLoader).getScmInfoFromDb(FILE_SAME);
+    verifyNoMoreInteractions(dbLoader);
   }
 
   @Test
@@ -144,7 +163,7 @@ public class ScmInfoRepositoryImplTest {
   @UseDataProvider("allTypeComponentButFile")
   public void do_not_query_db_nor_report_if_component_type_is_not_FILE(Component component) {
     BatchReportReader batchReportReader = mock(BatchReportReader.class);
-    ScmInfoRepositoryImpl underTest = new ScmInfoRepositoryImpl(batchReportReader, dbLoader);
+    ScmInfoRepositoryImpl underTest = new ScmInfoRepositoryImpl(batchReportReader, analysisMetadata, dbLoader, diff);
 
     assertThat(underTest.getScmInfo(component)).isAbsent();
 
