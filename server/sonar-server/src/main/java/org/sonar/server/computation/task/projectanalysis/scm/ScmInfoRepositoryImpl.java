@@ -22,11 +22,15 @@ package org.sonar.server.computation.task.projectanalysis.scm;
 import com.google.common.base.Optional;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.scanner.protocol.output.ScannerReport;
+import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.server.computation.task.projectanalysis.batch.BatchReportReader;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
+import org.sonar.server.computation.task.projectanalysis.component.Component.Status;
+import org.sonar.server.computation.task.projectanalysis.source.SourceLinesDiff;
 
 import static java.util.Objects.requireNonNull;
 
@@ -34,13 +38,18 @@ public class ScmInfoRepositoryImpl implements ScmInfoRepository {
 
   private static final Logger LOGGER = Loggers.get(ScmInfoRepositoryImpl.class);
 
-  private final BatchReportReader batchReportReader;
+  private final BatchReportReader scannerReportReader;
   private final Map<Component, ScmInfo> scmInfoCache = new HashMap<>();
   private final ScmInfoDbLoader scmInfoDbLoader;
+  private final AnalysisMetadataHolder analysisMetadata;
+  private final SourceLinesDiff sourceLinesDiff;
 
-  public ScmInfoRepositoryImpl(BatchReportReader batchReportReader, ScmInfoDbLoader scmInfoDbLoader) {
-    this.batchReportReader = batchReportReader;
+  public ScmInfoRepositoryImpl(BatchReportReader scannerReportReader, AnalysisMetadataHolder analysisMetadata, ScmInfoDbLoader scmInfoDbLoader,
+    SourceLinesDiff sourceLinesDiff) {
+    this.scannerReportReader = scannerReportReader;
+    this.analysisMetadata = analysisMetadata;
     this.scmInfoDbLoader = scmInfoDbLoader;
+    this.sourceLinesDiff = sourceLinesDiff;
   }
 
   @Override
@@ -71,12 +80,19 @@ public class ScmInfoRepositoryImpl implements ScmInfoRepository {
   }
 
   private ScmInfo getScmInfoForComponent(Component component) {
-    ScannerReport.Changesets changesets = batchReportReader.readChangesets(component.getReportAttributes().getRef());
+    ScannerReport.Changesets changesets = scannerReportReader.readChangesets(component.getReportAttributes().getRef());
+
     if (changesets == null) {
+      // There was no SCM available. It's unknown whether file has changed or if there is any information in the DB.
       LOGGER.trace("No SCM info for file '{}'", component.getKey());
-      return NoScmInfo.INSTANCE;
+      if (component.getStatus() == Status.SAME) {
+        return scmInfoDbLoader.getScmInfoFromDb(component);
+      } else {
+        return generatedScmInfo(component);
+      }
     }
     if (changesets.getCopyFromPrevious()) {
+      // file hasn't changed and revision exists in the DB
       return scmInfoDbLoader.getScmInfoFromDb(component);
     }
     return getScmInfoFromReport(component, changesets);
@@ -85,6 +101,24 @@ public class ScmInfoRepositoryImpl implements ScmInfoRepository {
   private static ScmInfo getScmInfoFromReport(Component file, ScannerReport.Changesets changesets) {
     LOGGER.trace("Reading SCM info from report for file '{}'", file.getKey());
     return new ReportScmInfo(changesets);
+  }
+
+  private ScmInfo generatedScmInfo(Component file) {
+    ScmInfo dbInfo = scmInfoDbLoader.getScmInfoFromDb(file);
+    if (dbInfo == NoScmInfo.INSTANCE) {
+      Set<Integer> newOrChangedLines = sourceLinesDiff.getNewOrChangedLines(file);
+      if (newOrChangedLines.isEmpty()) {
+        return NoScmInfo.INSTANCE;
+      }
+      return new GeneratedScmInfo(analysisMetadata.getAnalysisDate(), newOrChangedLines);
+    } else {
+      // TODO merge with DB
+      Set<Integer> newOrChangedLines = sourceLinesDiff.getNewOrChangedLines(file);
+      if (newOrChangedLines.isEmpty()) {
+        return NoScmInfo.INSTANCE;
+      }
+      return new GeneratedScmInfo(analysisMetadata.getAnalysisDate(), newOrChangedLines);
+    }
   }
 
   /**
@@ -108,7 +142,7 @@ public class ScmInfoRepositoryImpl implements ScmInfoRepository {
       }
 
       @Override
-      public Iterable<Changeset> getAllChangesets() {
+      public Map<Integer, Changeset> getAllChangesets() {
         return notImplemented();
       }
 

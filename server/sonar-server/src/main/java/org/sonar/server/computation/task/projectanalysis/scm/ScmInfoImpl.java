@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.concurrent.Immutable;
+import static com.google.common.base.Preconditions.checkState;
 
 @Immutable
 public class ScmInfoImpl implements ScmInfo {
@@ -33,6 +34,7 @@ public class ScmInfoImpl implements ScmInfo {
   private final Map<Integer, Changeset> lineChangesets;
 
   public ScmInfoImpl(Map<Integer, Changeset> lineChangesets) {
+    checkState(!lineChangesets.isEmpty(), "A ScmInfo must have at least one Changeset and does not support any null one");
     this.lineChangesets = lineChangesets;
     this.latestChangeset = computeLatestChangeset(lineChangesets);
   }
@@ -54,7 +56,7 @@ public class ScmInfoImpl implements ScmInfo {
     if (changeset != null) {
       return changeset;
     }
-    throw new IllegalArgumentException("Line " + lineNumber + " doesn't have a changeset");
+    throw new IllegalArgumentException("There's no changeset on line " + lineNumber);
   }
 
   @Override

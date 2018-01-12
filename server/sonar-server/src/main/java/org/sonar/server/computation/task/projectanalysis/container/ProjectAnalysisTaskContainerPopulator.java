@@ -114,6 +114,7 @@ import org.sonar.server.computation.task.projectanalysis.scm.ScmInfoDbLoader;
 import org.sonar.server.computation.task.projectanalysis.scm.ScmInfoRepositoryImpl;
 import org.sonar.server.computation.task.projectanalysis.source.LastCommitVisitor;
 import org.sonar.server.computation.task.projectanalysis.source.SourceHashRepositoryImpl;
+import org.sonar.server.computation.task.projectanalysis.source.SourceLinesDiffImpl;
 import org.sonar.server.computation.task.projectanalysis.source.SourceLinesRepositoryImpl;
 import org.sonar.server.computation.task.projectanalysis.step.ReportComputationSteps;
 import org.sonar.server.computation.task.projectanalysis.step.SmallChangesetQualityGateSpecialCase;
@@ -189,6 +190,7 @@ public final class ProjectAnalysisTaskContainerPopulator implements ContainerPop
       EvaluationResultTextConverterImpl.class,
       SourceLinesRepositoryImpl.class,
       SourceHashRepositoryImpl.class,
+      SourceLinesDiffImpl.class,
       ScmInfoRepositoryImpl.class,
       ScmInfoDbLoader.class,
       DuplicationRepositoryImpl.class,

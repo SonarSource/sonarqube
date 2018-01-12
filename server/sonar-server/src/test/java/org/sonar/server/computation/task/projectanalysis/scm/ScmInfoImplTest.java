@@ -109,12 +109,12 @@ public class ScmInfoImplTest {
 
     assertThat(scmInfo.toString()).isEqualTo("ScmInfoImpl{" +
       "latestChangeset=Changeset{revision='rev-2', author='henry', date=1234567810}, " +
-      "lineChangesets=[" +
-      "Changeset{revision='rev-1', author='john', date=123456789}, " +
-      "Changeset{revision='rev-2', author='henry', date=1234567810}, " +
-      "Changeset{revision='rev-1', author='john', date=123456789}, " +
-      "Changeset{revision='rev-1', author='john', date=123456789}" +
-      "]}");
+      "lineChangesets={" +
+      "1=Changeset{revision='rev-1', author='john', date=123456789}, " +
+      "2=Changeset{revision='rev-2', author='henry', date=1234567810}, " +
+      "3=Changeset{revision='rev-1', author='john', date=123456789}, " +
+      "4=Changeset{revision='rev-1', author='john', date=123456789}" +
+      "}}");
   }
 
   private static ScmInfo createScmInfoWithTwoChangestOnFourLines() {
