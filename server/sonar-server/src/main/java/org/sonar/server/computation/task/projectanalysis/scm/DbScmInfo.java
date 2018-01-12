@@ -36,12 +36,14 @@ import org.sonar.db.protobuf.DbFileSources;
 class DbScmInfo implements ScmInfo {
 
   private final ScmInfo delegate;
+  private final String fileHash;
 
-  private DbScmInfo(ScmInfo delegate) {
+  private DbScmInfo(ScmInfo delegate, String fileHash) {
     this.delegate = delegate;
+    this.fileHash = fileHash;
   }
 
-  static Optional<ScmInfo> create(Iterable<DbFileSources.Line> lines) {
+  public static Optional<DbScmInfo> create(Iterable<DbFileSources.Line> lines, String fileHash) {
     LineToChangeset lineToChangeset = new LineToChangeset();
     Map<Integer, Changeset> lineChanges = new LinkedHashMap<>();
 
@@ -55,7 +57,11 @@ class DbScmInfo implements ScmInfo {
     if (lineChanges.isEmpty()) {
       return Optional.empty();
     }
-    return Optional.of(new DbScmInfo(new ScmInfoImpl(lineChanges)));
+    return Optional.of(new DbScmInfo(new ScmInfoImpl(lineChanges), fileHash));
+  }
+  
+  public String fileHash() {
+    return fileHash;
   }
 
   @Override
