@@ -180,11 +180,13 @@ public class NewMaintainabilityMeasuresVisitor extends PathAwareVisitorAdapter<N
 
     long lineDevCost = ratingSettings.getDevCost(file.getFileAttributes().getLanguageKey());
     for (Integer nclocLineIndex : nclocLineIndexes(nclocDataMeasure)) {
-      Changeset changeset = scmInfo.getChangesetForLine(nclocLineIndex);
-      Period period = periodHolder.getPeriod();
-      if (isLineInPeriod(changeset.getDate(), period)) {
-        devCostCounter.incrementDevCost(lineDevCost);
-        hasDevCost = true;
+      if (scmInfo.hasChangesetForLine(nclocLineIndex)) {
+        Changeset changeset = scmInfo.getChangesetForLine(nclocLineIndex);
+        Period period = periodHolder.getPeriod();
+        if (isLineInPeriod(changeset.getDate(), period)) {
+          devCostCounter.incrementDevCost(lineDevCost);
+          hasDevCost = true;
+        }
       }
     }
     if (hasDevCost) {

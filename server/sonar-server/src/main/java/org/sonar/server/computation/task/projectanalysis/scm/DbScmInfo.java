@@ -19,21 +19,15 @@
  */
 package org.sonar.server.computation.task.projectanalysis.scm;
 
-import com.google.common.base.Optional;
 import java.util.HashMap;
-import java.util.List;
+import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Function;
-import java.util.stream.StreamSupport;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.protobuf.DbFileSources;
-import org.sonar.server.computation.task.projectanalysis.component.Component;
-
-import static com.google.common.base.Preconditions.checkState;
 
 /**
  * ScmInfo implementation based on the lines stored in DB
@@ -47,18 +41,21 @@ class DbScmInfo implements ScmInfo {
     this.delegate = delegate;
   }
 
-  static Optional<ScmInfo> create(Component component, Iterable<DbFileSources.Line> lines) {
+  static Optional<ScmInfo> create(Iterable<DbFileSources.Line> lines) {
     LineToChangeset lineToChangeset = new LineToChangeset();
-    List<Changeset> lineChangesets = StreamSupport.stream(lines.spliterator(), false)
-      .map(lineToChangeset)
-      .filter(Objects::nonNull)
-      .collect(MoreCollectors.toList());
-    if (lineChangesets.isEmpty()) {
-      return Optional.absent();
+    Map<Integer, Changeset> lineChanges = new LinkedHashMap<>();
+
+    for (DbFileSources.Line line : lines) {
+      Changeset changeset = lineToChangeset.apply(line);
+      if (changeset == null) {
+        continue;
+      }
+      lineChanges.put(line.getLine(), changeset);
     }
-    checkState(!lineToChangeset.isEncounteredLineWithoutScmInfo(),
-      "Partial scm information stored in DB for component '%s'. Not all lines have SCM info. Can not proceed", component);
-    return Optional.of(new DbScmInfo(new ScmInfoImpl(lineChangesets)));
+    if (lineChanges.isEmpty()) {
+      return Optional.empty();
+    }
+    return Optional.of(new DbScmInfo(new ScmInfoImpl(lineChanges)));
   }
 
   @Override
@@ -77,37 +74,34 @@ class DbScmInfo implements ScmInfo {
   }
 
   @Override
-  public Iterable<Changeset> getAllChangesets() {
+  public Map<Integer, Changeset> getAllChangesets() {
     return delegate.getAllChangesets();
   }
 
   /**
-   * Transforms {@link org.sonar.db.protobuf.DbFileSources.Line} into {@link Changeset} and keep a flag if it encountered
-   * at least one which did not have any SCM information.
+   * Transforms {@link org.sonar.db.protobuf.DbFileSources.Line} into {@link Changeset} 
    */
   private static class LineToChangeset implements Function<DbFileSources.Line, Changeset> {
-    private boolean encounteredLineWithoutScmInfo = false;
-    private final Map<String, Changeset> cache = new HashMap<>();
     private final Changeset.Builder builder = Changeset.newChangesetBuilder();
+    private final HashMap<Changeset, Changeset> cache = new HashMap<>();
 
     @Override
     @Nullable
     public Changeset apply(@Nonnull DbFileSources.Line input) {
-      if (input.hasScmRevision() && input.hasScmDate()) {
-        String revision = input.getScmRevision();
-        return cache.computeIfAbsent(revision, k -> builder
-          .setRevision(revision)
+      if (input.hasScmDate()) {
+        Changeset cs = builder
+          .setRevision(input.hasScmRevision() ? input.getScmRevision() : null)
           .setAuthor(input.hasScmAuthor() ? input.getScmAuthor() : null)
           .setDate(input.getScmDate())
-          .build());
+          .build();
+        if (cache.containsKey(cs)) {
+          return cache.get(cs);
+        }
+        cache.put(cs, cs);
+        return cs;
       }
 
-      this.encounteredLineWithoutScmInfo = true;
       return null;
-    }
-
-    boolean isEncounteredLineWithoutScmInfo() {
-      return encounteredLineWithoutScmInfo;
     }
   }
 }

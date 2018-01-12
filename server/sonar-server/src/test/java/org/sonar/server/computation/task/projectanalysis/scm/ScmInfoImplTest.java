@@ -19,13 +19,14 @@
  */
 package org.sonar.server.computation.task.projectanalysis.scm;
 
-import com.google.common.collect.Lists;
+import com.google.common.collect.ImmutableMap;
+import java.util.Collections;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.entry;
 
 public class ScmInfoImplTest {
 
@@ -48,7 +49,7 @@ public class ScmInfoImplTest {
   public void get_all_changesets() {
     ScmInfo scmInfo = createScmInfoWithTwoChangestOnFourLines();
 
-    assertThat(scmInfo.getAllChangesets()).containsOnly(CHANGESET_1, CHANGESET_2, CHANGESET_1, CHANGESET_1);
+    assertThat(scmInfo.getAllChangesets()).containsOnly(entry(1, CHANGESET_1), entry(2, CHANGESET_2), entry(3, CHANGESET_1), entry(4, CHANGESET_1));
   }
 
   @Test
@@ -81,7 +82,7 @@ public class ScmInfoImplTest {
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("A ScmInfo must have at least one Changeset and does not support any null one");
 
-    new ScmInfoImpl(Lists.newArrayList());
+    new ScmInfoImpl(Collections.emptyMap());
   }
 
   @Test
@@ -129,7 +130,7 @@ public class ScmInfoImplTest {
       .setRevision("rev-2")
       .build();
 
-    ScmInfo scmInfo = new ScmInfoImpl(newArrayList(changeset1, changeset2, changeset1, changeset1));
+    ScmInfo scmInfo = new ScmInfoImpl(ImmutableMap.of(1, changeset1, 2, changeset2, 3, changeset1, 4, changeset1));
     return scmInfo;
   }
 }

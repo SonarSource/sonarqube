@@ -19,18 +19,17 @@
  */
 package org.sonar.server.computation.task.projectanalysis.scm;
 
-import com.google.common.base.Function;
 import java.util.HashMap;
-import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.NoSuchElementException;
-import javax.annotation.Nonnull;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import javax.annotation.concurrent.Immutable;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.scanner.protocol.output.ScannerReport;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
-import static com.google.common.collect.FluentIterable.from;
 import static java.util.Objects.requireNonNull;
 import static org.apache.commons.lang.StringUtils.isNotEmpty;
 
@@ -44,12 +43,13 @@ class ReportScmInfo implements ScmInfo {
   ReportScmInfo(ScannerReport.Changesets changesets) {
     requireNonNull(changesets);
     this.delegate = convertToScmInfo(changesets);
+    checkState(!delegate.getAllChangesets().isEmpty(), "Report has no changesets");
   }
 
   private static ScmInfo convertToScmInfo(ScannerReport.Changesets changesets) {
-    return new ScmInfoImpl(
-      from(new IntRangeIterable(changesets.getChangesetIndexByLineCount()))
-        .transform(new LineIndexToChangeset(changesets)));
+    return new ScmInfoImpl(IntStream.rangeClosed(1, changesets.getChangesetIndexByLineCount())
+      .boxed()
+      .collect(Collectors.toMap(x -> x, new LineIndexToChangeset(changesets), MoreCollectors.mergeNotSupportedMerger(), LinkedHashMap::new)));
   }
 
   @Override
@@ -68,7 +68,7 @@ class ReportScmInfo implements ScmInfo {
   }
 
   @Override
-  public Iterable<Changeset> getAllChangesets() {
+  public Map<Integer, Changeset> getAllChangesets() {
     return this.delegate.getAllChangesets();
   }
 
@@ -83,16 +83,9 @@ class ReportScmInfo implements ScmInfo {
     }
 
     @Override
-    @Nonnull
-    public Changeset apply(@Nonnull Integer lineNumber) {
+    public Changeset apply(Integer lineNumber) {
       int changesetIndex = changesets.getChangesetIndexByLine(lineNumber - 1);
-      Changeset changeset = changesetCache.get(changesetIndex);
-      if (changeset != null) {
-        return changeset;
-      }
-      Changeset res = convert(changesets.getChangeset(changesetIndex), lineNumber);
-      changesetCache.put(changesetIndex, res);
-      return res;
+      return changesetCache.computeIfAbsent(changesetIndex, idx -> convert(changesets.getChangeset(changesetIndex), lineNumber));
     }
 
     private Changeset convert(ScannerReport.Changesets.Changeset changeset, int line) {
@@ -103,52 +96,6 @@ class ReportScmInfo implements ScmInfo {
         .setAuthor(isNotEmpty(changeset.getAuthor()) ? changeset.getAuthor() : null)
         .setDate(changeset.getDate())
         .build();
-    }
-  }
-
-  /**
-   * A simple Iterable which generate integer from 0 (included) to a specific value (excluded).
-   */
-  private static final class IntRangeIterable implements Iterable<Integer> {
-    private final int max;
-
-    private IntRangeIterable(int max) {
-      checkArgument(max >= 0, "Max value must be >= 0");
-      this.max = max;
-    }
-
-    @Override
-    public Iterator<Integer> iterator() {
-      return new IntRangeIterator(max);
-    }
-  }
-
-  private static class IntRangeIterator implements Iterator<Integer> {
-    private final int max;
-
-    private int current = 0;
-
-    public IntRangeIterator(int max) {
-      this.max = max;
-    }
-
-    @Override
-    public boolean hasNext() {
-      return current < max;
-    }
-
-    @Override
-    public Integer next() {
-      if (!hasNext()) {
-        throw new NoSuchElementException();
-      }
-      current++;
-      return current;
-    }
-
-    @Override
-    public void remove() {
-      throw new UnsupportedOperationException("Remove cannot be called");
     }
   }
 }
