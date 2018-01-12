@@ -61,7 +61,7 @@ export default class Form extends React.PureComponent {
     const { component } = this.props;
     const deleteMethod = component.qualifier === 'TRK' ? deleteProject : deletePortfolio;
     deleteMethod(component.key)
-      .then(() => this.context.router.replace('/'))
+      .then(() => this.context.router.replace(component.qualifier === 'TRK' ? '/' : '/portfolios'))
       .catch(this.stopLoading);
   };
 
