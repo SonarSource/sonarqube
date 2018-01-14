@@ -23,15 +23,48 @@ import java.util.Date;
 import org.sonar.core.util.UtcDateUtils;
 
 /**
- * Represents the table "rules_profiles"
+ * Maps the table "rules_profiles", which represents
+ * a group of active rules.
+ *
+ * Can be:
+ * - a built-in profile, referenced by multiple organizations
+ *   through table "org_qprofiles".
+ * - a profile created by user and referenced by one, and only one,
+ *   organization in the table "org_qprofiles"
  */
 public class RulesProfileDto {
 
+  /**
+   * Legacy db-generated ID. Usages should be replaced by {@link #kee}.
+   */
   private Integer id;
+
+  /**
+   * UUID. Can be a unique slug on legacy rows, for example "abap-sonar-way-38370".
+   */
   private String kee;
+
+  /**
+   * Name displayed to users, for example "Sonar way". Not null.
+   */
   private String name;
+
+  /**
+   * Language key, for example "java". Not null.
+   */
   private String language;
+
+  /**
+   * Date of last update of rule configuration (activation/deactivation/change of parameter).
+   * It does not include profile renaming.
+   * Not null.
+   */
   private String rulesUpdatedAt;
+
+  /**
+   * Whether profile is built-in or created by a user.
+   * A built-in profile is read-only. Its definition is provided by a language plugin.
+   */
   private boolean isBuiltIn;
 
   public String getKee() {

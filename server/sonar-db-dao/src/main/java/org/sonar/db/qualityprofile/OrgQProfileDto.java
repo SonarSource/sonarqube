@@ -23,13 +23,32 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 /**
- * Represents the table "org_qprofiles"
+ * Maps the table "org_qprofiles", which represents the profiles
+ * available in an organization.
+ *
+ * Extracting organizations from table "rules_profiles"
+ * allows to optimize storage and synchronization of built-in
+ * profiles by implementing an alias mechanism. A built-in profile
+ * is stored once in table "rules_profiles" and is referenced
+ * multiple times in table "org_qprofiles".
+ * User profiles are not shared across organizations, then one row
+ * in "rules_profiles" is referenced by a single row in
+ * "org_qprofiles".
  */
 public class OrgQProfileDto {
 
   private String uuid;
+
+  /**
+   * UUID of organization. Not null.
+   */
   private String organizationUuid;
+
+  /**
+   * UUID of referenced row in table "rules_profiles". Not null.
+   */
   private String rulesProfileUuid;
+
   private String parentUuid;
   private Long lastUsed;
   private Long userUpdatedAt;
