@@ -34,6 +34,7 @@ import static java.lang.String.valueOf;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.apache.commons.lang.math.RandomUtils.nextLong;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 
 public class SupportPrivateProjectInDefaultPermissionTemplateTest {
 
@@ -47,7 +48,8 @@ public class SupportPrivateProjectInDefaultPermissionTemplateTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private SupportPrivateProjectInDefaultPermissionTemplate underTest = new SupportPrivateProjectInDefaultPermissionTemplate(db.database(), new DefaultOrganizationUuidProviderImpl());
+  private SupportPrivateProjectInDefaultPermissionTemplate underTest = new SupportPrivateProjectInDefaultPermissionTemplate(db.database(),
+    new DefaultOrganizationUuidProviderImpl());
 
   @Test
   public void fails_with_ISE_when_no_default_organization_is_set() throws SQLException {
@@ -107,14 +109,17 @@ public class SupportPrivateProjectInDefaultPermissionTemplateTest {
   }
 
   @Test
-  public void execute_fails_with_ISE_when_default_permission_template_for_projects_of_default_organization_does_not_exist() throws SQLException {
+  public void execute_ignores_default_permission_template_for_view_of_default_organization_if_it_does_not_exist_and_removes_the_reference() throws SQLException {
     int groupId = insertGroup(DEFAULT_ORGANIZATION_UUID);
-    setupDefaultOrganization(groupId, "foBar2000", "pt2");
-
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Permission template with uuid foBar2000 not found");
+    IdAndUuid projectDefPermTemplate = insertPermissionTemplate(DEFAULT_ORGANIZATION_UUID);
+    setupDefaultOrganization(groupId, projectDefPermTemplate.uuid, "fooBar");
 
     underTest.execute();
+
+    assertThat(
+      db.select("select default_perm_template_project as \"project\", default_perm_template_view as \"view\" from organizations where uuid='" + DEFAULT_ORGANIZATION_UUID + "'"))
+        .extracting((row) -> row.get("project"), (row) -> row.get("view"))
+        .containsOnly(tuple(projectDefPermTemplate.uuid, null));
   }
 
   @Test
