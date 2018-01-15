@@ -38,7 +38,7 @@ public class StickersWsModuleTest {
 
     underTest.configure(container);
 
-    assertThat(container.size()).isEqualTo(COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER + 3);
+    assertThat(container.size()).isEqualTo(COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER + 4);
   }
 
   @Test
