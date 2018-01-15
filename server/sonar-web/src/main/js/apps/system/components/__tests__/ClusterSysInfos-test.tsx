@@ -45,7 +45,8 @@ const sysInfoData: ClusterSysInfo = {
   ],
   System: {
     'High Availability': true,
-    'Logs Level': 'INFO'
+    'Logs Level': 'INFO',
+    'Server ID': 'MyServerId'
   }
 };
 

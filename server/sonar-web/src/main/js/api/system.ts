@@ -70,6 +70,7 @@ export interface SysInfo extends SysValueObject {
   System: {
     'High Availability': boolean;
     'Logs Level': string;
+    'Server ID': string;
   };
 }
 

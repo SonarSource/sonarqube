@@ -20,6 +20,7 @@
 import * as React from 'react';
 import ChangeLogLevelForm from './ChangeLogLevelForm';
 import RestartForm from '../../../components/common/RestartForm';
+import { getFileNameSuffix } from '../utils';
 import { EditButton } from '../../../components/ui/buttons';
 import { getBaseUrl } from '../../../helpers/urls';
 import { translate } from '../../../helpers/l10n';
@@ -30,6 +31,7 @@ interface Props {
   cluster: boolean;
   logLevel: string;
   onLogLevelChange: () => void;
+  serverId?: string;
 }
 
 interface State {
@@ -139,7 +141,7 @@ export default class PageActions extends React.PureComponent<Props, State> {
           id="download-link"
           className="button spacer-left"
           onClick={this.removeElementFocus}
-          download="sonarqube_system_info.json"
+          download={`sonarqube-support-info-${getFileNameSuffix(this.props.serverId)}.json`}
           target="_blank">
           {translate('system.download_system_info')}
         </a>

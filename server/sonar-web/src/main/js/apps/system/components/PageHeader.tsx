@@ -25,8 +25,9 @@ interface Props {
   isCluster: boolean;
   loading: boolean;
   logLevel: string;
-  showActions: boolean;
   onLogLevelChange: () => void;
+  serverId?: string;
+  showActions: boolean;
 }
 
 export default function PageHeader(props: Props) {
@@ -39,6 +40,7 @@ export default function PageHeader(props: Props) {
           canRestart={!props.isCluster}
           cluster={props.isCluster}
           logLevel={props.logLevel}
+          serverId={props.serverId}
           onLogLevelChange={props.onLogLevelChange}
         />
       )}

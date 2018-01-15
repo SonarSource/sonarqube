@@ -30,7 +30,8 @@ const sysInfoData: SysInfo = {
   Search: { 'Number of Nodes': 1 },
   System: {
     'High Availability': true,
-    'Logs Level': 'DEBUG'
+    'Logs Level': 'DEBUG',
+    'Server ID': 'MyServerId'
   }
 };
 
