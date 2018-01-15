@@ -21,6 +21,7 @@ package org.sonar.server.badge.ws;
 
 import com.google.common.io.Resources;
 import org.apache.commons.io.IOUtils;
+import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -46,6 +47,19 @@ public class MeasureAction implements ProjectBadgesWsAction {
     action.createParam(PARAM_METRIC)
       .setDescription("Metric key")
       .setRequired(true)
+      .setPossibleValues(
+        CoreMetrics.ALERT_STATUS_KEY,
+        CoreMetrics.COVERAGE_KEY,
+        CoreMetrics.RELIABILITY_RATING_KEY,
+        CoreMetrics.SECURITY_RATING_KEY,
+        CoreMetrics.SQALE_RATING_KEY,
+        CoreMetrics.BUGS_KEY,
+        CoreMetrics.VULNERABILITIES_KEY,
+        CoreMetrics.CODE_SMELLS_KEY,
+        CoreMetrics.DUPLICATED_LINES_DENSITY_KEY,
+        CoreMetrics.TECHNICAL_DEBT_KEY,
+        CoreMetrics.TESTS_KEY
+        )
       .setExampleValue(KEY_PROJECT_EXAMPLE_001);
   }
 
