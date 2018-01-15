@@ -605,7 +605,7 @@ export default class SourceViewerBase extends React.PureComponent {
     const { component } = this.state;
     const leakPeriodDate = component && component.leakPeriodDate;
     return leakPeriodDate
-      ? line.scmDate != null && parseDate(line.scmDate) >= leakPeriodDate
+      ? line.scmDate != null && parseDate(line.scmDate) > leakPeriodDate
       : false;
   };
 
