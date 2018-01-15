@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2017 SonarSource SA
+ * Copyright (C) 2009-2018 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,18 +19,49 @@
  */
 package org.sonar.server.computation.task.projectanalysis.source;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
+import org.sonar.core.hash.SourceLinesHashesComputer;
+import org.sonar.core.util.CloseableIterator;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.db.source.FileSourceDao;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 
 public class SourceLinesDiffImpl implements SourceLinesDiff {
 
+  private final SourceLinesRepository sourceLinesRepository;
+
+  private final DbClient dbClient;
+  private final FileSourceDao fileSourceDao;
+
+  public SourceLinesDiffImpl(DbClient dbClient, FileSourceDao fileSourceDao, SourceLinesRepository sourceLinesRepository) {
+    this.dbClient = dbClient;
+    this.fileSourceDao = fileSourceDao;
+    this.sourceLinesRepository = sourceLinesRepository;
+  }
+
   @Override
   public Set<Integer> getNewOrChangedLines(Component component) {
-    int lines = component.getFileAttributes().getLines();
-    lines = Math.max(lines / 2, 1);
-    return IntStream.rangeClosed(1, lines).boxed().collect(Collectors.toSet());
+
+    List<String> database = new ArrayList<>();
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      database.addAll(fileSourceDao.selectLineHashes(dbSession, component.getUuid()));
+    }
+
+    List<String> report = new ArrayList<>();
+    SourceLinesHashesComputer linesHashesComputer = new SourceLinesHashesComputer();
+    try (CloseableIterator<String> lineIterator = sourceLinesRepository.readLines(component)) {
+      while (lineIterator.hasNext()) {
+        String line = lineIterator.next();
+        linesHashesComputer.addLine(line);
+      }
+    }
+    report.addAll(linesHashesComputer.getLineHashes());
+
+    return new SourceLinesDiffFinder(database, report).findNewOrChangedLines();
+
   }
 
 }
