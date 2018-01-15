@@ -120,12 +120,13 @@ public abstract class DefaultConfiguration implements Configuration {
   }
 
   public static String[] parseAsCsv(String key, String value) {
+    String cleanValue = MultivaluePropertyCleaner.trimFieldsAndRemoveEmptyFields(value);
     List<String> result = new ArrayList<>();
     try (CSVParser csvParser = CSVFormat.RFC4180
       .withHeader((String) null)
       .withIgnoreEmptyLines()
       .withIgnoreSurroundingSpaces()
-      .parse(new StringReader(value))) {
+      .parse(new StringReader(cleanValue))) {
       List<CSVRecord> records = csvParser.getRecords();
       if (records.isEmpty()) {
         return ArrayUtils.EMPTY_STRING_ARRAY;

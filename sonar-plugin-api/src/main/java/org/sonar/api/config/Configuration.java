@@ -106,13 +106,15 @@ public interface Configuration {
    * <p>
    * See {@link PropertyDefinition.Builder#multiValues(boolean)}
    * Multi-valued properties coming from scanner are parsed as CSV lines (ie comma separator and optional double quotes to escape values).
-   * Non quoted values are trimmed.
+   * Non quoted values are trimmed and empty fields are ignored.
    * <br>
    * Examples :
    * <ul>
    * <li>"one,two,three " -&gt; ["one", "two", "three"]</li>
    * <li>"  one, two, three " -&gt; ["one", "two", "three"]</li>
-   * <li>"one, , three" -&gt; ["one", "", "three"]</li>
+   * <li>"one, three" -&gt; ["one", "three"]</li>
+   * <li>"one,"", three" -&gt; ["one", "", "three"]</li>
+   * <li>"one,  "  " , three" -&gt; ["one", "  ", "three"]</li>
    * <li>"one,\"two,three\",\" four \"" -&gt; ["one", "two,three", " four "]</li>
    * </ul>
    */

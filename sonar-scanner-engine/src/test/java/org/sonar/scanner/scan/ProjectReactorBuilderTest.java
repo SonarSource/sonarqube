@@ -536,7 +536,7 @@ public class ProjectReactorBuilderTest {
     Map<String, String> props = new HashMap<>();
 
     props.put("prop", "  foo  ,,  bar  , toto,tutu");
-    assertThat(ProjectReactorBuilder.getListFromProperty(props, "prop")).containsOnly("foo", "", "bar", "toto", "tutu");
+    assertThat(ProjectReactorBuilder.getListFromProperty(props, "prop")).containsOnly("foo", "bar", "toto", "tutu");
   }
 
   @Test
@@ -560,7 +560,7 @@ public class ProjectReactorBuilderTest {
     String filePath = "shouldGetList/foo.properties";
     Map<String, String> props = loadPropsFromFile(filePath);
 
-    assertThat(ProjectReactorBuilder.getListFromProperty(props, "prop")).containsOnly("foo", "bar", "toto", "tutu", "");
+    assertThat(ProjectReactorBuilder.getListFromProperty(props, "prop")).containsOnly("foo", "bar", "toto", "tutu");
   }
 
   @Test
