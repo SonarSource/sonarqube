@@ -39,7 +39,7 @@ public class StickersWsModule extends Module {
     add(
       StickersWs.class,
       QualityGateAction.class,
-      MeasureAction.class
-      );
+      MeasureAction.class,
+      SvgGenerator.class);
   }
 }

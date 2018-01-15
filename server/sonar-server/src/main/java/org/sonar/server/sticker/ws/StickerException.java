@@ -19,26 +19,10 @@
  */
 package org.sonar.server.sticker.ws;
 
-import java.util.List;
-import org.sonar.api.server.ws.WebService;
+class StickerException extends RuntimeException {
 
-public class StickersWs implements WebService {
-
-  static final String SVG_MEDIA_TYPE = "image/svg+xml";
-
-  private final List<StickersWsAction> actions;
-
-  public StickersWs(List<StickersWsAction> actions) {
-    this.actions = actions;
-  }
-
-  @Override
-  public void define(Context context) {
-    NewController controller = context.createController("api/stickers");
-    controller.setDescription("Generate stickers based on quality gates or measures, using badges or cards shapes.");
-    controller.setSince("7.0");
-    actions.forEach(action -> action.define(controller));
-    controller.done();
+  StickerException(String message) {
+    super(message);
   }
 
 }

@@ -19,26 +19,31 @@
  */
 package org.sonar.server.sticker.ws;
 
-import java.util.List;
-import org.sonar.api.server.ws.WebService;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
+import java.util.Locale;
 
-public class StickersWs implements WebService {
+import static org.apache.commons.lang.StringUtils.trim;
 
-  static final String SVG_MEDIA_TYPE = "image/svg+xml";
+public class NumberFormatter {
 
-  private final List<StickersWsAction> actions;
+  private static final String SUFFIX_LIST = " kmbt";
 
-  public StickersWs(List<StickersWsAction> actions) {
-    this.actions = actions;
+  private NumberFormatter() {
+    // Only static methods
   }
 
-  @Override
-  public void define(Context context) {
-    NewController controller = context.createController("api/stickers");
-    controller.setDescription("Generate stickers based on quality gates or measures, using badges or cards shapes.");
-    controller.setSince("7.0");
-    actions.forEach(action -> action.define(controller));
-    controller.done();
-  }
+  static String formatNumber(long value) {
+    if (value == 0) {
+      return "0";
+    }
 
+    NumberFormat formatter = DecimalFormat.getInstance(Locale.ENGLISH);
+    formatter.setMaximumFractionDigits(1);
+    int power = (int) StrictMath.log10(value);
+    double valueToFormat = value / (Math.pow(10, Math.floorDiv(power, 3) * 3d));
+    String formattedNumber = formatter.format(valueToFormat);
+    formattedNumber = formattedNumber + SUFFIX_LIST.charAt(power / 3);
+    return formattedNumber.length() > 4 ? trim(formattedNumber.replaceAll("\\.[0-9]+", "")) : trim(formattedNumber);
+  }
 }
