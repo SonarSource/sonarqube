@@ -19,27 +19,10 @@
  */
 package org.sonar.server.badge.ws;
 
-import org.sonar.api.config.Configuration;
-import org.sonar.core.config.WebConstants;
-import org.sonar.core.platform.Module;
+class ProjectBadgesException extends RuntimeException {
 
-public class ProjectBadgesWsModule extends Module {
-
-  private final Configuration config;
-
-  public ProjectBadgesWsModule(Configuration config) {
-    this.config = config;
+  ProjectBadgesException(String message) {
+    super(message);
   }
 
-  @Override
-  protected void configureModule() {
-    if (!config.getBoolean(WebConstants.SONARCLOUD_ENABLED).orElse(false)) {
-      return;
-    }
-    add(
-      ProjectBadgesWs.class,
-      QualityGateAction.class,
-      MeasureAction.class,
-      SvgGenerator.class);
-  }
 }
