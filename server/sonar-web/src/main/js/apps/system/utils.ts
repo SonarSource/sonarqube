@@ -98,6 +98,10 @@ export function isCluster(sysInfoData?: SysInfo): boolean {
   );
 }
 
+export function getServerId(sysInfoData?: SysInfo): string | undefined {
+  return sysInfoData && sysInfoData['System']['Server ID'];
+}
+
 export function getSystemLogsLevel(sysInfoData?: SysInfo): string {
   const defaultLevel = LOGS_LEVELS[0];
   if (!sysInfoData) {
@@ -164,6 +168,15 @@ export function getStandaloneSecondarySections(sysInfoData: SysInfo): SysInfoSec
     ) as SysValueObject,
     'Search Engine': pickBy(sysInfoData, (_, key) => key.startsWith('Search')) as SysValueObject
   };
+}
+
+export function getFileNameSuffix(suffix?: string) {
+  const now = new Date();
+  return (
+    `${suffix ? suffix + '-' : ''}` +
+    `${now.getFullYear()}-${now.getMonth() + 1}-` +
+    `${now.getDate()}-${now.getHours()}-${now.getMinutes()}`
+  );
 }
 
 export function groupSections(sysInfoData: SysValueObject) {

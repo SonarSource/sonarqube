@@ -22,58 +22,41 @@ import { shallow } from 'enzyme';
 import PageActions from '../PageActions';
 import { click } from '../../../../helpers/testUtils';
 
+jest.mock('../../utils', () => ({
+  getFileNameSuffix: (suffix?: string) => `filesuffix(${suffix || ''})`
+}));
+
 it('should render correctly', () => {
-  expect(
-    shallow(
-      <PageActions
-        canDownloadLogs={true}
-        canRestart={true}
-        cluster={false}
-        logLevel="INFO"
-        onLogLevelChange={() => {}}
-      />
-    )
-  ).toMatchSnapshot();
+  expect(getWrapper({ serverId: 'MyServerId' })).toMatchSnapshot();
 });
 
 it('should render without restart and log download', () => {
   expect(
-    shallow(
-      <PageActions
-        canDownloadLogs={false}
-        canRestart={false}
-        cluster={true}
-        logLevel="INFO"
-        onLogLevelChange={() => {}}
-      />
-    )
+    getWrapper({ canDownloadLogs: false, canRestart: false, cluster: true })
   ).toMatchSnapshot();
 });
 
 it('should open restart modal', () => {
-  const wrapper = shallow(
-    <PageActions
-      canDownloadLogs={true}
-      canRestart={true}
-      cluster={false}
-      logLevel="INFO"
-      onLogLevelChange={() => {}}
-    />
-  );
+  const wrapper = getWrapper();
   click(wrapper.find('#restart-server-button'));
   expect(wrapper.find('RestartForm')).toHaveLength(1);
 });
 
 it('should open change log level modal', () => {
-  const wrapper = shallow(
+  const wrapper = getWrapper();
+  click(wrapper.find('#edit-logs-level-button'));
+  expect(wrapper.find('ChangeLogLevelForm')).toHaveLength(1);
+});
+
+function getWrapper(props = {}) {
+  return shallow(
     <PageActions
       canDownloadLogs={true}
       canRestart={true}
       cluster={false}
       logLevel="INFO"
       onLogLevelChange={() => {}}
+      {...props}
     />
   );
-  click(wrapper.find('#edit-logs-level-button'));
-  expect(wrapper.find('ChangeLogLevelForm')).toHaveLength(1);
-});
+}

@@ -17,6 +17,7 @@ exports[`should render correctly 1`] = `
       Object {
         "High Availability": true,
         "Logs Level": "DEBUG",
+        "Server ID": "MyServerId",
       }
     }
   />

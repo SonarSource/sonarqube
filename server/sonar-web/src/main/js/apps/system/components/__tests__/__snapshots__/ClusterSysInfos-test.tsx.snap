@@ -17,6 +17,7 @@ exports[`should support more than two nodes 1`] = `
       Object {
         "High Availability": true,
         "Logs Level": "INFO",
+        "Server ID": "MyServerId",
       }
     }
   />

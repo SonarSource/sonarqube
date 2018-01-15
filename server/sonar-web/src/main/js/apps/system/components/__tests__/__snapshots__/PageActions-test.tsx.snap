@@ -80,7 +80,7 @@ exports[`should render correctly 1`] = `
   </div>
   <a
     className="button spacer-left"
-    download="sonarqube_system_info.json"
+    download="sonarqube-support-info-filesuffix(MyServerId).json"
     href="/api/system/info"
     id="download-link"
     onClick={[Function]}
@@ -122,7 +122,7 @@ exports[`should render without restart and log download 1`] = `
   </span>
   <a
     className="button spacer-left"
-    download="sonarqube_system_info.json"
+    download="sonarqube-support-info-filesuffix().json"
     href="/api/system/info"
     id="download-link"
     onClick={[Function]}

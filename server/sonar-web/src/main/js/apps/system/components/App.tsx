@@ -26,7 +26,14 @@ import StandaloneSysInfos from './StandaloneSysInfos';
 import SystemUpgradeNotif from './system-upgrade/SystemUpgradeNotif';
 import { translate } from '../../../helpers/l10n';
 import { ClusterSysInfo, getSystemInfo, SysInfo } from '../../../api/system';
-import { getSystemLogsLevel, isCluster, parseQuery, Query, serializeQuery } from '../utils';
+import {
+  getServerId,
+  getSystemLogsLevel,
+  isCluster,
+  parseQuery,
+  Query,
+  serializeQuery
+} from '../utils';
 import { RawQuery } from '../../../helpers/query';
 import '../styles.css';
 
@@ -124,11 +131,12 @@ export default class App extends React.PureComponent<Props, State> {
         <Helmet title={translate('system_info.page')} />
         <SystemUpgradeNotif />
         <PageHeader
-          loading={loading}
           isCluster={isCluster(sysInfoData)}
+          loading={loading}
           logLevel={getSystemLogsLevel(sysInfoData)}
-          showActions={sysInfoData !== undefined}
           onLogLevelChange={this.fetchSysInfo}
+          serverId={getServerId(sysInfoData)}
+          showActions={sysInfoData !== undefined}
         />
         {this.renderSysInfo()}
       </div>
