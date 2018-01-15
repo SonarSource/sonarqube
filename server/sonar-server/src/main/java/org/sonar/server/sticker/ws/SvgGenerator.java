@@ -1,0 +1,118 @@
+/*
+ * SonarQube
+ * Copyright (C) 2009-2018 SonarSource SA
+ * mailto:info AT sonarsource DOT com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+package org.sonar.server.sticker.ws;
+
+import com.google.common.collect.ImmutableMap;
+import java.awt.Font;
+import java.awt.font.FontRenderContext;
+import java.awt.geom.AffineTransform;
+import java.io.IOException;
+import java.util.Map;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.text.StrSubstitutor;
+import org.sonar.api.server.ServerSide;
+
+import static java.lang.String.valueOf;
+import static java.nio.charset.StandardCharsets.UTF_8;
+
+@ServerSide
+public class SvgGenerator {
+
+  private static final FontRenderContext FONT_RENDER_CONTEXT = new FontRenderContext(new AffineTransform(), true, true);
+  private static final Font FONT = new Font("Verdana", Font.PLAIN, 11);
+
+  private static final int RIGHT_MARGIN = 4;
+  private static final int LEFT_MARGIN = 4;
+
+  private static final String PARAMETER_TOTAL_WIDTH = "totalWidth";
+  private static final String PARAMETER_LABEL_WIDTH = "labelWidth";
+  private static final String PARAMETER_LABEL_WIDTH_PLUS_MARGIN = "LabelWidthPlusMargin";
+  private static final String PARAMETER_VALUE_WIDTH = "valueWidth";
+  private static final String PARAMETER_COLOR = "color";
+  private static final String PARAMETER_LABEL = "label";
+  private static final String PARAMETER_VALUE = "value";
+
+  private final String errorTemplate;
+  private final String badgeTemplate;
+
+  public SvgGenerator() {
+    this.errorTemplate = readTemplate("error.svg");
+    this.badgeTemplate = readTemplate("badge.svg");
+  }
+
+  public String generateBadge(String label, String value, Color backgroundValueColor) {
+    int labelWidth = computeWidth(label);
+    int valueWidth = computeWidth(value);
+
+    Map<String, String> values = ImmutableMap.<String, String>builder()
+      .put(PARAMETER_TOTAL_WIDTH, valueOf(RIGHT_MARGIN * 2 + LEFT_MARGIN * 2 + labelWidth + valueWidth))
+      .put(PARAMETER_LABEL_WIDTH, valueOf(RIGHT_MARGIN + labelWidth + LEFT_MARGIN))
+      .put(PARAMETER_LABEL_WIDTH_PLUS_MARGIN, valueOf(RIGHT_MARGIN * 2 + labelWidth + LEFT_MARGIN))
+      .put(PARAMETER_VALUE_WIDTH, valueOf(RIGHT_MARGIN + valueWidth + LEFT_MARGIN))
+      .put(PARAMETER_COLOR, backgroundValueColor.getValue())
+      .put(PARAMETER_LABEL, label)
+      .put(PARAMETER_VALUE, value)
+      .build();
+    StrSubstitutor strSubstitutor = new StrSubstitutor(values);
+    return strSubstitutor.replace(badgeTemplate);
+  }
+
+  public String generateError(String error) {
+    Map<String, String> values = ImmutableMap.of(
+      PARAMETER_TOTAL_WIDTH, valueOf(RIGHT_MARGIN + computeWidth(error) + LEFT_MARGIN),
+      PARAMETER_LABEL, error);
+    StrSubstitutor strSubstitutor = new StrSubstitutor(values);
+    return strSubstitutor.replace(errorTemplate);
+  }
+
+  private static int computeWidth(String text) {
+    return (int) FONT.getStringBounds(text, FONT_RENDER_CONTEXT).getWidth();
+  }
+
+  private String readTemplate(String template) {
+    try {
+      return IOUtils.toString(getClass().getResource("templates/" + template), UTF_8);
+    } catch (IOException e) {
+      throw new IllegalStateException(String.format("Can't read svg template '%s'", template), e);
+    }
+  }
+
+  static class Color {
+    static final Color DEFAULT = new Color("#999");
+    static final Color QUALITY_GATE_OK = new Color("#4c1");
+    static final Color QUALITY_GATE_WARN = new Color("#ed7d20");
+    static final Color QUALITY_GATE_ERROR = new Color("#d4333f");
+    static final Color RATING_A = new Color("#00aa00");
+    static final Color RATING_B = new Color("#b0d513");
+    static final Color RATING_C = new Color("#eabe06");
+    static final Color RATING_D = new Color("#ed7d20");
+    static final Color RATING_E = new Color("#e00");
+
+    private final String value;
+
+    private Color(String value) {
+      this.value = value;
+    }
+
+    String getValue() {
+      return value;
+    }
+  }
+}
