@@ -112,10 +112,10 @@ public class RegisterQualityProfiles {
     builtInQProfileInsert.create(dbSession, batchDbSession, builtIn);
   }
 
-  private List<ActiveRuleChange> update(DbSession dbSession, BuiltInQProfile builtIn, RulesProfileDto ruleProfile) {
-    LOGGER.info("Update profile {}", builtIn.getQProfileName());
+  private List<ActiveRuleChange> update(DbSession dbSession, BuiltInQProfile definition, RulesProfileDto dbProfile) {
+    LOGGER.info("Update profile {}", definition.getQProfileName());
 
-    return builtInQProfileUpdate.update(dbSession, builtIn, ruleProfile);
+    return builtInQProfileUpdate.update(dbSession, definition, dbProfile);
   }
 
   /**
