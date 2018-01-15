@@ -43,9 +43,9 @@ class RuleActivatorContext {
 
   private final QProfileDto profile;
   private final RulesProfileDto rulesProfile;
-  private final Date initDate = new Date();
+  private final Date now = new Date();
   private RuleDefinitionDto rule;
-  private final Map<String, RuleParamDto> ruleParams = new HashMap<>();
+  private final Map<String, RuleParamDto> ruleParamsByKey = new HashMap<>();
   private ActiveRuleDto activeRule;
   private ActiveRuleDto parentActiveRule;
   private final Map<String, ActiveRuleParamDto> activeRuleParams = new HashMap<>();
@@ -65,8 +65,11 @@ class RuleActivatorContext {
     this.isCascade = false;
   }
 
+  /**
+   * The organization profile that is being updated. Null if updating built-in profile.
+   */
   @CheckForNull
-  QProfileDto getProfile() {
+  QProfileDto getOrganizationProfile() {
     return profile;
   }
 
@@ -74,15 +77,15 @@ class RuleActivatorContext {
     return rulesProfile;
   }
 
-  boolean isBuiltIn() {
-    return profile == null;
-  }
-
+  /**
+   * Whether activation is being applied on a descendant profile ({@code true}) or
+   * on the target profile ({@code false}).
+   */
   boolean isCascade() {
     return isCascade;
   }
 
-  ActiveRuleKey activeRuleKey() {
+  ActiveRuleKey getActiveRuleKey() {
     return ActiveRuleKey.of(rulesProfile, rule.getKey());
   }
 
@@ -95,30 +98,35 @@ class RuleActivatorContext {
     return this;
   }
 
-
-
-  Date getInitDate() {
-    return initDate;
-  }
-
-  Map<String, RuleParamDto> ruleParamsByKeys() {
-    return ruleParams;
-  }
-
-  Collection<RuleParamDto> ruleParams() {
-    return ruleParams.values();
-  }
-
-  RuleActivatorContext setRuleParams(Collection<RuleParamDto> ruleParams) {
-    this.ruleParams.clear();
-    for (RuleParamDto ruleParam : ruleParams) {
-      this.ruleParams.put(ruleParam.getName(), ruleParam);
-    }
-    return this;
+  /**
+   * Date of request for activation.
+   */
+  Date getDate() {
+    return now;
   }
 
   @CheckForNull
-  ActiveRuleDto activeRule() {
+  RuleParamDto getRuleParam(String key) {
+    return ruleParamsByKey.get(key);
+  }
+
+  Collection<RuleParamDto> getRuleParams() {
+    return ruleParamsByKey.values();
+  }
+
+  void setRuleParams(Collection<RuleParamDto> ruleParams) {
+    this.ruleParamsByKey.clear();
+    for (RuleParamDto ruleParam : ruleParams) {
+      this.ruleParamsByKey.put(ruleParam.getName(), ruleParam);
+    }
+  }
+
+  /**
+   * The active rule as it was before applying the current activation.
+   * Return null if the rule was not activated.
+   */
+  @CheckForNull
+  ActiveRuleDto getActiveRule() {
     return activeRule;
   }
 
@@ -128,63 +136,59 @@ class RuleActivatorContext {
   }
 
   @CheckForNull
-  ActiveRuleDto parentActiveRule() {
+  ActiveRuleDto getParentActiveRule() {
     return parentActiveRule;
   }
 
-  RuleActivatorContext setParentActiveRule(@Nullable ActiveRuleDto a) {
+  void setParentActiveRule(@Nullable ActiveRuleDto a) {
     this.parentActiveRule = a;
-    return this;
   }
 
   @CheckForNull
-  String requestParamValue(RuleActivation request, String key) {
+  String getRequestedParamValue(RuleActivation request, String key) {
     if (rule.isCustomRule()) {
       return null;
     }
     return request.getParameter(key);
   }
 
-  boolean hasRequestParamValue(RuleActivation request, String key) {
+  boolean hasRequestedParamValue(RuleActivation request, String key) {
     return request.hasParameter(key);
   }
 
   @CheckForNull
-  String currentParamValue(String key) {
+  String getActiveParamValue(String key) {
     ActiveRuleParamDto param = activeRuleParams.get(key);
     return param != null ? param.getValue() : null;
   }
 
   @CheckForNull
-  String parentParamValue(String key) {
+  ActiveRuleParamDto getActiveParamBeforeChange(String key) {
+    return activeRuleParams.get(key);
+  }
+
+  @CheckForNull
+  String getActiveParentParamValue(String key) {
     ActiveRuleParamDto param = parentActiveRuleParams.get(key);
     return param != null ? param.getValue() : null;
   }
 
   @CheckForNull
-  String defaultParamValue(String key) {
-    RuleParamDto param = ruleParams.get(key);
+  String getDefaultParamValue(String key) {
+    RuleParamDto param = ruleParamsByKey.get(key);
     return param != null ? param.getDefaultValue() : null;
   }
 
   @CheckForNull
-  String currentSeverity() {
+  String getActiveSeverityBeforeChange() {
     return activeRule != null ? activeRule.getSeverityString() : null;
   }
 
   @CheckForNull
-  String parentSeverity() {
+  String getActiveParentSeverity() {
     return parentActiveRule != null ? parentActiveRule.getSeverityString() : null;
   }
 
-  @CheckForNull
-  String defaultSeverity() {
-    return rule.getSeverityString();
-  }
-
-  Map<String, ActiveRuleParamDto> activeRuleParamsAsMap() {
-    return activeRuleParams;
-  }
 
   Map<String, String> activeRuleParamsAsStringMap() {
     Map<String, String> params = Maps.newHashMap();
@@ -194,24 +198,22 @@ class RuleActivatorContext {
     return params;
   }
 
-  RuleActivatorContext setActiveRuleParams(@Nullable Collection<ActiveRuleParamDto> a) {
+  void setActiveRuleParams(@Nullable Collection<ActiveRuleParamDto> a) {
     activeRuleParams.clear();
     if (a != null) {
       for (ActiveRuleParamDto ar : a) {
         this.activeRuleParams.put(ar.getKey(), ar);
       }
     }
-    return this;
   }
 
-  RuleActivatorContext setParentActiveRuleParams(@Nullable Collection<ActiveRuleParamDto> a) {
+  void setParentActiveRuleParams(@Nullable Collection<ActiveRuleParamDto> a) {
     parentActiveRuleParams.clear();
     if (a != null) {
       for (ActiveRuleParamDto ar : a) {
         this.parentActiveRuleParams.put(ar.getKey(), ar);
       }
     }
-    return this;
   }
 
   /**
@@ -225,7 +227,7 @@ class RuleActivatorContext {
       return false;
     }
     for (Map.Entry<String, String> entry : change.getParameters().entrySet()) {
-      if (entry.getValue() != null && !entry.getValue().equals(parentParamValue(entry.getKey()))) {
+      if (entry.getValue() != null && !entry.getValue().equals(getActiveParentParamValue(entry.getKey()))) {
         return false;
       }
     }

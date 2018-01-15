@@ -59,8 +59,9 @@ public class RuleActivatorContextFactory {
     initRule(ruleKey, context, dbSession);
     initActiveRules(context.getRulesProfile(), ruleKey, context, dbSession, false);
 
-    if (context.getProfile() != null && context.getProfile().getParentKee() != null) {
-      QProfileDto parent = db.qualityProfileDao().selectByUuid(dbSession, context.getProfile().getParentKee());
+    QProfileDto orgProfile = context.getOrganizationProfile();
+    if (orgProfile != null && orgProfile.getParentKee() != null) {
+      QProfileDto parent = db.qualityProfileDao().selectByUuid(dbSession, orgProfile.getParentKee());
       if (parent != null) {
         initActiveRules(RulesProfileDto.from(parent), ruleKey, context, dbSession, true);
       }
