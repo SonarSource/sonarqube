@@ -23,5 +23,5 @@ import java.util.Set;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 
 public interface SourceLinesDiff {
-  public Set<Integer> getNewOrChangedLines(Component component);
+  Set<Integer> getNewOrChangedLines(Component component);
 }

@@ -19,10 +19,12 @@
  */
 package org.sonar.server.computation.task.projectanalysis.scm;
 
-import com.google.common.base.Optional;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.scanner.protocol.output.ScannerReport;
@@ -30,6 +32,7 @@ import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetada
 import org.sonar.server.computation.task.projectanalysis.batch.BatchReportReader;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.component.Component.Status;
+import org.sonar.server.computation.task.projectanalysis.source.SourceHashRepository;
 import org.sonar.server.computation.task.projectanalysis.source.SourceLinesDiff;
 
 import static java.util.Objects.requireNonNull;
@@ -39,116 +42,89 @@ public class ScmInfoRepositoryImpl implements ScmInfoRepository {
   private static final Logger LOGGER = Loggers.get(ScmInfoRepositoryImpl.class);
 
   private final BatchReportReader scannerReportReader;
-  private final Map<Component, ScmInfo> scmInfoCache = new HashMap<>();
+  private final Map<Component, Optional<ScmInfo>> scmInfoCache = new HashMap<>();
   private final ScmInfoDbLoader scmInfoDbLoader;
   private final AnalysisMetadataHolder analysisMetadata;
   private final SourceLinesDiff sourceLinesDiff;
+  private final SourceHashRepository sourceHashRepository;
 
   public ScmInfoRepositoryImpl(BatchReportReader scannerReportReader, AnalysisMetadataHolder analysisMetadata, ScmInfoDbLoader scmInfoDbLoader,
-    SourceLinesDiff sourceLinesDiff) {
+    SourceLinesDiff sourceLinesDiff, SourceHashRepository sourceHashRepository) {
     this.scannerReportReader = scannerReportReader;
     this.analysisMetadata = analysisMetadata;
     this.scmInfoDbLoader = scmInfoDbLoader;
     this.sourceLinesDiff = sourceLinesDiff;
+    this.sourceHashRepository = sourceHashRepository;
   }
 
   @Override
-  public Optional<ScmInfo> getScmInfo(Component component) {
+  public com.google.common.base.Optional<ScmInfo> getScmInfo(Component component) {
     requireNonNull(component, "Component cannot be null");
-    return initializeScmInfoForComponent(component);
-  }
 
-  private Optional<ScmInfo> initializeScmInfoForComponent(Component component) {
     if (component.getType() != Component.Type.FILE) {
-      return Optional.absent();
-    }
-    ScmInfo scmInfo = scmInfoCache.get(component);
-    if (scmInfo != null) {
-      return optionalOf(scmInfo);
+      return com.google.common.base.Optional.absent();
     }
 
-    scmInfo = getScmInfoForComponent(component);
-    scmInfoCache.put(component, scmInfo);
-    return optionalOf(scmInfo);
+    return toGuavaOptional(scmInfoCache.computeIfAbsent(component, this::getScmInfoForComponent));
   }
 
-  private static Optional<ScmInfo> optionalOf(ScmInfo scmInfo) {
-    if (scmInfo == NoScmInfo.INSTANCE) {
-      return Optional.absent();
-    }
-    return Optional.of(scmInfo);
+  private static com.google.common.base.Optional<ScmInfo> toGuavaOptional(Optional<ScmInfo> scmInfo) {
+    return com.google.common.base.Optional.fromNullable(scmInfo.orElse(null));
   }
 
-  private ScmInfo getScmInfoForComponent(Component component) {
+  private Optional<ScmInfo> getScmInfoForComponent(Component component) {
     ScannerReport.Changesets changesets = scannerReportReader.readChangesets(component.getReportAttributes().getRef());
 
-    if (changesets == null) {
-      // There was no SCM available. It's unknown whether file has changed or if there is any information in the DB.
-      LOGGER.trace("No SCM info for file '{}'", component.getKey());
-      if (component.getStatus() == Status.SAME) {
-        return scmInfoDbLoader.getScmInfoFromDb(component);
-      } else {
-        return generatedScmInfo(component);
+    if (changesets != null) {
+      if (changesets.getChangesetCount() == 0) {
+        return generateAndMergeDb(component, changesets.getCopyFromPrevious());
       }
+      return getScmInfoFromReport(component, changesets);
     }
-    if (changesets.getCopyFromPrevious()) {
-      // file hasn't changed and revision exists in the DB
-      return scmInfoDbLoader.getScmInfoFromDb(component);
-    }
-    return getScmInfoFromReport(component, changesets);
+
+    LOGGER.trace("No SCM info for file '{}'", component.getKey());
+    return generateAndMergeDb(component, false);
   }
 
-  private static ScmInfo getScmInfoFromReport(Component file, ScannerReport.Changesets changesets) {
+  private static Optional<ScmInfo> getScmInfoFromReport(Component file, ScannerReport.Changesets changesets) {
     LOGGER.trace("Reading SCM info from report for file '{}'", file.getKey());
-    return new ReportScmInfo(changesets);
+    return Optional.of(new ReportScmInfo(changesets));
   }
 
-  private ScmInfo generatedScmInfo(Component file) {
-    ScmInfo dbInfo = scmInfoDbLoader.getScmInfoFromDb(file);
-    if (dbInfo == NoScmInfo.INSTANCE) {
-      Set<Integer> newOrChangedLines = sourceLinesDiff.getNewOrChangedLines(file);
-      if (newOrChangedLines.isEmpty()) {
-        return NoScmInfo.INSTANCE;
-      }
-      return new GeneratedScmInfo(analysisMetadata.getAnalysisDate(), newOrChangedLines);
-    } else {
-      // TODO merge with DB
-      Set<Integer> newOrChangedLines = sourceLinesDiff.getNewOrChangedLines(file);
-      if (newOrChangedLines.isEmpty()) {
-        return NoScmInfo.INSTANCE;
-      }
-      return new GeneratedScmInfo(analysisMetadata.getAnalysisDate(), newOrChangedLines);
+  private Optional<ScmInfo> generateScmInfoForAllFile(Component file) {
+    Set<Integer> newOrChangedLines = IntStream.rangeClosed(1, file.getFileAttributes().getLines()).boxed().collect(Collectors.toSet());
+    return Optional.of(GeneratedScmInfo.create(analysisMetadata.getAnalysisDate(), newOrChangedLines));
+  }
+
+  private ScmInfo removeAuthorAndRevision(ScmInfo info) {
+    Map<Integer, Changeset> cleanedScmInfo = info.getAllChangesets().entrySet().stream()
+      .collect(Collectors.toMap(Map.Entry::getKey, e -> removeAuthorAndRevision(e.getValue())));
+    return new ScmInfoImpl(cleanedScmInfo);
+  }
+
+  private static Changeset removeAuthorAndRevision(Changeset changeset) {
+    return Changeset.newChangesetBuilder().setDate(changeset.getDate()).build();
+  }
+
+  private Optional<ScmInfo> generateAndMergeDb(Component file, boolean copyFromPrevious) {
+    Optional<DbScmInfo> dbInfoOpt = scmInfoDbLoader.getScmInfo(file);
+    if (!dbInfoOpt.isPresent()) {
+      return generateScmInfoForAllFile(file);
     }
-  }
 
-  /**
-   * Internally used to populate cache when no ScmInfo exist.
-   */
-  enum NoScmInfo implements ScmInfo {
-    INSTANCE {
-      @Override
-      public Changeset getLatestChangeset() {
-        return notImplemented();
-      }
+    ScmInfo scmInfo = copyFromPrevious ? dbInfoOpt.get() : removeAuthorAndRevision(dbInfoOpt.get());
+    boolean fileUnchanged = file.getStatus() == Status.SAME && sourceHashRepository.getRawSourceHash(file).equals(dbInfoOpt.get().fileHash());
 
-      @Override
-      public Changeset getChangesetForLine(int lineNumber) {
-        return notImplemented();
-      }
-
-      @Override
-      public boolean hasChangesetForLine(int lineNumber) {
-        return notImplemented();
-      }
-
-      @Override
-      public Map<Integer, Changeset> getAllChangesets() {
-        return notImplemented();
-      }
-
-      private <T> T notImplemented() {
-        throw new UnsupportedOperationException("NoScmInfo does not implement any method");
-      }
+    if (fileUnchanged) {
+      return Optional.of(scmInfo);
     }
+
+    // generate date for new/changed lines
+    Set<Integer> newOrChangedLines = sourceLinesDiff.getNewOrChangedLines(file);
+    if (newOrChangedLines.isEmpty()) {
+      return Optional.of(scmInfo);
+    }
+    return Optional.of(GeneratedScmInfo.create(analysisMetadata.getAnalysisDate(), newOrChangedLines, scmInfo));
   }
+
 }

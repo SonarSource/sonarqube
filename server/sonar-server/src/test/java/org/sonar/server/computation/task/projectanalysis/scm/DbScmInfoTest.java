@@ -34,7 +34,7 @@ public class DbScmInfoTest {
 
   @Test
   public void create_scm_info_with_some_changesets() throws Exception {
-    ScmInfo scmInfo = DbScmInfo.create(newFakeData(10).build().getLinesList()).get();
+    ScmInfo scmInfo = DbScmInfo.create(newFakeData(10).build().getLinesList(), "hash").get();
 
     assertThat(scmInfo.getAllChangesets()).hasSize(10);
   }
@@ -48,7 +48,7 @@ public class DbScmInfoTest {
     addLine(fileDataBuilder, 4, "john", 123456789L, "rev-1");
     fileDataBuilder.build();
 
-    ScmInfo scmInfo = DbScmInfo.create(fileDataBuilder.getLinesList()).get();
+    ScmInfo scmInfo = DbScmInfo.create(fileDataBuilder.getLinesList(), "hash").get();
 
     assertThat(scmInfo.getAllChangesets()).hasSize(4);
 
@@ -66,7 +66,7 @@ public class DbScmInfoTest {
     fileDataBuilder.addLinesBuilder().setScmRevision("rev1").setScmDate(6541L).setLine(3);
     fileDataBuilder.addLinesBuilder().setScmRevision("rev").setScmDate(65L).setLine(4);
 
-    ScmInfo scmInfo = DbScmInfo.create(fileDataBuilder.getLinesList()).get();
+    ScmInfo scmInfo = DbScmInfo.create(fileDataBuilder.getLinesList(), "hash").get();
 
     assertThat(scmInfo.getAllChangesets()).hasSize(4);
 
@@ -82,7 +82,7 @@ public class DbScmInfoTest {
     addLine(fileDataBuilder, 3, "john", 123456789L, "rev-1");
     fileDataBuilder.build();
 
-    ScmInfo scmInfo = DbScmInfo.create(fileDataBuilder.getLinesList()).get();
+    ScmInfo scmInfo = DbScmInfo.create(fileDataBuilder.getLinesList(), "hash").get();
 
     Changeset latestChangeset = scmInfo.getLatestChangeset();
     assertThat(latestChangeset.getAuthor()).isEqualTo("henry");
@@ -95,7 +95,7 @@ public class DbScmInfoTest {
     DbFileSources.Data.Builder fileDataBuilder = DbFileSources.Data.newBuilder();
     fileDataBuilder.addLinesBuilder().setLine(1);
 
-    assertThat(DbScmInfo.create(fileDataBuilder.getLinesList())).isNotPresent();
+    assertThat(DbScmInfo.create(fileDataBuilder.getLinesList(), "hash")).isNotPresent();
   }
 
   @Test
@@ -105,7 +105,7 @@ public class DbScmInfoTest {
     fileDataBuilder.addLinesBuilder().setLine(2);
     fileDataBuilder.build();
 
-    assertThat(DbScmInfo.create(fileDataBuilder.getLinesList()).get().getAllChangesets()).hasSize(1);
+    assertThat(DbScmInfo.create(fileDataBuilder.getLinesList(), "hash").get().getAllChangesets()).hasSize(1);
   }
 
   @Test
@@ -115,8 +115,8 @@ public class DbScmInfoTest {
     fileDataBuilder.addLinesBuilder().setScmRevision("rev-1").setLine(2);
     fileDataBuilder.build();
 
-    assertThat(DbScmInfo.create(fileDataBuilder.getLinesList()).get().getAllChangesets()).hasSize(1);
-    assertThat(DbScmInfo.create(fileDataBuilder.getLinesList()).get().getChangesetForLine(1).getRevision()).isEqualTo("rev");
+    assertThat(DbScmInfo.create(fileDataBuilder.getLinesList(), "hash").get().getAllChangesets()).hasSize(1);
+    assertThat(DbScmInfo.create(fileDataBuilder.getLinesList(), "hash").get().getChangesetForLine(1).getRevision()).isEqualTo("rev");
   }
 
   @Test
@@ -127,8 +127,8 @@ public class DbScmInfoTest {
     fileDataBuilder.addLinesBuilder().setScmRevision("rev").setScmDate(555L).setLine(2);
     fileDataBuilder.build();
 
-    assertThat(DbScmInfo.create(fileDataBuilder.getLinesList()).get().getAllChangesets()).hasSize(1);
-    assertThat(DbScmInfo.create(fileDataBuilder.getLinesList()).get().getChangesetForLine(2).getAuthor()).isNull();
+    assertThat(DbScmInfo.create(fileDataBuilder.getLinesList(), "hash").get().getAllChangesets()).hasSize(1);
+    assertThat(DbScmInfo.create(fileDataBuilder.getLinesList(), "hash").get().getChangesetForLine(2).getAuthor()).isNull();
   }
 
   private static void addLine(DbFileSources.Data.Builder dataBuilder, Integer line, String author, Long date, String revision) {

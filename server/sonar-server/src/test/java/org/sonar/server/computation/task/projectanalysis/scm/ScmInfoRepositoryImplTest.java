@@ -20,26 +20,34 @@
 package org.sonar.server.computation.task.projectanalysis.scm;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
+import java.util.Collections;
 import java.util.Date;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Optional;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.sonar.api.utils.log.LogTester;
+import org.sonar.db.protobuf.DbFileSources.Line;
 import org.sonar.scanner.protocol.output.ScannerReport;
+import org.sonar.scanner.protocol.output.ScannerReport.Changesets;
 import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
 import org.sonar.server.computation.task.projectanalysis.batch.BatchReportReader;
 import org.sonar.server.computation.task.projectanalysis.batch.BatchReportReaderRule;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
+import org.sonar.server.computation.task.projectanalysis.component.Component.Status;
+import org.sonar.server.computation.task.projectanalysis.component.Component.Type;
+import org.sonar.server.computation.task.projectanalysis.component.FileAttributes;
 import org.sonar.server.computation.task.projectanalysis.component.ReportComponent;
 import org.sonar.server.computation.task.projectanalysis.component.ViewsComponent;
-import org.sonar.server.computation.task.projectanalysis.component.Component.Status;
+import org.sonar.server.computation.task.projectanalysis.source.SourceHashRepository;
 import org.sonar.server.computation.task.projectanalysis.source.SourceLinesDiff;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -55,8 +63,9 @@ import static org.sonar.server.computation.task.projectanalysis.component.Report
 @RunWith(DataProviderRunner.class)
 public class ScmInfoRepositoryImplTest {
   static final int FILE_REF = 1;
-  static final Component FILE = builder(Component.Type.FILE, FILE_REF).setKey("FILE_KEY").setUuid("FILE_UUID").build();
-  static final Component FILE_SAME = builder(Component.Type.FILE, FILE_REF).setStatus(Status.SAME).setKey("FILE_KEY").setUuid("FILE_UUID").build();
+  static final FileAttributes attributes = new FileAttributes(false, "java", 3);
+  static final Component FILE = builder(Component.Type.FILE, FILE_REF).setKey("FILE_KEY").setUuid("FILE_UUID").setFileAttributes(attributes).build();
+  static final Component FILE_SAME = builder(Component.Type.FILE, FILE_REF).setStatus(Status.SAME).setKey("FILE_KEY").setUuid("FILE_UUID").setFileAttributes(attributes).build();
   static final long DATE_1 = 123456789L;
   static final long DATE_2 = 1234567810L;
 
@@ -69,14 +78,40 @@ public class ScmInfoRepositoryImplTest {
   @Rule
   public AnalysisMetadataHolderRule analysisMetadata = new AnalysisMetadataHolderRule();
 
+  private SourceHashRepository sourceHashRepository = mock(SourceHashRepository.class);
   private SourceLinesDiff diff = mock(SourceLinesDiff.class);
   private ScmInfoDbLoader dbLoader = mock(ScmInfoDbLoader.class);
+  private Date analysisDate = new Date();
 
-  private ScmInfoRepositoryImpl underTest = new ScmInfoRepositoryImpl(reportReader, analysisMetadata, dbLoader, diff);
+  private ScmInfoRepositoryImpl underTest = new ScmInfoRepositoryImpl(reportReader, analysisMetadata, dbLoader, diff, sourceHashRepository);
 
   @Before
   public void setUp() {
-    analysisMetadata.setAnalysisDate(new Date());
+    analysisMetadata.setAnalysisDate(analysisDate);
+  }
+
+  @Test
+  public void return_empty_if_component_is_not_file() {
+    Component c = mock(Component.class);
+    when(c.getType()).thenReturn(Type.DIRECTORY);
+    assertThat(underTest.getScmInfo(c)).isAbsent();
+  }
+
+  @Test
+  public void load_scm_info_from_cache_when_already_loaded() {
+    addChangesetInReport("john", DATE_1, "rev-1");
+    ScmInfo scmInfo = underTest.getScmInfo(FILE).get();
+    assertThat(scmInfo.getAllChangesets()).hasSize(1);
+
+    assertThat(logTester.logs(TRACE)).hasSize(1);
+    logTester.clear();
+
+    underTest.getScmInfo(FILE);
+    assertThat(logTester.logs(TRACE)).isEmpty();
+
+    verifyZeroInteractions(dbLoader);
+    verifyZeroInteractions(sourceHashRepository);
+    verifyZeroInteractions(diff);
   }
 
   @Test
@@ -86,54 +121,105 @@ public class ScmInfoRepositoryImplTest {
     ScmInfo scmInfo = underTest.getScmInfo(FILE).get();
     assertThat(scmInfo.getAllChangesets()).hasSize(1);
 
-    assertThat(logTester.logs(TRACE)).containsOnly("Reading SCM info from report for file 'FILE_KEY'");
-  }
-
-  @Test
-  public void getScmInfo_returns_from_DB_if_file_is_unchanged_CopyFromPrevious_is_false_and_there_is_no_changeset_in_report() {
-    ScmInfo info = mock(ScmInfo.class);
-    when(dbLoader.getScmInfoFromDb(FILE_SAME)).thenReturn(info);
-    addFileSourceInReport(1);
-
-    assertThat(underTest.getScmInfo(FILE_SAME).get()).isSameAs(info);
-    verify(dbLoader).getScmInfoFromDb(FILE_SAME);
-    verifyNoMoreInteractions(dbLoader);
-  }
-
-  @Test
-  public void read_from_report_even_if_data_in_db_exists() {
-    addChangesetInReport("john", DATE_2, "rev-2");
-
-    ScmInfo scmInfo = underTest.getScmInfo(FILE).get();
-
     Changeset changeset = scmInfo.getChangesetForLine(1);
     assertThat(changeset.getAuthor()).isEqualTo("john");
-    assertThat(changeset.getDate()).isEqualTo(DATE_2);
-    assertThat(changeset.getRevision()).isEqualTo("rev-2");
+    assertThat(changeset.getDate()).isEqualTo(DATE_1);
+    assertThat(changeset.getRevision()).isEqualTo("rev-1");
+
+    assertThat(logTester.logs(TRACE)).containsOnly("Reading SCM info from report for file 'FILE_KEY'");
+
     verifyZeroInteractions(dbLoader);
+    verifyZeroInteractions(sourceHashRepository);
+    verifyZeroInteractions(diff);
   }
 
   @Test
-  public void read_from_db_even_if_data_in_report_exists_when_CopyFromPrevious_is_true() {
-    ScmInfo info = mock(ScmInfo.class);
-    when(dbLoader.getScmInfoFromDb(FILE)).thenReturn(info);
+  public void read_from_DB_if_no_report_and_file_unchanged() {
+    createDbScmInfoWithOneLine("hash");
+    when(sourceHashRepository.getRawSourceHash(FILE_SAME)).thenReturn("hash");
 
+    // should clear revision and author
+    ScmInfo scmInfo = underTest.getScmInfo(FILE_SAME).get();
+    assertThat(scmInfo.getAllChangesets()).hasSize(1);
+    assertChangeset(scmInfo.getChangesetForLine(1), null, null, 10L);
+
+    verify(sourceHashRepository).getRawSourceHash(FILE_SAME);
+    verify(dbLoader).getScmInfo(FILE_SAME);
+
+    verifyNoMoreInteractions(dbLoader);
+    verifyNoMoreInteractions(sourceHashRepository);
+    verifyZeroInteractions(diff);
+  }
+
+  @Test
+  public void read_from_DB_if_no_report_and_file_unchanged_and_copyFromPrevious_is_true() {
+    createDbScmInfoWithOneLine("hash");
+    when(sourceHashRepository.getRawSourceHash(FILE_SAME)).thenReturn("hash");
     addFileSourceInReport(1);
-    addChangesetInReport("john", DATE_2, "rev-2", true);
+    addCopyFromPrevious();
 
+    ScmInfo scmInfo = underTest.getScmInfo(FILE_SAME).get();
+    assertThat(scmInfo.getAllChangesets()).hasSize(1);
+    assertChangeset(scmInfo.getChangesetForLine(1), "rev1", "author1", 10L);
+
+    verify(sourceHashRepository).getRawSourceHash(FILE_SAME);
+    verify(dbLoader).getScmInfo(FILE_SAME);
+
+    verifyNoMoreInteractions(dbLoader);
+    verifyNoMoreInteractions(sourceHashRepository);
+    verifyZeroInteractions(diff);
+  }
+
+  @Test
+  public void generate_scm_info_when_nothing_in_report_nor_db() {
+    when(dbLoader.getScmInfo(FILE)).thenReturn(Optional.empty());
     ScmInfo scmInfo = underTest.getScmInfo(FILE).get();
-    assertThat(scmInfo).isEqualTo(info);
+    assertThat(scmInfo.getAllChangesets()).hasSize(3);
+
+    for (int i = 1; i <= 3; i++) {
+      assertChangeset(scmInfo.getChangesetForLine(i), null, null, analysisDate.getTime());
+    }
+
+    verify(dbLoader).getScmInfo(FILE);
+    verifyNoMoreInteractions(dbLoader);
+    verifyZeroInteractions(sourceHashRepository);
+    verifyZeroInteractions(diff);
   }
 
   @Test
-  public void return_nothing_when_no_data_in_report_nor_db() {
-    assertThat(underTest.getScmInfo(FILE)).isAbsent();
+  public void generate_scm_info_when_nothing_in_db_and_report_is_has_no_changesets() {
+    when(dbLoader.getScmInfo(FILE)).thenReturn(Optional.empty());
+    addFileSourceInReport(3);
+    ScmInfo scmInfo = underTest.getScmInfo(FILE).get();
+    assertThat(scmInfo.getAllChangesets()).hasSize(3);
+
+    for (int i = 1; i <= 3; i++) {
+      assertChangeset(scmInfo.getChangesetForLine(i), null, null, analysisDate.getTime());
+    }
+
+    verify(dbLoader).getScmInfo(FILE);
+    verifyNoMoreInteractions(dbLoader);
+    verifyZeroInteractions(sourceHashRepository);
+    verifyZeroInteractions(diff);
   }
 
   @Test
-  public void return_nothing_when_nothing_in_report_and_db_has_no_scm() {
-    addFileSourceInReport(1);
-    assertThat(underTest.getScmInfo(FILE)).isAbsent();
+  public void generate_scm_info_for_new_and_changed_lines_when_report_is_empty() {
+    createDbScmInfoWithOneLine("hash");
+    when(diff.getNewOrChangedLines(FILE)).thenReturn(ImmutableSet.of(2, 3));
+    addFileSourceInReport(3);
+    ScmInfo scmInfo = underTest.getScmInfo(FILE).get();
+    assertThat(scmInfo.getAllChangesets()).hasSize(3);
+
+    assertChangeset(scmInfo.getChangesetForLine(1), null, null, 10L);
+    assertChangeset(scmInfo.getChangesetForLine(2), null, null, analysisDate.getTime());
+    assertChangeset(scmInfo.getChangesetForLine(3), null, null, analysisDate.getTime());
+
+    verify(dbLoader).getScmInfo(FILE);
+    verify(diff).getNewOrChangedLines(FILE);
+    verifyNoMoreInteractions(dbLoader);
+    verifyZeroInteractions(sourceHashRepository);
+    verifyNoMoreInteractions(diff);
   }
 
   @Test
@@ -142,6 +228,17 @@ public class ScmInfoRepositoryImplTest {
     thrown.expectMessage("Component cannot be null");
 
     underTest.getScmInfo(null);
+  }
+
+  @Test
+  @UseDataProvider("allTypeComponentButFile")
+  public void do_not_query_db_nor_report_if_component_type_is_not_FILE(Component component) {
+    BatchReportReader batchReportReader = mock(BatchReportReader.class);
+    ScmInfoRepositoryImpl underTest = new ScmInfoRepositoryImpl(batchReportReader, analysisMetadata, dbLoader, diff, sourceHashRepository);
+
+    assertThat(underTest.getScmInfo(component)).isAbsent();
+
+    verifyZeroInteractions(batchReportReader, dbLoader);
   }
 
   @DataProvider
@@ -159,28 +256,10 @@ public class ScmInfoRepositoryImplTest {
     return res;
   }
 
-  @Test
-  @UseDataProvider("allTypeComponentButFile")
-  public void do_not_query_db_nor_report_if_component_type_is_not_FILE(Component component) {
-    BatchReportReader batchReportReader = mock(BatchReportReader.class);
-    ScmInfoRepositoryImpl underTest = new ScmInfoRepositoryImpl(batchReportReader, analysisMetadata, dbLoader, diff);
-
-    assertThat(underTest.getScmInfo(component)).isAbsent();
-
-    verifyZeroInteractions(batchReportReader, dbLoader);
-  }
-
-  @Test
-  public void load_scm_info_from_cache_when_already_read() {
-    addChangesetInReport("john", DATE_1, "rev-1");
-    ScmInfo scmInfo = underTest.getScmInfo(FILE).get();
-    assertThat(scmInfo.getAllChangesets()).hasSize(1);
-
-    assertThat(logTester.logs(TRACE)).hasSize(1);
-    logTester.clear();
-
-    underTest.getScmInfo(FILE);
-    assertThat(logTester.logs(TRACE)).isEmpty();
+  private void assertChangeset(Changeset changeset, String revision, String author, long date) {
+    assertThat(changeset.getAuthor()).isEqualTo(author);
+    assertThat(changeset.getRevision()).isEqualTo(revision);
+    assertThat(changeset.getDate()).isEqualTo(date);
   }
 
   private void addChangesetInReport(String author, Long date, String revision) {
@@ -200,6 +279,21 @@ public class ScmInfoRepositoryImplTest {
       .build());
   }
 
+  private void addCopyFromPrevious() {
+    reportReader.putChangesets(Changesets.newBuilder().setComponentRef(FILE_REF).setCopyFromPrevious(true).build());
+  }
+
+  private DbScmInfo createDbScmInfoWithOneLine(String hash) {
+    Line line1 = Line.newBuilder().setLine(1)
+      .setScmRevision("rev1")
+      .setScmAuthor("author1")
+      .setScmDate(10L)
+      .build();
+    DbScmInfo scmInfo = DbScmInfo.create(Collections.singleton(line1), hash).get();
+    when(dbLoader.getScmInfo(FILE)).thenReturn(Optional.of(scmInfo));
+    return scmInfo;
+  }
+
   private void addFileSourceInReport(int lineCount) {
     reportReader.putFileSourceLines(FILE_REF, generateLines(lineCount));
     reportReader.putComponent(ScannerReport.Component.newBuilder()
@@ -215,4 +309,5 @@ public class ScmInfoRepositoryImplTest {
     }
     return builder.build();
   }
+
 }

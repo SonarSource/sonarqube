@@ -28,15 +28,35 @@ import static com.google.common.base.Preconditions.checkState;
 public class GeneratedScmInfo implements ScmInfo {
   private final ScmInfoImpl delegate;
 
-  public GeneratedScmInfo(long analysisDate, Set<Integer> lines) {
+  public GeneratedScmInfo(Map<Integer, Changeset> changesets) {
+    delegate = new ScmInfoImpl(changesets);
+  }
+
+  public static ScmInfo create(long analysisDate, Set<Integer> lines) {
     checkState(!lines.isEmpty(), "No changesets");
 
     Changeset changeset = Changeset.newChangesetBuilder()
       .setDate(analysisDate)
       .build();
     Map<Integer, Changeset> changesets = lines.stream()
-      .collect(Collectors.toMap(Integer::valueOf, i -> changeset));
-    delegate = new ScmInfoImpl(changesets);
+      .collect(Collectors.toMap(x -> x, i -> changeset));
+    return new GeneratedScmInfo(changesets);
+  }
+
+  public static ScmInfo create(long analysisDate, Set<Integer> lines, ScmInfo dbScmInfo) {
+    checkState(!lines.isEmpty(), "No changesets");
+
+    Changeset changeset = Changeset.newChangesetBuilder()
+      .setDate(analysisDate)
+      .build();
+    Map<Integer, Changeset> changesets = lines.stream()
+      .collect(Collectors.toMap(x -> x, i -> changeset));
+
+    dbScmInfo.getAllChangesets().entrySet().stream()
+      .filter(e -> !lines.contains(e.getKey()))
+      .forEach(e -> changesets.put(e.getKey(), e.getValue()));
+
+    return new GeneratedScmInfo(changesets);
   }
 
   @Override
