@@ -28,6 +28,10 @@
       <artifactId>commons-codec</artifactId>
     </dependency>
     <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-csv</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.picocontainer</groupId>
       <artifactId>picocontainer</artifactId>
     </dependency>

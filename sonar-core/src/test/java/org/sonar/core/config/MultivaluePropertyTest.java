@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.scanner.config;
+package org.sonar.core.config;
 
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
@@ -30,10 +30,10 @@ import org.junit.runner.RunWith;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.scanner.config.MultivaluePropertyCleaner.trimFieldsAndRemoveEmptyFields;
+import static org.sonar.core.config.MultivalueProperty.trimFieldsAndRemoveEmptyFields;
 
 @RunWith(DataProviderRunner.class)
-public class MultivaluePropertyCleanerTest {
+public class MultivaluePropertyTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 

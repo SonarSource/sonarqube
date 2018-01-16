@@ -38,7 +38,7 @@ import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 
-import static org.sonar.scanner.config.DefaultConfiguration.parseAsCsv;
+import static org.sonar.core.config.MultivalueProperty.parseAsCsv;
 
 @ScannerSide
 @Immutable
