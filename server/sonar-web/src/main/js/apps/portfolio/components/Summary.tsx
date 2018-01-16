@@ -30,8 +30,7 @@ interface Props {
 }
 
 export default function Summary({ component, measures }: Props) {
-  const projects = measures['projects'];
-  const ncloc = measures['ncloc'];
+  const { projects, ncloc } = measures;
   const nclocDistribution = measures['ncloc_language_distribution'];
 
   return (

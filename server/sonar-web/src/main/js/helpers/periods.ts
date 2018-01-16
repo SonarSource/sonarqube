@@ -20,7 +20,7 @@
 import { translate, translateWithParameters } from './l10n';
 import { parseDate } from './dates';
 
-interface Period {
+export interface Period {
   date: string;
   index: number;
   mode: string;
