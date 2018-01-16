@@ -51,7 +51,7 @@ exports[`should display the modal after click 2`] = `
     >
       overview.stickers.measure.description
     </p>
-    <StickerParams
+    <Connect(StickerParams)
       className="big-spacer-bottom"
       options={
         Object {

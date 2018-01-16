@@ -81,12 +81,15 @@ export default class WebApiApp extends React.PureComponent<Props, State> {
     }
   }
 
-  fetchList(cb?: () => void) {
-    fetchWebApi().then(domains => {
-      if (this.mounted) {
-        this.setState({ domains }, cb);
-      }
-    });
+  fetchList() {
+    fetchWebApi().then(
+      domains => {
+        if (this.mounted) {
+          this.setState({ domains });
+        }
+      },
+      () => {}
+    );
   }
 
   scrollToAction = () => {
