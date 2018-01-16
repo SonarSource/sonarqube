@@ -20,16 +20,16 @@
 import { sortBy } from 'lodash';
 import { Branch, BranchType, ShortLivingBranch, LongLivingBranch } from '../app/types';
 
-export function isShortLivingBranch(branch: Branch | null): branch is ShortLivingBranch {
-  return branch != null && !branch.isMain && branch.type === BranchType.SHORT;
+export function isShortLivingBranch(branch?: Branch): branch is ShortLivingBranch {
+  return branch !== undefined && !branch.isMain && branch.type === BranchType.SHORT;
 }
 
-export function isLongLivingBranch(branch: Branch | null): branch is LongLivingBranch {
-  return branch != null && !branch.isMain && branch.type === BranchType.LONG;
+export function isLongLivingBranch(branch?: Branch): branch is LongLivingBranch {
+  return branch !== undefined && !branch.isMain && branch.type === BranchType.LONG;
 }
 
-export function getBranchName(branch: Branch): string | undefined {
-  return branch.isMain ? undefined : branch.name;
+export function getBranchName(branch?: Branch): string | undefined {
+  return !branch || branch.isMain ? undefined : branch.name;
 }
 
 export function sortBranchesAsTree(branches: Branch[]): Branch[] {
