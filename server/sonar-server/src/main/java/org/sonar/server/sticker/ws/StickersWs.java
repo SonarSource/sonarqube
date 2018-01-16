@@ -35,8 +35,8 @@ public class StickersWs implements WebService {
   @Override
   public void define(Context context) {
     NewController controller = context.createController("api/stickers");
-    controller.setDescription("Generate stickers based on quality gates or measures, using badges or cards shapes.");
-    controller.setSince("7.0");
+    controller.setDescription("Generate badges for quality gates or measures");
+    controller.setSince("7.1");
     actions.forEach(action -> action.define(controller));
     controller.done();
   }

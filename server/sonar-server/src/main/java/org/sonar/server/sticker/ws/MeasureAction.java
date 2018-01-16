@@ -116,16 +116,16 @@ public class MeasureAction implements StickersWsAction {
 
   private final UserSession userSession;
   private final DbClient dbClient;
+  private final ComponentFinder componentFinder;
   private final SvgGenerator svgGenerator;
-  private ComponentFinder componentFinder;
   private final Durations durations;
 
-  public MeasureAction(UserSession userSession, DbClient dbClient, SvgGenerator svgGenerator, Durations durations, ComponentFinder componentFinder) {
-    this.durations = durations;
+  public MeasureAction(UserSession userSession, DbClient dbClient, ComponentFinder componentFinder, SvgGenerator svgGenerator, Durations durations) {
     this.userSession = userSession;
     this.dbClient = dbClient;
-    this.svgGenerator = svgGenerator;
     this.componentFinder = componentFinder;
+    this.svgGenerator = svgGenerator;
+    this.durations = durations;
   }
 
   @Override

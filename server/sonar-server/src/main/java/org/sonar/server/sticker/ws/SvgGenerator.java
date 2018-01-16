@@ -27,10 +27,14 @@ import java.io.IOException;
 import java.util.Map;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.text.StrSubstitutor;
+import org.sonar.api.measures.Metric;
 import org.sonar.api.server.ServerSide;
 
 import static java.lang.String.valueOf;
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.sonar.api.measures.Metric.Level.ERROR;
+import static org.sonar.api.measures.Metric.Level.OK;
+import static org.sonar.api.measures.Metric.Level.WARN;
 
 @ServerSide
 public class SvgGenerator {
@@ -51,10 +55,15 @@ public class SvgGenerator {
 
   private final String errorTemplate;
   private final String badgeTemplate;
+  private final Map<Metric.Level, String> qualityGateTemplates;
 
   public SvgGenerator() {
     this.errorTemplate = readTemplate("error.svg");
     this.badgeTemplate = readTemplate("badge.svg");
+    this.qualityGateTemplates = ImmutableMap.of(
+      OK, readTemplate("quality_gate_passed.svg"),
+      WARN, readTemplate("quality_gate_warn.svg"),
+      ERROR, readTemplate("quality_gate_failed.svg"));
   }
 
   public String generateBadge(String label, String value, Color backgroundValueColor) {
@@ -73,6 +82,10 @@ public class SvgGenerator {
       .build();
     StrSubstitutor strSubstitutor = new StrSubstitutor(values);
     return strSubstitutor.replace(badgeTemplate);
+  }
+
+  public String generateQualityGate(Metric.Level level){
+    return qualityGateTemplates.get(level);
   }
 
   public String generateError(String error) {

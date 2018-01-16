@@ -20,19 +20,44 @@
 package org.sonar.server.sticker.ws;
 
 import com.google.common.io.Resources;
-import org.apache.commons.io.IOUtils;
+import org.sonar.api.measures.CoreMetrics;
+import org.sonar.api.measures.Metric.Level;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.NewAction;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.db.component.ComponentDto;
+import org.sonar.db.measure.LiveMeasureDto;
+import org.sonar.server.component.ComponentFinder;
+import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.user.UserSession;
 
-import static java.util.Arrays.asList;
+import static java.lang.String.format;
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.apache.commons.io.IOUtils.write;
+import static org.sonar.api.web.UserRole.USER;
+import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 
 public class QualityGateAction implements StickersWsAction {
 
-  public static final String PARAM_COMPONENT = "component";
-  public static final String PARAM_TYPE = "type";
+  private static final String PARAM_COMPONENT = "component";
+  private static final String PARAM_BRANCH = "branch";
+
+  private final UserSession userSession;
+  private final DbClient dbClient;
+  private final ComponentFinder componentFinder;
+  private final SvgGenerator svgGenerator;
+
+  public QualityGateAction(UserSession userSession, DbClient dbClient, ComponentFinder componentFinder, SvgGenerator svgGenerator) {
+    this.userSession = userSession;
+    this.dbClient = dbClient;
+    this.componentFinder = componentFinder;
+    this.svgGenerator = svgGenerator;
+  }
 
   @Override
   public void define(WebService.NewController controller) {
@@ -44,16 +69,31 @@ public class QualityGateAction implements StickersWsAction {
       .setDescription("Project key")
       .setRequired(true)
       .setExampleValue(KEY_PROJECT_EXAMPLE_001);
-    action.createParam(PARAM_TYPE)
-      .setDescription("Type of badge.")
-      .setRequired(false)
-      .setPossibleValues(asList("BADGE", "CARD"));
+    action
+      .createParam(PARAM_BRANCH)
+      .setDescription("Branch key")
+      .setExampleValue(KEY_BRANCH_EXAMPLE_001);
   }
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    response.stream().setMediaType("image/svg+xml");
-    IOUtils.copy(Resources.getResource(getClass(), "quality_gate-example.svg").openStream(), response.stream().output());
+    response.stream().setMediaType(StickersWs.SVG_MEDIA_TYPE);
+    String projectKey = request.mandatoryParam(PARAM_COMPONENT);
+    String branch = request.param(PARAM_BRANCH);
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      ComponentDto project = componentFinder.getByKeyAndOptionalBranch(dbSession, projectKey, branch);
+      userSession.checkComponentPermission(USER, project);
+      Level qualityGateStatus = getQualityGate(dbSession, project);
+      write(svgGenerator.generateQualityGate(qualityGateStatus), response.stream().output(), UTF_8);
+    } catch (StickerException | ForbiddenException | NotFoundException e) {
+      write(svgGenerator.generateError(e.getMessage()), response.stream().output(), UTF_8);
+    }
+  }
+
+  private Level getQualityGate(DbSession dbSession, ComponentDto project) {
+    return Level.valueOf(dbClient.liveMeasureDao().selectMeasure(dbSession, project.uuid(), CoreMetrics.ALERT_STATUS_KEY)
+      .map(LiveMeasureDto::getTextValue)
+      .orElseThrow(() -> new StickerException(format("Quality gate has not been found for project '%s' and branch '%s'", project.getKey(), project.getBranch()))));
   }
 
 }

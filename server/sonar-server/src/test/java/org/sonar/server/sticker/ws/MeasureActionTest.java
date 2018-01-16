@@ -72,7 +72,7 @@ public class MeasureActionTest {
   public DbTester db = DbTester.create();
 
   private WsActionTester ws = new WsActionTester(
-    new MeasureAction(userSession, db.getDbClient(), new SvgGenerator(), new Durations(), new ComponentFinder(db.getDbClient(), null)));
+    new MeasureAction(userSession, db.getDbClient(), new ComponentFinder(db.getDbClient(), null), new SvgGenerator(), new Durations()));
 
   @Test
   public void int_measure() {
