@@ -17,11 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
-import { shallow } from 'enzyme';
-import FacetFooter from '../FacetFooter';
+import * as React from 'react';
 
-it('should render', () => {
-  expect(shallow(<FacetFooter onSearch={jest.fn()} onSelect={jest.fn()} />)).toMatchSnapshot();
-});
+interface Props {
+  children?: React.ReactNode;
+}
+
+export default function FacetItemsList(props: Props) {
+  return <div className="search-navigator-facet-list">{props.children}</div>;
+}

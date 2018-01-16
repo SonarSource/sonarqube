@@ -17,20 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-//@flow
-import React from 'react';
-import SeverityIcon from './SeverityIcon';
+import * as React from 'react';
+import IssueTypeIcon from '../ui/IssueTypeIcon';
 import { translate } from '../../helpers/l10n';
 
-export default function SeverityHelper(props /*: { severity: ?string, className?: string } */) {
-  const { severity } = props;
-  if (!severity) {
-    return null;
-  }
+interface Props {
+  className?: string;
+  type: string;
+}
+
+export default function TypeHelper(props: Props) {
   return (
     <span className={props.className}>
-      <SeverityIcon className="little-spacer-right" severity={severity} />
-      {translate('severity', severity)}
+      <IssueTypeIcon className="little-spacer-right" query={props.type} />
+      {translate('issue.type', props.type)}
     </span>
   );
 }

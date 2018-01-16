@@ -24,23 +24,9 @@ import TagsList from '../TagsList';
 const tags = ['foo', 'bar'];
 
 it('should render with a list of tag', () => {
-  const taglist = shallow(<TagsList tags={tags} />);
-  expect(taglist.text()).toBe(tags.join(', '));
-  expect(taglist.find('i').length).toBe(1);
-  expect(taglist.find('span.note').hasClass('text-ellipsis')).toBe(true);
-});
-
-it('should correctly handle a lot of tags', () => {
-  const lotOfTags = [];
-  for (let i = 0; i < 20; i++) {
-    lotOfTags.push(String(tags));
-  }
-  const taglist = shallow(<TagsList tags={lotOfTags} />);
-  expect(taglist.text()).toBe(lotOfTags.join(', '));
-  expect(taglist.find('span.note').hasClass('text-ellipsis')).toBe(true);
+  expect(shallow(<TagsList tags={tags} />)).toMatchSnapshot();
 });
 
 it('should render with a caret on the right if update is allowed', () => {
-  const taglist = shallow(<TagsList tags={tags} allowUpdate={true} />);
-  expect(taglist.find('i').length).toBe(2);
+  expect(shallow(<TagsList allowUpdate={true} tags={tags} />)).toMatchSnapshot();
 });

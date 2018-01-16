@@ -17,31 +17,36 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
-import SearchSelect from '../controls/SearchSelect';
+import * as React from 'react';
+import Facet, { BasicProps } from './Facet';
+import IssueTypeIcon from '../../../components/ui/IssueTypeIcon';
+import { translate } from '../../../helpers/l10n';
 
-/*::
-type Option = { label: string, value: string };
-*/
+export default class TypeFacet extends React.PureComponent<BasicProps> {
+  renderName = (type: string) => {
+    return (
+      <>
+        <IssueTypeIcon className="little-spacer-right" query={type} />
+        {translate('issue.type', type)}
+      </>
+    );
+  };
 
-/*::
-type Props = {|
-  minimumQueryLength?: number,
-  onSearch: (query: string) => Promise<Array<Option>>,
-  onSelect: (value: string) => void,
-  renderOption?: (option: Object) => React.Element<*>
-|};
-*/
-
-export default class FacetFooter extends React.PureComponent {
-  /*:: props: Props; */
+  renderTextName = (type: string) => {
+    return translate('issue.type', type);
+  };
 
   render() {
+    const options = ['BUG', 'VULNERABILITY', 'CODE_SMELL'];
+
     return (
-      <div className="search-navigator-facet-footer">
-        <SearchSelect autofocus={false} {...this.props} />
-      </div>
+      <Facet
+        {...this.props}
+        options={options}
+        property="types"
+        renderName={this.renderName}
+        renderTextName={this.renderTextName}
+      />
     );
   }
 }

@@ -17,32 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
+import * as React from 'react';
 import OpenCloseIcon from '../icons-components/OpenCloseIcon';
 import HelpIcon from '../icons-components/HelpIcon';
 import Tooltip from '../controls/Tooltip';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 
-/*::
-type Props = {|
-  helper?: string,
-  name: string,
-  onClear?: () => void,
-  onClick?: () => void,
-  open: boolean,
-  values?: Array<string>
-|};
-*/
+interface Props {
+  helper?: string;
+  name: string;
+  onClear?: () => void;
+  onClick?: () => void;
+  open: boolean;
+  values?: string[];
+}
 
-export default class FacetHeader extends React.PureComponent {
-  /*:: props: Props; */
-
-  static defaultProps = {
-    open: true
-  };
-
-  handleClearClick = (event /*: Event & { currentTarget: HTMLElement } */) => {
+export default class FacetHeader extends React.PureComponent<Props> {
+  handleClearClick = (event: React.SyntheticEvent<HTMLButtonElement>) => {
     event.preventDefault();
     event.currentTarget.blur();
     if (this.props.onClear) {
@@ -50,7 +41,7 @@ export default class FacetHeader extends React.PureComponent {
     }
   };
 
-  handleClick = (event /*: Event & { currentTarget: HTMLElement } */) => {
+  handleClick = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     event.currentTarget.blur();
     if (this.props.onClick) {

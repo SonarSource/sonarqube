@@ -17,16 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
+import * as React from 'react';
 import { shallow } from 'enzyme';
 import { click } from '../../../helpers/testUtils';
-import FacetItem from '../FacetItem';
-
-const renderFacetItem = (props /*: {} */) =>
-  shallow(
-    <FacetItem active={false} name="foo" onClick={jest.fn()} stat={null} value="bar" {...props} />
-  );
+import FacetItem, { Props } from '../FacetItem';
 
 it('should render active', () => {
   expect(renderFacetItem({ active: true })).toMatchSnapshot();
@@ -48,13 +42,15 @@ it('should render half width', () => {
   expect(renderFacetItem({ halfWidth: true })).toMatchSnapshot();
 });
 
-it('should render effort stat', () => {
-  expect(renderFacetItem({ facetMode: 'effort', stat: '1234' })).toMatchSnapshot();
-});
-
 it('should call onClick', () => {
   const onClick = jest.fn();
   const wrapper = renderFacetItem({ onClick });
-  click(wrapper, { currentTarget: { dataset: { value: 'bar' } } });
+  click(wrapper, { currentTarget: { blur() {}, dataset: { value: 'bar' } } });
   expect(onClick).toHaveBeenCalled();
 });
+
+function renderFacetItem(props?: Partial<Props>) {
+  return shallow(
+    <FacetItem active={false} name="foo" onClick={jest.fn()} stat={null} value="bar" {...props} />
+  );
+}

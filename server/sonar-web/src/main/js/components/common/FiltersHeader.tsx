@@ -17,29 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
-import { translate } from '../../../helpers/l10n';
+import * as React from 'react';
+import { translate } from '../../helpers/l10n';
 
-/*::
-type Props = {
-  displayReset: boolean,
-  onReset: () => void
-};
-*/
+interface Props {
+  displayReset: boolean;
+  onReset: () => void;
+}
 
-export default class FiltersHeader extends React.PureComponent {
-  /*:: props: Props; */
-
-  handleResetClick = (e /*: Event & { currentTarget: HTMLElement } */) => {
-    e.preventDefault();
-    e.currentTarget.blur();
+export default class FiltersHeader extends React.PureComponent<Props> {
+  handleResetClick = (event: React.SyntheticEvent<HTMLButtonElement>) => {
+    event.preventDefault();
+    event.currentTarget.blur();
     this.props.onReset();
   };
 
   render() {
     return (
-      <div className="issues-filters-header">
+      <div className="search-navigator-filters-header">
         {this.props.displayReset && (
           <div className="pull-right">
             <button className="button-red" onClick={this.handleResetClick}>

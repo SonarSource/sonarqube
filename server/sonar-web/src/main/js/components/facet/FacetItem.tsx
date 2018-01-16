@@ -17,37 +17,34 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
-import classNames from 'classnames';
+import * as React from 'react';
+import * as classNames from 'classnames';
 
-/*::
-type Props = {|
-  active: boolean,
-  disabled: boolean,
-  halfWidth: boolean,
-  name: string | React.Element<*>,
-  onClick: string => void,
-  stat?: ?(string | React.Element<*>),
-  value: string
-|};
-*/
+export interface Props {
+  active?: boolean;
+  className?: string;
+  disabled?: boolean;
+  halfWidth?: boolean;
+  name: React.ReactNode;
+  onClick: (x: string) => void;
+  stat?: React.ReactNode;
+  value: string;
+}
 
-export default class FacetItem extends React.PureComponent {
-  /*:: props: Props; */
-
+export default class FacetItem extends React.PureComponent<Props> {
   static defaultProps = {
     disabled: false,
     halfWidth: false
   };
 
-  handleClick = (event /*: Event & { currentTarget: HTMLElement } */) => {
+  handleClick = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
+    event.currentTarget.blur();
     this.props.onClick(this.props.value);
   };
 
   render() {
-    const className = classNames('facet', 'search-navigator-facet', {
+    const className = classNames('facet', 'search-navigator-facet', this.props.className, {
       active: this.props.active,
       'search-navigator-facet-half': this.props.halfWidth
     });

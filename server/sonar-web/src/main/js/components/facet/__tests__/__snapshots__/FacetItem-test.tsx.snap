@@ -26,25 +26,6 @@ exports[`should render disabled 1`] = `
 </span>
 `;
 
-exports[`should render effort stat 1`] = `
-<a
-  className="facet search-navigator-facet"
-  href="#"
-  onClick={[Function]}
->
-  <span
-    className="facet-name"
-  >
-    foo
-  </span>
-  <span
-    className="facet-stat"
-  >
-    1234
-  </span>
-</a>
-`;
-
 exports[`should render half width 1`] = `
 <a
   className="facet search-navigator-facet search-navigator-facet-half"

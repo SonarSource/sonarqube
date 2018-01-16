@@ -177,11 +177,11 @@ button:disabled:focus,
 .button:disabled:focus,
 input[type='submit']:disabled:focus,
 input[type='button']:disabled:focus {
-  color: #bbb;
-  border-color: #ddd;
-  background: #ebebeb;
-  cursor: not-allowed;
-  box-shadow: none;
+  color: #bbb !important;
+  border-color: #ddd !important;
+  background: #ebebeb !important;
+  cursor: not-allowed !important;
+  box-shadow: none !important;
 }
 
 .button svg {

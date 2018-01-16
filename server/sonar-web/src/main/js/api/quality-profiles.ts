@@ -219,3 +219,37 @@ export function addGroup(parameters: AddRemoveGroupParameters): Promise<void | R
 export function removeGroup(parameters: AddRemoveGroupParameters): Promise<void | Response> {
   return post('/api/qualityprofiles/remove_group', parameters).catch(throwGlobalError);
 }
+
+export interface BulkActivateParameters {
+  /* eslint-disable camelcase */
+  activation?: boolean;
+  active_severities?: string;
+  asc?: boolean;
+  available_since?: string;
+  compareToProfile?: string;
+  inheritance?: string;
+  is_template?: string;
+  languages?: string;
+  organization?: string;
+  q?: string;
+  qprofile?: string;
+  repositories?: string;
+  rule_key?: string;
+  s?: string;
+  severities?: string;
+  statuses?: string;
+  tags?: string;
+  targetKey: string;
+  targetSeverity?: string;
+  template_key?: string;
+  types?: string;
+  /* eslint-enable camelcase */
+}
+
+export function bulkActivateRules(data: BulkActivateParameters) {
+  return postJSON('api/qualityprofiles/activate_rules', data);
+}
+
+export function bulkDectivateRules(data: BulkActivateParameters) {
+  return postJSON('api/qualityprofiles/deactivate_rules', data);
+}

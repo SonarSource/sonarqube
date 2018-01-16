@@ -17,17 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
-import { shallow } from 'enzyme';
-import FacetItemsList from '../FacetItemsList';
+import * as React from 'react';
+import Facet, { BasicProps } from './Facet';
+import { translate } from '../../../helpers/l10n';
 
-it('should render', () => {
-  expect(
-    shallow(
-      <FacetItemsList>
-        <div />
-      </FacetItemsList>
-    )
-  ).toMatchSnapshot();
-});
+export default class StatusFacet extends React.PureComponent<BasicProps> {
+  renderName = (status: string) => {
+    return translate('rules.status', status.toLowerCase());
+  };
+
+  render() {
+    const options = ['READY', 'DEPRECATED', 'BETA'];
+
+    return (
+      <Facet
+        {...this.props}
+        options={options}
+        property="statuses"
+        renderName={this.renderName}
+        renderTextName={this.renderName}
+      />
+    );
+  }
+}

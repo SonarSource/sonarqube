@@ -24,7 +24,6 @@ import key from 'keymaster';
 import { keyBy, without } from 'lodash';
 import PropTypes from 'prop-types';
 import PageActions from './PageActions';
-import FiltersHeader from './FiltersHeader';
 import MyIssuesFilter from './MyIssuesFilter';
 import Sidebar from '../sidebar/Sidebar';
 import IssuesList from './IssuesList';
@@ -59,6 +58,7 @@ import handleRequiredAuthentication from '../../../app/utils/handleRequiredAuthe
 import { isLoggedIn } from '../../../app/types';
 import ListFooter from '../../../components/controls/ListFooter';
 import EmptySearch from '../../../components/common/EmptySearch';
+import FiltersHeader from '../../../components/common/FiltersHeader';
 import ScreenPositionHelper from '../../../components/common/ScreenPositionHelper';
 import { getBranchName, isShortLivingBranch } from '../../../helpers/branches';
 import { translate, translateWithParameters } from '../../../helpers/l10n';

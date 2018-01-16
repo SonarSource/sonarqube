@@ -187,3 +187,57 @@ export interface AppState {
   organizationsEnabled?: boolean;
   qualifiers: string[];
 }
+
+export interface Rule {
+  isTemplate?: boolean;
+  key: string;
+  lang: string;
+  langName: string;
+  name: string;
+  params?: RuleParameter[];
+  severity: string;
+  status: string;
+  sysTags?: string[];
+  tags?: string[];
+  type: string;
+}
+
+export interface RuleDetails extends Rule {
+  createdAt: string;
+  debtOverloaded?: boolean;
+  debtRemFnCoeff?: string;
+  debtRemFnOffset?: string;
+  debtRemFnType?: string;
+  defaultDebtRemFnOffset?: string;
+  defaultDebtRemFnType?: string;
+  defaultRemFnBaseEffort?: string;
+  defaultRemFnType?: string;
+  effortToFixDescription?: string;
+  htmlDesc?: string;
+  htmlNote?: string;
+  internalKey?: string;
+  mdDesc?: string;
+  mdNote?: string;
+  remFnBaseEffort?: string;
+  remFnOverloaded?: boolean;
+  remFnType?: string;
+  repo: string;
+  templateKey?: string;
+}
+
+export interface RuleActivation {
+  createdAt: string;
+  inherit: string;
+  params: Array<{ key: string; value: string }>;
+  qProfile: string;
+  severity: string;
+}
+
+export interface RuleParameter {
+  // TODO is this extra really returned?
+  extra?: string;
+  defaultValue?: string;
+  htmlDesc?: string;
+  key: string;
+  type: string;
+}

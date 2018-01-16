@@ -17,22 +17,30 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-//@flow
-import React from 'react';
-import IssueTypeIcon from '../ui/IssueTypeIcon';
-import { translate } from '../../helpers/l10n';
+import * as React from 'react';
+import * as classNames from 'classnames';
+import { formatMeasure } from '../../helpers/measures';
 
-/*::
-type Props = {
-  type: string
-};
-*/
+interface Props {
+  className?: string;
+  current?: number;
+  label: string;
+  total: number;
+}
 
-const TypeHelper = (props /*: Props */) => (
-  <span>
-    <IssueTypeIcon className="little-spacer-right" query={props.type} />
-    {translate('issue.type', props.type)}
-  </span>
-);
-
-export default TypeHelper;
+export default function PageCounter({ className, current, label, total }: Props) {
+  return (
+    <div className={classNames('display-inline-block', className)}>
+      <strong>
+        {current !== undefined && (
+          <>
+            {formatMeasure(current + 1, 'INT')}
+            {' / '}
+          </>
+        )}
+        {formatMeasure(total, 'INT')}
+      </strong>{' '}
+      {label}
+    </div>
+  );
+}

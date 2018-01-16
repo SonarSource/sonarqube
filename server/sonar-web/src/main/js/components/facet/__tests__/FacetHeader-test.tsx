@@ -17,11 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
+import * as React from 'react';
 import { shallow } from 'enzyme';
-import { click } from '../../../helpers/testUtils';
 import FacetHeader from '../FacetHeader';
+import { click } from '../../../helpers/testUtils';
 
 it('should render open facet with value', () => {
   expect(

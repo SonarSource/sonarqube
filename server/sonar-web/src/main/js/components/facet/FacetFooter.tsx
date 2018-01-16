@@ -17,28 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
-import { getMarkdownHelpUrl } from '../../helpers/urls';
-import { translate } from '../../helpers/l10n';
+import * as React from 'react';
+import SearchSelect from '../controls/SearchSelect';
 
-export default class MarkdownTips extends React.PureComponent {
-  handleClick(evt /*: MouseEvent */) {
-    evt.preventDefault();
-    window.open(getMarkdownHelpUrl(), 'Markdown', 'height=300,width=600,scrollbars=1,resizable=1');
-  }
+type Option = { label: string; value: string };
 
-  render() {
-    return (
-      <div className="markdown-tips">
-        <a className="little-spacer-right" href="#" onClick={this.handleClick}>
-          {translate('markdown.helplink')}
-        </a>
-        {':'}
-        <span className="spacer-left">*{translate('bold')}*</span>
-        <span className="spacer-left">``{translate('code')}``</span>
-        <span className="spacer-left">* {translate('bulleted_point')}</span>
-      </div>
-    );
-  }
+interface Props {
+  minimumQueryLength?: number;
+  onSearch: (query: string) => Promise<Option[]>;
+  onSelect: (value: string) => void;
+  renderOption?: (option: Object) => JSX.Element;
+}
+
+export default function FacetFooter(props: Props) {
+  return (
+    <div className="search-navigator-facet-footer">
+      <SearchSelect autofocus={false} {...props} />
+    </div>
+  );
 }

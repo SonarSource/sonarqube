@@ -17,15 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
+import * as React from 'react';
+import SeverityIcon from './SeverityIcon';
+import { translate } from '../../helpers/l10n';
 
-/*::
-type Props = {|
-  children?: Array<React.Element<*>>
-|};
-*/
+interface Props {
+  className?: string;
+  // TODO avoid passing nil values
+  severity: string | undefined | null;
+}
 
-export default function FacetItemsList(props /*: Props */) {
-  return <div className="search-navigator-facet-list">{props.children}</div>;
+export default function SeverityHelper({ className, severity }: Props) {
+  if (!severity) {
+    return null;
+  }
+  return (
+    <span className={className}>
+      <SeverityIcon className="little-spacer-right" severity={severity} />
+      {translate('severity', severity)}
+    </span>
+  );
 }

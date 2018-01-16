@@ -121,12 +121,6 @@
   border: none;
 }
 
-.issues-filters-header {
-  margin-bottom: 12px;
-  padding-bottom: 11px;
-  border-bottom: 1px solid var(--barBorderColor);
-}
-
 .issues-my-issues-filter {
   margin-bottom: 24px;
   text-align: center;

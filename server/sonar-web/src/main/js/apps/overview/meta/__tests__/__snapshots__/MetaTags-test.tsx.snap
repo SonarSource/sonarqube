@@ -108,6 +108,7 @@ exports[`should render without tags and admin rights 1`] = `
 >
   <TagsList
     allowUpdate={false}
+    className="note"
     tags={
       Array [
         "no_tags",

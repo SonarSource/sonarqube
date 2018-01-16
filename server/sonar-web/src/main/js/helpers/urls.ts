@@ -68,8 +68,9 @@ export function getProjectBranchUrl(key: string, branch: Branch): Location {
 /**
  * Generate URL for a global issues page
  */
-export function getIssuesUrl(query: Query): Location {
-  return { pathname: '/issues', query };
+export function getIssuesUrl(query: Query, organization?: string): Location {
+  const pathname = organization ? `/organizations/${organization}/issues` : '/issues';
+  return { pathname, query };
 }
 
 /**
@@ -162,6 +163,13 @@ export function getRulesUrl(query: { [x: string]: string }, organization?: strin
 export function getDeprecatedActiveRulesUrl(query = {}, organization?: string | null): string {
   const baseQuery = { activation: 'true', statuses: 'DEPRECATED' };
   return getRulesUrl({ ...query, ...baseQuery }, organization);
+}
+
+export function getRuleUrl(rule: string, organization?: string) {
+  const pathname = organization ? `/organizations/${organization}/rules` : '/coding_rules';
+  /* eslint-disable camelcase */
+  return { pathname, query: { open: rule, rule_key: rule } };
+  /* eslint-enable camelcase */
 }
 
 export function getMarkdownHelpUrl(): string {

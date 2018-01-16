@@ -17,15 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
+import * as React from 'react';
+import { shallow } from 'enzyme';
+import FacetItemsList from '../FacetItemsList';
 
-/*::
-type Props = {|
-  children?: React.Element<*>
-|};
-*/
-
-export default function FacetBox(props /*: Props */) {
-  return <div className="search-navigator-facet-box">{props.children}</div>;
-}
+it('should render', () => {
+  expect(
+    shallow(
+      <FacetItemsList>
+        <div />
+      </FacetItemsList>
+    )
+  ).toMatchSnapshot();
+});

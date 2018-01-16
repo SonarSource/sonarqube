@@ -17,17 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
-import { shallow } from 'enzyme';
-import FacetBox from '../FacetBox';
+import * as React from 'react';
+import * as classNames from 'classnames';
+import { translateWithParameters } from '../../../helpers/l10n';
 
-it('should render', () => {
-  expect(
-    shallow(
-      <FacetBox>
-        <div />
-      </FacetBox>
-    )
-  ).toMatchSnapshot();
-});
+interface Props {
+  inheritance: 'INHERITED' | 'OVERRIDES';
+  parentProfileName: string;
+  profileName: string;
+}
+
+export default function RuleInheritanceIcon(props: Props) {
+  return (
+    <i
+      className={classNames('icon-inheritance', {
+        'icon-inheritance-overridden': props.inheritance === 'OVERRIDES'
+      })}
+      title={translateWithParameters(
+        'coding_rules.overrides',
+        props.profileName,
+        props.parentProfileName
+      )}
+    />
+  );
+}

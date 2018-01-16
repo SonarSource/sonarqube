@@ -77,11 +77,8 @@
 
 .coding-rules-detail-property {
   display: inline-block;
-  vertical-align: middle;
   margin-right: 20px;
   font-size: var(--smallFontSize);
-  height: var(--controlHeight);
-  line-height: var(--controlHeight);
 }
 
 .coding-rules-detail-property .select2-search-field {
