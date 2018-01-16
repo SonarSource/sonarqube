@@ -153,18 +153,21 @@ export function getLocalizedDashboardName(baseName: string) {
 }
 
 export function getLocalizedMetricName(
-  metric: { key: string; name: string },
+  metric: { key: string; name?: string },
   short?: boolean
 ): string {
   const bundleKey = `metric.${metric.key}.${short ? 'short_name' : 'name'}`;
   const fromBundle = translate(bundleKey);
   if (fromBundle === bundleKey) {
-    return short ? getLocalizedMetricName(metric) : metric.name;
+    if (short) {
+      return getLocalizedMetricName(metric);
+    }
+    return metric.name || metric.key;
   }
   return fromBundle;
 }
 
-export function getLocalizedCategoryMetricName(metric: { key: string; name: string }) {
+export function getLocalizedCategoryMetricName(metric: { key: string; name?: string }) {
   const bundleKey = `metric.${metric.key}.extra_short_name`;
   const fromBundle = translate(bundleKey);
   return fromBundle === bundleKey ? getLocalizedMetricName(metric, true) : fromBundle;

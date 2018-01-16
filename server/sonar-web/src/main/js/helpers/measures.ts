@@ -18,20 +18,27 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { translate, translateWithParameters, getCurrentLocale } from './l10n';
+import { Metric } from '../app/types';
 
 const HOURS_IN_DAY = 8;
 
-interface Measure {
+export interface MeasurePeriod {
+  index: number;
+  value: string;
+}
+
+export interface MeasureIntern {
+  value?: string;
+  periods?: MeasurePeriod[];
+}
+
+export interface Measure extends MeasureIntern {
   metric: string;
-  periods?: any[];
 }
 
-interface EnhancedMeasure {
+export interface MeasureEnhanced extends MeasureIntern {
   metric: Metric;
-}
-
-interface Metric {
-  key: string;
+  leak?: string;
 }
 
 interface Formatter {
@@ -76,7 +83,7 @@ export function getShortType(type: string): string {
 export function enhanceMeasuresWithMetrics(
   measures: Measure[],
   metrics: Metric[]
-): EnhancedMeasure[] {
+): MeasureEnhanced[] {
   return measures.map(measure => {
     const metric = metrics.find(metric => metric.key === measure.metric) as Metric;
     return { ...measure, metric };

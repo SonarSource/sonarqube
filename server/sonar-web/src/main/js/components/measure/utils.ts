@@ -21,33 +21,20 @@ import {
   formatMeasure,
   formatMeasureVariation,
   getRatingTooltip as nextGetRatingTooltip,
-  isDiffMetric
+  isDiffMetric,
+  Measure,
+  MeasureEnhanced
 } from '../../helpers/measures';
 import { Metric } from '../../app/types';
 
 const KNOWN_RATINGS = ['sqale_rating', 'reliability_rating', 'security_rating'];
-
-export interface MeasureIntern {
-  value?: string;
-  periods?: Array<{ index: number; value: string }>;
-}
-
-export interface Measure extends MeasureIntern {
-  metric: string;
-}
-
-export interface MeasureEnhanced extends MeasureIntern {
-  metric: { key: string; type: string };
-  leak?: string | undefined | undefined;
-}
 
 export function enhanceMeasure(
   measure: Measure,
   metrics: { [key: string]: Metric }
 ): MeasureEnhanced {
   return {
-    value: measure.value,
-    periods: measure.periods,
+    ...measure,
     metric: metrics[measure.metric],
     leak: getLeakValue(measure)
   };
