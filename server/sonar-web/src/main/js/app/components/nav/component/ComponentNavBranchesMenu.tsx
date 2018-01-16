@@ -168,7 +168,7 @@ export default class ComponentNavBranchesMenu extends React.PureComponent<Props,
 
     const items = branches.map((branch, index) => {
       const isOrphan = isShortLivingBranch(branch) && branch.isOrphan;
-      const previous = index > 0 ? branches[index - 1] : null;
+      const previous = index > 0 ? branches[index - 1] : undefined;
       const isPreviousOrphan = isShortLivingBranch(previous) ? previous.isOrphan : false;
       const showDivider = isLongLivingBranch(branch) || (isOrphan && !isPreviousOrphan);
       const showOrphanHeader = isOrphan && !isPreviousOrphan;
