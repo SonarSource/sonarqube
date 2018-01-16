@@ -1,0 +1,13 @@
+package sample;
+
+public class Sample {
+
+    private String attr;
+
+    public Sample(String attr) {
+        this.attr = attr;
+    }
+
+    private String myMethod() {
+    }
+}
