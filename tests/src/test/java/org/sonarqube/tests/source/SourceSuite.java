@@ -30,15 +30,16 @@ import static util.ItUtils.xooPlugin;
 @Suite.SuiteClasses({
   EncodingTest.class,
   ScmTest.class,
+  NoScmTest.class,
   SourceViewerTest.class
 })
 public class SourceSuite {
 
   @ClassRule
   public static final Orchestrator ORCHESTRATOR = Orchestrator.builderEnv()
-    .addPlugin(xooPlugin())
     // reduce memory for Elasticsearch
     .setServerProperty("sonar.search.javaOpts", "-Xms128m -Xmx128m")
+    .addPlugin(xooPlugin())
     .build();
 
 }
