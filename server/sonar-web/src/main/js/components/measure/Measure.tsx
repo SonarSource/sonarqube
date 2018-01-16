@@ -21,8 +21,8 @@ import * as React from 'react';
 import Rating from '../ui/Rating';
 import Level from '../ui/Level';
 import Tooltips from '../controls/Tooltip';
-import { formatMeasure, isDiffMetric } from '../../helpers/measures';
-import { formatLeak, getRatingTooltip, MeasureEnhanced } from './utils';
+import { formatMeasure, isDiffMetric, MeasureEnhanced } from '../../helpers/measures';
+import { formatLeak, getRatingTooltip } from './utils';
 
 interface Props {
   className?: string;
@@ -35,7 +35,7 @@ export default function Measure({ className, decimals, measure }: Props) {
     return <span>{'–'}</span>;
   }
 
-  const metric = measure.metric;
+  const { metric } = measure;
   const value = isDiffMetric(metric.key) ? measure.leak : measure.value;
 
   if (value === undefined) {
