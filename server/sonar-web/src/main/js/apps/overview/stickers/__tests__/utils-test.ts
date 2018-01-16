@@ -24,7 +24,7 @@ jest.mock('../../../../helpers/urls', () => ({
 }));
 
 describe('#getStickerUrl', () => {
-  it('it should generate correct marketing sticker links', () => {
+  it('should generate correct marketing sticker links', () => {
     expect(getStickerUrl(StickerType.marketing, { color: 'white', metric: 'alert_status' })).toBe(
       'host/images/stickers/sonarcloud-white.svg'
     );
@@ -37,13 +37,20 @@ describe('#getStickerUrl', () => {
     ).toBe('host/images/stickers/sonarcloud-orange.svg');
   });
 
-  it('it should generate correct quality gates sticker links', () => {
+  it('should generate correct quality gates sticker links', () => {
     expect(
       getStickerUrl(StickerType.measure, {
+        branch: 'master',
         color: 'white',
         component: 'foo',
         metric: 'alert_status'
       })
-    ).toBe('host/api/stickers/measure?component=foo&metric=alert_status');
+    ).toBe('host/api/stickers/measure?branch=master&component=foo&metric=alert_status');
+  });
+
+  it('should ignore undefined parameters', () => {
+    expect(getStickerUrl(StickerType.measure, { color: 'white', metric: 'alert_status' })).toBe(
+      'host/api/stickers/measure?metric=alert_status'
+    );
   });
 });

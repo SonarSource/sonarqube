@@ -28,6 +28,7 @@ import { translate } from '../../../helpers/l10n';
 import './styles.css';
 
 interface Props {
+  branch: string;
   component: Component;
 }
 
@@ -44,6 +45,7 @@ export default class StickersModal extends React.PureComponent<Props, State> {
       open: false,
       selectedType: StickerType.measure,
       stickerOptions: {
+        branch: props.branch,
         color: 'white',
         component: props.component.key,
         metric: 'alert_status'
@@ -53,7 +55,11 @@ export default class StickersModal extends React.PureComponent<Props, State> {
 
   componentWillReceiveProps(nextProps: Props) {
     this.setState(state => ({
-      stickerOptions: { ...state.stickerOptions, component: nextProps.component.key }
+      stickerOptions: {
+        ...state.stickerOptions,
+        branch: nextProps.branch,
+        component: nextProps.component.key
+      }
     }));
   }
 
