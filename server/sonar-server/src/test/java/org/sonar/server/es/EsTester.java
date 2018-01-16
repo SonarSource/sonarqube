@@ -59,7 +59,7 @@ import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.core.config.ConfigurationProvider;
+import org.sonar.server.config.ConfigurationProvider;
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.elasticsearch.test.EsTestCluster;
 import org.sonar.server.es.metadata.MetadataIndex;

@@ -17,22 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.config;
+@ParametersAreNonnullByDefault
+package org.sonar.server.config;
 
-import org.picocontainer.injectors.ProviderAdapter;
-import org.sonar.api.config.Configuration;
-import org.sonar.api.config.Settings;
-import org.sonar.api.config.internal.ConfigurationBridge;
-
-public class ConfigurationProvider extends ProviderAdapter {
-
-  private Configuration configuration;
-
-  public Configuration provide(Settings settings) {
-    if (configuration == null) {
-      configuration = new ConfigurationBridge(settings);
-    }
-    return configuration;
-  }
-
-}
+import javax.annotation.ParametersAreNonnullByDefault;
