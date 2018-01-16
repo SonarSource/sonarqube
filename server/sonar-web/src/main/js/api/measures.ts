@@ -19,42 +19,48 @@
  */
 import { getJSON, RequestData } from '../helpers/request';
 import throwGlobalError from '../app/utils/throwGlobalError';
+import { Measure, MeasurePeriod } from '../helpers/measures';
+import { Metric } from '../app/types';
+import { Period } from '../helpers/periods';
 
 export function getMeasures(
   componentKey: string,
   metrics: string[],
   branch?: string
-): Promise<Array<{ metric: string; value?: string }>> {
+): Promise<{ metric: string; value?: string }[]> {
   const url = '/api/measures/component';
   const data = { componentKey, metricKeys: metrics.join(','), branch };
   return getJSON(url, data).then(r => r.component.measures, throwGlobalError);
+}
+
+interface MeasureComponent {
+  key: string;
+  description?: string;
+  measures: Measure[];
+  name: string;
+  qualifier: string;
 }
 
 export function getMeasuresAndMeta(
   componentKey: string,
   metrics: string[],
   additional: RequestData = {}
-): Promise<any> {
+): Promise<{ component: MeasureComponent; metrics?: Metric[]; periods?: Period[] }> {
   const data = { ...additional, componentKey, metricKeys: metrics.join(',') };
   return getJSON('/api/measures/component', data);
 }
 
-export interface Period {
-  index: number;
-  value: string;
-}
-
-export interface Measure {
+interface MeasuresForProjects {
   component: string;
   metric: string;
-  periods?: Period[];
+  periods?: MeasurePeriod[];
   value?: string;
 }
 
 export function getMeasuresForProjects(
   projectKeys: string[],
   metricKeys: string[]
-): Promise<Measure[]> {
+): Promise<MeasuresForProjects[]> {
   return getJSON('/api/measures/search', {
     projectKeys: projectKeys.join(),
     metricKeys: metricKeys.join()

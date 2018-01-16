@@ -105,7 +105,7 @@ export interface Metric {
   domain?: string;
   hidden?: boolean;
   key: string;
-  name: string;
+  name?: string;
   qualitative?: boolean;
   type: string;
 }
