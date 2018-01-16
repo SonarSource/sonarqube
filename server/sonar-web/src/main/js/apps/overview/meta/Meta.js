@@ -29,6 +29,7 @@ import MetaSize from './MetaSize';
 import MetaTags from './MetaTags';
 import StickersModal from '../stickers/StickersModal';
 import { areThereCustomOrganizations, getGlobalSettingValue } from '../../../store/rootReducer';
+import { Visibility } from '../../../app/types';
 
 const Meta = ({
   branch,
@@ -42,7 +43,7 @@ const Meta = ({
   const { qualifier, description, qualityProfiles, qualityGate, visibility } = component;
 
   const isProject = qualifier === 'TRK';
-  const isPrivate = visibility === 'private';
+  const isPrivate = visibility === Visibility.Private;
 
   const hasDescription = !!description;
   const hasQualityProfiles = Array.isArray(qualityProfiles) && qualityProfiles.length > 0;
@@ -90,7 +91,7 @@ const Meta = ({
 
       {hasOrganization && <MetaOrganizationKey component={component} />}
 
-      {onSonarCloud && !isPrivate && <StickersModal branch={branch} component={component} />}
+      {onSonarCloud && !isPrivate && <StickersModal branch={branch} component={component.key} />}
     </div>
   );
 };

@@ -31,18 +31,18 @@ export interface StickerOptions {
 }
 
 export enum StickerType {
-  marketing = 'marketing',
   measure = 'measure',
-  qualityGate = 'quality_gate'
+  qualityGate = 'quality_gate',
+  marketing = 'marketing'
 }
 
 export function getStickerUrl(
   type: StickerType,
-  { branch, color, component, metric }: StickerOptions
+  { branch, component, color = 'white', metric = 'alert_status' }: StickerOptions
 ) {
   switch (type) {
     case StickerType.marketing:
-      return `${getHostUrl()}/images/stickers/sonarcloud-${color || 'white'}.svg`;
+      return `${getHostUrl()}/images/stickers/sonarcloud-${color}.svg`;
     case StickerType.qualityGate:
       return `${getHostUrl()}/api/stickers/quality_gate?${stringify(
         omitNil({ branch, component })
@@ -50,7 +50,7 @@ export function getStickerUrl(
     case StickerType.measure:
     default:
       return `${getHostUrl()}/api/stickers/measure?${stringify(
-        omitNil({ branch, component, metric: metric || 'alert_status' })
+        omitNil({ branch, component, metric })
       )}`;
   }
 }

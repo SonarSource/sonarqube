@@ -21,16 +21,13 @@ import * as React from 'react';
 import { shallow } from 'enzyme';
 import StickersModal from '../StickersModal';
 import { click } from '../../../../helpers/testUtils';
-import { Component } from '../../../../app/types';
 
 jest.mock('../../../../helpers/urls', () => ({
   getHostUrl: () => 'host'
 }));
 
 it('should display the modal after click', () => {
-  const wrapper = shallow(
-    <StickersModal branch="branch-6.6" component={{ key: 'foo' } as Component} />
-  );
+  const wrapper = shallow(<StickersModal branch="branch-6.6" component="foo" />);
   expect(wrapper).toMatchSnapshot();
   click(wrapper.find('button'));
   expect(wrapper.find('Modal')).toMatchSnapshot();

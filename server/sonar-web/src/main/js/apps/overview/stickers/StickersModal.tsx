@@ -23,13 +23,12 @@ import StickerButton from './StickerButton';
 import StickerSnippet from './StickerSnippet';
 import StickerParams from './StickerParams';
 import { getStickerUrl, StickerType, StickerOptions } from './utils';
-import { Component } from '../../../app/types';
 import { translate } from '../../../helpers/l10n';
 import './styles.css';
 
 interface Props {
   branch: string;
-  component: Component;
+  component: string;
 }
 
 interface State {
@@ -39,29 +38,11 @@ interface State {
 }
 
 export default class StickersModal extends React.PureComponent<Props, State> {
-  constructor(props: Props) {
-    super(props);
-    this.state = {
-      open: false,
-      selectedType: StickerType.measure,
-      stickerOptions: {
-        branch: props.branch,
-        color: 'white',
-        component: props.component.key,
-        metric: 'alert_status'
-      }
-    };
-  }
-
-  componentWillReceiveProps(nextProps: Props) {
-    this.setState(state => ({
-      stickerOptions: {
-        ...state.stickerOptions,
-        branch: nextProps.branch,
-        component: nextProps.component.key
-      }
-    }));
-  }
+  state: State = {
+    open: false,
+    selectedType: StickerType.measure,
+    stickerOptions: { color: 'white', metric: 'alert_status' }
+  };
 
   handleClose = () => this.setState({ open: false });
 
@@ -77,9 +58,10 @@ export default class StickersModal extends React.PureComponent<Props, State> {
   handleCancelClick = () => this.handleClose();
 
   render() {
+    const { branch, component } = this.props;
     const { selectedType, stickerOptions } = this.state;
     const header = translate('overview.stickers.title');
-
+    const fullStickerOptions = { branch, component, ...stickerOptions };
     return (
       <>
         <button onClick={this.handleOpen}>{translate('overview.stickers.get_badge')}</button>
@@ -91,24 +73,15 @@ export default class StickersModal extends React.PureComponent<Props, State> {
             <div className="modal-body">
               <p className="huge-spacer-bottom">{translate('overview.stickers.description')}</p>
               <div className="stickers-list spacer-bottom">
-                <StickerButton
-                  onClick={this.handleSelectSticker}
-                  selected={StickerType.measure === selectedType}
-                  type={StickerType.measure}
-                  url={getStickerUrl(StickerType.measure, stickerOptions)}
-                />
-                <StickerButton
-                  onClick={this.handleSelectSticker}
-                  selected={StickerType.qualityGate === selectedType}
-                  type={StickerType.qualityGate}
-                  url={getStickerUrl(StickerType.qualityGate, stickerOptions)}
-                />
-                <StickerButton
-                  onClick={this.handleSelectSticker}
-                  selected={StickerType.marketing === selectedType}
-                  type={StickerType.marketing}
-                  url={getStickerUrl(StickerType.marketing, stickerOptions)}
-                />
+                {[StickerType.measure, StickerType.qualityGate, StickerType.marketing].map(type => (
+                  <StickerButton
+                    key={type}
+                    onClick={this.handleSelectSticker}
+                    selected={type === selectedType}
+                    type={type}
+                    url={getStickerUrl(type, fullStickerOptions)}
+                  />
+                ))}
               </div>
               <p className="text-center note huge-spacer-bottom">
                 {translate('overview.stickers', selectedType, 'description')}
@@ -119,7 +92,7 @@ export default class StickersModal extends React.PureComponent<Props, State> {
                 type={selectedType}
                 updateOptions={this.handleUpdateOptions}
               />
-              <StickerSnippet snippet={getStickerUrl(selectedType, stickerOptions)} />
+              <StickerSnippet snippet={getStickerUrl(selectedType, fullStickerOptions)} />
             </div>
             <footer className="modal-foot">
               <button className="button-link js-modal-close" onClick={this.handleCancelClick}>

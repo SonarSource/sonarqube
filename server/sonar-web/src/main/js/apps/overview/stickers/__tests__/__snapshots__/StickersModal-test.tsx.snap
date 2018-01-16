@@ -34,18 +34,21 @@ exports[`should display the modal after click 2`] = `
       className="stickers-list spacer-bottom"
     >
       <StickerButton
+        key="measure"
         onClick={[Function]}
         selected={true}
         type="measure"
         url="host/api/stickers/measure?branch=branch-6.6&component=foo&metric=alert_status"
       />
       <StickerButton
+        key="quality_gate"
         onClick={[Function]}
         selected={false}
         type="quality_gate"
         url="host/api/stickers/quality_gate?branch=branch-6.6&component=foo"
       />
       <StickerButton
+        key="marketing"
         onClick={[Function]}
         selected={false}
         type="marketing"
@@ -61,9 +64,7 @@ exports[`should display the modal after click 2`] = `
       className="big-spacer-bottom"
       options={
         Object {
-          "branch": "branch-6.6",
           "color": "white",
-          "component": "foo",
           "metric": "alert_status",
         }
       }
