@@ -25,9 +25,9 @@ export type StickerColors = 'white' | 'black' | 'orange';
 
 export interface StickerOptions {
   branch?: string;
-  color: StickerColors;
+  color?: StickerColors;
   component?: string;
-  metric: string;
+  metric?: string;
 }
 
 export enum StickerType {
@@ -42,15 +42,15 @@ export function getStickerUrl(
 ) {
   switch (type) {
     case StickerType.marketing:
-      return `${getHostUrl()}/images/stickers/sonarcloud-${color}.svg`;
+      return `${getHostUrl()}/images/stickers/sonarcloud-${color || 'white'}.svg`;
+    case StickerType.qualityGate:
+      return `${getHostUrl()}/api/stickers/quality_gate?${stringify(
+        omitNil({ branch, component })
+      )}`;
     case StickerType.measure:
+    default:
       return `${getHostUrl()}/api/stickers/measure?${stringify(
-        omitNil({
-          branch,
-          component,
-          metric
-        })
+        omitNil({ branch, component, metric: metric || 'alert_status' })
       )}`;
   }
-  return '';
 }

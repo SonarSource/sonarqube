@@ -42,6 +42,12 @@ exports[`should display the modal after click 2`] = `
       <StickerButton
         onClick={[Function]}
         selected={false}
+        type="quality_gate"
+        url="host/api/stickers/quality_gate?branch=branch-6.6&component=foo"
+      />
+      <StickerButton
+        onClick={[Function]}
+        selected={false}
         type="marketing"
         url="host/images/stickers/sonarcloud-white.svg"
       />

@@ -99,6 +99,12 @@ export default class StickersModal extends React.PureComponent<Props, State> {
                 />
                 <StickerButton
                   onClick={this.handleSelectSticker}
+                  selected={StickerType.qualityGate === selectedType}
+                  type={StickerType.qualityGate}
+                  url={getStickerUrl(StickerType.qualityGate, stickerOptions)}
+                />
+                <StickerButton
+                  onClick={this.handleSelectSticker}
                   selected={StickerType.marketing === selectedType}
                   type={StickerType.marketing}
                   url={getStickerUrl(StickerType.marketing, stickerOptions)}
