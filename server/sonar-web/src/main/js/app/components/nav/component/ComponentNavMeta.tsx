@@ -39,7 +39,7 @@ interface Props extends StateProps {
 }
 
 export function ComponentNavMeta({ branch, component, currentUser }: Props) {
-  const shortBranch = branch && isShortLivingBranch(branch);
+  const shortBranch = isShortLivingBranch(branch);
   const mainBranch = !branch || branch.isMain;
 
   return (

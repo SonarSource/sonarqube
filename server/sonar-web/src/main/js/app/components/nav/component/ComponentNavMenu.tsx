@@ -78,7 +78,7 @@ export default class ComponentNavMenu extends React.PureComponent<Props> {
   }
 
   renderDashboardLink() {
-    if (this.props.branch && isShortLivingBranch(this.props.branch)) {
+    if (isShortLivingBranch(this.props.branch)) {
       return null;
     }
 
@@ -89,7 +89,7 @@ export default class ComponentNavMenu extends React.PureComponent<Props> {
           to={{
             pathname,
             query: {
-              branch: this.props.branch && getBranchName(this.props.branch),
+              branch: getBranchName(this.props.branch),
               id: this.props.component.key
             }
           }}
@@ -111,7 +111,7 @@ export default class ComponentNavMenu extends React.PureComponent<Props> {
           to={{
             pathname: '/code',
             query: {
-              branch: this.props.branch && getBranchName(this.props.branch),
+              branch: getBranchName(this.props.branch),
               id: this.props.component.key
             }
           }}
@@ -125,7 +125,7 @@ export default class ComponentNavMenu extends React.PureComponent<Props> {
   }
 
   renderActivityLink() {
-    if (this.props.branch && isShortLivingBranch(this.props.branch)) {
+    if (isShortLivingBranch(this.props.branch)) {
       return null;
     }
 
@@ -135,7 +135,7 @@ export default class ComponentNavMenu extends React.PureComponent<Props> {
           to={{
             pathname: '/project/activity',
             query: {
-              branch: this.props.branch && getBranchName(this.props.branch),
+              branch: getBranchName(this.props.branch),
               id: this.props.component.key
             }
           }}
@@ -153,7 +153,7 @@ export default class ComponentNavMenu extends React.PureComponent<Props> {
           to={{
             pathname: '/project/issues',
             query: {
-              branch: this.props.branch && getBranchName(this.props.branch),
+              branch: getBranchName(this.props.branch),
               id: this.props.component.key,
               resolved: 'false'
             }
@@ -166,7 +166,7 @@ export default class ComponentNavMenu extends React.PureComponent<Props> {
   }
 
   renderComponentMeasuresLink() {
-    if (this.props.branch && isShortLivingBranch(this.props.branch)) {
+    if (isShortLivingBranch(this.props.branch)) {
       return null;
     }
 
@@ -176,7 +176,7 @@ export default class ComponentNavMenu extends React.PureComponent<Props> {
           to={{
             pathname: '/component_measures',
             query: {
-              branch: this.props.branch && getBranchName(this.props.branch),
+              branch: getBranchName(this.props.branch),
               id: this.props.component.key
             }
           }}
@@ -196,7 +196,7 @@ export default class ComponentNavMenu extends React.PureComponent<Props> {
 
     const isSettingsActive = SETTINGS_URLS.some(url => window.location.href.indexOf(url) !== -1);
 
-    if (branch && isLongLivingBranch(branch)) {
+    if (isLongLivingBranch(branch)) {
       return (
         <li>
           <Link
@@ -258,7 +258,7 @@ export default class ComponentNavMenu extends React.PureComponent<Props> {
           to={{
             pathname: '/project/settings',
             query: {
-              branch: this.props.branch && getBranchName(this.props.branch),
+              branch: getBranchName(this.props.branch),
               id: this.props.component.key
             }
           }}
