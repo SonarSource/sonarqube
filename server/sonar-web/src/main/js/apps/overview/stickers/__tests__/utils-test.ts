@@ -17,33 +17,42 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { getStickerUrl, StickerType } from '../utils';
+import { getStickerUrl, StickerOptions, StickerType } from '../utils';
 
 jest.mock('../../../../helpers/urls', () => ({
   getHostUrl: () => 'host'
 }));
 
+const options: StickerOptions = {
+  branch: 'master',
+  color: 'white',
+  component: 'foo',
+  metric: 'alert_status'
+};
+
 describe('#getStickerUrl', () => {
-  it('it should generate correct marketing sticker links', () => {
-    expect(getStickerUrl(StickerType.marketing, { color: 'white', metric: 'alert_status' })).toBe(
+  it('should generate correct marketing sticker links', () => {
+    expect(getStickerUrl(StickerType.marketing, options)).toBe(
       'host/images/stickers/sonarcloud-white.svg'
     );
-    expect(
-      getStickerUrl(StickerType.marketing, {
-        color: 'orange',
-        component: 'foo',
-        metric: 'alert_status'
-      })
-    ).toBe('host/images/stickers/sonarcloud-orange.svg');
+    expect(getStickerUrl(StickerType.marketing, { ...options, color: 'orange' })).toBe(
+      'host/images/stickers/sonarcloud-orange.svg'
+    );
   });
 
-  it('it should generate correct quality gates sticker links', () => {
-    expect(
-      getStickerUrl(StickerType.measure, {
-        color: 'white',
-        component: 'foo',
-        metric: 'alert_status'
-      })
-    ).toBe('host/api/stickers/measure?component=foo&metric=alert_status');
+  it('should generate correct quality gate sticker links', () => {
+    expect(getStickerUrl(StickerType.qualityGate, options));
+  });
+
+  it('should generate correct measures sticker links', () => {
+    expect(getStickerUrl(StickerType.measure, options)).toBe(
+      'host/api/stickers/measure?branch=master&component=foo&metric=alert_status'
+    );
+  });
+
+  it('should ignore undefined parameters', () => {
+    expect(getStickerUrl(StickerType.measure, { color: 'white', metric: 'alert_status' })).toBe(
+      'host/api/stickers/measure?metric=alert_status'
+    );
   });
 });

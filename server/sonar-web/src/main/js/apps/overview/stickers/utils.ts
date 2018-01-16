@@ -18,31 +18,39 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { stringify } from 'querystring';
+import { omitNil } from '../../../helpers/request';
 import { getHostUrl } from '../../../helpers/urls';
 
 export type StickerColors = 'white' | 'black' | 'orange';
 
 export interface StickerOptions {
-  color: StickerColors;
+  branch?: string;
+  color?: StickerColors;
   component?: string;
-  metric: string;
+  metric?: string;
 }
 
 export enum StickerType {
-  marketing = 'marketing',
   measure = 'measure',
-  qualityGate = 'quality_gate'
+  qualityGate = 'quality_gate',
+  marketing = 'marketing'
 }
 
-export function getStickerUrl(type: StickerType, { color, component, metric }: StickerOptions) {
+export function getStickerUrl(
+  type: StickerType,
+  { branch, component, color = 'white', metric = 'alert_status' }: StickerOptions
+) {
   switch (type) {
     case StickerType.marketing:
       return `${getHostUrl()}/images/stickers/sonarcloud-${color}.svg`;
+    case StickerType.qualityGate:
+      return `${getHostUrl()}/api/stickers/quality_gate?${stringify(
+        omitNil({ branch, component })
+      )}`;
     case StickerType.measure:
-      return `${getHostUrl()}/api/stickers/measure?${stringify({
-        component,
-        metric
-      })}`;
+    default:
+      return `${getHostUrl()}/api/stickers/measure?${stringify(
+        omitNil({ branch, component, metric })
+      )}`;
   }
-  return '';
 }
