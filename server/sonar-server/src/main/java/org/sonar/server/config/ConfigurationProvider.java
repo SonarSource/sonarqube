@@ -20,9 +20,15 @@
 package org.sonar.server.config;
 
 import java.util.Optional;
+import java.util.function.Function;
+import org.apache.commons.lang.ArrayUtils;
 import org.picocontainer.injectors.ProviderAdapter;
 import org.sonar.api.config.Configuration;
+import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.config.Settings;
+
+import static java.util.function.Function.identity;
+import static org.sonar.core.config.MultivalueProperty.parseAsCsv;
 
 public class ConfigurationProvider extends ProviderAdapter {
 
@@ -36,6 +42,8 @@ public class ConfigurationProvider extends ProviderAdapter {
   }
 
   private static class ServerConfigurationAdapter implements Configuration {
+    private static final Function<String, String> REPLACE_ENCODED_COMMAS = value -> value.replace("%2C", ",");
+
     private final Settings settings;
 
     private ServerConfigurationAdapter(Settings settings) {
@@ -54,7 +62,12 @@ public class ConfigurationProvider extends ProviderAdapter {
 
     @Override
     public String[] getStringArray(String key) {
-      return settings.getStringArray(key);
+      boolean multiValue = settings.getDefinition(key)
+        .map(PropertyDefinition::multiValues)
+        .orElse(false);
+      return get(key)
+        .map(v -> parseAsCsv(key, v, multiValue ? REPLACE_ENCODED_COMMAS : identity()))
+        .orElse(ArrayUtils.EMPTY_STRING_ARRAY);
     }
 
   }

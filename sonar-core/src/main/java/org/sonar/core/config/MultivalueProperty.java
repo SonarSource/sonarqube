@@ -96,7 +96,10 @@ public class MultivalueProperty {
           }
         }
       }
-      it.forEachRemaining(s -> result.add(valueProcessor.apply(s)));
+      it.forEachRemaining(s -> {
+        String apply = valueProcessor.apply(s);
+        result.add(apply);
+      });
     }
   }
 
