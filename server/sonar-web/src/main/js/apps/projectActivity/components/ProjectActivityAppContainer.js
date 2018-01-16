@@ -103,7 +103,7 @@ export default class ProjectActivityAppContainer extends React.PureComponent {
         pathname: this.props.location.pathname,
         query: {
           ...serializeUrlQuery(newQuery),
-          branch: this.props.branch && getBranchName(this.props.branch)
+          branch: getBranchName(this.props.branch)
         }
       });
     } else {
@@ -173,7 +173,7 @@ export default class ProjectActivityAppContainer extends React.PureComponent {
       project,
       p,
       ps,
-      branch: this.props.branch && getBranchName(this.props.branch)
+      branch: getBranchName(this.props.branch)
     };
     return api
       .getProjectActivity({ ...additional, ...parameters })
@@ -188,7 +188,7 @@ export default class ProjectActivityAppContainer extends React.PureComponent {
       return Promise.resolve([]);
     }
     return getAllTimeMachineData(this.props.component.key, metrics, {
-      branch: this.props.branch && getBranchName(this.props.branch)
+      branch: getBranchName(this.props.branch)
     }).then(
       ({ measures }) =>
         measures.map(measure => ({
@@ -300,7 +300,7 @@ export default class ProjectActivityAppContainer extends React.PureComponent {
       pathname: this.props.location.pathname,
       query: {
         ...query,
-        branch: this.props.branch && getBranchName(this.props.branch),
+        branch: getBranchName(this.props.branch),
         id: this.props.component.key
       }
     });

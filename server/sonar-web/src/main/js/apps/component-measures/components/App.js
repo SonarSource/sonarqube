@@ -111,7 +111,7 @@ export default class App extends React.PureComponent {
     const filteredKeys = metricsKey.filter(
       key => !metrics[key].hidden && !['DATA', 'DISTRIB'].includes(metrics[key].type)
     );
-    fetchMeasures(component.key, filteredKeys, branch && getBranchName(branch)).then(
+    fetchMeasures(component.key, filteredKeys, getBranchName(branch)).then(
       ({ measures, leakPeriod }) => {
         if (this.mounted) {
           this.setState({
@@ -138,7 +138,7 @@ export default class App extends React.PureComponent {
       pathname: this.props.location.pathname,
       query: {
         ...query,
-        branch: this.props.branch && getBranchName(this.props.branch),
+        branch: getBranchName(this.props.branch),
         id: this.props.component.key
       }
     });
@@ -175,7 +175,7 @@ export default class App extends React.PureComponent {
 
         {metric != null && (
           <MeasureContentContainer
-            branch={branch && getBranchName(branch)}
+            branch={getBranchName(branch)}
             className="layout-page-main"
             currentUser={this.props.currentUser}
             rootComponent={component}
@@ -192,7 +192,7 @@ export default class App extends React.PureComponent {
         {metric == null &&
           hasBubbleChart(query.metric) && (
             <MeasureOverviewContainer
-              branch={branch && getBranchName(branch)}
+              branch={getBranchName(branch)}
               className="layout-page-main"
               rootComponent={component}
               currentUser={this.props.currentUser}

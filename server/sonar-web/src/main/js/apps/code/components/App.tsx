@@ -87,7 +87,7 @@ export default class App extends React.PureComponent<Props, State> {
 
     this.setState({ loading: true });
     const isPortfolio = ['VW', 'SVW'].includes(component.qualifier);
-    retrieveComponentChildren(component.key, isPortfolio, branch && getBranchName(branch))
+    retrieveComponentChildren(component.key, isPortfolio, getBranchName(branch))
       .then(() => {
         addComponent(component);
         if (this.mounted) {
@@ -106,11 +106,7 @@ export default class App extends React.PureComponent<Props, State> {
     this.setState({ loading: true });
 
     const isPortfolio = ['VW', 'SVW'].includes(this.props.component.qualifier);
-    retrieveComponent(
-      componentKey,
-      isPortfolio,
-      this.props.branch && getBranchName(this.props.branch)
-    )
+    retrieveComponent(componentKey, isPortfolio, getBranchName(this.props.branch))
       .then(r => {
         if (this.mounted) {
           if (['FIL', 'UTS'].includes(r.component.qualifier)) {
@@ -156,12 +152,7 @@ export default class App extends React.PureComponent<Props, State> {
       return;
     }
     const isPortfolio = ['VW', 'SVW'].includes(this.props.component.qualifier);
-    loadMoreChildren(
-      baseComponent.key,
-      page + 1,
-      isPortfolio,
-      this.props.branch && getBranchName(this.props.branch)
-    )
+    loadMoreChildren(baseComponent.key, page + 1, isPortfolio, getBranchName(this.props.branch))
       .then(r => {
         if (this.mounted) {
           this.setState({
@@ -196,7 +187,7 @@ export default class App extends React.PureComponent<Props, State> {
       total,
       sourceViewer
     } = this.state;
-    const branchName = branch && getBranchName(branch);
+    const branchName = getBranchName(branch);
 
     const shouldShowBreadcrumbs = breadcrumbs.length > 1;
 
