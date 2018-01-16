@@ -36,6 +36,12 @@ exports[`should display the modal after click 2`] = `
       <StickerButton
         onClick={[Function]}
         selected={true}
+        type="measure"
+        url="null/api/stickers/measure?component=foo&metric=alert_status"
+      />
+      <StickerButton
+        onClick={[Function]}
+        selected={false}
         type="marketing"
         url="null/images/stickers/sonarcloud-white.svg"
       />
@@ -43,20 +49,22 @@ exports[`should display the modal after click 2`] = `
     <p
       className="text-center note huge-spacer-bottom"
     >
-      overview.stickers.marketing.description
+      overview.stickers.measure.description
     </p>
     <StickerParams
       className="big-spacer-bottom"
       options={
         Object {
           "color": "white",
+          "component": "foo",
+          "metric": "alert_status",
         }
       }
-      type="marketing"
+      type="measure"
       updateOptions={[Function]}
     />
     <StickerSnippet
-      snippet="null/images/stickers/sonarcloud-white.svg"
+      snippet="null/api/stickers/measure?component=foo&metric=alert_status"
     />
   </div>
   <footer

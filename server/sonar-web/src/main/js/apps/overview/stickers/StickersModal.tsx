@@ -22,9 +22,14 @@ import Modal from '../../../components/controls/Modal';
 import StickerButton from './StickerButton';
 import StickerSnippet from './StickerSnippet';
 import StickerParams from './StickerParams';
-import { translate } from '../../../helpers/l10n';
 import { getStickerUrl, StickerType, StickerOptions } from './utils';
+import { Component } from '../../../app/types';
+import { translate } from '../../../helpers/l10n';
 import './styles.css';
+
+interface Props {
+  component: Component;
+}
 
 interface State {
   open: boolean;
@@ -32,20 +37,24 @@ interface State {
   stickerOptions: StickerOptions;
 }
 
-export default class StickersModal extends React.PureComponent<{}, State> {
-  mounted: boolean;
-  state: State = {
-    open: false,
-    selectedType: StickerType.marketing,
-    stickerOptions: { color: 'white' }
-  };
-
-  componentDidMount() {
-    this.mounted = true;
+export default class StickersModal extends React.PureComponent<Props, State> {
+  constructor(props: Props) {
+    super(props);
+    this.state = {
+      open: false,
+      selectedType: StickerType.measure,
+      stickerOptions: {
+        color: 'white',
+        component: props.component.key,
+        metric: 'alert_status'
+      }
+    };
   }
 
-  componentWillUnmount() {
-    this.mounted = false;
+  componentWillReceiveProps(nextProps: Props) {
+    this.setState(state => ({
+      stickerOptions: { ...state.stickerOptions, component: nextProps.component.key }
+    }));
   }
 
   handleClose = () => this.setState({ open: false });
@@ -64,6 +73,7 @@ export default class StickersModal extends React.PureComponent<{}, State> {
   render() {
     const { selectedType, stickerOptions } = this.state;
     const header = translate('overview.stickers.title');
+
     return (
       <>
         <button onClick={this.handleOpen}>{translate('overview.stickers.get_badge')}</button>
@@ -75,6 +85,12 @@ export default class StickersModal extends React.PureComponent<{}, State> {
             <div className="modal-body">
               <p className="huge-spacer-bottom">{translate('overview.stickers.description')}</p>
               <div className="stickers-list spacer-bottom">
+                <StickerButton
+                  onClick={this.handleSelectSticker}
+                  selected={StickerType.measure === selectedType}
+                  type={StickerType.measure}
+                  url={getStickerUrl(StickerType.measure, stickerOptions)}
+                />
                 <StickerButton
                   onClick={this.handleSelectSticker}
                   selected={StickerType.marketing === selectedType}

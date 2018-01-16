@@ -89,7 +89,7 @@ const Meta = ({
 
       {hasOrganization && <MetaOrganizationKey component={component} />}
 
-      {onSonarCloud && <StickersModal />}
+      {onSonarCloud && <StickersModal component={component} />}
     </div>
   );
 };
