@@ -17,28 +17,32 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { stringify } from 'querystring';
 import { getHostUrl } from '../../../helpers/urls';
 
 export type StickerColors = 'white' | 'black' | 'orange';
 
 export interface StickerOptions {
   color: StickerColors;
+  component?: string;
+  metric: string;
 }
 
 export enum StickerType {
-  badge = 'badge',
-  card = 'card',
-  marketing = 'marketing'
+  marketing = 'marketing',
+  measure = 'measure',
+  qualityGate = 'quality_gate'
 }
 
-export function getStickerUrl(type: StickerType, options: StickerOptions) {
+export function getStickerUrl(type: StickerType, { color, component, metric }: StickerOptions) {
   switch (type) {
     case StickerType.marketing:
-      return `${getHostUrl()}/images/stickers/sonarcloud-${options.color}.svg`;
-    case StickerType.card:
-      return '';
-    case StickerType.badge:
-    default:
-      return '';
+      return `${getHostUrl()}/images/stickers/sonarcloud-${color}.svg`;
+    case StickerType.measure:
+      return `${getHostUrl()}/api/stickers/measure?${stringify({
+        component,
+        metric
+      })}`;
   }
+  return '';
 }

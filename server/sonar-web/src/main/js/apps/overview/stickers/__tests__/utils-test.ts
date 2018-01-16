@@ -25,11 +25,25 @@ jest.mock('../../../../helpers/urls', () => ({
 
 describe('#getStickerUrl', () => {
   it('it should generate correct marketing sticker links', () => {
-    expect(getStickerUrl(StickerType.marketing, { color: 'white' })).toBe(
+    expect(getStickerUrl(StickerType.marketing, { color: 'white', metric: 'alert_status' })).toBe(
       'host/images/stickers/sonarcloud-white.svg'
     );
-    expect(getStickerUrl(StickerType.marketing, { color: 'orange' })).toBe(
-      'host/images/stickers/sonarcloud-orange.svg'
-    );
+    expect(
+      getStickerUrl(StickerType.marketing, {
+        color: 'orange',
+        component: 'foo',
+        metric: 'alert_status'
+      })
+    ).toBe('host/images/stickers/sonarcloud-orange.svg');
+  });
+
+  it('it should generate correct quality gates sticker links', () => {
+    expect(
+      getStickerUrl(StickerType.measure, {
+        color: 'white',
+        component: 'foo',
+        metric: 'alert_status'
+      })
+    ).toBe('host/api/stickers/measure?component=foo&metric=alert_status');
   });
 });

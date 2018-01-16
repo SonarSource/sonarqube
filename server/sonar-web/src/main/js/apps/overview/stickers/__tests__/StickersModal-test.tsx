@@ -21,9 +21,10 @@ import * as React from 'react';
 import { shallow } from 'enzyme';
 import StickersModal from '../StickersModal';
 import { click } from '../../../../helpers/testUtils';
+import { Component } from '../../../../app/types';
 
 it('should display the modal after click', () => {
-  const wrapper = shallow(<StickersModal />);
+  const wrapper = shallow(<StickersModal component={{ key: 'foo' } as Component} />);
   expect(wrapper).toMatchSnapshot();
   click(wrapper.find('button'));
   expect(wrapper.find('Modal')).toMatchSnapshot();

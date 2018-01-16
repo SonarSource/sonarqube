@@ -19,8 +19,29 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import StickerParams from '../StickerParams';
+import { StickerParams } from '../StickerParams';
 import { StickerType } from '../utils';
+import { Metric } from '../../../../app/types';
+
+jest.mock('../../../../api/web-api', () => ({
+  fetchWebApi: () =>
+    Promise.resolve([
+      {
+        path: 'api/stickers',
+        actions: [
+          {
+            key: 'measure',
+            params: [{ key: 'metric', possibleValues: ['alert_status', 'coverage'] }]
+          }
+        ]
+      }
+    ])
+}));
+
+const METRICS = {
+  alert_status: { key: 'alert_status', name: 'Quality Gate' } as Metric,
+  coverage: { key: 'coverage', name: 'Coverage' } as Metric
+};
 
 it('should display marketing badge params', () => {
   const updateOptions = jest.fn();
@@ -30,10 +51,20 @@ it('should display marketing badge params', () => {
   expect(updateOptions).toHaveBeenCalledWith({ color: 'black' });
 });
 
+it('should display measure badge params', () => {
+  const updateOptions = jest.fn();
+  const wrapper = getWrapper({ updateOptions, type: StickerType.measure });
+  expect(wrapper).toMatchSnapshot();
+  (wrapper.instance() as StickerParams).handleColorChange({ value: 'black' });
+  expect(updateOptions).toHaveBeenCalledWith({ color: 'black' });
+});
+
 function getWrapper(props = {}) {
   return shallow(
     <StickerParams
-      options={{ color: 'white' }}
+      fetchMetrics={jest.fn()}
+      metrics={METRICS}
+      options={{ color: 'white', metric: 'alert_status' }}
       type={StickerType.marketing}
       updateOptions={jest.fn()}
       {...props}
