@@ -10,13 +10,13 @@ set -euo pipefail
 # at each build.
 #
 function installJdk8 {
-  echo "Setup JDK 1.8u151"
+  echo "Setup JDK 1.8u161"
   mkdir -p ~/jvm
   pushd ~/jvm > /dev/null
-  if [ ! -d "jdk1.8.0_151" ]; then
-    wget --quiet --continue --header "Cookie: oraclelicense=accept-securebackup-cookie" http://download.oracle.com/otn-pub/java/jdk/8u151-b12/e758a0de34e24606bca991d704f6dcbf/jdk-8u151-linux-x64.tar.gz
-    tar xzf jdk-8u151-linux-x64.tar.gz
-    rm jdk-8u151-linux-x64.tar.gz
+  if [ ! -d "jdk1.8.0_161" ]; then
+    wget --quiet --continue --header "Cookie: oraclelicense=accept-securebackup-cookie" http://download.oracle.com/otn-pub/java/jdk/8u161-b12/2f38c3b165be4555a1fa6e98c45e0808/jdk-8u161-linux-x64.tar.gz
+    tar xzf jdk-8u161-linux-x64.tar.gz
+    rm jdk-8u161-linux-x64.tar.gz
   fi
   popd > /dev/null
   export JAVA_HOME=~/jvm/jdk1.8.0_151
