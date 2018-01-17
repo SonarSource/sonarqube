@@ -20,15 +20,19 @@
 package org.sonar.server.webhook;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
+import org.sonar.api.measures.Metric;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.AnalysisPropertyDto;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
+import org.sonar.server.qualitygate.EvaluatedQualityGate;
 import org.sonar.server.qualitygate.changeevent.QGChangeEvent;
 import org.sonar.server.qualitygate.changeevent.QGChangeEventListener;
 import org.sonar.server.webhook.Branch.Type;
@@ -49,20 +53,37 @@ public class WebhookQGChangeEventListener implements QGChangeEventListener {
     if (!webhooks.isEnabled(qualityGateEvent.getProjectConfiguration())) {
       return;
     }
+    Optional<EvaluatedQualityGate> evaluatedQualityGate = qualityGateEvent.getQualityGateSupplier().get();
+    if (isQGStatusUnchanged(qualityGateEvent, evaluatedQualityGate)) {
+      return;
+    }
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      callWebhook(dbSession, qualityGateEvent);
+      callWebhook(dbSession, qualityGateEvent, evaluatedQualityGate.orElse(null));
     }
   }
 
-  private void callWebhook(DbSession dbSession, QGChangeEvent event) {
+  private static boolean isQGStatusUnchanged(QGChangeEvent qualityGateEvent, Optional<EvaluatedQualityGate> evaluatedQualityGate) {
+    Optional<Metric.Level> previousStatus = qualityGateEvent.getPreviousStatus();
+    if (!previousStatus.isPresent() && !evaluatedQualityGate.isPresent()) {
+      return true;
+    }
+
+    return previousStatus
+      .map(previousQGStatus -> evaluatedQualityGate
+        .filter(newQualityGate -> newQualityGate.getStatus() == previousQGStatus)
+        .isPresent())
+      .orElse(false);
+  }
+
+  private void callWebhook(DbSession dbSession, QGChangeEvent event, @Nullable EvaluatedQualityGate evaluatedQualityGate) {
     webhooks.sendProjectAnalysisUpdate(
       event.getProjectConfiguration(),
       new WebHooks.Analysis(event.getBranch().getUuid(), event.getAnalysis().getUuid(), null),
-      () -> buildWebHookPayload(dbSession, event));
+      () -> buildWebHookPayload(dbSession, event, evaluatedQualityGate));
   }
 
-  private WebhookPayload buildWebHookPayload(DbSession dbSession, QGChangeEvent event) {
+  private WebhookPayload buildWebHookPayload(DbSession dbSession, QGChangeEvent event, @Nullable EvaluatedQualityGate evaluatedQualityGate) {
     ComponentDto project = event.getProject();
     BranchDto branch = event.getBranch();
     SnapshotDto analysis = event.getAnalysis();
@@ -75,7 +96,7 @@ public class WebhookQGChangeEventListener implements QGChangeEventListener {
       null,
       new Analysis(analysis.getUuid(), analysis.getCreatedAt()),
       new Branch(branch.isMain(), branch.getKey(), Type.valueOf(branch.getBranchType().name())),
-      event.getQualityGateSupplier().get().orElse(null),
+      evaluatedQualityGate,
       null,
       analysisProperties);
     return webhookPayloadFactory.create(projectAnalysis);

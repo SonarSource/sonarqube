@@ -247,8 +247,9 @@ public class WebhooksTest {
     waitUntilAllWebHooksCalled(1);
     externalServer.clear();
 
-    // change an issue to blocker bug
-    Issue firstIssue = tester.wsClient().issues().search(new SearchRequest()).getIssues(0);
+    // change an issue to blocker bug, QG status goes from OK to ERROR, so webhook is called
+    List<Issue> issues = tester.wsClient().issues().search(new SearchRequest()).getIssuesList();
+    Issue firstIssue = issues.iterator().next();
     tester.wsClient().issues().bulkChange(new BulkChangeRequest().setIssues(singletonList(firstIssue.getKey()))
       .setSetSeverity(singletonList("BLOCKER"))
       .setSetType(singletonList("BUG")));
@@ -268,6 +269,22 @@ public class WebhooksTest {
     assertThat(gate.get("name")).isEqualTo(qGate.getName());
     assertThat(gate.get("status")).isEqualTo("ERROR");
     assertThat(gate.get("conditions")).isNotNull();
+    externalServer.clear();
+
+    // change severity of issue, won't change the QG status, so no webhook called
+    tester.wsClient().issues().bulkChange(new BulkChangeRequest().setIssues(singletonList(firstIssue.getKey()))
+      .setSetSeverity(singletonList("MINOR")));
+    waitUntilAllWebHooksCalled(1);
+    assertThat(externalServer.getPayloadRequests()).isEmpty();
+
+    // resolve issue as won't fix, QG status goes to OK, so webhook called
+    tester.wsClient().issues().bulkChange(new BulkChangeRequest().setIssues(singletonList(firstIssue.getKey()))
+      .setDoTransition("wontfix"));
+    waitUntilAllWebHooksCalled(1);
+    request = externalServer.getPayloadRequests().get(0);
+    payload = jsonToMap(request.getJson());
+    gate = (Map<String, Object>) payload.get("qualityGate");
+    assertThat(gate.get("status")).isEqualTo("OK");
   }
 
   private void analyseProject() {

@@ -19,6 +19,10 @@
  */
 package org.sonar.server.webhook;
 
+import com.tngtech.java.junit.dataprovider.DataProvider;
+import com.tngtech.java.junit.dataprovider.DataProviderRunner;
+import com.tngtech.java.junit.dataprovider.UseDataProvider;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,6 +33,7 @@ import java.util.function.Supplier;
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Matchers;
 import org.mockito.Mockito;
@@ -45,13 +50,13 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.qualitygate.EvaluatedQualityGate;
-import org.sonar.server.qualitygate.QualityGate;
-import org.sonar.server.qualitygate.ShortLivingBranchQualityGate;
 import org.sonar.server.qualitygate.changeevent.QGChangeEvent;
 import org.sonar.server.qualitygate.changeevent.QGChangeEventListener;
 
-import static java.lang.String.valueOf;
+import static java.util.Arrays.stream;
 import static java.util.Collections.emptySet;
+import static java.util.stream.Stream.concat;
+import static java.util.stream.Stream.of;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -64,12 +69,9 @@ import static org.sonar.db.component.BranchType.LONG;
 import static org.sonar.db.component.ComponentTesting.newBranchDto;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 
+@RunWith(DataProviderRunner.class)
 public class WebhookQGChangeEventListenerTest {
 
-  private static final EvaluatedQualityGate EVALUATED_QUALITY_GATE_1 = EvaluatedQualityGate.newBuilder()
-    .setQualityGate(new QualityGate(valueOf(ShortLivingBranchQualityGate.ID), ShortLivingBranchQualityGate.NAME, emptySet()))
-    .setStatus(Metric.Level.OK)
-    .build();
   private static final Set<QGChangeEventListener.ChangedIssue> CHANGED_ISSUES_ARE_IGNORED = emptySet();
 
   @Rule
@@ -77,6 +79,7 @@ public class WebhookQGChangeEventListenerTest {
 
   private DbClient dbClient = dbTester.getDbClient();
 
+  private EvaluatedQualityGate newQualityGate = mock(EvaluatedQualityGate.class);
   private WebHooks webHooks = mock(WebHooks.class);
   private WebhookPayloadFactory webhookPayloadFactory = mock(WebhookPayloadFactory.class);
   private DbClient spiedOnDbClient = Mockito.spy(dbClient);
@@ -85,11 +88,12 @@ public class WebhookQGChangeEventListenerTest {
   private WebhookQGChangeEventListener mockedUnderTest = new WebhookQGChangeEventListener(webHooks, webhookPayloadFactory, mockedDbClient);
 
   @Test
-  public void onIssueChanges_has_no_effect_if_no_webhook_is_configured() {
+  @UseDataProvider("allCombinationsOfStatuses")
+  public void onIssueChanges_has_no_effect_if_no_webhook_is_configured(Metric.Level previousStatus, Metric.Level newStatus) {
     Configuration configuration1 = mock(Configuration.class);
     mockWebhookDisabled(configuration1);
-    Metric.Level previousStatus = Metric.Level.values()[new Random().nextInt(Metric.Level.values().length)];
-    QGChangeEvent qualityGateEvent = new QGChangeEvent(new ComponentDto(), new BranchDto(), new SnapshotDto(), configuration1, previousStatus, Optional::empty);
+    when(newQualityGate.getStatus()).thenReturn(newStatus);
+    QGChangeEvent qualityGateEvent = newQGChangeEvent(configuration1, previousStatus, newQualityGate);
 
     mockedUnderTest.onIssueChanges(qualityGateEvent, CHANGED_ISSUES_ARE_IGNORED);
 
@@ -97,8 +101,49 @@ public class WebhookQGChangeEventListenerTest {
     verifyZeroInteractions(webhookPayloadFactory, mockedDbClient);
   }
 
+  @DataProvider
+  public static Object[][] allCombinationsOfStatuses() {
+    Metric.Level[] levelsAndNull = concat(of((Metric.Level) null), stream(Metric.Level.values()))
+      .toArray(Metric.Level[]::new);
+    Object[][] res = new Object[levelsAndNull.length * levelsAndNull.length][2];
+    int i = 0;
+    for (Metric.Level previousStatus : Arrays.asList(levelsAndNull)) {
+      for (Metric.Level newStatus : Arrays.asList(levelsAndNull)) {
+        res[i][0] = previousStatus;
+        res[i][1] = newStatus;
+        i++;
+      }
+    }
+    return res;
+  }
+
   @Test
-  public void onIssueChanges_calls_webhook_for_changeEvent_with_webhook_enabled() {
+  public void onIssueChanges_has_no_effect_if_event_has_neither_previousQGStatus_nor_qualityGate() {
+    Configuration configuration = mock(Configuration.class);
+    mockWebhookEnabled(configuration);
+    QGChangeEvent qualityGateEvent = newQGChangeEvent(configuration, null, null);
+
+    underTest.onIssueChanges(qualityGateEvent, CHANGED_ISSUES_ARE_IGNORED);
+
+    verifyZeroInteractions(webhookPayloadFactory, mockedDbClient);
+  }
+
+  @Test
+  public void onIssueChanges_has_no_effect_if_event_has_same_status_in_previous_and_new_QG() {
+    Configuration configuration = mock(Configuration.class);
+    mockWebhookEnabled(configuration);
+    Metric.Level previousStatus = randomLevel();
+    when(newQualityGate.getStatus()).thenReturn(previousStatus);
+    QGChangeEvent qualityGateEvent = newQGChangeEvent(configuration, previousStatus, newQualityGate);
+
+    underTest.onIssueChanges(qualityGateEvent, CHANGED_ISSUES_ARE_IGNORED);
+
+    verifyZeroInteractions(webhookPayloadFactory, mockedDbClient);
+  }
+
+  @Test
+  @UseDataProvider("newQGorNot")
+  public void onIssueChanges_calls_webhook_for_changeEvent_with_webhook_enabled(@Nullable EvaluatedQualityGate newQualityGate) {
     OrganizationDto organization = dbTester.organizations().insert();
     ComponentDto project = dbTester.components().insertPublicProject(organization);
     ComponentAndBranch branch = insertProjectBranch(project, BranchType.SHORT, "foo");
@@ -110,7 +155,7 @@ public class WebhookQGChangeEventListenerTest {
     properties.put("sonar.analysis.test1", randomAlphanumeric(50));
     properties.put("sonar.analysis.test2", randomAlphanumeric(5000));
     insertPropertiesFor(analysis.getUuid(), properties);
-    QGChangeEvent qualityGateEvent = newQGChangeEvent(branch, analysis, configuration, EVALUATED_QUALITY_GATE_1);
+    QGChangeEvent qualityGateEvent = newQGChangeEvent(branch, analysis, configuration, newQualityGate);
 
     underTest.onIssueChanges(qualityGateEvent, CHANGED_ISSUES_ARE_IGNORED);
 
@@ -121,19 +166,20 @@ public class WebhookQGChangeEventListenerTest {
         null,
         new Analysis(analysis.getUuid(), analysis.getCreatedAt()),
         new Branch(false, "foo", Branch.Type.SHORT),
-        EVALUATED_QUALITY_GATE_1,
+        newQualityGate,
         null,
         properties));
   }
 
   @Test
-  public void onIssueChanges_calls_webhook_on_main_branch() {
+  @UseDataProvider("newQGorNot")
+  public void onIssueChanges_calls_webhook_on_main_branch(@Nullable EvaluatedQualityGate newQualityGate) {
     OrganizationDto organization = dbTester.organizations().insert();
     ComponentAndBranch mainBranch = insertMainBranch(organization);
     SnapshotDto analysis = insertAnalysisTask(mainBranch);
     Configuration configuration = mock(Configuration.class);
     mockWebhookEnabled(configuration);
-    QGChangeEvent qualityGateEvent = newQGChangeEvent(mainBranch, analysis, configuration, EVALUATED_QUALITY_GATE_1);
+    QGChangeEvent qualityGateEvent = newQGChangeEvent(mainBranch, analysis, configuration, newQualityGate);
 
     underTest.onIssueChanges(qualityGateEvent, CHANGED_ISSUES_ARE_IGNORED);
 
@@ -162,6 +208,15 @@ public class WebhookQGChangeEventListenerTest {
     underTest.onIssueChanges(qualityGateEvent, CHANGED_ISSUES_ARE_IGNORED);
 
     verifyWebhookCalled(longBranch, analysis, configuration);
+  }
+
+  @DataProvider
+  public static Object[][] newQGorNot() {
+    EvaluatedQualityGate newQualityGate = mock(EvaluatedQualityGate.class);
+    return new Object[][] {
+      {null},
+      {newQualityGate}
+    };
   }
 
   private void mockWebhookEnabled(Configuration... configurations) {
@@ -260,9 +315,23 @@ public class WebhookQGChangeEventListenerTest {
 
   }
 
+  private static QGChangeEvent newQGChangeEvent(Configuration configuration, @Nullable Metric.Level previousQQStatus, @Nullable EvaluatedQualityGate evaluatedQualityGate) {
+    return new QGChangeEvent(new ComponentDto(), new BranchDto(), new SnapshotDto(), configuration, previousQQStatus, () -> Optional.ofNullable(evaluatedQualityGate));
+  }
+
   private static QGChangeEvent newQGChangeEvent(ComponentAndBranch branch, SnapshotDto analysis, Configuration configuration, @Nullable EvaluatedQualityGate evaluatedQualityGate) {
-    Metric.Level previousStatus = Metric.Level.values()[new Random().nextInt(Metric.Level.values().length)];
+    Metric.Level previousStatus = randomLevel();
+    if (evaluatedQualityGate != null) {
+      Metric.Level otherLevel = stream(Metric.Level.values())
+        .filter(s -> s != previousStatus)
+        .toArray(Metric.Level[]::new)[new Random().nextInt(Metric.Level.values().length - 1)];
+      when(evaluatedQualityGate.getStatus()).thenReturn(otherLevel);
+    }
     return new QGChangeEvent(branch.component, branch.branch, analysis, configuration, previousStatus, () -> Optional.ofNullable(evaluatedQualityGate));
+  }
+
+  private static Metric.Level randomLevel() {
+    return Metric.Level.values()[new Random().nextInt(Metric.Level.values().length)];
   }
 
 }

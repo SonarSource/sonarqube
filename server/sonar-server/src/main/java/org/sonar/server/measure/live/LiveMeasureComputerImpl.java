@@ -29,7 +29,6 @@ import java.util.Optional;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import org.sonar.api.config.Configuration;
-import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.DbClient;
@@ -53,6 +52,7 @@ import static com.google.common.base.Preconditions.checkState;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singleton;
 import static java.util.stream.Collectors.groupingBy;
+import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
 import static org.sonar.core.util.stream.MoreCollectors.toArrayList;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 
@@ -104,10 +104,13 @@ public class LiveMeasureComputerImpl implements LiveMeasureComputer {
     QualityGate qualityGate = qGateComputer.loadQualityGate(dbSession, organization, project, branch);
     Collection<String> metricKeys = getKeysOfAllInvolvedMetrics(qualityGate);
 
-    Map<Integer, MetricDto> metricsPerId = dbClient.metricDao().selectByKeys(dbSession, metricKeys).stream()
+    List<MetricDto> metrics = dbClient.metricDao().selectByKeys(dbSession, metricKeys);
+    Map<Integer, MetricDto> metricsPerId = metrics.stream()
       .collect(uniqueIndex(MetricDto::getId));
     List<String> componentUuids = components.stream().map(ComponentDto::uuid).collect(toArrayList(components.size()));
     List<LiveMeasureDto> dbMeasures = dbClient.liveMeasureDao().selectByComponentUuidsAndMetricIds(dbSession, componentUuids, metricsPerId.keySet());
+    // previous status must be load now as MeasureMatrix mutate the LiveMeasureDto which are passed to it
+    Metric.Level previousStatus = loadPreviousStatus(metrics, dbMeasures);
 
     Configuration config = projectConfigurationLoader.loadProjectConfiguration(dbSession, project);
     DebtRatingGrid debtRatingGrid = new DebtRatingGrid(config);
@@ -135,15 +138,19 @@ public class LiveMeasureComputerImpl implements LiveMeasureComputer {
     matrix.getChanged().forEach(m -> dbClient.liveMeasureDao().insertOrUpdate(dbSession, m, null));
     projectIndexer.commitAndIndex(dbSession, singleton(project), ProjectIndexer.Cause.MEASURE_CHANGE);
 
-    Metric.Level previousStatus = loadPreviousStatus(project, matrix);
     return Optional.of(
       new QGChangeEvent(project, branch, lastAnalysis.get(), config, previousStatus, () -> Optional.of(evaluatedQualityGate)));
   }
 
   @CheckForNull
-  private static Metric.Level loadPreviousStatus(ComponentDto project, MeasureMatrix matrix) {
-    return matrix.getMeasure(project, CoreMetrics.ALERT_STATUS_KEY)
-      .map(liveMeasureDto -> liveMeasureDto.getTextValue())
+  private static Metric.Level loadPreviousStatus(List<MetricDto> metrics, List<LiveMeasureDto> dbMeasures) {
+    MetricDto alertStatusMetric = metrics.stream()
+      .filter(m -> ALERT_STATUS_KEY.equals(m.getKey()))
+      .findAny()
+      .orElseThrow(() -> new IllegalStateException(String.format("Metric with key %s is not registered", ALERT_STATUS_KEY)));
+    return dbMeasures.stream()
+      .filter(m -> m.getMetricId() == alertStatusMetric.getId())
+      .map(LiveMeasureDto::getTextValue)
       .filter(Objects::nonNull)
       .map(m -> {
         try {
@@ -154,6 +161,8 @@ public class LiveMeasureComputerImpl implements LiveMeasureComputer {
           return null;
         }
       })
+      .filter(Objects::nonNull)
+      .findAny()
       .orElse(null);
   }
 
