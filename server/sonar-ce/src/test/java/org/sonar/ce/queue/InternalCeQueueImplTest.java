@@ -19,22 +19,13 @@
  */
 package org.sonar.ce.queue;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static java.util.Arrays.asList;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import static org.sonar.ce.container.ComputeEngineStatus.Status.STARTED;
-import static org.sonar.ce.container.ComputeEngineStatus.Status.STOPPING;
-
+import com.google.common.collect.ImmutableSet;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
-
 import javax.annotation.Nullable;
-
 import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Rule;
@@ -59,7 +50,13 @@ import org.sonar.server.computation.task.step.TypedException;
 import org.sonar.server.organization.DefaultOrganization;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 
-import com.google.common.collect.ImmutableSet;
+import static com.google.common.base.Preconditions.checkArgument;
+import static java.util.Arrays.asList;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static org.sonar.ce.container.ComputeEngineStatus.Status.STARTED;
+import static org.sonar.ce.container.ComputeEngineStatus.Status.STOPPING;
 
 public class InternalCeQueueImplTest {
 
@@ -355,7 +352,7 @@ public class InternalCeQueueImplTest {
   }
 
   @Test
-  public void peek_peeks_pending_tasks_with_executionCount_equal_to_1_and_increases_it() {
+  public void peek_ignores_pending_tasks_with_executionCount_equal_to_1() {
     db.getDbClient().ceQueueDao().insert(session, new CeQueueDto()
       .setUuid("uuid")
       .setTaskType("foo")
@@ -363,8 +360,7 @@ public class InternalCeQueueImplTest {
       .setExecutionCount(1));
     db.commit();
 
-    assertThat(underTest.peek(WORKER_UUID_1).get().getUuid()).isEqualTo("uuid");
-    assertThat(db.getDbClient().ceQueueDao().selectByUuid(session, "uuid").get().getExecutionCount()).isEqualTo(2);
+    assertThat(underTest.peek(WORKER_UUID_1).isPresent()).isFalse();
   }
 
   @Test
@@ -427,30 +423,22 @@ public class InternalCeQueueImplTest {
   public void peek_resets_to_pending_any_task_in_progress_for_specified_worker_uuid_and_peeks_the_oldest_non_worn_out_no_matter_if_it_has_been_reset_or_not() {
     insertPending("u1", WORKER_UUID_1, 3); // won't be picked because worn out
     insertInProgress("u2", WORKER_UUID_1, 3); // will be reset but won't be picked because worn out
-    insertPending("u3", WORKER_UUID_1, 0); // will be picked first
-    insertInProgress("u4", WORKER_UUID_1, 1); // will be reset and picked on second call only
+    insertInProgress("u3", WORKER_UUID_1, 1); // will be reset but won't be picked because worn out
+    insertPending("u4", WORKER_UUID_1, 0); // will be picked
 
     Optional<CeTask> ceTask = underTest.peek(WORKER_UUID_1);
-    assertThat(ceTask.get().getUuid()).isEqualTo("u3");
-
-    // remove first task and do another peek: will pick the reset task since it's now the oldest one
-    underTest.remove(ceTask.get(), CeActivityDto.Status.SUCCESS, null, null);
-    assertThat(underTest.peek(WORKER_UUID_1).get().getUuid()).isEqualTo("u4");
+    assertThat(ceTask.get().getUuid()).isEqualTo("u4");
   }
 
   @Test
   public void peek_resets_to_pending_any_task_in_progress_for_specified_worker_uuid_and_peeks_reset_tasks_if_is_the_oldest_non_worn_out() {
     insertPending("u1", WORKER_UUID_1, 3); // won't be picked because worn out
     insertInProgress("u2", WORKER_UUID_1, 3); // will be reset but won't be picked because worn out
-    insertInProgress("u3", WORKER_UUID_1, 1); // will be reset and picked
+    insertInProgress("u3", WORKER_UUID_1, 1); // won't be picked because worn out
     insertPending("u4", WORKER_UUID_1, 0); // will be picked second
 
     Optional<CeTask> ceTask = underTest.peek(WORKER_UUID_1);
-    assertThat(ceTask.get().getUuid()).isEqualTo("u3");
-
-    // remove first task and do another peek: will pick the reset task since it's now the oldest one
-    underTest.remove(ceTask.get(), CeActivityDto.Status.SUCCESS, null, null);
-    assertThat(underTest.peek(WORKER_UUID_1).get().getUuid()).isEqualTo("u4");
+    assertThat(ceTask.get().getUuid()).isEqualTo("u4");
   }
 
   private void verifyResetTask(CeQueueDto originalDto) {
@@ -555,7 +543,7 @@ public class InternalCeQueueImplTest {
   }
 
   @Test
-  public void cancelWornOuts_cancels_pending_tasks_with_executionCount_greater_or_equal_to_2() {
+  public void cancelWornOuts_cancels_pending_tasks_with_executionCount_greater_or_equal_to_1() {
     CeQueueDto u1 = insertCeQueueDto("u1", CeQueueDto.Status.PENDING, 0, "worker1");
     CeQueueDto u2 = insertCeQueueDto("u2", CeQueueDto.Status.PENDING, 1, "worker1");
     CeQueueDto u3 = insertCeQueueDto("u3", CeQueueDto.Status.PENDING, 2, "worker1");
@@ -568,7 +556,7 @@ public class InternalCeQueueImplTest {
     underTest.cancelWornOuts();
 
     verifyUnmodified(u1);
-    verifyUnmodified(u2);
+    verifyCanceled(u2);
     verifyCanceled(u3);
     verifyCanceled(u4);
     verifyUnmodified(u5);

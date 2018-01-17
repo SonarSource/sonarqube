@@ -52,7 +52,7 @@ import static java.util.Objects.requireNonNull;
 public class InternalCeQueueImpl extends CeQueueImpl implements InternalCeQueue {
   private static final org.sonar.api.utils.log.Logger LOG = Loggers.get(InternalCeQueueImpl.class);
 
-  private static final int MAX_EXECUTION_COUNT = 2;
+  private static final int MAX_EXECUTION_COUNT = 1;
 
   private final System2 system2;
   private final DbClient dbClient;
