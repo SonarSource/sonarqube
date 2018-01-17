@@ -68,19 +68,25 @@ export interface Breadcrumb {
   qualifier: string;
 }
 
-export interface Component {
+export interface LightComponent {
+  key: string;
+  organization: string;
+  qualifier: string;
+}
+
+export interface Component extends LightComponent {
   analysisDate?: string;
   breadcrumbs: Breadcrumb[];
   configuration?: ComponentConfiguration;
   description?: string;
   extensions?: Extension[];
   isFavorite?: boolean;
-  key: string;
   name: string;
-  organization: string;
   path?: string;
-  qualifier: string;
   refKey?: string;
+  qualityProfiles?: { key: string; language: string; name: string }[];
+  qualityGate?: { isDefault?: boolean; key: string; name: string };
+  tags?: string[];
   version?: string;
   visibility?: string;
 }
@@ -105,7 +111,7 @@ export interface Metric {
   domain?: string;
   hidden?: boolean;
   key: string;
-  name?: string;
+  name: string;
   qualitative?: boolean;
   type: string;
 }

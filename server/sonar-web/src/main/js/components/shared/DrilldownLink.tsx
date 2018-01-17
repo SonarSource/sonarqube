@@ -17,8 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import PropTypes from 'prop-types';
+import * as React from 'react';
 import { Link } from 'react-router';
 import { getComponentDrilldownUrl, getComponentIssuesUrl } from '../../helpers/urls';
 
@@ -47,21 +46,22 @@ const ISSUE_MEASURES = [
   'new_vulnerabilities'
 ];
 
-export class DrilldownLink extends React.PureComponent {
-  static propTypes = {
-    branch: PropTypes.string,
-    children: PropTypes.oneOfType([PropTypes.node, PropTypes.arrayOf(PropTypes.node)]),
-    className: PropTypes.string,
-    component: PropTypes.string.isRequired,
-    metric: PropTypes.string.isRequired,
-    sinceLeakPeriod: PropTypes.bool
-  };
+interface Props {
+  branch?: string;
+  children?: React.ReactNode;
+  className?: string;
+  component: string;
+  metric: string;
+  sinceLeakPeriod?: boolean;
+}
+
+export default class DrilldownLink extends React.PureComponent<Props> {
   isIssueMeasure = () => {
     return ISSUE_MEASURES.indexOf(this.props.metric) !== -1;
   };
 
   propsToIssueParams = () => {
-    const params = {};
+    const params: { [key: string]: string | boolean } = {};
 
     if (this.props.sinceLeakPeriod) {
       params.sinceLeakPeriod = true;

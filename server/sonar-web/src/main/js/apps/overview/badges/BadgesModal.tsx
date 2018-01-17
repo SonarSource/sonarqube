@@ -27,7 +27,7 @@ import { translate } from '../../../helpers/l10n';
 import './styles.css';
 
 interface Props {
-  branch: string;
+  branch?: string;
   project: string;
 }
 

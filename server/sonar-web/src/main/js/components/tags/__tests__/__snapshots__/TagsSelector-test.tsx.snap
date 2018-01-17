@@ -5,7 +5,7 @@ exports[`should render with selected tags 1`] = `
   customClass="bubble-popup-bottom-right bubble-popup-menu abs-width-300"
   position={
     Object {
-      "left": 0,
+      "right": 0,
       "top": 0,
     }
   }
@@ -38,7 +38,7 @@ exports[`should render without tags at all 1`] = `
   customClass="bubble-popup-bottom-right bubble-popup-menu abs-width-300"
   position={
     Object {
-      "left": 0,
+      "right": 0,
       "top": 0,
     }
   }

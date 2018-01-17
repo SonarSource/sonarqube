@@ -19,14 +19,19 @@
  */
 import { getJSON, postJSON, post, RequestData } from '../helpers/request';
 import throwGlobalError from '../app/utils/throwGlobalError';
+import { Paging } from '../app/types';
 
-interface GetProjectActivityResponse {
-  analyses: any[];
-  paging: {
-    total: number;
-    pageIndex: number;
-    pageSize: number;
-  };
+export interface Event {
+  key: string;
+  name: string;
+  category: string;
+  description?: string;
+}
+
+export interface Analysis {
+  key: string;
+  date: string;
+  events: Event[];
 }
 
 export function getProjectActivity(data: {
@@ -35,7 +40,7 @@ export function getProjectActivity(data: {
   category?: string;
   p?: number;
   ps?: number;
-}): Promise<GetProjectActivityResponse> {
+}): Promise<{ analyses: Analysis[]; paging: Paging }> {
   return getJSON('/api/project_analyses/search', data).catch(throwGlobalError);
 }
 

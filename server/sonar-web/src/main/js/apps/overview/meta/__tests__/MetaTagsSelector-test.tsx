@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 /* eslint-disable import/order, import/first */
-import React from 'react';
+import * as React from 'react';
 import { mount, shallow } from 'enzyme';
 import MetaTagsSelector from '../MetaTagsSelector';
 
@@ -35,9 +35,16 @@ jest.mock('lodash', () => {
 import { searchProjectTags } from '../../../../api/components';
 
 it('searches tags on mount', () => {
-  searchProjectTags.mockImplementation(() => Promise.resolve({ tags: ['foo', 'bar'] }));
+  (searchProjectTags as jest.Mock).mockImplementation(() =>
+    Promise.resolve({ tags: ['foo', 'bar'] })
+  );
   mount(
-    <MetaTagsSelector position={{}} project="foo" selectedTags={[]} setProjectTags={jest.fn()} />
+    <MetaTagsSelector
+      position={{ top: 0, right: 0 }}
+      project="foo"
+      selectedTags={[]}
+      setProjectTags={jest.fn()}
+    />
   );
   expect(searchProjectTags).toBeCalledWith({ ps: 9, q: '' });
 });
@@ -46,17 +53,18 @@ it('selects and deselects tags', () => {
   const setProjectTags = jest.fn();
   const wrapper = shallow(
     <MetaTagsSelector
-      position={{}}
+      position={{ top: 0, right: 0 }}
       project="foo"
       selectedTags={['foo', 'bar']}
       setProjectTags={setProjectTags}
     />
   );
 
-  wrapper.find('TagsSelector').prop('onSelect')('baz');
+  const tagSelect: any = wrapper.find('TagsSelector');
+  tagSelect.prop('onSelect')('baz');
   expect(setProjectTags).toHaveBeenLastCalledWith(['foo', 'bar', 'baz']);
 
   // note that the `selectedTags` is a prop and so it wasn't changed
-  wrapper.find('TagsSelector').prop('onUnselect')('bar');
+  tagSelect.prop('onUnselect')('bar');
   expect(setProjectTags).toHaveBeenLastCalledWith(['foo']);
 });

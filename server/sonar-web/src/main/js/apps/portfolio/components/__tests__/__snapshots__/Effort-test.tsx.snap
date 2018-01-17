@@ -25,17 +25,11 @@ exports[`renders 1`] = `
         >
           <span>
             <Measure
-              measure={
-                Object {
-                  "metric": Object {
-                    "key": "projects",
-                    "type": "SHORT_INT",
-                  },
-                  "value": "3",
-                }
-              }
+              className="little-spacer-right"
+              metricKey="projects"
+              metricType="SHORT_INT"
+              value="3"
             />
-             
             projects_
           </span>
         </Link>,

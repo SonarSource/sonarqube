@@ -19,7 +19,7 @@
  */
 import React from 'react';
 import enhance from './enhance';
-import { DrilldownLink } from '../../../components/shared/drilldown-link';
+import DrilldownLink from '../../../components/shared/DrilldownLink';
 import { getMetricName } from '../helpers/metrics';
 import { formatMeasure, getPeriodValue } from '../../../helpers/measures';
 import { translate } from '../../../helpers/l10n';

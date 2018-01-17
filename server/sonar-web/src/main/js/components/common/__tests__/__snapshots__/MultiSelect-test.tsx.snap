@@ -19,7 +19,6 @@ exports[`should render multiselect with selected elements 1`] = `
   >
     <MultiSelectOption
       active={true}
-      custom={false}
       element="bar"
       key="bar"
       onHover={[Function]}
@@ -49,7 +48,6 @@ exports[`should render multiselect with selected elements 2`] = `
   >
     <MultiSelectOption
       active={true}
-      custom={false}
       element="bar"
       key="bar"
       onHover={[Function]}
@@ -58,21 +56,17 @@ exports[`should render multiselect with selected elements 2`] = `
     />
     <MultiSelectOption
       active={false}
-      custom={false}
       element="foo"
       key="foo"
       onHover={[Function]}
       onSelectChange={[Function]}
-      selected={false}
     />
     <MultiSelectOption
       active={false}
-      custom={false}
       element="baz"
       key="baz"
       onHover={[Function]}
       onSelectChange={[Function]}
-      selected={false}
     />
   </ul>
 </div>
@@ -97,7 +91,6 @@ exports[`should render multiselect with selected elements 3`] = `
   >
     <MultiSelectOption
       active={false}
-      custom={false}
       element="bar"
       key="bar"
       onHover={[Function]}
@@ -106,21 +99,17 @@ exports[`should render multiselect with selected elements 3`] = `
     />
     <MultiSelectOption
       active={false}
-      custom={false}
       element="foo"
       key="foo"
       onHover={[Function]}
       onSelectChange={[Function]}
-      selected={false}
     />
     <MultiSelectOption
       active={true}
-      custom={false}
       element="baz"
       key="baz"
       onHover={[Function]}
       onSelectChange={[Function]}
-      selected={false}
     />
   </ul>
 </div>
@@ -145,7 +134,6 @@ exports[`should render multiselect with selected elements 4`] = `
   >
     <MultiSelectOption
       active={false}
-      custom={false}
       element="bar"
       key="bar"
       onHover={[Function]}
@@ -154,21 +142,17 @@ exports[`should render multiselect with selected elements 4`] = `
     />
     <MultiSelectOption
       active={false}
-      custom={false}
       element="foo"
       key="foo"
       onHover={[Function]}
       onSelectChange={[Function]}
-      selected={false}
     />
     <MultiSelectOption
       active={true}
-      custom={false}
       element="baz"
       key="baz"
       onHover={[Function]}
       onSelectChange={[Function]}
-      selected={false}
     />
     <MultiSelectOption
       active={false}
@@ -177,7 +161,6 @@ exports[`should render multiselect with selected elements 4`] = `
       key="test"
       onHover={[Function]}
       onSelectChange={[Function]}
-      selected={false}
     />
   </ul>
 </div>

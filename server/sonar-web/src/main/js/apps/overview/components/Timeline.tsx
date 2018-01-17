@@ -17,20 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import PropTypes from 'prop-types';
+import * as React from 'react';
 import { max } from 'd3-array';
 import { LineChart } from '../../../components/charts/line-chart';
+import { HistoryItem } from '../../../api/time-machine';
 
 const HEIGHT = 80;
 
-export default class Timeline extends React.PureComponent {
-  static propTypes = {
-    history: PropTypes.arrayOf(PropTypes.object).isRequired,
-    before: PropTypes.object,
-    after: PropTypes.object
-  };
+interface Props {
+  history: HistoryItem[];
+  before?: Date;
+  after?: Date;
+}
 
+export default class Timeline extends React.PureComponent<Props> {
   filterSnapshots() {
     const { history, before, after } = this.props;
 

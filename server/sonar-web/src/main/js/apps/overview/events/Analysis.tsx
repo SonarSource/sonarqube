@@ -17,27 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
+import * as React from 'react';
 import { sortBy } from 'lodash';
 import Event from './Event';
 import DateTooltipFormatter from '../../../components/intl/DateTooltipFormatter';
+import { Analysis as IAnalysis, Event as IEvent } from '../../../api/projectActivity';
 import { translate } from '../../../helpers/l10n';
-/*:: import type { Analysis as AnalysisType, Event as EventType } from '../../projectActivity/types'; */
 
-/*::
-type Props = {
-  analysis: AnalysisType,
-  qualifier: string
-};
-*/
+interface Props {
+  analysis: IAnalysis;
+  qualifier: string;
+}
 
-export default function Analysis(props /*: Props */) {
-  const { analysis } = props;
-  const sortedEvents /*: Array<EventType> */ = sortBy(
+export default function Analysis({ analysis, ...props }: Props) {
+  const sortedEvents: Array<IEvent> = sortBy(
     analysis.events,
     // versions first
-    (event /*: EventType */) => (event.category === 'VERSION' ? 0 : 1),
+    (event: IEvent) => (event.category === 'VERSION' ? 0 : 1),
     // then the rest sorted by category
     'category'
   );

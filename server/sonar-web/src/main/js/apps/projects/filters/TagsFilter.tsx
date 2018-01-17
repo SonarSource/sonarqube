@@ -82,11 +82,14 @@ export default class TagsFilter extends React.PureComponent<Props, State> {
       searchProjectTags({
         q: search,
         ps: size(this.props.facet || {}) + LIST_SIZE
-      }).then(result => {
-        if (this.mounted) {
-          this.setState({ isLoading: false, tags: result.tags });
-        }
-      });
+      }).then(
+        result => {
+          if (this.mounted) {
+            this.setState({ isLoading: false, tags: result.tags });
+          }
+        },
+        () => {}
+      );
     }
   };
 

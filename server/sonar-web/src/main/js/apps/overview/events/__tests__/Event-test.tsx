@@ -17,31 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import * as React from 'react';
 import { shallow } from 'enzyme';
-import React from 'react';
-import MultiSelectOption from '../MultiSelectOption';
+import Event from '../Event';
 
-const props = {
-  element: 'mytag',
-  selected: false,
-  custom: false,
-  active: false,
-  onSelectChange: () => {},
-  onHover: () => {}
-};
+const EVENT = { key: '1', category: 'OTHER', name: 'test' };
+const VERSION = { key: '2', category: 'VERSION', name: '6.5-SNAPSHOT' };
 
-it('should render standard tag', () => {
-  expect(shallow(<MultiSelectOption {...props} />)).toMatchSnapshot();
+it('should render an event correctly', () => {
+  expect(shallow(<Event event={EVENT} />)).toMatchSnapshot();
 });
 
-it('should render selected tag', () => {
-  expect(shallow(<MultiSelectOption {...props} selected={true} />)).toMatchSnapshot();
-});
-
-it('should render custom tag', () => {
-  expect(shallow(<MultiSelectOption {...props} custom={true} />)).toMatchSnapshot();
-});
-
-it('should render active tag', () => {
-  expect(shallow(<MultiSelectOption {...props} selected={true} active={true} />)).toMatchSnapshot();
+it('should render a version correctly', () => {
+  expect(shallow(<Event event={VERSION} />)).toMatchSnapshot();
 });

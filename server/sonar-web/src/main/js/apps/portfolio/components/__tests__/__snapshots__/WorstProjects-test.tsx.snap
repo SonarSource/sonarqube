@@ -70,60 +70,36 @@ exports[`renders 1`] = `
           className="text-center"
         >
           <Measure
-            measure={
-              Object {
-                "metric": Object {
-                  "key": "releasability_rating",
-                  "type": "RATING",
-                },
-                "value": "3",
-              }
-            }
+            metricKey="releasability_rating"
+            metricType="RATING"
+            value="3"
           />
         </td>
         <td
           className="text-center"
         >
           <Measure
-            measure={
-              Object {
-                "metric": Object {
-                  "key": "reliability_rating",
-                  "type": "RATING",
-                },
-                "value": "2",
-              }
-            }
+            metricKey="reliability_rating"
+            metricType="RATING"
+            value="2"
           />
         </td>
         <td
           className="text-center"
         >
           <Measure
-            measure={
-              Object {
-                "metric": Object {
-                  "key": "security_rating",
-                  "type": "RATING",
-                },
-                "value": "1",
-              }
-            }
+            metricKey="security_rating"
+            metricType="RATING"
+            value="1"
           />
         </td>
         <td
           className="text-center"
         >
           <Measure
-            measure={
-              Object {
-                "metric": Object {
-                  "key": "sqale_rating",
-                  "type": "RATING",
-                },
-                "value": "4",
-              }
-            }
+            metricKey="sqale_rating"
+            metricType="RATING"
+            value="4"
           />
         </td>
         <td
@@ -133,15 +109,9 @@ exports[`renders 1`] = `
             className="note"
           >
             <Measure
-              measure={
-                Object {
-                  "metric": Object {
-                    "key": "ncloc",
-                    "type": "SHORT_INT",
-                  },
-                  "value": "200",
-                }
-              }
+              metricKey="ncloc"
+              metricType="SHORT_INT"
+              value="200"
             />
           </span>
           <svg
@@ -188,60 +158,36 @@ exports[`renders 1`] = `
           className="text-center"
         >
           <Measure
-            measure={
-              Object {
-                "metric": Object {
-                  "key": "alert_status",
-                  "type": "LEVEL",
-                },
-                "value": "ERROR",
-              }
-            }
+            metricKey="alert_status"
+            metricType="LEVEL"
+            value="ERROR"
           />
         </td>
         <td
           className="text-center"
         >
           <Measure
-            measure={
-              Object {
-                "metric": Object {
-                  "key": "reliability_rating",
-                  "type": "RATING",
-                },
-                "value": "2",
-              }
-            }
+            metricKey="reliability_rating"
+            metricType="RATING"
+            value="2"
           />
         </td>
         <td
           className="text-center"
         >
           <Measure
-            measure={
-              Object {
-                "metric": Object {
-                  "key": "security_rating",
-                  "type": "RATING",
-                },
-                "value": "1",
-              }
-            }
+            metricKey="security_rating"
+            metricType="RATING"
+            value="1"
           />
         </td>
         <td
           className="text-center"
         >
           <Measure
-            measure={
-              Object {
-                "metric": Object {
-                  "key": "sqale_rating",
-                  "type": "RATING",
-                },
-                "value": "4",
-              }
-            }
+            metricKey="sqale_rating"
+            metricType="RATING"
+            value="4"
           />
         </td>
         <td
@@ -251,15 +197,9 @@ exports[`renders 1`] = `
             className="note"
           >
             <Measure
-              measure={
-                Object {
-                  "metric": Object {
-                    "key": "ncloc",
-                    "type": "SHORT_INT",
-                  },
-                  "value": "100",
-                }
-              }
+              metricKey="ncloc"
+              metricType="SHORT_INT"
+              value="100"
             />
           </span>
           <svg
@@ -306,60 +246,36 @@ exports[`renders 1`] = `
           className="text-center"
         >
           <Measure
-            measure={
-              Object {
-                "metric": Object {
-                  "key": "alert_status",
-                  "type": "LEVEL",
-                },
-                "value": "WARN",
-              }
-            }
+            metricKey="alert_status"
+            metricType="LEVEL"
+            value="WARN"
           />
         </td>
         <td
           className="text-center"
         >
           <Measure
-            measure={
-              Object {
-                "metric": Object {
-                  "key": "reliability_rating",
-                  "type": "RATING",
-                },
-                "value": "2",
-              }
-            }
+            metricKey="reliability_rating"
+            metricType="RATING"
+            value="2"
           />
         </td>
         <td
           className="text-center"
         >
           <Measure
-            measure={
-              Object {
-                "metric": Object {
-                  "key": "security_rating",
-                  "type": "RATING",
-                },
-                "value": "1",
-              }
-            }
+            metricKey="security_rating"
+            metricType="RATING"
+            value="1"
           />
         </td>
         <td
           className="text-center"
         >
           <Measure
-            measure={
-              Object {
-                "metric": Object {
-                  "key": "sqale_rating",
-                  "type": "RATING",
-                },
-                "value": "4",
-              }
-            }
+            metricKey="sqale_rating"
+            metricType="RATING"
+            value="4"
           />
         </td>
         <td
@@ -369,15 +285,9 @@ exports[`renders 1`] = `
             className="note"
           >
             <Measure
-              measure={
-                Object {
-                  "metric": Object {
-                    "key": "ncloc",
-                    "type": "SHORT_INT",
-                  },
-                  "value": "150",
-                }
-              }
+              metricKey="ncloc"
+              metricType="SHORT_INT"
+              value="150"
             />
           </span>
           <svg

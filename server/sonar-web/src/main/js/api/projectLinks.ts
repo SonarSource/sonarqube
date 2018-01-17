@@ -18,11 +18,19 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { getJSON, post, postJSON } from '../helpers/request';
+import throwGlobalError from '../app/utils/throwGlobalError';
 
-export function getProjectLinks(projectKey: string): Promise<any> {
+export interface ProjectLink {
+  id: string;
+  name: string;
+  type: string;
+  url: string;
+}
+
+export function getProjectLinks(projectKey: string): Promise<ProjectLink[]> {
   const url = '/api/project_links/search';
   const data = { projectKey };
-  return getJSON(url, data).then(r => r.links);
+  return getJSON(url, data).then(r => r.links, throwGlobalError);
 }
 
 export function deleteLink(linkId: string): Promise<void> {

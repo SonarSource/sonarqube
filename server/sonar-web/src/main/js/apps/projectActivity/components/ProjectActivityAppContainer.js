@@ -198,7 +198,7 @@ export default class ProjectActivityAppContainer extends React.PureComponent {
             value: analysis.value
           }))
         })),
-      throwGlobalError
+      () => {}
     );
   };
 

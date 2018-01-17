@@ -32,15 +32,9 @@ exports[`renders 1`] = `
           }
         >
           <Measure
-            measure={
-              Object {
-                "metric": Object {
-                  "key": "projects",
-                  "type": "SHORT_INT",
-                },
-                "value": "15",
-              }
-            }
+            metricKey="projects"
+            metricType="SHORT_INT"
+            value="15"
           />
         </Link>
       </div>
@@ -69,15 +63,9 @@ exports[`renders 1`] = `
           }
         >
           <Measure
-            measure={
-              Object {
-                "metric": Object {
-                  "key": "ncloc",
-                  "type": "SHORT_INT",
-                },
-                "value": "1234",
-              }
-            }
+            metricKey="ncloc"
+            metricType="SHORT_INT"
+            value="1234"
           />
         </Link>
       </div>
