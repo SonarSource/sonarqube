@@ -55,8 +55,7 @@ public class ScmLineReaderTest {
   public void set_scm_with_minim_fields() {
     ScmInfo scmInfo = new ScmInfoImpl(Collections.singletonMap(1,
       Changeset.newChangesetBuilder()
-        .setDate(123_456_789L)
-        .setRevision("rev-1")
+        .setDate(123456789L)
         .build()));
 
     ScmLineReader lineScm = new ScmLineReader(scmInfo);
@@ -66,7 +65,8 @@ public class ScmLineReaderTest {
 
     assertThat(lineBuilder.hasScmAuthor()).isFalse();
     assertThat(lineBuilder.getScmDate()).isEqualTo(123456789L);
-    assertThat(lineBuilder.getScmRevision()).isEqualTo("rev-1");
+    assertThat(lineBuilder.hasScmRevision()).isFalse();
+
   }
 
   @Test
@@ -74,31 +74,32 @@ public class ScmLineReaderTest {
     long refDate = 123_456_789L;
     Changeset changeset0 = Changeset.newChangesetBuilder().setDate(refDate - 636).setRevision("rev-1").build();
     Changeset changeset1 = Changeset.newChangesetBuilder().setDate(refDate + 1).setRevision("rev-2").build();
-    Changeset changeset2 = Changeset.newChangesetBuilder().setDate(refDate + 2).setRevision("rev-3").build();
+    Changeset changeset2 = Changeset.newChangesetBuilder().setDate(refDate + 2).build();
     ScmInfo scmInfo = new ScmInfoImpl(setup8LinesChangeset(changeset0, changeset1, changeset2));
 
     ScmLineReader lineScm = new ScmLineReader(scmInfo);
 
-    // before any line is read, the latest change is null
+    // before any line is read, the latest changes are null
     assertThat(lineScm.getLatestChange()).isNull();
+    assertThat(lineScm.getLatestChangeWithRevision()).isNull();
 
     // read line 1, only one changeset => 0
-    readLineAndAssertLatestChangeDate(lineScm, 1, changeset0);
+    readLineAndAssertLatestChanges(lineScm, 1, changeset0, changeset0);
 
     // read line 2, latest changeset is 1
-    readLineAndAssertLatestChangeDate(lineScm, 2, changeset1);
+    readLineAndAssertLatestChanges(lineScm, 2, changeset1, changeset1);
 
     // read line 3, latest changeset is still 1
-    readLineAndAssertLatestChangeDate(lineScm, 3, changeset1);
+    readLineAndAssertLatestChanges(lineScm, 3, changeset1, changeset1);
 
     // read line 4, latest changeset is now 2
-    readLineAndAssertLatestChangeDate(lineScm, 4, changeset2);
+    readLineAndAssertLatestChanges(lineScm, 4, changeset2, changeset1);
 
     // read line 5 to 8, there will never be any changeset more recent than 2
-    readLineAndAssertLatestChangeDate(lineScm, 5, changeset2);
-    readLineAndAssertLatestChangeDate(lineScm, 6, changeset2);
-    readLineAndAssertLatestChangeDate(lineScm, 7, changeset2);
-    readLineAndAssertLatestChangeDate(lineScm, 8, changeset2);
+    readLineAndAssertLatestChanges(lineScm, 5, changeset2, changeset1);
+    readLineAndAssertLatestChanges(lineScm, 6, changeset2, changeset1);
+    readLineAndAssertLatestChanges(lineScm, 7, changeset2, changeset1);
+    readLineAndAssertLatestChanges(lineScm, 8, changeset2, changeset1);
   }
 
   private static Map<Integer, Changeset> setup8LinesChangeset(Changeset changeset0, Changeset changeset1, Changeset changeset2) {
@@ -113,10 +114,12 @@ public class ScmLineReaderTest {
       .put(8, changeset0).build();
   }
 
-  private void readLineAndAssertLatestChangeDate(ScmLineReader lineScm, int line, Changeset expectedChangeset) {
+  private void readLineAndAssertLatestChanges(ScmLineReader lineScm, int line, Changeset expectedChangeset, Changeset expectedChangesetWithRevision) {
     DbFileSources.Line.Builder lineBuilder = DbFileSources.Data.newBuilder().addLinesBuilder().setLine(line);
     lineScm.read(lineBuilder);
     assertThat(lineScm.getLatestChange()).isSameAs(expectedChangeset);
+    assertThat(lineScm.getLatestChangeWithRevision()).isSameAs(expectedChangesetWithRevision);
+
   }
 
 }

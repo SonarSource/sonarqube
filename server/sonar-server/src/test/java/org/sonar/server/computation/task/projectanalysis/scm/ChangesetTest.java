@@ -47,12 +47,11 @@ public class ChangesetTest {
   public void create_changeset_with_minimum_fields() {
     Changeset underTest = Changeset.newChangesetBuilder()
       .setDate(123456789L)
-      .setRevision("rev-1")
       .build();
 
     assertThat(underTest.getAuthor()).isNull();
     assertThat(underTest.getDate()).isEqualTo(123456789L);
-    assertThat(underTest.getRevision()).isEqualTo("rev-1");
+    assertThat(underTest.getRevision()).isNull();
   }
 
   @Test

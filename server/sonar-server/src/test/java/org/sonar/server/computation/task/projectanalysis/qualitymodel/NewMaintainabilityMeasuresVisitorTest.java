@@ -23,7 +23,9 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Ordering;
 import java.util.Arrays;
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.assertj.core.data.Offset;
 import org.junit.Before;
 import org.junit.Rule;
@@ -162,6 +164,19 @@ public class NewMaintainabilityMeasuresVisitorTest {
     setPeriod();
     when(ratingSettings.getDevCost(LANGUAGE_1_KEY)).thenReturn(LANGUAGE_1_DEV_COST);
     setupOneFileAloneInAProject(50, Flag.SRC_FILE, Flag.WITH_NCLOC, Flag.WITH_CHANGESET);
+    measureRepository.addRawMeasure(ROOT_REF, NEW_TECHNICAL_DEBT_KEY, createNewDebtMeasure(50));
+
+    underTest.visit(treeRootHolder.getRoot());
+
+    assertNewDebtRatioValues(LANGUAGE_1_FILE_REF, 83.33);
+    assertNewDebtRatioValues(ROOT_REF, 83.33);
+  }
+
+  @Test
+  public void file_has_new_debt_ratio_if_only_has_some_scm_dates_which_are_after_snapshot_dates() {
+    setPeriod();
+    when(ratingSettings.getDevCost(LANGUAGE_1_KEY)).thenReturn(LANGUAGE_1_DEV_COST);
+    setupOneFileAloneInAProjectWithPartialChangesets(50, Flag.SRC_FILE, Flag.WITH_NCLOC);
     measureRepository.addRawMeasure(ROOT_REF, NEW_TECHNICAL_DEBT_KEY, createNewDebtMeasure(50));
 
     underTest.visit(treeRootHolder.getRoot());
@@ -367,8 +382,7 @@ public class NewMaintainabilityMeasuresVisitorTest {
               builder(DIRECTORY, 111)
                 .addChildren(
                   builder(FILE, LANGUAGE_1_FILE_REF).setFileAttributes(new FileAttributes(false, LANGUAGE_1_KEY, 4)).build(),
-                  builder(FILE, 22_222).setFileAttributes(new FileAttributes(false, LANGUAGE_1_KEY, 6)).build()
-                )
+                  builder(FILE, 22_222).setFileAttributes(new FileAttributes(false, LANGUAGE_1_KEY, 6)).build())
                 .build())
             .build())
         .build());
@@ -439,6 +453,29 @@ public class NewMaintainabilityMeasuresVisitorTest {
     }
   }
 
+  private void setupOneFileAloneInAProjectWithPartialChangesets(int newDebt, Flag isUnitTest, Flag withNclocLines) {
+    checkArgument(isUnitTest == Flag.UT_FILE || isUnitTest == Flag.SRC_FILE);
+    checkArgument(withNclocLines == Flag.WITH_NCLOC || withNclocLines == Flag.NO_NCLOC || withNclocLines == Flag.MISSING_MEASURE_NCLOC);
+
+    treeRootHolder.setRoot(
+      builder(PROJECT, ROOT_REF)
+        .addChildren(
+          builder(FILE, LANGUAGE_1_FILE_REF).setFileAttributes(new FileAttributes(isUnitTest == Flag.UT_FILE, LANGUAGE_1_KEY, 1)).build())
+        .build());
+
+    Measure newDebtMeasure = createNewDebtMeasure(newDebt);
+    measureRepository.addRawMeasure(LANGUAGE_1_FILE_REF, NEW_TECHNICAL_DEBT_KEY, newDebtMeasure);
+    if (withNclocLines == Flag.WITH_NCLOC) {
+      // 4 lines file, only first one is not ncloc
+      measureRepository.addRawMeasure(LANGUAGE_1_FILE_REF, NCLOC_DATA_KEY, createNclocDataMeasure(2, 3, 4));
+    } else if (withNclocLines == Flag.NO_NCLOC) {
+      // 4 lines file, none of which is ncloc
+      measureRepository.addRawMeasure(LANGUAGE_1_FILE_REF, NCLOC_DATA_KEY, createNoNclocDataMeasure(4));
+    }
+    // 2 last lines are after PERIOD 2's snapshot date
+    scmInfoRepository.setScmInfo(LANGUAGE_1_FILE_REF, createChangesetsForLines(PERIOD_SNAPSHOT_DATE + 100, 3, 4));
+  }
+
   private enum Flag {
     UT_FILE, SRC_FILE, NO_CHANGESET, WITH_CHANGESET, WITH_NCLOC, NO_NCLOC, MISSING_MEASURE_NCLOC
   }
@@ -479,6 +516,14 @@ public class NewMaintainabilityMeasuresVisitorTest {
       changesets[i] = changetset;
     }
     return changesets;
+  }
+
+  /**
+   * Creates changesets for specific lines, which all have the same date {@code scmDate}.
+   */
+  private static Map<Integer, Changeset> createChangesetsForLines(long scmDate, int... lines) {
+    Changeset changetset = Changeset.newChangesetBuilder().setDate(scmDate).setRevision("rev-1").build();
+    return Arrays.stream(lines).boxed().collect(Collectors.toMap(l -> l, l -> changetset));
   }
 
   /**

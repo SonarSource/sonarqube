@@ -133,6 +133,24 @@ public class NewSizeMeasuresStepTest {
   }
 
   @Test
+  public void compute_new_lines_with_only_some_lines_having_changesets() {
+    setChangesetsForFirstThreeLines(FILE_1_REF, FILE_2_REF, FILE_4_REF);
+
+    underTest.execute();
+
+    assertRawMeasureValueOnPeriod(FILE_1_REF, NEW_LINES_KEY, 2);
+    assertRawMeasureValueOnPeriod(FILE_2_REF, NEW_LINES_KEY, 2);
+    assertNoRawMeasure(FILE_3_REF, NEW_LINES_KEY);
+    assertRawMeasureValueOnPeriod(FILE_4_REF, NEW_LINES_KEY, 2);
+    assertRawMeasureValueOnPeriod(DIRECTORY_REF, NEW_LINES_KEY, 4);
+    assertNoRawMeasure(DIRECTORY_2_REF, NEW_LINES_KEY);
+    assertRawMeasureValueOnPeriod(SUB_MODULE_1_REF, NEW_LINES_KEY, 4);
+    assertRawMeasureValueOnPeriod(SUB_MODULE_2_REF, NEW_LINES_KEY, 2);
+    assertRawMeasureValueOnPeriod(MODULE_REF, NEW_LINES_KEY, 6);
+    assertRawMeasureValueOnPeriod(ROOT_REF, NEW_LINES_KEY, 6);
+  }
+
+  @Test
   public void does_not_compute_new_lines_when_no_changeset() {
     underTest.execute();
 
@@ -216,6 +234,31 @@ public class NewSizeMeasuresStepTest {
     assertRawMeasureValueOnPeriod(SUB_MODULE_2_REF, NEW_DUPLICATED_LINES_KEY, 20d);
     assertRawMeasureValueOnPeriod(MODULE_REF, NEW_DUPLICATED_LINES_KEY, 22d);
     assertRawMeasureValueOnPeriod(ROOT_REF, NEW_DUPLICATED_LINES_KEY, 22d);
+  }
+  
+  @Test
+  public void compute_and_aggregate_duplicated_lines_when_only_some_lines_have_changesets() {
+    // 2 new duplicated lines in each, since only the first 2 lines are new
+    addDuplicatedBlock(FILE_1_REF, 2);
+    addDuplicatedBlock(FILE_3_REF, 10);
+    addDuplicatedBlock(FILE_4_REF, 12);
+    setChangesetsForFirstThreeLines(FILE_1_REF);
+    setChangesetsForFirstThreeLines(FILE_2_REF);
+    setChangesetsForFirstThreeLines(FILE_3_REF);
+    setChangesetsForFirstThreeLines(FILE_4_REF);
+
+    underTest.execute();
+
+    assertRawMeasureValueOnPeriod(FILE_1_REF, NEW_DUPLICATED_LINES_KEY, 2d);
+    assertRawMeasureValueOnPeriod(FILE_2_REF, NEW_DUPLICATED_LINES_KEY, 0d);
+    assertRawMeasureValueOnPeriod(FILE_3_REF, NEW_DUPLICATED_LINES_KEY, 2d);
+    assertRawMeasureValueOnPeriod(FILE_4_REF, NEW_DUPLICATED_LINES_KEY, 2d);
+    assertRawMeasureValueOnPeriod(DIRECTORY_REF, NEW_DUPLICATED_LINES_KEY, 2d);
+    assertNoRawMeasure(DIRECTORY_2_REF, NEW_DUPLICATED_LINES_KEY);
+    assertRawMeasureValueOnPeriod(SUB_MODULE_1_REF, NEW_DUPLICATED_LINES_KEY, 2d);
+    assertRawMeasureValueOnPeriod(SUB_MODULE_2_REF, NEW_DUPLICATED_LINES_KEY, 4d);
+    assertRawMeasureValueOnPeriod(MODULE_REF, NEW_DUPLICATED_LINES_KEY, 6d);
+    assertRawMeasureValueOnPeriod(ROOT_REF, NEW_DUPLICATED_LINES_KEY, 6d);
   }
 
   @Test
@@ -342,6 +385,15 @@ public class NewSizeMeasuresStepTest {
       duplicates[i - 2] = new TextBlock(i, i);
     }
     duplicationRepository.addDuplication(fileRef, original, duplicates);
+  }
+
+  private void setChangesetsForFirstThreeLines(int... componentRefs) {
+    Arrays.stream(componentRefs)
+      .forEach(componentRef -> scmInfoRepository.setScmInfo(componentRef,
+        Changeset.newChangesetBuilder().setDate(parseDate("2011-01-01").getTime()).setRevision("rev-1").build(),
+        Changeset.newChangesetBuilder().setDate(parseDate("2011-01-01").getTime()).setRevision("rev-1").build(),
+        // line 3 is older, part of no period
+        Changeset.newChangesetBuilder().setDate(parseDate("2007-01-15").getTime()).setRevision("rev-2").build()));
   }
 
   private void setChangesets(int... componentRefs) {
