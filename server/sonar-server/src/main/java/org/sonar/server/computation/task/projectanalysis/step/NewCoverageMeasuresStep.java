@@ -273,7 +273,8 @@ public class NewCoverageMeasuresStep implements ComputationStep {
         int conditions = (Integer) ObjectUtils.defaultIfNull(conditionsByLine.get(lineId), 0);
         int coveredConditions = (Integer) ObjectUtils.defaultIfNull(coveredConditionsByLine.get(lineId), 0);
         if (componentScm.hasChangesetForLine(lineId)) {
-          analyze(context.getPeriod(), componentScm.getChangesetForLine(lineId).getDate(), hits, conditions, coveredConditions);
+          long date = componentScm.getChangesetForLine(lineId).getDate();
+          analyze(context.getPeriod(), date, hits, conditions, coveredConditions);
         }
       }
     }

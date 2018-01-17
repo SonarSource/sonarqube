@@ -41,11 +41,7 @@ import static org.sonar.core.issue.IssueChangeContext.createScan;
 /**
  * Detect the SCM author and SQ assignee.
  * <p/>
- * It relies on:
- * <ul>
- *   <li>SCM information sent in the report for modified files</li>
- *   <li>sources lines stored in database for non-modified files</li>
- * </ul>
+ * It relies on SCM information which comes from both the report and database.
  */
 public class IssueAssigner extends IssueVisitor {
 

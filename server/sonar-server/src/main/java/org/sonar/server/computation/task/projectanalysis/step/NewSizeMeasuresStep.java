@@ -132,7 +132,7 @@ public class NewSizeMeasuresStep implements ComputationStep {
     }
 
     private void initNewDuplicated(Component component, ScmInfo scmInfo, Period period) {
-      DuplicationCounters duplicationCounters = new DuplicationCounters(scmInfo, period);
+      DuplicationCounters duplicationCounters = new DuplicationCounters(scmInfo, period, scmInfo.getAllChangesets().size());
       Iterable<Duplication> duplications = duplicationRepository.getDuplications(component);
       for (Duplication duplication : duplications) {
         duplicationCounters.addBlock(duplication.getOriginal());
@@ -157,15 +157,16 @@ public class NewSizeMeasuresStep implements ComputationStep {
     private final Set<Integer> lineCounts;
     private int blockCounts;
 
-    private DuplicationCounters(ScmInfo scmInfo, Period period) {
+    private DuplicationCounters(ScmInfo scmInfo, Period period, int changesetSize) {
       this.scmInfo = scmInfo;
       this.period = period;
-      this.lineCounts = new HashSet<>();
+      this.lineCounts = new HashSet<>(changesetSize);
     }
 
     void addBlock(TextBlock textBlock) {
       Boolean[] newBlock = new Boolean[] {false};
       IntStream.rangeClosed(textBlock.getStart(), textBlock.getEnd())
+        .filter(scmInfo::hasChangesetForLine)
         .filter(line -> isLineInPeriod(line, period))
         .forEach(line -> {
           lineCounts.add(line);

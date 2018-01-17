@@ -190,7 +190,10 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
       .setAuthor("john")
       .setDate(123456789L)
       .setRevision("rev-1")
-      .build());
+      .build(),
+      Changeset.newChangesetBuilder()
+        .setDate(223456789L)
+        .build());
 
     underTest.execute();
 
@@ -208,12 +211,13 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
     assertThat(data.getLines(0).getScmRevision()).isEqualTo("rev-1");
 
     assertThat(data.getLines(1).getScmAuthor()).isEmpty();
-    assertThat(data.getLines(1).getScmDate()).isEqualTo(0);
+    assertThat(data.getLines(1).getScmDate()).isEqualTo(223456789L);
     assertThat(data.getLines(1).getScmRevision()).isEmpty();
 
     assertThat(data.getLines(2).getScmAuthor()).isEmpty();
     assertThat(data.getLines(2).getScmDate()).isEqualTo(0);
     assertThat(data.getLines(2).getScmRevision()).isEmpty();
+
   }
 
   @Test

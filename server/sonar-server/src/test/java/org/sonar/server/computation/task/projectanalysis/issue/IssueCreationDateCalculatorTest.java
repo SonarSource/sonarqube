@@ -264,9 +264,7 @@ public class IssueCreationDateCalculatorTest {
     withScmAt(3, 1300L);
     withScmAt(4, 1400L);
     withScmAt(5, 1500L);
-    withScmAt(6, 1600L);
-    withScmAt(7, 1700L);
-    withScmAt(8, 1800L);
+    // some lines missing should be ok
     withScmAt(9, 1900L);
 
     run();
