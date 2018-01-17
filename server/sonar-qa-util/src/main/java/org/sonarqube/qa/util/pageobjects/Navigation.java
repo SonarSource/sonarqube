@@ -47,12 +47,16 @@ public class Navigation {
   }
 
   public static Navigation create(Orchestrator orchestrator) {
+    return create(orchestrator, "/");
+  }
+
+  public static Navigation create(Orchestrator orchestrator, String path) {
     WebDriver driver = SelenideConfig.configure(orchestrator);
     driver.manage().deleteAllCookies();
     clearStorage(d -> d.getLocalStorage().clear());
     clearStorage(d -> d.getSessionStorage().clear());
     clearStorage(d -> Selenide.clearBrowserLocalStorage());
-    return Selenide.open("/", Navigation.class);
+    return Selenide.open(path, Navigation.class);
   }
 
   private static void clearStorage(Consumer<WebStorage> cleaner) {

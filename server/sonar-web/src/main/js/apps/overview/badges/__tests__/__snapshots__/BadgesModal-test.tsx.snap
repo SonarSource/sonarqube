@@ -3,6 +3,7 @@
 exports[`should display the modal after click 1`] = `
 <React.Fragment>
   <button
+    className="js-project-badges"
     onClick={[Function]}
   >
     overview.badges.get_badge
