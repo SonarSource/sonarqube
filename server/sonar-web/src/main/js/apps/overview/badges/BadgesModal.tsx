@@ -64,7 +64,9 @@ export default class BadgesModal extends React.PureComponent<Props, State> {
     const fullBadgeOptions = { branch, project, ...badgeOptions };
     return (
       <>
-        <button onClick={this.handleOpen}>{translate('overview.badges.get_badge')}</button>
+        <button className="js-project-badges" onClick={this.handleOpen}>
+          {translate('overview.badges.get_badge')}
+        </button>
         {this.state.open && (
           <Modal contentLabel={header} onRequestClose={this.handleClose}>
             <header className="modal-head">

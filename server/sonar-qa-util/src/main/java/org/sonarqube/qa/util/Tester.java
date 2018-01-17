@@ -141,6 +141,11 @@ public class Tester extends ExternalResource implements TesterSession {
     return Navigation.create(orchestrator);
   }
 
+  public Navigation openBrowser(String path) {
+    verifyStarted();
+    return Navigation.create(orchestrator, path);
+  }
+
   private void verifyNotStarted() {
     if (beforeCalled) {
       throw new IllegalStateException("Orchestrator should not be already started");
