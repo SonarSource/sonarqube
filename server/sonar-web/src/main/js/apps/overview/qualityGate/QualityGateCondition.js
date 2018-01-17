@@ -21,7 +21,7 @@
 import React from 'react';
 import classNames from 'classnames';
 import { Link } from 'react-router';
-import { DrilldownLink } from '../../../components/shared/drilldown-link';
+import DrilldownLink from '../../../components/shared/DrilldownLink';
 import Measure from '../../../components/measure/Measure';
 import IssueTypeIcon from '../../../components/ui/IssueTypeIcon';
 import { getPeriodValue, isDiffMetric, formatMeasure } from '../../../helpers/measures';
@@ -146,7 +146,12 @@ export default class QualityGateCondition extends React.PureComponent {
     return this.wrapWithLink(
       <div className="overview-quality-gate-condition-container">
         <div className="overview-quality-gate-condition-value">
-          <Measure measure={{ ...measure, value: actual, leak: actual }} decimals={decimals} />
+          <Measure
+            decimals={decimals}
+            value={actual}
+            metricKey={measure.metric.key}
+            metricType={measure.metric.type}
+          />
         </div>
 
         <div>

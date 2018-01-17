@@ -77,7 +77,6 @@ export default class SetIssueTagsPopup extends React.PureComponent {
 
   render() {
     return (
-      // $FlowFixMe `this.props.popupPosition` is passed from `BabelPopupHelper`
       <TagsSelector
         position={this.props.popupPosition}
         tags={this.state.searchResult}

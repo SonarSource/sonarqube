@@ -41,9 +41,7 @@ export default function Summary({ component, measures }: Props) {
         <li>
           <div className="portfolio-measure-secondary-value">
             <Link to={getComponentDrilldownUrl(component.key, 'projects')}>
-              <Measure
-                measure={{ metric: { key: 'projects', type: 'SHORT_INT' }, value: projects }}
-              />
+              <Measure metricKey="projects" metricType="SHORT_INT" value={projects} />
             </Link>
           </div>
           <div className="spacer-top text-muted">{translate('projects')}</div>
@@ -51,7 +49,7 @@ export default function Summary({ component, measures }: Props) {
         <li>
           <div className="portfolio-measure-secondary-value">
             <Link to={getComponentDrilldownUrl(component.key, 'ncloc')}>
-              <Measure measure={{ metric: { key: 'ncloc', type: 'SHORT_INT' }, value: ncloc }} />
+              <Measure metricKey="ncloc" metricType="SHORT_INT" value={ncloc} />
             </Link>
           </div>
           <div className="spacer-top text-muted">{translate('metric.ncloc.name')}</div>

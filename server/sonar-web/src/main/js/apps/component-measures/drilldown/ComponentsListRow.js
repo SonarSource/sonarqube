@@ -52,11 +52,8 @@ export default function ComponentsListRow(props /*: Props */) {
       {otherMeasures.map(measure => (
         <MeasureCell
           key={measure.metric.key}
-          component={{
-            ...component,
-            value: measure.value,
-            leak: measure.leak
-          }}
+          component={component}
+          measure={measure}
           metric={measure.metric}
         />
       ))}

@@ -17,17 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
+import * as React from 'react';
 import { shallow } from 'enzyme';
-import Event from '../Event';
+import Analysis from '../Analysis';
 
-const EVENT = { key: '1', category: 'OTHER', name: 'test' };
-const VERSION = { key: '2', category: 'VERSION', name: '6.5-SNAPSHOT' };
+const ANALYSIS = {
+  key: '1',
+  date: '2017-06-10T16:10:59+0200',
+  events: [
+    { key: '1', category: 'OTHER', name: 'test' },
+    { key: '2', category: 'VERSION', name: '6.5-SNAPSHOT' }
+  ]
+};
 
-it('should render an event correctly', () => {
-  expect(shallow(<Event event={EVENT} />)).toMatchSnapshot();
-});
-
-it('should render a version correctly', () => {
-  expect(shallow(<Event event={VERSION} />)).toMatchSnapshot();
+it('should sort the events with version first', () => {
+  expect(shallow(<Analysis analysis={ANALYSIS} qualifier="TRK" />)).toMatchSnapshot();
 });

@@ -20,10 +20,15 @@
 import * as React from 'react';
 import * as classNames from 'classnames';
 
+export interface BubblePopupPosition {
+  top: number;
+  right: number;
+}
+
 interface Props {
   customClass?: string;
   children: React.ReactNode;
-  position: { top: number; right: number };
+  position: BubblePopupPosition;
 }
 
 export default function BubblePopup(props: Props) {

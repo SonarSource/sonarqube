@@ -17,28 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
-import Measure from '../../../components/measure/Measure';
-import { isDiffMetric } from '../../../helpers/measures';
-/*:: import type { Component } from '../types'; */
-/*:: import type { Metric } from '../../../store/metrics/actions'; */
+import * as React from 'react';
+import { shallow } from 'enzyme';
+import ApplicationQualityGate from '../ApplicationQualityGate';
 
-/*:: type Props = {
-  component: Component,
-  metric: Metric
-}; */
-
-export default function MeasureCell({ component, metric } /*: Props */) {
-  return (
-    <td className="thin nowrap text-right">
-      <span id={`component-measures-component-measure-${component.key}-${metric.key}`}>
-        <Measure
-          value={isDiffMetric(metric.key) ? component.leak : component.value}
-          metricKey={metric.key}
-          metricType={metric.type}
-        />
-      </span>
-    </td>
+it('renders', () => {
+  const wrapper = shallow(
+    <ApplicationQualityGate component={{ key: 'foo', organization: 'foo', qualifier: 'TRK' }} />
   );
-}
+  expect(wrapper).toMatchSnapshot();
+  wrapper.setState({
+    loading: false,
+    metrics: {},
+    status: 'ERROR',
+    projects: [
+      { conditions: [], key: 'project1', name: 'project1', status: 'ERROR' },
+      { conditions: [], key: 'project2', name: 'project2', status: 'OK' },
+      { conditions: [], key: 'project3', name: 'project3', status: 'WARN' }
+    ]
+  });
+  expect(wrapper).toMatchSnapshot();
+});

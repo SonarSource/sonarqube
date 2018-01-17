@@ -17,48 +17,32 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-//@flow
-import React from 'react';
+import * as React from 'react';
 import { setProjectTags } from '../../../api/components';
 import { translate } from '../../../helpers/l10n';
 import TagsList from '../../../components/tags/TagsList';
 import MetaTagsSelector from './MetaTagsSelector';
+import { BubblePopupPosition } from '../../../components/common/BubblePopup';
+import { Component } from '../../../app/types';
 
-/*::
-type Props = {
-  component: {
-    key: string,
-    tags: Array<string>,
-    configuration?: {
-      showSettings?: boolean
-    }
-  },
-  onComponentChange: {} => void
-};
-*/
+interface Props {
+  component: Component;
+  onComponentChange: (changes: {}) => void;
+}
 
-/*::
-type State = {
-  popupOpen: boolean,
-  popupPosition: { top: number, right: number }
-};
-*/
+interface State {
+  popupOpen: boolean;
+  popupPosition: BubblePopupPosition;
+}
 
-export default class MetaTags extends React.PureComponent {
-  /*:: card: HTMLElement; */
-  /*:: tagsList: HTMLElement; */
-  /*:: tagsSelector: HTMLElement; */
-  /*:: props: Props; */
-  state /*: State */ = {
-    popupOpen: false,
-    popupPosition: {
-      top: 0,
-      right: 0
-    }
-  };
+export default class MetaTags extends React.PureComponent<Props, State> {
+  card: HTMLDivElement | null;
+  tagsList: HTMLButtonElement | null;
+  tagsSelector: HTMLDivElement | null;
+  state: State = { popupOpen: false, popupPosition: { top: 0, right: 0 } };
 
   componentDidMount() {
-    if (this.canUpdateTags()) {
+    if (this.canUpdateTags() && this.tagsList && this.card) {
       const buttonPos = this.tagsList.getBoundingClientRect();
       const cardPos = this.card.getBoundingClientRect();
       this.setState({ popupPosition: this.getPopupPos(buttonPos, cardPos) });
@@ -73,40 +57,35 @@ export default class MetaTags extends React.PureComponent {
     window.removeEventListener('click', this.handleOutsideClick);
   }
 
-  handleKey = (evt /*: KeyboardEvent */) => {
+  handleKey = (evt: KeyboardEvent) => {
     // Escape key
     if (evt.keyCode === 27) {
       this.setState({ popupOpen: false });
     }
   };
 
-  handleOutsideClick = (evt /*: SyntheticInputEvent */) => {
-    if (!this.tagsSelector || !this.tagsSelector.contains(evt.target)) {
+  handleOutsideClick = (evt: Event) => {
+    if (!this.tagsSelector || !this.tagsSelector.contains(evt.target as Node)) {
       this.setState({ popupOpen: false });
     }
   };
 
-  handleClick = (evt /*: MouseEvent */) => {
+  handleClick = (evt: React.SyntheticEvent<HTMLButtonElement>) => {
     evt.stopPropagation();
     this.setState(state => ({ popupOpen: !state.popupOpen }));
   };
 
-  canUpdateTags() {
+  canUpdateTags = () => {
     const { configuration } = this.props.component;
     return configuration && configuration.showSettings;
-  }
+  };
 
-  getPopupPos(
-    eltPos /*: { height: number, width: number } */,
-    containerPos /*: { width: number } */
-  ) {
-    return {
-      top: eltPos.height,
-      right: containerPos.width - eltPos.width
-    };
-  }
+  getPopupPos = (eltPos: ClientRect, containerPos: ClientRect) => ({
+    top: eltPos.height,
+    right: containerPos.width - eltPos.width
+  });
 
-  handleSetProjectTags = (tags /*: Array<string> */) => {
+  handleSetProjectTags = (tags: string[]) => {
     setProjectTags({ project: this.props.component.key, tags: tags.join(',') }).then(
       () => this.props.onComponentChange({ tags }),
       () => {}
@@ -114,8 +93,9 @@ export default class MetaTags extends React.PureComponent {
   };
 
   render() {
-    const { tags, key } = this.props.component;
+    const { key } = this.props.component;
     const { popupOpen, popupPosition } = this.state;
+    const tags = this.props.component.tags || [];
 
     if (this.canUpdateTags()) {
       return (

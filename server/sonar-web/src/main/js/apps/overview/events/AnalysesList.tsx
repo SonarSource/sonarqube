@@ -17,47 +17,41 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
+import * as React from 'react';
 import { Link } from 'react-router';
 import Analysis from './Analysis';
 import { getAllMetrics } from '../../../api/metrics';
-import { getProjectActivity } from '../../../api/projectActivity';
+import { getProjectActivity, Analysis as IAnalysis } from '../../../api/projectActivity';
 import PreviewGraph from '../../../components/preview-graph/PreviewGraph';
 import { translate } from '../../../helpers/l10n';
-/*:: import type { Analysis as AnalysisType } from '../../projectActivity/types'; */
-/*:: import type { History, Metric } from '../types'; */
+import { Metric, Component } from '../../../app/types';
+import { History } from '../../../api/time-machine';
 
-/*::
-type Props = {
-  branch?: string,
-  component: Object,
-  history: ?History,
-  qualifier: string
-};
-*/
+interface Props {
+  branch?: string;
+  component: Component;
+  history?: History;
+  qualifier: string;
+}
 
-/*::
-type State = {
-  analyses: Array<AnalysisType>,
-  loading: boolean,
-  metrics: Array<Metric>
-};
-*/
+interface State {
+  analyses: IAnalysis[];
+  loading: boolean;
+  metrics: Metric[];
+}
 
 const PAGE_SIZE = 3;
 
-export default class AnalysesList extends React.PureComponent {
-  /*:: mounted: boolean; */
-  /*:: props: Props; */
-  state /*: State */ = { analyses: [], loading: true, metrics: [] };
+export default class AnalysesList extends React.PureComponent<Props, State> {
+  mounted: boolean;
+  state: State = { analyses: [], loading: true, metrics: [] };
 
   componentDidMount() {
     this.mounted = true;
     this.fetchData();
   }
 
-  componentDidUpdate(prevProps /*: Props */) {
+  componentDidUpdate(prevProps: Props) {
     if (prevProps.component !== this.props.component) {
       this.fetchData();
     }
@@ -79,7 +73,7 @@ export default class AnalysesList extends React.PureComponent {
     return component.breadcrumbs[current].key;
   };
 
-  fetchData() {
+  fetchData = () => {
     this.setState({ loading: true });
     Promise.all([
       getProjectActivity({
@@ -89,13 +83,9 @@ export default class AnalysesList extends React.PureComponent {
       }),
       getAllMetrics()
     ]).then(
-      response => {
+      ([{ analyses }, metrics]) => {
         if (this.mounted) {
-          this.setState({
-            analyses: response[0].analyses,
-            metrics: response[1],
-            loading: false
-          });
+          this.setState({ analyses, metrics, loading: false });
         }
       },
       () => {
@@ -104,9 +94,9 @@ export default class AnalysesList extends React.PureComponent {
         }
       }
     );
-  }
+  };
 
-  renderList(analyses /*: Array<AnalysisType> */) {
+  renderList(analyses: IAnalysis[]) {
     if (!analyses.length) {
       return <p className="spacer-top note">{translate('no_results')}</p>;
     }

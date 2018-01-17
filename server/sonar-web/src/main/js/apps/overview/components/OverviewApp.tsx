@@ -17,8 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
+import * as React from 'react';
 import { uniq } from 'lodash';
 import QualityGate from '../qualityGate/QualityGate';
 import ApplicationQualityGate from '../qualityGate/ApplicationQualityGate';
@@ -29,54 +28,46 @@ import Duplications from '../main/Duplications';
 import Meta from '../meta/Meta';
 import throwGlobalError from '../../../app/utils/throwGlobalError';
 import { getMeasuresAndMeta } from '../../../api/measures';
-import { getAllTimeMachineData } from '../../../api/time-machine';
+import { getAllTimeMachineData, History } from '../../../api/time-machine';
 import { parseDate } from '../../../helpers/dates';
-import { enhanceMeasuresWithMetrics } from '../../../helpers/measures';
-import { getLeakPeriod } from '../../../helpers/periods';
+import { enhanceMeasuresWithMetrics, MeasureEnhanced } from '../../../helpers/measures';
+import { getLeakPeriod, Period } from '../../../helpers/periods';
 import { getCustomGraph, getGraph } from '../../../helpers/storage';
 import { METRICS, HISTORY_METRICS_LIST } from '../utils';
 import { DEFAULT_GRAPH, getDisplayedHistoryMetrics } from '../../projectActivity/utils';
 import { getBranchName } from '../../../helpers/branches';
-/*:: import type { Component, History, MeasuresList, Period } from '../types'; */
+import { Branch, Component } from '../../../app/types';
 import '../styles.css';
 
-/*::
-type Props = {
-  branch?: { name: string },
-  component: Component,
-  onComponentChange: {} => void
-};
-*/
+interface Props {
+  branch?: Branch;
+  component: Component;
+  onComponentChange: (changes: {}) => void;
+}
 
-/*::
-type State = {
-  history?: History,
-  historyStartDate?: Date,
-  loading: boolean,
-  measures: MeasuresList,
-  periods?: Array<Period>
-};
-*/
+interface State {
+  history?: History;
+  historyStartDate?: Date;
+  loading: boolean;
+  measures: MeasureEnhanced[];
+  periods?: Period[];
+}
 
-export default class OverviewApp extends React.PureComponent {
-  /*:: mounted: boolean; */
-  /*:: props: Props; */
-  state /*: State */ = {
-    loading: true,
-    measures: []
-  };
+export default class OverviewApp extends React.PureComponent<Props, State> {
+  mounted: boolean;
+  state: State = { loading: true, measures: [] };
 
   componentDidMount() {
     this.mounted = true;
-    this.loadMeasures().then(this.loadHistory);
+    this.loadMeasures().then(this.loadHistory, () => {});
   }
 
-  componentDidUpdate(prevProps /*: Props */) {
+  componentDidUpdate(prevProps: Props) {
     if (
       this.props.component.key !== prevProps.component.key ||
       this.props.branch !== prevProps.branch
     ) {
-      this.loadMeasures().then(this.loadHistory);
+      this.loadMeasures().then(this.loadHistory, () => {});
     }
   }
 
@@ -90,10 +81,10 @@ export default class OverviewApp extends React.PureComponent {
 
     return getMeasuresAndMeta(component.key, METRICS, {
       additionalFields: 'metrics,periods',
-      branch: branch && getBranchName(branch)
+      branch: getBranchName(branch)
     }).then(
       r => {
-        if (this.mounted) {
+        if (this.mounted && r.metrics) {
           this.setState({
             loading: false,
             measures: enhanceMeasuresWithMetrics(r.component.measures, r.metrics),
@@ -119,22 +110,22 @@ export default class OverviewApp extends React.PureComponent {
     }
 
     const metrics = uniq(HISTORY_METRICS_LIST.concat(graphMetrics));
-    return getAllTimeMachineData(component.key, metrics, {
-      branch: branch && getBranchName(branch)
-    }).then(r => {
-      if (this.mounted) {
-        const history /*: History */ = {};
-        r.measures.forEach(measure => {
-          const measureHistory = measure.history.map(analysis => ({
-            date: parseDate(analysis.date),
-            value: analysis.value
-          }));
-          history[measure.metric] = measureHistory;
-        });
-        const historyStartDate = history[HISTORY_METRICS_LIST[0]][0].date;
-        this.setState({ history, historyStartDate });
+    return getAllTimeMachineData(component.key, metrics, { branch: getBranchName(branch) }).then(
+      r => {
+        if (this.mounted) {
+          const history: History = {};
+          r.measures.forEach(measure => {
+            const measureHistory = measure.history.map(analysis => ({
+              date: parseDate(analysis.date),
+              value: analysis.value
+            }));
+            history[measure.metric] = measureHistory;
+          });
+          const historyStartDate = history[HISTORY_METRICS_LIST[0]][0].date;
+          this.setState({ history, historyStartDate });
+        }
       }
-    }, throwGlobalError);
+    );
   };
 
   getApplicationLeakPeriod = () =>
@@ -158,7 +149,7 @@ export default class OverviewApp extends React.PureComponent {
 
     const leakPeriod =
       component.qualifier === 'APP' ? this.getApplicationLeakPeriod() : getLeakPeriod(periods);
-    const branchName = branch && getBranchName(branch);
+    const branchName = getBranchName(branch);
     const domainProps = {
       branch: branchName,
       component,

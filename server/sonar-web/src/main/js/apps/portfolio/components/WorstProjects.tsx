@@ -110,7 +110,7 @@ export default function WorstProjects({ component, subComponents, total }: Props
 function renderCell(measures: { [key: string]: string | undefined }, metric: string, type: string) {
   return (
     <td className="text-center">
-      <Measure measure={{ metric: { key: metric, type }, value: measures[metric] }} />
+      <Measure metricKey={metric} metricType={type} value={measures[metric]} />
     </td>
   );
 }
@@ -121,12 +121,7 @@ function renderNcloc(measures: { [key: string]: string | undefined }, maxLoc: nu
   return (
     <td className="text-right">
       <span className="note">
-        <Measure
-          measure={{
-            metric: { key: 'ncloc', type: 'SHORT_INT' },
-            value: measures['ncloc']
-          }}
-        />
+        <Measure metricKey="ncloc" metricType="SHORT_INT" value={measures['ncloc']} />
       </span>
       {maxLoc > 0 && (
         <svg width="50" height="16" className="spacer-left">

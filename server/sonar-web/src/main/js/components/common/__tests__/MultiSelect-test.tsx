@@ -17,33 +17,35 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
-import React from 'react';
-import TagsSelector, { validateTag } from '../TagsSelector';
+import * as React from 'react';
+import { shallow, mount } from 'enzyme';
+import MultiSelect from '../MultiSelect';
 
 const props = {
-  position: { left: 0, top: 0 },
-  tags: ['foo', 'bar', 'baz'],
-  selectedTags: ['bar'],
+  selectedElements: ['bar'],
+  elements: [],
   onSearch: () => {},
   onSelect: () => {},
-  onUnselect: () => {}
+  onUnselect: () => {},
+  placeholder: ''
 };
 
-it('should render with selected tags', () => {
-  const tagsSelector = shallow(<TagsSelector {...props} />);
-  expect(tagsSelector).toMatchSnapshot();
+const elements = ['foo', 'bar', 'baz'];
+
+it('should render multiselect with selected elements', () => {
+  const multiselect = shallow(<MultiSelect {...props} />);
+  // Will not only the selected element
+  expect(multiselect).toMatchSnapshot();
+
+  multiselect.setProps({ elements });
+  expect(multiselect).toMatchSnapshot();
+  multiselect.setState({ activeIdx: 2 });
+  expect(multiselect).toMatchSnapshot();
+  multiselect.setState({ query: 'test' });
+  expect(multiselect).toMatchSnapshot();
 });
 
-it('should render without tags at all', () => {
-  expect(shallow(<TagsSelector {...props} tags={[]} selectedTags={[]} />)).toMatchSnapshot();
-});
-
-it('should validate tags correctly', () => {
-  const validChars = 'abcdefghijklmnopqrstuvwxyz0123456789+-#.';
-  expect(validateTag('test')).toBe('test');
-  expect(validateTag(validChars)).toBe(validChars);
-  expect(validateTag(validChars.toUpperCase())).toBe(validChars);
-  expect(validateTag('T E$ST')).toBe('test');
-  expect(validateTag('T E$st!^àéèing1')).toBe('testing1');
+it('should render with the focus inside the search input', () => {
+  const multiselect = mount(<MultiSelect {...props} />);
+  expect(multiselect.find('input').getDOMNode()).toBe(document.activeElement);
 });

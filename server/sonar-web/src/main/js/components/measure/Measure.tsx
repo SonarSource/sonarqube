@@ -21,39 +21,32 @@ import * as React from 'react';
 import Rating from '../ui/Rating';
 import Level from '../ui/Level';
 import Tooltips from '../controls/Tooltip';
-import { formatMeasure, isDiffMetric, MeasureEnhanced } from '../../helpers/measures';
-import { formatLeak, getRatingTooltip } from './utils';
+import { formatMeasure } from '../../helpers/measures';
+import { getRatingTooltip } from './utils';
 
 interface Props {
   className?: string;
   decimals?: number | null;
-  measure?: MeasureEnhanced;
+  value?: string;
+  metricKey: string;
+  metricType: string;
 }
 
-export default function Measure({ className, decimals, measure }: Props) {
-  if (measure === undefined) {
-    return <span>{'–'}</span>;
-  }
-
-  const { metric } = measure;
-  const value = isDiffMetric(metric.key) ? measure.leak : measure.value;
-
+export default function Measure({ className, decimals, metricKey, metricType, value }: Props) {
   if (value === undefined) {
     return <span>{'–'}</span>;
   }
 
-  if (metric.type === 'LEVEL') {
+  if (metricType === 'LEVEL') {
     return <Level className={className} level={value} />;
   }
 
-  if (metric.type !== 'RATING') {
-    const formattedValue = isDiffMetric(metric.key)
-      ? formatLeak(measure.leak, metric.key, metric.type, { decimals })
-      : formatMeasure(measure.value, metric.type, { decimals });
+  if (metricType !== 'RATING') {
+    const formattedValue = formatMeasure(value, metricType, { decimals });
     return <span className={className}>{formattedValue != null ? formattedValue : '–'}</span>;
   }
 
-  const tooltip = getRatingTooltip(metric.key, Number(value));
+  const tooltip = getRatingTooltip(metricKey, Number(value));
   const rating = <Rating value={value} />;
   if (tooltip) {
     return (

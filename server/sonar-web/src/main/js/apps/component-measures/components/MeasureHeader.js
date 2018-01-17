@@ -44,7 +44,7 @@ import { isDiffMetric } from '../../../helpers/measures';
 
 export default function MeasureHeader(props /*: Props*/) {
   const { branch, component, leakPeriod, measure, secondaryMeasure } = props;
-  const metric = measure.metric;
+  const { metric } = measure;
   const isDiff = isDiffMetric(metric.key);
   return (
     <div className="measure-details-header big-spacer-bottom">
@@ -55,9 +55,14 @@ export default function MeasureHeader(props /*: Props*/) {
           <span className="measure-details-value spacer-left">
             <strong>
               {isDiff ? (
-                <Measure className="domain-measures-leak" measure={measure} metric={metric} />
+                <Measure
+                  className="domain-measures-leak"
+                  value={measure.leak}
+                  metricKey={metric.key}
+                  metricType={metric.type}
+                />
               ) : (
-                <Measure measure={measure} metric={metric} />
+                <Measure value={measure.value} metricKey={metric.key} metricType={metric.type} />
               )}
             </strong>
           </span>

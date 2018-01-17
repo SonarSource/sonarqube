@@ -42,11 +42,11 @@ export default function Effort({ component, effort, metricKey }: Props) {
             <Link to={getComponentDrilldownUrl(component, metricKey)}>
               <span>
                 <Measure
-                  measure={{
-                    metric: { key: 'projects', type: 'SHORT_INT' },
-                    value: String(effort.projects)
-                  }}
-                />{' '}
+                  className="little-spacer-right"
+                  metricKey="projects"
+                  metricType="SHORT_INT"
+                  value={String(effort.projects)}
+                />
                 {translate('projects_')}
               </span>
             </Link>

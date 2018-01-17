@@ -54,8 +54,8 @@ export function getPeriodLabel(period: Period | undefined): string | undefined {
   return translateWithParameters(`overview.period.${period.mode}`, parameter);
 }
 
-export function getPeriodDate(period: Period | undefined): Date | undefined {
-  return period ? parseDate(period.date) : undefined;
+export function getPeriodDate(period?: { date?: string }): Date | undefined {
+  return period && period.date ? parseDate(period.date) : undefined;
 }
 
 export function getLeakPeriodLabel(periods: Period[]): string | undefined {
