@@ -26,7 +26,7 @@ import { translate } from '../../../../helpers/l10n';
 /*::
 type Props = {
   command: string | Array<?string>,
-  isWindows?: boolean
+  isOneLine?: boolean
 };
 */
 
@@ -36,13 +36,13 @@ export default class Command extends React.PureComponent {
   /*:: props: Props; */
 
   render() {
-    const { command, isWindows } = this.props;
+    const { command, isOneLine } = this.props;
     const commandArray = Array.isArray(command) ? command.filter(line => line != null) : [command];
-    const finalCommand = isWindows ? commandArray.join(' ') : commandArray.join(s);
+    const finalCommand = isOneLine ? commandArray.join(' ') : commandArray.join(s);
 
     return (
       <div
-        className={classNames('onboarding-command', { 'onboarding-command-windows': isWindows })}>
+        className={classNames('onboarding-command', { 'onboarding-command-oneline': isOneLine })}>
         <pre>{finalCommand}</pre>
         <ClipboardButton copyValue={finalCommand} tooltipPlacement="top" />
       </div>
