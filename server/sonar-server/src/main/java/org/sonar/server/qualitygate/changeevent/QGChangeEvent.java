@@ -21,8 +21,10 @@ package org.sonar.server.qualitygate.changeevent;
 
 import java.util.Optional;
 import java.util.function.Supplier;
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import org.sonar.api.config.Configuration;
+import org.sonar.api.measures.Metric;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
@@ -36,14 +38,16 @@ public class QGChangeEvent {
   private final BranchDto branch;
   private final SnapshotDto analysis;
   private final Configuration projectConfiguration;
+  private final Metric.Level previousStatus;
   private final Supplier<Optional<EvaluatedQualityGate>> qualityGateSupplier;
 
   public QGChangeEvent(ComponentDto project, BranchDto branch, SnapshotDto analysis, Configuration projectConfiguration,
-    Supplier<Optional<EvaluatedQualityGate>> qualityGateSupplier) {
+    @Nullable Metric.Level previousStatus, Supplier<Optional<EvaluatedQualityGate>> qualityGateSupplier) {
     this.project = requireNonNull(project, "project can't be null");
     this.branch = requireNonNull(branch, "branch can't be null");
     this.analysis = requireNonNull(analysis, "analysis can't be null");
     this.projectConfiguration = requireNonNull(projectConfiguration, "projectConfiguration can't be null");
+    this.previousStatus = previousStatus;
     this.qualityGateSupplier = requireNonNull(qualityGateSupplier, "qualityGateSupplier can't be null");
   }
 
@@ -63,6 +67,10 @@ public class QGChangeEvent {
     return projectConfiguration;
   }
 
+  public Optional<Metric.Level> getPreviousStatus() {
+    return Optional.ofNullable(previousStatus);
+  }
+
   public Supplier<Optional<EvaluatedQualityGate>> getQualityGateSupplier() {
     return qualityGateSupplier;
   }
@@ -74,6 +82,7 @@ public class QGChangeEvent {
       ", branch=" + toString(branch) +
       ", analysis=" + toString(analysis) +
       ", projectConfiguration=" + projectConfiguration +
+      ", previousStatus=" + previousStatus +
       ", qualityGateSupplier=" + qualityGateSupplier +
       '}';
   }

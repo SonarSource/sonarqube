@@ -20,12 +20,14 @@
 package org.sonar.server.qualitygate.changeevent;
 
 import java.util.Optional;
+import java.util.Random;
 import java.util.function.Supplier;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.Mockito;
 import org.sonar.api.config.Configuration;
+import org.sonar.api.measures.Metric;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
@@ -50,6 +52,7 @@ public class QGChangeEventTest {
     .setUuid("pto")
     .setCreatedAt(8_999_999_765L);
   private Configuration configuration = Mockito.mock(Configuration.class);
+  private Metric.Level previousStatus = Metric.Level.values()[new Random().nextInt(Metric.Level.values().length)];
   private Supplier<Optional<EvaluatedQualityGate>> supplier = Optional::empty;
 
   @Test
@@ -57,7 +60,7 @@ public class QGChangeEventTest {
     expectedException.expect(NullPointerException.class);
     expectedException.expectMessage("project can't be null");
 
-    new QGChangeEvent(null, branch, analysis, configuration, supplier);
+    new QGChangeEvent(null, branch, analysis, configuration, previousStatus, supplier);
   }
 
   @Test
@@ -65,7 +68,7 @@ public class QGChangeEventTest {
     expectedException.expect(NullPointerException.class);
     expectedException.expectMessage("branch can't be null");
 
-    new QGChangeEvent(project, null, analysis, configuration, supplier);
+    new QGChangeEvent(project, null, analysis, configuration, previousStatus, supplier);
   }
 
   @Test
@@ -73,7 +76,7 @@ public class QGChangeEventTest {
     expectedException.expect(NullPointerException.class);
     expectedException.expectMessage("analysis can't be null");
 
-    new QGChangeEvent(project, branch, null, configuration, supplier);
+    new QGChangeEvent(project, branch, null, configuration, previousStatus, supplier);
   }
 
   @Test
@@ -81,7 +84,12 @@ public class QGChangeEventTest {
     expectedException.expect(NullPointerException.class);
     expectedException.expectMessage("projectConfiguration can't be null");
 
-    new QGChangeEvent(project, branch, analysis, null, supplier);
+    new QGChangeEvent(project, branch, analysis, null, previousStatus, supplier);
+  }
+
+  @Test
+  public void constructor_does_not_fail_with_NPE_if_previousStatus_is_null() {
+    new QGChangeEvent(project, branch, analysis, configuration, null, supplier);
   }
 
   @Test
@@ -89,26 +97,36 @@ public class QGChangeEventTest {
     expectedException.expect(NullPointerException.class);
     expectedException.expectMessage("qualityGateSupplier can't be null");
 
-    new QGChangeEvent(project, branch, analysis, configuration, null);
+    new QGChangeEvent(project, branch, analysis, configuration, previousStatus, null);
   }
 
   @Test
   public void verify_getters() {
-    QGChangeEvent underTest = new QGChangeEvent(project, branch, analysis, configuration, supplier);
+    QGChangeEvent underTest = new QGChangeEvent(project, branch, analysis, configuration, previousStatus, supplier);
 
     assertThat(underTest.getProject()).isSameAs(project);
     assertThat(underTest.getBranch()).isSameAs(branch);
     assertThat(underTest.getAnalysis()).isSameAs(analysis);
     assertThat(underTest.getProjectConfiguration()).isSameAs(configuration);
+    assertThat(underTest.getPreviousStatus()).contains(previousStatus);
     assertThat(underTest.getQualityGateSupplier()).isSameAs(supplier);
   }
 
   @Test
+  public void getPreviousStatus_returns_empty_when_previousStatus_is_null() {
+    QGChangeEvent underTest = new QGChangeEvent(project, branch, analysis, configuration, previousStatus, supplier);
+
+    assertThat(underTest.getPreviousStatus()).contains(previousStatus);
+  }
+
+  @Test
   public void overrides_toString() {
-    QGChangeEvent underTest = new QGChangeEvent(project, branch, analysis, configuration, supplier);
+    QGChangeEvent underTest = new QGChangeEvent(project, branch, analysis, configuration, previousStatus, supplier);
 
     assertThat(underTest.toString())
-      .isEqualTo("QGChangeEvent{project=bar:foo, branch=SHORT:bar:doh:zop, analysis=pto:8999999765, projectConfiguration=" + configuration.toString() +
+      .isEqualTo("QGChangeEvent{project=bar:foo, branch=SHORT:bar:doh:zop, analysis=pto:8999999765" +
+        ", projectConfiguration=" + configuration.toString() +
+        ", previousStatus=" + previousStatus +
         ", qualityGateSupplier=" + supplier + "}");
 
   }

@@ -24,10 +24,14 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import javax.annotation.CheckForNull;
 import org.sonar.api.config.Configuration;
+import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
@@ -109,9 +113,9 @@ public class LiveMeasureComputerImpl implements LiveMeasureComputer {
     DebtRatingGrid debtRatingGrid = new DebtRatingGrid(config);
 
     MeasureMatrix matrix = new MeasureMatrix(components, metricsPerId.values(), dbMeasures);
+    FormulaContextImpl context = new FormulaContextImpl(matrix, debtRatingGrid);
     components.forEach(c -> {
       IssueCounter issueCounter = new IssueCounter(dbClient.issueDao().selectIssueGroupsByBaseComponent(dbSession, c, beginningOfLeakPeriod.orElse(Long.MAX_VALUE)));
-      FormulaContextImpl context = new FormulaContextImpl(matrix, debtRatingGrid);
       for (IssueMetricFormula formula : formulaFactory.getFormulas()) {
         // exclude leak formulas when leak period is not defined
         if (beginningOfLeakPeriod.isPresent() || !formula.isOnLeak()) {
@@ -131,7 +135,26 @@ public class LiveMeasureComputerImpl implements LiveMeasureComputer {
     matrix.getChanged().forEach(m -> dbClient.liveMeasureDao().insertOrUpdate(dbSession, m, null));
     projectIndexer.commitAndIndex(dbSession, singleton(project), ProjectIndexer.Cause.MEASURE_CHANGE);
 
-    return Optional.of(new QGChangeEvent(project, branch, lastAnalysis.get(), config, () -> Optional.of(evaluatedQualityGate)));
+    Metric.Level previousStatus = loadPreviousStatus(project, matrix);
+    return Optional.of(
+      new QGChangeEvent(project, branch, lastAnalysis.get(), config, previousStatus, () -> Optional.of(evaluatedQualityGate)));
+  }
+
+  @CheckForNull
+  private static Metric.Level loadPreviousStatus(ComponentDto project, MeasureMatrix matrix) {
+    return matrix.getMeasure(project, CoreMetrics.ALERT_STATUS_KEY)
+      .map(liveMeasureDto -> liveMeasureDto.getTextValue())
+      .filter(Objects::nonNull)
+      .map(m -> {
+        try {
+          return Metric.Level.valueOf(m);
+        } catch (IllegalArgumentException e) {
+          Loggers.get(LiveMeasureComputerImpl.class)
+            .trace("Failed to parse value of metric '{}'", m, e);
+          return null;
+        }
+      })
+      .orElse(null);
   }
 
   private List<ComponentDto> loadTreeOfComponents(DbSession dbSession, List<ComponentDto> touchedComponents) {

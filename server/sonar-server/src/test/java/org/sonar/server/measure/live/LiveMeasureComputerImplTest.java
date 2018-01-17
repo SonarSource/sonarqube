@@ -19,28 +19,39 @@
  */
 package org.sonar.server.measure.live;
 
+import com.tngtech.java.junit.dataprovider.DataProvider;
+import com.tngtech.java.junit.dataprovider.DataProviderRunner;
+import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Supplier;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.mockito.Mockito;
+import org.junit.runner.RunWith;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.internal.MapSettings;
+import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.core.config.CorePropertyDefinitions;
+import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.measure.LiveMeasureDto;
 import org.sonar.db.metric.MetricDto;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.computation.task.projectanalysis.qualitymodel.Rating;
 import org.sonar.server.es.ProjectIndexer;
 import org.sonar.server.es.TestProjectIndexers;
+import org.sonar.server.qualitygate.EvaluatedQualityGate;
+import org.sonar.server.qualitygate.QualityGate;
 import org.sonar.server.qualitygate.changeevent.QGChangeEvent;
 import org.sonar.server.settings.ProjectConfigurationLoader;
 import org.sonar.server.settings.TestProjectConfigurationLoader;
@@ -49,9 +60,15 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.sonar.api.resources.Qualifiers.ORDERED_BOTTOM_UP;
 
+@RunWith(DataProviderRunner.class)
 public class LiveMeasureComputerImplTest {
 
   @Rule
@@ -62,23 +79,30 @@ public class LiveMeasureComputerImplTest {
   private TestProjectIndexers projectIndexer = new TestProjectIndexers();
   private MetricDto intMetric;
   private MetricDto ratingMetric;
+  private MetricDto alertStatusMetric;
+  private OrganizationDto organization;
   private ComponentDto project;
   private ComponentDto dir;
   private ComponentDto file1;
   private ComponentDto file2;
+  private LiveQualityGateComputer qGateComputer = mock(LiveQualityGateComputer.class);
+  private QualityGate qualityGate = mock(QualityGate.class);
+  private EvaluatedQualityGate newQualityGate = mock(EvaluatedQualityGate.class);
 
   @Before
   public void setUp() throws Exception {
     intMetric = db.measures().insertMetric(m -> m.setValueType(Metric.ValueType.INT.name()));
     ratingMetric = db.measures().insertMetric(m -> m.setValueType(Metric.ValueType.RATING.name()));
-    project = db.components().insertMainBranch();
+    alertStatusMetric = db.measures().insertMetric(m -> m.setKey(CoreMetrics.ALERT_STATUS_KEY));
+    organization = db.organizations().insert();
+    project = db.components().insertMainBranch(organization);
     dir = db.components().insertComponent(ComponentTesting.newDirectory(project, "src/main/java"));
     file1 = db.components().insertComponent(ComponentTesting.newFileDto(project, dir));
     file2 = db.components().insertComponent(ComponentTesting.newFileDto(project, dir));
   }
 
   @Test
-  public void compute_and_insert_measures_if_they_dont_exist_yet() {
+  public void compute_and_insert_measures_if_they_do_not_exist_yet() {
     markProjectAsAnalyzed(project);
 
     List<QGChangeEvent> result = run(asList(file1, file2), newQualifierBasedIntFormula(), newRatingConstantFormula(Rating.C));
@@ -171,11 +195,11 @@ public class LiveMeasureComputerImplTest {
   public void refresh_leak_measures() {
     markProjectAsAnalyzed(project);
     db.measures().insertLiveMeasure(project, intMetric, m -> m.setVariation(42.0).setValue(null));
-    db.measures().insertLiveMeasure(project, ratingMetric, m -> m.setVariation((double)Rating.E.getIndex()));
+    db.measures().insertLiveMeasure(project, ratingMetric, m -> m.setVariation((double) Rating.E.getIndex()));
     db.measures().insertLiveMeasure(dir, intMetric, m -> m.setVariation(42.0).setValue(null));
-    db.measures().insertLiveMeasure(dir, ratingMetric, m -> m.setVariation((double)Rating.D.getIndex()));
+    db.measures().insertLiveMeasure(dir, ratingMetric, m -> m.setVariation((double) Rating.D.getIndex()));
     db.measures().insertLiveMeasure(file1, intMetric, m -> m.setVariation(42.0).setValue(null));
-    db.measures().insertLiveMeasure(file1, ratingMetric, m -> m.setVariation((double)Rating.C.getIndex()));
+    db.measures().insertLiveMeasure(file1, ratingMetric, m -> m.setVariation((double) Rating.C.getIndex()));
 
     // generates values 1, 2, 3 on leak measures
     List<QGChangeEvent> result = run(file1, newQualifierBasedIntLeakFormula(), newRatingLeakFormula(Rating.B));
@@ -193,7 +217,7 @@ public class LiveMeasureComputerImplTest {
   }
 
   @Test
-  public void do_nothing_if_project_has_not_being_analyzed() {
+  public void do_nothing_if_project_has_not_been_analyzed() {
     // project has no snapshots
     List<QGChangeEvent> result = run(file1, newIncrementalFormula());
 
@@ -236,8 +260,90 @@ public class LiveMeasureComputerImplTest {
   }
 
   @Test
-  public void compute_quality_gate_status() {
-    // FIXME
+  public void event_contains_no_previousStatus_if_measure_does_not_exist() {
+    markProjectAsAnalyzed(project);
+
+    List<QGChangeEvent> result = run(file1);
+
+    assertThat(result)
+      .extracting(QGChangeEvent::getPreviousStatus)
+      .containsExactly(Optional.empty());
+  }
+
+  @Test
+  public void event_contains_no_previousStatus_if_measure_exists_and_has_no_value() {
+    markProjectAsAnalyzed(project);
+    db.measures().insertLiveMeasure(project, alertStatusMetric, m -> m.setData((String) null));
+
+    List<QGChangeEvent> result = run(file1);
+
+    assertThat(result)
+      .extracting(QGChangeEvent::getPreviousStatus)
+      .containsExactly(Optional.empty());
+  }
+
+  @Test
+  public void event_contains_no_previousStatus_if_measure_exists_and_is_empty() {
+    markProjectAsAnalyzed(project);
+    db.measures().insertLiveMeasure(project, alertStatusMetric, m -> m.setData(""));
+
+    List<QGChangeEvent> result = run(file1);
+
+    assertThat(result)
+      .extracting(QGChangeEvent::getPreviousStatus)
+      .containsExactly(Optional.empty());
+  }
+
+  @Test
+  public void event_contains_no_previousStatus_if_measure_exists_and_is_not_a_level() {
+    markProjectAsAnalyzed(project);
+    db.measures().insertLiveMeasure(project, alertStatusMetric, m -> m.setData("fooBar"));
+
+    List<QGChangeEvent> result = run(file1);
+
+    assertThat(result)
+      .extracting(QGChangeEvent::getPreviousStatus)
+      .containsExactly(Optional.empty());
+  }
+
+  @Test
+  @UseDataProvider("metricLevels")
+  public void event_contains_previousStatus_if_measure_exists(Metric.Level level) {
+    markProjectAsAnalyzed(project);
+    db.measures().insertLiveMeasure(project, alertStatusMetric, m -> m.setData(level.name()));
+    db.measures().insertLiveMeasure(project, intMetric, m -> m.setVariation(42.0).setValue(null));
+
+    List<QGChangeEvent> result = run(file1, newQualifierBasedIntLeakFormula());
+
+    assertThat(result)
+      .extracting(QGChangeEvent::getPreviousStatus)
+      .containsExactly(Optional.of(level));
+  }
+
+  @DataProvider
+  public static Object[][] metricLevels() {
+    return Arrays.stream(Metric.Level.values())
+      .map(l -> new Object[] {l})
+      .toArray(Object[][]::new);
+  }
+
+  @Test
+  public void event_contains_newQualityGate_computed_by_LiveQualityGateComputer() {
+    markProjectAsAnalyzed(project);
+    db.measures().insertLiveMeasure(project, alertStatusMetric, m -> m.setData(Metric.Level.WARN.name()));
+    db.measures().insertLiveMeasure(project, intMetric, m -> m.setVariation(42.0).setValue(null));
+    BranchDto branch = db.getDbClient().branchDao().selectByKey(db.getSession(), project.projectUuid(), "master")
+      .orElseThrow(() -> new IllegalStateException("Can't find master branch"));
+
+    List<QGChangeEvent> result = run(file1, newQualifierBasedIntLeakFormula());
+
+    assertThat(result)
+      .extracting(QGChangeEvent::getQualityGateSupplier)
+      .extracting(Supplier::get)
+      .containsExactly(Optional.of(newQualityGate));
+    verify(qGateComputer).loadQualityGate(any(DbSession.class), eq(organization), eq(project), eq(branch));
+    verify(qGateComputer).getMetricsRelatedTo(qualityGate);
+    verify(qGateComputer).refreshGateStatus(eq(project), same(qualityGate), any(MeasureMatrix.class));
   }
 
   @Test
@@ -260,7 +366,11 @@ public class LiveMeasureComputerImplTest {
   private List<QGChangeEvent> run(Collection<ComponentDto> components, IssueMetricFormula... formulas) {
     IssueMetricFormulaFactory formulaFactory = new TestIssueMetricFormulaFactory(asList(formulas));
 
-    LiveQualityGateComputer qGateComputer = mock(LiveQualityGateComputer.class, Mockito.RETURNS_DEEP_STUBS);
+    when(qGateComputer.loadQualityGate(any(DbSession.class), any(OrganizationDto.class), any(ComponentDto.class), any(BranchDto.class)))
+      .thenReturn(qualityGate);
+    when(qGateComputer.getMetricsRelatedTo(qualityGate)).thenReturn(singleton(CoreMetrics.ALERT_STATUS_KEY));
+    when(qGateComputer.refreshGateStatus(eq(project), same(qualityGate), any(MeasureMatrix.class)))
+      .thenReturn(newQualityGate);
     MapSettings settings = new MapSettings(new PropertyDefinitions(CorePropertyDefinitions.all()));
     ProjectConfigurationLoader configurationLoader = new TestProjectConfigurationLoader(settings.asConfig());
 
@@ -329,14 +439,6 @@ public class LiveMeasureComputerImplTest {
     Metric metric = new Metric.Builder(ratingMetric.getKey(), ratingMetric.getShortName(), Metric.ValueType.valueOf(ratingMetric.getValueType())).create();
     return new IssueMetricFormula(metric, false, (ctx, issues) -> {
       ctx.setValue(constant);
-    });
-  }
-
-  private IssueMetricFormula newIncrementalLeakFormula() {
-    Metric metric = new Metric.Builder(intMetric.getKey(), intMetric.getShortName(), Metric.ValueType.valueOf(intMetric.getValueType())).create();
-    AtomicInteger counter = new AtomicInteger();
-    return new IssueMetricFormula(metric, true, (ctx, issues) -> {
-      ctx.setLeakValue((double) counter.incrementAndGet());
     });
   }
 

@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Random;
 import java.util.Set;
 import java.util.function.Supplier;
 import javax.annotation.Nullable;
@@ -55,7 +56,6 @@ import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
@@ -88,7 +88,8 @@ public class WebhookQGChangeEventListenerTest {
   public void onIssueChanges_has_no_effect_if_no_webhook_is_configured() {
     Configuration configuration1 = mock(Configuration.class);
     mockWebhookDisabled(configuration1);
-    QGChangeEvent qualityGateEvent = new QGChangeEvent(new ComponentDto(), new BranchDto(), new SnapshotDto(), configuration1, Optional::empty);
+    Metric.Level previousStatus = Metric.Level.values()[new Random().nextInt(Metric.Level.values().length)];
+    QGChangeEvent qualityGateEvent = new QGChangeEvent(new ComponentDto(), new BranchDto(), new SnapshotDto(), configuration1, previousStatus, Optional::empty);
 
     mockedUnderTest.onIssueChanges(qualityGateEvent, CHANGED_ISSUES_ARE_IGNORED);
 
@@ -214,26 +215,10 @@ public class WebhookQGChangeEventListenerTest {
       any(Supplier.class));
   }
 
-  private void verifyWebhookNotCalled(ComponentAndBranch componentAndBranch, SnapshotDto analysis, Configuration branchConfiguration) {
-    verify(webHooks).isEnabled(branchConfiguration);
-    verify(webHooks, times(0)).sendProjectAnalysisUpdate(
-      Matchers.same(branchConfiguration),
-      Matchers.eq(new WebHooks.Analysis(componentAndBranch.uuid(), analysis.getUuid(), null)),
-      any(Supplier.class));
-  }
-
   private List<ProjectAnalysis> extractPayloadFactoryArguments(int time) {
     ArgumentCaptor<ProjectAnalysis> projectAnalysisCaptor = ArgumentCaptor.forClass(ProjectAnalysis.class);
     verify(webhookPayloadFactory, Mockito.times(time)).create(projectAnalysisCaptor.capture());
     return projectAnalysisCaptor.getAllValues();
-  }
-
-  private ComponentAndBranch insertPrivateBranch(OrganizationDto organization, BranchType branchType) {
-    ComponentDto project = dbTester.components().insertPrivateProject(organization);
-    BranchDto branchDto = newBranchDto(project.projectUuid(), branchType)
-      .setKey("foo");
-    ComponentDto newComponent = dbTester.components().insertProjectBranch(project, branchDto);
-    return new ComponentAndBranch(newComponent, branchDto);
   }
 
   public ComponentAndBranch insertMainBranch(OrganizationDto organization) {
@@ -276,7 +261,8 @@ public class WebhookQGChangeEventListenerTest {
   }
 
   private static QGChangeEvent newQGChangeEvent(ComponentAndBranch branch, SnapshotDto analysis, Configuration configuration, @Nullable EvaluatedQualityGate evaluatedQualityGate) {
-    return new QGChangeEvent(branch.component, branch.branch, analysis, configuration, () -> Optional.ofNullable(evaluatedQualityGate));
+    Metric.Level previousStatus = Metric.Level.values()[new Random().nextInt(Metric.Level.values().length)];
+    return new QGChangeEvent(branch.component, branch.branch, analysis, configuration, previousStatus, () -> Optional.ofNullable(evaluatedQualityGate));
   }
 
 }
