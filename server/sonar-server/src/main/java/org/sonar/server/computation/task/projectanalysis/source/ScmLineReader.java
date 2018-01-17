@@ -74,9 +74,9 @@ public class ScmLineReader implements LineReader {
       latestChangeWithRevision = newChangeSet;
     } else {
       long newChangesetDate = newChangeSet.getDate();
-      long latestChangeDate = latestChange.getDate();
+      long latestChangeDate = latestChangeWithRevision.getDate();
       if (newChangesetDate > latestChangeDate) {
-        latestChange = newChangeSet;
+        latestChangeWithRevision = newChangeSet;
       }
     }
   }

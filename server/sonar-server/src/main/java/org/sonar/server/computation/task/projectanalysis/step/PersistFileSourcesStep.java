@@ -168,11 +168,11 @@ public class PersistFileSourcesStep implements ComputationStep {
     }
 
     @CheckForNull
-    private String computeRevision(@Nullable Changeset latestChange) {
-      if (latestChange == null) {
+    private String computeRevision(@Nullable Changeset latestChangeWithRevision) {
+      if (latestChangeWithRevision == null) {
         return null;
       }
-      return latestChange.getRevision();
+      return latestChangeWithRevision.getRevision();
     }
   }
 

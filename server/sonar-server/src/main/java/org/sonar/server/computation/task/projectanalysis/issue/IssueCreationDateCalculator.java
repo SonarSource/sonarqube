@@ -157,7 +157,7 @@ public class IssueCreationDateCalculator extends IssueVisitor {
       }
     }
 
-    return Optional.ofNullable(scmInfo.getLatestChangeset());
+    return Optional.of(scmInfo.getLatestChangeset());
   }
 
   private static void addLines(Set<Integer> involvedLines, TextRange range) {

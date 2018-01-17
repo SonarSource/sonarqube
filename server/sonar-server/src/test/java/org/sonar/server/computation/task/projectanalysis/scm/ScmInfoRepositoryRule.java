@@ -50,4 +50,9 @@ public class ScmInfoRepositoryRule extends ExternalResource implements ScmInfoRe
     scmInfoByFileRef.put(fileRef, new ScmInfoImpl(changeset));
     return this;
   }
+  
+  public ScmInfoRepositoryRule setScmInfo(int fileRef, Map<Integer, Changeset> changesets) {
+    scmInfoByFileRef.put(fileRef, new ScmInfoImpl(changesets));
+    return this;
+  }
 }
