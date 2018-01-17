@@ -55,16 +55,6 @@ export function formatMeasure(
   return useFormatter(value, formatter, options);
 }
 
-/** Format a measure variation for a given type */
-export function formatMeasureVariation(
-  value: string | number | undefined,
-  type: string,
-  options?: any
-): string {
-  const formatter = getVariationFormatter(type);
-  return useFormatter(value, formatter, options);
-}
-
 /** Return a localized metric name */
 export function localizeMetric(metricKey: string): string {
   return translate('metric', metricKey, 'name');
@@ -91,7 +81,10 @@ export function enhanceMeasuresWithMetrics(
 }
 
 /** Get period value of a measure */
-export function getPeriodValue(measure: Measure, periodIndex: number): string | undefined {
+export function getPeriodValue(
+  measure: Measure | MeasureEnhanced,
+  periodIndex: number
+): string | undefined {
   const { periods } = measure;
   const period = periods && periods.find(period => period.index === periodIndex);
   return period ? period.value : undefined;
@@ -125,21 +118,6 @@ function getFormatter(type: string): Formatter {
   return FORMATTERS[type] || noFormatter;
 }
 
-function getVariationFormatter(type: string): Formatter {
-  const FORMATTERS: { [type: string]: Formatter } = {
-    INT: intVariationFormatter,
-    SHORT_INT: shortIntVariationFormatter,
-    FLOAT: floatVariationFormatter,
-    PERCENT: percentVariationFormatter,
-    WORK_DUR: durationVariationFormatter,
-    SHORT_WORK_DUR: shortDurationVariationFormatter,
-    RATING: emptyFormatter,
-    LEVEL: emptyFormatter,
-    MILLISEC: millisecondsVariationFormatter
-  };
-  return FORMATTERS[type] || noFormatter;
-}
-
 function numberFormatter(
   value: number,
   minimumFractionDigits = 0,
@@ -156,17 +134,8 @@ function noFormatter(value: string | number): string | number {
   return value;
 }
 
-function emptyFormatter(): string {
-  return '';
-}
-
 function intFormatter(value: number): string {
   return numberFormatter(value);
-}
-
-function intVariationFormatter(value: number): string {
-  const prefix = value < 0 ? '-' : '+';
-  return prefix + intFormatter(Math.abs(value));
 }
 
 function shortIntFormatter(value: number): string {
@@ -183,18 +152,8 @@ function shortIntFormatter(value: number): string {
   }
 }
 
-function shortIntVariationFormatter(value: number): string {
-  const formatted = shortIntFormatter(Math.abs(value));
-  return value < 0 ? `-${formatted}` : `+${formatted}`;
-}
-
 function floatFormatter(value: number): string {
   return numberFormatter(value, 1, 5);
-}
-
-function floatVariationFormatter(value: number): string {
-  const prefix = value < 0 ? '-' : '+';
-  return prefix + floatFormatter(Math.abs(value));
 }
 
 function percentFormatter(value: string | number, options: { decimals?: number } = {}): string {
@@ -205,17 +164,6 @@ function percentFormatter(value: string | number, options: { decimals?: number }
     return numberFormatter(value, options.decimals) + '%';
   }
   return value === 100 ? '100%' : numberFormatter(value, 1) + '%';
-}
-
-function percentVariationFormatter(
-  value: string | number,
-  options: { decimals?: number } = {}
-): string {
-  if (typeof value === 'string') {
-    value = parseFloat(value);
-  }
-  const prefix = value < 0 ? '-' : '+';
-  return prefix + percentFormatter(Math.abs(value), options);
 }
 
 function ratingFormatter(value: string | number): string {
@@ -245,12 +193,6 @@ function millisecondsFormatter(value: number): string {
   } else {
     return `${value}ms`;
   }
-}
-
-function millisecondsVariationFormatter(value: number): string {
-  const absValue = Math.abs(value);
-  const formattedValue = millisecondsFormatter(absValue);
-  return value < 0 ? `-${formattedValue}` : `+${formattedValue}`;
 }
 
 /*
@@ -362,22 +304,6 @@ function shortDurationFormatter(value: string | number): string {
   return formatDurationShort(isNegative, days, hours, remainingValue);
 }
 
-function durationVariationFormatter(value: string | number): string {
-  if (value === 0 || value === '0') {
-    return '+0';
-  }
-  const formatted = durationFormatter(value);
-  return formatted[0] !== '-' ? '+' + formatted : formatted;
-}
-
-function shortDurationVariationFormatter(value: string | number): string {
-  if (value === 0 || value === '0') {
-    return '+0';
-  }
-  const formatted = shortDurationFormatter(value);
-  return formatted[0] !== '-' ? '+' + formatted : formatted;
-}
-
 function getRatingGrid(): string {
   // workaround cyclic dependencies
   const getStore = require('../app/utils/getStore').default;
@@ -429,12 +355,12 @@ function getMaintainabilityRatingTooltip(rating: number): string {
   );
 }
 
-export function getRatingTooltip(metricKey: string, value: number): string {
+export function getRatingTooltip(metricKey: string, value: number | string): string {
   const ratingLetter = formatMeasure(value, 'RATING');
 
-  const finalMetricKey = metricKey.startsWith('new_') ? metricKey.substr(4) : metricKey;
+  const finalMetricKey = isDiffMetric(metricKey) ? metricKey.substr(4) : metricKey;
 
   return finalMetricKey === 'sqale_rating' || finalMetricKey === 'maintainability_rating'
-    ? getMaintainabilityRatingTooltip(value)
+    ? getMaintainabilityRatingTooltip(Number(value))
     : translate('metric', finalMetricKey, 'tooltip', ratingLetter);
 }

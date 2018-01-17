@@ -29,14 +29,22 @@ export default function FacetMeasureValue({ measure } /*: { measure: MeasureEnha
       <div
         id={`measure-${measure.metric.key}-leak`}
         className="domain-measures-value domain-measures-leak">
-        <Measure measure={measure} />
+        <Measure
+          value={measure.leak}
+          metricKey={measure.metric.key}
+          metricType={measure.metric.type}
+        />
       </div>
     );
   }
 
   return (
     <div id={`measure-${measure.metric.key}-value`} className="domain-measures-value">
-      <Measure measure={measure} />
+      <Measure
+        value={measure.value}
+        metricKey={measure.metric.key}
+        metricType={measure.metric.type}
+      />
     </div>
   );
 }

@@ -17,31 +17,31 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import PropTypes from 'prop-types';
-import classNames from 'classnames';
-import { DrilldownLink } from '../../../components/shared/drilldown-link';
+import * as React from 'react';
+import * as classNames from 'classnames';
+import DrilldownLink from '../../../components/shared/DrilldownLink';
 import LanguageDistributionContainer from '../../../components/charts/LanguageDistributionContainer';
 import SizeRating from '../../../components/ui/SizeRating';
-import { formatMeasure } from '../../../helpers/measures';
+import { formatMeasure, MeasureEnhanced } from '../../../helpers/measures';
 import { getMetricName } from '../helpers/metrics';
 import { translate } from '../../../helpers/l10n';
+import { LightComponent } from '../../../app/types';
 
-export default class MetaSize extends React.PureComponent {
-  static propTypes = {
-    branch: PropTypes.string,
-    component: PropTypes.object.isRequired,
-    measures: PropTypes.array.isRequired
-  };
+interface Props {
+  branch?: string;
+  component: LightComponent;
+  measures: MeasureEnhanced[];
+}
 
-  renderLoC = ncloc => (
+export default class MetaSize extends React.PureComponent<Props> {
+  renderLoC = (ncloc: MeasureEnhanced) => (
     <div
       id="overview-ncloc"
       className={classNames('overview-meta-size-ncloc', {
         'is-half-width': this.props.component.qualifier === 'APP'
       })}>
       <span className="spacer-right">
-        <SizeRating value={ncloc.value} />
+        <SizeRating value={Number(ncloc.value)} />
       </span>
       <DrilldownLink branch={this.props.branch} component={this.props.component.key} metric="ncloc">
         {formatMeasure(ncloc.value, 'SHORT_INT')}

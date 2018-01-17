@@ -17,25 +17,30 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import PropTypes from 'prop-types';
+import * as React from 'react';
 import MetaLink from './MetaLink';
-import { getProjectLinks } from '../../../api/projectLinks';
+import { getProjectLinks, ProjectLink } from '../../../api/projectLinks';
 import { orderLinks } from '../../project-admin/links/utils';
+import { LightComponent } from '../../../app/types';
 
-export default class MetaLinks extends React.PureComponent {
-  static propTypes = {
-    component: PropTypes.object.isRequired
-  };
+interface Props {
+  component: LightComponent;
+}
 
-  state = {};
+interface State {
+  links?: ProjectLink[];
+}
+
+export default class MetaLinks extends React.PureComponent<Props, State> {
+  mounted: boolean;
+  state: State = {};
 
   componentDidMount() {
     this.mounted = true;
     this.loadLinks();
   }
 
-  componentDidUpdate(prevProps) {
+  componentDidUpdate(prevProps: Props) {
     if (prevProps.component.key !== this.props.component.key) {
       this.loadLinks();
     }
@@ -45,18 +50,20 @@ export default class MetaLinks extends React.PureComponent {
     this.mounted = false;
   }
 
-  loadLinks() {
-    getProjectLinks(this.props.component.key).then(links => {
-      if (this.mounted) {
-        this.setState({ links });
-      }
-    });
-  }
+  loadLinks = () =>
+    getProjectLinks(this.props.component.key).then(
+      links => {
+        if (this.mounted) {
+          this.setState({ links });
+        }
+      },
+      () => {}
+    );
 
   render() {
     const { links } = this.state;
 
-    if (links == null || links.length === 0) {
+    if (!links || links.length === 0) {
       return null;
     }
 

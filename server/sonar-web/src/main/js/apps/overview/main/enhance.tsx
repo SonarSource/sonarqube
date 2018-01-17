@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
+import * as React from 'react';
 import { Link } from 'react-router';
-import { DrilldownLink } from '../../../components/shared/drilldown-link';
+import DrilldownLink from '../../../components/shared/DrilldownLink';
 import BubblesIcon from '../../../components/icons-components/BubblesIcon';
 import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
 import HistoryIcon from '../../../components/icons-components/HistoryIcon';
@@ -28,11 +28,11 @@ import Timeline from '../components/Timeline';
 import Tooltip from '../../../components/controls/Tooltip';
 import {
   formatMeasure,
-  formatMeasureVariation,
   isDiffMetric,
   getPeriodValue,
   getShortType,
-  getRatingTooltip
+  getRatingTooltip,
+  MeasureEnhanced
 } from '../../../helpers/measures';
 import { translateWithParameters, getLocalizedMetricName } from '../../../helpers/l10n';
 import { getPeriodDate } from '../../../helpers/periods';
@@ -41,24 +41,43 @@ import {
   getComponentIssuesUrl,
   getMeasureHistoryUrl
 } from '../../../helpers/urls';
+import { Component } from '../../../app/types';
+import { History } from '../../../api/time-machine';
 
-export default function enhance(ComposedComponent) {
-  return class extends React.PureComponent {
+export interface EnhanceProps {
+  branch?: string;
+  component: Component;
+  measures: MeasureEnhanced[];
+  leakPeriod?: { index: number; date?: string };
+  history?: History;
+  historyStartDate?: Date;
+}
+
+export interface ComposedProps extends EnhanceProps {
+  getValue: (measure: MeasureEnhanced) => string | undefined;
+  renderHeader: (domain: string, label: string) => React.ReactNode;
+  renderMeasure: (metricKey: string) => React.ReactNode;
+  renderRating: (metricKey: string) => React.ReactNode;
+  renderIssues: (metric: string, type: string) => React.ReactNode;
+  renderHistoryLink: (metricKey: string) => React.ReactNode;
+  renderTimeline: (metricKey: string, range: string, children?: React.ReactNode) => React.ReactNode;
+}
+
+export default function enhance(ComposedComponent: React.ComponentType<ComposedProps>) {
+  return class extends React.PureComponent<EnhanceProps> {
     static displayName = `enhance(${ComposedComponent.displayName})}`;
 
-    getValue = measure => {
+    getValue = (measure: MeasureEnhanced) => {
       const { leakPeriod } = this.props;
-
       if (!measure) {
-        return 0;
+        return '0';
       }
-
       return isDiffMetric(measure.metric.key)
-        ? getPeriodValue(measure, leakPeriod.index)
+        ? getPeriodValue(measure, leakPeriod ? leakPeriod.index : 0)
         : measure.value;
     };
 
-    renderHeader = (domain, label) => {
+    renderHeader = (domain: string, label: string) => {
       const { branch, component } = this.props;
       return (
         <div className="overview-card-header">
@@ -74,11 +93,10 @@ export default function enhance(ComposedComponent) {
       );
     };
 
-    renderMeasure = metricKey => {
+    renderMeasure = (metricKey: string) => {
       const { branch, measures, component } = this.props;
       const measure = measures.find(measure => measure.metric.key === metricKey);
-
-      if (measure == null) {
+      if (!measure) {
         return null;
       }
 
@@ -100,32 +118,15 @@ export default function enhance(ComposedComponent) {
       );
     };
 
-    renderMeasureVariation = (metricKey, customLabel) => {
-      const NO_VALUE = '—';
-      const { measures, leakPeriod } = this.props;
-      const measure = measures.find(measure => measure.metric.key === metricKey);
-      const periodValue = getPeriodValue(measure, leakPeriod.index);
-      const formatted =
-        periodValue != null
-          ? formatMeasureVariation(periodValue, getShortType(measure.metric.type))
-          : NO_VALUE;
-      return (
-        <div className="overview-domain-measure">
-          <div className="overview-domain-measure-value">{formatted}</div>
-
-          <div className="overview-domain-measure-label">{customLabel || measure.metric.name}</div>
-        </div>
-      );
-    };
-
-    renderRating = metricKey => {
+    renderRating = (metricKey: string) => {
       const { branch, component, measures } = this.props;
       const measure = measures.find(measure => measure.metric.key === metricKey);
       if (!measure) {
         return null;
       }
+
       const value = this.getValue(measure);
-      const title = getRatingTooltip(metricKey, value);
+      const title = value && getRatingTooltip(metricKey, value);
       return (
         <Tooltip overlay={title} placement="top">
           <div className="overview-domain-measure-sup">
@@ -141,16 +142,20 @@ export default function enhance(ComposedComponent) {
       );
     };
 
-    renderIssues = (metric, type) => {
+    renderIssues = (metric: string, type: string) => {
       const { branch, measures, component } = this.props;
       const measure = measures.find(measure => measure.metric.key === metric);
+      if (!measure) {
+        return null;
+      }
+
       const value = this.getValue(measure);
       const params = { branch, resolved: 'false', types: type };
       if (isDiffMetric(metric)) {
         Object.assign(params, { sinceLeakPeriod: 'true' });
       }
 
-      const tooltip = (
+      const tooltip = component.analysisDate && (
         <DateTimeFormatter date={component.analysisDate}>
           {formattedAnalysisDate => (
             <span>
@@ -169,7 +174,7 @@ export default function enhance(ComposedComponent) {
       );
     };
 
-    renderHistoryLink = metricKey => {
+    renderHistoryLink = (metricKey: string) => {
       const linkClass = 'button button-small spacer-left overview-domain-measure-history-link';
       return (
         <Link
@@ -180,7 +185,7 @@ export default function enhance(ComposedComponent) {
       );
     };
 
-    renderTimeline = (metricKey, range, children) => {
+    renderTimeline = (metricKey: string, range: 'before' | 'after', children?: React.ReactNode) => {
       if (!this.props.history) {
         return null;
       }
@@ -188,10 +193,7 @@ export default function enhance(ComposedComponent) {
       if (!history) {
         return null;
       }
-      const props = {
-        history,
-        [range]: getPeriodDate(this.props.leakPeriod)
-      };
+      const props = { history, [range]: getPeriodDate(this.props.leakPeriod) };
       return (
         <div className="overview-domain-timeline">
           <Timeline {...props} />
@@ -208,7 +210,6 @@ export default function enhance(ComposedComponent) {
           renderHeader={this.renderHeader}
           renderHistoryLink={this.renderHistoryLink}
           renderMeasure={this.renderMeasure}
-          renderMeasureVariation={this.renderMeasureVariation}
           renderRating={this.renderRating}
           renderIssues={this.renderIssues}
           renderTimeline={this.renderTimeline}

@@ -19,6 +19,7 @@
  */
 import { getJSON } from '../helpers/request';
 import { Paging } from '../app/types';
+import throwGlobalError from '../app/utils/throwGlobalError';
 
 export interface HistoryItem {
   date: Date;
@@ -47,7 +48,7 @@ export function getTimeMachineData(
     metrics: metrics.join(),
     ps: 1000,
     ...other
-  });
+  }).catch(throwGlobalError);
 }
 
 export function getAllTimeMachineData(

@@ -79,7 +79,7 @@ export function createProject(data: {
 }
 
 export function searchProjectTags(data?: { ps?: number; q?: string }): Promise<any> {
-  return getJSON('/api/project_tags/search', data);
+  return getJSON('/api/project_tags/search', data).catch(throwGlobalError);
 }
 
 export function setProjectTags(data: { project: string; tags: string }): Promise<void> {

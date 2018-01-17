@@ -17,19 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
+import * as React from 'react';
 import Tooltip from '../../../components/controls/Tooltip';
+import { Event as IEvent } from '../../../api/projectActivity';
 import { translate } from '../../../helpers/l10n';
-/*:: import type { Event as EventType } from '../../projectActivity/types'; */
 
-export default function Event(props /*: { event: EventType } */) {
-  const { event } = props;
+interface Props {
+  event: IEvent;
+}
 
+export default function Event({ event }: Props) {
   if (event.category === 'VERSION') {
     return (
-      <Tooltip overlay={`${translate('version')} ${props.event.name}`} mouseEnterDelay={0.5}>
-        <span className="overview-analysis-event badge">{props.event.name}</span>
+      <Tooltip overlay={`${translate('version')} ${event.name}`} mouseEnterDelay={0.5}>
+        <span className="overview-analysis-event badge">{event.name}</span>
       </Tooltip>
     );
   }

@@ -19,6 +19,7 @@
  */
 import { getJSON, post, postJSON } from '../helpers/request';
 import throwGlobalError from '../app/utils/throwGlobalError';
+import { Metric } from '../app/types';
 
 export interface ConditionBase {
   error: string;
@@ -148,9 +149,33 @@ export function dissociateGateWithProject(data: {
   return post('/api/qualitygates/deselect', data).catch(throwGlobalError);
 }
 
+export interface ConditionAnalysis {
+  comparator: string;
+  errorThreshold?: string;
+  metric: string;
+  periodIndex?: number;
+  onLeak?: boolean;
+  status: string;
+  value: string;
+  warningThreshold?: string;
+}
+
+export interface ApplicationProject {
+  key: string;
+  name: string;
+  status: string;
+  conditions: ConditionAnalysis[];
+}
+
+export interface ApplicationQualityGate {
+  metrics: Metric[];
+  projects: ApplicationProject[];
+  status: string;
+}
+
 export function getApplicationQualityGate(data: {
   application: string;
   organization?: string;
-}): Promise<void | Response> {
+}): Promise<ApplicationQualityGate> {
   return getJSON('/api/qualitygates/application_status', data).catch(throwGlobalError);
 }
