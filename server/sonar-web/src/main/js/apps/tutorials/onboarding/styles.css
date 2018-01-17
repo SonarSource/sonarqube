@@ -91,11 +91,11 @@
   color: #404040;
 }
 
-.onboarding-command-windows pre {
+.onboarding-command-oneline pre {
   padding-bottom: 40px;
 }
 
-.onboarding-command-windows button {
+.onboarding-command-oneline button {
   top: auto;
   top: 40px;
 }

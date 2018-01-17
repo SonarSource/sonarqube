@@ -58,9 +58,9 @@ export default function DotNet(props /*: Props */) {
           __html: translate('onboarding.analysis.msbuild.execute.text')
         }}
       />
-      <Command command={command1} isWindows={true} />
-      <Command command={command2} isWindows={true} />
-      <Command command={command3} isWindows={true} />
+      <Command command={command1} isOneLine={true} />
+      <Command command={command2} isOneLine={true} />
+      <Command command={command3} isOneLine={true} />
       <p
         className="big-spacer-top markdown"
         dangerouslySetInnerHTML={{ __html: translate('onboarding.analysis.msbuild.docs') }}
