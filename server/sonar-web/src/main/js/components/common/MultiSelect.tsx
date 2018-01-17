@@ -17,47 +17,46 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
+import * as React from 'react';
 import { difference } from 'lodash';
 import MultiSelectOption from './MultiSelectOption';
 import SearchBox from '../controls/SearchBox';
-import { translate } from '../../helpers/l10n';
 
-/*::
-type Props = {
-  selectedElements: Array<string>,
-  elements: Array<string>,
-  listSize: number,
-  onSearch: string => void,
-  onSelect: string => void,
-  onUnselect: string => void,
-  validateSearchInput: string => string,
-  placeholder: string
-};
-*/
+interface Props {
+  selectedElements: Array<string>;
+  elements: Array<string>;
+  listSize?: number;
+  onSearch: (query: string) => void;
+  onSelect: (item: string) => void;
+  onUnselect: (item: string) => void;
+  validateSearchInput?: (value: string) => string;
+  placeholder: string;
+}
 
-/*::
-type State = {
-  query: string,
-  selectedElements: Array<string>,
-  unselectedElements: Array<string>,
-  activeIdx: number
-};
-*/
+interface State {
+  query: string;
+  selectedElements: Array<string>;
+  unselectedElements: Array<string>;
+  activeIdx: number;
+}
 
-export default class MultiSelect extends React.PureComponent {
-  /*:: container: HTMLElement; */
-  /*:: searchInput: HTMLInputElement; */
-  /*:: props: Props; */
-  /*:: state: State; */
+interface DefaultProps {
+  listSize: number;
+  validateSearchInput: (value: string) => string;
+}
 
-  static defaultProps = {
+type PropsWithDefault = Props & DefaultProps;
+
+export default class MultiSelect extends React.PureComponent<Props, State> {
+  container: HTMLDivElement | null;
+  searchInput: HTMLInputElement | null;
+
+  static defaultProps: DefaultProps = {
     listSize: 10,
-    validateSearchInput: (value /*: string */) => value
+    validateSearchInput: (value: string) => value
   };
 
-  constructor(props /*: Props */) {
+  constructor(props: Props) {
     super(props);
     this.state = {
       query: '',
@@ -69,13 +68,13 @@ export default class MultiSelect extends React.PureComponent {
 
   componentDidMount() {
     this.updateSelectedElements(this.props);
-    this.updateUnselectedElements(this.props);
+    this.updateUnselectedElements(this.props as PropsWithDefault);
     if (this.container) {
       this.container.addEventListener('keydown', this.handleKeyboard, true);
     }
   }
 
-  componentWillReceiveProps(nextProps /*: Props */) {
+  componentWillReceiveProps(nextProps: PropsWithDefault) {
     if (
       this.props.elements !== nextProps.elements ||
       this.props.selectedElements !== nextProps.selectedElements
@@ -91,14 +90,18 @@ export default class MultiSelect extends React.PureComponent {
   }
 
   componentDidUpdate() {
-    this.searchInput && this.searchInput.focus();
+    if (this.searchInput) {
+      this.searchInput.focus();
+    }
   }
 
   componentWillUnmount() {
-    this.container.removeEventListener('keydown', this.handleKeyboard);
+    if (this.container) {
+      this.container.removeEventListener('keydown', this.handleKeyboard);
+    }
   }
 
-  handleSelectChange = (item /*: string */, selected /*: boolean */) => {
+  handleSelectChange = (item: string, selected: boolean) => {
     if (selected) {
       this.onSelectItem(item);
     } else {
@@ -106,17 +109,17 @@ export default class MultiSelect extends React.PureComponent {
     }
   };
 
-  handleSearchChange = (value /*: string */) => {
-    this.onSearchQuery(this.props.validateSearchInput(value));
+  handleSearchChange = (value: string) => {
+    this.onSearchQuery((this.props as PropsWithDefault).validateSearchInput(value));
   };
 
-  handleElementHover = (element /*: string */) => {
+  handleElementHover = (element: string) => {
     this.setState((prevState, props) => {
       return { activeIdx: this.getAllElements(props, prevState).indexOf(element) };
     });
   };
 
-  handleKeyboard = (evt /*: KeyboardEvent */) => {
+  handleKeyboard = (evt: KeyboardEvent) => {
     switch (evt.keyCode) {
       case 40: // down
         this.setState(this.selectNextElement);
@@ -140,28 +143,25 @@ export default class MultiSelect extends React.PureComponent {
     }
   };
 
-  onSearchQuery(query /*: string */) {
+  onSearchQuery = (query: string) => {
     this.setState({ query, activeIdx: 0 });
     this.props.onSearch(query);
-  }
+  };
 
-  onSelectItem(item /*: string */) {
+  onSelectItem = (item: string) => {
     if (this.isNewElement(item, this.props)) {
       this.onSearchQuery('');
     }
     this.props.onSelect(item);
-  }
+  };
 
-  onUnselectItem(item /*: string */) {
-    this.props.onUnselect(item);
-  }
+  onUnselectItem = (item: string) => this.props.onUnselect(item);
 
-  isNewElement(elem /*: string */, { selectedElements, elements } /*: Props */) {
-    return elem && selectedElements.indexOf(elem) === -1 && elements.indexOf(elem) === -1;
-  }
+  isNewElement = (elem: string, { selectedElements, elements }: Props) =>
+    elem && selectedElements.indexOf(elem) === -1 && elements.indexOf(elem) === -1;
 
-  updateSelectedElements(props /*: Props */) {
-    this.setState((state /*: State */) => {
+  updateSelectedElements = (props: Props) => {
+    this.setState((state: State) => {
       if (state.query) {
         return {
           selectedElements: [...props.selectedElements.filter(elem => elem.includes(state.query))]
@@ -170,10 +170,10 @@ export default class MultiSelect extends React.PureComponent {
         return { selectedElements: [...props.selectedElements] };
       }
     });
-  }
+  };
 
-  updateUnselectedElements(props /*: Props */) {
-    this.setState((state /*: State */) => {
+  updateUnselectedElements = (props: PropsWithDefault) => {
+    this.setState((state: State) => {
       if (props.listSize < state.selectedElements.length) {
         return { unselectedElements: [] };
       } else {
@@ -185,21 +185,19 @@ export default class MultiSelect extends React.PureComponent {
         };
       }
     });
-  }
+  };
 
-  getAllElements(props /*: Props */, state /*: State */) {
+  getAllElements = (props: Props, state: State) => {
     if (this.isNewElement(state.query, props)) {
       return [...state.selectedElements, ...state.unselectedElements, state.query];
     } else {
       return [...state.selectedElements, ...state.unselectedElements];
     }
-  }
+  };
 
-  setElementActive(idx /*: number */) {
-    this.setState({ activeIdx: idx });
-  }
+  setElementActive = (idx: number) => this.setState({ activeIdx: idx });
 
-  selectNextElement = (state /*: State */, props /*: Props */) => {
+  selectNextElement = (state: State, props: Props) => {
     const { activeIdx } = state;
     const allElements = this.getAllElements(props, state);
     if (activeIdx < 0 || activeIdx >= allElements.length - 1) {
@@ -209,7 +207,7 @@ export default class MultiSelect extends React.PureComponent {
     }
   };
 
-  selectPreviousElement = (state /*: State */, props /*: Props */) => {
+  selectPreviousElement = (state: State, props: Props) => {
     const { activeIdx } = state;
     const allElements = this.getAllElements(props, state);
     if (activeIdx <= 0) {
@@ -220,13 +218,13 @@ export default class MultiSelect extends React.PureComponent {
     }
   };
 
-  toggleSelect(item /*: string */) {
+  toggleSelect = (item: string) => {
     if (this.props.selectedElements.indexOf(item) === -1) {
       this.onSelectItem(item);
     } else {
       this.onUnselectItem(item);
     }
-  }
+  };
 
   render() {
     const { query, activeIdx, selectedElements, unselectedElements } = this.state;

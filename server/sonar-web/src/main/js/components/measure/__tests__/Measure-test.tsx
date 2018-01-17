@@ -17,55 +17,46 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-/* eslint-disable import/first */
+import * as React from 'react';
+import { shallow } from 'enzyme';
+import Measure from '../Measure';
+
 jest.mock('../../../helpers/measures', () => {
   const measures = require.requireActual('../../../helpers/measures');
   measures.getRatingTooltip = jest.fn(() => 'tooltip');
   return measures;
 });
 
-import * as React from 'react';
-import { shallow } from 'enzyme';
-import Measure from '../Measure';
-
 it('renders trivial measure', () => {
-  const measure = { metric: { key: 'coverage', name: 'Coverage', type: 'PERCENT' }, value: '73.0' };
-  expect(shallow(<Measure measure={measure} />)).toMatchSnapshot();
+  expect(
+    shallow(<Measure metricKey="coverage" metricType="PERCENT" value="73.0" />)
+  ).toMatchSnapshot();
 });
 
 it('renders leak measure', () => {
-  const measure = {
-    metric: { key: 'new_coverage', name: 'Coverage on New Code', type: 'PERCENT' },
-    leak: '36.0'
-  };
-  expect(shallow(<Measure measure={measure} />)).toMatchSnapshot();
+  expect(
+    shallow(<Measure metricKey="new_coverage" metricType="PERCENT" value="36.0" />)
+  ).toMatchSnapshot();
 });
 
 it('renders LEVEL', () => {
-  const measure = {
-    metric: { key: 'quality_gate_status', name: 'Quality Gate', type: 'LEVEL' },
-    value: 'ERROR'
-  };
-  expect(shallow(<Measure measure={measure} />)).toMatchSnapshot();
+  expect(
+    shallow(<Measure metricKey="quality_gate_status" metricType="LEVEL" value="ERROR" />)
+  ).toMatchSnapshot();
 });
 
 it('renders known RATING', () => {
-  const measure = {
-    metric: { key: 'sqale_rating', name: 'Maintainability Rating', type: 'RATING' },
-    value: '3'
-  };
-  expect(shallow(<Measure measure={measure} />)).toMatchSnapshot();
+  expect(
+    shallow(<Measure metricKey="sqale_rating" metricType="RATING" value="3" />)
+  ).toMatchSnapshot();
 });
 
 it('renders unknown RATING', () => {
-  const measure = {
-    metric: { key: 'foo_rating', name: 'Foo Rating', type: 'RATING' },
-    value: '4'
-  };
-  expect(shallow(<Measure measure={measure} />)).toMatchSnapshot();
+  expect(
+    shallow(<Measure metricKey="foo_rating" metricType="RATING" value="4" />)
+  ).toMatchSnapshot();
 });
 
 it('renders undefined measure', () => {
-  const measure = { metric: { key: 'foo', name: 'Foo', type: 'PERCENT' } };
-  expect(shallow(<Measure measure={measure} />)).toMatchSnapshot();
+  expect(shallow(<Measure metricKey="foo" metricType="PERCENT" />)).toMatchSnapshot();
 });

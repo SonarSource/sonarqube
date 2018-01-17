@@ -16,15 +16,9 @@ exports[`should render correctly with all data 1`] = `
       >
         <Measure
           className="spacer-right"
-          measure={
-            Object {
-              "leak": "8",
-              "metric": Object {
-                "key": "new_bugs",
-                "type": "SHORT_INT",
-              },
-            }
-          }
+          metricKey="new_bugs"
+          metricType="SHORT_INT"
+          value="8"
         />
         <Rating
           value="1.0"
@@ -52,15 +46,9 @@ exports[`should render correctly with all data 1`] = `
       >
         <Measure
           className="spacer-right"
-          measure={
-            Object {
-              "leak": "2",
-              "metric": Object {
-                "key": "new_vulnerabilities",
-                "type": "SHORT_INT",
-              },
-            }
-          }
+          metricKey="new_vulnerabilities"
+          metricType="SHORT_INT"
+          value="2"
         />
         <Rating
           value="2.0"
@@ -88,15 +76,9 @@ exports[`should render correctly with all data 1`] = `
       >
         <Measure
           className="spacer-right"
-          measure={
-            Object {
-              "leak": "0",
-              "metric": Object {
-                "key": "new_code_smells",
-                "type": "SHORT_INT",
-              },
-            }
-          }
+          metricKey="new_code_smells"
+          metricType="SHORT_INT"
+          value="0"
         />
         <Rating
           value="1.0"
@@ -123,15 +105,9 @@ exports[`should render correctly with all data 1`] = `
         className="project-card-measure-number"
       >
         <Measure
-          measure={
-            Object {
-              "leak": "26.55",
-              "metric": Object {
-                "key": "new_coverage",
-                "type": "PERCENT",
-              },
-            }
-          }
+          metricKey="new_coverage"
+          metricType="PERCENT"
+          value="26.55"
         />
       </div>
       <div
@@ -152,15 +128,9 @@ exports[`should render correctly with all data 1`] = `
         className="project-card-measure-number"
       >
         <Measure
-          measure={
-            Object {
-              "leak": "0.55",
-              "metric": Object {
-                "key": "new_duplicated_lines_density",
-                "type": "PERCENT",
-              },
-            }
-          }
+          metricKey="new_duplicated_lines_density"
+          metricType="PERCENT"
+          value="0.55"
         />
       </div>
       <div
@@ -181,15 +151,9 @@ exports[`should render correctly with all data 1`] = `
         className="project-card-measure-number"
       >
         <Measure
-          measure={
-            Object {
-              "leak": "87",
-              "metric": Object {
-                "key": "new_lines",
-                "type": "SHORT_INT",
-              },
-            }
-          }
+          metricKey="new_lines"
+          metricType="SHORT_INT"
+          value="87"
         />
       </div>
       <div
@@ -218,15 +182,9 @@ exports[`should render no data style new coverage, new duplications and new line
       >
         <Measure
           className="spacer-right"
-          measure={
-            Object {
-              "leak": "8",
-              "metric": Object {
-                "key": "new_bugs",
-                "type": "SHORT_INT",
-              },
-            }
-          }
+          metricKey="new_bugs"
+          metricType="SHORT_INT"
+          value="8"
         />
         <Rating
           value="1.0"
@@ -254,15 +212,9 @@ exports[`should render no data style new coverage, new duplications and new line
       >
         <Measure
           className="spacer-right"
-          measure={
-            Object {
-              "leak": "2",
-              "metric": Object {
-                "key": "new_vulnerabilities",
-                "type": "SHORT_INT",
-              },
-            }
-          }
+          metricKey="new_vulnerabilities"
+          metricType="SHORT_INT"
+          value="2"
         />
         <Rating
           value="2.0"
@@ -290,15 +242,9 @@ exports[`should render no data style new coverage, new duplications and new line
       >
         <Measure
           className="spacer-right"
-          measure={
-            Object {
-              "leak": "0",
-              "metric": Object {
-                "key": "new_code_smells",
-                "type": "SHORT_INT",
-              },
-            }
-          }
+          metricKey="new_code_smells"
+          metricType="SHORT_INT"
+          value="0"
         />
         <Rating
           value="1.0"
@@ -325,15 +271,8 @@ exports[`should render no data style new coverage, new duplications and new line
         className="project-card-measure-number"
       >
         <Measure
-          measure={
-            Object {
-              "leak": undefined,
-              "metric": Object {
-                "key": "new_coverage",
-                "type": "PERCENT",
-              },
-            }
-          }
+          metricKey="new_coverage"
+          metricType="PERCENT"
         />
       </div>
       <div
@@ -354,15 +293,8 @@ exports[`should render no data style new coverage, new duplications and new line
         className="project-card-measure-number"
       >
         <Measure
-          measure={
-            Object {
-              "leak": undefined,
-              "metric": Object {
-                "key": "new_duplicated_lines_density",
-                "type": "PERCENT",
-              },
-            }
-          }
+          metricKey="new_duplicated_lines_density"
+          metricType="PERCENT"
         />
       </div>
       <div
@@ -383,15 +315,8 @@ exports[`should render no data style new coverage, new duplications and new line
         className="project-card-measure-number"
       >
         <Measure
-          measure={
-            Object {
-              "leak": undefined,
-              "metric": Object {
-                "key": "new_lines",
-                "type": "SHORT_INT",
-              },
-            }
-          }
+          metricKey="new_lines"
+          metricType="SHORT_INT"
         />
       </div>
       <div

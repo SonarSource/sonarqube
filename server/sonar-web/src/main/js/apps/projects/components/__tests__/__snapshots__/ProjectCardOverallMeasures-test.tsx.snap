@@ -12,15 +12,8 @@ exports[`should not render coverage 1`] = `
       className="project-card-measure-number"
     >
       <Measure
-        measure={
-          Object {
-            "metric": Object {
-              "key": "coverage",
-              "type": "PERCENT",
-            },
-            "value": undefined,
-          }
-        }
+        metricKey="coverage"
+        metricType="PERCENT"
       />
     </div>
     <div
@@ -44,15 +37,8 @@ exports[`should not render duplications 1`] = `
       className="project-card-measure-number"
     >
       <Measure
-        measure={
-          Object {
-            "metric": Object {
-              "key": "duplicated_lines_density",
-              "type": "PERCENT",
-            },
-            "value": undefined,
-          }
-        }
+        metricKey="duplicated_lines_density"
+        metricType="PERCENT"
       />
     </div>
     <div
@@ -80,15 +66,9 @@ exports[`should render correctly with all data 1`] = `
       >
         <Measure
           className="spacer-right"
-          measure={
-            Object {
-              "metric": Object {
-                "key": "bugs",
-                "type": "SHORT_INT",
-              },
-              "value": "17",
-            }
-          }
+          metricKey="bugs"
+          metricType="SHORT_INT"
+          value="17"
         />
         <Rating
           value="1.0"
@@ -116,15 +96,9 @@ exports[`should render correctly with all data 1`] = `
       >
         <Measure
           className="spacer-right"
-          measure={
-            Object {
-              "metric": Object {
-                "key": "vulnerabilities",
-                "type": "SHORT_INT",
-              },
-              "value": "0",
-            }
-          }
+          metricKey="vulnerabilities"
+          metricType="SHORT_INT"
+          value="0"
         />
         <Rating
           value="1.0"
@@ -152,15 +126,9 @@ exports[`should render correctly with all data 1`] = `
       >
         <Measure
           className="spacer-right"
-          measure={
-            Object {
-              "metric": Object {
-                "key": "code_smells",
-                "type": "SHORT_INT",
-              },
-              "value": "132",
-            }
-          }
+          metricKey="code_smells"
+          metricType="SHORT_INT"
+          value="132"
         />
         <Rating
           value="1.0"
@@ -194,15 +162,9 @@ exports[`should render correctly with all data 1`] = `
           />
         </span>
         <Measure
-          measure={
-            Object {
-              "metric": Object {
-                "key": "coverage",
-                "type": "PERCENT",
-              },
-              "value": "88.3",
-            }
-          }
+          metricKey="coverage"
+          metricType="PERCENT"
+          value="88.3"
         />
       </div>
       <div
@@ -230,15 +192,9 @@ exports[`should render correctly with all data 1`] = `
           />
         </span>
         <Measure
-          measure={
-            Object {
-              "metric": Object {
-                "key": "duplicated_lines_density",
-                "type": "PERCENT",
-              },
-              "value": "9.8",
-            }
-          }
+          metricKey="duplicated_lines_density"
+          metricType="PERCENT"
+          value="9.8"
         />
       </div>
       <div
@@ -259,15 +215,9 @@ exports[`should render correctly with all data 1`] = `
         className="project-card-measure-number"
       >
         <Measure
-          measure={
-            Object {
-              "metric": Object {
-                "key": "ncloc",
-                "type": "SHORT_INT",
-              },
-              "value": "2053",
-            }
-          }
+          metricKey="ncloc"
+          metricType="SHORT_INT"
+          value="2053"
         />
         <span
           className="spacer-left"
@@ -299,15 +249,9 @@ exports[`should render ncloc correctly 1`] = `
       className="project-card-measure-number"
     >
       <Measure
-        measure={
-          Object {
-            "metric": Object {
-              "key": "ncloc",
-              "type": "SHORT_INT",
-            },
-            "value": "16549887",
-          }
-        }
+        metricKey="ncloc"
+        metricType="SHORT_INT"
+        value="16549887"
       />
       <span
         className="spacer-left"

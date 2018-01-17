@@ -43,7 +43,7 @@ interface Props {
 interface State {
   branches: Branch[];
   loading: boolean;
-  component: Component | null;
+  component?: Component;
   currentTask?: Task;
   isInProgress?: boolean;
   isPending?: boolean;
@@ -54,7 +54,7 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
 
   constructor(props: Props) {
     super(props);
-    this.state = { branches: [], loading: true, component: null };
+    this.state = { branches: [], loading: true };
   }
 
   componentDidMount() {

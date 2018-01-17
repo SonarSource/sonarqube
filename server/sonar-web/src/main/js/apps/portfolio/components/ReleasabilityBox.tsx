@@ -55,8 +55,11 @@ export default function ReleasabilityBox({ component, measures }: Props) {
             <Link to={getComponentDrilldownUrl(component, 'alert_status')}>
               <span>
                 <Measure
-                  measure={{ metric: { key: 'projects', type: 'SHORT_INT' }, value: effort }}
-                />{' '}
+                  className="little-spacer-right"
+                  metricKey="projects"
+                  metricType="SHORT_INT"
+                  value={effort}
+                />
                 {Number(effort) === 1 ? 'project' : 'projects'}
               </span>
             </Link>{' '}

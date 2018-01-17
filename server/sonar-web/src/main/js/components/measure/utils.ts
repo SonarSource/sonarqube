@@ -18,8 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import {
-  formatMeasure,
-  formatMeasureVariation,
   getRatingTooltip as nextGetRatingTooltip,
   isDiffMetric,
   Measure,
@@ -38,19 +36,6 @@ export function enhanceMeasure(
     metric: metrics[measure.metric],
     leak: getLeakValue(measure)
   };
-}
-
-export function formatLeak(
-  value: string | undefined,
-  metricKey: string,
-  metricType: string,
-  options: any
-): string {
-  if (isDiffMetric(metricKey)) {
-    return formatMeasure(value, metricType, options);
-  } else {
-    return formatMeasureVariation(value, metricType, options);
-  }
 }
 
 export function getLeakValue(measure: Measure | undefined): string | undefined {

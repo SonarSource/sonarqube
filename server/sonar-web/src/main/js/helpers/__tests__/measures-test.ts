@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { resetBundle } from '../l10n';
-import { formatMeasure, formatMeasureVariation } from '../measures';
+import { formatMeasure } from '../measures';
 
 const HOURS_IN_DAY = 8;
 const ONE_MINUTE = 1;
@@ -168,94 +168,5 @@ describe('#formatMeasure()', () => {
 
   it('should not fail with undefined', () => {
     expect(formatMeasure(undefined, 'INT')).toBe('');
-  });
-});
-
-describe('#formatMeasureVariation()', () => {
-  it('should format INT', () => {
-    expect(formatMeasureVariation(0, 'INT')).toBe('+0');
-    expect(formatMeasureVariation(1, 'INT')).toBe('+1');
-    expect(formatMeasureVariation(-1, 'INT')).toBe('-1');
-    expect(formatMeasureVariation(1529, 'INT')).toBe('+1,529');
-    expect(formatMeasureVariation(-1529, 'INT')).toBe('-1,529');
-  });
-
-  it('should format SHORT_INT', () => {
-    expect(formatMeasureVariation(0, 'SHORT_INT')).toBe('+0');
-    expect(formatMeasureVariation(1, 'SHORT_INT')).toBe('+1');
-    expect(formatMeasureVariation(-1, 'SHORT_INT')).toBe('-1');
-    expect(formatMeasureVariation(1529, 'SHORT_INT')).toBe('+1.5k');
-    expect(formatMeasureVariation(-1529, 'SHORT_INT')).toBe('-1.5k');
-    expect(formatMeasureVariation(10678, 'SHORT_INT')).toBe('+11k');
-    expect(formatMeasureVariation(-10678, 'SHORT_INT')).toBe('-11k');
-  });
-
-  it('should format FLOAT', () => {
-    expect(formatMeasureVariation(0.0, 'FLOAT')).toBe('+0.0');
-    expect(formatMeasureVariation(1.0, 'FLOAT')).toBe('+1.0');
-    expect(formatMeasureVariation(-1.0, 'FLOAT')).toBe('-1.0');
-    expect(formatMeasureVariation(50.89, 'FLOAT')).toBe('+50.89');
-    expect(formatMeasureVariation(-50.89, 'FLOAT')).toBe('-50.89');
-  });
-
-  it('should respect FLOAT precision', () => {
-    expect(formatMeasureVariation(0.1, 'FLOAT')).toBe('+0.1');
-    expect(formatMeasureVariation(0.12, 'FLOAT')).toBe('+0.12');
-    expect(formatMeasureVariation(0.12345, 'FLOAT')).toBe('+0.12345');
-    expect(formatMeasureVariation(0.123456, 'FLOAT')).toBe('+0.12346');
-  });
-
-  it('should format PERCENT', () => {
-    expect(formatMeasureVariation(0.0, 'PERCENT')).toBe('+0.0%');
-    expect(formatMeasureVariation(1.0, 'PERCENT')).toBe('+1.0%');
-    expect(formatMeasureVariation(-1.0, 'PERCENT')).toBe('-1.0%');
-    expect(formatMeasureVariation(50.89, 'PERCENT')).toBe('+50.9%');
-    expect(formatMeasureVariation(-50.89, 'PERCENT')).toBe('-50.9%');
-  });
-
-  it('should format WORK_DUR', () => {
-    expect(formatMeasureVariation(0, 'WORK_DUR')).toBe('+0');
-    expect(formatMeasureVariation(5 * ONE_DAY, 'WORK_DUR')).toBe('+5d');
-    expect(formatMeasureVariation(2 * ONE_HOUR, 'WORK_DUR')).toBe('+2h');
-    expect(formatMeasureVariation(ONE_MINUTE, 'WORK_DUR')).toBe('+1min');
-    expect(formatMeasureVariation(-5 * ONE_DAY, 'WORK_DUR')).toBe('-5d');
-    expect(formatMeasureVariation(-2 * ONE_HOUR, 'WORK_DUR')).toBe('-2h');
-    expect(formatMeasureVariation(-1 * ONE_MINUTE, 'WORK_DUR')).toBe('-1min');
-  });
-
-  it('should format SHORT_WORK_DUR', () => {
-    expect(formatMeasureVariation(0, 'SHORT_WORK_DUR')).toBe('+0');
-    expect(formatMeasureVariation(5 * ONE_DAY, 'SHORT_WORK_DUR')).toBe('+5d');
-    expect(formatMeasureVariation(2 * ONE_HOUR, 'SHORT_WORK_DUR')).toBe('+2h');
-    expect(formatMeasureVariation(ONE_MINUTE, 'SHORT_WORK_DUR')).toBe('+1min');
-    expect(formatMeasureVariation(30 * ONE_MINUTE, 'SHORT_WORK_DUR')).toBe('+30min');
-    expect(formatMeasureVariation(58 * ONE_MINUTE, 'SHORT_WORK_DUR')).toBe('+1h');
-    expect(formatMeasureVariation(5 * ONE_DAY + 2 * ONE_HOUR, 'SHORT_WORK_DUR')).toBe('+5d');
-    expect(formatMeasureVariation(2 * ONE_HOUR + ONE_MINUTE, 'SHORT_WORK_DUR')).toBe('+2h');
-    expect(formatMeasureVariation(ONE_HOUR + 55 * ONE_MINUTE, 'SHORT_WORK_DUR')).toBe('+2h');
-    expect(formatMeasureVariation(3 * ONE_DAY + 6 * ONE_HOUR, 'SHORT_WORK_DUR')).toBe('+4d');
-    expect(formatMeasureVariation(7 * ONE_HOUR + 59 * ONE_MINUTE, 'SHORT_WORK_DUR')).toBe('+1d');
-    expect(formatMeasureVariation(5 * ONE_DAY + 2 * ONE_HOUR + ONE_MINUTE, 'SHORT_WORK_DUR')).toBe(
-      '+5d'
-    );
-    expect(formatMeasureVariation(15 * ONE_DAY + 2 * ONE_HOUR + ONE_MINUTE, 'SHORT_WORK_DUR')).toBe(
-      '+15d'
-    );
-    expect(formatMeasureVariation(7 * ONE_MINUTE, 'SHORT_WORK_DUR')).toBe('+7min');
-    expect(formatMeasureVariation(-5 * ONE_DAY, 'SHORT_WORK_DUR')).toBe('-5d');
-    expect(formatMeasureVariation(-2 * ONE_HOUR, 'SHORT_WORK_DUR')).toBe('-2h');
-    expect(formatMeasureVariation(-1 * ONE_MINUTE, 'SHORT_WORK_DUR')).toBe('-1min');
-
-    expect(formatMeasureVariation(1529 * ONE_DAY, 'SHORT_WORK_DUR')).toBe('+1.5kd');
-    expect(formatMeasureVariation(1234567 * ONE_DAY, 'SHORT_WORK_DUR')).toBe('+1Md');
-    expect(formatMeasureVariation(1234567 * ONE_DAY + 2 * ONE_HOUR, 'SHORT_WORK_DUR')).toBe('+1Md');
-  });
-
-  it('should not format unknown type', () => {
-    expect(formatMeasureVariation('random value', 'RANDOM_TYPE')).toBe('random value');
-  });
-
-  it('should not fail with undefined', () => {
-    expect(formatMeasureVariation(undefined, 'INT')).toBe('');
   });
 });

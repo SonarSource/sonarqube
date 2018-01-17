@@ -17,49 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
+import * as React from 'react';
+import * as classNames from 'classnames';
 import { Link } from 'react-router';
-import classNames from 'classnames';
 import { getLocalizedMetricName, translate } from '../../../helpers/l10n';
 import { formatMeasure, isDiffMetric } from '../../../helpers/measures';
 import { getProjectUrl } from '../../../helpers/urls';
 import './ApplicationQualityGateProject.css';
+import { Metric } from '../../../app/types';
+import { ApplicationProject, ConditionAnalysis } from '../../../api/quality-gates';
 
-/*::
-type Condition = {
-  comparator: string,
-  errorThreshold?: string,
-  metric: string,
-  onLeak: boolean,
-  status: string,
-  value: string,
-  warningThreshold?: string
-};
-*/
+interface Props {
+  metrics: { [key: string]: Metric };
+  project: ApplicationProject;
+}
 
-/*::
-type Props = {
-  metrics: {
-    [string]: {
-      key: string,
-      name: string,
-      type: string
-    }
-  },
-  project: {
-    conditions: Array<Condition>,
-    key: string,
-    name: string,
-    status: string
-  }
-};
-*/
-
-export default class ApplicationQualityGateProject extends React.PureComponent {
-  /*:: props: Props; */
-
-  renderCondition = (condition /*: Condition */) => {
+export default class ApplicationQualityGateProject extends React.PureComponent<Props> {
+  renderCondition = (condition: ConditionAnalysis) => {
     const metric = this.props.metrics[condition.metric];
     const metricName = getLocalizedMetricName(metric);
     const threshold = condition.errorThreshold || condition.warningThreshold;

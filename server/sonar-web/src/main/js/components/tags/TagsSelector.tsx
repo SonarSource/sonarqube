@@ -17,26 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
-import BubblePopup from '../common/BubblePopup';
+import * as React from 'react';
+import BubblePopup, { BubblePopupPosition } from '../common/BubblePopup';
 import MultiSelect from '../common/MultiSelect';
 import { translate } from '../../helpers/l10n';
 import './TagsList.css';
 
-/*::
-type Props = {
-  position: {},
-  tags: Array<string>,
-  selectedTags: Array<string>,
-  listSize: number,
-  onSearch: string => void,
-  onSelect: string => void,
-  onUnselect: string => void
-};
-*/
+interface Props {
+  position: BubblePopupPosition;
+  tags: string[];
+  selectedTags: string[];
+  listSize: number;
+  onSearch: (query: string) => void;
+  onSelect: (item: string) => void;
+  onUnselect: (item: string) => void;
+}
 
-export default function TagsSelector(props /*: Props */) {
+export default function TagsSelector(props: Props) {
   return (
     <BubblePopup
       position={props.position}
@@ -55,7 +52,7 @@ export default function TagsSelector(props /*: Props */) {
   );
 }
 
-export function validateTag(value /*: string */) {
+export function validateTag(value: string) {
   // Allow only a-z, 0-9, '+', '-', '#', '.'
   return value.toLowerCase().replace(/[^a-z0-9\+\-#.]/gi, '');
 }

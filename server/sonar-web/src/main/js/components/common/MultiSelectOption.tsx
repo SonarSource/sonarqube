@@ -17,40 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
-import classNames from 'classnames';
+import * as React from 'react';
+import * as classNames from 'classnames';
 
-/*::
-type Props = {
-  element: string,
-  selected: boolean,
-  custom: boolean,
-  active: boolean,
-  onSelectChange: (string, boolean) => void,
-  onHover: string => void
-};
-*/
+interface Props {
+  element: string;
+  selected?: boolean;
+  custom?: boolean;
+  active?: boolean;
+  onSelectChange: (elem: string, selected: boolean) => void;
+  onHover: (elem: string) => void;
+}
 
-export default class MultiSelectOption extends React.PureComponent {
-  /*:: props: Props; */
-
-  static defaultProps = {
-    selected: false,
-    custom: false,
-    active: false
-  };
-
-  handleSelect = (evt /*: SyntheticInputEvent */) => {
+export default class MultiSelectOption extends React.PureComponent<Props> {
+  handleSelect = (evt: React.SyntheticEvent<HTMLAnchorElement>) => {
     evt.stopPropagation();
     evt.preventDefault();
-    evt.target.blur();
+    evt.currentTarget.blur();
     this.props.onSelectChange(this.props.element, !this.props.selected);
   };
 
-  handleHover = () => {
-    this.props.onHover(this.props.element);
-  };
+  handleHover = () => this.props.onHover(this.props.element);
 
   render() {
     const className = classNames('icon-checkbox', {

@@ -17,51 +17,44 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-//@flow
-import React from 'react';
+import * as React from 'react';
 import { without } from 'lodash';
 import TagsSelector from '../../../components/tags/TagsSelector';
+import { BubblePopupPosition } from '../../../components/common/BubblePopup';
 import { searchProjectTags } from '../../../api/components';
 
-/*::
-type Props = {
-  position: {},
-  project: string,
-  selectedTags: Array<string>,
-  setProjectTags: (Array<string>) => void
-};
-*/
+interface Props {
+  position: BubblePopupPosition;
+  project: string;
+  selectedTags: string[];
+  setProjectTags: (tags: string[]) => void;
+}
 
-/*::
-type State = {
-  searchResult: Array<string>
-};
-*/
+interface State {
+  searchResult: string[];
+}
 
 const LIST_SIZE = 10;
 
-export default class MetaTagsSelector extends React.PureComponent {
-  /*:: props: Props; */
-  state /*: State */ = { searchResult: [] };
+export default class MetaTagsSelector extends React.PureComponent<Props, State> {
+  state: State = { searchResult: [] };
 
   componentDidMount() {
     this.onSearch('');
   }
 
-  onSearch = (query /*: string */) => {
+  onSearch = (query: string) => {
     searchProjectTags({
       q: query,
       ps: Math.min(this.props.selectedTags.length - 1 + LIST_SIZE, 100)
-    }).then(result => {
-      this.setState({ searchResult: result.tags });
-    });
+    }).then(result => this.setState({ searchResult: result.tags }), () => {});
   };
 
-  onSelect = (tag /*: string */) => {
+  onSelect = (tag: string) => {
     this.props.setProjectTags([...this.props.selectedTags, tag]);
   };
 
-  onUnselect = (tag /*: string */) => {
+  onUnselect = (tag: string) => {
     this.props.setProjectTags(without(this.props.selectedTags, tag));
   };
 

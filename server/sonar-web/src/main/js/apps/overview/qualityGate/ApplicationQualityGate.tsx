@@ -17,47 +17,35 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
+import * as React from 'react';
 import { keyBy } from 'lodash';
 import ApplicationQualityGateProject from './ApplicationQualityGateProject';
 import Level from '../../../components/ui/Level';
-import { getApplicationQualityGate } from '../../../api/quality-gates';
+import { getApplicationQualityGate, ApplicationProject } from '../../../api/quality-gates';
 import { translate } from '../../../helpers/l10n';
+import { LightComponent, Metric } from '../../../app/types';
 
-/*::
-type Props = {
-  component: { key: string, organization?: string }
-};
-*/
+interface Props {
+  component: LightComponent;
+}
 
-/*::
 type State = {
-  loading: boolean,
-  metrics?: { [string]: Object },
-  projects?: Array<{
-    conditions: Array<Object>,
-    key: string,
-    name: string,
-    status: string
-  }>,
-  status?: string
+  loading: boolean;
+  metrics?: { [key: string]: Metric };
+  projects?: ApplicationProject[];
+  status?: string;
 };
-*/
 
-export default class ApplicationQualityGate extends React.PureComponent {
-  /*:: mounted: boolean; */
-  /*:: props: Props; */
-  state /*: State */ = {
-    loading: true
-  };
+export default class ApplicationQualityGate extends React.PureComponent<Props, State> {
+  mounted: boolean;
+  state: State = { loading: true };
 
   componentDidMount() {
     this.mounted = true;
     this.fetchDetails();
   }
 
-  componentDidUpdate(prevProps /*: Props */) {
+  componentDidUpdate(prevProps: Props) {
     if (prevProps.component.key !== this.props.component.key) {
       this.fetchDetails();
     }
@@ -103,21 +91,22 @@ export default class ApplicationQualityGate extends React.PureComponent {
           {status != null && <Level level={status} />}
         </h2>
 
-        {projects != null && (
-          <div
-            id="overview-quality-gate-conditions-list"
-            className="overview-quality-gate-conditions-list clearfix">
-            {projects
-              .filter(project => project.status !== 'OK')
-              .map(project => (
-                <ApplicationQualityGateProject
-                  key={project.key}
-                  metrics={metrics}
-                  project={project}
-                />
-              ))}
-          </div>
-        )}
+        {projects &&
+          metrics && (
+            <div
+              id="overview-quality-gate-conditions-list"
+              className="overview-quality-gate-conditions-list clearfix">
+              {projects
+                .filter(project => project.status !== 'OK')
+                .map(project => (
+                  <ApplicationQualityGateProject
+                    key={project.key}
+                    metrics={metrics}
+                    project={project}
+                  />
+                ))}
+            </div>
+          )}
       </div>
     );
   }

@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
+import * as React from 'react';
 import { connect } from 'react-redux';
 import MetaKey from './MetaKey';
 import MetaOrganizationKey from './MetaOrganizationKey';
@@ -29,17 +29,25 @@ import MetaSize from './MetaSize';
 import MetaTags from './MetaTags';
 import BadgesModal from '../badges/BadgesModal';
 import { areThereCustomOrganizations, getGlobalSettingValue } from '../../../store/rootReducer';
-import { Visibility } from '../../../app/types';
+import { Visibility, Component } from '../../../app/types';
+import { History } from '../../../api/time-machine';
+import { MeasureEnhanced } from '../../../helpers/measures';
 
-const Meta = ({
-  branch,
-  component,
-  history,
-  measures,
-  areThereCustomOrganizations,
-  onComponentChange,
-  onSonarCloud
-}) => {
+interface OwnProps {
+  branch?: string;
+  component: Component;
+  history?: History;
+  measures: MeasureEnhanced[];
+  onComponentChange: (changes: {}) => void;
+}
+
+interface StateToProps {
+  areThereCustomOrganizations: boolean;
+  onSonarCloud: boolean;
+}
+
+export function Meta(props: OwnProps & StateToProps) {
+  const { branch, component, areThereCustomOrganizations } = props;
   const { qualifier, description, qualityProfiles, qualityGate, visibility } = component;
 
   const isProject = qualifier === 'TRK';
@@ -59,15 +67,15 @@ const Meta = ({
         <div className="overview-meta-card overview-meta-description">{description}</div>
       )}
 
-      <MetaSize branch={branch} component={component} measures={measures} />
+      <MetaSize branch={branch} component={component} measures={props.measures} />
 
-      {isProject && <MetaTags component={component} onComponentChange={onComponentChange} />}
+      {isProject && <MetaTags component={component} onComponentChange={props.onComponentChange} />}
 
       <AnalysesList
         branch={branch}
         component={component}
         qualifier={component.qualifier}
-        history={history}
+        history={props.history}
       />
 
       {shouldShowQualityGate && (
@@ -91,14 +99,14 @@ const Meta = ({
 
       {hasOrganization && <MetaOrganizationKey component={component} />}
 
-      {onSonarCloud &&
+      {props.onSonarCloud &&
         isProject &&
         !isPrivate && <BadgesModal branch={branch} project={component.key} />}
     </div>
   );
-};
+}
 
-const mapStateToProps = state => {
+const mapStateToProps = (state: any): StateToProps => {
   const sonarCloudSetting = getGlobalSettingValue(state, 'sonar.sonarcloud.enabled');
   return {
     areThereCustomOrganizations: areThereCustomOrganizations(state),
@@ -106,4 +114,4 @@ const mapStateToProps = state => {
   };
 };
 
-export default connect(mapStateToProps)(Meta);
+export default connect<StateToProps, {}, OwnProps>(mapStateToProps)(Meta);

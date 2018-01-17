@@ -68,30 +68,9 @@ exports[`should render correctly 1`] = `
       >
         <strong>
           <Measure
-            measure={
-              Object {
-                "leak": "0.0",
-                "metric": Object {
-                  "key": "reliability_rating",
-                  "name": "Reliability Rating",
-                  "type": "RATING",
-                },
-                "periods": Array [
-                  Object {
-                    "index": 1,
-                    "value": "0.0",
-                  },
-                ],
-                "value": "3.0",
-              }
-            }
-            metric={
-              Object {
-                "key": "reliability_rating",
-                "name": "Reliability Rating",
-                "type": "RATING",
-              }
-            }
+            metricKey="reliability_rating"
+            metricType="RATING"
+            value="3.0"
           />
         </strong>
       </span>
@@ -165,29 +144,9 @@ exports[`should render correctly for leak 1`] = `
         <strong>
           <Measure
             className="domain-measures-leak"
-            measure={
-              Object {
-                "leak": "3.0",
-                "metric": Object {
-                  "key": "new_reliability_rating",
-                  "name": "Reliability Rating on New Code",
-                  "type": "RATING",
-                },
-                "periods": Array [
-                  Object {
-                    "index": 1,
-                    "value": "3.0",
-                  },
-                ],
-              }
-            }
-            metric={
-              Object {
-                "key": "new_reliability_rating",
-                "name": "Reliability Rating on New Code",
-                "type": "RATING",
-              }
-            }
+            metricKey="new_reliability_rating"
+            metricType="RATING"
+            value="3.0"
           />
         </strong>
       </span>

@@ -17,43 +17,33 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
+import * as React from 'react';
 import { isProvided, isClickable } from '../../project-admin/links/utils';
 import BugTrackerIcon from '../../../components/ui/BugTrackerIcon';
+import { ProjectLink } from '../../../api/projectLinks';
 
-/*::
-type Link = {
-  id: string,
-  name: string,
-  url: string,
-  type: string
-};
-*/
+interface Props {
+  link: ProjectLink;
+}
 
-/*::
-type State = {|
-  expanded: boolean
-|};
-*/
+interface State {
+  expanded: boolean;
+}
 
-export default class MetaLink extends React.PureComponent {
-  /*:: props: {
-    link: Link
-  };
-*/
+export default class MetaLink extends React.PureComponent<Props, State> {
+  state: State = { expanded: false };
 
-  state /*: State */ = {
-    expanded: false
-  };
-
-  handleClick = (e /*: Object */) => {
+  handleClick = (e: React.SyntheticEvent<HTMLAnchorElement>) => {
     e.preventDefault();
-    e.target.blur();
-    this.setState((s /*: State */) => ({ expanded: !s.expanded }));
+    e.currentTarget.blur();
+    this.setState((s: State) => ({ expanded: !s.expanded }));
   };
 
-  renderLinkIcon(link /*: Link */) {
+  handleInputClick = (e: React.SyntheticEvent<HTMLInputElement>) => {
+    e.currentTarget.select();
+  };
+
+  renderLinkIcon = (link: ProjectLink) => {
     if (link.type === 'issue') {
       return <BugTrackerIcon />;
     }
@@ -63,7 +53,7 @@ export default class MetaLink extends React.PureComponent {
     ) : (
       <i className="icon-color-link icon-detach" />
     );
-  }
+  };
 
   render() {
     const { link } = this.props;
@@ -86,7 +76,7 @@ export default class MetaLink extends React.PureComponent {
               className="overview-key"
               value={link.url}
               readOnly={true}
-              onClick={e => e.target.select()}
+              onClick={this.handleInputClick}
             />
           </div>
         )}

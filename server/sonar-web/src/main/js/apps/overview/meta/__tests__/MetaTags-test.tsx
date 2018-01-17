@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
+import * as React from 'react';
 import { shallow } from 'enzyme';
 import { click } from '../../../../helpers/testUtils';
 import MetaTags from '../MetaTags';
@@ -27,7 +27,11 @@ const component = {
   tags: [],
   configuration: {
     showSettings: false
-  }
+  },
+  organization: 'foo',
+  qualifier: 'TRK',
+  name: 'MyProject',
+  breadcrumbs: []
 };
 
 const componentWithTags = {
@@ -35,25 +39,36 @@ const componentWithTags = {
   tags: ['foo', 'bar'],
   configuration: {
     showSettings: true
-  }
+  },
+  organization: 'foo',
+  qualifier: 'TRK',
+  name: 'MySecondProject',
+  breadcrumbs: []
 };
 
 it('should render without tags and admin rights', () => {
   expect(
-    shallow(<MetaTags component={component} />, { disableLifecycleMethods: true })
+    shallow(<MetaTags component={component} onComponentChange={jest.fn()} />, {
+      disableLifecycleMethods: true
+    })
   ).toMatchSnapshot();
 });
 
 it('should render with tags and admin rights', () => {
   expect(
-    shallow(<MetaTags component={componentWithTags} />, { disableLifecycleMethods: true })
+    shallow(<MetaTags component={componentWithTags} onComponentChange={jest.fn()} />, {
+      disableLifecycleMethods: true
+    })
   ).toMatchSnapshot();
 });
 
 it('should open the tag selector on click', () => {
-  const wrapper = shallow(<MetaTags component={componentWithTags} />, {
-    disableLifecycleMethods: true
-  });
+  const wrapper = shallow(
+    <MetaTags component={componentWithTags} onComponentChange={jest.fn()} />,
+    {
+      disableLifecycleMethods: true
+    }
+  );
   expect(wrapper).toMatchSnapshot();
 
   // open

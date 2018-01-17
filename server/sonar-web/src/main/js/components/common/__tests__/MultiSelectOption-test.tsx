@@ -17,23 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
+import * as React from 'react';
 import { shallow } from 'enzyme';
-import ApplicationQualityGate from '../ApplicationQualityGate';
+import MultiSelectOption from '../MultiSelectOption';
 
-it('renders', () => {
-  const wrapper = shallow(<ApplicationQualityGate component={{ key: 'foo' }} />);
-  expect(wrapper).toMatchSnapshot();
-  wrapper.setState({
-    loading: false,
-    metrics: {},
-    status: 'ERROR',
-    projects: [
-      { conditions: [], key: 'project1', name: 'project1', status: 'ERROR' },
-      { conditions: [], key: 'project2', name: 'project2', status: 'OK' },
-      { conditions: [], key: 'project3', name: 'project3', status: 'WARN' }
-    ]
-  });
-  expect(wrapper).toMatchSnapshot();
+const props = {
+  element: 'mytag',
+  onSelectChange: () => {},
+  onHover: () => {}
+};
+
+it('should render standard tag', () => {
+  expect(shallow(<MultiSelectOption {...props} />)).toMatchSnapshot();
+});
+
+it('should render selected tag', () => {
+  expect(shallow(<MultiSelectOption {...props} selected={true} />)).toMatchSnapshot();
+});
+
+it('should render custom tag', () => {
+  expect(shallow(<MultiSelectOption {...props} custom={true} />)).toMatchSnapshot();
+});
+
+it('should render active tag', () => {
+  expect(shallow(<MultiSelectOption {...props} selected={true} active={true} />)).toMatchSnapshot();
 });
