@@ -19,6 +19,7 @@
  */
 package org.sonar.db.organization;
 
+import java.util.Objects;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
@@ -155,6 +156,23 @@ public class OrganizationDto {
   public OrganizationDto setDefaultQualityGateUuid(String defaultQualityGateUuid) {
     this.defaultQualityGateUuid = defaultQualityGateUuid;
     return this;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    OrganizationDto that = (OrganizationDto) o;
+    return Objects.equals(uuid, that.uuid);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(uuid);
   }
 
   @Override
