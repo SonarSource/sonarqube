@@ -30,12 +30,20 @@ import org.junit.Test;
 import org.sonarqube.qa.util.Tester;
 import org.sonarqube.ws.Organizations.Organization;
 import org.sonarqube.ws.Users.CreateWsResponse.User;
+import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.projects.UpdateVisibilityRequest;
 
 import static com.codeborne.selenide.Selenide.$;
+import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.projectDir;
 
 public class ProjectBadgesTest {
+
+  private static final String PROJECT_KEY = "sample";
+  private static final String WS_MEASURE_BADGES_ON_QUALITY_GATE = "api/project_badges/measure?project=" + PROJECT_KEY + "&metric=alert_status";
+  private static final String WS_MEASURE_BADGES_ON_BUGS = "api/project_badges/measure?project=" + PROJECT_KEY + "&metric=bugs";
+  private static final String WS_QUALITY_GATE_BADGE = "api/project_badges/quality_gate?project=" + PROJECT_KEY;
+  private static final String SONAR_CLOUD_ORANGE_BADGE = "images/project_badges/sonarcloud-orange.svg";
 
   @ClassRule
   public static Orchestrator orchestrator = SonarCloudProjectSuite.ORCHESTRATOR;
@@ -46,26 +54,26 @@ public class ProjectBadgesTest {
   @Test
   public void public_project_badges() {
     orchestrator.executeBuild(SonarScanner.create(projectDir("shared/xoo-sample")));
-    tester.openBrowser("/projects").openProjectDashboard("sample");
+    tester.openBrowser("/projects").openProjectDashboard(PROJECT_KEY);
 
     SelenideElement badgesModal = openBadgesModal();
     ElementsCollection badgeButtons = badgesModal.$$(".badge-button").shouldHaveSize(3);
 
     // Check quality gate badge
-    shouldHaveUrl(badgesModal, "api/project_badges/measure?project=sample&metric=alert_status");
+    shouldHaveUrl(badgesModal, WS_MEASURE_BADGES_ON_QUALITY_GATE);
 
     // Check bugs badge
     selectOption("Bugs");
-    shouldHaveUrl(badgesModal, "api/project_badges/measure?project=sample&metric=bugs");
+    shouldHaveUrl(badgesModal, WS_MEASURE_BADGES_ON_BUGS);
 
     // Check marketing quality gate badge
     badgeButtons.get(1).click();
-    shouldHaveUrl(badgesModal, "api/project_badges/quality_gate?project=sample");
+    shouldHaveUrl(badgesModal, WS_QUALITY_GATE_BADGE);
 
     // Check scanned on SonarCloud badge
     badgeButtons.get(2).click();
     selectOption("Orange");
-    shouldHaveUrl(badgesModal, "images/project_badges/sonarcloud-orange.svg");
+    shouldHaveUrl(badgesModal, SONAR_CLOUD_ORANGE_BADGE);
   }
 
   @Test
@@ -78,8 +86,17 @@ public class ProjectBadgesTest {
         .setProperties("sonar.organization", org.getKey(), "sonar.login", user.getLogin(), "sonar.password", user.getLogin())
     );
     tester.wsClient().projects().updateVisibility(new UpdateVisibilityRequest().setProject("sample").setVisibility("private"));
-    tester.openBrowser("/projects").logIn().submitCredentials(user.getLogin()).openProjectDashboard("sample");
+    tester.openBrowser("/projects").logIn().submitCredentials(user.getLogin()).openProjectDashboard(PROJECT_KEY);
     shouldNotHaveBadges();
+  }
+
+  @Test
+  public void project_badges_ws() {
+    orchestrator.executeBuild(SonarScanner.create(projectDir("shared/xoo-sample")));
+    assertThat(tester.wsClient().wsConnector().call(new GetRequest(WS_MEASURE_BADGES_ON_QUALITY_GATE)).failIfNotSuccessful().contentType()).isEqualTo("image/svg+xml");
+    assertThat(tester.wsClient().wsConnector().call(new GetRequest(WS_MEASURE_BADGES_ON_BUGS)).failIfNotSuccessful().contentType()).isEqualTo("image/svg+xml");
+    assertThat(tester.wsClient().wsConnector().call(new GetRequest(WS_QUALITY_GATE_BADGE)).failIfNotSuccessful().contentType()).isEqualTo("image/svg+xml");
+    assertThat(tester.wsClient().wsConnector().call(new GetRequest(SONAR_CLOUD_ORANGE_BADGE)).failIfNotSuccessful().contentType()).isEqualTo("image/svg+xml");
   }
 
   private void shouldNotHaveBadges() {
