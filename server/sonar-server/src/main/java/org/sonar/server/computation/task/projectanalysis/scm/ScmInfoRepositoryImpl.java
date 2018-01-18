@@ -96,7 +96,7 @@ public class ScmInfoRepositoryImpl implements ScmInfoRepository {
     return Optional.of(GeneratedScmInfo.create(analysisMetadata.getAnalysisDate(), newOrChangedLines));
   }
 
-  private ScmInfo removeAuthorAndRevision(ScmInfo info) {
+  private static ScmInfo removeAuthorAndRevision(ScmInfo info) {
     Map<Integer, Changeset> cleanedScmInfo = info.getAllChangesets().entrySet().stream()
       .collect(Collectors.toMap(Map.Entry::getKey, e -> removeAuthorAndRevision(e.getValue())));
     return new ScmInfoImpl(cleanedScmInfo);
@@ -120,11 +120,9 @@ public class ScmInfoRepositoryImpl implements ScmInfoRepository {
     }
 
     // generate date for new/changed lines
-    Set<Integer> newOrChangedLines = sourceLinesDiff.getNewOrChangedLines(file);
-    if (newOrChangedLines.isEmpty()) {
-      return Optional.of(scmInfo);
-    }
-    return Optional.of(GeneratedScmInfo.create(analysisMetadata.getAnalysisDate(), newOrChangedLines, scmInfo));
+    int[] matchingLines = sourceLinesDiff.getMatchingLines(file);
+
+    return Optional.of(GeneratedScmInfo.create(analysisMetadata.getAnalysisDate(), matchingLines, scmInfo));
   }
 
 }

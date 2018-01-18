@@ -19,9 +19,8 @@
  */
 package org.sonar.server.computation.task.projectanalysis.source;
 
-import java.util.Set;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 
 public interface SourceLinesDiff {
-  Set<Integer> getNewOrChangedLines(Component component);
+  int[] getMatchingLines(Component component);
 }

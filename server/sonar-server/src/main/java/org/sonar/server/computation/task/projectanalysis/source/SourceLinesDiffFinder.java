@@ -19,9 +19,9 @@
  */
 package org.sonar.server.computation.task.projectanalysis.source;
 
-import java.util.HashSet;
+import difflib.myers.MyersDiff;
+import difflib.myers.PathNode;
 import java.util.List;
-import java.util.Set;
 
 public class SourceLinesDiffFinder {
 
@@ -33,39 +33,42 @@ public class SourceLinesDiffFinder {
     this.report = report;
   }
 
-  public Set<Integer> findNewOrChangedLines() {
-    return walk(0, 0, new HashSet<>());
-  }
+  /**
+   * Creates a diff between the file in the database and the file in the report using Myers' algorithm, and links matching lines between
+   * both files.
+   * @return an array with one entry for each line in the report. Those entries point either to a line in the database, or to 0, 
+   * in which case it means the line was added.
+   */
+  public int[] findMatchingLines() {
+    int[] index = new int[report.size()];
 
-  private Set<Integer> walk(int r, int db, HashSet<Integer> acc) {
+    int dbLine = database.size();
+    int reportLine = report.size();
+    try {
+      PathNode node = MyersDiff.buildPath(database.toArray(), report.toArray());
 
-    if (r >= report.size()) {
-      return acc;
-    }
+      while (node.prev != null) {
+        PathNode prevNode = node.prev;
 
-    if (db < database.size()) {
-
-      if (report.get(r).equals(database.get(db))) {
-        walk(stepIndex(r), stepIndex(db), acc);
-        return acc;
+        if (!node.isSnake()) {
+          // additions
+          reportLine -= (node.j - prevNode.j);
+          // removals
+          dbLine -= (node.i - prevNode.i);
+        } else {
+          // matches
+          for (int i = node.i; i > prevNode.i; i--) {
+            index[reportLine - 1] = dbLine;
+            reportLine--;
+            dbLine--;
+          }
+        }
+        node = prevNode;
       }
-
-      List<String> remainingDatabase = database.subList(db, database.size());
-      if (remainingDatabase.contains(report.get(r))) {
-        int nextDb = db + remainingDatabase.indexOf(report.get(r));
-        walk(r, nextDb, acc);
-        return acc;
-      }
-
+    } catch (Exception e) {
+      return index;
     }
-
-    acc.add(r+1);
-    walk(stepIndex(r), db, acc);
-    return acc;
-  }
-
-  private static int stepIndex(int r) {
-    return ++r;
+    return index;
   }
 
 }
