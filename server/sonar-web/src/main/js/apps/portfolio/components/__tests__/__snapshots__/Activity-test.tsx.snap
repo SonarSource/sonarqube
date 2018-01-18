@@ -22,13 +22,7 @@ exports[`renders 1`] = `
         ],
       }
     }
-    metrics={
-      Array [
-        Object {
-          "key": "coverage",
-        },
-      ]
-    }
+    metrics={Object {}}
     project="foo"
     renderWhenEmpty={[Function]}
   />

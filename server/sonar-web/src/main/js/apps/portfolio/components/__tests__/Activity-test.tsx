@@ -23,10 +23,6 @@ jest.mock('../../../../helpers/storage', () => ({
   getGraph: () => 'custom'
 }));
 
-jest.mock('../../../../api/metrics', () => ({
-  getAllMetrics: jest.fn(() => Promise.resolve([]))
-}));
-
 jest.mock('../../../../api/time-machine', () => ({
   getAllTimeMachineData: jest.fn(() =>
     Promise.resolve({
@@ -47,17 +43,15 @@ import * as React from 'react';
 import { mount, shallow } from 'enzyme';
 import Activity from '../Activity';
 
-const getAllMetrics = require('../../../../api/metrics').getAllMetrics as jest.Mock<any>;
 const getAllTimeMachineData = require('../../../../api/time-machine')
   .getAllTimeMachineData as jest.Mock<any>;
 
 beforeEach(() => {
-  getAllMetrics.mockClear();
   getAllTimeMachineData.mockClear();
 });
 
 it('renders', () => {
-  const wrapper = shallow(<Activity component="foo" />);
+  const wrapper = shallow(<Activity component="foo" metrics={{}} />);
   wrapper.setState({
     history: {
       coverage: [
@@ -72,7 +66,6 @@ it('renders', () => {
 });
 
 it('fetches history', () => {
-  mount(<Activity component="foo" />);
-  expect(getAllMetrics).toBeCalled();
+  mount(<Activity component="foo" metrics={{}} />);
   expect(getAllTimeMachineData).toBeCalledWith('foo', ['coverage']);
 });

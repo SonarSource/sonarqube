@@ -20,8 +20,7 @@
 import * as React from 'react';
 import { getDisplayedHistoryMetrics, DEFAULT_GRAPH } from '../../projectActivity/utils';
 import PreviewGraph from '../../../components/preview-graph/PreviewGraph';
-import { getAllMetrics } from '../../../api/metrics';
-import { getAllTimeMachineData } from '../../../api/time-machine';
+import { getAllTimeMachineData, History } from '../../../api/time-machine';
 import { Metric } from '../../../app/types';
 import { parseDate } from '../../../helpers/dates';
 import { translate } from '../../../helpers/l10n';
@@ -29,18 +28,14 @@ import { getCustomGraph, getGraph } from '../../../helpers/storage';
 
 const AnyPreviewGraph = PreviewGraph as any;
 
-interface History {
-  [metric: string]: Array<{ date: Date; value: string }>;
-}
-
 interface Props {
   component: string;
+  metrics: { [key: string]: Metric };
 }
 
 interface State {
   history?: History;
   loading: boolean;
-  metrics?: Metric[];
 }
 
 export default class Activity extends React.PureComponent<Props> {
@@ -71,8 +66,8 @@ export default class Activity extends React.PureComponent<Props> {
     }
 
     this.setState({ loading: true });
-    return Promise.all([getAllTimeMachineData(component, graphMetrics), getAllMetrics()]).then(
-      ([timeMachine, metrics]) => {
+    return getAllTimeMachineData(component, graphMetrics).then(
+      timeMachine => {
         if (this.mounted) {
           const history: History = {};
           timeMachine.measures.forEach(measure => {
@@ -82,7 +77,7 @@ export default class Activity extends React.PureComponent<Props> {
             }));
             history[measure.metric] = measureHistory;
           });
-          this.setState({ history, loading: false, metrics });
+          this.setState({ history, loading: false });
         }
       },
       () => {
@@ -103,11 +98,10 @@ export default class Activity extends React.PureComponent<Props> {
         {this.state.loading ? (
           <i className="spinner" />
         ) : (
-          this.state.metrics !== undefined &&
           this.state.history !== undefined && (
             <AnyPreviewGraph
               history={this.state.history}
-              metrics={this.state.metrics}
+              metrics={this.props.metrics}
               project={this.props.component}
               renderWhenEmpty={this.renderWhenEmpty}
             />

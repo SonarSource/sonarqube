@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import { BadgeParams } from '../BadgeParams';
+import BadgeParams from '../BadgeParams';
 import { BadgeType } from '../utils';
 import { Metric } from '../../../../app/types';
 
@@ -62,7 +62,6 @@ it('should display measure badge params', () => {
 function getWrapper(props = {}) {
   return shallow(
     <BadgeParams
-      fetchMetrics={jest.fn()}
       metrics={METRICS}
       options={{ color: 'white', metric: 'alert_status' }}
       type={BadgeType.marketing}

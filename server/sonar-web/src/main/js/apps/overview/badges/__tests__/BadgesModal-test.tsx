@@ -27,7 +27,7 @@ jest.mock('../../../../helpers/urls', () => ({
 }));
 
 it('should display the modal after click', () => {
-  const wrapper = shallow(<BadgesModal branch="branch-6.6" project="foo" />);
+  const wrapper = shallow(<BadgesModal branch="branch-6.6" metrics={{}} project="foo" />);
   expect(wrapper).toMatchSnapshot();
   click(wrapper.find('button'));
   expect(wrapper.find('Modal')).toMatchSnapshot();

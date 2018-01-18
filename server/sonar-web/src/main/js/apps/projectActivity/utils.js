@@ -98,10 +98,17 @@ export const generateCoveredLinesMetric = (
   };
 };
 
+function findMetric(key /*: string */, metrics /*:  Array<Metric> | { [string]: Metric } */) {
+  if (Array.isArray(metrics)) {
+    return metrics.find(metric => metric.key === key);
+  }
+  return metrics[key];
+}
+
 export function generateSeries(
   measuresHistory /*: Array<MeasureHistory> */,
   graph /*: string */,
-  metrics /*: Array<Metric> */,
+  metrics /*:  Array<Metric> | { [string]: Metric } */,
   displayedMetrics /*: Array<string> */
 ) /*: Array<Serie> */ {
   if (displayedMetrics.length <= 0) {
@@ -114,7 +121,7 @@ export function generateSeries(
         if (measure.metric === 'uncovered_lines' && !isCustomGraph(graph)) {
           return generateCoveredLinesMetric(measure, measuresHistory);
         }
-        const metric = metrics.find(metric => metric.key === measure.metric);
+        const metric = findMetric(measure.metric, metrics);
         return {
           data: measure.history.map(analysis => ({
             x: analysis.date,
