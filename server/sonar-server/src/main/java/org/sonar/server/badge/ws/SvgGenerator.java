@@ -43,11 +43,12 @@ public class SvgGenerator {
   private static final Font FONT = new Font("Verdana", Font.PLAIN, 11);
 
   private static final int MARGIN = 6;
+  private static final int ICON_WIDTH = 20;
 
-  private static final String PARAMETER_MARGIN = "margin";
+  private static final String PARAMETER_ICON_WIDTH_PLUS_MARGIN = "iconWidthPlusMargin";
   private static final String PARAMETER_TOTAL_WIDTH = "totalWidth";
   private static final String PARAMETER_LABEL_WIDTH = "labelWidth";
-  private static final String PARAMETER_LABEL_WIDTH_PLUS_MARGIN = "LabelWidthPlusMargin";
+  private static final String PARAMETER_LABEL_WIDTH_PLUS_MARGIN = "labelWidthPlusMargin";
   private static final String PARAMETER_VALUE_WIDTH = "valueWidth";
   private static final String PARAMETER_COLOR = "color";
   private static final String PARAMETER_LABEL = "label";
@@ -71,10 +72,10 @@ public class SvgGenerator {
     int valueWidth = computeWidth(value);
 
     Map<String, String> values = ImmutableMap.<String, String>builder()
-      .put(PARAMETER_MARGIN, valueOf(MARGIN))
-      .put(PARAMETER_TOTAL_WIDTH, valueOf(MARGIN * 4 + labelWidth + valueWidth))
-      .put(PARAMETER_LABEL_WIDTH, valueOf(MARGIN * 2 + labelWidth))
-      .put(PARAMETER_LABEL_WIDTH_PLUS_MARGIN, valueOf(MARGIN * 3 + labelWidth))
+      .put(PARAMETER_ICON_WIDTH_PLUS_MARGIN, valueOf(MARGIN + ICON_WIDTH))
+      .put(PARAMETER_TOTAL_WIDTH, valueOf(MARGIN * 4 + ICON_WIDTH + labelWidth + valueWidth))
+      .put(PARAMETER_LABEL_WIDTH, valueOf(MARGIN * 2 + ICON_WIDTH + labelWidth))
+      .put(PARAMETER_LABEL_WIDTH_PLUS_MARGIN, valueOf( MARGIN * 3 + ICON_WIDTH + labelWidth))
       .put(PARAMETER_VALUE_WIDTH, valueOf(MARGIN * 2 + valueWidth))
       .put(PARAMETER_COLOR, backgroundValueColor.getValue())
       .put(PARAMETER_LABEL, label)
