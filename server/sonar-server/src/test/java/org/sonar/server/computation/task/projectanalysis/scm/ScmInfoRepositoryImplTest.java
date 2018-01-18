@@ -20,7 +20,6 @@
 package org.sonar.server.computation.task.projectanalysis.scm;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
@@ -206,7 +205,7 @@ public class ScmInfoRepositoryImplTest {
   @Test
   public void generate_scm_info_for_new_and_changed_lines_when_report_is_empty() {
     createDbScmInfoWithOneLine("hash");
-    when(diff.getNewOrChangedLines(FILE)).thenReturn(ImmutableSet.of(2, 3));
+    when(diff.getMatchingLines(FILE)).thenReturn(new int[] {1, 0, 0});
     addFileSourceInReport(3);
     ScmInfo scmInfo = underTest.getScmInfo(FILE).get();
     assertThat(scmInfo.getAllChangesets()).hasSize(3);
@@ -216,7 +215,7 @@ public class ScmInfoRepositoryImplTest {
     assertChangeset(scmInfo.getChangesetForLine(3), null, null, analysisDate.getTime());
 
     verify(dbLoader).getScmInfo(FILE);
-    verify(diff).getNewOrChangedLines(FILE);
+    verify(diff).getMatchingLines(FILE);
     verifyNoMoreInteractions(dbLoader);
     verifyZeroInteractions(sourceHashRepository);
     verifyNoMoreInteractions(diff);
