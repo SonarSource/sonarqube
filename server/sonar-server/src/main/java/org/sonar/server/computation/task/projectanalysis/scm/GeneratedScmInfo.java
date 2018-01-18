@@ -19,6 +19,7 @@
  */
 package org.sonar.server.computation.task.projectanalysis.scm;
 
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -43,19 +44,21 @@ public class GeneratedScmInfo implements ScmInfo {
     return new GeneratedScmInfo(changesets);
   }
 
-  public static ScmInfo create(long analysisDate, Set<Integer> lines, ScmInfo dbScmInfo) {
-    checkState(!lines.isEmpty(), "No changesets");
-
+  public static ScmInfo create(long analysisDate, int[] matches, ScmInfo dbScmInfo) {
     Changeset changeset = Changeset.newChangesetBuilder()
       .setDate(analysisDate)
       .build();
-    Map<Integer, Changeset> changesets = lines.stream()
-      .collect(Collectors.toMap(x -> x, i -> changeset));
 
-    dbScmInfo.getAllChangesets().entrySet().stream()
-      .filter(e -> !lines.contains(e.getKey()))
-      .forEach(e -> changesets.put(e.getKey(), e.getValue()));
+    Map<Integer, Changeset> dbChangesets = dbScmInfo.getAllChangesets();
+    Map<Integer, Changeset> changesets = new LinkedHashMap<>(matches.length);
 
+    for (int i = 0; i < matches.length; i++) {
+      if (matches[i] > 0) {
+        changesets.put(i + 1, dbChangesets.get(matches[i]));
+      } else {
+        changesets.put(i + 1, changeset);
+      }
+    }
     return new GeneratedScmInfo(changesets);
   }
 

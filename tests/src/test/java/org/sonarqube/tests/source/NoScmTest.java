@@ -113,7 +113,7 @@ public class NoScmTest {
     orchestrator.executeBuild(scanner);
     scmData = ws.getScmData(FILE_TO_ANALYSE);
 
-    assertThat(scmData.size()).isEqualTo(4);
+    assertThat(scmData.size()).isEqualTo(3);
     assertThat(scmData.get(1).revision).isEmpty();
     assertThat(scmData.get(1).author).isEmpty();
     assertThat(scmData.get(1).date).isInSameMinuteWindowAs(new Date());
@@ -121,7 +121,16 @@ public class NoScmTest {
     assertThat(scmData.get(5).revision).isEmpty();
     assertThat(scmData.get(5).author).isEmpty();
     assertThat(scmData.get(5).date).isAfter(scmData.get(1).date);
+    
+    assertThat(scmData.get(11).revision).isEmpty();
+    assertThat(scmData.get(11).author).isEmpty();
+    assertThat(scmData.get(11).date).isInSameMinuteWindowAs(new Date());
 
+    tester.openBrowser()
+      .openCode("sample-without-scm", "sample-without-scm:src/main/xoo/sample/Sample.xoo")
+      .getSourceViewer()
+      .shouldHaveNewLines(5, 6, 7, 8, 9, 10)
+      .shouldNotHaveNewLines(1, 2, 3, 4, 11, 12, 13);
   }
 
   private File disposableWorkspaceFor(String project) throws IOException {
