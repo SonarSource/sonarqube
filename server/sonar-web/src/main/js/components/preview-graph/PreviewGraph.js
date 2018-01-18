@@ -41,7 +41,7 @@ import { formatMeasure, getShortType } from '../../helpers/measures';
 type Props = {
   branch?: string,
   history: ?History,
-  metrics: Array<Metric>,
+  metrics: { [string]: Metric },
   project: string,
   renderWhenEmpty?: () => void
 };
@@ -121,7 +121,7 @@ export default class PreviewGraph extends React.PureComponent {
     history /*: ?History */,
     graph /*: string */,
     customMetrics /*: Array<string> */,
-    metrics /*: Array<Metric> */
+    metrics /*: { [string]: Metric } */
   ) => {
     const myHistory = history;
     if (!myHistory) {

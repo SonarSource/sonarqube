@@ -43,7 +43,7 @@ jest.mock('../Report', () => ({
 
 import * as React from 'react';
 import { shallow, mount } from 'enzyme';
-import App from '../App';
+import { App } from '../App';
 
 const getMeasures = require('../../../../api/measures').getMeasures as jest.Mock<any>;
 const getChildren = require('../../../../api/components').getChildren as jest.Mock<any>;
@@ -51,7 +51,7 @@ const getChildren = require('../../../../api/components').getChildren as jest.Mo
 const component = { key: 'foo', name: 'Foo' };
 
 it('renders', () => {
-  const wrapper = shallow(<App component={component} />);
+  const wrapper = shallow(<App component={component} fetchMetrics={jest.fn()} metrics={{}} />);
   wrapper.setState({
     loading: false,
     measures: { ncloc: '173', reliability_rating: '1' },
@@ -62,13 +62,13 @@ it('renders', () => {
 });
 
 it('renders when portfolio is empty', () => {
-  const wrapper = shallow(<App component={component} />);
+  const wrapper = shallow(<App component={component} fetchMetrics={jest.fn()} metrics={{}} />);
   wrapper.setState({ loading: false, measures: { reliability_rating: '1' } });
   expect(wrapper).toMatchSnapshot();
 });
 
 it('renders when portfolio is not computed', () => {
-  const wrapper = shallow(<App component={component} />);
+  const wrapper = shallow(<App component={component} fetchMetrics={jest.fn()} metrics={{}} />);
   wrapper.setState({ loading: false, measures: { ncloc: '173' } });
   expect(wrapper).toMatchSnapshot();
 });
@@ -76,7 +76,7 @@ it('renders when portfolio is not computed', () => {
 it('fetches measures and children components', () => {
   getMeasures.mockClear();
   getChildren.mockClear();
-  mount(<App component={component} />);
+  mount(<App component={component} fetchMetrics={jest.fn()} metrics={{}} />);
   expect(getMeasures).toBeCalledWith('foo', [
     'projects',
     'ncloc',

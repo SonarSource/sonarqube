@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import { uniq } from 'lodash';
+import { connect } from 'react-redux';
 import QualityGate from '../qualityGate/QualityGate';
 import ApplicationQualityGate from '../qualityGate/ApplicationQualityGate';
 import BugsAndVulnerabilities from '../main/BugsAndVulnerabilities';
@@ -36,14 +37,26 @@ import { getCustomGraph, getGraph } from '../../../helpers/storage';
 import { METRICS, HISTORY_METRICS_LIST } from '../utils';
 import { DEFAULT_GRAPH, getDisplayedHistoryMetrics } from '../../projectActivity/utils';
 import { getBranchName } from '../../../helpers/branches';
-import { Branch, Component } from '../../../app/types';
+import { fetchMetrics } from '../../../store/rootActions';
+import { getMetrics } from '../../../store/rootReducer';
+import { Branch, Component, Metric } from '../../../app/types';
 import '../styles.css';
 
-interface Props {
+interface OwnProps {
   branch?: Branch;
   component: Component;
   onComponentChange: (changes: {}) => void;
 }
+
+interface StateToProps {
+  metrics: { [key: string]: Metric };
+}
+
+interface DispatchToProps {
+  fetchMetrics: () => void;
+}
+
+type Props = StateToProps & DispatchToProps & OwnProps;
 
 interface State {
   history?: History;
@@ -53,12 +66,13 @@ interface State {
   periods?: Period[];
 }
 
-export default class OverviewApp extends React.PureComponent<Props, State> {
+export class OverviewApp extends React.PureComponent<Props, State> {
   mounted: boolean;
   state: State = { loading: true, measures: [] };
 
   componentDidMount() {
     this.mounted = true;
+    this.props.fetchMetrics();
     this.loadMeasures().then(this.loadHistory, () => {});
   }
 
@@ -183,6 +197,7 @@ export default class OverviewApp extends React.PureComponent<Props, State> {
               component={component}
               history={history}
               measures={measures}
+              metrics={this.props.metrics}
               onComponentChange={this.props.onComponentChange}
             />
           </div>
@@ -191,3 +206,14 @@ export default class OverviewApp extends React.PureComponent<Props, State> {
     );
   }
 }
+
+const mapDispatchToProps: DispatchToProps = { fetchMetrics };
+
+const mapStateToProps = (state: any): StateToProps => ({
+  metrics: getMetrics(state)
+});
+
+export default connect<StateToProps, DispatchToProps, OwnProps>(
+  mapStateToProps,
+  mapDispatchToProps
+)(OverviewApp);
