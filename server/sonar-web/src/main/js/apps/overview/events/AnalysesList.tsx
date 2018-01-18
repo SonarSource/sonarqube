@@ -20,7 +20,6 @@
 import * as React from 'react';
 import { Link } from 'react-router';
 import Analysis from './Analysis';
-import { getAllMetrics } from '../../../api/metrics';
 import { getProjectActivity, Analysis as IAnalysis } from '../../../api/projectActivity';
 import PreviewGraph from '../../../components/preview-graph/PreviewGraph';
 import { translate } from '../../../helpers/l10n';
@@ -31,20 +30,20 @@ interface Props {
   branch?: string;
   component: Component;
   history?: History;
+  metrics: { [key: string]: Metric };
   qualifier: string;
 }
 
 interface State {
   analyses: IAnalysis[];
   loading: boolean;
-  metrics: Metric[];
 }
 
 const PAGE_SIZE = 3;
 
 export default class AnalysesList extends React.PureComponent<Props, State> {
   mounted: boolean;
-  state: State = { analyses: [], loading: true, metrics: [] };
+  state: State = { analyses: [], loading: true };
 
   componentDidMount() {
     this.mounted = true;
@@ -75,17 +74,15 @@ export default class AnalysesList extends React.PureComponent<Props, State> {
 
   fetchData = () => {
     this.setState({ loading: true });
-    Promise.all([
-      getProjectActivity({
-        branch: this.props.branch,
-        project: this.getTopLevelComponent(),
-        ps: PAGE_SIZE
-      }),
-      getAllMetrics()
-    ]).then(
-      ([{ analyses }, metrics]) => {
+
+    getProjectActivity({
+      branch: this.props.branch,
+      project: this.getTopLevelComponent(),
+      ps: PAGE_SIZE
+    }).then(
+      ({ analyses }) => {
         if (this.mounted) {
-          this.setState({ analyses, metrics, loading: false });
+          this.setState({ analyses, loading: false });
         }
       },
       () => {
@@ -125,7 +122,7 @@ export default class AnalysesList extends React.PureComponent<Props, State> {
           branch={this.props.branch}
           history={this.props.history}
           project={this.props.component.key}
-          metrics={this.state.metrics}
+          metrics={this.props.metrics}
         />
 
         {this.renderList(analyses)}

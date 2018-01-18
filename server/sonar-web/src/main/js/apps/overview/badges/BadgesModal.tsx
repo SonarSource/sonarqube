@@ -22,12 +22,14 @@ import Modal from '../../../components/controls/Modal';
 import BadgeButton from './BadgeButton';
 import BadgeSnippet from './BadgeSnippet';
 import BadgeParams from './BadgeParams';
-import { getBadgeUrl, BadgeType, BadgeOptions } from './utils';
+import { BadgeType, BadgeOptions, getBadgeUrl } from './utils';
+import { Metric } from '../../../app/types';
 import { translate } from '../../../helpers/l10n';
 import './styles.css';
 
 interface Props {
   branch?: string;
+  metrics: { [key: string]: Metric };
   project: string;
 }
 
@@ -90,6 +92,7 @@ export default class BadgesModal extends React.PureComponent<Props, State> {
               </p>
               <BadgeParams
                 className="big-spacer-bottom"
+                metrics={this.props.metrics}
                 options={badgeOptions}
                 type={selectedType}
                 updateOptions={this.handleUpdateOptions}

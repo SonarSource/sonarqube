@@ -18,43 +18,30 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { connect } from 'react-redux';
 import Select from '../../../components/controls/Select';
 import { fetchWebApi } from '../../../api/web-api';
-import { Metric } from '../../../app/types';
 import { BadgeColors, BadgeType, BadgeOptions } from './utils';
 import { getLocalizedMetricName, translate } from '../../../helpers/l10n';
-import { fetchMetrics } from '../../../store/rootActions';
-import { getMetrics } from '../../../store/rootReducer';
+import { Metric } from '../../../app/types';
 
-interface StateToProps {
-  metrics: { [key: string]: Metric };
-}
-
-interface DispatchToProps {
-  fetchMetrics: () => void;
-}
-
-interface OwnProps {
+interface Props {
   className?: string;
+  metrics: { [key: string]: Metric };
   options: BadgeOptions;
   type: BadgeType;
   updateOptions: (options: Partial<BadgeOptions>) => void;
 }
 
-type Props = StateToProps & DispatchToProps & OwnProps;
-
 interface State {
   badgeMetrics: string[];
 }
 
-export class BadgeParams extends React.PureComponent<Props> {
+export default class BadgeParams extends React.PureComponent<Props> {
   mounted: boolean;
   state: State = { badgeMetrics: [] };
 
   componentDidMount() {
     this.mounted = true;
-    this.props.fetchMetrics();
     this.fetchBadgeMetrics();
   }
 
@@ -84,16 +71,14 @@ export class BadgeParams extends React.PureComponent<Props> {
       value: color
     }));
 
-  getMetricOptions = () => {
-    const { metrics } = this.props;
-    return this.state.badgeMetrics.map(key => {
-      const metric = metrics[key];
+  getMetricOptions = () =>
+    this.state.badgeMetrics.map(key => {
+      const metric = this.props.metrics[key];
       return {
         value: key,
-        label: metric && getLocalizedMetricName(metric)
+        label: metric ? getLocalizedMetricName(metric) : key
       };
     });
-  };
 
   handleColorChange = ({ value }: { value: BadgeColors }) =>
     this.props.updateOptions({ color: value });
@@ -143,14 +128,3 @@ export class BadgeParams extends React.PureComponent<Props> {
     }
   }
 }
-
-const mapDispatchToProps: DispatchToProps = { fetchMetrics };
-
-const mapStateToProps = (state: any): StateToProps => ({
-  metrics: getMetrics(state)
-});
-
-export default connect<StateToProps, DispatchToProps, OwnProps>(
-  mapStateToProps,
-  mapDispatchToProps
-)(BadgeParams);

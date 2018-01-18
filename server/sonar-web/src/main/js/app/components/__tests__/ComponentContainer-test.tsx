@@ -132,12 +132,10 @@ it('loads organization', async () => {
 
   const fetchOrganizations = jest.fn();
   mount(
-    <ComponentContainer
-      fetchOrganizations={fetchOrganizations}
-      location={{ query: { id: 'foo' } }}
-      organizationsEnabled={true}>
+    <ComponentContainer fetchOrganizations={fetchOrganizations} location={{ query: { id: 'foo' } }}>
       <Inner />
-    </ComponentContainer>
+    </ComponentContainer>,
+    { context: { organizationsEnabled: true } }
   );
 
   await new Promise(setImmediate);
@@ -150,12 +148,10 @@ it('fetches status', async () => {
   );
 
   mount(
-    <ComponentContainer
-      fetchOrganizations={jest.fn()}
-      location={{ query: { id: 'foo' } }}
-      organizationsEnabled={true}>
+    <ComponentContainer fetchOrganizations={jest.fn()} location={{ query: { id: 'foo' } }}>
       <Inner />
-    </ComponentContainer>
+    </ComponentContainer>,
+    { context: { organizationsEnabled: true } }
   );
 
   await new Promise(setImmediate);

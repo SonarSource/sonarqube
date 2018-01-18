@@ -24,7 +24,7 @@ import { Metric } from '../../app/types';
 interface Props {
   branch?: string;
   history?: History;
-  metrics: Metric[];
+  metrics: { [key: string]: Metric };
   project: string;
   renderWhenEmpty?: () => void;
 }
