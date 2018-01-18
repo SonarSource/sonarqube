@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { connect } from 'react-redux';
 import Summary from './Summary';
 import Report from './Report';
 import WorstProjects from './WorstProjects';
@@ -31,11 +32,24 @@ import { PORTFOLIO_METRICS, SUB_COMPONENTS_METRICS, convertMeasures } from '../u
 import { getMeasures } from '../../../api/measures';
 import { getChildren } from '../../../api/components';
 import { translate } from '../../../helpers/l10n';
+import { fetchMetrics } from '../../../store/rootActions';
+import { getMetrics } from '../../../store/rootReducer';
+import { Metric } from '../../../app/types';
 import '../styles.css';
 
-interface Props {
+interface OwnProps {
   component: { key: string; name: string };
 }
+
+interface StateToProps {
+  metrics: { [key: string]: Metric };
+}
+
+interface DispatchToProps {
+  fetchMetrics: () => void;
+}
+
+type Props = StateToProps & DispatchToProps & OwnProps;
 
 interface State {
   loading: boolean;
@@ -44,12 +58,13 @@ interface State {
   totalSubComponents?: number;
 }
 
-export default class App extends React.PureComponent<Props, State> {
+export class App extends React.PureComponent<Props, State> {
   mounted: boolean;
   state: State = { loading: true };
 
   componentDidMount() {
     this.mounted = true;
+    this.props.fetchMetrics();
     this.fetchData();
   }
 
@@ -171,7 +186,7 @@ export default class App extends React.PureComponent<Props, State> {
           <aside className="page-sidebar-fixed">
             {!this.isEmpty() &&
               !this.isNotComputed() && <Summary component={component} measures={measures!} />}
-            <Activity component={component.key} />
+            <Activity component={component.key} metrics={this.props.metrics} />
             <Report component={component} />
           </aside>
         </div>
@@ -179,3 +194,13 @@ export default class App extends React.PureComponent<Props, State> {
     );
   }
 }
+
+const mapDispatchToProps: DispatchToProps = { fetchMetrics };
+
+const mapStateToProps = (state: any): StateToProps => ({
+  metrics: getMetrics(state)
+});
+
+export default connect<StateToProps, DispatchToProps, Props>(mapStateToProps, mapDispatchToProps)(
+  App
+);

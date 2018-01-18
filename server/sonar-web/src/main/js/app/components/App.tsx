@@ -38,6 +38,7 @@ interface State {
   canAdmin: boolean;
   loading: boolean;
   onSonarCloud: boolean;
+  organizationsEnabled: boolean;
 }
 
 class App extends React.PureComponent<Props, State> {
@@ -46,19 +47,27 @@ class App extends React.PureComponent<Props, State> {
   static childContextTypes = {
     branchesEnabled: PropTypes.bool.isRequired,
     canAdmin: PropTypes.bool.isRequired,
-    onSonarCloud: PropTypes.bool
+    onSonarCloud: PropTypes.bool,
+    organizationsEnabled: PropTypes.bool
   };
 
   constructor(props: Props) {
     super(props);
-    this.state = { branchesEnabled: false, canAdmin: false, loading: true, onSonarCloud: false };
+    this.state = {
+      branchesEnabled: false,
+      canAdmin: false,
+      loading: true,
+      onSonarCloud: false,
+      organizationsEnabled: false
+    };
   }
 
   getChildContext() {
     return {
       branchesEnabled: this.state.branchesEnabled,
       canAdmin: this.state.canAdmin,
-      onSonarCloud: this.state.onSonarCloud
+      onSonarCloud: this.state.onSonarCloud,
+      organizationsEnabled: this.state.organizationsEnabled
     };
   }
 
@@ -93,7 +102,8 @@ class App extends React.PureComponent<Props, State> {
           canAdmin: appState.canAdmin,
           onSonarCloud: Boolean(
             appState.settings && appState.settings['sonar.sonarcloud.enabled'] === 'true'
-          )
+          ),
+          organizationsEnabled: appState.organizationsEnabled
         });
       }
       return appState;

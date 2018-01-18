@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import * as PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import ComponentContainerNotFound from './ComponentContainerNotFound';
 import ComponentNav from './nav/component/ComponentNav';
@@ -28,7 +29,6 @@ import { Task, getTasksForComponent } from '../../api/ce';
 import { getComponentData } from '../../api/components';
 import { getComponentNavigation } from '../../api/nav';
 import { fetchOrganizations } from '../../store/rootActions';
-import { areThereCustomOrganizations } from '../../store/rootReducer';
 import { STATUSES } from '../../apps/background-tasks/constants';
 
 interface Props {
@@ -37,7 +37,6 @@ interface Props {
   location: {
     query: { branch?: string; id: string };
   };
-  organizationsEnabled?: boolean;
 }
 
 interface State {
@@ -51,6 +50,10 @@ interface State {
 
 export class ComponentContainer extends React.PureComponent<Props, State> {
   mounted: boolean;
+
+  static contextTypes = {
+    organizationsEnabled: PropTypes.bool
+  };
 
   constructor(props: Props) {
     super(props);
@@ -98,7 +101,7 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
       ([nav, data]) => {
         const component = this.addQualifier({ ...nav, ...data });
 
-        if (this.props.organizationsEnabled) {
+        if (this.context.organizationsEnabled) {
           this.props.fetchOrganizations([component.organization]);
         }
 
@@ -197,10 +200,6 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
   }
 }
 
-const mapStateToProps = (state: any) => ({
-  organizationsEnabled: areThereCustomOrganizations(state)
-});
-
 const mapDispatchToProps = { fetchOrganizations };
 
-export default connect<any, any, any>(mapStateToProps, mapDispatchToProps)(ComponentContainer);
+export default connect<any, any, any>(null, mapDispatchToProps)(ComponentContainer);
