@@ -37,4 +37,18 @@ public class SourceViewer {
     return $(".bubble-popup").shouldBe(visible);
   }
 
+  public SourceViewer shouldHaveNewLines(int ...lines) {
+    for (int line : lines) {
+      this.el.$(".source-line-filtered[data-line-number=\"" + line + "\"").shouldBe(visible);
+    }
+    return this;
+  }
+
+  public SourceViewer shouldNotHaveNewLines(int ...lines) {
+    for (int line : lines) {
+      this.el.$(".source-line-filtered[data-line-number=\"" + line + "\"").shouldNotBe(visible);
+    }
+    return this;
+  }
+
 }
