@@ -19,7 +19,7 @@ function installJdk8 {
     rm jdk-8u161-linux-x64.tar.gz
   fi
   popd > /dev/null
-  export JAVA_HOME=~/jvm/jdk1.8.0_151
+  export JAVA_HOME=~/jvm/jdk1.8.0_161
   export PATH=$JAVA_HOME/bin:$PATH
 }
 
