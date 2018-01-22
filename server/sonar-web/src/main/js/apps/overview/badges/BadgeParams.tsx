@@ -38,6 +38,7 @@ interface State {
 
 export default class BadgeParams extends React.PureComponent<Props> {
   mounted: boolean;
+
   state: State = { badgeMetrics: [] };
 
   componentDidMount() {
