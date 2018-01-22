@@ -54,8 +54,8 @@ import static org.sonar.api.measures.CoreMetrics.RELIABILITY_RATING_KEY;
 import static org.sonar.api.measures.CoreMetrics.SECURITY_RATING_KEY;
 import static org.sonar.api.measures.CoreMetrics.SQALE_RATING_KEY;
 import static org.sonar.api.measures.CoreMetrics.TECHNICAL_DEBT_KEY;
-import static org.sonar.api.measures.CoreMetrics.TESTS_KEY;
 import static org.sonar.api.measures.CoreMetrics.VULNERABILITIES_KEY;
+import static org.sonar.api.measures.CoreMetrics.NCLOC_KEY;
 import static org.sonar.api.measures.Metric.Level;
 import static org.sonar.api.measures.Metric.ValueType;
 import static org.sonar.api.measures.Metric.Level.ERROR;
@@ -82,17 +82,17 @@ public class MeasureAction implements ProjectBadgesWsAction {
   private static final String PARAM_METRIC = "metric";
 
   private static final Map<String, String> METRIC_NAME_BY_KEY = ImmutableMap.<String, String>builder()
-    .put(ALERT_STATUS_KEY, "quality gate")
+    .put(BUGS_KEY, "bugs")
+    .put(CODE_SMELLS_KEY, "code smells")
     .put(COVERAGE_KEY, "coverage")
+    .put(DUPLICATED_LINES_DENSITY_KEY, "duplicated lines")
+    .put(NCLOC_KEY, "lines of code")
+    .put(SQALE_RATING_KEY, "maintainability")
+    .put(ALERT_STATUS_KEY, "quality gate")
     .put(RELIABILITY_RATING_KEY, "reliability")
     .put(SECURITY_RATING_KEY, "security")
-    .put(SQALE_RATING_KEY, "maintainability")
-    .put(BUGS_KEY, "bugs")
-    .put(VULNERABILITIES_KEY, "vulnerabilities")
-    .put(CODE_SMELLS_KEY, "code smells")
-    .put(DUPLICATED_LINES_DENSITY_KEY, "duplicated lines")
     .put(TECHNICAL_DEBT_KEY, "technical debt")
-    .put(TESTS_KEY, "unit tests")
+    .put(VULNERABILITIES_KEY, "vulnerabilities")
     .build();
 
   private static final Map<Level, String> QUALITY_GATE_MESSAGE_BY_STATUS = new EnumMap<>(ImmutableMap.of(
