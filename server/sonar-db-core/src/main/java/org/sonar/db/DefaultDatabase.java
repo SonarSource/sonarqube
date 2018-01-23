@@ -32,7 +32,6 @@ import org.apache.commons.dbcp.BasicDataSourceFactory;
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.config.Settings;
-import org.sonar.api.database.DatabaseProperties;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.dialect.Dialect;
@@ -55,6 +54,7 @@ public class DefaultDatabase implements Database {
   private static final String DEFAULT_URL = "jdbc:h2:tcp://localhost/sonar";
   private static final String SONAR_JDBC = "sonar.jdbc.";
   private static final String SONAR_JDBC_DIALECT = "sonar.jdbc.dialect";
+  private static final String SONAR_JDBC_DRIVER = "sonar.jdbc.driverClassName";
 
   private final LogbackHelper logbackHelper;
   private final Settings settings;
@@ -87,7 +87,7 @@ public class DefaultDatabase implements Database {
     doCompleteProperties(properties);
 
     dialect = DialectUtils.find(properties.getProperty(SONAR_JDBC_DIALECT), properties.getProperty(JDBC_URL.getKey()));
-    properties.setProperty(DatabaseProperties.PROP_DRIVER, dialect.getDefaultDriverClassName());
+    properties.setProperty(SONAR_JDBC_DRIVER, dialect.getDefaultDriverClassName());
   }
 
   private void initDataSource() throws Exception {

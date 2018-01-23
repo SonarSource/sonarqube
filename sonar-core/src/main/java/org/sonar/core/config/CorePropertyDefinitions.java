@@ -29,7 +29,6 @@ import org.sonar.api.resources.Qualifiers;
 
 import static java.util.Arrays.asList;
 import static org.sonar.api.PropertyType.BOOLEAN;
-import static org.sonar.api.database.DatabaseProperties.PROP_PASSWORD;
 
 public class CorePropertyDefinitions {
 
@@ -67,10 +66,6 @@ public class CorePropertyDefinitions {
     defs.addAll(WebProperties.all());
 
     defs.addAll(asList(
-      PropertyDefinition.builder(PROP_PASSWORD)
-        .type(PropertyType.PASSWORD)
-        .hidden()
-        .build(),
       PropertyDefinition.builder(CoreProperties.SERVER_BASE_URL)
         .name("Server base URL")
         .description("HTTP URL of this SonarQube server, such as <i>http://yourhost.yourdomain/sonar</i>. This value is used i.e. to create links in emails.")

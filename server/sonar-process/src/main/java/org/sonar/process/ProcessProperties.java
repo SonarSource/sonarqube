@@ -37,6 +37,8 @@ public class ProcessProperties {
 
   public enum Property {
     JDBC_URL("sonar.jdbc.url"),
+    JDBC_USERNAME("sonar.jdbc.username", ""),
+    JDBC_PASSWORD("sonar.jdbc.password", ""),
     JDBC_DRIVER_PATH("sonar.jdbc.driverPath"),
     JDBC_MAX_ACTIVE("sonar.jdbc.maxActive", "60"),
     JDBC_MAX_IDLE("sonar.jdbc.maxIdle", "5"),

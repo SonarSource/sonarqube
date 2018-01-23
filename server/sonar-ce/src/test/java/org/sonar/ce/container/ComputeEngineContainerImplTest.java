@@ -31,7 +31,6 @@ import org.junit.rules.TemporaryFolder;
 import org.picocontainer.ComponentAdapter;
 import org.picocontainer.MutablePicoContainer;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.database.DatabaseProperties;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.ce.CeDistributedInformationImpl;
@@ -49,7 +48,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.sonar.process.ProcessEntryPoint.PROPERTY_PROCESS_INDEX;
 import static org.sonar.process.ProcessEntryPoint.PROPERTY_SHARED_PATH;
+import static org.sonar.process.ProcessProperties.Property.JDBC_PASSWORD;
 import static org.sonar.process.ProcessProperties.Property.JDBC_URL;
+import static org.sonar.process.ProcessProperties.Property.JDBC_USERNAME;
 import static org.sonar.process.ProcessProperties.Property.PATH_DATA;
 import static org.sonar.process.ProcessProperties.Property.PATH_HOME;
 import static org.sonar.process.ProcessProperties.Property.PATH_TEMP;
@@ -119,7 +120,7 @@ public class ComputeEngineContainerImplTest {
         + 26 // level 1
         + 52 // content of DaoModule
         + 3 // content of EsSearchModule
-        + 67 // content of CorePropertyDefinitions
+        + 66 // content of CorePropertyDefinitions
         + 1 // StopFlagContainer
     );
     assertThat(
@@ -147,8 +148,8 @@ public class ComputeEngineContainerImplTest {
     properties.setProperty(PROPERTY_PROCESS_INDEX, valueOf(ProcessId.COMPUTE_ENGINE.getIpcIndex()));
     properties.setProperty(PROPERTY_SHARED_PATH, tmpDir.getAbsolutePath());
     properties.setProperty(JDBC_URL.getKey(), db.getUrl());
-    properties.setProperty(DatabaseProperties.PROP_USER, "sonar");
-    properties.setProperty(DatabaseProperties.PROP_PASSWORD, "sonar");
+    properties.setProperty(JDBC_USERNAME.getKey(), "sonar");
+    properties.setProperty(JDBC_PASSWORD.getKey(), "sonar");
     return properties;
   }
 

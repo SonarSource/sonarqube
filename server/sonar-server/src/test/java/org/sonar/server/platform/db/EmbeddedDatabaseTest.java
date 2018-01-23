@@ -39,12 +39,10 @@ import org.sonar.process.NetworkUtilsImpl;
 import static junit.framework.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.sonar.api.database.DatabaseProperties.PROP_PASSWORD;
-import static org.sonar.api.database.DatabaseProperties.PROP_PASSWORD_DEFAULT_VALUE;
-import static org.sonar.api.database.DatabaseProperties.PROP_USER;
-import static org.sonar.api.database.DatabaseProperties.PROP_USER_DEFAULT_VALUE;
 import static org.sonar.process.ProcessProperties.Property.JDBC_EMBEDDED_PORT;
+import static org.sonar.process.ProcessProperties.Property.JDBC_PASSWORD;
 import static org.sonar.process.ProcessProperties.Property.JDBC_URL;
+import static org.sonar.process.ProcessProperties.Property.JDBC_USERNAME;
 import static org.sonar.process.ProcessProperties.Property.PATH_DATA;
 
 public class EmbeddedDatabaseTest {
@@ -112,7 +110,7 @@ public class EmbeddedDatabaseTest {
   }
 
   @Test
-  public void start_ignores_URL_to_create_database_and_uses_default_username_and_password_when_then_are_not_set() throws IOException {
+  public void start_ignores_URL_to_create_database_and_uses_empty_username_and_password_when_then_are_not_set() throws IOException {
     int port = NetworkUtilsImpl.INSTANCE.getNextAvailablePort(InetAddress.getLoopbackAddress());
     settings
       .setProperty(PATH_DATA.getKey(), temporaryFolder.newFolder().getAbsolutePath())
@@ -121,7 +119,7 @@ public class EmbeddedDatabaseTest {
 
     underTest.start();
 
-    checkDbIsUp(port, PROP_USER_DEFAULT_VALUE, PROP_PASSWORD_DEFAULT_VALUE);
+    checkDbIsUp(port, "", "");
   }
 
   @Test
@@ -131,8 +129,8 @@ public class EmbeddedDatabaseTest {
       .setProperty(PATH_DATA.getKey(), temporaryFolder.newFolder().getAbsolutePath())
       .setProperty(JDBC_URL.getKey(), "jdbc url")
       .setProperty(JDBC_EMBEDDED_PORT.getKey(), "" + port)
-      .setProperty(PROP_USER, "foo")
-      .setProperty(PROP_PASSWORD, "bar");
+      .setProperty(JDBC_USERNAME.getKey(), "foo")
+      .setProperty(JDBC_PASSWORD.getKey(), "bar");
 
     underTest.start();
 
@@ -149,8 +147,8 @@ public class EmbeddedDatabaseTest {
       .setProperty(PATH_DATA.getKey(), temporaryFolder.newFolder().getAbsolutePath())
       .setProperty(JDBC_URL.getKey(), "jdbc:h2:mem:sonar")
       .setProperty(JDBC_EMBEDDED_PORT.getKey(), "" + port)
-      .setProperty(PROP_USER, "foo")
-      .setProperty(PROP_PASSWORD, "bar");
+      .setProperty(JDBC_USERNAME.getKey(), "foo")
+      .setProperty(JDBC_PASSWORD.getKey(), "bar");
 
     underTest.start();
 
