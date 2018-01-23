@@ -22,8 +22,8 @@ package org.sonar.server.platform;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.log.Loggers;
 
-import static org.sonar.process.ProcessProperties.CLUSTER_ENABLED;
-import static org.sonar.process.ProcessProperties.CLUSTER_WEB_STARTUP_LEADER;
+import static org.sonar.process.ProcessProperties.Property.CLUSTER_ENABLED;
+import static org.sonar.process.ProcessProperties.Property.CLUSTER_WEB_STARTUP_LEADER;
 
 public class WebServerImpl implements WebServer {
 
@@ -31,9 +31,9 @@ public class WebServerImpl implements WebServer {
   private final boolean startupLeader;
 
   public WebServerImpl(Configuration config) {
-    this.clusterEnabled = config.getBoolean(CLUSTER_ENABLED).orElse(false);
+    this.clusterEnabled = config.getBoolean(CLUSTER_ENABLED.getKey()).orElse(false);
     if (this.clusterEnabled) {
-      this.startupLeader = config.getBoolean(CLUSTER_WEB_STARTUP_LEADER).orElse(false);
+      this.startupLeader = config.getBoolean(CLUSTER_WEB_STARTUP_LEADER.getKey()).orElse(false);
       Loggers.get(WebServerImpl.class).info("Cluster enabled (startup {})", startupLeader ? "leader" : "follower");
     } else {
       this.startupLeader = true;

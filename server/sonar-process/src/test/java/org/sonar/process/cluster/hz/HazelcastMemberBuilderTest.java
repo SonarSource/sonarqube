@@ -27,11 +27,11 @@ import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
 import org.sonar.process.NetworkUtilsImpl;
 import org.sonar.process.ProcessId;
-import org.sonar.process.ProcessProperties;
 import org.sonar.process.cluster.NodeType;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_PORT;
 
 public class HazelcastMemberBuilderTest {
 
@@ -72,8 +72,8 @@ public class HazelcastMemberBuilderTest {
     underTest.setMembers(asList("foo", "bar:9100", "1.2.3.4"));
 
     assertThat(underTest.getMembers()).containsExactly(
-      "foo:" + ProcessProperties.CLUSTER_NODE_PORT_DEFAULT_VALUE,
+      "foo:" + CLUSTER_NODE_PORT.getDefaultValue(),
       "bar:9100",
-      "1.2.3.4:" + ProcessProperties.CLUSTER_NODE_PORT_DEFAULT_VALUE);
+      "1.2.3.4:" + CLUSTER_NODE_PORT.getDefaultValue());
   }
 }

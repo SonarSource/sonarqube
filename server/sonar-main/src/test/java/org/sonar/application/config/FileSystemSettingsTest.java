@@ -29,12 +29,11 @@ import org.junit.rules.TemporaryFolder;
 import org.sonar.process.Props;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.process.ProcessProperties.PATH_DATA;
-import static org.sonar.process.ProcessProperties.PATH_HOME;
-import static org.sonar.process.ProcessProperties.PATH_LOGS;
-import static org.sonar.process.ProcessProperties.PATH_TEMP;
-import static org.sonar.process.ProcessProperties.PATH_WEB;
-
+import static org.sonar.process.ProcessProperties.Property.PATH_DATA;
+import static org.sonar.process.ProcessProperties.Property.PATH_HOME;
+import static org.sonar.process.ProcessProperties.Property.PATH_LOGS;
+import static org.sonar.process.ProcessProperties.Property.PATH_TEMP;
+import static org.sonar.process.ProcessProperties.Property.PATH_WEB;
 
 public class FileSystemSettingsTest {
 
@@ -54,22 +53,22 @@ public class FileSystemSettingsTest {
   @Test
   public void relative_paths_are_converted_to_absolute_paths() {
     Props props = new Props(new Properties());
-    props.set(PATH_HOME, homeDir.getAbsolutePath());
+    props.set(PATH_HOME.getKey(), homeDir.getAbsolutePath());
 
     // relative paths
-    props.set(PATH_DATA, "data");
-    props.set(PATH_LOGS, "logs");
-    props.set(PATH_TEMP, "temp");
+    props.set(PATH_DATA.getKey(), "data");
+    props.set(PATH_LOGS.getKey(), "logs");
+    props.set(PATH_TEMP.getKey(), "temp");
 
     // already absolute paths
-    props.set(PATH_WEB, new File(homeDir, "web").getAbsolutePath());
+    props.set(PATH_WEB.getKey(), new File(homeDir, "web").getAbsolutePath());
 
     underTest.accept(props);
 
-    assertThat(props.nonNullValue(PATH_DATA)).isEqualTo(new File(homeDir, "data").getAbsolutePath());
-    assertThat(props.nonNullValue(PATH_LOGS)).isEqualTo(new File(homeDir, "logs").getAbsolutePath());
-    assertThat(props.nonNullValue(PATH_TEMP)).isEqualTo(new File(homeDir, "temp").getAbsolutePath());
-    assertThat(props.nonNullValue(PATH_WEB)).isEqualTo(new File(homeDir, "web").getAbsolutePath());
+    assertThat(props.nonNullValue(PATH_DATA.getKey())).isEqualTo(new File(homeDir, "data").getAbsolutePath());
+    assertThat(props.nonNullValue(PATH_LOGS.getKey())).isEqualTo(new File(homeDir, "logs").getAbsolutePath());
+    assertThat(props.nonNullValue(PATH_TEMP.getKey())).isEqualTo(new File(homeDir, "temp").getAbsolutePath());
+    assertThat(props.nonNullValue(PATH_WEB.getKey())).isEqualTo(new File(homeDir, "web").getAbsolutePath());
   }
 
 }

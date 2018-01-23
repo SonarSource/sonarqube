@@ -30,14 +30,15 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
-import org.sonar.process.ProcessProperties;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.process.ProcessProperties.CLUSTER_ENABLED;
-import static org.sonar.process.ProcessProperties.CLUSTER_NAME;
-import static org.sonar.process.ProcessProperties.CLUSTER_NODE_TYPE;
-import static org.sonar.process.ProcessProperties.CLUSTER_SEARCH_HOSTS;
+import static org.sonar.process.ProcessProperties.Property.CLUSTER_ENABLED;
+import static org.sonar.process.ProcessProperties.Property.CLUSTER_NAME;
+import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_TYPE;
+import static org.sonar.process.ProcessProperties.Property.CLUSTER_SEARCH_HOSTS;
+import static org.sonar.process.ProcessProperties.Property.SEARCH_HOST;
+import static org.sonar.process.ProcessProperties.Property.SEARCH_PORT;
 
 public class EsClientProviderTest {
 
@@ -54,16 +55,16 @@ public class EsClientProviderTest {
   @Before
   public void setUp() throws Exception {
     // mandatory property
-    settings.setProperty(CLUSTER_NAME, "the_cluster_name");
+    settings.setProperty(CLUSTER_NAME.getKey(), "the_cluster_name");
 
     localhost = InetAddress.getLocalHost().getHostAddress();
   }
 
   @Test
   public void connection_to_local_es_when_cluster_mode_is_disabled() {
-    settings.setProperty(CLUSTER_ENABLED, false);
-    settings.setProperty(ProcessProperties.SEARCH_HOST, localhost);
-    settings.setProperty(ProcessProperties.SEARCH_PORT, 8080);
+    settings.setProperty(CLUSTER_ENABLED.getKey(), false);
+    settings.setProperty(SEARCH_HOST.getKey(), localhost);
+    settings.setProperty(SEARCH_PORT.getKey(), 8080);
 
     EsClient client = underTest.provide(settings.asConfig());
     TransportClient transportClient = (TransportClient) client.nativeClient();
@@ -79,9 +80,9 @@ public class EsClientProviderTest {
 
   @Test
   public void connection_to_remote_es_nodes_when_cluster_mode_is_enabled_and_local_es_is_disabled() {
-    settings.setProperty(CLUSTER_ENABLED, true);
-    settings.setProperty(CLUSTER_NODE_TYPE, "application");
-    settings.setProperty(CLUSTER_SEARCH_HOSTS, format("%s:8080,%s:8081", localhost, localhost));
+    settings.setProperty(CLUSTER_ENABLED.getKey(), true);
+    settings.setProperty(CLUSTER_NODE_TYPE.getKey(), "application");
+    settings.setProperty(CLUSTER_SEARCH_HOSTS.getKey(), format("%s:8080,%s:8081", localhost, localhost));
 
     EsClient client = underTest.provide(settings.asConfig());
     TransportClient transportClient = (TransportClient) client.nativeClient();
@@ -100,9 +101,9 @@ public class EsClientProviderTest {
 
   @Test
   public void es_client_provider_must_throw_ISE_when_incorrect_port_is_used_when_search_disabled() {
-    settings.setProperty(CLUSTER_ENABLED, true);
-    settings.setProperty(CLUSTER_NODE_TYPE, "application");
-    settings.setProperty(CLUSTER_SEARCH_HOSTS, format("%s:100000,%s:8081", localhost, localhost));
+    settings.setProperty(CLUSTER_ENABLED.getKey(), true);
+    settings.setProperty(CLUSTER_NODE_TYPE.getKey(), "application");
+    settings.setProperty(CLUSTER_SEARCH_HOSTS.getKey(), format("%s:100000,%s:8081", localhost, localhost));
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage(format("Port number out of range: %s:100000", localhost));
@@ -112,10 +113,10 @@ public class EsClientProviderTest {
 
   @Test
   public void es_client_provider_must_throw_ISE_when_incorrect_port_is_used() {
-    settings.setProperty(CLUSTER_ENABLED, true);
-    settings.setProperty(CLUSTER_NODE_TYPE, "search");
-    settings.setProperty(ProcessProperties.SEARCH_HOST, "localhost");
-    settings.setProperty(ProcessProperties.SEARCH_PORT, "100000");
+    settings.setProperty(CLUSTER_ENABLED.getKey(), true);
+    settings.setProperty(CLUSTER_NODE_TYPE.getKey(), "search");
+    settings.setProperty(SEARCH_HOST.getKey(), "localhost");
+    settings.setProperty(SEARCH_PORT.getKey(), "100000");
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Port out of range: 100000");
@@ -125,9 +126,9 @@ public class EsClientProviderTest {
 
   @Test
   public void es_client_provider_must_add_default_port_when_not_specified() {
-    settings.setProperty(CLUSTER_ENABLED, true);
-    settings.setProperty(CLUSTER_NODE_TYPE, "application");
-    settings.setProperty(CLUSTER_SEARCH_HOSTS, format("%s,%s:8081", localhost, localhost));
+    settings.setProperty(CLUSTER_ENABLED.getKey(), true);
+    settings.setProperty(CLUSTER_NODE_TYPE.getKey(), "application");
+    settings.setProperty(CLUSTER_SEARCH_HOSTS.getKey(), format("%s,%s:8081", localhost, localhost));
 
     EsClient client = underTest.provide(settings.asConfig());
     TransportClient transportClient = (TransportClient) client.nativeClient();

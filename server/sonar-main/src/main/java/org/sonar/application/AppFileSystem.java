@@ -38,10 +38,10 @@ import static java.lang.String.format;
 import static java.nio.file.FileVisitResult.CONTINUE;
 import static org.apache.commons.io.FileUtils.forceMkdir;
 import static org.sonar.process.FileUtils2.deleteDirectory;
-import static org.sonar.process.ProcessProperties.PATH_DATA;
-import static org.sonar.process.ProcessProperties.PATH_LOGS;
-import static org.sonar.process.ProcessProperties.PATH_TEMP;
-import static org.sonar.process.ProcessProperties.PATH_WEB;
+import static org.sonar.process.ProcessProperties.Property.PATH_DATA;
+import static org.sonar.process.ProcessProperties.Property.PATH_LOGS;
+import static org.sonar.process.ProcessProperties.Property.PATH_TEMP;
+import static org.sonar.process.ProcessProperties.Property.PATH_WEB;
 
 public class AppFileSystem implements FileSystem {
 
@@ -56,10 +56,10 @@ public class AppFileSystem implements FileSystem {
 
   @Override
   public void reset() throws IOException {
-    createDirectory(PATH_DATA);
-    createDirectory(PATH_WEB);
-    createDirectory(PATH_LOGS);
-    File tempDir = createOrCleanTempDirectory(PATH_TEMP);
+    createDirectory(PATH_DATA.getKey());
+    createDirectory(PATH_WEB.getKey());
+    createDirectory(PATH_LOGS.getKey());
+    File tempDir = createOrCleanTempDirectory(PATH_TEMP.getKey());
     try (AllProcessesCommands allProcessesCommands = new AllProcessesCommands(tempDir)) {
       allProcessesCommands.clean();
     }
@@ -67,7 +67,7 @@ public class AppFileSystem implements FileSystem {
 
   @Override
   public File getTempDir() {
-    return settings.getProps().nonNullValueAsFile(PATH_TEMP);
+    return settings.getProps().nonNullValueAsFile(PATH_TEMP.getKey());
   }
 
   private boolean createDirectory(String propKey) throws IOException {

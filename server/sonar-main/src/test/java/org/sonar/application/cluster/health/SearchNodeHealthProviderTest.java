@@ -28,7 +28,6 @@ import org.junit.rules.ExpectedException;
 import org.sonar.application.cluster.ClusterAppState;
 import org.sonar.process.NetworkUtils;
 import org.sonar.process.ProcessId;
-import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
 import org.sonar.process.cluster.health.NodeHealth;
 
@@ -38,9 +37,9 @@ import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.sonar.process.ProcessProperties.CLUSTER_NODE_HOST;
-import static org.sonar.process.ProcessProperties.CLUSTER_NODE_NAME;
-import static org.sonar.process.ProcessProperties.CLUSTER_NODE_PORT;
+import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_HOST;
+import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_NAME;
+import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_PORT;
 
 public class SearchNodeHealthProviderTest {
   @Rule
@@ -64,7 +63,7 @@ public class SearchNodeHealthProviderTest {
   @Test
   public void constructor_throws_NPE_if_NetworkUtils_getHostname_returns_null_and_property_is_not_set() {
     Properties properties = new Properties();
-    properties.put(ProcessProperties.CLUSTER_NODE_NAME, randomAlphanumeric(3));
+    properties.put(CLUSTER_NODE_NAME.getKey(), randomAlphanumeric(3));
     Props props = new Props(properties);
 
     expectedException.expect(NullPointerException.class);
@@ -75,7 +74,7 @@ public class SearchNodeHealthProviderTest {
   @Test
   public void constructor_throws_IAE_if_property_node_port_is_not_set() {
     Properties properties = new Properties();
-    properties.put(ProcessProperties.CLUSTER_NODE_NAME, randomAlphanumeric(3));
+    properties.put(CLUSTER_NODE_NAME.getKey(), randomAlphanumeric(3));
     when(networkUtils.getHostname()).thenReturn(randomAlphanumeric(34));
     Props props = new Props(properties);
 
@@ -89,8 +88,8 @@ public class SearchNodeHealthProviderTest {
   public void constructor_throws_FormatException_if_property_node_port_is_not_an_integer() {
     String port = randomAlphabetic(3);
     Properties properties = new Properties();
-    properties.put(ProcessProperties.CLUSTER_NODE_NAME, randomAlphanumeric(3));
-    properties.put(ProcessProperties.CLUSTER_NODE_PORT, port);
+    properties.put(CLUSTER_NODE_NAME.getKey(), randomAlphanumeric(3));
+    properties.put(CLUSTER_NODE_PORT.getKey(), port);
     when(networkUtils.getHostname()).thenReturn(randomAlphanumeric(34));
     Props props = new Props(properties);
 
@@ -105,8 +104,8 @@ public class SearchNodeHealthProviderTest {
     String name = randomAlphanumeric(3);
     int port = 1 + random.nextInt(4);
     Properties properties = new Properties();
-    properties.setProperty(CLUSTER_NODE_NAME, name);
-    properties.setProperty(CLUSTER_NODE_PORT, valueOf(port));
+    properties.setProperty(CLUSTER_NODE_NAME.getKey(), name);
+    properties.setProperty(CLUSTER_NODE_PORT.getKey(), valueOf(port));
     when(networkUtils.getHostname()).thenReturn(randomAlphanumeric(34));
     when(clock.now()).thenReturn(1L + random.nextInt(87));
     SearchNodeHealthProvider underTest = new SearchNodeHealthProvider(new Props(properties), clusterAppState, networkUtils, clock);
@@ -117,8 +116,8 @@ public class SearchNodeHealthProviderTest {
     assertThat(nodeHealth.getDetails().getPort()).isEqualTo(port);
 
     // change values in properties
-    properties.setProperty(CLUSTER_NODE_NAME, randomAlphanumeric(6));
-    properties.setProperty(CLUSTER_NODE_PORT, valueOf(1 + random.nextInt(99)));
+    properties.setProperty(CLUSTER_NODE_NAME.getKey(), randomAlphanumeric(6));
+    properties.setProperty(CLUSTER_NODE_PORT.getKey(), valueOf(1 + random.nextInt(99)));
 
     NodeHealth newNodeHealth = underTest.get();
 
@@ -130,9 +129,9 @@ public class SearchNodeHealthProviderTest {
   public void get_returns_host_from_property_if_set_at_constructor_time() {
     String host = randomAlphanumeric(55);
     Properties properties = new Properties();
-    properties.setProperty(CLUSTER_NODE_NAME, randomAlphanumeric(3));
-    properties.setProperty(CLUSTER_NODE_PORT, valueOf(1 + random.nextInt(4)));
-    properties.setProperty(CLUSTER_NODE_HOST, host);
+    properties.setProperty(CLUSTER_NODE_NAME.getKey(), randomAlphanumeric(3));
+    properties.setProperty(CLUSTER_NODE_PORT.getKey(), valueOf(1 + random.nextInt(4)));
+    properties.setProperty(CLUSTER_NODE_HOST.getKey(), host);
     when(clock.now()).thenReturn(1L + random.nextInt(87));
     SearchNodeHealthProvider underTest = new SearchNodeHealthProvider(new Props(properties), clusterAppState, networkUtils, clock);
 
@@ -141,7 +140,7 @@ public class SearchNodeHealthProviderTest {
     assertThat(nodeHealth.getDetails().getHost()).isEqualTo(host);
 
     // change now
-    properties.setProperty(CLUSTER_NODE_HOST, randomAlphanumeric(96));
+    properties.setProperty(CLUSTER_NODE_HOST.getKey(), randomAlphanumeric(96));
 
     NodeHealth newNodeHealth = underTest.get();
 
@@ -161,10 +160,10 @@ public class SearchNodeHealthProviderTest {
   private void getReturnsHostFromNetworkUtils(@Nullable String hostPropertyValue) {
     String host = randomAlphanumeric(34);
     Properties properties = new Properties();
-    properties.setProperty(CLUSTER_NODE_NAME, randomAlphanumeric(3));
-    properties.setProperty(CLUSTER_NODE_PORT, valueOf(1 + random.nextInt(4)));
+    properties.setProperty(CLUSTER_NODE_NAME.getKey(), randomAlphanumeric(3));
+    properties.setProperty(CLUSTER_NODE_PORT.getKey(), valueOf(1 + random.nextInt(4)));
     if (hostPropertyValue != null) {
-      properties.setProperty(CLUSTER_NODE_HOST, hostPropertyValue);
+      properties.setProperty(CLUSTER_NODE_HOST.getKey(), hostPropertyValue);
     }
     when(clock.now()).thenReturn(1L + random.nextInt(87));
     when(networkUtils.getHostname()).thenReturn(host);
@@ -226,8 +225,8 @@ public class SearchNodeHealthProviderTest {
   }
 
   private long setRequiredPropertiesAndMocks(Properties properties) {
-    properties.setProperty(CLUSTER_NODE_NAME, randomAlphanumeric(3));
-    properties.setProperty(CLUSTER_NODE_PORT, valueOf(1 + random.nextInt(4)));
+    properties.setProperty(CLUSTER_NODE_NAME.getKey(), randomAlphanumeric(3));
+    properties.setProperty(CLUSTER_NODE_PORT.getKey(), valueOf(1 + random.nextInt(4)));
     long now = 1L + random.nextInt(87);
     when(clock.now()).thenReturn(now);
     when(networkUtils.getHostname()).thenReturn(randomAlphanumeric(34));

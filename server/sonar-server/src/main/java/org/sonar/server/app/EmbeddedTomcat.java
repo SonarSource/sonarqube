@@ -25,10 +25,10 @@ import org.apache.catalina.LifecycleException;
 import org.apache.catalina.core.StandardContext;
 import org.apache.catalina.startup.Tomcat;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
 
 import static org.sonar.core.util.FileUtils.deleteQuietly;
+import static org.sonar.process.ProcessProperties.Property.PATH_TEMP;
 
 class EmbeddedTomcat {
 
@@ -89,7 +89,7 @@ class EmbeddedTomcat {
   }
 
   private File tomcatBasedir() {
-    return new File(props.value(ProcessProperties.PATH_TEMP), "tc");
+    return new File(props.value(PATH_TEMP.getKey()), "tc");
   }
 
   void terminate() {

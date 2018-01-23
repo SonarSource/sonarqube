@@ -21,12 +21,12 @@ package org.sonar.server.platform.db;
 
 import org.junit.Test;
 import org.sonar.api.config.internal.MapSettings;
-import org.sonar.api.database.DatabaseProperties;
 import org.sonar.api.utils.System2;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.sonar.process.ProcessProperties.Property.JDBC_URL;
 
 public class EmbeddedDatabaseFactoryTest {
 
@@ -35,7 +35,7 @@ public class EmbeddedDatabaseFactoryTest {
 
   @Test
   public void should_start_and_stop_tcp_h2_database() {
-    settings.setProperty(DatabaseProperties.PROP_URL, "jdbc:h2:tcp:localhost");
+    settings.setProperty(JDBC_URL.getKey(), "jdbc:h2:tcp:localhost");
 
     EmbeddedDatabase embeddedDatabase = mock(EmbeddedDatabase.class);
 
@@ -54,7 +54,7 @@ public class EmbeddedDatabaseFactoryTest {
 
   @Test
   public void should_not_start_mem_h2_database() {
-    settings.setProperty(DatabaseProperties.PROP_URL, "jdbc:h2:mem");
+    settings.setProperty(JDBC_URL.getKey(), "jdbc:h2:mem");
 
     EmbeddedDatabase embeddedDatabase = mock(EmbeddedDatabase.class);
 

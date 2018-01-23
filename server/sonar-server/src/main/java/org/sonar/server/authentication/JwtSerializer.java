@@ -45,7 +45,7 @@ import org.sonar.server.authentication.event.AuthenticationException;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static io.jsonwebtoken.impl.crypto.MacProvider.generateKey;
 import static java.util.Objects.requireNonNull;
-import static org.sonar.process.ProcessProperties.AUTH_JWT_SECRET;
+import static org.sonar.process.ProcessProperties.Property.AUTH_JWT_SECRET;
 
 /**
  * This class can be used to encode or decode a JWT token
@@ -74,7 +74,7 @@ public class JwtSerializer implements Startable {
 
   @Override
   public void start() {
-    Optional<String> encodedKey = config.get(AUTH_JWT_SECRET);
+    Optional<String> encodedKey = config.get(AUTH_JWT_SECRET.getKey());
     if (encodedKey.isPresent()) {
       this.secretKey = decodeSecretKeyProperty(encodedKey.get());
     } else {

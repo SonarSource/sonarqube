@@ -32,14 +32,14 @@ import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.cluster.metadata.IndexMetaData;
 import org.elasticsearch.common.settings.Settings;
 import org.sonar.api.config.Configuration;
-import org.sonar.process.ProcessProperties;
 import org.sonar.server.permission.index.AuthorizationTypeSupport;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
 import static java.lang.String.valueOf;
 import static java.util.Objects.requireNonNull;
-import static org.sonar.process.ProcessProperties.CLUSTER_ENABLED;
+import static org.sonar.process.ProcessProperties.Property.CLUSTER_ENABLED;
+import static org.sonar.process.ProcessProperties.Property.SEARCH_REPLICAS;
 import static org.sonar.server.es.DefaultIndexSettings.ANALYZER;
 import static org.sonar.server.es.DefaultIndexSettings.FIELDDATA_ENABLED;
 import static org.sonar.server.es.DefaultIndexSettings.FIELD_FIELDDATA;
@@ -71,10 +71,10 @@ public class NewIndex {
     settings.put("index.refresh_interval", refreshInterval(settingsConfiguration));
 
     Configuration config = settingsConfiguration.getConfiguration();
-    boolean clusterMode = config.getBoolean(CLUSTER_ENABLED).orElse(false);
+    boolean clusterMode = config.getBoolean(CLUSTER_ENABLED.getKey()).orElse(false);
     int shards = config.getInt(format("sonar.search.%s.shards", indexName))
       .orElse(settingsConfiguration.getDefaultNbOfShards());
-    int replicas = clusterMode ? config.getInt(ProcessProperties.SEARCH_REPLICAS).orElse(1) : 0;
+    int replicas = clusterMode ? config.getInt(SEARCH_REPLICAS.getKey()).orElse(1) : 0;
 
     settings.put(IndexMetaData.SETTING_NUMBER_OF_SHARDS, shards);
     settings.put(IndexMetaData.SETTING_NUMBER_OF_REPLICAS, replicas);

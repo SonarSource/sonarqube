@@ -55,11 +55,11 @@ import static org.mockito.Mockito.mock;
 import static org.sonar.process.ProcessId.COMPUTE_ENGINE;
 import static org.sonar.process.ProcessId.ELASTICSEARCH;
 import static org.sonar.process.ProcessId.WEB_SERVER;
-import static org.sonar.process.ProcessProperties.CLUSTER_ENABLED;
-import static org.sonar.process.ProcessProperties.CLUSTER_NODE_HOST;
-import static org.sonar.process.ProcessProperties.CLUSTER_NODE_NAME;
-import static org.sonar.process.ProcessProperties.CLUSTER_NODE_PORT;
-import static org.sonar.process.ProcessProperties.CLUSTER_NODE_TYPE;
+import static org.sonar.process.ProcessProperties.Property.CLUSTER_ENABLED;
+import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_HOST;
+import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_NAME;
+import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_PORT;
+import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_TYPE;
 
 public class SchedulerImplTest {
 
@@ -71,7 +71,6 @@ public class SchedulerImplTest {
   public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
   private EsScriptCommand esScriptCommand;
-  private JavaCommand esJavaCommand;
   private JavaCommand webLeaderCommand;
   private JavaCommand webFollowerCommand;
   private JavaCommand ceCommand;
@@ -89,7 +88,6 @@ public class SchedulerImplTest {
   public void setUp() throws Exception {
     File tempDir = temporaryFolder.newFolder();
     esScriptCommand = new EsScriptCommand(ELASTICSEARCH, tempDir);
-    esJavaCommand = new JavaCommand(ELASTICSEARCH, tempDir);
     webLeaderCommand = new JavaCommand(WEB_SERVER, tempDir);
     webFollowerCommand = new JavaCommand(WEB_SERVER, tempDir);
     ceCommand = new JavaCommand(COMPUTE_ENGINE, tempDir);
@@ -211,8 +209,8 @@ public class SchedulerImplTest {
 
   @Test
   public void search_node_starts_only_elasticsearch() throws Exception {
-    settings.set(CLUSTER_ENABLED, "true");
-    settings.set(CLUSTER_NODE_TYPE, "search");
+    settings.set(CLUSTER_ENABLED.getKey(), "true");
+    settings.set(CLUSTER_NODE_TYPE.getKey(), "search");
     addRequiredNodeProperties();
     SchedulerImpl underTest = newScheduler(true);
     underTest.schedule();
@@ -226,8 +224,8 @@ public class SchedulerImplTest {
   @Test
   public void application_node_starts_only_web_and_ce() throws Exception {
     clusterAppState.setOperational(ProcessId.ELASTICSEARCH);
-    settings.set(CLUSTER_ENABLED, "true");
-    settings.set(CLUSTER_NODE_TYPE, "application");
+    settings.set(CLUSTER_ENABLED.getKey(), "true");
+    settings.set(CLUSTER_NODE_TYPE.getKey(), "application");
     SchedulerImpl underTest = newScheduler(true);
     underTest.schedule();
 
@@ -245,8 +243,8 @@ public class SchedulerImplTest {
     assertThat(clusterAppState.tryToLockWebLeader()).isTrue();
 
     clusterAppState.setOperational(ProcessId.ELASTICSEARCH);
-    settings.set(CLUSTER_ENABLED, "true");
-    settings.set(CLUSTER_NODE_TYPE, "search");
+    settings.set(CLUSTER_ENABLED.getKey(), "true");
+    settings.set(CLUSTER_NODE_TYPE.getKey(), "search");
     addRequiredNodeProperties();
     SchedulerImpl underTest = newScheduler(true);
     underTest.schedule();
@@ -263,8 +261,8 @@ public class SchedulerImplTest {
     assertThat(clusterAppState.tryToLockWebLeader()).isTrue();
     clusterAppState.setOperational(ProcessId.ELASTICSEARCH);
 
-    settings.set(CLUSTER_ENABLED, "true");
-    settings.set(CLUSTER_NODE_TYPE, "application");
+    settings.set(CLUSTER_ENABLED.getKey(), "true");
+    settings.set(CLUSTER_NODE_TYPE.getKey(), "application");
     SchedulerImpl underTest = newScheduler(true);
     underTest.schedule();
 
@@ -281,8 +279,8 @@ public class SchedulerImplTest {
 
   @Test
   public void web_server_waits_for_remote_elasticsearch_to_be_started_if_local_es_is_disabled() throws Exception {
-    settings.set(CLUSTER_ENABLED, "true");
-    settings.set(CLUSTER_NODE_TYPE, "application");
+    settings.set(CLUSTER_ENABLED.getKey(), "true");
+    settings.set(CLUSTER_NODE_TYPE.getKey(), "application");
     SchedulerImpl underTest = newScheduler(true);
     underTest.schedule();
 
@@ -321,9 +319,9 @@ public class SchedulerImplTest {
   }
 
   private void addRequiredNodeProperties() {
-    settings.set(CLUSTER_NODE_NAME, randomAlphanumeric(4));
-    settings.set(CLUSTER_NODE_HOST, randomAlphanumeric(4));
-    settings.set(CLUSTER_NODE_PORT, String.valueOf(1 + new Random().nextInt(999)));
+    settings.set(CLUSTER_NODE_NAME.getKey(), randomAlphanumeric(4));
+    settings.set(CLUSTER_NODE_HOST.getKey(), randomAlphanumeric(4));
+    settings.set(CLUSTER_NODE_PORT.getKey(), String.valueOf(1 + new Random().nextInt(999)));
   }
 
   private class TestCommandFactory implements CommandFactory {

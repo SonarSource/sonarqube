@@ -31,10 +31,11 @@ import java.util.function.Consumer;
 import org.slf4j.LoggerFactory;
 import org.sonar.process.ConfigurationUtils;
 import org.sonar.process.NetworkUtilsImpl;
-import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.sonar.process.ProcessProperties.completeDefaults;
+import static org.sonar.process.ProcessProperties.Property.PATH_HOME;
 
 public class AppSettingsLoaderImpl implements AppSettingsLoader {
 
@@ -61,14 +62,14 @@ public class AppSettingsLoaderImpl implements AppSettingsLoader {
   public AppSettings load() {
     Properties p = loadPropertiesFile(homeDir);
     p.putAll(CommandLineParser.parseArguments(cliArguments));
-    p.setProperty(ProcessProperties.PATH_HOME, homeDir.getAbsolutePath());
+    p.setProperty(PATH_HOME.getKey(), homeDir.getAbsolutePath());
     p = ConfigurationUtils.interpolateVariables(p, System.getenv());
 
     // the difference between Properties and Props is that the latter
     // supports decryption of values, so it must be used when values
     // are accessed
     Props props = new Props(p);
-    ProcessProperties.completeDefaults(props);
+    completeDefaults(props);
     Arrays.stream(consumers).forEach(c -> c.accept(props));
 
     return new AppSettingsImpl(props);

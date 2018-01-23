@@ -43,6 +43,7 @@ import org.sonar.db.profiling.ProfiledDataSource;
 import org.sonar.process.logging.LogbackHelper;
 
 import static java.lang.String.format;
+import static org.sonar.process.ProcessProperties.Property.JDBC_URL;
 
 /**
  * @since 2.12
@@ -54,7 +55,6 @@ public class DefaultDatabase implements Database {
   private static final String DEFAULT_URL = "jdbc:h2:tcp://localhost/sonar";
   private static final String SONAR_JDBC = "sonar.jdbc.";
   private static final String SONAR_JDBC_DIALECT = "sonar.jdbc.dialect";
-  private static final String SONAR_JDBC_URL = "sonar.jdbc.url";
 
   private final LogbackHelper logbackHelper;
   private final Settings settings;
@@ -83,16 +83,16 @@ public class DefaultDatabase implements Database {
   void initSettings() {
     properties = new Properties();
     completeProperties(settings, properties, SONAR_JDBC);
-    completeDefaultProperty(properties, DatabaseProperties.PROP_URL, DEFAULT_URL);
+    completeDefaultProperty(properties, JDBC_URL.getKey(), DEFAULT_URL);
     doCompleteProperties(properties);
 
-    dialect = DialectUtils.find(properties.getProperty(SONAR_JDBC_DIALECT), properties.getProperty(SONAR_JDBC_URL));
+    dialect = DialectUtils.find(properties.getProperty(SONAR_JDBC_DIALECT), properties.getProperty(JDBC_URL.getKey()));
     properties.setProperty(DatabaseProperties.PROP_DRIVER, dialect.getDefaultDriverClassName());
   }
 
   private void initDataSource() throws Exception {
     // but it's correctly caught by start()
-    LOG.info("Create JDBC data source for {}", properties.getProperty(DatabaseProperties.PROP_URL, DEFAULT_URL));
+    LOG.info("Create JDBC data source for {}", properties.getProperty(JDBC_URL.getKey()), DEFAULT_URL);
     BasicDataSource basicDataSource = (BasicDataSource) BasicDataSourceFactory.createDataSource(extractCommonsDbcpProperties(properties));
     datasource = new ProfiledDataSource(basicDataSource, NullConnectionInterceptor.INSTANCE);
     datasource.setConnectionInitSqls(dialect.getConnectionInitStatements());
@@ -180,6 +180,6 @@ public class DefaultDatabase implements Database {
 
   @Override
   public String toString() {
-    return format("Database[%s]", properties != null ? properties.getProperty(SONAR_JDBC_URL) : "?");
+    return format("Database[%s]", properties != null ? properties.getProperty(JDBC_URL.getKey()) : "?");
   }
 }

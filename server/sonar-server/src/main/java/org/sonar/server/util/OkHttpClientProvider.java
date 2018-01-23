@@ -25,10 +25,11 @@ import org.sonar.api.SonarRuntime;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.server.ServerSide;
-import org.sonar.process.ProcessProperties;
 import org.sonarqube.ws.client.OkHttpClientBuilder;
 
 import static java.lang.String.format;
+import static org.sonar.process.ProcessProperties.Property.HTTP_PROXY_PASSWORD;
+import static org.sonar.process.ProcessProperties.Property.HTTP_PROXY_USER;
 
 /**
  * Provide a unique instance of {@link OkHttpClient} which configuration:
@@ -59,8 +60,8 @@ public class OkHttpClientProvider extends ProviderAdapter {
       builder.setReadTimeoutMs(DEFAULT_READ_TIMEOUT_IN_MS);
       // no need to define proxy URL as system-wide proxy is used and properly
       // configured by bootstrap process.
-      builder.setProxyLogin(config.get(ProcessProperties.HTTP_PROXY_USER).orElse(null));
-      builder.setProxyPassword(config.get(ProcessProperties.HTTP_PROXY_PASSWORD).orElse(null));
+      builder.setProxyLogin(config.get(HTTP_PROXY_USER.getKey()).orElse(null));
+      builder.setProxyPassword(config.get(HTTP_PROXY_PASSWORD.getKey()).orElse(null));
       builder.setUserAgent(format("SonarQube/%s", runtime.getApiVersion().toString()));
       okHttpClient = builder.build();
     }

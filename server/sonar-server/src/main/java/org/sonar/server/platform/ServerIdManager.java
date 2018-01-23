@@ -39,6 +39,7 @@ import static com.google.common.base.Preconditions.checkState;
 import static org.apache.commons.lang.StringUtils.isEmpty;
 import static org.apache.commons.lang.StringUtils.isNotEmpty;
 import static org.sonar.api.CoreProperties.SERVER_ID;
+import static org.sonar.process.ProcessProperties.Property.JDBC_URL;
 import static org.sonar.server.property.InternalProperties.SERVER_ID_CHECKSUM;
 
 public class ServerIdManager implements Startable {
@@ -132,7 +133,7 @@ public class ServerIdManager implements Startable {
   }
 
   private String computeChecksum(String serverId) {
-    String jdbcUrl = config.get("sonar.jdbc.url").orElseThrow(() -> new IllegalStateException("Missing JDBC URL"));
+    String jdbcUrl = config.get(JDBC_URL.getKey()).orElseThrow(() -> new IllegalStateException("Missing JDBC URL"));
     return ServerIdChecksum.of(serverId, jdbcUrl);
   }
 

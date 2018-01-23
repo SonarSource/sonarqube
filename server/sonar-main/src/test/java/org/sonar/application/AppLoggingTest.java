@@ -31,7 +31,6 @@ import ch.qos.logback.core.encoder.Encoder;
 import ch.qos.logback.core.joran.spi.ConsoleTarget;
 import ch.qos.logback.core.rolling.RollingFileAppender;
 import java.io.File;
-import java.io.IOException;
 import java.util.Iterator;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -42,13 +41,13 @@ import org.junit.rules.TemporaryFolder;
 import org.slf4j.LoggerFactory;
 import org.sonar.application.config.AppSettings;
 import org.sonar.application.config.TestAppSettings;
-import org.sonar.process.ProcessProperties;
 import org.sonar.process.logging.LogbackHelper;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.slf4j.Logger.ROOT_LOGGER_NAME;
 import static org.sonar.application.process.StreamGobbler.LOGGER_GOBBLER;
-import static org.sonar.process.ProcessProperties.CLUSTER_ENABLED;
+import static org.sonar.process.ProcessProperties.Property.CLUSTER_ENABLED;
+import static org.sonar.process.ProcessProperties.Property.PATH_LOGS;
 
 public class AppLoggingTest {
 
@@ -65,7 +64,7 @@ public class AppLoggingTest {
   @Before
   public void setUp() throws Exception {
     logDir = temp.newFolder();
-    settings.getProps().set(ProcessProperties.PATH_LOGS, logDir.getAbsolutePath());
+    settings.getProps().set(PATH_LOGS.getKey(), logDir.getAbsolutePath());
   }
 
   @AfterClass
@@ -249,7 +248,7 @@ public class AppLoggingTest {
 
   @Test
   public void no_info_log_from_hazelcast() {
-    settings.getProps().set(CLUSTER_ENABLED, "true");
+    settings.getProps().set(CLUSTER_ENABLED.getKey(), "true");
     underTest.configure();
 
     assertThat(

@@ -29,12 +29,14 @@ import org.sonar.api.platform.Server;
 import org.sonar.api.security.SecurityRealm;
 import org.sonar.api.server.authentication.IdentityProvider;
 import org.sonar.core.util.stream.MoreCollectors;
-import org.sonar.process.ProcessProperties;
 import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
 import org.sonar.server.authentication.IdentityProviderRepository;
 import org.sonar.server.platform.ServerLogging;
 import org.sonar.server.user.SecurityRealmFactory;
 
+import static org.sonar.process.ProcessProperties.Property.PATH_DATA;
+import static org.sonar.process.ProcessProperties.Property.PATH_HOME;
+import static org.sonar.process.ProcessProperties.Property.PATH_TEMP;
 import static org.sonar.process.systeminfo.SystemInfoUtils.setAttribute;
 
 public class StandaloneSystemSection extends BaseSectionMBean implements SystemSectionMBean {
@@ -120,9 +122,9 @@ public class StandaloneSystemSection extends BaseSectionMBean implements SystemS
     setAttribute(protobuf, "High Availability", false);
     setAttribute(protobuf, "Official Distribution", officialDistribution.check());
     setAttribute(protobuf, "Force authentication", getForceAuthentication());
-    setAttribute(protobuf, "Home Dir", config.get(ProcessProperties.PATH_HOME).orElse(null));
-    setAttribute(protobuf, "Data Dir", config.get(ProcessProperties.PATH_DATA).orElse(null));
-    setAttribute(protobuf, "Temp Dir", config.get(ProcessProperties.PATH_TEMP).orElse(null));
+    setAttribute(protobuf, "Home Dir", config.get(PATH_HOME.getKey()).orElse(null));
+    setAttribute(protobuf, "Data Dir", config.get(PATH_DATA.getKey()).orElse(null));
+    setAttribute(protobuf, "Temp Dir", config.get(PATH_TEMP.getKey()).orElse(null));
     setAttribute(protobuf, "Processors", Runtime.getRuntime().availableProcessors());
     return protobuf.build();
   }

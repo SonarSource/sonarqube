@@ -27,9 +27,9 @@ import org.sonar.process.cluster.health.NodeDetails;
 import org.sonar.process.cluster.health.NodeHealth;
 import org.sonar.process.cluster.health.NodeHealthProvider;
 
-import static org.sonar.process.ProcessProperties.CLUSTER_NODE_HOST;
-import static org.sonar.process.ProcessProperties.CLUSTER_NODE_NAME;
-import static org.sonar.process.ProcessProperties.CLUSTER_NODE_PORT;
+import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_HOST;
+import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_NAME;
+import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_PORT;
 
 public class SearchNodeHealthProvider implements NodeHealthProvider {
 
@@ -44,15 +44,15 @@ public class SearchNodeHealthProvider implements NodeHealthProvider {
     this.clusterAppState = clusterAppState;
     this.nodeDetails = NodeDetails.newNodeDetailsBuilder()
       .setType(NodeDetails.Type.SEARCH)
-      .setName(props.nonNullValue(CLUSTER_NODE_NAME))
+      .setName(props.nonNullValue(CLUSTER_NODE_NAME.getKey()))
       .setHost(getHost(props, networkUtils))
-      .setPort(Integer.valueOf(props.nonNullValue(CLUSTER_NODE_PORT)))
+      .setPort(Integer.valueOf(props.nonNullValue(CLUSTER_NODE_PORT.getKey())))
       .setStartedAt(clock.now())
       .build();
   }
 
   private static String getHost(Props props, NetworkUtils networkUtils) {
-    String host = props.value(CLUSTER_NODE_HOST);
+    String host = props.value(CLUSTER_NODE_HOST.getKey());
     if (host != null && !host.isEmpty()) {
       return host;
     }

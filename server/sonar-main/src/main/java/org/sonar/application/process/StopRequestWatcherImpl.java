@@ -22,10 +22,11 @@ package org.sonar.application.process;
 import org.sonar.application.FileSystem;
 import org.sonar.application.Scheduler;
 import org.sonar.application.config.AppSettings;
+import org.sonar.process.ProcessId;
 import org.sonar.process.sharedmemoryfile.DefaultProcessCommands;
 import org.sonar.process.sharedmemoryfile.ProcessCommands;
-import org.sonar.process.ProcessId;
-import org.sonar.process.ProcessProperties;
+
+import static org.sonar.process.ProcessProperties.Property.ENABLE_STOP_COMMAND;
 
 public class StopRequestWatcherImpl extends Thread implements StopRequestWatcher {
 
@@ -78,7 +79,7 @@ public class StopRequestWatcherImpl extends Thread implements StopRequestWatcher
 
   @Override
   public void startWatching() {
-    if (settings.getProps().valueAsBoolean(ProcessProperties.ENABLE_STOP_COMMAND)) {
+    if (settings.getProps().valueAsBoolean(ENABLE_STOP_COMMAND.getKey())) {
       start();
     }
   }

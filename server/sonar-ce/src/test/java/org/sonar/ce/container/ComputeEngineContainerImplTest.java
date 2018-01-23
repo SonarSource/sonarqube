@@ -49,9 +49,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.sonar.process.ProcessEntryPoint.PROPERTY_PROCESS_INDEX;
 import static org.sonar.process.ProcessEntryPoint.PROPERTY_SHARED_PATH;
-import static org.sonar.process.ProcessProperties.PATH_DATA;
-import static org.sonar.process.ProcessProperties.PATH_HOME;
-import static org.sonar.process.ProcessProperties.PATH_TEMP;
+import static org.sonar.process.ProcessProperties.Property.JDBC_URL;
+import static org.sonar.process.ProcessProperties.Property.PATH_DATA;
+import static org.sonar.process.ProcessProperties.Property.PATH_HOME;
+import static org.sonar.process.ProcessProperties.Property.PATH_TEMP;
 
 public class ComputeEngineContainerImplTest {
   private static final int CONTAINER_ITSELF = 1;
@@ -140,12 +141,12 @@ public class ComputeEngineContainerImplTest {
     File homeDir = tempFolder.newFolder();
     File dataDir = new File(homeDir, "data");
     File tmpDir = new File(homeDir, "tmp");
-    properties.setProperty(PATH_HOME, homeDir.getAbsolutePath());
-    properties.setProperty(PATH_DATA, dataDir.getAbsolutePath());
-    properties.setProperty(PATH_TEMP, tmpDir.getAbsolutePath());
+    properties.setProperty(PATH_HOME.getKey(), homeDir.getAbsolutePath());
+    properties.setProperty(PATH_DATA.getKey(), dataDir.getAbsolutePath());
+    properties.setProperty(PATH_TEMP.getKey(), tmpDir.getAbsolutePath());
     properties.setProperty(PROPERTY_PROCESS_INDEX, valueOf(ProcessId.COMPUTE_ENGINE.getIpcIndex()));
     properties.setProperty(PROPERTY_SHARED_PATH, tmpDir.getAbsolutePath());
-    properties.setProperty(DatabaseProperties.PROP_URL, db.getUrl());
+    properties.setProperty(JDBC_URL.getKey(), db.getUrl());
     properties.setProperty(DatabaseProperties.PROP_USER, "sonar");
     properties.setProperty(DatabaseProperties.PROP_PASSWORD, "sonar");
     return properties;

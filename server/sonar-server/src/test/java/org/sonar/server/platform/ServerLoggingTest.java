@@ -35,7 +35,6 @@ import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.db.Database;
-import org.sonar.process.ProcessProperties;
 import org.sonar.process.logging.LogLevelConfig;
 import org.sonar.process.logging.LogbackHelper;
 import org.sonar.server.app.ServerProcessLogging;
@@ -51,6 +50,7 @@ import static org.sonar.api.utils.log.LoggerLevel.ERROR;
 import static org.sonar.api.utils.log.LoggerLevel.INFO;
 import static org.sonar.api.utils.log.LoggerLevel.TRACE;
 import static org.sonar.api.utils.log.LoggerLevel.WARN;
+import static org.sonar.process.ProcessProperties.Property.PATH_LOGS;
 
 @RunWith(DataProviderRunner.class)
 public class ServerLoggingTest {
@@ -73,7 +73,7 @@ public class ServerLoggingTest {
   @Test
   public void getLogsDir() throws IOException {
     File dir = temp.newFolder();
-    settings.setProperty(ProcessProperties.PATH_LOGS, dir.getAbsolutePath());
+    settings.setProperty(PATH_LOGS.getKey(), dir.getAbsolutePath());
 
     assertThat(underTest.getLogsDir()).isEqualTo(dir);
   }

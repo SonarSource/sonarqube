@@ -43,13 +43,14 @@ import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.process.cluster.NodeType;
-import org.sonar.process.ProcessProperties;
 
 import static java.util.Collections.unmodifiableList;
-import static org.sonar.process.ProcessProperties.CLUSTER_ENABLED;
-import static org.sonar.process.ProcessProperties.CLUSTER_NAME;
-import static org.sonar.process.ProcessProperties.CLUSTER_NODE_TYPE;
-import static org.sonar.process.ProcessProperties.CLUSTER_SEARCH_HOSTS;
+import static org.sonar.process.ProcessProperties.Property.CLUSTER_ENABLED;
+import static org.sonar.process.ProcessProperties.Property.CLUSTER_NAME;
+import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_TYPE;
+import static org.sonar.process.ProcessProperties.Property.CLUSTER_SEARCH_HOSTS;
+import static org.sonar.process.ProcessProperties.Property.SEARCH_HOST;
+import static org.sonar.process.ProcessProperties.Property.SEARCH_PORT;
 import static org.sonar.process.cluster.NodeType.SEARCH;
 
 @ComputeEngineSide
@@ -65,19 +66,19 @@ public class EsClientProvider extends ProviderAdapter {
       Settings.Builder esSettings = Settings.builder();
 
       // mandatory property defined by bootstrap process
-      esSettings.put("cluster.name", config.get(CLUSTER_NAME).get());
+      esSettings.put("cluster.name", config.get(CLUSTER_NAME.getKey()).get());
 
-      boolean clusterEnabled = config.getBoolean(CLUSTER_ENABLED).orElse(false);
-      boolean searchNode = !clusterEnabled || SEARCH.equals(NodeType.parse(config.get(CLUSTER_NODE_TYPE).orElse(null)));
+      boolean clusterEnabled = config.getBoolean(CLUSTER_ENABLED.getKey()).orElse(false);
+      boolean searchNode = !clusterEnabled || SEARCH.equals(NodeType.parse(config.get(CLUSTER_NODE_TYPE.getKey()).orElse(null)));
       final TransportClient nativeClient = new MinimalTransportClient(esSettings.build());
       if (clusterEnabled && !searchNode) {
         esSettings.put("client.transport.sniff", true);
-        Arrays.stream(config.getStringArray(CLUSTER_SEARCH_HOSTS))
+        Arrays.stream(config.getStringArray(CLUSTER_SEARCH_HOSTS.getKey()))
           .map(HostAndPort::fromString)
           .forEach(h -> addHostToClient(h, nativeClient));
         LOGGER.info("Connected to remote Elasticsearch: [{}]", displayedAddresses(nativeClient));
       } else {
-        HostAndPort host = HostAndPort.fromParts(config.get(ProcessProperties.SEARCH_HOST).get(), config.getInt(ProcessProperties.SEARCH_PORT).get());
+        HostAndPort host = HostAndPort.fromParts(config.get(SEARCH_HOST.getKey()).get(), config.getInt(SEARCH_PORT.getKey()).get());
         addHostToClient(host, nativeClient);
         LOGGER.info("Connected to local Elasticsearch: [{}]", displayedAddresses(nativeClient));
       }

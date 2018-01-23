@@ -28,9 +28,9 @@ import org.sonar.process.cluster.health.NodeHealth;
 import org.sonar.process.cluster.health.NodeHealthProvider;
 
 import static java.lang.String.format;
-import static org.sonar.process.ProcessProperties.CLUSTER_NODE_HOST;
-import static org.sonar.process.ProcessProperties.CLUSTER_NODE_NAME;
-import static org.sonar.process.ProcessProperties.CLUSTER_NODE_PORT;
+import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_HOST;
+import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_NAME;
+import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_PORT;
 import static org.sonar.process.cluster.health.NodeDetails.newNodeDetailsBuilder;
 import static org.sonar.process.cluster.health.NodeHealth.newNodeHealthBuilder;
 
@@ -52,19 +52,19 @@ public class NodeHealthProviderImpl implements NodeHealthProvider {
   }
 
   private static String computeName(Configuration configuration) {
-    return configuration.get(CLUSTER_NODE_NAME)
-      .orElseThrow(missingPropertyISE(CLUSTER_NODE_NAME));
+    return configuration.get(CLUSTER_NODE_NAME.getKey())
+      .orElseThrow(missingPropertyISE(CLUSTER_NODE_NAME.getKey()));
   }
 
   private static String computeHost(Configuration configuration, NetworkUtils networkUtils) {
-    return configuration.get(CLUSTER_NODE_HOST)
+    return configuration.get(CLUSTER_NODE_HOST.getKey())
       .filter(s -> !s.isEmpty())
       .orElseGet(networkUtils::getHostname);
   }
 
   private static int computePort(Configuration configuration) {
-    return configuration.getInt(CLUSTER_NODE_PORT)
-      .orElseThrow(missingPropertyISE(CLUSTER_NODE_PORT));
+    return configuration.getInt(CLUSTER_NODE_PORT.getKey())
+      .orElseThrow(missingPropertyISE(CLUSTER_NODE_PORT.getKey()));
   }
 
   private static Supplier<IllegalStateException> missingPropertyISE(String propertyName) {
