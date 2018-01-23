@@ -49,4 +49,21 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 public @interface SonarLintSide {
+
+  /**
+   * The component will be instantiated for each analysis (could be single or multiple files analysis).
+   */
+  String SINGLE_ANALYSIS = "SINGLE_ANALYSIS";
+
+  /**
+   * The component will be instantiated once and reused by all analyses, as long as the SonarLint engine is not restarted.
+   */
+  String MULTIPLE_ANALYSES = "MULTIPLE_ANALYSES";
+
+  /**
+   * Control the lifecycle of the component in the IoC container.
+   * @since 7.0
+   */
+  String lifespan() default SINGLE_ANALYSIS;
+
 }
