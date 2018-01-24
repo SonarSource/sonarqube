@@ -22,7 +22,7 @@ import * as classNames from 'classnames';
 import { Activation, Query } from '../query';
 import SimilarRulesFilter from './SimilarRulesFilter';
 import { Profile } from '../../../api/quality-profiles';
-import { Rule } from '../../../app/types';
+import { Rule, RuleInheritance } from '../../../app/types';
 import Tooltip from '../../../components/controls/Tooltip';
 import SeverityIcon from '../../../components/shared/SeverityIcon';
 import IssueTypeIcon from '../../../components/ui/IssueTypeIcon';
@@ -58,7 +58,7 @@ export default class RuleListItem extends React.PureComponent<Props> {
         {selectedProfile &&
           selectedProfile.parentName && (
             <>
-              {activation.inherit === 'OVERRIDES' && (
+              {activation.inherit === RuleInheritance.Overridden && (
                 <Tooltip
                   overlay={translateWithParameters(
                     'coding_rules.overrides',
@@ -68,7 +68,7 @@ export default class RuleListItem extends React.PureComponent<Props> {
                   <i className="little-spacer-left icon-inheritance icon-inheritance-overridden" />
                 </Tooltip>
               )}
-              {activation.inherit === 'INHERITED' && (
+              {activation.inherit === RuleInheritance.Inherited && (
                 <Tooltip
                   overlay={translateWithParameters(
                     'coding_rules.inherits',

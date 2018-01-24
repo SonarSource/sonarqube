@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { RuleInheritance } from '../../app/types';
 import {
   RawQuery,
   parseAsString,
@@ -32,18 +33,12 @@ import {
   parseAsOptionalString
 } from '../../helpers/query';
 
-export enum Inheritance {
-  NotInherited = 'NONE',
-  Inherited = 'INHERITED',
-  Overridden = 'OVERRIDES'
-}
-
 export interface Query {
   activation: boolean | undefined;
   activationSeverities: string[];
   availableSince: Date | undefined;
   compareToProfile: string | undefined;
-  inheritance: Inheritance | undefined;
+  inheritance: RuleInheritance | undefined;
   languages: string[];
   profile: string | undefined;
   repositories: string[];
@@ -145,18 +140,18 @@ export function getOpen(query: RawQuery) {
   return query.open;
 }
 
-function parseAsInheritance(value?: string): Inheritance | undefined {
-  if (value === Inheritance.Inherited) {
-    return Inheritance.Inherited;
-  } else if (value === Inheritance.NotInherited) {
-    return Inheritance.NotInherited;
-  } else if (value === Inheritance.Overridden) {
-    return Inheritance.Overridden;
+function parseAsInheritance(value?: string): RuleInheritance | undefined {
+  if (value === RuleInheritance.Inherited) {
+    return RuleInheritance.Inherited;
+  } else if (value === RuleInheritance.NotInherited) {
+    return RuleInheritance.NotInherited;
+  } else if (value === RuleInheritance.Overridden) {
+    return RuleInheritance.Overridden;
   } else {
     return undefined;
   }
 }
 
-function serializeInheritance(value: Inheritance | undefined): string | undefined {
+function serializeInheritance(value: RuleInheritance | undefined): string | undefined {
   return value;
 }

@@ -19,10 +19,11 @@
  */
 import * as React from 'react';
 import * as classNames from 'classnames';
+import { RuleInheritance } from '../../../app/types';
 import { translateWithParameters } from '../../../helpers/l10n';
 
 interface Props {
-  inheritance: 'INHERITED' | 'OVERRIDES';
+  inheritance: RuleInheritance.Inherited | RuleInheritance.Overridden;
   parentProfileName: string;
   profileName: string;
 }
@@ -31,7 +32,7 @@ export default function RuleInheritanceIcon(props: Props) {
   return (
     <i
       className={classNames('icon-inheritance', {
-        'icon-inheritance-overridden': props.inheritance === 'OVERRIDES'
+        'icon-inheritance-overridden': props.inheritance === RuleInheritance.Overridden
       })}
       title={translateWithParameters(
         'coding_rules.overrides',

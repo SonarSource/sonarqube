@@ -21,7 +21,7 @@ import * as React from 'react';
 import { Link } from 'react-router';
 import RuleInheritanceIcon from './RuleInheritanceIcon';
 import { Profile } from '../../../api/quality-profiles';
-import { RuleActivation, RuleDetails } from '../../../app/types';
+import { RuleActivation, RuleDetails, RuleInheritance } from '../../../app/types';
 import { translate } from '../../../helpers/l10n';
 import { getQualityProfileUrl } from '../../../helpers/urls';
 import BuiltInQualityProfileBadge from '../../quality-profiles/components/BuiltInQualityProfileBadge';
@@ -73,7 +73,8 @@ export default class RuleDetailsProfiles extends React.PureComponent<Props, Stat
     );
     return (
       <div className="coding-rules-detail-quality-profile-inheritance">
-        {(activation.inherit === 'OVERRIDES' || activation.inherit === 'INHERITED') && (
+        {(activation.inherit === RuleInheritance.Overridden ||
+          activation.inherit === RuleInheritance.Inherited) && (
           <>
             <RuleInheritanceIcon
               inheritance={activation.inherit}
@@ -146,7 +147,7 @@ export default class RuleDetailsProfiles extends React.PureComponent<Props, Stat
               </button>
             )}
             {profile.parentKey ? (
-              activation.inherit === 'OVERRIDES' && (
+              activation.inherit === RuleInheritance.Overridden && (
                 <button className="coding-rules-detail-quality-profile-revert button-red spacer-left">
                   {translate('coding_rules.revert_to_parent_definition')}
                 </button>

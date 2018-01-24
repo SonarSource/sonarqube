@@ -227,7 +227,7 @@ export interface RuleDetails extends Rule {
 
 export interface RuleActivation {
   createdAt: string;
-  inherit: string;
+  inherit: RuleInheritance;
   params: Array<{ key: string; value: string }>;
   qProfile: string;
   severity: string;
@@ -240,4 +240,10 @@ export interface RuleParameter {
   htmlDesc?: string;
   key: string;
   type: string;
+}
+
+export enum RuleInheritance {
+  NotInherited = 'NONE',
+  Inherited = 'INHERITED',
+  Overridden = 'OVERRIDES'
 }

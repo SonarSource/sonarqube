@@ -19,7 +19,8 @@
  */
 import * as React from 'react';
 import * as classNames from 'classnames';
-import { Query, FacetKey, Inheritance } from '../query';
+import { Query, FacetKey } from '../query';
+import { RuleInheritance } from '../../../app/types';
 import FacetBox from '../../../components/facet/FacetBox';
 import FacetHeader from '../../../components/facet/FacetHeader';
 import FacetItem from '../../../components/facet/FacetItem';
@@ -31,11 +32,11 @@ interface Props {
   onChange: (changes: Partial<Query>) => void;
   onToggle: (facet: FacetKey) => void;
   open: boolean;
-  value: Inheritance | undefined;
+  value: RuleInheritance | undefined;
 }
 
 export default class InheritanceFacet extends React.PureComponent<Props> {
-  handleItemClick = (selected: Inheritance) => {
+  handleItemClick = (selected: RuleInheritance) => {
     const { value } = this.props;
     const newValue = selected === value ? undefined : selected;
     this.props.onChange({ inheritance: newValue });
@@ -49,11 +50,11 @@ export default class InheritanceFacet extends React.PureComponent<Props> {
     this.props.onChange({ inheritance: undefined });
   };
 
-  renderName = (value: Inheritance) => {
+  renderName = (value: RuleInheritance) => {
     return translate('coding_rules.filters.inheritance', value.toLowerCase());
   };
 
-  renderItem = (value: Inheritance) => {
+  renderItem = (value: RuleInheritance) => {
     const active = this.props.value === value;
 
     return (
@@ -73,7 +74,7 @@ export default class InheritanceFacet extends React.PureComponent<Props> {
       values.push(this.renderName(this.props.value));
     }
 
-    const items = Object.values(Inheritance);
+    const items = Object.values(RuleInheritance);
 
     return (
       <FacetBox
