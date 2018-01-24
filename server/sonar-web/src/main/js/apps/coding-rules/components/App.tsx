@@ -306,14 +306,13 @@ export default class App extends React.PureComponent<Props, State> {
     }
   };
 
+  getRulePath = (rule: string) => ({
+    pathname: this.props.location.pathname,
+    query: { ...serializeQuery(this.state.query), open: rule }
+  });
+
   openRule = (rule: string) => {
-    const path = {
-      pathname: this.props.location.pathname,
-      query: {
-        ...serializeQuery(this.state.query),
-        open: rule
-      }
-    };
+    const path = this.getRulePath(rule);
     if (this.state.openRule) {
       this.context.router.replace(path);
     } else {
@@ -497,8 +496,8 @@ export default class App extends React.PureComponent<Props, State> {
                     <RuleListItem
                       activation={this.getRuleActivation(rule.key)}
                       key={rule.key}
-                      onClick={this.openRule}
                       onFilterChange={this.handleFilterChange}
+                      path={this.getRulePath(rule.key)}
                       rule={rule}
                       selected={rule.key === this.state.selected}
                       selectedProfile={this.getSelectedProfile()}

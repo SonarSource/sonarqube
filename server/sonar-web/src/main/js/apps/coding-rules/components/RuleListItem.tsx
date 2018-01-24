@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import * as classNames from 'classnames';
+import { Link } from 'react-router';
 import { Activation, Query } from '../query';
 import SimilarRulesFilter from './SimilarRulesFilter';
 import { Profile } from '../../../api/quality-profiles';
@@ -30,22 +31,14 @@ import { translate, translateWithParameters } from '../../../helpers/l10n';
 
 interface Props {
   activation?: Activation;
-  onClick: (rule: string) => void;
   onFilterChange: (changes: Partial<Query>) => void;
+  path: { pathname: string; query: { [x: string]: any } };
   rule: Rule;
   selected: boolean;
   selectedProfile?: Profile;
 }
 
-// TODO open rule in new tab on cmd+click
-
 export default class RuleListItem extends React.PureComponent<Props> {
-  handleClick = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
-    event.preventDefault();
-    event.currentTarget.blur();
-    this.props.onClick(this.props.rule.key);
-  };
-
   renderActivation = () => {
     const { activation, selectedProfile } = this.props;
     if (!activation) {
@@ -135,9 +128,9 @@ export default class RuleListItem extends React.PureComponent<Props> {
 
               <td>
                 <div className="coding-rule-title">
-                  <a className="link-no-underline" href="#" onClick={this.handleClick}>
+                  <Link className="link-no-underline" to={this.props.path}>
                     {rule.name}
-                  </a>
+                  </Link>
                   {rule.isTemplate && (
                     <Tooltip overlay={translate('coding_rules.rule_template.title')}>
                       <span className="outline-badge spacer-left">
