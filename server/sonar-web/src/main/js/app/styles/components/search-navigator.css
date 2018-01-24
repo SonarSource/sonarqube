@@ -483,7 +483,7 @@ a.search-navigator-facet:focus .facet-stat {
 }
 
 .search-navigator-facet-list {
-  padding-bottom: 10px;
+  padding-bottom: var(--gridSize);
   font-size: 0;
 }
 
@@ -497,7 +497,7 @@ a.search-navigator-facet:focus .facet-stat {
 
 .search-navigator-facet-footer {
   display: block;
-  padding: 6px 10px;
+  padding-bottom: var(--gridSize);
   border-bottom: none;
 }
 

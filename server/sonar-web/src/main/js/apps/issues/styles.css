@@ -132,10 +132,6 @@
   text-align: right;
 }
 
-.issues .search-navigator-facet-footer {
-  padding: 0 0 10px 0;
-}
-
 .issues .issue-list {
   /* no math, just a good guess */
   min-width: 640px;
