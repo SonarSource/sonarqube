@@ -90,7 +90,7 @@ export default class App extends React.PureComponent<Props, State> {
     super(props);
     this.state = {
       loading: true,
-      openFacets: { languages: false, types: false },
+      openFacets: { languages: true, types: true },
       query: parseQuery(props.location.query),
       referencedProfiles: {},
       referencedRepositories: {},
