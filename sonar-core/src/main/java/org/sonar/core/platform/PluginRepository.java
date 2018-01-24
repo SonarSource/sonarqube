@@ -35,6 +35,10 @@ public interface PluginRepository {
 
   Collection<PluginInfo> getPluginInfos();
 
+  /**
+   * Never returns {@code null}, a runtime exception is thrown
+   * if no plugins have the specified key.
+   */
   PluginInfo getPluginInfo(String key);
 
   /**

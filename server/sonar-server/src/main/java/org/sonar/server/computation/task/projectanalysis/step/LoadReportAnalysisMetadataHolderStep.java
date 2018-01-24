@@ -29,7 +29,6 @@ import org.apache.commons.lang.StringUtils;
 import org.sonar.api.utils.MessageException;
 import org.sonar.ce.queue.CeTask;
 import org.sonar.core.component.ComponentKeys;
-import org.sonar.core.platform.PluginInfo;
 import org.sonar.core.platform.PluginRepository;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
@@ -129,13 +128,12 @@ public class LoadReportAnalysisMetadataHolderStep implements ComputationStep {
 
   @CheckForNull
   private String getBasePluginKey(Plugin p) {
-    PluginInfo pluginInfo = pluginRepository.getPluginInfo(p.getKey());
-    if (pluginInfo == null) {
+    if (!pluginRepository.hasPlugin(p.getKey())) {
       // May happen if plugin was uninstalled between start of scanner analysis and now.
       // But it doesn't matter since all active rules are removed anyway, so no issues will be reported
       return null;
     }
-    return pluginInfo.getBasePlugin();
+    return pluginRepository.getPluginInfo(p.getKey()).getBasePlugin();
   }
 
   /**
