@@ -302,20 +302,24 @@ public class LoadReportAnalysisMetadataHolderStepTest {
   }
 
   @Test
-  public void execute_read_plugins_from_report() {
+  public void execute_reads_plugins_from_report() {
     ScannerReport.Metadata.Builder metadataBuilder = newBatchReportBuilder();
     metadataBuilder.getMutablePluginsByKey().put("java", ScannerReport.Metadata.Plugin.newBuilder().setKey("java").setUpdatedAt(12345L).build());
     metadataBuilder.getMutablePluginsByKey().put("php", ScannerReport.Metadata.Plugin.newBuilder().setKey("php").setUpdatedAt(678910L).build());
     metadataBuilder.getMutablePluginsByKey().put("customjava", ScannerReport.Metadata.Plugin.newBuilder().setKey("customjava").setUpdatedAt(111111L).build());
-    when(pluginRepository.getPluginInfo("customjava")).thenReturn(new PluginInfo("customjava").setBasePlugin("java"));
-
     reportReader.setMetadata(metadataBuilder.build());
+
+    when(pluginRepository.hasPlugin("java")).thenReturn(true);
+    when(pluginRepository.getPluginInfo("java")).thenReturn(new PluginInfo("java"));
+    when(pluginRepository.hasPlugin("customjava")).thenReturn(true);
+    when(pluginRepository.getPluginInfo("customjava")).thenReturn(new PluginInfo("customjava").setBasePlugin("java"));
+    // php plugin has been uninstalled between runs of scanner and compute engine
+    when(pluginRepository.hasPlugin("php")).thenReturn(false);
 
     underTest.execute();
 
-    assertThat(analysisMetadataHolder.getScannerPluginsByKey()).containsOnlyKeys("java", "php", "customjava");
     assertThat(analysisMetadataHolder.getScannerPluginsByKey().values()).extracting(ScannerPlugin::getKey, ScannerPlugin::getBasePluginKey, ScannerPlugin::getUpdatedAt)
-      .containsOnly(
+      .containsExactlyInAnyOrder(
         tuple("java", null, 12345L),
         tuple("customjava", "java", 111111L),
         tuple("php", null, 678910L));
