@@ -19,6 +19,11 @@
  */
 package org.sonarqube.tests.test;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.google.gson.stream.JsonReader;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
 import java.io.File;
@@ -33,6 +38,7 @@ import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 import org.sonarqube.qa.util.Tester;
 import org.sonarqube.ws.client.GetRequest;
+import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.WsRequest;
 
 import static com.codeborne.selenide.Condition.text;
@@ -78,12 +84,21 @@ public class CoverageTest {
 
     verifyComputeEngineTempDirIsEmpty();
   }
-
+  
   private String cleanupScmAndDuplication(String coverage) {
-    coverage = StringUtils.remove(coverage, ",\"scmAuthor\":\"\"");
-    coverage = StringUtils.remove(coverage, ",\"scmRevision\":\"\"");
-    coverage = StringUtils.remove(coverage, ",\"duplicated\":false");
-    return coverage;
+    JsonObject root = new JsonParser().parse(coverage).getAsJsonObject();
+    JsonArray sources = root.getAsJsonArray("sources");
+    
+    for(JsonElement e : sources) {
+      JsonObject line = e.getAsJsonObject();
+      line.remove("scmDate");
+      line.remove("scmAuthor");
+      line.remove("scmRevision");
+      line.remove("duplicated");
+    }
+    
+    
+    return root.toString();
   }
 
   @Test
