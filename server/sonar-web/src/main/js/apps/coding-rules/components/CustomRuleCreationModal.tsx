@@ -44,6 +44,7 @@ interface State {
   keyModifiedByUser: boolean;
   name: string;
   params: { [p: string]: string };
+  reactivating: boolean;
   severity: string;
   status: string;
   submitting: boolean;
@@ -67,6 +68,7 @@ export default class CustomRuleCreationModal extends React.PureComponent<Props, 
       keyModifiedByUser: false,
       name: (props.customRule && props.customRule.name) || '',
       params,
+      reactivating: false,
       severity: (props.customRule && props.customRule.severity) || props.templateRule.severity,
       status: (props.customRule && props.customRule.status) || props.templateRule.status,
       submitting: false,
@@ -107,7 +109,7 @@ export default class CustomRuleCreationModal extends React.PureComponent<Props, 
       : createRule({
           ...ruleData,
           custom_key: this.state.key,
-          prevent_reactivation: true,
+          prevent_reactivation: !this.state.reactivating,
           template_key: templateRule.key,
           type: this.state.type
         });
@@ -124,10 +126,9 @@ export default class CustomRuleCreationModal extends React.PureComponent<Props, 
           this.props.onDone(newRuleDetails);
         }
       },
-      () => {
-        // TODO reactivate rule
+      (response: Response) => {
         if (this.mounted) {
-          this.setState({ submitting: false });
+          this.setState({ reactivating: response.status === 409, submitting: false });
         }
       }
     );
@@ -179,7 +180,7 @@ export default class CustomRuleCreationModal extends React.PureComponent<Props, 
 
   render() {
     const { customRule, templateRule } = this.props;
-    const { submitting } = this.state;
+    const { reactivating, submitting } = this.state;
     const { params = [] } = templateRule;
     const header = translate(
       customRule ? 'coding_rules.update_custom_rule' : 'coding_rules.create_custom_rule'
@@ -192,6 +193,9 @@ export default class CustomRuleCreationModal extends React.PureComponent<Props, 
           </div>
 
           <div className="modal-body modal-container">
+            {reactivating && (
+              <div className="alert alert-warning">{translate('coding_rules.reactivate.help')}</div>
+            )}
             <table>
               <tbody>
                 <tr className="property">
@@ -365,16 +369,13 @@ export default class CustomRuleCreationModal extends React.PureComponent<Props, 
             {submitting && <i className="spinner spacer-right" />}
             <button
               disabled={submitting}
-              id="coding-rules-custom-rule-creation-create"
+              id={
+                reactivating
+                  ? 'coding-rules-custom-rule-creation-reactivate'
+                  : 'coding-rules-custom-rule-creation-create'
+              }
               type="submit">
-              {translate(customRule ? 'save' : 'create')}
-            </button>
-            <button
-              className="hidden"
-              disabled={submitting}
-              id="coding-rules-custom-rule-creation-reactivate"
-              type="submit">
-              {translate('coding_rules.reactivate')}
+              {translate(reactivating ? 'coding_rules.reactivate' : customRule ? 'save' : 'create')}
             </button>
             <button
               className="button-link"

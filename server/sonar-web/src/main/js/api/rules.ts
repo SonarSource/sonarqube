@@ -87,7 +87,18 @@ export function createRule(data: {
   template_key: string;
   type?: string;
 }): Promise<RuleDetails> {
-  return postJSON('/api/rules/create', data).then(r => r.rule, throwGlobalError);
+  return postJSON('/api/rules/create', data).then(
+    r => r.rule,
+    error => {
+      // do not show global error if the status code is 409
+      // this case should be handled inside a component
+      if (error && error.response && error.response.status === 409) {
+        return Promise.reject(error.response);
+      } else {
+        return throwGlobalError(error);
+      }
+    }
+  );
 }
 
 export function deleteRule(parameters: { key: string }) {
