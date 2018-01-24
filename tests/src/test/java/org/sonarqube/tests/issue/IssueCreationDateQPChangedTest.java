@@ -146,10 +146,9 @@ public class IssueCreationDateQPChangedTest extends AbstractIssueTest {
     analysis(QProfile.ONE_RULE, SourceCode.CHANGED);
 
     assertNumberOfIssues(3);
-    Stream.of(COMPONENTS_OF_SOURCE_CHANGED)
-      .forEach(component -> {
-        assertIssueCreationDate(component, IssueCreationDate.LATEST_ANALYSIS);
-      });
+    assertIssueCreationDate(Component.ForeverAndModified, IssueCreationDate.LATEST_ANALYSIS);
+    assertIssueCreationDate(Component.ForeverAndUnmodified, IssueCreationDate.FIRST_ANALYSIS);
+    assertIssueCreationDate(Component.OnlyInChanged, IssueCreationDate.LATEST_ANALYSIS);
   }
 
   @Test
@@ -182,7 +181,9 @@ public class IssueCreationDateQPChangedTest extends AbstractIssueTest {
     analysis(QProfile.ONE_RULE, SourceCode.CHANGED, ScannerFeature.EXPLICIT_DATE_2);
 
     assertNumberOfIssues(3);
-    assertIssueCreationDates(COMPONENTS_OF_SOURCE_CHANGED, IssueCreationDate.EXPLICIT_DATE_2);
+    assertIssueCreationDate(Component.ForeverAndModified, IssueCreationDate.EXPLICIT_DATE_2);
+    assertIssueCreationDate(Component.ForeverAndUnmodified, IssueCreationDate.EXPLICIT_DATE_1);
+    assertIssueCreationDate(Component.OnlyInChanged, IssueCreationDate.EXPLICIT_DATE_2);
   }
 
   private void analysis(QProfile qProfile, SourceCode sourceCode, ScannerFeature... scm) {

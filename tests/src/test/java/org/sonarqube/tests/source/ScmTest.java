@@ -87,10 +87,13 @@ public class ScmTest {
     assertThat(buildResult.getLogs()).doesNotContain("1 files to be analyzed");
     assertThat(buildResult.getLogs()).doesNotContain("1/1 files analyzed");
 
-    // Now if SCM is explicitely disabled it should clear SCM data on server side
+    // Now if SCM is explicitely disabled it should clear SCM author and revision
     buildResult = orchestrator.executeBuild(build.setProperty("sonar.scm.disabled", "true"));
 
-    assertThat(getScmData("sample-scm:src/main/xoo/sample/Sample.xoo")).isEmpty();
+    assertThat(getScmData("sample-scm:src/main/xoo/sample/Sample.xoo"))
+    .containsExactly(
+      MapEntry.entry(1, new LineData("", "2013-01-04T00:00:00+0000", "")),
+      MapEntry.entry(8, new LineData("", "2014-01-04T00:00:00+0000", "")));
 
     assertThat(buildResult.getLogs()).doesNotContain("1 files to be analyzed");
     assertThat(buildResult.getLogs()).doesNotContain("1/1 files analyzed");

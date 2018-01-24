@@ -24,6 +24,8 @@ import com.sonar.orchestrator.build.SonarScanner;
 import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.Date;
 import java.util.Map;
 import org.junit.ClassRule;
@@ -65,11 +67,12 @@ public class ScmThenNoScmTest {
 
     orchestrator.executeBuild(scanner);
 
+    Date commitDate = new Date(OffsetDateTime.of(2018, 1, 17, 10, 35, 23, 0, ZoneOffset.ofHours(1)).toInstant().toEpochMilli());
     Map<Integer, LineData> scmData = ws.getScmData("sample-with-then-without-scm:src/main/xoo/sample/Sample.xoo");
     assertThat(scmData.size()).isEqualTo(1);
     assertThat(scmData.get(1).revision).isEqualTo("036fcddbf771b54d7c5f7c8125a493d7d03a9d9d");
     assertThat(scmData.get(1).author).isEqualTo("guillaume.jambet@sonarsource.com");
-    assertThat(scmData.get(1).date).isEqualToIgnoringMillis("2018-01-17T10:35:23");
+    assertThat(scmData.get(1).date).isEqualToIgnoringMillis(commitDate);
 
     // Drop SCM
     deleteDirectory(new File(source, ".git"));
@@ -82,7 +85,7 @@ public class ScmThenNoScmTest {
     assertThat(scmData.size()).isEqualTo(1);
     assertThat(scmData.get(1).revision).isEmpty();
     assertThat(scmData.get(1).author).isEmpty();
-    assertThat(scmData.get(1).date).isEqualToIgnoringMillis("2018-01-17T10:35:23");
+    assertThat(scmData.get(1).date).isEqualToIgnoringMillis(commitDate);
 
   }
 
@@ -98,12 +101,12 @@ public class ScmThenNoScmTest {
       .setProperty("sonar.scm.disabled", "false");
 
     orchestrator.executeBuild(scanner);
-
+    Date commitDate = new Date(OffsetDateTime.of(2018, 1, 17, 10, 35, 23, 0, ZoneOffset.ofHours(1)).toInstant().toEpochMilli());
     Map<Integer, LineData> scmData = ws.getScmData("sample-with-then-without-scm:src/main/xoo/sample/Sample.xoo");
     assertThat(scmData.size()).isEqualTo(1);
     assertThat(scmData.get(1).revision).isEqualTo("036fcddbf771b54d7c5f7c8125a493d7d03a9d9d");
     assertThat(scmData.get(1).author).isEqualTo("guillaume.jambet@sonarsource.com");
-    assertThat(scmData.get(1).date).isEqualToIgnoringMillis("2018-01-17T10:35:23");
+    assertThat(scmData.get(1).date).isEqualToIgnoringMillis(commitDate);
 
     // Drop SCM
     deleteDirectory(new File(source, ".git"));
@@ -120,7 +123,7 @@ public class ScmThenNoScmTest {
     scmData = ws.getScmData("sample-with-then-without-scm:src/main/xoo/sample/Sample.xoo");
     assertThat(scmData.get(1).revision).isEmpty();
     assertThat(scmData.get(1).author).isEmpty();
-    assertThat(scmData.get(1).date).isEqualToIgnoringMillis("2018-01-17T10:35:23");
+    assertThat(scmData.get(1).date).isEqualToIgnoringMillis(commitDate);
 
     assertThat(scmData.get(5).revision).isEmpty();
     assertThat(scmData.get(5).author).isEmpty();

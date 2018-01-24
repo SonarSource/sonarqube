@@ -63,21 +63,23 @@ public class NewIssuesMeasureTest extends AbstractIssueTest {
     // Execute an analysis in the past with no issue to have a past snapshot
     String past = formatDate(addDays(new Date(), -30));
     ORCHESTRATOR.getServer().associateProjectToQualityProfile("sample", "xoo", "empty");
-    ORCHESTRATOR.executeBuild(SonarScanner.create(projectDir("shared/xoo-sample")).setProperty("sonar.projectDate", past));
+    ORCHESTRATOR.executeBuild(SonarScanner.create(projectDir("shared/xoo-sample-missing-some-lines")).setProperty("sonar.projectDate", past));
 
-    // Execute an analysis now with some issues
+    // Execute an analysis now with some issues. Issues on new lines will be new, while the issues on matching lines will be backdated.
     ItUtils.restoreProfile(ORCHESTRATOR, getClass().getResource("/issue/one-issue-per-line-profile.xml"));
     ORCHESTRATOR.getServer().associateProjectToQualityProfile("sample", "xoo", "one-issue-per-line-profile");
     ORCHESTRATOR.executeBuild(SonarScanner.create(projectDir("shared/xoo-sample")));
 
     assertThat(ORCHESTRATOR.getServer().wsClient().issueClient().find(IssueQuery.create()).list()).isNotEmpty();
-    assertThat(getLeakPeriodValue(ORCHESTRATOR, "sample:src/main/xoo/sample/Sample.xoo", "new_violations")).isEqualTo(17);
+    assertThat(getLeakPeriodValue(ORCHESTRATOR, "sample:src/main/xoo/sample/Sample.xoo", "new_violations")).isEqualTo(7);
+    assertThat(ItUtils.getMeasureAsDouble(ORCHESTRATOR, "sample:src/main/xoo/sample/Sample.xoo", "violations")).isEqualTo(17);
+
 
     // second analysis, with exactly the same profile -> no new issues
     ORCHESTRATOR.executeBuild(SonarScanner.create(projectDir("shared/xoo-sample")));
 
     assertThat(ORCHESTRATOR.getServer().wsClient().issueClient().find(IssueQuery.create()).list()).isNotEmpty();
-    assertThat(getLeakPeriodValue(ORCHESTRATOR, "sample:src/main/xoo/sample/Sample.xoo", "new_violations")).isEqualTo(17);
+    assertThat(getLeakPeriodValue(ORCHESTRATOR, "sample:src/main/xoo/sample/Sample.xoo", "new_violations")).isEqualTo(7);
   }
 
   @Test
@@ -145,7 +147,9 @@ public class NewIssuesMeasureTest extends AbstractIssueTest {
     ORCHESTRATOR.getServer().associateProjectToQualityProfile("com.sonarsource.it.samples:multi-modules-sample", "xoo", "profile2");
     ORCHESTRATOR.executeBuild(SonarScanner.create(projectDir("shared/xoo-multi-modules-sample")));
 
-    assertThat(getLeakPeriodValue(ORCHESTRATOR, "com.sonarsource.it.samples:multi-modules-sample", "new_violations")).isEqualTo(65);
+    // new issues only in module B. For module B, even with the new rule activated, issues are backdated
+    // 2 issuePerModule + 2 issuePerFile + 24 issuePerLine
+    assertThat(getLeakPeriodValue(ORCHESTRATOR, "com.sonarsource.it.samples:multi-modules-sample", "new_violations")).isEqualTo(28);
   }
 
 }

@@ -54,31 +54,31 @@ public class TechnicalDebtAndIssueNewMeasuresTest {
     setSampleProjectQualityProfile("empty");
     runSampleProjectAnalysis("v1", "sonar.projectDate", DATE_31_DAYS_AGO);
 
-    // Second analysis issues will be created -> new issues and new technical debt
+    // Second analysis issues will be created -> issues are backdated
     setSampleProjectQualityProfile("one-issue-per-line");
     runSampleProjectAnalysis("v1");
-    assertLeakPeriodForComponent("sample", 26, 26);
-    assertLeakPeriodForComponent("sample:src/main/xoo/sample/UnchangedClass.xoo", 13, 13);
-    assertLeakPeriodForComponent("sample:src/main/xoo/sample/ClassToModify.xoo", 13, 13);
+    assertLeakPeriodForComponent("sample", 0, 0);
+    assertLeakPeriodForComponent("sample:src/main/xoo/sample/UnchangedClass.xoo", 0, 0);
+    assertLeakPeriodForComponent("sample:src/main/xoo/sample/ClassToModify.xoo", 0, 0);
 
-    // Third analysis, with exactly the same profile -> no new issues but still the same on leak => same values as before
+    // Third analysis, with exactly the same profile -> no new issues => same values as before
     runSampleProjectAnalysis("v1");
-    assertLeakPeriodForComponent("sample", 26, 26);
-    assertLeakPeriodForComponent("sample:src/main/xoo/sample/UnchangedClass.xoo", 13, 13);
-    assertLeakPeriodForComponent("sample:src/main/xoo/sample/ClassToModify.xoo", 13, 13);
+    assertLeakPeriodForComponent("sample", 0, 0);
+    assertLeakPeriodForComponent("sample:src/main/xoo/sample/UnchangedClass.xoo", 0, 0);
+    assertLeakPeriodForComponent("sample:src/main/xoo/sample/ClassToModify.xoo", 0, 0);
 
     // Fourth analysis, with new files and modified files -> new issues and new technical debt
     runSampleProjectAnalysis("v2");
-    assertLeakPeriodForComponent("sample", 43, 43);
-    assertLeakPeriodForComponent("sample:src/main/xoo/sample/UnchangedClass.xoo", 13, 13);
-    assertLeakPeriodForComponent("sample:src/main/xoo/sample/ClassToModify.xoo", 17, 17);
+    assertLeakPeriodForComponent("sample", 17, 17);
+    assertLeakPeriodForComponent("sample:src/main/xoo/sample/UnchangedClass.xoo", 0, 0);
+    assertLeakPeriodForComponent("sample:src/main/xoo/sample/ClassToModify.xoo", 4, 4);
     assertLeakPeriodForComponent("sample:src/main/xoo/sample/ClassAdded.xoo", 13, 13);
 
     // Fifth analysis, no change -> no new issues but still the same on leak => same values as before
     runSampleProjectAnalysis("v2");
-    assertLeakPeriodForComponent("sample", 43, 43);
-    assertLeakPeriodForComponent("sample:src/main/xoo/sample/UnchangedClass.xoo", 13, 13);
-    assertLeakPeriodForComponent("sample:src/main/xoo/sample/ClassToModify.xoo", 17, 17);
+    assertLeakPeriodForComponent("sample", 17, 17);
+    assertLeakPeriodForComponent("sample:src/main/xoo/sample/UnchangedClass.xoo", 0, 0);
+    assertLeakPeriodForComponent("sample:src/main/xoo/sample/ClassToModify.xoo", 4, 4);
     assertLeakPeriodForComponent("sample:src/main/xoo/sample/ClassAdded.xoo", 13, 13);
   }
 
@@ -92,31 +92,31 @@ public class TechnicalDebtAndIssueNewMeasuresTest {
     setSampleProjectQualityProfile("empty");
     runSampleProjectAnalysis("v1", "sonar.projectDate", DATE_31_DAYS_AGO);
 
-    // Second analysis issues will be created -> new issues and new technical debt
+    // Second analysis issues will be created -> new issues that are backdated
     setSampleProjectQualityProfile("one-issue-per-line");
     runSampleProjectAnalysis("v1");
-    assertLeakPeriodForComponent("sample", 26, 26);
-    assertLeakPeriodForComponent("sample:src/main/xoo/sample/UnchangedClass.xoo", 13, 13);
-    assertLeakPeriodForComponent("sample:src/main/xoo/sample/ClassToModify.xoo", 13, 13);
+    assertLeakPeriodForComponent("sample", 0, 0);
+    assertLeakPeriodForComponent("sample:src/main/xoo/sample/UnchangedClass.xoo", 0, 0);
+    assertLeakPeriodForComponent("sample:src/main/xoo/sample/ClassToModify.xoo", 0, 0);
 
-    // Third analysis, with exactly the same profile -> no new issues but still the same on leak => same values as before
+    // Third analysis, with exactly the same profile -> no new issues => same values as before
     runSampleProjectAnalysis("v1", "sonar.oneIssuePerLine.effortToFix", "10");
-    assertLeakPeriodForComponent("sample", 260, 26);
-    assertLeakPeriodForComponent("sample:src/main/xoo/sample/UnchangedClass.xoo", 130, 13);
-    assertLeakPeriodForComponent("sample:src/main/xoo/sample/ClassToModify.xoo", 130, 13);
+    assertLeakPeriodForComponent("sample", 0, 0);
+    assertLeakPeriodForComponent("sample:src/main/xoo/sample/UnchangedClass.xoo", 0, 0);
+    assertLeakPeriodForComponent("sample:src/main/xoo/sample/ClassToModify.xoo", 0, 0);
 
     // Fourth analysis, with new files, modified files and increased effort -> new issues and new technical debt
     runSampleProjectAnalysis("v2", "sonar.oneIssuePerLine.effortToFix", "10");
-    assertLeakPeriodForComponent("sample", 430, 43);
-    assertLeakPeriodForComponent("sample:src/main/xoo/sample/UnchangedClass.xoo", 130, 13);
-    assertLeakPeriodForComponent("sample:src/main/xoo/sample/ClassToModify.xoo", 170, 17);
+    assertLeakPeriodForComponent("sample", 170, 17);
+    assertLeakPeriodForComponent("sample:src/main/xoo/sample/UnchangedClass.xoo", 0, 0);
+    assertLeakPeriodForComponent("sample:src/main/xoo/sample/ClassToModify.xoo", 40, 4);
     assertLeakPeriodForComponent("sample:src/main/xoo/sample/ClassAdded.xoo", 130, 13);
 
     // Fifth analysis, effort divided by 2 -> no new issues but still the same on leak => same values as before
     runSampleProjectAnalysis("v2", "sonar.oneIssuePerLine.effortToFix", "5");
-    assertLeakPeriodForComponent("sample", 215, 43);
-    assertLeakPeriodForComponent("sample:src/main/xoo/sample/UnchangedClass.xoo", 65, 13);
-    assertLeakPeriodForComponent("sample:src/main/xoo/sample/ClassToModify.xoo", 85, 17);
+    assertLeakPeriodForComponent("sample", 85, 17);
+    assertLeakPeriodForComponent("sample:src/main/xoo/sample/UnchangedClass.xoo", 0, 0);
+    assertLeakPeriodForComponent("sample:src/main/xoo/sample/ClassToModify.xoo", 20, 4);
     assertLeakPeriodForComponent("sample:src/main/xoo/sample/ClassAdded.xoo", 65, 13);
   }
 
@@ -130,18 +130,18 @@ public class TechnicalDebtAndIssueNewMeasuresTest {
     setSampleProjectQualityProfile("empty");
     runSampleProjectAnalysis("v1", "sonar.projectDate", DATE_31_DAYS_AGO);
 
-    // Second analysis issues will be created -> new issues and new technical debt
+    // Second analysis issues will be created -> no new issues as they are backdated
     setSampleProjectQualityProfile("one-issue-per-line");
     runSampleProjectAnalysis("v1");
-    assertLeakPeriodForComponent("sample", 26, 26);
-    assertLeakPeriodForComponent("sample:src/main/xoo/sample/UnchangedClass.xoo", 13, 13);
-    assertLeakPeriodForComponent("sample:src/main/xoo/sample/ClassToModify.xoo", 13, 13);
+    assertLeakPeriodForComponent("sample", 0, 0);
+    assertLeakPeriodForComponent("sample:src/main/xoo/sample/UnchangedClass.xoo", 0, 0);
+    assertLeakPeriodForComponent("sample:src/main/xoo/sample/ClassToModify.xoo", 0, 0);
 
-    // Third analysis, with exactly the same profile -> no new issues but still the same on leak => same values as before
+    // Third analysis, with exactly the same profile -> no new issues => same values as before
     runSampleProjectAnalysis("v1");
-    assertLeakPeriodForComponent("sample", 26, 26);
-    assertLeakPeriodForComponent("sample:src/main/xoo/sample/UnchangedClass.xoo", 13, 13);
-    assertLeakPeriodForComponent("sample:src/main/xoo/sample/ClassToModify.xoo", 13, 13);
+    assertLeakPeriodForComponent("sample", 0, 0);
+    assertLeakPeriodForComponent("sample:src/main/xoo/sample/UnchangedClass.xoo", 0, 0);
+    assertLeakPeriodForComponent("sample:src/main/xoo/sample/ClassToModify.xoo", 0, 0);
 
     // Fourth analysis, with new files and modified files -> new issues and new technical debt
     runSampleProjectAnalysis("v2");
@@ -150,7 +150,7 @@ public class TechnicalDebtAndIssueNewMeasuresTest {
     assertLeakPeriodForComponent("sample:src/main/xoo/sample/ClassToModify.xoo", 4, 4);
     assertLeakPeriodForComponent("sample:src/main/xoo/sample/ClassAdded.xoo", 13, 13);
 
-    // Fifth analysis, no change -> no new issues but still the same on leak => same values as before
+    // Fifth analysis, no change -> no new issues and still the same effort => same values as before
     runSampleProjectAnalysis("v2");
     assertLeakPeriodForComponent("sample", 17, 17);
     assertLeakPeriodForComponent("sample:src/main/xoo/sample/UnchangedClass.xoo", 0, 0);
@@ -160,7 +160,7 @@ public class TechnicalDebtAndIssueNewMeasuresTest {
 
   @Test
   public void since_previous_version_with_effort_change() {
-    tester.settings().setGlobalSettings( "sonar.leak.period", "previous_version");
+    tester.settings().setGlobalSettings("sonar.leak.period", "previous_version");
     restoreQualityProfile("one-issue-per-line");
     provisionSampleProject();
 
@@ -168,18 +168,18 @@ public class TechnicalDebtAndIssueNewMeasuresTest {
     setSampleProjectQualityProfile("empty");
     runSampleProjectAnalysis("v1", "sonar.projectDate", DATE_31_DAYS_AGO);
 
-    // Second analysis issues will be created -> new issues and new technical debt
+    // Second analysis issues will be created -> isues are backdated
     setSampleProjectQualityProfile("one-issue-per-line");
     runSampleProjectAnalysis("v1");
-    assertLeakPeriodForComponent("sample", 26, 26);
-    assertLeakPeriodForComponent("sample:src/main/xoo/sample/UnchangedClass.xoo", 13, 13);
-    assertLeakPeriodForComponent("sample:src/main/xoo/sample/ClassToModify.xoo", 13, 13);
+    assertLeakPeriodForComponent("sample", 0, 0);
+    assertLeakPeriodForComponent("sample:src/main/xoo/sample/UnchangedClass.xoo", 0, 0);
+    assertLeakPeriodForComponent("sample:src/main/xoo/sample/ClassToModify.xoo", 0, 0);
 
-    // Third analysis, with exactly the same profile -> no new issues but still the same on leak => same values as before
+    // Third analysis, with exactly the same profile -> no new issues => same values as before
     runSampleProjectAnalysis("v1", "sonar.oneIssuePerLine.effortToFix", "10");
-    assertLeakPeriodForComponent("sample", 260, 26);
-    assertLeakPeriodForComponent("sample:src/main/xoo/sample/UnchangedClass.xoo", 130, 13);
-    assertLeakPeriodForComponent("sample:src/main/xoo/sample/ClassToModify.xoo", 130, 13);
+    assertLeakPeriodForComponent("sample", 0, 0);
+    assertLeakPeriodForComponent("sample:src/main/xoo/sample/UnchangedClass.xoo", 0, 0);
+    assertLeakPeriodForComponent("sample:src/main/xoo/sample/ClassToModify.xoo", 0, 0);
 
     // Fourth analysis, with new files, modified files and increased effort -> new issues and new technical debt
     runSampleProjectAnalysis("v2", "sonar.oneIssuePerLine.effortToFix", "10");
@@ -188,12 +188,12 @@ public class TechnicalDebtAndIssueNewMeasuresTest {
     assertLeakPeriodForComponent("sample:src/main/xoo/sample/ClassToModify.xoo", 40, 4);
     assertLeakPeriodForComponent("sample:src/main/xoo/sample/ClassAdded.xoo", 130, 13);
 
-    // Fifth analysis, no change -> no new issues but still the same on leak => same values as before
-    runSampleProjectAnalysis("v2", "sonar.oneIssuePerLine.effortToFix", "10");
-    assertLeakPeriodForComponent("sample", 170, 17);
+    // Fifth analysis, no change -> no new issues but different effort => update debt values
+    runSampleProjectAnalysis("v2", "sonar.oneIssuePerLine.effortToFix", "5");
+    assertLeakPeriodForComponent("sample", 85, 17);
     assertLeakPeriodForComponent("sample:src/main/xoo/sample/UnchangedClass.xoo", 0, 0);
-    assertLeakPeriodForComponent("sample:src/main/xoo/sample/ClassToModify.xoo", 40, 4);
-    assertLeakPeriodForComponent("sample:src/main/xoo/sample/ClassAdded.xoo", 130, 13);
+    assertLeakPeriodForComponent("sample:src/main/xoo/sample/ClassToModify.xoo", 20, 4);
+    assertLeakPeriodForComponent("sample:src/main/xoo/sample/ClassAdded.xoo", 65, 13);
   }
 
   private void assertLeakPeriodForComponent(String componentKey, int expectedDebt, int expectedIssues) {

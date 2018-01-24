@@ -263,7 +263,7 @@ public class ProjectFilterTest {
       tuple("10.0-20.0", 0L),
       tuple("20.0-*", 0L));
     checkFacet(response, "new_lines",
-      tuple("*-1000.0", 1L),
+      tuple("*-1000.0", 2L),
       tuple("1000.0-10000.0", 0L),
       tuple("10000.0-100000.0", 0L),
       tuple("100000.0-500000.0", 0L),
