@@ -38,6 +38,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.ExtensionPoint;
 import org.sonar.api.ce.ComputeEngineSide;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.RuleType;
@@ -693,6 +694,7 @@ public interface RulesDefinition {
     private final Map<String, NewParam> paramsByKey = new HashMap<>();
     private final DebtRemediationFunctions functions;
     private boolean activatedByDefault;
+    private final Set<RuleKey> deprecatedRuleKeys = new TreeSet<>();
 
     private NewRule(@Nullable String pluginKey, String repoKey, String key) {
       this.pluginKey = pluginKey;
@@ -925,6 +927,21 @@ public interface RulesDefinition {
       }
     }
 
+    /**
+     * Register a repository and key under which this rule used to be known
+     * (see {@link Rule#deprecatedRuleKeys} for details).
+     * <p>
+     * Deprecated keys should be added with this method in order, oldest first, for documentation purpose.
+     *
+     * @since 7.1
+     * @throws IllegalArgumentException if {@code repository} or {@code key} is {@code null} or empty.
+     * @see Rule#deprecatedRuleKeys
+     */
+    public NewRule addDeprecatedRuleKey(String repository, String key) {
+      deprecatedRuleKeys.add(RuleKey.of(repository, key));
+      return this;
+    }
+
     @Override
     public String toString() {
       return format("[repository=%s, key=%s]", repoKey, key);
@@ -950,6 +967,7 @@ public interface RulesDefinition {
     private final Map<String, Param> params;
     private final RuleStatus status;
     private final boolean activatedByDefault;
+    private final Set<RuleKey> deprecatedRuleKeys;
 
     private Rule(Repository repository, NewRule newRule) {
       this.pluginKey = newRule.pluginKey;
@@ -973,6 +991,7 @@ public interface RulesDefinition {
       }
       this.params = Collections.unmodifiableMap(paramsBuilder);
       this.activatedByDefault = newRule.activatedByDefault;
+      this.deprecatedRuleKeys = ImmutableSortedSet.copyOf(newRule.deprecatedRuleKeys);
     }
 
     public Repository repository() {
@@ -1075,6 +1094,68 @@ public interface RulesDefinition {
 
     public Set<String> tags() {
       return tags;
+    }
+
+    /**
+     * Deprecated rules keys for this rule.
+     * <p>
+     * If you want to rename the key of a rule or change its repository or both, register the rule's previous repository
+     * and key (see {@link NewRule#addDeprecatedRuleKey(String, String) addDeprecatedRuleKey}). This will allow
+     * SonarQube to support "issue renaming" for this rule.
+     * <p>
+     * If deprecated keys are not declared, existing issues for this rule, created under the rule's previous repository
+     * and/or name, will be closed and new ones will be created under the issue's new repository and/or key.
+     * <p>
+     * Several deprecated keys can be provided to allow SonarQube to support several "issue renaming" across multiple
+     * versions of a plugin.
+     * <br>
+     * Consider the following use case scenario:
+     * <ul>
+     *   <li>Rule {@code Foo:A} is defined in version 1 of the plugin
+     * <pre>
+     * NewRepository newRepository = context.createRepository("Foo", "my_language");
+     * NewRule r = newRepository.createRule("A");
+     * </pre>
+     *   </li>
+     *   <li>Rule's key is renamed to B in version 2 of the plugin
+     * <pre>
+     * NewRepository newRepository = context.createRepository("Foo", "my_language");
+     * NewRule r = newRepository.createRule("B")
+     *   .addDeprecatedRuleKey("Foo", "A");
+     * </pre>
+     *   </li>
+     *   <li>All rules, including {@code Foo:B}, are moved to a new repository Bar in version 3 of the plugin
+     * <pre>
+     * NewRepository newRepository = context.createRepository("Bar", "my_language");
+     * NewRule r = newRepository.createRule("B")
+     *   .addDeprecatedRuleKey("Foo", "A")
+     *   .addDeprecatedRuleKey("Bar", "B");
+     * </pre>
+     *   </li>
+     * </ul>
+     *
+     * With all deprecated keys defined in version 3 of the plugin, SonarQube will be able to support "issue renaming"
+     * for this rule in all cases:
+     * <ul>
+     *   <li>plugin upgrade from v1 to v2,</li>
+     *   <li>plugin upgrade from v2 to v3</li>
+     *   <li>AND plugin upgrade from v1 to v3</li>
+     * </ul>
+     * <p>
+     * Finally, pairs repository/key must be unique across all rules and their deprecated keys.
+     * <br>
+     * This implies that no rule can use the same repository and key as the deprecated key of another rule. This
+     * uniqueness applies across plugins.
+     * <p>
+     * Note that, even though this method returns a {@code Set}, its elements are ordered according to calls to
+     * {@link NewRule#addDeprecatedRuleKey(String, String) addDeprecatedRuleKey}. This allows to describe the history
+     * of a rule's repositories and keys over time. Oldest repository and key must be specified first.
+     *
+     * @since 7.1
+     * @see NewRule#addDeprecatedRuleKey(String, String)
+     */
+    public Set<RuleKey> deprecatedRuleKeys() {
+      return deprecatedRuleKeys;
     }
 
     /**
