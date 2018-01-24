@@ -20,6 +20,8 @@
 package org.sonar.server.ui.ws;
 
 import com.google.common.collect.ImmutableSet;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import org.sonar.api.Startable;
 import org.sonar.api.config.Configuration;
@@ -47,19 +49,20 @@ import static org.sonar.core.config.WebConstants.SONAR_LF_ENABLE_GRAVATAR;
 import static org.sonar.core.config.WebConstants.SONAR_LF_GRAVATAR_SERVER_URL;
 import static org.sonar.core.config.WebConstants.SONAR_LF_LOGO_URL;
 import static org.sonar.core.config.WebConstants.SONAR_LF_LOGO_WIDTH_PX;
-import static org.sonar.core.config.WebConstants.SONAR_UPDATECENTER_ACTIVATE;
 import static org.sonar.process.ProcessProperties.Property.SONARCLOUD_ENABLED;
+import static org.sonar.process.ProcessProperties.Property.SONAR_UPDATECENTER_ACTIVATE;
 
 public class GlobalAction implements NavigationWsAction, Startable {
 
-  private static final Set<String> SETTING_KEYS = ImmutableSet.of(
+  private static final Set<String> DYNAMIC_SETTING_KEYS = ImmutableSet.of(
     SONAR_LF_LOGO_URL,
     SONAR_LF_LOGO_WIDTH_PX,
     SONAR_LF_ENABLE_GRAVATAR,
     SONAR_LF_GRAVATAR_SERVER_URL,
-    SONAR_UPDATECENTER_ACTIVATE,
     EDITIONS_CONFIG_URL,
     RATING_GRID);
+
+  private final Map<String, String> systemSettingValuesByKey;
 
   private final PageRepository pageRepository;
   private final Configuration config;
@@ -71,7 +74,6 @@ public class GlobalAction implements NavigationWsAction, Startable {
   private final DefaultOrganizationProvider defaultOrganizationProvider;
   private final BranchFeatureProxy branchFeature;
   private final UserSession userSession;
-  private boolean isSonarCloudEnabled;
 
   public GlobalAction(PageRepository pageRepository, Configuration config, ResourceTypes resourceTypes, Server server,
     WebServer webServer, DbClient dbClient, OrganizationFlags organizationFlags,
@@ -86,12 +88,13 @@ public class GlobalAction implements NavigationWsAction, Startable {
     this.defaultOrganizationProvider = defaultOrganizationProvider;
     this.branchFeature = branchFeature;
     this.userSession = userSession;
-
+    this.systemSettingValuesByKey = new HashMap<>();
   }
 
   @Override
   public void start() {
-    this.isSonarCloudEnabled = config.getBoolean(SONARCLOUD_ENABLED.getKey()).orElse(false);
+    this.systemSettingValuesByKey.put(SONARCLOUD_ENABLED.getKey(), config.get(SONARCLOUD_ENABLED.getKey()).orElse(null));
+    this.systemSettingValuesByKey.put(SONAR_UPDATECENTER_ACTIVATE.getKey(), config.get(SONAR_UPDATECENTER_ACTIVATE.getKey()).orElse(null));
   }
 
   @Override
@@ -144,10 +147,8 @@ public class GlobalAction implements NavigationWsAction, Startable {
 
   private void writeSettings(JsonWriter json) {
     json.name("settings").beginObject();
-    for (String settingKey : SETTING_KEYS) {
-      json.prop(settingKey, config.get(settingKey).orElse(null));
-    }
-    json.prop(SONARCLOUD_ENABLED.getKey(), isSonarCloudEnabled);
+    DYNAMIC_SETTING_KEYS.forEach(key -> json.prop(key, config.get(key).orElse(null)));
+    systemSettingValuesByKey.forEach(json::prop);
     json.endObject();
   }
 

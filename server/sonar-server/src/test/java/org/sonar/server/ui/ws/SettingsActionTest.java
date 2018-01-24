@@ -24,8 +24,8 @@ import org.junit.Test;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.web.page.Page;
 import org.sonar.api.web.page.PageDefinition;
-import org.sonar.core.config.WebConstants;
 import org.sonar.core.platform.PluginRepository;
+import org.sonar.process.ProcessProperties;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ui.PageRepository;
 import org.sonar.server.ws.WsActionTester;
@@ -63,7 +63,7 @@ public class SettingsActionTest {
   @Test
   public void returns_update_center_settings() {
     init();
-    settings.setProperty(WebConstants.SONAR_UPDATECENTER_ACTIVATE, true);
+    settings.setProperty(ProcessProperties.Property.SONAR_UPDATECENTER_ACTIVATE.getKey(), true);
     logInAsSystemAdministrator();
 
     executeAndVerify("with_update_center.json");
@@ -72,7 +72,7 @@ public class SettingsActionTest {
   @Test
   public void request_succeeds_but_settings_are_not_returned_when_user_is_not_system_administrator() {
     init(createPages());
-    settings.setProperty(WebConstants.SONAR_UPDATECENTER_ACTIVATE, true);
+    settings.setProperty(ProcessProperties.Property.SONAR_UPDATECENTER_ACTIVATE.getKey(), true);
     userSessionRule.logIn().setNonSystemAdministrator();
 
     executeAndVerify("empty.json");

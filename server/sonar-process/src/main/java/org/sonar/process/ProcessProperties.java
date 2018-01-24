@@ -93,7 +93,8 @@ public class ProcessProperties {
     CLUSTER_NAME("sonar.cluster.name", "sonarqube"),
     CLUSTER_WEB_STARTUP_LEADER("sonar.cluster.web.startupLeader"),
 
-    SONARCLOUD_ENABLED("sonar.sonarcloud.enabled", "false");
+    SONARCLOUD_ENABLED("sonar.sonarcloud.enabled", "false"),
+    SONAR_UPDATECENTER_ACTIVATE("sonar.updatecenter.activate", "true");
 
     private final String key;
     private final String defaultValue;
