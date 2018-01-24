@@ -36,14 +36,13 @@ import static util.ItUtils.xooPlugin;
 })
 public class SourceSuite {
 
-
   @ClassRule
   public static final Orchestrator ORCHESTRATOR = Orchestrator
     .builderEnv()
     .setServerProperty("sonar.search.javaOpts", "-Xms128m -Xmx128m")
-    .setOrchestratorProperty("sonar-scm-git-plugin-version", "1.3.0.869")
+    .setOrchestratorProperty("scmgitVersion", "LATEST_RELEASE")
     .addPlugin(xooPlugin())
-    .addMavenPlugin("org.sonarsource.scm.git", "sonar-scm-git-plugin", "sonar-scm-git-plugin-version")
+    .addPlugin("scmgit")
     .build();
 
 }
