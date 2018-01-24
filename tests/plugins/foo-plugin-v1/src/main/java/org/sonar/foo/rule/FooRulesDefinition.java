@@ -32,16 +32,18 @@ public class FooRulesDefinition implements RulesDefinition {
   }
 
   private static void defineRulesXoo(Context context) {
-    NewRepository repo = context.createRepository(FOO_REPOSITORY, Foo.KEY).setName("Foo");
-    createRule(repo, "UnchangedRule");
-    createRule(repo, "ChangedRule");
-    createRule(repo, "ToBeDeactivatedRule");
-    createRule(repo, "ToBeRemovedRule");
-    createRule(repo, "RuleWithUnchangedParameter").createParam("unchanged").setDefaultValue("10");
-    createRule(repo, "RuleWithChangedParameter").createParam("toBeChanged").setDefaultValue("10");
-    createRule(repo, "RuleWithRemovedParameter").createParam("toBeRemoved").setDefaultValue("10");
-    createRule(repo, "RuleWithAddedParameter").createParam("added");
-    repo.done();
+    NewRepository repoFoo1 = context.createRepository(FOO_REPOSITORY, Foo.KEY).setName("Foo");
+    createRule(repoFoo1, "UnchangedRule");
+    createRule(repoFoo1, "ChangedRule");
+    createRule(repoFoo1, "ToBeDeactivatedRule");
+    createRule(repoFoo1, "ToBeRemovedRule");
+    createRule(repoFoo1, "RuleWithUnchangedParameter").createParam("unchanged").setDefaultValue("10");
+    createRule(repoFoo1, "RuleWithChangedParameter").createParam("toBeChanged").setDefaultValue("10");
+    createRule(repoFoo1, "RuleWithRemovedParameter").createParam("toBeRemoved").setDefaultValue("10");
+    createRule(repoFoo1, "RuleWithAddedParameter").createParam("added");
+    createRule(repoFoo1, "ToBeRenamed");
+    createRule(repoFoo1, "ToBeRenamedAndMoved");
+    repoFoo1.done();
   }
 
   private static NewRule createRule(NewRepository repo, String key) {

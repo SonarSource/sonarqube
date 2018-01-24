@@ -25,6 +25,7 @@ import org.sonar.foo.Foo;
 public class FooRulesDefinition implements RulesDefinition {
 
   public static final String FOO_REPOSITORY = "foo";
+  public static final String FOO_REPOSITORY_2 = "foo2";
 
   @Override
   public void define(Context context) {
@@ -32,17 +33,22 @@ public class FooRulesDefinition implements RulesDefinition {
   }
 
   private static void defineRulesXoo(Context context) {
-    NewRepository repo = context.createRepository(FOO_REPOSITORY, Foo.KEY).setName("Foo");
-    createRule(repo, "UnchangedRule");
-    createRule(repo, "ChangedRule");
-    createRule(repo, "NewRule");
-    createRule(repo, "ToBeDeactivatedRule");
-    createRule(repo, "RuleWithUnchangedParameter").createParam("unchanged").setDefaultValue("10");
+    NewRepository repoFoo1 = context.createRepository(FOO_REPOSITORY, Foo.KEY).setName("Foo");
+    createRule(repoFoo1, "UnchangedRule");
+    createRule(repoFoo1, "ChangedRule");
+    createRule(repoFoo1, "NewRule");
+    createRule(repoFoo1, "ToBeDeactivatedRule");
+    createRule(repoFoo1, "RuleWithUnchangedParameter").createParam("unchanged").setDefaultValue("10");
     // Update of the default value of a parameter is not taken into account in quality profile as long as it's not also explicitly set in the quality profile
-    createRule(repo, "RuleWithChangedParameter").createParam("toBeChanged").setDefaultValue("20");
-    createRule(repo, "RuleWithRemovedParameter");
-    createRule(repo, "RuleWithAddedParameter").createParam("added").setDefaultValue("10");
-    repo.done();
+    createRule(repoFoo1, "RuleWithChangedParameter").createParam("toBeChanged").setDefaultValue("20");
+    createRule(repoFoo1, "RuleWithRemovedParameter");
+    createRule(repoFoo1, "RuleWithAddedParameter").createParam("added").setDefaultValue("10");
+    createRule(repoFoo1, "Renamed").addDeprecatedRuleKey(FOO_REPOSITORY, "ToBeRenamed");
+    repoFoo1.done();
+
+    NewRepository repoFoo2 = context.createRepository(FOO_REPOSITORY_2, Foo.KEY).setName("Foo2");
+    createRule(repoFoo2, "RenamedAndMoved").addDeprecatedRuleKey(FOO_REPOSITORY, "ToBeRenamedAndMoved");
+    repoFoo2.done();
   }
 
   private static NewRule createRule(NewRepository repo, String key) {
