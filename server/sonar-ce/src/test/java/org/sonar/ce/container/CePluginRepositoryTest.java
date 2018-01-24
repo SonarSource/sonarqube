@@ -30,6 +30,8 @@ import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.Mockito;
 import org.sonar.api.Plugin;
+import org.sonar.api.utils.log.LogTester;
+import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.core.platform.PluginLoader;
 import org.sonar.server.platform.ServerFileSystem;
@@ -45,6 +47,9 @@ public class CePluginRepositoryTest {
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
+
+  @Rule
+  public LogTester logTester = new LogTester();
 
   private ServerFileSystem fs = mock(ServerFileSystem.class, Mockito.RETURNS_DEEP_STUBS);
   private PluginLoader pluginLoader = new DumbPluginLoader();
@@ -67,7 +72,7 @@ public class CePluginRepositoryTest {
   }
 
   @Test
-  public void load_plugins() throws Exception {
+  public void load_plugins() {
     String pluginKey = "test";
     when(fs.getInstalledPluginsDir()).thenReturn(new File("src/test/plugins/sonar-test-plugin/target"));
 
@@ -77,6 +82,7 @@ public class CePluginRepositoryTest {
     assertThat(underTest.getPluginInfo(pluginKey).getKey()).isEqualTo(pluginKey);
     assertThat(underTest.getPluginInstance(pluginKey)).isNotNull();
     assertThat(underTest.hasPlugin(pluginKey)).isTrue();
+    assertThat(logTester.logs(LoggerLevel.INFO)).contains("Loaded plugin Test Plugin [test]");
   }
 
   @Test

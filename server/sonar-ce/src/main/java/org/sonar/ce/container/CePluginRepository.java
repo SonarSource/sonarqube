@@ -29,6 +29,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.commons.io.FileUtils;
 import org.picocontainer.Startable;
 import org.sonar.api.Plugin;
+import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.core.platform.PluginLoader;
@@ -45,6 +46,7 @@ import static java.lang.String.format;
  */
 public class CePluginRepository implements PluginRepository, Startable {
 
+  private static final Logger LOGGER = Loggers.get(CePluginRepository.class);
   private static final String[] JAR_FILE_EXTENSIONS = new String[] {"jar"};
   private static final String NOT_STARTED_YET = "not started yet";
 
@@ -63,12 +65,13 @@ public class CePluginRepository implements PluginRepository, Startable {
 
   @Override
   public void start() {
-    Loggers.get(getClass()).info("Load plugins");
+    LOGGER.info("Load plugins");
     for (File file : listJarFiles(fs.getInstalledPluginsDir())) {
       PluginInfo info = PluginInfo.create(file);
       pluginInfosByKeys.put(info.getKey(), info);
     }
     pluginInstancesByKeys.putAll(loader.load(pluginInfosByKeys));
+    pluginInfosByKeys.values().forEach(p -> LOGGER.info("Loaded plugin {} [{}]", p.getName(), p.getKey()));
     started.set(true);
   }
 
