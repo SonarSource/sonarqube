@@ -51,6 +51,8 @@ import { scrollToElement } from '../../../helpers/scrolling';
 import BulkChange from './BulkChange';
 import RuleDetails from './RuleDetails';
 
+import '../styles.css';
+
 const PAGE_SIZE = 100;
 
 interface Props {

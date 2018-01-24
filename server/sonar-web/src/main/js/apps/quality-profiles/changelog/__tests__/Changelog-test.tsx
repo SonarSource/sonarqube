@@ -68,7 +68,7 @@ it('should render action', () => {
 it('should render rule', () => {
   const events = [createEvent()];
   const changelog = shallow(<Changelog events={events} organization={null} />);
-  expect(changelog.find('Link').prop('to')).toContain('rule_key=squid1234');
+  expect(changelog.find('Link').prop('to')).toHaveProperty('query', { rule_key: 'squid1234' });
 });
 
 it('should render ChangesList', () => {

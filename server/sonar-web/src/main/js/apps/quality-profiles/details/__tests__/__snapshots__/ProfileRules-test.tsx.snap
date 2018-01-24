@@ -74,7 +74,15 @@ exports[`should show a button to activate more rules for admins 1`] = `
   className="button js-activate-rules"
   onlyActiveOnIndex={false}
   style={Object {}}
-  to="/organizations/foo/rules#qprofile=foo|activation=false"
+  to={
+    Object {
+      "pathname": "/organizations/foo/rules",
+      "query": Object {
+        "activation": "false",
+        "qprofile": "foo",
+      },
+    }
+  }
 >
   quality_profiles.activate_more
 </Link>

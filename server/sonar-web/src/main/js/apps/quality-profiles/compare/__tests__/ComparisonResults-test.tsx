@@ -73,7 +73,7 @@ it('should compare', () => {
   const leftDiffs = output.find('.js-comparison-in-left');
   expect(leftDiffs.length).toBe(1);
   expect(leftDiffs.find(Link).length).toBe(1);
-  expect(leftDiffs.find(Link).prop('to')).toContain('rule_key=rule1');
+  expect(leftDiffs.find(Link).prop('to')).toHaveProperty('query', { rule_key: 'rule1' });
   expect(leftDiffs.find(Link).prop('children')).toContain('rule1');
   expect(leftDiffs.find(SeverityIcon).length).toBe(1);
   expect(leftDiffs.find(SeverityIcon).prop('severity')).toBe('BLOCKER');
@@ -86,7 +86,7 @@ it('should compare', () => {
       .at(0)
       .find(Link)
       .prop('to')
-  ).toContain('rule_key=rule2');
+  ).toHaveProperty('query', { rule_key: 'rule2' });
   expect(
     rightDiffs
       .at(0)
@@ -108,7 +108,7 @@ it('should compare', () => {
       .find(Link)
       .at(0)
       .prop('to')
-  ).toContain('rule_key=rule4');
+  ).toHaveProperty('query', { rule_key: 'rule4' });
   expect(
     modifiedDiffs
       .find(Link)

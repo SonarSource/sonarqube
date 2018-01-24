@@ -17,7 +17,16 @@ exports[`should render correctly 1`] = `
     <Link
       onlyActiveOnIndex={false}
       style={Object {}}
-      to="/organizations/foo/rules#qprofile=bar|activation=true|types=BUG"
+      to={
+        Object {
+          "pathname": "/organizations/foo/rules",
+          "query": Object {
+            "activation": "true",
+            "qprofile": "bar",
+            "types": "BUG",
+          },
+        }
+      }
     >
       3
     </Link>
@@ -29,7 +38,16 @@ exports[`should render correctly 1`] = `
       className="small text-muted"
       onlyActiveOnIndex={false}
       style={Object {}}
-      to="/organizations/foo/rules#qprofile=bar|activation=false|types=BUG"
+      to={
+        Object {
+          "pathname": "/organizations/foo/rules",
+          "query": Object {
+            "activation": "false",
+            "qprofile": "bar",
+            "types": "BUG",
+          },
+        }
+      }
     >
       7
     </Link>
@@ -54,7 +72,16 @@ exports[`should render correctly if there is 0 rules 1`] = `
     <Link
       onlyActiveOnIndex={false}
       style={Object {}}
-      to="/coding_rules#qprofile=bar|activation=true|types=VULNERABILITY"
+      to={
+        Object {
+          "pathname": "/coding_rules",
+          "query": Object {
+            "activation": "true",
+            "qprofile": "bar",
+            "types": "VULNERABILITY",
+          },
+        }
+      }
     >
       0
     </Link>
@@ -88,7 +115,16 @@ exports[`should render correctly if there is missing data 1`] = `
     <Link
       onlyActiveOnIndex={false}
       style={Object {}}
-      to="/coding_rules#qprofile=bar|activation=true|types=VULNERABILITY"
+      to={
+        Object {
+          "pathname": "/coding_rules",
+          "query": Object {
+            "activation": "true",
+            "qprofile": "bar",
+            "types": "VULNERABILITY",
+          },
+        }
+      }
     >
       5
     </Link>
