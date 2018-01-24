@@ -30,6 +30,7 @@ import static org.sonar.api.rules.RulePriority.MAJOR;
 import static org.sonar.api.rules.RulePriority.MINOR;
 import static org.sonar.foo.Foo.KEY;
 import static org.sonar.foo.rule.FooRulesDefinition.FOO_REPOSITORY;
+import static org.sonar.foo.rule.FooRulesDefinition.FOO_REPOSITORY_2;
 
 public class FooBasicProfile extends ProfileDefinition {
 
@@ -51,6 +52,8 @@ public class FooBasicProfile extends ProfileDefinition {
     activateRule(profile, FOO_REPOSITORY, "RuleWithChangedParameter", MAJOR).setParameter("toBeChanged", "20");
     activateRule(profile, FOO_REPOSITORY, "RuleWithRemovedParameter", MAJOR);
     activateRule(profile, FOO_REPOSITORY, "RuleWithAddedParameter", MAJOR);
+    activateRule(profile, FOO_REPOSITORY, "Renamed", MAJOR);
+    activateRule(profile, FOO_REPOSITORY_2, "RenamedAndMoved", MAJOR);
     return profile;
   }
 

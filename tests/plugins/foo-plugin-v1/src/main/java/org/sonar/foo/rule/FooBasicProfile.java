@@ -49,6 +49,8 @@ public class FooBasicProfile extends ProfileDefinition {
     activateRule(profile, FOO_REPOSITORY, "RuleWithChangedParameter", MAJOR);
     activateRule(profile, FOO_REPOSITORY, "RuleWithRemovedParameter", MAJOR);
     activateRule(profile, FOO_REPOSITORY, "RuleWithAddedParameter", MAJOR);
+    activateRule(profile, FOO_REPOSITORY, "ToBeRenamed", MAJOR);
+    activateRule(profile, FOO_REPOSITORY, "ToBeRenamedAndMoved", MAJOR);
     return profile;
   }
 
