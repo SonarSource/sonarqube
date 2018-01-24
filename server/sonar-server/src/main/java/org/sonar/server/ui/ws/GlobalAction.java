@@ -21,6 +21,7 @@ package org.sonar.server.ui.ws;
 
 import com.google.common.collect.ImmutableSet;
 import java.util.Set;
+import org.sonar.api.Startable;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.platform.Server;
 import org.sonar.api.resources.ResourceType;
@@ -42,14 +43,14 @@ import org.sonar.server.user.UserSession;
 
 import static org.sonar.api.CoreProperties.RATING_GRID;
 import static org.sonar.core.config.CorePropertyDefinitions.EDITIONS_CONFIG_URL;
-import static org.sonar.core.config.WebConstants.SONARCLOUD_ENABLED;
 import static org.sonar.core.config.WebConstants.SONAR_LF_ENABLE_GRAVATAR;
 import static org.sonar.core.config.WebConstants.SONAR_LF_GRAVATAR_SERVER_URL;
 import static org.sonar.core.config.WebConstants.SONAR_LF_LOGO_URL;
 import static org.sonar.core.config.WebConstants.SONAR_LF_LOGO_WIDTH_PX;
 import static org.sonar.core.config.WebConstants.SONAR_UPDATECENTER_ACTIVATE;
+import static org.sonar.process.ProcessProperties.Property.SONARCLOUD_ENABLED;
 
-public class GlobalAction implements NavigationWsAction {
+public class GlobalAction implements NavigationWsAction, Startable {
 
   private static final Set<String> SETTING_KEYS = ImmutableSet.of(
     SONAR_LF_LOGO_URL,
@@ -58,7 +59,6 @@ public class GlobalAction implements NavigationWsAction {
     SONAR_LF_GRAVATAR_SERVER_URL,
     SONAR_UPDATECENTER_ACTIVATE,
     EDITIONS_CONFIG_URL,
-    SONARCLOUD_ENABLED,
     RATING_GRID);
 
   private final PageRepository pageRepository;
@@ -71,6 +71,7 @@ public class GlobalAction implements NavigationWsAction {
   private final DefaultOrganizationProvider defaultOrganizationProvider;
   private final BranchFeatureProxy branchFeature;
   private final UserSession userSession;
+  private boolean isSonarCloudEnabled;
 
   public GlobalAction(PageRepository pageRepository, Configuration config, ResourceTypes resourceTypes, Server server,
     WebServer webServer, DbClient dbClient, OrganizationFlags organizationFlags,
@@ -85,6 +86,17 @@ public class GlobalAction implements NavigationWsAction {
     this.defaultOrganizationProvider = defaultOrganizationProvider;
     this.branchFeature = branchFeature;
     this.userSession = userSession;
+
+  }
+
+  @Override
+  public void start() {
+    this.isSonarCloudEnabled = config.getBoolean(SONARCLOUD_ENABLED.getKey()).orElse(false);
+  }
+
+  @Override
+  public void stop() {
+    // Nothing to do
   }
 
   @Override
@@ -135,6 +147,7 @@ public class GlobalAction implements NavigationWsAction {
     for (String settingKey : SETTING_KEYS) {
       json.prop(settingKey, config.get(settingKey).orElse(null));
     }
+    json.prop(SONARCLOUD_ENABLED.getKey(), isSonarCloudEnabled);
     json.endObject();
   }
 
@@ -170,4 +183,5 @@ public class GlobalAction implements NavigationWsAction {
   private void writeBranchSupport(JsonWriter json) {
     json.prop("branchesEnabled", branchFeature.isEnabled());
   }
+
 }

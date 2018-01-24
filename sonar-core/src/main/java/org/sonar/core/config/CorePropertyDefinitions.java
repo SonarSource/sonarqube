@@ -63,7 +63,6 @@ public class CorePropertyDefinitions {
     defs.addAll(WebhookProperties.all());
     defs.addAll(TelemetryProperties.all());
     defs.addAll(ScannerProperties.all());
-    defs.addAll(WebProperties.all());
 
     defs.addAll(asList(
       PropertyDefinition.builder(CoreProperties.SERVER_BASE_URL)

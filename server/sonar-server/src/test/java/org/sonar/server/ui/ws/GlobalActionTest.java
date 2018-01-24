@@ -98,7 +98,6 @@ public class GlobalActionTest {
 
   @Test
   public void return_settings() {
-    init();
     settings.setProperty("sonar.lf.logoUrl", "http://example.com/my-custom-logo.png");
     settings.setProperty("sonar.lf.logoWidthPx", 135);
     settings.setProperty("sonar.lf.gravatarServerUrl", "https://secure.gravatar.com/avatar/{EMAIL_MD5}.jpg?s={SIZE}&d=identicon");
@@ -109,6 +108,7 @@ public class GlobalActionTest {
     settings.setProperty("sonar.technicalDebt.ratingGrid", "0.05,0.1,0.2,0.5");
     // This setting should be ignored as it's not needed
     settings.setProperty("sonar.defaultGroup", "sonar-users");
+    init();
 
     assertJson(call()).isSimilarTo("{" +
       "  \"settings\": {" +
@@ -116,7 +116,7 @@ public class GlobalActionTest {
       "    \"sonar.lf.logoWidthPx\": \"135\"," +
       "    \"sonar.lf.gravatarServerUrl\": \"https://secure.gravatar.com/avatar/{EMAIL_MD5}.jpg?s={SIZE}&d=identicon\"," +
       "    \"sonar.lf.enableGravatar\": \"true\"," +
-      "    \"sonar.sonarcloud.enabled\": \"true\"," +
+      "    \"sonar.sonarcloud.enabled\": true," +
       "    \"sonar.editions.jsonUrl\": \"https://foo.bar/editions.json\"," +
       "    \"sonar.updatecenter.activate\": \"false\"," +
       "    \"sonar.technicalDebt.ratingGrid\": \"0.05,0.1,0.2,0.5\"" +
@@ -290,8 +290,10 @@ public class GlobalActionTest {
       }
     }});
     pageRepository.start();
-    ws = new WsActionTester(new GlobalAction(pageRepository, settings.asConfig(), new ResourceTypes(resourceTypeTrees), server,
-        webServer, dbClient, organizationFlags, defaultOrganizationProvider, branchFeature, userSession));
+    GlobalAction wsAction = new GlobalAction(pageRepository, settings.asConfig(), new ResourceTypes(resourceTypeTrees), server,
+      webServer, dbClient, organizationFlags, defaultOrganizationProvider, branchFeature, userSession);
+    ws = new WsActionTester(wsAction);
+    wsAction.start();
   }
 
   private String call() {

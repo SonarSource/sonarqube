@@ -91,7 +91,9 @@ public class ProcessProperties {
     CLUSTER_NODE_HOST("sonar.cluster.node.host"),
     CLUSTER_NODE_NAME("sonar.cluster.node.name", "sonarqube-" + UUID.randomUUID().toString()),
     CLUSTER_NAME("sonar.cluster.name", "sonarqube"),
-    CLUSTER_WEB_STARTUP_LEADER("sonar.cluster.web.startupLeader");
+    CLUSTER_WEB_STARTUP_LEADER("sonar.cluster.web.startupLeader"),
+
+    SONARCLOUD_ENABLED("sonar.sonarcloud.enabled", "false");
 
     private final String key;
     private final String defaultValue;
