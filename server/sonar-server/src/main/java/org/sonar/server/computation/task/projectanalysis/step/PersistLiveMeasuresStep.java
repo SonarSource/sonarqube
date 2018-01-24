@@ -22,6 +22,7 @@ package org.sonar.server.computation.task.projectanalysis.step;
 import com.google.common.collect.Multimap;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
@@ -30,6 +31,7 @@ import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.measure.LiveMeasureDao;
+import org.sonar.db.measure.LiveMeasureDto;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.component.CrawlerDepthLimit;
 import org.sonar.server.computation.task.projectanalysis.component.DepthTraversalTypeAwareCrawler;
@@ -103,6 +105,7 @@ public class PersistLiveMeasuresStep implements ComputationStep {
 
     @Override
     public void visitAny(Component component) {
+      int count = 0;
       LiveMeasureDao dao = dbClient.liveMeasureDao();
       Multimap<String, Measure> measures = measureRepository.getRawMeasures(component);
       for (Map.Entry<String, Collection<Measure>> measuresByMetricKey : measures.asMap().entrySet()) {
@@ -112,11 +115,20 @@ public class PersistLiveMeasuresStep implements ComputationStep {
         }
         Metric metric = metricRepository.getByKey(metricKey);
         Predicate<Measure> notBestValueOptimized = BestValueOptimization.from(metric, component).negate();
-        measuresByMetricKey.getValue().stream()
+        Iterator<LiveMeasureDto> liveMeasures = measuresByMetricKey.getValue().stream()
           .filter(NonEmptyMeasure.INSTANCE)
           .filter(notBestValueOptimized)
           .map(measure -> measureToMeasureDto.toLiveMeasureDto(measure, metric, component))
-          .forEach(dto -> dao.insertOrUpdate(dbSession, dto, marker));
+          .iterator();
+        while (liveMeasures.hasNext()) {
+          dao.insertOrUpdate(dbSession, liveMeasures.next(), marker);
+          count++;
+          if (count % 100 == 0) {
+            // use short transactions to avoid potential deadlocks on MySQL
+            // https://jira.sonarsource.com/browse/SONAR-10117?focusedCommentId=153555&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-153555
+            dbSession.commit();
+          }
+        }
       }
     }
   }

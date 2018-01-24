@@ -76,11 +76,26 @@
   </update>
 
   <delete id="deleteByProjectUuidExcludingMarker" parameterType="map">
+    <include refid="sql_deleteByProjectUuidExcludingMarker"/>
+  </delete>
+
+  <!--
+  best practice on MySQL : order the rows to be locked in order
+  to minimze risk of deadlock.
+  https://stackoverflow.com/a/2423921/229031
+  https://jira.sonarsource.com/browse/SONAR-10117?focusedCommentId=153555&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-153555
+  -->
+  <delete id="deleteByProjectUuidExcludingMarker" parameterType="map" databaseId="mysql">
+    <include refid="sql_deleteByProjectUuidExcludingMarker"/>
+    order by uuid
+  </delete>
+
+  <sql id="sql_deleteByProjectUuidExcludingMarker">
     delete from live_measures
     where
     project_uuid = #{projectUuid, jdbcType=VARCHAR} and
     (update_marker != #{marker, jdbcType=VARCHAR} or update_marker is null)
-  </delete>
+  </sql>
 
   <select id="selectTreeByQuery" parameterType="map" resultType="org.sonar.db.measure.LiveMeasureDto" fetchSize="${_scrollFetchSize}" resultSetType="FORWARD_ONLY">
     select <include refid="columns"/> from live_measures lm
