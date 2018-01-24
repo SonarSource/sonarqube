@@ -142,7 +142,7 @@ export function getQualityGatesUrl(organization?: string | null): Location {
 /**
  * Generate URL for the rules page
  */
-export function getRulesUrl(query: Query, organization?: string | null): Location {
+export function getRulesUrl(query: Query, organization: string | null | undefined): Location {
   const pathname = organization ? `/organizations/${organization}/rules` : '/coding_rules';
   return { pathname, query };
 }
@@ -152,13 +152,13 @@ export function getRulesUrl(query: Query, organization?: string | null): Locatio
  */
 export function getDeprecatedActiveRulesUrl(
   query: Query = {},
-  organization?: string | null
+  organization: string | null | undefined
 ): Location {
   const baseQuery = { activation: 'true', statuses: 'DEPRECATED' };
   return getRulesUrl({ ...query, ...baseQuery }, organization);
 }
 
-export function getRuleUrl(rule: string, organization?: string) {
+export function getRuleUrl(rule: string, organization: string | undefined) {
   /* eslint-disable camelcase */
   return getRulesUrl({ open: rule, rule_key: rule }, organization);
   /* eslint-enable camelcase */

@@ -41,7 +41,7 @@ export default BaseView.extend({
     const permalink = getPathUrlAsString(
       areThereCustomOrganizations()
         ? getRulesUrl(query, this.model.get('organization'))
-        : getRulesUrl(query)
+        : getRulesUrl(query, undefined)
     );
 
     return {

@@ -55,9 +55,7 @@ export default class RuleDetailsMeta extends React.PureComponent<Props, State> {
     this.setState(state => ({ tagsPopup: !state.tagsPopup }));
   };
 
-  handleTagsPopupToggle = (show: boolean) => {
-    this.setState({ tagsPopup: show });
-  };
+  handleTagsPopupToggle = (show: boolean) => this.setState({ tagsPopup: show });
 
   renderType = () => {
     const { ruleDetails } = this.props;
@@ -174,7 +172,7 @@ export default class RuleDetailsMeta extends React.PureComponent<Props, State> {
         <li className="coding-rules-detail-property">
           {translate('coding_rules.custom_rule')}
           {' ('}
-          <Link to={getRuleUrl(ruleDetails.templateKey)}>
+          <Link to={getRuleUrl(ruleDetails.templateKey, this.props.organization)}>
             {translate('coding_rules.show_template')}
           </Link>
           {')'}
@@ -211,7 +209,7 @@ export default class RuleDetailsMeta extends React.PureComponent<Props, State> {
             <span className="note text-middle">{ruleDetails.key}</span>
             <Link
               className="coding-rules-detail-permalink link-no-underline spacer-left text-middle"
-              to={getRuleUrl(ruleDetails.key)}>
+              to={getRuleUrl(ruleDetails.key, this.props.organization)}>
               <LinkIcon />
             </Link>
             <SimilarRulesFilter onFilterChange={this.props.onFilterChange} rule={ruleDetails} />

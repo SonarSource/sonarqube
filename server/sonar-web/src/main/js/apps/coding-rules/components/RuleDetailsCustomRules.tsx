@@ -30,7 +30,7 @@ import { getRuleUrl } from '../../../helpers/urls';
 
 interface Props {
   canChange?: boolean;
-  organization?: string;
+  organization: string | undefined;
   ruleDetails: RuleDetails;
 }
 

@@ -64,6 +64,7 @@ const routes = [
       },
       {
         path: 'rules',
+        component: OrganizationContainer,
         childRoutes: codingRulesRoutes
       },
       {
