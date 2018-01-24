@@ -29,9 +29,12 @@ import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.permission.OrganizationPermission;
+import org.sonar.process.ProcessProperties;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.user.UserSession;
 
+import static java.lang.String.format;
+import static java.util.Arrays.stream;
 import static org.sonar.api.PropertyType.LICENSE;
 import static org.sonar.api.web.UserRole.ADMIN;
 import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
@@ -54,6 +57,15 @@ public class SettingsWsSupport {
   public SettingsWsSupport(DefaultOrganizationProvider defaultOrganizationProvider, UserSession userSession) {
     this.defaultOrganizationProvider = defaultOrganizationProvider;
     this.userSession = userSession;
+  }
+
+  static void validateKey(String key) {
+    stream(ProcessProperties.Property.values())
+      .filter(property -> property.getKey().equalsIgnoreCase(key))
+      .findFirst()
+      .ifPresent(property -> {
+        throw new IllegalArgumentException(format("Setting '%s' can only be used in sonar.properties", key));
+      });
   }
 
   Predicate<Setting> isSettingVisible(Optional<ComponentDto> component) {
@@ -89,7 +101,7 @@ public class SettingsWsSupport {
       .orElse(false);
   }
 
-  WebService.NewParam addBranchParam(WebService.NewAction action){
+  WebService.NewParam addBranchParam(WebService.NewAction action) {
     return action.createParam(PARAM_BRANCH)
       .setDescription("Branch key. Only available on following settings : %s", SettingsWs.SETTING_ON_BRANCHES.stream().collect(COMMA_JOINER))
       .setExampleValue(KEY_BRANCH_EXAMPLE_001)

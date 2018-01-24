@@ -32,6 +32,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.config.PropertyDefinitions;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -87,6 +88,7 @@ public class ValuesAction implements SettingsWsAction {
         "If no value has been set for a setting, then the default value is returned.<br>" +
         "Requires 'Browse' permission when a component is specified<br/>",
         "To access licensed settings, authentication is required<br/>" +
+          "It's not possible to try to access to settings defined in sonar.properties.<br/>" +
           "To access secured settings, one of the following permissions is required: " +
           "<ul>" +
           "<li>'Execute Analysis'</li>" +
@@ -95,6 +97,7 @@ public class ValuesAction implements SettingsWsAction {
           "</ul>")
       .setResponseExample(getClass().getResource("values-example.json"))
       .setSince("6.3")
+      .setChangelog(new Change("7.1", "Settings from sonar.properties are explicitly forbidden"))
       .setHandler(this);
     action.createParam(PARAM_KEYS)
       .setDescription("List of setting keys")
@@ -120,6 +123,7 @@ public class ValuesAction implements SettingsWsAction {
       Optional<ComponentDto> component = loadComponent(dbSession, valuesRequest);
 
       Set<String> keys = loadKeys(valuesRequest);
+      keys.forEach(SettingsWsSupport::validateKey);
       Map<String, String> keysToDisplayMap = getKeysToDisplayMap(keys);
       List<Setting> settings = loadSettings(dbSession, component, keysToDisplayMap.keySet());
       return new ValuesResponseBuilder(settings, component, keysToDisplayMap).build();
