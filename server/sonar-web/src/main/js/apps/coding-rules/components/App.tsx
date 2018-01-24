@@ -45,6 +45,7 @@ import ListFooter from '../../../components/controls/ListFooter';
 import RuleListItem from './RuleListItem';
 import PageActions from './PageActions';
 import FiltersHeader from '../../../components/common/FiltersHeader';
+import SearchBox from '../../../components/controls/SearchBox';
 import FacetsList from './FacetsList';
 import { searchQualityProfiles, Profile } from '../../../api/quality-profiles';
 import { scrollToElement } from '../../../helpers/scrolling';
@@ -426,6 +427,10 @@ export default class App extends React.PureComponent<Props, State> {
     }
   };
 
+  handleSearch = (searchQuery: string) => {
+    this.handleFilterChange({ searchQuery });
+  };
+
   render() {
     const { paging, rules } = this.state;
     const selectedIndex = this.getSelectedIndex();
@@ -440,6 +445,12 @@ export default class App extends React.PureComponent<Props, State> {
                 <div className="layout-page-side-inner">
                   <div className="layout-page-filters">
                     <FiltersHeader displayReset={this.isFiltered()} onReset={this.handleReset} />
+                    <SearchBox
+                      className="spacer-bottom"
+                      onChange={this.handleSearch}
+                      placeholder={translate('search.search_for_rules')}
+                      value={this.state.query.searchQuery || ''}
+                    />
                     <FacetsList
                       facets={this.state.facets}
                       onFacetToggle={this.handleFacetToggle}

@@ -43,6 +43,7 @@ export interface Query {
   profile: string | undefined;
   repositories: string[];
   ruleKey: string | undefined;
+  searchQuery: string | undefined;
   severities: string[];
   statuses: string[];
   tags: string[];
@@ -82,6 +83,7 @@ export function parseQuery(query: RawQuery): Query {
     profile: parseAsOptionalString(query.qprofile),
     repositories: parseAsArray(query.repositories, parseAsString),
     ruleKey: parseAsOptionalString(query.rule_key),
+    searchQuery: parseAsOptionalString(query.q),
     severities: parseAsArray(query.severities, parseAsString),
     statuses: parseAsArray(query.statuses, parseAsString),
     tags: parseAsArray(query.tags, parseAsString),
@@ -100,6 +102,7 @@ export function serializeQuery(query: Query): RawQuery {
     inheritance: serializeInheritance(query.inheritance),
     is_template: serializeOptionalBoolean(query.template),
     languages: serializeStringArray(query.languages),
+    q: serializeString(query.searchQuery),
     qprofile: serializeString(query.profile),
     repositories: serializeStringArray(query.repositories),
     rule_key: serializeString(query.ruleKey),

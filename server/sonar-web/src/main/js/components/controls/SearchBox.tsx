@@ -29,6 +29,7 @@ import './SearchBox.css';
 
 interface Props {
   autoFocus?: boolean;
+  className?: string;
   innerRef?: (node: HTMLInputElement | null) => void;
   minLength?: number;
   onChange: (value: string) => void;
@@ -127,7 +128,7 @@ export default class SearchBox extends React.PureComponent<Props, State> {
     const tooShort = minLength !== undefined && value.length > 0 && value.length < minLength;
 
     return (
-      <div className="search-box">
+      <div className={classNames('search-box', this.props.className)}>
         <input
           autoComplete="off"
           autoFocus={this.props.autoFocus}
