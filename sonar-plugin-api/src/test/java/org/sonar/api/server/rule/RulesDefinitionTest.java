@@ -19,10 +19,22 @@
  */
 package org.sonar.api.server.rule;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Ordering;
+import com.tngtech.java.junit.dataprovider.DataProvider;
+import com.tngtech.java.junit.dataprovider.DataProviderRunner;
+import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.net.URL;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+import org.junit.Assume;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.junit.runner.RunWith;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleScope;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
@@ -33,6 +45,7 @@ import org.sonar.api.utils.log.LogTester;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 
+@RunWith(DataProviderRunner.class)
 public class RulesDefinitionTest {
 
   RulesDefinition.Context context = new RulesDefinition.Context();
@@ -198,6 +211,99 @@ public class RulesDefinitionTest {
     // Empty value is converted in null value
     assertThat(level.defaultValue()).isNull();
     assertThat(level.type()).isEqualTo(RuleParamType.INTEGER);
+  }
+
+  @Test
+  @UseDataProvider("nullOrEmpty")
+  public void addDeprecatedRuleKey_fails_with_IAE_if_repository_is_null_or_empty(String nullOrEmpty) {
+    RulesDefinition.NewRepository newRepository = context.createRepository("foo", "bar");
+    RulesDefinition.NewRule newRule = newRepository.createRule("doh");
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Repository must be set");
+
+    newRule.addDeprecatedRuleKey(nullOrEmpty, "oldKey");
+  }
+
+  @Test
+  @UseDataProvider("nullOrEmpty")
+  public void addDeprecatedRuleKey_fails_with_IAE_if_key_is_null_or_empty(String nullOrEmpty) {
+    RulesDefinition.NewRepository newRepository = context.createRepository("foo", "bar");
+    RulesDefinition.NewRule newRule = newRepository.createRule("doh");
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Rule must be set");
+
+    newRule.addDeprecatedRuleKey("oldRepo", nullOrEmpty);
+  }
+
+  @DataProvider
+  public static Object[][] nullOrEmpty() {
+    return new Object[][] {
+      {null},
+      {""}
+    };
+  }
+
+  @Test
+  public void getDeprecatedKeys_returns_empty_if_addDeprecatedKeys_never_called() {
+    String repositoryKey = "foo";
+    String ruleKey = "doh";
+    RulesDefinition.NewRepository newRepository = context.createRepository(repositoryKey, "bar");
+    newRepository.createRule(ruleKey)
+      .setName("doh rule")
+      .setHtmlDescription("doh description");
+    newRepository.done();
+    RulesDefinition.Repository repository = context.repository(repositoryKey);
+    RulesDefinition.Rule rule = repository.rule(ruleKey);
+
+    assertThat(rule.deprecatedRuleKeys()).isEmpty();
+  }
+
+  @Test
+  public void getDeprecatedKeys_returns_keys_in_order_of_addDeprecatedKeys_calls() {
+    Set<RuleKey> ruleKeys = ImmutableSet.of(RuleKey.of("foo", "AAA"),
+      RuleKey.of("bar", "CCCC"), RuleKey.of("doh", "CCCC"), RuleKey.of("foo", "BBBBBBBBBB"));
+    List<RuleKey> sortedRuleKeys = ruleKeys.stream().sorted(Ordering.natural().onResultOf(RuleKey::toString)).collect(Collectors.toList());
+
+    // ensure we don't have the same order
+    Assume.assumeTrue(!ImmutableList.copyOf(ruleKeys).equals(sortedRuleKeys));
+
+    String repositoryKey = "foo";
+    String ruleKey = "doh";
+    RulesDefinition.NewRepository newRepository = context.createRepository(repositoryKey, "bar");
+    RulesDefinition.NewRule newRule = newRepository.createRule(ruleKey)
+      .setName("doh rule")
+      .setHtmlDescription("doh description");
+    sortedRuleKeys.forEach(r -> newRule.addDeprecatedRuleKey(r.repository(), r.rule()));
+    newRepository.done();
+    RulesDefinition.Repository repository = context.repository(repositoryKey);
+    RulesDefinition.Rule rule = repository.rule(ruleKey);
+
+    assertThat(ImmutableList.copyOf(rule.deprecatedRuleKeys()))
+      .isEqualTo(sortedRuleKeys);
+  }
+
+  @Test
+  public void getDeprecatedKeys_does_not_return_the_same_key_more_than_once() {
+    RuleKey duplicatedRuleKey = RuleKey.of("foo", "AAA");
+    RuleKey ruleKey2 = RuleKey.of("bar", "CCCC");
+    RuleKey ruleKey3 = RuleKey.of("foo", "BBBBBBBBBB");
+    List<RuleKey> ruleKeys = ImmutableList.of(duplicatedRuleKey, ruleKey2, duplicatedRuleKey, duplicatedRuleKey, ruleKey3);
+
+    String repositoryKey = "foo";
+    String ruleKey = "doh";
+    RulesDefinition.NewRepository newRepository = context.createRepository(repositoryKey, "bar");
+    RulesDefinition.NewRule newRule = newRepository.createRule(ruleKey)
+      .setName("doh rule")
+      .setHtmlDescription("doh description");
+    ruleKeys.forEach(r -> newRule.addDeprecatedRuleKey(r.repository(), r.rule()));
+    newRepository.done();
+    RulesDefinition.Repository repository = context.repository(repositoryKey);
+    RulesDefinition.Rule rule = repository.rule(ruleKey);
+
+    assertThat(rule.deprecatedRuleKeys())
+      .containsExactly(ruleKey2, duplicatedRuleKey, ruleKey3);
   }
 
   @Test
