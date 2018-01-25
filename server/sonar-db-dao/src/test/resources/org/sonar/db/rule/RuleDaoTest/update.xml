@@ -10,6 +10,7 @@
          plugin_config_key="AvoidNull"
          priority="2"
          is_template="[false]"
+         scope="MAIN"
          language="golo"
          created_at="1500000000000"
          updated_at="1600000000000"/>

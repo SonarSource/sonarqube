@@ -50,6 +50,7 @@ import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto.Format;
+import org.sonar.db.rule.RuleDto.Scope;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.db.rule.RuleRepositoryDto;
 import org.sonar.server.organization.OrganizationFlags;
@@ -226,6 +227,7 @@ public class RegisterRules implements Startable {
       .setGapDescription(ruleDef.gapDescription())
       .setSystemTags(ruleDef.tags())
       .setType(RuleType.valueOf(ruleDef.type().name()))
+      .setScope(toDtoScope(ruleDef.scope()))
       .setCreatedAt(system2.now())
       .setUpdatedAt(system2.now());
     if (ruleDef.htmlDescription() != null) {
@@ -238,6 +240,19 @@ public class RegisterRules implements Startable {
 
     dbClient.ruleDao().insert(session, ruleDto);
     return ruleDto;
+  }
+
+  private static Scope toDtoScope(RulesDefinition.Scope scope) {
+    switch (scope) {
+      case ALL:
+        return Scope.ALL;
+      case MAIN:
+        return Scope.MAIN;
+      case TEST:
+        return Scope.TEST;
+      default:
+        throw new IllegalArgumentException("Unknown rule scope: " + scope);
+    }
   }
 
   private boolean mergeRule(RulesDefinition.Rule def, RuleDefinitionDto dto) {
@@ -269,6 +284,10 @@ public class RegisterRules implements Startable {
     }
     if (def.status() != dto.getStatus()) {
       dto.setStatus(def.status());
+      changed = true;
+    }
+    if (!StringUtils.equals(dto.getScope().name(), def.scope().name())) {
+      dto.setScope(toDtoScope(def.scope()));
       changed = true;
     }
     if (!StringUtils.equals(dto.getLanguage(), def.repository().language())) {

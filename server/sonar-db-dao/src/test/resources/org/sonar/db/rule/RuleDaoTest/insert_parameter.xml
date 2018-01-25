@@ -15,6 +15,7 @@
          def_remediation_gap_mult="5d"
          def_remediation_base_effort="10h"
          gap_description="squid.S115.effortToFix"
+         scope="MAIN"
          created_at="[null]"
          updated_at="[null]"
   />

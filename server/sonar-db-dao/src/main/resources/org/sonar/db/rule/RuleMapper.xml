@@ -23,6 +23,7 @@
     r.system_tags as "systemTagsField",
     r.rule_type as "type",
     r.plugin_key as "pluginKey",
+    r.scope,
   </sql>
 
   <sql id="selectRuleTableColumns">
@@ -301,6 +302,7 @@
       gap_description,
       system_tags,
       rule_type,
+      scope,
       created_at,
       updated_at
     )
@@ -323,6 +325,7 @@
       #{gapDescription,jdbcType=VARCHAR},
       #{systemTagsField,jdbcType=VARCHAR},
       #{type,jdbcType=TINYINT},
+      #{scope,jdbcType=VARCHAR},
       #{createdAt,jdbcType=BIGINT},
       #{updatedAt,jdbcType=BIGINT}
     )
@@ -347,6 +350,7 @@
       def_remediation_base_effort=#{defRemediationBaseEffort,jdbcType=VARCHAR},
       gap_description=#{gapDescription,jdbcType=VARCHAR},
       system_tags=#{systemTagsField,jdbcType=VARCHAR},
+      scope=#{scope,jdbcType=VARCHAR},
       rule_type=#{type,jdbcType=TINYINT},
       updated_at=#{updatedAt,jdbcType=BIGINT}
     where

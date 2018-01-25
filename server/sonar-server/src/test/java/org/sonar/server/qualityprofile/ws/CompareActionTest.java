@@ -40,6 +40,7 @@ import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.db.rule.RuleRepositoryDto;
+import org.sonar.db.rule.RuleDto.Scope;
 import org.sonar.server.language.LanguageTesting;
 import org.sonar.server.qualityprofile.QProfileComparison;
 import org.sonar.server.qualityprofile.QProfileName;
@@ -203,6 +204,7 @@ public class CompareActionTest {
       .setName(StringUtils.capitalize(id))
       .setLanguage(lang)
       .setSeverity(Severity.BLOCKER)
+      .setScope(Scope.MAIN)
       .setStatus(RuleStatus.READY);
     RuleDefinitionDto ruleDefinition = rule.getDefinition();
     db.ruleDao().insert(session, ruleDefinition);

@@ -31,6 +31,7 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rules.RuleType;
+import org.sonar.db.rule.RuleDto.Scope;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
@@ -54,6 +55,7 @@ public class RuleDefinitionDto {
   private String gapDescription;
   private String systemTags;
   private int type;
+  private Scope scope;
 
   private RuleKey key;
 
@@ -295,6 +297,15 @@ public class RuleDefinitionDto {
     return this;
   }
 
+  public Scope getScope() {
+    return this.scope;
+  }
+
+  public RuleDefinitionDto setScope(Scope scope) {
+    this.scope = scope;
+    return this;
+  }
+
   @CheckForNull
   public String getPluginKey() {
     return pluginKey;
@@ -358,6 +369,7 @@ public class RuleDefinitionDto {
       ", key=" + key +
       ", createdAt=" + createdAt +
       ", updatedAt=" + updatedAt +
+      ", scope=" + scope +
       '}';
   }
 }

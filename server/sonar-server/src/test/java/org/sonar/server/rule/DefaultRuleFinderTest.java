@@ -29,6 +29,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.rule.RuleDto;
+import org.sonar.db.rule.RuleDto.Scope;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 
@@ -49,6 +50,7 @@ public class DefaultRuleFinderTest {
     .setRuleKey("com.puppycrawl.tools.checkstyle.checks.header.HeaderCheck")
     .setRepositoryKey("checkstyle")
     .setSeverity(4)
+    .setScope(Scope.MAIN)
     .setStatus(RuleStatus.READY);
 
   private RuleDto rule2 = new RuleDto()
@@ -57,6 +59,7 @@ public class DefaultRuleFinderTest {
     .setRuleKey("DisabledCheck")
     .setRepositoryKey("checkstyle")
     .setSeverity(4)
+    .setScope(Scope.MAIN)
     .setStatus(RuleStatus.REMOVED);
 
   private RuleDto rule3 = new RuleDto()
@@ -65,6 +68,7 @@ public class DefaultRuleFinderTest {
     .setRuleKey("com.puppycrawl.tools.checkstyle.checks.annotation.AnnotationUseStyleCheck")
     .setRepositoryKey("checkstyle")
     .setSeverity(4)
+    .setScope(Scope.MAIN)
     .setStatus(RuleStatus.READY);
 
   private RuleDto rule4 = new RuleDto()
@@ -73,6 +77,7 @@ public class DefaultRuleFinderTest {
     .setRuleKey("CallSuperFirst")
     .setRepositoryKey("pmd")
     .setSeverity(2)
+    .setScope(Scope.MAIN)
     .setStatus(RuleStatus.READY);
 
   private DefaultRuleFinder underTest = new DefaultRuleFinder(dbClient, defaultOrganizationProvider);

@@ -13,6 +13,7 @@
          system_tags="cwe"
          created_at="1500000000000"
          updated_at="1600000000000"
+         scope="ALL"
   />
 
   <rules id="2"
@@ -28,6 +29,7 @@
          system_tags="[null]"
          created_at="1500000000000"
          updated_at="1600000000000"
+         scope="ALL"
   />
 
   <rules id="10"
@@ -43,6 +45,7 @@
          system_tags="[null]"
          created_at="1500000000000"
          updated_at="1600000000000"
+         scope="ALL"
   />
 
 </dataset>

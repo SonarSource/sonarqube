@@ -44,6 +44,7 @@ import org.sonar.db.RowNotFoundException;
 import org.sonar.db.es.RuleExtensionId;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.organization.OrganizationTesting;
+import org.sonar.db.rule.RuleDto.Scope;
 
 import static com.google.common.collect.Sets.newHashSet;
 import static java.util.Arrays.asList;
@@ -329,6 +330,7 @@ public class RuleDaoTest {
       .setGapDescription("squid.S115.effortToFix")
       .setSystemTags(newHashSet("systag1", "systag2"))
       .setType(RuleType.BUG)
+      .setScope(Scope.ALL)
       .setCreatedAt(1_500_000_000_000L)
       .setUpdatedAt(2_000_000_000_000L);
     underTest.insert(db.getSession(), newRule);
@@ -352,6 +354,7 @@ public class RuleDaoTest {
     assertThat(ruleDto.getDefRemediationBaseEffort()).isEqualTo("10h");
     assertThat(ruleDto.getGapDescription()).isEqualTo("squid.S115.effortToFix");
     assertThat(ruleDto.getSystemTags()).containsOnly("systag1", "systag2");
+    assertThat(ruleDto.getScope()).isEqualTo(Scope.ALL);
     assertThat(ruleDto.getType()).isEqualTo(RuleType.BUG.getDbConstant());
     assertThat(ruleDto.getCreatedAt()).isEqualTo(1_500_000_000_000L);
     assertThat(ruleDto.getUpdatedAt()).isEqualTo(2_000_000_000_000L);
@@ -379,6 +382,7 @@ public class RuleDaoTest {
       .setDefRemediationBaseEffort("10h")
       .setGapDescription("squid.S115.effortToFix")
       .setSystemTags(newHashSet("systag1", "systag2"))
+      .setScope(Scope.ALL)
       .setType(RuleType.BUG)
       .setUpdatedAt(2_000_000_000_000L);
 
@@ -402,6 +406,7 @@ public class RuleDaoTest {
     assertThat(ruleDto.getDefRemediationBaseEffort()).isEqualTo("10h");
     assertThat(ruleDto.getGapDescription()).isEqualTo("squid.S115.effortToFix");
     assertThat(ruleDto.getSystemTags()).containsOnly("systag1", "systag2");
+    assertThat(ruleDto.getScope()).isEqualTo(Scope.ALL);
     assertThat(ruleDto.getType()).isEqualTo(RuleType.BUG.getDbConstant());
     assertThat(ruleDto.getCreatedAt()).isEqualTo(1_500_000_000_000L);
     assertThat(ruleDto.getUpdatedAt()).isEqualTo(2_000_000_000_000L);
@@ -783,8 +788,9 @@ public class RuleDaoTest {
         tuple(r1.getKey(), organization.getUuid(), r1Extension.getTagsAsString()));
   }
 
-  private static class Accumulator<T>  implements Consumer<T> {
+  private static class Accumulator<T> implements Consumer<T> {
     private final List<T> list = new ArrayList<>();
+
     @Override
     public void accept(T dto) {
       list.add(dto);

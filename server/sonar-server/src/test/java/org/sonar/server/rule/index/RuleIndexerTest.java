@@ -36,6 +36,7 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;
+import org.sonar.db.rule.RuleDto.Scope;
 import org.sonar.server.es.EsTester;
 
 import static com.google.common.collect.Sets.newHashSet;
@@ -66,6 +67,7 @@ public class RuleIndexerTest {
     .setIsTemplate(true)
     .setSystemTags(newHashSet("cwe"))
     .setType(RuleType.BUG)
+    .setScope(Scope.ALL)
     .setCreatedAt(1500000000000L)
     .setUpdatedAt(1600000000000L);
 

@@ -6,6 +6,7 @@
          name="Avoid Null"
          description="Should avoid NULL"
          status="READY"
+         scope="MAIN"
          created_at="1500000000000"
          updated_at="1600000000000"/>
 
