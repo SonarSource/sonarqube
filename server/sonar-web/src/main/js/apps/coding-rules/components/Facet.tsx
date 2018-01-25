@@ -45,14 +45,21 @@ interface Props extends BasicProps {
   renderFooter?: () => React.ReactNode;
   renderName?: (value: string) => React.ReactNode;
   renderTextName?: (value: string) => string;
+  singleSelection?: boolean;
 }
 
 export default class Facet extends React.PureComponent<Props> {
   handleItemClick = (itemValue: string) => {
     const { values } = this.props;
-    const newValue = orderBy(
-      values.includes(itemValue) ? without(values, itemValue) : [...values, itemValue]
-    );
+    let newValue;
+    if (this.props.singleSelection) {
+      const value = values.length ? values[0] : undefined;
+      newValue = itemValue === value ? undefined : itemValue;
+    } else {
+      newValue = orderBy(
+        values.includes(itemValue) ? without(values, itemValue) : [...values, itemValue]
+      );
+    }
     this.props.onChange({ [this.props.property]: newValue });
   };
 
