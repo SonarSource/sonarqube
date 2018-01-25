@@ -20,6 +20,7 @@
 import * as React from 'react';
 import Facet, { BasicProps } from './Facet';
 import SeverityHelper from '../../../components/shared/SeverityHelper';
+import { SEVERITIES } from '../../../helpers/constants';
 import { translate } from '../../../helpers/l10n';
 
 export default class DefaultSeverityFacet extends React.PureComponent<BasicProps> {
@@ -32,13 +33,11 @@ export default class DefaultSeverityFacet extends React.PureComponent<BasicProps
   };
 
   render() {
-    const options = ['BLOCKER', 'MINOR', 'CRITICAL', 'INFO', 'MAJOR'];
-
     return (
       <Facet
         {...this.props}
         halfWidth={true}
-        options={options}
+        options={SEVERITIES}
         property="severities"
         renderName={this.renderName}
         renderTextName={this.renderTextName}
