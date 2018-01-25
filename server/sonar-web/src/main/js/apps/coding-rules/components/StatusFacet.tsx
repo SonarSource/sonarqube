@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import Facet, { BasicProps } from './Facet';
+import { RULE_STATUSES } from '../../../helpers/constants';
 import { translate } from '../../../helpers/l10n';
 
 export default class StatusFacet extends React.PureComponent<BasicProps> {
@@ -27,12 +28,10 @@ export default class StatusFacet extends React.PureComponent<BasicProps> {
   };
 
   render() {
-    const options = ['READY', 'DEPRECATED', 'BETA'];
-
     return (
       <Facet
         {...this.props}
-        options={options}
+        options={RULE_STATUSES}
         property="statuses"
         renderName={this.renderName}
         renderTextName={this.renderName}
