@@ -181,7 +181,7 @@ export default class ProjectFacet extends React.PureComponent {
   render() {
     const values = this.props.projects.map(project => this.getProjectName(project));
     return (
-      <FacetBox>
+      <FacetBox property={this.property}>
         <FacetHeader
           name={translate('issues.facet', this.property)}
           onClear={this.handleClear}

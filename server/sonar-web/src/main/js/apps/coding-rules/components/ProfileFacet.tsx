@@ -157,7 +157,7 @@ export default class ProfileFacet extends React.PureComponent<Props> {
     );
 
     return (
-      <FacetBox>
+      <FacetBox property="profile">
         <FacetHeader
           name={translate('coding_rules.facet.qprofile')}
           onClear={this.handleClear}

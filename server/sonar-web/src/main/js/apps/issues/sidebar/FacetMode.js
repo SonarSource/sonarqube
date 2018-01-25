@@ -46,7 +46,7 @@ export default class FacetMode extends React.PureComponent {
     const modes = ['count', 'effort'];
 
     return (
-      <FacetBox>
+      <FacetBox property={this.property}>
         <FacetHeader name={translate('issues.facet.mode')} />
 
         <FacetItemsList>

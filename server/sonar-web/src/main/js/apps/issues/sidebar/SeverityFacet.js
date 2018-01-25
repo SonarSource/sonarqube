@@ -92,7 +92,7 @@ export default class SeverityFacet extends React.PureComponent {
     const values = this.props.severities.map(severity => translate('severity', severity));
 
     return (
-      <FacetBox>
+      <FacetBox property={this.property}>
         <FacetHeader
           name={translate('issues.facet', this.property)}
           onClear={this.handleClear}

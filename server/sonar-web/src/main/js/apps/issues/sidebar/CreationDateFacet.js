@@ -310,7 +310,7 @@ export default class CreationDateFacet extends React.PureComponent {
 
   render() {
     return (
-      <FacetBox>
+      <FacetBox property={this.property}>
         <FacetHeader
           name={translate('issues.facet', this.property)}
           onClear={this.handleClear}

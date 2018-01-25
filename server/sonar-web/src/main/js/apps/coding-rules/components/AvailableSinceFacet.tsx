@@ -71,7 +71,7 @@ export default class AvailableSinceFacet extends React.PureComponent<Props> {
 
   render() {
     return (
-      <FacetBox>
+      <FacetBox property="availableSince">
         <FacetHeader
           name={translate('coding_rules.facet.available_since')}
           onClear={this.handleClear}

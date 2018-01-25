@@ -21,45 +21,48 @@ package org.sonarqube.qa.util.pageobjects;
 
 import com.codeborne.selenide.Condition;
 import com.codeborne.selenide.ElementsCollection;
-import com.codeborne.selenide.Selenide;
 import com.codeborne.selenide.SelenideElement;
-import org.openqa.selenium.By;
+
+import static com.codeborne.selenide.Condition.exist;
+import static com.codeborne.selenide.Condition.visible;
+import static com.codeborne.selenide.Selenide.$;
+import static com.codeborne.selenide.Selenide.$$;
 
 public class RulesPage extends Navigation {
 
   public RulesPage() {
-    Selenide.$(By.cssSelector(".coding-rules")).should(Condition.exist);
+    $("#coding-rules-page").should(exist);
   }
 
   public int getTotal() {
     // warning - number is localized
-    return Integer.parseInt(Selenide.$("#coding-rules-total").text());
+    return Integer.parseInt($("#coding-rules-total").text());
   }
 
   public ElementsCollection getSelectedFacetItems(String facetName) {
-    SelenideElement facet = Selenide.$(".search-navigator-facet-box[data-property='"+ facetName+"']").shouldBe(Condition.visible);
-    return facet.$$(".js-facet.active");
+    SelenideElement facet = $(".search-navigator-facet-box[data-property='"+ facetName+"']").shouldBe(visible);
+    return facet.$$(".facet.active");
   }
 
   public RulesPage shouldHaveTotalRules(Integer total) {
-    Selenide.$("#coding-rules-total").shouldHave(Condition.text(total.toString()));
+    $(".js-page-counter-total").shouldHave(Condition.text(total.toString()));
     return this;
   }
 
   public RulesPage openFacet(String facet) {
-    Selenide.$(".search-navigator-facet-box[data-property=\"" + facet + "\"] .js-facet-toggle").click();
+    $(".search-navigator-facet-box[data-property=\"" + facet + "\"] .search-navigator-facet-header a").click();
     return this;
   }
 
   public RulesPage selectFacetItemByText(String facet, String itemText) {
-    Selenide.$$(".search-navigator-facet-box[data-property=\"" + facet + "\"] .js-facet")
+    $$(".search-navigator-facet-box[data-property=\"" + facet + "\"] .facet")
       .findBy(Condition.text(itemText)).click();
     return this;
   }
 
   public RuleDetails openFirstRule() {
-    Selenide.$$(".js-rule").first().click();
-    Selenide.$(".coding-rules-details").shouldBe(Condition.visible);
+    $$(".coding-rule").first().find(".coding-rule-title a").click();
+    $(".coding-rule-details").shouldBe(visible);
     return new RuleDetails();
   }
 

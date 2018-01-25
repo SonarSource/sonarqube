@@ -33,6 +33,7 @@ import org.sonarqube.tests.issue.OrganizationIssueAssignTest;
 import org.sonarqube.tests.issue.OrganizationIssuesPageTest;
 import org.sonarqube.tests.qualityProfile.BuiltInQualityProfilesTest;
 import org.sonarqube.tests.qualityProfile.CustomQualityProfilesTest;
+import org.sonarqube.tests.qualityProfile.OrganizationQualityProfilesUiTest;
 import org.sonarqube.tests.qualityProfile.QualityProfilesEditTest;
 import org.sonarqube.tests.qualityProfile.QualityProfilesWsTest;
 import org.sonarqube.tests.rule.RulesMarkdownTest;
@@ -54,6 +55,7 @@ import static util.ItUtils.xooPlugin;
   OrganizationIdentityProviderTest.class,
   OrganizationIssueAssignTest.class,
   OrganizationIssuesPageTest.class,
+  OrganizationQualityProfilesUiTest.class,
   BuiltInQualityProfilesTest.class,
   QualityProfilesEditTest.class,
   QualityProfilesWsTest.class,

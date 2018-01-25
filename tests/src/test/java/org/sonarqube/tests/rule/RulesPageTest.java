@@ -37,7 +37,7 @@ public class RulesPageTest {
   @Test
   public void should_display_rule_profiles() {
     RulesPage page = tester.openBrowser().openRules();
-    page.openFacet("qprofile").selectFacetItemByText("qprofile", "Basic").shouldHaveTotalRules(1);
+    page.openFacet("profile").selectFacetItemByText("profile", "Basic").shouldHaveTotalRules(1);
     page.openFirstRule().shouldBeActivatedOn("Basic");
   }
 }

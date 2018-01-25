@@ -34,7 +34,7 @@ import { translate } from '../../../helpers/l10n';
 export default function ProjectOverviewFacet({ value, selected, onChange } /*: Props */) {
   const facetName = translate('component_measures.overview', value, 'facet');
   return (
-    <FacetBox>
+    <FacetBox property={value}>
       <FacetItemsList>
         <FacetItem
           active={value === selected}

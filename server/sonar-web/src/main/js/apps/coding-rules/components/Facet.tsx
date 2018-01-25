@@ -105,7 +105,8 @@ export default class Facet extends React.PureComponent<Props> {
 
     return (
       <FacetBox
-        className={classNames({ 'search-navigator-facet-box-forbidden': this.props.disabled })}>
+        className={classNames({ 'search-navigator-facet-box-forbidden': this.props.disabled })}
+        property={this.props.property}>
         <FacetHeader
           helper={this.props.disabled ? this.props.disabledHelper : undefined}
           name={translate('coding_rules.facet', this.props.property)}

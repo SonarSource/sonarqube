@@ -99,7 +99,7 @@ export default class StatusFacet extends React.PureComponent {
     const values = this.props.statuses.map(status => translate('issue.status', status));
 
     return (
-      <FacetBox>
+      <FacetBox property={this.property}>
         <FacetHeader
           name={translate('issues.facet', this.property)}
           onClear={this.handleClear}

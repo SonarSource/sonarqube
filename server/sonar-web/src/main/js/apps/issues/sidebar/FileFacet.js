@@ -115,7 +115,7 @@ export default class FileFacet extends React.PureComponent {
   render() {
     const values = this.props.files.map(file => this.getFileName(file));
     return (
-      <FacetBox>
+      <FacetBox property={this.property}>
         <FacetHeader
           name={translate('issues.facet', this.property)}
           onClear={this.handleClear}

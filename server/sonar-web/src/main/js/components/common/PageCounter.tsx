@@ -38,7 +38,7 @@ export default function PageCounter({ className, current, label, total }: Props)
             {' / '}
           </>
         )}
-        {formatMeasure(total, 'INT')}
+        <span className="js-page-counter-total">{formatMeasure(total, 'INT')}</span>
       </strong>{' '}
       {label}
     </div>
