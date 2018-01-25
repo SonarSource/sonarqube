@@ -19,6 +19,8 @@
  */
 package org.sonarqube.qa.util.pageobjects;
 
+import java.util.Locale;
+
 import static com.codeborne.selenide.Condition.text;
 import static com.codeborne.selenide.Condition.visible;
 import static com.codeborne.selenide.Selenide.$;
@@ -32,7 +34,7 @@ public class RuleDetails {
   }
 
   public RuleDetails shouldHaveSeverity(String severity) {
-    $(".coding-rules-detail-property .icon-severity-" + severity.toLowerCase()).shouldBe(visible);
+    $(".coding-rules-detail-property .icon-severity-" + severity.toLowerCase(Locale.ENGLISH)).shouldBe(visible);
     return this;
   }
 

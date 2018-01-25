@@ -42,7 +42,7 @@ public class RulesPage extends Navigation {
   }
 
   public ElementsCollection getSelectedFacetItems(String facetName) {
-    SelenideElement facet = $(".search-navigator-facet-box[data-property='"+ facetName+"']").shouldBe(visible);
+    SelenideElement facet = $(getFacetSelector(facetName)).shouldBe(visible);
     return facet.$$(".js-facet.active");
   }
 
@@ -51,41 +51,41 @@ public class RulesPage extends Navigation {
     return this;
   }
 
-  public RulesPage shouldDisplayRules(String ...ruleNames) {
+  public RulesPage shouldDisplayRules(String... ruleNames) {
     for (String ruleName : ruleNames) {
-      $$(".coding-rule").findBy(text(ruleName)).shouldBe(visible);
+      getRulesCollection().findBy(text(ruleName)).shouldBe(visible);
     }
     return this;
   }
 
-  public RulesPage shouldNotDisplayRules(String ...ruleNames) {
+  public RulesPage shouldNotDisplayRules(String... ruleNames) {
     for (String ruleName : ruleNames) {
-      $$(".coding-rule").findBy(text(ruleName)).shouldNotBe(visible);
+      getRulesCollection().findBy(text(ruleName)).shouldNotBe(visible);
     }
     return this;
   }
 
   public RulesPage shouldDisplayRuleWithLanguage(String ruleName, String languageName) {
-      $$(".coding-rule")
-        .findBy(Condition.and("", text(ruleName), text(languageName)))
-        .shouldBe(visible);
+    getRulesCollection()
+      .findBy(Condition.and("", text(ruleName), text(languageName)))
+      .shouldBe(visible);
     return this;
   }
 
   public RulesPage shouldNotDisplayRuleWithLanguage(String ruleName, String languageName) {
-    $$(".coding-rule")
+    getRulesCollection()
       .findBy(Condition.and("", text(ruleName), text(languageName)))
       .shouldNotBe(visible);
     return this;
   }
 
   public RulesPage openFacet(String facet) {
-    $(".search-navigator-facet-box[data-property=\"" + facet + "\"] .js-facet-toggle").click();
+    $(getFacetSelector(facet) + " .js-facet-toggle").click();
     return this;
   }
 
   public RulesPage selectFacetItemByText(String facet, String itemText) {
-    $$(".search-navigator-facet-box[data-property=\"" + facet + "\"] .js-facet")
+    $$(getFacetSelector(facet) + " .js-facet")
       .findBy(Condition.text(itemText)).click();
     return this;
   }
@@ -112,7 +112,7 @@ public class RulesPage extends Navigation {
   }
 
   public RuleItem takeRuleByName(String ruleName) {
-    return new RuleItem($$(".coding-rule").findBy(text(ruleName)));
+    return new RuleItem(getRulesCollection().findBy(text(ruleName)));
   }
 
   public RulesPage search(String query) {
@@ -123,6 +123,14 @@ public class RulesPage extends Navigation {
   public RulesPage clearAllFilters() {
     $(".js-new-search").click();
     return this;
+  }
+
+  private static String getFacetSelector(String facet) {
+    return ".search-navigator-facet-box[data-property=\"" + facet + "\"]";
+  }
+
+  private static ElementsCollection getRulesCollection() {
+    return $$(".coding-rule");
   }
 
 }
