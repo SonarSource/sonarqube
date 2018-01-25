@@ -106,13 +106,13 @@ public class RegisterRules implements Startable {
     Profiler profiler = Profiler.create(LOG).startInfo("Register rules");
     try (DbSession dbSession = dbClient.openSession(false)) {
       Map<RuleKey, RuleDefinitionDto> allRules = loadRules(dbSession);
+      List<Integer> ruleIdsToIndex = new ArrayList<>();
       Map<Integer, Set<SingleDeprecatedRuleKey>> existingDeprecatedRuleKeys = loadDeprecatedRuleKeys(dbSession);
 
       RulesDefinition.Context context = defLoader.load();
 
       List<RulesDefinition.ExtendedRepository> repositories = getRepositories(context);
 
-      List<RuleKey> keysToIndex = new ArrayList<>();
       boolean orgsEnabled = organizationFlags.isEnabled(dbSession);
 
       for (RulesDefinition.ExtendedRepository repoDef : repositories) {
@@ -130,10 +130,9 @@ public class RegisterRules implements Startable {
               }
               continue;
             }
-            boolean relevantForIndex = registerRule(ruleDef, allRules, existingDeprecatedRuleKeys, dbSession);
-            if (relevantForIndex) {
-              keysToIndex.add(ruleKey);
-            }
+
+            registerRule(ruleDef, allRules, existingDeprecatedRuleKeys, dbSession)
+              .ifPresent(ruleIdsToIndex::add);
           }
           dbSession.commit();
         }
@@ -142,12 +141,12 @@ public class RegisterRules implements Startable {
       List<RuleDefinitionDto> removedRules = processRemainingDbRules(allRules.values(), dbSession);
       List<ActiveRuleChange> changes = removeActiveRulesOnStillExistingRepositories(dbSession, removedRules, context);
       dbSession.commit();
-      keysToIndex.addAll(removedRules.stream().map(RuleDefinitionDto::getKey).collect(Collectors.toList()));
+      ruleIdsToIndex.addAll(removedRules.stream().map(RuleDefinitionDto::getId).collect(Collectors.toList()));
 
       persistRepositories(dbSession, context.repositories());
       // FIXME lack of resiliency, active rules index is corrupted if rule index fails
       // to be updated. Only a single DB commit should be executed.
-      ruleIndexer.commitAndIndex(dbSession, keysToIndex);
+      ruleIndexer.commitAndIndex(dbSession, ruleIdsToIndex);
       activeRuleIndexer.commitAndIndex(dbSession, changes);
       profiler.stopDebug();
 
@@ -170,8 +169,11 @@ public class RegisterRules implements Startable {
     dbSession.commit();
   }
 
-  private boolean registerRule(RulesDefinition.Rule ruleDef, Map<RuleKey, RuleDefinitionDto> allRules, Map<Integer,
-    Set<SingleDeprecatedRuleKey>> existingDeprecatedRuleKeys, DbSession session) {
+  /**
+   * @return the id of the rule if it's just been created or if it's been updated.
+   */
+  private Optional<Integer> registerRule(RulesDefinition.Rule ruleDef, Map<RuleKey, RuleDefinitionDto> allRules,
+    Map<Integer, Set<SingleDeprecatedRuleKey>> existingDeprecatedRuleKeys, DbSession session) {
     RuleKey ruleKey = RuleKey.of(ruleDef.repository().key(), ruleDef.key());
 
     RuleDefinitionDto existingRule = allRules.remove(ruleKey);
@@ -185,9 +187,18 @@ public class RegisterRules implements Startable {
       newRule = false;
     }
 
-    boolean executeUpdate = mergeRule(ruleDef, rule);
-    executeUpdate |= mergeDebtDefinitions(ruleDef, rule);
-    executeUpdate |= mergeTags(ruleDef, rule);
+    boolean executeUpdate = false;
+    if (mergeRule(ruleDef, rule)) {
+      executeUpdate = true;
+    }
+
+    if (mergeDebtDefinitions(ruleDef, rule)) {
+      executeUpdate = true;
+    }
+
+    if (mergeTags(ruleDef, rule)) {
+      executeUpdate = true;
+    }
 
     if (executeUpdate) {
       update(session, rule);
@@ -195,7 +206,10 @@ public class RegisterRules implements Startable {
 
     mergeParams(ruleDef, rule, session);
     updateDeprecatedKeys(ruleDef, rule, existingDeprecatedRuleKeys, session);
-    return newRule || executeUpdate;
+    if (newRule || executeUpdate) {
+      return Optional.of(rule.getId());
+    }
+    return Optional.empty();
   }
 
   private Map<RuleKey, RuleDefinitionDto> loadRules(DbSession session) {
@@ -212,7 +226,6 @@ public class RegisterRules implements Startable {
       .map(SingleDeprecatedRuleKey::from)
       .collect(Collectors.groupingBy(SingleDeprecatedRuleKey::getRuleId, toSet()));
   }
-
 
   private List<RulesDefinition.ExtendedRepository> getRepositories(RulesDefinition.Context context) {
     List<RulesDefinition.ExtendedRepository> repositories = new ArrayList<>();
@@ -446,13 +459,11 @@ public class RegisterRules implements Startable {
 
     deprecatedRuleKeysToBeCreated
       .forEach(r -> dbClient.ruleDao().insert(dbSession, new DeprecatedRuleKeyDto()
-          .setUuid(uuidFactory.create())
-          .setRuleId(rule.getId())
-          .setOldRepositoryKey(r.getOldRepositoryKey())
-          .setOldRuleKey(r.getOldRuleKey())
-          .setCreatedAt(system2.now())
-        )
-      );
+        .setUuid(uuidFactory.create())
+        .setRuleId(rule.getId())
+        .setOldRepositoryKey(r.getOldRepositoryKey())
+        .setOldRuleKey(r.getOldRuleKey())
+        .setCreatedAt(system2.now())));
   }
 
   private List<RuleDefinitionDto> processRemainingDbRules(Collection<RuleDefinitionDto> existingRules, DbSession session) {

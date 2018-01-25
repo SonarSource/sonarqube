@@ -55,7 +55,7 @@ public interface RuleMapper {
 
   void scrollIndexingRules(ResultHandler<RuleForIndexingDto> handler);
 
-  List<RuleForIndexingDto> selectIndexingRulesByKeys(@Param("ruleKeys") List<RuleKey> keys);
+  List<RuleForIndexingDto> selectIndexingRulesByIds(@Param("ruleIds") List<Integer> ruleIds);
 
   void scrollIndexingRuleExtensions(ResultHandler<RuleExtensionForIndexingDto> handler);
 

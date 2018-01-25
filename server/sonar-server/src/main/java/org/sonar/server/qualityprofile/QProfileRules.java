@@ -22,7 +22,6 @@ package org.sonar.server.qualityprofile;
 import java.util.Collection;
 import java.util.List;
 import javax.annotation.Nullable;
-import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.ServerSide;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.QProfileDto;
@@ -54,7 +53,7 @@ public interface QProfileRules {
    */
   BulkChangeResult bulkActivateAndCommit(DbSession dbSession, QProfileDto profile, RuleQuery ruleQuery, @Nullable String severity);
 
-  List<ActiveRuleChange> deactivateAndCommit(DbSession dbSession, QProfileDto profile, Collection<RuleKey> ruleKeys);
+  List<ActiveRuleChange> deactivateAndCommit(DbSession dbSession, QProfileDto profile, Collection<Integer> ruleIds);
 
   BulkChangeResult bulkDeactivateAndCommit(DbSession dbSession, QProfileDto profile, RuleQuery ruleQuery);
 

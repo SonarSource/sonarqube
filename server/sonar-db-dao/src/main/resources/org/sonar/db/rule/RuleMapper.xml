@@ -144,8 +144,7 @@
     <include refid="sqlSelectIndexingRuleExtensions" />
     and
     <foreach collection="ruleExtensionIds" index="index" item="ruleExtId" open="" separator=" or " close="">
-      ( r.plugin_name = #{ruleExtId.repositoryName, jdbcType=VARCHAR} and
-      r.plugin_rule_key = #{ruleExtId.ruleKey, jdbcType=VARCHAR} and
+      ( r.id = #{ruleExtId.ruleId, jdbcType=INTEGER} and
       rm.organization_uuid = #{ruleExtId.organizationUuid, jdbcType=VARCHAR} )
     </foreach>
   </select>
@@ -156,6 +155,7 @@
 
   <sql id="sqlSelectIndexingRuleExtensions">
     select
+      r.id as "ruleId",
       r.plugin_name as "pluginName",
       r.plugin_rule_key as "pluginRuleKey",
       rm.organization_uuid as "organizationUuid",
@@ -169,6 +169,7 @@
 
   <sql id="sqlSelectIndexingRuleExtensions" databaseId="oracle">
     select
+      r.id as "ruleId",
       r.plugin_name as "pluginName",
       r.plugin_rule_key as "pluginRuleKey",
       rm.organization_uuid as "organizationUuid",
@@ -225,11 +226,11 @@
       </foreach>
   </select>
 
-  <select id="selectIndexingRulesByKeys" parameterType="map" resultType="org.sonar.db.rule.RuleForIndexingDto">
+  <select id="selectIndexingRulesByIds" parameterType="map" resultType="org.sonar.db.rule.RuleForIndexingDto">
     <include refid="sqlSelectIndexingRules"/>
     where
-      <foreach collection="ruleKeys" index="index" item="ruleKey" open="" separator=" or " close="">
-        (r.plugin_name=#{ruleKey.repository,jdbcType=VARCHAR} and r.plugin_rule_key=#{ruleKey.rule,jdbcType=VARCHAR})
+      <foreach collection="ruleIds" index="index" item="ruleId" open="" separator=" or " close="">
+        r.id=#{ruleId,jdbcType=INTEGER}
       </foreach>
   </select>
 

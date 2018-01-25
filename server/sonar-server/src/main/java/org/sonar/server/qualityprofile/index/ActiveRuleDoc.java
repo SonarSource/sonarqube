@@ -31,6 +31,7 @@ import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_INHERITANCE;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_PROFILE_UUID;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_REPOSITORY;
+import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_RULE_ID;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_RULE_KEY;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_SEVERITY;
 
@@ -41,7 +42,7 @@ public class ActiveRuleDoc extends BaseDoc {
     setField(FIELD_ACTIVE_RULE_ID, String.valueOf(id));
   }
 
-  public ActiveRuleDoc(Map<String,Object> source) {
+  public ActiveRuleDoc(Map<String, Object> source) {
     super(source);
   }
 
@@ -52,12 +53,12 @@ public class ActiveRuleDoc extends BaseDoc {
 
   @Override
   public String getRouting() {
-    return getRuleKeyAsString();
+    return getRuleIdAsString();
   }
 
   @Override
   public String getParent() {
-    return getRuleKey().toString();
+    return getRuleIdAsString();
   }
 
   RuleKey getRuleKey() {
@@ -72,18 +73,27 @@ public class ActiveRuleDoc extends BaseDoc {
     return getField(FIELD_ACTIVE_RULE_REPOSITORY);
   }
 
+  ActiveRuleDoc setRuleKey(RuleKey ruleKey) {
+    setField(FIELD_ACTIVE_RULE_RULE_KEY, ruleKey.toString());
+    setField(FIELD_ACTIVE_RULE_REPOSITORY, ruleKey.repository());
+    return this;
+  }
+
+  private String getRuleIdAsString() {
+    return getField(FIELD_ACTIVE_RULE_RULE_ID);
+  }
+
+  ActiveRuleDoc setRuleId(int ruleId) {
+    setField(FIELD_ACTIVE_RULE_RULE_ID, String.valueOf(ruleId));
+    return this;
+  }
+
   String getSeverity() {
     return getNullableField(FIELD_ACTIVE_RULE_SEVERITY);
   }
 
   ActiveRuleDoc setSeverity(@Nullable String s) {
     setField(FIELD_ACTIVE_RULE_SEVERITY, s);
-    return this;
-  }
-
-  ActiveRuleDoc setRuleKey(RuleKey ruleKey) {
-    setField(FIELD_ACTIVE_RULE_RULE_KEY, ruleKey.toString());
-    setField(FIELD_ACTIVE_RULE_REPOSITORY, ruleKey.repository());
     return this;
   }
 

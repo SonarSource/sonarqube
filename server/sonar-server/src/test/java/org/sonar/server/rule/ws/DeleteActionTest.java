@@ -87,7 +87,7 @@ public class DeleteActionTest {
       .setParam("key", customRule.getKey().toString())
       .execute();
 
-    verify(ruleIndexer).commitAndIndex(any(), eq(customRule.getKey()));
+    verify(ruleIndexer).commitAndIndex(any(), eq(customRule.getId()));
 
     // Verify custom rule has status REMOVED
     RuleDefinitionDto customRuleReloaded = dbClient.ruleDao().selectOrFailDefinitionByKey(dbSession, customRule.getKey());

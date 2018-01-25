@@ -158,7 +158,7 @@ public class InheritanceActionTest {
     RuleDefinitionDto rule1 = dbTester.rules().insert();
     RuleDefinitionDto rule2 = dbTester.rules().insert();
     RuleDefinitionDto rule3 = dbTester.rules().insert();
-    ruleIndexer.commitAndIndex(dbTester.getSession(), asList(rule1.getKey(), rule2.getKey(), rule3.getKey()));
+    ruleIndexer.commitAndIndex(dbTester.getSession(), asList(rule1.getId(), rule2.getId(), rule3.getId()));
 
     QProfileDto parent = dbTester.qualityProfiles().insert(organization);
     dbTester.qualityProfiles().activateRule(parent, rule1);
@@ -190,7 +190,7 @@ public class InheritanceActionTest {
   @Test
   public void inheritance_ignores_removed_rules() throws Exception {
     RuleDefinitionDto rule = dbTester.rules().insert(r -> r.setStatus(RuleStatus.REMOVED));
-    ruleIndexer.commitAndIndex(dbTester.getSession(), rule.getKey());
+    ruleIndexer.commitAndIndex(dbTester.getSession(), rule.getId());
 
     QProfileDto profile = dbTester.qualityProfiles().insert(organization);
     dbTester.qualityProfiles().activateRule(profile, rule);
@@ -265,7 +265,7 @@ public class InheritanceActionTest {
       .setUpdatedAt(now)
       .setCreatedAt(now);
     dbClient.ruleDao().insert(dbSession, rule);
-    ruleIndexer.commitAndIndex(dbSession, rule.getKey());
+    ruleIndexer.commitAndIndex(dbSession, rule.getId());
     return rule;
   }
 

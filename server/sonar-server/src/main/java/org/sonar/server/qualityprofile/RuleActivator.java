@@ -29,7 +29,6 @@ import java.util.stream.Stream;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.rule.RuleParamType;
@@ -319,8 +318,8 @@ public class RuleActivator {
     return activeRule.get();
   }
 
-  public List<ActiveRuleChange> deactivate(DbSession dbSession, RuleActivationContext context, RuleKey ruleKey, boolean force) {
-    context.reset(ruleKey);
+  public List<ActiveRuleChange> deactivate(DbSession dbSession, RuleActivationContext context, int ruleId, boolean force) {
+    context.reset(ruleId);
     return doDeactivate(dbSession, context, force);
   }
 
@@ -364,13 +363,13 @@ public class RuleActivator {
     return value;
   }
 
-  public RuleActivationContext createContextForBuiltInProfile(DbSession dbSession, RulesProfileDto builtInProfile, Collection<RuleKey> ruleKeys) {
+  public RuleActivationContext createContextForBuiltInProfile(DbSession dbSession, RulesProfileDto builtInProfile, Collection<Integer> ruleIds) {
     checkArgument(builtInProfile.isBuiltIn(), "Rules profile with UUID %s is not built-in", builtInProfile.getKee());
 
     RuleActivationContext.Builder builder = new RuleActivationContext.Builder();
 
     // load rules
-    List<RuleDefinitionDto> rules = completeWithRules(dbSession, builder, ruleKeys);
+    List<RuleDefinitionDto> rules = completeWithRules(dbSession, builder, ruleIds);
 
     // load profiles
     List<QProfileDto> aliasedBuiltInProfiles = db.qualityProfileDao().selectQProfilesByRuleProfile(dbSession, builtInProfile);
@@ -388,12 +387,12 @@ public class RuleActivator {
     return builder.build();
   }
 
-  public RuleActivationContext createContextForUserProfile(DbSession dbSession, QProfileDto profile, Collection<RuleKey> ruleKeys) {
+  public RuleActivationContext createContextForUserProfile(DbSession dbSession, QProfileDto profile, Collection<Integer> ruleIds) {
     checkArgument(!profile.isBuiltIn(), "Profile with UUID %s is built-in", profile.getKee());
     RuleActivationContext.Builder builder = new RuleActivationContext.Builder();
 
     // load rules
-    List<RuleDefinitionDto> rules = completeWithRules(dbSession, builder, ruleKeys);
+    List<RuleDefinitionDto> rules = completeWithRules(dbSession, builder, ruleIds);
 
     // load descendant profiles
     List<QProfileDto> profiles = new ArrayList<>(db.qualityProfileDao().selectDescendants(dbSession, singleton(profile)));
@@ -413,10 +412,10 @@ public class RuleActivator {
     return builder.build();
   }
 
-  private List<RuleDefinitionDto> completeWithRules(DbSession dbSession, RuleActivationContext.Builder builder, Collection<RuleKey> ruleKeys) {
-    List<RuleDefinitionDto> rules = db.ruleDao().selectDefinitionByKeys(dbSession, ruleKeys);
+  private List<RuleDefinitionDto> completeWithRules(DbSession dbSession, RuleActivationContext.Builder builder, Collection<Integer> ruleIds) {
+    List<RuleDefinitionDto> rules = db.ruleDao().selectDefinitionByIds(dbSession, ruleIds);
     builder.setRules(rules);
-    builder.setRuleParams(db.ruleDao().selectRuleParamsByRuleKeys(dbSession, ruleKeys));
+    builder.setRuleParams(db.ruleDao().selectRuleParamsByRuleIds(dbSession, ruleIds));
     return rules;
   }
 

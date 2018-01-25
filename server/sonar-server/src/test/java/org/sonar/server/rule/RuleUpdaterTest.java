@@ -27,7 +27,6 @@ import com.google.common.collect.Sets;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Nonnull;
-import org.assertj.core.api.ThrowableAssertAlternative;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -50,7 +49,6 @@ import org.sonar.db.rule.RuleParamDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.es.SearchOptions;
-import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.qualityprofile.QProfileTesting;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleIndexDefinition;
@@ -59,9 +57,7 @@ import org.sonar.server.rule.index.RuleQuery;
 import org.sonar.server.tester.UserSessionRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
-import static org.sonar.api.rule.RuleStatus.REMOVED;
 import static org.sonar.api.rule.Severity.CRITICAL;
 import static org.sonar.db.rule.RuleTesting.newRule;
 import static org.sonar.server.rule.RuleUpdate.createForCustomRule;
@@ -387,8 +383,8 @@ public class RuleUpdaterTest {
     assertThat(params).extracting(RuleParamDto::getDefaultValue).containsOnly("b.*", null);
 
     // Verify in index
-    assertThat(ruleIndex.search(new RuleQuery().setQueryText("New name"), new SearchOptions()).getIds()).containsOnly(customRule.getKey());
-    assertThat(ruleIndex.search(new RuleQuery().setQueryText("New description"), new SearchOptions()).getIds()).containsOnly(customRule.getKey());
+    assertThat(ruleIndex.search(new RuleQuery().setQueryText("New name"), new SearchOptions()).getIds()).containsOnly(customRule.getId());
+    assertThat(ruleIndex.search(new RuleQuery().setQueryText("New description"), new SearchOptions()).getIds()).containsOnly(customRule.getId());
 
     assertThat(ruleIndex.search(new RuleQuery().setQueryText("Old name"), new SearchOptions()).getTotal()).isZero();
     assertThat(ruleIndex.search(new RuleQuery().setQueryText("Old description"), new SearchOptions()).getTotal()).isZero();

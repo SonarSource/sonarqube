@@ -86,7 +86,7 @@ public class DeleteAction implements RulesWsAction {
       rule.setUpdatedAt(system2.now());
       dbClient.ruleDao().update(dbSession, rule);
 
-      ruleIndexer.commitAndIndex(dbSession, ruleKey);
+      ruleIndexer.commitAndIndex(dbSession, rule.getId());
     }
   }
 }

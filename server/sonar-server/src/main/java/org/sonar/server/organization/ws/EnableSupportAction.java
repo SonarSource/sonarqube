@@ -20,7 +20,6 @@
 package org.sonar.server.organization.ws;
 
 import java.util.List;
-import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
@@ -87,9 +86,9 @@ public class EnableSupportAction implements OrganizationsWsAction {
       if (isSupportDisabled(dbSession)) {
         flagCurrentUserAsRoot(dbSession);
         createDefaultMembersGroup(dbSession);
-        List<RuleKey> disabledTemplateAndCustomRuleKeys = disableTemplateRulesAndCustomRules(dbSession);
+        List<Integer> disabledTemplateAndCustomRuleIds = disableTemplateRulesAndCustomRules(dbSession);
         enableFeature(dbSession);
-        ruleIndexer.commitAndIndex(dbSession, disabledTemplateAndCustomRuleKeys);
+        ruleIndexer.commitAndIndex(dbSession, disabledTemplateAndCustomRuleIds);
       }
     }
     response.noContent();
@@ -140,7 +139,7 @@ public class EnableSupportAction implements OrganizationsWsAction {
       permissionTemplateGroup.getTemplateId(), membersGroup.getId(), permissionTemplateGroup.getPermission()));
   }
 
-  public List<RuleKey> disableTemplateRulesAndCustomRules(DbSession dbSession) {
+  public List<Integer> disableTemplateRulesAndCustomRules(DbSession dbSession) {
     List<RuleDefinitionDto> rules = dbClient.ruleDao().selectAllDefinitions(dbSession).stream()
       .filter(r -> r.isTemplate() || r.isCustomRule())
       .collect(toList());
@@ -148,7 +147,7 @@ public class EnableSupportAction implements OrganizationsWsAction {
       r.setStatus(RuleStatus.REMOVED);
       dbClient.ruleDao().update(dbSession, r);
     });
-    return rules.stream().map(RuleDefinitionDto::getKey).collect(toList());
+    return rules.stream().map(RuleDefinitionDto::getId).collect(toList());
   }
 
   private void enableFeature(DbSession dbSession) {

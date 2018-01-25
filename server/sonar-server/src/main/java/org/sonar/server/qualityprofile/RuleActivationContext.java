@@ -66,6 +66,7 @@ class RuleActivationContext {
 
   // the rules
   private final Map<RuleKey, RuleWrapper> rulesByKey;
+  private final Map<Integer, RuleWrapper> rulesById;
   private final Map<ActiveRuleKey, ActiveRuleWrapper> activeRulesByKey;
 
   // cursor, moved in the tree of profiles
@@ -85,10 +86,12 @@ class RuleActivationContext {
 
     // rules
     this.rulesByKey = Maps.newHashMapWithExpectedSize(builder.rules.size());
+    this.rulesById = Maps.newHashMapWithExpectedSize(builder.rules.size());
     ListMultimap<Integer, RuleParamDto> paramsByRuleId = builder.ruleParams.stream().collect(index(RuleParamDto::getRuleId));
     for (RuleDefinitionDto rule : builder.rules) {
       RuleWrapper wrapper = new RuleWrapper(rule, paramsByRuleId.get(rule.getId()));
       rulesByKey.put(rule.getKey(), wrapper);
+      rulesById.put(rule.getId(), wrapper);
     }
 
     // profiles
@@ -172,6 +175,13 @@ class RuleActivationContext {
   void reset(RuleKey ruleKey) {
     this.cascading = false;
     doSwitch(this.baseProfile, this.baseRulesProfile, ruleKey);
+  }
+
+  public void reset(Integer ruleId) {
+    this.cascading = false;
+    RuleWrapper ruleWrapper = rulesById.get(ruleId);
+    checkRequest(ruleWrapper != null, "Rule not found: %s", ruleId);
+    doSwitch(this.baseProfile, this.baseRulesProfile, ruleWrapper.get().getKey());
   }
 
   /**

@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.BiFunction;
 import javax.annotation.Nullable;
-import org.sonar.api.rule.RuleKey;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -57,8 +56,8 @@ public class QProfileRulesImpl implements QProfileRules {
   public List<ActiveRuleChange> activateAndCommit(DbSession dbSession, QProfileDto profile, Collection<RuleActivation> activations) {
     verifyNotBuiltIn(profile);
 
-    Set<RuleKey> ruleKeys = activations.stream().map(RuleActivation::getRuleKey).collect(MoreCollectors.toHashSet(activations.size()));
-    RuleActivationContext context = ruleActivator.createContextForUserProfile(dbSession, profile, ruleKeys);
+    Set<Integer> ruleIds = activations.stream().map(RuleActivation::getRuleId).collect(MoreCollectors.toHashSet(activations.size()));
+    RuleActivationContext context = ruleActivator.createContextForUserProfile(dbSession, profile, ruleIds);
 
     List<ActiveRuleChange> changes = new ArrayList<>();
     for (RuleActivation activation : activations) {
@@ -78,13 +77,13 @@ public class QProfileRulesImpl implements QProfileRules {
   }
 
   @Override
-  public List<ActiveRuleChange> deactivateAndCommit(DbSession dbSession, QProfileDto profile, Collection<RuleKey> ruleKeys) {
+  public List<ActiveRuleChange> deactivateAndCommit(DbSession dbSession, QProfileDto profile, Collection<Integer> ruleIds) {
     verifyNotBuiltIn(profile);
-    RuleActivationContext context = ruleActivator.createContextForUserProfile(dbSession, profile, ruleKeys);
+    RuleActivationContext context = ruleActivator.createContextForUserProfile(dbSession, profile, ruleIds);
 
     List<ActiveRuleChange> changes = new ArrayList<>();
-    for (RuleKey ruleKey : ruleKeys) {
-      changes.addAll(ruleActivator.deactivate(dbSession, context, ruleKey, false));
+    for (Integer ruleId : ruleIds) {
+      changes.addAll(ruleActivator.deactivate(dbSession, context, ruleId, false));
     }
     activeRuleIndexer.commitAndIndex(dbSession, changes);
     return changes;
@@ -93,7 +92,7 @@ public class QProfileRulesImpl implements QProfileRules {
   @Override
   public BulkChangeResult bulkDeactivateAndCommit(DbSession dbSession, QProfileDto profile, RuleQuery ruleQuery) {
     verifyNotBuiltIn(profile);
-    return doBulk(dbSession, profile, ruleQuery, (context, ruleDefinition) -> ruleActivator.deactivate(dbSession, context, ruleDefinition.getKey(), false));
+    return doBulk(dbSession, profile, ruleQuery, (context, ruleDefinition) -> ruleActivator.deactivate(dbSession, context, ruleDefinition.getId(), false));
   }
 
   @Override
@@ -117,12 +116,12 @@ public class QProfileRulesImpl implements QProfileRules {
 
   private BulkChangeResult doBulk(DbSession dbSession, QProfileDto profile, RuleQuery ruleQuery, BiFunction<RuleActivationContext, RuleDefinitionDto, List<ActiveRuleChange>> fn) {
     BulkChangeResult result = new BulkChangeResult();
-    Collection<RuleKey> ruleKeys = Sets.newHashSet(ruleIndex.searchAll(ruleQuery));
-    RuleActivationContext context = ruleActivator.createContextForUserProfile(dbSession, profile, ruleKeys);
+    Collection<Integer> ruleIds = Sets.newHashSet(ruleIndex.searchAll(ruleQuery));
+    RuleActivationContext context = ruleActivator.createContextForUserProfile(dbSession, profile, ruleIds);
 
-    for (RuleKey ruleKey : ruleKeys) {
+    for (Integer ruleId : ruleIds) {
       try {
-        context.reset(ruleKey);
+        context.reset(ruleId);
         RuleDefinitionDto ruleDefinition = context.getRule().get();
         List<ActiveRuleChange> changes = fn.apply(context, ruleDefinition);
         result.addChanges(changes);
