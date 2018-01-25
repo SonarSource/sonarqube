@@ -19,14 +19,35 @@
  */
 package org.sonarqube.qa.util.pageobjects;
 
-import com.codeborne.selenide.Selenide;
-
 import static com.codeborne.selenide.Condition.text;
+import static com.codeborne.selenide.Condition.visible;
+import static com.codeborne.selenide.Selenide.$;
+import static com.codeborne.selenide.Selenide.$$;
 
 public class RuleDetails {
 
+  public RuleDetails shouldHaveType(String type) {
+    $$(".coding-rules-detail-property").findBy(text(type)).shouldBe(visible);
+    return this;
+  }
+
+  public RuleDetails shouldHaveSeverity(String severity) {
+    $(".coding-rules-detail-property .icon-severity-" + severity.toLowerCase()).shouldBe(visible);
+    return this;
+  }
+
+  public RuleDetails shouldHaveNoTags() {
+    $(".coding-rules-detail-tag-list").shouldHave(text("No tags"));
+    return this;
+  }
+
+  public RuleDetails shouldHaveDescription(String description) {
+    $(".js-rule-description").shouldHave(text(description));
+    return this;
+  }
+
   public RuleDetails shouldBeActivatedOn(String profileName) {
-    Selenide.$("#coding-rules-detail-quality-profiles").shouldHave(text(profileName));
+    $("#coding-rules-detail-quality-profiles").shouldHave(text(profileName));
     return this;
   }
 
