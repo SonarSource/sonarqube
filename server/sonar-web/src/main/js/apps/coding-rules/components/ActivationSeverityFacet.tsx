@@ -18,89 +18,35 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { orderBy, without } from 'lodash';
-import * as classNames from 'classnames';
-import { Query, FacetKey } from '../query';
-import FacetBox from '../../../components/facet/FacetBox';
-import FacetHeader from '../../../components/facet/FacetHeader';
-import FacetItem from '../../../components/facet/FacetItem';
-import FacetItemsList from '../../../components/facet/FacetItemsList';
+import Facet, { BasicProps } from './Facet';
 import SeverityHelper from '../../../components/shared/SeverityHelper';
+import { SEVERITIES } from '../../../helpers/constants';
 import { translate } from '../../../helpers/l10n';
-import { formatMeasure } from '../../../helpers/measures';
 
-interface Props {
+interface Props extends BasicProps {
   disabled: boolean;
-  onChange: (changes: Partial<Query>) => void;
-  onToggle: (facet: FacetKey) => void;
-  open: boolean;
-  stats?: { [x: string]: number };
-  values: string[];
 }
 
 export default class ActivationSeverityFacet extends React.PureComponent<Props> {
-  handleItemClick = (itemValue: string) => {
-    const { values } = this.props;
-    const newValue = orderBy(
-      values.includes(itemValue) ? without(values, itemValue) : [...values, itemValue]
-    );
-    this.props.onChange({ activationSeverities: newValue });
+  renderName = (severity: string) => {
+    return <SeverityHelper severity={severity} />;
   };
 
-  handleHeaderClick = () => {
-    this.props.onToggle('activationSeverities');
-  };
-
-  handleClear = () => {
-    this.props.onChange({ activationSeverities: [] });
-  };
-
-  getStat = (value: string) => {
-    const { stats } = this.props;
-    return stats && stats[value];
-  };
-
-  renderItem = (severity: string) => {
-    const active = this.props.values.includes(severity);
-    const stat = this.getStat(severity);
-
-    return (
-      <FacetItem
-        active={active}
-        disabled={stat === 0 && !active}
-        halfWidth={true}
-        key={severity}
-        name={<SeverityHelper severity={severity} />}
-        onClick={this.handleItemClick}
-        stat={stat && formatMeasure(stat, 'SHORT_INT')}
-        value={severity}
-      />
-    );
+  renderTextName = (severity: string) => {
+    return translate('severity', severity);
   };
 
   render() {
-    const values = this.props.values.map(severity => translate('severity', severity));
-    const items = ['BLOCKER', 'MINOR', 'CRITICAL', 'INFO', 'MAJOR'];
-
     return (
-      <FacetBox
-        className={classNames({ 'search-navigator-facet-box-forbidden': this.props.disabled })}>
-        <FacetHeader
-          helper={
-            this.props.disabled
-              ? translate('coding_rules.filters.active_severity.inactive')
-              : undefined
-          }
-          name={translate('coding_rules.facet.active_severities')}
-          onClear={this.handleClear}
-          onClick={this.props.disabled ? undefined : this.handleHeaderClick}
-          open={this.props.open && !this.props.disabled}
-          values={values}
-        />
-
-        {this.props.open &&
-          !this.props.disabled && <FacetItemsList>{items.map(this.renderItem)}</FacetItemsList>}
-      </FacetBox>
+      <Facet
+        {...this.props}
+        disabled={this.props.disabled}
+        disabledHelper={translate('coding_rules.filters.active_severity.inactive')}
+        options={SEVERITIES}
+        property="activationSeverities"
+        renderName={this.renderName}
+        renderTextName={this.renderTextName}
+      />
     );
   }
 }

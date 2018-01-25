@@ -49,7 +49,11 @@ export default function FacetsList(props: Props) {
     props.query.compareToProfile !== undefined ||
     props.selectedProfile === undefined ||
     !props.selectedProfile.isInherited;
-  const activationSeverityDisabled = inheritanceDisabled || !props.query.activation;
+
+  const activationSeverityDisabled =
+    props.query.compareToProfile !== undefined ||
+    props.selectedProfile === undefined ||
+    !props.query.activation;
 
   return (
     <div className="search-navigator-facets-list">

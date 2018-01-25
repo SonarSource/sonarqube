@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import { orderBy, without, sortBy } from 'lodash';
+import * as classNames from 'classnames';
 import { Query, FacetKey } from '../query';
 import FacetBox from '../../../components/facet/FacetBox';
 import FacetHeader from '../../../components/facet/FacetHeader';
@@ -36,6 +37,8 @@ export interface BasicProps {
 }
 
 interface Props extends BasicProps {
+  disabled?: boolean;
+  disabledHelper?: string;
   halfWidth?: boolean;
   options?: string[];
   property: FacetKey;
@@ -94,12 +97,14 @@ export default class Facet extends React.PureComponent<Props> {
         sortBy(Object.keys(stats), key => -stats[key], key => renderTextName(key).toLowerCase()));
 
     return (
-      <FacetBox>
+      <FacetBox
+        className={classNames({ 'search-navigator-facet-box-forbidden': this.props.disabled })}>
         <FacetHeader
+          helper={this.props.disabled ? this.props.disabledHelper : undefined}
           name={translate('coding_rules.facet', this.props.property)}
           onClear={this.handleClear}
-          onClick={this.handleHeaderClick}
-          open={this.props.open}
+          onClick={this.props.disabled ? undefined : this.handleHeaderClick}
+          open={this.props.open && !this.props.disabled}
           values={values}
         />
 
