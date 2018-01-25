@@ -19,6 +19,8 @@
  */
 package org.sonarqube.qa.util.pageobjects;
 
+import com.codeborne.selenide.Condition;
+import com.codeborne.selenide.SelenideElement;
 import java.util.Locale;
 
 import static com.codeborne.selenide.Condition.text;
@@ -51,6 +53,57 @@ public class RuleDetails {
   public RuleDetails shouldBeActivatedOn(String profileName) {
     $("#coding-rules-detail-quality-profiles").shouldHave(text(profileName));
     return this;
+  }
+
+  public RuleDetails shouldHaveTotalIssues(int issues) {
+    $(".js-rule-issues h3").shouldHave(text(String.valueOf(issues)));
+    return this;
+  }
+
+  public RuleDetails shouldHaveIssuesOnProject(String projectName, int issues) {
+    $(".coding-rules-most-violated-projects").shouldHave(
+      Condition.and("", text(projectName), text(String.valueOf(issues))));
+    return this;
+  }
+
+  public ExtendedDescription extendDescription() {
+    return new ExtendedDescription().start();
+  }
+
+  public class ExtendedDescription {
+    public ExtendedDescription start() {
+      $("#coding-rules-detail-extend-description").click();
+      getTextArea().shouldBe(visible);
+      return this;
+    }
+
+    public ExtendedDescription cancel() {
+      $("#coding-rules-detail-extend-description-cancel").click();
+      getTextArea().shouldNotBe(visible);
+      return this;
+    }
+
+    public ExtendedDescription type(String text) {
+      getTextArea().val(text);
+      return this;
+    }
+
+    public ExtendedDescription submit() {
+      $("#coding-rules-detail-extend-description-submit").click();
+      getTextArea().shouldNotBe(visible);
+      return this;
+    }
+
+    public ExtendedDescription remove() {
+      $("#coding-rules-detail-extend-description-remove").click();
+      $("button[data-confirm=\"yes\"").click();
+      getTextArea().shouldNotBe(visible);
+      return this;
+    }
+
+    private SelenideElement getTextArea() {
+      return $("#coding-rules-detail-extend-description-text");
+    }
   }
 
 }

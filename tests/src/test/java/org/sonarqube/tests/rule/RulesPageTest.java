@@ -33,6 +33,7 @@ import org.sonarqube.ws.Qualityprofiles.CreateWsResponse.QualityProfile;
 import org.sonarqube.ws.client.qualityprofiles.ChangeParentRequest;
 import org.sonarqube.ws.client.qualityprofiles.CreateRequest;
 import org.sonarqube.ws.client.qualityprofiles.DeleteRequest;
+import util.ProjectAnalysisRule;
 
 import static com.codeborne.selenide.WebDriverRunner.url;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -53,6 +54,9 @@ public class RulesPageTest {
 
   @Rule
   public Tester tester = new Tester(ORCHESTRATOR).disableOrganizations();
+
+  @Rule
+  public ProjectAnalysisRule projectAnalysisRule = ProjectAnalysisRule.from(ORCHESTRATOR);
 
   @Before
   public void before() {
@@ -221,10 +225,25 @@ public class RulesPageTest {
   }
 
   @Test
-  public void should_display_rule_issues() {}
+  public void should_display_rule_issues() {
+    analyzeProjectWithIssues();
+
+    RulesPage page = tester.openBrowser().openRules();
+    page.selectFacetItem("languages", XOO_LANG);
+    page.takeRuleByName("One Issue Per Line").open()
+      .shouldHaveTotalIssues(17).shouldHaveIssuesOnProject("Sample", 17);
+  }
 
   @Test
-  public void should_extend_rule_description() {}
+  public void should_extend_rule_description() {
+    String admin = tester.users().generateAdministrator().getLogin();
+    RuleDetails ruleDetails = tester.openBrowser().logIn().submitCredentials(admin).openRules().openFirstRule();
+
+    ruleDetails.extendDescription().cancel();
+    ruleDetails.extendDescription().type("my extended description").submit();
+    ruleDetails.extendDescription().type("another description").submit();
+    ruleDetails.extendDescription().remove();
+  }
 
   @Test
   public void should_change_rule_tags() {}
@@ -267,6 +286,12 @@ public class RulesPageTest {
 
   private void deleteInheritedQualityProfile() {
     tester.qProfiles().service().delete(new DeleteRequest().setLanguage("xoo").setQualityProfile(INHERITED_PROFILE));
+  }
+
+  private void analyzeProjectWithIssues() {
+    String qualityProfileKey = projectAnalysisRule.registerProfile("/issue/IssueActionTest/xoo-one-issue-per-line-profile.xml");
+    String projectKey = projectAnalysisRule.registerProject("shared/xoo-sample");
+    projectAnalysisRule.newProjectAnalysis(projectKey).withQualityProfile(qualityProfileKey).run();
   }
 
 }
