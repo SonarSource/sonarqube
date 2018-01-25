@@ -20,7 +20,7 @@
 import * as React from 'react';
 import { orderBy, without, sortBy } from 'lodash';
 import * as classNames from 'classnames';
-import { Query, FacetKey } from '../query';
+import { FacetKey } from '../query';
 import FacetBox from '../../../components/facet/FacetBox';
 import FacetHeader from '../../../components/facet/FacetHeader';
 import FacetItem from '../../../components/facet/FacetItem';
@@ -29,7 +29,7 @@ import { translate } from '../../../helpers/l10n';
 import { formatMeasure } from '../../../helpers/measures';
 
 export interface BasicProps {
-  onChange: (changes: Partial<Query>) => void;
+  onChange: (changes: { [x: string]: string | string[] | undefined }) => void;
   onToggle: (facet: FacetKey) => void;
   open: boolean;
   stats?: { [x: string]: number };
