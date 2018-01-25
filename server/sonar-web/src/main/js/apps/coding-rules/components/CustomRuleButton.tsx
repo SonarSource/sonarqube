@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import CustomRuleCreationModal from './CustomRuleCreationModal';
+import CustomRuleFormModal from './CustomRuleFormModal';
 import { RuleDetails } from '../../../app/types';
 
 interface Props {
@@ -69,7 +69,7 @@ export default class CustomRuleButton extends React.PureComponent<Props, State> 
       <>
         {this.props.children({ onClick: this.handleClick })}
         {this.state.modal && (
-          <CustomRuleCreationModal
+          <CustomRuleFormModal
             customRule={this.props.customRule}
             onClose={this.handleModalClose}
             onDone={this.handleDone}
