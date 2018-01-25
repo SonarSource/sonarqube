@@ -21,12 +21,14 @@ package org.sonar.api.batch.fs;
 
 import org.sonar.api.ExtensionPoint;
 import org.sonar.api.batch.ScannerSide;
+import org.sonarsource.api.sonarlint.SonarLintSide;
 
 /**
  * Extension point to exclude some files from inspection
  * @since 4.2
  */
 @ScannerSide
+@SonarLintSide
 @ExtensionPoint
 @FunctionalInterface
 public interface InputFileFilter {
