@@ -34,6 +34,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.qualityprofile.QProfileDto;
+import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.BadRequestException;
@@ -95,20 +96,19 @@ public class DeactivateRuleActionTest {
   public void deactivate_rule_in_default_organization() {
     userSession.logIn(db.users().insertUser()).addPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES, defaultOrganization);
     QProfileDto qualityProfile = db.qualityProfiles().insert(defaultOrganization);
-    RuleKey ruleKey = RuleTesting.randomRuleKey();
+    RuleDefinitionDto rule = db.rules().insert(RuleTesting.randomRuleKey());
     TestRequest request = ws.newRequest()
       .setMethod("POST")
-      .setParam(PARAM_RULE, ruleKey.toString())
+      .setParam(PARAM_RULE, rule.getKey().toString())
       .setParam(PARAM_KEY, qualityProfile.getKee());
 
     TestResponse response = request.execute();
 
     assertThat(response.getStatus()).isEqualTo(HttpURLConnection.HTTP_NO_CONTENT);
-    Class<Collection<RuleKey>> collectionClass = (Class<Collection<RuleKey>>) (Class) Collection.class;
-    ArgumentCaptor<Collection<RuleKey>> ruleKeyCaptor = ArgumentCaptor.forClass(collectionClass);
+    ArgumentCaptor<Collection<Integer>> ruleIdCaptor = ruleIdCollectionCaptor();
     ArgumentCaptor<QProfileDto> qProfileDtoCaptor = ArgumentCaptor.forClass(QProfileDto.class);
-    verify(qProfileRules).deactivateAndCommit(any(DbSession.class), qProfileDtoCaptor.capture(), ruleKeyCaptor.capture());
-    assertThat(ruleKeyCaptor.getValue()).containsExactly(ruleKey);
+    verify(qProfileRules).deactivateAndCommit(any(DbSession.class), qProfileDtoCaptor.capture(), ruleIdCaptor.capture());
+    assertThat(ruleIdCaptor.getValue()).containsExactly(rule.getId());
     assertThat(qProfileDtoCaptor.getValue().getKee()).isEqualTo(qualityProfile.getKee());
   }
 
@@ -116,21 +116,20 @@ public class DeactivateRuleActionTest {
   public void deactivate_rule_in_specific_organization() {
     userSession.logIn(db.users().insertUser()).addPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES, organization);
     QProfileDto qualityProfile = db.qualityProfiles().insert(organization);
-    RuleKey ruleKey = RuleTesting.randomRuleKey();
+    RuleDefinitionDto rule = db.rules().insert(RuleTesting.randomRuleKey());
     TestRequest request = ws.newRequest()
       .setMethod("POST")
       .setParam("organization", organization.getKey())
-      .setParam(PARAM_RULE, ruleKey.toString())
+      .setParam(PARAM_RULE, rule.getKey().toString())
       .setParam(PARAM_KEY, qualityProfile.getKee());
 
     TestResponse response = request.execute();
 
     assertThat(response.getStatus()).isEqualTo(HttpURLConnection.HTTP_NO_CONTENT);
-    Class<Collection<RuleKey>> collectionClass = (Class<Collection<RuleKey>>) (Class) Collection.class;
-    ArgumentCaptor<Collection<RuleKey>> ruleKeyCaptor = ArgumentCaptor.forClass(collectionClass);
+    ArgumentCaptor<Collection<Integer>> ruleIdCaptor = ruleIdCollectionCaptor();
     ArgumentCaptor<QProfileDto> qProfileDtoCaptor = ArgumentCaptor.forClass(QProfileDto.class);
-    verify(qProfileRules).deactivateAndCommit(any(DbSession.class), qProfileDtoCaptor.capture(), ruleKeyCaptor.capture());
-    assertThat(ruleKeyCaptor.getValue()).containsExactly(ruleKey);
+    verify(qProfileRules).deactivateAndCommit(any(DbSession.class), qProfileDtoCaptor.capture(), ruleIdCaptor.capture());
+    assertThat(ruleIdCaptor.getValue()).containsExactly(rule.getId());
     assertThat(qProfileDtoCaptor.getValue().getKee()).isEqualTo(qualityProfile.getKee());
   }
 
@@ -141,6 +140,7 @@ public class DeactivateRuleActionTest {
     db.qualityProfiles().addUserPermission(qualityProfile, user);
     userSession.logIn(user);
     RuleKey ruleKey = RuleTesting.randomRuleKey();
+    db.rules().insert(ruleKey);
 
     ws.newRequest()
       .setMethod("POST")
@@ -166,11 +166,12 @@ public class DeactivateRuleActionTest {
 
   @Test
   public void fail_if_not_organization_quality_profile_administrator() {
+    RuleDefinitionDto rule = db.rules().insert();
     userSession.logIn(db.users().insertUser()).addPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES, defaultOrganization);
     QProfileDto qualityProfile = db.qualityProfiles().insert(organization);
     TestRequest request = ws.newRequest()
       .setMethod("POST")
-      .setParam(PARAM_RULE, RuleTesting.newRuleDto().getKey().toString())
+      .setParam(PARAM_RULE, rule.getKey().toString())
       .setParam(PARAM_KEY, qualityProfile.getKee());
 
     expectedException.expect(ForbiddenException.class);
@@ -180,16 +181,22 @@ public class DeactivateRuleActionTest {
 
   @Test
   public void fail_deactivate_if_built_in_profile() {
+    RuleDefinitionDto rule = db.rules().insert();
     userSession.logIn(db.users().insertUser()).addPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES, defaultOrganization);
 
     QProfileDto qualityProfile = db.qualityProfiles().insert(defaultOrganization, profile -> profile.setIsBuiltIn(true));
     TestRequest request = ws.newRequest()
       .setMethod("POST")
-      .setParam(PARAM_RULE, RuleTesting.newRuleDto().getKey().toString())
+      .setParam(PARAM_RULE, rule.getKey().toString())
       .setParam(PARAM_KEY, qualityProfile.getKee());
 
     expectedException.expect(BadRequestException.class);
 
     request.execute();
+  }
+
+  private static ArgumentCaptor<Collection<Integer>> ruleIdCollectionCaptor() {
+    Class<Collection<Integer>> collectionClass = (Class<Collection<Integer>>) (Class) Collection.class;
+    return ArgumentCaptor.forClass(collectionClass);
   }
 }

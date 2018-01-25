@@ -28,7 +28,6 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.config.internal.MapSettings;
-import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbTester;
@@ -194,10 +193,10 @@ public class EnableSupportActionTest {
         tuple(custom.getKey(), RuleStatus.REMOVED));
 
     @SuppressWarnings("unchecked")
-    Class<ArrayList<RuleKey>> listClass = (Class<ArrayList<RuleKey>>) (Class) ArrayList.class;
-    ArgumentCaptor<ArrayList<RuleKey>> indexedRuleKeys = ArgumentCaptor.forClass(listClass);
+    Class<ArrayList<Integer>> listClass = (Class<ArrayList<Integer>>) (Class) ArrayList.class;
+    ArgumentCaptor<ArrayList<Integer>> indexedRuleKeys = ArgumentCaptor.forClass(listClass);
     verify(ruleIndexer).commitAndIndex(any(), indexedRuleKeys.capture());
-    assertThat(indexedRuleKeys.getValue()).containsExactlyInAnyOrder(template.getKey(), custom.getKey());
+    assertThat(indexedRuleKeys.getValue()).containsExactlyInAnyOrder(template.getId(), custom.getId());
   }
 
   @Test

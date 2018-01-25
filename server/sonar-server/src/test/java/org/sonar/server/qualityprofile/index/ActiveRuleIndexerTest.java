@@ -39,6 +39,7 @@ import org.sonar.server.es.EsTester;
 import org.sonar.server.qualityprofile.ActiveRuleChange;
 import org.sonar.server.rule.index.RuleIndexDefinition;
 
+import static java.lang.String.valueOf;
 import static java.util.Arrays.asList;
 import static java.util.Arrays.stream;
 import static java.util.Collections.emptySet;
@@ -124,7 +125,7 @@ public class ActiveRuleIndexerTest {
 
     commitAndIndex(rule1, ar);
 
-    EsQueueDto expectedItem = EsQueueDto.create(INDEX_TYPE_ACTIVE_RULE.format(), "" + ar.getId(), "activeRuleId", ar.getRuleKey().toString());
+    EsQueueDto expectedItem = EsQueueDto.create(INDEX_TYPE_ACTIVE_RULE.format(), "" + ar.getId(), "activeRuleId", valueOf(ar.getRuleId()));
     assertThatEsQueueContainsExactly(expectedItem);
   }
 

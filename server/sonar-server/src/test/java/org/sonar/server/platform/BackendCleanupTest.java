@@ -19,6 +19,7 @@
  */
 package org.sonar.server.platform;
 
+import java.util.Random;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -137,7 +138,7 @@ public class BackendCleanupTest {
   }
 
   private static RuleDoc newRuleDoc() {
-    return new RuleDoc().setKey(RuleTesting.XOO_X1.toString()).setRepository(RuleTesting.XOO_X1.repository());
+    return new RuleDoc().setId(new Random().nextInt(942)).setKey(RuleTesting.XOO_X1.toString()).setRepository(RuleTesting.XOO_X1.repository());
   }
 
   private ComponentDoc newComponentDoc() {

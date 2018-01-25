@@ -19,7 +19,6 @@
  */
 package org.sonar.server.rule.ws;
 
-import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 import java.util.function.Consumer;
@@ -449,7 +448,7 @@ public class ShowActionTest {
     DbSession session = dbTester.getSession();
     ruleDao.insert(session, ruleDto);
     session.commit();
-    ruleIndexer.commitAndIndex(session, ruleDto.getKey());
+    ruleIndexer.commitAndIndex(session, ruleDto.getId());
     RuleParamDto regexParam = RuleParamDto.createFor(ruleDto).setName("regex").setType("STRING").setDescription("Reg *exp*").setDefaultValue(".*");
     ruleDao.insertRuleParam(session, ruleDto, regexParam);
 
@@ -502,14 +501,14 @@ public class ShowActionTest {
 
   private RuleDefinitionDto insertRule() {
     RuleDefinitionDto rule = dbTester.rules().insert();
-    ruleIndexer.commitAndIndex(dbTester.getSession(), rule.getKey());
+    ruleIndexer.commitAndIndex(dbTester.getSession(), rule.getId());
     return rule;
   }
 
   @SafeVarargs
   private final RuleMetadataDto insertMetadata(OrganizationDto organization, RuleDefinitionDto rule, Consumer<RuleMetadataDto>... populaters) {
     RuleMetadataDto metadata = dbTester.rules().insertOrUpdateMetadata(rule, organization, populaters);
-    ruleIndexer.commitAndIndex(dbTester.getSession(), rule.getKey(), organization);
+    ruleIndexer.commitAndIndex(dbTester.getSession(), rule.getId(), organization);
     return metadata;
   }
 }

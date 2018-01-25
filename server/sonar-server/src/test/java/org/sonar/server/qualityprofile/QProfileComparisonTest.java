@@ -34,7 +34,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.qualityprofile.QProfileDto;
-import org.sonar.db.rule.RuleDto;
+import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.es.EsTester;
@@ -65,8 +65,8 @@ public class QProfileComparisonTest {
   private QProfileRules qProfileRules;
   private QProfileComparison comparison;
 
-  private RuleDto xooRule1;
-  private RuleDto xooRule2;
+  private RuleDefinitionDto xooRule1;
+  private RuleDefinitionDto xooRule2;
   private QProfileDto left;
   private QProfileDto right;
 
@@ -80,13 +80,13 @@ public class QProfileComparisonTest {
     qProfileRules = new QProfileRulesImpl(db, ruleActivator, ruleIndex, activeRuleIndexer);
     comparison = new QProfileComparison(db);
 
-    xooRule1 = RuleTesting.newXooX1().setSeverity("MINOR");
-    xooRule2 = RuleTesting.newXooX2().setSeverity("MAJOR");
-    db.ruleDao().insert(dbSession, xooRule1.getDefinition());
-    db.ruleDao().insert(dbSession, xooRule2.getDefinition());
-    db.ruleDao().insertRuleParam(dbSession, xooRule1.getDefinition(), RuleParamDto.createFor(xooRule1.getDefinition())
+    xooRule1 = RuleTesting.newXooX1().setSeverity("MINOR").getDefinition();
+    xooRule2 = RuleTesting.newXooX2().setSeverity("MAJOR").getDefinition();
+    db.ruleDao().insert(dbSession, xooRule1);
+    db.ruleDao().insert(dbSession, xooRule2);
+    db.ruleDao().insertRuleParam(dbSession, xooRule1, RuleParamDto.createFor(xooRule1)
       .setName("max").setType(RuleParamType.INTEGER.type()));
-    db.ruleDao().insertRuleParam(dbSession, xooRule1.getDefinition(), RuleParamDto.createFor(xooRule1.getDefinition())
+    db.ruleDao().insertRuleParam(dbSession, xooRule1, RuleParamDto.createFor(xooRule1)
       .setName("min").setType(RuleParamType.INTEGER.type()));
 
     left = QProfileTesting.newXooP1("org-123");
@@ -177,7 +177,7 @@ public class QProfileComparisonTest {
   @Test
   public void compare_modified_severity() {
     qProfileRules.activateAndCommit(dbSession, left, singleton(RuleActivation.create(xooRule1.getId(), xooRule1.getKey(), Severity.CRITICAL, null)));
-    qProfileRules.activateAndCommit(dbSession, right, singleton(RuleActivation.create(xooRule2.getId(), xooRule1.getKey(), Severity.BLOCKER, null)));
+    qProfileRules.activateAndCommit(dbSession, right, singleton(RuleActivation.create(xooRule1.getId(), xooRule1.getKey(), Severity.BLOCKER, null)));
 
     QProfileComparisonResult result = comparison.compare(dbSession, left, right);
     assertThat(result.left().getKee()).isEqualTo(left.getKee());

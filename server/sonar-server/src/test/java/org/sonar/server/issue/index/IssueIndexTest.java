@@ -1199,7 +1199,7 @@ public class IssueIndexTest {
   public void list_tags() {
     RuleDefinitionDto r1 = db.rules().insert();
     RuleDefinitionDto r2 = db.rules().insert();
-    ruleIndexer.commitAndIndex(db.getSession(), asList(r1.getKey(), r2.getKey()));
+    ruleIndexer.commitAndIndex(db.getSession(), asList(r1.getId(), r2.getId()));
 
     OrganizationDto org = db.organizations().insert();
     OrganizationDto anotherOrg = db.organizations().insert();

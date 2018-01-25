@@ -700,7 +700,7 @@ public class RuleDaoTest {
     RuleDefinitionDto r1 = db.rules().insert();
     db.rules().insert();
 
-    underTest.scrollIndexingRulesByKeys(db.getSession(), singletonList(r1.getKey()), accumulator);
+    underTest.scrollIndexingRulesByKeys(db.getSession(), singletonList(r1.getId()), accumulator);
 
     assertThat(accumulator.list)
       .extracting(RuleForIndexingDto::getId, RuleForIndexingDto::getRuleKey)
@@ -713,7 +713,7 @@ public class RuleDaoTest {
     RuleDefinitionDto r1 = db.rules().insert();
     RuleDefinitionDto r2 = db.rules().insert(rule -> rule.setTemplateId(r1.getId()));
 
-    underTest.scrollIndexingRulesByKeys(db.getSession(), Arrays.asList(r1.getKey(), r2.getKey()), accumulator);
+    underTest.scrollIndexingRulesByKeys(db.getSession(), Arrays.asList(r1.getId(), r2.getId()), accumulator);
 
     assertThat(accumulator.list).hasSize(2);
     RuleForIndexingDto firstRule = accumulator.list.stream().filter(t -> t.getId().equals(r1.getId())).findFirst().get();
@@ -752,8 +752,9 @@ public class RuleDaoTest {
   public void scrollIndexingRulesByKeys_scrolls_nothing_if_key_does_not_exist() {
     Accumulator<RuleForIndexingDto> accumulator = new Accumulator<>();
     db.rules().insert();
+    int nonExistingRuleId = 42;
 
-    underTest.scrollIndexingRulesByKeys(db.getSession(), singletonList(RuleKey.of("does", "not exist")), accumulator);
+    underTest.scrollIndexingRulesByKeys(db.getSession(), singletonList(nonExistingRuleId), accumulator);
 
     assertThat(accumulator.list).isEmpty();
   }
@@ -769,10 +770,12 @@ public class RuleDaoTest {
     underTest.scrollIndexingRuleExtensions(db.getSession(), accumulator);
 
     assertThat(accumulator.list)
-      .extracting(RuleExtensionForIndexingDto::getRuleKey, RuleExtensionForIndexingDto::getOrganizationUuid, RuleExtensionForIndexingDto::getTags)
+      .extracting(RuleExtensionForIndexingDto::getRuleId,
+        RuleExtensionForIndexingDto::getRuleKey,
+        RuleExtensionForIndexingDto::getOrganizationUuid, RuleExtensionForIndexingDto::getTags)
       .containsExactlyInAnyOrder(
-        tuple(r1.getKey(), organization.getUuid(), r1Extension.getTagsAsString()),
-        tuple(r2.getKey(), organization.getUuid(), r2Extension.getTagsAsString()));
+        tuple(r1.getId(), r1.getKey(), organization.getUuid(), r1Extension.getTagsAsString()),
+        tuple(r2.getId(), r2.getKey(), organization.getUuid(), r2Extension.getTagsAsString()));
   }
 
   @Test
@@ -780,16 +783,18 @@ public class RuleDaoTest {
     Accumulator<RuleExtensionForIndexingDto> accumulator = new Accumulator<>();
     RuleDefinitionDto r1 = db.rules().insert();
     RuleMetadataDto r1Extension = db.rules().insertOrUpdateMetadata(r1, organization, r -> r.setTagsField("t1,t2"));
-    RuleExtensionId r1ExtensionId = new RuleExtensionId(organization.getUuid(), r1.getRepositoryKey(), r1.getRuleKey());
+    RuleExtensionId r1ExtensionId = new RuleExtensionId(organization.getUuid(), r1.getId());
     RuleDefinitionDto r2 = db.rules().insert();
     db.rules().insertOrUpdateMetadata(r2, organization, r -> r.setTagsField("t1,t3"));
 
     underTest.scrollIndexingRuleExtensionsByIds(db.getSession(), singletonList(r1ExtensionId), accumulator);
 
     assertThat(accumulator.list)
-      .extracting(RuleExtensionForIndexingDto::getRuleKey, RuleExtensionForIndexingDto::getOrganizationUuid, RuleExtensionForIndexingDto::getTags)
+      .extracting(RuleExtensionForIndexingDto::getRuleId,
+        RuleExtensionForIndexingDto::getRuleKey,
+        RuleExtensionForIndexingDto::getOrganizationUuid, RuleExtensionForIndexingDto::getTags)
       .containsExactlyInAnyOrder(
-        tuple(r1.getKey(), organization.getUuid(), r1Extension.getTagsAsString()));
+        tuple(r1.getId(), r1.getKey(), organization.getUuid(), r1Extension.getTagsAsString()));
   }
 
   @Test
@@ -889,7 +894,7 @@ public class RuleDaoTest {
       .setOldRuleKey(ruleKey));
   }
 
-  private static class Accumulator<T>  implements Consumer<T> {
+  private static class Accumulator<T> implements Consumer<T> {
     private final List<T> list = new ArrayList<>();
 
     @Override

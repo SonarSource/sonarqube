@@ -632,12 +632,14 @@ public class ActiveRuleDaoTest {
     Accumulator accumulator = new Accumulator();
     underTest.scrollAllForIndexing(dbSession, accumulator);
     assertThat(accumulator.list)
-      .extracting(IndexedActiveRuleDto::getId, IndexedActiveRuleDto::getRepository, IndexedActiveRuleDto::getKey, IndexedActiveRuleDto::getRuleProfileUuid,
+      .extracting(IndexedActiveRuleDto::getId,
+        IndexedActiveRuleDto::getRuleId, IndexedActiveRuleDto::getRepository, IndexedActiveRuleDto::getKey,
+        IndexedActiveRuleDto::getRuleProfileUuid,
         IndexedActiveRuleDto::getSeverity, IndexedActiveRuleDto::getInheritance)
       .containsExactlyInAnyOrder(
-        tuple((long) ar1.getId(), ar1.getRuleKey().repository(), ar1.getRuleKey().rule(), profile1.getRulesProfileUuid(), ar1.getSeverity(), ar1.getInheritance()),
-        tuple((long) ar2.getId(), ar2.getRuleKey().repository(), ar2.getRuleKey().rule(), profile2.getRulesProfileUuid(), ar2.getSeverity(), ar2.getInheritance()),
-        tuple((long) ar3.getId(), ar3.getRuleKey().repository(), ar3.getRuleKey().rule(), profile2.getRulesProfileUuid(), ar3.getSeverity(), ar3.getInheritance()));
+        tuple((long)ar1.getId(), rule1.getId(), ar1.getRuleKey().repository(), ar1.getRuleKey().rule(), profile1.getRulesProfileUuid(), ar1.getSeverity(), ar1.getInheritance()),
+        tuple((long)ar2.getId(), rule1.getId(), ar2.getRuleKey().repository(), ar2.getRuleKey().rule(), profile2.getRulesProfileUuid(), ar2.getSeverity(), ar2.getInheritance()),
+        tuple((long)ar3.getId(), rule2.getId(), ar3.getRuleKey().repository(), ar3.getRuleKey().rule(), profile2.getRulesProfileUuid(), ar3.getSeverity(), ar3.getInheritance()));
   }
 
   @Test
@@ -649,11 +651,12 @@ public class ActiveRuleDaoTest {
     Accumulator accumulator = new Accumulator();
     underTest.scrollByIdsForIndexing(dbSession, asList((long) ar1.getId(), (long) ar2.getId()), accumulator);
     assertThat(accumulator.list)
-      .extracting(IndexedActiveRuleDto::getId, IndexedActiveRuleDto::getRepository, IndexedActiveRuleDto::getKey, IndexedActiveRuleDto::getRuleProfileUuid,
-        IndexedActiveRuleDto::getSeverity)
+      .extracting(IndexedActiveRuleDto::getId,
+        IndexedActiveRuleDto::getRuleId, IndexedActiveRuleDto::getRepository, IndexedActiveRuleDto::getKey,
+        IndexedActiveRuleDto::getRuleProfileUuid, IndexedActiveRuleDto::getSeverity)
       .containsExactlyInAnyOrder(
-        tuple((long) ar1.getId(), ar1.getRuleKey().repository(), ar1.getRuleKey().rule(), profile1.getRulesProfileUuid(), ar1.getSeverity()),
-        tuple((long) ar2.getId(), ar2.getRuleKey().repository(), ar2.getRuleKey().rule(), profile2.getRulesProfileUuid(), ar2.getSeverity()));
+        tuple((long)ar1.getId(), rule1.getId(), ar1.getRuleKey().repository(), ar1.getRuleKey().rule(), profile1.getRulesProfileUuid(), ar1.getSeverity()),
+        tuple((long)ar2.getId(), rule1.getId(), ar2.getRuleKey().repository(), ar2.getRuleKey().rule(), profile2.getRulesProfileUuid(), ar2.getSeverity()));
   }
 
   @Test

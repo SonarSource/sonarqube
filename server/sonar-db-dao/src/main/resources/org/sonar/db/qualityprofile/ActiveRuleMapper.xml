@@ -302,6 +302,7 @@
     ar.id as "id",
     ar.failure_level as "severity",
     ar.inheritance as "inheritance",
+    r.id as "ruleId",
     r.plugin_name as "repository",
     r.plugin_rule_key as "key",
     rp.kee as "ruleProfileUuid"

@@ -21,6 +21,7 @@ package org.sonar.server.qualityprofile.ws;
 
 import java.util.Optional;
 import javax.annotation.Nullable;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.api.server.ws.WebService.NewParam;
@@ -29,6 +30,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.qualityprofile.QProfileDto;
+import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.organization.DefaultOrganizationProvider;
@@ -79,6 +81,11 @@ public class QProfileWsSupport {
     return WsUtils.checkFoundWithOptional(
       dbClient.organizationDao().selectByKey(dbSession, organizationOrDefaultKey),
       "No organization with key '%s'", organizationOrDefaultKey);
+  }
+
+  public RuleDefinitionDto getRule(DbSession dbSession, RuleKey ruleKey) {
+    Optional<RuleDefinitionDto> ruleDefinitionDto = dbClient.ruleDao().selectDefinitionByKey(dbSession, ruleKey);
+    return checkFoundWithOptional(ruleDefinitionDto, "Rule with key '%s' not found", ruleKey);
   }
 
   /**
@@ -153,5 +160,4 @@ public class QProfileWsSupport {
     checkArgument(dbClient.organizationMemberDao().select(dbSession, organization.getUuid(), user.getId()).isPresent(),
       "User '%s' is not member of organization '%s'", user.getLogin(), organization.getKey());
   }
-
 }

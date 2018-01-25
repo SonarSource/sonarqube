@@ -81,15 +81,11 @@ public class RuleCreator {
     validateCustomRule(newRule, dbSession, templateKey);
 
     RuleKey customRuleKey = RuleKey.of(templateRule.getRepositoryKey(), newRule.ruleKey());
+    Optional<RuleDefinitionDto> definition = loadRule(dbSession, customRuleKey);
+    int customRuleId = definition.map(d -> updateExistingRule(d, newRule, dbSession))
+      .orElseGet(() -> createCustomRule(customRuleKey, newRule, templateRule, dbSession));
 
-    Optional<RuleDefinitionDto> definition = loadRule(customRuleKey, dbSession);
-    if (definition.isPresent()) {
-      updateExistingRule(definition.get(), newRule, dbSession);
-    } else {
-      createCustomRule(customRuleKey, newRule, templateRule, dbSession);
-    }
-
-    ruleIndexer.commitAndIndex(dbSession, customRuleKey);
+    ruleIndexer.commitAndIndex(dbSession, customRuleId);
     return customRuleKey;
   }
 
@@ -151,11 +147,11 @@ public class RuleCreator {
     }
   }
 
-  private Optional<RuleDefinitionDto> loadRule(RuleKey ruleKey, DbSession dbSession) {
+  private Optional<RuleDefinitionDto> loadRule(DbSession dbSession, RuleKey ruleKey) {
     return dbClient.ruleDao().selectDefinitionByKey(dbSession, ruleKey);
   }
 
-  private RuleKey createCustomRule(RuleKey ruleKey, NewCustomRule newRule, RuleDto templateRuleDto, DbSession dbSession) {
+  private int createCustomRule(RuleKey ruleKey, NewCustomRule newRule, RuleDto templateRuleDto, DbSession dbSession) {
     RuleDefinitionDto ruleDefinition = new RuleDefinitionDto()
       .setRuleKey(ruleKey)
       .setPluginKey(templateRuleDto.getPluginKey())
@@ -193,7 +189,7 @@ public class RuleCreator {
       String customRuleParamValue = Strings.emptyToNull(newRule.parameter(templateRuleParamDto.getName()));
       createCustomRuleParams(customRuleParamValue, ruleDefinition, templateRuleParamDto, dbSession);
     }
-    return ruleKey;
+    return ruleDefinition.getId();
   }
 
   private void createCustomRuleParams(@Nullable String paramValue, RuleDefinitionDto ruleDto, RuleParamDto templateRuleParam, DbSession dbSession) {
@@ -205,7 +201,7 @@ public class RuleCreator {
     dbClient.ruleDao().insertRuleParam(dbSession, ruleDto, ruleParamDto);
   }
 
-  private RuleKey updateExistingRule(RuleDefinitionDto ruleDto, NewCustomRule newRule, DbSession dbSession) {
+  private int updateExistingRule(RuleDefinitionDto ruleDto, NewCustomRule newRule, DbSession dbSession) {
     if (ruleDto.getStatus().equals(RuleStatus.REMOVED)) {
       if (newRule.isPreventReactivation()) {
         throw new ReactivationException(format("A removed rule with the key '%s' already exists", ruleDto.getKey().rule()), ruleDto.getKey());
@@ -217,7 +213,7 @@ public class RuleCreator {
     } else {
       throw new IllegalArgumentException(format("A rule with the key '%s' already exists", ruleDto.getKey().rule()));
     }
-    return ruleDto.getKey();
+    return ruleDto.getId();
   }
 
 }
