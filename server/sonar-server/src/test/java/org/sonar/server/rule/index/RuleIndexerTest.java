@@ -78,7 +78,7 @@ public class RuleIndexerTest {
   @Test
   public void index() {
     dbClient.ruleDao().insert(dbSession, rule);
-    underTest.commitAndIndex(dbSession, rule.getKey());
+    underTest.commitAndIndex(dbSession, rule.getId());
 
     assertThat(esTester.countDocuments(RuleIndexDefinition.INDEX_TYPE_RULE)).isEqualTo(1);
   }
@@ -88,12 +88,12 @@ public class RuleIndexerTest {
     // Create and Index rule
     dbClient.ruleDao().insert(dbSession, rule.setStatus(RuleStatus.READY));
     dbSession.commit();
-    underTest.commitAndIndex(dbTester.getSession(), rule.getKey());
+    underTest.commitAndIndex(dbTester.getSession(), rule.getId());
     assertThat(esTester.countDocuments(RuleIndexDefinition.INDEX_TYPE_RULE)).isEqualTo(1);
 
     // Remove rule
     dbTester.getDbClient().ruleDao().update(dbTester.getSession(), rule.setStatus(RuleStatus.READY).setUpdatedAt(2000000000000L));
-    underTest.commitAndIndex(dbTester.getSession(), rule.getKey());
+    underTest.commitAndIndex(dbTester.getSession(), rule.getId());
 
     assertThat(esTester.countDocuments(RuleIndexDefinition.INDEX_TYPE_RULE)).isEqualTo(1);
   }
@@ -101,12 +101,13 @@ public class RuleIndexerTest {
   @Test
   public void index_rule_extension_with_long_id() {
     RuleDefinitionDto rule = dbTester.rules().insert(r -> r.setRuleKey(RuleTesting.randomRuleKeyOfMaximumLength()));
-    underTest.commitAndIndex(dbTester.getSession(), rule.getKey());
+    underTest.commitAndIndex(dbTester.getSession(), rule.getId());
     OrganizationDto organization = dbTester.organizations().insert();
     dbTester.rules().insertOrUpdateMetadata(rule, organization, m -> m.setTags(ImmutableSet.of("bla")));
-    underTest.commitAndIndex(dbTester.getSession(), rule.getKey(), organization);
+    underTest.commitAndIndex(dbTester.getSession(), rule.getId(), organization);
 
     RuleExtensionDoc doc = new RuleExtensionDoc()
+      .setRuleId(rule.getId())
       .setRuleKey(rule.getKey())
       .setScope(RuleExtensionScope.organization(organization.getUuid()));
     assertThat(
@@ -123,7 +124,7 @@ public class RuleIndexerTest {
   public void index_long_rule_description() {
     String description = IntStream.range(0, 100000).map(i -> i % 100).mapToObj(Integer::toString).collect(Collectors.joining(" "));
     RuleDefinitionDto rule = dbTester.rules().insert(r -> r.setDescription(description));
-    underTest.commitAndIndex(dbTester.getSession(), rule.getKey());
+    underTest.commitAndIndex(dbTester.getSession(), rule.getId());
 
     assertThat(esTester.countDocuments(RuleIndexDefinition.INDEX_TYPE_RULE)).isEqualTo(1);
   }

@@ -36,7 +36,6 @@ import java.util.Objects;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.RuleType;
@@ -348,19 +347,18 @@ public class SearchAction implements RulesWsAction {
   }
 
   private SearchResult doSearch(DbSession dbSession, RuleQuery query, SearchOptions context) {
-    SearchIdResult<RuleKey> result = ruleIndex.search(query, context);
-    List<RuleKey> ruleKeys = result.getIds();
+    SearchIdResult<Integer> result = ruleIndex.search(query, context);
+    List<Integer> ruleIds = result.getIds();
     // rule order is managed by ES
-    Map<RuleKey, RuleDto> rulesByRuleKey = Maps.uniqueIndex(
-      dbClient.ruleDao().selectByKeys(dbSession, query.getOrganization(), ruleKeys), RuleDto::getKey);
+    Map<Integer, RuleDto> rulesByRuleKey = Maps.uniqueIndex(
+      dbClient.ruleDao().selectByIds(dbSession, query.getOrganization().getUuid(), ruleIds), RuleDto::getId);
     List<RuleDto> rules = new ArrayList<>();
-    for (RuleKey ruleKey : ruleKeys) {
-      RuleDto rule = rulesByRuleKey.get(ruleKey);
+    for (Integer ruleId : ruleIds) {
+      RuleDto rule = rulesByRuleKey.get(ruleId);
       if (rule != null) {
         rules.add(rule);
       }
     }
-    List<Integer> ruleIds = rules.stream().map(RuleDto::getId).collect(MoreCollectors.toList());
     List<Integer> templateRuleIds = rules.stream()
       .map(RuleDto::getTemplateId)
       .filter(Objects::nonNull)

@@ -100,7 +100,7 @@ public class TagsActionTest {
   @Test
   public void system_tag() {
     RuleDefinitionDto r = db.rules().insert(setSystemTags("tag"));
-    ruleIndexer.commitAndIndex(db.getSession(), r.getKey());
+    ruleIndexer.commitAndIndex(db.getSession(), r.getId());
 
     String result = ws.newRequest().execute().getInput();
     assertJson(result).isSimilarTo("{\"tags\":[\"tag\"]}");
@@ -109,9 +109,9 @@ public class TagsActionTest {
   @Test
   public void tag() {
     RuleDefinitionDto r = db.rules().insert(setSystemTags());
-    ruleIndexer.commitAndIndex(db.getSession(), r.getKey());
+    ruleIndexer.commitAndIndex(db.getSession(), r.getId());
     db.rules().insertOrUpdateMetadata(r, organization, setTags("tag"));
-    ruleIndexer.commitAndIndex(db.getSession(), r.getKey(), organization);
+    ruleIndexer.commitAndIndex(db.getSession(), r.getId(), organization);
 
     String result = ws.newRequest().setParam("organization", organization.getKey()).execute().getInput();
     assertJson(result).isSimilarTo("{\"tags\":[\"tag\"]}");

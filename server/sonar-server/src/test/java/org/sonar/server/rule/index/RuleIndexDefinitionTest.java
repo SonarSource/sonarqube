@@ -35,6 +35,7 @@ import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_ENABLED;
 import static org.sonar.server.es.DefaultIndexSettingsElement.ENGLISH_HTML_ANALYZER;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_RULE_HTML_DESCRIPTION;
+import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_RULE_ID;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_RULE_KEY;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_RULE_REPOSITORY;
 import static org.sonar.server.rule.index.RuleIndexDefinition.INDEX_TYPE_RULE;
@@ -82,6 +83,7 @@ public class RuleIndexDefinitionTest {
 
     // the following method fails if PUT fails
     tester.putDocuments(INDEX_TYPE_RULE, new RuleDoc(ImmutableMap.of(
+      FIELD_RULE_ID, "123",
       FIELD_RULE_HTML_DESCRIPTION, longText,
       FIELD_RULE_REPOSITORY, "squid",
       FIELD_RULE_KEY, "squid:S001")));

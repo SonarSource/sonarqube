@@ -438,15 +438,6 @@ public class QProfileRuleImplTest {
   }
 
   @Test
-  public void deactivation_fails_if_rule_does_not_exist() {
-    RuleDefinitionDto rule = createRule();
-    QProfileDto profile = createProfile(rule);
-    RuleKey ruleKey = RuleKey.parse("unknown:xxx");
-
-    expectFailure("Rule not found: " + ruleKey, () -> underTest.deactivateAndCommit(db.getSession(), profile, singleton(ruleKey)));
-  }
-
-  @Test
   public void deactivate_rule_that_has_REMOVED_status() {
     RuleDefinitionDto rule = createRule();
     QProfileDto profile = createProfile(rule);
@@ -883,7 +874,7 @@ public class QProfileRuleImplTest {
   }
 
   private List<ActiveRuleChange> deactivate(QProfileDto profile, RuleDefinitionDto rule) {
-    return underTest.deactivateAndCommit(db.getSession(), profile, singleton(rule.getKey()));
+    return underTest.deactivateAndCommit(db.getSession(), profile, singleton(rule.getId()));
   }
 
   private List<ActiveRuleChange> activate(QProfileDto profile, RuleActivation activation) {

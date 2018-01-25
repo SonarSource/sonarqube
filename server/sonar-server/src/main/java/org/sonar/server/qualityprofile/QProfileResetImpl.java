@@ -24,7 +24,6 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.ServerSide;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -55,22 +54,22 @@ public class QProfileResetImpl implements QProfileReset {
     checkArgument(!profile.isBuiltIn(), "Operation forbidden for built-in Quality Profile '%s'", profile.getKee());
 
     BulkChangeResult result = new BulkChangeResult();
-    Set<RuleKey> rulesToBeDeactivated = new HashSet<>();
+    Set<Integer> rulesToBeDeactivated = new HashSet<>();
     // Keep reference to all the activated rules before backup restore
     for (ActiveRuleDto activeRuleDto : db.activeRuleDao().selectByProfile(dbSession, profile)) {
       if (activeRuleDto.getInheritance() == null) {
         // inherited rules can't be deactivated
-        rulesToBeDeactivated.add(activeRuleDto.getRuleKey());
+        rulesToBeDeactivated.add(activeRuleDto.getRuleId());
       }
     }
-    Set<RuleKey> ruleKeys = new HashSet<>(rulesToBeDeactivated);
-    activations.forEach(a -> ruleKeys.add(a.getRuleKey()));
+    Set<Integer> ruleKeys = new HashSet<>(rulesToBeDeactivated);
+    activations.forEach(a -> ruleKeys.add(a.getRuleId()));
     RuleActivationContext context = activator.createContextForUserProfile(dbSession, profile, ruleKeys);
 
     for (RuleActivation activation : activations) {
       try {
         List<ActiveRuleChange> changes = activator.activate(dbSession, activation, context);
-        rulesToBeDeactivated.remove(activation.getRuleKey());
+        rulesToBeDeactivated.remove(activation.getRuleId());
         result.incrementSucceeded();
         result.addChanges(changes);
       } catch (BadRequestException e) {
@@ -80,9 +79,9 @@ public class QProfileResetImpl implements QProfileReset {
     }
 
     List<ActiveRuleChange> changes = new ArrayList<>(result.getChanges());
-    for (RuleKey ruleKey : rulesToBeDeactivated) {
+    for (Integer ruleId : rulesToBeDeactivated) {
       try {
-        changes.addAll(activator.deactivate(dbSession, context, ruleKey, false));
+        changes.addAll(activator.deactivate(dbSession, context, ruleId, false));
       } catch (BadRequestException e) {
         // ignore, probably a rule inherited from parent that can't be deactivated
       }

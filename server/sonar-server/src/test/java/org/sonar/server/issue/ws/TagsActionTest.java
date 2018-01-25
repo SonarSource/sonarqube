@@ -93,14 +93,14 @@ public class TagsActionTest {
   public void return_tags_from_rules() {
     userSession.logIn();
     RuleDefinitionDto r = dbTester.rules().insert(setSystemTags("tag1"));
-    ruleIndexer.commitAndIndex(dbTester.getSession(), r.getKey());
+    ruleIndexer.commitAndIndex(dbTester.getSession(), r.getId());
     dbTester.rules().insertOrUpdateMetadata(r, organization, setTags("tag2"));
-    ruleIndexer.commitAndIndex(dbTester.getSession(), r.getKey(), organization);
+    ruleIndexer.commitAndIndex(dbTester.getSession(), r.getId(), organization);
 
     RuleDefinitionDto r2 = dbTester.rules().insert(setSystemTags("tag3"));
-    ruleIndexer.commitAndIndex(dbTester.getSession(), r2.getKey());
+    ruleIndexer.commitAndIndex(dbTester.getSession(), r2.getId());
     dbTester.rules().insertOrUpdateMetadata(r2, organization, setTags("tag4", "tag5"));
-    ruleIndexer.commitAndIndex(dbTester.getSession(), r2.getKey(), organization);
+    ruleIndexer.commitAndIndex(dbTester.getSession(), r2.getId(), organization);
 
     String result = ws.newRequest()
       .setParam("organization", organization.getKey())
@@ -115,9 +115,9 @@ public class TagsActionTest {
     insertIssueWithBrowsePermission(insertRuleWithoutTags(), "tag3", "tag4", "tag5");
 
     RuleDefinitionDto r = dbTester.rules().insert(setSystemTags("tag6"));
-    ruleIndexer.commitAndIndex(dbTester.getSession(), r.getKey());
+    ruleIndexer.commitAndIndex(dbTester.getSession(), r.getId());
     dbTester.rules().insertOrUpdateMetadata(r, organization, setTags("tag7"));
-    ruleIndexer.commitAndIndex(dbTester.getSession(), r.getKey(), organization);
+    ruleIndexer.commitAndIndex(dbTester.getSession(), r.getId(), organization);
 
     String result = ws.newRequest()
       .setParam("organization", organization.getKey())
@@ -190,9 +190,9 @@ public class TagsActionTest {
     insertIssueWithBrowsePermission(insertRuleWithoutTags(), "convention");
 
     RuleDefinitionDto r = dbTester.rules().insert(setSystemTags("cwe"));
-    ruleIndexer.commitAndIndex(dbTester.getSession(), r.getKey());
+    ruleIndexer.commitAndIndex(dbTester.getSession(), r.getId());
     dbTester.rules().insertOrUpdateMetadata(r, organization, setTags("security"));
-    ruleIndexer.commitAndIndex(dbTester.getSession(), r.getKey(), organization);
+    ruleIndexer.commitAndIndex(dbTester.getSession(), r.getId(), organization);
 
     String result = ws.newRequest()
       .setParam("organization", organization.getKey())

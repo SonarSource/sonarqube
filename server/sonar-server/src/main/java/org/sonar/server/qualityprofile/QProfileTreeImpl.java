@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import javax.annotation.Nullable;
-import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
@@ -81,8 +80,8 @@ public class QProfileTreeImpl implements QProfileTree {
     db.qualityProfileDao().update(dbSession, profile);
 
     List<OrgActiveRuleDto> parentActiveRules = db.activeRuleDao().selectByProfile(dbSession, parent);
-    Collection<RuleKey> ruleKeys = parentActiveRules.stream().map(ActiveRuleDto::getRuleKey).collect(MoreCollectors.toArrayList());
-    RuleActivationContext context = ruleActivator.createContextForUserProfile(dbSession, profile, ruleKeys);
+    Collection<Integer> ruleIds = parentActiveRules.stream().map(ActiveRuleDto::getRuleId).collect(MoreCollectors.toArrayList());
+    RuleActivationContext context = ruleActivator.createContextForUserProfile(dbSession, profile, ruleIds);
 
     for (ActiveRuleDto parentActiveRule : parentActiveRules) {
       try {
@@ -106,12 +105,12 @@ public class QProfileTreeImpl implements QProfileTree {
     db.qualityProfileDao().update(dbSession, profile);
 
     List<OrgActiveRuleDto> activeRules = db.activeRuleDao().selectByProfile(dbSession, profile);
-    Collection<RuleKey> ruleKeys = activeRules.stream().map(ActiveRuleDto::getRuleKey).collect(MoreCollectors.toArrayList());
-    RuleActivationContext context = ruleActivator.createContextForUserProfile(dbSession, profile, ruleKeys);
+    Collection<Integer> ruleIds = activeRules.stream().map(ActiveRuleDto::getRuleId).collect(MoreCollectors.toArrayList());
+    RuleActivationContext context = ruleActivator.createContextForUserProfile(dbSession, profile, ruleIds);
 
     for (OrgActiveRuleDto activeRule : activeRules) {
       if (ActiveRuleDto.INHERITED.equals(activeRule.getInheritance())) {
-        changes.addAll(ruleActivator.deactivate(dbSession, context, activeRule.getRuleKey(), true));
+        changes.addAll(ruleActivator.deactivate(dbSession, context, activeRule.getRuleId(), true));
 
       } else if (ActiveRuleDto.OVERRIDES.equals(activeRule.getInheritance())) {
         context.reset(activeRule.getRuleKey());

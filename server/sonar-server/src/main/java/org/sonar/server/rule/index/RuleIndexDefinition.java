@@ -42,6 +42,7 @@ public class RuleIndexDefinition implements IndexDefinition {
   static final String INDEX = "rules";
 
   public static final IndexType INDEX_TYPE_RULE = new IndexType(INDEX, "rule");
+  public static final String FIELD_RULE_ID = "id";
   public static final String FIELD_RULE_KEY = "key";
   public static final String FIELD_RULE_REPOSITORY = "repo";
   public static final String FIELD_RULE_RULE_KEY = "ruleKey";
@@ -67,12 +68,14 @@ public class RuleIndexDefinition implements IndexDefinition {
   public static final IndexType INDEX_TYPE_RULE_EXTENSION = new IndexType(INDEX, "ruleExtension");
   /** The uuid of a {@link RuleExtensionScope} */
   public static final String FIELD_RULE_EXTENSION_SCOPE = "scope";
+  public static final String FIELD_RULE_EXTENSION_RULE_ID = "ruleId";
   public static final String FIELD_RULE_EXTENSION_RULE_KEY = "ruleKey";
   public static final String FIELD_RULE_EXTENSION_TAGS = "tags";
 
   // Active rule fields
   public static final IndexType INDEX_TYPE_ACTIVE_RULE = new IndexType(INDEX, "activeRule");
   public static final String FIELD_ACTIVE_RULE_ID = "id";
+  public static final String FIELD_ACTIVE_RULE_RULE_ID = "ruleId";
   public static final String FIELD_ACTIVE_RULE_REPOSITORY = "repo";
   public static final String FIELD_ACTIVE_RULE_INHERITANCE = "inheritance";
   public static final String FIELD_ACTIVE_RULE_PROFILE_UUID = "ruleProfile";
@@ -118,6 +121,7 @@ public class RuleIndexDefinition implements IndexDefinition {
     activeRuleMapping.setAttribute("_parent", ImmutableMap.of("type", INDEX_TYPE_RULE.getType()));
 
     activeRuleMapping.keywordFieldBuilder(FIELD_ACTIVE_RULE_ID).disableNorms().build();
+    activeRuleMapping.keywordFieldBuilder(FIELD_ACTIVE_RULE_RULE_ID).disableNorms().build();
     activeRuleMapping.keywordFieldBuilder(FIELD_ACTIVE_RULE_RULE_KEY).addSubFields(SORTABLE_ANALYZER).build();
     activeRuleMapping.keywordFieldBuilder(FIELD_ACTIVE_RULE_REPOSITORY).build();
     activeRuleMapping.keywordFieldBuilder(FIELD_ACTIVE_RULE_PROFILE_UUID).disableNorms().build();
@@ -137,6 +141,7 @@ public class RuleIndexDefinition implements IndexDefinition {
     NewIndex.NewIndexType ruleMapping = index.createType(INDEX_TYPE_RULE.getType());
     ruleMapping.setEnableSource(enableSource);
 
+    ruleMapping.keywordFieldBuilder(FIELD_RULE_ID).disableNorms().build();
     ruleMapping.keywordFieldBuilder(FIELD_RULE_KEY).addSubFields(SORTABLE_ANALYZER).build();
     ruleMapping.keywordFieldBuilder(FIELD_RULE_RULE_KEY).addSubFields(SORTABLE_ANALYZER).build();
     ruleMapping.keywordFieldBuilder(FIELD_RULE_REPOSITORY).build();

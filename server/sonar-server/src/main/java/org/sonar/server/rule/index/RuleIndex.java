@@ -52,7 +52,6 @@ import org.elasticsearch.search.aggregations.bucket.terms.support.IncludeExclude
 import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.elasticsearch.search.sort.SortBuilders;
 import org.elasticsearch.search.sort.SortOrder;
-import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.RuleType;
@@ -140,7 +139,7 @@ public class RuleIndex {
     this.system2 = system2;
   }
 
-  public SearchIdResult<RuleKey> search(RuleQuery query, SearchOptions options) {
+  public SearchIdResult<Integer> search(RuleQuery query, SearchOptions options) {
     SearchRequestBuilder esSearch = client
       .prepareSearch(INDEX_TYPE_RULE);
 
@@ -162,13 +161,13 @@ public class RuleIndex {
     }
 
     esSearch.setQuery(boolQuery().must(qb).filter(fb));
-    return new SearchIdResult<>(esSearch.get(), RuleKey::parse, system2.getDefaultTimeZone());
+    return new SearchIdResult<>(esSearch.get(), Integer::parseInt, system2.getDefaultTimeZone());
   }
 
   /**
-   * Return all keys matching the search query, without pagination nor facets
+   * Return all rule ids matching the search query, without pagination nor facets
    */
-  public Iterator<RuleKey> searchAll(RuleQuery query) {
+  public Iterator<Integer> searchAll(RuleQuery query) {
     SearchRequestBuilder esSearch = client
       .prepareSearch(INDEX_TYPE_RULE)
       .setScroll(TimeValue.timeValueMinutes(SCROLL_TIME_IN_MINUTES));
@@ -184,7 +183,7 @@ public class RuleIndex {
 
     esSearch.setQuery(boolQuery().must(qb).filter(fb));
     SearchResponse response = esSearch.get();
-    return scrollIds(client, response, RuleKey::parse);
+    return scrollIds(client, response, Integer::parseInt);
   }
 
   /* Build main query (search based) */

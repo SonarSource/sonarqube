@@ -47,12 +47,21 @@ public class RuleDoc extends BaseDoc {
 
   @Override
   public String getId() {
-    return key().toString();
+    return idAsString();
+  }
+
+  private String idAsString() {
+    return getField(RuleIndexDefinition.FIELD_RULE_ID);
+  }
+
+  public RuleDoc setId(int ruleId) {
+    setField(RuleIndexDefinition.FIELD_RULE_ID, String.valueOf(ruleId));
+    return this;
   }
 
   @Override
   public String getRouting() {
-    return keyAsString();
+    return idAsString();
   }
 
   @Override
@@ -206,6 +215,7 @@ public class RuleDoc extends BaseDoc {
 
   public static RuleDoc of(RuleForIndexingDto dto) {
     RuleDoc ruleDoc = new RuleDoc()
+      .setId(dto.getId())
       .setKey(dto.getRuleKey().toString())
       .setRepository(dto.getRepository())
       .setInternalKey(dto.getInternalKey())
