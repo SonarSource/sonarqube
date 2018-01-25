@@ -61,7 +61,7 @@ export default class RuleDetailsMeta extends React.PureComponent<Props, State> {
     const { ruleDetails } = this.props;
     return (
       <Tooltip overlay={translate('coding_rules.type.tooltip', ruleDetails.type)}>
-        <li className="coding-rules-detail-property">
+        <li className="coding-rules-detail-property" data-meta="type">
           <IssueTypeIcon className="little-spacer-right" query={ruleDetails.type} />
           {translate('issue.type', ruleDetails.type)}
         </li>
@@ -71,7 +71,7 @@ export default class RuleDetailsMeta extends React.PureComponent<Props, State> {
 
   renderSeverity = () => (
     <Tooltip overlay={translate('default_severity')}>
-      <li className="coding-rules-detail-property">
+      <li className="coding-rules-detail-property" data-meta="severity">
         <SeverityHelper severity={this.props.ruleDetails.severity} />
       </li>
     </Tooltip>
@@ -84,7 +84,7 @@ export default class RuleDetailsMeta extends React.PureComponent<Props, State> {
     }
     return (
       <Tooltip overlay={translate('status')}>
-        <li className="coding-rules-detail-property">
+        <li className="coding-rules-detail-property" data-meta="status">
           <span className="badge badge-normal-size badge-danger-light">
             {translate('rules.status', ruleDetails.status)}
           </span>
@@ -98,7 +98,7 @@ export default class RuleDetailsMeta extends React.PureComponent<Props, State> {
     const { sysTags = [], tags = [] } = ruleDetails;
     const allTags = [...sysTags, ...tags];
     return (
-      <li className="coding-rules-detail-property">
+      <li className="coding-rules-detail-property" data-meta="tags">
         {this.props.canWrite ? (
           <BubblePopupHelper
             isOpen={this.state.tagsPopup}
@@ -130,7 +130,7 @@ export default class RuleDetailsMeta extends React.PureComponent<Props, State> {
   };
 
   renderCreationDate = () => (
-    <li className="coding-rules-detail-property">
+    <li className="coding-rules-detail-property" data-meta="available-since">
       {translate('coding_rules.available_since')}{' '}
       <DateFormatter date={this.props.ruleDetails.createdAt} />
     </li>
@@ -144,7 +144,7 @@ export default class RuleDetailsMeta extends React.PureComponent<Props, State> {
     }
     return (
       <Tooltip overlay={translate('coding_rules.repository_language')}>
-        <li className="coding-rules-detail-property">
+        <li className="coding-rules-detail-property" data-meta="repository">
           {repository.name} ({ruleDetails.langName})
         </li>
       </Tooltip>
@@ -188,7 +188,7 @@ export default class RuleDetailsMeta extends React.PureComponent<Props, State> {
     }
     return (
       <Tooltip overlay={translate('coding_rules.remediation_function')}>
-        <li className="coding-rules-detail-property">
+        <li className="coding-rules-detail-property" data-meta="remediation-function">
           {translate('coding_rules.remediation_function', ruleDetails.debtRemFnType)}
           {':'}
           {ruleDetails.debtRemFnOffset !== undefined && ` ${ruleDetails.debtRemFnOffset}`}

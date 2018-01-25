@@ -21,21 +21,30 @@ package org.sonarqube.qa.util.pageobjects;
 
 import com.codeborne.selenide.SelenideElement;
 
+import static com.codeborne.selenide.Condition.visible;
+
 public class RuleItem {
 
   private final SelenideElement elt;
 
-  public RuleItem(SelenideElement elt) {
+  RuleItem(SelenideElement elt) {
     this.elt = elt;
   }
 
-  public SelenideElement getTitle() {
-    return elt.$(".coding-rule-title");
+  public RuleItem filterSimilarRules(String field) {
+    elt.$(".js-rule-filter").click();
+    elt.$(".dropdown-menu a[data-field=\"" + field + "\"]").click();
+    return this;
   }
 
-  public SelenideElement getMetadata() {
-    return elt.$(".coding-rule-meta");
+  public RuleDetails open() {
+    elt.$(".coding-rule-title a").click();
+    return new RuleDetails();
   }
 
+  public RuleItem shouldDisplayDeactivate() {
+    elt.$(".coding-rules-detail-quality-profile-deactivate").shouldBe(visible);
+    return this;
+  }
 
 }

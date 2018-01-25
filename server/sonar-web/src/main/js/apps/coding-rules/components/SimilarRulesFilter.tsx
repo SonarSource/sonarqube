@@ -90,20 +90,20 @@ export default class SimilarRulesFilter extends React.PureComponent<Props> {
                 </header>
                 <ul className="menu">
                   <li>
-                    <a href="#" onClick={this.handleLanguageClick}>
+                    <a data-field="language" href="#" onClick={this.handleLanguageClick}>
                       {rule.langName}
                     </a>
                   </li>
 
                   <li>
-                    <a href="#" onClick={this.handleTypeClick}>
+                    <a data-field="type" href="#" onClick={this.handleTypeClick}>
                       {translate('issue.type', rule.type)}
                     </a>
                   </li>
 
                   {severity && (
                     <li>
-                      <a href="#" onClick={this.handleSeverityClick}>
+                      <a data-field="severity" href="#" onClick={this.handleSeverityClick}>
                         <SeverityHelper severity={rule.severity} />
                       </a>
                     </li>
@@ -114,7 +114,7 @@ export default class SimilarRulesFilter extends React.PureComponent<Props> {
                       <li className="divider" />
                       {allTags.map(tag => (
                         <li key={tag}>
-                          <a data-tag={tag} href="#" onClick={this.handleTagClick}>
+                          <a data-field="tag" data-tag={tag} href="#" onClick={this.handleTagClick}>
                             <i className="icon-tags icon-half-transparent little-spacer-right" />
                             {tag}
                           </a>

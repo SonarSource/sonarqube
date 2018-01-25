@@ -458,6 +458,7 @@ export default class App extends React.PureComponent<Props, State> {
                     <FiltersHeader displayReset={this.isFiltered()} onReset={this.handleReset} />
                     <SearchBox
                       className="spacer-bottom"
+                      id="coding-rules-search"
                       onChange={this.handleSearch}
                       placeholder={translate('search.search_for_rules')}
                       value={this.state.query.searchQuery || ''}

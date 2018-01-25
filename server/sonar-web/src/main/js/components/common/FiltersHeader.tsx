@@ -37,7 +37,10 @@ export default class FiltersHeader extends React.PureComponent<Props> {
       <div className="search-navigator-filters-header">
         {this.props.displayReset && (
           <div className="pull-right">
-            <button className="button-red" onClick={this.handleResetClick}>
+            <button
+              className="button-red"
+              id="coding-rules-clear-all-filters"
+              onClick={this.handleResetClick}>
               {translate('clear_all_filters')}
             </button>
           </div>

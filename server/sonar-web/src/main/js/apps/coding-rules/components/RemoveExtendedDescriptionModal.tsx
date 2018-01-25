@@ -42,7 +42,11 @@ export default function RemoveExtendedDescriptionModal({ onCancel, onSubmit }: P
 
           <footer className="modal-foot">
             {submitting && <i className="spinner spacer-right" />}
-            <button className="button-red" disabled={submitting} onClick={onSubmitClick}>
+            <button
+              className="button-red"
+              disabled={submitting}
+              id="coding-rules-detail-extend-description-remove-submit"
+              onClick={onSubmitClick}>
               {translate('remove')}
             </button>
             <a href="#" onClick={onCloseClick}>

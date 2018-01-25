@@ -88,7 +88,7 @@ export default class RuleDetailsCustomRules extends React.PureComponent<Props, S
   };
 
   renderRule = (rule: Rule) => (
-    <tr key={rule.key}>
+    <tr key={rule.key} data-rule={rule.key}>
       <td className="coding-rules-detail-list-name">
         <Link to={getRuleUrl(rule.key, this.props.organization)}>{rule.name}</Link>
       </td>

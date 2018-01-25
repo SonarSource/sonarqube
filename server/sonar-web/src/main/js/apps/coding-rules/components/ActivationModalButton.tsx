@@ -174,7 +174,10 @@ export default class ActivationModalButton extends React.PureComponent<Props, St
     return (
       <>
         {
-          <button className={this.props.className} onClick={this.handleButtonClick}>
+          <button
+            className={this.props.className}
+            id="coding-rules-quality-profile-activate"
+            onClick={this.handleButtonClick}>
             {this.props.buttonText}
           </button>
         }
@@ -196,6 +199,7 @@ export default class ActivationModalButton extends React.PureComponent<Props, St
                 <div className="modal-field">
                   <label>{translate('coding_rules.quality_profile')}</label>
                   <Select
+                    className="js-profile"
                     clearable={false}
                     disabled={submitting || profilesWithDepth.length === 1}
                     onChange={this.handleProfileChange}
@@ -203,13 +207,13 @@ export default class ActivationModalButton extends React.PureComponent<Props, St
                       label: '   '.repeat(profile.depth) + profile.name,
                       value: profile.key
                     }))}
-                    searchable={false}
                     value={profile}
                   />
                 </div>
                 <div className="modal-field">
                   <label>{translate('severity')}</label>
                   <Select
+                    className="js-severity"
                     clearable={false}
                     disabled={submitting}
                     onChange={this.handleSeverityChange}
