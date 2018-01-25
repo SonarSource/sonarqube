@@ -7,6 +7,7 @@
          name="Avoid Null"
          description="Should avoid NULL"
          status="READY"
+         scope="MAIN"
          created_at="1500000000000"
          updated_at="1600000000000"/>
   <rules_parameters id="1"
@@ -23,6 +24,7 @@
          name="Unused Rule"
          description="Not used"
          status="REMOVED"
+         scope="MAIN"
          created_at="1500000000000"
          updated_at="1600000000000"/>
   <rules_parameters id="2"

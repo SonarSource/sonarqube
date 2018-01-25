@@ -33,6 +33,10 @@ public class RuleDto {
   public enum Format {
     HTML, MARKDOWN
   }
+  
+  public enum Scope {
+    MAIN, TEST, ALL;
+  }
 
   private final RuleDefinitionDto definition;
   private final RuleMetadataDto metadata;
@@ -138,9 +142,18 @@ public class RuleDto {
   public String getConfigKey() {
     return definition.getConfigKey();
   }
-
+  
   public RuleDto setConfigKey(@Nullable String configKey) {
     definition.setConfigKey(configKey);
+    return this;
+  }
+  
+  public Scope getScope() {
+    return definition.getScope();
+  }
+  
+  public RuleDto setScope(Scope scope) {
+    definition.setScope(scope);
     return this;
   }
 

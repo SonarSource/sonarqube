@@ -8,6 +8,7 @@
          description="Should avoid NULL"
          status="READY"
          description_format="HTML"
+         scope="MAIN"
          created_at="1500000000000"
          updated_at="1600000000000"/>
   <rules system_tags="[null]"
@@ -18,6 +19,7 @@
          description="Should not appear"
          status="READY"
          description_format="HTML"
+         scope="MAIN"
          created_at="1500000000000"
          updated_at="1600000000000"/>
 

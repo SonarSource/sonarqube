@@ -19,17 +19,28 @@
  */
 package org.sonar.server.platform.db.migration.version.v71;
 
-import org.sonar.server.platform.db.migration.step.MigrationStepRegistry;
-import org.sonar.server.platform.db.migration.version.DbVersion;
+import java.sql.SQLException;
+import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.sql.AlterColumnsBuilder;
+import org.sonar.server.platform.db.migration.step.DdlChange;
 
-public class DbVersion71 implements DbVersion {
+import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.newVarcharColumnDefBuilder;
+
+public class MakeScopeNotNullableInRules extends DdlChange {
+  private static final String TABLE_NAME = "rules";
+
+  public MakeScopeNotNullableInRules(Database db) {
+    super(db);
+  }
 
   @Override
-  public void addSteps(MigrationStepRegistry registry) {
-    registry
-      .add(2000, "Delete settings defined in sonar.properties from PROPERTIES table", DeleteSettingsDefinedInSonarDotProperties.class)
-      .add(2001, "Add scope to rules", AddRuleScope.class)
-      .add(2002, "Set rules scope to MAIN", SetRuleScopeToMain.class)
-      .add(2003, "Make scope not nullable in rules", MakeScopeNotNullableInRules.class);
+  public void execute(Context context) throws SQLException {
+    context.execute(new AlterColumnsBuilder(getDialect(), TABLE_NAME)
+      .updateColumn(newVarcharColumnDefBuilder()
+        .setColumnName("scope")
+        .setLimit(20)
+        .setIsNullable(false)
+        .build())
+      .build());
   }
 }

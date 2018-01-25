@@ -4,7 +4,8 @@
          name="Avoid Cycles"
          plugin_rule_key="AvoidCycles"
          plugin_config_key="[null]"
-         plugin_name="squid"/>
+         plugin_name="squid"
+         scope="MAIN"/>
 
   <projects organization_uuid="org1"
             uuid="PROJECT"
