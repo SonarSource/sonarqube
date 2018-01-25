@@ -693,6 +693,7 @@ public interface RulesDefinition {
     private final Map<String, NewParam> paramsByKey = new HashMap<>();
     private final DebtRemediationFunctions functions;
     private boolean activatedByDefault;
+    private Scope scope;
 
     private NewRule(@Nullable String pluginKey, String repoKey, String key) {
       this.pluginKey = pluginKey;
@@ -703,6 +704,22 @@ public interface RulesDefinition {
 
     public String key() {
       return this.key;
+    }
+
+    /**
+     * @since 7.1
+     */
+    @CheckForNull
+    public Scope scope() {
+      return this.scope;
+    }
+
+    /**
+     * @since 7.1
+     */
+    public NewRule setScope(Scope scope) {
+      this.scope = scope;
+      return this;
     }
 
     /**
@@ -950,6 +967,7 @@ public interface RulesDefinition {
     private final Map<String, Param> params;
     private final RuleStatus status;
     private final boolean activatedByDefault;
+    private final Scope scope;
 
     private Rule(Repository repository, NewRule newRule) {
       this.pluginKey = newRule.pluginKey;
@@ -965,6 +983,7 @@ public interface RulesDefinition {
       this.status = newRule.status;
       this.debtRemediationFunction = newRule.debtRemediationFunction;
       this.gapDescription = newRule.gapDescription;
+      this.scope = newRule.scope == null ? Scope.MAIN : newRule.scope;
       this.type = newRule.type == null ? RuleTagsToTypeConverter.convert(newRule.tags) : newRule.type;
       this.tags = ImmutableSortedSet.copyOf(Sets.difference(newRule.tags, RuleTagsToTypeConverter.RESERVED_TAGS));
       Map<String, Param> paramsBuilder = new HashMap<>();
@@ -993,6 +1012,14 @@ public interface RulesDefinition {
 
     public String name() {
       return name;
+    }
+    
+    /**
+     * @since 7.1
+     * @return
+     */
+    public Scope scope() {
+      return scope;
     }
 
     /**
@@ -1151,6 +1178,10 @@ public interface RulesDefinition {
       this.defaultValue = defaultIfEmpty(s, null);
       return this;
     }
+  }
+
+  enum Scope {
+    ALL, MAIN, TEST;
   }
 
   @Immutable
