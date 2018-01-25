@@ -105,6 +105,14 @@ export default class RuleDetails extends React.PureComponent<Props, State> {
     });
   };
 
+  handleDeactivate = (profile: string) =>
+    this.setState((state: State) => {
+      if (state.actives && state.actives.length > 0) {
+        return { actives: state.actives.filter(active => active.qProfile !== profile) };
+      }
+      return {};
+    });
+
   render() {
     const { ruleDetails } = this.state;
 
@@ -190,6 +198,7 @@ export default class RuleDetails extends React.PureComponent<Props, State> {
             <RuleDetailsProfiles
               activations={this.state.actives}
               canWrite={canWrite}
+              onDeactivate={this.handleDeactivate}
               organization={organization}
               referencedProfiles={referencedProfiles}
               ruleDetails={ruleDetails}

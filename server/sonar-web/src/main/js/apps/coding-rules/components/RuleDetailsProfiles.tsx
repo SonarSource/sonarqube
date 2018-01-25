@@ -19,8 +19,9 @@
  */
 import * as React from 'react';
 import { Link } from 'react-router';
+import ConfirmButton from './ConfirmButton';
 import RuleInheritanceIcon from './RuleInheritanceIcon';
-import { Profile } from '../../../api/quality-profiles';
+import { Profile, deactivateRule } from '../../../api/quality-profiles';
 import { RuleActivation, RuleDetails, RuleInheritance } from '../../../app/types';
 import { translate } from '../../../helpers/l10n';
 import { getQualityProfileUrl } from '../../../helpers/urls';
@@ -31,6 +32,7 @@ import SeverityHelper from '../../../components/shared/SeverityHelper';
 interface Props {
   activations: RuleActivation[] | undefined;
   canWrite: boolean | undefined;
+  onDeactivate: (profile: string) => void;
   organization: string | undefined;
   referencedProfiles: { [profile: string]: Profile };
   ruleDetails: RuleDetails;
@@ -58,8 +60,15 @@ export default class RuleDetailsProfiles extends React.PureComponent<Props, Stat
     this.mounted = false;
   }
 
-  fetchProfiles = () => {
-    this.setState({ loading: true });
+  fetchProfiles = () => this.setState({ loading: true });
+
+  handleDeactivate = (key?: string) => {
+    if (key) {
+      deactivateRule({ key, rule: this.props.ruleDetails.key }).then(
+        () => this.props.onDeactivate(key),
+        () => {}
+      );
+    }
   };
 
   renderInheritedProfile = (activation: RuleActivation, profile: Profile) => {
@@ -153,9 +162,20 @@ export default class RuleDetailsProfiles extends React.PureComponent<Props, Stat
                 </button>
               )
             ) : (
-              <button className="coding-rules-detail-quality-profile-deactivate button-red spacer-left">
-                {translate('coding_rules.deactivate')}
-              </button>
+              <ConfirmButton
+                confirmButtonText={translate('yes')}
+                confirmData={profile.key}
+                modalBody={translate('coding_rules.deactivate.confirm')}
+                modalHeader={translate('coding_rules.deactivate')}
+                onConfirm={this.handleDeactivate}>
+                {({ onClick }) => (
+                  <button
+                    className="coding-rules-detail-quality-profile-deactivate button-red spacer-left"
+                    onClick={onClick}>
+                    {translate('coding_rules.deactivate')}
+                  </button>
+                )}
+              </ConfirmButton>
             )}
           </>
         )}

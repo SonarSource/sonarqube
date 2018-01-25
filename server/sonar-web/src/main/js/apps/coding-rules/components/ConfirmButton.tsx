@@ -26,10 +26,11 @@ interface Props {
     props: { onClick: (event: React.SyntheticEvent<HTMLButtonElement>) => void }
   ) => React.ReactNode;
   confirmButtonText: string;
+  confirmData?: string;
   isDestructive?: boolean;
   modalBody: React.ReactNode;
   modalHeader: string;
-  onConfirm: () => void | Promise<void>;
+  onConfirm: (data?: string) => void | Promise<void>;
 }
 
 interface State {
@@ -48,7 +49,7 @@ export default class ConfirmButton extends React.PureComponent<Props, State> {
 
   handleSubmit = () => {
     this.setState({ modal: false });
-    this.props.onConfirm();
+    this.props.onConfirm(this.props.confirmData);
   };
 
   handleCloseModal = () => {

@@ -21,8 +21,9 @@ import * as React from 'react';
 import * as classNames from 'classnames';
 import { Link } from 'react-router';
 import { Activation, Query } from '../query';
+import ConfirmButton from './ConfirmButton';
 import SimilarRulesFilter from './SimilarRulesFilter';
-import { Profile } from '../../../api/quality-profiles';
+import { Profile, deactivateRule } from '../../../api/quality-profiles';
 import { Rule, RuleInheritance } from '../../../app/types';
 import Tooltip from '../../../components/controls/Tooltip';
 import SeverityIcon from '../../../components/shared/SeverityIcon';
@@ -31,6 +32,7 @@ import { translate, translateWithParameters } from '../../../helpers/l10n';
 
 interface Props {
   activation?: Activation;
+  onDeactivate: (profile: string, rule: string) => void;
   onFilterChange: (changes: Partial<Query>) => void;
   path: { pathname: string; query: { [x: string]: any } };
   rule: Rule;
@@ -39,6 +41,13 @@ interface Props {
 }
 
 export default class RuleListItem extends React.PureComponent<Props> {
+  handleDeactivate = () => {
+    if (this.props.selectedProfile) {
+      const data = { key: this.props.selectedProfile.key, rule: this.props.rule.key };
+      deactivateRule(data).then(() => this.props.onDeactivate(data.key, data.rule), () => {});
+    }
+  };
+
   renderActivation = () => {
     const { activation, selectedProfile } = this.props;
     if (!activation) {
@@ -103,12 +112,21 @@ export default class RuleListItem extends React.PureComponent<Props> {
 
   renderDeactivateButton = (inherit: string) => {
     return inherit === 'NONE' ? (
-      <button className="coding-rules-detail-quality-profile-deactivate button-red">
-        {translate('coding_rules.deactivate')}
-      </button>
+      <ConfirmButton
+        confirmButtonText={translate('yes')}
+        modalBody={translate('coding_rules.deactivate.confirm')}
+        modalHeader={translate('coding_rules.deactivate')}
+        onConfirm={this.handleDeactivate}>
+        {({ onClick }) => (
+          <button
+            className="coding-rules-detail-quality-profile-deactivate button-red"
+            onClick={onClick}>
+            {translate('coding_rules.deactivate')}
+          </button>
+        )}
+      </ConfirmButton>
     ) : (
-      <Tooltip overlay={translate('coding_rules.can_not_deactivate')}>
-        {/* TODO do not attach onClick when disabled */}
+      <Tooltip overlay={translate('coding_rules.can_not_deactivate')} placement="left">
         <button className="coding-rules-detail-quality-profile-deactivate button-red disabled">
           {translate('coding_rules.deactivate')}
         </button>

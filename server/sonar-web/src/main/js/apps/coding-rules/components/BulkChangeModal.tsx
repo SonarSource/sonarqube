@@ -20,7 +20,7 @@
 import * as React from 'react';
 import * as classNames from 'classnames';
 import { Query, serializeQuery } from '../query';
-import { Profile, bulkActivateRules, bulkDectivateRules } from '../../../api/quality-profiles';
+import { Profile, bulkActivateRules, bulkDeactivateRules } from '../../../api/quality-profiles';
 import Modal from '../../../components/controls/Modal';
 import Select from '../../../components/controls/Select';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
@@ -111,7 +111,7 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
     const data = serializeQuery(this.props.query);
     delete data.profile;
 
-    const method = this.props.action === 'activate' ? bulkActivateRules : bulkDectivateRules;
+    const method = this.props.action === 'activate' ? bulkActivateRules : bulkDeactivateRules;
 
     // if a profile is selected in the facet, pick it
     // otherwise take all profiles selected in the dropdown

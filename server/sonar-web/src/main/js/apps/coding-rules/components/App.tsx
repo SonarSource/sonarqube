@@ -427,6 +427,15 @@ export default class App extends React.PureComponent<Props, State> {
     }
   };
 
+  handleRuleDeactivate = (profile: string, rule: string) =>
+    this.setState((state: State) => {
+      const { actives } = state;
+      if (actives && actives[rule]) {
+        return { actives: { ...actives, [rule]: { ...actives[rule], [profile]: undefined } } };
+      }
+      return {};
+    });
+
   handleSearch = (searchQuery: string) => {
     this.handleFilterChange({ searchQuery });
   };
@@ -507,6 +516,7 @@ export default class App extends React.PureComponent<Props, State> {
                     <RuleListItem
                       activation={this.getRuleActivation(rule.key)}
                       key={rule.key}
+                      onDeactivate={this.handleRuleDeactivate}
                       onFilterChange={this.handleFilterChange}
                       path={this.getRulePath(rule.key)}
                       rule={rule}

@@ -250,6 +250,10 @@ export function bulkActivateRules(data: BulkActivateParameters) {
   return postJSON('api/qualityprofiles/activate_rules', data);
 }
 
-export function bulkDectivateRules(data: BulkActivateParameters) {
+export function bulkDeactivateRules(data: BulkActivateParameters) {
   return postJSON('api/qualityprofiles/deactivate_rules', data);
+}
+
+export function deactivateRule(data: { key: string; rule: string }) {
+  return post('/api/qualityprofiles/deactivate_rule', data).catch(throwGlobalError);
 }
