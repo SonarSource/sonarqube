@@ -42,6 +42,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
+import org.sonar.db.rule.RuleDto.Scope;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.db.rule.RuleRepositoryDto;
 import org.sonar.server.es.EsTester;
@@ -121,6 +122,7 @@ public class RegisterRulesTest {
     assertThat(rule1.getConfigKey()).isEqualTo("config1");
     assertThat(rule1.getStatus()).isEqualTo(RuleStatus.BETA);
     assertThat(rule1.getCreatedAt()).isEqualTo(DATE1.getTime());
+    assertThat(rule1.getScope()).isEqualTo(Scope.ALL);
     assertThat(rule1.getUpdatedAt()).isEqualTo(DATE1.getTime());
     assertThat(rule1.getDefRemediationFunction()).isEqualTo(DebtRemediationFunction.Type.LINEAR_OFFSET.name());
     assertThat(rule1.getDefRemediationGapMultiplier()).isEqualTo("5d");
@@ -494,6 +496,7 @@ public class RegisterRulesTest {
       .setRuleKey("rule1")
       .setRepositoryKey("findbugs")
       .setName("Rule One")
+      .setScope(Scope.ALL)
       .setDescription("Rule one description")
       .setDescriptionFormat(RuleDto.Format.HTML)
       .setSystemTags(newHashSet("tag1", "tag2")));
@@ -562,6 +565,7 @@ public class RegisterRulesTest {
         .setSeverity(BLOCKER)
         .setInternalKey("config1")
         .setTags("tag1", "tag2", "tag3")
+        .setScope(Scope.ALL)
         .setType(RuleType.CODE_SMELL)
         .setStatus(RuleStatus.BETA)
         .setGapDescription("squid.S115.effortToFix");
