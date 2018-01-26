@@ -28,7 +28,6 @@ import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
-import org.sonar.api.rule.RuleKey;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static org.sonar.server.es.SearchOptions.MAX_LIMIT;
@@ -64,7 +63,7 @@ public class IssueQuery {
   private final Collection<String> directories;
   private final Collection<String> files;
   private final Collection<String> views;
-  private final Collection<RuleKey> rules;
+  private final Collection<Integer> rules;
   private final Collection<String> assignees;
   private final Collection<String> authors;
   private final Collection<String> languages;
@@ -163,7 +162,7 @@ public class IssueQuery {
     return views;
   }
 
-  public Collection<RuleKey> rules() {
+  public Collection<Integer> rules() {
     return rules;
   }
 
@@ -274,7 +273,7 @@ public class IssueQuery {
     private Collection<String> directories;
     private Collection<String> files;
     private Collection<String> views;
-    private Collection<RuleKey> rules;
+    private Collection<Integer> rules;
     private Collection<String> assignees;
     private Collection<String> authors;
     private Collection<String> languages;
@@ -354,7 +353,7 @@ public class IssueQuery {
       return this;
     }
 
-    public Builder rules(@Nullable Collection<RuleKey> rules) {
+    public Builder rules(@Nullable Collection<Integer> rules) {
       this.rules = rules;
       return this;
     }

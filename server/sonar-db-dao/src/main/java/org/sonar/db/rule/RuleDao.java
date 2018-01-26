@@ -87,7 +87,7 @@ public class RuleDao implements Dao {
       executeLargeInputs(ids, chunk -> mapper(session).selectByIds(organizationUuid, chunk)));
   }
 
-  public List<RuleDefinitionDto> selectDefinitionByIds(DbSession session, List<Integer> ids) {
+  public List<RuleDefinitionDto> selectDefinitionByIds(DbSession session, Collection<Integer> ids) {
     return executeLargeInputs(ids, mapper(session)::selectDefinitionByIds);
   }
 
