@@ -70,7 +70,7 @@ public class RuleDetails {
     return new ExtendedDescription().start();
   }
 
-  public class ExtendedDescription {
+  public static class ExtendedDescription {
     public ExtendedDescription start() {
       $("#coding-rules-detail-extend-description").click();
       getTextArea().shouldBe(visible);
