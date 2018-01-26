@@ -94,7 +94,10 @@ export default class ProfileFacet extends React.PureComponent<Props> {
     return (
       <>
         {profile.name}
-        <span className="note little-spacer-left">{profile.languageName}</span>
+        <span className="note little-spacer-left">
+          {profile.languageName}
+          {profile.isBuiltIn && ` (${translate('quality_profiles.built_in')})`}
+        </span>
       </>
     );
   };
