@@ -183,7 +183,7 @@ public class IssueIndexDebtTest {
     ComponentDto file = ComponentTesting.newFileDto(project, null);
     RuleKey ruleKey = RuleKey.of("repo", "X1");
 
-    indexIssues(IssueDocTesting.newDoc("I1", file).setRuleKey(ruleKey.toString()).setLanguage("xoo").setEffort(10L));
+    indexIssues(IssueDocTesting.newDoc("I1", file).setLanguage("xoo").setEffort(10L));
 
     Facets facets = search("languages");
     assertThat(facets.getNames()).containsOnly("languages", FACET_MODE_EFFORT);

@@ -80,6 +80,7 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_CREATED_AFT
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_HIDE_COMMENTS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_PAGE_INDEX;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_PAGE_SIZE;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_RULES;
 
 public class SearchActionTest {
 
@@ -102,7 +103,8 @@ public class SearchActionTest {
   private SearchResponseLoader searchResponseLoader = new SearchResponseLoader(userSessionRule, dbClient, new TransitionService(userSessionRule, issueWorkflow));
   private Languages languages = new Languages();
   private SearchResponseFormat searchResponseFormat = new SearchResponseFormat(new Durations(), new WsResponseCommonFormat(languages), languages, new AvatarResolverImpl());
-  private WsActionTester ws = new WsActionTester(new SearchAction(userSessionRule, issueIndex, issueQueryFactory, searchResponseLoader, searchResponseFormat, System2.INSTANCE));
+  private WsActionTester ws = new WsActionTester(new SearchAction(userSessionRule, issueIndex, issueQueryFactory, searchResponseLoader, searchResponseFormat, System2.INSTANCE,
+    dbClient));
   private OrganizationDto defaultOrganization;
   private OrganizationDto otherOrganization1;
   private OrganizationDto otherOrganization2;
@@ -153,7 +155,7 @@ public class SearchActionTest {
 
   //SONAR-10217
   @Test
-  public void empty_search_with_unknown_branch() throws Exception {
+  public void empty_search_with_unknown_branch() {
     TestResponse result = ws.newRequest()
       .setParam("onComponentOnly", "true")
       .setParam("componentKeys", "foo")
@@ -165,7 +167,7 @@ public class SearchActionTest {
   }
 
   @Test
-  public void empty_search() throws Exception {
+  public void empty_search() {
     TestResponse result = ws.newRequest()
       .execute();
 
@@ -174,7 +176,7 @@ public class SearchActionTest {
   }
 
   @Test
-  public void response_contains_all_fields_except_additional_fields() throws Exception {
+  public void response_contains_all_fields_except_additional_fields() {
     dbClient.userDao().insert(session, new UserDto().setLogin("simon").setName("Simon").setEmail("simon@email.com"));
     dbClient.userDao().insert(session, new UserDto().setLogin("fabrice").setName("Fabrice").setEmail("fabrice@email.com"));
 
@@ -203,7 +205,7 @@ public class SearchActionTest {
   }
 
   @Test
-  public void issue_with_comments() throws Exception {
+  public void issue_with_comments() {
     dbClient.userDao().insert(session, new UserDto().setLogin("john").setName("John"));
     dbClient.userDao().insert(session, new UserDto().setLogin("fabrice").setName("Fabrice").setEmail("fabrice@email.com"));
 
@@ -239,7 +241,7 @@ public class SearchActionTest {
   }
 
   @Test
-  public void issue_with_comment_hidden() throws Exception {
+  public void issue_with_comment_hidden() {
     dbClient.userDao().insert(session, new UserDto().setLogin("john").setName("John").setEmail("john@email.com"));
     dbClient.userDao().insert(session, new UserDto().setLogin("fabrice").setName("Fabrice").setEmail("fabrice@email.com"));
 
@@ -274,7 +276,7 @@ public class SearchActionTest {
   }
 
   @Test
-  public void load_additional_fields() throws Exception {
+  public void load_additional_fields() {
     dbClient.userDao().insert(session, new UserDto().setLogin("simon").setName("Simon").setEmail("simon@email.com"));
     dbClient.userDao().insert(session, new UserDto().setLogin("fabrice").setName("Fabrice").setEmail("fabrice@email.com"));
     ComponentDto project = insertComponent(ComponentTesting.newPublicProjectDto(otherOrganization2, "PROJECT_ID").setDbKey("PROJECT_KEY").setLanguage("java"));
@@ -296,7 +298,7 @@ public class SearchActionTest {
   }
 
   @Test
-  public void load_additional_fields_with_issue_admin_permission() throws Exception {
+  public void load_additional_fields_with_issue_admin_permission() {
     dbClient.userDao().insert(session, new UserDto().setLogin("simon").setName("Simon").setEmail("simon@email.com"));
     dbClient.userDao().insert(session, new UserDto().setLogin("fabrice").setName("Fabrice").setEmail("fabrice@email.com"));
     ComponentDto project = insertComponent(ComponentTesting.newPublicProjectDto(otherOrganization1, "PROJECT_ID").setDbKey("PROJECT_KEY").setLanguage("java"));
@@ -320,7 +322,29 @@ public class SearchActionTest {
   }
 
   @Test
-  public void issue_on_removed_file() throws Exception {
+  public void search_by_rule_key() {
+    RuleDto rule = newRule();
+    ComponentDto project = insertComponent(ComponentTesting.newPublicProjectDto(otherOrganization1, "PROJECT_ID").setDbKey("PROJECT_KEY").setLanguage("java"));
+    ComponentDto file = insertComponent(ComponentTesting.newFileDto(project, null, "FILE_ID").setDbKey("FILE_KEY").setLanguage("java"));
+
+    IssueDto issue = IssueTesting.newIssue(rule.getDefinition(), project, file);
+    dbClient.issueDao().insert(session, issue);
+    session.commit();
+    indexIssues();
+
+    userSessionRule.logIn("john")
+      .addProjectPermission(ISSUE_ADMIN, project); // granted by Anyone
+    indexPermissions();
+
+    TestResponse execute = ws.newRequest()
+      .setParam(PARAM_RULES, rule.getKey().toString())
+      .setParam("additionalFields", "_all")
+      .execute();
+    execute.assertJson(this.getClass(), "result_for_rule_search.json");
+  }
+
+  @Test
+  public void issue_on_removed_file() {
     RuleDto rule = newRule();
     ComponentDto project = insertComponent(ComponentTesting.newPublicProjectDto(otherOrganization2, "PROJECT_ID").setDbKey("PROJECT_KEY"));
     indexPermissions();
@@ -345,7 +369,7 @@ public class SearchActionTest {
   }
 
   @Test
-  public void apply_paging_with_one_component() throws Exception {
+  public void apply_paging_with_one_component() {
     RuleDto rule = newRule();
     ComponentDto project = insertComponent(ComponentTesting.newPublicProjectDto(otherOrganization2, "PROJECT_ID").setDbKey("PROJECT_KEY"));
     indexPermissions();
@@ -362,7 +386,7 @@ public class SearchActionTest {
   }
 
   @Test
-  public void components_contains_sub_projects() throws Exception {
+  public void components_contains_sub_projects() {
     ComponentDto project = insertComponent(ComponentTesting.newPublicProjectDto(otherOrganization1, "PROJECT_ID").setDbKey("ProjectHavingModule"));
     indexPermissions();
     ComponentDto module = insertComponent(ComponentTesting.newModuleDto(project).setDbKey("ModuleHavingFile"));
@@ -377,7 +401,7 @@ public class SearchActionTest {
   }
 
   @Test
-  public void display_facets() throws Exception {
+  public void display_facets() {
     ComponentDto project = insertComponent(ComponentTesting.newPublicProjectDto(otherOrganization1, "PROJECT_ID").setDbKey("PROJECT_KEY"));
     indexPermissions();
     ComponentDto file = insertComponent(ComponentTesting.newFileDto(project, null, "FILE_ID").setDbKey("FILE_KEY"));
@@ -402,7 +426,7 @@ public class SearchActionTest {
   }
 
   @Test
-  public void display_facets_in_effort_mode() throws Exception {
+  public void display_facets_in_effort_mode() {
     ComponentDto project = insertComponent(ComponentTesting.newPublicProjectDto(otherOrganization2, "PROJECT_ID").setDbKey("PROJECT_KEY"));
     indexPermissions();
     ComponentDto file = insertComponent(ComponentTesting.newFileDto(project, null, "FILE_ID").setDbKey("FILE_KEY"));
@@ -428,7 +452,7 @@ public class SearchActionTest {
   }
 
   @Test
-  public void display_zero_valued_facets_for_selected_items() throws Exception {
+  public void display_zero_valued_facets_for_selected_items() {
     ComponentDto project = insertComponent(ComponentTesting.newPublicProjectDto(otherOrganization1, "PROJECT_ID").setDbKey("PROJECT_KEY"));
     indexPermissions();
     ComponentDto file = insertComponent(ComponentTesting.newFileDto(project, null, "FILE_ID").setDbKey("FILE_KEY"));
@@ -455,7 +479,7 @@ public class SearchActionTest {
   }
 
   @Test
-  public void assignedToMe_facet_must_escape_login_of_authenticated_user() throws Exception {
+  public void assignedToMe_facet_must_escape_login_of_authenticated_user() {
     // login looks like an invalid regexp
     userSessionRule.logIn("foo[");
 
@@ -468,7 +492,7 @@ public class SearchActionTest {
   }
 
   @Test
-  public void filter_by_assigned_to_me() throws Exception {
+  public void filter_by_assigned_to_me() {
     dbClient.userDao().insert(session, new UserDto().setLogin("john").setName("John").setEmail("john@email.com"));
 
     ComponentDto project = insertComponent(ComponentTesting.newPublicProjectDto(defaultOrganization, "PROJECT_ID").setDbKey("PROJECT_KEY"));
@@ -512,7 +536,7 @@ public class SearchActionTest {
   }
 
   @Test
-  public void filter_by_assigned_to_me_unauthenticated() throws Exception {
+  public void filter_by_assigned_to_me_unauthenticated() {
     userSessionRule.logIn();
 
     ComponentDto project = insertComponent(ComponentTesting.newPublicProjectDto(otherOrganization1, "PROJECT_ID").setDbKey("PROJECT_KEY"));
@@ -542,7 +566,7 @@ public class SearchActionTest {
   }
 
   @Test
-  public void assigned_to_me_facet_is_sticky_relative_to_assignees() throws Exception {
+  public void assigned_to_me_facet_is_sticky_relative_to_assignees() {
     dbClient.userDao().insert(session, new UserDto().setLogin("alice").setName("Alice").setEmail("alice@email.com"));
 
     ComponentDto project = insertComponent(ComponentTesting.newPublicProjectDto(otherOrganization2, "PROJECT_ID").setDbKey("PROJECT_KEY"));
@@ -586,7 +610,7 @@ public class SearchActionTest {
   }
 
   @Test
-  public void sort_by_updated_at() throws Exception {
+  public void sort_by_updated_at() {
     RuleDto rule = newRule();
     ComponentDto project = insertComponent(ComponentTesting.newPublicProjectDto(otherOrganization2, "PROJECT_ID").setDbKey("PROJECT_KEY"));
     indexPermissions();
@@ -611,7 +635,7 @@ public class SearchActionTest {
   }
 
   @Test
-  public void paging() throws Exception {
+  public void paging() {
     RuleDto rule = newRule();
     ComponentDto project = insertComponent(ComponentTesting.newPublicProjectDto(otherOrganization1, "PROJECT_ID").setDbKey("PROJECT_KEY"));
     indexPermissions();
@@ -631,7 +655,7 @@ public class SearchActionTest {
   }
 
   @Test
-  public void paging_with_page_size_to_minus_one() throws Exception {
+  public void paging_with_page_size_to_minus_one() {
     RuleDto rule = newRule();
     ComponentDto project = insertComponent(ComponentTesting.newPublicProjectDto(otherOrganization2, "PROJECT_ID").setDbKey("PROJECT_KEY"));
     indexPermissions();
@@ -651,7 +675,7 @@ public class SearchActionTest {
   }
 
   @Test
-  public void deprecated_paging() throws Exception {
+  public void deprecated_paging() {
     RuleDto rule = newRule();
     ComponentDto project = insertComponent(ComponentTesting.newPublicProjectDto(defaultOrganization, "PROJECT_ID").setDbKey("PROJECT_KEY"));
     indexPermissions();
@@ -671,14 +695,14 @@ public class SearchActionTest {
   }
 
   @Test
-  public void default_page_size_is_100() throws Exception {
+  public void default_page_size_is_100() {
     ws.newRequest()
       .execute()
       .assertJson(this.getClass(), "default_page_size_is_100.json");
   }
 
   @Test
-  public void display_deprecated_debt_fields() throws Exception {
+  public void display_deprecated_debt_fields() {
     ComponentDto project = insertComponent(ComponentTesting.newPublicProjectDto(otherOrganization1, "PROJECT_ID").setDbKey("PROJECT_KEY"));
     indexPermissions();
     ComponentDto file = insertComponent(ComponentTesting.newFileDto(project, null, "FILE_ID").setDbKey("FILE_KEY"));

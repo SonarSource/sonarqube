@@ -39,13 +39,11 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.issue.Issue;
-import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.internal.TestSystem2;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.user.GroupDto;
@@ -82,6 +80,7 @@ import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.db.organization.OrganizationTesting.newOrganizationDto;
+import static org.sonar.db.rule.RuleTesting.newRule;
 import static org.sonar.db.user.GroupTesting.newGroupDto;
 import static org.sonar.db.user.UserTesting.newUserDto;
 import static org.sonar.server.issue.IssueDocTesting.newDoc;
@@ -111,20 +110,20 @@ public class IssueIndexTest {
 
   @Test
   public void filter_by_keys() {
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(newOrganizationDto());
+    ComponentDto project = newPrivateProjectDto(newOrganizationDto());
 
     indexIssues(
       newDoc("I1", newFileDto(project, null)),
       newDoc("I2", newFileDto(project, null)));
 
     assertThatSearchReturnsOnly(IssueQuery.builder().issueKeys(asList("I1", "I2")), "I1", "I2");
-    assertThatSearchReturnsOnly(IssueQuery.builder().issueKeys(asList("I1")), "I1");
+    assertThatSearchReturnsOnly(IssueQuery.builder().issueKeys(singletonList("I1")), "I1");
     assertThatSearchReturnsEmpty(IssueQuery.builder().issueKeys(asList("I3", "I4")));
   }
 
   @Test
   public void filter_by_projects() {
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(newOrganizationDto());
+    ComponentDto project = newPrivateProjectDto(newOrganizationDto());
     ComponentDto module = newModuleDto(project);
     ComponentDto subModule = newModuleDto(module);
 
@@ -136,8 +135,8 @@ public class IssueIndexTest {
       newDoc("I5", subModule),
       newDoc("I6", newFileDto(subModule, null)));
 
-    assertThatSearchReturnsOnly(IssueQuery.builder().projectUuids(asList(project.uuid())), "I1", "I2", "I3", "I4", "I5", "I6");
-    assertThatSearchReturnsEmpty(IssueQuery.builder().projectUuids(asList("unknown")));
+    assertThatSearchReturnsOnly(IssueQuery.builder().projectUuids(singletonList(project.uuid())), "I1", "I2", "I3", "I4", "I5", "I6");
+    assertThatSearchReturnsEmpty(IssueQuery.builder().projectUuids(singletonList("unknown")));
   }
 
   @Test
@@ -156,7 +155,7 @@ public class IssueIndexTest {
 
   @Test
   public void filter_by_modules() {
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(newOrganizationDto());
+    ComponentDto project = newPrivateProjectDto(newOrganizationDto());
     ComponentDto module = newModuleDto(project);
     ComponentDto subModule = newModuleDto(module);
     ComponentDto file = newFileDto(subModule, null);
@@ -166,16 +165,16 @@ public class IssueIndexTest {
       newDoc("I5", subModule),
       newDoc("I2", file));
 
-    assertThatSearchReturnsEmpty(IssueQuery.builder().projectUuids(asList(project.uuid())).moduleUuids(asList(file.uuid())));
-    assertThatSearchReturnsOnly(IssueQuery.builder().projectUuids(asList(project.uuid())).moduleUuids(asList(module.uuid())), "I3");
-    assertThatSearchReturnsOnly(IssueQuery.builder().projectUuids(asList(project.uuid())).moduleUuids(asList(subModule.uuid())), "I2", "I5");
-    assertThatSearchReturnsEmpty(IssueQuery.builder().projectUuids(asList(project.uuid())).moduleUuids(asList(project.uuid())));
-    assertThatSearchReturnsEmpty(IssueQuery.builder().projectUuids(asList(project.uuid())).moduleUuids(asList("unknown")));
+    assertThatSearchReturnsEmpty(IssueQuery.builder().projectUuids(singletonList(project.uuid())).moduleUuids(singletonList(file.uuid())));
+    assertThatSearchReturnsOnly(IssueQuery.builder().projectUuids(singletonList(project.uuid())).moduleUuids(singletonList(module.uuid())), "I3");
+    assertThatSearchReturnsOnly(IssueQuery.builder().projectUuids(singletonList(project.uuid())).moduleUuids(singletonList(subModule.uuid())), "I2", "I5");
+    assertThatSearchReturnsEmpty(IssueQuery.builder().projectUuids(singletonList(project.uuid())).moduleUuids(singletonList(project.uuid())));
+    assertThatSearchReturnsEmpty(IssueQuery.builder().projectUuids(singletonList(project.uuid())).moduleUuids(singletonList("unknown")));
   }
 
   @Test
   public void filter_by_components_on_contextualized_search() {
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(newOrganizationDto());
+    ComponentDto project = newPrivateProjectDto(newOrganizationDto());
     ComponentDto module = newModuleDto(project);
     ComponentDto subModule = newModuleDto(module);
     ComponentDto file1 = newFileDto(project, null);
@@ -193,12 +192,12 @@ public class IssueIndexTest {
       newDoc("I6", file3));
 
     assertThatSearchReturnsOnly(IssueQuery.builder().fileUuids(asList(file1.uuid(), file2.uuid(), file3.uuid())), "I2", "I4", "I6");
-    assertThatSearchReturnsOnly(IssueQuery.builder().fileUuids(asList(file1.uuid())), "I2");
-    assertThatSearchReturnsOnly(IssueQuery.builder().moduleRootUuids(asList(subModule.uuid())), "I5", "I6");
-    assertThatSearchReturnsOnly(IssueQuery.builder().moduleRootUuids(asList(module.uuid())), "I3", "I4", "I5", "I6");
-    assertThatSearchReturnsOnly(IssueQuery.builder().projectUuids(asList(project.uuid())), "I1", "I2", "I3", "I4", "I5", "I6");
-    assertThatSearchReturnsOnly(IssueQuery.builder().viewUuids(asList(view)), "I1", "I2", "I3", "I4", "I5", "I6");
-    assertThatSearchReturnsEmpty(IssueQuery.builder().projectUuids(asList("unknown")));
+    assertThatSearchReturnsOnly(IssueQuery.builder().fileUuids(singletonList(file1.uuid())), "I2");
+    assertThatSearchReturnsOnly(IssueQuery.builder().moduleRootUuids(singletonList(subModule.uuid())), "I5", "I6");
+    assertThatSearchReturnsOnly(IssueQuery.builder().moduleRootUuids(singletonList(module.uuid())), "I3", "I4", "I5", "I6");
+    assertThatSearchReturnsOnly(IssueQuery.builder().projectUuids(singletonList(project.uuid())), "I1", "I2", "I3", "I4", "I5", "I6");
+    assertThatSearchReturnsOnly(IssueQuery.builder().viewUuids(singletonList(view)), "I1", "I2", "I3", "I4", "I5", "I6");
+    assertThatSearchReturnsEmpty(IssueQuery.builder().projectUuids(singletonList("unknown")));
   }
 
   @Test
@@ -220,12 +219,12 @@ public class IssueIndexTest {
       newDoc("I5", subModule),
       newDoc("I6", file3));
 
-    assertThatSearchReturnsEmpty(IssueQuery.builder().projectUuids(asList("unknown")));
-    assertThatSearchReturnsOnly(IssueQuery.builder().projectUuids(asList(project.uuid())), "I1", "I2", "I3", "I4", "I5", "I6");
-    assertThatSearchReturnsOnly(IssueQuery.builder().viewUuids(asList(view)), "I1", "I2", "I3", "I4", "I5", "I6");
-    assertThatSearchReturnsOnly(IssueQuery.builder().moduleUuids(asList(module.uuid())), "I3", "I4");
-    assertThatSearchReturnsOnly(IssueQuery.builder().moduleUuids(asList(subModule.uuid())), "I5", "I6");
-    assertThatSearchReturnsOnly(IssueQuery.builder().fileUuids(asList(file1.uuid())), "I2");
+    assertThatSearchReturnsEmpty(IssueQuery.builder().projectUuids(singletonList("unknown")));
+    assertThatSearchReturnsOnly(IssueQuery.builder().projectUuids(singletonList(project.uuid())), "I1", "I2", "I3", "I4", "I5", "I6");
+    assertThatSearchReturnsOnly(IssueQuery.builder().viewUuids(singletonList(view)), "I1", "I2", "I3", "I4", "I5", "I6");
+    assertThatSearchReturnsOnly(IssueQuery.builder().moduleUuids(singletonList(module.uuid())), "I3", "I4");
+    assertThatSearchReturnsOnly(IssueQuery.builder().moduleUuids(singletonList(subModule.uuid())), "I5", "I6");
+    assertThatSearchReturnsOnly(IssueQuery.builder().fileUuids(singletonList(file1.uuid())), "I2");
     assertThatSearchReturnsOnly(IssueQuery.builder().fileUuids(asList(file1.uuid(), file2.uuid(), file3.uuid())), "I2", "I4", "I6");
   }
 
@@ -248,7 +247,7 @@ public class IssueIndexTest {
 
   @Test
   public void filter_by_directories() {
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(newOrganizationDto());
+    ComponentDto project = newPrivateProjectDto(newOrganizationDto());
     ComponentDto file1 = newFileDto(project, null).setPath("src/main/xoo/F1.xoo");
     ComponentDto file2 = newFileDto(project, null).setPath("F2.xoo");
 
@@ -256,14 +255,14 @@ public class IssueIndexTest {
       newDoc("I1", file1).setDirectoryPath("/src/main/xoo"),
       newDoc("I2", file2).setDirectoryPath("/"));
 
-    assertThatSearchReturnsOnly(IssueQuery.builder().directories(asList("/src/main/xoo")), "I1");
-    assertThatSearchReturnsOnly(IssueQuery.builder().directories(asList("/")), "I2");
-    assertThatSearchReturnsEmpty(IssueQuery.builder().directories(asList("unknown")));
+    assertThatSearchReturnsOnly(IssueQuery.builder().directories(singletonList("/src/main/xoo")), "I1");
+    assertThatSearchReturnsOnly(IssueQuery.builder().directories(singletonList("/")), "I2");
+    assertThatSearchReturnsEmpty(IssueQuery.builder().directories(singletonList("unknown")));
   }
 
   @Test
   public void facets_on_directories() {
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(newOrganizationDto());
+    ComponentDto project = newPrivateProjectDto(newOrganizationDto());
     ComponentDto file1 = newFileDto(project, null).setPath("src/main/xoo/F1.xoo");
     ComponentDto file2 = newFileDto(project, null).setPath("F2.xoo");
 
@@ -277,9 +276,9 @@ public class IssueIndexTest {
   @Test
   public void filter_by_views() {
     OrganizationDto organizationDto = newOrganizationDto();
-    ComponentDto project1 = ComponentTesting.newPrivateProjectDto(organizationDto);
+    ComponentDto project1 = newPrivateProjectDto(organizationDto);
     ComponentDto file1 = newFileDto(project1, null);
-    ComponentDto project2 = ComponentTesting.newPrivateProjectDto(organizationDto);
+    ComponentDto project2 = newPrivateProjectDto(organizationDto);
     indexIssues(
       // Project1 has 2 issues (one on a file and one on the project itself)
       newDoc("I1", project1),
@@ -295,16 +294,16 @@ public class IssueIndexTest {
     String view2 = "CDEF";
     indexView(view2, asList(project2.uuid()));
 
-    assertThatSearchReturnsOnly(IssueQuery.builder().viewUuids(asList(view1)), "I1", "I2");
-    assertThatSearchReturnsOnly(IssueQuery.builder().viewUuids(asList(view2)), "I3");
+    assertThatSearchReturnsOnly(IssueQuery.builder().viewUuids(singletonList(view1)), "I1", "I2");
+    assertThatSearchReturnsOnly(IssueQuery.builder().viewUuids(singletonList(view2)), "I3");
     assertThatSearchReturnsOnly(IssueQuery.builder().viewUuids(asList(view1, view2)), "I1", "I2", "I3");
-    assertThatSearchReturnsEmpty(IssueQuery.builder().viewUuids(asList("unknown")));
+    assertThatSearchReturnsEmpty(IssueQuery.builder().viewUuids(singletonList("unknown")));
   }
 
   @Test
   public void filter_by_views_not_having_projects() {
     OrganizationDto organizationDto = newOrganizationDto();
-    ComponentDto project1 = ComponentTesting.newPrivateProjectDto(organizationDto);
+    ComponentDto project1 = newPrivateProjectDto(organizationDto);
     ComponentDto file1 = newFileDto(project1, null);
     indexIssues(newDoc("I2", file1));
     String view1 = "ABCD";
@@ -424,7 +423,7 @@ public class IssueIndexTest {
 
   @Test
   public void filter_by_severities() {
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(newOrganizationDto());
+    ComponentDto project = newPrivateProjectDto(newOrganizationDto());
     ComponentDto file = newFileDto(project, null);
 
     indexIssues(
@@ -432,13 +431,13 @@ public class IssueIndexTest {
       newDoc("I2", file).setSeverity(Severity.MAJOR));
 
     assertThatSearchReturnsOnly(IssueQuery.builder().severities(asList(Severity.INFO, Severity.MAJOR)), "I1", "I2");
-    assertThatSearchReturnsOnly(IssueQuery.builder().severities(asList(Severity.INFO)), "I1");
-    assertThatSearchReturnsEmpty(IssueQuery.builder().severities(asList(Severity.BLOCKER)));
+    assertThatSearchReturnsOnly(IssueQuery.builder().severities(singletonList(Severity.INFO)), "I1");
+    assertThatSearchReturnsEmpty(IssueQuery.builder().severities(singletonList(Severity.BLOCKER)));
   }
 
   @Test
   public void facets_on_severities() {
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(newOrganizationDto());
+    ComponentDto project = newPrivateProjectDto(newOrganizationDto());
     ComponentDto file = newFileDto(project, null);
 
     indexIssues(
@@ -451,7 +450,7 @@ public class IssueIndexTest {
 
   @Test
   public void filter_by_statuses() {
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(newOrganizationDto());
+    ComponentDto project = newPrivateProjectDto(newOrganizationDto());
     ComponentDto file = newFileDto(project, null);
 
     indexIssues(
@@ -459,13 +458,13 @@ public class IssueIndexTest {
       newDoc("I2", file).setStatus(Issue.STATUS_OPEN));
 
     assertThatSearchReturnsOnly(IssueQuery.builder().statuses(asList(Issue.STATUS_CLOSED, Issue.STATUS_OPEN)), "I1", "I2");
-    assertThatSearchReturnsOnly(IssueQuery.builder().statuses(asList(Issue.STATUS_CLOSED)), "I1");
-    assertThatSearchReturnsEmpty(IssueQuery.builder().statuses(asList(Issue.STATUS_CONFIRMED)));
+    assertThatSearchReturnsOnly(IssueQuery.builder().statuses(singletonList(Issue.STATUS_CLOSED)), "I1");
+    assertThatSearchReturnsEmpty(IssueQuery.builder().statuses(singletonList(Issue.STATUS_CONFIRMED)));
   }
 
   @Test
   public void facets_on_statuses() {
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(newOrganizationDto());
+    ComponentDto project = newPrivateProjectDto(newOrganizationDto());
     ComponentDto file = newFileDto(project, null);
 
     indexIssues(
@@ -478,7 +477,7 @@ public class IssueIndexTest {
 
   @Test
   public void filter_by_resolutions() {
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(newOrganizationDto());
+    ComponentDto project = newPrivateProjectDto(newOrganizationDto());
     ComponentDto file = newFileDto(project, null);
 
     indexIssues(
@@ -486,13 +485,13 @@ public class IssueIndexTest {
       newDoc("I2", file).setResolution(Issue.RESOLUTION_FIXED));
 
     assertThatSearchReturnsOnly(IssueQuery.builder().resolutions(asList(Issue.RESOLUTION_FALSE_POSITIVE, Issue.RESOLUTION_FIXED)), "I1", "I2");
-    assertThatSearchReturnsOnly(IssueQuery.builder().resolutions(asList(Issue.RESOLUTION_FALSE_POSITIVE)), "I1");
-    assertThatSearchReturnsEmpty(IssueQuery.builder().resolutions(asList(Issue.RESOLUTION_REMOVED)));
+    assertThatSearchReturnsOnly(IssueQuery.builder().resolutions(singletonList(Issue.RESOLUTION_FALSE_POSITIVE)), "I1");
+    assertThatSearchReturnsEmpty(IssueQuery.builder().resolutions(singletonList(Issue.RESOLUTION_REMOVED)));
   }
 
   @Test
   public void facets_on_resolutions() {
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(newOrganizationDto());
+    ComponentDto project = newPrivateProjectDto(newOrganizationDto());
     ComponentDto file = newFileDto(project, null);
 
     indexIssues(
@@ -505,7 +504,7 @@ public class IssueIndexTest {
 
   @Test
   public void filter_by_resolved() {
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(newOrganizationDto());
+    ComponentDto project = newPrivateProjectDto(newOrganizationDto());
     ComponentDto file = newFileDto(project, null);
 
     indexIssues(
@@ -520,42 +519,45 @@ public class IssueIndexTest {
 
   @Test
   public void filter_by_rules() {
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(newOrganizationDto());
+    ComponentDto project = newPrivateProjectDto(newOrganizationDto());
     ComponentDto file = newFileDto(project, null);
-    RuleKey ruleKey = RuleKey.of("repo", "X1");
+    RuleDefinitionDto ruleDefinitionDto = newRule();
+    db.rules().insert(ruleDefinitionDto);
 
-    indexIssues(newDoc("I1", file).setRuleKey(ruleKey.toString()));
+    indexIssues(newDoc("I1", file).setRuleId(ruleDefinitionDto.getId()));
 
-    assertThatSearchReturnsOnly(IssueQuery.builder().rules(asList(ruleKey)), "I1");
-    assertThatSearchReturnsEmpty(IssueQuery.builder().rules(asList(RuleKey.of("rule", "without issue"))));
+    assertThatSearchReturnsOnly(IssueQuery.builder().rules(singletonList(ruleDefinitionDto.getId())), "I1");
+    assertThatSearchReturnsEmpty(IssueQuery.builder().rules(singletonList(-1)));
   }
 
   @Test
   public void filter_by_languages() {
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(newOrganizationDto());
+    ComponentDto project = newPrivateProjectDto(newOrganizationDto());
     ComponentDto file = newFileDto(project, null);
-    RuleKey ruleKey = RuleKey.of("repo", "X1");
+    RuleDefinitionDto ruleDefinitionDto = newRule();
+    db.rules().insert(ruleDefinitionDto);
 
-    indexIssues(newDoc("I1", file).setRuleKey(ruleKey.toString()).setLanguage("xoo"));
+    indexIssues(newDoc("I1", file).setRuleId(ruleDefinitionDto.getId()).setLanguage("xoo"));
 
-    assertThatSearchReturnsOnly(IssueQuery.builder().languages(asList("xoo")), "I1");
-    assertThatSearchReturnsEmpty(IssueQuery.builder().languages(asList("unknown")));
+    assertThatSearchReturnsOnly(IssueQuery.builder().languages(singletonList("xoo")), "I1");
+    assertThatSearchReturnsEmpty(IssueQuery.builder().languages(singletonList("unknown")));
   }
 
   @Test
   public void facets_on_languages() {
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(newOrganizationDto());
+    ComponentDto project = newPrivateProjectDto(newOrganizationDto());
     ComponentDto file = newFileDto(project, null);
-    RuleKey ruleKey = RuleKey.of("repo", "X1");
+    RuleDefinitionDto ruleDefinitionDto = newRule();
+    db.rules().insert(ruleDefinitionDto);
 
-    indexIssues(newDoc("I1", file).setRuleKey(ruleKey.toString()).setLanguage("xoo"));
+    indexIssues(newDoc("I1", file).setRuleId(ruleDefinitionDto.getId()).setLanguage("xoo"));
 
     assertThatFacetHasOnly(IssueQuery.builder(), "languages", entry("xoo", 1L));
   }
 
   @Test
   public void filter_by_assignees() {
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(newOrganizationDto());
+    ComponentDto project = newPrivateProjectDto(newOrganizationDto());
     ComponentDto file = newFileDto(project, null);
 
     indexIssues(
@@ -563,14 +565,14 @@ public class IssueIndexTest {
       newDoc("I2", file).setAssignee("marcel"),
       newDoc("I3", file).setAssignee(null));
 
-    assertThatSearchReturnsOnly(IssueQuery.builder().assignees(asList("steph")), "I1");
+    assertThatSearchReturnsOnly(IssueQuery.builder().assignees(singletonList("steph")), "I1");
     assertThatSearchReturnsOnly(IssueQuery.builder().assignees(asList("steph", "marcel")), "I1", "I2");
-    assertThatSearchReturnsEmpty(IssueQuery.builder().assignees(asList("unknown")));
+    assertThatSearchReturnsEmpty(IssueQuery.builder().assignees(singletonList("unknown")));
   }
 
   @Test
   public void facets_on_assignees() {
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(newOrganizationDto());
+    ComponentDto project = newPrivateProjectDto(newOrganizationDto());
     ComponentDto file = newFileDto(project, null);
 
     indexIssues(
@@ -584,7 +586,7 @@ public class IssueIndexTest {
 
   @Test
   public void facets_on_assignees_supports_dashes() {
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(newOrganizationDto());
+    ComponentDto project = newPrivateProjectDto(newOrganizationDto());
     ComponentDto file = newFileDto(project, null);
 
     indexIssues(
@@ -593,12 +595,12 @@ public class IssueIndexTest {
       newDoc("I3", file).setAssignee("marcel"),
       newDoc("I4", file).setAssignee(null));
 
-    assertThatFacetHasOnly(IssueQuery.builder().assignees(asList("j-b")), "assignees", entry("j-b", 1L), entry("marcel", 2L), entry("", 1L));
+    assertThatFacetHasOnly(IssueQuery.builder().assignees(singletonList("j-b")), "assignees", entry("j-b", 1L), entry("marcel", 2L), entry("", 1L));
   }
 
   @Test
   public void filter_by_assigned() {
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(newOrganizationDto());
+    ComponentDto project = newPrivateProjectDto(newOrganizationDto());
     ComponentDto file = newFileDto(project, null);
 
     indexIssues(
@@ -613,7 +615,7 @@ public class IssueIndexTest {
 
   @Test
   public void filter_by_authors() {
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(newOrganizationDto());
+    ComponentDto project = newPrivateProjectDto(newOrganizationDto());
     ComponentDto file = newFileDto(project, null);
 
     indexIssues(
@@ -621,14 +623,14 @@ public class IssueIndexTest {
       newDoc("I2", file).setAuthorLogin("marcel"),
       newDoc("I3", file).setAssignee(null));
 
-    assertThatSearchReturnsOnly(IssueQuery.builder().authors(asList("steph")), "I1");
+    assertThatSearchReturnsOnly(IssueQuery.builder().authors(singletonList("steph")), "I1");
     assertThatSearchReturnsOnly(IssueQuery.builder().authors(asList("steph", "marcel")), "I1", "I2");
-    assertThatSearchReturnsEmpty(IssueQuery.builder().authors(asList("unknown")));
+    assertThatSearchReturnsEmpty(IssueQuery.builder().authors(singletonList("unknown")));
   }
 
   @Test
   public void facets_on_authors() {
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(newOrganizationDto());
+    ComponentDto project = newPrivateProjectDto(newOrganizationDto());
     ComponentDto file = newFileDto(project, null);
 
     indexIssues(
@@ -642,7 +644,7 @@ public class IssueIndexTest {
 
   @Test
   public void filter_by_created_after() {
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(newOrganizationDto());
+    ComponentDto project = newPrivateProjectDto(newOrganizationDto());
     ComponentDto file = newFileDto(project, null);
 
     indexIssues(
@@ -658,7 +660,7 @@ public class IssueIndexTest {
 
   @Test
   public void filter_by_created_before() {
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(newOrganizationDto());
+    ComponentDto project = newPrivateProjectDto(newOrganizationDto());
     ComponentDto file = newFileDto(project, null);
 
     indexIssues(
@@ -674,7 +676,7 @@ public class IssueIndexTest {
 
   @Test
   public void filter_by_created_after_and_before() {
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(newOrganizationDto());
+    ComponentDto project = newPrivateProjectDto(newOrganizationDto());
     ComponentDto file = newFileDto(project, null);
 
     indexIssues(
@@ -714,7 +716,7 @@ public class IssueIndexTest {
 
   @Test
   public void filter_by_create_after_and_before_take_into_account_timezone() {
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(newOrganizationDto());
+    ComponentDto project = newPrivateProjectDto(newOrganizationDto());
     ComponentDto file = newFileDto(project, null);
 
     indexIssues(
@@ -758,7 +760,7 @@ public class IssueIndexTest {
 
   @Test
   public void filter_by_created_at() {
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(newOrganizationDto());
+    ComponentDto project = newPrivateProjectDto(newOrganizationDto());
     ComponentDto file = newFileDto(project, null);
 
     indexIssues(newDoc("I1", file).setFuncCreationDate(parseDate("2014-09-20")));
@@ -900,7 +902,7 @@ public class IssueIndexTest {
   }
 
   private SearchOptions fixtureForCreatedAtFacet() {
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(newOrganizationDto());
+    ComponentDto project = newPrivateProjectDto(newOrganizationDto());
     ComponentDto file = newFileDto(project, null);
 
     IssueDoc issue0 = newDoc("ISSUE0", file).setFuncCreationDate(parseDateTime("2011-04-25T00:05:13+0000"));
@@ -918,7 +920,7 @@ public class IssueIndexTest {
 
   @Test
   public void paging() {
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(newOrganizationDto());
+    ComponentDto project = newPrivateProjectDto(newOrganizationDto());
     ComponentDto file = newFileDto(project, null);
     for (int i = 0; i < 12; i++) {
       indexIssues(newDoc("I" + i, file));
@@ -941,7 +943,7 @@ public class IssueIndexTest {
 
   @Test
   public void search_with_max_limit() {
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(newOrganizationDto());
+    ComponentDto project = newPrivateProjectDto(newOrganizationDto());
     ComponentDto file = newFileDto(project, null);
     List<IssueDoc> issues = new ArrayList<>();
     for (int i = 0; i < 500; i++) {
@@ -957,7 +959,7 @@ public class IssueIndexTest {
 
   @Test
   public void sort_by_status() {
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(newOrganizationDto());
+    ComponentDto project = newPrivateProjectDto(newOrganizationDto());
     ComponentDto file = newFileDto(project, null);
 
     indexIssues(
@@ -974,7 +976,7 @@ public class IssueIndexTest {
 
   @Test
   public void sort_by_severity() {
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(newOrganizationDto());
+    ComponentDto project = newPrivateProjectDto(newOrganizationDto());
     ComponentDto file = newFileDto(project, null);
 
     indexIssues(
@@ -993,7 +995,7 @@ public class IssueIndexTest {
 
   @Test
   public void sort_by_assignee() {
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(newOrganizationDto());
+    ComponentDto project = newPrivateProjectDto(newOrganizationDto());
     ComponentDto file = newFileDto(project, null);
 
     indexIssues(
@@ -1009,7 +1011,7 @@ public class IssueIndexTest {
 
   @Test
   public void sort_by_creation_date() {
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(newOrganizationDto());
+    ComponentDto project = newPrivateProjectDto(newOrganizationDto());
     ComponentDto file = newFileDto(project, null);
 
     indexIssues(
@@ -1026,7 +1028,7 @@ public class IssueIndexTest {
 
   @Test
   public void sort_by_update_date() {
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(newOrganizationDto());
+    ComponentDto project = newPrivateProjectDto(newOrganizationDto());
     ComponentDto file = newFileDto(project, null);
 
     indexIssues(
@@ -1043,7 +1045,7 @@ public class IssueIndexTest {
 
   @Test
   public void sort_by_close_date() {
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(newOrganizationDto());
+    ComponentDto project = newPrivateProjectDto(newOrganizationDto());
     ComponentDto file = newFileDto(project, null);
 
     indexIssues(
@@ -1061,7 +1063,7 @@ public class IssueIndexTest {
 
   @Test
   public void sort_by_file_and_line() {
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(newOrganizationDto());
+    ComponentDto project = newPrivateProjectDto(newOrganizationDto());
     ComponentDto file1 = newFileDto(project, null, "F1").setPath("src/main/xoo/org/sonar/samples/File.xoo");
     ComponentDto file2 = newFileDto(project, null, "F2").setPath("src/main/xoo/org/sonar/samples/File2.xoo");
 
@@ -1118,9 +1120,9 @@ public class IssueIndexTest {
   @Test
   public void authorized_issues_on_groups() {
     OrganizationDto org = newOrganizationDto();
-    ComponentDto project1 = ComponentTesting.newPrivateProjectDto(org);
-    ComponentDto project2 = ComponentTesting.newPrivateProjectDto(org);
-    ComponentDto project3 = ComponentTesting.newPrivateProjectDto(org);
+    ComponentDto project1 = newPrivateProjectDto(org);
+    ComponentDto project2 = newPrivateProjectDto(org);
+    ComponentDto project3 = newPrivateProjectDto(org);
     ComponentDto file1 = newFileDto(project1, null);
     ComponentDto file2 = newFileDto(project2, null);
     ComponentDto file3 = newFileDto(project3, null);
@@ -1150,15 +1152,15 @@ public class IssueIndexTest {
     assertThatSearchReturnsEmpty(IssueQuery.builder());
 
     userSessionRule.logIn().setGroups(group1, group2);
-    assertThatSearchReturnsEmpty(IssueQuery.builder().projectUuids(asList(project3.uuid())));
+    assertThatSearchReturnsEmpty(IssueQuery.builder().projectUuids(singletonList(project3.uuid())));
   }
 
   @Test
   public void authorized_issues_on_user() {
     OrganizationDto org = newOrganizationDto();
-    ComponentDto project1 = ComponentTesting.newPrivateProjectDto(org);
-    ComponentDto project2 = ComponentTesting.newPrivateProjectDto(org);
-    ComponentDto project3 = ComponentTesting.newPrivateProjectDto(org);
+    ComponentDto project1 = newPrivateProjectDto(org);
+    ComponentDto project2 = newPrivateProjectDto(org);
+    ComponentDto project3 = newPrivateProjectDto(org);
     ComponentDto file1 = newFileDto(project1, null);
     ComponentDto file2 = newFileDto(project2, null);
     ComponentDto file3 = newFileDto(project3, null);
@@ -1186,7 +1188,7 @@ public class IssueIndexTest {
 
   @Test
   public void root_user_is_authorized_to_access_all_issues() {
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(newOrganizationDto());
+    ComponentDto project = newPrivateProjectDto(newOrganizationDto());
     indexIssue(newDoc("I1", project));
     userSessionRule.logIn().setRoot();
 
@@ -1201,14 +1203,14 @@ public class IssueIndexTest {
 
     OrganizationDto org = db.organizations().insert();
     OrganizationDto anotherOrg = db.organizations().insert();
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(newOrganizationDto());
+    ComponentDto project = newPrivateProjectDto(newOrganizationDto());
     ComponentDto file = newFileDto(project, null);
     indexIssues(
-      newDoc("I42", file).setOrganizationUuid(anotherOrg.getUuid()).setRuleKey(r1.getKey().toString()).setTags(of("another")),
-      newDoc("I1", file).setOrganizationUuid(org.getUuid()).setRuleKey(r1.getKey().toString()).setTags(of("convention", "java8", "bug")),
-      newDoc("I2", file).setOrganizationUuid(org.getUuid()).setRuleKey(r1.getKey().toString()).setTags(of("convention", "bug")),
-      newDoc("I3", file).setOrganizationUuid(org.getUuid()).setRuleKey(r2.getKey().toString()),
-      newDoc("I4", file).setOrganizationUuid(org.getUuid()).setRuleKey(r1.getKey().toString()).setTags(of("convention")));
+      newDoc("I42", file).setOrganizationUuid(anotherOrg.getUuid()).setRuleId(r1.getId()).setTags(of("another")),
+      newDoc("I1", file).setOrganizationUuid(org.getUuid()).setRuleId(r1.getId()).setTags(of("convention", "java8", "bug")),
+      newDoc("I2", file).setOrganizationUuid(org.getUuid()).setRuleId(r1.getId()).setTags(of("convention", "bug")),
+      newDoc("I3", file).setOrganizationUuid(org.getUuid()).setRuleId(r2.getId()),
+      newDoc("I4", file).setOrganizationUuid(org.getUuid()).setRuleId(r1.getId()).setTags(of("convention")));
 
     assertThat(underTest.listTags(org, null, 100)).containsOnly("convention", "java8", "bug");
     assertThat(underTest.listTags(org, null, 2)).containsOnly("bug", "convention");
@@ -1232,7 +1234,7 @@ public class IssueIndexTest {
   @Test
   public void test_listAuthors() {
     OrganizationDto org = newOrganizationDto();
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(org);
+    ComponentDto project = newPrivateProjectDto(org);
     indexIssues(
       newDoc("issue1", project).setAuthorLogin("luke.skywalker"),
       newDoc("issue2", project).setAuthorLogin("luke@skywalker.name"),
@@ -1252,7 +1254,7 @@ public class IssueIndexTest {
   @Test
   public void listAuthors_escapes_regexp_special_characters() {
     OrganizationDto org = newOrganizationDto();
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(org);
+    ComponentDto project = newPrivateProjectDto(org);
     indexIssues(
       newDoc("issue1", project).setAuthorLogin("name++"));
     IssueQuery query = IssueQuery.builder()
@@ -1268,9 +1270,9 @@ public class IssueIndexTest {
   @Test
   public void filter_by_organization() {
     OrganizationDto org1 = newOrganizationDto();
-    ComponentDto projectInOrg1 = ComponentTesting.newPrivateProjectDto(org1);
+    ComponentDto projectInOrg1 = newPrivateProjectDto(org1);
     OrganizationDto org2 = newOrganizationDto();
-    ComponentDto projectInOrg2 = ComponentTesting.newPrivateProjectDto(org2);
+    ComponentDto projectInOrg2 = newPrivateProjectDto(org2);
 
     indexIssues(newDoc("issueInOrg1", projectInOrg1), newDoc("issue1InOrg2", projectInOrg2), newDoc("issue2InOrg2", projectInOrg2));
 
@@ -1282,25 +1284,25 @@ public class IssueIndexTest {
   @Test
   public void filter_by_organization_and_project() {
     OrganizationDto org1 = newOrganizationDto();
-    ComponentDto projectInOrg1 = ComponentTesting.newPrivateProjectDto(org1);
+    ComponentDto projectInOrg1 = newPrivateProjectDto(org1);
     OrganizationDto org2 = newOrganizationDto();
-    ComponentDto projectInOrg2 = ComponentTesting.newPrivateProjectDto(org2);
+    ComponentDto projectInOrg2 = newPrivateProjectDto(org2);
 
     indexIssues(newDoc("issueInOrg1", projectInOrg1), newDoc("issue1InOrg2", projectInOrg2), newDoc("issue2InOrg2", projectInOrg2));
 
     // no conflict
-    IssueQuery.Builder query = IssueQuery.builder().organizationUuid(org1.getUuid()).projectUuids(asList(projectInOrg1.uuid()));
+    IssueQuery.Builder query = IssueQuery.builder().organizationUuid(org1.getUuid()).projectUuids(singletonList(projectInOrg1.uuid()));
     assertThatSearchReturnsOnly(query, "issueInOrg1");
 
     // conflict
-    query = IssueQuery.builder().organizationUuid(org1.getUuid()).projectUuids(asList(projectInOrg2.uuid()));
+    query = IssueQuery.builder().organizationUuid(org1.getUuid()).projectUuids(singletonList(projectInOrg2.uuid()));
     assertThatSearchReturnsEmpty(query);
   }
 
   @Test
   public void countTags() {
     OrganizationDto org = newOrganizationDto();
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(org);
+    ComponentDto project = newPrivateProjectDto(org);
     indexIssues(
       newDoc("issue1", project).setTags(ImmutableSet.of("convention", "java8", "bug")),
       newDoc("issue2", project).setTags(ImmutableSet.of("convention", "bug")),
@@ -1416,14 +1418,14 @@ public class IssueIndexTest {
   }
 
   private void assertThatFacetHasExactly(IssueQuery.Builder query, String facet, Map.Entry<String, Long>... expectedEntries) {
-    SearchResponse result = underTest.search(query.build(), new SearchOptions().addFacets(asList(facet)));
+    SearchResponse result = underTest.search(query.build(), new SearchOptions().addFacets(singletonList(facet)));
     Facets facets = new Facets(result, system2.getDefaultTimeZone());
     assertThat(facets.getNames()).containsOnly(facet);
     assertThat(facets.get(facet)).containsExactly(expectedEntries);
   }
 
   private void assertThatFacetHasOnly(IssueQuery.Builder query, String facet, Map.Entry<String, Long>... expectedEntries) {
-    SearchResponse result = underTest.search(query.build(), new SearchOptions().addFacets(asList(facet)));
+    SearchResponse result = underTest.search(query.build(), new SearchOptions().addFacets(singletonList(facet)));
     Facets facets = new Facets(result, system2.getDefaultTimeZone());
     assertThat(facets.getNames()).containsOnly(facet);
     assertThat(facets.get(facet)).containsOnly(expectedEntries);

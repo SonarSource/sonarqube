@@ -24,7 +24,6 @@ import com.google.common.collect.Maps;
 import java.util.Map;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 
@@ -50,7 +49,7 @@ public class IssueIteratorFactoryTest {
     assertThat(issue.assignee()).isEqualTo("guy1");
     assertThat(issue.authorLogin()).isEqualTo("guy2");
     assertThat(issue.line()).isEqualTo(444);
-    assertThat(issue.ruleKey()).isEqualTo(RuleKey.of("squid", "AvoidCycles"));
+    assertThat(issue.ruleId()).isEqualTo(200);
     assertThat(issue.componentUuid()).isEqualTo("FILE1");
     assertThat(issue.projectUuid()).isEqualTo("PROJECT1");
     assertThat(issue.moduleUuid()).isEqualTo("PROJECT1");

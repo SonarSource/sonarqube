@@ -34,7 +34,6 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.resources.Scopes;
-import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.RuleType;
 import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbClient;
@@ -66,8 +65,7 @@ class IssueIteratorForSingleChunk implements IssueIterator {
 
     // column 11
     "i.issue_update_date",
-    "r.plugin_name",
-    "r.plugin_rule_key",
+    "r.id",
     "r.language",
     "c.uuid",
     "c.module_uuid_path",
@@ -200,21 +198,20 @@ class IssueIteratorForSingleChunk implements IssueIterator {
       doc.setFuncCloseDate(longToDate(getLong(rs, 9)));
       doc.setFuncCreationDate(longToDate(getLong(rs, 10)));
       doc.setFuncUpdateDate(longToDate(getLong(rs, 11)));
-      String ruleRepo = rs.getString(12);
-      String ruleKey = rs.getString(13);
-      doc.setRuleKey(RuleKey.of(ruleRepo, ruleKey).toString());
-      doc.setLanguage(rs.getString(14));
-      doc.setComponentUuid(rs.getString(15));
-      String moduleUuidPath = rs.getString(16);
+      Integer ruleId = rs.getInt(12);
+      doc.setRuleId(ruleId);
+      doc.setLanguage(rs.getString(13));
+      doc.setComponentUuid(rs.getString(14));
+      String moduleUuidPath = rs.getString(15);
       doc.setModuleUuid(extractModule(moduleUuidPath));
       doc.setModuleUuidPath(moduleUuidPath);
-      String scope = rs.getString(18);
-      String filePath = extractFilePath(rs.getString(17), scope);
+      String scope = rs.getString(17);
+      String filePath = extractFilePath(rs.getString(16), scope);
       doc.setFilePath(filePath);
       doc.setDirectoryPath(extractDirPath(doc.filePath(), scope));
-      doc.setOrganizationUuid(rs.getString(19));
-      String branchUuid = rs.getString(20);
-      String mainBranchProjectUuid = DatabaseUtils.getString(rs, 21);
+      doc.setOrganizationUuid(rs.getString(18));
+      String branchUuid = rs.getString(19);
+      String mainBranchProjectUuid = DatabaseUtils.getString(rs, 20);
       doc.setBranchUuid(branchUuid);
       if (mainBranchProjectUuid == null) {
         doc.setProjectUuid(branchUuid);
@@ -223,9 +220,9 @@ class IssueIteratorForSingleChunk implements IssueIterator {
         doc.setProjectUuid(mainBranchProjectUuid);
         doc.setIsMainBranch(false);
       }
-      String tags = rs.getString(22);
+      String tags = rs.getString(21);
       doc.setTags(ImmutableList.copyOf(IssueIteratorForSingleChunk.TAGS_SPLITTER.split(tags == null ? "" : tags)));
-      doc.setType(RuleType.valueOf(rs.getInt(23)));
+      doc.setType(RuleType.valueOf(rs.getInt(22)));
       return doc;
     }
 
