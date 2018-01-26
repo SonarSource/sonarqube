@@ -23,10 +23,8 @@ import com.google.common.collect.ImmutableMap;
 import java.net.InetAddress;
 import java.util.Map;
 import java.util.Properties;
-import org.apache.catalina.connector.Connector;
 import org.apache.catalina.startup.Tomcat;
 import org.junit.Test;
-import org.mockito.ArgumentMatcher;
 import org.mockito.Mockito;
 import org.sonar.process.Props;
 
@@ -94,13 +92,7 @@ public class TomcatConnectorsTest {
 
     TomcatConnectors.configure(tomcat, new Props(p));
 
-    verify(tomcat.getService()).addConnector(argThat(new ArgumentMatcher<Connector>() {
-      @Override
-      public boolean matches(Object o) {
-        Connector c = (Connector) o;
-        return c.getScheme().equals("http") && c.getPort() == 9000 && ((InetAddress) c.getProperty("address")).getHostAddress().equals("0.0.0.0");
-      }
-    }));
+    verify(tomcat.getService()).addConnector(argThat(c -> c.getScheme().equals("http") && c.getPort() == 9000 && ((InetAddress) c.getProperty("address")).getHostAddress().equals("0.0.0.0")));
   }
 
   @Test
@@ -111,13 +103,8 @@ public class TomcatConnectorsTest {
 
     TomcatConnectors.configure(tomcat, new Props(p));
 
-    verify(tomcat.getService()).addConnector(argThat(new ArgumentMatcher<Connector>() {
-      @Override
-      public boolean matches(Object o) {
-        Connector c = (Connector) o;
-        return c.getScheme().equals("http") && c.getPort() == 9000 && ((InetAddress) c.getProperty("address")).getHostAddress().equals("1.2.3.4");
-      }
-    }));
+    verify(tomcat.getService())
+      .addConnector(argThat(c -> c.getScheme().equals("http") && c.getPort() == 9000 && ((InetAddress) c.getProperty("address")).getHostAddress().equals("1.2.3.4")));
   }
 
   @Test
@@ -133,36 +120,26 @@ public class TomcatConnectorsTest {
 
     Props props = new Props(properties);
     TomcatConnectors.configure(tomcat, props);
-    verify(tomcat.getService()).addConnector(argThat(new ArgumentMatcher<Connector>() {
-      @Override
-      public boolean matches(Object o) {
-        Connector c = (Connector) o;
-        return c.getMaxPostSize() == -1;
-      }
-    }));
+    verify(tomcat.getService()).addConnector(argThat(c -> c.getMaxPostSize() == -1));
   }
 
-  private void verifyHttpConnector(int expectedPort, Map<String,Object> expectedProps) {
-    verify(tomcat.getService()).addConnector(argThat(new ArgumentMatcher<Connector>() {
-      @Override
-      public boolean matches(Object o) {
-        Connector c = (Connector) o;
-        if (!c.getScheme().equals("http")) {
-          return false;
-        }
-        if (!c.getProtocol().equals(TomcatConnectors.HTTP_PROTOCOL)) {
-          return false;
-        }
-        if (c.getPort() != expectedPort) {
-          return false;
-        }
-        for (Map.Entry<String, Object> expectedProp : expectedProps.entrySet()) {
-          if (!expectedProp.getValue().equals(c.getProperty(expectedProp.getKey()))) {
-            return false;
-          }
-        }
-        return true;
+  private void verifyHttpConnector(int expectedPort, Map<String, Object> expectedProps) {
+    verify(tomcat.getService()).addConnector(argThat(c -> {
+      if (!c.getScheme().equals("http")) {
+        return false;
       }
+      if (!c.getProtocol().equals(TomcatConnectors.HTTP_PROTOCOL)) {
+        return false;
+      }
+      if (c.getPort() != expectedPort) {
+        return false;
+      }
+      for (Map.Entry<String, Object> expectedProp : expectedProps.entrySet()) {
+        if (!expectedProp.getValue().equals(c.getProperty(expectedProp.getKey()))) {
+          return false;
+        }
+      }
+      return true;
     }));
   }
 }

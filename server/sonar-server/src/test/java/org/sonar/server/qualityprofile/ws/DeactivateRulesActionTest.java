@@ -25,7 +25,6 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.QProfileDto;
@@ -36,7 +35,6 @@ import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.qualityprofile.RuleActivator;
-import org.sonar.server.rule.index.RuleQuery;
 import org.sonar.server.rule.ws.RuleQueryFactory;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
@@ -119,7 +117,7 @@ public class DeactivateRulesActionTest {
       .setParam(PARAM_TARGET_KEY, qualityProfile.getKee())
       .execute();
 
-    verify(ruleActivator).bulkDeactivateAndCommit(any(DbSession.class), any(RuleQuery.class), any(QProfileDto.class));
+    verify(ruleActivator).bulkDeactivateAndCommit(any(), any(), any());
   }
 
   @Test
@@ -137,7 +135,7 @@ public class DeactivateRulesActionTest {
       .setParam(PARAM_TARGET_KEY, qualityProfile.getKee())
       .execute();
 
-    verify(ruleActivator).bulkDeactivateAndCommit(any(DbSession.class), any(RuleQuery.class), any(QProfileDto.class));
+    verify(ruleActivator).bulkDeactivateAndCommit(any(), any(), any());
   }
 
   @Test

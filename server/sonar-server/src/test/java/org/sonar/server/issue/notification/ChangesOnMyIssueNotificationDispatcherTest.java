@@ -21,11 +21,7 @@ package org.sonar.server.issue.notification;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
-import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.notifications.NotificationChannel;
 import org.sonar.api.web.UserRole;
@@ -35,37 +31,25 @@ import org.sonar.server.notification.NotificationManager;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
 public class ChangesOnMyIssueNotificationDispatcherTest {
 
-  @Mock
-  NotificationManager notifications;
+  private NotificationManager notifications = mock(NotificationManager.class);
+  private NotificationDispatcher.Context context = mock(NotificationDispatcher.Context.class);
+  private NotificationChannel emailChannel = mock(NotificationChannel.class);
+  private NotificationChannel twitterChannel = mock(NotificationChannel.class);
 
-  @Mock
-  NotificationDispatcher.Context context;
-
-  @Mock
-  NotificationChannel emailChannel;
-
-  @Mock
-  NotificationChannel twitterChannel;
-
-  ChangesOnMyIssueNotificationDispatcher dispatcher;
-
-  @Before
-  public void setUp() {
-    dispatcher = new ChangesOnMyIssueNotificationDispatcher(notifications);
-  }
+  private ChangesOnMyIssueNotificationDispatcher underTest = new ChangesOnMyIssueNotificationDispatcher(notifications);
 
   @Test
   public void test_metadata() {
     NotificationDispatcherMetadata metadata = ChangesOnMyIssueNotificationDispatcher.newMetadata();
-    assertThat(metadata.getDispatcherKey()).isEqualTo(dispatcher.getKey());
+    assertThat(metadata.getDispatcherKey()).isEqualTo(underTest.getKey());
     assertThat(metadata.getProperty(NotificationDispatcherMetadata.GLOBAL_NOTIFICATION)).isEqualTo("true");
     assertThat(metadata.getProperty(NotificationDispatcherMetadata.PER_PROJECT_NOTIFICATION)).isEqualTo("true");
   }
@@ -73,7 +57,7 @@ public class ChangesOnMyIssueNotificationDispatcherTest {
   @Test
   public void should_not_dispatch_if_other_notification_type() {
     Notification notification = new Notification("other-notif");
-    dispatcher.performDispatch(notification, context);
+    underTest.performDispatch(notification, context);
 
     verify(context, never()).addUser(any(String.class), any(NotificationChannel.class));
   }
@@ -84,14 +68,14 @@ public class ChangesOnMyIssueNotificationDispatcherTest {
     recipients.put("simon", emailChannel);
     recipients.put("freddy", twitterChannel);
     recipients.put("godin", twitterChannel);
-    when(notifications.findSubscribedRecipientsForDispatcher(dispatcher, "struts",
+    when(notifications.findSubscribedRecipientsForDispatcher(underTest, "struts",
       new NotificationManager.SubscriberPermissionsOnProject(UserRole.USER))).thenReturn(recipients);
 
     Notification notification = new IssueChangeNotification()
       .setFieldValue("projectKey", "struts")
       .setFieldValue("changeAuthor", "olivier")
       .setFieldValue("assignee", "freddy");
-    dispatcher.performDispatch(notification, context);
+    underTest.performDispatch(notification, context);
 
     verify(context).addUser("freddy", twitterChannel);
     verify(context, never()).addUser("godin", twitterChannel);
@@ -104,10 +88,10 @@ public class ChangesOnMyIssueNotificationDispatcherTest {
     recipients.put("simon", emailChannel);
     recipients.put("freddy", twitterChannel);
     recipients.put("godin", twitterChannel);
-    when(notifications.findSubscribedRecipientsForDispatcher(dispatcher, "uuid1", new NotificationManager.SubscriberPermissionsOnProject(UserRole.USER))).thenReturn(recipients);
+    when(notifications.findSubscribedRecipientsForDispatcher(underTest, "uuid1", new NotificationManager.SubscriberPermissionsOnProject(UserRole.USER))).thenReturn(recipients);
 
     // change author is the assignee
-    dispatcher.performDispatch(
+    underTest.performDispatch(
       new IssueChangeNotification()
         .setFieldValue("projectKey", "struts")
         .setFieldValue("projectUuid", "uuid1")
@@ -116,7 +100,7 @@ public class ChangesOnMyIssueNotificationDispatcherTest {
       context);
 
     // no change author
-    dispatcher.performDispatch(new IssueChangeNotification().setFieldValue("projectKey", "struts")
+    underTest.performDispatch(new IssueChangeNotification().setFieldValue("projectKey", "struts")
       .setFieldValue("new.resolution", "FIXED"), context);
 
     verifyNoMoreInteractions(context);

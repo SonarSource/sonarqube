@@ -25,7 +25,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.issue.Issue;
 import org.sonar.core.issue.DefaultIssue;
-import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.server.tester.AnonymousMockUserSession;
 
 import static com.google.common.collect.Maps.newHashMap;
@@ -60,7 +59,7 @@ public class CommentActionTest {
     when(context.issue()).thenReturn(issue);
 
     action.execute(properties, context);
-    verify(issueUpdater).addComment(eq(issue), eq(comment), any(IssueChangeContext.class));
+    verify(issueUpdater).addComment(eq(issue), eq(comment), any());
   }
 
   @Test

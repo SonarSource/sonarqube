@@ -22,25 +22,20 @@ package org.sonar.server.computation.dbcleaner;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.config.Configuration;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.internal.MapSettings;
-import org.sonar.api.utils.log.Logger;
 import org.sonar.core.config.PurgeConstants;
 import org.sonar.core.config.PurgeProperties;
 import org.sonar.db.DbSession;
 import org.sonar.db.purge.IdUuidPair;
-import org.sonar.db.purge.PurgeConfiguration;
 import org.sonar.db.purge.PurgeDao;
 import org.sonar.db.purge.PurgeListener;
 import org.sonar.db.purge.PurgeProfiler;
 import org.sonar.db.purge.period.DefaultPeriodCleaner;
 
 import static java.util.Collections.emptyList;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyLong;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -65,7 +60,7 @@ public class ProjectCleanerTest {
 
     underTest.purge(mock(DbSession.class), mock(IdUuidPair.class), settings.asConfig(), emptyList());
 
-    verify(profiler, never()).dump(anyLong(), any(Logger.class));
+    verify(profiler, never()).dump(anyLong(), any());
   }
 
   @Test
@@ -74,7 +69,7 @@ public class ProjectCleanerTest {
 
     underTest.purge(mock(DbSession.class), mock(IdUuidPair.class), settings.asConfig(), emptyList());
 
-    verify(profiler).dump(anyLong(), any(Logger.class));
+    verify(profiler).dump(anyLong(), any());
   }
 
   @Test
@@ -83,7 +78,7 @@ public class ProjectCleanerTest {
 
     underTest.purge(mock(DbSession.class), mock(IdUuidPair.class), settings.asConfig(), emptyList());
 
-    verify(periodCleaner).clean(any(DbSession.class), anyString(), any(Configuration.class));
-    verify(dao).purge(any(DbSession.class), any(PurgeConfiguration.class), any(PurgeListener.class), any(PurgeProfiler.class));
+    verify(periodCleaner).clean(any(), any(), any());
+    verify(dao).purge(any(), any(), any(), any());
   }
 }

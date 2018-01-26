@@ -23,8 +23,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.io.IOUtils;
-import org.hamcrest.Description;
-import org.hamcrest.TypeSafeMatcher;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -59,8 +57,8 @@ import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.junit.Assert.fail;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
@@ -111,8 +109,8 @@ public class ReportSubmitterTest {
 
     mockSuccessfulPrepareSubmitCall();
     ComponentDto project = newPrivateProjectDto(db.getDefaultOrganization(), PROJECT_UUID).setDbKey(PROJECT_KEY);
-    when(componentUpdater.create(any(DbSession.class), any(NewComponent.class), eq(null))).thenReturn(project);
-    when(permissionTemplateService.wouldUserHaveScanPermissionWithDefaultTemplate(any(DbSession.class), eq(defaultOrganizationUuid), anyInt(), eq(PROJECT_KEY),
+    when(componentUpdater.create(any(), any(), any())).thenReturn(project);
+    when(permissionTemplateService.wouldUserHaveScanPermissionWithDefaultTemplate(any(), eq(defaultOrganizationUuid), any(), eq(PROJECT_KEY),
       eq(Qualifiers.PROJECT)))
         .thenReturn(true);
 
@@ -144,18 +142,8 @@ public class ReportSubmitterTest {
     verifyReportIsPersisted(TASK_UUID);
     verifyZeroInteractions(permissionTemplateService);
     verifyZeroInteractions(favoriteUpdater);
-    verify(queue).submit(argThat(new TypeSafeMatcher<CeTaskSubmit>() {
-      @Override
-      protected boolean matchesSafely(CeTaskSubmit submit) {
-        return submit.getType().equals(CeTaskTypes.REPORT) && submit.getComponentUuid().equals(project.uuid()) &&
-          submit.getUuid().equals(TASK_UUID);
-      }
-
-      @Override
-      public void describeTo(Description description) {
-
-      }
-    }));
+    verify(queue).submit(argThat(submit ->
+      submit.getType().equals(CeTaskTypes.REPORT) && submit.getComponentUuid().equals(project.uuid()) && submit.getUuid().equals(TASK_UUID)));
   }
 
   @Test
@@ -167,27 +155,17 @@ public class ReportSubmitterTest {
 
     mockSuccessfulPrepareSubmitCall();
     ComponentDto createdProject = newPrivateProjectDto(organization, PROJECT_UUID).setDbKey(PROJECT_KEY);
-    when(componentUpdater.create(any(DbSession.class), any(NewComponent.class), eq(null))).thenReturn(createdProject);
+    when(componentUpdater.create(any(), any(), isNull())).thenReturn(createdProject);
     when(
-      permissionTemplateService.wouldUserHaveScanPermissionWithDefaultTemplate(any(DbSession.class), eq(organization.getUuid()), anyInt(), eq(PROJECT_KEY), eq(Qualifiers.PROJECT)))
+      permissionTemplateService.wouldUserHaveScanPermissionWithDefaultTemplate(any(), eq(organization.getUuid()), any(), eq(PROJECT_KEY), eq(Qualifiers.PROJECT)))
         .thenReturn(true);
-    when(permissionTemplateService.hasDefaultTemplateWithPermissionOnProjectCreator(any(DbSession.class), eq(organization.getUuid()), any(ComponentDto.class))).thenReturn(true);
+    when(permissionTemplateService.hasDefaultTemplateWithPermissionOnProjectCreator(any(), eq(organization.getUuid()), any())).thenReturn(true);
 
     underTest.submit(organization.getKey(), PROJECT_KEY, null, PROJECT_NAME, IOUtils.toInputStream("{binary}"));
 
     verifyReportIsPersisted(TASK_UUID);
-    verify(queue).submit(argThat(new TypeSafeMatcher<CeTaskSubmit>() {
-      @Override
-      protected boolean matchesSafely(CeTaskSubmit submit) {
-        return submit.getType().equals(CeTaskTypes.REPORT) && submit.getComponentUuid().equals(PROJECT_UUID) &&
-          submit.getUuid().equals(TASK_UUID);
-      }
-
-      @Override
-      public void describeTo(Description description) {
-
-      }
-    }));
+    verify(queue).submit(argThat(submit ->
+      submit.getType().equals(CeTaskTypes.REPORT) && submit.getComponentUuid().equals(PROJECT_UUID) && submit.getUuid().equals(TASK_UUID)));
   }
 
   @Test
@@ -198,11 +176,11 @@ public class ReportSubmitterTest {
 
     mockSuccessfulPrepareSubmitCall();
     ComponentDto createdProject = newPrivateProjectDto(db.getDefaultOrganization(), PROJECT_UUID).setDbKey(PROJECT_KEY);
-    when(componentUpdater.create(any(DbSession.class), any(NewComponent.class), eq(null))).thenReturn(createdProject);
-    when(permissionTemplateService.wouldUserHaveScanPermissionWithDefaultTemplate(any(DbSession.class), eq(defaultOrganizationUuid), anyInt(),
+    when(componentUpdater.create(any(), any(), isNull())).thenReturn(createdProject);
+    when(permissionTemplateService.wouldUserHaveScanPermissionWithDefaultTemplate(any(), eq(defaultOrganizationUuid), any(),
       eq(PROJECT_KEY), eq(Qualifiers.PROJECT)))
         .thenReturn(true);
-    when(permissionTemplateService.hasDefaultTemplateWithPermissionOnProjectCreator(any(DbSession.class), eq(defaultOrganizationUuid), any(ComponentDto.class))).thenReturn(false);
+    when(permissionTemplateService.hasDefaultTemplateWithPermissionOnProjectCreator(any(), eq(defaultOrganizationUuid), any())).thenReturn(false);
 
     underTest.submit(defaultOrganizationKey, PROJECT_KEY, null, PROJECT_NAME, IOUtils.toInputStream("{binary}"));
 
@@ -217,8 +195,8 @@ public class ReportSubmitterTest {
 
     mockSuccessfulPrepareSubmitCall();
     ComponentDto project = newPrivateProjectDto(db.getDefaultOrganization(), PROJECT_UUID).setDbKey(PROJECT_KEY);
-    when(componentUpdater.create(any(DbSession.class), any(NewComponent.class), eq(null))).thenReturn(project);
-    when(permissionTemplateService.wouldUserHaveScanPermissionWithDefaultTemplate(any(DbSession.class), eq(defaultOrganizationUuid), anyInt(),
+    when(componentUpdater.create(any(), any(), any())).thenReturn(project);
+    when(permissionTemplateService.wouldUserHaveScanPermissionWithDefaultTemplate(any(), eq(defaultOrganizationUuid), any(),
       eq(PROJECT_KEY), eq(Qualifiers.PROJECT)))
         .thenReturn(true);
 

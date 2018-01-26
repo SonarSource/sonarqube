@@ -60,8 +60,7 @@ import org.sonar.server.notification.NotificationService;
 import org.sonar.server.util.cache.DiskCache;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
-import static org.assertj.core.api.Java6Assertions.assertThat;
-import static org.mockito.Matchers.anyString;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
@@ -139,14 +138,14 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
       new DefaultIssue().setType(randomRuleType).setEffort(ISSUE_DURATION)
         .setCreationDate(new Date(ANALYSE_DATE)))
       .close();
-    when(notificationService.hasProjectSubscribersForTypes(PROJECT.getUuid(), SendIssueNotificationsStep.NOTIF_TYPES)).thenReturn(true);
+    when(notificationService.hasProjectSubscribersForTypes(eq(PROJECT.getUuid()), any())).thenReturn(true);
 
     underTest.execute();
 
     verify(notificationService).deliver(newIssuesNotificationMock);
     verify(newIssuesNotificationMock).setProject(PROJECT.getPublicKey(), PROJECT.getName(), null);
     verify(newIssuesNotificationMock).setAnalysisDate(new Date(ANALYSE_DATE));
-    verify(newIssuesNotificationMock).setStatistics(eq(PROJECT.getName()), any(NewIssuesStatistics.Stats.class));
+    verify(newIssuesNotificationMock).setStatistics(eq(PROJECT.getName()), any());
     verify(newIssuesNotificationMock).setDebt(ISSUE_DURATION);
   }
 
@@ -232,7 +231,7 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
       new DefaultIssue().setType(randomRuleType).setEffort(ISSUE_DURATION).setAssignee(ISSUE_ASSIGNEE)
         .setCreationDate(new Date(ANALYSE_DATE)))
       .close();
-    when(notificationService.hasProjectSubscribersForTypes(PROJECT.getUuid(), SendIssueNotificationsStep.NOTIF_TYPES)).thenReturn(true);
+    when(notificationService.hasProjectSubscribersForTypes(eq(PROJECT.getUuid()), any())).thenReturn(true);
 
     underTest.execute();
 
@@ -425,22 +424,22 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
 
   private NewIssuesNotification createNewIssuesNotificationMock() {
     NewIssuesNotification notification = mock(NewIssuesNotification.class);
-    when(notification.setProject(anyString(), anyString(), anyString())).thenReturn(notification);
-    when(notification.setProjectVersion(anyString())).thenReturn(notification);
-    when(notification.setAnalysisDate(any(Date.class))).thenReturn(notification);
-    when(notification.setStatistics(anyString(), any(NewIssuesStatistics.Stats.class))).thenReturn(notification);
-    when(notification.setDebt(any(Duration.class))).thenReturn(notification);
+    when(notification.setProject(any(), any(), any())).thenReturn(notification);
+    when(notification.setProjectVersion(any())).thenReturn(notification);
+    when(notification.setAnalysisDate(any())).thenReturn(notification);
+    when(notification.setStatistics(any(), any())).thenReturn(notification);
+    when(notification.setDebt(any())).thenReturn(notification);
     return notification;
   }
 
   private MyNewIssuesNotification createMyNewIssuesNotificationMock() {
     MyNewIssuesNotification notification = mock(MyNewIssuesNotification.class);
-    when(notification.setAssignee(anyString())).thenReturn(notification);
-    when(notification.setProject(anyString(), anyString(), anyString())).thenReturn(notification);
-    when(notification.setProjectVersion(anyString())).thenReturn(notification);
-    when(notification.setAnalysisDate(any(Date.class))).thenReturn(notification);
-    when(notification.setStatistics(anyString(), any(NewIssuesStatistics.Stats.class))).thenReturn(notification);
-    when(notification.setDebt(any(Duration.class))).thenReturn(notification);
+    when(notification.setAssignee(any())).thenReturn(notification);
+    when(notification.setProject(any(), any(), any())).thenReturn(notification);
+    when(notification.setProjectVersion(any())).thenReturn(notification);
+    when(notification.setAnalysisDate(any())).thenReturn(notification);
+    when(notification.setStatistics(any(), any())).thenReturn(notification);
+    when(notification.setDebt(any())).thenReturn(notification);
     return notification;
   }
 

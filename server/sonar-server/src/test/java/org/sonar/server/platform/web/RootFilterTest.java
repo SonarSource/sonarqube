@@ -45,62 +45,60 @@ public class RootFilterTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private RootFilter filter;
-  private FilterChain chain;
+  private FilterChain chain = mock(FilterChain.class);
+  private RootFilter underTest;
 
   @Before
-  public void initialize() throws Exception {
+  public void initialize() {
     FilterConfig filterConfig = mock(FilterConfig.class);
     ServletContext context = mock(ServletContext.class);
     when(context.getContextPath()).thenReturn("/context");
     when(filterConfig.getServletContext()).thenReturn(context);
-    chain = mock(FilterChain.class);
-
-    filter = new RootFilter();
-    filter.init(filterConfig);
+    underTest = new RootFilter();
+    underTest.init(filterConfig);
   }
 
   @Test
-  public void throwable_in_dofilter_is_caught_and_500_error_returned_if_response_is_not_committed() throws Exception {
+  public void throwable_in_doFilter_is_caught_and_500_error_returned_if_response_is_not_committed() throws Exception {
     doThrow(new RuntimeException()).when(chain).doFilter(any(ServletRequest.class), any(ServletResponse.class));
     HttpServletResponse response = mockHttpResponse(false);
-    filter.doFilter(request("POST", "/context/service/call", "param=value"), response, chain);
+    underTest.doFilter(request("POST", "/context/service/call", "param=value"), response, chain);
 
     verify(response).sendError(500);
   }
 
   @Test
-  public void throwable_in_dofilter_is_caught_but_no_500_response_is_sent_if_response_already_committed() throws Exception {
+  public void throwable_in_doFilter_is_caught_but_no_500_response_is_sent_if_response_already_committed() throws Exception {
     doThrow(new RuntimeException()).when(chain).doFilter(any(ServletRequest.class), any(ServletResponse.class));
     HttpServletResponse response = mockHttpResponse(true);
-    filter.doFilter(request("POST", "/context/service/call", "param=value"), response, chain);
+    underTest.doFilter(request("POST", "/context/service/call", "param=value"), response, chain);
 
     verify(response, never()).sendError(500);
   }
 
   @Test
   public void request_used_in_chain_do_filter_is_a_servlet_wrapper_when_static_resource() throws Exception {
-    filter.doFilter(request("GET", "/context/static/image.png", null), null, chain);
+    underTest.doFilter(request("GET", "/context/static/image.png", null), mock(HttpServletResponse.class), chain);
     ArgumentCaptor<ServletRequest> requestArgumentCaptor = ArgumentCaptor.forClass(ServletRequest.class);
 
-    verify(chain).doFilter(requestArgumentCaptor.capture(), any(ServletResponse.class));
+    verify(chain).doFilter(requestArgumentCaptor.capture(), any(HttpServletResponse.class));
 
     assertThat(requestArgumentCaptor.getValue()).isInstanceOf(RootFilter.ServletRequestWrapper.class);
   }
 
   @Test
   public void request_used_in_chain_do_filter_is_a_servlet_wrapper_when_service_call() throws Exception {
-    filter.doFilter(request("POST", "/context/service/call", "param=value"), null, chain);
+    underTest.doFilter(request("POST", "/context/service/call", "param=value"), mock(HttpServletResponse.class), chain);
     ArgumentCaptor<ServletRequest> requestArgumentCaptor = ArgumentCaptor.forClass(ServletRequest.class);
 
-    verify(chain).doFilter(requestArgumentCaptor.capture(), any(ServletResponse.class));
+    verify(chain).doFilter(requestArgumentCaptor.capture(), any(HttpServletResponse.class));
 
     assertThat(requestArgumentCaptor.getValue()).isInstanceOf(RootFilter.ServletRequestWrapper.class);
   }
 
   @Test
   public void fail_to_get_session_from_request() throws Exception {
-    filter.doFilter(request("GET", "/context/static/image.png", null), null, chain);
+    underTest.doFilter(request("GET", "/context/static/image.png", null), mock(HttpServletResponse.class), chain);
     ArgumentCaptor<ServletRequest> requestArgumentCaptor = ArgumentCaptor.forClass(ServletRequest.class);
     verify(chain).doFilter(requestArgumentCaptor.capture(), any(ServletResponse.class));
 
@@ -110,7 +108,7 @@ public class RootFilterTest {
 
   @Test
   public void fail_to_get_session_with_create_from_request() throws Exception {
-    filter.doFilter(request("GET", "/context/static/image.png", null), null, chain);
+    underTest.doFilter(request("GET", "/context/static/image.png", null), mock(HttpServletResponse.class), chain);
     ArgumentCaptor<ServletRequest> requestArgumentCaptor = ArgumentCaptor.forClass(ServletRequest.class);
     verify(chain).doFilter(requestArgumentCaptor.capture(), any(ServletResponse.class));
 
@@ -126,9 +124,9 @@ public class RootFilterTest {
     return request;
   }
 
-  private HttpServletResponse mockHttpResponse(boolean commited) {
+  private static HttpServletResponse mockHttpResponse(boolean committed) {
     HttpServletResponse response = mock(HttpServletResponse.class);
-    when(response.isCommitted()).thenReturn(commited);
+    when(response.isCommitted()).thenReturn(committed);
     return response;
   }
 }

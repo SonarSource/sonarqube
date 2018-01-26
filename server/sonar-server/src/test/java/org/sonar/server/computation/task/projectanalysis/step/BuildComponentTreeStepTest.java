@@ -207,7 +207,7 @@ public class BuildComponentTreeStepTest {
     when(branch.getName()).thenReturn("origin/feature");
     when(branch.isMain()).thenReturn(false);
     when(branch.isLegacyFeature()).thenReturn(false);
-    when(branch.generateKey(any(ScannerReport.Component.class), any(ScannerReport.Component.class))).thenReturn("generated");
+    when(branch.generateKey(any(), any())).thenReturn("generated");
     analysisMetadataHolder.setRootComponentRef(ROOT_REF)
       .setAnalysisDate(ANALYSIS_DATE)
       .setProject(new Project("U1", REPORT_PROJECT_KEY, REPORT_PROJECT_KEY))
