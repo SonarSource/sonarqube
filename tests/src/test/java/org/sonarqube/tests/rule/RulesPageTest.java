@@ -246,34 +246,108 @@ public class RulesPageTest {
   }
 
   @Test
-  public void should_change_rule_tags() {}
+  public void should_change_rule_tags() {
+    RuleDetails ruleDetails = openRulesAsAdmin().openFirstRule();
+
+    // TODO search for non-existent tag and add it
+    // search("foo").select("foo")
+    ruleDetails.tags().shouldHaveTags("bad-practice").edit().select("convention").done();
+    ruleDetails.tags().shouldHaveTags("bad-practice", "convention");
+  }
 
   @Test
-  public void should_create_edit_delete_custom_rule() {}
+  public void should_create_edit_delete_reactivate_custom_rule() {
+    String customRuleName = "custom-rule-name";
+    RuleDetails ruleDetails = openRulesAsAdmin().takeRuleByName(SAMPLE_TEMPLATE_RULE).open();
+
+    ruleDetails
+      .shouldNotHaveCustomRule(customRuleName)
+      .createCustomRule(customRuleName)
+      .shouldHaveCustomRule(customRuleName);
+
+    ruleDetails
+      .deleteOnlyCustomRule()
+      .shouldNotHaveCustomRule(customRuleName);
+
+    ruleDetails
+      .reactivateCustomRule(customRuleName)
+      .shouldHaveCustomRule(customRuleName);
+
+    // TODO re-enable when select2 is dropped
+    // rulDetails.openOnlyCustomRule()
+    //   .shouldHaveSeverity("MAJOR")
+    //   .edit().changeSeverity("BLOCKER").save()
+    //   .shouldHaveSeverity("BLOCKER");
+
+  }
 
   @Test
-  public void should_reactivate_custom_rule() {}
+  public void should_activate_deactivate_rule_from_list() {
+    RulesPage page = openRulesAsAdmin();
+    page.openFacet("qprofile").selectFacetItemByText("qprofile", INHERITED_PROFILE).selectInactive();
+    page.selectFacetItem("types", "VULNERABILITY");
+    page.shouldDisplayRules(SAMPLE_SECURITY_RULE);
+
+    page.activateOnlyRule().deactivateOnlyRule();
+  }
 
   @Test
-  public void should_activate_rule_from_list() {}
+  public void should_activate_rule_from_details() {
+    RulesPage page = openRulesAsAdmin();
+    RuleDetails ruleDetails = page.takeRuleByName(SAMPLE_SECURITY_RULE).open();
+    ruleDetails.shouldNotBeActivatedOn(INHERITED_PROFILE)
+      .activateOnOnlyProfile().save();
+    ruleDetails.shouldBeActivatedOn(INHERITED_PROFILE);
+  }
 
   @Test
-  public void should_activate_rule_from_details() {}
+  public void should_synchronize_activation_between_list_and_details() {
+    RulesPage page = openRulesAsAdmin();
+
+    page.openFacet("qprofile").selectFacetItemByText("qprofile", INHERITED_PROFILE).selectInactive();
+    page.selectFacetItem("types", "VULNERABILITY");
+    page.shouldDisplayRules(SAMPLE_SECURITY_RULE);
+
+    RuleDetails ruleDetails = page.takeRuleByName(SAMPLE_SECURITY_RULE).open();
+
+    ruleDetails.shouldNotBeActivatedOn(INHERITED_PROFILE)
+      .activateOnOnlyProfile()
+      .save();
+
+    ruleDetails.shouldBeActivatedOn(INHERITED_PROFILE);
+
+    page.closeDetails();
+    page.onlyRuleShouldBeActivated();
+  }
 
   @Test
-  public void should_deactivate_rule_from_list() {}
+  public void should_change_rule_activation() {
+    String ruleWithParameters = "Rule with parameters";
+    RuleDetails ruleDetails = openRulesAsAdmin().takeRuleByName(ruleWithParameters).open();
+
+    ruleDetails.activateOnOnlyProfile().save();
+    ruleDetails.shouldBeActivatedOn(INHERITED_PROFILE);
+
+    ruleDetails.changeOnlyActivation()
+      .fill("string", "foo").fill("integer", "123").save();
+
+    ruleDetails
+      .onlyActivationShouldHaveParameter("string", "foo")
+      .onlyActivationShouldHaveParameter("integer", "123");
+  }
 
   @Test
-  public void should_deactivate_rule_from_details() {}
+  public void should_revert_rule_activation_to_parent_definition() {
+    RuleDetails ruleDetails = openRulesAsAdmin().takeRuleByName(SAMPLE_RULE, 1).open();
+    ruleDetails.onlyActivationShouldHaveSeverity("BLOCKER");
+    ruleDetails.revertOnlyActivationToParentDefinition();
+    ruleDetails.onlyActivationShouldHaveSeverity("MAJOR");
+  }
 
-  @Test
-  public void should_synchronize_activation_between_list_and_details() {}
-
-  @Test
-  public void should_change_rule_activation() {}
-
-  @Test
-  public void should_revert_rule_activation_to_parent_definition() {}
+  private RulesPage openRulesAsAdmin() {
+    String admin = tester.users().generateAdministrator().getLogin();
+    return tester.openBrowser().logIn().submitCredentials(admin).openRules();
+  }
 
   private void createInheritedQualityProfile() {
     QualityProfile profile = tester.qProfiles().service().create(new CreateRequest().setName(INHERITED_PROFILE).setLanguage("xoo")).getProfile();

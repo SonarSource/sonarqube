@@ -95,6 +95,11 @@ public class RulesPage extends Navigation {
     return this;
   }
 
+  public RulesPage selectInactive() {
+    $(getFacetSelector("qprofile") + " .search-navigator-facet.active .js-inactive").click();
+    return this;
+  }
+
   public RulesPage shouldHaveDisabledFacet(String facet) {
     $(".search-navigator-facet-box-forbidden[data-property=\"" + facet + "\"]").shouldBe(visible);
     return this;
@@ -115,6 +120,10 @@ public class RulesPage extends Navigation {
     return new RuleItem(getRulesCollection().findBy(text(ruleName)));
   }
 
+  public RuleItem takeRuleByName(String ruleName, int index) {
+    return new RuleItem(getRulesCollection().filterBy(text(ruleName)).get(index));
+  }
+
   public RulesPage search(String query) {
     $(".search-navigator-facet-query .search-box-input").val(query).pressEnter();
     return this;
@@ -125,6 +134,34 @@ public class RulesPage extends Navigation {
     return this;
   }
 
+  public RulesPage closeDetails() {
+    $(".js-back").click();
+    $(".coding-rules-details").shouldNotBe(visible);
+    return this;
+  }
+
+  public RulesPage activateOnlyRule() {
+    $$(".coding-rules-detail-quality-profile-activate").shouldHaveSize(1).first().click();
+    $(".modal").shouldBe(visible);
+    $("#coding-rules-quality-profile-activation-activate").click();
+    $(".modal").shouldNotBe(visible);
+    $(".coding-rules-detail-quality-profile-activate").shouldNotBe(visible);
+    return this;
+  }
+
+  public RulesPage deactivateOnlyRule() {
+    $$(".coding-rules-detail-quality-profile-deactivate").shouldHaveSize(1).first().click();
+    $("button[data-confirm=\"yes\"]").click();
+    $(".coding-rules-detail-quality-profile-deactivate").shouldNotBe(visible);
+    return this;
+  }
+
+  public RulesPage onlyRuleShouldBeActivated() {
+    $$(".coding-rules-detail-quality-profile-deactivate").shouldHaveSize(1);
+    $$(".coding-rules-detail-quality-profile-activate").shouldHaveSize(0);
+    return this;
+  }
+
   private static String getFacetSelector(String facet) {
     return ".search-navigator-facet-box[data-property=\"" + facet + "\"]";
   }
@@ -132,5 +169,4 @@ public class RulesPage extends Navigation {
   private static ElementsCollection getRulesCollection() {
     return $$(".coding-rule");
   }
-
 }
