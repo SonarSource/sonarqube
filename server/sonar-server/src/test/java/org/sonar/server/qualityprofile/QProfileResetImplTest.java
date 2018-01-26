@@ -38,8 +38,8 @@ import org.sonar.server.util.TypeValidations;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
-import static org.assertj.core.api.Java6Assertions.assertThat;
-import static org.assertj.core.api.Java6Assertions.tuple;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.mock;
 import static org.sonar.server.qualityprofile.ActiveRuleChange.Type.ACTIVATED;
 
@@ -113,7 +113,7 @@ public class QProfileResetImplTest {
     RuleDefinitionDto defaultRule = db.rules().insert(r -> r.setLanguage(LANGUAGE));
 
     expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage(String.format("Quality profile must be persisted"));
+    expectedException.expectMessage("Quality profile must be persisted");
 
     underTest.reset(db.getSession(), profile, singletonList(RuleActivation.create(defaultRule.getKey())));
   }
