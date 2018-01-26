@@ -33,7 +33,7 @@ import org.sonarqube.ws.client.WsResponse;
 import org.sonarqube.ws.client.projectbranches.ListRequest;
 import util.ItUtils;
 
-import static org.assertj.core.api.Java6Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.runProjectAnalysis;
 
 public class BranchTest {

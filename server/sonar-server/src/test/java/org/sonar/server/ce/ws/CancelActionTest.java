@@ -19,8 +19,6 @@
  */
 package org.sonar.server.ce.ws;
 
-import static org.assertj.core.api.Java6Assertions.assertThat;
-
 import javax.annotation.Nullable;
 
 import org.junit.Rule;
@@ -42,6 +40,8 @@ import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class CancelActionTest {
 
