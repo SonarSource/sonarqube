@@ -28,7 +28,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
 import org.sonar.db.qualitygate.QualityGateConditionDao;
 import org.sonar.db.qualitygate.QualityGateConditionDto;
 import org.sonar.db.qualitygate.QualityGateDao;
@@ -77,8 +76,8 @@ public class QualityGateServiceImplTest {
 
   @Test
   public void findById_returns_QualityGate_with_empty_set_of_conditions_when_there_is_none_in_DB() {
-    when(qualityGateDao.selectById(any(DbSession.class), eq(SOME_ID))).thenReturn(QUALITY_GATE_DTO);
-    when(qualityGateConditionDao.selectForQualityGate(any(DbSession.class), eq(SOME_ID))).thenReturn(Collections.emptyList());
+    when(qualityGateDao.selectById(any(), eq(SOME_ID))).thenReturn(QUALITY_GATE_DTO);
+    when(qualityGateConditionDao.selectForQualityGate(any(), eq(SOME_ID))).thenReturn(Collections.emptyList());
 
     Optional<QualityGate> res = underTest.findById(SOME_ID);
 
@@ -90,8 +89,8 @@ public class QualityGateServiceImplTest {
 
   @Test
   public void findById_returns_conditions_when_there_is_some_in_DB() {
-    when(qualityGateDao.selectById(any(DbSession.class), eq(SOME_ID))).thenReturn(QUALITY_GATE_DTO);
-    when(qualityGateConditionDao.selectForQualityGate(any(DbSession.class), eq(SOME_ID))).thenReturn(ImmutableList.of(CONDITION_1, CONDITION_2));
+    when(qualityGateDao.selectById(any(), eq(SOME_ID))).thenReturn(QUALITY_GATE_DTO);
+    when(qualityGateConditionDao.selectForQualityGate(any(), eq(SOME_ID))).thenReturn(ImmutableList.of(CONDITION_1, CONDITION_2));
     // metrics are always supposed to be there
     when(metricRepository.getOptionalById(METRIC_ID_1)).thenReturn(Optional.of(METRIC_1));
     when(metricRepository.getOptionalById(METRIC_ID_2)).thenReturn(Optional.of(METRIC_2));
@@ -108,8 +107,8 @@ public class QualityGateServiceImplTest {
 
   @Test
   public void findById_ignores_conditions_on_missing_metrics() {
-    when(qualityGateDao.selectById(any(DbSession.class), eq(SOME_ID))).thenReturn(QUALITY_GATE_DTO);
-    when(qualityGateConditionDao.selectForQualityGate(any(DbSession.class), eq(SOME_ID))).thenReturn(ImmutableList.of(CONDITION_1, CONDITION_2));
+    when(qualityGateDao.selectById(any(), eq(SOME_ID))).thenReturn(QUALITY_GATE_DTO);
+    when(qualityGateConditionDao.selectForQualityGate(any(), eq(SOME_ID))).thenReturn(ImmutableList.of(CONDITION_1, CONDITION_2));
     // metrics are always supposed to be there
     when(metricRepository.getOptionalById(METRIC_ID_1)).thenReturn(Optional.empty());
     when(metricRepository.getOptionalById(METRIC_ID_2)).thenReturn(Optional.of(METRIC_2));

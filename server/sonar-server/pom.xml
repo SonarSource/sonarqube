@@ -176,6 +176,10 @@
           <groupId>com.carrotsearch.randomizedtesting</groupId>
           <artifactId>randomizedtesting-runner</artifactId>
         </exclusion>
+        <exclusion>
+          <groupId>org.elasticsearch</groupId>
+          <artifactId>securemock</artifactId>
+        </exclusion>
       </exclusions>
     </dependency>
     <dependency>

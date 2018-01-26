@@ -63,11 +63,11 @@ public class PluginDownloaderTest {
   public TemporaryFolder testFolder = new TemporaryFolder();
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
-  File downloadDir;
-  UpdateCenterMatrixFactory updateCenterMatrixFactory;
-  UpdateCenter updateCenter;
-  HttpDownloader httpDownloader;
-  PluginDownloader pluginDownloader;
+  private File downloadDir;
+  private UpdateCenterMatrixFactory updateCenterMatrixFactory;
+  private UpdateCenter updateCenter;
+  private HttpDownloader httpDownloader;
+  private PluginDownloader pluginDownloader;
 
   @Before
   public void before() throws Exception {
@@ -306,15 +306,15 @@ public class PluginDownloaderTest {
     assertThat(new File(downloadDir, "testdep-1.0.jar")).exists();
   }
 
-  class HasFileName extends ArgumentMatcher<File> {
+  class HasFileName implements ArgumentMatcher<File> {
     private final String name;
 
     HasFileName(String name) {
       this.name = name;
     }
 
-    public boolean matches(Object obj) {
-      File file = (File) obj;
+    @Override
+    public boolean matches(File file) {
       return file.getName().equals(name);
     }
   }

@@ -58,6 +58,7 @@ import static java.util.Collections.emptySet;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.after;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.spy;
@@ -199,7 +200,7 @@ public class TelemetryDaemonTest {
     internalProperties.write("telemetry.lastPing", String.valueOf(sixDaysAgo));
     settings.setProperty("sonar.telemetry.frequencyInSeconds", "1");
     underTest.start();
-    verify(client, timeout(2_000).never()).upload(anyString());
+    verify(client, after(2_000).never()).upload(anyString());
     internalProperties.write("telemetry.lastPing", String.valueOf(sevenDaysAgo));
 
     verify(client, timeout(2_000).atLeastOnce()).upload(anyString());
@@ -228,7 +229,7 @@ public class TelemetryDaemonTest {
     internalProperties.write("telemetry.lastPing", String.valueOf(sixDaysAgo));
     underTest.start();
 
-    verify(client, timeout(2_000).never()).upload(anyString());
+    verify(client, after(2_000).never()).upload(anyString());
   }
 
   @Test
@@ -253,7 +254,7 @@ public class TelemetryDaemonTest {
     underTest.start();
     underTest.start();
 
-    verify(client, timeout(2_000).never()).upload(anyString());
+    verify(client, after(2_000).never()).upload(anyString());
     verify(client, timeout(2_000).times(1)).optOut(anyString());
     assertThat(logger.logs(LoggerLevel.INFO)).contains("Sharing of SonarQube statistics is disabled.");
   }

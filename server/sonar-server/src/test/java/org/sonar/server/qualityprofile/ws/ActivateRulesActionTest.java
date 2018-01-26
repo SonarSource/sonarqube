@@ -25,7 +25,6 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.QProfileDto;
@@ -36,7 +35,6 @@ import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.qualityprofile.RuleActivator;
-import org.sonar.server.rule.index.RuleQuery;
 import org.sonar.server.rule.ws.RuleQueryFactory;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
@@ -45,7 +43,6 @@ import org.sonar.server.ws.WsActionTester;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -123,7 +120,7 @@ public class ActivateRulesActionTest {
       .setParam(PARAM_TARGET_KEY, qualityProfile.getKee())
       .execute();
 
-    verify(ruleActivator).bulkActivateAndCommit(any(DbSession.class), any(RuleQuery.class), any(QProfileDto.class), anyString());
+    verify(ruleActivator).bulkActivateAndCommit(any(), any(), any(), any());
   }
 
   @Test
@@ -141,7 +138,7 @@ public class ActivateRulesActionTest {
       .setParam(PARAM_TARGET_KEY, qualityProfile.getKee())
       .execute();
 
-    verify(ruleActivator).bulkActivateAndCommit(any(DbSession.class), any(RuleQuery.class), any(QProfileDto.class), anyString());
+    verify(ruleActivator).bulkActivateAndCommit(any(), any(), any(), any());
   }
 
   @Test

@@ -29,10 +29,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
-import org.sonar.api.config.Configuration;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
 import org.sonar.db.purge.IdUuidPair;
 import org.sonar.server.computation.dbcleaner.ProjectCleaner;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
@@ -48,7 +46,6 @@ import org.sonar.server.util.WrapInSingleElementArray;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyList;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -140,7 +137,7 @@ public class PurgeDatastoresStepTest extends BaseStepTest {
     underTest.execute();
 
     ArgumentCaptor<IdUuidPair> argumentCaptor = ArgumentCaptor.forClass(IdUuidPair.class);
-    verify(projectCleaner).purge(any(DbSession.class), argumentCaptor.capture(), any(Configuration.class), anyList());
+    verify(projectCleaner).purge(any(), argumentCaptor.capture(), any(), any());
     assertThat(argumentCaptor.getValue().getId()).isEqualTo(PROJECT_ID);
     assertThat(argumentCaptor.getValue().getUuid()).isEqualTo(PROJECT_UUID);
   }
