@@ -21,6 +21,7 @@ import * as React from 'react';
 import Modal from '../../../components/controls/Modal';
 import Select from '../../../components/controls/Select';
 import SeverityHelper from '../../../components/shared/SeverityHelper';
+import Tooltip from '../../../components/controls/Tooltip';
 import { activateRule, Profile as BaseProfile } from '../../../api/quality-profiles';
 import { Rule, RuleDetails, RuleActivation } from '../../../app/types';
 import { SEVERITIES } from '../../../helpers/constants';
@@ -51,21 +52,11 @@ export default class ActivationModalButton extends React.PureComponent<Props, St
 
   constructor(props: Props) {
     super(props);
-    const params: { [p: string]: string } = {};
-    if (props.rule && props.rule.params) {
-      for (const param of props.rule.params) {
-        params[param.key] = param.defaultValue || '';
-      }
-      if (props.activation && props.activation.params) {
-        for (const param of props.activation.params) {
-          params[param.key] = param.value;
-        }
-      }
-    }
+
     const profilesWithDepth = this.getQualityProfilesWithDepth(props);
     this.state = {
       modal: false,
-      params,
+      params: this.getParams(props),
       profile: profilesWithDepth.length > 0 ? profilesWithDepth[0].key : '',
       severity: props.activation ? props.activation.severity : props.rule.severity,
       submitting: false
@@ -76,9 +67,33 @@ export default class ActivationModalButton extends React.PureComponent<Props, St
     this.mounted = true;
   }
 
+  componentWillReceiveProps(nextProps: Props) {
+    if (!this.state.modal && nextProps.activation !== this.props.activation) {
+      this.setState({
+        params: this.getParams(nextProps),
+        severity: nextProps.activation ? nextProps.activation.severity : nextProps.rule.severity
+      });
+    }
+  }
+
   componentWillUnmount() {
     this.mounted = false;
   }
+
+  getParams = ({ activation, rule } = this.props) => {
+    const params: { [p: string]: string } = {};
+    if (rule && rule.params) {
+      for (const param of rule.params) {
+        params[param.key] = param.defaultValue || '';
+      }
+      if (activation && activation.params) {
+        for (const param of activation.params) {
+          params[param.key] = param.value;
+        }
+      }
+    }
+    return params;
+  };
 
   // Choose QP which a user can administrate, which are the same language and which are not built-in
   getQualityProfilesWithDepth = ({ profiles } = this.props) =>
@@ -217,7 +232,9 @@ export default class ActivationModalButton extends React.PureComponent<Props, St
                 ) : (
                   params.map(param => (
                     <div className="modal-field" key={param.key}>
-                      <label>{param.key}</label>
+                      <Tooltip overlay={param.key} placement="left">
+                        <label>{param.key}</label>
+                      </Tooltip>
                       {param.type === 'TEXT' ? (
                         <textarea
                           className="width100"

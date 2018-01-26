@@ -23,9 +23,9 @@ import { Link } from 'react-router';
 import ActivationModalButton from './ActivationModalButton';
 import ConfirmButton from './ConfirmButton';
 import RuleInheritanceIcon from './RuleInheritanceIcon';
-import { Profile, deactivateRule } from '../../../api/quality-profiles';
+import { Profile, deactivateRule, activateRule } from '../../../api/quality-profiles';
 import { RuleActivation, RuleDetails, RuleInheritance } from '../../../app/types';
-import { translate } from '../../../helpers/l10n';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { getQualityProfileUrl } from '../../../helpers/urls';
 import BuiltInQualityProfileBadge from '../../quality-profiles/components/BuiltInQualityProfileBadge';
 import Tooltip from '../../../components/controls/Tooltip';
@@ -69,6 +69,15 @@ export default class RuleDetailsProfiles extends React.PureComponent<Props, Stat
   handleDeactivate = (key?: string) => {
     if (key) {
       deactivateRule({ key, rule: this.props.ruleDetails.key }).then(
+        this.props.refreshRuleDetails,
+        () => {}
+      );
+    }
+  };
+
+  handleRevert = (key?: string) => {
+    if (key) {
+      activateRule({ key, rule: this.props.ruleDetails.key, reset: true }).then(
         this.props.refreshRuleDetails,
         () => {}
       );
@@ -168,9 +177,23 @@ export default class RuleDetailsProfiles extends React.PureComponent<Props, Stat
             )}
             {hasParent ? (
               activation.inherit === RuleInheritance.Overridden && (
-                <button className="coding-rules-detail-quality-profile-revert button-red spacer-left">
-                  {translate('coding_rules.revert_to_parent_definition')}
-                </button>
+                <ConfirmButton
+                  confirmButtonText={translate('yes')}
+                  confirmData={profile.key}
+                  modalBody={translateWithParameters(
+                    'coding_rules.revert_to_parent_definition.confirm',
+                    profile.parentName!
+                  )}
+                  modalHeader={translate('coding_rules.revert_to_parent_definition')}
+                  onConfirm={this.handleRevert}>
+                  {({ onClick }) => (
+                    <button
+                      className="coding-rules-detail-quality-profile-revert button-red spacer-left"
+                      onClick={onClick}>
+                      {translate('coding_rules.revert_to_parent_definition')}
+                    </button>
+                  )}
+                </ConfirmButton>
               )
             ) : (
               <ConfirmButton

@@ -48,13 +48,15 @@ export default class ConfirmButton extends React.PureComponent<Props, State> {
   };
 
   handleSubmit = () => {
-    this.setState({ modal: false });
-    this.props.onConfirm(this.props.confirmData);
+    const result = this.props.onConfirm(this.props.confirmData);
+    if (result) {
+      result.then(this.handleCloseModal, () => {});
+    } else {
+      this.handleCloseModal();
+    }
   };
 
-  handleCloseModal = () => {
-    this.setState({ modal: false });
-  };
+  handleCloseModal = () => this.setState({ modal: false });
 
   render() {
     const { confirmButtonText, isDestructive, modalBody, modalHeader } = this.props;
