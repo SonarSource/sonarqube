@@ -46,8 +46,8 @@ public class LoadQualityProfilesStepTest {
   @Rule
   public RuleRepositoryRule ruleRepository = new RuleRepositoryRule();
 
-  ActiveRulesHolderImpl activeRulesHolder = new ActiveRulesHolderImpl();
-  LoadQualityProfilesStep underTest = new LoadQualityProfilesStep(batchReportReader, activeRulesHolder, ruleRepository);
+  private ActiveRulesHolderImpl activeRulesHolder = new ActiveRulesHolderImpl();
+  private LoadQualityProfilesStep underTest = new LoadQualityProfilesStep(batchReportReader, activeRulesHolder, ruleRepository);
 
   @Test
   public void feed_active_rules() {

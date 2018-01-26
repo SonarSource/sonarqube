@@ -39,7 +39,6 @@ import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.component.FileAttributes;
 import org.sonar.server.computation.task.projectanalysis.component.ReportComponent;
 import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
-import org.sonar.server.computation.task.projectanalysis.duplication.Duplicate;
 import org.sonar.server.computation.task.projectanalysis.duplication.Duplication;
 import org.sonar.server.computation.task.projectanalysis.duplication.DuplicationRepositoryRule;
 import org.sonar.server.computation.task.projectanalysis.duplication.InnerDuplicate;
@@ -487,5 +486,4 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
       fileSourceRepository.addLine(FILE1_REF, "line" + i);
     }
   }
-
 }

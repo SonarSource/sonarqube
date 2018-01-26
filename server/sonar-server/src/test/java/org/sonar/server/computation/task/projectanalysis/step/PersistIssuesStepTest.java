@@ -64,7 +64,7 @@ import static org.sonar.db.component.ComponentTesting.newFileDto;
 
 public class PersistIssuesStepTest extends BaseStepTest {
 
-  public static final long NOW = 1400000000000L;
+  public static final long NOW = 1_400_000_000_000L;
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();

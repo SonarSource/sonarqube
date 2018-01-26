@@ -68,22 +68,22 @@ import static org.sonar.scanner.protocol.output.ScannerReport.Component.Componen
 @RunWith(DataProviderRunner.class)
 public class BuildComponentTreeStepTest {
 
-  static final int ROOT_REF = 1;
-  static final int MODULE_REF = 2;
-  static final int DIR_REF_1 = 3;
-  static final int FILE_1_REF = 4;
-  static final int FILE_2_REF = 5;
-  static final int DIR_REF_2 = 6;
-  static final int FILE_3_REF = 7;
+  private static final int ROOT_REF = 1;
+  private static final int MODULE_REF = 2;
+  private static final int DIR_REF_1 = 3;
+  private static final int FILE_1_REF = 4;
+  private static final int FILE_2_REF = 5;
+  private static final int DIR_REF_2 = 6;
+  private static final int FILE_3_REF = 7;
 
-  static final String REPORT_PROJECT_KEY = "REPORT_PROJECT_KEY";
-  static final String REPORT_MODULE_KEY = "MODULE_KEY";
-  static final String REPORT_DIR_KEY_1 = "src/main/java/dir1";
-  static final String REPORT_FILE_KEY_1 = "src/main/java/dir1/File1.java";
-  static final String REPORT_DIR_KEY_2 = "src/main/java/dir2";
-  static final String REPORT_FILE_KEY_2 = "src/main/java/dir2/File2.java";
+  private static final String REPORT_PROJECT_KEY = "REPORT_PROJECT_KEY";
+  private static final String REPORT_MODULE_KEY = "MODULE_KEY";
+  private static final String REPORT_DIR_KEY_1 = "src/main/java/dir1";
+  private static final String REPORT_FILE_KEY_1 = "src/main/java/dir1/File1.java";
+  private static final String REPORT_DIR_KEY_2 = "src/main/java/dir2";
+  private static final String REPORT_FILE_KEY_2 = "src/main/java/dir2/File2.java";
 
-  static final long ANALYSIS_DATE = 123456789L;
+  private static final long ANALYSIS_DATE = 123456789L;
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);

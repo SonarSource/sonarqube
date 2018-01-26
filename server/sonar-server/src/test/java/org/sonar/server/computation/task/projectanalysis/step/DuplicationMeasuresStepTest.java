@@ -19,27 +19,18 @@
  */
 package org.sonar.server.computation.task.projectanalysis.step;
 
-import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.sonar.server.computation.task.projectanalysis.duplication.DuplicationMeasures;
 import org.sonar.server.computation.task.step.ComputationStep;
 
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 public class DuplicationMeasuresStepTest extends BaseStepTest {
-  @Mock
-  private DuplicationMeasures defaultDuplicationMeasures;
 
-  private DuplicationMeasuresStep underTest;
-
-  @Before
-  public void before() {
-    MockitoAnnotations.initMocks(this);
-    underTest = new DuplicationMeasuresStep(defaultDuplicationMeasures);
-  }
-
+  private DuplicationMeasures defaultDuplicationMeasures = mock(DuplicationMeasures.class);
+  private DuplicationMeasuresStep underTest = new DuplicationMeasuresStep(defaultDuplicationMeasures);
+  
   @Test
   public void full_analysis_mode() {
     underTest.execute();

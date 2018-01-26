@@ -96,7 +96,6 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
   private ComponentDbTester componentDbTester = new ComponentDbTester(dbTester);
   private MutableDisabledComponentsHolder disabledComponentsHolder = mock(MutableDisabledComponentsHolder.class, RETURNS_DEEP_STUBS);
   private PersistComponentsStep underTest;
-  private BranchPersister branchPersister;
 
   @Before
   public void setup() throws Exception {
@@ -105,7 +104,7 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
 
     dbTester.organizations().insertForUuid(ORGANIZATION_UUID);
     analysisMetadataHolder.setBranch(new DefaultBranchImpl());
-    branchPersister = mock(BranchPersister.class);
+    BranchPersister branchPersister = mock(BranchPersister.class);
     underTest = new PersistComponentsStep(dbClient, treeRootHolder, dbIdsRepository, system2, disabledComponentsHolder, analysisMetadataHolder, branchPersister);
   }
 

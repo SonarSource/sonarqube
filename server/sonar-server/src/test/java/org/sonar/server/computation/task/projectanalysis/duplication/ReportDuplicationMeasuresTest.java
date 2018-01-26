@@ -19,6 +19,12 @@
  */
 package org.sonar.server.computation.task.projectanalysis.duplication;
 
+import org.junit.Rule;
+import org.junit.Test;
+import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
+import org.sonar.server.computation.task.projectanalysis.measure.MeasureRepositoryRule;
+import org.sonar.server.computation.task.projectanalysis.metric.MetricRepositoryRule;
+
 import static com.google.common.base.Preconditions.checkArgument;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.guava.api.Assertions.assertThat;
@@ -42,12 +48,6 @@ import static org.sonar.server.computation.task.projectanalysis.component.Compon
 import static org.sonar.server.computation.task.projectanalysis.component.Component.Type.PROJECT;
 import static org.sonar.server.computation.task.projectanalysis.component.ReportComponent.builder;
 import static org.sonar.server.computation.task.projectanalysis.measure.Measure.newMeasureBuilder;
-
-import org.junit.Rule;
-import org.junit.Test;
-import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
-import org.sonar.server.computation.task.projectanalysis.measure.MeasureRepositoryRule;
-import org.sonar.server.computation.task.projectanalysis.metric.MetricRepositoryRule;
 
 public class ReportDuplicationMeasuresTest {
   private static final int ROOT_REF = 1;
@@ -97,7 +97,7 @@ public class ReportDuplicationMeasuresTest {
   @Rule
   public DuplicationRepositoryRule duplicationRepository = DuplicationRepositoryRule.create(treeRootHolder);
 
-  DuplicationMeasures underTest = new DuplicationMeasures(treeRootHolder, metricRepository, measureRepository, duplicationRepository);
+  private DuplicationMeasures underTest = new DuplicationMeasures(treeRootHolder, metricRepository, measureRepository, duplicationRepository);
 
   @Test
   public void compute_duplicated_blocks_one_for_original_one_for_each_InnerDuplicate() {

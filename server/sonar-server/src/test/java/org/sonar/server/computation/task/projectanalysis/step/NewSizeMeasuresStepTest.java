@@ -111,7 +111,7 @@ public class NewSizeMeasuresStepTest {
   @Rule
   public DuplicationRepositoryRule duplicationRepository = DuplicationRepositoryRule.create(treeRootHolder);
 
-  NewSizeMeasuresStep underTest = new NewSizeMeasuresStep(treeRootHolder, periodsHolder, metricRepository, measureRepository, scmInfoRepository,
+  private NewSizeMeasuresStep underTest = new NewSizeMeasuresStep(treeRootHolder, periodsHolder, metricRepository, measureRepository, scmInfoRepository,
     duplicationRepository);
 
   @Test

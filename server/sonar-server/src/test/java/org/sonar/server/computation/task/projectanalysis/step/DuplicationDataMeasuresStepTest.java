@@ -68,7 +68,7 @@ public class DuplicationDataMeasuresStepTest extends BaseStepTest {
   @Rule
   public MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(treeRootHolder, metricRepository);
 
-  DuplicationDataMeasuresStep underTest = new DuplicationDataMeasuresStep(treeRootHolder, metricRepository, measureRepository, duplicationRepository);
+  private DuplicationDataMeasuresStep underTest = new DuplicationDataMeasuresStep(treeRootHolder, metricRepository, measureRepository, duplicationRepository);
 
   @Override
   protected ComputationStep step() {

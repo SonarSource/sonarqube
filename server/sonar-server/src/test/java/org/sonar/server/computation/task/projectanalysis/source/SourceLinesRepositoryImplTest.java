@@ -32,9 +32,9 @@ import static org.sonar.server.computation.task.projectanalysis.component.Report
 
 public class SourceLinesRepositoryImplTest {
 
-  static final String FILE_UUID = "FILE_UUID";
-  static final String FILE_KEY = "FILE_KEY";
-  static final int FILE_REF = 2;
+  private static final String FILE_UUID = "FILE_UUID";
+  private static final String FILE_KEY = "FILE_KEY";
+  private static final int FILE_REF = 2;
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
@@ -42,7 +42,7 @@ public class SourceLinesRepositoryImplTest {
   @Rule
   public BatchReportReaderRule reportReader = new BatchReportReaderRule();
 
-  SourceLinesRepositoryImpl underTest = new SourceLinesRepositoryImpl(reportReader);
+  private SourceLinesRepositoryImpl underTest = new SourceLinesRepositoryImpl(reportReader);
 
   @Test
   public void read_lines_from_report() {
