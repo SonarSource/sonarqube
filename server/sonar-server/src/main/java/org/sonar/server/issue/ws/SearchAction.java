@@ -29,6 +29,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.SearchHit;
@@ -43,15 +44,20 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.Paging;
 import org.sonar.api.utils.System2;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.util.stream.MoreCollectors;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.server.es.Facets;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.issue.IssueQuery;
 import org.sonar.server.issue.IssueQueryFactory;
+import org.sonar.server.issue.SearchRequest;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Issues.SearchWsResponse;
-import org.sonar.server.issue.SearchRequest;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Iterables.concat;
@@ -112,6 +118,7 @@ public class SearchAction implements IssuesWsAction {
   private static final Set<String> IGNORED_FACETS = newHashSet(PARAM_PLANNED, DEPRECATED_PARAM_ACTION_PLANS, PARAM_REPORTERS);
   private static final Set<String> FACETS_REQUIRING_PROJECT_OR_ORGANIZATION = newHashSet(PARAM_FILE_UUIDS, PARAM_DIRECTORIES, PARAM_MODULE_UUIDS);
   private static final Joiner COMA_JOINER = Joiner.on(",");
+  private static final Logger LOGGER = Loggers.get(SearchAction.class);
 
   private final UserSession userSession;
   private final IssueIndex issueIndex;
@@ -119,15 +126,18 @@ public class SearchAction implements IssuesWsAction {
   private final SearchResponseLoader searchResponseLoader;
   private final SearchResponseFormat searchResponseFormat;
   private final System2 system2;
+  private final DbClient dbClient;
 
   public SearchAction(UserSession userSession, IssueIndex issueIndex, IssueQueryFactory issueQueryFactory,
-    SearchResponseLoader searchResponseLoader, SearchResponseFormat searchResponseFormat, System2 system2) {
+    SearchResponseLoader searchResponseLoader, SearchResponseFormat searchResponseFormat, System2 system2,
+    DbClient dbClient) {
     this.userSession = userSession;
     this.issueIndex = issueIndex;
     this.issueQueryFactory = issueQueryFactory;
     this.searchResponseLoader = searchResponseLoader;
     this.searchResponseFormat = searchResponseFormat;
     this.system2 = system2;
+    this.dbClient = dbClient;
   }
 
   @Override
@@ -359,11 +369,41 @@ public class SearchAction implements IssuesWsAction {
     // Must be done after loading of data as the "hidden" facet "debt"
     // can be used to get total debt.
     facets = reorderFacets(facets, options.getFacets());
+    replaceRuleIdsByRuleKeys(facets);
 
     // FIXME allow long in Paging
     Paging paging = forPageIndex(options.getPage()).withPageSize(options.getLimit()).andTotal((int) result.getHits().getTotalHits());
 
     return searchResponseFormat.formatSearch(additionalFields, data, paging, facets);
+  }
+
+  private void replaceRuleIdsByRuleKeys(@Nullable Facets facets) {
+    if (facets == null || facets.get(PARAM_RULES) == null) {
+      return;
+    }
+    // The facet for PARAM_RULES contains the id of the rule as the key
+    // We need to update the key to be a RuleKey
+    LinkedHashMap<String, Long> rulesFacet = facets.get(PARAM_RULES);
+
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      Map<Integer, RuleKey> idToRuleKey = dbClient.ruleDao()
+        .selectDefinitionByIds(dbSession, Collections2.transform(rulesFacet.keySet(), Integer::parseInt))
+        .stream()
+        .collect(Collectors.toMap(RuleDefinitionDto::getId, RuleDefinitionDto::getKey));
+
+      LinkedHashMap<String, Long> newRulesFacet = new LinkedHashMap<>();
+      rulesFacet.forEach((k, v) -> {
+        RuleKey ruleKey = idToRuleKey.get(Integer.parseInt(k));
+        if (ruleKey != null) {
+          newRulesFacet.put(ruleKey.toString(), v);
+        } else {
+          // RuleKey not found ES/DB incorrect?
+          LOGGER.error("Rule with id {} is not available in database", k);
+        }
+      });
+      rulesFacet.clear();
+      rulesFacet.putAll(newRulesFacet);
+    }
   }
 
   private static SearchOptions createSearchOptionsFromRequest(SearchRequest request) {
@@ -448,7 +488,7 @@ public class SearchAction implements IssuesWsAction {
   private static void collectFacets(SearchResponseLoader.Collector collector, Facets facets) {
     Set<String> facetRules = facets.getBucketKeys(PARAM_RULES);
     if (facetRules != null) {
-      collector.addAll(SearchAdditionalField.RULES, Collections2.transform(facetRules, RuleKey::parse));
+      collector.addAll(SearchAdditionalField.RULES, facetRules);
     }
     collector.addProjectUuids(facets.getBucketKeys(PARAM_PROJECT_UUIDS));
     collector.addComponentUuids(facets.getBucketKeys(PARAM_COMPONENT_UUIDS));
