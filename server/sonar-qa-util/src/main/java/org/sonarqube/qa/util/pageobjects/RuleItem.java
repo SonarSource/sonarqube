@@ -21,6 +21,8 @@ package org.sonarqube.qa.util.pageobjects;
 
 import com.codeborne.selenide.SelenideElement;
 
+import static com.codeborne.selenide.Selenide.$;
+
 public class RuleItem {
 
   private final SelenideElement elt;
@@ -37,5 +39,15 @@ public class RuleItem {
     return elt.$(".coding-rule-meta");
   }
 
+  public RuleItem filterSimilarRules(String property) {
+    elt.$(".js-rule-filter").click();
+    $(".issue-action-option[data-property=\"" + property + "\"]").click();
+    return this;
+  }
+
+  public RuleDetails open() {
+    elt.$(".js-rule").click();
+    return new RuleDetails();
+  }
 
 }

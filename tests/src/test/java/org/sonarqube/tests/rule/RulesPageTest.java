@@ -20,19 +20,202 @@
 package org.sonarqube.tests.rule;
 
 import com.sonar.orchestrator.Orchestrator;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonarqube.qa.util.Tester;
+import org.sonarqube.qa.util.pageobjects.RuleDetails;
 import org.sonarqube.qa.util.pageobjects.RulesPage;
 import org.sonarqube.tests.Category4Suite;
+import org.sonarqube.ws.Qualityprofiles.CreateWsResponse.QualityProfile;
+import org.sonarqube.ws.client.qualityprofiles.ChangeParentRequest;
+import org.sonarqube.ws.client.qualityprofiles.CreateRequest;
+import org.sonarqube.ws.client.qualityprofiles.DeleteRequest;
+import util.ProjectAnalysisRule;
+
+import static com.codeborne.selenide.WebDriverRunner.url;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class RulesPageTest {
+  private static final String SAMPLE_RULE = "Has Tag";
+  private static final String SAMPLE_RULE2 = "Branches should have sufficient coverage by tests";
+  private static final String SAMPLE_SECURITY_RULE = "One Vulnerability Issue Per Module";
+  private static final String SAMPLE_TEMPLATE_RULE = "Template of rule";
+
+  private static final String XOO_LANG = "xoo";
+  private static final String XOO2_LANG = "xoo2";
+
+  private static final String INHERITED_PROFILE = "Inherited";
+
   @ClassRule
   public static Orchestrator ORCHESTRATOR = Category4Suite.ORCHESTRATOR;
 
   @Rule
   public Tester tester = new Tester(ORCHESTRATOR).disableOrganizations();
+
+  @Rule
+  public ProjectAnalysisRule projectAnalysisRule = ProjectAnalysisRule.from(ORCHESTRATOR);
+
+  @Before
+  public void before() {
+    createInheritedQualityProfile();
+  }
+
+  @After
+  public void after() {
+    deleteInheritedQualityProfile();
+  }
+
+  @Test
+  public void should_search_rules() {
+    RulesPage page = tester.openBrowser().openRules();
+    page.shouldDisplayRules(SAMPLE_RULE, SAMPLE_RULE2);
+    page.search("branches");
+    page.shouldNotDisplayRules(SAMPLE_RULE).shouldDisplayRules(SAMPLE_RULE2);
+  }
+
+  @Test
+  public void should_filter_rules_by_language() {
+    RulesPage page = tester.openBrowser().openRules();
+    page.shouldDisplayRuleWithLanguage(SAMPLE_RULE, XOO2_LANG);
+    page.selectFacetItemByText("languages", XOO_LANG);
+    page.shouldNotDisplayRuleWithLanguage(SAMPLE_RULE, XOO2_LANG);
+    page.shouldDisplayRuleWithLanguage(SAMPLE_RULE, XOO_LANG);
+    assertThat(url()).contains("languages=" + XOO_LANG);
+  }
+
+  @Test
+  public void should_filter_rules_by_type() {
+    RulesPage page = tester.openBrowser().openRules();
+    page.shouldDisplayRules(SAMPLE_RULE, SAMPLE_SECURITY_RULE);
+    page.selectFacetItemByText("types", "VULNERABILITY");
+    page.shouldNotDisplayRules(SAMPLE_RULE).shouldDisplayRules(SAMPLE_SECURITY_RULE);
+    assertThat(url()).contains("types=VULNERABILITY");
+  }
+
+  @Test
+  public void should_filter_rules_by_default_severity() {
+    // TODO add a BLOCKER xoo rule
+    RulesPage page = tester.openBrowser().openRules();
+    page.shouldDisplayRules(SAMPLE_RULE);
+    page.openFacet("severities").selectFacetItemByText("severities", "BLOCKER");
+    page.shouldNotDisplayRules(SAMPLE_RULE);
+    assertThat(url()).contains("severities=BLOCKER");
+  }
+
+  @Test
+  public void should_filter_rules_by_availability_date() {
+    // TODO
+    // all rules have the same "available since" date, because this is the date when server started
+  }
+
+  @Test
+  public void should_filter_rules_by_template() {
+    RulesPage page = tester.openBrowser().openRules();
+    page.shouldDisplayRules(SAMPLE_RULE, SAMPLE_TEMPLATE_RULE);
+
+    page.openFacet("is_template").selectFacetItemByText("is_template", "Show Templates Only");
+    page.shouldNotDisplayRules(SAMPLE_RULE).shouldDisplayRules(SAMPLE_TEMPLATE_RULE);
+    assertThat(url()).contains("is_template=true");
+
+    page.selectFacetItemByText("is_template", "Hide Templates");
+    page.shouldDisplayRules(SAMPLE_RULE).shouldNotDisplayRules(SAMPLE_TEMPLATE_RULE);
+    assertThat(url()).contains("is_template=false");
+  }
+
+  @Test
+  public void should_filter_rules_by_quality_profile() {
+    RulesPage page = tester.openBrowser().openRules();
+    page.shouldDisplayRules(SAMPLE_RULE);
+
+    page.openFacet("qprofile").selectFacetItemByText("qprofile", "empty");
+    page.shouldNotDisplayRules(SAMPLE_RULE).shouldHaveTotalRules(0);
+    assertThat(url()).contains("qprofile="); // TODO we don't know profile key
+
+    page.selectFacetItemByText("qprofile", INHERITED_PROFILE);
+    page.shouldDisplayRules(SAMPLE_RULE);
+  }
+
+  @Test
+  public void should_filter_rules_by_inheritance() {
+    RulesPage page = tester.openBrowser().openRules();
+    page.shouldHaveDisabledFacet("inheritance").shouldDisplayRules(SAMPLE_RULE);
+
+    page.openFacet("qprofile").selectFacetItemByText("qprofile", INHERITED_PROFILE);
+    page.shouldNotHaveDisabledFacet("inheritance").openFacet("inheritance");
+
+    page.selectFacetItem("inheritance", "NONE");
+    page.shouldDisplayRules(SAMPLE_RULE2).shouldNotDisplayRules(SAMPLE_RULE);
+    assertThat(url()).contains("inheritance=NONE");
+
+    page.selectFacetItem("inheritance", "INHERITED");
+    page.shouldDisplayRules("One Issue Per Line").shouldNotDisplayRules(SAMPLE_RULE);
+    assertThat(url()).contains("inheritance=INHERITED");
+
+    page.selectFacetItem("inheritance", "OVERRIDES");
+    page.shouldDisplayRules(SAMPLE_RULE).shouldNotDisplayRules(SAMPLE_RULE2);
+    assertThat(url()).contains("inheritance=OVERRIDES");
+  }
+
+  @Test
+  public void should_filter_rules_by_activation_severity() {
+    RulesPage page = tester.openBrowser().openRules();
+    page.shouldHaveDisabledFacet("active_severities").shouldDisplayRules(SAMPLE_RULE, SAMPLE_RULE2);
+
+    page.openFacet("qprofile").selectFacetItemByText("qprofile", INHERITED_PROFILE);
+    page.shouldNotHaveDisabledFacet("active_severities").openFacet("active_severities");
+
+    page.selectFacetItem("active_severities", "BLOCKER");
+    page.shouldDisplayRules(SAMPLE_RULE).shouldNotDisplayRules(SAMPLE_RULE2);
+    assertThat(url()).contains("active_severities=BLOCKER");
+  }
+
+  @Test
+  public void should_clear_all_filters() {
+    RulesPage page = tester.openBrowser().openRules()
+      .shouldDisplayRuleWithLanguage(SAMPLE_RULE, XOO_LANG)
+      .shouldDisplayRuleWithLanguage(SAMPLE_RULE2, XOO_LANG)
+      .shouldDisplayRuleWithLanguage(SAMPLE_RULE, XOO2_LANG);
+
+    page.search("branches")
+      .shouldNotDisplayRules(SAMPLE_RULE);
+
+    page.selectFacetItemByText("languages", XOO_LANG)
+      .shouldNotDisplayRuleWithLanguage(SAMPLE_RULE, XOO2_LANG);
+
+    page.clearAllFilters()
+      .shouldDisplayRuleWithLanguage(SAMPLE_RULE, XOO_LANG)
+      .shouldDisplayRuleWithLanguage(SAMPLE_RULE2, XOO_LANG)
+      .shouldDisplayRuleWithLanguage(SAMPLE_RULE, XOO2_LANG);
+  }
+
+  @Test
+  public void should_load_more_rules() {
+    // TODO
+    // due to the infinite scrolling, it's not possible to test
+  }
+
+  @Test
+  public void should_filter_similar_rules() {
+    RulesPage page = tester.openBrowser().openRules();
+    page.shouldDisplayRules(SAMPLE_RULE, SAMPLE_SECURITY_RULE);
+    page.takeRuleByName(SAMPLE_SECURITY_RULE).filterSimilarRules("types");
+    page.shouldNotDisplayRules(SAMPLE_RULE).shouldDisplayRules(SAMPLE_SECURITY_RULE);
+    assertThat(url()).contains("types=VULNERABILITY");
+  }
+
+  @Test
+  public void should_display_rule_details() {
+    RulesPage page = tester.openBrowser().openRules();
+    RuleDetails ruleDetails = page.takeRuleByName(SAMPLE_RULE).open();
+    ruleDetails
+      .shouldHaveType("Code Smell")
+      .shouldHaveSeverity("Major")
+      .shouldHaveNoTags()
+      .shouldHaveDescription("Search for a given tag in Xoo files");
+  }
 
   @Test
   public void should_display_rule_profiles() {
@@ -40,4 +223,149 @@ public class RulesPageTest {
     page.openFacet("qprofile").selectFacetItemByText("qprofile", "Basic").shouldHaveTotalRules(1);
     page.openFirstRule().shouldBeActivatedOn("Basic");
   }
+
+  @Test
+  public void should_display_rule_issues() {
+    analyzeProjectWithIssues();
+
+    RulesPage page = tester.openBrowser().openRules();
+    page.selectFacetItem("languages", XOO_LANG);
+    page.takeRuleByName("One Issue Per Line").open()
+      .shouldHaveTotalIssues(17).shouldHaveIssuesOnProject("Sample", 17);
+  }
+
+  @Test
+  public void should_extend_rule_description() {
+    String admin = tester.users().generateAdministrator().getLogin();
+    RuleDetails ruleDetails = tester.openBrowser().logIn().submitCredentials(admin).openRules().openFirstRule();
+
+    ruleDetails.extendDescription().cancel();
+    ruleDetails.extendDescription().type("my extended description").submit();
+    ruleDetails.extendDescription().type("another description").submit();
+    ruleDetails.extendDescription().remove();
+  }
+
+  @Test
+  public void should_change_rule_tags() {
+    RuleDetails ruleDetails = openRulesAsAdmin().openFirstRule();
+
+    // TODO search for non-existent tag and add it
+    // search("foo").select("foo")
+    ruleDetails.tags().shouldHaveTags("bad-practice").edit().select("convention").done();
+    ruleDetails.tags().shouldHaveTags("bad-practice", "convention");
+  }
+
+  @Test
+  public void should_create_edit_delete_reactivate_custom_rule() {
+    String customRuleName = "custom-rule-name";
+    RuleDetails ruleDetails = openRulesAsAdmin().takeRuleByName(SAMPLE_TEMPLATE_RULE).open();
+
+    ruleDetails
+      .shouldNotHaveCustomRule(customRuleName)
+      .createCustomRule(customRuleName)
+      .shouldHaveCustomRule(customRuleName);
+
+    ruleDetails
+      .deleteOnlyCustomRule()
+      .shouldNotHaveCustomRule(customRuleName);
+
+    ruleDetails
+      .reactivateCustomRule(customRuleName)
+      .shouldHaveCustomRule(customRuleName);
+
+    // TODO re-enable when select2 is dropped
+    // rulDetails.openOnlyCustomRule()
+    //   .shouldHaveSeverity("MAJOR")
+    //   .edit().changeSeverity("BLOCKER").save()
+    //   .shouldHaveSeverity("BLOCKER");
+
+  }
+
+  @Test
+  public void should_activate_deactivate_rule_from_list() {
+    RulesPage page = openRulesAsAdmin();
+    page.openFacet("qprofile").selectFacetItemByText("qprofile", INHERITED_PROFILE).selectInactive();
+    page.selectFacetItem("types", "VULNERABILITY");
+    page.shouldDisplayRules(SAMPLE_SECURITY_RULE);
+
+    page.activateOnlyRule().deactivateOnlyRule();
+  }
+
+  @Test
+  public void should_activate_rule_from_details() {
+    RulesPage page = openRulesAsAdmin();
+    RuleDetails ruleDetails = page.takeRuleByName(SAMPLE_SECURITY_RULE).open();
+    ruleDetails.shouldNotBeActivatedOn(INHERITED_PROFILE)
+      .activateOnOnlyProfile().save();
+    ruleDetails.shouldBeActivatedOn(INHERITED_PROFILE);
+  }
+
+  @Test
+  public void should_synchronize_activation_between_list_and_details() {
+    RulesPage page = openRulesAsAdmin();
+
+    page.openFacet("qprofile").selectFacetItemByText("qprofile", INHERITED_PROFILE).selectInactive();
+    page.selectFacetItem("types", "VULNERABILITY");
+    page.shouldDisplayRules(SAMPLE_SECURITY_RULE);
+
+    RuleDetails ruleDetails = page.takeRuleByName(SAMPLE_SECURITY_RULE).open();
+
+    ruleDetails.shouldNotBeActivatedOn(INHERITED_PROFILE)
+      .activateOnOnlyProfile()
+      .save();
+
+    ruleDetails.shouldBeActivatedOn(INHERITED_PROFILE);
+
+    page.closeDetails();
+    page.onlyRuleShouldBeActivated();
+  }
+
+  @Test
+  public void should_change_rule_activation() {
+    String ruleWithParameters = "Rule with parameters";
+    RuleDetails ruleDetails = openRulesAsAdmin().takeRuleByName(ruleWithParameters).open();
+
+    ruleDetails.activateOnOnlyProfile().save();
+    ruleDetails.shouldBeActivatedOn(INHERITED_PROFILE);
+
+    ruleDetails.changeOnlyActivation()
+      .fill("string", "foo").fill("integer", "123").save();
+
+    ruleDetails
+      .onlyActivationShouldHaveParameter("string", "foo")
+      .onlyActivationShouldHaveParameter("integer", "123");
+  }
+
+  @Test
+  public void should_revert_rule_activation_to_parent_definition() {
+    RuleDetails ruleDetails = openRulesAsAdmin().takeRuleByName(SAMPLE_RULE, 1).open();
+    ruleDetails.onlyActivationShouldHaveSeverity("BLOCKER");
+    ruleDetails.revertOnlyActivationToParentDefinition();
+    ruleDetails.onlyActivationShouldHaveSeverity("MAJOR");
+  }
+
+  private RulesPage openRulesAsAdmin() {
+    String admin = tester.users().generateAdministrator().getLogin();
+    return tester.openBrowser().logIn().submitCredentials(admin).openRules();
+  }
+
+  private void createInheritedQualityProfile() {
+    QualityProfile profile = tester.qProfiles().service().create(new CreateRequest().setName(INHERITED_PROFILE).setLanguage("xoo")).getProfile();
+    tester.qProfiles().service().changeParent(new ChangeParentRequest().setLanguage("xoo").setParentQualityProfile("Sonar way").setQualityProfile(INHERITED_PROFILE));
+    // activate a rule
+    tester.qProfiles().activateRule(profile, "common-xoo:InsufficientBranchCoverage");
+    // override a rule
+    tester.qProfiles().activateRule(profile, "xoo:HasTag", "BLOCKER");
+  }
+
+  private void deleteInheritedQualityProfile() {
+    tester.qProfiles().service().delete(new DeleteRequest().setLanguage("xoo").setQualityProfile(INHERITED_PROFILE));
+  }
+
+  private void analyzeProjectWithIssues() {
+    String qualityProfileKey = projectAnalysisRule.registerProfile("/issue/IssueActionTest/xoo-one-issue-per-line-profile.xml");
+    String projectKey = projectAnalysisRule.registerProject("shared/xoo-sample");
+    projectAnalysisRule.newProjectAnalysis(projectKey).withQualityProfile(qualityProfileKey).run();
+  }
+
 }

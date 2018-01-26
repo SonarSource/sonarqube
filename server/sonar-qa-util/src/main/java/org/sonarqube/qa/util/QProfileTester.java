@@ -77,6 +77,19 @@ public class QProfileTester {
     return this;
   }
 
+  public QProfileTester activateRule(QualityProfile profile, String ruleKey, String severity) {
+    return activateRule(profile.getKey(), ruleKey, severity);
+  }
+
+  public QProfileTester activateRule(String profileKey, String ruleKey, String severity) {
+    ActivateRuleRequest request = new ActivateRuleRequest()
+      .setKey(profileKey)
+      .setRule(ruleKey)
+      .setSeverity(severity);
+    service().activateRule(request);
+    return this;
+  }
+
   public QProfileTester deactivateRule(QualityProfile profile, String ruleKey) {
     service().deactivateRule(new DeactivateRuleRequest().setKey(profile.getKey()).setRule(ruleKey));
     return this;
