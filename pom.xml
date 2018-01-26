@@ -932,7 +932,7 @@
       <dependency>
         <groupId>org.postgresql</groupId>
         <artifactId>postgresql</artifactId>
-        <version>42.1.4</version>
+        <version>42.2.1</version>
       </dependency>
       <dependency>
         <groupId>org.codehaus.woodstox</groupId>
