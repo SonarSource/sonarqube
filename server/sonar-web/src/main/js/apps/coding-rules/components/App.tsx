@@ -37,7 +37,7 @@ import {
   getOpen
 } from '../query';
 import { searchRules, getRulesApp } from '../../../api/rules';
-import { Paging, Rule, RuleInheritance } from '../../../app/types';
+import { Paging, Rule, RuleInheritance, RuleActivation } from '../../../app/types';
 import ScreenPositionHelper from '../../../components/common/ScreenPositionHelper';
 import { translate } from '../../../helpers/l10n';
 import { RawQuery } from '../../../helpers/query';
@@ -59,7 +59,6 @@ const PAGE_SIZE = 100;
 interface Props {
   location: { pathname: string; query: RawQuery };
   organization?: { key: string };
-  organizationsEnabled?: boolean;
 }
 
 interface State {
@@ -83,6 +82,7 @@ export default class App extends React.PureComponent<Props, State> {
   mounted: boolean;
 
   static contextTypes = {
+    organizationsEnabled: PropTypes.bool,
     router: PropTypes.object.isRequired
   };
 
@@ -371,6 +371,7 @@ export default class App extends React.PureComponent<Props, State> {
 
   handleBack = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
+    event.currentTarget.blur();
     this.closeRule();
   };
 
@@ -468,6 +469,7 @@ export default class App extends React.PureComponent<Props, State> {
                       onFacetToggle={this.handleFacetToggle}
                       onFilterChange={this.handleFilterChange}
                       organization={this.props.organization && this.props.organization.key}
+                      organizationsEnabled={this.context.organizationsEnabled}
                       openFacets={this.state.openFacets}
                       query={this.state.query}
                       referencedProfiles={this.state.referencedProfiles}
@@ -510,7 +512,7 @@ export default class App extends React.PureComponent<Props, State> {
             <div className="layout-page-main-inner">
               {this.state.openRule ? (
                 <RuleDetails
-                  allowCustomRules={!this.props.organizationsEnabled}
+                  allowCustomRules={!this.context.organizationsEnabled}
                   canWrite={this.state.canWrite}
                   onDelete={this.handleRuleDelete}
                   onFilterChange={this.handleFilterChange}
@@ -552,15 +554,7 @@ export default class App extends React.PureComponent<Props, State> {
   }
 }
 
-function parseActives(rawActives: {
-  [rule: string]: Array<{
-    createdAt: string;
-    inherit: string;
-    params: any[];
-    qProfile: string;
-    severity: string;
-  }>;
-}) {
+function parseActives(rawActives: { [rule: string]: RuleActivation[] }) {
   const actives: Actives = {};
   for (const [rule, activations] of Object.entries(rawActives)) {
     actives[rule] = {};
@@ -571,12 +565,7 @@ function parseActives(rawActives: {
   return actives;
 }
 
-function parseFacets(
-  rawFacets: Array<{
-    property: string;
-    values: Array<{ count: number; val: string }>;
-  }>
-) {
+function parseFacets(rawFacets: { property: string; values: { count: number; val: string }[] }[]) {
   const facets: Facets = {};
   for (const rawFacet of rawFacets) {
     const values: { [value: string]: number } = {};

@@ -145,25 +145,17 @@ export default class CustomRuleFormModal extends React.PureComponent<Props, Stat
     });
   };
 
-  handleKeyChange = (event: React.SyntheticEvent<HTMLInputElement>) => {
+  handleKeyChange = (event: React.SyntheticEvent<HTMLInputElement>) =>
     this.setState({ key: event.currentTarget.value, keyModifiedByUser: true });
-  };
 
-  handleDescriptionChange = (event: React.SyntheticEvent<HTMLTextAreaElement>) => {
+  handleDescriptionChange = (event: React.SyntheticEvent<HTMLTextAreaElement>) =>
     this.setState({ description: event.currentTarget.value });
-  };
 
-  handleTypeChange = ({ value }: { value: string }) => {
-    this.setState({ type: value });
-  };
+  handleTypeChange = ({ value }: { value: string }) => this.setState({ type: value });
 
-  handleSeverityChange = ({ value }: { value: string }) => {
-    this.setState({ severity: value });
-  };
+  handleSeverityChange = ({ value }: { value: string }) => this.setState({ severity: value });
 
-  handleStatusChange = ({ value }: { value: string }) => {
-    this.setState({ status: value });
-  };
+  handleStatusChange = ({ value }: { value: string }) => this.setState({ status: value });
 
   handleParameterChange = (event: React.SyntheticEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = event.currentTarget;
@@ -243,9 +235,7 @@ export default class CustomRuleFormModal extends React.PureComponent<Props, Stat
     </tr>
   );
 
-  renderTypeOption = ({ value }: { value: string }) => {
-    return <TypeHelper type={value} />;
-  };
+  renderTypeOption = ({ value }: { value: string }) => <TypeHelper type={value} />;
 
   renderTypeField = () => (
     <tr className="property">
@@ -271,9 +261,7 @@ export default class CustomRuleFormModal extends React.PureComponent<Props, Stat
     </tr>
   );
 
-  renderSeverityOption = ({ value }: { value: string }) => {
-    return <SeverityHelper severity={value} />;
-  };
+  renderSeverityOption = ({ value }: { value: string }) => <SeverityHelper severity={value} />;
 
   renderSeverityField = () => (
     <tr className="property">

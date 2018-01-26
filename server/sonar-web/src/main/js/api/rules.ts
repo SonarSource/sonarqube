@@ -23,7 +23,7 @@ import { Rule, RuleDetails, RuleActivation } from '../app/types';
 
 export interface GetRulesAppResponse {
   canWrite?: boolean;
-  repositories: Array<{ key: string; language: string; name: string }>;
+  repositories: { key: string; language: string; name: string }[];
 }
 
 export function getRulesApp(): Promise<GetRulesAppResponse> {
@@ -31,19 +31,8 @@ export function getRulesApp(): Promise<GetRulesAppResponse> {
 }
 
 export interface SearchRulesResponse {
-  actives?: {
-    [rule: string]: Array<{
-      createdAt: string;
-      inherit: string;
-      params: any[];
-      qProfile: string;
-      severity: string;
-    }>;
-  };
-  facets?: Array<{
-    property: string;
-    values: Array<{ count: number; val: string }>;
-  }>;
+  actives?: { [rule: string]: RuleActivation[] };
+  facets?: { property: string; values: { count: number; val: string }[] }[];
   p: number;
   ps: number;
   rules: Rule[];

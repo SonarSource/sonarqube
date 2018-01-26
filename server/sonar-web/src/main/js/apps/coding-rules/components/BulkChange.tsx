@@ -46,9 +46,7 @@ export default class BulkChange extends React.PureComponent<Props, State> {
     return (profile && this.props.referencedProfiles[profile]) || undefined;
   };
 
-  closeModal = () => {
-    this.setState({ action: undefined, modal: false, profile: undefined });
-  };
+  closeModal = () => this.setState({ action: undefined, modal: false, profile: undefined });
 
   handleActivateClick = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
@@ -79,7 +77,7 @@ export default class BulkChange extends React.PureComponent<Props, State> {
   };
 
   render() {
-    // show "Bulk Change" button only if user has at least one QP which he administates
+    // show "Bulk Change" button only if user has at least one QP which he administrates
     const canBulkChange = Object.values(this.props.referencedProfiles).some(profile =>
       Boolean(profile.actions && profile.actions.edit)
     );

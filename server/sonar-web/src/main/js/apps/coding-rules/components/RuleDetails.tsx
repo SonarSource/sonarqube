@@ -95,15 +95,13 @@ export default class RuleDetails extends React.PureComponent<Props, State> {
     }
   };
 
-  handleTagsChange = (tags: string[]) => {
+  handleTagsChange = (tags: string[]) =>
     this.setState(state => ({ ruleDetails: { ...state.ruleDetails, tags } }));
-  };
 
-  handleDelete = () => {
-    return deleteRule({ key: this.props.ruleKey }).then(() => {
+  handleDelete = () =>
+    deleteRule({ key: this.props.ruleKey }).then(() => {
       this.props.onDelete(this.props.ruleKey);
     });
-  };
 
   render() {
     const { ruleDetails } = this.state;

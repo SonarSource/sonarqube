@@ -40,34 +40,26 @@ export default class AvailableSinceFacet extends React.PureComponent<Props> {
     intl: intlShape
   };
 
-  handleHeaderClick = () => {
-    this.props.onToggle('availableSince');
-  };
+  handleHeaderClick = () => this.props.onToggle('availableSince');
 
-  handleClear = () => {
-    this.props.onChange({ availableSince: undefined });
-  };
+  handleClear = () => this.props.onChange({ availableSince: undefined });
 
-  handlePeriodChange = (value?: string) => {
+  handlePeriodChange = (value?: string) =>
     this.props.onChange({ availableSince: value ? parseDate(value) : undefined });
-  };
 
-  getValues = () => {
-    return this.props.value
+  getValues = () =>
+    this.props.value
       ? [this.context.intl.formatDate(this.props.value, longFormatterOption)]
       : undefined;
-  };
 
-  renderDateInput = () => {
-    return (
-      <DateInput
-        name="available-since"
-        onChange={this.handlePeriodChange}
-        placeholder={translate('date')}
-        value={serializeDateShort(this.props.value)}
-      />
-    );
-  };
+  renderDateInput = () => (
+    <DateInput
+      name="available-since"
+      onChange={this.handlePeriodChange}
+      placeholder={translate('date')}
+      value={serializeDateShort(this.props.value)}
+    />
+  );
 
   render() {
     return (

@@ -23,18 +23,14 @@ import IssueTypeIcon from '../../../components/ui/IssueTypeIcon';
 import { translate } from '../../../helpers/l10n';
 
 export default class TypeFacet extends React.PureComponent<BasicProps> {
-  renderName = (type: string) => {
-    return (
-      <>
-        <IssueTypeIcon className="little-spacer-right" query={type} />
-        {translate('issue.type', type)}
-      </>
-    );
-  };
+  renderName = (type: string) => (
+    <>
+      <IssueTypeIcon className="little-spacer-right" query={type} />
+      {translate('issue.type', type)}
+    </>
+  );
 
-  renderTextName = (type: string) => {
-    return translate('issue.type', type);
-  };
+  renderTextName = (type: string) => translate('issue.type', type);
 
   render() {
     const options = ['BUG', 'VULNERABILITY', 'CODE_SMELL'];

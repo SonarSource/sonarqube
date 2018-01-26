@@ -24,13 +24,9 @@ import { SEVERITIES } from '../../../helpers/constants';
 import { translate } from '../../../helpers/l10n';
 
 export default class DefaultSeverityFacet extends React.PureComponent<BasicProps> {
-  renderName = (severity: string) => {
-    return <SeverityHelper severity={severity} />;
-  };
+  renderName = (severity: string) => <SeverityHelper severity={severity} />;
 
-  renderTextName = (severity: string) => {
-    return translate('severity', severity);
-  };
+  renderTextName = (severity: string) => translate('severity', severity);
 
   render() {
     return (

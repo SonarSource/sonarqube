@@ -31,15 +31,10 @@ interface Props {
 export default function PageCounter({ className, current, label, total }: Props) {
   return (
     <div className={classNames('display-inline-block', className)}>
-      <strong>
-        {current !== undefined && (
-          <>
-            {formatMeasure(current + 1, 'INT')}
-            {' / '}
-          </>
-        )}
+      <strong className="little-spacer-right">
+        {current !== undefined && formatMeasure(current + 1, 'INT') + ' / '}
         <span className="js-page-counter-total">{formatMeasure(total, 'INT')}</span>
-      </strong>{' '}
+      </strong>
       {label}
     </div>
   );

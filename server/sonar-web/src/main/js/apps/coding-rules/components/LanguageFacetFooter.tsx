@@ -29,9 +29,7 @@ interface Props {
 }
 
 export default class LanguageFacetFooter extends React.PureComponent<Props> {
-  handleChange = (option: Option) => {
-    this.props.onSelect(option.value);
-  };
+  handleChange = (option: Option) => this.props.onSelect(option.value);
 
   render() {
     const options = Object.values(this.props.referencedLanguages).map(language => ({

@@ -27,7 +27,7 @@ type Option = { label: string; value: string };
 interface Props {
   autofocus?: boolean;
   minimumQueryLength?: number;
-  onSearch: (query: string) => Promise<Array<Option>>;
+  onSearch: (query: string) => Promise<Option[]>;
   onSelect: (value: string) => void;
   renderOption?: (option: Object) => JSX.Element;
   resetOnBlur?: boolean;

@@ -38,6 +38,7 @@ interface Props {
   onFilterChange: (changes: Partial<Query>) => void;
   openFacets: OpenFacets;
   organization?: string;
+  organizationsEnabled?: boolean;
   query: Query;
   referencedProfiles: { [profile: string]: Profile };
   referencedRepositories: { [repository: string]: { key: string; language: string; name: string } };
@@ -107,12 +108,14 @@ export default function FacetsList(props: Props) {
         open={!!props.openFacets.availableSince}
         value={props.query.availableSince}
       />
-      <TemplateFacet
-        onChange={props.onFilterChange}
-        onToggle={props.onFacetToggle}
-        open={!!props.openFacets.template}
-        value={props.query.template}
-      />
+      {!props.organizationsEnabled && (
+        <TemplateFacet
+          onChange={props.onFilterChange}
+          onToggle={props.onFacetToggle}
+          open={!!props.openFacets.template}
+          value={props.query.template}
+        />
+      )}
       <ProfileFacet
         activation={props.query.activation}
         compareToProfile={props.query.compareToProfile}

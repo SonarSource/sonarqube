@@ -38,11 +38,10 @@ export default class TemplateFacet extends React.PureComponent<Props> {
     this.props.onChange({ ...changes, template });
   };
 
-  renderName = (template: string) => {
-    return template === 'true'
+  renderName = (template: string) =>
+    template === 'true'
       ? translate('coding_rules.filters.template.is_template')
       : translate('coding_rules.filters.template.is_not_template');
-  };
 
   render() {
     const { onChange, value, ...props } = this.props;

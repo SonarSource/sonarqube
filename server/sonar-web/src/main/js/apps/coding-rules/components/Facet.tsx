@@ -63,18 +63,11 @@ export default class Facet extends React.PureComponent<Props> {
     this.props.onChange({ [this.props.property]: newValue });
   };
 
-  handleHeaderClick = () => {
-    this.props.onToggle(this.props.property);
-  };
+  handleHeaderClick = () => this.props.onToggle(this.props.property);
 
-  handleClear = () => {
-    this.props.onChange({ [this.props.property]: [] });
-  };
+  handleClear = () => this.props.onChange({ [this.props.property]: [] });
 
-  getStat = (value: string) => {
-    const { stats } = this.props;
-    return stats && stats[value];
-  };
+  getStat = (value: string) => this.props.stats && this.props.stats[value];
 
   renderItem = (value: string) => {
     const active = this.props.values.includes(value);

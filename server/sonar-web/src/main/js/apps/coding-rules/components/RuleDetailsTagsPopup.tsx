@@ -21,10 +21,11 @@ import * as React from 'react';
 import { without, uniq } from 'lodash';
 import TagsSelector from '../../../components/tags/TagsSelector';
 import { getRuleTags } from '../../../api/rules';
+import { BubblePopupPosition } from '../../../components/common/BubblePopup';
 
 interface Props {
   organization?: string;
-  popupPosition?: any;
+  popupPosition?: BubblePopupPosition;
   setTags: (tags: string[]) => void;
   sysTags: string[];
   tags: string[];
@@ -76,7 +77,7 @@ export default class RuleDetailsTagsPopup extends React.PureComponent<Props, Sta
   render() {
     return (
       <TagsSelector
-        position={this.props.popupPosition}
+        position={this.props.popupPosition || {}}
         tags={this.state.searchResult}
         selectedTags={this.props.tags}
         listSize={LIST_SIZE}

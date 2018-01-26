@@ -28,9 +28,8 @@ interface Props extends Omit<BasicProps, 'values'> {
 }
 
 export default class InheritanceFacet extends React.PureComponent<Props> {
-  renderName = (value: RuleInheritance) => {
-    return translate('coding_rules.filters.inheritance', value.toLowerCase());
-  };
+  renderName = (value: RuleInheritance) =>
+    translate('coding_rules.filters.inheritance', value.toLowerCase());
 
   render() {
     const { value, ...props } = this.props;

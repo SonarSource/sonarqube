@@ -23,9 +23,7 @@ import { RULE_STATUSES } from '../../../helpers/constants';
 import { translate } from '../../../helpers/l10n';
 
 export default class StatusFacet extends React.PureComponent<BasicProps> {
-  renderName = (status: string) => {
-    return translate('rules.status', status.toLowerCase());
-  };
+  renderName = (status: string) => translate('rules.status', status.toLowerCase());
 
   render() {
     return (

@@ -49,11 +49,9 @@ export default class ProfileFacet extends React.PureComponent<Props> {
     });
   };
 
-  handleHeaderClick = () => {
-    this.props.onToggle('profile');
-  };
+  handleHeaderClick = () => this.props.onToggle('profile');
 
-  handleClear = () => {
+  handleClear = () =>
     this.props.onChange({
       activation: undefined,
       activationSeverities: [],
@@ -61,7 +59,6 @@ export default class ProfileFacet extends React.PureComponent<Props> {
       inheritance: undefined,
       profile: undefined
     });
-  };
 
   handleActiveClick = (event: React.SyntheticEvent<HTMLElement>) => {
     this.stopPropagation(event);
@@ -90,17 +87,15 @@ export default class ProfileFacet extends React.PureComponent<Props> {
     }
   };
 
-  renderName = (profile: Profile) => {
-    return (
-      <>
-        {profile.name}
-        <span className="note little-spacer-left">
-          {profile.languageName}
-          {profile.isBuiltIn && ` (${translate('quality_profiles.built_in')})`}
-        </span>
-      </>
-    );
-  };
+  renderName = (profile: Profile) => (
+    <>
+      {profile.name}
+      <span className="note little-spacer-left">
+        {profile.languageName}
+        {profile.isBuiltIn && ` (${translate('quality_profiles.built_in')})`}
+      </span>
+    </>
+  );
 
   renderActivation = (profile: Profile) => {
     const isCompare = profile.key === this.props.compareToProfile;

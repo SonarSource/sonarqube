@@ -28,13 +28,9 @@ interface Props extends BasicProps {
 }
 
 export default class ActivationSeverityFacet extends React.PureComponent<Props> {
-  renderName = (severity: string) => {
-    return <SeverityHelper severity={severity} />;
-  };
+  renderName = (severity: string) => <SeverityHelper severity={severity} />;
 
-  renderTextName = (severity: string) => {
-    return translate('severity', severity);
-  };
+  renderTextName = (severity: string) => translate('severity', severity);
 
   render() {
     return (

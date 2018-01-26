@@ -48,7 +48,7 @@ const routes = [
         }
       },
       getComponent(_: RouterState, callback: (err: any, component: RouteComponent) => any) {
-        import('./components/AppContainer').then(i => callback(null, i.default));
+        import('./components/App').then(i => callback(null, i.default));
       }
     }
   }

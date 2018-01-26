@@ -55,10 +55,8 @@ export default class RuleDetailsDescription extends React.PureComponent<Props, S
     this.mounted = false;
   }
 
-  handleDescriptionChange = (event: React.SyntheticEvent<HTMLTextAreaElement>) => {
-    const { value } = event.currentTarget;
-    this.setState({ description: value });
-  };
+  handleDescriptionChange = (event: React.SyntheticEvent<HTMLTextAreaElement>) =>
+    this.setState({ description: event.currentTarget.value });
 
   handleCancelClick = (event: React.SyntheticEvent<HTMLButtonElement>) => {
     event.preventDefault();
@@ -78,9 +76,7 @@ export default class RuleDetailsDescription extends React.PureComponent<Props, S
     this.setState({ removeDescriptionModal: true });
   };
 
-  handleCancelRemoving = () => {
-    this.setState({ removeDescriptionModal: false });
-  };
+  handleCancelRemoving = () => this.setState({ removeDescriptionModal: false });
 
   handleConfirmRemoving = () => {
     this.setState({ removeDescriptionModal: false });
