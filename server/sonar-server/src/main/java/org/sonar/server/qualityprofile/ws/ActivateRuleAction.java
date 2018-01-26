@@ -30,11 +30,12 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.QProfileDto;
+import org.sonar.server.qualityprofile.QProfileRules;
 import org.sonar.server.qualityprofile.RuleActivation;
-import org.sonar.server.qualityprofile.RuleActivator;
 import org.sonar.server.user.UserSession;
 
 import static java.lang.String.format;
+import static java.util.Collections.singletonList;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_ACTIVATE_RULE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_KEY;
@@ -46,11 +47,11 @@ import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.
 public class ActivateRuleAction implements QProfileWsAction {
 
   private final DbClient dbClient;
-  private final RuleActivator ruleActivator;
+  private final QProfileRules ruleActivator;
   private final UserSession userSession;
   private final QProfileWsSupport wsSupport;
 
-  public ActivateRuleAction(DbClient dbClient, RuleActivator ruleActivator, UserSession userSession, QProfileWsSupport wsSupport) {
+  public ActivateRuleAction(DbClient dbClient, QProfileRules ruleActivator, UserSession userSession, QProfileWsSupport wsSupport) {
     this.dbClient = dbClient;
     this.ruleActivator = ruleActivator;
     this.userSession = userSession;
@@ -104,7 +105,7 @@ public class ActivateRuleAction implements QProfileWsAction {
       OrganizationDto organization = wsSupport.getOrganization(dbSession, profile);
       wsSupport.checkCanEdit(dbSession, organization, profile);
       RuleActivation activation = readActivation(request);
-      ruleActivator.activateAndCommit(dbSession, activation, profile);
+      ruleActivator.activateAndCommit(dbSession, profile, singletonList(activation));
     }
 
     response.noContent();

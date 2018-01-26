@@ -28,7 +28,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.rule.RuleDefinitionDto;
-import org.sonar.server.qualityprofile.RuleActivator;
+import org.sonar.server.qualityprofile.QProfileRules;
 import org.sonar.server.rule.index.RuleIndexer;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -40,14 +40,14 @@ public class DeleteAction implements RulesWsAction {
   private final System2 system2;
   private final RuleIndexer ruleIndexer;
   private final DbClient dbClient;
-  private final RuleActivator ruleActivator;
+  private final QProfileRules qProfileRules;
   private final RuleWsSupport ruleWsSupport;
 
-  public DeleteAction(System2 system2, RuleIndexer ruleIndexer, DbClient dbClient, RuleActivator ruleActivator, RuleWsSupport ruleWsSupport) {
+  public DeleteAction(System2 system2, RuleIndexer ruleIndexer, DbClient dbClient, QProfileRules qProfileRules, RuleWsSupport ruleWsSupport) {
     this.system2 = system2;
     this.ruleIndexer = ruleIndexer;
     this.dbClient = dbClient;
-    this.ruleActivator = ruleActivator;
+    this.qProfileRules = qProfileRules;
     this.ruleWsSupport = ruleWsSupport;
   }
 
@@ -80,14 +80,12 @@ public class DeleteAction implements RulesWsAction {
       RuleDefinitionDto rule = dbClient.ruleDao().selectOrFailDefinitionByKey(dbSession, ruleKey);
       checkArgument(rule.isCustomRule(), "Rule '%s' cannot be deleted because it is not a custom rule", rule.getKey().toString());
 
-      // For custom rule, first deactivate the rule on all profiles
-      if (rule.isCustomRule()) {
-        ruleActivator.delete(dbSession, rule);
-      }
+      qProfileRules.deleteRule(dbSession, rule);
 
       rule.setStatus(RuleStatus.REMOVED);
       rule.setUpdatedAt(system2.now());
       dbClient.ruleDao().update(dbSession, rule);
+
       ruleIndexer.commitAndIndex(dbSession, ruleKey);
     }
   }

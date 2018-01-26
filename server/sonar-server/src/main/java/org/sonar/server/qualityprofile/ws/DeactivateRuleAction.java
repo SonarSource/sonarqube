@@ -27,9 +27,10 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.QProfileDto;
-import org.sonar.server.qualityprofile.RuleActivator;
+import org.sonar.server.qualityprofile.QProfileRules;
 import org.sonar.server.user.UserSession;
 
+import static java.util.Collections.singletonList;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_DEACTIVATE_RULE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_KEY;
@@ -38,11 +39,11 @@ import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.
 public class DeactivateRuleAction implements QProfileWsAction {
 
   private final DbClient dbClient;
-  private final RuleActivator ruleActivator;
+  private final QProfileRules ruleActivator;
   private final UserSession userSession;
   private final QProfileWsSupport wsSupport;
 
-  public DeactivateRuleAction(DbClient dbClient, RuleActivator ruleActivator, UserSession userSession, QProfileWsSupport wsSupport) {
+  public DeactivateRuleAction(DbClient dbClient, QProfileRules ruleActivator, UserSession userSession, QProfileWsSupport wsSupport) {
     this.dbClient = dbClient;
     this.ruleActivator = ruleActivator;
     this.userSession = userSession;
@@ -84,7 +85,7 @@ public class DeactivateRuleAction implements QProfileWsAction {
       QProfileDto profile = wsSupport.getProfile(dbSession, QProfileReference.fromKey(qualityProfileKey));
       OrganizationDto organization = wsSupport.getOrganization(dbSession, profile);
       wsSupport.checkCanEdit(dbSession, organization, profile);
-      ruleActivator.deactivateAndCommit(dbSession, profile, ruleKey);
+      ruleActivator.deactivateAndCommit(dbSession, profile, singletonList(ruleKey));
     }
     response.noContent();
   }

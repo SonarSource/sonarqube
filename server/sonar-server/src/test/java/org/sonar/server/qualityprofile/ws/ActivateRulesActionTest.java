@@ -23,6 +23,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.mockito.Mockito;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
@@ -34,7 +35,7 @@ import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
-import org.sonar.server.qualityprofile.RuleActivator;
+import org.sonar.server.qualityprofile.QProfileRules;
 import org.sonar.server.rule.ws.RuleQueryFactory;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
@@ -43,7 +44,6 @@ import org.sonar.server.ws.WsActionTester;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
@@ -61,11 +61,11 @@ public class ActivateRulesActionTest {
   public ExpectedException expectedException = ExpectedException.none();
 
   private DbClient dbClient = db.getDbClient();
-  private RuleActivator ruleActivator = mock(RuleActivator.class, RETURNS_DEEP_STUBS);
   private QProfileWsSupport wsSupport = new QProfileWsSupport(dbClient, userSession, TestDefaultOrganizationProvider.from(db));
   private RuleQueryFactory ruleQueryFactory = mock(RuleQueryFactory.class);
 
-  private WsActionTester ws = new WsActionTester(new ActivateRulesAction(ruleQueryFactory, userSession, ruleActivator, wsSupport, dbClient));
+  private QProfileRules qProfileRules = mock(QProfileRules.class, Mockito.RETURNS_DEEP_STUBS);
+  private WsActionTester ws = new WsActionTester(new ActivateRulesAction(ruleQueryFactory, userSession, qProfileRules, wsSupport, dbClient));
 
   private OrganizationDto defaultOrganization;
   private OrganizationDto organization;
@@ -120,7 +120,7 @@ public class ActivateRulesActionTest {
       .setParam(PARAM_TARGET_KEY, qualityProfile.getKee())
       .execute();
 
-    verify(ruleActivator).bulkActivateAndCommit(any(), any(), any(), any());
+    verify(qProfileRules).bulkActivateAndCommit(any(), any(), any(), any());
   }
 
   @Test
@@ -138,7 +138,7 @@ public class ActivateRulesActionTest {
       .setParam(PARAM_TARGET_KEY, qualityProfile.getKee())
       .execute();
 
-    verify(ruleActivator).bulkActivateAndCommit(any(), any(), any(), any());
+    verify(qProfileRules).bulkActivateAndCommit(any(), any(), any(), any());
   }
 
   @Test

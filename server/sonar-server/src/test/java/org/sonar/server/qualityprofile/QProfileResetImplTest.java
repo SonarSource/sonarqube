@@ -37,6 +37,7 @@ import org.sonar.server.util.StringTypeValidation;
 import org.sonar.server.util.TypeValidations;
 
 import static java.util.Arrays.asList;
+import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
@@ -56,16 +57,17 @@ public class QProfileResetImplTest {
 
   private System2 system2 = new AlwaysIncreasingSystem2();
   private ActiveRuleIndexer activeRuleIndexer = mock(ActiveRuleIndexer.class);
-  private RuleActivatorContextFactory contextFactory = new RuleActivatorContextFactory(db.getDbClient());
   private TypeValidations typeValidations = new TypeValidations(asList(new StringTypeValidation(), new IntegerTypeValidation()));
-  private RuleActivator ruleActivator = new RuleActivator(system2, db.getDbClient(), null, contextFactory, typeValidations, activeRuleIndexer, userSession);
+  private RuleActivator ruleActivator = new RuleActivator(system2, db.getDbClient(), typeValidations, userSession);
+  private QProfileTree qProfileTree = new QProfileTreeImpl(db.getDbClient(), ruleActivator, system2, activeRuleIndexer);
+  private QProfileRules qProfileRules = new QProfileRulesImpl(db.getDbClient(), ruleActivator, null, activeRuleIndexer);
   private QProfileResetImpl underTest = new QProfileResetImpl(db.getDbClient(), ruleActivator, activeRuleIndexer);
 
   @Test
   public void reset() {
     QProfileDto profile = db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setLanguage(LANGUAGE));
     RuleDefinitionDto existingRule = db.rules().insert(r -> r.setLanguage(LANGUAGE));
-    ruleActivator.activate(db.getSession(), RuleActivation.create(existingRule.getKey()), profile);
+    qProfileRules.activateAndCommit(db.getSession(), profile, singleton(RuleActivation.create(existingRule.getKey())));
     RuleDefinitionDto newRule = db.rules().insert(r -> r.setLanguage(LANGUAGE));
 
     BulkChangeResult result = underTest.reset(db.getSession(), profile, singletonList(RuleActivation.create(newRule.getKey())));
@@ -83,10 +85,10 @@ public class QProfileResetImplTest {
   public void inherited_rules_are_not_disabled() {
     QProfileDto parentProfile = db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setLanguage(LANGUAGE));
     QProfileDto childProfile = db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setLanguage(LANGUAGE));
-    ruleActivator.setParentAndCommit(db.getSession(), childProfile, parentProfile);
+    qProfileTree.setParentAndCommit(db.getSession(), childProfile, parentProfile);
     RuleDefinitionDto existingRule = db.rules().insert(r -> r.setLanguage(LANGUAGE));
-    ruleActivator.activate(db.getSession(), RuleActivation.create(existingRule.getKey()), parentProfile);
-    ruleActivator.activate(db.getSession(), RuleActivation.create(existingRule.getKey()), childProfile);
+    qProfileRules.activateAndCommit(db.getSession(), parentProfile, singleton(RuleActivation.create(existingRule.getKey())));
+    qProfileRules.activateAndCommit(db.getSession(), childProfile, singleton(RuleActivation.create(existingRule.getKey())));
     RuleDefinitionDto newRule = db.rules().insert(r -> r.setLanguage(LANGUAGE));
 
     underTest.reset(db.getSession(), childProfile, singletonList(RuleActivation.create(newRule.getKey())));

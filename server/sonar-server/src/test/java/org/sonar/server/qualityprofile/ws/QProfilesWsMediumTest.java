@@ -46,9 +46,10 @@ import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.qualityprofile.QProfileName;
+import org.sonar.server.qualityprofile.QProfileRules;
+import org.sonar.server.qualityprofile.QProfileRulesImpl;
 import org.sonar.server.qualityprofile.QProfileTesting;
 import org.sonar.server.qualityprofile.RuleActivator;
-import org.sonar.server.qualityprofile.RuleActivatorContextFactory;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleIndexDefinition;
@@ -60,17 +61,17 @@ import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.util.TypeValidations;
 import org.sonar.server.ws.WsActionTester;
 
-import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
+import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_LANGUAGES;
+import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_QPROFILE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_KEY;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_RESET;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_RULE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_SEVERITY;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_TARGET_KEY;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_TARGET_SEVERITY;
-import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_LANGUAGES;
-import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_QPROFILE;
 
 public class QProfilesWsMediumTest {
 
@@ -87,19 +88,19 @@ public class QProfilesWsMediumTest {
   private RuleIndex ruleIndex = new RuleIndex(esTester.client(), System2.INSTANCE);
   private RuleIndexer ruleIndexer = new RuleIndexer(esTester.client(), dbClient);
   private ActiveRuleIndexer activeRuleIndexer = new ActiveRuleIndexer(dbClient, esTester.client());
-  private RuleActivatorContextFactory ruleActivatorContextFactory = new RuleActivatorContextFactory(dbClient);
-  private TypeValidations typeValidations = new TypeValidations(asList());
-  private RuleActivator ruleActivator = new RuleActivator(System2.INSTANCE, dbClient, ruleIndex, ruleActivatorContextFactory, typeValidations, activeRuleIndexer, userSessionRule);
+  private TypeValidations typeValidations = new TypeValidations(emptyList());
+  private RuleActivator ruleActivator = new RuleActivator(System2.INSTANCE, dbClient, typeValidations, userSessionRule);
+  private QProfileRules qProfileRules = new QProfileRulesImpl(dbClient, ruleActivator, ruleIndex, activeRuleIndexer);
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(dbTester);
   private QProfileWsSupport qProfileWsSupport = new QProfileWsSupport(dbClient, userSessionRule, defaultOrganizationProvider);
   private RuleWsSupport ruleWsSupport = new RuleWsSupport(dbClient, userSessionRule, defaultOrganizationProvider);
   private RuleQueryFactory ruleQueryFactory = new RuleQueryFactory(dbClient, ruleWsSupport);
   private OrganizationDto organization;
 
-  private WsActionTester wsDeactivateRule = new WsActionTester(new DeactivateRuleAction(dbClient, ruleActivator, userSessionRule, qProfileWsSupport));
-  private WsActionTester wsDeactivateRules = new WsActionTester(new DeactivateRulesAction(ruleQueryFactory, userSessionRule, ruleActivator, qProfileWsSupport, dbClient));
-  private WsActionTester wsActivateRule = new WsActionTester(new ActivateRuleAction(dbClient, ruleActivator, userSessionRule, qProfileWsSupport));
-  private WsActionTester wsActivateRules = new WsActionTester(new ActivateRulesAction(ruleQueryFactory, userSessionRule, ruleActivator, qProfileWsSupport, dbClient));
+  private WsActionTester wsDeactivateRule = new WsActionTester(new DeactivateRuleAction(dbClient, qProfileRules, userSessionRule, qProfileWsSupport));
+  private WsActionTester wsDeactivateRules = new WsActionTester(new DeactivateRulesAction(ruleQueryFactory, userSessionRule, qProfileRules, qProfileWsSupport, dbClient));
+  private WsActionTester wsActivateRule = new WsActionTester(new ActivateRuleAction(dbClient, qProfileRules, userSessionRule, qProfileWsSupport));
+  private WsActionTester wsActivateRules = new WsActionTester(new ActivateRulesAction(ruleQueryFactory, userSessionRule, qProfileRules, qProfileWsSupport, dbClient));
 
   @Before
   public void setUp() throws Exception {
@@ -244,7 +245,7 @@ public class QProfilesWsMediumTest {
       dbSession.clearCache();
       fail();
     } catch (BadRequestException e) {
-      assertThat(e.getMessage()).isEqualTo("Rule blah:toto and profile pjava have different languages");
+      assertThat(e.getMessage()).isEqualTo("php rule blah:toto cannot be activated on java profile Pjava");
     }
   }
 

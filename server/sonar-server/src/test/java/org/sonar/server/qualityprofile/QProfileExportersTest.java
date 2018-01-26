@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.util.Collection;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -40,7 +41,6 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.rule.RuleDefinitionDto;
-import org.sonar.db.rule.RuleParamDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.organization.DefaultOrganizationProvider;
@@ -70,19 +70,17 @@ public class QProfileExportersTest {
 
   public DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
   private RuleFinder ruleFinder = new DefaultRuleFinder(db.getDbClient(), defaultOrganizationProvider);
-  private RuleActivator ruleActivator = mock(RuleActivator.class);
   private ProfileExporter[] exporters = new ProfileExporter[] {
     new StandardExporter(), new XooExporter()};
   private ProfileImporter[] importers = new ProfileImporter[] {
     new XooProfileImporter(), new XooProfileImporterWithMessages(), new XooProfileImporterWithError()};
   private RuleDefinitionDto rule;
-  private RuleParamDto ruleParam;
-  private QProfileExporters underTest = new QProfileExporters(db.getDbClient(), ruleFinder, ruleActivator, exporters, importers);
+  private QProfileRules qProfileRules = mock(QProfileRules.class);
+  private QProfileExporters underTest = new QProfileExporters(db.getDbClient(), ruleFinder, qProfileRules, exporters, importers);
 
   @Before
   public void setUp() {
     rule = db.rules().insert(r -> r.setLanguage("xoo").setRepositoryKey("SonarXoo").setRuleKey("R1"));
-    ruleParam = db.rules().insertRuleParam(rule);
   }
 
   @Test
@@ -108,12 +106,16 @@ public class QProfileExportersTest {
     underTest.importXml(profile, "XooProfileImporter", toInputStream("<xml/>", UTF_8), db.getSession());
 
     ArgumentCaptor<QProfileDto> profileCapture = ArgumentCaptor.forClass(QProfileDto.class);
-    ArgumentCaptor<RuleActivation> activationCapture = ArgumentCaptor.forClass(RuleActivation.class);
-    verify(ruleActivator).activate(any(DbSession.class), activationCapture.capture(), profileCapture.capture());
+    Class<Collection<RuleActivation>> collectionClass = (Class<Collection<RuleActivation>>) (Class) Collection.class;
+    ArgumentCaptor<Collection<RuleActivation>> activationCapture = ArgumentCaptor.forClass(collectionClass);
+    verify(qProfileRules).activateAndCommit(any(DbSession.class), profileCapture.capture(), activationCapture.capture());
 
     assertThat(profileCapture.getValue().getKee()).isEqualTo(profile.getKee());
-    assertThat(activationCapture.getValue().getRuleKey()).isEqualTo(rule.getKey());
-    assertThat(activationCapture.getValue().getSeverity()).isEqualTo("CRITICAL");
+    Collection<RuleActivation> activations = activationCapture.getValue();
+    assertThat(activations).hasSize(1);
+    RuleActivation activation = activations.iterator().next();
+    assertThat(activation.getRuleKey()).isEqualTo(rule.getKey());
+    assertThat(activation.getSeverity()).isEqualTo("CRITICAL");
   }
 
   @Test

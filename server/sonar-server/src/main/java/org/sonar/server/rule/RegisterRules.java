@@ -54,7 +54,7 @@ import org.sonar.db.rule.RuleParamDto;
 import org.sonar.db.rule.RuleRepositoryDto;
 import org.sonar.server.organization.OrganizationFlags;
 import org.sonar.server.qualityprofile.ActiveRuleChange;
-import org.sonar.server.qualityprofile.RuleActivator;
+import org.sonar.server.qualityprofile.QProfileRules;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.rule.index.RuleIndexer;
 
@@ -70,7 +70,7 @@ public class RegisterRules implements Startable {
   private static final Logger LOG = Loggers.get(RegisterRules.class);
 
   private final RuleDefinitionsLoader defLoader;
-  private final RuleActivator ruleActivator;
+  private final QProfileRules qProfileRules;
   private final DbClient dbClient;
   private final RuleIndexer ruleIndexer;
   private final ActiveRuleIndexer activeRuleIndexer;
@@ -79,11 +79,11 @@ public class RegisterRules implements Startable {
   private final OrganizationFlags organizationFlags;
   private final WebServerRuleFinder webServerRuleFinder;
 
-  public RegisterRules(RuleDefinitionsLoader defLoader, RuleActivator ruleActivator, DbClient dbClient, RuleIndexer ruleIndexer,
+  public RegisterRules(RuleDefinitionsLoader defLoader, QProfileRules qProfileRules, DbClient dbClient, RuleIndexer ruleIndexer,
     ActiveRuleIndexer activeRuleIndexer, Languages languages, System2 system2, OrganizationFlags organizationFlags,
     WebServerRuleFinder webServerRuleFinder) {
     this.defLoader = defLoader;
-    this.ruleActivator = ruleActivator;
+    this.qProfileRules = qProfileRules;
     this.dbClient = dbClient;
     this.ruleIndexer = ruleIndexer;
     this.activeRuleIndexer = activeRuleIndexer;
@@ -130,6 +130,8 @@ public class RegisterRules implements Startable {
       keysToIndex.addAll(removedRules.stream().map(RuleDefinitionDto::getKey).collect(Collectors.toList()));
 
       persistRepositories(dbSession, context.repositories());
+      // FIXME lack of resiliency, active rules index is corrupted if rule index fails
+      // to be updated. Only a single DB commit should be executed.
       ruleIndexer.commitAndIndex(dbSession, keysToIndex);
       activeRuleIndexer.commitAndIndex(dbSession, changes);
       profiler.stopDebug();
@@ -506,7 +508,7 @@ public class RegisterRules implements Startable {
    * The side effect of this approach is that extended repositories will not be managed the same way.
    * If an extended repository do not exists anymore, then related active rules will be removed.
    */
-  private List<ActiveRuleChange> removeActiveRulesOnStillExistingRepositories(DbSession session, Collection<RuleDefinitionDto> removedRules, RulesDefinition.Context context) {
+  private List<ActiveRuleChange> removeActiveRulesOnStillExistingRepositories(DbSession dbSession, Collection<RuleDefinitionDto> removedRules, RulesDefinition.Context context) {
     List<String> repositoryKeys = newArrayList(Iterables.transform(context.repositories(), RulesDefinition.Repository::key));
 
     List<ActiveRuleChange> changes = new ArrayList<>();
@@ -515,7 +517,7 @@ public class RegisterRules implements Startable {
       // SONAR-4642 Remove active rules only when repository still exists
       if (repositoryKeys.contains(rule.getRepositoryKey())) {
         profiler.start();
-        changes.addAll(ruleActivator.delete(session, rule));
+        changes.addAll(qProfileRules.deleteRule(dbSession, rule));
         profiler.stopDebug(format("Remove active rule for rule %s", rule.getKey()));
       }
     }

@@ -80,7 +80,7 @@ public class RegisterQualityProfiles {
       builtInQProfiles.forEach(builtIn -> {
         RulesProfileDto ruleProfile = persistedRuleProfiles.get(builtIn.getQProfileName());
         if (ruleProfile == null) {
-          register(dbSession, batchDbSession, builtIn);
+          create(dbSession, batchDbSession, builtIn);
         } else {
           List<ActiveRuleChange> changes = update(dbSession, builtIn, ruleProfile);
           changedProfiles.putAll(builtIn.getQProfileName(), changes.stream()
@@ -104,7 +104,7 @@ public class RegisterQualityProfiles {
       .collect(MoreCollectors.uniqueIndex(rp -> new QProfileName(rp.getLanguage(), rp.getName())));
   }
 
-  private void register(DbSession dbSession, DbSession batchDbSession, BuiltInQProfile builtIn) {
+  private void create(DbSession dbSession, DbSession batchDbSession, BuiltInQProfile builtIn) {
     LOGGER.info("Register profile {}", builtIn.getQProfileName());
 
     renameOutdatedProfiles(dbSession, builtIn);

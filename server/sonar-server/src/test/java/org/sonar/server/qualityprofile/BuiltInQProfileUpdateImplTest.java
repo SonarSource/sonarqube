@@ -24,7 +24,6 @@ import java.util.Optional;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition;
@@ -62,9 +61,8 @@ public class BuiltInQProfileUpdateImplTest {
   public UserSessionRule userSession = UserSessionRule.standalone();
   private System2 system2 = new TestSystem2().setNow(NOW);
   private ActiveRuleIndexer activeRuleIndexer = mock(ActiveRuleIndexer.class);
-  private RuleActivatorContextFactory contextFactory = new RuleActivatorContextFactory(db.getDbClient());
   private TypeValidations typeValidations = new TypeValidations(asList(new StringTypeValidation(), new IntegerTypeValidation()));
-  private RuleActivator ruleActivator = new RuleActivator(system2, db.getDbClient(), null, contextFactory, typeValidations, activeRuleIndexer, userSession);
+  private RuleActivator ruleActivator = new RuleActivator(system2, db.getDbClient(), typeValidations, userSession);
 
   private BuiltInQProfileUpdateImpl underTest = new BuiltInQProfileUpdateImpl(db.getDbClient(), ruleActivator, activeRuleIndexer);
 
@@ -189,6 +187,48 @@ public class BuiltInQProfileUpdateImplTest {
     assertThatProfileIsMarkedAsUpdated(persistedProfile);
   }
 
+//  @Test
+//  public void propagate_new_activation_to_profiles() {
+//    RuleDefinitionDto rule = createJavaRule();
+//    QProfileDto profile = db.qualityProfiles().insert(db.getDefaultOrganization(),
+//      p -> p.setLanguage(rule.getLanguage())
+//        .setIsBuiltIn(true));
+//    QProfileDto childProfile = createChildProfile(profile);
+//    QProfileDto grandchildProfile = createChildProfile(childProfile);
+//
+//    List<ActiveRuleChange> changes = underTest.activateOnBuiltInRulesProfile(db.getSession(), RuleActivation.create(rule.getKey()),
+//      RulesProfileDto.from(profile));
+//
+//    assertThat(changes).hasSize(3);
+//    assertThatRuleIsActivated(profile, rule, changes, rule.getSeverityString(), null, emptyMap());
+//    assertThatRuleIsActivated(childProfile, rule, changes, rule.getSeverityString(), INHERITED, emptyMap());
+//    assertThatRuleIsActivated(grandchildProfile, rule, changes, rule.getSeverityString(), INHERITED, emptyMap());
+//  }
+//
+//  @Test
+//  public void deactivateOnBuiltInProfile_activate_rule_on_child_profiles() {
+//    RuleDefinitionDto rule = createJavaRule();
+//    QProfileDto profile = db.qualityProfiles().insert(db.getDefaultOrganization(),
+//      p -> p.setLanguage(rule.getLanguage())
+//        .setIsBuiltIn(true));
+//    QProfileDto childProfile = createChildProfile(profile);
+//    QProfileDto grandchildProfile = createChildProfile(childProfile);
+//
+//    List<ActiveRuleChange> changes = underTest.activateOnBuiltInRulesProfile(db.getSession(), RuleActivation.create(rule.getKey()),
+//      RulesProfileDto.from(profile));
+//
+//    assertThatRuleIsActivated(profile, rule, changes, rule.getSeverityString(), null, emptyMap());
+//    assertThatRuleIsActivated(childProfile, rule, changes, rule.getSeverityString(), INHERITED, emptyMap());
+//    assertThatRuleIsActivated(grandchildProfile, rule, changes, rule.getSeverityString(), INHERITED, emptyMap());
+//
+//    changes = underTest.deactivateOnBuiltInRulesProfile(db.getSession(), RulesProfileDto.from(profile), rule.getKey(), false);
+//
+//    assertThat(changes).hasSize(3);
+//    assertThatRuleIsNotPresent(profile, rule);
+//    assertThatRuleIsNotPresent(childProfile, rule);
+//    assertThatRuleIsNotPresent(grandchildProfile, rule);
+//  }
+
   private static void assertThatRuleIsNewlyActivated(List<ActiveRuleDto> activeRules, RuleDefinitionDto rule, RulePriority severity) {
     ActiveRuleDto activeRule = findRule(activeRules, rule).get();
 
@@ -242,10 +282,6 @@ public class BuiltInQProfileUpdateImplTest {
     return activeRules.stream()
       .filter(ar -> ar.getRuleKey().equals(rule.getKey()))
       .findFirst();
-  }
-
-  private static void activateRuleInDef(RulesProfile apiProfile, RuleDefinitionDto rule, RulePriority severity) {
-    apiProfile.activateRule(org.sonar.api.rules.Rule.create(rule.getRepositoryKey(), rule.getRuleKey()), severity);
   }
 
   private void activateRuleInDb(RulesProfileDto profile, RuleDefinitionDto rule, RulePriority severity) {

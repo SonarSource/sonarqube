@@ -40,7 +40,6 @@ import org.sonar.db.DbTester;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
 import org.sonar.db.qualityprofile.OrgActiveRuleDto;
 import org.sonar.db.qualityprofile.QProfileDto;
-import org.sonar.db.qualityprofile.RulesProfileDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
@@ -60,6 +59,7 @@ import org.sonar.server.util.TypeValidations;
 import static com.google.common.collect.ImmutableMap.of;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyMap;
+import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -71,7 +71,7 @@ import static org.sonar.api.rule.Severity.MINOR;
 import static org.sonar.db.rule.RuleTesting.newCustomRule;
 import static org.sonar.server.qualityprofile.ActiveRule.Inheritance.INHERITED;
 
-public class RuleActivatorTest {
+public class QProfileRuleImplTest {
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
@@ -84,13 +84,12 @@ public class RuleActivatorTest {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   private RuleIndex ruleIndex = new RuleIndex(es.client(), system2);
-  private RuleActivatorContextFactory contextFactory = new RuleActivatorContextFactory(db.getDbClient());
   private ActiveRuleIndexer activeRuleIndexer = new ActiveRuleIndexer(db.getDbClient(), es.client());
   private RuleIndexer ruleIndexer = new RuleIndexer(es.client(), db.getDbClient());
   private TypeValidations typeValidations = new TypeValidations(asList(new StringTypeValidation(), new IntegerTypeValidation()));
 
-  private RuleActivator underTest = new RuleActivator(system2, db.getDbClient(), ruleIndex, contextFactory, typeValidations, activeRuleIndexer,
-    userSession);
+  private RuleActivator ruleActivator = new RuleActivator(system2, db.getDbClient(), typeValidations, userSession);
+  private QProfileRules underTest = new QProfileRulesImpl(db.getDbClient(), ruleActivator, ruleIndex, activeRuleIndexer);
 
   @Test
   public void system_activates_rule_without_parameters() {
@@ -343,7 +342,7 @@ public class RuleActivatorTest {
     QProfileDto profile = db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setLanguage("js"));
     RuleActivation activation = RuleActivation.create(rule.getKey());
 
-    expectFailure("Rule " + rule.getKey() + " and profile " + profile.getKee() + " have different languages", () -> activate(profile, activation));
+    expectFailure("java rule " + rule.getKey() + " cannot be activated on js profile " + profile.getKee(), () -> activate(profile, activation));
   }
 
   @Test
@@ -444,7 +443,7 @@ public class RuleActivatorTest {
     QProfileDto profile = createProfile(rule);
     RuleKey ruleKey = RuleKey.parse("unknown:xxx");
 
-    expectFailure("Rule not found: " + ruleKey, () -> underTest.deactivate(db.getSession(), profile, ruleKey));
+    expectFailure("Rule not found: " + ruleKey, () -> underTest.deactivateAndCommit(db.getSession(), profile, singleton(ruleKey)));
   }
 
   @Test
@@ -678,37 +677,37 @@ public class RuleActivatorTest {
   @Test
   public void reset_parent_is_not_propagated_when_child_overrides() {
     RuleDefinitionDto rule = createRule();
-    QProfileDto parentProfile = createProfile(rule);
-    QProfileDto childProfile = createChildProfile(parentProfile);
-    QProfileDto grandchildProfile = createChildProfile(childProfile);
+    QProfileDto baseProfile = createProfile(rule);
+    QProfileDto childProfile = createChildProfile(baseProfile);
+    QProfileDto grandChildProfile = createChildProfile(childProfile);
 
     RuleActivation activation = RuleActivation.create(rule.getKey(), CRITICAL, null);
-    List<ActiveRuleChange> changes = activate(parentProfile, activation);
-    assertThatRuleIsActivated(parentProfile, rule, changes, CRITICAL, null, emptyMap());
+    List<ActiveRuleChange> changes = activate(baseProfile, activation);
+    assertThatRuleIsActivated(baseProfile, rule, changes, CRITICAL, null, emptyMap());
     assertThatRuleIsActivated(childProfile, rule, changes, CRITICAL, INHERITED, emptyMap());
-    assertThatRuleIsActivated(grandchildProfile, rule, changes, CRITICAL, INHERITED, emptyMap());
+    assertThatRuleIsActivated(grandChildProfile, rule, changes, CRITICAL, INHERITED, emptyMap());
     assertThat(changes).hasSize(3);
 
     RuleActivation childActivation = RuleActivation.create(rule.getKey(), BLOCKER, null);
     changes = activate(childProfile, childActivation);
     assertThatRuleIsUpdated(childProfile, rule, BLOCKER, ActiveRule.Inheritance.OVERRIDES, emptyMap());
-    assertThatRuleIsUpdated(grandchildProfile, rule, BLOCKER, INHERITED, emptyMap());
+    assertThatRuleIsUpdated(grandChildProfile, rule, BLOCKER, INHERITED, emptyMap());
     assertThat(changes).hasSize(2);
 
     // Reset on parent do not change child nor grandchild
     RuleActivation resetActivation = RuleActivation.createReset(rule.getKey());
-    changes = activate(parentProfile, resetActivation);
-    assertThatRuleIsUpdated(parentProfile, rule, rule.getSeverityString(), null, emptyMap());
+    changes = activate(baseProfile, resetActivation);
+    assertThatRuleIsUpdated(baseProfile, rule, rule.getSeverityString(), null, emptyMap());
     assertThatRuleIsUpdated(childProfile, rule, BLOCKER, ActiveRule.Inheritance.OVERRIDES, emptyMap());
-    assertThatRuleIsUpdated(grandchildProfile, rule, BLOCKER, INHERITED, emptyMap());
+    assertThatRuleIsUpdated(grandChildProfile, rule, BLOCKER, INHERITED, emptyMap());
     assertThat(changes).hasSize(1);
 
     // Reset on child change grandchild
     resetActivation = RuleActivation.createReset(rule.getKey());
     changes = activate(childProfile, resetActivation);
-    assertThatRuleIsUpdated(parentProfile, rule, rule.getSeverityString(), null, emptyMap());
+    assertThatRuleIsUpdated(baseProfile, rule, rule.getSeverityString(), null, emptyMap());
     assertThatRuleIsUpdated(childProfile, rule, rule.getSeverityString(), INHERITED, emptyMap());
-    assertThatRuleIsUpdated(grandchildProfile, rule, rule.getSeverityString(), INHERITED, emptyMap());
+    assertThatRuleIsUpdated(grandChildProfile, rule, rule.getSeverityString(), INHERITED, emptyMap());
     assertThat(changes).hasSize(2);
   }
 
@@ -722,119 +721,6 @@ public class RuleActivatorTest {
     List<ActiveRuleChange> changes = activate(parentProfile, resetActivation);
     verifyNoActiveRules();
     assertThat(changes).hasSize(0);
-  }
-
-  @Test
-  public void unset_parent_when_no_parent_does_not_fail() {
-    RuleDefinitionDto rule = createRule();
-    QProfileDto profile = createProfile(rule);
-    underTest.setParentAndCommit(db.getSession(), profile, null);
-  }
-
-  @Test
-  public void set_itself_as_parent_fails() {
-    RuleDefinitionDto rule = createRule();
-    QProfileDto profile = createProfile(rule);
-
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage(" can not be selected as parent of ");
-    underTest.setParentAndCommit(db.getSession(), profile, profile);
-  }
-
-  @Test
-  public void set_child_as_parent_fails() {
-    RuleDefinitionDto rule = createRule();
-    QProfileDto parentProfile = createProfile(rule);
-    QProfileDto childProfile = createChildProfile(parentProfile);
-
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage(" can not be selected as parent of ");
-    underTest.setParentAndCommit(db.getSession(), parentProfile, childProfile);
-  }
-
-  @Test
-  public void set_grandchild_as_parent_fails() {
-    RuleDefinitionDto rule = createRule();
-    QProfileDto parentProfile = createProfile(rule);
-    QProfileDto childProfile = createChildProfile(parentProfile);
-    QProfileDto grandchildProfile = createChildProfile(childProfile);
-
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage(" can not be selected as parent of ");
-    underTest.setParentAndCommit(db.getSession(), parentProfile, grandchildProfile);
-  }
-
-  @Test
-  public void cannot_set_parent_if_language_is_different() {
-    RuleDefinitionDto rule1 = db.rules().insert(r -> r.setLanguage("foo"));
-    RuleDefinitionDto rule2 = db.rules().insert(r -> r.setLanguage("bar"));
-
-    QProfileDto parentProfile = createProfile(rule1);
-    List<ActiveRuleChange> changes = activate(parentProfile, RuleActivation.create(rule1.getKey()));
-    assertThat(changes).hasSize(1);
-
-    QProfileDto childProfile = createProfile(rule2);
-    changes = activate(childProfile, RuleActivation.create(rule2.getKey()));
-    assertThat(changes).hasSize(1);
-
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Cannot set the profile");
-
-    underTest.setParentAndCommit(db.getSession(), childProfile, parentProfile);
-  }
-
-  @Test
-  public void set_then_unset_parent() {
-    RuleDefinitionDto rule1 = createJavaRule();
-    RuleDefinitionDto rule2 = createJavaRule();
-
-    QProfileDto profile1 = createProfile(rule1);
-    List<ActiveRuleChange> changes = activate(profile1, RuleActivation.create(rule1.getKey()));
-    assertThat(changes).hasSize(1);
-
-    QProfileDto profile2 = createProfile(rule2);
-    changes = activate(profile2, RuleActivation.create(rule2.getKey()));
-    assertThat(changes).hasSize(1);
-
-    changes = underTest.setParentAndCommit(db.getSession(), profile2, profile1);
-    assertThat(changes).hasSize(1);
-    assertThatRuleIsActivated(profile2, rule1, changes, rule1.getSeverityString(), INHERITED, emptyMap());
-    assertThatRuleIsActivated(profile2, rule2, null, rule2.getSeverityString(), null, emptyMap());
-
-    changes = underTest.setParentAndCommit(db.getSession(), profile2, null);
-    assertThat(changes).hasSize(1);
-    assertThatRuleIsActivated(profile2, rule2, null, rule2.getSeverityString(), null, emptyMap());
-    assertThatRuleIsNotPresent(profile2, rule1);
-  }
-
-  @Test
-  public void set_then_unset_parent_keep_overridden_rules() {
-    RuleDefinitionDto rule1 = createJavaRule();
-    RuleDefinitionDto rule2 = createJavaRule();
-    QProfileDto profile1 = createProfile(rule1);
-    List<ActiveRuleChange> changes = activate(profile1, RuleActivation.create(rule1.getKey()));
-    assertThat(changes).hasSize(1);
-
-    QProfileDto profile2 = createProfile(rule2);
-    changes = activate(profile2, RuleActivation.create(rule2.getKey()));
-    assertThat(changes).hasSize(1);
-
-    changes = underTest.setParentAndCommit(db.getSession(), profile2, profile1);
-    assertThat(changes).hasSize(1);
-    assertThatRuleIsActivated(profile2, rule1, changes, rule1.getSeverityString(), INHERITED, emptyMap());
-    assertThatRuleIsActivated(profile2, rule2, null, rule2.getSeverityString(), null, emptyMap());
-
-    RuleActivation activation = RuleActivation.create(rule1.getKey(), BLOCKER, null);
-    changes = activate(profile2, activation);
-    assertThat(changes).hasSize(1);
-    assertThatRuleIsUpdated(profile2, rule1, BLOCKER, ActiveRule.Inheritance.OVERRIDES, emptyMap());
-    assertThatRuleIsActivated(profile2, rule2, null, rule2.getSeverityString(), null, emptyMap());
-
-    changes = underTest.setParentAndCommit(db.getSession(), profile2, null);
-    assertThat(changes).hasSize(1);
-    // Not testing changes here since severity is not set in changelog
-    assertThatRuleIsActivated(profile2, rule1, null, BLOCKER, null, emptyMap());
-    assertThatRuleIsActivated(profile2, rule2, null, rule2.getSeverityString(), null, emptyMap());
   }
 
   @Test
@@ -854,7 +740,7 @@ public class RuleActivatorTest {
     RuleQuery ruleQuery = new RuleQuery()
       .setRepositories(singletonList(repositoryKey));
 
-    BulkChangeResult bulkChangeResult = underTest.bulkActivateAndCommit(db.getSession(), ruleQuery, profile, MINOR);
+    BulkChangeResult bulkChangeResult = underTest.bulkActivateAndCommit(db.getSession(), profile, ruleQuery, MINOR);
 
     assertThat(bulkChangeResult.countFailed()).isEqualTo(0);
     assertThat(bulkChangeResult.countSucceeded()).isEqualTo(bulkSize);
@@ -881,7 +767,7 @@ public class RuleActivatorTest {
     RuleQuery ruleQuery = new RuleQuery()
       .setRepositories(singletonList(repositoryKey));
 
-    BulkChangeResult bulkChangeResult = underTest.bulkActivateAndCommit(db.getSession(), ruleQuery, profile, MINOR);
+    BulkChangeResult bulkChangeResult = underTest.bulkActivateAndCommit(db.getSession(), profile, ruleQuery, MINOR);
 
     assertThat(bulkChangeResult.countFailed()).isEqualTo(0);
     assertThat(bulkChangeResult.countSucceeded()).isEqualTo(bulkSize);
@@ -889,7 +775,7 @@ public class RuleActivatorTest {
     assertThat(db.getDbClient().activeRuleDao().selectByProfile(db.getSession(), profile)).hasSize(bulkSize);
 
     // Now deactivate all rules
-    bulkChangeResult = underTest.bulkDeactivateAndCommit(db.getSession(), ruleQuery, profile);
+    bulkChangeResult = underTest.bulkDeactivateAndCommit(db.getSession(), profile, ruleQuery);
 
     assertThat(bulkChangeResult.countFailed()).isEqualTo(0);
     assertThat(bulkChangeResult.countSucceeded()).isEqualTo(bulkSize);
@@ -913,7 +799,7 @@ public class RuleActivatorTest {
 
     RuleQuery ruleQuery = new RuleQuery()
       .setQProfile(childProfile);
-    BulkChangeResult bulkChangeResult = underTest.bulkDeactivateAndCommit(db.getSession(), ruleQuery, childProfile);
+    BulkChangeResult bulkChangeResult = underTest.bulkDeactivateAndCommit(db.getSession(), childProfile, ruleQuery);
 
     assertThat(bulkChangeResult.countFailed()).isEqualTo(1);
     assertThat(bulkChangeResult.countSucceeded()).isEqualTo(0);
@@ -938,7 +824,7 @@ public class RuleActivatorTest {
     RuleQuery query = new RuleQuery()
       .setRuleKey(rule1.getRuleKey())
       .setQProfile(parentProfile);
-    BulkChangeResult result = underTest.bulkActivateAndCommit(db.getSession(), query, parentProfile, "BLOCKER");
+    BulkChangeResult result = underTest.bulkActivateAndCommit(db.getSession(), parentProfile, query, "BLOCKER");
 
     assertThat(result.getChanges()).hasSize(3);
     assertThat(result.countSucceeded()).isEqualTo(1);
@@ -956,69 +842,6 @@ public class RuleActivatorTest {
   }
 
   @Test
-  public void activateOnBuiltInProfile_throws_IAE_when_profile_is_not_built_in() {
-    RuleDefinitionDto rule = createJavaRule();
-    QProfileDto profile = createProfile(rule);
-
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Rules profile must be a built-in profile: " + profile.getRulesProfileUuid());
-
-    underTest.activateOnBuiltInRulesProfile(db.getSession(), RuleActivation.create(rule.getKey()), RulesProfileDto.from(profile));
-  }
-
-  @Test
-  public void activateOnBuiltInProfile_activate_rule_on_child_profiles() {
-    RuleDefinitionDto rule = createJavaRule();
-    QProfileDto profile = db.qualityProfiles().insert(db.getDefaultOrganization(),
-      p -> p.setLanguage(rule.getLanguage())
-        .setIsBuiltIn(true));
-    QProfileDto childProfile = createChildProfile(profile);
-    QProfileDto grandchildProfile = createChildProfile(childProfile);
-
-    List<ActiveRuleChange> changes = underTest.activateOnBuiltInRulesProfile(db.getSession(), RuleActivation.create(rule.getKey()), RulesProfileDto.from(profile));
-
-    assertThat(changes).hasSize(3);
-    assertThatRuleIsActivated(profile, rule, changes, rule.getSeverityString(), null, emptyMap());
-    assertThatRuleIsActivated(childProfile, rule, changes, rule.getSeverityString(), INHERITED, emptyMap());
-    assertThatRuleIsActivated(grandchildProfile, rule, changes, rule.getSeverityString(), INHERITED, emptyMap());
-  }
-
-  @Test
-  public void deactivateOnBuiltInProfile_throws_IAE_when_profile_is_not_built_in() {
-    RuleDefinitionDto rule = createJavaRule();
-    QProfileDto profile = createProfile(rule);
-    activate(profile, RuleActivation.create(rule.getKey()));
-
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Rules profile must be a built-in profile: " + profile.getRulesProfileUuid());
-
-    underTest.activateOnBuiltInRulesProfile(db.getSession(), RuleActivation.create(rule.getKey()), RulesProfileDto.from(profile));
-  }
-
-  @Test
-  public void deactivateOnBuiltInProfile_activate_rule_on_child_profiles() {
-    RuleDefinitionDto rule = createJavaRule();
-    QProfileDto profile = db.qualityProfiles().insert(db.getDefaultOrganization(),
-      p -> p.setLanguage(rule.getLanguage())
-        .setIsBuiltIn(true));
-    QProfileDto childProfile = createChildProfile(profile);
-    QProfileDto grandchildProfile = createChildProfile(childProfile);
-
-    List<ActiveRuleChange> changes = underTest.activateOnBuiltInRulesProfile(db.getSession(), RuleActivation.create(rule.getKey()), RulesProfileDto.from(profile));
-
-    assertThatRuleIsActivated(profile, rule, changes, rule.getSeverityString(), null, emptyMap());
-    assertThatRuleIsActivated(childProfile, rule, changes, rule.getSeverityString(), INHERITED, emptyMap());
-    assertThatRuleIsActivated(grandchildProfile, rule, changes, rule.getSeverityString(), INHERITED, emptyMap());
-
-    changes = underTest.deactivateOnBuiltInRulesProfile(db.getSession(), RulesProfileDto.from(profile), rule.getKey(), false);
-
-    assertThat(changes).hasSize(3);
-    assertThatRuleIsNotPresent(profile, rule);
-    assertThatRuleIsNotPresent(childProfile, rule);
-    assertThatRuleIsNotPresent(grandchildProfile, rule);
-  }
-
-  @Test
   public void delete_rule_from_all_profiles() {
     RuleDefinitionDto rule = createRule();
     QProfileDto parentProfile = createProfile(rule);
@@ -1032,7 +855,7 @@ public class RuleActivatorTest {
     activate(grandChildProfile, overrideActivation);
 
     // Reset on parent do not change child nor grandchild
-    List<ActiveRuleChange> changes = underTest.delete(db.getSession(), rule);
+    List<ActiveRuleChange> changes = underTest.deleteRule(db.getSession(), rule);
 
     assertThatRuleIsNotPresent(parentProfile, rule);
     assertThatRuleIsNotPresent(childProfile, rule);
@@ -1044,21 +867,14 @@ public class RuleActivatorTest {
   }
 
   @Test
-  public void activation_errors_are_ignored_when_setting_a_parent() {
-    RuleDefinitionDto rule1 = createJavaRule();
-    RuleDefinitionDto rule2 = createJavaRule();
-    QProfileDto parentProfile = createProfile(rule1);
-    activate(parentProfile, RuleActivation.create(rule1.getKey()));
-    activate(parentProfile, RuleActivation.create(rule2.getKey()));
+  public void activation_fails_when_profile_is_built_in() {
+    RuleDefinitionDto rule = createRule();
+    QProfileDto builtInProfile = db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setLanguage(rule.getLanguage()).setIsBuiltIn(true));
 
-    rule1.setStatus(RuleStatus.REMOVED);
-    db.rules().update(rule1);
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("The built-in profile " + builtInProfile.getName() + " is read-only and can't be updated");
 
-    QProfileDto childProfile = createProfile(rule1);
-    List<ActiveRuleChange> changes = underTest.setParentAndCommit(db.getSession(), childProfile, parentProfile);
-
-    assertThatRuleIsNotPresent(childProfile, rule1);
-    assertThatRuleIsActivated(childProfile, rule2, changes, rule2.getSeverityString(), INHERITED, emptyMap());
+    underTest.activateAndCommit(db.getSession(), builtInProfile, singleton(RuleActivation.create(rule.getKey())));
   }
 
   private void assertThatProfileHasNoActiveRules(QProfileDto profile) {
@@ -1067,11 +883,11 @@ public class RuleActivatorTest {
   }
 
   private List<ActiveRuleChange> deactivate(QProfileDto profile, RuleDefinitionDto rule) {
-    return underTest.deactivate(db.getSession(), profile, rule.getKey());
+    return underTest.deactivateAndCommit(db.getSession(), profile, singleton(rule.getKey()));
   }
 
   private List<ActiveRuleChange> activate(QProfileDto profile, RuleActivation activation) {
-    return underTest.activate(db.getSession(), activation, profile);
+    return underTest.activateAndCommit(db.getSession(), profile, singleton(activation));
   }
 
   private QProfileDto createProfile(RuleDefinitionDto rule) {
@@ -1079,7 +895,10 @@ public class RuleActivatorTest {
   }
 
   private QProfileDto createChildProfile(QProfileDto parent) {
-    return db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setLanguage(parent.getLanguage()).setParentKee(parent.getKee()));
+    return db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p
+      .setLanguage(parent.getLanguage())
+      .setParentKee(parent.getKee())
+      .setName("Child of " + parent.getName()));
   }
 
   private void assertThatProfileIsUpdatedByUser(QProfileDto profile) {

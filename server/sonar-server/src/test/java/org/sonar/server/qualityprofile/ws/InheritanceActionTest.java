@@ -46,9 +46,12 @@ import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.qualityprofile.QProfileName;
+import org.sonar.server.qualityprofile.QProfileRules;
+import org.sonar.server.qualityprofile.QProfileRulesImpl;
+import org.sonar.server.qualityprofile.QProfileTree;
+import org.sonar.server.qualityprofile.QProfileTreeImpl;
 import org.sonar.server.qualityprofile.RuleActivation;
 import org.sonar.server.qualityprofile.RuleActivator;
-import org.sonar.server.qualityprofile.RuleActivatorContextFactory;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleIndexDefinition;
@@ -59,6 +62,7 @@ import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Qualityprofiles.InheritanceWsResponse;
 
 import static java.util.Arrays.asList;
+import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.server.qualityprofile.QProfileTesting.newQProfileDto;
 import static org.sonar.test.JsonAssert.assertJson;
@@ -79,7 +83,8 @@ public class InheritanceActionTest {
   private EsClient esClient;
   private RuleIndexer ruleIndexer;
   private ActiveRuleIndexer activeRuleIndexer;
-  private RuleActivator ruleActivator;
+  private QProfileRules qProfileRules;
+  private QProfileTree qProfileTree;
   private OrganizationDto organization;
 
   private InheritanceAction underTest;
@@ -97,15 +102,12 @@ public class InheritanceActionTest {
       dbClient,
       new QProfileWsSupport(dbClient, userSession, defaultOrganizationProvider),
       new Languages());
+
     ws = new WsActionTester(underTest);
-    ruleActivator = new RuleActivator(
-      System2.INSTANCE,
-      dbClient,
-      new RuleIndex(esClient, System2.INSTANCE),
-      new RuleActivatorContextFactory(dbClient),
-      new TypeValidations(new ArrayList<>()),
-      activeRuleIndexer,
-      userSession);
+    RuleIndex ruleIndex = new RuleIndex(esClient, System2.INSTANCE);
+    RuleActivator ruleActivator = new RuleActivator(System2.INSTANCE, dbClient, new TypeValidations(new ArrayList<>()), userSession);
+    qProfileRules = new QProfileRulesImpl(dbClient, ruleActivator, ruleIndex, activeRuleIndexer);
+    qProfileTree = new QProfileTreeImpl(dbClient, ruleActivator, System2.INSTANCE, activeRuleIndexer);
     organization = dbTester.organizations().insert();
   }
 
@@ -251,7 +253,7 @@ public class InheritanceActionTest {
   }
 
   private void setParent(QProfileDto profile, QProfileDto parent) {
-    ruleActivator.setParentAndCommit(dbSession, parent, profile);
+    qProfileTree.setParentAndCommit(dbSession, parent, profile);
   }
 
   private RuleDefinitionDto createRule(String lang, String id) {
@@ -278,8 +280,8 @@ public class InheritanceActionTest {
   }
 
   private void overrideActiveRuleSeverity(RuleDefinitionDto rule, QProfileDto profile, String severity) {
-    ruleActivator.activate(dbSession, RuleActivation.create(rule.getKey(), severity, null), profile);
-    dbSession.commit();
-    activeRuleIndexer.indexOnStartup(activeRuleIndexer.getIndexTypes());
+    qProfileRules.activateAndCommit(dbSession, profile, singleton(RuleActivation.create(rule.getKey(), severity, null)));
+//    dbSession.commit();
+//    activeRuleIndexer.indexOnStartup(activeRuleIndexer.getIndexTypes());
   }
 }

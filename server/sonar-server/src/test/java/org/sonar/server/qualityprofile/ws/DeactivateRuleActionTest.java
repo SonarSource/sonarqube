@@ -20,6 +20,7 @@
 package org.sonar.server.qualityprofile.ws;
 
 import java.net.HttpURLConnection;
+import java.util.Collection;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -39,7 +40,7 @@ import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
-import org.sonar.server.qualityprofile.RuleActivator;
+import org.sonar.server.qualityprofile.QProfileRules;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.TestResponse;
@@ -48,6 +49,7 @@ import org.sonar.server.ws.WsActionTester;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyCollection;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.UUID_SIZE;
@@ -64,9 +66,9 @@ public class DeactivateRuleActionTest {
   public ExpectedException expectedException = ExpectedException.none();
 
   private DbClient dbClient = db.getDbClient();
-  private RuleActivator ruleActivator = mock(RuleActivator.class);
+  private QProfileRules qProfileRules = mock(QProfileRules.class);
   private QProfileWsSupport wsSupport = new QProfileWsSupport(dbClient, userSession, TestDefaultOrganizationProvider.from(db));
-  private DeactivateRuleAction underTest = new DeactivateRuleAction(dbClient, ruleActivator, userSession, wsSupport);
+  private DeactivateRuleAction underTest = new DeactivateRuleAction(dbClient, qProfileRules, userSession, wsSupport);
   private WsActionTester ws = new WsActionTester(underTest);
   private OrganizationDto defaultOrganization;
   private OrganizationDto organization;
@@ -102,10 +104,11 @@ public class DeactivateRuleActionTest {
     TestResponse response = request.execute();
 
     assertThat(response.getStatus()).isEqualTo(HttpURLConnection.HTTP_NO_CONTENT);
-    ArgumentCaptor<RuleKey> ruleKeyCaptor = ArgumentCaptor.forClass(RuleKey.class);
+    Class<Collection<RuleKey>> collectionClass = (Class<Collection<RuleKey>>) (Class) Collection.class;
+    ArgumentCaptor<Collection<RuleKey>> ruleKeyCaptor = ArgumentCaptor.forClass(collectionClass);
     ArgumentCaptor<QProfileDto> qProfileDtoCaptor = ArgumentCaptor.forClass(QProfileDto.class);
-    verify(ruleActivator).deactivateAndCommit(any(DbSession.class), qProfileDtoCaptor.capture(), ruleKeyCaptor.capture());
-    assertThat(ruleKeyCaptor.getValue()).isEqualTo(ruleKey);
+    verify(qProfileRules).deactivateAndCommit(any(DbSession.class), qProfileDtoCaptor.capture(), ruleKeyCaptor.capture());
+    assertThat(ruleKeyCaptor.getValue()).containsExactly(ruleKey);
     assertThat(qProfileDtoCaptor.getValue().getKee()).isEqualTo(qualityProfile.getKee());
   }
 
@@ -123,10 +126,11 @@ public class DeactivateRuleActionTest {
     TestResponse response = request.execute();
 
     assertThat(response.getStatus()).isEqualTo(HttpURLConnection.HTTP_NO_CONTENT);
-    ArgumentCaptor<RuleKey> captor = ArgumentCaptor.forClass(RuleKey.class);
+    Class<Collection<RuleKey>> collectionClass = (Class<Collection<RuleKey>>) (Class) Collection.class;
+    ArgumentCaptor<Collection<RuleKey>> ruleKeyCaptor = ArgumentCaptor.forClass(collectionClass);
     ArgumentCaptor<QProfileDto> qProfileDtoCaptor = ArgumentCaptor.forClass(QProfileDto.class);
-    verify(ruleActivator).deactivateAndCommit(any(DbSession.class), qProfileDtoCaptor.capture(), captor.capture());
-    assertThat(captor.getValue()).isEqualTo(ruleKey);
+    verify(qProfileRules).deactivateAndCommit(any(DbSession.class), qProfileDtoCaptor.capture(), ruleKeyCaptor.capture());
+    assertThat(ruleKeyCaptor.getValue()).containsExactly(ruleKey);
     assertThat(qProfileDtoCaptor.getValue().getKee()).isEqualTo(qualityProfile.getKee());
   }
 
@@ -145,7 +149,7 @@ public class DeactivateRuleActionTest {
       .setParam(PARAM_KEY, qualityProfile.getKee())
       .execute();
 
-    verify(ruleActivator).deactivateAndCommit(any(DbSession.class), any(QProfileDto.class), any(RuleKey.class));
+    verify(qProfileRules).deactivateAndCommit(any(DbSession.class), any(QProfileDto.class), anyCollection());
   }
 
   @Test
