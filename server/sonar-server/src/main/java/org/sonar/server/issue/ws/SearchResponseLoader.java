@@ -222,7 +222,7 @@ public class SearchResponseLoader {
 
   private void loadRules(Collector collector, DbSession dbSession, SearchResponseData result) {
     if (collector.contains(RULES)) {
-      result.setRules(dbClient.ruleDao().selectDefinitionByKeys(dbSession, collector.getList(RULES)));
+      result.setRules(dbClient.ruleDao().selectDefinitionByIds(dbSession, collector.getList(RULES)));
     }
   }
 
@@ -311,7 +311,7 @@ public class SearchResponseLoader {
       for (IssueDto issue : issues) {
         componentUuids.add(issue.getComponentUuid());
         projectUuids.add(issue.getProjectUuid());
-        add(RULES, issue.getRuleKey());
+        add(RULES, issue.getRuleId());
         add(USERS, issue.getAssignee());
         collectComponentsFromIssueLocations(issue);
       }

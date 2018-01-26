@@ -21,13 +21,11 @@ package org.sonar.server.issue;
 
 import com.google.common.collect.Maps;
 import java.util.Date;
-import org.apache.commons.lang.math.RandomUtils;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.RuleType;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.issue.index.IssueDoc;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
@@ -58,7 +56,7 @@ public class IssueDocTesting {
   public static IssueDoc newDoc() {
     IssueDoc doc = new IssueDoc(Maps.newHashMap());
     doc.setKey(Uuids.createFast());
-    doc.setRuleKey(RuleTesting.XOO_X1.toString());
+    doc.setRuleId(nextInt(1000));
     doc.setType(RuleType.CODE_SMELL);
     doc.setAssignee("assignee_" + randomAlphabetic(5));
     doc.setAuthorLogin("author_" + randomAlphabetic(5));
@@ -73,7 +71,7 @@ public class IssueDocTesting {
     doc.setStatus(STATUS_OPEN);
     doc.setResolution(null);
     doc.setSeverity(Severity.ALL.get(nextInt(Severity.ALL.size())));
-    doc.setEffort((long) RandomUtils.nextInt(10));
+    doc.setEffort((long) nextInt(10));
     doc.setFuncCreationDate(new Date(System.currentTimeMillis() - 2_000));
     doc.setFuncUpdateDate(new Date(System.currentTimeMillis() - 1_000));
     doc.setFuncCloseDate(null);
