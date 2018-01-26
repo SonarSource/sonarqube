@@ -233,8 +233,8 @@ public class QualityProfileDao implements Dao {
     DatabaseUtils.executeLargeUpdates(rulesProfileUuids, mapper::deleteRuleProfilesByUuids);
   }
 
-  public List<QProfileDto> selectChildrenOfBuiltInRulesProfile(DbSession dbSession, RulesProfileDto rulesProfile) {
-    return mapper(dbSession).selectChildrenOfBuiltInRulesProfile(rulesProfile.getKee());
+  public List<QProfileDto> selectQProfilesByRuleProfile(DbSession dbSession, RulesProfileDto rulesProfile) {
+    return mapper(dbSession).selectQProfilesByRuleProfileUuid(rulesProfile.getKee());
   }
 
   private static String sqlQueryString(@Nullable String query) {

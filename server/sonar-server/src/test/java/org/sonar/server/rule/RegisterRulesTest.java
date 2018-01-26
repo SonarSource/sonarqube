@@ -49,7 +49,7 @@ import org.sonar.server.es.SearchOptions;
 import org.sonar.server.organization.OrganizationFlags;
 import org.sonar.server.organization.TestOrganizationFlags;
 import org.sonar.server.plugins.ServerPluginRepository;
-import org.sonar.server.qualityprofile.RuleActivator;
+import org.sonar.server.qualityprofile.QProfileRules;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleIndexDefinition;
@@ -88,7 +88,7 @@ public class RegisterRulesTest {
   @org.junit.Rule
   public LogTester logTester = new LogTester();
 
-  private RuleActivator ruleActivator = mock(RuleActivator.class);
+  private QProfileRules qProfileRules = mock(QProfileRules.class);
   private WebServerRuleFinder webServerRuleFinder = mock(WebServerRuleFinder.class);
   private DbClient dbClient = dbTester.getDbClient();
   private RuleIndexer ruleIndexer;
@@ -535,7 +535,7 @@ public class RegisterRulesTest {
     when(languages.get("java")).thenReturn(mock(Language.class));
     reset(webServerRuleFinder);
 
-    RegisterRules task = new RegisterRules(loader, ruleActivator, dbClient, ruleIndexer, activeRuleIndexer, languages, system, organizationFlags, webServerRuleFinder);
+    RegisterRules task = new RegisterRules(loader, qProfileRules, dbClient, ruleIndexer, activeRuleIndexer, languages, system, organizationFlags, webServerRuleFinder);
     task.start();
     // Execute a commit to refresh session state as the task is using its own session
     dbTester.getSession().commit();

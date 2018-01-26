@@ -28,7 +28,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.QProfileDto;
-import org.sonar.server.qualityprofile.RuleActivator;
+import org.sonar.server.qualityprofile.QProfileTree;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters;
 
@@ -40,12 +40,12 @@ import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.
 public class ChangeParentAction implements QProfileWsAction {
 
   private final DbClient dbClient;
-  private final RuleActivator ruleActivator;
+  private final QProfileTree ruleActivator;
   private final Languages languages;
   private final QProfileWsSupport wsSupport;
   private final UserSession userSession;
 
-  public ChangeParentAction(DbClient dbClient, RuleActivator ruleActivator,
+  public ChangeParentAction(DbClient dbClient, QProfileTree ruleActivator,
     Languages languages, QProfileWsSupport wsSupport, UserSession userSession) {
     this.dbClient = dbClient;
     this.ruleActivator = ruleActivator;
@@ -96,7 +96,7 @@ public class ChangeParentAction implements QProfileWsAction {
       String parentKey = request.param(PARAM_PARENT_KEY);
       String parentName = request.param(QualityProfileWsParameters.PARAM_PARENT_QUALITY_PROFILE);
       if (isEmpty(parentKey) && isEmpty(parentName)) {
-        ruleActivator.setParentAndCommit(dbSession, profile, null);
+        ruleActivator.removeParentAndCommit(dbSession, profile);
       } else {
         String parentOrganizationKey = parentKey == null ? organization.getKey() : null;
         String parentLanguage = parentKey == null ? request.param(PARAM_LANGUAGE) : null;

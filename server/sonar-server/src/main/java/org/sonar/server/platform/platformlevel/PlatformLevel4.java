@@ -167,8 +167,9 @@ import org.sonar.server.qualityprofile.QProfileCopier;
 import org.sonar.server.qualityprofile.QProfileExporters;
 import org.sonar.server.qualityprofile.QProfileFactoryImpl;
 import org.sonar.server.qualityprofile.QProfileResetImpl;
+import org.sonar.server.qualityprofile.QProfileRulesImpl;
+import org.sonar.server.qualityprofile.QProfileTreeImpl;
 import org.sonar.server.qualityprofile.RuleActivator;
-import org.sonar.server.qualityprofile.RuleActivatorContextFactory;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.qualityprofile.ws.ProfilesWs;
 import org.sonar.server.qualityprofile.ws.QProfilesWsModule;
@@ -306,9 +307,10 @@ public class PlatformLevel4 extends PlatformLevel {
       AnnotationProfileParser.class,
       QProfileComparison.class,
       ProfilesWs.class,
+      QProfileTreeImpl.class,
+      QProfileRulesImpl.class,
       RuleActivator.class,
       QProfileExporters.class,
-      RuleActivatorContextFactory.class,
       QProfileFactoryImpl.class,
       QProfileCopier.class,
       QProfileBackuperImpl.class,

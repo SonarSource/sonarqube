@@ -25,12 +25,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.Dao;
 import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleParamDto;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static java.util.Collections.emptyList;
+import static org.sonar.db.DatabaseUtils.PARTITION_SIZE_FOR_ORACLE;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 import static org.sonar.db.DatabaseUtils.executeLargeInputsWithoutOutput;
 import static org.sonar.db.KeyLongValue.toMap;
@@ -76,18 +81,28 @@ public class ActiveRuleDao implements Dao {
     return mapper(dbSession).selectByRuleProfileUuid(ruleProfileDto.getKee());
   }
 
+  public Collection<ActiveRuleDto> selectByRulesAndRuleProfileUuids(DbSession dbSession, Collection<RuleDefinitionDto> rules, Collection<String> ruleProfileUuids) {
+    if (rules.isEmpty()) {
+      return emptyList();
+    }
+    checkArgument(rules.size() < PARTITION_SIZE_FOR_ORACLE,
+      "too many rules (got %s, max is %s)", rules.size(), PARTITION_SIZE_FOR_ORACLE);
+    List<Integer> ruleIds = rules.stream().map(RuleDefinitionDto::getId).collect(MoreCollectors.toArrayList(rules.size()));
+    return executeLargeInputs(ruleProfileUuids, chunk -> mapper(dbSession).selectByRuleIdsAndRuleProfileUuids(ruleIds, chunk));
+  }
+
   public ActiveRuleDto insert(DbSession dbSession, ActiveRuleDto item) {
-    Preconditions.checkArgument(item.getProfileId() != null, QUALITY_PROFILE_IS_NOT_PERSISTED);
-    Preconditions.checkArgument(item.getRuleId() != null, RULE_IS_NOT_PERSISTED);
-    Preconditions.checkArgument(item.getId() == null, ACTIVE_RULE_IS_ALREADY_PERSISTED);
+    checkArgument(item.getProfileId() != null, QUALITY_PROFILE_IS_NOT_PERSISTED);
+    checkArgument(item.getRuleId() != null, RULE_IS_NOT_PERSISTED);
+    checkArgument(item.getId() == null, ACTIVE_RULE_IS_ALREADY_PERSISTED);
     mapper(dbSession).insert(item);
     return item;
   }
 
   public ActiveRuleDto update(DbSession dbSession, ActiveRuleDto item) {
-    Preconditions.checkArgument(item.getProfileId() != null, QUALITY_PROFILE_IS_NOT_PERSISTED);
-    Preconditions.checkArgument(item.getRuleId() != null, ActiveRuleDao.RULE_IS_NOT_PERSISTED);
-    Preconditions.checkArgument(item.getId() != null, ACTIVE_RULE_IS_NOT_PERSISTED);
+    checkArgument(item.getProfileId() != null, QUALITY_PROFILE_IS_NOT_PERSISTED);
+    checkArgument(item.getRuleId() != null, ActiveRuleDao.RULE_IS_NOT_PERSISTED);
+    checkArgument(item.getId() != null, ACTIVE_RULE_IS_NOT_PERSISTED);
     mapper(dbSession).update(item);
     return item;
   }
@@ -128,8 +143,8 @@ public class ActiveRuleDao implements Dao {
   }
 
   public ActiveRuleParamDto insertParam(DbSession dbSession, ActiveRuleDto activeRule, ActiveRuleParamDto activeRuleParam) {
-    Preconditions.checkArgument(activeRule.getId() != null, ACTIVE_RULE_IS_NOT_PERSISTED);
-    Preconditions.checkArgument(activeRuleParam.getId() == null, ACTIVE_RULE_PARAM_IS_ALREADY_PERSISTED);
+    checkArgument(activeRule.getId() != null, ACTIVE_RULE_IS_NOT_PERSISTED);
+    checkArgument(activeRuleParam.getId() == null, ACTIVE_RULE_PARAM_IS_ALREADY_PERSISTED);
     Preconditions.checkNotNull(activeRuleParam.getRulesParameterId(), RULE_PARAM_IS_NOT_PERSISTED);
 
     activeRuleParam.setActiveRuleId(activeRule.getId());
@@ -199,4 +214,5 @@ public class ActiveRuleDao implements Dao {
   private static ActiveRuleMapper mapper(DbSession dbSession) {
     return dbSession.getMapper(ActiveRuleMapper.class);
   }
+
 }

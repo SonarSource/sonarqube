@@ -28,7 +28,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.server.qualityprofile.BulkChangeResult;
-import org.sonar.server.qualityprofile.RuleActivator;
+import org.sonar.server.qualityprofile.QProfileRules;
 import org.sonar.server.rule.ws.RuleQueryFactory;
 import org.sonar.server.user.UserSession;
 
@@ -44,14 +44,14 @@ public class ActivateRulesAction implements QProfileWsAction {
 
   private final RuleQueryFactory ruleQueryFactory;
   private final UserSession userSession;
-  private final RuleActivator ruleActivator;
+  private final QProfileRules qProfileRules;
   private final DbClient dbClient;
   private final QProfileWsSupport wsSupport;
 
-  public ActivateRulesAction(RuleQueryFactory ruleQueryFactory, UserSession userSession, RuleActivator ruleActivator, QProfileWsSupport wsSupport, DbClient dbClient) {
+  public ActivateRulesAction(RuleQueryFactory ruleQueryFactory, UserSession userSession, QProfileRules qProfileRules, QProfileWsSupport wsSupport, DbClient dbClient) {
     this.ruleQueryFactory = ruleQueryFactory;
     this.userSession = userSession;
-    this.ruleActivator = ruleActivator;
+    this.qProfileRules = qProfileRules;
     this.dbClient = dbClient;
     this.wsSupport = wsSupport;
   }
@@ -93,7 +93,7 @@ public class ActivateRulesAction implements QProfileWsAction {
       OrganizationDto organization = wsSupport.getOrganization(dbSession, profile);
       wsSupport.checkCanEdit(dbSession, organization, profile);
       wsSupport.checkNotBuiltInt(profile);
-      result = ruleActivator.bulkActivateAndCommit(dbSession, ruleQueryFactory.createRuleQuery(dbSession, request), profile, request.param(PARAM_TARGET_SEVERITY));
+      result = qProfileRules.bulkActivateAndCommit(dbSession, profile, ruleQueryFactory.createRuleQuery(dbSession, request), request.param(PARAM_TARGET_SEVERITY));
     }
 
     writeResponse(result, response);

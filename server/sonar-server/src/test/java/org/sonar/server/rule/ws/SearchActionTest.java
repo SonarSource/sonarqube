@@ -19,7 +19,6 @@
  */
 package org.sonar.server.rule.ws;
 
-import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.function.Consumer;
@@ -51,9 +50,10 @@ import org.sonar.server.language.LanguageTesting;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.qualityprofile.ActiveRuleChange;
+import org.sonar.server.qualityprofile.QProfileRules;
+import org.sonar.server.qualityprofile.QProfileRulesImpl;
 import org.sonar.server.qualityprofile.RuleActivation;
 import org.sonar.server.qualityprofile.RuleActivator;
-import org.sonar.server.qualityprofile.RuleActivatorContextFactory;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleIndexDefinition;
@@ -72,6 +72,7 @@ import org.sonarqube.ws.Rules.SearchResponse;
 
 import static java.util.Arrays.asList;
 import static java.util.Arrays.stream;
+import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -115,11 +116,9 @@ public class SearchActionTest {
   private MacroInterpreter macroInterpreter = mock(MacroInterpreter.class);
   private RuleMapper ruleMapper = new RuleMapper(languages, macroInterpreter);
   private SearchAction underTest = new SearchAction(ruleIndex, activeRuleCompleter, ruleQueryFactory, db.getDbClient(), ruleMapper);
-
-  private RuleActivatorContextFactory contextFactory = new RuleActivatorContextFactory(db.getDbClient());
   private TypeValidations typeValidations = new TypeValidations(asList(new StringTypeValidation(), new IntegerTypeValidation()));
-  private RuleActivator ruleActivator = new RuleActivator(system2, db.getDbClient(), ruleIndex, contextFactory, typeValidations, activeRuleIndexer,
-    userSession);
+  private RuleActivator ruleActivator = new RuleActivator(System2.INSTANCE, db.getDbClient(), typeValidations, userSession);
+  private QProfileRules qProfileRules = new QProfileRulesImpl(db.getDbClient(), ruleActivator, ruleIndex, activeRuleIndexer);
   private WsActionTester ws = new WsActionTester(underTest);
 
   @Before
@@ -615,7 +614,7 @@ public class SearchActionTest {
     QProfileDto profile = db.qualityProfiles().insert(organization, p -> p.setLanguage("java"));
     RuleDefinitionDto rule = createJavaRule();
     RuleActivation activation = RuleActivation.create(rule.getKey(), BLOCKER, null);
-    ruleActivator.activate(db.getSession(), activation, profile);
+    qProfileRules.activateAndCommit(db.getSession(), profile, singleton(activation));
 
     indexRules();
 
@@ -662,8 +661,8 @@ public class SearchActionTest {
         .setName("empty_var"));
 
     RuleActivation activation = RuleActivation.create(rule.getKey());
-    List<ActiveRuleChange> activeRuleChanges1 = ruleActivator.activate(db.getSession(), activation, profile);
-    ruleActivator.activate(db.getSession(), activation, waterproofProfile);
+    List<ActiveRuleChange> activeRuleChanges1 = qProfileRules.activateAndCommit(db.getSession(), profile, singleton(activation));
+    qProfileRules.activateAndCommit(db.getSession(), waterproofProfile, singleton(activation));
 
     assertThat(activeRuleChanges1).hasSize(1);
 
@@ -718,7 +717,7 @@ public class SearchActionTest {
         .setName("my_var"));
 
     RuleActivation activation = RuleActivation.create(rule.getKey());
-    List<ActiveRuleChange> activeRuleChanges = ruleActivator.activate(db.getSession(), activation, profile);
+    List<ActiveRuleChange> activeRuleChanges = qProfileRules.activateAndCommit(db.getSession(), profile, singleton(activation));
 
     // Insert directly in database a rule parameter with a null value
     ActiveRuleParamDto activeRuleParam = ActiveRuleParamDto.createFor(ruleParam).setValue(null);
@@ -781,7 +780,7 @@ public class SearchActionTest {
       .setStatus(RuleStatus.DEPRECATED)
       .setType(RuleType.VULNERABILITY));
     RuleActivation activation = RuleActivation.create(rule2.getKey(), null, null);
-    ruleActivator.activate(db.getSession(), activation, profile);
+    qProfileRules.activateAndCommit(db.getSession(), profile, singleton(activation));
 
     // on other language, not activated => no match
     RuleDefinitionDto rule3 = db.rules().insert(r -> r

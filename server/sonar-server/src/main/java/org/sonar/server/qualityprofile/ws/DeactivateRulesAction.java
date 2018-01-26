@@ -27,7 +27,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.server.qualityprofile.BulkChangeResult;
-import org.sonar.server.qualityprofile.RuleActivator;
+import org.sonar.server.qualityprofile.QProfileRules;
 import org.sonar.server.rule.ws.RuleQueryFactory;
 import org.sonar.server.user.UserSession;
 
@@ -42,11 +42,11 @@ public class DeactivateRulesAction implements QProfileWsAction {
 
   private final RuleQueryFactory ruleQueryFactory;
   private final UserSession userSession;
-  private final RuleActivator ruleActivator;
+  private final QProfileRules ruleActivator;
   private final QProfileWsSupport wsSupport;
   private final DbClient dbClient;
 
-  public DeactivateRulesAction(RuleQueryFactory ruleQueryFactory, UserSession userSession, RuleActivator ruleActivator, QProfileWsSupport wsSupport, DbClient dbClient) {
+  public DeactivateRulesAction(RuleQueryFactory ruleQueryFactory, UserSession userSession, QProfileRules ruleActivator, QProfileWsSupport wsSupport, DbClient dbClient) {
     this.ruleQueryFactory = ruleQueryFactory;
     this.userSession = userSession;
     this.ruleActivator = ruleActivator;
@@ -85,7 +85,7 @@ public class DeactivateRulesAction implements QProfileWsAction {
       QProfileDto profile = wsSupport.getProfile(dbSession, QProfileReference.fromKey(qualityProfileKey));
       OrganizationDto organization = wsSupport.getOrganization(dbSession, profile);
       wsSupport.checkCanEdit(dbSession, organization, profile);
-      result = ruleActivator.bulkDeactivateAndCommit(dbSession, ruleQueryFactory.createRuleQuery(dbSession, request), profile);
+      result = ruleActivator.bulkDeactivateAndCommit(dbSession, profile, ruleQueryFactory.createRuleQuery(dbSession, request));
     }
     writeResponse(result, response);
   }

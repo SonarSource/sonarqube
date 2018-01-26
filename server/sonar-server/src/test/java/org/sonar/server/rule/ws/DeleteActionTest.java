@@ -34,7 +34,7 @@ import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
-import org.sonar.server.qualityprofile.RuleActivator;
+import org.sonar.server.qualityprofile.QProfileRules;
 import org.sonar.server.rule.index.RuleIndexDefinition;
 import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.tester.UserSessionRule;
@@ -63,10 +63,10 @@ public class DeleteActionTest {
   private DbClient dbClient = dbTester.getDbClient();
   private DbSession dbSession = dbTester.getSession();
   private RuleIndexer ruleIndexer = spy(new RuleIndexer(esTester.client(), dbClient));
-  private RuleActivator ruleActivator = mock(RuleActivator.class);
+  private QProfileRules qProfileRules = mock(QProfileRules.class);
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.fromUuid("ORG1");
   private RuleWsSupport ruleWsSupport = new RuleWsSupport(mock(DbClient.class), userSession, defaultOrganizationProvider);
-  private DeleteAction underTest = new DeleteAction(System2.INSTANCE, ruleIndexer, dbClient, ruleActivator, ruleWsSupport);
+  private DeleteAction underTest = new DeleteAction(System2.INSTANCE, ruleIndexer, dbClient, qProfileRules, ruleWsSupport);
   private WsActionTester tester = new WsActionTester(underTest);
 
   @Test

@@ -20,6 +20,8 @@
 package org.sonar.server.qualityprofile;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -45,22 +47,31 @@ public class BuiltInQProfileUpdateImpl implements BuiltInQProfileUpdate {
     this.activeRuleIndexer = activeRuleIndexer;
   }
 
-  public List<ActiveRuleChange> update(DbSession dbSession, BuiltInQProfile builtIn, RulesProfileDto ruleProfile) {
+  public List<ActiveRuleChange> update(DbSession dbSession, BuiltInQProfile builtIn, RulesProfileDto rulesProfile) {
     // Keep reference to all the activated rules before update
-    Set<RuleKey> toBeDeactivated = dbClient.activeRuleDao().selectByRuleProfile(dbSession, ruleProfile)
+    Set<RuleKey> deactivatedKeys = dbClient.activeRuleDao().selectByRuleProfile(dbSession, rulesProfile)
       .stream()
       .map(ActiveRuleDto::getRuleKey)
       .collect(MoreCollectors.toHashSet());
 
-    List<ActiveRuleChange> changes = new ArrayList<>();
-    builtIn.getActiveRules().forEach(ar -> {
+    Collection<RuleActivation> activations = new ArrayList<>();
+    Collection<RuleKey> ruleKeys = new HashSet<>(deactivatedKeys);
+    for (BuiltInActiveRule ar : builtIn.getActiveRules()) {
       RuleActivation activation = convert(ar);
-      toBeDeactivated.remove(activation.getRuleKey());
-      changes.addAll(ruleActivator.activateOnBuiltInRulesProfile(dbSession, activation, ruleProfile));
-    });
+      activations.add(activation);
+      ruleKeys.add(activation.getRuleKey());
+      deactivatedKeys.remove(activation.getRuleKey());
+    }
+
+    RuleActivationContext context = ruleActivator.createContextForBuiltInProfile(dbSession, rulesProfile, ruleKeys);
+
+    List<ActiveRuleChange> changes = new ArrayList<>();
+    for (RuleActivation activation : activations) {
+      changes.addAll(ruleActivator.activate(dbSession, activation, context));
+    }
 
     // these rules are not part of the built-in profile anymore
-    toBeDeactivated.forEach(ruleKey -> changes.addAll(ruleActivator.deactivateOnBuiltInRulesProfile(dbSession, ruleProfile, ruleKey, false)));
+    deactivatedKeys.forEach(ruleKey -> changes.addAll(ruleActivator.deactivate(dbSession, context, ruleKey, false)));
 
     activeRuleIndexer.commitAndIndex(dbSession, changes);
     return changes;

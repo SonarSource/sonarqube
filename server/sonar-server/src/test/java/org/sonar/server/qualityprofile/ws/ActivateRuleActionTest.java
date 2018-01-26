@@ -20,6 +20,7 @@
 package org.sonar.server.qualityprofile.ws;
 
 import java.net.HttpURLConnection;
+import java.util.Collection;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -40,8 +41,8 @@ import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
+import org.sonar.server.qualityprofile.QProfileRules;
 import org.sonar.server.qualityprofile.RuleActivation;
-import org.sonar.server.qualityprofile.RuleActivator;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.TestResponse;
@@ -50,6 +51,7 @@ import org.sonar.server.ws.WsActionTester;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyCollection;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.UUID_SIZE;
@@ -66,10 +68,10 @@ public class ActivateRuleActionTest {
   public ExpectedException expectedException = ExpectedException.none();
 
   private DbClient dbClient = db.getDbClient();
-  private RuleActivator ruleActivator = mock(RuleActivator.class);
+  private QProfileRules qProfileRules = mock(QProfileRules.class);
   private QProfileWsSupport wsSupport = new QProfileWsSupport(dbClient, userSession, TestDefaultOrganizationProvider.from(db));
 
-  private WsActionTester ws = new WsActionTester(new ActivateRuleAction(dbClient, ruleActivator, userSession, wsSupport));
+  private WsActionTester ws = new WsActionTester(new ActivateRuleAction(dbClient, qProfileRules, userSession, wsSupport));
 
   private OrganizationDto defaultOrganization;
   private OrganizationDto organization;
@@ -150,12 +152,17 @@ public class ActivateRuleActionTest {
     TestResponse response = request.execute();
 
     assertThat(response.getStatus()).isEqualTo(HttpURLConnection.HTTP_NO_CONTENT);
-    ArgumentCaptor<RuleActivation> captor = ArgumentCaptor.forClass(RuleActivation.class);
-    verify(ruleActivator).activateAndCommit(any(DbSession.class), captor.capture(), any(QProfileDto.class));
-    RuleActivation value = captor.getValue();
-    assertThat(value.getRuleKey()).isEqualTo(ruleKey);
-    assertThat(value.getSeverity()).isEqualTo(Severity.BLOCKER);
-    assertThat(value.isReset()).isFalse();
+    Class<Collection<RuleActivation>> collectionClass = (Class<Collection<RuleActivation>>) (Class) Collection.class;
+    ArgumentCaptor<Collection<RuleActivation>> ruleActivationCaptor = ArgumentCaptor.forClass(collectionClass);
+    verify(qProfileRules).activateAndCommit(any(DbSession.class), any(QProfileDto.class), ruleActivationCaptor.capture());
+
+    Collection<RuleActivation> activations = ruleActivationCaptor.getValue();
+    assertThat(activations).hasSize(1);
+
+    RuleActivation activation = activations.iterator().next();
+    assertThat(activation.getRuleKey()).isEqualTo(ruleKey);
+    assertThat(activation.getSeverity()).isEqualTo(Severity.BLOCKER);
+    assertThat(activation.isReset()).isFalse();
   }
 
   @Test
@@ -174,11 +181,16 @@ public class ActivateRuleActionTest {
     TestResponse response = request.execute();
 
     assertThat(response.getStatus()).isEqualTo(HttpURLConnection.HTTP_NO_CONTENT);
-    ArgumentCaptor<RuleActivation> captor = ArgumentCaptor.forClass(RuleActivation.class);
-    verify(ruleActivator).activateAndCommit(any(DbSession.class), captor.capture(), any(QProfileDto.class));
-    assertThat(captor.getValue().getRuleKey()).isEqualTo(ruleKey);
-    assertThat(captor.getValue().getSeverity()).isEqualTo(Severity.BLOCKER);
-    assertThat(captor.getValue().isReset()).isFalse();
+    Class<Collection<RuleActivation>> collectionClass = (Class<Collection<RuleActivation>>) (Class) Collection.class;
+    ArgumentCaptor<Collection<RuleActivation>> ruleActivationCaptor = ArgumentCaptor.forClass(collectionClass);
+    verify(qProfileRules).activateAndCommit(any(DbSession.class), any(QProfileDto.class), ruleActivationCaptor.capture());
+
+    Collection<RuleActivation> activations = ruleActivationCaptor.getValue();
+    assertThat(activations).hasSize(1);
+    RuleActivation activation = activations.iterator().next();
+    assertThat(activation.getRuleKey()).isEqualTo(ruleKey);
+    assertThat(activation.getSeverity()).isEqualTo(Severity.BLOCKER);
+    assertThat(activation.isReset()).isFalse();
   }
 
   @Test
@@ -198,6 +210,6 @@ public class ActivateRuleActionTest {
       .setParam("reset", "false")
       .execute();
 
-    verify(ruleActivator).activateAndCommit(any(DbSession.class), any(RuleActivation.class), any(QProfileDto.class));
+    verify(qProfileRules).activateAndCommit(any(DbSession.class), any(QProfileDto.class), anyCollection());
   }
 }

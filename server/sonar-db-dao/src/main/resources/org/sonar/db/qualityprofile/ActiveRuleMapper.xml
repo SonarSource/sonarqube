@@ -132,6 +132,16 @@
       rp.kee = #{ruleProfileUuid, jdbcType=VARCHAR}
   </select>
 
+  <select id="selectByRuleIdsAndRuleProfileUuids" parameterType="map" resultType="org.sonar.db.qualityprofile.ActiveRuleDto">
+    select
+    <include refid="activeRuleColumns"/>
+    from active_rules a
+    <include refid="activeRuleKeyJoin"/>
+    where
+    r.id in <foreach collection="ruleIds" item="ruleId" separator="," open="(" close=")">#{ruleId, jdbcType=BIGINT}</foreach>
+    and rp.kee in <foreach collection="ruleProfileUuids" item="ruleProfileUuid" separator="," open="(" close=")">#{ruleProfileUuid, jdbcType=VARCHAR}</foreach>
+  </select>
+
   <select id="selectByRuleId" parameterType="map" resultType="org.sonar.db.qualityprofile.OrgActiveRuleDto">
     select
     <include refid="orgActiveRuleColumns"/>
