@@ -18,7 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { filter } from 'lodash';
 import { Link } from 'react-router';
+import ActivationModalButton from './ActivationModalButton';
 import ConfirmButton from './ConfirmButton';
 import RuleInheritanceIcon from './RuleInheritanceIcon';
 import { Profile, deactivateRule } from '../../../api/quality-profiles';
@@ -32,9 +34,9 @@ import SeverityHelper from '../../../components/shared/SeverityHelper';
 interface Props {
   activations: RuleActivation[] | undefined;
   canWrite: boolean | undefined;
-  onDeactivate: (profile: string) => void;
   organization: string | undefined;
   referencedProfiles: { [profile: string]: Profile };
+  refreshRuleDetails: () => Promise<void>;
   ruleDetails: RuleDetails;
 }
 
@@ -62,10 +64,12 @@ export default class RuleDetailsProfiles extends React.PureComponent<Props, Stat
 
   fetchProfiles = () => this.setState({ loading: true });
 
+  handleActivate = (_severity: string) => this.props.refreshRuleDetails();
+
   handleDeactivate = (key?: string) => {
     if (key) {
       deactivateRule({ key, rule: this.props.ruleDetails.key }).then(
-        () => this.props.onDeactivate(key),
+        this.props.refreshRuleDetails,
         () => {}
       );
     }
@@ -146,16 +150,23 @@ export default class RuleDetailsProfiles extends React.PureComponent<Props, Stat
   renderActions = (activation: RuleActivation, profile: Profile) => {
     const canEdit = profile.actions && profile.actions.edit && !profile.isBuiltIn;
     const { ruleDetails } = this.props;
+    const hasParent = activation.inherit !== RuleInheritance.NotInherited && profile.parentKey;
     return (
       <td className="coding-rules-detail-quality-profile-actions">
         {canEdit && (
           <>
             {!ruleDetails.isTemplate && (
-              <button className="coding-rules-detail-quality-profile-change">
-                {translate('change_verb')}
-              </button>
+              <ActivationModalButton
+                activation={activation}
+                buttonText={translate('change_verb')}
+                className="coding-rules-detail-quality-profile-change"
+                modalHeader={translate('coding_rules.change_details')}
+                onDone={this.handleActivate}
+                profiles={[profile]}
+                rule={ruleDetails}
+              />
             )}
-            {profile.parentKey ? (
+            {hasParent ? (
               activation.inherit === RuleInheritance.Overridden && (
                 <button className="coding-rules-detail-quality-profile-revert button-red spacer-left">
                   {translate('coding_rules.revert_to_parent_definition')}
@@ -225,9 +236,17 @@ export default class RuleDetailsProfiles extends React.PureComponent<Props, Stat
           </h3>
 
           {canActivate && (
-            <button id="coding-rules-quality-profile-activate" className="spacer-left">
-              {translate('coding_rules.activate')}
-            </button>
+            <ActivationModalButton
+              buttonText={translate('coding_rules.activate')}
+              className="coding-rules-quality-profile-activate spacer-left"
+              modalHeader={translate('coding_rules.activate_in_quality_profile')}
+              onDone={this.handleActivate}
+              profiles={filter(
+                this.props.referencedProfiles,
+                profile => !activations.find(activation => activation.qProfile === profile.key)
+              )}
+              rule={ruleDetails}
+            />
           )}
 
           {activations.length > 0 && (

@@ -37,7 +37,7 @@ import {
   getOpen
 } from '../query';
 import { searchRules, getRulesApp } from '../../../api/rules';
-import { Paging, Rule } from '../../../app/types';
+import { Paging, Rule, RuleInheritance } from '../../../app/types';
 import ScreenPositionHelper from '../../../components/common/ScreenPositionHelper';
 import { translate } from '../../../helpers/l10n';
 import { RawQuery } from '../../../helpers/query';
@@ -427,6 +427,17 @@ export default class App extends React.PureComponent<Props, State> {
     }
   };
 
+  handleRuleActivate = (profile: string, rule: string, severity: string) =>
+    this.setState((state: State) => {
+      const { actives = {} } = state;
+      const activation = { inherit: RuleInheritance.NotInherited, severity };
+      if (!actives[rule]) {
+        return { actives: { ...actives, [rule]: { [profile]: activation } } };
+      }
+
+      return { actives: { ...actives, [rule]: { ...actives[rule], [profile]: activation } } };
+    });
+
   handleRuleDeactivate = (profile: string, rule: string) =>
     this.setState((state: State) => {
       const { actives } = state;
@@ -516,6 +527,7 @@ export default class App extends React.PureComponent<Props, State> {
                     <RuleListItem
                       activation={this.getRuleActivation(rule.key)}
                       key={rule.key}
+                      onActivate={this.handleRuleActivate}
                       onDeactivate={this.handleRuleDeactivate}
                       onFilterChange={this.handleFilterChange}
                       path={this.getRulePath(rule.key)}

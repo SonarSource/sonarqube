@@ -18,19 +18,19 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import ConfirmButton from './ConfirmButton';
+import CustomRuleButton from './CustomRuleButton';
+import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import RuleDetailsCustomRules from './RuleDetailsCustomRules';
 import RuleDetailsDescription from './RuleDetailsDescription';
 import RuleDetailsIssues from './RuleDetailsIssues';
 import RuleDetailsMeta from './RuleDetailsMeta';
 import RuleDetailsParameters from './RuleDetailsParameters';
 import RuleDetailsProfiles from './RuleDetailsProfiles';
-import ConfirmButton from './ConfirmButton';
-import CustomRuleButton from './CustomRuleButton';
 import { Query } from '../query';
 import { Profile } from '../../../api/quality-profiles';
 import { getRuleDetails, deleteRule } from '../../../api/rules';
 import { RuleActivation, RuleDetails as IRuleDetails } from '../../../app/types';
-import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 
 interface Props {
@@ -56,11 +56,13 @@ export default class RuleDetails extends React.PureComponent<Props, State> {
 
   componentDidMount() {
     this.mounted = true;
+    this.setState({ loading: true });
     this.fetchRuleDetails();
   }
 
   componentDidUpdate(prevProps: Props) {
     if (prevProps.ruleKey !== this.props.ruleKey) {
+      this.setState({ loading: true });
       this.fetchRuleDetails();
     }
   }
@@ -69,8 +71,7 @@ export default class RuleDetails extends React.PureComponent<Props, State> {
     this.mounted = false;
   }
 
-  fetchRuleDetails = () => {
-    this.setState({ loading: true });
+  fetchRuleDetails = () =>
     getRuleDetails({
       actives: true,
       key: this.props.ruleKey,
@@ -87,7 +88,6 @@ export default class RuleDetails extends React.PureComponent<Props, State> {
         }
       }
     );
-  };
 
   handleRuleChange = (ruleDetails: IRuleDetails) => {
     if (this.mounted) {
@@ -104,14 +104,6 @@ export default class RuleDetails extends React.PureComponent<Props, State> {
       this.props.onDelete(this.props.ruleKey);
     });
   };
-
-  handleDeactivate = (profile: string) =>
-    this.setState((state: State) => {
-      if (state.actives && state.actives.length > 0) {
-        return { actives: state.actives.filter(active => active.qProfile !== profile) };
-      }
-      return {};
-    });
 
   render() {
     const { ruleDetails } = this.state;
@@ -198,7 +190,7 @@ export default class RuleDetails extends React.PureComponent<Props, State> {
             <RuleDetailsProfiles
               activations={this.state.actives}
               canWrite={canWrite}
-              onDeactivate={this.handleDeactivate}
+              refreshRuleDetails={this.fetchRuleDetails}
               organization={organization}
               referencedProfiles={referencedProfiles}
               ruleDetails={ruleDetails}

@@ -21,6 +21,7 @@ import * as React from 'react';
 import * as classNames from 'classnames';
 import { Link } from 'react-router';
 import { Activation, Query } from '../query';
+import ActivationModalButton from './ActivationModalButton';
 import ConfirmButton from './ConfirmButton';
 import SimilarRulesFilter from './SimilarRulesFilter';
 import { Profile, deactivateRule } from '../../../api/quality-profiles';
@@ -32,6 +33,7 @@ import { translate, translateWithParameters } from '../../../helpers/l10n';
 
 interface Props {
   activation?: Activation;
+  onActivate: (profile: string, rule: string, severity: string) => void;
   onDeactivate: (profile: string, rule: string) => void;
   onFilterChange: (changes: Partial<Query>) => void;
   path: { pathname: string; query: { [x: string]: any } };
@@ -46,6 +48,13 @@ export default class RuleListItem extends React.PureComponent<Props> {
       const data = { key: this.props.selectedProfile.key, rule: this.props.rule.key };
       deactivateRule(data).then(() => this.props.onDeactivate(data.key, data.rule), () => {});
     }
+  };
+
+  handleActivate = (severity: string) => {
+    if (this.props.selectedProfile) {
+      this.props.onActivate(this.props.selectedProfile.key, this.props.rule.key, severity);
+    }
+    return Promise.resolve();
   };
 
   renderActivation = () => {
@@ -102,9 +111,14 @@ export default class RuleListItem extends React.PureComponent<Props> {
         {activation
           ? this.renderDeactivateButton(activation.inherit)
           : !rule.isTemplate && (
-              <button className="coding-rules-detail-quality-profile-activate">
-                {translate('coding_rules.activate')}
-              </button>
+              <ActivationModalButton
+                buttonText={translate('coding_rules.activate')}
+                className="coding-rules-detail-quality-profile-activate"
+                modalHeader={translate('coding_rules.activate_in_quality_profile')}
+                onDone={this.handleActivate}
+                profiles={[selectedProfile]}
+                rule={rule}
+              />
             )}
       </td>
     );

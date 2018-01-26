@@ -235,7 +235,7 @@ export interface RuleDetails extends Rule {
 export interface RuleActivation {
   createdAt: string;
   inherit: RuleInheritance;
-  params: Array<{ key: string; value: string }>;
+  params: { key: string; value: string }[];
   qProfile: string;
   severity: string;
 }

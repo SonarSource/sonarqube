@@ -17,6 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { map } from 'lodash';
+import { csvEscape } from '../helpers/csv';
 import {
   request,
   checkStatus,
@@ -252,6 +254,18 @@ export function bulkActivateRules(data: BulkActivateParameters) {
 
 export function bulkDeactivateRules(data: BulkActivateParameters) {
   return postJSON('api/qualityprofiles/deactivate_rules', data);
+}
+
+export function activateRule(data: {
+  key: string;
+  params?: { [key: string]: string };
+  reset?: boolean;
+  rule: string;
+  severity?: string;
+}) {
+  const params =
+    data.params && map(data.params, (value, key) => `${key}=${csvEscape(value)}`).join(';');
+  return post('/api/qualityprofiles/activate_rule', { ...data, params }).catch(throwGlobalError);
 }
 
 export function deactivateRule(data: { key: string; rule: string }) {
