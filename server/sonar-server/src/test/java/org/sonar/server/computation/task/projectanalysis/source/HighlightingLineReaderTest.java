@@ -54,28 +54,28 @@ public class HighlightingLineReaderTest {
   @Rule
   public LogTester logTester = new LogTester();
 
-  static final Component FILE = builder(Component.Type.FILE, 1).setUuid("FILE_UUID").setKey("FILE_KEY").build();
+  private static final Component FILE = builder(Component.Type.FILE, 1).setUuid("FILE_UUID").setKey("FILE_KEY").build();
 
-  static final int DEFAULT_LINE_LENGTH = 5;
+  private static final int DEFAULT_LINE_LENGTH = 5;
 
-  static final int LINE_1 = 1;
-  static final int LINE_2 = 2;
-  static final int LINE_3 = 3;
-  static final int LINE_4 = 4;
+  private static final int LINE_1 = 1;
+  private static final int LINE_2 = 2;
+  private static final int LINE_3 = 3;
+  private static final int LINE_4 = 4;
 
-  static final String RANGE_LABEL_1 = "1,2";
-  static final String RANGE_LABEL_2 = "2,3";
-  static final String RANGE_LABEL_3 = "3,4";
-  static final String RANGE_LABEL_4 = "0,2";
-  static final String RANGE_LABEL_5 = "0,3";
+  private static final String RANGE_LABEL_1 = "1,2";
+  private static final String RANGE_LABEL_2 = "2,3";
+  private static final String RANGE_LABEL_3 = "3,4";
+  private static final String RANGE_LABEL_4 = "0,2";
+  private static final String RANGE_LABEL_5 = "0,3";
 
-  RangeOffsetConverter rangeOffsetConverter = mock(RangeOffsetConverter.class);
+  private RangeOffsetConverter rangeOffsetConverter = mock(RangeOffsetConverter.class);
 
-  DbFileSources.Data.Builder sourceData = newBuilder();
-  DbFileSources.Line.Builder line1 = sourceData.addLinesBuilder().setSource("line1").setLine(1);
-  DbFileSources.Line.Builder line2 = sourceData.addLinesBuilder().setSource("line2").setLine(2);
-  DbFileSources.Line.Builder line3 = sourceData.addLinesBuilder().setSource("line3").setLine(3);
-  DbFileSources.Line.Builder line4 = sourceData.addLinesBuilder().setSource("line4").setLine(4);
+  private DbFileSources.Data.Builder sourceData = newBuilder();
+  private DbFileSources.Line.Builder line1 = sourceData.addLinesBuilder().setSource("line1").setLine(1);
+  private DbFileSources.Line.Builder line2 = sourceData.addLinesBuilder().setSource("line2").setLine(2);
+  private DbFileSources.Line.Builder line3 = sourceData.addLinesBuilder().setSource("line3").setLine(3);
+  private DbFileSources.Line.Builder line4 = sourceData.addLinesBuilder().setSource("line4").setLine(4);
 
   @Test
   public void nothing_to_read() {

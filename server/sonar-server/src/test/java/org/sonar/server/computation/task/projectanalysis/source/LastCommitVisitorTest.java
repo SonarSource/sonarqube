@@ -25,7 +25,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
-import org.sonar.server.computation.task.projectanalysis.component.ComponentVisitor;
 import org.sonar.server.computation.task.projectanalysis.component.FileAttributes;
 import org.sonar.server.computation.task.projectanalysis.component.ReportComponent;
 import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
@@ -51,13 +50,13 @@ import static org.sonar.server.computation.task.projectanalysis.measure.Measure.
 
 public class LastCommitVisitorTest {
 
-  public static final int PROJECT_REF = 1;
-  public static final int MODULE_REF = 2;
-  public static final int FILE_1_REF = 1_111;
-  public static final int FILE_2_REF = 1_112;
-  public static final int FILE_3_REF = 1_121;
-  public static final int DIR_1_REF = 3;
-  public static final int DIR_2_REF = 4;
+  private static final int PROJECT_REF = 1;
+  private static final int MODULE_REF = 2;
+  private static final int FILE_1_REF = 1_111;
+  private static final int FILE_2_REF = 1_112;
+  private static final int FILE_3_REF = 1_121;
+  private static final int DIR_1_REF = 3;
+  private static final int DIR_2_REF = 4;
 
   @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
@@ -202,8 +201,7 @@ public class LastCommitVisitorTest {
         .setAuthor("john")
         .setDate(1_500_000_000_000L)
         .setRevision("rev-1")
-        .build()
-      );
+        .build());
 
     ReportComponent file = createFileComponent(FILE_1_REF);
     treeRootHolder.setRoot(file);

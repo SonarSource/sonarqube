@@ -54,7 +54,7 @@ public class LoadMeasureComputersStepTest {
   private static final String NEW_METRIC_3 = "metric3";
   private static final String NEW_METRIC_4 = "metric4";
 
-  MeasureComputersHolderImpl holder = new MeasureComputersHolderImpl();
+  private MeasureComputersHolderImpl holder = new MeasureComputersHolderImpl();
 
   @Test
   public void support_core_metrics_as_input_metrics() {

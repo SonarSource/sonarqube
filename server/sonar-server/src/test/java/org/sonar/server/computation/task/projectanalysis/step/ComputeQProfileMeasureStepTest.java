@@ -23,7 +23,6 @@ import com.google.common.collect.ImmutableMap;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -32,7 +31,6 @@ import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.component.FileAttributes;
 import org.sonar.server.computation.task.projectanalysis.component.ReportComponent;
 import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
-import org.sonar.server.computation.task.projectanalysis.measure.Measure;
 import org.sonar.server.computation.task.projectanalysis.measure.MeasureRepositoryRule;
 import org.sonar.server.computation.task.projectanalysis.metric.MetricRepositoryRule;
 import org.sonar.server.qualityprofile.QPMeasureData;
@@ -47,7 +45,6 @@ import static org.sonar.server.computation.task.projectanalysis.component.Compon
 import static org.sonar.server.computation.task.projectanalysis.component.Component.Type.FILE;
 import static org.sonar.server.computation.task.projectanalysis.component.Component.Type.MODULE;
 import static org.sonar.server.computation.task.projectanalysis.component.Component.Type.PROJECT;
-import static org.sonar.server.computation.task.projectanalysis.measure.Measure.newMeasureBuilder;
 
 public class ComputeQProfileMeasureStepTest {
 
@@ -101,12 +98,7 @@ public class ComputeQProfileMeasureStepTest {
   @Rule
   public AnalysisMetadataHolderRule analysisMetadataHolder = new AnalysisMetadataHolderRule();
 
-  ComputeQProfileMeasureStep underTest;
-
-  @Before
-  public void setUp() throws Exception {
-    underTest = new ComputeQProfileMeasureStep(treeRootHolder, measureRepository, metricRepository, analysisMetadataHolder);
-  }
+  private ComputeQProfileMeasureStep underTest = new ComputeQProfileMeasureStep(treeRootHolder, measureRepository, metricRepository, analysisMetadataHolder);
 
   @Test
   public void add_quality_profile_measure_on_project() {
@@ -132,7 +124,7 @@ public class ComputeQProfileMeasureStepTest {
   }
 
   @Test
-  public void fail_if_report_inconsistant() {
+  public void fail_if_report_inconsistent() {
     treeRootHolder.setRoot(MULTI_MODULE_PROJECT);
     QualityProfile qpJava = createQProfile(QP_NAME_1, LANGUAGE_KEY_1);
     analysisMetadataHolder.setQProfilesByLanguage(ImmutableMap.of(LANGUAGE_KEY_1, qpJava));
@@ -148,11 +140,6 @@ public class ComputeQProfileMeasureStepTest {
 
   private static QualityProfile createQProfile(String qpName, String languageKey) {
     return new QualityProfile(qpName + "-" + languageKey, qpName, languageKey, new Date());
-  }
-
-  private void addMeasure(int componentRef, QualityProfile... qps) {
-    Measure qualityProfileMeasure = newMeasureBuilder().create(toJson(qps));
-    measureRepository.addRawMeasure(componentRef, QUALITY_PROFILES_KEY, qualityProfileMeasure);
   }
 
   private static String toJson(QualityProfile... qps) {

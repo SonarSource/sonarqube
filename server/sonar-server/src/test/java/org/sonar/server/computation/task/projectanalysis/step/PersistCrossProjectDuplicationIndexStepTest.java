@@ -26,8 +26,6 @@ import java.util.Map;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
@@ -44,6 +42,7 @@ import org.sonar.server.computation.task.step.ComputationStep;
 
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class PersistCrossProjectDuplicationIndexStepTest {
@@ -78,18 +77,14 @@ public class PersistCrossProjectDuplicationIndexStepTest {
   @Rule
   public AnalysisMetadataHolderRule analysisMetadataHolder = new AnalysisMetadataHolderRule();
 
-  @Mock
-  CrossProjectDuplicationStatusHolder crossProjectDuplicationStatusHolder;
-  @Mock
-  Analysis baseAnalysis;
+  private CrossProjectDuplicationStatusHolder crossProjectDuplicationStatusHolder = mock(CrossProjectDuplicationStatusHolder.class);
+  private Analysis baseAnalysis = mock(Analysis.class);
+  private DbClient dbClient = dbTester.getDbClient();
 
-  DbClient dbClient = dbTester.getDbClient();
-
-  ComputationStep underTest;
+  private ComputationStep underTest;
 
   @Before
   public void setUp() throws Exception {
-    MockitoAnnotations.initMocks(this);
     when(baseAnalysis.getUuid()).thenReturn(BASE_ANALYSIS_UUID);
     analysisMetadataHolder.setUuid(ANALYSIS_UUID);
     analysisMetadataHolder.setBaseAnalysis(baseAnalysis);

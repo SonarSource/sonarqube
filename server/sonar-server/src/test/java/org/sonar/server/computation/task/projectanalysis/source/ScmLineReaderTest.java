@@ -37,7 +37,7 @@ public class ScmLineReaderTest {
     ScmInfo scmInfo = new ScmInfoImpl(newArrayList(
       Changeset.newChangesetBuilder()
         .setAuthor("john")
-        .setDate(123456789L)
+        .setDate(123_456_789L)
         .setRevision("rev-1")
         .build()
       ));
@@ -48,7 +48,7 @@ public class ScmLineReaderTest {
     lineScm.read(lineBuilder);
 
     assertThat(lineBuilder.getScmAuthor()).isEqualTo("john");
-    assertThat(lineBuilder.getScmDate()).isEqualTo(123456789L);
+    assertThat(lineBuilder.getScmDate()).isEqualTo(123_456_789L);
     assertThat(lineBuilder.getScmRevision()).isEqualTo("rev-1");
   }
 
@@ -56,7 +56,7 @@ public class ScmLineReaderTest {
   public void set_scm_with_minim_fields() {
     ScmInfo scmInfo = new ScmInfoImpl(newArrayList(
       Changeset.newChangesetBuilder()
-        .setDate(123456789L)
+        .setDate(123_456_789L)
         .setRevision("rev-1")
         .build()
       ));
@@ -73,7 +73,7 @@ public class ScmLineReaderTest {
 
   @Test
   public void getLatestChange_returns_changeset_with_highest_date_of_read_lines() {
-    long refDate = 123456789L;
+    long refDate = 123_456_789L;
     Changeset changeset0 = Changeset.newChangesetBuilder().setDate(refDate - 636).setRevision("rev-1").build();
     Changeset changeset1 = Changeset.newChangesetBuilder().setDate(refDate + 1).setRevision("rev-2").build();
     Changeset changeset2 = Changeset.newChangesetBuilder().setDate(refDate + 2).setRevision("rev-3").build();

@@ -19,6 +19,12 @@
  */
 package org.sonar.server.computation.task.projectanalysis.duplication;
 
+import org.junit.Rule;
+import org.junit.Test;
+import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
+import org.sonar.server.computation.task.projectanalysis.measure.MeasureRepositoryRule;
+import org.sonar.server.computation.task.projectanalysis.metric.MetricRepositoryRule;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.guava.api.Assertions.assertThat;
 import static org.sonar.api.measures.CoreMetrics.COMMENT_LINES;
@@ -40,12 +46,6 @@ import static org.sonar.server.computation.task.projectanalysis.component.Compon
 import static org.sonar.server.computation.task.projectanalysis.component.Component.Type.VIEW;
 import static org.sonar.server.computation.task.projectanalysis.component.ViewsComponent.builder;
 import static org.sonar.server.computation.task.projectanalysis.measure.Measure.newMeasureBuilder;
-
-import org.junit.Rule;
-import org.junit.Test;
-import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
-import org.sonar.server.computation.task.projectanalysis.measure.MeasureRepositoryRule;
-import org.sonar.server.computation.task.projectanalysis.metric.MetricRepositoryRule;
 
 public class ViewsDuplicationMeasuresTest {
 
@@ -82,7 +82,7 @@ public class ViewsDuplicationMeasuresTest {
   @Rule
   public MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(treeRootHolder, metricRepository);
 
-  DuplicationMeasures underTest = new DuplicationMeasures(treeRootHolder, metricRepository, measureRepository);
+  private DuplicationMeasures underTest = new DuplicationMeasures(treeRootHolder, metricRepository, measureRepository);
 
   @Test
   public void aggregate_duplicated_blocks() {

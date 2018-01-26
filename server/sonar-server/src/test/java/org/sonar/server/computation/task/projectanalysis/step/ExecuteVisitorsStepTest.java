@@ -144,26 +144,26 @@ public class ExecuteVisitorsStepTest {
   }
 
   private static class VisitorA extends TypeAwareVisitorAdapter {
-    public VisitorA() {
+    VisitorA() {
       super(CrawlerDepthLimit.PROJECT, Order.PRE_ORDER);
     }
   }
 
   private static class VisitorB extends TypeAwareVisitorAdapter {
-    public VisitorB() {
+    VisitorB() {
       super(CrawlerDepthLimit.PROJECT, Order.PRE_ORDER);
     }
   }
 
   private static class VisitorC extends TypeAwareVisitorAdapter {
-    public VisitorC() {
+    VisitorC() {
       super(CrawlerDepthLimit.PROJECT, Order.PRE_ORDER);
     }
   }
 
   private class TestTypeAwareVisitor extends TypeAwareVisitorAdapter {
 
-    public TestTypeAwareVisitor() {
+    TestTypeAwareVisitor() {
       super(CrawlerDepthLimit.FILE, ComponentVisitor.Order.POST_ORDER);
     }
 
@@ -176,7 +176,7 @@ public class ExecuteVisitorsStepTest {
 
   private class TestPathAwareVisitor extends PathAwareVisitorAdapter<Counter> {
 
-    public TestPathAwareVisitor() {
+    TestPathAwareVisitor() {
       super(CrawlerDepthLimit.FILE, ComponentVisitor.Order.POST_ORDER, new SimpleStackElementFactory<Counter>() {
         @Override
         public Counter createForAny(Component component) {

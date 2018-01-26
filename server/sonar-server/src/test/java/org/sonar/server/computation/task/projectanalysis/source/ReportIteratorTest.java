@@ -38,9 +38,8 @@ public class ReportIteratorTest {
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
-  File file;
-
-  ReportIterator<ScannerReport.LineCoverage> underTest;
+  private File file;
+  private ReportIterator<ScannerReport.LineCoverage> underTest;
 
   @Before
   public void setUp() throws Exception {
