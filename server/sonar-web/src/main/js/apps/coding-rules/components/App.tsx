@@ -161,21 +161,18 @@ export default class App extends React.PureComponent<Props, State> {
     });
   };
 
-  detachShortcuts = () => {
-    key.deleteScope('coding-rules');
-  };
+  detachShortcuts = () => key.deleteScope('coding-rules');
 
   getOpenRule = (props: Props, rules: Rule[]) => {
     const open = getOpen(props.location.query);
     return open && rules.find(rule => rule.key === open);
   };
 
-  getFacetsToFetch = () => {
-    return Object.keys(this.state.openFacets)
+  getFacetsToFetch = () =>
+    Object.keys(this.state.openFacets)
       .filter((facet: FacetKey) => this.state.openFacets[facet])
       .filter((facet: FacetKey) => shouldRequestFacet(facet))
       .map((facet: FacetKey) => getServerFacet(facet));
-  };
 
   getFieldsToFetch = () => {
     const fields = [
@@ -367,22 +364,21 @@ export default class App extends React.PureComponent<Props, State> {
     }
   };
 
-  handleReload = () => {
-    this.fetchFirstRules();
+  closeFacet = (facet: string) =>
+    this.setState(state => ({
+      openFacets: { ...state.openFacets, [facet]: false }
+    }));
+
+  handleBack = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
+    event.preventDefault();
+    this.closeRule();
   };
 
-  handleFilterChange = (changes: Partial<Query>) => {
+  handleFilterChange = (changes: Partial<Query>) =>
     this.context.router.push({
       pathname: this.props.location.pathname,
       query: serializeQuery({ ...this.state.query, ...changes })
     });
-  };
-
-  closeFacet = (facet: string) => {
-    this.setState(state => ({
-      openFacets: { ...state.openFacets, [facet]: false }
-    }));
-  };
 
   handleFacetToggle = (facet: keyof Query) => {
     this.setState(state => ({
@@ -393,14 +389,9 @@ export default class App extends React.PureComponent<Props, State> {
     }
   };
 
-  handleReset = () => {
-    this.context.router.push({ pathname: this.props.location.pathname });
-  };
+  handleReload = () => this.fetchFirstRules();
 
-  isFiltered = () => {
-    const serialized = serializeQuery(this.state.query);
-    return Object.keys(serialized).length > 0;
-  };
+  handleReset = () => this.context.router.push({ pathname: this.props.location.pathname });
 
   /** Tries to take rule by index, or takes the last one  */
   pickRuleAround = (rules: Rule[], selectedIndex: number | undefined) => {
@@ -447,9 +438,9 @@ export default class App extends React.PureComponent<Props, State> {
       return {};
     });
 
-  handleSearch = (searchQuery: string) => {
-    this.handleFilterChange({ searchQuery });
-  };
+  handleSearch = (searchQuery: string) => this.handleFilterChange({ searchQuery });
+
+  isFiltered = () => Object.keys(serializeQuery(this.state.query)).length > 0;
 
   render() {
     const { paging, rules } = this.state;
@@ -492,12 +483,18 @@ export default class App extends React.PureComponent<Props, State> {
             <div className="layout-page-header-panel layout-page-main-header">
               <div className="layout-page-header-panel-inner layout-page-main-header-inner">
                 <div className="layout-page-main-inner">
-                  {this.state.paging && (
-                    <BulkChange
-                      query={this.state.query}
-                      referencedProfiles={this.state.referencedProfiles}
-                      total={this.state.paging.total}
-                    />
+                  {this.state.openRule ? (
+                    <a href="#" className="js-back" onClick={this.handleBack}>
+                      {translate('coding_rules.return_to_list')}
+                    </a>
+                  ) : (
+                    this.state.paging && (
+                      <BulkChange
+                        query={this.state.query}
+                        referencedProfiles={this.state.referencedProfiles}
+                        total={this.state.paging.total}
+                      />
+                    )
                   )}
                   <PageActions
                     loading={this.state.loading}
