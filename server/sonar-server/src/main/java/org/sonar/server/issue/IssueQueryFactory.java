@@ -19,11 +19,8 @@
  */
 package org.sonar.server.issue;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Joiner;
-import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
-import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
 import java.time.Clock;
 import java.time.OffsetDateTime;
@@ -47,16 +44,18 @@ import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.web.UserRole;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.server.issue.IssueQuery.PeriodStart;
 import org.sonar.server.user.UserSession;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Collections2.transform;
 import static java.lang.String.format;
 import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
@@ -107,7 +106,7 @@ public class IssueQueryFactory {
         .statuses(request.getStatuses())
         .resolutions(request.getResolutions())
         .resolved(request.getResolved())
-        .rules(stringsToRules(request.getRules()))
+        .rules(ruleKeysToRuleId(dbSession, request.getRules()))
         .assignees(buildAssignees(request.getAssignees()))
         .languages(request.getLanguages())
         .tags(request.getTags())
@@ -364,24 +363,13 @@ public class IssueQueryFactory {
     return componentDtos;
   }
 
-  @VisibleForTesting
-  static Collection<RuleKey> toRules(@Nullable Object o) {
-    Collection<RuleKey> result = null;
-    if (o != null) {
-      if (o instanceof List) {
-        // assume that it contains only strings
-        result = stringsToRules((List<String>) o);
-      } else if (o instanceof String) {
-        result = stringsToRules(newArrayList(Splitter.on(',').omitEmptyStrings().split((String) o)));
-      }
-    }
-    return result;
-  }
-
   @CheckForNull
-  private static Collection<RuleKey> stringsToRules(@Nullable Collection<String> rules) {
+  private Collection<Integer> ruleKeysToRuleId(DbSession dbSession, @Nullable Collection<String> rules) {
     if (rules != null) {
-      return Collections2.transform(rules, RuleKey::parse);
+      return dbClient.ruleDao().selectDefinitionByKeys(dbSession, transform(rules, RuleKey::parse))
+        .stream()
+        .map(RuleDefinitionDto::getId)
+        .collect(MoreCollectors.toList());
     }
     return null;
   }

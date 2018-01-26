@@ -25,7 +25,6 @@ import java.util.Date;
 import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.Duration;
@@ -85,8 +84,8 @@ public class IssueDoc extends BaseDoc {
     return getField(IssueIndexDefinition.FIELD_ISSUE_IS_MAIN_BRANCH);
   }
 
-  public RuleKey ruleKey() {
-    return RuleKey.parse(getField(IssueIndexDefinition.FIELD_ISSUE_RULE_KEY));
+  public Integer ruleId() {
+    return getField(IssueIndexDefinition.FIELD_ISSUE_RULE_ID);
   }
 
   public String language() {
@@ -195,8 +194,8 @@ public class IssueDoc extends BaseDoc {
     return this;
   }
 
-  public IssueDoc setRuleKey(@Nullable String s) {
-    setField(IssueIndexDefinition.FIELD_ISSUE_RULE_KEY, s);
+  public IssueDoc setRuleId(Integer s) {
+    setField(IssueIndexDefinition.FIELD_ISSUE_RULE_ID, s);
     return this;
   }
 

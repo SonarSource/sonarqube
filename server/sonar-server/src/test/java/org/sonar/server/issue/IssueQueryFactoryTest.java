@@ -34,6 +34,8 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.rule.RuleDbTester;
+import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.tester.UserSessionRule;
 
@@ -50,6 +52,7 @@ import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
 import static org.sonar.db.component.ComponentTesting.newProjectCopy;
 import static org.sonar.db.component.ComponentTesting.newSubView;
+import static org.sonar.db.rule.RuleTesting.newRule;
 
 public class IssueQueryFactoryTest {
 
@@ -59,6 +62,8 @@ public class IssueQueryFactoryTest {
   public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public DbTester db = DbTester.create();
+
+  private RuleDbTester ruleDbTester = new RuleDbTester(db);
 
   private Clock clock = mock(Clock.class);
   private IssueQueryFactory underTest = new IssueQueryFactory(db.getDbClient(), clock, userSession);
@@ -70,6 +75,9 @@ public class IssueQueryFactoryTest {
     ComponentDto module = db.components().insertComponent(newModuleDto(project));
     ComponentDto file = db.components().insertComponent(newFileDto(project));
 
+    RuleDefinitionDto rule1 = ruleDbTester.insert();
+    RuleDefinitionDto rule2 = ruleDbTester.insert();
+    newRule(RuleKey.of("findbugs", "NullReference"));
     SearchRequest request = new SearchRequest()
       .setIssues(asList("anIssueKey"))
       .setSeverities(asList("MAJOR", "MINOR"))
@@ -87,7 +95,7 @@ public class IssueQueryFactoryTest {
       .setAssigned(true)
       .setCreatedAfter("2013-04-16T09:08:24+0200")
       .setCreatedBefore("2013-04-17T09:08:24+0200")
-      .setRules(asList("squid:AvoidCycle", "findbugs:NullReference"))
+      .setRules(asList(rule1.getKey().toString(), rule2.getKey().toString()))
       .setSort("CREATION_DATE")
       .setAsc(true);
 
@@ -196,15 +204,6 @@ public class IssueQueryFactoryTest {
     assertThat(query.viewUuids()).isEmpty();
     assertThat(query.organizationUuid()).isNull();
     assertThat(query.branchUuid()).isNull();
-  }
-
-  @Test
-  public void parse_list_of_rules() {
-    assertThat(IssueQueryFactory.toRules(null)).isNull();
-    assertThat(IssueQueryFactory.toRules("")).isEmpty();
-    assertThat(IssueQueryFactory.toRules("squid:AvoidCycle")).containsOnly(RuleKey.of("squid", "AvoidCycle"));
-    assertThat(IssueQueryFactory.toRules("squid:AvoidCycle,findbugs:NullRef")).containsOnly(RuleKey.of("squid", "AvoidCycle"), RuleKey.of("findbugs", "NullRef"));
-    assertThat(IssueQueryFactory.toRules(asList("squid:AvoidCycle", "findbugs:NullRef"))).containsOnly(RuleKey.of("squid", "AvoidCycle"), RuleKey.of("findbugs", "NullRef"));
   }
 
   @Test

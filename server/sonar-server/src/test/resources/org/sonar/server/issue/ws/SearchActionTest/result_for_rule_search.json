@@ -1,0 +1,45 @@
+{
+  "total": 1,
+  "p": 1,
+  "ps": 100,
+  "paging": {
+    "pageIndex": 1,
+    "pageSize": 100,
+    "total": 1
+  },
+  "issues": [    {
+    "rule": "xoo:x1",
+    "component": "FILE_KEY",
+    "project": "PROJECT_KEY",
+    "flows": [],
+    "status": "OPEN",
+    "organization": "my-org-1"
+  }],
+  "components": [    {
+    "organization": "my-org-1",
+    "key": "FILE_KEY",
+    "uuid": "FILE_ID",
+    "enabled": true,
+    "qualifier": "FIL",
+    "name": "NAME_FILE_ID",
+    "longName": "null/NAME_FILE_ID",
+    "path": "null/NAME_FILE_ID"
+  },
+    {
+      "organization": "my-org-1",
+      "key": "PROJECT_KEY",
+      "uuid": "PROJECT_ID",
+      "enabled": true,
+      "qualifier": "TRK",
+      "name": "NAME_PROJECT_ID",
+      "longName": "LONG_NAME_PROJECT_ID"
+    }],
+  "rules": [
+    {
+      "key": "xoo:x1",
+      "name": "Rule name",
+      "lang": "xoo",
+      "status": "READY"
+    }
+  ]
+}

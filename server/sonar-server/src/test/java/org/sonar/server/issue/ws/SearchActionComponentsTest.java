@@ -19,7 +19,6 @@
  */
 package org.sonar.server.issue.ws;
 
-import java.io.IOException;
 import java.time.Clock;
 import java.util.Arrays;
 import java.util.Date;
@@ -104,7 +103,8 @@ public class SearchActionComponentsTest {
   private SearchResponseFormat searchResponseFormat = new SearchResponseFormat(new Durations(), new WsResponseCommonFormat(languages), languages, new AvatarResolverImpl());
   private PermissionIndexerTester permissionIndexer = new PermissionIndexerTester(es, issueIndexer);
 
-  private WsActionTester ws = new WsActionTester(new SearchAction(userSession, issueIndex, issueQueryFactory, searchResponseLoader, searchResponseFormat, System2.INSTANCE));
+  private WsActionTester ws = new WsActionTester(new SearchAction(userSession, issueIndex, issueQueryFactory, searchResponseLoader, searchResponseFormat, System2.INSTANCE,
+    dbClient));
 
   @Test
   public void search_all_issues_when_no_parameter() {
