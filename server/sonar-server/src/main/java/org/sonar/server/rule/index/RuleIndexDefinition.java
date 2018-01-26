@@ -118,7 +118,7 @@ public class RuleIndexDefinition implements IndexDefinition {
     activeRuleMapping.setAttribute("_parent", ImmutableMap.of("type", INDEX_TYPE_RULE.getType()));
 
     activeRuleMapping.keywordFieldBuilder(FIELD_ACTIVE_RULE_ID).disableNorms().build();
-    activeRuleMapping.keywordFieldBuilder(FIELD_ACTIVE_RULE_RULE_KEY).addSubFields(SORTABLE_ANALYZER).build();
+    activeRuleMapping.keywordFieldBuilder(FIELD_ACTIVE_RULE_RULE_KEY).disableNorms().build();
     activeRuleMapping.keywordFieldBuilder(FIELD_ACTIVE_RULE_REPOSITORY).build();
     activeRuleMapping.keywordFieldBuilder(FIELD_ACTIVE_RULE_PROFILE_UUID).disableNorms().build();
     activeRuleMapping.keywordFieldBuilder(FIELD_ACTIVE_RULE_INHERITANCE).disableNorms().build();
