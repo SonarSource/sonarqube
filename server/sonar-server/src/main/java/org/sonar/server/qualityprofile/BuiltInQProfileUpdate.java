@@ -25,8 +25,8 @@ import org.sonar.db.qualityprofile.RulesProfileDto;
 
 public interface BuiltInQProfileUpdate {
   /**
-   * Persist a built-in profile and associate it to all existing organizations.
-   * Db sessions are committed.
+   * Persist an existing built-in profile and associate it to all existing organizations.
+   * Db session is committed and Elasticsearch indices are updated.
    */
   List<ActiveRuleChange> update(DbSession dbSession, BuiltInQProfile builtInQProfile, RulesProfileDto ruleProfile);
 }

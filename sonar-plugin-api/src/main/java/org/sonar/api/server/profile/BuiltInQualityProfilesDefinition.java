@@ -34,8 +34,6 @@ import org.sonar.api.ExtensionPoint;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.server.ServerSide;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
@@ -197,7 +195,6 @@ public interface BuiltInQualityProfilesDefinition {
   @Immutable
   class BuiltInQualityProfileImpl implements BuiltInQualityProfile {
 
-    private static final Logger LOG = Loggers.get(BuiltInQualityProfilesDefinition.BuiltInQualityProfileImpl.class);
     private final String language;
     private final String name;
     private final boolean isDefault;
