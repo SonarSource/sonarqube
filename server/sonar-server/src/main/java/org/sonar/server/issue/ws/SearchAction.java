@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.SearchHit;
@@ -392,19 +393,16 @@ public class SearchAction implements IssuesWsAction {
     LinkedHashMap<String, Long> rulesFacet = facets.get(PARAM_RULES);
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      Set<String> ruleKeysToLoad = new HashSet<>();
-      ruleKeysToLoad.addAll(rulesFacet.keySet());
+      Set<String> ruleKeysToLoad = new HashSet<>(rulesFacet.keySet());
       ruleKeysToLoad.removeAll(
         alreadyLoadedRules
           .stream()
           .map(r -> r.getKey().toString())
           .collect(Collectors.toList()));
 
-      Set<RuleDefinitionDto> requiredRules = new HashSet<>();
-      requiredRules.addAll(alreadyLoadedRules);
-      requiredRules.addAll(dbClient.ruleDao().selectDefinitionByIds(dbSession, Collections2.transform(ruleKeysToLoad, Integer::parseInt)));
-
-      Map<Integer, RuleKey> idToRuleKey = requiredRules.stream()
+      Map<Integer, RuleKey> idToRuleKey = Stream.concat(
+        alreadyLoadedRules.stream(),
+        dbClient.ruleDao().selectDefinitionByIds(dbSession, Collections2.transform(ruleKeysToLoad, Integer::parseInt)).stream())
         .collect(Collectors.toMap(RuleDefinitionDto::getId, RuleDefinitionDto::getKey));
 
       LinkedHashMap<String, Long> newRulesFacet = new LinkedHashMap<>();
