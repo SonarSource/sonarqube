@@ -29,7 +29,7 @@ import RuleDetailsParameters from './RuleDetailsParameters';
 import RuleDetailsProfiles from './RuleDetailsProfiles';
 import { Query } from '../query';
 import { Profile } from '../../../api/quality-profiles';
-import { getRuleDetails, deleteRule } from '../../../api/rules';
+import { getRuleDetails, deleteRule, updateRule } from '../../../api/rules';
 import { RuleActivation, RuleDetails as IRuleDetails } from '../../../app/types';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 
@@ -95,8 +95,16 @@ export default class RuleDetails extends React.PureComponent<Props, State> {
     }
   };
 
-  handleTagsChange = (tags: string[]) =>
+  handleTagsChange = (tags: string[]) => {
+    // optimistic update
+    const oldTags = this.state.ruleDetails && this.state.ruleDetails.tags;
     this.setState(state => ({ ruleDetails: { ...state.ruleDetails, tags } }));
+    updateRule({ key: this.props.ruleKey, tags: tags.join() }).catch(() => {
+      if (this.mounted) {
+        this.setState(state => ({ ruleDetails: { ...state.ruleDetails, tags: oldTags } }));
+      }
+    });
+  };
 
   handleDelete = () =>
     deleteRule({ key: this.props.ruleKey }).then(() => {
