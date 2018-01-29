@@ -23,11 +23,11 @@ import java.net.URL;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.rule.RuleScope;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.debt.DebtRemediationFunction;
-import org.sonar.api.server.rule.RulesDefinition.Scope;
 import org.sonar.api.utils.log.LogTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -82,7 +82,7 @@ public class RulesDefinitionTest {
       .setInternalKey("/something")
       .setStatus(RuleStatus.BETA)
       .setTags("one", "two")
-      .setScope(Scope.ALL)
+      .setScope(RuleScope.ALL)
       .addTags("two", "three", "four");
 
     newRepo.createRule("ABC").setName("ABC").setMarkdownDescription("ABC");
@@ -92,7 +92,7 @@ public class RulesDefinitionTest {
     assertThat(repo.rules()).hasSize(2);
 
     RulesDefinition.Rule rule = repo.rule("NPE");
-    assertThat(rule.scope()).isEqualTo(Scope.ALL);
+    assertThat(rule.scope()).isEqualTo(RuleScope.ALL);
     assertThat(rule.key()).isEqualTo("NPE");
     assertThat(rule.name()).isEqualTo("Detect NPE");
     assertThat(rule.severity()).isEqualTo(Severity.BLOCKER);
@@ -209,7 +209,7 @@ public class RulesDefinitionTest {
     RulesDefinition.Rule rule = context.repository("findbugs").rule("NPE");
     assertThat(rule.name()).isEqualTo("NullPointer");
   }
-  
+
   @Test
   public void default_scope_should_be_main() {
     RulesDefinition.NewRepository newFindbugs = context.createRepository("findbugs", "java");
@@ -217,7 +217,7 @@ public class RulesDefinitionTest {
     newFindbugs.done();
 
     RulesDefinition.Rule rule = context.repository("findbugs").rule("key");
-    assertThat(rule.scope()).isEqualTo(Scope.MAIN);
+    assertThat(rule.scope()).isEqualTo(RuleScope.MAIN);
   }
 
   @Test

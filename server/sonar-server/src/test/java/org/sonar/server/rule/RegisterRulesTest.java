@@ -28,6 +28,7 @@ import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rule.RuleScope;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.debt.DebtRemediationFunction;
@@ -565,7 +566,7 @@ public class RegisterRulesTest {
         .setSeverity(BLOCKER)
         .setInternalKey("config1")
         .setTags("tag1", "tag2", "tag3")
-        .setScope(Scope.ALL)
+        .setScope(RuleScope.ALL)
         .setType(RuleType.CODE_SMELL)
         .setStatus(RuleStatus.BETA)
         .setGapDescription("squid.S115.effortToFix");

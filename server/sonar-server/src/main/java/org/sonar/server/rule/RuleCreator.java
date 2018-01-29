@@ -172,6 +172,7 @@ public class RuleCreator {
       .setDefRemediationGapMultiplier(templateRuleDto.getDefRemediationGapMultiplier())
       .setDefRemediationBaseEffort(templateRuleDto.getDefRemediationBaseEffort())
       .setGapDescription(templateRuleDto.getGapDescription())
+      .setScope(templateRuleDto.getScope())
       .setSystemTags(templateRuleDto.getSystemTags())
       .setCreatedAt(system2.now())
       .setUpdatedAt(system2.now());
