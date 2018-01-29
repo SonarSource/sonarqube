@@ -29,7 +29,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.annotation.Nullable;
-import org.sonar.api.rule.RuleKey;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
@@ -80,30 +79,9 @@ public class SearchResponseLoader {
 
   /**
    * The issue keys are given by the multi-criteria search in Elasticsearch index.
-   */
-  public SearchResponseData load(Collector collector, @Nullable Facets facets) {
-    try (DbSession dbSession = dbClient.openSession(false)) {
-      SearchResponseData result = new SearchResponseData(dbClient.issueDao().selectByOrderedKeys(dbSession, collector.getIssueKeys()));
-      collector.collect(result.getIssues());
-
-      loadRules(collector, dbSession, result);
-      // order is important - loading of comments complete the list of users: loadComments() is
-      // before loadUsers()
-      loadComments(collector, dbSession, result);
-      loadUsers(collector, dbSession, result);
-      loadComponents(collector, dbSession, result);
-      loadOrganizations(dbSession, result);
-      loadActionsAndTransitions(collector, result);
-      completeTotalEffortFromFacet(facets, result);
-      return result;
-    }
-  }
-
-  /**
-   * The issue keys are given by the multi-criteria search in Elasticsearch index.
    * <p>
-   * Same as {@link #load(Collector, Facets)} but will only retrieve from DB data which is not already provided by the
-   * specified preloaded {@link SearchResponseData}.<br/>
+   * Same as {@link #load(SearchResponseData, Collector, Facets)} but will only retrieve from DB data which is not
+   * already provided by the specified preloaded {@link SearchResponseData}.<br/>
    * The returned {@link SearchResponseData} is <strong>not</strong> the one specified as argument.
    * </p>
    */
@@ -186,20 +164,14 @@ public class SearchResponseLoader {
   private void loadRules(SearchResponseData preloadedResponseData, Collector collector, DbSession dbSession, SearchResponseData result) {
     if (collector.contains(RULES)) {
       List<RuleDefinitionDto> preloadedRules = firstNonNull(preloadedResponseData.getRules(), emptyList());
-      Set<RuleKey> preloaedRuleKeys = preloadedRules.stream().map(RuleDefinitionDto::getKey).collect(MoreCollectors.toSet());
-      Set<RuleKey> ruleKeysToLoad = copyOf(difference(collector.get(RULES), preloaedRuleKeys));
+      Set<Integer> preloaedRuleKeys = preloadedRules.stream().map(RuleDefinitionDto::getId).collect(MoreCollectors.toSet());
+      Set<Integer> ruleKeysToLoad = copyOf(difference(collector.get(RULES), preloaedRuleKeys));
       if (ruleKeysToLoad.isEmpty()) {
         result.setRules(preloadedResponseData.getRules());
       } else {
-        List<RuleDefinitionDto> loadedRules = dbClient.ruleDao().selectDefinitionByKeys(dbSession, ruleKeysToLoad);
+        List<RuleDefinitionDto> loadedRules = dbClient.ruleDao().selectDefinitionByIds(dbSession, ruleKeysToLoad);
         result.setRules(concat(preloadedRules.stream(), loadedRules.stream()).collect(toList(preloadedRules.size() + loadedRules.size())));
       }
-    }
-  }
-
-  private void loadUsers(Collector collector, DbSession dbSession, SearchResponseData result) {
-    if (collector.contains(USERS)) {
-      result.setUsers(dbClient.userDao().selectByLogins(dbSession, collector.getList(USERS)));
     }
   }
 
@@ -218,20 +190,6 @@ public class SearchResponseLoader {
 
   private boolean canEditOrDelete(IssueChangeDto dto) {
     return userSession.isLoggedIn() && userSession.getLogin().equals(dto.getUserLogin());
-  }
-
-  private void loadRules(Collector collector, DbSession dbSession, SearchResponseData result) {
-    if (collector.contains(RULES)) {
-      result.setRules(dbClient.ruleDao().selectDefinitionByIds(dbSession, collector.getList(RULES)));
-    }
-  }
-
-  private void loadComponents(Collector collector, DbSession dbSession, SearchResponseData result) {
-    // always load components and projects, because some issue fields still relate to component ids/keys.
-    // They should be dropped but are kept for backward-compatibility (see SearchResponseFormat)
-    result.addComponents(dbClient.componentDao().selectByUuids(dbSession, collector.getComponentUuids()));
-    result.addComponents(dbClient.componentDao().selectSubProjectsByComponentUuids(dbSession, collector.getComponentUuids()));
-    addProjectUuids(collector, dbSession, result);
   }
 
   private void loadOrganizations(DbSession dbSession, SearchResponseData result) {
@@ -362,10 +320,6 @@ public class SearchResponseLoader {
 
     <T> Set<T> get(SearchAdditionalField key) {
       return (Set<T>) fieldValues.get(key);
-    }
-
-    <T> List<T> getList(SearchAdditionalField key) {
-      return newArrayList(get(key));
     }
 
     boolean contains(SearchAdditionalField field) {

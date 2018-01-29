@@ -28,6 +28,7 @@ import java.time.Period;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -44,7 +45,6 @@ import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
@@ -364,14 +364,11 @@ public class IssueQueryFactory {
   }
 
   @CheckForNull
-  private Collection<Integer> ruleKeysToRuleId(DbSession dbSession, @Nullable Collection<String> rules) {
+  private Collection<RuleDefinitionDto> ruleKeysToRuleId(DbSession dbSession, @Nullable Collection<String> rules) {
     if (rules != null) {
-      return dbClient.ruleDao().selectDefinitionByKeys(dbSession, transform(rules, RuleKey::parse))
-        .stream()
-        .map(RuleDefinitionDto::getId)
-        .collect(MoreCollectors.toList());
+      return dbClient.ruleDao().selectDefinitionByKeys(dbSession, transform(rules, RuleKey::parse));
     }
-    return null;
+    return Collections.emptyList();
   }
 
   private static String toProjectUuid(ComponentDto componentDto) {
