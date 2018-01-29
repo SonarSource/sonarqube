@@ -19,6 +19,7 @@
     "gapDescription": "java.S001.effortToFix",
     "lang": "java",
     "langName": "Java",
+    "scope": "MAIN",
     "type": "CODE_SMELL",
     "params": [
         {

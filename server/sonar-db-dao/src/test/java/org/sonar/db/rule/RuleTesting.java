@@ -30,6 +30,7 @@ import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.rule.RuleDto.Format;
+import org.sonar.db.rule.RuleDto.Scope;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.ImmutableSet.copyOf;
@@ -76,7 +77,8 @@ public class RuleTesting {
       .setDefRemediationGapMultiplier(nextInt(10) + "h")
       .setDefRemediationFunction("LINEAR_OFFSET")
       .setCreatedAt(System.currentTimeMillis())
-      .setUpdatedAt(System.currentTimeMillis());
+      .setUpdatedAt(System.currentTimeMillis())
+      .setScope(Scope.MAIN);
   }
 
   public static RuleMetadataDto newRuleMetadata() {
@@ -189,7 +191,8 @@ public class RuleTesting {
       .setGapDescription(ruleKey.repository() + "." + ruleKey.rule() + ".effortToFix")
       .setType(RuleType.CODE_SMELL)
       .setCreatedAt(new Date().getTime())
-      .setUpdatedAt(new Date().getTime());
+      .setUpdatedAt(new Date().getTime())
+      .setScope(Scope.MAIN);
     if (organization != null) {
       res
         .setOrganizationUuid(organization.getUuid())
