@@ -80,30 +80,9 @@ public class SearchResponseLoader {
 
   /**
    * The issue keys are given by the multi-criteria search in Elasticsearch index.
-   */
-  public SearchResponseData load(Collector collector, @Nullable Facets facets) {
-    try (DbSession dbSession = dbClient.openSession(false)) {
-      SearchResponseData result = new SearchResponseData(dbClient.issueDao().selectByOrderedKeys(dbSession, collector.getIssueKeys()));
-      collector.collect(result.getIssues());
-
-      loadRules(collector, dbSession, result);
-      // order is important - loading of comments complete the list of users: loadComments() is
-      // before loadUsers()
-      loadComments(collector, dbSession, result);
-      loadUsers(collector, dbSession, result);
-      loadComponents(collector, dbSession, result);
-      loadOrganizations(dbSession, result);
-      loadActionsAndTransitions(collector, result);
-      completeTotalEffortFromFacet(facets, result);
-      return result;
-    }
-  }
-
-  /**
-   * The issue keys are given by the multi-criteria search in Elasticsearch index.
    * <p>
-   * Same as {@link #load(Collector, Facets)} but will only retrieve from DB data which is not already provided by the
-   * specified preloaded {@link SearchResponseData}.<br/>
+   * Same as {@link #load(SearchResponseData, Collector, Facets)} but will only retrieve from DB data which is not
+   * already provided by the specified preloaded {@link SearchResponseData}.<br/>
    * The returned {@link SearchResponseData} is <strong>not</strong> the one specified as argument.
    * </p>
    */

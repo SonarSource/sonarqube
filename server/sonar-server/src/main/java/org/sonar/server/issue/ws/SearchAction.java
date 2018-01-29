@@ -21,6 +21,7 @@ package org.sonar.server.issue.ws;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.Collections2;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import java.util.Arrays;
 import java.util.Collection;
@@ -363,7 +364,9 @@ public class SearchAction implements IssuesWsAction {
         (!query.projectUuids().isEmpty()) || query.organizationUuid() != null, "Facet(s) '%s' require to also filter by project or organization",
         COMA_JOINER.join(facetsRequiringProjectOrOrganizationParameter));
     }
-    SearchResponseData data = searchResponseLoader.load(collector, facets);
+    SearchResponseData preloadedData = new SearchResponseData(emptyList());
+    preloadedData.setRules(ImmutableList.copyOf(query.rules()));
+    SearchResponseData data = searchResponseLoader.load(preloadedData, collector, facets);
 
     // format response
 
