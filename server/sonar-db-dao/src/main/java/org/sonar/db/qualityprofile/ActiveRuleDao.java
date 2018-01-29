@@ -35,7 +35,6 @@ import org.sonar.db.rule.RuleParamDto;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Collections.emptyList;
-import static org.sonar.db.DatabaseUtils.PARTITION_SIZE_FOR_ORACLE;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 import static org.sonar.db.DatabaseUtils.executeLargeInputsWithoutOutput;
 import static org.sonar.db.KeyLongValue.toMap;
@@ -82,13 +81,12 @@ public class ActiveRuleDao implements Dao {
   }
 
   public Collection<ActiveRuleDto> selectByRulesAndRuleProfileUuids(DbSession dbSession, Collection<RuleDefinitionDto> rules, Collection<String> ruleProfileUuids) {
-    if (rules.isEmpty()) {
+    if (rules.isEmpty() || ruleProfileUuids.isEmpty()) {
       return emptyList();
     }
-    checkArgument(rules.size() < PARTITION_SIZE_FOR_ORACLE,
-      "too many rules (got %s, max is %s)", rules.size(), PARTITION_SIZE_FOR_ORACLE);
     List<Integer> ruleIds = rules.stream().map(RuleDefinitionDto::getId).collect(MoreCollectors.toArrayList(rules.size()));
-    return executeLargeInputs(ruleProfileUuids, chunk -> mapper(dbSession).selectByRuleIdsAndRuleProfileUuids(ruleIds, chunk));
+    ActiveRuleMapper mapper = mapper(dbSession);
+    return executeLargeInputs(ruleIds, ruleIdsChunk -> executeLargeInputs(ruleProfileUuids, chunk -> mapper.selectByRuleIdsAndRuleProfileUuids(ruleIdsChunk, chunk)));
   }
 
   public ActiveRuleDto insert(DbSession dbSession, ActiveRuleDto item) {
