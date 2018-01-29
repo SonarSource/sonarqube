@@ -25,6 +25,7 @@ import java.util.Date;
 import org.junit.Test;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.Severity;
+import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.server.issue.IssueQuery.PeriodStart;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -36,8 +37,8 @@ public class IssueQueryTest {
 
   @Test
   public void build_query() {
-    int ruleId = nextInt(1000);
-    PeriodStart filterDate = new IssueQuery.PeriodStart(new Date(10_000_000_000L),false);
+    RuleDefinitionDto rule = new RuleDefinitionDto().setId(nextInt(1000));
+    PeriodStart filterDate = new IssueQuery.PeriodStart(new Date(10_000_000_000L), false);
     IssueQuery query = IssueQuery.builder()
       .issueKeys(newArrayList("ABCDE"))
       .severities(newArrayList(Severity.BLOCKER))
@@ -46,7 +47,7 @@ public class IssueQueryTest {
       .projectUuids(newArrayList("PROJECT"))
       .componentUuids(newArrayList("org/struts/Action.java"))
       .moduleUuids(newArrayList("org.struts:core"))
-      .rules(newArrayList(ruleId))
+      .rules(newArrayList(rule))
       .assignees(newArrayList("gargantua"))
       .languages(newArrayList("xoo"))
       .tags(newArrayList("tag1", "tag2"))
@@ -77,7 +78,7 @@ public class IssueQueryTest {
     assertThat(query.branchUuid()).isEqualTo("my_branch");
     assertThat(query.createdAfterByProjectUuids()).containsOnly(entry("PROJECT", filterDate));
     assertThat(query.assigned()).isTrue();
-    assertThat(query.rules()).containsOnly(ruleId);
+    assertThat(query.rules()).containsOnly(rule);
     assertThat(query.createdAfter()).isNotNull();
     assertThat(query.createdBefore()).isNotNull();
     assertThat(query.createdAt()).isNotNull();
