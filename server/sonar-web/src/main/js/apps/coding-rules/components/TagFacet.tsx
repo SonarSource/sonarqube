@@ -24,7 +24,7 @@ import { getRuleTags } from '../../../api/rules';
 import FacetFooter from '../../../components/facet/FacetFooter';
 
 interface Props extends BasicProps {
-  organization?: string;
+  organization: string | undefined;
 }
 
 export default class TagFacet extends React.PureComponent<Props> {

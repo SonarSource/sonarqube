@@ -26,7 +26,7 @@ import { formatMeasure } from '../../../helpers/measures';
 import { getIssuesUrl } from '../../../helpers/urls';
 
 interface Props {
-  organization?: string;
+  organization: string | undefined;
   ruleKey: string;
 }
 
@@ -64,7 +64,10 @@ export default class RuleDetailsIssues extends React.PureComponent<Props, State>
 
   fetchIssues = () => {
     this.setState({ loading: true });
-    getFacet({ rules: this.props.ruleKey, resolved: false }, 'projectUuids').then(
+    getFacet(
+      { organization: this.props.organization, rules: this.props.ruleKey, resolved: false },
+      'projectUuids'
+    ).then(
       ({ facet, response }) => {
         if (this.mounted) {
           const { components = [], paging } = response;

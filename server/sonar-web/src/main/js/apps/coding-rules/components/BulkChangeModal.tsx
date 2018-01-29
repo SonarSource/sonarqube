@@ -29,6 +29,7 @@ import { formatMeasure } from '../../../helpers/measures';
 interface Props {
   action: string;
   onClose: () => void;
+  organization: string | undefined;
   referencedProfiles: { [profile: string]: Profile };
   profile?: Profile;
   query: Query;
@@ -121,8 +122,8 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
 
     for (const profile of profiles) {
       looper = looper.then(() =>
-        method({ ...data, targetKey: profile }).then(response =>
-          this.processResponse(profile, response)
+        method({ ...data, organization: this.props.organization, targetKey: profile }).then(
+          response => this.processResponse(profile, response)
         )
       );
     }

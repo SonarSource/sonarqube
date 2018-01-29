@@ -28,6 +28,7 @@ interface Props {
   className?: string;
   modalHeader: string;
   onDone: (severity: string) => Promise<void>;
+  organization: string | undefined;
   profiles: BaseProfile[];
   rule: Rule | RuleDetails;
   updateMode?: boolean;
@@ -73,6 +74,7 @@ export default class ActivationButton extends React.PureComponent<Props, State> 
             modalHeader={this.props.modalHeader}
             onClose={this.handleCloseModal}
             onDone={this.props.onDone}
+            organization={this.props.organization}
             profiles={this.props.profiles}
             rule={this.props.rule}
             updateMode={this.props.updateMode}

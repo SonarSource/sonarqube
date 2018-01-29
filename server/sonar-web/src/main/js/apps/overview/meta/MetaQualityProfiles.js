@@ -34,6 +34,7 @@ class MetaQualityProfiles extends React.PureComponent {
     component: { organization: string },
     customOrganizations: boolean,
     languages: { [string]: { name: string } },
+    organization: string | void;
     profiles: Array<{ key: string, language: string, name: string }>
   };
 */
@@ -71,11 +72,13 @@ class MetaQualityProfiles extends React.PureComponent {
   }
 
   loadDeprecatedRulesForProfile(profileKey) {
+    // TODO organization is not specified here, is it a bug?
     const data = {
-      qprofile: profileKey,
       activation: 'true',
-      statuses: 'DEPRECATED',
-      ps: 1
+      organization: this.props.organization,
+      ps: 1,
+      qprofile: profileKey,
+      statuses: 'DEPRECATED'
     };
     return searchRules(data).then(r => r.total);
   }

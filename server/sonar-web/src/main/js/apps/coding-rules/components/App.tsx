@@ -210,19 +210,18 @@ export default class App extends React.PureComponent<Props, State> {
 
   fetchInitialData = () => {
     this.setState({ loading: true });
-    Promise.all([
-      getRulesApp(),
-      searchQualityProfiles({
-        organization: this.props.organization && this.props.organization.key
-      })
-    ]).then(([{ canWrite, repositories }, { profiles }]) => {
-      this.setState({
-        canWrite,
-        referencedProfiles: keyBy(profiles, 'key'),
-        referencedRepositories: keyBy(repositories, 'key')
-      });
-      this.fetchFirstRules();
-    }, this.stopLoading);
+    const organization = this.props.organization && this.props.organization.key;
+    Promise.all([getRulesApp({ organization }), searchQualityProfiles({ organization })]).then(
+      ([{ canWrite, repositories }, { profiles }]) => {
+        this.setState({
+          canWrite,
+          referencedProfiles: keyBy(profiles, 'key'),
+          referencedRepositories: keyBy(repositories, 'key')
+        });
+        this.fetchFirstRules();
+      },
+      this.stopLoading
+    );
   };
 
   makeFetchRequest = (query?: RawQuery) =>
@@ -446,6 +445,7 @@ export default class App extends React.PureComponent<Props, State> {
   render() {
     const { paging, rules } = this.state;
     const selectedIndex = this.getSelectedIndex();
+    const organization = this.props.organization && this.props.organization.key;
 
     return (
       <>
@@ -468,7 +468,7 @@ export default class App extends React.PureComponent<Props, State> {
                       facets={this.state.facets}
                       onFacetToggle={this.handleFacetToggle}
                       onFilterChange={this.handleFilterChange}
-                      organization={this.props.organization && this.props.organization.key}
+                      organization={organization}
                       organizationsEnabled={this.context.organizationsEnabled}
                       openFacets={this.state.openFacets}
                       query={this.state.query}
@@ -493,6 +493,7 @@ export default class App extends React.PureComponent<Props, State> {
                   ) : (
                     this.state.paging && (
                       <BulkChange
+                        organization={organization}
                         query={this.state.query}
                         referencedProfiles={this.state.referencedProfiles}
                         total={this.state.paging.total}
@@ -518,7 +519,7 @@ export default class App extends React.PureComponent<Props, State> {
                   onDeactivate={this.handleRuleDeactivate}
                   onDelete={this.handleRuleDelete}
                   onFilterChange={this.handleFilterChange}
-                  organization={this.props.organization && this.props.organization.key}
+                  organization={organization}
                   referencedProfiles={this.state.referencedProfiles}
                   referencedRepositories={this.state.referencedRepositories}
                   ruleKey={this.state.openRule.key}
@@ -533,6 +534,7 @@ export default class App extends React.PureComponent<Props, State> {
                       onActivate={this.handleRuleActivate}
                       onDeactivate={this.handleRuleDeactivate}
                       onFilterChange={this.handleFilterChange}
+                      organization={organization}
                       path={this.getRulePath(rule.key)}
                       rule={rule}
                       selected={rule.key === this.state.selected}

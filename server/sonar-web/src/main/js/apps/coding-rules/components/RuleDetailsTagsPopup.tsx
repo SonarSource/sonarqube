@@ -24,7 +24,7 @@ import { getRuleTags } from '../../../api/rules';
 import { BubblePopupPosition } from '../../../components/common/BubblePopup';
 
 interface Props {
-  organization?: string;
+  organization: string | undefined;
   popupPosition?: BubblePopupPosition;
   setTags: (tags: string[]) => void;
   sysTags: string[];

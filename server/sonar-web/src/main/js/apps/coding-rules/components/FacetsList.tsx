@@ -37,7 +37,7 @@ interface Props {
   onFacetToggle: (facet: FacetKey) => void;
   onFilterChange: (changes: Partial<Query>) => void;
   openFacets: OpenFacets;
-  organization?: string;
+  organization: string | undefined;
   organizationsEnabled?: boolean;
   query: Query;
   referencedProfiles: { [profile: string]: Profile };

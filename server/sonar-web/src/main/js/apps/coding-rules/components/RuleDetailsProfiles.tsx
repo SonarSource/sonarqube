@@ -69,19 +69,22 @@ export default class RuleDetailsProfiles extends React.PureComponent<Props, Stat
 
   handleDeactivate = (key?: string) => {
     if (key) {
-      deactivateRule({ key, rule: this.props.ruleDetails.key }).then(
-        this.props.onDeactivate,
-        () => {}
-      );
+      deactivateRule({
+        key,
+        organization: this.props.organization,
+        rule: this.props.ruleDetails.key
+      }).then(this.props.onDeactivate, () => {});
     }
   };
 
   handleRevert = (key?: string) => {
     if (key) {
-      activateRule({ key, rule: this.props.ruleDetails.key, reset: true }).then(
-        this.props.onActivate,
-        () => {}
-      );
+      activateRule({
+        key,
+        organization: this.props.organization,
+        rule: this.props.ruleDetails.key,
+        reset: true
+      }).then(this.props.onActivate, () => {});
     }
   };
 
@@ -172,6 +175,7 @@ export default class RuleDetailsProfiles extends React.PureComponent<Props, Stat
                 className="coding-rules-detail-quality-profile-change"
                 modalHeader={translate('coding_rules.change_details')}
                 onDone={this.handleActivate}
+                organization={this.props.organization}
                 profiles={[profile]}
                 rule={ruleDetails}
               />
@@ -266,6 +270,7 @@ export default class RuleDetailsProfiles extends React.PureComponent<Props, Stat
               className="coding-rules-quality-profile-activate spacer-left"
               modalHeader={translate('coding_rules.activate_in_quality_profile')}
               onDone={this.handleActivate}
+              organization={this.props.organization}
               profiles={filter(
                 this.props.referencedProfiles,
                 profile => !activations.find(activation => activation.qProfile === profile.key)

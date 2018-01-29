@@ -26,6 +26,7 @@ import Dropdown from '../../../components/controls/Dropdown';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {
+  organization: string | undefined;
   query: Query;
   referencedProfiles: { [profile: string]: Profile };
   total: number;
@@ -140,6 +141,7 @@ export default class BulkChange extends React.PureComponent<Props, State> {
             <BulkChangeModal
               action={this.state.action}
               onClose={this.closeModal}
+              organization={this.props.organization}
               profile={this.state.profile}
               query={this.props.query}
               referencedProfiles={this.props.referencedProfiles}

@@ -36,6 +36,7 @@ interface Props {
   onActivate: (profile: string, rule: string, activation: Activation) => void;
   onDeactivate: (profile: string, rule: string) => void;
   onFilterChange: (changes: Partial<Query>) => void;
+  organization: string | undefined;
   path: { pathname: string; query: { [x: string]: any } };
   rule: Rule;
   selected: boolean;
@@ -45,7 +46,11 @@ interface Props {
 export default class RuleListItem extends React.PureComponent<Props> {
   handleDeactivate = () => {
     if (this.props.selectedProfile) {
-      const data = { key: this.props.selectedProfile.key, rule: this.props.rule.key };
+      const data = {
+        key: this.props.selectedProfile.key,
+        organization: this.props.organization,
+        rule: this.props.rule.key
+      };
       deactivateRule(data).then(() => this.props.onDeactivate(data.key, data.rule), () => {});
     }
   };
@@ -119,6 +124,7 @@ export default class RuleListItem extends React.PureComponent<Props> {
                 className="coding-rules-detail-quality-profile-activate"
                 modalHeader={translate('coding_rules.activate_in_quality_profile')}
                 onDone={this.handleActivate}
+                organization={this.props.organization}
                 profiles={[selectedProfile]}
                 rule={rule}
               />

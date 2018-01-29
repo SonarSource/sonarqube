@@ -40,7 +40,7 @@ interface Props {
   onDeactivate: (profile: string, rule: string) => void;
   onDelete: (rule: string) => void;
   onFilterChange: (changes: Partial<Query>) => void;
-  organization?: string;
+  organization: string | undefined;
   referencedProfiles: { [profile: string]: Profile };
   referencedRepositories: { [repository: string]: { key: string; language: string; name: string } };
   ruleKey: string;
@@ -102,7 +102,11 @@ export default class RuleDetails extends React.PureComponent<Props, State> {
     // optimistic update
     const oldTags = this.state.ruleDetails && this.state.ruleDetails.tags;
     this.setState(state => ({ ruleDetails: { ...state.ruleDetails, tags } }));
-    updateRule({ key: this.props.ruleKey, tags: tags.join() }).catch(() => {
+    updateRule({
+      key: this.props.ruleKey,
+      organization: this.props.organization,
+      tags: tags.join()
+    }).catch(() => {
       if (this.mounted) {
         this.setState(state => ({ ruleDetails: { ...state.ruleDetails, tags: oldTags } }));
       }
@@ -131,7 +135,9 @@ export default class RuleDetails extends React.PureComponent<Props, State> {
     });
 
   handleDelete = () =>
-    deleteRule({ key: this.props.ruleKey }).then(() => this.props.onDelete(this.props.ruleKey));
+    deleteRule({ key: this.props.ruleKey, organization: this.props.organization }).then(() =>
+      this.props.onDelete(this.props.ruleKey)
+    );
 
   render() {
     const { ruleDetails } = this.state;

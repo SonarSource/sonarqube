@@ -232,7 +232,7 @@ export interface BulkActivateParameters {
   inheritance?: string;
   is_template?: string;
   languages?: string;
-  organization?: string;
+  organization: string | undefined;
   q?: string;
   qprofile?: string;
   repositories?: string;
@@ -258,6 +258,7 @@ export function bulkDeactivateRules(data: BulkActivateParameters) {
 
 export function activateRule(data: {
   key: string;
+  organization: string | undefined;
   params?: { [key: string]: string };
   reset?: boolean;
   rule: string;
@@ -268,6 +269,10 @@ export function activateRule(data: {
   return post('/api/qualityprofiles/activate_rule', { ...data, params }).catch(throwGlobalError);
 }
 
-export function deactivateRule(data: { key: string; rule: string }) {
+export function deactivateRule(data: {
+  key: string;
+  organization: string | undefined;
+  rule: string;
+}) {
   return post('/api/qualityprofiles/deactivate_rule', data).catch(throwGlobalError);
 }

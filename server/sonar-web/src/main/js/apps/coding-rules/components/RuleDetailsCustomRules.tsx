@@ -62,10 +62,11 @@ export default class RuleDetailsCustomRules extends React.PureComponent<Props, S
   fetchRules = () => {
     this.setState({ loading: true });
     searchRules({
+      f: 'name,severity,params',
+      organization: this.props.organization,
       /* eslint-disable camelcase */
-      template_key: this.props.ruleDetails.key,
+      template_key: this.props.ruleDetails.key
       /* eslint-enable camelcase */
-      f: 'name,severity,params'
     }).then(
       ({ rules }) => {
         if (this.mounted) {
@@ -89,7 +90,7 @@ export default class RuleDetailsCustomRules extends React.PureComponent<Props, S
   };
 
   handleRuleDelete = (ruleKey: string) => {
-    return deleteRule({ key: ruleKey }).then(() => {
+    return deleteRule({ key: ruleKey, organization: this.props.organization }).then(() => {
       if (this.mounted) {
         this.setState(({ rules = [] }) => ({
           rules: rules.filter(rule => rule.key !== ruleKey)
