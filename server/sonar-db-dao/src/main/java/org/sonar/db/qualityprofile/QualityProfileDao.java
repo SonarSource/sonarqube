@@ -38,6 +38,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static java.util.Collections.emptyList;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 import static org.sonar.db.DatabaseUtils.executeLargeUpdates;
 
@@ -148,19 +149,21 @@ public class QualityProfileDao implements Dao {
     return mapper(dbSession).selectByLanguage(organization.getUuid(), language);
   }
 
-  public List<QProfileDto> selectChildren(DbSession dbSession, QProfileDto profile) {
-    return mapper(dbSession).selectChildren(profile.getKee());
+  public List<QProfileDto> selectChildren(DbSession dbSession, Collection<QProfileDto> profiles) {
+    List<String> uuids = profiles.stream().map(QProfileDto::getKee).collect(MoreCollectors.toArrayList(profiles.size()));
+    return DatabaseUtils.executeLargeInputs(uuids, chunk -> mapper(dbSession).selectChildren(chunk));
   }
 
   /**
-   * All descendants, in the top-down order.
+   * All descendants, in any order. The specified profiles are not included into results.
    */
-  public List<QProfileDto> selectDescendants(DbSession dbSession, QProfileDto profile) {
-    List<QProfileDto> descendants = new ArrayList<>();
-    for (QProfileDto child : selectChildren(dbSession, profile)) {
-      descendants.add(child);
-      descendants.addAll(selectDescendants(dbSession, child));
+  public Collection<QProfileDto> selectDescendants(DbSession dbSession, Collection<QProfileDto> profiles) {
+    if (profiles.isEmpty()) {
+      return emptyList();
     }
+    Collection<QProfileDto> children = selectChildren(dbSession, profiles);
+    List<QProfileDto> descendants = new ArrayList<>(children);
+    descendants.addAll(selectDescendants(dbSession, children));
     return descendants;
   }
 
