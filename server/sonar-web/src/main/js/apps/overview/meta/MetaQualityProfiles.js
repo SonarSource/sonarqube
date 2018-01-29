@@ -72,7 +72,6 @@ class MetaQualityProfiles extends React.PureComponent {
   }
 
   loadDeprecatedRulesForProfile(profileKey) {
-    // TODO organization is not specified here, is it a bug?
     const data = {
       activation: 'true',
       organization: this.props.organization,
