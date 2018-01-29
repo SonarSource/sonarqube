@@ -19,6 +19,7 @@
  */
 package org.sonar.server.qualityprofile.ws;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -37,6 +38,7 @@ import org.sonar.server.qualityprofile.QProfileFactory;
 import org.sonar.server.user.UserSession;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static java.util.Collections.singleton;
 import static org.sonar.server.qualityprofile.ws.QProfileWsSupport.createOrganizationParam;
 
 public class DeleteAction implements QProfileWsAction {
@@ -82,7 +84,7 @@ public class DeleteAction implements QProfileWsAction {
       OrganizationDto organization = wsSupport.getOrganization(dbSession, profile);
       wsSupport.checkCanEdit(dbSession, organization, profile);
 
-      List<QProfileDto> descendants = selectDescendants(dbSession, profile);
+      Collection<QProfileDto> descendants = selectDescendants(dbSession, profile);
       ensureNoneIsMarkedAsDefault(dbSession, profile, descendants);
 
       profileFactory.delete(dbSession, merge(profile, descendants));
@@ -91,11 +93,11 @@ public class DeleteAction implements QProfileWsAction {
     response.noContent();
   }
 
-  private List<QProfileDto> selectDescendants(DbSession dbSession, QProfileDto profile) {
-    return dbClient.qualityProfileDao().selectDescendants(dbSession, profile);
+  private Collection<QProfileDto> selectDescendants(DbSession dbSession, QProfileDto profile) {
+    return dbClient.qualityProfileDao().selectDescendants(dbSession, singleton(profile));
   }
 
-  private void ensureNoneIsMarkedAsDefault(DbSession dbSession, QProfileDto profile, List<QProfileDto> descendants) {
+  private void ensureNoneIsMarkedAsDefault(DbSession dbSession, QProfileDto profile, Collection<QProfileDto> descendants) {
     Set<String> allUuids = new HashSet<>();
     allUuids.add(profile.getKee());
     descendants.forEach(p -> allUuids.add(p.getKee()));
@@ -111,7 +113,7 @@ public class DeleteAction implements QProfileWsAction {
       });
   }
 
-  private static List<QProfileDto> merge(QProfileDto profile, List<QProfileDto> descendants) {
+  private static List<QProfileDto> merge(QProfileDto profile, Collection<QProfileDto> descendants) {
     return Stream.concat(Stream.of(profile), descendants.stream())
       .collect(MoreCollectors.toList(descendants.size() + 1));
   }

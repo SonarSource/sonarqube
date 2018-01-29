@@ -20,6 +20,7 @@
 package org.sonar.server.qualityprofile;
 
 import com.google.common.collect.Multimap;
+import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.Random;
 import java.util.function.Consumer;
@@ -68,7 +69,7 @@ import static org.sonar.server.qualityprofile.ActiveRuleChange.Type.UPDATED;
 
 public class RegisterQualityProfilesNotificationTest {
 
-  private static final Random RANDOM = new Random();
+  private static final Random RANDOM = new SecureRandom();
 
   private System2 system2 = mock(System2.class);
   @Rule
@@ -227,11 +228,11 @@ public class RegisterQualityProfilesNotificationTest {
     RuleDefinitionDto rule = db.rules().insert(r -> r.setLanguage(language).setSeverity(Severity.MINOR));
     OrganizationDto organization = db.organizations().insert();
 
-    QProfileDto builtInQProfileDto = insertProfile(organization, orgQProfile -> orgQProfile.setIsBuiltIn(true).setLanguage(language));
-    db.qualityProfiles().activateRule(builtInQProfileDto, rule);
-    QProfileDto childQProfileDto = insertProfile(organization, orgQProfile -> orgQProfile.setIsBuiltIn(false).setLanguage(language).setParentKee(builtInQProfileDto.getKee()));
-    qProfileRules.activateAndCommit(db.getSession(), childQProfileDto, singleton(RuleActivation.create(rule.getKey())));
-    addPluginProfile(builtInQProfileDto, rule);
+    QProfileDto builtInProfile = insertProfile(organization, orgQProfile -> orgQProfile.setIsBuiltIn(true).setLanguage(language));
+    db.qualityProfiles().activateRule(builtInProfile, rule);
+    QProfileDto childProfile = insertProfile(organization, orgQProfile -> orgQProfile.setIsBuiltIn(false).setLanguage(language).setParentKee(builtInProfile.getKee()));
+    db.qualityProfiles().activateRule(childProfile, rule, ar -> ar.setInheritance(ActiveRuleDto.INHERITED).setSeverity(Severity.MINOR));
+    addPluginProfile(builtInProfile, rule);
     builtInQProfileRepositoryRule.initialize();
     db.commit();
 
@@ -242,7 +243,7 @@ public class RegisterQualityProfilesNotificationTest {
     Multimap<QProfileName, ActiveRuleChange> updatedProfiles = captor.<Multimap<QProfileName, ActiveRuleChange>>getValue();
     assertThat(updatedProfiles.keySet())
       .extracting(QProfileName::getName, QProfileName::getLanguage)
-      .containsExactlyInAnyOrder(tuple(builtInQProfileDto.getName(), builtInQProfileDto.getLanguage()));
+      .containsExactlyInAnyOrder(tuple(builtInProfile.getName(), builtInProfile.getLanguage()));
     assertThat(updatedProfiles.values())
       .extracting(value -> value.getActiveRule().getRuleId(), ActiveRuleChange::getType)
       .containsExactlyInAnyOrder(tuple(rule.getId(), UPDATED));

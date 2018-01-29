@@ -76,7 +76,7 @@ public interface QualityProfileMapper {
 
   // INHERITANCE
 
-  List<QProfileDto> selectChildren(String uuid);
+  List<QProfileDto> selectChildren(@Param("uuids") Collection<String> uuids);
 
   // PROJECTS
 

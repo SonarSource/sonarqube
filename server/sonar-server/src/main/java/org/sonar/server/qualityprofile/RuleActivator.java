@@ -51,6 +51,7 @@ import org.sonar.server.user.UserSession;
 import org.sonar.server.util.TypeValidations;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static java.util.Collections.singleton;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 
 /**
@@ -374,10 +375,7 @@ public class RuleActivator {
     // load profiles
     List<QProfileDto> aliasedBuiltInProfiles = db.qualityProfileDao().selectQProfilesByRuleProfile(dbSession, builtInProfile);
     List<QProfileDto> profiles = new ArrayList<>(aliasedBuiltInProfiles);
-    for (QProfileDto aliasProfile : aliasedBuiltInProfiles) {
-      // FIXME N+1 syndrome. To be optimized by replacing db column parent_kee by ancestor_keys.
-      profiles.addAll(db.qualityProfileDao().selectDescendants(dbSession, aliasProfile));
-    }
+    profiles.addAll(db.qualityProfileDao().selectDescendants(dbSession, aliasedBuiltInProfiles));
     builder.setProfiles(profiles);
     builder.setBaseProfile(builtInProfile);
 
@@ -398,7 +396,7 @@ public class RuleActivator {
     List<RuleDefinitionDto> rules = completeWithRules(dbSession, builder, ruleKeys);
 
     // load descendant profiles
-    List<QProfileDto> profiles = new ArrayList<>(db.qualityProfileDao().selectDescendants(dbSession, profile));
+    List<QProfileDto> profiles = new ArrayList<>(db.qualityProfileDao().selectDescendants(dbSession, singleton(profile)));
     profiles.add(profile);
     if (profile.getParentKee() != null) {
       profiles.add(db.qualityProfileDao().selectByUuid(dbSession, profile.getParentKee()));

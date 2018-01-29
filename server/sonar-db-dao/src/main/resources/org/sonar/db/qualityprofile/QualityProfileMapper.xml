@@ -201,14 +201,15 @@
       and oqp.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
   </select>
 
+  <!-- the join on "org_qprofiles parent" is required to benefit from the index on uuid -->
   <select id="selectChildren" parameterType="string" resultType="org.sonar.db.qualityprofile.QProfileDto">
-    select
-    <include refid="qProfileColumns"/>
+    select <include refid="qProfileColumns"/>
     from org_qprofiles oqp
     inner join rules_profiles rp on oqp.rules_profile_uuid = rp.kee
+    inner join org_qprofiles parent on parent.uuid = oqp.parent_uuid
     where
-      oqp.parent_uuid = #{uuid, jdbcType=VARCHAR}
-    ORDER BY rp.name
+      parent.uuid in <foreach collection="uuids" item="uuid" open="(" close=")" separator=",">#{uuid, jdbcType=VARCHAR}</foreach>
+    order by rp.name
   </select>
 
   <select id="countProjectsByOrganizationAndProfiles" resultType="KeyLongValue" parameterType="map">

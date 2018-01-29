@@ -43,6 +43,7 @@ import static com.google.common.collect.ImmutableList.of;
 import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
+import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -466,7 +467,7 @@ public class QualityProfileDaoTest {
       .setIsBuiltIn(false);
     underTest.insert(dbSession, original6);
 
-    List<QProfileDto> dtos = underTest.selectChildren(dbSession, original3);
+    List<QProfileDto> dtos = underTest.selectChildren(dbSession, singleton(original3));
 
     assertThat(dtos).hasSize(2);
 
@@ -479,6 +480,55 @@ public class QualityProfileDaoTest {
     assertThat(dto2.getName()).isEqualTo("Child2");
     assertThat(dto2.getLanguage()).isEqualTo("java");
     assertThat(dto2.getParentKee()).isEqualTo("java_parent");
+  }
+
+  @Test
+  public void selectDescendants_returns_empty_if_no_children() {
+    QProfileDto base = db.qualityProfiles().insert(db.getDefaultOrganization());
+
+    Collection<QProfileDto> descendants = underTest.selectDescendants(dbSession, singleton(base));
+
+    assertThat(descendants).isEmpty();
+  }
+
+  @Test
+  public void selectDescendants_returns_profile_does_not_exist() {
+    Collection<QProfileDto> descendants = underTest.selectDescendants(dbSession, singleton(new QProfileDto().setKee("unknown")));
+
+    assertThat(descendants).isEmpty();
+  }
+
+  @Test
+  public void selectDescendants_returns_descendants_in_any_order() {
+    QProfileDto base1 = db.qualityProfiles().insert(db.getDefaultOrganization());
+    QProfileDto child1OfBase1 = db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setParentKee(base1.getKee()));
+    QProfileDto child2OfBase1 = db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setParentKee(base1.getKee()));
+    QProfileDto grandChildOfBase1 = db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setParentKee(child1OfBase1.getKee()));
+    QProfileDto base2 = db.qualityProfiles().insert(db.getDefaultOrganization());
+    QProfileDto childOfBase2 = db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setParentKee(base2.getKee()));
+    QProfileDto grandChildOfBase2 = db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setParentKee(childOfBase2.getKee()));
+    QProfileDto other = db.qualityProfiles().insert(db.getDefaultOrganization());
+
+    // descendants of a single base profile
+    verifyDescendants(singleton(base1), asList(child1OfBase1, child2OfBase1, grandChildOfBase1));
+    verifyDescendants(singleton(child1OfBase1), asList(grandChildOfBase1));
+    verifyDescendants(singleton(child2OfBase1), emptyList());
+    verifyDescendants(singleton(grandChildOfBase1), emptyList());
+
+    // descendants of a multiple base profiles
+    verifyDescendants(asList(base1, base2), asList(child1OfBase1, child2OfBase1, grandChildOfBase1, childOfBase2, grandChildOfBase2));
+    verifyDescendants(asList(base1, childOfBase2), asList(child1OfBase1, child2OfBase1, grandChildOfBase1, grandChildOfBase2));
+    verifyDescendants(asList(child1OfBase1, grandChildOfBase2), asList(grandChildOfBase1));
+    verifyDescendants(asList(other, base2), asList(childOfBase2, grandChildOfBase2));
+
+  }
+
+  private void verifyDescendants(Collection<QProfileDto> baseProfiles, Collection<QProfileDto> expectedDescendants) {
+    Collection<QProfileDto> descendants = underTest.selectDescendants(dbSession, baseProfiles);
+    String[] expectedUuids = expectedDescendants.stream().map(QProfileDto::getKee).toArray(String[]::new);
+    assertThat(descendants)
+      .extracting(QProfileDto::getKee)
+      .containsExactlyInAnyOrder(expectedUuids);
   }
 
   @Test
