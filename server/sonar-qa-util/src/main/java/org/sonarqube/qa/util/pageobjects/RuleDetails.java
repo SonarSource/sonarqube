@@ -119,15 +119,15 @@ public class RuleDetails {
     return new RuleActivation();
   }
 
-  private SelenideElement modal() {
+  private static SelenideElement modal() {
     return $(".modal");
   }
 
-  private SelenideElement takeCustomRule(String ruleKey) {
+  private static SelenideElement takeCustomRule(String ruleKey) {
     return $("#coding-rules-detail-custom-rules tr[data-rule=\"" + ruleKey + "\"]");
   }
 
-  private SelenideElement getActiveProfileElement(String profileKey) {
+  private static SelenideElement getActiveProfileElement(String profileKey) {
     return $("#coding-rules-detail-quality-profiles [data-profile=\"" + profileKey + "\"]");
   }
 
@@ -159,9 +159,9 @@ public class RuleDetails {
 
   public RuleDetails revertActivationToParentDefinition(String profileKey) {
     getActiveProfileElement(profileKey).$(".coding-rules-detail-quality-profile-revert").click();
-    $(".modal").shouldBe(visible);
+    modal().shouldBe(visible);
     $(".modal button").click();
-    $(".modal").shouldNotBe(visible);
+    modal().shouldNotBe(visible);
     return this;
   }
 
@@ -191,9 +191,9 @@ public class RuleDetails {
 
     public ExtendedDescription remove() {
       $("#coding-rules-detail-extend-description-remove").click();
-      $(".modal").shouldBe(visible);
+      modal().shouldBe(visible);
       $("#coding-rules-detail-extend-description-remove-submit").click();
-      $(".modal").shouldNotBe(visible);
+      modal().shouldNotBe(visible);
       textArea().shouldNotBe(visible);
       return this;
     }
@@ -254,7 +254,7 @@ public class RuleDetails {
 
     public RuleActivation save() {
       $(".modal button").click();
-      $(".modal").shouldNotBe(visible);
+      modal().shouldNotBe(visible);
       return this;
     }
   }
