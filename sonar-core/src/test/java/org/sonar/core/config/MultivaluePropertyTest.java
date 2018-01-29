@@ -23,6 +23,7 @@ import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.Random;
+import java.util.function.Function;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -30,15 +31,56 @@ import org.junit.runner.RunWith;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.core.config.MultivalueProperty.parseAsCsv;
 import static org.sonar.core.config.MultivalueProperty.trimFieldsAndRemoveEmptyFields;
 
 @RunWith(DataProviderRunner.class)
 public class MultivaluePropertyTest {
+  private static final String[] EMPTY_STRING_ARRAY = {};
+
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
   @Test
-  public void clean_throws_NPE_if_arg_is_null() {
+  @UseDataProvider("testParseAsCsv")
+  public void parseAsCsv_for_coverage(String value, String[] expected) {
+    // parseAsCsv is extensively tested in org.sonar.server.config.ConfigurationProviderTest
+    assertThat(parseAsCsv("key", value))
+      .isEqualTo(parseAsCsv("key", value, Function.identity()))
+      .isEqualTo(expected);
+  }
+
+  @Test
+  public void parseAsCsv_fails_with_ISE_if_value_can_not_be_parsed() {
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("Property: 'multi' doesn't contain a valid CSV value: '\"a ,b'");
+
+    parseAsCsv("multi", "\"a ,b");
+  }
+
+  @DataProvider
+  public static Object[][] testParseAsCsv() {
+    return new Object[][] {
+      {"a", arrayOf("a")},
+      {" a", arrayOf("a")},
+      {"a ", arrayOf("a")},
+      {" a, b", arrayOf("a", "b")},
+      {"a,b ", arrayOf("a", "b")},
+      {"a,,,b,c,,d", arrayOf("a", "b", "c", "d")},
+      {" , \n ,, \t", EMPTY_STRING_ARRAY},
+      {"\" a\"", arrayOf(" a")},
+      {"\",\"", arrayOf(",")},
+      // escaped quote in quoted field
+      {"\"\"\"\"", arrayOf("\"")}
+    };
+  }
+
+  private static String[] arrayOf(String... strs) {
+    return strs;
+  }
+
+  @Test
+  public void trimFieldsAndRemoveEmptyFields_throws_NPE_if_arg_is_null() {
     expectedException.expect(NullPointerException.class);
 
     trimFieldsAndRemoveEmptyFields(null);
@@ -46,7 +88,7 @@ public class MultivaluePropertyTest {
 
   @Test
   @UseDataProvider("plains")
-  public void ignoreEmptyFields(String str) {
+  public void trimFieldsAndRemoveEmptyFields_ignores_EmptyFields(String str) {
     assertThat(trimFieldsAndRemoveEmptyFields("")).isEqualTo("");
     assertThat(trimFieldsAndRemoveEmptyFields(str)).isEqualTo(str);
 
@@ -86,7 +128,7 @@ public class MultivaluePropertyTest {
 
   @Test
   @UseDataProvider("emptyAndtrimmable")
-  public void ignoreEmptyFieldsAndTrimFields(String empty, String trimmable) {
+  public void trimFieldsAndRemoveEmptyFields_ignores_empty_fields_and_trims_fields(String empty, String trimmable) {
     String expected = trimmable.trim();
     assertThat(empty.trim()).isEmpty();
 
@@ -159,7 +201,7 @@ public class MultivaluePropertyTest {
 
   @Test
   @UseDataProvider("emptys")
-  public void quotes_allow_to_preserve_fields(String empty) {
+  public void trimFieldsAndRemoveEmptyFields_quotes_allow_to_preserve_fields(String empty) {
     String quotedEmpty = '"' + empty + '"';
 
     assertThat(trimFieldsAndRemoveEmptyFields(quotedEmpty)).isEqualTo(quotedEmpty);
@@ -184,13 +226,13 @@ public class MultivaluePropertyTest {
   }
 
   @Test
-  public void supports_escaped_quote_in_quotes() {
+  public void trimFieldsAndRemoveEmptyFields_supports_escaped_quote_in_quotes() {
     assertThat(trimFieldsAndRemoveEmptyFields("\"f\"\"oo\"")).isEqualTo("\"f\"\"oo\"");
     assertThat(trimFieldsAndRemoveEmptyFields("\"f\"\"oo\",\"bar\"\"\"")).isEqualTo("\"f\"\"oo\",\"bar\"\"\"");
   }
 
   @Test
-  public void does_not_fail_on_unbalanced_quotes() {
+  public void trimFieldsAndRemoveEmptyFields_does_not_fail_on_unbalanced_quotes() {
     assertThat(trimFieldsAndRemoveEmptyFields("\"")).isEqualTo("\"");
     assertThat(trimFieldsAndRemoveEmptyFields("\"foo")).isEqualTo("\"foo");
     assertThat(trimFieldsAndRemoveEmptyFields("foo\"")).isEqualTo("foo\"");
