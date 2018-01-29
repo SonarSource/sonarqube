@@ -93,6 +93,7 @@ exports[`should render with the action 1`] = `
 exports[`should render without the action when the correct rights are missing 1`] = `
 <TagsList
   allowUpdate={false}
+  className="note"
   tags={
     Array [
       "issue.no_tag",

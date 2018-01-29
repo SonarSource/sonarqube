@@ -111,7 +111,7 @@ export default class DirectoryFacet extends React.PureComponent {
   render() {
     const values = this.props.directories.map(dir => collapsePath(dir));
     return (
-      <FacetBox>
+      <FacetBox property={this.property}>
         <FacetHeader
           name={translate('issues.facet', this.property)}
           onClear={this.handleClear}

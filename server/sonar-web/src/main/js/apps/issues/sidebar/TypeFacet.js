@@ -95,7 +95,7 @@ export default class TypeFacet extends React.PureComponent {
     const values = this.props.types.map(type => translate('issue.type', type));
 
     return (
-      <FacetBox>
+      <FacetBox property={this.property}>
         <FacetHeader
           name={translate('issues.facet', this.property)}
           onClear={this.handleClear}

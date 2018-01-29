@@ -1,7 +1,9 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should render 1`] = `
-<FacetBox>
+<FacetBox
+  property="assignees"
+>
   <FacetHeader
     name="issues.facet.assignees"
     onClear={[Function]}
@@ -71,7 +73,9 @@ exports[`should render footer select option 1`] = `
 `;
 
 exports[`should render without stats 1`] = `
-<FacetBox>
+<FacetBox
+  property="assignees"
+>
   <FacetHeader
     name="issues.facet.assignees"
     onClear={[Function]}
@@ -83,7 +87,9 @@ exports[`should render without stats 1`] = `
 `;
 
 exports[`should select unassigned 1`] = `
-<FacetBox>
+<FacetBox
+  property="assignees"
+>
   <FacetHeader
     name="issues.facet.assignees"
     onClear={[Function]}
@@ -145,7 +151,9 @@ exports[`should select unassigned 1`] = `
 `;
 
 exports[`should select user 1`] = `
-<FacetBox>
+<FacetBox
+  property="assignees"
+>
   <FacetHeader
     name="issues.facet.assignees"
     onClear={[Function]}

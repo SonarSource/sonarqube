@@ -28,7 +28,7 @@ export interface IssueResponse {
 }
 
 interface IssuesResponse {
-  components?: Array<{}>;
+  components?: { key: string; name: string; uuid: string }[];
   debtTotal?: number;
   facets: Array<{}>;
   issues: RawIssue[];
@@ -38,7 +38,7 @@ interface IssuesResponse {
     total: number;
   };
   rules?: Array<{}>;
-  users?: Array<{ login: string }>;
+  users?: { login: string }[];
 }
 
 export function searchIssues(query: RequestData): Promise<IssuesResponse> {
@@ -57,7 +57,10 @@ export function getFacets(query: RequestData, facets: string[]): Promise<any> {
   });
 }
 
-export function getFacet(query: RequestData, facet: string): Promise<any> {
+export function getFacet(
+  query: RequestData,
+  facet: string
+): Promise<{ facet: { count: number; val: string }[]; response: IssuesResponse }> {
   return getFacets(query, [facet]).then(r => {
     return { facet: r.facets[0].values, response: r.response };
   });
@@ -80,6 +83,18 @@ export function extractAssignees(facet: Array<{ val: string }>, response: Issues
 
 export function getAssignees(query: RequestData): Promise<any> {
   return getFacet(query, 'assignees').then(r => extractAssignees(r.facet, r.response));
+}
+
+export function extractProjects(facet: { val: string }[], response: IssuesResponse) {
+  return facet.map(item => {
+    const project =
+      response.components && response.components.find(component => component.uuid === item.val);
+    return { ...item, project };
+  });
+}
+
+export function getProjects(query: RequestData) {
+  return getFacet(query, 'projectUuids').then(r => extractProjects(r.facet, r.response));
 }
 
 export function getIssuesCount(query: RequestData): Promise<any> {

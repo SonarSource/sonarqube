@@ -295,7 +295,6 @@ export default class BulkChangeModal extends React.PureComponent {
       <SearchSelect
         onSearch={this.handleAssigneeSearch}
         onSelect={this.handleAssigneeSelect}
-        minimumQueryLength={2}
         renderOption={this.renderAssigneeOption}
         resetOnBlur={false}
         value={this.state.assignee}

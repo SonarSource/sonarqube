@@ -1,7 +1,9 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should display facet item list 1`] = `
-<FacetBox>
+<FacetBox
+  property="Reliability"
+>
   <FacetHeader
     name="Reliability"
     onClick={[Function]}
@@ -129,7 +131,9 @@ exports[`should display facet item list 1`] = `
 `;
 
 exports[`should display facet item list with bugs selected 1`] = `
-<FacetBox>
+<FacetBox
+  property="Reliability"
+>
   <FacetHeader
     name="Reliability"
     onClick={[Function]}

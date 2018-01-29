@@ -21,46 +21,119 @@ package org.sonarqube.qa.util.pageobjects;
 
 import com.codeborne.selenide.Condition;
 import com.codeborne.selenide.ElementsCollection;
-import com.codeborne.selenide.Selenide;
 import com.codeborne.selenide.SelenideElement;
-import org.openqa.selenium.By;
+
+import static com.codeborne.selenide.Condition.exist;
+import static com.codeborne.selenide.Condition.visible;
+import static com.codeborne.selenide.Selenide.$;
+import static com.codeborne.selenide.Selenide.$$;
 
 public class RulesPage extends Navigation {
 
   public RulesPage() {
-    Selenide.$(By.cssSelector(".coding-rules")).should(Condition.exist);
+    $("#coding-rules-page").should(exist);
   }
 
   public int getTotal() {
     // warning - number is localized
-    return Integer.parseInt(Selenide.$("#coding-rules-total").text());
+    return Integer.parseInt($("#coding-rules-total").text());
   }
 
   public ElementsCollection getSelectedFacetItems(String facetName) {
-    SelenideElement facet = Selenide.$(".search-navigator-facet-box[data-property='"+ facetName+"']").shouldBe(Condition.visible);
-    return facet.$$(".js-facet.active");
+    return getFacetElement(facetName).$$(".facet.active");
   }
 
   public RulesPage shouldHaveTotalRules(Integer total) {
-    Selenide.$("#coding-rules-total").shouldHave(Condition.text(total.toString()));
+    $(".js-page-counter-total").shouldHave(Condition.text(total.toString()));
+    return this;
+  }
+
+  public RulesPage shouldDisplayRules(String... ruleKeys) {
+    for (String key : ruleKeys) {
+      getRuleElement(key).shouldBe(visible);
+    }
+    return this;
+  }
+
+  public RulesPage shouldNotDisplayRules(String... ruleKeys) {
+    for (String key : ruleKeys) {
+      getRuleElement(key).shouldNotBe(visible);
+    }
     return this;
   }
 
   public RulesPage openFacet(String facet) {
-    Selenide.$(".search-navigator-facet-box[data-property=\"" + facet + "\"] .js-facet-toggle").click();
+    getFacetElement(facet).$(".search-navigator-facet-header a").click();
     return this;
   }
 
-  public RulesPage selectFacetItemByText(String facet, String itemText) {
-    Selenide.$$(".search-navigator-facet-box[data-property=\"" + facet + "\"] .js-facet")
-      .findBy(Condition.text(itemText)).click();
+  public RulesPage selectFacetItem(String facet, String value) {
+    getFacetElement(facet).$(".facet[data-facet=\"" + value + "\"]").click();
+    return this;
+  }
+
+  public RulesPage selectInactive() {
+    getFacetElement("profile").$(".active .js-inactive").click();
+    return this;
+  }
+
+  public RulesPage shouldHaveDisabledFacet(String facet) {
+    $(".search-navigator-facet-box-forbidden[data-property=\"" + facet + "\"]").shouldBe(visible);
+    return this;
+  }
+
+  public RulesPage shouldNotHaveDisabledFacet(String facet) {
+    $(".search-navigator-facet-box-forbidden[data-property=\"" + facet + "\"]").shouldNotBe(visible);
     return this;
   }
 
   public RuleDetails openFirstRule() {
-    Selenide.$$(".js-rule").first().click();
-    Selenide.$(".coding-rules-details").shouldBe(Condition.visible);
+    $$(".coding-rule-title a").first().click();
     return new RuleDetails();
+  }
+
+  public RuleItem takeRule(String ruleKey) {
+    return new RuleItem(getRuleElement(ruleKey));
+  }
+
+  public RulesPage search(String query) {
+    $("#coding-rules-search .search-box-input").val(query);
+    return this;
+  }
+
+  public RulesPage clearAllFilters() {
+    $("#coding-rules-clear-all-filters").click();
+    return this;
+  }
+
+  public RulesPage closeDetails() {
+    $(".js-back").click();
+    $(".coding-rule-details").shouldNotBe(visible);
+    return this;
+  }
+
+  public RulesPage activateRule(String ruleKey) {
+    getRuleElement(ruleKey).$(".coding-rules-detail-quality-profile-activate").click();
+    $(".modal").shouldBe(visible);
+    $(".modal button").click();
+    $(".modal").shouldNotBe(visible);
+    getRuleElement(ruleKey).$(".coding-rules-detail-quality-profile-activate").shouldNotBe(visible);
+    return this;
+  }
+
+  public RulesPage deactivateRule(String ruleKey) {
+    getRuleElement(ruleKey).$(".coding-rules-detail-quality-profile-deactivate").click();
+    $(".modal button").click();
+    getRuleElement(ruleKey).$(".coding-rules-detail-quality-profile-deactivate").shouldNotBe(visible);
+    return this;
+  }
+
+  private static SelenideElement getRuleElement(String key) {
+    return $(".coding-rule[data-rule=\"" + key + "\"]");
+  }
+
+  private static SelenideElement getFacetElement(String facet) {
+    return $(".search-navigator-facet-box[data-property=\"" + facet + "\"]");
   }
 
 }

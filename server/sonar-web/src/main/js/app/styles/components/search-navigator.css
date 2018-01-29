@@ -99,7 +99,6 @@
 
 .search-navigator-facet-box-forbidden .search-navigator-facet-header {
   color: var(--secondFontColor);
-  font-weight: 400;
 }
 
 .search-navigator-facet-box-forbidden .search-navigator-facet-header:hover {
@@ -484,7 +483,7 @@ a.search-navigator-facet:focus .facet-stat {
 }
 
 .search-navigator-facet-list {
-  padding-bottom: 10px;
+  padding-bottom: var(--gridSize);
   font-size: 0;
 }
 
@@ -498,7 +497,7 @@ a.search-navigator-facet:focus .facet-stat {
 
 .search-navigator-facet-footer {
   display: block;
-  padding: 6px 10px;
+  padding-bottom: var(--gridSize);
   border-bottom: none;
 }
 
@@ -689,8 +688,9 @@ a.search-navigator-facet:focus .facet-stat {
 }
 
 .search-navigator-filters-header {
-  float: left;
-  line-height: 22px;
+  margin-bottom: 12px;
+  padding-bottom: 11px;
+  border-bottom: 1px solid var(--barBorderColor);
 }
 
 .search-navigator-filters-name {

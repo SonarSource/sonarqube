@@ -4,7 +4,15 @@ exports[`renders with all permissions 1`] = `
 <ActionsDropdown>
   <ActionsDropdownItem
     id="quality-profile-activate-more-rules"
-    to="/organizations/org/rules#qprofile=foo|activation=false"
+    to={
+      Object {
+        "pathname": "/organizations/org/rules",
+        "query": Object {
+          "activation": "false",
+          "qprofile": "foo",
+        },
+      }
+    }
   >
     quality_profiles.activate_more_rules
   </ActionsDropdownItem>
@@ -88,7 +96,15 @@ exports[`renders with permission to edit only 1`] = `
 <ActionsDropdown>
   <ActionsDropdownItem
     id="quality-profile-activate-more-rules"
-    to="/organizations/org/rules#qprofile=foo|activation=false"
+    to={
+      Object {
+        "pathname": "/organizations/org/rules",
+        "query": Object {
+          "activation": "false",
+          "qprofile": "foo",
+        },
+      }
+    }
   >
     quality_profiles.activate_more_rules
   </ActionsDropdownItem>

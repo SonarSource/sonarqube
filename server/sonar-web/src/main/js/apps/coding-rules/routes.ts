@@ -17,13 +17,38 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { RouterState, RouteComponent } from 'react-router';
+import { RouterState, RouteComponent, RedirectFunction } from 'react-router';
+import { parseQuery, serializeQuery } from './query';
+import { RawQuery } from '../../helpers/query';
+
+function parseHash(hash: string): RawQuery {
+  const query: RawQuery = {};
+  const parts = hash.split('|');
+  parts.forEach(part => {
+    const tokens = part.split('=');
+    if (tokens.length === 2) {
+      query[decodeURIComponent(tokens[0])] = decodeURIComponent(tokens[1]);
+    }
+  });
+  return query;
+}
 
 const routes = [
   {
     indexRoute: {
+      onEnter: (nextState: RouterState, replace: RedirectFunction) => {
+        const { hash } = window.location;
+        if (hash.length > 1) {
+          const query = parseHash(hash.substr(1));
+          const normalizedQuery = {
+            ...serializeQuery(parseQuery(query)),
+            open: query.open
+          };
+          replace({ pathname: nextState.location.pathname, query: normalizedQuery });
+        }
+      },
       getComponent(_: RouterState, callback: (err: any, component: RouteComponent) => any) {
-        import('./components/CodingRulesAppContainer').then(i => callback(null, i.default));
+        import('./components/App').then(i => callback(null, i.default));
       }
     }
   }

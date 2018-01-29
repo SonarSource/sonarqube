@@ -17,6 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+// Diff / Omit taken from https://github.com/Microsoft/TypeScript/issues/12215#issuecomment-311923766
+export type Diff<T extends string, U extends string> = ({ [P in T]: P } &
+  { [P in U]: never } & { [x: string]: never })[T];
+
+export type Omit<T, K extends keyof T> = Pick<T, Diff<keyof T, K>>;
+
 export enum BranchType {
   LONG = 'LONG',
   SHORT = 'SHORT'
@@ -186,4 +193,64 @@ export interface AppState {
   globalPages?: Extension[];
   organizationsEnabled?: boolean;
   qualifiers: string[];
+}
+
+export interface Rule {
+  isTemplate?: boolean;
+  key: string;
+  lang: string;
+  langName: string;
+  name: string;
+  params?: RuleParameter[];
+  severity: string;
+  status: string;
+  sysTags?: string[];
+  tags?: string[];
+  type: string;
+}
+
+export interface RuleDetails extends Rule {
+  createdAt: string;
+  debtOverloaded?: boolean;
+  debtRemFnCoeff?: string;
+  debtRemFnOffset?: string;
+  debtRemFnType?: string;
+  defaultDebtRemFnOffset?: string;
+  defaultDebtRemFnType?: string;
+  defaultRemFnBaseEffort?: string;
+  defaultRemFnType?: string;
+  effortToFixDescription?: string;
+  htmlDesc?: string;
+  htmlNote?: string;
+  internalKey?: string;
+  mdDesc?: string;
+  mdNote?: string;
+  remFnBaseEffort?: string;
+  remFnOverloaded?: boolean;
+  remFnType?: string;
+  repo: string;
+  templateKey?: string;
+}
+
+export interface RuleActivation {
+  createdAt: string;
+  inherit: RuleInheritance;
+  params: { key: string; value: string }[];
+  qProfile: string;
+  severity: string;
+}
+
+export interface RuleParameter {
+  // TODO is this extra really returned?
+  extra?: string;
+  defaultValue?: string;
+  htmlDesc?: string;
+  key: string;
+  type: string;
+}
+
+export enum RuleInheritance {
+  NotInherited = 'NONE',
+  Inherited = 'INHERITED',
+  Overridden = 'OVERRIDES'
 }

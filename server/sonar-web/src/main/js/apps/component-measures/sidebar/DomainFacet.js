@@ -134,7 +134,7 @@ export default class DomainFacet extends React.PureComponent {
     const helper = `component_measures.domain_facets.${domain.name}.help`;
     const translatedHelper = translate(helper);
     return (
-      <FacetBox>
+      <FacetBox property={domain.name}>
         <FacetHeader
           helper={helper !== translatedHelper ? translatedHelper : undefined}
           name={getLocalizedMetricDomain(domain.name)}

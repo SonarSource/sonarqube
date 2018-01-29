@@ -99,11 +99,11 @@
   white-space: nowrap;
 }
 
-.Select-value svg,
 .Select-value [class^='icon-'] {
   padding-top: 5px;
 }
 
+.Select-value svg,
 .Select-value img {
   padding-top: 3px;
 }
@@ -391,10 +391,15 @@
 }
 
 .Select--multi .Select-value-label {
+  display: inline-block;
+  max-width: 200px;
   border-bottom-right-radius: 2px;
   border-top-right-radius: 2px;
   cursor: default;
   padding: 2px 5px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .Select--multi a.Select-value-label {

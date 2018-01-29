@@ -51,6 +51,7 @@
     "@types/escape-html": "0.0.20",
     "@types/jest": "22.0.1",
     "@types/jquery": "3.2.11",
+    "@types/keymaster": "1.6.28",
     "@types/lodash": "4.14.80",
     "@types/prop-types": "15.5.2",
     "@types/react": "16.0.29",

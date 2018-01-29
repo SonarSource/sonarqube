@@ -63,7 +63,7 @@ export default function ProjectCardLeak({ organization, project }: Props) {
           {isPrivate && (
             <PrivateBadge className="spacer-left" qualifier="TRK" tooltipPlacement="left" />
           )}
-          {hasTags && <TagsList tags={project.tags} customClass="spacer-left" />}
+          {hasTags && <TagsList className="spacer-left note" tags={project.tags} />}
         </div>
         {project.analysisDate &&
           project.leakPeriodDate && (

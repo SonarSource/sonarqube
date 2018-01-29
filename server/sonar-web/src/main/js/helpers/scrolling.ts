@@ -65,7 +65,7 @@ let smoothScrollTop = (y: number, parent: HTMLElement | Window) => {
 smoothScrollTop = debounce(smoothScrollTop, SCROLLING_DURATION, { leading: true });
 
 export function scrollToElement(
-  element: HTMLElement,
+  element: Element,
   options: {
     topOffset?: number;
     bottomOffset?: number;

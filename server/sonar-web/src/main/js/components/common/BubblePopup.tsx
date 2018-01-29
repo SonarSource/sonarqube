@@ -21,8 +21,9 @@ import * as React from 'react';
 import * as classNames from 'classnames';
 
 export interface BubblePopupPosition {
-  top: number;
-  right: number;
+  top?: number;
+  left?: number;
+  right?: number;
 }
 
 interface Props {

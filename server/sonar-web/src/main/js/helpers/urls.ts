@@ -68,8 +68,9 @@ export function getProjectBranchUrl(key: string, branch: Branch): Location {
 /**
  * Generate URL for a global issues page
  */
-export function getIssuesUrl(query: Query): Location {
-  return { pathname: '/issues', query };
+export function getIssuesUrl(query: Query, organization?: string): Location {
+  const pathname = organization ? `/organizations/${organization}/issues` : '/issues';
+  return { pathname, query };
 }
 
 /**
@@ -141,27 +142,26 @@ export function getQualityGatesUrl(organization?: string | null): Location {
 /**
  * Generate URL for the rules page
  */
-export function getRulesUrl(query: { [x: string]: string }, organization?: string | null): string {
-  const path = organization ? `/organizations/${organization}/rules` : '/coding_rules';
-
-  if (query) {
-    const serializedQuery = Object.keys(query)
-      .map(criterion => `${encodeURIComponent(criterion)}=${encodeURIComponent(query[criterion])}`)
-      .join('|');
-
-    // return a string (not { pathname }) to help react-router's Link handle this properly
-    return path + '#' + serializedQuery;
-  }
-
-  return path;
+export function getRulesUrl(query: Query, organization: string | null | undefined): Location {
+  const pathname = organization ? `/organizations/${organization}/rules` : '/coding_rules';
+  return { pathname, query };
 }
 
 /**
  * Generate URL for the rules page filtering only active deprecated rules
  */
-export function getDeprecatedActiveRulesUrl(query = {}, organization?: string | null): string {
+export function getDeprecatedActiveRulesUrl(
+  query: Query = {},
+  organization: string | null | undefined
+): Location {
   const baseQuery = { activation: 'true', statuses: 'DEPRECATED' };
   return getRulesUrl({ ...query, ...baseQuery }, organization);
+}
+
+export function getRuleUrl(rule: string, organization: string | undefined) {
+  /* eslint-disable camelcase */
+  return getRulesUrl({ open: rule, rule_key: rule }, organization);
+  /* eslint-enable camelcase */
 }
 
 export function getMarkdownHelpUrl(): string {

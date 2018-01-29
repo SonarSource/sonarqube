@@ -17,6 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { map } from 'lodash';
+import { csvEscape } from '../helpers/csv';
 import {
   request,
   checkStatus,
@@ -218,4 +220,59 @@ export function addGroup(parameters: AddRemoveGroupParameters): Promise<void | R
 
 export function removeGroup(parameters: AddRemoveGroupParameters): Promise<void | Response> {
   return post('/api/qualityprofiles/remove_group', parameters).catch(throwGlobalError);
+}
+
+export interface BulkActivateParameters {
+  /* eslint-disable camelcase */
+  activation?: boolean;
+  active_severities?: string;
+  asc?: boolean;
+  available_since?: string;
+  compareToProfile?: string;
+  inheritance?: string;
+  is_template?: string;
+  languages?: string;
+  organization: string | undefined;
+  q?: string;
+  qprofile?: string;
+  repositories?: string;
+  rule_key?: string;
+  s?: string;
+  severities?: string;
+  statuses?: string;
+  tags?: string;
+  targetKey: string;
+  targetSeverity?: string;
+  template_key?: string;
+  types?: string;
+  /* eslint-enable camelcase */
+}
+
+export function bulkActivateRules(data: BulkActivateParameters) {
+  return postJSON('api/qualityprofiles/activate_rules', data);
+}
+
+export function bulkDeactivateRules(data: BulkActivateParameters) {
+  return postJSON('api/qualityprofiles/deactivate_rules', data);
+}
+
+export function activateRule(data: {
+  key: string;
+  organization: string | undefined;
+  params?: { [key: string]: string };
+  reset?: boolean;
+  rule: string;
+  severity?: string;
+}) {
+  const params =
+    data.params && map(data.params, (value, key) => `${key}=${csvEscape(value)}`).join(';');
+  return post('/api/qualityprofiles/activate_rule', { ...data, params }).catch(throwGlobalError);
+}
+
+export function deactivateRule(data: {
+  key: string;
+  organization: string | undefined;
+  rule: string;
+}) {
+  return post('/api/qualityprofiles/deactivate_rule', data).catch(throwGlobalError);
 }
