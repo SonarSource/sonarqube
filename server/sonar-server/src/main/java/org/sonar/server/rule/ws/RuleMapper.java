@@ -31,12 +31,14 @@ import org.sonar.api.resources.Languages;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.debt.internal.DefaultDebtRemediationFunction;
 import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.rule.RuleDto.Scope;
 import org.sonar.db.rule.RuleMetadataDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.markdown.Markdown;
 import org.sonar.server.rule.ws.SearchAction.SearchResult;
 import org.sonar.server.text.MacroInterpreter;
 import org.sonarqube.ws.Common;
+import org.sonarqube.ws.Common.RuleScope;
 import org.sonarqube.ws.Rules;
 
 import static java.lang.String.format;
@@ -63,6 +65,7 @@ import static org.sonar.server.rule.ws.RulesWsParameters.FIELD_REPO;
 import static org.sonar.server.rule.ws.RulesWsParameters.FIELD_SEVERITY;
 import static org.sonar.server.rule.ws.RulesWsParameters.FIELD_STATUS;
 import static org.sonar.server.rule.ws.RulesWsParameters.FIELD_SYSTEM_TAGS;
+import static org.sonar.server.rule.ws.RulesWsParameters.FIELD_SCOPE;
 import static org.sonar.server.rule.ws.RulesWsParameters.FIELD_TAGS;
 import static org.sonar.server.rule.ws.RulesWsParameters.FIELD_TEMPLATE_KEY;
 
@@ -115,6 +118,7 @@ public class RuleMapper {
     setTemplateKey(ruleResponse, ruleDefinitionDto, result, fieldsToReturn);
     setDefaultDebtRemediationFunctionFields(ruleResponse, ruleDefinitionDto, fieldsToReturn);
     setEffortToFixDescription(ruleResponse, ruleDefinitionDto, fieldsToReturn);
+    setScope(ruleResponse, ruleDefinitionDto, fieldsToReturn);
     return ruleResponse;
   }
 
@@ -127,6 +131,25 @@ public class RuleMapper {
   private static void setRepository(Rules.Rule.Builder ruleResponse, RuleDefinitionDto ruleDto, Set<String> fieldsToReturn) {
     if (shouldReturnField(fieldsToReturn, FIELD_REPO)) {
       ruleResponse.setRepo(ruleDto.getKey().repository());
+    }
+  }
+
+  private static void setScope(Rules.Rule.Builder ruleResponse, RuleDefinitionDto ruleDto, Set<String> fieldsToReturn) {
+    if (shouldReturnField(fieldsToReturn, FIELD_SCOPE)) {
+      ruleResponse.setScope(toWsRuleScope(ruleDto.getScope()));
+    }
+  }
+
+  private static RuleScope toWsRuleScope(Scope scope) {
+    switch (scope) {
+      case ALL:
+        return RuleScope.ALL;
+      case MAIN:
+        return RuleScope.MAIN;
+      case TEST:
+        return RuleScope.TEST;
+      default:
+        throw new IllegalArgumentException("Unknown rule scope: " + scope);
     }
   }
 
