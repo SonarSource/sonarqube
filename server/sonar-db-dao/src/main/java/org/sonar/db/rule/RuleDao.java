@@ -34,6 +34,7 @@ import org.sonar.db.es.RuleExtensionId;
 import org.sonar.db.organization.OrganizationDto;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static java.util.Collections.emptyList;
 import static java.util.Optional.ofNullable;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 import static org.sonar.db.DatabaseUtils.executeLargeInputsWithoutOutput;
@@ -82,26 +83,41 @@ public class RuleDao implements Dao {
   }
 
   public List<RuleDto> selectByIds(DbSession session, String organizationUuid, List<Integer> ids) {
+    if (ids.isEmpty()) {
+      return emptyList();
+    }
     return ensureOrganizationIsSet(
       organizationUuid,
       executeLargeInputs(ids, chunk -> mapper(session).selectByIds(organizationUuid, chunk)));
   }
 
   public List<RuleDefinitionDto> selectDefinitionByIds(DbSession session, Collection<Integer> ids) {
+    if (ids.isEmpty()) {
+      return emptyList();
+    }
     return executeLargeInputs(ids, mapper(session)::selectDefinitionByIds);
   }
 
   public List<RuleDto> selectByKeys(DbSession session, OrganizationDto organization, Collection<RuleKey> keys) {
+    if (keys.isEmpty()) {
+      return emptyList();
+    }
     return ensureOrganizationIsSet(organization.getUuid(),
       executeLargeInputs(keys, chunk -> mapper(session).selectByKeys(organization.getUuid(), chunk)));
   }
 
   public List<RuleDto> selectByKeys(DbSession session, String organizationUuid, Collection<RuleKey> keys) {
+    if (keys.isEmpty()) {
+      return emptyList();
+    }
     return ensureOrganizationIsSet(organizationUuid,
       executeLargeInputs(keys, chunk -> mapper(session).selectByKeys(organizationUuid, chunk)));
   }
 
   public List<RuleDefinitionDto> selectDefinitionByKeys(DbSession session, Collection<RuleKey> keys) {
+    if (keys.isEmpty()) {
+      return emptyList();
+    }
     return executeLargeInputs(keys, mapper(session)::selectDefinitionByKeys);
   }
 
