@@ -18,22 +18,22 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import * as classNames from 'classnames';
-import './TagsList.css';
-import DropdownIcon from '../icons-components/DropdownIcon';
+import { IconProps } from './types';
 
-interface Props {
-  allowUpdate?: boolean;
-  className?: string;
-  tags: string[];
-}
-
-export default function TagsList({ allowUpdate = false, className, tags }: Props) {
+export default function RuleScopeIcon({ className, fill = 'currentColor', size = 16 }: IconProps) {
   return (
-    <span className={classNames('tags-list', className)} title={tags.join(', ')}>
-      <i className="icon-tags" />
-      <span className="text-ellipsis">{tags.join(', ')}</span>
-      {allowUpdate && <DropdownIcon />}
-    </span>
+    <svg
+      className={className}
+      width={size}
+      height={size}
+      viewBox="0 0 16 16"
+      version="1.1"
+      xmlnsXlink="http://www.w3.org/1999/xlink"
+      xmlSpace="preserve">
+      <path
+        style={{ fill }}
+        d="M8 3.071c2.724 0 4.929 2.204 4.929 4.929s-2.204 4.929-4.929 4.929c-2.724 0-4.929-2.204-4.929-4.929s2.204-4.929 4.929-4.929zM8 1.357c-3.669 0-6.643 2.974-6.643 6.643s2.974 6.643 6.643 6.643 6.643-2.974 6.643-6.643-2.974-6.643-6.643-6.643zM8 6.286c0.945 0 1.714 0.769 1.714 1.714s-0.769 1.714-1.714 1.714-1.714-0.769-1.714-1.714 0.769-1.714 1.714-1.714zM8 4.571c-1.893 0-3.429 1.535-3.429 3.429s1.535 3.429 3.429 3.429 3.429-1.535 3.429-3.429-1.535-3.429-3.429-3.429z"
+      />
+    </svg>
   );
 }

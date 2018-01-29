@@ -156,6 +156,14 @@ export interface CurrentUser {
   showOnboardingTutorial?: boolean;
 }
 
+export interface Group {
+  default?: boolean;
+  description?: string;
+  id: number;
+  membersCount: number;
+  name: string;
+}
+
 export enum HomePageType {
   Project = 'PROJECT',
   Organization = 'ORGANIZATION',
@@ -229,6 +237,7 @@ export interface RuleDetails extends Rule {
   remFnOverloaded?: boolean;
   remFnType?: string;
   repo: string;
+  scope?: RuleScope;
   templateKey?: string;
 }
 
@@ -255,10 +264,8 @@ export enum RuleInheritance {
   Overridden = 'OVERRIDES'
 }
 
-export interface Group {
-  default?: boolean;
-  description?: string;
-  id: number;
-  membersCount: number;
-  name: string;
+export enum RuleScope {
+  Main = 'MAIN',
+  Test = 'TEST',
+  All = 'ALL'
 }

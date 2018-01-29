@@ -249,11 +249,11 @@ export interface BulkActivateParameters {
 }
 
 export function bulkActivateRules(data: BulkActivateParameters) {
-  return postJSON('api/qualityprofiles/activate_rules', data);
+  return postJSON('/api/qualityprofiles/activate_rules', data);
 }
 
 export function bulkDeactivateRules(data: BulkActivateParameters) {
-  return postJSON('api/qualityprofiles/deactivate_rules', data);
+  return postJSON('/api/qualityprofiles/deactivate_rules', data);
 }
 
 export function activateRule(data: {

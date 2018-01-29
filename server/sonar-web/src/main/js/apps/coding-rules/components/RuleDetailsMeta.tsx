@@ -20,9 +20,10 @@
 import * as React from 'react';
 import { Link } from 'react-router';
 import { Query } from '../query';
-import { RuleDetails } from '../../../app/types';
+import { RuleDetails, RuleScope } from '../../../app/types';
 import { getRuleUrl } from '../../../helpers/urls';
 import LinkIcon from '../../../components/icons-components/LinkIcon';
+import RuleScopeIcon from '../../../components/icons-components/RuleScopeIcon';
 import SimilarRulesFilter from './SimilarRulesFilter';
 import Tooltip from '../../../components/controls/Tooltip';
 import { translate } from '../../../helpers/l10n';
@@ -72,7 +73,10 @@ export default class RuleDetailsMeta extends React.PureComponent<Props, State> {
   renderSeverity = () => (
     <Tooltip overlay={translate('default_severity')}>
       <li className="coding-rules-detail-property" data-meta="severity">
-        <SeverityHelper severity={this.props.ruleDetails.severity} />
+        <SeverityHelper
+          className="display-inline-flex-center"
+          severity={this.props.ruleDetails.severity}
+        />
       </li>
     </Tooltip>
   );
@@ -200,6 +204,18 @@ export default class RuleDetailsMeta extends React.PureComponent<Props, State> {
     );
   };
 
+  renderScope = () => {
+    const scope = this.props.ruleDetails.scope || RuleScope.Main;
+    return (
+      <Tooltip overlay={translate('coding_rules.scope.title')}>
+        <li className="coding-rules-detail-property">
+          <RuleScopeIcon className="little-spacer-right" />
+          {translate('coding_rules.scope', scope)}
+        </li>
+      </Tooltip>
+    );
+  };
+
   render() {
     const { ruleDetails } = this.props;
     return (
@@ -223,6 +239,7 @@ export default class RuleDetailsMeta extends React.PureComponent<Props, State> {
           {this.renderType()}
           {this.renderSeverity()}
           {this.renderStatus()}
+          {this.renderScope()}
           {this.renderTags()}
           {this.renderCreationDate()}
           {this.renderRepository()}

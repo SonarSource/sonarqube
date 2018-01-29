@@ -25,26 +25,27 @@ import CodeSmellIcon from '../icons-components/CodeSmellIcon';
 interface Props {
   className?: string;
   query: string;
+  size?: number;
 }
 
-export default function IssueTypeIcon(props: Props) {
+export default function IssueTypeIcon({ className, query, size }: Props) {
   let icon;
 
-  switch (props.query.toLowerCase()) {
+  switch (query.toLowerCase()) {
     case 'bug':
     case 'bugs':
     case 'new_bugs':
-      icon = <BugIcon />;
+      icon = <BugIcon size={size} />;
       break;
     case 'vulnerability':
     case 'vulnerabilities':
     case 'new_vulnerabilities':
-      icon = <VulnerabilityIcon />;
+      icon = <VulnerabilityIcon size={size} />;
       break;
     case 'code_smell':
     case 'code_smells':
     case 'new_code_smells':
-      icon = <CodeSmellIcon />;
+      icon = <CodeSmellIcon size={size} />;
       break;
   }
 
@@ -52,5 +53,5 @@ export default function IssueTypeIcon(props: Props) {
     return null;
   }
 
-  return props.className ? <span className={props.className}>{icon}</span> : icon;
+  return className ? <span className={className}>{icon}</span> : icon;
 }
