@@ -177,13 +177,14 @@ export default class RuleDetailsProfiles extends React.PureComponent<Props, Stat
               />
             )}
             {hasParent ? (
-              activation.inherit === RuleInheritance.Overridden && (
+              activation.inherit === RuleInheritance.Overridden &&
+              profile.parentName && (
                 <ConfirmButton
                   confirmButtonText={translate('yes')}
                   confirmData={profile.key}
                   modalBody={translateWithParameters(
                     'coding_rules.revert_to_parent_definition.confirm',
-                    profile.parentName!
+                    profile.parentName
                   )}
                   modalHeader={translate('coding_rules.revert_to_parent_definition')}
                   onConfirm={this.handleRevert}>
