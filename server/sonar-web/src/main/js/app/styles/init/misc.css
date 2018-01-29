@@ -285,6 +285,11 @@ td.big-spacer-top {
   align-items: center;
 }
 
+.display-inline-flex-center {
+  display: inline-flex !important;
+  align-items: center;
+}
+
 .rounded {
   border-radius: 2px;
 }

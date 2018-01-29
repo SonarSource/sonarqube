@@ -20,6 +20,7 @@
 import * as React from 'react';
 import * as classNames from 'classnames';
 import './TagsList.css';
+import DropdownIcon from '../icons-components/DropdownIcon';
 
 interface Props {
   allowUpdate?: boolean;
@@ -32,7 +33,7 @@ export default function TagsList({ allowUpdate = false, className, tags }: Props
     <span className={classNames('tags-list', className)} title={tags.join(', ')}>
       <i className="icon-tags" />
       <span className="text-ellipsis">{tags.join(', ')}</span>
-      {allowUpdate && <i className="icon-dropdown" />}
+      {allowUpdate && <DropdownIcon />}
     </span>
   );
 }

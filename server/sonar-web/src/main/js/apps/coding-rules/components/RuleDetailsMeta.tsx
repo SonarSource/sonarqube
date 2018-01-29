@@ -63,7 +63,7 @@ export default class RuleDetailsMeta extends React.PureComponent<Props, State> {
     return (
       <Tooltip overlay={translate('coding_rules.type.tooltip', ruleDetails.type)}>
         <li className="coding-rules-detail-property" data-meta="type">
-          <IssueTypeIcon className="little-spacer-right" query={ruleDetails.type} size={14} />
+          <IssueTypeIcon className="little-spacer-right" query={ruleDetails.type} />
           {translate('issue.type', ruleDetails.type)}
         </li>
       </Tooltip>
@@ -206,7 +206,7 @@ export default class RuleDetailsMeta extends React.PureComponent<Props, State> {
     return (
       <Tooltip overlay={translate('coding_rules.scope.title')}>
         <li className="coding-rules-detail-property">
-          <RuleScopeIcon className="little-spacer-right" size={14} />
+          <RuleScopeIcon className="little-spacer-right" />
           {translate('coding_rules.scope', scope)}
         </li>
       </Tooltip>

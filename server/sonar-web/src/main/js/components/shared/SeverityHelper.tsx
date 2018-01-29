@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import * as classNames from 'classnames';
 import SeverityIcon from './SeverityIcon';
 import { translate } from '../../helpers/l10n';
 
@@ -32,7 +33,7 @@ export default function SeverityHelper({ className, severity }: Props) {
     return null;
   }
   return (
-    <span className={className}>
+    <span className={classNames('display-inline-flex-center', className)}>
       <SeverityIcon className="little-spacer-right" severity={severity} />
       {translate('severity', severity)}
     </span>

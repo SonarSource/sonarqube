@@ -13,9 +13,7 @@ exports[`should render with a caret on the right if update is allowed 1`] = `
   >
     foo, bar
   </span>
-  <i
-    className="icon-dropdown"
-  />
+  <DropdownIcon />
 </span>
 `;
 

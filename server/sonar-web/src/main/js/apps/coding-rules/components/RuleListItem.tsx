@@ -183,7 +183,7 @@ export default class RuleListItem extends React.PureComponent<Props> {
               </td>
 
               <td className="coding-rule-table-meta-cell">
-                <div className="coding-rule-meta">
+                <div className="display-flex-center coding-rule-meta">
                   {rule.status !== 'READY' && (
                     <span className="spacer-left badge badge-normal-size badge-danger-light">
                       {translate('rules.status', rule.status)}
@@ -191,7 +191,7 @@ export default class RuleListItem extends React.PureComponent<Props> {
                   )}
                   <span className="spacer-left note">{rule.langName}</span>
                   <Tooltip overlay={translate('coding_rules.type.tooltip', rule.type)}>
-                    <span className="spacer-left note">
+                    <span className="display-inline-flex-center spacer-left note">
                       <IssueTypeIcon className="little-spacer-right" query={rule.type} />
                       {translate('issue.type', rule.type)}
                     </span>
