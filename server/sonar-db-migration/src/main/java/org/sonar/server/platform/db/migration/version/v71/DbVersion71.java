@@ -29,6 +29,7 @@ public class DbVersion71 implements DbVersion {
     registry
       .add(2000, "Delete settings defined in sonar.properties from PROPERTIES table", DeleteSettingsDefinedInSonarDotProperties.class)
       .add(2001, "Use rule id in QPROFILE_CHANGES", UseRuleIdInQPChangesData.class)
+      .add(2002, "Create table DEPRECATED_RULE_KEYS", CreateDeprecatedRuleKeysTable.class)
     ;
   }
 }
