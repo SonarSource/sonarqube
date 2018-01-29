@@ -20,12 +20,13 @@
 import * as React from 'react';
 import { Link } from 'react-router';
 import { sortBy } from 'lodash';
+import ConfirmButton from './ConfirmButton';
 import CustomRuleButton from './CustomRuleButton';
-import { searchRules } from '../../../api/rules';
+import { searchRules, deleteRule } from '../../../api/rules';
 import { Rule, RuleDetails } from '../../../app/types';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import SeverityHelper from '../../../components/shared/SeverityHelper';
-import { translate } from '../../../helpers/l10n';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { getRuleUrl } from '../../../helpers/urls';
 
 interface Props {
@@ -87,6 +88,16 @@ export default class RuleDetailsCustomRules extends React.PureComponent<Props, S
     }
   };
 
+  handleRuleDelete = (ruleKey: string) => {
+    return deleteRule({ key: ruleKey }).then(() => {
+      if (this.mounted) {
+        this.setState(({ rules = [] }) => ({
+          rules: rules.filter(rule => rule.key !== ruleKey)
+        }));
+      }
+    });
+  };
+
   renderRule = (rule: Rule) => (
     <tr key={rule.key} data-rule={rule.key}>
       <td className="coding-rules-detail-list-name">
@@ -112,7 +123,19 @@ export default class RuleDetailsCustomRules extends React.PureComponent<Props, S
 
       {this.props.canChange && (
         <td className="coding-rules-detail-list-actions">
-          <button className="js-delete-custom-rule button-red">{translate('delete')}</button>
+          <ConfirmButton
+            confirmButtonText={translate('delete')}
+            confirmData={rule.key}
+            isDestructive={true}
+            modalBody={translateWithParameters('coding_rules.delete.custom.confirm', rule.name)}
+            modalHeader={translate('coding_rules.delete_rule')}
+            onConfirm={this.handleRuleDelete}>
+            {({ onClick }) => (
+              <button className="button-red js-delete-custom-rule" onClick={onClick}>
+                {translate('delete')}
+              </button>
+            )}
+          </ConfirmButton>
         </td>
       )}
     </tr>
