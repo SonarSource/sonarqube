@@ -67,8 +67,10 @@
 }
 
 .coding-rules-detail-properties {
-  margin: 10px 0;
-  font-size: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-top: var(--gridSize);
 }
 
 .coding-rules-detail-properties + .coding-rules-detail-properties {
@@ -76,8 +78,10 @@
 }
 
 .coding-rules-detail-property {
-  display: inline-block;
-  margin-right: 20px;
+  display: flex;
+  align-items: center;
+  margin-right: calc(2 * var(--gridSize));
+  margin-bottom: var(--gridSize);
   font-size: var(--smallFontSize);
 }
 
@@ -173,7 +177,7 @@
 }
 
 .coding-rules-detail-quality-profile-severity i {
-  margin-top: 4px;
+  margin-top: 2px;
 }
 
 .coding-rules-detail-quality-profile-parameters,
@@ -265,27 +269,19 @@ textarea.coding-rules-markdown-description {
 }
 
 .coding-rule-title {
-  line-height: 19.5px;
+  line-height: calc(2.5 * var(--gridSize));
   font-size: var(--baseFontSize);
 }
 
 .coding-rule-meta {
+  padding: calc(0.25 * var(--gridSize));
   padding-left: 30px;
-  line-height: 19.5px;
   font-size: var(--smallFontSize);
 }
 
 .coding-rule-meta .icon-tags:before {
   color: var(--secondFontColor);
   font-size: var(--smallFontSize);
-}
-
-.coding-rule-meta .js-tag:after {
-  content: ',';
-}
-
-.coding-rule-meta .js-tag:last-child:after {
-  content: '';
 }
 
 .coding-rule-activation {
