@@ -307,13 +307,13 @@ public class RuleDefinitionDto {
 
   @Override
   public boolean equals(Object obj) {
-    if (!(obj instanceof RuleDto)) {
+    if (!(obj instanceof RuleDefinitionDto)) {
       return false;
     }
     if (this == obj) {
       return true;
     }
-    RuleDto other = (RuleDto) obj;
+    RuleDefinitionDto other = (RuleDefinitionDto) obj;
     return new EqualsBuilder()
       .append(repositoryKey, other.getRepositoryKey())
       .append(ruleKey, other.getRuleKey())
