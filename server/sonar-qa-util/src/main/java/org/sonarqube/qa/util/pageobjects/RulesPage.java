@@ -40,7 +40,7 @@ public class RulesPage extends Navigation {
   }
 
   public ElementsCollection getSelectedFacetItems(String facetName) {
-    return getFacetElement(facetName).$$(".js-facet.active");
+    return getFacetElement(facetName).$$(".facet.active");
   }
 
   public RulesPage shouldHaveTotalRules(Integer total) {
