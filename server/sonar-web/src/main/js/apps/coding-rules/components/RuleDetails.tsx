@@ -27,7 +27,7 @@ import RuleDetailsIssues from './RuleDetailsIssues';
 import RuleDetailsMeta from './RuleDetailsMeta';
 import RuleDetailsParameters from './RuleDetailsParameters';
 import RuleDetailsProfiles from './RuleDetailsProfiles';
-import { Query } from '../query';
+import { Query, Activation } from '../query';
 import { Profile } from '../../../api/quality-profiles';
 import { getRuleDetails, deleteRule, updateRule } from '../../../api/rules';
 import { RuleActivation, RuleDetails as IRuleDetails } from '../../../app/types';
@@ -36,12 +36,15 @@ import { translate, translateWithParameters } from '../../../helpers/l10n';
 interface Props {
   allowCustomRules?: boolean;
   canWrite?: boolean;
+  onActivate: (profile: string, rule: string, activation: Activation) => void;
+  onDeactivate: (profile: string, rule: string) => void;
   onDelete: (rule: string) => void;
   onFilterChange: (changes: Partial<Query>) => void;
   organization?: string;
   referencedProfiles: { [profile: string]: Profile };
   referencedRepositories: { [repository: string]: { key: string; language: string; name: string } };
   ruleKey: string;
+  selectedProfile?: Profile;
 }
 
 interface State {
@@ -106,10 +109,29 @@ export default class RuleDetails extends React.PureComponent<Props, State> {
     });
   };
 
-  handleDelete = () =>
-    deleteRule({ key: this.props.ruleKey }).then(() => {
-      this.props.onDelete(this.props.ruleKey);
+  handleActivate = () =>
+    this.fetchRuleDetails().then(() => {
+      const { ruleKey, selectedProfile } = this.props;
+      if (selectedProfile && this.state.actives) {
+        const active = this.state.actives.find(active => active.qProfile === selectedProfile.key);
+        if (active) {
+          this.props.onActivate(selectedProfile.key, ruleKey, active);
+        }
+      }
     });
+
+  handleDeactivate = () =>
+    this.fetchRuleDetails().then(() => {
+      const { ruleKey, selectedProfile } = this.props;
+      if (selectedProfile && this.state.actives) {
+        if (!this.state.actives.find(active => active.qProfile === selectedProfile.key)) {
+          this.props.onDeactivate(selectedProfile.key, ruleKey);
+        }
+      }
+    });
+
+  handleDelete = () =>
+    deleteRule({ key: this.props.ruleKey }).then(() => this.props.onDelete(this.props.ruleKey));
 
   render() {
     const { ruleDetails } = this.state;
@@ -196,7 +218,8 @@ export default class RuleDetails extends React.PureComponent<Props, State> {
             <RuleDetailsProfiles
               activations={this.state.actives}
               canWrite={canWrite}
-              refreshRuleDetails={this.fetchRuleDetails}
+              onActivate={this.handleActivate}
+              onDeactivate={this.handleDeactivate}
               organization={organization}
               referencedProfiles={referencedProfiles}
               ruleDetails={ruleDetails}

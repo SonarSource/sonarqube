@@ -34,9 +34,10 @@ import SeverityHelper from '../../../components/shared/SeverityHelper';
 interface Props {
   activations: RuleActivation[] | undefined;
   canWrite: boolean | undefined;
+  onActivate: () => Promise<void>;
+  onDeactivate: () => Promise<void>;
   organization: string | undefined;
   referencedProfiles: { [profile: string]: Profile };
-  refreshRuleDetails: () => Promise<void>;
   ruleDetails: RuleDetails;
 }
 
@@ -64,12 +65,12 @@ export default class RuleDetailsProfiles extends React.PureComponent<Props, Stat
 
   fetchProfiles = () => this.setState({ loading: true });
 
-  handleActivate = (_severity: string) => this.props.refreshRuleDetails();
+  handleActivate = () => this.props.onActivate();
 
   handleDeactivate = (key?: string) => {
     if (key) {
       deactivateRule({ key, rule: this.props.ruleDetails.key }).then(
-        this.props.refreshRuleDetails,
+        this.props.onDeactivate,
         () => {}
       );
     }
@@ -78,7 +79,7 @@ export default class RuleDetailsProfiles extends React.PureComponent<Props, Stat
   handleRevert = (key?: string) => {
     if (key) {
       activateRule({ key, rule: this.props.ruleDetails.key, reset: true }).then(
-        this.props.refreshRuleDetails,
+        this.props.onActivate,
         () => {}
       );
     }

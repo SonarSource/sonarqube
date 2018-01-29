@@ -34,10 +34,11 @@ import {
   getServerFacet,
   getAppFacet,
   Actives,
+  Activation,
   getOpen
 } from '../query';
 import { searchRules, getRulesApp } from '../../../api/rules';
-import { Paging, Rule, RuleInheritance, RuleActivation } from '../../../app/types';
+import { Paging, Rule, RuleActivation } from '../../../app/types';
 import ScreenPositionHelper from '../../../components/common/ScreenPositionHelper';
 import { translate } from '../../../helpers/l10n';
 import { RawQuery } from '../../../helpers/query';
@@ -419,10 +420,9 @@ export default class App extends React.PureComponent<Props, State> {
     }
   };
 
-  handleRuleActivate = (profile: string, rule: string, severity: string) =>
+  handleRuleActivate = (profile: string, rule: string, activation: Activation) =>
     this.setState((state: State) => {
       const { actives = {} } = state;
-      const activation = { inherit: RuleInheritance.NotInherited, severity };
       if (!actives[rule]) {
         return { actives: { ...actives, [rule]: { [profile]: activation } } };
       }
@@ -514,12 +514,15 @@ export default class App extends React.PureComponent<Props, State> {
                 <RuleDetails
                   allowCustomRules={!this.context.organizationsEnabled}
                   canWrite={this.state.canWrite}
+                  onActivate={this.handleRuleActivate}
+                  onDeactivate={this.handleRuleDeactivate}
                   onDelete={this.handleRuleDelete}
                   onFilterChange={this.handleFilterChange}
                   organization={this.props.organization && this.props.organization.key}
                   referencedProfiles={this.state.referencedProfiles}
                   referencedRepositories={this.state.referencedRepositories}
                   ruleKey={this.state.openRule.key}
+                  selectedProfile={this.getSelectedProfile()}
                 />
               ) : (
                 <>

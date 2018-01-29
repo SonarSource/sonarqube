@@ -33,7 +33,7 @@ import { translate, translateWithParameters } from '../../../helpers/l10n';
 
 interface Props {
   activation?: Activation;
-  onActivate: (profile: string, rule: string, severity: string) => void;
+  onActivate: (profile: string, rule: string, activation: Activation) => void;
   onDeactivate: (profile: string, rule: string) => void;
   onFilterChange: (changes: Partial<Query>) => void;
   path: { pathname: string; query: { [x: string]: any } };
@@ -52,7 +52,10 @@ export default class RuleListItem extends React.PureComponent<Props> {
 
   handleActivate = (severity: string) => {
     if (this.props.selectedProfile) {
-      this.props.onActivate(this.props.selectedProfile.key, this.props.rule.key, severity);
+      this.props.onActivate(this.props.selectedProfile.key, this.props.rule.key, {
+        severity,
+        inherit: RuleInheritance.NotInherited
+      });
     }
     return Promise.resolve();
   };
