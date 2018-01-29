@@ -1,9 +1,0 @@
-{{> '_coding-rules-facet-header'}}
-
-<div class="search-navigator-facet-list">
-  {{#each values}}
-    <a class="facet search-navigator-facet js-facet" data-value="{{val}}" title="{{default label val}}">
-      <span class="facet-name">{{default label val}}{{#if extra}} <span class="note">{{extra}}</span>{{/if}}</span>
-    </a>
-  {{/each}}
-</div>
