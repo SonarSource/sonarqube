@@ -35,6 +35,7 @@ import org.apache.commons.lang.StringUtils;
 import org.picocontainer.Startable;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rule.RuleScope;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.debt.DebtRemediationFunction;
@@ -242,7 +243,7 @@ public class RegisterRules implements Startable {
     return ruleDto;
   }
 
-  private static Scope toDtoScope(RulesDefinition.Scope scope) {
+  private static Scope toDtoScope(RuleScope scope) {
     switch (scope) {
       case ALL:
         return Scope.ALL;

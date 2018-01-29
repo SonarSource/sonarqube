@@ -44,21 +44,6 @@ public class SetRuleScopeToMainTest {
   }
 
   @Test
-  public void support_large_number_of_rows() throws SQLException {
-    for (int i = 0; i < 2_000; i++) {
-      insertRow(i, null);
-    }
-
-    assertThat(countRowsWithValue(null)).isEqualTo(2000);
-    assertThat(countRowsWithValue(RuleScope.MAIN)).isZero();
-
-    underTest.execute();
-
-    assertThat(countRowsWithValue(RuleScope.MAIN)).isEqualTo(2_000);
-    assertThat(countRowsWithValue(null)).isEqualTo(0);
-  }
-
-  @Test
   public void execute_is_reentreant() throws SQLException {
     insertRow(1, null);
     insertRow(2, RuleScope.MAIN);

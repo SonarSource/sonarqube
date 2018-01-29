@@ -40,6 +40,7 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.RuleType;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -130,7 +131,9 @@ public class SearchAction implements RulesWsAction {
   public void define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction(ACTION)
       .addPagingParams(100, MAX_LIMIT)
-      .setHandler(this);
+      .setHandler(this)
+      .setChangelog(new Change("7.1", "The field 'scope' has been added to the response"))
+      .setChangelog(new Change("7.1", "The field 'scope' has been added to the 'f' parameter"));
 
     action.createParam(FACETS)
       .setDescription("Comma-separated list of the facets to be computed. No facet is computed by default.")
@@ -145,9 +148,9 @@ public class SearchAction implements RulesWsAction {
         "<li>\"debtRemFn\" becomes \"remFn\"</li>" +
         "<li>\"effortToFixDescription\" becomes \"gapDescription\"</li>" +
         "<li>\"debtOverloaded\" becomes \"remFnOverloaded\"</li>" +
-        "</ul>" +
-        "In 7.1, the field 'scope' has been added.")
+        "</ul>")
       .setPossibleValues(Ordering.natural().sortedCopy(OPTIONAL_FIELDS));
+
     Iterator<String> it = OPTIONAL_FIELDS.iterator();
     paramFields.setExampleValue(format("%s,%s", it.next(), it.next()));
     doDefinition(action);
@@ -191,8 +194,7 @@ public class SearchAction implements RulesWsAction {
       "<li>\"debtRemFnOffset\" becomes \"remFnBaseEffort\"</li>" +
       "<li>\"defaultDebtRemFnOffset\" becomes \"defaultRemFnBaseEffort\"</li>" +
       "<li>\"debtOverloaded\" becomes \"remFnOverloaded\"</li>" +
-      "</ul>" +
-      "In 7.1, a new field 'scope' has been added to the response.")
+      "</ul>")
       .setResponseExample(getClass().getResource("search-example.json"))
       .setSince("4.4")
       .setHandler(this);
