@@ -21,6 +21,7 @@
 import React from 'react';
 import { map } from 'lodash';
 import { connect } from 'react-redux';
+import * as PropTypes from 'prop-types';
 import Avatar from '../../../components/ui/Avatar';
 import BubblePopup from '../../../components/common/BubblePopup';
 import SelectList from '../../../components/common/SelectList';
@@ -29,7 +30,7 @@ import SearchBox from '../../../components/controls/SearchBox';
 import { searchMembers } from '../../../api/organizations';
 import { searchUsers } from '../../../api/users';
 import { translate } from '../../../helpers/l10n';
-import { getCurrentUser, areThereCustomOrganizations } from '../../../store/rootReducer';
+import { getCurrentUser } from '../../../store/rootReducer';
 /*:: import type { Issue } from '../types'; */
 
 /*::
@@ -47,7 +48,6 @@ type Props = {
   issue: Issue,
   onFail: Error => void,
   onSelect: string => void,
-  organizationEnabled: boolean;
   popupPosition?: {}
 };
 */
@@ -66,6 +66,10 @@ class SetAssigneePopup extends React.PureComponent {
   /*:: defaultUsersArray: Array<User>; */
   /*:: props: Props; */
   /*:: state: State; */
+
+  static contextTypes = {
+    organizationsEnabled: PropTypes.bool
+  };
 
   constructor(props /*: Props */) {
     super(props);
@@ -109,7 +113,7 @@ class SetAssigneePopup extends React.PureComponent {
       });
     } else {
       this.setState({ query });
-      if (this.props.organizationEnabled) {
+      if (this.context.organizationsEnabled) {
         this.searchMembers(query);
       } else {
         this.searchUsers(query);
@@ -156,8 +160,7 @@ class SetAssigneePopup extends React.PureComponent {
 }
 
 const mapStateToProps = state => ({
-  currentUser: getCurrentUser(state),
-  organizationEnabled: areThereCustomOrganizations(state)
+  currentUser: getCurrentUser(state)
 });
 
 export default connect(mapStateToProps)(SetAssigneePopup);
