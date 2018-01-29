@@ -25,13 +25,16 @@ import java.util.function.Predicate;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonarqube.tests.Category6Suite;
 import org.sonarqube.qa.util.Tester;
+import org.sonarqube.tests.Category6Suite;
+import org.sonarqube.ws.Common.RuleScope;
 import org.sonarqube.ws.Organizations.Organization;
 import org.sonarqube.ws.Qualityprofiles.CreateWsResponse;
 import org.sonarqube.ws.Qualityprofiles.SearchWsResponse;
 import org.sonarqube.ws.Rules;
+import org.sonarqube.ws.Rules.ShowResponse;
 import org.sonarqube.ws.client.rules.SearchRequest;
+import org.sonarqube.ws.client.rules.ShowRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -40,6 +43,7 @@ public class RulesWsTest {
   private static final String RULE_HAS_TAG = "xoo:HasTag";
   private static final String RULE_ONE_ISSUE_PER_LINE = "xoo:OneIssuePerLine";
   private static final String RULE_ONE_ISSUE_PER_FILE = "xoo:OneIssuePerFile";
+  private static final String RULE_ONE_ISSUE_PER_TEST_FILE = "xoo:OneIssuePerTestFile";
   private static final String RULE_ONE_BUG_PER_LINE = "xoo:OneBugIssuePerLine";
   private static final String PROFILE_SONAR_WAY = "Sonar way";
   private static final String LANGUAGE_XOO = "xoo";
@@ -80,6 +84,13 @@ public class RulesWsTest {
     assertThat(result)
       .extracting(Rules.Rule::getKey)
       .containsExactlyInAnyOrder(RULE_HAS_TAG, RULE_ONE_ISSUE_PER_FILE);
+  }
+
+  @Test
+  public void show_rule_with_test_scope() {
+    ShowResponse show = tester.wsClient().rules().show(new ShowRequest().setKey(RULE_ONE_ISSUE_PER_TEST_FILE));
+    assertThat(show.getRule().getScope()).isEqualTo(RuleScope.TEST);
+
   }
 
   private SearchWsResponse.QualityProfile getProfile(Organization organization, Predicate<SearchWsResponse.QualityProfile> filter) {

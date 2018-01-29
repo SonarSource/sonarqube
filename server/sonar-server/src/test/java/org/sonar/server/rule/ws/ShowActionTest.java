@@ -45,6 +45,7 @@ import org.sonar.db.rule.RuleDao;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleDto.Format;
+import org.sonar.db.rule.RuleDto.Scope;
 import org.sonar.db.rule.RuleMetadataDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.db.rule.RuleTesting;
@@ -246,7 +247,8 @@ public class ShowActionTest {
       .setLanguage("xoo")
       .setTags(newHashSet("tag1", "tag2"))
       .setSystemTags(newHashSet("systag1", "systag2"))
-      .setType(RuleType.BUG);
+      .setType(RuleType.BUG)
+      .setScope(Scope.ALL);
     RuleDefinitionDto definition = ruleDto.getDefinition();
     RuleDao ruleDao = dbClient.ruleDao();
     DbSession session = dbTester.getSession();
@@ -276,7 +278,8 @@ public class ShowActionTest {
       .setDefRemediationBaseEffort("10h")
       .setRemediationFunction(null)
       .setRemediationGapMultiplier(null)
-      .setRemediationBaseEffort(null);
+      .setRemediationBaseEffort(null)
+      .setScope(Scope.ALL);
     RuleDao ruleDao = dbClient.ruleDao();
     DbSession session = dbTester.getSession();
     ruleDao.insert(session, ruleDto.getDefinition());
@@ -304,7 +307,8 @@ public class ShowActionTest {
       .setDefRemediationBaseEffort(null)
       .setRemediationFunction("LINEAR_OFFSET")
       .setRemediationGapMultiplier("5d")
-      .setRemediationBaseEffort("10h");
+      .setRemediationBaseEffort("10h")
+      .setScope(Scope.ALL);
     RuleDao ruleDao = dbClient.ruleDao();
     DbSession session = dbTester.getSession();
     ruleDao.insert(session, ruleDto.getDefinition());
@@ -331,7 +335,8 @@ public class ShowActionTest {
       .setDefRemediationBaseEffort(null)
       .setRemediationFunction("LINEAR_OFFSET")
       .setRemediationGapMultiplier("5d")
-      .setRemediationBaseEffort("10h");
+      .setRemediationBaseEffort("10h")
+      .setScope(Scope.ALL);
     RuleDao ruleDao = dbClient.ruleDao();
     DbSession session = dbTester.getSession();
     ruleDao.insert(session, ruleDto.getDefinition());
@@ -356,7 +361,8 @@ public class ShowActionTest {
       .setLanguage("xoo")
       .setDefRemediationFunction(null)
       .setDefRemediationGapMultiplier(null)
-      .setDefRemediationBaseEffort(null);
+      .setDefRemediationBaseEffort(null)
+      .setScope(Scope.ALL);
     RuleDao ruleDao = dbClient.ruleDao();
     DbSession session = dbTester.getSession();
     ruleDao.insert(session, ruleDto);
@@ -413,7 +419,8 @@ public class ShowActionTest {
       .setDefRemediationBaseEffort("11h")
       .setRemediationFunction("LINEAR_OFFSET")
       .setRemediationGapMultiplier("5d")
-      .setRemediationBaseEffort("10h");
+      .setRemediationBaseEffort("10h")
+      .setScope(Scope.ALL);
     RuleDao ruleDao = dbClient.ruleDao();
     DbSession session = dbTester.getSession();
     ruleDao.insert(session, ruleDto.getDefinition());
@@ -436,7 +443,8 @@ public class ShowActionTest {
       .setLanguage("xoo")
       .setType(RuleType.BUG)
       .setCreatedAt(new Date().getTime())
-      .setUpdatedAt(new Date().getTime());
+      .setUpdatedAt(new Date().getTime())
+      .setScope(Scope.ALL);
     RuleDao ruleDao = dbClient.ruleDao();
     DbSession session = dbTester.getSession();
     ruleDao.insert(session, ruleDto);

@@ -17,6 +17,7 @@
       "sysTags": ["brain-overload"],
       "lang": "java",
       "langName": "Java",
+      "scope": "MAIN",
       "type": "CODE_SMELL",
       "params": [
         {
@@ -40,6 +41,7 @@
       "sysTags": ["brain-overload"],
       "lang": "java",
       "langName": "Java",
+      "scope": "MAIN",
       "type": "BUG",
       "params": [
         {
@@ -63,6 +65,7 @@
       "sysTags": ["brain-overload"],
       "lang": "java",
       "langName": "Java",
+      "scope": "MAIN",
       "type": "VULNERABILITY",
       "params": [
         {
@@ -89,6 +92,7 @@
       "noteLogin": "eric.hartmann",
       "lang": "java",
       "langName": "Java",
+      "scope": "MAIN",
       "type": "CODE_SMELL",
       "params": [
         {
@@ -118,6 +122,7 @@
       "sysTags": [ ],
       "lang": "java",
       "langName": "Java",
+      "scope": "MAIN",
       "type": "CODE_SMELL",
       "params": [
         {

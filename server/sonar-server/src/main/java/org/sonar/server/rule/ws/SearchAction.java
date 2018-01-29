@@ -145,7 +145,8 @@ public class SearchAction implements RulesWsAction {
         "<li>\"debtRemFn\" becomes \"remFn\"</li>" +
         "<li>\"effortToFixDescription\" becomes \"gapDescription\"</li>" +
         "<li>\"debtOverloaded\" becomes \"remFnOverloaded\"</li>" +
-        "</ul>")
+        "</ul>" +
+        "In 7.1, the field 'scope' has been added.")
       .setPossibleValues(Ordering.natural().sortedCopy(OPTIONAL_FIELDS));
     Iterator<String> it = OPTIONAL_FIELDS.iterator();
     paramFields.setExampleValue(format("%s,%s", it.next(), it.next()));
@@ -190,7 +191,8 @@ public class SearchAction implements RulesWsAction {
       "<li>\"debtRemFnOffset\" becomes \"remFnBaseEffort\"</li>" +
       "<li>\"defaultDebtRemFnOffset\" becomes \"defaultRemFnBaseEffort\"</li>" +
       "<li>\"debtOverloaded\" becomes \"remFnOverloaded\"</li>" +
-      "</ul>")
+      "</ul>" +
+      "In 7.1, a new field 'scope' has been added to the response.")
       .setResponseExample(getClass().getResource("search-example.json"))
       .setSince("4.4")
       .setHandler(this);

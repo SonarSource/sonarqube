@@ -19,6 +19,7 @@
  */
 package org.sonar.xoo.rule;
 
+import org.sonar.api.rule.RuleScope;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.api.server.rule.RulesDefinition;
@@ -34,6 +35,8 @@ public class XooRulesDefinition implements RulesDefinition {
 
   public static final String XOO_REPOSITORY = "xoo";
   public static final String XOO2_REPOSITORY = "xoo2";
+
+  private static final String TEN_MIN = "10min";
 
   @Override
   public void define(Context context) {
@@ -89,11 +92,16 @@ public class XooRulesDefinition implements RulesDefinition {
 
     NewRule oneIssuePerFile = repo.createRule(OneIssuePerFileSensor.RULE_KEY).setName("One Issue Per File")
       .setHtmlDescription("Generate an issue on each file");
-    oneIssuePerFile.setDebtRemediationFunction(oneIssuePerFile.debtRemediationFunctions().linear("10min"));
+    oneIssuePerFile.setDebtRemediationFunction(oneIssuePerFile.debtRemediationFunctions().linear(TEN_MIN));
+
+    NewRule oneIssuePerTestFile = repo.createRule(OneIssuePerTestFileSensor.RULE_KEY).setName("One Issue Per Test File")
+      .setScope(RuleScope.TEST)
+      .setHtmlDescription("Generate an issue on each test file");
+    oneIssuePerTestFile.setDebtRemediationFunction(oneIssuePerTestFile.debtRemediationFunctions().linear(TEN_MIN));
 
     NewRule oneIssuePerDirectory = repo.createRule(OneIssuePerDirectorySensor.RULE_KEY).setName("One Issue Per Directory")
       .setHtmlDescription("Generate an issue on each non-empty directory");
-    oneIssuePerFile.setDebtRemediationFunction(oneIssuePerDirectory.debtRemediationFunctions().linear("10min"));
+    oneIssuePerDirectory.setDebtRemediationFunction(oneIssuePerDirectory.debtRemediationFunctions().linear(TEN_MIN));
 
     NewRule oneDayDebtPerFile = repo.createRule(OneDayDebtPerFileSensor.RULE_KEY).setName("One Day Debt Per File")
       .setHtmlDescription("Generate an issue on each file with a debt of one day");

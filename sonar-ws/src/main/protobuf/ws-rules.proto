@@ -119,6 +119,7 @@ message Rule {
   optional string remFnBaseEffort = 43;
   optional bool remFnOverloaded = 45;
   optional string gapDescription = 44;
+  optional sonarqube.ws.commons.RuleScope scope = 46;
 
   optional sonarqube.ws.commons.RuleType type = 37;
 

@@ -72,6 +72,12 @@ enum RuleStatus {
   REMOVED = 3;
 }
 
+enum RuleScope {
+  MAIN = 0;
+  TEST = 1;
+  ALL = 2;
+}
+
 // Lines start at 1 and line offsets start at 0
 message TextRange {
   // Start line. Should never be absent

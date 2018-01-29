@@ -75,7 +75,8 @@ public class ShowAction implements RulesWsAction {
         "<li>\"debtRemFnOffset\" becomes \"remFnBaseEffort\"</li>" +
         "<li>\"defaultDebtRemFnOffset\" becomes \"defaultRemFnBaseEffort\"</li>" +
         "<li>\"debtOverloaded\" becomes \"remFnOverloaded\"</li>" +
-        "</ul>")
+        "</ul>" +
+        "In 7.1, the field 'scope' has been added.")
       .setSince("4.2")
       .setResponseExample(Resources.getResource(getClass(), "example-show.json"))
       .setHandler(this);

@@ -86,6 +86,11 @@ public class RulesWsParameters {
   public static final String FIELD_DEBT_OVERLOADED = "debtOverloaded";
   public static final String FIELD_REM_FUNCTION_OVERLOADED = "remFnOverloaded";
 
+  /**
+   * @since 7.1
+   */
+  public static final String FIELD_SCOPE = "scope";
+  
   public static final String FIELD_PARAMS = "params";
   public static final String FIELD_ACTIVES = "actives";
 
@@ -94,7 +99,7 @@ public class RulesWsParameters {
     FIELD_MARKDOWN_NOTE, FIELD_HTML_NOTE,
     FIELD_DEFAULT_DEBT_REM_FUNCTION, FIELD_EFFORT_TO_FIX_DESCRIPTION, FIELD_DEBT_OVERLOADED, FIELD_DEBT_REM_FUNCTION,
     FIELD_DEFAULT_REM_FUNCTION, FIELD_GAP_DESCRIPTION, FIELD_REM_FUNCTION_OVERLOADED, FIELD_REM_FUNCTION,
-    FIELD_PARAMS, FIELD_ACTIVES);
+    FIELD_PARAMS, FIELD_ACTIVES, FIELD_SCOPE);
 
   private RulesWsParameters() {
     // prevent instantiation
