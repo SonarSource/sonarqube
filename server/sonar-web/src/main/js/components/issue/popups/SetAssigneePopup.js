@@ -20,16 +20,17 @@
 // @flow
 import React from 'react';
 import { map } from 'lodash';
+import { connect } from 'react-redux';
+import * as PropTypes from 'prop-types';
 import Avatar from '../../../components/ui/Avatar';
 import BubblePopup from '../../../components/common/BubblePopup';
 import SelectList from '../../../components/common/SelectList';
 import SelectListItem from '../../../components/common/SelectListItem';
 import SearchBox from '../../../components/controls/SearchBox';
-import getCurrentUserFromStore from '../../../app/utils/getCurrentUserFromStore';
-import { areThereCustomOrganizations } from '../../../store/organizations/utils';
 import { searchMembers } from '../../../api/organizations';
 import { searchUsers } from '../../../api/users';
 import { translate } from '../../../helpers/l10n';
+import { getCurrentUser } from '../../../store/rootReducer';
 /*:: import type { Issue } from '../types'; */
 
 /*::
@@ -43,6 +44,7 @@ type User = {
 
 /*::
 type Props = {
+  currentUser: User,
   issue: Issue,
   onFail: Error => void,
   onSelect: string => void,
@@ -60,20 +62,21 @@ type State = {
 
 const LIST_SIZE = 10;
 
-export default class SetAssigneePopup extends React.PureComponent {
+class SetAssigneePopup extends React.PureComponent {
   /*:: defaultUsersArray: Array<User>; */
-  /*:: organizationEnabled: boolean; */
   /*:: props: Props; */
   /*:: state: State; */
 
+  static contextTypes = {
+    organizationsEnabled: PropTypes.bool
+  };
+
   constructor(props /*: Props */) {
     super(props);
-    this.organizationEnabled = areThereCustomOrganizations();
     this.defaultUsersArray = [{ login: '', name: translate('unassigned') }];
 
-    const currentUser = getCurrentUserFromStore();
-    if (currentUser.isLoggedIn) {
-      this.defaultUsersArray = [currentUser, ...this.defaultUsersArray];
+    if (props.currentUser.isLoggedIn) {
+      this.defaultUsersArray = [props.currentUser, ...this.defaultUsersArray];
     }
 
     this.state = {
@@ -110,7 +113,7 @@ export default class SetAssigneePopup extends React.PureComponent {
       });
     } else {
       this.setState({ query });
-      if (this.organizationEnabled) {
+      if (this.context.organizationsEnabled) {
         this.searchMembers(query);
       } else {
         this.searchUsers(query);
@@ -155,3 +158,9 @@ export default class SetAssigneePopup extends React.PureComponent {
     );
   }
 }
+
+const mapStateToProps = state => ({
+  currentUser: getCurrentUser(state)
+});
+
+export default connect(mapStateToProps)(SetAssigneePopup);

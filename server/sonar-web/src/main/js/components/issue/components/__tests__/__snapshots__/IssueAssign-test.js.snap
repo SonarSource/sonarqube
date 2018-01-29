@@ -22,7 +22,7 @@ exports[`should open the popup when the button is clicked 2`] = `
 <BubblePopupHelper
   isOpen={true}
   popup={
-    <SetAssigneePopup
+    <Connect(SetAssigneePopup)
       issue={
         Object {
           "assignee": "john",
@@ -69,7 +69,7 @@ exports[`should render with the action 1`] = `
 <BubblePopupHelper
   isOpen={false}
   popup={
-    <SetAssigneePopup
+    <Connect(SetAssigneePopup)
       issue={
         Object {
           "assignee": "john",
