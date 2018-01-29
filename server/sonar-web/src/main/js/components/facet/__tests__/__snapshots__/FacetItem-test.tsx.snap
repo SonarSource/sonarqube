@@ -3,6 +3,7 @@
 exports[`should render active 1`] = `
 <a
   className="facet search-navigator-facet active"
+  data-facet="bar"
   href="#"
   onClick={[Function]}
 >
@@ -17,6 +18,7 @@ exports[`should render active 1`] = `
 exports[`should render disabled 1`] = `
 <span
   className="facet search-navigator-facet"
+  data-facet="bar"
 >
   <span
     className="facet-name"
@@ -29,6 +31,7 @@ exports[`should render disabled 1`] = `
 exports[`should render half width 1`] = `
 <a
   className="facet search-navigator-facet search-navigator-facet-half"
+  data-facet="bar"
   href="#"
   onClick={[Function]}
 >
@@ -43,6 +46,7 @@ exports[`should render half width 1`] = `
 exports[`should render inactive 1`] = `
 <a
   className="facet search-navigator-facet"
+  data-facet="bar"
   href="#"
   onClick={[Function]}
 >
@@ -57,6 +61,7 @@ exports[`should render inactive 1`] = `
 exports[`should render stat 1`] = `
 <a
   className="facet search-navigator-facet"
+  data-facet="bar"
   href="#"
   onClick={[Function]}
 >
