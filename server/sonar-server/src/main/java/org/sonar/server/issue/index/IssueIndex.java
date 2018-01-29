@@ -31,6 +31,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import javax.annotation.CheckForNull;
@@ -66,6 +67,7 @@ import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.server.es.BaseDoc;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.es.EsUtils;
@@ -408,7 +410,9 @@ public class IssueIndex {
     filters.put(IssueIndexDefinition.FIELD_ISSUE_TYPE, createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_TYPE, query.types()));
     filters.put(IssueIndexDefinition.FIELD_ISSUE_RESOLUTION, createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_RESOLUTION, query.resolutions()));
     filters.put(IssueIndexDefinition.FIELD_ISSUE_AUTHOR_LOGIN, createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_AUTHOR_LOGIN, query.authors()));
-    filters.put(IssueIndexDefinition.FIELD_ISSUE_RULE_ID, createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_RULE_ID, query.rules()));
+    filters.put(IssueIndexDefinition.FIELD_ISSUE_RULE_ID, createTermsFilter(
+      IssueIndexDefinition.FIELD_ISSUE_RULE_ID,
+      query.rules().stream().map(RuleDefinitionDto::getId).collect(Collectors.toList())));
     filters.put(IssueIndexDefinition.FIELD_ISSUE_SEVERITY, createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_SEVERITY, query.severities()));
     filters.put(IssueIndexDefinition.FIELD_ISSUE_STATUS, createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_STATUS, query.statuses()));
     filters.put(IssueIndexDefinition.FIELD_ISSUE_ORGANIZATION_UUID, createTermFilter(IssueIndexDefinition.FIELD_ISSUE_ORGANIZATION_UUID, query.organizationUuid()));
@@ -482,7 +486,7 @@ public class IssueIndex {
       addSimpleStickyFacetIfNeeded(options, stickyFacetBuilder, esSearch,
         PARAM_LANGUAGES, IssueIndexDefinition.FIELD_ISSUE_LANGUAGE, query.languages().toArray());
       addSimpleStickyFacetIfNeeded(options, stickyFacetBuilder, esSearch,
-        PARAM_RULES, IssueIndexDefinition.FIELD_ISSUE_RULE_ID, query.rules().toArray());
+        PARAM_RULES, IssueIndexDefinition.FIELD_ISSUE_RULE_ID, query.rules().stream().map(RuleDefinitionDto::getId).toArray());
 
       addSimpleStickyFacetIfNeeded(options, stickyFacetBuilder, esSearch,
         PARAM_AUTHORS, IssueIndexDefinition.FIELD_ISSUE_AUTHOR_LOGIN, query.authors().toArray());
