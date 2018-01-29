@@ -25,6 +25,7 @@ import com.google.common.collect.Lists;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.EnumSet;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -63,6 +64,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Iterables.concat;
 import static com.google.common.collect.Sets.newHashSet;
 import static java.lang.String.format;
+import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.sonar.api.utils.Paging.forPageIndex;
 import static org.sonar.server.es.SearchOptions.MAX_LIMIT;
@@ -369,7 +371,7 @@ public class SearchAction implements IssuesWsAction {
     // Must be done after loading of data as the "hidden" facet "debt"
     // can be used to get total debt.
     facets = reorderFacets(facets, options.getFacets());
-    replaceRuleIdsByRuleKeys(facets);
+    replaceRuleIdsByRuleKeys(facets, data.getRules() == null ? emptyList() : data.getRules());
 
     // FIXME allow long in Paging
     Paging paging = forPageIndex(options.getPage()).withPageSize(options.getLimit()).andTotal((int) result.getHits().getTotalHits());
@@ -377,18 +379,29 @@ public class SearchAction implements IssuesWsAction {
     return searchResponseFormat.formatSearch(additionalFields, data, paging, facets);
   }
 
-  private void replaceRuleIdsByRuleKeys(@Nullable Facets facets) {
+  private void replaceRuleIdsByRuleKeys(@Nullable Facets facets, List<RuleDefinitionDto> alreadyLoadedRules) {
     if (facets == null || facets.get(PARAM_RULES) == null) {
       return;
     }
+
     // The facet for PARAM_RULES contains the id of the rule as the key
     // We need to update the key to be a RuleKey
     LinkedHashMap<String, Long> rulesFacet = facets.get(PARAM_RULES);
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      Map<Integer, RuleKey> idToRuleKey = dbClient.ruleDao()
-        .selectDefinitionByIds(dbSession, Collections2.transform(rulesFacet.keySet(), Integer::parseInt))
-        .stream()
+      Set<String> ruleKeysToLoad = new HashSet<>();
+      ruleKeysToLoad.addAll(rulesFacet.keySet());
+      ruleKeysToLoad.removeAll(
+        alreadyLoadedRules
+          .stream()
+          .map(r -> r.getKey().toString())
+          .collect(Collectors.toList()));
+
+      Set<RuleDefinitionDto> requiredRules = new HashSet<>();
+      requiredRules.addAll(alreadyLoadedRules);
+      requiredRules.addAll(dbClient.ruleDao().selectDefinitionByIds(dbSession, Collections2.transform(ruleKeysToLoad, Integer::parseInt)));
+
+      Map<Integer, RuleKey> idToRuleKey = requiredRules.stream()
         .collect(Collectors.toMap(RuleDefinitionDto::getId, RuleDefinitionDto::getKey));
 
       LinkedHashMap<String, Long> newRulesFacet = new LinkedHashMap<>();
