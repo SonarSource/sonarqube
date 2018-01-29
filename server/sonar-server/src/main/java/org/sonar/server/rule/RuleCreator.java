@@ -39,6 +39,7 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleDto.Format;
+import org.sonar.db.rule.RuleDto.Scope;
 import org.sonar.db.rule.RuleMetadataDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.server.exceptions.BadRequestException;
@@ -172,6 +173,7 @@ public class RuleCreator {
       .setDefRemediationGapMultiplier(templateRuleDto.getDefRemediationGapMultiplier())
       .setDefRemediationBaseEffort(templateRuleDto.getDefRemediationBaseEffort())
       .setGapDescription(templateRuleDto.getGapDescription())
+      .setScope(templateRuleDto.getScope())
       .setSystemTags(templateRuleDto.getSystemTags())
       .setCreatedAt(system2.now())
       .setUpdatedAt(system2.now());
