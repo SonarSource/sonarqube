@@ -229,6 +229,7 @@ export interface RuleDetails extends Rule {
   remFnOverloaded?: boolean;
   remFnType?: string;
   repo: string;
+  scope?: RuleScope;
   templateKey?: string;
 }
 
@@ -253,4 +254,10 @@ export enum RuleInheritance {
   NotInherited = 'NONE',
   Inherited = 'INHERITED',
   Overridden = 'OVERRIDES'
+}
+
+export enum RuleScope {
+  Main = 'MAIN',
+  Tests = 'TESTS',
+  All = 'ALL'
 }
