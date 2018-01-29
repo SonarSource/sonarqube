@@ -21,7 +21,7 @@ import * as React from 'react';
 import * as classNames from 'classnames';
 import { Link } from 'react-router';
 import { Activation, Query } from '../query';
-import ActivationModalButton from './ActivationModalButton';
+import ActivationButton from './ActivationButton';
 import ConfirmButton from './ConfirmButton';
 import SimilarRulesFilter from './SimilarRulesFilter';
 import { Profile, deactivateRule } from '../../../api/quality-profiles';
@@ -111,7 +111,7 @@ export default class RuleListItem extends React.PureComponent<Props> {
         {activation
           ? this.renderDeactivateButton(activation.inherit)
           : !rule.isTemplate && (
-              <ActivationModalButton
+              <ActivationButton
                 buttonText={translate('coding_rules.activate')}
                 className="coding-rules-detail-quality-profile-activate"
                 modalHeader={translate('coding_rules.activate_in_quality_profile')}

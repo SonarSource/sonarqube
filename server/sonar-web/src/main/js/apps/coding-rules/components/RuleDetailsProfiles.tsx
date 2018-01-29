@@ -20,7 +20,7 @@
 import * as React from 'react';
 import { filter } from 'lodash';
 import { Link } from 'react-router';
-import ActivationModalButton from './ActivationModalButton';
+import ActivationButton from './ActivationButton';
 import ConfirmButton from './ConfirmButton';
 import RuleInheritanceIcon from './RuleInheritanceIcon';
 import { Profile, deactivateRule, activateRule } from '../../../api/quality-profiles';
@@ -165,7 +165,7 @@ export default class RuleDetailsProfiles extends React.PureComponent<Props, Stat
         {canEdit && (
           <>
             {!ruleDetails.isTemplate && (
-              <ActivationModalButton
+              <ActivationButton
                 activation={activation}
                 buttonText={translate('change_verb')}
                 className="coding-rules-detail-quality-profile-change"
@@ -259,7 +259,7 @@ export default class RuleDetailsProfiles extends React.PureComponent<Props, Stat
           </h3>
 
           {canActivate && (
-            <ActivationModalButton
+            <ActivationButton
               buttonText={translate('coding_rules.activate')}
               className="coding-rules-quality-profile-activate spacer-left"
               modalHeader={translate('coding_rules.activate_in_quality_profile')}
