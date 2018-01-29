@@ -526,8 +526,8 @@ public class IssueIndexTest {
 
     indexIssues(newDoc("I1", file).setRuleId(ruleDefinitionDto.getId()));
 
-    assertThatSearchReturnsOnly(IssueQuery.builder().rules(singletonList(ruleDefinitionDto.getId())), "I1");
-    assertThatSearchReturnsEmpty(IssueQuery.builder().rules(singletonList(-1)));
+    assertThatSearchReturnsOnly(IssueQuery.builder().rules(singletonList(ruleDefinitionDto)), "I1");
+    assertThatSearchReturnsEmpty(IssueQuery.builder().rules(singletonList(new RuleDefinitionDto().setId(-1))));
   }
 
   @Test
