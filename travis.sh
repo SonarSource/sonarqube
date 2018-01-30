@@ -191,7 +191,7 @@ BUILD)
         -Dsonar.pullrequest.github.id=$TRAVIS_PULL_REQUEST \
         -Dsonar.pullrequest.github.repository=$TRAVIS_REPO_SLUG
 
-  elif [[ "$TRAVIS_BRANCH" == "dogfood-on-next" ]] && [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
+  elif [[ "$TRAVIS_BRANCH" == "dogfood-on-"* ]] && [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
     echo 'Build dogfood branch'
 
     mvn org.jacoco:jacoco-maven-plugin:prepare-agent deploy \
