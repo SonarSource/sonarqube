@@ -19,15 +19,15 @@
  */
 package org.sonar.server.qualityprofile.ws;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.ws.Request;
@@ -129,8 +129,8 @@ public class ChangelogAction implements QProfileWsAction {
         .prop("authorLogin", change.getUserLogin())
         .prop("authorName", change.getUserName())
         .prop("action", change.getType())
-        .prop("ruleKey", change.getRuleKey() == null ? null : change.getRuleKey().toString())
-        .prop("ruleName", change.getRuleName());
+        .prop("ruleKey", change.getRuleKey().map(RuleKey::toString).orElse(null))
+        .prop("ruleName", change.getRuleName().orElse(null));
       writeParameters(json, change);
       json.endObject();
     }
@@ -166,15 +166,22 @@ public class ChangelogAction implements QProfileWsAction {
       .stream()
       .collect(java.util.stream.Collectors.toMap(UserDto::getLogin, UserDto::getName));
 
-    Set<RuleKey> ruleKeys = changes.stream().filter(c -> c.ruleKey != null).map(c -> c.ruleKey).collect(MoreCollectors.toSet());
-    Map<RuleKey, String> ruleNamesByKeys = dbClient.ruleDao()
-      .selectDefinitionByKeys(dbSession, Lists.newArrayList(ruleKeys))
+    Set<Integer> ruleIds = changes.stream()
+      .map(c -> c.ruleId)
+      .filter(Objects::nonNull)
+      .collect(MoreCollectors.toSet());
+    Map<Integer, RuleDefinitionDto> ruleDefinitionsById = dbClient.ruleDao()
+      .selectDefinitionByIds(dbSession, Lists.newArrayList(ruleIds))
       .stream()
-      .collect(java.util.stream.Collectors.toMap(RuleDefinitionDto::getKey, RuleDefinitionDto::getName));
+      .collect(MoreCollectors.uniqueIndex(RuleDefinitionDto::getId));
 
     changes.forEach(c -> {
       c.userName = userNamesByLogins.get(c.userLogin);
-      c.ruleName = ruleNamesByKeys.get(c.ruleKey);
+      RuleDefinitionDto ruleDefinitionDto = ruleDefinitionsById.get(c.ruleId);
+      if (ruleDefinitionDto != null) {
+        c.ruleKey = ruleDefinitionDto.getKey();
+        c.ruleName = ruleDefinitionDto.getName();
+      }
     });
   }
 
@@ -186,25 +193,12 @@ public class ChangelogAction implements QProfileWsAction {
     private String userLogin;
     private String userName;
     private String inheritance;
+    private Integer ruleId;
     private RuleKey ruleKey;
     private String ruleName;
     private final Map<String, String> params = new HashMap<>();
 
     private Change() {
-    }
-
-    @VisibleForTesting
-    Change(String key, String type, long at, @Nullable String severity, @Nullable String userLogin,
-      @Nullable String userName, @Nullable String inheritance, @Nullable RuleKey ruleKey, @Nullable String ruleName) {
-      this.key = key;
-      this.type = type;
-      this.at = at;
-      this.severity = severity;
-      this.userLogin = userLogin;
-      this.userName = userName;
-      this.inheritance = inheritance;
-      this.ruleKey = ruleKey;
-      this.ruleName = ruleName;
     }
 
     public String getKey() {
@@ -235,13 +229,16 @@ public class ChangelogAction implements QProfileWsAction {
       return inheritance;
     }
 
-    public RuleKey getRuleKey() {
-      return ruleKey;
+    public Optional<Integer> getRuleId() {
+      return Optional.ofNullable(ruleId);
     }
 
-    @CheckForNull
-    public String getRuleName() {
-      return ruleName;
+    public Optional<RuleKey> getRuleKey() {
+      return Optional.ofNullable(ruleKey);
+    }
+
+    public Optional<String> getRuleName() {
+      return Optional.ofNullable(ruleName);
     }
 
     public long getCreatedAt() {
@@ -261,9 +258,9 @@ public class ChangelogAction implements QProfileWsAction {
       change.at = dto.getCreatedAt();
       // see content of data in class org.sonar.server.qualityprofile.ActiveRuleChange
       change.severity = data.get("severity");
-      String ruleKey = data.get("ruleKey");
-      if (ruleKey != null) {
-        change.ruleKey = RuleKey.parse(ruleKey);
+      String ruleId = data.get("ruleId");
+      if (ruleId != null) {
+        change.ruleId = Integer.parseInt(ruleId);
       }
       change.inheritance = data.get("inheritance");
       data.entrySet().stream()
