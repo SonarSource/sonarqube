@@ -19,15 +19,19 @@
  */
 package org.sonar.server.issue.ws;
 
+import com.google.common.base.Function;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.MultimapBuilder;
 import com.google.common.collect.SetMultimap;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.util.stream.MoreCollectors;
@@ -80,8 +84,7 @@ public class SearchResponseLoader {
   /**
    * The issue keys are given by the multi-criteria search in Elasticsearch index.
    * <p>
-   * Same as {@link #load(SearchResponseData, Collector, Facets)} but will only retrieve from DB data which is not
-   * already provided by the specified preloaded {@link SearchResponseData}.<br/>
+   * It will only retrieve from DB data which is not already provided by the specified preloaded {@link SearchResponseData}.<br/>
    * The returned {@link SearchResponseData} is <strong>not</strong> the one specified as argument.
    * </p>
    */
@@ -106,14 +109,23 @@ public class SearchResponseLoader {
   private List<IssueDto> loadIssues(SearchResponseData preloadedResponseData, Collector collector, DbSession dbSession) {
     List<IssueDto> preloadedIssues = preloadedResponseData.getIssues();
     Set<String> preloadedIssueKeys = preloadedIssues.stream().map(IssueDto::getKey).collect(MoreCollectors.toSet(preloadedIssues.size()));
-    Set<String> issueKeysToLoad = copyOf(difference(ImmutableSet.copyOf(collector.getIssueKeys()), preloadedIssueKeys));
+
+    ImmutableSet<String> issueKeys = ImmutableSet.copyOf(collector.getIssueKeys());
+    Set<String> issueKeysToLoad = copyOf(difference(issueKeys, preloadedIssueKeys));
+
     if (issueKeysToLoad.isEmpty()) {
-      return preloadedIssues;
+      return issueKeys.stream()
+        .map(new KeyToIssueFunction(preloadedIssues)::apply).filter(Objects::nonNull)
+        .collect(Collectors.toList());
     }
 
     List<IssueDto> loadedIssues = dbClient.issueDao().selectByKeys(dbSession, issueKeysToLoad);
-    return concat(preloadedIssues.stream(), loadedIssues.stream())
+    List<IssueDto> unorderedIssues = concat(preloadedIssues.stream(), loadedIssues.stream())
       .collect(toList(preloadedIssues.size() + loadedIssues.size()));
+
+    return issueKeys.stream()
+      .map(new KeyToIssueFunction(unorderedIssues)::apply).filter(Objects::nonNull)
+      .collect(Collectors.toList());
   }
 
   private void loadUsers(SearchResponseData preloadedResponseData, Collector collector, DbSession dbSession, SearchResponseData result) {
@@ -336,6 +348,22 @@ public class SearchResponseLoader {
 
     public Set<String> getProjectUuids() {
       return projectUuids;
+    }
+  }
+
+  private static class KeyToIssueFunction implements Function<String, IssueDto> {
+    private final Map<String, IssueDto> map = new HashMap<>();
+
+    private KeyToIssueFunction(Collection<IssueDto> unordered) {
+      for (IssueDto dto : unordered) {
+        map.put(dto.getKey(), dto);
+      }
+    }
+
+    @Nullable
+    @Override
+    public IssueDto apply(String issueKey) {
+      return map.get(issueKey);
     }
   }
 }
