@@ -27,13 +27,11 @@ import java.util.Set;
 import java.util.stream.Stream;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition;
-import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition.BuiltInActiveRule;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.RulesProfileDto;
-import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 
 import static org.sonar.core.util.stream.MoreCollectors.toSet;
@@ -59,13 +57,13 @@ public class BuiltInQProfileUpdateImpl implements BuiltInQProfileUpdate {
 
     Set<RuleKey> ruleKeys = Stream.concat(
       deactivatedKeys.stream(),
-      builtIn.getActiveRules().stream().map(ar -> RuleKey.of(ar.repoKey(), ar.ruleKey())))
+      builtIn.getActiveRules().stream().map(BuiltInQProfile.ActiveRule::getRuleKey))
       .collect(toSet());
     RuleActivationContext context = ruleActivator.createContextForBuiltInProfile(dbSession, rulesProfile, ruleKeys);
 
     Collection<RuleActivation> activations = new ArrayList<>();
-    for (BuiltInActiveRule ar : builtIn.getActiveRules()) {
-      RuleActivation activation = convert(ar, context);
+    for (BuiltInQProfile.ActiveRule ar : builtIn.getActiveRules()) {
+      RuleActivation activation = convert(ar);
       activations.add(activation);
       deactivatedKeys.remove(activation.getRuleKey());
     }
@@ -82,13 +80,10 @@ public class BuiltInQProfileUpdateImpl implements BuiltInQProfileUpdate {
     return changes;
   }
 
-  private static RuleActivation convert(BuiltInActiveRule ar, RuleActivationContext context) {
-    RuleKey ruleKey = RuleKey.of(ar.repoKey(), ar.ruleKey());
-    context.reset(ruleKey);
-    RuleDefinitionDto ruleDefinition = context.getRule().get();
-    Map<String, String> params = ar.overriddenParams().stream()
+  private static RuleActivation convert(BuiltInQProfile.ActiveRule ar) {
+    Map<String, String> params = ar.getBuiltIn().overriddenParams().stream()
       .collect(MoreCollectors.uniqueIndex(BuiltInQualityProfilesDefinition.OverriddenParam::key, BuiltInQualityProfilesDefinition.OverriddenParam::overriddenValue));
-    return RuleActivation.create(ruleDefinition.getId(), ruleKey, ar.overriddenSeverity(), params);
+    return RuleActivation.create(ar.getRuleId(), ar.getRuleKey(), ar.getBuiltIn().overriddenSeverity(), params);
   }
 
 }
