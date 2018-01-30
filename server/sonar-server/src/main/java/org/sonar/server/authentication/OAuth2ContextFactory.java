@@ -34,6 +34,8 @@ import org.sonar.server.user.UserSessionFactory;
 
 import static java.lang.String.format;
 import static org.sonar.server.authentication.OAuth2CallbackFilter.CALLBACK_PATH;
+import static org.sonar.server.authentication.UserIdentityAuthenticator.ExistingEmailStrategy.ALLOW;
+import static org.sonar.server.authentication.UserIdentityAuthenticator.ExistingEmailStrategy.WARN;
 
 @ServerSide
 public class OAuth2ContextFactory {
@@ -44,17 +46,17 @@ public class OAuth2ContextFactory {
   private final OAuthCsrfVerifier csrfVerifier;
   private final JwtHttpHandler jwtHttpHandler;
   private final UserSessionFactory userSessionFactory;
-  private final OAuth2Redirection oAuthRedirection;
+  private final OAuth2AuthenticationParameters oAuthParameters;
 
   public OAuth2ContextFactory(ThreadLocalUserSession threadLocalUserSession, UserIdentityAuthenticator userIdentityAuthenticator, Server server,
-    OAuthCsrfVerifier csrfVerifier, JwtHttpHandler jwtHttpHandler, UserSessionFactory userSessionFactory, OAuth2Redirection oAuthRedirection) {
+    OAuthCsrfVerifier csrfVerifier, JwtHttpHandler jwtHttpHandler, UserSessionFactory userSessionFactory, OAuth2AuthenticationParameters oAuthParameters) {
     this.threadLocalUserSession = threadLocalUserSession;
     this.userIdentityAuthenticator = userIdentityAuthenticator;
     this.server = server;
     this.csrfVerifier = csrfVerifier;
     this.jwtHttpHandler = jwtHttpHandler;
     this.userSessionFactory = userSessionFactory;
-    this.oAuthRedirection = oAuthRedirection;
+    this.oAuthParameters = oAuthParameters;
   }
 
   public OAuth2IdentityProvider.InitContext newContext(HttpServletRequest request, HttpServletResponse response, OAuth2IdentityProvider identityProvider) {
@@ -114,16 +116,18 @@ public class OAuth2ContextFactory {
     @Override
     public void redirectToRequestedPage() {
       try {
-        Optional<String> redirectTo = oAuthRedirection.getAndDelete(request, response);
+        Optional<String> redirectTo = oAuthParameters.getReturnTo(request);
+        oAuthParameters.delete(request, response);
         getResponse().sendRedirect(redirectTo.orElse(server.getContextPath() + "/"));
       } catch (IOException e) {
-        throw new IllegalStateException("Fail to redirect to home", e);
+        throw new IllegalStateException("Fail to redirect to requested page", e);
       }
     }
 
     @Override
     public void authenticate(UserIdentity userIdentity) {
-      UserDto userDto = userIdentityAuthenticator.authenticate(userIdentity, identityProvider, AuthenticationEvent.Source.oauth2(identityProvider));
+      Boolean allowEmailShift = oAuthParameters.getAllowEmailShift(request).orElse(false);
+      UserDto userDto = userIdentityAuthenticator.authenticate(userIdentity, identityProvider, AuthenticationEvent.Source.oauth2(identityProvider), allowEmailShift ? ALLOW : WARN);
       jwtHttpHandler.generateToken(userDto, request, response);
       threadLocalUserSession.set(userSessionFactory.create(userDto));
     }

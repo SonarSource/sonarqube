@@ -113,5 +113,7 @@ public class Category4Suite {
     // reduce memory for Elasticsearch to 128M
     .setServerProperty("sonar.search.javaOpts", "-Xms128m -Xmx128m")
 
+    .setServerProperty("sonar.web.javaAdditionalOpts", "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=8001")
+
     .build();
 }

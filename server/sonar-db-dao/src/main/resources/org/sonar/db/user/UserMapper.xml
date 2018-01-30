@@ -106,10 +106,12 @@
     ORDER BY u.name
   </select>
 
-  <select id="countByEmail" parameterType="String" resultType="long">
-    SELECT count(1)
+  <select id="selectByEmail" parameterType="String" resultType="User">
+    SELECT
+    <include refid="userColumns"/>
     FROM users u
-    where lower(u.email)=#{email} AND u.active=${_true}
+    WHERE lower(u.email)=#{email, jdbcType=VARCHAR}
+    AND u.active=${_true}
   </select>
 
   <select id="countRootUsersButLogin" parameterType="String" resultType="long">

@@ -41,6 +41,7 @@ import org.sonar.server.user.SecurityRealmFactory;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.rules.ExpectedException.none;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -49,6 +50,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.user.UserTesting.newUserDto;
+import static org.sonar.server.authentication.UserIdentityAuthenticator.ExistingEmailStrategy.FORBID;
 import static org.sonar.server.authentication.event.AuthenticationEvent.Method.BASIC;
 import static org.sonar.server.authentication.event.AuthenticationEvent.Method.BASIC_TOKEN;
 import static org.sonar.server.authentication.event.AuthenticationExceptionMatcher.authenticationException;
@@ -96,11 +98,11 @@ public class RealmAuthenticatorTest {
     userDetails.setName("name");
     userDetails.setEmail("email");
     when(externalUsersProvider.doGetUserDetails(any(ExternalUsersProvider.Context.class))).thenReturn(userDetails);
-    when(userIdentityAuthenticator.authenticate(any(UserIdentity.class), any(IdentityProvider.class), any(Source.class))).thenReturn(USER);
+    when(userIdentityAuthenticator.authenticate(any(UserIdentity.class), any(IdentityProvider.class), any(Source.class), eq(FORBID))).thenReturn(USER);
 
     underTest.authenticate(LOGIN, PASSWORD, request, BASIC);
 
-    verify(userIdentityAuthenticator).authenticate(userIdentityArgumentCaptor.capture(), identityProviderArgumentCaptor.capture(), sourceCaptor.capture());
+    verify(userIdentityAuthenticator).authenticate(userIdentityArgumentCaptor.capture(), identityProviderArgumentCaptor.capture(), sourceCaptor.capture(), eq(FORBID));
     UserIdentity userIdentity = userIdentityArgumentCaptor.getValue();
     assertThat(userIdentity.getLogin()).isEqualTo(LOGIN);
     assertThat(userIdentity.getProviderLogin()).isEqualTo(LOGIN);
@@ -118,11 +120,11 @@ public class RealmAuthenticatorTest {
     userDetails.setName("name");
     userDetails.setEmail("email");
     when(externalUsersProvider.doGetUserDetails(any(ExternalUsersProvider.Context.class))).thenReturn(userDetails);
-    when(userIdentityAuthenticator.authenticate(any(UserIdentity.class), any(IdentityProvider.class), any(Source.class))).thenReturn(USER);
+    when(userIdentityAuthenticator.authenticate(any(UserIdentity.class), any(IdentityProvider.class), any(Source.class), eq(FORBID))).thenReturn(USER);
 
     underTest.authenticate(LOGIN, PASSWORD, request, BASIC);
 
-    verify(userIdentityAuthenticator).authenticate(userIdentityArgumentCaptor.capture(), identityProviderArgumentCaptor.capture(), sourceCaptor.capture());
+    verify(userIdentityAuthenticator).authenticate(userIdentityArgumentCaptor.capture(), identityProviderArgumentCaptor.capture(), sourceCaptor.capture(), eq(FORBID));
 
     assertThat(identityProviderArgumentCaptor.getValue().getKey()).isEqualTo("sonarqube");
     assertThat(identityProviderArgumentCaptor.getValue().getName()).isEqualTo("sonarqube");
@@ -138,11 +140,11 @@ public class RealmAuthenticatorTest {
     UserDetails userDetails = new UserDetails();
     userDetails.setEmail("email");
     when(externalUsersProvider.doGetUserDetails(any(ExternalUsersProvider.Context.class))).thenReturn(userDetails);
-    when(userIdentityAuthenticator.authenticate(any(UserIdentity.class), any(IdentityProvider.class), any(Source.class))).thenReturn(USER);
+    when(userIdentityAuthenticator.authenticate(any(UserIdentity.class), any(IdentityProvider.class), any(Source.class), eq(FORBID))).thenReturn(USER);
 
     underTest.authenticate(LOGIN, PASSWORD, request, BASIC);
 
-    verify(userIdentityAuthenticator).authenticate(userIdentityArgumentCaptor.capture(), identityProviderArgumentCaptor.capture(), sourceCaptor.capture());
+    verify(userIdentityAuthenticator).authenticate(userIdentityArgumentCaptor.capture(), identityProviderArgumentCaptor.capture(), sourceCaptor.capture(), eq(FORBID));
     assertThat(identityProviderArgumentCaptor.getValue().getName()).isEqualTo("sonarqube");
     verify(authenticationEvent).loginSuccess(request, LOGIN, Source.realm(BASIC, REALM_NAME));
   }
@@ -150,11 +152,11 @@ public class RealmAuthenticatorTest {
   @Test
   public void authenticate_with_group_sync() {
     when(externalGroupsProvider.doGetGroups(any(ExternalGroupsProvider.Context.class))).thenReturn(asList("group1", "group2"));
-    when(userIdentityAuthenticator.authenticate(any(UserIdentity.class), any(IdentityProvider.class), any(Source.class))).thenReturn(USER);
+    when(userIdentityAuthenticator.authenticate(any(UserIdentity.class), any(IdentityProvider.class), any(Source.class), eq(FORBID))).thenReturn(USER);
     executeStartWithGroupSync();
     executeAuthenticate();
 
-    verify(userIdentityAuthenticator).authenticate(userIdentityArgumentCaptor.capture(), identityProviderArgumentCaptor.capture(), sourceCaptor.capture());
+    verify(userIdentityAuthenticator).authenticate(userIdentityArgumentCaptor.capture(), identityProviderArgumentCaptor.capture(), sourceCaptor.capture(), eq(FORBID));
 
     UserIdentity userIdentity = userIdentityArgumentCaptor.getValue();
     assertThat(userIdentity.shouldSyncGroups()).isTrue();
@@ -169,11 +171,11 @@ public class RealmAuthenticatorTest {
     UserDetails userDetails = new UserDetails();
     userDetails.setName(null);
     when(externalUsersProvider.doGetUserDetails(any(ExternalUsersProvider.Context.class))).thenReturn(userDetails);
-    when(userIdentityAuthenticator.authenticate(any(UserIdentity.class), any(IdentityProvider.class), any(Source.class))).thenReturn(USER);
+    when(userIdentityAuthenticator.authenticate(any(UserIdentity.class), any(IdentityProvider.class), any(Source.class), eq(FORBID))).thenReturn(USER);
 
     underTest.authenticate(LOGIN, PASSWORD, request, BASIC);
 
-    verify(userIdentityAuthenticator).authenticate(userIdentityArgumentCaptor.capture(), identityProviderArgumentCaptor.capture(), sourceCaptor.capture());
+    verify(userIdentityAuthenticator).authenticate(userIdentityArgumentCaptor.capture(), identityProviderArgumentCaptor.capture(), sourceCaptor.capture(), eq(FORBID));
     assertThat(userIdentityArgumentCaptor.getValue().getName()).isEqualTo(LOGIN);
     verify(authenticationEvent).loginSuccess(request, LOGIN, Source.realm(BASIC, REALM_NAME));
   }
@@ -181,11 +183,11 @@ public class RealmAuthenticatorTest {
   @Test
   public void use_downcase_login() {
     settings.setProperty("sonar.authenticator.downcase", true);
-    when(userIdentityAuthenticator.authenticate(any(UserIdentity.class), any(IdentityProvider.class), any(Source.class))).thenReturn(USER);
+    when(userIdentityAuthenticator.authenticate(any(UserIdentity.class), any(IdentityProvider.class), any(Source.class), eq(FORBID))).thenReturn(USER);
     executeStartWithoutGroupSync();
     executeAuthenticate("LOGIN");
 
-    verify(userIdentityAuthenticator).authenticate(userIdentityArgumentCaptor.capture(), identityProviderArgumentCaptor.capture(), sourceCaptor.capture());
+    verify(userIdentityAuthenticator).authenticate(userIdentityArgumentCaptor.capture(), identityProviderArgumentCaptor.capture(), sourceCaptor.capture(), eq(FORBID));
     UserIdentity userIdentity = userIdentityArgumentCaptor.getValue();
     assertThat(userIdentity.getLogin()).isEqualTo("login");
     assertThat(userIdentity.getProviderLogin()).isEqualTo("login");
@@ -195,11 +197,11 @@ public class RealmAuthenticatorTest {
   @Test
   public void does_not_user_downcase_login() {
     settings.setProperty("sonar.authenticator.downcase", false);
-    when(userIdentityAuthenticator.authenticate(any(UserIdentity.class), any(IdentityProvider.class), any(Source.class))).thenReturn(USER);
+    when(userIdentityAuthenticator.authenticate(any(UserIdentity.class), any(IdentityProvider.class), any(Source.class), eq(FORBID))).thenReturn(USER);
     executeStartWithoutGroupSync();
     executeAuthenticate("LoGiN");
 
-    verify(userIdentityAuthenticator).authenticate(userIdentityArgumentCaptor.capture(), identityProviderArgumentCaptor.capture(), sourceCaptor.capture());
+    verify(userIdentityAuthenticator).authenticate(userIdentityArgumentCaptor.capture(), identityProviderArgumentCaptor.capture(), sourceCaptor.capture(), eq(FORBID));
     UserIdentity userIdentity = userIdentityArgumentCaptor.getValue();
     assertThat(userIdentity.getLogin()).isEqualTo("LoGiN");
     assertThat(userIdentity.getProviderLogin()).isEqualTo("LoGiN");

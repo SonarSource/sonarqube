@@ -547,13 +547,13 @@ public class UserDaoTest {
   }
 
   @Test
-  public void exists_by_email() {
-    UserDto activeUser = insertActiveUser();
-    UserDto disableUser = insertUser(false);
+  public void select_by_email() {
+    UserDto activeUser = db.users().insertUser();
+    UserDto disableUser = db.users().insertUser(u -> u.setActive(false));
 
-    assertThat(underTest.doesEmailExist(session, activeUser.getEmail())).isTrue();
-    assertThat(underTest.doesEmailExist(session, disableUser.getEmail())).isFalse();
-    assertThat(underTest.doesEmailExist(session, "unknown")).isFalse();
+    assertThat(underTest.selectByEmail(session, activeUser.getEmail())).isNotNull();
+    assertThat(underTest.selectByEmail(session, disableUser.getEmail())).isNull();
+    assertThat(underTest.selectByEmail(session, "unknown")).isNull();
   }
 
   @Test
