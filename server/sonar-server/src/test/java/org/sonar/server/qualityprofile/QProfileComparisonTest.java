@@ -115,7 +115,7 @@ public class QProfileComparisonTest {
 
   @Test
   public void compare_same() {
-    RuleActivation commonActivation = RuleActivation.create(xooRule1.getKey(), Severity.CRITICAL,
+    RuleActivation commonActivation = RuleActivation.create(xooRule1.getId(), xooRule1.getKey(), Severity.CRITICAL,
       ImmutableMap.of("min", "7", "max", "42"));
     qProfileRules.activateAndCommit(dbSession, left, singleton(commonActivation));
     qProfileRules.activateAndCommit(dbSession, right, singleton(commonActivation));
@@ -132,7 +132,7 @@ public class QProfileComparisonTest {
 
   @Test
   public void compare_only_left() {
-    RuleActivation activation = RuleActivation.create(xooRule1.getKey());
+    RuleActivation activation = RuleActivation.create(xooRule1.getId(), xooRule1.getKey());
     qProfileRules.activateAndCommit(dbSession, left, singleton(activation));
 
     QProfileComparisonResult result = comparison.compare(dbSession, left, right);
@@ -147,7 +147,7 @@ public class QProfileComparisonTest {
 
   @Test
   public void compare_only_right() {
-    qProfileRules.activateAndCommit(dbSession, right, singleton(RuleActivation.create(xooRule1.getKey())));
+    qProfileRules.activateAndCommit(dbSession, right, singleton(RuleActivation.create(xooRule1.getId(), xooRule1.getKey())));
 
     QProfileComparisonResult result = comparison.compare(dbSession, left, right);
     assertThat(result.left().getKee()).isEqualTo(left.getKee());
@@ -161,8 +161,8 @@ public class QProfileComparisonTest {
 
   @Test
   public void compare_disjoint() {
-    qProfileRules.activateAndCommit(dbSession, left, singleton(RuleActivation.create(xooRule1.getKey())));
-    qProfileRules.activateAndCommit(dbSession, right, singleton(RuleActivation.create(xooRule2.getKey())));
+    qProfileRules.activateAndCommit(dbSession, left, singleton(RuleActivation.create(xooRule1.getId(), xooRule1.getKey())));
+    qProfileRules.activateAndCommit(dbSession, right, singleton(RuleActivation.create(xooRule2.getId(), xooRule2.getKey())));
 
     QProfileComparisonResult result = comparison.compare(dbSession, left, right);
     assertThat(result.left().getKee()).isEqualTo(left.getKee());
@@ -176,8 +176,8 @@ public class QProfileComparisonTest {
 
   @Test
   public void compare_modified_severity() {
-    qProfileRules.activateAndCommit(dbSession, left, singleton(RuleActivation.create(xooRule1.getKey(), Severity.CRITICAL, null)));
-    qProfileRules.activateAndCommit(dbSession, right, singleton(RuleActivation.create(xooRule1.getKey(), Severity.BLOCKER, null)));
+    qProfileRules.activateAndCommit(dbSession, left, singleton(RuleActivation.create(xooRule1.getId(), xooRule1.getKey(), Severity.CRITICAL, null)));
+    qProfileRules.activateAndCommit(dbSession, right, singleton(RuleActivation.create(xooRule2.getId(), xooRule1.getKey(), Severity.BLOCKER, null)));
 
     QProfileComparisonResult result = comparison.compare(dbSession, left, right);
     assertThat(result.left().getKee()).isEqualTo(left.getKee());
@@ -196,8 +196,8 @@ public class QProfileComparisonTest {
 
   @Test
   public void compare_modified_param() {
-    qProfileRules.activateAndCommit(dbSession, left, singleton(RuleActivation.create(xooRule1.getKey(), null, ImmutableMap.of("max", "20"))));
-    qProfileRules.activateAndCommit(dbSession, right, singleton(RuleActivation.create(xooRule1.getKey(), null, ImmutableMap.of("max", "30"))));
+    qProfileRules.activateAndCommit(dbSession, left, singleton(RuleActivation.create(xooRule1.getId(), xooRule1.getKey(), null, ImmutableMap.of("max", "20"))));
+    qProfileRules.activateAndCommit(dbSession, right, singleton(RuleActivation.create(xooRule1.getId(), xooRule1.getKey(), null, ImmutableMap.of("max", "30"))));
 
     QProfileComparisonResult result = comparison.compare(dbSession, left, right);
     assertThat(result.left().getKee()).isEqualTo(left.getKee());
@@ -219,8 +219,8 @@ public class QProfileComparisonTest {
 
   @Test
   public void compare_different_params() {
-    qProfileRules.activateAndCommit(dbSession, left, singleton(RuleActivation.create(xooRule1.getKey(), null, ImmutableMap.of("max", "20"))));
-    qProfileRules.activateAndCommit(dbSession, right, singleton(RuleActivation.create(xooRule1.getKey(), null, ImmutableMap.of("min", "5"))));
+    qProfileRules.activateAndCommit(dbSession, left, singleton(RuleActivation.create(xooRule1.getId(), xooRule1.getKey(), null, ImmutableMap.of("max", "20"))));
+    qProfileRules.activateAndCommit(dbSession, right, singleton(RuleActivation.create(xooRule1.getId(), xooRule1.getKey(), null, ImmutableMap.of("min", "5"))));
 
     QProfileComparisonResult result = comparison.compare(dbSession, left, right);
     assertThat(result.left().getKee()).isEqualTo(left.getKee());

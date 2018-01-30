@@ -156,6 +156,7 @@ public class QProfileBackuperImplTest {
 
   @Test
   public void restore_resets_the_activated_rules() {
+    db.rules().insert(RuleKey.of("sonarjs", "s001"));
     OrganizationDto organization = db.organizations().insert();
     Reader backup = new StringReader("<?xml version='1.0' encoding='UTF-8'?>" +
       "<profile><name>foo</name>" +

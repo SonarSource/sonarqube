@@ -260,7 +260,7 @@ public class RegisterQualityProfilesNotificationTest {
     db.qualityProfiles().activateRule(builtInQProfileDto, rule);
     QProfileDto childQProfileDto = insertProfile(organization,
       orgQProfile -> orgQProfile.setIsBuiltIn(false).setLanguage(language).setParentKee(builtInQProfileDto.getKee()));
-    qProfileRules.activateAndCommit(db.getSession(), childQProfileDto, singleton(RuleActivation.create(rule.getKey())));
+    qProfileRules.activateAndCommit(db.getSession(), childQProfileDto, singleton(RuleActivation.create(rule.getId(), rule.getKey())));
     db.commit();
 
     addPluginProfile(builtInQProfileDto);

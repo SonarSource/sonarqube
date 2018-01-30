@@ -35,11 +35,13 @@ import org.sonar.api.rule.Severity;
 public class RuleActivation {
 
   private final RuleKey ruleKey;
+  private final int ruleId;
   private final boolean reset;
   private final String severity;
   private final Map<String, String> parameters = new HashMap<>();
 
-  private RuleActivation(RuleKey ruleKey, boolean reset, @Nullable String severity, @Nullable Map<String, String> parameters) {
+  private RuleActivation(int ruleId, RuleKey ruleKey, boolean reset, @Nullable String severity, @Nullable Map<String, String> parameters) {
+    this.ruleId = ruleId;
     this.ruleKey = ruleKey;
     this.reset = reset;
     this.severity = severity;
@@ -53,16 +55,16 @@ public class RuleActivation {
     }
   }
 
-  public static RuleActivation createReset(RuleKey ruleKey) {
-    return new RuleActivation(ruleKey, true, null, null);
+  public static RuleActivation createReset(int ruleId, RuleKey ruleKey) {
+    return new RuleActivation(ruleId, ruleKey, true, null, null);
   }
 
-  public static RuleActivation create(RuleKey ruleKey, @Nullable String severity, @Nullable Map<String, String> parameters) {
-    return new RuleActivation(ruleKey, false, severity, parameters);
+  public static RuleActivation create(int ruleId, RuleKey ruleKey, @Nullable String severity, @Nullable Map<String, String> parameters) {
+    return new RuleActivation(ruleId, ruleKey, false, severity, parameters);
   }
 
-  public static RuleActivation create(RuleKey ruleKey) {
-    return create(ruleKey, null, null);
+  public static RuleActivation create(int ruleId, RuleKey ruleKey) {
+    return create(ruleId, ruleKey, null, null);
   }
 
   /**
@@ -71,6 +73,10 @@ public class RuleActivation {
   @CheckForNull
   public String getSeverity() {
     return severity;
+  }
+
+  public int getRuleId() {
+    return ruleId;
   }
 
   public RuleKey getRuleKey() {

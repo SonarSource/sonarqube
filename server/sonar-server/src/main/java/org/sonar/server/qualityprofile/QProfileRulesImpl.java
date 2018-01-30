@@ -71,8 +71,8 @@ public class QProfileRulesImpl implements QProfileRules {
   @Override
   public BulkChangeResult bulkActivateAndCommit(DbSession dbSession, QProfileDto profile, RuleQuery ruleQuery, @Nullable String severity) {
     verifyNotBuiltIn(profile);
-    return doBulk(dbSession, profile, ruleQuery, (context, ruleKey) -> {
-      RuleActivation activation = RuleActivation.create(ruleKey, severity, null);
+    return doBulk(dbSession, profile, ruleQuery, (context, ruleDefinition) -> {
+      RuleActivation activation = RuleActivation.create(ruleDefinition.getId(), ruleDefinition.getKey(), severity, null);
       return ruleActivator.activate(dbSession, activation, context);
     });
   }
@@ -93,7 +93,7 @@ public class QProfileRulesImpl implements QProfileRules {
   @Override
   public BulkChangeResult bulkDeactivateAndCommit(DbSession dbSession, QProfileDto profile, RuleQuery ruleQuery) {
     verifyNotBuiltIn(profile);
-    return doBulk(dbSession, profile, ruleQuery, (context, ruleKey) -> ruleActivator.deactivate(dbSession, context, ruleKey, false));
+    return doBulk(dbSession, profile, ruleQuery, (context, ruleDefinition) -> ruleActivator.deactivate(dbSession, context, ruleDefinition.getKey(), false));
   }
 
   @Override
@@ -115,14 +115,16 @@ public class QProfileRulesImpl implements QProfileRules {
     checkArgument(!profile.isBuiltIn(), "The built-in profile %s is read-only and can't be updated", profile.getName());
   }
 
-  private BulkChangeResult doBulk(DbSession dbSession, QProfileDto profile, RuleQuery ruleQuery, BiFunction<RuleActivationContext, RuleKey, List<ActiveRuleChange>> fn) {
+  private BulkChangeResult doBulk(DbSession dbSession, QProfileDto profile, RuleQuery ruleQuery, BiFunction<RuleActivationContext, RuleDefinitionDto, List<ActiveRuleChange>> fn) {
     BulkChangeResult result = new BulkChangeResult();
     Collection<RuleKey> ruleKeys = Sets.newHashSet(ruleIndex.searchAll(ruleQuery));
     RuleActivationContext context = ruleActivator.createContextForUserProfile(dbSession, profile, ruleKeys);
 
     for (RuleKey ruleKey : ruleKeys) {
       try {
-        List<ActiveRuleChange> changes = fn.apply(context, ruleKey);
+        context.reset(ruleKey);
+        RuleDefinitionDto ruleDefinition = context.getRule().get();
+        List<ActiveRuleChange> changes = fn.apply(context, ruleDefinition);
         result.addChanges(changes);
         if (!changes.isEmpty()) {
           result.incrementSucceeded();
