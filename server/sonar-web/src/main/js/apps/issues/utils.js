@@ -218,7 +218,7 @@ export type Component = {
 /*::
 export type CurrentUser =
   | { isLoggedIn: false }
-  | { isLoggedIn: true, email?: string, login: string, name: string };
+  | { isLoggedIn: true, avatar:string, email?: string, login: string, name: string };
 */
 
 export const searchAssignees = (query /*: string */, organization /*: ?string */) => {

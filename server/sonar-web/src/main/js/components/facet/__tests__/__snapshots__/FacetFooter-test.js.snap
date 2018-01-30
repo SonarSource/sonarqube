@@ -6,10 +6,8 @@ exports[`should render 1`] = `
 >
   <SearchSelect
     autofocus={false}
-    minimumQueryLength={2}
     onSearch={[MockFunction]}
     onSelect={[MockFunction]}
-    resetOnBlur={true}
   />
 </div>
 `;
