@@ -101,7 +101,7 @@ public class ActiveRuleIndexerTest {
     ActiveRuleDto ar2 = db.qualityProfiles().activateRule(profile2, rule1);
     ActiveRuleDto ar3 = db.qualityProfiles().activateRule(profile2, rule2);
 
-    commitAndIndex(ar1, ar2);
+    commitAndIndex(rule1, ar1, ar2);
 
     verifyOnlyIndexed(ar1, ar2);
     assertThatEsQueueTableIsEmpty();
@@ -122,7 +122,7 @@ public class ActiveRuleIndexerTest {
     ActiveRuleDto ar = db.qualityProfiles().activateRule(profile1, rule1);
     es.lockWrites(INDEX_TYPE_ACTIVE_RULE);
 
-    commitAndIndex(ar);
+    commitAndIndex(rule1, ar);
 
     EsQueueDto expectedItem = EsQueueDto.create(INDEX_TYPE_ACTIVE_RULE.format(), "" + ar.getId(), "activeRuleId", ar.getRuleKey().toString());
     assertThatEsQueueContainsExactly(expectedItem);
@@ -135,7 +135,7 @@ public class ActiveRuleIndexerTest {
     assertThat(es.countDocuments(INDEX_TYPE_ACTIVE_RULE)).isEqualTo(1);
 
     db.getDbClient().activeRuleDao().delete(db.getSession(), ar.getKey());
-    commitAndIndex(ar);
+    commitAndIndex(rule1, ar);
 
     assertThat(es.countDocuments(INDEX_TYPE_ACTIVE_RULE)).isEqualTo(0);
     assertThatEsQueueTableIsEmpty();
@@ -187,9 +187,9 @@ public class ActiveRuleIndexerTest {
       .containsExactlyInAnyOrder(Tuple.tuple(expected.getDocId(), expected.getDocIdType(), expected.getDocRouting()));
   }
 
-  private void commitAndIndex(ActiveRuleDto... ar) {
+  private void commitAndIndex(RuleDefinitionDto rule, ActiveRuleDto... ar) {
     underTest.commitAndIndex(db.getSession(), stream(ar)
-      .map(a -> new ActiveRuleChange(ActiveRuleChange.Type.ACTIVATED, a))
+      .map(a -> new ActiveRuleChange(ActiveRuleChange.Type.ACTIVATED, a, rule))
       .collect(Collectors.toList()));
   }
 

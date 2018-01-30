@@ -19,11 +19,13 @@
  */
 package org.sonar.server.qualityprofile;
 
+import java.util.Random;
 import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.db.qualityprofile.QProfileChangeDto;
 import org.sonar.db.qualityprofile.QProfileDto;
+import org.sonar.db.rule.RuleDefinitionDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.qualityprofile.QualityProfileTesting.newQualityProfileDto;
@@ -37,12 +39,14 @@ public class ActiveRuleChangeTest {
   public void toDto() {
     QProfileDto profile = newQualityProfileDto();
     ActiveRuleKey key = ActiveRuleKey.of(profile, RuleKey.of("P1", "R1"));
-    ActiveRuleChange underTest = new ActiveRuleChange(ACTIVATED, key);
+    int ruleId = new Random().nextInt(963);
+    ActiveRuleChange underTest = new ActiveRuleChange(ACTIVATED, key, new RuleDefinitionDto().setId(ruleId));
 
     QProfileChangeDto result = underTest.toDto(A_LOGIN);
 
     assertThat(result.getChangeType()).isEqualTo(ACTIVATED.name());
     assertThat(result.getRulesProfileUuid()).isEqualTo(profile.getRulesProfileUuid());
     assertThat(result.getLogin()).isEqualTo(A_LOGIN);
+    assertThat(result.getDataAsMap().get("ruleId")).isEqualTo(String.valueOf(ruleId));
   }
 }
