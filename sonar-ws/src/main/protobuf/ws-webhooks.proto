@@ -24,6 +24,27 @@ option java_package = "org.sonarqube.ws";
 option java_outer_classname = "Webhooks";
 option optimize_for = SPEED;
 
+// WS api/webhooks/search
+message SearchWsResponse {
+  repeated Search webhooks = 1;
+}
+
+message Search {
+  optional string key = 1;
+  optional string name = 2;
+  optional string url = 3;
+  optional LatestDelivery latestDelivery = 4;
+}
+
+message LatestDelivery {
+  optional string id = 1;
+  optional string at = 2;
+  optional string success = 3;
+  optional string httpStatus = 4;
+  optional string durationMs = 5;
+}
+
+
 // WS api/webhooks/deliveries
 message DeliveriesWsResponse {
   repeated Delivery deliveries = 1;
