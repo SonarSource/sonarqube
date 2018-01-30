@@ -32,7 +32,7 @@ public class WebhooksWsModuleTest {
   public void verify_count_of_added_components() {
     ComponentContainer container = new ComponentContainer();
     underTest.configure(container);
-    assertThat(container.size()).isEqualTo(2 + 3);
+    assertThat(container.size()).isEqualTo(3 + 3);
   }
 
 }
