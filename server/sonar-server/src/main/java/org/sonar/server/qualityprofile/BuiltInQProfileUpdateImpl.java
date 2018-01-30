@@ -21,10 +21,10 @@ package org.sonar.server.qualityprofile;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Stream;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition;
 import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition.BuiltInActiveRule;
@@ -33,7 +33,10 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.RulesProfileDto;
+import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
+
+import static org.sonar.core.util.stream.MoreCollectors.toSet;
 
 public class BuiltInQProfileUpdateImpl implements BuiltInQProfileUpdate {
 
@@ -54,16 +57,18 @@ public class BuiltInQProfileUpdateImpl implements BuiltInQProfileUpdate {
       .map(ActiveRuleDto::getRuleKey)
       .collect(MoreCollectors.toHashSet());
 
+    Set<RuleKey> ruleKeys = Stream.concat(
+      deactivatedKeys.stream(),
+      builtIn.getActiveRules().stream().map(ar -> RuleKey.of(ar.repoKey(), ar.ruleKey())))
+      .collect(toSet());
+    RuleActivationContext context = ruleActivator.createContextForBuiltInProfile(dbSession, rulesProfile, ruleKeys);
+
     Collection<RuleActivation> activations = new ArrayList<>();
-    Collection<RuleKey> ruleKeys = new HashSet<>(deactivatedKeys);
     for (BuiltInActiveRule ar : builtIn.getActiveRules()) {
-      RuleActivation activation = convert(ar);
+      RuleActivation activation = convert(ar, context);
       activations.add(activation);
-      ruleKeys.add(activation.getRuleKey());
       deactivatedKeys.remove(activation.getRuleKey());
     }
-
-    RuleActivationContext context = ruleActivator.createContextForBuiltInProfile(dbSession, rulesProfile, ruleKeys);
 
     List<ActiveRuleChange> changes = new ArrayList<>();
     for (RuleActivation activation : activations) {
@@ -77,10 +82,13 @@ public class BuiltInQProfileUpdateImpl implements BuiltInQProfileUpdate {
     return changes;
   }
 
-  private static RuleActivation convert(BuiltInActiveRule ar) {
+  private static RuleActivation convert(BuiltInActiveRule ar, RuleActivationContext context) {
+    RuleKey ruleKey = RuleKey.of(ar.repoKey(), ar.ruleKey());
+    context.reset(ruleKey);
+    RuleDefinitionDto ruleDefinition = context.getRule().get();
     Map<String, String> params = ar.overriddenParams().stream()
       .collect(MoreCollectors.uniqueIndex(BuiltInQualityProfilesDefinition.OverriddenParam::key, BuiltInQualityProfilesDefinition.OverriddenParam::overriddenValue));
-    return RuleActivation.create(RuleKey.of(ar.repoKey(), ar.ruleKey()), ar.overriddenSeverity(), params);
+    return RuleActivation.create(ruleDefinition.getId(), ruleKey, ar.overriddenSeverity(), params);
   }
 
 }
