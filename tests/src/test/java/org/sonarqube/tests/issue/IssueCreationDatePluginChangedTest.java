@@ -23,12 +23,10 @@ import com.google.common.collect.ImmutableList;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
 import java.io.File;
-import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
-import javax.mail.MessagingException;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -150,7 +148,9 @@ public class IssueCreationDatePluginChangedTest {
 
     // New analysis that should raise 2 new issues that will be backdated
     ORCHESTRATOR.executeBuild(scanner);
-    issues = getIssues(issueQuery().components("creation-date-sample:src/main/xoo/sample/Sample.xoo"));
+    issues = getIssues(issueQuery()
+      .components("creation-date-sample:src/main/xoo/sample/Sample.xoo")
+      .sort("FILE_LINE"));
     assertThat(issues)
       .extracting(Issue::line, Issue::creationDate)
       .containsExactly(tuple(1, dateTimeParse("2005-01-01T00:00:00+0000")),

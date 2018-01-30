@@ -123,18 +123,6 @@ public class IssueDaoTest {
   }
 
   @Test
-  public void selectByOrderedKeys() {
-    // contains I1 and I2
-    prepareTables();
-
-    Iterable<IssueDto> issues = underTest.selectByOrderedKeys(db.getSession(), asList("I1", "I2", "I3"));
-    assertThat(issues).extracting("key").containsExactly("I1", "I2");
-
-    issues = underTest.selectByOrderedKeys(db.getSession(), asList("I2", "I3", "I1"));
-    assertThat(issues).extracting("key").containsExactly("I2", "I1");
-  }
-
-  @Test
   public void scrollNonClosedByComponentUuid() {
     RuleDefinitionDto rule = db.rules().insert();
     ComponentDto project = db.components().insertPrivateProject();
