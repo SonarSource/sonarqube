@@ -52,9 +52,10 @@ public interface UserMapper {
 
   List<UserDto> selectByIds(@Param("ids") List<Integer> ids);
 
-  void scrollAll(ResultHandler<UserDto> handler);
+  @CheckForNull
+  UserDto selectByEmail(String email);
 
-  long countByEmail(String email);
+  void scrollAll(ResultHandler<UserDto> handler);
 
   /**
    * Count actives users which are root and which login is not the specified one.

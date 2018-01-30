@@ -26,7 +26,6 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.server.authentication.UserIdentity;
-import org.sonar.api.utils.System2;
 import org.sonar.api.utils.internal.AlwaysIncreasingSystem2;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbTester;
@@ -52,6 +51,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.sonar.core.config.CorePropertyDefinitions.ONBOARDING_TUTORIAL_SHOW_TO_NEW_USERS;
 import static org.sonar.db.user.UserTesting.newUserDto;
+import static org.sonar.server.authentication.UserIdentityAuthenticator.ExistingEmailStrategy.ALLOW;
+import static org.sonar.server.authentication.UserIdentityAuthenticator.ExistingEmailStrategy.FORBID;
+import static org.sonar.server.authentication.UserIdentityAuthenticator.ExistingEmailStrategy.WARN;
 import static org.sonar.server.authentication.event.AuthenticationExceptionMatcher.authenticationException;
 
 public class UserIdentityAuthenticatorTest {
@@ -74,7 +76,7 @@ public class UserIdentityAuthenticatorTest {
   private MapSettings settings = new MapSettings();
 
   @Rule
-  public ExpectedException thrown = ExpectedException.none();
+  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public DbTester db = DbTester.create(new AlwaysIncreasingSystem2());
   @Rule
@@ -99,7 +101,8 @@ public class UserIdentityAuthenticatorTest {
   @Test
   public void authenticate_new_user() {
     organizationFlags.setEnabled(true);
-    underTest.authenticate(USER_IDENTITY, IDENTITY_PROVIDER, Source.realm(Method.BASIC, IDENTITY_PROVIDER.getName()));
+
+    underTest.authenticate(USER_IDENTITY, IDENTITY_PROVIDER, Source.realm(Method.BASIC, IDENTITY_PROVIDER.getName()), FORBID);
 
     UserDto user = db.users().selectUserByLogin(USER_LOGIN).get();
     assertThat(user).isNotNull();
@@ -109,7 +112,6 @@ public class UserIdentityAuthenticatorTest {
     assertThat(user.getExternalIdentity()).isEqualTo("johndoo");
     assertThat(user.getExternalIdentityProvider()).isEqualTo("github");
     assertThat(user.isRoot()).isFalse();
-
     checkGroupMembership(user);
   }
 
@@ -158,7 +160,7 @@ public class UserIdentityAuthenticatorTest {
     organizationFlags.setEnabled(true);
     settings.setProperty(ONBOARDING_TUTORIAL_SHOW_TO_NEW_USERS, true);
 
-    underTest.authenticate(USER_IDENTITY, IDENTITY_PROVIDER, Source.realm(Method.BASIC, IDENTITY_PROVIDER.getName()));
+    underTest.authenticate(USER_IDENTITY, IDENTITY_PROVIDER, Source.realm(Method.BASIC, IDENTITY_PROVIDER.getName()), FORBID);
 
     assertThat(db.users().selectUserByLogin(USER_LOGIN).get().isOnboarded()).isFalse();
   }
@@ -168,22 +170,87 @@ public class UserIdentityAuthenticatorTest {
     organizationFlags.setEnabled(true);
     settings.setProperty(ONBOARDING_TUTORIAL_SHOW_TO_NEW_USERS, false);
 
-    underTest.authenticate(USER_IDENTITY, IDENTITY_PROVIDER, Source.realm(Method.BASIC, IDENTITY_PROVIDER.getName()));
+    underTest.authenticate(USER_IDENTITY, IDENTITY_PROVIDER, Source.realm(Method.BASIC, IDENTITY_PROVIDER.getName()), FORBID);
 
     assertThat(db.users().selectUserByLogin(USER_LOGIN).get().isOnboarded()).isTrue();
   }
 
   @Test
-  public void authenticate_existing_user() {
+  public void authenticate_new_user_update_existing_user_email_when_strategy_is_ALLOW() {
+    organizationFlags.setEnabled(true);
+    UserDto existingUser = db.users().insertUser(u -> u.setEmail("john@email.com"));
+    UserIdentity newUser = UserIdentity.builder()
+      .setProviderLogin("johndoo")
+      .setLogin("new_login")
+      .setName(existingUser.getName())
+      .setEmail(existingUser.getEmail())
+      .build();
+
+    underTest.authenticate(newUser, IDENTITY_PROVIDER, Source.local(Method.BASIC), ALLOW);
+
+    UserDto newUserReloaded = db.users().selectUserByLogin(newUser.getLogin()).get();
+    assertThat(newUserReloaded.getEmail()).isEqualTo(existingUser.getEmail());
+    UserDto existingUserReloaded = db.users().selectUserByLogin(existingUser.getLogin()).get();
+    assertThat(existingUserReloaded.getEmail()).isNull();
+  }
+
+  @Test
+  public void throw_EmailAlreadyExistException_when_authenticating_new_user_when_email_already_exists_and_strategy_is_WARN() {
+    organizationFlags.setEnabled(true);
+    UserDto existingUser = db.users().insertUser(u -> u.setEmail("john@email.com"));
+    UserIdentity newUser = UserIdentity.builder()
+      .setProviderLogin("johndoo")
+      .setLogin("new_login")
+      .setName(existingUser.getName())
+      .setEmail(existingUser.getEmail())
+      .build();
+
+    expectedException.expect(EmailAlreadyExistsException.class);
+
+    underTest.authenticate(newUser, IDENTITY_PROVIDER, Source.local(Method.BASIC), WARN);
+  }
+
+  @Test
+  public void throw_AuthenticationException_when_authenticating_new_user_when_email_already_exists_and_strategy_is_FORBID() {
     db.users().insertUser(newUserDto()
-      .setLogin(USER_LOGIN)
+      .setLogin("Existing user with same email")
       .setActive(true)
+      .setEmail("john@email.com"));
+    Source source = Source.realm(Method.FORM, IDENTITY_PROVIDER.getName());
+
+    expectedException.expect(authenticationException().from(source)
+      .withLogin(USER_IDENTITY.getLogin())
+      .andPublicMessage("You can't sign up because email 'john@email.com' is already used by an existing user. " +
+        "This means that you probably already registered with another account."));
+    expectedException.expectMessage("Email 'john@email.com' is already used");
+
+    underTest.authenticate(USER_IDENTITY, IDENTITY_PROVIDER, source, FORBID);
+  }
+
+  @Test
+  public void fail_to_authenticate_new_user_when_allow_users_to_signup_is_false() {
+    TestIdentityProvider identityProvider = new TestIdentityProvider()
+      .setKey("github")
+      .setName("Github")
+      .setEnabled(true)
+      .setAllowsUsersToSignUp(false);
+    Source source = Source.realm(Method.FORM, identityProvider.getName());
+
+    expectedException.expect(authenticationException().from(source).withLogin(USER_IDENTITY.getLogin()).andPublicMessage("'github' users are not allowed to sign up"));
+    expectedException.expectMessage("User signup disabled for provider 'github'");
+    underTest.authenticate(USER_IDENTITY, identityProvider, source, FORBID);
+  }
+
+  @Test
+  public void authenticate_existing_user() {
+    db.users().insertUser(u -> u
+      .setLogin(USER_LOGIN)
       .setName("Old name")
       .setEmail("Old email")
       .setExternalIdentity("old identity")
       .setExternalIdentityProvider("old provide"));
 
-    underTest.authenticate(USER_IDENTITY, IDENTITY_PROVIDER, Source.local(Method.BASIC));
+    underTest.authenticate(USER_IDENTITY, IDENTITY_PROVIDER, Source.local(Method.BASIC), FORBID);
 
     UserDto userDto = db.users().selectUserByLogin(USER_LOGIN).get();
     assertThat(userDto.isActive()).isTrue();
@@ -197,7 +264,7 @@ public class UserIdentityAuthenticatorTest {
   @Test
   public void authenticate_existing_disabled_user() {
     organizationFlags.setEnabled(true);
-    db.users().insertUser(newUserDto()
+    db.users().insertUser(u -> u
       .setLogin(USER_LOGIN)
       .setActive(false)
       .setName("Old name")
@@ -205,7 +272,7 @@ public class UserIdentityAuthenticatorTest {
       .setExternalIdentity("old identity")
       .setExternalIdentityProvider("old provide"));
 
-    underTest.authenticate(USER_IDENTITY, IDENTITY_PROVIDER, Source.local(Method.BASIC_TOKEN));
+    underTest.authenticate(USER_IDENTITY, IDENTITY_PROVIDER, Source.local(Method.BASIC_TOKEN), FORBID);
 
     UserDto userDto = db.users().selectUserByLogin(USER_LOGIN).get();
     assertThat(userDto.isActive()).isTrue();
@@ -214,6 +281,81 @@ public class UserIdentityAuthenticatorTest {
     assertThat(userDto.getExternalIdentity()).isEqualTo("johndoo");
     assertThat(userDto.getExternalIdentityProvider()).isEqualTo("github");
     assertThat(userDto.isRoot()).isFalse();
+  }
+
+  @Test
+  public void authenticate_existing_user_when_email_already_exists_and_strategy_is_ALLOW() {
+    organizationFlags.setEnabled(true);
+    UserDto existingUser = db.users().insertUser(u -> u.setEmail("john@email.com"));
+    UserDto currentUser = db.users().insertUser(u -> u.setEmail(null));
+    UserIdentity userIdentity = UserIdentity.builder()
+      .setLogin(currentUser.getLogin())
+      .setProviderLogin("johndoo")
+      .setName("John")
+      .setEmail("john@email.com")
+      .build();
+
+    underTest.authenticate(userIdentity, IDENTITY_PROVIDER, Source.local(Method.BASIC), ALLOW);
+
+    UserDto currentUserReloaded = db.users().selectUserByLogin(currentUser.getLogin()).get();
+    assertThat(currentUserReloaded.getEmail()).isEqualTo("john@email.com");
+    UserDto existingUserReloaded = db.users().selectUserByLogin(existingUser.getLogin()).get();
+    assertThat(existingUserReloaded.getEmail()).isNull();
+  }
+
+  @Test
+  public void throw_EmailAlreadyExistException_when_authenticating_existing_user_when_email_already_exists_and_strategy_is_WARN() {
+    organizationFlags.setEnabled(true);
+    UserDto existingUser = db.users().insertUser(u -> u.setEmail("john@email.com"));
+    UserDto currentUser = db.users().insertUser(u -> u.setEmail(null));
+    UserIdentity userIdentity = UserIdentity.builder()
+      .setLogin(currentUser.getLogin())
+      .setProviderLogin("johndoo")
+      .setName("John")
+      .setEmail("john@email.com")
+      .build();
+
+    expectedException.expect(EmailAlreadyExistsException.class);
+
+    underTest.authenticate(userIdentity, IDENTITY_PROVIDER, Source.local(Method.BASIC), WARN);
+  }
+
+  @Test
+  public void throw_AuthenticationException_when_authenticating_existing_user_when_email_already_exists_and_strategy_is_FORBID() {
+    organizationFlags.setEnabled(true);
+    UserDto existingUser = db.users().insertUser(u -> u.setEmail("john@email.com"));
+    UserDto currentUser = db.users().insertUser(u -> u.setEmail(null));
+    UserIdentity userIdentity = UserIdentity.builder()
+      .setLogin(currentUser.getLogin())
+      .setProviderLogin("johndoo")
+      .setName("John")
+      .setEmail("john@email.com")
+      .build();
+
+    expectedException.expect(authenticationException().from(Source.realm(Method.FORM, IDENTITY_PROVIDER.getName()))
+      .withLogin(userIdentity.getLogin())
+      .andPublicMessage("You can't sign up because email 'john@email.com' is already used by an existing user. " +
+        "This means that you probably already registered with another account."));
+    expectedException.expectMessage("Email 'john@email.com' is already used");
+
+    underTest.authenticate(userIdentity, IDENTITY_PROVIDER, Source.realm(Method.FORM, IDENTITY_PROVIDER.getName()), FORBID);
+  }
+
+  @Test
+  public void does_not_fail_to_authenticate_user_when_email_has_not_changed_and_strategy_is_FORBID() {
+    organizationFlags.setEnabled(true);
+    UserDto currentUser = db.users().insertUser(u -> u.setEmail("john@email.com"));
+    UserIdentity userIdentity = UserIdentity.builder()
+      .setLogin(currentUser.getLogin())
+      .setProviderLogin("johndoo")
+      .setName("John")
+      .setEmail("john@email.com")
+      .build();
+
+    underTest.authenticate(userIdentity, IDENTITY_PROVIDER, Source.local(Method.BASIC), FORBID);
+
+    UserDto currentUserReloaded = db.users().selectUserByLogin(currentUser.getLogin()).get();
+    assertThat(currentUserReloaded.getEmail()).isEqualTo("john@email.com");
   }
 
   @Test
@@ -296,39 +438,9 @@ public class UserIdentityAuthenticatorTest {
       .setLogin(user.getLogin())
       .setName(user.getName())
       .setGroups(newHashSet(groupName))
-      .build(), IDENTITY_PROVIDER, Source.sso());
+      .build(), IDENTITY_PROVIDER, Source.sso(), FORBID);
 
     checkGroupMembership(user, groupInDefaultOrg);
-  }
-
-  @Test
-  public void fail_to_authenticate_new_user_when_allow_users_to_signup_is_false() {
-    TestIdentityProvider identityProvider = new TestIdentityProvider()
-      .setKey("github")
-      .setName("Github")
-      .setEnabled(true)
-      .setAllowsUsersToSignUp(false);
-    Source source = Source.realm(Method.FORM, identityProvider.getName());
-
-    thrown.expect(authenticationException().from(source).withLogin(USER_IDENTITY.getLogin()).andPublicMessage("'github' users are not allowed to sign up"));
-    thrown.expectMessage("User signup disabled for provider 'github'");
-    underTest.authenticate(USER_IDENTITY, identityProvider, source);
-  }
-
-  @Test
-  public void fail_to_authenticate_new_user_when_email_already_exists() {
-    db.users().insertUser(newUserDto()
-      .setLogin("Existing user with same email")
-      .setActive(true)
-      .setEmail("john@email.com"));
-    Source source = Source.realm(Method.FORM, IDENTITY_PROVIDER.getName());
-
-    thrown.expect(authenticationException().from(source)
-      .withLogin(USER_IDENTITY.getLogin())
-      .andPublicMessage("You can't sign up because email 'john@email.com' is already used by an existing user. " +
-        "This means that you probably already registered with another account."));
-    thrown.expectMessage("Email 'john@email.com' is already used");
-    underTest.authenticate(USER_IDENTITY, IDENTITY_PROVIDER, source);
   }
 
   private void authenticate(String login, String... groups) {
@@ -338,7 +450,7 @@ public class UserIdentityAuthenticatorTest {
       .setName("John")
       // No group
       .setGroups(stream(groups).collect(MoreCollectors.toSet()))
-      .build(), IDENTITY_PROVIDER, Source.sso());
+      .build(), IDENTITY_PROVIDER, Source.sso(), FORBID);
   }
 
   private void checkGroupMembership(UserDto user, GroupDto... expectedGroups) {

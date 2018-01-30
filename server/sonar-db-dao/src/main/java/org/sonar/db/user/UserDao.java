@@ -152,12 +152,13 @@ public class UserDao implements Dao {
   }
 
   /**
-   * Check if an active user with the given email exits in database
+   * Search for an active user with the given email exits in database
    *
    * Please note that email is case insensitive, result for searching 'mail@email.com' or 'Mail@Email.com' will be the same
    */
-  public boolean doesEmailExist(DbSession dbSession, String email) {
-    return mapper(dbSession).countByEmail(email.toLowerCase(Locale.ENGLISH)) > 0;
+  @CheckForNull
+  public UserDto selectByEmail(DbSession dbSession, String email) {
+    return mapper(dbSession).selectByEmail(email.toLowerCase(Locale.ENGLISH));
   }
 
   public void scrollByLogins(DbSession dbSession, Collection<String> logins, Consumer<UserDto> consumer) {

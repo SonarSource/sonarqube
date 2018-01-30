@@ -54,6 +54,7 @@ import static org.sonar.process.ProcessProperties.Property.SONAR_WEB_SSO_GROUPS_
 import static org.sonar.process.ProcessProperties.Property.SONAR_WEB_SSO_LOGIN_HEADER;
 import static org.sonar.process.ProcessProperties.Property.SONAR_WEB_SSO_NAME_HEADER;
 import static org.sonar.process.ProcessProperties.Property.SONAR_WEB_SSO_REFRESH_INTERVAL_IN_MINUTES;
+import static org.sonar.server.authentication.UserIdentityAuthenticator.ExistingEmailStrategy.FORBID;
 import static org.sonar.server.user.ExternalIdentity.SQ_AUTHORITY;
 
 public class SsoAuthenticator implements Startable {
@@ -160,7 +161,7 @@ public class SsoAuthenticator implements Startable {
       String groupsValue = getHeaderValue(headerValuesByNames, SONAR_WEB_SSO_GROUPS_HEADER.getKey());
       userIdentityBuilder.setGroups(groupsValue == null ? Collections.emptySet() : new HashSet<>(COMA_SPLITTER.splitToList(groupsValue)));
     }
-    return userIdentityAuthenticator.authenticate(userIdentityBuilder.build(), new SsoIdentityProvider(), Source.sso());
+    return userIdentityAuthenticator.authenticate(userIdentityBuilder.build(), new SsoIdentityProvider(), Source.sso(), FORBID);
   }
 
   @CheckForNull

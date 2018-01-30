@@ -33,17 +33,21 @@ import org.sonar.api.server.authentication.Display;
 import org.sonar.api.server.authentication.IdentityProvider;
 import org.sonar.api.server.authentication.OAuth2IdentityProvider;
 import org.sonar.api.server.authentication.UnauthorizedException;
+import org.sonar.api.server.authentication.UserIdentity;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
+import org.sonar.db.user.UserDto;
 import org.sonar.server.authentication.event.AuthenticationEvent;
 import org.sonar.server.authentication.event.AuthenticationException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
+import static org.sonar.db.user.UserTesting.newUserDto;
 
 public class InitFilterTest {
 
@@ -72,11 +76,11 @@ public class InitFilterTest {
   private FakeBasicIdentityProvider baseIdentityProvider = new FakeBasicIdentityProvider(BASIC_PROVIDER_KEY, true);
   private BaseIdentityProvider.Context baseContext = mock(BaseIdentityProvider.Context.class);
   private AuthenticationEvent authenticationEvent = mock(AuthenticationEvent.class);
-  private OAuth2Redirection oAuthRedirection = mock(OAuth2Redirection.class);
+  private OAuth2AuthenticationParameters auth2AuthenticationParameters = mock(OAuth2AuthenticationParameters.class);
 
   private ArgumentCaptor<AuthenticationException> authenticationExceptionCaptor = ArgumentCaptor.forClass(AuthenticationException.class);
 
-  private InitFilter underTest = new InitFilter(identityProviderRepository, baseContextFactory, oAuth2ContextFactory, server, authenticationEvent, oAuthRedirection);
+  private InitFilter underTest = new InitFilter(identityProviderRepository, baseContextFactory, oAuth2ContextFactory, server, authenticationEvent, auth2AuthenticationParameters);
 
   @Before
   public void setUp() throws Exception {
@@ -91,7 +95,7 @@ public class InitFilterTest {
   }
 
   @Test
-  public void do_filter_with_context() throws Exception {
+  public void do_filter_with_context() {
     when(server.getContextPath()).thenReturn("/sonarqube");
     when(request.getRequestURI()).thenReturn("/sonarqube/sessions/init/" + OAUTH2_PROVIDER_KEY);
     identityProviderRepository.addIdentityProvider(oAuth2IdentityProvider);
@@ -100,11 +104,10 @@ public class InitFilterTest {
 
     assertOAuth2InitCalled();
     verifyZeroInteractions(authenticationEvent);
-    verify(oAuthRedirection).create(eq(request), eq(response));
   }
 
   @Test
-  public void do_filter_on_auth2_identity_provider() throws Exception {
+  public void do_filter_on_auth2_identity_provider() {
     when(request.getRequestURI()).thenReturn("/sessions/init/" + OAUTH2_PROVIDER_KEY);
     identityProviderRepository.addIdentityProvider(oAuth2IdentityProvider);
 
@@ -112,11 +115,10 @@ public class InitFilterTest {
 
     assertOAuth2InitCalled();
     verifyZeroInteractions(authenticationEvent);
-    verify(oAuthRedirection).create(eq(request), eq(response));
   }
 
   @Test
-  public void do_filter_on_basic_identity_provider() throws Exception {
+  public void do_filter_on_basic_identity_provider() {
     when(request.getRequestURI()).thenReturn("/sessions/init/" + BASIC_PROVIDER_KEY);
     identityProviderRepository.addIdentityProvider(baseIdentityProvider);
 
@@ -124,7 +126,27 @@ public class InitFilterTest {
 
     assertBasicInitCalled();
     verifyZeroInteractions(authenticationEvent);
-    verifyZeroInteractions(oAuthRedirection);
+  }
+
+  @Test
+  public void init_authentication_parameter_on_auth2_identity_provider() {
+    when(server.getContextPath()).thenReturn("/sonarqube");
+    when(request.getRequestURI()).thenReturn("/sonarqube/sessions/init/" + OAUTH2_PROVIDER_KEY);
+    identityProviderRepository.addIdentityProvider(oAuth2IdentityProvider);
+
+    underTest.doFilter(request, response, chain);
+
+    verify(auth2AuthenticationParameters).init(eq(request), eq(response));
+  }
+
+  @Test
+  public void does_not_init_authentication_parameter_on_basic_authentication() {
+    when(request.getRequestURI()).thenReturn("/sessions/init/" + BASIC_PROVIDER_KEY);
+    identityProviderRepository.addIdentityProvider(baseIdentityProvider);
+
+    underTest.doFilter(request, response, chain);
+
+    verify(auth2AuthenticationParameters, never()).init(eq(request), eq(response));
   }
 
   @Test
@@ -135,7 +157,7 @@ public class InitFilterTest {
 
     assertError("No provider key found in URI");
     verifyZeroInteractions(authenticationEvent);
-    verifyZeroInteractions(oAuthRedirection);
+    verifyZeroInteractions(auth2AuthenticationParameters);
   }
 
   @Test
@@ -146,7 +168,7 @@ public class InitFilterTest {
 
     assertError("No provider key found in URI");
     verifyZeroInteractions(authenticationEvent);
-    verifyZeroInteractions(oAuthRedirection);
+    verifyZeroInteractions(auth2AuthenticationParameters);
   }
 
   @Test
@@ -160,7 +182,7 @@ public class InitFilterTest {
 
     assertError("Unsupported IdentityProvider class: class org.sonar.server.authentication.InitFilterTest$UnsupportedIdentityProvider");
     verifyZeroInteractions(authenticationEvent);
-    verifyZeroInteractions(oAuthRedirection);
+    verifyZeroInteractions(auth2AuthenticationParameters);
   }
 
   @Test
@@ -178,7 +200,7 @@ public class InitFilterTest {
     assertThat(authenticationException.getSource()).isEqualTo(AuthenticationEvent.Source.external(identityProvider));
     assertThat(authenticationException.getLogin()).isNull();
     assertThat(authenticationException.getPublicMessage()).isEqualTo("Email john@email.com is already used");
-    verifyDeleteRedirection();
+    verifyDeleteAuthCookie();
   }
 
   @Test
@@ -191,7 +213,20 @@ public class InitFilterTest {
     underTest.doFilter(request, response, chain);
 
     verify(response).sendRedirect("/sonarqube/sessions/unauthorized?message=Email+john%40email.com+is+already+used");
-    verifyDeleteRedirection();
+    verifyDeleteAuthCookie();
+  }
+
+  @Test
+  public void redirect_when_failing_because_of_EmailAlreadyExistException() throws Exception {
+    UserDto existingUser = newUserDto().setEmail("john@email.com").setExternalIdentity("john.bitbucket").setExternalIdentityProvider("bitbucket");
+    FailWithEmailAlreadyExistException identityProvider = new FailWithEmailAlreadyExistException("failing", existingUser);
+    when(request.getRequestURI()).thenReturn("/sessions/init/" + identityProvider.getKey());
+    identityProviderRepository.addIdentityProvider(identityProvider);
+
+    underTest.doFilter(request, response, chain);
+
+    verify(response).sendRedirect("/sessions/email_already_exists?email=john%40email.com&login=john.github&provider=failing&existingLogin=john.bitbucket&existingProvider=bitbucket");
+    verify(auth2AuthenticationParameters).delete(eq(request), eq(response));
   }
 
   @Test
@@ -204,7 +239,7 @@ public class InitFilterTest {
 
     verify(response).sendRedirect("/sessions/unauthorized");
     assertThat(logTester.logs(LoggerLevel.ERROR)).containsExactlyInAnyOrder("Fail to initialize authentication with provider 'failing'");
-    verifyDeleteRedirection();
+    verifyDeleteAuthCookie();
   }
 
   private void assertOAuth2InitCalled() {
@@ -223,8 +258,8 @@ public class InitFilterTest {
     assertThat(oAuth2IdentityProvider.isInitCalled()).isFalse();
   }
 
-  private void verifyDeleteRedirection() {
-    verify(oAuthRedirection).delete(eq(request), eq(response));
+  private void verifyDeleteAuthCookie() {
+    verify(auth2AuthenticationParameters).delete(eq(request), eq(response));
   }
 
   private static class FailWithUnauthorizedExceptionIdProvider extends FakeBasicIdentityProvider {
@@ -248,6 +283,26 @@ public class InitFilterTest {
     @Override
     public void init(Context context) {
       throw new IllegalStateException("Failure !");
+    }
+  }
+
+  private static class FailWithEmailAlreadyExistException extends FakeBasicIdentityProvider {
+
+    private final UserDto existingUser;
+
+    public FailWithEmailAlreadyExistException(String key, UserDto existingUser) {
+      super(key, true);
+      this.existingUser = existingUser;
+    }
+
+    @Override
+    public void init(Context context) {
+      throw new EmailAlreadyExistsException(existingUser.getEmail(), existingUser, UserIdentity.builder()
+        .setProviderLogin("john.github")
+        .setLogin("john.github")
+        .setName(existingUser.getName())
+        .setEmail(existingUser.getEmail())
+        .build(), this);
     }
   }
 
