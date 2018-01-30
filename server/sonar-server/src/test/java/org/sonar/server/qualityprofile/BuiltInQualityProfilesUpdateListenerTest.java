@@ -21,6 +21,7 @@ package org.sonar.server.qualityprofile;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
+import java.util.Random;
 import org.assertj.core.groups.Tuple;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -29,6 +30,7 @@ import org.sonar.api.notifications.Notification;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
+import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.server.notification.NotificationManager;
 import org.sonar.server.qualityprofile.BuiltInQualityProfilesNotification.Profile;
 
@@ -159,10 +161,15 @@ public class BuiltInQualityProfilesUpdateListenerTest {
 
   private Tuple addProfile(Multimap<QProfileName, ActiveRuleChange> profiles, Languages languages, ActiveRuleChange.Type type) {
     String profileName = randomLowerCaseText();
+    int ruleId1 = new Random().nextInt(952);
+    int ruleId2 = new Random().nextInt(952);
     Language language = newLanguage(randomLowerCaseText(), randomLowerCaseText());
     languages.add(language);
     profiles.putAll(new QProfileName(language.getKey(), profileName),
-      asList(new ActiveRuleChange(type, ActiveRuleKey.parse("qp:repo:rule1")), new ActiveRuleChange(type, ActiveRuleKey.parse("qp:repo:rule2"))));
+      asList(new ActiveRuleChange(
+        type,
+        ActiveRuleKey.parse("qp:repo:rule1"), new RuleDefinitionDto().setId(ruleId1)),
+        new ActiveRuleChange(type, ActiveRuleKey.parse("qp:repo:rule2"), new RuleDefinitionDto().setId(ruleId2))));
     return tuple(profileName, language.getKey(), language.getName(), 2);
   }
 

@@ -51,6 +51,7 @@ import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 import org.sonar.test.JsonAssert;
 
+import static java.lang.String.valueOf;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_KEY;
@@ -109,7 +110,7 @@ public class ChangelogActionTest {
     insertChange(profile, c -> c.setRulesProfileUuid(profileUuid)
       .setLogin(user1.getLogin())
       .setChangeType(ActiveRuleChange.Type.ACTIVATED.name())
-      .setData(ImmutableMap.of("severity", "CRITICAL", "ruleKey", rule1.getKey().toString())));
+      .setData(ImmutableMap.of("severity", "CRITICAL", "ruleId", valueOf(rule1.getId()))));
 
     system2.setNow(DateUtils.parseDateTime("2015-02-23T17:58:18+0100").getTime());
     RuleDefinitionDto rule2 = dbTester.rules().insert(RuleKey.of("squid", "S2162"), r -> r.setName("\"equals\" methods should be symmetric and work for subclasses"));
@@ -117,7 +118,7 @@ public class ChangelogActionTest {
     QProfileChangeDto change2 = insertChange(profile, c -> c.setRulesProfileUuid(profileUuid)
       .setLogin(user2.getLogin())
       .setChangeType(ActiveRuleChange.Type.DEACTIVATED.name())
-      .setData(ImmutableMap.of("ruleKey", rule2.getKey().toString())));
+      .setData(ImmutableMap.of("ruleId", valueOf(rule2.getId()))));
 
     system2.setNow(DateUtils.parseDateTime("2014-09-12T15:20:46+0200").getTime());
     RuleDefinitionDto rule3 = dbTester.rules().insert(RuleKey.of("squid", "S00101"), r -> r.setName("Class names should comply with a naming convention"));
@@ -125,7 +126,7 @@ public class ChangelogActionTest {
     QProfileChangeDto change3 = insertChange(profile, c -> c.setRulesProfileUuid(profileUuid)
       .setLogin(user3.getLogin())
       .setChangeType(ActiveRuleChange.Type.ACTIVATED.name())
-      .setData(ImmutableMap.of("severity", "MAJOR", "param_format", "^[A-Z][a-zA-Z0-9]*$", "ruleKey", rule3.getKey().toString())));
+      .setData(ImmutableMap.of("severity", "MAJOR", "param_format", "^[A-Z][a-zA-Z0-9]*$", "ruleId", valueOf(rule3.getId()))));
 
     dbTester.commit();
 
@@ -285,8 +286,10 @@ public class ChangelogActionTest {
   @Test
   public void return_change_with_all_fields() {
     QProfileDto profile = dbTester.qualityProfiles().insert(organization);
+    RuleDefinitionDto rule1 = dbTester.rules().insert(RuleKey.of("java", "S001"));
+
     Map<String, Object> data = ImmutableMap.of(
-      "ruleKey", "java:S001",
+      "ruleId", valueOf(rule1.getId()),
       "severity", "MINOR",
       "inheritance", ActiveRule.Inheritance.INHERITED.name(),
       "param_foo", "foo_value",

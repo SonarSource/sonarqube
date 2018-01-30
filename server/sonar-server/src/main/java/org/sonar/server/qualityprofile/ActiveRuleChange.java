@@ -28,6 +28,7 @@ import org.apache.commons.lang.StringUtils;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.db.qualityprofile.QProfileChangeDto;
+import org.sonar.db.rule.RuleDefinitionDto;
 
 public class ActiveRuleChange {
 
@@ -39,23 +40,30 @@ public class ActiveRuleChange {
 
   private final Type type;
   private final ActiveRuleKey key;
+  private final int ruleId;
   private String severity = null;
   private ActiveRule.Inheritance inheritance = null;
   private final Map<String, String> parameters = new HashMap<>();
 
-  public ActiveRuleChange(Type type, ActiveRuleDto activeRule) {
+  public ActiveRuleChange(Type type, ActiveRuleDto activeRule, RuleDefinitionDto ruleDefinition) {
     this.type = type;
     this.key = activeRule.getKey();
+    this.ruleId = ruleDefinition.getId();
     this.activeRule = activeRule;
   }
 
-  public ActiveRuleChange(Type type, ActiveRuleKey key) {
+  public ActiveRuleChange(Type type, ActiveRuleKey key, RuleDefinitionDto ruleDefinition) {
     this.type = type;
     this.key = key;
+    this.ruleId = ruleDefinition.getId();
   }
 
   public ActiveRuleKey getKey() {
     return key;
+  }
+
+  public int getRuleId() {
+    return ruleId;
   }
 
   public Type getType() {
@@ -113,7 +121,7 @@ public class ActiveRuleChange {
     dto.setRulesProfileUuid(getKey().getRuleProfileUuid());
     dto.setLogin(login);
     Map<String, String> data = new HashMap<>();
-    data.put("ruleKey", getKey().getRuleKey().toString());
+    data.put("ruleId", String.valueOf(getRuleId()));
 
     parameters.entrySet().stream()
       .filter(param -> !param.getKey().isEmpty())
@@ -134,6 +142,7 @@ public class ActiveRuleChange {
     return MoreObjects.toStringHelper(this)
       .add("type", type)
       .add("key", key)
+      .add("ruleId", ruleId)
       .add("severity", severity)
       .add("inheritance", inheritance)
       .add("parameters", parameters)
