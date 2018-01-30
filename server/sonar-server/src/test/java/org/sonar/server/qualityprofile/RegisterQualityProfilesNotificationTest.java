@@ -22,12 +22,15 @@ package org.sonar.server.qualityprofile;
 import com.google.common.collect.Multimap;
 import java.security.SecureRandom;
 import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.function.Consumer;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition;
@@ -36,6 +39,7 @@ import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition.NewBuiltInQ
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.core.util.UuidFactoryFast;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
@@ -48,6 +52,7 @@ import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.util.TypeValidations;
 
+import static com.google.common.base.Preconditions.checkState;
 import static java.util.Collections.singleton;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.apache.commons.lang.math.RandomUtils.nextLong;
@@ -303,8 +308,21 @@ public class RegisterQualityProfilesNotificationTest {
 
     Arrays.stream(dbRules).forEach(dbRule -> newQp.activateRule(dbRule.getRepositoryKey(), dbRule.getRuleKey()).overrideSeverity(Severity.MAJOR));
     newQp.done();
-    builtInQProfileRepositoryRule.add(newLanguage(dbProfile.getLanguage()), dbProfile.getName(), false,
-      context.profile(dbProfile.getLanguage(), dbProfile.getName()).rules().toArray(new BuiltInActiveRule[0]));
+    List<BuiltInActiveRule> rules = context.profile(dbProfile.getLanguage(), dbProfile.getName()).rules();
+    BuiltInQProfile.ActiveRule[] activeRules = toActiveRules(rules, dbRules);
+    builtInQProfileRepositoryRule.add(newLanguage(dbProfile.getLanguage()), dbProfile.getName(), false, activeRules);
+  }
+
+  private static BuiltInQProfile.ActiveRule[] toActiveRules(List<BuiltInActiveRule> rules, RuleDefinitionDto[] dbRules) {
+    Map<RuleKey, RuleDefinitionDto> dbRulesByRuleKey = Arrays.stream(dbRules)
+      .collect(MoreCollectors.uniqueIndex(RuleDefinitionDto::getKey));
+    return rules.stream()
+      .map(r -> {
+        RuleKey ruleKey = RuleKey.of(r.repoKey(), r.ruleKey());
+        RuleDefinitionDto ruleDefinitionDto = dbRulesByRuleKey.get(ruleKey);
+        checkState(ruleDefinitionDto != null, "Rule '%s' not found", ruleKey);
+        return new BuiltInQProfile.ActiveRule(ruleDefinitionDto.getId(), r);
+      }).toArray(BuiltInQProfile.ActiveRule[]::new);
   }
 
   private void addPluginProfile(QProfileDto profile, RuleDefinitionDto... dbRules) {
@@ -313,8 +331,8 @@ public class RegisterQualityProfilesNotificationTest {
 
     Arrays.stream(dbRules).forEach(dbRule -> newQp.activateRule(dbRule.getRepositoryKey(), dbRule.getRuleKey()).overrideSeverity(Severity.MAJOR));
     newQp.done();
-    builtInQProfileRepositoryRule.add(newLanguage(profile.getLanguage()), profile.getName(), false,
-      context.profile(profile.getLanguage(), profile.getName()).rules().toArray(new BuiltInActiveRule[0]));
+    BuiltInQProfile.ActiveRule[] activeRules = toActiveRules(context.profile(profile.getLanguage(), profile.getName()).rules(), dbRules);
+    builtInQProfileRepositoryRule.add(newLanguage(profile.getLanguage()), profile.getName(), false, activeRules);
   }
 
   private RulesProfileDto insertBuiltInProfile(String language) {

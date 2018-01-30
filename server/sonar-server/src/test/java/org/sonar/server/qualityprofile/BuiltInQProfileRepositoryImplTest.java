@@ -28,11 +28,15 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition;
+import org.sonar.api.utils.System2;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbTester;
 import org.sonar.server.language.LanguageTesting;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
+import static org.mockito.Mockito.mock;
 
 public class BuiltInQProfileRepositoryImplTest {
   private static final Language FOO_LANGUAGE = LanguageTesting.newLanguage("foo", "foo", "foo");
@@ -40,10 +44,14 @@ public class BuiltInQProfileRepositoryImplTest {
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
+  @Rule
+  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+
+  private DbClient dbClient = dbTester.getDbClient();
 
   @Test
   public void get_throws_ISE_if_called_before_initialize() {
-    BuiltInQProfileRepositoryImpl underTest = new BuiltInQProfileRepositoryImpl(new Languages());
+    BuiltInQProfileRepositoryImpl underTest = new BuiltInQProfileRepositoryImpl(mock(DbClient.class), new Languages());
 
     expectedException.expect(IllegalStateException.class);
     expectedException.expectMessage("initialize must be called first");
@@ -53,7 +61,7 @@ public class BuiltInQProfileRepositoryImplTest {
 
   @Test
   public void initialize_throws_ISE_if_called_twice() {
-    BuiltInQProfileRepositoryImpl underTest = new BuiltInQProfileRepositoryImpl(new Languages());
+    BuiltInQProfileRepositoryImpl underTest = new BuiltInQProfileRepositoryImpl(mock(DbClient.class), new Languages());
     underTest.initialize();
 
     expectedException.expect(IllegalStateException.class);
@@ -64,7 +72,7 @@ public class BuiltInQProfileRepositoryImplTest {
 
   @Test
   public void initialize_creates_no_BuiltInQProfile_when_there_is_no_definition() {
-    BuiltInQProfileRepository underTest = new BuiltInQProfileRepositoryImpl(new Languages(FOO_LANGUAGE));
+    BuiltInQProfileRepository underTest = new BuiltInQProfileRepositoryImpl(mock(DbClient.class), new Languages(FOO_LANGUAGE));
 
     underTest.initialize();
 
@@ -73,7 +81,7 @@ public class BuiltInQProfileRepositoryImplTest {
 
   @Test
   public void initialize_creates_no_BuiltInQProfile_when_all_definitions_apply_to_non_defined_languages() {
-    BuiltInQProfileRepository underTest = new BuiltInQProfileRepositoryImpl(new Languages(), new DummyProfileDefinition("foo", "P1", false));
+    BuiltInQProfileRepository underTest = new BuiltInQProfileRepositoryImpl(mock(DbClient.class), new Languages(), new DummyProfileDefinition("foo", "P1", false));
 
     underTest.initialize();
 
@@ -82,7 +90,7 @@ public class BuiltInQProfileRepositoryImplTest {
 
   @Test
   public void initialize_makes_single_profile_of_a_language_default_even_if_not_flagged_as_so() {
-    BuiltInQProfileRepository underTest = new BuiltInQProfileRepositoryImpl(new Languages(FOO_LANGUAGE), new DummyProfileDefinition("foo", "foo1", false));
+    BuiltInQProfileRepository underTest = new BuiltInQProfileRepositoryImpl(dbClient, new Languages(FOO_LANGUAGE), new DummyProfileDefinition("foo", "foo1", false));
 
     underTest.initialize();
 
@@ -93,7 +101,7 @@ public class BuiltInQProfileRepositoryImplTest {
 
   @Test
   public void initialize_makes_single_profile_of_a_language_default_even_if_flagged_as_so() {
-    BuiltInQProfileRepository underTest = new BuiltInQProfileRepositoryImpl(new Languages(FOO_LANGUAGE), new DummyProfileDefinition("foo", "foo1", true));
+    BuiltInQProfileRepository underTest = new BuiltInQProfileRepositoryImpl(dbClient, new Languages(FOO_LANGUAGE), new DummyProfileDefinition("foo", "foo1", true));
 
     underTest.initialize();
 
@@ -109,7 +117,7 @@ public class BuiltInQProfileRepositoryImplTest {
     Collections.shuffle(definitions);
     String firstName = definitions.get(0).getName();
     String secondName = definitions.get(1).getName();
-    BuiltInQProfileRepository underTest = new BuiltInQProfileRepositoryImpl(new Languages(FOO_LANGUAGE), definitions.toArray(new BuiltInQualityProfilesDefinition[0]));
+    BuiltInQProfileRepository underTest = new BuiltInQProfileRepositoryImpl(dbClient, new Languages(FOO_LANGUAGE), definitions.toArray(new BuiltInQualityProfilesDefinition[0]));
 
     underTest.initialize();
 
@@ -120,7 +128,7 @@ public class BuiltInQProfileRepositoryImplTest {
 
   @Test
   public void initialize_fails_with_ISE_when_two_profiles_with_different_name_are_default_for_the_same_language() {
-    BuiltInQProfileRepository underTest = new BuiltInQProfileRepositoryImpl(new Languages(FOO_LANGUAGE),
+    BuiltInQProfileRepository underTest = new BuiltInQProfileRepositoryImpl(dbClient, new Languages(FOO_LANGUAGE),
       new DummyProfileDefinition("foo", "foo1", true), new DummyProfileDefinition("foo", "foo2", true));
 
     expectedException.expect(IllegalStateException.class);
@@ -132,7 +140,7 @@ public class BuiltInQProfileRepositoryImplTest {
   @Test
   public void initialize_creates_profile_Sonar_Way_as_default_if_none_other_is_defined_default_for_a_given_language() {
     BuiltInQProfileRepository underTest = new BuiltInQProfileRepositoryImpl(
-      new Languages(FOO_LANGUAGE),
+      dbClient, new Languages(FOO_LANGUAGE),
       new DummyProfileDefinition("foo", "doh", false), new DummyProfileDefinition("foo", "boo", false),
       new DummyProfileDefinition("foo", SONAR_WAY_QP_NAME, false), new DummyProfileDefinition("foo", "goo", false));
 
@@ -148,7 +156,7 @@ public class BuiltInQProfileRepositoryImplTest {
   @Test
   public void initialize_does_not_create_Sonar_Way_as_default_if_other_profile_is_defined_as_default() {
     BuiltInQProfileRepository underTest = new BuiltInQProfileRepositoryImpl(
-      new Languages(FOO_LANGUAGE),
+      dbClient, new Languages(FOO_LANGUAGE),
       new DummyProfileDefinition("foo", SONAR_WAY_QP_NAME, false), new DummyProfileDefinition("foo", "goo", true));
 
     underTest.initialize();
@@ -164,7 +172,7 @@ public class BuiltInQProfileRepositoryImplTest {
   public void initialize_matches_Sonar_Way_default_with_case_sensitivity() {
     String sonarWayInOtherCase = SONAR_WAY_QP_NAME.toUpperCase();
     BuiltInQProfileRepository underTest = new BuiltInQProfileRepositoryImpl(
-      new Languages(FOO_LANGUAGE),
+      dbClient, new Languages(FOO_LANGUAGE),
       new DummyProfileDefinition("foo", "goo", false), new DummyProfileDefinition("foo", sonarWayInOtherCase, false));
 
     underTest.initialize();
