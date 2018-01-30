@@ -139,8 +139,8 @@ public class BuiltInQProfileInsertImpl implements BuiltInQProfileInsert {
     return dto;
   }
 
-  private ActiveRuleChange insertActiveRule(DbSession dbSession, RulesProfileDto rulesProfileDto, BuiltInQualityProfilesDefinition.BuiltInActiveRule activeRule, long now) {
-    RuleKey ruleKey = RuleKey.of(activeRule.repoKey(), activeRule.ruleKey());
+  private ActiveRuleChange insertActiveRule(DbSession dbSession, RulesProfileDto rulesProfileDto, BuiltInQProfile.ActiveRule activeRule, long now) {
+    RuleKey ruleKey = activeRule.getRuleKey();
     RuleDefinitionDto ruleDefinitionDto = ruleRepository.getDefinition(ruleKey)
       .orElseThrow(() -> new IllegalStateException("RuleDefinition not found for key " + ruleKey));
 
@@ -148,12 +148,12 @@ public class BuiltInQProfileInsertImpl implements BuiltInQProfileInsert {
     dto.setProfileId(rulesProfileDto.getId());
     dto.setRuleId(ruleDefinitionDto.getId());
     dto.setKey(ActiveRuleKey.of(rulesProfileDto, ruleDefinitionDto.getKey()));
-    dto.setSeverity(firstNonNull(activeRule.overriddenSeverity(), ruleDefinitionDto.getSeverityString()));
+    dto.setSeverity(firstNonNull(activeRule.getBuiltIn().overriddenSeverity(), ruleDefinitionDto.getSeverityString()));
     dto.setUpdatedAt(now);
     dto.setCreatedAt(now);
     dbClient.activeRuleDao().insert(dbSession, dto);
 
-    List<ActiveRuleParamDto> paramDtos = insertActiveRuleParams(dbSession, activeRule, ruleKey, dto);
+    List<ActiveRuleParamDto> paramDtos = insertActiveRuleParams(dbSession, activeRule, dto);
 
     ActiveRuleChange change = new ActiveRuleChange(ActiveRuleChange.Type.ACTIVATED, dto, ruleDefinitionDto);
     change.setSeverity(dto.getSeverityString());
@@ -161,12 +161,12 @@ public class BuiltInQProfileInsertImpl implements BuiltInQProfileInsert {
     return change;
   }
 
-  private List<ActiveRuleParamDto> insertActiveRuleParams(DbSession session, BuiltInQualityProfilesDefinition.BuiltInActiveRule activeRule, RuleKey ruleKey,
+  private List<ActiveRuleParamDto> insertActiveRuleParams(DbSession session, BuiltInQProfile.ActiveRule activeRule,
     ActiveRuleDto activeRuleDto) {
-    Map<String, String> valuesByParamKey = activeRule.overriddenParams()
+    Map<String, String> valuesByParamKey = activeRule.getBuiltIn().overriddenParams()
       .stream()
       .collect(MoreCollectors.uniqueIndex(BuiltInQualityProfilesDefinition.OverriddenParam::key, BuiltInQualityProfilesDefinition.OverriddenParam::overriddenValue));
-    return ruleRepository.getRuleParams(ruleKey)
+    return ruleRepository.getRuleParams(activeRule.getRuleKey())
       .stream()
       .map(param -> {
         String activeRuleValue = valuesByParamKey.get(param.getName());

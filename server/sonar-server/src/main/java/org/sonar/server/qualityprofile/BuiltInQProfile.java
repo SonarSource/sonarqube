@@ -23,6 +23,7 @@ import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.concurrent.Immutable;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition;
 
 /**
@@ -32,7 +33,7 @@ import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition;
 public final class BuiltInQProfile {
   private final QProfileName qProfileName;
   private final boolean isDefault;
-  private final List<BuiltInQualityProfilesDefinition.BuiltInActiveRule> activeRules;
+  private final List<ActiveRule> activeRules;
 
   private BuiltInQProfile(Builder builder) {
     this.qProfileName = new QProfileName(builder.language, builder.name);
@@ -56,8 +57,30 @@ public final class BuiltInQProfile {
     return isDefault;
   }
 
-  public List<BuiltInQualityProfilesDefinition.BuiltInActiveRule> getActiveRules() {
+  public List<ActiveRule> getActiveRules() {
     return activeRules;
+  }
+
+  static final class ActiveRule {
+    private final int ruleId;
+    private final BuiltInQualityProfilesDefinition.BuiltInActiveRule builtIn;
+
+    ActiveRule(int ruleId, BuiltInQualityProfilesDefinition.BuiltInActiveRule builtIn) {
+      this.ruleId = ruleId;
+      this.builtIn = builtIn;
+    }
+
+    public int getRuleId() {
+      return ruleId;
+    }
+
+    public RuleKey getRuleKey() {
+      return RuleKey.of(builtIn.repoKey(), builtIn.ruleKey());
+    }
+
+    public BuiltInQualityProfilesDefinition.BuiltInActiveRule getBuiltIn() {
+      return builtIn;
+    }
   }
 
   static final class Builder {
@@ -65,7 +88,7 @@ public final class BuiltInQProfile {
     private String name;
     private boolean declaredDefault;
     private boolean computedDefault;
-    private final List<BuiltInQualityProfilesDefinition.BuiltInActiveRule> activeRules = new ArrayList<>();
+    private final List<ActiveRule> activeRules = new ArrayList<>();
 
     public Builder setLanguage(String language) {
       this.language = language;
@@ -95,8 +118,13 @@ public final class BuiltInQProfile {
       return this;
     }
 
-    Builder addRules(List<BuiltInQualityProfilesDefinition.BuiltInActiveRule> rules) {
-      this.activeRules.addAll(rules);
+    Builder addRule(BuiltInQualityProfilesDefinition.BuiltInActiveRule rule, int ruleId) {
+      this.activeRules.add(new ActiveRule(ruleId, rule));
+      return this;
+    }
+
+    Builder addRule(ActiveRule activeRule) {
+      this.activeRules.add(activeRule);
       return this;
     }
 
