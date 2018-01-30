@@ -35,6 +35,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.qualityprofile.QProfileDto;
+import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.BadRequestException;
@@ -140,10 +141,10 @@ public class ActivateRuleActionTest {
   public void activate_rule_in_default_organization() {
     userSession.logIn().addPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES, defaultOrganization);
     QProfileDto qualityProfile = db.qualityProfiles().insert(defaultOrganization);
-    RuleKey ruleKey = RuleTesting.randomRuleKey();
+    RuleDefinitionDto rule = db.rules().insert(RuleTesting.randomRuleKey());
     TestRequest request = ws.newRequest()
       .setMethod("POST")
-      .setParam(PARAM_RULE, ruleKey.toString())
+      .setParam(PARAM_RULE, rule.getKey().toString())
       .setParam(PARAM_KEY, qualityProfile.getKee())
       .setParam("severity", "BLOCKER")
       .setParam("params", "key1=v1;key2=v2")
@@ -160,7 +161,7 @@ public class ActivateRuleActionTest {
     assertThat(activations).hasSize(1);
 
     RuleActivation activation = activations.iterator().next();
-    assertThat(activation.getRuleKey()).isEqualTo(ruleKey);
+    assertThat(activation.getRuleKey()).isEqualTo(rule.getKey());
     assertThat(activation.getSeverity()).isEqualTo(Severity.BLOCKER);
     assertThat(activation.isReset()).isFalse();
   }
@@ -170,6 +171,7 @@ public class ActivateRuleActionTest {
     userSession.logIn().addPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES, organization);
     QProfileDto qualityProfile = db.qualityProfiles().insert(organization);
     RuleKey ruleKey = RuleTesting.randomRuleKey();
+    db.rules().insert(ruleKey);
     TestRequest request = ws.newRequest()
       .setMethod("POST")
       .setParam(PARAM_RULE, ruleKey.toString())
@@ -200,6 +202,7 @@ public class ActivateRuleActionTest {
     db.qualityProfiles().addUserPermission(qualityProfile, user);
     userSession.logIn(user);
     RuleKey ruleKey = RuleTesting.randomRuleKey();
+    db.rules().insert(ruleKey);
 
     ws.newRequest()
       .setMethod("POST")

@@ -30,6 +30,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.QProfileDto;
+import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.server.qualityprofile.QProfileRules;
 import org.sonar.server.qualityprofile.RuleActivation;
 import org.sonar.server.user.UserSession;
@@ -104,18 +105,20 @@ public class ActivateRuleAction implements QProfileWsAction {
       QProfileDto profile = wsSupport.getProfile(dbSession, QProfileReference.fromKey(profileKey));
       OrganizationDto organization = wsSupport.getOrganization(dbSession, profile);
       wsSupport.checkCanEdit(dbSession, organization, profile);
-      RuleActivation activation = readActivation(request);
+      RuleActivation activation = readActivation(dbSession, request);
       ruleActivator.activateAndCommit(dbSession, profile, singletonList(activation));
     }
 
     response.noContent();
   }
 
-  private static RuleActivation readActivation(Request request) {
+  private RuleActivation readActivation(DbSession dbSession, Request request) {
     RuleKey ruleKey = RuleKey.parse(request.mandatoryParam(PARAM_RULE));
+    RuleDefinitionDto ruleDefinition = dbClient.ruleDao().selectDefinitionByKey(dbSession, ruleKey)
+      .orElseThrow(() -> new IllegalArgumentException(format("Rule '%s' not found", ruleKey)));
     boolean reset = Boolean.TRUE.equals(request.paramAsBoolean(PARAM_RESET));
     if (reset) {
-      return RuleActivation.createReset(ruleKey);
+      return RuleActivation.createReset(ruleDefinition.getId(), ruleKey);
     }
     String severity = request.param(PARAM_SEVERITY);
     Map<String, String> params = null;
@@ -123,7 +126,7 @@ public class ActivateRuleAction implements QProfileWsAction {
     if (paramsAsString != null) {
       params = KeyValueFormat.parse(paramsAsString);
     }
-    return RuleActivation.create(ruleKey, severity, params);
+    return RuleActivation.create(ruleDefinition.getId(), ruleKey, severity, params);
   }
 
 }

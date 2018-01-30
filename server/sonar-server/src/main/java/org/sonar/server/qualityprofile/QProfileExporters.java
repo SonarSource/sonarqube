@@ -30,6 +30,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import javax.annotation.CheckForNull;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.profiles.ProfileExporter;
@@ -50,6 +52,7 @@ import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
 import org.sonar.db.qualityprofile.OrgActiveRuleDto;
 import org.sonar.db.qualityprofile.QProfileDto;
+import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
 
@@ -156,9 +159,13 @@ public class QProfileExporters {
   }
 
   private List<ActiveRuleChange> importProfile(QProfileDto profile, RulesProfile definition, DbSession dbSession) {
+    Map<RuleKey, RuleDefinitionDto> rulesByRuleKey = dbClient.ruleDao().selectAllDefinitions(dbSession)
+      .stream()
+      .collect(MoreCollectors.uniqueIndex(RuleDefinitionDto::getKey));
     List<ActiveRule> activeRules = definition.getActiveRules();
     List<RuleActivation> activations = activeRules.stream()
-      .map(QProfileExporters::toRuleActivation)
+      .map(activeRule -> toRuleActivation(activeRule, rulesByRuleKey))
+      .filter(Objects::nonNull)
       .collect(MoreCollectors.toArrayList(activeRules.size()));
     return qProfileRules.activateAndCommit(dbSession, profile, activations);
   }
@@ -178,12 +185,17 @@ public class QProfileExporters {
     result.addInfos(messages.getInfos());
   }
 
-  private static RuleActivation toRuleActivation(ActiveRule activeRule) {
+  @CheckForNull
+  private static RuleActivation toRuleActivation(ActiveRule activeRule, Map<RuleKey, RuleDefinitionDto> rulesByRuleKey) {
     RuleKey ruleKey = activeRule.getRule().ruleKey();
+    RuleDefinitionDto ruleDefinition = rulesByRuleKey.get(ruleKey);
+    if (ruleDefinition == null) {
+      return null;
+    }
     String severity = activeRule.getSeverity().name();
     Map<String, String> params = activeRule.getActiveRuleParams().stream()
       .collect(MoreCollectors.uniqueIndex(ActiveRuleParam::getKey, ActiveRuleParam::getValue));
-    return RuleActivation.create(ruleKey, severity, params);
+    return RuleActivation.create(ruleDefinition.getId(), ruleKey, severity, params);
   }
 
 }
