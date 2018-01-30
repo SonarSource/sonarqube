@@ -37,20 +37,21 @@ import org.sonar.server.authentication.event.AuthenticationException;
 import static java.lang.String.format;
 import static org.sonar.server.authentication.AuthenticationError.handleAuthenticationError;
 import static org.sonar.server.authentication.AuthenticationError.handleError;
+import static org.sonar.server.authentication.AuthenticationRedirection.redirectTo;
 import static org.sonar.server.authentication.event.AuthenticationEvent.Source;
 
 public class OAuth2CallbackFilter extends AuthenticationFilter {
 
   private final OAuth2ContextFactory oAuth2ContextFactory;
   private final AuthenticationEvent authenticationEvent;
-  private final OAuth2Redirection oAuthRedirection;
+  private final OAuth2AuthenticationParameters oauth2Parameters;
 
   public OAuth2CallbackFilter(IdentityProviderRepository identityProviderRepository, OAuth2ContextFactory oAuth2ContextFactory,
-    Server server, AuthenticationEvent authenticationEvent, OAuth2Redirection oAuthRedirection) {
+    Server server, AuthenticationEvent authenticationEvent, OAuth2AuthenticationParameters oauth2Parameters) {
     super(server, identityProviderRepository);
     this.oAuth2ContextFactory = oAuth2ContextFactory;
     this.authenticationEvent = authenticationEvent;
-    this.oAuthRedirection = oAuthRedirection;
+    this.oauth2Parameters = oauth2Parameters;
   }
 
   @Override
@@ -77,11 +78,14 @@ public class OAuth2CallbackFilter extends AuthenticationFilter {
         handleError(response, format("Not an OAuth2IdentityProvider: %s", provider.getClass()));
       }
     } catch (AuthenticationException e) {
-      oAuthRedirection.delete(request, response);
+      oauth2Parameters.delete(request, response);
       authenticationEvent.loginFailure(request, e);
       handleAuthenticationError(e, response, getContextPath());
+    } catch (EmailAlreadyExistsException e) {
+      oauth2Parameters.delete(request, response);
+      redirectTo(response, e.getPath(getContextPath()));
     } catch (Exception e) {
-      oAuthRedirection.delete(request, response);
+      oauth2Parameters.delete(request, response);
       handleError(e, response, format("Fail to callback authentication with '%s'", provider.getKey()));
     }
   }
