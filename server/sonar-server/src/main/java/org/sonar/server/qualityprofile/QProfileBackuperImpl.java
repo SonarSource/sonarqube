@@ -30,6 +30,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
 import javax.annotation.Nullable;
@@ -43,6 +44,7 @@ import org.codehaus.staxmate.in.SMInputCursor;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.text.XmlWriter;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
@@ -50,6 +52,7 @@ import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
 import org.sonar.db.qualityprofile.OrgActiveRuleDto;
 import org.sonar.db.qualityprofile.QProfileDto;
+import org.sonar.db.rule.RuleDefinitionDto;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
@@ -140,7 +143,7 @@ public class QProfileBackuperImpl implements QProfileBackuper {
     try {
       String profileLang = null;
       String profileName = null;
-      List<RuleActivation> ruleActivations = Lists.newArrayList();
+      List<Rule> rules = Lists.newArrayList();
       SMInputFactory inputFactory = initStax();
       SMHierarchicCursor rootC = inputFactory.rootElementCursor(backup);
       rootC.advance(); // <profile>
@@ -158,12 +161,13 @@ public class QProfileBackuperImpl implements QProfileBackuper {
 
         } else if (StringUtils.equals(ATTRIBUTE_RULES, nodeName)) {
           SMInputCursor rulesCursor = cursor.childElementCursor("rule");
-          ruleActivations = parseRuleActivations(rulesCursor);
+          rules = parseRuleActivations(rulesCursor);
         }
       }
 
       QProfileName targetName = new QProfileName(profileLang, profileName);
       QProfileDto targetProfile = profileLoader.apply(targetName);
+      List<RuleActivation> ruleActivations = toRuleActivations(dbSession, rules);
       BulkChangeResult changes = profileReset.reset(dbSession, targetProfile, ruleActivations);
       return new QProfileRestoreSummary(targetProfile, changes);
     } catch (XMLStreamException e) {
@@ -171,8 +175,40 @@ public class QProfileBackuperImpl implements QProfileBackuper {
     }
   }
 
-  private static List<RuleActivation> parseRuleActivations(SMInputCursor rulesCursor) throws XMLStreamException {
-    List<RuleActivation> activations = new ArrayList<>();
+  private List<RuleActivation> toRuleActivations(DbSession dbSession, List<Rule> rules) {
+    List<RuleKey> ruleKeys = rules.stream()
+      .map(r -> r.ruleKey)
+      .collect(MoreCollectors.toList());
+    Map<RuleKey, RuleDefinitionDto> ruleDefinitionsByKey = db.ruleDao().selectDefinitionByKeys(dbSession, ruleKeys)
+      .stream()
+      .collect(MoreCollectors.uniqueIndex(RuleDefinitionDto::getKey));
+
+    return rules.stream()
+      .map(r -> {
+        RuleDefinitionDto ruleDefinition = ruleDefinitionsByKey.get(r.ruleKey);
+        if (ruleDefinition == null) {
+          return null;
+        }
+        return RuleActivation.create(ruleDefinition.getId(), ruleDefinition.getKey(), r.severity, r.parameters);
+      })
+      .filter(Objects::nonNull)
+      .collect(MoreCollectors.toList(rules.size()));
+  }
+
+  private static final class Rule {
+    private final RuleKey ruleKey;
+    private final String severity;
+    private final Map<String, String> parameters;
+
+    private Rule(RuleKey ruleKey, String severity, Map<String, String> parameters) {
+      this.ruleKey = ruleKey;
+      this.severity = severity;
+      this.parameters = parameters;
+    }
+  }
+
+  private static List<Rule> parseRuleActivations(SMInputCursor rulesCursor) throws XMLStreamException {
+    List<Rule> activations = new ArrayList<>();
     Set<RuleKey> activatedKeys = new HashSet<>();
     List<RuleKey> duplicatedKeys = new ArrayList<>();
     while (rulesCursor.getNext() != null) {
@@ -202,7 +238,7 @@ public class QProfileBackuperImpl implements QProfileBackuper {
         duplicatedKeys.add(ruleKey);
       }
       activatedKeys.add(ruleKey);
-      activations.add(RuleActivation.create(ruleKey, severity, parameters));
+      activations.add(new Rule(ruleKey, severity, parameters));
     }
     if (!duplicatedKeys.isEmpty()) {
       throw new IllegalArgumentException("The quality profile cannot be restored as it contains duplicates for the following rules: " +

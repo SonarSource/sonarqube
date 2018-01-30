@@ -613,7 +613,7 @@ public class SearchActionTest {
     OrganizationDto organization = db.organizations().insert();
     QProfileDto profile = db.qualityProfiles().insert(organization, p -> p.setLanguage("java"));
     RuleDefinitionDto rule = createJavaRule();
-    RuleActivation activation = RuleActivation.create(rule.getKey(), BLOCKER, null);
+    RuleActivation activation = RuleActivation.create(rule.getId(), rule.getKey(), BLOCKER, null);
     qProfileRules.activateAndCommit(db.getSession(), profile, singleton(activation));
 
     indexRules();
@@ -660,7 +660,7 @@ public class SearchActionTest {
         .setDescription("Empty Param")
         .setName("empty_var"));
 
-    RuleActivation activation = RuleActivation.create(rule.getKey());
+    RuleActivation activation = RuleActivation.create(rule.getId(), rule.getKey());
     List<ActiveRuleChange> activeRuleChanges1 = qProfileRules.activateAndCommit(db.getSession(), profile, singleton(activation));
     qProfileRules.activateAndCommit(db.getSession(), waterproofProfile, singleton(activation));
 
@@ -716,7 +716,7 @@ public class SearchActionTest {
         .setDescription("My small description")
         .setName("my_var"));
 
-    RuleActivation activation = RuleActivation.create(rule.getKey());
+    RuleActivation activation = RuleActivation.create(rule.getId(), rule.getKey());
     List<ActiveRuleChange> activeRuleChanges = qProfileRules.activateAndCommit(db.getSession(), profile, singleton(activation));
 
     // Insert directly in database a rule parameter with a null value
@@ -779,7 +779,7 @@ public class SearchActionTest {
       .setSeverity("MAJOR")
       .setStatus(RuleStatus.DEPRECATED)
       .setType(RuleType.VULNERABILITY));
-    RuleActivation activation = RuleActivation.create(rule2.getKey(), null, null);
+    RuleActivation activation = RuleActivation.create(rule2.getId(), rule2.getKey(), null, null);
     qProfileRules.activateAndCommit(db.getSession(), profile, singleton(activation));
 
     // on other language, not activated => no match

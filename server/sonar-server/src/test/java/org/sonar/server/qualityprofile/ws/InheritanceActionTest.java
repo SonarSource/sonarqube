@@ -280,7 +280,7 @@ public class InheritanceActionTest {
   }
 
   private void overrideActiveRuleSeverity(RuleDefinitionDto rule, QProfileDto profile, String severity) {
-    qProfileRules.activateAndCommit(dbSession, profile, singleton(RuleActivation.create(rule.getKey(), severity, null)));
+    qProfileRules.activateAndCommit(dbSession, profile, singleton(RuleActivation.create(rule.getId(), rule.getKey(), severity, null)));
 //    dbSession.commit();
 //    activeRuleIndexer.indexOnStartup(activeRuleIndexer.getIndexTypes());
   }
