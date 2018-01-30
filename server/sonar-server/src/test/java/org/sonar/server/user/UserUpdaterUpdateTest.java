@@ -390,6 +390,23 @@ public class UserUpdaterUpdateTest {
   }
 
   @Test
+  public void update_user_and_index_other_user() {
+    createDefaultGroup();
+    UserDto user = db.users().insertUser(newLocalUser(DEFAULT_LOGIN, "Marius", "marius@email.com")
+      .setScmAccounts(asList("ma", "marius33")));
+    UserDto otherUser = db.users().insertUser();
+
+    underTest.updateAndCommit(session, UpdateUser.create(DEFAULT_LOGIN)
+      .setName("Marius2")
+      .setEmail("marius2@mail.com")
+      .setPassword("password2")
+      .setScmAccounts(asList("ma2")), u -> {
+    }, otherUser);
+
+    assertThat(es.getIds(UserIndexDefinition.INDEX_TYPE_USER)).containsExactlyInAnyOrder(user.getLogin(), otherUser.getLogin());
+  }
+
+  @Test
   public void fail_to_set_null_password_when_local_user() {
     db.users().insertUser(newLocalUser(DEFAULT_LOGIN, "Marius", "marius@email.com"));
     createDefaultGroup();

@@ -19,16 +19,14 @@
  */
 package org.sonar.server.authentication;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import javax.servlet.http.HttpServletResponse;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.server.authentication.event.AuthenticationException;
 
 import static java.lang.String.format;
-import static java.net.URLEncoder.encode;
-import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.sonar.server.authentication.AuthenticationRedirection.encodeMessage;
+import static org.sonar.server.authentication.AuthenticationRedirection.redirectTo;
 
 final class AuthenticationError {
 
@@ -62,23 +60,8 @@ final class AuthenticationError {
     return contextPath + format(UNAUTHORIZED_PATH_WITH_MESSAGE, encodeMessage(publicMessage));
   }
 
-  private static String encodeMessage(String message) {
-    try {
-      return encode(message, UTF_8.name());
-    } catch (UnsupportedEncodingException e) {
-      throw new IllegalStateException(format("Fail to encode %s", message), e);
-    }
-  }
-
   public static void redirectToUnauthorized(HttpServletResponse response) {
     redirectTo(response, UNAUTHORIZED_PATH);
   }
 
-  private static void redirectTo(HttpServletResponse response, String url) {
-    try {
-      response.sendRedirect(url);
-    } catch (IOException e) {
-      throw new IllegalStateException(format("Fail to redirect to %s", url), e);
-    }
-  }
 }

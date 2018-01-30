@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Random;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.sonar.api.config.Configuration;
@@ -51,6 +52,8 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static com.google.common.collect.Lists.newArrayList;
 import static java.lang.String.format;
+import static java.util.Arrays.stream;
+import static java.util.stream.Stream.concat;
 import static org.sonar.core.config.CorePropertyDefinitions.ONBOARDING_TUTORIAL_SHOW_TO_NEW_USERS;
 import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.db.user.UserDto.encryptPassword;
@@ -93,7 +96,7 @@ public class UserUpdater {
     this.config = config;
   }
 
-  public UserDto createAndCommit(DbSession dbSession, NewUser newUser, Consumer<UserDto> beforeCommit) {
+  public UserDto createAndCommit(DbSession dbSession, NewUser newUser, Consumer<UserDto> beforeCommit, UserDto... otherUsersToIndex) {
     String login = newUser.login();
     UserDto userDto = dbClient.userDao().selectByLogin(dbSession, newUser.login());
     if (userDto == null) {
@@ -102,7 +105,7 @@ public class UserUpdater {
       reactivateUser(dbSession, userDto, login, newUser);
     }
     beforeCommit.accept(userDto);
-    userIndexer.commitAndIndex(dbSession, userDto);
+    userIndexer.commitAndIndex(dbSession, concat(Stream.of(userDto), stream(otherUsersToIndex)).collect(toList()));
 
     notifyNewUser(userDto.getLogin(), userDto.getName(), newUser.email());
     return userDto;
@@ -124,7 +127,7 @@ public class UserUpdater {
     addUserToDefaultOrganizationAndDefaultGroup(dbSession, existingUser);
   }
 
-  public void updateAndCommit(DbSession dbSession, UpdateUser updateUser, Consumer<UserDto> beforeCommit) {
+  public void updateAndCommit(DbSession dbSession, UpdateUser updateUser, Consumer<UserDto> beforeCommit, UserDto... otherUsersToIndex) {
     UserDto dto = dbClient.userDao().selectByLogin(dbSession, updateUser.login());
     checkFound(dto, "User with login '%s' has not been found", updateUser.login());
     boolean isUserUpdated = updateDto(dbSession, updateUser, dto);
@@ -132,7 +135,7 @@ public class UserUpdater {
       // at least one change. Database must be updated and Elasticsearch re-indexed
       updateUser(dbSession, dto);
       beforeCommit.accept(dto);
-      userIndexer.commitAndIndex(dbSession, dto);
+      userIndexer.commitAndIndex(dbSession, concat(Stream.of(dto), stream(otherUsersToIndex)).collect(toList()));
       notifyNewUser(dto.getLogin(), dto.getName(), dto.getEmail());
     } else {
       // no changes but still execute the consumer

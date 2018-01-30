@@ -274,6 +274,22 @@ public class UserUpdaterCreateTest {
   }
 
   @Test
+  public void create_user_and_index_other_user() {
+    createDefaultGroup();
+    UserDto otherUser = db.users().insertUser();
+
+    UserDto created = underTest.createAndCommit(db.getSession(), NewUser.builder()
+      .setLogin("user")
+      .setName("User")
+      .setEmail("user@mail.com")
+      .setPassword("PASSWORD")
+      .build(), u -> {
+      }, otherUser);
+
+    assertThat(es.getIds(UserIndexDefinition.INDEX_TYPE_USER)).containsExactlyInAnyOrder(created.getLogin(), otherUser.getLogin());
+  }
+
+  @Test
   public void fail_to_create_user_with_missing_login() {
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("Login can't be empty");
@@ -593,7 +609,7 @@ public class UserUpdaterCreateTest {
       .setEmail("marius2@mail.com")
       .setPassword("password2")
       .build(), u -> {
-    });
+      });
     session.commit();
 
     assertThat(dto.isActive()).isTrue();
@@ -622,7 +638,7 @@ public class UserUpdaterCreateTest {
       .setName("Marius2")
       .setEmail("marius2@mail.com")
       .build(), u -> {
-    });
+      });
     session.commit();
 
     assertThat(dto.isActive()).isTrue();
@@ -647,7 +663,7 @@ public class UserUpdaterCreateTest {
       .setName("Marius2")
       .setExternalIdentity(new ExternalIdentity("github", "john"))
       .build(), u -> {
-    });
+      });
     session.commit();
 
     UserDto dto = dbClient.userDao().selectByLogin(session, DEFAULT_LOGIN);
@@ -667,7 +683,7 @@ public class UserUpdaterCreateTest {
       .setName("Marius2")
       .setPassword("password")
       .build(), u -> {
-    });
+      });
     session.commit();
 
     UserDto dto = dbClient.userDao().selectByLogin(session, DEFAULT_LOGIN);
@@ -690,7 +706,7 @@ public class UserUpdaterCreateTest {
       .setEmail("marius2@mail.com")
       .setPassword("password2")
       .build(), u -> {
-    });
+      });
   }
 
   @Test
@@ -709,7 +725,7 @@ public class UserUpdaterCreateTest {
       .setEmail("marius2@mail.com")
       .setPassword("password2")
       .build(), u -> {
-    });
+      });
     session.commit();
 
     Multimap<String, String> groups = dbClient.groupMembershipDao().selectGroupsByLogins(session, asList(DEFAULT_LOGIN));
@@ -732,7 +748,7 @@ public class UserUpdaterCreateTest {
       .setEmail("marius2@mail.com")
       .setPassword("password2")
       .build(), u -> {
-    });
+      });
     session.commit();
 
     Multimap<String, String> groups = dbClient.groupMembershipDao().selectGroupsByLogins(session, asList(DEFAULT_LOGIN));
@@ -777,7 +793,7 @@ public class UserUpdaterCreateTest {
       .setLogin(user.getLogin())
       .setName("name")
       .build(), u -> {
-    });
+      });
 
     assertThat(dbClient.userDao().selectByLogin(session, user.getLogin()).isOnboarded()).isTrue();
   }
@@ -794,7 +810,7 @@ public class UserUpdaterCreateTest {
       .setLogin(user.getLogin())
       .setName("name")
       .build(), u -> {
-    });
+      });
 
     assertThat(dbClient.userDao().selectByLogin(session, user.getLogin()).isOnboarded()).isFalse();
   }

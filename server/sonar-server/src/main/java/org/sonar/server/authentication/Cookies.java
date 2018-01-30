@@ -28,6 +28,11 @@ import javax.servlet.http.HttpServletRequest;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.util.Objects.requireNonNull;
 
+/**
+ * Helper class to create a {@link javax.servlet.http.Cookie}.
+ *
+ * The {@link javax.servlet.http.Cookie#secure} will automatically be set.
+ */
 public class Cookies {
 
   private static final String HTTPS_HEADER = "X-Forwarded-Proto";
@@ -64,21 +69,33 @@ public class Cookies {
       this.request = request;
     }
 
+    /**
+     * Name of the cookie
+     */
     public CookieBuilder setName(String name) {
       this.name = requireNonNull(name);
       return this;
     }
 
+    /**
+     * Name of the cookie
+     */
     public CookieBuilder setValue(@Nullable String value) {
       this.value = value;
       return this;
     }
 
+    /**
+     * Sets the flag that controls if this cookie will be hidden from scripts on the client side.
+     */
     public CookieBuilder setHttpOnly(boolean httpOnly) {
       this.httpOnly = httpOnly;
       return this;
     }
 
+    /**
+     * Sets the maximum age of the cookie in seconds.
+     */
     public CookieBuilder setExpiry(int expiry) {
       this.expiry = expiry;
       return this;

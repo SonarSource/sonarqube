@@ -29,11 +29,9 @@ import org.sonar.api.platform.Server;
 import org.sonar.api.server.authentication.BaseIdentityProvider;
 import org.sonar.api.server.authentication.UserIdentity;
 import org.sonar.api.utils.System2;
-import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.user.UserDto;
-import org.sonar.server.authentication.event.AuthenticationEvent;
+import org.sonar.server.authentication.event.AuthenticationEvent.Source;
 import org.sonar.server.user.TestUserSessionFactory;
 import org.sonar.server.user.ThreadLocalUserSession;
 import org.sonar.server.user.UserSession;
@@ -44,7 +42,7 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.sonar.db.user.UserTesting.newUserDto;
+import static org.sonar.server.authentication.UserIdentityAuthenticator.ExistingEmailStrategy.FORBID;
 
 public class BaseContextFactoryTest {
 
@@ -59,10 +57,6 @@ public class BaseContextFactoryTest {
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
-
-  private DbClient dbClient = dbTester.getDbClient();
-
-  private DbSession dbSession = dbTester.getSession();
 
   private ThreadLocalUserSession threadLocalUserSession = mock(ThreadLocalUserSession.class);
 
@@ -80,11 +74,8 @@ public class BaseContextFactoryTest {
   @Before
   public void setUp() throws Exception {
     when(server.getPublicRootUrl()).thenReturn(PUBLIC_ROOT_URL);
-
-    UserDto userDto = dbClient.userDao().insert(dbSession, newUserDto());
-    dbSession.commit();
     when(identityProvider.getName()).thenReturn("provIdeur Nameuh");
-    when(userIdentityAuthenticator.authenticate(USER_IDENTITY, identityProvider, AuthenticationEvent.Source.external(identityProvider))).thenReturn(userDto);
+    when(request.getSession()).thenReturn(mock(HttpSession.class));
   }
 
   @Test
@@ -98,13 +89,15 @@ public class BaseContextFactoryTest {
 
   @Test
   public void authenticate() {
+    UserDto userDto = dbTester.users().insertUser();
+    when(userIdentityAuthenticator.authenticate(USER_IDENTITY, identityProvider, Source.external(identityProvider), FORBID)).thenReturn(userDto);
     BaseIdentityProvider.Context context = underTest.newContext(request, response, identityProvider);
-    HttpSession session = mock(HttpSession.class);
-    when(request.getSession()).thenReturn(session);
 
     context.authenticate(USER_IDENTITY);
-    verify(userIdentityAuthenticator).authenticate(USER_IDENTITY, identityProvider, AuthenticationEvent.Source.external(identityProvider));
+
+    verify(userIdentityAuthenticator).authenticate(USER_IDENTITY, identityProvider, Source.external(identityProvider), FORBID);
     verify(jwtHttpHandler).generateToken(any(UserDto.class), eq(request), eq(response));
     verify(threadLocalUserSession).set(any(UserSession.class));
   }
+
 }

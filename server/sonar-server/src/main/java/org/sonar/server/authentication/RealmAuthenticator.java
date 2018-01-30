@@ -45,6 +45,7 @@ import org.sonar.server.user.SecurityRealmFactory;
 import static java.util.Objects.requireNonNull;
 import static org.apache.commons.lang.StringUtils.isEmpty;
 import static org.apache.commons.lang.StringUtils.trimToNull;
+import static org.sonar.server.authentication.UserIdentityAuthenticator.ExistingEmailStrategy.FORBID;
 import static org.sonar.server.user.ExternalIdentity.SQ_AUTHORITY;
 
 public class RealmAuthenticator implements Startable {
@@ -138,7 +139,7 @@ public class RealmAuthenticator implements Startable {
       Collection<String> groups = externalGroupsProvider.doGetGroups(context);
       userIdentityBuilder.setGroups(new HashSet<>(groups));
     }
-    return userIdentityAuthenticator.authenticate(userIdentityBuilder.build(), new ExternalIdentityProvider(), realmEventSource(method));
+    return userIdentityAuthenticator.authenticate(userIdentityBuilder.build(), new ExternalIdentityProvider(), realmEventSource(method), FORBID);
   }
 
   private String getLogin(String userLogin) {
