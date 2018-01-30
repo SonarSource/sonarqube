@@ -94,7 +94,7 @@ public class RuleActivator {
         return changes;
       }
       // new activation
-      change = new ActiveRuleChange(ActiveRuleChange.Type.ACTIVATED, activeRuleKey);
+      change = new ActiveRuleChange(ActiveRuleChange.Type.ACTIVATED, activeRuleKey, rule);
       applySeverityAndParamToChange(activation, context, change);
       if (context.isCascading() || isSameAsParent(change, context)) {
         change.setInheritance(ActiveRule.Inheritance.INHERITED);
@@ -105,7 +105,7 @@ public class RuleActivator {
         // propagating to descendants, but child profile already overrides rule -> stop propagation
         return changes;
       }
-      change = new ActiveRuleChange(ActiveRuleChange.Type.UPDATED, activeRuleKey);
+      change = new ActiveRuleChange(ActiveRuleChange.Type.UPDATED, activeRuleKey, rule);
       if (context.isCascading() && activeRule.get().getInheritance() == null) {
         // activate on child, then on parent -> mark child as overriding parent
         change.setInheritance(ActiveRule.Inheritance.OVERRIDES);
@@ -333,7 +333,7 @@ public class RuleActivator {
 
     ActiveRuleChange change;
     checkRequest(force || context.isCascading() || activeRule.get().getInheritance() == null, "Cannot deactivate inherited rule '%s'", context.getRule().get().getKey());
-    change = new ActiveRuleChange(ActiveRuleChange.Type.DEACTIVATED, activeRule.get());
+    change = new ActiveRuleChange(ActiveRuleChange.Type.DEACTIVATED, activeRule.get(), context.getRule().get());
     changes.add(change);
     persist(change, context, dbSession);
 

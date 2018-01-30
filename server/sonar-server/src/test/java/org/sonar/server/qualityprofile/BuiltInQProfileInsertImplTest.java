@@ -24,9 +24,7 @@ import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.rule.Severity;
-import org.sonar.api.rules.RulePriority;
 import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition;
 import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition.NewBuiltInQualityProfile;
 import org.sonar.api.utils.System2;
@@ -189,7 +187,7 @@ public class BuiltInQProfileInsertImplTest {
 
     QProfileChangeQuery changeQuery = new QProfileChangeQuery(profile.getKee());
     QProfileChangeDto change = db.getDbClient().qProfileChangeDao().selectByQuery(dbSession, changeQuery).stream()
-      .filter(c -> c.getDataAsMap().get("ruleKey").equals(rule.getKey().toString()))
+      .filter(c -> c.getDataAsMap().get("ruleId").equals(String.valueOf(rule.getId())))
       .findFirst()
       .get();
     assertThat(change.getChangeType()).isEqualTo(ActiveRuleChange.Type.ACTIVATED.name());
@@ -198,10 +196,6 @@ public class BuiltInQProfileInsertImplTest {
     assertThat(change.getLogin()).isNull();
     assertThat(change.getRulesProfileUuid()).isEqualTo(profile.getRulesProfileUuid());
     assertThat(change.getDataAsMap().get("severity")).isEqualTo(expectedSeverity);
-  }
-
-  private static void activeRule(RulesProfile apiProfile, RuleDefinitionDto rule, RulePriority severity) {
-    apiProfile.activateRule(org.sonar.api.rules.Rule.create(rule.getRepositoryKey(), rule.getRuleKey()), severity);
   }
 
   private QProfileDto verifyProfileInDb(OrganizationDto organization, BuiltInQProfile builtIn) {
