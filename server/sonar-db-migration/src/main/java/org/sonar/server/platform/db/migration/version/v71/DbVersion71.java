@@ -30,6 +30,8 @@ public class DbVersion71 implements DbVersion {
       .add(2000, "Delete settings defined in sonar.properties from PROPERTIES table", DeleteSettingsDefinedInSonarDotProperties.class)
       .add(2001, "Add scope to rules", AddRuleScope.class)
       .add(2002, "Set rules scope to MAIN", SetRuleScopeToMain.class)
-      .add(2003, "Make scope not nullable in rules", MakeScopeNotNullableInRules.class);
+      .add(2003, "Make scope not nullable in rules", MakeScopeNotNullableInRules.class)
+      .add(2004, "Use rule id in QPROFILE_CHANGES", UseRuleIdInQPChangesData.class)
+    ;
   }
 }
