@@ -19,6 +19,8 @@
  */
 package org.sonar.server.issue.ws;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
 import java.time.Clock;
 import org.junit.Before;
 import org.junit.Rule;
@@ -627,11 +629,16 @@ public class SearchActionTest {
     session.commit();
     indexIssues();
 
-    ws.newRequest()
+    TestResponse response = ws.newRequest()
       .setParam("sort", IssueQuery.SORT_BY_UPDATE_DATE)
       .setParam("asc", "false")
-      .execute()
-      .assertJson(this.getClass(), "sort_by_updated_at.json");
+      .execute();
+
+    JsonElement parse = new JsonParser().parse(response.getInput());
+
+    assertThat(parse.getAsJsonObject().get("issues").getAsJsonArray())
+      .extracting(o -> o.getAsJsonObject().get("key").getAsString())
+      .containsExactly("82fd47d4-b650-4037-80bc-7b112bd4eac3", "82fd47d4-b650-4037-80bc-7b112bd4eac1", "82fd47d4-b650-4037-80bc-7b112bd4eac2");
   }
 
   @Test
