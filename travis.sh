@@ -169,7 +169,7 @@ BUILD)
         -Dsonar.analysis.pipeline=$TRAVIS_BUILD_NUMBER \
         -Dsonar.analysis.sha1=$TRAVIS_COMMIT \
         -Dsonar.analysis.repository=$TRAVIS_REPO_SLUG
-
+  
   elif [ "$TRAVIS_PULL_REQUEST" != "false" ] && [ -n "${GITHUB_TOKEN:-}" ]; then
     echo 'Build and analyze internal pull request'
 
@@ -190,6 +190,14 @@ BUILD)
         -Dsonar.analysis.repository=$TRAVIS_REPO_SLUG \
         -Dsonar.pullrequest.github.id=$TRAVIS_PULL_REQUEST \
         -Dsonar.pullrequest.github.repository=$TRAVIS_REPO_SLUG
+
+  elif [[ "$TRAVIS_BRANCH" == "dogfood-on-next" ]] && [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
+    echo 'Build dogfood branch'
+
+    mvn org.jacoco:jacoco-maven-plugin:prepare-agent deploy \
+        $MAVEN_ARGS \
+        -Pdeploy-sonarsource,release
+        
   else
     echo 'Build feature branch or external pull request'
 

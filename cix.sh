@@ -17,6 +17,9 @@ case "$RUN_ACTIVITY" in
     if [[ "$GITHUB_BRANCH" == "PULLREQUEST-"* ]] && [[ "$DB_ENGINE" != "postgresql93" ]]; then
       # execute PR QA only on postgres
       exit 0
+    elif [[ "$GITHUB_BRANCH" == "dogfood-on-next" ]] && [[ "$DB_ENGINE" != "postgresql93" ]]; then   
+      # execute dogfood QA only on postgres
+      exit 0
     else
       mvn clean package -B -e -V -f tests/plugins/pom.xml
 
