@@ -108,7 +108,7 @@ public class BuiltInQProfileInsertImplTest {
     newQp.activateRule(rule2.getRepositoryKey(), rule2.getRuleKey()).overrideSeverity(Severity.MAJOR);
     newQp.done();
 
-    BuiltInQProfile builtIn = builtInQProfileRepository.create(context.profile("xoo", "the name"));
+    BuiltInQProfile builtIn = builtInQProfileRepository.create(context.profile("xoo", "the name"), rule1, rule2);
     call(builtIn);
 
     verifyTableSize("rules_profiles", 1);

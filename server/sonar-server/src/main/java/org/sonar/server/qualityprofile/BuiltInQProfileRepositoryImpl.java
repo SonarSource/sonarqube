@@ -21,6 +21,7 @@ package org.sonar.server.qualityprofile;
 
 import com.google.common.collect.ImmutableList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,12 +30,16 @@ import java.util.Set;
 import javax.annotation.Nullable;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Languages;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition;
 import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition.BuiltInQualityProfile;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
 import org.sonar.core.util.stream.MoreCollectors;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.db.rule.RuleDefinitionDto;
 
 import static com.google.common.base.Preconditions.checkState;
 
@@ -42,6 +47,7 @@ public class BuiltInQProfileRepositoryImpl implements BuiltInQProfileRepository 
   private static final Logger LOGGER = Loggers.get(BuiltInQProfileRepositoryImpl.class);
   private static final String DEFAULT_PROFILE_NAME = "Sonar way";
 
+  private final DbClient dbClient;
   private final Languages languages;
   private final List<BuiltInQualityProfilesDefinition> definitions;
   private List<BuiltInQProfile> qProfiles;
@@ -49,11 +55,12 @@ public class BuiltInQProfileRepositoryImpl implements BuiltInQProfileRepository 
   /**
    * Requires for pico container when no {@link BuiltInQualityProfilesDefinition} is defined at all
    */
-  public BuiltInQProfileRepositoryImpl(Languages languages) {
-    this(languages, new BuiltInQualityProfilesDefinition[0]);
+  public BuiltInQProfileRepositoryImpl(DbClient dbClient, Languages languages) {
+    this(dbClient, languages, new BuiltInQualityProfilesDefinition[0]);
   }
 
-  public BuiltInQProfileRepositoryImpl(Languages languages, BuiltInQualityProfilesDefinition... definitions) {
+  public BuiltInQProfileRepositoryImpl(DbClient dbClient, Languages languages, BuiltInQualityProfilesDefinition... definitions) {
+    this.dbClient = dbClient;
     this.languages = languages;
     this.definitions = ImmutableList.copyOf(definitions);
   }
@@ -98,18 +105,29 @@ public class BuiltInQProfileRepositoryImpl implements BuiltInQProfileRepository 
     return profilesByLanguageAndName;
   }
 
-  private static List<BuiltInQProfile> toFlatList(Map<String, Map<String, BuiltInQualityProfile>> rulesProfilesByLanguage) {
-    Map<String, List<BuiltInQProfile.Builder>> buildersByLanguage = rulesProfilesByLanguage
-      .entrySet()
-      .stream()
-      .collect(MoreCollectors.uniqueIndex(Map.Entry::getKey, BuiltInQProfileRepositoryImpl::toQualityProfileBuilders));
-    return buildersByLanguage
-      .entrySet()
-      .stream()
-      .filter(BuiltInQProfileRepositoryImpl::ensureAtMostOneDeclaredDefault)
-      .map(entry -> toQualityProfiles(entry.getValue()))
-      .flatMap(Collection::stream)
-      .collect(MoreCollectors.toList());
+  private List<BuiltInQProfile> toFlatList(Map<String, Map<String, BuiltInQualityProfile>> rulesProfilesByLanguage) {
+    if (rulesProfilesByLanguage.isEmpty()) {
+      return Collections.emptyList();
+    }
+
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      Map<RuleKey, RuleDefinitionDto> rulesByRuleKey = dbClient.ruleDao().selectAllDefinitions(dbSession)
+        .stream()
+        .collect(MoreCollectors.uniqueIndex(RuleDefinitionDto::getKey));
+      Map<String, List<BuiltInQProfile.Builder>> buildersByLanguage = rulesProfilesByLanguage
+        .entrySet()
+        .stream()
+        .collect(MoreCollectors.uniqueIndex(
+          Map.Entry::getKey,
+          rulesProfilesByLanguageAndName -> toQualityProfileBuilders(rulesProfilesByLanguageAndName, rulesByRuleKey)));
+      return buildersByLanguage
+        .entrySet()
+        .stream()
+        .filter(BuiltInQProfileRepositoryImpl::ensureAtMostOneDeclaredDefault)
+        .map(entry -> toQualityProfiles(entry.getValue()))
+        .flatMap(Collection::stream)
+        .collect(MoreCollectors.toList());
+    }
   }
 
   /**
@@ -124,14 +142,15 @@ public class BuiltInQProfileRepositoryImpl implements BuiltInQProfileRepository 
    *       RulesProfile with a given name</li>
    * </ul>
    */
-  private static List<BuiltInQProfile.Builder> toQualityProfileBuilders(Map.Entry<String, Map<String, BuiltInQualityProfile>> rulesProfilesByLanguageAndName) {
+  private static List<BuiltInQProfile.Builder> toQualityProfileBuilders(Map.Entry<String, Map<String, BuiltInQualityProfile>> rulesProfilesByLanguageAndName,
+    Map<RuleKey, RuleDefinitionDto> rulesByRuleKey) {
     String language = rulesProfilesByLanguageAndName.getKey();
     // use a LinkedHashMap to keep order of insertion of RulesProfiles
     Map<String, BuiltInQProfile.Builder> qualityProfileBuildersByName = new LinkedHashMap<>();
     for (BuiltInQualityProfile builtInProfile : rulesProfilesByLanguageAndName.getValue().values()) {
       qualityProfileBuildersByName.compute(
         builtInProfile.name(),
-        (name, existingBuilder) -> updateOrCreateBuilder(language, existingBuilder, builtInProfile));
+        (name, existingBuilder) -> updateOrCreateBuilder(language, existingBuilder, builtInProfile, rulesByRuleKey));
     }
     return ImmutableList.copyOf(qualityProfileBuildersByName.values());
   }
@@ -148,16 +167,26 @@ public class BuiltInQProfileRepositoryImpl implements BuiltInQProfileRepository 
     return true;
   }
 
-  private static BuiltInQProfile.Builder updateOrCreateBuilder(String language, @Nullable BuiltInQProfile.Builder existingBuilder, BuiltInQualityProfile builtInProfile) {
-    BuiltInQProfile.Builder builder = existingBuilder;
-    if (builder == null) {
-      builder = new BuiltInQProfile.Builder()
+  private static BuiltInQProfile.Builder updateOrCreateBuilder(String language, @Nullable BuiltInQProfile.Builder existingBuilder, BuiltInQualityProfile builtInProfile,
+    Map<RuleKey, RuleDefinitionDto> rulesByRuleKey) {
+    BuiltInQProfile.Builder builder = createOrReuseBuilder(existingBuilder, language, builtInProfile);
+    builder.setDeclaredDefault(builtInProfile.isDefault());
+    builtInProfile.rules().forEach(builtInActiveRule -> {
+      RuleKey ruleKey = RuleKey.of(builtInActiveRule.repoKey(), builtInActiveRule.ruleKey());
+      RuleDefinitionDto ruleDefinition = rulesByRuleKey.get(ruleKey);
+      checkState(ruleDefinition != null, "Rule with key '%s' not found", ruleKey);
+      builder.addRule(builtInActiveRule, ruleDefinition.getId());
+    });
+    return builder;
+  }
+
+  private static BuiltInQProfile.Builder createOrReuseBuilder(@Nullable BuiltInQProfile.Builder existingBuilder, String language, BuiltInQualityProfile builtInProfile) {
+    if (existingBuilder == null) {
+      return new BuiltInQProfile.Builder()
         .setLanguage(language)
         .setName(builtInProfile.name());
     }
-    return builder
-      .setDeclaredDefault(builtInProfile.isDefault())
-      .addRules(builtInProfile.rules());
+    return existingBuilder;
   }
 
   private static List<BuiltInQProfile> toQualityProfiles(List<BuiltInQProfile.Builder> builders) {

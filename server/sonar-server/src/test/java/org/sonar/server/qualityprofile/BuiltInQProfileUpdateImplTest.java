@@ -87,7 +87,7 @@ public class BuiltInQProfileUpdateImplTest {
     newQp.activateRule(rule1.getRepositoryKey(), rule1.getRuleKey()).overrideSeverity(Severity.CRITICAL);
     newQp.activateRule(rule2.getRepositoryKey(), rule2.getRuleKey()).overrideSeverity(Severity.MAJOR);
     newQp.done();
-    BuiltInQProfile builtIn = builtInProfileRepository.create(context.profile("xoo", "Sonar way"));
+    BuiltInQProfile builtIn = builtInProfileRepository.create(context.profile("xoo", "Sonar way"), rule1, rule2);
 
     underTest.update(db.getSession(), builtIn, persistedProfile);
 
@@ -105,7 +105,7 @@ public class BuiltInQProfileUpdateImplTest {
     NewBuiltInQualityProfile newQp = context.createBuiltInQualityProfile("Sonar way", "xoo");
     newQp.activateRule(rule.getRepositoryKey(), rule.getRuleKey()).overrideSeverity(Severity.CRITICAL);
     newQp.done();
-    BuiltInQProfile builtIn = builtInProfileRepository.create(context.profile("xoo", "Sonar way"));
+    BuiltInQProfile builtIn = builtInProfileRepository.create(context.profile("xoo", "Sonar way"), rule);
 
     activateRuleInDb(persistedProfile, rule, BLOCKER);
 
@@ -124,7 +124,7 @@ public class BuiltInQProfileUpdateImplTest {
     NewBuiltInQualityProfile newQp = context.createBuiltInQualityProfile("Sonar way", "xoo");
     newQp.activateRule(rule.getRepositoryKey(), rule.getRuleKey()).overrideSeverity(Severity.CRITICAL);
     newQp.done();
-    BuiltInQProfile builtIn = builtInProfileRepository.create(context.profile("xoo", "Sonar way"));
+    BuiltInQProfile builtIn = builtInProfileRepository.create(context.profile("xoo", "Sonar way"), rule);
 
     activateRuleInDb(persistedProfile, rule, CRITICAL);
 
@@ -144,7 +144,7 @@ public class BuiltInQProfileUpdateImplTest {
     NewBuiltInQualityProfile newQp = context.createBuiltInQualityProfile("Sonar way", "xoo");
     newQp.activateRule(rule2.getRepositoryKey(), rule2.getRuleKey()).overrideSeverity(Severity.MAJOR);
     newQp.done();
-    BuiltInQProfile builtIn = builtInProfileRepository.create(context.profile("xoo", "Sonar way"));
+    BuiltInQProfile builtIn = builtInProfileRepository.create(context.profile("xoo", "Sonar way"), rule1, rule2);
 
     // built-in definition contains only rule2
     // so rule1 must be deactivated
@@ -169,7 +169,7 @@ public class BuiltInQProfileUpdateImplTest {
     newQp.activateRule(rule1.getRepositoryKey(), rule1.getRuleKey()).overrideSeverity(Severity.CRITICAL);
     newQp.activateRule(rule2.getRepositoryKey(), rule2.getRuleKey()).overrideSeverity(Severity.MAJOR);
     newQp.done();
-    BuiltInQProfile builtIn = builtInProfileRepository.create(context.profile("xoo", "Sonar way"));
+    BuiltInQProfile builtIn = builtInProfileRepository.create(context.profile("xoo", "Sonar way"), rule1, rule2);
 
     // rule1 must be updated (blocker to critical)
     // rule2 must be activated
