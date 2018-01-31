@@ -1,0 +1,12 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<tr>
+  <td>
+    my webhook
+  </td>
+  <td>
+    http://webhook.target
+  </td>
+</tr>
+`;

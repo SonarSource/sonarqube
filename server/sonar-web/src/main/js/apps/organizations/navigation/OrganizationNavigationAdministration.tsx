@@ -93,6 +93,11 @@ export default function OrganizationNavigationAdministration({ location, organiz
               </Link>
             </li>
             <li>
+              <Link to={`/organizations/${organization.key}/webhooks`} activeClassName="active">
+                {translate('webhooks.page')}
+              </Link>
+            </li>
+            <li>
               <Link to={`/organizations/${organization.key}/edit`} activeClassName="active">
                 {translate('edit')}
               </Link>

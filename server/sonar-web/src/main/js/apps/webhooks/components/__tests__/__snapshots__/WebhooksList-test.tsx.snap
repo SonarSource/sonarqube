@@ -1,0 +1,46 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should correctly render empty webhook list 1`] = `
+<p>
+  webhooks.no_result
+</p>
+`;
+
+exports[`should correctly render the webhooks 1`] = `
+<table
+  className="data zebra"
+>
+  <thead>
+    <tr>
+      <th>
+        name
+      </th>
+      <th>
+        webhooks.url
+      </th>
+    </tr>
+  </thead>
+  <tbody>
+    <WebhookItem
+      key="1"
+      webhook={
+        Object {
+          "key": "1",
+          "name": "my webhook",
+          "url": "http://webhook.target",
+        }
+      }
+    />
+    <WebhookItem
+      key="2"
+      webhook={
+        Object {
+          "key": "2",
+          "name": "jenkins webhook",
+          "url": "http://jenkins.target",
+        }
+      }
+    />
+  </tbody>
+</table>
+`;

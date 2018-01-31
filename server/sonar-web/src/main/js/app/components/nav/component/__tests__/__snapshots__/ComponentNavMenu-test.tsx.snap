@@ -151,6 +151,25 @@ exports[`should work for all qualifiers 1`] = `
         </Link>
       </li>
       <li
+        key="webhooks"
+      >
+        <Link
+          activeClassName="active"
+          onlyActiveOnIndex={false}
+          style={Object {}}
+          to={
+            Object {
+              "pathname": "/project/webhooks",
+              "query": Object {
+                "id": "foo",
+              },
+            }
+          }
+        >
+          webhooks.page
+        </Link>
+      </li>
+      <li
         key="project_delete"
       >
         <Link
@@ -1061,6 +1080,25 @@ exports[`should work with extensions 1`] = `
         </Link>
       </li>
       <li
+        key="webhooks"
+      >
+        <Link
+          activeClassName="active"
+          onlyActiveOnIndex={false}
+          style={Object {}}
+          to={
+            Object {
+              "pathname": "/project/webhooks",
+              "query": Object {
+                "id": "foo",
+              },
+            }
+          }
+        >
+          webhooks.page
+        </Link>
+      </li>
+      <li
         key="foo"
       >
         <Link
@@ -1290,6 +1328,25 @@ exports[`should work with multiple extensions 1`] = `
           }
         >
           project_branches.page
+        </Link>
+      </li>
+      <li
+        key="webhooks"
+      >
+        <Link
+          activeClassName="active"
+          onlyActiveOnIndex={false}
+          style={Object {}}
+          to={
+            Object {
+              "pathname": "/project/webhooks",
+              "query": Object {
+                "id": "foo",
+              },
+            }
+          }
+        >
+          webhooks.page
         </Link>
       </li>
       <li
