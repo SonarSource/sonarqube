@@ -22,7 +22,6 @@ package org.sonar.server.qualityprofile.index;
 import com.google.common.collect.Maps;
 import java.util.Map;
 import javax.annotation.Nullable;
-import org.sonar.api.rule.RuleKey;
 import org.sonar.server.es.BaseDoc;
 import org.sonar.server.qualityprofile.ActiveRule;
 
@@ -30,9 +29,7 @@ import static org.apache.commons.lang.StringUtils.containsIgnoreCase;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_ID;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_INHERITANCE;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_PROFILE_UUID;
-import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_REPOSITORY;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_RULE_ID;
-import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_RULE_KEY;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_SEVERITY;
 
 public class ActiveRuleDoc extends BaseDoc {
@@ -59,24 +56,6 @@ public class ActiveRuleDoc extends BaseDoc {
   @Override
   public String getParent() {
     return getRuleIdAsString();
-  }
-
-  RuleKey getRuleKey() {
-    return RuleKey.parse(getRuleKeyAsString());
-  }
-
-  private String getRuleKeyAsString() {
-    return getField(FIELD_ACTIVE_RULE_RULE_KEY);
-  }
-
-  String getRuleRepository() {
-    return getField(FIELD_ACTIVE_RULE_REPOSITORY);
-  }
-
-  ActiveRuleDoc setRuleKey(RuleKey ruleKey) {
-    setField(FIELD_ACTIVE_RULE_RULE_KEY, ruleKey.toString());
-    setField(FIELD_ACTIVE_RULE_REPOSITORY, ruleKey.repository());
-    return this;
   }
 
   private String getRuleIdAsString() {

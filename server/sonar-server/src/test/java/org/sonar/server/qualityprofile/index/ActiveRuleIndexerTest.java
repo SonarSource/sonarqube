@@ -92,7 +92,7 @@ public class ActiveRuleIndexerTest {
 
     List<ActiveRuleDoc> docs = es.getDocuments(INDEX_TYPE_ACTIVE_RULE, ActiveRuleDoc.class);
     assertThat(docs).hasSize(1);
-    verify(docs.get(0), rule1, profile1, activeRule);
+    verify(docs.get(0), profile1, activeRule);
     assertThatEsQueueTableIsEmpty();
   }
 
@@ -202,12 +202,10 @@ public class ActiveRuleIndexerTest {
     }
   }
 
-  private void verify(ActiveRuleDoc doc1, RuleDefinitionDto rule, QProfileDto profile, ActiveRuleDto activeRule) {
+  private void verify(ActiveRuleDoc doc1, QProfileDto profile, ActiveRuleDto activeRule) {
     assertThat(doc1)
-      .matches(doc -> doc.getRuleKey().equals(rule.getKey()))
       .matches(doc -> doc.getId().equals("" + activeRule.getId()))
       .matches(doc -> doc.getRuleProfileUuid().equals(profile.getRulesProfileUuid()))
-      .matches(doc -> doc.getRuleRepository().equals(rule.getRepositoryKey()))
       .matches(doc -> doc.getSeverity().equals(activeRule.getSeverityString()));
   }
 
