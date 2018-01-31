@@ -108,7 +108,6 @@ public class RuleIndexerTest {
 
     RuleExtensionDoc doc = new RuleExtensionDoc()
       .setRuleId(rule.getId())
-      .setRuleKey(rule.getKey())
       .setScope(RuleExtensionScope.organization(organization.getUuid()));
     assertThat(
       esTester.client()
