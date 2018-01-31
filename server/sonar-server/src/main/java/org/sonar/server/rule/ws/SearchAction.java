@@ -51,7 +51,7 @@ import org.sonar.db.rule.RuleParamDto;
 import org.sonar.server.es.Facets;
 import org.sonar.server.es.SearchIdResult;
 import org.sonar.server.es.SearchOptions;
-import org.sonar.server.qualityprofile.ActiveRule;
+import org.sonar.server.qualityprofile.ActiveRuleInheritance;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleIndexDefinition;
 import org.sonar.server.rule.index.RuleQuery;
@@ -271,11 +271,11 @@ public class SearchAction implements RulesWsAction {
       .createParam(PARAM_INHERITANCE)
       .setDescription("Comma-separated list of values of inheritance for a rule within a quality profile. Used only if the parameter '" +
         PARAM_ACTIVATION + "' is set.")
-      .setPossibleValues(ActiveRule.Inheritance.NONE.name(),
-        ActiveRule.Inheritance.INHERITED.name(),
-        ActiveRule.Inheritance.OVERRIDES.name())
-      .setExampleValue(ActiveRule.Inheritance.INHERITED.name() + "," +
-        ActiveRule.Inheritance.OVERRIDES.name());
+      .setPossibleValues(ActiveRuleInheritance.NONE.name(),
+        ActiveRuleInheritance.INHERITED.name(),
+        ActiveRuleInheritance.OVERRIDES.name())
+      .setExampleValue(ActiveRuleInheritance.INHERITED.name() + "," +
+        ActiveRuleInheritance.OVERRIDES.name());
 
     action
       .createParam(PARAM_ACTIVE_SEVERITIES)

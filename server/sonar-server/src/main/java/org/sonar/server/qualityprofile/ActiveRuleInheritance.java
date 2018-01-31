@@ -19,22 +19,6 @@
  */
 package org.sonar.server.qualityprofile;
 
-import org.sonar.db.qualityprofile.ActiveRuleKey;
-
-public interface ActiveRule {
-
-  enum Inheritance {
-    NONE, OVERRIDES, INHERITED
-  }
-
-  long createdAt();
-
-  long updatedAt();
-
-  ActiveRuleKey key();
-
-  String severity();
-
-  Inheritance inheritance();
-
+public enum ActiveRuleInheritance {
+  NONE, OVERRIDES, INHERITED
 }

@@ -68,7 +68,7 @@ import static org.sonar.api.rule.Severity.CRITICAL;
 import static org.sonar.api.rule.Severity.MAJOR;
 import static org.sonar.api.rule.Severity.MINOR;
 import static org.sonar.db.rule.RuleTesting.newCustomRule;
-import static org.sonar.server.qualityprofile.ActiveRule.Inheritance.INHERITED;
+import static org.sonar.server.qualityprofile.ActiveRuleInheritance.INHERITED;
 
 public class QProfileRuleImplTest {
 
@@ -490,7 +490,7 @@ public class QProfileRuleImplTest {
 
     assertThatProfileHasNoActiveRules(parentProfile);
     assertThatRuleIsUpdated(childProfile, rule, MAJOR, null, of(param.getName(), "foo"));
-    assertThatRuleIsUpdated(grandChildProfile, rule, CRITICAL, ActiveRule.Inheritance.OVERRIDES, of(param.getName(), "bar"));
+    assertThatRuleIsUpdated(grandChildProfile, rule, CRITICAL, ActiveRuleInheritance.OVERRIDES, of(param.getName(), "bar"));
     assertThat(changes).hasSize(1);
   }
 
@@ -514,7 +514,7 @@ public class QProfileRuleImplTest {
 
     assertThatProfileHasNoActiveRules(parentProfile);
     assertThatRuleIsUpdated(childProfile, rule, BLOCKER, null, of(param.getName(), "baz"));
-    assertThatRuleIsUpdated(grandChildProfile, rule, CRITICAL, ActiveRule.Inheritance.OVERRIDES, of(param.getName(), "bar"));
+    assertThatRuleIsUpdated(grandChildProfile, rule, CRITICAL, ActiveRuleInheritance.OVERRIDES, of(param.getName(), "bar"));
     assertThat(changes).hasSize(1);
   }
 
@@ -538,7 +538,7 @@ public class QProfileRuleImplTest {
 
     assertThatRuleIsUpdated(parentProfile, rule, rule.getSeverityString(), null, of(param.getName(), param.getDefaultValue()));
     assertThatRuleIsUpdated(childProfile, rule, rule.getSeverityString(), INHERITED, of(param.getName(), param.getDefaultValue()));
-    assertThatRuleIsUpdated(grandChildProfile, rule, CRITICAL, ActiveRule.Inheritance.OVERRIDES, of(param.getName(), "bar"));
+    assertThatRuleIsUpdated(grandChildProfile, rule, CRITICAL, ActiveRuleInheritance.OVERRIDES, of(param.getName(), "bar"));
     assertThat(changes).hasSize(2);
   }
 
@@ -556,7 +556,7 @@ public class QProfileRuleImplTest {
     List<ActiveRuleChange> changes = activate(parentProfile, parentActivation);
 
     assertThatRuleIsUpdated(parentProfile, rule, CRITICAL, null, of(param.getName(), "bar"));
-    assertThatRuleIsUpdated(childProfile, rule, MAJOR, ActiveRule.Inheritance.OVERRIDES, of(param.getName(), "foo"));
+    assertThatRuleIsUpdated(childProfile, rule, MAJOR, ActiveRuleInheritance.OVERRIDES, of(param.getName(), "foo"));
     assertThat(changes).hasSize(2);
   }
 
@@ -644,7 +644,7 @@ public class QProfileRuleImplTest {
 
     RuleActivation childActivation = RuleActivation.create(rule.getId(), BLOCKER, null);
     changes = activate(childProfile, childActivation);
-    assertThatRuleIsUpdated(childProfile, rule, BLOCKER, ActiveRule.Inheritance.OVERRIDES, emptyMap());
+    assertThatRuleIsUpdated(childProfile, rule, BLOCKER, ActiveRuleInheritance.OVERRIDES, emptyMap());
     assertThat(changes).hasSize(1);
 
     RuleActivation resetActivation = RuleActivation.createReset(rule.getId());
@@ -670,7 +670,7 @@ public class QProfileRuleImplTest {
 
     RuleActivation childActivation = RuleActivation.create(rule.getId(), BLOCKER, null);
     changes = activate(childProfile, childActivation);
-    assertThatRuleIsUpdated(childProfile, rule, BLOCKER, ActiveRule.Inheritance.OVERRIDES, emptyMap());
+    assertThatRuleIsUpdated(childProfile, rule, BLOCKER, ActiveRuleInheritance.OVERRIDES, emptyMap());
     assertThatRuleIsUpdated(grandChildProfile, rule, BLOCKER, INHERITED, emptyMap());
     assertThat(changes).hasSize(2);
 
@@ -678,7 +678,7 @@ public class QProfileRuleImplTest {
     RuleActivation resetActivation = RuleActivation.createReset(rule.getId());
     changes = activate(baseProfile, resetActivation);
     assertThatRuleIsUpdated(baseProfile, rule, rule.getSeverityString(), null, emptyMap());
-    assertThatRuleIsUpdated(childProfile, rule, BLOCKER, ActiveRule.Inheritance.OVERRIDES, emptyMap());
+    assertThatRuleIsUpdated(childProfile, rule, BLOCKER, ActiveRuleInheritance.OVERRIDES, emptyMap());
     assertThatRuleIsUpdated(grandChildProfile, rule, BLOCKER, INHERITED, emptyMap());
     assertThat(changes).hasSize(1);
 
@@ -894,7 +894,7 @@ public class QProfileRuleImplTest {
   }
 
   private void assertThatRuleIsActivated(QProfileDto profile, RuleDefinitionDto rule, @Nullable List<ActiveRuleChange> changes,
-    String expectedSeverity, @Nullable ActiveRule.Inheritance expectedInheritance, Map<String, String> expectedParams) {
+                                         String expectedSeverity, @Nullable ActiveRuleInheritance expectedInheritance, Map<String, String> expectedParams) {
     OrgActiveRuleDto activeRule = db.getDbClient().activeRuleDao().selectByProfile(db.getSession(), profile)
       .stream()
       .filter(ar -> ar.getRuleKey().equals(rule.getKey()))
@@ -929,7 +929,7 @@ public class QProfileRuleImplTest {
   }
 
   private void assertThatRuleIsUpdated(QProfileDto profile, RuleDefinitionDto rule,
-    String expectedSeverity, @Nullable ActiveRule.Inheritance expectedInheritance, Map<String, String> expectedParams) {
+                                       String expectedSeverity, @Nullable ActiveRuleInheritance expectedInheritance, Map<String, String> expectedParams) {
     OrgActiveRuleDto activeRule = db.getDbClient().activeRuleDao().selectByProfile(db.getSession(), profile)
       .stream()
       .filter(ar -> ar.getRuleKey().equals(rule.getKey()))

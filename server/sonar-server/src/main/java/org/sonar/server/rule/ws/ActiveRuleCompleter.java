@@ -49,7 +49,7 @@ import org.sonar.db.qualityprofile.OrgActiveRuleDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
-import org.sonar.server.qualityprofile.ActiveRule;
+import org.sonar.server.qualityprofile.ActiveRuleInheritance;
 import org.sonar.server.rule.index.RuleQuery;
 import org.sonarqube.ws.Rules;
 import org.sonarqube.ws.Rules.SearchResponse;
@@ -164,7 +164,7 @@ public class ActiveRuleCompleter {
     Rules.Active.Builder builder = Rules.Active.newBuilder();
     builder.setQProfile(activeRule.getProfileUuid());
     String inheritance = activeRule.getInheritance();
-    builder.setInherit(inheritance != null ? inheritance : ActiveRule.Inheritance.NONE.name());
+    builder.setInherit(inheritance != null ? inheritance : ActiveRuleInheritance.NONE.name());
     builder.setSeverity(activeRule.getSeverityString());
     builder.setCreatedAt(DateUtils.formatDateTime(activeRule.getCreatedAt()));
     Rules.Active.Param.Builder paramBuilder = Rules.Active.Param.newBuilder();

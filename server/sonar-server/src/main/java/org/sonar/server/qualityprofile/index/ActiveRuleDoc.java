@@ -23,7 +23,7 @@ import com.google.common.collect.Maps;
 import java.util.Map;
 import javax.annotation.Nullable;
 import org.sonar.server.es.BaseDoc;
-import org.sonar.server.qualityprofile.ActiveRule;
+import org.sonar.server.qualityprofile.ActiveRuleInheritance;
 
 import static org.apache.commons.lang.StringUtils.containsIgnoreCase;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_ID;
@@ -85,15 +85,15 @@ public class ActiveRuleDoc extends BaseDoc {
     return this;
   }
 
-  ActiveRule.Inheritance getInheritance() {
+  ActiveRuleInheritance getInheritance() {
     String inheritance = getNullableField(FIELD_ACTIVE_RULE_INHERITANCE);
     if (inheritance == null || inheritance.isEmpty() ||
       containsIgnoreCase(inheritance, "none")) {
-      return ActiveRule.Inheritance.NONE;
+      return ActiveRuleInheritance.NONE;
     } else if (containsIgnoreCase(inheritance, "herit")) {
-      return ActiveRule.Inheritance.INHERITED;
+      return ActiveRuleInheritance.INHERITED;
     } else if (containsIgnoreCase(inheritance, "over")) {
-      return ActiveRule.Inheritance.OVERRIDES;
+      return ActiveRuleInheritance.OVERRIDES;
     } else {
       throw new IllegalStateException("Value \"" + inheritance + "\" is not valid for rule's inheritance");
     }
