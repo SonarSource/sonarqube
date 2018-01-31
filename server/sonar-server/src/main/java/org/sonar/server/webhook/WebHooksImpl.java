@@ -57,7 +57,7 @@ public class WebHooksImpl implements WebHooks {
       .isPresent();
   }
 
-  private static Stream<NameUrl> readWebHooksFrom(Configuration config) {
+  public static Stream<NameUrl> readWebHooksFrom(Configuration config) {
     return Stream.concat(
       getWebhookProperties(config, WebhookProperties.GLOBAL_KEY).stream(),
       getWebhookProperties(config, WebhookProperties.PROJECT_KEY).stream())
@@ -110,7 +110,7 @@ public class WebHooksImpl implements WebHooks {
     }
   }
 
-  private static final class NameUrl {
+  public static final class NameUrl {
     private final String name;
     private final String url;
 
