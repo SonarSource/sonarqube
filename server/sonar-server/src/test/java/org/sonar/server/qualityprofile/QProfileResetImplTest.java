@@ -67,10 +67,10 @@ public class QProfileResetImplTest {
   public void reset() {
     QProfileDto profile = db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setLanguage(LANGUAGE));
     RuleDefinitionDto existingRule = db.rules().insert(r -> r.setLanguage(LANGUAGE));
-    qProfileRules.activateAndCommit(db.getSession(), profile, singleton(RuleActivation.create(existingRule.getId(), existingRule.getKey())));
+    qProfileRules.activateAndCommit(db.getSession(), profile, singleton(RuleActivation.create(existingRule.getId())));
     RuleDefinitionDto newRule = db.rules().insert(r -> r.setLanguage(LANGUAGE));
 
-    BulkChangeResult result = underTest.reset(db.getSession(), profile, singletonList(RuleActivation.create(newRule.getId(), newRule.getKey())));
+    BulkChangeResult result = underTest.reset(db.getSession(), profile, singletonList(RuleActivation.create(newRule.getId())));
 
     assertThat(db.getDbClient().activeRuleDao().selectByProfile(db.getSession(), profile))
       .extracting(OrgActiveRuleDto::getRuleKey)
@@ -87,11 +87,11 @@ public class QProfileResetImplTest {
     QProfileDto childProfile = db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setLanguage(LANGUAGE));
     qProfileTree.setParentAndCommit(db.getSession(), childProfile, parentProfile);
     RuleDefinitionDto existingRule = db.rules().insert(r -> r.setLanguage(LANGUAGE));
-    qProfileRules.activateAndCommit(db.getSession(), parentProfile, singleton(RuleActivation.create(existingRule.getId(), existingRule.getKey())));
-    qProfileRules.activateAndCommit(db.getSession(), childProfile, singleton(RuleActivation.create(existingRule.getId(), existingRule.getKey())));
+    qProfileRules.activateAndCommit(db.getSession(), parentProfile, singleton(RuleActivation.create(existingRule.getId())));
+    qProfileRules.activateAndCommit(db.getSession(), childProfile, singleton(RuleActivation.create(existingRule.getId())));
     RuleDefinitionDto newRule = db.rules().insert(r -> r.setLanguage(LANGUAGE));
 
-    underTest.reset(db.getSession(), childProfile, singletonList(RuleActivation.create(newRule.getId(), newRule.getKey())));
+    underTest.reset(db.getSession(), childProfile, singletonList(RuleActivation.create(newRule.getId())));
 
     assertThat(db.getDbClient().activeRuleDao().selectByProfile(db.getSession(), childProfile))
       .extracting(OrgActiveRuleDto::getRuleKey)
@@ -106,7 +106,7 @@ public class QProfileResetImplTest {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage(String.format("Operation forbidden for built-in Quality Profile '%s'", profile.getKee()));
 
-    underTest.reset(db.getSession(), profile, singletonList(RuleActivation.create(defaultRule.getId(), defaultRule.getKey())));
+    underTest.reset(db.getSession(), profile, singletonList(RuleActivation.create(defaultRule.getId())));
   }
 
   @Test
@@ -117,6 +117,6 @@ public class QProfileResetImplTest {
     expectedException.expect(NullPointerException.class);
     expectedException.expectMessage("Quality profile must be persisted");
 
-    underTest.reset(db.getSession(), profile, singletonList(RuleActivation.create(defaultRule.getId(), defaultRule.getKey())));
+    underTest.reset(db.getSession(), profile, singletonList(RuleActivation.create(defaultRule.getId())));
   }
 }

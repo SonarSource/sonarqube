@@ -195,7 +195,7 @@ public class QProfileExporters {
     String severity = activeRule.getSeverity().name();
     Map<String, String> params = activeRule.getActiveRuleParams().stream()
       .collect(MoreCollectors.uniqueIndex(ActiveRuleParam::getKey, ActiveRuleParam::getValue));
-    return RuleActivation.create(ruleDefinition.getId(), ruleKey, severity, params);
+    return RuleActivation.create(ruleDefinition.getId(), severity, params);
   }
 
 }

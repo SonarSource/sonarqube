@@ -85,7 +85,7 @@ public class QProfileTreeImpl implements QProfileTree {
 
     for (ActiveRuleDto parentActiveRule : parentActiveRules) {
       try {
-        RuleActivation activation = RuleActivation.create(parentActiveRule.getRuleId(), parentActiveRule.getRuleKey(), null, null);
+        RuleActivation activation = RuleActivation.create(parentActiveRule.getRuleId(), null, null);
         changes.addAll(ruleActivator.activate(dbSession, activation, context));
       } catch (BadRequestException e) {
         // for example because rule status is REMOVED

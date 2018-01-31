@@ -189,7 +189,7 @@ public class QProfileBackuperImpl implements QProfileBackuper {
         if (ruleDefinition == null) {
           return null;
         }
-        return RuleActivation.create(ruleDefinition.getId(), ruleDefinition.getKey(), r.severity, r.parameters);
+        return RuleActivation.create(ruleDefinition.getId(), r.severity, r.parameters);
       })
       .filter(Objects::nonNull)
       .collect(MoreCollectors.toList(rules.size()));

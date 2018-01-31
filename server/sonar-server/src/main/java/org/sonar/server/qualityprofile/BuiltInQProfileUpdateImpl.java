@@ -82,7 +82,7 @@ public class BuiltInQProfileUpdateImpl implements BuiltInQProfileUpdate {
   private static RuleActivation convert(BuiltInQProfile.ActiveRule ar) {
     Map<String, String> params = ar.getBuiltIn().overriddenParams().stream()
       .collect(MoreCollectors.uniqueIndex(BuiltInQualityProfilesDefinition.OverriddenParam::key, BuiltInQualityProfilesDefinition.OverriddenParam::overriddenValue));
-    return RuleActivation.create(ar.getRuleId(), ar.getRuleKey(), ar.getBuiltIn().overriddenSeverity(), params);
+    return RuleActivation.create(ar.getRuleId(), ar.getBuiltIn().overriddenSeverity(), params);
   }
 
 }
