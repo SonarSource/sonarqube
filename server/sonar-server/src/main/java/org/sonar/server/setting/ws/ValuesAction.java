@@ -86,9 +86,9 @@ public class ValuesAction implements SettingsWsAction {
     WebService.NewAction action = context.createAction("values")
       .setDescription("List settings values.<br>" +
         "If no value has been set for a setting, then the default value is returned.<br>" +
+        "The settings from conf/sonar.properties are excluded from results.<br>" +
         "Requires 'Browse' permission when a component is specified<br/>",
         "To access licensed settings, authentication is required<br/>" +
-          "It's not possible to try to access to settings defined in sonar.properties.<br/>" +
           "To access secured settings, one of the following permissions is required: " +
           "<ul>" +
           "<li>'Execute Analysis'</li>" +
@@ -97,7 +97,7 @@ public class ValuesAction implements SettingsWsAction {
           "</ul>")
       .setResponseExample(getClass().getResource("values-example.json"))
       .setSince("6.3")
-      .setChangelog(new Change("7.1", "Settings from sonar.properties are explicitly forbidden"))
+      .setChangelog(new Change("7.1", "The settings from conf/sonar.properties are excluded from results."))
       .setHandler(this);
     action.createParam(PARAM_KEYS)
       .setDescription("List of setting keys")

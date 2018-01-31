@@ -66,15 +66,9 @@ public class ProcessProperties {
     WEB_JAVA_OPTS("sonar.web.javaOpts", "-Xmx512m -Xms128m -XX:+HeapDumpOnOutOfMemoryError"),
     WEB_JAVA_ADDITIONAL_OPTS("sonar.web.javaAdditionalOpts", ""),
     WEB_PORT("sonar.web.port"),
-    AUTH_JWT_SECRET("sonar.auth.jwtBase64Hs256Secret"),
 
     CE_JAVA_OPTS("sonar.ce.javaOpts", "-Xmx512m -Xms128m -XX:+HeapDumpOnOutOfMemoryError"),
     CE_JAVA_ADDITIONAL_OPTS("sonar.ce.javaAdditionalOpts", ""),
-
-    /**
-     * Used by Orchestrator to ask for shutdown of monitor process
-     */
-    ENABLE_STOP_COMMAND("sonar.enableStopCommand"),
 
     HTTP_PROXY_HOST("http.proxyHost"),
     HTTPS_PROXY_HOST("https.proxyHost"),
@@ -82,6 +76,10 @@ public class ProcessProperties {
     HTTPS_PROXY_PORT("https.proxyPort"),
     HTTP_PROXY_USER("http.proxyUser"),
     HTTP_PROXY_PASSWORD("http.proxyPassword"),
+    HTTP_NON_PROXY_HOSTS("http.nonProxyHosts"),
+    HTTP_AUTH_NLM_DOMAN("http.auth.ntlm.domain"),
+    SOCKS_PROXY_HOST("socksProxyHost"),
+    SOCKS_PROXY_PORT("socksProxyPort"),
 
     CLUSTER_ENABLED("sonar.cluster.enabled", "false"),
     CLUSTER_NODE_TYPE("sonar.cluster.node.type"),
@@ -93,8 +91,24 @@ public class ProcessProperties {
     CLUSTER_NAME("sonar.cluster.name", "sonarqube"),
     CLUSTER_WEB_STARTUP_LEADER("sonar.cluster.web.startupLeader"),
 
+    AUTH_JWT_SECRET("sonar.auth.jwtBase64Hs256Secret"),
+    SONAR_WEB_SSO_ENABLE("sonar.web.sso.enable", "false"),
+    SONAR_WEB_SSO_LOGIN_HEADER("sonar.web.sso.loginHeader", "X-Forwarded-Login"),
+    SONAR_WEB_SSO_NAME_HEADER("sonar.web.sso.nameHeader", "X-Forwarded-Name"),
+    SONAR_WEB_SSO_EMAIL_HEADER("sonar.web.sso.emailHeader", "X-Forwarded-Email"),
+    SONAR_WEB_SSO_GROUPS_HEADER("sonar.web.sso.groupsHeader", "X-Forwarded-Groups"),
+    SONAR_WEB_SSO_REFRESH_INTERVAL_IN_MINUTES("sonar.web.sso.refreshIntervalInMinutes", "5"),
+    SONAR_SECURITY_REALM("sonar.security.realm"),
+    SONAR_AUTHENTICATOR_IGNORE_STARTUP_FAILURE("sonar.authenticator.ignoreStartupFailure", "false"),
+
+    SONAR_UPDATECENTER_ACTIVATE("sonar.updatecenter.activate", "true"),
+
     SONARCLOUD_ENABLED("sonar.sonarcloud.enabled", "false"),
-    SONAR_UPDATECENTER_ACTIVATE("sonar.updatecenter.activate", "true");
+
+    /**
+     * Used by Orchestrator to ask for shutdown of monitor process
+     */
+    ENABLE_STOP_COMMAND("sonar.enableStopCommand");
 
     private final String key;
     private final String defaultValue;

@@ -35,6 +35,8 @@ import static org.sonar.process.ProcessProperties.Property.CE_JAVA_ADDITIONAL_OP
 import static org.sonar.process.ProcessProperties.Property.CE_JAVA_OPTS;
 import static org.sonar.process.ProcessProperties.Property.HTTPS_PROXY_HOST;
 import static org.sonar.process.ProcessProperties.Property.HTTPS_PROXY_PORT;
+import static org.sonar.process.ProcessProperties.Property.HTTP_AUTH_NLM_DOMAN;
+import static org.sonar.process.ProcessProperties.Property.HTTP_NON_PROXY_HOSTS;
 import static org.sonar.process.ProcessProperties.Property.HTTP_PROXY_HOST;
 import static org.sonar.process.ProcessProperties.Property.HTTP_PROXY_PORT;
 import static org.sonar.process.ProcessProperties.Property.JDBC_DRIVER_PATH;
@@ -42,6 +44,8 @@ import static org.sonar.process.ProcessProperties.Property.PATH_HOME;
 import static org.sonar.process.ProcessProperties.Property.PATH_LOGS;
 import static org.sonar.process.ProcessProperties.Property.SEARCH_JAVA_ADDITIONAL_OPTS;
 import static org.sonar.process.ProcessProperties.Property.SEARCH_JAVA_OPTS;
+import static org.sonar.process.ProcessProperties.Property.SOCKS_PROXY_HOST;
+import static org.sonar.process.ProcessProperties.Property.SOCKS_PROXY_PORT;
 import static org.sonar.process.ProcessProperties.Property.WEB_JAVA_ADDITIONAL_OPTS;
 import static org.sonar.process.ProcessProperties.Property.WEB_JAVA_OPTS;
 
@@ -53,12 +57,12 @@ public class CommandFactoryImpl implements CommandFactory {
   private static final String[] PROXY_PROPERTY_KEYS = new String[] {
     HTTP_PROXY_HOST.getKey(),
     HTTP_PROXY_PORT.getKey(),
-    "http.nonProxyHosts",
+    HTTP_NON_PROXY_HOSTS.getKey(),
     HTTPS_PROXY_HOST.getKey(),
     HTTPS_PROXY_PORT.getKey(),
-    "http.auth.ntlm.domain",
-    "socksProxyHost",
-    "socksProxyPort"};
+    HTTP_AUTH_NLM_DOMAN.getKey(),
+    SOCKS_PROXY_HOST.getKey(),
+    SOCKS_PROXY_PORT.getKey()};
 
   private final Props props;
   private final File tempDir;

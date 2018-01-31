@@ -23,6 +23,8 @@ package org.sonar.server.platform.db.migration.version.v71;
 import com.google.common.base.Joiner;
 import java.sql.SQLException;
 import java.util.List;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.Database;
 import org.sonar.server.platform.db.migration.step.DataChange;
@@ -31,7 +33,9 @@ import org.sonar.server.platform.db.migration.step.SqlStatement;
 
 import static java.util.Arrays.asList;
 
-public class DeleteSonarPropertiesSettingsFromDb extends DataChange {
+public class DeleteSettingsDefinedInSonarDotProperties extends DataChange {
+
+  private static final Logger LOG = Loggers.get(DeleteSettingsDefinedInSonarDotProperties.class);
 
   private static final List<String> SONAR_PROPERTIES = asList(
     "sonar.jdbc.url",
@@ -81,19 +85,31 @@ public class DeleteSonarPropertiesSettingsFromDb extends DataChange {
     "sonar.cluster.name",
     "sonar.cluster.web.startupLeader",
     "sonar.sonarcloud.enabled",
-    "sonar.updatecenter.activate");
+    "sonar.updatecenter.activate",
+    "http.nonProxyHosts",
+    "http.auth.ntlm.domain",
+    "socksProxyHost",
+    "socksProxyPort",
+    "sonar.web.sso.enable",
+    "sonar.web.sso.loginHeader",
+    "sonar.web.sso.nameHeader",
+    "sonar.web.sso.emailHeader",
+    "sonar.web.sso.groupsHeader",
+    "sonar.web.sso.refreshIntervalInMinutes",
+    "sonar.security.realm",
+    "sonar.authenticator.ignoreStartupFailure");
 
-  private static final Joiner COMA_JOINER = Joiner.on(",");
+  private static final Joiner COMMA_JOINER = Joiner.on(",");
 
-  public DeleteSonarPropertiesSettingsFromDb(Database db) {
+  public DeleteSettingsDefinedInSonarDotProperties(Database db) {
     super(db);
   }
 
   @Override
   protected void execute(DataChange.Context context) throws SQLException {
     MassUpdate massUpdate = context.prepareMassUpdate();
-    String selectSql = "select id from properties where prop_key in (";
-    selectSql += SONAR_PROPERTIES.stream().map(p -> "?").collect(MoreCollectors.join(COMA_JOINER));
+    String selectSql = "select id, prop_key from properties where prop_key in (";
+    selectSql += SONAR_PROPERTIES.stream().map(p -> "?").collect(MoreCollectors.join(COMMA_JOINER));
     selectSql += ")";
     SqlStatement selectStatement = massUpdate.select(selectSql);
     for (int i = 1; i <= SONAR_PROPERTIES.size(); i++) {
@@ -102,6 +118,7 @@ public class DeleteSonarPropertiesSettingsFromDb extends DataChange {
     massUpdate.update("delete from properties where id=?");
     massUpdate.execute((row, update) -> {
       update.setLong(1, row.getLong(1));
+      LOG.warn("System setting '{}' was defined in database, it has been removed", row.getString(2));
       return true;
     });
   }

@@ -27,6 +27,6 @@ public class DbVersion71 implements DbVersion {
   @Override
   public void addSteps(MigrationStepRegistry registry) {
     registry
-      .add(2000, "Delete settings defined in sonar.properties from PROPERTIES table", DeleteSonarPropertiesSettingsFromDb.class);
+      .add(2000, "Delete settings defined in sonar.properties from PROPERTIES table", DeleteSettingsDefinedInSonarDotProperties.class);
   }
 }

@@ -119,19 +119,9 @@ public class CorePropertyDefinitions {
         .category(CoreProperties.CATEGORY_GENERAL)
         .defaultValue(String.valueOf(false))
         .build(),
-      PropertyDefinition.builder(CoreProperties.CORE_AUTHENTICATOR_REALM)
-        .name("Security Realm")
-        .hidden()
-        .build(),
       PropertyDefinition.builder("sonar.authenticator.downcase")
         .name("Downcase login")
         .description("Downcase login during user authentication, typically for Active Directory")
-        .type(BOOLEAN)
-        .defaultValue(String.valueOf(false))
-        .hidden()
-        .build(),
-      PropertyDefinition.builder(CoreProperties.CORE_AUTHENTICATOR_IGNORE_STARTUP_FAILURE)
-        .name("Ignore failures during authenticator startup")
         .type(BOOLEAN)
         .defaultValue(String.valueOf(false))
         .hidden()

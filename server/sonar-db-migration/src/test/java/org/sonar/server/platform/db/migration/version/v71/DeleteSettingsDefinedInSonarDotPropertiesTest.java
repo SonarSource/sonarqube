@@ -26,6 +26,8 @@ import javax.annotation.Nullable;
 import org.assertj.core.groups.Tuple;
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.api.utils.log.LogTester;
+import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.db.CoreDbTester;
 import org.sonar.server.platform.db.migration.step.DataChange;
 
@@ -37,7 +39,10 @@ public class DeleteSettingsDefinedInSonarDotPropertiesTest {
   @Rule
   public CoreDbTester db = CoreDbTester.createForSchema(DeleteSettingsDefinedInSonarDotPropertiesTest.class, "properties.sql");
 
-  private DataChange underTest = new DeleteSonarPropertiesSettingsFromDb(db.database());
+  @Rule
+  public LogTester logTester = new LogTester();
+
+  private DataChange underTest = new DeleteSettingsDefinedInSonarDotProperties(db.database());
 
   @Test
   public void delete_sonar_dot_properties_settings() throws SQLException {
@@ -49,6 +54,16 @@ public class DeleteSettingsDefinedInSonarDotPropertiesTest {
     underTest.execute();
 
     assertNoSettings();
+  }
+
+  @Test
+  public void log_removed_settings() throws SQLException {
+    insertSetting("sonar.jdbc.url");
+    insertSetting("not.to.be.removed");
+
+    underTest.execute();
+
+    assertThat(logTester.logs(LoggerLevel.WARN)).containsExactlyInAnyOrder("System setting 'sonar.jdbc.url' was defined in database, it has been removed");
   }
 
   @Test

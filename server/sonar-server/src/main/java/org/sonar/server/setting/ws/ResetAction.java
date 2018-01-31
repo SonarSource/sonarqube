@@ -68,14 +68,14 @@ public class ResetAction implements SettingsWsAction {
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction("reset")
       .setDescription("Remove a setting value.<br>" +
-        "It's not possible to try to reset settings defined in sonar.properties.<br/>" +
+        "The settings defined in config/sonar.properties are read-only and can't be changed.<br/>" +
         "Requires one of the following permissions: " +
         "<ul>" +
         "<li>'Administer System'</li>" +
         "<li>'Administer' rights on the specified component</li>" +
         "</ul>")
       .setSince("6.1")
-      .setChangelog(new Change("7.1", "Settings from sonar.properties are explicitly forbidden"))
+      .setChangelog(new Change("7.1", "The settings defined in config/sonar.properties are read-only and can't be changed"))
       .setPost(true)
       .setHandler(this);
 

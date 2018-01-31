@@ -20,7 +20,7 @@
 package org.sonar.api.database;
 
 /**
- * @deprecated since 7.1, this class is no more sued anymore
+ * @deprecated since 7.1, plugins don't connect to database
  */
 @Deprecated
 public interface DatabaseProperties {
