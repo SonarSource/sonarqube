@@ -314,3 +314,18 @@ export interface CustomMeasure {
   value: string;
   updatedAt?: string;
 }
+
+export interface WebhookDelivery {
+  at: string;
+  durationMs: number;
+  httpStatus: number;
+  id: string;
+  success: boolean;
+}
+
+export interface Webhook {
+  key: string;
+  latestDelivery?: WebhookDelivery;
+  name: string;
+  url: string;
+}
