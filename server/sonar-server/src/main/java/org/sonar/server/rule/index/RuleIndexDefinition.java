@@ -75,11 +75,9 @@ public class RuleIndexDefinition implements IndexDefinition {
   public static final IndexType INDEX_TYPE_ACTIVE_RULE = new IndexType(INDEX, "activeRule");
   public static final String FIELD_ACTIVE_RULE_ID = "id";
   public static final String FIELD_ACTIVE_RULE_RULE_ID = "ruleId";
-  public static final String FIELD_ACTIVE_RULE_REPOSITORY = "repo";
   public static final String FIELD_ACTIVE_RULE_INHERITANCE = "inheritance";
   public static final String FIELD_ACTIVE_RULE_PROFILE_UUID = "ruleProfile";
   public static final String FIELD_ACTIVE_RULE_SEVERITY = "severity";
-  public static final String FIELD_ACTIVE_RULE_RULE_KEY = "ruleKey";
 
   private final Configuration config;
   private final boolean enableSource;
@@ -121,8 +119,6 @@ public class RuleIndexDefinition implements IndexDefinition {
 
     activeRuleMapping.keywordFieldBuilder(FIELD_ACTIVE_RULE_ID).disableNorms().build();
     activeRuleMapping.keywordFieldBuilder(FIELD_ACTIVE_RULE_RULE_ID).disableNorms().build();
-    activeRuleMapping.keywordFieldBuilder(FIELD_ACTIVE_RULE_RULE_KEY).addSubFields(SORTABLE_ANALYZER).build();
-    activeRuleMapping.keywordFieldBuilder(FIELD_ACTIVE_RULE_REPOSITORY).build();
     activeRuleMapping.keywordFieldBuilder(FIELD_ACTIVE_RULE_PROFILE_UUID).disableNorms().build();
     activeRuleMapping.keywordFieldBuilder(FIELD_ACTIVE_RULE_INHERITANCE).disableNorms().build();
     activeRuleMapping.keywordFieldBuilder(FIELD_ACTIVE_RULE_SEVERITY).disableNorms().build();
