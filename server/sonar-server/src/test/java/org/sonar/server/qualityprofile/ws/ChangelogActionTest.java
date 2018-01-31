@@ -44,8 +44,8 @@ import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
-import org.sonar.server.qualityprofile.ActiveRule;
 import org.sonar.server.qualityprofile.ActiveRuleChange;
+import org.sonar.server.qualityprofile.ActiveRuleInheritance;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
@@ -291,7 +291,7 @@ public class ChangelogActionTest {
     Map<String, Object> data = ImmutableMap.of(
       "ruleId", valueOf(rule1.getId()),
       "severity", "MINOR",
-      "inheritance", ActiveRule.Inheritance.INHERITED.name(),
+      "inheritance", ActiveRuleInheritance.INHERITED.name(),
       "param_foo", "foo_value",
       "param_bar", "bar_value");
     QProfileChangeDto change = insertChange(profile, ActiveRuleChange.Type.ACTIVATED, "theLogin", data);

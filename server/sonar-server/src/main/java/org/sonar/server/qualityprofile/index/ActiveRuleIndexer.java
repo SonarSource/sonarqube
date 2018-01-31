@@ -46,8 +46,8 @@ import org.sonar.server.es.IndexingListener;
 import org.sonar.server.es.IndexingResult;
 import org.sonar.server.es.OneToOneResilientIndexingListener;
 import org.sonar.server.es.ResilientIndexer;
-import org.sonar.server.qualityprofile.ActiveRule;
 import org.sonar.server.qualityprofile.ActiveRuleChange;
+import org.sonar.server.qualityprofile.ActiveRuleInheritance;
 import org.sonar.server.rule.index.RuleIndexDefinition;
 
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
@@ -212,7 +212,7 @@ public class ActiveRuleIndexer implements ResilientIndexer {
       .setSeverity(SeverityUtil.getSeverityFromOrdinal(dto.getSeverity()));
     // all the fields must be present, even if value is null
     String inheritance = dto.getInheritance();
-    doc.setInheritance(inheritance == null ? ActiveRule.Inheritance.NONE.name() : inheritance);
+    doc.setInheritance(inheritance == null ? ActiveRuleInheritance.NONE.name() : inheritance);
     return new IndexRequest(INDEX_TYPE_ACTIVE_RULE.getIndex(), INDEX_TYPE_ACTIVE_RULE.getType())
       .id(doc.getId())
       .parent(doc.getParent())

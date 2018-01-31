@@ -42,7 +42,7 @@ public class ActiveRuleChange {
   private final ActiveRuleKey key;
   private final int ruleId;
   private String severity = null;
-  private ActiveRule.Inheritance inheritance = null;
+  private ActiveRuleInheritance inheritance = null;
   private final Map<String, String> parameters = new HashMap<>();
 
   public ActiveRuleChange(Type type, ActiveRuleDto activeRule, RuleDefinitionDto ruleDefinition) {
@@ -80,13 +80,13 @@ public class ActiveRuleChange {
     return this;
   }
 
-  public ActiveRuleChange setInheritance(@Nullable ActiveRule.Inheritance i) {
+  public ActiveRuleChange setInheritance(@Nullable ActiveRuleInheritance i) {
     this.inheritance = i;
     return this;
   }
 
   @CheckForNull
-  public ActiveRule.Inheritance getInheritance() {
+  public ActiveRuleInheritance getInheritance() {
     return inheritance;
   }
 

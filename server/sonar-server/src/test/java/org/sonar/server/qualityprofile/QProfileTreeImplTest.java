@@ -50,7 +50,7 @@ import static java.util.Collections.emptyMap;
 import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.rule.Severity.BLOCKER;
-import static org.sonar.server.qualityprofile.ActiveRule.Inheritance.INHERITED;
+import static org.sonar.server.qualityprofile.ActiveRuleInheritance.INHERITED;
 
 public class QProfileTreeImplTest {
 
@@ -167,7 +167,7 @@ public class QProfileTreeImplTest {
     RuleActivation activation = RuleActivation.create(rule1.getId(), BLOCKER, null);
     changes = activate(profile2, activation);
     assertThat(changes).hasSize(1);
-    assertThatRuleIsUpdated(profile2, rule1, BLOCKER, ActiveRule.Inheritance.OVERRIDES, emptyMap());
+    assertThatRuleIsUpdated(profile2, rule1, BLOCKER, ActiveRuleInheritance.OVERRIDES, emptyMap());
     assertThatRuleIsActivated(profile2, rule2, null, rule2.getSeverityString(), null, emptyMap());
 
     changes = underTest.removeParentAndCommit(db.getSession(), profile2);
@@ -211,7 +211,7 @@ public class QProfileTreeImplTest {
   }
 
   private void assertThatRuleIsActivated(QProfileDto profile, RuleDefinitionDto rule, @Nullable List<ActiveRuleChange> changes,
-    String expectedSeverity, @Nullable ActiveRule.Inheritance expectedInheritance, Map<String, String> expectedParams) {
+                                         String expectedSeverity, @Nullable ActiveRuleInheritance expectedInheritance, Map<String, String> expectedParams) {
     OrgActiveRuleDto activeRule = db.getDbClient().activeRuleDao().selectByProfile(db.getSession(), profile)
       .stream()
       .filter(ar -> ar.getRuleKey().equals(rule.getKey()))
@@ -246,7 +246,7 @@ public class QProfileTreeImplTest {
   }
 
   private void assertThatRuleIsUpdated(QProfileDto profile, RuleDefinitionDto rule,
-    String expectedSeverity, @Nullable ActiveRule.Inheritance expectedInheritance, Map<String, String> expectedParams) {
+                                       String expectedSeverity, @Nullable ActiveRuleInheritance expectedInheritance, Map<String, String> expectedParams) {
     OrgActiveRuleDto activeRule = db.getDbClient().activeRuleDao().selectByProfile(db.getSession(), profile)
       .stream()
       .filter(ar -> ar.getRuleKey().equals(rule.getKey()))

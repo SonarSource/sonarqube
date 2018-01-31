@@ -35,7 +35,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.RulesProfileDto;
 
 import static java.lang.String.format;
-import static org.sonar.server.qualityprofile.ActiveRule.Inheritance.NONE;
+import static org.sonar.server.qualityprofile.ActiveRuleInheritance.NONE;
 
 /**
  * Synchronize Quality profiles during server startup
