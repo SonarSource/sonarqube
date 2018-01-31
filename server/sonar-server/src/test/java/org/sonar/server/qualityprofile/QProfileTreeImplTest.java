@@ -110,11 +110,11 @@ public class QProfileTreeImplTest {
     RuleDefinitionDto rule2 = db.rules().insert(r -> r.setLanguage("bar"));
 
     QProfileDto parentProfile = createProfile(rule1);
-    List<ActiveRuleChange> changes = activate(parentProfile, RuleActivation.create(rule1.getId(), rule1.getKey()));
+    List<ActiveRuleChange> changes = activate(parentProfile, RuleActivation.create(rule1.getId()));
     assertThat(changes).hasSize(1);
 
     QProfileDto childProfile = createProfile(rule2);
-    changes = activate(childProfile, RuleActivation.create(rule2.getId(), rule2.getKey()));
+    changes = activate(childProfile, RuleActivation.create(rule2.getId()));
     assertThat(changes).hasSize(1);
 
     expectedException.expect(BadRequestException.class);
@@ -129,11 +129,11 @@ public class QProfileTreeImplTest {
     RuleDefinitionDto rule2 = createJavaRule();
 
     QProfileDto profile1 = createProfile(rule1);
-    List<ActiveRuleChange> changes = activate(profile1, RuleActivation.create(rule1.getId(), rule1.getKey()));
+    List<ActiveRuleChange> changes = activate(profile1, RuleActivation.create(rule1.getId()));
     assertThat(changes).hasSize(1);
 
     QProfileDto profile2 = createProfile(rule2);
-    changes = activate(profile2, RuleActivation.create(rule2.getId(), rule2.getKey()));
+    changes = activate(profile2, RuleActivation.create(rule2.getId()));
     assertThat(changes).hasSize(1);
 
     changes = underTest.setParentAndCommit(db.getSession(), profile2, profile1);
@@ -152,11 +152,11 @@ public class QProfileTreeImplTest {
     RuleDefinitionDto rule1 = createJavaRule();
     RuleDefinitionDto rule2 = createJavaRule();
     QProfileDto profile1 = createProfile(rule1);
-    List<ActiveRuleChange> changes = activate(profile1, RuleActivation.create(rule1.getId(), rule1.getKey()));
+    List<ActiveRuleChange> changes = activate(profile1, RuleActivation.create(rule1.getId()));
     assertThat(changes).hasSize(1);
 
     QProfileDto profile2 = createProfile(rule2);
-    changes = activate(profile2, RuleActivation.create(rule2.getId(), rule2.getKey()));
+    changes = activate(profile2, RuleActivation.create(rule2.getId()));
     assertThat(changes).hasSize(1);
 
     changes = underTest.setParentAndCommit(db.getSession(), profile2, profile1);
@@ -164,7 +164,7 @@ public class QProfileTreeImplTest {
     assertThatRuleIsActivated(profile2, rule1, changes, rule1.getSeverityString(), INHERITED, emptyMap());
     assertThatRuleIsActivated(profile2, rule2, null, rule2.getSeverityString(), null, emptyMap());
 
-    RuleActivation activation = RuleActivation.create(rule1.getId(), rule1.getKey(), BLOCKER, null);
+    RuleActivation activation = RuleActivation.create(rule1.getId(), BLOCKER, null);
     changes = activate(profile2, activation);
     assertThat(changes).hasSize(1);
     assertThatRuleIsUpdated(profile2, rule1, BLOCKER, ActiveRule.Inheritance.OVERRIDES, emptyMap());
@@ -182,8 +182,8 @@ public class QProfileTreeImplTest {
     RuleDefinitionDto rule1 = createJavaRule();
     RuleDefinitionDto rule2 = createJavaRule();
     QProfileDto parentProfile = createProfile(rule1);
-    activate(parentProfile, RuleActivation.create(rule1.getId(), rule1.getKey()));
-    activate(parentProfile, RuleActivation.create(rule2.getId(), rule2.getKey()));
+    activate(parentProfile, RuleActivation.create(rule1.getId()));
+    activate(parentProfile, RuleActivation.create(rule2.getId()));
 
     rule1.setStatus(RuleStatus.REMOVED);
     db.rules().update(rule1);

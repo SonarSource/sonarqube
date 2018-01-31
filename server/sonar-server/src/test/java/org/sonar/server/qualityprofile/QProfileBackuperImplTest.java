@@ -156,7 +156,7 @@ public class QProfileBackuperImplTest {
 
   @Test
   public void restore_resets_the_activated_rules() {
-    db.rules().insert(RuleKey.of("sonarjs", "s001"));
+    Integer ruleId = db.rules().insert(RuleKey.of("sonarjs", "s001")).getId();
     OrganizationDto organization = db.organizations().insert();
     Reader backup = new StringReader("<?xml version='1.0' encoding='UTF-8'?>" +
       "<profile><name>foo</name>" +
@@ -178,7 +178,7 @@ public class QProfileBackuperImplTest {
     assertThat(reset.calledActivations).hasSize(1);
     RuleActivation activation = reset.calledActivations.get(0);
     assertThat(activation.getSeverity()).isEqualTo("BLOCKER");
-    assertThat(activation.getRuleKey()).isEqualTo(RuleKey.of("sonarjs", "s001"));
+    assertThat(activation.getRuleId()).isEqualTo(ruleId);
     assertThat(activation.getParameter("bar")).isEqualTo("baz");
   }
 
