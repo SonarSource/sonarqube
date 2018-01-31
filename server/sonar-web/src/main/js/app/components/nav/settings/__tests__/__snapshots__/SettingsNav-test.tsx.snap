@@ -55,6 +55,14 @@ exports[`should work with extensions 1`] = `
             custom_metrics.page
           </IndexLink>
         </li>
+        <li>
+          <IndexLink
+            activeClassName="active"
+            to="/admin/webhooks"
+          >
+            webhooks.page
+          </IndexLink>
+        </li>
         <li
           key="foo"
         >
