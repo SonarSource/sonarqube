@@ -96,7 +96,7 @@ public class RuleActivator {
       change = new ActiveRuleChange(ActiveRuleChange.Type.ACTIVATED, activeRuleKey, rule);
       applySeverityAndParamToChange(activation, context, change);
       if (context.isCascading() || isSameAsParent(change, context)) {
-        change.setInheritance(ActiveRule.Inheritance.INHERITED);
+        change.setInheritance(ActiveRuleInheritance.INHERITED);
       }
     } else {
       // already activated
@@ -107,7 +107,7 @@ public class RuleActivator {
       change = new ActiveRuleChange(ActiveRuleChange.Type.UPDATED, activeRuleKey, rule);
       if (context.isCascading() && activeRule.get().getInheritance() == null) {
         // activate on child, then on parent -> mark child as overriding parent
-        change.setInheritance(ActiveRule.Inheritance.OVERRIDES);
+        change.setInheritance(ActiveRuleInheritance.OVERRIDES);
         change.setSeverity(activeRule.get().getSeverityString());
         for (ActiveRuleParamDto activeParam : activeRule.getParams()) {
           change.setParameter(activeParam.getKey(), activeParam.getValue());
@@ -117,7 +117,7 @@ public class RuleActivator {
         applySeverityAndParamToChange(activation, context, change);
         if (!context.isCascading() && context.getParentActiveRule() != null) {
           // override rule which is already declared on parents
-          change.setInheritance(isSameAsParent(change, context) ? ActiveRule.Inheritance.INHERITED : ActiveRule.Inheritance.OVERRIDES);
+          change.setInheritance(isSameAsParent(change, context) ? ActiveRuleInheritance.INHERITED : ActiveRuleInheritance.OVERRIDES);
         }
       }
       if (isSame(change, activeRule)) {
@@ -263,7 +263,7 @@ public class RuleActivator {
     if (severity != null) {
       activeRule.setSeverity(severity);
     }
-    ActiveRule.Inheritance inheritance = change.getInheritance();
+    ActiveRuleInheritance inheritance = change.getInheritance();
     if (inheritance != null) {
       activeRule.setInheritance(inheritance.name());
     }
@@ -290,7 +290,7 @@ public class RuleActivator {
     if (severity != null) {
       activeRule.get().setSeverity(severity);
     }
-    ActiveRule.Inheritance inheritance = change.getInheritance();
+    ActiveRuleInheritance inheritance = change.getInheritance();
     if (inheritance != null) {
       activeRule.get().setInheritance(inheritance.name());
     }
@@ -427,7 +427,7 @@ public class RuleActivator {
   }
 
   private static boolean isSame(ActiveRuleChange change, ActiveRuleWrapper activeRule) {
-    ActiveRule.Inheritance inheritance = change.getInheritance();
+    ActiveRuleInheritance inheritance = change.getInheritance();
     if (inheritance != null && !inheritance.name().equals(activeRule.get().getInheritance())) {
       return false;
     }
