@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import WebhookItem from './WebhookItem';
-import { Webhook } from '../../../api/webhooks';
+import { Webhook } from '../../../app/types';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {
@@ -36,21 +36,16 @@ export default class WebhooksList extends React.PureComponent<Props> {
     </thead>
   );
 
-  renderNoWebhooks = () => (
-    <tr>
-      <td>{translate('webhooks.no_result')}</td>
-    </tr>
-  );
-
   render() {
     const { webhooks } = this.props;
+    if (webhooks.length < 1) {
+      return <p>{translate('webhooks.no_result')}</p>;
+    }
     return (
       <table className="data zebra">
         {this.renderHeader()}
         <tbody>
-          {webhooks.length > 0
-            ? webhooks.map(webhook => <WebhookItem key={webhook.key} webhook={webhook} />)
-            : this.renderNoWebhooks()}
+          {webhooks.map(webhook => <WebhookItem key={webhook.key} webhook={webhook} />)}
         </tbody>
       </table>
     );

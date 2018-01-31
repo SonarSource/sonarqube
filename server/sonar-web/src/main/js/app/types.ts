@@ -254,3 +254,18 @@ export enum RuleInheritance {
   Inherited = 'INHERITED',
   Overridden = 'OVERRIDES'
 }
+
+export interface WebhookDelivery {
+  at: string;
+  durationMs: number;
+  httpStatus: number;
+  id: string;
+  success: boolean;
+}
+
+export interface Webhook {
+  key: string;
+  latestDelivery?: WebhookDelivery;
+  name: string;
+  url: string;
+}

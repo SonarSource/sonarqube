@@ -21,13 +21,13 @@ import * as React from 'react';
 import { Helmet } from 'react-helmet';
 import PageHeader from './PageHeader';
 import WebhooksList from './WebhooksList';
-import { searchWebhooks, Webhook } from '../../../api/webhooks';
-import { LightComponent, Organization } from '../../../app/types';
+import { searchWebhooks } from '../../../api/webhooks';
+import { LightComponent, Organization, Webhook } from '../../../app/types';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {
-  organization: Organization | undefined;
   component?: LightComponent;
+  organization: Organization | undefined;
 }
 
 interface State {
