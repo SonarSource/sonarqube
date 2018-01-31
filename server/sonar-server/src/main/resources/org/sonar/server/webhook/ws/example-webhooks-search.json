@@ -3,26 +3,12 @@
     {
       "key": "UUID-1",
       "name": "my first webhook",
-      "url": "http://www.my-webhook-listener.com/sonarqube",
-      "latestDelivery": {
-        "id": "d1",
-        "at": "2017-07-14T04:40:00+0200",
-        "success": true,
-        "httpStatus": 200,
-        "durationMs": 10
-      }
+      "url": "http://www.my-webhook-listener.com/sonarqube"
     },
     {
       "key": "UUID-2",
       "name": "my 2nd webhook",
-      "url": "https://www.my-other-webhook-listener.com/fancy-listner",
-      "latestDelivery": {
-        "id": "d2",
-        "at": "2017-07-14T04:40:00+0200",
-        "success": true,
-        "httpStatus": 200,
-        "durationMs": 10
-      }
+      "url": "https://www.my-other-webhook-listener.com/fancy-listner"
     }
   ]
 }

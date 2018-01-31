@@ -145,8 +145,8 @@ public class ValuesAction implements SettingsWsAction {
 
   private Set<String> loadKeys(ValuesRequest valuesRequest) {
     List<String> keys = valuesRequest.getKeys();
-    return keys == null || keys.isEmpty() ? concat(propertyDefinitions.getAll().stream().map(PropertyDefinition::key), SERVER_SETTING_KEYS.stream()).collect(Collectors.toSet())
-      : ImmutableSet.copyOf(keys);
+    return keys == null || keys.isEmpty() ? concat(propertyDefinitions.getAll().stream().map(PropertyDefinition::key),
+      SERVER_SETTING_KEYS.stream()).collect(Collectors.toSet()) : ImmutableSet.copyOf(keys);
   }
 
   private Optional<ComponentDto> loadComponent(DbSession dbSession, ValuesRequest valuesRequest) {
