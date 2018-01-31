@@ -1101,13 +1101,14 @@ public interface RulesDefinition {
      * <p>
      * If you want to rename the key of a rule or change its repository or both, register the rule's previous repository
      * and key (see {@link NewRule#addDeprecatedRuleKey(String, String) addDeprecatedRuleKey}). This will allow
-     * SonarQube to support "issue renaming" for this rule.
+     * SonarQube to support "issue re-keying" for this rule.
      * <p>
-     * If deprecated keys are not declared, existing issues for this rule, created under the rule's previous repository
-     * and/or name, will be closed and new ones will be created under the issue's new repository and/or key.
+     * If the repository and/or key of an existing rule is changed without declaring deprecated keys, existing issues
+     * for this rule, created under the rule's previous repository and/or key, will be closed and new ones will be
+     * created under the issue's new repository and/or key.
      * <p>
-     * Several deprecated keys can be provided to allow SonarQube to support several "issue renaming" across multiple
-     * versions of a plugin.
+     * Several deprecated keys can be provided to allow SonarQube to support several key (and/or repository) changes
+     * across multiple versions of a plugin.
      * <br>
      * Consider the following use case scenario:
      * <ul>
@@ -1134,7 +1135,7 @@ public interface RulesDefinition {
      *   </li>
      * </ul>
      *
-     * With all deprecated keys defined in version 3 of the plugin, SonarQube will be able to support "issue renaming"
+     * With all deprecated keys defined in version 3 of the plugin, SonarQube will be able to support "issue re-keying"
      * for this rule in all cases:
      * <ul>
      *   <li>plugin upgrade from v1 to v2,</li>
@@ -1142,7 +1143,7 @@ public interface RulesDefinition {
      *   <li>AND plugin upgrade from v1 to v3</li>
      * </ul>
      * <p>
-     * Finally, pairs repository/key must be unique across all rules and their deprecated keys.
+     * Finally, repository/key pairs must be unique across all rules and their deprecated keys.
      * <br>
      * This implies that no rule can use the same repository and key as the deprecated key of another rule. This
      * uniqueness applies across plugins.
