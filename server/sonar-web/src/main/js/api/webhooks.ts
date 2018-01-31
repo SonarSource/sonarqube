@@ -19,21 +19,7 @@
  */
 import { getJSON } from '../helpers/request';
 import throwGlobalError from '../app/utils/throwGlobalError';
-
-export interface Delivery {
-  id: string;
-  at: string;
-  success: boolean;
-  httpStatus: number;
-  durationMs: number;
-}
-
-export interface Webhook {
-  key: string;
-  name: string;
-  url: string;
-  latestDelivery?: Delivery;
-}
+import { Webhook } from '../app/types';
 
 export function searchWebhooks(data: {
   organization: string | undefined;
