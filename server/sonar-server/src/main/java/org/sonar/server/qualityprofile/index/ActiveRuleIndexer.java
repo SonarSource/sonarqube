@@ -29,7 +29,6 @@ import javax.annotation.Nullable;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
-import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.DbClient;
@@ -210,8 +209,7 @@ public class ActiveRuleIndexer implements ResilientIndexer {
     ActiveRuleDoc doc = new ActiveRuleDoc(dto.getId())
       .setRuleId(dto.getRuleId())
       .setRuleProfileUuid(dto.getRuleProfileUuid())
-      .setSeverity(SeverityUtil.getSeverityFromOrdinal(dto.getSeverity()))
-      .setRuleKey(RuleKey.of(dto.getRepository(), dto.getKey()));
+      .setSeverity(SeverityUtil.getSeverityFromOrdinal(dto.getSeverity()));
     // all the fields must be present, even if value is null
     String inheritance = dto.getInheritance();
     doc.setInheritance(inheritance == null ? ActiveRule.Inheritance.NONE.name() : inheritance);
