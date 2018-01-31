@@ -1,0 +1,38 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should be in loading status 1`] = `
+<div
+  className="page page-limited"
+>
+  <HelmetWrapper
+    defer={true}
+    encodeSpecialCharacters={true}
+    title="webhooks.page"
+  />
+  <PageHeader
+    loading={true}
+  />
+</div>
+`;
+
+exports[`should fetch webhooks and display them 1`] = `
+<div
+  className="page page-limited"
+>
+  <HelmetWrapper
+    defer={true}
+    encodeSpecialCharacters={true}
+    title="webhooks.page"
+  />
+  <PageHeader
+    loading={false}
+  />
+  <div
+    className="boxed-group boxed-group-inner"
+  >
+    <WebhooksList
+      webhooks={Array []}
+    />
+  </div>
+</div>
+`;
