@@ -23,7 +23,6 @@ import com.google.common.collect.Maps;
 import java.util.Map;
 import java.util.Set;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
-import org.sonar.api.rule.RuleKey;
 import org.sonar.db.rule.RuleExtensionForIndexingDto;
 import org.sonar.db.rule.RuleForIndexingDto;
 import org.sonar.server.es.BaseDoc;
@@ -66,15 +65,6 @@ public class RuleExtensionDoc extends BaseDoc {
     return this;
   }
 
-  public RuleKey getRuleKey() {
-    return RuleKey.parse(getField(RuleIndexDefinition.FIELD_RULE_EXTENSION_RULE_KEY));
-  }
-
-  public RuleExtensionDoc setRuleKey(RuleKey ruleKey) {
-    setField(RuleIndexDefinition.FIELD_RULE_EXTENSION_RULE_KEY, String.valueOf(ruleKey));
-    return this;
-  }
-
   public RuleExtensionScope getScope() {
     return RuleExtensionScope.parse(getField(RuleIndexDefinition.FIELD_RULE_EXTENSION_SCOPE));
   }
@@ -96,7 +86,6 @@ public class RuleExtensionDoc extends BaseDoc {
   public static RuleExtensionDoc of(RuleForIndexingDto rule) {
     return new RuleExtensionDoc()
       .setRuleId(rule.getId())
-      .setRuleKey(rule.getRuleKey())
       .setScope(RuleExtensionScope.system())
       .setTags(rule.getSystemTagsAsSet());
   }
@@ -104,7 +93,6 @@ public class RuleExtensionDoc extends BaseDoc {
   public static RuleExtensionDoc of(RuleExtensionForIndexingDto rule) {
     return new RuleExtensionDoc()
       .setRuleId(rule.getRuleId())
-      .setRuleKey(rule.getRuleKey())
       .setScope(RuleExtensionScope.organization(rule.getOrganizationUuid()))
       .setTags(rule.getTagsAsSet());
   }
