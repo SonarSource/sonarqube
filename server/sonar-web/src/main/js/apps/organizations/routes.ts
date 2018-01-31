@@ -31,6 +31,7 @@ import ProjectManagementApp from '../projectsManagement/AppContainer';
 import codingRulesRoutes from '../coding-rules/routes';
 import qualityGatesRoutes from '../quality-gates/routes';
 import qualityProfilesRoutes from '../quality-profiles/routes';
+import webhooksRoutes from '../webhooks/routes';
 import Issues from '../issues/components/AppContainer';
 import GroupsApp from '../groups/components/App';
 import OrganizationPageExtension from '../../app/components/extensions/OrganizationPageExtension';
@@ -88,7 +89,8 @@ const routes = [
           { path: 'groups', component: GroupsApp },
           { path: 'permissions', component: GlobalPermissionsApp },
           { path: 'permission_templates', component: PermissionTemplateApp },
-          { path: 'projects_management', component: ProjectManagementApp }
+          { path: 'projects_management', component: ProjectManagementApp },
+          { path: 'webhooks', childRoutes: webhooksRoutes }
         ]
       }
     ]

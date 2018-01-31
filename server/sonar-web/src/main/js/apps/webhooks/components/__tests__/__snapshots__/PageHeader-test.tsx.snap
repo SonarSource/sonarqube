@@ -1,0 +1,35 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<header
+  className="page-header"
+>
+  <h1
+    className="page-title"
+  >
+    webhooks.page
+  </h1>
+  <i
+    className="spinner"
+  />
+  <p
+    className="page-description"
+  >
+    <FormattedMessage
+      defaultMessage="webhooks.description"
+      id="webhooks.description"
+      values={
+        Object {
+          "url": <a
+            href="https://redirect.sonarsource.com/doc/webhooks.html"
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            webhooks.documentation_link
+          </a>,
+        }
+      }
+    />
+  </p>
+</header>
+`;
