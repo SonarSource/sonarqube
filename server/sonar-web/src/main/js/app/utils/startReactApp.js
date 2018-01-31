@@ -74,6 +74,7 @@ import settingsRoutes from '../../apps/settings/routes';
 import systemRoutes from '../../apps/system/routes';
 import usersRoutes from '../../apps/users/routes';
 import webAPIRoutes from '../../apps/web-api/routes';
+import webhooksRoutes from '../../apps/webhooks/routes';
 import { maintenanceRoutes, setupRoutes } from '../../apps/maintenance/routes';
 import { globalPermissionsRoutes, projectPermissionsRoutes } from '../../apps/permissions/routes';
 
@@ -212,6 +213,7 @@ const startReactApp = () => {
                       <Route path="project/branches" childRoutes={projectBranchesRoutes} />
                       <Route path="project/settings" childRoutes={settingsRoutes} />
                       <Route path="project_roles" childRoutes={projectPermissionsRoutes} />
+                      <Route path="project/webhooks" childRoutes={webhooksRoutes} />
                     </Route>
                     {projectAdminRoutes}
                   </Route>
@@ -232,6 +234,7 @@ const startReactApp = () => {
                     <Route path="system" childRoutes={systemRoutes} />
                     <Route path="marketplace" childRoutes={marketplaceRoutes} />
                     <Route path="users" childRoutes={usersRoutes} />
+                    <Route path="webhooks" childRoutes={webhooksRoutes} />
                   </Route>
                 </Route>
 

@@ -117,6 +117,11 @@ export default class SettingsNav extends React.PureComponent<Props> {
               {translate('custom_metrics.page')}
             </IndexLink>
           </li>
+          <li>
+            <IndexLink to="/admin/webhooks" activeClassName="active">
+              {translate('webhooks.page')}
+            </IndexLink>
+          </li>
           {extensionsWithoutSupport.map(this.renderExtension)}
         </ul>
       </li>

@@ -243,6 +243,7 @@ export default class ComponentNavMenu extends React.PureComponent<Props> {
       this.renderPermissionsLink(),
       this.renderBackgroundTasksLink(),
       this.renderUpdateKeyLink(),
+      this.renderWebhooksLink(),
       ...this.renderAdminExtensions(),
       this.renderDeletionLink()
     ];
@@ -389,6 +390,21 @@ export default class ComponentNavMenu extends React.PureComponent<Props> {
           to={{ pathname: '/project/key', query: { id: this.props.component.key } }}
           activeClassName="active">
           {translate('update_key.page')}
+        </Link>
+      </li>
+    );
+  }
+
+  renderWebhooksLink() {
+    if (!this.getConfiguration().showSettings || !this.isProject()) {
+      return null;
+    }
+    return (
+      <li key="webhooks">
+        <Link
+          to={{ pathname: '/project/webhooks', query: { id: this.props.component.key } }}
+          activeClassName="active">
+          {translate('webhooks.page')}
         </Link>
       </li>
     );

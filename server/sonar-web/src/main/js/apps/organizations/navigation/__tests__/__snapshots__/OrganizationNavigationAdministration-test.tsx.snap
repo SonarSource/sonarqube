@@ -63,6 +63,16 @@ exports[`renders 1`] = `
         activeClassName="active"
         onlyActiveOnIndex={false}
         style={Object {}}
+        to="/organizations/foo/webhooks"
+      >
+        webhooks.page
+      </Link>
+    </li>
+    <li>
+      <Link
+        activeClassName="active"
+        onlyActiveOnIndex={false}
+        style={Object {}}
         to="/organizations/foo/edit"
       >
         edit
