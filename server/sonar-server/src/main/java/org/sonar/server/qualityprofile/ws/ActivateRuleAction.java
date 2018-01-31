@@ -118,7 +118,7 @@ public class ActivateRuleAction implements QProfileWsAction {
       .orElseThrow(() -> new IllegalArgumentException(format("Rule '%s' not found", ruleKey)));
     boolean reset = Boolean.TRUE.equals(request.paramAsBoolean(PARAM_RESET));
     if (reset) {
-      return RuleActivation.createReset(ruleDefinition.getId(), ruleKey);
+      return RuleActivation.createReset(ruleDefinition.getId());
     }
     String severity = request.param(PARAM_SEVERITY);
     Map<String, String> params = null;
@@ -126,7 +126,7 @@ public class ActivateRuleAction implements QProfileWsAction {
     if (paramsAsString != null) {
       params = KeyValueFormat.parse(paramsAsString);
     }
-    return RuleActivation.create(ruleDefinition.getId(), ruleKey, severity, params);
+    return RuleActivation.create(ruleDefinition.getId(), severity, params);
   }
 
 }

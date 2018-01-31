@@ -25,7 +25,6 @@ import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
-import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 
 /**
@@ -34,15 +33,13 @@ import org.sonar.api.rule.Severity;
 @Immutable
 public class RuleActivation {
 
-  private final RuleKey ruleKey;
   private final int ruleId;
   private final boolean reset;
   private final String severity;
   private final Map<String, String> parameters = new HashMap<>();
 
-  private RuleActivation(int ruleId, RuleKey ruleKey, boolean reset, @Nullable String severity, @Nullable Map<String, String> parameters) {
+  private RuleActivation(int ruleId, boolean reset, @Nullable String severity, @Nullable Map<String, String> parameters) {
     this.ruleId = ruleId;
-    this.ruleKey = ruleKey;
     this.reset = reset;
     this.severity = severity;
     if (severity != null && !Severity.ALL.contains(severity)) {
@@ -55,16 +52,16 @@ public class RuleActivation {
     }
   }
 
-  public static RuleActivation createReset(int ruleId, RuleKey ruleKey) {
-    return new RuleActivation(ruleId, ruleKey, true, null, null);
+  public static RuleActivation createReset(int ruleId) {
+    return new RuleActivation(ruleId, true, null, null);
   }
 
-  public static RuleActivation create(int ruleId, RuleKey ruleKey, @Nullable String severity, @Nullable Map<String, String> parameters) {
-    return new RuleActivation(ruleId, ruleKey, false, severity, parameters);
+  public static RuleActivation create(int ruleId, @Nullable String severity, @Nullable Map<String, String> parameters) {
+    return new RuleActivation(ruleId, false, severity, parameters);
   }
 
-  public static RuleActivation create(int ruleId, RuleKey ruleKey) {
-    return create(ruleId, ruleKey, null, null);
+  public static RuleActivation create(int ruleId) {
+    return create(ruleId, null, null);
   }
 
   /**
@@ -77,10 +74,6 @@ public class RuleActivation {
 
   public int getRuleId() {
     return ruleId;
-  }
-
-  public RuleKey getRuleKey() {
-    return ruleKey;
   }
 
   @CheckForNull

@@ -71,7 +71,7 @@ public class QProfileRulesImpl implements QProfileRules {
   public BulkChangeResult bulkActivateAndCommit(DbSession dbSession, QProfileDto profile, RuleQuery ruleQuery, @Nullable String severity) {
     verifyNotBuiltIn(profile);
     return doBulk(dbSession, profile, ruleQuery, (context, ruleDefinition) -> {
-      RuleActivation activation = RuleActivation.create(ruleDefinition.getId(), ruleDefinition.getKey(), severity, null);
+      RuleActivation activation = RuleActivation.create(ruleDefinition.getId(), severity, null);
       return ruleActivator.activate(dbSession, activation, context);
     });
   }

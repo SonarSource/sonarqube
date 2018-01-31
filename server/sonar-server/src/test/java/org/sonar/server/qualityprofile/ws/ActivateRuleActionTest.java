@@ -161,7 +161,7 @@ public class ActivateRuleActionTest {
     assertThat(activations).hasSize(1);
 
     RuleActivation activation = activations.iterator().next();
-    assertThat(activation.getRuleKey()).isEqualTo(rule.getKey());
+    assertThat(activation.getRuleId()).isEqualTo(rule.getId());
     assertThat(activation.getSeverity()).isEqualTo(Severity.BLOCKER);
     assertThat(activation.isReset()).isFalse();
   }
@@ -171,7 +171,7 @@ public class ActivateRuleActionTest {
     userSession.logIn().addPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES, organization);
     QProfileDto qualityProfile = db.qualityProfiles().insert(organization);
     RuleKey ruleKey = RuleTesting.randomRuleKey();
-    db.rules().insert(ruleKey);
+    Integer ruleId = db.rules().insert(ruleKey).getId();
     TestRequest request = ws.newRequest()
       .setMethod("POST")
       .setParam(PARAM_RULE, ruleKey.toString())
@@ -190,7 +190,7 @@ public class ActivateRuleActionTest {
     Collection<RuleActivation> activations = ruleActivationCaptor.getValue();
     assertThat(activations).hasSize(1);
     RuleActivation activation = activations.iterator().next();
-    assertThat(activation.getRuleKey()).isEqualTo(ruleKey);
+    assertThat(activation.getRuleId()).isEqualTo(ruleId);
     assertThat(activation.getSeverity()).isEqualTo(Severity.BLOCKER);
     assertThat(activation.isReset()).isFalse();
   }

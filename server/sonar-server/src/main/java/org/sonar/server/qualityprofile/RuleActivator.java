@@ -72,7 +72,7 @@ public class RuleActivator {
   }
 
   public List<ActiveRuleChange> activate(DbSession dbSession, RuleActivation activation, RuleActivationContext context) {
-    context.reset(activation.getRuleKey());
+    context.reset(activation.getRuleId());
     return doActivate(dbSession, activation, context);
   }
 
