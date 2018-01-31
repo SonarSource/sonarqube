@@ -460,6 +460,7 @@ export default class App extends React.PureComponent<Props, State> {
                     <SearchBox
                       className="spacer-bottom"
                       id="coding-rules-search"
+                      minLength={2}
                       onChange={this.handleSearch}
                       placeholder={translate('search.search_for_rules')}
                       value={this.state.query.searchQuery || ''}
