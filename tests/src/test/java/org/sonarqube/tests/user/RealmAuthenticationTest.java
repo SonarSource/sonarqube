@@ -343,6 +343,22 @@ public class RealmAuthenticationTest {
       .containsOnly(false, USER_LOGIN, "sonarqube");
   }
 
+  @Test
+  public void fail_to_authenticate_user_when_email_already_exists() {
+    userRule.createUser("another", "Another", "tester@example.org", "another");
+
+    String username = USER_LOGIN;
+    String password = "123";
+    Map<String, String> users = Maps.newHashMap();
+    users.put(username + ".password", password);
+    users.put(username + ".name", "Tester Testerovich");
+    users.put(username + ".email", "tester@example.org");
+    users.put(username + ".groups", "sonar-user");
+    updateUsersInExtAuth(users);
+
+    verifyAuthenticationIsNotOk(username, password);
+  }
+
   private void verifyHttpException(Exception e, int expectedCode) {
     assertThat(e).isInstanceOf(HttpException.class);
     HttpException exception = (HttpException) e;
