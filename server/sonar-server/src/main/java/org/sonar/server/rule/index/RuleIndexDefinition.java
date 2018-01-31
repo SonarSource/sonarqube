@@ -69,7 +69,6 @@ public class RuleIndexDefinition implements IndexDefinition {
   /** The uuid of a {@link RuleExtensionScope} */
   public static final String FIELD_RULE_EXTENSION_SCOPE = "scope";
   public static final String FIELD_RULE_EXTENSION_RULE_ID = "ruleId";
-  public static final String FIELD_RULE_EXTENSION_RULE_KEY = "ruleKey";
   public static final String FIELD_RULE_EXTENSION_TAGS = "tags";
 
   // Active rule fields
@@ -134,7 +133,6 @@ public class RuleIndexDefinition implements IndexDefinition {
     ruleExtensionType.setAttribute("_parent", ImmutableMap.of("type", INDEX_TYPE_RULE.getType()));
 
     ruleExtensionType.keywordFieldBuilder(FIELD_RULE_EXTENSION_SCOPE).disableNorms().build();
-    ruleExtensionType.keywordFieldBuilder(FIELD_RULE_EXTENSION_RULE_KEY).disableNorms().build();
     ruleExtensionType.keywordFieldBuilder(FIELD_RULE_EXTENSION_TAGS).build();
 
     // Rule type
