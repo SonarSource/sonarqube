@@ -8,7 +8,6 @@ exports[`should render 1`] = `
     autofocus={false}
     onSearch={[MockFunction]}
     onSelect={[MockFunction]}
-    resetOnBlur={true}
   />
 </div>
 `;

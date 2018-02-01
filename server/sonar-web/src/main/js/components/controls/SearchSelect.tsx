@@ -22,10 +22,14 @@ import { debounce } from 'lodash';
 import Select from '../../components/controls/Select';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 
-type Option = { label: string; value: string };
+interface Option {
+  label: string;
+  value: string;
+}
 
 interface Props {
   autofocus?: boolean;
+  defaultOptions?: Option[];
   minimumQueryLength?: number;
   onSearch: (query: string) => Promise<Option[]>;
   onSelect: (value: string) => void;
@@ -43,15 +47,10 @@ interface State {
 export default class SearchSelect extends React.PureComponent<Props, State> {
   mounted: boolean;
 
-  static defaultProps = {
-    autofocus: true,
-    resetOnBlur: true
-  };
-
   constructor(props: Props) {
     super(props);
-    this.state = { loading: false, options: [], query: '' };
-    this.search = debounce(this.search, 250);
+    this.state = { loading: false, options: props.defaultOptions || [], query: '' };
+    this.handleSearch = debounce(this.handleSearch, 250);
   }
 
   componentDidMount() {
@@ -62,11 +61,18 @@ export default class SearchSelect extends React.PureComponent<Props, State> {
     this.mounted = false;
   }
 
-  get minimumQueryLength() {
-    return this.props.minimumQueryLength || 2;
+  get autofocus() {
+    return this.props.autofocus !== undefined ? this.props.autofocus : true;
   }
 
-  search = (query: string) => {
+  get minimumQueryLength() {
+    return this.props.minimumQueryLength !== undefined ? this.props.minimumQueryLength : 2;
+  }
+  get resetOnBlur() {
+    return this.props.resetOnBlur !== undefined ? this.props.resetOnBlur : true;
+  }
+
+  handleSearch = (query: string) =>
     this.props.onSearch(query).then(
       options => {
         if (this.mounted) {
@@ -79,20 +85,18 @@ export default class SearchSelect extends React.PureComponent<Props, State> {
         }
       }
     );
-  };
 
-  handleChange = (option: Option) => {
-    this.props.onSelect(option.value);
-  };
+  handleChange = (option: Option) => this.props.onSelect(option.value);
 
   handleInputChange = (query: string) => {
     // `onInputChange` is called with an empty string after a user selects a value
     // in this case we shouldn't reset `options`, because it also resets select value :(
     if (query.length >= this.minimumQueryLength) {
       this.setState({ loading: true, query });
-      this.search(query);
-    } else if (query.length > 0) {
-      this.setState({ options: [], query });
+      this.handleSearch(query);
+    } else {
+      const options = (query.length === 0 && this.props.defaultOptions) || [];
+      this.setState({ options, query });
     }
   };
 
@@ -102,7 +106,7 @@ export default class SearchSelect extends React.PureComponent<Props, State> {
   render() {
     return (
       <Select
-        autofocus={this.props.autofocus}
+        autofocus={this.autofocus}
         className="input-super-large"
         clearable={false}
         filterOption={this.handleFilterOption}
@@ -112,7 +116,7 @@ export default class SearchSelect extends React.PureComponent<Props, State> {
             ? translateWithParameters('select2.tooShort', this.minimumQueryLength)
             : translate('select2.noMatches')
         }
-        onBlurResetsInput={this.props.resetOnBlur}
+        onBlurResetsInput={this.resetOnBlur}
         onChange={this.handleChange}
         onInputChange={this.handleInputChange}
         optionRenderer={this.props.renderOption}
