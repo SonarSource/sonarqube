@@ -37,6 +37,12 @@ const routes = [
     getComponent(_: RouterState, callback: (err: any, component: RouteComponent) => any) {
       import('./components/Unauthorized').then(i => callback(null, i.default));
     }
+  },
+  {
+    path: 'email_already_exists',
+    getComponent(_: RouterState, callback: (err: any, component: RouteComponent) => any) {
+      import('./components/EmailAlreadyExists').then(i => callback(null, i.default));
+    }
   }
 ];
 

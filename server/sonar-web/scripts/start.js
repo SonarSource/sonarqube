@@ -35,7 +35,7 @@ const config = getConfig({ production: false });
 const port = process.env.PORT || 3000;
 const protocol = process.env.HTTPS === 'true' ? 'https' : 'http';
 const host = process.env.HOST || 'localhost';
-const proxy = 'http://localhost:9000';
+const proxy = process.env.PROXY || 'http://localhost:9000';
 
 const compiler = setupCompiler(host, port, protocol);
 

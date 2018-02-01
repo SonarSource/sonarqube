@@ -17,13 +17,32 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
-import SimpleContainer from '../../../app/components/SimpleContainer';
+package org.sonarqube.qa.util.pageobjects;
 
-interface Props {
-  children?: React.ReactNode;
-}
+import static com.codeborne.selenide.Condition.text;
+import static com.codeborne.selenide.Condition.visible;
+import static com.codeborne.selenide.Selenide.$;
 
-export default function SimpleSessionsContainer({ children }: Props) {
-  return <SimpleContainer hideLoggedInInfo={true}>{children}</SimpleContainer>;
+public class EmailAlreadyExistsPage extends Navigation {
+
+  public EmailAlreadyExistsPage shouldHaveExistingAccount(String login) {
+    $(".js-existing-account").shouldHave(text(login));
+    return this;
+  }
+
+  public EmailAlreadyExistsPage shouldHaveNewAccount(String login) {
+    $(".js-new-account").shouldHave(text(login));
+    return this;
+  }
+
+  public void clickContinue() {
+    $(".js-continue").click();
+    $(".js-continue").shouldNotBe(visible);
+  }
+
+  public void clickCancel() {
+    $(".js-cancel").click();
+    $(".js-cancel").shouldNotBe(visible);
+  }
+
 }
