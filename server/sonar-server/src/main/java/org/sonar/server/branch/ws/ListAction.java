@@ -150,7 +150,7 @@ public class ListAction implements BranchWsAction {
 
   private static void setBranchStatus(ProjectBranches.Branch.Builder builder, BranchDto branch, @Nullable LiveMeasureDto qualityGateMeasure,
                                       @Nullable BranchStatistics branchStatistics) {
-    ProjectBranches.Branch.Status.Builder statusBuilder = ProjectBranches.Branch.Status.newBuilder();
+    ProjectBranches.Status.Builder statusBuilder = ProjectBranches.Status.newBuilder();
     if (branch.getBranchType() == LONG && qualityGateMeasure != null) {
       Protobuf.setNullable(qualityGateMeasure.getDataAsString(), statusBuilder::setQualityGateStatus);
     }
