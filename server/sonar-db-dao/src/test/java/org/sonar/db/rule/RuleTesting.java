@@ -28,6 +28,8 @@ import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.rule.RuleParamType;
+import org.sonar.core.util.UuidFactory;
+import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.rule.RuleDto.Format;
 import org.sonar.db.rule.RuleDto.Scope;
@@ -48,6 +50,8 @@ public class RuleTesting {
   public static final RuleKey XOO_X1 = RuleKey.of("xoo", "x1");
   public static final RuleKey XOO_X2 = RuleKey.of("xoo", "x2");
   public static final RuleKey XOO_X3 = RuleKey.of("xoo", "x3");
+
+  private static final UuidFactory uuidFactory = UuidFactoryFast.getInstance();
 
   private RuleTesting() {
     // only static helpers
@@ -110,6 +114,15 @@ public class RuleTesting {
       .setDefaultValue("default_" + randomAlphabetic(5))
       .setDescription("description_" + randomAlphabetic(5))
       .setType(RuleParamType.STRING.type());
+  }
+
+  public static DeprecatedRuleKeyDto newDeprecatedRuleKey() {
+    return new DeprecatedRuleKeyDto()
+      .setUuid(uuidFactory.create())
+      .setOldRepositoryKey(randomAlphanumeric(50))
+      .setOldRuleKey(randomAlphanumeric(50))
+      .setRuleId(nextInt(100_000))
+      .setCreatedAt(System.currentTimeMillis());
   }
 
   /**

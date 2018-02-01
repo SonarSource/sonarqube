@@ -497,5 +497,45 @@
     where
       id=#{id,jdbcType=INTEGER}
   </update>
+
+  <select id="selectAllDeprecatedRuleKeys" resultType="org.sonar.db.rule.DeprecatedRuleKeyDto">
+    SELECT
+      drk.uuid,
+      drk.rule_id as "ruleId",
+      drk.old_repository_key as "oldRepositoryKey",
+      drk.old_rule_key as "oldRuleKey",
+      r.plugin_rule_key as "newRuleKey",
+      r.plugin_name as "newRepositoryKey",
+      drk.created_at as "createdAt"
+    FROM
+      deprecated_rule_keys drk
+    LEFT OUTER JOIN rules r on r.id = drk.rule_id
+  </select>
+
+  <delete id="deleteDeprecatedRuleKeys">
+    DELETE FROM
+      deprecated_rule_keys
+    WHERE
+    <foreach collection="uuids" index="index" item="uuid" open="" separator=" or " close="">
+      uuid=#{uuid,jdbcType=INTEGER}
+    </foreach>
+  </delete>
+
+  <insert id="insertDeprecatedRuleKey" parameterType="org.sonar.db.rule.DeprecatedRuleKeyDto" keyColumn="uuid" useGeneratedKeys="false" keyProperty="uuid">
+    INSERT INTO deprecated_rule_keys (
+      uuid,
+      rule_id,
+      old_repository_key,
+      old_rule_key,
+      created_at
+    )
+    values (
+      #{uuid,jdbcType=VARCHAR},
+      #{ruleId,jdbcType=INTEGER},
+      #{oldRepositoryKey,jdbcType=VARCHAR},
+      #{oldRuleKey,jdbcType=VARCHAR},
+      #{createdAt,jdbcType=BIGINT}
+    )
+  </insert>
 </mapper>
 

@@ -59,6 +59,7 @@ public final class SqTables {
     "ce_task_input",
     "ce_scanner_context",
     "default_qprofiles",
+    "deprecated_rule_keys",
     "duplications_index",
     "es_queue",
     "events",

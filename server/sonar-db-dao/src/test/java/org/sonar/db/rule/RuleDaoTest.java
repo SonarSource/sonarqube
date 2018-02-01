@@ -25,7 +25,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Consumer;
+import org.apache.ibatis.exceptions.PersistenceException;
 import org.apache.ibatis.session.ResultHandler;
 import org.junit.Before;
 import org.junit.Rule;
@@ -48,7 +50,9 @@ import org.sonar.db.rule.RuleDto.Scope;
 
 import static com.google.common.collect.Sets.newHashSet;
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
+import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 
@@ -747,7 +751,7 @@ public class RuleDaoTest {
   @Test
   public void scrollIndexingRulesByKeys_scrolls_nothing_if_key_does_not_exist() {
     Accumulator<RuleForIndexingDto> accumulator = new Accumulator<>();
-    RuleDefinitionDto r1 = db.rules().insert();
+    db.rules().insert();
 
     underTest.scrollIndexingRulesByKeys(db.getSession(), singletonList(RuleKey.of("does", "not exist")), accumulator);
 
@@ -778,7 +782,7 @@ public class RuleDaoTest {
     RuleMetadataDto r1Extension = db.rules().insertOrUpdateMetadata(r1, organization, r -> r.setTagsField("t1,t2"));
     RuleExtensionId r1ExtensionId = new RuleExtensionId(organization.getUuid(), r1.getRepositoryKey(), r1.getRuleKey());
     RuleDefinitionDto r2 = db.rules().insert();
-    RuleMetadataDto r2Extension = db.rules().insertOrUpdateMetadata(r2, organization, r -> r.setTagsField("t1,t3"));
+    db.rules().insertOrUpdateMetadata(r2, organization, r -> r.setTagsField("t1,t3"));
 
     underTest.scrollIndexingRuleExtensionsByIds(db.getSession(), singletonList(r1ExtensionId), accumulator);
 
@@ -788,7 +792,104 @@ public class RuleDaoTest {
         tuple(r1.getKey(), organization.getUuid(), r1Extension.getTagsAsString()));
   }
 
-  private static class Accumulator<T> implements Consumer<T> {
+  @Test
+  public void selectAllDeprecatedRuleKeys() {
+    RuleDefinitionDto r1 = db.rules().insert();
+    RuleDefinitionDto r2 = db.rules().insert();
+
+    db.rules().insertDeprecatedKey(r -> r.setRuleId(r1.getId()));
+    db.rules().insertDeprecatedKey(r -> r.setRuleId(r2.getId()));
+
+    db.getSession().commit();
+
+    Set<DeprecatedRuleKeyDto> deprecatedRuleKeyDtos = underTest.selectAllDeprecatedRuleKeys(db.getSession());
+    assertThat(deprecatedRuleKeyDtos).hasSize(2);
+  }
+
+  @Test
+  public void selectAllDeprecatedRuleKeys_return_values_even_if_there_is_no_rule() {
+    db.rules().insertDeprecatedKey();
+    db.rules().insertDeprecatedKey();
+
+    Set<DeprecatedRuleKeyDto> deprecatedRuleKeyDtos = underTest.selectAllDeprecatedRuleKeys(db.getSession());
+    assertThat(deprecatedRuleKeyDtos).hasSize(2);
+    assertThat(deprecatedRuleKeyDtos)
+      .extracting(DeprecatedRuleKeyDto::getNewRepositoryKey, DeprecatedRuleKeyDto::getNewRuleKey)
+      .containsExactly(
+        tuple(null, null),
+        tuple(null, null)
+      );
+  }
+
+  @Test
+  public void deleteDeprecatedRuleKeys_with_empty_list_has_no_effect() {
+    db.rules().insertDeprecatedKey();
+    db.rules().insertDeprecatedKey();
+
+    assertThat(underTest.selectAllDeprecatedRuleKeys(db.getSession())).hasSize(2);
+
+    underTest.deleteDeprecatedRuleKeys(db.getSession(), emptyList());
+
+    assertThat(underTest.selectAllDeprecatedRuleKeys(db.getSession())).hasSize(2);
+  }
+
+  @Test
+  public void deleteDeprecatedRuleKeys_with_non_existing_uuid_has_no_effect() {
+    db.rules().insertDeprecatedKey(d -> d.setUuid("A1"));
+    db.rules().insertDeprecatedKey(d -> d.setUuid("A2"));
+
+    assertThat(underTest.selectAllDeprecatedRuleKeys(db.getSession())).hasSize(2);
+
+    underTest.deleteDeprecatedRuleKeys(db.getSession(), asList("B1", "B2"));
+
+    assertThat(underTest.selectAllDeprecatedRuleKeys(db.getSession())).hasSize(2);
+  }
+
+  @Test
+  public void deleteDeprecatedRuleKeys() {
+    DeprecatedRuleKeyDto deprecatedRuleKeyDto1 = db.rules().insertDeprecatedKey();
+    db.rules().insertDeprecatedKey();;
+
+    assertThat(underTest.selectAllDeprecatedRuleKeys(db.getSession())).hasSize(2);
+
+    underTest.deleteDeprecatedRuleKeys(db.getSession(), singletonList(deprecatedRuleKeyDto1.getUuid()));
+    assertThat(underTest.selectAllDeprecatedRuleKeys(db.getSession())).hasSize(1);
+  }
+
+  @Test
+  public void insertDeprecatedRuleKey() {
+    RuleDefinitionDto r1 = db.rules().insert();
+    DeprecatedRuleKeyDto deprecatedRuleKeyDto = db.rules().insertDeprecatedKey(d -> d.setRuleId(r1.getId()));
+
+    db.getSession().commit();
+
+    Set<DeprecatedRuleKeyDto> deprecatedRuleKeyDtos = underTest.selectAllDeprecatedRuleKeys(db.getSession());
+    assertThat(deprecatedRuleKeyDtos).hasSize(1);
+
+    DeprecatedRuleKeyDto deprecatedRuleKeyDto1 = deprecatedRuleKeyDtos.iterator().next();
+    assertThat(deprecatedRuleKeyDto1.getOldRepositoryKey()).isEqualTo(deprecatedRuleKeyDto.getOldRepositoryKey());
+    assertThat(deprecatedRuleKeyDto1.getOldRuleKey()).isEqualTo(deprecatedRuleKeyDto.getOldRuleKey());
+    assertThat(deprecatedRuleKeyDto1.getNewRepositoryKey()).isEqualTo(r1.getRepositoryKey());
+    assertThat(deprecatedRuleKeyDto1.getNewRuleKey()).isEqualTo(r1.getRuleKey());
+    assertThat(deprecatedRuleKeyDto1.getUuid()).isEqualTo(deprecatedRuleKeyDto.getUuid());
+    assertThat(deprecatedRuleKeyDto1.getCreatedAt()).isEqualTo(deprecatedRuleKeyDto.getCreatedAt());
+    assertThat(deprecatedRuleKeyDto1.getRuleId()).isEqualTo(r1.getId());
+  }
+
+  @Test
+  public void insertDeprecatedRuleKey_with_same_RuleKey_should_fail() {
+    String repositoryKey = randomAlphanumeric(50);
+    String ruleKey = randomAlphanumeric(50);
+    db.rules().insertDeprecatedKey(d -> d.setOldRepositoryKey(repositoryKey)
+      .setOldRuleKey(ruleKey));
+
+    thrown.expect(PersistenceException.class);
+
+    db.rules().insertDeprecatedKey(d -> d.setOldRepositoryKey(repositoryKey)
+      .setOldRuleKey(ruleKey));
+  }
+
+  private static class Accumulator<T>  implements Consumer<T> {
     private final List<T> list = new ArrayList<>();
 
     @Override

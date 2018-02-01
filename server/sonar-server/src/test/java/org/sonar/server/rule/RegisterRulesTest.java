@@ -21,6 +21,7 @@ package org.sonar.server.rule;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.IntStream;
 import org.junit.Before;
 import org.junit.Test;
@@ -37,10 +38,13 @@ import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
+import org.sonar.core.util.UuidFactory;
+import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.rule.DeprecatedRuleKeyDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleDto.Scope;
@@ -69,6 +73,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.rule.Severity.BLOCKER;
 import static org.sonar.api.rule.Severity.INFO;
+import static org.sonar.api.server.rule.RulesDefinition.*;
 
 public class RegisterRulesTest {
 
@@ -98,6 +103,7 @@ public class RegisterRulesTest {
   private RuleIndex ruleIndex;
   private OrganizationDto defaultOrganization;
   private OrganizationFlags organizationFlags = TestOrganizationFlags.standalone();
+  private UuidFactory uuidFactory = UuidFactoryFast.getInstance();
 
   @Before
   public void before() {
@@ -150,7 +156,7 @@ public class RegisterRulesTest {
 
     // register one rule
     execute(context -> {
-      RulesDefinition.NewRepository repo = context.createRepository("fake", "java");
+      NewRepository repo = context.createRepository("fake", "java");
       repo.createRule(ruleKey)
         .setName(randomAlphanumeric(5))
         .setHtmlDescription(randomAlphanumeric(20));
@@ -192,7 +198,7 @@ public class RegisterRulesTest {
 
     // register many rules
     execute(context -> {
-      RulesDefinition.NewRepository repo = context.createRepository("fake", "java");
+      NewRepository repo = context.createRepository("fake", "java");
       IntStream.range(0, numberOfRules)
         .mapToObj(i -> "rule-" + i)
         .forEach(ruleKey -> repo.createRule(ruleKey)
@@ -298,32 +304,26 @@ public class RegisterRulesTest {
 
   @Test
   public void add_new_tag() {
-    execute(new RulesDefinition() {
-      @Override
-      public void define(RulesDefinition.Context context) {
-        RulesDefinition.NewRepository repo = context.createRepository("fake", "java");
-        repo.createRule("rule1")
-          .setName("Rule One")
-          .setHtmlDescription("Description of Rule One")
-          .setTags("tag1");
-        repo.done();
-      }
+    execute((RulesDefinition) context -> {
+      NewRepository repo = context.createRepository("fake", "java");
+      repo.createRule("rule1")
+        .setName("Rule One")
+        .setHtmlDescription("Description of Rule One")
+        .setTags("tag1");
+      repo.done();
     });
 
     OrganizationDto defaultOrganization = dbTester.getDefaultOrganization();
     RuleDto rule = dbClient.ruleDao().selectOrFailByKey(dbTester.getSession(), defaultOrganization, RULE_KEY1);
     assertThat(rule.getSystemTags()).containsOnly("tag1");
 
-    execute(new RulesDefinition() {
-      @Override
-      public void define(RulesDefinition.Context context) {
-        RulesDefinition.NewRepository repo = context.createRepository("fake", "java");
-        repo.createRule("rule1")
-          .setName("Rule One")
-          .setHtmlDescription("Description of Rule One")
-          .setTags("tag1", "tag2");
-        repo.done();
-      }
+    execute((RulesDefinition) context -> {
+      NewRepository repo = context.createRepository("fake", "java");
+      repo.createRule("rule1")
+        .setName("Rule One")
+        .setHtmlDescription("Description of Rule One")
+        .setTags("tag1", "tag2");
+      repo.done();
     });
 
     rule = dbClient.ruleDao().selectOrFailByKey(dbTester.getSession(), defaultOrganization, RULE_KEY1);
@@ -333,27 +333,21 @@ public class RegisterRulesTest {
   @Test
   public void update_only_rule_name() {
     when(system.now()).thenReturn(DATE1.getTime());
-    execute(new RulesDefinition() {
-      @Override
-      public void define(Context context) {
-        NewRepository repo = context.createRepository("fake", "java");
-        repo.createRule("rule")
-          .setName("Name1")
-          .setHtmlDescription("Description");
-        repo.done();
-      }
+    execute((RulesDefinition) context -> {
+      NewRepository repo = context.createRepository("fake", "java");
+      repo.createRule("rule")
+        .setName("Name1")
+        .setHtmlDescription("Description");
+      repo.done();
     });
 
     when(system.now()).thenReturn(DATE2.getTime());
-    execute(new RulesDefinition() {
-      @Override
-      public void define(Context context) {
-        NewRepository repo = context.createRepository("fake", "java");
-        repo.createRule("rule")
-          .setName("Name2")
-          .setHtmlDescription("Description");
-        repo.done();
-      }
+    execute((RulesDefinition) context -> {
+      NewRepository repo = context.createRepository("fake", "java");
+      repo.createRule("rule")
+        .setName("Name2")
+        .setHtmlDescription("Description");
+      repo.done();
     });
 
     // rule1 has been updated
@@ -368,27 +362,21 @@ public class RegisterRulesTest {
   @Test
   public void update_only_rule_description() {
     when(system.now()).thenReturn(DATE1.getTime());
-    execute(new RulesDefinition() {
-      @Override
-      public void define(Context context) {
-        NewRepository repo = context.createRepository("fake", "java");
-        repo.createRule("rule")
-          .setName("Name")
-          .setHtmlDescription("Desc1");
-        repo.done();
-      }
+    execute((RulesDefinition) context -> {
+      NewRepository repo = context.createRepository("fake", "java");
+      repo.createRule("rule")
+        .setName("Name")
+        .setHtmlDescription("Desc1");
+      repo.done();
     });
 
     when(system.now()).thenReturn(DATE2.getTime());
-    execute(new RulesDefinition() {
-      @Override
-      public void define(Context context) {
-        NewRepository repo = context.createRepository("fake", "java");
-        repo.createRule("rule")
-          .setName("Name")
-          .setHtmlDescription("Desc2");
-        repo.done();
-      }
+    execute((RulesDefinition) context -> {
+      NewRepository repo = context.createRepository("fake", "java");
+      repo.createRule("rule")
+        .setName("Name")
+        .setHtmlDescription("Desc2");
+      repo.done();
     });
 
     // rule1 has been updated
@@ -431,7 +419,6 @@ public class RegisterRulesTest {
     when(system.now()).thenReturn(DATE2.getTime());
     execute(new FakeRepositoryV1());
 
-    String organizationUuid = dbTester.getDefaultOrganization().getUuid();
     RuleDto rule1 = dbClient.ruleDao().selectOrFailByKey(dbTester.getSession(), defaultOrganization, RULE_KEY1);
     assertThat(rule1.getCreatedAt()).isEqualTo(DATE1.getTime());
     assertThat(rule1.getUpdatedAt()).isEqualTo(DATE1.getTime());
@@ -443,7 +430,6 @@ public class RegisterRulesTest {
     assertThat(dbClient.ruleDao().selectAllDefinitions(dbTester.getSession())).hasSize(2);
     assertThat(esTester.getIds(RuleIndexDefinition.INDEX_TYPE_RULE)).containsOnly(RULE_KEY1.toString(), RULE_KEY2.toString());
 
-    String organizationUuid = dbTester.getDefaultOrganization().getUuid();
     RuleDto rule2 = dbClient.ruleDao().selectOrFailByKey(dbTester.getSession(), defaultOrganization, RULE_KEY2);
     assertThat(rule2.getStatus()).isEqualTo(RuleStatus.READY);
 
@@ -530,6 +516,94 @@ public class RegisterRulesTest {
     assertThat(logTester.logs(LoggerLevel.INFO)).contains("Template rule test:rule1 will not be imported, because organizations are enabled.");
   }
 
+  @Test
+  public void rules_that_deprecate_previous_rule_must_be_recorded() {
+    execute(context -> {
+      NewRepository repo = context.createRepository("fake", "java");
+      repo.createRule("rule1")
+        .setName("One")
+        .setHtmlDescription("Description of One")
+        .setSeverity(BLOCKER)
+        .setInternalKey("config1")
+        .setTags("tag1", "tag2", "tag3")
+        .setType(RuleType.CODE_SMELL)
+        .setStatus(RuleStatus.BETA);
+      repo.done();
+    });
+
+    execute(context -> {
+      NewRepository repo = context.createRepository("fake", "java");
+      repo.createRule("newKey")
+        .setName("One")
+        .setHtmlDescription("Description of One")
+        .setSeverity(BLOCKER)
+        .setInternalKey("config1")
+        .setTags("tag1", "tag2", "tag3")
+        .setType(RuleType.CODE_SMELL)
+        .setStatus(RuleStatus.BETA)
+        .addDeprecatedRuleKey("fake", "rule1")
+        .addDeprecatedRuleKey("fake", "rule2");
+      repo.done();
+    });
+
+    List<RuleDefinitionDto> rules = dbClient.ruleDao().selectAllDefinitions(dbTester.getSession());
+    Set<DeprecatedRuleKeyDto> deprecatedRuleKeys = dbClient.ruleDao().selectAllDeprecatedRuleKeys(dbTester.getSession());
+    //assertThat(rules).hasSize(1); FIXME this must be true when renaming is done
+    assertThat(deprecatedRuleKeys).hasSize(2);
+  }
+
+  @Test
+  public void rules_that_remove_deprecated_key_must_remove_records() {
+    execute(context -> {
+      NewRepository repo = context.createRepository("fake", "java");
+      repo.createRule("rule1")
+        .setName("One")
+        .setHtmlDescription("Description of One")
+        .setSeverity(BLOCKER)
+        .setInternalKey("config1")
+        .setTags("tag1", "tag2", "tag3")
+        .setType(RuleType.CODE_SMELL)
+        .setStatus(RuleStatus.BETA);
+      repo.done();
+    });
+
+    execute(context -> {
+      NewRepository repo = context.createRepository("fake", "java");
+      repo.createRule("newKey")
+        .setName("One")
+        .setHtmlDescription("Description of One")
+        .setSeverity(BLOCKER)
+        .setInternalKey("config1")
+        .setTags("tag1", "tag2", "tag3")
+        .setType(RuleType.CODE_SMELL)
+        .setStatus(RuleStatus.BETA)
+        .addDeprecatedRuleKey("fake", "rule1")
+        .addDeprecatedRuleKey("fake", "rule2");
+      repo.done();
+    });
+
+    //assertThat(dbClient.ruleDao().selectAllDefinitions(dbTester.getSession())).hasSize(1); FIXME this must be true when renaming is done
+    Set<DeprecatedRuleKeyDto> deprecatedRuleKeys = dbClient.ruleDao().selectAllDeprecatedRuleKeys(dbTester.getSession());
+    assertThat(deprecatedRuleKeys).hasSize(2);
+
+    execute(context -> {
+      NewRepository repo = context.createRepository("fake", "java");
+      repo.createRule("newKey")
+        .setName("One")
+        .setHtmlDescription("Description of One")
+        .setSeverity(BLOCKER)
+        .setInternalKey("config1")
+        .setTags("tag1", "tag2", "tag3")
+        .setType(RuleType.CODE_SMELL)
+        .setStatus(RuleStatus.BETA);
+      repo.done();
+    });
+
+    //assertThat(dbClient.ruleDao().selectAllDefinitions(dbTester.getSession())).hasSize(1); FIXME this must be true when renaming is done
+    deprecatedRuleKeys = dbClient.ruleDao().selectAllDeprecatedRuleKeys(dbTester.getSession());
+    assertThat(deprecatedRuleKeys).hasSize(0);
+  }
+
   private void execute(RulesDefinition... defs) {
     ServerPluginRepository pluginRepository = mock(ServerPluginRepository.class);
     when(pluginRepository.getPluginKey(any(RulesDefinition.class))).thenReturn(FAKE_PLUGIN_KEY);
@@ -539,7 +613,8 @@ public class RegisterRulesTest {
     when(languages.get("java")).thenReturn(mock(Language.class));
     reset(webServerRuleFinder);
 
-    RegisterRules task = new RegisterRules(loader, qProfileRules, dbClient, ruleIndexer, activeRuleIndexer, languages, system, organizationFlags, webServerRuleFinder);
+    RegisterRules task = new RegisterRules(loader, qProfileRules, dbClient, ruleIndexer, activeRuleIndexer,
+      languages, system, organizationFlags, webServerRuleFinder, uuidFactory);
     task.start();
     // Execute a commit to refresh session state as the task is using its own session
     dbTester.getSession().commit();
@@ -658,7 +733,7 @@ public class RegisterRulesTest {
   static class RepositoryWithOneTemplateRule implements RulesDefinition {
     @Override
     public void define(Context context) {
-      RulesDefinition.NewRepository repo = context.createRepository("test", "java");
+      NewRepository repo = context.createRepository("test", "java");
       repo.createRule("rule1")
         .setName("Rule One")
         .setHtmlDescription("Description of Rule One")

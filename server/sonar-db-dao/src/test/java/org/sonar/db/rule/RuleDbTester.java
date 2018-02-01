@@ -19,14 +19,15 @@
  */
 package org.sonar.db.rule;
 
-import java.util.Arrays;
 import java.util.function.Consumer;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
 
+import static java.util.Arrays.asList;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
+import static org.sonar.db.rule.RuleTesting.newDeprecatedRuleKey;
 import static org.sonar.db.rule.RuleTesting.newRule;
 import static org.sonar.db.rule.RuleTesting.newRuleDto;
 
@@ -49,7 +50,7 @@ public class RuleDbTester {
   @SafeVarargs
   public final RuleDefinitionDto insert(Consumer<RuleDefinitionDto>... populaters) {
     RuleDefinitionDto rule = newRule();
-    Arrays.asList(populaters).forEach(populater -> populater.accept(rule));
+    asList(populaters).forEach(populater -> populater.accept(rule));
     return insert(rule);
   }
 
@@ -74,7 +75,7 @@ public class RuleDbTester {
   @SafeVarargs
   public final RuleMetadataDto insertOrUpdateMetadata(RuleDefinitionDto rule, OrganizationDto organization, Consumer<RuleMetadataDto>... populaters) {
     RuleMetadataDto dto = RuleTesting.newRuleMetadata(rule, organization);
-    Arrays.asList(populaters).forEach(populater -> populater.accept(dto));
+    asList(populaters).forEach(populater -> populater.accept(dto));
     return insertOrUpdateMetadata(dto);
   }
 
@@ -91,7 +92,7 @@ public class RuleDbTester {
   @SafeVarargs
   public final RuleParamDto insertRuleParam(RuleDefinitionDto rule, Consumer<RuleParamDto>... populaters) {
     RuleParamDto param = RuleTesting.newRuleParam(rule);
-    Arrays.asList(populaters).forEach(populater -> populater.accept(param));
+    asList(populaters).forEach(populater -> populater.accept(param));
     db.getDbClient().ruleDao().insertRuleParam(db.getSession(), rule, param);
     db.commit();
     return param;
@@ -127,7 +128,7 @@ public class RuleDbTester {
   @SafeVarargs
   public final RuleDto insertRule(OrganizationDto organization, Consumer<RuleDto>... populaters) {
     RuleDto ruleDto = newRuleDto(organization);
-    Arrays.asList(populaters).forEach(populater -> populater.accept(ruleDto));
+    asList(populaters).forEach(populater -> populater.accept(ruleDto));
     return insertRule(ruleDto);
   }
 
@@ -136,6 +137,15 @@ public class RuleDbTester {
     populateRuleDto.accept(ruleDto);
     return insertRule(ruleDto);
   }
+
+  @SafeVarargs
+  public final DeprecatedRuleKeyDto insertDeprecatedKey(Consumer<DeprecatedRuleKeyDto>... deprecatedRuleKeyDtoConsumers) {
+    DeprecatedRuleKeyDto deprecatedRuleKeyDto = newDeprecatedRuleKey();
+    asList(deprecatedRuleKeyDtoConsumers).forEach(c -> c.accept(deprecatedRuleKeyDto));
+    db.getDbClient().ruleDao().insert(db.getSession(), deprecatedRuleKeyDto);
+    return deprecatedRuleKeyDto;
+  }
+
 
   public RuleParamDto insertRuleParam(RuleDto rule) {
     RuleParamDto param = new RuleParamDto();

@@ -21,13 +21,14 @@ package org.sonar.server.rule;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.ObjectUtils;
@@ -44,11 +45,13 @@ import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
+import org.sonar.core.util.UuidFactory;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
+import org.sonar.db.rule.DeprecatedRuleKeyDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto.Format;
 import org.sonar.db.rule.RuleDto.Scope;
@@ -62,7 +65,10 @@ import org.sonar.server.rule.index.RuleIndexer;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Sets.difference;
 import static java.lang.String.format;
+import static java.util.Collections.emptySet;
+import static java.util.stream.Collectors.toSet;
 
 /**
  * Register rules at server startup
@@ -80,10 +86,11 @@ public class RegisterRules implements Startable {
   private final System2 system2;
   private final OrganizationFlags organizationFlags;
   private final WebServerRuleFinder webServerRuleFinder;
+  private final UuidFactory uuidFactory;
 
   public RegisterRules(RuleDefinitionsLoader defLoader, QProfileRules qProfileRules, DbClient dbClient, RuleIndexer ruleIndexer,
     ActiveRuleIndexer activeRuleIndexer, Languages languages, System2 system2, OrganizationFlags organizationFlags,
-    WebServerRuleFinder webServerRuleFinder) {
+    WebServerRuleFinder webServerRuleFinder, UuidFactory uuidFactory) {
     this.defLoader = defLoader;
     this.qProfileRules = qProfileRules;
     this.dbClient = dbClient;
@@ -93,6 +100,7 @@ public class RegisterRules implements Startable {
     this.system2 = system2;
     this.organizationFlags = organizationFlags;
     this.webServerRuleFinder = webServerRuleFinder;
+    this.uuidFactory = uuidFactory;
   }
 
   @Override
@@ -100,14 +108,20 @@ public class RegisterRules implements Startable {
     Profiler profiler = Profiler.create(LOG).startInfo("Register rules");
     try (DbSession dbSession = dbClient.openSession(false)) {
       Map<RuleKey, RuleDefinitionDto> allRules = loadRules(dbSession);
-      List<RuleKey> keysToIndex = new ArrayList<>();
+      Map<Integer, Set<SingleDeprecatedRuleKey>> existingDeprecatedRuleKeys = loadDeprecatedRuleKeys(dbSession);
 
       RulesDefinition.Context context = defLoader.load();
+
+      List<RulesDefinition.ExtendedRepository> repositories = getRepositories(context);
+
+      List<RuleKey> keysToIndex = new ArrayList<>();
       boolean orgsEnabled = organizationFlags.isEnabled(dbSession);
-      for (RulesDefinition.ExtendedRepository repoDef : getRepositories(context)) {
+
+      for (RulesDefinition.ExtendedRepository repoDef : repositories) {
         if (languages.get(repoDef.language()) != null) {
           for (RulesDefinition.Rule ruleDef : repoDef.rules()) {
             RuleKey ruleKey = RuleKey.of(ruleDef.repository().key(), ruleDef.key());
+
             if (ruleDef.template() && orgsEnabled) {
               RuleDefinitionDto ruleDefinition = allRules.get(ruleKey);
               if (ruleDefinition != null && ruleDefinition.getStatus() == RuleStatus.REMOVED) {
@@ -118,7 +132,7 @@ public class RegisterRules implements Startable {
               }
               continue;
             }
-            boolean relevantForIndex = registerRule(ruleDef, allRules, dbSession);
+            boolean relevantForIndex = registerRule(ruleDef, allRules, existingDeprecatedRuleKeys, dbSession);
             if (relevantForIndex) {
               keysToIndex.add(ruleKey);
             }
@@ -126,6 +140,7 @@ public class RegisterRules implements Startable {
           dbSession.commit();
         }
       }
+
       List<RuleDefinitionDto> removedRules = processRemainingDbRules(allRules.values(), dbSession);
       List<ActiveRuleChange> changes = removeActiveRulesOnStillExistingRepositories(dbSession, removedRules, context);
       dbSession.commit();
@@ -142,6 +157,11 @@ public class RegisterRules implements Startable {
     }
   }
 
+  @Override
+  public void stop() {
+    // nothing
+  }
+
   private void persistRepositories(DbSession dbSession, List<RulesDefinition.Repository> repositories) {
     dbClient.ruleRepositoryDao().truncate(dbSession);
     List<RuleRepositoryDto> dtos = repositories
@@ -152,12 +172,8 @@ public class RegisterRules implements Startable {
     dbSession.commit();
   }
 
-  @Override
-  public void stop() {
-    // nothing
-  }
-
-  private boolean registerRule(RulesDefinition.Rule ruleDef, Map<RuleKey, RuleDefinitionDto> allRules, DbSession session) {
+  private boolean registerRule(RulesDefinition.Rule ruleDef, Map<RuleKey, RuleDefinitionDto> allRules, Map<Integer,
+    Set<SingleDeprecatedRuleKey>> existingDeprecatedRuleKeys, DbSession session) {
     RuleKey ruleKey = RuleKey.of(ruleDef.repository().key(), ruleDef.key());
 
     RuleDefinitionDto existingRule = allRules.remove(ruleKey);
@@ -171,24 +187,16 @@ public class RegisterRules implements Startable {
       newRule = false;
     }
 
-    boolean executeUpdate = false;
-    if (mergeRule(ruleDef, rule)) {
-      executeUpdate = true;
-    }
-
-    if (mergeDebtDefinitions(ruleDef, rule)) {
-      executeUpdate = true;
-    }
-
-    if (mergeTags(ruleDef, rule)) {
-      executeUpdate = true;
-    }
+    boolean executeUpdate = mergeRule(ruleDef, rule);
+    executeUpdate |= mergeDebtDefinitions(ruleDef, rule);
+    executeUpdate |= mergeTags(ruleDef, rule);
 
     if (executeUpdate) {
       update(session, rule);
     }
 
     mergeParams(ruleDef, rule, session);
+    updateDeprecatedKeys(ruleDef, rule, existingDeprecatedRuleKeys, session);
     return newRule || executeUpdate;
   }
 
@@ -199,6 +207,14 @@ public class RegisterRules implements Startable {
     }
     return rules;
   }
+
+  private Map<Integer, Set<SingleDeprecatedRuleKey>> loadDeprecatedRuleKeys(DbSession dbSession) {
+    return dbClient.ruleDao().selectAllDeprecatedRuleKeys(dbSession)
+      .stream()
+      .map(SingleDeprecatedRuleKey::from)
+      .collect(Collectors.groupingBy(SingleDeprecatedRuleKey::getRuleId, toSet()));
+  }
+
 
   private List<RulesDefinition.ExtendedRepository> getRepositories(RulesDefinition.Context context) {
     List<RulesDefinition.ExtendedRepository> repositories = new ArrayList<>();
@@ -256,7 +272,7 @@ public class RegisterRules implements Startable {
     }
   }
 
-  private boolean mergeRule(RulesDefinition.Rule def, RuleDefinitionDto dto) {
+  private static boolean mergeRule(RulesDefinition.Rule def, RuleDefinitionDto dto) {
     boolean changed = false;
     if (!StringUtils.equals(dto.getName(), def.name())) {
       dto.setName(def.name());
@@ -303,7 +319,7 @@ public class RegisterRules implements Startable {
     return changed;
   }
 
-  private boolean mergeDescription(RulesDefinition.Rule def, RuleDefinitionDto dto) {
+  private static boolean mergeDescription(RulesDefinition.Rule def, RuleDefinitionDto dto) {
     boolean changed = false;
     if (def.htmlDescription() != null && !StringUtils.equals(dto.getDescription(), def.htmlDescription())) {
       dto.setDescription(def.htmlDescription());
@@ -317,7 +333,7 @@ public class RegisterRules implements Startable {
     return changed;
   }
 
-  private boolean mergeDebtDefinitions(RulesDefinition.Rule def, RuleDefinitionDto dto) {
+  private static boolean mergeDebtDefinitions(RulesDefinition.Rule def, RuleDefinitionDto dto) {
     // Debt definitions are set to null if the sub-characteristic and the remediation function are null
     DebtRemediationFunction debtRemediationFunction = def.debtRemediationFunction();
     boolean hasDebt = debtRemediationFunction != null;
@@ -331,7 +347,7 @@ public class RegisterRules implements Startable {
     return mergeDebtDefinitions(dto, null, null, null, null);
   }
 
-  private boolean mergeDebtDefinitions(RuleDefinitionDto dto, @Nullable String remediationFunction,
+  private static boolean mergeDebtDefinitions(RuleDefinitionDto dto, @Nullable String remediationFunction,
     @Nullable String remediationCoefficient, @Nullable String remediationOffset, @Nullable String effortToFixDescription) {
     boolean changed = false;
 
@@ -399,7 +415,7 @@ public class RegisterRules implements Startable {
     }
   }
 
-  private boolean mergeParam(RuleParamDto paramDto, RulesDefinition.Param paramDef) {
+  private static boolean mergeParam(RuleParamDto paramDto, RulesDefinition.Param paramDef) {
     boolean changed = false;
     if (!StringUtils.equals(paramDto.getType(), paramDef.type().toString())) {
       paramDto.setType(paramDef.type().toString());
@@ -420,7 +436,7 @@ public class RegisterRules implements Startable {
     boolean changed = false;
 
     if (RuleStatus.REMOVED == ruleDef.status()) {
-      dto.setSystemTags(Collections.emptySet());
+      dto.setSystemTags(emptySet());
       changed = true;
     } else if (dto.getSystemTags().size() != ruleDef.tags().size() ||
       !dto.getSystemTags().containsAll(ruleDef.tags())) {
@@ -430,6 +446,33 @@ public class RegisterRules implements Startable {
       changed = true;
     }
     return changed;
+  }
+
+  private void updateDeprecatedKeys(RulesDefinition.Rule ruleDef, RuleDefinitionDto rule,
+    Map<Integer, Set<SingleDeprecatedRuleKey>> existingDeprecatedKeysById, DbSession dbSession) {
+
+    Set<SingleDeprecatedRuleKey> deprecatedRuleKeysFromDefinition = SingleDeprecatedRuleKey.from(ruleDef);
+    Set<SingleDeprecatedRuleKey> deprecatedRuleKeysFromDB = existingDeprecatedKeysById.getOrDefault(rule.getId(), emptySet());
+
+    // DeprecatedKeys that must be deleted
+    List<String> uuidsToBeDeleted = difference(deprecatedRuleKeysFromDB, deprecatedRuleKeysFromDefinition).stream()
+      .map(SingleDeprecatedRuleKey::getUuid)
+      .collect(MoreCollectors.toList());
+
+    dbClient.ruleDao().deleteDeprecatedRuleKeys(dbSession, uuidsToBeDeleted);
+
+    // DeprecatedKeys that must be created
+    Sets.SetView<SingleDeprecatedRuleKey> deprecatedRuleKeysToBeCreated = difference(deprecatedRuleKeysFromDefinition, deprecatedRuleKeysFromDB);
+
+    deprecatedRuleKeysToBeCreated
+      .forEach(r -> dbClient.ruleDao().insert(dbSession, new DeprecatedRuleKeyDto()
+          .setUuid(uuidFactory.create())
+          .setRuleId(rule.getId())
+          .setOldRepositoryKey(r.getOldRepositoryKey())
+          .setOldRuleKey(r.getOldRuleKey())
+          .setCreatedAt(system2.now())
+        )
+      );
   }
 
   private List<RuleDefinitionDto> processRemainingDbRules(Collection<RuleDefinitionDto> existingRules, DbSession session) {
@@ -465,7 +508,7 @@ public class RegisterRules implements Startable {
   private void removeRule(DbSession session, List<RuleDefinitionDto> removedRules, RuleDefinitionDto rule) {
     LOG.info(format("Disable rule %s", rule.getKey()));
     rule.setStatus(RuleStatus.REMOVED);
-    rule.setSystemTags(Collections.emptySet());
+    rule.setSystemTags(emptySet());
     update(session, rule);
     // FIXME resetting the tags for all organizations must be handled a different way
     // rule.setTags(Collections.emptySet());
