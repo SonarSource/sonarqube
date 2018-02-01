@@ -1,0 +1,108 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`render 1`] = `
+<div>
+  <div
+    className="big-spacer-bottom js-existing-account"
+  >
+    <p
+      className="little-spacer-bottom"
+    >
+      <FormattedMessage
+        defaultMessage="sessions.email_already_exists.1"
+        id="sessions.email_already_exists.1"
+        values={
+          Object {
+            "email": <strong>
+              mail@example.com
+            </strong>,
+          }
+        }
+      />
+    </p>
+    <div
+      className="identity-provider"
+      style={
+        Object {
+          "backgroundColor": "#205081",
+        }
+      }
+    >
+      <img
+        alt="Bitbucket"
+        className="little-spacer-right"
+        height="14"
+        src="/static/authbitbucket/bitbucket.svg"
+        width="14"
+      />
+      bar
+    </div>
+  </div>
+  <div
+    className="big-spacer-bottom js-new-account"
+  >
+    <p
+      className="little-spacer-bottom"
+    >
+      sessions.email_already_exists.2
+    </p>
+    <div
+      className="identity-provider"
+      style={
+        Object {
+          "backgroundColor": "#444444",
+        }
+      }
+    >
+      <img
+        alt="GitHub"
+        className="little-spacer-right"
+        height="14"
+        src="/static/authgithub/github.svg"
+        width="14"
+      />
+      foo
+    </div>
+  </div>
+  <div
+    className="alert alert-warning"
+  >
+    sessions.email_already_exists.3
+    <ul
+      className="list-styled"
+    >
+      <li
+        className="spacer-top"
+      >
+        sessions.email_already_exists.4
+      </li>
+      <li
+        className="spacer-top"
+      >
+        sessions.email_already_exists.5
+      </li>
+      <li
+        className="spacer-top"
+      >
+        sessions.email_already_exists.6
+      </li>
+    </ul>
+  </div>
+  <div
+    className="big-spacer-top text-right"
+  >
+    <a
+      className="button js-continue"
+      href="/sessions/init/github?allowEmailShift=true"
+    >
+      continue
+    </a>
+    <a
+      className="big-spacer-left js-cancel"
+      href="/"
+    >
+      cancel
+    </a>
+  </div>
+</div>
+`;
