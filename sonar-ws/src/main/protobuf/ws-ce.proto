@@ -92,6 +92,8 @@ message Task {
   optional string branch = 21;
   optional sonarqube.ws.commons.BranchType branchType = 22;
   optional string errorType = 23;
+  optional string pullRequest = 24;
+  optional string pullRequestTitle = 25;
 }
 
 enum TaskStatus {
