@@ -20,6 +20,7 @@
 package org.sonar.db.rule;
 
 import java.util.List;
+import java.util.Set;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.session.ResultHandler;
 import org.sonar.db.es.RuleExtensionId;
@@ -83,4 +84,10 @@ public interface RuleMapper {
   void updateParameter(RuleParamDto param);
 
   void deleteParameter(Integer paramId);
+
+  Set<DeprecatedRuleKeyDto> selectAllDeprecatedRuleKeys();
+
+  void deleteDeprecatedRuleKeys(@Param("uuids") List<String> uuids);
+
+  void insertDeprecatedRuleKey(DeprecatedRuleKeyDto deprecatedRuleKeyDto);
 }
