@@ -46,6 +46,7 @@ import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentQuery;
 import org.sonar.server.user.UserSession;
+import org.sonar.server.ws.KeyExamples;
 import org.sonarqube.ws.Ce;
 import org.sonarqube.ws.Ce.ActivityResponse;
 
@@ -58,9 +59,6 @@ import static org.sonar.api.utils.DateUtils.parseEndingDateOrDateTime;
 import static org.sonar.api.utils.DateUtils.parseStartingDateOrDateTime;
 import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.db.Pagination.forPage;
-import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
-import static org.sonar.server.ws.WsUtils.checkRequest;
-import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonar.server.ce.ws.CeWsParameters.PARAM_COMPONENT_ID;
 import static org.sonar.server.ce.ws.CeWsParameters.PARAM_COMPONENT_QUERY;
 import static org.sonar.server.ce.ws.CeWsParameters.PARAM_MAX_EXECUTED_AT;
@@ -68,6 +66,9 @@ import static org.sonar.server.ce.ws.CeWsParameters.PARAM_MIN_SUBMITTED_AT;
 import static org.sonar.server.ce.ws.CeWsParameters.PARAM_ONLY_CURRENTS;
 import static org.sonar.server.ce.ws.CeWsParameters.PARAM_STATUS;
 import static org.sonar.server.ce.ws.CeWsParameters.PARAM_TYPE;
+import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
+import static org.sonar.server.ws.WsUtils.checkRequest;
+import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class ActivityAction implements CeWsAction {
   private static final int MAX_PAGE_SIZE = 1000;
@@ -277,7 +278,25 @@ public class ActivityAction implements CeWsAction {
         nbInsertedTasks++;
       }
     }
+
+    addStubTask(wsResponseBuilder);
     return wsResponseBuilder.build();
+  }
+
+  private static void addStubTask(ActivityResponse.Builder protobufResponse) {
+    protobufResponse.addTasks(Ce.Task.newBuilder()
+      .setId(Uuids.UUID_EXAMPLE_02)
+      .setAnalysisId(Uuids.UUID_EXAMPLE_10)
+      .setComponentId(Uuids.UUID_EXAMPLE_01)
+      .setComponentKey(KeyExamples.KEY_PROJECT_EXAMPLE_001)
+      .setExecutionTimeMs(1_000_000_000L)
+      .setStatus(Ce.TaskStatus.SUCCESS)
+      .setType("PROJECT_ANALYSIS")
+      .setHasScannerContext(false)
+      .setLogs(false)
+      .setPullRequestId("2734")
+      .setPullRequestTitle("SONAR-10374 Support pull request in the web app")
+    );
   }
 
   private static Request toSearchWsRequest(org.sonar.api.server.ws.Request request) {

@@ -19,7 +19,6 @@
  */
 package org.sonar.server.ce.ws;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -51,10 +50,10 @@ import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 import org.sonar.test.JsonAssert;
 import org.sonarqube.ws.Ce;
-import org.sonarqube.ws.Common;
-import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.Ce.ActivityResponse;
 import org.sonarqube.ws.Ce.Task;
+import org.sonarqube.ws.Common;
+import org.sonarqube.ws.MediaTypes;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -105,7 +104,7 @@ public class ActivityActionTest {
     ActivityResponse activityResponse = call(ws.newRequest()
       .setParam(PARAM_MAX_EXECUTED_AT, formatDateTime(EXECUTED_AT + 2_000)));
 
-    assertThat(activityResponse.getTasksCount()).isEqualTo(2);
+    assertThat(activityResponse.getTasksCount()).isEqualTo(3);
     // chronological order, from newest to oldest
     Task task = activityResponse.getTasks(0);
     assertThat(task.getOrganization()).isEqualTo(org2.getKey());
@@ -136,7 +135,7 @@ public class ActivityActionTest {
     ActivityResponse activityResponse = call(ws.newRequest()
       .setParam("status", "FAILED,IN_PROGRESS"));
 
-    assertThat(activityResponse.getTasksCount()).isEqualTo(2);
+    assertThat(activityResponse.getTasksCount()).isEqualTo(3);
     assertThat(activityResponse.getTasks(0).getId()).isEqualTo("T3");
     assertThat(activityResponse.getTasks(1).getId()).isEqualTo("T2");
   }
@@ -154,7 +153,7 @@ public class ActivityActionTest {
       .setParam("status", "FAILED,IN_PROGRESS,SUCCESS")
       .setParam(PARAM_MAX_EXECUTED_AT, "2016-02-15"));
 
-    assertThat(activityResponse.getTasksCount()).isEqualTo(0);
+    assertThat(activityResponse.getTasksCount()).isEqualTo(1);
   }
 
   @Test
@@ -168,7 +167,7 @@ public class ActivityActionTest {
       .setParam(PARAM_MIN_SUBMITTED_AT, today)
       .setParam(PARAM_MAX_EXECUTED_AT, today));
 
-    assertThat(activityResponse.getTasksCount()).isEqualTo(1);
+    assertThat(activityResponse.getTasksCount()).isEqualTo(2);
   }
 
   @Test
@@ -184,7 +183,7 @@ public class ActivityActionTest {
       ws.newRequest()
         .setParam("onlyCurrents", "true"));
 
-    assertThat(activityResponse.getTasksCount()).isEqualTo(1);
+    assertThat(activityResponse.getTasksCount()).isEqualTo(2);
     assertThat(activityResponse.getTasks(0).getId()).isEqualTo("T2");
   }
 
@@ -196,7 +195,9 @@ public class ActivityActionTest {
     ActivityResponse activityResponse = call(ws.newRequest()
       .setParam("status", "PENDING"));
 
-    assertThat(activityResponse.getTasksList()).hasSize(1);
+    assertThat(activityResponse.getTasksList())
+      .filteredOn(t -> !t.hasPullRequestId())
+      .hasSize(1);
   }
 
   @Test
@@ -224,7 +225,7 @@ public class ActivityActionTest {
 
     ActivityResponse activityResponse = call(ws.newRequest().setParam("componentId", project1.uuid()));
 
-    assertThat(activityResponse.getTasksCount()).isEqualTo(1);
+    assertThat(activityResponse.getTasksCount()).isEqualTo(2);
     assertThat(activityResponse.getTasks(0).getId()).isEqualTo("T1");
     assertThat(activityResponse.getTasks(0).getStatus()).isEqualTo(Ce.TaskStatus.SUCCESS);
     assertThat(activityResponse.getTasks(0).getComponentId()).isEqualTo(project1.uuid());
@@ -256,7 +257,9 @@ public class ActivityActionTest {
 
     ActivityResponse activityResponse = call(ws.newRequest().setParam(PARAM_COMPONENT_QUERY, "apac"));
 
-    assertThat(activityResponse.getTasksList()).extracting("id").containsOnly("T1", "T2");
+    assertThat(activityResponse.getTasksList())
+      .filteredOn(t -> !t.hasPullRequestId())
+      .extracting("id").containsOnly("T1", "T2");
   }
 
   @Test
@@ -268,7 +271,9 @@ public class ActivityActionTest {
 
     ActivityResponse activityResponse = call(ws.newRequest().setParam(PARAM_COMPONENT_QUERY, "apac"));
 
-    assertThat(activityResponse.getTasksList()).extracting("id").containsOnly("T2");
+    assertThat(activityResponse.getTasksList())
+      .filteredOn(t -> !t.hasPullRequestId())
+      .extracting("id").containsOnly("T2");
   }
 
   @Test
@@ -280,7 +285,9 @@ public class ActivityActionTest {
 
     ActivityResponse activityResponse = call(ws.newRequest().setParam(PARAM_COMPONENT_QUERY, "apac"));
 
-    assertThat(activityResponse.getTasksList()).extracting(Task::getId).containsOnly("T2");
+    assertThat(activityResponse.getTasksList())
+      .filteredOn(t -> !t.hasPullRequestId())
+      .extracting(Task::getId).containsOnly("T2");
   }
 
   @Test
@@ -294,7 +301,7 @@ public class ActivityActionTest {
         .setParam(Param.TEXT_QUERY, "T1")
         .setParam(PARAM_STATUS, PENDING.name()));
 
-    assertThat(result.getTasksCount()).isEqualTo(1);
+    assertThat(result.getTasksCount()).isEqualTo(2);
     assertThat(result.getTasks(0).getId()).isEqualTo("T1");
   }
 
@@ -306,7 +313,7 @@ public class ActivityActionTest {
 
     ActivityResponse result = call(ws.newRequest().setParam(Param.TEXT_QUERY, "T1"));
 
-    assertThat(result.getTasksCount()).isEqualTo(1);
+    assertThat(result.getTasksCount()).isEqualTo(2);
     assertThat(result.getTasks(0).getId()).isEqualTo("T1");
   }
 
@@ -337,7 +344,7 @@ public class ActivityActionTest {
       .setParam(PARAM_TYPE, CeTaskTypes.REPORT)
       .setParam(PARAM_STATUS, "SUCCESS,FAILED,CANCELED,IN_PROGRESS,PENDING"));
 
-    assertThat(result.getTasksCount()).isEqualTo(2);
+    assertThat(result.getTasksCount()).isEqualTo(3);
   }
 
   @Test
@@ -354,6 +361,7 @@ public class ActivityActionTest {
     ActivityResponse response = ws.newRequest().executeProtobuf(ActivityResponse.class);
 
     assertThat(response.getTasksList())
+      .filteredOn(t -> !t.hasPullRequestId())
       .extracting(Task::getId, Ce.Task::getBranch, Ce.Task::getBranchType, Ce.Task::getStatus, Ce.Task::getComponentKey)
       .containsExactlyInAnyOrder(
         tuple("T1", longLivingBranch.getBranch(), Common.BranchType.LONG, Ce.TaskStatus.SUCCESS, longLivingBranch.getKey()));
@@ -375,6 +383,7 @@ public class ActivityActionTest {
       .executeProtobuf(ActivityResponse.class);
 
     assertThat(response.getTasksList())
+      .filteredOn(t -> !t.hasPullRequestId())
       .extracting(Task::getId, Ce.Task::getBranch, Ce.Task::getBranchType, Ce.Task::getStatus)
       .containsExactlyInAnyOrder(
         tuple("T1", branch, Common.BranchType.LONG, Ce.TaskStatus.IN_PROGRESS),
@@ -443,7 +452,7 @@ public class ActivityActionTest {
       .setParam(Param.PAGE_SIZE, Integer.toString(pageSize))
       .setParam(PARAM_STATUS, "SUCCESS,FAILED,CANCELED,IN_PROGRESS,PENDING"));
 
-    assertThat(activityResponse.getTasksCount()).isEqualTo(expectedOrderedTaskIds.size());
+    assertThat(activityResponse.getTasksCount() - 1).isEqualTo(expectedOrderedTaskIds.size());
     for (int i = 0; i < expectedOrderedTaskIds.size(); i++) {
       String expectedTaskId = expectedOrderedTaskIds.get(i);
       assertThat(activityResponse.getTasks(i).getId()).isEqualTo(expectedTaskId);
@@ -457,7 +466,19 @@ public class ActivityActionTest {
       .setMediaType(MediaTypes.JSON)
       .execute();
 
-    JsonAssert.assertJson(wsResponse.getInput()).isSimilarTo("{\"tasks\":[]}");
+    JsonAssert.assertJson(wsResponse.getInput()).isSimilarTo("{\"tasks\":[{\n" +
+      "      \"id\": \"AU-TpxcA-iU5OvuD2FLz\",\n" +
+      "      \"type\": \"PROJECT_ANALYSIS\",\n" +
+      "      \"componentId\": \"AU-Tpxb--iU5OvuD2FLy\",\n" +
+      "      \"componentKey\": \"my_project\",\n" +
+      "      \"analysisId\": \"AU-TpxcB-iU5OvuD2FL7\",\n" +
+      "      \"status\": \"SUCCESS\",\n" +
+      "      \"executionTimeMs\": 1000000000,\n" +
+      "      \"logs\": false,\n" +
+      "      \"hasScannerContext\": false,\n" +
+      "      \"pullRequestId\": \"2734\",\n" +
+      "      \"pullRequestTitle\": \"SONAR-10374 Support pull request in the web app\"\n" +
+      "    }]}");
   }
 
   private void logInAsSystemAdministrator() {
