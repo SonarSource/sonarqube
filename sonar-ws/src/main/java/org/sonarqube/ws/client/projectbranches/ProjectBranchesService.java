@@ -45,8 +45,8 @@ public class ProjectBranchesService extends BaseService {
    * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/project_branches/delete">Further information about this action online (including a response example)</a>
    * @since 6.6
    */
-  public String delete(DeleteRequest request) {
-    return call(
+  public void delete(DeleteRequest request) {
+    call(
       new PostRequest(path("delete"))
         .setParam("branch", request.getBranch())
         .setParam("project", request.getProject())

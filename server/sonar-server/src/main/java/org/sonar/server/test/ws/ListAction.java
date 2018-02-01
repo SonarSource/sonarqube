@@ -54,6 +54,7 @@ import static org.sonar.api.web.UserRole.CODEVIEWER;
 import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.server.es.SearchOptions.MAX_LIMIT;
 import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
+import static org.sonar.server.ws.KeyExamples.KEY_PULL_REQUEST_EXAMPLE_001;
 import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
 
 public class ListAction implements TestsWsAction {
@@ -64,6 +65,7 @@ public class ListAction implements TestsWsAction {
   public static final String SOURCE_FILE_KEY = "sourceFileKey";
   public static final String SOURCE_FILE_LINE_NUMBER = "sourceFileLineNumber";
   public static final String PARAM_BRANCH = "branch";
+  public static final String PARAM_PULL_REQUEST = "pullRequest";
 
   private final DbClient dbClient;
   private final TestIndex testIndex;
@@ -98,6 +100,7 @@ public class ListAction implements TestsWsAction {
       .setDeprecatedSince("5.6")
       .setHandler(this)
       .setChangelog(new Change("6.6", "\"fileBranch\" field is now returned"))
+      .setChangelog(new Change("7.1", "\"filePullRequest\" field is now returned"))
       .addPagingParams(100, MAX_LIMIT);
 
     action
@@ -136,6 +139,12 @@ public class ListAction implements TestsWsAction {
       .setSince("6.6")
       .setInternal(true)
       .setExampleValue(KEY_BRANCH_EXAMPLE_001);
+
+    action.createParam(PARAM_PULL_REQUEST)
+      .setDescription("Pull request id")
+      .setSince("7.1")
+      .setInternal(true)
+      .setExampleValue(KEY_PULL_REQUEST_EXAMPLE_001);
   }
 
   @Override
@@ -146,6 +155,7 @@ public class ListAction implements TestsWsAction {
     String sourceFileUuid = request.param(SOURCE_FILE_ID);
     String sourceFileKey = request.param(SOURCE_FILE_KEY);
     String branch = request.param(PARAM_BRANCH);
+    String pullRequest = request.param(PARAM_PULL_REQUEST);
     Integer sourceFileLineNumber = request.paramAsInt(SOURCE_FILE_LINE_NUMBER);
     SearchOptions searchOptions = new SearchOptions().setPage(
       request.mandatoryParamAsInt(PAGE),
@@ -154,7 +164,7 @@ public class ListAction implements TestsWsAction {
     SearchResult<TestDoc> tests;
     Map<String, ComponentDto> componentsByTestFileUuid;
     try (DbSession dbSession = dbClient.openSession(false)) {
-      tests = searchTests(dbSession, testUuid, testFileUuid, testFileKey, sourceFileUuid, sourceFileKey, branch, sourceFileLineNumber, searchOptions);
+      tests = searchTests(dbSession, testUuid, testFileUuid, testFileKey, sourceFileUuid, sourceFileKey, branch, pullRequest, sourceFileLineNumber, searchOptions);
       componentsByTestFileUuid = buildComponentsByTestFileUuid(dbSession, tests.getDocs());
     }
 
@@ -175,6 +185,7 @@ public class ListAction implements TestsWsAction {
         testBuilder.setFileKey(component.getKey());
         testBuilder.setFileName(component.longName());
         setNullable(component.getBranch(), testBuilder::setFileBranch);
+        setNullable(component.getPullRequest(), testBuilder::setFilePullRequest);
       }
       testBuilder.setStatus(Tests.TestStatus.valueOf(testDoc.status()));
       if (testDoc.durationInMs() != null) {
@@ -209,7 +220,8 @@ public class ListAction implements TestsWsAction {
   }
 
   private SearchResult<TestDoc> searchTests(DbSession dbSession, @Nullable String testUuid, @Nullable String testFileUuid, @Nullable String testFileKey,
-    @Nullable String sourceFileUuid, @Nullable String sourceFileKey, @Nullable String branch, @Nullable Integer sourceFileLineNumber, SearchOptions searchOptions) {
+    @Nullable String sourceFileUuid, @Nullable String sourceFileKey, @Nullable String branch, @Nullable String pullRequest,
+    @Nullable Integer sourceFileLineNumber, SearchOptions searchOptions) {
     if (testUuid != null) {
       TestDoc testDoc = checkFoundWithOptional(testIndex.getNullableByTestUuid(testUuid), "Test with id '%s' is not found", testUuid);
       checkComponentUuidPermission(dbSession, testDoc.fileUuid());
@@ -220,7 +232,7 @@ public class ListAction implements TestsWsAction {
       return testIndex.searchByTestFileUuid(testFileUuid, searchOptions);
     }
     if (testFileKey != null) {
-      ComponentDto testFile = componentFinder.getByKeyAndOptionalBranch(dbSession, testFileKey, branch);
+      ComponentDto testFile = componentFinder.getByKeyAndOptionalBranchOrPullRequest(dbSession, testFileKey, branch, pullRequest);
       userSession.checkComponentPermission(CODEVIEWER, testFile);
       return testIndex.searchByTestFileUuid(testFile.uuid(), searchOptions);
     }
@@ -230,7 +242,7 @@ public class ListAction implements TestsWsAction {
       return testIndex.searchBySourceFileUuidAndLineNumber(sourceFile.uuid(), sourceFileLineNumber, searchOptions);
     }
     if (sourceFileKey != null && sourceFileLineNumber != null) {
-      ComponentDto sourceFile = componentFinder.getByKeyAndOptionalBranch(dbSession, sourceFileKey, branch);
+      ComponentDto sourceFile = componentFinder.getByKeyAndOptionalBranchOrPullRequest(dbSession, sourceFileKey, branch, pullRequest);
       userSession.checkComponentPermission(CODEVIEWER, sourceFile);
       return testIndex.searchBySourceFileUuidAndLineNumber(sourceFile.uuid(), sourceFileLineNumber, searchOptions);
     }

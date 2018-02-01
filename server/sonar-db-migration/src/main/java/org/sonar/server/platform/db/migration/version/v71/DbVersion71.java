@@ -43,6 +43,12 @@ public class DbVersion71 implements DbVersion {
       .add(2013, "Create WEBHOOKS Table", CreateWebhooksTable.class)
       .add(2014, "Migrate webhooks from SETTINGS table to WEBHOOKS table", MigrateWebhooksToWebhooksTable.class)
       .add(2015, "Add webhook key to WEBHOOK_DELIVERIES table", AddWebhookKeyToWebhookDeliveriesTable.class)
+      .add(2016, "Increase branch type size in PROJECT_BRANCHES", IncreaseBranchTypeSizeForPullRequest.class)
+      .add(2017, "Add key_type column in PROJECT_BRANCHES", AddKeyTypeInProjectBranches.class)
+      .add(2018, "Fill key_type column in PROJECT_BRANCHES", SetKeyTypeToBranchInProjectBranches.class)
+      .add(2019, "Make key_type not nullable in PROJECT_BRANCHES", MakeKeyTypeNotNullableInProjectBranches.class)
+      .add(2020, "Replace index in PROJECT_BRANCHES", ReplaceIndexInProjectBranches.class)
+      .add(2021, "Add pull_request_data in PROJECT_BRANCHES", AddPullRequestBinaryInProjectBranches.class)
     ;
   }
 }

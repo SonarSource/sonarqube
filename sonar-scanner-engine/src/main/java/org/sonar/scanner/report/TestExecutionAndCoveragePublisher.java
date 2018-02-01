@@ -55,7 +55,7 @@ public class TestExecutionAndCoveragePublisher implements ReportPublisherStep {
 
   @Override
   public void publish(ScannerReportWriter writer) {
-    if (branchConfiguration.isShortLivingBranch()) {
+    if (branchConfiguration.isShortOrPullRequest()) {
       return;
     }
     final ScannerReport.Test.Builder testBuilder = ScannerReport.Test.newBuilder();

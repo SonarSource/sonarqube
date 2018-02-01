@@ -1,0 +1,49 @@
+// SonarQube, open source software quality management tool.
+// Copyright (C) 2008-2016 SonarSource
+// mailto:contact AT sonarsource DOT com
+//
+// SonarQube is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 3 of the License, or (at your option) any later version.
+//
+// SonarQube is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public License
+// along with this program; if not, write to the Free Software Foundation,
+// Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
+syntax = "proto2";
+
+package sonarqube.ws.projectpullrequest;
+
+option java_package = "org.sonarqube.ws";
+option java_outer_classname = "ProjectPullRequests";
+option optimize_for = SPEED;
+
+import "ws-commons.proto";
+
+// WS api/project_pull_requests/list
+message ListWsResponse {
+  repeated PullRequest pullRequests = 1;
+}
+
+message PullRequest {
+  optional string key = 1;
+  optional string title = 2;
+  optional string branch = 3;
+  optional string base = 4;
+  optional Status status = 5;
+  optional bool isOrphan = 6;
+  optional string analysisDate = 7;
+  optional string url = 8;
+}
+
+message Status {
+  optional int64 bugs = 2;
+  optional int64 vulnerabilities = 3;
+  optional int64 codeSmells = 4;
+}

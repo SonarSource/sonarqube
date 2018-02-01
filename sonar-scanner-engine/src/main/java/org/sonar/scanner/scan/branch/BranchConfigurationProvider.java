@@ -39,14 +39,14 @@ public class BranchConfigurationProvider extends ProviderAdapter {
   private BranchConfiguration branchConfiguration = null;
 
   public BranchConfiguration provide(@Nullable BranchConfigurationLoader loader, GlobalConfiguration globalConfiguration, ProjectKey projectKey,
-    SettingsLoader settingsLoader, ProjectBranches branches) {
+    SettingsLoader settingsLoader, ProjectBranches branches, ProjectPullRequests pullRequests) {
     if (branchConfiguration == null) {
       if (loader == null) {
         branchConfiguration = new DefaultBranchConfiguration();
       } else {
         Profiler profiler = Profiler.create(LOG).startInfo(LOG_MSG);
         Supplier<Map<String, String>> settingsSupplier = createSettingsSupplier(globalConfiguration, projectKey, settingsLoader);
-        branchConfiguration = loader.load(globalConfiguration.getProperties(), settingsSupplier, branches);
+        branchConfiguration = loader.load(globalConfiguration.getProperties(), settingsSupplier, branches, pullRequests);
         profiler.stopInfo();
       }
     }

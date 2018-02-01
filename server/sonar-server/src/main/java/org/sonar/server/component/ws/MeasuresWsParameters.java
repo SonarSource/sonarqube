@@ -35,6 +35,7 @@ public class MeasuresWsParameters {
   public static final String DEPRECATED_PARAM_BASE_COMPONENT_KEY = "baseComponentKey";
   public static final String PARAM_COMPONENT = "component";
   public static final String PARAM_BRANCH = "branch";
+  public static final String PARAM_PULL_REQUEST = "pullRequest";
   public static final String PARAM_STRATEGY = "strategy";
   public static final String PARAM_QUALIFIERS = "qualifiers";
   public static final String PARAM_METRICS = "metrics";

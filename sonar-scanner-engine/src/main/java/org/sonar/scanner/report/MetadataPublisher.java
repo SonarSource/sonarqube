@@ -91,30 +91,13 @@ public class MetadataPublisher implements ReportPublisherStep {
     settings.get(ORGANIZATION).ifPresent(builder::setOrganizationKey);
 
     if (branchConfiguration.branchName() != null) {
-      builder.setBranchName(branchConfiguration.branchName());
-      builder.setBranchType(toProtobufBranchType(branchConfiguration.branchType()));
-      String branchTarget = branchConfiguration.branchTarget();
-      if (branchTarget != null) {
-        builder.setMergeBranchName(branchTarget);
-      }
+      addBranchInformation(builder);
     }
+
     Optional.ofNullable(rootProject.getBranch()).ifPresent(builder::setDeprecatedBranch);
 
     if (scmConfiguration != null) {
-      ScmProvider scmProvider = scmConfiguration.provider();
-      if (scmProvider != null) {
-        Path projectBasedir = moduleHierarchy.root().getBaseDir();
-        try {
-          builder.setRelativePathFromScmRoot(toSonarQubePath(scmProvider.relativePathFromScmRoot(projectBasedir)));
-        } catch (UnsupportedOperationException e) {
-          LOG.debug(e.getMessage());
-        }
-        try {
-          builder.setScmRevisionId(scmProvider.revisionId(projectBasedir));
-        } catch (UnsupportedOperationException e) {
-          LOG.debug(e.getMessage());
-        }
-      }
+      addScmInformation(builder);
     }
 
     for (QProfile qp : qProfiles.findAll()) {
@@ -132,7 +115,40 @@ public class MetadataPublisher implements ReportPublisherStep {
     writer.writeMetadata(builder.build());
   }
 
+  private void addScmInformation(ScannerReport.Metadata.Builder builder) {
+    ScmProvider scmProvider = scmConfiguration.provider();
+    if (scmProvider != null) {
+      Path projectBasedir = moduleHierarchy.root().getBaseDir();
+      try {
+        builder.setRelativePathFromScmRoot(toSonarQubePath(scmProvider.relativePathFromScmRoot(projectBasedir)));
+      } catch (UnsupportedOperationException e) {
+        LOG.debug(e.getMessage());
+      }
+      try {
+        builder.setScmRevisionId(scmProvider.revisionId(projectBasedir));
+      } catch (UnsupportedOperationException e) {
+        LOG.debug(e.getMessage());
+      }
+    }
+  }
+
+  private void addBranchInformation(ScannerReport.Metadata.Builder builder) {
+    builder.setBranchName(branchConfiguration.branchName());
+    BranchType branchType = toProtobufBranchType(branchConfiguration.branchType());
+    builder.setBranchType(branchType);
+    String branchTarget = branchConfiguration.branchTarget();
+    if (branchTarget != null) {
+      builder.setMergeBranchName(branchTarget);
+    }
+    if (branchType == BranchType.PULL_REQUEST) {
+      builder.setPullRequestKey(branchConfiguration.pullRequestKey());
+    }
+  }
+
   private static BranchType toProtobufBranchType(org.sonar.scanner.scan.branch.BranchType branchType) {
+    if (branchType == org.sonar.scanner.scan.branch.BranchType.PULL_REQUEST) {
+      return BranchType.PULL_REQUEST;
+    }
     if (branchType == org.sonar.scanner.scan.branch.BranchType.LONG) {
       return BranchType.LONG;
     }

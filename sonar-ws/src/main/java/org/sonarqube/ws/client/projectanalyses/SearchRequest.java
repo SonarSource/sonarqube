@@ -37,6 +37,7 @@ public class SearchRequest {
   private String p;
   private String project;
   private String ps;
+  private String pullRequest;
   private String to;
 
   /**
@@ -118,6 +119,19 @@ public class SearchRequest {
 
   public String getPs() {
     return ps;
+  }
+
+  /**
+   * This is part of the internal API.
+   * Example value: "5461"
+   */
+  public SearchRequest setPullRequest(String pullRequest) {
+    this.pullRequest = pullRequest;
+    return this;
+  }
+
+  public String getPullRequest() {
+    return pullRequest;
   }
 
   /**

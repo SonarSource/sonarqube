@@ -48,6 +48,7 @@ public class SearchRequest {
   private List<String> moduleUuids;
   private Boolean onComponentOnly;
   private String branch;
+  private String pullRequest;
   private String organization;
   private Integer page;
   private Integer pageSize;
@@ -451,6 +452,16 @@ public class SearchRequest {
 
   public SearchRequest setBranch(@Nullable String branch) {
     this.branch = branch;
+    return this;
+  }
+
+  @CheckForNull
+  public String getPullRequest() {
+    return pullRequest;
+  }
+
+  public SearchRequest setPullRequest(@Nullable String pullRequest) {
+    this.pullRequest = pullRequest;
     return this;
   }
 }

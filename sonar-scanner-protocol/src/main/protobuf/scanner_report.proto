@@ -46,6 +46,8 @@ message Metadata {
   string relative_path_from_scm_root = 12;
   string scm_revision_id = 13;
 
+  string pull_request_key = 14;
+
   message QProfile {
     string key = 1;
     string name = 2;
@@ -62,6 +64,7 @@ message Metadata {
     UNSET = 0;
     LONG = 1;
     SHORT = 2;
+    PULL_REQUEST = 3;
   }
 }
 

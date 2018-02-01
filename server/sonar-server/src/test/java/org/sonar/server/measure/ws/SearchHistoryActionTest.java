@@ -62,12 +62,14 @@ import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
 import static org.sonar.core.util.Protobuf.setNullable;
+import static org.sonar.db.component.BranchType.PULL_REQUEST;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.db.component.SnapshotDto.STATUS_UNPROCESSED;
 import static org.sonar.db.component.SnapshotTesting.newAnalysis;
 import static org.sonar.db.measure.MeasureTesting.newMeasureDto;
 import static org.sonar.db.metric.MetricTesting.newMetricDto;
+import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_PULL_REQUEST;
 import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_BRANCH;
 import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_COMPONENT;
@@ -288,6 +290,29 @@ public class SearchHistoryActionTest {
   }
 
   @Test
+  public void pull_request() {
+    ComponentDto project = db.components().insertPrivateProject();
+    userSession.addProjectPermission(UserRole.USER, project);
+    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("pr-123").setBranchType(PULL_REQUEST));
+    ComponentDto file = db.components().insertComponent(newFileDto(branch));
+    SnapshotDto analysis = db.components().insertSnapshot(branch);
+    MeasureDto measure = db.measures().insertMeasure(file, analysis, nclocMetric, m -> m.setValue(2d));
+
+    SearchHistoryResponse result = ws.newRequest()
+      .setParam(PARAM_COMPONENT, file.getKey())
+      .setParam(PARAM_PULL_REQUEST, "pr-123")
+      .setParam(PARAM_METRICS, "ncloc")
+      .executeProtobuf(SearchHistoryResponse.class);
+
+    assertThat(result.getMeasuresList()).extracting(HistoryMeasure::getMetric).hasSize(1);
+    HistoryMeasure historyMeasure = result.getMeasures(0);
+    assertThat(historyMeasure.getMetric()).isEqualTo(nclocMetric.getKey());
+    assertThat(historyMeasure.getHistoryList())
+      .extracting(m -> parseDouble(m.getValue()))
+      .containsExactlyInAnyOrder(measure.getValue());
+  }
+
+  @Test
   public void fail_when_using_branch_db_key() throws Exception {
     OrganizationDto organization = db.organizations().insert();
     ComponentDto project = db.components().insertMainBranch(organization);
@@ -372,7 +397,7 @@ public class SearchHistoryActionTest {
     assertThat(definition.isPost()).isFalse();
     assertThat(definition.isInternal()).isFalse();
     assertThat(definition.since()).isEqualTo("6.3");
-    assertThat(definition.params()).hasSize(7);
+    assertThat(definition.params()).hasSize(8);
 
     Param branch = definition.param("branch");
     assertThat(branch.since()).isEqualTo("6.6");

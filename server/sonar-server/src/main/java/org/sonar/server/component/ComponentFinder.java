@@ -154,8 +154,24 @@ public class ComponentFinder {
     throw new NotFoundException(format("Component '%s' on branch '%s' not found", key, branch));
   }
 
-  public ComponentDto getByKeyAndOptionalBranch(DbSession dbSession, String key, @Nullable String branch) {
-    return branch == null ? getByKey(dbSession, key) : getByKeyAndBranch(dbSession, key, branch);
+  public ComponentDto getByKeyAndPullRequest(DbSession dbSession, String key, String pullRequest) {
+    java.util.Optional<ComponentDto> componentDto = dbClient.componentDao().selectByKeyAndPullRequest(dbSession, key, pullRequest);
+    if (componentDto.isPresent() && componentDto.get().isEnabled()) {
+      return componentDto.get();
+    }
+    throw new NotFoundException(format("Component '%s' of pull request '%s' not found", key, pullRequest));
+  }
+
+  public ComponentDto getByKeyAndOptionalBranchOrPullRequest(DbSession dbSession, String key, @Nullable String branch, @Nullable String pullRequest) {
+    checkArgument(branch == null || pullRequest == null, "Either branch or pull request can be provided, not both");
+    if (branch != null) {
+      return getByKeyAndBranch(dbSession, key, branch);
+    }
+    if (pullRequest != null) {
+      return getByKeyAndPullRequest(dbSession, key, pullRequest);
+    }
+
+    return getByKey(dbSession, key);
   }
 
   public enum ParamNames {
@@ -165,7 +181,7 @@ public class ComponentFinder {
     UUID_AND_KEY("uuid", "key"),
     ID_AND_KEY("id", "key"),
     COMPONENT_ID_AND_KEY("componentId", "componentKey"),
-    BASE_COMPONENT_ID_AND_KEY("baseComponentId", "baseComponentKey"),
+    BASE_COMPONENT_ID_AND_KEY("baseComponentId", "component"),
     DEVELOPER_ID_AND_KEY("developerId", "developerKey"),
     COMPONENT_ID_AND_COMPONENT("componentId", "component"),
     PROJECT_ID_AND_PROJECT("projectId", "project"),

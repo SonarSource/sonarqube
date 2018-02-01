@@ -86,6 +86,11 @@ public class DefaultBranchImpl implements Branch {
   }
 
   @Override
+  public String getPullRequestId() {
+    throw new IllegalStateException("Only a branch of type PULL_REQUEST can have a pull request id.");
+  }
+
+  @Override
   public String generateKey(ScannerReport.Component module, @Nullable ScannerReport.Component fileOrDir) {
     String moduleWithBranch = module.getKey();
     if (isLegacyBranch) {

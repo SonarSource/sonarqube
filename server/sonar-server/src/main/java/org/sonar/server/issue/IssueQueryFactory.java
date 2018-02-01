@@ -198,6 +198,7 @@ public class IssueQueryFactory {
     Collection<String> componentRootUuids = request.getComponentRootUuids();
     Collection<String> componentRoots = request.getComponentRoots();
     String branch = request.getBranch();
+    String pullRequest = request.getPullRequest();
 
     boolean effectiveOnComponentOnly = false;
 
@@ -208,15 +209,15 @@ public class IssueQueryFactory {
     if (componentRootUuids != null) {
       allComponents.addAll(getComponentsFromUuids(session, componentRootUuids));
     } else if (componentRoots != null) {
-      allComponents.addAll(getComponentsFromKeys(session, componentRoots, branch));
+      allComponents.addAll(getComponentsFromKeys(session, componentRoots, branch, pullRequest));
     } else if (components != null) {
-      allComponents.addAll(getComponentsFromKeys(session, components, branch));
+      allComponents.addAll(getComponentsFromKeys(session, components, branch, pullRequest));
       effectiveOnComponentOnly = true;
     } else if (componentUuids != null) {
       allComponents.addAll(getComponentsFromUuids(session, componentUuids));
       effectiveOnComponentOnly = BooleanUtils.isTrue(onComponentOnly);
     } else if (componentKeys != null) {
-      allComponents.addAll(getComponentsFromKeys(session, componentKeys, branch));
+      allComponents.addAll(getComponentsFromKeys(session, componentKeys, branch, pullRequest));
       effectiveOnComponentOnly = BooleanUtils.isTrue(onComponentOnly);
     }
 
@@ -229,13 +230,11 @@ public class IssueQueryFactory {
       .count() <= 1;
   }
 
-  private void addComponentParameters(IssueQuery.Builder builder, DbSession session, boolean onComponentOnly,
-    List<ComponentDto> components, SearchRequest request) {
-
+  private void addComponentParameters(IssueQuery.Builder builder, DbSession session, boolean onComponentOnly, List<ComponentDto> components, SearchRequest request) {
     builder.onComponentOnly(onComponentOnly);
     if (onComponentOnly) {
       builder.componentUuids(components.stream().map(ComponentDto::uuid).collect(toList()));
-      setBranch(builder, components.get(0), request.getBranch());
+      setBranch(builder, components.get(0), request.getBranch(), request.getPullRequest());
       return;
     }
 
@@ -246,9 +245,9 @@ public class IssueQueryFactory {
     if (projectUuids != null) {
       builder.projectUuids(projectUuids);
     } else if (projectKeys != null) {
-      List<ComponentDto> projects = getComponentsFromKeys(session, projectKeys, request.getBranch());
+      List<ComponentDto> projects = getComponentsFromKeys(session, projectKeys, request.getBranch(), request.getPullRequest());
       builder.projectUuids(projects.stream().map(IssueQueryFactory::toProjectUuid).collect(toList()));
-      setBranch(builder, projects.get(0), request.getBranch());
+      setBranch(builder, projects.get(0), request.getBranch(), request.getPullRequest());
     }
     builder.moduleUuids(request.getModuleUuids());
     builder.directories(request.getDirectories());
@@ -269,7 +268,7 @@ public class IssueQueryFactory {
     Set<String> qualifiers = components.stream().map(ComponentDto::qualifier).collect(toHashSet());
     checkArgument(qualifiers.size() == 1, "All components must have the same qualifier, found %s", String.join(",", qualifiers));
 
-    setBranch(builder, components.get(0), request.getBranch());
+    setBranch(builder, components.get(0), request.getBranch(), request.getPullRequest());
     String qualifier = qualifiers.iterator().next();
     switch (qualifier) {
       case Qualifiers.VIEW:
@@ -345,10 +344,15 @@ public class IssueQueryFactory {
     builder.directories(directoryPaths);
   }
 
-  private List<ComponentDto> getComponentsFromKeys(DbSession dbSession, Collection<String> componentKeys, @Nullable String branch) {
-    List<ComponentDto> componentDtos = branch == null
-      ? dbClient.componentDao().selectByKeys(dbSession, componentKeys)
-      : dbClient.componentDao().selectByKeysAndBranch(dbSession, componentKeys, branch);
+  private List<ComponentDto> getComponentsFromKeys(DbSession dbSession, Collection<String> componentKeys, @Nullable String branch, @Nullable String pullRequest) {
+    List<ComponentDto> componentDtos;
+    if (branch != null) {
+      componentDtos = dbClient.componentDao().selectByKeysAndBranch(dbSession, componentKeys, branch);
+    } else if (pullRequest != null) {
+      componentDtos = dbClient.componentDao().selectByKeysAndPullRequest(dbSession, componentKeys, pullRequest);
+    } else {
+      componentDtos = dbClient.componentDao().selectByKeys(dbSession, componentKeys);
+    }
     if (!componentKeys.isEmpty() && componentDtos.isEmpty()) {
       return singletonList(UNKNOWN_COMPONENT);
     }
@@ -376,8 +380,11 @@ public class IssueQueryFactory {
     return mainBranchProjectUuid == null ? componentDto.projectUuid() : mainBranchProjectUuid;
   }
 
-  private static void setBranch(IssueQuery.Builder builder, ComponentDto component, @Nullable String branch) {
-    builder.branchUuid(branch == null ? null : component.projectUuid());
-    builder.mainBranch(branch == null || component.equals(UNKNOWN_COMPONENT) || !branch.equals(component.getBranch()));
+  private static void setBranch(IssueQuery.Builder builder, ComponentDto component, @Nullable String branch, @Nullable String pullRequest) {
+    builder.branchUuid(branch == null && pullRequest == null ? null : component.projectUuid());
+    builder.mainBranch(UNKNOWN_COMPONENT.equals(component)
+      || (branch == null && pullRequest == null)
+      || (branch != null && !branch.equals(component.getBranch()))
+      || (pullRequest != null && !pullRequest.equals(component.getPullRequest())));
   }
 }

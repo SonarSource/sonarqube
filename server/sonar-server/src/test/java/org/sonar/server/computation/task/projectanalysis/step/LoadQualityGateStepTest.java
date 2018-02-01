@@ -68,6 +68,17 @@ public class LoadQualityGateStepTest {
   }
 
   @Test
+  public void add_hardcoded_QG_on_pull_request() {
+    when(analysisMetadataHolder.isPullRequest()).thenReturn(true);
+    QualityGate qualityGate = mock(QualityGate.class);
+    when(qualityGateService.findById(ShortLivingBranchQualityGate.ID)).thenReturn(Optional.of(qualityGate));
+
+    underTest.execute();
+
+    assertThat(mutableQualityGateHolder.getQualityGate().get()).isSameAs(qualityGate);
+  }
+
+  @Test
   public void execute_sets_default_QualityGate_when_project_has_no_settings() {
     when(settingsRepository.getConfiguration()).thenReturn(new MapSettings().asConfig());
     QualityGate defaultGate = mock(QualityGate.class);

@@ -100,7 +100,18 @@ public class CpdExecutorTest {
 
   @Test
   public void skipIfShortBranch() {
-    when(branchConfig.isShortLivingBranch()).thenReturn(true);
+    when(branchConfig.isShortOrPullRequest()).thenReturn(true);
+    index = mock(SonarCpdBlockIndex.class);
+    executor = new CpdExecutor(settings, index, publisher, componentStore, branchConfig);
+
+    executor.execute();
+
+    verifyZeroInteractions(index);
+  }
+
+  @Test
+  public void skip_if_pull_request() {
+    when(branchConfig.isShortOrPullRequest()).thenReturn(true);
     index = mock(SonarCpdBlockIndex.class);
     executor = new CpdExecutor(settings, index, publisher, componentStore, branchConfig);
 

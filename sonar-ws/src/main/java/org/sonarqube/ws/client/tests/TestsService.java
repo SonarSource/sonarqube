@@ -72,6 +72,7 @@ public class TestsService extends BaseService {
         .setParam("branch", request.getBranch())
         .setParam("p", request.getP())
         .setParam("ps", request.getPs())
+        .setParam("pullRequest", request.getPullRequest())
         .setParam("sourceFileId", request.getSourceFileId())
         .setParam("sourceFileKey", request.getSourceFileKey())
         .setParam("sourceFileLineNumber", request.getSourceFileLineNumber())

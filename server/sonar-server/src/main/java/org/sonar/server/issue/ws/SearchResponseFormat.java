@@ -162,6 +162,7 @@ public class SearchResponseFormat {
     issueBuilder.setOrganization(data.getOrganizationKey(component.getOrganizationUuid()));
     issueBuilder.setComponent(component.getKey());
     setNullable(component.getBranch(), issueBuilder::setBranch);
+    setNullable(component.getPullRequest(), issueBuilder::setPullRequest);
     ComponentDto project = data.getComponentByUuid(dto.getProjectUuid());
     if (project != null) {
       issueBuilder.setProject(project.getKey());
@@ -309,6 +310,7 @@ public class SearchResponseFormat {
         .setLongName(nullToEmpty(dto.longName()))
         .setEnabled(dto.isEnabled());
       setNullable(dto.getBranch(), builder::setBranch);
+      setNullable(dto.getPullRequest(), builder::setPullRequest);
       String path = dto.path();
       // path is not applicable to the components that are not files.
       // Value must not be "" in this case.

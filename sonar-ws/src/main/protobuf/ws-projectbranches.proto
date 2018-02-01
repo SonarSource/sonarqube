@@ -45,16 +45,15 @@ message Branch {
   optional Status status = 5;
   optional bool isOrphan = 6;
   optional string analysisDate = 7;
+}
 
-  message Status {
-    // Quality gate status is only present for long living branch
-    optional string qualityGateStatus = 1;
-    // Merge bugs, vulnerabilities and codeSmell are only present for short living branch
-    optional int64 bugs = 2;
-    optional int64 vulnerabilities = 3;
-    optional int64 codeSmells = 4;
-  }
-
+message Status {
+  // Quality gate status is only present for long living branch
+  optional string qualityGateStatus = 1;
+  // Merge bugs, vulnerabilities and codeSmell are only present for short living branch
+  optional int64 bugs = 2;
+  optional int64 vulnerabilities = 3;
+  optional int64 codeSmells = 4;
 }
 
 

@@ -123,10 +123,16 @@ public class WebhookPayloadFactoryImpl implements WebhookPayloadFactory {
       }
       return format("%s/dashboard?branch=%s&id=%s",
         server.getPublicRootUrl(), encode(branch.getName().orElse("")), encode(project.getKey()));
-    } else {
+    }
+    if (branch.getType() == Branch.Type.SHORT) {
       return format("%s/project/issues?branch=%s&id=%s&resolved=false",
         server.getPublicRootUrl(), encode(branch.getName().orElse("")), encode(project.getKey()));
     }
+    if (branch.getType() == Branch.Type.PULL_REQUEST) {
+      return format("%s/project/issues?pullRequest=%s&id=%s&resolved=false",
+        server.getPublicRootUrl(), encode(branch.getName().orElse("")), encode(project.getKey()));
+    }
+    return projectUrlOf(project);
   }
 
   private static void writeQualityGate(JsonWriter writer, EvaluatedQualityGate gate) {
