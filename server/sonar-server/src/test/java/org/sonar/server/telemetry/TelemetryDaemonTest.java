@@ -29,12 +29,10 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.config.Configuration;
-import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.internal.TestSystem2;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
-import org.sonar.core.config.TelemetryProperties;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.core.platform.PluginRepository;
 import org.sonar.db.DbSession;
@@ -72,6 +70,9 @@ import static org.sonar.api.measures.CoreMetrics.NCLOC_LANGUAGE_DISTRIBUTION_KEY
 import static org.sonar.api.utils.DateUtils.parseDate;
 import static org.sonar.db.component.BranchType.LONG;
 import static org.sonar.db.component.BranchType.SHORT;
+import static org.sonar.process.ProcessProperties.Property.SONAR_TELEMETRY_ENABLE;
+import static org.sonar.process.ProcessProperties.Property.SONAR_TELEMETRY_FREQUENCY_IN_SECONDS;
+import static org.sonar.process.ProcessProperties.Property.SONAR_TELEMETRY_URL;
 import static org.sonar.test.JsonAssert.assertJson;
 
 public class TelemetryDaemonTest {
@@ -94,7 +95,7 @@ public class TelemetryDaemonTest {
   private FakeServer server = new FakeServer();
   private PluginRepository pluginRepository = mock(PluginRepository.class);
   private TestSystem2 system2 = new TestSystem2().setNow(System.currentTimeMillis());
-  private MapSettings settings = new MapSettings(new PropertyDefinitions(TelemetryProperties.all()));
+  private MapSettings settings = new MapSettings();
   private ProjectMeasuresIndexer projectMeasuresIndexer = new ProjectMeasuresIndexer(db.getDbClient(), es.client());
   private UserIndexer userIndexer = new UserIndexer(db.getDbClient(), es.client());
 
@@ -108,6 +109,7 @@ public class TelemetryDaemonTest {
 
   @Test
   public void send_telemetry_data() throws IOException {
+    initTelemetrySettingsToDefaultValues();
     settings.setProperty("sonar.telemetry.frequencyInSeconds", "1");
     server.setId("AU-TpxcB-iU5OvuD2FL7");
     server.setVersion("7.5.4");
@@ -164,6 +166,7 @@ public class TelemetryDaemonTest {
 
   @Test
   public void exclude_branches() throws IOException {
+    initTelemetrySettingsToDefaultValues();
     settings.setProperty("sonar.telemetry.frequencyInSeconds", "1");
     server.setId("AU-TpxcB-iU5OvuD2FL7").setVersion("7.5.4");
     MetricDto ncloc = db.measures().insertMetric(m -> m.setKey(NCLOC_KEY));
@@ -186,6 +189,7 @@ public class TelemetryDaemonTest {
 
   @Test
   public void send_data_via_client_at_startup_after_initial_delay() throws IOException {
+    initTelemetrySettingsToDefaultValues();
     settings.setProperty("sonar.telemetry.frequencyInSeconds", "1");
     underTest.start();
 
@@ -194,6 +198,7 @@ public class TelemetryDaemonTest {
 
   @Test
   public void check_if_should_send_data_periodically() throws IOException {
+    initTelemetrySettingsToDefaultValues();
     long now = system2.now();
     long sixDaysAgo = now - (ONE_DAY * 6L);
     long sevenDaysAgo = now - (ONE_DAY * 7L);
@@ -208,6 +213,7 @@ public class TelemetryDaemonTest {
 
   @Test
   public void send_server_id_and_version() throws IOException {
+    initTelemetrySettingsToDefaultValues();
     settings.setProperty("sonar.telemetry.frequencyInSeconds", "1");
     String id = randomAlphanumeric(40);
     String version = randomAlphanumeric(10);
@@ -222,6 +228,7 @@ public class TelemetryDaemonTest {
 
   @Test
   public void do_not_send_data_if_last_ping_earlier_than_one_week_ago() throws IOException {
+    initTelemetrySettingsToDefaultValues();
     settings.setProperty("sonar.telemetry.frequencyInSeconds", "1");
     long now = system2.now();
     long sixDaysAgo = now - (ONE_DAY * 6L);
@@ -234,6 +241,7 @@ public class TelemetryDaemonTest {
 
   @Test
   public void send_data_if_last_ping_is_one_week_ago() throws IOException {
+    initTelemetrySettingsToDefaultValues();
     settings.setProperty("sonar.telemetry.frequencyInSeconds", "1");
     long today = parseDate("2017-08-01").getTime();
     system2.setNow(today + 15 * ONE_HOUR);
@@ -249,6 +257,7 @@ public class TelemetryDaemonTest {
 
   @Test
   public void opt_out_sent_once() throws IOException {
+    initTelemetrySettingsToDefaultValues();
     settings.setProperty("sonar.telemetry.frequencyInSeconds", "1");
     settings.setProperty("sonar.telemetry.enable", "false");
     underTest.start();
@@ -262,5 +271,11 @@ public class TelemetryDaemonTest {
   private PluginInfo newPlugin(String key, String version) {
     return new PluginInfo(key)
       .setVersion(Version.create(version));
+  }
+
+  private void initTelemetrySettingsToDefaultValues(){
+    settings.setProperty(SONAR_TELEMETRY_ENABLE.getKey(), SONAR_TELEMETRY_ENABLE.getDefaultValue());
+    settings.setProperty(SONAR_TELEMETRY_URL.getKey(), SONAR_TELEMETRY_URL.getDefaultValue());
+    settings.setProperty(SONAR_TELEMETRY_FREQUENCY_IN_SECONDS.getKey(), SONAR_TELEMETRY_FREQUENCY_IN_SECONDS.getDefaultValue());
   }
 }

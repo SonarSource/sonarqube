@@ -97,7 +97,10 @@ public class DeleteSettingsDefinedInSonarDotProperties extends DataChange {
     "sonar.web.sso.groupsHeader",
     "sonar.web.sso.refreshIntervalInMinutes",
     "sonar.security.realm",
-    "sonar.authenticator.ignoreStartupFailure");
+    "sonar.authenticator.ignoreStartupFailure",
+    "sonar.telemetry.enable",
+    "sonar.telemetry.url",
+    "sonar.telemetry.frequencyInSeconds");
 
   private static final Joiner COMMA_JOINER = Joiner.on(",");
 

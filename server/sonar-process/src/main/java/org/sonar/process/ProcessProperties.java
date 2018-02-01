@@ -101,6 +101,10 @@ public class ProcessProperties {
     SONAR_SECURITY_REALM("sonar.security.realm"),
     SONAR_AUTHENTICATOR_IGNORE_STARTUP_FAILURE("sonar.authenticator.ignoreStartupFailure", "false"),
 
+    SONAR_TELEMETRY_ENABLE("sonar.telemetry.enable", "true"),
+    SONAR_TELEMETRY_URL("sonar.telemetry.url", "https://telemetry.sonarsource.com/sonarqube"),
+    SONAR_TELEMETRY_FREQUENCY_IN_SECONDS("sonar.telemetry.frequencyInSeconds", "21600"),
+
     SONAR_UPDATECENTER_ACTIVATE("sonar.updatecenter.activate", "true"),
 
     SONARCLOUD_ENABLED("sonar.sonarcloud.enabled", "false"),

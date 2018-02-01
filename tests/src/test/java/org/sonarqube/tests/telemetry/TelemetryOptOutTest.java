@@ -24,7 +24,6 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
-import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.rules.RuleChain;
@@ -33,31 +32,24 @@ import org.sonarqube.ws.client.GetRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.jsonToMap;
-import static util.ItUtils.setServerProperty;
 import static util.ItUtils.xooPlugin;
 
 public class TelemetryOptOutTest {
 
-  @ClassRule
   public static MockWebServer server = new MockWebServer();
 
   private static Orchestrator orchestrator = Orchestrator.builderEnv()
     .addPlugin(xooPlugin())
+    .setServerProperty("sonar.telemetry.enable", "false")
+    .setServerProperty("sonar.telemetry.url", server.url("").toString())
+    .setServerProperty("sonar.telemetry.frequencyInSeconds", "1")
     .build();
   private static Tester tester = new Tester(orchestrator);
 
   @ClassRule
-  public static RuleChain ruleChain = RuleChain.outerRule(orchestrator)
+  public static RuleChain ruleChain = RuleChain.outerRule(server)
+    .around(orchestrator)
     .around(tester);
-
-  @BeforeClass
-  public static void setUp() {
-    setServerProperty(orchestrator, "sonar.telemetry.enable", "false");
-    setServerProperty(orchestrator, "sonar.telemetry.url", server.url("").toString());
-    setServerProperty(orchestrator, "sonar.telemetry.frequencyInSeconds", "1");
-
-    orchestrator.restartServer();
-  }
 
   @Test
   public void opt_out_of_telemetry() throws Exception {
