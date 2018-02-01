@@ -1,0 +1,38 @@
+/*
+    SonarQube, open source software quality management tool.
+    Copyright (C) 2008-2016 SonarSource
+    mailto:contact AT sonarsource DOT com
+
+    SonarQube is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Lesser General Public
+    License as published by the Free Software Foundation; either
+    version 3 of the License, or (at your option) any later version.
+
+    SonarQube is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+    Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public License
+    along with this program; if not, write to the Free Software Foundation,
+    Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+*/
+
+// Structure of db column PROJECT_BRANCHES.PULL_REQUEST_DATA
+
+syntax = "proto3";
+
+package sonarqube.db.project_branches;
+
+// The java package can be changed without breaking compatibility.
+// it impacts only the generated Java code.
+option java_package = "org.sonar.db.protobuf";
+option optimize_for = SPEED;
+
+message PullRequestData {
+  string branch = 1;
+  string title = 2;
+  string url = 3;
+
+  map<string, string> attributes = 4;
+}

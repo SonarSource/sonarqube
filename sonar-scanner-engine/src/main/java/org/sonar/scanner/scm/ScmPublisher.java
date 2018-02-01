@@ -103,7 +103,7 @@ public final class ScmPublisher {
       }
       if (configuration.forceReloadAll() || f.status() != Status.SAME) {
         addIfNotEmpty(filesToBlame, f);
-      } else if (!branchConfiguration.isShortLivingBranch()) {
+      } else if (!branchConfiguration.isShortOrPullRequest()) {
         // File status is SAME so that mean fileData exists
         FileData fileData = projectRepositories.fileData(inputModule.definition().getKeyWithBranch(), inputFile.getModuleRelativePath());
         if (StringUtils.isEmpty(fileData.revision())) {

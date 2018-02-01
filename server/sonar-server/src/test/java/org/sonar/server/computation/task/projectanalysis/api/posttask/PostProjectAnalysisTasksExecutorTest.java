@@ -302,6 +302,11 @@ public class PostProjectAnalysisTasksExecutorTest {
       }
 
       @Override
+      public String getPullRequestId() {
+        throw new UnsupportedOperationException();
+      }
+
+      @Override
       public String generateKey(ScannerReport.Component module, @Nullable ScannerReport.Component fileOrDir) {
         throw new UnsupportedOperationException();
       }

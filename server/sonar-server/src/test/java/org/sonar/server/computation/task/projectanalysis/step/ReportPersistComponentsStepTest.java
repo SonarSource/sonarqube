@@ -944,6 +944,11 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
     }
 
     @Override
+    public String getPullRequestId() {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
     public String generateKey(ScannerReport.Component module, @Nullable ScannerReport.Component fileOrDir) {
       String moduleKey = module.getKey();
       if (fileOrDir == null || isEmpty(fileOrDir.getPath())) {

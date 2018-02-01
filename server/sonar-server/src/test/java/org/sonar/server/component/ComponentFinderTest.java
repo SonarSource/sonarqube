@@ -30,6 +30,7 @@ import org.sonar.server.exceptions.NotFoundException;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.db.component.BranchType.PULL_REQUEST;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
@@ -190,6 +191,31 @@ public class ComponentFinderTest {
     assertThat(underTest.getByKeyAndBranch(dbSession, module.getKey(), "my_branch").uuid()).isEqualTo(module.uuid());
     assertThat(underTest.getByKeyAndBranch(dbSession, file.getKey(), "my_branch").uuid()).isEqualTo(file.uuid());
     assertThat(underTest.getByKeyAndBranch(dbSession, directory.getKey(), "my_branch").uuid()).isEqualTo(directory.uuid());
+  }
+
+  @Test
+  public void get_by_key_and_pull_request() {
+    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("pr-123").setBranchType(PULL_REQUEST).setMergeBranchUuid(project.uuid()));
+    ComponentDto module = db.components().insertComponent(newModuleDto(branch));
+    ComponentDto directory = db.components().insertComponent(newDirectory(module, "scr"));
+    ComponentDto file = db.components().insertComponent(newFileDto(module));
+
+    assertThat(underTest.getByKeyAndOptionalBranchOrPullRequest(dbSession, project.getKey(), null, "pr-123").uuid()).isEqualTo(branch.uuid());
+    assertThat(underTest.getByKeyAndOptionalBranchOrPullRequest(dbSession, module.getKey(), null, "pr-123").uuid()).isEqualTo(module.uuid());
+    assertThat(underTest.getByKeyAndOptionalBranchOrPullRequest(dbSession, file.getKey(), null, "pr-123").uuid()).isEqualTo(file.uuid());
+    assertThat(underTest.getByKeyAndOptionalBranchOrPullRequest(dbSession, directory.getKey(), null, "pr-123").uuid()).isEqualTo(directory.uuid());
+  }
+
+  @Test
+  public void fail_when_pull_request_branch_provided() {
+    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto pullRequest = db.components().insertProjectBranch(project, b -> b.setKey("pr-123").setBranchType(PULL_REQUEST));
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Either branch or pull request can be provided, not both");
+
+    assertThat(underTest.getByKeyAndOptionalBranchOrPullRequest(dbSession, project.getKey(), "pr-123", "pr-123").uuid()).isEqualTo(pullRequest.uuid());
   }
 
   @Test

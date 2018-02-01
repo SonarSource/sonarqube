@@ -185,7 +185,7 @@ public class AutoAssignTest extends AbstractIssueTest {
         .setName(name)
         .setEmail(email)
         .setPassword("xxxxxxx")
-        .setScmAccounts(asList(scmAccounts)));
+        .setScmAccount(asList(scmAccounts)));
   }
 
   private static void deleteAllUsers() {

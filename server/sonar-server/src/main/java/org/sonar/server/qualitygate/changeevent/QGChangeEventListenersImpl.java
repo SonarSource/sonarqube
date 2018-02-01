@@ -23,7 +23,9 @@ import com.google.common.collect.Multimap;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
+import org.sonar.api.issue.Issue;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -95,15 +97,45 @@ public class QGChangeEventListenersImpl implements QGChangeEventListeners {
     }
   }
 
-  private static class ChangedIssueImpl implements ChangedIssue {
+  static class ChangedIssueImpl implements ChangedIssue {
     private final String key;
     private final QGChangeEventListener.Status status;
     private final RuleType type;
 
     private ChangedIssueImpl(DefaultIssue issue) {
       this.key = issue.key();
-      this.status = QGChangeEventListener.Status.valueOf(issue.getStatus());
+      this.status = statusOf(issue);
       this.type = issue.type();
+    }
+
+    static QGChangeEventListener.Status statusOf(DefaultIssue issue) {
+      switch (issue.status()) {
+        case Issue.STATUS_OPEN:
+          return QGChangeEventListener.Status.OPEN;
+        case Issue.STATUS_CONFIRMED:
+          return QGChangeEventListener.Status.CONFIRMED;
+        case Issue.STATUS_REOPENED:
+          return QGChangeEventListener.Status.REOPENED;
+        case Issue.STATUS_RESOLVED:
+          return statusOfResolved(issue);
+        default:
+          throw new IllegalStateException("Unexpected status: " + issue.status());
+      }
+    }
+
+    private static QGChangeEventListener.Status statusOfResolved(DefaultIssue issue) {
+      String resolution = issue.resolution();
+      Objects.requireNonNull(resolution, "A resolved issue should have a resolution");
+      switch (resolution) {
+        case Issue.RESOLUTION_FALSE_POSITIVE:
+          return QGChangeEventListener.Status.RESOLVED_FP;
+        case Issue.RESOLUTION_WONT_FIX:
+          return QGChangeEventListener.Status.RESOLVED_WF;
+        case Issue.RESOLUTION_FIXED:
+          return QGChangeEventListener.Status.RESOLVED_FIXED;
+        default:
+          throw new IllegalStateException("Unexpected resolution for a resolved issue: " + resolution);
+      }
     }
 
     @Override

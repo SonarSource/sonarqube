@@ -33,6 +33,7 @@ import org.sonarqube.ws.Batch.WsProjectResponse.FileData.Builder;
 import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
+import static org.sonar.server.ws.KeyExamples.KEY_PULL_REQUEST_EXAMPLE_001;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class ProjectAction implements BatchWsAction {
@@ -41,6 +42,7 @@ public class ProjectAction implements BatchWsAction {
   private static final String PARAM_PROFILE = "profile";
   private static final String PARAM_ISSUES_MODE = "issues_mode";
   private static final String PARAM_BRANCH = "branch";
+  private static final String PARAM_PULL_REQUEST = "pullRequest";
 
   private final ProjectDataLoader projectDataLoader;
 
@@ -79,6 +81,12 @@ public class ProjectAction implements BatchWsAction {
       .setSince("6.6")
       .setDescription("Branch key")
       .setExampleValue(KEY_BRANCH_EXAMPLE_001);
+
+    action
+      .createParam(PARAM_PULL_REQUEST)
+      .setSince("7.1")
+      .setDescription("Pull request id")
+      .setExampleValue(KEY_PULL_REQUEST_EXAMPLE_001);
   }
 
   @Override
@@ -87,7 +95,8 @@ public class ProjectAction implements BatchWsAction {
       .setModuleKey(wsRequest.mandatoryParam(PARAM_KEY))
       .setProfileName(wsRequest.param(PARAM_PROFILE))
       .setIssuesMode(wsRequest.mandatoryParamAsBoolean(PARAM_ISSUES_MODE))
-      .setBranch(wsRequest.param(PARAM_BRANCH)));
+      .setBranch(wsRequest.param(PARAM_BRANCH))
+      .setPullRequest(wsRequest.param(PARAM_PULL_REQUEST)));
 
     WsProjectResponse projectResponse = buildResponse(data);
     writeProtobuf(projectResponse, wsRequest, wsResponse);

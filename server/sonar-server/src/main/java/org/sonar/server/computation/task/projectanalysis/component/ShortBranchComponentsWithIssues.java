@@ -29,7 +29,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.KeyWithUuidDto;
 
-import static org.sonar.db.component.ComponentDto.removeBranchFromKey;
+import static org.sonar.db.component.ComponentDto.removeBranchAndPullRequestFromKey;
 
 /**
  * Cache a map of component key -> uuid in short branches that have issues with status either RESOLVED or CONFIRMED.
@@ -51,7 +51,7 @@ public class ShortBranchComponentsWithIssues {
     try (DbSession dbSession = dbClient.openSession(false)) {
       List<KeyWithUuidDto> components = dbClient.componentDao().selectComponentKeysHavingIssuesToMerge(dbSession, uuid);
       for (KeyWithUuidDto dto : components) {
-        uuidsByKey.computeIfAbsent(removeBranchFromKey(dto.key()), s -> new HashSet<>()).add(dto.uuid());
+        uuidsByKey.computeIfAbsent(removeBranchAndPullRequestFromKey(dto.key()), s -> new HashSet<>()).add(dto.uuid());
       }
     }
   }

@@ -27,5 +27,5 @@ import org.sonar.api.batch.ScannerSide;
 @ScannerSide
 @InstantiationStrategy(InstantiationStrategy.PER_BATCH)
 public interface BranchConfigurationLoader {
-  BranchConfiguration load(Map<String, String> localSettings, Supplier<Map<String, String>> remoteSettingsSupplier, ProjectBranches branches);
+  BranchConfiguration load(Map<String, String> localSettings, Supplier<Map<String, String>> remoteSettingsSupplier, ProjectBranches branches, ProjectPullRequests pullRequests);
 }

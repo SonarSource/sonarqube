@@ -49,6 +49,8 @@ public class AnalysisMetadataHolderRule extends ExternalResource implements Muta
 
   private final InitializedProperty<Branch> branch = new InitializedProperty<>();
 
+  private final InitializedProperty<String> pullRequestId = new InitializedProperty<>();
+
   private final InitializedProperty<Project> project = new InitializedProperty<>();
 
   private final InitializedProperty<Integer> rootComponentRef = new InitializedProperty<>();
@@ -168,6 +170,18 @@ public class AnalysisMetadataHolderRule extends ExternalResource implements Muta
   }
 
   @Override
+  public MutableAnalysisMetadataHolder setPullRequestId(String pullRequestId) {
+    this.pullRequestId.setProperty(pullRequestId);
+    return this;
+  }
+
+  @Override
+  public String getPullRequestId() {
+    checkState(pullRequestId.isInitialized(), "Pull request id has not been set");
+    return pullRequestId.getProperty();
+  }
+
+  @Override
   public AnalysisMetadataHolderRule setProject(Project p) {
     this.project.setProperty(p);
     return this;
@@ -225,5 +239,11 @@ public class AnalysisMetadataHolderRule extends ExternalResource implements Muta
   public boolean isLongLivingBranch() {
     Branch property = this.branch.getProperty();
     return property != null && property.getType() == BranchType.LONG;
+  }
+
+  @Override
+  public boolean isPullRequest() {
+    Branch property = this.branch.getProperty();
+    return property != null && property.getType() == BranchType.PULL_REQUEST;
   }
 }

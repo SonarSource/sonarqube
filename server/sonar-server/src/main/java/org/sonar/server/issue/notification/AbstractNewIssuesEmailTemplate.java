@@ -54,6 +54,7 @@ public abstract class AbstractNewIssuesEmailTemplate extends EmailTemplate {
   static final String FIELD_PROJECT_VERSION = "projectVersion";
   static final String FIELD_ASSIGNEE = "assignee";
   static final String FIELD_BRANCH = "branch";
+  static final String FIELD_PULL_REQUEST = "pullRequest";
 
   protected final EmailSettings settings;
   protected final I18n i18n;
@@ -78,11 +79,15 @@ public abstract class AbstractNewIssuesEmailTemplate extends EmailTemplate {
     }
     String projectName = checkNotNull(notification.getFieldValue(FIELD_PROJECT_NAME));
     String branchName = notification.getFieldValue(FIELD_BRANCH);
+    String pullRequest = notification.getFieldValue(FIELD_PULL_REQUEST);
 
     StringBuilder message = new StringBuilder();
     message.append("Project: ").append(projectName).append(NEW_LINE);
     if (branchName != null) {
       message.append("Branch: ").append(branchName).append(NEW_LINE);
+    }
+    if (pullRequest!= null) {
+      message.append("Pull request: ").append(pullRequest).append(NEW_LINE);
     }
     String version = notification.getFieldValue(FIELD_PROJECT_VERSION);
     if (version != null) {
@@ -202,6 +207,10 @@ public abstract class AbstractNewIssuesEmailTemplate extends EmailTemplate {
       String branchName = notification.getFieldValue(FIELD_BRANCH);
       if (branchName != null) {
         url += "&branch=" + encode(branchName);
+      }
+      String pullRequest = notification.getFieldValue(FIELD_PULL_REQUEST);
+      if (pullRequest != null) {
+        url += "&pullRequest=" + encode(pullRequest);
       }
       url += "&createdAt=" + encode(DateUtils.formatDateTime(date));
       message

@@ -156,6 +156,7 @@ message Issue {
 
   optional string organization = 29;
   optional string branch = 30;
+  optional string pullRequest = 32;
 }
 
 message Transitions {
@@ -234,6 +235,7 @@ message Component {
   optional int64 unusedProjectId = 9;
   optional int64 unusedSubProjectId = 10;
   optional string branch = 12;
+  optional string pullRequest = 13;
 }
 
 // Response of GET api/issues/changelog

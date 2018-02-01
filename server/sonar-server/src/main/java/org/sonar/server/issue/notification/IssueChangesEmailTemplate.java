@@ -33,6 +33,8 @@ import org.sonar.plugins.emailnotifications.api.EmailMessage;
 import org.sonar.plugins.emailnotifications.api.EmailTemplate;
 
 import static java.net.URLEncoder.encode;
+import static org.sonar.server.issue.notification.AbstractNewIssuesEmailTemplate.FIELD_BRANCH;
+import static org.sonar.server.issue.notification.AbstractNewIssuesEmailTemplate.FIELD_PULL_REQUEST;
 
 /**
  * Creates email message for notification "issue-changes".
@@ -99,9 +101,13 @@ public class IssueChangesEmailTemplate extends EmailTemplate {
 
   private static void appendHeader(Notification notif, StringBuilder sb) {
     appendLine(sb, StringUtils.defaultString(notif.getFieldValue("componentName"), notif.getFieldValue("componentKey")));
-    String branchName = notif.getFieldValue("branch");
+    String branchName = notif.getFieldValue(FIELD_BRANCH);
     if (branchName != null) {
       appendField(sb, "Branch", null, branchName);
+    }
+    String pullRequest = notif.getFieldValue(FIELD_PULL_REQUEST);
+    if (pullRequest != null) {
+      appendField(sb, "Pull request", null, pullRequest);
     }
     appendField(sb, "Rule", null, notif.getFieldValue("ruleName"));
     appendField(sb, "Message", null, notif.getFieldValue("message"));
@@ -114,9 +120,13 @@ public class IssueChangesEmailTemplate extends EmailTemplate {
         .append("/project/issues?id=").append(encode(notification.getFieldValue("projectKey"), "UTF-8"))
         .append("&issues=").append(issueKey)
         .append("&open=").append(issueKey);
-      String branchName = notification.getFieldValue("branch");
+      String branchName = notification.getFieldValue(FIELD_BRANCH);
       if (branchName != null) {
         sb.append("&branch=").append(branchName);
+      }
+      String pullRequest = notification.getFieldValue(FIELD_PULL_REQUEST);
+      if (pullRequest != null) {
+        sb.append("&pullRequest=").append(pullRequest);
       }
       sb.append(NEW_LINE);
     } catch (UnsupportedEncodingException e) {

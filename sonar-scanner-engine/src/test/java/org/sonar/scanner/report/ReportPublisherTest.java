@@ -59,6 +59,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.sonar.scanner.scan.branch.BranchType.PULL_REQUEST;
 import static org.sonar.scanner.scan.branch.BranchType.SHORT;
 
 public class ReportPublisherTest {
@@ -265,6 +266,44 @@ public class ReportPublisherTest {
     assertThat(wsRequest.getParameters().getValues("projectKey")).containsExactly("struts");
     assertThat(wsRequest.getParameters().getValues("characteristic"))
       .containsExactlyInAnyOrder("branch=" + branchName, "branchType=" + SHORT.name());
+  }
+
+  @Test
+  public void send_pull_request_characteristic() throws Exception {
+    ReportPublisher underTest = new ReportPublisher(settings.asConfig(), wsClient, server, contextPublisher, moduleHierarchy, mode, mock(TempFolder.class),
+      new ReportPublisherStep[0], branchConfiguration);
+
+    String orgName = "MyOrg";
+    settings.setProperty(ScannerProperties.ORGANIZATION, orgName);
+
+    String branchName = "feature";
+    String pullRequestId = "pr-123";
+    when(branchConfiguration.branchName()).thenReturn(branchName);
+    when(branchConfiguration.branchType()).thenReturn(PULL_REQUEST);
+    when(branchConfiguration.pullRequestKey()).thenReturn(pullRequestId);
+
+    WsResponse response = mock(WsResponse.class);
+
+    PipedOutputStream out = new PipedOutputStream();
+    PipedInputStream in = new PipedInputStream(out);
+    Ce.SubmitResponse.newBuilder().build().writeTo(out);
+    out.close();
+
+    when(response.failIfNotSuccessful()).thenReturn(response);
+    when(response.contentStream()).thenReturn(in);
+
+    when(wsClient.call(any(WsRequest.class))).thenReturn(response);
+    underTest.upload(temp.newFile());
+
+    ArgumentCaptor<WsRequest> capture = ArgumentCaptor.forClass(WsRequest.class);
+    verify(wsClient).call(capture.capture());
+
+    WsRequest wsRequest = capture.getValue();
+    assertThat(wsRequest.getParameters().getKeys()).hasSize(3);
+    assertThat(wsRequest.getParameters().getValues("organization")).containsExactly(orgName);
+    assertThat(wsRequest.getParameters().getValues("projectKey")).containsExactly("struts");
+    assertThat(wsRequest.getParameters().getValues("characteristic"))
+      .containsExactlyInAnyOrder("pullRequest=" + pullRequestId);
   }
 
 }

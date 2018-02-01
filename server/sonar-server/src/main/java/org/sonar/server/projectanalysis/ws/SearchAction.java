@@ -47,15 +47,17 @@ import static org.sonar.api.utils.DateUtils.parseStartingDateOrDateTime;
 import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.db.component.SnapshotQuery.SORT_FIELD.BY_DATE;
 import static org.sonar.db.component.SnapshotQuery.SORT_ORDER.DESC;
-import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
-import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonar.server.projectanalysis.ws.EventCategory.OTHER;
 import static org.sonar.server.projectanalysis.ws.ProjectAnalysesWsParameters.PARAM_BRANCH;
 import static org.sonar.server.projectanalysis.ws.ProjectAnalysesWsParameters.PARAM_CATEGORY;
 import static org.sonar.server.projectanalysis.ws.ProjectAnalysesWsParameters.PARAM_FROM;
 import static org.sonar.server.projectanalysis.ws.ProjectAnalysesWsParameters.PARAM_PROJECT;
+import static org.sonar.server.projectanalysis.ws.ProjectAnalysesWsParameters.PARAM_PULL_REQUEST;
 import static org.sonar.server.projectanalysis.ws.ProjectAnalysesWsParameters.PARAM_TO;
 import static org.sonar.server.projectanalysis.ws.SearchRequest.DEFAULT_PAGE_SIZE;
+import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
+import static org.sonar.server.ws.KeyExamples.KEY_PULL_REQUEST_EXAMPLE_001;
+import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class SearchAction implements ProjectAnalysesWsAction {
   private static final Set<String> ALLOWED_QUALIFIERS = ImmutableSet.of(Qualifiers.PROJECT, Qualifiers.APP, Qualifiers.VIEW);
@@ -92,6 +94,12 @@ public class SearchAction implements ProjectAnalysesWsAction {
       .setInternal(true)
       .setExampleValue(KEY_BRANCH_EXAMPLE_001);
 
+    action.createParam(PARAM_PULL_REQUEST)
+      .setDescription("Pull request id")
+      .setSince("7.1")
+      .setInternal(true)
+      .setExampleValue(KEY_PULL_REQUEST_EXAMPLE_001);
+
     action.createParam(PARAM_CATEGORY)
       .setDescription("Event category. Filter analyses that have at least one event of the category specified.")
       .setPossibleValues(EnumSet.allOf(EventCategory.class))
@@ -123,6 +131,7 @@ public class SearchAction implements ProjectAnalysesWsAction {
     return SearchRequest.builder()
       .setProject(request.mandatoryParam(PARAM_PROJECT))
       .setBranch(request.param(PARAM_BRANCH))
+      .setPullRequest(request.param(PARAM_PULL_REQUEST))
       .setCategory(category == null ? null : EventCategory.valueOf(category))
       .setPage(request.mandatoryParamAsInt(Param.PAGE))
       .setPageSize(request.mandatoryParamAsInt(Param.PAGE_SIZE))
@@ -170,10 +179,8 @@ public class SearchAction implements ProjectAnalysesWsAction {
   private ComponentDto loadComponent(DbSession dbSession, SearchRequest request) {
     String project = request.getProject();
     String branch = request.getBranch();
-    if (branch != null) {
-      return componentFinder.getByKeyAndBranch(dbSession, project, branch);
-    }
-    return componentFinder.getByKey(dbSession, project);
+    String pullRequest = request.getPullRequest();
+    return componentFinder.getByKeyAndOptionalBranchOrPullRequest(dbSession, project, branch, pullRequest);
   }
 
 }

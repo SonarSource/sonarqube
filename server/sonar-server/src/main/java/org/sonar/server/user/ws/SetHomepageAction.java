@@ -122,7 +122,7 @@ public class SetHomepageAction implements UsersWsAction {
     switch (type) {
       case PROJECT:
         checkArgument(isNotBlank(componentParameter), PARAMETER_REQUIRED, type.name(), PARAM_COMPONENT);
-        return componentFinder.getByKeyAndOptionalBranch(dbSession, componentParameter, branchParameter).uuid();
+        return componentFinder.getByKeyAndOptionalBranchOrPullRequest(dbSession, componentParameter, branchParameter, null).uuid();
       case PORTFOLIO:
       case APPLICATION:
         checkArgument(isNotBlank(componentParameter), PARAMETER_REQUIRED, type.name(), PARAM_COMPONENT);

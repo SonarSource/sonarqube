@@ -19,7 +19,6 @@
  */
 package org.sonar.server.ce.ws;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -38,6 +37,7 @@ import org.sonar.db.ce.CeActivityDto.Status;
 import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.ce.CeTaskCharacteristicDto;
 import org.sonar.db.ce.CeTaskTypes;
+import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.organization.OrganizationDto;
@@ -51,10 +51,10 @@ import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 import org.sonar.test.JsonAssert;
 import org.sonarqube.ws.Ce;
-import org.sonarqube.ws.Common;
-import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.Ce.ActivityResponse;
 import org.sonarqube.ws.Ce.Task;
+import org.sonarqube.ws.Common;
+import org.sonarqube.ws.MediaTypes;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -68,6 +68,7 @@ import static org.sonar.db.ce.CeQueueDto.Status.IN_PROGRESS;
 import static org.sonar.db.ce.CeQueueDto.Status.PENDING;
 import static org.sonar.db.ce.CeTaskCharacteristicDto.BRANCH_KEY;
 import static org.sonar.db.ce.CeTaskCharacteristicDto.BRANCH_TYPE_KEY;
+import static org.sonar.db.ce.CeTaskCharacteristicDto.PULL_REQUEST;
 import static org.sonar.db.component.BranchType.LONG;
 import static org.sonar.server.ce.ws.CeWsParameters.PARAM_COMPONENT_ID;
 import static org.sonar.server.ce.ws.CeWsParameters.PARAM_COMPONENT_QUERY;
@@ -379,6 +380,45 @@ public class ActivityActionTest {
       .containsExactlyInAnyOrder(
         tuple("T1", branch, Common.BranchType.LONG, Ce.TaskStatus.IN_PROGRESS),
         tuple("T2", branch, Common.BranchType.LONG, Ce.TaskStatus.PENDING));
+  }
+
+  @Test
+  public void pull_request_in_past_activity() {
+    logInAsSystemAdministrator();
+    ComponentDto project = db.components().insertMainBranch();
+    userSession.addProjectPermission(UserRole.USER, project);
+    ComponentDto pullRequest = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.PULL_REQUEST));
+    SnapshotDto analysis = db.components().insertSnapshot(pullRequest);
+    CeActivityDto activity = insertActivity("T1", project, SUCCESS, analysis);
+    insertCharacteristic(activity, PULL_REQUEST, pullRequest.getPullRequest());
+
+    ActivityResponse response = ws.newRequest().executeProtobuf(ActivityResponse.class);
+
+    assertThat(response.getTasksList())
+      .extracting(Task::getId, Ce.Task::getPullRequest, Ce.Task::hasPullRequestTitle, Ce.Task::getStatus, Ce.Task::getComponentKey)
+      .containsExactlyInAnyOrder(
+        // TODO the pull request title must be loaded from db
+        tuple("T1", pullRequest.getPullRequest(), false, Ce.TaskStatus.SUCCESS, pullRequest.getKey()));
+  }
+
+  @Test
+  public void pull_request_in_queue_analysis() {
+    logInAsSystemAdministrator();
+    String branch = "pr-123";
+    CeQueueDto queue1 = insertQueue("T1", null, IN_PROGRESS);
+    insertCharacteristic(queue1, PULL_REQUEST, branch);
+    CeQueueDto queue2 = insertQueue("T2", null, PENDING);
+    insertCharacteristic(queue2, PULL_REQUEST, branch);
+
+    ActivityResponse response = ws.newRequest()
+      .setParam("status", "FAILED,IN_PROGRESS,PENDING")
+      .executeProtobuf(ActivityResponse.class);
+
+    assertThat(response.getTasksList())
+      .extracting(Task::getId, Ce.Task::getPullRequest, Ce.Task::hasPullRequestTitle, Ce.Task::getStatus)
+      .containsExactlyInAnyOrder(
+        tuple("T1", branch, false, Ce.TaskStatus.IN_PROGRESS),
+        tuple("T2", branch, false, Ce.TaskStatus.PENDING));
   }
 
   @Test
