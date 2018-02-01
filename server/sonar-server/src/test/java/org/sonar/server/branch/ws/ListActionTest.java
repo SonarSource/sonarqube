@@ -69,7 +69,7 @@ import static org.sonar.api.rules.RuleType.VULNERABILITY;
 import static org.sonar.api.utils.DateUtils.dateToLong;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
 import static org.sonar.test.JsonAssert.assertJson;
-import static org.sonarqube.ws.ProjectBranches.Branch.Status;
+import static org.sonarqube.ws.ProjectBranches.Status;
 
 public class ListActionTest {
 
