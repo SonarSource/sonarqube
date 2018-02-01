@@ -29,11 +29,13 @@ import "ws-commons.proto";
 // WS api/project_branches/list
 message ListWsResponse {
   repeated Branch branches = 1;
+  repeated PullRequest pullRequests = 2;
 }
 
 // WS api/project_branches/show
 message ShowWsResponse {
   optional Branch branch = 1;
+  optional PullRequest pullRequest = 2;
 }
 
 message Branch {
@@ -45,16 +47,26 @@ message Branch {
   optional Status status = 5;
   optional bool isOrphan = 6;
   optional string analysisDate = 7;
+}
 
-  message Status {
-    // Quality gate status is only present for long living branch
-    optional string qualityGateStatus = 1;
-    // Merge bugs, vulnerabilities and codeSmell are only present for short living branch
-    optional int64 bugs = 2;
-    optional int64 vulnerabilities = 3;
-    optional int64 codeSmells = 4;
-  }
+message PullRequest {
+  optional string id = 1;
+  optional string title = 2;
+  optional string branch = 3;
+  optional string base = 4;
+  optional Status status = 5;
+  optional bool isOrphan = 6;
+  optional string analysisDate = 7;
+  optional string url = 8;
+}
 
+message Status {
+  // Quality gate status is only present for long living branch
+  optional string qualityGateStatus = 1;
+  // Merge bugs, vulnerabilities and codeSmell are only present for short living branch
+  optional int64 bugs = 2;
+  optional int64 vulnerabilities = 3;
+  optional int64 codeSmells = 4;
 }
 
 
