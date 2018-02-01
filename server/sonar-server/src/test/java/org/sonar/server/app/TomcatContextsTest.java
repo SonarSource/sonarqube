@@ -31,7 +31,6 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.utils.MessageException;
-import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -41,6 +40,7 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.sonar.process.ProcessProperties.Property;
 
 public class TomcatContextsTest {
 
@@ -56,7 +56,7 @@ public class TomcatContextsTest {
 
   @Before
   public void setUp() throws Exception {
-    props.setProperty(ProcessProperties.PATH_DATA, temp.newFolder("data").getAbsolutePath());
+    props.setProperty(Property.PATH_DATA.getKey(), temp.newFolder("data").getAbsolutePath());
     when(tomcat.addWebapp(anyString(), anyString())).thenReturn(mock(StandardContext.class));
   }
 

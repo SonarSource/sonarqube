@@ -32,14 +32,15 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.process.MessageException;
-import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
 
 import static java.lang.String.format;
 import static org.apache.commons.lang.StringUtils.isEmpty;
 import static org.apache.commons.lang.StringUtils.isNotEmpty;
-import static org.sonar.process.ProcessProperties.JDBC_EMBEDDED_PORT;
-import static org.sonar.process.ProcessProperties.JDBC_URL;
+import static org.sonar.process.ProcessProperties.Property.JDBC_DRIVER_PATH;
+import static org.sonar.process.ProcessProperties.Property.JDBC_EMBEDDED_PORT;
+import static org.sonar.process.ProcessProperties.Property.JDBC_URL;
+import static org.sonar.process.ProcessProperties.Property.PATH_HOME;
 
 public class JdbcSettings implements Consumer<Props> {
 
@@ -58,12 +59,12 @@ public class JdbcSettings implements Consumer<Props> {
 
   @Override
   public void accept(Props props) {
-    File homeDir = props.nonNullValueAsFile(ProcessProperties.PATH_HOME);
+    File homeDir = props.nonNullValueAsFile(PATH_HOME.getKey());
     Provider provider = resolveProviderAndEnforceNonnullJdbcUrl(props);
-    String url = props.value(JDBC_URL);
+    String url = props.value(JDBC_URL.getKey());
     checkUrlParameters(provider, url);
     String driverPath = driverPath(homeDir, provider);
-    props.set(ProcessProperties.JDBC_DRIVER_PATH, driverPath);
+    props.set(JDBC_DRIVER_PATH.getKey(), driverPath);
   }
 
   String driverPath(File homeDir, Provider provider) {
@@ -83,19 +84,19 @@ public class JdbcSettings implements Consumer<Props> {
   }
 
   Provider resolveProviderAndEnforceNonnullJdbcUrl(Props props) {
-    String url = props.value(JDBC_URL);
-    Integer embeddedDatabasePort = props.valueAsInt(JDBC_EMBEDDED_PORT);
+    String url = props.value(JDBC_URL.getKey());
+    Integer embeddedDatabasePort = props.valueAsInt(JDBC_EMBEDDED_PORT.getKey());
 
     if (embeddedDatabasePort != null) {
       String correctUrl = buildH2JdbcUrl(embeddedDatabasePort);
       warnIfUrlIsSet(embeddedDatabasePort, url, correctUrl);
-      props.set(JDBC_URL, correctUrl);
+      props.set(JDBC_URL.getKey(), correctUrl);
       return Provider.H2;
     }
 
     if (isEmpty(url)) {
-      props.set(JDBC_URL, buildH2JdbcUrl(JDBC_EMBEDDED_PORT_DEFAULT_VALUE));
-      props.set(JDBC_EMBEDDED_PORT, String.valueOf(JDBC_EMBEDDED_PORT_DEFAULT_VALUE));
+      props.set(JDBC_URL.getKey(), buildH2JdbcUrl(JDBC_EMBEDDED_PORT_DEFAULT_VALUE));
+      props.set(JDBC_EMBEDDED_PORT.getKey(), String.valueOf(JDBC_EMBEDDED_PORT_DEFAULT_VALUE));
       return Provider.H2;
     }
 

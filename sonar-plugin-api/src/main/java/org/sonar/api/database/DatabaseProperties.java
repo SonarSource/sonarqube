@@ -19,6 +19,10 @@
  */
 package org.sonar.api.database;
 
+/**
+ * @deprecated since 7.1, plugins don't connect to database
+ */
+@Deprecated
 public interface DatabaseProperties {
 
   String PROP_URL = "sonar.jdbc.url";

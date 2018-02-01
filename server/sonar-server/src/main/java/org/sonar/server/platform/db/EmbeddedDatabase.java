@@ -23,7 +23,6 @@ import java.io.File;
 import java.net.InetAddress;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import org.apache.commons.lang.StringUtils;
 import org.h2.Driver;
 import org.h2.tools.Server;
 import org.picocontainer.Startable;
@@ -35,13 +34,11 @@ import org.sonar.api.utils.log.Loggers;
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
 import static org.apache.commons.lang.StringUtils.isNotEmpty;
-import static org.sonar.api.database.DatabaseProperties.PROP_EMBEDDED_PORT;
-import static org.sonar.api.database.DatabaseProperties.PROP_PASSWORD;
-import static org.sonar.api.database.DatabaseProperties.PROP_PASSWORD_DEFAULT_VALUE;
-import static org.sonar.api.database.DatabaseProperties.PROP_URL;
-import static org.sonar.api.database.DatabaseProperties.PROP_USER;
-import static org.sonar.api.database.DatabaseProperties.PROP_USER_DEFAULT_VALUE;
-import static org.sonar.process.ProcessProperties.PATH_DATA;
+import static org.sonar.process.ProcessProperties.Property.JDBC_EMBEDDED_PORT;
+import static org.sonar.process.ProcessProperties.Property.JDBC_PASSWORD;
+import static org.sonar.process.ProcessProperties.Property.JDBC_URL;
+import static org.sonar.process.ProcessProperties.Property.JDBC_USERNAME;
+import static org.sonar.process.ProcessProperties.Property.PATH_DATA;
 
 public class EmbeddedDatabase implements Startable {
   private static final Logger LOG = Loggers.get(EmbeddedDatabase.class);
@@ -57,7 +54,7 @@ public class EmbeddedDatabase implements Startable {
 
   @Override
   public void start() {
-    File dbHome = new File(getRequiredSetting(PATH_DATA));
+    File dbHome = new File(getRequiredSetting(PATH_DATA.getKey()));
     if (!dbHome.exists()) {
       dbHome.mkdirs();
     }
@@ -66,10 +63,10 @@ public class EmbeddedDatabase implements Startable {
   }
 
   private void startServer(File dbHome) {
-    String url = getRequiredSetting(PROP_URL);
-    String port = getRequiredSetting(PROP_EMBEDDED_PORT);
-    String user = getSetting(PROP_USER, PROP_USER_DEFAULT_VALUE);
-    String password = getSetting(PROP_PASSWORD, PROP_PASSWORD_DEFAULT_VALUE);
+    String url = getRequiredSetting(JDBC_URL.getKey());
+    String port = getRequiredSetting(JDBC_EMBEDDED_PORT.getKey());
+    String user = getSetting(JDBC_USERNAME.getKey());
+    String password = getSetting(JDBC_PASSWORD.getKey());
     try {
       // Db is used only by web server and compute engine. No need
       // to make it accessible from outside.
@@ -106,8 +103,8 @@ public class EmbeddedDatabase implements Startable {
     return value;
   }
 
-  private String getSetting(String name, String defaultValue) {
-    return StringUtils.defaultIfBlank(config.get(name).orElse(""), defaultValue);
+  private String getSetting(String name) {
+    return config.get(name).orElse("");
   }
 
   private static void createDatabase(File dbHome, String user, String password) throws SQLException {

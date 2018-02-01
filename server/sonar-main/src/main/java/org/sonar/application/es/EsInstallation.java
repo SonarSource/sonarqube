@@ -24,8 +24,12 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 import org.sonar.application.command.EsJvmOptions;
-import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
+
+import static org.sonar.process.ProcessProperties.Property.PATH_DATA;
+import static org.sonar.process.ProcessProperties.Property.PATH_HOME;
+import static org.sonar.process.ProcessProperties.Property.PATH_LOGS;
+import static org.sonar.process.ProcessProperties.Property.PATH_TEMP;
 
 /**
  * Holds {@link File} to the various directories of ElasticSearch distribution embedded in SonarQube and provides
@@ -49,7 +53,7 @@ public class EsInstallation {
   private int port;
 
   public EsInstallation(Props props) {
-    File sqHomeDir = props.nonNullValueAsFile(ProcessProperties.PATH_HOME);
+    File sqHomeDir = props.nonNullValueAsFile(PATH_HOME.getKey());
 
     this.homeDirectory = new File(sqHomeDir, "elasticsearch");
     this.outdatedSearchDirectories = buildOutdatedSearchDirs(props);
@@ -59,21 +63,21 @@ public class EsInstallation {
   }
 
   private static List<File> buildOutdatedSearchDirs(Props props) {
-    String dataPath = props.nonNullValue(ProcessProperties.PATH_DATA);
+    String dataPath = props.nonNullValue(PATH_DATA.getKey());
     return Collections.singletonList(new File(dataPath, "es"));
   }
 
   private static File buildDataDir(Props props) {
-    String dataPath = props.nonNullValue(ProcessProperties.PATH_DATA);
+    String dataPath = props.nonNullValue(PATH_DATA.getKey());
     return new File(dataPath, "es5");
   }
 
   private static File buildLogPath(Props props) {
-    return props.nonNullValueAsFile(ProcessProperties.PATH_LOGS);
+    return props.nonNullValueAsFile(PATH_LOGS.getKey());
   }
 
   private static File buildConfDir(Props props) {
-    File tempPath = props.nonNullValueAsFile(ProcessProperties.PATH_TEMP);
+    File tempPath = props.nonNullValueAsFile(PATH_TEMP.getKey());
     return new File(new File(tempPath, "conf"), "es");
   }
 

@@ -19,6 +19,9 @@
  */
 package org.sonar.server.app;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.Properties;
 import org.apache.catalina.Lifecycle;
 import org.apache.catalina.LifecycleEvent;
 import org.apache.catalina.startup.Tomcat;
@@ -28,14 +31,13 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.Mockito;
 import org.sonar.api.utils.log.Logger;
-import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Properties;
-
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.sonar.process.ProcessProperties.Property.PATH_LOGS;
 
 public class TomcatAccessLogTest {
 
@@ -54,7 +56,7 @@ public class TomcatAccessLogTest {
   public void enable_access_logs_by_Default() throws Exception {
     Tomcat tomcat = mock(Tomcat.class, Mockito.RETURNS_DEEP_STUBS);
     Props props = new Props(new Properties());
-    props.set(ProcessProperties.PATH_LOGS, temp.newFolder().getAbsolutePath());
+    props.set(PATH_LOGS.getKey(), temp.newFolder().getAbsolutePath());
     underTest.configure(tomcat, props);
 
     verify(tomcat.getHost().getPipeline()).addValve(any(ProgrammaticLogbackValve.class));

@@ -31,11 +31,11 @@ import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.Database;
-import org.sonar.process.ProcessProperties;
 import org.sonar.process.logging.LogbackHelper;
 import org.sonar.server.app.ServerProcessLogging;
 
 import static org.sonar.api.utils.log.LoggerLevel.TRACE;
+import static org.sonar.process.ProcessProperties.Property.PATH_LOGS;
 
 @ServerSide
 @ComputeEngineSide
@@ -89,7 +89,7 @@ public class ServerLogging implements Startable {
    * The directory that contains log files. May not exist.
    */
   public File getLogsDir() {
-    return new File(config.get(ProcessProperties.PATH_LOGS).get());
+    return new File(config.get(PATH_LOGS.getKey()).get());
   }
 
 }

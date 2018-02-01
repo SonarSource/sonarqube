@@ -26,20 +26,22 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+import org.sonar.api.Startable;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 
-import static org.sonar.core.config.TelemetryProperties.PROP_URL;
+import static org.sonar.process.ProcessProperties.Property.SONAR_TELEMETRY_URL;
 
 @ServerSide
-public class TelemetryClient {
+public class TelemetryClient implements Startable {
   private static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
   private static final Logger LOG = Loggers.get(TelemetryClient.class);
 
   private final OkHttpClient okHttpClient;
   private final Configuration config;
+  private String serverUrl;
 
   public TelemetryClient(OkHttpClient okHttpClient, Configuration config) {
     this.okHttpClient = okHttpClient;
@@ -53,7 +55,7 @@ public class TelemetryClient {
 
   void optOut(String json) {
     Request.Builder request = new Request.Builder();
-    request.url(serverUrl());
+    request.url(serverUrl);
     RequestBody body = RequestBody.create(JSON, json);
     request.delete(body);
 
@@ -66,14 +68,10 @@ public class TelemetryClient {
 
   private Request buildHttpRequest(String json) {
     Request.Builder request = new Request.Builder();
-    request.url(serverUrl());
+    request.url(serverUrl);
     RequestBody body = RequestBody.create(JSON, json);
     request.post(body);
     return request.build();
-  }
-
-  private String serverUrl() {
-    return config.get(PROP_URL).orElseThrow(() -> new IllegalStateException(String.format("Setting '%s' must be provided.", PROP_URL)));
   }
 
   private static void execute(Call call) throws IOException {
@@ -82,4 +80,13 @@ public class TelemetryClient {
     }
   }
 
+  @Override
+  public void start() {
+    this.serverUrl = config.get(SONAR_TELEMETRY_URL.getKey()).orElseThrow(() -> new IllegalStateException(String.format("Setting '%s' must be provided.", SONAR_TELEMETRY_URL)));
+  }
+
+  @Override
+  public void stop() {
+    // Nothing to do
+  }
 }

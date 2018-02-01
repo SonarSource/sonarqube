@@ -39,9 +39,9 @@ import org.sonar.server.property.InternalProperties;
 
 import static org.sonar.api.utils.DateUtils.formatDate;
 import static org.sonar.api.utils.DateUtils.parseDate;
-import static org.sonar.core.config.TelemetryProperties.PROP_ENABLE;
-import static org.sonar.core.config.TelemetryProperties.PROP_FREQUENCY;
-import static org.sonar.core.config.TelemetryProperties.PROP_URL;
+import static org.sonar.process.ProcessProperties.Property.SONAR_TELEMETRY_ENABLE;
+import static org.sonar.process.ProcessProperties.Property.SONAR_TELEMETRY_FREQUENCY_IN_SECONDS;
+import static org.sonar.process.ProcessProperties.Property.SONAR_TELEMETRY_URL;
 import static org.sonar.server.telemetry.TelemetryDataJsonWriter.writeTelemetryData;
 
 @ServerSide
@@ -70,7 +70,8 @@ public class TelemetryDaemon implements Startable {
 
   @Override
   public void start() {
-    boolean isTelemetryActivated = config.getBoolean(PROP_ENABLE).orElseThrow(() -> new IllegalStateException(String.format("Setting '%s' must be provided.", PROP_URL)));
+    boolean isTelemetryActivated = config.getBoolean(SONAR_TELEMETRY_ENABLE.getKey())
+      .orElseThrow(() -> new IllegalStateException(String.format("Setting '%s' must be provided.", SONAR_TELEMETRY_URL.getKey())));
     boolean hasOptOut = internalProperties.read(I_PROP_OPT_OUT).isPresent();
     if (!isTelemetryActivated && !hasOptOut) {
       optOut();
@@ -153,6 +154,7 @@ public class TelemetryDaemon implements Startable {
   }
 
   private int frequency() {
-    return config.getInt(PROP_FREQUENCY).orElseThrow(() -> new IllegalStateException(String.format("Setting '%s' must be provided.", PROP_FREQUENCY)));
+    return config.getInt(SONAR_TELEMETRY_FREQUENCY_IN_SECONDS.getKey())
+      .orElseThrow(() -> new IllegalStateException(String.format("Setting '%s' must be provided.", SONAR_TELEMETRY_FREQUENCY_IN_SECONDS)));
   }
 }

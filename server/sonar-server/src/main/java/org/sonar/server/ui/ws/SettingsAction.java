@@ -25,7 +25,7 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService.NewController;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.api.web.page.Page;
-import org.sonar.core.config.WebConstants;
+import org.sonar.process.ProcessProperties;
 import org.sonar.server.ui.PageRepository;
 import org.sonar.server.user.UserSession;
 
@@ -61,7 +61,7 @@ public class SettingsAction implements NavigationWsAction {
 
     try (JsonWriter json = response.newJsonWriter()) {
       json.beginObject();
-      json.prop("showUpdateCenter", isSysAdmin && config.getBoolean(WebConstants.SONAR_UPDATECENTER_ACTIVATE).orElse(false));
+      json.prop("showUpdateCenter", isSysAdmin && config.getBoolean(ProcessProperties.Property.SONAR_UPDATECENTER_ACTIVATE.getKey()).orElse(false));
 
       json.name("extensions").beginArray();
       if (isSysAdmin) {

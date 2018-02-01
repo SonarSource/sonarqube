@@ -32,7 +32,7 @@ import org.sonar.server.es.NewIndex;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
-import static org.sonar.process.ProcessProperties.CLUSTER_ENABLED;
+import static org.sonar.process.ProcessProperties.Property.CLUSTER_ENABLED;
 import static org.sonar.server.es.DefaultIndexSettingsElement.ENGLISH_HTML_ANALYZER;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_RULE_HTML_DESCRIPTION;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_RULE_KEY;
@@ -64,7 +64,7 @@ public class RuleIndexDefinitionTest {
 
   @Test
   public void enable_replica_if_clustering_is_enabled() {
-    settings.setProperty(CLUSTER_ENABLED, true);
+    settings.setProperty(CLUSTER_ENABLED.getKey(), true);
     IndexDefinition.IndexDefinitionContext context = new IndexDefinition.IndexDefinitionContext();
     underTest.define(context);
 

@@ -42,12 +42,12 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
 import org.sonar.process.logging.LogbackHelper;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.slf4j.Logger.ROOT_LOGGER_NAME;
+import static org.sonar.process.ProcessProperties.Property.PATH_LOGS;
 
 public class WebServerProcessLoggingTest {
 
@@ -63,7 +63,7 @@ public class WebServerProcessLoggingTest {
   @Before
   public void setUp() throws IOException {
     logDir = temp.newFolder();
-    props.set(ProcessProperties.PATH_LOGS, logDir.getAbsolutePath());
+    props.set(PATH_LOGS.getKey(), logDir.getAbsolutePath());
   }
 
   @AfterClass
@@ -80,12 +80,11 @@ public class WebServerProcessLoggingTest {
     assertThat(appender).isNull();
   }
 
-
   @Test
   public void check_level_of_jul() throws IOException {
     Props props = new Props(new Properties());
     File dir = temp.newFolder();
-    props.set(ProcessProperties.PATH_LOGS, dir.getAbsolutePath());
+    props.set(PATH_LOGS.getKey(), dir.getAbsolutePath());
     props.set("sonar.log.level.web", "TRACE");
 
     LoggerContext ctx = underTest.configure(props);

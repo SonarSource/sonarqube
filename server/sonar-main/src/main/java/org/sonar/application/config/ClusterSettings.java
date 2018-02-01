@@ -38,15 +38,15 @@ import static java.util.Arrays.stream;
 import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.joining;
 import static org.apache.commons.lang.StringUtils.isBlank;
-import static org.sonar.process.ProcessProperties.AUTH_JWT_SECRET;
-import static org.sonar.process.ProcessProperties.CLUSTER_ENABLED;
-import static org.sonar.process.ProcessProperties.CLUSTER_HOSTS;
-import static org.sonar.process.ProcessProperties.CLUSTER_NODE_HOST;
-import static org.sonar.process.ProcessProperties.CLUSTER_NODE_TYPE;
-import static org.sonar.process.ProcessProperties.CLUSTER_SEARCH_HOSTS;
-import static org.sonar.process.ProcessProperties.CLUSTER_WEB_STARTUP_LEADER;
-import static org.sonar.process.ProcessProperties.JDBC_URL;
-import static org.sonar.process.ProcessProperties.SEARCH_HOST;
+import static org.sonar.process.ProcessProperties.Property.AUTH_JWT_SECRET;
+import static org.sonar.process.ProcessProperties.Property.CLUSTER_ENABLED;
+import static org.sonar.process.ProcessProperties.Property.CLUSTER_HOSTS;
+import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_HOST;
+import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_TYPE;
+import static org.sonar.process.ProcessProperties.Property.CLUSTER_SEARCH_HOSTS;
+import static org.sonar.process.ProcessProperties.Property.CLUSTER_WEB_STARTUP_LEADER;
+import static org.sonar.process.ProcessProperties.Property.JDBC_URL;
+import static org.sonar.process.ProcessProperties.Property.SEARCH_HOST;
 
 public class ClusterSettings implements Consumer<Props> {
 
@@ -65,33 +65,33 @@ public class ClusterSettings implements Consumer<Props> {
 
   private void checkClusterProperties(Props props) {
     // for internal use
-    if (props.value(CLUSTER_WEB_STARTUP_LEADER) != null) {
-      throw new MessageException(format("Property [%s] is forbidden", CLUSTER_WEB_STARTUP_LEADER));
+    if (props.value(CLUSTER_WEB_STARTUP_LEADER.getKey()) != null) {
+      throw new MessageException(format("Property [%s] is forbidden", CLUSTER_WEB_STARTUP_LEADER.getKey()));
     }
 
     NodeType nodeType = toNodeType(props);
     switch (nodeType) {
       case APPLICATION:
         ensureNotH2(props);
-        requireValue(props, AUTH_JWT_SECRET);
+        requireValue(props, AUTH_JWT_SECRET.getKey());
         break;
       case SEARCH:
-        requireValue(props, SEARCH_HOST);
-        ensureLocalButNotLoopbackAddress(props, SEARCH_HOST);
+        requireValue(props, SEARCH_HOST.getKey());
+        ensureLocalButNotLoopbackAddress(props, SEARCH_HOST.getKey());
         break;
       default:
         throw new UnsupportedOperationException("Unknown value: " + nodeType);
     }
-    ensureNotLoopbackAddresses(props, CLUSTER_HOSTS);
-    requireValue(props, CLUSTER_NODE_HOST);
-    ensureLocalButNotLoopbackAddress(props, CLUSTER_NODE_HOST);
-    ensureNotLoopbackAddresses(props, CLUSTER_SEARCH_HOSTS);
+    ensureNotLoopbackAddresses(props, CLUSTER_HOSTS.getKey());
+    requireValue(props, CLUSTER_NODE_HOST.getKey());
+    ensureLocalButNotLoopbackAddress(props, CLUSTER_NODE_HOST.getKey());
+    ensureNotLoopbackAddresses(props, CLUSTER_SEARCH_HOSTS.getKey());
   }
 
   private static NodeType toNodeType(Props props) {
-    String nodeTypeValue = requireValue(props, CLUSTER_NODE_TYPE);
+    String nodeTypeValue = requireValue(props, CLUSTER_NODE_TYPE.getKey());
     if (!NodeType.isValid(nodeTypeValue)) {
-      throw new MessageException(format("Invalid value for property %s: [%s], only [%s] are allowed", CLUSTER_NODE_TYPE, nodeTypeValue,
+      throw new MessageException(format("Invalid value for property %s: [%s], only [%s] are allowed", CLUSTER_NODE_TYPE.getKey(), nodeTypeValue,
         Arrays.stream(NodeType.values()).map(NodeType::getValue).collect(joining(", "))));
     }
     return NodeType.parse(nodeTypeValue);
@@ -106,7 +106,7 @@ public class ClusterSettings implements Consumer<Props> {
   }
 
   private static void ensureNotH2(Props props) {
-    String jdbcUrl = props.value(JDBC_URL);
+    String jdbcUrl = props.value(JDBC_URL.getKey());
     if (isBlank(jdbcUrl) || jdbcUrl.startsWith("jdbc:h2:")) {
       throw new MessageException("Embedded database is not supported in cluster mode");
     }
@@ -145,14 +145,14 @@ public class ClusterSettings implements Consumer<Props> {
   }
 
   private static boolean isClusterEnabled(Props props) {
-    return props.valueAsBoolean(CLUSTER_ENABLED);
+    return props.valueAsBoolean(CLUSTER_ENABLED.getKey());
   }
 
   public static List<ProcessId> getEnabledProcesses(AppSettings settings) {
     if (!isClusterEnabled(settings)) {
       return asList(ProcessId.ELASTICSEARCH, ProcessId.WEB_SERVER, ProcessId.COMPUTE_ENGINE);
     }
-    NodeType nodeType = NodeType.parse(settings.getValue(CLUSTER_NODE_TYPE).orElse(""));
+    NodeType nodeType = NodeType.parse(settings.getValue(CLUSTER_NODE_TYPE.getKey()).orElse(""));
     switch (nodeType) {
       case APPLICATION:
         return asList(ProcessId.WEB_SERVER, ProcessId.COMPUTE_ENGINE);
@@ -166,7 +166,7 @@ public class ClusterSettings implements Consumer<Props> {
   public static boolean isLocalElasticsearchEnabled(AppSettings settings) {
     // elasticsearch is enabled on "search" nodes, but disabled on "application" nodes
     if (isClusterEnabled(settings.getProps())) {
-      return NodeType.parse(settings.getValue(CLUSTER_NODE_TYPE).orElse("")) == NodeType.SEARCH;
+      return NodeType.parse(settings.getValue(CLUSTER_NODE_TYPE.getKey()).orElse("")) == NodeType.SEARCH;
     }
 
     // elasticsearch is enabled in standalone mode

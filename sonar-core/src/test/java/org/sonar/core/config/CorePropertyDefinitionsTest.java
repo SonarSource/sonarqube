@@ -20,28 +20,17 @@
 package org.sonar.core.config;
 
 import java.util.List;
-import java.util.Optional;
 import org.junit.Test;
-import org.sonar.api.PropertyType;
 import org.sonar.api.config.PropertyDefinition;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.api.database.DatabaseProperties.PROP_PASSWORD;
 
 public class CorePropertyDefinitionsTest {
 
   @Test
   public void all() {
     List<PropertyDefinition> defs = CorePropertyDefinitions.all();
-    assertThat(defs).hasSize(67);
-  }
-
-  @Test
-  public void jdbc_password_property_has_password_type() {
-    List<PropertyDefinition> defs = CorePropertyDefinitions.all();
-
-    Optional<PropertyDefinition> prop = defs.stream().filter(def -> PROP_PASSWORD.equals(def.key())).findFirst();
-    assertThat(prop.get().type()).isEqualTo(PropertyType.PASSWORD);
+    assertThat(defs).hasSize(60);
   }
 
   @Test

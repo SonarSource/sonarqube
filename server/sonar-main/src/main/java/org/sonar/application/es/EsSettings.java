@@ -26,15 +26,19 @@ import java.util.Map;
 import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
 import org.sonar.process.System2;
 
 import static java.lang.String.valueOf;
-import static org.sonar.process.ProcessProperties.CLUSTER_ENABLED;
-import static org.sonar.process.ProcessProperties.CLUSTER_NAME;
-import static org.sonar.process.ProcessProperties.CLUSTER_NODE_NAME;
-import static org.sonar.process.ProcessProperties.CLUSTER_SEARCH_HOSTS;
+import static org.sonar.process.ProcessProperties.Property.CLUSTER_ENABLED;
+import static org.sonar.process.ProcessProperties.Property.CLUSTER_NAME;
+import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_NAME;
+import static org.sonar.process.ProcessProperties.Property.CLUSTER_SEARCH_HOSTS;
+import static org.sonar.process.ProcessProperties.Property.SEARCH_HOST;
+import static org.sonar.process.ProcessProperties.Property.SEARCH_HTTP_PORT;
+import static org.sonar.process.ProcessProperties.Property.SEARCH_INITIAL_STATE_TIMEOUT;
+import static org.sonar.process.ProcessProperties.Property.SEARCH_MINIMUM_MASTER_NODES;
+import static org.sonar.process.ProcessProperties.Property.SEARCH_PORT;
 
 public class EsSettings {
 
@@ -52,10 +56,10 @@ public class EsSettings {
     this.props = props;
     this.fileSystem = fileSystem;
 
-    this.clusterName = props.nonNullValue(CLUSTER_NAME);
-    this.clusterEnabled = props.valueAsBoolean(CLUSTER_ENABLED);
+    this.clusterName = props.nonNullValue(CLUSTER_NAME.getKey());
+    this.clusterEnabled = props.valueAsBoolean(CLUSTER_ENABLED.getKey());
     if (this.clusterEnabled) {
-      this.nodeName = props.value(CLUSTER_NODE_NAME, "sonarqube-" + UUID.randomUUID().toString());
+      this.nodeName = props.value(CLUSTER_NODE_NAME.getKey(), "sonarqube-" + UUID.randomUUID().toString());
     } else {
       this.nodeName = STANDALONE_NODE_NAME;
     }
@@ -83,7 +87,7 @@ public class EsSettings {
 
   private void configureNetwork(Map<String, String> builder) {
     InetAddress host = readHost();
-    int port = Integer.parseInt(props.nonNullValue(ProcessProperties.SEARCH_PORT));
+    int port = Integer.parseInt(props.nonNullValue(SEARCH_PORT.getKey()));
     LOGGER.info("Elasticsearch listening on {}:{}", host, port);
 
     builder.put("transport.tcp.port", valueOf(port));
@@ -93,7 +97,7 @@ public class EsSettings {
     // Elasticsearch sets the default value of TCP reuse address to true only on non-MSWindows machines, but why ?
     builder.put("network.tcp.reuse_address", valueOf(true));
 
-    int httpPort = props.valueAsInt(ProcessProperties.SEARCH_HTTP_PORT, -1);
+    int httpPort = props.valueAsInt(SEARCH_HTTP_PORT.getKey(), -1);
     if (httpPort < 0) {
       // standard configuration
       builder.put("http.enabled", valueOf(false));
@@ -109,11 +113,11 @@ public class EsSettings {
   }
 
   private InetAddress readHost() {
-    String hostProperty = props.nonNullValue(ProcessProperties.SEARCH_HOST);
+    String hostProperty = props.nonNullValue(SEARCH_HOST.getKey());
     try {
       return InetAddress.getByName(hostProperty);
     } catch (UnknownHostException e) {
-      throw new IllegalStateException("Can not resolve host [" + hostProperty + "]. Please check network settings and property " + ProcessProperties.SEARCH_HOST, e);
+      throw new IllegalStateException("Can not resolve host [" + hostProperty + "]. Please check network settings and property " + SEARCH_HOST.getKey(), e);
     }
   }
 
@@ -124,10 +128,10 @@ public class EsSettings {
     String initialStateTimeOut = "30s";
 
     if (clusterEnabled) {
-      minimumMasterNodes = props.valueAsInt(ProcessProperties.SEARCH_MINIMUM_MASTER_NODES, 2);
-      initialStateTimeOut = props.value(ProcessProperties.SEARCH_INITIAL_STATE_TIMEOUT, "120s");
+      minimumMasterNodes = props.valueAsInt(SEARCH_MINIMUM_MASTER_NODES.getKey(), 2);
+      initialStateTimeOut = props.value(SEARCH_INITIAL_STATE_TIMEOUT.getKey(), "120s");
 
-      String hosts = props.value(CLUSTER_SEARCH_HOSTS, "");
+      String hosts = props.value(CLUSTER_SEARCH_HOSTS.getKey(), "");
       LOGGER.info("Elasticsearch cluster enabled. Connect to hosts [{}]", hosts);
       builder.put("discovery.zen.ping.unicast.hosts", hosts);
     }

@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Optional;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.config.PropertyDefinitions;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -38,11 +39,11 @@ import org.sonar.server.setting.ws.SettingValidations.SettingData;
 import org.sonar.server.user.UserSession;
 
 import static java.util.Collections.emptyList;
-import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
-import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.setting.ws.SettingsWsParameters.PARAM_BRANCH;
 import static org.sonar.server.setting.ws.SettingsWsParameters.PARAM_COMPONENT;
 import static org.sonar.server.setting.ws.SettingsWsParameters.PARAM_KEYS;
+import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
+import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 
 public class ResetAction implements SettingsWsAction {
 
@@ -67,12 +68,14 @@ public class ResetAction implements SettingsWsAction {
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction("reset")
       .setDescription("Remove a setting value.<br>" +
+        "The settings defined in config/sonar.properties are read-only and can't be changed.<br/>" +
         "Requires one of the following permissions: " +
         "<ul>" +
         "<li>'Administer System'</li>" +
         "<li>'Administer' rights on the specified component</li>" +
         "</ul>")
       .setSince("6.1")
+      .setChangelog(new Change("7.1", "The settings defined in config/sonar.properties are read-only and can't be changed"))
       .setPost(true)
       .setHandler(this);
 
@@ -98,6 +101,7 @@ public class ResetAction implements SettingsWsAction {
       Optional<ComponentDto> component = getComponent(dbSession, resetRequest);
       checkPermissions(component);
       resetRequest.getKeys().forEach(key -> {
+        SettingsWsSupport.validateKey(key);
         SettingData data = new SettingData(key, emptyList(), component.orElse(null));
         ImmutableList.of(validations.scope(), validations.qualifier())
           .forEach(validation -> validation.accept(data));

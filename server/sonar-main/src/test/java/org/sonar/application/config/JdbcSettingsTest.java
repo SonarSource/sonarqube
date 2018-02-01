@@ -29,12 +29,13 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.process.MessageException;
-import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.application.config.JdbcSettings.Provider;
-import static org.sonar.process.ProcessProperties.JDBC_URL;
+import static org.sonar.process.ProcessProperties.Property.JDBC_DRIVER_PATH;
+import static org.sonar.process.ProcessProperties.Property.JDBC_URL;
+import static org.sonar.process.ProcessProperties.Property.PATH_HOME;
 
 public class JdbcSettingsTest {
 
@@ -57,7 +58,7 @@ public class JdbcSettingsTest {
 
     assertThat(underTest.resolveProviderAndEnforceNonnullJdbcUrl(props))
       .isEqualTo(Provider.H2);
-    assertThat(props.nonNullValue(JDBC_URL)).isEqualTo(String.format("jdbc:h2:tcp://%s:9092/sonar", InetAddress.getLoopbackAddress().getHostAddress()));
+    assertThat(props.nonNullValue(JDBC_URL.getKey())).isEqualTo(String.format("jdbc:h2:tcp://%s:9092/sonar", InetAddress.getLoopbackAddress().getHostAddress()));
   }
 
   @Test
@@ -88,15 +89,15 @@ public class JdbcSettingsTest {
   }
 
   private void checkProviderForUrlAndUnchangedUrl(String url, Provider expected) {
-    Props props = newProps(JDBC_URL, url);
+    Props props = newProps(JDBC_URL.getKey(), url);
 
     assertThat(underTest.resolveProviderAndEnforceNonnullJdbcUrl(props)).isEqualTo(expected);
-    assertThat(props.nonNullValue(JDBC_URL)).isEqualTo(url);
+    assertThat(props.nonNullValue(JDBC_URL.getKey())).isEqualTo(url);
   }
 
   @Test
   public void fail_with_MessageException_when_provider_is_not_supported() {
-    Props props = newProps(JDBC_URL, "jdbc:microsoft:sqlserver://localhost");
+    Props props = newProps(JDBC_URL.getKey(), "jdbc:microsoft:sqlserver://localhost");
 
     expectedException.expect(MessageException.class);
     expectedException.expectMessage("Unsupported JDBC driver provider: microsoft");
@@ -106,7 +107,7 @@ public class JdbcSettingsTest {
 
   @Test
   public void fail_with_MessageException_when_url_does_not_have_jdbc_prefix() {
-    Props props = newProps(JDBC_URL, "oracle:thin:@localhost/XE");
+    Props props = newProps(JDBC_URL.getKey(), "oracle:thin:@localhost/XE");
 
     expectedException.expect(MessageException.class);
     expectedException.expectMessage("Bad format of JDBC URL: oracle:thin:@localhost/XE");
@@ -136,9 +137,9 @@ public class JdbcSettingsTest {
     File driverFile = new File(homeDir, "extensions/jdbc-driver/oracle/ojdbc6.jar");
     FileUtils.touch(driverFile);
 
-    Props props = newProps(JDBC_URL, "jdbc:oracle:thin:@localhost/XE");
+    Props props = newProps(JDBC_URL.getKey(), "jdbc:oracle:thin:@localhost/XE");
     underTest.accept(props);
-    assertThat(props.nonNullValueAsFile(ProcessProperties.JDBC_DRIVER_PATH)).isEqualTo(driverFile);
+    assertThat(props.nonNullValueAsFile(JDBC_DRIVER_PATH.getKey())).isEqualTo(driverFile);
   }
 
   @Test
@@ -146,9 +147,9 @@ public class JdbcSettingsTest {
     File driverFile = new File(homeDir, "lib/jdbc/h2/h2.jar");
     FileUtils.touch(driverFile);
 
-    Props props = newProps(JDBC_URL, "jdbc:h2:tcp://localhost:9092/sonar");
+    Props props = newProps(JDBC_URL.getKey(), "jdbc:h2:tcp://localhost:9092/sonar");
     underTest.accept(props);
-    assertThat(props.nonNullValueAsFile(ProcessProperties.JDBC_DRIVER_PATH)).isEqualTo(driverFile);
+    assertThat(props.nonNullValueAsFile(JDBC_DRIVER_PATH.getKey())).isEqualTo(driverFile);
   }
 
   @Test
@@ -156,9 +157,9 @@ public class JdbcSettingsTest {
     File driverFile = new File(homeDir, "lib/jdbc/postgresql/pg.jar");
     FileUtils.touch(driverFile);
 
-    Props props = newProps(JDBC_URL, "jdbc:postgresql://localhost/sonar");
+    Props props = newProps(JDBC_URL.getKey(), "jdbc:postgresql://localhost/sonar");
     underTest.accept(props);
-    assertThat(props.nonNullValueAsFile(ProcessProperties.JDBC_DRIVER_PATH)).isEqualTo(driverFile);
+    assertThat(props.nonNullValueAsFile(JDBC_DRIVER_PATH.getKey())).isEqualTo(driverFile);
   }
 
   @Test
@@ -166,9 +167,9 @@ public class JdbcSettingsTest {
     File driverFile = new File(homeDir, "lib/jdbc/mssql/sqljdbc4.jar");
     FileUtils.touch(driverFile);
 
-    Props props = newProps(JDBC_URL, "jdbc:sqlserver://localhost/sonar;SelectMethod=Cursor");
+    Props props = newProps(JDBC_URL.getKey(), "jdbc:sqlserver://localhost/sonar;SelectMethod=Cursor");
     underTest.accept(props);
-    assertThat(props.nonNullValueAsFile(ProcessProperties.JDBC_DRIVER_PATH)).isEqualTo(driverFile);
+    assertThat(props.nonNullValueAsFile(JDBC_DRIVER_PATH.getKey())).isEqualTo(driverFile);
   }
 
   @Test
@@ -215,7 +216,7 @@ public class JdbcSettingsTest {
       properties.setProperty(params[i], params[i + 1]);
       i++;
     }
-    properties.setProperty(ProcessProperties.PATH_HOME, homeDir.getAbsolutePath());
+    properties.setProperty(PATH_HOME.getKey(), homeDir.getAbsolutePath());
     return new Props(properties);
   }
 }

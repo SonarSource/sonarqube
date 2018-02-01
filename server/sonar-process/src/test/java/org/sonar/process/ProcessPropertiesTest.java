@@ -35,6 +35,8 @@ public class ProcessPropertiesTest {
 
     assertThat(props.value("sonar.search.javaOpts")).contains("-Xmx");
     assertThat(props.valueAsInt("sonar.jdbc.maxActive")).isEqualTo(60);
+    assertThat(props.valueAsBoolean("sonar.sonarcloud.enabled")).isEqualTo(false);
+    assertThat(props.valueAsBoolean("sonar.updatecenter.activate")).isEqualTo(true);
   }
 
   @Test

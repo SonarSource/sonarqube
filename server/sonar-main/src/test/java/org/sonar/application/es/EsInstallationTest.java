@@ -26,10 +26,13 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.process.ProcessProperties.Property.PATH_DATA;
+import static org.sonar.process.ProcessProperties.Property.PATH_HOME;
+import static org.sonar.process.ProcessProperties.Property.PATH_LOGS;
+import static org.sonar.process.ProcessProperties.Property.PATH_TEMP;
 
 public class EsInstallationTest {
 
@@ -51,8 +54,8 @@ public class EsInstallationTest {
   @Test
   public void constructor_fails_with_IAE_if_temp_dir_property_is_not_defined() throws IOException {
     Props props = new Props(new Properties());
-    props.set(ProcessProperties.PATH_DATA, temp.newFolder().getAbsolutePath());
-    props.set(ProcessProperties.PATH_HOME, temp.newFolder().getAbsolutePath());
+    props.set(PATH_DATA.getKey(), temp.newFolder().getAbsolutePath());
+    props.set(PATH_HOME.getKey(), temp.newFolder().getAbsolutePath());
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Property sonar.path.temp is not set");
@@ -63,7 +66,7 @@ public class EsInstallationTest {
   @Test
   public void constructor_fails_with_IAE_if_data_dir_property_is_not_defined() throws IOException {
     Props props = new Props(new Properties());
-    props.set(ProcessProperties.PATH_HOME, temp.newFolder().getAbsolutePath());
+    props.set(PATH_HOME.getKey(), temp.newFolder().getAbsolutePath());
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Missing property: sonar.path.data");
@@ -75,10 +78,10 @@ public class EsInstallationTest {
   public void getHomeDirectory_is_elasticsearch_subdirectory_of_sq_home_directory() throws IOException {
     File sqHomeDir = temp.newFolder();
     Props props = new Props(new Properties());
-    props.set(ProcessProperties.PATH_DATA, temp.newFolder().getAbsolutePath());
-    props.set(ProcessProperties.PATH_HOME, sqHomeDir.getAbsolutePath());
-    props.set(ProcessProperties.PATH_TEMP, temp.newFolder().getAbsolutePath());
-    props.set(ProcessProperties.PATH_LOGS, temp.newFolder().getAbsolutePath());
+    props.set(PATH_DATA.getKey(), temp.newFolder().getAbsolutePath());
+    props.set(PATH_HOME.getKey(), sqHomeDir.getAbsolutePath());
+    props.set(PATH_TEMP.getKey(), temp.newFolder().getAbsolutePath());
+    props.set(PATH_LOGS.getKey(), temp.newFolder().getAbsolutePath());
 
     EsInstallation underTest = new EsInstallation(props);
 
@@ -91,11 +94,11 @@ public class EsInstallationTest {
     File tempDir = temp.newFolder();
     File dataDir = temp.newFolder();
     Props props = new Props(new Properties());
-    props.set(ProcessProperties.PATH_HOME, sqHomeDir.getAbsolutePath());
-    props.set(ProcessProperties.PATH_TEMP, tempDir.getAbsolutePath());
-    props.set(ProcessProperties.PATH_LOGS, temp.newFolder().getAbsolutePath());
+    props.set(PATH_HOME.getKey(), sqHomeDir.getAbsolutePath());
+    props.set(PATH_TEMP.getKey(), tempDir.getAbsolutePath());
+    props.set(PATH_LOGS.getKey(), temp.newFolder().getAbsolutePath());
 
-    props.set(ProcessProperties.PATH_DATA, dataDir.getAbsolutePath());
+    props.set(PATH_DATA.getKey(), dataDir.getAbsolutePath());
 
     EsInstallation underTest = new EsInstallation(props);
 
@@ -107,10 +110,10 @@ public class EsInstallationTest {
     File sqHomeDir = temp.newFolder();
     File logDir = temp.newFolder();
     Props props = new Props(new Properties());
-    props.set(ProcessProperties.PATH_DATA, temp.newFolder().getAbsolutePath());
-    props.set(ProcessProperties.PATH_HOME, sqHomeDir.getAbsolutePath());
-    props.set(ProcessProperties.PATH_TEMP, temp.newFolder().getAbsolutePath());
-    props.set(ProcessProperties.PATH_LOGS, logDir.getAbsolutePath());
+    props.set(PATH_DATA.getKey(), temp.newFolder().getAbsolutePath());
+    props.set(PATH_HOME.getKey(), sqHomeDir.getAbsolutePath());
+    props.set(PATH_TEMP.getKey(), temp.newFolder().getAbsolutePath());
+    props.set(PATH_LOGS.getKey(), logDir.getAbsolutePath());
 
     EsInstallation underTest = new EsInstallation(props);
 
@@ -121,10 +124,10 @@ public class EsInstallationTest {
   public void conf_directory_is_conf_es_subdirectory_of_sq_temp_directory() throws IOException {
     File tempDir = temp.newFolder();
     Props props = new Props(new Properties());
-    props.set(ProcessProperties.PATH_DATA, temp.newFolder().getAbsolutePath());
-    props.set(ProcessProperties.PATH_HOME, temp.newFolder().getAbsolutePath());
-    props.set(ProcessProperties.PATH_TEMP, tempDir.getAbsolutePath());
-    props.set(ProcessProperties.PATH_LOGS, temp.newFolder().getAbsolutePath());
+    props.set(PATH_DATA.getKey(), temp.newFolder().getAbsolutePath());
+    props.set(PATH_HOME.getKey(), temp.newFolder().getAbsolutePath());
+    props.set(PATH_TEMP.getKey(), tempDir.getAbsolutePath());
+    props.set(PATH_LOGS.getKey(), temp.newFolder().getAbsolutePath());
 
     EsInstallation underTest = new EsInstallation(props);
 
@@ -135,10 +138,10 @@ public class EsInstallationTest {
   public void getExecutable_resolve_executable_for_platform() throws IOException {
     File sqHomeDir = temp.newFolder();
     Props props = new Props(new Properties());
-    props.set(ProcessProperties.PATH_DATA, temp.newFolder().getAbsolutePath());
-    props.set(ProcessProperties.PATH_HOME, sqHomeDir.getAbsolutePath());
-    props.set(ProcessProperties.PATH_TEMP, temp.newFolder().getAbsolutePath());
-    props.set(ProcessProperties.PATH_LOGS, temp.newFolder().getAbsolutePath());
+    props.set(PATH_DATA.getKey(), temp.newFolder().getAbsolutePath());
+    props.set(PATH_HOME.getKey(), sqHomeDir.getAbsolutePath());
+    props.set(PATH_TEMP.getKey(), temp.newFolder().getAbsolutePath());
+    props.set(PATH_LOGS.getKey(), temp.newFolder().getAbsolutePath());
 
     EsInstallation underTest = new EsInstallation(props);
 
@@ -153,10 +156,10 @@ public class EsInstallationTest {
   public void getLog4j2Properties_is_in_es_conf_directory() throws IOException {
     File tempDir = temp.newFolder();
     Props props = new Props(new Properties());
-    props.set(ProcessProperties.PATH_DATA, temp.newFolder().getAbsolutePath());
-    props.set(ProcessProperties.PATH_HOME, temp.newFolder().getAbsolutePath());
-    props.set(ProcessProperties.PATH_TEMP, tempDir.getAbsolutePath());
-    props.set(ProcessProperties.PATH_LOGS, temp.newFolder().getAbsolutePath());
+    props.set(PATH_DATA.getKey(), temp.newFolder().getAbsolutePath());
+    props.set(PATH_HOME.getKey(), temp.newFolder().getAbsolutePath());
+    props.set(PATH_TEMP.getKey(), tempDir.getAbsolutePath());
+    props.set(PATH_LOGS.getKey(), temp.newFolder().getAbsolutePath());
 
     EsInstallation underTest = new EsInstallation(props);
 
@@ -167,10 +170,10 @@ public class EsInstallationTest {
   public void getElasticsearchYml_is_in_es_conf_directory() throws IOException {
     File tempDir = temp.newFolder();
     Props props = new Props(new Properties());
-    props.set(ProcessProperties.PATH_DATA, temp.newFolder().getAbsolutePath());
-    props.set(ProcessProperties.PATH_HOME, temp.newFolder().getAbsolutePath());
-    props.set(ProcessProperties.PATH_TEMP, tempDir.getAbsolutePath());
-    props.set(ProcessProperties.PATH_LOGS, temp.newFolder().getAbsolutePath());
+    props.set(PATH_DATA.getKey(), temp.newFolder().getAbsolutePath());
+    props.set(PATH_HOME.getKey(), temp.newFolder().getAbsolutePath());
+    props.set(PATH_TEMP.getKey(), tempDir.getAbsolutePath());
+    props.set(PATH_LOGS.getKey(), temp.newFolder().getAbsolutePath());
 
     EsInstallation underTest = new EsInstallation(props);
 
@@ -181,10 +184,10 @@ public class EsInstallationTest {
   public void getJvmOptions_is_in_es_conf_directory() throws IOException {
     File tempDir = temp.newFolder();
     Props props = new Props(new Properties());
-    props.set(ProcessProperties.PATH_DATA, temp.newFolder().getAbsolutePath());
-    props.set(ProcessProperties.PATH_HOME, temp.newFolder().getAbsolutePath());
-    props.set(ProcessProperties.PATH_TEMP, tempDir.getAbsolutePath());
-    props.set(ProcessProperties.PATH_LOGS, temp.newFolder().getAbsolutePath());
+    props.set(PATH_DATA.getKey(), temp.newFolder().getAbsolutePath());
+    props.set(PATH_HOME.getKey(), temp.newFolder().getAbsolutePath());
+    props.set(PATH_TEMP.getKey(), tempDir.getAbsolutePath());
+    props.set(PATH_LOGS.getKey(), temp.newFolder().getAbsolutePath());
 
     EsInstallation underTest = new EsInstallation(props);
 

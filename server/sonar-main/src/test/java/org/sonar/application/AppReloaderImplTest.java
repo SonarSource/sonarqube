@@ -27,7 +27,6 @@ import org.sonar.application.config.AppSettings;
 import org.sonar.application.config.AppSettingsLoader;
 import org.sonar.application.config.TestAppSettings;
 import org.sonar.process.MessageException;
-import org.sonar.process.ProcessProperties;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.data.MapEntry.entry;
@@ -35,7 +34,11 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
-import static org.sonar.process.ProcessProperties.CLUSTER_ENABLED;
+import static org.sonar.process.ProcessProperties.Property.CLUSTER_ENABLED;
+import static org.sonar.process.ProcessProperties.Property.PATH_DATA;
+import static org.sonar.process.ProcessProperties.Property.PATH_LOGS;
+import static org.sonar.process.ProcessProperties.Property.PATH_TEMP;
+import static org.sonar.process.ProcessProperties.Property.PATH_WEB;
 
 public class AppReloaderImplTest {
 
@@ -68,7 +71,7 @@ public class AppReloaderImplTest {
 
   @Test
   public void throw_ISE_if_cluster_is_enabled() throws IOException {
-    AppSettings settings = new TestAppSettings().set(CLUSTER_ENABLED, "true");
+    AppSettings settings = new TestAppSettings().set(CLUSTER_ENABLED.getKey(), "true");
 
     expectedException.expect(IllegalStateException.class);
     expectedException.expectMessage("Restart is not possible with cluster mode");
@@ -82,15 +85,15 @@ public class AppReloaderImplTest {
 
   @Test
   public void throw_MessageException_if_path_properties_are_changed() throws IOException {
-    verifyFailureIfPropertyValueChanged(ProcessProperties.PATH_DATA);
-    verifyFailureIfPropertyValueChanged(ProcessProperties.PATH_LOGS);
-    verifyFailureIfPropertyValueChanged(ProcessProperties.PATH_TEMP);
-    verifyFailureIfPropertyValueChanged(ProcessProperties.PATH_WEB);
+    verifyFailureIfPropertyValueChanged(PATH_DATA.getKey());
+    verifyFailureIfPropertyValueChanged(PATH_LOGS.getKey());
+    verifyFailureIfPropertyValueChanged(PATH_TEMP.getKey());
+    verifyFailureIfPropertyValueChanged(PATH_WEB.getKey());
   }
 
   @Test
   public void throw_MessageException_if_cluster_mode_changed() throws IOException {
-    verifyFailureIfPropertyValueChanged(CLUSTER_ENABLED);
+    verifyFailureIfPropertyValueChanged(CLUSTER_ENABLED.getKey());
   }
 
   private void verifyFailureIfPropertyValueChanged(String propertyKey) throws IOException {

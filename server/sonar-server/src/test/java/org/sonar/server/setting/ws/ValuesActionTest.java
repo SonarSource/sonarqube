@@ -41,6 +41,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.property.PropertyDbTester;
+import org.sonar.process.ProcessProperties;
 import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -836,7 +837,7 @@ public class ValuesActionTest {
   public void fail_when_using_branch_db_key() throws Exception {
     OrganizationDto organization = db.organizations().insert();
     ComponentDto project = db.components().insertMainBranch(organization);
-    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
+    userSession.logIn().addProjectPermission(UserRole.USER, project);
     ComponentDto branch = db.components().insertProjectBranch(project);
 
     expectedException.expect(NotFoundException.class);
@@ -845,6 +846,21 @@ public class ValuesActionTest {
     ws.newRequest()
       .setParam("keys", "foo")
       .setParam("component", branch.getDbKey())
+      .execute();
+  }
+
+  @Test
+  public void fail_when_setting_key_is_defined_in_sonar_properties() {
+    ComponentDto project = db.components().insertPrivateProject();
+    userSession.logIn().addProjectPermission(UserRole.USER, project);
+    String settingKey = ProcessProperties.Property.JDBC_URL.getKey();
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage(format("Setting '%s' can only be used in sonar.properties", settingKey));
+
+    ws.newRequest()
+      .setParam("keys", settingKey)
+      .setParam("component", project.getKey())
       .execute();
   }
 

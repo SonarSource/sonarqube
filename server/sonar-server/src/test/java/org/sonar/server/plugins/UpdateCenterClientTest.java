@@ -27,7 +27,7 @@ import org.junit.Test;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.SonarException;
 import org.sonar.api.utils.UriReader;
-import org.sonar.core.config.WebConstants;
+import org.sonar.process.ProcessProperties;
 import org.sonar.updatecenter.common.UpdateCenter;
 import org.sonar.updatecenter.common.Version;
 
@@ -51,7 +51,7 @@ public class UpdateCenterClientTest {
   public void startServer() throws Exception {
     reader = mock(UriReader.class);
     settings.setProperty(UpdateCenterClient.URL_PROPERTY, BASE_URL);
-    settings.setProperty(WebConstants.SONAR_UPDATECENTER_ACTIVATE, true);
+    settings.setProperty(ProcessProperties.Property.SONAR_UPDATECENTER_ACTIVATE.getKey(), true);
     underTest = new UpdateCenterClient(reader, settings.asConfig());
   }
 
@@ -97,7 +97,7 @@ public class UpdateCenterClientTest {
 
   @Test
   public void update_center_is_null_when_property_is_false() {
-    settings.setProperty(WebConstants.SONAR_UPDATECENTER_ACTIVATE, false);
+    settings.setProperty(ProcessProperties.Property.SONAR_UPDATECENTER_ACTIVATE.getKey(), false);
 
     assertThat(underTest.getUpdateCenter()).isAbsent();
   }

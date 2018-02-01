@@ -47,6 +47,7 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.property.PropertyDbTester;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.property.PropertyQuery;
+import org.sonar.process.ProcessProperties;
 import org.sonar.scanner.protocol.GsonHelper;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.component.TestComponentFinder;
@@ -986,6 +987,22 @@ public class SetActionTest {
       .setParam("value", "2")
       .setParam("component", branch.getKey())
       .setParam("branch", branch.getBranch())
+      .execute();
+  }
+
+  @Test
+  public void fail_when_setting_key_is_defined_in_sonar_properties() {
+    ComponentDto project = db.components().insertPrivateProject();
+    logInAsProjectAdministrator(project);
+    String settingKey = ProcessProperties.Property.JDBC_URL.getKey();
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage(format("Setting '%s' can only be used in sonar.properties", settingKey));
+
+    ws.newRequest()
+      .setParam("key", settingKey)
+      .setParam("value", "any value")
+      .setParam("component", project.getKey())
       .execute();
   }
 

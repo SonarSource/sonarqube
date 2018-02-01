@@ -226,9 +226,15 @@ public interface CoreProperties {
 
   /**
    * @since 2.14
+   * @deprecated since 7.1, this setting should not be used by plugin
    */
+  @Deprecated
   String CORE_AUTHENTICATOR_REALM = "sonar.security.realm";
 
+  /**
+   * @deprecated since 7.1, this setting should not be used by plugin
+   */
+  @Deprecated
   String CORE_AUTHENTICATOR_IGNORE_STARTUP_FAILURE = "sonar.authenticator.ignoreStartupFailure";
 
   /**

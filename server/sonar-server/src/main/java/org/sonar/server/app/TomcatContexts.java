@@ -28,10 +28,11 @@ import org.apache.catalina.core.StandardContext;
 import org.apache.catalina.startup.Tomcat;
 import org.apache.commons.io.FileUtils;
 import org.sonar.api.utils.MessageException;
-import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
 
 import static java.lang.String.format;
+import static org.sonar.process.ProcessProperties.Property.PATH_DATA;
+import static org.sonar.process.ProcessProperties.Property.PATH_HOME;
 
 /**
  * Configures Tomcat contexts:
@@ -57,7 +58,7 @@ public class TomcatContexts {
   }
 
   public StandardContext configure(Tomcat tomcat, Props props) {
-    addStaticDir(tomcat, getContextPath(props) + "/deploy", new File(props.nonNullValueAsFile(ProcessProperties.PATH_DATA), WEB_DEPLOY_PATH_RELATIVE_TO_DATA_DIR));
+    addStaticDir(tomcat, getContextPath(props) + "/deploy", new File(props.nonNullValueAsFile(PATH_DATA.getKey()), WEB_DEPLOY_PATH_RELATIVE_TO_DATA_DIR));
 
     StandardContext webapp = addContext(tomcat, getContextPath(props), webappDir(props));
     for (Map.Entry<Object, Object> entry : props.rawProperties().entrySet()) {
@@ -115,7 +116,7 @@ public class TomcatContexts {
   }
 
   private static File webappDir(Props props) {
-    return new File(props.value(ProcessProperties.PATH_HOME), "web");
+    return new File(props.value(PATH_HOME.getKey()), "web");
   }
 
   static class Fs {

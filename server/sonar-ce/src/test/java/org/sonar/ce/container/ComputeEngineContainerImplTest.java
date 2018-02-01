@@ -31,7 +31,6 @@ import org.junit.rules.TemporaryFolder;
 import org.picocontainer.ComponentAdapter;
 import org.picocontainer.MutablePicoContainer;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.database.DatabaseProperties;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.ce.CeDistributedInformationImpl;
@@ -49,9 +48,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.sonar.process.ProcessEntryPoint.PROPERTY_PROCESS_INDEX;
 import static org.sonar.process.ProcessEntryPoint.PROPERTY_SHARED_PATH;
-import static org.sonar.process.ProcessProperties.PATH_DATA;
-import static org.sonar.process.ProcessProperties.PATH_HOME;
-import static org.sonar.process.ProcessProperties.PATH_TEMP;
+import static org.sonar.process.ProcessProperties.Property.JDBC_PASSWORD;
+import static org.sonar.process.ProcessProperties.Property.JDBC_URL;
+import static org.sonar.process.ProcessProperties.Property.JDBC_USERNAME;
+import static org.sonar.process.ProcessProperties.Property.PATH_DATA;
+import static org.sonar.process.ProcessProperties.Property.PATH_HOME;
+import static org.sonar.process.ProcessProperties.Property.PATH_TEMP;
 
 public class ComputeEngineContainerImplTest {
   private static final int CONTAINER_ITSELF = 1;
@@ -110,7 +112,7 @@ public class ComputeEngineContainerImplTest {
     );
     assertThat(picoContainer.getParent().getParent().getComponentAdapters()).hasSize(
       CONTAINER_ITSELF
-        + 14 // MigrationConfigurationModule
+        + 15 // MigrationConfigurationModule
         + 17 // level 2
     );
     assertThat(picoContainer.getParent().getParent().getParent().getComponentAdapters()).hasSize(
@@ -118,7 +120,7 @@ public class ComputeEngineContainerImplTest {
         + 26 // level 1
         + 52 // content of DaoModule
         + 3 // content of EsSearchModule
-        + 67 // content of CorePropertyDefinitions
+        + 60 // content of CorePropertyDefinitions
         + 1 // StopFlagContainer
     );
     assertThat(
@@ -140,14 +142,14 @@ public class ComputeEngineContainerImplTest {
     File homeDir = tempFolder.newFolder();
     File dataDir = new File(homeDir, "data");
     File tmpDir = new File(homeDir, "tmp");
-    properties.setProperty(PATH_HOME, homeDir.getAbsolutePath());
-    properties.setProperty(PATH_DATA, dataDir.getAbsolutePath());
-    properties.setProperty(PATH_TEMP, tmpDir.getAbsolutePath());
+    properties.setProperty(PATH_HOME.getKey(), homeDir.getAbsolutePath());
+    properties.setProperty(PATH_DATA.getKey(), dataDir.getAbsolutePath());
+    properties.setProperty(PATH_TEMP.getKey(), tmpDir.getAbsolutePath());
     properties.setProperty(PROPERTY_PROCESS_INDEX, valueOf(ProcessId.COMPUTE_ENGINE.getIpcIndex()));
     properties.setProperty(PROPERTY_SHARED_PATH, tmpDir.getAbsolutePath());
-    properties.setProperty(DatabaseProperties.PROP_URL, db.getUrl());
-    properties.setProperty(DatabaseProperties.PROP_USER, "sonar");
-    properties.setProperty(DatabaseProperties.PROP_PASSWORD, "sonar");
+    properties.setProperty(JDBC_URL.getKey(), db.getUrl());
+    properties.setProperty(JDBC_USERNAME.getKey(), "sonar");
+    properties.setProperty(JDBC_PASSWORD.getKey(), "sonar");
     return properties;
   }
 

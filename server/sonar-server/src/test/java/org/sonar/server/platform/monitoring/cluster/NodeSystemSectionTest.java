@@ -24,7 +24,6 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.platform.Server;
-import org.sonar.process.ProcessProperties;
 import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
 import org.sonar.server.platform.monitoring.OfficialDistribution;
 
@@ -32,9 +31,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.process.ProcessProperties.Property.PATH_DATA;
+import static org.sonar.process.ProcessProperties.Property.PATH_HOME;
+import static org.sonar.process.ProcessProperties.Property.PATH_LOGS;
+import static org.sonar.process.ProcessProperties.Property.PATH_TEMP;
+import static org.sonar.process.ProcessProperties.Property.PATH_WEB;
 import static org.sonar.process.systeminfo.SystemInfoUtils.attribute;
 import static org.sonar.server.platform.monitoring.SystemInfoTesting.assertThatAttributeIs;
-
 
 public class NodeSystemSectionTest {
 
@@ -80,11 +83,11 @@ public class NodeSystemSectionTest {
 
   @Test
   public void return_dir_paths() {
-    settings.setProperty(ProcessProperties.PATH_HOME, "/home");
-    settings.setProperty(ProcessProperties.PATH_DATA, "/data");
-    settings.setProperty(ProcessProperties.PATH_TEMP, "/temp");
-    settings.setProperty(ProcessProperties.PATH_LOGS, "/logs");
-    settings.setProperty(ProcessProperties.PATH_WEB, "/web");
+    settings.setProperty(PATH_HOME.getKey(), "/home");
+    settings.setProperty(PATH_DATA.getKey(), "/data");
+    settings.setProperty(PATH_TEMP.getKey(), "/temp");
+    settings.setProperty(PATH_LOGS.getKey(), "/logs");
+    settings.setProperty(PATH_WEB.getKey(), "/web");
 
     ProtobufSystemInfo.Section section = underTest.toProtobuf();
 

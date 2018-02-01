@@ -26,13 +26,15 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.utils.System2;
 import org.sonar.core.platform.PluginRepository;
-import org.sonar.process.ProcessProperties;
 import org.sonar.server.platform.Platform;
 import org.sonar.server.platform.WebServer;
 import org.sonar.server.platform.db.migration.charset.DatabaseCharsetChecker;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.sonar.process.ProcessProperties.Property.PATH_DATA;
+import static org.sonar.process.ProcessProperties.Property.PATH_HOME;
+import static org.sonar.process.ProcessProperties.Property.PATH_TEMP;
 
 public class PlatformLevel2Test {
 
@@ -44,9 +46,9 @@ public class PlatformLevel2Test {
   @Before
   public void setUp() throws Exception {
     // these are mandatory settings declared by bootstrap process
-    props.setProperty(ProcessProperties.PATH_HOME, tempFolder.newFolder().getAbsolutePath());
-    props.setProperty(ProcessProperties.PATH_DATA, tempFolder.newFolder().getAbsolutePath());
-    props.setProperty(ProcessProperties.PATH_TEMP, tempFolder.newFolder().getAbsolutePath());
+    props.setProperty(PATH_HOME.getKey(), tempFolder.newFolder().getAbsolutePath());
+    props.setProperty(PATH_DATA.getKey(), tempFolder.newFolder().getAbsolutePath());
+    props.setProperty(PATH_TEMP.getKey(), tempFolder.newFolder().getAbsolutePath());
   }
 
   @Test

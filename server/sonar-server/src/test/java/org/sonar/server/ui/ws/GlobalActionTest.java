@@ -98,7 +98,6 @@ public class GlobalActionTest {
 
   @Test
   public void return_settings() {
-    init();
     settings.setProperty("sonar.lf.logoUrl", "http://example.com/my-custom-logo.png");
     settings.setProperty("sonar.lf.logoWidthPx", 135);
     settings.setProperty("sonar.lf.gravatarServerUrl", "https://secure.gravatar.com/avatar/{EMAIL_MD5}.jpg?s={SIZE}&d=identicon");
@@ -109,6 +108,7 @@ public class GlobalActionTest {
     settings.setProperty("sonar.technicalDebt.ratingGrid", "0.05,0.1,0.2,0.5");
     // This setting should be ignored as it's not needed
     settings.setProperty("sonar.defaultGroup", "sonar-users");
+    init();
 
     assertJson(call()).isSimilarTo("{" +
       "  \"settings\": {" +
@@ -249,6 +249,12 @@ public class GlobalActionTest {
 
   @Test
   public void test_example_response() {
+    settings.setProperty("sonar.lf.logoUrl", "http://example.com/my-custom-logo.png");
+    settings.setProperty("sonar.lf.logoWidthPx", 135);
+    settings.setProperty("sonar.lf.gravatarServerUrl", "http://some-server.tld/logo.png");
+    settings.setProperty("sonar.lf.enableGravatar", true);
+    settings.setProperty("sonar.updatecenter.activate", false);
+    settings.setProperty("sonar.technicalDebt.ratingGrid", "0.05,0.1,0.2,0.5");
     init(createPages(), new ResourceTypeTree[] {
       ResourceTypeTree.builder()
         .addType(ResourceType.builder("POL").build())
@@ -261,12 +267,6 @@ public class GlobalActionTest {
         .addRelations("PAL", "LAP")
         .build()
     });
-    settings.setProperty("sonar.lf.logoUrl", "http://example.com/my-custom-logo.png");
-    settings.setProperty("sonar.lf.logoWidthPx", 135);
-    settings.setProperty("sonar.lf.gravatarServerUrl", "http://some-server.tld/logo.png");
-    settings.setProperty("sonar.lf.enableGravatar", true);
-    settings.setProperty("sonar.updatecenter.activate", false);
-    settings.setProperty("sonar.technicalDebt.ratingGrid", "0.05,0.1,0.2,0.5");
     when(server.getVersion()).thenReturn("6.2");
     when(dbClient.getDatabase().getDialect()).thenReturn(new MySql());
     when(webServer.isStandalone()).thenReturn(true);
@@ -290,8 +290,10 @@ public class GlobalActionTest {
       }
     }});
     pageRepository.start();
-    ws = new WsActionTester(new GlobalAction(pageRepository, settings.asConfig(), new ResourceTypes(resourceTypeTrees), server,
-        webServer, dbClient, organizationFlags, defaultOrganizationProvider, branchFeature, userSession));
+    GlobalAction wsAction = new GlobalAction(pageRepository, settings.asConfig(), new ResourceTypes(resourceTypeTrees), server,
+      webServer, dbClient, organizationFlags, defaultOrganizationProvider, branchFeature, userSession);
+    ws = new WsActionTester(wsAction);
+    wsAction.start();
   }
 
   private String call() {

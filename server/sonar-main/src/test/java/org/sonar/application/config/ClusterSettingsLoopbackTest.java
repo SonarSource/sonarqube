@@ -20,7 +20,6 @@
 package org.sonar.application.config;
 
 import java.net.InetAddress;
-import java.net.SocketException;
 import java.util.Optional;
 import org.hamcrest.CoreMatchers;
 import org.junit.Before;
@@ -30,17 +29,16 @@ import org.junit.rules.ExpectedException;
 import org.sonar.process.MessageException;
 import org.sonar.process.NetworkUtils;
 import org.sonar.process.NetworkUtilsImpl;
-import org.sonar.process.ProcessProperties;
 
 import static org.junit.Assume.assumeThat;
 import static org.mockito.Mockito.spy;
-import static org.sonar.process.ProcessProperties.CLUSTER_ENABLED;
-import static org.sonar.process.ProcessProperties.CLUSTER_HOSTS;
-import static org.sonar.process.ProcessProperties.CLUSTER_NODE_HOST;
-import static org.sonar.process.ProcessProperties.CLUSTER_NODE_TYPE;
-import static org.sonar.process.ProcessProperties.CLUSTER_SEARCH_HOSTS;
-import static org.sonar.process.ProcessProperties.JDBC_URL;
-import static org.sonar.process.ProcessProperties.SEARCH_HOST;
+import static org.sonar.process.ProcessProperties.Property.CLUSTER_ENABLED;
+import static org.sonar.process.ProcessProperties.Property.CLUSTER_HOSTS;
+import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_HOST;
+import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_TYPE;
+import static org.sonar.process.ProcessProperties.Property.CLUSTER_SEARCH_HOSTS;
+import static org.sonar.process.ProcessProperties.Property.JDBC_URL;
+import static org.sonar.process.ProcessProperties.Property.SEARCH_HOST;
 
 public class ClusterSettingsLoopbackTest {
 
@@ -60,26 +58,26 @@ public class ClusterSettingsLoopbackTest {
   }
 
   @Test
-  public void ClusterSettings_throws_MessageException_if_host_of_search_node_is_loopback() throws Exception {
-    verifySearchFailureIfLoopback(ProcessProperties.CLUSTER_NODE_HOST);
-    verifySearchFailureIfLoopback(ProcessProperties.CLUSTER_SEARCH_HOSTS);
-    verifySearchFailureIfLoopback(ProcessProperties.CLUSTER_HOSTS);
-    verifySearchFailureIfLoopback(ProcessProperties.SEARCH_HOST);
+  public void ClusterSettings_throws_MessageException_if_host_of_search_node_is_loopback() {
+    verifySearchFailureIfLoopback(CLUSTER_NODE_HOST.getKey());
+    verifySearchFailureIfLoopback(CLUSTER_SEARCH_HOSTS.getKey());
+    verifySearchFailureIfLoopback(CLUSTER_HOSTS.getKey());
+    verifySearchFailureIfLoopback(SEARCH_HOST.getKey());
   }
 
   @Test
-  public void ClusterSettings_throws_MessageException_if_host_of_app_node_is_loopback() throws Exception {
-    verifyAppFailureIfLoopback(ProcessProperties.CLUSTER_NODE_HOST);
-    verifyAppFailureIfLoopback(ProcessProperties.CLUSTER_SEARCH_HOSTS);
-    verifyAppFailureIfLoopback(ProcessProperties.CLUSTER_HOSTS);
+  public void ClusterSettings_throws_MessageException_if_host_of_app_node_is_loopback() {
+    verifyAppFailureIfLoopback(CLUSTER_NODE_HOST.getKey());
+    verifyAppFailureIfLoopback(CLUSTER_SEARCH_HOSTS.getKey());
+    verifyAppFailureIfLoopback(CLUSTER_HOSTS.getKey());
   }
 
-  private void verifySearchFailureIfLoopback(String propertyKey) throws Exception {
+  private void verifySearchFailureIfLoopback(String propertyKey) {
     TestAppSettings settings = newSettingsForSearchNode();
     verifyFailure(propertyKey, settings);
   }
 
-  private void verifyAppFailureIfLoopback(String propertyKey) throws Exception {
+  private void verifyAppFailureIfLoopback(String propertyKey) {
     TestAppSettings settings = newSettingsForAppNode();
     verifyFailure(propertyKey, settings);
   }
@@ -95,22 +93,22 @@ public class ClusterSettingsLoopbackTest {
 
   private TestAppSettings newSettingsForAppNode() {
     return new TestAppSettings()
-      .set(CLUSTER_ENABLED, "true")
-      .set(CLUSTER_NODE_TYPE, "application")
-      .set(CLUSTER_NODE_HOST, nonLoopbackLocal.getHostAddress())
-      .set(CLUSTER_HOSTS, nonLoopbackLocal.getHostAddress())
-      .set(CLUSTER_SEARCH_HOSTS, nonLoopbackLocal.getHostAddress())
+      .set(CLUSTER_ENABLED.getKey(), "true")
+      .set(CLUSTER_NODE_TYPE.getKey(), "application")
+      .set(CLUSTER_NODE_HOST.getKey(), nonLoopbackLocal.getHostAddress())
+      .set(CLUSTER_HOSTS.getKey(), nonLoopbackLocal.getHostAddress())
+      .set(CLUSTER_SEARCH_HOSTS.getKey(), nonLoopbackLocal.getHostAddress())
       .set("sonar.auth.jwtBase64Hs256Secret", "abcde")
-      .set(JDBC_URL, "jdbc:mysql://localhost:3306/sonar");
+      .set(JDBC_URL.getKey(), "jdbc:mysql://localhost:3306/sonar");
   }
 
   private TestAppSettings newSettingsForSearchNode() {
     return new TestAppSettings()
-      .set(CLUSTER_ENABLED, "true")
-      .set(CLUSTER_NODE_TYPE, "search")
-      .set(CLUSTER_NODE_HOST, nonLoopbackLocal.getHostAddress())
-      .set(CLUSTER_HOSTS, nonLoopbackLocal.getHostAddress())
-      .set(CLUSTER_SEARCH_HOSTS, nonLoopbackLocal.getHostAddress())
-      .set(SEARCH_HOST, nonLoopbackLocal.getHostAddress());
+      .set(CLUSTER_ENABLED.getKey(), "true")
+      .set(CLUSTER_NODE_TYPE.getKey(), "search")
+      .set(CLUSTER_NODE_HOST.getKey(), nonLoopbackLocal.getHostAddress())
+      .set(CLUSTER_HOSTS.getKey(), nonLoopbackLocal.getHostAddress())
+      .set(CLUSTER_SEARCH_HOSTS.getKey(), nonLoopbackLocal.getHostAddress())
+      .set(SEARCH_HOST.getKey(), nonLoopbackLocal.getHostAddress());
   }
 }

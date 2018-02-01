@@ -52,13 +52,13 @@ import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.sonar.process.MessageException;
 import org.sonar.process.ProcessId;
-import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 import static org.slf4j.Logger.ROOT_LOGGER_NAME;
+import static org.sonar.process.ProcessProperties.Property.PATH_LOGS;
 import static org.sonar.process.logging.RootLoggerConfig.newRootLoggerConfigBuilder;
 
 @RunWith(DataProviderRunner.class)
@@ -75,7 +75,7 @@ public class LogbackHelperTest {
   @Before
   public void setUp() throws Exception {
     File dir = temp.newFolder();
-    props.set(ProcessProperties.PATH_LOGS, dir.getAbsolutePath());
+    props.set(PATH_LOGS.getKey(), dir.getAbsolutePath());
   }
 
   @After
@@ -88,12 +88,11 @@ public class LogbackHelperTest {
     assertThat(underTest.getRootContext()).isNotNull();
   }
 
-
   @Test
   public void buildLogPattern_puts_process_key_as_process_id() {
     String pattern = underTest.buildLogPattern(newRootLoggerConfigBuilder()
-        .setProcessId(ProcessId.ELASTICSEARCH)
-        .build());
+      .setProcessId(ProcessId.ELASTICSEARCH)
+      .build());
 
     assertThat(pattern).isEqualTo("%d{yyyy.MM.dd HH:mm:ss} %-5level es[][%logger{20}] %msg%n");
   }
@@ -102,10 +101,10 @@ public class LogbackHelperTest {
   public void buildLogPattern_puts_threadIdFieldPattern_from_RootLoggerConfig_non_null() {
     String threadIdFieldPattern = RandomStringUtils.randomAlphabetic(5);
     String pattern = underTest.buildLogPattern(
-        newRootLoggerConfigBuilder()
-            .setProcessId(ProcessId.APP)
-            .setThreadIdFieldPattern(threadIdFieldPattern)
-            .build());
+      newRootLoggerConfigBuilder()
+        .setProcessId(ProcessId.APP)
+        .setThreadIdFieldPattern(threadIdFieldPattern)
+        .build());
 
     assertThat(pattern).isEqualTo("%d{yyyy.MM.dd HH:mm:ss} %-5level app[" + threadIdFieldPattern + "][%logger{20}] %msg%n");
   }
@@ -113,9 +112,9 @@ public class LogbackHelperTest {
   @Test
   public void buildLogPattern_does_not_put_threadIdFieldPattern_from_RootLoggerConfig_is_null() {
     String pattern = underTest.buildLogPattern(
-        newRootLoggerConfigBuilder()
-            .setProcessId(ProcessId.COMPUTE_ENGINE)
-            .build());
+      newRootLoggerConfigBuilder()
+        .setProcessId(ProcessId.COMPUTE_ENGINE)
+        .build());
 
     assertThat(pattern).isEqualTo("%d{yyyy.MM.dd HH:mm:ss} %-5level ce[][%logger{20}] %msg%n");
   }
@@ -123,13 +122,14 @@ public class LogbackHelperTest {
   @Test
   public void buildLogPattern_does_not_put_threadIdFieldPattern_from_RootLoggerConfig_is_empty() {
     String pattern = underTest.buildLogPattern(
-        newRootLoggerConfigBuilder()
-            .setProcessId(ProcessId.WEB_SERVER)
-            .setThreadIdFieldPattern("")
-            .build());
+      newRootLoggerConfigBuilder()
+        .setProcessId(ProcessId.WEB_SERVER)
+        .setThreadIdFieldPattern("")
+        .build());
 
     assertThat(pattern).isEqualTo("%d{yyyy.MM.dd HH:mm:ss} %-5level web[][%logger{20}] %msg%n");
   }
+
   @Test
   public void enableJulChangePropagation() {
     LoggerContext ctx = underTest.getRootContext();
@@ -255,7 +255,7 @@ public class LogbackHelperTest {
     assertThat(rollingPolicy.getMaxIndex()).isEqualTo(20);
     assertThat(rollingPolicy.getFileNamePattern()).endsWith("sonar.%i.log");
     SizeBasedTriggeringPolicy triggeringPolicy = (SizeBasedTriggeringPolicy) fileAppender.getTriggeringPolicy();
-    FileSize maxFileSize = (FileSize)FieldUtils.readField(triggeringPolicy, "maxFileSize", true);
+    FileSize maxFileSize = (FileSize) FieldUtils.readField(triggeringPolicy, "maxFileSize", true);
     assertThat(maxFileSize.getSize()).isEqualTo(1024L * 1024);
   }
 

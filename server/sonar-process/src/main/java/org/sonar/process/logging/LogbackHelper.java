@@ -45,11 +45,11 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 import org.sonar.process.MessageException;
-import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
 
 import static java.lang.String.format;
 import static org.slf4j.Logger.ROOT_LOGGER_NAME;
+import static org.sonar.process.ProcessProperties.Property.PATH_LOGS;
 
 /**
  * Helps to configure Logback in a programmatic way, without using XML.
@@ -241,7 +241,7 @@ public class LogbackHelper extends AbstractLogHelper {
   public RollingPolicy createRollingPolicy(Context ctx, Props props, String filenamePrefix) {
     String rollingPolicy = props.value(ROLLING_POLICY_PROPERTY, "time:yyyy-MM-dd");
     int maxFiles = props.valueAsInt(MAX_FILES_PROPERTY, 7);
-    File logsDir = props.nonNullValueAsFile(ProcessProperties.PATH_LOGS);
+    File logsDir = props.nonNullValueAsFile(PATH_LOGS.getKey());
 
     if (rollingPolicy.startsWith("time:")) {
       return new TimeRollingPolicy(ctx, filenamePrefix, logsDir, maxFiles, StringUtils.substringAfter(rollingPolicy, "time:"));

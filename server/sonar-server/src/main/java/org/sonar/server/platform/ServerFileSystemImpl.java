@@ -24,8 +24,11 @@ import org.picocontainer.Startable;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.process.ProcessProperties;
 import org.sonar.server.app.TomcatContexts;
+
+import static org.sonar.process.ProcessProperties.Property.PATH_DATA;
+import static org.sonar.process.ProcessProperties.Property.PATH_HOME;
+import static org.sonar.process.ProcessProperties.Property.PATH_TEMP;
 
 public class ServerFileSystemImpl implements ServerFileSystem, org.sonar.api.platform.ServerFileSystem, Startable {
 
@@ -39,9 +42,9 @@ public class ServerFileSystemImpl implements ServerFileSystem, org.sonar.api.pla
   private final File editionUninstallDir;
 
   public ServerFileSystemImpl(Configuration config) {
-    this.homeDir = new File(config.get(ProcessProperties.PATH_HOME).get());
-    this.tempDir = new File(config.get(ProcessProperties.PATH_TEMP).get());
-    this.dataDir = new File(config.get(ProcessProperties.PATH_DATA).get());
+    this.homeDir = new File(config.get(PATH_HOME.getKey()).get());
+    this.tempDir = new File(config.get(PATH_TEMP.getKey()).get());
+    this.dataDir = new File(config.get(PATH_DATA.getKey()).get());
     this.deployDir = new File(this.dataDir, TomcatContexts.WEB_DEPLOY_PATH_RELATIVE_TO_DATA_DIR);
     this.uninstallDir = new File(getTempDir(), "uninstalled-plugins");
     this.editionUninstallDir = new File(getTempDir(), "uninstalled-edition-plugins");

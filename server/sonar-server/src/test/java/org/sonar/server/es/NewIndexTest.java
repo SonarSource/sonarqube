@@ -27,12 +27,12 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.config.internal.MapSettings;
-import org.sonar.process.ProcessProperties;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.data.MapEntry.entry;
 import static org.junit.Assert.fail;
-import static org.sonar.process.ProcessProperties.CLUSTER_ENABLED;
+import static org.sonar.process.ProcessProperties.Property.CLUSTER_ENABLED;
+import static org.sonar.process.ProcessProperties.Property.SEARCH_REPLICAS;
 import static org.sonar.server.es.NewIndex.SettingsConfiguration.newBuilder;
 
 public class NewIndexTest {
@@ -66,7 +66,7 @@ public class NewIndexTest {
 
   @Test
   public void verify_default_index_settings_in_cluster() {
-    settings.setProperty(CLUSTER_ENABLED, "true");
+    settings.setProperty(CLUSTER_ENABLED.getKey(), "true");
     Settings underTest = new NewIndex("issues", defaultSettingsConfiguration).getSettings().build();
 
     assertThat(underTest.get("index.number_of_shards")).isNotEmpty();
@@ -210,7 +210,7 @@ public class NewIndexTest {
 
   @Test
   public void five_shards_and_one_replica_by_default_on_cluster() {
-    settings.setProperty(CLUSTER_ENABLED, "true");
+    settings.setProperty(CLUSTER_ENABLED.getKey(), "true");
     NewIndex index = new NewIndex("issues", newBuilder(settings.asConfig()).setDefaultNbOfShards(5).build());
 
     assertThat(index.getSettings().get(IndexMetaData.SETTING_NUMBER_OF_SHARDS)).isEqualTo("5");
@@ -236,7 +236,7 @@ public class NewIndexTest {
 
   @Test
   public void default_number_of_replicas_on_non_enabled_cluster_must_be_0() {
-    settings.setProperty(CLUSTER_ENABLED, "false");
+    settings.setProperty(CLUSTER_ENABLED.getKey(), "false");
     NewIndex index = new NewIndex("issues", newBuilder(settings.asConfig()).setDefaultNbOfShards(5).build());
 
     assertThat(index.getSettings().get(IndexMetaData.SETTING_NUMBER_OF_REPLICAS)).isEqualTo("0");
@@ -244,7 +244,7 @@ public class NewIndexTest {
 
   @Test
   public void default_number_of_replicas_on_cluster_instance_must_be_1() {
-    settings.setProperty(CLUSTER_ENABLED, "true");
+    settings.setProperty(CLUSTER_ENABLED.getKey(), "true");
     NewIndex index = new NewIndex("issues", newBuilder(settings.asConfig()).setDefaultNbOfShards(5).build());
 
     assertThat(index.getSettings().get(IndexMetaData.SETTING_NUMBER_OF_REPLICAS)).isEqualTo("1");
@@ -252,8 +252,8 @@ public class NewIndexTest {
 
   @Test
   public void when_number_of_replicas_on_cluster_is_specified_to_zero_default_value_must_not_be_used() {
-    settings.setProperty(CLUSTER_ENABLED, "true");
-    settings.setProperty(ProcessProperties.SEARCH_REPLICAS, "0");
+    settings.setProperty(CLUSTER_ENABLED.getKey(), "true");
+    settings.setProperty(SEARCH_REPLICAS.getKey(), "0");
     NewIndex index = new NewIndex("issues", newBuilder(settings.asConfig()).setDefaultNbOfShards(5).build());
 
     assertThat(index.getSettings().get(IndexMetaData.SETTING_NUMBER_OF_REPLICAS)).isEqualTo("0");
@@ -261,8 +261,8 @@ public class NewIndexTest {
 
   @Test
   public void index_defined_with_specified_number_of_replicas_when_cluster_enabled() {
-    settings.setProperty(CLUSTER_ENABLED, "true");
-    settings.setProperty(ProcessProperties.SEARCH_REPLICAS, "3");
+    settings.setProperty(CLUSTER_ENABLED.getKey(), "true");
+    settings.setProperty(SEARCH_REPLICAS.getKey(), "3");
     NewIndex index = new NewIndex("issues", newBuilder(settings.asConfig()).setDefaultNbOfShards(5).build());
 
     assertThat(index.getSettings().get(IndexMetaData.SETTING_NUMBER_OF_REPLICAS)).isEqualTo("3");
@@ -270,8 +270,8 @@ public class NewIndexTest {
 
   @Test
   public void fail_when_replica_customization_cant_be_parsed() {
-    settings.setProperty(CLUSTER_ENABLED, "true");
-    settings.setProperty(ProcessProperties.SEARCH_REPLICAS, "ꝱꝲꝳପ");
+    settings.setProperty(CLUSTER_ENABLED.getKey(), "true");
+    settings.setProperty(SEARCH_REPLICAS.getKey(), "ꝱꝲꝳପ");
     NewIndex.SettingsConfiguration settingsConfiguration = newBuilder(settings.asConfig()).setDefaultNbOfShards(5).build();
 
     expectedException.expect(IllegalStateException.class);
@@ -282,7 +282,7 @@ public class NewIndexTest {
 
   @Test
   public void in_standalone_searchReplicas_is_not_overridable() {
-    settings.setProperty(ProcessProperties.SEARCH_REPLICAS, "5");
+    settings.setProperty(SEARCH_REPLICAS.getKey(), "5");
     NewIndex index = new NewIndex("issues", defaultSettingsConfiguration);
 
     assertThat(index.getSettings().get("index.number_of_replicas")).isEqualTo("0");

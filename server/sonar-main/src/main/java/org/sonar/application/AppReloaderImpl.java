@@ -28,11 +28,11 @@ import org.sonar.process.MessageException;
 import org.sonar.process.Props;
 
 import static java.lang.String.format;
-import static org.sonar.process.ProcessProperties.CLUSTER_ENABLED;
-import static org.sonar.process.ProcessProperties.PATH_DATA;
-import static org.sonar.process.ProcessProperties.PATH_LOGS;
-import static org.sonar.process.ProcessProperties.PATH_TEMP;
-import static org.sonar.process.ProcessProperties.PATH_WEB;
+import static org.sonar.process.ProcessProperties.Property.CLUSTER_ENABLED;
+import static org.sonar.process.ProcessProperties.Property.PATH_DATA;
+import static org.sonar.process.ProcessProperties.Property.PATH_LOGS;
+import static org.sonar.process.ProcessProperties.Property.PATH_TEMP;
+import static org.sonar.process.ProcessProperties.Property.PATH_WEB;
 
 public class AppReloaderImpl implements AppReloader {
 
@@ -63,11 +63,11 @@ public class AppReloaderImpl implements AppReloader {
   }
 
   private static void ensureUnchangedConfiguration(Props oldProps, Props newProps) {
-    verifyUnchanged(oldProps, newProps, PATH_DATA);
-    verifyUnchanged(oldProps, newProps, PATH_WEB);
-    verifyUnchanged(oldProps, newProps, PATH_LOGS);
-    verifyUnchanged(oldProps, newProps, PATH_TEMP);
-    verifyUnchanged(oldProps, newProps, CLUSTER_ENABLED);
+    verifyUnchanged(oldProps, newProps, PATH_DATA.getKey());
+    verifyUnchanged(oldProps, newProps, PATH_WEB.getKey());
+    verifyUnchanged(oldProps, newProps, PATH_LOGS.getKey());
+    verifyUnchanged(oldProps, newProps, PATH_TEMP.getKey());
+    verifyUnchanged(oldProps, newProps, CLUSTER_ENABLED.getKey());
   }
 
   private static void verifyUnchanged(Props initialProps, Props newProps, String propKey) {

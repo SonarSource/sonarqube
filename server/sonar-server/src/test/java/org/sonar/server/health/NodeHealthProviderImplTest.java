@@ -37,9 +37,9 @@ import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.sonar.process.ProcessProperties.CLUSTER_NODE_HOST;
-import static org.sonar.process.ProcessProperties.CLUSTER_NODE_NAME;
-import static org.sonar.process.ProcessProperties.CLUSTER_NODE_PORT;
+import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_HOST;
+import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_NAME;
+import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_PORT;
 
 public class NodeHealthProviderImplTest {
   @Rule
@@ -61,7 +61,7 @@ public class NodeHealthProviderImplTest {
 
   @Test
   public void constructor_thows_NPE_if_NetworkUtils_getHostname_returns_null() {
-    mapSettings.setProperty(CLUSTER_NODE_NAME, randomAlphanumeric(3));
+    mapSettings.setProperty(CLUSTER_NODE_NAME.getKey(), randomAlphanumeric(3));
 
     expectedException.expect(NullPointerException.class);
 
@@ -70,7 +70,7 @@ public class NodeHealthProviderImplTest {
 
   @Test
   public void constructor_throws_ISE_if_node_port_property_is_not_set() {
-    mapSettings.setProperty(CLUSTER_NODE_NAME, randomAlphanumeric(3));
+    mapSettings.setProperty(CLUSTER_NODE_NAME.getKey(), randomAlphanumeric(3));
     when(networkUtils.getHostname()).thenReturn(randomAlphanumeric(23));
 
     expectedException.expect(IllegalStateException.class);
@@ -126,8 +126,8 @@ public class NodeHealthProviderImplTest {
   public void get_returns_name_and_port_from_properties_at_constructor_time() {
     String name = randomAlphanumeric(3);
     int port = 1 + random.nextInt(4);
-    mapSettings.setProperty(CLUSTER_NODE_NAME, name);
-    mapSettings.setProperty(CLUSTER_NODE_PORT, port);
+    mapSettings.setProperty(CLUSTER_NODE_NAME.getKey(), name);
+    mapSettings.setProperty(CLUSTER_NODE_PORT.getKey(), port);
     setStartedAt();
     when(healthChecker.checkNode()).thenReturn(Health.newHealthCheckBuilder()
       .setStatus(Health.Status.values()[random.nextInt(Health.Status.values().length)])
@@ -152,9 +152,9 @@ public class NodeHealthProviderImplTest {
   @Test
   public void get_returns_host_from_property_if_set_at_constructor_time() {
     String host = randomAlphanumeric(4);
-    mapSettings.setProperty(CLUSTER_NODE_NAME, randomAlphanumeric(3));
-    mapSettings.setProperty(CLUSTER_NODE_PORT, 1 + random.nextInt(4));
-    mapSettings.setProperty(CLUSTER_NODE_HOST, host);
+    mapSettings.setProperty(CLUSTER_NODE_NAME.getKey(), randomAlphanumeric(3));
+    mapSettings.setProperty(CLUSTER_NODE_PORT.getKey(), 1 + random.nextInt(4));
+    mapSettings.setProperty(CLUSTER_NODE_HOST.getKey(), host);
     setStartedAt();
     when(healthChecker.checkNode()).thenReturn(Health.newHealthCheckBuilder()
       .setStatus(Health.Status.values()[random.nextInt(Health.Status.values().length)])
@@ -166,7 +166,7 @@ public class NodeHealthProviderImplTest {
     assertThat(nodeHealth.getDetails().getHost()).isEqualTo(host);
 
     // change values in properties
-    mapSettings.setProperty(CLUSTER_NODE_HOST, randomAlphanumeric(66));
+    mapSettings.setProperty(CLUSTER_NODE_HOST.getKey(), randomAlphanumeric(66));
 
     NodeHealth newNodeHealth = underTest.get();
 
@@ -187,7 +187,7 @@ public class NodeHealthProviderImplTest {
     String host = randomAlphanumeric(3);
     setRequiredPropertiesForConstructor();
     if (hostPropertyValue != null) {
-      mapSettings.setProperty(CLUSTER_NODE_HOST, hostPropertyValue);
+      mapSettings.setProperty(CLUSTER_NODE_HOST.getKey(), hostPropertyValue);
     }
     setStartedAt();
     when(healthChecker.checkNode()).thenReturn(Health.newHealthCheckBuilder()
@@ -236,7 +236,7 @@ public class NodeHealthProviderImplTest {
   }
 
   private void setRequiredPropertiesForConstructor() {
-    mapSettings.setProperty(CLUSTER_NODE_NAME, randomAlphanumeric(3));
-    mapSettings.setProperty(CLUSTER_NODE_PORT, 1 + random.nextInt(4));
+    mapSettings.setProperty(CLUSTER_NODE_NAME.getKey(), randomAlphanumeric(3));
+    mapSettings.setProperty(CLUSTER_NODE_PORT.getKey(), 1 + random.nextInt(4));
   }
 }

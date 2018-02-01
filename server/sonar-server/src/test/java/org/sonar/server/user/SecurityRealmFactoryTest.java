@@ -41,7 +41,7 @@ public class SecurityRealmFactoryTest {
   @Test
   public void should_select_realm_and_start() {
     SecurityRealm realm = spy(new FakeRealm());
-    settings.setProperty(CoreProperties.CORE_AUTHENTICATOR_REALM, realm.getName());
+    settings.setProperty("sonar.security.realm", realm.getName());
 
     SecurityRealmFactory factory = new SecurityRealmFactory(settings.asConfig(), new SecurityRealm[] {realm});
     factory.start();
@@ -62,7 +62,7 @@ public class SecurityRealmFactoryTest {
 
   @Test
   public void realm_not_found() {
-    settings.setProperty(CoreProperties.CORE_AUTHENTICATOR_REALM, "Fake");
+    settings.setProperty("sonar.security.realm", "Fake");
 
     try {
       new SecurityRealmFactory(settings.asConfig());
@@ -85,7 +85,7 @@ public class SecurityRealmFactoryTest {
   @Test
   public void should_take_precedence_over_authenticator() {
     SecurityRealm realm = new FakeRealm();
-    settings.setProperty(CoreProperties.CORE_AUTHENTICATOR_REALM, realm.getName());
+    settings.setProperty("sonar.security.realm", realm.getName());
     LoginPasswordAuthenticator authenticator = new FakeAuthenticator();
     settings.setProperty(CoreProperties.CORE_AUTHENTICATOR_CLASS, FakeAuthenticator.class.getName());
 
@@ -109,7 +109,7 @@ public class SecurityRealmFactoryTest {
   @Test
   public void ignore_startup_failure() {
     SecurityRealm realm = spy(new AlwaysFailsRealm());
-    settings.setProperty(CoreProperties.CORE_AUTHENTICATOR_REALM, realm.getName());
+    settings.setProperty("sonar.security.realm", realm.getName());
     settings.setProperty(CoreProperties.CORE_AUTHENTICATOR_IGNORE_STARTUP_FAILURE, true);
 
     new SecurityRealmFactory(settings.asConfig(), new SecurityRealm[] {realm}).start();
@@ -119,7 +119,7 @@ public class SecurityRealmFactoryTest {
   @Test
   public void should_fail() {
     SecurityRealm realm = spy(new AlwaysFailsRealm());
-    settings.setProperty(CoreProperties.CORE_AUTHENTICATOR_REALM, realm.getName());
+    settings.setProperty("sonar.security.realm", realm.getName());
 
     try {
       new SecurityRealmFactory(settings.asConfig(), new SecurityRealm[] {realm}).start();

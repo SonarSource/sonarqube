@@ -17,26 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.config;
 
-import java.util.List;
-import org.sonar.api.PropertyType;
-import org.sonar.api.config.PropertyDefinition;
+package org.sonar.server.platform.db.migration.version.v71;
 
-import static java.util.Arrays.asList;
+import org.junit.Test;
 
-public final class WebProperties {
+import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationCount;
+import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
 
-  private WebProperties() {
+public class DbVersion71Test {
+
+  private DbVersion71 underTest = new DbVersion71();
+
+  @Test
+  public void migrationNumber_starts_at_2000() {
+    verifyMinimumMigrationNumber(underTest, 2000);
   }
 
-  public static List<PropertyDefinition> all() {
-    return asList(
-      PropertyDefinition.builder(WebConstants.SONARCLOUD_ENABLED)
-        .defaultValue("false")
-        .name("Enable SonarCloud look&feel")
-        .type(PropertyType.BOOLEAN)
-        .hidden()
-        .build());
+  @Test
+  public void verify_migration_count() {
+    verifyMigrationCount(underTest, 1);
   }
+
 }

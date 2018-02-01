@@ -33,7 +33,7 @@ import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
 import static org.apache.commons.lang.StringUtils.abbreviate;
 import static org.apache.commons.lang.StringUtils.containsIgnoreCase;
 import static org.apache.commons.lang.StringUtils.endsWithIgnoreCase;
-import static org.sonar.process.ProcessProperties.AUTH_JWT_SECRET;
+import static org.sonar.process.ProcessProperties.Property.AUTH_JWT_SECRET;
 import static org.sonar.process.systeminfo.SystemInfoUtils.setAttribute;
 
 @ServerSide
@@ -70,7 +70,7 @@ public class SettingsSection implements SystemInfoSection, Global {
     if (endsWithIgnoreCase(key, ".secured") ||
       containsIgnoreCase(key, "password") ||
       containsIgnoreCase(key, "passcode") ||
-      AUTH_JWT_SECRET.equals(key)) {
+      AUTH_JWT_SECRET.getKey().equals(key)) {
       return PASSWORD_VALUE;
     }
     return abbreviate(value, MAX_VALUE_LENGTH);

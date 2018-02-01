@@ -31,6 +31,9 @@ import org.sonar.api.utils.SonarException;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 
+import static org.sonar.process.ProcessProperties.Property.SONAR_AUTHENTICATOR_IGNORE_STARTUP_FAILURE;
+import static org.sonar.process.ProcessProperties.Property.SONAR_SECURITY_REALM;
+
 /**
  * @since 2.14
  */
@@ -41,15 +44,15 @@ public class SecurityRealmFactory implements Startable {
   private final SecurityRealm realm;
 
   public SecurityRealmFactory(Configuration config, SecurityRealm[] realms, LoginPasswordAuthenticator[] authenticators) {
-    ignoreStartupFailure = config.getBoolean(CoreProperties.CORE_AUTHENTICATOR_IGNORE_STARTUP_FAILURE).orElse(false);
-    String realmName = config.get(CoreProperties.CORE_AUTHENTICATOR_REALM).orElse(null);
+    ignoreStartupFailure = config.getBoolean(SONAR_AUTHENTICATOR_IGNORE_STARTUP_FAILURE.getKey()).orElse(false);
+    String realmName = config.get(SONAR_SECURITY_REALM.getKey()).orElse(null);
     String className = config.get(CoreProperties.CORE_AUTHENTICATOR_CLASS).orElse(null);
     SecurityRealm selectedRealm = null;
     if (!StringUtils.isEmpty(realmName)) {
       selectedRealm = selectRealm(realms, realmName);
       if (selectedRealm == null) {
         throw new SonarException(String.format(
-          "Realm '%s' not found. Please check the property '%s' in conf/sonar.properties", realmName, CoreProperties.CORE_AUTHENTICATOR_REALM));
+          "Realm '%s' not found. Please check the property '%s' in conf/sonar.properties", realmName, SONAR_SECURITY_REALM.getKey()));
       }
     }
     if (selectedRealm == null && !StringUtils.isEmpty(className)) {

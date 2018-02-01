@@ -30,7 +30,6 @@ import org.sonar.application.FileSystem;
 import org.sonar.application.Scheduler;
 import org.sonar.application.config.AppSettings;
 import org.sonar.process.sharedmemoryfile.ProcessCommands;
-import org.sonar.process.ProcessProperties;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
@@ -40,6 +39,7 @@ import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
+import static org.sonar.process.ProcessProperties.Property.ENABLE_STOP_COMMAND;
 
 public class StopRequestWatcherImplTest {
 
@@ -108,7 +108,7 @@ public class StopRequestWatcherImplTest {
   }
 
   private void enableSetting(boolean b) {
-    when(settings.getProps().valueAsBoolean(ProcessProperties.ENABLE_STOP_COMMAND)).thenReturn(b);
+    when(settings.getProps().valueAsBoolean(ENABLE_STOP_COMMAND.getKey())).thenReturn(b);
   }
 
 }

@@ -49,6 +49,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.sonarqube.ws.Settings.Setting;
 import static org.sonarqube.ws.Settings.ValuesWsResponse;
+import static util.ItUtils.expectBadRequestError;
 import static util.ItUtils.newAdminWsClient;
 import static util.ItUtils.newUserWsClient;
 import static util.ItUtils.newWsClient;
@@ -199,6 +200,38 @@ public class SettingsTest {
     assertThat(adminSettingsService.values(new ValuesRequest()).getSettingsList())
       .extracting(Setting::getKey, Setting::getValue)
       .contains(tuple(PLUGIN_SETTING_KEY, "some value"), tuple("hidden", "test"));
+  }
+
+  /**
+   * SONAR-10300 Do not allow to use settings defined in sonar.properties in WS api/settings/values
+   */
+  @Test
+  public void infra_properties_are_excluded_from_values_response() {
+    ValuesWsResponse values = adminSettingsService.values(new ValuesRequest());
+
+    assertThat(values.getSettingsList())
+      .extracting(Setting::getKey)
+      .doesNotContain("sonar.jdbc.url", "sonar.jdbc.password", "sonar.web.javaOpts" /* an others */);
+  }
+
+  /**
+   * SONAR-10300 Do not allow to use settings defined in sonar.properties in WS api/settings/values
+   */
+  @Test
+  public void requesting_an_infra_property_is_not_allowed() {
+    ValuesRequest request = new ValuesRequest().setKeys(asList("sonar.jdbc.url"));
+
+    expectBadRequestError(() -> adminSettingsService.values(request));
+  }
+
+  /**
+   * SONAR-10300 Do not allow to use settings defined in sonar.properties in WS api/settings/set
+   */
+  @Test
+  public void values_of_infra_properties_cant_be_changed() {
+    SetRequest request = new SetRequest().setKey("sonar.jdbc.url").setValue("jdbc:h2:foo");
+
+    expectBadRequestError(() -> adminSettingsService.set(request));
   }
 
   @CheckForNull

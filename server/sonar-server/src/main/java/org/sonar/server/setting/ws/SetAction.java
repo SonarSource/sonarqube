@@ -40,6 +40,7 @@ import org.sonar.api.PropertyType;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.PropertyFieldDefinition;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -58,14 +59,14 @@ import org.sonar.server.user.UserSession;
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
 import static org.apache.commons.lang.StringUtils.isNotEmpty;
-import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
-import static org.sonar.server.ws.WsUtils.checkRequest;
 import static org.sonar.server.setting.ws.SettingsWsParameters.PARAM_BRANCH;
 import static org.sonar.server.setting.ws.SettingsWsParameters.PARAM_COMPONENT;
 import static org.sonar.server.setting.ws.SettingsWsParameters.PARAM_FIELD_VALUES;
 import static org.sonar.server.setting.ws.SettingsWsParameters.PARAM_KEY;
 import static org.sonar.server.setting.ws.SettingsWsParameters.PARAM_VALUE;
 import static org.sonar.server.setting.ws.SettingsWsParameters.PARAM_VALUES;
+import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
+import static org.sonar.server.ws.WsUtils.checkRequest;
 
 public class SetAction implements SettingsWsAction {
   private static final Collector<CharSequence, ?, String> COMMA_JOINER = Collectors.joining(",");
@@ -98,6 +99,7 @@ public class SetAction implements SettingsWsAction {
     WebService.NewAction action = context.createAction("set")
       .setDescription("Update a setting value.<br>" +
         "Either '%s' or '%s' must be provided.<br> " +
+          "The settings defined in config/sonar.properties are read-only and can't be changed.<br/>" +
         "Requires one of the following permissions: " +
         "<ul>" +
         "<li>'Administer System'</li>" +
@@ -105,6 +107,7 @@ public class SetAction implements SettingsWsAction {
         "</ul>",
         PARAM_VALUE, PARAM_VALUES)
       .setSince("6.1")
+      .setChangelog(new Change("7.1", "The settings defined in config/sonar.properties are read-only and can't be changed"))
       .setPost(true)
       .setHandler(this);
 
@@ -136,7 +139,9 @@ public class SetAction implements SettingsWsAction {
   @Override
   public void handle(Request request, Response response) throws Exception {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      doHandle(dbSession, toWsRequest(request));
+      SetRequest wsRequest = toWsRequest(request);
+      SettingsWsSupport.validateKey(wsRequest.getKey());
+      doHandle(dbSession, wsRequest);
     }
     response.noContent();
   }

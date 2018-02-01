@@ -28,11 +28,10 @@ import java.util.Date;
 import org.apache.commons.io.IOUtils;
 import org.sonar.api.Properties;
 import org.sonar.api.Property;
-import org.sonar.api.PropertyType;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.UriReader;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.core.config.WebConstants;
+import org.sonar.process.ProcessProperties;
 import org.sonar.updatecenter.common.UpdateCenter;
 import org.sonar.updatecenter.common.UpdateCenterDeserializer;
 import org.sonar.updatecenter.common.UpdateCenterDeserializer.Mode;
@@ -43,15 +42,6 @@ import org.sonar.updatecenter.common.UpdateCenterDeserializer.Mode;
  * @since 2.4
  */
 @Properties({
-  @Property(
-    key = WebConstants.SONAR_UPDATECENTER_ACTIVATE,
-    defaultValue = "true",
-    name = "Enable Update Center",
-    category = "Update Center",
-    project = false,
-    // hidden from UI
-    global = false,
-    type = PropertyType.BOOLEAN),
   @Property(
     key = UpdateCenterClient.URL_PROPERTY,
     defaultValue = "https://update.sonarsource.org/update-center.properties",
@@ -75,7 +65,7 @@ public class UpdateCenterClient {
   public UpdateCenterClient(UriReader uriReader, Configuration config) throws URISyntaxException {
     this.uriReader = uriReader;
     this.uri = new URI(config.get(URL_PROPERTY).get());
-    this.isActivated = config.getBoolean(WebConstants.SONAR_UPDATECENTER_ACTIVATE).get();
+    this.isActivated = config.getBoolean(ProcessProperties.Property.SONAR_UPDATECENTER_ACTIVATE.getKey()).get();
     Loggers.get(getClass()).info("Update center: " + uriReader.description(uri));
   }
 

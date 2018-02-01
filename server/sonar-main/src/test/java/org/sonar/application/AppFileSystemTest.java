@@ -34,9 +34,13 @@ import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.application.config.TestAppSettings;
 import org.sonar.process.sharedmemoryfile.AllProcessesCommands;
-import org.sonar.process.ProcessProperties;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.process.ProcessProperties.Property.PATH_DATA;
+import static org.sonar.process.ProcessProperties.Property.PATH_HOME;
+import static org.sonar.process.ProcessProperties.Property.PATH_LOGS;
+import static org.sonar.process.ProcessProperties.Property.PATH_TEMP;
+import static org.sonar.process.ProcessProperties.Property.PATH_WEB;
 import static org.sonar.process.sharedmemoryfile.ProcessCommands.MAX_PROCESSES;
 
 public class AppFileSystemTest {
@@ -62,11 +66,11 @@ public class AppFileSystemTest {
     logsDir = new File(homeDir, "logs");
     webDir = new File(homeDir, "web");
 
-    settings.getProps().set(ProcessProperties.PATH_HOME, homeDir.getAbsolutePath());
-    settings.getProps().set(ProcessProperties.PATH_DATA, dataDir.getAbsolutePath());
-    settings.getProps().set(ProcessProperties.PATH_TEMP, tempDir.getAbsolutePath());
-    settings.getProps().set(ProcessProperties.PATH_LOGS, logsDir.getAbsolutePath());
-    settings.getProps().set(ProcessProperties.PATH_WEB, webDir.getAbsolutePath());
+    settings.getProps().set(PATH_HOME.getKey(), homeDir.getAbsolutePath());
+    settings.getProps().set(PATH_DATA.getKey(), dataDir.getAbsolutePath());
+    settings.getProps().set(PATH_TEMP.getKey(), tempDir.getAbsolutePath());
+    settings.getProps().set(PATH_LOGS.getKey(), logsDir.getAbsolutePath());
+    settings.getProps().set(PATH_WEB.getKey(), webDir.getAbsolutePath());
   }
 
   @Test
@@ -152,22 +156,22 @@ public class AppFileSystemTest {
 
   @Test
   public void reset_throws_ISE_if_data_dir_is_a_file() throws Exception {
-    resetThrowsISEIfDirIsAFile(ProcessProperties.PATH_DATA);
+    resetThrowsISEIfDirIsAFile(PATH_DATA.getKey());
   }
 
   @Test
   public void reset_throws_ISE_if_web_dir_is_a_file() throws Exception {
-    resetThrowsISEIfDirIsAFile(ProcessProperties.PATH_WEB);
+    resetThrowsISEIfDirIsAFile(PATH_WEB.getKey());
   }
 
   @Test
   public void reset_throws_ISE_if_logs_dir_is_a_file() throws Exception {
-    resetThrowsISEIfDirIsAFile(ProcessProperties.PATH_LOGS);
+    resetThrowsISEIfDirIsAFile(PATH_LOGS.getKey());
   }
 
   @Test
   public void reset_throws_ISE_if_temp_dir_is_a_file() throws Exception {
-    resetThrowsISEIfDirIsAFile(ProcessProperties.PATH_TEMP);
+    resetThrowsISEIfDirIsAFile(PATH_TEMP.getKey());
   }
 
   private void resetThrowsISEIfDirIsAFile(String property) throws IOException {
