@@ -43,9 +43,11 @@ import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.issue.index.BranchStatistics;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.user.UserSession;
-import org.sonar.server.ws.WsUtils;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.ProjectBranches;
+import org.sonarqube.ws.ProjectBranches.ListWsResponse;
+import org.sonarqube.ws.ProjectBranches.PullRequest;
+import org.sonarqube.ws.ProjectBranches.Status;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Collections.singletonList;
@@ -60,6 +62,7 @@ import static org.sonar.db.component.BranchType.SHORT;
 import static org.sonar.server.branch.ws.BranchesWs.addProjectParam;
 import static org.sonar.server.branch.ws.ProjectBranchesParameters.ACTION_LIST;
 import static org.sonar.server.branch.ws.ProjectBranchesParameters.PARAM_PROJECT;
+import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class ListAction implements BranchWsAction {
 
@@ -111,15 +114,49 @@ public class ListAction implements BranchWsAction {
         .selectLastAnalysesByRootComponentUuids(dbSession, branches.stream().map(BranchDto::getUuid).collect(Collectors.toList()))
         .stream().collect(uniqueIndex(SnapshotDto::getComponentUuid, s -> formatDateTime(s.getCreatedAt())));
 
-      ProjectBranches.ListWsResponse.Builder protobufResponse = ProjectBranches.ListWsResponse.newBuilder();
+      ListWsResponse.Builder protobufResponse = ListWsResponse.newBuilder();
       branches.forEach(b -> addBranch(protobufResponse, b, mergeBranchesByUuid, qualityGateMeasuresByComponentUuids.get(b.getUuid()), branchStatisticsByBranchUuid.get(b.getUuid()),
           analysisDateByBranchUuid.get(b.getUuid())));
-      WsUtils.writeProtobuf(protobufResponse.build(), request, response);
+      setStubPullRequests(protobufResponse);
+      writeProtobuf(protobufResponse.build(), request, response);
     }
   }
 
-  private static void addBranch(ProjectBranches.ListWsResponse.Builder response, BranchDto branch, Map<String, BranchDto> mergeBranchesByUuid,
-                                @Nullable LiveMeasureDto qualityGateMeasure, BranchStatistics branchStatistics, @Nullable String analysisDate) {
+  private static void setStubPullRequests(ListWsResponse.Builder protobufResponse) {
+    PullRequest.Builder pullRequest = PullRequest.newBuilder();
+    pullRequest
+      .setAnalysisDate("2017-01-02T00:00:00.000Z")
+      .setBase("master")
+      .setBranch("feature/stas/pr-api")
+      .setId("2734")
+      .setName("SONAR-10374 Support pull request in the web app")
+      .setStatus(Status.newBuilder().setBugs(1).setCodeSmells(3).setVulnerabilities(0))
+      .setIsOrphan(false)
+      .setUrl("https://github.com/SonarSource/sonarqube/pull/2734");
+    protobufResponse.addPullRequests(pullRequest);
+    pullRequest
+      .setAnalysisDate("2017-01-01T00:00:00.000Z")
+      .setBase("branch-6.7")
+      .setBranch("feature/stas/my-bug-fix")
+      .setId("2725")
+      .setName("fix critical LTS issue")
+      .setStatus(Status.newBuilder().setBugs(0).setCodeSmells(0).setVulnerabilities(0))
+      .setIsOrphan(false)
+      .setUrl("https://github.com/SonarSource/sonarqube/pull/2725");
+    protobufResponse.addPullRequests(pullRequest);
+    pullRequest
+      .setAnalysisDate("2017-01-03T00:00:00.000Z")
+      .setBase("unknown-branch")
+      .setBranch("feature/stas/unknown-branch")
+      .setId("9999")
+      .setName("create orphan pull request")
+      .setIsOrphan(true)
+      .setStatus(Status.newBuilder().setBugs(0).setCodeSmells(0).setVulnerabilities(0));
+    protobufResponse.addPullRequests(pullRequest);
+  }
+
+  private static void addBranch(ListWsResponse.Builder response, BranchDto branch, Map<String, BranchDto> mergeBranchesByUuid,
+    @Nullable LiveMeasureDto qualityGateMeasure, BranchStatistics branchStatistics, @Nullable String analysisDate) {
     ProjectBranches.Branch.Builder builder = toBranchBuilder(branch, Optional.ofNullable(mergeBranchesByUuid.get(branch.getMergeBranchUuid())));
     setBranchStatus(builder, branch, qualityGateMeasure, branchStatistics);
     if (analysisDate != null) {
@@ -146,8 +183,8 @@ public class ListAction implements BranchWsAction {
   }
 
   private static void setBranchStatus(ProjectBranches.Branch.Builder builder, BranchDto branch, @Nullable LiveMeasureDto qualityGateMeasure,
-                                      @Nullable BranchStatistics branchStatistics) {
-    ProjectBranches.Status.Builder statusBuilder = ProjectBranches.Status.newBuilder();
+    @Nullable BranchStatistics branchStatistics) {
+    Status.Builder statusBuilder = Status.newBuilder();
     if (branch.getBranchType() == LONG && qualityGateMeasure != null) {
       Protobuf.setNullable(qualityGateMeasure.getDataAsString(), statusBuilder::setQualityGateStatus);
     }
