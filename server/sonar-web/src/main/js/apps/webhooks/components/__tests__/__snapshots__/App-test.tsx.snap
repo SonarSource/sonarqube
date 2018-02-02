@@ -11,7 +11,13 @@ exports[`should be in loading status 1`] = `
   />
   <PageHeader
     loading={true}
-  />
+  >
+    <PageActions
+      loading={true}
+      onCreate={[Function]}
+      webhooksCount={0}
+    />
+  </PageHeader>
 </div>
 `;
 
@@ -26,11 +32,19 @@ exports[`should fetch webhooks and display them 1`] = `
   />
   <PageHeader
     loading={false}
-  />
+  >
+    <PageActions
+      loading={false}
+      onCreate={[Function]}
+      webhooksCount={0}
+    />
+  </PageHeader>
   <div
     className="boxed-group boxed-group-inner"
   >
     <WebhooksList
+      onDelete={[Function]}
+      onUpdate={[Function]}
       webhooks={Array []}
     />
   </div>

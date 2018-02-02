@@ -23,6 +23,8 @@ import { Webhook } from '../../../app/types';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {
+  onDelete: (webhook: string) => Promise<void>;
+  onUpdate: (data: { webhook: string; name: string; url: string }) => Promise<void>;
   webhooks: Webhook[];
 }
 
@@ -32,6 +34,7 @@ export default class WebhooksList extends React.PureComponent<Props> {
       <tr>
         <th>{translate('name')}</th>
         <th>{translate('webhooks.url')}</th>
+        <th />
       </tr>
     </thead>
   );
@@ -45,7 +48,14 @@ export default class WebhooksList extends React.PureComponent<Props> {
       <table className="data zebra">
         {this.renderHeader()}
         <tbody>
-          {webhooks.map(webhook => <WebhookItem key={webhook.key} webhook={webhook} />)}
+          {webhooks.map(webhook => (
+            <WebhookItem
+              key={webhook.key}
+              onDelete={this.props.onDelete}
+              onUpdate={this.props.onUpdate}
+              webhook={webhook}
+            />
+          ))}
         </tbody>
       </table>
     );

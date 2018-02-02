@@ -121,19 +121,24 @@ ul.modal-head-metadata li {
   height: auto;
 }
 
-.modal-field {
+.modal-field,
+.modal-large-field,
+.modal-validation-field {
   clear: both;
   display: block;
   padding: 5px 0 5px 130px;
 }
 
 .modal-large-field {
-  clear: both;
-  display: block;
   padding: 20px 40px;
 }
 
-.modal-field label {
+.modal-validation-field {
+  padding: 3px 0 3px 130px;
+}
+
+.modal-field label,
+.modal-validation-field label {
   position: relative;
   left: -140px;
   display: block;
@@ -149,7 +154,8 @@ ul.modal-head-metadata li {
   text-overflow: ellipsis;
 }
 
-.modal-field label.simple-label {
+.modal-field label.simple-label,
+.modal-validation-field label.simple-label {
   display: inline-block;
   vertical-align: middle;
   float: none;
@@ -215,6 +221,29 @@ ul.modal-head-metadata li {
   width: 100%;
 }
 
+.modal-validation-field input,
+.modal-validation-field textarea,
+.modal-validation-field .Select {
+  margin-right: 5px;
+  margin-bottom: 2px;
+  width: 250px;
+}
+
+.modal-validation-field input:not(.has-error),
+.modal-validation-field .Select:not(.has-error) {
+  margin-bottom: 18px;
+}
+
+.modal-validation-field .has-error,
+.modal-validation-field .has-error > .Select-control {
+  border-color: var(--red);
+}
+
+.modal-validation-field .is-valid,
+.modal-validation-field .is-valid > .Select-control {
+  border-color: var(--green);
+}
+
 .modal-field-description {
   padding-bottom: 4px;
   line-height: 1.4;
@@ -222,6 +251,10 @@ ul.modal-head-metadata li {
   font-size: var(--smallFontSize);
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.modal-validation-field .modal-field-description {
+  margin-top: 2px;
 }
 
 .modal-foot {

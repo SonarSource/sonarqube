@@ -1,0 +1,35 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly when creating a new webhook 1`] = `
+<ValidationModal
+  confirmButtonText="create"
+  header="webhooks.create"
+  initialValues={
+    Object {
+      "name": "",
+      "url": "",
+    }
+  }
+  isInitialValid={false}
+  onClose={[MockFunction]}
+  onSubmit={[MockFunction]}
+  validate={[Function]}
+/>
+`;
+
+exports[`should render correctly when updating a webhook 1`] = `
+<ValidationModal
+  confirmButtonText="update_verb"
+  header="webhooks.update"
+  initialValues={
+    Object {
+      "name": "foo",
+      "url": "http://foo.bar",
+    }
+  }
+  isInitialValid={true}
+  onClose={[MockFunction]}
+  onSubmit={[MockFunction]}
+  validate={[Function]}
+/>
+`;

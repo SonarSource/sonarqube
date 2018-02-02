@@ -19,14 +19,30 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import PageHeader from '../PageHeader';
+import ModalValidationField from '../ModalValidationField';
 
-it('should render correctly', () => {
-  expect(
-    shallow(
-      <PageHeader loading={true}>
-        <div />
-      </PageHeader>
-    )
-  ).toMatchSnapshot();
+it('should display the field without any error/validation', () => {
+  expect(getWrapper({ description: 'Describe Foo.', touched: false })).toMatchSnapshot();
+  expect(getWrapper({ dirty: false })).toMatchSnapshot();
 });
+
+it('should display the field as valid', () => {
+  expect(getWrapper({ error: undefined })).toMatchSnapshot();
+});
+
+it('should display the field with an error', () => {
+  expect(getWrapper()).toMatchSnapshot();
+});
+
+function getWrapper(props = {}) {
+  return shallow(
+    <ModalValidationField
+      dirty={true}
+      error="Is required"
+      label={<label>Foo</label>}
+      touched={true}
+      {...props}>
+      {({ className }) => <input className={className} type="text" />}
+    </ModalValidationField>
+  );
+}
