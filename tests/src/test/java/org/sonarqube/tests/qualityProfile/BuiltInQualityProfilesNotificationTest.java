@@ -136,7 +136,7 @@ public class BuiltInQualityProfilesNotificationTest {
       .containsSubsequence(
         "The following built-in profiles have been updated:",
         "\"Basic\" - Foo: " + url + "/profiles/changelog?language=foo&name=Basic&since=", "&to=",
-        " 3 new rules",
+        " 1 new rule",
         " 3 rules have been updated",
         " 1 rule removed",
         "This is a good time to review your quality profiles and update them to benefit from the latest evolutions: " + url + "/profiles")

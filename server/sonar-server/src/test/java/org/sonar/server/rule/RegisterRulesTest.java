@@ -19,12 +19,16 @@
  */
 package org.sonar.server.rule;
 
+import com.tngtech.java.junit.dataprovider.DataProvider;
+import com.tngtech.java.junit.dataprovider.DataProviderRunner;
+import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.IntStream;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
@@ -49,6 +53,7 @@ import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.db.rule.RuleRepositoryDto;
 import org.sonar.server.es.EsTester;
+import org.sonar.server.es.SearchIdResult;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.organization.OrganizationFlags;
 import org.sonar.server.organization.TestOrganizationFlags;
@@ -74,6 +79,7 @@ import static org.sonar.api.rule.Severity.BLOCKER;
 import static org.sonar.api.rule.Severity.INFO;
 import static org.sonar.api.server.rule.RulesDefinition.*;
 
+@RunWith(DataProviderRunner.class)
 public class RegisterRulesTest {
 
   private static final String FAKE_PLUGIN_KEY = "unittest";
@@ -359,6 +365,177 @@ public class RegisterRulesTest {
   }
 
   @Test
+  public void update_if_rule_key_renamed_and_deprecated_key_declared() {
+    String ruleKey1 = "rule1";
+    String ruleKey2 = "rule2";
+    String repository = "fake";
+
+    when(system.now()).thenReturn(DATE1.getTime());
+    execute((RulesDefinition) context -> {
+      RulesDefinition.NewRepository repo = context.createRepository(repository, "java");
+      repo.createRule(ruleKey1)
+        .setName("Name1")
+        .setHtmlDescription("Description");
+      repo.done();
+    });
+
+    RuleDto rule1 = dbClient.ruleDao().selectOrFailByKey(dbTester.getSession(), defaultOrganization, RuleKey.of(repository, ruleKey1));
+    SearchIdResult<Integer> searchRule1 = ruleIndex.search(new RuleQuery().setQueryText("Name1"), new SearchOptions());
+    assertThat(searchRule1.getIds()).containsOnly(rule1.getId());
+    assertThat(searchRule1.getTotal()).isEqualTo(1);
+
+    when(system.now()).thenReturn(DATE2.getTime());
+    execute((RulesDefinition) context -> {
+      RulesDefinition.NewRepository repo = context.createRepository(repository, "java");
+      repo.createRule(ruleKey2)
+        .setName("Name2")
+        .setHtmlDescription("Description")
+        .addDeprecatedRuleKey(repository, ruleKey1);
+      repo.done();
+    });
+
+    // rule2 is actually rule1
+    RuleDto rule2 = dbClient.ruleDao().selectOrFailByKey(dbTester.getSession(), defaultOrganization, RuleKey.of(repository, ruleKey2));
+    assertThat(rule2.getId()).isEqualTo(rule1.getId());
+    assertThat(rule2.getName()).isEqualTo("Name2");
+    assertThat(rule2.getDescription()).isEqualTo(rule1.getDescription());
+
+    SearchIdResult<Integer> searchRule2 = ruleIndex.search(new RuleQuery().setQueryText("Name2"), new SearchOptions());
+    assertThat(searchRule2.getIds()).containsOnly(rule2.getId());
+    assertThat(searchRule2.getTotal()).isEqualTo(1);
+    assertThat(ruleIndex.search(new RuleQuery().setQueryText("Name1"), new SearchOptions()).getTotal()).isEqualTo(0);
+  }
+
+  @Test
+  public void update_if_repository_changed_and_deprecated_key_declared() {
+    String ruleKey = "rule";
+    String repository1 = "fake1";
+    String repository2 = "fake2";
+
+    when(system.now()).thenReturn(DATE1.getTime());
+    execute((RulesDefinition) context -> {
+      RulesDefinition.NewRepository repo = context.createRepository(repository1, "java");
+      repo.createRule(ruleKey)
+        .setName("Name1")
+        .setHtmlDescription("Description");
+      repo.done();
+    });
+
+    RuleDto rule1 = dbClient.ruleDao().selectOrFailByKey(dbTester.getSession(), defaultOrganization, RuleKey.of(repository1, ruleKey));
+    SearchIdResult<Integer> searchRule1 = ruleIndex.search(new RuleQuery().setQueryText("Name1"), new SearchOptions());
+    assertThat(searchRule1.getIds()).containsOnly(rule1.getId());
+    assertThat(searchRule1.getTotal()).isEqualTo(1);
+
+    when(system.now()).thenReturn(DATE2.getTime());
+    execute((RulesDefinition) context -> {
+      RulesDefinition.NewRepository repo = context.createRepository(repository2, "java");
+      repo.createRule(ruleKey)
+        .setName("Name2")
+        .setHtmlDescription("Description")
+        .addDeprecatedRuleKey(repository1, ruleKey);
+      repo.done();
+    });
+
+    // rule2 is actually rule1
+    RuleDto rule2 = dbClient.ruleDao().selectOrFailByKey(dbTester.getSession(), defaultOrganization, RuleKey.of(repository2, ruleKey));
+    assertThat(rule2.getId()).isEqualTo(rule1.getId());
+    assertThat(rule2.getName()).isEqualTo("Name2");
+    assertThat(rule2.getDescription()).isEqualTo(rule1.getDescription());
+
+    SearchIdResult<Integer> searchRule2 = ruleIndex.search(new RuleQuery().setQueryText("Name2"), new SearchOptions());
+    assertThat(searchRule2.getIds()).containsOnly(rule2.getId());
+    assertThat(searchRule2.getTotal()).isEqualTo(1);
+    assertThat(ruleIndex.search(new RuleQuery().setQueryText("Name1"), new SearchOptions()).getTotal()).isEqualTo(0);
+  }
+
+  @Test
+  @UseDataProvider("allRenamingCases")
+  public void update_if_only_renamed_and_deprecated_key_declared(String ruleKey1, String repo1, String ruleKey2, String repo2) {
+    String name = "Name1";
+    String description = "Description";
+    when(system.now()).thenReturn(DATE1.getTime());
+    execute((RulesDefinition) context -> {
+      RulesDefinition.NewRepository repo = context.createRepository(repo1, "java");
+      repo.createRule(ruleKey1)
+        .setName(name)
+        .setHtmlDescription(description);
+      repo.done();
+    });
+
+    RuleDto rule1 = dbClient.ruleDao().selectOrFailByKey(dbTester.getSession(), defaultOrganization, RuleKey.of(repo1, ruleKey1));
+    assertThat(ruleIndex.search(new RuleQuery().setQueryText(name), new SearchOptions()).getIds())
+      .containsOnly(rule1.getId());
+
+    when(system.now()).thenReturn(DATE2.getTime());
+    execute((RulesDefinition) context -> {
+      RulesDefinition.NewRepository repo = context.createRepository(repo2, "java");
+      repo.createRule(ruleKey2)
+        .setName(name)
+        .setHtmlDescription(description)
+        .addDeprecatedRuleKey(repo1, ruleKey1);
+      repo.done();
+    });
+
+    // rule2 is actually rule1
+    RuleDto rule2 = dbClient.ruleDao().selectOrFailByKey(dbTester.getSession(), defaultOrganization, RuleKey.of(repo2, ruleKey2));
+    assertThat(rule2.getId()).isEqualTo(rule1.getId());
+    assertThat(rule2.getName()).isEqualTo(rule1.getName());
+    assertThat(rule2.getDescription()).isEqualTo(rule1.getDescription());
+
+    assertThat(ruleIndex.search(new RuleQuery().setQueryText(name), new SearchOptions()).getIds())
+      .containsOnly(rule2.getId());
+  }
+
+  @DataProvider
+  public static Object[][] allRenamingCases() {
+    return new Object[][] {
+      {"repo1", "rule1", "repo1", "rule2"},
+      {"repo1", "rule1", "repo2", "rule1"},
+      {"repo1", "rule1", "repo2", "rule2"},
+    };
+  }
+
+  @Test
+  public void update_if_repository_and_key_changed_and_deprecated_key_declared_among_others() {
+    String ruleKey1 = "rule1";
+    String ruleKey2 = "rule2";
+    String repository1 = "fake1";
+    String repository2 = "fake2";
+
+    when(system.now()).thenReturn(DATE1.getTime());
+    execute((RulesDefinition) context -> {
+      RulesDefinition.NewRepository repo = context.createRepository(repository1, "java");
+      repo.createRule(ruleKey1)
+        .setName("Name1")
+        .setHtmlDescription("Description");
+      repo.done();
+    });
+
+    RuleDto rule1 = dbClient.ruleDao().selectOrFailByKey(dbTester.getSession(), defaultOrganization, RuleKey.of(repository1, ruleKey1));
+    assertThat(ruleIndex.search(new RuleQuery().setQueryText("Name1"), new SearchOptions()).getIds())
+      .containsOnly(rule1.getId());
+
+    when(system.now()).thenReturn(DATE2.getTime());
+    execute((RulesDefinition) context -> {
+      RulesDefinition.NewRepository repo = context.createRepository(repository2, "java");
+      repo.createRule(ruleKey2)
+        .setName("Name2")
+        .setHtmlDescription("Description")
+        .addDeprecatedRuleKey("foo", "bar")
+        .addDeprecatedRuleKey(repository1, ruleKey1)
+        .addDeprecatedRuleKey("some", "noise");
+      repo.done();
+    });
+
+    // rule2 is actually rule1
+    RuleDto rule2 = dbClient.ruleDao().selectOrFailByKey(dbTester.getSession(), defaultOrganization, RuleKey.of(repository2, ruleKey2));
+    assertThat(rule2.getId()).isEqualTo(rule1.getId());
+
+    assertThat(ruleIndex.search(new RuleQuery().setQueryText("Name2"), new SearchOptions()).getIds())
+      .containsOnly(rule1.getId());
+  }
+
+  @Test
   public void update_only_rule_description() {
     when(system.now()).thenReturn(DATE1.getTime());
     execute((RulesDefinition) context -> {
@@ -548,7 +725,7 @@ public class RegisterRulesTest {
 
     List<RuleDefinitionDto> rules = dbClient.ruleDao().selectAllDefinitions(dbTester.getSession());
     Set<DeprecatedRuleKeyDto> deprecatedRuleKeys = dbClient.ruleDao().selectAllDeprecatedRuleKeys(dbTester.getSession());
-    //assertThat(rules).hasSize(1); FIXME this must be true when renaming is done
+    assertThat(rules).hasSize(1);
     assertThat(deprecatedRuleKeys).hasSize(2);
   }
 
@@ -582,7 +759,7 @@ public class RegisterRulesTest {
       repo.done();
     });
 
-    //assertThat(dbClient.ruleDao().selectAllDefinitions(dbTester.getSession())).hasSize(1); FIXME this must be true when renaming is done
+    assertThat(dbClient.ruleDao().selectAllDefinitions(dbTester.getSession())).hasSize(1);
     Set<DeprecatedRuleKeyDto> deprecatedRuleKeys = dbClient.ruleDao().selectAllDeprecatedRuleKeys(dbTester.getSession());
     assertThat(deprecatedRuleKeys).hasSize(2);
 
@@ -599,7 +776,7 @@ public class RegisterRulesTest {
       repo.done();
     });
 
-    //assertThat(dbClient.ruleDao().selectAllDefinitions(dbTester.getSession())).hasSize(1); FIXME this must be true when renaming is done
+    assertThat(dbClient.ruleDao().selectAllDefinitions(dbTester.getSession())).hasSize(1);
     deprecatedRuleKeys = dbClient.ruleDao().selectAllDeprecatedRuleKeys(dbTester.getSession());
     assertThat(deprecatedRuleKeys).hasSize(0);
   }
@@ -616,7 +793,7 @@ public class RegisterRulesTest {
     RegisterRules task = new RegisterRules(loader, qProfileRules, dbClient, ruleIndexer, activeRuleIndexer,
       languages, system, organizationFlags, webServerRuleFinder, uuidFactory);
     task.start();
-    // Execute a commit to refresh session state as the task is using its own session
+    // Execute a commit to refresh session state as the task is using its own sessiongci
     dbTester.getSession().commit();
 
     verify(webServerRuleFinder).startCaching();
