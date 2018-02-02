@@ -19,14 +19,26 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import PageHeader from '../PageHeader';
+import InputValidationField from '../InputValidationField';
 
 it('should render correctly', () => {
-  expect(
-    shallow(
-      <PageHeader loading={true}>
-        <div />
-      </PageHeader>
-    )
-  ).toMatchSnapshot();
+  expect(getWrapper()).toMatchSnapshot();
 });
+
+function getWrapper(props = {}) {
+  return shallow(
+    <InputValidationField
+      description="Field description"
+      dirty={true}
+      disabled={false}
+      error="Bad formatting"
+      label="Foo field"
+      name="field"
+      onBlur={jest.fn()}
+      onChange={jest.fn()}
+      touched={true}
+      value="foo"
+      {...props}
+    />
+  );
+}

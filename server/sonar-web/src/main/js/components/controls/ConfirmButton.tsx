@@ -110,7 +110,9 @@ export default class ConfirmButton extends React.PureComponent<Props, State> {
                     disabled={submitting}>
                     {confirmButtonText}
                   </SubmitButton>
-                  <ResetButtonLink onClick={onCloseClick}>{translate('cancel')}</ResetButtonLink>
+                  <ResetButtonLink disabled={submitting} onClick={onCloseClick}>
+                    {translate('cancel')}
+                  </ResetButtonLink>
                 </footer>
               </form>
             )}
