@@ -327,27 +327,27 @@ public class IssueIndexTest {
 
     // Search for issues of project 1 having less than 15 days
     assertThatSearchReturnsOnly(IssueQuery.builder()
-      .createdAfterByProjectUuids(ImmutableMap.of(project1.uuid(), addDays(now, -15))),
+      .createdAfterByProjectUuids(ImmutableMap.of(project1.uuid(), new IssueQuery.PeriodStart(addDays(now, -15), true))),
       project1Issue1.key());
 
     // Search for issues of project 1 having less than 14 days and project 2 having less then 25 days
     assertThatSearchReturnsOnly(IssueQuery.builder()
       .createdAfterByProjectUuids(ImmutableMap.of(
-        project1.uuid(), addDays(now, -14),
-        project2.uuid(), addDays(now, -25))),
+        project1.uuid(), new IssueQuery.PeriodStart(addDays(now, -14), true),
+        project2.uuid(), new IssueQuery.PeriodStart(addDays(now, -25), true))),
       project1Issue1.key(), project2Issue1.key());
 
     // Search for issues of project 1 having less than 30 days
     assertThatSearchReturnsOnly(IssueQuery.builder()
       .createdAfterByProjectUuids(ImmutableMap.of(
-        project1.uuid(), addDays(now, -30))),
+        project1.uuid(), new IssueQuery.PeriodStart(addDays(now, -30), true))),
       project1Issue1.key(), project1Issue2.key());
 
     // Search for issues of project 1 and project 2 having less than 5 days
     assertThatSearchReturnsOnly(IssueQuery.builder()
       .createdAfterByProjectUuids(ImmutableMap.of(
-        project1.uuid(), addDays(now, -5),
-        project2.uuid(), addDays(now, -5))));
+        project1.uuid(), new IssueQuery.PeriodStart(addDays(now, -5), true),
+        project2.uuid(), new IssueQuery.PeriodStart(addDays(now, -5), true))));
   }
 
   @Test

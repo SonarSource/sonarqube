@@ -19,42 +19,6 @@
  */
 package org.sonar.server.issue;
 
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Joiner;
-import com.google.common.base.Splitter;
-import com.google.common.base.Strings;
-import com.google.common.collect.Collections2;
-import com.google.common.collect.Lists;
-import java.time.Clock;
-import java.time.OffsetDateTime;
-import java.time.Period;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-import org.apache.commons.lang.BooleanUtils;
-import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.rule.RuleKey;
-import org.sonar.api.server.ServerSide;
-import org.sonar.api.web.UserRole;
-import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
-import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.SnapshotDto;
-import org.sonar.db.organization.OrganizationDto;
-import org.sonar.server.user.UserSession;
-import org.sonarqube.ws.client.issue.SearchWsRequest;
-
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Lists.newArrayList;
 import static java.lang.String.format;
@@ -76,6 +40,46 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_COMPONENT_U
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_CREATED_AFTER;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_CREATED_IN_LAST;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_SINCE_LEAK_PERIOD;
+
+import java.time.Clock;
+import java.time.OffsetDateTime;
+import java.time.Period;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+
+import org.apache.commons.lang.BooleanUtils;
+import org.sonar.api.resources.Qualifiers;
+import org.sonar.api.rule.RuleKey;
+import org.sonar.api.server.ServerSide;
+import org.sonar.api.web.UserRole;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.SnapshotDto;
+import org.sonar.db.organization.OrganizationDto;
+import org.sonar.server.issue.IssueQuery.PeriodStart;
+import org.sonar.server.user.UserSession;
+import org.sonarqube.ws.client.issue.SearchWsRequest;
+
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Joiner;
+import com.google.common.base.Splitter;
+import com.google.common.base.Strings;
+import com.google.common.collect.Collections2;
+import com.google.common.collect.Lists;
 
 /**
  * This component is used to create an IssueQuery, in order to transform the component and component roots keys into uuid.
@@ -122,7 +126,7 @@ public class IssueQueryFactory {
       boolean effectiveOnComponentOnly = mergeDeprecatedComponentParameters(dbSession, request, allComponents);
       addComponentParameters(builder, dbSession, effectiveOnComponentOnly, allComponents, request);
 
-      builder.createdAfter(buildCreatedAfterFromRequest(dbSession, request, allComponents));
+      setCreatedAfterFromRequest(dbSession, builder, request, allComponents);
       String sort = request.getSort();
       if (!Strings.isNullOrEmpty(sort)) {
         builder.sort(sort);
@@ -132,8 +136,7 @@ public class IssueQueryFactory {
     }
   }
 
-  @CheckForNull
-  private Date buildCreatedAfterFromDates(@Nullable Date createdAfter, @Nullable String createdInLast) {
+  private void setCreatedAfterFromDates(IssueQuery.Builder builder, @Nullable Date createdAfter, @Nullable String createdInLast, boolean createdAfterInclusive) {
     checkArgument(createdAfter == null || createdInLast == null, format("Parameters %s and %s cannot be set simultaneously", PARAM_CREATED_AFTER, PARAM_CREATED_IN_LAST));
 
     Date actualCreatedAfter = createdAfter;
@@ -143,7 +146,7 @@ public class IssueQueryFactory {
           .minus(Period.parse("P" + createdInLast.toUpperCase(Locale.ENGLISH)))
           .toInstant());
     }
-    return actualCreatedAfter;
+    builder.createdAfter(actualCreatedAfter, createdAfterInclusive);
   }
 
   @CheckForNull
@@ -155,19 +158,19 @@ public class IssueQueryFactory {
     return organization.map(OrganizationDto::getUuid).orElse(UNKNOWN);
   }
 
-  private Date buildCreatedAfterFromRequest(DbSession dbSession, SearchWsRequest request, List<ComponentDto> componentUuids) {
+  private void setCreatedAfterFromRequest(DbSession dbSession, IssueQuery.Builder builder, SearchWsRequest request, List<ComponentDto> componentUuids) {
     Date createdAfter = parseStartingDateOrDateTime(request.getCreatedAfter());
     String createdInLast = request.getCreatedInLast();
 
     if (request.getSinceLeakPeriod() == null || !request.getSinceLeakPeriod()) {
-      return buildCreatedAfterFromDates(createdAfter, createdInLast);
+      setCreatedAfterFromDates(builder, createdAfter, createdInLast, true);
+    } else {
+      checkRequest(createdAfter == null, "Parameters '%s' and '%s' cannot be set simultaneously", PARAM_CREATED_AFTER, PARAM_SINCE_LEAK_PERIOD);
+      checkArgument(componentUuids.size() == 1, "One and only one component must be provided when searching since leak period");
+      ComponentDto component = componentUuids.iterator().next();
+      Date createdAfterFromSnapshot = findCreatedAfterFromComponentUuid(dbSession, component);
+      setCreatedAfterFromDates(builder, createdAfterFromSnapshot, createdInLast, false);
     }
-
-    checkRequest(createdAfter == null, "Parameters '%s' and '%s' cannot be set simultaneously", PARAM_CREATED_AFTER, PARAM_SINCE_LEAK_PERIOD);
-    checkArgument(componentUuids.size() == 1, "One and only one component must be provided when searching since leak period");
-    ComponentDto component = componentUuids.iterator().next();
-    Date createdAfterFromSnapshot = findCreatedAfterFromComponentUuid(dbSession, component);
-    return buildCreatedAfterFromDates(createdAfterFromSnapshot, createdInLast);
   }
 
   @CheckForNull
@@ -329,10 +332,10 @@ public class IssueQueryFactory {
       .flatMap(app -> dbClient.componentDao().selectProjectsFromView(dbSession, app, app).stream())
       .collect(toSet());
 
-    Map<String, Date> leakByProjects = dbClient.snapshotDao().selectLastAnalysesByRootComponentUuids(dbSession, projectUuids)
+    Map<String, PeriodStart> leakByProjects = dbClient.snapshotDao().selectLastAnalysesByRootComponentUuids(dbSession, projectUuids)
       .stream()
       .filter(s -> s.getPeriodDate() != null)
-      .collect(uniqueIndex(SnapshotDto::getComponentUuid, s -> longToDate(s.getPeriodDate())));
+      .collect(uniqueIndex(SnapshotDto::getComponentUuid, s -> new PeriodStart(longToDate(s.getPeriodDate()), false)));
     builder.createdAfterByProjectUuids(leakByProjects);
   }
 
