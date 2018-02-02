@@ -65,8 +65,7 @@ import static util.ItUtils.xooPlugin;
   ReportDumpTest.class,
   SSLTest.class,
   FavoriteTest.class,
-  RedirectTest.class,
-  WebhooksTest.class
+  RedirectTest.class
 })
 public class Category3Suite {
 
