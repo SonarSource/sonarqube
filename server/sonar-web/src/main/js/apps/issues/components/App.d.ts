@@ -18,11 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { Component, CurrentUser } from '../../../app/types';
+import { Component, CurrentUser, BranchLike } from '../../../app/types';
 import { RawQuery } from '../../../helpers/query';
 
 interface Props {
-  branch?: { name: string };
+  branchLike?: BranchLike;
   component?: Component;
   currentUser: CurrentUser;
   fetchIssues: (query: RawQuery, requestOrganizations?: boolean) => Promise<any>;

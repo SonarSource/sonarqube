@@ -67,5 +67,5 @@ it('renders', () => {
 
 it('fetches history', () => {
   mount(<Activity component="foo" metrics={{}} />);
-  expect(getAllTimeMachineData).toBeCalledWith('foo', ['coverage']);
+  expect(getAllTimeMachineData).toBeCalledWith({ component: 'foo', metrics: 'coverage' });
 });

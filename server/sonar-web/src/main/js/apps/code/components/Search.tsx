@@ -21,15 +21,17 @@ import * as React from 'react';
 import * as PropTypes from 'prop-types';
 import * as classNames from 'classnames';
 import Components from './Components';
+import { Component } from '../types';
 import { getTree } from '../../../api/components';
+import { BranchLike } from '../../../app/types';
+import SearchBox from '../../../components/controls/SearchBox';
+import { getBranchLikeQuery } from '../../../helpers/branches';
+import { translate } from '../../../helpers/l10n';
 import { parseError } from '../../../helpers/request';
 import { getProjectUrl } from '../../../helpers/urls';
-import { Component } from '../types';
-import SearchBox from '../../../components/controls/SearchBox';
-import { translate } from '../../../helpers/l10n';
 
 interface Props {
-  branch?: string;
+  branchLike?: BranchLike;
   component: Component;
   location: {};
   onError: (error: string) => void;
@@ -89,7 +91,7 @@ export default class Search extends React.PureComponent<Props, State> {
   }
 
   handleSelectCurrent() {
-    const { branch, component } = this.props;
+    const { branchLike, component } = this.props;
     const { results, selectedIndex } = this.state;
     if (results != null && selectedIndex != null) {
       const selected = results[selectedIndex];
@@ -99,7 +101,7 @@ export default class Search extends React.PureComponent<Props, State> {
       } else {
         this.context.router.push({
           pathname: '/code',
-          query: { branch, id: component.key, selected: selected.key }
+          query: { id: component.key, selected: selected.key, ...getBranchLikeQuery(branchLike) }
         });
       }
     }
@@ -125,13 +127,18 @@ export default class Search extends React.PureComponent<Props, State> {
 
   handleSearch = (query: string) => {
     if (this.mounted) {
-      const { branch, component, onError } = this.props;
+      const { branchLike, component, onError } = this.props;
       this.setState({ loading: true });
 
       const isPortfolio = ['VW', 'SVW', 'APP'].includes(component.qualifier);
       const qualifiers = isPortfolio ? 'SVW,TRK' : 'BRC,UTS,FIL';
 
-      getTree(component.key, { branch, q: query, s: 'qualifier,name', qualifiers })
+      getTree(component.key, {
+        q: query,
+        s: 'qualifier,name',
+        qualifiers,
+        ...getBranchLikeQuery(branchLike)
+      })
         .then(r => {
           if (this.mounted) {
             this.setState({
@@ -184,7 +191,7 @@ export default class Search extends React.PureComponent<Props, State> {
         {results != null && (
           <div className="boxed-group boxed-group-inner spacer-top">
             <Components
-              branch={this.props.branch}
+              branchLike={this.props.branchLike}
               components={results}
               rootComponent={component}
               selected={selected}

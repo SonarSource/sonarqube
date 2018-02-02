@@ -57,8 +57,8 @@ export default class ProjectRowActions extends React.PureComponent<Props, State>
     // call `getComponentNavigation` to check if user has the "Administer" permission
     // call `getComponentShow` to check if user has the "Browse" permission
     Promise.all([
-      getComponentNavigation(this.props.project.key),
-      getComponentShow(this.props.project.key)
+      getComponentNavigation({ componentKey: this.props.project.key }),
+      getComponentShow({ component: this.props.project.key })
     ]).then(
       ([navResponse]) => {
         if (this.mounted) {

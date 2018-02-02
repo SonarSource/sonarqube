@@ -19,12 +19,17 @@
  */
 import * as React from 'react';
 import { deleteBranch } from '../../../api/branches';
-import { Branch } from '../../../app/types';
+import { BranchLike } from '../../../app/types';
 import Modal from '../../../components/controls/Modal';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
+import {
+  getBranchLikeQuery,
+  isPullRequest,
+  getBranchLikeDisplayName
+} from '../../../helpers/branches';
 
 interface Props {
-  branch: Branch;
+  branchLike: BranchLike;
   component: string;
   onClose: () => void;
   onDelete: () => void;
@@ -49,7 +54,10 @@ export default class DeleteBranchModal extends React.PureComponent<Props, State>
   handleSubmit = (event: React.SyntheticEvent<HTMLFormElement>) => {
     event.preventDefault();
     this.setState({ loading: true });
-    deleteBranch(this.props.component, this.props.branch.name).then(
+    deleteBranch({
+      project: this.props.component,
+      ...getBranchLikeQuery(this.props.branchLike)
+    }).then(
       () => {
         if (this.mounted) {
           this.setState({ loading: false });
@@ -70,8 +78,10 @@ export default class DeleteBranchModal extends React.PureComponent<Props, State>
   };
 
   render() {
-    const { branch } = this.props;
-    const header = translate('branches.delete');
+    const { branchLike } = this.props;
+    const header = translate(
+      isPullRequest(branchLike) ? 'branches.pull_request.delete' : 'branches.delete'
+    );
 
     return (
       <Modal contentLabel={header} onRequestClose={this.props.onClose}>
@@ -80,7 +90,12 @@ export default class DeleteBranchModal extends React.PureComponent<Props, State>
         </header>
         <form onSubmit={this.handleSubmit}>
           <div className="modal-body">
-            {translateWithParameters('branches.delete.are_you_sure', branch.name)}
+            {translateWithParameters(
+              isPullRequest(branchLike)
+                ? 'branches.pull_request.delete.are_you_sure'
+                : 'branches.delete.are_you_sure',
+              getBranchLikeDisplayName(branchLike)
+            )}
           </div>
           <footer className="modal-foot">
             {this.state.loading && <i className="spinner spacer-right" />}

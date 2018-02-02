@@ -19,13 +19,18 @@
  */
 import * as React from 'react';
 import { connect } from 'react-redux';
-import { Branch, Component, CurrentUser, isLoggedIn, HomePageType } from '../../../types';
+import { BranchLike, Component, CurrentUser, isLoggedIn, HomePageType } from '../../../types';
 import BranchStatus from '../../../../components/common/BranchStatus';
 import DateTimeFormatter from '../../../../components/intl/DateTimeFormatter';
 import Favorite from '../../../../components/controls/Favorite';
 import HomePageSelect from '../../../../components/controls/HomePageSelect';
 import Tooltip from '../../../../components/controls/Tooltip';
-import { isShortLivingBranch } from '../../../../helpers/branches';
+import {
+  isShortLivingBranch,
+  isMainBranch,
+  isLongLivingBranch,
+  isPullRequest
+} from '../../../../helpers/branches';
 import { translate } from '../../../../helpers/l10n';
 import { getCurrentUser } from '../../../../store/rootReducer';
 
@@ -34,13 +39,16 @@ interface StateProps {
 }
 
 interface Props extends StateProps {
-  branch?: Branch;
+  branchLike?: BranchLike;
   component: Component;
 }
 
-export function ComponentNavMeta({ branch, component, currentUser }: Props) {
-  const shortBranch = isShortLivingBranch(branch);
-  const mainBranch = !branch || branch.isMain;
+export function ComponentNavMeta({ branchLike, component, currentUser }: Props) {
+  const mainBranch = !branchLike || isMainBranch(branchLike);
+
+  const displayVersion =
+    component.version !== undefined && (mainBranch || isLongLivingBranch(branchLike));
+  const displayFavoriteAndHome = isLoggedIn(currentUser) && mainBranch;
 
   return (
     <div className="navbar-context-meta">
@@ -49,31 +57,36 @@ export function ComponentNavMeta({ branch, component, currentUser }: Props) {
           <DateTimeFormatter date={component.analysisDate} />
         </div>
       )}
-      {component.version &&
-        !shortBranch && (
-          <Tooltip overlay={`${translate('version')} ${component.version}`} mouseEnterDelay={0.5}>
-            <div className="spacer-left text-limited">
-              {translate('version')} {component.version}
-            </div>
-          </Tooltip>
-        )}
-      {isLoggedIn(currentUser) &&
-        mainBranch && (
-          <div className="navbar-context-meta-secondary">
-            <Favorite
-              component={component.key}
-              favorite={Boolean(component.isFavorite)}
-              qualifier={component.qualifier}
-            />
-            <HomePageSelect
-              className="spacer-left"
-              currentPage={{ type: HomePageType.Project, parameter: component.key }}
-            />
+      {displayVersion && (
+        <Tooltip overlay={`${translate('version')} ${component.version}`} mouseEnterDelay={0.5}>
+          <div className="spacer-left text-limited">
+            {translate('version')} {component.version}
           </div>
-        )}
-      {shortBranch && (
+        </Tooltip>
+      )}
+      {displayFavoriteAndHome && (
         <div className="navbar-context-meta-secondary">
-          <BranchStatus branch={branch!} />
+          <Favorite
+            component={component.key}
+            favorite={Boolean(component.isFavorite)}
+            qualifier={component.qualifier}
+          />
+          <HomePageSelect
+            className="spacer-left"
+            currentPage={{ type: HomePageType.Project, parameter: component.key }}
+          />
+        </div>
+      )}
+      {(isShortLivingBranch(branchLike) || isPullRequest(branchLike)) && (
+        <div className="navbar-context-meta-secondary">
+          {isPullRequest(branchLike) &&
+            branchLike.url !== undefined && (
+              <a className="big-spacer-right" href={branchLike.url} rel="nofollow" target="_blank">
+                {translate('branches.see_the_pr')}
+                <i className="icon-detach little-spacer-left" />
+              </a>
+            )}
+          <BranchStatus branchLike={branchLike} />
         </div>
       )}
     </div>

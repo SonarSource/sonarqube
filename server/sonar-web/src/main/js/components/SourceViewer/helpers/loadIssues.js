@@ -19,6 +19,7 @@
  */
 // @flow
 import { searchIssues } from '../../../api/issues';
+import { getBranchLikeQuery } from '../../../helpers/branches';
 import { parseIssueFromResponse } from '../../../helpers/issues';
 
 /*::
@@ -31,13 +32,16 @@ export type Issues = Array<*>; */
 // maximum possible value
 const PAGE_SIZE = 500;
 
-function buildQuery(component /*: string */, branch /*: string | void */) /*: Query */ {
+function buildQuery(
+  component /*: string */,
+  branchLike /*: { id?: string; name: string } | void */
+) /*: Query */ {
   return {
     additionalFields: '_all',
     resolved: 'false',
     componentKeys: component,
-    branch,
-    s: 'FILE_LINE'
+    s: 'FILE_LINE',
+    ...getBranchLikeQuery(branchLike)
   };
 }
 
@@ -85,9 +89,9 @@ export default function loadIssues(
   component /*: string */,
   fromLine /*: number */,
   toLine /*: number */,
-  branch /*: string | void */
+  branchLike /*: { id?: string; name: string } | void */
 ) /*: Promise<Issues> */ {
-  const query = buildQuery(component, branch);
+  const query = buildQuery(component, branchLike);
   return new Promise(resolve => {
     loadPageAndNext(query, toLine, 1).then(issues => {
       resolve(issues);

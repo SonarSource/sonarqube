@@ -48,7 +48,7 @@ export default class LongBranchesPattern extends React.PureComponent<Props, Stat
   }
 
   fetchSetting() {
-    return getValues(LONG_BRANCH_PATTERN, this.props.project).then(
+    return getValues({ keys: LONG_BRANCH_PATTERN, component: this.props.project }).then(
       settings => {
         if (this.mounted) {
           this.setState({ setting: settings[0] });
