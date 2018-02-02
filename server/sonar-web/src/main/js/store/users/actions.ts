@@ -39,7 +39,10 @@ export const receiveUser = (user: any) => ({
 export const skipOnboarding = () => ({ type: SKIP_ONBOARDING });
 
 export const fetchCurrentUser = () => (dispatch: Dispatch<any>) => {
-  return api.getCurrentUser().then(user => dispatch(receiveCurrentUser(user)));
+  return api.getCurrentUser().then(user => {
+    dispatch(receiveCurrentUser(user));
+    return user;
+  });
 };
 
 export const setHomePage = (homepage: HomePage) => (dispatch: Dispatch<any>) => {

@@ -25,7 +25,7 @@ import { getCurrentUser, getGlobalSettingValue } from '../../store/rootReducer';
 import { getHomePageUrl } from '../../helpers/urls';
 
 interface Props {
-  currentUser: CurrentUser;
+  currentUser: CurrentUser | undefined;
   onSonarCloud: boolean;
 }
 
@@ -36,7 +36,7 @@ class Landing extends React.PureComponent<Props> {
 
   componentDidMount() {
     const { currentUser, onSonarCloud } = this.props;
-    if (isLoggedIn(currentUser)) {
+    if (currentUser && isLoggedIn(currentUser)) {
       if (currentUser.homepage) {
         const homepage = getHomePageUrl(currentUser.homepage);
         this.context.router.replace(homepage);
