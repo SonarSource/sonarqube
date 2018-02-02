@@ -70,12 +70,12 @@ public class IssueQuery {
   private final Collection<String> languages;
   private final Collection<String> tags;
   private final Collection<String> types;
-  private final Map<String, Date> createdAfterByProjectUuids;
+  private final Map<String, PeriodStart> createdAfterByProjectUuids;
   private final Boolean onComponentOnly;
   private final Boolean assigned;
   private final Boolean resolved;
   private final Date createdAt;
-  private final Date createdAfter;
+  private final PeriodStart createdAfter;
   private final Date createdBefore;
   private final String sort;
   private final Boolean asc;
@@ -187,7 +187,7 @@ public class IssueQuery {
     return types;
   }
 
-  public Map<String, Date> createdAfterByProjectUuids() {
+  public Map<String, PeriodStart> createdAfterByProjectUuids() {
     return createdAfterByProjectUuids;
   }
 
@@ -207,8 +207,8 @@ public class IssueQuery {
   }
 
   @CheckForNull
-  public Date createdAfter() {
-    return createdAfter == null ? null : new Date(createdAfter.getTime());
+  public PeriodStart createdAfter() {
+    return createdAfter;
   }
 
   @CheckForNull
@@ -280,12 +280,12 @@ public class IssueQuery {
     private Collection<String> languages;
     private Collection<String> tags;
     private Collection<String> types;
-    private Map<String, Date> createdAfterByProjectUuids;
+    private Map<String, PeriodStart> createdAfterByProjectUuids;
     private Boolean onComponentOnly = false;
     private Boolean assigned = null;
     private Boolean resolved = null;
     private Date createdAt;
-    private Date createdAfter;
+    private PeriodStart createdAfter;
     private Date createdBefore;
     private String sort;
     private Boolean asc = false;
@@ -384,7 +384,7 @@ public class IssueQuery {
       return this;
     }
 
-    public Builder createdAfterByProjectUuids(@Nullable Map<String, Date> createdAfterByProjectUuids) {
+    public Builder createdAfterByProjectUuids(@Nullable Map<String, PeriodStart> createdAfterByProjectUuids) {
       this.createdAfterByProjectUuids = createdAfterByProjectUuids;
       return this;
     }
@@ -422,7 +422,12 @@ public class IssueQuery {
     }
 
     public Builder createdAfter(@Nullable Date d) {
-      this.createdAfter = d == null ? null : new Date(d.getTime());
+      this.createdAfter(d, true);
+      return this;
+    }
+
+    public Builder createdAfter(@Nullable Date d, boolean inclusive) {
+      this.createdAfter = d == null ? null : new PeriodStart(new Date(d.getTime()), inclusive);
       return this;
     }
 
@@ -481,8 +486,28 @@ public class IssueQuery {
     return c == null ? Collections.emptyList() : Collections.unmodifiableCollection(c);
   }
 
-  private static <K,V> Map<K,V> defaultMap(@Nullable Map<K,V> map) {
+  private static <K, V> Map<K, V> defaultMap(@Nullable Map<K, V> map) {
     return map == null ? Collections.emptyMap() : Collections.unmodifiableMap(map);
+  }
+
+  public static class PeriodStart {
+    private final Date date;
+    private final boolean inclusive;
+
+    public PeriodStart(Date date, boolean inclusive) {
+      this.date = date;
+      this.inclusive = inclusive;
+
+    }
+
+    public Date date() {
+      return date;
+    }
+
+    public boolean inclusive() {
+      return inclusive;
+    }
+
   }
 
 }

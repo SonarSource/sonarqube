@@ -42,6 +42,7 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.index.query.RangeQueryBuilder;
 import org.elasticsearch.indices.TermsLookup;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
@@ -73,6 +74,7 @@ import org.sonar.server.es.SearchOptions;
 import org.sonar.server.es.Sorting;
 import org.sonar.server.es.StickyFacetBuilder;
 import org.sonar.server.issue.IssueQuery;
+import org.sonar.server.issue.IssueQuery.PeriodStart;
 import org.sonar.server.permission.index.AuthorizationTypeSupport;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.view.index.ViewIndexDefinition;
@@ -427,15 +429,15 @@ public class IssueIndex {
   }
 
   private void addDatesFilter(Map<String, QueryBuilder> filters, IssueQuery query) {
-    Date createdAfter = query.createdAfter();
+    PeriodStart createdAfter = query.createdAfter();
     Date createdBefore = query.createdBefore();
 
-    validateCreationDateBounds(createdBefore, createdAfter);
+    validateCreationDateBounds(createdBefore, createdAfter != null ? createdAfter.date() : null);
 
     if (createdAfter != null) {
       filters.put("__createdAfter", QueryBuilders
         .rangeQuery(IssueIndexDefinition.FIELD_ISSUE_FUNC_CREATED_AT)
-        .gte(BaseDoc.dateToEpochSeconds(createdAfter)));
+        .from(BaseDoc.dateToEpochSeconds(createdAfter.date()), createdAfter.inclusive()));
     }
     if (createdBefore != null) {
       filters.put("__createdBefore", QueryBuilders
@@ -449,11 +451,11 @@ public class IssueIndex {
   }
 
   private static void addCreatedAfterByProjectsFilter(Map<String, QueryBuilder> filters, IssueQuery query) {
-    Map<String, Date> createdAfterByProjectUuids = query.createdAfterByProjectUuids();
+    Map<String, PeriodStart> createdAfterByProjectUuids = query.createdAfterByProjectUuids();
     BoolQueryBuilder boolQueryBuilder = boolQuery();
     createdAfterByProjectUuids.forEach((projectUuid, createdAfterDate) -> boolQueryBuilder.should(boolQuery()
       .filter(termQuery(IssueIndexDefinition.FIELD_ISSUE_PROJECT_UUID, projectUuid))
-      .filter(rangeQuery(IssueIndexDefinition.FIELD_ISSUE_FUNC_CREATED_AT).gte(BaseDoc.dateToEpochSeconds(createdAfterDate)))));
+      .filter(rangeQuery(IssueIndexDefinition.FIELD_ISSUE_FUNC_CREATED_AT).from(BaseDoc.dateToEpochSeconds(createdAfterDate.date()), createdAfterDate.inclusive()))));
     filters.put("createdAfterByProjectUuids", boolQueryBuilder);
   }
 
@@ -513,15 +515,18 @@ public class IssueIndex {
 
   private Optional<AggregationBuilder> getCreatedAtFacet(IssueQuery query, Map<String, QueryBuilder> filters, QueryBuilder esQuery) {
     long startTime;
-    Date createdAfter = query.createdAfter();
+    boolean startInclusive;
+    PeriodStart createdAfter = query.createdAfter();
     if (createdAfter == null) {
       Optional<Long> minDate = getMinCreatedAt(filters, esQuery);
       if (!minDate.isPresent()) {
         return Optional.empty();
       }
       startTime = minDate.get();
+      startInclusive = true;
     } else {
-      startTime = createdAfter.getTime();
+      startTime = createdAfter.date().getTime();
+      startInclusive = createdAfter.inclusive();
     }
     Date createdBefore = query.createdBefore();
     long endTime = createdBefore == null ? system.now() : createdBefore.getTime();
@@ -543,7 +548,7 @@ public class IssueIndex {
       .format(DateUtils.DATETIME_FORMAT)
       .timeZone(DateTimeZone.forOffsetMillis(system.getDefaultTimeZone().getRawOffset()))
       // ES dateHistogram bounds are inclusive while createdBefore parameter is exclusive
-      .extendedBounds(new ExtendedBounds(startTime, endTime - 1L));
+      .extendedBounds(new ExtendedBounds(startInclusive ? startTime : startTime + 1, endTime - 1L));
     addEffortAggregationIfNeeded(query, dateHistogram);
     return Optional.of(dateHistogram);
   }
