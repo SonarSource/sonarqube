@@ -22,11 +22,12 @@ import React from 'react';
 import key from 'keymaster';
 import Breadcrumb from './Breadcrumb';
 import { getBreadcrumbs } from '../../../api/components';
+import { getBranchLikeQuery } from '../../../helpers/branches';
 /*:: import type { Component } from '../types'; */
 
 /*:: type Props = {|
   backToFirst: boolean,
-  branch?: string,
+  branchLike?: { id?: string, name: string },
   className?: string,
   component: Component,
   handleSelect: string => void,
@@ -76,7 +77,7 @@ export default class Breadcrumbs extends React.PureComponent {
     key.unbind('left', 'measures-files');
   }
 
-  fetchBreadcrumbs = ({ branch, component, rootComponent } /*: Props */) => {
+  fetchBreadcrumbs = ({ branchLike, component, rootComponent } /*: Props */) => {
     const isRoot = component.key === rootComponent.key;
     if (isRoot) {
       if (this.mounted) {
@@ -84,11 +85,13 @@ export default class Breadcrumbs extends React.PureComponent {
       }
       return;
     }
-    getBreadcrumbs(component.key, branch).then(breadcrumbs => {
-      if (this.mounted) {
-        this.setState({ breadcrumbs });
+    getBreadcrumbs({ component: component.key, ...getBranchLikeQuery(branchLike) }).then(
+      breadcrumbs => {
+        if (this.mounted) {
+          this.setState({ breadcrumbs });
+        }
       }
-    });
+    );
   };
 
   render() {

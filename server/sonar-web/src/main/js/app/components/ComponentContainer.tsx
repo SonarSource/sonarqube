@@ -22,25 +22,26 @@ import * as PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import ComponentContainerNotFound from './ComponentContainerNotFound';
 import ComponentNav from './nav/component/ComponentNav';
-import { Branch, Component } from '../types';
+import { Component, BranchLike } from '../types';
 import handleRequiredAuthorization from '../utils/handleRequiredAuthorization';
-import { getBranches } from '../../api/branches';
+import { getBranches, getPullRequests } from '../../api/branches';
 import { Task, getTasksForComponent } from '../../api/ce';
 import { getComponentData } from '../../api/components';
 import { getComponentNavigation } from '../../api/nav';
 import { fetchOrganizations } from '../../store/rootActions';
 import { STATUSES } from '../../apps/background-tasks/constants';
+import { isPullRequest, isBranch } from '../../helpers/branches';
 
 interface Props {
   children: any;
   fetchOrganizations: (organizations: string[]) => void;
   location: {
-    query: { branch?: string; id: string };
+    query: { branch?: string; id: string; pullRequest?: string };
   };
 }
 
 interface State {
-  branches: Branch[];
+  branchLikes: BranchLike[];
   loading: boolean;
   component?: Component;
   currentTask?: Task;
@@ -57,7 +58,7 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
 
   constructor(props: Props) {
     super(props);
-    this.state = { branches: [], loading: true };
+    this.state = { branchLikes: [], loading: true };
   }
 
   componentDidMount() {
@@ -84,7 +85,7 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
   });
 
   fetchComponent(props: Props) {
-    const { branch, id } = props.location.query;
+    const { branch, id: key } = props.location.query;
     this.setState({ loading: true });
 
     const onError = (error: any) => {
@@ -97,29 +98,33 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
       }
     };
 
-    Promise.all([getComponentNavigation(id, branch), getComponentData(id, branch)]).then(
-      ([nav, data]) => {
-        const component = this.addQualifier({ ...nav, ...data });
+    Promise.all([
+      getComponentNavigation({ componentKey: key, branch }),
+      getComponentData({ component: key, branch })
+    ]).then(([nav, data]) => {
+      const component = this.addQualifier({ ...nav, ...data });
 
-        if (this.context.organizationsEnabled) {
-          this.props.fetchOrganizations([component.organization]);
+      if (this.context.organizationsEnabled) {
+        this.props.fetchOrganizations([component.organization]);
+      }
+
+      this.fetchBranches(component).then(branchLikes => {
+        if (this.mounted) {
+          this.setState({ loading: false, branchLikes, component });
         }
+      }, onError);
 
-        this.fetchBranches(component).then(branches => {
-          if (this.mounted) {
-            this.setState({ loading: false, branches, component });
-          }
-        }, onError);
-
-        this.fetchStatus(component);
-      },
-      onError
-    );
+      this.fetchStatus(component);
+    }, onError);
   }
 
-  fetchBranches = (component: Component) => {
+  fetchBranches = (component: Component): Promise<BranchLike[]> => {
     const project = component.breadcrumbs.find(({ qualifier }) => qualifier === 'TRK');
-    return project ? getBranches(project.key) : Promise.resolve([]);
+    return project
+      ? Promise.all([getBranches(project.key), getPullRequests(project.key)]).then(
+          ([branches, pullRequests]) => [...branches, ...pullRequests]
+        )
+      : Promise.resolve([]);
   };
 
   fetchStatus = (component: Component) => {
@@ -146,9 +151,9 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
   handleBranchesChange = () => {
     if (this.mounted && this.state.component) {
       this.fetchBranches(this.state.component).then(
-        branches => {
+        branchLikes => {
           if (this.mounted) {
-            this.setState({ branches });
+            this.setState({ branchLikes });
           }
         },
         () => {}
@@ -158,21 +163,23 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
 
   render() {
     const { query } = this.props.location;
-    const { branches, component, loading } = this.state;
+    const { branchLikes, component, loading } = this.state;
 
     if (!loading && !component) {
       return <ComponentContainerNotFound />;
     }
 
-    const branch = branches.find(b => (query.branch ? b.name === query.branch : b.isMain));
+    const branchLike = query.pullRequest
+      ? branchLikes.find(b => isPullRequest(b) && b.id === query.pullRequest)
+      : branchLikes.find(b => isBranch(b) && (query.branch ? b.name === query.branch : b.isMain));
 
     return (
       <div>
         {component &&
           !['FIL', 'UTS'].includes(component.qualifier) && (
             <ComponentNav
-              branches={branches}
-              currentBranch={branch}
+              branchLikes={branchLikes}
+              currentBranchLike={branchLike}
               component={component}
               currentTask={this.state.currentTask}
               isInProgress={this.state.isInProgress}
@@ -186,8 +193,8 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
           </div>
         ) : (
           React.cloneElement(this.props.children, {
-            branch,
-            branches,
+            branchLike,
+            branchLikes,
             component,
             isInProgress: this.state.isInProgress,
             isPending: this.state.isPending,

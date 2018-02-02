@@ -26,6 +26,7 @@ import SimilarIssuesFilter from './SimilarIssuesFilter';
 import LinkIcon from '../../../components/icons-components/LinkIcon';
 import LocationIndex from '../../common/LocationIndex';
 import Tooltip from '../../controls/Tooltip';
+import { getBranchLikeQuery } from '../../../helpers/branches';
 import { getComponentIssuesUrl } from '../../../helpers/urls';
 import { formatMeasure } from '../../../helpers/measures';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
@@ -33,7 +34,7 @@ import { translate, translateWithParameters } from '../../../helpers/l10n';
 
 /*::
 type Props = {|
-  branch?: string,
+  branchLike?: { id?: string; name: string },
   currentPopup: ?string,
   displayLocationsCount?: boolean;
   displayLocationsLink?: boolean;
@@ -68,7 +69,7 @@ export default function IssueTitleBar(props /*: Props */) {
   const displayLocations = props.displayLocationsCount && locationsCount > 0;
 
   const issueUrl = getComponentIssuesUrl(issue.project, {
-    branch: props.branch,
+    ...getBranchLikeQuery(props.branchLike),
     issues: issue.key,
     open: issue.key
   });

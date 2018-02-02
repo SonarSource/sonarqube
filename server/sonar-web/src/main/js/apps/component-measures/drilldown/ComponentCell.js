@@ -23,11 +23,11 @@ import { Link } from 'react-router';
 import LinkIcon from '../../../components/icons-components/LinkIcon';
 import QualifierIcon from '../../../components/icons-components/QualifierIcon';
 import { splitPath } from '../../../helpers/path';
-import { getPathUrlAsString, getProjectUrl } from '../../../helpers/urls';
+import { getPathUrlAsString, getBranchLikeUrl } from '../../../helpers/urls';
 /*:: import type { ComponentEnhanced } from '../types'; */
 
 /*:: type Props = {
-  branch?: string,
+  branchLike?: { id?: string; name: string },
   component: ComponentEnhanced,
   onClick: string => void
 }; */
@@ -65,15 +65,16 @@ export default class ComponentCell extends React.PureComponent {
   }
 
   render() {
-    const { branch, component } = this.props;
+    const { branchLike, component } = this.props;
     return (
       <td className="measure-details-component-cell">
         <div className="text-ellipsis">
+          {/* TODO make this <a> link a react-router <Link /> */}
           {component.refKey == null ? (
             <a
               id={'component-measures-component-link-' + component.key}
               className="link-no-underline"
-              href={getPathUrlAsString(getProjectUrl(component.key, branch))}
+              href={getPathUrlAsString(getBranchLikeUrl(component.key, branchLike))}
               onClick={this.handleClick}>
               {this.renderInner()}
             </a>
@@ -81,7 +82,7 @@ export default class ComponentCell extends React.PureComponent {
             <Link
               className="link-no-underline"
               id={'component-measures-component-link-' + component.key}
-              to={getProjectUrl(component.refKey, branch)}>
+              to={getBranchLikeUrl(component.refKey, branchLike)}>
               <span className="big-spacer-right">
                 <LinkIcon />
               </span>

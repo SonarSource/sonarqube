@@ -26,7 +26,7 @@ import { scrollToElement } from '../../../helpers/scrolling';
 
 /*::
 type Props = {|
-  branch?: string,
+  branchLike?: { id?: string; name: string },
   component: Component,
   loadIssues: (string, number, number) => Promise<*>,
   onIssueChange: Issue => void,
@@ -107,7 +107,7 @@ export default class IssuesSourceViewer extends React.PureComponent {
       <div ref={node => (this.node = node)}>
         <SourceViewer
           aroundLine={aroundLine}
-          branch={this.props.branch}
+          branchLike={this.props.branchLike}
           component={openIssue.component}
           displayAllIssues={true}
           displayIssueLocationsCount={false}
