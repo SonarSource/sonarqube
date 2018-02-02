@@ -25,10 +25,10 @@ import SizeRating from '../../../components/ui/SizeRating';
 import { formatMeasure, MeasureEnhanced } from '../../../helpers/measures';
 import { getMetricName } from '../helpers/metrics';
 import { translate } from '../../../helpers/l10n';
-import { LightComponent } from '../../../app/types';
+import { LightComponent, BranchLike } from '../../../app/types';
 
 interface Props {
-  branch?: string;
+  branchLike?: BranchLike;
   component: LightComponent;
   measures: MeasureEnhanced[];
 }
@@ -43,7 +43,10 @@ export default class MetaSize extends React.PureComponent<Props> {
       <span className="spacer-right">
         <SizeRating value={Number(ncloc.value)} />
       </span>
-      <DrilldownLink branch={this.props.branch} component={this.props.component.key} metric="ncloc">
+      <DrilldownLink
+        branchLike={this.props.branchLike}
+        component={this.props.component.key}
+        metric="ncloc">
         {formatMeasure(ncloc.value, 'SHORT_INT')}
       </DrilldownLink>
       <div className="spacer-top text-muted">{getMetricName('ncloc')}</div>
@@ -71,7 +74,7 @@ export default class MetaSize extends React.PureComponent<Props> {
     return projects ? (
       <div id="overview-projects" className="overview-meta-size-ncloc is-half-width">
         <DrilldownLink
-          branch={this.props.branch}
+          branchLike={this.props.branchLike}
           component={this.props.component.key}
           metric="projects">
           {formatMeasure(projects.value, 'SHORT_INT')}

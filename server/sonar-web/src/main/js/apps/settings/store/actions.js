@@ -50,10 +50,10 @@ export const fetchSettings = componentKey => dispatch => {
   );
 };
 
-export const fetchValues = (keys, componentKey) => dispatch =>
-  getValues(keys, componentKey).then(
+export const fetchValues = (keys, component) => dispatch =>
+  getValues({ keys, component }).then(
     settings => {
-      dispatch(receiveValues(settings, componentKey));
+      dispatch(receiveValues(settings, component));
       dispatch(closeAllGlobalMessages());
     },
     () => {}
@@ -73,7 +73,7 @@ export const saveValue = (key, componentKey) => (dispatch, getState) => {
   }
 
   return setSettingValue(definition, value, componentKey)
-    .then(() => getValues(key, componentKey))
+    .then(() => getValues({ keys: key, component: componentKey }))
     .then(values => {
       dispatch(receiveValues(values, componentKey));
       dispatch(cancelChange(key));
@@ -90,8 +90,8 @@ export const saveValue = (key, componentKey) => (dispatch, getState) => {
 export const resetValue = (key, componentKey) => dispatch => {
   dispatch(startLoading(key));
 
-  return resetSettingValue(key, componentKey)
-    .then(() => getValues(key, componentKey))
+  return resetSettingValue({ keys: key, component: componentKey })
+    .then(() => getValues({ keys: key, component: componentKey }))
     .then(values => {
       if (values.length > 0) {
         dispatch(receiveValues(values, componentKey));

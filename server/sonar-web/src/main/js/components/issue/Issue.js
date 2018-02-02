@@ -29,7 +29,7 @@ import { updateIssue } from './actions';
 
 /*::
 type Props = {|
-  branch?: string,
+  branchLike?: { id?: string; name: string },
   checked?: boolean,
   displayLocationsCount?: boolean;
   displayLocationsLink?: boolean;
@@ -91,7 +91,9 @@ export default class Issue extends React.PureComponent {
       return false;
     });
     key('m', 'issues', () => {
-      this.props.issue.actions.includes('assign') && this.handleAssignement('_me');
+      if (this.props.issue.actions.includes('assign')) {
+        this.handleAssignement('_me');
+      }
       return false;
     });
     key('i', 'issues', () => {
@@ -148,7 +150,7 @@ export default class Issue extends React.PureComponent {
   render() {
     return (
       <IssueView
-        branch={this.props.branch}
+        branchLike={this.props.branchLike}
         checked={this.props.checked}
         currentPopup={this.props.openPopup}
         displayLocationsCount={this.props.displayLocationsCount}

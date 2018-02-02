@@ -37,7 +37,7 @@ const ZERO_LINE = {
 
 export default class SourceViewerCode extends React.PureComponent {
   /*:: props: {|
-    branch?: string,
+    branchLike?: { id?: string; name: string },
     displayAllIssues: boolean,
     displayIssueLocationsCount?: boolean;
     displayIssueLocationsLink?: boolean;
@@ -150,7 +150,7 @@ export default class SourceViewerCode extends React.PureComponent {
 
     return (
       <Line
-        branch={this.props.branch}
+        branchLike={this.props.branchLike}
         displayAllIssues={this.props.displayAllIssues}
         displayCoverage={displayCoverage}
         displayDuplications={displayDuplications}

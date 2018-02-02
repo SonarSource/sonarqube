@@ -29,6 +29,7 @@ import { getAllMetrics } from '../../../api/metrics';
 import { getTests, getCoveredFiles } from '../../../api/tests';
 import * as theme from '../../../app/theme';
 import { getLocalizedMetricName, getLocalizedMetricDomain } from '../../../helpers/l10n';
+import { getBranchLikeQuery } from '../../../helpers/branches';
 import { formatMeasure } from '../../../helpers/measures';
 
 const severityComparator = severity => {
@@ -144,7 +145,11 @@ export default ModalView.extend({
         .filter(metric => metric.type !== 'DATA' && !metric.hidden)
         .map(metric => metric.key);
 
-      return getMeasures(this.options.component.key, metricsToRequest, this.options.branch).then(
+      return getMeasures({
+        componentKey: this.options.component.key,
+        metricKeys: metricsToRequest.join(),
+        ...getBranchLikeQuery(this.options.branchLike)
+      }).then(
         measures => {
           let nextMeasures = this.options.component.measures || {};
           measures.forEach(measure => {
@@ -164,7 +169,7 @@ export default ModalView.extend({
 
   requestIssues() {
     const options = {
-      branch: this.options.branch,
+      ...getBranchLikeQuery(this.options.branchLike),
       componentKeys: this.options.component.key,
       resolved: false,
       ps: 1,
@@ -194,7 +199,10 @@ export default ModalView.extend({
   },
 
   requestTests() {
-    return getTests({ branch: this.options.branch, testFileKey: this.options.component.key }).then(
+    return getTests({
+      testFileKey: this.options.component.key,
+      ...getBranchLikeQuery(this.options.branchLike)
+    }).then(
       data => {
         this.tests = data.tests;
         this.testSorting = 'status';

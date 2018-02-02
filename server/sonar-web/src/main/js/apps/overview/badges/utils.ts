@@ -28,6 +28,7 @@ export interface BadgeOptions {
   color?: BadgeColors;
   project?: string;
   metric?: string;
+  pullRequest?: string;
 }
 
 export enum BadgeType {
@@ -38,19 +39,19 @@ export enum BadgeType {
 
 export function getBadgeUrl(
   type: BadgeType,
-  { branch, project, color = 'white', metric = 'alert_status' }: BadgeOptions
+  { branch, project, color = 'white', metric = 'alert_status', pullRequest }: BadgeOptions
 ) {
   switch (type) {
     case BadgeType.marketing:
       return `${getHostUrl()}/images/project_badges/sonarcloud-${color}.svg`;
     case BadgeType.qualityGate:
       return `${getHostUrl()}/api/project_badges/quality_gate?${stringify(
-        omitNil({ branch, project })
+        omitNil({ branch, project, pullRequest })
       )}`;
     case BadgeType.measure:
     default:
       return `${getHostUrl()}/api/project_badges/measure?${stringify(
-        omitNil({ branch, project, metric })
+        omitNil({ branch, project, metric, pullRequest })
       )}`;
   }
 }

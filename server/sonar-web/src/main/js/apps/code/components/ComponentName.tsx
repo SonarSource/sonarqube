@@ -20,9 +20,11 @@
 import * as React from 'react';
 import { Link } from 'react-router';
 import Truncated from './Truncated';
-import * as theme from '../../../app/theme';
-import QualifierIcon from '../../../components/shared/QualifierIcon';
 import { Component } from '../types';
+import * as theme from '../../../app/theme';
+import { BranchLike } from '../../../app/types';
+import QualifierIcon from '../../../components/shared/QualifierIcon';
+import { getBranchLikeQuery } from '../../../helpers/branches';
 
 function getTooltip(component: Component) {
   const isFile = component.qualifier === 'FIL' || component.qualifier === 'UTS';
@@ -49,7 +51,7 @@ function mostCommitPrefix(strings: string[]) {
 }
 
 interface Props {
-  branch?: string;
+  branchLike?: BranchLike;
   canBrowse?: boolean;
   component: Component;
   previous?: Component;
@@ -57,7 +59,7 @@ interface Props {
 }
 
 export default function ComponentName(props: Props) {
-  const { branch, component, rootComponent, previous, canBrowse = false } = props;
+  const { branchLike, component, rootComponent, previous, canBrowse = false } = props;
   const areBothDirs = component.qualifier === 'DIR' && previous && previous.qualifier === 'DIR';
   const prefix =
     areBothDirs && previous !== undefined
@@ -83,7 +85,7 @@ export default function ComponentName(props: Props) {
       </Link>
     );
   } else if (canBrowse) {
-    const query = { id: rootComponent.key, branch };
+    const query = { id: rootComponent.key, ...getBranchLikeQuery(branchLike) };
     if (component.key !== rootComponent.key) {
       Object.assign(query, { selected: component.key });
     }

@@ -38,7 +38,7 @@ export default Popup.extend({
     e.stopPropagation();
     const key = $(e.currentTarget).data('key');
     const Workspace = require('../../workspace/main').default;
-    Workspace.openComponent({ key, branch: this.options.branch });
+    Workspace.openComponent({ key, branchLike: this.options.branchLike });
   },
 
   serializeData() {

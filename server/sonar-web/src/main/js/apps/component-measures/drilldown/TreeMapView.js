@@ -29,13 +29,13 @@ import QualifierIcon from '../../../components/icons-components/QualifierIcon';
 import TreeMap from '../../../components/charts/TreeMap';
 import { translate, translateWithParameters, getLocalizedMetricName } from '../../../helpers/l10n';
 import { formatMeasure, isDiffMetric } from '../../../helpers/measures';
-import { getProjectUrl } from '../../../helpers/urls';
+import { getBranchLikeUrl } from '../../../helpers/urls';
 /*:: import type { Metric } from '../../../store/metrics/actions'; */
 /*:: import type { ComponentEnhanced } from '../types'; */
 /*:: import type { TreeMapItem } from '../../../components/charts/TreeMap'; */
 
 /*:: type Props = {|
-  branch?: string,
+  branchLike?: { id?: string; name: string },
   components: Array<ComponentEnhanced>,
   handleSelect: string => void,
   metric: Metric
@@ -64,7 +64,7 @@ export default class TreeMapView extends React.PureComponent {
     }
   }
 
-  getTreemapComponents = ({ branch, components, metric } /*: Props */) => {
+  getTreemapComponents = ({ branchLike, components, metric } /*: Props */) => {
     const colorScale = this.getColorScale(metric);
     return components
       .map(component => {
@@ -95,7 +95,7 @@ export default class TreeMapView extends React.PureComponent {
             sizeValue
           ),
           label: component.name,
-          link: getProjectUrl(component.refKey || component.key, branch)
+          link: getBranchLikeUrl(component.refKey || component.key, branchLike)
         };
       })
       .filter(Boolean);

@@ -60,13 +60,13 @@ export default class Activity extends React.PureComponent<Props> {
   fetchHistory = () => {
     const { component } = this.props;
 
-    let graphMetrics = getDisplayedHistoryMetrics(getGraph(), getCustomGraph());
+    let graphMetrics: string[] = getDisplayedHistoryMetrics(getGraph(), getCustomGraph());
     if (!graphMetrics || graphMetrics.length <= 0) {
       graphMetrics = getDisplayedHistoryMetrics(DEFAULT_GRAPH, []);
     }
 
     this.setState({ loading: true });
-    return getAllTimeMachineData(component, graphMetrics).then(
+    return getAllTimeMachineData({ component, metrics: graphMetrics.join() }).then(
       timeMachine => {
         if (this.mounted) {
           const history: History = {};
