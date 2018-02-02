@@ -23,7 +23,6 @@ exports[`should not render breadcrumbs with one element 1`] = `
         Object {
           "pathname": "/dashboard",
           "query": Object {
-            "branch": undefined,
             "id": "my-project",
           },
         }
@@ -91,7 +90,6 @@ exports[`should render organization 1`] = `
         Object {
           "pathname": "/dashboard",
           "query": Object {
-            "branch": undefined,
             "id": "my-project",
           },
         }

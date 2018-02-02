@@ -27,7 +27,7 @@ import { getLocalizedMetricName } from '../../../helpers/l10n';
 /*:: import type { Metric } from '../../../store/metrics/actions'; */
 
 /*:: type Props = {|
-  branch?: string,
+  branchLike?: { id?: string; name: string },
   components: Array<ComponentEnhanced>,
   onClick: string => void,
   metric: Metric,
@@ -36,7 +36,7 @@ import { getLocalizedMetricName } from '../../../helpers/l10n';
 |}; */
 
 export default function ComponentsList(
-  { branch, components, onClick, metrics, metric, selectedComponent } /*: Props */
+  { branchLike, components, onClick, metrics, metric, selectedComponent } /*: Props */
 ) {
   if (!components.length) {
     return <EmptyResult />;
@@ -65,7 +65,7 @@ export default function ComponentsList(
         {components.map(component => (
           <ComponentsListRow
             key={component.id}
-            branch={branch}
+            branchLike={branchLike}
             component={component}
             otherMetrics={otherMetrics}
             isSelected={component.key === selectedComponent}

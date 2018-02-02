@@ -21,7 +21,7 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router';
 import ComponentNavBranch from './ComponentNavBranch';
-import { Component, Organization, Branch, Breadcrumb } from '../../../types';
+import { Component, Organization, BranchLike, Breadcrumb } from '../../../types';
 import QualifierIcon from '../../../../components/shared/QualifierIcon';
 import { getOrganizationByKey, areThereCustomOrganizations } from '../../../../store/rootReducer';
 import OrganizationAvatar from '../../../../components/common/OrganizationAvatar';
@@ -37,9 +37,9 @@ interface StateProps {
 }
 
 interface OwnProps {
-  branches: Branch[];
+  branchLikes: BranchLike[];
   component: Component;
-  currentBranch?: Branch;
+  currentBranchLike: BranchLike | undefined;
   location?: any;
 }
 
@@ -70,11 +70,11 @@ export function ComponentNavHeader(props: Props) {
       {component.visibility === 'private' && (
         <PrivateBadge className="spacer-left" qualifier={component.qualifier} />
       )}
-      {props.currentBranch && (
+      {props.currentBranchLike && (
         <ComponentNavBranch
-          branches={props.branches}
+          branchLikes={props.branchLikes}
           component={component}
-          currentBranch={props.currentBranch}
+          currentBranchLike={props.currentBranchLike}
           // to close dropdown on any location change
           location={props.location}
         />

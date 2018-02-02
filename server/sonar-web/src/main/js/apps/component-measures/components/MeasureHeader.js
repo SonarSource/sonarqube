@@ -34,7 +34,7 @@ import { isDiffMetric } from '../../../helpers/measures';
 /*:: import type { MeasureEnhanced } from '../../../components/measure/types'; */
 
 /*:: type Props = {|
-  branch?: string,
+  branchLike?: { id?: string; name: string },
   component: Component,
   components: Array<Component>,
   leakPeriod?: Period,
@@ -43,7 +43,7 @@ import { isDiffMetric } from '../../../helpers/measures';
 |}; */
 
 export default function MeasureHeader(props /*: Props*/) {
-  const { branch, component, leakPeriod, measure, secondaryMeasure } = props;
+  const { branchLike, component, leakPeriod, measure, secondaryMeasure } = props;
   const { metric } = measure;
   const isDiff = isDiffMetric(metric.key);
   return (
@@ -72,7 +72,7 @@ export default function MeasureHeader(props /*: Props*/) {
               overlay={translate('component_measures.show_metric_history')}>
               <Link
                 className="js-show-history spacer-left button button-small"
-                to={getMeasureHistoryUrl(component.key, metric.key, branch)}>
+                to={getMeasureHistoryUrl(component.key, metric.key, branchLike)}>
                 <HistoryIcon />
               </Link>
             </Tooltip>

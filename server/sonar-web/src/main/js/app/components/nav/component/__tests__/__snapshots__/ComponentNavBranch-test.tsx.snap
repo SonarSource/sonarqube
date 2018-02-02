@@ -10,7 +10,7 @@ exports[`renders main branch 1`] = `
     onClick={[Function]}
   >
     <BranchIcon
-      branch={
+      branchLike={
         Object {
           "isMain": true,
           "name": "master",
@@ -41,7 +41,7 @@ exports[`renders no branch support popup 1`] = `
   className="navbar-context-branches"
 >
   <BranchIcon
-    branch={
+    branchLike={
       Object {
         "isMain": true,
         "name": "master",
@@ -77,6 +77,63 @@ exports[`renders no branch support popup 1`] = `
 </div>
 `;
 
+exports[`renders pull request 1`] = `
+<div
+  className="navbar-context-branches dropdown"
+>
+  <a
+    className="link-base-color link-no-underline"
+    href="#"
+    onClick={[Function]}
+  >
+    <BranchIcon
+      branchLike={
+        Object {
+          "base": "master",
+          "branch": "feature",
+          "id": "1234",
+          "title": "Feature PR",
+          "url": "https://example.com/pull/1234",
+        }
+      }
+      className="little-spacer-right"
+    />
+    <Tooltip
+      mouseEnterDelay={1}
+      overlay="1234 – Feature PR"
+      placement="bottom"
+    >
+      <span
+        className="text-limited text-top"
+      >
+        1234 – Feature PR
+      </span>
+    </Tooltip>
+    <i
+      className="icon-dropdown little-spacer-left"
+    />
+  </a>
+  <span
+    className="note big-spacer-left text-lowercase"
+  >
+    <FormattedMessage
+      defaultMessage="branches.pull_request.for_merge_into_x_from_y"
+      id="branches.pull_request.for_merge_into_x_from_y"
+      values={
+        Object {
+          "base": <strong>
+            master
+          </strong>,
+          "branch": <strong>
+            feature
+          </strong>,
+        }
+      }
+    />
+  </span>
+</div>
+`;
+
 exports[`renders short-living branch 1`] = `
 <div
   className="navbar-context-branches dropdown"
@@ -87,7 +144,7 @@ exports[`renders short-living branch 1`] = `
     onClick={[Function]}
   >
     <BranchIcon
-      branch={
+      branchLike={
         Object {
           "isMain": false,
           "mergeBranch": "master",
@@ -134,7 +191,7 @@ exports[`renders single branch popup 1`] = `
   className="navbar-context-branches"
 >
   <BranchIcon
-    branch={
+    branchLike={
       Object {
         "isMain": true,
         "name": "master",
