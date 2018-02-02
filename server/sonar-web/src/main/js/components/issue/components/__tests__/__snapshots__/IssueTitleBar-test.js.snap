@@ -160,7 +160,6 @@ exports[`should render the titlebar with the filter 1`] = `
             Object {
               "pathname": "/project/issues",
               "query": Object {
-                "branch": undefined,
                 "id": "myproject",
                 "issues": "AVsae-CQS-9G3txfbFN2",
                 "open": "AVsae-CQS-9G3txfbFN2",

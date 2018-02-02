@@ -53,7 +53,10 @@ it('opens form', () => {
 
 it('fetches setting value on mount', () => {
   shallow(<LongBranchesPattern project="project" />);
-  expect(getValues).lastCalledWith('sonar.branch.longLivedBranches.regex', 'project');
+  expect(getValues).lastCalledWith({
+    keys: 'sonar.branch.longLivedBranches.regex',
+    component: 'project'
+  });
 });
 
 it('fetches new setting value after change', () => {

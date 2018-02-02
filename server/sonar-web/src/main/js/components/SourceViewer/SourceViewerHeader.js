@@ -18,18 +18,26 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 // @flow
+import { stringify } from 'querystring';
 import React from 'react';
 import { Link } from 'react-router';
 import QualifierIcon from '../shared/QualifierIcon';
 import FavoriteContainer from '../controls/FavoriteContainer';
-import { getPathUrlAsString, getProjectUrl, getComponentIssuesUrl } from '../../helpers/urls';
+import {
+  getPathUrlAsString,
+  getBranchLikeUrl,
+  getComponentIssuesUrl,
+  getBaseUrl
+} from '../../helpers/urls';
 import { collapsedDirFromPath, fileFromPath } from '../../helpers/path';
 import { translate } from '../../helpers/l10n';
+import { getBranchLikeQuery } from '../../helpers/branches';
 import { formatMeasure } from '../../helpers/measures';
+import { omitNil } from '../../helpers/request';
 
 export default class SourceViewerHeader extends React.PureComponent {
   /*:: props: {
-    branch?: string,
+    branchLike?: { id?: string; name: string },
     component: {
       canMarkAsFavorite: boolean,
       key: string,
@@ -61,7 +69,7 @@ export default class SourceViewerHeader extends React.PureComponent {
     e.preventDefault();
     const { key } = this.props.component;
     const Workspace = require('../workspace/main').default;
-    Workspace.openComponent({ key, branch: this.props.branch });
+    Workspace.openComponent({ key, branchLike: this.props.branchLike });
   };
 
   render() {
@@ -78,11 +86,10 @@ export default class SourceViewerHeader extends React.PureComponent {
     } = this.props.component;
     const isUnitTest = q === 'UTS';
     const workspace = false;
-    let rawSourcesLink =
-      window.baseUrl + `/api/sources/raw?key=${encodeURIComponent(this.props.component.key)}`;
-    if (this.props.branch) {
-      rawSourcesLink += `&branch=${encodeURIComponent(this.props.branch)}`;
-    }
+    const rawSourcesLink =
+      getBaseUrl() +
+      '/api/sources/raw?' +
+      stringify(omitNil({ key, ...getBranchLikeQuery(this.props.branchLike) }));
 
     // TODO favorite
     return (
@@ -91,7 +98,7 @@ export default class SourceViewerHeader extends React.PureComponent {
           <div className="component-name">
             <div className="component-name-parent">
               <a
-                href={getPathUrlAsString(getProjectUrl(project, this.props.branch))}
+                href={getPathUrlAsString(getBranchLikeUrl(project, this.props.branchLike))}
                 className="link-with-icon">
                 <QualifierIcon qualifier="TRK" /> <span>{projectName}</span>
               </a>
@@ -100,7 +107,7 @@ export default class SourceViewerHeader extends React.PureComponent {
             {subProject != null && (
               <div className="component-name-parent">
                 <a
-                  href={getPathUrlAsString(getProjectUrl(subProject, this.props.branch))}
+                  href={getPathUrlAsString(getBranchLikeUrl(subProject, this.props.branchLike))}
                   className="link-with-icon">
                   <QualifierIcon qualifier="BRC" /> <span>{subProjectName}</span>
                 </a>
@@ -135,7 +142,7 @@ export default class SourceViewerHeader extends React.PureComponent {
                 target="_blank"
                 href={getPathUrlAsString({
                   pathname: '/component',
-                  query: { branch: this.props.branch, id: this.props.component.key }
+                  query: { id: key, ...getBranchLikeQuery(this.props.branchLike) }
                 })}>
                 {translate('component_viewer.new_window')}
               </a>
@@ -184,7 +191,7 @@ export default class SourceViewerHeader extends React.PureComponent {
                 to={getComponentIssuesUrl(project, {
                   resolved: 'false',
                   fileUuids: uuid,
-                  branch: this.props.branch
+                  ...getBranchLikeQuery(this.props.branchLike)
                 })}>
                 {measures.issues != null ? formatMeasure(measures.issues, 'SHORT_INT') : 0}
               </Link>

@@ -39,7 +39,7 @@ class Duplications extends React.PureComponent {
   }
 
   renderDuplications() {
-    const { branch, component, measures } = this.props;
+    const { branchLike, component, measures } = this.props;
     const measure = measures.find(measure => measure.metric.key === 'duplicated_lines_density');
     const duplications = Number(measure.value);
 
@@ -52,7 +52,7 @@ class Duplications extends React.PureComponent {
         <div className="display-inline-block text-middle">
           <div className="overview-domain-measure-value">
             <DrilldownLink
-              branch={branch}
+              branchLike={branchLike}
               component={component.key}
               metric="duplicated_lines_density">
               {formatMeasure(duplications, 'PERCENT')}
@@ -69,7 +69,7 @@ class Duplications extends React.PureComponent {
   }
 
   renderNewDuplications() {
-    const { branch, component, measures, leakPeriod } = this.props;
+    const { branchLike, component, measures, leakPeriod } = this.props;
     const newDuplicationsMeasure = measures.find(
       measure => measure.metric.key === 'new_duplicated_lines_density'
     );
@@ -86,7 +86,7 @@ class Duplications extends React.PureComponent {
       newDuplicationsValue != null ? (
         <div>
           <DrilldownLink
-            branch={branch}
+            branchLike={branchLike}
             component={component.key}
             metric={newDuplicationsMeasure.metric.key}>
             <span className="js-overview-main-new-duplications">
@@ -103,7 +103,7 @@ class Duplications extends React.PureComponent {
           {translate('overview.duplications_on')}
           <br />
           <DrilldownLink
-            branch={branch}
+            branchLike={branchLike}
             className="spacer-right overview-domain-secondary-measure-value"
             component={component.key}
             metric={newLinesMeasure.metric.key}>

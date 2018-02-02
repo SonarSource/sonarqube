@@ -19,10 +19,10 @@
  */
 import * as React from 'react';
 import { History } from '../../api/time-machine';
-import { Metric } from '../../app/types';
+import { Metric, BranchLike } from '../../app/types';
 
 interface Props {
-  branch?: string;
+  branchLike?: BranchLike;
   history?: History;
   metrics: { [key: string]: Metric };
   project: string;

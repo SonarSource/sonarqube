@@ -17,19 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { stringify } from 'querystring';
 import Template from './templates/source-viewer-line-options-popup.hbs';
 import Popup from '../../common/popup';
+import { getBaseUrl } from '../../../helpers/urls';
+import { omitNil } from '../../../helpers/request';
 
 export default Popup.extend({
   template: Template,
 
   serializeData() {
-    const { component, line, branch } = this.options;
-    let permalink =
-      window.baseUrl + `/component?id=${encodeURIComponent(component.key)}&line=${line}`;
-    if (branch) {
-      permalink += `&branch=${encodeURIComponent(branch)}`;
-    }
-    return { permalink };
+    const { component, line, branchLike } = this.options;
+    const query = { id: component.key, line, ...getBranchLikeQuery(branchLike) };
+    return { permalink: getBaseUrl() + '/component?' + stringify(omitNil(query)) };
   }
 });

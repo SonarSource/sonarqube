@@ -26,7 +26,7 @@ import MeasureOverviewContainer from './MeasureOverviewContainer';
 import Sidebar from '../sidebar/Sidebar';
 import ScreenPositionHelper from '../../../components/common/ScreenPositionHelper';
 import { hasBubbleChart, parseQuery, serializeQuery } from '../utils';
-import { getBranchName } from '../../../helpers/branches';
+import { isSameBranchLike, getBranchLikeQuery } from '../../../helpers/branches';
 import { translate } from '../../../helpers/l10n';
 /*:: import type { Component, Query, Period } from '../types'; */
 /*:: import type { RawQuery } from '../../../helpers/query'; */
@@ -35,14 +35,14 @@ import { translate } from '../../../helpers/l10n';
 import '../style.css';
 
 /*:: type Props = {|
-  branch?: {},
+  branchLike?: { id?: string; name: string },
   component: Component,
   currentUser: { isLoggedIn: boolean },
   location: { pathname: string, query: RawQuery },
   fetchMeasures: (
     component: string,
     metricsKey: Array<string>,
-    branch?: string
+    branchLike?: { id?: string; name: string }
   ) => Promise<{ component: Component, measures: Array<MeasureEnhanced>, leakPeriod: ?Period }>,
   fetchMetrics: () => void,
   metrics: { [string]: Metric },
@@ -87,7 +87,7 @@ export default class App extends React.PureComponent {
 
   componentWillReceiveProps(nextProps /*: Props */) {
     if (
-      nextProps.branch !== this.props.branch ||
+      !isSameBranchLike(nextProps.branchLike, this.props.branchLike) ||
       nextProps.component.key !== this.props.component.key ||
       nextProps.metrics !== this.props.metrics
     ) {
@@ -106,12 +106,12 @@ export default class App extends React.PureComponent {
     }
   }
 
-  fetchMeasures = ({ branch, component, fetchMeasures, metrics, metricsKey } /*: Props */) => {
+  fetchMeasures = ({ branchLike, component, fetchMeasures, metrics, metricsKey } /*: Props */) => {
     this.setState({ loading: true });
     const filteredKeys = metricsKey.filter(
       key => !metrics[key].hidden && !['DATA', 'DISTRIB'].includes(metrics[key].type)
     );
-    fetchMeasures(component.key, filteredKeys, getBranchName(branch)).then(
+    fetchMeasures(component.key, filteredKeys, branchLike).then(
       ({ measures, leakPeriod }) => {
         if (this.mounted) {
           this.setState({
@@ -138,7 +138,7 @@ export default class App extends React.PureComponent {
       pathname: this.props.location.pathname,
       query: {
         ...query,
-        branch: getBranchName(this.props.branch),
+        ...getBranchLikeQuery(this.props.branchLike),
         id: this.props.component.key
       }
     });
@@ -149,7 +149,7 @@ export default class App extends React.PureComponent {
     if (isLoading) {
       return <i className="spinner spinner-margin" />;
     }
-    const { branch, component, fetchMeasures, metrics } = this.props;
+    const { branchLike, component, fetchMeasures, metrics } = this.props;
     const { leakPeriod } = this.state;
     const query = parseQuery(this.props.location.query);
     const metric = metrics[query.metric];
@@ -175,7 +175,7 @@ export default class App extends React.PureComponent {
 
         {metric != null && (
           <MeasureContentContainer
-            branch={getBranchName(branch)}
+            branchLike={branchLike}
             className="layout-page-main"
             currentUser={this.props.currentUser}
             rootComponent={component}
@@ -192,7 +192,7 @@ export default class App extends React.PureComponent {
         {metric == null &&
           hasBubbleChart(query.metric) && (
             <MeasureOverviewContainer
-              branch={getBranchName(branch)}
+              branchLike={branchLike}
               className="layout-page-main"
               rootComponent={component}
               currentUser={this.props.currentUser}

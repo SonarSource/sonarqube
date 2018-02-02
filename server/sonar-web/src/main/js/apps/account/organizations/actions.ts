@@ -30,7 +30,7 @@ export const fetchMyOrganizations = () => (dispatch: Dispatch<any>) => {
 };
 
 export const fetchIfAnyoneCanCreateOrganizations = () => (dispatch: Dispatch<any>) => {
-  return getValues('sonar.organizations.anyoneCanCreate').then(values => {
+  return getValues({ keys: 'sonar.organizations.anyoneCanCreate' }).then(values => {
     dispatch(receiveValues(values, undefined));
   });
 };

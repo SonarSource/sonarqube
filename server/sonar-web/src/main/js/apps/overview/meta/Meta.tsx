@@ -28,12 +28,12 @@ import MetaSize from './MetaSize';
 import MetaTags from './MetaTags';
 import BadgesModal from '../badges/BadgesModal';
 import AnalysesList from '../events/AnalysesList';
-import { Visibility, Component, Metric } from '../../../app/types';
+import { Visibility, Component, Metric, BranchLike } from '../../../app/types';
 import { History } from '../../../api/time-machine';
 import { MeasureEnhanced } from '../../../helpers/measures';
 
 interface Props {
-  branch?: string;
+  branchLike?: BranchLike;
   component: Component;
   history?: History;
   measures: MeasureEnhanced[];
@@ -49,7 +49,7 @@ export default class Meta extends React.PureComponent<Props> {
 
   render() {
     const { onSonarCloud, organizationsEnabled } = this.context;
-    const { branch, component, metrics } = this.props;
+    const { branchLike, component, metrics } = this.props;
     const { qualifier, description, qualityProfiles, qualityGate, visibility } = component;
 
     const isProject = qualifier === 'TRK';
@@ -69,14 +69,14 @@ export default class Meta extends React.PureComponent<Props> {
           <div className="overview-meta-card overview-meta-description">{description}</div>
         )}
 
-        <MetaSize branch={branch} component={component} measures={this.props.measures} />
+        <MetaSize branchLike={branchLike} component={component} measures={this.props.measures} />
 
         {isProject && (
           <MetaTags component={component} onComponentChange={this.props.onComponentChange} />
         )}
 
         <AnalysesList
-          branch={branch}
+          branchLike={branchLike}
           component={component}
           history={this.props.history}
           metrics={metrics}
@@ -107,7 +107,9 @@ export default class Meta extends React.PureComponent<Props> {
 
         {onSonarCloud &&
           isProject &&
-          !isPrivate && <BadgesModal branch={branch} metrics={metrics} project={component.key} />}
+          !isPrivate && (
+            <BadgesModal branchLike={branchLike} metrics={metrics} project={component.key} />
+          )}
       </div>
     );
   }
