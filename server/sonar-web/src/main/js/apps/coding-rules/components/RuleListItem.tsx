@@ -20,15 +20,15 @@
 import * as React from 'react';
 import * as classNames from 'classnames';
 import { Link } from 'react-router';
-import ActivationButton from './ActivationButton';
 import SimilarRulesFilter from './SimilarRulesFilter';
+import ActivationButton from './ActivationButton';
+import ConfirmButton from '../../../components/controls/ConfirmButton';
+import IssueTypeIcon from '../../../components/ui/IssueTypeIcon';
+import SeverityIcon from '../../../components/shared/SeverityIcon';
+import Tooltip from '../../../components/controls/Tooltip';
 import { Activation, Query } from '../query';
 import { Profile, deactivateRule } from '../../../api/quality-profiles';
 import { Rule, RuleInheritance } from '../../../app/types';
-import ConfirmButton from '../../../components/controls/ConfirmButton';
-import Tooltip from '../../../components/controls/Tooltip';
-import SeverityIcon from '../../../components/shared/SeverityIcon';
-import IssueTypeIcon from '../../../components/ui/IssueTypeIcon';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 
 interface Props {

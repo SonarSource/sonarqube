@@ -19,14 +19,33 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import PageHeader from '../PageHeader';
+import PageActions from '../PageActions';
+import { click } from '../../../../helpers/testUtils';
 
 it('should render correctly', () => {
-  expect(
-    shallow(
-      <PageHeader loading={true}>
-        <div />
-      </PageHeader>
-    )
-  ).toMatchSnapshot();
+  expect(getWrapper()).toMatchSnapshot();
 });
+
+it('should not render', () => {
+  expect(getWrapper({ loading: true }).type()).toBeNull();
+});
+
+it('should not allow to create a new webhook', () => {
+  expect(getWrapper({ webhooksCount: 10 })).toMatchSnapshot();
+});
+
+it('should display the create form', () => {
+  const onCreate = jest.fn();
+  const wrapper = getWrapper({ onCreate });
+  click(wrapper.find('.js-webhook-create'));
+  expect(wrapper.find('CreateWebhookForm').exists()).toBeTruthy();
+  wrapper.find('CreateWebhookForm').prop<Function>('onDone')({
+    name: 'foo',
+    url: 'http://foo.bar'
+  });
+  expect(onCreate).lastCalledWith({ name: 'foo', url: 'http://foo.bar' });
+});
+
+function getWrapper(props = {}) {
+  return shallow(<PageActions onCreate={jest.fn()} loading={false} webhooksCount={5} {...props} />);
+}

@@ -21,11 +21,11 @@ import * as React from 'react';
 import { Link } from 'react-router';
 import { sortBy } from 'lodash';
 import CustomRuleButton from './CustomRuleButton';
+import ConfirmButton from '../../../components/controls/ConfirmButton';
+import DeferredSpinner from '../../../components/common/DeferredSpinner';
+import SeverityHelper from '../../../components/shared/SeverityHelper';
 import { searchRules, deleteRule } from '../../../api/rules';
 import { Rule, RuleDetails } from '../../../app/types';
-import DeferredSpinner from '../../../components/common/DeferredSpinner';
-import ConfirmButton from '../../../components/controls/ConfirmButton';
-import SeverityHelper from '../../../components/shared/SeverityHelper';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { getRuleUrl } from '../../../helpers/urls';
 

@@ -19,9 +19,10 @@
  */
 import * as React from 'react';
 import { Helmet } from 'react-helmet';
+import PageActions from './PageActions';
 import PageHeader from './PageHeader';
 import WebhooksList from './WebhooksList';
-import { searchWebhooks } from '../../../api/webhooks';
+import { createWebhook, deleteWebhook, searchWebhooks, updateWebhook } from '../../../api/webhooks';
 import { LightComponent, Organization, Webhook } from '../../../app/types';
 import { translate } from '../../../helpers/l10n';
 
@@ -48,12 +49,8 @@ export default class App extends React.PureComponent<Props, State> {
     this.mounted = false;
   }
 
-  fetchWebhooks = ({ organization, component } = this.props) => {
-    this.setState({ loading: true });
-    searchWebhooks({
-      organization: organization && organization.key,
-      project: component && component.key
-    }).then(
+  fetchWebhooks = () => {
+    return searchWebhooks(this.getScopeParams()).then(
       ({ webhooks }) => {
         if (this.mounted) {
           this.setState({ loading: false, webhooks });
@@ -67,15 +64,65 @@ export default class App extends React.PureComponent<Props, State> {
     );
   };
 
+  getScopeParams = ({ organization, component } = this.props) => {
+    return { organization: organization && organization.key, project: component && component.key };
+  };
+
+  handleCreate = (data: { name: string; url: string }) => {
+    return createWebhook({
+      ...data,
+      ...this.getScopeParams()
+    }).then(({ webhook }) => {
+      if (this.mounted) {
+        this.setState(({ webhooks }) => ({ webhooks: [...webhooks, webhook] }));
+      }
+    });
+  };
+
+  handleDelete = (webhook: string) => {
+    return deleteWebhook({ webhook }).then(() => {
+      if (this.mounted) {
+        this.setState(({ webhooks }) => ({
+          webhooks: webhooks.filter(item => item.key !== webhook)
+        }));
+      }
+    });
+  };
+
+  handleUpdate = (data: { webhook: string; name: string; url: string }) => {
+    return updateWebhook(data).then(() => {
+      if (this.mounted) {
+        this.setState(({ webhooks }) => ({
+          webhooks: webhooks.map(
+            webhook => (webhook.key === data.webhook ? { ...webhook, ...data } : webhook)
+          )
+        }));
+      }
+    });
+  };
+
   render() {
     const { loading, webhooks } = this.state;
+
     return (
       <div className="page page-limited">
         <Helmet title={translate('webhooks.page')} />
-        <PageHeader loading={loading} />
+
+        <PageHeader loading={loading}>
+          <PageActions
+            loading={loading}
+            onCreate={this.handleCreate}
+            webhooksCount={webhooks.length}
+          />
+        </PageHeader>
+
         {!loading && (
           <div className="boxed-group boxed-group-inner">
-            <WebhooksList webhooks={webhooks} />
+            <WebhooksList
+              onDelete={this.handleDelete}
+              onUpdate={this.handleUpdate}
+              webhooks={webhooks}
+            />
           </div>
         )}
       </div>

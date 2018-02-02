@@ -1,0 +1,33 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should not allow to create a new webhook 1`] = `
+<div
+  className="page-actions"
+>
+  <Tooltip
+    overlay="webhooks.maximum_reached.10"
+    placement="left"
+  >
+    <button
+      className="js-webhook-create disabled"
+    >
+      create
+    </button>
+  </Tooltip>
+</div>
+`;
+
+exports[`should render correctly 1`] = `
+<div
+  className="page-actions"
+>
+  <React.Fragment>
+    <button
+      className="js-webhook-create"
+      onClick={[Function]}
+    >
+      create
+    </button>
+  </React.Fragment>
+</div>
+`;

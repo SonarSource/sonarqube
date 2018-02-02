@@ -22,14 +22,17 @@ import { FormattedMessage } from 'react-intl';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {
+  children?: React.ReactNode;
   loading: boolean;
 }
 
-export default function PageHeader({ loading }: Props) {
+export default function PageHeader({ children, loading }: Props) {
   return (
     <header className="page-header">
       <h1 className="page-title">{translate('webhooks.page')}</h1>
       {loading && <i className="spinner" />}
+
+      {children}
 
       <p className="page-description">
         <FormattedMessage

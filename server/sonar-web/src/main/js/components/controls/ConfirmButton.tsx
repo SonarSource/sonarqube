@@ -101,9 +101,13 @@ export default class ConfirmButton extends React.PureComponent<Props, State> {
                     onClick={onSubmitClick}>
                     {confirmButtonText}
                   </button>
-                  <a href="#" onClick={onCloseClick}>
+                  <button
+                    className="button-link"
+                    disabled={submitting}
+                    onClick={onCloseClick}
+                    type="reset">
                     {translate('cancel')}
-                  </a>
+                  </button>
                 </footer>
               </>
             )}
