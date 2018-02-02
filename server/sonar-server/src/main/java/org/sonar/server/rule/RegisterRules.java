@@ -267,6 +267,13 @@ public class RegisterRules implements Startable {
       ruleDto.setDescription(ruleDef.markdownDescription());
       ruleDto.setDescriptionFormat(Format.MARKDOWN);
     }
+    DebtRemediationFunction debtRemediationFunction = ruleDef.debtRemediationFunction();
+    if (debtRemediationFunction != null) {
+      ruleDto.setDefRemediationFunction(debtRemediationFunction.type().name());
+      ruleDto.setDefRemediationGapMultiplier(debtRemediationFunction.gapMultiplier());
+      ruleDto.setDefRemediationBaseEffort(debtRemediationFunction.baseEffort());
+      ruleDto.setGapDescription(ruleDef.gapDescription());
+    }
 
     dbClient.ruleDao().insert(session, ruleDto);
     return ruleDto;
