@@ -12,6 +12,7 @@ exports[`should render correctly 1`] = `
   <i
     className="spinner"
   />
+  <div />
   <p
     className="page-description"
   >

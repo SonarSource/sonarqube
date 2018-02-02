@@ -8,5 +8,20 @@ exports[`should render correctly 1`] = `
   <td>
     http://webhook.target
   </td>
+  <td
+    className="thin nowrap text-right"
+  >
+    <WebhookActions
+      onDelete={[MockFunction]}
+      onUpdate={[MockFunction]}
+      webhook={
+        Object {
+          "key": "1",
+          "name": "my webhook",
+          "url": "http://webhook.target",
+        }
+      }
+    />
+  </td>
 </tr>
 `;

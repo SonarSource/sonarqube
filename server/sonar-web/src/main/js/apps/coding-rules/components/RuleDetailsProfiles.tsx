@@ -22,14 +22,14 @@ import { filter } from 'lodash';
 import { Link } from 'react-router';
 import ActivationButton from './ActivationButton';
 import RuleInheritanceIcon from './RuleInheritanceIcon';
+import BuiltInQualityProfileBadge from '../../quality-profiles/components/BuiltInQualityProfileBadge';
+import ConfirmButton from '../../../components/controls/ConfirmButton';
+import SeverityHelper from '../../../components/shared/SeverityHelper';
+import Tooltip from '../../../components/controls/Tooltip';
 import { Profile, deactivateRule, activateRule } from '../../../api/quality-profiles';
 import { RuleActivation, RuleDetails, RuleInheritance } from '../../../app/types';
-import ConfirmButton from '../../../components/controls/ConfirmButton';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { getQualityProfileUrl } from '../../../helpers/urls';
-import BuiltInQualityProfileBadge from '../../quality-profiles/components/BuiltInQualityProfileBadge';
-import Tooltip from '../../../components/controls/Tooltip';
-import SeverityHelper from '../../../components/shared/SeverityHelper';
 
 interface Props {
   activations: RuleActivation[] | undefined;
