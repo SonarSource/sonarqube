@@ -202,6 +202,18 @@ public class Navigation {
     return open("/organizations/" + orgKey + "/projects_management", ProjectsManagementPage.class);
   }
 
+  public WebhooksPage openWebhooks() {
+    return open("/admin/webhooks", WebhooksPage.class);
+  }
+
+  public WebhooksPage openOrganizationWebhooks(String orgKey) {
+    return open("/organizations/" + orgKey + "/webhooks", WebhooksPage.class);
+  }
+
+  public WebhooksPage openProjectWebhooks(String projectKey) {
+    return open("/project/webhooks?id="+ projectKey, WebhooksPage.class);
+  }
+
   public LoginPage openLogin() {
     return open("/sessions/login", LoginPage.class);
   }
