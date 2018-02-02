@@ -22,6 +22,7 @@ package org.sonar.server.issue;
 import java.time.Clock;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import org.junit.Rule;
 import org.junit.Test;
@@ -108,10 +109,33 @@ public class IssueQueryFactoryTest {
     assertThat(query.assigned()).isTrue();
     assertThat(query.rules()).hasSize(2);
     assertThat(query.directories()).containsOnly("aDirPath");
-    assertThat(query.createdAfter()).isEqualTo(DateUtils.parseDateTime("2013-04-16T09:08:24+0200"));
+    assertThat(query.createdAfter().date()).isEqualTo(DateUtils.parseDateTime("2013-04-16T09:08:24+0200"));
+    assertThat(query.createdAfter().inclusive()).isTrue();
     assertThat(query.createdBefore()).isEqualTo(DateUtils.parseDateTime("2013-04-17T09:08:24+0200"));
     assertThat(query.sort()).isEqualTo(IssueQuery.SORT_BY_CREATION_DATE);
     assertThat(query.asc()).isTrue();
+  }
+
+  @Test
+  public void leak_period_start_date_is_exclusive() {
+    long leakPeriodStart = addDays(new Date(), -14).getTime();
+
+    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
+
+    SnapshotDto analysis = db.components().insertSnapshot(project, s -> s.setPeriodDate(leakPeriodStart));
+
+    SearchRequest request = new SearchRequest()
+      .setComponentUuids(Collections.singletonList(file.uuid()))
+      .setOnComponentOnly(true)
+      .setSinceLeakPeriod(true);
+
+    IssueQuery query = underTest.create(request);
+
+    assertThat(query.componentUuids()).containsOnly(file.uuid());
+    assertThat(query.createdAfter().date()).isEqualTo(new Date(leakPeriodStart));
+    assertThat(query.createdAfter().inclusive()).isFalse();
+
   }
 
   @Test
@@ -122,7 +146,8 @@ public class IssueQueryFactoryTest {
 
     IssueQuery query = underTest.create(request);
 
-    assertThat(query.createdAfter()).isEqualTo(DateUtils.parseDate("2013-04-16"));
+    assertThat(query.createdAfter().date()).isEqualTo(DateUtils.parseDate("2013-04-16"));
+    assertThat(query.createdAfter().inclusive()).isTrue();
     assertThat(query.createdBefore()).isEqualTo(DateUtils.parseDate("2013-04-18"));
   }
 
@@ -276,8 +301,9 @@ public class IssueQueryFactoryTest {
       .setComponentUuids(singletonList(application.uuid()))
       .setSinceLeakPeriod(true));
 
-    assertThat(result.createdAfterByProjectUuids()).containsOnly(
-      entry(project1.uuid(), new Date(analysis1.getPeriodDate())));
+    assertThat(result.createdAfterByProjectUuids()).hasSize(1);
+    assertThat(result.createdAfterByProjectUuids().get(project1.uuid()).date().getTime()).isEqualTo(analysis1.getPeriodDate());
+    assertThat(result.createdAfterByProjectUuids().get(project1.uuid()).inclusive()).isFalse();
     assertThat(result.viewUuids()).containsExactlyInAnyOrder(application.uuid());
   }
 
@@ -465,7 +491,9 @@ public class IssueQueryFactoryTest {
     when(clock.getZone()).thenReturn(ZoneOffset.UTC);
     SearchRequest request = new SearchRequest()
       .setCreatedInLast("1y2m3w4d");
-    assertThat(underTest.create(request).createdAfter()).isEqualTo(DateUtils.parseDateTime("2012-04-30T07:35:00+0100"));
+    assertThat(underTest.create(request).createdAfter().date()).isEqualTo(DateUtils.parseDateTime("2012-04-30T07:35:00+0100"));
+    assertThat(underTest.create(request).createdAfter().inclusive()).isTrue();
+
   }
 
   @Test
