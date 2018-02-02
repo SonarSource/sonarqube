@@ -19,14 +19,20 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import PageHeader from '../PageHeader';
+import CreateWebhookForm from '../CreateWebhookForm';
 
-it('should render correctly', () => {
-  expect(
-    shallow(
-      <PageHeader loading={true}>
-        <div />
-      </PageHeader>
-    )
-  ).toMatchSnapshot();
+const webhook = { key: '1', name: 'foo', url: 'http://foo.bar' };
+
+it('should render correctly when creating a new webhook', () => {
+  expect(getWrapper()).toMatchSnapshot();
 });
+
+it('should render correctly when updating a webhook', () => {
+  expect(getWrapper({ webhook })).toMatchSnapshot();
+});
+
+function getWrapper(props = {}) {
+  return shallow(
+    <CreateWebhookForm onClose={jest.fn()} onDone={jest.fn(() => Promise.resolve())} {...props} />
+  );
+}

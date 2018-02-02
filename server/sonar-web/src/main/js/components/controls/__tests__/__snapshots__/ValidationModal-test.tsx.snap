@@ -1,0 +1,68 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<Modal
+  contentLabel="title"
+  onRequestClose={[MockFunction]}
+>
+  <C
+    confirmButtonText="confirm"
+    header="title"
+    initialValues={
+      Object {
+        "field": "foo",
+      }
+    }
+  />
+</Modal>
+`;
+
+exports[`should render correctly 2`] = `
+<Form>
+  <div
+    className="modal-head"
+  >
+    <h2>
+      title
+    </h2>
+  </div>
+  <div
+    className="modal-body"
+  >
+    <form
+      onSubmit={[Function]}
+    >
+      <input
+        name="field"
+        onBlur={[Function]}
+        onChange={[Function]}
+        type="text"
+        value="foo"
+      />
+    </form>
+  </div>
+  <footer
+    className="modal-foot"
+  >
+    <DeferredSpinner
+      className="spacer-right"
+      loading={false}
+      timeout={100}
+    />
+    <button
+      disabled={true}
+      type="submit"
+    >
+      confirm
+    </button>
+    <button
+      className="button-link"
+      disabled={false}
+      onClick={[Function]}
+      type="reset"
+    >
+      cancel
+    </button>
+  </footer>
+</Form>
+`;
