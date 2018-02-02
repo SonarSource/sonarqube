@@ -21,6 +21,7 @@ import * as React from 'react';
 import { shallow } from 'enzyme';
 import MeasuresOverlayTestCases from '../MeasuresOverlayTestCases';
 import { waitAndUpdate, click } from '../../../../helpers/testUtils';
+import { ShortLivingBranch, BranchType } from '../../../../app/types';
 
 jest.mock('../../../../api/tests', () => ({
   getTests: () =>
@@ -60,9 +61,16 @@ jest.mock('../../../../api/tests', () => ({
     })
 }));
 
+const branchLike: ShortLivingBranch = {
+  isMain: false,
+  mergeBranch: 'master',
+  name: 'feature',
+  type: BranchType.SHORT
+};
+
 it('should render', async () => {
   const wrapper = shallow(
-    <MeasuresOverlayTestCases branch="branch" componentKey="component-key" />
+    <MeasuresOverlayTestCases branchLike={branchLike} componentKey="component-key" />
   );
   await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot();

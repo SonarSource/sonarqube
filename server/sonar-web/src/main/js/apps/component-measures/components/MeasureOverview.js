@@ -27,11 +27,12 @@ import BubbleChart from '../drilldown/BubbleChart';
 import SourceViewer from '../../../components/SourceViewer/SourceViewer';
 import { getComponentLeaves } from '../../../api/components';
 import { enhanceComponent, getBubbleMetrics, isFileType } from '../utils';
+import { getBranchLikeQuery } from '../../../helpers/branches';
 /*:: import type { Component, ComponentEnhanced, Paging, Period } from '../types'; */
 /*:: import type { Metric } from '../../../store/metrics/actions'; */
 
 /*:: type Props = {|
-  branch?: string,
+  branchLike?: { id?: string; name: string },
   className?: string,
   component: Component,
   currentUser: { isLoggedIn: boolean },
@@ -79,9 +80,10 @@ export default class MeasureOverview extends React.PureComponent {
   }
 
   fetchComponents = (props /*: Props */) => {
-    const { branch, component, domain, metrics } = props;
+    const { branchLike, component, domain, metrics } = props;
     if (isFileType(component)) {
-      return this.setState({ components: [], paging: null });
+      this.setState({ components: [], paging: null });
+      return;
     }
     const { x, y, size, colors } = getBubbleMetrics(domain, metrics);
     const metricsKey = [x.key, y.key, size.key];
@@ -89,7 +91,7 @@ export default class MeasureOverview extends React.PureComponent {
       metricsKey.push(colors.map(metric => metric.key));
     }
     const options = {
-      branch,
+      ...getBranchLikeQuery(branchLike),
       s: 'metric',
       metricSort: size.key,
       asc: false,
@@ -114,11 +116,11 @@ export default class MeasureOverview extends React.PureComponent {
   };
 
   renderContent() {
-    const { branch, component } = this.props;
+    const { branchLike, component } = this.props;
     if (isFileType(component)) {
       return (
         <div className="measure-details-viewer">
-          <SourceViewer branch={branch} component={component.key} />
+          <SourceViewer branchLike={branchLike} component={component.key} />
         </div>
       );
     }
@@ -135,7 +137,7 @@ export default class MeasureOverview extends React.PureComponent {
   }
 
   render() {
-    const { branch, component, currentUser, leakPeriod, rootComponent } = this.props;
+    const { branchLike, component, currentUser, leakPeriod, rootComponent } = this.props;
     const isLoggedIn = currentUser && currentUser.isLoggedIn;
     const isFile = isFileType(component);
     return (
@@ -145,7 +147,7 @@ export default class MeasureOverview extends React.PureComponent {
             <div className="layout-page-main-inner">
               <Breadcrumbs
                 backToFirst={true}
-                branch={branch}
+                branchLike={branchLike}
                 className="measure-breadcrumbs spacer-right text-ellipsis"
                 component={component}
                 handleSelect={this.props.updateSelected}

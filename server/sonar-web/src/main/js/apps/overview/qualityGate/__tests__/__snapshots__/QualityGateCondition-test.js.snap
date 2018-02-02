@@ -9,7 +9,6 @@ exports[`new_maintainability_rating 1`] = `
     Object {
       "pathname": "/project/issues",
       "query": Object {
-        "branch": undefined,
         "id": "abcd-key",
         "resolved": "false",
         "sinceLeakPeriod": "true",
@@ -104,7 +103,6 @@ exports[`new_reliability_rating 1`] = `
     Object {
       "pathname": "/project/issues",
       "query": Object {
-        "branch": undefined,
         "id": "abcd-key",
         "resolved": "false",
         "severities": "BLOCKER,CRITICAL,MAJOR,MINOR",
@@ -158,7 +156,6 @@ exports[`new_security_rating 1`] = `
     Object {
       "pathname": "/project/issues",
       "query": Object {
-        "branch": undefined,
         "id": "abcd-key",
         "resolved": "false",
         "severities": "BLOCKER,CRITICAL,MAJOR,MINOR",
@@ -254,7 +251,6 @@ exports[`reliability_rating 1`] = `
     Object {
       "pathname": "/project/issues",
       "query": Object {
-        "branch": undefined,
         "id": "abcd-key",
         "resolved": "false",
         "severities": "BLOCKER,CRITICAL,MAJOR,MINOR",
@@ -307,7 +303,6 @@ exports[`security_rating 1`] = `
     Object {
       "pathname": "/project/issues",
       "query": Object {
-        "branch": undefined,
         "id": "abcd-key",
         "resolved": "false",
         "severities": "BLOCKER,CRITICAL,MAJOR,MINOR",
@@ -360,7 +355,6 @@ exports[`should work with branch 1`] = `
     Object {
       "pathname": "/project/issues",
       "query": Object {
-        "branch": "feature",
         "id": "abcd-key",
         "resolved": "false",
         "sinceLeakPeriod": "true",
@@ -413,7 +407,6 @@ exports[`sqale_rating 1`] = `
     Object {
       "pathname": "/project/issues",
       "query": Object {
-        "branch": undefined,
         "id": "abcd-key",
         "resolved": "false",
         "types": "CODE_SMELL",

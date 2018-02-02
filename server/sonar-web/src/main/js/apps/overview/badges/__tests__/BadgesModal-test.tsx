@@ -21,13 +21,20 @@ import * as React from 'react';
 import { shallow } from 'enzyme';
 import BadgesModal from '../BadgesModal';
 import { click } from '../../../../helpers/testUtils';
+import { ShortLivingBranch, BranchType } from '../../../../app/types';
 
 jest.mock('../../../../helpers/urls', () => ({
   getHostUrl: () => 'host'
 }));
 
 it('should display the modal after click', () => {
-  const wrapper = shallow(<BadgesModal branch="branch-6.6" metrics={{}} project="foo" />);
+  const shortBranch: ShortLivingBranch = {
+    isMain: false,
+    mergeBranch: '',
+    name: 'branch-6.6',
+    type: BranchType.SHORT
+  };
+  const wrapper = shallow(<BadgesModal branchLike={shortBranch} metrics={{}} project="foo" />);
   expect(wrapper).toMatchSnapshot();
   click(wrapper.find('Button'));
   expect(wrapper.find('Modal')).toMatchSnapshot();

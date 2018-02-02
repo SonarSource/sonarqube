@@ -18,18 +18,19 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import throwGlobalError from '../app/utils/throwGlobalError';
-import { Paging, TestCase, CoveredFile } from '../app/types';
+import { Paging, TestCase, CoveredFile, BranchParameters } from '../app/types';
 import { getJSON } from '../helpers/request';
 
-export function getTests(parameters: {
-  branch?: string;
-  p?: number;
-  ps?: number;
-  sourceFileKey?: string;
-  sourceFileLineNumber?: number;
-  testFileKey: string;
-  testId?: string;
-}): Promise<{ paging: Paging; tests: TestCase[] }> {
+export function getTests(
+  parameters: {
+    p?: number;
+    ps?: number;
+    sourceFileKey?: string;
+    sourceFileLineNumber?: number;
+    testFileKey: string;
+    testId?: string;
+  } & BranchParameters
+): Promise<{ paging: Paging; tests: TestCase[] }> {
   return getJSON('/api/tests/list', parameters).catch(throwGlobalError);
 }
 

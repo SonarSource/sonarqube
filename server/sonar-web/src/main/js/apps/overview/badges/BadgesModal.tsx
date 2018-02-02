@@ -22,14 +22,15 @@ import BadgeButton from './BadgeButton';
 import BadgeSnippet from './BadgeSnippet';
 import BadgeParams from './BadgeParams';
 import { BadgeType, BadgeOptions, getBadgeUrl } from './utils';
-import { Metric } from '../../../app/types';
+import { Metric, BranchLike } from '../../../app/types';
 import Modal from '../../../components/controls/Modal';
+import { getBranchLikeQuery } from '../../../helpers/branches';
 import { translate } from '../../../helpers/l10n';
 import './styles.css';
 import { Button, ResetButtonLink } from '../../../components/ui/buttons';
 
 interface Props {
-  branch?: string;
+  branchLike?: BranchLike;
   metrics: { [key: string]: Metric };
   project: string;
 }
@@ -64,10 +65,10 @@ export default class BadgesModal extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const { branch, project } = this.props;
+    const { branchLike, project } = this.props;
     const { selectedType, badgeOptions } = this.state;
     const header = translate('overview.badges.title');
-    const fullBadgeOptions = { branch, project, ...badgeOptions };
+    const fullBadgeOptions = { project, ...badgeOptions, ...getBranchLikeQuery(branchLike) };
     return (
       <div className="overview-meta-card">
         <Button className="js-project-badges" onClick={this.handleOpen}>

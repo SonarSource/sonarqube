@@ -23,11 +23,12 @@ import { orderBy } from 'lodash';
 import MeasuresOverlayCoveredFiles from './MeasuresOverlayCoveredFiles';
 import MeasuresOverlayTestCase from './MeasuresOverlayTestCase';
 import { getTests } from '../../../api/tests';
-import { TestCase } from '../../../app/types';
+import { TestCase, BranchLike } from '../../../app/types';
 import { translate } from '../../../helpers/l10n';
+import { getBranchLikeQuery } from '../../../helpers/branches';
 
 interface Props {
-  branch: string | undefined;
+  branchLike: BranchLike | undefined;
   componentKey: string;
 }
 
@@ -50,7 +51,7 @@ export default class MeasuresOverlayTestCases extends React.PureComponent<Props,
 
   componentDidUpdate(prevProps: Props) {
     if (
-      prevProps.branch !== this.props.branch ||
+      prevProps.branchLike !== this.props.branchLike ||
       prevProps.componentKey !== this.props.componentKey
     ) {
       this.fetchTests();
@@ -64,7 +65,11 @@ export default class MeasuresOverlayTestCases extends React.PureComponent<Props,
   fetchTests = () => {
     // TODO implement pagination one day...
     this.setState({ loading: true });
-    getTests({ branch: this.props.branch, ps: 500, testFileKey: this.props.componentKey }).then(
+    getTests({
+      ps: 500,
+      testFileKey: this.props.componentKey,
+      ...getBranchLikeQuery(this.props.branchLike)
+    }).then(
       ({ tests: testCases }) => {
         if (this.mounted) {
           this.setState({ loading: false, testCases });
