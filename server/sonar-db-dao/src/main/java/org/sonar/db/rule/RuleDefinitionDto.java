@@ -21,12 +21,12 @@ package org.sonar.db.rule;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
@@ -325,22 +325,19 @@ public class RuleDefinitionDto {
       return true;
     }
     RuleDefinitionDto other = (RuleDefinitionDto) obj;
-    return new EqualsBuilder()
-      .append(repositoryKey, other.getRepositoryKey())
-      .append(ruleKey, other.getRuleKey())
-      .isEquals();
+    return Objects.equals(id, other.id);
   }
 
   @Override
   public int hashCode() {
     return new HashCodeBuilder(17, 37)
-      .append(repositoryKey)
-      .append(ruleKey)
+      .append(id)
       .toHashCode();
   }
 
   public static RuleDto createFor(RuleKey key) {
     return new RuleDto()
+      .setId(new HashCodeBuilder(17, 37).append(key.rule()).append(key.repository()).toHashCode())
       .setRepositoryKey(key.repository())
       .setRuleKey(key.rule());
   }
