@@ -24,9 +24,11 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -62,7 +64,6 @@ import org.sonar.server.qualityprofile.QProfileRules;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.rule.index.RuleIndexer;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.Lists.newArrayList;
@@ -134,25 +135,11 @@ public class RegisterRules implements Startable {
       // to be updated. Only a single DB commit should be executed.
       ruleIndexer.commitAndIndex(dbSession, registerRulesContext.getAllModified().map(RuleDefinitionDto::getId).collect(toSet()));
       activeRuleIndexer.commitAndIndex(dbSession, changes);
+      registerRulesContext.getRenamed().forEach(e -> LOG.info("rule {} re-keyed to {}", e.getValue(), e.getKey().getKey()));
       profiler.stopDebug();
 
       webServerRuleFinder.startCaching();
     }
-  }
-
-  @Override
-  public void stop() {
-    // nothing
-  }
-
-  private void persistRepositories(DbSession dbSession, List<RulesDefinition.Repository> repositories) {
-    dbClient.ruleRepositoryDao().truncate(dbSession);
-    List<RuleRepositoryDto> dtos = repositories
-      .stream()
-      .map(r -> new RuleRepositoryDto(r.key(), r.language(), r.name()))
-      .collect(MoreCollectors.toList(repositories.size()));
-    dbClient.ruleRepositoryDao().insert(dbSession, dtos);
-    dbSession.commit();
   }
 
   private static List<RulesDefinition.ExtendedRepository> getRepositories(RulesDefinition.Context context) {
@@ -203,6 +190,7 @@ public class RegisterRules implements Startable {
     private final Set<RuleDefinitionDto> known;
     // mutable data
     private final Set<RuleDefinitionDto> created = new HashSet<>();
+    private final Map<RuleDefinitionDto, RuleKey> renamed = new HashMap<>();
     private final Set<RuleDefinitionDto> updated = new HashSet<>();
     private final Set<RuleDefinitionDto> unchanged = new HashSet<>();
     private final Set<RuleDefinitionDto> removed = new HashSet<>();
@@ -214,12 +202,16 @@ public class RegisterRules implements Startable {
 
     private Optional<RuleDefinitionDto> getDbRuleFor(RulesDefinition.Rule ruleDef) {
       RuleKey ruleKey = RuleKey.of(ruleDef.repository().key(), ruleDef.key());
-      return Optional.ofNullable(dbRules.get(ruleKey));
+      return Stream.concat(Stream.of(ruleKey), ruleDef.deprecatedRuleKeys().stream())
+        .map(dbRules::get)
+        .filter(Objects::nonNull)
+        .findFirst();
     }
 
     private Stream<RuleDefinitionDto> getRemaining() {
       Set<RuleDefinitionDto> res = new HashSet<>(dbRules.values());
       res.removeAll(unchanged);
+      res.removeAll(renamed.keySet());
       res.removeAll(updated);
       res.removeAll(removed);
       return res.stream();
@@ -229,16 +221,25 @@ public class RegisterRules implements Startable {
       return removed.stream();
     }
 
+    public Stream<Map.Entry<RuleDefinitionDto, RuleKey>> getRenamed() {
+      return renamed.entrySet().stream();
+    }
+
     private Stream<RuleDefinitionDto> getAllModified() {
       return Stream.of(
         created.stream(),
         updated.stream(),
-        removed.stream())
+        removed.stream(),
+        renamed.keySet().stream())
         .flatMap(s -> s);
     }
 
     private boolean isCreated(RuleDefinitionDto ruleDefinition) {
       return created.contains(ruleDefinition);
+    }
+
+    private boolean isRenamed(RuleDefinitionDto ruleDefinition) {
+      return renamed.containsKey(ruleDefinition);
     }
 
     private boolean isUpdated(RuleDefinitionDto ruleDefinition) {
@@ -248,6 +249,11 @@ public class RegisterRules implements Startable {
     private void created(RuleDefinitionDto ruleDefinition) {
       checkState(!known.contains(ruleDefinition), "known RuleDefinitionDto can't be created");
       created.add(ruleDefinition);
+    }
+
+    private void renamed(RuleDefinitionDto ruleDefinition) {
+      ensureKnown(ruleDefinition);
+      renamed.put(ruleDefinition, ruleDefinition.getKey());
     }
 
     private void updated(RuleDefinitionDto ruleDefinition) {
@@ -266,24 +272,41 @@ public class RegisterRules implements Startable {
     }
 
     private void ensureKnown(RuleDefinitionDto ruleDefinition) {
-      if (!known.contains(ruleDefinition)) {
-        throw new IllegalArgumentException("unknown RuleDef");
-      }
-      checkArgument(known.contains(ruleDefinition), "unknown RuleDefinitionDto");
+      checkState(known.contains(ruleDefinition), "unknown RuleDefinitionDto");
     }
   }
 
-  /**
-   * @return the id of the rule if it's just been created or if it's been updated.
-   */
+  private void persistRepositories(DbSession dbSession, List<RulesDefinition.Repository> repositories) {
+    dbClient.ruleRepositoryDao().truncate(dbSession);
+    List<RuleRepositoryDto> dtos = repositories
+      .stream()
+      .map(r -> new RuleRepositoryDto(r.key(), r.language(), r.name()))
+      .collect(MoreCollectors.toList(repositories.size()));
+    dbClient.ruleRepositoryDao().insert(dbSession, dtos);
+    dbSession.commit();
+  }
+
+  @Override
+  public void stop() {
+    // nothing
+  }
+
   private void registerRule(RegisterRulesContext recorder, RulesDefinition.Rule ruleDef,
     Map<Integer, Set<SingleDeprecatedRuleKey>> existingDeprecatedRuleKeys, DbSession session) {
+    RuleKey ruleKey = RuleKey.of(ruleDef.repository().key(), ruleDef.key());
+
     RuleDefinitionDto ruleDefinitionDto = recorder.getDbRuleFor(ruleDef)
       .orElseGet(() -> {
         RuleDefinitionDto newRule = createRuleDto(ruleDef, session);
         recorder.created(newRule);
         return newRule;
       });
+
+    // we must detect renaming __before__ we modify the DTO
+    if (!ruleDefinitionDto.getKey().equals(ruleKey)) {
+      recorder.renamed(ruleDefinitionDto);
+      ruleDefinitionDto.setRuleKey(ruleKey);
+    }
 
     if (mergeRule(ruleDef, ruleDefinitionDto)) {
       recorder.updated(ruleDefinitionDto);
@@ -297,7 +320,7 @@ public class RegisterRules implements Startable {
       recorder.updated(ruleDefinitionDto);
     }
 
-    if (recorder.isUpdated(ruleDefinitionDto)) {
+    if (recorder.isUpdated(ruleDefinitionDto) || recorder.isRenamed(ruleDefinitionDto)) {
       update(session, ruleDefinitionDto);
     } else if (!recorder.isCreated(ruleDefinitionDto)) {
       recorder.unchanged(ruleDefinitionDto);
