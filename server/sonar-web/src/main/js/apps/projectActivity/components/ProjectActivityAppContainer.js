@@ -26,7 +26,7 @@ import { getAllTimeMachineData } from '../../../api/time-machine';
 import { getAllMetrics } from '../../../api/metrics';
 import * as api from '../../../api/projectActivity';
 import * as actions from '../actions';
-import { getBranchName } from '../../../helpers/branches';
+import { getBranchLikeQuery } from '../../../helpers/branches';
 import { parseDate } from '../../../helpers/dates';
 import { getCustomGraph, getGraph } from '../../../helpers/storage';
 import {
@@ -51,7 +51,7 @@ type Component = {
 };
 
 type Props = {
-  branch?: {},
+  branchLike?: { id?: string; name: string },
   location: { pathname: string, query: RawQuery },
   component: Component
 };
@@ -103,7 +103,7 @@ export default class ProjectActivityAppContainer extends React.PureComponent {
         pathname: this.props.location.pathname,
         query: {
           ...serializeUrlQuery(newQuery),
-          branch: getBranchName(this.props.branch)
+          ...getBranchLikeQuery(this.props.branchLike)
         }
       });
     } else {
@@ -169,12 +169,7 @@ export default class ProjectActivityAppContainer extends React.PureComponent {
       [string]: string
     } */
   ) => {
-    const parameters = {
-      project,
-      p,
-      ps,
-      branch: getBranchName(this.props.branch)
-    };
+    const parameters = { project, p, ps, ...getBranchLikeQuery(this.props.branchLike) };
     return api
       .getProjectActivity({ ...additional, ...parameters })
       .then(({ analyses, paging }) => ({
@@ -187,8 +182,10 @@ export default class ProjectActivityAppContainer extends React.PureComponent {
     if (metrics.length <= 0) {
       return Promise.resolve([]);
     }
-    return getAllTimeMachineData(this.props.component.key, metrics, {
-      branch: getBranchName(this.props.branch)
+    return getAllTimeMachineData({
+      component: this.props.component.key,
+      metrics: metrics.join(),
+      ...getBranchLikeQuery(this.props.branchLike)
     }).then(
       ({ measures }) =>
         measures.map(measure => ({
@@ -300,7 +297,7 @@ export default class ProjectActivityAppContainer extends React.PureComponent {
       pathname: this.props.location.pathname,
       query: {
         ...query,
-        branch: getBranchName(this.props.branch),
+        ...getBranchLikeQuery(this.props.branchLike),
         id: this.props.component.key
       }
     });

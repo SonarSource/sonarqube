@@ -24,7 +24,7 @@ import Issue from '../../issue/Issue';
 
 /*::
 type Props = {
-  branch?: string,
+  branchLike?: { id?: string; name: string },
   displayIssueLocationsCount?: boolean;
   displayIssueLocationsLink?: boolean;
   issues: Array<IssueType>,
@@ -40,13 +40,13 @@ export default class LineIssuesList extends React.PureComponent {
   /*:: props: Props; */
 
   render() {
-    const { branch, issues, onIssueClick, openPopup, selectedIssue } = this.props;
+    const { branchLike, issues, onIssueClick, openPopup, selectedIssue } = this.props;
 
     return (
       <div className="issue-list">
         {issues.map(issue => (
           <Issue
-            branch={branch}
+            branchLike={branchLike}
             displayLocationsCount={this.props.displayIssueLocationsCount}
             displayLocationsLink={this.props.displayIssueLocationsLink}
             issue={issue}

@@ -25,6 +25,10 @@
   font-size: var(--baseFontSize);
 }
 
+.navbar-context-meta-branch-menu-title {
+  padding-left: calc(3 * var(--gridSize));
+}
+
 .navbar-context-meta-branch-menu-item {
   display: flex !important;
   justify-content: space-between;

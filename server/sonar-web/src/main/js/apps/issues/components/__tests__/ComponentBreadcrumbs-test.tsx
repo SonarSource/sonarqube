@@ -20,6 +20,7 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import ComponentBreadcrumbs from '../ComponentBreadcrumbs';
+import { ShortLivingBranch, BranchType } from '../../../../app/types';
 
 const baseIssue = {
   component: 'comp',
@@ -40,5 +41,13 @@ it('renders with sub-project', () => {
 
 it('renders with branch', () => {
   const issue = { ...baseIssue, subProject: 'sub-proj', subProjectName: 'sub-proj-name' };
-  expect(shallow(<ComponentBreadcrumbs branch="feature" issue={issue} />)).toMatchSnapshot();
+  const shortBranch: ShortLivingBranch = {
+    isMain: false,
+    mergeBranch: '',
+    name: 'feature',
+    type: BranchType.SHORT
+  };
+  expect(
+    shallow(<ComponentBreadcrumbs branchLike={shortBranch} issue={issue} />)
+  ).toMatchSnapshot();
 });
