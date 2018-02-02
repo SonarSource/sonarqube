@@ -20,60 +20,41 @@
 
 package org.sonar.db.rule;
 
-import com.google.common.collect.ImmutableSet;
 import java.util.Random;
 import org.junit.Test;
 
-import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.db.rule.RuleTesting.newRule;
 
 public class RuleDefinitionDtoTest {
 
   private static final Random RANDOM = new Random();
 
   @Test
-  public void test_equality() {
-    String repositoryKey = randomAlphanumeric(10);
-    String ruleKey = randomAlphanumeric(10);
-    RuleDefinitionDto underTest = new RuleDefinitionDto().setRepositoryKey(repositoryKey).setRuleKey(ruleKey);
+  public void equals_is_based_on_id() {
+    int id = RANDOM.nextInt(153151);
+    RuleDefinitionDto dto = newRule().setId(id);
 
-    // Comparison is done only with repository key and rule key
-    assertThat(underTest).isEqualTo(new RuleDefinitionDto()
-      .setRepositoryKey(repositoryKey)
-      .setRuleKey(ruleKey));
+    assertThat(dto).isEqualTo(dto);
+    assertThat(dto).isEqualTo(newRule().setId(id));
+    assertThat(dto).isEqualTo(newRule().setRuleKey(dto.getRuleKey()).setId(id));
+    assertThat(dto).isNotEqualTo(null);
+    assertThat(dto).isNotEqualTo(new Object());
+    assertThat(dto).isNotEqualTo(newRule().setRuleKey(dto.getRuleKey()).setId(id - 1));
+    assertThat(dto).isNotEqualTo(newRule().setId(id + 1));
+  }
 
-    // All other fields are ignored
-    assertThat(underTest).isEqualTo(new RuleDefinitionDto()
-      .setRepositoryKey(repositoryKey)
-      .setRuleKey(ruleKey)
-      .setLanguage(randomAlphanumeric(5))
-      .setUpdatedAt(RANDOM.nextInt())
-      .setCreatedAt(RANDOM.nextInt())
-      .setName(randomAlphanumeric(10))
-      .setSeverity(RANDOM.nextInt())
-      .setType(RANDOM.nextInt(3))
-      .setSystemTags(ImmutableSet.of("test", "test2"))
-      .setDescription(randomAlphanumeric(50))
-      .setIsTemplate(RANDOM.nextBoolean())
-      .setId(RANDOM.nextInt())
-      .setTemplateId(RANDOM.nextInt())
-      .setDescriptionFormat(RANDOM.nextBoolean() ? RuleDto.Format.HTML : RuleDto.Format.MARKDOWN)
-      .setDefRemediationBaseEffort(randomAlphanumeric(10))
-      .setDefRemediationFunction(randomAlphanumeric(10))
-      .setDefRemediationGapMultiplier(randomAlphanumeric(10))
-      .setGapDescription(randomAlphanumeric(50))
-    );
+  @Test
+  public void hashcode_is_based_on_id() {
+    int id = RANDOM.nextInt(153151);
+    RuleDefinitionDto dto = newRule().setId(id);
 
-    // Must not be equal to other rule with other rule key
-    assertThat(underTest).isNotEqualTo(new RuleDefinitionDto()
-      .setRepositoryKey(repositoryKey)
-      .setRuleKey(randomAlphanumeric(9))
-    );
-
-    // Comparison is done only with repository key and repository key
-    assertThat(underTest).isNotEqualTo(new RuleDefinitionDto()
-      .setRepositoryKey(randomAlphanumeric(9))
-      .setRuleKey(ruleKey)
-    );
+    assertThat(dto.hashCode()).isEqualTo(dto.hashCode());
+    assertThat(dto.hashCode()).isEqualTo(newRule().setId(id).hashCode());
+    assertThat(dto.hashCode()).isEqualTo(newRule().setRuleKey(dto.getRuleKey()).setId(id).hashCode());
+    assertThat(dto.hashCode()).isNotEqualTo(null);
+    assertThat(dto.hashCode()).isNotEqualTo(new Object().hashCode());
+    assertThat(dto.hashCode()).isNotEqualTo(newRule().setRuleKey(dto.getRuleKey()).setId(id - 1).hashCode());
+    assertThat(dto.hashCode()).isNotEqualTo(newRule().setId(id + 1).hashCode());
   }
 }
