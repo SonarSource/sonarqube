@@ -21,6 +21,7 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import * as PropTypes from 'prop-types';
 import GlobalLoading from './GlobalLoading';
+import { CurrentUser } from '../types';
 import { fetchCurrentUser } from '../../store/users/actions';
 import { fetchLanguages, fetchAppState } from '../../store/rootActions';
 import { fetchMyOrganizations } from '../../apps/account/organizations/actions';
@@ -28,7 +29,7 @@ import { fetchMyOrganizations } from '../../apps/account/organizations/actions';
 interface Props {
   children: JSX.Element;
   fetchAppState: () => Promise<any>;
-  fetchCurrentUser: () => Promise<void>;
+  fetchCurrentUser: () => Promise<CurrentUser>;
   fetchLanguages: () => Promise<void>;
   fetchMyOrganizations: () => Promise<void>;
 }
@@ -74,20 +75,22 @@ class App extends React.PureComponent<Props, State> {
   componentDidMount() {
     this.mounted = true;
 
-    this.props
-      .fetchCurrentUser()
-      .then(() => Promise.all([this.fetchAppState(), this.props.fetchLanguages()]))
-      .then(
-        ([appState]) => {
-          if (this.mounted) {
-            if (appState.organizationsEnabled) {
-              this.props.fetchMyOrganizations();
+    this.props.fetchCurrentUser().then(
+      currentUser => {
+        Promise.all([this.fetchAppState(), this.props.fetchLanguages()]).then(
+          ([appState]) => {
+            if (this.mounted) {
+              if (appState.organizationsEnabled && currentUser.isLoggedIn) {
+                this.props.fetchMyOrganizations();
+              }
+              this.setState({ loading: false });
             }
-            this.setState({ loading: false });
-          }
-        },
-        () => {}
-      );
+          },
+          () => {}
+        );
+      },
+      () => {}
+    );
   }
 
   componentWillUnmount() {
