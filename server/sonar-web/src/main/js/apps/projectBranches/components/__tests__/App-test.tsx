@@ -25,7 +25,13 @@ jest.mock('../../../../api/settings', () => ({
 import * as React from 'react';
 import { mount, shallow } from 'enzyme';
 import App from '../App';
-import { BranchType, MainBranch, LongLivingBranch, ShortLivingBranch } from '../../../../app/types';
+import {
+  BranchType,
+  LongLivingBranch,
+  ShortLivingBranch,
+  MainBranch,
+  PullRequest
+} from '../../../../app/types';
 
 const getValues = require('../../../../api/settings').getValues as jest.Mock<any>;
 
@@ -34,19 +40,27 @@ beforeEach(() => {
 });
 
 it('renders sorted list of branches', () => {
-  const branches: [MainBranch, LongLivingBranch, ShortLivingBranch] = [
+  const branchLikes: [MainBranch, LongLivingBranch, ShortLivingBranch, PullRequest] = [
     { isMain: true, name: 'master' },
     { isMain: false, name: 'branch-1.0', type: BranchType.LONG },
-    { isMain: false, name: 'branch-1.0', mergeBranch: 'master', type: BranchType.SHORT }
+    { isMain: false, mergeBranch: 'master', name: 'feature', type: BranchType.SHORT },
+    { base: 'master', branch: 'feature', id: '1234', title: 'Feature PR' }
   ];
   const wrapper = shallow(
-    <App branches={branches} component={{ key: 'foo' }} onBranchesChange={jest.fn()} />
+    <App
+      branchLikes={branchLikes}
+      canAdmin={true}
+      component={{ key: 'foo' }}
+      onBranchesChange={jest.fn()}
+    />
   );
   wrapper.setState({ branchLifeTime: '100', loading: false });
   expect(wrapper).toMatchSnapshot();
 });
 
 it('fetches branch life time setting on mount', () => {
-  mount(<App branches={[]} component={{ key: 'foo' }} onBranchesChange={jest.fn()} />);
-  expect(getValues).toBeCalledWith('sonar.dbcleaner.daysBeforeDeletingInactiveShortLivingBranches');
+  mount(<App branchLikes={[]} component={{ key: 'foo' }} onBranchesChange={jest.fn()} />);
+  expect(getValues).toBeCalledWith({
+    keys: 'sonar.dbcleaner.daysBeforeDeletingInactiveShortLivingBranches'
+  });
 });

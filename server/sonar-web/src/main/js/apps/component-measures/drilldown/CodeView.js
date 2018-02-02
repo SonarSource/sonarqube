@@ -25,7 +25,7 @@ import SourceViewer from '../../../components/SourceViewer/SourceViewer';
 /*:: import type { Metric } from '../../../store/metrics/actions'; */
 
 /*:: type Props = {|
-  branch?: string,
+  branchLike?: { id?: string; name: string },
   component: ComponentEnhanced,
   components: Array<ComponentEnhanced>,
   leakPeriod?: Period,
@@ -81,7 +81,7 @@ export default class CodeView extends React.PureComponent {
   };
 
   render() {
-    const { branch, component } = this.props;
-    return <SourceViewer branch={branch} component={component.key} />;
+    const { branchLike, component } = this.props;
+    return <SourceViewer branchLike={branchLike} component={component.key} />;
   }
 }

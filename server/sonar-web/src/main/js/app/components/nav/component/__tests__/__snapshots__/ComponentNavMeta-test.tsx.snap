@@ -27,6 +27,51 @@ exports[`renders meta for long-living branch 1`] = `
 </div>
 `;
 
+exports[`renders meta for pull request 1`] = `
+<div
+  className="navbar-context-meta"
+>
+  <div
+    className="spacer-left"
+  >
+    <DateTimeFormatter
+      date="2017-01-02T00:00:00.000Z"
+    />
+  </div>
+  <div
+    className="navbar-context-meta-secondary"
+  >
+    <a
+      className="big-spacer-right"
+      href="https://example.com/pull/1234"
+      rel="nofollow"
+      target="_blank"
+    >
+      branches.see_the_pr
+      <i
+        className="icon-detach little-spacer-left"
+      />
+    </a>
+    <BranchStatus
+      branchLike={
+        Object {
+          "base": "master",
+          "branch": "feature",
+          "id": "1234",
+          "status": Object {
+            "bugs": 0,
+            "codeSmells": 2,
+            "vulnerabilities": 3,
+          },
+          "title": "Feature PR",
+          "url": "https://example.com/pull/1234",
+        }
+      }
+    />
+  </div>
+</div>
+`;
+
 exports[`renders status of short-living branch 1`] = `
 <div
   className="navbar-context-meta"
@@ -42,7 +87,7 @@ exports[`renders status of short-living branch 1`] = `
     className="navbar-context-meta-secondary"
   >
     <BranchStatus
-      branch={
+      branchLike={
         Object {
           "isMain": false,
           "mergeBranch": "master",

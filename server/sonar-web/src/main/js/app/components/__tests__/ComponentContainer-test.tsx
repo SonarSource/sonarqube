@@ -90,8 +90,8 @@ it("loads branches for module's project", async () => {
 
   await new Promise(setImmediate);
   expect(getBranches).toBeCalledWith('projectKey');
-  expect(getComponentData).toBeCalledWith('moduleKey', undefined);
-  expect(getComponentNavigation).toBeCalledWith('moduleKey', undefined);
+  expect(getComponentData).toBeCalledWith({ component: 'moduleKey', branch: undefined });
+  expect(getComponentNavigation).toBeCalledWith({ componentKey: 'moduleKey', branch: undefined });
 });
 
 it("doesn't load branches portfolio", async () => {
@@ -103,8 +103,11 @@ it("doesn't load branches portfolio", async () => {
 
   await new Promise(setImmediate);
   expect(getBranches).not.toBeCalled();
-  expect(getComponentData).toBeCalledWith('portfolioKey', undefined);
-  expect(getComponentNavigation).toBeCalledWith('portfolioKey', undefined);
+  expect(getComponentData).toBeCalledWith({ component: 'portfolioKey', branch: undefined });
+  expect(getComponentNavigation).toBeCalledWith({
+    componentKey: 'portfolioKey',
+    branch: undefined
+  });
   wrapper.update();
   expect(wrapper.find(Inner).exists()).toBeTruthy();
 });

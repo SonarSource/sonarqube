@@ -27,6 +27,7 @@ import { fetchMetrics } from '../../../store/rootActions';
 import { getMeasuresAndMeta } from '../../../api/measures';
 import { getLeakPeriod } from '../../../helpers/periods';
 import { enhanceMeasure } from '../../../components/measure/utils';
+import { getBranchLikeQuery } from '../../../helpers/branches';
 /*:: import type { Component, Period } from '../types'; */
 /*:: import type { Measure, MeasureEnhanced } from '../../../components/measure/types'; */
 
@@ -50,7 +51,7 @@ function banQualityGate(component /*: Component */) /*: Array<Measure> */ {
 const fetchMeasures = (
   component /*: string */,
   metricsKey /*: Array<string> */,
-  branch /*: string | void */
+  branchLike /*: { id?: string; name: string } | void */
 ) => (dispatch, getState) => {
   if (metricsKey.length <= 0) {
     return Promise.resolve({ component: {}, measures: [], leakPeriod: null });
@@ -58,7 +59,7 @@ const fetchMeasures = (
 
   return getMeasuresAndMeta(component, metricsKey, {
     additionalFields: 'periods',
-    branch
+    ...getBranchLikeQuery(branchLike)
   }).then(r => {
     const measures = banQualityGate(r.component).map(measure =>
       enhanceMeasure(measure, getMetrics(getState()))

@@ -39,7 +39,7 @@ it('should work with extensions', () => {
     extensions: [{ key: 'component-foo', name: 'ComponentFoo' }]
   };
   expect(
-    shallow(<ComponentNavMenu branch={mainBranch} component={component} />, {
+    shallow(<ComponentNavMenu branchLike={mainBranch} component={component} />, {
       context: { branchesEnabled: true }
     })
   ).toMatchSnapshot();
@@ -58,7 +58,7 @@ it('should work with multiple extensions', () => {
     ]
   };
   expect(
-    shallow(<ComponentNavMenu branch={mainBranch} component={component} />, {
+    shallow(<ComponentNavMenu branchLike={mainBranch} component={component} />, {
       context: { branchesEnabled: true }
     })
   ).toMatchSnapshot();
@@ -77,7 +77,7 @@ it('should work for short-living branches', () => {
     extensions: [{ key: 'component-foo', name: 'ComponentFoo' }]
   };
   expect(
-    shallow(<ComponentNavMenu branch={branch} component={component} />, {
+    shallow(<ComponentNavMenu branchLike={branch} component={component} />, {
       context: { branchesEnabled: true }
     })
   ).toMatchSnapshot();
@@ -89,7 +89,7 @@ it('should work for long-living branches', () => {
     expect(
       shallow(
         <ComponentNavMenu
-          branch={branch}
+          branchLike={branch}
           component={{
             ...baseComponent,
             configuration: { showSettings },
@@ -109,7 +109,7 @@ it('should work for all qualifiers', () => {
   function checkWithQualifier(qualifier: string) {
     const component = { ...baseComponent, configuration: { showSettings: true }, qualifier };
     expect(
-      shallow(<ComponentNavMenu branch={mainBranch} component={component} />, {
+      shallow(<ComponentNavMenu branchLike={mainBranch} component={component} />, {
         context: { branchesEnabled: true }
       })
     ).toMatchSnapshot();

@@ -53,7 +53,6 @@ exports[`renders 1`] = `
               Object {
                 "pathname": "/dashboard",
                 "query": Object {
-                  "branch": undefined,
                   "id": "foo",
                 },
               }
@@ -141,7 +140,6 @@ exports[`renders 1`] = `
               Object {
                 "pathname": "/dashboard",
                 "query": Object {
-                  "branch": undefined,
                   "id": "barbar",
                 },
               }
@@ -229,7 +227,6 @@ exports[`renders 1`] = `
               Object {
                 "pathname": "/dashboard",
                 "query": Object {
-                  "branch": undefined,
                   "id": "bazbaz",
                 },
               }
