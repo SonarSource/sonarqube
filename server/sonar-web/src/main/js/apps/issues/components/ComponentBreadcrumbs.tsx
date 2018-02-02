@@ -21,11 +21,11 @@ import * as React from 'react';
 import { Link } from 'react-router';
 import Organization from '../../../components/shared/Organization';
 import { collapsePath, limitComponentName } from '../../../helpers/path';
-import { getProjectUrl } from '../../../helpers/urls';
-import { Component } from '../../../app/types';
+import { getBranchLikeUrl, getCodeUrl } from '../../../helpers/urls';
+import { Component, BranchLike } from '../../../app/types';
 
 interface Props {
-  branch?: string;
+  branchLike?: BranchLike;
   component?: Component;
   issue: {
     component: string;
@@ -39,7 +39,12 @@ interface Props {
   organization?: { key: string };
 }
 
-export default function ComponentBreadcrumbs({ branch, component, issue, organization }: Props) {
+export default function ComponentBreadcrumbs({
+  branchLike,
+  component,
+  issue,
+  organization
+}: Props) {
   const displayOrganization =
     !organization && (component == null || ['VW', 'SVW'].includes(component.qualifier));
   const displayProject = component == null || !['TRK', 'BRC', 'DIR'].includes(component.qualifier);
@@ -53,7 +58,7 @@ export default function ComponentBreadcrumbs({ branch, component, issue, organiz
 
       {displayProject && (
         <span title={issue.projectName}>
-          <Link to={getProjectUrl(issue.project, branch)} className="link-no-underline">
+          <Link to={getBranchLikeUrl(issue.project, branchLike)} className="link-no-underline">
             {limitComponentName(issue.projectName)}
           </Link>
           <span className="slash-separator" />
@@ -64,14 +69,16 @@ export default function ComponentBreadcrumbs({ branch, component, issue, organiz
         issue.subProject !== undefined &&
         issue.subProjectName !== undefined && (
           <span title={issue.subProjectName}>
-            <Link to={getProjectUrl(issue.subProject, branch)} className="link-no-underline">
+            <Link to={getBranchLikeUrl(issue.subProject, branchLike)} className="link-no-underline">
               {limitComponentName(issue.subProjectName)}
             </Link>
             <span className="slash-separator" />
           </span>
         )}
 
-      <Link to={getProjectUrl(issue.component, branch)} className="link-no-underline">
+      <Link
+        to={getCodeUrl(issue.project, branchLike, issue.component)}
+        className="link-no-underline">
         <span title={issue.componentLongName}>{collapsePath(issue.componentLongName)}</span>
       </Link>
     </div>

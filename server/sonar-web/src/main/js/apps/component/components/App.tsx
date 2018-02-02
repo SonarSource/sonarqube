@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { PullRequest, BranchType, ShortLivingBranch } from '../../../app/types';
 import SourceViewer from '../../../components/SourceViewer/SourceViewer';
 
 interface Props {
@@ -26,6 +27,7 @@ interface Props {
       branch?: string;
       id: string;
       line?: string;
+      pullRequest?: string;
     };
   };
 }
@@ -45,15 +47,30 @@ export default class App extends React.PureComponent<Props> {
   };
 
   render() {
-    const { branch, id, line } = this.props.location.query;
+    const { branch, id, line, pullRequest } = this.props.location.query;
 
     const finalLine = line != null ? Number(line) : null;
+
+    // TODO find a way to avoid creating this fakeBranchLike
+    // probably the best way would be to drop this page completely
+    // and redirect to the Code page
+    let fakeBranchLike: ShortLivingBranch | PullRequest | undefined = undefined;
+    if (branch) {
+      fakeBranchLike = {
+        isMain: false,
+        mergeBranch: '',
+        name: branch,
+        type: BranchType.SHORT
+      } as ShortLivingBranch;
+    } else if (pullRequest) {
+      fakeBranchLike = { base: '', branch: '', id: pullRequest, title: '' } as PullRequest;
+    }
 
     return (
       <div className="page page-limited">
         <SourceViewer
           aroundLine={finalLine}
-          branch={branch}
+          branchLike={fakeBranchLike}
           component={id}
           highlightedLine={finalLine}
           onLoaded={this.scrollToLine}

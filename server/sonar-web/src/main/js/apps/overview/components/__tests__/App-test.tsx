@@ -54,7 +54,7 @@ it('redirects on Code page for files', () => {
     qualifier: 'FIL'
   };
   const replace = jest.fn();
-  mount(<App branch={branch} component={newComponent} onComponentChange={jest.fn()} />, {
+  mount(<App branchLike={branch} component={newComponent} onComponentChange={jest.fn()} />, {
     context: { router: { replace } }
   });
   expect(replace).toBeCalledWith({

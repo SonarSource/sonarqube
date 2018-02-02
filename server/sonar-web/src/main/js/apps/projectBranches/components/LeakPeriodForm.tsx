@@ -53,7 +53,7 @@ export default class LeakPeriodForm extends React.PureComponent<Props, State> {
 
   fetchSetting() {
     this.setState({ loading: true });
-    getValues(LEAK_PERIOD, this.props.project, this.props.branch).then(
+    getValues({ keys: LEAK_PERIOD, component: this.props.project, branch: this.props.branch }).then(
       settings => {
         if (this.mounted) {
           this.setState({ loading: false, setting: settings[0] });

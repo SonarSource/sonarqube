@@ -4,7 +4,7 @@ exports[`renders main branch 1`] = `
 <tr>
   <td>
     <BranchIcon
-      branch={
+      branchLike={
         Object {
           "isMain": true,
           "name": "master",
@@ -23,7 +23,7 @@ exports[`renders main branch 1`] = `
     className="thin nowrap text-right"
   >
     <BranchStatus
-      branch={
+      branchLike={
         Object {
           "isMain": true,
           "name": "master",
@@ -51,11 +51,62 @@ exports[`renders main branch 1`] = `
 </tr>
 `;
 
+exports[`renders pull request 1`] = `
+<tr>
+  <td>
+    <BranchIcon
+      branchLike={
+        Object {
+          "base": "master",
+          "branch": "feature",
+          "id": "1234",
+          "title": "Feature PR",
+        }
+      }
+      className="little-spacer-right big-spacer-left"
+    />
+    1234 – Feature PR
+  </td>
+  <td
+    className="thin nowrap text-right"
+  >
+    <BranchStatus
+      branchLike={
+        Object {
+          "base": "master",
+          "branch": "feature",
+          "id": "1234",
+          "title": "Feature PR",
+        }
+      }
+    />
+  </td>
+  <td
+    className="thin nowrap text-right"
+  />
+  <td
+    className="thin nowrap text-right"
+  >
+    <ActionsDropdown
+      className="ig-spacer-left"
+    >
+      <ActionsDropdownItem
+        className="js-delete"
+        destructive={true}
+        onClick={[Function]}
+      >
+        branches.pull_request.delete
+      </ActionsDropdownItem>
+    </ActionsDropdown>
+  </td>
+</tr>
+`;
+
 exports[`renders short-living branch 1`] = `
 <tr>
   <td>
     <BranchIcon
-      branch={
+      branchLike={
         Object {
           "analysisDate": "2017-09-27T00:05:19+0000",
           "isMain": false,
@@ -72,7 +123,7 @@ exports[`renders short-living branch 1`] = `
     className="thin nowrap text-right"
   >
     <BranchStatus
-      branch={
+      branchLike={
         Object {
           "analysisDate": "2017-09-27T00:05:19+0000",
           "isMain": false,

@@ -34,12 +34,13 @@ import {
 } from '../../apps/projectActivity/utils';
 import { getCustomGraph, getGraph } from '../../helpers/storage';
 import { formatMeasure, getShortType } from '../../helpers/measures';
+import { getBranchLikeQuery } from '../../helpers/branches';
 /*:: import type { Serie } from '../charts/AdvancedTimeline'; */
 /*:: import type { History, Metric } from '../../apps/overview/types'; */
 
 /*::
 type Props = {
-  branch?: string,
+  branchLike?: { id?: string; name: string },
   history: ?History,
   metrics: { [string]: Metric },
   project: string,
@@ -144,7 +145,7 @@ export default class PreviewGraph extends React.PureComponent {
   handleClick = () => {
     this.context.router.push({
       pathname: '/project/activity',
-      query: { id: this.props.project, branch: this.props.branch }
+      query: { id: this.props.project, ...getBranchLikeQuery(this.props.branchLike) }
     });
   };
 

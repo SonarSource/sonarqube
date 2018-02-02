@@ -19,27 +19,27 @@
  */
 import * as React from 'react';
 import StatusIndicator from './StatusIndicator';
-import { Branch } from '../../app/types';
 import Level from '../ui/Level';
 import BugIcon from '../icons-components/BugIcon';
 import CodeSmellIcon from '../icons-components/CodeSmellIcon';
 import VulnerabilityIcon from '../icons-components/VulnerabilityIcon';
-import { isShortLivingBranch } from '../../helpers/branches';
+import { BranchLike } from '../../app/types';
+import { isShortLivingBranch, isPullRequest, isLongLivingBranch } from '../../helpers/branches';
 import './BranchStatus.css';
 
 interface Props {
-  branch: Branch;
+  branchLike: BranchLike;
   concise?: boolean;
 }
 
-export default function BranchStatus({ branch, concise = false }: Props) {
-  if (isShortLivingBranch(branch)) {
-    if (!branch.status) {
+export default function BranchStatus({ branchLike, concise = false }: Props) {
+  if (isShortLivingBranch(branchLike) || isPullRequest(branchLike)) {
+    if (!branchLike.status) {
       return null;
     }
 
     const totalIssues =
-      branch.status.bugs + branch.status.vulnerabilities + branch.status.codeSmells;
+      branchLike.status.bugs + branchLike.status.vulnerabilities + branchLike.status.codeSmells;
 
     const indicatorColor = totalIssues > 0 ? 'red' : 'green';
 
@@ -56,24 +56,26 @@ export default function BranchStatus({ branch, concise = false }: Props) {
           <StatusIndicator color={indicatorColor} size="small" />
         </li>
         <li className="spacer-left">
-          {branch.status.bugs}
+          {branchLike.status.bugs}
           <BugIcon />
         </li>
         <li className="spacer-left">
-          {branch.status.vulnerabilities}
+          {branchLike.status.vulnerabilities}
           <VulnerabilityIcon />
         </li>
         <li className="spacer-left">
-          {branch.status.codeSmells}
+          {branchLike.status.codeSmells}
           <CodeSmellIcon />
         </li>
       </ul>
     );
-  } else {
-    if (!branch.status) {
+  } else if (isLongLivingBranch(branchLike)) {
+    if (!branchLike.status) {
       return null;
     }
 
-    return <Level level={branch.status.qualityGateStatus} small={true} />;
+    return <Level level={branchLike.status.qualityGateStatus} small={true} />;
+  } else {
+    return null;
   }
 }

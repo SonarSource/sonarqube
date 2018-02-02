@@ -29,16 +29,27 @@ exports[`renders sorted list of branches 1`] = `
         values={
           Object {
             "days": "100",
-            "settings": <Link
-              onlyActiveOnIndex={false}
-              style={Object {}}
-              to="/admin/settings"
-            >
-              settings.page
-            </Link>,
           }
         }
       />
+      <React.Fragment>
+        <br />
+        <FormattedMessage
+          defaultMessage="project_branches.page.life_time.admin"
+          id="project_branches.page.life_time.admin"
+          values={
+            Object {
+              "settings": <Link
+                onlyActiveOnIndex={false}
+                style={Object {}}
+                to="/admin/settings"
+              >
+                settings.page
+              </Link>,
+            }
+          }
+        />
+      </React.Fragment>
     </p>
   </header>
   <div
@@ -71,31 +82,45 @@ exports[`renders sorted list of branches 1`] = `
       </thead>
       <tbody>
         <BranchRow
-          branch={
+          branchLike={
             Object {
               "isMain": true,
               "name": "master",
             }
           }
           component="foo"
-          key="master"
+          isOrphan={false}
+          key="branch-master"
           onChange={[MockFunction]}
         />
         <BranchRow
-          branch={
+          branchLike={
+            Object {
+              "base": "master",
+              "branch": "feature",
+              "id": "1234",
+              "title": "Feature PR",
+            }
+          }
+          component="foo"
+          key="pull-request-1234"
+          onChange={[MockFunction]}
+        />
+        <BranchRow
+          branchLike={
             Object {
               "isMain": false,
               "mergeBranch": "master",
-              "name": "branch-1.0",
+              "name": "feature",
               "type": "SHORT",
             }
           }
           component="foo"
-          key="branch-1.0"
+          key="branch-feature"
           onChange={[MockFunction]}
         />
         <BranchRow
-          branch={
+          branchLike={
             Object {
               "isMain": false,
               "name": "branch-1.0",
@@ -103,7 +128,8 @@ exports[`renders sorted list of branches 1`] = `
             }
           }
           component="foo"
-          key="branch-1.0"
+          isOrphan={false}
+          key="branch-branch-1.0"
           onChange={[MockFunction]}
         />
       </tbody>

@@ -30,7 +30,14 @@ const component = {
 };
 
 it('renders', () => {
-  const wrapper = shallow(<ComponentNav branches={[]} component={component} location={{}} />);
+  const wrapper = shallow(
+    <ComponentNav
+      branchLikes={[]}
+      component={component}
+      currentBranchLike={undefined}
+      location={{}}
+    />
+  );
   wrapper.setState({ isInProgress: true, isPending: true });
   expect(wrapper).toMatchSnapshot();
 });
