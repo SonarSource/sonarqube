@@ -33,12 +33,14 @@ import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonarqube.qa.util.Tester;
-import org.sonarqube.tests.Category3Suite;
+import org.sonarqube.qa.util.pageobjects.WebhooksPage;
 import org.sonarqube.ws.Issues.Issue;
 import org.sonarqube.ws.Organizations.Organization;
 import org.sonarqube.ws.Projects.CreateWsResponse.Project;
 import org.sonarqube.ws.Qualitygates;
 import org.sonarqube.ws.Qualityprofiles.CreateWsResponse.QualityProfile;
+import org.sonarqube.ws.Users;
+import org.sonarqube.ws.Users.CreateWsResponse.User;
 import org.sonarqube.ws.Webhooks;
 import org.sonarqube.ws.client.HttpException;
 import org.sonarqube.ws.client.WsClient;
@@ -67,7 +69,7 @@ public class WebhooksTest {
   private static final String PROJECT_WEBHOOK_PROPERTY = "sonar.webhooks.project";
 
   @ClassRule
-  public static Orchestrator orchestrator = Category3Suite.ORCHESTRATOR;
+  public static Orchestrator orchestrator = WebhooksSuite.ORCHESTRATOR;
   @ClassRule
   public static ExternalServer externalServer = new ExternalServer();
 
@@ -285,6 +287,28 @@ public class WebhooksTest {
     payload = jsonToMap(request.getJson());
     gate = (Map<String, Object>) payload.get("qualityGate");
     assertThat(gate.get("status")).isEqualTo("OK");
+  }
+
+  @Test
+  public void list_global_webhooks() {
+    enableGlobalWebhooks(new Webhook("foo", "http://foo.bar"), new Webhook("bar", "https://bar.baz/test"));
+    tester.wsClient().users().skipOnboardingTutorial();
+    WebhooksPage webhooksPage = tester.openBrowser().logIn().submitCredentials("admin").openWebhooks();
+    webhooksPage
+      .countWebhooks(2)
+      .hasWebhook("http://foo.bar");
+  }
+
+  @Test
+  public void list_project_webhooks() {
+    analyseProject();
+    enableProjectWebhooks(PROJECT_KEY, new Webhook("foo", "http://foo.bar"), new Webhook("bar", "https://bar.baz/test"));
+    User user = tester.users().generateAdministratorOnDefaultOrganization();
+    tester.wsClient().users().skipOnboardingTutorial();
+    WebhooksPage webhooksPage = tester.openBrowser().logIn().submitCredentials(user.getLogin()).openProjectWebhooks(PROJECT_KEY);
+    webhooksPage
+      .countWebhooks(2)
+      .hasWebhook("http://foo.bar");
   }
 
   private void analyseProject() {
