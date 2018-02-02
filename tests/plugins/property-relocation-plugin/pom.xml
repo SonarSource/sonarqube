@@ -6,7 +6,7 @@
   <parent>
     <groupId>org.sonarsource.sonarqube.tests</groupId>
     <artifactId>plugins</artifactId>
-    <version>7.0-SNAPSHOT</version>
+    <version>7.0</version>
   </parent>
 
   <artifactId>property-relocation-plugin</artifactId>
