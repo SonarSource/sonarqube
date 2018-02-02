@@ -52,6 +52,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.server.issue.IssueQuery.PeriodStart;
 import org.sonar.server.user.UserSession;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -121,7 +122,7 @@ public class IssueQueryFactory {
       boolean effectiveOnComponentOnly = mergeDeprecatedComponentParameters(dbSession, request, allComponents);
       addComponentParameters(builder, dbSession, effectiveOnComponentOnly, allComponents, request);
 
-      builder.createdAfter(buildCreatedAfterFromRequest(dbSession, request, allComponents));
+      setCreatedAfterFromRequest(dbSession, builder, request, allComponents);
       String sort = request.getSort();
       if (!Strings.isNullOrEmpty(sort)) {
         builder.sort(sort);
@@ -131,8 +132,7 @@ public class IssueQueryFactory {
     }
   }
 
-  @CheckForNull
-  private Date buildCreatedAfterFromDates(@Nullable Date createdAfter, @Nullable String createdInLast) {
+  private void setCreatedAfterFromDates(IssueQuery.Builder builder, @Nullable Date createdAfter, @Nullable String createdInLast, boolean createdAfterInclusive) {
     checkArgument(createdAfter == null || createdInLast == null, format("Parameters %s and %s cannot be set simultaneously", PARAM_CREATED_AFTER, PARAM_CREATED_IN_LAST));
 
     Date actualCreatedAfter = createdAfter;
@@ -142,7 +142,7 @@ public class IssueQueryFactory {
           .minus(Period.parse("P" + createdInLast.toUpperCase(Locale.ENGLISH)))
           .toInstant());
     }
-    return actualCreatedAfter;
+    builder.createdAfter(actualCreatedAfter, createdAfterInclusive);
   }
 
   @CheckForNull
@@ -154,19 +154,19 @@ public class IssueQueryFactory {
     return organization.map(OrganizationDto::getUuid).orElse(UNKNOWN);
   }
 
-  private Date buildCreatedAfterFromRequest(DbSession dbSession, SearchRequest request, List<ComponentDto> componentUuids) {
+  private void setCreatedAfterFromRequest(DbSession dbSession, IssueQuery.Builder builder, SearchRequest request, List<ComponentDto> componentUuids) {
     Date createdAfter = parseStartingDateOrDateTime(request.getCreatedAfter());
     String createdInLast = request.getCreatedInLast();
 
     if (request.getSinceLeakPeriod() == null || !request.getSinceLeakPeriod()) {
-      return buildCreatedAfterFromDates(createdAfter, createdInLast);
+      setCreatedAfterFromDates(builder, createdAfter, createdInLast, true);
+    } else {
+      checkRequest(createdAfter == null, "Parameters '%s' and '%s' cannot be set simultaneously", PARAM_CREATED_AFTER, PARAM_SINCE_LEAK_PERIOD);
+      checkArgument(componentUuids.size() == 1, "One and only one component must be provided when searching since leak period");
+      ComponentDto component = componentUuids.iterator().next();
+      Date createdAfterFromSnapshot = findCreatedAfterFromComponentUuid(dbSession, component);
+      setCreatedAfterFromDates(builder, createdAfterFromSnapshot, createdInLast, false);
     }
-
-    checkRequest(createdAfter == null, "Parameters '%s' and '%s' cannot be set simultaneously", PARAM_CREATED_AFTER, PARAM_SINCE_LEAK_PERIOD);
-    checkArgument(componentUuids.size() == 1, "One and only one component must be provided when searching since leak period");
-    ComponentDto component = componentUuids.iterator().next();
-    Date createdAfterFromSnapshot = findCreatedAfterFromComponentUuid(dbSession, component);
-    return buildCreatedAfterFromDates(createdAfterFromSnapshot, createdInLast);
   }
 
   @CheckForNull
@@ -328,10 +328,10 @@ public class IssueQueryFactory {
       .flatMap(app -> dbClient.componentDao().selectProjectsFromView(dbSession, app, app).stream())
       .collect(toSet());
 
-    Map<String, Date> leakByProjects = dbClient.snapshotDao().selectLastAnalysesByRootComponentUuids(dbSession, projectUuids)
+    Map<String, PeriodStart> leakByProjects = dbClient.snapshotDao().selectLastAnalysesByRootComponentUuids(dbSession, projectUuids)
       .stream()
       .filter(s -> s.getPeriodDate() != null)
-      .collect(uniqueIndex(SnapshotDto::getComponentUuid, s -> longToDate(s.getPeriodDate())));
+      .collect(uniqueIndex(SnapshotDto::getComponentUuid, s -> new PeriodStart(longToDate(s.getPeriodDate()), false)));
     builder.createdAfterByProjectUuids(leakByProjects);
   }
 
