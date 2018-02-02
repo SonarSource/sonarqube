@@ -196,7 +196,7 @@ public class ActivityActionTest {
       .setParam("status", "PENDING"));
 
     assertThat(activityResponse.getTasksList())
-      .filteredOn(t -> !t.hasPullRequestId())
+      .filteredOn(t -> !t.hasPullRequest())
       .hasSize(1);
   }
 
@@ -258,7 +258,7 @@ public class ActivityActionTest {
     ActivityResponse activityResponse = call(ws.newRequest().setParam(PARAM_COMPONENT_QUERY, "apac"));
 
     assertThat(activityResponse.getTasksList())
-      .filteredOn(t -> !t.hasPullRequestId())
+      .filteredOn(t -> !t.hasPullRequest())
       .extracting("id").containsOnly("T1", "T2");
   }
 
@@ -272,7 +272,7 @@ public class ActivityActionTest {
     ActivityResponse activityResponse = call(ws.newRequest().setParam(PARAM_COMPONENT_QUERY, "apac"));
 
     assertThat(activityResponse.getTasksList())
-      .filteredOn(t -> !t.hasPullRequestId())
+      .filteredOn(t -> !t.hasPullRequest())
       .extracting("id").containsOnly("T2");
   }
 
@@ -286,7 +286,7 @@ public class ActivityActionTest {
     ActivityResponse activityResponse = call(ws.newRequest().setParam(PARAM_COMPONENT_QUERY, "apac"));
 
     assertThat(activityResponse.getTasksList())
-      .filteredOn(t -> !t.hasPullRequestId())
+      .filteredOn(t -> !t.hasPullRequest())
       .extracting(Task::getId).containsOnly("T2");
   }
 
@@ -361,7 +361,7 @@ public class ActivityActionTest {
     ActivityResponse response = ws.newRequest().executeProtobuf(ActivityResponse.class);
 
     assertThat(response.getTasksList())
-      .filteredOn(t -> !t.hasPullRequestId())
+      .filteredOn(t -> !t.hasPullRequest())
       .extracting(Task::getId, Ce.Task::getBranch, Ce.Task::getBranchType, Ce.Task::getStatus, Ce.Task::getComponentKey)
       .containsExactlyInAnyOrder(
         tuple("T1", longLivingBranch.getBranch(), Common.BranchType.LONG, Ce.TaskStatus.SUCCESS, longLivingBranch.getKey()));
@@ -383,7 +383,7 @@ public class ActivityActionTest {
       .executeProtobuf(ActivityResponse.class);
 
     assertThat(response.getTasksList())
-      .filteredOn(t -> !t.hasPullRequestId())
+      .filteredOn(t -> !t.hasPullRequest())
       .extracting(Task::getId, Ce.Task::getBranch, Ce.Task::getBranchType, Ce.Task::getStatus)
       .containsExactlyInAnyOrder(
         tuple("T1", branch, Common.BranchType.LONG, Ce.TaskStatus.IN_PROGRESS),
@@ -468,7 +468,7 @@ public class ActivityActionTest {
 
     JsonAssert.assertJson(wsResponse.getInput()).isSimilarTo("{\"tasks\":[{\n" +
       "      \"id\": \"AU-TpxcA-iU5OvuD2FLz\",\n" +
-      "      \"type\": \"PROJECT_ANALYSIS\",\n" +
+      "      \"type\": \"REPORT\",\n" +
       "      \"componentId\": \"AU-Tpxb--iU5OvuD2FLy\",\n" +
       "      \"componentKey\": \"my_project\",\n" +
       "      \"analysisId\": \"AU-TpxcB-iU5OvuD2FL7\",\n" +
@@ -476,7 +476,7 @@ public class ActivityActionTest {
       "      \"executionTimeMs\": 1000000000,\n" +
       "      \"logs\": false,\n" +
       "      \"hasScannerContext\": false,\n" +
-      "      \"pullRequestId\": \"2734\",\n" +
+      "      \"pullRequest\": \"2734\",\n" +
       "      \"pullRequestTitle\": \"SONAR-10374 Support pull request in the web app\"\n" +
       "    }]}");
   }

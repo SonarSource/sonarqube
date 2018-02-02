@@ -129,7 +129,7 @@ public class ListAction implements BranchWsAction {
       .setBase("master")
       .setBranch("feature/stas/pr-api")
       .setId("2734")
-      .setName("SONAR-10374 Support pull request in the web app")
+      .setTitle("SONAR-10374 Support pull request in the web app")
       .setStatus(Status.newBuilder().setBugs(1).setCodeSmells(3).setVulnerabilities(0))
       .setIsOrphan(false)
       .setUrl("https://github.com/SonarSource/sonarqube/pull/2734");
@@ -139,7 +139,7 @@ public class ListAction implements BranchWsAction {
       .setBase("branch-6.7")
       .setBranch("feature/stas/my-bug-fix")
       .setId("2725")
-      .setName("fix critical LTS issue")
+      .setTitle("fix critical LTS issue")
       .setStatus(Status.newBuilder().setBugs(0).setCodeSmells(0).setVulnerabilities(0))
       .setIsOrphan(false)
       .setUrl("https://github.com/SonarSource/sonarqube/pull/2725");
@@ -149,7 +149,7 @@ public class ListAction implements BranchWsAction {
       .setBase("unknown-branch")
       .setBranch("feature/stas/unknown-branch")
       .setId("9999")
-      .setName("create orphan pull request")
+      .setTitle("create orphan pull request")
       .setIsOrphan(true)
       .setStatus(Status.newBuilder().setBugs(0).setCodeSmells(0).setVulnerabilities(0));
     protobufResponse.addPullRequests(pullRequest);

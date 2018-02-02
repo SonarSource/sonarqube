@@ -54,11 +54,10 @@ message PullRequest {
   optional string title = 2;
   optional string branch = 3;
   optional string base = 4;
-  optional string name = 5;
-  optional Status status = 6;
-  optional bool isOrphan = 7;
-  optional string analysisDate = 8;
-  optional string url = 9;
+  optional Status status = 5;
+  optional bool isOrphan = 6;
+  optional string analysisDate = 7;
+  optional string url = 8;
 }
 
 message Status {

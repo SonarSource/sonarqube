@@ -284,17 +284,25 @@ public class ActivityAction implements CeWsAction {
   }
 
   private static void addStubTask(ActivityResponse.Builder protobufResponse) {
+    String timestamp = "2017-01-02T00:00:00.000Z";
     protobufResponse.addTasks(Ce.Task.newBuilder()
       .setId(Uuids.UUID_EXAMPLE_02)
       .setAnalysisId(Uuids.UUID_EXAMPLE_10)
       .setComponentId(Uuids.UUID_EXAMPLE_01)
       .setComponentKey(KeyExamples.KEY_PROJECT_EXAMPLE_001)
+      .setComponentName("Stub Project")
+      .setComponentQualifier(Qualifiers.PROJECT)
       .setExecutionTimeMs(1_000_000_000L)
       .setStatus(Ce.TaskStatus.SUCCESS)
-      .setType("PROJECT_ANALYSIS")
+      .setSubmittedAt(timestamp)
+      .setStartedAt(timestamp)
+      .setExecutedAt(timestamp)
+      .setOrganization("default-organization")
+      .setSubmitterLogin("sonaranalysis")
+      .setType("REPORT")
       .setHasScannerContext(false)
       .setLogs(false)
-      .setPullRequestId("2734")
+      .setPullRequest("2734")
       .setPullRequestTitle("SONAR-10374 Support pull request in the web app")
     );
   }
