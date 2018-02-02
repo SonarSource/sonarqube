@@ -24,7 +24,6 @@ exports[`renders 1`] = `
             Object {
               "pathname": "/component_measures",
               "query": Object {
-                "branch": undefined,
                 "id": "foo",
                 "metric": "projects",
               },
@@ -55,7 +54,6 @@ exports[`renders 1`] = `
             Object {
               "pathname": "/component_measures",
               "query": Object {
-                "branch": undefined,
                 "id": "foo",
                 "metric": "ncloc",
               },

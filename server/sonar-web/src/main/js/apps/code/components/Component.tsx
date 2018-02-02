@@ -24,12 +24,13 @@ import ComponentMeasure from './ComponentMeasure';
 import ComponentLink from './ComponentLink';
 import ComponentPin from './ComponentPin';
 import { Component as IComponent } from '../types';
+import { BranchLike } from '../../../app/types';
 
 const TOP_OFFSET = 200;
 const BOTTOM_OFFSET = 10;
 
 interface Props {
-  branch?: string;
+  branchLike?: BranchLike;
   canBrowse?: boolean;
   component: IComponent;
   previous?: IComponent;
@@ -73,7 +74,7 @@ export default class Component extends React.PureComponent<Props> {
 
   render() {
     const {
-      branch,
+      branchLike,
       component,
       rootComponent,
       selected = false,
@@ -89,10 +90,10 @@ export default class Component extends React.PureComponent<Props> {
       switch (component.qualifier) {
         case 'FIL':
         case 'UTS':
-          componentAction = <ComponentPin branch={branch} component={component} />;
+          componentAction = <ComponentPin branchLike={branchLike} component={component} />;
           break;
         default:
-          componentAction = <ComponentLink branch={branch} component={component} />;
+          componentAction = <ComponentLink branchLike={branchLike} component={component} />;
       }
     }
 
@@ -121,7 +122,7 @@ export default class Component extends React.PureComponent<Props> {
         </td>
         <td className="code-name-cell">
           <ComponentName
-            branch={branch}
+            branchLike={branchLike}
             component={component}
             rootComponent={rootComponent}
             previous={previous}

@@ -86,7 +86,6 @@ exports[`should render correctly 1`] = `
             Object {
               "pathname": "/project/activity",
               "query": Object {
-                "branch": undefined,
                 "custom_metrics": "reliability_rating",
                 "graph": "custom",
                 "id": "foo",

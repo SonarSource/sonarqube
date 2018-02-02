@@ -6,7 +6,7 @@ exports[`renders 1`] = `
   id="context-navigation"
 >
   <Connect(ComponentNavHeader)
-    branches={Array []}
+    branchLikes={Array []}
     component={
       Object {
         "breadcrumbs": Array [

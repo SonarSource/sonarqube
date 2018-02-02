@@ -20,20 +20,21 @@
 import * as React from 'react';
 import ComponentName from './ComponentName';
 import { Component } from '../types';
+import { BranchLike } from '../../../app/types';
 
 interface Props {
-  branch?: string;
+  branchLike?: BranchLike;
   breadcrumbs: Component[];
   rootComponent: Component;
 }
 
-export default function Breadcrumbs({ branch, breadcrumbs, rootComponent }: Props) {
+export default function Breadcrumbs({ branchLike, breadcrumbs, rootComponent }: Props) {
   return (
     <ul className="code-breadcrumbs">
       {breadcrumbs.map((component, index) => (
         <li key={component.key}>
           <ComponentName
-            branch={branch}
+            branchLike={branchLike}
             canBrowse={index < breadcrumbs.length - 1}
             component={component}
             rootComponent={rootComponent}
