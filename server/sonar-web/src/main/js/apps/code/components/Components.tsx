@@ -22,24 +22,25 @@ import Component from './Component';
 import ComponentsEmpty from './ComponentsEmpty';
 import ComponentsHeader from './ComponentsHeader';
 import { Component as IComponent } from '../types';
+import { BranchLike } from '../../../app/types';
 
 interface Props {
   baseComponent?: IComponent;
-  branch?: string;
+  branchLike?: BranchLike;
   components: IComponent[];
   rootComponent: IComponent;
   selected?: IComponent;
 }
 
 export default function Components(props: Props) {
-  const { baseComponent, branch, components, rootComponent, selected } = props;
+  const { baseComponent, branchLike, components, rootComponent, selected } = props;
   return (
     <table className="data zebra">
       <ComponentsHeader baseComponent={baseComponent} rootComponent={rootComponent} />
       {baseComponent && (
         <tbody>
           <Component
-            branch={branch}
+            branchLike={branchLike}
             component={baseComponent}
             key={baseComponent.key}
             rootComponent={rootComponent}
@@ -53,7 +54,7 @@ export default function Components(props: Props) {
         {components.length ? (
           components.map((component, index, list) => (
             <Component
-              branch={branch}
+              branchLike={branchLike}
               canBrowse={true}
               component={component}
               key={component.key}

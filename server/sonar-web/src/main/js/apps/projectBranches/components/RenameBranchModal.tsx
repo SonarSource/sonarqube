@@ -19,12 +19,12 @@
  */
 import * as React from 'react';
 import { renameBranch } from '../../../api/branches';
-import { Branch } from '../../../app/types';
+import { MainBranch } from '../../../app/types';
 import { translate } from '../../../helpers/l10n';
 import Modal from '../../../components/controls/Modal';
 
 interface Props {
-  branch: Branch;
+  branch: MainBranch;
   component: string;
   onClose: () => void;
   onRename: () => void;

@@ -28,6 +28,8 @@ import {
 } from './bucket';
 import { Breadcrumb, Component } from './types';
 import { getChildren, getComponent, getBreadcrumbs } from '../../api/components';
+import { BranchLike } from '../../app/types';
+import { getBranchLikeQuery } from '../../helpers/branches';
 
 const METRICS = [
   'ncloc',
@@ -54,11 +56,15 @@ function requestChildren(
   componentKey: string,
   metrics: string[],
   page: number,
-  branch?: string
+  branchLike?: BranchLike
 ): Promise<Component[]> {
-  return getChildren(componentKey, metrics, { branch, p: page, ps: PAGE_SIZE }).then(r => {
+  return getChildren(componentKey, metrics, {
+    p: page,
+    ps: PAGE_SIZE,
+    ...getBranchLikeQuery(branchLike)
+  }).then(r => {
     if (r.paging.total > r.paging.pageSize * r.paging.pageIndex) {
-      return requestChildren(componentKey, metrics, page + 1, branch).then(moreComponents => {
+      return requestChildren(componentKey, metrics, page + 1, branchLike).then(moreComponents => {
         return [...r.components, ...moreComponents];
       });
     }
@@ -69,9 +75,9 @@ function requestChildren(
 function requestAllChildren(
   componentKey: string,
   metrics: string[],
-  branch?: string
+  branchLike?: BranchLike
 ): Promise<Component[]> {
-  return requestChildren(componentKey, metrics, 1, branch);
+  return requestChildren(componentKey, metrics, 1, branchLike);
 }
 
 interface Children {
@@ -84,13 +90,13 @@ interface ExpandRootDirFunc {
   (children: Children): Promise<Children>;
 }
 
-function expandRootDir(metrics: string[], branch?: string): ExpandRootDirFunc {
+function expandRootDir(metrics: string[], branchLike?: BranchLike): ExpandRootDirFunc {
   return function({ components, total, ...other }) {
     const rootDir = components.find(
       (component: Component) => component.qualifier === 'DIR' && component.name === '/'
     );
     if (rootDir) {
-      return requestAllChildren(rootDir.key, metrics, branch).then(rootDirComponents => {
+      return requestAllChildren(rootDir.key, metrics, branchLike).then(rootDirComponents => {
         const nextComponents = without([...rootDirComponents, ...components], rootDir);
         const nextTotal = total + rootDirComponents.length - /* root dir */ 1;
         return { components: nextComponents, total: nextTotal, ...other };
@@ -133,7 +139,11 @@ function getMetrics(isPortfolio: boolean) {
   return isPortfolio ? PORTFOLIO_METRICS : METRICS;
 }
 
-function retrieveComponentBase(componentKey: string, isPortfolio: boolean, branch?: string) {
+function retrieveComponentBase(
+  componentKey: string,
+  isPortfolio: boolean,
+  branchLike?: BranchLike
+) {
   const existing = getComponentFromBucket(componentKey);
   if (existing) {
     return Promise.resolve(existing);
@@ -141,7 +151,11 @@ function retrieveComponentBase(componentKey: string, isPortfolio: boolean, branc
 
   const metrics = getMetrics(isPortfolio);
 
-  return getComponent(componentKey, metrics, branch).then(component => {
+  return getComponent({
+    componentKey,
+    metricKeys: metrics.join(),
+    ...getBranchLikeQuery(branchLike)
+  }).then(component => {
     addComponent(component);
     return component;
   });
@@ -150,7 +164,7 @@ function retrieveComponentBase(componentKey: string, isPortfolio: boolean, branc
 export function retrieveComponentChildren(
   componentKey: string,
   isPortfolio: boolean,
-  branch?: string
+  branchLike?: BranchLike
 ): Promise<{ components: Component[]; page: number; total: number }> {
   const existing = getComponentChildren(componentKey);
   if (existing) {
@@ -163,9 +177,13 @@ export function retrieveComponentChildren(
 
   const metrics = getMetrics(isPortfolio);
 
-  return getChildren(componentKey, metrics, { branch, ps: PAGE_SIZE, s: 'qualifier,name' })
+  return getChildren(componentKey, metrics, {
+    ps: PAGE_SIZE,
+    s: 'qualifier,name',
+    ...getBranchLikeQuery(branchLike)
+  })
     .then(prepareChildren)
-    .then(expandRootDir(metrics, branch))
+    .then(expandRootDir(metrics, branchLike))
     .then(r => {
       addComponentChildren(componentKey, r.components, r.total, r.page);
       storeChildrenBase(r.components);
@@ -175,18 +193,18 @@ export function retrieveComponentChildren(
 }
 
 function retrieveComponentBreadcrumbs(
-  componentKey: string,
-  branch?: string
+  component: string,
+  branchLike?: BranchLike
 ): Promise<Breadcrumb[]> {
-  const existing = getComponentBreadcrumbs(componentKey);
+  const existing = getComponentBreadcrumbs(component);
   if (existing) {
     return Promise.resolve(existing);
   }
 
-  return getBreadcrumbs(componentKey, branch)
+  return getBreadcrumbs({ component, ...getBranchLikeQuery(branchLike) })
     .then(skipRootDir)
     .then(breadcrumbs => {
-      addComponentBreadcrumbs(componentKey, breadcrumbs);
+      addComponentBreadcrumbs(component, breadcrumbs);
       return breadcrumbs;
     });
 }
@@ -194,7 +212,7 @@ function retrieveComponentBreadcrumbs(
 export function retrieveComponent(
   componentKey: string,
   isPortfolio: boolean,
-  branch?: string
+  branchLike?: BranchLike
 ): Promise<{
   breadcrumbs: Component[];
   component: Component;
@@ -203,9 +221,9 @@ export function retrieveComponent(
   total: number;
 }> {
   return Promise.all([
-    retrieveComponentBase(componentKey, isPortfolio, branch),
-    retrieveComponentChildren(componentKey, isPortfolio, branch),
-    retrieveComponentBreadcrumbs(componentKey, branch)
+    retrieveComponentBase(componentKey, isPortfolio, branchLike),
+    retrieveComponentChildren(componentKey, isPortfolio, branchLike),
+    retrieveComponentBreadcrumbs(componentKey, branchLike)
   ]).then(r => {
     return {
       component: r[0],
@@ -221,13 +239,17 @@ export function loadMoreChildren(
   componentKey: string,
   page: number,
   isPortfolio: boolean,
-  branch?: string
+  branchLike?: BranchLike
 ): Promise<Children> {
   const metrics = getMetrics(isPortfolio);
 
-  return getChildren(componentKey, metrics, { branch, ps: PAGE_SIZE, p: page })
+  return getChildren(componentKey, metrics, {
+    ps: PAGE_SIZE,
+    p: page,
+    ...getBranchLikeQuery(branchLike)
+  })
     .then(prepareChildren)
-    .then(expandRootDir(metrics, branch))
+    .then(expandRootDir(metrics, branchLike))
     .then(r => {
       addComponentChildren(componentKey, r.components, r.total, r.page);
       storeChildrenBase(r.components);

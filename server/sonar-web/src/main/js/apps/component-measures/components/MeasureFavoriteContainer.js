@@ -57,7 +57,7 @@ class MeasureFavoriteContainer extends React.PureComponent {
   }
 
   fetchComponentFavorite({ component, onReceiveComponent } /*: Props */) {
-    getComponentForSourceViewer(component).then(component => {
+    getComponentForSourceViewer({ component }).then(component => {
       this.setState({ component });
       onReceiveComponent(component);
     });

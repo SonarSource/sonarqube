@@ -43,8 +43,8 @@ afterEach(() => {
 
 describe('#getPathUrlAsString', () => {
   it('should return component url', () => {
-    expect(getPathUrlAsString(getProjectUrl(SIMPLE_COMPONENT_KEY, 'branch:7.0'))).toBe(
-      '/dashboard?id=' + SIMPLE_COMPONENT_KEY + '&branch=branch%3A7.0'
+    expect(getPathUrlAsString(getProjectUrl(SIMPLE_COMPONENT_KEY))).toBe(
+      '/dashboard?id=' + SIMPLE_COMPONENT_KEY
     );
   });
 

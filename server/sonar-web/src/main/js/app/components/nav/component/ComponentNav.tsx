@@ -24,15 +24,15 @@ import ComponentNavMenu from './ComponentNavMenu';
 import ComponentNavBgTaskNotif from './ComponentNavBgTaskNotif';
 import RecentHistory from '../../RecentHistory';
 import * as theme from '../../../theme';
-import { Branch, Component } from '../../../types';
+import { BranchLike, Component } from '../../../types';
 import ContextNavBar from '../../../../components/nav/ContextNavBar';
 import { Task } from '../../../../api/ce';
 import { STATUSES } from '../../../../apps/background-tasks/constants';
 import './ComponentNav.css';
 
 interface Props {
-  branches: Branch[];
-  currentBranch?: Branch;
+  branchLikes: BranchLike[];
+  currentBranchLike: BranchLike | undefined;
   component: Component;
   currentTask?: Task;
   isInProgress?: boolean;
@@ -85,15 +85,18 @@ export default class ComponentNav extends React.PureComponent<Props> {
         height={notifComponent ? theme.contextNavHeightRaw + 20 : theme.contextNavHeightRaw}
         notif={notifComponent}>
         <ComponentNavHeader
-          branches={this.props.branches}
+          branchLikes={this.props.branchLikes}
           component={this.props.component}
-          currentBranch={this.props.currentBranch}
+          currentBranchLike={this.props.currentBranchLike}
           // to close dropdown on any location change
           location={this.props.location}
         />
-        <ComponentNavMeta branch={this.props.currentBranch} component={this.props.component} />
+        <ComponentNavMeta
+          branchLike={this.props.currentBranchLike}
+          component={this.props.component}
+        />
         <ComponentNavMenu
-          branch={this.props.currentBranch}
+          branchLike={this.props.currentBranchLike}
           component={this.props.component}
           // to re-render selected menu item
           location={this.props.location}
