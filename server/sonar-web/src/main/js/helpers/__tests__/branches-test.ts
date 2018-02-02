@@ -17,32 +17,39 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { sortBranchesAsTree } from '../branches';
-import { MainBranch, BranchType, ShortLivingBranch, LongLivingBranch } from '../../app/types';
+import { sortBranchesAsTree, isSameBranchLike } from '../branches';
+import {
+  MainBranch,
+  BranchType,
+  ShortLivingBranch,
+  LongLivingBranch,
+  PullRequest
+} from '../../app/types';
 
 describe('#sortBranchesAsTree', () => {
   it('sorts main branch and short-living branches', () => {
     const main = mainBranch();
-    const foo = shortLivingBranch('foo', 'master');
-    const bar = shortLivingBranch('bar', 'master');
+    const foo = shortLivingBranch({ name: 'foo' });
+    const bar = shortLivingBranch({ name: 'bar' });
     expect(sortBranchesAsTree([main, foo, bar])).toEqual([main, bar, foo]);
   });
 
   it('sorts main branch and long-living branches', () => {
     const main = mainBranch();
-    const foo = longLivingBranch('foo');
-    const bar = longLivingBranch('bar');
+    const foo = longLivingBranch({ name: 'foo' });
+    const bar = longLivingBranch({ name: 'bar' });
     expect(sortBranchesAsTree([main, foo, bar])).toEqual([main, bar, foo]);
   });
 
   it('sorts all types of branches', () => {
     const main = mainBranch();
-    const shortFoo = shortLivingBranch('shortFoo', 'master');
-    const shortBar = shortLivingBranch('shortBar', 'longBaz');
-    const shortPre = shortLivingBranch('shortPre', 'shortFoo');
-    const longBaz = longLivingBranch('longBaz');
-    const longQux = longLivingBranch('longQux');
-    const longQwe = longLivingBranch('longQwe');
+    const shortFoo = shortLivingBranch({ name: 'shortFoo', mergeBranch: 'master' });
+    const shortBar = shortLivingBranch({ name: 'shortBar', mergeBranch: 'longBaz' });
+    const shortPre = shortLivingBranch({ name: 'shortPre', mergeBranch: 'shortFoo' });
+    const longBaz = longLivingBranch({ name: 'longBaz' });
+    const longQux = longLivingBranch({ name: 'longQux' });
+    const longQwe = longLivingBranch({ name: 'longQwe' });
+    const pr = pullRequest({ base: 'master' });
     // - main                     - main
     //    - shortFoo                - shortFoo
     //      - shortPre              - shortPre
@@ -51,8 +58,43 @@ describe('#sortBranchesAsTree', () => {
     //       - longQwe            - longQwe
     //    - longQux               - longQux
     expect(
-      sortBranchesAsTree([main, shortFoo, shortBar, shortPre, longBaz, longQux, longQwe])
-    ).toEqual([main, shortFoo, shortPre, longBaz, shortBar, longQux, longQwe]);
+      sortBranchesAsTree([main, shortFoo, shortBar, shortPre, longBaz, longQux, longQwe, pr])
+    ).toEqual([main, pr, shortFoo, shortPre, longBaz, shortBar, longQux, longQwe]);
+  });
+});
+
+describe('#isSameBranchLike', () => {
+  it('compares different kinds', () => {
+    const main = mainBranch();
+    const short = shortLivingBranch({ name: 'foo' });
+    const long = longLivingBranch({ name: 'foo' });
+    const pr = pullRequest();
+    expect(isSameBranchLike(main, pr)).toBeFalsy();
+    expect(isSameBranchLike(main, short)).toBeFalsy();
+    expect(isSameBranchLike(main, long)).toBeFalsy();
+    expect(isSameBranchLike(pr, short)).toBeFalsy();
+    expect(isSameBranchLike(pr, long)).toBeFalsy();
+    expect(isSameBranchLike(short, long)).toBeFalsy();
+  });
+
+  it('compares pull requests', () => {
+    expect(isSameBranchLike(pullRequest({ id: '1234' }), pullRequest({ id: '1234' }))).toBeTruthy();
+    expect(isSameBranchLike(pullRequest({ id: '1234' }), pullRequest({ id: '5678' }))).toBeFalsy();
+  });
+
+  it('compares branches', () => {
+    expect(
+      isSameBranchLike(longLivingBranch({ name: 'foo' }), longLivingBranch({ name: 'foo' }))
+    ).toBeTruthy();
+    expect(
+      isSameBranchLike(shortLivingBranch({ name: 'foo' }), shortLivingBranch({ name: 'foo' }))
+    ).toBeTruthy();
+    expect(
+      isSameBranchLike(longLivingBranch({ name: 'foo' }), longLivingBranch({ name: 'bar' }))
+    ).toBeFalsy();
+    expect(
+      isSameBranchLike(shortLivingBranch({ name: 'foo' }), shortLivingBranch({ name: 'bar' }))
+    ).toBeFalsy();
   });
 });
 
@@ -60,12 +102,31 @@ function mainBranch(): MainBranch {
   return { isMain: true, name: 'master' };
 }
 
-function shortLivingBranch(name: string, mergeBranch: string): ShortLivingBranch {
+function shortLivingBranch(overrides?: Partial<ShortLivingBranch>): ShortLivingBranch {
   const status = { bugs: 0, codeSmells: 0, vulnerabilities: 0 };
-  return { isMain: false, mergeBranch, name, status, type: BranchType.SHORT };
+  return {
+    isMain: false,
+    mergeBranch: 'master',
+    name: 'foo',
+    status,
+    type: BranchType.SHORT,
+    ...overrides
+  };
 }
 
-function longLivingBranch(name: string): LongLivingBranch {
+function longLivingBranch(overrides?: Partial<LongLivingBranch>): LongLivingBranch {
   const status = { qualityGateStatus: 'OK' };
-  return { isMain: false, name, status, type: BranchType.LONG };
+  return { isMain: false, name: 'foo', status, type: BranchType.LONG, ...overrides };
+}
+
+function pullRequest(overrides?: Partial<PullRequest>): PullRequest {
+  const status = { bugs: 0, codeSmells: 0, vulnerabilities: 0 };
+  return {
+    base: 'master',
+    branch: 'feature',
+    id: '1234',
+    status,
+    title: 'Random Name',
+    ...overrides
+  };
 }

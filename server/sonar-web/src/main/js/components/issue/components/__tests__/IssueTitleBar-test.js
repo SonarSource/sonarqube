@@ -48,7 +48,7 @@ const issueWithLocations = {
 it('should render the titlebar correctly', () => {
   const element = shallow(
     <IssueTitleBar
-      branch="feature-1.0"
+      branchLike={{ isMain: false, name: 'feature-1.0', type: 'SHORT' }}
       issue={issue}
       currentPopup={null}
       onFail={jest.fn()}

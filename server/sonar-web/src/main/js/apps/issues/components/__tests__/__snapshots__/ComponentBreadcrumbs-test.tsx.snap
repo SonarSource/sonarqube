@@ -19,7 +19,6 @@ exports[`renders 1`] = `
         Object {
           "pathname": "/dashboard",
           "query": Object {
-            "branch": undefined,
             "id": "proj",
           },
         }
@@ -37,10 +36,10 @@ exports[`renders 1`] = `
     style={Object {}}
     to={
       Object {
-        "pathname": "/dashboard",
+        "pathname": "/code",
         "query": Object {
-          "branch": undefined,
-          "id": "comp",
+          "id": "proj",
+          "selected": "comp",
         },
       }
     }
@@ -71,10 +70,11 @@ exports[`renders with branch 1`] = `
       style={Object {}}
       to={
         Object {
-          "pathname": "/dashboard",
+          "pathname": "/project/issues",
           "query": Object {
             "branch": "feature",
             "id": "proj",
+            "resolved": "false",
           },
         }
       }
@@ -94,10 +94,11 @@ exports[`renders with branch 1`] = `
       style={Object {}}
       to={
         Object {
-          "pathname": "/dashboard",
+          "pathname": "/project/issues",
           "query": Object {
             "branch": "feature",
             "id": "sub-proj",
+            "resolved": "false",
           },
         }
       }
@@ -114,10 +115,11 @@ exports[`renders with branch 1`] = `
     style={Object {}}
     to={
       Object {
-        "pathname": "/dashboard",
+        "pathname": "/code",
         "query": Object {
           "branch": "feature",
-          "id": "comp",
+          "id": "proj",
+          "selected": "comp",
         },
       }
     }
@@ -150,7 +152,6 @@ exports[`renders with sub-project 1`] = `
         Object {
           "pathname": "/dashboard",
           "query": Object {
-            "branch": undefined,
             "id": "proj",
           },
         }
@@ -173,7 +174,6 @@ exports[`renders with sub-project 1`] = `
         Object {
           "pathname": "/dashboard",
           "query": Object {
-            "branch": undefined,
             "id": "sub-proj",
           },
         }
@@ -191,10 +191,10 @@ exports[`renders with sub-project 1`] = `
     style={Object {}}
     to={
       Object {
-        "pathname": "/dashboard",
+        "pathname": "/code",
         "query": Object {
-          "branch": undefined,
-          "id": "comp",
+          "id": "proj",
+          "selected": "comp",
         },
       }
     }

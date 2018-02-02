@@ -51,6 +51,12 @@ export default class SettingForm extends React.PureComponent<Props, State> {
     this.mounted = false;
   }
 
+  stopLoading = () => {
+    if (this.mounted) {
+      this.setState({ submitting: false });
+    }
+  };
+
   handleSubmit = (event: React.SyntheticEvent<HTMLFormElement>) => {
     event.preventDefault();
 
@@ -65,11 +71,7 @@ export default class SettingForm extends React.PureComponent<Props, State> {
       component: this.props.project,
       key: this.props.setting.key,
       value
-    }).then(this.props.onChange, () => {
-      if (this.mounted) {
-        this.setState({ submitting: false });
-      }
-    });
+    }).then(this.props.onChange, this.stopLoading);
   };
 
   handleValueChange = (event: React.SyntheticEvent<HTMLInputElement>) => {
@@ -78,14 +80,11 @@ export default class SettingForm extends React.PureComponent<Props, State> {
 
   handleResetClick = () => {
     this.setState({ submitting: true });
-    resetSettingValue(this.props.setting.key, this.props.project, this.props.branch).then(
-      this.props.onChange,
-      () => {
-        if (this.mounted) {
-          this.setState({ submitting: false });
-        }
-      }
-    );
+    resetSettingValue({
+      keys: this.props.setting.key,
+      component: this.props.project,
+      branch: this.props.branch
+    }).then(this.props.onChange, this.stopLoading);
   };
 
   render() {

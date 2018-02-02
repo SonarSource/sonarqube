@@ -36,7 +36,15 @@ export interface AppState {
   qualifiers: string[];
 }
 
-export type Branch = MainBranch | LongLivingBranch | ShortLivingBranch;
+export interface Branch {
+  analysisDate?: string;
+  isMain: boolean;
+  name: string;
+}
+
+export type BranchLike = Branch | PullRequest;
+
+export type BranchParameters = { branch?: string } | { pullRequest?: string };
 
 export enum BranchType {
   LONG = 'LONG',
@@ -173,23 +181,14 @@ export interface LoggedInUser extends CurrentUser {
   name: string;
 }
 
-export interface LongLivingBranch {
-  analysisDate?: string;
+export interface LongLivingBranch extends Branch {
   isMain: false;
-  name: string;
-  status?: {
-    qualityGateStatus: string;
-  };
+  status?: { qualityGateStatus: string };
   type: BranchType.LONG;
 }
 
-export interface MainBranch {
-  analysisDate?: string;
+export interface MainBranch extends Branch {
   isMain: true;
-  name: string;
-  status?: {
-    qualityGateStatus: string;
-  };
 }
 
 export interface Metric {
@@ -243,6 +242,21 @@ export interface PermissionTemplate {
     groupsCount: number;
     withProjectCreator?: boolean;
   }>;
+}
+
+export interface PullRequest {
+  analysisDate?: string;
+  base: string;
+  branch: string;
+  id: string;
+  isOrphan?: true;
+  status?: {
+    bugs: number;
+    codeSmells: number;
+    vulnerabilities: number;
+  };
+  title: string;
+  url?: string;
 }
 
 export interface Rule {
@@ -312,12 +326,10 @@ export enum RuleScope {
   All = 'ALL'
 }
 
-export interface ShortLivingBranch {
-  analysisDate?: string;
+export interface ShortLivingBranch extends Branch {
   isMain: false;
   isOrphan?: true;
   mergeBranch: string;
-  name: string;
   status?: {
     bugs: number;
     codeSmells: number;

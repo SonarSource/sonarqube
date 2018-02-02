@@ -25,7 +25,8 @@ import {
   MainBranch,
   ShortLivingBranch,
   LongLivingBranch,
-  Component
+  Component,
+  PullRequest
 } from '../../../../types';
 import { elementKeydown } from '../../../../../helpers/testUtils';
 
@@ -35,9 +36,15 @@ it('renders list', () => {
   expect(
     shallow(
       <ComponentNavBranchesMenu
-        branches={[mainBranch(), shortBranch('foo'), longBranch('bar'), shortBranch('baz', true)]}
+        branchLikes={[
+          mainBranch(),
+          shortBranch('foo'),
+          longBranch('bar'),
+          shortBranch('baz', true),
+          pullRequest('qux')
+        ]}
         component={component}
-        currentBranch={mainBranch()}
+        currentBranchLike={mainBranch()}
         onClose={jest.fn()}
       />
     )
@@ -47,9 +54,9 @@ it('renders list', () => {
 it('searches', () => {
   const wrapper = shallow(
     <ComponentNavBranchesMenu
-      branches={[mainBranch(), shortBranch('foo'), shortBranch('foobar'), longBranch('bar')]}
+      branchLikes={[mainBranch(), shortBranch('foo'), shortBranch('foobar'), longBranch('bar')]}
       component={component}
-      currentBranch={mainBranch()}
+      currentBranchLike={mainBranch()}
       onClose={jest.fn()}
     />
   );
@@ -60,21 +67,21 @@ it('searches', () => {
 it('selects next & previous', () => {
   const wrapper = shallow(
     <ComponentNavBranchesMenu
-      branches={[mainBranch(), shortBranch('foo'), shortBranch('foobar'), longBranch('bar')]}
+      branchLikes={[mainBranch(), shortBranch('foo'), shortBranch('foobar'), longBranch('bar')]}
       component={component}
-      currentBranch={mainBranch()}
+      currentBranchLike={mainBranch()}
       onClose={jest.fn()}
     />
   );
   elementKeydown(wrapper.find('SearchBox'), 40);
   wrapper.update();
-  expect(wrapper.state().selected).toBe('foo');
+  expect(wrapper.state().selected).toEqual(shortBranch('foo'));
   elementKeydown(wrapper.find('SearchBox'), 40);
   wrapper.update();
-  expect(wrapper.state().selected).toBe('foobar');
+  expect(wrapper.state().selected).toEqual(shortBranch('foobar'));
   elementKeydown(wrapper.find('SearchBox'), 38);
   wrapper.update();
-  expect(wrapper.state().selected).toBe('foo');
+  expect(wrapper.state().selected).toEqual(shortBranch('foo'));
 });
 
 function mainBranch(): MainBranch {
@@ -94,4 +101,14 @@ function shortBranch(name: string, isOrphan?: true): ShortLivingBranch {
 
 function longBranch(name: string): LongLivingBranch {
   return { isMain: false, name, type: BranchType.LONG };
+}
+
+function pullRequest(title: string): PullRequest {
+  return {
+    base: 'master',
+    branch: 'feature',
+    id: '1234',
+    status: { bugs: 0, codeSmells: 0, vulnerabilities: 0 },
+    title
+  };
 }

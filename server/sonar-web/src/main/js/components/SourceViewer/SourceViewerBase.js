@@ -43,6 +43,7 @@ import {
   getDuplications,
   getTests
 } from '../../api/components';
+import { isSameBranchLike, getBranchLikeQuery } from '../../helpers/branches';
 import { parseDate } from '../../helpers/dates';
 import { translate } from '../../helpers/l10n';
 import { scrollToElement } from '../../helpers/scrolling';
@@ -55,7 +56,7 @@ import './styles.css';
 /*::
 type Props = {
   aroundLine?: number,
-  branch?: string,
+  branchLike?: { id?: string; name: string },
   component: string,
   displayAllIssues: boolean,
   displayIssueLocationsCount?: boolean;
@@ -64,9 +65,9 @@ type Props = {
   highlightedLine?: number,
   highlightedLocations?: Array<FlowLocation>,
   highlightedLocationMessage?: { index: number, text: string },
-  loadComponent: (component: string, branch?: string) => Promise<*>,
-  loadIssues: (component: string, from: number, to: number, branch?: string) => Promise<*>,
-  loadSources: (component: string, from: number, to: number, branch?: string) => Promise<*>,
+  loadComponent: (component: string, branchLike?: { id?: string; name: string }) => Promise<*>,
+  loadIssues: (component: string, from: number, to: number, branchLike?: { id?: string; name: string }) => Promise<*>,
+  loadSources: (component: string, from: number, to: number, branchLike?: { id?: string; name: string }) => Promise<*>,
   onLoaded?: (component: Object, sources: Array<*>, issues: Array<*>) => void,
   onLocationSelect?: number => void,
   onIssueChange?: Issue => void,
@@ -116,10 +117,13 @@ type State = {
 
 const LINES = 500;
 
-function loadComponent(key /*: string */, branch /*: string | void */) /*: Promise<*> */ {
+function loadComponent(
+  key /*: string */,
+  branchLike /*: { id?: string; name: string } | void */
+) /*: Promise<*> */ {
   return Promise.all([
-    getComponentForSourceViewer(key, branch),
-    getComponentData(key, branch)
+    getComponentForSourceViewer({ component: key, ...getBranchLikeQuery(branchLike) }),
+    getComponentData({ component: key, ...getBranchLikeQuery(branchLike) })
   ]).then(([component, data]) => ({
     ...component,
     leakPeriodDate: data.leakPeriodDate && parseDate(data.leakPeriodDate)
@@ -130,9 +134,9 @@ function loadSources(
   key /*: string */,
   from /*: ?number */,
   to /*: ?number */,
-  branch /*: string | void */
+  branchLike /*: { id?: string; name: string } | void */
 ) /*: Promise<Array<*>> */ {
-  return getSources(key, from, to, branch);
+  return getSources({ key, from, to, ...getBranchLikeQuery(branchLike) });
 }
 
 export default class SourceViewerBase extends React.PureComponent {
@@ -189,7 +193,10 @@ export default class SourceViewerBase extends React.PureComponent {
   }
 
   componentDidUpdate(prevProps /*: Props */) {
-    if (prevProps.component !== this.props.component || prevProps.branch !== this.props.branch) {
+    if (
+      prevProps.component !== this.props.component ||
+      !isSameBranchLike(prevProps.branchLike, this.props.branchLike)
+    ) {
       this.fetchComponent();
     } else if (
       this.props.aroundLine != null &&
@@ -241,7 +248,7 @@ export default class SourceViewerBase extends React.PureComponent {
   fetchComponent() {
     this.setState({ loading: true });
     const loadIssues = (component, sources) => {
-      this.props.loadIssues(this.props.component, 1, LINES, this.props.branch).then(issues => {
+      this.props.loadIssues(this.props.component, 1, LINES, this.props.branchLike).then(issues => {
         if (this.mounted) {
           const finalSources = sources.slice(0, LINES);
           this.setState(
@@ -301,7 +308,7 @@ export default class SourceViewerBase extends React.PureComponent {
     };
 
     this.props
-      .loadComponent(this.props.component, this.props.branch)
+      .loadComponent(this.props.component, this.props.branchLike)
       .then(onResolve, onFailLoadComponent);
   }
 
@@ -372,7 +379,7 @@ export default class SourceViewerBase extends React.PureComponent {
       to++;
 
       return this.props
-        .loadSources(this.props.component, from, to, this.props.branch)
+        .loadSources(this.props.component, from, to, this.props.branchLike)
         .then(sources => resolve(sources), onFailLoadSources);
     });
   }
@@ -385,7 +392,7 @@ export default class SourceViewerBase extends React.PureComponent {
     this.setState({ loadingSourcesBefore: true });
     const from = Math.max(1, firstSourceLine.line - LINES);
     this.props
-      .loadSources(this.props.component, from, firstSourceLine.line - 1, this.props.branch)
+      .loadSources(this.props.component, from, firstSourceLine.line - 1, this.props.branchLike)
       .then(sources => {
         this.props.loadIssues(this.props.component, from, firstSourceLine.line - 1).then(issues => {
           if (this.mounted) {
@@ -415,7 +422,7 @@ export default class SourceViewerBase extends React.PureComponent {
     // request one additional line to define `hasSourcesAfter`
     const toLine = lastSourceLine.line + LINES + 1;
     this.props
-      .loadSources(this.props.component, fromLine, toLine, this.props.branch)
+      .loadSources(this.props.component, fromLine, toLine, this.props.branchLike)
       .then(sources => {
         this.props.loadIssues(this.props.component, fromLine, toLine).then(issues => {
           if (this.mounted) {
@@ -443,7 +450,10 @@ export default class SourceViewerBase extends React.PureComponent {
   };
 
   loadDuplications = (line /*: SourceLine */) => {
-    getDuplications(this.props.component, this.props.branch).then(r => {
+    getDuplications({
+      key: this.props.component,
+      ...getBranchLikeQuery(this.props.branchLike)
+    }).then(r => {
       if (this.mounted) {
         this.setState(
           {
@@ -464,12 +474,16 @@ export default class SourceViewerBase extends React.PureComponent {
   };
 
   handleCoverageClick = (line /*: SourceLine */, element /*: HTMLElement */) => {
-    getTests(this.props.component, line.line, this.props.branch).then(tests => {
+    getTests({
+      sourceFileKey: this.props.component,
+      sourceFileLineNumber: line.line,
+      ...getBranchLikeQuery(this.props.branchLike)
+    }).then(tests => {
       const popup = new CoveragePopupView({
         line,
         tests,
         triggerEl: element,
-        branch: this.props.branch
+        branchLike: this.props.branchLike
       });
       popup.render();
     });
@@ -502,7 +516,7 @@ export default class SourceViewerBase extends React.PureComponent {
         component: this.state.component,
         files: this.state.duplicatedFiles,
         triggerEl: element,
-        branch: this.props.branch
+        branchLike: this.props.branchLike
       });
       popup.render();
     }
@@ -526,7 +540,7 @@ export default class SourceViewerBase extends React.PureComponent {
       line,
       triggerEl: element,
       component: this.state.component,
-      branch: this.props.branch
+      branchLike: this.props.branchLike
     });
     popup.render();
   }
@@ -603,7 +617,7 @@ export default class SourceViewerBase extends React.PureComponent {
     const hasSourcesBefore = sources.length > 0 && sources[0].line > 1;
     return (
       <SourceViewerCode
-        branch={this.props.branch}
+        branchLike={this.props.branchLike}
         displayAllIssues={this.props.displayAllIssues}
         displayIssueLocationsCount={this.props.displayIssueLocationsCount}
         displayIssueLocationsLink={this.props.displayIssueLocationsLink}
@@ -681,7 +695,10 @@ export default class SourceViewerBase extends React.PureComponent {
 
     return (
       <div className={className} ref={node => (this.node = node)}>
-        <SourceViewerHeader branch={this.props.branch} sourceViewerFile={this.state.component} />
+        <SourceViewerHeader
+          branchLike={this.props.branchLike}
+          sourceViewerFile={this.state.component}
+        />
         {sourceRemoved && (
           <div className="alert alert-warning spacer-top">
             {translate('code_viewer.no_source_code_displayed_due_to_source_removed')}

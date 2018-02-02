@@ -19,10 +19,12 @@
  */
 import React from 'react';
 import { sortBy } from 'lodash';
+import PropTypes from 'prop-types';
 import QualityGateCondition from './QualityGateCondition';
 import { ComponentType, ConditionsListType } from '../propTypes';
 import { getMeasuresAndMeta } from '../../../api/measures';
 import { enhanceMeasuresWithMetrics } from '../../../helpers/measures';
+import { isSameBranchLike, getBranchLikeQuery } from '../../../helpers/branches';
 
 const LEVEL_ORDER = ['ERROR', 'WARN'];
 
@@ -35,7 +37,7 @@ function enhanceConditions(conditions, measures) {
 
 export default class QualityGateConditions extends React.PureComponent {
   static propTypes = {
-    // branch
+    branchLike: PropTypes.object,
     component: ComponentType.isRequired,
     conditions: ConditionsListType.isRequired
   };
@@ -51,7 +53,7 @@ export default class QualityGateConditions extends React.PureComponent {
 
   componentDidUpdate(prevProps) {
     if (
-      prevProps.branch !== this.props.branch ||
+      !isSameBranchLike(prevProps.branchLike, this.props.branchLike) ||
       prevProps.conditions !== this.props.conditions ||
       prevProps.component !== this.props.component
     ) {
@@ -64,13 +66,13 @@ export default class QualityGateConditions extends React.PureComponent {
   }
 
   loadFailedMeasures() {
-    const { branch, component, conditions } = this.props;
+    const { branchLike, component, conditions } = this.props;
     const failedConditions = conditions.filter(c => c.level !== 'OK');
     if (failedConditions.length > 0) {
       const metrics = failedConditions.map(condition => condition.metric);
       getMeasuresAndMeta(component.key, metrics, {
         additionalFields: 'metrics',
-        branch
+        ...getBranchLikeQuery(branchLike)
       }).then(r => {
         if (this.mounted) {
           const measures = enhanceMeasuresWithMetrics(r.component.measures, r.metrics);

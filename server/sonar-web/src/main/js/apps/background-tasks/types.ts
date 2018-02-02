@@ -29,6 +29,8 @@ export interface Task {
   hasScannerContext?: boolean;
   id: string;
   organization?: string;
+  pullRequest?: string;
+  pullRequestTitle?: string;
   startedAt?: string;
   status: string;
   submittedAt: string;

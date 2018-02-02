@@ -21,47 +21,55 @@ import * as React from 'react';
 import { Link } from 'react-router';
 import * as classNames from 'classnames';
 import BranchStatus from '../../../../components/common/BranchStatus';
-import { Branch, Component } from '../../../types';
+import { BranchLike, Component } from '../../../types';
 import BranchIcon from '../../../../components/icons-components/BranchIcon';
-import { isShortLivingBranch } from '../../../../helpers/branches';
+import {
+  isShortLivingBranch,
+  getBranchLikeDisplayName,
+  getBranchLikeKey,
+  isMainBranch,
+  isPullRequest
+} from '../../../../helpers/branches';
 import { translate } from '../../../../helpers/l10n';
-import { getProjectBranchUrl } from '../../../../helpers/urls';
+import { getBranchLikeUrl } from '../../../../helpers/urls';
 import Tooltip from '../../../../components/controls/Tooltip';
 
 export interface Props {
-  branch: Branch;
+  branchLike: BranchLike;
   component: Component;
-  onSelect: (branch: Branch) => void;
+  onSelect: (branchLike: BranchLike) => void;
   selected: boolean;
 }
 
-export default function ComponentNavBranchesMenuItem({ branch, ...props }: Props) {
+export default function ComponentNavBranchesMenuItem({ branchLike, ...props }: Props) {
   const handleMouseEnter = () => {
-    props.onSelect(branch);
+    props.onSelect(branchLike);
   };
 
+  const displayName = getBranchLikeDisplayName(branchLike);
+  const shouldBeIndented =
+    (isShortLivingBranch(branchLike) && !branchLike.isOrphan) || isPullRequest(branchLike);
+
   return (
-    <li key={branch.name} onMouseEnter={handleMouseEnter}>
-      <Tooltip mouseEnterDelay={0.5} overlay={branch.name} placement="right">
+    <li key={getBranchLikeKey(branchLike)} onMouseEnter={handleMouseEnter}>
+      <Tooltip mouseEnterDelay={0.5} overlay={displayName} placement="right">
         <Link
           className={classNames('navbar-context-meta-branch-menu-item', {
             active: props.selected
           })}
-          to={getProjectBranchUrl(props.component.key, branch)}>
+          to={getBranchLikeUrl(props.component.key, branchLike)}>
           <div className="navbar-context-meta-branch-menu-item-name text-ellipsis">
             <BranchIcon
-              branch={branch}
-              className={classNames('little-spacer-right', {
-                'big-spacer-left': isShortLivingBranch(branch) && !branch.isOrphan
-              })}
+              branchLike={branchLike}
+              className={classNames('little-spacer-right', { 'big-spacer-left': shouldBeIndented })}
             />
-            {branch.name}
-            {branch.isMain && (
+            {displayName}
+            {isMainBranch(branchLike) && (
               <div className="outline-badge spacer-left">{translate('branches.main_branch')}</div>
             )}
           </div>
           <div className="big-spacer-left note">
-            <BranchStatus branch={branch} concise={true} />
+            <BranchStatus branchLike={branchLike} concise={true} />
           </div>
         </Link>
       </Tooltip>
