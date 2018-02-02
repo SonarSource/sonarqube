@@ -29,6 +29,7 @@ import java.util.stream.IntStream;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.junit.rules.ExpectedException;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
@@ -95,6 +96,8 @@ public class RegisterRulesTest {
 
   private System2 system = mock(System2.class);
 
+  @org.junit.Rule
+  public ExpectedException expectedException = ExpectedException.none();
   @org.junit.Rule
   public DbTester dbTester = DbTester.create(system);
   @org.junit.Rule
@@ -783,6 +786,93 @@ public class RegisterRulesTest {
     assertThat(dbClient.ruleDao().selectAllDefinitions(dbTester.getSession())).hasSize(1);
     deprecatedRuleKeys = dbClient.ruleDao().selectAllDeprecatedRuleKeys(dbTester.getSession());
     assertThat(deprecatedRuleKeys).hasSize(0);
+  }
+
+  @Test
+  public void declaring_two_rules_with_same_deprecated_RuleKey_should_throw_ISE() {
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("The following deprecated rule keys are declared at least twice [fake:old]");
+
+    execute(context -> {
+      NewRepository repo = context.createRepository("fake", "java");
+      repo.createRule("newKey1")
+        .setName("One")
+        .setHtmlDescription("Description of One")
+        .setSeverity(BLOCKER)
+        .setInternalKey("config1")
+        .setTags("tag1", "tag2", "tag3")
+        .setType(RuleType.CODE_SMELL)
+        .addDeprecatedRuleKey("fake", "old")
+        .setStatus(RuleStatus.BETA);
+      repo.createRule("newKey2")
+        .setName("One")
+        .setHtmlDescription("Description of One")
+        .setSeverity(BLOCKER)
+        .setInternalKey("config1")
+        .setTags("tag1", "tag2", "tag3")
+        .setType(RuleType.CODE_SMELL)
+        .addDeprecatedRuleKey("fake", "old")
+        .setStatus(RuleStatus.BETA);
+      repo.done();
+    });
+  }
+
+  @Test
+  public void declaring_a_rule_with_a_deprecated_RuleKey_still_used_should_throw_ISE() {
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("The following rule keys are declared both as deprecated and used key [fake:newKey1]");
+
+    execute(context -> {
+      NewRepository repo = context.createRepository("fake", "java");
+      repo.createRule("newKey1")
+        .setName("One")
+        .setHtmlDescription("Description of One")
+        .setSeverity(BLOCKER)
+        .setInternalKey("config1")
+        .setTags("tag1", "tag2", "tag3")
+        .setType(RuleType.CODE_SMELL)
+        .setStatus(RuleStatus.BETA);
+
+      repo.createRule("newKey2")
+        .setName("One")
+        .setHtmlDescription("Description of One")
+        .setSeverity(BLOCKER)
+        .setInternalKey("config1")
+        .setTags("tag1", "tag2", "tag3")
+        .setType(RuleType.CODE_SMELL)
+        .addDeprecatedRuleKey("fake", "newKey1")
+        .setStatus(RuleStatus.BETA);
+      repo.done();
+    });
+  }
+
+  @Test
+  public void declaring_a_rule_with_an_existing_RuleKey_still_used_should_throw_IAE() {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("The rule 'newKey1' of repository 'fake' is declared several times");
+
+    execute(context -> {
+      NewRepository repo = context.createRepository("fake", "java");
+      repo.createRule("newKey1")
+        .setName("One")
+        .setHtmlDescription("Description of One")
+        .setSeverity(BLOCKER)
+        .setInternalKey("config1")
+        .setTags("tag1", "tag2", "tag3")
+        .setType(RuleType.CODE_SMELL)
+        .setStatus(RuleStatus.BETA);
+
+      repo.createRule("newKey1")
+        .setName("One")
+        .setHtmlDescription("Description of One")
+        .setSeverity(BLOCKER)
+        .setInternalKey("config1")
+        .setTags("tag1", "tag2", "tag3")
+        .setType(RuleType.CODE_SMELL)
+        .addDeprecatedRuleKey("fake", "newKey1")
+        .setStatus(RuleStatus.BETA);
+      repo.done();
+    });
   }
 
   private void execute(RulesDefinition... defs) {

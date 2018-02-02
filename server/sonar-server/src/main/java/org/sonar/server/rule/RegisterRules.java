@@ -24,6 +24,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -70,8 +71,10 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.difference;
+import static com.google.common.collect.Sets.intersection;
 import static java.lang.String.format;
 import static java.util.Collections.emptySet;
+import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.core.util.stream.MoreCollectors.toSet;
 
 /**
@@ -115,6 +118,8 @@ public class RegisterRules implements Startable {
       List<RulesDefinition.ExtendedRepository> repositories = getRepositories(ruleDefinitionContext);
       RegisterRulesContext registerRulesContext = createRegisterRulesContext(dbSession);
       Map<Integer, Set<SingleDeprecatedRuleKey>> existingDeprecatedRuleKeys = loadDeprecatedRuleKeys(dbSession);
+
+      verifyRuleKeyConsistency(repositories);
 
       boolean orgsEnabled = organizationFlags.isEnabled(dbSession);
       for (RulesDefinition.ExtendedRepository repoDef : repositories) {
@@ -283,7 +288,7 @@ public class RegisterRules implements Startable {
     List<RuleRepositoryDto> dtos = repositories
       .stream()
       .map(r -> new RuleRepositoryDto(r.key(), r.language(), r.name()))
-      .collect(MoreCollectors.toList(repositories.size()));
+      .collect(toList(repositories.size()));
     dbClient.ruleRepositoryDao().insert(dbSession, dtos);
     dbSession.commit();
   }
@@ -549,7 +554,7 @@ public class RegisterRules implements Startable {
     // DeprecatedKeys that must be deleted
     List<String> uuidsToBeDeleted = difference(deprecatedRuleKeysFromDB, deprecatedRuleKeysFromDefinition).stream()
       .map(SingleDeprecatedRuleKey::getUuid)
-      .collect(MoreCollectors.toList());
+      .collect(toList());
 
     dbClient.ruleDao().deleteDeprecatedRuleKeys(dbSession, uuidsToBeDeleted);
 
@@ -699,4 +704,43 @@ public class RegisterRules implements Startable {
     dbClient.ruleDao().update(session, rule);
   }
 
+
+  private static void verifyRuleKeyConsistency(List<RulesDefinition.ExtendedRepository> repositories) {
+    List<RulesDefinition.Rule> allRules = repositories.stream()
+      .flatMap(r -> r.rules().stream())
+      .collect(toList());
+
+    Set<RuleKey> definedRuleKeys = allRules.stream()
+      .map(r -> RuleKey.of(r.repository().key(), r.key()))
+      .collect(toSet());
+
+    List<RuleKey> definedDeprecatedRuleKeys = allRules.stream()
+      .flatMap(r -> r.deprecatedRuleKeys().stream())
+      .collect(toList());
+
+    Set<RuleKey> duplicates = findDuplicates(definedDeprecatedRuleKeys);
+    if (!duplicates.isEmpty()) {
+      throw new IllegalStateException(format("The following deprecated rule keys are declared at least twice [%s]",
+        duplicates.stream().map(RuleKey::toString).collect(Collectors.joining(","))));
+    }
+
+    Set<RuleKey> intersection = intersection(new HashSet<>(definedRuleKeys), new HashSet<>(definedDeprecatedRuleKeys)).immutableCopy();
+    if (!intersection.isEmpty()) {
+      throw new IllegalStateException(format("The following rule keys are declared both as deprecated and used key [%s]",
+        intersection.stream().map(RuleKey::toString).collect(Collectors.joining(","))));
+    }
+  }
+
+  private static <T> Set<T> findDuplicates(Collection<T> list) {
+    Set<T> duplicates = new HashSet<>();
+    Set<T> uniques = new HashSet<>();
+
+    list.stream().forEach(t -> {
+      if (!uniques.add(t)) {
+        duplicates.add(t);
+      }
+    });
+
+    return duplicates;
+  }
 }
