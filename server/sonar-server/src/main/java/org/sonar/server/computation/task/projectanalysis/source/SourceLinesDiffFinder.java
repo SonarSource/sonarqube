@@ -19,33 +19,30 @@
  */
 package org.sonar.server.computation.task.projectanalysis.source;
 
+import difflib.myers.DifferentiationFailedException;
 import difflib.myers.MyersDiff;
 import difflib.myers.PathNode;
 import java.util.List;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 
 public class SourceLinesDiffFinder {
+  private static final Logger LOG = Loggers.get(SourceLinesDiffFinder.class);
+  private final List<String> left;
+  private final List<String> right;
 
-  private final List<String> database;
-  private final List<String> report;
-
-  public SourceLinesDiffFinder(List<String> database, List<String> report) {
-    this.database = database;
-    this.report = report;
+  public SourceLinesDiffFinder(List<String> left, List<String> right) {
+    this.left = left;
+    this.right = right;
   }
 
-  /**
-   * Creates a diff between the file in the database and the file in the report using Myers' algorithm, and links matching lines between
-   * both files.
-   * @return an array with one entry for each line in the report. Those entries point either to a line in the database, or to 0, 
-   * in which case it means the line was added.
-   */
   public int[] findMatchingLines() {
-    int[] index = new int[report.size()];
+    int[] index = new int[right.size()];
 
-    int dbLine = database.size();
-    int reportLine = report.size();
+    int dbLine = left.size();
+    int reportLine = right.size();
     try {
-      PathNode node = MyersDiff.buildPath(database.toArray(), report.toArray());
+      PathNode node = MyersDiff.buildPath(left.toArray(), right.toArray());
 
       while (node.prev != null) {
         PathNode prevNode = node.prev;
@@ -65,7 +62,8 @@ public class SourceLinesDiffFinder {
         }
         node = prevNode;
       }
-    } catch (Exception e) {
+    } catch (DifferentiationFailedException e) {
+      LOG.error("Error finding matching lines", e);
       return index;
     }
     return index;

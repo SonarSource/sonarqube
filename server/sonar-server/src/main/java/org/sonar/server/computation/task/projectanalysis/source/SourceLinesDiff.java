@@ -22,5 +22,11 @@ package org.sonar.server.computation.task.projectanalysis.source;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 
 public interface SourceLinesDiff {
+  /**
+   * Creates a diff between the file in the database and the file in the report using Myers' algorithm, and links matching lines between
+   * both files.
+   * @return an array with one entry for each line in the left side. Those entries point either to a line in the right side, or to 0, 
+   * in which case it means the line was added.
+   */
   int[] getMatchingLines(Component component);
 }

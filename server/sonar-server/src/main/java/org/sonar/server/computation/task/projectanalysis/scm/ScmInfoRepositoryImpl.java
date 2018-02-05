@@ -75,15 +75,17 @@ public class ScmInfoRepositoryImpl implements ScmInfoRepository {
   private Optional<ScmInfo> getScmInfoForComponent(Component component) {
     ScannerReport.Changesets changesets = scannerReportReader.readChangesets(component.getReportAttributes().getRef());
 
-    if (changesets != null) {
-      if (changesets.getChangesetCount() == 0) {
-        return generateAndMergeDb(component, changesets.getCopyFromPrevious());
-      }
-      return getScmInfoFromReport(component, changesets);
+    if (changesets == null) {
+      LOGGER.trace("No SCM info for file '{}'", component.getKey());
+      // SCM not available. It might have been available before - don't keep author and revision.
+      return generateAndMergeDb(component, false);
     }
 
-    LOGGER.trace("No SCM info for file '{}'", component.getKey());
-    return generateAndMergeDb(component, false);
+    // will be empty if the flag "copy from previous" is set, or if the file is empty.
+    if (changesets.getChangesetCount() == 0) {
+      return generateAndMergeDb(component, changesets.getCopyFromPrevious());
+    }
+    return getScmInfoFromReport(component, changesets);
   }
 
   private static Optional<ScmInfo> getScmInfoFromReport(Component file, ScannerReport.Changesets changesets) {
@@ -92,6 +94,9 @@ public class ScmInfoRepositoryImpl implements ScmInfoRepository {
   }
 
   private Optional<ScmInfo> generateScmInfoForAllFile(Component file) {
+    if (file.getFileAttributes().getLines() == 0) {
+      return Optional.empty();
+    }
     Set<Integer> newOrChangedLines = IntStream.rangeClosed(1, file.getFileAttributes().getLines()).boxed().collect(Collectors.toSet());
     return Optional.of(GeneratedScmInfo.create(analysisMetadata.getAnalysisDate(), newOrChangedLines));
   }
@@ -106,13 +111,13 @@ public class ScmInfoRepositoryImpl implements ScmInfoRepository {
     return Changeset.newChangesetBuilder().setDate(changeset.getDate()).build();
   }
 
-  private Optional<ScmInfo> generateAndMergeDb(Component file, boolean copyFromPrevious) {
+  private Optional<ScmInfo> generateAndMergeDb(Component file, boolean keepAuthorAndRevision) {
     Optional<DbScmInfo> dbInfoOpt = scmInfoDbLoader.getScmInfo(file);
     if (!dbInfoOpt.isPresent()) {
       return generateScmInfoForAllFile(file);
     }
 
-    ScmInfo scmInfo = copyFromPrevious ? dbInfoOpt.get() : removeAuthorAndRevision(dbInfoOpt.get());
+    ScmInfo scmInfo = keepAuthorAndRevision ? dbInfoOpt.get() : removeAuthorAndRevision(dbInfoOpt.get());
     boolean fileUnchanged = file.getStatus() == Status.SAME && sourceHashRepository.getRawSourceHash(file).equals(dbInfoOpt.get().fileHash());
 
     if (fileUnchanged) {

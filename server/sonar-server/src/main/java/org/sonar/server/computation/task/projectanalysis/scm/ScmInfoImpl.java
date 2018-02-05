@@ -22,15 +22,11 @@ package org.sonar.server.computation.task.projectanalysis.scm;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Map;
-import java.util.stream.Collectors;
-import javax.annotation.CheckForNull;
 import javax.annotation.concurrent.Immutable;
 import static com.google.common.base.Preconditions.checkState;
 
 @Immutable
 public class ScmInfoImpl implements ScmInfo {
-
-  @CheckForNull
   private final Changeset latestChangeset;
   private final Map<Integer, Changeset> lineChangesets;
 
@@ -41,9 +37,8 @@ public class ScmInfoImpl implements ScmInfo {
   }
 
   private static Changeset computeLatestChangeset(Map<Integer, Changeset> lineChangesets) {
-    return lineChangesets.values().stream()
-      .collect(Collectors.maxBy(Comparator.comparing(Changeset::getDate)))
-      .orElse(null);
+    return lineChangesets.values().stream().max(Comparator.comparingLong(Changeset::getDate))
+      .orElseThrow(() -> new IllegalStateException("Expecting at least one Changeset to be present"));
   }
 
   @Override

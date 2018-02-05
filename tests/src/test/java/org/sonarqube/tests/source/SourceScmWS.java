@@ -19,25 +19,25 @@
  */
 package org.sonarqube.tests.source;
 
-import com.sonar.orchestrator.Orchestrator;
 import java.text.ParseException;
 import java.util.HashMap;
 import java.util.Map;
 import org.sonar.wsclient.jsonsimple.JSONArray;
 import org.sonar.wsclient.jsonsimple.JSONObject;
 import org.sonar.wsclient.jsonsimple.JSONValue;
+import org.sonarqube.qa.util.Tester;
+import org.sonarqube.ws.client.GetRequest;
 
 public class SourceScmWS {
+  public final Tester tester;
 
-  private final Orchestrator orchestrator;
-
-  public SourceScmWS(Orchestrator orchestrator) {
-    this.orchestrator = orchestrator;
+  public SourceScmWS(Tester tester) {
+    this.tester = tester;
   }
 
   public Map<Integer, LineData> getScmData(String fileKey) throws ParseException {
     Map<Integer, LineData> result = new HashMap<>();
-    String json = orchestrator.getServer().adminWsClient().get("api/sources/scm", "key", fileKey);
+    String json = tester.asAnonymous().wsClient().wsConnector().call(new GetRequest("api/sources/scm").setParam("key", fileKey)).content();
     JSONObject obj = (JSONObject) JSONValue.parse(json);
     JSONArray array = (JSONArray) obj.get("scm");
     for (Object anArray : array) {
@@ -47,6 +47,5 @@ public class SourceScmWS {
     }
     return result;
   }
-
 
 }
