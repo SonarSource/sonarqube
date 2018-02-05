@@ -19,6 +19,7 @@
  */
 package org.sonar.api.server.authentication;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.concurrent.Immutable;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -34,10 +35,12 @@ public final class Display {
 
   private final String iconPath;
   private final String backgroundColor;
+  private final String helpMessage;
 
   private Display(Builder builder) {
     this.iconPath = builder.iconPath;
     this.backgroundColor = builder.backgroundColor;
+    this.helpMessage = builder.helpMessage;
   }
 
   /**
@@ -64,6 +67,14 @@ public final class Display {
     return backgroundColor;
   }
 
+  /**
+   * Optional help message to be displayed near the provider button.
+   */
+  @CheckForNull
+  public String getHelpMessage() {
+    return helpMessage;
+  }
+
   public static Builder builder() {
     return new Builder();
   }
@@ -72,6 +83,7 @@ public final class Display {
 
     private String iconPath;
     private String backgroundColor = "#236a97";
+    private String helpMessage;
 
     private Builder() {
     }
@@ -89,6 +101,14 @@ public final class Display {
      */
     public Builder setBackgroundColor(String backgroundColor) {
       this.backgroundColor = backgroundColor;
+      return this;
+    }
+
+    /**
+     * @see Display#getHelpMessage()
+     */
+    public Builder setHelpMessage(@CheckForNull String helpMessage) {
+      this.helpMessage = helpMessage;
       return this;
     }
 
