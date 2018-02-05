@@ -19,14 +19,10 @@
  */
 package org.sonar.scanner.scan.branch;
 
-import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.api.config.Configuration;
-import org.sonar.scanner.bootstrap.GlobalConfiguration;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -34,33 +30,30 @@ public class ProjectBranchesProviderTest {
   private ProjectBranchesProvider provider = new ProjectBranchesProvider();
   private ProjectBranchesLoader mockLoader;
   private ProjectBranches mockBranches;
-  private GlobalConfiguration mockSettings;
 
   @Before
   public void setUp() {
     mockLoader = mock(ProjectBranchesLoader.class);
     mockBranches = mock(ProjectBranches.class);
-    mockSettings = mock(GlobalConfiguration.class);
   }
 
   @Test
   public void should_cache_branches() {
-    ProjectBranches branches = provider.provide(null, () -> "project", mockSettings);
-    assertThat(provider.provide(null, () -> "project", mockSettings)).isSameAs(branches);
+    ProjectBranches branches = provider.provide(null, () -> "project");
+    assertThat(provider.provide(null, () -> "project")).isSameAs(branches);
   }
 
   @Test
   public void should_use_loader() {
     when(mockLoader.load("key")).thenReturn(mockBranches);
-    when(mockSettings.get(anyString())).thenReturn(Optional.of("somebranch"));
-    ProjectBranches branches = provider.provide(mockLoader, () -> "key", mockSettings);
+    ProjectBranches branches = provider.provide(mockLoader, () -> "key");
 
     assertThat(branches).isSameAs(mockBranches);
   }
 
   @Test
   public void should_return_default_if_no_loader() {
-    ProjectBranches branches = provider.provide(null, () -> "project", mockSettings);
+    ProjectBranches branches = provider.provide(null, () -> "project");
     assertThat(branches.isEmpty()).isTrue();
   }
 }
