@@ -21,6 +21,8 @@ package org.sonar.api;
 
 import java.util.Arrays;
 import org.junit.Test;
+import org.sonar.api.config.internal.MapSettings;
+import org.sonar.api.internal.PluginContextImpl;
 import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.utils.Version;
 
@@ -33,7 +35,11 @@ public class PluginTest {
   @Test
   public void test_context() {
     SonarRuntime runtime = SonarRuntimeImpl.forSonarQube(VERSION_5_6, SonarQubeSide.SERVER);
-    Plugin.Context context = new Plugin.Context(runtime);
+    MapSettings settings = new MapSettings().setProperty("foo", "bar");
+    Plugin.Context context = new PluginContextImpl.Builder()
+      .setSonarRuntime(runtime)
+      .setBootConfiguration(settings.asConfig())
+      .build();
 
     assertThat(context.getSonarQubeVersion()).isEqualTo(VERSION_5_6);
     assertThat(context.getExtensions()).isEmpty();
@@ -46,5 +52,7 @@ public class PluginTest {
 
     context.addExtensions("one", "two", "three", "four");
     assertThat(context.getExtensions()).containsOnly("foo", "bar", "baz", "one", "two", "three", "four");
+
+    assertThat(context.getBootConfiguration().get("foo")).hasValue("bar");
   }
 }
