@@ -113,7 +113,7 @@ public class QProfileTreeImpl implements QProfileTree {
         changes.addAll(ruleActivator.deactivate(dbSession, context, activeRule.getRuleId(), true));
 
       } else if (ActiveRuleDto.OVERRIDES.equals(activeRule.getInheritance())) {
-        context.reset(activeRule.getRuleKey());
+        context.reset(activeRule.getRuleId());
         activeRule.setInheritance(null);
         activeRule.setUpdatedAt(system2.now());
         db.activeRuleDao().update(dbSession, activeRule);
