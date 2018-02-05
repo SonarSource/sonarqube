@@ -19,7 +19,6 @@
  */
 package org.sonar.server.user.ws;
 
-import java.io.IOException;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -34,30 +33,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.test.JsonAssert.assertJson;
 
 public class IdentityProvidersActionTest {
-  static IdentityProvider GITHUB = new TestIdentityProvider()
-    .setKey("github")
-    .setName("Github")
-    .setDisplay(Display.builder()
-      .setIconPath("/static/authgithub/github.svg")
-      .setBackgroundColor("#444444")
-      .build())
-    .setEnabled(true);
-
-  static IdentityProvider BITBUCKET = new TestIdentityProvider()
-    .setKey("bitbucket")
-    .setName("Bitbucket")
-    .setDisplay(Display.builder()
-      .setIconPath("/static/authbitbucket/bitbucket.svg")
-      .setBackgroundColor("#205081")
-      .build())
-    .setEnabled(true);
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public IdentityProviderRepositoryRule identityProviderRepository = new IdentityProviderRepositoryRule()
     .addIdentityProvider(GITHUB)
-    .addIdentityProvider(BITBUCKET);
+    .addIdentityProvider(BIT_BUCKET);
 
   WsActionTester ws = new WsActionTester(new IdentityProvidersAction(identityProviderRepository));
 
@@ -69,13 +51,31 @@ public class IdentityProvidersActionTest {
   }
 
   @Test
-  public void ws_properties() {
+  public void test_definition() {
     WebService.Action webService = ws.getDef();
 
     assertThat(webService.key()).isEqualTo("identity_providers");
     assertThat(webService.responseExampleAsString()).isNotEmpty();
     assertThat(webService.since()).isEqualTo("5.5");
     assertThat(webService.isInternal()).isTrue();
-
   }
+
+  private static IdentityProvider GITHUB = new TestIdentityProvider()
+    .setKey("github")
+    .setName("Github")
+    .setDisplay(Display.builder()
+      .setIconPath("/static/authgithub/github.svg")
+      .setBackgroundColor("#444444")
+      .build())
+    .setEnabled(true);
+
+  private static IdentityProvider BIT_BUCKET = new TestIdentityProvider()
+    .setKey("bitbucket")
+    .setName("Bitbucket")
+    .setDisplay(Display.builder()
+      .setIconPath("/static/authbitbucket/bitbucket.svg")
+      .setBackgroundColor("#205081")
+      .setHelpMessage("You need an existing account on bitbucket.com")
+      .build())
+    .setEnabled(true);
 }
