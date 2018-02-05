@@ -64,6 +64,7 @@ message IdentityProvider {
   optional string name = 2;
   optional string iconPath = 3;
   optional string backgroundColor = 4;
+  optional string helpMessage = 5;
 }
 
 message CreateWsResponse {

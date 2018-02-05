@@ -4,7 +4,8 @@
       "key": "bitbucket",
       "name": "Bitbucket",
       "iconPath": "/static/authbitbucket/bitbucket.svg",
-      "backgroundColor": "#205081"
+      "backgroundColor": "#205081",
+      "helpMessage": "You need an existing account on bitbucket.com"
     },
     {
       "key": "github",

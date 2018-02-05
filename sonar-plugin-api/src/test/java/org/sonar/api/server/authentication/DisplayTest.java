@@ -31,7 +31,7 @@ public class DisplayTest {
   public ExpectedException thrown = ExpectedException.none();
 
   @Test
-  public void create_display() throws Exception {
+  public void create_display() {
     Display display = Display.builder()
       .setIconPath("/static/authgithub/github.svg")
       .setBackgroundColor("#123456")
@@ -39,10 +39,11 @@ public class DisplayTest {
 
     assertThat(display.getIconPath()).isEqualTo("/static/authgithub/github.svg");
     assertThat(display.getBackgroundColor()).isEqualTo("#123456");
+    assertThat(display.getHelpMessage()).isNull();
   }
 
   @Test
-  public void create_display_with_default_background_color() throws Exception {
+  public void create_display_with_default_background_color() {
     Display display = Display.builder()
       .setIconPath("/static/authgithub/github.svg")
       .build();
@@ -50,8 +51,19 @@ public class DisplayTest {
     assertThat(display.getBackgroundColor()).isEqualTo("#236a97");
   }
 
+
   @Test
-  public void fail_when_icon_path_is_null() throws Exception {
+  public void create_display_with_help_message() {
+    Display display = Display.builder()
+      .setIconPath("/static/authgithub/github.svg")
+      .setHelpMessage("Help message")
+      .build();
+
+    assertThat(display.getHelpMessage()).isEqualTo("Help message");
+  }
+
+  @Test
+  public void fail_when_icon_path_is_null() {
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("Icon path must not be blank");
 
@@ -62,7 +74,7 @@ public class DisplayTest {
   }
 
   @Test
-  public void fail_when_icon_path_is_blank() throws Exception {
+  public void fail_when_icon_path_is_blank() {
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("Icon path must not be blank");
 
@@ -73,7 +85,7 @@ public class DisplayTest {
   }
 
   @Test
-  public void fail_when_background_color_is_null() throws Exception {
+  public void fail_when_background_color_is_null() {
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("Background color must not be blank");
 
@@ -84,7 +96,7 @@ public class DisplayTest {
   }
 
   @Test
-  public void fail_when_background_color_is_blank() throws Exception {
+  public void fail_when_background_color_is_blank() {
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("Background color must not be blank");
 
@@ -95,7 +107,7 @@ public class DisplayTest {
   }
 
   @Test
-  public void fail_when_background_color_has_wrong_size() throws Exception {
+  public void fail_when_background_color_has_wrong_size() {
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("Background color must begin with a sharp followed by 6 characters");
 
@@ -106,7 +118,7 @@ public class DisplayTest {
   }
 
   @Test
-  public void fail_when_background_color_doesnt_begin_with_sharp() throws Exception {
+  public void fail_when_background_color_doesnt_begin_with_sharp() {
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("Background color must begin with a sharp followed by 6 characters");
 
