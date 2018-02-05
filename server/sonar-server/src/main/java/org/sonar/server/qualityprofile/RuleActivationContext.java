@@ -65,7 +65,6 @@ class RuleActivationContext {
   private final List<QProfileDto> builtInAliases = new ArrayList<>();
 
   // the rules
-  private final Map<RuleKey, RuleWrapper> rulesByKey;
   private final Map<Integer, RuleWrapper> rulesById;
   private final Map<ActiveRuleKey, ActiveRuleWrapper> activeRulesByKey;
 
@@ -85,12 +84,10 @@ class RuleActivationContext {
     this.date = builder.date;
 
     // rules
-    this.rulesByKey = Maps.newHashMapWithExpectedSize(builder.rules.size());
     this.rulesById = Maps.newHashMapWithExpectedSize(builder.rules.size());
     ListMultimap<Integer, RuleParamDto> paramsByRuleId = builder.ruleParams.stream().collect(index(RuleParamDto::getRuleId));
     for (RuleDefinitionDto rule : builder.rules) {
       RuleWrapper wrapper = new RuleWrapper(rule, paramsByRuleId.get(rule.getId()));
-      rulesByKey.put(rule.getKey(), wrapper);
       rulesById.put(rule.getId(), wrapper);
     }
 
@@ -169,19 +166,9 @@ class RuleActivationContext {
       .collect(Collectors.toList());
   }
 
-  /**
-   * Resets cursor to base profile and selects the rule with specified key.
-   */
-  void reset(RuleKey ruleKey) {
+  public void reset(int ruleId) {
     this.cascading = false;
-    doSwitch(this.baseProfile, this.baseRulesProfile, ruleKey);
-  }
-
-  public void reset(Integer ruleId) {
-    this.cascading = false;
-    RuleWrapper ruleWrapper = rulesById.get(ruleId);
-    checkRequest(ruleWrapper != null, "Rule not found: %s", ruleId);
-    doSwitch(this.baseProfile, this.baseRulesProfile, ruleWrapper.get().getKey());
+    doSwitch(this.baseProfile, this.baseRulesProfile, ruleId);
   }
 
   /**
@@ -190,20 +177,21 @@ class RuleActivationContext {
   void switchToChild(QProfileDto to) {
     checkState(!to.isBuiltIn());
     requireNonNull(this.currentRule, "can not switch profile if rule is not set");
-    RuleKey ruleKey = this.currentRule.get().getKey();
+    RuleDefinitionDto rule = this.currentRule.get();
 
     QProfileDto qp = requireNonNull(this.profilesByUuid.get(to.getKee()), () -> "No profile with uuid " + to.getKee());
     RulesProfileDto rulesProfile = RulesProfileDto.from(qp);
 
     this.cascading = true;
-    doSwitch(qp, rulesProfile, ruleKey);
+    doSwitch(qp, rulesProfile, rule.getId());
   }
 
-  private void doSwitch(@Nullable QProfileDto qp, RulesProfileDto rulesProfile, RuleKey ruleKey) {
-    this.currentRule = rulesByKey.get(ruleKey);
-    checkRequest(this.currentRule != null, "Rule not found: %s", ruleKey);
+  private void doSwitch(@Nullable QProfileDto qp, RulesProfileDto rulesProfile, int ruleId) {
+    this.currentRule = rulesById.get(ruleId);
+    checkRequest(this.currentRule != null, "Rule not found: %s", ruleId);
+    RuleKey ruleKey = currentRule.get().getKey();
     checkRequest(rulesProfile.getLanguage().equals(currentRule.get().getLanguage()),
-      "%s rule %s cannot be activated on %s profile %s", currentRule.get().getLanguage(), currentRule.get().getKey(), rulesProfile.getLanguage(), rulesProfile.getName());
+      "%s rule %s cannot be activated on %s profile %s", currentRule.get().getLanguage(), ruleKey, rulesProfile.getLanguage(), rulesProfile.getName());
     this.currentRulesProfile = rulesProfile;
     this.currentProfile = qp;
     this.currentActiveRule = this.activeRulesByKey.get(ActiveRuleKey.of(rulesProfile, ruleKey));
