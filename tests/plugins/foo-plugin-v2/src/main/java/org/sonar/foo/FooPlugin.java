@@ -22,6 +22,7 @@ package org.sonar.foo;
 import org.sonar.api.Plugin;
 import org.sonar.foo.rule.FooBasicProfile;
 import org.sonar.foo.rule.FooRulesDefinition;
+import org.sonar.foo.rule.RekeyingRulesSensor;
 
 /**
  * Plugin entry-point, as declared in pom.xml.
@@ -33,7 +34,8 @@ public class FooPlugin implements Plugin {
     context.addExtensions(
       Foo.class,
       FooRulesDefinition.class,
-      FooBasicProfile.class);
+      FooBasicProfile.class,
+      RekeyingRulesSensor.class);
   }
 
 }
