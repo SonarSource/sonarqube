@@ -30,6 +30,8 @@ import javax.annotation.Nullable;
 import org.sonar.api.ExtensionProvider;
 import org.sonar.api.Plugin;
 import org.sonar.api.SonarRuntime;
+import org.sonar.api.config.Configuration;
+import org.sonar.api.internal.PluginContextImpl;
 import org.sonar.api.utils.AnnotationUtils;
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.core.platform.PluginInfo;
@@ -74,7 +76,10 @@ public abstract class ServerExtensionInstaller {
         Plugin plugin = pluginRepository.getPluginInstance(pluginKey);
         container.addExtension(pluginInfo, plugin);
 
-        Plugin.Context context = new Plugin.Context(sonarRuntime);
+        Plugin.Context context = new PluginContextImpl.Builder()
+          .setSonarRuntime(sonarRuntime)
+          .setBootConfiguration(container.getComponentByType(Configuration.class))
+          .build();
         plugin.define(context);
         for (Object extension : context.getExtensions()) {
           if (installExtension(container, pluginInfo, extension, true) != null) {

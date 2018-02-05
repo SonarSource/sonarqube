@@ -22,12 +22,12 @@ package org.sonar.scanner.bootstrap;
 import java.util.Arrays;
 import java.util.List;
 import org.apache.commons.lang.ClassUtils;
-import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.ExtensionProvider;
 import org.sonar.api.SonarPlugin;
 import org.sonar.api.SonarRuntime;
+import org.sonar.api.config.internal.MapSettings;
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.core.platform.PluginInfo;
 
@@ -37,8 +37,9 @@ import static org.mockito.Mockito.when;
 
 public class ExtensionInstallerTest {
 
-  GlobalAnalysisMode mode;
-  ScannerPluginRepository pluginRepository = mock(ScannerPluginRepository.class);
+  private MapSettings settings = new MapSettings();
+  private GlobalAnalysisMode mode = mock(GlobalAnalysisMode.class);
+  private ScannerPluginRepository pluginRepository = mock(ScannerPluginRepository.class);
 
   private static SonarPlugin newPluginInstance(final Object... extensions) {
     return new SonarPlugin() {
@@ -48,18 +49,13 @@ public class ExtensionInstallerTest {
     };
   }
 
-  @Before
-  public void setUp() {
-    mode = mock(GlobalAnalysisMode.class);
-  }
-
   @Test
   public void should_filter_extensions_to_install() {
     when(pluginRepository.getPluginInfos()).thenReturn(Arrays.asList(new PluginInfo("foo")));
     when(pluginRepository.getPluginInstance("foo")).thenReturn(newPluginInstance(Foo.class, Bar.class));
 
     ComponentContainer container = new ComponentContainer();
-    ExtensionInstaller installer = new ExtensionInstaller(mock(SonarRuntime.class), pluginRepository, mock(GlobalAnalysisMode.class));
+    ExtensionInstaller installer = new ExtensionInstaller(mock(SonarRuntime.class), pluginRepository, mode, settings.asConfig());
     installer.install(container, new FooMatcher());
 
     assertThat(container.getComponentByType(Foo.class)).isNotNull();
@@ -71,7 +67,7 @@ public class ExtensionInstallerTest {
     when(pluginRepository.getPluginInfos()).thenReturn(Arrays.asList(new PluginInfo("foo")));
     when(pluginRepository.getPluginInstance("foo")).thenReturn(newPluginInstance(new FooProvider(), new BarProvider()));
     ComponentContainer container = new ComponentContainer();
-    ExtensionInstaller installer = new ExtensionInstaller(mock(SonarRuntime.class), pluginRepository, mock(GlobalAnalysisMode.class));
+    ExtensionInstaller installer = new ExtensionInstaller(mock(SonarRuntime.class), pluginRepository, mode, settings.asConfig());
 
     installer.install(container, new FooMatcher());
 
@@ -84,7 +80,7 @@ public class ExtensionInstallerTest {
     when(pluginRepository.getPluginInfos()).thenReturn(Arrays.asList(new PluginInfo("foo")));
     when(pluginRepository.getPluginInstance("foo")).thenReturn(newPluginInstance(new FooBarProvider()));
     ComponentContainer container = new ComponentContainer();
-    ExtensionInstaller installer = new ExtensionInstaller(mock(SonarRuntime.class), pluginRepository, mock(GlobalAnalysisMode.class));
+    ExtensionInstaller installer = new ExtensionInstaller(mock(SonarRuntime.class), pluginRepository, mode, settings.asConfig());
 
     installer.install(container, new TrueMatcher());
 
