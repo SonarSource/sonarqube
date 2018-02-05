@@ -116,6 +116,19 @@ configureTravis
 # @TravisCI please provide the feature natively, like at AppVeyor or CircleCI ;-)
 cancel_branch_build_with_pr || if [[ $? -eq 1 ]]; then exit 0; fi
 
+# configure environment variables for Artifactory
+export GIT_COMMIT=$TRAVIS_COMMIT
+export BUILD_ID=$TRAVIS_BUILD_NUMBER
+if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
+  export GIT_BRANCH=$TRAVIS_BRANCH
+  unset PULL_REQUEST_BRANCH_TARGET
+  unset PULL_REQUEST_NUMBER
+else
+  export GIT_BRANCH=$TRAVIS_PULL_REQUEST_BRANCH
+  export PULL_REQUEST_BRANCH_TARGET=$TRAVIS_BRANCH
+  export PULL_REQUEST_NUMBER=$TRAVIS_PULL_REQUEST
+fi
+
 case "$TARGET" in
 
 BUILD)
@@ -193,17 +206,10 @@ BUILD)
         -Dsonar.pullrequest.github.id=$TRAVIS_PULL_REQUEST \
         -Dsonar.pullrequest.github.repository=$TRAVIS_REPO_SLUG
 
-  elif [[ "$TRAVIS_BRANCH" == "dogfood-on-"* ]] && [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
-    echo 'Build dogfood branch'
-
-    mvn org.jacoco:jacoco-maven-plugin:prepare-agent deploy \
-        $MAVEN_ARGS \
-        -Pdeploy-sonarsource,release
-        
   else
     echo 'Build feature branch or external pull request'
 
-    mvn install $MAVEN_ARGS -Dsource.skip=true
+    mvn deploy $MAVEN_ARGS -Dsource.skip=true -Pdeploy-sonarsource
   fi
 
   ./run-integration-tests.sh "Lite" ""

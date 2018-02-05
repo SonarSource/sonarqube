@@ -1453,6 +1453,102 @@
         <module>tests/plugins</module>
       </modules>
     </profile>
+
+    <profile>
+      <id>deploy-sonarsource</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-enforcer-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>enforce-deploy-settings</id>
+                <goals>
+                  <goal>enforce</goal>
+                </goals>
+                <configuration>
+                  <rules>
+                    <requireProperty>
+                      <property>gitRepositoryName</property>
+                      <message>You must set name of Git repository in your pom</message>
+                    </requireProperty>
+                    <requireEnvironmentVariable>
+                      <variableName>ARTIFACTORY_URL</variableName>
+                    </requireEnvironmentVariable>
+                    <requireEnvironmentVariable>
+                      <variableName>ARTIFACTORY_DEPLOY_REPO</variableName>
+                    </requireEnvironmentVariable>
+                    <requireEnvironmentVariable>
+                      <variableName>ARTIFACTORY_DEPLOY_USERNAME</variableName>
+                    </requireEnvironmentVariable>
+                    <requireEnvironmentVariable>
+                      <variableName>ARTIFACTORY_DEPLOY_PASSWORD</variableName>
+                    </requireEnvironmentVariable>
+                  </rules>
+                  <fail>true</fail>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <!-- this maven plugin is not deployed in Maven Central. It should be downloaded
+            from JFrog JCenter or from SonarSource repositories -->
+            <groupId>org.jfrog.buildinfo</groupId>
+            <artifactId>artifactory-maven-plugin</artifactId>
+            <version>${version.artifactory.plugin}</version>
+            <executions>
+              <execution>
+                <id>build-info</id>
+                <goals>
+                  <goal>publish</goal>
+                </goals>
+                <configuration>
+                  <artifactory>
+                    <envVarsExcludePatterns>
+                      *password*,*PASSWORD*,*secret*,*MAVEN_CMD_LINE_ARGS*,sun.java.command,*token*,*TOKEN*,*LOGIN*,*login*
+                    </envVarsExcludePatterns>
+                    <includeEnvVars>true</includeEnvVars>
+                    <timeoutSec>60</timeoutSec>
+                  </artifactory>
+                  <deployProperties>
+                    <build.name>${gitRepositoryName}</build.name>
+                    <build.number>{{BUILD_ID}}</build.number>
+                    <pr.branch.target>{{PULL_REQUEST_BRANCH_TARGET}}</pr.branch.target>
+                    <pr.number>{{PULL_REQUEST_NUMBER}}</pr.number>
+                    <vcs.branch>{{GIT_BRANCH}}</vcs.branch>
+                    <vcs.revision>{{GIT_COMMIT}}</vcs.revision>
+                    <version>${project.version}</version>
+                  </deployProperties>
+                  <licenses>
+                    <autoDiscover>true</autoDiscover>
+                    <includePublishedArtifacts>false</includePublishedArtifacts>
+                    <runChecks>true</runChecks>
+                    <scopes>project,provided</scopes>
+                    <violationRecipients>licences-control@sonarsource.com</violationRecipients>
+                  </licenses>
+                  <publisher>
+                    <contextUrl>${env.ARTIFACTORY_URL}</contextUrl>
+                    <repoKey>${env.ARTIFACTORY_DEPLOY_REPO}</repoKey>
+                    <username>${env.ARTIFACTORY_DEPLOY_USERNAME}</username>
+                    <password>${env.ARTIFACTORY_DEPLOY_PASSWORD}</password>
+                    <publishBuildInfo>true</publishBuildInfo>
+                    <publishArtifacts>true</publishArtifacts>
+                  </publisher>
+                  <buildInfo>
+                    <buildName>${gitRepositoryName}</buildName>
+                    <buildNumber>{{BUILD_ID}}</buildNumber>
+                    <buildUrl>{{CI_BUILD_URL|BUILD_URL}}</buildUrl>
+                    <vcsRevision>{{GIT_COMMIT}}</vcsRevision>
+                  </buildInfo>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
   </profiles>
 
 </project>
