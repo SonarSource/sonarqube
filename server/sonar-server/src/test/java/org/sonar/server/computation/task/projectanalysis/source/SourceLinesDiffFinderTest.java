@@ -29,7 +29,6 @@ public class SourceLinesDiffFinderTest {
 
   @Test
   public void shouldFindNothingWhenContentAreIdentical() {
-
     List<String> database = new ArrayList<>();
     database.add("line - 0");
     database.add("line - 1");
@@ -47,12 +46,10 @@ public class SourceLinesDiffFinderTest {
     int[] diff = new SourceLinesDiffFinder(database, report).findMatchingLines();
 
     assertThat(diff).containsExactly(1, 2, 3, 4, 5);
-
   }
 
   @Test
   public void shouldFindNothingWhenContentAreIdentical2() {
-
     List<String> database = new ArrayList<>();
     database.add("package sample;\n");
     database.add("\n");
@@ -79,12 +76,10 @@ public class SourceLinesDiffFinderTest {
 
     int[] diff = new SourceLinesDiffFinder(database, report).findMatchingLines();
     assertThat(diff).containsExactly(1, 2, 3, 4, 0, 0, 0, 0, 0, 0, 5, 6, 7);
-
   }
 
   @Test
   public void shouldDetectWhenStartingWithModifiedLines() {
-
     List<String> database = new ArrayList<>();
     database.add("line - 0");
     database.add("line - 1");
@@ -100,12 +95,10 @@ public class SourceLinesDiffFinderTest {
     int[] diff = new SourceLinesDiffFinder(database, report).findMatchingLines();
 
     assertThat(diff).containsExactly(0, 0, 3, 4);
-
   }
 
   @Test
   public void shouldDetectWhenEndingWithModifiedLines() {
-
     List<String> database = new ArrayList<>();
     database.add("line - 0");
     database.add("line - 1");
@@ -121,12 +114,10 @@ public class SourceLinesDiffFinderTest {
     int[] diff = new SourceLinesDiffFinder(database, report).findMatchingLines();
 
     assertThat(diff).containsExactly(1, 2, 0, 0);
-
   }
 
   @Test
   public void shouldDetectModifiedLinesInMiddleOfTheFile() {
-
     List<String> database = new ArrayList<>();
     database.add("line - 0");
     database.add("line - 1");
@@ -146,12 +137,10 @@ public class SourceLinesDiffFinderTest {
     int[] diff = new SourceLinesDiffFinder(database, report).findMatchingLines();
 
     assertThat(diff).containsExactly(1, 2, 0, 0, 5, 6);
-
   }
 
   @Test
   public void shouldDetectNewLinesAtBeginningOfFile() {
-
     List<String> database = new ArrayList<>();
     database.add("line - 0");
     database.add("line - 1");
@@ -167,12 +156,10 @@ public class SourceLinesDiffFinderTest {
     int[] diff = new SourceLinesDiffFinder(database, report).findMatchingLines();
 
     assertThat(diff).containsExactly(0, 0, 1, 2, 3);
-
   }
 
   @Test
   public void shouldDetectNewLinesInMiddleOfFile() {
-
     List<String> database = new ArrayList<>();
     database.add("line - 0");
     database.add("line - 1");
@@ -190,12 +177,10 @@ public class SourceLinesDiffFinderTest {
     int[] diff = new SourceLinesDiffFinder(database, report).findMatchingLines();
 
     assertThat(diff).containsExactly(1, 2, 0, 0, 3, 4);
-
   }
 
   @Test
   public void shouldDetectNewLinesAtEndOfFile() {
-
     List<String> database = new ArrayList<>();
     database.add("line - 0");
     database.add("line - 1");
@@ -211,12 +196,10 @@ public class SourceLinesDiffFinderTest {
     int[] diff = new SourceLinesDiffFinder(database, report).findMatchingLines();
 
     assertThat(diff).containsExactly(1, 2, 3, 0, 0);
-
   }
 
   @Test
   public void shouldIgnoreDeletedLinesAtEndOfFile() {
-
     List<String> database = new ArrayList<>();
     database.add("line - 0");
     database.add("line - 1");
@@ -232,12 +215,10 @@ public class SourceLinesDiffFinderTest {
     int[] diff = new SourceLinesDiffFinder(database, report).findMatchingLines();
 
     assertThat(diff).containsExactly(1, 2, 3);
-
   }
 
   @Test
   public void shouldIgnoreDeletedLinesInTheMiddleOfFile() {
-
     List<String> database = new ArrayList<>();
     database.add("line - 0");
     database.add("line - 1");
@@ -259,7 +240,6 @@ public class SourceLinesDiffFinderTest {
 
   @Test
   public void shouldIgnoreDeletedLinesAtTheStartOfTheFile() {
-
     List<String> database = new ArrayList<>();
     database.add("line - 0");
     database.add("line - 1");
@@ -273,7 +253,5 @@ public class SourceLinesDiffFinderTest {
     int[] diff = new SourceLinesDiffFinder(database, report).findMatchingLines();
 
     assertThat(diff).containsExactly(3, 4);
-
   }
-
 }

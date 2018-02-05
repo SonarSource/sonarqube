@@ -42,7 +42,6 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.index.query.RangeQueryBuilder;
 import org.elasticsearch.indices.TermsLookup;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
@@ -548,7 +547,7 @@ public class IssueIndex {
       .format(DateUtils.DATETIME_FORMAT)
       .timeZone(DateTimeZone.forOffsetMillis(system.getDefaultTimeZone().getRawOffset()))
       // ES dateHistogram bounds are inclusive while createdBefore parameter is exclusive
-      .extendedBounds(new ExtendedBounds(startInclusive ? startTime : startTime + 1, endTime - 1L));
+      .extendedBounds(new ExtendedBounds(startInclusive ? startTime : (startTime + 1), endTime - 1L));
     addEffortAggregationIfNeeded(query, dateHistogram);
     return Optional.of(dateHistogram);
   }

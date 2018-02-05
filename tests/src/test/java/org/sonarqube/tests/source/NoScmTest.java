@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.util.Date;
 import java.util.Map;
+import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
@@ -49,7 +50,7 @@ public class NoScmTest {
   @ClassRule
   public static Orchestrator orchestrator = ORCHESTRATOR;
 
-  private SourceScmWS ws = new SourceScmWS(orchestrator);
+  private SourceScmWS ws;
 
   @Rule
   public TemporaryFolder temporaryFolder = new TemporaryFolder();
@@ -57,6 +58,11 @@ public class NoScmTest {
   @Rule
   public Tester tester = new Tester(orchestrator);
 
+  @Before
+  public void setUp() {
+    ws = new SourceScmWS(tester);
+  }
+  
   @Test
   public void two_analysis_without_scm_on_same_file() throws ParseException, IOException {
 

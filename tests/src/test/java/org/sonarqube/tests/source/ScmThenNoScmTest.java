@@ -28,6 +28,7 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.Date;
 import java.util.Map;
+import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
@@ -46,13 +47,18 @@ public class ScmThenNoScmTest {
 
   @ClassRule
   public static Orchestrator orchestrator = ORCHESTRATOR;
-  private SourceScmWS ws = new SourceScmWS(orchestrator);
+  private SourceScmWS ws;
 
   @Rule
   public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
   @Rule
   public Tester tester = new Tester(orchestrator);
+
+  @Before
+  public void setUp() {
+    ws = new SourceScmWS(tester);
+  }
 
   @Test
   public void with_and_then_without_scm_on_same_file() throws ParseException, IOException {
