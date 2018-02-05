@@ -97,7 +97,7 @@ export default class EmailAlreadyExists extends React.PureComponent<Props, State
     const { query } = this.props.location;
 
     return (
-      <div id="bd" className="page-wrapper-simple">
+      <div className="page-wrapper-simple">
         <div id="nonav" className="page-simple">
           <div className="big-spacer-bottom js-existing-account">
             <p className="little-spacer-bottom">

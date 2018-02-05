@@ -23,7 +23,7 @@ import { translate } from '../../helpers/l10n';
 
 export default function ComponentContainerNotFound() {
   return (
-    <div id="bd" className="page-wrapper-simple">
+    <div className="page-wrapper-simple">
       <div id="nonav" className="page-simple">
         <h2 className="big-spacer-bottom">{translate('dashboard.project_not_found')}</h2>
         <p className="spacer-bottom">{translate('dashboard.project_not_found.2')}</p>
