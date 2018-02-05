@@ -105,6 +105,7 @@ public class RuleDefinitionDto {
   public RuleDefinitionDto setRuleKey(RuleKey ruleKey) {
     this.repositoryKey = ruleKey.repository();
     this.ruleKey = ruleKey.rule();
+    this.key = ruleKey;
     return this;
   }
 
