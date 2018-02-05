@@ -191,6 +191,32 @@ public class ProjectReactorValidatorTest {
   }
 
   @Test
+  public void fail_when_pull_request_branch_is_specified_but_branch_plugin_not_present() {
+    ProjectDefinition def = ProjectDefinition.create().setProperty(CoreProperties.PROJECT_KEY_PROPERTY, "foo");
+    ProjectReactor reactor = new ProjectReactor(def);
+
+    when(settings.get(eq(ScannerProperties.PULL_REQUEST_BRANCH))).thenReturn(Optional.of("feature1"));
+
+    thrown.expect(MessageException.class);
+    thrown.expectMessage("the branch plugin is required but not installed");
+
+    validator.validate(reactor);
+  }
+
+  @Test
+  public void fail_when_pull_request_base_specified_but_branch_plugin_not_present() {
+    ProjectDefinition def = ProjectDefinition.create().setProperty(CoreProperties.PROJECT_KEY_PROPERTY, "foo");
+    ProjectReactor reactor = new ProjectReactor(def);
+
+    when(settings.get(eq(ScannerProperties.PULL_REQUEST_BASE))).thenReturn(Optional.of("feature1"));
+
+    thrown.expect(MessageException.class);
+    thrown.expectMessage("the branch plugin is required but not installed");
+
+    validator.validate(reactor);
+  }
+
+  @Test
   public void not_fail_with_valid_version() {
     validator.validate(createProjectReactor("foo", def -> def.setVersion("1.0")));
     validator.validate(createProjectReactor("foo", def -> def.setVersion("2017-10-16")));
