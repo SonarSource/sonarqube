@@ -74,6 +74,7 @@ public class ProjectReactorValidator {
       branchParamsValidator.validate(validationMessages, deprecatedBranchName);
     } else {
       validateBranchParamsWhenPluginAbsent(validationMessages);
+      validatePullRequestParamsWhenPluginAbsent(validationMessages);
     }
 
     validateBranch(validationMessages, deprecatedBranchName);
@@ -85,6 +86,15 @@ public class ProjectReactorValidator {
 
   private void validateBranchParamsWhenPluginAbsent(List<String> validationMessages) {
     for (String param : Arrays.asList(ScannerProperties.BRANCH_NAME, ScannerProperties.BRANCH_TARGET)) {
+      if (StringUtils.isNotEmpty(settings.get(param).orElse(null))) {
+        validationMessages.add(String.format("To use the property \"%s\", the branch plugin is required but not installed. "
+          + "See the documentation of branch support: %s.", param, ScannerProperties.BRANCHES_DOC_LINK));
+      }
+    }
+  }
+
+  private void validatePullRequestParamsWhenPluginAbsent(List<String> validationMessages) {
+    for (String param : Arrays.asList(ScannerProperties.PULL_REQUEST_BRANCH, ScannerProperties.PULL_REQUEST_BASE)) {
       if (StringUtils.isNotEmpty(settings.get(param).orElse(null))) {
         validationMessages.add(String.format("To use the property \"%s\", the branch plugin is required but not installed. "
           + "See the documentation of branch support: %s.", param, ScannerProperties.BRANCHES_DOC_LINK));
