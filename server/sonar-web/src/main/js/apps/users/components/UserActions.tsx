@@ -25,7 +25,7 @@ import ActionsDropdown, {
 import DeactivateForm from './DeactivateForm';
 import PasswordForm from './PasswordForm';
 import UserForm from './UserForm';
-import { User } from '../../../api/users';
+import { User } from '../../../app/types';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {

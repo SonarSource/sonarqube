@@ -20,7 +20,7 @@
 import * as React from 'react';
 import BulletListIcon from '../../../components/icons-components/BulletListIcon';
 import GroupsForm from './GroupsForm';
-import { User } from '../../../api/users';
+import { User } from '../../../app/types';
 import { ButtonIcon } from '../../../components/ui/buttons';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 

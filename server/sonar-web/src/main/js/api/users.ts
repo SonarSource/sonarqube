@@ -19,28 +19,7 @@
  */
 import { getJSON, post, postJSON, RequestData } from '../helpers/request';
 import throwGlobalError from '../app/utils/throwGlobalError';
-import { Paging, HomePage, CurrentUser } from '../app/types';
-
-export interface IdentityProvider {
-  backgroundColor: string;
-  iconPath: string;
-  key: string;
-  name: string;
-}
-
-export interface User {
-  login: string;
-  name: string;
-  active: boolean;
-  email?: string;
-  scmAccounts?: string[];
-  groups?: string[];
-  tokensCount?: number;
-  local: boolean;
-  externalIdentity?: string;
-  externalProvider?: string;
-  avatar?: string;
-}
+import { Paging, HomePage, CurrentUser, IdentityProvider, User } from '../app/types';
 
 export function getCurrentUser(): Promise<CurrentUser> {
   return getJSON('/api/users/current');

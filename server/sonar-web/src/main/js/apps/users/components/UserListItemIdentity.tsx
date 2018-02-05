@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { IdentityProvider, User } from '../../../api/users';
+import { IdentityProvider, User } from '../../../app/types';
 import { getBaseUrl } from '../../../helpers/urls';
 
 interface Props {

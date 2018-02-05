@@ -23,7 +23,8 @@ import Modal from '../../../components/controls/Modal';
 import UserScmAccountInput from './UserScmAccountInput';
 import throwGlobalError from '../../../app/utils/throwGlobalError';
 import { parseError } from '../../../helpers/request';
-import { createUser, updateUser, User } from '../../../api/users';
+import { createUser, updateUser } from '../../../api/users';
+import { User } from '../../../app/types';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 
 export interface Props {

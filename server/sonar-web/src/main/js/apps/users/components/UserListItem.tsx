@@ -26,7 +26,7 @@ import UserActions from './UserActions';
 import UserGroups from './UserGroups';
 import UserListItemIdentity from './UserListItemIdentity';
 import UserScmAccounts from './UserScmAccounts';
-import { IdentityProvider, User } from '../../../api/users';
+import { IdentityProvider, User } from '../../../app/types';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {

@@ -19,7 +19,8 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { getIdentityProviders, IdentityProvider } from '../../../api/users';
+import { getIdentityProviders } from '../../../api/users';
+import { IdentityProvider } from '../../../app/types';
 import { translate } from '../../../helpers/l10n';
 import { getBaseUrl } from '../../../helpers/urls';
 

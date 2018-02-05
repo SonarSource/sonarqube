@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { translateWithParameters } from '../../../helpers/l10n';
-import { IdentityProvider } from '../../../api/users';
+import { IdentityProvider } from '../../../app/types';
 import { getBaseUrl } from '../../../helpers/urls';
 import './OAuthProviders.css';
 

@@ -21,8 +21,8 @@ import * as React from 'react';
 import { Link } from 'react-router';
 import OAuthProviders from './OAuthProviders';
 import GlobalMessagesContainer from '../../../app/components/GlobalMessagesContainer';
+import { IdentityProvider } from '../../../app/types';
 import { translate } from '../../../helpers/l10n';
-import { IdentityProvider } from '../../../api/users';
 import './LoginForm.css';
 
 interface Props {
