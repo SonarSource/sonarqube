@@ -33,17 +33,21 @@ export default function Unauthorized(props: Props) {
   const { message } = props.location.query;
 
   return (
-    <div className="text-center">
-      <p id="unauthorized">{translate('unauthorized.message')}</p>
+    <div id="bd" className="page-wrapper-simple">
+      <div id="nonav" className="page-simple">
+        <div className="text-center">
+          <p id="unauthorized">{translate('unauthorized.message')}</p>
 
-      {!!message && (
-        <p className="spacer-top">
-          {translate('unauthorized.reason')} {message}
-        </p>
-      )}
+          {!!message && (
+            <p className="spacer-top">
+              {translate('unauthorized.reason')} {message}
+            </p>
+          )}
 
-      <div className="big-spacer-top">
-        <Link to="/">{translate('layout.home')}</Link>
+          <div className="big-spacer-top">
+            <Link to="/">{translate('layout.home')}</Link>
+          </div>
+        </div>
       </div>
     </div>
   );
