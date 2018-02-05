@@ -17,6 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+.login-page {
+  padding-top: 10vh;
+}
+
+.login-form {
+  width: 300px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
 .login-title {
   margin-bottom: 40px;
   line-height: 1.5;
