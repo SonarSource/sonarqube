@@ -17,38 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import Marionette from 'backbone.marionette';
-import CreateView from './create-view';
-import Template from './templates/groups-header.hbs';
+import * as React from 'react';
+import { shallow } from 'enzyme';
+import EditMembers from '../EditMembers';
+import { click } from '../../../../helpers/testUtils';
 
-export default Marionette.ItemView.extend({
-  template: Template,
+it('should edit members', () => {
+  const group = { id: 3, name: 'Foo', membersCount: 5 };
+  const onEdit = jest.fn();
 
-  collectionEvents: {
-    request: 'showSpinner',
-    sync: 'hideSpinner'
-  },
+  const wrapper = shallow(<EditMembers group={group} onEdit={onEdit} organization="org" />);
+  expect(wrapper).toMatchSnapshot();
 
-  events: {
-    'click #groups-create': 'onCreateClick'
-  },
+  wrapper.find('ButtonIcon').prop<Function>('onClick')();
+  wrapper.update();
+  expect(wrapper).toMatchSnapshot();
 
-  showSpinner() {
-    this.$('.spinner').removeClass('hidden');
-  },
-
-  hideSpinner() {
-    this.$('.spinner').addClass('hidden');
-  },
-
-  onCreateClick(e) {
-    e.preventDefault();
-    this.createGroup();
-  },
-
-  createGroup() {
-    new CreateView({
-      collection: this.collection
-    }).render();
-  }
+  click(wrapper.find('button[type="reset"]'));
+  expect(onEdit).toBeCalled();
+  expect(wrapper).toMatchSnapshot();
 });

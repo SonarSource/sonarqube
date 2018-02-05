@@ -1,0 +1,64 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should edit members 1`] = `
+<React.Fragment>
+  <ButtonIcon
+    className="button-small"
+    onClick={[Function]}
+  >
+    <BulletListIcon />
+  </ButtonIcon>
+</React.Fragment>
+`;
+
+exports[`should edit members 2`] = `
+<React.Fragment>
+  <ButtonIcon
+    className="button-small"
+    onClick={[Function]}
+  >
+    <BulletListIcon />
+  </ButtonIcon>
+  <Modal
+    contentLabel="users.update"
+    onRequestClose={[Function]}
+  >
+    <header
+      className="modal-head"
+    >
+      <h2>
+        users.update
+      </h2>
+    </header>
+    <div
+      className="modal-body"
+    >
+      <div
+        id="groups-users"
+      />
+    </div>
+    <footer
+      className="modal-foot"
+    >
+      <button
+        className="button-link"
+        onClick={[Function]}
+        type="reset"
+      >
+        Done
+      </button>
+    </footer>
+  </Modal>
+</React.Fragment>
+`;
+
+exports[`should edit members 3`] = `
+<React.Fragment>
+  <ButtonIcon
+    className="button-small"
+    onClick={[Function]}
+  >
+    <BulletListIcon />
+  </ButtonIcon>
+</React.Fragment>
+`;

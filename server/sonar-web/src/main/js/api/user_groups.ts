@@ -17,7 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { getJSON, post } from '../helpers/request';
+import { getJSON, post, postJSON } from '../helpers/request';
+import { Paging, Group } from '../app/types';
+import throwGlobalError from '../app/utils/throwGlobalError';
 
 export function searchUsersGroups(data: {
   f?: string;
@@ -25,7 +27,7 @@ export function searchUsersGroups(data: {
   p?: number;
   ps?: number;
   q?: string;
-}) {
+}): Promise<{ groups: Group[]; paging: Paging }> {
   return getJSON('/api/user_groups/search', data);
 }
 
@@ -45,4 +47,20 @@ export function removeUserFromGroup(data: {
   organization?: string;
 }) {
   return post('/api/user_groups/remove_user', data);
+}
+
+export function createGroup(data: {
+  description?: string;
+  organization: string | undefined;
+  name: string;
+}): Promise<Group> {
+  return postJSON('/api/user_groups/create', data).then(r => r.group, throwGlobalError);
+}
+
+export function updateGroup(data: { description?: string; id: number; name?: string }) {
+  return post('/api/user_groups/update', data).catch(throwGlobalError);
+}
+
+export function deleteGroup(data: { name: string; organization: string | undefined }) {
+  return post('/api/user_groups/delete', data).catch(throwGlobalError);
 }

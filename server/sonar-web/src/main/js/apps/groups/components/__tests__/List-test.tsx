@@ -17,29 +17,36 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
-import Helmet from 'react-helmet';
-import init from '../../groups/init';
-import { translate } from '../../../helpers/l10n';
-/*:: import type { Organization } from '../../../store/organizations/duck'; */
+import * as React from 'react';
+import { shallow } from 'enzyme';
+import List from '../List';
 
-export default class OrganizationGroups extends React.PureComponent {
-  /*:: props: {
-    organization: Organization
-  };
-*/
+it('should render', () => {
+  expect(shallowRender()).toMatchSnapshot();
+});
 
-  componentDidMount() {
-    init(this.refs.container, this.props.organization);
-  }
+it('should not render "Anyone"', () => {
+  expect(
+    shallowRender(false)
+      .find('.js-anyone')
+      .exists()
+  ).toBeFalsy();
+});
 
-  render() {
-    return (
-      <div>
-        <Helmet title={translate('global_permissions.groups')} />
-        <div ref="container" />
-      </div>
-    );
-  }
+function shallowRender(showAnyone = true) {
+  const groups = [
+    { id: 1, name: 'sonar-users', description: '', membersCount: 55, default: true },
+    { id: 2, name: 'foo', description: 'foobar', membersCount: 0, default: false },
+    { id: 3, name: 'bar', description: 'barbar', membersCount: 1, default: false }
+  ];
+  return shallow(
+    <List
+      groups={groups}
+      onDelete={jest.fn()}
+      onEdit={jest.fn()}
+      onEditMemebers={jest.fn()}
+      organization="org"
+      showAnyone={showAnyone}
+    />
+  );
 }

@@ -1,0 +1,118 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should delete group 1`] = `
+<tr
+  data-id={3}
+>
+  <td
+    className=" width-20"
+  >
+    <strong
+      className="js-group-name"
+    >
+      Foo
+    </strong>
+  </td>
+  <td
+    className="width-10"
+  >
+    <div
+      className="display-flex-center"
+    >
+      <span
+        className="spacer-right"
+      >
+        5
+      </span>
+      <EditMembers
+        group={
+          Object {
+            "id": 3,
+            "membersCount": 5,
+            "name": "Foo",
+          }
+        }
+        onEdit={[MockFunction]}
+        organization="org"
+      />
+    </div>
+  </td>
+  <td
+    className="width-40"
+  >
+    <span
+      className="js-group-description"
+    />
+  </td>
+  <td
+    className="thin nowrap text-right"
+  >
+    <ActionsDropdown>
+      <EditGroup
+        group={
+          Object {
+            "id": 3,
+            "membersCount": 5,
+            "name": "Foo",
+          }
+        }
+        onEdit={[MockFunction]}
+      />
+      <ActionsDropdownDivider />
+      <ConfirmButton
+        confirmButtonText="delete"
+        isDestructive={true}
+        modalBody="groups.delete_group.confirmation.Foo"
+        modalHeader="groups.delete_group"
+        onConfirm={[Function]}
+      />
+    </ActionsDropdown>
+  </td>
+</tr>
+`;
+
+exports[`should render default group 1`] = `
+<tr
+  data-id={3}
+>
+  <td
+    className=" width-20"
+  >
+    <strong
+      className="js-group-name"
+    >
+      Foo
+    </strong>
+    <span
+      className="little-spacer-left"
+    >
+      (
+      default
+      )
+    </span>
+  </td>
+  <td
+    className="width-10"
+  >
+    <div
+      className="display-flex-center"
+    >
+      <span
+        className="spacer-right"
+      >
+        5
+      </span>
+    </div>
+  </td>
+  <td
+    className="width-40"
+  >
+    <span
+      className="js-group-description"
+    />
+  </td>
+  <td
+    className="thin nowrap text-right"
+  />
+</tr>
+`;

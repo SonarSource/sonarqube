@@ -1,0 +1,32 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should edit group 1`] = `
+<React.Fragment>
+  <button />
+</React.Fragment>
+`;
+
+exports[`should edit group 2`] = `
+<React.Fragment>
+  <button />
+  <Form
+    confirmButtonText="update_verb"
+    group={
+      Object {
+        "id": 3,
+        "membersCount": 5,
+        "name": "Foo",
+      }
+    }
+    header="groups.update_group"
+    onClose={[Function]}
+    onSubmit={[Function]}
+  />
+</React.Fragment>
+`;
+
+exports[`should edit group 3`] = `
+<React.Fragment>
+  <button />
+</React.Fragment>
+`;
