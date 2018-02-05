@@ -141,6 +141,35 @@ public class BuiltInQualityProfilesNotificationTest {
         " 1 rule removed",
         "This is a good time to review your quality profiles and update them to benefit from the latest evolutions: " + url + "/profiles")
       .isEqualTo(messages.get(1).getMimeMessage().getContent().toString());
+
+
+    // uninstall plugin V2
+    wsClient.wsConnector().call(new PostRequest("api/plugins/uninstall").setParam("key", "foo")).failIfNotSuccessful();
+    // install plugin V1
+    orchestrator.getConfiguration().fileSystem().copyToDirectory(pluginArtifact("foo-plugin-v1"), pluginsDir);
+
+    orchestrator.restartServer();
+
+    waitUntilAllNotificationsAreDelivered(2, 10, 1_000);
+    messages = smtpServer.getMessages();
+    assertThat(messages)
+      .extracting(this::getMimeMessage)
+      .extracting(this::getAllRecipients)
+      .containsOnly("<" + profileAdmin1.getEmail() + ">", "<" + profileAdmin2.getEmail() + ">");
+    assertThat(messages)
+      .extracting(this::getMimeMessage)
+      .extracting(this::getSubject)
+      .containsOnly("[SONARQUBE] Built-in quality profiles have been updated");
+    assertThat(messages.get(0).getMimeMessage().getContent().toString())
+      .containsSubsequence(
+        "The following built-in profiles have been updated:",
+        "\"Basic\" - Foo: " + url + "/profiles/changelog?language=foo&name=Basic&since=", "&to=",
+        " 1 new rule",
+        " 3 rules have been updated",
+        " 1 rule removed",
+        "This is a good time to review your quality profiles and update them to benefit from the latest evolutions: " + url + "/profiles")
+      .isEqualTo(messages.get(1).getMimeMessage().getContent().toString());
+
   }
 
   @Test
