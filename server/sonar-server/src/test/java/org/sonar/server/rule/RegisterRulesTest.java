@@ -793,7 +793,7 @@ public class RegisterRulesTest {
     RegisterRules task = new RegisterRules(loader, qProfileRules, dbClient, ruleIndexer, activeRuleIndexer,
       languages, system, organizationFlags, webServerRuleFinder, uuidFactory);
     task.start();
-    // Execute a commit to refresh session state as the task is using its own sessiongci
+    // Execute a commit to refresh session state as the task is using its own session
     dbTester.getSession().commit();
 
     verify(webServerRuleFinder).startCaching();
