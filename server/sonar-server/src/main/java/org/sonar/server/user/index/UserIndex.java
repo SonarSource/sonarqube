@@ -81,13 +81,14 @@ public class UserIndex {
    * Returns the active users (at most 3) who are associated to the given SCM account. This method can be used
    * to detect user conflicts.
    */
-  public List<UserDoc> getAtMostThreeActiveUsersForScmAccount(String scmAccount) {
+  public List<UserDoc> getAtMostThreeActiveUsersForScmAccount(String scmAccount, String organizationUuid) {
     List<UserDoc> result = new ArrayList<>();
     if (!StringUtils.isEmpty(scmAccount)) {
       SearchRequestBuilder request = esClient.prepareSearch(UserIndexDefinition.INDEX_TYPE_USER)
         .setQuery(boolQuery().must(matchAllQuery()).filter(
           boolQuery()
             .must(termQuery(FIELD_ACTIVE, true))
+            .must(termQuery(FIELD_ORGANIZATION_UUIDS, organizationUuid))
             .should(termQuery(FIELD_LOGIN, scmAccount))
             .should(matchQuery(SORTABLE_ANALYZER.subField(FIELD_EMAIL), scmAccount))
             .should(matchQuery(SORTABLE_ANALYZER.subField(FIELD_SCM_ACCOUNTS), scmAccount))))

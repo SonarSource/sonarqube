@@ -21,13 +21,13 @@ package org.sonarqube.tests.issue;
 
 import com.sonar.orchestrator.Orchestrator;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonarqube.qa.util.Tester;
 import org.sonarqube.qa.util.pageobjects.issues.IssuesPage;
-import org.sonarqube.tests.Category6Suite;
 import org.sonarqube.ws.Issues;
 import org.sonarqube.ws.Issues.Issue;
 import org.sonarqube.ws.Organizations.Organization;
@@ -50,12 +50,12 @@ public class OrganizationIssueAssignTest {
   private final static String SAMPLE_PROJECT_KEY = "sample";
 
   @ClassRule
-  public static Orchestrator orchestrator = Category6Suite.ORCHESTRATOR;
+  public static Orchestrator orchestrator = OrganizationIssueSuite.ORCHESTRATOR;
   @Rule
   public Tester tester = new Tester(orchestrator);
 
   @Test
-  public void auto_assign_issues_to_user_if_default_assignee_is_member_of_project_organization() {
+  public void auto_assign_issues_to_default_assignee_if_member_of_project_organization() {
     Organization organization = tester.organizations().generate();
     User user = tester.users().generateMember(organization);
     provisionProjectAndAssociateItToQProfile(SAMPLE_PROJECT_KEY, organization);
@@ -67,7 +67,7 @@ public class OrganizationIssueAssignTest {
   }
 
   @Test
-  public void does_not_auto_assign_issues_to_user_if_default_assignee_is_not_member_of_project_organization() {
+  public void do_not_auto_assign_issues_to_default_assignee_if_not_member_of_project_organization() {
     Organization organization1 = tester.organizations().generate();
     Organization organization2 = tester.organizations().generate();
     User user = tester.users().generateMember(organization2);
@@ -77,6 +77,30 @@ public class OrganizationIssueAssignTest {
     analyseProject(SAMPLE_PROJECT_KEY, organization1);
 
     assertThat(getRandomIssue().hasAssignee()).isFalse();
+  }
+
+  /**
+   * SONAR-10302
+   */
+  @Test
+  public void do_not_auto_assign_issues_to_user_if_assignee_is_not_member_of_project_organization() {
+    Organization organization1 = tester.organizations().generate();
+    Organization organization2 = tester.organizations().generate();
+    User fabrice = tester.users().generateMember(organization1, u -> u.setScmAccount(singletonList("fabrice")));
+    // Simon is not member of project's organization, no issue should be assigned to him
+    User simon = tester.users().generateMember(organization2, u -> u.setScmAccount(singletonList("simon")));
+    provisionProjectAndAssociateItToQProfile(SAMPLE_PROJECT_KEY, organization1);
+
+    analyseProject(SAMPLE_PROJECT_KEY, organization1);
+
+    Set<String> assignees = tester.wsClient().issues().search(new SearchRequest().setComponentKeys(singletonList(SAMPLE_PROJECT_KEY))).getIssuesList()
+      .stream()
+      .map(Issue::getAssignee)
+      .filter(s -> !s.isEmpty())
+      .collect(Collectors.toSet());
+    assertThat(assignees)
+      .containsOnly(fabrice.getLogin())
+      .doesNotContain(simon.getLogin());
   }
 
   @Test
