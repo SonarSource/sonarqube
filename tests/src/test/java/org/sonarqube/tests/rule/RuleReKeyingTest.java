@@ -20,14 +20,21 @@
 package org.sonarqube.tests.rule;
 
 import com.sonar.orchestrator.Orchestrator;
+import com.sonar.orchestrator.build.SonarScanner;
 import java.io.File;
+import java.util.List;
+import org.assertj.core.api.iterable.ThrowingExtractor;
 import org.junit.After;
 import org.junit.Test;
 import org.sonarqube.qa.util.Tester;
+import org.sonarqube.ws.Issues;
 import org.sonarqube.ws.client.PostRequest;
+import org.sonarqube.ws.client.issues.SearchRequest;
 
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.pluginArtifact;
+import static util.ItUtils.projectDir;
 
 public class RuleReKeyingTest {
 
@@ -56,6 +63,14 @@ public class RuleReKeyingTest {
 
     verifyRuleCount(16, 16);
 
+    analyseProject("2017-12-31");
+    List<Issues.Issue> issues = tester.wsClient().issues()
+      .search(new SearchRequest().setProjects(singletonList("sample")))
+      .getIssuesList();
+    verifyRuleKey(issues, "foo:ToBeRenamed", "foo:ToBeRenamedAndMoved");
+    verifyDate(issues, Issues.Issue::getCreationDate, "2017-12-31");
+    verifyDate(issues, Issues.Issue::getUpdateDate, "2017-12-31");
+
     // uninstall plugin V1
     tester.wsClient().wsConnector().call(new PostRequest("api/plugins/uninstall").setParam("key", "foo")).failIfNotSuccessful();
     // install plugin V2
@@ -67,6 +82,14 @@ public class RuleReKeyingTest {
     // one rule deleted, one rule added, two rules re-keyed
     verifyRuleCount(16, 17);
 
+    analyseProject("2018-01-02");
+    List<Issues.Issue> issuesAfterUpgrade = tester.wsClient().issues()
+      .search(new SearchRequest().setProjects(singletonList("sample")))
+      .getIssuesList();
+    verifyRuleKey(issuesAfterUpgrade, "foo:Renamed", "foo2:RenamedAndMoved");
+    verifyDate(issuesAfterUpgrade, Issues.Issue::getCreationDate, "2017-12-31");
+    verifyDate(issuesAfterUpgrade, Issues.Issue::getUpdateDate, "2018-01-02");
+
     // uninstall plugin V2
     tester.wsClient().wsConnector().call(new PostRequest("api/plugins/uninstall").setParam("key", "foo")).failIfNotSuccessful();
     // install plugin V1
@@ -76,10 +99,37 @@ public class RuleReKeyingTest {
 
     // new rule removed, removed rule recreated, two rules re-keyed back
     verifyRuleCount(16, 17);
+
+    analyseProject("2018-01-16");
+    List<Issues.Issue> issuesAfterDowngrade = tester.wsClient().issues()
+      .search(new SearchRequest().setProjects(singletonList("sample")))
+      .getIssuesList();
+    verifyRuleKey(issuesAfterDowngrade, "foo:ToBeRenamed", "foo:ToBeRenamedAndMoved");
+    verifyDate(issuesAfterDowngrade, Issues.Issue::getCreationDate, "2017-12-31");
+    verifyDate(issuesAfterDowngrade, Issues.Issue::getUpdateDate, "2018-01-16");
+  }
+
+  private static void verifyRuleKey(List<Issues.Issue> issuesAfterDowngrade, String... ruleKeys) {
+    assertThat(issuesAfterDowngrade)
+      .extracting(Issues.Issue::getRule)
+      .containsOnly(ruleKeys);
+  }
+
+  private static void verifyDate(List<Issues.Issue> issuesAfterUpgrade, ThrowingExtractor<Issues.Issue, String, RuntimeException> getUpdateDate, String date) {
+    assertThat(issuesAfterUpgrade)
+      .extracting(getUpdateDate)
+      .usingElementComparator((a, b) -> a.startsWith(b) ? 0 : -1)
+      .containsOnly(date + "T00:00:00");
   }
 
   private void verifyRuleCount(int wsRuleCount, int dbRuleCount) {
     assertThat(tester.wsClient().rules().list().getRulesList()).hasSize(wsRuleCount);
     assertThat(orchestrator.getDatabase().countSql("select count(*) from rules")).isEqualTo(dbRuleCount);
+  }
+
+  private void analyseProject(String projectDate) {
+    orchestrator.executeBuild(
+      SonarScanner.create(projectDir("foo-sample"))
+        .setProperty("sonar.projectDate", projectDate));
   }
 }
