@@ -25,7 +25,6 @@ import OrganizationContainer from './components/OrganizationContainer';
 import OrganizationProjects from './components/OrganizationProjects';
 import OrganizationAdminContainer from './components/OrganizationAdminContainer';
 import OrganizationEdit from './components/OrganizationEdit';
-import OrganizationGroups from './components/OrganizationGroups';
 import OrganizationMembersContainer from './components/OrganizationMembersContainer';
 import OrganizationDelete from './components/OrganizationDelete';
 import PermissionTemplateApp from '../permission-templates/components/AppContainer';
@@ -34,6 +33,7 @@ import codingRulesRoutes from '../coding-rules/routes';
 import qualityGatesRoutes from '../quality-gates/routes';
 import qualityProfilesRoutes from '../quality-profiles/routes';
 import Issues from '../issues/components/AppContainer';
+import GroupsApp from '../groups/components/App';
 
 const routes = [
   {
@@ -85,7 +85,7 @@ const routes = [
         childRoutes: [
           { path: 'delete', component: OrganizationDelete },
           { path: 'edit', component: OrganizationEdit },
-          { path: 'groups', component: OrganizationGroups },
+          { path: 'groups', component: GroupsApp },
           { path: 'permissions', component: GlobalPermissionsApp },
           { path: 'permission_templates', component: PermissionTemplateApp },
           { path: 'projects_management', component: ProjectManagementApp }

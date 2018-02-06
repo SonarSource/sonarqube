@@ -1,0 +1,75 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should create new group 1`] = `
+<React.Fragment>
+  <header
+    className="page-header"
+    id="groups-header"
+  >
+    <h1
+      className="page-title"
+    >
+      user_groups.page
+    </h1>
+    <DeferredSpinner
+      loading={false}
+      timeout={100}
+    />
+    <div
+      className="page-actions"
+    >
+      <button
+        id="groups-create"
+        onClick={[Function]}
+      >
+        groups.create_group
+      </button>
+    </div>
+    <p
+      className="page-description"
+    >
+      user_groups.page.description
+    </p>
+  </header>
+</React.Fragment>
+`;
+
+exports[`should create new group 2`] = `
+<React.Fragment>
+  <header
+    className="page-header"
+    id="groups-header"
+  >
+    <h1
+      className="page-title"
+    >
+      user_groups.page
+    </h1>
+    <DeferredSpinner
+      loading={false}
+      timeout={100}
+    />
+    <div
+      className="page-actions"
+    >
+      <button
+        id="groups-create"
+        onClick={[Function]}
+      >
+        groups.create_group
+      </button>
+    </div>
+    <p
+      className="page-description"
+    >
+      user_groups.page.description
+    </p>
+  </header>
+  <Form
+    confirmButtonText="create"
+    header="groups.create_group"
+    onClose={[Function]}
+    onSubmit={[Function]}
+  />
+</React.Fragment>
+`;

@@ -23,10 +23,10 @@ const routes = [
   {
     getIndexRoute(_: RouterState, callback: (err: any, route: IndexRouteProps) => any) {
       Promise.all([
-        import('./components/GroupsAppContainer').then(i => i.default),
+        import('./components/App').then(i => i.default),
         import('../organizations/forSingleOrganization').then(i => i.default)
-      ]).then(([GroupsAppContainer, forSingleOrganization]) =>
-        callback(null, { component: forSingleOrganization(GroupsAppContainer) })
+      ]).then(([App, forSingleOrganization]) =>
+        callback(null, { component: forSingleOrganization(App) })
       );
     }
   }

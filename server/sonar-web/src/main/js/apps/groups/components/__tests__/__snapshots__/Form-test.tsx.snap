@@ -1,0 +1,86 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render form 1`] = `
+<Modal
+  contentLabel="header"
+  onRequestClose={[MockFunction]}
+>
+  <form
+    onSubmit={[Function]}
+  >
+    <header
+      className="modal-head"
+    >
+      <h2>
+        header
+      </h2>
+    </header>
+    <div
+      className="modal-body"
+    >
+      <div
+        className="modal-field"
+      >
+        <label
+          htmlFor="create-group-name"
+        >
+          name
+          <em
+            className="mandatory"
+          >
+            *
+          </em>
+        </label>
+        <input
+          autoFocus={true}
+          id="create-group-name"
+          maxLength={255}
+          name="name"
+          onChange={[Function]}
+          required={true}
+          size={50}
+          type="text"
+          value=""
+        />
+      </div>
+      <div
+        className="modal-field"
+      >
+        <label
+          htmlFor="create-group-description"
+        >
+          description
+        </label>
+        <textarea
+          id="create-group-description"
+          name="description"
+          onChange={[Function]}
+          value=""
+        />
+      </div>
+    </div>
+    <footer
+      className="modal-foot"
+    >
+      <DeferredSpinner
+        className="spacer-right"
+        loading={false}
+        timeout={100}
+      />
+      <button
+        disabled={false}
+        type="submit"
+      >
+        confirmButtonText
+      </button>
+      <button
+        className="button-link"
+        onClick={[Function]}
+        type="reset"
+      >
+        cancel
+      </button>
+    </footer>
+  </form>
+</Modal>
+`;

@@ -254,3 +254,11 @@ export enum RuleInheritance {
   Inherited = 'INHERITED',
   Overridden = 'OVERRIDES'
 }
+
+export interface Group {
+  default?: boolean;
+  description?: string;
+  id: number;
+  membersCount: number;
+  name: string;
+}

@@ -17,29 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
-import Helmet from 'react-helmet';
-import init from '../../groups/init';
-import { translate } from '../../../helpers/l10n';
-/*:: import type { Organization } from '../../../store/organizations/duck'; */
+import * as React from 'react';
+import { shallow } from 'enzyme';
+import EditMembers from '../EditMembers';
+import { click } from '../../../../helpers/testUtils';
 
-export default class OrganizationGroups extends React.PureComponent {
-  /*:: props: {
-    organization: Organization
-  };
-*/
+it('should edit members', () => {
+  const group = { id: 3, name: 'Foo', membersCount: 5 };
+  const onEdit = jest.fn();
 
-  componentDidMount() {
-    init(this.refs.container, this.props.organization);
-  }
+  const wrapper = shallow(<EditMembers group={group} onEdit={onEdit} organization="org" />);
+  expect(wrapper).toMatchSnapshot();
 
-  render() {
-    return (
-      <div>
-        <Helmet title={translate('global_permissions.groups')} />
-        <div ref="container" />
-      </div>
-    );
-  }
-}
+  wrapper.find('ButtonIcon').prop<Function>('onClick')();
+  wrapper.update();
+  expect(wrapper).toMatchSnapshot();
+
+  click(wrapper.find('button[type="reset"]'));
+  expect(onEdit).toBeCalled();
+  expect(wrapper).toMatchSnapshot();
+});

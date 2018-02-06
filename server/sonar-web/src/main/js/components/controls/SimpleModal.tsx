@@ -22,6 +22,7 @@ import Modal from '../../components/controls/Modal';
 
 export interface ChildrenProps {
   onCloseClick: (event: React.SyntheticEvent<HTMLElement>) => void;
+  onFormSubmit: (event: React.SyntheticEvent<HTMLFormElement>) => void;
   onSubmitClick: (event: React.SyntheticEvent<HTMLElement>) => void;
   submitting: boolean;
 }
@@ -61,9 +62,18 @@ export default class SimpleModal extends React.PureComponent<Props, State> {
     this.props.onClose();
   };
 
+  handleFormSubmit = (event: React.SyntheticEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    this.submit();
+  };
+
   handleSubmitClick = (event: React.SyntheticEvent<HTMLElement>) => {
     event.preventDefault();
     event.currentTarget.blur();
+    this.submit();
+  };
+
+  submit = () => {
     const result = this.props.onSubmit();
     if (result) {
       this.setState({ submitting: true });
@@ -76,6 +86,7 @@ export default class SimpleModal extends React.PureComponent<Props, State> {
       <Modal contentLabel={this.props.header} onRequestClose={this.props.onClose}>
         {this.props.children({
           onCloseClick: this.handleCloseClick,
+          onFormSubmit: this.handleFormSubmit,
           onSubmitClick: this.handleSubmitClick,
           submitting: this.state.submitting
         })}

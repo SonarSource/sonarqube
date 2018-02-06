@@ -1,0 +1,106 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render 1`] = `
+<div
+  className="boxed-group boxed-group-inner"
+>
+  <table
+    className="data zebra zebra-hover"
+    id="groups-list"
+  >
+    <thead>
+      <tr>
+        <th />
+        <th
+          className="nowrap"
+        >
+          members
+        </th>
+        <th
+          className="nowrap"
+        >
+          description
+        </th>
+        <th />
+      </tr>
+    </thead>
+    <tbody>
+      <tr
+        className="js-anyone"
+        key="anyone"
+      >
+        <td
+          className="width-20"
+        >
+          <strong
+            className="js-group-name"
+          >
+            groups.anyone
+          </strong>
+        </td>
+        <td
+          className="width-10"
+        />
+        <td
+          className="width-40"
+          colSpan={2}
+        >
+          <span
+            className="js-group-description"
+          >
+            user_groups.anyone.description
+          </span>
+        </td>
+      </tr>
+      <ListItem
+        group={
+          Object {
+            "default": false,
+            "description": "barbar",
+            "id": 3,
+            "membersCount": 1,
+            "name": "bar",
+          }
+        }
+        key="3"
+        onDelete={[MockFunction]}
+        onEdit={[MockFunction]}
+        onEditMembers={[MockFunction]}
+        organization="org"
+      />
+      <ListItem
+        group={
+          Object {
+            "default": false,
+            "description": "foobar",
+            "id": 2,
+            "membersCount": 0,
+            "name": "foo",
+          }
+        }
+        key="2"
+        onDelete={[MockFunction]}
+        onEdit={[MockFunction]}
+        onEditMembers={[MockFunction]}
+        organization="org"
+      />
+      <ListItem
+        group={
+          Object {
+            "default": true,
+            "description": "",
+            "id": 1,
+            "membersCount": 55,
+            "name": "sonar-users",
+          }
+        }
+        key="1"
+        onDelete={[MockFunction]}
+        onEdit={[MockFunction]}
+        onEditMembers={[MockFunction]}
+        organization="org"
+      />
+    </tbody>
+  </table>
+</div>
+`;

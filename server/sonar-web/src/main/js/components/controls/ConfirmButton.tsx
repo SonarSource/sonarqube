@@ -18,12 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import SimpleModal from '../../../components/controls/SimpleModal';
-import { translate } from '../../../helpers/l10n';
+import SimpleModal from './SimpleModal';
+import DeferredSpinner from '../common/DeferredSpinner';
+import { translate } from '../../helpers/l10n';
 
 interface Props {
   children: (
-    props: { onClick: (event: React.SyntheticEvent<HTMLButtonElement>) => void }
+    props: { onClick: (event?: React.SyntheticEvent<HTMLButtonElement>) => void }
   ) => React.ReactNode;
   confirmButtonText: string;
   confirmData?: string;
@@ -37,26 +38,41 @@ interface State {
   modal: boolean;
 }
 
-// TODO move this component to components/ and use everywhere!
 export default class ConfirmButton extends React.PureComponent<Props, State> {
+  mounted: boolean;
   state: State = { modal: false };
 
-  handleButtonClick = (event: React.SyntheticEvent<HTMLButtonElement>) => {
-    event.preventDefault();
-    event.currentTarget.blur();
+  componentDidMount() {
+    this.mounted = true;
+  }
+
+  componentWillUnmount() {
+    this.mounted = false;
+  }
+
+  handleButtonClick = (event?: React.SyntheticEvent<HTMLButtonElement>) => {
+    if (event) {
+      event.preventDefault();
+      event.currentTarget.blur();
+    }
     this.setState({ modal: true });
   };
 
   handleSubmit = () => {
     const result = this.props.onConfirm(this.props.confirmData);
     if (result) {
-      result.then(this.handleCloseModal, () => {});
+      return result.then(this.handleCloseModal, () => {});
     } else {
       this.handleCloseModal();
+      return undefined;
     }
   };
 
-  handleCloseModal = () => this.setState({ modal: false });
+  handleCloseModal = () => {
+    if (this.mounted) {
+      this.setState({ modal: false });
+    }
+  };
 
   render() {
     const { confirmButtonText, isDestructive, modalBody, modalHeader } = this.props;
@@ -78,7 +94,7 @@ export default class ConfirmButton extends React.PureComponent<Props, State> {
                 <div className="modal-body">{modalBody}</div>
 
                 <footer className="modal-foot">
-                  {submitting && <i className="spinner spacer-right" />}
+                  <DeferredSpinner className="spacer-right" loading={submitting} />
                   <button
                     className={isDestructive ? 'button-red' : undefined}
                     disabled={submitting}

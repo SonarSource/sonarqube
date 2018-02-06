@@ -17,23 +17,36 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import Helmet from 'react-helmet';
-import init from '../init';
-import { translate } from '../../../helpers/l10n';
-import '../../../components/controls/SearchBox.css';
+import * as React from 'react';
+import { shallow } from 'enzyme';
+import List from '../List';
 
-export default class GroupsAppContainer extends React.PureComponent {
-  componentDidMount() {
-    init(this.refs.container);
-  }
+it('should render', () => {
+  expect(shallowRender()).toMatchSnapshot();
+});
 
-  render() {
-    return (
-      <div>
-        <Helmet title={translate('user_groups.page')} />
-        <div ref="container" />
-      </div>
-    );
-  }
+it('should not render "Anyone"', () => {
+  expect(
+    shallowRender(false)
+      .find('.js-anyone')
+      .exists()
+  ).toBeFalsy();
+});
+
+function shallowRender(showAnyone = true) {
+  const groups = [
+    { id: 1, name: 'sonar-users', description: '', membersCount: 55, default: true },
+    { id: 2, name: 'foo', description: 'foobar', membersCount: 0, default: false },
+    { id: 3, name: 'bar', description: 'barbar', membersCount: 1, default: false }
+  ];
+  return shallow(
+    <List
+      groups={groups}
+      onDelete={jest.fn()}
+      onEdit={jest.fn()}
+      onEditMembers={jest.fn()}
+      organization="org"
+      showAnyone={showAnyone}
+    />
+  );
 }
