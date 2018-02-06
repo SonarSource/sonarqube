@@ -19,9 +19,9 @@
  */
 package org.sonar.server.computation.task.projectanalysis.issue;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -36,7 +36,6 @@ import org.sonar.db.rule.RuleDto;
 import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.guava.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.eq;
@@ -203,7 +202,7 @@ public class RuleRepositoryImplTest {
   public void findByKey_returns_absent_if_rule_does_not_exist_in_DB() {
     Optional<Rule> rule = underTest.findByKey(AC_RULE_KEY);
 
-    assertThat(rule).isAbsent();
+    assertThat(rule).isEmpty();
   }
 
   @Test
@@ -224,7 +223,7 @@ public class RuleRepositoryImplTest {
   public void findByKey_returns_empty_if_argument_is_deprecated_key_in_DB_of_rule_in_DB() {
     Optional<Rule> rule = underTest.findByKey(DEPRECATED_KEY_OF_NON_EXITING_RULE);
 
-    assertThat(rule).isAbsent();
+    assertThat(rule).isEmpty();
   }
 
   @Test
@@ -246,7 +245,7 @@ public class RuleRepositoryImplTest {
   public void findById_returns_absent_if_rule_does_not_exist_in_DB() {
     Optional<Rule> rule = underTest.findById(AC_RULE_ID);
 
-    assertThat(rule).isAbsent();
+    assertThat(rule).isEmpty();
   }
 
   @Test
