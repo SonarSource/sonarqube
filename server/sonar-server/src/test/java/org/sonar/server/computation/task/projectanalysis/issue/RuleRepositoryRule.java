@@ -19,9 +19,9 @@
  */
 package org.sonar.server.computation.task.projectanalysis.issue;
 
-import com.google.common.base.Optional;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import org.junit.rules.ExternalResource;
 import org.sonar.api.rule.RuleKey;
 
@@ -55,12 +55,12 @@ public class RuleRepositoryRule extends ExternalResource implements RuleReposito
 
   @Override
   public Optional<Rule> findByKey(RuleKey key) {
-    return Optional.fromNullable(rulesByKey.get(requireNonNull(key)));
+    return Optional.ofNullable(rulesByKey.get(requireNonNull(key)));
   }
 
   @Override
   public Optional<Rule> findById(int id) {
-    return Optional.fromNullable(rulesById.get(id));
+    return Optional.ofNullable(rulesById.get(id));
   }
 
   public DumbRule add(RuleKey key) {
