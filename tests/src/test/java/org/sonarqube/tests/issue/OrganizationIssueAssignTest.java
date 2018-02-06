@@ -21,24 +21,22 @@ package org.sonarqube.tests.issue;
 
 import com.sonar.orchestrator.Orchestrator;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
-import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonarqube.qa.util.Tester;
 import org.sonarqube.qa.util.pageobjects.issues.IssuesPage;
-import org.sonarqube.tests.Category6Suite;
 import org.sonarqube.ws.Issues;
 import org.sonarqube.ws.Issues.Issue;
-import org.sonarqube.ws.Organizations;
+import org.sonarqube.ws.Organizations.Organization;
+import org.sonarqube.ws.Projects.CreateWsResponse.Project;
+import org.sonarqube.ws.Qualityprofiles.CreateWsResponse.QualityProfile;
 import org.sonarqube.ws.Users.CreateWsResponse.User;
 import org.sonarqube.ws.client.issues.AssignRequest;
 import org.sonarqube.ws.client.issues.BulkChangeRequest;
 import org.sonarqube.ws.client.issues.SearchRequest;
-import org.sonarqube.ws.client.qualityprofiles.AddProjectRequest;
-import org.sonarqube.ws.client.projects.CreateRequest;
-import util.issue.IssueRule;
 
 import static java.lang.String.format;
 import static java.util.Collections.singletonList;
@@ -46,101 +44,120 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.expectHttpError;
 import static util.ItUtils.restoreProfile;
 import static util.ItUtils.runProjectAnalysis;
-import static util.ItUtils.setServerProperty;
 
 public class OrganizationIssueAssignTest {
 
   private final static String SAMPLE_PROJECT_KEY = "sample";
 
   @ClassRule
-  public static Orchestrator orchestrator = Category6Suite.ORCHESTRATOR;
+  public static Orchestrator orchestrator = OrganizationIssueSuite.ORCHESTRATOR;
   @Rule
   public Tester tester = new Tester(orchestrator);
 
-  @Rule
-  public IssueRule issueRule = IssueRule.from(orchestrator);
+  @Test
+  public void auto_assign_issues_to_default_assignee_if_member_of_project_organization() {
+    Organization organization = tester.organizations().generate();
+    User user = tester.users().generateMember(organization);
+    provisionProjectAndAssociateItToQProfile(SAMPLE_PROJECT_KEY, organization);
+    tester.settings().setProjectSetting("sample", "sonar.issues.defaultAssigneeLogin", user.getLogin());
 
-  private Organizations.Organization org1;
-  private Organizations.Organization org2;
-  private User user;
+    analyseProject(SAMPLE_PROJECT_KEY, organization);
 
-  @Before
-  public void setUp() {
-    org1 = tester.organizations().generate();
-    org2 = tester.organizations().generate();
-    user = tester.users().generate();
-    restoreProfile(orchestrator, getClass().getResource("/organization/IssueAssignTest/one-issue-per-file-profile.xml"), org1.getKey());
+    assertThat(getRandomIssue().getAssignee()).isEqualTo(user.getLogin());
   }
 
   @Test
-  public void auto_assign_issues_to_user_if_default_assignee_is_member_of_project_organization() {
-    tester.organizations().addMember(org1, user);
+  public void do_not_auto_assign_issues_to_default_assignee_if_not_member_of_project_organization() {
+    Organization organization1 = tester.organizations().generate();
+    Organization organization2 = tester.organizations().generate();
+    User user = tester.users().generateMember(organization2);
+    provisionProjectAndAssociateItToQProfile(SAMPLE_PROJECT_KEY, organization1);
+    tester.settings().setProjectSetting("sample", "sonar.issues.defaultAssigneeLogin", user.getLogin());
 
-    provisionProject(SAMPLE_PROJECT_KEY, org1.getKey());
-    setServerProperty(orchestrator, "sample", "sonar.issues.defaultAssigneeLogin", user.getLogin());
+    analyseProject(SAMPLE_PROJECT_KEY, organization1);
 
-    analyseProject(SAMPLE_PROJECT_KEY, org1.getKey());
-
-    assertThat(issueRule.getRandomIssue().getAssignee()).isEqualTo(user.getLogin());
+    assertThat(getRandomIssue().hasAssignee()).isFalse();
   }
 
+  /**
+   * SONAR-10302
+   */
   @Test
-  public void does_not_auto_assign_issues_to_user_if_default_assignee_is_not_member_of_project_organization() {
-    tester.organizations().addMember(org2, user);
-    provisionProject(SAMPLE_PROJECT_KEY, org1.getKey());
-    setServerProperty(orchestrator, "sample", "sonar.issues.defaultAssigneeLogin", user.getLogin());
+  public void do_not_auto_assign_issues_to_user_if_assignee_is_not_member_of_project_organization() {
+    Organization organization1 = tester.organizations().generate();
+    Organization organization2 = tester.organizations().generate();
+    User fabrice = tester.users().generateMember(organization1, u -> u.setScmAccount(singletonList("fabrice")));
+    // Simon is not member of project's organization, no issue should be assigned to him
+    User simon = tester.users().generateMember(organization2, u -> u.setScmAccount(singletonList("simon")));
+    provisionProjectAndAssociateItToQProfile(SAMPLE_PROJECT_KEY, organization1);
 
-    analyseProject(SAMPLE_PROJECT_KEY, org1.getKey());
+    analyseProject(SAMPLE_PROJECT_KEY, organization1);
 
-    assertThat(issueRule.getRandomIssue().hasAssignee()).isFalse();
+    Set<String> assignees = tester.wsClient().issues().search(new SearchRequest().setComponentKeys(singletonList(SAMPLE_PROJECT_KEY))).getIssuesList()
+      .stream()
+      .map(Issue::getAssignee)
+      .filter(s -> !s.isEmpty())
+      .collect(Collectors.toSet());
+    assertThat(assignees)
+      .containsOnly(fabrice.getLogin())
+      .doesNotContain(simon.getLogin());
   }
 
   @Test
   public void assign_issue_to_user_being_member_of_same_organization_as_project_issue_organization() {
-    tester.organizations().addMember(org1, user);
-    provisionAndAnalyseProject(SAMPLE_PROJECT_KEY, org1.getKey());
-    Issue issue = issueRule.getRandomIssue();
+    Organization organization = tester.organizations().generate();
+    User user = tester.users().generateMember(organization);
+    provisionAndAnalyseProject(SAMPLE_PROJECT_KEY, organization);
+    Issue issue = getRandomIssue();
 
     assignIssueTo(issue, user);
 
-    assertThat(issueRule.getByKey(issue.getKey()).getAssignee()).isEqualTo(user.getLogin());
+    assertThat(getByKey(issue.getKey()).getAssignee()).isEqualTo(user.getLogin());
   }
 
   @Test
   public void fail_to_assign_issue_to_user_not_being_member_of_same_organization_as_project_issue_organization() {
-    tester.organizations().addMember(org2, user);
-    provisionAndAnalyseProject(SAMPLE_PROJECT_KEY, org1.getKey());
-    Issue issue = issueRule.getRandomIssue();
+    Organization organization1 = tester.organizations().generate();
+    Organization organization2 = tester.organizations().generate();
+    User user = tester.users().generateMember(organization2);
+    provisionAndAnalyseProject(SAMPLE_PROJECT_KEY, organization1);
+    Issue issue = getRandomIssue();
 
     expectHttpError(400,
-      format("User '%s' is not member of organization '%s'", user.getLogin(), org1.getKey()),
+      format("User '%s' is not member of organization '%s'", user.getLogin(), organization1.getKey()),
       () -> assignIssueTo(issue, user));
   }
 
   @Test
   public void bulk_assign_issues_to_user_being_only_member_of_same_organization_as_project_issue_organization() {
-    restoreProfile(orchestrator, getClass().getResource("/organization/IssueAssignTest/one-issue-per-file-profile.xml"), org2.getKey());
+    Organization organization1 = tester.organizations().generate();
+    Organization organization2 = tester.organizations().generate();
     // User is only member of org1, not of org2
-    tester.organizations().addMember(org1, user);
-    provisionAndAnalyseProject(SAMPLE_PROJECT_KEY, org1.getKey());
-    provisionAndAnalyseProject("sample2", org2.getKey());
-    List<String> issues = issueRule.search(new SearchRequest()).getIssuesList().stream().map(Issue::getKey).collect(Collectors.toList());
+    User user = tester.users().generateMember(organization1);
+
+    restoreProfile(orchestrator, getClass().getResource("/organization/IssueAssignTest/one-issue-per-file-profile.xml"), organization2.getKey());
+
+    provisionAndAnalyseProject(SAMPLE_PROJECT_KEY, organization1);
+    provisionAndAnalyseProject("sample2", organization2);
+    List<String> issues = tester.wsClient().issues().search(new SearchRequest()).getIssuesList().stream().map(Issue::getKey).collect(Collectors.toList());
 
     Issues.BulkChangeWsResponse response = tester.wsClient().issues()
       .bulkChange(new BulkChangeRequest().setIssues(issues).setAssign(singletonList(user.getLogin())));
 
     assertThat(response.getIgnored()).isGreaterThan(0);
-    assertThat(issueRule.search(new SearchRequest().setProjects(singletonList("sample"))).getIssuesList()).extracting(Issue::getAssignee)
+    assertThat(tester.wsClient().issues().search(new SearchRequest().setProjects(singletonList("sample"))).getIssuesList()).extracting(Issue::getAssignee)
       .containsOnly(user.getLogin());
-    assertThat(issueRule.search(new SearchRequest().setProjects(singletonList("sample2"))).getIssuesList()).extracting(Issue::hasAssignee)
+    assertThat(tester.wsClient().issues().search(new SearchRequest().setProjects(singletonList("sample2"))).getIssuesList()).extracting(Issue::hasAssignee)
       .containsOnly(false);
   }
 
   @Test
   public void single_assign_search_show_only_members_in_global_issues() {
-    tester.organizations().addMember(org1, user);
+    Organization organization = tester.organizations().generate();
+    User user = tester.users().generateMember(organization);
     User otherUser = tester.users().generate();
-    provisionAndAnalyseProject(SAMPLE_PROJECT_KEY, org1.getKey());
+    provisionAndAnalyseProject(SAMPLE_PROJECT_KEY, organization);
+
     IssuesPage page = tester.openBrowser().logIn().submitCredentials(user.getLogin()).openIssues();
     page.getFirstIssue()
       .shouldAllowAssign()
@@ -150,10 +167,11 @@ public class OrganizationIssueAssignTest {
 
   @Test
   public void bulk_assign_search_only_members_of_organization_in_project_issues() {
-    tester.organizations().addMember(org1, user);
+    Organization organization = tester.organizations().generate();
+    User user = tester.users().generateMember(organization);
     User otherUser = tester.users().generate();
+    provisionAndAnalyseProject(SAMPLE_PROJECT_KEY, organization);
 
-    provisionAndAnalyseProject(SAMPLE_PROJECT_KEY, org1.getKey());
     IssuesPage page = tester.openBrowser()
       .logIn().submitCredentials(user.getLogin())
       .openComponentIssues(SAMPLE_PROJECT_KEY);
@@ -165,9 +183,10 @@ public class OrganizationIssueAssignTest {
 
   @Test
   public void bulk_assign_search_all_users_in_global_issues() {
-    tester.organizations().addMember(org1, user);
+    Organization organization = tester.organizations().generate();
+    User user = tester.users().generateMember(organization);
     User otherUser = tester.users().generate();
-    provisionAndAnalyseProject(SAMPLE_PROJECT_KEY, org1.getKey());
+    provisionAndAnalyseProject(SAMPLE_PROJECT_KEY, organization);
     IssuesPage page = tester.openBrowser()
       .logIn().submitCredentials(user.getLogin())
       .openIssues();
@@ -177,37 +196,44 @@ public class OrganizationIssueAssignTest {
       .bulkChangeAssigneeSearchCount(otherUser.getLogin(), 1);
   }
 
-  private void provisionAndAnalyseProject(String projectKey, String organization) {
-    provisionProject(projectKey, organization);
+  private void provisionAndAnalyseProject(String projectKey, Organization organization) {
+    provisionProjectAndAssociateItToQProfile(projectKey, organization);
     analyseProject(projectKey, organization);
   }
 
-  private void provisionProject(String projectKey, String organization) {
-    tester.wsClient().projects().create(
-      new CreateRequest()
-        .setProject(projectKey)
-        .setName(projectKey)
-        .setOrganization(organization));
+  private void provisionProjectAndAssociateItToQProfile(String projectKey, Organization organization) {
+    Project project = tester.projects().provision(organization, p -> p.setProject(projectKey));
+    QualityProfile profile = tester.qProfiles().createXooProfile(organization);
+    tester.qProfiles()
+      .activateRule(profile, "xoo:OneIssuePerLine")
+      .assignQProfileToProject(profile, project);
   }
 
-  private void analyseProject(String projectKey, String organization) {
-    addQualityProfileToProject(organization, projectKey);
+  private void analyseProject(String projectKey, Organization organization) {
     runProjectAnalysis(orchestrator, "issue/xoo-with-scm",
       "sonar.projectKey", projectKey,
-      "sonar.organization", organization,
+      "sonar.organization", organization.getKey(),
       "sonar.login", "admin",
       "sonar.password", "admin",
       "sonar.scm.disabled", "false",
       "sonar.scm.provider", "xoo");
   }
 
-  private void addQualityProfileToProject(String organization, String projectKey) {
-    tester.wsClient().qualityprofiles().addProject(
-      new AddProjectRequest()
-        .setProject(projectKey)
-        .setOrganization(organization)
-        .setLanguage("xoo")
-        .setQualityProfile("one-issue-per-file-profile"));
+  private Issues.Issue getByKey(String issueKey) {
+    return tester.wsClient().issues().search(
+      new SearchRequest()
+        .setComponentKeys(singletonList(SAMPLE_PROJECT_KEY))
+        .setIssues(singletonList(issueKey)))
+      .getIssuesList()
+      .get(0);
+  }
+
+  private Issues.Issue getRandomIssue() {
+    return tester.wsClient().issues().search(
+      new SearchRequest()
+        .setComponentKeys(singletonList(SAMPLE_PROJECT_KEY)))
+      .getIssuesList()
+      .get(0);
   }
 
   private Issues.AssignResponse assignIssueTo(Issue issue, User u) {
