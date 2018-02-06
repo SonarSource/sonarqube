@@ -127,4 +127,5 @@ enum BranchType {
 
   LONG = 1;
   SHORT = 2;
+  PULL_REQUEST = 3;
 }
