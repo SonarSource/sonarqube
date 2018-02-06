@@ -22,7 +22,6 @@ package org.sonarqube.tests.ce;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
 import java.io.File;
-import java.io.IOException;
 import java.util.regex.Pattern;
 import org.apache.commons.io.FileUtils;
 import org.junit.Rule;
@@ -70,6 +69,7 @@ public class CeShutdownTest {
         ce.resumeTask();
         watch.waitForLog();
         assertThat(ce.hasTaskFinishedSuccessfully()).isTrue();
+        assertThat(ce.hasTaskFinishedInFailure()).isFalse();
         assertThat(ce.hasErrorLogs()).isFalse();
       }
     }
@@ -97,6 +97,7 @@ public class CeShutdownTest {
       try (LogsTailer.Watch watch = ce.logs().watch("Process [ce] is stopped")) {
         watch.waitForLog();
         assertThat(ce.hasTaskFinishedSuccessfully()).isFalse();
+        assertThat(ce.hasTaskFinishedInFailure()).isTrue();
         assertThat(ce.hasErrorLogs()).isTrue();
       }
     }
@@ -146,7 +147,11 @@ public class CeShutdownTest {
     }
 
     boolean hasTaskFinishedSuccessfully() {
-      return content.hasLineMatching(Pattern.compile(".* INFO .*Executed task \\| project=foo \\| type=REPORT.*"));
+      return content.hasLineMatching(Pattern.compile(".* INFO .*Executed task \\| project=foo \\| type=REPORT.*\\| status=SUCCESS.*"));
+    }
+
+    boolean hasTaskFinishedInFailure() {
+      return content.hasLineMatching(Pattern.compile(".* INFO .*Executed task \\| project=foo \\| type=REPORT.*\\| status=FAILED.*"));
     }
 
     boolean hasErrorLogs() {

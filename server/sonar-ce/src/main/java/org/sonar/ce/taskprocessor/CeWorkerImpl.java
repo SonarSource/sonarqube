@@ -179,20 +179,16 @@ public class CeWorkerImpl implements CeWorker {
 
   private static Profiler startActivityProfiler(CeTask task) {
     Profiler profiler = Profiler.create(LOG);
-    addContext(profiler, task);
+    addContext(profiler, task, null);
     return profiler.startInfo("Execute task");
   }
 
   private static void stopActivityProfiler(Profiler profiler, CeTask task, CeActivityDto.Status status) {
-    addContext(profiler, task);
-    if (status == CeActivityDto.Status.FAILED) {
-      profiler.stopError("Executed task");
-    } else {
-      profiler.stopInfo("Executed task");
-    }
+    addContext(profiler, task, status);
+    profiler.stopInfo("Executed task");
   }
 
-  private static void addContext(Profiler profiler, CeTask task) {
+  private static void addContext(Profiler profiler, CeTask task, @Nullable CeActivityDto.Status status) {
     profiler
       .logTimeLast(true)
       .addContext("project", task.getComponentKey())
@@ -201,6 +197,9 @@ public class CeWorkerImpl implements CeWorker {
     String submitterLogin = task.getSubmitterLogin();
     if (submitterLogin != null) {
       profiler.addContext("submitter", submitterLogin);
+    }
+    if (status != null) {
+      profiler.addContext("status", status.name());
     }
   }
 }
