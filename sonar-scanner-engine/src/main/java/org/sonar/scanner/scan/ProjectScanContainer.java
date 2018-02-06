@@ -257,6 +257,12 @@ public class ProjectScanContainer extends ComponentContainer {
       LOG.info("Branch name: {}, type: {}", branchName, toDisplayName(branchConfig.branchType()));
     }
 
+    String pullRequestBranch = props.property(ScannerProperties.PULL_REQUEST_BRANCH);
+    if (pullRequestBranch != null) {
+      String pullRequestBase = props.property(ScannerProperties.PULL_REQUEST_BASE);
+      LOG.info("Pull request into {}: {}", pullRequestBase, pullRequestBranch);
+    }
+
     LOG.debug("Start recursive analysis of project modules");
     scanRecursively(tree, tree.root(), analysisMode);
 
