@@ -19,19 +19,26 @@
  */
 package org.sonarqube.tests.rule;
 
+import com.google.common.collect.ImmutableSet;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
 import java.io.File;
 import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.function.Function;
+import javax.annotation.concurrent.Immutable;
 import org.assertj.core.api.iterable.ThrowingExtractor;
 import org.junit.After;
 import org.junit.Test;
 import org.sonarqube.qa.util.Tester;
 import org.sonarqube.ws.Issues;
+import org.sonarqube.ws.Rules;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.issues.SearchRequest;
 
 import static java.util.Collections.singletonList;
+import static java.util.stream.Collectors.toSet;
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.pluginArtifact;
 import static util.ItUtils.projectDir;
@@ -61,7 +68,19 @@ public class RuleReKeyingTest {
     tester = new Tester(orchestrator);
     tester.before();
 
-    verifyRuleCount(16, 16);
+    Set<RuleExtract> rules = verifyRules(
+      arrayOf("foo:UnchangedRule",
+        "foo:ChangedRule",
+        "foo:ToBeDeactivatedRule",
+        "foo:ToBeRemovedRule",
+        "foo:RuleWithUnchangedParameter",
+        "foo:RuleWithChangedParameter",
+        "foo:RuleWithRemovedParameter",
+        "foo:RuleWithAddedParameter",
+        "foo:ToBeRenamed",
+        "foo:ToBeRenamedAndMoved"),
+      arrayOf("foo:Renamed",
+        "foo2:RenamedAndMoved"));
 
     analyseProject("2017-12-31");
     List<Issues.Issue> issues = tester.wsClient().issues()
@@ -80,7 +99,22 @@ public class RuleReKeyingTest {
     orchestrator.restartServer();
 
     // one rule deleted, one rule added, two rules re-keyed
-    verifyRuleCount(16, 17);
+    Set<RuleExtract> rulesAfterUpgrade = verifyRules(
+      arrayOf("foo:UnchangedRule",
+        "foo:ChangedRule",
+        "foo:ToBeDeactivatedRule",
+        "foo:RuleWithUnchangedParameter",
+        "foo:RuleWithChangedParameter",
+        "foo:RuleWithRemovedParameter",
+        "foo:RuleWithAddedParameter",
+        "foo:Renamed",
+        "foo2:RenamedAndMoved"),
+      arrayOf("foo:ToBeRemovedRule"));
+    assertThat(rulesAfterUpgrade).isEqualTo(rules.stream()
+      .filter(t -> !"foo:ToBeRemovedRule".equals(t.ruleKey))
+      .map(renamed("foo:ToBeRenamed", "foo:Renamed"))
+      .map(renamed("foo:ToBeRenamedAndMoved", "foo2:RenamedAndMoved"))
+      .collect(toSet()));
 
     analyseProject("2018-01-02");
     List<Issues.Issue> issuesAfterUpgrade = tester.wsClient().issues()
@@ -98,7 +132,20 @@ public class RuleReKeyingTest {
     orchestrator.restartServer();
 
     // new rule removed, removed rule recreated, two rules re-keyed back
-    verifyRuleCount(16, 17);
+    Set<RuleExtract> rulesAfterDowngrade = verifyRules(
+      arrayOf("foo:UnchangedRule",
+        "foo:ChangedRule",
+        "foo:ToBeDeactivatedRule",
+        "foo:ToBeRemovedRule",
+        "foo:RuleWithUnchangedParameter",
+        "foo:RuleWithChangedParameter",
+        "foo:RuleWithRemovedParameter",
+        "foo:RuleWithAddedParameter",
+        "foo:ToBeRenamed",
+        "foo:ToBeRenamedAndMoved"),
+      arrayOf("foo:Renamed",
+        "foo2:RenamedAndMoved"));
+    assertThat(rulesAfterDowngrade).isEqualTo(rules);
 
     analyseProject("2018-01-16");
     List<Issues.Issue> issuesAfterDowngrade = tester.wsClient().issues()
@@ -107,6 +154,37 @@ public class RuleReKeyingTest {
     verifyRuleKey(issuesAfterDowngrade, "foo:ToBeRenamed", "foo:ToBeRenamedAndMoved");
     verifyDate(issuesAfterDowngrade, Issues.Issue::getCreationDate, "2017-12-31");
     verifyDate(issuesAfterDowngrade, Issues.Issue::getUpdateDate, "2018-01-16");
+  }
+
+  /**
+   * Verifies response from api/rules/search WS without filter returns rules for all keys in {@code contains} and
+   * non for the keys in {@code doesNotContain}.
+   *
+   * @return a {@link RuleExtract} for each key in {@code contains} built from api/rules/search response
+   */
+  private Set<RuleExtract> verifyRules(String[] contains, String[] doesNotContain) {
+    List<Rules.Rule> rules = tester.wsClient().rules().search(new org.sonarqube.ws.client.rules.SearchRequest())
+      .getRulesList();
+
+    assertThat(rules)
+      .extracting(Rules.Rule::getKey)
+      .contains(contains)
+      .doesNotContain(doesNotContain);
+
+    Set<String> expected = ImmutableSet.copyOf(contains);
+    return rules.stream()
+      .filter(t -> expected.contains(t.getKey()))
+      .map(t -> new RuleExtract(t.getKey(), t.getCreatedAt()))
+      .collect(toSet());
+  }
+
+  private Function<RuleExtract, RuleExtract> renamed(String oldRuleKey, String newRuleKey) {
+    return ruleExtract -> {
+      if (ruleExtract.ruleKey.equals(oldRuleKey)) {
+        return ruleExtract.renameTo(newRuleKey);
+      }
+      return ruleExtract;
+    };
   }
 
   private static void verifyRuleKey(List<Issues.Issue> issuesAfterDowngrade, String... ruleKeys) {
@@ -122,9 +200,46 @@ public class RuleReKeyingTest {
       .containsOnly(date + "T00:00:00");
   }
 
-  private void verifyRuleCount(int wsRuleCount, int dbRuleCount) {
-    assertThat(tester.wsClient().rules().list().getRulesList()).hasSize(wsRuleCount);
-    assertThat(orchestrator.getDatabase().countSql("select count(*) from rules")).isEqualTo(dbRuleCount);
+  private static String[] arrayOf(String... strings) {
+    return strings;
+  }
+
+  @Immutable
+  private static class RuleExtract {
+    private final String ruleKey;
+    private final String createdAt;
+
+    private RuleExtract(String ruleKey, String createdAt) {
+      this.ruleKey = ruleKey;
+      this.createdAt = createdAt;
+    }
+
+    private RuleExtract renameTo(String newRuleKey) {
+      return new RuleExtract(newRuleKey, createdAt);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) {
+        return true;
+      }
+      if (o == null || getClass() != o.getClass()) {
+        return false;
+      }
+      RuleExtract that = (RuleExtract) o;
+      return Objects.equals(ruleKey, that.ruleKey) &&
+        Objects.equals(createdAt, that.createdAt);
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(ruleKey, createdAt);
+    }
+
+    @Override
+    public String toString() {
+      return "{" + ruleKey + "@" + createdAt + '}';
+    }
   }
 
   private void analyseProject(String projectDate) {
