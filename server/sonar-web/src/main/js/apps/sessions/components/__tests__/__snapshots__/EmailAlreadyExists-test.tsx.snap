@@ -3,6 +3,7 @@
 exports[`render 1`] = `
 <div
   className="page-wrapper-simple"
+  id="bd"
 >
   <div
     className="page-simple"

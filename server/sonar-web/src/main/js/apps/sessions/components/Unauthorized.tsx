@@ -33,7 +33,7 @@ export default function Unauthorized(props: Props) {
   const { message } = props.location.query;
 
   return (
-    <div className="page-wrapper-simple">
+    <div id="bd" className="page-wrapper-simple">
       <div id="nonav" className="page-simple">
         <div className="text-center">
           <p id="unauthorized">{translate('unauthorized.message')}</p>
