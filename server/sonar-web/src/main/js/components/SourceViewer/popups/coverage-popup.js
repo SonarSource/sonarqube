@@ -19,8 +19,8 @@
  */
 import $ from 'jquery';
 import { groupBy } from 'lodash';
-import Popup from '../../common/popup';
 import Template from './templates/source-viewer-coverage-popup.hbs';
+import Popup from '../../common/popup';
 
 export default Popup.extend({
   template: Template,

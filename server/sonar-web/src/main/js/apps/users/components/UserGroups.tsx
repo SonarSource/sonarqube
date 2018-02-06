@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import BulletListIcon from '../../../components/icons-components/BulletListIcon';
 import GroupsForm from './GroupsForm';
+import BulletListIcon from '../../../components/icons-components/BulletListIcon';
 import { User } from '../../../api/users';
 import { ButtonIcon } from '../../../components/ui/buttons';
 import { translate, translateWithParameters } from '../../../helpers/l10n';

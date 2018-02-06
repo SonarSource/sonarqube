@@ -23,7 +23,7 @@ import DrilldownLink from '../../../components/shared/DrilldownLink';
 import BubblesIcon from '../../../components/icons-components/BubblesIcon';
 import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
 import HistoryIcon from '../../../components/icons-components/HistoryIcon';
-import Rating from './../../../components/ui/Rating';
+import Rating from '../../../components/ui/Rating';
 import Timeline from '../components/Timeline';
 import Tooltip from '../../../components/controls/Tooltip';
 import {

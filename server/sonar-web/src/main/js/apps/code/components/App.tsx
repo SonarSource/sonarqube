@@ -22,17 +22,17 @@ import * as React from 'react';
 import Helmet from 'react-helmet';
 import Components from './Components';
 import Breadcrumbs from './Breadcrumbs';
-import { Component as CodeComponent } from '../types';
-import SourceViewer from './../../../components/SourceViewer/SourceViewer';
 import Search from './Search';
-import ListFooter from '../../../components/controls/ListFooter';
-import { retrieveComponentChildren, retrieveComponent, loadMoreChildren } from '../utils';
-import { parseError } from '../../../helpers/request';
 import { addComponent, addComponentBreadcrumbs, clearBucket } from '../bucket';
+import { Component as CodeComponent } from '../types';
+import { retrieveComponentChildren, retrieveComponent, loadMoreChildren } from '../utils';
+import ListFooter from '../../../components/controls/ListFooter';
+import SourceViewer from '../../../components/SourceViewer/SourceViewer';
+import { parseError } from '../../../helpers/request';
 import { getBranchName } from '../../../helpers/branches';
 import { translate } from '../../../helpers/l10n';
-import '../code.css';
 import { Component, Branch } from '../../../app/types';
+import '../code.css';
 
 interface Props {
   branch?: Branch;

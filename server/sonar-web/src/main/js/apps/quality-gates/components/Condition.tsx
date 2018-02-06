@@ -18,10 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import Checkbox from '../../../components/controls/Checkbox';
 import DeleteConditionForm from './DeleteConditionForm';
-import Select from '../../../components/controls/Select';
 import ThresholdInput from './ThresholdInput';
+import Checkbox from '../../../components/controls/Checkbox';
+import Select from '../../../components/controls/Select';
 import {
   Condition as ICondition,
   ConditionBase,

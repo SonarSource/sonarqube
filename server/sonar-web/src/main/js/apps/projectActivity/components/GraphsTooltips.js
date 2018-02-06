@@ -19,14 +19,14 @@
  */
 // @flow
 import React from 'react';
-import BubblePopup from '../../../components/common/BubblePopup';
-import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
 import GraphsTooltipsContent from './GraphsTooltipsContent';
 import GraphsTooltipsContentEvents from './GraphsTooltipsContentEvents';
 import GraphsTooltipsContentCoverage from './GraphsTooltipsContentCoverage';
 import GraphsTooltipsContentDuplication from './GraphsTooltipsContentDuplication';
 import GraphsTooltipsContentIssues from './GraphsTooltipsContentIssues';
 import { DEFAULT_GRAPH } from '../utils';
+import BubblePopup from '../../../components/common/BubblePopup';
+import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
 /*:: import type { Event, MeasureHistory } from '../types'; */
 /*:: import type { Serie } from '../../../components/charts/AdvancedTimeline'; */
 

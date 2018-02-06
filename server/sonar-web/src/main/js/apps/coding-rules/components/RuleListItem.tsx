@@ -20,9 +20,9 @@
 import * as React from 'react';
 import * as classNames from 'classnames';
 import { Link } from 'react-router';
-import { Activation, Query } from '../query';
 import ActivationButton from './ActivationButton';
 import SimilarRulesFilter from './SimilarRulesFilter';
+import { Activation, Query } from '../query';
 import { Profile, deactivateRule } from '../../../api/quality-profiles';
 import { Rule, RuleInheritance } from '../../../app/types';
 import ConfirmButton from '../../../components/controls/ConfirmButton';

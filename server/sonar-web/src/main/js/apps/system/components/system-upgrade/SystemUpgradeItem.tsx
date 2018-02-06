@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import DateFormatter from '../../../../components/intl/DateFormatter';
 import SystemUpgradeIntermediate from './SystemUpgradeIntermediate';
+import DateFormatter from '../../../../components/intl/DateFormatter';
 import { SystemUpgrade } from '../../../../api/system';
 import { translate, translateWithParameters } from '../../../../helpers/l10n';
 

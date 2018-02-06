@@ -20,8 +20,8 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import * as classNames from 'classnames';
-import { getGlobalSettingValue } from '../../store/rootReducer';
 import GenericAvatar from './GenericAvatar';
+import { getGlobalSettingValue } from '../../store/rootReducer';
 
 interface Props {
   className?: string;

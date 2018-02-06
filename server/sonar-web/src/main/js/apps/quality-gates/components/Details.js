@@ -20,9 +20,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import Helmet from 'react-helmet';
-import { fetchQualityGate } from '../../../api/quality-gates';
 import DetailsHeader from './DetailsHeader';
 import DetailsContent from './DetailsContent';
+import { fetchQualityGate } from '../../../api/quality-gates';
 
 export default class Details extends React.PureComponent {
   static contextTypes = {

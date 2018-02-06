@@ -135,7 +135,13 @@
     "import/no-named-as-default-member": "error",
     "import/no-named-default": "error",
     "import/no-webpack-loader-syntax": "error",
-    "import/order": ["error", { "groups": ["builtin", "external"], "newlines-between": "never" }],
+    "import/order": [
+      "error",
+      {
+        "groups": ["builtin", "external", ["index", "sibling"], ["parent", "internal"]],
+        "newlines-between": "never"
+      }
+    ],
 
     // does not properly work with ts
     "import/no-unresolved": "off",

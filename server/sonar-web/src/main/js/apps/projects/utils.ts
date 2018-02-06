@@ -18,13 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { sumBy, uniq } from 'lodash';
+import { Query, convertToFilter } from './query';
 import { translate } from '../../helpers/l10n';
 import { RequestData } from '../../helpers/request';
 import { getOrganizations } from '../../api/organizations';
 import { searchProjects, Facet } from '../../api/components';
 import { getMeasuresForProjects } from '../../api/measures';
 import { isDiffMetric, getPeriodValue } from '../../helpers/measures';
-import { Query, convertToFilter } from './query';
 
 interface SortingOption {
   class?: string;

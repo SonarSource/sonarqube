@@ -21,6 +21,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router';
 import NotificationsList from './NotificationsList';
+import { addNotification, removeNotification } from './actions';
 import Organization from '../../../components/shared/Organization';
 import { translate } from '../../../helpers/l10n';
 import {
@@ -34,7 +35,6 @@ import {
   ChannelsState,
   TypesState
 } from '../../../store/notifications/duck'; */
-import { addNotification, removeNotification } from './actions';
 import { getProjectUrl } from '../../../helpers/urls';
 
 class ProjectNotifications extends React.PureComponent {

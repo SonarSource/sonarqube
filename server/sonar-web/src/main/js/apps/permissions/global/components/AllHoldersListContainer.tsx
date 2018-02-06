@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { connect } from 'react-redux';
+import AllHoldersList from './AllHoldersList';
 import {
   loadHolders,
   grantToUser,
@@ -35,7 +36,6 @@ import {
   getPermissionsAppFilter,
   getPermissionsAppSelectedPermission
 } from '../../../../store/rootReducer';
-import AllHoldersList from './AllHoldersList';
 import { Organization } from '../../../../app/types';
 import { PermissionUser, PermissionGroup } from '../../../../api/permissions';
 

@@ -19,10 +19,10 @@
  */
 import React from 'react';
 import { Link } from 'react-router';
+import enhance from './enhance';
 import Tooltip from '../../../components/controls/Tooltip';
 import DateFromNow from '../../../components/intl/DateFromNow';
 import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
-import enhance from './enhance';
 import { getMetricName } from '../helpers/metrics';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { formatMeasure, isDiffMetric } from '../../../helpers/measures';

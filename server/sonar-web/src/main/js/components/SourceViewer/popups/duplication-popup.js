@@ -19,8 +19,8 @@
  */
 import $ from 'jquery';
 import { groupBy, sortBy } from 'lodash';
-import Popup from '../../common/popup';
 import Template from './templates/source-viewer-duplication-popup.hbs';
+import Popup from '../../common/popup';
 
 export default Popup.extend({
   template: Template,

@@ -27,6 +27,7 @@ import Footer from './Footer';
 import PendingActions from './PendingActions';
 import PluginsList from './PluginsList';
 import Search from './Search';
+import { filterPlugins, parseQuery, Query, serializeQuery } from './utils';
 import {
   getAvailablePlugins,
   getInstalledPluginsWithUpdates,
@@ -38,7 +39,6 @@ import {
 import { Edition, EditionStatus } from '../../api/marketplace';
 import { RawQuery } from '../../helpers/query';
 import { translate } from '../../helpers/l10n';
-import { filterPlugins, parseQuery, Query, serializeQuery } from './utils';
 import './style.css';
 
 export interface Props {

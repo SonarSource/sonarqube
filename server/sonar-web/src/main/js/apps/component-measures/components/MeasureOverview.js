@@ -20,10 +20,10 @@
 // @flow
 import React from 'react';
 import Breadcrumbs from './Breadcrumbs';
-import BubbleChart from '../drilldown/BubbleChart';
 import LeakPeriodLegend from './LeakPeriodLegend';
 import MeasureFavoriteContainer from './MeasureFavoriteContainer';
 import PageActions from './PageActions';
+import BubbleChart from '../drilldown/BubbleChart';
 import SourceViewer from '../../../components/SourceViewer/SourceViewer';
 import { getComponentLeaves } from '../../../api/components';
 import { enhanceComponent, getBubbleMetrics, isFileType } from '../utils';

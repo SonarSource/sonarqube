@@ -17,13 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { translate, hasMessage } from '../../helpers/l10n';
 import {
   TYPE_PROPERTY_SET,
   TYPE_BOOLEAN,
   TYPE_SINGLE_SELECT_LIST,
   TYPE_PASSWORD
 } from './constants';
+import { translate, hasMessage } from '../../helpers/l10n';
 
 export const DEFAULT_CATEGORY = 'general';
 

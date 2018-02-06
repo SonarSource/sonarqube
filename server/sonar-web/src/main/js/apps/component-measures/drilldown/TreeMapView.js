@@ -21,10 +21,10 @@
 import React from 'react';
 import AutoSizer from 'react-virtualized/dist/commonjs/AutoSizer';
 import { scaleLinear, scaleOrdinal } from 'd3-scale';
+import EmptyResult from './EmptyResult';
 import * as theme from '../../../app/theme';
 import ColorBoxLegend from '../../../components/charts/ColorBoxLegend';
 import ColorGradientLegend from '../../../components/charts/ColorGradientLegend';
-import EmptyResult from './EmptyResult';
 import QualifierIcon from '../../../components/icons-components/QualifierIcon';
 import TreeMap from '../../../components/charts/TreeMap';
 import { translate, translateWithParameters, getLocalizedMetricName } from '../../../helpers/l10n';

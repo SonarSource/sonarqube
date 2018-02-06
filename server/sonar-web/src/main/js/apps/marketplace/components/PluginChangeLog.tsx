@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import BubblePopup from '../../../components/common/BubblePopup';
 import PluginChangeLogItem from './PluginChangeLogItem';
+import BubblePopup from '../../../components/common/BubblePopup';
 import { Release, Update } from '../../../api/plugins';
 import { translate } from '../../../helpers/l10n';
 

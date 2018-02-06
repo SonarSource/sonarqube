@@ -22,9 +22,9 @@ import { FormattedMessage } from 'react-intl';
 import EditionBox from './components/EditionBox';
 import LicenseEditionForm from './components/LicenseEditionForm';
 import UninstallEditionForm from './components/UninstallEditionForm';
+import { sortEditions } from './utils';
 import { Edition, EditionStatus } from '../../api/marketplace';
 import { translate } from '../../helpers/l10n';
-import { sortEditions } from './utils';
 
 export interface Props {
   canInstall: boolean;

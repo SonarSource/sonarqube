@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import PreviewGraphTooltipsContent from './PreviewGraphTooltipsContent';
 import BubblePopup from '../common/BubblePopup';
 import DateFormatter from '../intl/DateFormatter';
-import PreviewGraphTooltipsContent from './PreviewGraphTooltipsContent';
 /*:: import type { Metric } from '../types'; */
 /*:: import type { Serie } from '../charts/AdvancedTimeline'; */
 

@@ -22,9 +22,9 @@ import React from 'react';
 import key from 'keymaster';
 import PropTypes from 'prop-types';
 import IssueView from './IssueView';
+import { updateIssue } from './actions';
 import { onFail } from '../../store/rootActions';
 import { setIssueAssignee } from '../../api/issues';
-import { updateIssue } from './actions';
 /*:: import type { Issue as IssueType } from './types'; */
 
 /*::

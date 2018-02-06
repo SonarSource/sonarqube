@@ -18,11 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import StatusIndicator from './StatusIndicator';
 import { Branch } from '../../app/types';
 import Level from '../ui/Level';
 import BugIcon from '../icons-components/BugIcon';
 import CodeSmellIcon from '../icons-components/CodeSmellIcon';
-import StatusIndicator from './StatusIndicator';
 import VulnerabilityIcon from '../icons-components/VulnerabilityIcon';
 import { isShortLivingBranch } from '../../helpers/branches';
 import './BranchStatus.css';

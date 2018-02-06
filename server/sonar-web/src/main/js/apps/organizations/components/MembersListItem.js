@@ -19,11 +19,11 @@
  */
 //@flow
 import React from 'react';
+import RemoveMemberForm from './forms/RemoveMemberForm';
+import ManageMemberGroupsForm from './forms/ManageMemberGroupsForm';
 import Avatar from '../../../components/ui/Avatar';
 import { translateWithParameters } from '../../../helpers/l10n';
 import { formatMeasure } from '../../../helpers/measures';
-import RemoveMemberForm from './forms/RemoveMemberForm';
-import ManageMemberGroupsForm from './forms/ManageMemberGroupsForm';
 import ActionsDropdown, {
   ActionsDropdownDivider
 } from '../../../components/controls/ActionsDropdown';

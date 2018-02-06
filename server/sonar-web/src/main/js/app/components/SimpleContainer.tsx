@@ -19,9 +19,9 @@
  */
 import * as React from 'react';
 import * as PropTypes from 'prop-types';
-import * as theme from '../theme';
 import GlobalLoading from './GlobalLoading';
 import GlobalFooterContainer from './GlobalFooterContainer';
+import * as theme from '../theme';
 import { tryGetGlobalNavigation } from '../../api/nav';
 import NavBar from '../../components/nav/NavBar';
 

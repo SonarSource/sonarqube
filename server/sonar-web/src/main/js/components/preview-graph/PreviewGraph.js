@@ -22,8 +22,8 @@ import React from 'react';
 import { minBy } from 'lodash';
 import * as PropTypes from 'prop-types';
 import AutoSizer from 'react-virtualized/dist/commonjs/AutoSizer';
-import AdvancedTimeline from '../charts/AdvancedTimeline';
 import PreviewGraphTooltips from './PreviewGraphTooltips';
+import AdvancedTimeline from '../charts/AdvancedTimeline';
 import {
   DEFAULT_GRAPH,
   getDisplayedHistoryMetrics,

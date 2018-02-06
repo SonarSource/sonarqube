@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import PluginUpdateButton from './PluginUpdateButton';
 import Checkbox from '../../../components/controls/Checkbox';
 import CheckIcon from '../../../components/icons-components/CheckIcon';
-import PluginUpdateButton from './PluginUpdateButton';
 import { Plugin, installPlugin, updatePlugin, uninstallPlugin } from '../../../api/plugins';
 import { isPluginAvailable, isPluginInstalled } from '../utils';
 import { translate } from '../../../helpers/l10n';

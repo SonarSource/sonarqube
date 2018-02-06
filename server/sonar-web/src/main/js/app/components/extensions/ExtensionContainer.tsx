@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { connect } from 'react-redux';
+import Extension from './Extension';
 import { getCurrentUser } from '../../../store/rootReducer';
 import { addGlobalErrorMessage } from '../../../store/globalMessages/duck';
-import Extension from './Extension';
 
 const mapStateToProps = (state: any) => ({
   currentUser: getCurrentUser(state)

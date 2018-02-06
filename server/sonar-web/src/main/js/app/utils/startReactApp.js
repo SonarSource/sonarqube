@@ -21,6 +21,8 @@ import React from 'react';
 import { render } from 'react-dom';
 import { Router, Route, IndexRoute, Redirect } from 'react-router';
 import { Provider } from 'react-redux';
+import getStore from './getStore';
+import getHistory from './getHistory';
 import DefaultHelmetContainer from '../components/DefaultHelmetContainer';
 import LocalizationContainer from '../components/LocalizationContainer';
 import MigrationContainer from '../components/MigrationContainer';
@@ -74,8 +76,6 @@ import usersRoutes from '../../apps/users/routes';
 import webAPIRoutes from '../../apps/web-api/routes';
 import { maintenanceRoutes, setupRoutes } from '../../apps/maintenance/routes';
 import { globalPermissionsRoutes, projectPermissionsRoutes } from '../../apps/permissions/routes';
-import getStore from './getStore';
-import getHistory from './getHistory';
 
 function handleUpdate() {
   const { action } = this.state.location;

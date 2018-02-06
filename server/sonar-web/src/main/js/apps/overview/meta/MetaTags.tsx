@@ -18,10 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import MetaTagsSelector from './MetaTagsSelector';
 import { setProjectTags } from '../../../api/components';
 import { translate } from '../../../helpers/l10n';
 import TagsList from '../../../components/tags/TagsList';
-import MetaTagsSelector from './MetaTagsSelector';
 import { BubblePopupPosition } from '../../../components/common/BubblePopup';
 import { Component } from '../../../app/types';
 

@@ -20,12 +20,12 @@
 import * as React from 'react';
 import { Link } from 'react-router';
 import * as classNames from 'classnames';
-import { getActionKey } from '../utils';
 import Params from './Params';
 import ResponseExample from './ResponseExample';
 import ActionChangelog from './ActionChangelog';
 import DeprecatedBadge from './DeprecatedBadge';
 import InternalBadge from './InternalBadge';
+import { getActionKey } from '../utils';
 import LinkIcon from '../../../components/icons-components/LinkIcon';
 import { Action as ActionType, Domain as DomainType } from '../../../api/web-api';
 import { translate, translateWithParameters } from '../../../helpers/l10n';

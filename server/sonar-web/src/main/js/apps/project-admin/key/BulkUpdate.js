@@ -22,6 +22,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import BulkUpdateForm from './BulkUpdateForm';
 import BulkUpdateResults from './BulkUpdateResults';
+import { reloadUpdateKeyPage } from './utils';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { bulkChangeKey } from '../../../api/components';
 import { parseError } from '../../../helpers/request';
@@ -30,7 +31,6 @@ import {
   addGlobalSuccessMessage,
   closeAllGlobalMessages
 } from '../../../store/globalMessages/duck';
-import { reloadUpdateKeyPage } from './utils';
 import RecentHistory from '../../../app/components/RecentHistory';
 
 class BulkUpdate extends React.PureComponent {

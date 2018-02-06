@@ -18,15 +18,15 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import Avatar from '../../../components/ui/Avatar';
-import BulletListIcon from '../../../components/icons-components/BulletListIcon';
-import { ButtonIcon } from '../../../components/ui/buttons';
 import TokensFormModal from './TokensFormModal';
 import UserActions from './UserActions';
 import UserGroups from './UserGroups';
 import UserListItemIdentity from './UserListItemIdentity';
 import UserScmAccounts from './UserScmAccounts';
 import { IdentityProvider, User } from '../../../api/users';
+import BulletListIcon from '../../../components/icons-components/BulletListIcon';
+import Avatar from '../../../components/ui/Avatar';
+import { ButtonIcon } from '../../../components/ui/buttons';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {

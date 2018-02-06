@@ -19,11 +19,11 @@
  */
 import * as React from 'react';
 import { Link } from 'react-router';
-import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
 import ProjectCardQualityGate from './ProjectCardQualityGate';
 import ProjectCardOverallMeasures from './ProjectCardOverallMeasures';
 import ProjectCardOrganizationContainer from './ProjectCardOrganizationContainer';
 import Favorite from '../../../components/controls/Favorite';
+import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
 import TagsList from '../../../components/tags/TagsList';
 import PrivateBadge from '../../../components/common/PrivateBadge';
 import { translate, translateWithParameters } from '../../../helpers/l10n';

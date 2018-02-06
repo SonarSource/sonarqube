@@ -17,17 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { setAppState } from './appState/duck';
+import { receiveOrganizations } from './organizations/duck';
+import { receiveLanguages } from './languages/actions';
+import { receiveMetrics } from './metrics/actions';
+import { addGlobalErrorMessage } from './globalMessages/duck';
 import { getLanguages } from '../api/languages';
 import { getGlobalNavigation } from '../api/nav';
 import * as auth from '../api/auth';
 import { getOrganizations } from '../api/organizations';
 import { getAllMetrics } from '../api/metrics';
-import { receiveLanguages } from './languages/actions';
-import { receiveMetrics } from './metrics/actions';
-import { addGlobalErrorMessage } from './globalMessages/duck';
 import { parseError } from '../helpers/request';
-import { setAppState } from './appState/duck';
-import { receiveOrganizations } from './organizations/duck';
 
 export const onFail = dispatch => error =>
   parseError(error).then(message => dispatch(addGlobalErrorMessage(message)));

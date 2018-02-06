@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { sortBy } from 'lodash';
-import { Group } from '../../../app/types';
 import ListItem from './ListItem';
+import { Group } from '../../../app/types';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {

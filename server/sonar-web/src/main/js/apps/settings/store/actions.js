@@ -17,19 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { receiveValues } from './values/actions';
+import { receiveDefinitions } from './definitions/actions';
+import { startLoading, stopLoading } from './settingsPage/loading/actions';
+import { passValidation, failValidation } from './settingsPage/validationMessages/actions';
+import { cancelChange } from './settingsPage/changedValues/actions';
 import {
   getDefinitions,
   getValues,
   setSettingValue,
   resetSettingValue
 } from '../../../api/settings';
-import { receiveValues } from './values/actions';
-import { receiveDefinitions } from './definitions/actions';
-import { startLoading, stopLoading } from './settingsPage/loading/actions';
 import { parseError } from '../../../helpers/request';
 import { addGlobalErrorMessage, closeAllGlobalMessages } from '../../../store/globalMessages/duck';
-import { passValidation, failValidation } from './settingsPage/validationMessages/actions';
-import { cancelChange } from './settingsPage/changedValues/actions';
 import { isEmptyValue } from '../utils';
 import { translate } from '../../../helpers/l10n';
 import { getSettingsAppDefinition, getSettingsAppChangedValue } from '../../../store/rootReducer';

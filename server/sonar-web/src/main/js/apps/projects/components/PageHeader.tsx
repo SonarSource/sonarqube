@@ -19,10 +19,10 @@
  */
 import * as React from 'react';
 import * as classNames from 'classnames';
-import SearchFilterContainer from '../filters/SearchFilterContainer';
-import Tooltip from '../../../components/controls/Tooltip';
 import PerspectiveSelect from './PerspectiveSelect';
 import ProjectsSortingSelect from './ProjectsSortingSelect';
+import SearchFilterContainer from '../filters/SearchFilterContainer';
+import Tooltip from '../../../components/controls/Tooltip';
 import { CurrentUser, isLoggedIn, HomePageType } from '../../../app/types';
 import HomePageSelect from '../../../components/controls/HomePageSelect';
 import { translate } from '../../../helpers/l10n';

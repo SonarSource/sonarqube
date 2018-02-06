@@ -20,14 +20,14 @@
 // @flow
 import React from 'react';
 import classNames from 'classnames';
-import CodeView from '../drilldown/CodeView';
 import Breadcrumbs from './Breadcrumbs';
-import FilesView from '../drilldown/FilesView';
 import MeasureFavoriteContainer from './MeasureFavoriteContainer';
 import MeasureHeader from './MeasureHeader';
 import MeasureViewSelect from './MeasureViewSelect';
 import MetricNotFound from './MetricNotFound';
 import PageActions from './PageActions';
+import FilesView from '../drilldown/FilesView';
+import CodeView from '../drilldown/CodeView';
 import TreeMapView from '../drilldown/TreeMapView';
 import { getComponentTree } from '../../../api/components';
 import { complementary } from '../config/complementary';

@@ -19,12 +19,12 @@
  */
 // @flow
 import React from 'react';
+import FacetMeasureValue from './FacetMeasureValue';
 import BubblesIcon from '../../../components/icons-components/BubblesIcon';
 import FacetBox from '../../../components/facet/FacetBox';
 import FacetHeader from '../../../components/facet/FacetHeader';
 import FacetItem from '../../../components/facet/FacetItem';
 import FacetItemsList from '../../../components/facet/FacetItemsList';
-import FacetMeasureValue from './FacetMeasureValue';
 import {
   addMeasureCategories,
   filterMeasures,

@@ -21,8 +21,8 @@
 import React from 'react';
 import { intersection } from 'lodash';
 import Line from './components/Line';
-import { translate } from '../../helpers/l10n';
 import { getLinearLocations } from './helpers/issueLocations';
+import { translate } from '../../helpers/l10n';
 /*:: import type { Duplication, SourceLine } from './types'; */
 /*:: import type { Issue, FlowLocation } from '../issue/types'; */
 /*:: import type { LinearIssueLocation } from './helpers/indexing'; */

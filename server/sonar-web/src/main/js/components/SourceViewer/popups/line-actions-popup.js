@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import Popup from '../../common/popup';
 import Template from './templates/source-viewer-line-options-popup.hbs';
+import Popup from '../../common/popup';
 
 export default Popup.extend({
   template: Template,

@@ -22,13 +22,13 @@ import * as PropTypes from 'prop-types';
 import Helmet from 'react-helmet';
 import { Location } from 'history';
 import Header from './Header';
-import ListFooter from '../../components/controls/ListFooter';
 import Search from './Search';
 import UsersList from './UsersList';
+import { parseQuery, Query, serializeQuery } from './utils';
+import ListFooter from '../../components/controls/ListFooter';
 import { getIdentityProviders, IdentityProvider, searchUsers, User } from '../../api/users';
 import { Paging } from '../../app/types';
 import { translate } from '../../helpers/l10n';
-import { parseQuery, Query, serializeQuery } from './utils';
 
 interface Props {
   currentUser: { isLoggedIn: boolean; login?: string };

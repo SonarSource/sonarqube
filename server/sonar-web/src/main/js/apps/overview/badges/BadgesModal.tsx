@@ -18,12 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import Modal from '../../../components/controls/Modal';
 import BadgeButton from './BadgeButton';
 import BadgeSnippet from './BadgeSnippet';
 import BadgeParams from './BadgeParams';
 import { BadgeType, BadgeOptions, getBadgeUrl } from './utils';
 import { Metric } from '../../../app/types';
+import Modal from '../../../components/controls/Modal';
 import { translate } from '../../../helpers/l10n';
 import './styles.css';
 
