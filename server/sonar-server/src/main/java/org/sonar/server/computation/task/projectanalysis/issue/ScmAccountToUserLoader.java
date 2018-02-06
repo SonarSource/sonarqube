@@ -27,6 +27,7 @@ import java.util.Map;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.util.stream.MoreCollectors;
+import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.server.user.index.UserDoc;
 import org.sonar.server.user.index.UserIndex;
 import org.sonar.server.util.cache.CacheLoader;
@@ -37,15 +38,18 @@ import org.sonar.server.util.cache.CacheLoader;
 public class ScmAccountToUserLoader implements CacheLoader<String, String> {
 
   private static final Logger LOGGER = Loggers.get(ScmAccountToUserLoader.class);
-  private final UserIndex index;
 
-  public ScmAccountToUserLoader(UserIndex index) {
+  private final UserIndex index;
+  private final AnalysisMetadataHolder analysisMetadataHolder;
+
+  public ScmAccountToUserLoader(UserIndex index, AnalysisMetadataHolder analysisMetadataHolder) {
     this.index = index;
+    this.analysisMetadataHolder = analysisMetadataHolder;
   }
 
   @Override
   public String load(String scmAccount) {
-    List<UserDoc> users = index.getAtMostThreeActiveUsersForScmAccount(scmAccount);
+    List<UserDoc> users = index.getAtMostThreeActiveUsersForScmAccount(scmAccount, analysisMetadataHolder.getOrganization().getUuid());
     if (users.size() == 1) {
       return users.get(0).login();
     }

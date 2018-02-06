@@ -29,7 +29,6 @@ import org.sonarqube.tests.authorization.PermissionTemplateTest;
 import org.sonarqube.tests.ce.ReportFailureNotificationTest;
 import org.sonarqube.tests.issue.IssueNotificationsTest;
 import org.sonarqube.tests.issue.IssueTagsTest;
-import org.sonarqube.tests.issue.OrganizationIssueAssignTest;
 import org.sonarqube.tests.issue.OrganizationIssuesPageTest;
 import org.sonarqube.tests.qualityProfile.BuiltInQualityProfilesTest;
 import org.sonarqube.tests.qualityProfile.CustomQualityProfilesTest;
@@ -53,7 +52,6 @@ import static util.ItUtils.xooPlugin;
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
   OrganizationIdentityProviderTest.class,
-  OrganizationIssueAssignTest.class,
   OrganizationIssuesPageTest.class,
   OrganizationQualityProfilesUiTest.class,
   BuiltInQualityProfilesTest.class,
