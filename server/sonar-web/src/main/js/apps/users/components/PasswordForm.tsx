@@ -21,8 +21,9 @@ import * as React from 'react';
 import Modal from '../../../components/controls/Modal';
 import addGlobalSuccessMessage from '../../../app/utils/addGlobalSuccessMessage';
 import throwGlobalError from '../../../app/utils/throwGlobalError';
+import { User } from '../../../app/types';
 import { parseError } from '../../../helpers/request';
-import { changePassword, User } from '../../../api/users';
+import { changePassword } from '../../../api/users';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {

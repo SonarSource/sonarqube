@@ -19,7 +19,10 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { getIdentityProviders, IdentityProvider } from '../../../api/users';
+import { getIdentityProviders } from '../../../api/users';
+import * as theme from '../../../app/theme';
+import { IdentityProvider } from '../../../app/types';
+import { getTextColor } from '../../../helpers/colors';
 import { translate } from '../../../helpers/l10n';
 import { getBaseUrl } from '../../../helpers/urls';
 
@@ -75,7 +78,10 @@ export default class EmailAlreadyExists extends React.PureComponent<Props, State
     return identityProvider ? (
       <div
         className="identity-provider"
-        style={{ backgroundColor: identityProvider.backgroundColor }}>
+        style={{
+          backgroundColor: identityProvider.backgroundColor,
+          color: getTextColor(identityProvider.backgroundColor, theme.secondFontColor)
+        }}>
         <img
           alt={identityProvider.name}
           className="little-spacer-right"
@@ -96,41 +102,43 @@ export default class EmailAlreadyExists extends React.PureComponent<Props, State
     const { query } = this.props.location;
 
     return (
-      <div>
-        <div className="big-spacer-bottom js-existing-account">
-          <p className="little-spacer-bottom">
-            <FormattedMessage
-              defaultMessage={translate('sessions.email_already_exists.1')}
-              id="sessions.email_already_exists.1"
-              values={{ email: <strong>{query.email}</strong> }}
-            />
-          </p>
-          {this.renderIdentityProvier(query.existingProvider, query.existingLogin)}
-        </div>
+      <div id="bd" className="page-wrapper-simple">
+        <div id="nonav" className="page-simple">
+          <div className="big-spacer-bottom js-existing-account">
+            <p className="little-spacer-bottom">
+              <FormattedMessage
+                defaultMessage={translate('sessions.email_already_exists.1')}
+                id="sessions.email_already_exists.1"
+                values={{ email: <strong>{query.email}</strong> }}
+              />
+            </p>
+            {this.renderIdentityProvier(query.existingProvider, query.existingLogin)}
+          </div>
 
-        <div className="big-spacer-bottom js-new-account">
-          <p className="little-spacer-bottom">{translate('sessions.email_already_exists.2')}</p>
-          {this.renderIdentityProvier(query.provider, query.login)}
-        </div>
+          <div className="big-spacer-bottom js-new-account">
+            <p className="little-spacer-bottom">{translate('sessions.email_already_exists.2')}</p>
+            {this.renderIdentityProvier(query.provider, query.login)}
+          </div>
 
-        <div className="alert alert-warning">
-          {translate('sessions.email_already_exists.3')}
-          <ul className="list-styled">
-            <li className="spacer-top">{translate('sessions.email_already_exists.4')}</li>
-            <li className="spacer-top">{translate('sessions.email_already_exists.5')}</li>
-            <li className="spacer-top">{translate('sessions.email_already_exists.6')}</li>
-          </ul>
-        </div>
+          <div className="alert alert-warning">
+            {translate('sessions.email_already_exists.3')}
+            <ul className="list-styled">
+              <li className="spacer-top">{translate('sessions.email_already_exists.4')}</li>
+              <li className="spacer-top">{translate('sessions.email_already_exists.5')}</li>
+              <li className="spacer-top">{translate('sessions.email_already_exists.6')}</li>
+            </ul>
+          </div>
 
-        <div className="big-spacer-top text-right">
-          <a
-            className="button js-continue"
-            href={`${getBaseUrl()}/sessions/init/${query.provider}?allowEmailShift=true`}>
-            {translate('continue')}
-          </a>
-          <a className="big-spacer-left js-cancel" href={getBaseUrl() + '/'}>
-            {translate('cancel')}
-          </a>
+          <div className="big-spacer-top text-right">
+            <a
+              className="button js-continue"
+              href={`${getBaseUrl()}/sessions/init/${query.provider}?allowEmailShift=true`}>
+              {translate('continue')}
+            </a>
+            <a className="big-spacer-left js-cancel" href={getBaseUrl() + '/'}>
+              {translate('cancel')}
+            </a>
+          </div>
         </div>
       </div>
     );

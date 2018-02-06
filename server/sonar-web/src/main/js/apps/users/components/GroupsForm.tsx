@@ -19,9 +19,9 @@
  */
 import * as React from 'react';
 import * as escapeHtml from 'escape-html';
+import { User } from '../../../app/types';
 import Modal from '../../../components/controls/Modal';
 import SelectList from '../../../components/SelectList';
-import { User } from '../../../api/users';
 import { translate } from '../../../helpers/l10n';
 import { getBaseUrl } from '../../../helpers/urls';
 

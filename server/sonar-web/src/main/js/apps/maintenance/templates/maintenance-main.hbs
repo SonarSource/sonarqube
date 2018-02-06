@@ -1,26 +1,32 @@
-{{#eq status 'OFFLINE'}}
+<div id="bd" class="page-wrapper-simple">
+  <div id="nonav" class="page-simple {{#eq state 'MIGRATION_REQUIRED'}}panel-warning{{/eq}}">
 
-  {{> '_maintenance-status-offline'}}
+    {{#eq status 'OFFLINE'}}
 
-{{else}}
+      {{> '_maintenance-status-offline'}}
 
-  {{#unless setup}}
+    {{else}}
 
-    {{#eq status 'UP'}}{{> '_maintenance-status-up'}}{{/eq}}
-    {{#eq status 'STARTING'}}{{> '_maintenance-status-starting'}}{{/eq}}
-    {{#eq status 'DOWN'}}{{> '_maintenance-status-down'}}{{/eq}}
-    {{#eq status 'DB_MIGRATION_NEEDED'}}{{> '_maintenance-status-migration'}}{{/eq}}
-    {{#eq status 'DB_MIGRATION_RUNNING'}}{{> '_maintenance-status-migration'}}{{/eq}}
+      {{#unless setup}}
 
-  {{else}}
+        {{#eq status 'UP'}}{{> '_maintenance-status-up'}}{{/eq}}
+        {{#eq status 'STARTING'}}{{> '_maintenance-status-starting'}}{{/eq}}
+        {{#eq status 'DOWN'}}{{> '_maintenance-status-down'}}{{/eq}}
+        {{#eq status 'DB_MIGRATION_NEEDED'}}{{> '_maintenance-status-migration'}}{{/eq}}
+        {{#eq status 'DB_MIGRATION_RUNNING'}}{{> '_maintenance-status-migration'}}{{/eq}}
 
-    {{#eq state 'NO_MIGRATION'}}{{> '_maintenance-state-no-migration'}}{{/eq}}
-    {{#eq state 'MIGRATION_REQUIRED'}}{{> '_maintenance-state-migration-required'}}{{/eq}}
-    {{#eq state 'NOT_SUPPORTED'}}{{> '_maintenance-state-migration-not-supported'}}{{/eq}}
-    {{#eq state 'MIGRATION_RUNNING'}}{{> '_maintenance-state-migration-running'}}{{/eq}}
-    {{#eq state 'MIGRATION_SUCCEEDED'}}{{> '_maintenance-state-migration-succeeded'}}{{/eq}}
-    {{#eq state 'MIGRATION_FAILED'}}{{> '_maintenance-state-migration-failed'}}{{/eq}}
+      {{else}}
 
-  {{/unless}}
+        {{#eq state 'NO_MIGRATION'}}{{> '_maintenance-state-no-migration'}}{{/eq}}
+        {{#eq state 'MIGRATION_REQUIRED'}}{{> '_maintenance-state-migration-required'}}{{/eq}}
+        {{#eq state 'NOT_SUPPORTED'}}{{> '_maintenance-state-migration-not-supported'}}{{/eq}}
+        {{#eq state 'MIGRATION_RUNNING'}}{{> '_maintenance-state-migration-running'}}{{/eq}}
+        {{#eq state 'MIGRATION_SUCCEEDED'}}{{> '_maintenance-state-migration-succeeded'}}{{/eq}}
+        {{#eq state 'MIGRATION_FAILED'}}{{> '_maintenance-state-migration-failed'}}{{/eq}}
 
-{{/eq}}
+      {{/unless}}
+
+    {{/eq}}
+
+  </div>
+</div>

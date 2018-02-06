@@ -19,6 +19,8 @@
  */
 import React from 'react';
 import { getIdentityProviders } from '../../../api/users';
+import * as theme from '../../../app/theme';
+import { getTextColor } from '../../../helpers/colors';
 
 export default class UserExternalIdentity extends React.PureComponent {
   state = {
@@ -80,8 +82,12 @@ export default class UserExternalIdentity extends React.PureComponent {
     return (
       <div
         className="identity-provider"
-        style={{ backgroundColor: identityProvider.backgroundColor }}>
+        style={{
+          backgroundColor: identityProvider.backgroundColor,
+          color: getTextColor(identityProvider.backgroundColor, theme.secondFontColor)
+        }}>
         <img
+          className="little-spacer-right"
           src={window.baseUrl + identityProvider.iconPath}
           width="14"
           height="14"

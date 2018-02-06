@@ -22,7 +22,8 @@ import * as PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import LoginForm from './LoginForm';
 import { doLogin } from '../../../store/rootActions';
-import { IdentityProvider, getIdentityProviders } from '../../../api/users';
+import { getIdentityProviders } from '../../../api/users';
+import { IdentityProvider } from '../../../app/types';
 import { getBaseUrl } from '../../../helpers/urls';
 
 interface Props {

@@ -77,12 +77,7 @@ export default class SimpleContainer extends React.PureComponent<Props, State> {
       <div className="global-container">
         <div className="page-wrapper" id="container">
           <NavBar className="navbar-global" height={theme.globalNavHeightRaw} />
-
-          <div id="bd" className="page-wrapper-simple">
-            <div id="nonav" className="page-simple">
-              {this.props.children}
-            </div>
-          </div>
+          {this.props.children}
         </div>
         <GlobalFooterContainer hideLoggedInInfo={this.props.hideLoggedInInfo} />
       </div>

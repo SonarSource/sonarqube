@@ -21,8 +21,8 @@ import * as React from 'react';
 import { Link } from 'react-router';
 import OAuthProviders from './OAuthProviders';
 import GlobalMessagesContainer from '../../../app/components/GlobalMessagesContainer';
+import { IdentityProvider } from '../../../app/types';
 import { translate } from '../../../helpers/l10n';
-import { IdentityProvider } from '../../../api/users';
 import './LoginForm.css';
 
 interface Props {
@@ -70,7 +70,7 @@ export default class LoginForm extends React.PureComponent<Props, State> {
       : translate('login.login_to_sonarqube');
 
     return (
-      <div id="login_form">
+      <div className="login-page" id="login_form">
         <h1 className="login-title text-center">{loginTitle}</h1>
 
         {this.props.identityProviders.length > 0 && (
@@ -90,7 +90,7 @@ export default class LoginForm extends React.PureComponent<Props, State> {
             </a>
           </div>
         ) : (
-          <form onSubmit={this.handleSubmit}>
+          <form className="login-form" onSubmit={this.handleSubmit}>
             <GlobalMessagesContainer />
 
             <div className="big-spacer-bottom">

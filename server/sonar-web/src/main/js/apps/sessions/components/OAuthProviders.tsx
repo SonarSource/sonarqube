@@ -19,18 +19,20 @@
  */
 import * as React from 'react';
 import { translateWithParameters } from '../../../helpers/l10n';
-import { IdentityProvider } from '../../../api/users';
+import * as theme from '../../../app/theme';
+import { IdentityProvider } from '../../../app/types';
+import Tooltip from '../../../components/controls/Tooltip';
+import HelpIcon from '../../../components/icons-components/HelpIcon';
+import { getTextColor } from '../../../helpers/colors';
 import { getBaseUrl } from '../../../helpers/urls';
 import './OAuthProviders.css';
 
 interface Props {
-  formatLabel?: (name: string) => string;
   identityProviders: IdentityProvider[];
   returnTo: string;
 }
 
 export default function OAuthProviders(props: Props) {
-  const formatLabel = props.formatLabel || defaultFormatLabel;
   return (
     <section className="oauth-providers">
       <ul>
@@ -41,16 +43,25 @@ export default function OAuthProviders(props: Props) {
                 `${getBaseUrl()}/sessions/init/${identityProvider.key}` +
                 `?return_to=${encodeURIComponent(props.returnTo)}`
               }
-              style={{ backgroundColor: identityProvider.backgroundColor }}
-              title={formatLabel(identityProvider.name)}>
+              style={{
+                backgroundColor: identityProvider.backgroundColor,
+                color: getTextColor(identityProvider.backgroundColor, theme.secondFontColor)
+              }}>
               <img
                 alt={identityProvider.name}
                 width="20"
                 height="20"
                 src={getBaseUrl() + identityProvider.iconPath}
               />
-              <span>{formatLabel(identityProvider.name)}</span>
+              <span>{defaultFormatLabel(identityProvider.name)}</span>
             </a>
+            {identityProvider.helpMessage && (
+              <Tooltip overlay={identityProvider.helpMessage}>
+                <div className="oauth-providers-help">
+                  <HelpIcon fill={theme.blue} />
+                </div>
+              </Tooltip>
+            )}
           </li>
         ))}
       </ul>
