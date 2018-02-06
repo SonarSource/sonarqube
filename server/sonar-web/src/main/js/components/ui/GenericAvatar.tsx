@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import * as classNames from 'classnames';
+import { stringToColor, getTextColor } from '../../helpers/colors';
 
 interface Props {
   className?: string;
@@ -55,27 +56,4 @@ export default function GenericAvatar({ className, name, size }: Props) {
       {text.toUpperCase()}
     </div>
   );
-}
-
-/* eslint-disable no-bitwise, no-mixed-operators */
-function stringToColor(str: string) {
-  let hash = 0;
-  for (let i = 0; i < str.length; i++) {
-    hash = str.charCodeAt(i) + ((hash << 5) - hash);
-  }
-  let color = '#';
-  for (let i = 0; i < 3; i++) {
-    const value = (hash >> (i * 8)) & 0xff;
-    color += ('00' + value.toString(16)).substr(-2);
-  }
-  return color;
-}
-
-function getTextColor(background: string) {
-  const rgb = parseInt(background.substr(1), 16);
-  const r = (rgb >> 16) & 0xff;
-  const g = (rgb >> 8) & 0xff;
-  const b = (rgb >> 0) & 0xff;
-  const luma = 0.2126 * r + 0.7152 * g + 0.0722 * b;
-  return luma > 140 ? '#222' : '#fff';
 }

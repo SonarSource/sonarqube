@@ -18,7 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { IdentityProvider, User } from '../../../api/users';
+import * as theme from '../../../app/theme';
+import { IdentityProvider, User } from '../../../app/types';
+import { getTextColor } from '../../../helpers/colors';
 import { getBaseUrl } from '../../../helpers/urls';
 
 interface Props {
@@ -57,9 +59,13 @@ export function ExternalProvider({ identityProvider, user }: Props) {
     <div className="js-user-identity-provider little-spacer-top">
       <div
         className="identity-provider"
-        style={{ 'background-color': identityProvider.backgroundColor }}>
+        style={{
+          'background-color': identityProvider.backgroundColor,
+          color: getTextColor(identityProvider.backgroundColor, theme.secondFontColor)
+        }}>
         <img
           alt={identityProvider.name}
+          className="little-spacer-right"
           src={getBaseUrl() + identityProvider.iconPath}
           width="14"
           height="14"

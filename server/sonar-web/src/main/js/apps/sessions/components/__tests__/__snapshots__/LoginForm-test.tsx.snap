@@ -2,6 +2,7 @@
 
 exports[`expands more options 1`] = `
 <div
+  className="login-page"
   id="login_form"
 >
   <h1
@@ -38,6 +39,7 @@ exports[`expands more options 1`] = `
 
 exports[`expands more options 2`] = `
 <div
+  className="login-page"
   id="login_form"
 >
   <h1
@@ -59,6 +61,7 @@ exports[`expands more options 2`] = `
     returnTo=""
   />
   <form
+    className="login-form"
     onSubmit={[Function]}
   >
     <Connect(GlobalMessages) />
@@ -130,6 +133,7 @@ exports[`expands more options 2`] = `
 
 exports[`logs in with identity provider 1`] = `
 <div
+  className="login-page"
   id="login_form"
 >
   <h1
@@ -166,6 +170,7 @@ exports[`logs in with identity provider 1`] = `
 
 exports[`logs in with simple credentials 1`] = `
 <div
+  className="login-page"
   id="login_form"
 >
   <h1
@@ -174,6 +179,7 @@ exports[`logs in with simple credentials 1`] = `
     login.login_to_sonarqube
   </h1>
   <form
+    className="login-form"
     onSubmit={[Function]}
   >
     <Connect(GlobalMessages) />

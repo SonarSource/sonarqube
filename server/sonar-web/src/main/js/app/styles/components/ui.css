@@ -122,8 +122,11 @@
 .identity-provider {
   display: inline-block;
   line-height: 14px;
-  padding: 3px 5px;
+  padding: 2px 5px;
+  border: 1px solid rgba(0, 0, 0, 0.15);
   border-radius: 3px;
+  box-sizing: border-box;
+  background-color: var(--darkBlue);
   font-size: var(--smallFontSize);
   color: #fff;
 }

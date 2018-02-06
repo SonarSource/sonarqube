@@ -38,8 +38,8 @@
  */
 import * as React from 'react';
 import TokensForm from './TokensForm';
+import { User } from '../../../app/types';
 import Modal from '../../../components/controls/Modal';
-import { User } from '../../../api/users';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {

@@ -18,12 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 .oauth-providers > ul {
-  display: flex;
-  justify-content: space-around;
-  flex-wrap: wrap;
+  width: 180px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .oauth-providers > ul > li {
+  position: relative;
   margin-bottom: 30px;
 }
 
@@ -32,27 +33,32 @@
   width: 180px;
   line-height: 22px;
   padding: 8px 12px;
-  border: none;
+  border: 1px solid rgba(0, 0, 0, 0.15);
   border-radius: 2px;
   box-sizing: border-box;
   background-color: var(--darkBlue);
   color: #fff;
   white-space: nowrap;
   overflow: hidden;
-  text-align: center;
   text-overflow: ellipsis;
 }
 
 .oauth-providers > ul > li > a:hover,
 .oauth-providers > ul > li > a:focus {
-  box-shadow: inset 0 0 16px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 0 16px rgba(0, 0, 0, 0.2);
 }
 
 .oauth-providers > ul > li > a > span {
   padding-left: 6px;
 }
 
-.oauth-providers + form {
+.oauth-providers-help {
+  position: absolute;
+  top: 12px;
+  right: -32px;
+}
+
+.oauth-providers + .login-form {
   padding-top: 30px;
   border-top: 1px solid var(--barBorderColor);
 }

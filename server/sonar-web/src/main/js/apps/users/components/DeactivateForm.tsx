@@ -19,7 +19,8 @@
  */
 import * as React from 'react';
 import Modal from '../../../components/controls/Modal';
-import { deactivateUser, User } from '../../../api/users';
+import { deactivateUser } from '../../../api/users';
+import { User } from '../../../app/types';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 
 export interface Props {

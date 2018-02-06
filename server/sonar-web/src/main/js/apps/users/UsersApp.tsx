@@ -26,8 +26,8 @@ import Search from './Search';
 import UsersList from './UsersList';
 import { parseQuery, Query, serializeQuery } from './utils';
 import ListFooter from '../../components/controls/ListFooter';
-import { getIdentityProviders, IdentityProvider, searchUsers, User } from '../../api/users';
-import { Paging } from '../../app/types';
+import { getIdentityProviders, searchUsers } from '../../api/users';
+import { Paging, IdentityProvider, User } from '../../app/types';
 import { translate } from '../../helpers/l10n';
 
 interface Props {

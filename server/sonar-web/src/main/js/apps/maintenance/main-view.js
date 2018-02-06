@@ -80,12 +80,6 @@ export default Marionette.ItemView.extend({
     );
   },
 
-  onRender() {
-    document
-      .querySelector('.page-simple')
-      .classList.toggle('panel-warning', this.model.get('state') === 'MIGRATION_REQUIRED');
-  },
-
   loadPreviousPage() {
     setInterval(() => {
       window.location = this.options.returnTo || getBaseUrl();
