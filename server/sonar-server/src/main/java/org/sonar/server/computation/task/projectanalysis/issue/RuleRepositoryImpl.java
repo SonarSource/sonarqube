@@ -19,10 +19,10 @@
  */
 package org.sonar.server.computation.task.projectanalysis.issue;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Multimap;
 import java.util.Map;
+import java.util.Optional;
 import javax.annotation.CheckForNull;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.core.util.stream.MoreCollectors;
@@ -67,7 +67,7 @@ public class RuleRepositoryImpl implements RuleRepository {
 
     ensureInitialized();
 
-    return Optional.fromNullable(rulesByKey.get(key));
+    return Optional.ofNullable(rulesByKey.get(key));
   }
 
   @Override
@@ -83,7 +83,7 @@ public class RuleRepositoryImpl implements RuleRepository {
   public Optional<Rule> findById(int id) {
     ensureInitialized();
 
-    return Optional.fromNullable(rulesById.get(id));
+    return Optional.ofNullable(rulesById.get(id));
   }
 
   private static void verifyKeyArgument(RuleKey key) {
