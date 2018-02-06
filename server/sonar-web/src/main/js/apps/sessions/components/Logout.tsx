@@ -42,9 +42,9 @@ class Logout extends React.PureComponent<Props> {
 
   render() {
     return (
-      <div>
+      <div className="page page-limited">
         <GlobalMessagesContainer />
-        {translate('logging_out')}
+        <div className="text-center">{translate('logging_out')}</div>
       </div>
     );
   }
