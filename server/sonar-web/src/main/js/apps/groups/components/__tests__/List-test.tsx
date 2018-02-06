@@ -44,7 +44,7 @@ function shallowRender(showAnyone = true) {
       groups={groups}
       onDelete={jest.fn()}
       onEdit={jest.fn()}
-      onEditMemebers={jest.fn()}
+      onEditMembers={jest.fn()}
       organization="org"
       showAnyone={showAnyone}
     />

@@ -29,7 +29,7 @@ it('should delete group', () => {
       group={group}
       onDelete={onDelete}
       onEdit={jest.fn()}
-      onEditMemebers={jest.fn()}
+      onEditMembers={jest.fn()}
       organization="org"
     />
   );
@@ -46,7 +46,7 @@ it('should render default group', () => {
       group={group}
       onDelete={jest.fn()}
       onEdit={jest.fn()}
-      onEditMemebers={jest.fn()}
+      onEditMembers={jest.fn()}
       organization="org"
     />
   );

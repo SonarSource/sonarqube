@@ -55,7 +55,7 @@ export default class App extends React.PureComponent<Props, State> {
     return this.props.organization && this.props.organization.key;
   }
 
-  makeRequest = (data?: { p?: number; q?: string }) => {
+  makeFetchGroupsRequest = (data?: { p?: number; q?: string }) => {
     this.setState({ loading: true });
     return searchUsersGroups({
       organization: this.organization,
@@ -71,7 +71,7 @@ export default class App extends React.PureComponent<Props, State> {
   };
 
   fetchGroups = (data?: { p?: number; q?: string }) => {
-    this.makeRequest(data).then(({ groups, paging }) => {
+    this.makeFetchGroupsRequest(data).then(({ groups, paging }) => {
       if (this.mounted) {
         this.setState({ groups, loading: false, paging });
       }
@@ -81,7 +81,7 @@ export default class App extends React.PureComponent<Props, State> {
   fetchMoreGroups = () => {
     const { paging } = this.state;
     if (paging && paging.total > paging.pageIndex * paging.pageSize) {
-      this.makeRequest({ p: paging.pageIndex + 1 }).then(({ groups, paging }) => {
+      this.makeFetchGroupsRequest({ p: paging.pageIndex + 1 }).then(({ groups, paging }) => {
         if (this.mounted) {
           this.setState(({ groups: existingGroups = [] }) => ({
             groups: [...existingGroups, ...groups],
@@ -158,7 +158,7 @@ export default class App extends React.PureComponent<Props, State> {
               groups={groups}
               onDelete={this.handleDelete}
               onEdit={this.handleEdit}
-              onEditMemebers={this.refresh}
+              onEditMembers={this.refresh}
               organization={this.organization}
               showAnyone={showAnyone}
             />

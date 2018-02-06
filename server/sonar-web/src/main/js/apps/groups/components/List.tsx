@@ -27,7 +27,7 @@ interface Props {
   groups: Group[];
   onDelete: (name: string) => Promise<void>;
   onEdit: (data: { description?: string; id: number; name?: string }) => Promise<void>;
-  onEditMemebers: () => void;
+  onEditMembers: () => void;
   organization: string | undefined;
   showAnyone: boolean;
 }
@@ -65,7 +65,7 @@ export default function List(props: Props) {
               key={group.id}
               onDelete={props.onDelete}
               onEdit={props.onEdit}
-              onEditMemebers={props.onEditMemebers}
+              onEditMembers={props.onEditMembers}
               organization={props.organization}
             />
           ))}

@@ -65,7 +65,7 @@ exports[`should render 1`] = `
         key="3"
         onDelete={[MockFunction]}
         onEdit={[MockFunction]}
-        onEditMemebers={[MockFunction]}
+        onEditMembers={[MockFunction]}
         organization="org"
       />
       <ListItem
@@ -81,7 +81,7 @@ exports[`should render 1`] = `
         key="2"
         onDelete={[MockFunction]}
         onEdit={[MockFunction]}
-        onEditMemebers={[MockFunction]}
+        onEditMembers={[MockFunction]}
         organization="org"
       />
       <ListItem
@@ -97,7 +97,7 @@ exports[`should render 1`] = `
         key="1"
         onDelete={[MockFunction]}
         onEdit={[MockFunction]}
-        onEditMemebers={[MockFunction]}
+        onEditMembers={[MockFunction]}
         organization="org"
       />
     </tbody>

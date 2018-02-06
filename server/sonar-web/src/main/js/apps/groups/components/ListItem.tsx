@@ -32,7 +32,7 @@ interface Props {
   group: Group;
   onDelete: (name: string) => Promise<void>;
   onEdit: (data: { description?: string; id: number; name?: string }) => Promise<void>;
-  onEditMemebers: () => void;
+  onEditMembers: () => void;
   organization: string | undefined;
 }
 
@@ -57,7 +57,7 @@ export default class ListItem extends React.PureComponent<Props> {
             {!group.default && (
               <EditMembers
                 group={group}
-                onEdit={this.props.onEditMemebers}
+                onEdit={this.props.onEditMembers}
                 organization={this.props.organization}
               />
             )}
