@@ -1513,7 +1513,7 @@
                   </artifactory>
                   <deployProperties>
                     <build.name>${gitRepositoryName}</build.name>
-                    <build.number>{{BUILD_ID}}</build.number>
+                    <build.number>{{BUILD_NUMBER}}</build.number>
                     <pr.branch.target>{{PULL_REQUEST_BRANCH_TARGET}}</pr.branch.target>
                     <pr.number>{{PULL_REQUEST_NUMBER}}</pr.number>
                     <vcs.branch>{{GIT_BRANCH}}</vcs.branch>
@@ -1537,7 +1537,7 @@
                   </publisher>
                   <buildInfo>
                     <buildName>${gitRepositoryName}</buildName>
-                    <buildNumber>{{BUILD_ID}}</buildNumber>
+                    <buildNumber>{{BUILD_NUMBER}}</buildNumber>
                     <buildUrl>{{CI_BUILD_URL|BUILD_URL}}</buildUrl>
                     <vcsRevision>{{GIT_COMMIT}}</vcsRevision>
                   </buildInfo>
