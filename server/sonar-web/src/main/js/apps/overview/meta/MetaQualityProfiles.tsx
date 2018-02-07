@@ -17,8 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
+import * as React from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router';
 import Tooltip from '../../../components/controls/Tooltip';
@@ -27,21 +26,22 @@ import { getQualityProfileUrl } from '../../../helpers/urls';
 import { searchRules } from '../../../api/rules';
 import { getLanguages } from '../../../store/rootReducer';
 
-class MetaQualityProfiles extends React.PureComponent {
-  /*:: mounted: boolean; */
+interface StateProps {
+  languages: { [key: string]: { name: string } };
+}
 
-  /*:: props: {
-    component: { organization: string },
-    customOrganizations: boolean,
-    languages: { [string]: { name: string } },
-    organization: string | void;
-    profiles: Array<{ key: string, language: string, name: string }>
-  };
-*/
+interface OwnProps {
+  organization?: string;
+  profiles: { key: string; language: string; name: string }[];
+}
 
-  state = {
-    deprecatedByKey: {}
-  };
+interface State {
+  deprecatedByKey: { [key: string]: number };
+}
+
+class MetaQualityProfiles extends React.PureComponent<StateProps & OwnProps, State> {
+  mounted: boolean;
+  state: State = { deprecatedByKey: {} };
 
   componentDidMount() {
     this.mounted = true;
@@ -59,7 +59,7 @@ class MetaQualityProfiles extends React.PureComponent {
     Promise.all(requests).then(
       responses => {
         if (this.mounted) {
-          const deprecatedByKey = {};
+          const deprecatedByKey: { [key: string]: number } = {};
           responses.forEach((count, i) => {
             const profileKey = this.props.profiles[i].key;
             deprecatedByKey[profileKey] = count;
@@ -71,7 +71,7 @@ class MetaQualityProfiles extends React.PureComponent {
     );
   }
 
-  loadDeprecatedRulesForProfile(profileKey) {
+  loadDeprecatedRulesForProfile(profileKey: string) {
     const data = {
       activation: 'true',
       organization: this.props.organization,
@@ -82,18 +82,16 @@ class MetaQualityProfiles extends React.PureComponent {
     return searchRules(data).then(r => r.total);
   }
 
-  getDeprecatedRulesCount(profile) {
+  getDeprecatedRulesCount(profile: { key: string }) {
     const count = this.state.deprecatedByKey[profile.key];
     return count || 0;
   }
 
-  renderProfile(profile) {
+  renderProfile(profile: { key: string; language: string; name: string }) {
     const languageFromStore = this.props.languages[profile.language];
     const languageName = languageFromStore ? languageFromStore.name : profile.language;
 
-    const path = this.props.customOrganizations
-      ? getQualityProfileUrl(profile.name, profile.language, this.props.component.organization)
-      : getQualityProfileUrl(profile.name, profile.language);
+    const path = getQualityProfileUrl(profile.name, profile.language, this.props.organization);
 
     const inner = (
       <div className="text-ellipsis">
@@ -131,8 +129,8 @@ class MetaQualityProfiles extends React.PureComponent {
   }
 }
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state: any) => ({
   languages: getLanguages(state)
 });
 
-export default connect(mapStateToProps)(MetaQualityProfiles);
+export default connect<StateProps, {}, OwnProps>(mapStateToProps)(MetaQualityProfiles);

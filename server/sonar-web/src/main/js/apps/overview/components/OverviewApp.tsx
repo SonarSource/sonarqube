@@ -191,7 +191,7 @@ export class OverviewApp extends React.PureComponent<Props, State> {
             </div>
           </div>
 
-          <div className="page-sidebar-fixed">
+          <div className="overview-sidebar page-sidebar-fixed">
             <Meta
               branch={branchName}
               component={component}

@@ -2,7 +2,7 @@
 
 exports[`should open the tag selector on click 1`] = `
 <div
-  className="overview-meta-card overview-meta-tags"
+  className="big-spacer-top overview-meta-tags"
 >
   <button
     className="button-link"
@@ -23,7 +23,7 @@ exports[`should open the tag selector on click 1`] = `
 
 exports[`should open the tag selector on click 2`] = `
 <div
-  className="overview-meta-card overview-meta-tags"
+  className="big-spacer-top overview-meta-tags"
 >
   <button
     className="button-link"
@@ -62,7 +62,7 @@ exports[`should open the tag selector on click 2`] = `
 
 exports[`should open the tag selector on click 3`] = `
 <div
-  className="overview-meta-card overview-meta-tags"
+  className="big-spacer-top overview-meta-tags"
 >
   <button
     className="button-link"
@@ -83,7 +83,7 @@ exports[`should open the tag selector on click 3`] = `
 
 exports[`should render with tags and admin rights 1`] = `
 <div
-  className="overview-meta-card overview-meta-tags"
+  className="big-spacer-top overview-meta-tags"
 >
   <button
     className="button-link"
@@ -104,7 +104,7 @@ exports[`should render with tags and admin rights 1`] = `
 
 exports[`should render without tags and admin rights 1`] = `
 <div
-  className="overview-meta-card overview-meta-tags"
+  className="big-spacer-top overview-meta-tags"
 >
   <TagsList
     allowUpdate={false}

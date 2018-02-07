@@ -99,7 +99,7 @@ export default class MetaTags extends React.PureComponent<Props, State> {
 
     if (this.canUpdateTags()) {
       return (
-        <div className="overview-meta-card overview-meta-tags" ref={card => (this.card = card)}>
+        <div className="big-spacer-top overview-meta-tags" ref={card => (this.card = card)}>
           <button
             className="button-link"
             onClick={this.handleClick}
@@ -120,7 +120,7 @@ export default class MetaTags extends React.PureComponent<Props, State> {
       );
     } else {
       return (
-        <div className="overview-meta-card overview-meta-tags">
+        <div className="big-spacer-top overview-meta-tags">
           <TagsList
             allowUpdate={false}
             className="note"

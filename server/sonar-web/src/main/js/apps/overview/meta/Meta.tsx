@@ -30,6 +30,7 @@ import BadgesModal from '../badges/BadgesModal';
 import AnalysesList from '../events/AnalysesList';
 import { Visibility, Component, Metric } from '../../../app/types';
 import { History } from '../../../api/time-machine';
+import { translate } from '../../../helpers/l10n';
 import { MeasureEnhanced } from '../../../helpers/measures';
 
 interface Props {
@@ -55,25 +56,18 @@ export default class Meta extends React.PureComponent<Props> {
     const isProject = qualifier === 'TRK';
     const isPrivate = visibility === Visibility.Private;
 
-    const hasDescription = !!description;
-    const hasQualityProfiles = Array.isArray(qualityProfiles) && qualityProfiles.length > 0;
-    const hasQualityGate = !!qualityGate;
-
-    const shouldShowQualityProfiles = isProject && hasQualityProfiles;
-    const shouldShowQualityGate = isProject && hasQualityGate;
-    const hasOrganization = component.organization != null && organizationsEnabled;
-
     return (
       <div className="overview-meta">
-        {hasDescription && (
-          <div className="overview-meta-card overview-meta-description">{description}</div>
-        )}
-
-        <MetaSize branch={branch} component={component} measures={this.props.measures} />
-
-        {isProject && (
-          <MetaTags component={component} onComponentChange={this.props.onComponentChange} />
-        )}
+        <div className="overview-meta-card">
+          <h4 className="overview-meta-header">
+            {translate('overview.about_this_project', qualifier)}
+          </h4>
+          {description !== undefined && <p className="overview-meta-description">{description}</p>}
+          {isProject && (
+            <MetaTags component={component} onComponentChange={this.props.onComponentChange} />
+          )}
+          <MetaSize branch={branch} component={component} measures={this.props.measures} />
+        </div>
 
         <AnalysesList
           branch={branch}
@@ -83,27 +77,28 @@ export default class Meta extends React.PureComponent<Props> {
           qualifier={component.qualifier}
         />
 
-        {shouldShowQualityGate && (
-          <MetaQualityGate
-            gate={qualityGate}
-            organization={hasOrganization && component.organization}
-          />
-        )}
+        {isProject &&
+          qualityGate !== undefined && (
+            <MetaQualityGate
+              organization={organizationsEnabled ? component.organization : undefined}
+              qualityGate={qualityGate}
+            />
+          )}
 
-        {shouldShowQualityProfiles && (
-          <MetaQualityProfiles
-            component={component}
-            customOrganizations={organizationsEnabled}
-            organization={component.organization}
-            profiles={qualityProfiles}
-          />
-        )}
+        {isProject &&
+          qualityProfiles !== undefined &&
+          qualityProfiles.length > 0 && (
+            <MetaQualityProfiles
+              organization={organizationsEnabled ? component.organization : undefined}
+              profiles={qualityProfiles}
+            />
+          )}
 
         {isProject && <MetaLinks component={component} />}
 
-        <MetaKey component={component} />
+        <MetaKey componentKey={component.key} qualifier={component.qualifier} />
 
-        {hasOrganization && <MetaOrganizationKey component={component} />}
+        {organizationsEnabled && <MetaOrganizationKey organization={component.organization} />}
 
         {onSonarCloud &&
           isProject &&

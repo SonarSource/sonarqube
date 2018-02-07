@@ -89,7 +89,7 @@ export default class MetaSize extends React.PureComponent<Props> {
     }
 
     return (
-      <div id="overview-size" className="overview-meta-card">
+      <div className="big-spacer-top" id="overview-size">
         {this.props.component.qualifier === 'APP' && this.renderProjects()}
         {this.renderLoC(ncloc)}
         {this.renderLoCDistribution()}

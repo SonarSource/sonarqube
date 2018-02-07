@@ -1,14 +1,16 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should display the modal after click 1`] = `
-<React.Fragment>
+<div
+  className="overview-meta-card"
+>
   <button
     className="js-project-badges"
     onClick={[Function]}
   >
     overview.badges.get_badge
   </button>
-</React.Fragment>
+</div>
 `;
 
 exports[`should display the modal after click 2`] = `
