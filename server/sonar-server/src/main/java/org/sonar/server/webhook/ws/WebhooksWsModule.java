@@ -27,6 +27,7 @@ public class WebhooksWsModule extends Module {
     add(
       WebhooksWs.class,
       SearchAction.class,
+      CreateAction.class,
       WebhookDeliveryAction.class,
       WebhookDeliveriesAction.class);
   }
