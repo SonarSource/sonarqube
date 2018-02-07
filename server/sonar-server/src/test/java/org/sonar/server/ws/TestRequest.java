@@ -23,7 +23,7 @@ import com.google.common.base.Throwables;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Maps;
-import com.google.protobuf.GeneratedMessage;
+import com.google.protobuf.GeneratedMessageV3;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
@@ -149,7 +149,7 @@ public class TestRequest extends ValidatingRequest {
     }
   }
 
-  public <T extends GeneratedMessage> T executeProtobuf(Class<T> protobufClass) {
+  public <T extends GeneratedMessageV3> T executeProtobuf(Class<T> protobufClass) {
     return setMediaType(PROTOBUF).execute().getInputObject(protobufClass);
   }
 

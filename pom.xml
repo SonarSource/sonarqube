@@ -88,7 +88,7 @@
     <okhttp.version>3.7.0</okhttp.version>
     <jackson.version>2.6.6</jackson.version>
     <jjwt.version>0.9.0</jjwt.version>
-    <protobuf.version>3.0.0-beta-2</protobuf.version>
+    <protobuf.version>3.5.1</protobuf.version>
 
     <hazelcast.version>3.8.6</hazelcast.version>
 
@@ -269,7 +269,7 @@
         <plugin>
           <groupId>org.xolstice.maven.plugins</groupId>
           <artifactId>protobuf-maven-plugin</artifactId>
-          <version>0.5.0</version>
+          <version>0.5.1</version>
         </plugin>
         <plugin>
           <groupId>com.github.genthaler</groupId>
