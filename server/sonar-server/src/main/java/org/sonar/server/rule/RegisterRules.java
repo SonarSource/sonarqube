@@ -22,7 +22,6 @@ package org.sonar.server.rule;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -132,6 +131,7 @@ public class RegisterRules implements Startable {
         }
       }
       processRemainingDbRules(registerRulesContext, dbSession);
+      processDeprecatedKeys(repositories, registerRulesContext, dbSession);
       List<ActiveRuleChange> changes = removeActiveRulesOnStillExistingRepositories(dbSession, registerRulesContext, repositories);
       dbSession.commit();
 
@@ -163,15 +163,15 @@ public class RegisterRules implements Startable {
     Map<RuleKey, RuleDefinitionDto> allRules = dbClient.ruleDao().selectAllDefinitions(dbSession)
       .stream()
       .collect(uniqueIndex(RuleDefinitionDto::getKey));
-    Map<Integer, Set<SingleDeprecatedRuleKey>> existingDeprecatedKeysById = loadDeprecatedRuleKeys(dbSession);
-    return new RegisterRulesContext(allRules, existingDeprecatedKeysById);
+    Set<SingleDeprecatedRuleKey> existingDeprecatedKeys = loadDeprecatedRuleKeys(dbSession);
+    return new RegisterRulesContext(allRules, existingDeprecatedKeys);
   }
 
-  private Map<Integer, Set<SingleDeprecatedRuleKey>> loadDeprecatedRuleKeys(DbSession dbSession) {
+  private Set<SingleDeprecatedRuleKey> loadDeprecatedRuleKeys(DbSession dbSession) {
     return dbClient.ruleDao().selectAllDeprecatedRuleKeys(dbSession)
       .stream()
       .map(SingleDeprecatedRuleKey::from)
-      .collect(Collectors.groupingBy(SingleDeprecatedRuleKey::getRuleId, Collectors.toSet()));
+      .collect(Collectors.toSet());
   }
 
   private static boolean noTemplateRuleWithOrganizationsEnabled(RegisterRulesContext registerRulesContext, boolean orgsEnabled, RulesDefinition.Rule ruleDef) {
@@ -194,7 +194,7 @@ public class RegisterRules implements Startable {
     // initial immutable data
     private final Map<RuleKey, RuleDefinitionDto> dbRules;
     private final Set<RuleDefinitionDto> known;
-    private final Map<Integer, Set<SingleDeprecatedRuleKey>> dbDeprecatedKeysById;
+    private final Set<SingleDeprecatedRuleKey> dbDeprecatedKeys;
     private final Map<RuleKey, RuleDefinitionDto> dbRulesByDbDeprecatedKey;
     // mutable data
     private final Set<RuleDefinitionDto> created = new HashSet<>();
@@ -203,28 +203,27 @@ public class RegisterRules implements Startable {
     private final Set<RuleDefinitionDto> unchanged = new HashSet<>();
     private final Set<RuleDefinitionDto> removed = new HashSet<>();
 
-    private RegisterRulesContext(Map<RuleKey, RuleDefinitionDto> dbRules, Map<Integer, Set<SingleDeprecatedRuleKey>> dbDeprecatedKeysById) {
+    private RegisterRulesContext(Map<RuleKey, RuleDefinitionDto> dbRules, Set<SingleDeprecatedRuleKey> dbDeprecatedKeys) {
       this.dbRules = ImmutableMap.copyOf(dbRules);
       this.known = ImmutableSet.copyOf(dbRules.values());
-      this.dbDeprecatedKeysById = dbDeprecatedKeysById;
-      this.dbRulesByDbDeprecatedKey = buildDbRulesByDbDeprecatedKey(dbDeprecatedKeysById, dbRules);
+      this.dbDeprecatedKeys = dbDeprecatedKeys;
+      this.dbRulesByDbDeprecatedKey = buildDbRulesByDbDeprecatedKey(dbDeprecatedKeys, dbRules);
     }
 
-    private static Map<RuleKey, RuleDefinitionDto> buildDbRulesByDbDeprecatedKey(Map<Integer, Set<SingleDeprecatedRuleKey>> dbDeprecatedKeysById,
-      Map<RuleKey, RuleDefinitionDto> dbRules) {
+    private static Map<RuleKey, RuleDefinitionDto> buildDbRulesByDbDeprecatedKey(Set<SingleDeprecatedRuleKey> dbDeprecatedKeys, Map<RuleKey, RuleDefinitionDto> dbRules) {
       Map<Integer, RuleDefinitionDto> dbRulesByRuleId = dbRules.values().stream()
         .collect(uniqueIndex(RuleDefinitionDto::getId));
 
       ImmutableMap.Builder<RuleKey, RuleDefinitionDto> builder = ImmutableMap.builder();
-      for (Map.Entry<Integer, Set<SingleDeprecatedRuleKey>> entry : dbDeprecatedKeysById.entrySet()) {
-        Integer ruleId = entry.getKey();
+      for (SingleDeprecatedRuleKey entry : dbDeprecatedKeys) {
+        Integer ruleId = entry.getRuleId();
         RuleDefinitionDto rule = dbRulesByRuleId.get(ruleId);
         if (rule == null) {
           LOG.warn("Could not retrieve rule with id %s referenced by a deprecated rule key. " +
             "The following deprecated rule keys seem to be referencing a non-existing rule",
-            ruleId, entry.getValue());
+            ruleId, entry);
         } else {
-          entry.getValue().forEach(d -> builder.put(d.getOldRuleKeyAsRuleKey(), rule));
+          builder.put(entry.getOldRuleKeyAsRuleKey(), rule);
         }
       }
       return builder.build();
@@ -243,8 +242,15 @@ public class RegisterRules implements Startable {
       return res;
     }
 
-    private Set<SingleDeprecatedRuleKey> getDBDeprecatedKeysFor(RuleDefinitionDto rule) {
-      return dbDeprecatedKeysById.getOrDefault(rule.getId(), emptySet());
+    private Optional<RuleDefinitionDto> getRuleDefinition(RuleKey ruleKey) {
+      return Stream.of(created, renamed.keySet(), updated, unchanged, removed)
+        .flatMap(Collection::stream)
+        .filter(r -> r.getRuleKey().equals(ruleKey.rule()) && r.getRepositoryKey().equals(ruleKey.repository()))
+        .findFirst();
+    }
+
+    private Set<SingleDeprecatedRuleKey> getDbDeprecatedKeys() {
+      return dbDeprecatedKeys;
     }
 
     private Stream<RuleDefinitionDto> getRemaining() {
@@ -365,7 +371,6 @@ public class RegisterRules implements Startable {
     }
 
     mergeParams(ruleDef, ruleDefinitionDto, session);
-    updateDeprecatedKeys(context, ruleDef, ruleDefinitionDto, session);
   }
 
   private RuleDefinitionDto createRuleDto(RulesDefinition.Rule ruleDef, DbSession session) {
@@ -558,11 +563,13 @@ public class RegisterRules implements Startable {
     return changed;
   }
 
-  private void updateDeprecatedKeys(RegisterRulesContext context, RulesDefinition.Rule ruleDef, RuleDefinitionDto rule,
-    DbSession dbSession) {
+  private void processDeprecatedKeys(List<RulesDefinition.ExtendedRepository> repositories, RegisterRulesContext context, DbSession dbSession) {
 
-    Set<SingleDeprecatedRuleKey> deprecatedRuleKeysFromDefinition = SingleDeprecatedRuleKey.from(ruleDef);
-    Set<SingleDeprecatedRuleKey> deprecatedRuleKeysFromDB = context.getDBDeprecatedKeysFor(rule);
+    Set<SingleDeprecatedRuleKey> deprecatedRuleKeysFromDefinition = repositories.stream()
+      .flatMap(r -> r.rules().stream())
+      .flatMap(r -> SingleDeprecatedRuleKey.from(r).stream())
+      .collect(Collectors.toSet());
+    Set<SingleDeprecatedRuleKey> deprecatedRuleKeysFromDB = context.getDbDeprecatedKeys();
 
     // DeprecatedKeys that must be deleted
     List<String> uuidsToBeDeleted = difference(deprecatedRuleKeysFromDB, deprecatedRuleKeysFromDefinition).stream()
@@ -572,15 +579,22 @@ public class RegisterRules implements Startable {
     dbClient.ruleDao().deleteDeprecatedRuleKeys(dbSession, uuidsToBeDeleted);
 
     // DeprecatedKeys that must be created
-    Sets.SetView<SingleDeprecatedRuleKey> deprecatedRuleKeysToBeCreated = difference(deprecatedRuleKeysFromDefinition, deprecatedRuleKeysFromDB);
+    ImmutableSet<SingleDeprecatedRuleKey> deprecatedRuleKeysToBeCreated = difference(deprecatedRuleKeysFromDefinition, deprecatedRuleKeysFromDB).immutableCopy();
 
     deprecatedRuleKeysToBeCreated
-      .forEach(r -> dbClient.ruleDao().insert(dbSession, new DeprecatedRuleKeyDto()
-        .setUuid(uuidFactory.create())
-        .setRuleId(rule.getId())
-        .setOldRepositoryKey(r.getOldRepositoryKey())
-        .setOldRuleKey(r.getOldRuleKey())
-        .setCreatedAt(system2.now())));
+      .forEach(r -> {
+        Optional<RuleDefinitionDto> ruleDef = context.getRuleDefinition(r.getNewRuleKeyAsRuleKey());
+        if (ruleDef.isPresent()) {
+          dbClient.ruleDao().insert(dbSession, new DeprecatedRuleKeyDto()
+            .setUuid(uuidFactory.create())
+            .setRuleId(ruleDef.get().getId())
+            .setOldRepositoryKey(r.getOldRepositoryKey())
+            .setOldRuleKey(r.getOldRuleKey())
+            .setCreatedAt(system2.now()));
+        } else {
+          LOG.error("Rule {} is not present, but require for deprecated key {}", r.getNewRuleKeyAsRuleKey(), r.getOldRuleKeyAsRuleKey());
+        }
+      });
   }
 
   private static boolean mergeTags(RulesDefinition.Rule ruleDef, RuleDefinitionDto dto) {
