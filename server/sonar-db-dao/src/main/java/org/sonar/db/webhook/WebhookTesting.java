@@ -17,30 +17,33 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.webhook.ws;
+package org.sonar.db.webhook;
 
-class WebhooksWsParameters {
+import java.util.Calendar;
 
-  static final String WEBHOOKS_CONTROLLER = "api/webhooks";
+import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 
+public class WebhookTesting {
 
-  static final String ACTION_CREATE = "create";
-  static final String SEARCH_ACTION = "search";
-
-
-  static final String ORGANIZATION_KEY_PARAM = "organization";
-  static final int ORGANIZATION_KEY_PARAM_MAXIMUM_LENGTH = 255;
-  static final String PROJECT_KEY_PARAM = "project";
-  static final int PROJECT_KEY_PARAM_MAXIMUN_LENGTH = 100;
-  static final String NAME_PARAM = "name";
-  static final int NAME_PARAM_MAXIMUM_LENGTH = 100;
-  static final String URL_PARAM = "url";
-  static final int URL_PARAM_MAXIMUM_LENGTH = 512;
-  static final String COMPONENT_KEY_PARAM = "component";
-  static final int COMPONENT_KEY_PARAM_MAXIMUM_LENGTH = 255;
-
-  private WebhooksWsParameters() {
-    // prevent instantiation
+  private WebhookTesting() {
+    // only statics
   }
 
+  public static WebhookDto newWebhookDtoForProject(String projectUuid) {
+    return getWebhookDto()
+      .setProjectUuid(projectUuid);
+  }
+
+  public static WebhookDto newWebhookDtoForOrganization(String organizationUuid) {
+    return getWebhookDto()
+      .setOrganizationUuid(organizationUuid);
+  }
+
+  private static WebhookDto getWebhookDto() {
+    return new WebhookDto()
+      .setUuid(randomAlphanumeric(40))
+      .setName(randomAlphanumeric(64))
+      .setUrl("https://www.random-site/" + randomAlphanumeric(256))
+      .setCreatedAt(Calendar.getInstance().getTimeInMillis());
+  }
 }

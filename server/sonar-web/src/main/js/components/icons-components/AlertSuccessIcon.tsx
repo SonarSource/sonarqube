@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import * as theme from '../../app/theme';
 import { IconProps } from './types';
+import * as theme from '../../app/theme';
 
 export default function AlertSuccessIcon({ className, fill = theme.green, size = 16 }: IconProps) {
   return (
