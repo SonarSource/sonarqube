@@ -146,4 +146,10 @@ public class RuleDbTester {
     db.commit();
     return param;
   }
+
+  public RuleDto insertRule(RuleDefinitionDto ruleDefinition, RuleMetadataDto ruleMetadata) {
+    db.getDbClient().ruleDao().insertOrUpdate(db.getSession(), ruleMetadata.setRuleId(ruleDefinition.getId()));
+    db.commit();
+    return new RuleDto(ruleDefinition, ruleMetadata);
+  }
 }

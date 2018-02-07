@@ -163,6 +163,7 @@ public class CachingRuleFinder implements RuleFinder {
     RuleDto.Format descriptionFormat = ruleDefinition.getDescriptionFormat();
 
     Rule apiRule = new Rule();
+    String[] systemTags = ruleDefinition.getSystemTags().toArray(new String[ruleDefinition.getSystemTags().size()]);
     apiRule
       .setName(ruleDefinition.getName())
       .setLanguage(ruleDefinition.getLanguage())
@@ -174,7 +175,9 @@ public class CachingRuleFinder implements RuleFinder {
       .setRepositoryKey(ruleDefinition.getRepositoryKey())
       .setSeverity(severity != null ? RulePriority.valueOf(severity) : null)
       .setStatus(ruleDefinition.getStatus().name())
-      .setTags(ruleDefinition.getSystemTags().toArray(new String[ruleDefinition.getSystemTags().size()]))
+      .setSystemTags(systemTags)
+      // FIXME tags should contain user defined tags and we can't provide them without organization => tags should return []
+      .setTags(systemTags)
       .setId(ruleDefinition.getId());
     if (description != null && descriptionFormat != null) {
       if (RuleDto.Format.HTML.equals(descriptionFormat)) {

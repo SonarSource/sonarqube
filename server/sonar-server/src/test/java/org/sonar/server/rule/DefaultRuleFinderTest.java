@@ -19,6 +19,7 @@
  */
 package org.sonar.server.rule;
 
+import com.google.common.collect.ImmutableSet;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.rule.RuleStatus;
@@ -28,10 +29,13 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 
+import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class DefaultRuleFinderTest {
@@ -133,4 +137,34 @@ public class DefaultRuleFinderTest {
     assertThat(underTest.findAll(RuleQuery.create())).extracting("id").containsOnly(rule1.getId(), rule3.getId(), rule4.getId());
   }
 
+  @Test
+  public void findById_populates_system_tags_but_not_tags() {
+    RuleDefinitionDto ruleDefinition = dbTester.rules()
+      .insert(t -> t.setSystemTags(ImmutableSet.of(randomAlphanumeric(5), randomAlphanumeric(6))));
+    OrganizationDto organization = dbTester.organizations().insert();
+    dbTester.rules().insertRule(organization);
+
+    Rule rule = underTest.findById(ruleDefinition.getId());
+    assertThat(rule.getSystemTags())
+      .containsOnlyElementsOf(ruleDefinition.getSystemTags());
+    assertThat(rule.getTags()).isEmpty();
+  }
+
+  @Test
+  public void findByKey_populates_system_tags_but_not_tags() {
+    RuleDefinitionDto ruleDefinition = dbTester.rules()
+      .insert(t -> t.setSystemTags(ImmutableSet.of(randomAlphanumeric(5), randomAlphanumeric(6))));
+    OrganizationDto organization = dbTester.organizations().insert();
+    dbTester.rules().insertRule(organization);
+
+    Rule rule = underTest.findByKey(ruleDefinition.getKey());
+    assertThat(rule.getSystemTags())
+      .containsOnlyElementsOf(ruleDefinition.getSystemTags());
+    assertThat(rule.getTags()).isEmpty();
+
+    rule = underTest.findByKey(ruleDefinition.getRepositoryKey(), ruleDefinition.getRuleKey());
+    assertThat(rule.getSystemTags())
+      .containsOnlyElementsOf(ruleDefinition.getSystemTags());
+    assertThat(rule.getTags()).isEmpty();
+  }
 }

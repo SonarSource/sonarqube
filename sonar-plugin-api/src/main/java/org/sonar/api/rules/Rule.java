@@ -400,6 +400,11 @@ public class Rule {
     return systemTags == null ? new String[0] : StringUtils.split(systemTags, ',');
   }
 
+  public Rule setSystemTags(String[] tags) {
+    this.systemTags = tags == null ? null : StringUtils.join(tags, ',');
+    return this;
+  }
+
   /**
    * For internal use only.
    *
