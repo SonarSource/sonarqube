@@ -127,6 +127,7 @@ import org.sonar.db.user.UserTokenCount;
 import org.sonar.db.user.UserTokenDto;
 import org.sonar.db.user.UserTokenMapper;
 import org.sonar.db.webhook.WebhookDeliveryMapper;
+import org.sonar.db.webhook.WebhookMapper;
 
 public class MyBatis implements Startable {
 
@@ -246,6 +247,7 @@ public class MyBatis implements Startable {
       UserMapper.class,
       UserPermissionMapper.class,
       UserTokenMapper.class,
+      WebhookMapper.class,
       WebhookDeliveryMapper.class
     };
     confBuilder.loadMappers(mappers);
