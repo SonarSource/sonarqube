@@ -44,8 +44,16 @@ message SearchWsResponse {
   }
 }
 
+// POST api/webhooks/create
+message CreateWsResponse {
+  optional Webhook webhook = 1;
 
-
+  message Webhook {
+    optional string key = 1;
+    optional string name = 2;
+    optional string url = 3;
+  }
+}
 
 // WS api/webhooks/deliveries
 message DeliveriesWsResponse {

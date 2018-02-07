@@ -109,4 +109,12 @@ public class WsUtils {
 
     return value.get();
   }
+
+  public static <T> T checkStateWithOptional(java.util.Optional<T> value, String message, Object... messageArguments) {
+    if (!value.isPresent()) {
+      throw new IllegalStateException(format(message, messageArguments));
+    }
+
+    return value.get();
+  }
 }
