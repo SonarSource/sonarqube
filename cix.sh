@@ -74,7 +74,12 @@ case "$RUN_ACTIVITY" in
     ;;
 
   run-perf-tests)
-    ./run-perf-tests.sh
+    if [[ "$GITHUB_BRANCH" == "PULLREQUEST-"* ]]; then
+        # do not execute Perf tests on feature branch outside pull request
+        exit 0
+    else
+      ./run-perf-tests.sh
+    fi
     ;;
 
   run-upgrade-tests-*)
