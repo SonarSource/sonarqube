@@ -3,4 +3,4 @@ set -euo pipefail
 
 echo 'Run performance tests'
 cd tests
-mvn verify -B -e -V -Dcategory=Performance $*
+mvn verify -B -e -V -Dcategory=ServerPerformance $*
