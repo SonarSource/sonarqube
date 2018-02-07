@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import * as theme from '../../app/theme';
 import { ClearIcon } from './icons';
+import * as theme from '../../app/theme';
 
 interface Props {
   className?: string;

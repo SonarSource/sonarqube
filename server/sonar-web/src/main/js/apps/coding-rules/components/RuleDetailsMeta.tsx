@@ -19,18 +19,18 @@
  */
 import * as React from 'react';
 import { Link } from 'react-router';
+import RuleDetailsTagsPopup from './RuleDetailsTagsPopup';
+import SimilarRulesFilter from './SimilarRulesFilter';
 import { Query } from '../query';
 import { RuleDetails, RuleScope } from '../../../app/types';
 import { getRuleUrl } from '../../../helpers/urls';
 import LinkIcon from '../../../components/icons-components/LinkIcon';
 import RuleScopeIcon from '../../../components/icons-components/RuleScopeIcon';
-import SimilarRulesFilter from './SimilarRulesFilter';
 import Tooltip from '../../../components/controls/Tooltip';
 import { translate } from '../../../helpers/l10n';
 import IssueTypeIcon from '../../../components/ui/IssueTypeIcon';
 import SeverityHelper from '../../../components/shared/SeverityHelper';
 import BubblePopupHelper from '../../../components/common/BubblePopupHelper';
-import RuleDetailsTagsPopup from './RuleDetailsTagsPopup';
 import TagsList from '../../../components/tags/TagsList';
 import DateFormatter from '../../../components/intl/DateFormatter';
 

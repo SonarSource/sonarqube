@@ -21,9 +21,9 @@ import $ from 'jquery';
 import Backbone from 'backbone';
 import { debounce, throttle } from 'lodash';
 import escapeHtml from 'escape-html';
-import { translate } from '../../helpers/l10n';
 import ItemTemplate from './templates/item.hbs';
 import ListTemplate from './templates/list.hbs';
+import { translate } from '../../helpers/l10n';
 import './styles.css';
 import '../controls/SearchBox.css';
 

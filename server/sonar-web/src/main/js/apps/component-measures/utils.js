@@ -19,10 +19,10 @@
  */
 // @flow
 import { groupBy, memoize, sortBy, toPairs } from 'lodash';
-import { getLocalizedMetricName } from '../../helpers/l10n';
-import { cleanQuery, parseAsString, serializeString } from '../../helpers/query';
 import { domains } from './config/domains';
 import { bubbles } from './config/bubbles';
+import { getLocalizedMetricName } from '../../helpers/l10n';
+import { cleanQuery, parseAsString, serializeString } from '../../helpers/query';
 import { enhanceMeasure } from '../../components/measure/utils';
 /*:: import type { Component, ComponentEnhanced, Query } from './types'; */
 /*:: import type { RawQuery } from '../../helpers/query'; */

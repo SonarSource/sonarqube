@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import ModalForm from '../common/modal-form';
 import Template from './templates/template.hbs';
 import RestartingTemplate from './templates/restarting.hbs';
+import ModalForm from '../common/modal-form';
 import { restartAndWait } from '../../api/system';
 
 const RestartModal = ModalForm.extend({

@@ -19,8 +19,8 @@
  */
 import React from 'react';
 import { isEqual, sortBy } from 'lodash';
-import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import GraphHistory from './GraphHistory';
+import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import { EVENT_TYPES, getSeriesMetricType, hasHistoryData, isCustomGraph } from '../utils';
 import { translate } from '../../../helpers/l10n';
 import { parseDate } from '../../../helpers/dates';

@@ -22,8 +22,8 @@ import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 import OrganizationsList from './OrganizationsList';
 import CreateOrganizationForm from './CreateOrganizationForm';
-import { translate } from '../../../helpers/l10n';
 import { fetchIfAnyoneCanCreateOrganizations } from './actions';
+import { translate } from '../../../helpers/l10n';
 import { getAppState, getMyOrganizations, getGlobalSettingValue } from '../../../store/rootReducer';
 import { Organization } from '../../../app/types';
 

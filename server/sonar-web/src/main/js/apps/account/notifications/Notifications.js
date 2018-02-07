@@ -23,8 +23,8 @@ import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 import GlobalNotifications from './GlobalNotifications';
 import Projects from './Projects';
-import { translate } from '../../../helpers/l10n';
 import { fetchNotifications } from './actions';
+import { translate } from '../../../helpers/l10n';
 
 class Notifications extends React.PureComponent {
   /*:: props: {

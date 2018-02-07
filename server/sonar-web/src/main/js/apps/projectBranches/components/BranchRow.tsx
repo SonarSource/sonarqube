@@ -19,14 +19,14 @@
  */
 import * as React from 'react';
 import * as classNames from 'classnames';
-import { Branch } from '../../../app/types';
 import DeleteBranchModal from './DeleteBranchModal';
 import LeakPeriodForm from './LeakPeriodForm';
+import RenameBranchModal from './RenameBranchModal';
+import { Branch } from '../../../app/types';
 import BranchStatus from '../../../components/common/BranchStatus';
 import BranchIcon from '../../../components/icons-components/BranchIcon';
 import { isShortLivingBranch, isLongLivingBranch } from '../../../helpers/branches';
 import { translate } from '../../../helpers/l10n';
-import RenameBranchModal from './RenameBranchModal';
 import DateFromNow from '../../../components/intl/DateFromNow';
 import ActionsDropdown, {
   ActionsDropdownItem,

@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { Organization } from '../../app/types';
 import OrganizationLink from './OrganizationLink';
+import { Organization } from '../../app/types';
 import OrganizationAvatar from '../common/OrganizationAvatar';
 import { translate } from '../../helpers/l10n';
 

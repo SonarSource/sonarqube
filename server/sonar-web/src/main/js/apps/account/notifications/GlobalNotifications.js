@@ -20,6 +20,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import NotificationsList from './NotificationsList';
+import { addNotification, removeNotification } from './actions';
 import { translate } from '../../../helpers/l10n';
 import {
   getGlobalNotifications,
@@ -32,7 +33,6 @@ import {
   ChannelsState,
   TypesState
 } from '../../../store/notifications/duck'; */
-import { addNotification, removeNotification } from './actions';
 
 /*::
 type Props = {

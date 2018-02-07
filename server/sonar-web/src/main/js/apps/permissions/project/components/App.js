@@ -21,11 +21,11 @@
 import React from 'react';
 import Helmet from 'react-helmet';
 import { without } from 'lodash';
+import AllHoldersList from './AllHoldersList';
 import PageHeader from './PageHeader';
+import PublicProjectDisclaimer from './PublicProjectDisclaimer';
 import UpgradeOrganizationBox from '../../../../components/common/UpgradeOrganizationBox';
 import VisibilitySelector from '../../../../components/common/VisibilitySelector';
-import AllHoldersList from './AllHoldersList';
-import PublicProjectDisclaimer from './PublicProjectDisclaimer';
 import PageError from '../../shared/components/PageError';
 import * as api from '../../../../api/permissions';
 import { translate } from '../../../../helpers/l10n';

@@ -37,8 +37,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import Modal from '../../../components/controls/Modal';
 import TokensForm from './TokensForm';
+import Modal from '../../../components/controls/Modal';
 import { User } from '../../../api/users';
 import { translate } from '../../../helpers/l10n';
 

@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { uniq } from 'lodash';
-import Modal from '../../../components/controls/Modal';
 import UserScmAccountInput from './UserScmAccountInput';
+import Modal from '../../../components/controls/Modal';
 import throwGlobalError from '../../../app/utils/throwGlobalError';
 import { parseError } from '../../../helpers/request';
 import { createUser, updateUser, User } from '../../../api/users';

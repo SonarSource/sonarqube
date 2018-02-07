@@ -19,8 +19,8 @@
  */
 // @flow
 import React from 'react';
-import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import FilesCounter from './FilesCounter';
+import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import { translate } from '../../../helpers/l10n';
 /*:: import type { Paging } from '../types'; */
 

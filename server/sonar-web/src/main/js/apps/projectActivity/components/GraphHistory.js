@@ -19,10 +19,10 @@
  */
 import React from 'react';
 import AutoSizer from 'react-virtualized/dist/commonjs/AutoSizer';
-import AdvancedTimeline from '../../../components/charts/AdvancedTimeline';
 import GraphsTooltips from './GraphsTooltips';
 import GraphsLegendCustom from './GraphsLegendCustom';
 import GraphsLegendStatic from './GraphsLegendStatic';
+import AdvancedTimeline from '../../../components/charts/AdvancedTimeline';
 import { formatMeasure, getShortType } from '../../../helpers/measures';
 /*:: import type { Event, MeasureHistory } from '../types'; */
 /*:: import type { Serie } from '../../../components/charts/AdvancedTimeline'; */

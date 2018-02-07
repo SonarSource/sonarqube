@@ -20,11 +20,11 @@
 // @flow
 import React from 'react';
 import { sortBy, uniq, without } from 'lodash';
+import LanguageFacetFooter from './LanguageFacetFooter';
 import FacetBox from '../../../components/facet/FacetBox';
 import FacetHeader from '../../../components/facet/FacetHeader';
 import FacetItem from '../../../components/facet/FacetItem';
 import FacetItemsList from '../../../components/facet/FacetItemsList';
-import LanguageFacetFooter from './LanguageFacetFooter';
 import { translate } from '../../../helpers/l10n';
 import { formatFacetStat } from '../utils';
 /*:: import type { ReferencedLanguage } from '../utils'; */

@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { sortBy } from 'lodash';
+import { Profile } from './types';
 import { Profile as BaseProfile } from '../../api/quality-profiles';
 import { differenceInYears, isValidDate, parseDate } from '../../helpers/dates';
-import { Profile } from './types';
 
 export function sortProfiles(profiles: BaseProfile[]): Profile[] {
   const result: Profile[] = [];

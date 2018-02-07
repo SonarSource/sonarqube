@@ -20,9 +20,9 @@
 import * as React from 'react';
 import * as classNames from 'classnames';
 import { IndexLink, Link } from 'react-router';
+import SettingsEditionsNotifContainer from './SettingsEditionsNotifContainer';
 import * as theme from '../../../../app/theme';
 import ContextNavBar from '../../../../components/nav/ContextNavBar';
-import SettingsEditionsNotifContainer from './SettingsEditionsNotifContainer';
 import NavBarTabs from '../../../../components/nav/NavBarTabs';
 import { EditionStatus } from '../../../../api/marketplace';
 import { Extension } from '../../../types';

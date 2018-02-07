@@ -19,12 +19,12 @@
  */
 import * as React from 'react';
 import { Link } from 'react-router';
-import DateFromNow from '../../../components/intl/DateFromNow';
-import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
 import ProjectCardQualityGate from './ProjectCardQualityGate';
 import ProjectCardLeakMeasures from './ProjectCardLeakMeasures';
 import ProjectCardOrganizationContainer from './ProjectCardOrganizationContainer';
 import Favorite from '../../../components/controls/Favorite';
+import DateFromNow from '../../../components/intl/DateFromNow';
+import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
 import TagsList from '../../../components/tags/TagsList';
 import PrivateBadge from '../../../components/common/PrivateBadge';
 import { translate, translateWithParameters } from '../../../helpers/l10n';

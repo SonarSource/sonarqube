@@ -20,11 +20,11 @@
 // @flow
 import React from 'react';
 import { Link } from 'react-router';
+import LeakPeriodLegend from './LeakPeriodLegend';
 import ComplexityDistribution from '../../../components/shared/ComplexityDistribution';
 import HistoryIcon from '../../../components/icons-components/HistoryIcon';
 import IssueTypeIcon from '../../../components/ui/IssueTypeIcon';
 import LanguageDistributionContainer from '../../../components/charts/LanguageDistributionContainer';
-import LeakPeriodLegend from './LeakPeriodLegend';
 import Measure from '../../../components/measure/Measure';
 import Tooltip from '../../../components/controls/Tooltip';
 import { getLocalizedMetricName, translate } from '../../../helpers/l10n';

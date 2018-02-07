@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import Template from './templates/custom-measures-form.hbs';
 import ModalForm from '../../components/common/modal-form';
 import Metrics from '../metrics/metrics';
-import Template from './templates/custom-measures-form.hbs';
 
 export default ModalForm.extend({
   template: Template,

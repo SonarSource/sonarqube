@@ -18,14 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import ActionsDropdown, {
-  ActionsDropdownItem,
-  ActionsDropdownDivider
-} from '../../../components/controls/ActionsDropdown';
 import DeactivateForm from './DeactivateForm';
 import PasswordForm from './PasswordForm';
 import UserForm from './UserForm';
 import { User } from '../../../api/users';
+import ActionsDropdown, {
+  ActionsDropdownItem,
+  ActionsDropdownDivider
+} from '../../../components/controls/ActionsDropdown';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {

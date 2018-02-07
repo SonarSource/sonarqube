@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import ModalForm from '../../../../components/common/modal-form';
 import Template from './CreationModalTemplate.hbs';
+import ModalForm from '../../../../components/common/modal-form';
 import { parseError } from '../../../../helpers/request';
 
 export default ModalForm.extend({

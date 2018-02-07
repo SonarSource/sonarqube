@@ -23,10 +23,10 @@ import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router';
 import { injectIntl } from 'react-intl';
+import { getExtensionStart } from './utils';
 import { addGlobalErrorMessage } from '../../../store/globalMessages/duck';
 import { getCurrentUser } from '../../../store/rootReducer';
 import { translate } from '../../../helpers/l10n';
-import { getExtensionStart } from './utils';
 import getStore from '../../utils/getStore';
 
 /*::

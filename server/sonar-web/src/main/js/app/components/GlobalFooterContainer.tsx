@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { connect } from 'react-redux';
-import { getAppState } from '../../store/rootReducer';
 import GlobalFooter from './GlobalFooter';
+import { getAppState } from '../../store/rootReducer';
 
 interface StateProps {
   productionDatabase: boolean;

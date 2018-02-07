@@ -25,6 +25,7 @@ import Header from './Header';
 import UpdateForm from './UpdateForm';
 import BulkUpdate from './BulkUpdate';
 import FineGrainedUpdate from './FineGrainedUpdate';
+import { reloadUpdateKeyPage } from './utils';
 import { fetchProjectModules, changeKey } from '../store/actions';
 import { translate } from '../../../helpers/l10n';
 import {
@@ -33,7 +34,6 @@ import {
   addGlobalSuccessMessage
 } from '../../../store/globalMessages/duck';
 import { parseError } from '../../../helpers/request';
-import { reloadUpdateKeyPage } from './utils';
 import RecentHistory from '../../../app/components/RecentHistory';
 import { getProjectAdminProjectModules } from '../../../store/rootReducer';
 

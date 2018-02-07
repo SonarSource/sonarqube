@@ -18,15 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { RouterState, RedirectFunction } from 'react-router';
-import GlobalPermissionsApp from '../permissions/global/components/App';
 import OrganizationPageContainer from './components/OrganizationPage';
-import OrganizationPageExtension from '../../app/components/extensions/OrganizationPageExtension';
 import OrganizationContainer from './components/OrganizationContainer';
 import OrganizationProjects from './components/OrganizationProjects';
 import OrganizationAdminContainer from './components/OrganizationAdminContainer';
 import OrganizationEdit from './components/OrganizationEdit';
 import OrganizationMembersContainer from './components/OrganizationMembersContainer';
 import OrganizationDelete from './components/OrganizationDelete';
+import GlobalPermissionsApp from '../permissions/global/components/App';
 import PermissionTemplateApp from '../permission-templates/components/AppContainer';
 import ProjectManagementApp from '../projectsManagement/AppContainer';
 import codingRulesRoutes from '../coding-rules/routes';
@@ -34,6 +33,7 @@ import qualityGatesRoutes from '../quality-gates/routes';
 import qualityProfilesRoutes from '../quality-profiles/routes';
 import Issues from '../issues/components/AppContainer';
 import GroupsApp from '../groups/components/App';
+import OrganizationPageExtension from '../../app/components/extensions/OrganizationPageExtension';
 
 const routes = [
   {

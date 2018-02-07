@@ -22,6 +22,11 @@ import { Helmet } from 'react-helmet';
 import * as PropTypes from 'prop-types';
 import { keyBy } from 'lodash';
 import * as key from 'keymaster';
+import BulkChange from './BulkChange';
+import FacetsList from './FacetsList';
+import PageActions from './PageActions';
+import RuleDetails from './RuleDetails';
+import RuleListItem from './RuleListItem';
 import {
   Facets,
   Query,
@@ -43,15 +48,10 @@ import ScreenPositionHelper from '../../../components/common/ScreenPositionHelpe
 import { translate } from '../../../helpers/l10n';
 import { RawQuery } from '../../../helpers/query';
 import ListFooter from '../../../components/controls/ListFooter';
-import RuleListItem from './RuleListItem';
-import PageActions from './PageActions';
 import FiltersHeader from '../../../components/common/FiltersHeader';
 import SearchBox from '../../../components/controls/SearchBox';
-import FacetsList from './FacetsList';
 import { searchQualityProfiles, Profile } from '../../../api/quality-profiles';
 import { scrollToElement } from '../../../helpers/scrolling';
-import BulkChange from './BulkChange';
-import RuleDetails from './RuleDetails';
 
 import '../styles.css';
 

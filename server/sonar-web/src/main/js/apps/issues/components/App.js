@@ -25,7 +25,6 @@ import { keyBy, without } from 'lodash';
 import PropTypes from 'prop-types';
 import PageActions from './PageActions';
 import MyIssuesFilter from './MyIssuesFilter';
-import Sidebar from '../sidebar/Sidebar';
 import IssuesList from './IssuesList';
 import ComponentBreadcrumbs from './ComponentBreadcrumbs';
 import IssuesSourceViewer from './IssuesSourceViewer';
@@ -33,6 +32,7 @@ import BulkChangeModal from './BulkChangeModal';
 import NoMyIssues from './NoMyIssues';
 import ConciseIssuesList from '../conciseIssuesList/ConciseIssuesList';
 import ConciseIssuesListHeader from '../conciseIssuesList/ConciseIssuesListHeader';
+import Sidebar from '../sidebar/Sidebar';
 import * as actions from '../actions';
 import {
   parseQuery,

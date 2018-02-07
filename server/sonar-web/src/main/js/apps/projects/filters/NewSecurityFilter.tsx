@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import VulnerabilityIcon from '../../../components/icons-components/VulnerabilityIcon';
 import IssuesFilter from './IssuesFilter';
+import VulnerabilityIcon from '../../../components/icons-components/VulnerabilityIcon';
 import { translate } from '../../../helpers/l10n';
 import { Facet } from '../types';
 import { RawQuery } from '../../../helpers/query';

@@ -19,7 +19,6 @@
  */
 import * as React from 'react';
 import CustomRuleButton from './CustomRuleButton';
-import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import RuleDetailsCustomRules from './RuleDetailsCustomRules';
 import RuleDetailsDescription from './RuleDetailsDescription';
 import RuleDetailsIssues from './RuleDetailsIssues';
@@ -30,6 +29,7 @@ import { Query, Activation } from '../query';
 import { Profile } from '../../../api/quality-profiles';
 import { getRuleDetails, deleteRule, updateRule } from '../../../api/rules';
 import { RuleActivation, RuleDetails as IRuleDetails } from '../../../app/types';
+import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import ConfirmButton from '../../../components/controls/ConfirmButton';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 

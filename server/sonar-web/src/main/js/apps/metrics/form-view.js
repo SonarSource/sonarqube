@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import $ from 'jquery';
-import ModalForm from '../../components/common/modal-form';
 import Template from './templates/metrics-form.hbs';
+import ModalForm from '../../components/common/modal-form';
 
 export default ModalForm.extend({
   template: Template,
