@@ -24,7 +24,6 @@ import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -56,6 +55,7 @@ import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.NAME_WEBHOOK_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.URL_WEBHOOK_EXAMPLE_001;
 import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
+import static org.sonar.server.ws.WsUtils.checkStateWithOptional;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.Webhooks.CreateWsResponse.Webhook;
 import static org.sonarqube.ws.Webhooks.CreateWsResponse.newBuilder;
@@ -68,14 +68,12 @@ public class CreateAction implements WebhooksWsAction {
   private final UserSession userSession;
   private final DefaultOrganizationProvider defaultOrganizationProvider;
   private final UuidFactory uuidFactory;
-  private final System2 system;
 
-  public CreateAction(DbClient dbClient, UserSession userSession, DefaultOrganizationProvider defaultOrganizationProvider, UuidFactory uuidFactory, System2 system) {
+  public CreateAction(DbClient dbClient, UserSession userSession, DefaultOrganizationProvider defaultOrganizationProvider, UuidFactory uuidFactory) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.defaultOrganizationProvider = defaultOrganizationProvider;
     this.uuidFactory = uuidFactory;
-    this.system = system;
   }
 
   @Override
@@ -126,7 +124,7 @@ public class CreateAction implements WebhooksWsAction {
     String projectKey = request.param(PROJECT_KEY_PARAM);
     String organizationKey = request.param(ORGANIZATION_KEY_PARAM);
 
-    try (DbSession dbSession = dbClient.openSession(true)) {
+    try (DbSession dbSession = dbClient.openSession(false)) {
 
       OrganizationDto organizationDto;
       if (isNotBlank(organizationKey)) {
@@ -138,18 +136,24 @@ public class CreateAction implements WebhooksWsAction {
 
       ComponentDto projectDto = null;
       if (isNotBlank(projectKey)) {
-        com.google.common.base.Optional<ComponentDto> dtoOptional = dbClient.componentDao().selectByKey(dbSession, projectKey);
-        checkFoundWithOptional(dtoOptional, "No project with key '%s'", projectKey);
-        checkThatProjectBelongsToOrganization(dtoOptional.get(), organizationDto, "Project '%s' does not belong to organisation '%s'", projectKey, organizationKey);
-        checkUserPermissionOn(dtoOptional.get());
-        projectDto = dtoOptional.get();
+        Optional<ComponentDto> dtoOptional = Optional.ofNullable(dbClient.componentDao().selectByKey(dbSession, projectKey).orNull());
+        ComponentDto componentDto = checkFoundWithOptional(dtoOptional, "No project with key '%s'", projectKey);
+        checkThatProjectBelongsToOrganization(componentDto, organizationDto, "Project '%s' does not belong to organisation '%s'", projectKey, organizationKey);
+        checkUserPermissionOn(componentDto);
+        projectDto = componentDto;
       } else {
         checkUserPermissionOn(organizationDto);
       }
 
       checkUrlPattern(url, "Url parameter with value '%s' is not a valid url", url);
 
-      writeResponse(request, response, doHandle(dbSession, organizationDto, projectDto, name, url));
+      WebhookDto webhookDto = doHandle(dbSession, organizationDto, projectDto, name, url);
+
+      dbClient.webhookDao().insert(dbSession, webhookDto);
+
+      dbSession.commit();
+
+      writeResponse(request, response, webhookDto);
     }
 
   }
@@ -171,8 +175,6 @@ public class CreateAction implements WebhooksWsAction {
       checkNumberOfWebhook(numberOfWebhookOf(dbSession, organization), "Maximum number of webhook reached for organization '%s'", organization.getKey());
       dto.setOrganizationUuid(organization.getUuid());
     }
-
-    dbClient.webhookDao().insert(dbSession, dto);
 
     return dto;
   }
@@ -227,6 +229,7 @@ public class CreateAction implements WebhooksWsAction {
 
   private OrganizationDto defaultOrganizationDto(DbSession dbSession) {
     String uuid = defaultOrganizationProvider.get().getUuid();
-    return dbClient.organizationDao().selectByUuid(dbSession, uuid).get();
+    Optional<OrganizationDto> organizationDto = dbClient.organizationDao().selectByUuid(dbSession, uuid);
+    return checkStateWithOptional(organizationDto, "the default organization '%s' was not found", uuid);
   }
 }

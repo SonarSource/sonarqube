@@ -17,30 +17,32 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.webhook.ws;
+package org.sonar.db.webhook;
 
-class WebhooksWsParameters {
+import org.sonar.db.DbSession;
+import org.sonar.db.DbTester;
 
-  static final String WEBHOOKS_CONTROLLER = "api/webhooks";
+public class WebhookDbTester {
 
+  private final DbTester dbTester;
 
-  static final String ACTION_CREATE = "create";
-  static final String SEARCH_ACTION = "search";
+  public WebhookDbTester(DbTester dbTester) {
+    this.dbTester = dbTester;
+  }
 
+  public WebhookDto insertForOrganizationUuid(String organizationUuid) {
+    return insert(WebhookTesting.newWebhookDtoForOrganization(organizationUuid));
+  }
 
-  static final String ORGANIZATION_KEY_PARAM = "organization";
-  static final int ORGANIZATION_KEY_PARAM_MAXIMUM_LENGTH = 255;
-  static final String PROJECT_KEY_PARAM = "project";
-  static final int PROJECT_KEY_PARAM_MAXIMUN_LENGTH = 100;
-  static final String NAME_PARAM = "name";
-  static final int NAME_PARAM_MAXIMUM_LENGTH = 100;
-  static final String URL_PARAM = "url";
-  static final int URL_PARAM_MAXIMUM_LENGTH = 512;
-  static final String COMPONENT_KEY_PARAM = "component";
-  static final int COMPONENT_KEY_PARAM_MAXIMUM_LENGTH = 255;
+  public WebhookDto insertWebhookForProjectUuid(String projectUuid) {
+    return insert(WebhookTesting.newWebhookDtoForProject(projectUuid));
+  }
 
-  private WebhooksWsParameters() {
-    // prevent instantiation
+  public WebhookDto insert(WebhookDto dto) {
+    DbSession dbSession = dbTester.getSession();
+    dbTester.getDbClient().webhookDao().insert(dbSession, dto);
+    dbSession.commit();
+    return dto;
   }
 
 }
