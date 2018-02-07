@@ -35,6 +35,7 @@ public class DbVersion71 implements DbVersion {
       .add(2005, "Create table DEPRECATED_RULE_KEYS", CreateDeprecatedRuleKeysTable.class)
       .add(2006, "Clean orphans in Compute Engine child tables", CleanCeChildTablesOrphans.class)
       .add(2007, "Update PERMISSION_TEMPLATES.KEYS ", UpdatePermissionTooLongTemplateKeys.class)
+      .add(2008, "Create WEBHOOKS Table", CreateWebhooksTable.class)
     ;
   }
 }
