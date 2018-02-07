@@ -17,19 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 package org.sonar.server.notification.ws;
 
-import org.sonar.core.platform.Module;
+import java.util.List;
 
-public class NotificationWsModule extends Module {
-  @Override
-  protected void configureModule() {
-    add(
-      DispatchersImpl.class,
-      // WS
-      NotificationsWs.class,
-      AddAction.class,
-      RemoveAction.class,
-      ListAction.class);
-  }
+public interface Dispatchers {
+
+  List<String> getSortedGlobalDispatchers();
+
+  List<String> getSortedProjectDispatchers();
 }
