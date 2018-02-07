@@ -17,19 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db;
+package org.sonar.server.webhook.ws;
 
-import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+import static java.lang.String.format;
+import static java.util.Locale.ENGLISH;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.core.platform.ComponentContainer.COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER;
+class WebhookSupport {
 
-public class DaoModuleTest {
-  @Test
-  public void verify_count_of_added_components() {
-    ComponentContainer container = new ComponentContainer();
-    new DaoModule().configure(container);
-    assertThat(container.size()).isEqualTo(COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER + 53);
+  private WebhookSupport() {
+    // only statics
   }
+
+  static void checkUrlPattern(String url, String message, Object... messageArguments) {
+    if (!url.toLowerCase(ENGLISH).startsWith("http://") && !url.toLowerCase(ENGLISH).startsWith("https://")) {
+      throw new IllegalArgumentException(format(message, messageArguments));
+    }
+    String sub = url.substring("http://".length());
+    if (sub.contains(":") && !sub.substring(sub.indexOf(':')).contains("@")) {
+      throw new IllegalArgumentException(format(message, messageArguments));
+    }
+  }
+
 }

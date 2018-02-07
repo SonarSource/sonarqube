@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd">
+
+<mapper namespace="org.sonar.db.webhook.WebhookMapper">
+
+  <sql id="sqlLiteColumns">
+    uuid,
+    name,
+    url,
+    organization_uuid as organizationUuid,
+    project_uuid as projectUuid,
+    created_at as createdAt,
+    updated_at as updatedAt
+  </sql>
+
+
+  <select id="selectByUuid" parameterType="String" resultType="org.sonar.db.webhook.WebhookDto">
+    select <include refid="sqlLiteColumns" />
+    from webhooks
+    where uuid = #{webhookUuid,jdbcType=VARCHAR}
+  </select>
+
+  <select id="selectForOrganizationUuidOrderedByName" parameterType="String" resultType="org.sonar.db.webhook.WebhookDto">
+    select <include refid="sqlLiteColumns" />
+    from webhooks
+    where organization_uuid = #{organizationUuid,jdbcType=VARCHAR}
+    order by name asc
+  </select>
+
+  <select id="selectForProjectUuidOrderedByName" parameterType="String" resultType="org.sonar.db.webhook.WebhookDto">
+    select <include refid="sqlLiteColumns" />
+    from webhooks
+    where project_uuid = #{projectUuid,jdbcType=VARCHAR}
+    order by name asc
+  </select>
+
+  <insert id="insert" parameterType="org.sonar.db.webhook.WebhookDto" useGeneratedKeys="false">
+    insert into webhooks (
+    uuid,
+    name,
+    url,
+    organization_uuid,
+    project_uuid,
+    created_at,
+    updated_at
+    ) values (
+    #{uuid,jdbcType=VARCHAR},
+    #{name,jdbcType=VARCHAR},
+    #{url,jdbcType=VARCHAR},
+    #{organizationUuid,jdbcType=VARCHAR},
+    #{projectUuid,jdbcType=VARCHAR},
+    #{createdAt,jdbcType=BIGINT},
+    #{updatedAt,jdbcType=BIGINT}
+    )
+  </insert>
+
+</mapper>
