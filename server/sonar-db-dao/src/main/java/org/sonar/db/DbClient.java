@@ -72,6 +72,7 @@ import org.sonar.db.user.RoleDao;
 import org.sonar.db.user.UserDao;
 import org.sonar.db.user.UserGroupDao;
 import org.sonar.db.user.UserTokenDao;
+import org.sonar.db.webhook.WebhookDao;
 import org.sonar.db.webhook.WebhookDeliveryDao;
 
 public class DbClient {
@@ -123,7 +124,6 @@ public class DbClient {
   private final ActiveRuleDao activeRuleDao;
   private final QProfileChangeDao qProfileChangeDao;
   private final UserPermissionDao userPermissionDao;
-  private final WebhookDeliveryDao webhookDeliveryDao;
   private final DefaultQProfileDao defaultQProfileDao;
   private final EsQueueDao esQueueDao;
   private final PluginDao pluginDao;
@@ -132,6 +132,8 @@ public class DbClient {
   private final QProfileEditUsersDao qProfileEditUsersDao;
   private final QProfileEditGroupsDao qProfileEditGroupsDao;
   private final LiveMeasureDao liveMeasureDao;
+  private final WebhookDao webhookDao;
+  private final WebhookDeliveryDao webhookDeliveryDao;
 
   public DbClient(Database database, MyBatis myBatis, DBSessions dbSessions, Dao... daos) {
     this.database = database;
@@ -185,7 +187,6 @@ public class DbClient {
     activeRuleDao = getDao(map, ActiveRuleDao.class);
     qProfileChangeDao = getDao(map, QProfileChangeDao.class);
     userPermissionDao = getDao(map, UserPermissionDao.class);
-    webhookDeliveryDao = getDao(map, WebhookDeliveryDao.class);
     defaultQProfileDao = getDao(map, DefaultQProfileDao.class);
     esQueueDao = getDao(map, EsQueueDao.class);
     pluginDao = getDao(map, PluginDao.class);
@@ -194,6 +195,8 @@ public class DbClient {
     qProfileEditUsersDao = getDao(map, QProfileEditUsersDao.class);
     qProfileEditGroupsDao = getDao(map, QProfileEditGroupsDao.class);
     liveMeasureDao = getDao(map, LiveMeasureDao.class);
+    webhookDao = getDao(map, WebhookDao.class);
+    webhookDeliveryDao = getDao(map, WebhookDeliveryDao.class);
   }
 
   public DbSession openSession(boolean batch) {
@@ -380,10 +383,6 @@ public class DbClient {
     return userPermissionDao;
   }
 
-  public WebhookDeliveryDao webhookDeliveryDao() {
-    return webhookDeliveryDao;
-  }
-
   public DefaultQProfileDao defaultQProfileDao() {
     return defaultQProfileDao;
   }
@@ -417,8 +416,16 @@ public class DbClient {
   }
 
   // should be removed. Still used by some old DAO in sonar-server
+
   public MyBatis getMyBatis() {
     return myBatis;
   }
 
+  public WebhookDao webhookDao() {
+    return webhookDao ;
+  }
+
+  public WebhookDeliveryDao webhookDeliveryDao() {
+    return webhookDeliveryDao;
+  }
 }
