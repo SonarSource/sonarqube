@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { isProvided } from '../../project-admin/links/utils';
+import { isProvided, getLinkName } from '../../project-admin/links/utils';
 import BugTrackerIcon from '../../../components/ui/BugTrackerIcon';
 import { ProjectLink } from '../../../api/projectLinks';
 
@@ -30,7 +30,7 @@ export default function MetaLink({ link }: Props) {
   return (
     <li>
       <a className="link-with-icon" href={link.url} rel="nofollow" target="_blank">
-        <MetaLinkIcon link={link} /> {link.name}
+        <MetaLinkIcon link={link} /> {getLinkName(link)}
       </a>
     </li>
   );

@@ -19,7 +19,7 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import { isProvided } from './utils';
+import { isProvided, getLinkName } from './utils';
 import { translate } from '../../../helpers/l10n';
 import BugTrackerIcon from '../../../components/ui/BugTrackerIcon';
 
@@ -57,7 +57,7 @@ export default class LinkRow extends React.PureComponent {
         {this.renderIcon(`icon-${link.type}`)}
         <div className="display-inline-block text-top">
           <div>
-            <span className="js-name">{link.name}</span>
+            <span className="js-name">{getLinkName(link)}</span>
           </div>
           <div className="note little-spacer-top">
             <span className="js-type">{`sonar.links.${link.type}`}</span>
