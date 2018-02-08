@@ -34,4 +34,6 @@ public interface WebhookMapper {
 
   void insert(WebhookDto dto);
 
+  void update(WebhookDto dto);
+
 }

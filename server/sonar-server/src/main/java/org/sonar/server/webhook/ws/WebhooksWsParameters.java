@@ -25,6 +25,7 @@ class WebhooksWsParameters {
 
 
   static final String ACTION_CREATE = "create";
+  static final String UPDATE_ACTION = "update";
   static final String SEARCH_ACTION = "search";
 
 
@@ -38,6 +39,8 @@ class WebhooksWsParameters {
   static final int URL_PARAM_MAXIMUM_LENGTH = 512;
   static final String COMPONENT_KEY_PARAM = "component";
   static final int COMPONENT_KEY_PARAM_MAXIMUM_LENGTH = 255;
+  static final String KEY_PARAM = "key";
+  static final int KEY_PARAM_MAXIMUN_LENGTH = 40;
 
   private WebhooksWsParameters() {
     // prevent instantiation

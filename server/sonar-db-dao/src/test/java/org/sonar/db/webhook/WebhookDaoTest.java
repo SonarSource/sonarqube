@@ -28,6 +28,8 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.organization.OrganizationDbTester;
+import org.sonar.db.organization.OrganizationDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -44,6 +46,8 @@ public class WebhookDaoTest {
   private final DbClient dbClient = dbTester.getDbClient();
   private final DbSession dbSession = dbTester.getSession();
   private final WebhookDao underTest = dbClient.webhookDao();
+  private final WebhookDbTester webhookDbTester = dbTester.webhooks();
+  private final OrganizationDbTester organizationDbTester = dbTester.organizations();
 
   @Test
   public void selectByUuid_returns_empty_if_uuid_does_not_exist() {
@@ -83,16 +87,35 @@ public class WebhookDaoTest {
 
     underTest.insert(dbSession, dto);
 
-    WebhookDto stored = selectByUuid(dto.getUuid());
+    WebhookDto reloaded = selectByUuid(dto.getUuid());
 
-    assertThat(stored.getUuid()).isEqualTo(dto.getUuid());
-    assertThat(stored.getName()).isEqualTo(dto.getName());
-    assertThat(stored.getUrl()).isEqualTo(dto.getUrl());
-    assertThat(stored.getOrganizationUuid()).isNull();
-    assertThat(stored.getProjectUuid()).isEqualTo(dto.getProjectUuid());
-    assertThat(new Date(stored.getCreatedAt())).isInSameMinuteWindowAs(new Date(system2.now()));
-    assertThat(stored.getUpdatedAt()).isNull();
+    assertThat(reloaded.getUuid()).isEqualTo(dto.getUuid());
+    assertThat(reloaded.getName()).isEqualTo(dto.getName());
+    assertThat(reloaded.getUrl()).isEqualTo(dto.getUrl());
+    assertThat(reloaded.getOrganizationUuid()).isNull();
+    assertThat(reloaded.getProjectUuid()).isEqualTo(dto.getProjectUuid());
+    assertThat(new Date(reloaded.getCreatedAt())).isInSameMinuteWindowAs(new Date(system2.now()));
+    assertThat(reloaded.getUpdatedAt()).isNull();
   }
+
+  @Test
+  public void update() {
+
+    OrganizationDto organization = organizationDbTester.insert();
+    WebhookDto dto = webhookDbTester.insertForOrganizationUuid(organization.getUuid());
+
+    underTest.update(dbSession, dto.setName("a-fancy-webhook").setUrl("http://www.fancy-webhook.io"));
+
+    WebhookDto reloaded = underTest.selectByUuid(dbSession, dto.uuid).get();
+    assertThat(reloaded.getUuid()).isEqualTo(dto.getUuid());
+    assertThat(reloaded.getName()).isEqualTo("a-fancy-webhook");
+    assertThat(reloaded.getUrl()).isEqualTo("http://www.fancy-webhook.io");
+    assertThat(reloaded.getProjectUuid()).isNull();
+    assertThat(reloaded.getOrganizationUuid()).isEqualTo(dto.getOrganizationUuid());
+    assertThat(reloaded.getCreatedAt()).isEqualTo(dto.getCreatedAt());
+    assertThat(new Date(reloaded.getUpdatedAt())).isInSameMinuteWindowAs(new Date(system2.now()));
+  }
+
 
   @Test
   public void fail_if_webhook_does_not_have_an_organization_nor_a_project() {
