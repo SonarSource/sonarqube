@@ -29,7 +29,7 @@ interface Props {
 
 export default function MetaQualityGate({ qualityGate, organization }: Props) {
   return (
-    <div className="overview-meta-card">
+    <>
       <h4 className="overview-meta-header">{translate('overview.quality_gate')}</h4>
 
       <ul className="overview-meta-list">
@@ -40,6 +40,6 @@ export default function MetaQualityGate({ qualityGate, organization }: Props) {
           <Link to={getQualityGateUrl(qualityGate.key, organization)}>{qualityGate.name}</Link>
         </li>
       </ul>
-    </div>
+    </>
   );
 }

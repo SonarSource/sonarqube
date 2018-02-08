@@ -28,12 +28,12 @@ interface Props {
 
 export default function MetaKey({ componentKey, qualifier }: Props) {
   return (
-    <div className="overview-meta-card">
+    <>
       <h4 className="overview-meta-header">{translate('overview.project_key', qualifier)}</h4>
       <div className="display-flex-center">
         <input className="overview-key" type="text" value={componentKey} readOnly={true} />
         <ClipboardButton className="little-spacer-left" copyValue={componentKey} />
       </div>
-    </div>
+    </>
   );
 }

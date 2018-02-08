@@ -77,28 +77,32 @@ export default class Meta extends React.PureComponent<Props> {
           qualifier={component.qualifier}
         />
 
-        {isProject &&
-          qualityGate !== undefined && (
-            <MetaQualityGate
-              organization={organizationsEnabled ? component.organization : undefined}
-              qualityGate={qualityGate}
-            />
-          )}
+        {isProject && (
+          <div className="overview-meta-card">
+            {qualityGate && (
+              <MetaQualityGate
+                organization={organizationsEnabled ? component.organization : undefined}
+                qualityGate={qualityGate}
+              />
+            )}
 
-        {isProject &&
-          qualityProfiles !== undefined &&
-          qualityProfiles.length > 0 && (
-            <MetaQualityProfiles
-              organization={organizationsEnabled ? component.organization : undefined}
-              profiles={qualityProfiles}
-            />
-          )}
+            {qualityProfiles &&
+              qualityProfiles.length > 0 && (
+                <MetaQualityProfiles
+                  headerClassName={qualityGate ? 'big-spacer-top' : undefined}
+                  organization={organizationsEnabled ? component.organization : undefined}
+                  profiles={qualityProfiles}
+                />
+              )}
+          </div>
+        )}
 
         {isProject && <MetaLinks component={component} />}
 
-        <MetaKey componentKey={component.key} qualifier={component.qualifier} />
-
-        {organizationsEnabled && <MetaOrganizationKey organization={component.organization} />}
+        <div className="overview-meta-card">
+          <MetaKey componentKey={component.key} qualifier={component.qualifier} />
+          {organizationsEnabled && <MetaOrganizationKey organization={component.organization} />}
+        </div>
 
         {onSonarCloud &&
           isProject &&

@@ -27,12 +27,12 @@ interface Props {
 
 export default function MetaOrganizationKey({ organization }: Props) {
   return (
-    <div className="overview-meta-card">
-      <h4 className="overview-meta-header">{translate('organization_key')}</h4>
+    <>
+      <h4 className="overview-meta-header big-spacer-top">{translate('organization_key')}</h4>
       <div className="display-flex-center">
         <input className="overview-key" type="text" value={organization} readOnly={true} />
         <ClipboardButton className="little-spacer-left" copyValue={organization} />
       </div>
-    </div>
+    </>
   );
 }

@@ -20,6 +20,7 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router';
+import * as classNames from 'classnames';
 import Tooltip from '../../../components/controls/Tooltip';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { getQualityProfileUrl } from '../../../helpers/urls';
@@ -31,6 +32,7 @@ interface StateProps {
 }
 
 interface OwnProps {
+  headerClassName?: string;
   organization?: string;
   profiles: { key: string; language: string; name: string }[];
 }
@@ -115,16 +117,18 @@ class MetaQualityProfiles extends React.PureComponent<StateProps & OwnProps, Sta
   }
 
   render() {
-    const { profiles } = this.props;
+    const { headerClassName, profiles } = this.props;
 
     return (
-      <div className="overview-meta-card">
-        <h4 className="overview-meta-header">{translate('overview.quality_profiles')}</h4>
+      <>
+        <h4 className={classNames('overview-meta-header', headerClassName)}>
+          {translate('overview.quality_profiles')}
+        </h4>
 
         <ul className="overview-meta-list">
           {profiles.map(profile => this.renderProfile(profile))}
         </ul>
-      </div>
+      </>
     );
   }
 }
