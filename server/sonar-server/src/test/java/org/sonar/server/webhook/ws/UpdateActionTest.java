@@ -87,7 +87,7 @@ public class UpdateActionTest {
     assertThat(action.params())
       .extracting(WebService.Param::key, WebService.Param::isRequired)
       .containsExactlyInAnyOrder(
-        tuple("key", true),
+        tuple("webhook", true),
         tuple("name", true),
         tuple("url", true));
 
@@ -97,7 +97,7 @@ public class UpdateActionTest {
   public void update_a_project_webhook() {
 
     ComponentDto project = componentDbTester.insertPrivateProject();
-    WebhookDto dto = webhookDbTester.insertWebhookForProjectUuid(project.uuid());
+    WebhookDto dto = webhookDbTester.insertWebhook(project);
     userSession.logIn().addProjectPermission(ADMIN, project);
 
     TestResponse response = wsActionTester.newRequest()
@@ -120,7 +120,7 @@ public class UpdateActionTest {
   public void update_an_organization_webhook() {
 
     OrganizationDto organization = organizationDbTester.insert();
-    WebhookDto dto = webhookDbTester.insertForOrganizationUuid(organization.getUuid());
+    WebhookDto dto = webhookDbTester.insertWebhook(organization);
     userSession.logIn().addPermission(ADMINISTER, organization.getUuid());
 
     TestResponse response = wsActionTester.newRequest()
@@ -158,7 +158,7 @@ public class UpdateActionTest {
   public void fail_if_not_logged_in() throws Exception {
 
     OrganizationDto organization = organizationDbTester.insert();
-    WebhookDto dto = webhookDbTester.insertForOrganizationUuid(organization.getUuid());
+    WebhookDto dto = webhookDbTester.insertWebhook(organization);
     userSession.anonymous();
 
     expectedException.expect(UnauthorizedException.class);
@@ -175,7 +175,7 @@ public class UpdateActionTest {
   public void fail_if_no_permission_on_webhook_scope_project() {
 
     ComponentDto project = componentDbTester.insertPrivateProject();
-    WebhookDto dto = webhookDbTester.insertWebhookForProjectUuid(project.uuid());
+    WebhookDto dto = webhookDbTester.insertWebhook(project);
 
     userSession.logIn();
 
@@ -194,7 +194,7 @@ public class UpdateActionTest {
   public void fail_if_no_permission_on_webhook_scope_organization() {
 
     OrganizationDto organization = organizationDbTester.insert();
-    WebhookDto dto = webhookDbTester.insertForOrganizationUuid(organization.getUuid());
+    WebhookDto dto = webhookDbTester.insertWebhook(organization);
 
     userSession.logIn();
 
@@ -213,7 +213,7 @@ public class UpdateActionTest {
   public void fail_if_url_is_not_valid() throws Exception {
 
     ComponentDto project = componentDbTester.insertPrivateProject();
-    WebhookDto dto = webhookDbTester.insertWebhookForProjectUuid(project.uuid());
+    WebhookDto dto = webhookDbTester.insertWebhook(project);
     userSession.logIn().addProjectPermission(ADMIN, project);
 
     expectedException.expect(IllegalArgumentException.class);
@@ -230,7 +230,7 @@ public class UpdateActionTest {
   public void fail_if_credential_in_url_is_have_a_wrong_format() throws Exception {
 
     ComponentDto project = componentDbTester.insertPrivateProject();
-    WebhookDto dto = webhookDbTester.insertWebhookForProjectUuid(project.uuid());
+    WebhookDto dto = webhookDbTester.insertWebhook(project);
     userSession.logIn().addProjectPermission(ADMIN, project);
 
     expectedException.expect(IllegalArgumentException.class);

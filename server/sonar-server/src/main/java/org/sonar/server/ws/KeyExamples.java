@@ -31,7 +31,7 @@ public class KeyExamples {
 
   public static final String KEY_BRANCH_EXAMPLE_001 = "feature/my_branch";
 
-  public static final String NAME_WEBHOOK_EXAMPLE_001 = "my-webhook";
+  public static final String NAME_WEBHOOK_EXAMPLE_001 = "My Webhook";
   public static final String URL_WEBHOOK_EXAMPLE_001 = "https://www.my-webhook-listener.com/sonar";
 
   private KeyExamples() {

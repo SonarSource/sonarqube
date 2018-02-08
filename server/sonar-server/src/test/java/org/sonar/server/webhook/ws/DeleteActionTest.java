@@ -82,7 +82,7 @@ public class DeleteActionTest {
 
     assertThat(action.params())
       .extracting(WebService.Param::key, WebService.Param::isRequired)
-      .containsExactlyInAnyOrder(tuple("key", true));
+      .containsExactlyInAnyOrder(tuple("webhook", true));
 
   }
 
@@ -90,7 +90,7 @@ public class DeleteActionTest {
   public void delete_a_project_webhook() {
 
     ComponentDto project = componentDbTester.insertPrivateProject();
-    WebhookDto dto = webhookDbTester.insertWebhookForProjectUuid(project.uuid());
+    WebhookDto dto = webhookDbTester.insertWebhook(project);
     userSession.logIn().addProjectPermission(ADMIN, project);
 
     TestResponse response = wsActionTester.newRequest()
@@ -107,7 +107,7 @@ public class DeleteActionTest {
   public void delete_an_organization_webhook() {
 
     OrganizationDto organization = organizationDbTester.insert();
-    WebhookDto dto = webhookDbTester.insertForOrganizationUuid(organization.getUuid());
+    WebhookDto dto = webhookDbTester.insertWebhook(organization);
     userSession.logIn().addPermission(ADMINISTER, organization.getUuid());
 
     TestResponse response = wsActionTester.newRequest()
@@ -137,7 +137,7 @@ public class DeleteActionTest {
   public void fail_if_not_logged_in() throws Exception {
 
     OrganizationDto organization = organizationDbTester.insert();
-    WebhookDto dto = webhookDbTester.insertForOrganizationUuid(organization.getUuid());
+    WebhookDto dto = webhookDbTester.insertWebhook(organization);
     userSession.anonymous();
 
     expectedException.expect(UnauthorizedException.class);
@@ -152,7 +152,7 @@ public class DeleteActionTest {
   public void fail_if_no_permission_on_webhook_scope_project() {
 
     ComponentDto project = componentDbTester.insertPrivateProject();
-    WebhookDto dto = webhookDbTester.insertWebhookForProjectUuid(project.uuid());
+    WebhookDto dto = webhookDbTester.insertWebhook(project);
 
     userSession.logIn();
 
@@ -169,7 +169,7 @@ public class DeleteActionTest {
   public void fail_if_no_permission_on_webhook_scope_organization() {
 
     OrganizationDto organization = organizationDbTester.insert();
-    WebhookDto dto = webhookDbTester.insertForOrganizationUuid(organization.getUuid());
+    WebhookDto dto = webhookDbTester.insertWebhook(organization);
 
     userSession.logIn();
 

@@ -221,7 +221,7 @@ public class CreateActionTest {
     expectedException.expectMessage(format("Maximum number of webhook reached for project '%s'", project.getKey()));
 
     for (int i = 0; i < 10; i++) {
-      webhookDbTester.insertWebhookForProjectUuid(project.uuid());
+      webhookDbTester.insertWebhook(project);
     }
     userSession.logIn().addProjectPermission(ADMIN, project);
 
@@ -242,7 +242,7 @@ public class CreateActionTest {
     expectedException.expectMessage(format("Maximum number of webhook reached for organization '%s'", organization.getKey()));
 
     for (int i = 0; i < 10; i++) {
-      webhookDbTester.insertForOrganizationUuid(organization.getUuid());
+      webhookDbTester.insertWebhook(organization);
     }
     userSession.logIn().addPermission(ADMINISTER, organization.getUuid());
 
