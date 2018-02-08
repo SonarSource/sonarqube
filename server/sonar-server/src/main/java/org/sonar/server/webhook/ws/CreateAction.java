@@ -37,10 +37,7 @@ import org.sonarqube.ws.Webhooks;
 
 import static com.google.common.base.Preconditions.checkState;
 import static java.lang.String.format;
-import static java.util.Locale.ENGLISH;
 import static org.apache.commons.lang.StringUtils.isNotBlank;
-import static org.sonar.api.web.UserRole.ADMIN;
-import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
 import static org.sonar.server.webhook.ws.WebhooksWsParameters.ACTION_CREATE;
 import static org.sonar.server.webhook.ws.WebhooksWsParameters.NAME_PARAM;
 import static org.sonar.server.webhook.ws.WebhooksWsParameters.NAME_PARAM_MAXIMUM_LENGTH;
@@ -68,12 +65,15 @@ public class CreateAction implements WebhooksWsAction {
   private final UserSession userSession;
   private final DefaultOrganizationProvider defaultOrganizationProvider;
   private final UuidFactory uuidFactory;
+  private final WebhookSupport webhookSupport;
 
-  public CreateAction(DbClient dbClient, UserSession userSession, DefaultOrganizationProvider defaultOrganizationProvider, UuidFactory uuidFactory) {
+  public CreateAction(DbClient dbClient, UserSession userSession, DefaultOrganizationProvider defaultOrganizationProvider,
+                      UuidFactory uuidFactory, WebhookSupport webhookSupport) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.defaultOrganizationProvider = defaultOrganizationProvider;
     this.uuidFactory = uuidFactory;
+    this.webhookSupport = webhookSupport;
   }
 
   @Override
@@ -139,13 +139,13 @@ public class CreateAction implements WebhooksWsAction {
         Optional<ComponentDto> dtoOptional = Optional.ofNullable(dbClient.componentDao().selectByKey(dbSession, projectKey).orNull());
         ComponentDto componentDto = checkFoundWithOptional(dtoOptional, "No project with key '%s'", projectKey);
         checkThatProjectBelongsToOrganization(componentDto, organizationDto, "Project '%s' does not belong to organisation '%s'", projectKey, organizationKey);
-        checkUserPermissionOn(componentDto);
+        webhookSupport.checkUserPermissionOn(componentDto);
         projectDto = componentDto;
       } else {
-        checkUserPermissionOn(organizationDto);
+        webhookSupport.checkUserPermissionOn(organizationDto);
       }
 
-      checkUrlPattern(url, "Url parameter with value '%s' is not a valid url", url);
+      webhookSupport.checkUrlPattern(url, "Url parameter with value '%s' is not a valid url", url);
 
       WebhookDto webhookDto = doHandle(dbSession, organizationDto, projectDto, name, url);
 
@@ -166,7 +166,7 @@ public class CreateAction implements WebhooksWsAction {
     WebhookDto dto = new WebhookDto()
       .setUuid(uuidFactory.create())
       .setName(name)
-      .setUrl(url)
+      .setUrl(url);
 
     if (project != null) {
       checkNumberOfWebhook(numberOfWebhookOf(dbSession, project), "Maximum number of webhook reached for project '%s'", project.getKey());
@@ -203,27 +203,9 @@ public class CreateAction implements WebhooksWsAction {
     return dbClient.webhookDao().selectByProjectUuid(dbSession, project.uuid()).size();
   }
 
-  private void checkUserPermissionOn(ComponentDto componentDto) {
-    userSession.checkComponentPermission(ADMIN, componentDto);
-  }
-
-  private void checkUserPermissionOn(OrganizationDto organizationDto) {
-    userSession.checkPermission(ADMINISTER, organizationDto);
-  }
-
   private static void checkThatProjectBelongsToOrganization(ComponentDto componentDto, OrganizationDto organizationDto, String message, Object... messageArguments) {
     if (!organizationDto.getUuid().equals(componentDto.getOrganizationUuid())) {
       throw new NotFoundException(format(message, messageArguments));
-    }
-  }
-
-  private static void checkUrlPattern(String url, String message, Object... messageArguments) {
-    if (!url.toLowerCase(ENGLISH).startsWith("http://") && !url.toLowerCase(ENGLISH).startsWith("https://")) {
-      throw new IllegalArgumentException(format(message, messageArguments));
-    }
-    String sub = url.substring("http://".length());
-    if (sub.contains(":") && !sub.substring(sub.indexOf(':')).contains("@")) {
-      throw new IllegalArgumentException(format(message, messageArguments));
     }
   }
 
