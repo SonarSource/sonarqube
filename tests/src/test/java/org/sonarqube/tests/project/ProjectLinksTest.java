@@ -81,7 +81,6 @@ public class ProjectLinksTest {
     ProjectLinkItem homepageLink = links.get(0);
     ProjectLinkItem customLink = links.get(1);
 
-    homepageLink.getName().should(text("Home"));
     homepageLink.getType().should(text("sonar.links.homepage"));
     homepageLink.getUrl().should(text("http://example.com"));
     homepageLink.getDeleteButton().shouldNot(Condition.exist);

@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { partition, sortBy } from 'lodash';
+import { translate } from '../../../helpers/l10n';
 
 const PROVIDED_TYPES = ['homepage', 'ci', 'issue', 'scm', 'scm_dev'];
 
@@ -31,4 +32,8 @@ export function orderLinks(links) {
     ...sortBy(provided, link => PROVIDED_TYPES.indexOf(link.type)),
     ...sortBy(unknown, link => link.name.toLowerCase())
   ];
+}
+
+export function getLinkName(link) {
+  return isProvided(link) ? translate('project_links', link.type) : link.name;
 }
