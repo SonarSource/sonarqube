@@ -5,13 +5,20 @@ exports[`should expand and collapse link 1`] = `
   <a
     className="link-with-icon"
     href="scm:git:git@github.com"
-    onClick={[Function]}
+    rel="nofollow"
     target="_blank"
   >
-    <i
-      className="icon-color-link icon-detach"
+    <MetaLinkIcon
+      link={
+        Object {
+          "id": "1",
+          "name": "Foo",
+          "type": "foo",
+          "url": "scm:git:git@github.com",
+        }
+      }
     />
-     
+     
     Foo
   </a>
 </li>
@@ -22,26 +29,22 @@ exports[`should expand and collapse link 2`] = `
   <a
     className="link-with-icon"
     href="scm:git:git@github.com"
-    onClick={[Function]}
+    rel="nofollow"
     target="_blank"
   >
-    <i
-      className="icon-color-link icon-detach"
+    <MetaLinkIcon
+      link={
+        Object {
+          "id": "1",
+          "name": "Foo",
+          "type": "foo",
+          "url": "scm:git:git@github.com",
+        }
+      }
     />
-     
+     
     Foo
   </a>
-  <div
-    className="little-spacer-top"
-  >
-    <input
-      className="overview-key"
-      onClick={[Function]}
-      readOnly={true}
-      type="text"
-      value="scm:git:git@github.com"
-    />
-  </div>
 </li>
 `;
 
@@ -50,13 +53,20 @@ exports[`should expand and collapse link 3`] = `
   <a
     className="link-with-icon"
     href="scm:git:git@github.com"
-    onClick={[Function]}
+    rel="nofollow"
     target="_blank"
   >
-    <i
-      className="icon-color-link icon-detach"
+    <MetaLinkIcon
+      link={
+        Object {
+          "id": "1",
+          "name": "Foo",
+          "type": "foo",
+          "url": "scm:git:git@github.com",
+        }
+      }
     />
-     
+     
     Foo
   </a>
 </li>
@@ -67,12 +77,20 @@ exports[`should match snapshot 1`] = `
   <a
     className="link-with-icon"
     href="http://example.com"
+    rel="nofollow"
     target="_blank"
   >
-    <i
-      className="icon-color-link icon-detach"
+    <MetaLinkIcon
+      link={
+        Object {
+          "id": "1",
+          "name": "Foo",
+          "type": "foo",
+          "url": "http://example.com",
+        }
+      }
     />
-     
+     
     Foo
   </a>
 </li>

@@ -32,8 +32,3 @@ export function orderLinks(links) {
     ...sortBy(unknown, link => link.name.toLowerCase())
   ];
 }
-
-export function isClickable(link) {
-  // stupid simple check
-  return link.url.indexOf('http') === 0;
-}

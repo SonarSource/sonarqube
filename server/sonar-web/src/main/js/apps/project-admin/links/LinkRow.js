@@ -19,7 +19,7 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import { isProvided, isClickable } from './utils';
+import { isProvided } from './utils';
 import { translate } from '../../../helpers/l10n';
 import BugTrackerIcon from '../../../components/ui/BugTrackerIcon';
 
@@ -82,18 +82,6 @@ export default class LinkRow extends React.PureComponent {
     );
   }
 
-  renderUrl(link) {
-    if (isClickable(link)) {
-      return (
-        <a href={link.url} target="_blank">
-          {link.url}
-        </a>
-      );
-    }
-
-    return link.url;
-  }
-
   renderDeleteButton(link) {
     if (isProvided(link)) {
       return null;
@@ -112,7 +100,11 @@ export default class LinkRow extends React.PureComponent {
     return (
       <tr data-name={link.name}>
         <td className="nowrap">{this.renderName(link)}</td>
-        <td className="nowrap js-url">{this.renderUrl(link)}</td>
+        <td className="nowrap js-url">
+          <a href={link.url} rel="nofollow" target="_blank">
+            {link.url}
+          </a>
+        </td>
         <td className="thin nowrap">{this.renderDeleteButton(link)}</td>
       </tr>
     );
