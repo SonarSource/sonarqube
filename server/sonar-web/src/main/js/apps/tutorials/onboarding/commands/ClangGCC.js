@@ -19,9 +19,9 @@
  */
 // @flow
 import React from 'react';
-import Command from './Command';
 import SQScanner from './SQScanner';
 import BuildWrapper from './BuildWrapper';
+import CodeSnippet from '../../../../components/common/CodeSnippet';
 import { translate } from '../../../../helpers/l10n';
 
 /*::
@@ -67,8 +67,8 @@ export default function ClangGCC(props /*: Props */) {
           __html: translate('onboarding.analysis.sq_scanner.execute.text')
         }}
       />
-      <Command command={command1} isOneLine={true} />
-      <Command command={command2} isOneLine={props.os === 'win'} />
+      <CodeSnippet isOneLine={true} snippet={command1} />
+      <CodeSnippet isOneLine={props.os === 'win'} snippet={command2} />
       <p
         className="big-spacer-top markdown"
         dangerouslySetInnerHTML={{ __html: translate('onboarding.analysis.sq_scanner.docs') }}

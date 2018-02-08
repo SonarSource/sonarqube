@@ -12,8 +12,8 @@ exports[`renders correctly 1`] = `
   >
     onboarding.analysis.java.maven.text
   </p>
-  <Command
-    command={
+  <CodeSnippet
+    snippet={
       Array [
         "mvn sonar:sonar",
         undefined,
@@ -53,8 +53,8 @@ exports[`renders correctly 2`] = `
   >
     onboarding.analysis.java.maven.text
   </p>
-  <Command
-    command={
+  <CodeSnippet
+    snippet={
       Array [
         "mvn sonar:sonar",
         "-Dsonar.organization=organization",
