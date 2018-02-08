@@ -55,4 +55,12 @@
     )
   </insert>
 
+  <update id="update" parameterType="org.sonar.db.webhook.WebhookDto">
+    update webhooks set
+    name=#{name},
+    url=#{url},
+    updated_at=#{updatedAt, jdbcType=BIGINT}
+    where uuid=#{uuid, jdbcType=VARCHAR}
+  </update>
+
 </mapper>
