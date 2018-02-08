@@ -116,6 +116,17 @@ public class WebhookDaoTest {
     assertThat(new Date(reloaded.getUpdatedAt())).isInSameMinuteWindowAs(new Date(system2.now()));
   }
 
+  @Test
+  public void delete() {
+
+    OrganizationDto organization = organizationDbTester.insert();
+    WebhookDto dto = webhookDbTester.insertForOrganizationUuid(organization.getUuid());
+
+    underTest.delete(dbSession, dto.getUuid());
+
+    Optional<WebhookDto> reloaded = underTest.selectByUuid(dbSession, dto.uuid);
+    assertThat(reloaded).isEmpty();
+  }
 
   @Test
   public void fail_if_webhook_does_not_have_an_organization_nor_a_project() {

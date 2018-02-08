@@ -36,4 +36,6 @@ public interface WebhookMapper {
 
   void update(WebhookDto dto);
 
+  void delete(@Param("uuid") String uuid);
+
 }
