@@ -35,6 +35,7 @@ import static util.ItUtils.xooPlugin;
   ForceAuthenticationTest.class,
   LocalAuthenticationTest.class,
   MyAccountPageTest.class,
+  NotificationsWsTest.class,
   OAuth2IdentityProviderTest.class,
   RootUserInStandaloneModeTest.class,
   UsersPageTest.class
