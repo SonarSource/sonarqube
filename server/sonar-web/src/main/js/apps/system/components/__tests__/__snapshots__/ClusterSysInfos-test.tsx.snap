@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should support more than two nodes 1`] = `
-<ul>
+<React.Fragment>
   <HealthCard
     biggerHealth={true}
     health="RED"
@@ -67,5 +67,5 @@ exports[`should support more than two nodes 1`] = `
       }
     }
   />
-</ul>
+</React.Fragment>
 `;
