@@ -63,4 +63,10 @@
     where uuid=#{uuid, jdbcType=VARCHAR}
   </update>
 
+  <delete id="delete" parameterType="String">
+    delete from webhooks
+    where
+    uuid = #{uuid,jdbcType=VARCHAR}
+  </delete>
+
 </mapper>
