@@ -61,6 +61,6 @@ public class ServerPluginJarExploderTest {
       assertThat(lib).exists().isFile();
       assertThat(lib.getCanonicalPath()).startsWith(pluginDeployDir.getCanonicalPath());
     }
-    verify(pluginCompression).compressJar(info.getKey(), exploded.getMain().toPath());
+    verify(pluginCompression).compressJar(info.getKey(), jar.toPath().getParent(), exploded.getMain().toPath());
   }
 }

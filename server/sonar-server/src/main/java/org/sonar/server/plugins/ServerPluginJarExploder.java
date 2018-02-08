@@ -58,7 +58,7 @@ public class ServerPluginJarExploder extends PluginJarExploder {
       File jarTarget = new File(toDir, jarSource.getName());
 
       FileUtils.copyFile(jarSource, jarTarget);
-      pluginCompression.compressJar(pluginInfo.getKey(), jarTarget.toPath());
+      pluginCompression.compressJar(pluginInfo.getKey(), jarSource.toPath().getParent(), jarTarget.toPath());
       ZipUtils.unzip(jarSource, toDir, newLibFilter());
       return explodeFromUnzippedDir(pluginInfo.getKey(), jarTarget, toDir);
     } catch (Exception e) {

@@ -50,12 +50,25 @@ public class PluginCompression {
     this.configuration = configuration;
   }
 
-  public void compressJar(String pluginKey, Path jarFile) {
+  public void compressJar(String pluginKey, Path sourceDir, Path targetJarFile) {
     if (configuration.getBoolean(PROPERTY_PLUGIN_COMPRESSION_ENABLE).orElse(false)) {
-      Path pack200Path = FileUtils.getPack200FilePath(jarFile);
-      pack200(jarFile, pack200Path, pluginKey);
-      String hash = calculateMd5(pack200Path);
-      RemotePluginFile compressedPlugin = new RemotePluginFile(pack200Path.getFileName().toString(), hash);
+      Path targetPack200Path = FileUtils.getPack200FilePath(targetJarFile);
+      Path sourcePack200Path = sourceDir.resolve(targetPack200Path.getFileName());
+
+      // check if packed file was deployed alongside the jar. If that's the case, use it instead of generating it (SONAR-10395).
+      if (Files.isRegularFile(sourcePack200Path)) {
+        try {
+          LOG.debug("Found pack200: " + sourcePack200Path);
+          Files.copy(sourcePack200Path, targetPack200Path);
+        } catch (IOException e) {
+          throw new IllegalStateException("Failed to copy pack200 file from " + sourcePack200Path + " to " + targetPack200Path, e);
+        }
+      } else {
+        pack200(targetJarFile, targetPack200Path, pluginKey);
+      }
+
+      String hash = calculateMd5(targetPack200Path);
+      RemotePluginFile compressedPlugin = new RemotePluginFile(targetPack200Path.getFileName().toString(), hash);
       compressedPlugins.put(pluginKey, compressedPlugin);
     }
   }
