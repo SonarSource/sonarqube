@@ -16,8 +16,9 @@ exports[`renders correctly 1`] = `
       }
     }
   />
-  <Command
-    command={
+  <CodeSnippet
+    isOneLine={true}
+    snippet={
       Array [
         "SonarQube.Scanner.MSBuild.exe begin",
         "/k:\\"projectKey\\"",
@@ -26,20 +27,19 @@ exports[`renders correctly 1`] = `
         "/d:sonar.login=\\"token\\"",
       ]
     }
-    isOneLine={true}
   />
-  <Command
-    command="MsBuild.exe /t:Rebuild"
+  <CodeSnippet
     isOneLine={true}
+    snippet="MsBuild.exe /t:Rebuild"
   />
-  <Command
-    command={
+  <CodeSnippet
+    isOneLine={true}
+    snippet={
       Array [
         "SonarQube.Scanner.MSBuild.exe end",
         "/d:sonar.login=\\"token\\"",
       ]
     }
-    isOneLine={true}
   />
   <p
     className="big-spacer-top markdown"
@@ -68,8 +68,9 @@ exports[`renders correctly 2`] = `
       }
     }
   />
-  <Command
-    command={
+  <CodeSnippet
+    isOneLine={true}
+    snippet={
       Array [
         "SonarQube.Scanner.MSBuild.exe begin",
         "/k:\\"projectKey\\"",
@@ -78,20 +79,19 @@ exports[`renders correctly 2`] = `
         "/d:sonar.login=\\"token\\"",
       ]
     }
-    isOneLine={true}
   />
-  <Command
-    command="MsBuild.exe /t:Rebuild"
+  <CodeSnippet
     isOneLine={true}
+    snippet="MsBuild.exe /t:Rebuild"
   />
-  <Command
-    command={
+  <CodeSnippet
+    isOneLine={true}
+    snippet={
       Array [
         "SonarQube.Scanner.MSBuild.exe end",
         "/d:sonar.login=\\"token\\"",
       ]
     }
-    isOneLine={true}
   />
   <p
     className="big-spacer-top markdown"

@@ -19,8 +19,8 @@
  */
 // @flow
 import React from 'react';
-import Command from './Command';
 import SQScanner from './SQScanner';
+import CodeSnippet from '../../../../components/common/CodeSnippet';
 import { translate } from '../../../../helpers/l10n';
 
 /*::
@@ -56,7 +56,7 @@ export default function Other(props /*: Props */) {
           __html: translate('onboarding.analysis.sq_scanner.execute.text')
         }}
       />
-      <Command command={command} isOneLine={props.os === 'win'} />
+      <CodeSnippet isOneLine={props.os === 'win'} snippet={command} />
       <p
         className="big-spacer-top markdown"
         dangerouslySetInnerHTML={{ __html: translate('onboarding.analysis.sq_scanner.docs') }}

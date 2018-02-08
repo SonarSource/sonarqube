@@ -17,37 +17,31 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
-import classNames from 'classnames';
-import ClipboardButton from '../../../../components/controls/ClipboardButton';
-import { translate } from '../../../../helpers/l10n';
+import * as React from 'react';
+import * as classNames from 'classnames';
+import ClipboardButton from '../controls/ClipboardButton';
+import './CodeSnippet.css';
 
-/*::
-type Props = {
-  command: string | Array<?string>,
-  isOneLine?: boolean
-};
-*/
+interface Props {
+  className?: string;
+  isOneLine?: boolean;
+  noCopy?: boolean;
+  snippet: string | (string | undefined)[];
+}
 
 // keep this "useless" concatentation for the readability reason
 // eslint-disable-next-line no-useless-concat
 const s = ' \\' + '\n  ';
 
-export default class Command extends React.PureComponent {
-  /*:: props: Props; */
-
-  render() {
-    const { command, isOneLine } = this.props;
-    const commandArray = Array.isArray(command) ? command.filter(line => line != null) : [command];
-    const finalCommand = isOneLine ? commandArray.join(' ') : commandArray.join(s);
-
-    return (
-      <div
-        className={classNames('onboarding-command', { 'onboarding-command-oneline': isOneLine })}>
-        <pre>{finalCommand}</pre>
-        <ClipboardButton copyValue={finalCommand} tooltipPlacement="top" />
-      </div>
-    );
-  }
+export default function CodeSnippet({ className, isOneLine, noCopy, snippet }: Props) {
+  const snippetArray = Array.isArray(snippet)
+    ? snippet.filter(line => line !== undefined)
+    : [snippet];
+  const finalSnippet = isOneLine ? snippetArray.join(' ') : snippetArray.join(s);
+  return (
+    <div className={classNames('code-snippet', { 'code-snippet-oneline': isOneLine }, className)}>
+      <pre>{finalSnippet}</pre>
+      {!noCopy && <ClipboardButton copyValue={finalSnippet} tooltipPlacement="top" />}
+    </div>
+  );
 }

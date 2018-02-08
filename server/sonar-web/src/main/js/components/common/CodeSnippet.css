@@ -17,18 +17,43 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
-import ClipboardButton from '../../../components/controls/ClipboardButton';
-
-interface Props {
-  snippet: string;
+.code-snippet {
+  position: relative;
+  margin: var(--gridSize) 0;
+  background: var(--gray40);
+  color: var(--snippetFontColor);
+  border-radius: 3px;
 }
 
-export default function BadgeSnippet({ snippet }: Props) {
-  return (
-    <div className="badge-snippet">
-      <pre>{snippet}</pre>
-      <ClipboardButton copyValue={snippet} tooltipPlacement="top" />
-    </div>
-  );
+.code-snippet pre {
+  padding: calc(2 * var(--gridSize));
+  overflow: auto;
+}
+
+.code-snippet button {
+  position: absolute;
+  top: calc(2 * var(--gridSize));
+  right: calc(2 * var(--gridSize));
+  line-height: 18px;
+  border: 1px solid #fff;
+  color: #fff;
+  font-size: 11px;
+  font-weight: normal;
+  user-select: none;
+}
+
+.code-snippet button:hover,
+.code-snippet button:focus,
+.code-snippet button:active {
+  background-color: #fff;
+  color: var(--gray40);
+}
+
+.code-snippet-oneline pre {
+  padding-bottom: 40px;
+}
+
+.code-snippet-oneline button {
+  top: auto;
+  top: 40px;
 }

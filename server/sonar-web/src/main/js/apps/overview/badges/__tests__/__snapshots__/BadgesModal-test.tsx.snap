@@ -75,7 +75,8 @@ exports[`should display the modal after click 2`] = `
       type="measure"
       updateOptions={[Function]}
     />
-    <BadgeSnippet
+    <CodeSnippet
+      isOneLine={true}
       snippet="host/api/project_badges/measure?branch=branch-6.6&project=foo&metric=alert_status"
     />
   </div>
