@@ -1,0 +1,111 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders correctly 1`] = `
+<CodeSnippet
+  snippet="foo
+bar"
+>
+  <div
+    className="code-snippet"
+  >
+    <pre>
+      foo
+bar
+    </pre>
+    <ClipboardButton
+      copyValue="foo
+bar"
+      tooltipPlacement="top"
+    >
+      <button
+        className="js-copy-to-clipboard no-select"
+        data-clipboard-text="foo
+bar"
+      >
+        copy
+      </button>
+    </ClipboardButton>
+  </div>
+</CodeSnippet>
+`;
+
+exports[`renders correctly 2`] = `
+<CodeSnippet
+  noCopy={true}
+  snippet="foo
+bar"
+>
+  <div
+    className="code-snippet"
+  >
+    <pre>
+      foo
+bar
+    </pre>
+  </div>
+</CodeSnippet>
+`;
+
+exports[`renders correctly with array snippet 1`] = `
+<CodeSnippet
+  snippet={
+    Array [
+      "foo",
+      "bar",
+    ]
+  }
+>
+  <div
+    className="code-snippet"
+  >
+    <pre>
+      foo \\
+  bar
+    </pre>
+    <ClipboardButton
+      copyValue="foo \\\\
+  bar"
+      tooltipPlacement="top"
+    >
+      <button
+        className="js-copy-to-clipboard no-select"
+        data-clipboard-text="foo \\\\
+  bar"
+      >
+        copy
+      </button>
+    </ClipboardButton>
+  </div>
+</CodeSnippet>
+`;
+
+exports[`renders correctly with array snippet 2`] = `
+<CodeSnippet
+  isOneLine={true}
+  snippet={
+    Array [
+      "foo",
+      "bar",
+    ]
+  }
+>
+  <div
+    className="code-snippet code-snippet-oneline"
+  >
+    <pre>
+      foo bar
+    </pre>
+    <ClipboardButton
+      copyValue="foo bar"
+      tooltipPlacement="top"
+    >
+      <button
+        className="js-copy-to-clipboard no-select"
+        data-clipboard-text="foo bar"
+      >
+        copy
+      </button>
+    </ClipboardButton>
+  </div>
+</CodeSnippet>
+`;

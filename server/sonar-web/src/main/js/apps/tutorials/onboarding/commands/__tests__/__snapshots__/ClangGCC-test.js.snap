@@ -22,12 +22,13 @@ exports[`renders correctly 1`] = `
       }
     }
   />
-  <Command
-    command="build-wrapper-win-x86-64.exe --out-dir bw-output make clean all"
+  <CodeSnippet
     isOneLine={true}
+    snippet="build-wrapper-win-x86-64.exe --out-dir bw-output make clean all"
   />
-  <Command
-    command={
+  <CodeSnippet
+    isOneLine={true}
+    snippet={
       Array [
         "sonar-scanner.bat",
         "-Dsonar.projectKey=projectKey",
@@ -38,7 +39,6 @@ exports[`renders correctly 1`] = `
         "-Dsonar.login=token",
       ]
     }
-    isOneLine={true}
   />
   <p
     className="big-spacer-top markdown"
@@ -73,12 +73,13 @@ exports[`renders correctly 2`] = `
       }
     }
   />
-  <Command
-    command="build-wrapper-linux-x86-64 --out-dir bw-output make clean all"
+  <CodeSnippet
     isOneLine={true}
+    snippet="build-wrapper-linux-x86-64 --out-dir bw-output make clean all"
   />
-  <Command
-    command={
+  <CodeSnippet
+    isOneLine={false}
+    snippet={
       Array [
         "sonar-scanner",
         "-Dsonar.projectKey=projectKey",
@@ -89,7 +90,6 @@ exports[`renders correctly 2`] = `
         "-Dsonar.login=token",
       ]
     }
-    isOneLine={false}
   />
   <p
     className="big-spacer-top markdown"
@@ -124,12 +124,13 @@ exports[`renders correctly 3`] = `
       }
     }
   />
-  <Command
-    command="build-wrapper-linux-x86-64 --out-dir bw-output make clean all"
+  <CodeSnippet
     isOneLine={true}
+    snippet="build-wrapper-linux-x86-64 --out-dir bw-output make clean all"
   />
-  <Command
-    command={
+  <CodeSnippet
+    isOneLine={false}
+    snippet={
       Array [
         "sonar-scanner",
         "-Dsonar.projectKey=projectKey",
@@ -140,7 +141,6 @@ exports[`renders correctly 3`] = `
         "-Dsonar.login=token",
       ]
     }
-    isOneLine={false}
   />
   <p
     className="big-spacer-top markdown"

@@ -19,7 +19,7 @@
  */
 // @flow
 import React from 'react';
-import Command from './Command';
+import CodeSnippet from '../../../../components/common/CodeSnippet';
 import { translate } from '../../../../helpers/l10n';
 
 /*::
@@ -42,7 +42,7 @@ export default function JavaMaven(props /*: Props */) {
     <div>
       <h4 className="spacer-bottom">{translate('onboarding.analysis.java.maven.header')}</h4>
       <p className="spacer-bottom markdown">{translate('onboarding.analysis.java.maven.text')}</p>
-      <Command command={command} />
+      <CodeSnippet snippet={command} />
       <p
         className="big-spacer-top markdown"
         dangerouslySetInnerHTML={{ __html: translate('onboarding.analysis.java.maven.docs') }}
