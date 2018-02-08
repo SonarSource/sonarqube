@@ -54,5 +54,5 @@ export default function TagsSelector(props: Props) {
 
 export function validateTag(value: string) {
   // Allow only a-z, 0-9, '+', '-', '#', '.'
-  return value.toLowerCase().replace(/[^a-z0-9\+\-#.]/gi, '');
+  return value.toLowerCase().replace(/[^-a-z0-9+#.]/gi, '');
 }

@@ -30,6 +30,8 @@ type Props = {
 };
 */
 
+// keep this "useless" concatentation for the readability reason
+// eslint-disable-next-line no-useless-concat
 const s = ' \\' + '\n  ';
 
 export default class Command extends React.PureComponent {
