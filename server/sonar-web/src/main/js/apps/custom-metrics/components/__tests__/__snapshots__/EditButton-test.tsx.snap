@@ -1,0 +1,49 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should edit metric 1`] = `
+<React.Fragment>
+  <ActionsDropdownItem
+    className="js-metric-update"
+    onClick={[Function]}
+  >
+    update_details
+  </ActionsDropdownItem>
+</React.Fragment>
+`;
+
+exports[`should edit metric 2`] = `
+<React.Fragment>
+  <ActionsDropdownItem
+    className="js-metric-update"
+    onClick={[Function]}
+  >
+    update_details
+  </ActionsDropdownItem>
+  <Form
+    confirmButtonText="update_verb"
+    domains={
+      Array [
+        "Coverage",
+        "Issues",
+      ]
+    }
+    header="custom_metrics.update_metric"
+    metric={
+      Object {
+        "id": "3",
+        "key": "foo",
+        "name": "Foo",
+        "type": "INT",
+      }
+    }
+    onClose={[Function]}
+    onSubmit={[Function]}
+    types={
+      Array [
+        "INT",
+        "STRING",
+      ]
+    }
+  />
+</React.Fragment>
+`;

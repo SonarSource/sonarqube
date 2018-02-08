@@ -22,9 +22,9 @@ import { shallow } from 'enzyme';
 import ApplicationQualityGateProject from '../ApplicationQualityGateProject';
 
 const metrics = {
-  bugs: { key: 'bugs', name: 'Bugs', type: 'INT' },
-  new_coverage: { key: 'new_coverage', name: 'Coverage on New Code', type: 'PERCENT' },
-  skipped_tests: { key: 'skipped_tests', name: 'Skipped Tests', type: 'INT' }
+  bugs: { id: '1', key: 'bugs', name: 'Bugs', type: 'INT' },
+  new_coverage: { id: '2', key: 'new_coverage', name: 'Coverage on New Code', type: 'PERCENT' },
+  skipped_tests: { id: '3', key: 'skipped_tests', name: 'Skipped Tests', type: 'INT' }
 };
 
 it('renders', () => {

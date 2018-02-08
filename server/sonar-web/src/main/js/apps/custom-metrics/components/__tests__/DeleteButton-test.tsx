@@ -17,35 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import Marionette from 'backbone.marionette';
-import Template from './templates/metrics-list-footer.hbs';
+import * as React from 'react';
+import { shallow } from 'enzyme';
+import DeleteButton from '../DeleteButton';
 
-export default Marionette.ItemView.extend({
-  template: Template,
+it('should delete metric', () => {
+  const metric = { id: '3', key: 'foo', name: 'Foo', type: 'INT' };
+  const onDelete = jest.fn();
+  const wrapper = shallow(<DeleteButton metric={metric} onDelete={onDelete} />);
+  expect(wrapper).toMatchSnapshot();
 
-  collectionEvents: {
-    all: 'render'
-  },
-
-  events: {
-    'click #metrics-fetch-more': 'onMoreClick'
-  },
-
-  onMoreClick(e) {
-    e.preventDefault();
-    this.fetchMore();
-  },
-
-  fetchMore() {
-    this.collection.fetchMore();
-  },
-
-  serializeData() {
-    return {
-      ...Marionette.ItemView.prototype.serializeData.apply(this, arguments),
-      total: this.collection.total,
-      count: this.collection.length,
-      more: this.collection.hasMore()
-    };
-  }
+  wrapper.find('ConfirmButton').prop<Function>('onConfirm')('foo');
+  expect(onDelete).toBeCalledWith('foo');
 });

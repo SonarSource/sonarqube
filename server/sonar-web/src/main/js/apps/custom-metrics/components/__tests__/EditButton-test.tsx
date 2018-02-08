@@ -18,21 +18,32 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import Helmet from 'react-helmet';
-import init from '../init';
-import { translate } from '../../../helpers/l10n';
+import { shallow } from 'enzyme';
+import EditButton from '../EditButton';
+import { click } from '../../../../helpers/testUtils';
 
-export default class MetricsAppContainer extends React.PureComponent {
-  componentDidMount() {
-    init(this.refs.container);
-  }
+it('should edit metric', () => {
+  const metric = { id: '3', key: 'foo', name: 'Foo', type: 'INT' };
+  const onEdit = jest.fn();
 
-  render() {
-    return (
-      <div>
-        <Helmet title={translate('custom_metrics.page')} />
-        <div ref="container" />
-      </div>
-    );
-  }
-}
+  const wrapper = shallow(
+    <EditButton
+      domains={['Coverage', 'Issues']}
+      metric={metric}
+      onEdit={onEdit}
+      types={['INT', 'STRING']}
+    />
+  );
+  expect(wrapper).toMatchSnapshot();
+
+  click(wrapper.find('.js-metric-update'));
+  wrapper.update();
+  expect(wrapper).toMatchSnapshot();
+
+  wrapper.find('Form').prop<Function>('onSubmit')({
+    ...metric,
+    description: 'bla bla',
+    domain: 'Coverage'
+  });
+  expect(onEdit).toBeCalledWith({ ...metric, description: 'bla bla', domain: 'Coverage' });
+});

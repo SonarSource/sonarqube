@@ -1,0 +1,42 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should create new metric 1`] = `
+<header
+  className="page-header"
+  id="custom-metrics-header"
+>
+  <h1
+    className="page-title"
+  >
+    custom_metrics.page
+  </h1>
+  <DeferredSpinner
+    loading={false}
+    timeout={100}
+  />
+  <div
+    className="page-actions"
+  >
+    <CreateButton
+      domains={
+        Array [
+          "Coverage",
+          "Issues",
+        ]
+      }
+      onCreate={[MockFunction]}
+      types={
+        Array [
+          "INT",
+          "STRING",
+        ]
+      }
+    />
+  </div>
+  <p
+    className="page-description"
+  >
+    custom_metrics.page.description
+  </p>
+</header>
+`;

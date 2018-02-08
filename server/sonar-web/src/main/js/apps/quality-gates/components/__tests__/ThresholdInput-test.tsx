@@ -23,7 +23,7 @@ import ThresholdInput from '../ThresholdInput';
 import { change } from '../../../../helpers/testUtils';
 
 describe('on strings', () => {
-  const metric = { key: 'foo', name: 'Foo', type: 'INTEGER' };
+  const metric = { id: '1', key: 'foo', name: 'Foo', type: 'INTEGER' };
   it('should render text input', () => {
     const input = shallow(
       <ThresholdInput name="foo" value="2" metric={metric} onChange={jest.fn()} />
@@ -44,7 +44,7 @@ describe('on strings', () => {
 });
 
 describe('on ratings', () => {
-  const metric = { key: 'foo', name: 'Foo', type: 'RATING' };
+  const metric = { id: '1', key: 'foo', name: 'Foo', type: 'RATING' };
   it('should render Select', () => {
     const select = shallow(
       <ThresholdInput name="foo" value="2" metric={metric} onChange={jest.fn()} />

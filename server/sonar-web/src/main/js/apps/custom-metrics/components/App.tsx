@@ -1,0 +1,126 @@
+/*
+ * SonarQube
+ * Copyright (C) 2009-2018 SonarSource SA
+ * mailto:info AT sonarsource DOT com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+import * as React from 'react';
+import { Helmet } from 'react-helmet';
+import { MetricProps } from './Form';
+import Header from './Header';
+import List from './List';
+import {
+  getMetricDomains,
+  getMetricTypes,
+  getAllMetrics,
+  deleteMetric,
+  updateMetric,
+  createMetric
+} from '../../../api/metrics';
+import { Metric } from '../../../app/types';
+import ListFooter from '../../../components/controls/ListFooter';
+import { translate } from '../../../helpers/l10n';
+
+interface Props {}
+
+interface State {
+  domains?: string[];
+  loading: boolean;
+  metrics?: Metric[];
+  types?: string[];
+}
+
+export default class App extends React.PureComponent<Props, State> {
+  mounted: boolean;
+  state: State = { loading: true };
+
+  componentDidMount() {
+    this.mounted = true;
+    this.fetchData();
+  }
+
+  componentWillUnmount() {
+    this.mounted = false;
+  }
+
+  fetchData = () => {
+    Promise.all([getMetricDomains(), getMetricTypes(), getAllMetrics({ isCustom: true })]).then(
+      ([domains, types, metrics]) => {
+        if (this.mounted) {
+          this.setState({ domains, loading: false, metrics, types });
+        }
+      },
+      () => {
+        if (this.mounted) {
+          this.setState({ loading: false });
+        }
+      }
+    );
+  };
+
+  handleCreate = (data: MetricProps) => {
+    return createMetric(data).then(metric => {
+      if (this.mounted) {
+        this.setState(({ metrics = [] }: State) => ({
+          metrics: [...metrics, metric]
+        }));
+      }
+    });
+  };
+
+  handleEdit = (data: { id: string } & MetricProps) => {
+    return updateMetric(data).then(() => {
+      if (this.mounted) {
+        this.setState(({ metrics = [] }: State) => ({
+          metrics: metrics.map(metric => (metric.id === data.id ? { ...metric, ...data } : metric))
+        }));
+      }
+    });
+  };
+
+  handleDelete = (metricKey: string) => {
+    return deleteMetric({ keys: metricKey }).then(() => {
+      if (this.mounted) {
+        this.setState(({ metrics = [] }: State) => ({
+          metrics: metrics.filter(metric => metric.key !== metricKey)
+        }));
+      }
+    });
+  };
+
+  render() {
+    const { domains, loading, metrics, types } = this.state;
+
+    return (
+      <>
+        <Helmet title={translate('custom_metrics.page')} />
+        <div className="page page-limited" id="custom-metrics-page">
+          <Header domains={domains} loading={loading} onCreate={this.handleCreate} types={types} />
+          {metrics && (
+            <List
+              domains={domains}
+              metrics={metrics}
+              onDelete={this.handleDelete}
+              onEdit={this.handleEdit}
+              types={types}
+            />
+          )}
+          {metrics && <ListFooter count={metrics.length} ready={!loading} total={metrics.length} />}
+        </div>
+      </>
+    );
+  }
+}

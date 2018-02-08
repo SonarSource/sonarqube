@@ -117,6 +117,7 @@ export interface Metric {
   direction?: number;
   domain?: string;
   hidden?: boolean;
+  id: string;
   key: string;
   name: string;
   qualitative?: boolean;

@@ -17,16 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { RouterState, IndexRouteProps } from 'react-router';
+import * as React from 'react';
+import { shallow } from 'enzyme';
+import Header from '../Header';
 
-const routes = [
-  {
-    getIndexRoute(_: RouterState, callback: (err: any, route: IndexRouteProps) => any) {
-      import('./components/MetricsAppContainer').then(i =>
-        callback(null, { component: i.default })
-      );
-    }
-  }
-];
+it('should create new metric', () => {
+  const onCreate = jest.fn(() => Promise.resolve());
+  const wrapper = shallow(
+    <Header
+      domains={['Coverage', 'Issues']}
+      loading={false}
+      onCreate={onCreate}
+      types={['INT', 'STRING']}
+    />
+  );
+  expect(wrapper).toMatchSnapshot();
 
-export default routes;
+  wrapper.find('CreateButton').prop<Function>('onCreate')({ key: 'foo', name: 'Foo', type: 'INT' });
+  expect(onCreate).toBeCalledWith({ key: 'foo', name: 'Foo', type: 'INT' });
+});

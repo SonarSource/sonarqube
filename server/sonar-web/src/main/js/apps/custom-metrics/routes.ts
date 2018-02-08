@@ -17,34 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import Template from './templates/metrics-delete.hbs';
-import ModalForm from '../../components/common/modal-form';
+import { RouterState, IndexRouteProps } from 'react-router';
 
-export default ModalForm.extend({
-  template: Template,
-
-  onFormSubmit() {
-    ModalForm.prototype.onFormSubmit.apply(this, arguments);
-    this.sendRequest();
-  },
-
-  sendRequest() {
-    const that = this;
-    const collection = this.model.collection;
-    return this.model
-      .destroy({
-        wait: true,
-        statusCode: {
-          // do not show global error
-          400: null
-        }
-      })
-      .done(() => {
-        collection.refresh();
-        that.destroy();
-      })
-      .fail(jqXHR => {
-        that.showErrors(jqXHR.responseJSON.errors, jqXHR.responseJSON.warnings);
-      });
+const routes = [
+  {
+    getIndexRoute(_: RouterState, callback: (err: any, route: IndexRouteProps) => any) {
+      import('./components/App').then(i => callback(null, { component: i.default }));
+    }
   }
-});
+];
+
+export default routes;
