@@ -22,6 +22,7 @@ import MetaLink from './MetaLink';
 import { getProjectLinks, ProjectLink } from '../../../api/projectLinks';
 import { orderLinks } from '../../project-admin/links/utils';
 import { LightComponent } from '../../../app/types';
+import { translate } from '../../../helpers/l10n';
 
 interface Props {
   component: LightComponent;
@@ -71,6 +72,7 @@ export default class MetaLinks extends React.PureComponent<Props, State> {
 
     return (
       <div className="overview-meta-card">
+        <h4 className="overview-meta-header">{translate('overview.external_links')}</h4>
         <ul className="overview-meta-list">
           {orderedLinks.map(link => <MetaLink key={link.id} link={link} />)}
         </ul>

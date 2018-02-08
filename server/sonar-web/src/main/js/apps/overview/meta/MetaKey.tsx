@@ -17,26 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import { Link } from 'react-router';
+import * as React from 'react';
+import ClipboardButton from '../../../components/controls/ClipboardButton';
 import { translate } from '../../../helpers/l10n';
-import { getQualityGateUrl } from '../../../helpers/urls';
 
-const MetaQualityGate = ({ gate, organization }) => {
+interface Props {
+  componentKey: string;
+  qualifier: string;
+}
+
+export default function MetaKey({ componentKey, qualifier }: Props) {
   return (
-    <div className="overview-meta-card">
-      <h4 className="overview-meta-header">{translate('overview.quality_gate')}</h4>
-
-      <ul className="overview-meta-list">
-        <li>
-          {gate.isDefault && (
-            <span className="note spacer-right">{'(' + translate('default') + ')'}</span>
-          )}
-          <Link to={getQualityGateUrl(gate.key, organization)}>{gate.name}</Link>
-        </li>
-      </ul>
-    </div>
+    <>
+      <h4 className="overview-meta-header">{translate('overview.project_key', qualifier)}</h4>
+      <div className="display-flex-center">
+        <input className="overview-key" type="text" value={componentKey} readOnly={true} />
+        <ClipboardButton className="little-spacer-left" copyValue={componentKey} />
+      </div>
+    </>
   );
-};
-
-export default MetaQualityGate;
+}

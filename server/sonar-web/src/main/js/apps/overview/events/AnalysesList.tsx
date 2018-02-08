@@ -116,7 +116,9 @@ export default class AnalysesList extends React.PureComponent<Props, State> {
 
     return (
       <div className="overview-meta-card">
-        <h4 className="overview-meta-header">{translate('project_activity.page')}</h4>
+        <h4 className="overview-meta-header">
+          {translate('overview.project_activity', this.props.component.qualifier)}
+        </h4>
 
         <PreviewGraph
           branch={this.props.branch}

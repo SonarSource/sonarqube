@@ -70,6 +70,8 @@ module.exports = {
 
   contextNavHeightRaw: 9 * grid,
 
+  pagePadding: '20px',
+
   // different
   defaultShadow: '0 6px 12px rgba(0, 0, 0, 0.175)',
 

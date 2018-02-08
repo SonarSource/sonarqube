@@ -17,22 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
+import * as React from 'react';
 import { translate } from '../../../helpers/l10n';
+import ClipboardButton from '../../../components/controls/ClipboardButton';
 
-const MetaOrganizationKey = ({ component }) => {
+interface Props {
+  organization: string;
+}
+
+export default function MetaOrganizationKey({ organization }: Props) {
   return (
-    <div className="overview-meta-card">
-      <h4 className="overview-meta-header">{translate('organization_key')}</h4>
-      <input
-        className="overview-key"
-        type="text"
-        value={component.organization}
-        readOnly={true}
-        onClick={e => e.target.select()}
-      />
-    </div>
+    <>
+      <h4 className="overview-meta-header big-spacer-top">{translate('organization_key')}</h4>
+      <div className="display-flex-center">
+        <input className="overview-key" type="text" value={organization} readOnly={true} />
+        <ClipboardButton className="little-spacer-left" copyValue={organization} />
+      </div>
+    </>
   );
-};
-
-export default MetaOrganizationKey;
+}

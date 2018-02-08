@@ -17,22 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
+import * as React from 'react';
+import { Link } from 'react-router';
 import { translate } from '../../../helpers/l10n';
+import { getQualityGateUrl } from '../../../helpers/urls';
 
-const MetaKey = ({ component }) => {
+interface Props {
+  organization?: string;
+  qualityGate: { isDefault?: boolean; key: string; name: string };
+}
+
+export default function MetaQualityGate({ qualityGate, organization }: Props) {
   return (
-    <div className="overview-meta-card">
-      <h4 className="overview-meta-header">{translate('key')}</h4>
-      <input
-        className="overview-key"
-        type="text"
-        value={component.key}
-        readOnly={true}
-        onClick={e => e.target.select()}
-      />
-    </div>
-  );
-};
+    <>
+      <h4 className="overview-meta-header">{translate('overview.quality_gate')}</h4>
 
-export default MetaKey;
+      <ul className="overview-meta-list">
+        <li>
+          {qualityGate.isDefault && (
+            <span className="note spacer-right">{'(' + translate('default') + ')'}</span>
+          )}
+          <Link to={getQualityGateUrl(qualityGate.key, organization)}>{qualityGate.name}</Link>
+        </li>
+      </ul>
+    </>
+  );
+}

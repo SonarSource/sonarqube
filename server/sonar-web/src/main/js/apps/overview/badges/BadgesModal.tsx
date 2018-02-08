@@ -65,7 +65,7 @@ export default class BadgesModal extends React.PureComponent<Props, State> {
     const header = translate('overview.badges.title');
     const fullBadgeOptions = { branch, project, ...badgeOptions };
     return (
-      <>
+      <div className="overview-meta-card">
         <button className="js-project-badges" onClick={this.handleOpen}>
           {translate('overview.badges.get_badge')}
         </button>
@@ -106,7 +106,7 @@ export default class BadgesModal extends React.PureComponent<Props, State> {
             </footer>
           </Modal>
         )}
-      </>
+      </div>
     );
   }
 }
