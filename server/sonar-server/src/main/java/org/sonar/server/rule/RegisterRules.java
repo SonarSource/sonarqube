@@ -32,6 +32,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
@@ -119,7 +120,7 @@ public class RegisterRules implements Startable {
       List<RulesDefinition.ExtendedRepository> repositories = getRepositories(ruleDefinitionContext);
       RegisterRulesContext registerRulesContext = createRegisterRulesContext(dbSession);
 
-      verifyRuleKeyConsistency(repositories);
+      verifyRuleKeyConsistency(repositories, registerRulesContext);
 
       boolean orgsEnabled = organizationFlags.isEnabled(dbSession);
       for (RulesDefinition.ExtendedRepository repoDef : repositories) {
@@ -243,6 +244,12 @@ public class RegisterRules implements Startable {
         return Optional.ofNullable(dbRulesByDbDeprecatedKey.get(ruleKey));
       }
       return res;
+    }
+
+    private ImmutableMap<RuleKey, SingleDeprecatedRuleKey> getDbDeprecatedKeysByOldRuleKey() {
+      return dbDeprecatedKeysById.values().stream()
+        .flatMap(Collection::stream)
+        .collect(uniqueIndex(SingleDeprecatedRuleKey::getOldRuleKeyAsRuleKey));
     }
 
     private Set<SingleDeprecatedRuleKey> getDBDeprecatedKeysFor(RuleDefinitionDto rule) {
@@ -738,30 +745,74 @@ public class RegisterRules implements Startable {
   }
 
 
-  private static void verifyRuleKeyConsistency(List<RulesDefinition.ExtendedRepository> repositories) {
-    List<RulesDefinition.Rule> allRules = repositories.stream()
+  private static void verifyRuleKeyConsistency(List<RulesDefinition.ExtendedRepository> repositories, RegisterRulesContext registerRulesContext) {
+    List<RulesDefinition.Rule> definedRules = repositories.stream()
       .flatMap(r -> r.rules().stream())
       .collect(toList());
 
-    Set<RuleKey> definedRuleKeys = allRules.stream()
+    Set<RuleKey> definedRuleKeys = definedRules.stream()
       .map(r -> RuleKey.of(r.repository().key(), r.key()))
       .collect(toSet());
 
-    List<RuleKey> definedDeprecatedRuleKeys = allRules.stream()
+    List<RuleKey> definedDeprecatedRuleKeys = definedRules.stream()
       .flatMap(r -> r.deprecatedRuleKeys().stream())
       .collect(toList());
 
+    // Find duplicates in declared deprecated rule keys
     Set<RuleKey> duplicates = findDuplicates(definedDeprecatedRuleKeys);
-    if (!duplicates.isEmpty()) {
-      throw new IllegalStateException(format("The following deprecated rule keys are declared at least twice [%s]",
-        duplicates.stream().map(RuleKey::toString).collect(Collectors.joining(","))));
-    }
+    checkState(duplicates.isEmpty(), "The following deprecated rule keys are declared at least twice [%s]",
+      lazyToString(() -> duplicates.stream().map(RuleKey::toString).collect(Collectors.joining(","))));
 
+    // Find rule keys that are both deprecated and used
     Set<RuleKey> intersection = intersection(new HashSet<>(definedRuleKeys), new HashSet<>(definedDeprecatedRuleKeys)).immutableCopy();
-    if (!intersection.isEmpty()) {
-      throw new IllegalStateException(format("The following rule keys are declared both as deprecated and used key [%s]",
-        intersection.stream().map(RuleKey::toString).collect(Collectors.joining(","))));
-    }
+    checkState(intersection.isEmpty(), "The following rule keys are declared both as deprecated and used key [%s]",
+      lazyToString(() -> intersection.stream().map(RuleKey::toString).collect(Collectors.joining(","))));
+
+    // Find incorrect usage of deprecated keys
+    ImmutableMap<RuleKey, SingleDeprecatedRuleKey> dbDeprecatedRuleKeysByOldRuleKey = registerRulesContext.getDbDeprecatedKeysByOldRuleKey();
+
+    Set<String> incorrectRuleKeyMessage = definedRules.stream()
+      .flatMap(r -> filterInvalidDeprecatedRuleKeys(dbDeprecatedRuleKeysByOldRuleKey, r))
+      .filter(Objects::nonNull)
+      .collect(Collectors.toSet());
+
+    checkState(incorrectRuleKeyMessage.isEmpty(), "An incorrect state of deprecated rule keys has been detected.\n %s",
+      lazyToString(() -> incorrectRuleKeyMessage.stream().collect(Collectors.joining("\n"))));
+  }
+
+  private static Stream<String> filterInvalidDeprecatedRuleKeys(ImmutableMap<RuleKey, SingleDeprecatedRuleKey> dbDeprecatedRuleKeysByOldRuleKey,
+    RulesDefinition.Rule rule) {
+    return rule.deprecatedRuleKeys().stream()
+      .map(rk -> {
+        SingleDeprecatedRuleKey singleDeprecatedRuleKey = dbDeprecatedRuleKeysByOldRuleKey.get(rk);
+        if (singleDeprecatedRuleKey == null) {
+          // new deprecated rule key : OK
+          return null;
+        }
+        RuleKey parentRuleKey = RuleKey.of(rule.repository().key(), rule.key());
+        if (parentRuleKey.equals(singleDeprecatedRuleKey.getNewRuleKeyAsRuleKey())) {
+          // same parent : OK
+          return null;
+        }
+        if (rule.deprecatedRuleKeys().contains(parentRuleKey)) {
+          // the new rule is deprecating the old parentRuleKey : OK
+          return null;
+        }
+        return format("The deprecated rule key [%s] was previously deprecated by [%s]. [%s] should be a deprecated key of [%s],",
+          rk.toString(),
+          singleDeprecatedRuleKey.getNewRuleKeyAsRuleKey().toString(),
+          singleDeprecatedRuleKey.getNewRuleKeyAsRuleKey().toString(),
+          RuleKey.of(rule.repository().key(), rule.key()).toString());
+      });
+  }
+
+  private static Object lazyToString(Supplier<String> toString) {
+    return new Object() {
+      @Override
+      public String toString() {
+        return toString.get();
+      }
+    };
   }
 
   private static <T> Set<T> findDuplicates(Collection<T> list) {
