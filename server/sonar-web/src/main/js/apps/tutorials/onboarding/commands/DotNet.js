@@ -19,8 +19,8 @@
  */
 // @flow
 import React from 'react';
-import Command from './Command';
 import MSBuildScanner from './MSBuildScanner';
+import CodeSnippet from '../../../../components/common/CodeSnippet';
 import { translate } from '../../../../helpers/l10n';
 
 /*::
@@ -58,9 +58,9 @@ export default function DotNet(props /*: Props */) {
           __html: translate('onboarding.analysis.msbuild.execute.text')
         }}
       />
-      <Command command={command1} isOneLine={true} />
-      <Command command={command2} isOneLine={true} />
-      <Command command={command3} isOneLine={true} />
+      <CodeSnippet isOneLine={true} snippet={command1} />
+      <CodeSnippet isOneLine={true} snippet={command2} />
+      <CodeSnippet isOneLine={true} snippet={command3} />
       <p
         className="big-spacer-top markdown"
         dangerouslySetInnerHTML={{ __html: translate('onboarding.analysis.msbuild.docs') }}

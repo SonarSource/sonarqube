@@ -17,11 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
+import * as React from 'react';
 import { mount } from 'enzyme';
-import Command from '../Command';
+import CodeSnippet from '../CodeSnippet';
 
 it('renders correctly', () => {
-  expect(mount(<Command command={'foo\nbar'} />)).toMatchSnapshot();
+  expect(mount(<CodeSnippet snippet={'foo\nbar'} />)).toMatchSnapshot();
+  expect(mount(<CodeSnippet snippet={'foo\nbar'} noCopy={true} />)).toMatchSnapshot();
+});
+
+it('renders correctly with array snippet', () => {
+  expect(mount(<CodeSnippet snippet={['foo', 'bar']} />)).toMatchSnapshot();
+  expect(mount(<CodeSnippet snippet={['foo', 'bar']} isOneLine={true} />)).toMatchSnapshot();
 });

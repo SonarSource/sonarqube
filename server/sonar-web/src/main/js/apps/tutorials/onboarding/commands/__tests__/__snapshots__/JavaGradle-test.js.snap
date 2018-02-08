@@ -15,8 +15,8 @@ exports[`renders correctly 1`] = `
       }
     }
   />
-  <Command
-    command="plugins {
+  <CodeSnippet
+    snippet="plugins {
   id \\"org.sonarqube\\" version \\"2.6\\"
 }"
   />
@@ -25,8 +25,8 @@ exports[`renders correctly 1`] = `
   >
     onboarding.analysis.java.gradle.text.2
   </p>
-  <Command
-    command={
+  <CodeSnippet
+    snippet={
       Array [
         "./gradlew sonarqube",
         undefined,
@@ -69,8 +69,8 @@ exports[`renders correctly 2`] = `
       }
     }
   />
-  <Command
-    command="plugins {
+  <CodeSnippet
+    snippet="plugins {
   id \\"org.sonarqube\\" version \\"2.6\\"
 }"
   />
@@ -79,8 +79,8 @@ exports[`renders correctly 2`] = `
   >
     onboarding.analysis.java.gradle.text.2
   </p>
-  <Command
-    command={
+  <CodeSnippet
+    snippet={
       Array [
         "./gradlew sonarqube",
         "-Dsonar.organization=organization",

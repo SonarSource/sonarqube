@@ -19,7 +19,7 @@
  */
 // @flow
 import React from 'react';
-import Command from './Command';
+import CodeSnippet from '../../../../components/common/CodeSnippet';
 import { translate } from '../../../../helpers/l10n';
 
 /*::
@@ -47,11 +47,11 @@ export default function JavaGradle(props /*: Props */) {
         className="spacer-bottom markdown"
         dangerouslySetInnerHTML={{ __html: translate('onboarding.analysis.java.gradle.text.1') }}
       />
-      <Command command={config} />
+      <CodeSnippet snippet={config} />
       <p className="spacer-top spacer-bottom markdown">
         {translate('onboarding.analysis.java.gradle.text.2')}
       </p>
-      <Command command={command} />
+      <CodeSnippet snippet={command} />
       <p
         className="big-spacer-top markdown"
         dangerouslySetInnerHTML={{ __html: translate('onboarding.analysis.java.gradle.docs') }}

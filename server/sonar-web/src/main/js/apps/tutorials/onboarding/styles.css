@@ -58,48 +58,6 @@
   outline: none;
 }
 
-.onboarding-command {
-  position: relative;
-  margin: 8px 0;
-}
-
-.onboarding-command pre {
-  padding: 15px;
-  border-radius: 2px;
-  background: var(--gray40);
-  color: var(--snippetFontColor);
-  overflow: auto;
-}
-
-.onboarding-command button {
-  position: absolute;
-  top: 15px;
-  right: 15px;
-  height: 20px;
-  line-height: 18px;
-  border: 1px solid #fff;
-  color: #fff;
-  font-size: 11px;
-  font-weight: normal;
-  user-select: none;
-}
-
-.onboarding-command button:hover,
-.onboarding-command button:focus,
-.onboarding-command button:active {
-  background-color: #fff;
-  color: var(--gray40);
-}
-
-.onboarding-command-oneline pre {
-  padding-bottom: 40px;
-}
-
-.onboarding-command-oneline button {
-  top: auto;
-  top: 40px;
-}
-
 .onboarding .page-actions {
   text-align: right;
   margin-bottom: 0;
