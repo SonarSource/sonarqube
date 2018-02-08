@@ -28,9 +28,9 @@ import java.util.Optional;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.apache.log4j.Logger;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.utils.System2;
+import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.ce.container.ComputeEngineStatus;
 import org.sonar.ce.monitoring.CEQueueStatus;
@@ -50,7 +50,7 @@ import static java.util.Objects.requireNonNull;
 
 @ComputeEngineSide
 public class InternalCeQueueImpl extends CeQueueImpl implements InternalCeQueue {
-  private static final org.sonar.api.utils.log.Logger LOG = Loggers.get(InternalCeQueueImpl.class);
+  private static final Logger LOG = Loggers.get(InternalCeQueueImpl.class);
 
   private static final int MAX_EXECUTION_COUNT = 1;
 
@@ -145,7 +145,7 @@ public class InternalCeQueueImpl extends CeQueueImpl implements InternalCeQueue 
       printStream.flush();
       return out.toString();
     } catch (IOException e) {
-      Logger.getLogger(InternalCeQueueImpl.class).debug("Failed to getStacktrace out of error", e);
+      LOG.debug("Failed to getStacktrace out of error", e);
       return null;
     }
   }

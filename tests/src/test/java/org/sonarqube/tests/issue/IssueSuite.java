@@ -24,6 +24,7 @@ import org.junit.ClassRule;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
+import static util.ItUtils.newOrchestratorBuilder;
 import static util.ItUtils.pluginArtifact;
 import static util.ItUtils.xooPlugin;
 
@@ -51,7 +52,7 @@ import static util.ItUtils.xooPlugin;
 public class IssueSuite {
 
   @ClassRule
-  public static final Orchestrator ORCHESTRATOR = Orchestrator.builderEnv()
+  public static final Orchestrator ORCHESTRATOR = newOrchestratorBuilder()
     .setServerProperty("sonar.search.httpPort", "9025")
     .addPlugin(xooPlugin())
 
@@ -62,9 +63,6 @@ public class IssueSuite {
     .setServerProperty("sonar.notifications.delay", "1")
 
     .setServerProperty("organization.enabled", "true")
-
-    // reduce memory for Elasticsearch to 128M
-    .setServerProperty("sonar.search.javaOpts", "-Xms128m -Xmx128m")
 
     .build();
 

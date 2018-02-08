@@ -1,0 +1,19 @@
+dependencies {
+  compileOnly project(path: ':sonar-plugin-api', configuration: 'shadow')
+}
+
+jar {
+  manifest {
+    attributes(
+      'Plugin-Key': 'AccessSecuredPropsPlugin',
+      'Plugin-Version': '1.0.2.42',
+      'Plugin-Display-Version': '1.0.2 (build 42)',
+      'Plugin-Class': 'AccessSecuredPropsPlugin',
+      'Plugin-ChildFirstClassLoader': 'false',
+      'Sonar-Version': '7.1-SNAPSHOT',
+      'SonarLint-Supported': 'false',
+      'Plugin-Name': 'Plugins :: Access Secured PropertiesFoo',
+      'Plugin-License': 'GNU LGPL 3'
+    )
+  }
+}

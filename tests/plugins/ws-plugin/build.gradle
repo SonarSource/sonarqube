@@ -1,0 +1,22 @@
+dependencies {
+  compile project(':sonar-ws')
+  compileOnly project(path: ':sonar-plugin-api', configuration: 'shadow')
+}
+
+jar {
+  manifest {
+    attributes(
+      'Plugin-Key': 'ws-plugin',
+      'Plugin-Version': version,
+      'Plugin-Class': 'WsPlugin',
+      'Plugin-ChildFirstClassLoader': 'false',
+      'Sonar-Version': '7.1-SNAPSHOT',
+      'SonarLint-Supported': 'false',
+      'Plugin-Name': 'SonarQube Integration Tests :: Plugins :: Ws',
+      'Plugin-License': 'GNU LGPL 3'
+    )
+  }
+  into('META-INF/lib') {
+    from configurations.compile
+  }
+}

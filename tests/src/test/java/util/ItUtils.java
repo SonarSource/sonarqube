@@ -25,6 +25,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.sonar.orchestrator.Orchestrator;
+import com.sonar.orchestrator.OrchestratorBuilder;
 import com.sonar.orchestrator.build.BuildResult;
 import com.sonar.orchestrator.build.SonarRunner;
 import com.sonar.orchestrator.container.Server;
@@ -54,6 +55,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
@@ -96,8 +98,23 @@ public class ItUtils {
   private ItUtils() {
   }
 
+  public static OrchestratorBuilder newOrchestratorBuilder() {
+    OrchestratorBuilder builder = Orchestrator.builderEnv();
+    String version = System.getProperty("sonar.runtimeVersion");
+    if (StringUtils.isEmpty(version)) {
+      File zip = FileLocation.byWildcardMavenFilename(new File("../sonar-application/build/distributions"), "sonar-application-*.zip").getFile();
+      builder.setZipFile(zip);
+    } else {
+      builder.setSonarVersion(version);
+    }
+    return builder
+      // reduce memory for Elasticsearch
+      .setServerProperty("sonar.search.javaOpts", "-Xms128m -Xmx128m")
+      .setOrchestratorProperty("orchestrator.workspaceDir", "build/it");
+  }
+
   public static FileLocation xooPlugin() {
-    return FileLocation.byWildcardMavenFilename(new File("../plugins/sonar-xoo-plugin/target"), "sonar-xoo-plugin-*.jar");
+    return FileLocation.byWildcardMavenFilename(new File("../plugins/sonar-xoo-plugin/build/libs"), "sonar-xoo-plugin-*.jar");
   }
 
   public static List<Issue> getAllServerIssues(Orchestrator orchestrator) {
@@ -164,7 +181,7 @@ public class ItUtils {
    * @param dirName the directory of it/plugins, for example "sonar-fake-plugin".
    */
   public static FileLocation pluginArtifact(String dirName) {
-    return FileLocation.byWildcardMavenFilename(new File("plugins/" + dirName + "/target"), dirName + "-*.jar");
+    return FileLocation.byWildcardMavenFilename(new File("plugins/" + dirName + "/build/libs"), dirName + "-*.jar");
   }
 
   /**

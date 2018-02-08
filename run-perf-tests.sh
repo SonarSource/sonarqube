@@ -2,5 +2,8 @@
 set -euo pipefail
 
 echo 'Run performance tests'
-cd tests
-mvn verify -B -e -V -Dcategory=ServerPerformance $*
+
+./gradlew --no-daemon --console plain -i \
+  :tests:integrationTest \
+  -Dcategory=ServerPerformance  \
+  $*

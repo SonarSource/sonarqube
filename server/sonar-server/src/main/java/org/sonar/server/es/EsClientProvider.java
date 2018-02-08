@@ -32,7 +32,6 @@ import org.elasticsearch.common.network.NetworkModule;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.common.transport.TransportAddress;
-import org.elasticsearch.index.reindex.ReindexPlugin;
 import org.elasticsearch.join.ParentJoinPlugin;
 import org.elasticsearch.percolator.PercolatorPlugin;
 import org.elasticsearch.transport.Netty4Plugin;
@@ -103,7 +102,7 @@ public class EsClientProvider extends ProviderAdapter {
   static class MinimalTransportClient extends TransportClient {
 
     MinimalTransportClient(Settings settings) {
-      super(settings, unmodifiableList(Arrays.asList(Netty4Plugin.class, ReindexPlugin.class, PercolatorPlugin.class, ParentJoinPlugin.class)));
+      super(settings, unmodifiableList(Arrays.asList(Netty4Plugin.class, PercolatorPlugin.class, ParentJoinPlugin.class)));
     }
 
     @Override

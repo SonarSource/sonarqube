@@ -1,0 +1,27 @@
+sonarqube {
+  properties {
+    property 'sonar.projectName', "${projectTitle} :: Priviledged Plugin Bridge"
+  }
+}
+
+dependencies {
+  // please keep the list grouped by configuration and ordered by name
+
+  compile project(path: ':sonar-plugin-api', configuration: 'shadow')
+  compile project(':sonar-core')
+
+  compileOnly 'com.google.code.findbugs:jsr305'
+}
+
+artifactoryPublish.skip = false
+
+// Used by core plugins
+publishing {
+  publications {
+    mavenJava(MavenPublication) {
+      from components.java
+      artifact sourcesJar
+      artifact javadocJar
+    }
+  }
+}

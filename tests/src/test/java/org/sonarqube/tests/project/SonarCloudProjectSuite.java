@@ -24,6 +24,7 @@ import org.junit.ClassRule;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
+import static util.ItUtils.newOrchestratorBuilder;
 import static util.ItUtils.xooPlugin;
 
 @RunWith(Suite.class)
@@ -33,7 +34,7 @@ import static util.ItUtils.xooPlugin;
 public class SonarCloudProjectSuite {
 
   @ClassRule
-  public static final Orchestrator ORCHESTRATOR = Orchestrator.builderEnv()
+  public static final Orchestrator ORCHESTRATOR = newOrchestratorBuilder()
     .addPlugin(xooPlugin())
     .setServerProperty("sonar.sonarcloud.enabled", "true")
     .build();

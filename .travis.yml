@@ -14,17 +14,16 @@ matrix:
 
 cache:
   directories:
-    - $HOME/.m2/repository
     - $HOME/.sonar
-    - server/sonar-web/node
-    - server/sonar-web/node_modules
     - $HOME/jvm
-    - $HOME/maven
+    - $HOME/.gradle/caches/
+    - $HOME/.gradle/wrapper/
 
 before_cache:
-  # remove all the artifacts (JAR, ZIP) that are installed in local repo because of mvn deploy
-  - rm -rf $HOME/.m2/repository/org/sonarsource/sonarqube
-  - find $HOME/.m2 -name resolver-status.properties -exec rm {} \;
+  - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
+  - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
+  - rm -fr $HOME/.gradle/caches/*/fileHashes/
+  - rm -fr $HOME/.gradle/caches/*/scripts/
 
 notifications:
   email: false

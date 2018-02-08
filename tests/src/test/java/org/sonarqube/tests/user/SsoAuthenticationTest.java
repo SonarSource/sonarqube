@@ -34,6 +34,7 @@ import util.user.UserRule;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.call;
+import static util.ItUtils.newOrchestratorBuilder;
 
 /**
  * Test SSO authentication (using HTTP headers).
@@ -56,7 +57,7 @@ public class SsoAuthenticationTest {
   static final String GROUP_3 = "group-3";
 
   @ClassRule
-  public static final Orchestrator orchestrator = Orchestrator.builderEnv()
+  public static final Orchestrator orchestrator = newOrchestratorBuilder()
     .setServerProperty("sonar.web.sso.enable", "true")
     .setServerProperty("sonar.web.sso.loginHeader", LOGIN_HEADER)
     .setServerProperty("sonar.web.sso.nameHeader", NAME_HEADER)

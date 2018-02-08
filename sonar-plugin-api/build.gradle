@@ -1,0 +1,82 @@
+sonarqube {
+  properties {
+    property 'sonar.projectName', "${projectTitle} :: Plugin API"
+  }
+}
+
+apply plugin: 'com.github.johnrengelman.shadow'
+
+dependencies {
+  // please keep the list grouped by configuration and ordered by name
+
+  compile 'commons-codec:commons-codec'
+  compile 'commons-io:commons-io'
+  compile 'commons-lang:commons-lang'
+  compile 'com.google.code.gson:gson'
+  compile 'com.google.guava:guava'
+
+  // shaded, but not relocated
+  compile project(':sonar-check-api')
+  compile(project(':sonar-duplications')) {
+    exclude group: 'org.slf4', module: 'slf4j-api'
+  }
+
+  shadow 'org.codehaus.staxmate:staxmate'
+  shadow 'org.codehaus.woodstox:stax2-api'
+  shadow 'org.codehaus.woodstox:woodstox-core-lgpl'
+
+  compileOnly 'ch.qos.logback:logback-classic'
+  compileOnly 'ch.qos.logback:logback-core'
+  compileOnly 'com.google.code.findbugs:jsr305'
+  compileOnly 'javax.servlet:javax.servlet-api'
+  compileOnly 'junit:junit'
+  compileOnly 'org.slf4j:slf4j-api'
+
+  testCompile 'com.tngtech.java:junit-dataprovider'
+  testCompile 'org.assertj:assertj-core'
+  testCompile 'org.mockito:mockito-core'
+  testCompile project(':sonar-testing-harness')
+}
+
+sourceSets {
+  // Make the compileOnly dependencies available when compiling/running tests
+  test.compileClasspath += configurations.compileOnly + configurations.shadow
+  test.runtimeClasspath += configurations.compileOnly + configurations.shadow
+}
+
+def on3Digits(version) {
+  def projectversion3digits = version - ~/-\w+/
+  projectversion3digits = projectversion3digits.tokenize('.').plus(0).take(3).join('.')
+}
+
+import org.apache.tools.ant.filters.ReplaceTokens
+processResources {
+  filter ReplaceTokens, tokens: [
+    // The build version is composed of 4 fields, including the semantic version and the build number provided by Travis.
+    'project.buildVersion': project.version.endsWith('SNAPSHOT') ? project.version : on3Digits(project.version) + '.' + System.getProperty("buildNumber"),
+    'project.version.3digits': project.version.endsWith('SNAPSHOT') ? project.version : on3Digits(project.version)
+  ]
+}
+
+shadowJar {
+  configurations = [project.configurations.default]
+  relocate('com.google', 'org.sonar.api.internal.google')
+  relocate('org.apache.commons', 'org.sonar.api.internal.apachecommons')
+  dependencies {
+      exclude(dependency('org.codehaus.woodstox:woodstox-core-lgpl'))
+      exclude(dependency('org.codehaus.woodstox:stax2-api'))
+      exclude(dependency('org.codehaus.staxmate:staxmate'))
+   }
+}
+
+artifactoryPublish.skip = false
+
+publishing {
+  publications {
+    mavenJava(MavenPublication) {
+      artifact source: shadowJar, classifier: null
+      artifact sourcesJar
+      artifact javadocJar
+    }
+  }
+}

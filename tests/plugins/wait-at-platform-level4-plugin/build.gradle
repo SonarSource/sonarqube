@@ -1,0 +1,18 @@
+dependencies {
+  compileOnly project(path: ':sonar-plugin-api', configuration: 'shadow')
+}
+
+jar {
+  manifest {
+    attributes(
+      'Plugin-Key': 'wait-at-platform-level4-plugin',
+      'Plugin-Version': version,
+      'Plugin-Class': 'WaitAtPlaformLevel4Plugin',
+      'Plugin-ChildFirstClassLoader': 'false',
+      'Sonar-Version': '7.1-SNAPSHOT',
+      'SonarLint-Supported': 'false',
+      'Plugin-Name': 'Plugins :: Wait at platform level4 initialization phase',
+      'Plugin-License': 'GNU LGPL 3'
+    )
+  }
+}

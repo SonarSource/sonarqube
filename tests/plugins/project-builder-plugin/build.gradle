@@ -1,0 +1,18 @@
+dependencies {
+  compileOnly project(path: ':sonar-plugin-api', configuration: 'shadow')
+}
+
+jar {
+  manifest {
+    attributes(
+      'Plugin-Key': 'project-builder-plugin',
+      'Plugin-Version': version,
+      'Plugin-Class': 'ProjectBuilderPlugin',
+      'Plugin-ChildFirstClassLoader': 'false',
+      'Sonar-Version': '7.1-SNAPSHOT',
+      'SonarLint-Supported': 'false',
+      'Plugin-Name': 'Plugins :: Project Builder',
+      'Plugin-License': 'GNU LGPL 3'
+    )
+  }
+}

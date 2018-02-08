@@ -53,6 +53,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.sonarqube.tests.Byteman.Process.CE;
 import static org.sonarqube.ws.Ce.TaskStatus.FAILED;
+import static util.ItUtils.newOrchestratorBuilder;
 import static util.ItUtils.projectDir;
 
 public class AnalysisEsResilienceTest {
@@ -63,7 +64,7 @@ public class AnalysisEsResilienceTest {
   private static final int esHttpPort = NetworkUtils.getNextAvailablePort(InetAddress.getLoopbackAddress());
 
   static {
-    byteman = new Byteman(Orchestrator.builderEnv(), CE);
+    byteman = new Byteman(newOrchestratorBuilder(), CE);
     orchestrator = byteman
       .getOrchestratorBuilder()
       .addPlugin(ItUtils.xooPlugin())

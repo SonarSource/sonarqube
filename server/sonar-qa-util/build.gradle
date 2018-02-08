@@ -1,0 +1,29 @@
+sonarqube {
+  skipProject = true
+}
+
+dependencies {
+  // please keep the list grouped by configuration and ordered by name
+
+  compile 'com.codeborne:selenide:4.8'
+  // required version 23.0 for selenide
+  compile 'com.google.guava:guava:23.0'
+  compile 'org.assertj:assertj-core'
+  compile 'org.sonarsource.orchestrator:sonar-orchestrator'
+  compile project(':sonar-ws')
+
+  compileOnly 'com.google.code.findbugs:jsr305'
+}
+
+artifactoryPublish.skip = false
+
+// Required for core plugins
+publishing {
+  publications {
+    mavenJava(MavenPublication) {
+      from components.java
+      artifact sourcesJar
+      artifact javadocJar
+    }
+  }
+}

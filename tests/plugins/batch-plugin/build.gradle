@@ -1,0 +1,18 @@
+dependencies {
+  compileOnly project(path: ':sonar-plugin-api', configuration: 'shadow')
+}
+
+jar {
+  manifest {
+    attributes(
+      'Plugin-Key': 'batch-plugin',
+      'Plugin-Version': version,
+      'Plugin-Class': 'com.sonarsource.BatchPlugin',
+      'Plugin-ChildFirstClassLoader': 'false',
+      'Sonar-Version': '7.1-SNAPSHOT',
+      'SonarLint-Supported': 'false',
+      'Plugin-Name': 'SonarQube Integration Tests :: Plugins :: Batch',
+      'Plugin-License': 'GNU LGPL 3'
+    )
+  }
+}

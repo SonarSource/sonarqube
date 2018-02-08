@@ -1,0 +1,71 @@
+sonarqube {
+  properties {
+    property 'sonar.projectName', "${projectTitle} :: Database Core"
+  }
+}
+
+dependencies {
+  // please keep the list grouped by configuration and ordered by name
+
+  compile 'ch.qos.logback:logback-classic'
+  compile 'ch.qos.logback:logback-core'
+  compile 'commons-codec:commons-codec'
+  compile 'commons-dbcp:commons-dbcp'
+  compile 'commons-dbutils:commons-dbutils'
+  compile 'net.jpountz.lz4:lz4'
+  compile 'org.apache.commons:commons-csv'
+  compile 'org.mybatis:mybatis'
+  compile 'org.slf4j:slf4j-api'
+  compile project(':server:sonar-process')
+  compile project(':sonar-core')
+  compile project(':sonar-scanner-protocol')
+  compile project(path: ':sonar-plugin-api', configuration: 'shadow')
+
+  compileOnly 'com.google.code.findbugs:jsr305'
+
+  testCompile 'com.google.code.findbugs:jsr305'
+  testCompile 'com.h2database:h2'
+  testCompile 'com.microsoft.sqlserver:mssql-jdbc'
+  testCompile 'com.oracle.jdbc:ojdbc8'
+  testCompile 'junit:junit'
+  testCompile 'mysql:mysql-connector-java'
+  testCompile 'org.assertj:assertj-core'
+  testCompile 'org.dbunit:dbunit'
+  testCompile 'org.mockito:mockito-core'
+  testCompile 'org.postgresql:postgresql'
+  testCompile 'org.sonarsource.orchestrator:sonar-orchestrator'
+  testCompile project(':sonar-testing-harness')
+}
+
+task createDB(type:JavaExec) {
+  main = 'org.sonar.db.CreateDb'
+  classpath = sourceSets.test.runtimeClasspath
+  systemProperty 'orchestrator.configUrl', System.getProperty('orchestrator.configUrl')
+  systemProperty 'sonar.runtimeVersion', version
+  systemProperty 'orchestrator.artifactory.apiKey', System.getProperty('orchestrator.artifactory.apiKey')
+  systemProperty 'orchestrator.artifactory.repositories', System.getProperty('orchestrator.artifactory.repositories')
+}
+
+test {
+  if (System.hasProperty('orchestrator.configUrl'))
+    systemProperty 'orchestrator.configUrl', System.getProperty('orchestrator.configUrl')
+}
+
+task testJar(type: Jar) {
+  classifier = 'tests'
+  from sourceSets.test.output
+}
+
+artifactoryPublish.skip = false
+
+// Used by core plugins
+publishing {
+  publications {
+    mavenJava(MavenPublication) {
+      from components.java
+      artifact testJar
+      artifact sourcesJar
+      artifact javadocJar
+    }
+  }
+}

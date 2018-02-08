@@ -21,7 +21,6 @@ package org.sonarqube.tests.settings;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
-import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import org.junit.After;
 import org.junit.Rule;
@@ -33,6 +32,7 @@ import util.user.UserRule;
 
 import static com.codeborne.selenide.Condition.visible;
 import static org.assertj.core.api.Assertions.assertThat;
+import static util.ItUtils.newOrchestratorBuilder;
 import static util.ItUtils.pluginArtifact;
 import static util.ItUtils.projectDir;
 import static util.ItUtils.xooPlugin;
@@ -60,7 +60,7 @@ public class SettingsTestRestartingOrchestrator {
   @Test
   public void test_settings() {
     URL secretKeyUrl = getClass().getResource("/settings/SettingsTest/sonar-secret.txt");
-    orchestrator = Orchestrator.builderEnv()
+    orchestrator = newOrchestratorBuilder()
       .addPlugin(pluginArtifact("settings-plugin"))
       .addPlugin(pluginArtifact("license-plugin"))
       .setServerProperty("sonar.secretKeyPath", secretKeyUrl.getFile())
@@ -86,7 +86,7 @@ public class SettingsTestRestartingOrchestrator {
 
   @Test
   public void property_relocation() {
-    orchestrator = Orchestrator.builderEnv()
+    orchestrator = newOrchestratorBuilder()
       .addPlugin(pluginArtifact("property-relocation-plugin"))
       .addPlugin(xooPlugin())
       .setServerProperty("sonar.deprecatedKey", "true")

@@ -78,7 +78,7 @@ if [ "$script_name" == "logs.sh" ]; then
   checkLogArgument "$LOG"
 
   ROOT=$(pwd)
-  cd sonar-application/target/sonarqube-*
+  cd sonar-application/build/distributions/sonarqube-*
   SQ_HOME=$(pwd)
   cd "$ROOT"
 

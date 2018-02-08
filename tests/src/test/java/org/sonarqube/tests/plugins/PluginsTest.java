@@ -24,8 +24,6 @@ import com.sonar.orchestrator.OrchestratorBuilder;
 import com.sonar.orchestrator.build.BuildResult;
 import com.sonar.orchestrator.build.SonarScanner;
 import com.sonar.orchestrator.locator.MavenLocation;
-import java.io.File;
-import java.net.MalformedURLException;
 import java.util.Arrays;
 import java.util.List;
 import org.junit.BeforeClass;
@@ -50,8 +48,8 @@ import org.sonarqube.tests.plugins.checks.SwiftCheck;
 import org.sonarqube.tests.plugins.checks.Validation;
 import org.sonarqube.tests.plugins.checks.WebCheck;
 
-import static com.sonar.orchestrator.locator.FileLocation.byWildcardMavenFilename;
 import static org.assertj.core.api.Assertions.fail;
+import static util.ItUtils.newOrchestratorBuilder;
 
 /**
  * Verify that latest releases of the plugins available in update center
@@ -83,8 +81,7 @@ public class PluginsTest {
 
   @BeforeClass
   public static void startServer() {
-    OrchestratorBuilder builder = Orchestrator.builderEnv()
-      .setZipFile(byWildcardMavenFilename(new File("../sonar-application/target"), "sonar*.zip").getFile());
+    OrchestratorBuilder builder = newOrchestratorBuilder();
 
     builder.addPlugin(MavenLocation.of("com.sonarsource.license", "sonar-dev-license-plugin", "3.2.0.1163"));
 
