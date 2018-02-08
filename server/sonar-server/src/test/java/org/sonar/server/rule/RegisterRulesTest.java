@@ -22,14 +22,16 @@ package org.sonar.server.rule;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.stream.IntStream;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.junit.rules.ExpectedException;
+import org.junit.runner.RunWith;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
@@ -80,7 +82,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.rule.Severity.BLOCKER;
 import static org.sonar.api.rule.Severity.INFO;
-import static org.sonar.api.server.rule.RulesDefinition.*;
+import static org.sonar.api.server.rule.RulesDefinition.NewRepository;
+import static org.sonar.api.server.rule.RulesDefinition.NewRule;
 
 @RunWith(DataProviderRunner.class)
 public class RegisterRulesTest {
@@ -167,7 +170,7 @@ public class RegisterRulesTest {
 
     // register one rule
     execute(context -> {
-      RulesDefinition.NewRepository repo = context.createRepository("fake", "java");
+      NewRepository repo = context.createRepository("fake", "java");
       repo.createRule(ruleKey)
         .setName(randomAlphanumeric(5))
         .setHtmlDescription(randomAlphanumeric(20));
@@ -610,6 +613,7 @@ public class RegisterRulesTest {
   public void do_not_update_already_removed_rules() {
     execute(new FakeRepositoryV1());
     assertThat(dbClient.ruleDao().selectAllDefinitions(dbTester.getSession())).hasSize(2);
+
     RuleDto rule1 = dbClient.ruleDao().selectOrFailByKey(dbTester.getSession(), defaultOrganization, RULE_KEY1);
     RuleDto rule2 = dbClient.ruleDao().selectOrFailByKey(dbTester.getSession(), defaultOrganization, RULE_KEY2);
     assertThat(esTester.getIds(RuleIndexDefinition.INDEX_TYPE_RULE)).containsOnly(valueOf(rule1.getId()), valueOf(rule2.getId()));
@@ -847,6 +851,22 @@ public class RegisterRulesTest {
   }
 
   @Test
+  public void updating_the_deprecated_to_a_new_ruleKey_should_throw_an_ISE() {
+    // On this new rule add a deprecated key
+    execute(context -> createRule(context, "javascript", "javascript", "s103",
+      r -> r.addDeprecatedRuleKey("javascript", "linelength")));
+
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("An incorrect state of deprecated rule keys has been detected.\n " +
+      "The deprecated rule key [javascript:linelength] was previously deprecated by [javascript:s103]. [javascript:s103] should be a deprecated key of [sonarjs:s103],"
+    );
+
+    // This rule should have been moved to another repository
+    execute(context -> createRule(context, "javascript", "sonarjs", "s103",
+      r -> r.addDeprecatedRuleKey("javascript", "linelength")));
+  }
+
+  @Test
   public void declaring_a_rule_with_an_existing_RuleKey_still_used_should_throw_IAE() {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("The rule 'newKey1' of repository 'fake' is declared several times");
@@ -881,7 +901,7 @@ public class RegisterRulesTest {
     RuleDefinitionsLoader loader = new RuleDefinitionsLoader(mock(DeprecatedRulesDefinitionLoader.class), mock(CommonRuleDefinitionsImpl.class), pluginRepository,
       defs);
     Languages languages = mock(Languages.class);
-    when(languages.get("java")).thenReturn(mock(Language.class));
+    when(languages.get(any())).thenReturn(mock(Language.class));
     reset(webServerRuleFinder);
 
     RegisterRules task = new RegisterRules(loader, qProfileRules, dbClient, ruleIndexer, activeRuleIndexer,
@@ -891,6 +911,20 @@ public class RegisterRulesTest {
     dbTester.getSession().commit();
 
     verify(webServerRuleFinder).startCaching();
+  }
+
+  @SafeVarargs
+  private final void createRule(RulesDefinition.Context context, String language, String repositoryKey, String ruleKey, Consumer<NewRule>... consumers) {
+    NewRepository repo = context.createRepository(repositoryKey, language);
+    NewRule newRule = repo.createRule(ruleKey)
+      .setName(ruleKey)
+      .setHtmlDescription("Description of One")
+      .setSeverity(BLOCKER)
+      .setType(RuleType.CODE_SMELL)
+      .setStatus(RuleStatus.BETA);
+
+    Arrays.stream(consumers).forEach(c -> c.accept(newRule));
+    repo.done();
   }
 
   private RuleParamDto getParam(List<RuleParamDto> params, String key) {
@@ -990,7 +1024,6 @@ public class RegisterRulesTest {
   }
 
   static class FbContribRepository implements RulesDefinition {
-
     @Override
     public void define(Context context) {
       NewExtendedRepository repo = context.extendRepository("findbugs", "java");

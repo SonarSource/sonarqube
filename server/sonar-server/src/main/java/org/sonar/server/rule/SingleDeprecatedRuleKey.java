@@ -78,6 +78,11 @@ class SingleDeprecatedRuleKey {
     return RuleKey.of(oldRepositoryKey, oldRuleKey);
   }
 
+
+  public RuleKey getNewRuleKeyAsRuleKey() {
+    return RuleKey.of(newRepositoryKey, newRuleKey);
+  }
+
   @CheckForNull
   public String getNewRuleKey() {
     return newRuleKey;
