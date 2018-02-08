@@ -35,21 +35,26 @@ public class PluginCompressionTest {
   public TemporaryFolder temp = new TemporaryFolder();
 
   private MapSettings settings = new MapSettings();
-  private Path jarPath;
+  private Path targetJarPath;
+  private Path targetFolder;
+  private Path sourceFolder;
 
   private PluginCompression underTest;
 
   @Before
   public void setUp() throws IOException {
-    jarPath = temp.newFile("test.jar").toPath();
+    sourceFolder = temp.newFolder("source").toPath();
+    targetFolder = temp.newFolder("target").toPath();
+    targetJarPath = targetFolder.resolve("test.jar");
+    Files.createFile(targetJarPath);
   }
 
   @Test
   public void disable_if_proparty_not_set() throws IOException {
     underTest = new PluginCompression(settings.asConfig());
-    underTest.compressJar("key", jarPath);
+    underTest.compressJar("key", sourceFolder, targetJarPath);
 
-    assertThat(Files.list(jarPath.getParent())).containsOnly(jarPath);
+    assertThat(Files.list(targetFolder)).containsOnly(targetJarPath);
     assertThat(underTest.getPlugins()).isEmpty();
   }
 
@@ -57,10 +62,28 @@ public class PluginCompressionTest {
   public void should_compress_plugin() throws IOException {
     settings.setProperty(PluginCompression.PROPERTY_PLUGIN_COMPRESSION_ENABLE, true);
     underTest = new PluginCompression(settings.asConfig());
-    underTest.compressJar("key", jarPath);
+    underTest.compressJar("key", targetFolder, targetJarPath);
 
-    assertThat(Files.list(jarPath.getParent())).containsOnly(jarPath, jarPath.getParent().resolve("test.pack.gz"));
+    assertThat(Files.list(targetFolder)).containsOnly(targetJarPath, targetFolder.resolve("test.pack.gz"));
     assertThat(underTest.getPlugins()).hasSize(1);
     assertThat(underTest.getPlugins().get("key").getFilename()).isEqualTo("test.pack.gz");
   }
+
+  @Test
+  public void should_use_deployed_packed_file() throws IOException {
+    Path packedPath = sourceFolder.resolve("test.pack.gz");
+    Files.write(packedPath, new byte[] {1, 2, 3});
+
+    settings.setProperty(PluginCompression.PROPERTY_PLUGIN_COMPRESSION_ENABLE, true);
+    underTest = new PluginCompression(settings.asConfig());
+    underTest.compressJar("key", sourceFolder, targetJarPath);
+
+    assertThat(Files.list(targetFolder)).containsOnly(targetJarPath, targetFolder.resolve("test.pack.gz"));
+    assertThat(underTest.getPlugins()).hasSize(1);
+    assertThat(underTest.getPlugins().get("key").getFilename()).isEqualTo("test.pack.gz");
+
+    // check that the file was copied, not generated
+    assertThat(targetFolder.resolve("test.pack.gz")).hasSameContentAs(packedPath);
+  }
+
 }
