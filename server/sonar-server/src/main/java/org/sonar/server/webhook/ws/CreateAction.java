@@ -30,13 +30,13 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.webhook.WebhookDto;
-import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Webhooks;
 
 import static com.google.common.base.Preconditions.checkState;
 import static java.lang.String.format;
+import static java.util.Optional.ofNullable;
 import static org.apache.commons.lang.StringUtils.isNotBlank;
 import static org.sonar.server.webhook.ws.WebhooksWsParameters.ACTION_CREATE;
 import static org.sonar.server.webhook.ws.WebhooksWsParameters.NAME_PARAM;
@@ -82,7 +82,7 @@ public class CreateAction implements WebhooksWsAction {
     WebService.NewAction action = controller.createAction(ACTION_CREATE)
       .setPost(true)
       .setDescription("Create a Webhook.<br>" +
-        "Requires the global, organization or project permission.")
+        "Requires 'Administer' permission on the specified project, or global 'Administer' permission.")
       .setSince("7.1")
       .setResponseExample(getClass().getResource("example-webhook-create.json"))
       .setHandler(this);
@@ -90,13 +90,15 @@ public class CreateAction implements WebhooksWsAction {
     action.createParam(NAME_PARAM)
       .setRequired(true)
       .setMaximumLength(NAME_PARAM_MAXIMUM_LENGTH)
-      .setDescription("The name of the webhook to create")
+      .setDescription("Name displayed in the administration console of webhooks")
       .setExampleValue(NAME_WEBHOOK_EXAMPLE_001);
 
     action.createParam(URL_PARAM)
       .setRequired(true)
       .setMaximumLength(URL_PARAM_MAXIMUM_LENGTH)
-      .setDescription("The url to be called by the webhook")
+      .setDescription("Server endpoint that will receive the webhook payload, for example 'http://my_server/foo'." +
+        " If HTTP Basic authentication is used, HTTPS is recommended to avoid man in the middle attacks." +
+        " Example: 'https://myLogin:myPassword@my_server/foo'")
       .setExampleValue(URL_WEBHOOK_EXAMPLE_001);
 
     action.createParam(PROJECT_KEY_PARAM)
@@ -136,13 +138,13 @@ public class CreateAction implements WebhooksWsAction {
 
       ComponentDto projectDto = null;
       if (isNotBlank(projectKey)) {
-        Optional<ComponentDto> dtoOptional = Optional.ofNullable(dbClient.componentDao().selectByKey(dbSession, projectKey).orNull());
+        Optional<ComponentDto> dtoOptional = ofNullable(dbClient.componentDao().selectByKey(dbSession, projectKey).orNull());
         ComponentDto componentDto = checkFoundWithOptional(dtoOptional, "No project with key '%s'", projectKey);
-        checkThatProjectBelongsToOrganization(componentDto, organizationDto, "Project '%s' does not belong to organisation '%s'", projectKey, organizationKey);
-        webhookSupport.checkUserPermissionOn(componentDto);
+        webhookSupport.checkThatProjectBelongsToOrganization(componentDto, organizationDto, "Project '%s' does not belong to organisation '%s'", projectKey, organizationKey);
+        webhookSupport.checkPermission(componentDto);
         projectDto = componentDto;
       } else {
-        webhookSupport.checkUserPermissionOn(organizationDto);
+        webhookSupport.checkPermission(organizationDto);
       }
 
       webhookSupport.checkUrlPattern(url, "Url parameter with value '%s' is not a valid url", url);
@@ -195,18 +197,12 @@ public class CreateAction implements WebhooksWsAction {
     }
   }
 
-  private int numberOfWebhookOf(DbSession dbSession, OrganizationDto organization) {
-    return dbClient.webhookDao().selectByOrganizationUuid(dbSession, organization.getUuid()).size();
+  private int numberOfWebhookOf(DbSession dbSession, OrganizationDto organizationDto) {
+    return dbClient.webhookDao().selectByOrganizationUuid(dbSession, organizationDto).size();
   }
 
-  private int numberOfWebhookOf(DbSession dbSession, ComponentDto project) {
-    return dbClient.webhookDao().selectByProjectUuid(dbSession, project.uuid()).size();
-  }
-
-  private static void checkThatProjectBelongsToOrganization(ComponentDto componentDto, OrganizationDto organizationDto, String message, Object... messageArguments) {
-    if (!organizationDto.getUuid().equals(componentDto.getOrganizationUuid())) {
-      throw new NotFoundException(format(message, messageArguments));
-    }
+  private int numberOfWebhookOf(DbSession dbSession, ComponentDto componentDto) {
+    return dbClient.webhookDao().selectByProjectUuid(dbSession, componentDto).size();
   }
 
   private OrganizationDto defaultOrganizationDto(DbSession dbSession) {

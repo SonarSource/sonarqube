@@ -45,17 +45,15 @@ public class CreateWebhooksTable extends DdlChange {
     .setIsNullable(false)
     .setLimit(UUID_SIZE)
     .build();
-  private static final int NAME_COLUMN_SIZE = 100;
   private static final VarcharColumnDef NAME_COLUMN = newVarcharColumnDefBuilder()
     .setColumnName("name")
     .setIsNullable(false)
-    .setLimit(NAME_COLUMN_SIZE)
+    .setLimit(100)
     .build();
-  private static final int URL_COLUMN_SIZE = 2000;
   private static final VarcharColumnDef URL_COLUMN = newVarcharColumnDefBuilder()
     .setColumnName("url")
     .setIsNullable(false)
-    .setLimit(URL_COLUMN_SIZE)
+    .setLimit(2000)
     .build();
   private static final VarcharColumnDef ORGANIZATION_UUID_COLUMN = newVarcharColumnDefBuilder()
     .setColumnName("organization_uuid")
@@ -76,11 +74,8 @@ public class CreateWebhooksTable extends DdlChange {
     .setIsNullable(true)
     .build();
 
-  private Database db;
-
   public CreateWebhooksTable(Database db) {
     super(db);
-    this.db = db;
   }
 
   @Override
@@ -119,7 +114,7 @@ public class CreateWebhooksTable extends DdlChange {
   }
 
   private boolean tableExists() throws SQLException {
-    try (Connection connection = db.getDataSource().getConnection()) {
+    try (Connection connection = getDatabase().getDataSource().getConnection()) {
       return DatabaseUtils.tableExists(TABLE_NAME, connection);
     }
   }

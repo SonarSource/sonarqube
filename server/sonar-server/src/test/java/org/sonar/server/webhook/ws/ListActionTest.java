@@ -22,38 +22,38 @@ package org.sonar.server.webhook.ws;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.config.PropertyDefinition;
-import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.organization.OrganizationDbTester;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.property.PropertyDbTester;
+import org.sonar.db.webhook.WebhookDbTester;
+import org.sonar.db.webhook.WebhookDto;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
-import org.sonar.server.setting.ws.SettingsFinder;
+import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Webhooks.SearchWsResponse;
 import org.sonarqube.ws.Webhooks.SearchWsResponse.Search;
 
-import static com.google.common.collect.ImmutableMap.of;
-import static java.util.Arrays.asList;
+import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.tuple;
 import static org.junit.rules.ExpectedException.none;
-import static org.sonar.api.PropertyType.PROPERTY_SET;
-import static org.sonar.api.config.PropertyFieldDefinition.build;
 import static org.sonar.api.web.UserRole.ADMIN;
 import static org.sonar.db.DbTester.create;
+import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
+import static org.sonar.server.organization.TestDefaultOrganizationProvider.from;
 import static org.sonar.server.tester.UserSessionRule.standalone;
+import static org.sonar.server.webhook.ws.WebhooksWsParameters.ORGANIZATION_KEY_PARAM;
 import static org.sonar.server.webhook.ws.WebhooksWsParameters.PROJECT_KEY_PARAM;
 
-public class SearchActionTest {
+public class ListActionTest {
 
   @Rule
   public ExpectedException expectedException = none();
@@ -65,14 +65,14 @@ public class SearchActionTest {
   public DbTester db = create();
 
   private DbClient dbClient = db.getDbClient();
-  private PropertyDefinitions definitions = new PropertyDefinitions();
-  private SettingsFinder settingsFinder = new SettingsFinder(dbClient, definitions);
-  private SearchAction underTest = new SearchAction(dbClient, userSession, settingsFinder);
+  private DefaultOrganizationProvider defaultOrganizationProvider = from(db);
+  private WebhookSupport webhookSupport = new WebhookSupport(userSession);
+  private ListAction underTest = new ListAction(dbClient, userSession, defaultOrganizationProvider, webhookSupport);
+
+  private ComponentDbTester componentDbTester = db.components();
+  private WebhookDbTester webhookDbTester = db.webhooks();
+  private OrganizationDbTester organizationDbTester = db.organizations();
   private WsActionTester wsActionTester = new WsActionTester(underTest);
-
-  private ComponentDbTester componentDbTester = new ComponentDbTester(db);
-
-  private PropertyDbTester propertyDb = new PropertyDbTester(db);
 
   @Test
   public void definition() {
@@ -88,70 +88,126 @@ public class SearchActionTest {
       .containsExactlyInAnyOrder(
         tuple("organization", false),
         tuple("project", false));
+
   }
 
   @Test
   public void search_global_webhooks() {
 
-    definitions.addComponent(PropertyDefinition
-      .builder("sonar.webhooks.global")
-      .type(PROPERTY_SET)
-      .fields(asList(
-        build("name").name("name").build(),
-        build("url").name("url").build()))
-      .build());
-    propertyDb.insertPropertySet("sonar.webhooks.global", null,
-      of("name", "my first global webhook", "url", "http://127.0.0.1/first-global"),
-      of("name", "my second global webhook", "url", "http://127.0.0.1/second-global"));
-
-    userSession.logIn().setSystemAdministrator();
+    WebhookDto dto1 = webhookDbTester.insertWebhook(db.getDefaultOrganization());
+    WebhookDto dto2 = webhookDbTester.insertWebhook(db.getDefaultOrganization());
+    userSession.logIn().addPermission(ADMINISTER, db.getDefaultOrganization().getUuid());
 
     SearchWsResponse response = wsActionTester.newRequest()
       .executeProtobuf(SearchWsResponse.class);
 
     assertThat(response.getWebhooksList())
       .extracting(Search::getName, Search::getUrl)
-      .containsExactly(tuple("my first global webhook", "http://127.0.0.1/first-global"),
-        tuple("my second global webhook", "http://127.0.0.1/second-global"));
+      .contains(tuple(dto1.getName(), dto1.getUrl()),
+        tuple(dto2.getName(), dto2.getUrl()));
+
   }
 
   @Test
   public void search_project_webhooks_when_no_organization_is_provided() {
-    OrganizationDto defaultOrganization = db.getDefaultOrganization();
-    ComponentDto project = db.components().insertPublicProject(defaultOrganization);
 
-    definitions.addComponent(PropertyDefinition
-      .builder("sonar.webhooks.global")
-      .type(PROPERTY_SET)
-      .fields(asList(
-        build("name").name("name").build(),
-        build("url").name("url").build()))
-      .build());
-    propertyDb.insertPropertySet("sonar.webhooks.global", null,
-      of("name", "my first global webhook", "url", "http://127.0.0.1/first-global"),
-      of("name", "my second global webhook", "url", "http://127.0.0.1/second-global"));
+    ComponentDto project1 = componentDbTester.insertPrivateProject();
+    userSession.logIn().addProjectPermission(ADMIN, project1);
 
-    definitions.addComponent(PropertyDefinition
-      .builder("sonar.webhooks.project")
-      .type(PROPERTY_SET)
-      .fields(asList(
-        build("name").name("name").build(),
-        build("url").name("url").build()))
-      .build());
-    propertyDb.insertPropertySet("sonar.webhooks.project", project,
-      of("name", "my first project webhook", "url", "http://127.0.0.1/first-project"),
-      of("name", "my second project webhook", "url", "http://127.0.0.1/second-project"));
-
-    userSession.logIn().addProjectPermission(ADMIN, project);
+    WebhookDto dto1 = webhookDbTester.insertWebhook(project1);
+    WebhookDto dto2 = webhookDbTester.insertWebhook(project1);
 
     SearchWsResponse response = wsActionTester.newRequest()
+      .setParam(PROJECT_KEY_PARAM, project1.getKey())
+      .executeProtobuf(SearchWsResponse.class);
+
+    assertThat(response.getWebhooksList())
+      .extracting(Search::getName, Search::getUrl)
+      .contains(tuple(dto1.getName(), dto1.getUrl()),
+        tuple(dto2.getName(), dto2.getUrl()));
+
+  }
+
+  @Test
+  public void search_organization_webhooks() {
+
+    OrganizationDto organizationDto = organizationDbTester.insert();
+    WebhookDto dto1 = webhookDbTester.insertWebhook(organizationDto);
+    WebhookDto dto2 = webhookDbTester.insertWebhook(organizationDto);
+    userSession.logIn().addPermission(ADMINISTER, organizationDto.getUuid());
+
+    SearchWsResponse response = wsActionTester.newRequest()
+      .setParam(ORGANIZATION_KEY_PARAM, organizationDto.getKey())
+      .executeProtobuf(SearchWsResponse.class);
+
+    assertThat(response.getWebhooksList())
+      .extracting(Search::getName, Search::getUrl)
+      .contains(tuple(dto1.getName(), dto1.getUrl()),
+        tuple(dto2.getName(), dto2.getUrl()));
+
+  }
+
+  @Test
+  public void search_project_webhooks_when_organization_is_provided() {
+
+    OrganizationDto organization = organizationDbTester.insert();
+    ComponentDto project = componentDbTester.insertPrivateProject(organization);
+    userSession.logIn().addProjectPermission(ADMIN, project);
+
+    WebhookDto dto1 = webhookDbTester.insertWebhook(project);
+    WebhookDto dto2 = webhookDbTester.insertWebhook(project);
+
+    SearchWsResponse response = wsActionTester.newRequest()
+      .setParam(ORGANIZATION_KEY_PARAM, organization.getKey())
       .setParam(PROJECT_KEY_PARAM, project.getKey())
       .executeProtobuf(SearchWsResponse.class);
 
     assertThat(response.getWebhooksList())
       .extracting(Search::getName, Search::getUrl)
-      .containsExactly(tuple("my first project webhook", "http://127.0.0.1/first-project"),
-        tuple("my second project webhook", "http://127.0.0.1/second-project"));
+      .contains(tuple(dto1.getName(), dto1.getUrl()),
+        tuple(dto2.getName(), dto2.getUrl()));
+
+  }
+
+  @Test
+  public void return_NotFoundException_if_requested_project_is_not_found() throws Exception {
+
+    userSession.logIn().setSystemAdministrator();
+    expectedException.expect(NotFoundException.class);
+
+    wsActionTester.newRequest()
+      .setParam(PROJECT_KEY_PARAM, "pipo")
+      .executeProtobuf(SearchWsResponse.class);
+
+  }
+
+  @Test
+  public void return_NotFoundException_if_requested_organization_is_not_found() throws Exception {
+
+    userSession.logIn().setSystemAdministrator();
+    expectedException.expect(NotFoundException.class);
+
+    wsActionTester.newRequest()
+      .setParam(ORGANIZATION_KEY_PARAM, "pipo")
+      .executeProtobuf(SearchWsResponse.class);
+
+  }
+
+  @Test
+  public void fail_if_project_exists_but_does_not_belong_to_requested_organization() {
+
+    OrganizationDto organization = organizationDbTester.insert();
+    ComponentDto project = componentDbTester.insertPrivateProject();
+
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage(format("Project '%s' does not belong to organisation '%s'", project.getKey(), organization.getKey()));
+
+    userSession.logIn().addProjectPermission(ADMIN, project);
+
+    wsActionTester.newRequest()
+      .setParam(ORGANIZATION_KEY_PARAM, organization.getKey())
+      .setParam(PROJECT_KEY_PARAM, project.getKey())
+      .execute();
 
   }
 
@@ -163,17 +219,7 @@ public class SearchActionTest {
 
     wsActionTester.newRequest()
       .executeProtobuf(SearchWsResponse.class);
-  }
 
-  @Test
-  public void return_NotFoundException_if_not_project_is_not_found() throws Exception {
-
-    userSession.logIn().setSystemAdministrator();
-    expectedException.expect(NotFoundException.class);
-
-    wsActionTester.newRequest()
-      .setParam(PROJECT_KEY_PARAM, "pipo")
-      .executeProtobuf(SearchWsResponse.class);
   }
 
   @Test

@@ -62,14 +62,15 @@ public class UpdateAction implements WebhooksWsAction {
     WebService.NewAction action = controller.createAction(UPDATE_ACTION)
       .setPost(true)
       .setDescription("Update a Webhook.<br>" +
-        "Requires the global, organization or project permission.")
+        "Requires 'Administer' permission on the specified project, or global 'Administer' permission.")
       .setSince("7.1")
       .setHandler(this);
 
     action.createParam(KEY_PARAM)
       .setRequired(true)
       .setMaximumLength(KEY_PARAM_MAXIMUN_LENGTH)
-      .setDescription("The key of the webhook to be updated")
+      .setDescription("The key of the webhook to be updated,"+
+        "auto-generated value can be obtained through api/webhooks/create or api/webhooks/list")
       .setExampleValue(KEY_PROJECT_EXAMPLE_001);
 
     action.createParam(NAME_PARAM)
@@ -106,7 +107,7 @@ public class UpdateAction implements WebhooksWsAction {
       if (organizationUuid != null) {
         Optional<OrganizationDto> optionalDto = dbClient.organizationDao().selectByUuid(dbSession, organizationUuid);
         OrganizationDto organizationDto = checkStateWithOptional(optionalDto, "the requested organization '%s' was not found", organizationUuid);
-        webhookSupport.checkUserPermissionOn(organizationDto);
+        webhookSupport.checkPermission(organizationDto);
         updateWebhook(dbSession, webhookDto, name, url);
       }
 
@@ -114,7 +115,7 @@ public class UpdateAction implements WebhooksWsAction {
       if (projectUuid != null) {
         Optional<ComponentDto> optionalDto = ofNullable(dbClient.componentDao().selectByUuid(dbSession, projectUuid).orNull());
         ComponentDto componentDto = checkStateWithOptional(optionalDto, "the requested project '%s' was not found", projectUuid);
-        webhookSupport.checkUserPermissionOn(componentDto);
+        webhookSupport.checkPermission(componentDto);
         updateWebhook(dbSession, webhookDto, name, url);
       }
 
