@@ -1,7 +1,7 @@
 {
   "webhook": {
     "key": "uuid",
-    "name": "my-webhook",
+    "name": "My webhook",
     "url": "https://www.my-webhook-listener.com/sonar"
   }
 }

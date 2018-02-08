@@ -24,7 +24,7 @@ class WebhooksWsParameters {
   static final String WEBHOOKS_CONTROLLER = "api/webhooks";
 
 
-  static final String SEARCH_ACTION = "search";
+  static final String LIST_ACTION = "list";
   static final String ACTION_CREATE = "create";
   static final String UPDATE_ACTION = "update";
   static final String DELETE_ACTION = "delete";
@@ -38,9 +38,7 @@ class WebhooksWsParameters {
   static final int NAME_PARAM_MAXIMUM_LENGTH = 100;
   static final String URL_PARAM = "url";
   static final int URL_PARAM_MAXIMUM_LENGTH = 512;
-  static final String COMPONENT_KEY_PARAM = "component";
-  static final int COMPONENT_KEY_PARAM_MAXIMUM_LENGTH = 255;
-  static final String KEY_PARAM = "key";
+  static final String KEY_PARAM = "webhook";
   static final int KEY_PARAM_MAXIMUN_LENGTH = 40;
 
   private WebhooksWsParameters() {

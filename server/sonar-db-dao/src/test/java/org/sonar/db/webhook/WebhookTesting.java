@@ -20,6 +20,8 @@
 package org.sonar.db.webhook;
 
 import java.util.Calendar;
+import org.sonar.db.component.ComponentDto;
+import org.sonar.db.organization.OrganizationDto;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 
@@ -29,14 +31,14 @@ public class WebhookTesting {
     // only statics
   }
 
-  public static WebhookDto newWebhookDtoForProject(String projectUuid) {
+  public static WebhookDto newWebhook(ComponentDto project) {
     return getWebhookDto()
-      .setProjectUuid(projectUuid);
+      .setProjectUuid(project.uuid());
   }
 
-  public static WebhookDto newWebhookDtoForOrganization(String organizationUuid) {
+  public static WebhookDto newWebhook(OrganizationDto organizationDto) {
     return getWebhookDto()
-      .setOrganizationUuid(organizationUuid);
+      .setOrganizationUuid(organizationDto.getUuid());
   }
 
   private static WebhookDto getWebhookDto() {

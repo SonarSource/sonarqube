@@ -22,9 +22,10 @@ package org.sonar.db.webhook;
 import java.util.Optional;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.ComponentDto;
+import org.sonar.db.organization.OrganizationDto;
 
-import static org.sonar.db.webhook.WebhookTesting.newWebhookDtoForOrganization;
-import static org.sonar.db.webhook.WebhookTesting.newWebhookDtoForProject;
+import static org.sonar.db.webhook.WebhookTesting.newWebhook;
 
 public class WebhookDbTester {
 
@@ -34,12 +35,12 @@ public class WebhookDbTester {
     this.dbTester = dbTester;
   }
 
-  public WebhookDto insertForOrganizationUuid(String organizationUuid) {
-    return insert(newWebhookDtoForOrganization(organizationUuid));
+  public WebhookDto insertWebhook(OrganizationDto organizationDto) {
+    return insert(newWebhook(organizationDto));
   }
 
-  public WebhookDto insertWebhookForProjectUuid(String projectUuid) {
-    return insert(newWebhookDtoForProject(projectUuid));
+  public WebhookDto insertWebhook(ComponentDto project) {
+    return insert(newWebhook(project));
   }
 
   public WebhookDto insert(WebhookDto dto) {
