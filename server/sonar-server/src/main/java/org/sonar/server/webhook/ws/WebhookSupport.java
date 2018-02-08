@@ -21,10 +21,10 @@ package org.sonar.server.webhook.ws;
 
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
 
 import static java.lang.String.format;
-import static java.util.Locale.ENGLISH;
 import static org.sonar.api.web.UserRole.ADMIN;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
 
@@ -32,25 +32,27 @@ public class WebhookSupport {
 
   private final UserSession userSession;
 
-  public WebhookSupport(UserSession userSession) {
+  WebhookSupport(UserSession userSession) {
     this.userSession = userSession;
   }
 
-  void checkUserPermissionOn(ComponentDto componentDto) {
+  void checkPermission(ComponentDto componentDto) {
     userSession.checkComponentPermission(ADMIN, componentDto);
   }
 
-  void checkUserPermissionOn(OrganizationDto organizationDto) {
+  void checkPermission(OrganizationDto organizationDto) {
     userSession.checkPermission(ADMINISTER, organizationDto);
   }
 
   void checkUrlPattern(String url, String message, Object... messageArguments) {
-    if (!url.toLowerCase(ENGLISH).startsWith("http://") && !url.toLowerCase(ENGLISH).startsWith("https://")) {
+    if (okhttp3.HttpUrl.parse(url) == null) {
       throw new IllegalArgumentException(format(message, messageArguments));
     }
-    String sub = url.substring("http://".length());
-    if (sub.contains(":") && !sub.substring(sub.indexOf(':')).contains("@")) {
-      throw new IllegalArgumentException(format(message, messageArguments));
+  }
+
+  void checkThatProjectBelongsToOrganization(ComponentDto componentDto, OrganizationDto organizationDto, String message, Object... messageArguments) {
+    if (!organizationDto.getUuid().equals(componentDto.getOrganizationUuid())) {
+      throw new NotFoundException(format(message, messageArguments));
     }
   }
 

@@ -24,23 +24,20 @@ import javax.annotation.Nullable;
 public class WebhookDto {
 
   /** Technical unique identifier, can't be null */
-  protected String uuid;
+  private String uuid;
   /** Name, can't be null */
-  protected String name;
+  private String name;
   /** URL, can't be null */
-  protected String url;
+  private String url;
 
   @Nullable
-  protected String organizationUuid;
+  private String organizationUuid;
 
   @Nullable
-  protected String projectUuid;
+  private String projectUuid;
 
-  /** createdAt, can't be null */
-  protected Long createdAt;
-  /** URL, can be null */
-  @Nullable
-  protected Long updatedAt;
+  private long createdAt;
+  private long updatedAt;
 
   public WebhookDto setUuid(String uuid) {
     this.uuid = uuid;
@@ -67,12 +64,12 @@ public class WebhookDto {
     return this;
   }
 
-  WebhookDto setCreatedAt(Long createdAt) {
+  WebhookDto setCreatedAt(long createdAt) {
     this.createdAt = createdAt;
     return this;
   }
 
-  WebhookDto setUpdatedAt(@Nullable Long updatedAt) {
+  WebhookDto setUpdatedAt(long updatedAt) {
     this.updatedAt = updatedAt;
     return this;
   }
@@ -99,12 +96,12 @@ public class WebhookDto {
     return projectUuid;
   }
 
-  public Long getCreatedAt() {
+  public long getCreatedAt() {
     return createdAt;
   }
 
   @Nullable
-  public Long getUpdatedAt() {
+  public long getUpdatedAt() {
     return updatedAt;
   }
 }
