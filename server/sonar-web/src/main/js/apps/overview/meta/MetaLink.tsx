@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { isProvided, isClickable } from '../../project-admin/links/utils';
+import { isProvided } from '../../project-admin/links/utils';
 import BugTrackerIcon from '../../../components/ui/BugTrackerIcon';
 import { ProjectLink } from '../../../api/projectLinks';
 
@@ -26,61 +26,24 @@ interface Props {
   link: ProjectLink;
 }
 
-interface State {
-  expanded: boolean;
+export default function MetaLink({ link }: Props) {
+  return (
+    <li>
+      <a className="link-with-icon" href={link.url} rel="nofollow" target="_blank">
+        <MetaLinkIcon link={link} /> {link.name}
+      </a>
+    </li>
+  );
 }
 
-export default class MetaLink extends React.PureComponent<Props, State> {
-  state: State = { expanded: false };
-
-  handleClick = (e: React.SyntheticEvent<HTMLAnchorElement>) => {
-    e.preventDefault();
-    e.currentTarget.blur();
-    this.setState((s: State) => ({ expanded: !s.expanded }));
-  };
-
-  handleInputClick = (e: React.SyntheticEvent<HTMLInputElement>) => {
-    e.currentTarget.select();
-  };
-
-  renderLinkIcon = (link: ProjectLink) => {
-    if (link.type === 'issue') {
-      return <BugTrackerIcon />;
-    }
-
-    return isProvided(link) ? (
-      <i className={`icon-color-link icon-${link.type}`} />
-    ) : (
-      <i className="icon-color-link icon-detach" />
-    );
-  };
-
-  render() {
-    const { link } = this.props;
-
-    return (
-      <li>
-        <a
-          className="link-with-icon"
-          href={link.url}
-          target="_blank"
-          onClick={!isClickable(link) ? this.handleClick : undefined}>
-          {this.renderLinkIcon(link)}
-          &nbsp;
-          {link.name}
-        </a>
-        {this.state.expanded && (
-          <div className="little-spacer-top">
-            <input
-              type="text"
-              className="overview-key"
-              value={link.url}
-              readOnly={true}
-              onClick={this.handleInputClick}
-            />
-          </div>
-        )}
-      </li>
-    );
+function MetaLinkIcon({ link }: Props) {
+  if (link.type === 'issue') {
+    return <BugTrackerIcon />;
   }
+
+  return isProvided(link) ? (
+    <i className={`icon-color-link icon-${link.type}`} />
+  ) : (
+    <i className="icon-color-link icon-detach" />
+  );
 }
