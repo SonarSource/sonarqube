@@ -39,6 +39,14 @@ public class WebhookDao implements Dao {
     return Optional.ofNullable(mapper(dbSession).selectByUuid(uuid));
   }
 
+  public List<WebhookDto> selectByOrganizationUuid(DbSession dbSession, String organizationUuid) {
+    return mapper(dbSession).selectForOrganizationUuidOrderedByName(organizationUuid);
+  }
+
+  public List<WebhookDto> selectByProjectUuid(DbSession dbSession, String projectUuid) {
+    return mapper(dbSession).selectForProjectUuidOrderedByName(projectUuid);
+  }
+
   public void insert(DbSession dbSession, WebhookDto dto) {
 
     checkState(dto.getOrganizationUuid() != null || dto.getProjectUuid() != null,
@@ -48,14 +56,11 @@ public class WebhookDao implements Dao {
       "A webhook can not be linked to both an organization and a project.");
 
     mapper(dbSession).insert(dto.setCreatedAt(system2.now()));
+
   }
 
-  public List<WebhookDto> selectByOrganizationUuid(DbSession dbSession, String organizationUuid) {
-    return mapper(dbSession).selectForOrganizationUuidOrderedByName(organizationUuid);
-  }
-
-  public List<WebhookDto> selectByProjectUuid(DbSession dbSession, String projectUuid) {
-    return mapper(dbSession).selectForProjectUuidOrderedByName(projectUuid);
+  public void update(DbSession dbSession, WebhookDto dto) {
+    mapper(dbSession).update(dto.setUpdatedAt(system2.now()));
   }
 
   private static WebhookMapper mapper(DbSession dbSession) {
