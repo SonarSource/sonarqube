@@ -74,7 +74,8 @@ public class CreateActionTest {
   private DefaultOrganizationProvider defaultOrganizationProvider = from(db);
   private UuidFactory uuidFactory = UuidFactoryFast.getInstance();
 
-  private org.sonar.server.webhook.ws.CreateAction underTest = new CreateAction(dbClient, userSession, defaultOrganizationProvider, uuidFactory);
+  private WebhookSupport webhookSupport = new WebhookSupport(userSession);
+  private org.sonar.server.webhook.ws.CreateAction underTest = new CreateAction(dbClient, userSession, defaultOrganizationProvider, uuidFactory, webhookSupport);
   private WsActionTester wsActionTester = new WsActionTester(underTest);
 
   @Test

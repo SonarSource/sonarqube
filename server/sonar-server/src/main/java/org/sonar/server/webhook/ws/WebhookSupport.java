@@ -19,16 +19,32 @@
  */
 package org.sonar.server.webhook.ws;
 
+import org.sonar.db.component.ComponentDto;
+import org.sonar.db.organization.OrganizationDto;
+import org.sonar.server.user.UserSession;
+
 import static java.lang.String.format;
 import static java.util.Locale.ENGLISH;
+import static org.sonar.api.web.UserRole.ADMIN;
+import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
 
-class WebhookSupport {
+public class WebhookSupport {
 
-  private WebhookSupport() {
-    // only statics
+  private final UserSession userSession;
+
+  public WebhookSupport(UserSession userSession) {
+    this.userSession = userSession;
   }
 
-  static void checkUrlPattern(String url, String message, Object... messageArguments) {
+  void checkUserPermissionOn(ComponentDto componentDto) {
+    userSession.checkComponentPermission(ADMIN, componentDto);
+  }
+
+  void checkUserPermissionOn(OrganizationDto organizationDto) {
+    userSession.checkPermission(ADMINISTER, organizationDto);
+  }
+
+  void checkUrlPattern(String url, String message, Object... messageArguments) {
     if (!url.toLowerCase(ENGLISH).startsWith("http://") && !url.toLowerCase(ENGLISH).startsWith("https://")) {
       throw new IllegalArgumentException(format(message, messageArguments));
     }
