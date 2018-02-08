@@ -63,8 +63,11 @@ public class WebhookDao implements Dao {
     mapper(dbSession).update(dto.setUpdatedAt(system2.now()));
   }
 
+  public void delete(DbSession dbSession, String uuid) {
+    mapper(dbSession).delete(uuid);
+  }
+
   private static WebhookMapper mapper(DbSession dbSession) {
     return dbSession.getMapper(WebhookMapper.class);
   }
-
 }

@@ -30,6 +30,7 @@ public class WebhooksWsModule extends Module {
       SearchAction.class,
       CreateAction.class,
       UpdateAction.class,
+      DeleteAction.class,
       WebhookDeliveryAction.class,
       WebhookDeliveriesAction.class);
   }
