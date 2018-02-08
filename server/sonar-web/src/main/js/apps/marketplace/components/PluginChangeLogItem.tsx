@@ -21,7 +21,7 @@ import * as React from 'react';
 import DateFormatter from '../../../components/intl/DateFormatter';
 import Tooltip from '../../../components/controls/Tooltip';
 import { Release, Update } from '../../../api/plugins';
-import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { translate } from '../../../helpers/l10n';
 
 interface Props {
   release: Release;
@@ -37,7 +37,7 @@ export default function PluginChangeLogItem({ release, update }: Props) {
             {release.version}
           </span>
         ) : (
-          <Tooltip overlay={translateWithParameters('marketplace.status', update.status)}>
+          <Tooltip overlay={translate('marketplace.status', update.status)}>
             <span className="js-plugin-changelog-version badge badge-warning spacer-right">
               {release.version}
             </span>
