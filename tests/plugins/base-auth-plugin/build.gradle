@@ -1,0 +1,25 @@
+dependencies {
+  compile('com.google.guava:guava:17.0') {
+    exclude group: 'com.google.code.findbugs', module: 'jsr305'
+  }
+  compileOnly project(path: ':sonar-plugin-api', configuration: 'shadow')
+  compileOnly 'javax.servlet:javax.servlet-api:3.0.1'
+}
+
+jar {
+  manifest {
+    attributes(
+      'Plugin-Key': 'baseauthplugin',
+      'Plugin-Version': version,
+      'Plugin-Class': 'FakeBaseAuthPlugin',
+      'Plugin-ChildFirstClassLoader': 'false',
+      'Sonar-Version': '7.1-SNAPSHOT',
+      'SonarLint-Supported': 'false',
+      'Plugin-Name': 'Plugins :: Fake Base Authentication Plugin',
+      'Plugin-License': 'GNU LGPL 3'
+    )
+  }
+  into('META-INF/lib') {
+    from configurations.compile
+  }
+}

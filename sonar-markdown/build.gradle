@@ -1,0 +1,28 @@
+sonarqube {
+  properties {
+    property 'sonar.projectName', "${projectTitle} :: Markdown"
+  }
+}
+
+dependencies {
+  compile 'commons-lang:commons-lang'
+  compile 'org.codehaus.sonar:sonar-channel'
+  compile 'org.slf4j:slf4j-api'
+
+  testCompile 'ch.qos.logback:logback-classic'
+  testCompile 'junit:junit'
+  testCompile 'org.assertj:assertj-core'
+}
+
+artifactoryPublish.skip = false
+
+// Used by core plugins
+publishing {
+  publications {
+    mavenJava(MavenPublication) {
+      from components.java
+      artifact sourcesJar
+      artifact javadocJar
+    }
+  }
+}

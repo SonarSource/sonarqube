@@ -37,6 +37,7 @@ import util.ItUtils;
 
 import static com.google.common.base.Preconditions.checkState;
 import static org.assertj.core.api.Assertions.assertThat;
+import static util.ItUtils.newOrchestratorBuilder;
 
 public class CeShutdownTest {
 
@@ -115,7 +116,7 @@ public class CeShutdownTest {
       pauseFile = temp.newFile();
       FileUtils.touch(pauseFile);
 
-      orchestrator = Orchestrator.builderEnv()
+      orchestrator = newOrchestratorBuilder()
         .setServerProperty("sonar.ce.pauseTask.path", pauseFile.getAbsolutePath())
         .setServerProperty("sonar.ce.gracefulStopTimeOutInMs", "" + timeOutInMs)
         .addPlugin(ItUtils.xooPlugin())

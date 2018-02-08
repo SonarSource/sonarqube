@@ -51,6 +51,7 @@ import static java.net.HttpURLConnection.HTTP_OK;
 import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
+import static util.ItUtils.newOrchestratorBuilder;
 import static util.ItUtils.newUserWsClient;
 import static util.ItUtils.pluginArtifact;
 import static util.ItUtils.resetSettings;
@@ -76,7 +77,7 @@ public class RealmAuthenticationTest {
   private static final String USERS_PROPERTY = "sonar.fakeauthenticator.users";
 
   @ClassRule
-  public static final Orchestrator orchestrator = Orchestrator.builderEnv()
+  public static final Orchestrator orchestrator = newOrchestratorBuilder()
     .addPlugin(pluginArtifact("security-plugin"))
     .setServerProperty("sonar.security.realm", "FakeRealm")
     .build();

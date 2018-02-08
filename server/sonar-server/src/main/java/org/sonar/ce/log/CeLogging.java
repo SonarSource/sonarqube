@@ -19,7 +19,7 @@
  */
 package org.sonar.ce.log;
 
-import org.apache.log4j.MDC;
+import org.slf4j.MDC;
 import org.sonar.ce.queue.CeTask;
 
 public class CeLogging {

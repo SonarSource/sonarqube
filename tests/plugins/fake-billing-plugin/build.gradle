@@ -1,0 +1,19 @@
+dependencies {
+  compileOnly project(path: ':sonar-plugin-api', configuration: 'shadow')
+  compileOnly project(':server:sonar-server')
+}
+
+jar {
+  manifest {
+    attributes(
+      'Plugin-Key': 'billing',
+      'Plugin-Version': version,
+      'Plugin-Class': 'FakeBillingPlugin',
+      'Plugin-ChildFirstClassLoader': 'false',
+      'Sonar-Version': '7.1-SNAPSHOT',
+      'SonarLint-Supported': 'false',
+      'Plugin-Name': 'Plugins :: Fake Billing Plugin',
+      'Plugin-License': 'GNU LGPL 3'
+    )
+  }
+}

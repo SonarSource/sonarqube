@@ -1,0 +1,18 @@
+dependencies {
+  compileOnly project(path: ':sonar-plugin-api', configuration: 'shadow')
+}
+
+jar {
+  manifest {
+    attributes(
+      'Plugin-Key': 'l10n-fr-pack',
+      'Plugin-Version': version,
+      'Plugin-Class': 'SimpleFrenchPackPlugin',
+      'Plugin-ChildFirstClassLoader': 'false',
+      'Sonar-Version': '7.1-SNAPSHOT',
+      'SonarLint-Supported': 'false',
+      'Plugin-Name': 'l10n-fr-pack',
+      'Plugin-License': 'GNU LGPL 3'
+    )
+  }
+}

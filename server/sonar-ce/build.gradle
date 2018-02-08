@@ -1,0 +1,24 @@
+sonarqube {
+  properties {
+    property 'sonar.projectName', "${projectTitle} :: Compute Engine"
+  }
+}
+
+dependencies {
+  // please keep the list grouped by configuration and ordered by name
+
+  compile 'com.google.protobuf:protobuf-java'
+  compile 'org.nanohttpd:nanohttpd'
+  compile project(':server:sonar-server')
+
+  compileOnly 'com.google.code.findbugs:jsr305'
+
+  testCompile 'com.google.code.findbugs:jsr305'
+  testCompile 'com.h2database:h2'
+  testCompile 'com.tngtech.java:junit-dataprovider'
+  testCompile 'junit:junit'
+  testCompile 'org.assertj:assertj-core'
+  testCompile 'org.assertj:assertj-guava'
+  testCompile 'org.mockito:mockito-core'
+  testCompile project(':server:sonar-db-testing')
+}

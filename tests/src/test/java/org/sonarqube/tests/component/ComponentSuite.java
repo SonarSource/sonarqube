@@ -23,6 +23,7 @@ import com.sonar.orchestrator.Orchestrator;
 import org.junit.ClassRule;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
+import util.ItUtils;
 
 import static util.ItUtils.xooPlugin;
 
@@ -35,9 +36,7 @@ import static util.ItUtils.xooPlugin;
 public class ComponentSuite {
 
   @ClassRule
-  public static final Orchestrator ORCHESTRATOR = Orchestrator.builderEnv()
-    // reduce memory for Elasticsearch
-    .setServerProperty("sonar.search.javaOpts", "-Xms128m -Xmx128m")
+  public static final Orchestrator ORCHESTRATOR = ItUtils.newOrchestratorBuilder()
 
     .addPlugin(xooPlugin())
 

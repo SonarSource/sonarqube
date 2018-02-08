@@ -38,6 +38,7 @@ import org.sonarqube.ws.client.measures.MeasuresService;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static util.ItUtils.newOrchestratorBuilder;
 import static util.ItUtils.runProjectAnalysis;
 import static util.ItUtils.xooPlugin;
 
@@ -45,7 +46,7 @@ public class LiteTest {
 
   private static final String PROJECT_KEY = "com.sonarsource.it.samples:multi-modules-sample";
 
-  private static Orchestrator orchestrator = Orchestrator.builderEnv()
+  private static Orchestrator orchestrator = newOrchestratorBuilder()
     .setOrchestratorProperty("sonar.web.context", "/sonarqube")
     .addPlugin(xooPlugin())
     .build();

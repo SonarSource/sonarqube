@@ -38,6 +38,7 @@ import org.sonarqube.ws.Users;
 import org.sonarqube.ws.client.users.SearchRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static util.ItUtils.newOrchestratorBuilder;
 import static util.ItUtils.pluginArtifact;
 
 public class StartupIndexationTest {
@@ -81,7 +82,7 @@ public class StartupIndexationTest {
       pauseFile = temp.newFile();
       FileUtils.touch(pauseFile);
 
-      orchestrator = Orchestrator.builderEnv()
+      orchestrator = newOrchestratorBuilder()
         .setServerProperty("sonar.web.pause.path", pauseFile.getAbsolutePath())
         .addPlugin(pluginArtifact("wait-at-platform-level4-plugin"))
         .setStartupLogWatcher(l -> l.contains("PlatformLevel4 initialization phase is paused"))

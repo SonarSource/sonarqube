@@ -29,6 +29,9 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.sonarqube.tests.performance.AbstractPerfTest;
 
+import static util.ItUtils.newOrchestratorBuilder;
+import static util.ItUtils.xooPlugin;
+
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
   BootstrappingTest.class,
@@ -41,9 +44,8 @@ import org.sonarqube.tests.performance.AbstractPerfTest;
 public class ScannerPerformanceSuite {
 
   @ClassRule
-  public static final Orchestrator ORCHESTRATOR = Orchestrator
-    .builderEnv()
-    .addPlugin(FileLocation.byWildcardMavenFilename(new File("../plugins/sonar-xoo-plugin/target"), "sonar-xoo-plugin-*.jar"))
+  public static final Orchestrator ORCHESTRATOR = newOrchestratorBuilder()
+    .addPlugin(xooPlugin())
     // should not be so high, but required as long embedded h2 is used -> requires more memory on server
     .setServerProperty("sonar.web.javaOpts", "-Xmx1G -XX:+HeapDumpOnOutOfMemoryError")
     // Needed by DuplicationTest::hugeJavaFile

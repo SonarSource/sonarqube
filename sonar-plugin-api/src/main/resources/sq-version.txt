@@ -1,1 +1,1 @@
-${buildVersionOnThreeFields}
+@project.version.3digits@

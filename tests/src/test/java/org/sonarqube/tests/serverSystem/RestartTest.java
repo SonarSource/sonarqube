@@ -29,7 +29,6 @@ import org.junit.rules.DisableOnDebug;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
-import org.sonarqube.qa.util.Tester;
 import org.sonarqube.ws.System;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsClient;
@@ -39,6 +38,7 @@ import util.ItUtils;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 import static util.ItUtils.newAdminWsClient;
+import static util.ItUtils.newOrchestratorBuilder;
 import static util.ItUtils.newWsClient;
 
 /**
@@ -64,7 +64,7 @@ public class RestartTest {
   public void restart_in_prod_mode_requires_sysadmin_permission_and_restarts() throws Exception {
     // server classloader locks Jar files on Windows
     if (!SystemUtils.IS_OS_WINDOWS) {
-      orchestrator = Orchestrator.builderEnv()
+      orchestrator = newOrchestratorBuilder()
         .setOrchestratorProperty("orchestrator.keepWorkspace", "true")
         .build();
       orchestrator.start();

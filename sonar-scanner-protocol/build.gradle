@@ -1,0 +1,34 @@
+sonarqube {
+  properties {
+    property 'sonar.projectName', "${projectTitle} :: Scanner :: Protocol"
+    property 'sonar.exclusions', 'src/main/java/org/sonar/scanner/protocol/viewer/**'
+  }
+}
+
+dependencies {
+  compile 'commons-io:commons-io'
+  compile 'com.google.code.gson:gson'
+  compile 'com.google.protobuf:protobuf-java'
+  compile 'net.jpountz.lz4:lz4'
+  compile project(':sonar-core')
+
+  compileOnly 'com.google.code.findbugs:jsr305'
+
+  testCompile 'com.google.guava:guava'
+  testCompile 'junit:junit'
+  testCompile 'org.assertj:assertj-core'
+  testCompile 'org.mockito:mockito-core'
+  testCompile 'net.javacrumbs.json-unit:json-unit-assertj:0.0.15'
+}
+
+// Used by sonar-db-core to run DB Unit Tests
+artifactoryPublish.skip = false
+publishing {
+  publications {
+    mavenJava(MavenPublication) {
+      from components.java
+      artifact sourcesJar
+      artifact javadocJar
+    }
+  }
+}

@@ -1,0 +1,15 @@
+sonarqube {
+  properties {
+    property 'sonar.projectName', "${projectTitle} :: DB testing"
+  }
+}
+
+dependencies {
+  // please keep the list grouped by configuration and ordered by name
+
+  compile 'org.dbunit:dbunit'
+
+  compile project(':server:sonar-db-core').sourceSets.test.output
+  compile project(':server:sonar-db-dao').sourceSets.test.output
+  compile project(':sonar-testing-harness')
+}
