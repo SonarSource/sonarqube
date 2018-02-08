@@ -8,135 +8,49 @@ exports[`should display the log level alert 1`] = `
 </span>
 `;
 
-exports[`should display the sysinfo detail 1`] = `
-<li
-  className="boxed-group system-info-health-card"
->
-  <div
-    className="boxed-group-header"
-    onClick={[Function]}
-  >
-    <span
-      className="system-info-health-card-title"
-    >
-      <OpenCloseIcon
-        className="little-spacer-right"
-        open={true}
-      />
-      Foobar
-    </span>
-    <HealthItem
-      biggerHealth={true}
-      className="pull-right"
-      health="RED"
-      healthCauses={
-        Array [
-          "foo",
-        ]
-      }
-      name="Foobar"
-    />
-  </div>
-  <div
-    className="boxed-group-inner"
-    onMouseEnter={[Function]}
-    onMouseLeave={[Function]}
-  />
-</li>
-`;
-
 exports[`should render correctly 1`] = `
-<li
-  className="boxed-group system-info-health-card"
->
-  <div
-    className="boxed-group-header"
-    onClick={[Function]}
-  >
-    <span
-      className="system-info-health-card-title"
-    >
-      <OpenCloseIcon
-        className="little-spacer-right"
-        open={false}
-      />
-      Foobar
-    </span>
-    <HealthItem
-      biggerHealth={false}
-      className="pull-right"
-      health="RED"
-      healthCauses={
-        Array [
-          "foo",
-        ]
-      }
-      name="Foobar"
-    />
-  </div>
-</li>
+<BoxedGroupAccordion
+  data="Foobar"
+  onClick={[Function]}
+  open={false}
+  renderHeader={[Function]}
+  title="Foobar"
+/>
 `;
 
 exports[`should show a main section and multiple sub sections 1`] = `
-<li
-  className="boxed-group system-info-health-card"
+<BoxedGroupAccordion
+  data="Foobar"
+  onClick={[Function]}
+  open={true}
+  renderHeader={[Function]}
+  title="Foobar"
 >
-  <div
-    className="boxed-group-header"
-    onClick={[Function]}
-  >
-    <span
-      className="system-info-health-card-title"
-    >
-      <OpenCloseIcon
-        className="little-spacer-right"
-        open={true}
-      />
-      Foobar
-    </span>
-    <HealthItem
-      biggerHealth={false}
-      className="pull-right"
-      health="RED"
-      healthCauses={
-        Array [
-          "foo",
-        ]
+  <Section
+    items={
+      Object {
+        "Name": "foo",
+        "bar": "Bar",
       }
-      name="Foobar"
-    />
-  </div>
-  <div
-    className="boxed-group-inner"
-    onMouseEnter={[Function]}
-    onMouseLeave={[Function]}
-  >
-    <Section
-      items={
-        Object {
-          "Name": "foo",
-          "bar": "Bar",
-        }
+    }
+  />
+  <Section
+    items={
+      Object {
+        "db": "test",
       }
-    />
-    <Section
-      items={
-        Object {
-          "db": "test",
-        }
+    }
+    key="Database"
+    name="Database"
+  />
+  <Section
+    items={
+      Object {
+        "Elastic": "search",
       }
-      key="Database"
-      name="Database"
-    />
-    <Section
-      items={
-        Object {
-          "Elastic": "search",
-        }
-      }
-      key="Elasticseach"
-      name="Elasticseach"
-    />
-  </div>
-</li>
+    }
+    key="Elasticseach"
+    name="Elasticseach"
+  />
+</BoxedGroupAccordion>
 `;

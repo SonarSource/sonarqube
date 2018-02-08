@@ -18,11 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import * as classNames from 'classnames';
 import { map } from 'lodash';
 import HealthItem from './HealthItem';
 import Section from './Section';
-import OpenCloseIcon from '../../../../components/icons-components/OpenCloseIcon';
+import BoxedGroupAccordion from '../../../../components/controls/BoxedGroupAccordion';
 import { HealthType, SysValueObject } from '../../../../api/system';
 import { LOGS_LEVELS, groupSections, getLogsLevel } from '../../utils';
 import { translate } from '../../../../helpers/l10n';
@@ -37,34 +36,27 @@ interface Props {
   sysInfoData: SysValueObject;
 }
 
-interface State {
-  hoveringDetail: boolean;
-}
-
-export default class HealthCard extends React.PureComponent<Props, State> {
-  state: State = { hoveringDetail: false };
-
-  handleClick = () => this.props.onClick(this.props.name);
-  onDetailEnter = () => this.setState({ hoveringDetail: true });
-  onDetailLeave = () => this.setState({ hoveringDetail: false });
-
-  render() {
-    const { health, open, sysInfoData } = this.props;
-    const { mainSection, sections } = groupSections(sysInfoData);
-    const showFields = open && mainSection && Object.keys(mainSection).length > 0;
-    const showSections = open && sections;
-    const logLevel = getLogsLevel(sysInfoData);
-    const showLogLevelWarning = logLevel && logLevel !== LOGS_LEVELS[0];
-    return (
-      <li
-        className={classNames('boxed-group system-info-health-card', {
-          'no-hover': this.state.hoveringDetail
-        })}>
-        <div className="boxed-group-header" onClick={this.handleClick}>
-          <span className="system-info-health-card-title">
-            <OpenCloseIcon className="little-spacer-right" open={open} />
-            {this.props.name}
-          </span>
+export default function HealthCard({
+  biggerHealth,
+  health,
+  healthCauses,
+  onClick,
+  open,
+  name,
+  sysInfoData
+}: Props) {
+  const { mainSection, sections } = groupSections(sysInfoData);
+  const showFields = open && mainSection && Object.keys(mainSection).length > 0;
+  const showSections = open && sections;
+  const logLevel = getLogsLevel(sysInfoData);
+  const showLogLevelWarning = logLevel && logLevel !== LOGS_LEVELS[0];
+  return (
+    <BoxedGroupAccordion
+      data={name}
+      onClick={onClick}
+      open={open}
+      renderHeader={() => (
+        <>
           {showLogLevelWarning && (
             <span className="alert alert-danger spacer-left">
               {translate('system.log_level.warning.short')}
@@ -72,25 +64,19 @@ export default class HealthCard extends React.PureComponent<Props, State> {
           )}
           {health && (
             <HealthItem
-              biggerHealth={this.props.biggerHealth}
+              biggerHealth={biggerHealth}
               className="pull-right"
               health={health}
-              healthCauses={this.props.healthCauses}
-              name={this.props.name}
+              healthCauses={healthCauses}
+              name={name}
             />
           )}
-        </div>
-        {open && (
-          <div
-            className="boxed-group-inner"
-            onMouseEnter={this.onDetailEnter}
-            onMouseLeave={this.onDetailLeave}>
-            {showFields && <Section items={mainSection} />}
-            {showSections &&
-              map(sections, (section, name) => <Section key={name} items={section} name={name} />)}
-          </div>
-        )}
-      </li>
-    );
-  }
+        </>
+      )}
+      title={name}>
+      {showFields && <Section items={mainSection} />}
+      {showSections &&
+        map(sections, (section, name) => <Section key={name} items={section} name={name} />)}
+    </BoxedGroupAccordion>
+  );
 }
