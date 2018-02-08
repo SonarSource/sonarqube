@@ -20,13 +20,13 @@
 package org.sonarqube.tests.user;
 
 import com.sonar.orchestrator.Orchestrator;
-import org.sonarqube.tests.Category4Suite;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonarqube.qa.util.Tester;
+import org.sonarqube.qa.util.pageobjects.Navigation;
 import org.sonarqube.ws.Users.CreateWsResponse.User;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.PostRequest;
@@ -34,7 +34,6 @@ import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.WsConnector;
 import org.sonarqube.ws.client.WsRequest;
 import org.sonarqube.ws.client.WsResponse;
-import org.sonarqube.qa.util.pageobjects.Navigation;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonarqube.ws.client.WsRequest.Method.GET;
@@ -45,7 +44,7 @@ import static util.ItUtils.setServerProperty;
 public class ForceAuthenticationTest {
 
   @ClassRule
-  public static final Orchestrator orchestrator = Category4Suite.ORCHESTRATOR;
+  public static final Orchestrator orchestrator = UserSuite.ORCHESTRATOR;
 
   @Rule
   public Tester tester = new Tester(orchestrator).disableOrganizations();

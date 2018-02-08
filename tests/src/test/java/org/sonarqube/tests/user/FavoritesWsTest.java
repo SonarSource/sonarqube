@@ -25,7 +25,6 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.sonarqube.tests.Category4Suite;
 import org.sonarqube.ws.Favorites.Favorite;
 import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.favorites.AddRequest;
@@ -42,7 +41,8 @@ import static util.ItUtils.projectDir;
 public class FavoritesWsTest {
 
   @ClassRule
-  public static final Orchestrator orchestrator = Category4Suite.ORCHESTRATOR;
+  public static final Orchestrator orchestrator = UserSuite.ORCHESTRATOR;
+
   private static WsClient adminClient;
 
   @Before

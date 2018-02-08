@@ -29,7 +29,6 @@ import org.junit.Test;
 import org.sonarqube.qa.util.Tester;
 import org.sonarqube.qa.util.pageobjects.LoginPage;
 import org.sonarqube.qa.util.pageobjects.Navigation;
-import org.sonarqube.tests.Category4Suite;
 import org.sonarqube.ws.UserTokens;
 import org.sonarqube.ws.Users;
 import org.sonarqube.ws.Users.CreateWsResponse.User;
@@ -56,7 +55,7 @@ import static util.ItUtils.setServerProperty;
 public class LocalAuthenticationTest {
 
   @ClassRule
-  public static Orchestrator orchestrator = Category4Suite.ORCHESTRATOR;
+  public static Orchestrator orchestrator = UserSuite.ORCHESTRATOR;
 
   @Rule
   public Tester tester = new Tester(orchestrator).disableOrganizations();

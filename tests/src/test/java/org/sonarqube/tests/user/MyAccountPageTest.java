@@ -25,9 +25,8 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonarqube.qa.util.pageobjects.Navigation;
-import org.sonarqube.tests.Category4Suite;
 import org.sonarqube.qa.util.Tester;
+import org.sonarqube.qa.util.pageobjects.Navigation;
 import org.sonarqube.ws.Users.CreateWsResponse.User;
 import org.sonarqube.ws.client.PostRequest;
 
@@ -40,7 +39,7 @@ import static util.selenium.Selenese.runSelenese;
 public class MyAccountPageTest {
 
   @ClassRule
-  public static Orchestrator orchestrator = Category4Suite.ORCHESTRATOR;
+  public static Orchestrator orchestrator = UserSuite.ORCHESTRATOR;
 
   @Rule
   public Tester tester = new Tester(orchestrator).disableOrganizations();

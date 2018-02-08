@@ -17,30 +17,43 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 package org.sonarqube.tests.user;
 
 import com.sonar.orchestrator.Orchestrator;
 import org.junit.ClassRule;
-import org.junit.Rule;
-import org.junit.Test;
-import org.sonarqube.qa.util.Tester;
+import org.junit.runner.RunWith;
+import org.junit.runners.Suite;
 
-import static util.ItUtils.expectForbiddenError;
+import static util.ItUtils.pluginArtifact;
+import static util.ItUtils.xooPlugin;
 
-public class RootUserInStandaloneModeTest {
+@RunWith(Suite.class)
+@Suite.SuiteClasses({
+  BaseIdentityProviderTest.class,
+  FavoritesWsTest.class,
+  ForceAuthenticationTest.class,
+  LocalAuthenticationTest.class,
+  MyAccountPageTest.class,
+  OAuth2IdentityProviderTest.class,
+  RootUserInStandaloneModeTest.class,
+  UsersPageTest.class
+})
+public class UserSuite {
 
   @ClassRule
-  public static Orchestrator orchestrator = UserSuite.ORCHESTRATOR;
+  public static final Orchestrator ORCHESTRATOR = Orchestrator.builderEnv()
+    .addPlugin(xooPlugin())
 
-  @Rule
-  public Tester tester = new Tester(orchestrator).disableOrganizations();
+    // Used in BaseIdentityProviderTest
+    .addPlugin(pluginArtifact("base-auth-plugin"))
 
-  @Test
-  public void nobody_is_root_by_default_when_organizations_are_disabled() {
-    // anonymous
-    expectForbiddenError(() -> tester.wsClient().roots().search());
+    // Used in OAuth2IdentityProviderTest
+    .addPlugin(pluginArtifact("oauth2-auth-plugin"))
 
-    // admin
-    expectForbiddenError(() -> tester.wsClient().roots().search());
-  }
+    // reduce memory for Elasticsearch
+    .setServerProperty("sonar.search.javaOpts", "-Xms128m -Xmx128m")
+
+    .build();
+
 }

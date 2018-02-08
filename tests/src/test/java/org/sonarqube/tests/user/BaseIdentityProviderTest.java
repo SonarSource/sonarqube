@@ -31,7 +31,6 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.rules.RuleChain;
 import org.sonarqube.qa.util.pageobjects.Navigation;
-import org.sonarqube.tests.Category4Suite;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.users.CreateRequest;
@@ -51,7 +50,7 @@ import static util.selenium.Selenese.runSelenese;
 public class BaseIdentityProviderTest {
 
   @ClassRule
-  public static Orchestrator ORCHESTRATOR = Category4Suite.ORCHESTRATOR;
+  public static Orchestrator ORCHESTRATOR = UserSuite.ORCHESTRATOR;
 
   private static UserRule userRule = UserRule.from(ORCHESTRATOR);
 
