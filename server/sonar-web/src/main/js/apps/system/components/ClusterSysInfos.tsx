@@ -41,7 +41,7 @@ interface Props {
 export default function ClusterSysInfos({ expandedCards, sysInfoData, toggleCard }: Props) {
   const mainCardName = 'System';
   return (
-    <ul>
+    <>
       <HealthCard
         biggerHealth={true}
         health={getHealth(sysInfoData)}
@@ -77,6 +77,6 @@ export default function ClusterSysInfos({ expandedCards, sysInfoData, toggleCard
           sysInfoData={ignoreInfoFields(node)}
         />
       ))}
-    </ul>
+    </>
   );
 }

@@ -26,19 +26,19 @@
 
 .boxed-group > h2 {
   line-height: var(--controlHeight);
-  padding: 15px 20px 0;
+  padding: calc(2 * var(--gridSize)) 20px 0;
 }
 
 .boxed-group hr {
   height: 0;
   border-top: 1px solid var(--gray94);
-  margin: 15px -20px;
+  margin: calc(2 * var(--gridSize)) -20px;
 }
 
 .boxed-group-header {
   position: relative;
   z-index: 10;
-  padding: 15px 20px 0;
+  padding: calc(2 * var(--gridSize)) 20px 0;
 }
 
 .boxed-group-header > h2 {
@@ -56,12 +56,12 @@
   position: relative;
   z-index: 12;
   float: right;
-  margin-top: 15px;
+  margin-top: calc(2 * var(--gridSize));
   margin-right: 20px;
 }
 
 .boxed-group-inner {
-  padding: 15px 20px;
+  padding: calc(2 * var(--gridSize)) 20px;
 }
 
 .boxed-group-inner:empty {
@@ -69,12 +69,45 @@
 }
 
 .boxed-group-list {
-  margin-top: -8px;
-  margin-bottom: -8px;
+  margin-top: - var(--gridSize);
+  margin-bottom: - var(--gridSize);
 }
 
 .boxed-group-list > li {
   margin-left: -20px;
   margin-right: -20px;
-  padding: 8px 20px;
+  padding: var(--gridSize) 20px;
+}
+
+.boxed-group-accordion {
+  margin-bottom: var(--gridSize);
+  transition: border-color 0.3s ease;
+}
+
+.boxed-group-accordion:not(.no-hover):hover {
+  border-color: var(--blue);
+}
+
+.boxed-group-accordion:not(.no-hover):hover .boxed-group-accordion-title {
+  color: var(--blue);
+}
+
+.boxed-group-accordion .boxed-group-header {
+  cursor: pointer;
+  padding-bottom: calc(2 * var(--gridSize));
+}
+
+.boxed-group-accordion .boxed-group-header > .alert {
+  display: inline-block;
+  margin-bottom: -6px;
+  margin-top: -6px;
+}
+
+.boxed-group-accordion .boxed-group-inner {
+  padding-top: 0;
+}
+
+.boxed-group-accordion-title {
+  font-weight: bold;
+  transition: color 0.3s ease;
 }

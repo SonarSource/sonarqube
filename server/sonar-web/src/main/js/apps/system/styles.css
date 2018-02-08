@@ -22,38 +22,6 @@
   margin-bottom: 16px;
 }
 
-.system-info-health-card {
-  margin-bottom: 8px;
-  transition: border-color 0.3s ease;
-}
-
-.system-info-health-card:not(.no-hover):hover {
-  border-color: var(--blue);
-}
-
-.system-info-health-card:not(.no-hover):hover .system-info-health-card-title {
-  color: var(--blue);
-}
-
-.system-info-health-card .boxed-group-header {
-  cursor: pointer;
-  padding-bottom: 15px;
-}
-
-.system-info-health-card .boxed-group-header > .alert {
-  display: inline-block;
-  margin-bottom: -6px;
-  margin-top: -6px;
-}
-
-.system-info-health-card .boxed-group-inner {
-  padding-top: 0;
-}
-
-.system-info-health-card-title {
-  font-weight: bold;
-}
-
 .system-info-health-info {
   margin-top: -12px;
 }
