@@ -20,14 +20,16 @@
 package org.sonar.server.webhook;
 
 import java.io.IOException;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.log.LogTester;
-import org.sonar.api.utils.log.LoggerLevel;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbTester;
+import org.sonar.db.component.ComponentDbTester;
+import org.sonar.db.component.ComponentDto;
+import org.sonar.db.webhook.WebhookDbTester;
 import org.sonar.server.async.AsyncExecution;
+import org.sonar.server.organization.DefaultOrganizationProvider;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -35,143 +37,102 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.sonar.api.utils.log.LoggerLevel.DEBUG;
+import static org.sonar.db.DbTester.create;
+import static org.sonar.db.webhook.WebhookTesting.newWebhook;
+import static org.sonar.server.organization.TestDefaultOrganizationProvider.from;
 
 public class SynchronousWebHooksImplTest {
 
   private static final long NOW = 1_500_000_000_000L;
-  private static final String PROJECT_UUID = "P1_UUID";
 
   @Rule
   public LogTester logTester = new LogTester();
 
-  private final MapSettings settings = new MapSettings();
+  @Rule
+  public DbTester db = create();
+  private DbClient dbClient = db.getDbClient();
+
+  private WebhookDbTester webhookDbTester = db.webhooks();
+  private ComponentDbTester componentDbTester = db.components();
+  private DefaultOrganizationProvider defaultOrganizationProvider = from(db);
+
   private final TestWebhookCaller caller = new TestWebhookCaller();
   private final WebhookDeliveryStorage deliveryStorage = mock(WebhookDeliveryStorage.class);
   private final WebhookPayload mock = mock(WebhookPayload.class);
   private final AsyncExecution synchronousAsyncExecution = Runnable::run;
-  private final WebHooksImpl underTest = new WebHooksImpl(caller, deliveryStorage, synchronousAsyncExecution);
+  private final WebHooksImpl underTest = new WebHooksImpl(caller, deliveryStorage, synchronousAsyncExecution, dbClient);
 
   @Test
-  public void isEnabled_returns_false_if_no_webHoolds() {
-    assertThat(underTest.isEnabled(settings.asConfig())).isFalse();
+  public void isEnabled_returns_false_if_no_webhooks() {
+    ComponentDto componentDto = componentDbTester.insertPrivateProject();
+
+    assertThat(underTest.isEnabled(componentDto)).isFalse();
   }
 
   @Test
   public void isEnabled_returns_true_if_one_valid_global_webhook() {
-    settings.setProperty("sonar.webhooks.global", "1");
-    settings.setProperty("sonar.webhooks.global.1.name", "First");
-    settings.setProperty("sonar.webhooks.global.1.url", "http://url1");
+    ComponentDto componentDto = componentDbTester.insertPrivateProject();
+    webhookDbTester.insert(newWebhook(componentDto).setName("First").setUrl("http://url1"));
 
-    assertThat(underTest.isEnabled(settings.asConfig())).isTrue();
-  }
-
-  @Test
-  public void isEnabled_returns_false_if_only_one_global_webhook_without_url() {
-    settings.setProperty("sonar.webhooks.global", "1");
-    settings.setProperty("sonar.webhooks.global.1.name", "First");
-
-    assertThat(underTest.isEnabled(settings.asConfig())).isFalse();
-  }
-
-  @Test
-  public void isEnabled_returns_false_if_only_one_global_webhook_without_name() {
-    settings.setProperty("sonar.webhooks.global", "1");
-    settings.setProperty("sonar.webhooks.global.1.url", "http://url1");
-
-    assertThat(underTest.isEnabled(settings.asConfig())).isFalse();
+    assertThat(underTest.isEnabled(componentDto)).isTrue();
   }
 
   @Test
   public void isEnabled_returns_true_if_one_valid_project_webhook() {
-    settings.setProperty("sonar.webhooks.project", "1");
-    settings.setProperty("sonar.webhooks.project.1.name", "First");
-    settings.setProperty("sonar.webhooks.project.1.url", "http://url1");
+    String organizationUuid = defaultOrganizationProvider.get().getUuid();
+    ComponentDto componentDto = componentDbTester.insertPrivateProject().setOrganizationUuid(organizationUuid);
+    webhookDbTester.insert(newWebhook(componentDto).setName("First").setUrl("http://url1"));
 
-    assertThat(underTest.isEnabled(settings.asConfig())).isTrue();
+    assertThat(underTest.isEnabled(componentDto)).isTrue();
   }
 
-  @Test
-  public void isEnabled_returns_false_if_only_one_project_webhook_without_url() {
-    settings.setProperty("sonar.webhooks.project", "1");
-    settings.setProperty("sonar.webhooks.project.1.name", "First");
-
-    assertThat(underTest.isEnabled(settings.asConfig())).isFalse();
-  }
-
-  @Test
-  public void isEnabled_returns_false_if_only_one_project_webhook_without_name() {
-    settings.setProperty("sonar.webhooks.project", "1");
-    settings.setProperty("sonar.webhooks.project.1.url", "http://url1");
-
-    assertThat(underTest.isEnabled(settings.asConfig())).isFalse();
-  }
 
   @Test
   public void do_nothing_if_no_webhooks() {
-    underTest.sendProjectAnalysisUpdate(settings.asConfig(), new WebHooks.Analysis(PROJECT_UUID, "1", "#1"), () -> mock);
+    ComponentDto componentDto = componentDbTester.insertPrivateProject().setOrganizationUuid(defaultOrganizationProvider.get().getUuid());
+
+    underTest.sendProjectAnalysisUpdate(new WebHooks.Analysis(componentDto.uuid(), "1", "#1"), () -> mock);
 
     assertThat(caller.countSent()).isEqualTo(0);
-    assertThat(logTester.logs(LoggerLevel.DEBUG)).isEmpty();
+    assertThat(logTester.logs(DEBUG)).isEmpty();
     verifyZeroInteractions(deliveryStorage);
   }
 
   @Test
   public void send_global_webhooks() {
-    settings.setProperty("sonar.webhooks.global", "1,2");
-    settings.setProperty("sonar.webhooks.global.1.name", "First");
-    settings.setProperty("sonar.webhooks.global.1.url", "http://url1");
-    settings.setProperty("sonar.webhooks.global.2.name", "Second");
-    settings.setProperty("sonar.webhooks.global.2.url", "http://url2");
+
+    ComponentDto componentDto = componentDbTester.insertPrivateProject();
+    webhookDbTester.insert(newWebhook(componentDto).setName("First").setUrl("http://url1"));
+    webhookDbTester.insert(newWebhook(componentDto).setName("Second").setUrl("http://url2"));
     caller.enqueueSuccess(NOW, 200, 1_234);
     caller.enqueueFailure(NOW, new IOException("Fail to connect"));
 
-    underTest.sendProjectAnalysisUpdate(settings.asConfig(), new WebHooks.Analysis(PROJECT_UUID, "1", "#1"), () -> mock);
+    underTest.sendProjectAnalysisUpdate(new WebHooks.Analysis(componentDto.uuid(), "1", "#1"), () -> mock);
 
     assertThat(caller.countSent()).isEqualTo(2);
-    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("Sent webhook 'First' | url=http://url1 | time=1234ms | status=200");
-    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("Failed to send webhook 'Second' | url=http://url2 | message=Fail to connect");
+    assertThat(logTester.logs(DEBUG)).contains("Sent webhook 'First' | url=http://url1 | time=1234ms | status=200");
+    assertThat(logTester.logs(DEBUG)).contains("Failed to send webhook 'Second' | url=http://url2 | message=Fail to connect");
     verify(deliveryStorage, times(2)).persist(any(WebhookDelivery.class));
-    verify(deliveryStorage).purge(PROJECT_UUID);
+    verify(deliveryStorage).purge(componentDto.uuid());
+
   }
 
   @Test
   public void send_project_webhooks() {
-    settings.setProperty("sonar.webhooks.project", "1");
-    settings.setProperty("sonar.webhooks.project.1.name", "First");
-    settings.setProperty("sonar.webhooks.project.1.url", "http://url1");
+
+    String organizationUuid = defaultOrganizationProvider.get().getUuid();
+    ComponentDto componentDto = componentDbTester.insertPrivateProject().setOrganizationUuid(organizationUuid);
+    webhookDbTester.insert(newWebhook(componentDto).setName("First").setUrl("http://url1"));
     caller.enqueueSuccess(NOW, 200, 1_234);
 
-    underTest.sendProjectAnalysisUpdate(settings.asConfig(), new WebHooks.Analysis(PROJECT_UUID, "1", "#1"), () -> mock);
+    underTest.sendProjectAnalysisUpdate(new WebHooks.Analysis(componentDto.uuid(), "1", "#1"), () -> mock);
 
     assertThat(caller.countSent()).isEqualTo(1);
-    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("Sent webhook 'First' | url=http://url1 | time=1234ms | status=200");
+    assertThat(logTester.logs(DEBUG)).contains("Sent webhook 'First' | url=http://url1 | time=1234ms | status=200");
     verify(deliveryStorage).persist(any(WebhookDelivery.class));
-    verify(deliveryStorage).purge(PROJECT_UUID);
-  }
+    verify(deliveryStorage).purge(componentDto.uuid());
 
-  @Test
-  public void process_only_the_10_first_global_webhooks() {
-    testMaxWebhooks("sonar.webhooks.global");
-  }
-
-  @Test
-  public void process_only_the_10_first_project_webhooks() {
-    testMaxWebhooks("sonar.webhooks.project");
-  }
-
-  private void testMaxWebhooks(String property) {
-    IntStream.range(1, 15)
-      .forEach(i -> {
-        settings.setProperty(property + "." + i + ".name", "First");
-        settings.setProperty(property + "." + i + ".url", "http://url");
-        caller.enqueueSuccess(NOW, 200, 1_234);
-      });
-    settings.setProperty(property, IntStream.range(1, 15).mapToObj(String::valueOf).collect(Collectors.joining(",")));
-
-    underTest.sendProjectAnalysisUpdate(settings.asConfig(), new WebHooks.Analysis(PROJECT_UUID, "1", "#1"), () -> mock);
-
-    assertThat(caller.countSent()).isEqualTo(10);
-    assertThat(logTester.logs(LoggerLevel.DEBUG).stream().filter(log -> log.contains("Sent"))).hasSize(10);
   }
 
 }

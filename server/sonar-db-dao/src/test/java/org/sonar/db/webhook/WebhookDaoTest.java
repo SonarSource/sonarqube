@@ -73,7 +73,7 @@ public class WebhookDaoTest {
     assertThat(stored.getOrganizationUuid()).isEqualTo(dto.getOrganizationUuid());
     assertThat(stored.getProjectUuid()).isNull();
     assertThat(new Date(stored.getCreatedAt())).isInSameMinuteWindowAs(new Date(system2.now()));
-    assertThat(stored.getUpdatedAt()).isNull();
+    assertThat(new Date(stored.getUpdatedAt())).isInSameMinuteWindowAs(new Date(system2.now()));
   }
 
   @Test
@@ -95,18 +95,18 @@ public class WebhookDaoTest {
     assertThat(reloaded.getOrganizationUuid()).isNull();
     assertThat(reloaded.getProjectUuid()).isEqualTo(dto.getProjectUuid());
     assertThat(new Date(reloaded.getCreatedAt())).isInSameMinuteWindowAs(new Date(system2.now()));
-    assertThat(reloaded.getUpdatedAt()).isNull();
+    assertThat(new Date(reloaded.getUpdatedAt())).isInSameMinuteWindowAs(new Date(system2.now()));
   }
 
   @Test
   public void update() {
 
     OrganizationDto organization = organizationDbTester.insert();
-    WebhookDto dto = webhookDbTester.insertForOrganizationUuid(organization.getUuid());
+    WebhookDto dto = webhookDbTester.insertWebhook(organization);
 
     underTest.update(dbSession, dto.setName("a-fancy-webhook").setUrl("http://www.fancy-webhook.io"));
 
-    WebhookDto reloaded = underTest.selectByUuid(dbSession, dto.uuid).get();
+    WebhookDto reloaded = underTest.selectByUuid(dbSession, dto.getUuid()).get();
     assertThat(reloaded.getUuid()).isEqualTo(dto.getUuid());
     assertThat(reloaded.getName()).isEqualTo("a-fancy-webhook");
     assertThat(reloaded.getUrl()).isEqualTo("http://www.fancy-webhook.io");
@@ -120,11 +120,11 @@ public class WebhookDaoTest {
   public void delete() {
 
     OrganizationDto organization = organizationDbTester.insert();
-    WebhookDto dto = webhookDbTester.insertForOrganizationUuid(organization.getUuid());
+    WebhookDto dto = webhookDbTester.insertWebhook(organization);
 
     underTest.delete(dbSession, dto.getUuid());
 
-    Optional<WebhookDto> reloaded = underTest.selectByUuid(dbSession, dto.uuid);
+    Optional<WebhookDto> reloaded = underTest.selectByUuid(dbSession, dto.getUuid());
     assertThat(reloaded).isEmpty();
   }
 

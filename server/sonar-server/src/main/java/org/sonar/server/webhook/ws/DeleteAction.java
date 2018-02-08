@@ -56,14 +56,15 @@ public class DeleteAction implements WebhooksWsAction {
     WebService.NewAction action = controller.createAction(DELETE_ACTION)
       .setPost(true)
       .setDescription("Delete a Webhook.<br>" +
-        "Requires the global, organization or project permission.")
+        "Requires 'Administer' permission on the specified project, or global 'Administer' permission.")
       .setSince("7.1")
       .setHandler(this);
 
     action.createParam(KEY_PARAM)
       .setRequired(true)
       .setMaximumLength(KEY_PARAM_MAXIMUN_LENGTH)
-      .setDescription("The key of the webhook to be deleted")
+      .setDescription("The key of the webhook to be deleted,"+
+        "auto-generated value can be obtained through api/webhooks/create or api/webhooks/list")
       .setExampleValue(KEY_PROJECT_EXAMPLE_001);
 
   }
@@ -84,7 +85,7 @@ public class DeleteAction implements WebhooksWsAction {
       if (organizationUuid != null) {
         Optional<OrganizationDto> optionalDto = dbClient.organizationDao().selectByUuid(dbSession, organizationUuid);
         OrganizationDto organizationDto = checkStateWithOptional(optionalDto, "the requested organization '%s' was not found", organizationUuid);
-        webhookSupport.checkUserPermissionOn(organizationDto);
+        webhookSupport.checkPermission(organizationDto);
         deleteWebhook(dbSession, webhookDto);
       }
 
@@ -92,7 +93,7 @@ public class DeleteAction implements WebhooksWsAction {
       if (projectUuid != null) {
         Optional<ComponentDto> optionalDto = ofNullable(dbClient.componentDao().selectByUuid(dbSession, projectUuid).orNull());
         ComponentDto componentDto = checkStateWithOptional(optionalDto, "the requested project '%s' was not found", projectUuid);
-        webhookSupport.checkUserPermissionOn(componentDto);
+        webhookSupport.checkPermission(componentDto);
         deleteWebhook(dbSession, webhookDto);
       }
 
