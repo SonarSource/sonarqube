@@ -56,8 +56,10 @@ public class WebServiceEngineTest {
   @Test
   public void load_ws_definitions_at_startup() {
     WebServiceEngine underTest = new WebServiceEngine(new WebService[] {
-      newWs("api/foo/index", a -> {}),
-      newWs("api/bar/index", a -> {})
+      newWs("api/foo/index", a -> {
+      }),
+      newWs("api/bar/index", a -> {
+      })
     });
     underTest.start();
     try {
@@ -204,8 +206,7 @@ public class WebServiceEngineTest {
   public void fail_if_reading_an_undefined_parameter() {
     Request request = new TestRequest().setPath("api/foo").setParam("unknown", "Unknown");
 
-    DumbResponse response = run(request, newWs("api/foo", a ->
-      a.setHandler((req, resp) -> request.param("unknown"))));
+    DumbResponse response = run(request, newWs("api/foo", a -> a.setHandler((req, resp) -> request.param("unknown"))));
 
     assertThat(response.stream().outputAsString()).isEqualTo("{\"errors\":[{\"msg\":\"BUG - parameter 'unknown' is undefined for action 'foo'\"}]}");
     assertThat(response.stream().status()).isEqualTo(400);
@@ -404,6 +405,18 @@ public class WebServiceEngineTest {
     assertThat(logTester.logs(LoggerLevel.ERROR)).contains("Fail to process request api/foo");
   }
 
+  @Test
+  public void fail_when_start_in_not_called() {
+    Request request = new TestRequest().setPath("/api/ping");
+    DumbResponse response = new DumbResponse();
+    WebServiceEngine underTest = new WebServiceEngine(new WebService[] {newPingWs(a -> {
+    })});
+
+    underTest.execute(request, response);
+
+    assertThat(logTester.logs(LoggerLevel.ERROR)).contains("Fail to process request /api/ping");
+  }
+
   private static WebService newWs(String path, Consumer<WebService.NewAction> consumer) {
     return context -> {
       WebService.NewController controller = context.createController(substringBeforeLast(path, "/"));
@@ -430,7 +443,7 @@ public class WebServiceEngineTest {
 
   private static DumbResponse run(Request request, WebService... webServices) {
     DumbResponse response = new DumbResponse();
-    return (DumbResponse)run(request, response, webServices);
+    return (DumbResponse) run(request, response, webServices);
   }
 
   private static Response run(Request request, Response response, WebService... webServices) {
