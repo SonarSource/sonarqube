@@ -19,42 +19,34 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import HealthCard from '../HealthCard';
-import { HealthType } from '../../../../../api/system';
+import { click } from '../../../helpers/testUtils';
+import BoxedGroupAccordion from '../BoxedGroupAccordion';
 
 it('should render correctly', () => {
   expect(getWrapper()).toMatchSnapshot();
 });
 
-it('should show a main section and multiple sub sections', () => {
-  const sysInfoData = {
-    Name: 'foo',
-    bar: 'Bar',
-    Database: { db: 'test' },
-    Elasticseach: { Elastic: 'search' }
-  };
-  expect(getWrapper({ open: true, sysInfoData })).toMatchSnapshot();
-});
+it('should show the inner content after a click', () => {
+  const onClick = jest.fn();
+  const wrapper = getWrapper({ onClick });
+  click(wrapper.find('.boxed-group-header'));
 
-it('should display the log level alert', () => {
-  expect(
-    getWrapper({ sysInfoData: { 'Logs Level': 'DEBUG' } })
-      .dive()
-      .find('.alert')
-  ).toMatchSnapshot();
+  expect(onClick).lastCalledWith('foo');
+  wrapper.setProps({ open: true });
+
+  expect(wrapper.find('.boxed-group-inner').exists()).toBeTruthy();
 });
 
 function getWrapper(props = {}) {
   return shallow(
-    <HealthCard
-      biggerHealth={false}
-      health={HealthType.RED}
-      healthCauses={['foo']}
-      name="Foobar"
+    <BoxedGroupAccordion
+      data="foo"
       onClick={() => {}}
       open={false}
-      sysInfoData={{}}
-      {...props}
-    />
+      renderHeader={() => <div>header content</div>}
+      title="Foo"
+      {...props}>
+      <div>inner content</div>
+    </BoxedGroupAccordion>
   );
 }

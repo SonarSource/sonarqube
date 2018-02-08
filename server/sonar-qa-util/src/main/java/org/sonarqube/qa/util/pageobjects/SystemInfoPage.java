@@ -21,26 +21,28 @@ package org.sonarqube.qa.util.pageobjects;
 
 import com.codeborne.selenide.CollectionCondition;
 import com.codeborne.selenide.Condition;
-import com.codeborne.selenide.Selenide;
+import com.codeborne.selenide.ElementsCollection;
 import com.codeborne.selenide.SelenideElement;
+
+import static com.codeborne.selenide.Selenide.$;
+import static com.codeborne.selenide.Selenide.$$;
 
 public class SystemInfoPage {
   public SystemInfoPage() {
-    Selenide.$(".page-title").should(Condition.exist).shouldHave(Condition.text("System Info"));
-  }
-
-  public SystemInfoPage shouldHaveCard(String title) {
-    Selenide.$$(".system-info-health-card-title").find(Condition.text(title)).should(Condition.exist);
-    return this;
+    $(".page-title").should(Condition.exist).shouldHave(Condition.text("System Info"));
   }
 
   public SystemInfoPage shouldHaveCards(String... titles) {
-    Selenide.$$(".system-info-health-card-title").shouldHave(CollectionCondition.texts(titles));
+    getHealthCards().shouldHave(CollectionCondition.texts(titles));
     return this;
   }
 
   public SystemInfoPageItem getCardItem(String card) {
-    SelenideElement cardTitle = Selenide.$$(".system-info-health-card-title").find(Condition.text(card)).should(Condition.exist);
+    SelenideElement cardTitle = getHealthCards().find(Condition.text(card)).should(Condition.exist);
     return new SystemInfoPageItem(cardTitle.parent().parent());
+  }
+
+  private static ElementsCollection getHealthCards() {
+    return $$(".boxed-group-accordion-title");
   }
 }
