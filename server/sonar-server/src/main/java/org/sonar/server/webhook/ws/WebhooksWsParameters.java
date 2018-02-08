@@ -24,9 +24,10 @@ class WebhooksWsParameters {
   static final String WEBHOOKS_CONTROLLER = "api/webhooks";
 
 
+  static final String SEARCH_ACTION = "search";
   static final String ACTION_CREATE = "create";
   static final String UPDATE_ACTION = "update";
-  static final String SEARCH_ACTION = "search";
+  static final String DELETE_ACTION = "delete";
 
 
   static final String ORGANIZATION_KEY_PARAM = "organization";
