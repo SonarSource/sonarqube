@@ -21,7 +21,7 @@ import { getJSON, post, postJSON } from '../helpers/request';
 import { Metric } from '../app/types';
 import throwGlobalError from '../app/utils/throwGlobalError';
 
-interface MetricsResponse {
+export interface MetricsResponse {
   metrics: Metric[];
   p: number;
   ps: number;

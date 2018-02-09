@@ -25,12 +25,13 @@ import List from './List';
 import {
   getMetricDomains,
   getMetricTypes,
-  getAllMetrics,
+  getMetrics,
   deleteMetric,
   updateMetric,
-  createMetric
+  createMetric,
+  MetricsResponse
 } from '../../../api/metrics';
-import { Metric } from '../../../app/types';
+import { Metric, Paging } from '../../../app/types';
 import ListFooter from '../../../components/controls/ListFooter';
 import { translate } from '../../../helpers/l10n';
 
@@ -40,8 +41,11 @@ interface State {
   domains?: string[];
   loading: boolean;
   metrics?: Metric[];
+  paging?: Paging;
   types?: string[];
 }
+
+const PAGE_SIZE = 500;
 
 export default class App extends React.PureComponent<Props, State> {
   mounted: boolean;
@@ -57,19 +61,53 @@ export default class App extends React.PureComponent<Props, State> {
   }
 
   fetchData = () => {
-    Promise.all([getMetricDomains(), getMetricTypes(), getAllMetrics({ isCustom: true })]).then(
-      ([domains, types, metrics]) => {
-        if (this.mounted) {
-          this.setState({ domains, loading: false, metrics, types });
-        }
-      },
-      () => {
-        if (this.mounted) {
-          this.setState({ loading: false });
-        }
+    Promise.all([
+      getMetricDomains(),
+      getMetricTypes(),
+      getMetrics({ isCustom: true, ps: PAGE_SIZE })
+    ]).then(([domains, types, metricsResponse]) => {
+      if (this.mounted) {
+        this.setState({
+          domains,
+          loading: false,
+          metrics: metricsResponse.metrics,
+          paging: this.getPaging(metricsResponse),
+          types
+        });
       }
-    );
+    }, this.stopLoading);
   };
+
+  fetchMore = () => {
+    const { paging } = this.state;
+    if (paging) {
+      this.setState({ loading: true });
+      getMetrics({ isCustom: true, p: paging.pageIndex + 1, ps: PAGE_SIZE }).then(
+        metricsResponse => {
+          if (this.mounted) {
+            this.setState(({ metrics = [] }: State) => ({
+              loading: false,
+              metrics: [...metrics, ...metricsResponse.metrics],
+              paging: this.getPaging(metricsResponse)
+            }));
+          }
+        },
+        this.stopLoading
+      );
+    }
+  };
+
+  stopLoading = () => {
+    if (this.mounted) {
+      this.setState({ loading: false });
+    }
+  };
+
+  getPaging = (response: MetricsResponse): Paging => ({
+    pageIndex: response.p,
+    pageSize: response.ps,
+    total: response.total
+  });
 
   handleCreate = (data: MetricProps) => {
     return createMetric(data).then(metric => {
@@ -102,7 +140,7 @@ export default class App extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const { domains, loading, metrics, types } = this.state;
+    const { domains, loading, metrics, paging, types } = this.state;
 
     return (
       <>
@@ -118,7 +156,15 @@ export default class App extends React.PureComponent<Props, State> {
               types={types}
             />
           )}
-          {metrics && <ListFooter count={metrics.length} ready={!loading} total={metrics.length} />}
+          {metrics &&
+            paging && (
+              <ListFooter
+                count={metrics.length}
+                loadMore={this.fetchMore}
+                ready={!loading}
+                total={paging.total}
+              />
+            )}
         </div>
       </>
     );

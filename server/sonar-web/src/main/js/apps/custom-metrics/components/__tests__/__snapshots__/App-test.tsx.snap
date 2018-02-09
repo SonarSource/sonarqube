@@ -74,8 +74,9 @@ exports[`should work 2`] = `
     />
     <ListFooter
       count={1}
+      loadMore={[Function]}
       ready={true}
-      total={1}
+      total={5}
     />
   </div>
 </React.Fragment>

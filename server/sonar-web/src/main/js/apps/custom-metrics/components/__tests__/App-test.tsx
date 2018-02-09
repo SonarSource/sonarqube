@@ -24,7 +24,13 @@ import App from '../App';
 jest.mock('../../../../api/metrics', () => ({
   getMetricDomains: () => Promise.resolve(['Coverage', 'Issues']),
   getMetricTypes: () => Promise.resolve(['INT', 'STRING']),
-  getAllMetrics: () => Promise.resolve([{ id: '3', key: 'foo', name: 'Foo', type: 'INT' }]),
+  getMetrics: () =>
+    Promise.resolve({
+      metrics: [{ id: '3', key: 'foo', name: 'Foo', type: 'INT' }],
+      p: 1,
+      ps: 1,
+      total: 5
+    }),
   deleteMetric: () => Promise.resolve(),
   updateMetric: () => Promise.resolve(),
   createMetric: () =>
