@@ -34,6 +34,7 @@ public class DbVersion67 implements DbVersion {
       .add(1835, "Populate WEBHOOK_DELIVERIES.ANALYSIS_UUID", PopulateAnalysisUuidColumnOnWebhookDeliveries.class)
       .add(1836, "Migrate 'previous_analysis' leak periods to 'previous_version'", MigratePreviousAnalysisToPreviousVersion.class)
       .add(1837, "Drop old licenses", DropOldLicenses.class)
+      .add(1838, "Clean orphans in Compute Engine child tables", CleanCeChildTablesOrphans.class)
     ;
   }
 }
