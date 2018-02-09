@@ -153,6 +153,7 @@ exports[`should render form 1`] = `
       </button>
       <button
         className="button-link"
+        disabled={false}
         id="create-metric-cancel"
         onClick={[Function]}
         type="reset"

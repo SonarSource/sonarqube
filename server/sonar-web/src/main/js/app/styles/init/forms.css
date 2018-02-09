@@ -292,7 +292,7 @@ input[type='submit'].button-grey.button-active {
 .button-link:disabled:active,
 .button-link:disabled:focus {
   color: var(--secondFontColor);
-  background: transparent;
+  background: transparent !important;
   cursor: default;
 }
 

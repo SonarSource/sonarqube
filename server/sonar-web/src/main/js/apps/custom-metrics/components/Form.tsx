@@ -68,15 +68,15 @@ export default class Form extends React.PureComponent<Props, State> {
       .then(this.props.onClose);
   };
 
-  handleKeyChange = (event: React.SyntheticEvent<HTMLInputElement>) => {
+  handleKeyChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     this.setState({ key: event.currentTarget.value });
   };
 
-  handleDescriptionChange = (event: React.SyntheticEvent<HTMLTextAreaElement>) => {
+  handleDescriptionChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
     this.setState({ description: event.currentTarget.value });
   };
 
-  handleNameChange = (event: React.SyntheticEvent<HTMLInputElement>) => {
+  handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     this.setState({ name: event.currentTarget.value });
   };
 
@@ -173,6 +173,7 @@ export default class Form extends React.PureComponent<Props, State> {
               </button>
               <button
                 className="button-link"
+                disabled={submitting}
                 id="create-metric-cancel"
                 onClick={onCloseClick}
                 type="reset">
