@@ -95,9 +95,12 @@ exports[`renders 3`] = `
     overlay="background_tasks.number_of_workers.warning"
     placement="bottom"
   >
-    <i
-      className="icon-alert-warn little-spacer-right bt-workers-warning-icon"
-    />
+    <span>
+      <AlertWarnIcon
+        className="little-spacer-right bt-workers-warning-icon"
+        fill="#d3d3d3"
+      />
+    </span>
   </Tooltip>
   <span
     className="text-middle"
@@ -127,9 +130,12 @@ exports[`renders 4`] = `
     overlay="background_tasks.number_of_workers.warning"
     placement="bottom"
   >
-    <i
-      className="icon-alert-warn little-spacer-right bt-workers-warning-icon"
-    />
+    <span>
+      <AlertWarnIcon
+        className="little-spacer-right bt-workers-warning-icon"
+        fill="#d3d3d3"
+      />
+    </span>
   </Tooltip>
   <span
     className="text-middle"
@@ -198,9 +204,12 @@ exports[`updates worker count 2`] = `
     overlay="background_tasks.number_of_workers.warning"
     placement="bottom"
   >
-    <i
-      className="icon-alert-warn little-spacer-right bt-workers-warning-icon"
-    />
+    <span>
+      <AlertWarnIcon
+        className="little-spacer-right bt-workers-warning-icon"
+        fill="#d3d3d3"
+      />
+    </span>
   </Tooltip>
   <span
     className="text-middle"

@@ -23,8 +23,8 @@ exports[`renders 3`] = `
 <div
   className="big-spacer-top note text-center"
 >
-  <i
-    className="icon-check spacer-right"
+  <AlertSuccessIcon
+    className="spacer-right"
   />
   onboarding.project_watcher.finished
 </div>

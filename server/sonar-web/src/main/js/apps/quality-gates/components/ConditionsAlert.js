@@ -18,6 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React, { Component } from 'react';
+import AlertErrorIcon from '../../../components/icons-components/AlertErrorIcon';
+import AlertSuccessIcon from '../../../components/icons-components/AlertSuccessIcon';
+import AlertWarnIcon from '../../../components/icons-components/AlertWarnIcon';
 import { translate } from '../../../helpers/l10n';
 
 export default class ConditionsAlert extends Component {
@@ -46,13 +49,13 @@ export default class ConditionsAlert extends Component {
             {translate('quality_gates.health_icons')}
             <ul>
               <li className="little-spacer-top">
-                <i className="icon-alert-ok" /> {translate('alerts.notes.ok')}
+                <AlertSuccessIcon /> {translate('alerts.notes.ok')}
               </li>
               <li className="little-spacer-top">
-                <i className="icon-alert-warn" /> {translate('alerts.notes.warn')}
+                <AlertWarnIcon /> {translate('alerts.notes.warn')}
               </li>
               <li className="little-spacer-top">
-                <i className="icon-alert-error" /> {translate('alerts.notes.error')}
+                <AlertErrorIcon /> {translate('alerts.notes.error')}
               </li>
             </ul>
           </div>

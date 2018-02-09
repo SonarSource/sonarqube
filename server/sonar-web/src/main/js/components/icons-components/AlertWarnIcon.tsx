@@ -19,8 +19,9 @@
  */
 import * as React from 'react';
 import { IconProps } from './types';
+import * as theme from '../../app/theme';
 
-export default function AlertWarnIcon({ className, fill = '#ed7d20', size = 16 }: IconProps) {
+export default function AlertWarnIcon({ className, fill = theme.orange, size = 16 }: IconProps) {
   return (
     <svg
       className={className}
