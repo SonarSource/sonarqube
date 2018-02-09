@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import CreateWebhookForm from './CreateWebhookForm';
+import DeliveriesForm from './DeliveriesForm';
 import ActionsDropdown, {
   ActionsDropdownItem,
   ActionsDropdownDivider
@@ -34,12 +35,13 @@ interface Props {
 }
 
 interface State {
+  deliveries: boolean;
   updating: boolean;
 }
 
 export default class WebhookActions extends React.PureComponent<Props, State> {
   mounted: boolean = false;
-  state: State = { updating: false };
+  state: State = { deliveries: false, updating: false };
 
   componentDidMount() {
     this.mounted = true;
@@ -51,6 +53,14 @@ export default class WebhookActions extends React.PureComponent<Props, State> {
 
   handleDelete = () => {
     return this.props.onDelete(this.props.webhook.key);
+  };
+
+  handleDeliveriesClick = () => {
+    this.setState({ deliveries: true });
+  };
+
+  handleDeliveriesStop = () => {
+    this.setState({ deliveries: false });
   };
 
   handleUpdate = (data: { name: string; url: string }) => {
@@ -67,12 +77,17 @@ export default class WebhookActions extends React.PureComponent<Props, State> {
 
   render() {
     const { webhook } = this.props;
-
+    // TODO Disable "Show deliveries" if there is no lastDelivery
     return (
       <>
         <ActionsDropdown className="big-spacer-left">
           <ActionsDropdownItem className="js-webhook-update" onClick={this.handleUpdateClick}>
             {translate('update_verb')}
+          </ActionsDropdownItem>
+          <ActionsDropdownItem
+            className="js-webhook-deliveries"
+            onClick={this.handleDeliveriesClick}>
+            {translate('webhooks.deliveries.show')}
           </ActionsDropdownItem>
           <ActionsDropdownDivider />
           <ConfirmButton
@@ -91,7 +106,9 @@ export default class WebhookActions extends React.PureComponent<Props, State> {
             )}
           </ConfirmButton>
         </ActionsDropdown>
-
+        {this.state.deliveries && (
+          <DeliveriesForm onClose={this.handleDeliveriesStop} webhook={webhook} />
+        )}
         {this.state.updating && (
           <CreateWebhookForm
             onClose={this.handleUpdatingStop}

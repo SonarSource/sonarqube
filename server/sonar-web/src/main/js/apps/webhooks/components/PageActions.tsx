@@ -62,14 +62,16 @@ export default class PageActions extends React.PureComponent<Props, State> {
         <Tooltip
           overlay={translateWithParameters('webhooks.maximum_reached', WEBHOOKS_LIMIT)}
           placement="left">
-          <button className="js-webhook-create disabled">{translate('create')}</button>
+          <button className="js-webhook-create disabled" type="button">
+            {translate('create')}
+          </button>
         </Tooltip>
       );
     }
 
     return (
       <>
-        <button className="js-webhook-create" onClick={this.handleCreateOpen}>
+        <button className="js-webhook-create" onClick={this.handleCreateOpen} type="button">
           {translate('create')}
         </button>
         {this.state.openCreate && (

@@ -1,0 +1,107 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<Modal
+  contentLabel="webhooks.deliveries_for_x.foo"
+  onRequestClose={[MockFunction]}
+>
+  <header
+    className="modal-head"
+  >
+    <h2>
+      webhooks.deliveries_for_x.foo
+    </h2>
+  </header>
+  <div
+    className="modal-body modal-container"
+  >
+    <div
+      className="text-center"
+    >
+      <DeferredSpinner
+        loading={true}
+        timeout={100}
+      />
+    </div>
+  </div>
+  <footer
+    className="modal-foot"
+  >
+    <button
+      className="button-link js-modal-close"
+      onClick={[MockFunction]}
+      type="button"
+    >
+      close
+    </button>
+  </footer>
+</Modal>
+`;
+
+exports[`should render correctly 2`] = `
+<Modal
+  contentLabel="webhooks.deliveries_for_x.foo"
+  onRequestClose={[MockFunction]}
+>
+  <header
+    className="modal-head"
+  >
+    <h2>
+      webhooks.deliveries_for_x.foo
+    </h2>
+  </header>
+  <div
+    className="modal-body modal-container"
+  >
+    <DeliveryItem
+      delivery={
+        Object {
+          "at": "12.02.2018",
+          "durationMs": 20,
+          "httpStatus": 200,
+          "id": "2",
+          "success": true,
+        }
+      }
+      key="2"
+    />
+    <DeliveryItem
+      delivery={
+        Object {
+          "at": "11.02.2018",
+          "durationMs": 122,
+          "httpStatus": 500,
+          "id": "1",
+          "success": false,
+        }
+      }
+      key="1"
+    />
+    <div
+      className="text-center"
+    >
+      <DeferredSpinner
+        loading={false}
+        timeout={100}
+      />
+    </div>
+    <ListFooter
+      count={2}
+      loadMore={[Function]}
+      ready={true}
+      total={15}
+    />
+  </div>
+  <footer
+    className="modal-foot"
+  >
+    <button
+      className="button-link js-modal-close"
+      onClick={[MockFunction]}
+      type="button"
+    >
+      close
+    </button>
+  </footer>
+</Modal>
+`;

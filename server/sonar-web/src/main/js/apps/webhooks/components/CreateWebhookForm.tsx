@@ -22,6 +22,7 @@ import { FormikProps } from 'formik';
 import ValidationModal from '../../../components/controls/ValidationModal';
 import InputValidationField from '../../../components/controls/InputValidationField';
 import { Webhook } from '../../../app/types';
+import { isUrl } from '../../../helpers/urls';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {
@@ -52,8 +53,8 @@ export default class CreateWebhookForm extends React.PureComponent<Props> {
       errors.url = translate('webhooks.url.required');
     } else if (!url.startsWith('http://') && !url.startsWith('https://')) {
       errors.url = translate('webhooks.url.bad_protocol');
-    } else if (url.indexOf(':', 6) > 0 && url.indexOf('@') <= 0) {
-      errors.url = translate('webhooks.url.bad_auth');
+    } else if (!isUrl(url)) {
+      errors.url = translate('webhooks.url.bad_format');
     }
     return errors;
   };
@@ -106,8 +107,8 @@ export default class CreateWebhookForm extends React.PureComponent<Props> {
             />
             <InputValidationField
               description={translate('webhooks.url.description')}
-              disabled={isSubmitting}
               dirty={dirty}
+              disabled={isSubmitting}
               error={errors.url}
               id="webhook-url"
               label={
