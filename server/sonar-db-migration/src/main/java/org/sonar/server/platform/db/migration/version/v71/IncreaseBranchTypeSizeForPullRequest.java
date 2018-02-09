@@ -17,26 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
 package org.sonar.server.platform.db.migration.version.v71;
 
-import org.junit.Test;
+import java.sql.SQLException;
+import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.sql.AlterColumnsBuilder;
+import org.sonar.server.platform.db.migration.step.DdlChange;
 
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationCount;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
+import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.newVarcharColumnDefBuilder;
 
-public class DbVersion71Test {
+public class IncreaseBranchTypeSizeForPullRequest extends DdlChange {
+  private static final String TABLE_NAME = "project_branches";
 
-  private DbVersion71 underTest = new DbVersion71();
-
-  @Test
-  public void migrationNumber_starts_at_2000() {
-    verifyMinimumMigrationNumber(underTest, 2000);
+  public IncreaseBranchTypeSizeForPullRequest(Database db) {
+    super(db);
   }
 
-  @Test
-  public void verify_migration_count() {
-    verifyMigrationCount(underTest, 14);
+  @Override
+  public void execute(Context context) throws SQLException {
+    context.execute(new AlterColumnsBuilder(getDialect(), TABLE_NAME)
+      .updateColumn(newVarcharColumnDefBuilder()
+        .setColumnName("branch_type")
+        .setLimit(12)
+        .build())
+      .build());
   }
-
 }
