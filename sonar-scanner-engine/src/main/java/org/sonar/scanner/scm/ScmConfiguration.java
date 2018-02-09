@@ -35,6 +35,7 @@ import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
 import org.sonar.api.batch.scm.ScmProvider;
 import org.sonar.api.config.Configuration;
+import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 
@@ -127,7 +128,7 @@ public class ScmConfiguration implements Startable {
         if (this.provider == null) {
           this.provider = installedProvider;
         } else {
-          throw new IllegalStateException("SCM provider autodetection failed. Both " + this.provider.key() + " and " + installedProvider.key()
+          throw MessageException.of("SCM provider autodetection failed. Both " + this.provider.key() + " and " + installedProvider.key()
             + " claim to support this project. Please use " + CoreProperties.SCM_PROVIDER_KEY + " to define SCM of your project.");
         }
       }
