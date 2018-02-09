@@ -246,6 +246,18 @@ class PurgeCommands {
   }
 
   void deleteCeActivity(String rootUuid) {
+    profiler.start("deleteCeActivity (ce_scanner_context)");
+    purgeMapper.deleteCeScannerContextOfCeActivityByProjectUuid(rootUuid);
+    session.commit();
+    profiler.stop();
+    profiler.start("deleteCeActivity (ce_task_characteristics)");
+    purgeMapper.deleteCeTaskCharacteristicsOfCeActivityByProjectUuid(rootUuid);
+    session.commit();
+    profiler.stop();
+    profiler.start("deleteCeActivity (ce_task_input)");
+    purgeMapper.deleteCeTaskInputOfCeActivityByProjectUuid(rootUuid);
+    session.commit();
+    profiler.stop();
     profiler.start("deleteCeActivity (ce_activity)");
     purgeMapper.deleteCeActivityByProjectUuid(rootUuid);
     session.commit();
@@ -253,6 +265,18 @@ class PurgeCommands {
   }
 
   void deleteCeQueue(String rootUuid) {
+    profiler.start("deleteCeQueue (ce_scanner_context)");
+    purgeMapper.deleteCeScannerContextOfCeQueueByProjectUuid(rootUuid);
+    session.commit();
+    profiler.stop();
+    profiler.start("deleteCeQueue (ce_task_characteristics)");
+    purgeMapper.deleteCeTaskCharacteristicsOfCeQueueByProjectUuid(rootUuid);
+    session.commit();
+    profiler.stop();
+    profiler.start("deleteCeQueue (ce_task_input)");
+    purgeMapper.deleteCeTaskInputOfCeQueueByProjectUuid(rootUuid);
+    session.commit();
+    profiler.stop();
     profiler.start("deleteCeQueue (ce_queue)");
     purgeMapper.deleteCeQueueByProjectUuid(rootUuid);
     session.commit();
