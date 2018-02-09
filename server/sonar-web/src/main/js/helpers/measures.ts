@@ -315,6 +315,7 @@ function getRatingGrid(): string {
 }
 
 let maintainabilityRatingGrid: number[];
+
 function getMaintainabilityRatingGrid(): number[] {
   if (maintainabilityRatingGrid) {
     return maintainabilityRatingGrid;

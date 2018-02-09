@@ -904,6 +904,7 @@ export default class App extends React.PureComponent {
       </div>
     );
   }
+
   render() {
     const { component } = this.props;
     const { openIssue, paging } = this.state;

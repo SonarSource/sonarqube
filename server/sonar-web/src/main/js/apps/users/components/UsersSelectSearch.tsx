@@ -55,6 +55,7 @@ export default class UsersSelectSearch extends React.PureComponent<Props, State>
     this.handleSearch = debounce(this.handleSearch, 250);
     this.state = { searchResult: [], isLoading: false, search: '' };
   }
+
   componentDidMount() {
     this.mounted = true;
     this.handleSearch(this.state.search);

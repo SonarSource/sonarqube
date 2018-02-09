@@ -70,8 +70,10 @@ export default class PasswordForm extends React.PureComponent<Props, State> {
 
   handleConfirmPasswordChange = (event: React.SyntheticEvent<HTMLInputElement>) =>
     this.setState({ confirmPassword: event.currentTarget.value });
+
   handleNewPasswordChange = (event: React.SyntheticEvent<HTMLInputElement>) =>
     this.setState({ newPassword: event.currentTarget.value });
+
   handleOldPasswordChange = (event: React.SyntheticEvent<HTMLInputElement>) =>
     this.setState({ oldPassword: event.currentTarget.value });
 

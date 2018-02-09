@@ -91,10 +91,13 @@ export default class UserForm extends React.PureComponent<Props, State> {
 
   handleEmailChange = (event: React.SyntheticEvent<HTMLInputElement>) =>
     this.setState({ email: event.currentTarget.value });
+
   handleLoginChange = (event: React.SyntheticEvent<HTMLInputElement>) =>
     this.setState({ login: event.currentTarget.value });
+
   handleNameChange = (event: React.SyntheticEvent<HTMLInputElement>) =>
     this.setState({ name: event.currentTarget.value });
+
   handlePasswordChange = (event: React.SyntheticEvent<HTMLInputElement>) =>
     this.setState({ password: event.currentTarget.value });
 

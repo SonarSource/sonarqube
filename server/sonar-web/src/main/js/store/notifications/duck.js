@@ -104,6 +104,7 @@ function onAddNotification(state /*: NotificationsState */, notification /*: Not
   function isNotificationsEqual(a /*: Notification */, b /*: Notification */) {
     return a.channel === b.channel && a.type === b.type && a.project === b.project;
   }
+
   return uniqWith([...state, notification], isNotificationsEqual);
 }
 

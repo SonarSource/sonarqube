@@ -88,6 +88,7 @@
     "consistent-this": ["warn", "that"],
     "func-name-matching": "error",
     "func-style": ["warn", "declaration", { "allowArrowFunctions": true }],
+    "lines-between-class-members": ["error", "always", { "exceptAfterSingleLine": true }],
     "max-depth": "warn",
     "max-lines": ["warn", 1000],
     "max-params": ["warn", 4],
@@ -101,6 +102,11 @@
     "no-unneeded-ternary": "warn",
     "one-var": ["warn", "never"],
     "operator-assignment": "warn",
+    "padding-line-between-statements": [
+      "error",
+      { "blankLine": "always", "prev": "*", "next": ["class", "function"] },
+      { "blankLine": "always", "prev": ["class", "function"], "next": "*" }
+    ],
 
     // es2015
     "no-duplicate-imports": "error",
