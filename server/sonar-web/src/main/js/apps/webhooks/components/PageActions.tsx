@@ -35,7 +35,7 @@ interface State {
 const WEBHOOKS_LIMIT = 10;
 
 export default class PageActions extends React.PureComponent<Props, State> {
-  mounted: boolean = false;
+  mounted = false;
   state: State = { openCreate: false };
 
   componentDidMount() {

@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`should render correctly 1`] = `
+exports[`should display the deliveries form 1`] = `
 <React.Fragment>
   <ActionsDropdown
     className="big-spacer-left"
@@ -16,6 +16,29 @@ exports[`should render correctly 1`] = `
       onClick={[Function]}
     >
       webhooks.deliveries.show
+    </ActionsDropdownItem>
+    <ActionsDropdownDivider />
+    <ConfirmButton
+      confirmButtonText="delete"
+      isDestructive={true}
+      modalBody="webhooks.delete.confirm.foo"
+      modalHeader="webhooks.delete"
+      onConfirm={[Function]}
+    />
+  </ActionsDropdown>
+</React.Fragment>
+`;
+
+exports[`should render correctly 1`] = `
+<React.Fragment>
+  <ActionsDropdown
+    className="big-spacer-left"
+  >
+    <ActionsDropdownItem
+      className="js-webhook-update"
+      onClick={[Function]}
+    >
+      update_verb
     </ActionsDropdownItem>
     <ActionsDropdownDivider />
     <ConfirmButton

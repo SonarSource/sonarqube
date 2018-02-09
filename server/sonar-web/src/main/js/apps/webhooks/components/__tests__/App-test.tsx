@@ -81,7 +81,10 @@ describe('should correctly fetch webhooks when', () => {
     shallow(<App component={component} organization={undefined} />);
 
     await new Promise(setImmediate);
-    expect(searchWebhooks).toHaveBeenCalledWith({ project: component.key });
+    expect(searchWebhooks).toHaveBeenCalledWith({
+      project: component.key,
+      organization: component.organization
+    });
   });
 
   it('on organization scope', async () => {
