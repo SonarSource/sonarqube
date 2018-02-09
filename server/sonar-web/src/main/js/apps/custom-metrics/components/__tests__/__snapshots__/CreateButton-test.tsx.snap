@@ -1,0 +1,41 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should create new group 1`] = `
+<React.Fragment>
+  <button
+    id="metrics-create"
+    onClick={[Function]}
+  >
+    custom_metrics.create_metric
+  </button>
+</React.Fragment>
+`;
+
+exports[`should create new group 2`] = `
+<React.Fragment>
+  <button
+    id="metrics-create"
+    onClick={[Function]}
+  >
+    custom_metrics.create_metric
+  </button>
+  <Form
+    confirmButtonText="create"
+    domains={
+      Array [
+        "Coverage",
+        "Issues",
+      ]
+    }
+    header="custom_metrics.create_metric"
+    onClose={[Function]}
+    onSubmit={[MockFunction]}
+    types={
+      Array [
+        "INT",
+        "STRING",
+      ]
+    }
+  />
+</React.Fragment>
+`;

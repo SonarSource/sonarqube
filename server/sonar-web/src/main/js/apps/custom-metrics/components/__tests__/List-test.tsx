@@ -17,17 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import Marionette from 'backbone.marionette';
-import ListItemView from './list-item-view';
+import * as React from 'react';
+import { shallow } from 'enzyme';
+import List from '../List';
 
-export default Marionette.CollectionView.extend({
-  tagName: 'ul',
-  childView: ListItemView,
+it('should render', () => {
+  const metrics = [
+    { id: '3', key: 'foo', name: 'Foo', type: 'INT' },
+    { id: '4', domain: 'Coverage', key: 'bar', name: 'Bar', type: 'INT' }
+  ];
+  expect(
+    shallow(<List metrics={metrics} onDelete={jest.fn()} onEdit={jest.fn()} />)
+  ).toMatchSnapshot();
+});
 
-  childViewOptions() {
-    return {
-      types: this.options.types,
-      domains: this.options.domains
-    };
-  }
+it('should render no results', () => {
+  expect(shallow(<List metrics={[]} onDelete={jest.fn()} onEdit={jest.fn()} />)).toMatchSnapshot();
 });

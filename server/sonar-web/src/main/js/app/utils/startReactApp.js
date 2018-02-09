@@ -55,7 +55,7 @@ import ExploreIssues from '../../apps/explore/ExploreIssues';
 import ExploreProjects from '../../apps/explore/ExploreProjects';
 import IssuesPageSelector from '../../apps/issues/IssuesPageSelector';
 import marketplaceRoutes from '../../apps/marketplace/routes';
-import metricsRoutes from '../../apps/metrics/routes';
+import customMetricsRoutes from '../../apps/custom-metrics/routes';
 import overviewRoutes from '../../apps/overview/routes';
 import organizationsRoutes from '../../apps/organizations/routes';
 import permissionTemplatesRoutes from '../../apps/permission-templates/routes';
@@ -222,7 +222,7 @@ const startReactApp = () => {
                       component={GlobalAdminPageExtension}
                     />
                     <Route path="background_tasks" childRoutes={backgroundTasksRoutes} />
-                    <Route path="custom_metrics" childRoutes={metricsRoutes} />
+                    <Route path="custom_metrics" childRoutes={customMetricsRoutes} />
                     <Route path="groups" childRoutes={groupsRoutes} />
                     <Route path="permission_templates" childRoutes={permissionTemplatesRoutes} />
                     <Route path="roles/global" childRoutes={globalPermissionsRoutes} />

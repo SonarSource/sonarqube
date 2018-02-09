@@ -17,22 +17,30 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { getJSON } from '../helpers/request';
+import { getJSON, post, postJSON } from '../helpers/request';
 import { Metric } from '../app/types';
 import throwGlobalError from '../app/utils/throwGlobalError';
 
-interface MetricsResponse {
+export interface MetricsResponse {
   metrics: Metric[];
   p: number;
   ps: number;
   total: number;
 }
 
-export function getMetrics(data: { p?: number; ps?: number }): Promise<MetricsResponse> {
+export function getMetrics(data?: {
+  isCustom?: boolean;
+  p?: number;
+  ps?: number;
+}): Promise<MetricsResponse> {
   return getJSON('/api/metrics/search', data).catch(throwGlobalError);
 }
 
-export function getAllMetrics(data?: { p?: number; ps?: number }): Promise<Metric[]> {
+export function getAllMetrics(data?: {
+  isCustom?: boolean;
+  p?: number;
+  ps?: number;
+}): Promise<Metric[]> {
   return inner(data);
 
   function inner(
@@ -55,4 +63,29 @@ export function getMetricDomains(): Promise<string[]> {
 
 export function getMetricTypes(): Promise<string[]> {
   return getJSON('/api/metrics/types').then(r => r.types, throwGlobalError);
+}
+
+export function createMetric(data: {
+  description?: string;
+  domain?: string;
+  key: string;
+  name: string;
+  type: string;
+}): Promise<Metric> {
+  return postJSON('/api/metrics/create', data).catch(throwGlobalError);
+}
+
+export function updateMetric(data: {
+  description?: string;
+  domain?: string;
+  id: string;
+  key?: string;
+  name?: string;
+  type?: string;
+}) {
+  return post('/api/metrics/update', data).catch(throwGlobalError);
+}
+
+export function deleteMetric(data: { keys: string }) {
+  return post('/api/metrics/delete', data).catch(throwGlobalError);
 }

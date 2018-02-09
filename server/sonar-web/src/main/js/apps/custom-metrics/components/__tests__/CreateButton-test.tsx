@@ -17,15 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import Marionette from 'backbone.marionette';
-import Template from './templates/metrics-layout.hbs';
+import * as React from 'react';
+import { shallow } from 'enzyme';
+import CreateButton from '../CreateButton';
+import { click } from '../../../../helpers/testUtils';
 
-export default Marionette.LayoutView.extend({
-  template: Template,
+it('should create new group', () => {
+  const onCreate = jest.fn(() => Promise.resolve());
+  const wrapper = shallow(
+    <CreateButton domains={['Coverage', 'Issues']} onCreate={onCreate} types={['INT', 'STRING']} />
+  );
+  expect(wrapper).toMatchSnapshot();
 
-  regions: {
-    headerRegion: '#metrics-header',
-    listRegion: '#metrics-list',
-    listFooterRegion: '#metrics-list-footer'
-  }
+  click(wrapper.find('#metrics-create'));
+  expect(wrapper).toMatchSnapshot();
+
+  wrapper.find('Form').prop<Function>('onSubmit')({ key: 'foo', name: 'foo', type: 'INT' });
+  expect(onCreate).toBeCalledWith({ key: 'foo', name: 'foo', type: 'INT' });
 });

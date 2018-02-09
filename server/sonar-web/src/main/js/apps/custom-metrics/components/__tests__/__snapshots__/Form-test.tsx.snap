@@ -1,0 +1,166 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render form 1`] = `
+<Modal
+  contentLabel="header"
+  onRequestClose={[MockFunction]}
+>
+  <form
+    onSubmit={[Function]}
+  >
+    <header
+      className="modal-head"
+    >
+      <h2>
+        header
+      </h2>
+    </header>
+    <div
+      className="modal-body"
+    >
+      <div
+        className="modal-field"
+      >
+        <label
+          htmlFor="create-metric-key"
+        >
+          key
+          <em
+            className="mandatory"
+          >
+            *
+          </em>
+        </label>
+        <input
+          autoFocus={true}
+          id="create-metric-key"
+          maxLength={64}
+          name="key"
+          onChange={[Function]}
+          required={true}
+          type="text"
+          value=""
+        />
+      </div>
+      <div
+        className="modal-field"
+      >
+        <label
+          htmlFor="create-metric-name"
+        >
+          name
+          <em
+            className="mandatory"
+          >
+            *
+          </em>
+        </label>
+        <input
+          id="create-metric-name"
+          maxLength={64}
+          name="name"
+          onChange={[Function]}
+          required={true}
+          type="text"
+          value=""
+        />
+      </div>
+      <div
+        className="modal-field"
+      >
+        <label
+          htmlFor="create-metric-description"
+        >
+          description
+        </label>
+        <textarea
+          id="create-metric-description"
+          name="description"
+          onChange={[Function]}
+          value=""
+        />
+      </div>
+      <div
+        className="modal-field"
+      >
+        <label
+          htmlFor="create-metric-domain"
+        >
+          custom_metrics.domain
+        </label>
+        <Creatable
+          onChange={[Function]}
+          options={
+            Array [
+              Object {
+                "label": "Coverage",
+                "value": "Coverage",
+              },
+              Object {
+                "label": "Issues",
+                "value": "Issues",
+              },
+            ]
+          }
+        />
+      </div>
+      <div
+        className="modal-field"
+      >
+        <label
+          htmlFor="create-metric-type"
+        >
+          type
+          <em
+            className="mandatory"
+          >
+            *
+          </em>
+        </label>
+        <Select
+          clearable={false}
+          onChange={[Function]}
+          options={
+            Array [
+              Object {
+                "label": "metric.type.INT",
+                "value": "INT",
+              },
+              Object {
+                "label": "metric.type.STRING",
+                "value": "STRING",
+              },
+            ]
+          }
+          value="INT"
+        />
+      </div>
+    </div>
+    <footer
+      className="modal-foot"
+    >
+      <DeferredSpinner
+        className="spacer-right"
+        loading={false}
+        timeout={100}
+      />
+      <button
+        disabled={false}
+        id="create-metric-submit"
+        type="submit"
+      >
+        confirmButtonText
+      </button>
+      <button
+        className="button-link"
+        disabled={false}
+        id="create-metric-cancel"
+        onClick={[Function]}
+        type="reset"
+      >
+        cancel
+      </button>
+    </footer>
+  </form>
+</Modal>
+`;

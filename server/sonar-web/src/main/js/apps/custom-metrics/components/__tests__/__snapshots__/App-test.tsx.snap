@@ -1,0 +1,130 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should work 1`] = `
+<React.Fragment>
+  <HelmetWrapper
+    defer={true}
+    encodeSpecialCharacters={true}
+    title="custom_metrics.page"
+  />
+  <div
+    className="page page-limited"
+    id="custom-metrics-page"
+  >
+    <Header
+      loading={true}
+      onCreate={[Function]}
+    />
+  </div>
+</React.Fragment>
+`;
+
+exports[`should work 2`] = `
+<React.Fragment>
+  <HelmetWrapper
+    defer={true}
+    encodeSpecialCharacters={true}
+    title="custom_metrics.page"
+  />
+  <div
+    className="page page-limited"
+    id="custom-metrics-page"
+  >
+    <Header
+      domains={
+        Array [
+          "Coverage",
+          "Issues",
+        ]
+      }
+      loading={false}
+      onCreate={[Function]}
+      types={
+        Array [
+          "INT",
+          "STRING",
+        ]
+      }
+    />
+    <List
+      domains={
+        Array [
+          "Coverage",
+          "Issues",
+        ]
+      }
+      metrics={
+        Array [
+          Object {
+            "id": "3",
+            "key": "foo",
+            "name": "Foo",
+            "type": "INT",
+          },
+        ]
+      }
+      onDelete={[Function]}
+      onEdit={[Function]}
+      types={
+        Array [
+          "INT",
+          "STRING",
+        ]
+      }
+    />
+    <ListFooter
+      count={1}
+      loadMore={[Function]}
+      ready={true}
+      total={1}
+    />
+  </div>
+</React.Fragment>
+`;
+
+exports[`should work 3`] = `
+Array [
+  Object {
+    "id": "3",
+    "key": "foo",
+    "name": "Foo",
+    "type": "INT",
+  },
+  Object {
+    "domain": "Coverage",
+    "id": "4",
+    "key": "bar",
+    "name": "Bar",
+    "type": "INT",
+  },
+]
+`;
+
+exports[`should work 4`] = `
+Array [
+  Object {
+    "id": "3",
+    "key": "foo",
+    "name": "Foo",
+    "type": "INT",
+  },
+  Object {
+    "domain": undefined,
+    "id": "4",
+    "key": "bar",
+    "name": "Bar",
+    "type": "STRING",
+  },
+]
+`;
+
+exports[`should work 5`] = `
+Array [
+  Object {
+    "id": "3",
+    "key": "foo",
+    "name": "Foo",
+    "type": "INT",
+  },
+]
+`;
