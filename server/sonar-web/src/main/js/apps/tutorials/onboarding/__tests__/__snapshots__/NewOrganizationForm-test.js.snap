@@ -22,6 +22,7 @@ exports[`creates new organization 1`] = `
     <button
       className="text-middle"
       disabled={true}
+      type="submit"
     >
       create
     </button>
@@ -217,6 +218,7 @@ exports[`deletes organization 3`] = `
     <button
       className="text-middle"
       disabled={true}
+      type="submit"
     >
       create
     </button>

@@ -31,6 +31,8 @@ import {
   getSettingValue,
   isDefaultOrInherited
 } from '../utils';
+import AlertErrorIcon from '../../../components/icons-components/AlertErrorIcon';
+import AlertSuccessIcon from '../../../components/icons-components/AlertSuccessIcon';
 import { translateWithParameters, translate } from '../../../helpers/l10n';
 import { resetValue, saveValue } from '../store/actions';
 import { passValidation } from '../store/settingsPage/validationMessages/actions';
@@ -166,7 +168,7 @@ class Definition extends React.PureComponent {
             {!loading &&
               this.props.validationMessage != null && (
                 <span className="text-danger">
-                  <i className="icon-alert-error spacer-right" />
+                  <AlertErrorIcon className="spacer-right" />
                   <span>
                     {translateWithParameters(
                       'settings.state.validation_failed',
@@ -179,30 +181,30 @@ class Definition extends React.PureComponent {
             {!loading &&
               this.state.success && (
                 <span className="text-success">
-                  <i className="icon-check spacer-right" />
+                  <AlertSuccessIcon className="spacer-right" />
                   {translate('settings.state.saved')}
                 </span>
               )}
           </div>
 
           <Input
-            setting={setting}
-            value={effectiveValue}
             onCancel={this.handleCancel}
             onChange={this.handleChange}
             onSave={this.handleSave}
+            setting={setting}
+            value={effectiveValue}
           />
 
           {!hasValueChanged && (
             <DefinitionDefaults
-              setting={setting}
               isDefault={isDefault}
               onReset={this.handleReset}
+              setting={setting}
             />
           )}
 
           {hasValueChanged && (
-            <DefinitionChanges onSave={this.handleSave} onCancel={this.handleCancel} />
+            <DefinitionChanges onCancel={this.handleCancel} onSave={this.handleSave} />
           )}
         </div>
       </div>

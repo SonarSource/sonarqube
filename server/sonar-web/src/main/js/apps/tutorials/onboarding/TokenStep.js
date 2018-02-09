@@ -23,6 +23,7 @@ import classNames from 'classnames';
 import Step from './Step';
 import { getTokens, generateToken, revokeToken } from '../../../api/user-tokens';
 import AlertErrorIcon from '../../../components/icons-components/AlertErrorIcon';
+import AlertSuccessIcon from '../../../components/icons-components/AlertSuccessIcon';
 import { DeleteButton } from '../../../components/ui/buttons';
 import { translate } from '../../../helpers/l10n';
 
@@ -183,7 +184,7 @@ export default class TokenStep extends React.PureComponent {
             {this.state.loading ? (
               <i className="spinner text-middle" />
             ) : (
-              <button className="text-middle" disabled={!this.state.tokenName}>
+              <button className="text-middle" disabled={!this.state.tokenName} type="submit">
                 {translate('onboarding.token.generate')}
               </button>
             )}
@@ -262,7 +263,7 @@ export default class TokenStep extends React.PureComponent {
 
         {this.canContinue() && (
           <div className="big-spacer-top">
-            <button className="js-continue" onClick={this.handleContinueClick}>
+            <button className="js-continue" onClick={this.handleContinueClick} type="button">
               {translate('continue')}
             </button>
           </div>
@@ -280,8 +281,8 @@ export default class TokenStep extends React.PureComponent {
     }
 
     return (
-      <div className="boxed-group-actions">
-        <i className="icon-check spacer-right" />
+      <div className="boxed-group-actions display-flex-center">
+        <AlertSuccessIcon className="spacer-right" />
         {selection === 'generate' && tokenName && `${tokenName}: `}
         <strong>{token}</strong>
       </div>

@@ -19,6 +19,8 @@
  */
 // @flow
 import React from 'react';
+import AlertErrorIcon from '../../../components/icons-components/AlertErrorIcon';
+import AlertSuccessIcon from '../../../components/icons-components/AlertSuccessIcon';
 import { getTasksForComponent } from '../../../api/ce';
 import { STATUSES } from '../../../apps/background-tasks/constants';
 import { translate } from '../../../helpers/l10n';
@@ -95,7 +97,7 @@ export default class ProjectWatcher extends React.PureComponent {
     if (status === STATUSES.SUCCESS) {
       return (
         <div className="big-spacer-top note text-center">
-          <i className="icon-check spacer-right" />
+          <AlertSuccessIcon className="spacer-right" />
           {translate('onboarding.project_watcher.finished')}
         </div>
       );
@@ -113,7 +115,7 @@ export default class ProjectWatcher extends React.PureComponent {
     if (status != null) {
       return (
         <div className="big-spacer-top note text-center">
-          <i className="icon-alert-danger spacer-right" />
+          <AlertErrorIcon className="spacer-right" />
           {translate('onboarding.project_watcher.failed')}
         </div>
       );

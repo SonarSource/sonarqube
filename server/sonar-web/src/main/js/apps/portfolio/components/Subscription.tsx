@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import AlertSuccessIcon from '../../../components/icons-components/AlertSuccessIcon';
 import { ReportStatus, subscribe, unsubscribe } from '../../../api/report';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { Button } from '../../../components/ui/buttons';
@@ -92,7 +93,7 @@ export default class Subscription extends React.PureComponent<Props, State> {
   renderWhenSubscribed = () => (
     <div className="js-subscribed">
       <div className="spacer-bottom">
-        <i className="icon-check pull-left spacer-right" />
+        <AlertSuccessIcon className="pull-left spacer-right" />
         <div className="overflow-hidden">
           {translateWithParameters('report.subscribed', this.getEffectiveFrequencyText())}
         </div>
