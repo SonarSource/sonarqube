@@ -22,8 +22,11 @@ package org.sonar.server.platform.db.migration.version.v63;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
+import javax.annotation.Nullable;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.core.util.UuidFactory;
 import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.def.VarcharColumnDef;
 import org.sonar.server.platform.db.migration.step.DataChange;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
@@ -49,10 +52,12 @@ public class PopulateDefaultPermTemplateColumnsOfOrganizations extends DataChang
   private static final String DEFAULT_DEV_TEMPLATE_PROPERTY = "sonar.permission.template.DEV.default";
 
   private final DefaultOrganizationUuidProvider defaultOrganizationUuid;
+  private final UuidFactory uuidFactory;
 
-  public PopulateDefaultPermTemplateColumnsOfOrganizations(Database db, DefaultOrganizationUuidProvider defaultOrganizationUuid) {
+  public PopulateDefaultPermTemplateColumnsOfOrganizations(Database db, DefaultOrganizationUuidProvider defaultOrganizationUuid, UuidFactory uuidFactory) {
     super(db);
     this.defaultOrganizationUuid = defaultOrganizationUuid;
+    this.uuidFactory = uuidFactory;
   }
 
   @Override
@@ -67,8 +72,10 @@ public class PopulateDefaultPermTemplateColumnsOfOrganizations extends DataChang
       // DB has just been created, default template of default organization will be populated by a startup task
       return;
     }
-    String projectDefaultTemplate = firstNonNull(defaultTemplateProperties.get(DEFAULT_PROJECT_TEMPLATE_PROPERTY), globalDefaultTemplate);
-    String viewDefaultTemplate = defaultTemplateProperties.get(DEFAULT_VIEW_TEMPLATE_PROPERTY);
+    String projectDefaultTemplate = updateKeeIfRequired(context,
+      firstNonNull(defaultTemplateProperties.get(DEFAULT_PROJECT_TEMPLATE_PROPERTY), globalDefaultTemplate));
+    String viewDefaultTemplate = updateKeeIfRequired(context,
+      defaultTemplateProperties.get(DEFAULT_VIEW_TEMPLATE_PROPERTY));
 
     Loggers.get(PopulateDefaultPermTemplateColumnsOfOrganizations.class)
       .debug("Setting default templates on default organization '{}': project='{}', view='{}'",
@@ -93,6 +100,23 @@ public class PopulateDefaultPermTemplateColumnsOfOrganizations extends DataChang
       .setString(4, DEFAULT_DEV_TEMPLATE_PROPERTY)
       .execute()
       .commit();
+  }
+
+  /**
+   * SONAR-10407 Ensure that the kee length is not greater than 40
+   * In this case, we must update the kee to a UUID
+   */
+  private String updateKeeIfRequired(Context context, @Nullable String kee) throws SQLException {
+    if (kee == null || kee.length() <= VarcharColumnDef.UUID_SIZE) {
+      return kee;
+    }
+
+    String newKee = uuidFactory.create();
+    context.prepareUpsert("update permission_templates set kee=? where kee=?")
+      .setString(1, newKee)
+      .setString(2, kee)
+      .execute();
+    return newKee;
   }
 
   private static void ensureOnlyDefaultOrganizationExists(Context context, String defaultOrganizationUuid) throws SQLException {

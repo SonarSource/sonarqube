@@ -19,14 +19,22 @@
  */
 package org.sonar.server.platform.db.migration.version.v63;
 
+import com.google.common.collect.ImmutableList;
 import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
+import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.core.util.UuidFactory;
+import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.CoreDbTester;
 
+import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class PopulateDefaultPermTemplateColumnsOfOrganizationsTest {
@@ -41,8 +49,14 @@ public class PopulateDefaultPermTemplateColumnsOfOrganizationsTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
+  private RecordingUuidFactory recordingUuidFactory = new RecordingUuidFactory();
   private PopulateDefaultPermTemplateColumnsOfOrganizations underTest = new PopulateDefaultPermTemplateColumnsOfOrganizations(dbTester.database(),
-    new DefaultOrganizationUuidProviderImpl());
+    new DefaultOrganizationUuidProviderImpl(), recordingUuidFactory);
+
+  @After
+  public void clearRecordingUuidFactory() {
+    recordingUuidFactory.clear();
+  }
 
   @Test
   public void fails_with_ISE_when_no_default_organization_is_set() throws SQLException {
@@ -121,6 +135,44 @@ public class PopulateDefaultPermTemplateColumnsOfOrganizationsTest {
   }
 
   @Test
+  public void execute_should_update_kee_when_old_kee_is_too_long() throws SQLException {
+    setupDefaultOrganization();
+    insertProperty(DEFAULT_TEMPLATE_PROPERTY, insertPermissionTemplates(randomAlphanumeric(100)));
+    insertProperty(DEFAULT_VIEW_TEMPLATE_PROPERTY, insertPermissionTemplates(randomAlphanumeric(100)));
+    insertProperty(DEFAULT_PROJECT_TEMPLATE_PROPERTY, insertPermissionTemplates(randomAlphanumeric(100)));
+    insertProperty(DEFAULT_DEV_TEMPLATE_PROPERTY, insertPermissionTemplates(randomAlphanumeric(100)));
+
+    underTest.execute();
+
+    verifyTemplateColumns(recordingUuidFactory.getRecordedUuids().get(0), recordingUuidFactory.getRecordedUuids().get(1));
+    verifyPropertiesDoNotExist();
+    verifyExistenceOfPermissionTemplate(recordingUuidFactory.getRecordedUuids().get(0));
+    verifyExistenceOfPermissionTemplate(recordingUuidFactory.getRecordedUuids().get(1));
+  }
+
+  @Test
+  public void execute_should_update_kee_only_when_old_kee_length_is_41_or_more() throws SQLException {
+    setupDefaultOrganization();
+    insertProperty(DEFAULT_TEMPLATE_PROPERTY, insertPermissionTemplates(randomAlphanumeric(40)));
+    insertProperty(DEFAULT_VIEW_TEMPLATE_PROPERTY, insertPermissionTemplates(randomAlphanumeric(40)));
+    insertProperty(DEFAULT_PROJECT_TEMPLATE_PROPERTY, insertPermissionTemplates(randomAlphanumeric(40)));
+    insertProperty(DEFAULT_DEV_TEMPLATE_PROPERTY, insertPermissionTemplates(randomAlphanumeric(40)));
+
+    underTest.execute();
+
+    assertThat(recordingUuidFactory.getRecordedUuids()).isEmpty();
+
+    insertProperty(DEFAULT_TEMPLATE_PROPERTY, insertPermissionTemplates(randomAlphanumeric(41)));
+    insertProperty(DEFAULT_VIEW_TEMPLATE_PROPERTY, insertPermissionTemplates(randomAlphanumeric(41)));
+    insertProperty(DEFAULT_PROJECT_TEMPLATE_PROPERTY, insertPermissionTemplates(randomAlphanumeric(41)));
+    insertProperty(DEFAULT_DEV_TEMPLATE_PROPERTY, insertPermissionTemplates(randomAlphanumeric(41)));
+
+    underTest.execute();
+
+    assertThat(recordingUuidFactory.getRecordedUuids()).hasSize(2);
+  }
+
+  @Test
   public void execute_sets_project_from_project_property_and_view_from_view_property_when_all_properties_are_defined() throws SQLException {
     setupDefaultOrganization();
     insertProperty(DEFAULT_TEMPLATE_PROPERTY, "foo");
@@ -153,6 +205,16 @@ public class PopulateDefaultPermTemplateColumnsOfOrganizationsTest {
     assertThat(row.get("viewDefaultPermTemplate")).isEqualTo(view);
   }
 
+  @Test
+  public void migration_is_reentrant() throws SQLException {
+    setupDefaultOrganization();
+    insertProperty(DEFAULT_TEMPLATE_PROPERTY, "foo");
+
+    underTest.execute();
+
+    underTest.execute();
+  }
+
   private void verifyPropertiesDoNotExist() {
     verifyPropertyDoesNotExist(DEFAULT_TEMPLATE_PROPERTY);
     verifyPropertyDoesNotExist(DEFAULT_PROJECT_TEMPLATE_PROPERTY);
@@ -165,14 +227,8 @@ public class PopulateDefaultPermTemplateColumnsOfOrganizationsTest {
       .isEqualTo(0);
   }
 
-  @Test
-  public void migration_is_reentrant() throws SQLException {
-    setupDefaultOrganization();
-    insertProperty(DEFAULT_TEMPLATE_PROPERTY, "foo");
-
-    underTest.execute();
-
-    underTest.execute();
+  private void verifyExistenceOfPermissionTemplate(String kee) {
+    assertThat(dbTester.countSql("select count(kee) from permission_templates where kee='" + kee +"'")).isEqualTo(1);
   }
 
   private void setupDefaultOrganization() {
@@ -190,6 +246,20 @@ public class PopulateDefaultPermTemplateColumnsOfOrganizationsTest {
       "UPDATED_AT", "1000");
   }
 
+  private String insertPermissionTemplates(String kee) {
+    dbTester.executeInsert(
+      "PERMISSION_TEMPLATES",
+      "ORGANIZATION_UUID", DEFAULT_ORGANIZATION_UUID,
+      "NAME", randomAlphanumeric(50),
+      "KEE", kee,
+      "DESCRIPTION", randomAlphanumeric(500),
+      "KEY_PATTERN", "",
+      "CREATED_AT", new Timestamp(1000L),
+      "UPDATED_AT", new Timestamp(1000L));
+
+    return kee;
+  }
+
   private void insertDefaultOrganizationUuid(String defaultOrganizationUuid) {
     dbTester.executeInsert(
       "INTERNAL_PROPERTIES",
@@ -204,5 +274,25 @@ public class PopulateDefaultPermTemplateColumnsOfOrganizationsTest {
       "PROP_KEY", key,
       "IS_EMPTY", String.valueOf(value == null),
       "TEXT_VALUE", value);
+  }
+
+  private static final class RecordingUuidFactory implements UuidFactory {
+    private final List<String> generatedUuids = new ArrayList<>();
+    private final UuidFactory uuidFactory = UuidFactoryFast.getInstance();
+
+    @Override
+    public String create() {
+      String uuid = uuidFactory.create();
+      generatedUuids.add(uuid);
+      return uuid;
+    }
+
+    public void clear() {
+      generatedUuids.clear();
+    }
+
+    public List<String> getRecordedUuids() {
+      return ImmutableList.copyOf(generatedUuids);
+    }
   }
 }
