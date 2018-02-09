@@ -322,12 +322,24 @@
       task_uuid in (select uuid from ce_activity where component_uuid=#{projectUuid,jdbcType=VARCHAR})
   </delete>
 
+  <delete id="deleteCeTaskCharacteristicsOfCeActivityByProjectUuid">
+    delete from ce_task_characteristics
+    where
+      task_uuid in (select uuid from ce_activity where component_uuid=#{projectUuid,jdbcType=VARCHAR})
+  </delete>
+
   <delete id="deleteCeActivityByProjectUuid">
       delete from ce_activity where component_uuid=#{projectUuid,jdbcType=VARCHAR}
   </delete>
 
   <delete id="deleteCeScannerContextOfCeQueueByProjectUuid">
     delete from ce_scanner_context
+    where
+      task_uuid in (select uuid from ce_queue where component_uuid=#{projectUuid,jdbcType=VARCHAR})
+  </delete>
+
+  <delete id="deleteCeTaskCharacteristicsOfCeQueueByProjectUuid">
+    delete from ce_task_characteristics
     where
       task_uuid in (select uuid from ce_queue where component_uuid=#{projectUuid,jdbcType=VARCHAR})
   </delete>
