@@ -19,9 +19,22 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import WebhookItem from '../WebhookItem';
+import WebhookItem, { LatestDelivery } from '../WebhookItem';
 
-const webhook = { key: '1', name: 'my webhook', url: 'http://webhook.target' };
+const latestDelivery = {
+  at: '12.02.2018',
+  durationMs: 20,
+  httpStatus: 200,
+  id: '2',
+  success: true
+};
+
+const webhook = {
+  key: '1',
+  name: 'my webhook',
+  url: 'http://webhook.target',
+  latestDelivery
+};
 
 it('should render correctly', () => {
   expect(
@@ -31,6 +44,16 @@ it('should render correctly', () => {
         onUpdate={jest.fn(() => Promise.resolve())}
         webhook={webhook}
       />
+    )
+  ).toMatchSnapshot();
+});
+
+it('should render correctly the latest delivery', () => {
+  expect(shallow(<LatestDelivery latestDelivery={undefined} />)).toMatchSnapshot();
+  expect(shallow(<LatestDelivery latestDelivery={latestDelivery} />)).toMatchSnapshot();
+  expect(
+    shallow(
+      <LatestDelivery latestDelivery={{ ...latestDelivery, httpStatus: 500, success: false }} />
     )
   ).toMatchSnapshot();
 });

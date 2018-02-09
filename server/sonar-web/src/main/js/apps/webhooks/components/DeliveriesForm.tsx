@@ -40,7 +40,7 @@ interface State {
 const PAGE_SIZE = 10;
 
 export default class DeliveriesForm extends React.PureComponent<Props, State> {
-  mounted: boolean = false;
+  mounted = false;
   state: State = { deliveries: [], loading: true };
 
   componentDidMount() {
