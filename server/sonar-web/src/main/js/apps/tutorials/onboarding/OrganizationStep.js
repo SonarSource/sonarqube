@@ -23,6 +23,7 @@ import classNames from 'classnames';
 import { sortBy } from 'lodash';
 import Step from './Step';
 import NewOrganizationForm from './NewOrganizationForm';
+import AlertSuccessIcon from '../../../components/icons-components/AlertSuccessIcon';
 import { getOrganizations } from '../../../api/organizations';
 import Select from '../../../components/controls/Select';
 import { translate } from '../../../helpers/l10n';
@@ -233,7 +234,7 @@ export default class OrganizationStep extends React.PureComponent {
         {this.getSelectedOrganization() != null &&
           !this.state.loading && (
             <div className="big-spacer-top">
-              <button className="js-continue" onClick={this.handleContinueClick}>
+              <button className="js-continue" onClick={this.handleContinueClick} type="button">
                 {translate('continue')}
               </button>
             </div>
@@ -246,8 +247,8 @@ export default class OrganizationStep extends React.PureComponent {
     const result = this.getSelectedOrganization();
 
     return result != null ? (
-      <div className="boxed-group-actions">
-        <i className="icon-check spacer-right" />
+      <div className="boxed-group-actions display-flex-center">
+        <AlertSuccessIcon className="spacer-right" />
         <strong>{result}</strong>
       </div>
     ) : null;

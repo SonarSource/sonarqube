@@ -20,8 +20,8 @@
 import * as React from 'react';
 import { map } from 'lodash';
 import HealthItem from './HealthItem';
-import CheckIcon from '../../../../components/icons-components/CheckIcon';
-import ClearIcon from '../../../../components/icons-components/ClearIcon';
+import AlertErrorIcon from '../../../../components/icons-components/AlertErrorIcon';
+import AlertSuccessIcon from '../../../../components/icons-components/AlertSuccessIcon';
 import { HealthType, SysValue, SysValueObject } from '../../../../api/system';
 import { HEALTH_FIELD } from '../../utils';
 
@@ -49,9 +49,9 @@ export default function SysInfoItem({ name, value }: Props): JSX.Element {
 
 function BooleanItem({ value }: { value: boolean }) {
   if (value) {
-    return <CheckIcon />;
+    return <AlertSuccessIcon />;
   } else {
-    return <ClearIcon />;
+    return <AlertErrorIcon />;
   }
 }
 
