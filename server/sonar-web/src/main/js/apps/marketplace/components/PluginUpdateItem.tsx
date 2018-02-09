@@ -57,7 +57,7 @@ export default class PluginUpdateItem extends React.PureComponent<Props, State> 
           {update.status === 'COMPATIBLE' ? (
             <span className="js-update-version badge badge-success">{release.version}</span>
           ) : (
-            <Tooltip overlay={translate('marketplace.status', update.status)}>
+            <Tooltip overlay={translate('marketplace.update_status', update.status)}>
               <span className="js-update-version badge badge-warning">{release.version}</span>
             </Tooltip>
           )}
