@@ -54,6 +54,12 @@ it('should display the delete webhook form', () => {
   expect(onDelete).lastCalledWith(webhook.key);
 });
 
+it('should display the deliveries form', () => {
+  const wrapper = getWrapper();
+  click(wrapper.find('.js-webhook-deliveries'));
+  expect(wrapper.find('DeliveriesForm').exists()).toBeTruthy();
+});
+
 function getWrapper(props = {}) {
   return shallow(
     <WebhookActions

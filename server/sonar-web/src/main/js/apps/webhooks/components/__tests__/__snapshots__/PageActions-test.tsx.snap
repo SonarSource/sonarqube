@@ -10,6 +10,7 @@ exports[`should not allow to create a new webhook 1`] = `
   >
     <button
       className="js-webhook-create disabled"
+      type="button"
     >
       create
     </button>
@@ -25,6 +26,7 @@ exports[`should render correctly 1`] = `
     <button
       className="js-webhook-create"
       onClick={[Function]}
+      type="button"
     >
       create
     </button>

@@ -36,7 +36,8 @@ const ADMIN_PATHS = [
   'delete',
   'permissions',
   'permission_templates',
-  'projects_management'
+  'projects_management',
+  'webhooks'
 ];
 
 export default function OrganizationNavigationAdministration({ location, organization }: Props) {

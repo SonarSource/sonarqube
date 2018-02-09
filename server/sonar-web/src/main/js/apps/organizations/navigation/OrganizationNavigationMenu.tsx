@@ -35,37 +35,37 @@ export default function OrganizationNavigationMenu({ location, organization }: P
   return (
     <NavBarTabs className="navbar-context-tabs">
       <li>
-        <Link to={`/organizations/${organization.key}/projects`} activeClassName="active">
+        <Link activeClassName="active" to={`/organizations/${organization.key}/projects`}>
           {translate('projects.page')}
         </Link>
       </li>
       <li>
         <Link
+          activeClassName="active"
           to={{
             pathname: `/organizations/${organization.key}/issues`,
             query: { resolved: 'false' }
-          }}
-          activeClassName="active">
+          }}>
           {translate('issues.page')}
         </Link>
       </li>
       <li>
-        <Link to={`/organizations/${organization.key}/quality_profiles`} activeClassName="active">
+        <Link activeClassName="active" to={`/organizations/${organization.key}/quality_profiles`}>
           {translate('quality_profiles.page')}
         </Link>
       </li>
       <li>
-        <Link to={`/organizations/${organization.key}/rules`} activeClassName="active">
+        <Link activeClassName="active" to={`/organizations/${organization.key}/rules`}>
           {translate('coding_rules.page')}
         </Link>
       </li>
       <li>
-        <Link to={getQualityGatesUrl(organization.key)} activeClassName="active">
+        <Link activeClassName="active" to={getQualityGatesUrl(organization.key)}>
           {translate('quality_gates.page')}
         </Link>
       </li>
       <li>
-        <Link to={`/organizations/${organization.key}/members`} activeClassName="active">
+        <Link activeClassName="active" to={`/organizations/${organization.key}/members`}>
           {translate('organization.members.page')}
         </Link>
       </li>

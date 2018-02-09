@@ -191,3 +191,17 @@ export function getHomePageUrl(homepage: HomePage) {
   // should never happen, but just in case...
   return '/projects';
 }
+
+export function isUrl(url: string) {
+  if (!URL) {
+    const elem = document.createElement('a');
+    elem.href = url;
+    return !!(elem.host && elem.hostname && elem.protocol);
+  }
+  try {
+    const parsedUrl = new URL(url);
+    return url.includes(parsedUrl.host);
+  } catch (error) {
+    return false;
+  }
+}

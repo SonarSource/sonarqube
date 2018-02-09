@@ -23,7 +23,8 @@ import {
   getPathUrlAsString,
   getProjectUrl,
   getQualityGatesUrl,
-  getQualityGateUrl
+  getQualityGateUrl,
+  isUrl
 } from '../urls';
 
 const SIMPLE_COMPONENT_KEY = 'sonarqube';
@@ -111,5 +112,57 @@ describe('#getQualityGate(s)Url', () => {
     expect(getQualityGateUrl(COMPLEX_COMPONENT_KEY)).toEqual({
       pathname: '/quality_gates/show/' + COMPLEX_COMPONENT_KEY_ENCODED
     });
+  });
+});
+
+describe('#isUrl', () => {
+  it('should be valid', () => {
+    expect(isUrl('https://localhost')).toBeTruthy();
+    expect(isUrl('https://localhost/')).toBeTruthy();
+    expect(isUrl('https://localhost:9000')).toBeTruthy();
+    expect(isUrl('https://localhost:9000/')).toBeTruthy();
+    expect(isUrl('https://foo:bar@localhost:9000')).toBeTruthy();
+    expect(isUrl('https://foo@localhost')).toBeTruthy();
+    expect(isUrl('http://foo.com/blah_blah')).toBeTruthy();
+    expect(isUrl('http://foo.com/blah_blah/')).toBeTruthy();
+    expect(isUrl('http://www.example.com/wpstyle/?p=364')).toBeTruthy();
+    expect(isUrl('https://www.example.com/foo/?bar=baz&inga=42&quux')).toBeTruthy();
+    expect(isUrl('http://userid@example.com')).toBeTruthy();
+    expect(isUrl('http://userid@example.com/')).toBeTruthy();
+    expect(isUrl('http://userid:password@example.com:8080')).toBeTruthy();
+    expect(isUrl('http://userid:password@example.com:8080/')).toBeTruthy();
+    expect(isUrl('http://userid@example.com:8080')).toBeTruthy();
+    expect(isUrl('http://userid@example.com:8080/')).toBeTruthy();
+    expect(isUrl('http://userid:password@example.com')).toBeTruthy();
+    expect(isUrl('http://userid:password@example.com/')).toBeTruthy();
+    expect(isUrl('http://142.42.1.1/')).toBeTruthy();
+    expect(isUrl('http://142.42.1.1:8080/')).toBeTruthy();
+    expect(isUrl('http://foo.com/blah_(wikipedia)#cite-1')).toBeTruthy();
+    expect(isUrl('http://foo.com/blah_(wikipedia)_blah#cite-1')).toBeTruthy();
+    expect(isUrl('http://foo.com/(something)?after=parens')).toBeTruthy();
+    expect(isUrl('http://code.google.com/events/#&product=browser')).toBeTruthy();
+    expect(isUrl('http://j.mp')).toBeTruthy();
+    expect(isUrl('http://foo.bar/?q=Test%20URL-encoded%20stuff')).toBeTruthy();
+    expect(isUrl('http://1337.net')).toBeTruthy();
+    expect(isUrl('http://a.b-c.de')).toBeTruthy();
+    expect(isUrl('http://223.255.255.254')).toBeTruthy();
+    expect(isUrl('https://foo_bar.example.com/')).toBeTruthy();
+  });
+
+  it('should not be valid', () => {
+    expect(isUrl('http://')).toBeFalsy();
+    expect(isUrl('http://?')).toBeFalsy();
+    expect(isUrl('http://??')).toBeFalsy();
+    expect(isUrl('http://??/')).toBeFalsy();
+    expect(isUrl('http://#')).toBeFalsy();
+    expect(isUrl('http://##')).toBeFalsy();
+    expect(isUrl('http://##/')).toBeFalsy();
+    expect(isUrl('//')).toBeFalsy();
+    expect(isUrl('//a')).toBeFalsy();
+    expect(isUrl('///a')).toBeFalsy();
+    expect(isUrl('///')).toBeFalsy();
+    expect(isUrl('foo.com')).toBeFalsy();
+    expect(isUrl('http:// shouldfail.com')).toBeFalsy();
+    expect(isUrl(':// should fail')).toBeFalsy();
   });
 });

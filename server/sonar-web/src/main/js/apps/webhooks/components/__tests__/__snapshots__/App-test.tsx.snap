@@ -1,52 +1,69 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should be in loading status 1`] = `
-<div
-  className="page page-limited"
->
+<React.Fragment>
   <HelmetWrapper
     defer={true}
     encodeSpecialCharacters={true}
     title="webhooks.page"
   />
-  <PageHeader
-    loading={true}
+  <div
+    className="page page-limited"
   >
-    <PageActions
+    <PageHeader
       loading={true}
-      onCreate={[Function]}
-      webhooksCount={0}
-    />
-  </PageHeader>
-</div>
+    >
+      <PageActions
+        loading={true}
+        onCreate={[Function]}
+        webhooksCount={0}
+      />
+    </PageHeader>
+  </div>
+</React.Fragment>
 `;
 
 exports[`should fetch webhooks and display them 1`] = `
-<div
-  className="page page-limited"
->
+<React.Fragment>
   <HelmetWrapper
     defer={true}
     encodeSpecialCharacters={true}
     title="webhooks.page"
   />
-  <PageHeader
-    loading={false}
-  >
-    <PageActions
-      loading={false}
-      onCreate={[Function]}
-      webhooksCount={0}
-    />
-  </PageHeader>
   <div
-    className="boxed-group boxed-group-inner"
+    className="page page-limited"
   >
-    <WebhooksList
-      onDelete={[Function]}
-      onUpdate={[Function]}
-      webhooks={Array []}
-    />
+    <PageHeader
+      loading={false}
+    >
+      <PageActions
+        loading={false}
+        onCreate={[Function]}
+        webhooksCount={2}
+      />
+    </PageHeader>
+    <div
+      className="boxed-group boxed-group-inner"
+    >
+      <WebhooksList
+        onDelete={[Function]}
+        onUpdate={[Function]}
+        webhooks={
+          Array [
+            Object {
+              "key": "1",
+              "name": "foo",
+              "url": "http://foo",
+            },
+            Object {
+              "key": "2",
+              "name": "bar",
+              "url": "http://bar",
+            },
+          ]
+        }
+      />
+    </div>
   </div>
-</div>
+</React.Fragment>
 `;
