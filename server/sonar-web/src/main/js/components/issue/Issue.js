@@ -91,7 +91,9 @@ export default class Issue extends React.PureComponent {
       return false;
     });
     key('m', 'issues', () => {
-      this.props.issue.actions.includes('assign') && this.handleAssignement('_me');
+      if (this.props.issue.actions.includes('assign')) {
+        this.handleAssignement('_me');
+      }
       return false;
     });
     key('i', 'issues', () => {

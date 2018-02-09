@@ -68,7 +68,7 @@ export default class NewProjectForm extends React.PureComponent {
     }
   };
 
-  sanitizeProjectKey = (projectKey /*: string */) => projectKey.replace(/[^a-zA-Z0-9-_\.:]/, '');
+  sanitizeProjectKey = (projectKey /*: string */) => projectKey.replace(/[^-_a-zA-Z0-9.:]/, '');
 
   handleProjectKeyChange = (event /*: { target: HTMLInputElement } */) => {
     this.setState({ projectKey: this.sanitizeProjectKey(event.target.value) });

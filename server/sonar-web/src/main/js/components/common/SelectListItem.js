@@ -38,11 +38,15 @@ export default class SelectListItem extends React.PureComponent {
 
   handleSelect = (evt /*: SyntheticInputEvent */) => {
     evt.preventDefault();
-    this.props.onSelect && this.props.onSelect(this.props.item);
+    if (this.props.onSelect) {
+      this.props.onSelect(this.props.item);
+    }
   };
 
   handleHover = () => {
-    this.props.onHover && this.props.onHover(this.props.item);
+    if (this.props.onHover) {
+      this.props.onHover(this.props.item);
+    }
   };
 
   renderLink() {

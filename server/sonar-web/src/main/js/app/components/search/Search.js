@@ -294,6 +294,8 @@ export default class Search extends React.PureComponent {
       case 40:
         event.preventDefault();
         this.selectNext();
+        // keep this return to prevent fall-through in case more cases will be adder later
+        // eslint-disable-next-line no-useless-return
         return;
     }
   };

@@ -42,7 +42,7 @@ export default function Step(props /*: Props */) {
   const clickable = !props.open && props.finished;
 
   const handleClick = (event /*: Event */) => {
-    event.preventDefault;
+    event.preventDefault();
     props.onOpen();
   };
 

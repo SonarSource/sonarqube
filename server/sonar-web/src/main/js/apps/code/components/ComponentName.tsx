@@ -43,7 +43,7 @@ function mostCommitPrefix(strings: string[]) {
     i++;
   }
   const prefix = firstString.substr(0, i);
-  const prefixTokens = prefix.split(/[\s\\\/]/);
+  const prefixTokens = prefix.split(/[\s\\/]/);
   const lastPrefixPart = prefixTokens[prefixTokens.length - 1];
   return prefix.substr(0, prefix.length - lastPrefixPart.length);
 }

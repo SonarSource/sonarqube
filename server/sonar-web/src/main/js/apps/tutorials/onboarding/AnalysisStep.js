@@ -83,6 +83,8 @@ export default class AnalysisStep extends React.PureComponent {
   };
 
   renderFormattedCommand = (...lines /*: Array<string> */) => (
+    // keep this "useless" concatentation for the readability reason
+    // eslint-disable-next-line no-useless-concat
     <pre>{lines.join(' ' + '\\' + '\n' + '  ')}</pre>
   );
 
