@@ -105,6 +105,7 @@ it('should work for long-living branches', () => {
 it('should work for all qualifiers', () => {
   ['TRK', 'BRC', 'VW', 'SVW', 'APP'].forEach(checkWithQualifier);
   expect.assertions(5);
+
   function checkWithQualifier(qualifier: string) {
     const component = { ...baseComponent, configuration: { showSettings: true }, qualifier };
     expect(

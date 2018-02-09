@@ -171,4 +171,5 @@ class Duplications extends React.PureComponent {
     );
   }
 }
+
 export default enhance(Duplications);

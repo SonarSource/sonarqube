@@ -34,6 +34,7 @@ export function getMetrics(data: { p?: number; ps?: number }): Promise<MetricsRe
 
 export function getAllMetrics(data?: { p?: number; ps?: number }): Promise<Metric[]> {
   return inner(data);
+
   function inner(
     data: { p?: number; ps?: number } = { ps: 500 },
     prev?: MetricsResponse

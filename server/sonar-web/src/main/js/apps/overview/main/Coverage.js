@@ -182,4 +182,5 @@ class Coverage extends React.PureComponent {
     );
   }
 }
+
 export default enhance(Coverage);

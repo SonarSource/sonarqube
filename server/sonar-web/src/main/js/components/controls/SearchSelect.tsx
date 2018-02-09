@@ -68,6 +68,7 @@ export default class SearchSelect extends React.PureComponent<Props, State> {
   get minimumQueryLength() {
     return this.props.minimumQueryLength !== undefined ? this.props.minimumQueryLength : 2;
   }
+
   get resetOnBlur() {
     return this.props.resetOnBlur !== undefined ? this.props.resetOnBlur : true;
   }

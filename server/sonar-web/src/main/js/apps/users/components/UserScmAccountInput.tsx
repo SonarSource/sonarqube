@@ -30,6 +30,7 @@ export interface Props {
 export default class UserScmAccountInput extends React.PureComponent<Props> {
   handleChange = (event: React.SyntheticEvent<HTMLInputElement>) =>
     this.props.onChange(this.props.idx, event.currentTarget.value);
+
   handleRemove = () => this.props.onRemove(this.props.idx);
 
   render() {
