@@ -133,6 +133,9 @@ public class MetadataPublisher implements ReportPublisherStep {
   }
 
   private static BranchType toProtobufBranchType(org.sonar.scanner.scan.branch.BranchType branchType) {
+    if (branchType == org.sonar.scanner.scan.branch.BranchType.PULL_REQUEST) {
+      return BranchType.PULL_REQUEST;
+    }
     if (branchType == org.sonar.scanner.scan.branch.BranchType.LONG) {
       return BranchType.LONG;
     }

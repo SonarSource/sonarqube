@@ -35,7 +35,6 @@ import org.sonar.core.util.Protobuf;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
-import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.measure.LiveMeasureDto;
@@ -56,6 +55,7 @@ import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.db.component.BranchType.LONG;
+import static org.sonar.db.component.BranchType.PULL_REQUEST;
 import static org.sonar.db.component.BranchType.SHORT;
 import static org.sonar.server.branch.ws.BranchesWs.addProjectParam;
 import static org.sonar.server.branch.ws.ProjectBranchesParameters.ACTION_LIST;
@@ -97,6 +97,7 @@ public class ListAction implements BranchWsAction {
       checkArgument(project.isEnabled() && PROJECT.equals(project.qualifier()), "Invalid project key");
 
       Collection<BranchDto> branches = dbClient.branchDao().selectByComponent(dbSession, project);
+      Collection<BranchDto> pullRequests = branches.stream().filter(b -> PULL_REQUEST == b.getBranchType()).collect(Collectors.toList());
       Map<String, BranchDto> mergeBranchesByUuid = dbClient.branchDao()
         .selectByUuids(dbSession, branches.stream().map(BranchDto::getMergeBranchUuid).filter(Objects::nonNull).collect(toList()))
         .stream().collect(uniqueIndex(BranchDto::getUuid));
@@ -104,7 +105,7 @@ public class ListAction implements BranchWsAction {
         .selectByComponentUuidsAndMetricKeys(dbSession, branches.stream().map(BranchDto::getUuid).collect(toList()), singletonList(ALERT_STATUS_KEY))
         .stream().collect(uniqueIndex(LiveMeasureDto::getComponentUuid));
       Map<String, BranchStatistics> branchStatisticsByBranchUuid = issueIndex.searchBranchStatistics(project.uuid(), branches.stream()
-        .filter(b -> b.getBranchType().equals(SHORT))
+        .filter(b -> SHORT.equals(b.getBranchType()) || PULL_REQUEST.equals(b.getBranchType()))
         .map(BranchDto::getUuid).collect(toList()))
         .stream().collect(uniqueIndex(BranchStatistics::getBranchUuid, Function.identity()));
       Map<String, String> analysisDateByBranchUuid = dbClient.snapshotDao()
@@ -112,20 +113,25 @@ public class ListAction implements BranchWsAction {
         .stream().collect(uniqueIndex(SnapshotDto::getComponentUuid, s -> formatDateTime(s.getCreatedAt())));
 
       ProjectBranches.ListWsResponse.Builder protobufResponse = ProjectBranches.ListWsResponse.newBuilder();
-      branches.forEach(b -> addBranch(protobufResponse, b, mergeBranchesByUuid, qualityGateMeasuresByComponentUuids.get(b.getUuid()), branchStatisticsByBranchUuid.get(b.getUuid()),
+      branches.stream()
+        .filter(b -> LONG == b.getBranchType() || SHORT == b.getBranchType())
+        .forEach(b -> addBranch(protobufResponse, b, mergeBranchesByUuid, qualityGateMeasuresByComponentUuids.get(b.getUuid()), branchStatisticsByBranchUuid.get(b.getUuid()),
           analysisDateByBranchUuid.get(b.getUuid())));
+      pullRequests
+        .forEach(pr -> addPullRequest(protobufResponse, pr, mergeBranchesByUuid, branchStatisticsByBranchUuid.get(pr.getUuid()), analysisDateByBranchUuid.get(pr.getUuid())));
       WsUtils.writeProtobuf(protobufResponse.build(), request, response);
     }
   }
 
   private static void addBranch(ProjectBranches.ListWsResponse.Builder response, BranchDto branch, Map<String, BranchDto> mergeBranchesByUuid,
-                                @Nullable LiveMeasureDto qualityGateMeasure, BranchStatistics branchStatistics, @Nullable String analysisDate) {
+    @Nullable LiveMeasureDto qualityGateMeasure, BranchStatistics branchStatistics, @Nullable String analysisDate) {
     ProjectBranches.Branch.Builder builder = toBranchBuilder(branch, Optional.ofNullable(mergeBranchesByUuid.get(branch.getMergeBranchUuid())));
     setBranchStatus(builder, branch, qualityGateMeasure, branchStatistics);
     if (analysisDate != null) {
       builder.setAnalysisDate(analysisDate);
     }
     response.addBranches(builder);
+
   }
 
   private static ProjectBranches.Branch.Builder toBranchBuilder(BranchDto branch, Optional<BranchDto> mergeBranch) {
@@ -134,7 +140,7 @@ public class ListAction implements BranchWsAction {
     setNullable(branchKey, builder::setName);
     builder.setIsMain(branch.isMain());
     builder.setType(Common.BranchType.valueOf(branch.getBranchType().name()));
-    if (branch.getBranchType().equals(SHORT)) {
+    if (SHORT.equals(branch.getBranchType())) {
       if (mergeBranch.isPresent()) {
         String mergeBranchKey = mergeBranch.get().getKey();
         builder.setMergeBranch(mergeBranchKey);
@@ -146,16 +152,54 @@ public class ListAction implements BranchWsAction {
   }
 
   private static void setBranchStatus(ProjectBranches.Branch.Builder builder, BranchDto branch, @Nullable LiveMeasureDto qualityGateMeasure,
-                                      @Nullable BranchStatistics branchStatistics) {
+    @Nullable BranchStatistics branchStatistics) {
     ProjectBranches.Status.Builder statusBuilder = ProjectBranches.Status.newBuilder();
-    if (branch.getBranchType() == LONG && qualityGateMeasure != null) {
+    if (LONG.equals(branch.getBranchType()) && qualityGateMeasure != null) {
       Protobuf.setNullable(qualityGateMeasure.getDataAsString(), statusBuilder::setQualityGateStatus);
     }
-    if (branch.getBranchType() == BranchType.SHORT) {
+    if (SHORT.equals(branch.getBranchType())) {
       statusBuilder.setBugs(branchStatistics == null ? 0L : branchStatistics.getBugs());
       statusBuilder.setVulnerabilities(branchStatistics == null ? 0L : branchStatistics.getVulnerabilities());
       statusBuilder.setCodeSmells(branchStatistics == null ? 0L : branchStatistics.getCodeSmells());
     }
+    builder.setStatus(statusBuilder);
+  }
+
+  private static void addPullRequest(ProjectBranches.ListWsResponse.Builder response, BranchDto branch, Map<String, BranchDto> mergeBranchesByUuid,
+    BranchStatistics branchStatistics, @Nullable String analysisDate) {
+    ProjectBranches.PullRequest.Builder builder = toPullRequestBuilder(branch, Optional.ofNullable(mergeBranchesByUuid.get(branch.getMergeBranchUuid())));
+    setPullRequestStatus(builder, branchStatistics);
+    if (analysisDate != null) {
+      builder.setAnalysisDate(analysisDate);
+    }
+
+    response.addPullRequests(builder);
+  }
+
+  private static ProjectBranches.PullRequest.Builder toPullRequestBuilder(BranchDto branch, Optional<BranchDto> mergeBranch) {
+    ProjectBranches.PullRequest.Builder builder = ProjectBranches.PullRequest.newBuilder();
+    String branchKey = branch.getKey();
+    setNullable(branchKey, builder::setBranch);
+    // TODO put real data
+    setNullable(branchKey, builder::setId);
+    // TODO put real data
+    builder.setUrl("https://github.com/SonarSource/sonarqube/pull/3010");
+    if (mergeBranch.isPresent()) {
+      String mergeBranchKey = mergeBranch.get().getKey();
+      builder.setBase(mergeBranchKey);
+    } else {
+      builder.setIsOrphan(true);
+    }
+
+    return builder;
+  }
+
+  private static void setPullRequestStatus(ProjectBranches.PullRequest.Builder builder, @Nullable BranchStatistics branchStatistics) {
+    ProjectBranches.Status.Builder statusBuilder = ProjectBranches.Status.newBuilder();
+    statusBuilder.setBugs(branchStatistics == null ? 0L : branchStatistics.getBugs());
+    statusBuilder.setVulnerabilities(branchStatistics == null ? 0L : branchStatistics.getVulnerabilities());
+    statusBuilder.setCodeSmells(branchStatistics == null ? 0L : branchStatistics.getCodeSmells());
+
     builder.setStatus(statusBuilder);
   }
 }

@@ -42,7 +42,7 @@ message Branch {
   optional string name = 1;
   optional bool isMain = 2;
   optional sonarqube.ws.commons.BranchType type = 3;
-  // Merge branch is only present for short living branch
+  // Merge branch is only present for short living branch and pull request
   optional string mergeBranch = 4;
   optional Status status = 5;
   optional bool isOrphan = 6;
