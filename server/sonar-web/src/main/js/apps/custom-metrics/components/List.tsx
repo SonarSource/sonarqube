@@ -38,44 +38,53 @@ interface Props {
 
 export default function List({ domains, metrics, onDelete, onEdit, types }: Props) {
   return (
-    <div id="custom-metrics-list" className="boxed-group boxed-group-inner">
-      <table className="data zebra zebra-hover">
-        <tbody>
-          {sortBy(metrics, metric => metric.name.toLowerCase()).map(metric => (
-            <tr data-metric={metric.key} key={metric.key}>
-              <td className="width-30">
-                <div>
-                  <strong className="js-metric-name">{metric.name}</strong>
-                  <span className="js-metric-key note little-spacer-left">{metric.key}</span>
-                </div>
-              </td>
+    <div className="boxed-group boxed-group-inner" id="custom-metrics-list">
+      {metrics.length > 0 ? (
+        <table className="data zebra zebra-hover">
+          <tbody>
+            {sortBy(metrics, metric => metric.name.toLowerCase()).map(metric => (
+              <tr data-metric={metric.key} key={metric.key}>
+                <td className="width-30">
+                  <div>
+                    <strong className="js-metric-name">{metric.name}</strong>
+                    <span className="js-metric-key note little-spacer-left">{metric.key}</span>
+                  </div>
+                </td>
 
-              <td className="width-20">
-                <span className="js-metric-domain">{metric.domain}</span>
-              </td>
+                <td className="width-20">
+                  <span className="js-metric-domain">{metric.domain}</span>
+                </td>
 
-              <td className="width-20">
-                <span className="js-metric-type">{translate('metric.type', metric.type)}</span>
-              </td>
+                <td className="width-20">
+                  <span className="js-metric-type">{translate('metric.type', metric.type)}</span>
+                </td>
 
-              <td className="width-20" title={metric.description}>
-                <span className="js-metric-description">{metric.description}</span>
-              </td>
+                <td className="width-20" title={metric.description}>
+                  <span className="js-metric-description">{metric.description}</span>
+                </td>
 
-              <td className="thin nowrap">
-                <ActionsDropdown>
-                  {domains &&
-                    types && (
-                      <EditButton domains={domains} metric={metric} onEdit={onEdit} types={types} />
-                    )}
-                  <ActionsDropdownDivider />
-                  <DeleteButton metric={metric} onDelete={onDelete} />
-                </ActionsDropdown>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+                <td className="thin nowrap">
+                  <ActionsDropdown>
+                    {domains &&
+                      types && (
+                        <EditButton
+                          domains={domains}
+                          metric={metric}
+                          onEdit={onEdit}
+                          types={types}
+                        />
+                      )}
+                    <ActionsDropdownDivider />
+                    <DeleteButton metric={metric} onDelete={onDelete} />
+                  </ActionsDropdown>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      ) : (
+        <p>{translate('no_results')}</p>
+      )}
     </div>
   );
 }

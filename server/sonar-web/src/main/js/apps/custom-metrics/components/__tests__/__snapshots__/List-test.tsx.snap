@@ -1,0 +1,153 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render 1`] = `
+<div
+  className="boxed-group boxed-group-inner"
+  id="custom-metrics-list"
+>
+  <table
+    className="data zebra zebra-hover"
+  >
+    <tbody>
+      <tr
+        data-metric="bar"
+        key="bar"
+      >
+        <td
+          className="width-30"
+        >
+          <div>
+            <strong
+              className="js-metric-name"
+            >
+              Bar
+            </strong>
+            <span
+              className="js-metric-key note little-spacer-left"
+            >
+              bar
+            </span>
+          </div>
+        </td>
+        <td
+          className="width-20"
+        >
+          <span
+            className="js-metric-domain"
+          >
+            Coverage
+          </span>
+        </td>
+        <td
+          className="width-20"
+        >
+          <span
+            className="js-metric-type"
+          >
+            metric.type.INT
+          </span>
+        </td>
+        <td
+          className="width-20"
+        >
+          <span
+            className="js-metric-description"
+          />
+        </td>
+        <td
+          className="thin nowrap"
+        >
+          <ActionsDropdown>
+            <ActionsDropdownDivider />
+            <DeleteButton
+              metric={
+                Object {
+                  "domain": "Coverage",
+                  "id": "4",
+                  "key": "bar",
+                  "name": "Bar",
+                  "type": "INT",
+                }
+              }
+              onDelete={[MockFunction]}
+            />
+          </ActionsDropdown>
+        </td>
+      </tr>
+      <tr
+        data-metric="foo"
+        key="foo"
+      >
+        <td
+          className="width-30"
+        >
+          <div>
+            <strong
+              className="js-metric-name"
+            >
+              Foo
+            </strong>
+            <span
+              className="js-metric-key note little-spacer-left"
+            >
+              foo
+            </span>
+          </div>
+        </td>
+        <td
+          className="width-20"
+        >
+          <span
+            className="js-metric-domain"
+          />
+        </td>
+        <td
+          className="width-20"
+        >
+          <span
+            className="js-metric-type"
+          >
+            metric.type.INT
+          </span>
+        </td>
+        <td
+          className="width-20"
+        >
+          <span
+            className="js-metric-description"
+          />
+        </td>
+        <td
+          className="thin nowrap"
+        >
+          <ActionsDropdown>
+            <ActionsDropdownDivider />
+            <DeleteButton
+              metric={
+                Object {
+                  "id": "3",
+                  "key": "foo",
+                  "name": "Foo",
+                  "type": "INT",
+                }
+              }
+              onDelete={[MockFunction]}
+            />
+          </ActionsDropdown>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+`;
+
+exports[`should render no results 1`] = `
+<div
+  className="boxed-group boxed-group-inner"
+  id="custom-metrics-list"
+>
+  <p>
+    no_results
+  </p>
+</div>
+`;
