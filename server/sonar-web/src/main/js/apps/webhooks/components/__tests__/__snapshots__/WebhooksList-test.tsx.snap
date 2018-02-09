@@ -23,18 +23,6 @@ exports[`should correctly render the webhooks 1`] = `
   </thead>
   <tbody>
     <WebhookItem
-      key="1"
-      onDelete={[MockFunction]}
-      onUpdate={[MockFunction]}
-      webhook={
-        Object {
-          "key": "1",
-          "name": "my webhook",
-          "url": "http://webhook.target",
-        }
-      }
-    />
-    <WebhookItem
       key="2"
       onDelete={[MockFunction]}
       onUpdate={[MockFunction]}
@@ -43,6 +31,18 @@ exports[`should correctly render the webhooks 1`] = `
           "key": "2",
           "name": "jenkins webhook",
           "url": "http://jenkins.target",
+        }
+      }
+    />
+    <WebhookItem
+      key="1"
+      onDelete={[MockFunction]}
+      onUpdate={[MockFunction]}
+      webhook={
+        Object {
+          "key": "1",
+          "name": "my webhook",
+          "url": "http://webhook.target",
         }
       }
     />

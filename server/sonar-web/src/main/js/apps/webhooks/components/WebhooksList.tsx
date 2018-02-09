@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { sortBy } from 'lodash';
 import WebhookItem from './WebhookItem';
 import { Webhook } from '../../../app/types';
 import { translate } from '../../../helpers/l10n';
@@ -48,7 +49,7 @@ export default class WebhooksList extends React.PureComponent<Props> {
       <table className="data zebra">
         {this.renderHeader()}
         <tbody>
-          {webhooks.map(webhook => (
+          {sortBy(webhooks, webhook => webhook.name.toLowerCase()).map(webhook => (
             <WebhookItem
               key={webhook.key}
               onDelete={this.props.onDelete}

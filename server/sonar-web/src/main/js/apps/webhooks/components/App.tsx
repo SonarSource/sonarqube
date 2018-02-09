@@ -94,7 +94,10 @@ export default class App extends React.PureComponent<Props, State> {
       if (this.mounted) {
         this.setState(({ webhooks }) => ({
           webhooks: webhooks.map(
-            webhook => (webhook.key === data.webhook ? { ...webhook, ...data } : webhook)
+            webhook =>
+              webhook.key === data.webhook
+                ? { ...webhook, name: data.name, url: data.url }
+                : webhook
           )
         }));
       }
@@ -105,27 +108,29 @@ export default class App extends React.PureComponent<Props, State> {
     const { loading, webhooks } = this.state;
 
     return (
-      <div className="page page-limited">
+      <>
         <Helmet title={translate('webhooks.page')} />
 
-        <PageHeader loading={loading}>
-          <PageActions
-            loading={loading}
-            onCreate={this.handleCreate}
-            webhooksCount={webhooks.length}
-          />
-        </PageHeader>
-
-        {!loading && (
-          <div className="boxed-group boxed-group-inner">
-            <WebhooksList
-              onDelete={this.handleDelete}
-              onUpdate={this.handleUpdate}
-              webhooks={webhooks}
+        <div className="page page-limited">
+          <PageHeader loading={loading}>
+            <PageActions
+              loading={loading}
+              onCreate={this.handleCreate}
+              webhooksCount={webhooks.length}
             />
-          </div>
-        )}
-      </div>
+          </PageHeader>
+
+          {!loading && (
+            <div className="boxed-group boxed-group-inner">
+              <WebhooksList
+                onDelete={this.handleDelete}
+                onUpdate={this.handleUpdate}
+                webhooks={webhooks}
+              />
+            </div>
+          )}
+        </div>
+      </>
     );
   }
 }

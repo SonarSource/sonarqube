@@ -19,7 +19,7 @@
  */
 import { getJSON, post, postJSON } from '../helpers/request';
 import throwGlobalError from '../app/utils/throwGlobalError';
-import { Webhook } from '../app/types';
+import { Webhook, WebhookDelivery, Paging } from '../app/types';
 
 export function createWebhook(data: {
   name: string;
@@ -47,4 +47,23 @@ export function updateWebhook(data: {
   url: string;
 }): Promise<void | Response> {
   return post('/api/webhooks/update', data).catch(throwGlobalError);
+}
+
+export function searchDeliveries(data: {
+  ceTaskId?: string;
+  componentKey?: string;
+  webhook?: string;
+  p?: number;
+  ps?: number;
+}): Promise<{
+  deliveries: WebhookDelivery[];
+  paging: Paging;
+}> {
+  return getJSON('/api/webhooks/deliveries', data).catch(throwGlobalError);
+}
+
+export function getDelivery(data: {
+  deliveryId: string;
+}): Promise<{ delivery: WebhookDelivery & { payload: string } }> {
+  return getJSON('/api/webhooks/delivery', data).catch(throwGlobalError);
 }
