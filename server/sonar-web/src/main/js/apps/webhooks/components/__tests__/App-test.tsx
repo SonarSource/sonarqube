@@ -20,18 +20,38 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import App from '../App';
-import { searchWebhooks } from '../../../../api/webhooks';
+import {
+  createWebhook,
+  deleteWebhook,
+  searchWebhooks,
+  updateWebhook
+} from '../../../../api/webhooks';
 import { Visibility } from '../../../../app/types';
 
 jest.mock('../../../../api/webhooks', () => ({
-  searchWebhooks: jest.fn(() => Promise.resolve({ webhooks: [] }))
+  createWebhook: jest.fn(() =>
+    Promise.resolve({ webhook: { key: '3', name: 'baz', url: 'http://baz' } })
+  ),
+  deleteWebhook: jest.fn(() => Promise.resolve()),
+  searchWebhooks: jest.fn(() =>
+    Promise.resolve({
+      webhooks: [
+        { key: '1', name: 'foo', url: 'http://foo' },
+        { key: '2', name: 'bar', url: 'http://bar' }
+      ]
+    })
+  ),
+  updateWebhook: jest.fn(() => Promise.resolve())
 }));
 
 const organization = { key: 'foo', name: 'Foo', projectVisibility: Visibility.Private };
 const component = { key: 'bar', organization: 'foo', qualifier: 'TRK' };
 
 beforeEach(() => {
+  (createWebhook as jest.Mock<any>).mockClear();
+  (deleteWebhook as jest.Mock<any>).mockClear();
   (searchWebhooks as jest.Mock<any>).mockClear();
+  (updateWebhook as jest.Mock<any>).mockClear();
 });
 
 it('should be in loading status', () => {
@@ -58,21 +78,21 @@ describe('should correctly fetch webhooks when', () => {
   });
 
   it('on project scope', async () => {
-    shallow(<App organization={undefined} component={component} />);
+    shallow(<App component={component} organization={undefined} />);
 
     await new Promise(setImmediate);
     expect(searchWebhooks).toHaveBeenCalledWith({ project: component.key });
   });
 
   it('on organization scope', async () => {
-    shallow(<App organization={organization} component={undefined} />);
+    shallow(<App component={undefined} organization={organization} />);
 
     await new Promise(setImmediate);
     expect(searchWebhooks).toHaveBeenCalledWith({ organization: organization.key });
   });
 
   it('on project scope within an organization', async () => {
-    shallow(<App organization={organization} component={component} />);
+    shallow(<App component={component} organization={organization} />);
 
     await new Promise(setImmediate);
     expect(searchWebhooks).toHaveBeenCalledWith({
@@ -80,4 +100,47 @@ describe('should correctly fetch webhooks when', () => {
       project: component.key
     });
   });
+});
+
+it('should correctly handle webhook creation', async () => {
+  const webhook = { name: 'baz', url: 'http://baz' };
+  const wrapper = shallow(<App organization={organization} />);
+  (wrapper.instance() as App).handleCreate({ ...webhook });
+  expect(createWebhook).lastCalledWith({
+    ...webhook,
+    organization: organization.key,
+    project: undefined
+  });
+
+  await new Promise(setImmediate);
+  wrapper.update();
+  expect(wrapper.state('webhooks')).toEqual([
+    { key: '1', name: 'foo', url: 'http://foo' },
+    { key: '2', name: 'bar', url: 'http://bar' },
+    { key: '3', name: 'baz', url: 'http://baz' }
+  ]);
+});
+
+it('should correctly handle webhook deletion', async () => {
+  const wrapper = shallow(<App organization={undefined} />);
+  (wrapper.instance() as App).handleDelete('2');
+  expect(deleteWebhook).lastCalledWith({ webhook: '2' });
+
+  await new Promise(setImmediate);
+  wrapper.update();
+  expect(wrapper.state('webhooks')).toEqual([{ key: '1', name: 'foo', url: 'http://foo' }]);
+});
+
+it('should correctly handle webhook update', async () => {
+  const newValues = { webhook: '1', name: 'Cfoo', url: 'http://cfoo' };
+  const wrapper = shallow(<App organization={undefined} />);
+  (wrapper.instance() as App).handleUpdate(newValues);
+  expect(updateWebhook).lastCalledWith(newValues);
+
+  await new Promise(setImmediate);
+  wrapper.update();
+  expect(wrapper.state('webhooks')).toEqual([
+    { key: '1', name: 'Cfoo', url: 'http://cfoo' },
+    { key: '2', name: 'bar', url: 'http://bar' }
+  ]);
 });

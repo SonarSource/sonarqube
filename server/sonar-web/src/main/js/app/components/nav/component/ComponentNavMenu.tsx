@@ -42,7 +42,8 @@ const SETTINGS_URLS = [
   '/project/history',
   'background_tasks',
   '/project/key',
-  '/project/deletion'
+  '/project/deletion',
+  '/project/webhooks'
 ];
 
 interface Props {

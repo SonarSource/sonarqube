@@ -11,6 +11,12 @@ exports[`should render correctly 1`] = `
     >
       update_verb
     </ActionsDropdownItem>
+    <ActionsDropdownItem
+      className="js-webhook-deliveries"
+      onClick={[Function]}
+    >
+      webhooks.deliveries.show
+    </ActionsDropdownItem>
     <ActionsDropdownDivider />
     <ConfirmButton
       confirmButtonText="delete"

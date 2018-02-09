@@ -1,0 +1,84 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<BoxedGroupAccordion
+  onClick={[Function]}
+  open={false}
+  renderHeader={[Function]}
+  title={
+    <DateTimeFormatter
+      date="12.02.2018"
+    />
+  }
+>
+  <div
+    className="big-spacer-left"
+  >
+    <p
+      className="spacer-bottom"
+    >
+      webhooks.delivery.response_x.200
+    </p>
+    <p
+      className="spacer-bottom"
+    >
+      webhooks.delivery.duration_x.20ms
+    </p>
+    <p
+      className="spacer-bottom"
+    >
+      webhooks.delivery.payload
+    </p>
+    <DeferredSpinner
+      className="spacer-left spacer-top"
+      loading={false}
+      timeout={100}
+    />
+  </div>
+</BoxedGroupAccordion>
+`;
+
+exports[`should render correctly 2`] = `
+<BoxedGroupAccordion
+  onClick={[Function]}
+  open={true}
+  renderHeader={[Function]}
+  title={
+    <DateTimeFormatter
+      date="12.02.2018"
+    />
+  }
+>
+  <div
+    className="big-spacer-left"
+  >
+    <p
+      className="spacer-bottom"
+    >
+      webhooks.delivery.response_x.200
+    </p>
+    <p
+      className="spacer-bottom"
+    >
+      webhooks.delivery.duration_x.20ms
+    </p>
+    <p
+      className="spacer-bottom"
+    >
+      webhooks.delivery.payload
+    </p>
+    <DeferredSpinner
+      className="spacer-left spacer-top"
+      loading={false}
+      timeout={100}
+    >
+      <CodeSnippet
+        noCopy={true}
+        snippet="{
+  \\"success\\": true
+}"
+      />
+    </DeferredSpinner>
+  </div>
+</BoxedGroupAccordion>
+`;
