@@ -40,6 +40,10 @@ public interface BranchConfiguration {
     return branchType() == BranchType.SHORT;
   }
 
+  default boolean isPullRequest() {
+    return branchType() == BranchType.PULL_REQUEST;
+  }
+
   /**
    * The name of the branch.
    */

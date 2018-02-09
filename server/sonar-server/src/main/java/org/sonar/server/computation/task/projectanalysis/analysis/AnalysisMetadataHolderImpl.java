@@ -213,4 +213,10 @@ public class AnalysisMetadataHolderImpl implements MutableAnalysisMetadataHolder
     return prop != null && prop.getType() == BranchType.LONG;
   }
 
+  public boolean isPullRequest() {
+    checkState(this.branch.isInitialized(), BRANCH_NOT_SET);
+    Branch prop = branch.getProperty();
+    return prop != null && prop.getType() == BranchType.PULL_REQUEST;
+  }
+
 }
