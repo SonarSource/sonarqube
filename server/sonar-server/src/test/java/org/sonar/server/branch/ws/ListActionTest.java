@@ -26,7 +26,6 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbTester;
@@ -34,7 +33,6 @@ import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.ResourceTypesRule;
-import org.sonar.db.component.SnapshotTesting;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.rule.RuleDefinitionDto;
@@ -68,6 +66,8 @@ import static org.sonar.api.rules.RuleType.CODE_SMELL;
 import static org.sonar.api.rules.RuleType.VULNERABILITY;
 import static org.sonar.api.utils.DateUtils.dateToLong;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
+import static org.sonar.db.component.BranchType.PULL_REQUEST;
+import static org.sonar.db.component.SnapshotTesting.newAnalysis;
 import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonarqube.ws.ProjectBranches.Status;
 
@@ -110,19 +110,25 @@ public class ListActionTest {
   public void test_example() {
     ComponentDto project = db.components().insertPrivateProject(p -> p.setDbKey("sonarqube"));
     ComponentDto longLivingBranch = db.components().insertProjectBranch(project, b -> b.setKey("feature/bar").setBranchType(BranchType.LONG));
-    ComponentDto shortLivingBranch = db.components().insertProjectBranch(project, b -> b.setKey("feature/foo").setBranchType(BranchType.SHORT).setMergeBranchUuid(longLivingBranch.uuid()));
+    ComponentDto shortLivingBranch = db.components().insertProjectBranch(project,
+      b -> b.setKey("feature/foo").setBranchType(BranchType.SHORT).setMergeBranchUuid(longLivingBranch.uuid()));
+    ComponentDto pullRequest = db.components().insertProjectBranch(project,
+      b -> b.setKey("feature/pr").setBranchType(PULL_REQUEST).setMergeBranchUuid(longLivingBranch.uuid()));
     userSession.logIn().addProjectPermission(UserRole.USER, project);
 
-    db.getDbClient().snapshotDao().insert(db.getSession(), SnapshotTesting.newAnalysis(longLivingBranch).setLast(true).setCreatedAt(DateUtils.parseDateTime("2017-04-01T01:15:42+0100").getTime()));
-    db.getDbClient().snapshotDao().insert(db.getSession(), SnapshotTesting.newAnalysis(shortLivingBranch).setLast(true).setCreatedAt(DateUtils.parseDateTime("2017-04-03T13:37:00+0100").getTime()));
+    db.getDbClient().snapshotDao().insert(db.getSession(), newAnalysis(longLivingBranch).setLast(true).setCreatedAt(parseDateTime("2017-04-01T01:15:42+0100").getTime()));
+    db.getDbClient().snapshotDao().insert(db.getSession(), newAnalysis(shortLivingBranch).setLast(true).setCreatedAt(parseDateTime("2017-04-03T13:37:00+0100").getTime()));
+    db.getDbClient().snapshotDao().insert(db.getSession(), newAnalysis(pullRequest).setLast(true).setCreatedAt(parseDateTime("2017-04-04T13:37:00+0100").getTime()));
+    db.measures().insertLiveMeasure(longLivingBranch, qualityGateStatus, m -> m.setData("WARN"));
     db.commit();
 
-    String json = ws.newRequest()
+    String result = ws.newRequest()
       .setParam("project", project.getDbKey())
       .execute()
       .getInput();
 
-    assertJson(json).isSimilarTo(ws.getDef().responseExampleAsString());
+    assertJson(result).isSimilarTo(ws.getDef().responseExampleAsString());
+    assertJson(ws.getDef().responseExampleAsString()).isSimilarTo(result);
   }
 
   @Test
@@ -310,6 +316,34 @@ public class ListActionTest {
   }
 
   @Test
+  public void status_on_pull_request() {
+    ComponentDto project = db.components().insertMainBranch();
+    userSession.logIn().addProjectPermission(UserRole.USER, project);
+    ComponentDto longLivingBranch = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.LONG));
+    ComponentDto pullRequest = db.components().insertProjectBranch(project,
+      b -> b.setBranchType(PULL_REQUEST).setMergeBranchUuid(longLivingBranch.uuid()));
+    RuleDefinitionDto rule = db.rules().insert();
+    db.issues().insert(rule, pullRequest, pullRequest, i -> i.setType(BUG).setResolution(null));
+    db.issues().insert(rule, pullRequest, pullRequest, i -> i.setType(BUG).setResolution(RESOLUTION_FIXED));
+    db.issues().insert(rule, pullRequest, pullRequest, i -> i.setType(VULNERABILITY).setResolution(null));
+    db.issues().insert(rule, pullRequest, pullRequest, i -> i.setType(VULNERABILITY).setResolution(null));
+    db.issues().insert(rule, pullRequest, pullRequest, i -> i.setType(CODE_SMELL).setResolution(null));
+    db.issues().insert(rule, pullRequest, pullRequest, i -> i.setType(CODE_SMELL).setResolution(null));
+    db.issues().insert(rule, pullRequest, pullRequest, i -> i.setType(CODE_SMELL).setResolution(null));
+    db.issues().insert(rule, pullRequest, pullRequest, i -> i.setType(CODE_SMELL).setResolution(RESOLUTION_FALSE_POSITIVE));
+    issueIndexer.indexOnStartup(emptySet());
+    permissionIndexerTester.allowOnlyAnyone(project);
+
+    ListWsResponse response = ws.newRequest()
+      .setParam("project", project.getKey())
+      .executeProtobuf(ListWsResponse.class);
+
+    assertThat(response.getPullRequestsList().stream().map(ProjectBranches.PullRequest::getStatus))
+      .extracting(Status::hasBugs, Status::getBugs, Status::hasVulnerabilities, Status::getVulnerabilities, Status::hasCodeSmells, Status::getCodeSmells)
+      .containsExactlyInAnyOrder(tuple(true, 1L, true, 2L, true, 3L));
+  }
+
+  @Test
   public void response_contains_date_of_last_analysis() {
     Long lastAnalysisLongLivingBranch = dateToLong(parseDateTime("2017-04-01T00:00:00+0100"));
     Long previousAnalysisShortLivingBranch = dateToLong(parseDateTime("2017-04-02T00:00:00+0100"));
@@ -321,11 +355,11 @@ public class ListActionTest {
     ComponentDto longLivingBranch2 = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.LONG));
     ComponentDto shortLivingBranch2 = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.SHORT).setMergeBranchUuid(longLivingBranch2.uuid()));
     db.getDbClient().snapshotDao().insert(db.getSession(),
-      SnapshotTesting.newAnalysis(longLivingBranch2).setCreatedAt(lastAnalysisLongLivingBranch));
+      newAnalysis(longLivingBranch2).setCreatedAt(lastAnalysisLongLivingBranch));
     db.getDbClient().snapshotDao().insert(db.getSession(),
-      SnapshotTesting.newAnalysis(shortLivingBranch2).setCreatedAt(previousAnalysisShortLivingBranch).setLast(false));
+      newAnalysis(shortLivingBranch2).setCreatedAt(previousAnalysisShortLivingBranch).setLast(false));
     db.getDbClient().snapshotDao().insert(db.getSession(),
-      SnapshotTesting.newAnalysis(shortLivingBranch2).setCreatedAt(lastAnalysisShortLivingBranch));
+      newAnalysis(shortLivingBranch2).setCreatedAt(lastAnalysisShortLivingBranch));
     db.commit();
     issueIndexer.indexOnStartup(emptySet());
     permissionIndexerTester.allowOnlyAnyone(project);
@@ -335,13 +369,13 @@ public class ListActionTest {
       .executeProtobuf(ListWsResponse.class);
 
     assertThat(response.getBranchesList())
-      .extracting(ProjectBranches.Branch::getType, ProjectBranches.Branch::hasAnalysisDate, b -> "".equals(b.getAnalysisDate()) ? null : dateToLong(parseDateTime(b.getAnalysisDate())))
+      .extracting(ProjectBranches.Branch::getType, ProjectBranches.Branch::hasAnalysisDate,
+        b -> "".equals(b.getAnalysisDate()) ? null : dateToLong(parseDateTime(b.getAnalysisDate())))
       .containsExactlyInAnyOrder(
         tuple(Common.BranchType.LONG, false, null),
         tuple(Common.BranchType.SHORT, false, null),
         tuple(Common.BranchType.LONG, true, lastAnalysisLongLivingBranch),
-        tuple(Common.BranchType.SHORT, true, lastAnalysisShortLivingBranch)
-      );
+        tuple(Common.BranchType.SHORT, true, lastAnalysisShortLivingBranch));
   }
 
   @Test
