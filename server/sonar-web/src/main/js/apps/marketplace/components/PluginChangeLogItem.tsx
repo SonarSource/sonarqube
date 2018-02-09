@@ -37,7 +37,7 @@ export default function PluginChangeLogItem({ release, update }: Props) {
             {release.version}
           </span>
         ) : (
-          <Tooltip overlay={translate('marketplace.status', update.status)}>
+          <Tooltip overlay={translate('marketplace.update_status', update.status)}>
             <span className="js-plugin-changelog-version badge badge-warning spacer-right">
               {release.version}
             </span>
