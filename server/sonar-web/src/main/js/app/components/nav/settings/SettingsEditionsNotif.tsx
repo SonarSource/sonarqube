@@ -55,10 +55,10 @@ export default class SettingsEditionsNotif extends React.PureComponent<Props, St
         <span>
           {edition
             ? translateWithParameters(
-                'marketplace.status_x.' + editionStatus.installationStatus,
+                'marketplace.edition_status_x.' + editionStatus.installationStatus,
                 edition.name
               )
-            : translate('marketplace.status', editionStatus.installationStatus)}
+            : translate('marketplace.edition_status', editionStatus.installationStatus)}
         </span>
       </NavBarNotif>
     );
@@ -71,10 +71,10 @@ export default class SettingsEditionsNotif extends React.PureComponent<Props, St
         <span>
           {edition
             ? translateWithParameters(
-                'marketplace.status_x.' + editionStatus.installationStatus,
+                'marketplace.edition_status_x.' + editionStatus.installationStatus,
                 edition.name
               )
-            : translate('marketplace.status', editionStatus.installationStatus)}
+            : translate('marketplace.edition_status', editionStatus.installationStatus)}
         </span>
         {edition &&
           edition.key === 'datacenter' && (
@@ -95,7 +95,7 @@ export default class SettingsEditionsNotif extends React.PureComponent<Props, St
             </span>
           )}
         {!preventRestart && (
-          <button className="js-restart spacer-left" onClick={this.handleOpenRestart}>
+          <button className="js-restart spacer-left" onClick={this.handleOpenRestart} type="button">
             {translate('marketplace.restart')}
           </button>
         )}
@@ -111,10 +111,10 @@ export default class SettingsEditionsNotif extends React.PureComponent<Props, St
       <NavBarNotif className="alert alert-danger">
         {edition
           ? translateWithParameters(
-              'marketplace.status_x.' + editionStatus.installationStatus,
+              'marketplace.edition_status_x.' + editionStatus.installationStatus,
               edition.name
             )
-          : translate('marketplace.status', editionStatus.installationStatus)}
+          : translate('marketplace.edition_status', editionStatus.installationStatus)}
         <a
           className="spacer-left"
           href={
