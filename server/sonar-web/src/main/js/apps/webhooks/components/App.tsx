@@ -37,7 +37,7 @@ interface State {
 }
 
 export default class App extends React.PureComponent<Props, State> {
-  mounted: boolean = false;
+  mounted = false;
   state: State = { loading: true, webhooks: [] };
 
   componentDidMount() {
@@ -65,7 +65,11 @@ export default class App extends React.PureComponent<Props, State> {
   };
 
   getScopeParams = ({ organization, component } = this.props) => {
-    return { organization: organization && organization.key, project: component && component.key };
+    const organizationKey = organization && organization.key;
+    return {
+      organization: component ? component.organization : organizationKey,
+      project: component && component.key
+    };
   };
 
   handleCreate = (data: { name: string; url: string }) => {

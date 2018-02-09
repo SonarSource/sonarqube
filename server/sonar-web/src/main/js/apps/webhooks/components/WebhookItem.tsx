@@ -19,7 +19,11 @@
  */
 import * as React from 'react';
 import WebhookActions from './WebhookActions';
-import { Webhook } from '../../../app/types';
+import AlertErrorIcon from '../../../components/icons-components/AlertErrorIcon';
+import AlertSuccessIcon from '../../../components/icons-components/AlertSuccessIcon';
+import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
+import { Webhook, WebhookDelivery } from '../../../app/types';
+import { translate } from '../../../helpers/l10n';
 
 interface Props {
   onDelete: (webhook: string) => Promise<void>;
@@ -32,9 +36,26 @@ export default function WebhookItem({ onDelete, onUpdate, webhook }: Props) {
     <tr>
       <td>{webhook.name}</td>
       <td>{webhook.url}</td>
+      <td>
+        <LatestDelivery latestDelivery={webhook.latestDelivery} />
+      </td>
       <td className="thin nowrap text-right">
         <WebhookActions onDelete={onDelete} onUpdate={onUpdate} webhook={webhook} />
       </td>
     </tr>
+  );
+}
+
+export function LatestDelivery({ latestDelivery }: { latestDelivery?: WebhookDelivery }) {
+  if (!latestDelivery) {
+    return <span>{translate('webhooks.last_execution.none')}</span>;
+  }
+  return (
+    <>
+      {latestDelivery.success ? <AlertSuccessIcon /> : <AlertErrorIcon />}
+      <span className="spacer-left">
+        <DateTimeFormatter date={latestDelivery.at} />
+      </span>
+    </>
   );
 }
