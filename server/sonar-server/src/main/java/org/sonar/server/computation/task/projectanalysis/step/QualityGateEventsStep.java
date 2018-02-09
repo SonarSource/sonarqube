@@ -70,7 +70,7 @@ public class QualityGateEventsStep implements ComputationStep {
   @Override
   public void execute() {
     // no notification on short living branch as there is no real Quality Gate on those
-    if (analysisMetadataHolder.isShortLivingBranch()) {
+    if (analysisMetadataHolder.isShortLivingBranch() || analysisMetadataHolder.isPullRequest()) {
       return;
     }
     new DepthTraversalTypeAwareCrawler(

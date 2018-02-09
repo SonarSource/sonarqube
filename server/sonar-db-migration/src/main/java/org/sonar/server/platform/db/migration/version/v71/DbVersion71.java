@@ -33,6 +33,6 @@ public class DbVersion71 implements DbVersion {
       .add(2003, "Make scope not nullable in rules", MakeScopeNotNullableInRules.class)
       .add(2004, "Use rule id in QPROFILE_CHANGES", UseRuleIdInQPChangesData.class)
       .add(2005, "Create table DEPRECATED_RULE_KEYS", CreateDeprecatedRuleKeysTable.class)
-    ;
+      .add(2006, "Increase branch type size in PROJECT_BRANCHES", IncreaseBranchTypeSizeForPullRequest.class);
   }
 }
