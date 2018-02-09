@@ -247,6 +247,10 @@ class PurgeCommands {
   }
 
   void deleteCeActivity(String rootUuid) {
+    profiler.start("deleteCeActivity (ce_scanner_context)");
+    purgeMapper.deleteCeScannerContextOfCeActivityByProjectUuid(rootUuid);
+    session.commit();
+    profiler.stop();
     profiler.start("deleteCeActivity (ce_activity)");
     purgeMapper.deleteCeActivityByProjectUuid(rootUuid);
     session.commit();
@@ -254,6 +258,10 @@ class PurgeCommands {
   }
 
   void deleteCeQueue(String rootUuid) {
+    profiler.start("deleteCeQueue (ce_scanner_context)");
+    purgeMapper.deleteCeScannerContextOfCeQueueByProjectUuid(rootUuid);
+    session.commit();
+    profiler.stop();
     profiler.start("deleteCeQueue (ce_queue)");
     purgeMapper.deleteCeQueueByProjectUuid(rootUuid);
     session.commit();

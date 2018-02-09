@@ -90,7 +90,11 @@ public interface PurgeMapper {
 
   void deleteFileSourcesByFileUuid(@Param("fileUuids") List<String> fileUuids);
 
+  void deleteCeScannerContextOfCeActivityByProjectUuid(@Param("projectUuid") String projectUuid);
+
   void deleteCeActivityByProjectUuid(@Param("projectUuid") String projectUuid);
+
+  void deleteCeScannerContextOfCeQueueByProjectUuid(@Param("projectUuid") String projectUuid);
 
   void deleteCeQueueByProjectUuid(@Param("projectUuid") String projectUuid);
 
