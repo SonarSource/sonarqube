@@ -254,6 +254,10 @@ class PurgeCommands {
     purgeMapper.deleteCeTaskCharacteristicsOfCeActivityByProjectUuid(rootUuid);
     session.commit();
     profiler.stop();
+    profiler.start("deleteCeActivity (ce_task_input)");
+    purgeMapper.deleteCeTaskInputOfCeActivityByProjectUuid(rootUuid);
+    session.commit();
+    profiler.stop();
     profiler.start("deleteCeActivity (ce_activity)");
     purgeMapper.deleteCeActivityByProjectUuid(rootUuid);
     session.commit();
@@ -267,6 +271,10 @@ class PurgeCommands {
     profiler.stop();
     profiler.start("deleteCeQueue (ce_task_characteristics)");
     purgeMapper.deleteCeTaskCharacteristicsOfCeQueueByProjectUuid(rootUuid);
+    session.commit();
+    profiler.stop();
+    profiler.start("deleteCeQueue (ce_task_input)");
+    purgeMapper.deleteCeTaskInputOfCeQueueByProjectUuid(rootUuid);
     session.commit();
     profiler.stop();
     profiler.start("deleteCeQueue (ce_queue)");
