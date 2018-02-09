@@ -70,6 +70,7 @@ exports[`generates token 1`] = `
                 <button
                   className="text-middle"
                   disabled={true}
+                  type="submit"
                 >
                   onboarding.token.generate
                 </button>
@@ -289,6 +290,7 @@ exports[`generates token 3`] = `
           <button
             className="js-continue"
             onClick={[Function]}
+            type="button"
           >
             continue
           </button>
@@ -387,6 +389,7 @@ exports[`revokes token 1`] = `
           <button
             className="js-continue"
             onClick={[Function]}
+            type="button"
           >
             continue
           </button>
@@ -466,6 +469,7 @@ exports[`revokes token 2`] = `
           <button
             className="js-continue"
             onClick={[Function]}
+            type="button"
           >
             continue
           </button>
@@ -546,6 +550,7 @@ exports[`revokes token 3`] = `
                 <button
                   className="text-middle"
                   disabled={true}
+                  type="submit"
                 >
                   onboarding.token.generate
                 </button>

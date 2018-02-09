@@ -25,6 +25,7 @@ import {
   deleteOrganization,
   getOrganization
 } from '../../../api/organizations';
+import AlertErrorIcon from '../../../components/icons-components/AlertErrorIcon';
 import { DeleteButton } from '../../../components/ui/buttons';
 import { translate } from '../../../helpers/l10n';
 
@@ -141,9 +142,9 @@ export default class NewOrganizationForm extends React.PureComponent {
         <input
           autoFocus={true}
           className="input-super-large spacer-right text-middle"
-          onChange={this.handleOrganizationChange}
           maxLength={32}
           minLength={2}
+          onChange={this.handleOrganizationChange}
           placeholder={translate('onboarding.organization.placeholder')}
           required={true}
           type="text"
@@ -152,13 +153,13 @@ export default class NewOrganizationForm extends React.PureComponent {
         {loading ? (
           <i className="spinner text-middle" />
         ) : (
-          <button className="text-middle" disabled={!valid}>
+          <button className="text-middle" disabled={!valid} type="submit">
             {translate('create')}
           </button>
         )}
         {!unique && (
           <span className="big-spacer-left text-danger text-middle">
-            <i className="icon-alert-error little-spacer-right text-text-top" />
+            <AlertErrorIcon className="little-spacer-right text-text-top" />
             {translate('this_name_is_already_taken')}
           </span>
         )}

@@ -51,10 +51,10 @@ it('should render object correctly', () => {
 
 it('should render `true`', () => {
   const wrapper = mount(<SysInfoItem name="test" value={true} />);
-  expect(wrapper.find('CheckIcon').exists()).toBeTruthy();
+  expect(wrapper.find('AlertSuccessIcon').exists()).toBeTruthy();
 });
 
 it('should render `false`', () => {
   const wrapper = mount(<SysInfoItem name="test" value={false} />);
-  expect(wrapper.find('ClearIcon').exists()).toBeTruthy();
+  expect(wrapper.find('AlertErrorIcon').exists()).toBeTruthy();
 });

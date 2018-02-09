@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import CheckIcon from '../../../components/icons-components/CheckIcon';
-import ClearIcon from '../../../components/icons-components/ClearIcon';
+import AlertErrorIcon from '../../../components/icons-components/AlertErrorIcon';
+import AlertSuccessIcon from '../../../components/icons-components/AlertSuccessIcon';
 import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
 import BoxedGroupAccordion from '../../../components/controls/BoxedGroupAccordion';
 import CodeSnippet from '../../../components/common/CodeSnippet';
