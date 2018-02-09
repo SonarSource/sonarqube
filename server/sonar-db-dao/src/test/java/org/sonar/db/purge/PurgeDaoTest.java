@@ -20,6 +20,7 @@
 package org.sonar.db.purge;
 
 import com.google.common.collect.ImmutableList;
+import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -226,6 +227,31 @@ public class PurgeDaoTest {
   }
 
   @Test
+  public void delete_row_in_ce_task_input_referring_to_a_row_in_ce_activity_when_deleting_project() {
+    ComponentDto projectToBeDeleted = ComponentTesting.newPrivateProjectDto(dbTester.getDefaultOrganization());
+    ComponentDto anotherLivingProject = ComponentTesting.newPrivateProjectDto(dbTester.getDefaultOrganization());
+    dbClient.componentDao().insert(dbSession, projectToBeDeleted, anotherLivingProject);
+
+    // Insert 2 rows in CE_ACTIVITY : one for the project that will be deleted, and one on another project
+    CeActivityDto toBeDeleted = insertCeActivity(projectToBeDeleted);
+    insertCeTaskInput(toBeDeleted.getUuid());
+    CeActivityDto toNotDelete = insertCeActivity(anotherLivingProject);
+    insertCeTaskInput(toNotDelete.getUuid());
+    insertCeTaskInput("non existing task");
+    dbSession.commit();
+
+    underTest.deleteProject(dbSession, projectToBeDeleted.uuid());
+    dbSession.commit();
+
+    assertThat(dbTester.select("select uuid as \"UUID\" from ce_activity"))
+      .extracting(row -> (String) row.get("UUID"))
+      .containsOnly(toNotDelete.getUuid());
+    assertThat(dbTester.select("select task_uuid as \"UUID\" from ce_task_input"))
+      .extracting(row -> (String) row.get("UUID"))
+      .containsOnly(toNotDelete.getUuid(), "non existing task");
+  }
+
+  @Test
   public void delete_row_in_ce_scanner_context_referring_to_a_row_in_ce_activity_when_deleting_project() {
     ComponentDto projectToBeDeleted = ComponentTesting.newPrivateProjectDto(dbTester.getDefaultOrganization());
     ComponentDto anotherLivingProject = ComponentTesting.newPrivateProjectDto(dbTester.getDefaultOrganization());
@@ -292,6 +318,31 @@ public class PurgeDaoTest {
 
     assertThat(dbTester.countRowsOfTable("ce_queue")).isEqualTo(1);
     assertThat(dbTester.countSql("select count(*) from ce_queue where component_uuid='" + projectToBeDeleted.uuid() + "'")).isEqualTo(0);
+  }
+
+  @Test
+  public void delete_row_in_ce_task_input_referring_to_a_row_in_ce_queue_when_deleting_project() {
+    ComponentDto projectToBeDeleted = ComponentTesting.newPrivateProjectDto(dbTester.getDefaultOrganization());
+    ComponentDto anotherLivingProject = ComponentTesting.newPrivateProjectDto(dbTester.getDefaultOrganization());
+    dbClient.componentDao().insert(dbSession, projectToBeDeleted, anotherLivingProject);
+
+    // Insert 2 rows in CE_ACTIVITY : one for the project that will be deleted, and one on another project
+    CeQueueDto toBeDeleted = insertCeQueue(projectToBeDeleted);
+    insertCeTaskInput(toBeDeleted.getUuid());
+    CeQueueDto toNotDelete = insertCeQueue(anotherLivingProject);
+    insertCeTaskInput(toNotDelete.getUuid());
+    insertCeTaskInput("non existing task");
+    dbSession.commit();
+
+    underTest.deleteProject(dbSession, projectToBeDeleted.uuid());
+    dbSession.commit();
+
+    assertThat(dbTester.select("select uuid as \"UUID\" from ce_queue"))
+      .extracting(row -> (String) row.get("UUID"))
+      .containsOnly(toNotDelete.getUuid());
+    assertThat(dbTester.select("select task_uuid as \"UUID\" from ce_task_input"))
+      .extracting(row -> (String) row.get("UUID"))
+      .containsOnly(toNotDelete.getUuid(), "non existing task");
   }
 
   @Test
@@ -773,6 +824,11 @@ public class PurgeDaoTest {
         .setValue("value_" + uuid.hashCode() + i))
       .collect(Collectors.toList());
     dbClient.ceTaskCharacteristicsDao().insert(dbSession, dtos);
+    dbSession.commit();
+  }
+
+  private void insertCeTaskInput(String uuid) {
+    dbClient.ceTaskInputDao().insert(dbSession, uuid, new ByteArrayInputStream("some content man!".getBytes()));
     dbSession.commit();
   }
 
