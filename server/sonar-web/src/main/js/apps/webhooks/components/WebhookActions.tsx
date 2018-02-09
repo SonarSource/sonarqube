@@ -40,7 +40,7 @@ interface State {
 }
 
 export default class WebhookActions extends React.PureComponent<Props, State> {
-  mounted: boolean = false;
+  mounted = false;
   state: State = { deliveries: false, updating: false };
 
   componentDidMount() {
@@ -77,18 +77,19 @@ export default class WebhookActions extends React.PureComponent<Props, State> {
 
   render() {
     const { webhook } = this.props;
-    // TODO Disable "Show deliveries" if there is no lastDelivery
     return (
       <>
         <ActionsDropdown className="big-spacer-left">
           <ActionsDropdownItem className="js-webhook-update" onClick={this.handleUpdateClick}>
             {translate('update_verb')}
           </ActionsDropdownItem>
-          <ActionsDropdownItem
-            className="js-webhook-deliveries"
-            onClick={this.handleDeliveriesClick}>
-            {translate('webhooks.deliveries.show')}
-          </ActionsDropdownItem>
+          {webhook.latestDelivery && (
+            <ActionsDropdownItem
+              className="js-webhook-deliveries"
+              onClick={this.handleDeliveriesClick}>
+              {translate('webhooks.deliveries.show')}
+            </ActionsDropdownItem>
+          )}
           <ActionsDropdownDivider />
           <ConfirmButton
             confirmButtonText={translate('delete')}

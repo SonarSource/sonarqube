@@ -40,7 +40,7 @@ interface State {
 }
 
 export default class DeliveryItem extends React.PureComponent<Props, State> {
-  mounted: boolean = false;
+  mounted = false;
   state: State = { loading: false, open: false };
 
   componentDidMount() {

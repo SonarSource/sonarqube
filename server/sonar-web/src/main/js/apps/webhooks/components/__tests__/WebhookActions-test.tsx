@@ -22,7 +22,19 @@ import { shallow } from 'enzyme';
 import WebhookActions from '../WebhookActions';
 import { click } from '../../../../helpers/testUtils';
 
-const webhook = { key: '1', name: 'foo', url: 'http://foo.bar' };
+const webhook = {
+  key: '1',
+  name: 'foo',
+  url: 'http://foo.bar'
+};
+
+const delivery = {
+  at: '12.02.2018',
+  durationMs: 20,
+  httpStatus: 200,
+  id: '2',
+  success: true
+};
 
 it('should render correctly', () => {
   expect(getWrapper()).toMatchSnapshot();
@@ -55,7 +67,8 @@ it('should display the delete webhook form', () => {
 });
 
 it('should display the deliveries form', () => {
-  const wrapper = getWrapper();
+  const wrapper = getWrapper({ webhook: { ...webhook, latestDelivery: delivery } });
+  expect(wrapper).toMatchSnapshot();
   click(wrapper.find('.js-webhook-deliveries'));
   expect(wrapper.find('DeliveriesForm').exists()).toBeTruthy();
 });

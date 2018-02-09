@@ -47,5 +47,5 @@ it('should display the create form', () => {
 });
 
 function getWrapper(props = {}) {
-  return shallow(<PageActions onCreate={jest.fn()} loading={false} webhooksCount={5} {...props} />);
+  return shallow(<PageActions loading={false} onCreate={jest.fn()} webhooksCount={5} {...props} />);
 }

@@ -35,6 +35,7 @@ export default class WebhooksList extends React.PureComponent<Props> {
       <tr>
         <th>{translate('name')}</th>
         <th>{translate('webhooks.url')}</th>
+        <th>{translate('webhooks.last_execution')}</th>
         <th />
       </tr>
     </thead>

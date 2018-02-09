@@ -8,6 +8,19 @@ exports[`should render correctly 1`] = `
   <td>
     http://webhook.target
   </td>
+  <td>
+    <LatestDelivery
+      latestDelivery={
+        Object {
+          "at": "12.02.2018",
+          "durationMs": 20,
+          "httpStatus": 200,
+          "id": "2",
+          "success": true,
+        }
+      }
+    />
+  </td>
   <td
     className="thin nowrap text-right"
   >
@@ -17,6 +30,13 @@ exports[`should render correctly 1`] = `
       webhook={
         Object {
           "key": "1",
+          "latestDelivery": Object {
+            "at": "12.02.2018",
+            "durationMs": 20,
+            "httpStatus": 200,
+            "id": "2",
+            "success": true,
+          },
           "name": "my webhook",
           "url": "http://webhook.target",
         }
@@ -24,4 +44,36 @@ exports[`should render correctly 1`] = `
     />
   </td>
 </tr>
+`;
+
+exports[`should render correctly the latest delivery 1`] = `
+<span>
+  webhooks.last_execution.none
+</span>
+`;
+
+exports[`should render correctly the latest delivery 2`] = `
+<React.Fragment>
+  <AlertSuccessIcon />
+  <span
+    className="spacer-left"
+  >
+    <DateTimeFormatter
+      date="12.02.2018"
+    />
+  </span>
+</React.Fragment>
+`;
+
+exports[`should render correctly the latest delivery 3`] = `
+<React.Fragment>
+  <AlertErrorIcon />
+  <span
+    className="spacer-left"
+  >
+    <DateTimeFormatter
+      date="12.02.2018"
+    />
+  </span>
+</React.Fragment>
 `;
