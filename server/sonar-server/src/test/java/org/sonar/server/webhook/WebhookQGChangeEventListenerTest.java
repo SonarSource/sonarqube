@@ -66,6 +66,7 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.core.util.stream.MoreCollectors.toArrayList;
 import static org.sonar.db.component.BranchType.LONG;
+import static org.sonar.db.component.BranchType.SHORT;
 import static org.sonar.db.component.ComponentTesting.newBranchDto;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 
@@ -91,13 +92,13 @@ public class WebhookQGChangeEventListenerTest {
   @UseDataProvider("allCombinationsOfStatuses")
   public void onIssueChanges_has_no_effect_if_no_webhook_is_configured(Metric.Level previousStatus, Metric.Level newStatus) {
     Configuration configuration1 = mock(Configuration.class);
-    mockWebhookDisabled(configuration1);
     when(newQualityGate.getStatus()).thenReturn(newStatus);
     QGChangeEvent qualityGateEvent = newQGChangeEvent(configuration1, previousStatus, newQualityGate);
+    mockWebhookDisabled(qualityGateEvent.getProject());
 
     mockedUnderTest.onIssueChanges(qualityGateEvent, CHANGED_ISSUES_ARE_IGNORED);
 
-    verify(webHooks).isEnabled(configuration1);
+    verify(webHooks).isEnabled(qualityGateEvent.getProject());
     verifyZeroInteractions(webhookPayloadFactory, mockedDbClient);
   }
 
@@ -120,8 +121,8 @@ public class WebhookQGChangeEventListenerTest {
   @Test
   public void onIssueChanges_has_no_effect_if_event_has_neither_previousQGStatus_nor_qualityGate() {
     Configuration configuration = mock(Configuration.class);
-    mockWebhookEnabled(configuration);
     QGChangeEvent qualityGateEvent = newQGChangeEvent(configuration, null, null);
+    mockWebhookEnabled(qualityGateEvent.getProject());
 
     underTest.onIssueChanges(qualityGateEvent, CHANGED_ISSUES_ARE_IGNORED);
 
@@ -131,10 +132,10 @@ public class WebhookQGChangeEventListenerTest {
   @Test
   public void onIssueChanges_has_no_effect_if_event_has_same_status_in_previous_and_new_QG() {
     Configuration configuration = mock(Configuration.class);
-    mockWebhookEnabled(configuration);
     Metric.Level previousStatus = randomLevel();
     when(newQualityGate.getStatus()).thenReturn(previousStatus);
     QGChangeEvent qualityGateEvent = newQGChangeEvent(configuration, previousStatus, newQualityGate);
+    mockWebhookEnabled(qualityGateEvent.getProject());
 
     underTest.onIssueChanges(qualityGateEvent, CHANGED_ISSUES_ARE_IGNORED);
 
@@ -149,17 +150,17 @@ public class WebhookQGChangeEventListenerTest {
     ComponentAndBranch branch = insertProjectBranch(project, BranchType.SHORT, "foo");
     SnapshotDto analysis = insertAnalysisTask(branch);
     Configuration configuration = mock(Configuration.class);
-    mockWebhookEnabled(configuration);
     mockPayloadSupplierConsumedByWebhooks();
     Map<String, String> properties = new HashMap<>();
     properties.put("sonar.analysis.test1", randomAlphanumeric(50));
     properties.put("sonar.analysis.test2", randomAlphanumeric(5000));
     insertPropertiesFor(analysis.getUuid(), properties);
     QGChangeEvent qualityGateEvent = newQGChangeEvent(branch, analysis, configuration, newQualityGate);
+    mockWebhookEnabled(qualityGateEvent.getProject());
 
     underTest.onIssueChanges(qualityGateEvent, CHANGED_ISSUES_ARE_IGNORED);
 
-    ProjectAnalysis projectAnalysis = verifyWebhookCalledAndExtractPayloadFactoryArgument(branch, configuration, analysis);
+    ProjectAnalysis projectAnalysis = verifyWebhookCalledAndExtractPayloadFactoryArgument(branch, analysis, qualityGateEvent.getProject());
     assertThat(projectAnalysis).isEqualTo(
       new ProjectAnalysis(
         new Project(project.uuid(), project.getKey(), project.name()),
@@ -178,12 +179,12 @@ public class WebhookQGChangeEventListenerTest {
     ComponentAndBranch mainBranch = insertMainBranch(organization);
     SnapshotDto analysis = insertAnalysisTask(mainBranch);
     Configuration configuration = mock(Configuration.class);
-    mockWebhookEnabled(configuration);
     QGChangeEvent qualityGateEvent = newQGChangeEvent(mainBranch, analysis, configuration, newQualityGate);
+    mockWebhookEnabled(qualityGateEvent.getProject());
 
     underTest.onIssueChanges(qualityGateEvent, CHANGED_ISSUES_ARE_IGNORED);
 
-    verifyWebhookCalled(mainBranch, analysis, configuration);
+    verifyWebhookCalled(mainBranch, analysis, qualityGateEvent.getProject());
   }
 
   @Test
@@ -193,7 +194,7 @@ public class WebhookQGChangeEventListenerTest {
 
   @Test
   public void onIssueChanges_calls_webhook_on_short_branch() {
-    onIssueChangesCallsWebhookOnBranch(BranchType.SHORT);
+    onIssueChangesCallsWebhookOnBranch(SHORT);
   }
 
   public void onIssueChangesCallsWebhookOnBranch(BranchType branchType) {
@@ -202,12 +203,12 @@ public class WebhookQGChangeEventListenerTest {
     ComponentAndBranch longBranch = insertProjectBranch(mainBranch.component, branchType, "foo");
     SnapshotDto analysis = insertAnalysisTask(longBranch);
     Configuration configuration = mock(Configuration.class);
-    mockWebhookEnabled(configuration);
     QGChangeEvent qualityGateEvent = newQGChangeEvent(longBranch, analysis, configuration, null);
+    mockWebhookEnabled(qualityGateEvent.getProject());
 
     underTest.onIssueChanges(qualityGateEvent, CHANGED_ISSUES_ARE_IGNORED);
 
-    verifyWebhookCalled(longBranch, analysis, configuration);
+    verifyWebhookCalled(longBranch, analysis, qualityGateEvent.getProject());
   }
 
   @DataProvider
@@ -219,25 +220,25 @@ public class WebhookQGChangeEventListenerTest {
     };
   }
 
-  private void mockWebhookEnabled(Configuration... configurations) {
-    for (Configuration configuration : configurations) {
-      when(webHooks.isEnabled(configuration)).thenReturn(true);
+  private void mockWebhookEnabled(ComponentDto... projects) {
+    for (ComponentDto dto : projects) {
+      when(webHooks.isEnabled(dto)).thenReturn(true);
     }
   }
 
-  private void mockWebhookDisabled(Configuration... configurations) {
-    for (Configuration configuration : configurations) {
-      when(webHooks.isEnabled(configuration)).thenReturn(false);
+  private void mockWebhookDisabled(ComponentDto... projects) {
+    for (ComponentDto dto : projects) {
+      when(webHooks.isEnabled(dto)).thenReturn(false);
     }
   }
 
   private void mockPayloadSupplierConsumedByWebhooks() {
     Mockito.doAnswer(invocationOnMock -> {
-      Supplier<WebhookPayload> supplier = (Supplier<WebhookPayload>) invocationOnMock.getArguments()[2];
+      Supplier<WebhookPayload> supplier = (Supplier<WebhookPayload>) invocationOnMock.getArguments()[1];
       supplier.get();
       return null;
     }).when(webHooks)
-      .sendProjectAnalysisUpdate(Matchers.any(Configuration.class), Matchers.any(), Matchers.any());
+      .sendProjectAnalysisUpdate(Matchers.any(), Matchers.any());
   }
 
   private void insertPropertiesFor(String snapshotUuid, Map<String, String> properties) {
@@ -256,16 +257,15 @@ public class WebhookQGChangeEventListenerTest {
     return dbTester.components().insertSnapshot(componentAndBranch.component);
   }
 
-  private ProjectAnalysis verifyWebhookCalledAndExtractPayloadFactoryArgument(ComponentAndBranch componentAndBranch, Configuration configuration, SnapshotDto analysis) {
-    verifyWebhookCalled(componentAndBranch, analysis, configuration);
+  private ProjectAnalysis verifyWebhookCalledAndExtractPayloadFactoryArgument(ComponentAndBranch componentAndBranch, SnapshotDto analysis, ComponentDto project) {
+    verifyWebhookCalled(componentAndBranch, analysis, project);
 
     return extractPayloadFactoryArguments(1).iterator().next();
   }
 
-  private void verifyWebhookCalled(ComponentAndBranch componentAndBranch, SnapshotDto analysis, Configuration branchConfiguration) {
-    verify(webHooks).isEnabled(branchConfiguration);
+  private void verifyWebhookCalled(ComponentAndBranch componentAndBranch, SnapshotDto analysis, ComponentDto project) {
+    verify(webHooks).isEnabled(project);
     verify(webHooks).sendProjectAnalysisUpdate(
-      Matchers.same(branchConfiguration),
       Matchers.eq(new WebHooks.Analysis(componentAndBranch.uuid(), analysis.getUuid(), null)),
       any(Supplier.class));
   }
