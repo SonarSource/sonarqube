@@ -201,16 +201,24 @@ public class AnalysisMetadataHolderImpl implements MutableAnalysisMetadataHolder
     return pluginsByKey.getProperty();
   }
 
+  @Override
   public boolean isShortLivingBranch() {
     checkState(this.branch.isInitialized(), BRANCH_NOT_SET);
     Branch prop = branch.getProperty();
     return prop != null && prop.getType() == BranchType.SHORT;
   }
 
+  @Override
   public boolean isLongLivingBranch() {
     checkState(this.branch.isInitialized(), BRANCH_NOT_SET);
     Branch prop = branch.getProperty();
     return prop != null && prop.getType() == BranchType.LONG;
   }
 
+  @Override
+  public boolean isPullRequestBranch() {
+    checkState(this.branch.isInitialized(), BRANCH_NOT_SET);
+    Branch prop = branch.getProperty();
+    return prop != null && BranchType.PULL_REQUEST == prop.getType();
+  }
 }
