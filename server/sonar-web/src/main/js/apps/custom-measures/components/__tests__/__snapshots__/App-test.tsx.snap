@@ -1,0 +1,173 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should work 1`] = `
+<React.Fragment>
+  <HelmetWrapper
+    defer={true}
+    encodeSpecialCharacters={true}
+    title="custom_measures.page"
+  />
+  <div
+    className="page page-limited"
+  >
+    <Header
+      loading={true}
+      onCreate={[Function]}
+    />
+  </div>
+</React.Fragment>
+`;
+
+exports[`should work 2`] = `
+<React.Fragment>
+  <HelmetWrapper
+    defer={true}
+    encodeSpecialCharacters={true}
+    title="custom_measures.page"
+  />
+  <div
+    className="page page-limited"
+  >
+    <Header
+      loading={false}
+      onCreate={[Function]}
+      skipMetrics={
+        Array [
+          "custom",
+        ]
+      }
+    />
+    <List
+      measures={
+        Array [
+          Object {
+            "createdAt": "2017-01-01",
+            "description": "my custom measure",
+            "id": "1",
+            "metric": Object {
+              "key": "custom",
+              "name": "custom-metric",
+              "type": "STRING",
+            },
+            "projectKey": "foo",
+            "user": Object {
+              "active": true,
+              "login": "user",
+              "name": "user",
+            },
+            "value": "custom-value",
+          },
+        ]
+      }
+      onDelete={[Function]}
+      onEdit={[Function]}
+    />
+    <ListFooter
+      count={1}
+      loadMore={[Function]}
+      ready={true}
+      total={1}
+    />
+  </div>
+</React.Fragment>
+`;
+
+exports[`should work 3`] = `
+Array [
+  Object {
+    "createdAt": "2017-01-01",
+    "description": "my custom measure",
+    "id": "1",
+    "metric": Object {
+      "key": "custom",
+      "name": "custom-metric",
+      "type": "STRING",
+    },
+    "projectKey": "foo",
+    "user": Object {
+      "active": true,
+      "login": "user",
+      "name": "user",
+    },
+    "value": "custom-value",
+  },
+  Object {
+    "createdAt": "2018-01-01",
+    "description": "description",
+    "id": "2",
+    "metric": Object {
+      "key": "metricKey",
+      "name": "Metric Name",
+      "type": "STRING",
+    },
+    "projectKey": "foo",
+    "user": Object {
+      "active": true,
+      "login": "user",
+      "name": "user",
+    },
+    "value": "value",
+  },
+]
+`;
+
+exports[`should work 4`] = `
+Array [
+  Object {
+    "createdAt": "2017-01-01",
+    "description": "my custom measure",
+    "id": "1",
+    "metric": Object {
+      "key": "custom",
+      "name": "custom-metric",
+      "type": "STRING",
+    },
+    "projectKey": "foo",
+    "user": Object {
+      "active": true,
+      "login": "user",
+      "name": "user",
+    },
+    "value": "custom-value",
+  },
+  Object {
+    "createdAt": "2018-01-01",
+    "description": "another",
+    "id": "2",
+    "metric": Object {
+      "key": "metricKey",
+      "name": "Metric Name",
+      "type": "STRING",
+    },
+    "projectKey": "foo",
+    "user": Object {
+      "active": true,
+      "login": "user",
+      "name": "user",
+    },
+    "value": "other",
+  },
+]
+`;
+
+exports[`should work 5`] = `
+Array [
+  Object {
+    "createdAt": "2017-01-01",
+    "description": "my custom measure",
+    "id": "1",
+    "metric": Object {
+      "key": "custom",
+      "name": "custom-metric",
+      "type": "STRING",
+    },
+    "projectKey": "foo",
+    "user": Object {
+      "active": true,
+      "login": "user",
+      "name": "user",
+    },
+    "value": "custom-value",
+  },
+]
+`;

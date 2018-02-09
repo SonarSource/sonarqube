@@ -1,0 +1,48 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should edit metric 1`] = `
+<React.Fragment>
+  <ActionsDropdownItem
+    className="js-custom-measure-update"
+    onClick={[Function]}
+  >
+    update_verb
+  </ActionsDropdownItem>
+</React.Fragment>
+`;
+
+exports[`should edit metric 2`] = `
+<React.Fragment>
+  <ActionsDropdownItem
+    className="js-custom-measure-update"
+    onClick={[Function]}
+  >
+    update_verb
+  </ActionsDropdownItem>
+  <Form
+    confirmButtonText="update_verb"
+    header="custom_measures.update_custom_measure"
+    measure={
+      Object {
+        "createdAt": "2017-01-01",
+        "description": "my custom measure",
+        "id": "1",
+        "metric": Object {
+          "key": "custom",
+          "name": "custom-metric",
+          "type": "STRING",
+        },
+        "projectKey": "foo",
+        "user": Object {
+          "active": true,
+          "login": "user",
+          "name": "user",
+        },
+        "value": "custom-value",
+      }
+    }
+    onClose={[Function]}
+    onSubmit={[Function]}
+  />
+</React.Fragment>
+`;

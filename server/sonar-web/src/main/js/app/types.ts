@@ -292,3 +292,25 @@ export interface User {
   scmAccounts?: string[];
   tokensCount?: number;
 }
+
+export interface CustomMeasure {
+  createdAt?: string;
+  description?: string;
+  id: string;
+  metric: {
+    key: string;
+    name: string;
+    domain?: string;
+    type: string;
+  };
+  projectKey: string;
+  pending?: boolean;
+  user: {
+    active?: boolean;
+    email?: string;
+    login: string;
+    name: string;
+  };
+  value: string;
+  updatedAt?: string;
+}

@@ -1,0 +1,32 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should create new custom measure 1`] = `
+<React.Fragment>
+  <button
+    id="custom-measures-create"
+    onClick={[Function]}
+    type="button"
+  >
+    create
+  </button>
+</React.Fragment>
+`;
+
+exports[`should create new custom measure 2`] = `
+<React.Fragment>
+  <button
+    id="custom-measures-create"
+    onClick={[Function]}
+    type="button"
+  >
+    create
+  </button>
+  <Form
+    confirmButtonText="create"
+    header="custom_measures.create_custom_measure"
+    onClose={[Function]}
+    onSubmit={[MockFunction]}
+    skipMetrics={Array []}
+  />
+</React.Fragment>
+`;
