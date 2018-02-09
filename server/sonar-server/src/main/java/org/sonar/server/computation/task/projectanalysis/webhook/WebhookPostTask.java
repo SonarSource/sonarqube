@@ -23,10 +23,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import org.sonar.api.ce.posttask.PostProjectAnalysisTask;
-import org.sonar.api.config.Configuration;
 import org.sonar.api.measures.Metric;
 import org.sonar.core.util.stream.MoreCollectors;
-import org.sonar.server.computation.task.projectanalysis.component.ConfigurationRepository;
 import org.sonar.server.qualitygate.Condition;
 import org.sonar.server.qualitygate.EvaluatedCondition;
 import org.sonar.server.qualitygate.EvaluatedQualityGate;
@@ -39,22 +37,17 @@ import org.sonar.server.webhook.WebhookPayloadFactory;
 
 public class WebhookPostTask implements PostProjectAnalysisTask {
 
-  private final ConfigurationRepository configRepository;
   private final WebhookPayloadFactory payloadFactory;
   private final WebHooks webHooks;
 
-  public WebhookPostTask(ConfigurationRepository configRepository, WebhookPayloadFactory payloadFactory, WebHooks webHooks) {
-    this.configRepository = configRepository;
+  public WebhookPostTask(WebhookPayloadFactory payloadFactory, WebHooks webHooks) {
     this.payloadFactory = payloadFactory;
     this.webHooks = webHooks;
   }
 
   @Override
   public void finished(ProjectAnalysis analysis) {
-    Configuration config = configRepository.getConfiguration();
-
     webHooks.sendProjectAnalysisUpdate(
-      config,
       new WebHooks.Analysis(
         analysis.getProject().getUuid(),
         analysis.getAnalysis().map(org.sonar.api.ce.posttask.Analysis::getAnalysisUuid).orElse(null),

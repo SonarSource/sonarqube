@@ -50,7 +50,8 @@ public class WebhookQGChangeEventListener implements QGChangeEventListener {
 
   @Override
   public void onIssueChanges(QGChangeEvent qualityGateEvent, Set<ChangedIssue> changedIssues) {
-    if (!webhooks.isEnabled(qualityGateEvent.getProjectConfiguration())) {
+
+    if (!webhooks.isEnabled(qualityGateEvent.getProject())) {
       return;
     }
     Optional<EvaluatedQualityGate> evaluatedQualityGate = qualityGateEvent.getQualityGateSupplier().get();
@@ -78,7 +79,7 @@ public class WebhookQGChangeEventListener implements QGChangeEventListener {
 
   private void callWebhook(DbSession dbSession, QGChangeEvent event, @Nullable EvaluatedQualityGate evaluatedQualityGate) {
     webhooks.sendProjectAnalysisUpdate(
-      event.getProjectConfiguration(),
+      event.getProject(),
       new WebHooks.Analysis(event.getBranch().getUuid(), event.getAnalysis().getUuid(), null),
       () -> buildWebHookPayload(dbSession, event, evaluatedQualityGate));
   }

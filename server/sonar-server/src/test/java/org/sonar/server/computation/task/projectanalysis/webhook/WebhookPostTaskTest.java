@@ -50,7 +50,6 @@ import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -69,7 +68,7 @@ public class WebhookPostTaskTest {
   private final WebhookPayloadFactory payloadFactory = mock(WebhookPayloadFactory.class);
   private final WebHooks webHooks = mock(WebHooks.class);
   private final ConfigurationRepository configurationRepository = mock(ConfigurationRepository.class);
-  private WebhookPostTask underTest = new WebhookPostTask(configurationRepository, payloadFactory, webHooks);
+  private WebhookPostTask underTest = new WebhookPostTask(payloadFactory, webHooks);
 
   @Before
   public void wireMocks() {
@@ -135,7 +134,6 @@ public class WebhookPostTaskTest {
     ArgumentCaptor<Supplier> supplierCaptor = ArgumentCaptor.forClass(Supplier.class);
     verify(webHooks)
       .sendProjectAnalysisUpdate(
-        same(configuration),
         eq(new WebHooks.Analysis(project.getUuid(),
           analysisUUid,
           ceTask.getId())),
