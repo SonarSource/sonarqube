@@ -40,6 +40,7 @@ public class DbVersion71 implements DbVersion {
       .add(2010, "Populate table PROJECT_LINKS2", PopulateTableProjectLinks2.class)
       .add(2011, "Drop table PROJECT_LINKS", DropTableProjectLinks.class)
       .add(2012, "Rename table PROJECT_LINKS2 to PROJECT_LINKS", RenameTableProjectLinks2ToProjectLinks.class)
+      .add(2013, "Increase branch type size in PROJECT_BRANCHES", IncreaseBranchTypeSizeForPullRequest.class)
     ;
   }
 }
