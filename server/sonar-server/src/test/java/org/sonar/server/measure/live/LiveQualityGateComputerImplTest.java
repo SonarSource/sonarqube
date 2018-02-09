@@ -80,6 +80,18 @@ public class LiveQualityGateComputerImplTest {
   }
 
   @Test
+  public void loadQualityGate_returns_hardcoded_gate_for_pull_requests() {
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto project = db.components().insertPublicProject(organization);
+    BranchDto pullRequest = newBranchDto(project).setBranchType(BranchType.PULL_REQUEST);
+    db.components().insertProjectBranch(project, pullRequest);
+
+    QualityGate result = underTest.loadQualityGate(db.getSession(), organization, project, pullRequest);
+
+    assertThat(result).isSameAs(ShortLivingBranchQualityGate.GATE);
+  }
+
+  @Test
   public void loadQualityGate_on_long_branch_returns_organization_default_gate() {
     OrganizationDto organization = db.organizations().insert();
     ComponentDto project = db.components().insertPublicProject(organization);

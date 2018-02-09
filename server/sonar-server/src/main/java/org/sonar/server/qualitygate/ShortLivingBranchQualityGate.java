@@ -28,7 +28,7 @@ import org.sonar.api.measures.CoreMetrics;
 import static org.sonar.db.qualitygate.QualityGateConditionDto.OPERATOR_GREATER_THAN;
 
 /**
- * Offers constants describing the Hardcoded Quality Gate for short living branches.
+ * Offers constants describing the Hardcoded Quality Gate for short living branches and pull requests.
  */
 public final class ShortLivingBranchQualityGate {
   public static final long ID = -1_963_456_987L;
