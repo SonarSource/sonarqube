@@ -208,8 +208,7 @@ BUILD)
 
   else
     echo 'Build feature branch or external pull request'
-
-    mvn deploy $MAVEN_ARGS -Dsource.skip=true -Pdeploy-sonarsource
+    mvn deploy $MAVEN_ARGS -Pdeploy-sonarsource,release
   fi
 
   ./run-integration-tests.sh "Lite" ""
