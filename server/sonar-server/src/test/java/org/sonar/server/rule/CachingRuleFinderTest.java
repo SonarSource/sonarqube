@@ -408,7 +408,8 @@ public class CachingRuleFinderTest {
     assertThat(rule.getUpdatedAt().getTime()).isEqualTo(ruleDefinition.getUpdatedAt());
     assertThat(rule.getRepositoryKey()).isEqualTo(ruleDefinition.getRepositoryKey());
     assertThat(rule.getSeverity().name()).isEqualTo(ruleDefinition.getSeverityString());
-    assertThat(rule.getTags()).isEqualTo(ruleDefinition.getSystemTags().stream().toArray(String[]::new));
+    assertThat(rule.getSystemTags()).isEqualTo(ruleDefinition.getSystemTags().stream().toArray(String[]::new));
+    assertThat(rule.getTags()).isEmpty();
     assertThat(rule.getId()).isEqualTo(ruleDefinition.getId());
     assertThat(rule.getDescription()).isEqualTo(ruleDefinition.getDescription());
 

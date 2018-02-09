@@ -145,6 +145,7 @@ public class DefaultRuleFinder implements RuleFinder {
       .setRepositoryKey(rule.getRepositoryKey())
       .setSeverity(severity != null ? RulePriority.valueOf(severity) : null)
       .setStatus(rule.getStatus().name())
+      .setSystemTags(rule.getSystemTags().toArray(new String[rule.getSystemTags().size()]))
       .setTags(rule.getTags().toArray(new String[rule.getTags().size()]))
       .setId(rule.getId());
     if (description != null && descriptionFormat != null) {

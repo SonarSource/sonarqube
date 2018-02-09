@@ -174,7 +174,8 @@ public class CachingRuleFinder implements RuleFinder {
       .setRepositoryKey(ruleDefinition.getRepositoryKey())
       .setSeverity(severity != null ? RulePriority.valueOf(severity) : null)
       .setStatus(ruleDefinition.getStatus().name())
-      .setTags(ruleDefinition.getSystemTags().toArray(new String[ruleDefinition.getSystemTags().size()]))
+      .setSystemTags(ruleDefinition.getSystemTags().toArray(new String[ruleDefinition.getSystemTags().size()]))
+      .setTags(new String[0])
       .setId(ruleDefinition.getId());
     if (description != null && descriptionFormat != null) {
       if (RuleDto.Format.HTML.equals(descriptionFormat)) {

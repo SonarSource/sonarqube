@@ -48,6 +48,7 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.organization.OrganizationTesting;
 import org.sonar.db.rule.RuleDto.Scope;
 
+import static com.google.common.collect.ImmutableSet.of;
 import static com.google.common.collect.Sets.newHashSet;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
@@ -75,21 +76,49 @@ public class RuleDaoTest {
 
   @Test
   public void selectByKey() {
-    db.prepareDbUnit(getClass(), "shared.xml");
+    RuleDefinitionDto ruleDefinition = db.rules().insert();
+    OrganizationDto organization = db.organizations().insert();
+    RuleMetadataDto metadata = newRuleMetadata(organization, "1");
+    db.rules().insertRule(ruleDefinition, metadata);
 
-    assertThat(underTest.selectByKey(db.getSession(), organization, RuleKey.of("NOT", "FOUND")).isPresent()).isFalse();
+    assertThat(underTest.selectByKey(db.getSession(), organization, RuleKey.of("foo", "bar")))
+      .isEmpty();
+    RuleDto rule = underTest.selectByKey(db.getSession(), organization, ruleDefinition.getKey()).get();
+    assertEquals(rule.getDefinition(), ruleDefinition);
+    verifyMetadata(rule.getMetadata(), ruleDefinition, metadata);
+  }
 
-    Optional<RuleDto> rule = underTest.selectByKey(db.getSession(), organization, RuleKey.of("java", "S001"));
-    assertThat(rule.isPresent()).isTrue();
-    assertThat(rule.get().getId()).isEqualTo(1);
+  @Test
+  public void selectByKey_return_rule_even_if_organization_does_not_exist() {
+    RuleDefinitionDto ruleDefinition = db.rules().insert();
+
+    assertThat(underTest.selectByKey(db.getSession(), OrganizationTesting.newOrganizationDto(), ruleDefinition.getKey()))
+      .isNotEmpty();
   }
 
   @Test
   public void selectByKey_populates_organizationUuid_even_when_organization_has_no_metadata() {
-    db.prepareDbUnit(getClass(), "shared.xml");
+    OrganizationDto organization = db.organizations().insert();
+    RuleDefinitionDto ruleDefinition = db.rules().insert();
 
-    assertThat(underTest.selectByKey(db.getSession(), organization, RuleKey.of("java", "S001")).get().getOrganizationUuid())
-      .isEqualTo(ORGANIZATION_UUID);
+    RuleDto rule = underTest.selectByKey(db.getSession(), organization, ruleDefinition.getKey()).get();
+    verifyNoMetadata(rule.getMetadata(), ruleDefinition, organization);
+  }
+
+  @Test
+  public void selectByKey_returns_metadata_of_specified_organization() {
+    RuleDefinitionDto ruleDefinition = db.rules().insert();
+    OrganizationDto organization1 = db.organizations().insert();
+    RuleMetadataDto expectedOrg1 = newRuleMetadata(organization1, "1");
+    db.rules().insertRule(ruleDefinition, expectedOrg1);
+    OrganizationDto organization2 = db.organizations().insert();
+    RuleMetadataDto expectedOrg2 = newRuleMetadata(organization2, "2");
+    db.rules().insertRule(ruleDefinition, expectedOrg2);
+
+    RuleDto rule = underTest.selectByKey(db.getSession(), organization1, ruleDefinition.getKey()).get();
+    verifyMetadata(rule.getMetadata(), ruleDefinition, expectedOrg1);
+    rule = underTest.selectByKey(db.getSession(), organization2, ruleDefinition.getKey()).get();
+    verifyMetadata(rule.getMetadata(), ruleDefinition, expectedOrg2);
   }
 
   @Test
@@ -105,22 +134,49 @@ public class RuleDaoTest {
 
   @Test
   public void selectById() {
-    db.prepareDbUnit(getClass(), "shared.xml");
-    String organizationUuid = "org-1";
+    RuleDefinitionDto ruleDefinition = db.rules().insert();
+    OrganizationDto organization = db.organizations().insert();
+    RuleMetadataDto metadata = newRuleMetadata(organization, "1");
+    RuleDto expected = db.rules().insertRule(ruleDefinition, metadata);
 
-    assertThat(underTest.selectById(55l, organizationUuid, db.getSession())).isEmpty();
-    Optional<RuleDto> ruleDtoOptional = underTest.selectById(1l, organizationUuid, db.getSession());
-    assertThat(ruleDtoOptional).isPresent();
-    assertThat(ruleDtoOptional.get().getId()).isEqualTo(1);
+    assertThat(underTest.selectById(expected.getId() + 500, organization.getUuid(), db.getSession()))
+      .isEmpty();
+    RuleDto rule = underTest.selectById(expected.getId(), organization.getUuid(), db.getSession()).get();
+    assertEquals(rule.getDefinition(), ruleDefinition);
+    verifyMetadata(rule.getMetadata(), ruleDefinition, metadata);
+  }
+
+  @Test
+  public void selectById_return_rule_even_if_organization_does_not_exist() {
+    RuleDefinitionDto ruleDefinition = db.rules().insert();
+
+    assertThat(underTest.selectById(ruleDefinition.getId(), "dfdfdf", db.getSession()))
+      .isNotEmpty();
   }
 
   @Test
   public void selectById_populates_organizationUuid_even_when_organization_has_no_metadata() {
-    db.prepareDbUnit(getClass(), "shared.xml");
-    String organizationUuid = "org-1";
+    OrganizationDto organization = db.organizations().insert();
+    RuleDefinitionDto ruleDefinition = db.rules().insert();
 
-    assertThat(underTest.selectById(1l, organizationUuid, db.getSession()).get().getOrganizationUuid())
-      .isEqualTo(organizationUuid);
+    RuleDto rule = underTest.selectById(ruleDefinition.getId(), organization.getUuid(), db.getSession()).get();
+    verifyNoMetadata(rule.getMetadata(), ruleDefinition, organization);
+  }
+
+  @Test
+  public void selectById_returns_metadata_of_specified_organization() {
+    RuleDefinitionDto ruleDefinition = db.rules().insert();
+    OrganizationDto organization1 = db.organizations().insert();
+    RuleMetadataDto expectedOrg1 = newRuleMetadata(organization1, "1");
+    db.rules().insertRule(ruleDefinition, expectedOrg1);
+    OrganizationDto organization2 = db.organizations().insert();
+    RuleMetadataDto expectedOrg2 = newRuleMetadata(organization2, "2");
+    db.rules().insertRule(ruleDefinition, expectedOrg2);
+
+    RuleDto rule = underTest.selectById(ruleDefinition.getId(), organization1.getUuid(), db.getSession()).get();
+    verifyMetadata(rule.getMetadata(), ruleDefinition, expectedOrg1);
+    rule = underTest.selectById(ruleDefinition.getId(), organization2.getUuid(), db.getSession()).get();
+    verifyMetadata(rule.getMetadata(), ruleDefinition, expectedOrg2);
   }
 
   @Test
@@ -243,21 +299,119 @@ public class RuleDaoTest {
 
   @Test
   public void selectAll() {
-    db.prepareDbUnit(getClass(), "shared.xml");
+    OrganizationDto organization = db.organizations().insert();
+    RuleDto rule1 = db.rules().insertRule(organization);
+    RuleDto rule2 = db.rules().insertRule(organization);
+    RuleDto rule3 = db.rules().insertRule(organization);
 
-    assertThat(underTest.selectAll(db.getSession(), "org-1"))
+    assertThat(underTest.selectAll(db.getSession(), organization.getUuid()))
       .extracting(RuleDto::getId)
-      .containsOnly(1, 2, 10);
+      .containsOnly(rule1.getId(), rule2.getId(), rule3.getId());
+  }
+
+  @Test
+  public void selectAll_returns_all_rules_even_if_organization_does_not_exist() {
+    RuleDefinitionDto rule1 = db.rules().insert();
+    RuleDefinitionDto rule2 = db.rules().insert();
+    RuleDefinitionDto rule3 = db.rules().insert();
+
+    assertThat(underTest.selectAll(db.getSession(), "dfdfdf"))
+      .extracting(RuleDto::getId)
+      .containsOnly(rule1.getId(), rule2.getId(), rule3.getId());
   }
 
   @Test
   public void selectAll_populates_organizationUuid_even_when_organization_has_no_metadata() {
-    db.prepareDbUnit(getClass(), "shared.xml");
-    String organizationUuid = "org-1";
+    OrganizationDto organization = db.organizations().insert();
+    RuleDefinitionDto ruleDefinition1 = db.rules().insert();
+    RuleDefinitionDto ruleDefinition2 = db.rules().insert();
 
-    assertThat(underTest.selectAll(db.getSession(), organizationUuid))
+    List<RuleDto> rules = underTest.selectAll(db.getSession(), organization.getUuid());
+    assertThat(rules)
+      .extracting(RuleDto::getId)
+      .containsOnly(ruleDefinition1.getId(), ruleDefinition2.getId());
+    assertThat(rules)
       .extracting(RuleDto::getOrganizationUuid)
-      .containsExactly(organizationUuid, organizationUuid, organizationUuid);
+      .containsExactly(organization.getUuid(), organization.getUuid());
+  }
+
+  @Test
+  public void selectAll_returns_metadata_of_specified_organization() {
+    RuleDefinitionDto ruleDefinition = db.rules().insert();
+    OrganizationDto organization = db.organizations().insert();
+    RuleMetadataDto expected = newRuleMetadata(organization, "1");
+    db.rules().insertRule(ruleDefinition, expected);
+
+    List<RuleDto> rules = underTest.selectAll(db.getSession(), organization.getUuid());
+    assertThat(rules).hasSize(1);
+
+    verifyMetadata(rules.iterator().next().getMetadata(), ruleDefinition, expected);
+  }
+
+  private void assertEquals(RuleDefinitionDto actual, RuleDefinitionDto expected) {
+    assertThat(actual.getId()).isEqualTo(expected.getId());
+    assertThat(actual.getRepositoryKey()).isEqualTo(expected.getRepositoryKey());
+    assertThat(actual.getRuleKey()).isEqualTo(expected.getRuleKey());
+    assertThat(actual.getKey()).isEqualTo(expected.getKey());
+    assertThat(actual.getDescription()).isEqualTo(expected.getDescription());
+    assertThat(actual.getDescriptionFormat()).isEqualTo(expected.getDescriptionFormat());
+    assertThat(actual.getStatus()).isEqualTo(expected.getStatus());
+    assertThat(actual.getName()).isEqualTo(expected.getName());
+    assertThat(actual.getConfigKey()).isEqualTo(expected.getConfigKey());
+    assertThat(actual.getSeverity()).isEqualTo(expected.getSeverity());
+    assertThat(actual.getSeverityString()).isEqualTo(expected.getSeverityString());
+    assertThat(actual.isTemplate()).isEqualTo(expected.isTemplate());
+    assertThat(actual.getLanguage()).isEqualTo(expected.getLanguage());
+    assertThat(actual.getTemplateId()).isEqualTo(expected.getTemplateId());
+    assertThat(actual.getDefRemediationFunction()).isEqualTo(expected.getDefRemediationFunction());
+    assertThat(actual.getDefRemediationGapMultiplier()).isEqualTo(expected.getDefRemediationGapMultiplier());
+    assertThat(actual.getDefRemediationBaseEffort()).isEqualTo(expected.getDefRemediationBaseEffort());
+    assertThat(actual.getGapDescription()).isEqualTo(expected.getGapDescription());
+    assertThat(actual.getSystemTags()).isEqualTo(expected.getSystemTags());
+    assertThat(actual.getType()).isEqualTo(expected.getType());
+    assertThat(actual.getCreatedAt()).isEqualTo(expected.getCreatedAt());
+    assertThat(actual.getUpdatedAt()).isEqualTo(expected.getUpdatedAt());
+  }
+
+  private static void verifyMetadata(RuleMetadataDto metadata, RuleDefinitionDto ruleDefinition, RuleMetadataDto expected) {
+    assertThat(metadata.getOrganizationUuid()).isEqualTo(expected.getOrganizationUuid());
+    assertThat(metadata.getRemediationBaseEffort()).isEqualTo(expected.getRemediationBaseEffort());
+    assertThat(metadata.getRemediationFunction()).isEqualTo(expected.getRemediationFunction());
+    assertThat(metadata.getRemediationGapMultiplier()).isEqualTo(expected.getRemediationGapMultiplier());
+    assertThat(metadata.getTags()).isEqualTo(expected.getTags());
+    assertThat(metadata.getNoteData()).isEqualTo(expected.getNoteData());
+    assertThat(metadata.getNoteCreatedAt()).isEqualTo(expected.getNoteCreatedAt());
+    assertThat(metadata.getNoteUpdatedAt()).isEqualTo(expected.getNoteUpdatedAt());
+    assertThat(metadata.getCreatedAt()).isEqualTo(ruleDefinition.getCreatedAt());
+    assertThat(metadata.getUpdatedAt()).isEqualTo(ruleDefinition.getUpdatedAt());
+  }
+
+  private static void verifyNoMetadata(RuleMetadataDto metadata, RuleDefinitionDto ruleDefinition, OrganizationDto organization) {
+    assertThat(metadata.getOrganizationUuid()).isEqualTo(organization.getUuid());
+    assertThat(metadata.getRemediationBaseEffort()).isNull();
+    assertThat(metadata.getRemediationFunction()).isNull();
+    assertThat(metadata.getRemediationGapMultiplier()).isNull();
+    assertThat(metadata.getTags()).isEmpty();
+    assertThat(metadata.getNoteData()).isNull();
+    assertThat(metadata.getNoteCreatedAt()).isNull();
+    assertThat(metadata.getNoteUpdatedAt()).isNull();
+    assertThat(metadata.getCreatedAt()).isEqualTo(ruleDefinition.getCreatedAt());
+    assertThat(metadata.getUpdatedAt()).isEqualTo(ruleDefinition.getUpdatedAt());
+  }
+
+  private static RuleMetadataDto newRuleMetadata(OrganizationDto organization, String seed) {
+    String noteData = seed + randomAlphanumeric(7);
+    return new RuleMetadataDto()
+      .setOrganizationUuid(organization.getUuid())
+      .setRemediationBaseEffort(seed + randomAlphanumeric(2))
+      .setRemediationFunction(seed + randomAlphanumeric(3))
+      .setRemediationGapMultiplier(seed + randomAlphanumeric(4))
+      .setTags(of(seed + randomAlphanumeric(5), seed + randomAlphanumeric(6)))
+      .setNoteData(noteData)
+      .setNoteCreatedAt(noteData.hashCode() + 50L)
+      .setNoteUpdatedAt(noteData.hashCode() + 1_999L)
+      .setCreatedAt(seed.hashCode() + 8889L)
+      .setUpdatedAt(seed.hashCode() + 10_333L);
   }
 
   @Test
