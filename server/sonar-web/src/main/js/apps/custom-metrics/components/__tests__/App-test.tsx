@@ -29,7 +29,7 @@ jest.mock('../../../../api/metrics', () => ({
       metrics: [{ id: '3', key: 'foo', name: 'Foo', type: 'INT' }],
       p: 1,
       ps: 1,
-      total: 5
+      total: 1
     }),
   deleteMetric: () => Promise.resolve(),
   updateMetric: () => Promise.resolve(),
@@ -56,6 +56,7 @@ it('should work', async () => {
   await new Promise(setImmediate);
   wrapper.update();
   expect(wrapper.state().metrics).toMatchSnapshot();
+  expect(wrapper.state().paging.total).toBe(2);
 
   // edit
   wrapper.find('List').prop<Function>('onEdit')({
@@ -68,10 +69,12 @@ it('should work', async () => {
   await new Promise(setImmediate);
   wrapper.update();
   expect(wrapper.state().metrics).toMatchSnapshot();
+  expect(wrapper.state().paging.total).toBe(2);
 
   // delete
   wrapper.find('List').prop<Function>('onDelete')('bar');
   await new Promise(setImmediate);
   wrapper.update();
   expect(wrapper.state().metrics).toMatchSnapshot();
+  expect(wrapper.state().paging.total).toBe(1);
 });

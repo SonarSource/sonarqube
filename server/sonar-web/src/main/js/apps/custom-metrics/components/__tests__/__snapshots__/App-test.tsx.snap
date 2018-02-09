@@ -76,7 +76,7 @@ exports[`should work 2`] = `
       count={1}
       loadMore={[Function]}
       ready={true}
-      total={5}
+      total={1}
     />
   </div>
 </React.Fragment>

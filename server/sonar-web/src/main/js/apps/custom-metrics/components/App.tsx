@@ -112,8 +112,9 @@ export default class App extends React.PureComponent<Props, State> {
   handleCreate = (data: MetricProps) => {
     return createMetric(data).then(metric => {
       if (this.mounted) {
-        this.setState(({ metrics = [] }: State) => ({
-          metrics: [...metrics, metric]
+        this.setState(({ metrics = [], paging }: State) => ({
+          metrics: [...metrics, metric],
+          paging: paging && { ...paging, total: paging.total + 1 }
         }));
       }
     });
@@ -132,8 +133,9 @@ export default class App extends React.PureComponent<Props, State> {
   handleDelete = (metricKey: string) => {
     return deleteMetric({ keys: metricKey }).then(() => {
       if (this.mounted) {
-        this.setState(({ metrics = [] }: State) => ({
-          metrics: metrics.filter(metric => metric.key !== metricKey)
+        this.setState(({ metrics = [], paging }: State) => ({
+          metrics: metrics.filter(metric => metric.key !== metricKey),
+          paging: paging && { ...paging, total: paging.total - 1 }
         }));
       }
     });
