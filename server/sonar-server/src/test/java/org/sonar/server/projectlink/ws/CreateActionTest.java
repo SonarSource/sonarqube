@@ -19,23 +19,22 @@
  */
 package org.sonar.server.projectlink.ws;
 
-import java.io.IOException;
 import java.util.Random;
 import org.apache.commons.lang.StringUtils;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
+import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.ComponentLinkDto;
 import org.sonar.db.component.ComponentTesting;
+import org.sonar.db.component.ProjectLinkDto;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -47,18 +46,13 @@ import org.sonarqube.ws.ProjectLinks;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
-import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
-import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonar.server.projectlink.ws.ProjectLinksWsParameters.PARAM_NAME;
 import static org.sonar.server.projectlink.ws.ProjectLinksWsParameters.PARAM_PROJECT_ID;
 import static org.sonar.server.projectlink.ws.ProjectLinksWsParameters.PARAM_PROJECT_KEY;
 import static org.sonar.server.projectlink.ws.ProjectLinksWsParameters.PARAM_URL;
+import static org.sonar.test.JsonAssert.assertJson;
 
 public class CreateActionTest {
-
-  private final String PROJECT_KEY = KEY_PROJECT_EXAMPLE_001;
-  private final String PROJECT_UUID = UUID_EXAMPLE_01;
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
@@ -70,20 +64,11 @@ public class CreateActionTest {
   private DbClient dbClient = db.getDbClient();
   private DbSession dbSession = db.getSession();
 
-  private WsActionTester ws;
-
-  private CreateAction underTest;
-
-  @Before
-  public void setUp() {
-    ComponentFinder componentFinder = TestComponentFinder.from(db);
-    underTest = new CreateAction(dbClient, userSession, componentFinder);
-    ws = new WsActionTester(underTest);
-  }
+  private WsActionTester ws = new WsActionTester(new CreateAction(dbClient, userSession, TestComponentFinder.from(db), UuidFactoryFast.getInstance()));
 
   @Test
   public void example_with_key() {
-    ComponentDto project = insertProject();
+    ComponentDto project = db.components().insertPrivateProject();
     logInAsProjectAdministrator(project);
 
     String result = ws.newRequest()
@@ -98,7 +83,7 @@ public class CreateActionTest {
 
   @Test
   public void example_with_id() {
-    ComponentDto project = insertProject();
+    ComponentDto project = db.components().insertPrivateProject();
     logInAsProjectAdministrator(project);
 
     String result = ws.newRequest()
@@ -112,19 +97,20 @@ public class CreateActionTest {
   }
 
   @Test
-  public void require_project_admin() throws IOException {
-    ComponentDto project = insertProject();
+  public void require_project_admin() {
+    ComponentDto project = db.components().insertPrivateProject();
     logInAsProjectAdministrator(project);
+
     createAndTest(project);
   }
 
   @Test
-  public void with_long_name() throws IOException {
-    ComponentDto project = insertProject();
+  public void with_long_name() {
+    ComponentDto project = db.components().insertPrivateProject();
     logInAsProjectAdministrator(project);
-
     String longName = StringUtils.leftPad("", 60, "a");
     String expectedType = StringUtils.leftPad("", 20, "a");
+
     createAndTest(project, longName, "http://example.org", expectedType);
   }
 
@@ -180,11 +166,13 @@ public class CreateActionTest {
   @Test
   public void fail_if_anonymous() {
     userSession.anonymous();
-    insertProject();
+    ComponentDto project = db.components().insertPublicProject();
+    userSession.registerComponents(project);
 
     expectedException.expect(ForbiddenException.class);
+
     ws.newRequest()
-      .setParam(PARAM_PROJECT_KEY, PROJECT_KEY)
+      .setParam(PARAM_PROJECT_KEY, project.getKey())
       .setParam(PARAM_NAME, "Custom")
       .setParam(PARAM_URL, "http://example.org")
       .execute();
@@ -193,11 +181,12 @@ public class CreateActionTest {
   @Test
   public void fail_if_not_project_admin() {
     userSession.logIn();
-    insertProject();
+    ComponentDto project = db.components().insertPrivateProject();
 
     expectedException.expect(ForbiddenException.class);
+
     ws.newRequest()
-      .setParam(PARAM_PROJECT_KEY, PROJECT_KEY)
+      .setParam(PARAM_PROJECT_KEY, project.getKey())
       .setParam(PARAM_NAME, "Custom")
       .setParam(PARAM_URL, "http://example.org")
       .execute();
@@ -225,10 +214,9 @@ public class CreateActionTest {
   }
 
   @Test
-  public void fail_if_subview() {
+  public void fail_if_view() {
     ComponentDto view = db.components().insertView();
-    ComponentDto subview = db.components().insertComponent(ComponentTesting.newSubView(view));
-    failIfNotAProject(view, subview);
+    failIfNotAProject(view, view);
   }
 
   @Test
@@ -239,7 +227,7 @@ public class CreateActionTest {
     ComponentDto branch = db.components().insertProjectBranch(project);
 
     expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage(format("Project key '%s' not found", branch.getDbKey()));
+    expectedException.expectMessage(format("Component key '%s' not found", branch.getDbKey()));
 
     ws.newRequest()
       .setParam(PARAM_PROJECT_KEY, branch.getDbKey())
@@ -256,7 +244,7 @@ public class CreateActionTest {
     ComponentDto branch = db.components().insertProjectBranch(project);
 
     expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage(format("Project id '%s' not found", branch.uuid()));
+    expectedException.expectMessage(format("Component id '%s' not found", branch.uuid()));
 
     ws.newRequest()
       .setParam(PARAM_PROJECT_ID, branch.uuid())
@@ -265,11 +253,21 @@ public class CreateActionTest {
       .execute();
   }
 
+  @Test
+  public void define_create_action() {
+    WebService.Action action = ws.getDef();
+    assertThat(action).isNotNull();
+    assertThat(action.isPost()).isTrue();
+    assertThat(action.handler()).isNotNull();
+    assertThat(action.responseExampleAsString()).isNotEmpty();
+    assertThat(action.params()).hasSize(4);
+  }
+
   private void failIfNotAProject(ComponentDto root, ComponentDto component) {
     userSession.logIn().addProjectPermission(UserRole.ADMIN, root);
 
     expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Component '" + component.getDbKey() + "' (id: " + component.uuid() + ") must be a project");
+    expectedException.expectMessage("Component '" + component.getDbKey() + "' must be a project");
 
     TestRequest testRequest = ws.newRequest();
     if (new Random().nextBoolean()) {
@@ -283,12 +281,6 @@ public class CreateActionTest {
       .execute();
   }
 
-  private ComponentDto insertProject() {
-    OrganizationDto org = db.organizations().insert();
-    return db.components().insertComponent(
-      ComponentTesting.newPrivateProjectDto(org, PROJECT_UUID).setDbKey(PROJECT_KEY));
-  }
-
   private void createAndTest(ComponentDto project, String name, String url, String type) {
     ProjectLinks.CreateWsResponse response = ws.newRequest()
       .setMethod("POST")
@@ -297,15 +289,15 @@ public class CreateActionTest {
       .setParam(PARAM_URL, url)
       .executeProtobuf(ProjectLinks.CreateWsResponse.class);
 
-    long newId = Long.valueOf(response.getLink().getId());
+    String newId = response.getLink().getId();
 
-    ComponentLinkDto link = dbClient.componentLinkDao().selectById(dbSession, newId);
+    ProjectLinkDto link = dbClient.projectLinkDao().selectByUuid(dbSession, newId);
     assertThat(link.getName()).isEqualTo(name);
     assertThat(link.getHref()).isEqualTo(url);
     assertThat(link.getType()).isEqualTo(type);
   }
 
-  private void createAndTest(ComponentDto project) throws IOException {
+  private void createAndTest(ComponentDto project) {
     createAndTest(project, "Custom", "http://example.org", "custom");
   }
 

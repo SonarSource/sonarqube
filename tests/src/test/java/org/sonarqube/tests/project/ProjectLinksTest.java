@@ -50,7 +50,7 @@ public class ProjectLinksTest {
   @ClassRule
   public static RuleChain ruleChain = RuleChain.outerRule(orchestrator).around(tester);
 
-  private long customLinkId;
+  private String customLinkId;
   private String adminUser;
 
   @BeforeClass
@@ -62,7 +62,7 @@ public class ProjectLinksTest {
 
   @Before
   public void prepare() {
-    customLinkId = Long.parseLong(createCustomLink().getLink().getId());
+    customLinkId = createCustomLink().getLink().getId();
     adminUser = tester.users().generateAdministratorOnDefaultOrganization().getLogin();
   }
 
@@ -136,9 +136,9 @@ public class ProjectLinksTest {
       .setUrl("http://example.org/custom"));
   }
 
-  private void deleteLink(long id) {
+  private void deleteLink(String id) {
     try {
-      tester.wsClient().projectLinks().delete(new DeleteRequest().setId("" + id));
+      tester.wsClient().projectLinks().delete(new DeleteRequest().setId(id));
     } catch (Exception e) {
       // fail silently
     }

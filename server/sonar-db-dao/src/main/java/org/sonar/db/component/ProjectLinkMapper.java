@@ -19,18 +19,20 @@
  */
 package org.sonar.db.component;
 
-import org.sonar.core.util.Uuids;
+import java.util.List;
+import org.apache.ibatis.annotations.Param;
 
-import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
-import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
+public interface ProjectLinkMapper {
 
-public class ComponentLinkTesting {
-  public static ComponentLinkDto newComponentLinkDto() {
-    return new ComponentLinkDto()
-      .setComponentUuid(Uuids.createFast())
-      .setHref(randomAlphanumeric(128))
-      .setName(randomAlphabetic(128))
-      .setType(ComponentLinkDto.TYPE_SOURCES);
-  }
+  List<ProjectLinkDto> selectByProjectUuid(String projectUuid);
 
+  List<ProjectLinkDto> selectByProjectUuids(@Param("projectUuids") List<String> projectUuids);
+
+  ProjectLinkDto selectByUuid(@Param("uuid") String uuid);
+
+  void insert(ProjectLinkDto dto);
+
+  void update(ProjectLinkDto dto);
+
+  void delete(String uuid);
 }

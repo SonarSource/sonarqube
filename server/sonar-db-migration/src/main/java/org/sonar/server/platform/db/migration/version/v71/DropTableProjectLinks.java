@@ -17,22 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.component;
+package org.sonar.server.platform.db.migration.version.v71;
 
-import java.util.List;
-import org.apache.ibatis.annotations.Param;
+import java.sql.SQLException;
+import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.sql.DropTableBuilder;
+import org.sonar.server.platform.db.migration.step.DdlChange;
 
-public interface ComponentLinkMapper {
+public class DropTableProjectLinks extends DdlChange {
 
-  List<ComponentLinkDto> selectByComponentUuid(String componentUuid);
+  private static final String TABLE_NAME = "project_links";
 
-  List<ComponentLinkDto> selectByComponentUuids(@Param("componentUuids") List<String> componentUuids);
+  public DropTableProjectLinks(Database db) {
+    super(db);
+  }
 
-  ComponentLinkDto selectById(@Param("id") long id);
+  @Override
+  public void execute(Context context) throws SQLException {
+    context.execute(new DropTableBuilder(getDialect(), TABLE_NAME).build());
+  }
 
-  void insert(ComponentLinkDto dto);
-
-  void update(ComponentLinkDto dto);
-
-  void delete(long id);
 }

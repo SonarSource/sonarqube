@@ -25,11 +25,11 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.component.ComponentLinkDto;
+import org.sonar.db.component.ProjectLinkDto;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.WsUtils;
 
-import static org.sonar.db.component.ComponentLinkDto.PROVIDED_TYPES;
+import static org.sonar.db.component.ProjectLinkDto.PROVIDED_TYPES;
 import static org.sonar.server.projectlink.ws.ProjectLinksWsParameters.ACTION_DELETE;
 import static org.sonar.server.projectlink.ws.ProjectLinksWsParameters.PARAM_ID;
 
@@ -64,27 +64,26 @@ public class DeleteAction implements ProjectLinksWsAction {
     response.noContent();
   }
 
-  private void doHandle(String idParam) {
+  private void doHandle(String id) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      long id = Long.parseLong(idParam);
-      ComponentLinkDto link = dbClient.componentLinkDao().selectById(dbSession, id);
+      ProjectLinkDto link = dbClient.projectLinkDao().selectByUuid(dbSession, id);
 
       link = WsUtils.checkFound(link, "Link with id '%s' not found", id);
       checkProjectAdminPermission(link);
       checkNotProvided(link);
 
-      dbClient.componentLinkDao().delete(dbSession, link.getId());
+      dbClient.projectLinkDao().delete(dbSession, link.getUuid());
       dbSession.commit();
     }
   }
 
-  private static void checkNotProvided(ComponentLinkDto link) {
+  private static void checkNotProvided(ProjectLinkDto link) {
     String type = link.getType();
     boolean isProvided = type != null && PROVIDED_TYPES.contains(type);
     WsUtils.checkRequest(!isProvided, "Provided link cannot be deleted.");
   }
 
-  private void checkProjectAdminPermission(ComponentLinkDto link) {
-    userSession.checkComponentUuidPermission(UserRole.ADMIN, link.getComponentUuid());
+  private void checkProjectAdminPermission(ProjectLinkDto link) {
+    userSession.checkComponentUuidPermission(UserRole.ADMIN, link.getProjectUuid());
   }
 }

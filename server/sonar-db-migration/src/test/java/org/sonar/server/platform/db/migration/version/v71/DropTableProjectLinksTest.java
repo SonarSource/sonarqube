@@ -17,32 +17,38 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.component;
 
+package org.sonar.server.platform.db.migration.version.v71;
+
+import java.sql.SQLException;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.sonar.db.CoreDbTester;
 
-import static org.assertj.core.api.Assertions.assertThat;
+public class DropTableProjectLinksTest {
 
-public class ComponentLinkDtoTest {
+  @Rule
+  public final CoreDbTester dbTester = CoreDbTester.createForSchema(DropTableProjectLinksTest.class, "project_links.sql");
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
+
+  private DropTableProjectLinks underTest = new DropTableProjectLinks(dbTester.database());
 
   @Test
-  public void test_getters_and_setters() {
-    ComponentLinkDto dto = new ComponentLinkDto()
-      .setId(1L)
-      .setComponentUuid("ABCD")
-      .setType("homepage")
-      .setName("Home")
-      .setHref("http://www.sonarqube.org");
+  public void creates_table_on_empty_db() throws SQLException {
+    underTest.execute();
 
-    assertThat(dto.getId()).isEqualTo(1L);
-    assertThat(dto.getComponentUuid()).isEqualTo("ABCD");
-    assertThat(dto.getType()).isEqualTo("homepage");
-    assertThat(dto.getName()).isEqualTo("Home");
-    assertThat(dto.getHref()).isEqualTo("http://www.sonarqube.org");
+    dbTester.assertTableDoesNotExist("project_links");
   }
 
   @Test
-  public void test_provided_types() {
-    assertThat(ComponentLinkDto.PROVIDED_TYPES).hasSize(5);
+  public void migration_is_not_reentrant() throws SQLException {
+    underTest.execute();
+
+    expectedException.expect(IllegalStateException.class);
+
+    underTest.execute();
   }
+
 }
