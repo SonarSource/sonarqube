@@ -22,129 +22,88 @@ package org.sonar.server.computation.task.projectanalysis.step;
 import com.google.common.collect.ImmutableMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import org.sonar.api.i18n.I18n;
+import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.component.ComponentLinkDto;
+import org.sonar.db.component.ProjectLinkDto;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.ComponentLink.ComponentLinkType;
 import org.sonar.server.computation.task.projectanalysis.batch.BatchReportReader;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
-import org.sonar.server.computation.task.projectanalysis.component.CrawlerDepthLimit;
-import org.sonar.server.computation.task.projectanalysis.component.DepthTraversalTypeAwareCrawler;
 import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolder;
-import org.sonar.server.computation.task.projectanalysis.component.TypeAwareVisitorAdapter;
 import org.sonar.server.computation.task.step.ComputationStep;
 
-import static org.sonar.server.computation.task.projectanalysis.component.ComponentVisitor.Order.PRE_ORDER;
+import static com.google.common.base.Preconditions.checkArgument;
 
-/**
- * Persist project and module links
- */
 public class PersistProjectLinksStep implements ComputationStep {
 
   private final DbClient dbClient;
-  private final I18n i18n;
   private final TreeRootHolder treeRootHolder;
   private final BatchReportReader reportReader;
+  private final UuidFactory uuidFactory;
 
   private static final Map<ComponentLinkType, String> typesConverter = ImmutableMap.of(
-    ComponentLinkType.HOME, ComponentLinkDto.TYPE_HOME_PAGE,
-    ComponentLinkType.SCM, ComponentLinkDto.TYPE_SOURCES,
-    ComponentLinkType.SCM_DEV, ComponentLinkDto.TYPE_SOURCES_DEV,
-    ComponentLinkType.CI, ComponentLinkDto.TYPE_CI,
-    ComponentLinkType.ISSUE, ComponentLinkDto.TYPE_ISSUE_TRACKER);
+    ComponentLinkType.HOME, ProjectLinkDto.TYPE_HOME_PAGE,
+    ComponentLinkType.SCM, ProjectLinkDto.TYPE_SOURCES,
+    ComponentLinkType.SCM_DEV, ProjectLinkDto.TYPE_SOURCES_DEV,
+    ComponentLinkType.CI, ProjectLinkDto.TYPE_CI,
+    ComponentLinkType.ISSUE, ProjectLinkDto.TYPE_ISSUE_TRACKER);
 
-  public PersistProjectLinksStep(DbClient dbClient, I18n i18n, TreeRootHolder treeRootHolder, BatchReportReader reportReader) {
+  public PersistProjectLinksStep(DbClient dbClient, TreeRootHolder treeRootHolder, BatchReportReader reportReader, UuidFactory uuidFactory) {
     this.dbClient = dbClient;
-    this.i18n = i18n;
     this.treeRootHolder = treeRootHolder;
     this.reportReader = reportReader;
+    this.uuidFactory = uuidFactory;
   }
 
   @Override
   public void execute() {
     try (DbSession session = dbClient.openSession(false)) {
-      new DepthTraversalTypeAwareCrawler(new ProjectLinkVisitor(session))
-        .visit(treeRootHolder.getRoot());
+      Component project = treeRootHolder.getRoot();
+      ScannerReport.Component batchComponent = reportReader.readComponent(project.getReportAttributes().getRef());
+      List<ProjectLinkDto> previousLinks = dbClient.projectLinkDao().selectByProjectUuid(session, project.getUuid());
+      mergeLinks(session, project.getUuid(), batchComponent.getLinkList(), previousLinks);
       session.commit();
     }
   }
 
-  private class ProjectLinkVisitor extends TypeAwareVisitorAdapter {
-
-    private final DbSession session;
-
-    private ProjectLinkVisitor(DbSession session) {
-      super(CrawlerDepthLimit.FILE, PRE_ORDER);
-      this.session = session;
-    }
-
-    @Override
-    public void visitProject(Component project) {
-      processComponent(project);
-    }
-
-    @Override
-    public void visitModule(Component module) {
-      processComponent(module);
-    }
-
-    private void processComponent(Component component) {
-      ScannerReport.Component batchComponent = reportReader.readComponent(component.getReportAttributes().getRef());
-      processLinks(component.getUuid(), batchComponent.getLinkList());
-    }
-
-    private void processLinks(String componentUuid, List<ScannerReport.ComponentLink> links) {
-      List<ComponentLinkDto> previousLinks = dbClient.componentLinkDao().selectByComponentUuid(session, componentUuid);
-      mergeLinks(session, componentUuid, links, previousLinks);
-    }
-
-    private void mergeLinks(DbSession session, String componentUuid, List<ScannerReport.ComponentLink> links, List<ComponentLinkDto> previousLinks) {
-      Set<String> linkType = new HashSet<>();
-      for (final ScannerReport.ComponentLink link : links) {
+  private void mergeLinks(DbSession session, String componentUuid, List<ScannerReport.ComponentLink> links, List<ProjectLinkDto> previousLinks) {
+    Set<String> linkType = new HashSet<>();
+    links.forEach(
+      link -> {
         String type = convertType(link.getType());
-        if (!linkType.contains(type)) {
-          linkType.add(type);
-        } else {
-          throw new IllegalArgumentException(String.format("Link of type '%s' has already been declared on component '%s'", type, componentUuid));
-        }
+        checkArgument(!linkType.contains(type), "Link of type '%s' has already been declared on component '%s'", type, componentUuid);
+        linkType.add(type);
 
-        Optional<ComponentLinkDto> previousLink = previousLinks.stream()
+        Optional<ProjectLinkDto> previousLink = previousLinks.stream()
           .filter(input -> input != null && input.getType().equals(convertType(link.getType())))
           .findFirst();
         if (previousLink.isPresent()) {
           previousLink.get().setHref(link.getHref());
-          dbClient.componentLinkDao().update(session, previousLink.get());
+          dbClient.projectLinkDao().update(session, previousLink.get());
         } else {
-          dbClient.componentLinkDao().insert(session,
-            new ComponentLinkDto()
-              .setComponentUuid(componentUuid)
+          dbClient.projectLinkDao().insert(session,
+            new ProjectLinkDto()
+              .setUuid(uuidFactory.create())
+              .setProjectUuid(componentUuid)
               .setType(type)
-              .setName(i18n.message(Locale.ENGLISH, "project_links." + type, null))
               .setHref(link.getHref()));
         }
-      }
+      });
 
-      for (ComponentLinkDto dto : previousLinks) {
-        if (!linkType.contains(dto.getType()) && ComponentLinkDto.PROVIDED_TYPES.contains(dto.getType())) {
-          dbClient.componentLinkDao().delete(session, dto.getId());
-        }
-      }
-    }
+    previousLinks.stream()
+      .filter(dto -> !linkType.contains(dto.getType()))
+      .filter(dto -> ProjectLinkDto.PROVIDED_TYPES.contains(dto.getType()))
+      .forEach(dto -> dbClient.projectLinkDao().delete(session, dto.getUuid()));
+  }
 
-    private String convertType(ComponentLinkType reportType) {
-      String type = typesConverter.get(reportType);
-      if (type != null) {
-        return type;
-      } else {
-        throw new IllegalArgumentException(String.format("Unsupported type %s", reportType.name()));
-      }
-    }
+  private static String convertType(ComponentLinkType reportType) {
+    String type = typesConverter.get(reportType);
+    checkArgument(type != null, "Unsupported type %s", reportType.name());
+    return type;
   }
 
   @Override

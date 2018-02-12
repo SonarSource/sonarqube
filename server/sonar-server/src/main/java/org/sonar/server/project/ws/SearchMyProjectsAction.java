@@ -37,8 +37,8 @@ import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.ComponentLinkDto;
 import org.sonar.db.component.ComponentQuery;
+import org.sonar.db.component.ProjectLinkDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.measure.LiveMeasureDto;
 import org.sonar.server.user.UserSession;
@@ -148,11 +148,11 @@ public class SearchMyProjectsAction implements ProjectsWsAction {
     }
   }
 
-  private enum ProjectLinkDtoToWs implements Function<ComponentLinkDto, Link> {
+  private enum ProjectLinkDtoToWs implements Function<ProjectLinkDto, Link> {
     INSTANCE;
 
     @Override
-    public Link apply(ComponentLinkDto dto) {
+    public Link apply(ProjectLinkDto dto) {
       Link.Builder link = Link.newBuilder();
       link.setHref(dto.getHref());
 
@@ -172,7 +172,7 @@ public class SearchMyProjectsAction implements ProjectsWsAction {
     ProjectsResult searchResult = searchProjects(dbSession, request);
     List<ComponentDto> projects = searchResult.projects;
     List<String> projectUuids = Lists.transform(projects, ComponentDto::projectUuid);
-    List<ComponentLinkDto> projectLinks = dbClient.componentLinkDao().selectByComponentUuids(dbSession, projectUuids);
+    List<ProjectLinkDto> projectLinks = dbClient.projectLinkDao().selectByProjectUuids(dbSession, projectUuids);
     List<SnapshotDto> snapshots = dbClient.snapshotDao().selectLastAnalysesByRootComponentUuids(dbSession, projectUuids);
     List<LiveMeasureDto> qualityGates = dbClient.liveMeasureDao()
       .selectByComponentUuidsAndMetricKeys(dbSession, projectUuids, singletonList(CoreMetrics.ALERT_STATUS_KEY));

@@ -27,7 +27,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.ComponentLinkDto;
+import org.sonar.db.component.ProjectLinkDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.measure.LiveMeasureDto;
 
@@ -37,7 +37,7 @@ import static org.sonar.api.utils.DateUtils.formatDateTime;
 
 class SearchMyProjectsData {
   private final List<ComponentDto> projects;
-  private final ListMultimap<String, ComponentLinkDto> projectLinksByProjectUuid;
+  private final ListMultimap<String, ProjectLinkDto> projectLinksByProjectUuid;
   private final Map<String, String> lastAnalysisDates;
   private final Map<String, String> qualityGateStatuses;
   private final int totalNbOfProject;
@@ -58,7 +58,7 @@ class SearchMyProjectsData {
     return projects;
   }
 
-  List<ComponentLinkDto> projectLinksFor(String projectUuid) {
+  List<ProjectLinkDto> projectLinksFor(String projectUuid) {
     return projectLinksByProjectUuid.get(projectUuid);
   }
 
@@ -74,9 +74,9 @@ class SearchMyProjectsData {
     return totalNbOfProject;
   }
 
-  private static ListMultimap<String, ComponentLinkDto> buildProjectLinks(List<ComponentLinkDto> dtos) {
-    ImmutableListMultimap.Builder<String, ComponentLinkDto> projectLinks = ImmutableListMultimap.builder();
-    dtos.forEach(projectLink -> projectLinks.put(projectLink.getComponentUuid(), projectLink));
+  private static ListMultimap<String, ProjectLinkDto> buildProjectLinks(List<ProjectLinkDto> dtos) {
+    ImmutableListMultimap.Builder<String, ProjectLinkDto> projectLinks = ImmutableListMultimap.builder();
+    dtos.forEach(projectLink -> projectLinks.put(projectLink.getProjectUuid(), projectLink));
     return projectLinks.build();
   }
 
@@ -93,7 +93,7 @@ class SearchMyProjectsData {
 
   static class Builder {
     private List<ComponentDto> projects;
-    private List<ComponentLinkDto> projectLinks;
+    private List<ProjectLinkDto> projectLinks;
     private List<SnapshotDto> snapshots;
     private List<LiveMeasureDto> qualityGates;
     private Integer totalNbOfProjects;
@@ -107,7 +107,7 @@ class SearchMyProjectsData {
       return this;
     }
 
-    public Builder setProjectLinks(List<ComponentLinkDto> projectLinks) {
+    public Builder setProjectLinks(List<ProjectLinkDto> projectLinks) {
       this.projectLinks = projectLinks;
       return this;
     }

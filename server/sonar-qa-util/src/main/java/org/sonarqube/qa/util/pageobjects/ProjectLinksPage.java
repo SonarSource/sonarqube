@@ -32,7 +32,7 @@ public class ProjectLinksPage {
   }
 
   public ElementsCollection getLinks() {
-    return Selenide.$$("#project-links tr[data-name]");
+    return Selenide.$$("#project-links tbody tr");
   }
 
   public List<ProjectLinkItem> getLinksAsItems() {

@@ -169,7 +169,7 @@ class PurgeCommands {
 
   void deleteLinks(String rootUuid) {
     profiler.start("deleteLinks (project_links)");
-    purgeMapper.deleteProjectLinksByComponentUuid(rootUuid);
+    purgeMapper.deleteProjectLinksByProjectUuid(rootUuid);
     session.commit();
     profiler.stop();
   }

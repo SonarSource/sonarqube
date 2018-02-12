@@ -30,7 +30,7 @@ import org.sonar.db.component.AnalysisPropertiesDao;
 import org.sonar.db.component.BranchDao;
 import org.sonar.db.component.ComponentDao;
 import org.sonar.db.component.ComponentKeyUpdaterDao;
-import org.sonar.db.component.ComponentLinkDao;
+import org.sonar.db.component.ProjectLinkDao;
 import org.sonar.db.component.SnapshotDao;
 import org.sonar.db.duplication.DuplicationDao;
 import org.sonar.db.es.EsQueueDao;
@@ -107,7 +107,7 @@ public class DbClient {
   private final CeTaskCharacteristicDao ceTaskCharacteristicsDao;
   private final CeScannerContextDao ceScannerContextDao;
   private final FileSourceDao fileSourceDao;
-  private final ComponentLinkDao componentLinkDao;
+  private final ProjectLinkDao projectLinkDao;
   private final EventDao eventDao;
   private final PurgeDao purgeDao;
   private final QualityGateDao qualityGateDao;
@@ -169,7 +169,7 @@ public class DbClient {
     ceTaskCharacteristicsDao = getDao(map, CeTaskCharacteristicDao.class);
     ceScannerContextDao = getDao(map, CeScannerContextDao.class);
     fileSourceDao = getDao(map, FileSourceDao.class);
-    componentLinkDao = getDao(map, ComponentLinkDao.class);
+    projectLinkDao = getDao(map, ProjectLinkDao.class);
     eventDao = getDao(map, EventDao.class);
     purgeDao = getDao(map, PurgeDao.class);
     qualityGateDao = getDao(map, QualityGateDao.class);
@@ -316,8 +316,8 @@ public class DbClient {
     return fileSourceDao;
   }
 
-  public ComponentLinkDao componentLinkDao() {
-    return componentLinkDao;
+  public ProjectLinkDao projectLinkDao() {
+    return projectLinkDao;
   }
 
   public EventDao eventDao() {

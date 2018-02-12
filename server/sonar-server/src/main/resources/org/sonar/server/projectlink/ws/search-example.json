@@ -9,6 +9,7 @@
     {
       "id": "2",
       "name": "Custom",
+      "type": "custom",
       "url": "http://example.org/custom"
     }
   ]

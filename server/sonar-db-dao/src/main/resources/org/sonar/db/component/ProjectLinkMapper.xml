@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd">
+<mapper namespace="org.sonar.db.component.ProjectLinkMapper">
+
+    <sql id="columns">
+        p.uuid,
+        p.project_uuid as "projectUuid",
+        p.link_type as "type",
+        p.name as name,
+        p.href as href,
+        p.created_at as "createdAt",
+        p.updated_at as "updatedAt"
+    </sql>
+
+    <select id="selectByProjectUuid" parameterType="String" resultType="org.sonar.db.component.ProjectLinkDto">
+        SELECT
+        <include refid="columns"/>
+        FROM project_links p
+        where p.project_uuid=#{uuid,jdbcType=VARCHAR}
+        ORDER BY p.uuid
+    </select>
+
+    <select id="selectByProjectUuids" parameterType="String" resultType="org.sonar.db.component.ProjectLinkDto">
+        SELECT
+        <include refid="columns"/>
+        FROM project_links p
+        where
+        p.project_uuid in
+        <foreach collection="projectUuids" open="(" close=")" item="uuid" separator=",">
+            #{uuid,jdbcType=VARCHAR}
+        </foreach>
+        order by p.uuid
+    </select>
+
+    <select id="selectByUuid" parameterType="String" resultType="org.sonar.db.component.ProjectLinkDto">
+        SELECT
+        <include refid="columns"/>
+        FROM project_links p
+        where p.uuid=#{uuid,jdbcType=VARCHAR}
+    </select>
+
+    <insert id="insert" parameterType="org.sonar.db.component.ProjectLinkDto" useGeneratedKeys="false">
+        INSERT INTO project_links (uuid, project_uuid, link_type, name, href, created_at, updated_at)
+        VALUES (
+        #{uuid,jdbcType=VARCHAR},
+        #{projectUuid,jdbcType=VARCHAR},
+        #{type,jdbcType=VARCHAR},
+        #{name,jdbcType=VARCHAR},
+        #{href,jdbcType=VARCHAR},
+        #{createdAt,jdbcType=BIGINT},
+        #{updatedAt,jdbcType=BIGINT})
+    </insert>
+
+    <insert id="update" parameterType="org.sonar.db.component.ProjectLinkDto" useGeneratedKeys="false">
+        UPDATE project_links SET
+        project_uuid=#{projectUuid,jdbcType=VARCHAR},
+        link_type=#{type,jdbcType=VARCHAR},
+        name=#{name,jdbcType=VARCHAR},
+        href=#{href,jdbcType=VARCHAR},
+        updated_at=#{updatedAt,jdbcType=BIGINT}
+        WHERE uuid=#{uuid,jdbcType=VARCHAR}
+    </insert>
+
+    <delete id="delete">
+        DELETE FROM project_links WHERE uuid=#{uuid,jdbcType=VARCHAR}
+    </delete>
+
+</mapper>
+

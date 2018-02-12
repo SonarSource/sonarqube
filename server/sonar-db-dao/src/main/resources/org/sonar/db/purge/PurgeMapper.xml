@@ -187,10 +187,10 @@
       and resolution is null
   </update>
 
-  <delete id="deleteProjectLinksByComponentUuid" parameterType="map">
+  <delete id="deleteProjectLinksByProjectUuid" parameterType="map">
     delete from project_links
     where
-      component_uuid = #{rootUuid,jdbcType=VARCHAR}
+      project_uuid = #{rootUuid,jdbcType=VARCHAR}
   </delete>
 
   <delete id="deletePropertiesByComponentIds" parameterType="map">

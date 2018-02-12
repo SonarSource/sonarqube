@@ -21,42 +21,53 @@ package org.sonar.db.component;
 
 import com.google.common.collect.ImmutableList;
 import java.util.List;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 
-/**
- * Component links should be merge in a 'links' column (using protobuf for instance) of the projects table.
- * But to do this we'll have to wait for the measure filters page (where links are displayed) to be rewritten in JS/WS (because it's in Rails for the moment).
- */
-public class ComponentLinkDto {
+public class ProjectLinkDto {
 
   public static final String TYPE_HOME_PAGE = "homepage";
   public static final String TYPE_CI = "ci";
   public static final String TYPE_ISSUE_TRACKER = "issue";
   public static final String TYPE_SOURCES = "scm";
+
   public static final String TYPE_SOURCES_DEV = "scm_dev";
 
   public static final List<String> PROVIDED_TYPES = ImmutableList.of(TYPE_HOME_PAGE, TYPE_CI, TYPE_ISSUE_TRACKER, TYPE_SOURCES, TYPE_SOURCES_DEV);
 
-  private Long id;
-  private String componentUuid;
+  private String uuid;
+  private String projectUuid;
   private String type;
   private String name;
   private String href;
+  private long createdAt;
+  private long updatedAt;
 
+  public String getUuid() {
+    return uuid;
+  }
+
+  public ProjectLinkDto setUuid(String uuid) {
+    this.uuid = uuid;
+    return this;
+  }
+
+  @CheckForNull
   public String getName() {
     return name;
   }
 
-  public ComponentLinkDto setName(String name) {
+  public ProjectLinkDto setName(@Nullable String name) {
     this.name = name;
     return this;
   }
 
-  public String getComponentUuid() {
-    return componentUuid;
+  public String getProjectUuid() {
+    return projectUuid;
   }
 
-  public ComponentLinkDto setComponentUuid(String componentUuid) {
-    this.componentUuid = componentUuid;
+  public ProjectLinkDto setProjectUuid(String projectUuid) {
+    this.projectUuid = projectUuid;
     return this;
   }
 
@@ -64,21 +75,8 @@ public class ComponentLinkDto {
     return href;
   }
 
-  public ComponentLinkDto setHref(String href) {
+  public ProjectLinkDto setHref(String href) {
     this.href = href;
-    return this;
-  }
-
-  public Long getId() {
-    return id;
-  }
-
-  public String getIdAsString() {
-    return String.valueOf(id);
-  }
-
-  public ComponentLinkDto setId(Long id) {
-    this.id = id;
     return this;
   }
 
@@ -86,8 +84,26 @@ public class ComponentLinkDto {
     return type;
   }
 
-  public ComponentLinkDto setType(String type) {
+  public ProjectLinkDto setType(String type) {
     this.type = type;
+    return this;
+  }
+
+  public long getCreatedAt() {
+    return createdAt;
+  }
+
+  public ProjectLinkDto setCreatedAt(long createdAt) {
+    this.createdAt = createdAt;
+    return this;
+  }
+
+  public long getUpdatedAt() {
+    return updatedAt;
+  }
+
+  public ProjectLinkDto setUpdatedAt(long updatedAt) {
+    this.updatedAt = updatedAt;
     return this;
   }
 }

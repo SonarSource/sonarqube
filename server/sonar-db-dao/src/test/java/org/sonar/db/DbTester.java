@@ -30,6 +30,7 @@ import org.picocontainer.containers.TransientPicoContainer;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.db.component.ComponentDbTester;
+import org.sonar.db.component.ProjectLinkDbTester;
 import org.sonar.db.event.EventDbTester;
 import org.sonar.db.favorite.FavoriteDbTester;
 import org.sonar.db.issue.IssueDbTester;
@@ -42,7 +43,6 @@ import org.sonar.db.permission.template.PermissionTemplateDbTester;
 import org.sonar.db.plugin.PluginDbTester;
 import org.sonar.db.property.PropertyDbTester;
 import org.sonar.db.qualitygate.QualityGateDbTester;
-import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.db.qualityprofile.QualityProfileDbTester;
 import org.sonar.db.rule.RuleDbTester;
 import org.sonar.db.source.FileSourceTester;
@@ -65,10 +65,10 @@ public class DbTester extends AbstractDbTester<TestDb> {
   private boolean started = false;
   private String defaultOrganizationUuid = randomAlphanumeric(40);
   private OrganizationDto defaultOrganization;
-  private QualityGateDto builtInQualityGate;
 
   private final UserDbTester userTester;
   private final ComponentDbTester componentTester;
+  private final ProjectLinkDbTester componentLinkTester;
   private final FavoriteDbTester favoriteTester;
   private final EventDbTester eventTester;
   private final OrganizationDbTester organizationTester;
@@ -91,6 +91,7 @@ public class DbTester extends AbstractDbTester<TestDb> {
     initDbClient();
     this.userTester = new UserDbTester(this);
     this.componentTester = new ComponentDbTester(this);
+    this.componentLinkTester = new ProjectLinkDbTester(this);
     this.favoriteTester = new FavoriteDbTester(this);
     this.eventTester = new EventDbTester(this);
     this.organizationTester = new OrganizationDbTester(this);
@@ -185,6 +186,10 @@ public class DbTester extends AbstractDbTester<TestDb> {
 
   public ComponentDbTester components() {
     return componentTester;
+  }
+
+  public ProjectLinkDbTester componentLinks() {
+    return componentLinkTester;
   }
 
   public FavoriteDbTester favorites() {

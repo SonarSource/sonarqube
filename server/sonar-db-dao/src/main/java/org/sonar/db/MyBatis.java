@@ -40,11 +40,10 @@ import org.sonar.db.component.BranchMapper;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentDtoWithSnapshotId;
 import org.sonar.db.component.ComponentKeyUpdaterMapper;
-import org.sonar.db.component.ComponentLinkDto;
-import org.sonar.db.component.ComponentLinkMapper;
 import org.sonar.db.component.ComponentMapper;
 import org.sonar.db.component.FilePathWithHashDto;
 import org.sonar.db.component.KeyWithUuidDto;
+import org.sonar.db.component.ProjectLinkMapper;
 import org.sonar.db.component.ResourceDto;
 import org.sonar.db.component.ScrapAnalysisPropertyDto;
 import org.sonar.db.component.SnapshotDto;
@@ -149,7 +148,6 @@ public class MyBatis implements Startable {
     confBuilder.loadAlias("ActiveRuleParam", ActiveRuleParamDto.class);
     confBuilder.loadAlias("CeTaskCharacteristic", CeTaskCharacteristicDto.class);
     confBuilder.loadAlias("Component", ComponentDto.class);
-    confBuilder.loadAlias("ComponentLink", ComponentLinkDto.class);
     confBuilder.loadAlias("ComponentWithSnapshot", ComponentDtoWithSnapshotId.class);
     confBuilder.loadAlias("CustomMeasure", CustomMeasureDto.class);
     confBuilder.loadAlias("DuplicationUnit", DuplicationUnitDto.class);
@@ -206,7 +204,7 @@ public class MyBatis implements Startable {
       CeTaskInputMapper.class,
       CeTaskCharacteristicMapper.class,
       ComponentKeyUpdaterMapper.class,
-      ComponentLinkMapper.class,
+      ProjectLinkMapper.class,
       ComponentMapper.class,
       LiveMeasureMapper.class,
       CustomMeasureMapper.class,
