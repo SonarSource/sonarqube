@@ -29,7 +29,7 @@ import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.batch.ScannerSide;
 
 /**
- * See {@link CoreProperties#LINKS_SOURCES_DEV} to get old Maven URL format.
+ * See {@link LINKS_SOURCES_DEV#LINKS_SOURCES_DEV} to get old Maven URL format.
  * @since 5.0
  */
 @ScannerSide

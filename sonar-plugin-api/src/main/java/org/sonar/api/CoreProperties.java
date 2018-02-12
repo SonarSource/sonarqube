@@ -328,7 +328,9 @@ public interface CoreProperties {
 
   /**
    * @since 3.3
+   * @deprecated since 7.1, developer connection link is no more feed
    */
+  @Deprecated
   String LINKS_SOURCES_DEV = "sonar.links.scm_dev";
 
   /**

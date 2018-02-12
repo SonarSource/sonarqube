@@ -38,6 +38,7 @@ import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.core.config.ScannerProperties;
 
 @Properties({
   @Property(
@@ -112,7 +113,7 @@ public class ScmConfiguration implements Startable {
   }
 
   private void considerOldScmUrl() {
-    settings.get(CoreProperties.LINKS_SOURCES_DEV).ifPresent(url -> {
+    settings.get(ScannerProperties.LINKS_SOURCES_DEV).ifPresent(url -> {
       if (StringUtils.startsWith(url, "scm:")) {
         String[] split = url.split(":");
         if (split.length > 1) {
