@@ -53,28 +53,25 @@ import static java.util.Comparator.naturalOrder;
 import static java.util.Comparator.nullsFirst;
 import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.core.util.stream.MoreCollectors.toOneElement;
-import static org.sonar.server.notification.NotificationDispatcherMetadata.GLOBAL_NOTIFICATION;
-import static org.sonar.server.notification.NotificationDispatcherMetadata.PER_PROJECT_NOTIFICATION;
-import static org.sonar.server.ws.WsUtils.checkFound;
-import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonar.server.notification.ws.NotificationsWsParameters.ACTION_LIST;
 import static org.sonar.server.notification.ws.NotificationsWsParameters.PARAM_LOGIN;
+import static org.sonar.server.ws.WsUtils.checkFound;
+import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class ListAction implements NotificationsWsAction {
+
   private static final Splitter PROPERTY_KEY_SPLITTER = Splitter.on(".");
 
   private final DbClient dbClient;
   private final UserSession userSession;
-  private final List<String> globalDispatchers;
-  private final List<String> perProjectDispatchers;
   private final List<String> channels;
+  private final Dispatchers dispatchers;
 
-  public ListAction(NotificationCenter notificationCenter, DbClient dbClient, UserSession userSession) {
+  public ListAction(NotificationCenter notificationCenter, DbClient dbClient, UserSession userSession, Dispatchers dispatchers) {
     this.dbClient = dbClient;
     this.userSession = userSession;
-    this.globalDispatchers = notificationCenter.getDispatcherKeysForProperty(GLOBAL_NOTIFICATION, "true").stream().sorted().collect(MoreCollectors.toList());
-    this.perProjectDispatchers = notificationCenter.getDispatcherKeysForProperty(PER_PROJECT_NOTIFICATION, "true").stream().sorted().collect(MoreCollectors.toList());
     this.channels = notificationCenter.getChannels().stream().map(NotificationChannel::getKey).sorted().collect(MoreCollectors.toList());
+    this.dispatchers = dispatchers;
   }
 
   @Override
@@ -110,8 +107,8 @@ public class ListAction implements NotificationsWsAction {
       return Stream
         .of(ListResponse.newBuilder())
         .map(r -> r.addAllChannels(channels))
-        .map(r -> r.addAllGlobalTypes(globalDispatchers))
-        .map(r -> r.addAllPerProjectTypes(perProjectDispatchers))
+        .map(r -> r.addAllGlobalTypes(dispatchers.getGlobalDispatchers()))
+        .map(r -> r.addAllPerProjectTypes(dispatchers.getProjectDispatchers()))
         .map(addNotifications(dbSession, user))
         .map(ListResponse.Builder::build)
         .collect(toOneElement());
@@ -158,7 +155,7 @@ public class ListAction implements NotificationsWsAction {
   }
 
   private boolean isDispatcherAuthorized(PropertyDto prop, String dispatcher) {
-    return (prop.getResourceId() != null && perProjectDispatchers.contains(dispatcher)) || globalDispatchers.contains(dispatcher);
+    return (prop.getResourceId() != null && dispatchers.getProjectDispatchers().contains(dispatcher)) || dispatchers.getGlobalDispatchers().contains(dispatcher);
   }
 
   private Map<Long, ComponentDto> searchProjects(DbSession dbSession, List<PropertyDto> properties) {

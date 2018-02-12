@@ -44,6 +44,7 @@ import org.sonarqube.ws.MediaTypes;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.util.Collections.singletonList;
+import static java.util.Objects.requireNonNull;
 import static org.apache.commons.lang.StringUtils.substring;
 import static org.apache.commons.lang.StringUtils.substringAfterLast;
 import static org.apache.commons.lang.StringUtils.substringBeforeLast;
@@ -59,9 +60,16 @@ public class WebServiceEngine implements LocalConnector, Startable {
 
   private static final Logger LOGGER = Loggers.get(WebServiceEngine.class);
 
-  private final WebService.Context context;
+  private final WebService[] webServices;
+
+  private WebService.Context context;
 
   public WebServiceEngine(WebService[] webServices) {
+    this.webServices = webServices;
+  }
+
+  @Override
+  public void start() {
     context = new WebService.Context();
     for (WebService webService : webServices) {
       webService.define(context);
@@ -69,18 +77,16 @@ public class WebServiceEngine implements LocalConnector, Startable {
   }
 
   @Override
-  public void start() {
-    // Force execution of constructor to be sure that web services
-    // are validated and initialized at server startup.
-  }
-
-  @Override
   public void stop() {
     // nothing
   }
 
+  private WebService.Context getContext() {
+    return requireNonNull(context, "Web services has not yet been initialized");
+  }
+
   List<WebService.Controller> controllers() {
-    return context.controllers();
+    return getContext().controllers();
   }
 
   @Override
@@ -117,7 +123,7 @@ public class WebServiceEngine implements LocalConnector, Startable {
   private WebService.Action getAction(ActionExtractor actionExtractor) {
     String controllerPath = actionExtractor.getController();
     String actionKey = actionExtractor.getAction();
-    WebService.Controller controller = context.controller(controllerPath);
+    WebService.Controller controller = getContext().controller(controllerPath);
     return controller == null ? null : controller.action(actionKey);
   }
 

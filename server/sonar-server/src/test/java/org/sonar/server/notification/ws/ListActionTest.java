@@ -19,20 +19,16 @@
  */
 package org.sonar.server.notification.ws;
 
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.notifications.NotificationChannel;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.permission.UserPermissionDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -45,10 +41,13 @@ import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Notifications.ListResponse;
 import org.sonarqube.ws.Notifications.Notification;
 
+import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
-import static org.sonar.server.notification.NotificationDispatcherMetadata.GLOBAL_NOTIFICATION;
-import static org.sonar.server.notification.NotificationDispatcherMetadata.PER_PROJECT_NOTIFICATION;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.test.JsonAssert.assertJson;
 
@@ -60,7 +59,7 @@ public class ListActionTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
   @Rule
-  public UserSessionRule userSession;
+  public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
   public DbTester db = DbTester.create();
 
@@ -69,36 +68,20 @@ public class ListActionTest {
 
   private NotificationChannel emailChannel = new FakeNotificationChannel("EmailChannel");
   private NotificationChannel twitterChannel = new FakeNotificationChannel("TwitterChannel");
-  private UserDto user;
 
-  private NotificationUpdater notificationUpdater;
+  private NotificationUpdater notificationUpdater = new NotificationUpdater(dbClient);
+  private Dispatchers dispatchers = mock(Dispatchers.class);
 
-  private WsActionTester ws;
-
-  @Before
-  public void setUp() {
-    NotificationDispatcherMetadata metadata1 = NotificationDispatcherMetadata.create(NOTIF_MY_NEW_ISSUES)
-      .setProperty(GLOBAL_NOTIFICATION, "true")
-      .setProperty(PER_PROJECT_NOTIFICATION, "true");
-    NotificationDispatcherMetadata metadata2 = NotificationDispatcherMetadata.create(NOTIF_NEW_ISSUES)
-      .setProperty(GLOBAL_NOTIFICATION, "true");
-    NotificationDispatcherMetadata metadata3 = NotificationDispatcherMetadata.create(NOTIF_NEW_QUALITY_GATE_STATUS)
-      .setProperty(GLOBAL_NOTIFICATION, "true")
-      .setProperty(PER_PROJECT_NOTIFICATION, "true");
-
-    user = db.users().insertUser();
-    userSession = UserSessionRule.standalone().logIn(user);
-
-    NotificationCenter notificationCenter = new NotificationCenter(
-      new NotificationDispatcherMetadata[] {metadata1, metadata2, metadata3},
-      new NotificationChannel[] {emailChannel, twitterChannel});
-    notificationUpdater = new NotificationUpdater(dbClient);
-    ListAction underTest = new ListAction(notificationCenter, dbClient, userSession);
-    ws = new WsActionTester(underTest);
-  }
+  private WsActionTester ws = new WsActionTester(new ListAction(new NotificationCenter(
+    new NotificationDispatcherMetadata[] {},
+    new NotificationChannel[] {emailChannel, twitterChannel}),
+    dbClient, userSession, dispatchers));
 
   @Test
   public void channels() {
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user);
+
     ListResponse result = call();
 
     assertThat(result.getChannelsList()).containsExactly(emailChannel.getKey(), twitterChannel.getKey());
@@ -106,6 +89,10 @@ public class ListActionTest {
 
   @Test
   public void overall_dispatchers() {
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user);
+    when(dispatchers.getGlobalDispatchers()).thenReturn(asList(NOTIF_MY_NEW_ISSUES, NOTIF_NEW_ISSUES, NOTIF_NEW_QUALITY_GATE_STATUS));
+
     ListResponse result = call();
 
     assertThat(result.getGlobalTypesList()).containsExactly(NOTIF_MY_NEW_ISSUES, NOTIF_NEW_ISSUES, NOTIF_NEW_QUALITY_GATE_STATUS);
@@ -113,6 +100,10 @@ public class ListActionTest {
 
   @Test
   public void per_project_dispatchers() {
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user);
+    when(dispatchers.getProjectDispatchers()).thenReturn(asList(NOTIF_MY_NEW_ISSUES, NOTIF_NEW_QUALITY_GATE_STATUS));
+
     ListResponse result = call();
 
     assertThat(result.getPerProjectTypesList()).containsExactly(NOTIF_MY_NEW_ISSUES, NOTIF_NEW_QUALITY_GATE_STATUS);
@@ -120,7 +111,12 @@ public class ListActionTest {
 
   @Test
   public void filter_unauthorized_projects() {
-    ComponentDto project = addComponent(ComponentTesting.newPrivateProjectDto(db.organizations().insert()).setDbKey("K1"));
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user);
+    when(dispatchers.getGlobalDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
+    when(dispatchers.getProjectDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
+    ComponentDto project = db.components().insertPrivateProject();
+    db.users().insertProjectPermissionOnUser(user, USER, project);
     ComponentDto anotherProject = db.components().insertPrivateProject();
     notificationUpdater.add(dbSession, emailChannel.getKey(), NOTIF_MY_NEW_ISSUES, user, project);
     notificationUpdater.add(dbSession, emailChannel.getKey(), NOTIF_MY_NEW_ISSUES, user, anotherProject);
@@ -128,11 +124,14 @@ public class ListActionTest {
 
     ListResponse result = call();
 
-    assertThat(result.getNotificationsList()).extracting(Notification::getProject).containsOnly("K1");
+    assertThat(result.getNotificationsList()).extracting(Notification::getProject).containsOnly(project.getKey());
   }
 
   @Test
   public void filter_channels() {
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user);
+    when(dispatchers.getGlobalDispatchers()).thenReturn(asList(NOTIF_MY_NEW_ISSUES, NOTIF_NEW_ISSUES, NOTIF_NEW_QUALITY_GATE_STATUS));
     notificationUpdater.add(dbSession, emailChannel.getKey(), NOTIF_MY_NEW_ISSUES, user, null);
     notificationUpdater.add(dbSession, "Unknown Channel", NOTIF_MY_NEW_ISSUES, user, null);
     dbSession.commit();
@@ -144,6 +143,9 @@ public class ListActionTest {
 
   @Test
   public void filter_overall_dispatchers() {
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user);
+    when(dispatchers.getGlobalDispatchers()).thenReturn(asList(NOTIF_MY_NEW_ISSUES, NOTIF_NEW_ISSUES, NOTIF_NEW_QUALITY_GATE_STATUS));
     notificationUpdater.add(dbSession, emailChannel.getKey(), NOTIF_MY_NEW_ISSUES, user, null);
     notificationUpdater.add(dbSession, emailChannel.getKey(), "Unknown Notification", user, null);
     dbSession.commit();
@@ -155,7 +157,11 @@ public class ListActionTest {
 
   @Test
   public void filter_per_project_dispatchers() {
-    ComponentDto project = addComponent(ComponentTesting.newPrivateProjectDto(db.organizations().insert()).setDbKey("K1"));
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user);
+    when(dispatchers.getProjectDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
+    ComponentDto project = db.components().insertPrivateProject();
+    db.users().insertProjectPermissionOnUser(user, USER, project);
     notificationUpdater.add(dbSession, emailChannel.getKey(), NOTIF_MY_NEW_ISSUES, user, project);
     notificationUpdater.add(dbSession, emailChannel.getKey(), "Unknown Notification", user, project);
     dbSession.commit();
@@ -169,8 +175,13 @@ public class ListActionTest {
 
   @Test
   public void order_with_global_then_by_channel_and_dispatcher() {
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user);
+    when(dispatchers.getGlobalDispatchers()).thenReturn(asList(NOTIF_MY_NEW_ISSUES, NOTIF_NEW_ISSUES, NOTIF_NEW_QUALITY_GATE_STATUS));
+    when(dispatchers.getProjectDispatchers()).thenReturn(asList(NOTIF_MY_NEW_ISSUES, NOTIF_NEW_QUALITY_GATE_STATUS));
     OrganizationDto organization = db.organizations().insert();
-    ComponentDto project = addComponent(ComponentTesting.newPrivateProjectDto(organization).setDbKey("K1"));
+    ComponentDto project = db.components().insertPrivateProject(organization);
+    db.users().insertProjectPermissionOnUser(user, USER, project);
     notificationUpdater.add(dbSession, twitterChannel.getKey(), NOTIF_MY_NEW_ISSUES, user, null);
     notificationUpdater.add(dbSession, emailChannel.getKey(), NOTIF_MY_NEW_ISSUES, user, null);
     notificationUpdater.add(dbSession, emailChannel.getKey(), NOTIF_NEW_ISSUES, user, null);
@@ -187,15 +198,16 @@ public class ListActionTest {
         tuple(emailChannel.getKey(), "", NOTIF_MY_NEW_ISSUES, ""),
         tuple(emailChannel.getKey(), "", NOTIF_NEW_ISSUES, ""),
         tuple(twitterChannel.getKey(), "", NOTIF_MY_NEW_ISSUES, ""),
-        tuple(emailChannel.getKey(), organization.getKey(), NOTIF_MY_NEW_ISSUES, "K1"),
-        tuple(emailChannel.getKey(), organization.getKey(), NOTIF_NEW_QUALITY_GATE_STATUS, "K1"),
-        tuple(twitterChannel.getKey(), organization.getKey(), NOTIF_MY_NEW_ISSUES, "K1"));
+        tuple(emailChannel.getKey(), organization.getKey(), NOTIF_MY_NEW_ISSUES, project.getKey()),
+        tuple(emailChannel.getKey(), organization.getKey(), NOTIF_NEW_QUALITY_GATE_STATUS, project.getKey()),
+        tuple(twitterChannel.getKey(), organization.getKey(), NOTIF_MY_NEW_ISSUES, project.getKey()));
   }
 
   @Test
   public void list_user_notifications_as_system_admin() {
-    userSession.logIn().setSystemAdministrator();
-
+    UserDto user = db.users().insertUser();
+    when(dispatchers.getGlobalDispatchers()).thenReturn(asList(NOTIF_MY_NEW_ISSUES, NOTIF_NEW_ISSUES, NOTIF_NEW_QUALITY_GATE_STATUS));
+    userSession.logIn(user).setSystemAdministrator();
     notificationUpdater.add(dbSession, emailChannel.getKey(), NOTIF_MY_NEW_ISSUES, user, null);
     notificationUpdater.add(dbSession, emailChannel.getKey(), NOTIF_NEW_ISSUES, user, null);
     dbSession.commit();
@@ -209,7 +221,9 @@ public class ListActionTest {
 
   @Test
   public void fail_if_login_and_not_system_admin() {
-    userSession.logIn().setNonSystemAdministrator();
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user).setNonSystemAdministrator();
+    when(dispatchers.getGlobalDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
     notificationUpdater.add(dbSession, emailChannel.getKey(), NOTIF_MY_NEW_ISSUES, user, null);
     dbSession.commit();
 
@@ -230,8 +244,13 @@ public class ListActionTest {
 
   @Test
   public void json_example() {
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user);
+    when(dispatchers.getGlobalDispatchers()).thenReturn(asList(NOTIF_MY_NEW_ISSUES, NOTIF_NEW_ISSUES, NOTIF_NEW_QUALITY_GATE_STATUS));
+    when(dispatchers.getProjectDispatchers()).thenReturn(asList(NOTIF_MY_NEW_ISSUES, NOTIF_NEW_QUALITY_GATE_STATUS));
     OrganizationDto organization = db.organizations().insertForKey("my-org-1");
-    ComponentDto project = addComponent(ComponentTesting.newPrivateProjectDto(organization).setDbKey(KEY_PROJECT_EXAMPLE_001).setName("My Project"));
+    ComponentDto project = db.components().insertPrivateProject(organization, p -> p.setDbKey(KEY_PROJECT_EXAMPLE_001).setName("My Project"));
+    db.users().insertProjectPermissionOnUser(user, USER, project);
     notificationUpdater.add(dbSession, twitterChannel.getKey(), NOTIF_MY_NEW_ISSUES, user, null);
     notificationUpdater.add(dbSession, emailChannel.getKey(), NOTIF_MY_NEW_ISSUES, user, null);
     notificationUpdater.add(dbSession, emailChannel.getKey(), NOTIF_NEW_ISSUES, user, null);
@@ -277,14 +296,6 @@ public class ListActionTest {
 
   private ListResponse call(String login) {
     return ws.newRequest().setParam("login", login).executeProtobuf(ListResponse.class);
-  }
-
-  private ComponentDto addComponent(ComponentDto component) {
-    db.components().insertComponent(component);
-    dbClient.userPermissionDao().insert(dbSession, new UserPermissionDto(component.getOrganizationUuid(), UserRole.USER, user.getId(), component.getId()));
-    db.commit();
-
-    return component;
   }
 
   private static class FakeNotificationChannel extends NotificationChannel {

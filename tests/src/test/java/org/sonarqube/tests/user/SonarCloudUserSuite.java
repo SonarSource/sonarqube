@@ -17,19 +17,31 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.notification.ws;
 
-import org.sonar.core.platform.Module;
+package org.sonarqube.tests.user;
 
-public class NotificationWsModule extends Module {
-  @Override
-  protected void configureModule() {
-    add(
-      DispatchersImpl.class,
-      // WS
-      NotificationsWs.class,
-      AddAction.class,
-      RemoveAction.class,
-      ListAction.class);
-  }
+import com.sonar.orchestrator.Orchestrator;
+import org.junit.ClassRule;
+import org.junit.runner.RunWith;
+import org.junit.runners.Suite;
+
+import static util.ItUtils.xooPlugin;
+
+@RunWith(Suite.class)
+@Suite.SuiteClasses({
+  SonarCloudNotificationsWsTest.class
+})
+public class SonarCloudUserSuite {
+
+  @ClassRule
+  public static final Orchestrator ORCHESTRATOR = Orchestrator.builderEnv()
+    .addPlugin(xooPlugin())
+
+    .setServerProperty("sonar.sonarcloud.enabled", "true")
+
+    // reduce memory for Elasticsearch
+    .setServerProperty("sonar.search.javaOpts", "-Xms128m -Xmx128m")
+
+    .build();
+
 }

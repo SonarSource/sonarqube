@@ -33,7 +33,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonarqube.qa.util.Tester;
 import org.sonarqube.qa.util.pageobjects.Navigation;
-import org.sonarqube.tests.Category4Suite;
 import org.sonarqube.ws.Users.SearchWsResponse.User;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.permissions.AddUserRequest;
@@ -50,7 +49,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class OAuth2IdentityProviderTest {
 
   @ClassRule
-  public static Orchestrator orchestrator = Category4Suite.ORCHESTRATOR;
+  public static Orchestrator orchestrator = UserSuite.ORCHESTRATOR;
 
   private static String FAKE_PROVIDER_KEY = "fake-oauth2-id-provider";
 

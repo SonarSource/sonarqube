@@ -42,34 +42,30 @@ import org.sonar.server.ws.KeyExamples;
 
 import static java.util.Optional.empty;
 import static org.sonar.core.util.Protobuf.setNullable;
-import static org.sonar.core.util.stream.MoreCollectors.toList;
-import static org.sonar.server.notification.NotificationDispatcherMetadata.GLOBAL_NOTIFICATION;
-import static org.sonar.server.notification.NotificationDispatcherMetadata.PER_PROJECT_NOTIFICATION;
-import static org.sonar.server.ws.WsUtils.checkFound;
-import static org.sonar.server.ws.WsUtils.checkRequest;
 import static org.sonar.server.notification.ws.NotificationsWsParameters.ACTION_ADD;
 import static org.sonar.server.notification.ws.NotificationsWsParameters.PARAM_CHANNEL;
 import static org.sonar.server.notification.ws.NotificationsWsParameters.PARAM_LOGIN;
 import static org.sonar.server.notification.ws.NotificationsWsParameters.PARAM_PROJECT;
 import static org.sonar.server.notification.ws.NotificationsWsParameters.PARAM_TYPE;
+import static org.sonar.server.ws.WsUtils.checkFound;
+import static org.sonar.server.ws.WsUtils.checkRequest;
 
 public class AddAction implements NotificationsWsAction {
   private final NotificationCenter notificationCenter;
   private final NotificationUpdater notificationUpdater;
+  private final Dispatchers dispatchers;
   private final DbClient dbClient;
   private final ComponentFinder componentFinder;
   private final UserSession userSession;
-  private final List<String> globalDispatchers;
-  private final List<String> projectDispatchers;
 
-  public AddAction(NotificationCenter notificationCenter, NotificationUpdater notificationUpdater, DbClient dbClient, ComponentFinder componentFinder, UserSession userSession) {
+  public AddAction(NotificationCenter notificationCenter, NotificationUpdater notificationUpdater, Dispatchers dispatchers, DbClient dbClient, ComponentFinder componentFinder,
+    UserSession userSession) {
     this.notificationCenter = notificationCenter;
     this.notificationUpdater = notificationUpdater;
+    this.dispatchers = dispatchers;
     this.dbClient = dbClient;
     this.componentFinder = componentFinder;
     this.userSession = userSession;
-    this.globalDispatchers = notificationCenter.getDispatcherKeysForProperty(GLOBAL_NOTIFICATION, "true").stream().sorted().collect(toList());
-    this.projectDispatchers = notificationCenter.getDispatcherKeysForProperty(PER_PROJECT_NOTIFICATION, "true").stream().sorted().collect(toList());
   }
 
   @Override
@@ -101,8 +97,8 @@ public class AddAction implements NotificationsWsAction {
         "  <li>Global notifications: %s</li>" +
         "  <li>Per project notifications: %s</li>" +
         "</ul>",
-        String.join(", ", globalDispatchers),
-        String.join(", ", projectDispatchers))
+        String.join(", ", dispatchers.getGlobalDispatchers()),
+        String.join(", ", dispatchers.getProjectDispatchers()))
       .setRequired(true)
       .setExampleValue(MyNewIssuesNotificationDispatcher.KEY);
 
@@ -158,15 +154,15 @@ public class AddAction implements NotificationsWsAction {
     setNullable(request.param(PARAM_LOGIN), add::setLogin);
 
     if (add.getProject() == null) {
-      checkRequest(globalDispatchers.contains(add.getType()), "Value of parameter '%s' (%s) must be one of: %s",
+      checkRequest(dispatchers.getGlobalDispatchers().contains(add.getType()), "Value of parameter '%s' (%s) must be one of: %s",
         PARAM_TYPE,
         add.getType(),
-        globalDispatchers);
+        dispatchers.getGlobalDispatchers());
     } else {
-      checkRequest(projectDispatchers.contains(add.getType()), "Value of parameter '%s' (%s) must be one of: %s",
+      checkRequest(dispatchers.getProjectDispatchers().contains(add.getType()), "Value of parameter '%s' (%s) must be one of: %s",
         PARAM_TYPE,
         add.getType(),
-        projectDispatchers);
+        dispatchers.getProjectDispatchers());
     }
 
     return add;

@@ -36,13 +36,6 @@ import org.sonarqube.tests.serverSystem.ServerSystemTest;
 import org.sonarqube.tests.serverSystem.SystemInfoTest;
 import org.sonarqube.tests.ui.UiExtensionsTest;
 import org.sonarqube.tests.ui.UiTest;
-import org.sonarqube.tests.user.BaseIdentityProviderTest;
-import org.sonarqube.tests.user.FavoritesWsTest;
-import org.sonarqube.tests.user.ForceAuthenticationTest;
-import org.sonarqube.tests.user.LocalAuthenticationTest;
-import org.sonarqube.tests.user.MyAccountPageTest;
-import org.sonarqube.tests.user.OAuth2IdentityProviderTest;
-import org.sonarqube.tests.user.RootUserInStandaloneModeTest;
 import org.sonarqube.tests.ws.WsLocalCallTest;
 import org.sonarqube.tests.ws.WsTest;
 
@@ -56,20 +49,10 @@ import static util.ItUtils.xooPlugin;
 @Deprecated
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
-  // organization
-  RootUserInStandaloneModeTest.class,
   // server system
   ServerSystemTest.class,
   SystemInfoTest.class,
   PingTest.class,
-  // user
-  MyAccountPageTest.class,
-  FavoritesWsTest.class,
-  // authentication
-  ForceAuthenticationTest.class,
-  LocalAuthenticationTest.class,
-  BaseIdentityProviderTest.class,
-  OAuth2IdentityProviderTest.class,
   // analysis exclusion
   FileExclusionsTest.class,
   IssueExclusionsTest.class,
@@ -95,12 +78,6 @@ public class Category4Suite {
   public static final Orchestrator ORCHESTRATOR = Orchestrator.builderEnv()
     .addPlugin(xooPlugin())
 
-    // Used in BaseIdentityProviderTest
-    .addPlugin(pluginArtifact("base-auth-plugin"))
-
-    // Used in OAuth2IdentityProviderTest
-    .addPlugin(pluginArtifact("oauth2-auth-plugin"))
-
     // Used in UiExtensionsTest
     .addPlugin(pluginArtifact("ui-extensions-plugin"))
 
@@ -112,8 +89,6 @@ public class Category4Suite {
 
     // reduce memory for Elasticsearch to 128M
     .setServerProperty("sonar.search.javaOpts", "-Xms128m -Xmx128m")
-
-    .setServerProperty("sonar.web.javaAdditionalOpts", "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=8001")
 
     .build();
 }

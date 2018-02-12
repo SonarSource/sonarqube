@@ -24,7 +24,6 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
@@ -65,7 +64,6 @@ public class SearchActionTest {
   public DbTester db = DbTester.create();
 
   private DbClient dbClient = db.getDbClient();
-  private DbSession dbSession = db.getSession();
   private TestDefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
 
   private SearchAction underTest = new SearchAction(dbClient, userSession, new QualityGateFinder(dbClient),

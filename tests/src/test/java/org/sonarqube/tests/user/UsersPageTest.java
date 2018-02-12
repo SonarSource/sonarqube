@@ -28,7 +28,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonarqube.qa.util.Tester;
 import org.sonarqube.qa.util.pageobjects.UsersManagementPage;
-import org.sonarqube.tests.Category1Suite;
 import org.sonarqube.ws.Users;
 import org.sonarqube.ws.Users.CreateWsResponse.User;
 import org.sonarqube.ws.client.users.GroupsRequest;
@@ -42,7 +41,7 @@ public class UsersPageTest {
   private User adminUser;
 
   @ClassRule
-  public static Orchestrator orchestrator = Category1Suite.ORCHESTRATOR;
+  public static Orchestrator orchestrator = UserSuite.ORCHESTRATOR;
 
   @Rule
   public UserRule userRule = UserRule.from(orchestrator);

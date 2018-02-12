@@ -28,7 +28,6 @@ import org.sonarqube.tests.settings.DeprecatedPropertiesWsTest;
 import org.sonarqube.tests.settings.EmailsTest;
 import org.sonarqube.tests.settings.PropertySetsTest;
 import org.sonarqube.tests.settings.SettingsTest;
-import org.sonarqube.tests.user.UsersPageTest;
 
 import static util.ItUtils.pluginArtifact;
 import static util.ItUtils.xooPlugin;
@@ -40,7 +39,6 @@ import static util.ItUtils.xooPlugin;
 @Deprecated
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
-  UsersPageTest.class,
   BackgroundTasksTest.class,
   DeprecatedPropertiesWsTest.class,
   EmailsTest.class,
@@ -60,7 +58,6 @@ public class Category1Suite {
 
     // Used in SettingsTest.should_get_settings_default_value
     .addPlugin(pluginArtifact("server-plugin"))
-
 
     // Used in I18nTest
     .addPlugin(pluginArtifact("l10n-fr-pack"))

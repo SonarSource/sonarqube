@@ -43,7 +43,7 @@ case "$RUN_ACTIVITY" in
           ;;
 
         Category4)
-          CATEGORY="Category4|duplication"
+          CATEGORY="Category4|duplication|user"
           ;;
 
         Category5)
