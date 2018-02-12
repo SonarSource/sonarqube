@@ -34,6 +34,7 @@ public class DbVersion71 implements DbVersion {
       .add(2004, "Use rule id in QPROFILE_CHANGES", UseRuleIdInQPChangesData.class)
       .add(2005, "Create table DEPRECATED_RULE_KEYS", CreateDeprecatedRuleKeysTable.class)
       .add(2006, "Clean orphans in Compute Engine child tables", CleanCeChildTablesOrphans.class)
+      .add(2007, "Update PERMISSION_TEMPLATES.KEYS ", UpdatePermissionTooLongTemplateKeys.class)
     ;
   }
 }
