@@ -35,6 +35,11 @@ public class DbVersion71 implements DbVersion {
       .add(2005, "Create table DEPRECATED_RULE_KEYS", CreateDeprecatedRuleKeysTable.class)
       .add(2006, "Clean orphans in Compute Engine child tables", CleanCeChildTablesOrphans.class)
       .add(2007, "Update PERMISSION_TEMPLATES.KEYS ", UpdatePermissionTooLongTemplateKeys.class)
+      .add(2008, "Make scope not nullable in rules", MakeScopeNotNullableInRules.class)
+      .add(2009, "Create table PROJECT_LINKS2", CreateTableProjectLinks2.class)
+      .add(2010, "Populate table PROJECT_LINKS2", PopulateTableProjectLinks2.class)
+      .add(2011, "Drop table PROJECT_LINKS", DropTableProjectLinks.class)
+      .add(2012, "Rename table PROJECT_LINKS2 to PROJECT_LINKS", RenameTableProjectLinks2ToProjectLinks.class)
     ;
   }
 }

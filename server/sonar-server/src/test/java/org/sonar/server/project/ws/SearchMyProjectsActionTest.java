@@ -34,8 +34,8 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.ComponentLinkDto;
 import org.sonar.db.component.ComponentTesting;
+import org.sonar.db.component.ProjectLinkDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.organization.OrganizationDto;
@@ -87,10 +87,8 @@ public class SearchMyProjectsActionTest {
     OrganizationDto organizationDto = db.organizations().insert();
     ComponentDto jdk7 = insertJdk7(organizationDto);
     ComponentDto cLang = insertClang(organizationDto);
-    dbClient.componentLinkDao().insert(dbSession,
-      new ComponentLinkDto().setComponentUuid(jdk7.uuid()).setHref("http://www.oracle.com").setType(ComponentLinkDto.TYPE_HOME_PAGE).setName("Home"));
-    dbClient.componentLinkDao().insert(dbSession,
-      new ComponentLinkDto().setComponentUuid(jdk7.uuid()).setHref("http://download.java.net/openjdk/jdk8/").setType(ComponentLinkDto.TYPE_SOURCES).setName("Sources"));
+    db.componentLinks().insertProvidedLink(jdk7, l -> l.setHref("http://www.oracle.com").setType(ProjectLinkDto.TYPE_HOME_PAGE).setName("Home"));
+    db.componentLinks().insertProvidedLink(jdk7, l -> l.setHref("http://download.java.net/openjdk/jdk8/").setType(ProjectLinkDto.TYPE_SOURCES).setName("Sources"));
     long oneTime = DateUtils.parseDateTime("2016-06-10T13:17:53+0000").getTime();
     long anotherTime = DateUtils.parseDateTime("2016-06-11T14:25:53+0000").getTime();
     SnapshotDto jdk7Snapshot = dbClient.snapshotDao().insert(dbSession, newAnalysis(jdk7).setCreatedAt(oneTime));

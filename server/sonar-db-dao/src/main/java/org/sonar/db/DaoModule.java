@@ -32,7 +32,7 @@ import org.sonar.db.component.AnalysisPropertiesDao;
 import org.sonar.db.component.BranchDao;
 import org.sonar.db.component.ComponentDao;
 import org.sonar.db.component.ComponentKeyUpdaterDao;
-import org.sonar.db.component.ComponentLinkDao;
+import org.sonar.db.component.ProjectLinkDao;
 import org.sonar.db.component.SnapshotDao;
 import org.sonar.db.duplication.DuplicationDao;
 import org.sonar.db.es.EsQueueDao;
@@ -92,7 +92,7 @@ public class DaoModule extends Module {
     CeTaskInputDao.class,
     ComponentDao.class,
     ComponentKeyUpdaterDao.class,
-    ComponentLinkDao.class,
+    ProjectLinkDao.class,
     LiveMeasureDao.class,
     CustomMeasureDao.class,
     DefaultQProfileDao.class,

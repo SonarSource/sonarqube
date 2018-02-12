@@ -28,7 +28,7 @@ import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.ComponentLinkDto;
+import org.sonar.db.component.ProjectLinkDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.ProjectLinks.Link;
@@ -36,12 +36,13 @@ import org.sonarqube.ws.ProjectLinks.SearchWsResponse;
 
 import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
-import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
-import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
-import static org.sonar.server.ws.WsUtils.writeProtobuf;
+import static org.sonar.server.projectlink.ws.ProjectLinksWs.checkProject;
 import static org.sonar.server.projectlink.ws.ProjectLinksWsParameters.ACTION_SEARCH;
 import static org.sonar.server.projectlink.ws.ProjectLinksWsParameters.PARAM_PROJECT_ID;
 import static org.sonar.server.projectlink.ws.ProjectLinksWsParameters.PARAM_PROJECT_KEY;
+import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
+import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
+import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class SearchAction implements ProjectLinksWsAction {
   private final DbClient dbClient;
@@ -67,7 +68,7 @@ public class SearchAction implements ProjectLinksWsAction {
         "</ul>",
         PARAM_PROJECT_ID, PARAM_PROJECT_KEY)
       .setHandler(this)
-      .setResponseExample(getClass().getResource("list-example.json"))
+      .setResponseExample(getClass().getResource("search-example.json"))
       .setSince("6.1");
 
     action.createParam(PARAM_PROJECT_ID)
@@ -90,13 +91,13 @@ public class SearchAction implements ProjectLinksWsAction {
   private SearchWsResponse doHandle(SearchRequest searchWsRequest) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       ComponentDto component = getComponentByUuidOrKey(dbSession, searchWsRequest);
-      List<ComponentLinkDto> links = dbClient.componentLinkDao()
-        .selectByComponentUuid(dbSession, component.uuid());
+      List<ProjectLinkDto> links = dbClient.projectLinkDao()
+        .selectByProjectUuid(dbSession, component.uuid());
       return buildResponse(links);
     }
   }
 
-  private static SearchWsResponse buildResponse(List<ComponentLinkDto> links) {
+  private static SearchWsResponse buildResponse(List<ProjectLinkDto> links) {
     return SearchWsResponse.newBuilder()
       .addAllLinks(links.stream()
         .map(SearchAction::buildLink)
@@ -104,28 +105,26 @@ public class SearchAction implements ProjectLinksWsAction {
       .build();
   }
 
-  private static Link buildLink(ComponentLinkDto link) {
+  private static Link buildLink(ProjectLinkDto link) {
     Link.Builder builder = Link.newBuilder()
-      .setId(String.valueOf(link.getId()))
+      .setId(String.valueOf(link.getUuid()))
+      .setType(link.getType())
       .setUrl(link.getHref());
     setNullable(link.getName(), builder::setName);
-    setNullable(link.getType(), builder::setType);
     return builder.build();
   }
 
   private ComponentDto getComponentByUuidOrKey(DbSession dbSession, SearchRequest request) {
-    ComponentDto component = componentFinder.getRootComponentByUuidOrKey(
+    ComponentDto component = componentFinder.getByUuidOrKey(
       dbSession,
       request.getProjectId(),
       request.getProjectKey(),
       ComponentFinder.ParamNames.PROJECT_ID_AND_KEY);
-
     if (!userSession.hasComponentPermission(UserRole.ADMIN, component) &&
       !userSession.hasComponentPermission(UserRole.USER, component)) {
       throw insufficientPrivilegesException();
     }
-
-    return component;
+    return checkProject(component);
   }
 
   private static SearchRequest toSearchWsRequest(Request request) {

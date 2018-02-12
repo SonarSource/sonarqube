@@ -19,23 +19,19 @@
  */
 package org.sonar.server.projectlink.ws;
 
-import java.io.IOException;
 import java.util.Random;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.ComponentLinkDto;
 import org.sonar.db.component.ComponentTesting;
+import org.sonar.db.component.ProjectLinkDto;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -49,17 +45,11 @@ import org.sonarqube.ws.ProjectLinks.SearchWsResponse;
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
-import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
-import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
-import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
-import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonar.server.projectlink.ws.ProjectLinksWsParameters.PARAM_PROJECT_ID;
 import static org.sonar.server.projectlink.ws.ProjectLinksWsParameters.PARAM_PROJECT_KEY;
+import static org.sonar.test.JsonAssert.assertJson;
 
 public class SearchActionTest {
-
-  private final String PROJECT_KEY = KEY_PROJECT_EXAMPLE_001;
-  private final String PROJECT_UUID = UUID_EXAMPLE_01;
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
@@ -69,125 +59,120 @@ public class SearchActionTest {
   public DbTester db = DbTester.create(System2.INSTANCE);
 
   private DbClient dbClient = db.getDbClient();
-  private DbSession dbSession = db.getSession();
-  private ComponentDbTester componentDb = new ComponentDbTester(db);
 
-  private SearchAction underTest;
-  private WsActionTester ws;
-
-  @Before
-  public void setUp() {
-    ComponentFinder componentFinder = TestComponentFinder.from(db);
-    underTest = new SearchAction(dbClient, userSession, componentFinder);
-    ws = new WsActionTester(underTest);
-  }
+  private WsActionTester ws = new WsActionTester(new SearchAction(dbClient, userSession, TestComponentFinder.from(db)));
 
   @Test
   public void example() {
-    ComponentDto project = insertProject();
-    insertHomepageLink(project.uuid());
-    insertCustomLink(project.uuid());
+    ComponentDto project = db.components().insertPrivateProject();
+    db.componentLinks().insertProvidedLink(project, l -> l.setUuid("1").setType("homepage").setName("Homepage").setHref("http://example.org"));
+    db.componentLinks().insertCustomLink(project, l -> l.setUuid("2").setType("custom").setName("Custom").setHref("http://example.org/custom"));
     logInAsProjectAdministrator(project);
 
     String result = ws.newRequest()
-      .setParam(PARAM_PROJECT_KEY, PROJECT_KEY)
+      .setParam(PARAM_PROJECT_KEY, project.getKey())
       .execute().getInput();
 
-    assertJson(result).ignoreFields("id").isSimilarTo(getClass().getResource("list-example.json"));
+    assertJson(result).isSimilarTo(getClass().getResource("search-example.json"));
   }
 
   @Test
-  public void request_by_project_id() throws IOException {
-    ComponentDto project = insertProject();
-    insertHomepageLink(project.uuid());
+  public void request_by_project_id() {
+    ComponentDto project = db.components().insertPrivateProject();
+    ProjectLinkDto link = db.componentLinks().insertCustomLink(project);
     logInAsProjectAdministrator(project);
 
     SearchWsResponse response = callByUuid(project.uuid());
 
-    assertThat(response.getLinksCount()).isEqualTo(1);
-    assertThat(response.getLinks(0).getName()).isEqualTo("Homepage");
+    assertThat(response.getLinksList())
+      .extracting(Link::getId, Link::getName)
+      .containsExactlyInAnyOrder(tuple(link.getUuid(), link.getName()));
   }
 
   @Test
-  public void request_by_project_key() throws IOException {
-    ComponentDto project = insertProject();
-    insertHomepageLink(project.uuid());
+  public void request_by_project_key() {
+    ComponentDto project = db.components().insertPrivateProject();
+    ProjectLinkDto link = db.componentLinks().insertCustomLink(project);
     logInAsProjectAdministrator(project);
 
-    SearchWsResponse response = callByKey(project.getDbKey());
+    SearchWsResponse response = callByKey(project.getKey());
 
-    assertThat(response.getLinksCount()).isEqualTo(1);
-    assertThat(response.getLinks(0).getName()).isEqualTo("Homepage");
+    assertThat(response.getLinksList())
+      .extracting(Link::getId, Link::getName)
+      .containsExactlyInAnyOrder(tuple(link.getUuid(), link.getName()));
   }
 
   @Test
-  public void response_fields() throws IOException {
-    ComponentDto project = insertProject();
-    ComponentLinkDto homepageLink = insertHomepageLink(project.uuid());
-    ComponentLinkDto customLink = insertCustomLink(project.uuid());
+  public void response_fields() {
+    ComponentDto project = db.components().insertPrivateProject();
+    ProjectLinkDto homepageLink = db.componentLinks().insertProvidedLink(project);
+    ProjectLinkDto customLink = db.componentLinks().insertCustomLink(project);
     logInAsProjectAdministrator(project);
 
-    SearchWsResponse response = callByKey(project.getDbKey());
+    SearchWsResponse response = callByKey(project.getKey());
 
-    assertThat(response.getLinksCount()).isEqualTo(2);
     assertThat(response.getLinksList()).extracting(Link::getId, Link::getName, Link::getType, Link::getUrl)
-      .containsOnlyOnce(
-        tuple(homepageLink.getIdAsString(), homepageLink.getName(), homepageLink.getType(), homepageLink.getHref()),
-        tuple(customLink.getIdAsString(), customLink.getName(), customLink.getType(), customLink.getHref()));
+      .containsExactlyInAnyOrder(
+        tuple(homepageLink.getUuid(), "", homepageLink.getType(), homepageLink.getHref()),
+        tuple(customLink.getUuid(), customLink.getName(), customLink.getType(), customLink.getHref()));
   }
 
   @Test
-  public void several_projects() throws IOException {
-    ComponentDto project1 = insertProject();
-    ComponentDto project2 = insertProject("another", "abcd");
-    ComponentLinkDto customLink1 = insertCustomLink(project1.uuid());
-    insertCustomLink(project2.uuid());
+  public void several_projects() {
+    ComponentDto project1 = db.components().insertPrivateProject();
+    ComponentDto project2 = db.components().insertPrivateProject();
+    ProjectLinkDto link1 = db.componentLinks().insertCustomLink(project1);
+    ProjectLinkDto link2 = db.componentLinks().insertCustomLink(project2);
     userSession.logIn().setRoot();
 
-    SearchWsResponse response = callByKey(project1.getDbKey());
+    SearchWsResponse response = callByKey(project1.getKey());
 
-    assertThat(response.getLinksCount()).isEqualTo(1);
-    assertThat(response.getLinks(0).getId()).isEqualTo(customLink1.getIdAsString());
+    assertThat(response.getLinksList())
+      .extracting(Link::getId, Link::getName)
+      .containsExactlyInAnyOrder(tuple(link1.getUuid(), link1.getName()));
   }
 
   @Test
-  public void request_does_not_fail_when_link_has_no_name() throws IOException {
+  public void request_does_not_fail_when_link_has_no_name() {
     ComponentDto project = db.components().insertPrivateProject();
-    ComponentLinkDto foo = new ComponentLinkDto().setComponentUuid(project.uuid()).setHref("foo").setType("type");
-    insertLink(foo);
+    ProjectLinkDto link = db.componentLinks().insertProvidedLink(project);
     logInAsProjectAdministrator(project);
 
-    callByKey(project.getDbKey());
+    SearchWsResponse response = callByKey(project.getKey());
+
+    assertThat(response.getLinksList())
+      .extracting(Link::getId, Link::hasName)
+      .containsExactlyInAnyOrder(tuple(link.getUuid(), false));
   }
 
   @Test
-  public void request_does_not_fail_when_link_has_no_type() throws IOException {
+  public void project_administrator_can_search_for_links() {
     ComponentDto project = db.components().insertPrivateProject();
-    ComponentLinkDto foo = new ComponentLinkDto().setComponentUuid(project.uuid()).setHref("foo").setName("name");
-    insertLink(foo);
-    logInAsProjectAdministrator(project);
-
-    callByKey(project.getDbKey());
-  }
-
-  @Test
-  public void project_administrator_can_search_for_links() throws IOException {
-    ComponentDto project = insertProject();
+    ProjectLinkDto link = db.componentLinks().insertCustomLink(project);
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
 
-    checkItWorks(project);
+    SearchWsResponse response = callByKey(project.getKey());
+
+    assertThat(response.getLinksList())
+      .extracting(Link::getId, Link::getName)
+      .containsExactlyInAnyOrder(tuple(link.getUuid(), link.getName()));
   }
 
   @Test
-  public void project_user_can_search_for_links() throws IOException {
-    ComponentDto project = insertProject();
+  public void project_user_can_search_for_links() {
+    ComponentDto project = db.components().insertPrivateProject();
+    ProjectLinkDto link = db.componentLinks().insertCustomLink(project);
     userSession.logIn().addProjectPermission(UserRole.USER, project);
 
-    checkItWorks(project);
+    SearchWsResponse response = callByKey(project.getKey());
+
+    assertThat(response.getLinksList())
+      .extracting(Link::getId, Link::getName)
+      .containsExactlyInAnyOrder(tuple(link.getUuid(), link.getName()));
   }
 
   @Test
-  public void fail_when_no_project() throws IOException {
+  public void fail_when_no_project() {
     expectedException.expect(NotFoundException.class);
     callByKey("unknown");
   }
@@ -214,56 +199,41 @@ public class SearchActionTest {
   }
 
   @Test
-  public void fail_if_subview() {
+  public void fail_if_view() {
     ComponentDto view = db.components().insertView();
-    ComponentDto subview = db.components().insertComponent(ComponentTesting.newSubView(view));
-    failIfNotAProject(view, subview);
-  }
-
-  private void failIfNotAProject(ComponentDto root, ComponentDto component) {
-    userSession.logIn().addProjectPermission(UserRole.ADMIN, root);
-
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Component '" + component.getDbKey() + "' (id: " + component.uuid() + ") must be a project");
-
-    TestRequest testRequest = ws.newRequest();
-    if (new Random().nextBoolean()) {
-      testRequest.setParam(PARAM_PROJECT_KEY, component.getDbKey());
-    } else {
-      testRequest.setParam(PARAM_PROJECT_ID, component.uuid());
-    }
-    testRequest.execute();
+    failIfNotAProject(view, view);
   }
 
   @Test
-  public void fail_if_insufficient_privileges() throws IOException {
+  public void fail_if_insufficient_privileges() {
     userSession.anonymous();
-    insertProject();
+    ComponentDto project = db.components().insertPrivateProject();
 
     expectedException.expect(ForbiddenException.class);
-    callByKey(PROJECT_KEY);
+
+    callByKey(project.getKey());
   }
 
   @Test
   public void fail_when_both_id_and_key_are_provided() {
-    ComponentDto project = insertProject();
+    ComponentDto project = db.components().insertPrivateProject();
     logInAsProjectAdministrator(project);
 
     expectedException.expect(IllegalArgumentException.class);
     ws.newRequest()
-      .setParam(PARAM_PROJECT_KEY, project.getDbKey())
+      .setParam(PARAM_PROJECT_KEY, project.getKey())
       .setParam(PARAM_PROJECT_ID, project.uuid())
       .execute();
   }
 
   @Test
   public void fail_when_no_id_nor_key_are_provided() {
-    insertProject();
+    ComponentDto project = db.components().insertPrivateProject();
 
     expectedException.expect(IllegalArgumentException.class);
     ws.newRequest()
-      .setParam(PARAM_PROJECT_KEY, PROJECT_KEY)
-      .setParam(PARAM_PROJECT_ID, PROJECT_UUID)
+      .setParam(PARAM_PROJECT_KEY, project.getKey())
+      .setParam(PARAM_PROJECT_ID, project.uuid())
       .execute();
   }
 
@@ -275,7 +245,7 @@ public class SearchActionTest {
     ComponentDto branch = db.components().insertProjectBranch(project);
 
     expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage(format("Project key '%s' not found", branch.getDbKey()));
+    expectedException.expectMessage(format("Component key '%s' not found", branch.getDbKey()));
 
     ws.newRequest()
       .setParam(PARAM_PROJECT_KEY, branch.getDbKey())
@@ -290,44 +260,21 @@ public class SearchActionTest {
     ComponentDto branch = db.components().insertProjectBranch(project);
 
     expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage(format("Project id '%s' not found", branch.uuid()));
+    expectedException.expectMessage(format("Component id '%s' not found", branch.uuid()));
 
     ws.newRequest()
       .setParam(PARAM_PROJECT_ID, branch.uuid())
       .execute();
   }
 
-  private ComponentDto insertProject(String projectKey, String projectUuid) {
-    return componentDb.insertComponent(newPrivateProjectDto(db.organizations().insert(), projectUuid).setDbKey(projectKey));
-  }
-
-  private ComponentDto insertProject() {
-    return insertProject(PROJECT_KEY, PROJECT_UUID);
-  }
-
-  private void insertLink(ComponentLinkDto linkDto) {
-    dbClient.componentLinkDao().insert(dbSession, linkDto);
-    dbSession.commit();
-  }
-
-  private ComponentLinkDto insertHomepageLink(String projectUuid) {
-    ComponentLinkDto link = new ComponentLinkDto()
-      .setComponentUuid(projectUuid)
-      .setName("Homepage")
-      .setType("homepage")
-      .setHref("http://example.org");
-    insertLink(link);
-    return link;
-  }
-
-  private ComponentLinkDto insertCustomLink(String projectUuid) {
-    ComponentLinkDto link = new ComponentLinkDto()
-      .setComponentUuid(projectUuid)
-      .setName("Custom")
-      .setType("Custom")
-      .setHref("http://example.org/custom");
-    insertLink(link);
-    return link;
+  @Test
+  public void define_search_action() {
+    WebService.Action action = ws.getDef();
+    assertThat(action).isNotNull();
+    assertThat(action.isPost()).isFalse();
+    assertThat(action.handler()).isNotNull();
+    assertThat(action.responseExampleAsString()).isNotEmpty();
+    assertThat(action.params()).hasSize(2);
   }
 
   private SearchWsResponse callByKey(String projectKey) {
@@ -342,14 +289,22 @@ public class SearchActionTest {
       .executeProtobuf(SearchWsResponse.class);
   }
 
-  private void checkItWorks(ComponentDto project) throws IOException {
-    insertHomepageLink(project.uuid());
-    SearchWsResponse response = callByKey(project.getDbKey());
-    assertThat(response.getLinksCount()).isEqualTo(1);
-    assertThat(response.getLinks(0).getName()).isEqualTo("Homepage");
-  }
-
   private void logInAsProjectAdministrator(ComponentDto project) {
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
+  }
+
+  private void failIfNotAProject(ComponentDto root, ComponentDto component) {
+    userSession.logIn().addProjectPermission(UserRole.ADMIN, root);
+
+    expectedException.expect(BadRequestException.class);
+    expectedException.expectMessage("Component '" + component.getKey() + "' must be a project");
+
+    TestRequest testRequest = ws.newRequest();
+    if (new Random().nextBoolean()) {
+      testRequest.setParam(PARAM_PROJECT_KEY, component.getDbKey());
+    } else {
+      testRequest.setParam(PARAM_PROJECT_ID, component.uuid());
+    }
+    testRequest.execute();
   }
 }

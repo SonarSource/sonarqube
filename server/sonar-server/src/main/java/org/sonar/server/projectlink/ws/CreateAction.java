@@ -23,10 +23,11 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.web.UserRole;
+import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.ComponentLinkDto;
+import org.sonar.db.component.ProjectLinkDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.ProjectLinks;
@@ -34,27 +35,30 @@ import org.sonarqube.ws.ProjectLinks.CreateWsResponse;
 
 import static org.sonar.core.util.Slug.slugify;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
-import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
-import static org.sonar.server.ws.WsUtils.writeProtobuf;
+import static org.sonar.server.projectlink.ws.ProjectLinksWs.checkProject;
 import static org.sonar.server.projectlink.ws.ProjectLinksWsParameters.ACTION_CREATE;
 import static org.sonar.server.projectlink.ws.ProjectLinksWsParameters.PARAM_NAME;
 import static org.sonar.server.projectlink.ws.ProjectLinksWsParameters.PARAM_PROJECT_ID;
 import static org.sonar.server.projectlink.ws.ProjectLinksWsParameters.PARAM_PROJECT_KEY;
 import static org.sonar.server.projectlink.ws.ProjectLinksWsParameters.PARAM_URL;
+import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
+import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class CreateAction implements ProjectLinksWsAction {
   private final DbClient dbClient;
   private final UserSession userSession;
   private final ComponentFinder componentFinder;
+  private final UuidFactory uuidFactory;
 
   private static final int LINK_NAME_MAX_LENGTH = 128;
   private static final int LINK_URL_MAX_LENGTH = 2048;
   private static final int LINK_TYPE_MAX_LENGTH = 20;
 
-  public CreateAction(DbClient dbClient, UserSession userSession, ComponentFinder componentFinder) {
+  public CreateAction(DbClient dbClient, UserSession userSession, ComponentFinder componentFinder, UuidFactory uuidFactory) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.componentFinder = componentFinder;
+    this.uuidFactory = uuidFactory;
   }
 
   @Override
@@ -101,25 +105,26 @@ public class CreateAction implements ProjectLinksWsAction {
     String url = createWsRequest.getUrl();
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      ComponentDto component = getComponentByUuidOrKey(dbSession, createWsRequest);
+      ComponentDto component = checkProject(getComponentByUuidOrKey(dbSession, createWsRequest));
 
       userSession.checkComponentPermission(UserRole.ADMIN, component);
 
-      ComponentLinkDto link = new ComponentLinkDto()
-        .setComponentUuid(component.uuid())
+      ProjectLinkDto link = new ProjectLinkDto()
+        .setUuid(uuidFactory.create())
+        .setProjectUuid(component.uuid())
         .setName(name)
         .setHref(url)
         .setType(nameToType(name));
-      dbClient.componentLinkDao().insert(dbSession, link);
+      dbClient.projectLinkDao().insert(dbSession, link);
 
       dbSession.commit();
       return buildResponse(link);
     }
   }
 
-  private static CreateWsResponse buildResponse(ComponentLinkDto link) {
+  private static CreateWsResponse buildResponse(ProjectLinkDto link) {
     return CreateWsResponse.newBuilder().setLink(ProjectLinks.Link.newBuilder()
-      .setId(String.valueOf(link.getId()))
+      .setId(String.valueOf(link.getUuid()))
       .setName(link.getName())
       .setType(link.getType())
       .setUrl(link.getHref()))
@@ -127,7 +132,7 @@ public class CreateAction implements ProjectLinksWsAction {
   }
 
   private ComponentDto getComponentByUuidOrKey(DbSession dbSession, CreateRequest request) {
-    return componentFinder.getRootComponentByUuidOrKey(
+    return componentFinder.getByUuidOrKey(
       dbSession,
       request.getProjectId(),
       request.getProjectKey(),
