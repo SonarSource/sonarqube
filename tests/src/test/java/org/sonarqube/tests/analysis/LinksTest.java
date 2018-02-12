@@ -80,7 +80,6 @@ public class LinksTest {
     verifyLink(links, "ci", "http://bamboo.ci.codehaus.org/browse/SIMPLESAMPLE");
     verifyLink(links, "issue", "http://jira.codehaus.org/browse/SIMPLESAMPLE");
     verifyLink(links, "scm", "https://github.com/SonarSource/simplesample");
-    verifyLink(links, "scm_dev", "scm:git:git@github.com:SonarSource/simplesample.git");
   }
 
   private void verifyLink(List<ProjectLinks.Link> links, String expectedType, String expectedUrl) {

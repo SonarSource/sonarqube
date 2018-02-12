@@ -84,12 +84,13 @@ message ComponentLink {
   
   enum ComponentLinkType {
     UNSET = 0;
-	  HOME = 1;
-	  SCM = 2;
-	  SCM_DEV = 3;
-	  ISSUE = 4;
-	  CI = 5;
-	}
+	HOME = 1;
+	SCM = 2;
+	// SCM_DEV is no more set since 7.1. See SONAR-10299
+	IGNORED_SCM_DEV = 3;
+	ISSUE = 4;
+	CI = 5;
+  }
 }
 
 message Component {

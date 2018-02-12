@@ -48,7 +48,6 @@ public class PersistProjectLinksStep implements ComputationStep {
   private static final Map<ComponentLinkType, String> typesConverter = ImmutableMap.of(
     ComponentLinkType.HOME, ProjectLinkDto.TYPE_HOME_PAGE,
     ComponentLinkType.SCM, ProjectLinkDto.TYPE_SOURCES,
-    ComponentLinkType.SCM_DEV, ProjectLinkDto.TYPE_SOURCES_DEV,
     ComponentLinkType.CI, ProjectLinkDto.TYPE_CI,
     ComponentLinkType.ISSUE, ProjectLinkDto.TYPE_ISSUE_TRACKER);
 
