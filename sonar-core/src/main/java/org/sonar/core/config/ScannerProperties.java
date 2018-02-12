@@ -35,6 +35,8 @@ public class ScannerProperties {
   public static final String BRANCH_TARGET = "sonar.branch.target";
   public static final String ORGANIZATION = "sonar.organization";
 
+  public static final String LINKS_SOURCES_DEV = "sonar.links.scm_dev";
+
   private ScannerProperties() {
     // only static stuff
   }

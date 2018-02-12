@@ -91,12 +91,6 @@ public class CorePropertyDefinitions {
         .description("HTTP URL of the server which hosts the sources of the project.")
         .category(CoreProperties.CATEGORY_GENERAL)
         .build(),
-      PropertyDefinition.builder(CoreProperties.LINKS_SOURCES_DEV)
-        .name("SCM connection for developers")
-        .description("HTTP URL used by developers to connect to the SCM server for the project.")
-        .category(CoreProperties.CATEGORY_GENERAL)
-        .hidden()
-        .build(),
       PropertyDefinition.builder(CoreProperties.PREVIEW_INCLUDE_PLUGINS)
         .name("Plugins accepted for Preview mode")
         .description("DEPRECATED - List of plugin keys. Those plugins will be used during preview analyses.")

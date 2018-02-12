@@ -41,7 +41,6 @@ import static org.sonar.scanner.protocol.output.ScannerReport.ComponentLink.Comp
 import static org.sonar.scanner.protocol.output.ScannerReport.ComponentLink.ComponentLinkType.HOME;
 import static org.sonar.scanner.protocol.output.ScannerReport.ComponentLink.ComponentLinkType.ISSUE;
 import static org.sonar.scanner.protocol.output.ScannerReport.ComponentLink.ComponentLinkType.SCM;
-import static org.sonar.scanner.protocol.output.ScannerReport.ComponentLink.ComponentLinkType.SCM_DEV;
 
 public class PersistProjectLinksStepTest extends BaseStepTest {
 
@@ -77,7 +76,6 @@ public class PersistProjectLinksStepTest extends BaseStepTest {
       .addChildRef(2)
       .addLink(ScannerReport.ComponentLink.newBuilder().setType(HOME).setHref("http://www.sonarqube.org").build())
       .addLink(ScannerReport.ComponentLink.newBuilder().setType(SCM).setHref("https://github.com/SonarSource/sonar").build())
-      .addLink(ScannerReport.ComponentLink.newBuilder().setType(SCM_DEV).setHref("scm:git:git@github.com:SonarSource/sonar.git/sonar").build())
       .addLink(ScannerReport.ComponentLink.newBuilder().setType(ISSUE).setHref("http://jira.sonarsource.com/").build())
       .addLink(ScannerReport.ComponentLink.newBuilder().setType(CI).setHref("http://bamboo.ci.codehaus.org/browse/SONAR").build())
       .build());
@@ -89,7 +87,6 @@ public class PersistProjectLinksStepTest extends BaseStepTest {
       .containsExactlyInAnyOrder(
         tuple("homepage", "http://www.sonarqube.org", null),
         tuple("scm", "https://github.com/SonarSource/sonar", null),
-        tuple("scm_dev", "scm:git:git@github.com:SonarSource/sonar.git/sonar", null),
         tuple("issue", "http://jira.sonarsource.com/", null),
         tuple("ci", "http://bamboo.ci.codehaus.org/browse/SONAR", null));
   }
