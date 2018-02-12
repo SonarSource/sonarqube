@@ -39,7 +39,7 @@ interface State {
 }
 
 export default class SimpleModal extends React.PureComponent<Props, State> {
-  mounted: boolean;
+  mounted: boolean = false;
   state: State = { submitting: false };
 
   componentDidMount() {

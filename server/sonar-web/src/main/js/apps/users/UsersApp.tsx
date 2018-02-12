@@ -44,7 +44,7 @@ interface State {
 }
 
 export default class UsersApp extends React.PureComponent<Props, State> {
-  mounted: boolean;
+  mounted: boolean = false;
 
   static contextTypes = {
     router: PropTypes.object.isRequired

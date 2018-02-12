@@ -52,7 +52,7 @@ interface State {
 }
 
 export default class ProfilePermissions extends React.PureComponent<Props, State> {
-  mounted: boolean;
+  mounted: boolean = false;
   state: State = { addUserForm: false, loading: true };
 
   componentDidMount() {

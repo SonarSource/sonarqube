@@ -33,7 +33,7 @@ interface State {
 }
 
 export default class Subscription extends React.PureComponent<Props, State> {
-  mounted: boolean;
+  mounted: boolean = false;
 
   constructor(props: Props) {
     super(props);

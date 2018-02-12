@@ -39,7 +39,7 @@ interface State {
 const LEAK_PERIOD = 'sonar.leak.period';
 
 export default class LeakPeriodForm extends React.PureComponent<Props, State> {
-  mounted: boolean;
+  mounted: boolean = false;
   state: State = { loading: true, submitting: false };
 
   componentDidMount() {

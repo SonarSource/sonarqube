@@ -42,7 +42,7 @@ interface State {
 const PAGE_SIZE = 3;
 
 export default class AnalysesList extends React.PureComponent<Props, State> {
-  mounted: boolean;
+  mounted: boolean = false;
   state: State = { analyses: [], loading: true };
 
   componentDidMount() {

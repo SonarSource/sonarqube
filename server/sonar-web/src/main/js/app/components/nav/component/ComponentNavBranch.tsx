@@ -46,7 +46,7 @@ interface State {
 }
 
 export default class ComponentNavBranch extends React.PureComponent<Props, State> {
-  mounted: boolean;
+  mounted: boolean = false;
 
   static contextTypes = {
     branchesEnabled: PropTypes.bool.isRequired,

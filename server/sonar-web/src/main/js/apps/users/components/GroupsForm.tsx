@@ -32,7 +32,7 @@ interface Props {
 }
 
 export default class GroupsForm extends React.PureComponent<Props> {
-  container: HTMLDivElement | null;
+  container?: HTMLDivElement | null;
 
   handleCloseClick = (event: React.SyntheticEvent<HTMLElement>) => {
     event.preventDefault();

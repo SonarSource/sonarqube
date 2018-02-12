@@ -49,7 +49,7 @@ interface State {
 }
 
 export default class ComparisonContainer extends React.PureComponent<Props, State> {
-  mounted: boolean;
+  mounted: boolean = false;
 
   static contextTypes = {
     router: PropTypes.object

@@ -47,7 +47,7 @@ interface State {
 
 export default class SearchBox extends React.PureComponent<Props, State> {
   debouncedOnChange: ((query: string) => void) & Cancelable;
-  input: HTMLInputElement | null;
+  input?: HTMLInputElement | null;
 
   constructor(props: Props) {
     super(props);

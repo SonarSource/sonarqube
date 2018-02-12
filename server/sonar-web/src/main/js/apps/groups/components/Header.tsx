@@ -32,7 +32,7 @@ interface State {
 }
 
 export default class Header extends React.PureComponent<Props, State> {
-  mounted: boolean;
+  mounted: boolean = false;
   state: State = { createModal: false };
 
   componentDidMount() {

@@ -32,7 +32,7 @@ interface State {
 }
 
 export default class LocalizationContainer extends React.PureComponent<Props, State> {
-  mounted: boolean;
+  mounted: boolean = false;
 
   state: State = { loading: true };
 

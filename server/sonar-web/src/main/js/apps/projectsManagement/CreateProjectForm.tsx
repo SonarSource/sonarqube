@@ -47,8 +47,8 @@ interface State {
 }
 
 export default class CreateProjectForm extends React.PureComponent<Props, State> {
-  closeButton: HTMLElement | null;
-  mounted: boolean;
+  closeButton?: HTMLElement | null;
+  mounted: boolean = false;
 
   constructor(props: Props) {
     super(props);

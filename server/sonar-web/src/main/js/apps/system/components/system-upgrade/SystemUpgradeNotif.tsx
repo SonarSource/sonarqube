@@ -29,7 +29,7 @@ interface State {
 }
 
 export default class SystemUpgradeNotif extends React.PureComponent<{}, State> {
-  mounted: boolean;
+  mounted: boolean = false;
   state: State = { openSystemUpgradeForm: false, systemUpgrades: [] };
 
   componentDidMount() {

@@ -48,11 +48,11 @@ type Props = {|
 export default class AssigneeFacet extends React.PureComponent {
   /*:: props: Props; */
 
+  property = 'assignees';
+
   static defaultProps = {
     open: true
   };
-
-  property = 'assignees';
 
   handleItemClick = (itemValue /*: string */) => {
     if (itemValue === '') {

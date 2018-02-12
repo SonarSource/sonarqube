@@ -53,6 +53,8 @@ type Props = {|
 export default class CreationDateFacet extends React.PureComponent {
   /*:: props: Props; */
 
+  property = 'createdAt';
+
   static defaultProps = {
     open: true
   };
@@ -60,8 +62,6 @@ export default class CreationDateFacet extends React.PureComponent {
   static contextTypes = {
     intl: intlShape
   };
-
-  property = 'createdAt';
 
   hasValue = () =>
     this.props.createdAfter.length > 0 ||

@@ -39,7 +39,7 @@ interface State {
 
 export default class EditMembers extends React.PureComponent<Props, State> {
   container?: HTMLElement | null;
-  mounted: boolean;
+  mounted: boolean = false;
   state: State = { modal: false };
 
   componentDidMount() {

@@ -40,7 +40,7 @@ interface Props {
 }
 
 export default class DateInput extends React.PureComponent<Props> {
-  input: HTMLInputElement;
+  input?: HTMLInputElement | null;
 
   static defaultProps = {
     format: 'yy-mm-dd',
@@ -63,8 +63,10 @@ export default class DateInput extends React.PureComponent<Props> {
   }
 
   handleChange = () => {
-    const { value } = this.input;
-    this.props.onChange(value);
+    if (this.input) {
+      const { value } = this.input;
+      this.props.onChange(value);
+    }
   };
 
   handleResetClick = () => {
@@ -98,7 +100,7 @@ export default class DateInput extends React.PureComponent<Props> {
           className={classNames('date-input-control-input', this.props.inputClassName)}
           onChange={this.handleChange}
           readOnly={true}
-          ref={node => (this.input = node!)}
+          ref={node => (this.input = node)}
           type="text"
           value={this.props.value || ''}
           {...inputProps}

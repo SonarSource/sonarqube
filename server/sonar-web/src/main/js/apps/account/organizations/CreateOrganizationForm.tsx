@@ -46,7 +46,7 @@ interface State {
 }
 
 class CreateOrganizationForm extends React.PureComponent<Props, State> {
-  mounted: boolean;
+  mounted: boolean = false;
 
   static contextTypes = {
     router: PropTypes.object

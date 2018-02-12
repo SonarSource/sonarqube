@@ -46,11 +46,11 @@ type Props = {|
 export default class TagFacet extends React.PureComponent {
   /*:: props: Props; */
 
+  property = 'tags';
+
   static defaultProps = {
     open: true
   };
-
-  property = 'tags';
 
   handleItemClick = (itemValue /*: string */) => {
     const { tags } = this.props;

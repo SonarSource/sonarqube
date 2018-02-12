@@ -34,9 +34,9 @@ interface State {
 }
 
 export default class ClipboardButton extends React.PureComponent<Props, State> {
-  clipboard: Clipboard;
-  copyButton: HTMLButtonElement | null;
-  mounted: boolean;
+  clipboard?: Clipboard;
+  copyButton?: HTMLButtonElement | null;
+  mounted: boolean = false;
   state: State = { tooltipShown: false };
 
   componentDidMount() {

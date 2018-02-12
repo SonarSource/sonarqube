@@ -48,8 +48,8 @@ interface DefaultProps {
 type PropsWithDefault = Props & DefaultProps;
 
 export default class MultiSelect extends React.PureComponent<Props, State> {
-  container: HTMLDivElement | null;
-  searchInput: HTMLInputElement | null;
+  container?: HTMLDivElement | null;
+  searchInput?: HTMLInputElement | null;
 
   static defaultProps: DefaultProps = {
     listSize: 10,

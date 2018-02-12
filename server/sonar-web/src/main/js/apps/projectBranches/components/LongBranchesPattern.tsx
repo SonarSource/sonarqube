@@ -35,7 +35,7 @@ interface State {
 export const LONG_BRANCH_PATTERN = 'sonar.branch.longLivedBranches.regex';
 
 export default class LongBranchesPattern extends React.PureComponent<Props, State> {
-  mounted: boolean;
+  mounted: boolean = false;
   state: State = { formOpen: false };
 
   componentDidMount() {

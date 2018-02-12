@@ -80,7 +80,7 @@ interface State {
 // TODO redirect to default organization's rules page
 
 export default class App extends React.PureComponent<Props, State> {
-  mounted: boolean;
+  mounted: boolean = false;
 
   static contextTypes = {
     organizationsEnabled: PropTypes.bool,

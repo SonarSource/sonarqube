@@ -36,7 +36,7 @@ interface State {
 }
 
 class LoginFormContainer extends React.PureComponent<Props, State> {
-  mounted: boolean;
+  mounted: boolean = false;
 
   static contextTypes = {
     onSonarCloud: PropTypes.bool

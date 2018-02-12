@@ -25,7 +25,7 @@ jest.mock('../../../../api/settings', () => ({
 import * as React from 'react';
 import { mount, shallow } from 'enzyme';
 import App from '../App';
-import { Branch, BranchType } from '../../../../app/types';
+import { BranchType, MainBranch, LongLivingBranch, ShortLivingBranch } from '../../../../app/types';
 
 const getValues = require('../../../../api/settings').getValues as jest.Mock<any>;
 
@@ -34,7 +34,7 @@ beforeEach(() => {
 });
 
 it('renders sorted list of branches', () => {
-  const branches: Branch[] = [
+  const branches: [MainBranch, LongLivingBranch, ShortLivingBranch] = [
     { isMain: true, name: 'master' },
     { isMain: false, name: 'branch-1.0', type: BranchType.LONG },
     { isMain: false, name: 'branch-1.0', mergeBranch: 'master', type: BranchType.SHORT }

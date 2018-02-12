@@ -41,8 +41,7 @@ interface State {
 }
 
 export default class CreateProfileForm extends React.PureComponent<Props, State> {
-  /*:: form: HTMLFormElement; */
-  mounted: boolean;
+  mounted: boolean = false;
   state: State = { importers: [], loading: false, name: '', preloading: true };
 
   componentDidMount() {

@@ -43,7 +43,7 @@ interface State {
 }
 
 export default class WebApiApp extends React.PureComponent<Props, State> {
-  mounted: boolean;
+  mounted: boolean = false;
 
   static contextTypes = {
     router: PropTypes.object.isRequired

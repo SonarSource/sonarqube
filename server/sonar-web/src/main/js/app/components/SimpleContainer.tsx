@@ -36,7 +36,7 @@ interface State {
 }
 
 export default class SimpleContainer extends React.PureComponent<Props, State> {
-  mounted: boolean;
+  mounted: boolean = false;
 
   static childContextTypes = {
     onSonarCloud: PropTypes.bool

@@ -45,11 +45,11 @@ type Props = {|
 export default class DirectoryFacet extends React.PureComponent {
   /*:: props: Props; */
 
+  property = 'directories';
+
   static defaultProps = {
     open: true
   };
-
-  property = 'directories';
 
   handleItemClick = (itemValue /*: string */) => {
     const { directories } = this.props;

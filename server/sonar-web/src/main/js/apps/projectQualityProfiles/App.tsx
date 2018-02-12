@@ -43,7 +43,7 @@ interface State {
 }
 
 export default class QualityProfiles extends React.PureComponent<Props, State> {
-  mounted: boolean;
+  mounted: boolean = false;
   state: State = { loading: true };
 
   componentDidMount() {

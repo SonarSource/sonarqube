@@ -34,7 +34,7 @@ interface State {
 }
 
 export default class Stacktrace extends React.PureComponent<Props, State> {
-  mounted: boolean;
+  mounted: boolean = false;
   state: State = { loading: true };
 
   componentDidMount() {

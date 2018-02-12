@@ -38,7 +38,7 @@ interface Props {
 }
 
 export default class Component extends React.PureComponent<Props> {
-  node: HTMLElement;
+  node?: HTMLElement | null;
 
   componentDidMount() {
     this.handleUpdate();
@@ -60,12 +60,14 @@ export default class Component extends React.PureComponent<Props> {
   }
 
   handleScroll() {
-    const position = this.node.getBoundingClientRect();
-    const { top, bottom } = position;
-    if (bottom > window.innerHeight - BOTTOM_OFFSET) {
-      window.scrollTo(0, bottom - window.innerHeight + window.pageYOffset + BOTTOM_OFFSET);
-    } else if (top < TOP_OFFSET) {
-      window.scrollTo(0, top + window.pageYOffset - TOP_OFFSET);
+    if (this.node) {
+      const position = this.node.getBoundingClientRect();
+      const { top, bottom } = position;
+      if (bottom > window.innerHeight - BOTTOM_OFFSET) {
+        window.scrollTo(0, bottom - window.innerHeight + window.pageYOffset + BOTTOM_OFFSET);
+      } else if (top < TOP_OFFSET) {
+        window.scrollTo(0, top + window.pageYOffset - TOP_OFFSET);
+      }
     }
   }
 
@@ -113,7 +115,7 @@ export default class Component extends React.PureComponent<Props> {
         ].filter(Boolean) as Array<{ metric: string; type: string }>);
 
     return (
-      <tr className={classNames({ selected })} ref={node => (this.node = node as HTMLElement)}>
+      <tr className={classNames({ selected })} ref={node => (this.node = node)}>
         <td className="thin nowrap">
           <span className="spacer-right">{componentAction}</span>
         </td>

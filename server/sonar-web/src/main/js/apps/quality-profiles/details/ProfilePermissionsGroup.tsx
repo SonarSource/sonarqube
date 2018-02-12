@@ -38,7 +38,7 @@ interface State {
 }
 
 export default class ProfilePermissionsGroup extends React.PureComponent<Props, State> {
-  mounted: boolean;
+  mounted: boolean = false;
   state: State = { deleteModal: false };
 
   componentDidMount() {

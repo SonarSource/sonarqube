@@ -54,7 +54,7 @@ interface State {
 
 export default class EvolutionRules extends React.PureComponent<Props, State> {
   periodStartDate: string;
-  mounted: boolean;
+  mounted: boolean = false;
 
   constructor(props: Props) {
     super(props);

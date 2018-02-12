@@ -41,11 +41,11 @@ type Props = {|
 export default class AuthorFacet extends React.PureComponent {
   /*:: props: Props; */
 
+  property = 'authors';
+
   static defaultProps = {
     open: true
   };
-
-  property = 'authors';
 
   handleItemClick = (itemValue /*: string */) => {
     const { authors } = this.props;

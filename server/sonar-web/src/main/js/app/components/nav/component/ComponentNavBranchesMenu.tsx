@@ -46,7 +46,7 @@ interface State {
 }
 
 export default class ComponentNavBranchesMenu extends React.PureComponent<Props, State> {
-  private node: HTMLElement | null;
+  private node?: HTMLElement | null;
 
   static contextTypes = {
     router: PropTypes.object

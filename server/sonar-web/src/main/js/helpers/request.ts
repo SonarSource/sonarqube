@@ -75,12 +75,12 @@ const DEFAULT_HEADERS = {
  * Request
  */
 class Request {
-  private data: RequestData;
+  private data?: RequestData;
 
   constructor(private url: string, private options: { method?: string } = {}) {}
 
   getSubmitData(customHeaders: any = {}): { url: string; options: RequestInit } {
-    let url = this.url;
+    let { url } = this;
     const options: RequestInit = { ...DEFAULT_OPTIONS, ...this.options };
 
     if (this.data) {

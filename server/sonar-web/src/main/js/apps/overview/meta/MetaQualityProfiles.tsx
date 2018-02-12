@@ -42,7 +42,7 @@ interface State {
 }
 
 class MetaQualityProfiles extends React.PureComponent<StateProps & OwnProps, State> {
-  mounted: boolean;
+  mounted: boolean = false;
   state: State = { deprecatedByKey: {} };
 
   componentDidMount() {

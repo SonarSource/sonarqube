@@ -39,7 +39,7 @@ interface State {
 }
 
 export default class BulkChange extends React.PureComponent<Props, State> {
-  closeDropdown: () => void;
+  closeDropdown?: () => void;
   state: State = { modal: false };
 
   getSelectedProfile = () => {
@@ -52,28 +52,36 @@ export default class BulkChange extends React.PureComponent<Props, State> {
   handleActivateClick = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     event.currentTarget.blur();
-    this.closeDropdown();
+    if (this.closeDropdown) {
+      this.closeDropdown();
+    }
     this.setState({ action: 'activate', modal: true, profile: undefined });
   };
 
   handleActivateInProfileClick = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     event.currentTarget.blur();
-    this.closeDropdown();
+    if (this.closeDropdown) {
+      this.closeDropdown();
+    }
     this.setState({ action: 'activate', modal: true, profile: this.getSelectedProfile() });
   };
 
   handleDeactivateClick = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     event.currentTarget.blur();
-    this.closeDropdown();
+    if (this.closeDropdown) {
+      this.closeDropdown();
+    }
     this.setState({ action: 'deactivate', modal: true, profile: undefined });
   };
 
   handleDeactivateInProfileClick = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     event.currentTarget.blur();
-    this.closeDropdown();
+    if (this.closeDropdown) {
+      this.closeDropdown();
+    }
     this.setState({ action: 'deactivate', modal: true, profile: this.getSelectedProfile() });
   };
 

@@ -39,7 +39,7 @@ interface State {
 }
 
 export default class ActivationButton extends React.PureComponent<Props, State> {
-  mounted: boolean;
+  mounted: boolean = false;
   state: State = { modal: false };
 
   componentDidMount() {

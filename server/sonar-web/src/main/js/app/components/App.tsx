@@ -42,7 +42,7 @@ interface State {
 }
 
 class App extends React.PureComponent<Props, State> {
-  mounted: boolean;
+  mounted: boolean = false;
 
   static childContextTypes = {
     branchesEnabled: PropTypes.bool.isRequired,

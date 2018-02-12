@@ -26,7 +26,7 @@ interface Props {
 }
 
 export default class ScreenPositionHelper extends React.PureComponent<Props> {
-  container: HTMLDivElement;
+  container?: HTMLDivElement;
   debouncedOnResize: () => void;
 
   constructor(props: Props) {

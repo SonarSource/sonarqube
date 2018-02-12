@@ -36,7 +36,7 @@ interface State {
 }
 
 export default class CopyProfileForm extends React.PureComponent<Props, State> {
-  mounted: boolean;
+  mounted: boolean = false;
   state: State = { loading: false, name: null };
 
   componentDidMount() {
