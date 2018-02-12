@@ -28,6 +28,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collection;
 import java.util.Optional;
+import java.util.Set;
 import org.apache.commons.io.IOUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.CloseableIterator;
@@ -84,6 +85,10 @@ public class CeScannerContextDao implements Dao {
     } catch (SQLException | IOException e) {
       throw new IllegalStateException("Fail to retrieve scanner context of task " + taskUuid, e);
     }
+  }
+
+  public Set<String> selectOlderThan(DbSession dbSession, long beforeDate) {
+    return mapper(dbSession).selectOlderThan(beforeDate);
   }
 
   public void deleteByUuids(DbSession dbSession, Collection<String> uuids) {

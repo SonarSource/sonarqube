@@ -26,10 +26,12 @@ import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.ce.CeActivityDto;
+
+import static java.util.stream.Stream.concat;
+import static org.sonar.core.util.stream.MoreCollectors.toSet;
 
 @ComputeEngineSide
 public class PurgeCeActivities implements Startable {
@@ -48,16 +50,26 @@ public class PurgeCeActivities implements Startable {
   public void start() {
     try (DbSession dbSession = dbClient.openSession(false)) {
       Calendar sixMonthsAgo = Calendar.getInstance();
-      sixMonthsAgo.setTimeInMillis(system2.now());
+      long now = system2.now();
+      sixMonthsAgo.setTimeInMillis(now);
       sixMonthsAgo.add(Calendar.DATE, -180);
 
       LOGGER.info("Delete the Compute Engine tasks created before {}", sixMonthsAgo.getTime());
       Set<String> ceActivityUuids = dbClient.ceActivityDao().selectOlderThan(dbSession, sixMonthsAgo.getTimeInMillis())
         .stream()
         .map(CeActivityDto::getUuid)
-        .collect(MoreCollectors.toSet());
+        .collect(toSet());
       dbClient.ceActivityDao().deleteByUuids(dbSession, ceActivityUuids);
-      dbClient.ceScannerContextDao().deleteByUuids(dbSession, ceActivityUuids);
+
+      Calendar fourWeeksAgo = Calendar.getInstance();
+      fourWeeksAgo.setTimeInMillis(system2.now());
+      fourWeeksAgo.add(Calendar.DATE, -28);
+
+      LOGGER.info("Delete the Scanner contexts tasks created before {}", fourWeeksAgo.getTime());
+      Set<String> scannerContextUuids = dbClient.ceScannerContextDao().selectOlderThan(dbSession, fourWeeksAgo.getTimeInMillis());
+      dbClient.ceScannerContextDao().deleteByUuids(
+        dbSession,
+        concat(ceActivityUuids.stream(), scannerContextUuids.stream()).collect(toSet()));
       dbSession.commit();
     }
   }

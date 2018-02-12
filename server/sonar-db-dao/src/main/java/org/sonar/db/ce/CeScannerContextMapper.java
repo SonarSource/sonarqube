@@ -20,9 +20,12 @@
 package org.sonar.db.ce;
 
 import java.util.List;
+import java.util.Set;
 import org.apache.ibatis.annotations.Param;
 
 public interface CeScannerContextMapper {
 
   void deleteByUuids(@Param("uuids") List<String> uuids);
+
+  Set<String> selectOlderThan(@Param("beforeDate") long beforeDate);
 }

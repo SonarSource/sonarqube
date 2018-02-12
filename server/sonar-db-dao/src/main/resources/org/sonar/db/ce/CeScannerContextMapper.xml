@@ -8,4 +8,13 @@
     where task_uuid in <foreach collection="uuids" open="(" close=")" item="uuid" separator=",">#{uuid,jdbcType=VARCHAR}</foreach>
   </delete>
 
+  <select id="selectOlderThan" parameterType="long" resultType="String">
+    select
+      task_uuid
+    from ce_scanner_context csc
+    where
+      csc.created_at &lt; #{beforeDate,jdbcType=BIGINT}
+  </select>
+
+
 </mapper>
