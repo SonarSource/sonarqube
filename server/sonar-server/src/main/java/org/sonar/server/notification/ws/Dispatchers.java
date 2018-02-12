@@ -24,7 +24,7 @@ import java.util.List;
 
 public interface Dispatchers {
 
-  List<String> getSortedGlobalDispatchers();
+  List<String> getGlobalDispatchers();
 
-  List<String> getSortedProjectDispatchers();
+  List<String> getProjectDispatchers();
 }

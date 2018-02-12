@@ -87,7 +87,7 @@ public class AddActionTest {
   public void add_to_email_channel_by_default() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
-    when(dispatchers.getSortedGlobalDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
+    when(dispatchers.getGlobalDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
 
     call(NOTIF_MY_NEW_ISSUES, null, null, null);
 
@@ -98,7 +98,7 @@ public class AddActionTest {
   public void add_to_a_specific_channel() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
-    when(dispatchers.getSortedGlobalDispatchers()).thenReturn(asList(NOTIF_MY_NEW_ISSUES, NOTIF_NEW_QUALITY_GATE_STATUS));
+    when(dispatchers.getGlobalDispatchers()).thenReturn(asList(NOTIF_MY_NEW_ISSUES, NOTIF_NEW_QUALITY_GATE_STATUS));
 
     call(NOTIF_NEW_QUALITY_GATE_STATUS, twitterChannel.getKey(), null, null);
 
@@ -111,8 +111,8 @@ public class AddActionTest {
     userSession.logIn(user);
     ComponentDto project = db.components().insertPrivateProject();
     userSession.addProjectPermission(USER, project);
-    when(dispatchers.getSortedGlobalDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
-    when(dispatchers.getSortedProjectDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
+    when(dispatchers.getGlobalDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
+    when(dispatchers.getProjectDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
 
     call(NOTIF_MY_NEW_ISSUES, null, project.getDbKey(), null);
 
@@ -125,8 +125,8 @@ public class AddActionTest {
     userSession.logIn(user);
     ComponentDto project = db.components().insertPublicProject();
     userSession.registerComponents(project);
-    when(dispatchers.getSortedGlobalDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
-    when(dispatchers.getSortedProjectDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
+    when(dispatchers.getGlobalDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
+    when(dispatchers.getProjectDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
 
     call(NOTIF_MY_NEW_ISSUES, null, project.getDbKey(), null);
 
@@ -137,8 +137,8 @@ public class AddActionTest {
   public void add_a_global_notification_when_a_project_one_exists() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
-    when(dispatchers.getSortedGlobalDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
-    when(dispatchers.getSortedProjectDispatchers()).thenReturn(asList(NOTIF_MY_NEW_ISSUES));
+    when(dispatchers.getGlobalDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
+    when(dispatchers.getProjectDispatchers()).thenReturn(asList(NOTIF_MY_NEW_ISSUES));
     ComponentDto project = db.components().insertPrivateProject();
     userSession.addProjectPermission(USER, project);
     call(NOTIF_MY_NEW_ISSUES, null, project.getDbKey(), null);
@@ -153,8 +153,8 @@ public class AddActionTest {
   public void add_a_notification_on_private_project_when_a_global_one_exists() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
-    when(dispatchers.getSortedGlobalDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
-    when(dispatchers.getSortedProjectDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
+    when(dispatchers.getGlobalDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
+    when(dispatchers.getProjectDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
     ComponentDto project = db.components().insertPrivateProject();
     call(NOTIF_MY_NEW_ISSUES, null, null, null);
 
@@ -169,8 +169,8 @@ public class AddActionTest {
   public void add_a_notification_on_public_project_when_a_global_one_exists() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
-    when(dispatchers.getSortedGlobalDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
-    when(dispatchers.getSortedProjectDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
+    when(dispatchers.getGlobalDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
+    when(dispatchers.getProjectDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
     ComponentDto project = db.components().insertPublicProject();
     userSession.registerComponents(project);
     call(NOTIF_MY_NEW_ISSUES, null, null, null);
@@ -185,7 +185,7 @@ public class AddActionTest {
   public void http_no_content() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
-    when(dispatchers.getSortedGlobalDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
+    when(dispatchers.getGlobalDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
 
     TestResponse result = call(NOTIF_MY_NEW_ISSUES, null, null, null);
 
@@ -196,7 +196,7 @@ public class AddActionTest {
   public void add_a_notification_to_a_user_as_system_administrator() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user).setSystemAdministrator();
-    when(dispatchers.getSortedGlobalDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
+    when(dispatchers.getGlobalDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
 
     call(NOTIF_MY_NEW_ISSUES, null, null, user.getLogin());
 
@@ -207,7 +207,7 @@ public class AddActionTest {
   public void fail_if_login_is_provided_and_unknown() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user).setSystemAdministrator();
-    when(dispatchers.getSortedGlobalDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
+    when(dispatchers.getGlobalDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
 
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("User 'LOGIN 404' not found");
@@ -219,7 +219,7 @@ public class AddActionTest {
   public void fail_if_login_provided_and_not_system_administrator() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user).setNonSystemAdministrator();
-    when(dispatchers.getSortedGlobalDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
+    when(dispatchers.getGlobalDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
 
     expectedException.expect(ForbiddenException.class);
 
@@ -230,7 +230,7 @@ public class AddActionTest {
   public void fail_when_notification_already_exists() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
-    when(dispatchers.getSortedGlobalDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
+    when(dispatchers.getGlobalDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
     call(NOTIF_MY_NEW_ISSUES, null, null, null);
 
     expectedException.expect(IllegalArgumentException.class);
@@ -250,7 +250,7 @@ public class AddActionTest {
   public void fail_when_unknown_global_dispatcher() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
-    when(dispatchers.getSortedGlobalDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
+    when(dispatchers.getGlobalDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
 
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("Value of parameter 'type' (Dispatcher42) must be one of: [Dispatcher1]");
@@ -262,8 +262,8 @@ public class AddActionTest {
   public void fail_when_unknown_project_dispatcher_on_private_project() {
     ComponentDto project = db.components().insertPrivateProject();
     userSession.addProjectPermission(USER, project);
-    when(dispatchers.getSortedGlobalDispatchers()).thenReturn(asList(NOTIF_MY_NEW_ISSUES, NOTIF_NEW_ISSUES));
-    when(dispatchers.getSortedProjectDispatchers()).thenReturn(asList(NOTIF_MY_NEW_ISSUES, NOTIF_NEW_ISSUES));
+    when(dispatchers.getGlobalDispatchers()).thenReturn(asList(NOTIF_MY_NEW_ISSUES, NOTIF_NEW_ISSUES));
+    when(dispatchers.getProjectDispatchers()).thenReturn(asList(NOTIF_MY_NEW_ISSUES, NOTIF_NEW_ISSUES));
 
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("Value of parameter 'type' (Dispatcher42) must be one of: [Dispatcher1, Dispatcher2]");
@@ -276,8 +276,8 @@ public class AddActionTest {
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
     ComponentDto project = db.components().insertPublicProject();
-    when(dispatchers.getSortedGlobalDispatchers()).thenReturn(asList(NOTIF_MY_NEW_ISSUES, NOTIF_NEW_ISSUES));
-    when(dispatchers.getSortedProjectDispatchers()).thenReturn(asList(NOTIF_MY_NEW_ISSUES, NOTIF_NEW_ISSUES));
+    when(dispatchers.getGlobalDispatchers()).thenReturn(asList(NOTIF_MY_NEW_ISSUES, NOTIF_NEW_ISSUES));
+    when(dispatchers.getProjectDispatchers()).thenReturn(asList(NOTIF_MY_NEW_ISSUES, NOTIF_NEW_ISSUES));
 
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("Value of parameter 'type' (Dispatcher42) must be one of: [Dispatcher1, Dispatcher2]");
@@ -296,8 +296,8 @@ public class AddActionTest {
   public void fail_when_project_is_unknown() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
-    when(dispatchers.getSortedGlobalDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
-    when(dispatchers.getSortedProjectDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
+    when(dispatchers.getGlobalDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
+    when(dispatchers.getProjectDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
 
     expectedException.expect(NotFoundException.class);
 
@@ -309,8 +309,8 @@ public class AddActionTest {
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
     db.components().insertViewAndSnapshot(newView(db.organizations().insert()).setDbKey("VIEW_1"));
-    when(dispatchers.getSortedGlobalDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
-    when(dispatchers.getSortedProjectDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
+    when(dispatchers.getGlobalDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
+    when(dispatchers.getProjectDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
 
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("Component 'VIEW_1' must be a project");
@@ -321,7 +321,7 @@ public class AddActionTest {
   @Test
   public void fail_when_not_authenticated() {
     userSession.anonymous();
-    when(dispatchers.getSortedGlobalDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
+    when(dispatchers.getGlobalDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
 
     expectedException.expect(UnauthorizedException.class);
 
@@ -332,7 +332,7 @@ public class AddActionTest {
   public void fail_when_using_branch_db_key() throws Exception {
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
-    when(dispatchers.getSortedProjectDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
+    when(dispatchers.getProjectDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
     ComponentDto project = db.components().insertMainBranch();
     ComponentDto branch = db.components().insertProjectBranch(project);
 
@@ -346,8 +346,8 @@ public class AddActionTest {
   public void fail_when_user_does_not_have_USER_permission_on_private_project() {
     ComponentDto project = db.components().insertPrivateProject();
     userSession.logIn().setNonRoot().setNonSystemAdministrator();
-    when(dispatchers.getSortedGlobalDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
-    when(dispatchers.getSortedProjectDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
+    when(dispatchers.getGlobalDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
+    when(dispatchers.getProjectDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
 
     expectedException.expect(ForbiddenException.class);
 

@@ -91,7 +91,7 @@ public class ListActionTest {
   public void overall_dispatchers() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
-    when(dispatchers.getSortedGlobalDispatchers()).thenReturn(asList(NOTIF_MY_NEW_ISSUES, NOTIF_NEW_ISSUES, NOTIF_NEW_QUALITY_GATE_STATUS));
+    when(dispatchers.getGlobalDispatchers()).thenReturn(asList(NOTIF_MY_NEW_ISSUES, NOTIF_NEW_ISSUES, NOTIF_NEW_QUALITY_GATE_STATUS));
 
     ListResponse result = call();
 
@@ -102,7 +102,7 @@ public class ListActionTest {
   public void per_project_dispatchers() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
-    when(dispatchers.getSortedProjectDispatchers()).thenReturn(asList(NOTIF_MY_NEW_ISSUES, NOTIF_NEW_QUALITY_GATE_STATUS));
+    when(dispatchers.getProjectDispatchers()).thenReturn(asList(NOTIF_MY_NEW_ISSUES, NOTIF_NEW_QUALITY_GATE_STATUS));
 
     ListResponse result = call();
 
@@ -113,8 +113,8 @@ public class ListActionTest {
   public void filter_unauthorized_projects() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
-    when(dispatchers.getSortedGlobalDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
-    when(dispatchers.getSortedProjectDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
+    when(dispatchers.getGlobalDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
+    when(dispatchers.getProjectDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
     ComponentDto project = db.components().insertPrivateProject();
     db.users().insertProjectPermissionOnUser(user, USER, project);
     ComponentDto anotherProject = db.components().insertPrivateProject();
@@ -131,7 +131,7 @@ public class ListActionTest {
   public void filter_channels() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
-    when(dispatchers.getSortedGlobalDispatchers()).thenReturn(asList(NOTIF_MY_NEW_ISSUES, NOTIF_NEW_ISSUES, NOTIF_NEW_QUALITY_GATE_STATUS));
+    when(dispatchers.getGlobalDispatchers()).thenReturn(asList(NOTIF_MY_NEW_ISSUES, NOTIF_NEW_ISSUES, NOTIF_NEW_QUALITY_GATE_STATUS));
     notificationUpdater.add(dbSession, emailChannel.getKey(), NOTIF_MY_NEW_ISSUES, user, null);
     notificationUpdater.add(dbSession, "Unknown Channel", NOTIF_MY_NEW_ISSUES, user, null);
     dbSession.commit();
@@ -145,7 +145,7 @@ public class ListActionTest {
   public void filter_overall_dispatchers() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
-    when(dispatchers.getSortedGlobalDispatchers()).thenReturn(asList(NOTIF_MY_NEW_ISSUES, NOTIF_NEW_ISSUES, NOTIF_NEW_QUALITY_GATE_STATUS));
+    when(dispatchers.getGlobalDispatchers()).thenReturn(asList(NOTIF_MY_NEW_ISSUES, NOTIF_NEW_ISSUES, NOTIF_NEW_QUALITY_GATE_STATUS));
     notificationUpdater.add(dbSession, emailChannel.getKey(), NOTIF_MY_NEW_ISSUES, user, null);
     notificationUpdater.add(dbSession, emailChannel.getKey(), "Unknown Notification", user, null);
     dbSession.commit();
@@ -159,7 +159,7 @@ public class ListActionTest {
   public void filter_per_project_dispatchers() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
-    when(dispatchers.getSortedProjectDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
+    when(dispatchers.getProjectDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
     ComponentDto project = db.components().insertPrivateProject();
     db.users().insertProjectPermissionOnUser(user, USER, project);
     notificationUpdater.add(dbSession, emailChannel.getKey(), NOTIF_MY_NEW_ISSUES, user, project);
@@ -177,8 +177,8 @@ public class ListActionTest {
   public void order_with_global_then_by_channel_and_dispatcher() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
-    when(dispatchers.getSortedGlobalDispatchers()).thenReturn(asList(NOTIF_MY_NEW_ISSUES, NOTIF_NEW_ISSUES, NOTIF_NEW_QUALITY_GATE_STATUS));
-    when(dispatchers.getSortedProjectDispatchers()).thenReturn(asList(NOTIF_MY_NEW_ISSUES, NOTIF_NEW_QUALITY_GATE_STATUS));
+    when(dispatchers.getGlobalDispatchers()).thenReturn(asList(NOTIF_MY_NEW_ISSUES, NOTIF_NEW_ISSUES, NOTIF_NEW_QUALITY_GATE_STATUS));
+    when(dispatchers.getProjectDispatchers()).thenReturn(asList(NOTIF_MY_NEW_ISSUES, NOTIF_NEW_QUALITY_GATE_STATUS));
     OrganizationDto organization = db.organizations().insert();
     ComponentDto project = db.components().insertPrivateProject(organization);
     db.users().insertProjectPermissionOnUser(user, USER, project);
@@ -206,7 +206,7 @@ public class ListActionTest {
   @Test
   public void list_user_notifications_as_system_admin() {
     UserDto user = db.users().insertUser();
-    when(dispatchers.getSortedGlobalDispatchers()).thenReturn(asList(NOTIF_MY_NEW_ISSUES, NOTIF_NEW_ISSUES, NOTIF_NEW_QUALITY_GATE_STATUS));
+    when(dispatchers.getGlobalDispatchers()).thenReturn(asList(NOTIF_MY_NEW_ISSUES, NOTIF_NEW_ISSUES, NOTIF_NEW_QUALITY_GATE_STATUS));
     userSession.logIn(user).setSystemAdministrator();
     notificationUpdater.add(dbSession, emailChannel.getKey(), NOTIF_MY_NEW_ISSUES, user, null);
     notificationUpdater.add(dbSession, emailChannel.getKey(), NOTIF_NEW_ISSUES, user, null);
@@ -223,7 +223,7 @@ public class ListActionTest {
   public void fail_if_login_and_not_system_admin() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user).setNonSystemAdministrator();
-    when(dispatchers.getSortedGlobalDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
+    when(dispatchers.getGlobalDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
     notificationUpdater.add(dbSession, emailChannel.getKey(), NOTIF_MY_NEW_ISSUES, user, null);
     dbSession.commit();
 
@@ -246,8 +246,8 @@ public class ListActionTest {
   public void json_example() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
-    when(dispatchers.getSortedGlobalDispatchers()).thenReturn(asList(NOTIF_MY_NEW_ISSUES, NOTIF_NEW_ISSUES, NOTIF_NEW_QUALITY_GATE_STATUS));
-    when(dispatchers.getSortedProjectDispatchers()).thenReturn(asList(NOTIF_MY_NEW_ISSUES, NOTIF_NEW_QUALITY_GATE_STATUS));
+    when(dispatchers.getGlobalDispatchers()).thenReturn(asList(NOTIF_MY_NEW_ISSUES, NOTIF_NEW_ISSUES, NOTIF_NEW_QUALITY_GATE_STATUS));
+    when(dispatchers.getProjectDispatchers()).thenReturn(asList(NOTIF_MY_NEW_ISSUES, NOTIF_NEW_QUALITY_GATE_STATUS));
     OrganizationDto organization = db.organizations().insertForKey("my-org-1");
     ComponentDto project = db.components().insertPrivateProject(organization, p -> p.setDbKey(KEY_PROJECT_EXAMPLE_001).setName("My Project"));
     db.users().insertProjectPermissionOnUser(user, USER, project);

@@ -60,7 +60,7 @@ public class DispatchersImplTest {
   public void get_sorted_global_dispatchers() {
     underTest.start();
 
-    assertThat(underTest.getSortedGlobalDispatchers()).containsExactly(
+    assertThat(underTest.getGlobalDispatchers()).containsExactly(
       NewAlerts.KEY, DoNotFixNotificationDispatcher.KEY, NewIssuesNotificationDispatcher.KEY, MyNewIssuesNotificationDispatcher.KEY);
   }
 
@@ -70,14 +70,14 @@ public class DispatchersImplTest {
 
     underTest.start();
 
-    assertThat(underTest.getSortedGlobalDispatchers()).containsOnly(MyNewIssuesNotificationDispatcher.KEY);
+    assertThat(underTest.getGlobalDispatchers()).containsOnly(MyNewIssuesNotificationDispatcher.KEY);
   }
 
   @Test
   public void get_sorted_project_dispatchers() {
     underTest.start();
 
-    assertThat(underTest.getSortedProjectDispatchers()).containsExactly(
+    assertThat(underTest.getProjectDispatchers()).containsExactly(
       NewAlerts.KEY, DoNotFixNotificationDispatcher.KEY, MyNewIssuesNotificationDispatcher.KEY);
   }
 
@@ -87,7 +87,7 @@ public class DispatchersImplTest {
 
     underTest.start();
 
-    assertThat(underTest.getSortedProjectDispatchers()).containsOnly(
+    assertThat(underTest.getProjectDispatchers()).containsOnly(
       MyNewIssuesNotificationDispatcher.KEY, NewAlerts.KEY, DoNotFixNotificationDispatcher.KEY);
   }
 }

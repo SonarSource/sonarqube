@@ -107,8 +107,8 @@ public class ListAction implements NotificationsWsAction {
       return Stream
         .of(ListResponse.newBuilder())
         .map(r -> r.addAllChannels(channels))
-        .map(r -> r.addAllGlobalTypes(dispatchers.getSortedGlobalDispatchers()))
-        .map(r -> r.addAllPerProjectTypes(dispatchers.getSortedProjectDispatchers()))
+        .map(r -> r.addAllGlobalTypes(dispatchers.getGlobalDispatchers()))
+        .map(r -> r.addAllPerProjectTypes(dispatchers.getProjectDispatchers()))
         .map(addNotifications(dbSession, user))
         .map(ListResponse.Builder::build)
         .collect(toOneElement());
@@ -155,7 +155,7 @@ public class ListAction implements NotificationsWsAction {
   }
 
   private boolean isDispatcherAuthorized(PropertyDto prop, String dispatcher) {
-    return (prop.getResourceId() != null && dispatchers.getSortedProjectDispatchers().contains(dispatcher)) || dispatchers.getSortedGlobalDispatchers().contains(dispatcher);
+    return (prop.getResourceId() != null && dispatchers.getProjectDispatchers().contains(dispatcher)) || dispatchers.getGlobalDispatchers().contains(dispatcher);
   }
 
   private Map<Long, ComponentDto> searchProjects(DbSession dbSession, List<PropertyDto> properties) {

@@ -97,8 +97,8 @@ public class AddAction implements NotificationsWsAction {
         "  <li>Global notifications: %s</li>" +
         "  <li>Per project notifications: %s</li>" +
         "</ul>",
-        String.join(", ", dispatchers.getSortedGlobalDispatchers()),
-        String.join(", ", dispatchers.getSortedProjectDispatchers()))
+        String.join(", ", dispatchers.getGlobalDispatchers()),
+        String.join(", ", dispatchers.getProjectDispatchers()))
       .setRequired(true)
       .setExampleValue(MyNewIssuesNotificationDispatcher.KEY);
 
@@ -154,15 +154,15 @@ public class AddAction implements NotificationsWsAction {
     setNullable(request.param(PARAM_LOGIN), add::setLogin);
 
     if (add.getProject() == null) {
-      checkRequest(dispatchers.getSortedGlobalDispatchers().contains(add.getType()), "Value of parameter '%s' (%s) must be one of: %s",
+      checkRequest(dispatchers.getGlobalDispatchers().contains(add.getType()), "Value of parameter '%s' (%s) must be one of: %s",
         PARAM_TYPE,
         add.getType(),
-        dispatchers.getSortedGlobalDispatchers());
+        dispatchers.getGlobalDispatchers());
     } else {
-      checkRequest(dispatchers.getSortedProjectDispatchers().contains(add.getType()), "Value of parameter '%s' (%s) must be one of: %s",
+      checkRequest(dispatchers.getProjectDispatchers().contains(add.getType()), "Value of parameter '%s' (%s) must be one of: %s",
         PARAM_TYPE,
         add.getType(),
-        dispatchers.getSortedProjectDispatchers());
+        dispatchers.getProjectDispatchers());
     }
 
     return add;

@@ -97,8 +97,8 @@ public class RemoveAction implements NotificationsWsAction {
         "  <li>Global notifications: %s</li>" +
         "  <li>Per project notifications: %s</li>" +
         "</ul>",
-        dispatchers.getSortedGlobalDispatchers().stream().sorted().collect(Collectors.joining(", ")),
-        dispatchers.getSortedProjectDispatchers().stream().sorted().collect(Collectors.joining(", ")))
+        dispatchers.getGlobalDispatchers().stream().sorted().collect(Collectors.joining(", ")),
+        dispatchers.getProjectDispatchers().stream().sorted().collect(Collectors.joining(", ")))
       .setRequired(true)
       .setExampleValue(MyNewIssuesNotificationDispatcher.KEY);
 
@@ -153,15 +153,15 @@ public class RemoveAction implements NotificationsWsAction {
     setNullable(request.param(PARAM_LOGIN), remove::setLogin);
 
     if (remove.getProject() == null) {
-      checkRequest(dispatchers.getSortedGlobalDispatchers().contains(remove.getType()), "Value of parameter '%s' (%s) must be one of: %s",
+      checkRequest(dispatchers.getGlobalDispatchers().contains(remove.getType()), "Value of parameter '%s' (%s) must be one of: %s",
         PARAM_TYPE,
         remove.getType(),
-        dispatchers.getSortedGlobalDispatchers());
+        dispatchers.getGlobalDispatchers());
     } else {
-      checkRequest(dispatchers.getSortedProjectDispatchers().contains(remove.getType()), "Value of parameter '%s' (%s) must be one of: %s",
+      checkRequest(dispatchers.getProjectDispatchers().contains(remove.getType()), "Value of parameter '%s' (%s) must be one of: %s",
         PARAM_TYPE,
         remove.getType(),
-        dispatchers.getSortedProjectDispatchers());
+        dispatchers.getProjectDispatchers());
     }
 
     return remove;

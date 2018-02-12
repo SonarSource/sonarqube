@@ -23,6 +23,7 @@ package org.sonar.server.notification.ws;
 import com.google.common.collect.ImmutableSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Predicate;
 import org.sonar.api.Startable;
 import org.sonar.api.config.Configuration;
 import org.sonar.process.ProcessProperties;
@@ -37,7 +38,7 @@ import static org.sonar.server.notification.NotificationDispatcherMetadata.PER_P
 
 public class DispatchersImpl implements Dispatchers, Startable {
 
-  private static final Set<String> GLOBAL_DISPATCHERS_NOT_FOR_SONAR_CLOUD = ImmutableSet.of(
+  private static final Set<String> GLOBAL_DISPATCHERS_TO_IGNORE_ON_SONAR_CLOUD = ImmutableSet.of(
     NewAlerts.KEY,
     DoNotFixNotificationDispatcher.KEY,
     NewIssuesNotificationDispatcher.KEY);
@@ -54,12 +55,12 @@ public class DispatchersImpl implements Dispatchers, Startable {
   }
 
   @Override
-  public List<String> getSortedGlobalDispatchers() {
+  public List<String> getGlobalDispatchers() {
     return globalDispatchers;
   }
 
   @Override
-  public List<String> getSortedProjectDispatchers() {
+  public List<String> getProjectDispatchers() {
     return projectDispatchers;
   }
 
@@ -68,13 +69,17 @@ public class DispatchersImpl implements Dispatchers, Startable {
     boolean isOnSonarCloud = configuration.getBoolean(ProcessProperties.Property.SONARCLOUD_ENABLED.getKey()).orElse(false);
     this.globalDispatchers = notificationCenter.getDispatcherKeysForProperty(GLOBAL_NOTIFICATION, "true")
       .stream()
-      .filter(dispatcher -> !(isOnSonarCloud && GLOBAL_DISPATCHERS_NOT_FOR_SONAR_CLOUD.contains(dispatcher)))
+      .filter(filterDispatcherForSonarCloud(isOnSonarCloud))
       .sorted()
       .collect(toList());
     this.projectDispatchers = notificationCenter.getDispatcherKeysForProperty(PER_PROJECT_NOTIFICATION, "true")
       .stream()
       .sorted()
       .collect(toList());
+  }
+
+  private static Predicate<String> filterDispatcherForSonarCloud(boolean isOnSonarCloud) {
+    return dispatcher -> !(isOnSonarCloud && GLOBAL_DISPATCHERS_TO_IGNORE_ON_SONAR_CLOUD.contains(dispatcher));
   }
 
   @Override
