@@ -24,7 +24,10 @@ import { change, submit, click } from '../../../../helpers/testUtils';
 
 jest.mock('../../../../api/metrics', () => ({
   getAllMetrics: () =>
-    Promise.resolve([{ id: '1', key: 'custom-metric', name: 'Custom Metric', type: 'STRING' }])
+    Promise.resolve([
+      { id: '1', key: 'custom-metric', name: 'Custom Metric', type: 'STRING' },
+      { id: '2', key: 'skipped-metric', name: 'Skipped Metric', type: 'FLOAT' }
+    ])
 }));
 
 it('should render form', async () => {
@@ -36,9 +39,9 @@ it('should render form', async () => {
       header="header"
       onClose={onClose}
       onSubmit={onSubmit}
+      skipMetrics={['skipped-metric']}
     />
   );
-  (wrapper.instance() as Form).mounted = true;
   expect(wrapper.dive()).toMatchSnapshot();
 
   await new Promise(setImmediate);

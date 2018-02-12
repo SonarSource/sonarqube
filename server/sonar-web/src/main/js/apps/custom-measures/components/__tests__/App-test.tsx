@@ -35,9 +35,7 @@ jest.mock('../../../../api/measures', () => ({
           value: 'custom-value'
         }
       ],
-      p: 1,
-      ps: 1,
-      total: 1
+      paging: { pageIndex: 1, pageSize: 1, total: 1 }
     }),
   createCustomMeasure: () =>
     Promise.resolve({
@@ -55,7 +53,6 @@ jest.mock('../../../../api/measures', () => ({
 
 it('should work', async () => {
   const wrapper = shallow(<App component={{ key: 'foo' }} />);
-  (wrapper.instance() as App).mounted = true;
   expect(wrapper).toMatchSnapshot();
 
   await new Promise(setImmediate);

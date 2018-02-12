@@ -20,7 +20,7 @@
 import { getJSON, RequestData, postJSON, post } from '../helpers/request';
 import throwGlobalError from '../app/utils/throwGlobalError';
 import { Measure, MeasurePeriod } from '../helpers/measures';
-import { Metric, CustomMeasure } from '../app/types';
+import { Metric, CustomMeasure, Paging } from '../app/types';
 import { Period } from '../helpers/periods';
 
 export function getMeasures(
@@ -72,13 +72,15 @@ export function getCustomMeasures(data: {
   p?: number;
   projectKey: string;
   ps?: number;
-}): Promise<{
-  customMeasures: CustomMeasure[];
-  p: number;
-  ps: number;
-  total: number;
-}> {
-  return getJSON('/api/custom_measures/search', data).catch(throwGlobalError);
+}): Promise<{ customMeasures: CustomMeasure[]; paging: Paging }> {
+  return getJSON('/api/custom_measures/search', data).then(
+    r =>
+      ({
+        customMeasures: r.customMeasures,
+        paging: { pageIndex: r.p, pageSize: r.ps, total: r.total }
+      } as any),
+    throwGlobalError
+  );
 }
 
 export function createCustomMeasure(data: {

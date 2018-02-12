@@ -34,7 +34,7 @@ export default function Header({ loading, onCreate, skipMetrics }: Props) {
       <h1 className="page-title">{translate('custom_measures.page')}</h1>
       <DeferredSpinner loading={loading} />
       <div className="page-actions">
-        {<CreateButton onCreate={onCreate} skipMetrics={skipMetrics} />}
+        <CreateButton onCreate={onCreate} skipMetrics={skipMetrics} />
       </div>
       <p className="page-description">{translate('custom_measures.page.description')}</p>
     </header>

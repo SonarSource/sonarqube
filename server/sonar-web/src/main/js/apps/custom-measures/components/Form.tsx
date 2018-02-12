@@ -27,8 +27,8 @@ import { translate } from '../../../helpers/l10n';
 
 interface Props {
   confirmButtonText: string;
-  measure?: CustomMeasure;
   header: string;
+  measure?: CustomMeasure;
   onClose: () => void;
   onSubmit: (data: { description: string; metricKey: string; value: string }) => Promise<void>;
   skipMetrics?: string[];

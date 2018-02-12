@@ -45,7 +45,7 @@ interface State {
   types?: string[];
 }
 
-const PAGE_SIZE = 500;
+const PAGE_SIZE = 50;
 
 export default class App extends React.PureComponent<Props, State> {
   mounted: boolean;

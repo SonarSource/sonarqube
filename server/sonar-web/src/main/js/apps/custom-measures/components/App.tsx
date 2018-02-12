@@ -41,7 +41,7 @@ interface State {
   paging?: Paging;
 }
 
-const PAGE_SIZE = 500;
+const PAGE_SIZE = 50;
 
 export default class App extends React.PureComponent<Props, State> {
   mounted: boolean;
@@ -59,13 +59,9 @@ export default class App extends React.PureComponent<Props, State> {
   fetchMeasures = () => {
     this.setState({ loading: true });
     getCustomMeasures({ projectKey: this.props.component.key, ps: PAGE_SIZE }).then(
-      ({ customMeasures, p, ps, total }) => {
+      ({ customMeasures, paging }) => {
         if (this.mounted) {
-          this.setState({
-            loading: false,
-            measures: customMeasures,
-            paging: { pageIndex: p, pageSize: ps, total }
-          });
+          this.setState({ loading: false, measures: customMeasures, paging });
         }
       },
       this.stopLoading
@@ -80,12 +76,12 @@ export default class App extends React.PureComponent<Props, State> {
         projectKey: this.props.component.key,
         p: paging.pageIndex + 1,
         ps: PAGE_SIZE
-      }).then(({ customMeasures, p, ps, total }) => {
+      }).then(({ customMeasures, paging }) => {
         if (this.mounted) {
           this.setState(({ measures = [] }: State) => ({
             loading: false,
             measures: [...measures, ...customMeasures],
-            paging: { pageIndex: p, pageSize: ps, total }
+            paging
           }));
         }
       }, this.stopLoading);
