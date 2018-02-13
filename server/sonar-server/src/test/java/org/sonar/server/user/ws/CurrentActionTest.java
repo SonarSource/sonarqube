@@ -216,7 +216,7 @@ public class CurrentActionTest {
     assertThat(definition.isInternal()).isTrue();
     assertThat(definition.responseExampleAsString()).isNotEmpty();
     assertThat(definition.params()).isEmpty();
-    assertThat(definition.changelog()).hasSize(1);
+    assertThat(definition.changelog()).hasSize(2);
   }
 
   private CurrentWsResponse call() {
@@ -244,6 +244,5 @@ public class CurrentActionTest {
 
     call();
   }
-
 
 }
