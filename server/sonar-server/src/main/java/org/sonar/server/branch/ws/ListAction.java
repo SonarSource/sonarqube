@@ -104,7 +104,6 @@ public class ListAction implements BranchWsAction {
       Map<String, LiveMeasureDto> qualityGateMeasuresByComponentUuids = dbClient.liveMeasureDao()
         .selectByComponentUuidsAndMetricKeys(dbSession, branches.stream().map(BranchDto::getUuid).collect(toList()), singletonList(ALERT_STATUS_KEY))
         .stream().collect(uniqueIndex(LiveMeasureDto::getComponentUuid));
-      // TODO perhaps need to do similarly for PULL_REQUEST too?
       Map<String, BranchStatistics> branchStatisticsByBranchUuid = issueIndex.searchBranchStatistics(project.uuid(), branches.stream()
         .filter(b -> b.getBranchType().equals(SHORT))
         .map(BranchDto::getUuid).collect(toList()))

@@ -62,6 +62,6 @@ public class IncreaseBranchTypeSizeForPullRequestTest {
       "KEE", "dummy_key",
       "CREATED_AT", 456789,
       "UPDATED_AT", 456789,
-      "BRANCH_TYPE", ScannerReport.Metadata.BranchType.PULL_REQUEST.name());
+      "BRANCH_TYPE", "PULL_REQUEST");
   }
 }
