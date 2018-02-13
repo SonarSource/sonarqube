@@ -19,6 +19,7 @@
  */
 package org.sonar.server.project.ws;
 
+import java.util.List;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -33,6 +34,8 @@ import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ResourceTypesRule;
 import org.sonar.db.user.UserDto;
+import org.sonar.db.webhook.WebhookDbTester;
+import org.sonar.db.webhook.WebhookDto;
 import org.sonar.server.component.ComponentCleanerService;
 import org.sonar.server.es.TestProjectIndexers;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -71,6 +74,7 @@ public class DeleteActionTest {
   private WsTester ws;
   private DbClient dbClient = db.getDbClient();
   private DbSession dbSession = db.getSession();
+  private WebhookDbTester webhookDbTester = db.webhooks();
   private ComponentDbTester componentDbTester = new ComponentDbTester(db);
   private ComponentCleanerService componentCleanerService = mock(ComponentCleanerService.class);
 
@@ -136,7 +140,6 @@ public class DeleteActionTest {
 
   @Test
   public void project_deletion_also_ensure_that_homepage_on_this_project_if_it_exists_is_cleared() throws Exception {
-
     ComponentDto project = componentDbTester.insertPrivateProject();
     UserDto insert = dbClient.userDao().insert(dbSession,
       newUserDto().setHomepageType("PROJECT").setHomepageParameter(project.uuid()));
@@ -155,6 +158,28 @@ public class DeleteActionTest {
     UserDto userReloaded = dbClient.userDao().selectUserById(dbSession, insert.getId());
     assertThat(userReloaded.getHomepageType()).isNull();
     assertThat(userReloaded.getHomepageParameter()).isNull();
+  }
+
+  @Test
+  public void project_deletion_also_ensure_that_webhooks_on_this_project_if_they_exists_are_deleted() throws Exception {
+    ComponentDto project = componentDbTester.insertPrivateProject();
+    webhookDbTester.insertWebhook(project);
+    webhookDbTester.insertWebhook(project);
+    webhookDbTester.insertWebhook(project);
+    webhookDbTester.insertWebhook(project);
+
+    userSessionRule.logIn().addProjectPermission(ADMIN, project);
+
+    new WsTester(new ProjectsWs(
+      new DeleteAction(
+        new ComponentCleanerService(dbClient, new ResourceTypesRule().setAllQualifiers(PROJECT),
+          new TestProjectIndexers()), from(db), dbClient, userSessionRule)))
+          .newPostRequest(CONTROLLER, ACTION)
+          .setParam(PARAM_PROJECT, project.getDbKey())
+          .execute();
+
+    List<WebhookDto> webhookDtos = dbClient.webhookDao().selectByProject(dbSession, project);
+    assertThat(webhookDtos).isEmpty();
   }
 
   @Test
