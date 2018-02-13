@@ -19,10 +19,11 @@
  */
 package org.sonar.server.project.ws;
 
-import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.util.Date;
+import java.util.List;
 import java.util.stream.IntStream;
+import org.apache.commons.lang.StringUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -31,6 +32,7 @@ import org.mockito.ArgumentCaptor;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.System2;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -207,6 +209,23 @@ public class BulkDeleteActionTest {
       .execute();
 
     verifyNoDeletions();
+  }
+
+  /**
+   * SONAR-10356
+   */
+  @Test
+  public void delete_only_the_1000_first_projects() {
+    userSession.logIn().addPermission(ADMINISTER, org1);
+    List<String> keys = IntStream.range(0, 1_010).mapToObj(i -> "key" + i).collect(MoreCollectors.toArrayList());
+    keys.forEach(key -> db.components().insertPrivateProject(org1, p -> p.setDbKey(key)));
+
+    ws.newRequest()
+      .setParam("organization", org1.getKey())
+      .setParam("projects", StringUtils.join(keys, ","))
+      .execute();
+
+    verify(componentCleanerService, times(1_000)).delete(any(DbSession.class), any(ComponentDto.class));
   }
 
   @Test

@@ -25,10 +25,12 @@ import java.util.List;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.ResourceTypes;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
+import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
@@ -45,6 +47,7 @@ import javax.annotation.Nullable;
 
 import static java.util.Collections.singleton;
 import static java.util.Objects.requireNonNull;
+import static java.lang.String.format;
 import static org.sonar.api.utils.DateUtils.parseDateOrDateTime;
 import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdmin;
@@ -91,6 +94,7 @@ public class BulkApplyTemplateAction implements PermissionsWsAction {
         "Requires the following permission: 'Administer System'.")
       .setPost(true)
       .setSince("5.5")
+      .setChangelog(new Change("6.7.2", format("Parameter %s accepts maximum %d values", PARAM_PROJECTS, DatabaseUtils.PARTITION_SIZE_FOR_ORACLE)))
       .setHandler(this);
 
     action.createParam(Param.TEXT_QUERY)
@@ -110,6 +114,9 @@ public class BulkApplyTemplateAction implements PermissionsWsAction {
       .createParam(PARAM_PROJECTS)
       .setDescription("Comma-separated list of project keys")
       .setSince("6.6")
+      // Limitation of ComponentDao#selectByQuery(), max 1000 values are accepted.
+      // Restricting size of HTTP parameter allows to not fail with SQL error
+      .setMaxValuesAllowed(DatabaseUtils.PARTITION_SIZE_FOR_ORACLE)
       .setExampleValue(String.join(",", KEY_PROJECT_EXAMPLE_001, KEY_PROJECT_EXAMPLE_002));
 
     action.createParam(PARAM_VISIBILITY)

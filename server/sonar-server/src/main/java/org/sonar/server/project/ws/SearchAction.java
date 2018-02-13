@@ -30,6 +30,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.Paging;
 import org.sonar.core.util.stream.MoreCollectors;
+import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
@@ -42,6 +43,7 @@ import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Projects.SearchWsResponse;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static java.lang.String.format;
 import static org.sonar.api.resources.Qualifiers.APP;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.api.resources.Qualifiers.VIEW;
@@ -89,7 +91,9 @@ public class SearchAction implements ProjectsWsAction {
       .setResponseExample(getClass().getResource("search-example.json"))
       .setHandler(this);
 
-    action.setChangelog(new Change("6.4", "The 'uuid' field is deprecated in the response"));
+    action.setChangelog(
+      new Change("6.4", "The 'uuid' field is deprecated in the response"),
+      new Change("6.7.2", format("Parameters %s and %s accept maximum %d values", PARAM_PROJECTS, PARAM_PROJECT_IDS, DatabaseUtils.PARTITION_SIZE_FOR_ORACLE)));
 
     action.createParam(Param.TEXT_QUERY)
       .setDescription("Limit search to: <ul>" +
@@ -129,6 +133,9 @@ public class SearchAction implements ProjectsWsAction {
       .createParam(PARAM_PROJECTS)
       .setDescription("Comma-separated list of project keys")
       .setSince("6.6")
+      // Limitation of ComponentDao#selectByQuery(), max 1000 values are accepted.
+      // Restricting size of HTTP parameter allows to not fail with SQL error
+      .setMaxValuesAllowed(DatabaseUtils.PARTITION_SIZE_FOR_ORACLE)
       .setExampleValue(String.join(",", KEY_PROJECT_EXAMPLE_001, KEY_PROJECT_EXAMPLE_002));
 
     action
@@ -137,6 +144,9 @@ public class SearchAction implements ProjectsWsAction {
       .setSince("6.6")
       // parameter added to match api/projects/bulk_delete parameters
       .setDeprecatedSince("6.6")
+      // Limitation of ComponentDao#selectByQuery(), max 1000 values are accepted.
+      // Restricting size of HTTP parameter allows to not fail with SQL error
+      .setMaxValuesAllowed(DatabaseUtils.PARTITION_SIZE_FOR_ORACLE)
       .setExampleValue(String.join(",", UUID_EXAMPLE_01, UUID_EXAMPLE_02));
   }
 

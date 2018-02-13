@@ -27,6 +27,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.LongStream;
 import javax.annotation.Nullable;
 import org.assertj.core.api.ListAssert;
 import org.junit.Rule;
@@ -720,7 +722,7 @@ public class ComponentDaoTest {
   }
 
   @Test
-  public void select_provisioned() {
+  public void selectByQuery_provisioned() {
     OrganizationDto organization = db.organizations().insert();
     ComponentDto provisionedProject = db.components()
       .insertComponent(newPrivateProjectDto(organization).setDbKey("provisioned.project").setName("Provisioned Project"));
@@ -775,6 +777,51 @@ public class ComponentDaoTest {
     assertThat(underTest.countByQuery(dbSession, organization.getUuid(), query.get().setQualifiers(Qualifiers.PROJECT).build())).isEqualTo(1);
     assertThat(underTest.countByQuery(dbSession, organization.getUuid(), query.get().setQualifiers(Qualifiers.VIEW).build())).isEqualTo(0);
     assertThat(underTest.countByQuery(dbSession, organization.getUuid(), query.get().setQualifiers(Qualifiers.PROJECT, Qualifiers.VIEW).build())).isEqualTo(1);
+  }
+
+  @Test
+  public void countByQuery_with_organization_throws_NPE_of_organizationUuid_is_null() {
+    expectedException.expect(NullPointerException.class);
+    expectedException.expectMessage("organizationUuid can't be null");
+
+    underTest.countByQuery(dbSession, null, ALL_PROJECTS_COMPONENT_QUERY);
+  }
+
+  @Test
+  public void countByQuery_throws_IAE_if_too_many_component_ids() {
+    Set<Long> ids = LongStream.range(0L, 1_010L).boxed().collect(Collectors.toSet());
+    ComponentQuery.Builder query = ComponentQuery.builder()
+      .setQualifiers(Qualifiers.PROJECT)
+      .setComponentIds(ids);
+
+    assertThatCountByQueryThrowsIAE(query, "Too many component ids in query");
+  }
+
+  @Test
+  public void countByQuery_throws_IAE_if_too_many_component_keys() {
+    Set<String> keys = IntStream.range(0, 1_010).mapToObj(String::valueOf).collect(Collectors.toSet());
+    ComponentQuery.Builder query = ComponentQuery.builder()
+      .setQualifiers(Qualifiers.PROJECT)
+      .setComponentKeys(keys);
+
+    assertThatCountByQueryThrowsIAE(query, "Too many component keys in query");
+  }
+
+  @Test
+  public void countByQuery_throws_IAE_if_too_many_component_uuids() {
+    Set<String> uuids = IntStream.range(0, 1_010).mapToObj(String::valueOf).collect(Collectors.toSet());
+    ComponentQuery.Builder query = ComponentQuery.builder()
+      .setQualifiers(Qualifiers.PROJECT)
+      .setComponentUuids(uuids);
+
+    assertThatCountByQueryThrowsIAE(query, "Too many component UUIDs in query");
+  }
+
+  private void assertThatCountByQueryThrowsIAE(ComponentQuery.Builder query, String expectedMessage) {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage(expectedMessage);
+
+    underTest.countByQuery(dbSession, query.build());
   }
 
   @Test
@@ -1007,11 +1054,40 @@ public class ComponentDaoTest {
   }
 
   @Test
-  public void countByQuery_with_organization_throws_NPE_of_organizationUuid_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("organizationUuid can't be null");
+  public void selectByQuery_throws_IAE_if_too_many_component_ids() {
+    Set<Long> ids = LongStream.range(0L, 1_010L).boxed().collect(Collectors.toSet());
+    ComponentQuery.Builder query = ComponentQuery.builder()
+      .setQualifiers(Qualifiers.PROJECT)
+      .setComponentIds(ids);
 
-    underTest.countByQuery(dbSession, null, ALL_PROJECTS_COMPONENT_QUERY);
+    assertThatSelectByQueryThrowsIAE(query, "Too many component ids in query");
+  }
+
+  @Test
+  public void selectByQuery_throws_IAE_if_too_many_component_keys() {
+    Set<String> keys = IntStream.range(0, 1_010).mapToObj(String::valueOf).collect(Collectors.toSet());
+    ComponentQuery.Builder query = ComponentQuery.builder()
+      .setQualifiers(Qualifiers.PROJECT)
+      .setComponentKeys(keys);
+
+    assertThatSelectByQueryThrowsIAE(query, "Too many component keys in query");
+  }
+
+  @Test
+  public void selectByQuery_throws_IAE_if_too_many_component_uuids() {
+    Set<String> uuids = IntStream.range(0, 1_010).mapToObj(String::valueOf).collect(Collectors.toSet());
+    ComponentQuery.Builder query = ComponentQuery.builder()
+      .setQualifiers(Qualifiers.PROJECT)
+      .setComponentUuids(uuids);
+
+    assertThatSelectByQueryThrowsIAE(query, "Too many component UUIDs in query");
+  }
+
+  private void assertThatSelectByQueryThrowsIAE(ComponentQuery.Builder query, String expectedMessage) {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage(expectedMessage);
+
+    underTest.selectByQuery(dbSession, query.build(), 0, Integer.MAX_VALUE);
   }
 
   @Test

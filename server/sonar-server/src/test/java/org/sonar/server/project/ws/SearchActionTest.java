@@ -20,10 +20,9 @@
 package org.sonar.server.project.ws;
 
 import com.google.common.base.Joiner;
-import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import org.assertj.core.api.Assertions;
@@ -301,6 +300,26 @@ public class SearchActionTest {
     assertThat(result.getComponentsList()).extracting(Component::getKey)
       .containsExactlyInAnyOrder(jdk.getKey(), sonarqube.getKey())
       .doesNotContain(sonarlint.getKey());
+  }
+
+  @Test
+  public void request_throws_IAE_if_more_than_1000_projects() {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("'projects' can contains only 1000 values, got 1001");
+
+    call(SearchRequest.builder()
+      .setProjects(Collections.nCopies(1_001, "foo"))
+      .build());
+  }
+
+  @Test
+  public void request_throws_IAE_if_more_than_1000_project_ids() {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("'projectIds' can contains only 1000 values, got 1001");
+
+    call(SearchRequest.builder()
+      .setProjectIds(Collections.nCopies(1_001, "foo"))
+      .build());
   }
 
   @Test

@@ -19,6 +19,7 @@
  */
 package org.sonar.server.project.ws;
 
+import java.util.stream.IntStream;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -114,10 +115,23 @@ public class SearchMyProjectsActionTest {
     db.users().insertProjectPermissionOnUser(user, UserRole.ADMIN, jdk7);
     db.users().insertProjectPermissionOnUser(anotherUser, UserRole.ADMIN, cLang);
 
-    SearchMyProjectsWsResponse result = call_ws();
+    SearchMyProjectsWsResponse result = callWs();
 
     assertThat(result.getProjectsCount()).isEqualTo(1);
     assertThat(result.getProjects(0).getId()).isEqualTo(jdk7.uuid());
+  }
+
+  @Test
+  public void return_only_first_1000_projects() {
+    OrganizationDto organization = db.organizations().insert();
+    IntStream.range(0, 1_010).forEach(i -> {
+      ComponentDto project = db.components().insertComponent(newPrivateProjectDto(organization));
+      db.users().insertProjectPermissionOnUser(user, UserRole.ADMIN, project);
+    });
+
+    SearchMyProjectsWsResponse result = callWs();
+
+    assertThat(result.getPaging().getTotal()).isEqualTo(1_000);
   }
 
   @Test
@@ -131,7 +145,7 @@ public class SearchMyProjectsActionTest {
     db.users().insertProjectPermissionOnUser(user, UserRole.ADMIN, a_project);
     db.users().insertProjectPermissionOnUser(user, UserRole.ADMIN, c_project);
 
-    SearchMyProjectsWsResponse result = call_ws();
+    SearchMyProjectsWsResponse result = callWs();
 
     assertThat(result.getProjectsCount()).isEqualTo(3);
     assertThat(result.getProjectsList()).extracting(Project::getId)
@@ -164,7 +178,7 @@ public class SearchMyProjectsActionTest {
     db.users().insertProjectPermissionOnUser(user, UserRole.ADMIN, jdk7);
     db.users().insertProjectPermissionOnUser(user, UserRole.ISSUE_ADMIN, clang);
 
-    SearchMyProjectsWsResponse result = call_ws();
+    SearchMyProjectsWsResponse result = callWs();
 
     assertThat(result.getProjectsCount()).isEqualTo(1);
     assertThat(result.getProjects(0).getId()).isEqualTo(jdk7.uuid());
@@ -179,7 +193,7 @@ public class SearchMyProjectsActionTest {
     db.users().insertProjectPermissionOnUser(user, UserRole.ADMIN, jdk7);
     db.users().insertProjectPermissionOnUser(user, UserRole.ADMIN, view);
 
-    SearchMyProjectsWsResponse result = call_ws();
+    SearchMyProjectsWsResponse result = callWs();
 
     assertThat(result.getProjectsCount()).isEqualTo(1);
     assertThat(result.getProjects(0).getId()).isEqualTo(jdk7.uuid());
@@ -191,7 +205,7 @@ public class SearchMyProjectsActionTest {
     ComponentDto branch = db.components().insertProjectBranch(project);
     db.users().insertProjectPermissionOnUser(user, UserRole.ADMIN, project);
 
-    SearchMyProjectsWsResponse result = call_ws();
+    SearchMyProjectsWsResponse result = callWs();
 
     assertThat(result.getProjectsList())
       .extracting(Project::getKey)
@@ -210,7 +224,7 @@ public class SearchMyProjectsActionTest {
     db.users().insertProjectPermissionOnGroup(group, UserRole.ADMIN, jdk7);
     db.users().insertProjectPermissionOnGroup(group, UserRole.USER, cLang);
 
-    SearchMyProjectsWsResponse result = call_ws();
+    SearchMyProjectsWsResponse result = callWs();
 
     assertThat(result.getProjectsCount()).isEqualTo(1);
     assertThat(result.getProjects(0).getId()).isEqualTo(jdk7.uuid());
@@ -232,7 +246,7 @@ public class SearchMyProjectsActionTest {
     db.users().insertProjectPermissionOnUser(user, UserRole.ADMIN, sonarqube);
     db.users().insertProjectPermissionOnGroup(group, UserRole.ADMIN, sonarqube);
 
-    SearchMyProjectsWsResponse result = call_ws();
+    SearchMyProjectsWsResponse result = callWs();
 
     assertThat(result.getProjectsCount()).isEqualTo(3);
     assertThat(result.getProjectsList()).extracting(Project::getId).containsOnly(jdk7.uuid(), cLang.uuid(), sonarqube.uuid());
@@ -249,7 +263,7 @@ public class SearchMyProjectsActionTest {
     userSession.anonymous();
     expectedException.expect(UnauthorizedException.class);
 
-    call_ws();
+    callWs();
   }
 
   private ComponentDto insertClang(OrganizationDto organizationDto) {
@@ -271,7 +285,7 @@ public class SearchMyProjectsActionTest {
       .setDbKey("Java"));
   }
 
-  private SearchMyProjectsWsResponse call_ws() {
+  private SearchMyProjectsWsResponse callWs() {
     return ws.newRequest()
       .executeProtobuf(SearchMyProjectsWsResponse.class);
   }

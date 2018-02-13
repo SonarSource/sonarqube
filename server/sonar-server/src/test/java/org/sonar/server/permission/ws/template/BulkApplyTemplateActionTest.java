@@ -19,7 +19,9 @@
  */
 package org.sonar.server.permission.ws.template;
 
+import java.util.Collections;
 import java.util.List;
+import org.apache.commons.lang.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.resources.Qualifiers;
@@ -102,7 +104,7 @@ public class BulkApplyTemplateActionTest extends BasePermissionWsTest<BulkApplyT
   }
 
   @Test
-  public void bulk_apply_template_by_template_uuid() throws Exception {
+  public void bulk_apply_template_by_template_uuid() {
     // this project should not be applied the template
     OrganizationDto otherOrganization = db.organizations().insert();
     db.components().insertPrivateProject(otherOrganization);
@@ -135,7 +137,19 @@ public class BulkApplyTemplateActionTest extends BasePermissionWsTest<BulkApplyT
   }
 
   @Test
-  public void bulk_apply_template_by_template_name() throws Exception {
+  public void request_throws_IAE_if_more_than_1000_projects() {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("'projects' can contains only 1000 values, got 1001");
+
+    newRequest()
+      .setParam(PARAM_ORGANIZATION, organization.getKey())
+      .setParam(PARAM_TEMPLATE_NAME, template1.getName())
+      .setParam(PARAM_PROJECTS, StringUtils.join(Collections.nCopies(1_001, "foo"), ","))
+      .execute();
+  }
+
+  @Test
+  public void bulk_apply_template_by_template_name() {
     ComponentDto privateProject = db.components().insertPrivateProject(organization);
     ComponentDto publicProject = db.components().insertPublicProject(organization);
     loginAsAdmin(organization);
@@ -150,7 +164,7 @@ public class BulkApplyTemplateActionTest extends BasePermissionWsTest<BulkApplyT
   }
 
   @Test
-  public void apply_template_by_qualifiers() throws Exception {
+  public void apply_template_by_qualifiers() {
     ComponentDto publicProject = db.components().insertPublicProject(organization);
     ComponentDto privateProject = db.components().insertPrivateProject(organization);
     ComponentDto view = db.components().insertComponent(newView(organization));
@@ -169,7 +183,7 @@ public class BulkApplyTemplateActionTest extends BasePermissionWsTest<BulkApplyT
   }
 
   @Test
-  public void apply_template_by_query_on_name_and_key_public_project() throws Exception {
+  public void apply_template_by_query_on_name_and_key_public_project() {
     ComponentDto publicProjectFoundByKey = ComponentTesting.newPublicProjectDto(organization).setDbKey("sonar");
     db.components().insertProjectAndSnapshot(publicProjectFoundByKey);
     ComponentDto publicProjectFoundByName = ComponentTesting.newPublicProjectDto(organization).setName("name-sonar-name");
@@ -189,7 +203,7 @@ public class BulkApplyTemplateActionTest extends BasePermissionWsTest<BulkApplyT
   }
 
   @Test
-  public void apply_template_by_query_on_name_and_key() throws Exception {
+  public void apply_template_by_query_on_name_and_key() {
     // partial match on key
     ComponentDto privateProjectFoundByKey = ComponentTesting.newPrivateProjectDto(organization).setDbKey("sonarqube");
     db.components().insertProjectAndSnapshot(privateProjectFoundByKey);
@@ -210,7 +224,7 @@ public class BulkApplyTemplateActionTest extends BasePermissionWsTest<BulkApplyT
   }
 
   @Test
-  public void apply_template_by_project_keys() throws Exception {
+  public void apply_template_by_project_keys() {
     ComponentDto project1 = db.components().insertPrivateProject(organization);
     ComponentDto project2 = db.components().insertPrivateProject(organization);
     ComponentDto untouchedProject = db.components().insertPrivateProject(organization);
@@ -227,7 +241,7 @@ public class BulkApplyTemplateActionTest extends BasePermissionWsTest<BulkApplyT
   }
 
   @Test
-  public void apply_template_by_provisioned_only() throws Exception {
+  public void apply_template_by_provisioned_only() {
     ComponentDto provisionedProject1 = db.components().insertPrivateProject(organization);
     ComponentDto provisionedProject2 = db.components().insertPrivateProject(organization);
     ComponentDto analyzedProject = db.components().insertPrivateProject(organization);
@@ -245,7 +259,7 @@ public class BulkApplyTemplateActionTest extends BasePermissionWsTest<BulkApplyT
   }
 
   @Test
-  public void apply_template_by_analyzed_before() throws Exception {
+  public void apply_template_by_analyzed_before() {
     ComponentDto oldProject1 = db.components().insertPrivateProject(organization);
     ComponentDto oldProject2 = db.components().insertPrivateProject(organization);
     ComponentDto recentProject = db.components().insertPrivateProject(organization);
@@ -265,7 +279,7 @@ public class BulkApplyTemplateActionTest extends BasePermissionWsTest<BulkApplyT
   }
 
   @Test
-  public void apply_template_by_visibility() throws Exception {
+  public void apply_template_by_visibility() {
     ComponentDto privateProject1 = db.components().insertPrivateProject(organization);
     ComponentDto privateProject2 = db.components().insertPrivateProject(organization);
     ComponentDto publicProject = db.components().insertPublicProject(organization);

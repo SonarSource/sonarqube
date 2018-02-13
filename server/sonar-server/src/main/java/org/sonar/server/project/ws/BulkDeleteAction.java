@@ -19,6 +19,10 @@
  */
 package org.sonar.server.project.ws;
 
+import java.util.List;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -32,6 +36,7 @@ import org.sonar.server.component.ComponentCleanerService;
 import org.sonar.server.project.Visibility;
 import org.sonar.server.user.UserSession;
 
+import static java.lang.Math.min;
 import static org.sonar.api.resources.Qualifiers.APP;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.api.resources.Qualifiers.VIEW;
@@ -73,7 +78,8 @@ public class BulkDeleteAction implements ProjectsWsAction {
       .setDescription("Delete one or several projects.<br />" +
         "Requires 'Administer System' permission.")
       .setSince("5.2")
-      .setHandler(this);
+      .setHandler(this)
+      .setChangelog(new Change("6.7.2", "Only the 1'000 first items in project filters are taken into account"));
 
     support.addOrganizationParam(action);
 
@@ -85,7 +91,7 @@ public class BulkDeleteAction implements ProjectsWsAction {
 
     action
       .createParam(PARAM_PROJECT_IDS)
-      .setDescription("Comma-separated list of project ids")
+      .setDescription("Comma-separated list of project ids. Only the 1'000 first ids are used. Others are silently ignored.")
       .setDeprecatedKey("ids", "6.4")
       .setDeprecatedSince("6.4")
       .setExampleValue(String.join(",", UUID_EXAMPLE_01, UUID_EXAMPLE_02));
@@ -147,8 +153,16 @@ public class BulkDeleteAction implements ProjectsWsAction {
       .setVisibility(request.param(PARAM_VISIBILITY))
       .setAnalyzedBefore(request.param(PARAM_ANALYZED_BEFORE))
       .setOnProvisionedOnly(request.mandatoryParamAsBoolean(PARAM_ON_PROVISIONED_ONLY))
-      .setProjects(request.paramAsStrings(PARAM_PROJECTS))
-      .setProjectIds(request.paramAsStrings(PARAM_PROJECT_IDS))
+      .setProjects(restrictTo1000Values(request.paramAsStrings(PARAM_PROJECTS)))
+      .setProjectIds(restrictTo1000Values(request.paramAsStrings(PARAM_PROJECT_IDS)))
       .build();
+  }
+
+  @CheckForNull
+  private static List<String> restrictTo1000Values(@Nullable List<String> values) {
+    if (values == null) {
+      return null;
+    }
+    return values.subList(0, min(values.size(), 1_000));
   }
 }

@@ -34,6 +34,7 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.web.UserRole;
+import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
@@ -69,7 +70,7 @@ public class SearchMyProjectsAction implements ProjectsWsAction {
   @Override
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction("search_my_projects")
-      .setDescription("Return list of projects for which the current user has 'Administer' permission.")
+      .setDescription("Return list of projects for which the current user has 'Administer' permission. Maximum 1'000 projects are returned.")
       .setResponseExample(getClass().getResource("search_my_projects-example.json"))
       .addPagingParams(100, MAX_SIZE)
       .setSince("6.0")
@@ -193,7 +194,7 @@ public class SearchMyProjectsAction implements ProjectsWsAction {
     List<Long> componentIds = dbClient.roleDao().selectComponentIdsByPermissionAndUserId(dbSession, UserRole.ADMIN, userId);
     ComponentQuery dbQuery = ComponentQuery.builder()
             .setQualifiers(Qualifiers.PROJECT)
-            .setComponentIds(ImmutableSet.copyOf(componentIds))
+            .setComponentIds(ImmutableSet.copyOf(componentIds.subList(0, Math.min(componentIds.size(), DatabaseUtils.PARTITION_SIZE_FOR_ORACLE))))
             .build();
 
     return new ProjectsResult(
