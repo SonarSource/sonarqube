@@ -69,4 +69,16 @@
     uuid = #{uuid,jdbcType=VARCHAR}
   </delete>
 
+  <delete id="deleteForOrganizationUuid" parameterType="String">
+    delete from webhooks
+    where
+    organization_uuid = #{organizationUuid,jdbcType=VARCHAR}
+  </delete>
+
+  <delete id="deleteForProjectUuid" parameterType="String">
+    delete from webhooks
+    where
+    project_uuid = #{projectUuid,jdbcType=VARCHAR}
+  </delete>
+
 </mapper>

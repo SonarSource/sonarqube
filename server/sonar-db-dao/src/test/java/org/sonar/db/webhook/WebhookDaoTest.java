@@ -28,6 +28,8 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.ComponentDbTester;
+import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDbTester;
 import org.sonar.db.organization.OrganizationDto;
 
@@ -47,7 +49,9 @@ public class WebhookDaoTest {
   private final DbSession dbSession = dbTester.getSession();
   private final WebhookDao underTest = dbClient.webhookDao();
   private final WebhookDbTester webhookDbTester = dbTester.webhooks();
+  private final ComponentDbTester componentDbTester = dbTester.components();
   private final OrganizationDbTester organizationDbTester = dbTester.organizations();
+
 
   @Test
   public void selectByUuid_returns_empty_if_uuid_does_not_exist() {
@@ -117,9 +121,41 @@ public class WebhookDaoTest {
   }
 
   @Test
+  public void cleanWebhooksOfAProject() {
+
+    OrganizationDto organization = organizationDbTester.insert();
+    ComponentDto componentDto = componentDbTester.insertPrivateProject(organization);
+    webhookDbTester.insertWebhook(componentDto);
+    webhookDbTester.insertWebhook(componentDto);
+    webhookDbTester.insertWebhook(componentDto);
+    webhookDbTester.insertWebhook(componentDto);
+
+    underTest.cleanWebhooks(dbSession, componentDto);
+
+    Optional<WebhookDto> reloaded = underTest.selectByUuid(dbSession, componentDto.uuid());
+    assertThat(reloaded).isEmpty();
+  }
+
+  @Test
+  public void cleanWebhooksOfAnOrganization() {
+
+    OrganizationDto organization = organizationDbTester.insert();
+    webhookDbTester.insertWebhook(organization);
+    webhookDbTester.insertWebhook(organization);
+    webhookDbTester.insertWebhook(organization);
+    webhookDbTester.insertWebhook(organization);
+
+    underTest.cleanWebhooks(dbSession, organization);
+
+    Optional<WebhookDto> reloaded = underTest.selectByUuid(dbSession, organization.getUuid());
+    assertThat(reloaded).isEmpty();
+  }
+
+  @Test
   public void delete() {
 
     OrganizationDto organization = organizationDbTester.insert();
+
     WebhookDto dto = webhookDbTester.insertWebhook(organization);
 
     underTest.delete(dbSession, dto.getUuid());
