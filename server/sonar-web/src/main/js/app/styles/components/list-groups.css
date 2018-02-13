@@ -43,16 +43,22 @@
   background-color: var(--lightBlue);
 }
 
+.list-group-item:hover {
+  z-index: var(--aboveNormalZIndex);
+  border-color: var(--blue) !important;
+}
+
 .list-group-item + .list-group-item {
   border-top-color: var(--barBorderColor);
 }
 
 a.list-group-item {
   color: var(--baseFontColor);
+  transition: none;
 }
 
 .list-group-item-heading {
-  margin-top: 0;
+  margin-top: 5px;
   margin-bottom: 5px;
 }
 
