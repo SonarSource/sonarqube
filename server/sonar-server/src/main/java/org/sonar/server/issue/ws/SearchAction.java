@@ -20,7 +20,6 @@
 package org.sonar.server.issue.ws;
 
 import com.google.common.base.Joiner;
-import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import java.util.Arrays;
@@ -69,6 +68,7 @@ import static java.lang.String.format;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.sonar.api.utils.Paging.forPageIndex;
+import static org.sonar.core.util.stream.MoreCollectors.toSet;
 import static org.sonar.server.es.SearchOptions.MAX_LIMIT;
 import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
@@ -360,7 +360,7 @@ public class SearchAction implements IssuesWsAction {
 
       Set<String> facetsRequiringProjectOrOrganizationParameter = facets.getNames().stream()
         .filter(FACETS_REQUIRING_PROJECT_OR_ORGANIZATION::contains)
-        .collect(MoreCollectors.toSet());
+        .collect(toSet());
       checkArgument(facetsRequiringProjectOrOrganizationParameter.isEmpty() ||
         (!query.projectUuids().isEmpty()) || query.organizationUuid() != null, "Facet(s) '%s' require to also filter by project or organization",
         COMA_JOINER.join(facetsRequiringProjectOrOrganizationParameter));
@@ -384,35 +384,59 @@ public class SearchAction implements IssuesWsAction {
   }
 
   private void replaceRuleIdsByRuleKeys(@Nullable Facets facets, List<RuleDefinitionDto> alreadyLoadedRules) {
-    if (facets == null || facets.get(PARAM_RULES) == null) {
+    if (facets == null) {
+      return;
+    }
+    LinkedHashMap<String, Long> rulesFacet = facets.get(PARAM_RULES);
+    if (rulesFacet == null) {
       return;
     }
 
     // The facet for PARAM_RULES contains the id of the rule as the key
     // We need to update the key to be a RuleKey
-    LinkedHashMap<String, Long> rulesFacet = facets.get(PARAM_RULES);
-
     try (DbSession dbSession = dbClient.openSession(false)) {
-      Set<String> ruleKeysToLoad = new HashSet<>(rulesFacet.keySet());
-      ruleKeysToLoad.removeAll(
+      Set<Integer> ruleIdsToLoad = new HashSet<>();
+      rulesFacet.keySet().forEach(s -> {
+        try {
+          ruleIdsToLoad.add(Integer.parseInt(s));
+        } catch (NumberFormatException e) {
+          // ignore, this is already a key
+        }
+      });
+      ruleIdsToLoad.removeAll(
         alreadyLoadedRules
           .stream()
-          .map(r -> r.getKey().toString())
+          .map(RuleDefinitionDto::getId)
           .collect(Collectors.toList()));
 
-      Map<Integer, RuleKey> idToRuleKey = Stream.concat(
+      List<RuleDefinitionDto> ruleDefinitions = Stream.concat(
         alreadyLoadedRules.stream(),
-        dbClient.ruleDao().selectDefinitionByIds(dbSession, Collections2.transform(ruleKeysToLoad, Integer::parseInt)).stream())
+        dbClient.ruleDao().selectDefinitionByIds(dbSession, ruleIdsToLoad).stream())
+        .collect(MoreCollectors.toList());
+      Map<Integer, RuleKey> ruleKeyById = ruleDefinitions.stream()
         .collect(Collectors.toMap(RuleDefinitionDto::getId, RuleDefinitionDto::getKey));
+      Map<String, Integer> idByRuleKeyAsString = ruleDefinitions.stream()
+        .collect(Collectors.toMap(s -> s.getKey().toString(), RuleDefinitionDto::getId));
 
       LinkedHashMap<String, Long> newRulesFacet = new LinkedHashMap<>();
       rulesFacet.forEach((k, v) -> {
-        RuleKey ruleKey = idToRuleKey.get(Integer.parseInt(k));
-        if (ruleKey != null) {
-          newRulesFacet.put(ruleKey.toString(), v);
-        } else {
-          // RuleKey not found ES/DB incorrect?
-          LOGGER.error("Rule with id {} is not available in database", k);
+        try {
+          int ruleId = Integer.parseInt(k);
+          RuleKey ruleKey = ruleKeyById.get(ruleId);
+          if (ruleKey != null) {
+            newRulesFacet.put(ruleKey.toString(), v);
+          } else {
+            // RuleKey not found ES/DB incorrect?
+            LOGGER.error("Rule with id {} is not available in database", k);
+          }
+        } catch (NumberFormatException e) {
+          // RuleKey are added into the facet from the HTTP request, there may be a result for this rule from the
+          // ES search (with the ruleId as a key). If so, do not add this entry again (anyway, value for ruleKey is
+          // always 0 since it is added SearchAction#completeFacets).
+          String ruleId = String.valueOf(idByRuleKeyAsString.get(k));
+          if (!rulesFacet.containsKey(ruleId)) {
+            newRulesFacet.put(k, v);
+          }
         }
       });
       rulesFacet.clear();
@@ -502,7 +526,7 @@ public class SearchAction implements IssuesWsAction {
   private static void collectFacets(SearchResponseLoader.Collector collector, Facets facets) {
     Set<String> facetRules = facets.getBucketKeys(PARAM_RULES);
     if (facetRules != null) {
-      collector.addAll(SearchAdditionalField.RULES, facetRules);
+      collector.addAll(SearchAdditionalField.RULE_IDS_AND_KEYS, facetRules);
     }
     collector.addProjectUuids(facets.getBucketKeys(PARAM_PROJECT_UUIDS));
     collector.addComponentUuids(facets.getBucketKeys(PARAM_COMPONENT_UUIDS));

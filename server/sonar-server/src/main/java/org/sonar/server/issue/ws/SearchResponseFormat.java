@@ -89,7 +89,7 @@ public class SearchResponseFormat {
     if (facets != null) {
       formatFacets(facets, response);
     }
-    if (fields.contains(SearchAdditionalField.RULES)) {
+    if (fields.contains(SearchAdditionalField.RULE_IDS_AND_KEYS)) {
       response.setRules(formatRules(data));
     }
     if (fields.contains(SearchAdditionalField.USERS)) {
