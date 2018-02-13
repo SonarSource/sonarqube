@@ -123,6 +123,7 @@ message CurrentWsResponse {
 
   message Homepage {
     optional HomepageType type = 1;
-    optional string parameter = 2;
+    optional string component = 2;
+    optional string organization = 3;
   }
 }
