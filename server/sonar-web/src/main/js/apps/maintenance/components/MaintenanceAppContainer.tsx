@@ -18,19 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import init from '../init';
-import '../styles.css';
+import App from './App';
 
 interface Props {
+  // eslint-disable-next-line camelcase
   location: { query: { return_to: string } };
 }
 
-export default class MaintenanceAppContainer extends React.PureComponent<Props> {
-  componentDidMount() {
-    init(this.refs.container, false, this.props.location.query['return_to']);
-  }
-
-  render() {
-    return <div ref="container" />;
-  }
+export default function MaintenanceAppContainer(props: Props) {
+  return <App setup={false} {...props} />;
 }

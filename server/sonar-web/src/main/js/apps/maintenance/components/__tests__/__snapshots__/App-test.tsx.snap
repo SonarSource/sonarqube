@@ -1,0 +1,399 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Maintenance Page should render DB_MIGRATION_NEEDED status 1`] = `
+<div
+  className="page-wrapper-simple"
+  id="bd"
+>
+  <div
+    className="page-simple"
+    id="nonav"
+  >
+    <React.Fragment>
+      <h1
+        className="maintenance-title"
+      >
+        maintenance.sonarqube_is_under_maintenance
+      </h1>
+      <p
+        className="maintenance-text"
+        dangerouslySetInnerHTML={
+          Object {
+            "__html": "maintenance.sonarqube_is_under_maintenance.1",
+          }
+        }
+      />
+      <p
+        className="maintenance-text"
+        dangerouslySetInnerHTML={
+          Object {
+            "__html": "maintenance.sonarqube_is_under_maintenance.2",
+          }
+        }
+      />
+    </React.Fragment>
+  </div>
+</div>
+`;
+
+exports[`Maintenance Page should render DB_MIGRATION_RUNNING status 1`] = `
+<div
+  className="page-wrapper-simple"
+  id="bd"
+>
+  <div
+    className="page-simple"
+    id="nonav"
+  >
+    <React.Fragment>
+      <h1
+        className="maintenance-title"
+      >
+        maintenance.sonarqube_is_under_maintenance
+      </h1>
+      <p
+        className="maintenance-text"
+        dangerouslySetInnerHTML={
+          Object {
+            "__html": "maintenance.sonarqube_is_under_maintenance.1",
+          }
+        }
+      />
+      <p
+        className="maintenance-text"
+        dangerouslySetInnerHTML={
+          Object {
+            "__html": "maintenance.sonarqube_is_under_maintenance.2",
+          }
+        }
+      />
+    </React.Fragment>
+  </div>
+</div>
+`;
+
+exports[`Maintenance Page should render DOWN status 1`] = `
+<div
+  className="page-wrapper-simple"
+  id="bd"
+>
+  <div
+    className="page-simple"
+    id="nonav"
+  >
+    <React.Fragment>
+      <h1
+        className="maintenance-title text-danger"
+      >
+        maintenance.sonarqube_is_down
+      </h1>
+      <p
+        className="maintenance-text"
+      >
+        maintenance.sonarqube_is_down.text
+      </p>
+      <p
+        className="maintenance-text text-center"
+      >
+        <a
+          href="/"
+        >
+          maintenance.try_again
+        </a>
+      </p>
+    </React.Fragment>
+  </div>
+</div>
+`;
+
+exports[`Maintenance Page should render OFFLINE status 1`] = `
+<div
+  className="page-wrapper-simple"
+  id="bd"
+>
+  <div
+    className="page-simple"
+    id="nonav"
+  >
+    <React.Fragment>
+      <h1
+        className="maintenance-title text-danger"
+      >
+        maintenance.sonarqube_is_offline
+      </h1>
+      <p
+        className="maintenance-text"
+      >
+        maintenance.sonarqube_is_offline.text
+      </p>
+      <p
+        className="maintenance-text text-center"
+      >
+        <a
+          href="/"
+        >
+          maintenance.try_again
+        </a>
+      </p>
+    </React.Fragment>
+  </div>
+</div>
+`;
+
+exports[`Maintenance Page should render STARTING status 1`] = `
+<div
+  className="page-wrapper-simple"
+  id="bd"
+>
+  <div
+    className="page-simple"
+    id="nonav"
+  >
+    <React.Fragment>
+      <h1
+        className="maintenance-title"
+      >
+        maintenance.sonarqube_is_starting
+      </h1>
+      <p
+        className="maintenance-spinner"
+      >
+        <i
+          className="spinner"
+        />
+      </p>
+    </React.Fragment>
+  </div>
+</div>
+`;
+
+exports[`Maintenance Page should render UP status 1`] = `
+<div
+  className="page-wrapper-simple"
+  id="bd"
+>
+  <div
+    className="page-simple"
+    id="nonav"
+  >
+    <React.Fragment>
+      <h1
+        className="maintenance-title"
+      >
+        maintenance.sonarqube_is_up
+      </h1>
+      <p
+        className="maintenance-text text-center"
+      >
+        maintenance.all_systems_opetational
+      </p>
+      <p
+        className="maintenance-text text-center"
+      >
+        <a
+          href="/"
+        >
+          layout.home
+        </a>
+      </p>
+    </React.Fragment>
+  </div>
+</div>
+`;
+
+exports[`Setup Page should render MIGRATION_FAILED state 1`] = `
+<div
+  className="page-wrapper-simple"
+  id="bd"
+>
+  <div
+    className="page-simple"
+    id="nonav"
+  >
+    <React.Fragment>
+      <h1
+        className="maintenance-title text-danger"
+      >
+        maintenance.upgrade_failed
+      </h1>
+      <p
+        className="maintenance-text"
+      >
+        maintenance.upgrade_failed.text
+      </p>
+    </React.Fragment>
+  </div>
+</div>
+`;
+
+exports[`Setup Page should render MIGRATION_SUCCEEDED state 1`] = `
+<div
+  className="page-wrapper-simple"
+  id="bd"
+>
+  <div
+    className="page-simple"
+    id="nonav"
+  >
+    <React.Fragment>
+      <h1
+        className="maintenance-title text-success"
+      >
+        maintenance.database_is_up_to_date
+      </h1>
+      <p
+        className="maintenance-text text-center"
+      >
+        <a
+          href="/"
+        >
+          layout.home
+        </a>
+      </p>
+    </React.Fragment>
+  </div>
+</div>
+`;
+
+exports[`Setup Page should render NO_MIGRATION state 1`] = `
+<div
+  className="page-wrapper-simple"
+  id="bd"
+>
+  <div
+    className="page-simple"
+    id="nonav"
+  >
+    <React.Fragment>
+      <h1
+        className="maintenance-title"
+      >
+        maintenance.database_is_up_to_date
+      </h1>
+      <p
+        className="maintenance-text text-center"
+      >
+        <a
+          href="/"
+        >
+          layout.home
+        </a>
+      </p>
+    </React.Fragment>
+  </div>
+</div>
+`;
+
+exports[`Setup Page should render NOT_SUPPORTED state 1`] = `
+<div
+  className="page-wrapper-simple"
+  id="bd"
+>
+  <div
+    className="page-simple"
+    id="nonav"
+  >
+    <React.Fragment>
+      <h1
+        className="maintenance-title text-danger"
+      >
+        maintenance.migration_not_supported
+      </h1>
+      <p>
+        maintenance.migration_not_supported.text
+      </p>
+    </React.Fragment>
+  </div>
+</div>
+`;
+
+exports[`Setup Page should start migration 1`] = `
+<div
+  className="page-wrapper-simple"
+  id="bd"
+>
+  <div
+    className="page-simple panel-warning"
+    id="nonav"
+  >
+    <React.Fragment>
+      <h1
+        className="maintenance-title"
+      >
+        maintenance.upgrade_database
+      </h1>
+      <p
+        className="maintenance-text"
+      >
+        maintenance.upgrade_database.1
+      </p>
+      <p
+        className="maintenance-text"
+      >
+        maintenance.upgrade_database.2
+      </p>
+      <p
+        className="maintenance-text"
+      >
+        maintenance.upgrade_database.3
+      </p>
+      <div
+        className="maintenance-spinner"
+      >
+        <button
+          id="start-migration"
+          onClick={[Function]}
+          type="button"
+        >
+          maintenance.upgrade
+        </button>
+      </div>
+    </React.Fragment>
+  </div>
+</div>
+`;
+
+exports[`Setup Page should start migration 2`] = `
+<div
+  className="page-wrapper-simple"
+  id="bd"
+>
+  <div
+    className="page-simple"
+    id="nonav"
+  >
+    <React.Fragment>
+      <h1
+        className="maintenance-title"
+      >
+        maintenance.database_migration
+      </h1>
+      <p
+        className="maintenance-text text-center"
+      >
+        background_tasks.table.started
+         
+        <DateFromNow
+          date="2017-01-02T00:00:00.000Z"
+        />
+        <br />
+        <small
+          className="text-muted"
+        >
+          <TimeFormatter
+            date="2017-01-02T00:00:00.000Z"
+            long={true}
+          />
+        </small>
+      </p>
+      <p
+        className="maintenance-spinner"
+      >
+        <i
+          className="spinner"
+        />
+      </p>
+    </React.Fragment>
+  </div>
+</div>
+`;

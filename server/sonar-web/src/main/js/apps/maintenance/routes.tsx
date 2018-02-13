@@ -19,9 +19,12 @@
  */
 import * as React from 'react';
 import { IndexRoute } from 'react-router';
-import MaintenanceAppContainer from './components/MaintenanceAppContainer';
-import SetupAppContainer from './components/SetupAppContainer';
+import { lazyLoad } from '../../components/lazyLoad';
 
-export const maintenanceRoutes = <IndexRoute component={MaintenanceAppContainer} />;
+export const maintenanceRoutes = (
+  <IndexRoute component={lazyLoad(() => import('./components/MaintenanceAppContainer'))} />
+);
 
-export const setupRoutes = <IndexRoute component={SetupAppContainer} />;
+export const setupRoutes = (
+  <IndexRoute component={lazyLoad(() => import('./components/SetupAppContainer'))} />
+);
