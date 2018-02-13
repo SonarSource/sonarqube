@@ -332,4 +332,20 @@ public class DatabaseUtilsTest {
       assertThat(DatabaseUtils.tableExists("foo", connection)).isFalse();
     }
   }
+
+  @Test
+  public void checkThatNotTooManyConditions_does_not_fail_if_less_than_1000_conditions() {
+    DatabaseUtils.checkThatNotTooManyConditions(null, "unused");
+    DatabaseUtils.checkThatNotTooManyConditions(Collections.emptySet(), "unused");
+    DatabaseUtils.checkThatNotTooManyConditions(Collections.nCopies(10, "foo"), "unused");
+    DatabaseUtils.checkThatNotTooManyConditions(Collections.nCopies(1_000, "foo"), "unused");
+  }
+
+  @Test
+  public void checkThatNotTooManyConditions_throws_IAE_if_strictly_more_than_1000_conditions() {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("the message");
+
+    DatabaseUtils.checkThatNotTooManyConditions(Collections.nCopies(1_001, "foo"), "the message");
+  }
 }
