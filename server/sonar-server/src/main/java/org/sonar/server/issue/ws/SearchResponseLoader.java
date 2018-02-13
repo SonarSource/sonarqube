@@ -32,7 +32,9 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.annotation.Nullable;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
@@ -62,7 +64,7 @@ import static org.sonar.server.issue.SetSeverityAction.SET_SEVERITY_KEY;
 import static org.sonar.server.issue.SetTypeAction.SET_TYPE_KEY;
 import static org.sonar.server.issue.ws.SearchAdditionalField.ACTIONS;
 import static org.sonar.server.issue.ws.SearchAdditionalField.COMMENTS;
-import static org.sonar.server.issue.ws.SearchAdditionalField.RULES;
+import static org.sonar.server.issue.ws.SearchAdditionalField.RULE_IDS_AND_KEYS;
 import static org.sonar.server.issue.ws.SearchAdditionalField.TRANSITIONS;
 import static org.sonar.server.issue.ws.SearchAdditionalField.USERS;
 
@@ -174,16 +176,32 @@ public class SearchResponseLoader {
   }
 
   private void loadRules(SearchResponseData preloadedResponseData, Collector collector, DbSession dbSession, SearchResponseData result) {
-    if (collector.contains(RULES)) {
+    if (collector.contains(RULE_IDS_AND_KEYS)) {
       List<RuleDefinitionDto> preloadedRules = firstNonNull(preloadedResponseData.getRules(), emptyList());
-      Set<Integer> preloaedRuleKeys = preloadedRules.stream().map(RuleDefinitionDto::getId).collect(MoreCollectors.toSet());
-      Set<Integer> ruleKeysToLoad = copyOf(difference(collector.get(RULES), preloaedRuleKeys));
-      if (ruleKeysToLoad.isEmpty()) {
-        result.setRules(preloadedResponseData.getRules());
-      } else {
-        List<RuleDefinitionDto> loadedRules = dbClient.ruleDao().selectDefinitionByIds(dbSession, ruleKeysToLoad);
-        result.setRules(concat(preloadedRules.stream(), loadedRules.stream()).collect(toList(preloadedRules.size() + loadedRules.size())));
-      }
+      Set<Integer> ruleIdsToLoad = new HashSet<>();
+      Set<RuleKey> ruleKeysToLoad = new HashSet<>();
+      collector.get(RULE_IDS_AND_KEYS).forEach(o -> {
+        if (o instanceof String) {
+          try {
+            ruleIdsToLoad.add(Integer.parseInt((String) o));
+          } catch (NumberFormatException e) {
+            ruleKeysToLoad.add(RuleKey.parse((String) o));
+          }
+        } else {
+          throw new IllegalArgumentException("Unsupported object " + o + " of type " + o.getClass().getSimpleName() + " in additional field " + RULE_IDS_AND_KEYS);
+        }
+      });
+      ruleIdsToLoad.removeAll(preloadedRules.stream().map(RuleDefinitionDto::getId).collect(toList(preloadedRules.size())));
+      ruleKeysToLoad.removeAll(preloadedRules.stream().map(RuleDefinitionDto::getKey).collect(toList(preloadedRules.size())));
+
+      result.setRules(
+        Stream.of(
+          preloadedRules.stream(),
+          dbClient.ruleDao().selectDefinitionByIds(dbSession, ruleIdsToLoad).stream(),
+          dbClient.ruleDao().selectDefinitionByKeys(dbSession, ruleKeysToLoad).stream())
+          .flatMap(s -> s)
+          .distinct()
+          .collect(Collectors.toList()));
     }
   }
 
@@ -214,11 +232,10 @@ public class SearchResponseLoader {
 
   private void loadActionsAndTransitions(Collector collector, SearchResponseData result) {
     if (collector.contains(ACTIONS) || collector.contains(TRANSITIONS)) {
-      Map<String, ComponentDto> componentsByProjectUuid =
-        result.getComponents()
-          .stream()
-          .filter(ComponentDto::isRootProject)
-          .collect(MoreCollectors.uniqueIndex(ComponentDto::projectUuid));
+      Map<String, ComponentDto> componentsByProjectUuid = result.getComponents()
+        .stream()
+        .filter(ComponentDto::isRootProject)
+        .collect(MoreCollectors.uniqueIndex(ComponentDto::projectUuid));
       for (IssueDto dto : result.getIssues()) {
         // so that IssueDto can be used.
         if (collector.contains(ACTIONS)) {
@@ -271,6 +288,8 @@ public class SearchResponseLoader {
     private final Set<String> componentUuids = new HashSet<>();
     private final Set<String> projectUuids = new HashSet<>();
     private final List<String> issueKeys;
+    private final Set<Integer> ruleIds = new HashSet<>();
+    private final Set<String> ruleKeys = new HashSet<>();
 
     public Collector(Set<SearchAdditionalField> fields, List<String> issueKeys) {
       this.fields = fields;
@@ -281,7 +300,7 @@ public class SearchResponseLoader {
       for (IssueDto issue : issues) {
         componentUuids.add(issue.getComponentUuid());
         projectUuids.add(issue.getProjectUuid());
-        add(RULES, issue.getRuleId());
+        ruleIds.add(issue.getRuleId());
         add(USERS, issue.getAssignee());
         collectComponentsFromIssueLocations(issue);
       }
@@ -348,6 +367,14 @@ public class SearchResponseLoader {
 
     public Set<String> getProjectUuids() {
       return projectUuids;
+    }
+
+    public Set<Integer> getRuleIds() {
+      return ruleIds;
+    }
+
+    public Set<String> getRuleKeys() {
+      return ruleKeys;
     }
   }
 
