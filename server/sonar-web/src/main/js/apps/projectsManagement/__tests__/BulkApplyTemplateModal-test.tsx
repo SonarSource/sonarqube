@@ -21,7 +21,7 @@
 import * as React from 'react';
 import { mount, shallow } from 'enzyme';
 import BulkApplyTemplateModal, { Props } from '../BulkApplyTemplateModal';
-import { click } from '../../../helpers/testUtils';
+import { click, waitAndUpdate } from '../../../helpers/testUtils';
 
 jest.mock('react-dom');
 
@@ -67,8 +67,7 @@ it('bulk applies template to all results', async () => {
   });
   expect(wrapper).toMatchSnapshot();
 
-  await new Promise(setImmediate);
-  wrapper.update();
+  await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot();
 });
 

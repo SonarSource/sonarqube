@@ -28,7 +28,7 @@ jest.mock('../../../../api/report', () => {
 import * as React from 'react';
 import { mount, shallow } from 'enzyme';
 import Subscription from '../Subscription';
-import { click } from '../../../../helpers/testUtils';
+import { click, waitAndUpdate } from '../../../../helpers/testUtils';
 
 const subscribe = require('../../../../api/report').subscribe as jest.Mock<any>;
 const unsubscribe = require('../../../../api/report').unsubscribe as jest.Mock<any>;
@@ -77,8 +77,7 @@ it('changes subscription', async () => {
   click(wrapper.find('button'));
   expect(unsubscribe).toBeCalledWith('foo');
 
-  await new Promise(setImmediate);
-  wrapper.update();
+  await waitAndUpdate(wrapper);
 
   click(wrapper.find('button'));
   expect(subscribe).toBeCalledWith('foo');

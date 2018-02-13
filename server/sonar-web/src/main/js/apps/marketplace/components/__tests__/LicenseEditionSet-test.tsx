@@ -20,7 +20,7 @@
 /* eslint-disable import/order */
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import { change } from '../../../../helpers/testUtils';
+import { change, waitAndUpdate } from '../../../../helpers/testUtils';
 import LicenseEditionSet from '../LicenseEditionSet';
 
 jest.mock('../../../../api/marketplace', () => ({
@@ -59,8 +59,7 @@ it('should display correctly', () => {
 
 it('should display the get license link with parameters', async () => {
   const wrapper = getWrapper();
-  await new Promise(setImmediate);
-  wrapper.update();
+  await waitAndUpdate(wrapper);
   expect(wrapper.find('a')).toMatchSnapshot();
 });
 

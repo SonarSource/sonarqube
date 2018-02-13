@@ -21,7 +21,7 @@
 import React from 'react';
 import { mount } from 'enzyme';
 import TokenStep from '../TokenStep';
-import { change, click, submit } from '../../../../helpers/testUtils';
+import { change, click, submit, waitAndUpdate } from '../../../../helpers/testUtils';
 
 jest.mock('../../../../api/user-tokens', () => ({
   getTokens: () => Promise.resolve([{ name: 'foo' }]),
@@ -44,14 +44,12 @@ it('generates token', async () => {
       stepNumber={1}
     />
   );
-  await new Promise(setImmediate);
-  wrapper.update();
+  await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot();
   change(wrapper.find('input'), 'my token');
   submit(wrapper.find('form'));
   expect(wrapper).toMatchSnapshot(); // spinner
-  await new Promise(setImmediate);
-  wrapper.update();
+  await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot();
 });
 
@@ -72,8 +70,7 @@ it('revokes token', async () => {
   wrapper.find('DeleteButton').prop('onClick')();
   wrapper.update();
   expect(wrapper).toMatchSnapshot(); // spinner
-  await new Promise(setImmediate);
-  wrapper.update();
+  await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot();
 });
 

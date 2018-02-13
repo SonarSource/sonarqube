@@ -20,7 +20,7 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import Form from '../Form';
-import { change, submit, click } from '../../../../helpers/testUtils';
+import { change, submit, click, waitAndUpdate } from '../../../../helpers/testUtils';
 
 jest.mock('../../../../api/metrics', () => ({
   getAllMetrics: () =>
@@ -44,8 +44,7 @@ it('should render form', async () => {
   );
   expect(wrapper.dive()).toMatchSnapshot();
 
-  await new Promise(setImmediate);
-  wrapper.update();
+  await waitAndUpdate(wrapper);
   const form = wrapper.dive();
   expect(form).toMatchSnapshot();
 

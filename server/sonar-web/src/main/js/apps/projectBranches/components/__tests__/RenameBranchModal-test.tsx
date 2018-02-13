@@ -24,7 +24,7 @@ import * as React from 'react';
 import { shallow, ShallowWrapper } from 'enzyme';
 import RenameBranchModal from '../RenameBranchModal';
 import { MainBranch } from '../../../../app/types';
-import { submit, doAsync, click, change } from '../../../../helpers/testUtils';
+import { submit, doAsync, click, change, waitAndUpdate } from '../../../../helpers/testUtils';
 import { renameBranch } from '../../../../api/branches';
 
 beforeEach(() => {
@@ -40,19 +40,17 @@ it('renders', () => {
   expect(wrapper).toMatchSnapshot();
 });
 
-it('renames branch', () => {
+it('renames branch', async () => {
   (renameBranch as jest.Mock<any>).mockImplementation(() => Promise.resolve());
   const onRename = jest.fn();
   const wrapper = shallowRender(onRename);
 
   fillAndSubmit(wrapper);
 
-  return doAsync().then(() => {
-    wrapper.update();
-    expect(wrapper.state().loading).toBe(false);
-    expect(onRename).toBeCalled();
-    expect(renameBranch).toBeCalledWith('foo', 'dev');
-  });
+  await waitAndUpdate(wrapper);
+  expect(wrapper.state().loading).toBe(false);
+  expect(onRename).toBeCalled();
+  expect(renameBranch).toBeCalledWith('foo', 'dev');
 });
 
 it('cancels', () => {
@@ -66,18 +64,16 @@ it('cancels', () => {
   });
 });
 
-it('stops loading on WS error', () => {
+it('stops loading on WS error', async () => {
   (renameBranch as jest.Mock<any>).mockImplementation(() => Promise.reject(null));
   const onRename = jest.fn();
   const wrapper = shallowRender(onRename);
 
   fillAndSubmit(wrapper);
 
-  return doAsync().then(() => {
-    wrapper.update();
-    expect(wrapper.state().loading).toBe(false);
-    expect(onRename).not.toBeCalled();
-  });
+  await waitAndUpdate(wrapper);
+  expect(wrapper.state().loading).toBe(false);
+  expect(onRename).not.toBeCalled();
 });
 
 function shallowRender(onRename: () => void = jest.fn(), onClose: () => void = jest.fn()) {

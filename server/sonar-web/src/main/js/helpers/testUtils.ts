@@ -87,3 +87,8 @@ const { intl } = intlProvider.getChildContext();
 export function shallowWithIntl(node: React.ReactElement<any>, options: ShallowRendererProps = {}) {
   return shallow(node, { ...options, context: { intl, ...options.context } });
 }
+
+export async function waitAndUpdate(wrapper: ShallowWrapper<any, any> | ReactWrapper<any, any>) {
+  await new Promise(setImmediate);
+  wrapper.update();
+}

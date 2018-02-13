@@ -19,9 +19,9 @@
  */
 /* eslint-disable import/order */
 import * as React from 'react';
-import { shallow, ShallowWrapper } from 'enzyme';
+import { shallow } from 'enzyme';
 import App from '../App';
-import { click } from '../../../../helpers/testUtils';
+import { click, waitAndUpdate } from '../../../../helpers/testUtils';
 
 jest.mock('../../../../api/system', () => ({
   getMigrationStatus: jest.fn(),
@@ -131,9 +131,4 @@ async function checkApp(setup: boolean) {
   const wrapper = shallow(<App location={location} setup={setup} />);
   await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot();
-}
-
-async function waitAndUpdate(wrapper: ShallowWrapper) {
-  await new Promise(setImmediate);
-  wrapper.update();
 }

@@ -21,7 +21,7 @@
 import React from 'react';
 import { mount } from 'enzyme';
 import NewOrganizationForm from '../NewOrganizationForm';
-import { change, submit } from '../../../../helpers/testUtils';
+import { change, submit, waitAndUpdate } from '../../../../helpers/testUtils';
 
 jest.mock('../../../../api/organizations', () => ({
   createOrganization: () => Promise.resolve(),
@@ -38,8 +38,7 @@ it('creates new organization', async () => {
   change(wrapper.find('input'), 'foo');
   submit(wrapper.find('form'));
   expect(wrapper).toMatchSnapshot(); // spinner
-  await new Promise(setImmediate);
-  wrapper.update();
+  await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot();
   expect(onDone).toBeCalledWith('foo');
 });
@@ -52,8 +51,7 @@ it('deletes organization', async () => {
   wrapper.find('DeleteButton').prop('onClick')();
   wrapper.update();
   expect(wrapper).toMatchSnapshot(); // spinner
-  await new Promise(setImmediate);
-  wrapper.update();
+  await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot();
   expect(onDelete).toBeCalled();
 });

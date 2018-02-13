@@ -20,7 +20,7 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import SimpleModal, { ChildrenProps } from '../SimpleModal';
-import { click } from '../../../helpers/testUtils';
+import { click, waitAndUpdate } from '../../../helpers/testUtils';
 
 it('renders', () => {
   const inner = () => <div />;
@@ -64,7 +64,6 @@ it('submits', async () => {
   expect(onSubmit).toBeCalled();
   expect(wrapper).toMatchSnapshot();
 
-  await new Promise(setImmediate);
-  wrapper.update();
+  await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot();
 });

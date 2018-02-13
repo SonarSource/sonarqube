@@ -20,6 +20,7 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import App from '../App';
+import { waitAndUpdate } from '../../../../helpers/testUtils';
 
 jest.mock('../../../../api/measures', () => ({
   getCustomMeasures: () =>
@@ -55,8 +56,7 @@ it('should work', async () => {
   const wrapper = shallow(<App component={{ key: 'foo' }} />);
   expect(wrapper).toMatchSnapshot();
 
-  await new Promise(setImmediate);
-  wrapper.update();
+  await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot();
 
   // create
@@ -65,8 +65,7 @@ it('should work', async () => {
     metricKey: 'metricKey',
     value: 'value'
   });
-  await new Promise(setImmediate);
-  wrapper.update();
+  await waitAndUpdate(wrapper);
   expect(wrapper.state().measures).toMatchSnapshot();
   expect(wrapper.state().paging.total).toBe(2);
 
@@ -76,15 +75,13 @@ it('should work', async () => {
     id: '2',
     value: 'other'
   });
-  await new Promise(setImmediate);
-  wrapper.update();
+  await waitAndUpdate(wrapper);
   expect(wrapper.state().measures).toMatchSnapshot();
   expect(wrapper.state().paging.total).toBe(2);
 
   // delete
   wrapper.find('List').prop<Function>('onDelete')('2');
-  await new Promise(setImmediate);
-  wrapper.update();
+  await waitAndUpdate(wrapper);
   expect(wrapper.state().measures).toMatchSnapshot();
   expect(wrapper.state().paging.total).toBe(1);
 });

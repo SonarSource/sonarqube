@@ -27,7 +27,7 @@ jest.mock('../../../api/components', () => ({
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import CreateProjectForm from '../CreateProjectForm';
-import { change, submit, click } from '../../../helpers/testUtils';
+import { change, submit, click, waitAndUpdate } from '../../../helpers/testUtils';
 import { Visibility } from '../../../app/types';
 
 const createProject = require('../../../api/components').createProject as jest.Mock<any>;
@@ -65,8 +65,7 @@ it('creates project', async () => {
   });
   expect(wrapper).toMatchSnapshot();
 
-  await new Promise(setImmediate);
-  wrapper.update();
+  await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot();
 });
 

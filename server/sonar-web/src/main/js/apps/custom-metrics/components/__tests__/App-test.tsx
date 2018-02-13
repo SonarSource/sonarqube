@@ -20,6 +20,7 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import App from '../App';
+import { waitAndUpdate } from '../../../../helpers/testUtils';
 
 jest.mock('../../../../api/metrics', () => ({
   getMetricDomains: () => Promise.resolve(['Coverage', 'Issues']),
@@ -42,8 +43,7 @@ it('should work', async () => {
   (wrapper.instance() as App).mounted = true;
   expect(wrapper).toMatchSnapshot();
 
-  await new Promise(setImmediate);
-  wrapper.update();
+  await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot();
 
   // create
@@ -53,8 +53,7 @@ it('should work', async () => {
     name: 'Bar',
     type: 'INT'
   });
-  await new Promise(setImmediate);
-  wrapper.update();
+  await waitAndUpdate(wrapper);
   expect(wrapper.state().metrics).toMatchSnapshot();
   expect(wrapper.state().paging.total).toBe(2);
 
@@ -66,15 +65,13 @@ it('should work', async () => {
     name: 'Bar',
     type: 'STRING'
   });
-  await new Promise(setImmediate);
-  wrapper.update();
+  await waitAndUpdate(wrapper);
   expect(wrapper.state().metrics).toMatchSnapshot();
   expect(wrapper.state().paging.total).toBe(2);
 
   // delete
   wrapper.find('List').prop<Function>('onDelete')('bar');
-  await new Promise(setImmediate);
-  wrapper.update();
+  await waitAndUpdate(wrapper);
   expect(wrapper.state().metrics).toMatchSnapshot();
   expect(wrapper.state().paging.total).toBe(1);
 });

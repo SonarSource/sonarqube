@@ -21,7 +21,7 @@
 import React from 'react';
 import { mount } from 'enzyme';
 import NewProjectForm from '../NewProjectForm';
-import { change, submit } from '../../../../helpers/testUtils';
+import { change, submit, waitAndUpdate } from '../../../../helpers/testUtils';
 
 jest.mock('../../../../api/components', () => ({
   createProject: () => Promise.resolve(),
@@ -37,8 +37,7 @@ it('creates new project', async () => {
   change(wrapper.find('input'), 'foo');
   submit(wrapper.find('form'));
   expect(wrapper).toMatchSnapshot(); // spinner
-  await new Promise(setImmediate);
-  wrapper.update();
+  await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot();
   expect(onDone).toBeCalledWith('foo');
 });
@@ -51,8 +50,7 @@ it('deletes project', async () => {
   wrapper.find('DeleteButton').prop('onClick')();
   wrapper.update();
   expect(wrapper).toMatchSnapshot(); // spinner
-  await new Promise(setImmediate);
-  wrapper.update();
+  await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot();
   expect(onDelete).toBeCalled();
 });
