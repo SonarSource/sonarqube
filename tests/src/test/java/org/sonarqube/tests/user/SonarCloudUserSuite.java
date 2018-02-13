@@ -29,6 +29,7 @@ import static util.ItUtils.xooPlugin;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
+  SonarCloudHomepageTest.class,
   SonarCloudNotificationsWsTest.class
 })
 public class SonarCloudUserSuite {
