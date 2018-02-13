@@ -32,7 +32,7 @@ public class WebhookSupport {
 
   private final UserSession userSession;
 
-  WebhookSupport(UserSession userSession) {
+  public WebhookSupport(UserSession userSession) {
     this.userSession = userSession;
   }
 

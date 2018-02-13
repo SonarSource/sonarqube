@@ -35,15 +35,9 @@ public interface WebHooks {
    *
    * <p>
    * This can be used to not do consuming operations before calling
-   * {@link #sendProjectAnalysisUpdate(ComponentDto, Analysis, Supplier)}
+   * {@link #sendProjectAnalysisUpdate(Analysis, Supplier)}
    */
   boolean isEnabled(ComponentDto projectDto);
-
-  /**
-   * Calls all WebHooks configured in the specified {@link Configuration} for the specified analysis with the
-   * {@link WebhookPayload} provided by the specified Supplier.
-   */
-  void sendProjectAnalysisUpdate(ComponentDto projectDto, Analysis analysis, Supplier<WebhookPayload> payloadSupplier);
 
   /**
    * Calls all WebHooks configured in the specified {@link Configuration} for the specified analysis with the

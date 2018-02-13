@@ -24,11 +24,11 @@ option java_package = "org.sonarqube.ws";
 option java_outer_classname = "Webhooks";
 option optimize_for = SPEED;
 
-// GET api/webhooks/search
-message SearchWsResponse {
-  repeated Search webhooks = 1;
+// GET api/webhooks/list
+message ListWsResponse {
+  repeated List webhooks = 1;
 
-  message Search {
+  message List {
     optional string key = 1;
     optional string name = 2;
     optional string url = 3;

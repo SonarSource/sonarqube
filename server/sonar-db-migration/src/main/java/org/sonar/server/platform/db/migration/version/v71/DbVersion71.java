@@ -36,6 +36,7 @@ public class DbVersion71 implements DbVersion {
       .add(2006, "Clean orphans in Compute Engine child tables", CleanCeChildTablesOrphans.class)
       .add(2007, "Update PERMISSION_TEMPLATES.KEYS ", UpdatePermissionTooLongTemplateKeys.class)
       .add(2008, "Create WEBHOOKS Table", CreateWebhooksTable.class)
+      .add(2009, "Migrate webhooks from SETTINGS table to WEBHOOKS table", MigrateWebhooksToWebhooksTable.class)
     ;
   }
 }

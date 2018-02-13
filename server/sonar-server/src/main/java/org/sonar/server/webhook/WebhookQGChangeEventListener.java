@@ -79,7 +79,6 @@ public class WebhookQGChangeEventListener implements QGChangeEventListener {
 
   private void callWebhook(DbSession dbSession, QGChangeEvent event, @Nullable EvaluatedQualityGate evaluatedQualityGate) {
     webhooks.sendProjectAnalysisUpdate(
-      event.getProject(),
       new WebHooks.Analysis(event.getBranch().getUuid(), event.getAnalysis().getUuid(), null),
       () -> buildWebHookPayload(dbSession, event, evaluatedQualityGate));
   }

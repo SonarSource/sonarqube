@@ -38,8 +38,8 @@ import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
-import org.sonarqube.ws.Webhooks.SearchWsResponse;
-import org.sonarqube.ws.Webhooks.SearchWsResponse.Search;
+import org.sonarqube.ws.Webhooks.ListWsResponse;
+import org.sonarqube.ws.Webhooks.ListWsResponse.List;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -92,24 +92,24 @@ public class ListActionTest {
   }
 
   @Test
-  public void search_global_webhooks() {
+  public void List_global_webhooks() {
 
     WebhookDto dto1 = webhookDbTester.insertWebhook(db.getDefaultOrganization());
     WebhookDto dto2 = webhookDbTester.insertWebhook(db.getDefaultOrganization());
     userSession.logIn().addPermission(ADMINISTER, db.getDefaultOrganization().getUuid());
 
-    SearchWsResponse response = wsActionTester.newRequest()
-      .executeProtobuf(SearchWsResponse.class);
+    ListWsResponse response = wsActionTester.newRequest()
+      .executeProtobuf(ListWsResponse.class);
 
     assertThat(response.getWebhooksList())
-      .extracting(Search::getName, Search::getUrl)
+      .extracting(List::getName, List::getUrl)
       .contains(tuple(dto1.getName(), dto1.getUrl()),
         tuple(dto2.getName(), dto2.getUrl()));
 
   }
 
   @Test
-  public void search_project_webhooks_when_no_organization_is_provided() {
+  public void List_project_webhooks_when_no_organization_is_provided() {
 
     ComponentDto project1 = componentDbTester.insertPrivateProject();
     userSession.logIn().addProjectPermission(ADMIN, project1);
@@ -117,38 +117,38 @@ public class ListActionTest {
     WebhookDto dto1 = webhookDbTester.insertWebhook(project1);
     WebhookDto dto2 = webhookDbTester.insertWebhook(project1);
 
-    SearchWsResponse response = wsActionTester.newRequest()
+    ListWsResponse response = wsActionTester.newRequest()
       .setParam(PROJECT_KEY_PARAM, project1.getKey())
-      .executeProtobuf(SearchWsResponse.class);
+      .executeProtobuf(ListWsResponse.class);
 
     assertThat(response.getWebhooksList())
-      .extracting(Search::getName, Search::getUrl)
+      .extracting(List::getName, List::getUrl)
       .contains(tuple(dto1.getName(), dto1.getUrl()),
         tuple(dto2.getName(), dto2.getUrl()));
 
   }
 
   @Test
-  public void search_organization_webhooks() {
+  public void List_organization_webhooks() {
 
     OrganizationDto organizationDto = organizationDbTester.insert();
     WebhookDto dto1 = webhookDbTester.insertWebhook(organizationDto);
     WebhookDto dto2 = webhookDbTester.insertWebhook(organizationDto);
     userSession.logIn().addPermission(ADMINISTER, organizationDto.getUuid());
 
-    SearchWsResponse response = wsActionTester.newRequest()
+    ListWsResponse response = wsActionTester.newRequest()
       .setParam(ORGANIZATION_KEY_PARAM, organizationDto.getKey())
-      .executeProtobuf(SearchWsResponse.class);
+      .executeProtobuf(ListWsResponse.class);
 
     assertThat(response.getWebhooksList())
-      .extracting(Search::getName, Search::getUrl)
+      .extracting(List::getName, List::getUrl)
       .contains(tuple(dto1.getName(), dto1.getUrl()),
         tuple(dto2.getName(), dto2.getUrl()));
 
   }
 
   @Test
-  public void search_project_webhooks_when_organization_is_provided() {
+  public void List_project_webhooks_when_organization_is_provided() {
 
     OrganizationDto organization = organizationDbTester.insert();
     ComponentDto project = componentDbTester.insertPrivateProject(organization);
@@ -157,13 +157,13 @@ public class ListActionTest {
     WebhookDto dto1 = webhookDbTester.insertWebhook(project);
     WebhookDto dto2 = webhookDbTester.insertWebhook(project);
 
-    SearchWsResponse response = wsActionTester.newRequest()
+    ListWsResponse response = wsActionTester.newRequest()
       .setParam(ORGANIZATION_KEY_PARAM, organization.getKey())
       .setParam(PROJECT_KEY_PARAM, project.getKey())
-      .executeProtobuf(SearchWsResponse.class);
+      .executeProtobuf(ListWsResponse.class);
 
     assertThat(response.getWebhooksList())
-      .extracting(Search::getName, Search::getUrl)
+      .extracting(List::getName, List::getUrl)
       .contains(tuple(dto1.getName(), dto1.getUrl()),
         tuple(dto2.getName(), dto2.getUrl()));
 
@@ -177,7 +177,7 @@ public class ListActionTest {
 
     wsActionTester.newRequest()
       .setParam(PROJECT_KEY_PARAM, "pipo")
-      .executeProtobuf(SearchWsResponse.class);
+      .executeProtobuf(ListWsResponse.class);
 
   }
 
@@ -189,7 +189,7 @@ public class ListActionTest {
 
     wsActionTester.newRequest()
       .setParam(ORGANIZATION_KEY_PARAM, "pipo")
-      .executeProtobuf(SearchWsResponse.class);
+      .executeProtobuf(ListWsResponse.class);
 
   }
 
@@ -218,7 +218,7 @@ public class ListActionTest {
     expectedException.expect(UnauthorizedException.class);
 
     wsActionTester.newRequest()
-      .executeProtobuf(SearchWsResponse.class);
+      .executeProtobuf(ListWsResponse.class);
 
   }
 
@@ -231,7 +231,7 @@ public class ListActionTest {
     expectedException.expectMessage("Insufficient privileges");
 
     wsActionTester.newRequest()
-      .executeProtobuf(SearchWsResponse.class);
+      .executeProtobuf(ListWsResponse.class);
   }
 
   @Test
@@ -246,7 +246,7 @@ public class ListActionTest {
 
     wsActionTester.newRequest()
       .setParam(PROJECT_KEY_PARAM, project.getKey())
-      .executeProtobuf(SearchWsResponse.class);
+      .executeProtobuf(ListWsResponse.class);
 
   }
 

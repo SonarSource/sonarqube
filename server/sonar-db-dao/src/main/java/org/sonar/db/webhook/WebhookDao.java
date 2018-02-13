@@ -41,11 +41,15 @@ public class WebhookDao implements Dao {
     return Optional.ofNullable(mapper(dbSession).selectByUuid(uuid));
   }
 
-  public List<WebhookDto> selectByOrganizationUuid(DbSession dbSession, OrganizationDto organizationDto) {
+  public List<WebhookDto> selectByOrganization(DbSession dbSession, OrganizationDto organizationDto) {
     return mapper(dbSession).selectForOrganizationUuidOrderedByName(organizationDto.getUuid());
   }
 
-  public List<WebhookDto> selectByProjectUuid(DbSession dbSession, ComponentDto componentDto) {
+  public List<WebhookDto> selectByOrganizationUuid(DbSession dbSession, String organizationUuid) {
+    return mapper(dbSession).selectForOrganizationUuidOrderedByName(organizationUuid);
+  }
+
+  public List<WebhookDto> selectByProject(DbSession dbSession, ComponentDto componentDto) {
     return mapper(dbSession).selectForProjectUuidOrderedByName(componentDto.uuid());
   }
 
