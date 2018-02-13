@@ -46,7 +46,7 @@ interface State {
 }
 
 export default class BranchRow extends React.PureComponent<Props, State> {
-  mounted: boolean;
+  mounted = false;
   state: State = { changingLeak: false, deleting: false, renaming: false };
 
   componentDidMount() {

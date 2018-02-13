@@ -39,7 +39,7 @@ interface State {
 }
 
 export default class ConfirmButton extends React.PureComponent<Props, State> {
-  mounted: boolean;
+  mounted = false;
   state: State = { modal: false };
 
   componentDidMount() {

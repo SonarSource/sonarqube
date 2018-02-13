@@ -48,7 +48,7 @@ interface State {
 }
 
 export default class LicenseEditionSet extends React.PureComponent<Props, State> {
-  mounted: boolean;
+  mounted = false;
 
   constructor(props: Props) {
     super(props);

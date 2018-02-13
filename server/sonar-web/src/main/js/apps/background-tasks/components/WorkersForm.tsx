@@ -37,7 +37,7 @@ interface State {
 }
 
 export default class WorkersForm extends React.PureComponent<Props, State> {
-  mounted: boolean;
+  mounted = false;
 
   constructor(props: Props) {
     super(props);

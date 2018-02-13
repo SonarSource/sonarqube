@@ -20,7 +20,7 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import BranchStatus from '../BranchStatus';
-import { BranchType, LongLivingBranch } from '../../../app/types';
+import { BranchType, LongLivingBranch, ShortLivingBranch } from '../../../app/types';
 
 it('renders status of short-living branches', () => {
   checkShort(0, 0, 0);
@@ -28,19 +28,14 @@ it('renders status of short-living branches', () => {
   checkShort(7, 3, 6);
 
   function checkShort(bugs: number, codeSmells: number, vulnerabilities: number) {
-    expect(
-      shallow(
-        <BranchStatus
-          branch={{
-            isMain: false,
-            mergeBranch: 'master',
-            name: 'foo',
-            status: { bugs, codeSmells, vulnerabilities },
-            type: BranchType.SHORT
-          }}
-        />
-      )
-    ).toMatchSnapshot();
+    const branch: ShortLivingBranch = {
+      isMain: false,
+      mergeBranch: 'master',
+      name: 'foo',
+      status: { bugs, codeSmells, vulnerabilities },
+      type: BranchType.SHORT
+    };
+    expect(shallow(<BranchStatus branch={branch} />)).toMatchSnapshot();
   }
 });
 

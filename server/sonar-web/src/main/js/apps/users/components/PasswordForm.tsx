@@ -41,7 +41,7 @@ interface State {
 }
 
 export default class PasswordForm extends React.PureComponent<Props, State> {
-  mounted: boolean;
+  mounted = false;
   state: State = {
     confirmPassword: '',
     newPassword: '',

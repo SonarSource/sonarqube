@@ -31,7 +31,7 @@ interface Props {
 }
 
 export default class ChangeProjectsForm extends React.PureComponent<Props> {
-  container: HTMLElement;
+  container?: HTMLElement | null;
 
   handleCloseClick = (event: React.SyntheticEvent<HTMLElement>) => {
     event.preventDefault();
@@ -39,34 +39,36 @@ export default class ChangeProjectsForm extends React.PureComponent<Props> {
   };
 
   renderSelectList = () => {
-    const { key } = this.props.profile;
+    if (this.container) {
+      const { key } = this.props.profile;
 
-    const searchUrl =
-      (window as any).baseUrl + '/api/qualityprofiles/projects?key=' + encodeURIComponent(key);
+      const searchUrl =
+        (window as any).baseUrl + '/api/qualityprofiles/projects?key=' + encodeURIComponent(key);
 
-    new (SelectList as any)({
-      searchUrl,
-      el: this.container,
-      width: '100%',
-      readOnly: false,
-      focusSearch: false,
-      dangerouslyUnescapedHtmlFormat: (item: { name: string }) => escapeHtml(item.name),
-      selectUrl: (window as any).baseUrl + '/api/qualityprofiles/add_project',
-      deselectUrl: (window as any).baseUrl + '/api/qualityprofiles/remove_project',
-      extra: { profileKey: key },
-      selectParameter: 'projectUuid',
-      selectParameterValue: 'uuid',
-      labels: {
-        selected: translate('quality_gates.projects.with'),
-        deselected: translate('quality_gates.projects.without'),
-        all: translate('quality_gates.projects.all'),
-        noResults: translate('quality_gates.projects.noResults')
-      },
-      tooltips: {
-        select: translate('quality_profiles.projects.select_hint'),
-        deselect: translate('quality_profiles.projects.deselect_hint')
-      }
-    });
+      new SelectList({
+        searchUrl,
+        el: this.container,
+        width: '100%',
+        readOnly: false,
+        focusSearch: false,
+        dangerouslyUnescapedHtmlFormat: (item: { name: string }) => escapeHtml(item.name),
+        selectUrl: (window as any).baseUrl + '/api/qualityprofiles/add_project',
+        deselectUrl: (window as any).baseUrl + '/api/qualityprofiles/remove_project',
+        extra: { profileKey: key },
+        selectParameter: 'projectUuid',
+        selectParameterValue: 'uuid',
+        labels: {
+          selected: translate('quality_gates.projects.with'),
+          deselected: translate('quality_gates.projects.without'),
+          all: translate('quality_gates.projects.all'),
+          noResults: translate('quality_gates.projects.noResults')
+        },
+        tooltips: {
+          select: translate('quality_profiles.projects.select_hint'),
+          deselect: translate('quality_profiles.projects.deselect_hint')
+        }
+      });
+    }
   };
 
   render() {
@@ -82,7 +84,7 @@ export default class ChangeProjectsForm extends React.PureComponent<Props> {
         </div>
 
         <div className="modal-body">
-          <div id="profile-projects" ref={node => (this.container = node as HTMLElement)} />
+          <div id="profile-projects" ref={node => (this.container = node)} />
         </div>
 
         <div className="modal-foot">

@@ -35,7 +35,7 @@ interface State {
 }
 
 export default class RenameQualityGateForm extends React.PureComponent<Props, State> {
-  mounted: boolean;
+  mounted = false;
 
   constructor(props: Props) {
     super(props);

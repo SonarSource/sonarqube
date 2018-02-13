@@ -39,7 +39,7 @@ interface Option {
 }
 
 export default class Form extends React.PureComponent<Props, State> {
-  mounted: boolean;
+  mounted = false;
   state: State = { loading: false };
 
   componentDidMount() {

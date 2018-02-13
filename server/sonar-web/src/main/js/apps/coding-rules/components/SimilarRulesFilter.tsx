@@ -31,26 +31,32 @@ interface Props {
 }
 
 export default class SimilarRulesFilter extends React.PureComponent<Props> {
-  closeDropdown: () => void;
+  closeDropdown?: () => void;
 
   handleLanguageClick = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     event.currentTarget.blur();
-    this.closeDropdown();
+    if (this.closeDropdown) {
+      this.closeDropdown();
+    }
     this.props.onFilterChange({ languages: [this.props.rule.lang] });
   };
 
   handleTypeClick = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     event.currentTarget.blur();
-    this.closeDropdown();
+    if (this.closeDropdown) {
+      this.closeDropdown();
+    }
     this.props.onFilterChange({ types: [this.props.rule.type] });
   };
 
   handleSeverityClick = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     event.currentTarget.blur();
-    this.closeDropdown();
+    if (this.closeDropdown) {
+      this.closeDropdown();
+    }
     if (this.props.rule.severity) {
       this.props.onFilterChange({ severities: [this.props.rule.severity] });
     }
@@ -59,7 +65,9 @@ export default class SimilarRulesFilter extends React.PureComponent<Props> {
   handleTagClick = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     event.currentTarget.blur();
-    this.closeDropdown();
+    if (this.closeDropdown) {
+      this.closeDropdown();
+    }
     const { tag } = event.currentTarget.dataset;
     if (tag) {
       this.props.onFilterChange({ tags: [tag] });

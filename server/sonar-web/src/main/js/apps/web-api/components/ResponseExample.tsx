@@ -35,7 +35,7 @@ interface State {
 }
 
 export default class ResponseExample extends React.PureComponent<Props, State> {
-  mounted: boolean;
+  mounted = false;
   state: State = {};
 
   componentDidMount() {

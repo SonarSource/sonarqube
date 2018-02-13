@@ -44,11 +44,11 @@ type Props = {|
 export default class LanguageFacet extends React.PureComponent {
   /*:: props: Props; */
 
+  property = 'languages';
+
   static defaultProps = {
     open: true
   };
-
-  property = 'languages';
 
   handleItemClick = (itemValue /*: string */) => {
     const { languages } = this.props;

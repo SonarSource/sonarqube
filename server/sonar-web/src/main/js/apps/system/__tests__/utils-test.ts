@@ -79,7 +79,7 @@ describe('getSystemLogsLevel', () => {
       u.getSystemLogsLevel({
         System: { 'High Availability': true },
         'Application Nodes': [{ 'Compute Engine Logging': {} }, { Name: 'App 2' }]
-      } as ClusterSysInfo)
+      } as any)
     ).toBe('INFO');
     expect(u.getSystemLogsLevel({ System: {} } as SysInfo)).toBe('INFO');
   });

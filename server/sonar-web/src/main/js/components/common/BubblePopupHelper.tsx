@@ -35,8 +35,8 @@ interface State {
 }
 
 export default class BubblePopupHelper extends React.PureComponent<Props, State> {
-  container: HTMLElement;
-  popupContainer: HTMLElement | null;
+  container?: HTMLElement | null;
+  popupContainer?: HTMLElement | null;
   state: State = {
     position: { top: 0, right: 0 }
   };
@@ -73,14 +73,18 @@ export default class BubblePopupHelper extends React.PureComponent<Props, State>
   }
 
   getPosition(props: Props) {
-    const containerPos = this.container.getBoundingClientRect();
-    const { position } = props;
-    const offset = props.offset || { vertical: 0, horizontal: 0 };
-    if (position === 'bottomleft') {
-      return { top: containerPos.height + offset.vertical, left: offset.horizontal };
+    if (this.container) {
+      const containerPos = this.container.getBoundingClientRect();
+      const { position } = props;
+      const offset = props.offset || { vertical: 0, horizontal: 0 };
+      if (position === 'bottomleft') {
+        return { top: containerPos.height + offset.vertical, left: offset.horizontal };
+      } else {
+        // if (position === 'bottomright')
+        return { top: containerPos.height + offset.vertical, right: offset.horizontal };
+      }
     } else {
-      // if (position === 'bottomright')
-      return { top: containerPos.height + offset.vertical, right: offset.horizontal };
+      return { top: 0, right: 0 };
     }
   }
 
@@ -88,7 +92,7 @@ export default class BubblePopupHelper extends React.PureComponent<Props, State>
     return (
       <div
         className={classNames(this.props.className, 'bubble-popup-helper')}
-        ref={container => (this.container = container as HTMLElement)}
+        ref={container => (this.container = container)}
         onClick={this.handleClick}
         tabIndex={0}
         role="tooltip">

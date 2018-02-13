@@ -38,7 +38,7 @@ interface State {
 }
 
 export default class LicenseEditionForm extends React.PureComponent<Props, State> {
-  mounted: boolean;
+  mounted = false;
   state: State = { license: '', submitting: false };
 
   componentDidMount() {

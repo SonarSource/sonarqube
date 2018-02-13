@@ -33,7 +33,7 @@ interface State {
 }
 
 export default class ScannerContext extends React.PureComponent<Props, State> {
-  mounted: boolean;
+  mounted = false;
   state: State = {};
 
   componentDidMount() {

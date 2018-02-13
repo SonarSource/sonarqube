@@ -36,9 +36,9 @@ interface State {
 }
 
 export default class MetaTags extends React.PureComponent<Props, State> {
-  card: HTMLDivElement | null;
-  tagsList: HTMLButtonElement | null;
-  tagsSelector: HTMLDivElement | null;
+  card?: HTMLDivElement | null;
+  tagsList?: HTMLButtonElement | null;
+  tagsSelector?: HTMLDivElement | null;
   state: State = { popupOpen: false, popupPosition: { top: 0, right: 0 } };
 
   componentDidMount() {

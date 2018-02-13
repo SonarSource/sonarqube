@@ -32,7 +32,7 @@ interface State {
 }
 
 export default class ProjectsContainer extends React.PureComponent<{}, State> {
-  mounted: boolean;
+  mounted = false;
   state: State = {
     loading: true,
     page: 1,

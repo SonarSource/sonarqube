@@ -37,7 +37,7 @@ interface State {
 }
 
 export default class CopyQualityGateForm extends React.PureComponent<Props, State> {
-  mounted: boolean;
+  mounted = false;
 
   static contextTypes = {
     router: PropTypes.object

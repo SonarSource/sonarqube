@@ -48,7 +48,7 @@ interface State {
 }
 
 export default class BulkApplyTemplateModal extends React.PureComponent<Props, State> {
-  mounted: boolean;
+  mounted = false;
   state: State = { done: false, loading: true, submitting: false };
 
   componentDidMount() {

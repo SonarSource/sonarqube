@@ -39,7 +39,7 @@ interface State {
 }
 
 export default class ProfileProjects extends React.PureComponent<Props, State> {
-  mounted: boolean;
+  mounted = false;
 
   state: State = {
     formOpen: false,

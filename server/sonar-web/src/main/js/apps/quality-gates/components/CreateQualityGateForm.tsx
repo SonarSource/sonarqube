@@ -36,7 +36,7 @@ interface State {
 }
 
 export default class CreateQualityGateForm extends React.PureComponent<Props, State> {
-  mounted: boolean;
+  mounted = false;
 
   static contextTypes = {
     router: PropTypes.object

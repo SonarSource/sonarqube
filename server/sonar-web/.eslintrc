@@ -172,6 +172,7 @@
       {
         "order": [
           "type-annotations",
+          "instance-variables",
           "static-methods",
           "lifecycle",
           "everything-else",

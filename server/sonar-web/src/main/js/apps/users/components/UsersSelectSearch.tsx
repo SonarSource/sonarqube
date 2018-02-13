@@ -48,7 +48,7 @@ const LIST_SIZE = 10;
 const AVATAR_SIZE = 16;
 
 export default class UsersSelectSearch extends React.PureComponent<Props, State> {
-  mounted: boolean;
+  mounted = false;
 
   constructor(props: Props) {
     super(props);

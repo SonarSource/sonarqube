@@ -38,7 +38,7 @@ interface State {
 const LIST_SIZE = 10;
 
 export default class RuleDetailsTagsPopup extends React.PureComponent<Props, State> {
-  mounted: boolean;
+  mounted = false;
   state: State = { searchResult: [] };
 
   componentDidMount() {

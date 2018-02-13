@@ -45,11 +45,11 @@ type Props = {|
 export default class FileFacet extends React.PureComponent {
   /*:: props: Props; */
 
+  property = 'files';
+
   static defaultProps = {
     open: true
   };
-
-  property = 'files';
 
   handleItemClick = (itemValue /*: string */) => {
     const { files } = this.props;

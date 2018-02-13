@@ -52,7 +52,7 @@ interface State {
 }
 
 export default class ProfileRules extends React.PureComponent<Props, State> {
-  mounted: boolean;
+  mounted = false;
 
   state: State = {
     activatedTotal: null,

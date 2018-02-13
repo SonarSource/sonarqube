@@ -42,11 +42,11 @@ type Props = {|
 export default class SeverityFacet extends React.PureComponent {
   /*:: props: Props; */
 
+  property = 'severities';
+
   static defaultProps = {
     open: true
   };
-
-  property = 'severities';
 
   handleItemClick = (itemValue /*: string */) => {
     const { severities } = this.props;

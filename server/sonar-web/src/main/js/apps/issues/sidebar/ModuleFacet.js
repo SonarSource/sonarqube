@@ -44,11 +44,11 @@ type Props = {|
 export default class ModuleFacet extends React.PureComponent {
   /*:: props: Props; */
 
+  property = 'modules';
+
   static defaultProps = {
     open: true
   };
-
-  property = 'modules';
 
   handleItemClick = (itemValue /*: string */) => {
     const { modules } = this.props;

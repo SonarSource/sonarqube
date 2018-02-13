@@ -39,7 +39,7 @@ interface State {
 }
 
 export default class ProjectRowActions extends React.PureComponent<Props, State> {
-  mounted: boolean;
+  mounted = false;
   state: State = { loading: false, restoreAccessModal: false };
 
   componentDidMount() {

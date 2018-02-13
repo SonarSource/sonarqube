@@ -57,8 +57,7 @@ interface State {
 }
 
 export default class Search extends React.PureComponent<Props, State> {
-  input: HTMLInputElement;
-  mounted: boolean;
+  mounted = false;
   state: State = { bulkApplyTemplateModal: false, deleteModal: false };
 
   getQualifierOptions = () => {

@@ -37,7 +37,7 @@ interface State {
 }
 
 export default class Workers extends React.PureComponent<{}, State> {
-  mounted: boolean;
+  mounted = false;
   state: State = {
     canSetWorkerCount: false,
     formOpen: false,

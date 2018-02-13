@@ -36,7 +36,7 @@ interface State {
 }
 
 export default class RenameProfileForm extends React.PureComponent<Props, State> {
-  mounted: boolean;
+  mounted = false;
   state: State = { loading: false, name: null };
 
   componentDidMount() {

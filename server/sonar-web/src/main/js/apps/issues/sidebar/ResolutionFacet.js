@@ -42,11 +42,11 @@ type Props = {|
 export default class ResolutionFacet extends React.PureComponent {
   /*:: props: Props; */
 
+  property = 'resolutions';
+
   static defaultProps = {
     open: true
   };
-
-  property = 'resolutions';
 
   handleItemClick = (itemValue /*: string */) => {
     if (itemValue === '') {
