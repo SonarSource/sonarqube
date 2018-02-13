@@ -33,7 +33,7 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.webhook.WebhookDto;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.user.UserSession;
-import org.sonarqube.ws.Webhooks.SearchWsResponse.Builder;
+import org.sonarqube.ws.Webhooks.ListWsResponse.Builder;
 
 import static java.util.Optional.ofNullable;
 import static org.apache.commons.lang.StringUtils.isNotBlank;
@@ -45,7 +45,7 @@ import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
 import static org.sonar.server.ws.WsUtils.checkStateWithOptional;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
-import static org.sonarqube.ws.Webhooks.SearchWsResponse.newBuilder;
+import static org.sonarqube.ws.Webhooks.ListWsResponse.newBuilder;
 
 public class ListAction implements WebhooksWsAction {
 
@@ -115,12 +115,12 @@ public class ListAction implements WebhooksWsAction {
         webhookSupport.checkPermission(componentDto);
         webhookSupport.checkThatProjectBelongsToOrganization(componentDto, organizationDto, "Project '%s' does not belong to organisation '%s'", projectKey, organizationKey);
         webhookSupport.checkPermission(componentDto);
-        return dbClient.webhookDao().selectByProjectUuid(dbSession, componentDto);
+        return dbClient.webhookDao().selectByProject(dbSession, componentDto);
 
       } else {
 
         webhookSupport.checkPermission(organizationDto);
-        return dbClient.webhookDao().selectByOrganizationUuid(dbSession, organizationDto);
+        return dbClient.webhookDao().selectByOrganization(dbSession, organizationDto);
 
       }
 
