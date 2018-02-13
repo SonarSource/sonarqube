@@ -44,7 +44,7 @@ interface State {
 }
 
 export default class EmailAlreadyExists extends React.PureComponent<Props, State> {
-  mounted: boolean = false;
+  mounted = false;
   state: State = { identityProviders: [], loading: true };
 
   componentDidMount() {

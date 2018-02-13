@@ -31,7 +31,7 @@ export function lazyLoad(loader: Loader) {
   // use `React.Component`, not `React.PureComponent` to always re-render
   // and let the child component decide if it needs to change
   return class LazyLoader extends React.Component<any, State> {
-    mounted: boolean = false;
+    mounted = false;
     state: State = {};
 
     componentDidMount() {

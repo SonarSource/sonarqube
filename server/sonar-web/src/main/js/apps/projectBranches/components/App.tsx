@@ -43,7 +43,7 @@ interface State {
 const BRANCH_LIFETIME_SETTING = 'sonar.dbcleaner.daysBeforeDeletingInactiveShortLivingBranches';
 
 export default class App extends React.PureComponent<Props, State> {
-  mounted: boolean = false;
+  mounted = false;
   state: State = { loading: true };
 
   componentDidMount() {

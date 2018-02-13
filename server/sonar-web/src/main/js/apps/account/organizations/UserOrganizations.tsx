@@ -45,7 +45,7 @@ interface State {
 }
 
 class UserOrganizations extends React.PureComponent<Props, State> {
-  mounted: boolean = false;
+  mounted = false;
   state: State = { createOrganization: false, loading: true };
 
   componentDidMount() {

@@ -33,7 +33,7 @@ interface State {
 }
 
 export default class ProfileRow extends React.PureComponent<Props, State> {
-  mounted: boolean = false;
+  mounted = false;
   state: State = { loading: false };
 
   componentDidMount() {

@@ -47,7 +47,7 @@ interface State {
 }
 
 export default class ActivationFormModal extends React.PureComponent<Props, State> {
-  mounted: boolean = false;
+  mounted = false;
 
   constructor(props: Props) {
     super(props);

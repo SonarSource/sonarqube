@@ -33,7 +33,7 @@ interface State {
 }
 
 export default class MetaLinks extends React.PureComponent<Props, State> {
-  mounted: boolean = false;
+  mounted = false;
   state: State = {};
 
   componentDidMount() {

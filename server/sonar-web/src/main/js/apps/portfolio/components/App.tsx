@@ -59,7 +59,7 @@ interface State {
 }
 
 export class App extends React.PureComponent<Props, State> {
-  mounted: boolean = false;
+  mounted = false;
   state: State = { loading: true };
 
   componentDidMount() {

@@ -34,7 +34,7 @@ interface State {
 }
 
 export default class EditGroup extends React.PureComponent<Props, State> {
-  mounted: boolean = false;
+  mounted = false;
   state: State = { modal: false };
 
   componentDidMount() {

@@ -49,7 +49,7 @@ interface State {
 }
 
 export class ComponentContainer extends React.PureComponent<Props, State> {
-  mounted: boolean = false;
+  mounted = false;
 
   static contextTypes = {
     organizationsEnabled: PropTypes.bool

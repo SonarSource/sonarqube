@@ -35,7 +35,7 @@ interface State {
 }
 
 export default class DeleteBranchModal extends React.PureComponent<Props, State> {
-  mounted: boolean = false;
+  mounted = false;
   state: State = { loading: false };
 
   componentDidMount() {

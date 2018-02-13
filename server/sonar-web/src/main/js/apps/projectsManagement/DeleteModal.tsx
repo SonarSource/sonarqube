@@ -40,7 +40,7 @@ interface State {
 }
 
 export default class DeleteModal extends React.PureComponent<Props, State> {
-  mounted: boolean = false;
+  mounted = false;
   state: State = { loading: false };
 
   componentDidMount() {

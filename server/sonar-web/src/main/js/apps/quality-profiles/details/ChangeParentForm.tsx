@@ -39,7 +39,7 @@ interface State {
 }
 
 export default class ChangeParentForm extends React.PureComponent<Props, State> {
-  mounted: boolean = false;
+  mounted = false;
   state: State = {
     loading: false,
     selected: null

@@ -39,7 +39,7 @@ interface State {
 }
 
 export default class Activity extends React.PureComponent<Props> {
-  mounted: boolean = false;
+  mounted = false;
   state: State = { loading: true };
 
   componentDidMount() {

@@ -34,7 +34,7 @@ interface State {
 }
 
 export default class DeactivateForm extends React.PureComponent<Props, State> {
-  mounted: boolean = false;
+  mounted = false;
   state: State = { submitting: false };
 
   componentDidMount() {

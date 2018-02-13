@@ -56,7 +56,7 @@ interface State {
 }
 
 export default class AllProjects extends React.PureComponent<Props, State> {
-  mounted: boolean = false;
+  mounted = false;
 
   static contextTypes = {
     router: PropTypes.object.isRequired

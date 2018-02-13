@@ -34,7 +34,7 @@ interface State {
 }
 
 export default class UninstallEditionForm extends React.PureComponent<Props, State> {
-  mounted: boolean = false;
+  mounted = false;
   state: State = { loading: false };
 
   componentDidMount() {

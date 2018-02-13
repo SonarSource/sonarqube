@@ -36,7 +36,7 @@ interface State {
 }
 
 export default class DeleteConditionForm extends React.PureComponent<Props, State> {
-  mounted: boolean = false;
+  mounted = false;
   state: State = { loading: false };
 
   componentDidMount() {

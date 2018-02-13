@@ -46,7 +46,7 @@ interface State {
 }
 
 export default class RuleDetailsProfiles extends React.PureComponent<Props, State> {
-  mounted: boolean = false;
+  mounted = false;
 
   componentDidMount() {
     this.mounted = true;

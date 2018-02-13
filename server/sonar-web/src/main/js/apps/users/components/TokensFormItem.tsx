@@ -37,7 +37,7 @@ interface State {
 }
 
 export default class TokensFormItem extends React.PureComponent<Props, State> {
-  mounted: boolean = false;
+  mounted = false;
   state: State = { deleting: false, loading: false };
 
   componentDidMount() {

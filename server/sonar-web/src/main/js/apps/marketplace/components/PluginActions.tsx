@@ -36,7 +36,7 @@ interface State {
 }
 
 export default class PluginActions extends React.PureComponent<Props, State> {
-  mounted: boolean = false;
+  mounted = false;
   state: State = { acceptTerms: false, loading: false };
 
   componentDidMount() {

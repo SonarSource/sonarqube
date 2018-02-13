@@ -41,7 +41,7 @@ interface Props {
 }
 
 export default class ComponentNav extends React.PureComponent<Props> {
-  mounted: boolean = false;
+  mounted = false;
 
   componentDidMount() {
     this.populateRecentHistory();
