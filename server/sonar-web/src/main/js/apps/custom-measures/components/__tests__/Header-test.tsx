@@ -17,40 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import Backbone from 'backbone';
-import Metric from './metric';
+import * as React from 'react';
+import { shallow } from 'enzyme';
+import Header from '../Header';
 
-export default Backbone.Collection.extend({
-  model: Metric,
+it('should create new custom measure', () => {
+  const onCreate = jest.fn(() => Promise.resolve());
+  const wrapper = shallow(<Header loading={false} onCreate={onCreate} skipMetrics={[]} />);
+  expect(wrapper).toMatchSnapshot();
 
-  url() {
-    return window.baseUrl + '/api/metrics/search';
-  },
-
-  parse(r) {
-    this.total = r.total;
-    this.p = r.p;
-    this.ps = r.ps;
-    return r.metrics;
-  },
-
-  fetch(options) {
-    const opts = { data: {}, ...options };
-    this.q = opts.data.q;
-    opts.data.isCustom = true;
-    return Backbone.Collection.prototype.fetch.call(this, opts);
-  },
-
-  fetchMore() {
-    const p = this.p + 1;
-    return this.fetch({ add: true, remove: false, data: { p, ps: this.ps, q: this.q } });
-  },
-
-  refresh() {
-    return this.fetch({ reset: true, data: { q: this.q } });
-  },
-
-  hasMore() {
-    return this.total > this.p * this.ps;
-  }
+  wrapper.find('CreateButton').prop<Function>('onCreate')({
+    description: 'bla',
+    metricKey: 'custom-metric',
+    name: 'Foo'
+  });
+  expect(onCreate).toBeCalledWith({ description: 'bla', metricKey: 'custom-metric', name: 'Foo' });
 });

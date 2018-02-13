@@ -1,0 +1,31 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should create new custom measure 1`] = `
+<header
+  className="page-header"
+  id="custom-measures-header"
+>
+  <h1
+    className="page-title"
+  >
+    custom_measures.page
+  </h1>
+  <DeferredSpinner
+    loading={false}
+    timeout={100}
+  />
+  <div
+    className="page-actions"
+  >
+    <CreateButton
+      onCreate={[MockFunction]}
+      skipMetrics={Array []}
+    />
+  </div>
+  <p
+    className="page-description"
+  >
+    custom_measures.page.description
+  </p>
+</header>
+`;

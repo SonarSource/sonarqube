@@ -1,0 +1,272 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render 1`] = `
+<div
+  className="boxed-group boxed-group-inner"
+  id="custom-measures-list"
+>
+  <table
+    className="data zebra zebra-hover"
+  >
+    <thead>
+      <tr>
+        <th>
+          custom_measures.metric
+        </th>
+        <th>
+          value
+        </th>
+        <th>
+          description
+        </th>
+        <th>
+          date
+        </th>
+        <th />
+      </tr>
+    </thead>
+    <tbody>
+      <tr
+        data-metric="another"
+        key="2"
+      >
+        <td
+          className="nowrap"
+        >
+          <div>
+            <span
+              className="js-custom-measure-metric-name"
+            >
+              another-metric
+            </span>
+          </div>
+          <span
+            className="js-custom-measure-domain note"
+          />
+        </td>
+        <td
+          className="nowrap"
+        >
+          <strong
+            className="js-custom-measure-value"
+          >
+            another-value
+          </strong>
+        </td>
+        <td>
+          <span
+            className="js-custom-measure-description"
+          />
+        </td>
+        <td>
+          <MeasureDate
+            measure={
+              Object {
+                "createdAt": "2017-01-01",
+                "id": "2",
+                "metric": Object {
+                  "key": "another",
+                  "name": "another-metric",
+                  "type": "STRING",
+                },
+                "projectKey": "foo",
+                "user": Object {
+                  "active": true,
+                  "login": "user",
+                  "name": "user",
+                },
+                "value": "another-value",
+              }
+            }
+          />
+           
+          by_
+           
+          <span
+            className="js-custom-measure-user"
+          >
+            user
+          </span>
+        </td>
+        <td
+          className="thin nowrap"
+        >
+          <ActionsDropdown>
+            <EditButton
+              measure={
+                Object {
+                  "createdAt": "2017-01-01",
+                  "id": "2",
+                  "metric": Object {
+                    "key": "another",
+                    "name": "another-metric",
+                    "type": "STRING",
+                  },
+                  "projectKey": "foo",
+                  "user": Object {
+                    "active": true,
+                    "login": "user",
+                    "name": "user",
+                  },
+                  "value": "another-value",
+                }
+              }
+              onEdit={[MockFunction]}
+            />
+            <ActionsDropdownDivider />
+            <DeleteButton
+              measure={
+                Object {
+                  "createdAt": "2017-01-01",
+                  "id": "2",
+                  "metric": Object {
+                    "key": "another",
+                    "name": "another-metric",
+                    "type": "STRING",
+                  },
+                  "projectKey": "foo",
+                  "user": Object {
+                    "active": true,
+                    "login": "user",
+                    "name": "user",
+                  },
+                  "value": "another-value",
+                }
+              }
+              onDelete={[MockFunction]}
+            />
+          </ActionsDropdown>
+        </td>
+      </tr>
+      <tr
+        data-metric="custom"
+        key="1"
+      >
+        <td
+          className="nowrap"
+        >
+          <div>
+            <span
+              className="js-custom-measure-metric-name"
+            >
+              custom-metric
+            </span>
+          </div>
+          <span
+            className="js-custom-measure-domain note"
+          />
+        </td>
+        <td
+          className="nowrap"
+        >
+          <strong
+            className="js-custom-measure-value"
+          >
+            custom-value
+          </strong>
+        </td>
+        <td>
+          <span
+            className="js-custom-measure-description"
+          >
+            my custom measure
+          </span>
+        </td>
+        <td>
+          <MeasureDate
+            measure={
+              Object {
+                "createdAt": "2017-01-01",
+                "description": "my custom measure",
+                "id": "1",
+                "metric": Object {
+                  "key": "custom",
+                  "name": "custom-metric",
+                  "type": "STRING",
+                },
+                "projectKey": "foo",
+                "user": Object {
+                  "active": true,
+                  "login": "user",
+                  "name": "user",
+                },
+                "value": "custom-value",
+              }
+            }
+          />
+           
+          by_
+           
+          <span
+            className="js-custom-measure-user"
+          >
+            user
+          </span>
+        </td>
+        <td
+          className="thin nowrap"
+        >
+          <ActionsDropdown>
+            <EditButton
+              measure={
+                Object {
+                  "createdAt": "2017-01-01",
+                  "description": "my custom measure",
+                  "id": "1",
+                  "metric": Object {
+                    "key": "custom",
+                    "name": "custom-metric",
+                    "type": "STRING",
+                  },
+                  "projectKey": "foo",
+                  "user": Object {
+                    "active": true,
+                    "login": "user",
+                    "name": "user",
+                  },
+                  "value": "custom-value",
+                }
+              }
+              onEdit={[MockFunction]}
+            />
+            <ActionsDropdownDivider />
+            <DeleteButton
+              measure={
+                Object {
+                  "createdAt": "2017-01-01",
+                  "description": "my custom measure",
+                  "id": "1",
+                  "metric": Object {
+                    "key": "custom",
+                    "name": "custom-metric",
+                    "type": "STRING",
+                  },
+                  "projectKey": "foo",
+                  "user": Object {
+                    "active": true,
+                    "login": "user",
+                    "name": "user",
+                  },
+                  "value": "custom-value",
+                }
+              }
+              onDelete={[MockFunction]}
+            />
+          </ActionsDropdown>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+`;
+
+exports[`should render no results 1`] = `
+<div
+  className="boxed-group boxed-group-inner"
+  id="custom-measures-list"
+>
+  <p>
+    no_results
+  </p>
+</div>
+`;

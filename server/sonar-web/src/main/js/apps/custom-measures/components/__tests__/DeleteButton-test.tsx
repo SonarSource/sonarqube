@@ -17,35 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import Marionette from 'backbone.marionette';
-import Template from './templates/custom-measures-list-footer.hbs';
+import * as React from 'react';
+import { shallow } from 'enzyme';
+import DeleteButton from '../DeleteButton';
 
-export default Marionette.ItemView.extend({
-  template: Template,
+it('should delete custom measure', () => {
+  const measure = {
+    createdAt: '2017-01-01',
+    description: 'my custom measure',
+    id: '1',
+    metric: { key: 'custom', name: 'custom-metric', type: 'STRING' },
+    projectKey: 'foo',
+    user: { active: true, login: 'user', name: 'user' },
+    value: 'custom-value'
+  };
+  const onDelete = jest.fn();
+  const wrapper = shallow(<DeleteButton measure={measure} onDelete={onDelete} />);
+  expect(wrapper).toMatchSnapshot();
 
-  collectionEvents: {
-    all: 'render'
-  },
-
-  events: {
-    'click #custom-measures-fetch-more': 'onMoreClick'
-  },
-
-  onMoreClick(e) {
-    e.preventDefault();
-    this.fetchMore();
-  },
-
-  fetchMore() {
-    this.collection.fetchMore();
-  },
-
-  serializeData() {
-    return {
-      ...Marionette.ItemView.prototype.serializeData.apply(this, arguments),
-      total: this.collection.total,
-      count: this.collection.length,
-      more: this.collection.hasMore()
-    };
-  }
+  wrapper.find('ConfirmButton').prop<Function>('onConfirm')('1');
+  expect(onDelete).toBeCalledWith('1');
 });

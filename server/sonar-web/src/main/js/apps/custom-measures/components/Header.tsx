@@ -17,22 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import Helmet from 'react-helmet';
-import init from '../init';
+import * as React from 'react';
+import CreateButton from './CreateButton';
+import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import { translate } from '../../../helpers/l10n';
 
-export default class CustomMeasuresAppContainer extends React.PureComponent {
-  componentDidMount() {
-    init(this.refs.container, this.props.component);
-  }
+interface Props {
+  loading: boolean;
+  onCreate: (data: { description: string; metricKey: string; value: string }) => Promise<void>;
+  skipMetrics: string[] | undefined;
+}
 
-  render() {
-    return (
-      <div>
-        <Helmet title={translate('custom_measures.page')} />
-        <div ref="container" />
+export default function Header({ loading, onCreate, skipMetrics }: Props) {
+  return (
+    <header className="page-header" id="custom-measures-header">
+      <h1 className="page-title">{translate('custom_measures.page')}</h1>
+      <DeferredSpinner loading={loading} />
+      <div className="page-actions">
+        <CreateButton onCreate={onCreate} skipMetrics={skipMetrics} />
       </div>
-    );
-  }
+      <p className="page-description">{translate('custom_measures.page.description')}</p>
+    </header>
+  );
 }

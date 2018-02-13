@@ -17,12 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import Marionette from 'backbone.marionette';
-import ListItemView from './list-item-view';
-import Template from './templates/custom-measures-list.hbs';
+import * as React from 'react';
+import { shallow } from 'enzyme';
+import CreateButton from '../CreateButton';
+import { click } from '../../../../helpers/testUtils';
 
-export default Marionette.CompositeView.extend({
-  template: Template,
-  childView: ListItemView,
-  childViewContainer: 'tbody'
+it('should create new custom measure', () => {
+  const onCreate = jest.fn(() => Promise.resolve());
+  const wrapper = shallow(<CreateButton onCreate={onCreate} skipMetrics={[]} />);
+  expect(wrapper).toMatchSnapshot();
+
+  click(wrapper.find('#custom-measures-create'));
+  expect(wrapper).toMatchSnapshot();
+
+  wrapper.find('Form').prop<Function>('onSubmit')({
+    description: 'description',
+    metricKey: 'metricKey',
+    value: 'value'
+  });
+  expect(onCreate).toBeCalledWith({
+    description: 'description',
+    metricKey: 'metricKey',
+    value: 'value'
+  });
 });
