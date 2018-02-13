@@ -19,6 +19,7 @@
  */
 package org.sonar.server.organization.ws;
 
+import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -39,6 +40,8 @@ import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
+import org.sonar.db.webhook.WebhookDbTester;
+import org.sonar.db.webhook.WebhookDto;
 import org.sonar.server.component.ComponentCleanerService;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.es.ProjectIndexers;
@@ -48,7 +51,6 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.organization.TestOrganizationFlags;
-import org.sonar.server.qualitygate.QualityGateFinder;
 import org.sonar.server.qualityprofile.QProfileFactory;
 import org.sonar.server.qualityprofile.QProfileFactoryImpl;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
@@ -90,7 +92,7 @@ public class DeleteActionTest {
   private QProfileFactory qProfileFactory = new QProfileFactoryImpl(dbClient, mock(UuidFactory.class), System2.INSTANCE, mock(ActiveRuleIndexer.class));
   private UserIndex userIndex = new UserIndex(es.client(), System2.INSTANCE);
   private UserIndexer userIndexer = new UserIndexer(dbClient, es.client());
-  private QualityGateFinder qualityGateFinder = new QualityGateFinder(dbClient);
+  private final WebhookDbTester webhookDbTester = db.webhooks();
   private WsActionTester wsTester = new WsActionTester(
     new DeleteAction(userSession, dbClient, defaultOrganizationProvider, componentCleanerService, organizationFlags, userIndexer, qProfileFactory));
 
@@ -111,6 +113,23 @@ public class DeleteActionTest {
       .matches(param -> param.isRequired())
       .matches(param -> "foo-company".equals(param.exampleValue()))
       .matches(param -> "Organization key".equals(param.description()));
+  }
+
+  @Test
+  public void organization_deletion_also_ensure_that_webhooks_of_this_organization_if_they_exist_are_cleared() {
+    OrganizationDto organization = db.organizations().insert();
+    webhookDbTester.insertWebhook(organization);
+    webhookDbTester.insertWebhook(organization);
+    webhookDbTester.insertWebhook(organization);
+
+    userSession.logIn().addPermission(ADMINISTER, organization);
+
+    wsTester.newRequest()
+      .setParam(PARAM_ORGANIZATION, organization.getKey())
+      .execute();
+
+    List<WebhookDto> webhookDtos = dbClient.webhookDao().selectByOrganization(session, organization);
+    assertThat(webhookDtos).isEmpty();
   }
 
   @Test
