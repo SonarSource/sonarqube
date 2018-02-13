@@ -19,14 +19,6 @@ exports[`should also render domains with an actions description matching the que
       >
         bar
       </h3>
-      <div
-        className="list-group-item-text markdown"
-        dangerouslySetInnerHTML={
-          Object {
-            "__html": "API Bar",
-          }
-        }
-      />
     </Link>
     <Link
       className="list-group-item"
@@ -40,14 +32,6 @@ exports[`should also render domains with an actions description matching the que
       >
         baz
       </h3>
-      <div
-        className="list-group-item-text markdown"
-        dangerouslySetInnerHTML={
-          Object {
-            "__html": "API Baz",
-          }
-        }
-      />
     </Link>
   </div>
 </div>
@@ -72,14 +56,6 @@ exports[`should not render deprecated domains 1`] = `
       >
         foo
       </h3>
-      <div
-        className="list-group-item-text markdown"
-        dangerouslySetInnerHTML={
-          Object {
-            "__html": "API Foo",
-          }
-        }
-      />
     </Link>
   </div>
 </div>
@@ -104,14 +80,6 @@ exports[`should not render internal domains 1`] = `
       >
         foo
       </h3>
-      <div
-        className="list-group-item-text markdown"
-        dangerouslySetInnerHTML={
-          Object {
-            "__html": "API Foo",
-          }
-        }
-      />
     </Link>
   </div>
 </div>
@@ -136,14 +104,6 @@ exports[`should render deprecated domains 1`] = `
       >
         foo
       </h3>
-      <div
-        className="list-group-item-text markdown"
-        dangerouslySetInnerHTML={
-          Object {
-            "__html": "API Foo",
-          }
-        }
-      />
     </Link>
     <Link
       className="list-group-item"
@@ -157,14 +117,6 @@ exports[`should render deprecated domains 1`] = `
       >
         bar
       </h3>
-      <div
-        className="list-group-item-text markdown"
-        dangerouslySetInnerHTML={
-          Object {
-            "__html": "API Bar",
-          }
-        }
-      />
     </Link>
   </div>
 </div>
@@ -189,14 +141,6 @@ exports[`should render internal domains 1`] = `
       >
         foo
       </h3>
-      <div
-        className="list-group-item-text markdown"
-        dangerouslySetInnerHTML={
-          Object {
-            "__html": "API Foo",
-          }
-        }
-      />
     </Link>
     <Link
       className="list-group-item"
@@ -211,14 +155,6 @@ exports[`should render internal domains 1`] = `
         bar
         <InternalBadge />
       </h3>
-      <div
-        className="list-group-item-text markdown"
-        dangerouslySetInnerHTML={
-          Object {
-            "__html": "API Bar",
-          }
-        }
-      />
     </Link>
   </div>
 </div>
@@ -243,14 +179,6 @@ exports[`should render only domains with an action matching the query 1`] = `
       >
         foo
       </h3>
-      <div
-        className="list-group-item-text markdown"
-        dangerouslySetInnerHTML={
-          Object {
-            "__html": "API Foo",
-          }
-        }
-      />
     </Link>
   </div>
 </div>
