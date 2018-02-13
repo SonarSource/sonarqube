@@ -198,11 +198,11 @@ public class CreateAction implements WebhooksWsAction {
   }
 
   private int numberOfWebhookOf(DbSession dbSession, OrganizationDto organizationDto) {
-    return dbClient.webhookDao().selectByOrganizationUuid(dbSession, organizationDto).size();
+    return dbClient.webhookDao().selectByOrganization(dbSession, organizationDto).size();
   }
 
   private int numberOfWebhookOf(DbSession dbSession, ComponentDto componentDto) {
-    return dbClient.webhookDao().selectByProjectUuid(dbSession, componentDto).size();
+    return dbClient.webhookDao().selectByProject(dbSession, componentDto).size();
   }
 
   private OrganizationDto defaultOrganizationDto(DbSession dbSession) {
