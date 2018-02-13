@@ -24,7 +24,7 @@ import java.util.List;
 import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.toList;
 
-public enum HomepageTypes {
+public enum HomepageType {
 
   PROJECT, ORGANIZATION, MY_PROJECTS, MY_ISSUES;
 

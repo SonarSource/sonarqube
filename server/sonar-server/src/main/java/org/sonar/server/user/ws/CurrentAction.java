@@ -21,7 +21,7 @@ package org.sonar.server.user.ws;
 
 import java.util.Collection;
 import java.util.List;
-import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -52,6 +52,7 @@ import static org.sonarqube.ws.Users.CurrentWsResponse.HomepageType.PROJECT;
 import static org.sonarqube.ws.client.user.UsersWsParameters.ACTION_CURRENT;
 
 public class CurrentAction implements UsersWsAction {
+
   private final UserSession userSession;
   private final DbClient dbClient;
   private final DefaultOrganizationProvider defaultOrganizationProvider;
@@ -69,11 +70,13 @@ public class CurrentAction implements UsersWsAction {
   public void define(NewController context) {
     context.createAction(ACTION_CURRENT)
       .setDescription("Get the details of the current authenticated user.")
-      .setHandler(this)
-      .setInternal(true)
-      .setResponseExample(getClass().getResource("current-example.json"))
       .setSince("5.2")
-      .setChangelog(new Change("6.5", "showOnboardingTutorial is now returned in the response"));
+      .setInternal(true)
+      .setHandler(this)
+      .setResponseExample(getClass().getResource("current-example.json"))
+      .setChangelog(
+        new Change("6.5", "showOnboardingTutorial is now returned in the response"),
+        new Change("7.1", "'parameter' is replaced by 'component' and 'organization' in the response"));
   }
 
   @Override
@@ -122,34 +125,35 @@ public class CurrentAction implements UsersWsAction {
   }
 
   private CurrentWsResponse.Homepage findHomepageFor(DbSession dbSession, UserDto user) {
-    if (user.getHomepageType() == null) {
-      return defaultHomepageOf();
+    String homepageType = user.getHomepageType();
+    if (homepageType == null) {
+      return defaultHomepage();
     }
-    String homepageParameter = getHomepageParameter(dbSession, user.getHomepageType(), user.getHomepageParameter());
     CurrentWsResponse.Homepage.Builder homepage = CurrentWsResponse.Homepage.newBuilder()
-      .setType(CurrentWsResponse.HomepageType.valueOf(user.getHomepageType()));
-    setNullable(homepageParameter, homepage::setParameter);
+      .setType(CurrentWsResponse.HomepageType.valueOf(homepageType));
+    setHomepageParameter(dbSession, homepageType, user.getHomepageParameter(), homepage);
     return homepage.build();
   }
 
-  @CheckForNull
-  private String getHomepageParameter(DbSession dbSession, String homepageType, String homepageParameter) {
+  private void setHomepageParameter(DbSession dbSession, String homepageType, @Nullable String homepageParameter, CurrentWsResponse.Homepage.Builder homepage) {
     if (PROJECT.toString().equals(homepageType)) {
-      return dbClient.componentDao().selectByUuid(dbSession, homepageParameter)
-        .transform(ComponentDto::getKey)
+      checkState(homepageParameter != null, "Homepage parameter should not be null");
+      ComponentDto component = dbClient.componentDao().selectByUuid(dbSession, homepageParameter)
         .or(() -> {
           throw new IllegalStateException(format("Unknown component '%s' for homepageParameter", homepageParameter));
         });
+      homepage.setComponent(component.getKey());
+      return;
     }
     if (ORGANIZATION.toString().equals(homepageType)) {
-      return dbClient.organizationDao().selectByUuid(dbSession, homepageParameter)
-        .map(OrganizationDto::getKey)
+      checkState(homepageParameter != null, "Homepage parameter should not be null");
+      OrganizationDto organization = dbClient.organizationDao().selectByUuid(dbSession, homepageParameter)
         .orElseThrow(() -> new IllegalStateException(format("Unknown organization '%s' for homepageParameter", homepageParameter)));
+      homepage.setOrganization(organization.getKey());
     }
-    return null;
   }
 
-  private static CurrentWsResponse.Homepage defaultHomepageOf() {
+  private static CurrentWsResponse.Homepage defaultHomepage() {
     return CurrentWsResponse.Homepage.newBuilder()
       .setType(MY_PROJECTS)
       .build();
