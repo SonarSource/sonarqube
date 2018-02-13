@@ -49,22 +49,16 @@ export default function Menu(props: Props) {
       <div className="list-group">
         {filteredDomains.map(domain => (
           <Link
-            key={domain.path}
             className={classNames('list-group-item', {
               active: isDomainPathActive(domain.path, splat)
             })}
+            key={domain.path}
             to={'/web_api/' + domain.path}>
             <h3 className="list-group-item-heading">
               {domain.path}
               {domain.deprecated && <DeprecatedBadge />}
               {domain.internal && <InternalBadge />}
             </h3>
-            {domain.description && (
-              <div
-                className="list-group-item-text markdown"
-                dangerouslySetInnerHTML={{ __html: domain.description }}
-              />
-            )}
           </Link>
         ))}
       </div>
