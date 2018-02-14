@@ -107,7 +107,7 @@ public class CurrentAction implements UsersWsAction {
       .addAllGroups(groups)
       .addAllScmAccounts(user.getScmAccountsAsList())
       .setPermissions(Permissions.newBuilder().addAllGlobal(getGlobalPermissions()).build())
-      .setHomepage(findHomepageFor(dbSession, user))
+      .setHomepage(buildHomepage(dbSession, user))
       .setShowOnboardingTutorial(!user.isOnboarded());
     setNullable(emptyToNull(user.getEmail()), builder::setEmail);
     setNullable(emptyToNull(user.getEmail()), u -> builder.setAvatar(avatarResolver.create(user)));
@@ -124,7 +124,7 @@ public class CurrentAction implements UsersWsAction {
       .collect(toList());
   }
 
-  private CurrentWsResponse.Homepage findHomepageFor(DbSession dbSession, UserDto user) {
+  private CurrentWsResponse.Homepage buildHomepage(DbSession dbSession, UserDto user) {
     String homepageType = user.getHomepageType();
     if (homepageType == null) {
       return defaultHomepage();
@@ -143,6 +143,7 @@ public class CurrentAction implements UsersWsAction {
           throw new IllegalStateException(format("Unknown component '%s' for homepageParameter", homepageParameter));
         });
       homepage.setComponent(component.getKey());
+      setNullable(component.getBranch(), homepage::setBranch);
       return;
     }
     if (ORGANIZATION.toString().equals(homepageType)) {
