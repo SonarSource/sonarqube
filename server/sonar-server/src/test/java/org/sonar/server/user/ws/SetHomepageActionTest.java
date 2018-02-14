@@ -25,7 +25,6 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
-import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.UserDto;
@@ -37,7 +36,6 @@ import org.sonar.server.ws.WsActionTester;
 
 import static org.apache.http.HttpStatus.SC_NO_CONTENT;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 
 public class SetHomepageActionTest {
 
@@ -64,7 +62,7 @@ public class SetHomepageActionTest {
     assertThat(action.description()).isEqualTo("Set homepage of current user.<br> Requires authentication.");
     assertThat(action.responseExample()).isNull();
     assertThat(action.handler()).isSameAs(underTest);
-    assertThat(action.params()).hasSize(3);
+    assertThat(action.params()).hasSize(4);
 
     WebService.Param typeParam = action.param("type");
     assertThat(typeParam.isRequired()).isTrue();
@@ -76,6 +74,12 @@ public class SetHomepageActionTest {
     assertThat(componentParam.description()).isEqualTo("Project key. It should only be used when parameter 'type' is set to 'PROJECT'");
     assertThat(componentParam.since()).isEqualTo("7.1");
 
+    WebService.Param branchParam = action.param("branch");
+    assertThat(branchParam.isRequired()).isFalse();
+    assertThat(branchParam.isInternal()).isTrue();
+    assertThat(branchParam.description()).isEqualTo("Branch key. It can only be used when parameter 'type' is set to 'PROJECT'");
+    assertThat(branchParam.since()).isEqualTo("7.1");
+
     WebService.Param organizationParam = action.param("organization");
     assertThat(organizationParam.isRequired()).isFalse();
     assertThat(organizationParam.description()).isEqualTo("Organization key. It should only be used when parameter 'type' is set to 'ORGANIZATION'");
@@ -85,7 +89,7 @@ public class SetHomepageActionTest {
   @Test
   public void set_project_homepage() {
     OrganizationDto organization = db.organizations().insert();
-    ComponentDto project = new ComponentDbTester(db).insertComponent(newPrivateProjectDto(organization));
+    ComponentDto project = db.components().insertPrivateProject(organization);
 
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
@@ -100,6 +104,27 @@ public class SetHomepageActionTest {
     assertThat(actual).isNotNull();
     assertThat(actual.getHomepageType()).isEqualTo("PROJECT");
     assertThat(actual.getHomepageParameter()).isEqualTo(project.uuid());
+  }
+
+  @Test
+  public void set_branch_homepage() {
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto project = db.components().insertMainBranch(organization);
+    ComponentDto branch = db.components().insertProjectBranch(project);
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user);
+
+    ws.newRequest()
+      .setMethod("POST")
+      .setParam("type", "PROJECT")
+      .setParam("component", branch.getKey())
+      .setParam("branch", branch.getBranch())
+      .execute();
+
+    UserDto actual = db.getDbClient().userDao().selectByLogin(db.getSession(), user.getLogin());
+    assertThat(actual).isNotNull();
+    assertThat(actual.getHomepageType()).isEqualTo("PROJECT");
+    assertThat(actual.getHomepageParameter()).isEqualTo(branch.uuid());
   }
 
   @Test

@@ -26,6 +26,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.ComponentDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.issue.ws.AvatarResolverImpl;
 import org.sonar.server.organization.DefaultOrganizationProvider;
@@ -66,8 +67,7 @@ public class CurrentActionTest {
       .setExternalIdentity("obiwan")
       .setExternalIdentityProvider("sonarqube")
       .setScmAccounts(newArrayList("obiwan:github", "obiwan:bitbucket"))
-      .setOnboarded(false)
-      .setHomepageType("MY_PROJECTS"));
+      .setOnboarded(false));
     userSessionRule.logIn("obiwan.kenobi");
 
     CurrentWsResponse response = call();
@@ -78,11 +78,6 @@ public class CurrentActionTest {
         CurrentWsResponse::getExternalIdentity, CurrentWsResponse::getExternalProvider, CurrentWsResponse::getScmAccountsList, CurrentWsResponse::getShowOnboardingTutorial)
       .containsExactly(true, "obiwan.kenobi", "Obiwan Kenobi", "obiwan.kenobi@starwars.com", "f5aa64437a1821ffe8b563099d506aef", true, "obiwan", "sonarqube",
         newArrayList("obiwan:github", "obiwan:bitbucket"), true);
-
-    assertThat(response.getHomepage()).isNotNull();
-    assertThat(response.getHomepage()).extracting(CurrentWsResponse.Homepage::getType)
-      .containsExactly(MY_PROJECTS);
-
   }
 
   @Test
@@ -150,6 +145,45 @@ public class CurrentActionTest {
   }
 
   @Test
+  public void return_homepage_when_set_to_MY_PROJECTS() {
+    UserDto user = db.users().insertUser(u -> u.setHomepageType("MY_PROJECTS"));
+    userSessionRule.logIn(user);
+
+    CurrentWsResponse response = call();
+
+    assertThat(response.getHomepage())
+      .extracting(CurrentWsResponse.Homepage::getType)
+      .containsExactly(MY_PROJECTS);
+  }
+
+  @Test
+  public void return_homepage_when_set_to_a_project() {
+    ComponentDto project = db.components().insertPrivateProject();
+    UserDto user = db.users().insertUser(u -> u.setHomepageType("PROJECT").setHomepageParameter(project.uuid()));
+    userSessionRule.logIn(user);
+
+    CurrentWsResponse response = call();
+
+    assertThat(response.getHomepage())
+      .extracting(CurrentWsResponse.Homepage::getType, CurrentWsResponse.Homepage::getComponent)
+      .containsExactly(CurrentWsResponse.HomepageType.PROJECT, project.getKey());
+  }
+
+  @Test
+  public void return_homepage_when_set_to_a_branch() {
+    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto branch = db.components().insertProjectBranch(project);
+    UserDto user = db.users().insertUser(u -> u.setHomepageType("PROJECT").setHomepageParameter(branch.uuid()));
+    userSessionRule.logIn(user);
+
+    CurrentWsResponse response = call();
+
+    assertThat(response.getHomepage())
+      .extracting(CurrentWsResponse.Homepage::getType, CurrentWsResponse.Homepage::getComponent, CurrentWsResponse.Homepage::getBranch)
+      .containsExactly(CurrentWsResponse.HomepageType.PROJECT, branch.getKey(), branch.getBranch());
+  }
+
+  @Test
   public void fail_with_ISE_when_user_login_in_db_does_not_exist() {
     db.users().insertUser(usert -> usert.setLogin("another"));
     userSessionRule.logIn("obiwan.kenobi");
@@ -199,7 +233,7 @@ public class CurrentActionTest {
     db.users().insertMember(db.users().insertGroup(newGroupDto().setName("Jedi")), obiwan);
     db.users().insertMember(db.users().insertGroup(newGroupDto().setName("Rebel")), obiwan);
 
-    db.components().insertPublicProject(u->u.setUuid("UUID-of-the-death-star"), u->u.setDbKey("death-star-key"));
+    db.components().insertPublicProject(u -> u.setUuid("UUID-of-the-death-star"), u -> u.setDbKey("death-star-key"));
 
     String response = ws.newRequest().execute().getInput();
 
