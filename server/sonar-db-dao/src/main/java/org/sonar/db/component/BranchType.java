@@ -29,5 +29,10 @@ public enum BranchType {
   /**
    * Short-lived branch
    */
-  SHORT
+  SHORT,
+
+  /**
+   * Pull request
+   */
+  PULL_REQUEST
 }

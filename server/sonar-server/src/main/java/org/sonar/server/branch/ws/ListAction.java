@@ -57,6 +57,7 @@ import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.db.component.BranchType.LONG;
+import static org.sonar.db.component.BranchType.PULL_REQUEST;
 import static org.sonar.db.component.BranchType.SHORT;
 import static org.sonar.server.branch.ws.BranchesWs.addProjectParam;
 import static org.sonar.server.branch.ws.ProjectBranchesParameters.ACTION_LIST;
@@ -136,7 +137,7 @@ public class ListAction implements BranchWsAction {
     setNullable(branchKey, builder::setName);
     builder.setIsMain(branch.isMain());
     builder.setType(Common.BranchType.valueOf(branch.getBranchType().name()));
-    if (branch.getBranchType().equals(SHORT)) {
+    if (branch.getBranchType() == SHORT || branch.getBranchType() == PULL_REQUEST) {
       if (mergeBranch.isPresent()) {
         String mergeBranchKey = mergeBranch.get().getKey();
         builder.setMergeBranch(mergeBranchKey);
@@ -153,7 +154,7 @@ public class ListAction implements BranchWsAction {
     if (branch.getBranchType() == LONG && qualityGateMeasure != null) {
       Protobuf.setNullable(qualityGateMeasure.getDataAsString(), statusBuilder::setQualityGateStatus);
     }
-    if (branch.getBranchType() == BranchType.SHORT) {
+    if (branch.getBranchType() == BranchType.SHORT || branch.getBranchType() == BranchType.PULL_REQUEST) {
       statusBuilder.setBugs(branchStatistics == null ? 0L : branchStatistics.getBugs());
       statusBuilder.setVulnerabilities(branchStatistics == null ? 0L : branchStatistics.getVulnerabilities());
       statusBuilder.setCodeSmells(branchStatistics == null ? 0L : branchStatistics.getCodeSmells());

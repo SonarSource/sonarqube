@@ -101,4 +101,18 @@ public class IssueTrackingDelegatorTest {
     verifyZeroInteractions(tracker);
     verifyZeroInteractions(mergeBranchTracker);
   }
+
+  @Test
+  public void delegate_pull_request_tracker() {
+    Branch branch = mock(Branch.class);
+    when(branch.getType()).thenReturn(BranchType.PULL_REQUEST);
+    when(analysisMetadataHolder.getBranch()).thenReturn(mock(Branch.class));
+    when(analysisMetadataHolder.isShortLivingBranch()).thenReturn(true);
+
+    underTest.track(component);
+
+    verify(shortBranchTracker).track(component);
+    verifyZeroInteractions(tracker);
+    verifyZeroInteractions(mergeBranchTracker);
+  }
 }
