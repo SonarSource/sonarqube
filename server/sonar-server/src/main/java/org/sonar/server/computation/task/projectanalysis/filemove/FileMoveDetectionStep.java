@@ -27,6 +27,11 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -143,7 +148,7 @@ public class FileMoveDetectionStep implements ComputationStep {
       movedFilesRepository.setOriginalFile(
         reportFilesByKey.get(validatedMatch.getReportKey()),
         toOriginalFile(dbFilesByKey.get(validatedMatch.getDbKey())));
-      LOG.debug("File move found: {}", validatedMatch);
+      LOG.trace("File move found: {}", validatedMatch);
     }
   }
 
@@ -261,8 +266,19 @@ public class FileMoveDetectionStep implements ComputationStep {
   }
 
   private static void printIfDebug(ScoreMatrix scoreMatrix) {
+    if (LOG.isDebugEnabled()) {
+      try {
+        Path tempFile = Files.createTempFile("score-matrix", ".csv");
+        try (BufferedWriter writer = Files.newBufferedWriter(tempFile, Charset.forName("UTF-8"))) {
+          writer.write(scoreMatrix.toCsv(';'));
+        }
+        LOG.info("score matrix dumped as CSV: {}", tempFile);
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+    }
 //    if (LOG.isDebugEnabled()) {
-      LOG.info("ScoreMatrix:\n" + scoreMatrix.toCsv(';'));
+//      LOG.debug("ScoreMatrix:\n" + scoreMatrix.toCsv(';'));
 //    }
   }
 
