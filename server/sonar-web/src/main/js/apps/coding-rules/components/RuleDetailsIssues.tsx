@@ -18,12 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import * as PropTypes from 'prop-types';
 import { Link } from 'react-router';
-import { getFacet } from '../../../api/issues';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
-import { translate } from '../../../helpers/l10n';
-import { formatMeasure } from '../../../helpers/measures';
+import Tooltip from '../../../components/controls/Tooltip';
+import { getFacet } from '../../../api/issues';
 import { getIssuesUrl } from '../../../helpers/urls';
+import { formatMeasure } from '../../../helpers/measures';
+import { translate } from '../../../helpers/l10n';
 
 interface Props {
   organization: string | undefined;
@@ -45,6 +47,11 @@ interface State {
 
 export default class RuleDetailsIssues extends React.PureComponent<Props, State> {
   mounted = false;
+
+  static contextTypes = {
+    branchesEnabled: PropTypes.bool
+  };
+
   state: State = { loading: true };
 
   componentDidMount() {
@@ -103,12 +110,23 @@ export default class RuleDetailsIssues extends React.PureComponent<Props, State>
       { resolved: 'false', rules: this.props.ruleKey },
       this.props.organization
     );
-    return (
-      <>
-        {' ('}
+
+    const totalItem = (
+      <span className="little-spacer-left">
+        {'('}
         <Link to={path}>{total}</Link>
         {')'}
-      </>
+      </span>
+    );
+
+    if (!this.context.branchesEnabled) {
+      return totalItem;
+    }
+
+    return (
+      <Tooltip overlay={translate('coding_rules.issues.only_main_branches')} placement="right">
+        {totalItem}
+      </Tooltip>
     );
   };
 
