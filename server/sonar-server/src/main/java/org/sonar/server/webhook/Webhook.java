@@ -29,13 +29,15 @@ import static java.util.Optional.ofNullable;
 @Immutable
 public class Webhook {
 
+  private final String uuid;
   private final String componentUuid;
   private final String ceTaskUuid;
   private final String analysisUuid;
   private final String name;
   private final String url;
 
-  public Webhook(String componentUuid, @Nullable String ceTaskUuid, @Nullable String analysisUuid, String name, String url) {
+  public Webhook(String uuid, String componentUuid, @Nullable String ceTaskUuid, @Nullable String analysisUuid, String name, String url) {
+    this.uuid = uuid;
     this.componentUuid = requireNonNull(componentUuid);
     this.ceTaskUuid = ceTaskUuid;
     this.analysisUuid = analysisUuid;
@@ -57,6 +59,10 @@ public class Webhook {
 
   public String getUrl() {
     return url;
+  }
+
+  public String getUuid() {
+    return uuid;
   }
 
   public Optional<String> getAnalysisUuid() {
