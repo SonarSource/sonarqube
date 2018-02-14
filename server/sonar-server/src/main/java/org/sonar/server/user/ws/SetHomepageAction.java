@@ -41,6 +41,7 @@ import static org.sonar.server.user.ws.HomepageType.ORGANIZATION;
 import static org.sonar.server.user.ws.HomepageType.PROJECT;
 import static org.sonar.server.user.ws.HomepageType.keys;
 import static org.sonar.server.user.ws.HomepageType.valueOf;
+import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 
 public class SetHomepageAction implements UsersWsAction {
@@ -50,6 +51,7 @@ public class SetHomepageAction implements UsersWsAction {
   private static final String PARAM_TYPE = "type";
   private static final String PARAM_ORGANIZATION = "organization";
   private static final String PARAM_COMPONENT = "component";
+  private static final String PARAM_BRANCH = "branch";
 
   private final UserSession userSession;
   private final DbClient dbClient;
@@ -87,6 +89,12 @@ public class SetHomepageAction implements UsersWsAction {
       .setSince("7.1")
       .setDescription("Project key. It should only be used when parameter '%s' is set to '%s'", PARAM_TYPE, PROJECT)
       .setExampleValue(KEY_PROJECT_EXAMPLE_001);
+
+    action.createParam(PARAM_BRANCH)
+      .setDescription("Branch key. It can only be used when parameter '%s' is set to '%s'", PARAM_TYPE, PROJECT)
+      .setExampleValue(KEY_BRANCH_EXAMPLE_001)
+      .setInternal(true)
+      .setSince("7.1");
   }
 
   @Override
@@ -97,7 +105,7 @@ public class SetHomepageAction implements UsersWsAction {
     String organizationParameter = request.param(PARAM_ORGANIZATION);
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      String parameter = getHomepageParameter(dbSession, type, componentParameter, organizationParameter);
+      String parameter = getHomepageParameter(dbSession, type, componentParameter, request.param(PARAM_BRANCH), organizationParameter);
 
       UserDto user = dbClient.userDao().selectActiveUserByLogin(dbSession, userSession.getLogin());
       checkState(user != null, "User login '%s' cannot be found", userSession.getLogin());
@@ -112,11 +120,12 @@ public class SetHomepageAction implements UsersWsAction {
   }
 
   @CheckForNull
-  private String getHomepageParameter(DbSession dbSession, HomepageType type, @Nullable String componentParameter, @Nullable String organizationParameter) {
+  private String getHomepageParameter(DbSession dbSession, HomepageType type, @Nullable String componentParameter, @Nullable String branchParameter,
+    @Nullable String organizationParameter) {
     switch (type) {
       case PROJECT:
         checkArgument(isNotBlank(componentParameter), "Type %s requires a parameter '%s'", type.name(), PARAM_COMPONENT);
-        return componentFinder.getByKey(dbSession, componentParameter).uuid();
+        return componentFinder.getByKeyAndOptionalBranch(dbSession, componentParameter, branchParameter).uuid();
       case ORGANIZATION:
         checkArgument(isNotBlank(organizationParameter), "Type %s requires a parameter '%s'", type.name(), PARAM_ORGANIZATION);
         return dbClient.organizationDao().selectByKey(dbSession, organizationParameter)
