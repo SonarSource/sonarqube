@@ -125,5 +125,6 @@ message CurrentWsResponse {
     optional HomepageType type = 1;
     optional string component = 2;
     optional string organization = 3;
+    optional string branch = 4;
   }
 }
