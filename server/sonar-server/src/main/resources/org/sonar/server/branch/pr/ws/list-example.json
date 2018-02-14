@@ -1,0 +1,17 @@
+{
+  "pullRequests": [
+    {
+      "id": "feature/bar",
+      "title": "feature/bar",
+      "branch": "feature/bar",
+      "base": "feature/foo",
+      "status": {
+        "bugs": 0,
+        "vulnerabilities": 0,
+        "codeSmells": 0
+      },
+      "analysisDate": "2017-04-01T02:15:42+0200",
+      "url": "https://github.com/SonarSource/sonar-core-plugins/pull/32"
+    }
+  ]
+}

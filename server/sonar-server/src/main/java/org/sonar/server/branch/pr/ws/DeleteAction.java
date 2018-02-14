@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.branch.ws;
+package org.sonar.server.branch.pr.ws;
 
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -30,16 +30,17 @@ import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.server.component.ComponentCleanerService;
 import org.sonar.server.component.ComponentFinder;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
 
-import static org.sonar.server.branch.ws.BranchesWs.addBranchParam;
-import static org.sonar.server.branch.ws.BranchesWs.addProjectParam;
+import static org.sonar.db.component.BranchType.PULL_REQUEST;
+import static org.sonar.server.branch.pr.ws.PullRequestsWs.addProjectParam;
+import static org.sonar.server.branch.pr.ws.PullRequestsWs.addPullRequestParam;
+import static org.sonar.server.branch.pr.ws.PullRequestsWsParameters.PARAM_PROJECT;
+import static org.sonar.server.branch.pr.ws.PullRequestsWsParameters.PARAM_PULL_REQUEST;
 import static org.sonar.server.branch.ws.ProjectBranchesParameters.ACTION_DELETE;
-import static org.sonar.server.branch.ws.ProjectBranchesParameters.PARAM_BRANCH;
-import static org.sonar.server.branch.ws.ProjectBranchesParameters.PARAM_PROJECT;
-import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
 
-public class DeleteAction implements BranchWsAction {
+public class DeleteAction implements PullRequestWsAction {
   private final DbClient dbClient;
   private final UserSession userSession;
   private final ComponentCleanerService componentCleanerService;
@@ -55,34 +56,31 @@ public class DeleteAction implements BranchWsAction {
   @Override
   public void define(NewController context) {
     WebService.NewAction action = context.createAction(ACTION_DELETE)
-      .setSince("6.6")
-      .setDescription("Delete a non-main branch of a project.<br/>" +
+      .setSince("7.1")
+      .setDescription("Delete a pull request.<br/>" +
         "Requires 'Administer' rights on the specified project.")
       .setPost(true)
       .setHandler(this);
 
     addProjectParam(action);
-    addBranchParam(action);
+    addPullRequestParam(action);
   }
 
   @Override
   public void handle(Request request, Response response) throws Exception {
     userSession.checkLoggedIn();
     String projectKey = request.mandatoryParam(PARAM_PROJECT);
-    String branchKey = request.mandatoryParam(PARAM_BRANCH);
+    String pullRequestId = request.mandatoryParam(PARAM_PULL_REQUEST);
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       ComponentDto project = componentFinder.getRootComponentByUuidOrKey(dbSession, null, projectKey);
       checkPermission(project);
 
-      BranchDto branch = checkFoundWithOptional(
-        dbClient.branchDao().selectByKey(dbSession, project.uuid(), branchKey),
-        "Branch '%s' not found for project '%s'", branchKey, projectKey);
+      BranchDto pullRequest = dbClient.branchDao().selectByKey(dbSession, project.uuid(), pullRequestId)
+        .filter(branch -> branch.getBranchType() == PULL_REQUEST)
+        .orElseThrow(() -> new NotFoundException(String.format("Pull request '%s' is not found for project '%s'", pullRequestId, projectKey)));
 
-      if (branch.isMain()) {
-        throw new IllegalArgumentException("Only non-main branches can be deleted");
-      }
-      ComponentDto branchComponent = componentFinder.getByKeyAndBranch(dbSession, projectKey, branchKey);
+      ComponentDto branchComponent = componentFinder.getByKeyAndBranch(dbSession, projectKey, pullRequest.getKey());
       componentCleanerService.deleteBranch(dbSession, branchComponent);
       response.noContent();
     }
