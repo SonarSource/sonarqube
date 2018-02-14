@@ -96,10 +96,10 @@ export default class PluginActions extends React.PureComponent<Props, State> {
             <div className="spacer-top">
               {plugin.updates.map((update, idx) => (
                 <PluginUpdateButton
+                  disabled={this.state.loading}
                   key={idx}
                   onClick={this.handleUpdate}
                   update={update}
-                  disabled={this.state.loading}
                 />
               ))}
             </div>
@@ -138,22 +138,23 @@ export default class PluginActions extends React.PureComponent<Props, State> {
               </a>
             </p>
           )}
-        {loading && <i className="spinner spacer-right" />}
+        {loading && <i className="spinner spacer-right little-spacer-top little-spacer-bottom" />}
         {isPluginInstalled(plugin) && (
           <div className="display-inlin-block">
             {plugin.updates &&
               plugin.updates.map((update, idx) => (
                 <PluginUpdateButton
+                  disabled={loading}
                   key={idx}
                   onClick={this.handleUpdate}
                   update={update}
-                  disabled={loading}
                 />
               ))}
             <button
               className="js-uninstall button-red little-spacer-left"
               disabled={loading}
-              onClick={this.handleUninstall}>
+              onClick={this.handleUninstall}
+              type="button">
               {translate('marketplace.uninstall')}
             </button>
           </div>
@@ -162,7 +163,8 @@ export default class PluginActions extends React.PureComponent<Props, State> {
           <button
             className="js-install"
             disabled={loading || (plugin.termsAndConditionsUrl != null && !this.state.acceptTerms)}
-            onClick={this.handleInstall}>
+            onClick={this.handleInstall}
+            type="button">
             {translate('marketplace.install')}
           </button>
         )}

@@ -56,9 +56,9 @@ export default class PluginsList extends React.PureComponent<Props> {
       return (
         <PluginInstalled
           plugin={plugin}
-          status={status}
           readOnly={this.props.readOnly}
           refreshPending={this.props.refreshPending}
+          status={status}
           updateQuery={this.props.updateQuery}
         />
       );
@@ -67,9 +67,9 @@ export default class PluginsList extends React.PureComponent<Props> {
       return (
         <PluginAvailable
           plugin={plugin}
-          status={status}
           readOnly={this.props.readOnly}
           refreshPending={this.props.refreshPending}
+          status={status}
           updateQuery={this.props.updateQuery}
         />
       );
@@ -82,7 +82,7 @@ export default class PluginsList extends React.PureComponent<Props> {
       <div className="boxed-group boxed-group-inner" id="marketplace-plugins">
         <ul>
           {this.props.plugins.map(plugin => (
-            <li key={plugin.key} className="panel panel-vertical">
+            <li className="panel panel-vertical" key={plugin.key}>
               <table className="marketplace-plugin-table">
                 <tbody>{this.renderPlugin(plugin)}</tbody>
               </table>

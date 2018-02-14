@@ -104,6 +104,13 @@ function addChangelog(update: Update, updates?: Update[]) {
   return { ...update, previousUpdates };
 }
 
+export function getInstalledPlugins(): Promise<PluginInstalled[]> {
+  return getJSON('/api/plugins/installed', { f: 'category' }).then(
+    ({ plugins }) => plugins,
+    throwGlobalError
+  );
+}
+
 export function getInstalledPluginsWithUpdates(): Promise<PluginInstalled[]> {
   return Promise.all([
     getJSON('/api/plugins/installed', { f: 'category' }),
