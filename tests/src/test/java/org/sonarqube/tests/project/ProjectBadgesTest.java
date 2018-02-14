@@ -115,7 +115,7 @@ public class ProjectBadgesTest {
   }
 
   private void shouldHaveUrl(SelenideElement badgesModal, String url) {
-    badgesModal.$(".badge-snippet pre")
+    badgesModal.$(".code-snippet pre")
       .shouldBe(Condition.visible)
       .shouldHave(Condition.text(url));
   }
