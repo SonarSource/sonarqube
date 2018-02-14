@@ -42,7 +42,7 @@ interface State {
 
 export default class App extends React.PureComponent<Props, State> {
   interval?: number;
-  mounted: boolean = false;
+  mounted = false;
   state: State = {};
 
   componentDidMount() {
