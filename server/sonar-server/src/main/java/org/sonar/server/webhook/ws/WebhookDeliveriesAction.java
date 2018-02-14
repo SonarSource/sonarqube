@@ -38,6 +38,8 @@ import org.sonarqube.ws.Webhooks;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
+import static org.apache.commons.lang.StringUtils.isNotBlank;
+import static org.sonar.core.util.Uuids.UUID_EXAMPLE_02;
 import static org.sonar.server.webhook.ws.WebhookWsSupport.copyDtoToProtobuf;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
@@ -45,6 +47,7 @@ public class WebhookDeliveriesAction implements WebhooksWsAction {
 
   private static final String PARAM_COMPONENT = "componentKey";
   private static final String PARAM_TASK = "ceTaskId";
+  private static final String PARAM_WEBHOOK = "webhook";
 
   private final DbClient dbClient;
   private final UserSession userSession;
@@ -73,6 +76,12 @@ public class WebhookDeliveriesAction implements WebhooksWsAction {
     action.createParam(PARAM_TASK)
       .setDescription("Id of the Compute Engine task")
       .setExampleValue(Uuids.UUID_EXAMPLE_01);
+
+    action.createParam(PARAM_WEBHOOK)
+      .setSince("7.1")
+      .setDescription("Key of the webhook that triggered those deliveries,"+
+        "auto-generated value that can be obtained through api/webhooks/create or api/webhooks/list")
+      .setExampleValue(UUID_EXAMPLE_02);
   }
 
   @Override
@@ -82,18 +91,23 @@ public class WebhookDeliveriesAction implements WebhooksWsAction {
 
     String ceTaskId = request.param(PARAM_TASK);
     String componentKey = request.param(PARAM_COMPONENT);
-    checkArgument(ceTaskId != null ^ componentKey != null, "Either '%s' or '%s' must be provided", PARAM_TASK, PARAM_COMPONENT);
+    String webhookUuid = request.param(PARAM_WEBHOOK);
 
-    Data data = loadFromDatabase(ceTaskId, componentKey);
+    checkArgument(webhookUuid != null ^ (ceTaskId != null ^ componentKey != null),
+      "Either '%s' or '%s' or '%s' must be provided", PARAM_TASK, PARAM_COMPONENT, PARAM_WEBHOOK);
+
+    Data data = loadFromDatabase(webhookUuid, ceTaskId, componentKey);
     data.ensureAdminPermission(userSession);
     data.writeTo(request, response);
   }
 
-  private Data loadFromDatabase(@Nullable String ceTaskId, @Nullable String componentKey) {
+  private Data loadFromDatabase(@Nullable String webhookUuid, @Nullable String ceTaskId, @Nullable String componentKey) {
     ComponentDto component = null;
     List<WebhookDeliveryLiteDto> deliveries;
     try (DbSession dbSession = dbClient.openSession(false)) {
-      if (componentKey != null) {
+      if (isNotBlank(webhookUuid)) {
+        deliveries = dbClient.webhookDeliveryDao().selectByWebhookUuid(dbSession, webhookUuid);
+      } else if (componentKey != null) {
         component = componentFinder.getByKey(dbSession, componentKey);
         deliveries = dbClient.webhookDeliveryDao().selectOrderedByComponentUuid(dbSession, component.uuid());
       } else {

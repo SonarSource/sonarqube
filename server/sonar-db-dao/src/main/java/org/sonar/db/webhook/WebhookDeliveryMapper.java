@@ -28,6 +28,8 @@ public interface WebhookDeliveryMapper {
   @CheckForNull
   WebhookDeliveryDto selectByUuid(@Param("uuid") String uuid);
 
+  List<WebhookDeliveryLiteDto> selectByWebhookUuid(@Param("webhookUuid") String webhookUuid);
+
   List<WebhookDeliveryLiteDto> selectOrderedByComponentUuid(@Param("componentUuid") String componentUuid);
 
   List<WebhookDeliveryLiteDto> selectOrderedByCeTaskUuid(@Param("ceTaskUuid") String ceTaskUuid);

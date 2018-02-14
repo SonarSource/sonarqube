@@ -36,21 +36,21 @@ public class WebhookTest {
   public void constructor_with_null_componentUuid_should_throw_NPE() {
     expectedException.expect(NullPointerException.class);
 
-    new Webhook(null, null, null, randomAlphanumeric(10), randomAlphanumeric(10));
+    new Webhook(randomAlphanumeric(40), null, null, null, randomAlphanumeric(10), randomAlphanumeric(10));
   }
 
   @Test
   public void constructor_with_null_name_should_throw_NPE() {
     expectedException.expect(NullPointerException.class);
 
-    new Webhook(randomAlphanumeric(10), null, null, null, randomAlphanumeric(10));
+    new Webhook(randomAlphanumeric(40), randomAlphanumeric(10), null, null, null, randomAlphanumeric(10));
   }
 
   @Test
   public void constructor_with_null_url_should_throw_NPE() {
     expectedException.expect(NullPointerException.class);
 
-    new Webhook(randomAlphanumeric(10), null, null, randomAlphanumeric(10), null);
+    new Webhook(randomAlphanumeric(40), randomAlphanumeric(10), null, null, randomAlphanumeric(10), null);
   }
 
   @Test
@@ -58,7 +58,7 @@ public class WebhookTest {
     String componentUuid = randomAlphanumeric(10);
     String name = randomAlphanumeric(10);
     String url = randomAlphanumeric(10);
-    Webhook underTest = new Webhook(componentUuid, null, null, name, url);
+    Webhook underTest = new Webhook(randomAlphanumeric(40), componentUuid, null, null, name, url);
 
     assertThat(underTest.getComponentUuid()).isEqualTo(componentUuid);
     assertThat(underTest.getName()).isEqualTo(name);
@@ -68,7 +68,7 @@ public class WebhookTest {
 
     String ceTaskUuid = randomAlphanumeric(10);
     String analysisUuid = randomAlphanumeric(10);
-    underTest = new Webhook(componentUuid, ceTaskUuid, analysisUuid, name, url);
+    underTest = new Webhook(randomAlphanumeric(40), componentUuid, ceTaskUuid, analysisUuid, name, url);
     assertThat(underTest.getComponentUuid()).isEqualTo(componentUuid);
     assertThat(underTest.getName()).isEqualTo(name);
     assertThat(underTest.getUrl()).isEqualTo(url);
