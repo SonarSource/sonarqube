@@ -21,17 +21,18 @@ package org.sonar.server.branch.ws;
 
 import com.google.common.io.Resources;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.util.Protobuf;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
@@ -58,7 +59,6 @@ import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.db.component.BranchType.LONG;
-import static org.sonar.db.component.BranchType.PULL_REQUEST;
 import static org.sonar.db.component.BranchType.SHORT;
 import static org.sonar.server.branch.ws.BranchesWs.addProjectParam;
 import static org.sonar.server.branch.ws.ProjectBranchesParameters.ACTION_LIST;
@@ -100,30 +100,35 @@ public class ListAction implements BranchWsAction {
       checkPermission(project);
       checkArgument(project.isEnabled() && PROJECT.equals(project.qualifier()), "Invalid project key");
 
-      Collection<BranchDto> branches = dbClient.branchDao().selectByComponent(dbSession, project);
+      Collection<BranchDto> branches = dbClient.branchDao().selectByComponent(dbSession, project).stream()
+        // TODO replace by a check on the key_type, when available
+        .filter(b -> b.getBranchType() == SHORT || b.getBranchType() == LONG)
+        .collect(MoreCollectors.toList());
+      List<String> branchUuids = branches.stream().map(BranchDto::getUuid).collect(toList());
+
       Map<String, BranchDto> mergeBranchesByUuid = dbClient.branchDao()
         .selectByUuids(dbSession, branches.stream().map(BranchDto::getMergeBranchUuid).filter(Objects::nonNull).collect(toList()))
         .stream().collect(uniqueIndex(BranchDto::getUuid));
       Map<String, LiveMeasureDto> qualityGateMeasuresByComponentUuids = dbClient.liveMeasureDao()
-        .selectByComponentUuidsAndMetricKeys(dbSession, branches.stream().map(BranchDto::getUuid).collect(toList()), singletonList(ALERT_STATUS_KEY))
-        .stream().collect(uniqueIndex(LiveMeasureDto::getComponentUuid));
+        .selectByComponentUuidsAndMetricKeys(dbSession, branchUuids, singletonList(ALERT_STATUS_KEY)).stream()
+        .collect(uniqueIndex(LiveMeasureDto::getComponentUuid));
       Map<String, BranchStatistics> branchStatisticsByBranchUuid = issueIndex.searchBranchStatistics(project.uuid(), branches.stream()
         .filter(b -> b.getBranchType().equals(SHORT))
-        .map(BranchDto::getUuid).collect(toList()))
-        .stream().collect(uniqueIndex(BranchStatistics::getBranchUuid, Function.identity()));
+        .map(BranchDto::getUuid).collect(toList())).stream()
+        .collect(uniqueIndex(BranchStatistics::getBranchUuid, Function.identity()));
       Map<String, String> analysisDateByBranchUuid = dbClient.snapshotDao()
-        .selectLastAnalysesByRootComponentUuids(dbSession, branches.stream().map(BranchDto::getUuid).collect(Collectors.toList()))
-        .stream().collect(uniqueIndex(SnapshotDto::getComponentUuid, s -> formatDateTime(s.getCreatedAt())));
+        .selectLastAnalysesByRootComponentUuids(dbSession, branchUuids).stream()
+        .collect(uniqueIndex(SnapshotDto::getComponentUuid, s -> formatDateTime(s.getCreatedAt())));
 
       ProjectBranches.ListWsResponse.Builder protobufResponse = ProjectBranches.ListWsResponse.newBuilder();
       branches.forEach(b -> addBranch(protobufResponse, b, mergeBranchesByUuid, qualityGateMeasuresByComponentUuids.get(b.getUuid()), branchStatisticsByBranchUuid.get(b.getUuid()),
-          analysisDateByBranchUuid.get(b.getUuid())));
+        analysisDateByBranchUuid.get(b.getUuid())));
       WsUtils.writeProtobuf(protobufResponse.build(), request, response);
     }
   }
 
   private static void addBranch(ProjectBranches.ListWsResponse.Builder response, BranchDto branch, Map<String, BranchDto> mergeBranchesByUuid,
-                                @Nullable LiveMeasureDto qualityGateMeasure, BranchStatistics branchStatistics, @Nullable String analysisDate) {
+    @Nullable LiveMeasureDto qualityGateMeasure, BranchStatistics branchStatistics, @Nullable String analysisDate) {
     ProjectBranches.Branch.Builder builder = toBranchBuilder(branch, Optional.ofNullable(mergeBranchesByUuid.get(branch.getMergeBranchUuid())));
     setBranchStatus(builder, branch, qualityGateMeasure, branchStatistics);
     if (analysisDate != null) {
@@ -138,7 +143,7 @@ public class ListAction implements BranchWsAction {
     setNullable(branchKey, builder::setName);
     builder.setIsMain(branch.isMain());
     builder.setType(Common.BranchType.valueOf(branch.getBranchType().name()));
-    if (branch.getBranchType() == SHORT || branch.getBranchType() == PULL_REQUEST) {
+    if (branch.getBranchType() == SHORT) {
       if (mergeBranch.isPresent()) {
         String mergeBranchKey = mergeBranch.get().getKey();
         builder.setMergeBranch(mergeBranchKey);
@@ -150,12 +155,12 @@ public class ListAction implements BranchWsAction {
   }
 
   private static void setBranchStatus(ProjectBranches.Branch.Builder builder, BranchDto branch, @Nullable LiveMeasureDto qualityGateMeasure,
-                                      @Nullable BranchStatistics branchStatistics) {
+    @Nullable BranchStatistics branchStatistics) {
     ProjectBranches.Status.Builder statusBuilder = ProjectBranches.Status.newBuilder();
     if (branch.getBranchType() == LONG && qualityGateMeasure != null) {
       Protobuf.setNullable(qualityGateMeasure.getDataAsString(), statusBuilder::setQualityGateStatus);
     }
-    if (branch.getBranchType() == BranchType.SHORT || branch.getBranchType() == BranchType.PULL_REQUEST) {
+    if (branch.getBranchType() == BranchType.SHORT) {
       statusBuilder.setBugs(branchStatistics == null ? 0L : branchStatistics.getBugs());
       statusBuilder.setVulnerabilities(branchStatistics == null ? 0L : branchStatistics.getVulnerabilities());
       statusBuilder.setCodeSmells(branchStatistics == null ? 0L : branchStatistics.getCodeSmells());
