@@ -20,6 +20,7 @@
 package org.sonar.scanner.scan;
 
 import com.google.common.annotations.VisibleForTesting;
+import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.InstantiationStrategy;
@@ -254,7 +255,13 @@ public class ProjectScanContainer extends ComponentContainer {
     String branchName = props.property(ScannerProperties.BRANCH_NAME);
     if (branchName != null) {
       BranchConfiguration branchConfig = getComponentByType(BranchConfiguration.class);
-      LOG.info("Branch name: {}, type: {}", branchName, toDisplayName(branchConfig.branchType()));
+      LOG.info("Branch name: {}, type: {}", branchName, branchTypeToDisplayName(branchConfig.branchType()));
+    }
+
+    String pullRequestBranch = props.property(ScannerProperties.PULL_REQUEST_BRANCH);
+    if (pullRequestBranch != null) {
+      String pullRequestBase = props.property(ScannerProperties.PULL_REQUEST_BASE);
+      LOG.info("Pull request into {}: {}", pullRequestBaseToDisplayName(pullRequestBase), pullRequestBranch);
     }
 
     LOG.debug("Start recursive analysis of project modules");
@@ -265,7 +272,11 @@ public class ProjectScanContainer extends ComponentContainer {
     }
   }
 
-  private static String toDisplayName(BranchType branchType) {
+  private static String pullRequestBaseToDisplayName(@Nullable String pullRequestBase) {
+    return pullRequestBase != null ? pullRequestBase : "default branch";
+  }
+
+  private static String branchTypeToDisplayName(BranchType branchType) {
     switch (branchType) {
       case LONG:
         return "long living";

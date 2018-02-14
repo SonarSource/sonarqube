@@ -63,7 +63,7 @@ public class LiveQualityGateComputerImpl implements LiveQualityGateComputer {
 
   @Override
   public QualityGate loadQualityGate(DbSession dbSession, OrganizationDto organization, ComponentDto project, BranchDto branch) {
-    if (branch.getBranchType() == BranchType.SHORT) {
+    if (branch.getBranchType() == BranchType.SHORT || branch.getBranchType() == BranchType.PULL_REQUEST) {
       return ShortLivingBranchQualityGate.GATE;
     }
 
