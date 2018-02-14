@@ -22,43 +22,33 @@ package org.sonar.server.computation.task.projectanalysis.filemove;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.mockito.ArgumentCaptor;
+import org.sonar.api.utils.System2;
 import org.sonar.core.hash.SourceLinesHashesComputer;
+import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
-import org.sonar.db.component.ComponentDao;
+import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.ComponentTreeQuery;
-import org.sonar.db.source.FileSourceDao;
+import org.sonar.db.component.ComponentTesting;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.source.FileSourceDto;
 import org.sonar.server.computation.task.projectanalysis.analysis.Analysis;
 import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
-import org.sonar.server.computation.task.projectanalysis.component.ReportComponent;
 import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.server.computation.task.projectanalysis.source.SourceLinesRepositoryRule;
 
 import static com.google.common.base.Joiner.on;
 import static java.util.Arrays.stream;
-import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import static org.sonar.api.resources.Qualifiers.FILE;
-import static org.sonar.api.resources.Qualifiers.UNIT_TEST_FILE;
 import static org.sonar.server.computation.task.projectanalysis.component.ReportComponent.builder;
 
 public class FileMoveDetectionStepTest {
@@ -73,7 +63,6 @@ public class FileMoveDetectionStepTest {
   private static final int FILE_1_REF = 2;
   private static final int FILE_2_REF = 3;
   private static final int FILE_3_REF = 4;
-  private static final ReportComponent PROJECT = builder(Component.Type.PROJECT, ROOT_REF).build();
   private static final Component FILE_1 = fileComponent(FILE_1_REF);
   private static final Component FILE_2 = fileComponent(FILE_2_REF);
   private static final Component FILE_3 = fileComponent(FILE_3_REF);
@@ -222,23 +211,22 @@ public class FileMoveDetectionStepTest {
   public SourceLinesRepositoryRule sourceLinesRepository = new SourceLinesRepositoryRule();
   @Rule
   public MutableMovedFilesRepositoryRule movedFilesRepository = new MutableMovedFilesRepositoryRule();
+  @Rule
+  public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
-  private DbClient dbClient = mock(DbClient.class);
-  private DbSession dbSession = mock(DbSession.class);
-  private ComponentDao componentDao = mock(ComponentDao.class);
-  private FileSourceDao fileSourceDao = mock(FileSourceDao.class);
+  private DbClient dbClient = dbTester.getDbClient();
+  private ComponentDto project;
+
   private FileSimilarity fileSimilarity = new FileSimilarityImpl(new SourceSimilarityImpl());
-  private long dbIdGenerator = 0;
 
   private FileMoveDetectionStep underTest = new FileMoveDetectionStep(analysisMetadataHolder, treeRootHolder, dbClient,
     sourceLinesRepository, fileSimilarity, movedFilesRepository);
 
   @Before
   public void setUp() throws Exception {
-    when(dbClient.openSession(false)).thenReturn(dbSession);
-    when(dbClient.componentDao()).thenReturn(componentDao);
-    when(dbClient.fileSourceDao()).thenReturn(fileSourceDao);
-    treeRootHolder.setRoot(PROJECT);
+    OrganizationDto organization = dbTester.organizations().insert();
+    project = dbTester.components().insertPrivateProject(organization);
+    treeRootHolder.setRoot(builder(Component.Type.PROJECT, ROOT_REF).setUuid(project.uuid()).build());
   }
 
   @Test
@@ -275,23 +263,9 @@ public class FileMoveDetectionStepTest {
   }
 
   @Test
-  public void execute_retrieves_only_file_and_unit_tests_from_last_snapshot() {
-    analysisMetadataHolder.setBaseAnalysis(ANALYSIS);
-    ArgumentCaptor<ComponentTreeQuery> captor = ArgumentCaptor.forClass(ComponentTreeQuery.class);
-    when(componentDao.selectDescendants(eq(dbSession), captor.capture()))
-      .thenReturn(Collections.emptyList());
-
-    underTest.execute();
-
-    ComponentTreeQuery query = captor.getValue();
-    assertThat(query.getBaseUuid()).isEqualTo(PROJECT.getUuid());
-    assertThat(query.getQualifiers()).containsOnly(FILE, UNIT_TEST_FILE);
-  }
-
-  @Test
   public void execute_detects_no_move_if_there_is_no_file_in_report() {
     analysisMetadataHolder.setBaseAnalysis(ANALYSIS);
-    mockComponents( /* no components */);
+    insertFiles( /* no components */);
     setFilesInReport();
 
     underTest.execute();
@@ -302,7 +276,7 @@ public class FileMoveDetectionStepTest {
   @Test
   public void execute_detects_no_move_if_file_key_exists_in_both_DB_and_report() {
     analysisMetadataHolder.setBaseAnalysis(ANALYSIS);
-    mockComponents(FILE_1.getKey(), FILE_2.getKey());
+    insertFiles(FILE_1.getKey(), FILE_2.getKey());
     setFilesInReport(FILE_2, FILE_1);
 
     underTest.execute();
@@ -313,8 +287,8 @@ public class FileMoveDetectionStepTest {
   @Test
   public void execute_detects_move_if_content_of_file_is_same_in_DB_and_report() {
     analysisMetadataHolder.setBaseAnalysis(ANALYSIS);
-    ComponentDto[] dtos = mockComponents(FILE_1.getKey());
-    mockContentOfFileInDb(FILE_1.getKey(), CONTENT1);
+    ComponentDto[] dtos = insertFiles(FILE_1.getKey());
+    insertContentOfFileInDb(FILE_1.getKey(), CONTENT1);
     setFilesInReport(FILE_2);
     setFileContentInReport(FILE_2_REF, CONTENT1);
 
@@ -330,8 +304,8 @@ public class FileMoveDetectionStepTest {
   @Test
   public void execute_detects_no_move_if_content_of_file_is_not_similar_enough() {
     analysisMetadataHolder.setBaseAnalysis(ANALYSIS);
-    mockComponents(FILE_1.getKey());
-    mockContentOfFileInDb(FILE_1.getKey(), CONTENT1);
+    insertFiles(FILE_1.getKey());
+    insertContentOfFileInDb(FILE_1.getKey(), CONTENT1);
     setFilesInReport(FILE_2);
     setFileContentInReport(FILE_2_REF, LESS_CONTENT1);
 
@@ -343,8 +317,8 @@ public class FileMoveDetectionStepTest {
   @Test
   public void execute_detects_no_move_if_content_of_file_is_empty_in_DB() {
     analysisMetadataHolder.setBaseAnalysis(ANALYSIS);
-    mockComponents(FILE_1.getKey());
-    mockContentOfFileInDb(FILE_1.getKey(), CONTENT_EMPTY);
+    insertFiles(FILE_1.getKey());
+    insertContentOfFileInDb(FILE_1.getKey(), CONTENT_EMPTY);
     setFilesInReport(FILE_2);
     setFileContentInReport(FILE_2_REF, CONTENT1);
 
@@ -357,8 +331,8 @@ public class FileMoveDetectionStepTest {
   public void execute_detects_no_move_if_content_of_file_has_no_path_in_DB() {
     analysisMetadataHolder.setBaseAnalysis(ANALYSIS);
 
-    mockComponents(key -> newComponentDto(key).setPath(null), FILE_1.getKey());
-    mockContentOfFileInDb(FILE_1.getKey(), CONTENT1);
+    insertFiles(key -> newComponentDto(key).setPath(null), FILE_1.getKey());
+    insertContentOfFileInDb(FILE_1.getKey(), CONTENT1);
     setFilesInReport(FILE_2);
     setFileContentInReport(FILE_2_REF, CONTENT1);
 
@@ -370,8 +344,8 @@ public class FileMoveDetectionStepTest {
   @Test
   public void execute_detects_no_move_if_content_of_file_is_empty_in_report() {
     analysisMetadataHolder.setBaseAnalysis(ANALYSIS);
-    mockComponents(FILE_1.getKey());
-    mockContentOfFileInDb(FILE_1.getKey(), CONTENT1);
+    insertFiles(FILE_1.getKey());
+    insertContentOfFileInDb(FILE_1.getKey(), CONTENT1);
     setFilesInReport(FILE_2);
     setFileContentInReport(FILE_2_REF, CONTENT_EMPTY);
 
@@ -383,8 +357,8 @@ public class FileMoveDetectionStepTest {
   @Test
   public void execute_detects_no_move_if_two_added_files_have_same_content_as_the_one_in_db() {
     analysisMetadataHolder.setBaseAnalysis(ANALYSIS);
-    mockComponents(FILE_1.getKey());
-    mockContentOfFileInDb(FILE_1.getKey(), CONTENT1);
+    insertFiles(FILE_1.getKey());
+    insertContentOfFileInDb(FILE_1.getKey(), CONTENT1);
     setFilesInReport(FILE_2, FILE_3);
     setFileContentInReport(FILE_2_REF, CONTENT1);
     setFileContentInReport(FILE_3_REF, CONTENT1);
@@ -397,9 +371,9 @@ public class FileMoveDetectionStepTest {
   @Test
   public void execute_detects_no_move_if_two_deleted_files_have_same_content_as_the_one_added() {
     analysisMetadataHolder.setBaseAnalysis(ANALYSIS);
-    mockComponents(FILE_1.getKey(), FILE_2.getKey());
-    mockContentOfFileInDb(FILE_1.getKey(), CONTENT1);
-    mockContentOfFileInDb(FILE_2.getKey(), CONTENT1);
+    insertFiles(FILE_1.getKey(), FILE_2.getKey());
+    insertContentOfFileInDb(FILE_1.getKey(), CONTENT1);
+    insertContentOfFileInDb(FILE_2.getKey(), CONTENT1);
     setFilesInReport(FILE_3);
     setFileContentInReport(FILE_3_REF, CONTENT1);
 
@@ -411,9 +385,9 @@ public class FileMoveDetectionStepTest {
   @Test
   public void execute_detects_no_move_if_two_files_are_empty() {
     analysisMetadataHolder.setBaseAnalysis(ANALYSIS);
-    mockComponents(FILE_1.getKey(), FILE_2.getKey());
-    mockContentOfFileInDb(FILE_1.getKey(), null);
-    mockContentOfFileInDb(FILE_2.getKey(), null);
+    insertFiles(FILE_1.getKey(), FILE_2.getKey());
+    insertContentOfFileInDb(FILE_1.getKey(), null);
+    insertContentOfFileInDb(FILE_2.getKey(), null);
 
     underTest.execute();
 
@@ -431,11 +405,11 @@ public class FileMoveDetectionStepTest {
     Component file4 = fileComponent(5);
     Component file5 = fileComponent(6);
     Component file6 = fileComponent(7);
-    ComponentDto[] dtos = mockComponents(FILE_1.getKey(), FILE_2.getKey(), file4.getKey(), file5.getKey());
-    mockContentOfFileInDb(FILE_1.getKey(), CONTENT1);
-    mockContentOfFileInDb(FILE_2.getKey(), LESS_CONTENT1);
-    mockContentOfFileInDb(file4.getKey(), new String[] {"e", "f", "g", "h", "i"});
-    mockContentOfFileInDb(file5.getKey(), CONTENT2);
+    ComponentDto[] dtos = insertFiles(FILE_1.getKey(), FILE_2.getKey(), file4.getKey(), file5.getKey());
+    insertContentOfFileInDb(FILE_1.getKey(), CONTENT1);
+    insertContentOfFileInDb(FILE_2.getKey(), LESS_CONTENT1);
+    insertContentOfFileInDb(file4.getKey(), new String[] {"e", "f", "g", "h", "i"});
+    insertContentOfFileInDb(file5.getKey(), CONTENT2);
     setFilesInReport(FILE_3, file4, file6);
     setFileContentInReport(FILE_3_REF, CONTENT1);
     setFileContentInReport(file4.getReportAttributes().getRef(), new String[] {"a", "b"});
@@ -460,12 +434,10 @@ public class FileMoveDetectionStepTest {
   @Test
   public void real_life_use_case() throws Exception {
     analysisMetadataHolder.setBaseAnalysis(ANALYSIS);
-    List<String> componentDtoKey = new ArrayList<>();
     for (File f : FileUtils.listFiles(new File("src/test/resources/org/sonar/server/computation/task/projectanalysis/filemove/FileMoveDetectionStepTest/v1"), null, false)) {
-      componentDtoKey.add(f.getName());
-      mockContentOfFileInDb(f.getName(), readLines(f));
+      insertFiles(f.getName());
+      insertContentOfFileInDb(f.getName(), readLines(f));
     }
-    mockComponents(componentDtoKey.toArray(new String[0]));
 
     Map<String, Component> comps = new HashMap<>();
     int i = 1;
@@ -507,49 +479,48 @@ public class FileMoveDetectionStepTest {
     sourceLinesRepository.addLines(ref, content);
   }
 
-  private void mockContentOfFileInDb(String key, @Nullable String[] content) {
-    FileSourceDto dto = new FileSourceDto();
-    if (content != null) {
-      SourceLinesHashesComputer linesHashesComputer = new SourceLinesHashesComputer();
-      stream(content).forEach(linesHashesComputer::addLine);
-      dto.setLineHashes(on('\n').join(linesHashesComputer.getLineHashes()));
-    }
-
-    when(fileSourceDao.selectSourceByFileUuid(dbSession, componentUuidOf(key))).thenReturn(dto);
+  @CheckForNull
+  private FileSourceDto insertContentOfFileInDb(String key, @Nullable String[] content) {
+    return dbTester.getDbClient().componentDao().selectByKey(dbTester.getSession(), key)
+      .transform(file -> {
+        SourceLinesHashesComputer linesHashesComputer = new SourceLinesHashesComputer();
+        if (content != null) {
+          stream(content).forEach(linesHashesComputer::addLine);
+        }
+        FileSourceDto fileSourceDto = new FileSourceDto()
+          .setFileUuid(file.uuid())
+          .setProjectUuid(file.projectUuid())
+          .setLineHashes(on('\n').join(linesHashesComputer.getLineHashes()))
+          .setDataType(FileSourceDto.Type.SOURCE);
+        dbTester.getDbClient().fileSourceDao().insert(dbTester.getSession(), fileSourceDto);
+        dbTester.commit();
+        return fileSourceDto;
+      }).orNull();
   }
 
   private void setFilesInReport(Component... files) {
     treeRootHolder.setRoot(builder(Component.Type.PROJECT, ROOT_REF)
+      .setUuid(project.uuid())
       .addChildren(files)
       .build());
   }
 
-  private ComponentDto[] mockComponents(String... componentKeys) {
-    return mockComponents(key -> newComponentDto(key), componentKeys);
+  private ComponentDto[] insertFiles(String... componentKeys) {
+    return insertFiles(this::newComponentDto, componentKeys);
   }
 
-  private ComponentDto[] mockComponents(Function<String, ComponentDto> newComponentDto, String... componentKeys) {
-    List<ComponentDto> componentDtos = stream(componentKeys)
+  private ComponentDto[] insertFiles(Function<String, ComponentDto> newComponentDto, String... componentKeys) {
+    return stream(componentKeys)
       .map(newComponentDto)
-      .collect(toList());
-    when(componentDao.selectDescendants(eq(dbSession), any(ComponentTreeQuery.class)))
-      .thenReturn(componentDtos);
-    return componentDtos.toArray(new ComponentDto[componentDtos.size()]);
+      .map(dto -> dbTester.components().insertComponent(dto))
+      .toArray(ComponentDto[]::new);
   }
 
   private ComponentDto newComponentDto(String key) {
-    ComponentDto res = new ComponentDto();
-    res
-      .setId(dbIdGenerator)
+    return ComponentTesting.newFileDto(project)
       .setDbKey(key)
-      .setUuid(componentUuidOf(key))
+      .setUuid(UuidFactoryFast.getInstance().create())
       .setPath("path_" + key);
-    dbIdGenerator++;
-    return res;
-  }
-
-  private static String componentUuidOf(String key) {
-    return "uuid_" + key;
   }
 
   private static Component fileComponent(int ref) {
