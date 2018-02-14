@@ -50,6 +50,9 @@ public class DbVersion71 implements DbVersion {
       .add(2020, "Replace index in PROJECT_BRANCHES", ReplaceIndexInProjectBranches.class)
       .add(2021, "Add pull_request_data in PROJECT_BRANCHES", AddPullRequestBinaryInProjectBranches.class)
       .add(2022, "Clean broken project to QG references", CleanBrokenProjectToQGReferences.class)
+      .add(2023, "Add FILE_SOURCE.LINE_COUNT", AddFileSourceLineCount.class)
+      .add(2024, "Populate FILE_SOURCE.LINE_COUNT", PopulateFileSourceLineCount.class)
+      .add(2025, "Make FILE_SOURCE.LINE_COUNT not nullable", MakeFileSourceLineCountNotNullable.class)
     ;
   }
 }
