@@ -166,19 +166,42 @@ export interface Group {
 }
 
 export enum HomePageType {
-  Project = 'PROJECT',
-  Organization = 'ORGANIZATION',
+  Application = 'APPLICATION',
+  Issues = 'ISSUES',
+  MyIssues = 'MY_ISSUES',
   MyProjects = 'MY_PROJECTS',
-  MyIssues = 'MY_ISSUES'
+  Organization = 'ORGANIZATION',
+  Portfolio = 'PORTFOLIO',
+  Portfolios = 'PORTFOLIOS',
+  Project = 'PROJECT',
+  Projects = 'PROJECTS'
 }
 
-export interface HomePage {
-  parameter?: string;
-  type: HomePageType;
-}
+// export interface HomePage {
+//   branch?: string;
+//   component?: string;
+//   organization?: string;
+//   type: HomePageType;
+// }
+
+export type HomePage =
+  | { type: HomePageType.Application; component: string }
+  | { type: HomePageType.Issues }
+  | { type: HomePageType.MyIssues }
+  | { type: HomePageType.MyProjects }
+  | { type: HomePageType.Organization; organization: string }
+  | { type: HomePageType.Portfolio; component: string }
+  | { type: HomePageType.Portfolios }
+  | { type: HomePageType.Project; branch: string | undefined; component: string }
+  | { type: HomePageType.Projects };
 
 export function isSameHomePage(a: HomePage, b: HomePage) {
-  return a.type === b.type && a.parameter === b.parameter;
+  return (
+    a.type === b.type &&
+    (a as any).branch === (b as any).branch &&
+    (a as any).component === (b as any).component &&
+    (a as any).organization === (b as any).organization
+  );
 }
 
 export interface LoggedInUser extends CurrentUser {

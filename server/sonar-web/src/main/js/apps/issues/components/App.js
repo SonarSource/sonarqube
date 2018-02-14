@@ -932,14 +932,13 @@ export default class App extends React.PureComponent {
                 ) : (
                   <PageActions
                     canSetHome={
-                      this.props.onSonarCloud &&
-                      isLoggedIn(this.props.currentUser) &&
-                      this.props.myIssues &&
                       !this.props.organization &&
-                      !this.props.component
+                      !this.props.component &&
+                      (!this.props.onSonarCloud || this.props.myIssues)
                     }
                     loading={this.state.loading}
                     onReload={this.handleReload}
+                    onSonarCloud={this.props.onSonarCloud}
                     paging={paging}
                     selectedIndex={selectedIndex}
                   />
