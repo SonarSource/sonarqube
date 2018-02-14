@@ -315,4 +315,15 @@ public class AnalysisMetadataHolderImplTest {
 
     assertThat(underTest.isShortLivingBranch()).isTrue();
   }
+
+  @Test
+  public void getPullRequestBranch_returns_true() {
+    Branch branch = mock(Branch.class);
+    when(branch.getType()).thenReturn(BranchType.PULL_REQUEST);
+
+    AnalysisMetadataHolderImpl underTest = new AnalysisMetadataHolderImpl();
+    underTest.setBranch(branch);
+
+    assertThat(underTest.isPullRequest()).isTrue();
+  }
 }

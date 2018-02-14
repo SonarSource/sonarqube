@@ -226,4 +226,10 @@ public class AnalysisMetadataHolderRule extends ExternalResource implements Muta
     Branch property = this.branch.getProperty();
     return property != null && property.getType() == BranchType.LONG;
   }
+
+  @Override
+  public boolean isPullRequest() {
+    Branch property = this.branch.getProperty();
+    return property != null && property.getType() == BranchType.PULL_REQUEST;
+  }
 }
