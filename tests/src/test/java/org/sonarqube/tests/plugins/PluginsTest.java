@@ -24,17 +24,18 @@ import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.OrchestratorBuilder;
 import com.sonar.orchestrator.build.BuildResult;
 import com.sonar.orchestrator.build.SonarScanner;
-import com.sonar.orchestrator.locator.URLLocation;
 import java.io.File;
 import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ErrorCollector;
+import org.sonar.updatecenter.common.Plugin;
+import org.sonar.updatecenter.common.Version;
 import org.sonarqube.tests.plugins.checks.Check;
 import org.sonarqube.tests.plugins.checks.FlexCheck;
 import org.sonarqube.tests.plugins.checks.GroovyCheck;
@@ -46,6 +47,7 @@ import org.sonarqube.tests.plugins.checks.Validation;
 import org.sonarqube.tests.plugins.checks.WebCheck;
 
 import static com.sonar.orchestrator.locator.FileLocation.byWildcardMavenFilename;
+import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.fail;
 
 /**
@@ -57,6 +59,8 @@ public class PluginsTest {
   private static final Set<String> LICENSED_PLUGINS = Sets.newHashSet(
     "abap", "cobol", "cpp", "objc", "pli", "plsql", "rpg",
     "swift", "vb", "vbnet");
+
+  private static List<Plugin> installablePlugins;
 
   private static final List<Check> CHECKS = Arrays.asList(
     // FIXME plsql is disabled as latest release is not using new license manager new AbapCheck(),
@@ -103,7 +107,8 @@ public class PluginsTest {
     // FIXME findbugs plugin is temporarily disabled because it is not compatible with SQ 6.4 until usage of Colorizer API is removed
     installPlugin(builder, "flex");
     installPlugin(builder, "github");
-    installPlugin(builder, "googleanalytics");
+    // FIXME google analytics is not compatible with 6.7 as 2/14/18
+    // installPlugin(builder, "googleanalytics");
     installPlugin(builder, "groovy");
     installPlugin(builder, "java");
     // FIXME javaProperties plugin is temporarily disabled as for the moment the github repo doesn't exist anymore installPlugin(builder, "javaProperties");
@@ -195,11 +200,26 @@ public class PluginsTest {
   }
 
   private static void installPlugin(OrchestratorBuilder builder, String pluginKey) {
-    builder.setOrchestratorProperty(pluginKey + "Version", "LATEST_RELEASE");
-    builder.addPlugin(pluginKey);
+    Optional<String> version = getCompatibleVersionFor(builder, pluginKey);
+    if (version.isPresent()) {
+      builder.setOrchestratorProperty(pluginKey + "Version", version.get());
+      builder.addPlugin(pluginKey);
+    } else {
+      throw new IllegalStateException(
+        format("Error : cannot install plugin %s, no compatible version found !", pluginKey));
+    }
   }
 
-  private static void installPlugin(OrchestratorBuilder builder, URL url) {
-    builder.addPlugin(URLLocation.create(url));
+  private static Optional<String> getCompatibleVersionFor(OrchestratorBuilder builder, String pluginKey) {
+    if (installablePlugins == null) {
+      installablePlugins = builder.getUpdateCenter()
+        .setInstalledSonarVersion(Version.create("6.7.1"))
+        .findAllCompatiblePlugins();
+    }
+
+    return installablePlugins.stream()
+      .filter(p -> p.getKey().equals(pluginKey))
+      .map(p -> p.getVersions().first().toString())
+      .findFirst();
   }
 }
