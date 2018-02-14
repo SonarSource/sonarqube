@@ -19,7 +19,6 @@
  */
 package org.sonar.server.ce.ws;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -51,10 +50,10 @@ import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 import org.sonar.test.JsonAssert;
 import org.sonarqube.ws.Ce;
-import org.sonarqube.ws.Common;
-import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.Ce.ActivityResponse;
 import org.sonarqube.ws.Ce.Task;
+import org.sonarqube.ws.Common;
+import org.sonarqube.ws.MediaTypes;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -69,6 +68,7 @@ import static org.sonar.db.ce.CeQueueDto.Status.PENDING;
 import static org.sonar.db.ce.CeTaskCharacteristicDto.BRANCH_KEY;
 import static org.sonar.db.ce.CeTaskCharacteristicDto.BRANCH_TYPE_KEY;
 import static org.sonar.db.component.BranchType.LONG;
+import static org.sonar.db.component.BranchType.PULL_REQUEST;
 import static org.sonar.server.ce.ws.CeWsParameters.PARAM_COMPONENT_ID;
 import static org.sonar.server.ce.ws.CeWsParameters.PARAM_COMPONENT_QUERY;
 import static org.sonar.server.ce.ws.CeWsParameters.PARAM_MAX_EXECUTED_AT;
@@ -379,6 +379,26 @@ public class ActivityActionTest {
       .containsExactlyInAnyOrder(
         tuple("T1", branch, Common.BranchType.LONG, Ce.TaskStatus.IN_PROGRESS),
         tuple("T2", branch, Common.BranchType.LONG, Ce.TaskStatus.PENDING));
+  }
+
+  @Test
+  public void pull_request_activity() {
+    logInAsSystemAdministrator();
+    ComponentDto project = db.components().insertMainBranch();
+    userSession.addProjectPermission(UserRole.USER, project);
+    ComponentDto pullRequest = db.components().insertProjectBranch(project, b -> b.setBranchType(PULL_REQUEST));
+    SnapshotDto analysis = db.components().insertSnapshot(pullRequest);
+    CeActivityDto activity = insertActivity("T1", project, SUCCESS, analysis);
+    insertCharacteristic(activity, BRANCH_KEY, pullRequest.getBranch());
+    insertCharacteristic(activity, BRANCH_TYPE_KEY, PULL_REQUEST.name());
+
+    ActivityResponse response = ws.newRequest().executeProtobuf(ActivityResponse.class);
+
+    assertThat(response.getTasksList())
+      .extracting(Task::getId, Ce.Task::getPullRequest, Ce.Task::getPullRequestTitle, Ce.Task::hasBranchType, Ce.Task::getStatus, Ce.Task::getComponentKey)
+      .containsExactlyInAnyOrder(
+        //TODO the pull request title must be separated from the pull request id
+        tuple("T1", pullRequest.getBranch(), pullRequest.getBranch(), false, Ce.TaskStatus.SUCCESS, pullRequest.getKey()));
   }
 
   @Test
