@@ -26,6 +26,8 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 public class WebhookDeliveryLiteDto<T extends WebhookDeliveryLiteDto> {
   /** Technical unique identifier, can't be null */
   protected String uuid;
+  /** Technical unique identifier, can be null for migration */
+  protected String webhookUuid;
   /** Component UUID, can't be null */
   protected String componentUuid;
   /** Compute Engine task UUID, can be null */
@@ -50,7 +52,16 @@ public class WebhookDeliveryLiteDto<T extends WebhookDeliveryLiteDto> {
 
   public T setUuid(String s) {
     this.uuid = s;
-    return (T)this;
+    return (T) this;
+  }
+
+  public String getWebhookUuid() {
+    return webhookUuid;
+  }
+
+  public T setWebhookUuid(String webhookUuid) {
+    this.webhookUuid = webhookUuid;
+    return (T) this;
   }
 
   public String getComponentUuid() {
@@ -59,7 +70,7 @@ public class WebhookDeliveryLiteDto<T extends WebhookDeliveryLiteDto> {
 
   public T setComponentUuid(String s) {
     this.componentUuid = s;
-    return (T)this;
+    return (T) this;
   }
 
   @CheckForNull
@@ -69,7 +80,7 @@ public class WebhookDeliveryLiteDto<T extends WebhookDeliveryLiteDto> {
 
   public T setCeTaskUuid(@Nullable String s) {
     this.ceTaskUuid = s;
-    return (T)this;
+    return (T) this;
   }
 
   @CheckForNull
@@ -79,7 +90,7 @@ public class WebhookDeliveryLiteDto<T extends WebhookDeliveryLiteDto> {
 
   public T setAnalysisUuid(@Nullable String s) {
     this.analysisUuid = s;
-    return (T)this;
+    return (T) this;
   }
 
   public String getName() {
@@ -88,7 +99,7 @@ public class WebhookDeliveryLiteDto<T extends WebhookDeliveryLiteDto> {
 
   public T setName(String s) {
     this.name = s;
-    return (T)this;
+    return (T) this;
   }
 
   public boolean isSuccess() {
@@ -97,7 +108,7 @@ public class WebhookDeliveryLiteDto<T extends WebhookDeliveryLiteDto> {
 
   public T setSuccess(boolean b) {
     this.success = b;
-    return (T)this;
+    return (T) this;
   }
 
   @CheckForNull
@@ -107,7 +118,7 @@ public class WebhookDeliveryLiteDto<T extends WebhookDeliveryLiteDto> {
 
   public T setHttpStatus(@Nullable Integer i) {
     this.httpStatus = i;
-    return (T)this;
+    return (T) this;
   }
 
   @CheckForNull
@@ -117,7 +128,7 @@ public class WebhookDeliveryLiteDto<T extends WebhookDeliveryLiteDto> {
 
   public T setDurationMs(@Nullable Integer i) {
     this.durationMs = i;
-    return (T)this;
+    return (T) this;
   }
 
   public String getUrl() {
@@ -126,7 +137,7 @@ public class WebhookDeliveryLiteDto<T extends WebhookDeliveryLiteDto> {
 
   public T setUrl(String s) {
     this.url = s;
-    return (T)this;
+    return (T) this;
   }
 
   public long getCreatedAt() {
@@ -135,7 +146,7 @@ public class WebhookDeliveryLiteDto<T extends WebhookDeliveryLiteDto> {
 
   public T setCreatedAt(long l) {
     this.createdAt = l;
-    return (T)this;
+    return (T) this;
   }
 
   @Override
