@@ -40,6 +40,7 @@ export default class Search extends React.PureComponent<Props> {
     const { query, updateCenterActive } = this.props;
     const radioOptions = [
       { label: translate('marketplace.all'), value: 'all' },
+      { label: translate('marketplace.installed'), value: 'installed' },
       {
         disabled: !updateCenterActive,
         label: translate('marketplace.updates_only'),
@@ -48,8 +49,8 @@ export default class Search extends React.PureComponent<Props> {
       }
     ];
     return (
-      <div id="marketplace-search" className="big-spacer-bottom">
-        <div className="display-inline-block text-top nowrap abs-width-150 spacer-right">
+      <div className="big-spacer-bottom" id="marketplace-search">
+        <div className="display-inline-block text-top nowrap abs-width-240 spacer-right">
           <RadioToggle
             name="marketplace-filter"
             onCheck={this.handleFilterChange}

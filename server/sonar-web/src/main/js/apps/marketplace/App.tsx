@@ -34,7 +34,8 @@ import {
   getPendingPlugins,
   getPluginUpdates,
   Plugin,
-  PluginPending
+  PluginPending,
+  getInstalledPlugins
 } from '../../api/plugins';
 import { Edition, EditionStatus } from '../../api/marketplace';
 import { RawQuery } from '../../helpers/query';
@@ -100,35 +101,30 @@ export default class App extends React.PureComponent<Props, State> {
 
   fetchQueryPlugins = () => {
     const query = parseQuery(this.props.location.query);
+    let fetchFunction = this.fetchAllPlugins;
+
     if (query.filter === 'updates') {
-      this.fetchUpdatesOnly();
-    } else {
-      this.fetchAllPlugins();
+      fetchFunction = getPluginUpdates;
+    } else if (query.filter === 'installed') {
+      fetchFunction = getInstalledPlugins;
     }
-  };
 
-  fetchAllPlugins = () => {
     this.setState({ loadingPlugins: true });
-    Promise.all([getInstalledPluginsWithUpdates(), getAvailablePlugins()]).then(
-      ([installed, available]) => {
-        if (this.mounted) {
-          this.setState({
-            loadingPlugins: false,
-            plugins: sortBy(uniqBy([...installed, ...available.plugins], 'key'), 'name')
-          });
-        }
-      },
-      this.stopLoadingPlugins
-    );
-  };
-
-  fetchUpdatesOnly = () => {
-    this.setState({ loadingPlugins: true });
-    getPluginUpdates().then(plugins => {
+    fetchFunction().then((plugins: Plugin[]) => {
       if (this.mounted) {
-        this.setState({ loadingPlugins: false, plugins });
+        this.setState({
+          loadingPlugins: false,
+          plugins: sortBy(plugins, 'name')
+        });
       }
     }, this.stopLoadingPlugins);
+  };
+
+  fetchAllPlugins = (): Promise<Plugin[] | void> => {
+    return Promise.all([getInstalledPluginsWithUpdates(), getAvailablePlugins()]).then(
+      ([installed, available]) => uniqBy([...installed, ...available.plugins], 'key'),
+      this.stopLoadingPlugins
+    );
   };
 
   fetchPendingPlugins = () =>
@@ -163,16 +159,16 @@ export default class App extends React.PureComponent<Props, State> {
         <Helmet title={translate('marketplace.page')} />
         <div className="page-notifs">
           {standaloneMode && (
-            <PendingActions refreshPending={this.fetchPendingPlugins} pending={pending} />
+            <PendingActions pending={pending} refreshPending={this.fetchPendingPlugins} />
           )}
         </div>
         <Header />
         <EditionBoxes
           canInstall={standaloneMode && !this.props.editionsReadOnly}
           canUninstall={standaloneMode}
+          editionStatus={editionStatus}
           editions={editions}
           loading={this.props.loadingEditions}
-          editionStatus={editionStatus}
           updateCenterActive={this.props.updateCenterActive}
           updateEditionStatus={this.props.setEditionStatus}
         />
@@ -184,8 +180,8 @@ export default class App extends React.PureComponent<Props, State> {
         {loadingPlugins && <i className="spinner" />}
         {!loadingPlugins && (
           <PluginsList
-            plugins={filteredPlugins}
             pending={pending}
+            plugins={filteredPlugins}
             readOnly={!standaloneMode}
             refreshPending={this.fetchPendingPlugins}
             updateQuery={this.updateQuery}
