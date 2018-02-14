@@ -19,7 +19,6 @@
  */
 package org.sonar.server.computation.task.projectanalysis.filemove;
 
-import com.google.common.base.Splitter;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -37,6 +36,7 @@ import javax.annotation.concurrent.Immutable;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.core.util.logs.Profiler;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
@@ -53,7 +53,6 @@ import org.sonar.server.computation.task.projectanalysis.filemove.FileSimilarity
 import org.sonar.server.computation.task.projectanalysis.source.SourceLinesHashRepository;
 import org.sonar.server.computation.task.step.ComputationStep;
 
-import static com.google.common.base.Splitter.on;
 import static com.google.common.collect.FluentIterable.from;
 import static java.util.Arrays.asList;
 import static org.sonar.server.computation.task.projectanalysis.component.ComponentVisitor.Order.POST_ORDER;
@@ -62,7 +61,6 @@ public class FileMoveDetectionStep implements ComputationStep {
   protected static final int MIN_REQUIRED_SCORE = 85;
   private static final Logger LOG = Loggers.get(FileMoveDetectionStep.class);
   private static final List<String> FILE_QUALIFIERS = asList(Qualifiers.FILE, Qualifiers.UNIT_TEST_FILE);
-  private static final Splitter LINES_HASHES_SPLITTER = on('\n');
 
   private final AnalysisMetadataHolder analysisMetadataHolder;
   private final TreeRootHolder rootHolder;
@@ -70,15 +68,18 @@ public class FileMoveDetectionStep implements ComputationStep {
   private final FileSimilarity fileSimilarity;
   private final MutableMovedFilesRepository movedFilesRepository;
   private final SourceLinesHashRepository sourceLinesHash;
+  private final ScoreMatrixDumper scoreMatrixDumper;
 
   public FileMoveDetectionStep(AnalysisMetadataHolder analysisMetadataHolder, TreeRootHolder rootHolder, DbClient dbClient,
-    FileSimilarity fileSimilarity, MutableMovedFilesRepository movedFilesRepository, SourceLinesHashRepository sourceLinesHash) {
+    FileSimilarity fileSimilarity, MutableMovedFilesRepository movedFilesRepository, SourceLinesHashRepository sourceLinesHash,
+    ScoreMatrixDumper scoreMatrixDumper) {
     this.analysisMetadataHolder = analysisMetadataHolder;
     this.rootHolder = rootHolder;
     this.dbClient = dbClient;
     this.fileSimilarity = fileSimilarity;
     this.movedFilesRepository = movedFilesRepository;
     this.sourceLinesHash = sourceLinesHash;
+    this.scoreMatrixDumper = scoreMatrixDumper;
   }
 
   @Override
@@ -93,7 +94,9 @@ public class FileMoveDetectionStep implements ComputationStep {
       LOG.debug("First analysis. Do nothing.");
       return;
     }
+    Profiler p = Profiler.createIfTrace(LOG);
 
+    p.start();
     Map<String, DbComponent> dbFilesByKey = getDbFilesByKey();
     if (dbFilesByKey.isEmpty()) {
       LOG.debug("Previous snapshot has no file. Do nothing.");
@@ -117,10 +120,13 @@ public class FileMoveDetectionStep implements ComputationStep {
 
     // retrieve file data from report
     Map<String, File> reportFileSourcesByKey = getReportFileSourcesByKey(reportFilesByKey, addedFileKeys);
+    p.stopTrace("loaded");
 
     // compute score matrix
+    p.start();
     ScoreMatrix scoreMatrix = computeScoreMatrix(dbFilesByKey, removedFileKeys, reportFileSourcesByKey);
-    printIfDebug(scoreMatrix);
+    p.stopTrace("Score matrix computed");
+    scoreMatrixDumper.dumpAsCsv(scoreMatrix);
 
     // not a single match with score higher than MIN_REQUIRED_SCORE => abort
     if (scoreMatrix.getMaxScore() < MIN_REQUIRED_SCORE) {
@@ -128,19 +134,22 @@ public class FileMoveDetectionStep implements ComputationStep {
       return;
     }
 
+    p.start();
     MatchesByScore matchesByScore = MatchesByScore.create(scoreMatrix);
 
     ElectedMatches electedMatches = electMatches(removedFileKeys, reportFileSourcesByKey, matchesByScore);
+    p.stopTrace("Matches elected");
 
     registerMatches(dbFilesByKey, reportFilesByKey, electedMatches);
   }
 
   private void registerMatches(Map<String, DbComponent> dbFilesByKey, Map<String, Component> reportFilesByKey, ElectedMatches electedMatches) {
+    LOG.debug("{} files moves found", electedMatches.size());
     for (Match validatedMatch : electedMatches) {
       movedFilesRepository.setOriginalFile(
         reportFilesByKey.get(validatedMatch.getReportKey()),
         toOriginalFile(dbFilesByKey.get(validatedMatch.getDbKey())));
-      LOG.debug("File move found: {}", validatedMatch);
+      LOG.trace("File move found: {}", validatedMatch);
     }
   }
 
@@ -222,12 +231,6 @@ public class FileMoveDetectionStep implements ComputationStep {
       return null;
     }
     return new File(dbComponent.getPath(), fileSourceDto.getLineHashes());
-  }
-
-  private static void printIfDebug(ScoreMatrix scoreMatrix) {
-    if (LOG.isDebugEnabled()) {
-      LOG.debug("ScoreMatrix:\n" + scoreMatrix.toCsv(';'));
-    }
   }
 
   private static ElectedMatches electMatches(Set<String> dbFileKeys, Map<String, File> reportFileSourcesByKey, MatchesByScore matchesByScore) {
@@ -328,6 +331,10 @@ public class FileMoveDetectionStep implements ComputationStep {
     @Override
     public Iterator<Match> iterator() {
       return matches.iterator();
+    }
+
+    public int size() {
+      return matches.size();
     }
   }
 }

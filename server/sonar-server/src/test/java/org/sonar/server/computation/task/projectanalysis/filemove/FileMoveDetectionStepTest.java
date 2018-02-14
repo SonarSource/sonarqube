@@ -218,9 +218,10 @@ public class FileMoveDetectionStepTest {
 
   private SourceLinesHashRepository sourceLinesHash = mock(SourceLinesHashRepository.class);
   private FileSimilarity fileSimilarity = new FileSimilarityImpl(new SourceSimilarityImpl());
+  private ScoreMatrixDumper scoreMatrixDumper = mock(ScoreMatrixDumper.class);
 
   private FileMoveDetectionStep underTest = new FileMoveDetectionStep(analysisMetadataHolder, treeRootHolder, dbClient,
-    fileSimilarity, movedFilesRepository, sourceLinesHash);
+    fileSimilarity, movedFilesRepository, sourceLinesHash, scoreMatrixDumper);
 
   @Before
   public void setUp() throws Exception {

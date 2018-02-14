@@ -49,6 +49,7 @@ import org.sonar.server.computation.task.projectanalysis.duplication.IntegrateCr
 import org.sonar.server.computation.task.projectanalysis.event.EventRepositoryImpl;
 import org.sonar.server.computation.task.projectanalysis.filemove.FileSimilarityImpl;
 import org.sonar.server.computation.task.projectanalysis.filemove.MutableMovedFilesRepositoryImpl;
+import org.sonar.server.computation.task.projectanalysis.filemove.ScoreMatrixDumper;
 import org.sonar.server.computation.task.projectanalysis.filemove.SourceSimilarityImpl;
 import org.sonar.server.computation.task.projectanalysis.filesystem.ComputationTempFolderProvider;
 import org.sonar.server.computation.task.projectanalysis.issue.BaseIssuesLoader;
@@ -268,6 +269,7 @@ public final class ProjectAnalysisTaskContainerPopulator implements ContainerPop
       ShortBranchIssueMerger.class,
 
       // filemove
+      ScoreMatrixDumper.class,
       SourceSimilarityImpl.class,
       FileSimilarityImpl.class,
       MutableMovedFilesRepositoryImpl.class,
