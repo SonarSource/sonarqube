@@ -37,6 +37,7 @@ public class DbVersion71 implements DbVersion {
       .add(2007, "Update PERMISSION_TEMPLATES.KEYS ", UpdatePermissionTooLongTemplateKeys.class)
       .add(2008, "Create WEBHOOKS Table", CreateWebhooksTable.class)
       .add(2009, "Migrate webhooks from SETTINGS table to WEBHOOKS table", MigrateWebhooksToWebhooksTable.class)
+      .add(2010, "Add webhook key to WEBHOOK_DELIVERIES table", AddWebhookKeyToWebhookDeliveriesTable.class)
     ;
   }
 }

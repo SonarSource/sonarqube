@@ -68,7 +68,7 @@ public class WebhookDeliveriesActionTest {
 
   @Test
   public void test_definition() {
-    assertThat(ws.getDef().params()).extracting(WebService.Param::key).containsOnly("componentKey", "ceTaskId");
+    assertThat(ws.getDef().params()).extracting(WebService.Param::key).containsExactlyInAnyOrder("componentKey", "ceTaskId", "webhook");
     assertThat(ws.getDef().isPost()).isFalse();
     assertThat(ws.getDef().isInternal()).isFalse();
     assertThat(ws.getDef().responseExampleAsString()).isNotEmpty();
@@ -104,6 +104,17 @@ public class WebhookDeliveriesActionTest {
   }
 
   @Test
+  public void search_by_webhook_and_return_no_records() {
+    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
+
+    Webhooks.DeliveriesWsResponse response = ws.newRequest()
+      .setParam("webhook", "t1")
+      .executeProtobuf(Webhooks.DeliveriesWsResponse.class);
+
+    assertThat(response.getDeliveriesCount()).isEqualTo(0);
+  }
+
+  @Test
   public void search_by_component_and_return_records_of_example() {
     WebhookDeliveryDto dto = newWebhookDeliveryDto()
       .setUuid("d1")
@@ -132,6 +143,24 @@ public class WebhookDeliveriesActionTest {
     WebhookDeliveryDto dto1 = newWebhookDeliveryDto().setComponentUuid(project.uuid()).setCeTaskUuid("t1");
     WebhookDeliveryDto dto2 = newWebhookDeliveryDto().setComponentUuid(project.uuid()).setCeTaskUuid("t1");
     WebhookDeliveryDto dto3 = newWebhookDeliveryDto().setComponentUuid(project.uuid()).setCeTaskUuid("t2");
+    dbClient.webhookDeliveryDao().insert(db.getSession(), dto1);
+    dbClient.webhookDeliveryDao().insert(db.getSession(), dto2);
+    dbClient.webhookDeliveryDao().insert(db.getSession(), dto3);
+    db.commit();
+    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
+
+    Webhooks.DeliveriesWsResponse response = ws.newRequest()
+      .setParam("ceTaskId", "t1")
+      .executeProtobuf(Webhooks.DeliveriesWsResponse.class);
+    assertThat(response.getDeliveriesCount()).isEqualTo(2);
+    assertThat(response.getDeliveriesList()).extracting(Webhooks.Delivery::getId).containsOnly(dto1.getUuid(), dto2.getUuid());
+  }
+
+  @Test
+  public void search_by_webhook_and_return_records() {
+    WebhookDeliveryDto dto1 = newWebhookDeliveryDto().setComponentUuid(project.uuid()).setCeTaskUuid("t1").setWebhookUuid("wh-1-uuid");
+    WebhookDeliveryDto dto2 = newWebhookDeliveryDto().setComponentUuid(project.uuid()).setCeTaskUuid("t1").setWebhookUuid("wh-1-uuid");
+    WebhookDeliveryDto dto3 = newWebhookDeliveryDto().setComponentUuid(project.uuid()).setCeTaskUuid("t2").setWebhookUuid("wh-2-uuid");
     dbClient.webhookDeliveryDao().insert(db.getSession(), dto1);
     dbClient.webhookDeliveryDao().insert(db.getSession(), dto2);
     dbClient.webhookDeliveryDao().insert(db.getSession(), dto3);
@@ -182,11 +211,24 @@ public class WebhookDeliveriesActionTest {
     userSession.logIn();
 
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Either 'ceTaskId' or 'componentKey' must be provided");
+    expectedException.expectMessage("Either 'ceTaskId' or 'componentKey' or 'webhook' must be provided");
 
     ws.newRequest()
       .setParam("componentKey", project.getDbKey())
       .setParam("ceTaskId", "t1")
+      .execute();
+  }
+
+  @Test
+  public void throw_IAE_if_both_component_and_webhook_are_set() {
+    userSession.logIn();
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Either 'ceTaskId' or 'componentKey' or 'webhook' must be provided");
+
+    ws.newRequest()
+      .setParam("componentKey", project.getDbKey())
+      .setParam("webhook", "wh-uuid")
       .execute();
   }
 }

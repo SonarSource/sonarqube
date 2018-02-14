@@ -31,6 +31,13 @@ public class WebhookDeliveryDao implements Dao {
   }
 
   /**
+   * All the deliveries for the specified webhook. Results are ordered by descending date.
+   */
+  public List<WebhookDeliveryLiteDto> selectByWebhookUuid(DbSession dbSession, String webhookUuid) {
+    return mapper(dbSession).selectByWebhookUuid(webhookUuid);
+  }
+
+  /**
    * All the deliveries for the specified component. Results are ordered by descending date.
    */
   public List<WebhookDeliveryLiteDto> selectOrderedByComponentUuid(DbSession dbSession, String componentUuid) {
