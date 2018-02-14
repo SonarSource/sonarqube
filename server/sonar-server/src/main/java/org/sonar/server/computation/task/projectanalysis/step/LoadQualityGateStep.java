@@ -67,7 +67,7 @@ public class LoadQualityGateStep implements ComputationStep {
   }
 
   private Optional<QualityGate> getShortLivingBranchQualityGate() {
-    if (analysisMetadataHolder.isShortLivingBranch()) {
+    if (analysisMetadataHolder.isShortLivingBranch() || analysisMetadataHolder.isPullRequest()) {
       Optional<QualityGate> qualityGate = qualityGateService.findById(ShortLivingBranchQualityGate.ID);
       if (qualityGate.isPresent()) {
         return qualityGate;

@@ -83,6 +83,13 @@ public interface AnalysisMetadataHolder {
   boolean isLongLivingBranch();
 
   /**
+   * Convenience method equivalent to do the check using {@link #getBranch()}
+   *
+   * @throws IllegalStateException if branch has not been set
+   */
+  boolean isPullRequest();
+
+  /**
    * @throws IllegalStateException if cross project duplication flag has not been set
    */
   boolean isCrossProjectDuplicationEnabled();
