@@ -93,7 +93,18 @@ class ExternalServer extends ExternalResource {
     return jetty.getURI().resolve(path).toString();
   }
 
+  void waitUntilAllWebHooksCalled(int expectedNumberOfRequests) throws InterruptedException {
+    // Wait up to 30 seconds max
+    for (int i = 0; i < 60; i++) {
+      if (getPayloadRequests().size() == expectedNumberOfRequests) {
+        break;
+      }
+      Thread.sleep(500);
+    }
+  }
+
   void clear() {
     payloads.clear();
   }
+
 }

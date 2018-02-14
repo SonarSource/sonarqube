@@ -20,9 +20,13 @@
 package org.sonarqube.qa.util.pageobjects;
 
 import com.codeborne.selenide.ElementsCollection;
+import com.codeborne.selenide.SelenideElement;
 
+import static com.codeborne.selenide.Condition.cssClass;
+import static com.codeborne.selenide.Condition.enabled;
 import static com.codeborne.selenide.Condition.exist;
 import static com.codeborne.selenide.Condition.text;
+import static com.codeborne.selenide.Condition.visible;
 import static com.codeborne.selenide.Selenide.$;
 import static com.codeborne.selenide.Selenide.$$;
 
@@ -37,12 +41,55 @@ public class WebhooksPage {
     return this;
   }
 
+  public WebhooksPage hasNoWebhooks() {
+    $(".boxed-group").shouldHave(text("No webhook defined"));
+    return this;
+  }
+
   public WebhooksPage countWebhooks(Integer number) {
     getWebhooks().shouldHaveSize(number);
     return this;
   }
 
+  public WebhooksPage createWebhook(String name, String url) {
+    $(".js-webhook-create").shouldBe(visible).shouldBe(enabled).shouldNotHave(cssClass("disabled")).click();
+    modalShouldBeOpen("Create Webhook");
+    $("#webhook-name").shouldBe(visible).sendKeys(name);
+    $("#webhook-url").shouldBe(visible).sendKeys(url);
+    $("button[type='submit']").shouldBe(visible).click();
+    modalShouldBeClosed();
+    return this;
+  }
+
+  public  WebhooksPage createIsDisabled() {
+    $(".js-webhook-create").shouldBe(visible).shouldHave(cssClass("disabled")).click();
+    modalShouldBeClosed();
+    return this;
+  }
+
+  public WebhooksPage deleteWebhook(String webhookName) {
+    SelenideElement webhook = getWebhook(webhookName);
+    webhook.$(".dropdown-toggle").shouldBe(visible).click();
+    webhook.$(".js-webhook-delete").shouldBe(visible).click();
+    modalShouldBeOpen("Delete Webhook");
+    $("button.button-red").shouldBe(visible).click();
+    modalShouldBeClosed();
+    return this;
+  }
+
+  private static SelenideElement getWebhook(String webhookName) {
+    return getWebhooks().find(text(webhookName)).should(exist);
+  }
+
   private static ElementsCollection getWebhooks() {
     return $$(".boxed-group tbody tr");
+  }
+
+  private static void modalShouldBeOpen(String title) {
+    $(".modal-head").shouldBe(visible).shouldHave(text(title));
+  }
+
+  private static void modalShouldBeClosed() {
+    $(".modal-head").shouldNot(exist);
   }
 }
