@@ -144,6 +144,7 @@ public class FileMoveDetectionStep implements ComputationStep {
   }
 
   private void registerMatches(Map<String, DbComponent> dbFilesByKey, Map<String, Component> reportFilesByKey, ElectedMatches electedMatches) {
+    LOG.debug("{} files moves found", electedMatches.size());
     for (Match validatedMatch : electedMatches) {
       movedFilesRepository.setOriginalFile(
         reportFilesByKey.get(validatedMatch.getReportKey()),
@@ -386,6 +387,10 @@ public class FileMoveDetectionStep implements ComputationStep {
     @Override
     public Iterator<Match> iterator() {
       return matches.iterator();
+    }
+
+    public int size() {
+      return matches.size();
     }
   }
 }
