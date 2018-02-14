@@ -38,8 +38,16 @@ public class WebhooksPageTest
   @ClassRule
   public static Orchestrator orchestrator = WebhooksSuite.ORCHESTRATOR;
 
+  @ClassRule
+  public static ExternalServer externalServer = new ExternalServer();
+
   @Rule
   public Tester tester = new Tester(orchestrator);
+
+  @Before
+  public void setUp() {
+    externalServer.clear();
+  }
 
   @Before
   @After
@@ -91,7 +99,8 @@ public class WebhooksPageTest
       .createWebhook("my-webhook", "http://greg:pass@test.com")
       .countWebhooks(1)
       .hasWebhook("my-webhook")
-      .hasWebhook("http://greg:pass@test.com");
+      .hasWebhook("http://greg:pass@test.com")
+      .hasNoLatestDelivery("my-webhook");
   }
 
   @Test
@@ -129,6 +138,32 @@ public class WebhooksPageTest
       .countWebhooks(3)
       .deleteWebhook(webhook.getName())
       .countWebhooks(2);
+  }
+
+  @Test
+  public void display_deliveries_payloads() throws InterruptedException {
+    User user = tester.users().generateAdministratorOnDefaultOrganization();
+    tester.wsClient().users().skipOnboardingTutorial();
+
+    Project project = tester.projects().provision();
+    Webhook webhook = tester.webhooks().generate(project, p -> p.setUrl(externalServer.urlFor("/test_deliveries")));
+
+    analyseProject(project);
+    analyseProject(project);
+
+    externalServer.waitUntilAllWebHooksCalled(1);
+
+    WebhooksPage webhooksPage = tester.openBrowser().logIn().submitCredentials(user.getLogin()).openProjectWebhooks(project.getKey());
+    webhooksPage
+      .countWebhooks(1)
+      .hasWebhook(webhook.getUrl())
+      .hasLatestDelivery(webhook.getName());
+
+    WebhooksPage.DeliveriesForm deliveriesForm = webhooksPage.showDeliveries(webhook.getName());
+    deliveriesForm
+      .countDeliveries(2)
+      .isSuccessFull(0)
+      .payloadContains(0, "Response: 200", "\"status\": \"SUCCESS\"");
   }
 
   private void analyseProject(Project project) {
