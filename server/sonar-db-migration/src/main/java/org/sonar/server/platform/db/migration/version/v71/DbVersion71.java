@@ -38,6 +38,7 @@ public class DbVersion71 implements DbVersion {
       .add(2008, "Increase branch type size in PROJECT_BRANCHES", IncreaseBranchTypeSizeForPullRequest.class)
       .add(2009, "Add key type column in PROJECT_BRANCHES", AddKeyTypeInProjectBranches.class)
       .add(2010, "Fill key_type column in PROJECT_BRANCHES", SetKeyTypeToBranchInProjectBranches.class)
+      .add(2011, "Make key_type not nullable in PROJECT_BRANCHES", MakeKeyTypeNotNullableInProjectBranches.class)
     ;
   }
 }
