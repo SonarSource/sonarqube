@@ -26,16 +26,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import javax.annotation.Nullable;
-import org.apache.commons.lang.StringUtils;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.Database;
 import org.sonar.server.platform.db.migration.step.DataChange;
-import org.sonar.server.platform.db.migration.step.Upsert;
 import org.sonar.server.platform.db.migration.version.v63.DefaultOrganizationUuidProvider;
 
-import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 
@@ -54,9 +51,8 @@ public class MigrateWebhooksToWebhooksTable extends DataChange {
 
   @Override
   public void execute(Context context) throws SQLException {
-
     Map<String, PropertyRow> rows = context
-      .prepareSelect("select id, prop_key, resource_id, text_value, created_at from properties")
+      .prepareSelect("select id, prop_key, resource_id, text_value, created_at from properties where prop_key like 'sonar.webhooks%'")
       .list(row -> new PropertyRow(
         row.getLong(1),
         row.getString(2),
@@ -64,63 +60,39 @@ public class MigrateWebhooksToWebhooksTable extends DataChange {
         row.getString(4),
         row.getLong(5)))
       .stream()
-      .filter(row -> row.key().startsWith("sonar.webhooks"))
       .collect(toMap(PropertyRow::key, Function.identity()));
 
     if (!rows.isEmpty()) {
-      final List<Long> toBeDeleted = new ArrayList<>();
-      toBeDeleted.addAll(migrateGlobalWebhooks(context, rows));
-      toBeDeleted.addAll(migrateProjectsWebhooks(context, rows, getProjectsUuids(context)));
-      deleteFromProperties(context, toBeDeleted);
+      migrateGlobalWebhooks(context, rows);
+      migrateProjectsWebhooks(context, rows);
+      context
+        .prepareUpsert("delete from properties where prop_key like 'sonar.webhooks.global%' or prop_key like 'sonar.webhooks.project%'")
+        .execute()
+        .commit();
     }
-
   }
 
-  private static Map<Long, String> getProjectsUuids(Context context) throws SQLException {
-    return context
-      .prepareSelect("select id, uuid from projects")
-      .list(row -> new ProjectFlyweight(
-        row.getLong(1),
-        row.getString(2)))
-      .stream()
-      .collect(toMap(ProjectFlyweight::id, ProjectFlyweight::uuid));
-  }
-
-  private List<Long> migrateProjectsWebhooks(Context context, Map<String, PropertyRow> properties, Map<Long, String> projectsKeys) throws SQLException {
-    List<Long> toBeDeleted = new ArrayList<>();
+  private void migrateProjectsWebhooks(Context context, Map<String, PropertyRow> properties) throws SQLException {
     PropertyRow index = properties.get("sonar.webhooks.project");
-    if (index == null) {
-      return emptyList();
+    if (index != null) {
+      // can't lambda due to checked exception.
+      for (Webhook webhook : extractProjectWebhooksFrom(context, properties, index.value().split(","))) {
+        insert(context, webhook);
+      }
     }
-
-    // can't lambda due to checked exception.
-    for (Webhook webhook : extractProjectWebhooksFrom(properties, index.value().split(","), projectsKeys)) {
-      toBeDeleted.addAll(insert(context, webhook));
-    }
-
-    toBeDeleted.add(index.id());
-    return toBeDeleted;
   }
 
-  private List<Long> migrateGlobalWebhooks(Context context, Map<String, PropertyRow> properties) throws SQLException {
-
-    List<Long> toBeDeleted = new ArrayList<>();
+  private void migrateGlobalWebhooks(Context context, Map<String, PropertyRow> properties) throws SQLException {
     PropertyRow index = properties.get("sonar.webhooks.global");
-    if (index == null) {
-      return emptyList();
+    if (index != null) {
+      // can't lambda due to checked exception.
+      for (Webhook webhook : extractGlobalWebhooksFrom(context, properties, index.value().split(","))) {
+        insert(context, webhook);
+      }
     }
-
-    // can't lambda due to checked exception.
-    for (Webhook webhook : extractGlobalWebhooksFrom(context, properties, index.value().split(","))) {
-      toBeDeleted.addAll(insert(context, webhook));
-    }
-
-    toBeDeleted.add(index.id());
-    return toBeDeleted;
   }
 
-  private List<Long> insert(Context context, Webhook webhook) throws SQLException {
-
+  private void insert(Context context, Webhook webhook) throws SQLException {
     if (webhook.isValid()) {
       context.prepareUpsert("insert into webhooks (uuid, name, url, organization_uuid, project_uuid, created_at, updated_at) values (?, ?, ?, ?, ?, ?, ?)")
         .setString(1, uuidFactory.create())
@@ -135,29 +107,6 @@ public class MigrateWebhooksToWebhooksTable extends DataChange {
     } else {
       LOGGER.info("Unable to migrate inconsistent webhook (entry deleted from PROPERTIES) : " + webhook);
     }
-
-    return webhook.rowIds();
-  }
-
-  private static void deleteFromProperties(Context context, List<Long> toBeDeleted) throws SQLException {
-    Upsert upsert = context.prepareUpsert(prepareDeleteRequest(toBeDeleted));
-    int index = 0;
-    for (Long id : toBeDeleted) {
-      index++;
-      upsert.setLong(index, id);
-    }
-    upsert.execute().commit();
-  }
-
-  private static String prepareDeleteRequest(List<Long> toBeDeleted) {
-    StringBuilder sb = new StringBuilder()
-      .append("delete from properties where id in (");
-    toBeDeleted.forEach(n ->
-      sb.append("?, ")
-    );
-    sb.setLength(sb.length() - 2);
-    sb.append(")");
-    return sb.toString();
   }
 
   private List<Webhook> extractGlobalWebhooksFrom(Context context, Map<String, PropertyRow> properties, String[] values) throws SQLException {
@@ -170,13 +119,21 @@ public class MigrateWebhooksToWebhooksTable extends DataChange {
       .collect(toList());
   }
 
-  private static List<Webhook> extractProjectWebhooksFrom(Map<String, PropertyRow> properties, String[] values, Map<Long, String> projectsKeys) {
-    return Arrays.stream(values)
-      .map(value -> new Webhook(
-        properties.get("sonar.webhooks.project." + value + ".name"),
-        properties.get("sonar.webhooks.project." + value + ".url"),
-        null, projectsKeys))
-      .collect(toList());
+  private static List<Webhook> extractProjectWebhooksFrom(Context context, Map<String, PropertyRow> properties, String[] values) throws SQLException {
+    List<Webhook> webhooks = new ArrayList<>();
+    for (String value : values) {
+      PropertyRow name = properties.get("sonar.webhooks.project." + value + ".name");
+      PropertyRow url = properties.get("sonar.webhooks.project." + value + ".url");
+      webhooks.add(new Webhook(name, url, null, projectUuidOf(context, name)));
+    }
+    return webhooks;
+  }
+
+  private static String projectUuidOf(Context context, PropertyRow row) throws SQLException {
+    return context
+      .prepareSelect("select uuid from projects where id = ?")
+      .setLong(1, row.resourceId())
+      .list(row1 -> row1.getString(1)).stream().findFirst().orElse(null);
   }
 
   private static class PropertyRow {
@@ -234,13 +191,11 @@ public class MigrateWebhooksToWebhooksTable extends DataChange {
     private String organisationUuid;
     private String projectUuid;
 
-    public Webhook(@Nullable PropertyRow name, @Nullable PropertyRow url, @Nullable String organisationUuid, @Nullable Map<Long, String> projectsKeys) {
+    public Webhook(@Nullable PropertyRow name, @Nullable PropertyRow url, @Nullable String organisationUuid, @Nullable String projectUuid) {
       this.name = name;
       this.url = url;
       this.organisationUuid = organisationUuid;
-      if (StringUtils.isBlank(organisationUuid) && name != null && projectsKeys != null) {
-        this.projectUuid = projectsKeys.get(name.resourceId());
-      }
+      this.projectUuid = projectUuid;
     }
 
     public String name() {
@@ -263,17 +218,6 @@ public class MigrateWebhooksToWebhooksTable extends DataChange {
       return name.createdAt();
     }
 
-    public List<Long> rowIds() {
-      List<Long> toBeDropped = new ArrayList<>();
-      if (name != null) {
-        toBeDropped.add(name.id());
-      }
-      if (url != null) {
-        toBeDropped.add(url.id());
-      }
-      return toBeDropped;
-    }
-
     public boolean isValid() {
       return name != null && url != null && name() != null && url() != null && (organisationUuid() != null || projectUuid() != null) && createdAt() != null;
     }
@@ -291,25 +235,6 @@ public class MigrateWebhooksToWebhooksTable extends DataChange {
       s.append(", organisationUuid='").append(organisationUuid).append('\'')
         .append(", projectUuid='").append(projectUuid).append('\'').append('}');
       return s.toString();
-    }
-  }
-
-  private static class ProjectFlyweight {
-
-    private final Long id;
-    private final String uuid;
-
-    public ProjectFlyweight(Long id, String uuid) {
-      this.id = id;
-      this.uuid = uuid;
-    }
-
-    public Long id() {
-      return id;
-    }
-
-    public String uuid() {
-      return uuid;
     }
   }
 
