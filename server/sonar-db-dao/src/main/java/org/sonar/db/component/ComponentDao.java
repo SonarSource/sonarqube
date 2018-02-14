@@ -378,6 +378,10 @@ public class ComponentDao implements Dao {
     return mapper(dbSession).selectComponentKeysHavingIssuesToMerge(mergeBranchUuid);
   }
 
+  public void scrollAllFilesForFileMove(DbSession session, String projectUuid, ResultHandler<FileMoveRowDto> handler) {
+    mapper(session).scrollAllFilesForFileMove(projectUuid, handler);
+  }
+
   private static void checkThatNotTooManyComponents(ComponentQuery query) {
     checkThatNotTooManyConditions(query.getComponentIds(), "Too many component ids in query");
     checkThatNotTooManyConditions(query.getComponentKeys(), "Too many component keys in query");

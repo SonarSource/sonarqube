@@ -135,6 +135,8 @@ public interface ComponentMapper {
 
   void scrollForIndexing(@Param("projectUuid") @Nullable String projectUuid, ResultHandler<ComponentDto> handler);
 
+  void scrollAllFilesForFileMove(@Param("projectUuid") String projectUuid, ResultHandler<FileMoveRowDto> handler);
+
   void insert(ComponentDto componentDto);
 
   void update(ComponentUpdateDto component);

@@ -28,10 +28,12 @@ public interface FileSimilarity {
   final class File {
     private final String path;
     private final List<String> lineHashes;
+    private final int lineCount;
 
     public File(String path, List<String> lineHashes) {
       this.path = requireNonNull(path, "path can not be null");
       this.lineHashes = requireNonNull(lineHashes, "lineHashes can not be null");
+      this.lineCount = lineHashes.size();
     }
 
     public String getPath() {
@@ -44,6 +46,10 @@ public interface FileSimilarity {
      */
     public List<String> getLineHashes() {
       return lineHashes;
+    }
+
+    public int getLineCount() {
+      return lineCount;
     }
   }
 

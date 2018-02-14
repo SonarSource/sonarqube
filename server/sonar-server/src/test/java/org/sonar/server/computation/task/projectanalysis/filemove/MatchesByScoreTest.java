@@ -20,18 +20,13 @@
 package org.sonar.server.computation.task.projectanalysis.filemove;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.Random;
 import org.junit.Test;
+import org.sonar.server.computation.task.projectanalysis.filemove.ScoreMatrix.ScoreFile;
 
-import static com.google.common.collect.ImmutableSet.of;
-import static java.util.Collections.emptyList;
-import static java.util.Collections.emptySet;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.server.computation.task.projectanalysis.filemove.FileMoveDetectionStep.MIN_REQUIRED_SCORE;
 
@@ -41,17 +36,17 @@ public class MatchesByScoreTest {
 
   @Test
   public void creates_returns_always_the_same_instance_of_maxScore_is_less_than_min_required_score() {
-    Set<String> doesNotMatterDbFileKeys = emptySet();
-    Map<String, FileSimilarity.File> doesNotMatterReportFiles = Collections.emptyMap();
+    ScoreFile[] doesNotMatterRemovedFiles = new ScoreFile[0];
+    ScoreFile[] doesNotMatterNewFiles = new ScoreFile[0];
     int[][] doesNotMatterScores = new int[0][0];
 
-    ScoreMatrix scoreMatrix1 = new ScoreMatrix(doesNotMatterDbFileKeys, doesNotMatterReportFiles, doesNotMatterScores, MIN_REQUIRED_SCORE - 1);
+    ScoreMatrix scoreMatrix1 = new ScoreMatrix(doesNotMatterRemovedFiles, doesNotMatterNewFiles, doesNotMatterScores, MIN_REQUIRED_SCORE - 1);
     MatchesByScore matchesByScore = MatchesByScore.create(scoreMatrix1);
 
     assertThat(matchesByScore.getSize()).isEqualTo(0);
     assertThat(matchesByScore).isEmpty();
 
-    ScoreMatrix scoreMatrix2 = new ScoreMatrix(doesNotMatterDbFileKeys, doesNotMatterReportFiles, doesNotMatterScores, MIN_REQUIRED_SCORE - 5);
+    ScoreMatrix scoreMatrix2 = new ScoreMatrix(doesNotMatterRemovedFiles, doesNotMatterNewFiles, doesNotMatterScores, MIN_REQUIRED_SCORE - 5);
     assertThat(MatchesByScore.create(scoreMatrix2)).isSameAs(matchesByScore);
   }
 
@@ -63,8 +58,7 @@ public class MatchesByScoreTest {
       {8},
       {85},
     };
-    MatchesByScore matchesByScore = MatchesByScore.create(new ScoreMatrix(
-      of("A", "B", "C"), ImmutableMap.of("1", fileOf("1")), scores, maxScore));
+    MatchesByScore matchesByScore = MatchesByScore.create(new ScoreMatrix(of("A", "B", "C"), of("1"), scores, maxScore));
 
     assertThat(matchesByScore.getSize()).isEqualTo(2);
     assertThat(Lists.newArrayList(matchesByScore)).isEqualTo(Arrays.asList(
@@ -79,7 +73,10 @@ public class MatchesByScoreTest {
     ));
   }
 
-  private static FileSimilarity.File fileOf(String key) {
-    return new FileSimilarity.File("path of " + key, emptyList());
+  private ScoreFile[] of(String... fileKeys) {
+    return Arrays.stream(fileKeys)
+      .map(key -> new ScoreFile(key, new Random().nextInt(40)))
+      .toArray(ScoreFile[]::new);
   }
+
 }

@@ -19,52 +19,44 @@
  */
 package org.sonar.server.computation.task.projectanalysis.filemove;
 
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.Arrays;
 
 final class ScoreMatrix {
-  private final Set<String> dbFileKeys;
-  private final Map<String, FileSimilarity.File> reportFileSourcesByKey;
+  private final ScoreFile[] removedFiles;
+  private final ScoreFile[] newFiles;
   private final int[][] scores;
   private final int maxScore;
 
-  public ScoreMatrix(Set<String> dbFileKeys, Map<String, FileSimilarity.File> reportFileSourcesByKey, int[][] scores, int maxScore) {
-    this.dbFileKeys = dbFileKeys;
-    this.reportFileSourcesByKey = reportFileSourcesByKey;
+  public ScoreMatrix(ScoreFile[] removedFiles, ScoreFile[] newFiles, int[][] scores, int maxScore) {
+    this.removedFiles = removedFiles;
+    this.newFiles = newFiles;
     this.scores = scores;
     this.maxScore = maxScore;
   }
 
   public void accept(ScoreMatrixVisitor visitor) {
-    int dbFileIndex = 0;
-    for (String dbFileKey : dbFileKeys) {
-      int reportFileIndex = 0;
-      for (Map.Entry<String, FileSimilarity.File> reportFileSourceAndKey : reportFileSourcesByKey.entrySet()) {
-        int score = scores[dbFileIndex][reportFileIndex];
-        visitor.visit(dbFileKey, reportFileSourceAndKey.getKey(), score);
-        reportFileIndex++;
+    for (int removedFileIndex = 0; removedFileIndex < removedFiles.length; removedFileIndex++) {
+      for (int newFileIndex = 0; newFileIndex < newFiles.length; newFileIndex++) {
+        int score = scores[removedFileIndex][newFileIndex];
+        visitor.visit(removedFiles[removedFileIndex], newFiles[newFileIndex], score);
       }
-      dbFileIndex++;
     }
   }
 
   public String toCsv(char separator) {
     StringBuilder res = new StringBuilder();
     // first row: empty column, then one column for each report file (its key)
-    res.append(separator);
-    for (Map.Entry<String, FileSimilarity.File> reportEntry : reportFileSourcesByKey.entrySet()) {
-      res.append(reportEntry.getKey()).append(separator);
-    }
+    res.append("newFiles=>").append(separator);
+    Arrays.stream(newFiles).forEach(f -> res.append(f.getFileKey()).append('(').append(f.getLineCount()).append(')').append(separator));
     // rows with data: column with db file (its key), then one column for each value
     accept(new ScoreMatrixVisitor() {
-      private String previousDbFileKey = null;
+      private ScoreFile previousRemovedFile = null;
 
       @Override
-      public void visit(String dbFileKey, String reportFileKey, int score) {
-        if (!Objects.equals(previousDbFileKey, dbFileKey)) {
-          res.append('\n').append(dbFileKey).append(separator);
-          previousDbFileKey = dbFileKey;
+      public void visit(ScoreFile removedFile, ScoreFile newFile, int score) {
+        if (previousRemovedFile != removedFile) {
+          res.append('\n').append(removedFile.getFileKey()).append('(').append(removedFile.getLineCount()).append(')').append(separator);
+          previousRemovedFile = removedFile;
         }
         res.append(score).append(separator);
       }
@@ -74,10 +66,29 @@ final class ScoreMatrix {
 
   @FunctionalInterface
   public interface ScoreMatrixVisitor {
-    void visit(String dbFileKey, String reportFileKey, int score);
+    void visit(ScoreFile removedFile, ScoreFile newFile, int score);
   }
 
   public int getMaxScore() {
     return maxScore;
+  }
+
+  static class ScoreFile {
+    private final String fileKey;
+    private final int lineCount;
+
+    ScoreFile(String fileKey, int lineCount) {
+      this.fileKey = fileKey;
+      this.lineCount = lineCount;
+    }
+
+    public String getFileKey() {
+      return fileKey;
+    }
+
+    public int getLineCount() {
+      return lineCount;
+    }
+
   }
 }
