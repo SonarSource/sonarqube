@@ -21,6 +21,7 @@ package org.sonarqube.qa.util.pageobjects;
 
 import com.codeborne.selenide.ElementsCollection;
 import com.codeborne.selenide.SelenideElement;
+import java.util.Arrays;
 
 import static com.codeborne.selenide.Condition.cssClass;
 import static com.codeborne.selenide.Condition.enabled;
@@ -43,6 +44,16 @@ public class WebhooksPage {
 
   public WebhooksPage hasNoWebhooks() {
     $(".boxed-group").shouldHave(text("No webhook defined"));
+    return this;
+  }
+
+  public WebhooksPage hasLatestDelivery(String webhookName) {
+    getWebhook(webhookName).shouldNotHave(text("Never"));
+    return this;
+  }
+
+  public WebhooksPage hasNoLatestDelivery(String webhookName) {
+    getWebhook(webhookName).shouldHave(text("Never"));
     return this;
   }
 
@@ -75,6 +86,48 @@ public class WebhooksPage {
     $("button.button-red").shouldBe(visible).click();
     modalShouldBeClosed();
     return this;
+  }
+
+  public DeliveriesForm showDeliveries(String webhookName) {
+    SelenideElement webhook = getWebhook(webhookName);
+    webhook.$(".dropdown-toggle").shouldBe(visible).click();
+    webhook.$(".js-webhook-deliveries").shouldBe(visible).click();
+    modalShouldBeOpen("Recent deliveries for " + webhookName);
+    return new DeliveriesForm($(".modal-body"));
+  }
+
+  public static class DeliveriesForm {
+    private final SelenideElement elt;
+
+    public DeliveriesForm(SelenideElement elt) {
+      this.elt = elt;
+    }
+
+    public DeliveriesForm countDeliveries(Integer number) {
+      this.getDeliveries().shouldHaveSize(number);
+      return this;
+    }
+
+    public DeliveriesForm isSuccessFull(Integer deliveryIndex) {
+      this.getDeliveries().get(deliveryIndex).$(".js-success").should(exist);
+      return this;
+    }
+
+    public DeliveriesForm payloadContains(Integer deliveryIndex, String... payload) {
+      SelenideElement delivery = this.getDeliveries().get(deliveryIndex);
+      SelenideElement header = delivery.$(".boxed-group-header").should(exist);
+      if (!delivery.$(".boxed-group-inner").exists()) {
+        header.click();
+      }
+      SelenideElement inner = delivery.$(".boxed-group-inner").shouldBe(visible);
+      Arrays.stream(payload).forEach(p -> inner.shouldHave(text(p)));
+      header.click();
+      return this;
+    }
+
+    private ElementsCollection getDeliveries() {
+      return this.elt.$$(".boxed-group-accordion");
+    }
   }
 
   private static SelenideElement getWebhook(String webhookName) {
