@@ -22,6 +22,7 @@ import { shallow } from 'enzyme';
 import ProfileRules from '../ProfileRules';
 import * as apiRules from '../../../../api/rules';
 import * as apiQP from '../../../../api/quality-profiles';
+import { waitAndUpdate } from '../../../../helpers/testUtils';
 
 const PROFILE = {
   activeRuleCount: 68,
@@ -86,8 +87,7 @@ it('should render the quality profiles rules with sonarway comparison', async ()
   const instance = wrapper.instance() as any;
   instance.mounted = true;
   instance.loadRules();
-  await new Promise(setImmediate);
-  wrapper.update();
+  await waitAndUpdate(wrapper);
   expect(wrapper.find('ProfileRulesSonarWayComparison')).toHaveLength(1);
   expect(wrapper).toMatchSnapshot();
 });
@@ -136,8 +136,7 @@ it('should not show sonarway comparison if there is no missing rules', async () 
     })
   );
   const wrapper = shallow(<ProfileRules organization={null} profile={PROFILE} />);
-  await new Promise(setImmediate);
-  wrapper.update();
+  await waitAndUpdate(wrapper);
   expect(apiQP.getQualityProfile).toHaveBeenCalledTimes(1);
   expect(wrapper.find('ProfileRulesSonarWayComparison')).toHaveLength(0);
 });

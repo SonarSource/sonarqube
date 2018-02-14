@@ -76,7 +76,7 @@ export function getSystemInfo(): Promise<SysInfo> {
   return getJSON('/api/system/info').catch(throwGlobalError);
 }
 
-export function getSystemStatus(): Promise<any> {
+export function getSystemStatus(): Promise<{ id: string; version: string; status: string }> {
   return getJSON('/api/system/status');
 }
 
@@ -87,11 +87,19 @@ export function getSystemUpgrades(): Promise<{
   return getJSON('/api/system/upgrades');
 }
 
-export function getMigrationStatus(): Promise<any> {
+export function getMigrationStatus(): Promise<{
+  message?: string;
+  startedAt?: string;
+  state: string;
+}> {
   return getJSON('/api/system/db_migration_status');
 }
 
-export function migrateDatabase() {
+export function migrateDatabase(): Promise<{
+  message?: string;
+  startedAt?: string;
+  state: string;
+}> {
   return postJSON('/api/system/migrate_db');
 }
 

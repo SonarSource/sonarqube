@@ -20,6 +20,7 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import EmailAlreadyExists from '../EmailAlreadyExists';
+import { waitAndUpdate } from '../../../../helpers/testUtils';
 
 jest.mock('../../../../api/users', () => ({
   getIdentityProviders: () =>
@@ -52,7 +53,6 @@ it('render', async () => {
   const wrapper = shallow(<EmailAlreadyExists location={{ query }} />);
   (wrapper.instance() as EmailAlreadyExists).mounted = true;
   (wrapper.instance() as EmailAlreadyExists).fetchIdentityProviders();
-  await new Promise(setImmediate);
-  wrapper.update();
+  await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot();
 });

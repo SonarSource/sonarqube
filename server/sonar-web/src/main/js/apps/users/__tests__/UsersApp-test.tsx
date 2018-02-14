@@ -22,6 +22,7 @@ import * as React from 'react';
 import { Location } from 'history';
 import { shallow } from 'enzyme';
 import UsersApp from '../UsersApp';
+import { waitAndUpdate } from '../../../helpers/testUtils';
 
 jest.mock('../../../api/users', () => ({
   getIdentityProviders: jest.fn(() =>
@@ -72,8 +73,7 @@ it('should render correctly', async () => {
   expect(wrapper).toMatchSnapshot();
   expect(getIdentityProviders).toHaveBeenCalled();
   expect(searchUsers).toHaveBeenCalled();
-  await new Promise(setImmediate);
-  wrapper.update();
+  await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot();
 });
 

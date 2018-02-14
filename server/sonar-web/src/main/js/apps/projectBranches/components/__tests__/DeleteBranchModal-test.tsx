@@ -24,7 +24,7 @@ import * as React from 'react';
 import { shallow, ShallowWrapper } from 'enzyme';
 import DeleteBranchModal from '../DeleteBranchModal';
 import { ShortLivingBranch, BranchType } from '../../../../app/types';
-import { submit, doAsync, click } from '../../../../helpers/testUtils';
+import { submit, doAsync, click, waitAndUpdate } from '../../../../helpers/testUtils';
 import { deleteBranch } from '../../../../api/branches';
 
 beforeEach(() => {
@@ -38,19 +38,17 @@ it('renders', () => {
   expect(wrapper).toMatchSnapshot();
 });
 
-it('deletes branch', () => {
+it('deletes branch', async () => {
   (deleteBranch as jest.Mock<any>).mockImplementation(() => Promise.resolve());
   const onDelete = jest.fn();
   const wrapper = shallowRender(onDelete);
 
   submitForm(wrapper);
 
-  return doAsync().then(() => {
-    wrapper.update();
-    expect(wrapper.state().loading).toBe(false);
-    expect(onDelete).toBeCalled();
-    expect(deleteBranch).toBeCalledWith('foo', 'feature');
-  });
+  await waitAndUpdate(wrapper);
+  expect(wrapper.state().loading).toBe(false);
+  expect(onDelete).toBeCalled();
+  expect(deleteBranch).toBeCalledWith('foo', 'feature');
 });
 
 it('cancels', () => {
@@ -64,19 +62,17 @@ it('cancels', () => {
   });
 });
 
-it('stops loading on WS error', () => {
+it('stops loading on WS error', async () => {
   (deleteBranch as jest.Mock<any>).mockImplementation(() => Promise.reject(null));
   const onDelete = jest.fn();
   const wrapper = shallowRender(onDelete);
 
   submitForm(wrapper);
 
-  return doAsync().then(() => {
-    wrapper.update();
-    expect(wrapper.state().loading).toBe(false);
-    expect(onDelete).not.toBeCalled();
-    expect(deleteBranch).toBeCalledWith('foo', 'feature');
-  });
+  await waitAndUpdate(wrapper);
+  expect(wrapper.state().loading).toBe(false);
+  expect(onDelete).not.toBeCalled();
+  expect(deleteBranch).toBeCalledWith('foo', 'feature');
 });
 
 function shallowRender(onDelete: () => void = jest.fn(), onClose: () => void = jest.fn()) {

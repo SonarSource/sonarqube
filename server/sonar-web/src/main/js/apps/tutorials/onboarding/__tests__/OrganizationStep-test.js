@@ -21,7 +21,7 @@
 import React from 'react';
 import { mount } from 'enzyme';
 import OrganizationStep from '../OrganizationStep';
-import { click } from '../../../../helpers/testUtils';
+import { click, waitAndUpdate } from '../../../../helpers/testUtils';
 import { getOrganizations } from '../../../../api/organizations';
 
 jest.mock('../../../../api/organizations', () => ({
@@ -70,8 +70,7 @@ it('works with existing organization', async () => {
       stepNumber={1}
     />
   );
-  await new Promise(setImmediate);
-  wrapper.update();
+  await waitAndUpdate(wrapper);
   click(wrapper.find('.js-existing'));
   expect(wrapper).toMatchSnapshot();
   wrapper
@@ -95,8 +94,7 @@ it('works with new organization', async () => {
       stepNumber={1}
     />
   );
-  await new Promise(setImmediate);
-  wrapper.update();
+  await waitAndUpdate(wrapper);
   click(wrapper.find('.js-new'));
   wrapper.find('NewOrganizationForm').prop('onDone')('new');
   wrapper.update();

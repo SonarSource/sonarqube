@@ -19,13 +19,15 @@
  */
 import * as React from 'react';
 
-interface Loader {
-  (): Promise<{ default: React.ComponentClass }>;
+type ReactComponent<P> = React.ComponentClass<P> | React.StatelessComponent<P>;
+
+interface Loader<P> {
+  (): Promise<{ default: ReactComponent<P> }>;
 }
 
-export function lazyLoad(loader: Loader) {
+export function lazyLoad<P>(loader: Loader<P>) {
   interface State {
-    Component?: React.ComponentClass;
+    Component?: ReactComponent<P>;
   }
 
   // use `React.Component`, not `React.PureComponent` to always re-render
@@ -43,7 +45,7 @@ export function lazyLoad(loader: Loader) {
       this.mounted = false;
     }
 
-    receiveComponent = (Component: React.ComponentClass) => {
+    receiveComponent = (Component: ReactComponent<P>) => {
       if (this.mounted) {
         this.setState({ Component });
       }

@@ -20,7 +20,7 @@
 /* eslint-disable import/order */
 import * as React from 'react';
 import { mount, shallow } from 'enzyme';
-import { click } from '../../../../../helpers/testUtils';
+import { click, waitAndUpdate } from '../../../../../helpers/testUtils';
 import SystemUpgradeNotif from '../SystemUpgradeNotif';
 
 jest.mock('../../../../../api/system', () => ({
@@ -82,8 +82,7 @@ beforeEach(() => {
 it('should display correctly', async () => {
   const wrapper = shallow(<SystemUpgradeNotif />);
   expect(wrapper.type()).toBeNull();
-  await new Promise(setImmediate);
-  wrapper.update();
+  await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot();
 });
 
@@ -92,8 +91,7 @@ it('should display nothing', async () => {
     return Promise.resolve({ updateCenterRefresh: '', upgrades: [] });
   });
   const wrapper = shallow(<SystemUpgradeNotif />);
-  await new Promise(setImmediate);
-  wrapper.update();
+  await waitAndUpdate(wrapper);
   expect(wrapper.type()).toBeNull();
 });
 
@@ -104,8 +102,7 @@ it('should fetch upgrade when mounting', () => {
 
 it('should open the upgrade form', async () => {
   const wrapper = shallow(<SystemUpgradeNotif />);
-  await new Promise(setImmediate);
-  wrapper.update();
+  await waitAndUpdate(wrapper);
   click(wrapper.find('button'));
   expect(wrapper.find('SystemUpgradeForm').exists()).toBeTruthy();
 });

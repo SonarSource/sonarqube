@@ -21,7 +21,7 @@
 import * as React from 'react';
 import { mount, shallow } from 'enzyme';
 import ProfilePermissions from '../ProfilePermissions';
-import { click } from '../../../../helpers/testUtils';
+import { click, waitAndUpdate } from '../../../../helpers/testUtils';
 
 jest.mock('../../../../api/quality-profiles', () => ({
   searchUsers: jest.fn(() => Promise.resolve([])),
@@ -56,8 +56,7 @@ it('opens add users form', async () => {
   );
   const wrapper = shallow(<ProfilePermissions profile={profile} />);
   expect(searchUsers).toHaveBeenCalled();
-  await new Promise(setImmediate);
-  wrapper.update();
+  await waitAndUpdate(wrapper);
   expect(wrapper.find('ProfilePermissionsForm').exists()).toBeFalsy();
 
   click(wrapper.find('button'));

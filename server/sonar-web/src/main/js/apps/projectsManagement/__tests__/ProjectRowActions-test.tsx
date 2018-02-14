@@ -21,7 +21,7 @@ import * as React from 'react';
 import { shallow } from 'enzyme';
 import ProjectRowActions, { Props } from '../ProjectRowActions';
 import { Visibility } from '../../../app/types';
-import { click } from '../../../helpers/testUtils';
+import { click, waitAndUpdate } from '../../../helpers/testUtils';
 
 jest.mock('../../../api/components', () => ({
   getComponentShow: jest.fn(() => Promise.reject(undefined))
@@ -45,8 +45,7 @@ it('restores access', async () => {
   expect(wrapper).toMatchSnapshot();
 
   wrapper.prop<Function>('onToggleClick')();
-  await new Promise(setImmediate);
-  wrapper.update();
+  await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot();
 
   click(wrapper.find('.js-restore-access'));
