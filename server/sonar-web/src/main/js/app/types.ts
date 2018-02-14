@@ -177,13 +177,6 @@ export enum HomePageType {
   Projects = 'PROJECTS'
 }
 
-// export interface HomePage {
-//   branch?: string;
-//   component?: string;
-//   organization?: string;
-//   type: HomePageType;
-// }
-
 export type HomePage =
   | { type: HomePageType.Application; component: string }
   | { type: HomePageType.Issues }

@@ -55,7 +55,6 @@ import {
   CurrentUser
 } from '../utils'; */
 import handleRequiredAuthentication from '../../../app/utils/handleRequiredAuthentication';
-import { isLoggedIn } from '../../../app/types';
 import ListFooter from '../../../components/controls/ListFooter';
 import EmptySearch from '../../../components/common/EmptySearch';
 import FiltersHeader from '../../../components/common/FiltersHeader';
