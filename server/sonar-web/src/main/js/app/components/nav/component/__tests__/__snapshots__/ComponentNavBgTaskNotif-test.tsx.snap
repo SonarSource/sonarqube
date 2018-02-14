@@ -27,11 +27,12 @@ exports[`renders background task license info correctly 1`] = `
 <NavBarNotif
   className="alert alert-danger"
 >
-  <span>
+  <span
+    className="little-spacer-right"
+  >
     Foo
   </span>
   <Link
-    className="little-spacer-left"
     onlyActiveOnIndex={false}
     style={Object {}}
     to="/admin/extension/license/app"
@@ -39,6 +40,19 @@ exports[`renders background task license info correctly 1`] = `
     license.component_navigation.button.LICENSING
     .
   </Link>
+</NavBarNotif>
+`;
+
+exports[`renders background task license info correctly 2`] = `
+<NavBarNotif
+  className="alert alert-danger"
+>
+  <span
+    className="little-spacer-right"
+  >
+    Foo
+  </span>
+  please_contact_administrator
 </NavBarNotif>
 `;
 
