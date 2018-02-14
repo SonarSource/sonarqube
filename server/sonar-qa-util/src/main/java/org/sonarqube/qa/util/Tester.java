@@ -207,6 +207,11 @@ public class Tester extends ExternalResource implements TesterSession {
     return rootSession.qGates();
   }
 
+  @Override
+  public WebhookTester webhooks() {
+    return rootSession.webhooks();
+  }
+
   private static class TesterSessionImpl implements TesterSession {
     private final WsClient client;
 
@@ -261,6 +266,11 @@ public class Tester extends ExternalResource implements TesterSession {
     @Override
     public QGateTester qGates() {
       return new QGateTester(this);
+    }
+
+    @Override
+    public WebhookTester webhooks() {
+      return new WebhookTester(this);
     }
   }
 }

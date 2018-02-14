@@ -41,4 +41,6 @@ public interface TesterSession {
 
   QGateTester qGates();
 
+  WebhookTester webhooks();
+
 }

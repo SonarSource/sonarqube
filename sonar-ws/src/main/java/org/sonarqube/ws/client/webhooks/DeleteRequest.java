@@ -17,28 +17,32 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonarqube.tests.webhook;
+package org.sonarqube.ws.client.webhooks;
 
-import com.sonar.orchestrator.Orchestrator;
-import org.junit.ClassRule;
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
+import java.util.List;
+import javax.annotation.Generated;
 
-import static util.ItUtils.xooPlugin;
+/**
+ * This is part of the internal API.
+ * This is a POST request.
+ * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/webhooks/delete">Further information about this action online (including a response example)</a>
+ * @since 7.1
+ */
+@Generated("sonar-ws-generator")
+public class DeleteRequest {
 
-@RunWith(Suite.class)
-@Suite.SuiteClasses({
-  WebhooksPageTest.class,
-  WebhooksTest.class
-})
-public class WebhooksSuite {
+  private String webhook;
 
-  @ClassRule
-  public static final Orchestrator ORCHESTRATOR = Orchestrator.builderEnv()
-    .addPlugin(xooPlugin())
+  /**
+   * This is a mandatory parameter.
+   * Example value: "my_project"
+   */
+  public DeleteRequest setWebhook(String webhook) {
+    this.webhook = webhook;
+    return this;
+  }
 
-    // reduce memory for Elasticsearch
-    .setServerProperty("sonar.search.javaOpts", "-Xms128m -Xmx128m")
-
-    .build();
+  public String getWebhook() {
+    return webhook;
+  }
 }
