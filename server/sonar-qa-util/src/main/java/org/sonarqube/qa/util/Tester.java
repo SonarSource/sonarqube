@@ -114,6 +114,7 @@ public class Tester extends ExternalResource implements TesterSession {
     projects().deleteAll();
     settings().deleteAll();
     qGates().deleteAll();
+    webhooks().deleteAllGlobal();
   }
 
   public TesterSession asAnonymous() {

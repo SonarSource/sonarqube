@@ -60,12 +60,6 @@ public class WebhooksTest {
     externalServer.clear();
   }
 
-  @Before
-  @After
-  public void reset() {
-    tester.webhooks().deleteAllGlobal();
-  }
-
   @Test
   public void call_multiple_global_and_project_webhooks_when_analysis_is_done() throws InterruptedException {
     Project project = tester.projects().provision();
