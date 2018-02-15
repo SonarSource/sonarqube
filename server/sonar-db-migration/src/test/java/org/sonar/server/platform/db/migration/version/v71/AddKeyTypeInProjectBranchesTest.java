@@ -17,26 +17,40 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
 package org.sonar.server.platform.db.migration.version.v71;
 
+import java.sql.SQLException;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.sonar.db.CoreDbTester;
 
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationCount;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
+import static java.sql.Types.VARCHAR;
 
-public class DbVersion71Test {
+public class AddKeyTypeInProjectBranchesTest {
+  public static final String TABLE_NAME = "project_branches";
 
-  private DbVersion71 underTest = new DbVersion71();
+  @Rule
+  public final CoreDbTester dbTester = CoreDbTester.createForSchema(AddKeyTypeInProjectBranchesTest.class, TABLE_NAME + ".sql");
+
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
+
+  private AddKeyTypeInProjectBranches underTest = new AddKeyTypeInProjectBranches(dbTester.database());
 
   @Test
-  public void migrationNumber_starts_at_2000() {
-    verifyMinimumMigrationNumber(underTest, 2000);
+  public void column_is_added_to_table() throws SQLException {
+    underTest.execute();
+
+    dbTester.assertColumnDefinition(TABLE_NAME, "key_type", VARCHAR, null, true);
   }
 
   @Test
-  public void verify_migration_count() {
-    verifyMigrationCount(underTest, 18);
-  }
+  public void migration_is_not_reentrant() throws SQLException {
+    underTest.execute();
 
+    expectedException.expect(IllegalStateException.class);
+
+    underTest.execute();
+  }
 }

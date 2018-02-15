@@ -41,6 +41,10 @@ public class DbVersion71 implements DbVersion {
       .add(2011, "Drop table PROJECT_LINKS", DropTableProjectLinks.class)
       .add(2012, "Rename table PROJECT_LINKS2 to PROJECT_LINKS", RenameTableProjectLinks2ToProjectLinks.class)
       .add(2013, "Increase branch type size in PROJECT_BRANCHES", IncreaseBranchTypeSizeForPullRequest.class)
+      .add(2014, "Add key_type column in PROJECT_BRANCHES", AddKeyTypeInProjectBranches.class)
+      .add(2015, "Fill key_type column in PROJECT_BRANCHES", SetKeyTypeToBranchInProjectBranches.class)
+      .add(2016, "Make key_type not nullable in PROJECT_BRANCHES", MakeKeyTypeNotNullableInProjectBranches.class)
+      .add(2017, "Replace index in PROJECT_BRANCHES", ReplaceIndexInProjectBranches.class)
     ;
   }
 }
