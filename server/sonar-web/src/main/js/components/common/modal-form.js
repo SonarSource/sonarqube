@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import escapeHtml from 'escape-html';
 import ModalView from './modals';
 
 export default ModalView.extend({
@@ -60,13 +61,13 @@ export default ModalView.extend({
     const container = this.ui.messagesContainer.empty();
     if (Array.isArray(errors)) {
       errors.forEach(error => {
-        const html = `<div class="alert alert-danger">${error.msg}</div>`;
+        const html = `<div class="alert alert-danger">${escapeHtml(error.msg)}</div>`;
         container.append(html);
       });
     }
     if (Array.isArray(warnings)) {
       warnings.forEach(warn => {
-        const html = `<div class="alert alert-warning">${warn.msg}</div>`;
+        const html = `<div class="alert alert-warning">${escapeHtml(warn.msg)}</div>`;
         container.append(html);
       });
     }

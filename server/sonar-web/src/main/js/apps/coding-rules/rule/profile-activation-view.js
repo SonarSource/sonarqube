@@ -19,6 +19,7 @@
  */
 import $ from 'jquery';
 import Backbone from 'backbone';
+import escapeHtml from 'escape-html';
 import ModalForm from '../../../components/common/modal-form';
 import Template from '../templates/rule/coding-rules-profile-activation.hbs';
 import { csvEscape } from '../../../helpers/csv';
@@ -49,7 +50,9 @@ export default ModalForm.extend({
 
     this.ui.qualityProfileSelect.select2({
       width: '250px',
-      minimumResultsForSearch: 5
+      minimumResultsForSearch: 5,
+      escapeMarkup: escapeHtml,
+      formatResult: result => result.text
     });
 
     const that = this;
@@ -157,7 +160,7 @@ export default ModalForm.extend({
     const availableProfiles = this.getAvailableQualityProfiles(this.options.rule.get('lang'));
     const contextProfile = this.options.app.state.get('query').qprofile;
 
-    // decrease depth by 1, so the top level starts at 0
+    // decrease depth by 1, so the top level starts at 0, and escape name to prevent xss
     const profilesWithDepth = sortProfiles(availableProfiles).map(profile => ({
       ...profile,
       depth: profile.depth - 1

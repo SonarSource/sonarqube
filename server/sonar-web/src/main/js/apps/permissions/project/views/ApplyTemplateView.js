@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import escapeHtml from 'escape-html';
 import ModalForm from '../../../../components/common/modal-form';
 import { applyTemplateToProject, getPermissionTemplates } from '../../../../api/permissions';
 import Template from '../templates/ApplyTemplateTemplate.hbs';
@@ -40,7 +41,9 @@ export default ModalForm.extend({
     ModalForm.prototype.onRender.apply(this, arguments);
     this.$('#project-permissions-template').select2({
       width: '250px',
-      minimumResultsForSearch: 20
+      minimumResultsForSearch: 20,
+      escapeMarkup: escapeHtml,
+      formatResult: result => result.text
     });
   },
 

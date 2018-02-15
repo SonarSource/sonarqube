@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import $ from 'jquery';
+import escapeHtml from 'escape-html';
 import { difference, union } from 'lodash';
 import Marionette from 'backbone.marionette';
 import RuleFilterMixin from './rule-filter-mixin';
@@ -62,7 +63,9 @@ export default Marionette.ItemView.extend(RuleFilterMixin).extend({
       tags => {
         this.ui.tagInput.select2({
           tags: difference(difference(tags, this.model.get('tags')), this.model.get('sysTags')),
-          width: '300px'
+          width: '300px',
+          escapeMarkup: escapeHtml,
+          formatResult: result => result.text
         });
 
         this.ui.tagsEdit.removeClass('hidden');

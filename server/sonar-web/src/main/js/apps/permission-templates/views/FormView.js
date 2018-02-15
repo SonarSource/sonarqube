@@ -26,10 +26,6 @@ export default ModalForm.extend({
   onRender() {
     ModalForm.prototype.onRender.apply(this, arguments);
     this.$('[data-toggle="tooltip"]').tooltip({ container: 'body', placement: 'bottom' });
-    this.$('#create-custom-measure-metric').select2({
-      width: '250px',
-      minimumResultsForSearch: 20
-    });
   },
 
   onDestroy() {
