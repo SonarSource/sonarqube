@@ -22,17 +22,24 @@ package org.sonar.db.webhook;
 import java.util.List;
 import javax.annotation.CheckForNull;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.session.RowBounds;
 
 public interface WebhookDeliveryMapper {
 
   @CheckForNull
   WebhookDeliveryDto selectByUuid(@Param("uuid") String uuid);
 
-  List<WebhookDeliveryLiteDto> selectByWebhookUuid(@Param("webhookUuid") String webhookUuid);
+  int countByWebhookUuid(@Param("webhookUuid") String webhookUuid);
 
-  List<WebhookDeliveryLiteDto> selectOrderedByComponentUuid(@Param("componentUuid") String componentUuid);
+  List<WebhookDeliveryLiteDto> selectByWebhookUuid(@Param("webhookUuid") String webhookUuid, RowBounds rowBounds);
 
-  List<WebhookDeliveryLiteDto> selectOrderedByCeTaskUuid(@Param("ceTaskUuid") String ceTaskUuid);
+  int countByComponentUuid(@Param("componentUuid") String componentUuid);
+
+  List<WebhookDeliveryLiteDto> selectOrderedByComponentUuid(@Param("componentUuid") String componentUuid, RowBounds rowBounds);
+
+  int countByCeTaskUuid(@Param("ceTaskUuid") String ceTaskId);
+
+  List<WebhookDeliveryLiteDto> selectOrderedByCeTaskUuid(@Param("ceTaskUuid") String ceTaskUuid, RowBounds rowBounds);
 
   void insert(WebhookDeliveryDto dto);
 
