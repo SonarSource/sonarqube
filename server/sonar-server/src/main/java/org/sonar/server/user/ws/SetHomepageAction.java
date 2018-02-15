@@ -37,10 +37,8 @@ import static com.google.common.base.Preconditions.checkState;
 import static java.lang.String.format;
 import static org.apache.commons.lang.StringUtils.isBlank;
 import static org.apache.commons.lang.StringUtils.isNotBlank;
-import static org.sonar.server.user.ws.HomepageType.ORGANIZATION;
-import static org.sonar.server.user.ws.HomepageType.PROJECT;
-import static org.sonar.server.user.ws.HomepageType.keys;
-import static org.sonar.server.user.ws.HomepageType.valueOf;
+import static org.sonar.server.user.ws.HomepageTypes.Type.ORGANIZATION;
+import static org.sonar.server.user.ws.HomepageTypes.Type.PROJECT;
 import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 
@@ -56,11 +54,13 @@ public class SetHomepageAction implements UsersWsAction {
   private final UserSession userSession;
   private final DbClient dbClient;
   private final ComponentFinder componentFinder;
+  private HomepageTypes homepageTypes;
 
-  public SetHomepageAction(UserSession userSession, DbClient dbClient, ComponentFinder componentFinder) {
+  public SetHomepageAction(UserSession userSession, DbClient dbClient, ComponentFinder componentFinder, HomepageTypes homepageTypes) {
     this.userSession = userSession;
     this.dbClient = dbClient;
     this.componentFinder = componentFinder;
+    this.homepageTypes = homepageTypes;
   }
 
   @Override
@@ -77,7 +77,7 @@ public class SetHomepageAction implements UsersWsAction {
     action.createParam(PARAM_TYPE)
       .setDescription("Type of the requested page")
       .setRequired(true)
-      .setPossibleValues(keys());
+      .setPossibleValues(homepageTypes.getTypes());
 
     action.createParam(PARAM_ORGANIZATION)
       .setDescription("Organization key. It should only be used when parameter '%s' is set to '%s'", PARAM_TYPE, ORGANIZATION)
@@ -100,7 +100,7 @@ public class SetHomepageAction implements UsersWsAction {
   @Override
   public void handle(Request request, Response response) throws Exception {
     userSession.checkLoggedIn();
-    HomepageType type = valueOf(request.mandatoryParam(PARAM_TYPE));
+    HomepageTypes.Type type = request.mandatoryParamAsEnum(PARAM_TYPE, HomepageTypes.Type.class);
     String componentParameter = request.param(PARAM_COMPONENT);
     String organizationParameter = request.param(PARAM_ORGANIZATION);
 
@@ -120,7 +120,7 @@ public class SetHomepageAction implements UsersWsAction {
   }
 
   @CheckForNull
-  private String getHomepageParameter(DbSession dbSession, HomepageType type, @Nullable String componentParameter, @Nullable String branchParameter,
+  private String getHomepageParameter(DbSession dbSession, HomepageTypes.Type type, @Nullable String componentParameter, @Nullable String branchParameter,
     @Nullable String organizationParameter) {
     switch (type) {
       case PROJECT:

@@ -119,6 +119,7 @@ message CurrentWsResponse {
     ORGANIZATION = 2;
     MY_PROJECTS = 3;
     MY_ISSUES = 4;
+    PROJECTS = 5;
   }
 
   message Homepage {
