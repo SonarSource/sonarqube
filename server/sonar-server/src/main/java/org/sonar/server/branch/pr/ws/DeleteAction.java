@@ -76,7 +76,7 @@ public class DeleteAction implements PullRequestWsAction {
       ComponentDto project = componentFinder.getRootComponentByUuidOrKey(dbSession, null, projectKey);
       checkPermission(project);
 
-      BranchDto pullRequest = dbClient.branchDao().selectByKey(dbSession, project.uuid(), pullRequestId)
+      BranchDto pullRequest = dbClient.branchDao().selectByPullRequestKey(dbSession, project.uuid(), pullRequestId)
         .filter(branch -> branch.getBranchType() == PULL_REQUEST)
         .orElseThrow(() -> new NotFoundException(String.format("Pull request '%s' is not found for project '%s'", pullRequestId, projectKey)));
 

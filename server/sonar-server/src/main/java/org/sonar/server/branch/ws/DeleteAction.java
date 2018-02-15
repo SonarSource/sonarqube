@@ -76,7 +76,7 @@ public class DeleteAction implements BranchWsAction {
       checkPermission(project);
 
       BranchDto branch = checkFoundWithOptional(
-        dbClient.branchDao().selectByKey(dbSession, project.uuid(), branchKey),
+        dbClient.branchDao().selectByBranchKey(dbSession, project.uuid(), branchKey),
         "Branch '%s' not found for project '%s'", branchKey, projectKey);
 
       if (branch.isMain()) {

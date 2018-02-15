@@ -19,25 +19,8 @@
  */
 package org.sonar.db.component;
 
-import java.util.Collection;
-import java.util.List;
-import org.apache.ibatis.annotations.Param;
+public enum KeyType {
+  BRANCH,
 
-public interface BranchMapper {
-
-  void insert(@Param("dto") BranchDto dto, @Param("now") long now);
-
-  int update(@Param("dto") BranchDto dto, @Param("now") long now);
-
-  int updateMainBranchName(@Param("projectUuid") String projectUuid, @Param("newBranchName") String newBranchName, @Param("now") long now);
-
-  BranchDto selectByKey(@Param("projectUuid") String projectUuid, @Param("key") String key, @Param("keyType") KeyType keyType);
-
-  BranchDto selectByUuid(@Param("uuid") String uuid);
-
-  Collection<BranchDto> selectByProjectUuid(@Param("projectUuid") String projectUuid);
-
-  List<BranchDto> selectByUuids(@Param("uuids") Collection<String> uuids);
-
-  long countNonMainBranches();
+  PULL_REQUEST
 }
