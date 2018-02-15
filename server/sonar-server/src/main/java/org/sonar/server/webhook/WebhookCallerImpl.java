@@ -65,12 +65,14 @@ public class WebhookCallerImpl implements WebhookCaller {
       Request request = buildHttpRequest(webhook, payload);
       try (Response response = execute(request)) {
         builder.setHttpStatus(response.code());
-        builder.setDurationInMs((int) (system.now() - startedAt));
       }
     } catch (Exception e) {
       builder.setError(e);
     }
-    return builder.build();
+
+    return builder
+      .setDurationInMs((int) (system.now() - startedAt))
+      .build();
   }
 
   private static Request buildHttpRequest(Webhook webhook, WebhookPayload payload) {

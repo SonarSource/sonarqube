@@ -42,6 +42,7 @@ import static java.util.Objects.requireNonNull;
 import static org.apache.commons.lang.StringUtils.isNotBlank;
 import static org.sonar.api.server.ws.WebService.Param.PAGE;
 import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
+import static org.sonar.api.utils.Paging.offset;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_02;
 import static org.sonar.server.es.SearchOptions.MAX_LIMIT;
 import static org.sonar.server.webhook.ws.WebhookWsSupport.copyDtoToProtobuf;
@@ -115,17 +116,17 @@ public class WebhookDeliveriesAction implements WebhooksWsAction {
     int totalElements;
     try (DbSession dbSession = dbClient.openSession(false)) {
       if (isNotBlank(webhookUuid)) {
-        deliveries = dbClient.webhookDeliveryDao().selectByWebhookUuid(dbSession, webhookUuid, page - 1, pageSize);
-        component = getComponentDto(dbSession, deliveries);
         totalElements = dbClient.webhookDeliveryDao().countDeliveriesByWebhookUuid(dbSession, webhookUuid);
+        deliveries = dbClient.webhookDeliveryDao().selectByWebhookUuid(dbSession, webhookUuid, offset(page, pageSize), pageSize);
+        component = getComponentDto(dbSession, deliveries);
       } else if (componentKey != null) {
         component = componentFinder.getByKey(dbSession, componentKey);
-        deliveries = dbClient.webhookDeliveryDao().selectOrderedByComponentUuid(dbSession, component.uuid(), page - 1, pageSize);
         totalElements = dbClient.webhookDeliveryDao().countDeliveriesByComponentUuid(dbSession, component.uuid());
+        deliveries = dbClient.webhookDeliveryDao().selectOrderedByComponentUuid(dbSession, component.uuid(), offset(page, pageSize), pageSize);
       } else {
-        deliveries = dbClient.webhookDeliveryDao().selectOrderedByCeTaskUuid(dbSession, ceTaskId, page - 1, pageSize);
-        component = getComponentDto(dbSession, deliveries);
         totalElements = dbClient.webhookDeliveryDao().countDeliveriesByCeTaskUuid(dbSession, ceTaskId);
+        deliveries = dbClient.webhookDeliveryDao().selectOrderedByCeTaskUuid(dbSession, ceTaskId, offset(page, pageSize), pageSize);
+        component = getComponentDto(dbSession, deliveries);
       }
     }
     return new Data(component, deliveries).withPagingInfo(page, pageSize, totalElements);

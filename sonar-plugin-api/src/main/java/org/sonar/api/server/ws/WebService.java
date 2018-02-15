@@ -244,6 +244,7 @@ public interface WebService extends Definable<WebService.Context> {
 
   class NewAction {
     private final String key;
+    private static final String PAGE_PARAM_DESCRIPTION = "1-based page number";
     private String deprecatedKey;
     private String description;
     private String since;
@@ -353,7 +354,7 @@ public interface WebService extends Definable<WebService.Context> {
      */
     public NewAction addPagingParams(int defaultPageSize) {
       createParam(Param.PAGE)
-        .setDescription("1-based page number")
+        .setDescription(PAGE_PARAM_DESCRIPTION)
         .setExampleValue("42")
         .setDeprecatedKey("pageIndex", "5.2")
         .setDefaultValue("1");
@@ -378,7 +379,7 @@ public interface WebService extends Definable<WebService.Context> {
 
     public NewParam createPageParam() {
       return createParam(Param.PAGE)
-        .setDescription("1-based page number")
+        .setDescription(PAGE_PARAM_DESCRIPTION)
         .setExampleValue("42")
         .setDeprecatedKey("pageIndex", "5.2")
         .setDefaultValue("1");
@@ -395,11 +396,11 @@ public interface WebService extends Definable<WebService.Context> {
 
     /**
      * Add predefined parameters related to pagination of results with a maximum page size.
-     * Note the maximum is a documentation only feature. It does not check anything.
+     * @since 7.1
      */
     public NewAction addPagingParamsSince(int defaultPageSize, int maxPageSize, String version) {
       createParam(Param.PAGE)
-        .setDescription("1-based page number")
+        .setDescription(PAGE_PARAM_DESCRIPTION)
         .setExampleValue("42")
         .setDefaultValue("1")
         .setSince(version);
