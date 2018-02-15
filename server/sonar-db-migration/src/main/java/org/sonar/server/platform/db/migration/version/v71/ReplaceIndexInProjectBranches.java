@@ -29,7 +29,7 @@ import org.sonar.server.platform.db.migration.step.DdlChange;
 public class ReplaceIndexInProjectBranches extends DdlChange {
 
   static final String TABLE_NAME = "project_branches";
-  static final String INDEX_NAME = "project_branches_kee";
+  static final String INDEX_NAME = "project_branches_kee_key_type";
 
   static final VarcharColumnDef PROJECT_UUID_COLUMN = VarcharColumnDef.newVarcharColumnDefBuilder()
     .setColumnName("project_uuid")
