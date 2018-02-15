@@ -6,6 +6,7 @@
     pb.uuid as uuid,
     pb.project_uuid as projectUuid,
     pb.kee as kee,
+    pb.key_type as keyType,
     pb.branch_type as branchType,
     pb.merge_branch_uuid as mergeBranchUuid
   </sql>
@@ -15,6 +16,7 @@
       uuid,
       project_uuid,
       kee,
+      key_type,
       branch_type,
       merge_branch_uuid,
       created_at,
@@ -23,6 +25,7 @@
       #{dto.uuid, jdbcType=VARCHAR},
       #{dto.projectUuid, jdbcType=VARCHAR},
       #{dto.kee, jdbcType=VARCHAR},
+      #{dto.keyType, jdbcType=VARCHAR},
       #{dto.branchType, jdbcType=VARCHAR},
       #{dto.mergeBranchUuid, jdbcType=VARCHAR},
       #{now, jdbcType=BIGINT},
@@ -53,7 +56,8 @@
     from project_branches pb
     where
     pb.project_uuid = #{projectUuid, jdbcType=VARCHAR} and
-    pb.kee = #{key, jdbcType=VARCHAR}
+    pb.kee = #{key, jdbcType=VARCHAR} and
+    pb.key_type = #{keyType, jdbcType=VARCHAR}
   </select>
 
   <select id="selectByProjectUuid" parameterType="string" resultType="org.sonar.db.component.BranchDto">
