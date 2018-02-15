@@ -27,7 +27,7 @@ import org.sonar.server.platform.db.migration.step.DdlChange;
 import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.newVarcharColumnDefBuilder;
 
 public class MakeKeyTypeNotNullableInProjectBranches extends DdlChange {
-  private static final String TABLE_NAME = "project_branches";
+  static final String TABLE_NAME = "project_branches";
 
   public MakeKeyTypeNotNullableInProjectBranches(Database db) {
     super(db);

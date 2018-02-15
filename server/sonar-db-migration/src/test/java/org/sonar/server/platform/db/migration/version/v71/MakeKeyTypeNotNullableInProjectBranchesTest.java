@@ -27,9 +27,9 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.rule.RuleScope;
 import org.sonar.db.CoreDbTester;
 
-public class MakeKeyTypeNotNullableInProjectBranchesTest {
-  public static final String TABLE_NAME = "project_branches";
+import static org.sonar.server.platform.db.migration.version.v71.MakeKeyTypeNotNullableInProjectBranches.TABLE_NAME;
 
+public class MakeKeyTypeNotNullableInProjectBranchesTest {
   @Rule
   public CoreDbTester db = CoreDbTester.createForSchema(MakeKeyTypeNotNullableInProjectBranchesTest.class, "project_branches.sql");
   @Rule
