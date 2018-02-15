@@ -54,17 +54,16 @@ it('restores access', async () => {
 });
 
 it('applies permission template', () => {
-  const onApplyTemplate = jest.fn();
-  const wrapper = shallowRender({ onApplyTemplate });
+  const wrapper = shallowRender();
   click(wrapper.find('.js-apply-template'));
-  expect(onApplyTemplate).toBeCalledWith(project);
+  expect(wrapper.find('ApplyTemplate')).toMatchSnapshot();
 });
 
 function shallowRender(props: Partial<Props> = {}) {
   const wrapper = shallow(
     <ProjectRowActions
       currentUser={{ login: 'admin' }}
-      onApplyTemplate={jest.fn()}
+      organization="org"
       project={project}
       {...props}
     />

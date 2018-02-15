@@ -1,5 +1,22 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`applies permission template 1`] = `
+<ApplyTemplate
+  onClose={[Function]}
+  organization="org"
+  project={
+    Object {
+      "id": "",
+      "key": "project",
+      "name": "Project",
+      "organization": "org",
+      "qualifier": "TRK",
+      "visibility": "private",
+    }
+  }
+/>
+`;
+
 exports[`restores access 1`] = `
 <ActionsDropdown
   onToggleClick={[Function]}

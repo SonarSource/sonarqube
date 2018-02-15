@@ -29,8 +29,8 @@ import DateTooltipFormatter from '../../components/intl/DateTooltipFormatter';
 
 interface Props {
   currentUser: { login: string };
-  onApplyTemplate: (project: Project) => void;
   onProjectCheck: (project: Project, checked: boolean) => void;
+  organization: string | undefined;
   project: Project;
   selected: boolean;
 }
@@ -51,8 +51,8 @@ export default class ProjectRow extends React.PureComponent<Props> {
 
         <td className="nowrap">
           <Link
-            to={{ pathname: '/dashboard', query: { id: project.key } }}
-            className="link-with-icon">
+            className="link-with-icon"
+            to={{ pathname: '/dashboard', query: { id: project.key } }}>
             <QualifierIcon qualifier={project.qualifier} /> <span>{project.name}</span>
           </Link>
         </td>
@@ -78,7 +78,7 @@ export default class ProjectRow extends React.PureComponent<Props> {
         <td className="thin nowrap">
           <ProjectRowActions
             currentUser={this.props.currentUser}
-            onApplyTemplate={this.props.onApplyTemplate}
+            organization={this.props.organization}
             project={project}
           />
         </td>

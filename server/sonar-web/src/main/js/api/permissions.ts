@@ -120,8 +120,8 @@ export function setDefaultPermissionTemplate(templateId: string, qualifier: stri
   return post('/api/permissions/set_default_template', { templateId, qualifier });
 }
 
-export function applyTemplateToProject(data: RequestData): Promise<void> {
-  return post('/api/permissions/apply_template', data);
+export function applyTemplateToProject(data: RequestData) {
+  return post('/api/permissions/apply_template', data).catch(throwGlobalError);
 }
 
 export function bulkApplyTemplate(data: BaseSearchProjectsParameters): Promise<void> {

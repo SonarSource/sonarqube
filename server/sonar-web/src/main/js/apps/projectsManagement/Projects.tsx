@@ -21,7 +21,6 @@ import * as React from 'react';
 import * as classNames from 'classnames';
 import ProjectRow from './ProjectRow';
 import { Project } from './utils';
-import ApplyTemplateView from '../permissions/project/views/ApplyTemplateView';
 import { Organization } from '../../app/types';
 import { translate } from '../../helpers/l10n';
 
@@ -35,17 +34,19 @@ interface Props {
   selection: string[];
 }
 
-export default class Projects extends React.PureComponent<Props> {
+interface State {
+  applyTemplate: boolean;
+}
+
+export default class Projects extends React.PureComponent<Props, State> {
+  state: State = { applyTemplate: false };
+
   onProjectCheck = (project: Project, checked: boolean) => {
     if (checked) {
       this.props.onProjectSelected(project.key);
     } else {
       this.props.onProjectDeselected(project.key);
     }
-  };
-
-  handleApplyTemplate = (project: Project) => {
-    new ApplyTemplateView({ project, organization: this.props.organization }).render();
   };
 
   render() {
@@ -69,8 +70,8 @@ export default class Projects extends React.PureComponent<Props> {
               <ProjectRow
                 currentUser={this.props.currentUser}
                 key={project.key}
-                onApplyTemplate={this.handleApplyTemplate}
                 onProjectCheck={this.onProjectCheck}
+                organization={this.props.organization && this.props.organization.key}
                 project={project}
                 selected={this.props.selection.includes(project.key)}
               />

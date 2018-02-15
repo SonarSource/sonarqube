@@ -17,13 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-/* eslint-disable import/first */
-jest.mock('../../permissions/project/views/ApplyTemplateView');
-
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import Projects from '../Projects';
-import ApplyTemplateView from '../../permissions/project/views/ApplyTemplateView';
 import { Visibility } from '../../../app/types';
 
 const organization = { key: 'org', name: 'org', projectVisibility: 'public' };
@@ -53,15 +49,6 @@ it('selects and deselects project', () => {
     .first()
     .prop<Function>('onProjectCheck')(projects[0], false);
   expect(onProjectDeselected).toBeCalledWith('a');
-});
-
-it('opens modal to apply permission template', () => {
-  const wrapper = shallowRender({ projects });
-  wrapper
-    .find('ProjectRow')
-    .first()
-    .prop<Function>('onApplyTemplate')(projects[0]);
-  expect(ApplyTemplateView).toBeCalledWith({ organization, project: projects[0] });
 });
 
 function shallowRender(props?: any) {

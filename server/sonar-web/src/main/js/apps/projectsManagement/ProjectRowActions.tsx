@@ -20,6 +20,7 @@
 import * as React from 'react';
 import RestoreAccessModal from './RestoreAccessModal';
 import { Project } from './utils';
+import ApplyTemplate from '../permissions/project/components/ApplyTemplate';
 import { getComponentShow } from '../../api/components';
 import { getComponentNavigation } from '../../api/nav';
 import ActionsDropdown, { ActionsDropdownItem } from '../../components/controls/ActionsDropdown';
@@ -28,11 +29,12 @@ import { getComponentPermissionsUrl } from '../../helpers/urls';
 
 export interface Props {
   currentUser: { login: string };
-  onApplyTemplate: (project: Project) => void;
+  organization: string | undefined;
   project: Project;
 }
 
 interface State {
+  applyTemplateModal: boolean;
   hasAccess?: boolean;
   loading: boolean;
   restoreAccessModal: boolean;
@@ -40,7 +42,7 @@ interface State {
 
 export default class ProjectRowActions extends React.PureComponent<Props, State> {
   mounted = false;
-  state: State = { loading: false, restoreAccessModal: false };
+  state: State = { applyTemplateModal: false, loading: false, restoreAccessModal: false };
 
   componentDidMount() {
     this.mounted = true;
@@ -81,7 +83,13 @@ export default class ProjectRowActions extends React.PureComponent<Props, State>
   };
 
   handleApplyTemplateClick = () => {
-    this.props.onApplyTemplate(this.props.project);
+    this.setState({ applyTemplateModal: true });
+  };
+
+  handleApplyTemplateClose = () => {
+    if (this.mounted) {
+      this.setState({ applyTemplateModal: false });
+    }
   };
 
   handleRestoreAccessClick = () => {
@@ -122,6 +130,14 @@ export default class ProjectRowActions extends React.PureComponent<Props, State>
             currentUser={this.props.currentUser}
             onClose={this.handleRestoreAccessClose}
             onRestoreAccess={this.handleRestoreAccessDone}
+            project={this.props.project}
+          />
+        )}
+
+        {this.state.applyTemplateModal && (
+          <ApplyTemplate
+            onClose={this.handleApplyTemplateClose}
+            organization={this.props.organization}
             project={this.props.project}
           />
         )}

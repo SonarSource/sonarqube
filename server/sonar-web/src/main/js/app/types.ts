@@ -99,6 +99,7 @@ export interface Component extends LightComponent {
 }
 
 interface ComponentConfiguration {
+  canApplyPermissionTemplate?: boolean;
   extensions?: Extension[];
   showBackgroundTasks?: boolean;
   showLinks?: boolean;
