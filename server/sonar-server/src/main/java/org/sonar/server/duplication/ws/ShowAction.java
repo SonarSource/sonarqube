@@ -37,11 +37,15 @@ import org.sonar.server.user.UserSession;
 import static com.google.common.base.Preconditions.checkArgument;
 import static org.sonar.server.component.ComponentFinder.ParamNames.UUID_AND_KEY;
 import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
+import static org.sonar.server.ws.KeyExamples.KEY_PULL_REQUEST_EXAMPLE_001;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
-import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_BRANCH;
 
 public class ShowAction implements DuplicationsWsAction {
 
+  private static final String PARAM_KEY = "key";
+  private static final String PARAM_UUID = "uuid";
+  private static final String PARAM_BRANCH = "branch";
+  private static final String PARAM_PULL_REQUEST = "pullRequest";
   private final DbClient dbClient;
   private final DuplicationsParser parser;
   private final ShowResponseBuilder responseBuilder;
@@ -68,21 +72,28 @@ public class ShowAction implements DuplicationsWsAction {
       new Change("6.5", "The fields 'uuid', 'projectUuid', 'subProjectUuid' are deprecated in the response."));
 
     action
-      .createParam("key")
+      .createParam(PARAM_KEY)
       .setDescription("File key")
       .setExampleValue("my_project:/src/foo/Bar.php");
 
     action
-      .createParam("uuid")
+      .createParam(PARAM_UUID)
       .setDeprecatedSince("6.5")
       .setDescription("File ID. If provided, 'key' must not be provided.")
       .setExampleValue("584a89f2-8037-4f7b-b82c-8b45d2d63fb2");
 
     action
-      .createParam("branch")
+      .createParam(PARAM_BRANCH)
       .setDescription("Branch key")
       .setInternal(true)
       .setExampleValue(KEY_BRANCH_EXAMPLE_001);
+
+    action
+      .createParam(PARAM_PULL_REQUEST)
+      .setDescription("Pull request id")
+      .setInternal(true)
+      .setSince("7.1")
+      .setExampleValue(KEY_PULL_REQUEST_EXAMPLE_001);
   }
 
   @Override
@@ -98,13 +109,15 @@ public class ShowAction implements DuplicationsWsAction {
   }
 
   private ComponentDto loadComponent(DbSession dbSession, Request request) {
-    String componentUuid = request.param("uuid");
-    String branch = request.param("branch");
-    checkArgument(componentUuid == null || branch == null, "'%s' and '%s' parameters cannot be used at the same time", "uuid", PARAM_BRANCH);
+    String componentUuid = request.param(PARAM_UUID);
+    String branch = request.param(PARAM_BRANCH);
+    String pullRequest = request.param(PARAM_PULL_REQUEST);
+    checkArgument(componentUuid == null || (branch == null && pullRequest == null),  "Parameter '%s' cannot be used at the same time as '%s' or '%s'", PARAM_UUID,
+      PARAM_BRANCH, PARAM_PULL_REQUEST);
     if (branch == null) {
-      return componentFinder.getByUuidOrKey(dbSession, componentUuid, request.param("key"), UUID_AND_KEY);
+      return componentFinder.getByUuidOrKey(dbSession, componentUuid, request.param(PARAM_KEY), UUID_AND_KEY);
     }
-    return componentFinder.getByKeyAndOptionalBranch(dbSession, request.mandatoryParam("key"), branch);
+    return componentFinder.getByKeyAndOptionalBranchOrPullRequest(dbSession, request.mandatoryParam(PARAM_KEY), branch, pullRequest);
   }
 
   @CheckForNull
