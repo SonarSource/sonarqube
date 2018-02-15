@@ -21,14 +21,25 @@ package org.sonar.server.user.ws;
 
 import java.util.List;
 
-import static java.util.Arrays.stream;
-import static java.util.stream.Collectors.toList;
+public interface HomepageTypes {
 
-public enum HomepageType {
-
-  PROJECT, ORGANIZATION, MY_PROJECTS, MY_ISSUES;
-
-  public static List<String> keys() {
-    return stream(values()).map(Enum::toString).collect(toList());
+  enum Type {
+    PROJECT,
+    /**
+     * This type in only available on SonarQube
+     */
+    PROJECTS,
+    /**
+     * These types are only available on SonarCloud
+     */
+    MY_PROJECTS, MY_ISSUES,
+    /**
+     * This type in only available when organizations are enabled
+     */
+    ORGANIZATION
   }
+
+  List<Type> getTypes();
+
+  Type getDefaultType();
 }

@@ -46,7 +46,6 @@ import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.Users.CurrentWsResponse.Permissions;
 import static org.sonarqube.ws.Users.CurrentWsResponse.newBuilder;
-import static org.sonarqube.ws.Users.CurrentWsResponse.HomepageType.MY_PROJECTS;
 import static org.sonarqube.ws.Users.CurrentWsResponse.HomepageType.ORGANIZATION;
 import static org.sonarqube.ws.Users.CurrentWsResponse.HomepageType.PROJECT;
 import static org.sonarqube.ws.client.user.UsersWsParameters.ACTION_CURRENT;
@@ -57,13 +56,15 @@ public class CurrentAction implements UsersWsAction {
   private final DbClient dbClient;
   private final DefaultOrganizationProvider defaultOrganizationProvider;
   private final AvatarResolver avatarResolver;
+  private final HomepageTypes homepageTypes;
 
   public CurrentAction(UserSession userSession, DbClient dbClient, DefaultOrganizationProvider defaultOrganizationProvider,
-    AvatarResolver avatarResolver) {
+    AvatarResolver avatarResolver, HomepageTypes homepageTypes) {
     this.userSession = userSession;
     this.dbClient = dbClient;
     this.defaultOrganizationProvider = defaultOrganizationProvider;
     this.avatarResolver = avatarResolver;
+    this.homepageTypes = homepageTypes;
   }
 
   @Override
@@ -154,9 +155,9 @@ public class CurrentAction implements UsersWsAction {
     }
   }
 
-  private static CurrentWsResponse.Homepage defaultHomepage() {
+  private CurrentWsResponse.Homepage defaultHomepage() {
     return CurrentWsResponse.Homepage.newBuilder()
-      .setType(MY_PROJECTS)
+      .setType(CurrentWsResponse.HomepageType.valueOf(homepageTypes.getDefaultType().name()))
       .build();
   }
 
