@@ -19,11 +19,17 @@
  */
 package org.sonar.db.component;
 
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.sonar.db.protobuf.DbProjectBranches;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class BranchDtoTest {
+
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
 
   private BranchDto underTest = new BranchDto();
 
@@ -41,5 +47,31 @@ public class BranchDtoTest {
     underTest.setUuid("U2");
 
     assertThat(underTest.isMain()).isFalse();
+  }
+
+  @Test
+  public void encode_and_decode_pull_request_data() {
+    String branch = "feature/pr1";
+    String title = "Dummy Feature Title";
+    String url = "http://example.com/pullRequests/pr1";
+
+    DbProjectBranches.PullRequestData pullRequestData = DbProjectBranches.PullRequestData.newBuilder()
+      .setBranch(branch)
+      .setTitle(title)
+      .setUrl(url)
+      .build();
+
+    underTest.setPullRequestData(pullRequestData);
+
+    DbProjectBranches.PullRequestData decoded = underTest.getPullRequestData();
+    assertThat(decoded).isNotNull();
+    assertThat(decoded.getBranch()).isEqualTo(branch);
+    assertThat(decoded.getTitle()).isEqualTo(title);
+    assertThat(decoded.getUrl()).isEqualTo(url);
+  }
+
+  @Test
+  public void getPullRequestData_returns_null_when_data_is_null() {
+    assertThat(underTest.getPullRequestData()).isNull();
   }
 }
