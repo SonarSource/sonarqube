@@ -85,7 +85,7 @@ public class BranchDaoTest {
     underTest.insert(dbSession, dto2);
 
     underTest.updateMainBranchName(dbSession, "U1", "master");
-    BranchDto loaded = underTest.selectBranchByKey(dbSession, "U1", "master").get();
+    BranchDto loaded = underTest.selectByBranchKey(dbSession, "U1", "master").get();
     assertThat(loaded.getMergeBranchUuid()).isNull();
     assertThat(loaded.getProjectUuid()).isEqualTo("U1");
     assertThat(loaded.getBranchType()).isEqualTo(BranchType.LONG);
@@ -126,7 +126,7 @@ public class BranchDaoTest {
     dto.setBranchType(BranchType.SHORT);
     underTest.upsert(dbSession, dto);
 
-    BranchDto loaded = underTest.selectBranchByKey(dbSession, "U1", "foo").get();
+    BranchDto loaded = underTest.selectByBranchKey(dbSession, "U1", "foo").get();
     assertThat(loaded.getMergeBranchUuid()).isEqualTo("U3");
     assertThat(loaded.getProjectUuid()).isEqualTo("U1");
     assertThat(loaded.getBranchType()).isEqualTo(BranchType.LONG);
@@ -149,14 +149,14 @@ public class BranchDaoTest {
     dto.setBranchType(BranchType.SHORT);
     underTest.upsert(dbSession, dto);
 
-    BranchDto loaded = underTest.selectPullRequestByKey(dbSession, "U1", "foo").get();
+    BranchDto loaded = underTest.selectByPullRequestKey(dbSession, "U1", "foo").get();
     assertThat(loaded.getMergeBranchUuid()).isEqualTo("U3");
     assertThat(loaded.getProjectUuid()).isEqualTo("U1");
     assertThat(loaded.getBranchType()).isEqualTo(BranchType.PULL_REQUEST);
   }
 
   @Test
-  public void selectBranchByKey() {
+  public void selectByBranchKey() {
     BranchDto mainBranch = new BranchDto();
     mainBranch.setProjectUuid("U1");
     mainBranch.setUuid("U1");
@@ -173,7 +173,7 @@ public class BranchDaoTest {
     underTest.insert(dbSession, featureBranch);
 
     // select the feature branch
-    BranchDto loaded = underTest.selectBranchByKey(dbSession, "U1", "feature/foo").get();
+    BranchDto loaded = underTest.selectByBranchKey(dbSession, "U1", "feature/foo").get();
     assertThat(loaded.getUuid()).isEqualTo(featureBranch.getUuid());
     assertThat(loaded.getKey()).isEqualTo(featureBranch.getKey());
     assertThat(loaded.getProjectUuid()).isEqualTo(featureBranch.getProjectUuid());
@@ -181,11 +181,11 @@ public class BranchDaoTest {
     assertThat(loaded.getMergeBranchUuid()).isEqualTo(featureBranch.getMergeBranchUuid());
 
     // select a branch on another project with same branch name
-    assertThat(underTest.selectBranchByKey(dbSession, "U3", "feature/foo")).isEmpty();
+    assertThat(underTest.selectByBranchKey(dbSession, "U3", "feature/foo")).isEmpty();
   }
 
   @Test
-  public void selectPullRequestByKey() {
+  public void selectByPullRequestKey() {
     BranchDto mainBranch = new BranchDto();
     mainBranch.setProjectUuid("U1");
     mainBranch.setUuid("U1");
@@ -203,7 +203,7 @@ public class BranchDaoTest {
     underTest.insert(dbSession, pullRequest);
 
     // select the feature branch
-    BranchDto loaded = underTest.selectPullRequestByKey(dbSession, "U1", pullRequestId).get();
+    BranchDto loaded = underTest.selectByPullRequestKey(dbSession, "U1", pullRequestId).get();
     assertThat(loaded.getUuid()).isEqualTo(pullRequest.getUuid());
     assertThat(loaded.getKey()).isEqualTo(pullRequest.getKey());
     assertThat(loaded.getProjectUuid()).isEqualTo(pullRequest.getProjectUuid());
@@ -211,7 +211,7 @@ public class BranchDaoTest {
     assertThat(loaded.getMergeBranchUuid()).isEqualTo(pullRequest.getMergeBranchUuid());
 
     // select a branch on another project with same branch name
-    assertThat(underTest.selectPullRequestByKey(dbSession, "U3", pullRequestId)).isEmpty();
+    assertThat(underTest.selectByPullRequestKey(dbSession, "U3", pullRequestId)).isEmpty();
   }
 
   @Test

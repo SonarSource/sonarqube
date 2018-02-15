@@ -63,11 +63,11 @@ public class BranchDao implements Dao {
     return mapper(dbSession).updateMainBranchName(projectUuid, newBranchKey, now);
   }
 
-  public Optional<BranchDto> selectBranchByKey(DbSession dbSession, String projectUuid, String key) {
+  public Optional<BranchDto> selectByBranchKey(DbSession dbSession, String projectUuid, String key) {
     return selectByKey(dbSession, projectUuid, key, KeyType.BRANCH.name());
   }
 
-  public Optional<BranchDto> selectPullRequestByKey(DbSession dbSession, String projectUuid, String key) {
+  public Optional<BranchDto> selectByPullRequestKey(DbSession dbSession, String projectUuid, String key) {
     return selectByKey(dbSession, projectUuid, key, KeyType.PULL_REQUEST.name());
   }
 
