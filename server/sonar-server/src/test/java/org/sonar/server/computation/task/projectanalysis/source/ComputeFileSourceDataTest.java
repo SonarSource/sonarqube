@@ -20,6 +20,7 @@
 package org.sonar.server.computation.task.projectanalysis.source;
 
 import com.google.common.collect.Lists;
+import java.util.List;
 import org.junit.Test;
 import org.sonar.db.protobuf.DbFileSources;
 
@@ -59,7 +60,7 @@ public class ComputeFileSourceDataTest {
 
   @Test
   public void remove_tabs_and_spaces_in_line_hashes() {
-    String refLineHashes = new ComputeFileSourceData(
+    List<String> refLineHashes = new ComputeFileSourceData(
       newArrayList("line1").iterator(),
       Lists.newArrayList(new MockLineReader()),
       1).compute().getLineHashes();

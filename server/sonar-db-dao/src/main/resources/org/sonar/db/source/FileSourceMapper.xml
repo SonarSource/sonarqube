@@ -44,6 +44,7 @@
   <select id="scrollLineHashes" parameterType="map" resultType="org.sonar.db.source.LineHashesWithKeyDto" fetchSize="${_scrollFetchSize}" resultSetType="FORWARD_ONLY">
     select
       p.kee as kee,
+      p.path as path,
       fs.line_hashes as rawLineHashes
     from projects p
     inner join file_sources fs on
