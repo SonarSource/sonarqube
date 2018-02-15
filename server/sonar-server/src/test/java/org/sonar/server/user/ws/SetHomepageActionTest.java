@@ -19,6 +19,7 @@
  */
 package org.sonar.server.user.ws;
 
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -34,8 +35,15 @@ import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 
+import static java.util.Arrays.asList;
 import static org.apache.http.HttpStatus.SC_NO_CONTENT;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static org.sonar.server.user.ws.HomepageTypes.Type.MY_ISSUES;
+import static org.sonar.server.user.ws.HomepageTypes.Type.MY_PROJECTS;
+import static org.sonar.server.user.ws.HomepageTypes.Type.ORGANIZATION;
+import static org.sonar.server.user.ws.HomepageTypes.Type.PROJECT;
 
 public class SetHomepageActionTest {
 
@@ -49,8 +57,15 @@ public class SetHomepageActionTest {
   public ExpectedException expectedException = ExpectedException.none();
 
   private DbClient dbClient = db.getDbClient();
-  private SetHomepageAction underTest = new SetHomepageAction(userSession, dbClient, TestComponentFinder.from(db));
-  private WsActionTester ws = new WsActionTester(underTest);
+  private HomepageTypes homepageTypes = mock(HomepageTypes.class);
+
+  private WsActionTester ws;
+
+  @Before
+  public void setUp() {
+    when(homepageTypes.getTypes()).thenReturn(asList(PROJECT, ORGANIZATION, MY_ISSUES, MY_PROJECTS));
+    ws = new WsActionTester(new SetHomepageAction(userSession, dbClient, TestComponentFinder.from(db), homepageTypes));
+  }
 
   @Test
   public void verify_definition() {
@@ -61,7 +76,6 @@ public class SetHomepageActionTest {
     assertThat(action.since()).isEqualTo("7.0");
     assertThat(action.description()).isEqualTo("Set homepage of current user.<br> Requires authentication.");
     assertThat(action.responseExample()).isNull();
-    assertThat(action.handler()).isSameAs(underTest);
     assertThat(action.params()).hasSize(4);
 
     WebService.Param typeParam = action.param("type");
