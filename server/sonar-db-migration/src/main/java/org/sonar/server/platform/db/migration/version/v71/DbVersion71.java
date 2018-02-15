@@ -36,10 +36,10 @@ public class DbVersion71 implements DbVersion {
       .add(2006, "Clean orphans in Compute Engine child tables", CleanCeChildTablesOrphans.class)
       .add(2007, "Update PERMISSION_TEMPLATES.KEYS ", UpdatePermissionTooLongTemplateKeys.class)
       .add(2008, "Increase branch type size in PROJECT_BRANCHES", IncreaseBranchTypeSizeForPullRequest.class)
-      .add(2009, "Add key type column in PROJECT_BRANCHES", AddKeyTypeInProjectBranches.class)
+      .add(2009, "Add key_type column in PROJECT_BRANCHES", AddKeyTypeInProjectBranches.class)
       .add(2010, "Fill key_type column in PROJECT_BRANCHES", SetKeyTypeToBranchInProjectBranches.class)
       .add(2011, "Make key_type not nullable in PROJECT_BRANCHES", MakeKeyTypeNotNullableInProjectBranches.class)
-      .add(2012, "Replace indes in PROJECT_BRANCHES", ReplaceIndexInProjectBranches.class)
+      .add(2012, "Replace index in PROJECT_BRANCHES", ReplaceIndexInProjectBranches.class)
     ;
   }
 }
