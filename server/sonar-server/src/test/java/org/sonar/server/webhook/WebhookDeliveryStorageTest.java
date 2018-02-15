@@ -28,12 +28,13 @@ import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.webhook.WebhookDbTesting;
 import org.sonar.db.webhook.WebhookDeliveryDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.sonar.db.webhook.WebhookDbTesting.newWebhookDeliveryDto;
+import static org.sonar.db.webhook.WebhookDbTesting.newDto;
 import static org.sonar.db.webhook.WebhookDbTesting.selectAllDeliveryUuids;
 
 public class WebhookDeliveryStorageTest {
@@ -111,7 +112,7 @@ public class WebhookDeliveryStorageTest {
   }
 
   private static WebhookDeliveryDto newDto(String uuid, String componentUuid, long at) {
-    return newWebhookDeliveryDto()
+    return WebhookDbTesting.newDto()
       .setUuid(uuid)
       .setComponentUuid(componentUuid)
       .setCreatedAt(at);

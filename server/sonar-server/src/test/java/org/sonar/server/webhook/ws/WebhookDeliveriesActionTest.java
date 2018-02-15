@@ -40,7 +40,7 @@ import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Webhooks;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.db.webhook.WebhookDbTesting.newWebhookDeliveryDto;
+import static org.sonar.db.webhook.WebhookDbTesting.newDto;
 import static org.sonar.test.JsonAssert.assertJson;
 
 public class WebhookDeliveriesActionTest {
@@ -116,7 +116,7 @@ public class WebhookDeliveriesActionTest {
 
   @Test
   public void search_by_component_and_return_records_of_example() {
-    WebhookDeliveryDto dto = newWebhookDeliveryDto()
+    WebhookDeliveryDto dto = newDto()
       .setUuid("d1")
       .setComponentUuid(project.uuid())
       .setCeTaskUuid("task-1")
@@ -140,9 +140,9 @@ public class WebhookDeliveriesActionTest {
 
   @Test
   public void search_by_task_and_return_records() {
-    WebhookDeliveryDto dto1 = newWebhookDeliveryDto().setComponentUuid(project.uuid()).setCeTaskUuid("t1");
-    WebhookDeliveryDto dto2 = newWebhookDeliveryDto().setComponentUuid(project.uuid()).setCeTaskUuid("t1");
-    WebhookDeliveryDto dto3 = newWebhookDeliveryDto().setComponentUuid(project.uuid()).setCeTaskUuid("t2");
+    WebhookDeliveryDto dto1 = newDto().setComponentUuid(project.uuid()).setCeTaskUuid("t1");
+    WebhookDeliveryDto dto2 = newDto().setComponentUuid(project.uuid()).setCeTaskUuid("t1");
+    WebhookDeliveryDto dto3 = newDto().setComponentUuid(project.uuid()).setCeTaskUuid("t2");
     dbClient.webhookDeliveryDao().insert(db.getSession(), dto1);
     dbClient.webhookDeliveryDao().insert(db.getSession(), dto2);
     dbClient.webhookDeliveryDao().insert(db.getSession(), dto3);
@@ -158,9 +158,9 @@ public class WebhookDeliveriesActionTest {
 
   @Test
   public void search_by_webhook_and_return_records() {
-    WebhookDeliveryDto dto1 = newWebhookDeliveryDto().setComponentUuid(project.uuid()).setCeTaskUuid("t1").setWebhookUuid("wh-1-uuid");
-    WebhookDeliveryDto dto2 = newWebhookDeliveryDto().setComponentUuid(project.uuid()).setCeTaskUuid("t1").setWebhookUuid("wh-1-uuid");
-    WebhookDeliveryDto dto3 = newWebhookDeliveryDto().setComponentUuid(project.uuid()).setCeTaskUuid("t2").setWebhookUuid("wh-2-uuid");
+    WebhookDeliveryDto dto1 = newDto().setComponentUuid(project.uuid()).setCeTaskUuid("t1").setWebhookUuid("wh-1-uuid");
+    WebhookDeliveryDto dto2 = newDto().setComponentUuid(project.uuid()).setCeTaskUuid("t1").setWebhookUuid("wh-1-uuid");
+    WebhookDeliveryDto dto3 = newDto().setComponentUuid(project.uuid()).setCeTaskUuid("t2").setWebhookUuid("wh-2-uuid");
     dbClient.webhookDeliveryDao().insert(db.getSession(), dto1);
     dbClient.webhookDeliveryDao().insert(db.getSession(), dto2);
     dbClient.webhookDeliveryDao().insert(db.getSession(), dto3);
@@ -176,7 +176,7 @@ public class WebhookDeliveriesActionTest {
 
   @Test
   public void search_by_component_and_throw_ForbiddenException_if_not_admin_of_project() {
-    WebhookDeliveryDto dto = newWebhookDeliveryDto()
+    WebhookDeliveryDto dto = newDto()
       .setComponentUuid(project.uuid());
     dbClient.webhookDeliveryDao().insert(db.getSession(), dto);
     db.commit();
@@ -192,7 +192,7 @@ public class WebhookDeliveriesActionTest {
 
   @Test
   public void search_by_task_and_throw_ForbiddenException_if_not_admin_of_project() {
-    WebhookDeliveryDto dto = newWebhookDeliveryDto()
+    WebhookDeliveryDto dto = newDto()
       .setComponentUuid(project.uuid());
     dbClient.webhookDeliveryDao().insert(db.getSession(), dto);
     db.commit();

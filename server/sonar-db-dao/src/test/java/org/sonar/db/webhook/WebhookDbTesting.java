@@ -35,7 +35,19 @@ public class WebhookDbTesting {
     // only statics
   }
 
-  public static WebhookDeliveryDto newWebhookDeliveryDto() {
+  /**
+   * Build a {@link WebhookDeliveryDto} with all mandatory fields.
+   * Optional fields are kept null.
+   */
+  public static WebhookDeliveryDto newDto(String uuid, String webhookUuid, String componentUuid, String ceTaskUuid) {
+    return newDto()
+            .setUuid(uuid)
+            .setWebhookUuid(webhookUuid)
+            .setComponentUuid(componentUuid)
+            .setCeTaskUuid(ceTaskUuid);
+  }
+
+  public static WebhookDeliveryDto newDto() {
     return new WebhookDeliveryDto()
       .setUuid(randomAlphanumeric(40))
       .setComponentUuid(randomAlphanumeric(40))
