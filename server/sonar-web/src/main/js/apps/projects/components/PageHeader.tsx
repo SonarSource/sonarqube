@@ -50,6 +50,7 @@ export default function PageHeader(props: Props) {
   const { loading, total, projects, currentUser, view } = props;
   const limitReached = projects != null && total != null && projects.length < total;
   const defaultOption = isLoggedIn(currentUser) ? 'name' : 'analysis_date';
+  const showHomePageSelect = !props.onSonarCloud || props.isFavorite;
 
   return (
     <header className="page-header projects-topbar-items">
@@ -101,10 +102,12 @@ export default function PageHeader(props: Props) {
         )}
       </div>
 
-      {props.isFavorite && (
+      {showHomePageSelect && (
         <HomePageSelect
           className="huge-spacer-left"
-          currentPage={{ type: HomePageType.MyProjects }}
+          currentPage={
+            props.onSonarCloud ? { type: HomePageType.MyProjects } : { type: HomePageType.Projects }
+          }
         />
       )}
     </header>

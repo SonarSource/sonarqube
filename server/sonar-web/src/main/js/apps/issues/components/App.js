@@ -55,7 +55,6 @@ import {
   CurrentUser
 } from '../utils'; */
 import handleRequiredAuthentication from '../../../app/utils/handleRequiredAuthentication';
-import { isLoggedIn } from '../../../app/types';
 import ListFooter from '../../../components/controls/ListFooter';
 import EmptySearch from '../../../components/common/EmptySearch';
 import FiltersHeader from '../../../components/common/FiltersHeader';
@@ -932,14 +931,13 @@ export default class App extends React.PureComponent {
                 ) : (
                   <PageActions
                     canSetHome={
-                      this.props.onSonarCloud &&
-                      isLoggedIn(this.props.currentUser) &&
-                      this.props.myIssues &&
                       !this.props.organization &&
-                      !this.props.component
+                      !this.props.component &&
+                      (!this.props.onSonarCloud || this.props.myIssues)
                     }
                     loading={this.state.loading}
                     onReload={this.handleReload}
+                    onSonarCloud={this.props.onSonarCloud}
                     paging={paging}
                     selectedIndex={selectedIndex}
                   />

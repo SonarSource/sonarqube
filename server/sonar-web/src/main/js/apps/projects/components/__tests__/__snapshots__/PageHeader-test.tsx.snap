@@ -37,6 +37,14 @@ exports[`should render correctly 1`] = `
       projects._projects
     </span>
   </div>
+  <Connect(HomePageSelect)
+    className="huge-spacer-left"
+    currentPage={
+      Object {
+        "type": "PROJECTS",
+      }
+    }
+  />
 </header>
 `;
 
@@ -80,6 +88,14 @@ exports[`should render correctly while loading 1`] = `
       projects._projects
     </span>
   </div>
+  <Connect(HomePageSelect)
+    className="huge-spacer-left"
+    currentPage={
+      Object {
+        "type": "PROJECTS",
+      }
+    }
+  />
 </header>
 `;
 
@@ -119,6 +135,14 @@ exports[`should render disabled sorting options for visualizations 1`] = `
   />
   <div
     className="projects-topbar-item is-last"
+  />
+  <Connect(HomePageSelect)
+    className="huge-spacer-left"
+    currentPage={
+      Object {
+        "type": "PROJECTS",
+      }
+    }
   />
 </header>
 `;
