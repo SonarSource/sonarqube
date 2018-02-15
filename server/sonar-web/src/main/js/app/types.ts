@@ -331,3 +331,22 @@ export interface PermissionTemplate {
     withProjectCreator?: boolean;
   }>;
 }
+
+export interface TestCase {
+  coveredLines: number;
+  durationInMs: number;
+  fileId: string;
+  fileKey: string;
+  fileName: string;
+  id: string;
+  message?: string;
+  name: string;
+  stacktrace?: string;
+  status: string;
+}
+
+export interface CoveredFile {
+  key: string;
+  longName: string;
+  coveredLines: number;
+}

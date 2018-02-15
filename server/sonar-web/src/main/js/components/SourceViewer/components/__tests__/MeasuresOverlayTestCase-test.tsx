@@ -17,22 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import throwGlobalError from '../app/utils/throwGlobalError';
-import { Paging, TestCase, CoveredFile } from '../app/types';
-import { getJSON } from '../helpers/request';
+import * as React from 'react';
+import { shallow } from 'enzyme';
+import MeasuresOverlayTestCase from '../MeasuresOverlayTestCase';
+import { click } from '../../../../helpers/testUtils';
 
-export function getTests(parameters: {
-  branch?: string;
-  p?: number;
-  ps?: number;
-  sourceFileKey?: string;
-  sourceFileLineNumber?: number;
-  testFileKey: string;
-  testId?: string;
-}): Promise<{ paging: Paging; tests: TestCase[] }> {
-  return getJSON('/api/tests/list', parameters).catch(throwGlobalError);
-}
+const testCase = {
+  coveredLines: 3,
+  durationInMs: 1,
+  fileId: 'abcd',
+  fileKey: 'project:test.js',
+  fileName: 'test.js',
+  id: 'test-abcd',
+  name: 'should work',
+  status: 'OK'
+};
 
-export function getCoveredFiles(data: { testId: string }): Promise<CoveredFile[]> {
-  return getJSON('/api/tests/covered_files', data).then(r => r.files, throwGlobalError);
-}
+it('should render', () => {
+  const onClick = jest.fn();
+  const wrapper = shallow(<MeasuresOverlayTestCase onClick={onClick} testCase={testCase} />);
+  expect(wrapper).toMatchSnapshot();
+  click(wrapper.find('a'));
+  expect(onClick).toBeCalledWith('test-abcd');
+});

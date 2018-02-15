@@ -27,7 +27,7 @@ import { formatMeasure } from '../../helpers/measures';
 interface Props {
   className?: string;
   decimals?: number | null;
-  value?: string;
+  value: string | undefined;
   metricKey: string;
   metricType: string;
 }
