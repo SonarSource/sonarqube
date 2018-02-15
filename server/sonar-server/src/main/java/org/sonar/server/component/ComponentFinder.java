@@ -154,8 +154,16 @@ public class ComponentFinder {
     throw new NotFoundException(format("Component '%s' on branch '%s' not found", key, branch));
   }
 
-  public ComponentDto getByKeyAndOptionalBranch(DbSession dbSession, String key, @Nullable String branch) {
-    return branch == null ? getByKey(dbSession, key) : getByKeyAndBranch(dbSession, key, branch);
+  public ComponentDto getByKeyAndOptionalBranchOrPullRequest(DbSession dbSession, String key, @Nullable String branch, @Nullable String pullRequest) {
+    checkArgument(branch == null || pullRequest == null, "Either branch or pull request can be provided, not both");
+    if (branch != null) {
+      return getByKeyAndBranch(dbSession, key, branch);
+    }
+    if (pullRequest != null) {
+      return getByKeyAndBranch(dbSession, key, pullRequest);
+    }
+
+    return getByKey(dbSession, key);
   }
 
   public enum ParamNames {
