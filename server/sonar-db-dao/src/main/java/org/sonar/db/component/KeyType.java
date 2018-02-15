@@ -17,26 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+package org.sonar.db.component;
 
-package org.sonar.server.platform.db.migration.version.v71;
+public enum KeyType {
+  BRANCH,
 
-import org.junit.Test;
-
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationCount;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
-
-public class DbVersion71Test {
-
-  private DbVersion71 underTest = new DbVersion71();
-
-  @Test
-  public void migrationNumber_starts_at_2000() {
-    verifyMinimumMigrationNumber(underTest, 2000);
-  }
-
-  @Test
-  public void verify_migration_count() {
-    verifyMigrationCount(underTest, 18);
-  }
-
+  PULL_REQUEST
 }
