@@ -26,11 +26,25 @@
     where uuid = #{uuid,jdbcType=VARCHAR}
   </select>
 
+  <select id="countByWebhookUuid" parameterType="String" resultType="int">
+    select
+    count(1)
+    from webhook_deliveries
+    where webhook_uuid = #{webhookUuid,jdbcType=VARCHAR}
+  </select>
+
   <select id="selectByWebhookUuid" parameterType="String" resultType="org.sonar.db.webhook.WebhookDeliveryLiteDto">
     select <include refid="sqlLiteColumns" />
     from webhook_deliveries
     where webhook_uuid = #{webhookUuid,jdbcType=VARCHAR}
     order by created_at desc
+  </select>
+
+  <select id="countByComponentUuid" parameterType="String" resultType="int">
+    select
+    count(1)
+    from webhook_deliveries
+    where component_uuid = #{componentUuid,jdbcType=VARCHAR}
   </select>
 
   <select id="selectOrderedByComponentUuid" parameterType="String" resultType="org.sonar.db.webhook.WebhookDeliveryLiteDto">
@@ -45,6 +59,13 @@
     from webhook_deliveries
     where ce_task_uuid = #{ceTaskUuid,jdbcType=VARCHAR}
     order by created_at desc
+  </select>
+
+  <select id="countByCeTaskUuid" parameterType="String" resultType="int">
+    select
+    count(1)
+    from webhook_deliveries
+    where ce_task_uuid = #{ceTaskUuid,jdbcType=VARCHAR}
   </select>
 
   <insert id="insert" parameterType="org.sonar.db.webhook.WebhookDeliveryDto" useGeneratedKeys="false">
