@@ -36,6 +36,11 @@ public class WebhookTesting {
       .setProjectUuid(project.uuid());
   }
 
+  public static WebhookDto newProjectWebhook(String projectUuid) {
+    return getWebhookDto()
+      .setProjectUuid(projectUuid);
+  }
+
   public static WebhookDto newWebhook(OrganizationDto organizationDto) {
     return getWebhookDto()
       .setOrganizationUuid(organizationDto.getUuid());
