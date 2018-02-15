@@ -52,6 +52,7 @@ import static java.util.Collections.singletonList;
 import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
+import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
 import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
@@ -60,6 +61,7 @@ import static org.sonar.db.component.BranchType.SHORT;
 import static org.sonar.server.branch.ws.BranchesWs.addProjectParam;
 import static org.sonar.server.branch.ws.ProjectBranchesParameters.ACTION_LIST;
 import static org.sonar.server.branch.ws.ProjectBranchesParameters.PARAM_PROJECT;
+import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
 
 public class ListAction implements BranchWsAction {
 
@@ -80,7 +82,7 @@ public class ListAction implements BranchWsAction {
     WebService.NewAction action = context.createAction(ACTION_LIST)
       .setSince("6.6")
       .setDescription("List the branches of a project.<br/>" +
-        "Requires 'Administer' rights on the specified project.")
+        "Requires 'Browse' or 'Execute analysis' rights on the specified project.")
       .setResponseExample(Resources.getResource(getClass(), "list-example.json"))
       .setHandler(this);
 
@@ -93,7 +95,7 @@ public class ListAction implements BranchWsAction {
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       ComponentDto project = componentFinder.getByKey(dbSession, projectKey);
-      userSession.checkComponentPermission(UserRole.USER, project);
+      checkPermission(project);
       checkArgument(project.isEnabled() && PROJECT.equals(project.qualifier()), "Invalid project key");
 
       Collection<BranchDto> branches = dbClient.branchDao().selectByComponent(dbSession, project);
@@ -157,5 +159,12 @@ public class ListAction implements BranchWsAction {
       statusBuilder.setCodeSmells(branchStatistics == null ? 0L : branchStatistics.getCodeSmells());
     }
     builder.setStatus(statusBuilder);
+  }
+
+  private void checkPermission(ComponentDto component) {
+    if (!userSession.hasComponentPermission(UserRole.USER, component) &&
+      !userSession.hasComponentPermission(SCAN_EXECUTION, component)) {
+      throw insufficientPrivilegesException();
+    }
   }
 }
