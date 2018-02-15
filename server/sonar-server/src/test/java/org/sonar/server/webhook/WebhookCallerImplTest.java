@@ -90,7 +90,7 @@ public class WebhookCallerImplTest {
     WebhookDelivery delivery = newSender().call(webhook, PAYLOAD);
 
     assertThat(delivery.getHttpStatus()).isEmpty();
-    assertThat(delivery.getDurationInMs()).isEmpty();
+    assertThat(delivery.getDurationInMs().get()).isGreaterThanOrEqualTo(0);
     // message can be "Connection refused" or "connect timed out"
     assertThat(delivery.getErrorMessage().get()).matches("(.*Connection refused.*)|(.*connect timed out.*)");
     assertThat(delivery.getAt()).isEqualTo(NOW);
@@ -105,7 +105,7 @@ public class WebhookCallerImplTest {
     WebhookDelivery delivery = newSender().call(webhook, PAYLOAD);
 
     assertThat(delivery.getHttpStatus()).isEmpty();
-    assertThat(delivery.getDurationInMs()).isEmpty();
+    assertThat(delivery.getDurationInMs().get()).isGreaterThanOrEqualTo(0);
     assertThat(delivery.getError().get()).isInstanceOf(IllegalArgumentException.class);
     assertThat(delivery.getErrorMessage().get()).isEqualTo("Webhook URL is not valid: this_is_not_an_url");
     assertThat(delivery.getAt()).isEqualTo(NOW);

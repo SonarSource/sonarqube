@@ -26,24 +26,24 @@ option java_package = "org.sonarqube.ws";
 option java_outer_classname = "Webhooks";
 option optimize_for = SPEED;
 
+message LatestDelivery {
+  optional string id = 1;
+  optional string at = 2;
+  optional bool success = 3;
+  optional int32 httpStatus = 4;
+  optional int32 durationMs = 5;
+}
+
+message ListResponseElement {
+  optional string key = 1;
+  optional string name = 2;
+  optional string url = 3;
+  optional LatestDelivery latestDelivery = 4;
+}
+
 // GET api/webhooks/list
-message ListWsResponse {
-  repeated List webhooks = 1;
-
-  message List {
-    optional string key = 1;
-    optional string name = 2;
-    optional string url = 3;
-    optional LatestDelivery latestDelivery = 4;
-
-    message LatestDelivery {
-      optional string id = 1;
-      optional string at = 2;
-      optional string success = 3;
-      optional string httpStatus = 4;
-      optional string durationMs = 5;
-    }
-  }
+message ListResponse {
+  repeated ListResponseElement webhooks = 1;
 }
 
 // POST api/webhooks/create
