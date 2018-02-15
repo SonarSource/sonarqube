@@ -49,9 +49,17 @@ public class BranchDto {
   private String projectUuid;
 
   /**
-   * Name of branch, for example "feature/foo".
+   * Key that identifies a branch or a pull request.
+   * For keyType=BRANCH, this is the name of the branch, for example "feature/foo".
+   * For keyType=PULL_REQUEST, this is the ID of the pull request in some external system, for example 123 in GitHub.
    */
   private String kee;
+
+  /**
+   * Key type, as provided by {@link KeyType}.
+   * Not null.
+   */
+  private KeyType keyType;
 
   /**
    * Branch type, as provided by {@link BranchType}.
@@ -115,6 +123,11 @@ public class BranchDto {
     return this;
   }
 
+  BranchDto setKeyType(@Nullable KeyType keyType) {
+    this.keyType = keyType;
+    return this;
+  }
+
   public BranchType getBranchType() {
     return branchType;
   }
@@ -161,6 +174,7 @@ public class BranchDto {
     sb.append("uuid='").append(uuid).append('\'');
     sb.append(", projectUuid='").append(projectUuid).append('\'');
     sb.append(", kee='").append(kee).append('\'');
+    sb.append(", keyType=").append(keyType);
     sb.append(", branchType=").append(branchType);
     sb.append(", mergeBranchUuid='").append(mergeBranchUuid).append('\'');
     sb.append('}');

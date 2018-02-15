@@ -34,7 +34,7 @@ public class ReplaceIndexInProjectBranches extends DdlChange {
   static final VarcharColumnDef PROJECT_UUID_COLUMN = VarcharColumnDef.newVarcharColumnDefBuilder()
     .setColumnName("project_uuid")
     .setIsNullable(false)
-    .setLimit(VarcharColumnDef.UUID_VARCHAR_SIZE)
+    .setLimit(50)
     .build();
 
   static final VarcharColumnDef KEE_COLUMN = VarcharColumnDef.newVarcharColumnDefBuilder()
