@@ -332,7 +332,7 @@ public class LiveMeasureComputerImplTest {
     markProjectAsAnalyzed(project);
     db.measures().insertLiveMeasure(project, alertStatusMetric, m -> m.setData(Metric.Level.WARN.name()));
     db.measures().insertLiveMeasure(project, intMetric, m -> m.setVariation(42.0).setValue(null));
-    BranchDto branch = db.getDbClient().branchDao().selectByKey(db.getSession(), project.projectUuid(), "master")
+    BranchDto branch = db.getDbClient().branchDao().selectByBranchKey(db.getSession(), project.projectUuid(), "master")
       .orElseThrow(() -> new IllegalStateException("Can't find master branch"));
 
     List<QGChangeEvent> result = run(file1, newQualifierBasedIntLeakFormula());
