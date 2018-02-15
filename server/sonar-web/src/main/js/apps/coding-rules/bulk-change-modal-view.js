@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import escapeHtml from 'escape-html';
 import ModalFormView from '../../components/common/modal-form';
 import Template from './templates/coding-rules-bulk-change-modal.hbs';
 import { translateWithParameters } from '../../helpers/l10n';
@@ -36,8 +37,8 @@ export default ModalFormView.extend({
     const profileBase = this.options.app.qualityProfiles.find(p => p.key === profile);
     const message = translateWithParameters(
       'coding_rules.bulk_change.success',
-      profileBase.name,
-      profileBase.language,
+      escapeHtml(profileBase.name),
+      escapeHtml(profileBase.language),
       succeeded
     );
     this.ui.messagesContainer.append(`<div class="alert alert-success">${message}</div>`);
@@ -47,8 +48,8 @@ export default ModalFormView.extend({
     const profileBase = this.options.app.qualityProfiles.find(p => p.key === profile);
     const message = translateWithParameters(
       'coding_rules.bulk_change.warning',
-      profileBase.name,
-      profileBase.language,
+      escapeHtml(profileBase.name),
+      escapeHtml(profileBase.language),
       succeeded,
       failed
     );
@@ -60,7 +61,8 @@ export default ModalFormView.extend({
     this.$('#coding-rules-bulk-change-profile').select2({
       width: '250px',
       minimumResultsForSearch: 1,
-      openOnEnter: false
+      openOnEnter: false,
+      escapeMarkup: markup => markup
     });
   },
 
@@ -114,7 +116,8 @@ export default ModalFormView.extend({
     }
     return profiles
       .filter(profile => profile.actions && profile.actions.edit)
-      .filter(profile => !profile.isBuiltIn);
+      .filter(profile => !profile.isBuiltIn)
+      .map(profile => ({ ...profile, name: escapeHtml(profile.name) }));
   },
 
   serializeData() {

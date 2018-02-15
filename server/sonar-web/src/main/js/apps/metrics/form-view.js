@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import $ from 'jquery';
+import escapeHtml from 'escape-html';
 import ModalForm from '../../components/common/modal-form';
 import Template from './templates/metrics-form.hbs';
 
@@ -47,7 +48,9 @@ export default ModalForm.extend({
             return { id: item, text: item };
           });
           options.callback({ results, more: false });
-        }
+        },
+        escapeMarkup: escapeHtml,
+        formatResult: result => result.text
       })
       .select2('val', this.model && this.model.get('domain'));
     this.$('#create-metric-type').select2({ width: '250px' });

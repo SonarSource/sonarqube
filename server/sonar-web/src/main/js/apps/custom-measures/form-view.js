@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import escapeHtml from 'escape-html';
 import ModalForm from '../../components/common/modal-form';
 import Metrics from '../metrics/metrics';
 import Template from './templates/custom-measures-form.hbs';
@@ -35,7 +36,9 @@ export default ModalForm.extend({
     this.$('[data-toggle="tooltip"]').tooltip({ container: 'body', placement: 'bottom' });
     this.$('#create-custom-measure-metric').select2({
       width: '250px',
-      minimumResultsForSearch: 20
+      minimumResultsForSearch: 20,
+      escapeMarkup: escapeHtml,
+      formatResult: result => result.text
     });
   },
 
