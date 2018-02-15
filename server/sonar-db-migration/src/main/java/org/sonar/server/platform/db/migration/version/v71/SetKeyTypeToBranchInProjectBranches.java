@@ -26,7 +26,8 @@ import org.sonar.server.platform.db.migration.step.DataChange;
 import org.sonar.server.platform.db.migration.step.MassUpdate;
 
 public class SetKeyTypeToBranchInProjectBranches extends DataChange {
-  private static final String TABLE_NAME = "project_branches";
+  static final String TABLE_NAME = "project_branches";
+  static final String DEFAULT_KEY_TYPE = "BRANCH";
 
   private final System2 system2;
 
@@ -43,7 +44,7 @@ public class SetKeyTypeToBranchInProjectBranches extends DataChange {
     massUpdate.select("select uuid from " + TABLE_NAME + " where key_type is null");
     massUpdate.update("update " + TABLE_NAME + " project_branches set key_type=?, updated_at=?");
     massUpdate.execute((row, update) -> {
-      update.setString(1, "BRANCH");
+      update.setString(1, DEFAULT_KEY_TYPE);
       update.setLong(2, now);
       return true;
     });

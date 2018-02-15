@@ -20,17 +20,23 @@
 package org.sonar.server.platform.db.migration.version.v71;
 
 import java.sql.SQLException;
+import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
+import org.sonar.api.utils.internal.TestSystem2;
 import org.sonar.db.CoreDbTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.server.platform.db.migration.version.v71.SetKeyTypeToBranchInProjectBranches.DEFAULT_KEY_TYPE;
+import static org.sonar.server.platform.db.migration.version.v71.SetKeyTypeToBranchInProjectBranches.TABLE_NAME;
 
 public class SetKeyTypeToBranchInProjectBranchesTest {
-  private static final String TABLE_NAME = "project_branches";
-  private static final String KEY_TYPE_BRANCH = "BRANCH";
+  private static final long PAST = 10_000_000_000L;
+  private static final long NOW = 50_000_000_000L;
+
+  private System2 system2 = new TestSystem2().setNow(NOW);
 
   @Rule
   public final CoreDbTester dbTester = CoreDbTester.createForSchema(SetKeyTypeToBranchInProjectBranchesTest.class, "project_branches.sql");
@@ -38,9 +44,7 @@ public class SetKeyTypeToBranchInProjectBranchesTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private System2 system = new System2();
-
-  private SetKeyTypeToBranchInProjectBranches underTest = new SetKeyTypeToBranchInProjectBranches(dbTester.database(), system);
+  private SetKeyTypeToBranchInProjectBranches underTest = new SetKeyTypeToBranchInProjectBranches(dbTester.database(), system2);
 
   @Test
   public void has_no_effect_if_table_project_branches_is_empty() throws SQLException {
@@ -56,13 +60,17 @@ public class SetKeyTypeToBranchInProjectBranchesTest {
     insertRow(3, "SHORT");
     insertRow(4, "LONG");
 
+    String countUpdatedAtSQL = "select count(uuid) from " + TABLE_NAME + " where updated_at = ";
+
     assertThat(countRowsWithValue(null)).isEqualTo(4);
-    assertThat(countRowsWithValue(KEY_TYPE_BRANCH)).isEqualTo(0);
+    assertThat(countRowsWithValue(DEFAULT_KEY_TYPE)).isEqualTo(0);
+    assertThat(dbTester.countSql(countUpdatedAtSQL + PAST)).isEqualTo(4);
 
     underTest.execute();
 
     assertThat(countRowsWithValue(null)).isEqualTo(0);
-    assertThat(countRowsWithValue(KEY_TYPE_BRANCH)).isEqualTo(4);
+    assertThat(countRowsWithValue(DEFAULT_KEY_TYPE)).isEqualTo(4);
+    assertThat(dbTester.countSql(countUpdatedAtSQL + NOW)).isEqualTo(4);
   }
 
   @Test
@@ -77,10 +85,10 @@ public class SetKeyTypeToBranchInProjectBranchesTest {
     underTest.execute();
 
     assertThat(countRowsWithValue(null)).isEqualTo(0);
-    assertThat(countRowsWithValue(KEY_TYPE_BRANCH)).isEqualTo(4);
+    assertThat(countRowsWithValue(DEFAULT_KEY_TYPE)).isEqualTo(4);
   }
 
-  private int countRowsWithValue(String value) {
+  private int countRowsWithValue(@Nullable String value) {
     if (value == null) {
       return dbTester.countSql("select count(1) from " + TABLE_NAME + " where key_type is null");
     }
@@ -93,8 +101,8 @@ public class SetKeyTypeToBranchInProjectBranchesTest {
       "UUID", "dummy_uuid" + id,
       "PROJECT_UUID", "dummy_project_uuid" + id,
       "KEE", "dummy_key" + id,
-      "CREATED_AT", 456789 + id,
-      "UPDATED_AT", 456789 + id,
+      "CREATED_AT", PAST,
+      "UPDATED_AT", PAST,
       "BRANCH_TYPE", branchType);
   }
 }
