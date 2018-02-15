@@ -20,7 +20,11 @@
 package org.sonar.db.source;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Random;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -90,5 +94,30 @@ public class FileSourceDtoTest {
           .build());
     }
     return dataBuilder.build();
+  }
+
+  @Test
+  public void setLineHashes_null_sets_lineCount_to_0() {
+    FileSourceDto underTest = new FileSourceDto();
+    underTest.setLineHashes(null);
+
+    assertThat(underTest.getLineCount()).isZero();
+  }
+
+  @Test
+  public void setLineHashes_empty_sets_lineCount_to_0() {
+    FileSourceDto underTest = new FileSourceDto();
+    underTest.setLineHashes(Collections.emptyList());
+
+    assertThat(underTest.getLineCount()).isZero();
+  }
+
+  @Test
+  public void setLineHashes_sets_lineCount_to_size_of_list() {
+    FileSourceDto underTest = new FileSourceDto();
+    int expected = 1 + new Random().nextInt(96);
+    underTest.setLineHashes(IntStream.range(0, expected).mapToObj(String::valueOf).collect(Collectors.toList()));
+
+    assertThat(underTest.getLineCount()).isEqualTo(expected);
   }
 }

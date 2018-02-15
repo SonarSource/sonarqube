@@ -19,6 +19,8 @@
  */
 package org.sonar.db.source;
 
+import com.google.common.base.Joiner;
+import com.google.common.base.Splitter;
 import com.google.protobuf.CodedInputStream;
 import com.google.protobuf.InvalidProtocolBufferException;
 import java.io.ByteArrayInputStream;
@@ -26,6 +28,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -34,12 +37,15 @@ import net.jpountz.lz4.LZ4BlockOutputStream;
 import org.apache.commons.io.IOUtils;
 import org.sonar.db.protobuf.DbFileSources;
 
+import static com.google.common.base.Splitter.on;
 import static java.lang.String.format;
 
 public class FileSourceDto {
 
   private static final String SIZE_LIMIT_EXCEEDED_EXCEPTION_MESSAGE = "Protocol message was too large.  May be malicious.  " +
     "Use CodedInputStream.setSizeLimit() to increase the size limit.";
+  private static final Joiner LINE_RETURN_JOINER = Joiner.on('\n');
+  static final Splitter LINES_HASHES_SPLITTER = on('\n');
 
   private Long id;
   private String projectUuid;
@@ -47,6 +53,7 @@ public class FileSourceDto {
   private long createdAt;
   private long updatedAt;
   private String lineHashes;
+  private int lineCount = 0;
   private String srcHash;
   private byte[] binaryData;
   private String dataType;
@@ -231,13 +238,29 @@ public class FileSourceDto {
     return this;
   }
 
-  @CheckForNull
-  public String getLineHashes() {
+  /** Used by MyBatis */
+  public String getRawLineHashes() {
     return lineHashes;
   }
 
-  public FileSourceDto setLineHashes(@Nullable String lineHashes) {
+  public void setRawLineHashes(String lineHashes) {
     this.lineHashes = lineHashes;
+  }
+
+  public List<String> getLineHashes() {
+    if (lineHashes == null) {
+      return Collections.emptyList();
+    }
+    return LINES_HASHES_SPLITTER.splitToList(lineHashes);
+  }
+
+  public int getLineCount() {
+    return lineCount;
+  }
+
+  public FileSourceDto setLineHashes(@Nullable List<String> lineHashes) {
+    this.lineHashes = lineHashes == null ? null : LINE_RETURN_JOINER.join(lineHashes);
+    this.lineCount = lineHashes == null ? 0 : lineHashes.size();
     return this;
   }
 

@@ -19,12 +19,10 @@
  */
 package org.sonar.server.computation.task.projectanalysis.filemove;
 
-import com.google.common.base.Splitter;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 import java.io.BufferedWriter;
@@ -35,6 +33,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -43,6 +42,8 @@ import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
+import org.apache.ibatis.session.ResultContext;
+import org.apache.ibatis.session.ResultHandler;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.hash.SourceLinesHashesComputer;
@@ -52,6 +53,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.FileMoveRowDto;
 import org.sonar.db.source.FileSourceDto;
+import org.sonar.db.source.LineHashesWithKeyDto;
 import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.component.CrawlerDepthLimit;
@@ -62,15 +64,16 @@ import org.sonar.server.computation.task.projectanalysis.filemove.FileSimilarity
 import org.sonar.server.computation.task.projectanalysis.source.SourceLinesRepository;
 import org.sonar.server.computation.task.step.ComputationStep;
 
-import static com.google.common.base.MoreObjects.firstNonNull;
-import static com.google.common.base.Splitter.on;
 import static com.google.common.collect.FluentIterable.from;
+import static org.sonar.db.DatabaseUtils.toUniqueAndSortedPartitions;
 import static org.sonar.server.computation.task.projectanalysis.component.ComponentVisitor.Order.POST_ORDER;
 
 public class FileMoveDetectionStep implements ComputationStep {
   protected static final int MIN_REQUIRED_SCORE = 85;
   private static final Logger LOG = Loggers.get(FileMoveDetectionStep.class);
-  private static final Splitter LINES_HASHES_SPLITTER = on('\n');
+  private static final Comparator<ScoreMatrix.ScoreFile> SCORE_FILE_COMPARATOR = (o1, o2) -> -1 * Integer.compare(o1.getLineCount(), o2.getLineCount());
+  private static final double LOWER_BOUND_RATIO = 0.84;
+  private static final double UPPER_BOUND_RATIO = 1.18;
 
   private final AnalysisMetadataHolder analysisMetadataHolder;
   private final TreeRootHolder rootHolder;
@@ -159,8 +162,7 @@ public class FileMoveDetectionStep implements ComputationStep {
       dbClient.componentDao().scrollAllFilesForFileMove(dbSession, rootHolder.getRoot().getUuid(),
         resultContext -> {
           FileMoveRowDto row = resultContext.getResultObject();
-          builder.add(new DbComponent(row.getId(), row.getKey(), row.getUuid(), row.getPath(),
-            row.getLineHashes().map(s -> Iterables.size(LINES_HASHES_SPLITTER.split(s))).orElse(0)));
+          builder.add(new DbComponent(row.getId(), row.getKey(), row.getUuid(), row.getPath(), row.getLineCount()));
         });
       return builder.build().stream()
         .collect(MoreCollectors.uniqueIndex(DbComponent::getKey));
@@ -197,60 +199,95 @@ public class FileMoveDetectionStep implements ComputationStep {
     return builder.build();
   }
 
-  private ScoreMatrix computeScoreMatrix(Map<String, DbComponent> dtosByKey, Set<String> dbFileKeys, Map<String, File> reportFileSourcesByKey) {
+  private ScoreMatrix computeScoreMatrix(Map<String, DbComponent> dtosByKey, Set<String> removedFileKeys, Map<String, File> reportFileSourcesByKey) {
     ScoreMatrix.ScoreFile[] newFiles = reportFileSourcesByKey.entrySet().stream()
       .map(e -> new ScoreMatrix.ScoreFile(e.getKey(), e.getValue().getLineCount()))
       .toArray(ScoreMatrix.ScoreFile[]::new);
-    ScoreMatrix.ScoreFile[] removedFiles = dbFileKeys.stream()
+    ScoreMatrix.ScoreFile[] removedFiles = removedFileKeys.stream()
       .map(key -> {
         DbComponent dbComponent = dtosByKey.get(key);
         return new ScoreMatrix.ScoreFile(dbComponent.getKey(), dbComponent.getLineCount());
       })
       .toArray(ScoreMatrix.ScoreFile[]::new);
     // sort by highest line count first
-    Comparator<ScoreMatrix.ScoreFile> c = (o1, o2) -> -1 * Integer.compare(o1.getLineCount(), o2.getLineCount());
-    Arrays.sort(newFiles, c);
-    Arrays.sort(removedFiles, c);
+    Arrays.sort(newFiles, SCORE_FILE_COMPARATOR);
+    Arrays.sort(removedFiles, SCORE_FILE_COMPARATOR);
     int[][] scoreMatrix = new int[removedFiles.length][newFiles.length];
     int lastNewFileIndex = newFiles.length - 1;
-    int maxScore = 0;
 
+    Map<String, Integer> removedFilesIndexes = new HashMap<>(removedFileKeys.size());
+    for (int removeFileIndex = 0; removeFileIndex < removedFiles.length; removeFileIndex++) {
+      ScoreMatrix.ScoreFile removedFile = removedFiles[removeFileIndex];
+      int lowerBound = (int) Math.floor(removedFile.getLineCount() * LOWER_BOUND_RATIO);
+      int upperBound = (int) Math.ceil(removedFile.getLineCount() * UPPER_BOUND_RATIO);
+      // short circuit if all files are out of bound
+      if (newFiles[0].getLineCount() <= lowerBound || newFiles[lastNewFileIndex].getLineCount() >= upperBound) {
+        continue;
+      }
+      removedFilesIndexes.put(removedFile.getFileKey(), removeFileIndex);
+    }
+
+    LineHashesWithKeyDtoResultHandler rowHandler = new LineHashesWithKeyDtoResultHandler(removedFilesIndexes, removedFiles,
+      newFiles, reportFileSourcesByKey, scoreMatrix);
     try (DbSession dbSession = dbClient.openSession(false)) {
-      for (int removeFileIndex = 0; removeFileIndex < removedFiles.length; removeFileIndex++) {
-        ScoreMatrix.ScoreFile removedFile = removedFiles[removeFileIndex];
-        int lowerBound = (int) Math.floor(removedFile.getLineCount() * 0.84);
-        int upperBound = (int) Math.ceil(removedFile.getLineCount() * 1.18);
-        // short circuit if all files are out of bound
-        if (newFiles[0].getLineCount() <= lowerBound || newFiles[lastNewFileIndex].getLineCount() >= upperBound) {
+      for (List<String> partition : toUniqueAndSortedPartitions(removedFilesIndexes.keySet())) {
+        dbClient.fileSourceDao().scrollLineHashes(dbSession, partition, rowHandler);
+      }
+    }
+
+    return new ScoreMatrix(removedFiles, newFiles, scoreMatrix, rowHandler.getMaxScore());
+  }
+
+  private class LineHashesWithKeyDtoResultHandler implements ResultHandler<LineHashesWithKeyDto> {
+
+    private final Map<String, Integer> removedFilesIndexes;
+    private final ScoreMatrix.ScoreFile[] removedFiles;
+    private final int lastNewFileIndex;
+    private final ScoreMatrix.ScoreFile[] newFiles;
+    private final Map<String, File> reportFileSourcesByKey;
+    private final int[][] scoreMatrix;
+    private int maxScore;
+
+    public LineHashesWithKeyDtoResultHandler(Map<String, Integer> removedFilesIndexes,
+      ScoreMatrix.ScoreFile[] removedFiles, ScoreMatrix.ScoreFile[] newFiles,
+      Map<String, File> reportFileSourcesByKey,
+      int[][] scoreMatrix) {
+      this.removedFilesIndexes = removedFilesIndexes;
+      this.removedFiles = removedFiles;
+      this.lastNewFileIndex = newFiles.length - 1;
+      this.newFiles = newFiles;
+      this.reportFileSourcesByKey = reportFileSourcesByKey;
+      this.scoreMatrix = scoreMatrix;
+    }
+
+    @Override
+    public void handleResult(ResultContext<? extends LineHashesWithKeyDto> resultContext) {
+      LineHashesWithKeyDto lineHashesDto = resultContext.getResultObject();
+      int removeFileIndex = removedFilesIndexes.get(lineHashesDto.getKey());
+      ScoreMatrix.ScoreFile removedFile = removedFiles[removeFileIndex];
+      int lowerBound = (int) Math.floor(removedFile.getLineCount() * LOWER_BOUND_RATIO);
+      int upperBound = (int) Math.ceil(removedFile.getLineCount() * UPPER_BOUND_RATIO);
+      for (int newFileIndex = 0; newFileIndex <= lastNewFileIndex; newFileIndex++) {
+        ScoreMatrix.ScoreFile newFile = newFiles[newFileIndex];
+        if (newFile.getLineCount() >= upperBound) {
           continue;
         }
-
-        File fileInDb = null;
-        for (int newFileIndex = 0; newFileIndex <= lastNewFileIndex; newFileIndex++) {
-          ScoreMatrix.ScoreFile newFile = newFiles[newFileIndex];
-          if (newFile.getLineCount() >= upperBound) {
-            continue;
-          }
-          if (newFile.getLineCount() <= lowerBound) {
-            break;
-          }
-          if (fileInDb == null) {
-            fileInDb = getFile(dbSession, dtosByKey.get(removedFile.getFileKey()));
-            if (fileInDb == null) {
-              break;
-            }
-          }
-          File unmatchedFile = reportFileSourcesByKey.get(newFile.getFileKey());
-          int score = fileSimilarity.score(fileInDb, unmatchedFile);
-          scoreMatrix[removeFileIndex][newFileIndex] = score;
-          if (score > maxScore) {
-            maxScore = score;
-          }
+        if (newFile.getLineCount() <= lowerBound) {
+          break;
+        }
+        File fileInDb = new File("TODO", lineHashesDto.getLineHashes());
+        File unmatchedFile = reportFileSourcesByKey.get(newFile.getFileKey());
+        int score = fileSimilarity.score(fileInDb, unmatchedFile);
+        scoreMatrix[removeFileIndex][newFileIndex] = score;
+        if (score > maxScore) {
+          maxScore = score;
         }
       }
     }
 
-    return new ScoreMatrix(removedFiles, newFiles, scoreMatrix, maxScore);
+    public int getMaxScore() {
+      return maxScore;
+    }
   }
 
   @CheckForNull
@@ -262,8 +299,7 @@ public class FileMoveDetectionStep implements ComputationStep {
     if (fileSourceDto == null) {
       return null;
     }
-    String lineHashes = firstNonNull(fileSourceDto.getLineHashes(), "");
-    return new File(dbComponent.getPath(), LINES_HASHES_SPLITTER.splitToList(lineHashes));
+    return new File(dbComponent.getPath(), fileSourceDto.getLineHashes());
   }
 
   private static void printIfDebug(ScoreMatrix scoreMatrix) {

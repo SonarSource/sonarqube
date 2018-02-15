@@ -19,9 +19,11 @@
  */
 package org.sonar.db.source;
 
+import java.util.Collection;
 import java.util.List;
 import javax.annotation.CheckForNull;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.session.ResultHandler;
 
 public interface FileSourceMapper {
 
@@ -29,6 +31,8 @@ public interface FileSourceMapper {
 
   @CheckForNull
   FileSourceDto select(@Param("fileUuid") String fileUuid, @Param("dataType") String dataType);
+
+  void scrollLineHashes(@Param("fileKeys") Collection<String> fileKeys, ResultHandler<LineHashesWithKeyDto> rowHandler);
 
   void insert(FileSourceDto dto);
 

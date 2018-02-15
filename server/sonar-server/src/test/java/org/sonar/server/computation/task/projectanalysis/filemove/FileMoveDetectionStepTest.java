@@ -46,7 +46,6 @@ import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.server.computation.task.projectanalysis.source.SourceLinesRepositoryRule;
 
-import static com.google.common.base.Joiner.on;
 import static java.util.Arrays.stream;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.server.computation.task.projectanalysis.component.ReportComponent.builder;
@@ -490,7 +489,7 @@ public class FileMoveDetectionStepTest {
         FileSourceDto fileSourceDto = new FileSourceDto()
           .setFileUuid(file.uuid())
           .setProjectUuid(file.projectUuid())
-          .setLineHashes(on('\n').join(linesHashesComputer.getLineHashes()))
+          .setLineHashes(linesHashesComputer.getLineHashes())
           .setDataType(FileSourceDto.Type.SOURCE);
         dbTester.getDbClient().fileSourceDao().insert(dbTester.getSession(), fileSourceDto);
         dbTester.commit();

@@ -19,14 +19,12 @@
  */
 package org.sonar.db.component;
 
-import java.util.Optional;
-
 public class FileMoveRowDto {
   private long id;
   private String kee;
   private String uuid;
   private String path;
-  private String lineHashes;
+  private int lineCount;
 
   public long getId() {
     return id;
@@ -44,8 +42,7 @@ public class FileMoveRowDto {
     return path;
   }
 
-  public Optional<String> getLineHashes() {
-    return Optional.ofNullable(lineHashes);
+  public int getLineCount() {
+    return lineCount;
   }
-
 }

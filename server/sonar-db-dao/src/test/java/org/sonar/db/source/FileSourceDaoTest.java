@@ -19,6 +19,7 @@
  */
 package org.sonar.db.source;
 
+import com.google.common.collect.ImmutableList;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.function.Function;
@@ -31,6 +32,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.source.FileSourceDto.Type;
 
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 
@@ -91,23 +93,33 @@ public class FileSourceDaoTest {
 
   @Test
   public void insert() {
-    dbTester.prepareDbUnit(getClass(), "shared.xml");
-
-    underTest.insert(session, new FileSourceDto()
+    FileSourceDto expected = new FileSourceDto()
       .setProjectUuid("PRJ_UUID")
       .setFileUuid("FILE2_UUID")
       .setBinaryData("FILE2_BINARY_DATA".getBytes())
       .setDataHash("FILE2_DATA_HASH")
-      .setLineHashes("LINE1_HASH\\nLINE2_HASH")
+      .setLineHashes(ImmutableList.of("LINE1_HASH", "LINE2_HASH"))
       .setSrcHash("FILE2_HASH")
       .setDataType(Type.SOURCE)
       .setCreatedAt(1500000000000L)
       .setUpdatedAt(1500000000001L)
-      .setRevision("123456789"));
+      .setRevision("123456789");
+    underTest.insert(session, expected);
     session.commit();
 
-    dbTester.assertDbUnitTable(getClass(), "insert-result.xml", "file_sources",
-      "project_uuid", "file_uuid", "data_hash", "line_hashes", "src_hash", "created_at", "updated_at", "data_type", "revision");
+    FileSourceDto fileSourceDto = underTest.selectSourceByFileUuid(session, expected.getFileUuid());
+
+    assertThat(fileSourceDto.getProjectUuid()).isEqualTo(expected.getProjectUuid());
+    assertThat(fileSourceDto.getFileUuid()).isEqualTo(expected.getFileUuid());
+    assertThat(fileSourceDto.getBinaryData()).isEqualTo(expected.getBinaryData());
+    assertThat(fileSourceDto.getDataHash()).isEqualTo(expected.getDataHash());
+    assertThat(fileSourceDto.getRawLineHashes()).isEqualTo(expected.getRawLineHashes());
+    assertThat(fileSourceDto.getLineHashes()).isEqualTo(expected.getLineHashes());
+    assertThat(fileSourceDto.getLineCount()).isEqualTo(expected.getLineCount());
+    assertThat(fileSourceDto.getSrcHash()).isEqualTo(expected.getSrcHash());
+    assertThat(fileSourceDto.getCreatedAt()).isEqualTo(expected.getCreatedAt());
+    assertThat(fileSourceDto.getUpdatedAt()).isEqualTo(expected.getUpdatedAt());
+    assertThat(fileSourceDto.getRevision()).isEqualTo(expected.getRevision());
   }
 
   @Test
@@ -169,7 +181,7 @@ public class FileSourceDaoTest {
       .setBinaryData("updated data".getBytes())
       .setDataHash("NEW_DATA_HASH")
       .setSrcHash("NEW_FILE_HASH")
-      .setLineHashes("NEW_LINE_HASHES")
+      .setLineHashes(singletonList("NEW_LINE_HASHES"))
       .setDataType(Type.SOURCE)
       .setUpdatedAt(1500000000002L)
       .setRevision("987654321"));

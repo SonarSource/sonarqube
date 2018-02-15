@@ -130,7 +130,7 @@ public class PersistFileSourcesStep implements ComputationStep {
       byte[] data = FileSourceDto.encodeSourceData(fileData);
       String dataHash = DigestUtils.md5Hex(data);
       String srcHash = fileSourceData.getSrcHash();
-      String lineHashes = fileSourceData.getLineHashes();
+      List<String> lineHashes = fileSourceData.getLineHashes();
       FileSourceDto previousDto = previousFileSourcesByUuid.get(componentUuid);
 
       if (previousDto == null) {

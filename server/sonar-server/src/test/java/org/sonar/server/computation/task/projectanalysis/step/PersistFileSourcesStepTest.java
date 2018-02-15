@@ -20,6 +20,7 @@
 package org.sonar.server.computation.task.projectanalysis.step;
 
 import java.util.Arrays;
+import java.util.List;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -48,6 +49,7 @@ import org.sonar.server.computation.task.projectanalysis.scm.ScmInfoRepositoryRu
 import org.sonar.server.computation.task.projectanalysis.source.SourceLinesRepositoryRule;
 import org.sonar.server.computation.task.step.ComputationStep;
 
+import static com.google.common.collect.ImmutableList.of;
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -130,7 +132,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
 
     assertThat(dbTester.countRowsOfTable("file_sources")).isEqualTo(1);
     FileSourceDto fileSourceDto = dbClient.fileSourceDao().selectSourceByFileUuid(session, FILE1_UUID);
-    assertThat(fileSourceDto.getLineHashes()).isEqualTo("137f72c3708c6bd0de00a0e5a69c699b\ne6251bcf1a7dc3ba5e7933e325bbe605");
+    assertThat(fileSourceDto.getLineHashes()).containsExactly("137f72c3708c6bd0de00a0e5a69c699b", "e6251bcf1a7dc3ba5e7933e325bbe605");
     assertThat(fileSourceDto.getSrcHash()).isEqualTo("ee5a58024a155466b43bc559d953e018");
   }
 
@@ -319,7 +321,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
     // Existing sources
     long past = 150000L;
     String srcHash = "137f72c3708c6bd0de00a0e5a69c699b";
-    String lineHashes = "137f72c3708c6bd0de00a0e5a69c699b";
+    List<String> lineHashes = of("137f72c3708c6bd0de00a0e5a69c699b");
     String dataHash = "29f25900140c94db38035128cb6de6a2";
 
     dbClient.fileSourceDao().insert(dbTester.getSession(), new FileSourceDto()
@@ -361,7 +363,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
       .setFileUuid(FILE1_UUID)
       .setDataType(Type.SOURCE)
       .setSrcHash("5b4bd9815cdb17b8ceae19eb1810c34c")
-      .setLineHashes("6438c669e0d0de98e6929c2cc0fac474\n")
+      .setLineHashes(of("6438c669e0d0de98e6929c2cc0fac474", ""))
       .setDataHash("6cad150e3d065976c230cddc5a09efaa")
       .setSourceData(DbFileSources.Data.newBuilder()
         .addLines(DbFileSources.Line.newBuilder()
@@ -400,7 +402,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
       .setFileUuid(FILE1_UUID)
       .setDataType(Type.SOURCE)
       // Source hash is missing, update will be made
-      .setLineHashes("137f72c3708c6bd0de00a0e5a69c699b")
+      .setLineHashes(of("137f72c3708c6bd0de00a0e5a69c699b"))
       .setDataHash("29f25900140c94db38035128cb6de6a2")
       .setSourceData(DbFileSources.Data.newBuilder()
         .addLines(DbFileSources.Line.newBuilder()
@@ -432,7 +434,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
       .setFileUuid(FILE1_UUID)
       .setDataType(Type.SOURCE)
       .setSrcHash("137f72c3708c6bd0de00a0e5a69c699b")
-      .setLineHashes("137f72c3708c6bd0de00a0e5a69c699b")
+      .setLineHashes(of("137f72c3708c6bd0de00a0e5a69c699b"))
       .setDataHash("8e84c0d961cfe364e43833c4cc4ddef5")
       // Revision is missing, update will be made
       .setSourceData(DbFileSources.Data.newBuilder()
@@ -471,7 +473,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
       .setFileUuid(FILE1_UUID)
       .setDataType(Type.SOURCE)
       .setSrcHash("137f72c3708c6bd0de00a0e5a69c699b")
-      .setLineHashes("137f72c3708c6bd0de00a0e5a69c699b")
+      .setLineHashes(of("137f72c3708c6bd0de00a0e5a69c699b"))
       .setDataHash("8e84c0d961cfe364e43833c4cc4ddef5")
       // Revision is missing, update will be made
       .setSourceData(DbFileSources.Data.newBuilder()

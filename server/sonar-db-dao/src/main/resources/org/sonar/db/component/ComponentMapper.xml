@@ -480,7 +480,7 @@
       p.uuid as uuid,
       p.kee as kee,
       p.path as path,
-      fs.line_hashes as lineHashes
+      fs.line_count as lineCount
     from projects p
     inner join file_sources fs on
       fs.file_uuid = p.uuid
@@ -489,9 +489,7 @@
       p.enabled=${_true}
       and p.copy_component_uuid is null
       and p.main_branch_project_uuid is null
-      <if test="projectUuid != null">
-        and p.project_uuid = #{projectUuid,jdbcType=VARCHAR}
-      </if>
+      and p.project_uuid = #{projectUuid,jdbcType=VARCHAR}
   </select>
 
   <select id="selectProjectsByNameQuery" resultType="Component">
