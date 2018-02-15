@@ -23,6 +23,8 @@ import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.server.ws.Change;
@@ -42,8 +44,10 @@ import static java.util.Collections.emptyList;
 import static org.sonar.server.setting.ws.SettingsWsParameters.PARAM_BRANCH;
 import static org.sonar.server.setting.ws.SettingsWsParameters.PARAM_COMPONENT;
 import static org.sonar.server.setting.ws.SettingsWsParameters.PARAM_KEYS;
+import static org.sonar.server.setting.ws.SettingsWsParameters.PARAM_PULL_REQUEST;
 import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
+import static org.sonar.server.ws.KeyExamples.KEY_PULL_REQUEST_EXAMPLE_001;
 
 public class ResetAction implements SettingsWsAction {
 
@@ -92,6 +96,11 @@ public class ResetAction implements SettingsWsAction {
       .setExampleValue(KEY_BRANCH_EXAMPLE_001)
       .setInternal(true)
       .setSince("6.6");
+    action.createParam(PARAM_PULL_REQUEST)
+      .setDescription("Pull request id")
+      .setExampleValue(KEY_PULL_REQUEST_EXAMPLE_001)
+      .setInternal(true)
+      .setSince("7.1");
   }
 
   @Override
@@ -131,7 +140,8 @@ public class ResetAction implements SettingsWsAction {
     return new ResetRequest()
       .setKeys(request.paramAsStrings(PARAM_KEYS))
       .setComponent(request.param(PARAM_COMPONENT))
-      .setBranch(request.param(PARAM_BRANCH));
+      .setBranch(request.param(PARAM_BRANCH))
+      .setPullRequest(request.param(PARAM_PULL_REQUEST));
   }
 
   private Optional<ComponentDto> getComponent(DbSession dbSession, ResetRequest request) {
@@ -139,7 +149,7 @@ public class ResetAction implements SettingsWsAction {
     if (componentKey == null) {
       return Optional.empty();
     }
-    return Optional.of(componentFinder.getByKeyAndOptionalBranch(dbSession, componentKey, request.getBranch()));
+    return Optional.of(componentFinder.getByKeyAndOptionalBranchOrPullRequest(dbSession, componentKey, request.getBranch(), request.getPullRequest()));
   }
 
   private void checkPermissions(Optional<ComponentDto> component) {
@@ -153,32 +163,46 @@ public class ResetAction implements SettingsWsAction {
   private static class ResetRequest {
 
     private String branch;
+    private String pullRequest;
     private String component;
     private List<String> keys;
 
-    public ResetRequest setBranch(String branch) {
+    public ResetRequest setBranch(@Nullable String branch) {
       this.branch = branch;
       return this;
     }
 
+    @CheckForNull
     public String getBranch() {
       return branch;
     }
 
-    public ResetRequest setComponent(String component) {
+    public ResetRequest setPullRequest(@Nullable String pullRequest) {
+      this.pullRequest = pullRequest;
+      return this;
+    }
+
+    @CheckForNull
+    public String getPullRequest() {
+      return pullRequest;
+    }
+
+    public ResetRequest setComponent(@Nullable String component) {
       this.component = component;
       return this;
     }
 
+    @CheckForNull
     public String getComponent() {
       return component;
     }
 
-    public ResetRequest setKeys(List<String> keys) {
+    public ResetRequest setKeys(@Nullable List<String> keys) {
       this.keys = keys;
       return this;
     }
 
+    @CheckForNull
     public List<String> getKeys() {
       return keys;
     }

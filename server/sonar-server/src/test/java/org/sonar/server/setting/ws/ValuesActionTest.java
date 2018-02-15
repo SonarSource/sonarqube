@@ -871,7 +871,7 @@ public class ValuesActionTest {
     assertThat(action.isInternal()).isFalse();
     assertThat(action.isPost()).isFalse();
     assertThat(action.responseExampleAsString()).isNotEmpty();
-    assertThat(action.params()).extracting(WebService.Param::key).containsExactlyInAnyOrder("keys", "component", "branch");
+    assertThat(action.params()).extracting(WebService.Param::key).containsExactlyInAnyOrder("keys", "component", "branch", "pullRequest");
   }
 
   private ValuesWsResponse executeRequestForComponentProperties(ComponentDto componentDto, String... keys) {

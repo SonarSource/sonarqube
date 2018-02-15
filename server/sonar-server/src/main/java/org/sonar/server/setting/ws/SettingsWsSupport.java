@@ -39,7 +39,9 @@ import static org.sonar.api.PropertyType.LICENSE;
 import static org.sonar.api.web.UserRole.ADMIN;
 import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
 import static org.sonar.server.setting.ws.SettingsWsParameters.PARAM_BRANCH;
+import static org.sonar.server.setting.ws.SettingsWsParameters.PARAM_PULL_REQUEST;
 import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
+import static org.sonar.server.ws.KeyExamples.KEY_PULL_REQUEST_EXAMPLE_001;
 
 @ServerSide
 public class SettingsWsSupport {
@@ -107,5 +109,13 @@ public class SettingsWsSupport {
       .setExampleValue(KEY_BRANCH_EXAMPLE_001)
       .setInternal(true)
       .setSince("6.6");
+  }
+
+  WebService.NewParam addPullRequestParam(WebService.NewAction action) {
+    return action.createParam(PARAM_PULL_REQUEST)
+      .setDescription("Pull request. Only available on following settings : %s", SettingsWs.SETTING_ON_BRANCHES.stream().collect(COMMA_JOINER))
+      .setExampleValue(KEY_PULL_REQUEST_EXAMPLE_001)
+      .setInternal(true)
+      .setSince("7.1");
   }
 }
