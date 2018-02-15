@@ -394,6 +394,25 @@ public interface WebService extends Definable<WebService.Context> {
     }
 
     /**
+     * Add predefined parameters related to pagination of results with a maximum page size.
+     * Note the maximum is a documentation only feature. It does not check anything.
+     */
+    public NewAction addPagingParamsSince(int defaultPageSize, int maxPageSize, String version) {
+      createParam(Param.PAGE)
+        .setDescription("1-based page number")
+        .setExampleValue("42")
+        .setDefaultValue("1")
+        .setSince(version);
+      createParam(Param.PAGE_SIZE)
+        .setDescription("Page size. Must be greater than 0 and less than " + maxPageSize)
+        .setDefaultValue(String.valueOf(defaultPageSize))
+        .setMaximumValue(maxPageSize)
+        .setExampleValue("20")
+        .setSince(version);
+      return this;
+    }
+
+    /**
      * Creates the parameter {@link org.sonar.api.server.ws.WebService.Param#FIELDS}, which is
      * used to restrict the number of fields returned in JSON response.
      */

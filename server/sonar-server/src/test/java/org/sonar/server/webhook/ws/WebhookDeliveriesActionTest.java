@@ -68,7 +68,7 @@ public class WebhookDeliveriesActionTest {
 
   @Test
   public void test_definition() {
-    assertThat(ws.getDef().params()).extracting(WebService.Param::key).containsExactlyInAnyOrder("componentKey", "ceTaskId", "webhook");
+    assertThat(ws.getDef().params()).extracting(WebService.Param::key).containsExactlyInAnyOrder("componentKey", "ceTaskId", "webhook", "p", "ps");
     assertThat(ws.getDef().isPost()).isFalse();
     assertThat(ws.getDef().isInternal()).isFalse();
     assertThat(ws.getDef().responseExampleAsString()).isNotEmpty();

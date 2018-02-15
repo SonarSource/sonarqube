@@ -34,12 +34,16 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.webhook.WebhookDeliveryLiteDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.user.UserSession;
+import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Webhooks;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
 import static org.apache.commons.lang.StringUtils.isNotBlank;
+import static org.sonar.api.server.ws.WebService.Param.PAGE;
+import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_02;
+import static org.sonar.server.es.SearchOptions.MAX_LIMIT;
 import static org.sonar.server.webhook.ws.WebhookWsSupport.copyDtoToProtobuf;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
@@ -79,9 +83,11 @@ public class WebhookDeliveriesAction implements WebhooksWsAction {
 
     action.createParam(PARAM_WEBHOOK)
       .setSince("7.1")
-      .setDescription("Key of the webhook that triggered those deliveries,"+
+      .setDescription("Key of the webhook that triggered those deliveries," +
         "auto-generated value that can be obtained through api/webhooks/create or api/webhooks/list")
       .setExampleValue(UUID_EXAMPLE_02);
+
+    action.addPagingParamsSince(10, MAX_LIMIT, "7.1");
   }
 
   @Override
@@ -92,41 +98,59 @@ public class WebhookDeliveriesAction implements WebhooksWsAction {
     String ceTaskId = request.param(PARAM_TASK);
     String componentKey = request.param(PARAM_COMPONENT);
     String webhookUuid = request.param(PARAM_WEBHOOK);
+    int page = request.mandatoryParamAsInt(PAGE);
+    int pageSize = request.mandatoryParamAsInt(PAGE_SIZE);
 
     checkArgument(webhookUuid != null ^ (ceTaskId != null ^ componentKey != null),
       "Either '%s' or '%s' or '%s' must be provided", PARAM_TASK, PARAM_COMPONENT, PARAM_WEBHOOK);
 
-    Data data = loadFromDatabase(webhookUuid, ceTaskId, componentKey);
+    Data data = loadFromDatabase(webhookUuid, ceTaskId, componentKey, page, pageSize);
     data.ensureAdminPermission(userSession);
     data.writeTo(request, response);
   }
 
-  private Data loadFromDatabase(@Nullable String webhookUuid, @Nullable String ceTaskId, @Nullable String componentKey) {
-    ComponentDto component = null;
+  private Data loadFromDatabase(@Nullable String webhookUuid, @Nullable String ceTaskId, @Nullable String componentKey, int page, int pageSize) {
+    ComponentDto component;
     List<WebhookDeliveryLiteDto> deliveries;
+    int totalElements;
     try (DbSession dbSession = dbClient.openSession(false)) {
       if (isNotBlank(webhookUuid)) {
-        deliveries = dbClient.webhookDeliveryDao().selectByWebhookUuid(dbSession, webhookUuid);
+        deliveries = dbClient.webhookDeliveryDao().selectByWebhookUuid(dbSession, webhookUuid, page - 1, pageSize);
+        component = getComponentDto(dbSession, deliveries);
+        totalElements = dbClient.webhookDeliveryDao().countDeliveriesByWebhookUuid(dbSession, webhookUuid);
       } else if (componentKey != null) {
         component = componentFinder.getByKey(dbSession, componentKey);
-        deliveries = dbClient.webhookDeliveryDao().selectOrderedByComponentUuid(dbSession, component.uuid());
+        deliveries = dbClient.webhookDeliveryDao().selectOrderedByComponentUuid(dbSession, component.uuid(), page - 1, pageSize);
+        totalElements = dbClient.webhookDeliveryDao().countDeliveriesByComponentUuid(dbSession, component.uuid());
       } else {
-        deliveries = dbClient.webhookDeliveryDao().selectOrderedByCeTaskUuid(dbSession, ceTaskId);
-        Optional<String> deliveredComponentUuid = deliveries
-          .stream()
-          .map(WebhookDeliveryLiteDto::getComponentUuid)
-          .findFirst();
-        if (deliveredComponentUuid.isPresent()) {
-          component = componentFinder.getByUuid(dbSession, deliveredComponentUuid.get());
-        }
+        deliveries = dbClient.webhookDeliveryDao().selectOrderedByCeTaskUuid(dbSession, ceTaskId, page - 1, pageSize);
+        component = getComponentDto(dbSession, deliveries);
+        totalElements = dbClient.webhookDeliveryDao().countDeliveriesByCeTaskUuid(dbSession, ceTaskId);
       }
     }
-    return new Data(component, deliveries);
+    return new Data(component, deliveries).withPagingInfo(page, pageSize, totalElements);
+  }
+
+  private ComponentDto getComponentDto(DbSession dbSession, List<WebhookDeliveryLiteDto> deliveries) {
+    Optional<String> deliveredComponentUuid = deliveries
+      .stream()
+      .map(WebhookDeliveryLiteDto::getComponentUuid)
+      .findFirst();
+
+    if (deliveredComponentUuid.isPresent()) {
+      return componentFinder.getByUuid(dbSession, deliveredComponentUuid.get());
+    } else {
+      return null;
+    }
   }
 
   private static class Data {
     private final ComponentDto component;
     private final List<WebhookDeliveryLiteDto> deliveryDtos;
+
+    private int pageIndex;
+    private int pageSize;
+    private int totalElements;
 
     Data(@Nullable ComponentDto component, List<WebhookDeliveryLiteDto> deliveries) {
       this.deliveryDtos = deliveries;
@@ -150,7 +174,24 @@ public class WebhookDeliveriesAction implements WebhooksWsAction {
         copyDtoToProtobuf(component, dto, deliveryBuilder);
         responseBuilder.addDeliveries(deliveryBuilder);
       }
+
+      responseBuilder.setPaging(buildPaging(pageIndex, pageSize, totalElements));
       writeProtobuf(responseBuilder.build(), request, response);
+    }
+
+    static Common.Paging buildPaging(int pageIndex, int pageSize, int totalElements) {
+      return Common.Paging.newBuilder()
+        .setPageIndex(pageIndex)
+        .setPageSize(pageSize)
+        .setTotal(totalElements)
+        .build();
+    }
+
+    public Data withPagingInfo(int pageIndex, int pageSize, int totalElements) {
+      this.pageIndex = pageIndex;
+      this.pageSize = pageSize;
+      this.totalElements = totalElements;
+      return this;
     }
   }
 }
