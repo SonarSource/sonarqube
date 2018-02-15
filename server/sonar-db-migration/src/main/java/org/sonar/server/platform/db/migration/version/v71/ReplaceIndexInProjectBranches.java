@@ -29,7 +29,8 @@ import org.sonar.server.platform.db.migration.step.DdlChange;
 public class ReplaceIndexInProjectBranches extends DdlChange {
 
   static final String TABLE_NAME = "project_branches";
-  static final String INDEX_NAME = "project_branches_kee_key_type";
+  private static final String OLD_INDEX_NAME = "project_branches_kee";
+  static final String NEW_INDEX_NAME = "project_branches_kee_key_type";
 
   static final VarcharColumnDef PROJECT_UUID_COLUMN = VarcharColumnDef.newVarcharColumnDefBuilder()
     .setColumnName("project_uuid")
@@ -57,7 +58,7 @@ public class ReplaceIndexInProjectBranches extends DdlChange {
   public void execute(Context context) throws SQLException {
     context.execute(new DropIndexBuilder(getDialect())
       .setTable(TABLE_NAME)
-      .setName(INDEX_NAME)
+      .setName(OLD_INDEX_NAME)
       .build());
 
     context.execute(new CreateIndexBuilder(getDialect())
@@ -66,7 +67,7 @@ public class ReplaceIndexInProjectBranches extends DdlChange {
       .addColumn(KEY_TYPE_COLUMN)
       .setUnique(true)
       .setTable(TABLE_NAME)
-      .setName(INDEX_NAME)
+      .setName(NEW_INDEX_NAME)
       .build()
     );
   }

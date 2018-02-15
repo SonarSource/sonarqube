@@ -25,7 +25,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.db.CoreDbTester;
 
-import static org.sonar.server.platform.db.migration.version.v71.ReplaceIndexInProjectBranches.INDEX_NAME;
+import static org.sonar.server.platform.db.migration.version.v71.ReplaceIndexInProjectBranches.NEW_INDEX_NAME;
 import static org.sonar.server.platform.db.migration.version.v71.ReplaceIndexInProjectBranches.KEE_COLUMN;
 import static org.sonar.server.platform.db.migration.version.v71.ReplaceIndexInProjectBranches.KEY_TYPE_COLUMN;
 import static org.sonar.server.platform.db.migration.version.v71.ReplaceIndexInProjectBranches.PROJECT_UUID_COLUMN;
@@ -44,7 +44,7 @@ public class ReplaceIndexInProjectBranchesTest {
   public void column_is_part_of_index() throws SQLException {
     underTest.execute();
 
-    dbTester.assertUniqueIndex(TABLE_NAME, INDEX_NAME, PROJECT_UUID_COLUMN.getName(), KEE_COLUMN.getName(), KEY_TYPE_COLUMN.getName());
+    dbTester.assertUniqueIndex(TABLE_NAME, NEW_INDEX_NAME, PROJECT_UUID_COLUMN.getName(), KEE_COLUMN.getName(), KEY_TYPE_COLUMN.getName());
   }
 
   @Test
