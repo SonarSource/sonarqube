@@ -25,7 +25,6 @@ import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.server.issue.ws.AvatarResolver;
-import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.UserUpdater;
 import org.sonar.server.user.index.UserIndex;
@@ -45,7 +44,6 @@ public class UsersWsTest {
     WsTester tester = new WsTester(new UsersWs(
       new CreateAction(mock(DbClient.class), mock(UserUpdater.class), userSessionRule),
       new UpdateAction(mock(UserUpdater.class), userSessionRule, mock(UserJsonWriter.class), mock(DbClient.class)),
-      new CurrentAction(userSessionRule, mock(DbClient.class), mock(DefaultOrganizationProvider.class), mock(AvatarResolver.class)),
       new ChangePasswordAction(mock(DbClient.class), mock(UserUpdater.class), userSessionRule),
       new SearchAction(userSessionRule, mock(UserIndex.class), mock(DbClient.class), mock(AvatarResolver.class))));
     controller = tester.controller("api/users");
@@ -56,7 +54,7 @@ public class UsersWsTest {
     assertThat(controller).isNotNull();
     assertThat(controller.description()).isNotEmpty();
     assertThat(controller.since()).isEqualTo("3.6");
-    assertThat(controller.actions()).hasSize(5);
+    assertThat(controller.actions()).hasSize(4);
   }
 
   @Test
@@ -92,12 +90,4 @@ public class UsersWsTest {
     assertThat(action.params()).hasSize(3);
   }
 
-  @Test
-  public void define_current_action() {
-    WebService.Action action = controller.action("current");
-    assertThat(action).isNotNull();
-    assertThat(action.isPost()).isFalse();
-    assertThat(action.isInternal()).isTrue();
-    assertThat(action.params()).isEmpty();
-  }
 }

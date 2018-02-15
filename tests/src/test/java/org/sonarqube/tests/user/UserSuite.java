@@ -33,6 +33,7 @@ import static util.ItUtils.xooPlugin;
   BaseIdentityProviderTest.class,
   FavoritesWsTest.class,
   ForceAuthenticationTest.class,
+  HomepageTest.class,
   LocalAuthenticationTest.class,
   MyAccountPageTest.class,
   NotificationsWsTest.class,
