@@ -64,14 +64,14 @@ public class BranchDao implements Dao {
   }
 
   public Optional<BranchDto> selectByBranchKey(DbSession dbSession, String projectUuid, String key) {
-    return selectByKey(dbSession, projectUuid, key, KeyType.BRANCH.name());
+    return selectByKey(dbSession, projectUuid, key, KeyType.BRANCH);
   }
 
   public Optional<BranchDto> selectByPullRequestKey(DbSession dbSession, String projectUuid, String key) {
-    return selectByKey(dbSession, projectUuid, key, KeyType.PULL_REQUEST.name());
+    return selectByKey(dbSession, projectUuid, key, KeyType.PULL_REQUEST);
   }
 
-  private static Optional<BranchDto> selectByKey(DbSession dbSession, String projectUuid, String key, String keyType) {
+  private static Optional<BranchDto> selectByKey(DbSession dbSession, String projectUuid, String key, KeyType keyType) {
     return Optional.ofNullable(mapper(dbSession).selectByKey(projectUuid, key, keyType));
   }
 
