@@ -34,13 +34,7 @@ interface Props {
   selection: string[];
 }
 
-interface State {
-  applyTemplate: boolean;
-}
-
-export default class Projects extends React.PureComponent<Props, State> {
-  state: State = { applyTemplate: false };
-
+export default class Projects extends React.PureComponent<Props> {
   onProjectCheck = (project: Project, checked: boolean) => {
     if (checked) {
       this.props.onProjectSelected(project.key);

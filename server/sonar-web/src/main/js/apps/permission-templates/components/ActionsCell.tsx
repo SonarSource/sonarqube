@@ -76,9 +76,9 @@ export default class ActionsCell extends React.PureComponent<Props, State> {
     name: string;
     projectKeyPattern: string;
   }) => {
-    return updatePermissionTemplate({ id: this.props.permissionTemplate.id, ...data }).then(() => {
-      this.props.refresh();
-    });
+    return updatePermissionTemplate({ id: this.props.permissionTemplate.id, ...data }).then(
+      this.props.refresh
+    );
   };
 
   handleDelete = (templateId: string) => {
