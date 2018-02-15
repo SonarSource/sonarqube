@@ -30,6 +30,7 @@ import org.sonar.process.ProcessProperties;
 import org.sonar.server.platform.Platform;
 import org.sonar.server.platform.WebServer;
 import org.sonar.server.platform.db.migration.charset.DatabaseCharsetChecker;
+import org.sonar.server.startup.ClusterConfigurationCheck;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -84,5 +85,30 @@ public class PlatformLevel2Test {
 
     // level2 component that is injected only on "startup leaders"
     assertThat(underTest.getOptional(DatabaseCharsetChecker.class)).isNotPresent();
+  }
+
+  @Test
+  public void add_ClusterConfigurationCheck_when_cluster_mode_activated() {
+    props.setProperty("sonar.cluster.enabled", "true");
+    PlatformLevel1 level1 = new PlatformLevel1(mock(Platform.class), props);
+    level1.configure();
+
+    PlatformLevel2 underTest = new PlatformLevel2(level1);
+    underTest.configure();
+
+    assertThat(underTest.getOptional(ClusterConfigurationCheck.class)).isPresent();
+  }
+
+  @Test
+  public void do_NOT_add_ClusterConfigurationCheck_when_cluster_mode_NOT_activated() {
+    props.setProperty("sonar.cluster.enabled", "false");
+    PlatformLevel1 level1 = new PlatformLevel1(mock(Platform.class), props);
+    level1.configure();
+
+    PlatformLevel2 underTest = new PlatformLevel2(level1);
+    underTest.configure();
+
+    assertThat(underTest.getOptional(ClusterConfigurationCheck.class)).isNotPresent();
+
   }
 }
