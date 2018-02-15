@@ -17,58 +17,81 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import PropTypes from 'prop-types';
-import { Link } from 'react-router';
+import * as React from 'react';
+import * as PropTypes from 'prop-types';
 import { difference } from 'lodash';
-import Backbone from 'backbone';
-import { PermissionTemplateType, CallbackType } from '../propTypes';
+import Form from './Form';
+import {
+  setDefaultPermissionTemplate,
+  deletePermissionTemplate,
+  updatePermissionTemplate
+} from '../../../api/permissions';
+import { PermissionTemplate } from '../../../app/types';
 import ActionsDropdown, { ActionsDropdownItem } from '../../../components/controls/ActionsDropdown';
+import ConfirmButton from '../../../components/controls/ConfirmButton';
 import QualifierIcon from '../../../components/shared/QualifierIcon';
-import UpdateView from '../views/UpdateView';
-import DeleteView from '../views/DeleteView';
-import { translate } from '../../../helpers/l10n';
-import { setDefaultPermissionTemplate } from '../../../api/permissions';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
 
-export default class ActionsCell extends React.PureComponent {
-  static propTypes = {
-    organization: PropTypes.object,
-    permissionTemplate: PermissionTemplateType.isRequired,
-    topQualifiers: PropTypes.array.isRequired,
-    refresh: CallbackType,
-    fromDetails: PropTypes.bool
-  };
+interface Props {
+  fromDetails?: boolean;
+  organization?: { isDefault?: boolean; key: string };
+  permissionTemplate: PermissionTemplate;
+  refresh: () => void;
+  topQualifiers: string[];
+}
 
-  static defaultProps = {
-    fromDetails: false
-  };
+interface State {
+  updateModal: boolean;
+}
+
+export default class ActionsCell extends React.PureComponent<Props, State> {
+  mounted = false;
 
   static contextTypes = {
     router: PropTypes.object
   };
 
+  state: State = { updateModal: false };
+
+  componentDidMount() {
+    this.mounted = true;
+  }
+
+  componentWillUnmount() {
+    this.mounted = false;
+  }
+
   handleUpdateClick = () => {
-    new UpdateView({
-      model: new Backbone.Model(this.props.permissionTemplate),
-      refresh: this.props.refresh
-    }).render();
+    this.setState({ updateModal: true });
   };
 
-  handleDeleteClick = () => {
-    new DeleteView({
-      model: new Backbone.Model(this.props.permissionTemplate)
-    })
-      .on('done', () => {
-        const pathname = this.props.organization
-          ? `/organizations/${this.props.organization.key}/permission_templates`
-          : '/permission_templates';
-        this.context.router.replace(pathname);
-        this.props.refresh();
-      })
-      .render();
+  handleCloseUpdateModal = () => {
+    if (this.mounted) {
+      this.setState({ updateModal: false });
+    }
   };
 
-  setDefault = qualifier => () => {
+  handleSubmitUpdateModal = (data: {
+    description: string;
+    name: string;
+    projectKeyPattern: string;
+  }) => {
+    return updatePermissionTemplate({ id: this.props.permissionTemplate.id, ...data }).then(() => {
+      this.props.refresh();
+    });
+  };
+
+  handleDelete = (templateId: string) => {
+    return deletePermissionTemplate({ templateId }).then(() => {
+      const pathname = this.props.organization
+        ? `/organizations/${this.props.organization.key}/permission_templates`
+        : '/permission_templates';
+      this.context.router.replace(pathname);
+      this.props.refresh();
+    });
+  };
+
+  setDefault = (qualifier: string) => () => {
     setDefaultPermissionTemplate(this.props.permissionTemplate.id, qualifier).then(
       this.props.refresh,
       () => {}
@@ -95,19 +118,19 @@ export default class ActionsCell extends React.PureComponent {
       : this.renderIfMultipleTopQualifiers(availableQualifiers);
   }
 
-  renderSetDefaultLink(qualifier, child) {
+  renderSetDefaultLink(qualifier: string, child: React.ReactNode) {
     return (
       <ActionsDropdownItem
-        key={qualifier}
         className="js-set-default"
         data-qualifier={qualifier}
+        key={qualifier}
         onClick={this.setDefault(qualifier)}>
         {child}
       </ActionsDropdownItem>
     );
   }
 
-  renderIfSingleTopQualifier(availableQualifiers) {
+  renderIfSingleTopQualifier(availableQualifiers: string[]) {
     return availableQualifiers.map(qualifier =>
       this.renderSetDefaultLink(
         qualifier,
@@ -116,7 +139,7 @@ export default class ActionsCell extends React.PureComponent {
     );
   }
 
-  renderIfMultipleTopQualifiers(availableQualifiers) {
+  renderIfMultipleTopQualifiers(availableQualifiers: string[]) {
     return availableQualifiers.map(qualifier =>
       this.renderSetDefaultLink(
         qualifier,
@@ -148,11 +171,33 @@ export default class ActionsCell extends React.PureComponent {
         <ActionsDropdownItem className="js-update" onClick={this.handleUpdateClick}>
           {translate('update_details')}
         </ActionsDropdownItem>
+        {this.state.updateModal && (
+          <Form
+            confirmButtonText={translate('update_verb')}
+            header={translate('permission_template.edit_template')}
+            onClose={this.handleCloseUpdateModal}
+            onSubmit={this.handleSubmitUpdateModal}
+            permissionTemplate={t}
+          />
+        )}
 
         {t.defaultFor.length === 0 && (
-          <ActionsDropdownItem className="js-delete" onClick={this.handleDeleteClick}>
-            {translate('delete')}
-          </ActionsDropdownItem>
+          <ConfirmButton
+            confirmButtonText={translate('delete')}
+            confirmData={t.id}
+            isDestructive={true}
+            modalBody={translateWithParameters(
+              'permission_template.do_you_want_to_delete_template_xxx',
+              t.name
+            )}
+            modalHeader={translate('permission_template.delete_confirm_title')}
+            onConfirm={this.handleDelete}>
+            {({ onClick }) => (
+              <ActionsDropdownItem className="js-delete" destructive={true} onClick={onClick}>
+                {translate('delete')}
+              </ActionsDropdownItem>
+            )}
+          </ConfirmButton>
         )}
       </ActionsDropdown>
     );
