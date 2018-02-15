@@ -19,6 +19,7 @@
  */
 package org.sonar.server.user.ws;
 
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -37,13 +38,14 @@ import org.sonarqube.ws.Users.CurrentWsResponse;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
 import static org.sonar.db.permission.OrganizationPermission.PROVISION_PROJECTS;
 import static org.sonar.db.permission.OrganizationPermission.SCAN;
 import static org.sonar.db.user.GroupTesting.newGroupDto;
 import static org.sonar.test.JsonAssert.assertJson;
-import static org.sonarqube.ws.Users.CurrentWsResponse.HomepageType.MY_PROJECTS;
 
 public class CurrentActionTest {
   @Rule
@@ -55,7 +57,15 @@ public class CurrentActionTest {
 
   private DbClient dbClient = db.getDbClient();
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
-  private WsActionTester ws = new WsActionTester(new CurrentAction(userSessionRule, dbClient, defaultOrganizationProvider, new AvatarResolverImpl()));
+  private HomepageTypes homepageTypes = mock(HomepageTypes.class);
+
+  private WsActionTester ws = new WsActionTester(new CurrentAction(userSessionRule, dbClient, defaultOrganizationProvider, new AvatarResolverImpl(), homepageTypes));
+
+  @Before
+  public void setUp() {
+    when(homepageTypes.getDefaultType()).thenReturn(HomepageTypes.Type.MY_PROJECTS);
+    ws = new WsActionTester(new CurrentAction(userSessionRule, dbClient, defaultOrganizationProvider, new AvatarResolverImpl(), homepageTypes));
+  }
 
   @Test
   public void return_user_info() {
@@ -153,7 +163,7 @@ public class CurrentActionTest {
 
     assertThat(response.getHomepage())
       .extracting(CurrentWsResponse.Homepage::getType)
-      .containsExactly(MY_PROJECTS);
+      .containsExactly(CurrentWsResponse.HomepageType.MY_PROJECTS);
   }
 
   @Test
