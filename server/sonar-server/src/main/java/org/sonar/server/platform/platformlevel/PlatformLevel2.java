@@ -39,6 +39,7 @@ import org.sonar.server.plugins.InstalledPluginReferentialFactory;
 import org.sonar.server.plugins.ServerPluginJarExploder;
 import org.sonar.server.plugins.ServerPluginRepository;
 import org.sonar.server.plugins.WebServerExtensionInstaller;
+import org.sonar.server.startup.ClusterConfigurationCheck;
 
 public class PlatformLevel2 extends PlatformLevel {
   public PlatformLevel2(PlatformLevel parent) {
@@ -74,6 +75,10 @@ public class PlatformLevel2 extends PlatformLevel {
       MigrationHistoryTableImpl.class,
       DatabaseMigrationStateImpl.class,
       DatabaseMigrationExecutorServiceImpl.class);
+
+    addIfCluster(
+      ClusterConfigurationCheck.class
+    );
 
     addIfStartupLeader(
       DatabaseCharsetChecker.class,
