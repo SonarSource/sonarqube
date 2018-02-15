@@ -51,9 +51,11 @@ import static org.sonar.api.CoreProperties.SERVER_ID;
 import static org.sonar.api.CoreProperties.SERVER_STARTTIME;
 import static org.sonar.api.PropertyType.PROPERTY_SET;
 import static org.sonar.api.web.UserRole.USER;
+import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
 import static org.sonar.server.setting.ws.SettingsWsParameters.PARAM_BRANCH;
 import static org.sonar.server.setting.ws.SettingsWsParameters.PARAM_COMPONENT;
 import static org.sonar.server.setting.ws.SettingsWsParameters.PARAM_KEYS;
+import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
 import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
@@ -87,7 +89,7 @@ public class ValuesAction implements SettingsWsAction {
       .setDescription("List settings values.<br>" +
         "If no value has been set for a setting, then the default value is returned.<br>" +
         "The settings from conf/sonar.properties are excluded from results.<br>" +
-        "Requires 'Browse' permission when a component is specified<br/>",
+        "Requires 'Browse' or 'Execute Analysis' permission when a component is specified<br/>",
         "To access licensed settings, authentication is required<br/>" +
           "To access secured settings, one of the following permissions is required: " +
           "<ul>" +
@@ -152,7 +154,9 @@ public class ValuesAction implements SettingsWsAction {
       return Optional.empty();
     }
     ComponentDto component = componentFinder.getByKeyAndOptionalBranch(dbSession, componentKey, valuesRequest.getBranch());
-    userSession.checkComponentPermission(USER, component);
+    if (!userSession.hasComponentPermission(USER, component) && !userSession.hasComponentPermission(SCAN_EXECUTION, component)) {
+      throw insufficientPrivilegesException();
+    }
     return Optional.of(component);
   }
 
