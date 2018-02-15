@@ -69,6 +69,7 @@ import static org.sonar.api.rules.RuleType.CODE_SMELL;
 import static org.sonar.api.rules.RuleType.VULNERABILITY;
 import static org.sonar.api.utils.DateUtils.dateToLong;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
+import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
 import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonarqube.ws.WsBranches.Branch.Status;
 
@@ -113,6 +114,25 @@ public class ListActionTest {
     ComponentDto longLivingBranch = db.components().insertProjectBranch(project, b -> b.setKey("feature/bar").setBranchType(BranchType.LONG));
     ComponentDto shortLivingBranch = db.components().insertProjectBranch(project, b -> b.setKey("feature/foo").setBranchType(BranchType.SHORT).setMergeBranchUuid(longLivingBranch.uuid()));
     userSession.logIn().addProjectPermission(UserRole.USER, project);
+
+    db.getDbClient().snapshotDao().insert(db.getSession(), SnapshotTesting.newAnalysis(longLivingBranch).setLast(true).setCreatedAt(DateUtils.parseDateTime("2017-04-01T01:15:42+0100").getTime()));
+    db.getDbClient().snapshotDao().insert(db.getSession(), SnapshotTesting.newAnalysis(shortLivingBranch).setLast(true).setCreatedAt(DateUtils.parseDateTime("2017-04-03T13:37:00+0100").getTime()));
+    db.commit();
+
+    String json = ws.newRequest()
+      .setParam("project", project.getDbKey())
+      .execute()
+      .getInput();
+
+    assertJson(json).isSimilarTo(ws.getDef().responseExampleAsString());
+  }
+
+  @Test
+  public void test_with_SCAN_EXCUTION_permission() {
+    ComponentDto project = db.components().insertPrivateProject(p -> p.setDbKey("sonarqube"));
+    ComponentDto longLivingBranch = db.components().insertProjectBranch(project, b -> b.setKey("feature/bar").setBranchType(BranchType.LONG));
+    ComponentDto shortLivingBranch = db.components().insertProjectBranch(project, b -> b.setKey("feature/foo").setBranchType(BranchType.SHORT).setMergeBranchUuid(longLivingBranch.uuid()));
+    userSession.logIn().addProjectPermission(SCAN_EXECUTION, project);
 
     db.getDbClient().snapshotDao().insert(db.getSession(), SnapshotTesting.newAnalysis(longLivingBranch).setLast(true).setCreatedAt(DateUtils.parseDateTime("2017-04-01T01:15:42+0100").getTime()));
     db.getDbClient().snapshotDao().insert(db.getSession(), SnapshotTesting.newAnalysis(shortLivingBranch).setLast(true).setCreatedAt(DateUtils.parseDateTime("2017-04-03T13:37:00+0100").getTime()));
