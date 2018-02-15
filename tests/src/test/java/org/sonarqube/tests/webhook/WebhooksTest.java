@@ -151,7 +151,7 @@ public class WebhooksTest {
 
     assertThat(detail.getSuccess()).isFalse();
     assertThat(detail.hasHttpStatus()).isFalse();
-    assertThat(detail.hasDurationMs()).isFalse();
+    assertThat(detail.hasDurationMs()).isTrue();
     assertThat(detail.getPayload()).isNotEmpty();
     assertThat(detail.getErrorStacktrace())
       .contains("java.net.UnknownHostException")

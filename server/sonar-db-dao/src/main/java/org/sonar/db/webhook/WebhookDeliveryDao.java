@@ -20,10 +20,14 @@
 package org.sonar.db.webhook;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import org.apache.ibatis.session.RowBounds;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
+
+import static java.util.function.Function.identity;
+import static java.util.stream.Collectors.toMap;
 
 public class WebhookDeliveryDao implements Dao {
 
@@ -70,6 +74,12 @@ public class WebhookDeliveryDao implements Dao {
 
   public void deleteComponentBeforeDate(DbSession dbSession, String componentUuid, long beforeDate) {
     mapper(dbSession).deleteComponentBeforeDate(componentUuid, beforeDate);
+  }
+
+  public Map<String, WebhookDeliveryLiteDto> selectLatestDeliveries(DbSession dbSession, List<WebhookDto> webhooks) {
+    return webhooks.stream()
+      .flatMap(webhook -> selectByWebhookUuid(dbSession, webhook.getUuid(),0,1).stream())
+      .collect(toMap(WebhookDeliveryLiteDto::getWebhookUuid, identity()));
   }
 
   private static WebhookDeliveryMapper mapper(DbSession dbSession) {

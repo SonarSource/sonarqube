@@ -49,6 +49,7 @@ import org.sonar.db.source.FileSourceTester;
 import org.sonar.db.user.RootFlagAssertions;
 import org.sonar.db.user.UserDbTester;
 import org.sonar.db.webhook.WebhookDbTester;
+import org.sonar.db.webhook.WebhookDeliveryDbTester;
 
 import static com.google.common.base.Preconditions.checkState;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
@@ -85,6 +86,7 @@ public class DbTester extends AbstractDbTester<TestDb> {
   private final FileSourceTester fileSourceTester;
   private final PluginDbTester pluginDbTester;
   private final WebhookDbTester webhookDbTester;
+  private final WebhookDeliveryDbTester webhookDeliveryDbTester;
 
   public DbTester(System2 system2, @Nullable String schemaPath) {
     super(TestDb.create(schemaPath));
@@ -109,6 +111,7 @@ public class DbTester extends AbstractDbTester<TestDb> {
     this.fileSourceTester = new FileSourceTester(this);
     this.pluginDbTester = new PluginDbTester(this);
     this.webhookDbTester = new WebhookDbTester(this);
+    this.webhookDeliveryDbTester = new WebhookDeliveryDbTester(this);
   }
 
   public static DbTester create() {
@@ -253,6 +256,10 @@ public class DbTester extends AbstractDbTester<TestDb> {
 
   public WebhookDbTester webhooks(){
     return webhookDbTester;
+  }
+
+  public WebhookDeliveryDbTester webhookDelivery() {
+    return webhookDeliveryDbTester;
   }
 
   @Override

@@ -73,7 +73,7 @@ import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
 import static org.sonar.db.component.ComponentTesting.newProjectCopy;
-import static org.sonar.db.webhook.WebhookDbTesting.newWebhookDeliveryDto;
+import static org.sonar.db.webhook.WebhookDbTesting.newDto;
 import static org.sonar.db.webhook.WebhookDbTesting.selectAllDeliveryUuids;
 
 public class PurgeDaoTest {
@@ -524,8 +524,8 @@ public class PurgeDaoTest {
   @Test
   public void deleteProject_deletes_webhook_deliveries() {
     ComponentDto project = dbTester.components().insertPublicProject();
-    dbClient.webhookDeliveryDao().insert(dbSession, newWebhookDeliveryDto().setComponentUuid(project.uuid()).setUuid("D1"));
-    dbClient.webhookDeliveryDao().insert(dbSession, newWebhookDeliveryDto().setComponentUuid("P2").setUuid("D2"));
+    dbClient.webhookDeliveryDao().insert(dbSession, newDto().setComponentUuid(project.uuid()).setUuid("D1"));
+    dbClient.webhookDeliveryDao().insert(dbSession, newDto().setComponentUuid("P2").setUuid("D2"));
 
     underTest.deleteProject(dbSession, project.uuid());
 

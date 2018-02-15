@@ -21,6 +21,7 @@ package org.sonar.server.webhook.ws;
 
 import com.google.common.io.Resources;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
@@ -30,13 +31,17 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.webhook.WebhookDeliveryLiteDto;
 import org.sonar.db.webhook.WebhookDto;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.user.UserSession;
-import org.sonarqube.ws.Webhooks.ListWsResponse.Builder;
+import org.sonarqube.ws.Webhooks;
+import org.sonarqube.ws.Webhooks.ListResponse;
+import org.sonarqube.ws.Webhooks.ListResponseElement;
 
 import static java.util.Optional.ofNullable;
 import static org.apache.commons.lang.StringUtils.isNotBlank;
+import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.server.webhook.ws.WebhooksWsParameters.LIST_ACTION;
 import static org.sonar.server.webhook.ws.WebhooksWsParameters.ORGANIZATION_KEY_PARAM;
 import static org.sonar.server.webhook.ws.WebhooksWsParameters.PROJECT_KEY_PARAM;
@@ -45,7 +50,6 @@ import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
 import static org.sonar.server.ws.WsUtils.checkStateWithOptional;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
-import static org.sonarqube.ws.Webhooks.ListWsResponse.newBuilder;
 
 public class ListAction implements WebhooksWsAction {
 
@@ -92,53 +96,75 @@ public class ListAction implements WebhooksWsAction {
 
     userSession.checkLoggedIn();
 
-    writeResponse(request, response, doHandle(organizationKey, projectKey));
-
-  }
-
-  private List<WebhookDto> doHandle(@Nullable String organizationKey, @Nullable String projectKey) {
-
     try (DbSession dbSession = dbClient.openSession(true)) {
-
-      OrganizationDto organizationDto;
-      if (isNotBlank(organizationKey)) {
-        Optional<OrganizationDto> dtoOptional = dbClient.organizationDao().selectByKey(dbSession, organizationKey);
-        organizationDto = checkFoundWithOptional(dtoOptional, "No organization with key '%s'", organizationKey);
-      } else {
-        organizationDto = defaultOrganizationDto(dbSession);
-      }
-
-      if (isNotBlank(projectKey)) {
-
-        Optional<ComponentDto> optional = ofNullable(dbClient.componentDao().selectByKey(dbSession, projectKey).orNull());
-        ComponentDto componentDto = checkFoundWithOptional(optional, "project %s does not exist", projectKey);
-        webhookSupport.checkPermission(componentDto);
-        webhookSupport.checkThatProjectBelongsToOrganization(componentDto, organizationDto, "Project '%s' does not belong to organisation '%s'", projectKey, organizationKey);
-        webhookSupport.checkPermission(componentDto);
-        return dbClient.webhookDao().selectByProject(dbSession, componentDto);
-
-      } else {
-
-        webhookSupport.checkPermission(organizationDto);
-        return dbClient.webhookDao().selectByOrganization(dbSession, organizationDto);
-
-      }
-
+      List<WebhookDto> webhookDtos = doHandle(dbSession, organizationKey, projectKey);
+      Map<String, WebhookDeliveryLiteDto> lastDeliveries = loadLastDeliveriesOf(dbSession, webhookDtos);
+      writeResponse(request, response, webhookDtos, lastDeliveries);
     }
   }
 
-  private static void writeResponse(Request request, Response response, List<WebhookDto> webhookDtos) {
+  private Map<String, WebhookDeliveryLiteDto> loadLastDeliveriesOf(DbSession dbSession, List<WebhookDto> webhookDtos) {
+    return dbClient.webhookDeliveryDao().selectLatestDeliveries(dbSession, webhookDtos);
+  }
 
-    Builder responseBuilder = newBuilder();
+  private List<WebhookDto> doHandle(DbSession dbSession, @Nullable String organizationKey, @Nullable String projectKey) {
 
+    OrganizationDto organizationDto;
+    if (isNotBlank(organizationKey)) {
+      Optional<OrganizationDto> dtoOptional = dbClient.organizationDao().selectByKey(dbSession, organizationKey);
+      organizationDto = checkFoundWithOptional(dtoOptional, "No organization with key '%s'", organizationKey);
+    } else {
+      organizationDto = defaultOrganizationDto(dbSession);
+    }
+
+    if (isNotBlank(projectKey)) {
+
+      Optional<ComponentDto> optional = ofNullable(dbClient.componentDao().selectByKey(dbSession, projectKey).orNull());
+      ComponentDto componentDto = checkFoundWithOptional(optional, "project %s does not exist", projectKey);
+      webhookSupport.checkPermission(componentDto);
+      webhookSupport.checkThatProjectBelongsToOrganization(componentDto, organizationDto, "Project '%s' does not belong to organisation '%s'", projectKey, organizationKey);
+      webhookSupport.checkPermission(componentDto);
+      return dbClient.webhookDao().selectByProject(dbSession, componentDto);
+
+    } else {
+
+      webhookSupport.checkPermission(organizationDto);
+      return dbClient.webhookDao().selectByOrganization(dbSession, organizationDto);
+
+    }
+
+  }
+
+  private static void writeResponse(Request request, Response response, List<WebhookDto> webhookDtos, Map<String, WebhookDeliveryLiteDto> lastDeliveries) {
+    ListResponse.Builder responseBuilder = ListResponse.newBuilder();
     webhookDtos
       .stream()
-      .forEach(webhook -> responseBuilder.addWebhooksBuilder()
-        .setKey(webhook.getUuid())
-        .setName(webhook.getName())
-        .setUrl(webhook.getUrl()));
-
+      .forEach(webhook -> {
+        ListResponseElement.Builder responseElementBuilder = responseBuilder.addWebhooksBuilder();
+        responseElementBuilder
+          .setKey(webhook.getUuid())
+          .setName(webhook.getName())
+          .setUrl(webhook.getUrl());
+        addLastDelivery(responseElementBuilder, webhook, lastDeliveries);
+      });
     writeProtobuf(responseBuilder.build(), request, response);
+  }
+
+  private static void addLastDelivery(ListResponseElement.Builder responseElementBuilder, WebhookDto webhook, Map<String, WebhookDeliveryLiteDto> lastDeliveries) {
+    if (lastDeliveries.containsKey(webhook.getUuid())) {
+      WebhookDeliveryLiteDto delivery = lastDeliveries.get(webhook.getUuid());
+      Webhooks.LatestDelivery.Builder builder = responseElementBuilder.getLatestDeliveryBuilder()
+        .setId(delivery.getUuid())
+        .setAt(formatDateTime(delivery.getCreatedAt()))
+        .setSuccess(delivery.isSuccess());
+      if (delivery.getHttpStatus() != null) {
+        builder.setHttpStatus(delivery.getHttpStatus());
+      }
+      if (delivery.getDurationMs() != null) {
+        builder.setDurationMs(delivery.getDurationMs());
+      }
+      builder.build();
+    }
   }
 
   private OrganizationDto defaultOrganizationDto(DbSession dbSession) {

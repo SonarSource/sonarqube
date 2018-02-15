@@ -25,6 +25,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -33,6 +34,7 @@ import org.sonar.db.Database;
 import org.sonar.server.platform.db.migration.step.DataChange;
 import org.sonar.server.platform.db.migration.version.v63.DefaultOrganizationUuidProvider;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 
@@ -124,11 +126,13 @@ public class MigrateWebhooksToWebhooksTable extends DataChange {
     for (String value : values) {
       PropertyRow name = properties.get("sonar.webhooks.project." + value + ".name");
       PropertyRow url = properties.get("sonar.webhooks.project." + value + ".url");
-      webhooks.add(new Webhook(name, url, null, projectUuidOf(context, name)));
+      String projectUuid = checkNotNull(projectUuidOf(context, name), "Project was not found for property : sonar.webhooks.project.%s", value);
+      webhooks.add(new Webhook(name, url, null, projectUuid));
     }
     return webhooks;
   }
 
+  @CheckForNull
   private static String projectUuidOf(Context context, PropertyRow row) throws SQLException {
     return context
       .prepareSelect("select uuid from projects where id = ?")
