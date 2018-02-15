@@ -37,7 +37,7 @@ class Landing extends React.PureComponent<Props> {
   componentDidMount() {
     const { currentUser, onSonarCloud } = this.props;
     if (isLoggedIn(currentUser)) {
-      if (onSonarCloud && currentUser.homepage) {
+      if (currentUser.homepage) {
         const homepage = getHomePageUrl(currentUser.homepage);
         this.context.router.replace(homepage);
       } else {

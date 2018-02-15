@@ -24,12 +24,11 @@ import Tooltip from './Tooltip';
 import HomeIcon from '../icons-components/HomeIcon';
 import { CurrentUser, isLoggedIn, HomePage, isSameHomePage } from '../../app/types';
 import { translate } from '../../helpers/l10n';
-import { getCurrentUser, getGlobalSettingValue } from '../../store/rootReducer';
+import { getCurrentUser } from '../../store/rootReducer';
 import { setHomePage } from '../../store/users/actions';
 
 interface StateProps {
   currentUser: CurrentUser;
-  onSonarCloud: boolean;
 }
 
 interface DispatchProps {
@@ -49,9 +48,9 @@ class HomePageSelect extends React.PureComponent<Props> {
   };
 
   render() {
-    const { currentPage, currentUser, onSonarCloud } = this.props;
+    const { currentPage, currentUser } = this.props;
 
-    if (!isLoggedIn(currentUser) || !onSonarCloud) {
+    if (!isLoggedIn(currentUser)) {
       return null;
     }
 
@@ -82,14 +81,9 @@ class HomePageSelect extends React.PureComponent<Props> {
   }
 }
 
-const mapStateToProps = (state: any): StateProps => {
-  const sonarCloudSetting = getGlobalSettingValue(state, 'sonar.sonarcloud.enabled');
-
-  return {
-    currentUser: getCurrentUser(state),
-    onSonarCloud: Boolean(sonarCloudSetting && sonarCloudSetting.value === 'true')
-  };
-};
+const mapStateToProps = (state: any): StateProps => ({
+  currentUser: getCurrentUser(state)
+});
 
 const mapDispatchToProps: DispatchProps = { setHomePage };
 

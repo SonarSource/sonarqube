@@ -32,6 +32,7 @@ type Props = {|
   canSetHome: bool,
   loading: boolean,
   onReload: () => void,
+  onSonarCloud: bool,
   paging: ?Paging,
   selectedIndex: ?number
 |};
@@ -77,7 +78,9 @@ export default class PageActions extends React.PureComponent {
         {this.props.canSetHome && (
           <HomePageSelect
             className="huge-spacer-left"
-            currentPage={{ type: HomePageType.MyIssues }}
+            currentPage={{
+              type: this.props.onSonarCloud ? HomePageType.MyIssues : HomePageType.Issues
+            }}
           />
         )}
       </div>
