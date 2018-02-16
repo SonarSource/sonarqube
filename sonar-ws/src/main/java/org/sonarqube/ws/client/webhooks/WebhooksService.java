@@ -21,10 +21,10 @@ package org.sonarqube.ws.client.webhooks;
 
 import javax.annotation.Generated;
 import org.sonarqube.ws.MediaTypes;
-import org.sonarqube.ws.Webhooks;
 import org.sonarqube.ws.Webhooks.CreateWsResponse;
 import org.sonarqube.ws.Webhooks.DeliveriesWsResponse;
 import org.sonarqube.ws.Webhooks.DeliveryWsResponse;
+import org.sonarqube.ws.Webhooks.ListResponse;
 import org.sonarqube.ws.client.BaseService;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.PostRequest;
@@ -83,7 +83,10 @@ public class WebhooksService extends BaseService {
     return call(
       new GetRequest(path("deliveries"))
         .setParam("ceTaskId", request.getCeTaskId())
-        .setParam("componentKey", request.getComponentKey()),
+        .setParam("componentKey", request.getComponentKey())
+        .setParam("p", request.getP())
+        .setParam("ps", request.getPs())
+        .setParam("webhook", request.getWebhook()),
       DeliveriesWsResponse.parser());
   }
 
@@ -108,12 +111,12 @@ public class WebhooksService extends BaseService {
    * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/webhooks/list">Further information about this action online (including a response example)</a>
    * @since 7.1
    */
-  public Webhooks.ListResponse list(ListRequest request) {
+  public ListResponse list(ListRequest request) {
     return call(
       new GetRequest(path("list"))
         .setParam("organization", request.getOrganization())
         .setParam("project", request.getProject()),
-      Webhooks.ListResponse.parser());
+      ListResponse.parser());
   }
 
   /**
