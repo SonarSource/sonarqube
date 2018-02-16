@@ -84,20 +84,6 @@ import static org.sonar.core.util.Uuids.UUID_EXAMPLE_02;
 import static org.sonar.db.component.ComponentTreeQuery.Strategy.CHILDREN;
 import static org.sonar.db.component.ComponentTreeQuery.Strategy.LEAVES;
 import static org.sonar.server.component.ComponentFinder.ParamNames.BASE_COMPONENT_ID_AND_KEY;
-import static org.sonar.server.component.ComponentFinder.ParamNames.DEVELOPER_ID_AND_KEY;
-import static org.sonar.server.measure.ws.ComponentDtoToWsComponent.componentDtoToWsComponent;
-import static org.sonar.server.measure.ws.MeasureDtoToWsMeasure.updateMeasureBuilder;
-import static org.sonar.server.measure.ws.MeasuresWsParametersBuilder.createAdditionalFieldsParameter;
-import static org.sonar.server.measure.ws.MeasuresWsParametersBuilder.createDeveloperParameters;
-import static org.sonar.server.measure.ws.MeasuresWsParametersBuilder.createMetricKeysParameter;
-import static org.sonar.server.measure.ws.MetricDtoToWsMetric.metricDtoToWsMetric;
-import static org.sonar.server.measure.ws.SnapshotDtoToWsPeriods.snapshotToWsPeriods;
-import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
-import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
-import static org.sonar.server.ws.WsParameterBuilder.createQualifiersParameter;
-import static org.sonar.server.ws.WsParameterBuilder.QualifierParameterContext.newQualifierParameterContext;
-import static org.sonar.server.ws.WsUtils.checkRequest;
-import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonar.server.component.ws.MeasuresWsParameters.ACTION_COMPONENT_TREE;
 import static org.sonar.server.component.ws.MeasuresWsParameters.ADDITIONAL_METRICS;
 import static org.sonar.server.component.ws.MeasuresWsParameters.ADDITIONAL_PERIODS;
@@ -112,8 +98,23 @@ import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_METRIC_KE
 import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_METRIC_PERIOD_SORT;
 import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_METRIC_SORT;
 import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_METRIC_SORT_FILTER;
+import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_PULL_REQUEST;
 import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_QUALIFIERS;
 import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_STRATEGY;
+import static org.sonar.server.measure.ws.ComponentDtoToWsComponent.componentDtoToWsComponent;
+import static org.sonar.server.measure.ws.MeasureDtoToWsMeasure.updateMeasureBuilder;
+import static org.sonar.server.measure.ws.MeasuresWsParametersBuilder.createAdditionalFieldsParameter;
+import static org.sonar.server.measure.ws.MeasuresWsParametersBuilder.createDeveloperParameters;
+import static org.sonar.server.measure.ws.MeasuresWsParametersBuilder.createMetricKeysParameter;
+import static org.sonar.server.measure.ws.MetricDtoToWsMetric.metricDtoToWsMetric;
+import static org.sonar.server.measure.ws.SnapshotDtoToWsPeriods.snapshotToWsPeriods;
+import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
+import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
+import static org.sonar.server.ws.KeyExamples.KEY_PULL_REQUEST_EXAMPLE_001;
+import static org.sonar.server.ws.WsParameterBuilder.QualifierParameterContext.newQualifierParameterContext;
+import static org.sonar.server.ws.WsParameterBuilder.createQualifiersParameter;
+import static org.sonar.server.ws.WsUtils.checkRequest;
+import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 /**
  * <p>Navigate through components based on different strategy with specified measures.
@@ -215,6 +216,12 @@ public class ComponentTreeAction implements MeasuresWsAction {
       .setExampleValue(KEY_BRANCH_EXAMPLE_001)
       .setInternal(true)
       .setSince("6.6");
+
+    action.createParam(PARAM_PULL_REQUEST)
+      .setDescription("Pull request id")
+      .setExampleValue(KEY_PULL_REQUEST_EXAMPLE_001)
+      .setInternal(true)
+      .setSince("7.1");
 
     action.createParam(PARAM_METRIC_SORT)
       .setDescription(
@@ -343,6 +350,7 @@ public class ComponentTreeAction implements MeasuresWsAction {
       .setBaseComponentId(request.param(DEPRECATED_PARAM_BASE_COMPONENT_ID))
       .setComponent(request.param(PARAM_COMPONENT))
       .setBranch(request.param(PARAM_BRANCH))
+      .setPullRequest(request.param(PARAM_PULL_REQUEST))
       .setMetricKeys(metricKeys)
       .setStrategy(request.mandatoryParam(PARAM_STRATEGY))
       .setQualifiers(request.paramAsStrings(PARAM_QUALIFIERS))
@@ -428,13 +436,17 @@ public class ComponentTreeAction implements MeasuresWsAction {
   }
 
   private ComponentDto loadComponent(DbSession dbSession, ComponentTreeRequest request) {
-    String componentKey = request.getComponent();
     String componentId = request.getBaseComponentId();
+    String componentKey = request.getComponent();
     String branch = request.getBranch();
-    checkArgument(componentId == null || branch == null, "'%s' and '%s' parameters cannot be used at the same time", DEPRECATED_PARAM_BASE_COMPONENT_ID, PARAM_BRANCH);
-    return branch == null
-            ? componentFinder.getByUuidOrKey(dbSession, componentId, componentKey, BASE_COMPONENT_ID_AND_KEY)
-            : componentFinder.getByKeyAndBranch(dbSession, componentKey, branch);
+    String pullRequest = request.getPullRequest();
+    checkArgument(componentId == null || (branch == null && pullRequest == null), "Parameter '%s' cannot be used at the same time as '%s' or '%s'",
+      DEPRECATED_PARAM_BASE_COMPONENT_ID, PARAM_BRANCH, PARAM_PULL_REQUEST);
+    if (branch == null && pullRequest == null) {
+      return componentFinder.getByUuidOrKey(dbSession, componentId, componentKey, BASE_COMPONENT_ID_AND_KEY);
+    }
+    checkRequest(componentKey != null, "The '%s' parameter is missing", PARAM_COMPONENT);
+    return componentFinder.getByKeyAndOptionalBranchOrPullRequest(dbSession, componentKey, branch, pullRequest);
   }
 
   private Map<String, ComponentDto> searchReferenceComponentsById(DbSession dbSession, List<ComponentDto> components) {

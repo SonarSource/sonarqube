@@ -64,7 +64,7 @@ public class SourcesWsTest {
     assertThat(raw.since()).isEqualTo("5.0");
     assertThat(raw.isInternal()).isFalse();
     assertThat(raw.responseExampleAsString()).isNotEmpty();
-    assertThat(raw.params()).hasSize(2);
+    assertThat(raw.params()).hasSize(3);
 
     WebService.Action lines = controller.action("lines");
     assertThat(lines).isNotNull();
@@ -72,7 +72,7 @@ public class SourcesWsTest {
     assertThat(lines.since()).isEqualTo("5.0");
     assertThat(lines.isInternal()).isTrue();
     assertThat(lines.responseExampleAsString()).isNotEmpty();
-    assertThat(lines.params()).hasSize(5);
+    assertThat(lines.params()).hasSize(6);
 
     WebService.Action hash = controller.action("hash");
     assertThat(hash).isNotNull();

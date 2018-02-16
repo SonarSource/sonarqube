@@ -34,6 +34,7 @@ import java.util.Set;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.PropertyType;
@@ -63,6 +64,7 @@ import static org.sonar.server.setting.ws.SettingsWsParameters.PARAM_BRANCH;
 import static org.sonar.server.setting.ws.SettingsWsParameters.PARAM_COMPONENT;
 import static org.sonar.server.setting.ws.SettingsWsParameters.PARAM_FIELD_VALUES;
 import static org.sonar.server.setting.ws.SettingsWsParameters.PARAM_KEY;
+import static org.sonar.server.setting.ws.SettingsWsParameters.PARAM_PULL_REQUEST;
 import static org.sonar.server.setting.ws.SettingsWsParameters.PARAM_VALUE;
 import static org.sonar.server.setting.ws.SettingsWsParameters.PARAM_VALUES;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
@@ -133,7 +135,9 @@ public class SetAction implements SettingsWsAction {
       .setDescription("Component key")
       .setDeprecatedKey("componentKey", "6.3")
       .setExampleValue(KEY_PROJECT_EXAMPLE_001);
+
     settingsWsSupport.addBranchParam(action);
+    settingsWsSupport.addPullRequestParam(action);
   }
 
   @Override
@@ -293,7 +297,8 @@ public class SetAction implements SettingsWsAction {
       .setValues(request.multiParam(PARAM_VALUES))
       .setFieldValues(request.multiParam(PARAM_FIELD_VALUES))
       .setComponent(request.param(PARAM_COMPONENT))
-      .setBranch(request.param(PARAM_BRANCH));
+      .setBranch(request.param(PARAM_BRANCH))
+      .setPullRequest(request.param(PARAM_PULL_REQUEST));
     checkArgument(isNotEmpty(set.getKey()), "Setting key is mandatory and must not be empty");
     checkArgument(set.getValues() != null, "Setting values must not be null");
     checkArgument(set.getFieldValues() != null, "Setting fields values must not be null");
@@ -316,7 +321,7 @@ public class SetAction implements SettingsWsAction {
     if (componentKey == null) {
       return Optional.empty();
     }
-    return Optional.of(componentFinder.getByKeyAndOptionalBranch(dbSession, componentKey, request.getBranch()));
+    return Optional.of(componentFinder.getByKeyAndOptionalBranchOrPullRequest(dbSession, componentKey, request.getBranch(), request.getPullRequest()));
   }
 
   private PropertyDto toProperty(SetRequest request, Optional<ComponentDto> component) {
@@ -351,58 +356,74 @@ public class SetAction implements SettingsWsAction {
   private static class SetRequest {
 
     private String branch;
+    private String pullRequest;
     private String component;
     private List<String> fieldValues;
     private String key;
     private String value;
     private List<String> values;
 
-    public SetRequest setBranch(String branch) {
+    public SetRequest setBranch(@Nullable String branch) {
       this.branch = branch;
       return this;
     }
 
+    @CheckForNull
     public String getBranch() {
       return branch;
     }
 
-    public SetRequest setComponent(String component) {
+    public SetRequest setPullRequest(@Nullable String pullRequest) {
+      this.pullRequest = pullRequest;
+      return this;
+    }
+
+    @CheckForNull
+    public String getPullRequest() {
+      return pullRequest;
+    }
+
+    public SetRequest setComponent(@Nullable String component) {
       this.component = component;
       return this;
     }
 
+    @CheckForNull
     public String getComponent() {
       return component;
     }
 
-    public SetRequest setFieldValues(List<String> fieldValues) {
+    public SetRequest setFieldValues(@Nullable List<String> fieldValues) {
       this.fieldValues = fieldValues;
       return this;
     }
 
+    @CheckForNull
     public List<String> getFieldValues() {
       return fieldValues;
     }
 
-    public SetRequest setKey(String key) {
+    public SetRequest setKey(@Nullable String key) {
       this.key = key;
       return this;
     }
 
+    @CheckForNull
     public String getKey() {
       return key;
     }
 
-    public SetRequest setValue(String value) {
+    public SetRequest setValue(@Nullable String value) {
       this.value = value;
       return this;
     }
 
+    @CheckForNull
     public String getValue() {
       return value;
     }
 
-    public SetRequest setValues(List<String> values) {
+    public SetRequest setValues(@Nullable List<String> values) {
       this.values = values;
       return this;
     }

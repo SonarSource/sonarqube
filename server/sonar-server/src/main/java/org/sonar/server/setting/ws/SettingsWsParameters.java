@@ -43,6 +43,7 @@ public class SettingsWsParameters {
 
   public static final String PARAM_COMPONENT = "component";
   public static final String PARAM_BRANCH = "branch";
+  public static final String PARAM_PULL_REQUEST = "pullRequest";
   public static final String PARAM_KEYS = "keys";
   public static final String PARAM_KEY = "key";
   public static final String PARAM_VALUE = "value";

@@ -54,9 +54,11 @@ import static org.sonar.api.utils.DateUtils.formatDate;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
 import static org.sonar.core.util.Protobuf.setNullable;
+import static org.sonar.db.component.BranchType.PULL_REQUEST;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.SnapshotTesting.newAnalysis;
 import static org.sonar.db.event.EventTesting.newEvent;
+import static org.sonar.server.projectanalysis.ws.ProjectAnalysesWsParameters.PARAM_PULL_REQUEST;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonarqube.ws.client.WsRequest.Method.POST;
@@ -357,6 +359,24 @@ public class SearchActionTest {
   }
 
   @Test
+  public void pull_request() {
+    ComponentDto project = db.components().insertPrivateProject();
+    userSession.addProjectPermission(UserRole.USER, project);
+    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("pr-123").setBranchType(PULL_REQUEST));
+    SnapshotDto analysis = db.components().insertSnapshot(newAnalysis(branch));
+    EventDto event = db.events().insertEvent(newEvent(analysis).setCategory(EventCategory.QUALITY_GATE.getLabel()));
+
+    List<Analysis> result = call(SearchRequest.builder()
+      .setProject(project.getKey())
+      .setPullRequest("pr-123")
+      .build())
+        .getAnalysesList();
+
+    assertThat(result).extracting(Analysis::getKey).containsExactlyInAnyOrder(analysis.getUuid());
+    assertThat(result.get(0).getEventsList()).extracting(Event::getKey).containsExactlyInAnyOrder(event.getUuid());
+  }
+
+  @Test
   public void empty_response() {
     ComponentDto project = db.components().insertPrivateProject();
     userSession.addProjectPermission(UserRole.USER, project);
@@ -422,7 +442,7 @@ public class SearchActionTest {
     assertThat(definition.responseExampleAsString()).isNotEmpty();
     assertThat(definition.param("project").isRequired()).isTrue();
     assertThat(definition.param("category")).isNotNull();
-    assertThat(definition.params()).hasSize(7);
+    assertThat(definition.params()).hasSize(8);
 
     Param from = definition.param("from");
     assertThat(from.since()).isEqualTo("6.5");
@@ -451,6 +471,7 @@ public class SearchActionTest {
       .setMethod(POST.name());
     setNullable(wsRequest.getProject(), project -> request.setParam(PARAM_PROJECT, project));
     setNullable(wsRequest.getBranch(), branch -> request.setParam(PARAM_BRANCH, branch));
+    setNullable(wsRequest.getPullRequest(), branch -> request.setParam(PARAM_PULL_REQUEST, branch));
     setNullable(wsRequest.getCategory(), category -> request.setParam(PARAM_CATEGORY, category.name()));
     setNullable(wsRequest.getPage(), page -> request.setParam(Param.PAGE, String.valueOf(page)));
     setNullable(wsRequest.getPageSize(), pageSize -> request.setParam(Param.PAGE_SIZE, String.valueOf(pageSize)));

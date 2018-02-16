@@ -58,17 +58,7 @@ import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
 import static java.util.Collections.singletonMap;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
-import static org.sonar.server.component.ComponentFinder.ParamNames.COMPONENT_ID_AND_COMPONENT;
-import static org.sonar.server.measure.ws.ComponentDtoToWsComponent.componentDtoToWsComponent;
-import static org.sonar.server.measure.ws.MeasuresWsParametersBuilder.createAdditionalFieldsParameter;
-import static org.sonar.server.measure.ws.MeasuresWsParametersBuilder.createDeveloperParameters;
-import static org.sonar.server.measure.ws.MeasuresWsParametersBuilder.createMetricKeysParameter;
-import static org.sonar.server.measure.ws.MetricDtoToWsMetric.metricDtoToWsMetric;
-import static org.sonar.server.measure.ws.SnapshotDtoToWsPeriods.snapshotToWsPeriods;
-import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
-import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
-import static org.sonar.server.ws.WsUtils.checkRequest;
-import static org.sonar.server.ws.WsUtils.writeProtobuf;
+import static org.sonar.server.component.ComponentFinder.ParamNames.COMPONENT_ID_AND_KEY;
 import static org.sonar.server.component.ws.MeasuresWsParameters.ACTION_COMPONENT;
 import static org.sonar.server.component.ws.MeasuresWsParameters.ADDITIONAL_METRICS;
 import static org.sonar.server.component.ws.MeasuresWsParameters.ADDITIONAL_PERIODS;
@@ -80,6 +70,18 @@ import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_COMPONENT
 import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_DEVELOPER_ID;
 import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_DEVELOPER_KEY;
 import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_METRIC_KEYS;
+import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_PULL_REQUEST;
+import static org.sonar.server.measure.ws.ComponentDtoToWsComponent.componentDtoToWsComponent;
+import static org.sonar.server.measure.ws.MeasuresWsParametersBuilder.createAdditionalFieldsParameter;
+import static org.sonar.server.measure.ws.MeasuresWsParametersBuilder.createDeveloperParameters;
+import static org.sonar.server.measure.ws.MeasuresWsParametersBuilder.createMetricKeysParameter;
+import static org.sonar.server.measure.ws.MetricDtoToWsMetric.metricDtoToWsMetric;
+import static org.sonar.server.measure.ws.SnapshotDtoToWsPeriods.snapshotToWsPeriods;
+import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
+import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
+import static org.sonar.server.ws.KeyExamples.KEY_PULL_REQUEST_EXAMPLE_001;
+import static org.sonar.server.ws.WsUtils.checkRequest;
+import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class ComponentAction implements MeasuresWsAction {
   private static final Set<String> QUALIFIERS_ELIGIBLE_FOR_BEST_VALUE = ImmutableSortedSet.of(Qualifiers.FILE, Qualifiers.UNIT_TEST_FILE);
@@ -123,6 +125,12 @@ public class ComponentAction implements MeasuresWsAction {
       .setInternal(true)
       .setSince("6.6");
 
+    action.createParam(PARAM_PULL_REQUEST)
+      .setDescription("Pull request id")
+      .setExampleValue(KEY_PULL_REQUEST_EXAMPLE_001)
+      .setInternal(true)
+      .setSince("7.1");
+
     createMetricKeysParameter(action);
     createAdditionalFieldsParameter(action);
     createDeveloperParameters(action);
@@ -156,10 +164,14 @@ public class ComponentAction implements MeasuresWsAction {
     String componentKey = request.getComponent();
     String componentId = request.getComponentId();
     String branch = request.getBranch();
-    checkArgument(componentId == null || branch == null, "'%s' and '%s' parameters cannot be used at the same time", DEPRECATED_PARAM_COMPONENT_ID, PARAM_BRANCH);
-    return branch == null
-      ? componentFinder.getByUuidOrKey(dbSession, componentId, componentKey, COMPONENT_ID_AND_COMPONENT)
-      : componentFinder.getByKeyAndBranch(dbSession, componentKey, branch);
+    String pullRequest = request.getPullRequest();
+    checkArgument(componentId == null || (branch == null && pullRequest == null), "Parameter '%s' cannot be used at the same time as '%s' or '%s'",
+      DEPRECATED_PARAM_COMPONENT_ID, PARAM_BRANCH, PARAM_PULL_REQUEST);
+    if (branch == null && pullRequest == null) {
+      return componentFinder.getByUuidOrKey(dbSession, componentId, componentKey, COMPONENT_ID_AND_KEY);
+    }
+    checkRequest(componentKey != null, "The '%s' parameter is missing", PARAM_COMPONENT);
+    return componentFinder.getByKeyAndOptionalBranchOrPullRequest(dbSession, componentKey, branch, pullRequest);
   }
 
   private Optional<ComponentDto> getReferenceComponent(DbSession dbSession, ComponentDto component) {
@@ -251,6 +263,7 @@ public class ComponentAction implements MeasuresWsAction {
       .setComponentId(request.param(DEPRECATED_PARAM_COMPONENT_ID))
       .setComponent(request.param(PARAM_COMPONENT))
       .setBranch(request.param(PARAM_BRANCH))
+      .setPullRequest(request.param(PARAM_PULL_REQUEST))
       .setAdditionalFields(request.paramAsStrings(PARAM_ADDITIONAL_FIELDS))
       .setMetricKeys(request.mandatoryParamAsStrings(PARAM_METRIC_KEYS));
     checkRequest(!componentRequest.getMetricKeys().isEmpty(), "At least one metric key must be provided");
@@ -265,6 +278,7 @@ public class ComponentAction implements MeasuresWsAction {
     private String componentId;
     private String component;
     private String branch;
+    private String pullRequest;
     private List<String> metricKeys;
     private List<String> additionalFields;
     private String developerId;
@@ -305,6 +319,16 @@ public class ComponentAction implements MeasuresWsAction {
 
     private ComponentRequest setBranch(@Nullable String branch) {
       this.branch = branch;
+      return this;
+    }
+
+    @CheckForNull
+    public String getPullRequest() {
+      return pullRequest;
+    }
+
+    public ComponentRequest setPullRequest(@Nullable String pullRequest) {
+      this.pullRequest = pullRequest;
       return this;
     }
 

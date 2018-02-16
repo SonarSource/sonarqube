@@ -30,6 +30,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.server.ws.Change;
@@ -54,7 +56,7 @@ import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.server.setting.ws.SettingsWsParameters.PARAM_BRANCH;
 import static org.sonar.server.setting.ws.SettingsWsParameters.PARAM_COMPONENT;
 import static org.sonar.server.setting.ws.SettingsWsParameters.PARAM_KEYS;
-import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
+import static org.sonar.server.setting.ws.SettingsWsParameters.PARAM_PULL_REQUEST;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
@@ -105,11 +107,8 @@ public class ValuesAction implements SettingsWsAction {
     action.createParam(PARAM_COMPONENT)
       .setDescription("Component key")
       .setExampleValue(KEY_PROJECT_EXAMPLE_001);
-    action.createParam(PARAM_BRANCH)
-      .setDescription("Branch key")
-      .setExampleValue(KEY_BRANCH_EXAMPLE_001)
-      .setInternal(true)
-      .setSince("6.6");
+    settingsWsSupport.addBranchParam(action);
+    settingsWsSupport.addPullRequestParam(action);
   }
 
   @Override
@@ -133,7 +132,8 @@ public class ValuesAction implements SettingsWsAction {
   private static ValuesRequest toWsRequest(Request request) {
     ValuesRequest result = new ValuesRequest()
       .setComponent(request.param(PARAM_COMPONENT))
-      .setBranch(request.param(PARAM_BRANCH));
+      .setBranch(request.param(PARAM_BRANCH))
+      .setPullRequest(request.param(PARAM_PULL_REQUEST));
     if (request.hasParam(PARAM_KEYS)) {
       result.setKeys(request.paramAsStrings(PARAM_KEYS));
     }
@@ -151,7 +151,7 @@ public class ValuesAction implements SettingsWsAction {
     if (componentKey == null) {
       return Optional.empty();
     }
-    ComponentDto component = componentFinder.getByKeyAndOptionalBranch(dbSession, componentKey, valuesRequest.getBranch());
+    ComponentDto component = componentFinder.getByKeyAndOptionalBranchOrPullRequest(dbSession, componentKey, valuesRequest.getBranch(), valuesRequest.getPullRequest());
     userSession.checkComponentPermission(USER, component);
     return Optional.of(component);
   }
@@ -296,32 +296,46 @@ public class ValuesAction implements SettingsWsAction {
   private static class ValuesRequest {
 
     private String branch;
+    private String pullRequest;
     private String component;
     private List<String> keys;
 
-    public ValuesRequest setBranch(String branch) {
+    public ValuesRequest setBranch(@Nullable String branch) {
       this.branch = branch;
       return this;
     }
 
+    @CheckForNull
     public String getBranch() {
       return branch;
     }
 
-    public ValuesRequest setComponent(String component) {
+    public ValuesRequest setPullRequest(@Nullable String pullRequest) {
+      this.pullRequest = pullRequest;
+      return this;
+    }
+
+    @CheckForNull
+    public String getPullRequest() {
+      return pullRequest;
+    }
+
+    public ValuesRequest setComponent(@Nullable String component) {
       this.component = component;
       return this;
     }
 
+    @CheckForNull
     public String getComponent() {
       return component;
     }
 
-    public ValuesRequest setKeys(List<String> keys) {
+    public ValuesRequest setKeys(@Nullable List<String> keys) {
       this.keys = keys;
       return this;
     }
 
+    @CheckForNull
     public List<String> getKeys() {
       return keys;
     }

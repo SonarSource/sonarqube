@@ -31,6 +31,7 @@ class SearchRequest {
 
   private final String project;
   private final String branch;
+  private final String pullRequest;
   private final EventCategory category;
   private final int page;
   private final int pageSize;
@@ -39,7 +40,8 @@ class SearchRequest {
 
   private SearchRequest(Builder builder) {
     this.project = builder.project;
-    this.branch= builder.branch;
+    this.branch = builder.branch;
+    this.pullRequest = builder.pullRequest;
     this.category = builder.category;
     this.page = builder.page;
     this.pageSize = builder.pageSize;
@@ -54,6 +56,11 @@ class SearchRequest {
   @CheckForNull
   public String getBranch() {
     return branch;
+  }
+
+  @CheckForNull
+  public String getPullRequest() {
+    return pullRequest;
   }
 
   @CheckForNull
@@ -86,6 +93,7 @@ class SearchRequest {
   public static class Builder {
     private String project;
     private String branch;
+    private String pullRequest;
     private EventCategory category;
     private int page = 1;
     private int pageSize = DEFAULT_PAGE_SIZE;
@@ -103,6 +111,11 @@ class SearchRequest {
 
     public Builder setBranch(@Nullable String branch) {
       this.branch = branch;
+      return this;
+    }
+
+    public Builder setPullRequest(@Nullable String pullRequest) {
+      this.pullRequest = pullRequest;
       return this;
     }
 
