@@ -60,6 +60,8 @@ import org.sonar.server.computation.task.projectanalysis.component.DepthTraversa
 import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolder;
 import org.sonar.server.computation.task.projectanalysis.component.TypeAwareVisitorAdapter;
 import org.sonar.server.computation.task.projectanalysis.filemove.FileSimilarity.File;
+import org.sonar.server.computation.task.projectanalysis.filemove.FileSimilarity.FileImpl;
+import org.sonar.server.computation.task.projectanalysis.filemove.FileSimilarity.LazyFileImpl;
 import org.sonar.server.computation.task.projectanalysis.source.SourceLinesRepository;
 import org.sonar.server.computation.task.step.ComputationStep;
 
@@ -193,16 +195,24 @@ public class FileMoveDetectionStep implements ComputationStep {
       // FIXME computation of sourceHash and lineHashes might be done multiple times for some files: here, in ComputeFileSourceData, in
       // SourceHashRepository
       Component component = reportFilesByKey.get(fileKey);
-      SourceLinesHashesComputer linesHashesComputer = new SourceLinesHashesComputer();
-      try (CloseableIterator<String> lineIterator = sourceLinesRepository.readLines(component)) {
-        while (lineIterator.hasNext()) {
-          String line = lineIterator.next();
-          linesHashesComputer.addLine(line);
-        }
-      }
-      builder.put(fileKey, new File(component.getReportAttributes().getPath(), linesHashesComputer.getLineHashes()));
+      File file = new LazyFileImpl(
+        component.getReportAttributes().getPath(),
+        () -> getReportFileLineHashes(component),
+        component.getFileAttributes().getLines());
+      builder.put(fileKey, file);
     }
     return builder.build();
+  }
+
+  private List<String> getReportFileLineHashes(Component component) {
+    SourceLinesHashesComputer linesHashesComputer = new SourceLinesHashesComputer();
+    try (CloseableIterator<String> lineIterator = sourceLinesRepository.readLines(component)) {
+      while (lineIterator.hasNext()) {
+        String line = lineIterator.next();
+        linesHashesComputer.addLine(line);
+      }
+    }
+    return linesHashesComputer.getLineHashes();
   }
 
   private ScoreMatrix computeScoreMatrix(Map<String, DbComponent> dtosByKey, Set<String> removedFileKeys, Map<String, File> newFileSourcesByKey) {
@@ -282,7 +292,7 @@ public class FileMoveDetectionStep implements ComputationStep {
           break;
         }
 
-        File fileInDb = new File(lineHashesDto.getPath(), lineHashesDto.getLineHashes());
+        File fileInDb = new FileImpl(lineHashesDto.getPath(), lineHashesDto.getLineHashes());
         File unmatchedFile = newFileSourcesByKey.get(newFile.getFileKey());
         int score = fileSimilarity.score(fileInDb, unmatchedFile);
         scoreMatrix[removeFileIndex][newFileIndex] = score;
