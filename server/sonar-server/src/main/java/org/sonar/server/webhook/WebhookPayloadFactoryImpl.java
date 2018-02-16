@@ -35,7 +35,7 @@ import org.sonar.server.qualitygate.EvaluatedCondition;
 import org.sonar.server.qualitygate.EvaluatedQualityGate;
 
 import static java.lang.String.format;
-import static org.sonar.core.config.WebhookProperties.ANALYSIS_PROPERTY_PREFIX;
+import static org.sonar.core.config.CorePropertyDefinitions.SONAR_ANALYSIS;
 
 @ComputeEngineSide
 public class WebhookPayloadFactoryImpl implements WebhookPayloadFactory {
@@ -91,7 +91,7 @@ public class WebhookPayloadFactoryImpl implements WebhookPayloadFactory {
       .beginObject();
     properties.entrySet()
       .stream()
-      .filter(prop -> prop.getKey().startsWith(ANALYSIS_PROPERTY_PREFIX))
+      .filter(prop -> prop.getKey().startsWith(SONAR_ANALYSIS))
       .forEach(prop -> writer.prop(prop.getKey(), prop.getValue()));
     writer.endObject();
   }

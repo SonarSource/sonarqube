@@ -38,6 +38,7 @@ public class CorePropertyDefinitions {
   public static final String LEAK_PERIOD_MODE_VERSION = "version";
   public static final String LEAK_PERIOD_MODE_DAYS = "days";
   public static final String LEAK_PERIOD_MODE_PREVIOUS_VERSION = "previous_version";
+  public static final String SONAR_ANALYSIS = "sonar.analysis.";
 
   private static final String DEFAULT_LEAK_PERIOD = LEAK_PERIOD_MODE_PREVIOUS_VERSION;
 
@@ -60,7 +61,6 @@ public class CorePropertyDefinitions {
     defs.addAll(DebtProperties.all());
     defs.addAll(PurgeProperties.all());
     defs.addAll(EmailSettings.definitions());
-    defs.addAll(WebhookProperties.all());
     defs.addAll(ScannerProperties.all());
 
     defs.addAll(asList(
