@@ -76,7 +76,7 @@ public class ShowActionTest {
     assertThat(show.since()).isEqualTo("4.4");
     assertThat(show.isInternal()).isFalse();
     assertThat(show.responseExampleAsString()).isNotEmpty();
-    assertThat(show.params()).hasSize(3);
+    assertThat(show.params()).hasSize(4);
   }
 
   @Test

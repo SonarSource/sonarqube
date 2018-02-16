@@ -28,6 +28,7 @@ class ComponentTreeRequest {
   private String baseComponentId;
   private String component;
   private String branch;
+  private String pullRequest;
   private String strategy;
   private List<String> qualifiers;
   private List<String> additionalFields;
@@ -78,6 +79,16 @@ class ComponentTreeRequest {
 
   public ComponentTreeRequest setBranch(@Nullable String branch) {
     this.branch = branch;
+    return this;
+  }
+
+  @CheckForNull
+  public String getPullRequest() {
+    return pullRequest;
+  }
+
+  public ComponentTreeRequest setPullRequest(@Nullable String pullRequest) {
+    this.pullRequest = pullRequest;
     return this;
   }
 

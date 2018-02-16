@@ -31,6 +31,8 @@ public class KeyExamples {
 
   public static final String KEY_BRANCH_EXAMPLE_001 = "feature/my_branch";
 
+  public static final String KEY_PULL_REQUEST_EXAMPLE_001 = "5461";
+
   private KeyExamples() {
     // prevent instantiation
   }

@@ -41,12 +41,14 @@ import static org.apache.commons.io.IOUtils.write;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
+import static org.sonar.server.ws.KeyExamples.KEY_PULL_REQUEST_EXAMPLE_001;
 import static org.sonarqube.ws.MediaTypes.SVG;
 
 public class QualityGateAction implements ProjectBadgesWsAction {
 
   private static final String PARAM_PROJECT = "project";
   private static final String PARAM_BRANCH = "branch";
+  private static final String PARAM_PULL_REQUEST = "pullRequest";
 
   private final UserSession userSession;
   private final DbClient dbClient;
@@ -76,6 +78,10 @@ public class QualityGateAction implements ProjectBadgesWsAction {
       .createParam(PARAM_BRANCH)
       .setDescription("Branch key")
       .setExampleValue(KEY_BRANCH_EXAMPLE_001);
+    action
+      .createParam(PARAM_PULL_REQUEST)
+      .setDescription("Pull request id")
+      .setExampleValue(KEY_PULL_REQUEST_EXAMPLE_001);
   }
 
   @Override
@@ -83,8 +89,9 @@ public class QualityGateAction implements ProjectBadgesWsAction {
     response.stream().setMediaType(SVG);
     String projectKey = request.mandatoryParam(PARAM_PROJECT);
     String branch = request.param(PARAM_BRANCH);
+    String pullRequest = request.param(PARAM_PULL_REQUEST);
     try (DbSession dbSession = dbClient.openSession(false)) {
-      ComponentDto project = componentFinder.getByKeyAndOptionalBranch(dbSession, projectKey, branch);
+      ComponentDto project = componentFinder.getByKeyAndOptionalBranchOrPullRequest(dbSession, projectKey, branch, pullRequest);
       userSession.checkComponentPermission(USER, project);
       Level qualityGateStatus = getQualityGate(dbSession, project);
       write(svgGenerator.generateQualityGate(qualityGateStatus), response.stream().output(), UTF_8);

@@ -25,6 +25,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Stream;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -46,22 +48,21 @@ import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.KeyExamples;
 import org.sonarqube.ws.Measures.SearchHistoryResponse;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
 import static java.lang.String.format;
 import static org.sonar.api.utils.DateUtils.parseEndingDateOrDateTime;
 import static org.sonar.api.utils.DateUtils.parseStartingDateOrDateTime;
 import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.db.component.SnapshotDto.STATUS_PROCESSED;
-import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
-import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonar.server.component.ws.MeasuresWsParameters.ACTION_SEARCH_HISTORY;
 import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_BRANCH;
 import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_COMPONENT;
 import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_FROM;
 import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_METRICS;
+import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_PULL_REQUEST;
 import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_TO;
+import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
+import static org.sonar.server.ws.KeyExamples.KEY_PULL_REQUEST_EXAMPLE_001;
+import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class SearchHistoryAction implements MeasuresWsAction {
 
@@ -76,18 +77,6 @@ public class SearchHistoryAction implements MeasuresWsAction {
     this.dbClient = dbClient;
     this.componentFinder = componentFinder;
     this.userSession = userSession;
-  }
-
-  private static SearchHistoryRequest toWsRequest(Request request) {
-    return SearchHistoryRequest.builder()
-      .setComponent(request.mandatoryParam(PARAM_COMPONENT))
-      .setBranch(request.param(PARAM_BRANCH))
-      .setMetrics(request.mandatoryParamAsStrings(PARAM_METRICS))
-      .setFrom(request.param(PARAM_FROM))
-      .setTo(request.param(PARAM_TO))
-      .setPage(request.mandatoryParamAsInt(Param.PAGE))
-      .setPageSize(request.mandatoryParamAsInt(Param.PAGE_SIZE))
-      .build();
   }
 
   @Override
@@ -111,6 +100,12 @@ public class SearchHistoryAction implements MeasuresWsAction {
       .setSince("6.6")
       .setInternal(true)
       .setExampleValue(KEY_BRANCH_EXAMPLE_001);
+
+    action.createParam(PARAM_PULL_REQUEST)
+      .setDescription("Pull request id")
+      .setSince("7.1")
+      .setInternal(true)
+      .setExampleValue(KEY_PULL_REQUEST_EXAMPLE_001);
 
     action.createParam(PARAM_METRICS)
       .setDescription("Comma-separated list of metric keys")
@@ -139,6 +134,19 @@ public class SearchHistoryAction implements MeasuresWsAction {
       .collect(MoreCollectors.toOneElement());
 
     writeProtobuf(searchHistoryResponse, request, response);
+  }
+
+  private static SearchHistoryRequest toWsRequest(Request request) {
+    return SearchHistoryRequest.builder()
+      .setComponent(request.mandatoryParam(PARAM_COMPONENT))
+      .setBranch(request.param(PARAM_BRANCH))
+      .setPullRequest(request.param(PARAM_PULL_REQUEST))
+      .setMetrics(request.mandatoryParamAsStrings(PARAM_METRICS))
+      .setFrom(request.param(PARAM_FROM))
+      .setTo(request.param(PARAM_TO))
+      .setPage(request.mandatoryParamAsInt(Param.PAGE))
+      .setPageSize(request.mandatoryParamAsInt(Param.PAGE_SIZE))
+      .build();
   }
 
   private Function<SearchHistoryRequest, SearchHistoryResult> search() {
@@ -199,15 +207,14 @@ public class SearchHistoryAction implements MeasuresWsAction {
   private ComponentDto loadComponent(DbSession dbSession, SearchHistoryRequest request) {
     String componentKey = request.getComponent();
     String branch = request.getBranch();
-    if (branch != null) {
-      return componentFinder.getByKeyAndBranch(dbSession, componentKey, branch);
-    }
-    return componentFinder.getByKey(dbSession, componentKey);
+    String pullRequest = request.getPullRequest();
+    return componentFinder.getByKeyAndOptionalBranchOrPullRequest(dbSession, componentKey, branch, pullRequest);
   }
 
   static class SearchHistoryRequest {
     private final String component;
     private final String branch;
+    private final String pullRequest;
     private final List<String> metrics;
     private final String from;
     private final String to;
@@ -217,6 +224,7 @@ public class SearchHistoryAction implements MeasuresWsAction {
     public SearchHistoryRequest(Builder builder) {
       this.component = builder.component;
       this.branch = builder.branch;
+      this.pullRequest = builder.pullRequest;
       this.metrics = builder.metrics;
       this.from = builder.from;
       this.to = builder.to;
@@ -231,6 +239,11 @@ public class SearchHistoryAction implements MeasuresWsAction {
     @CheckForNull
     public String getBranch() {
       return branch;
+    }
+
+    @CheckForNull
+    public String getPullRequest() {
+      return pullRequest;
     }
 
     public List<String> getMetrics() {
@@ -263,6 +276,7 @@ public class SearchHistoryAction implements MeasuresWsAction {
   static class Builder {
     private String component;
     private String branch;
+    private String pullRequest;
     private List<String> metrics;
     private String from;
     private String to;
@@ -280,6 +294,11 @@ public class SearchHistoryAction implements MeasuresWsAction {
 
     public Builder setBranch(@Nullable String branch) {
       this.branch = branch;
+      return this;
+    }
+
+    public Builder setPullRequest(@Nullable String pullRequest) {
+      this.pullRequest = pullRequest;
       return this;
     }
 

@@ -50,8 +50,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
 import static org.sonar.api.web.UserRole.USER;
+import static org.sonar.db.component.BranchType.PULL_REQUEST;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newProjectCopy;
+import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_PULL_REQUEST;
 import static org.sonar.server.computation.task.projectanalysis.metric.Metric.MetricType.INT;
 import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonar.server.component.ws.MeasuresWsParameters.DEPRECATED_PARAM_COMPONENT_ID;
@@ -78,7 +80,7 @@ public class ComponentActionTest {
 
     assertThat(def.since()).isEqualTo("5.4");
     assertThat(def.params()).extracting(Param::key)
-      .containsExactlyInAnyOrder("componentId", "component", "branch", "metricKeys", "additionalFields", "developerId", "developerKey");
+      .containsExactlyInAnyOrder("componentId", "component", "branch", "pullRequest", "metricKeys", "additionalFields", "developerId", "developerKey");
     assertThat(def.param("developerId").deprecatedSince()).isEqualTo("6.4");
     assertThat(def.param("developerKey").deprecatedSince()).isEqualTo("6.4");
     assertThat(def.param("componentId").deprecatedSince()).isEqualTo("6.6");
@@ -132,6 +134,29 @@ public class ComponentActionTest {
     ComponentWsResponse response = ws.newRequest()
       .setParam(PARAM_COMPONENT, file.getKey())
       .setParam(PARAM_BRANCH, file.getBranch())
+      .setParam(PARAM_METRIC_KEYS, complexity.getKey())
+      .executeProtobuf(ComponentWsResponse.class);
+
+    assertThat(response.getComponent()).extracting(Component::getKey, Component::getBranch)
+      .containsExactlyInAnyOrder(file.getKey(), file.getBranch());
+    assertThat(response.getComponent().getMeasuresList())
+      .extracting(Measures.Measure::getMetric, m -> parseDouble(m.getValue()))
+      .containsExactlyInAnyOrder(tuple(complexity.getKey(), measure.getValue()));
+  }
+
+  @Test
+  public void pull_request() {
+    ComponentDto project = db.components().insertPrivateProject();
+    userSession.addProjectPermission(UserRole.USER, project);
+    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("pr-123").setBranchType(PULL_REQUEST));
+    SnapshotDto analysis = db.components().insertSnapshot(branch);
+    ComponentDto file = db.components().insertComponent(newFileDto(branch));
+    MetricDto complexity = db.measures().insertMetric(m1 -> m1.setKey("complexity").setValueType(INT.name()));
+    LiveMeasureDto measure = db.measures().insertLiveMeasure(file, complexity, m -> m.setValue(12.0d).setVariation(2.0d));
+
+    ComponentWsResponse response = ws.newRequest()
+      .setParam(PARAM_COMPONENT, file.getKey())
+      .setParam(PARAM_PULL_REQUEST, "pr-123")
       .setParam(PARAM_METRIC_KEYS, complexity.getKey())
       .executeProtobuf(ComponentWsResponse.class);
 
@@ -351,7 +376,7 @@ public class ComponentActionTest {
     db.components().insertProjectBranch(project, b -> b.setKey("my_branch"));
 
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("'componentId' and 'branch' parameters cannot be used at the same time");
+    expectedException.expectMessage("Parameter 'componentId' cannot be used at the same time as 'branch' or 'pullRequest'");
 
     ws.newRequest()
       .setParam(DEPRECATED_PARAM_COMPONENT_ID, file.uuid())

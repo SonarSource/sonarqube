@@ -99,7 +99,7 @@ public class ListActionTest {
     assertThat(action.isPost()).isFalse();
     assertThat(action.handler()).isNotNull();
     assertThat(action.responseExampleAsString()).isNotEmpty();
-    assertThat(action.params()).hasSize(9);
+    assertThat(action.params()).hasSize(10);
     assertThat(action.description()).isEqualTo("Get the list of tests either in a test file or that test a given line of source code.<br /> " +
       "Requires 'Browse' permission on the file's project.<br /> " +
       "One (and only one) of the following combination of parameters must be provided: " +

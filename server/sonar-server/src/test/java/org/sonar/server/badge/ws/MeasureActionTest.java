@@ -286,6 +286,7 @@ public class MeasureActionTest {
       .containsExactlyInAnyOrder(
         tuple("project", true),
         tuple("branch", false),
+        tuple("pullRequest", false),
         tuple("metric", true));
   }
 
