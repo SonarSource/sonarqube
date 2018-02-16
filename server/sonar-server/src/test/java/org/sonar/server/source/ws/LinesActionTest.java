@@ -47,6 +47,7 @@ import static java.lang.String.format;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.db.component.BranchType.PULL_REQUEST;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 
 public class LinesActionTest {
@@ -137,6 +138,26 @@ public class LinesActionTest {
     WsTester.TestRequest request = wsTester.newGetRequest("api/sources", "lines")
       .setParam("key", file.getKey())
       .setParam("branch", file.getBranch());
+
+    request.execute().assertJson(getClass(), "show_source.json");
+  }
+
+  @Test
+  public void pull_request() throws Exception {
+    ComponentDto project = db.components().insertMainBranch();
+    userSession.addProjectPermission(UserRole.USER, project);
+    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(PULL_REQUEST));
+    ComponentDto file = db.components().insertComponent(newFileDto(branch));
+    db.getDbClient().fileSourceDao().insert(db.getSession(), new FileSourceDto()
+      .setProjectUuid(branch.uuid())
+      .setFileUuid(file.uuid())
+      .setSourceData(FileSourceTesting.newFakeData(3).build()));
+    db.commit();
+    userSession.logIn("login").addProjectPermission(UserRole.CODEVIEWER, project, file);
+
+    WsTester.TestRequest request = wsTester.newGetRequest("api/sources", "lines")
+      .setParam("key", file.getKey())
+      .setParam("pullRequest", file.getBranch());
 
     request.execute().assertJson(getClass(), "show_source.json");
   }
@@ -285,7 +306,7 @@ public class LinesActionTest {
     db.components().insertProjectBranch(project, b -> b.setKey("my_branch"));
 
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("'uuid' and 'branch' parameters cannot be used at the same time");
+    expectedException.expectMessage("Parameter 'uuid' cannot be used at the same time as 'branch' or 'pullRequest'");
 
     wsTester.newGetRequest("api/sources", "lines")
       .setParam("uuid", file.uuid())

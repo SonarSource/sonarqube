@@ -57,9 +57,11 @@ import static org.sonar.api.measures.CoreMetrics.VIOLATIONS;
 import static org.sonar.api.measures.CoreMetrics.VIOLATIONS_KEY;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
 import static org.sonar.server.component.ComponentFinder.ParamNames.COMPONENT_ID_AND_COMPONENT;
+import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_BRANCH;
+import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_PULL_REQUEST;
 import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
-import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_BRANCH;
+import static org.sonar.server.ws.KeyExamples.KEY_PULL_REQUEST_EXAMPLE_001;
 
 public class AppAction implements ComponentsWsAction {
 
@@ -110,6 +112,12 @@ public class AppAction implements ComponentsWsAction {
       .setSince("6.6")
       .setInternal(true)
       .setExampleValue(KEY_BRANCH_EXAMPLE_001);
+
+    action.createParam(PARAM_PULL_REQUEST)
+      .setDescription("Pull request id")
+      .setSince("7.1")
+      .setInternal(true)
+      .setExampleValue(KEY_PULL_REQUEST_EXAMPLE_001);
   }
 
   @Override
@@ -131,12 +139,14 @@ public class AppAction implements ComponentsWsAction {
 
   private ComponentDto loadComponent(DbSession dbSession, Request request) {
     String componentUuid = request.param(PARAM_COMPONENT_ID);
-    String branch = request.param("branch");
-    checkArgument(componentUuid == null || branch == null, "'%s' and '%s' parameters cannot be used at the same time", PARAM_COMPONENT_ID, PARAM_BRANCH);
-    if (branch == null) {
+    String branch = request.param(PARAM_BRANCH);
+    String pullRequest = request.param(PARAM_PULL_REQUEST);
+    checkArgument(componentUuid == null || (branch == null && pullRequest == null), "Parameter '%s' cannot be used at the same time as '%s' or '%s'", PARAM_COMPONENT_ID,
+      PARAM_BRANCH, PARAM_PULL_REQUEST);
+    if (branch == null && pullRequest == null) {
       return componentFinder.getByUuidOrKey(dbSession, componentUuid, request.param(PARAM_COMPONENT), COMPONENT_ID_AND_COMPONENT);
     }
-    return componentFinder.getByKeyAndOptionalBranch(dbSession, request.mandatoryParam(PARAM_COMPONENT), branch);
+    return componentFinder.getByKeyAndOptionalBranchOrPullRequest(dbSession, request.mandatoryParam(PARAM_COMPONENT), branch, pullRequest);
   }
 
   private void appendComponent(JsonWriter json, ComponentDto component, UserSession userSession, DbSession session) {
@@ -168,6 +178,7 @@ public class AppAction implements ComponentsWsAction {
     if (branch != null) {
       json.prop("branch", branch);
     }
+    //TODO set pullRequest and pullRequestTitle
 
     json.prop("fav", isFavourite);
   }

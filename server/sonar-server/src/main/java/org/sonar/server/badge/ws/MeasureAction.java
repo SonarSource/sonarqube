@@ -55,7 +55,6 @@ import static org.sonar.api.measures.CoreMetrics.SECURITY_RATING_KEY;
 import static org.sonar.api.measures.CoreMetrics.SQALE_RATING_KEY;
 import static org.sonar.api.measures.CoreMetrics.TECHNICAL_DEBT_KEY;
 import static org.sonar.api.measures.CoreMetrics.VULNERABILITIES_KEY;
-import static org.sonar.api.measures.CoreMetrics.NCLOC_KEY;
 import static org.sonar.api.measures.Metric.Level;
 import static org.sonar.api.measures.Metric.ValueType;
 import static org.sonar.api.measures.Metric.Level.ERROR;
@@ -73,12 +72,14 @@ import static org.sonar.server.computation.task.projectanalysis.qualitymodel.Rat
 import static org.sonar.server.computation.task.projectanalysis.qualitymodel.Rating.valueOf;
 import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
+import static org.sonar.server.ws.KeyExamples.KEY_PULL_REQUEST_EXAMPLE_001;
 import static org.sonarqube.ws.MediaTypes.SVG;
 
 public class MeasureAction implements ProjectBadgesWsAction {
 
   private static final String PARAM_PROJECT = "project";
   private static final String PARAM_BRANCH = "branch";
+  private static final String PARAM_PULL_REQUEST = "pullRequest";
   private static final String PARAM_METRIC = "metric";
 
   private static final Map<String, String> METRIC_NAME_BY_KEY = ImmutableMap.<String, String>builder()
@@ -140,6 +141,10 @@ public class MeasureAction implements ProjectBadgesWsAction {
       .createParam(PARAM_BRANCH)
       .setDescription("Branch key")
       .setExampleValue(KEY_BRANCH_EXAMPLE_001);
+    action
+      .createParam(PARAM_PULL_REQUEST)
+      .setDescription("Pull request id")
+      .setExampleValue(KEY_PULL_REQUEST_EXAMPLE_001);
     action.createParam(PARAM_METRIC)
       .setDescription("Metric key")
       .setRequired(true)
@@ -151,9 +156,10 @@ public class MeasureAction implements ProjectBadgesWsAction {
     response.stream().setMediaType(SVG);
     String projectKey = request.mandatoryParam(PARAM_PROJECT);
     String branch = request.param(PARAM_BRANCH);
+    String pullRequest = request.param(PARAM_PULL_REQUEST);
     String metricKey = request.mandatoryParam(PARAM_METRIC);
     try (DbSession dbSession = dbClient.openSession(false)) {
-      ComponentDto project = componentFinder.getByKeyAndOptionalBranch(dbSession, projectKey, branch);
+      ComponentDto project = componentFinder.getByKeyAndOptionalBranchOrPullRequest(dbSession, projectKey, branch, pullRequest);
       userSession.checkComponentPermission(USER, project);
       MetricDto metric = dbClient.metricDao().selectByKey(dbSession, metricKey);
       checkState(metric != null && metric.isEnabled(), "Metric '%s' hasn't been found", metricKey);

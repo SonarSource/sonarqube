@@ -189,7 +189,8 @@ public class QualityGateActionTest {
       .extracting(Param::key, Param::isRequired)
       .containsExactlyInAnyOrder(
         tuple("project", true),
-        tuple("branch", false));
+        tuple("branch", false),
+        tuple("pullRequest", false));
   }
 
   private MetricDto createQualityGateMetric() {
