@@ -24,7 +24,7 @@ import ComponentContainerNotFound from './ComponentContainerNotFound';
 import ComponentNav from './nav/component/ComponentNav';
 import { Component, BranchLike } from '../types';
 import handleRequiredAuthorization from '../utils/handleRequiredAuthorization';
-import { getBranches } from '../../api/branches';
+import { getBranches, getPullRequests } from '../../api/branches';
 import { Task, getTasksForComponent } from '../../api/ce';
 import { getComponentData } from '../../api/components';
 import { getComponentNavigation } from '../../api/nav';
@@ -118,9 +118,13 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
     }, onError);
   }
 
-  fetchBranches = (component: Component) => {
+  fetchBranches = (component: Component): Promise<BranchLike[]> => {
     const project = component.breadcrumbs.find(({ qualifier }) => qualifier === 'TRK');
-    return project ? getBranches(project.key) : Promise.resolve([]);
+    return project
+      ? Promise.all([getBranches(project.key), getPullRequests(project.key)]).then(
+          ([branches, pullRequests]) => [...branches, ...pullRequests]
+        )
+      : Promise.resolve([]);
   };
 
   fetchStatus = (component: Component) => {
