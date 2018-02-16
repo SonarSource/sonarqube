@@ -24,12 +24,11 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nonnull;
+import org.sonar.core.config.CorePropertyDefinitions;
 import org.sonar.scanner.config.DefaultConfiguration;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
 import org.sonar.scanner.repository.ContextPropertiesCache;
-
-import static org.sonar.core.config.WebhookProperties.ANALYSIS_PROPERTY_PREFIX;
 
 public class ContextPropertiesPublisher implements ReportPublisherStep {
 
@@ -51,7 +50,7 @@ public class ContextPropertiesPublisher implements ReportPublisherStep {
     // properties that are automatically included to report so that
     // they can be included to webhook payloads
     Stream<ScannerReport.ContextProperty> fromSettings = config.getProperties().entrySet().stream()
-      .filter(e -> e.getKey().startsWith(ANALYSIS_PROPERTY_PREFIX))
+      .filter(e -> e.getKey().startsWith(CorePropertyDefinitions.SONAR_ANALYSIS))
       .map(transformer);
 
     writer.writeContextProperties(Stream.concat(fromCache, fromSettings).collect(Collectors.toList()));

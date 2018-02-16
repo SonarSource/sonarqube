@@ -29,13 +29,14 @@ import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetada
 import org.sonar.server.computation.task.projectanalysis.batch.BatchReportReader;
 import org.sonar.server.computation.task.step.ComputationStep;
 
+import static org.sonar.core.config.CorePropertyDefinitions.SONAR_ANALYSIS;
+
 /**
  * Persist analysis properties
  * Only properties starting with "sonar.analysis" or "sonar.pullrequest" will be persisted in database
  */
 public class PersistAnalysisPropertiesStep implements ComputationStep {
 
-  private static final String SONAR_ANALYSIS = "sonar.analysis.";
   private static final String SONAR_PULL_REQUEST = "sonar.pullrequest.";
 
   private final DbClient dbClient;
