@@ -456,7 +456,7 @@ public class ListDefinitionsActionTest {
     assertThat(action.isInternal()).isFalse();
     assertThat(action.isPost()).isFalse();
     assertThat(action.responseExampleAsString()).isNotEmpty();
-    assertThat(action.params()).extracting(Param::key).containsExactlyInAnyOrder("component", "branch");
+    assertThat(action.params()).extracting(Param::key).containsExactlyInAnyOrder("component", "branch", "pullRequest");
   }
 
   @Test

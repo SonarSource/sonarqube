@@ -19,7 +19,6 @@
  */
 package org.sonar.server.component.ws;
 
-import java.io.IOException;
 import java.util.Date;
 import javax.annotation.Nullable;
 import org.junit.Rule;
@@ -47,6 +46,7 @@ import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
 import static org.sonar.api.web.UserRole.USER;
+import static org.sonar.db.component.BranchType.PULL_REQUEST;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
@@ -56,6 +56,7 @@ import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_BRANCH;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_COMPONENT;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_COMPONENT_ID;
+import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_PULL_REQUEST;
 
 public class ShowActionTest {
   @Rule
@@ -81,7 +82,7 @@ public class ShowActionTest {
       tuple("6.5", "Leak period date is added to the response"),
       tuple("6.6", "'branch' is added to the response"),
       tuple("6.6", "'version' is added to the response"));
-    assertThat(action.params()).extracting(WebService.Param::key).containsExactlyInAnyOrder("component", "componentId", "branch");
+    assertThat(action.params()).extracting(WebService.Param::key).containsExactlyInAnyOrder("component", "componentId", "branch", "pullRequest");
 
     WebService.Param componentId = action.param(PARAM_COMPONENT_ID);
     assertThat(componentId.isRequired()).isFalse();
@@ -102,6 +103,11 @@ public class ShowActionTest {
     assertThat(branch.isInternal()).isTrue();
     assertThat(branch.isRequired()).isFalse();
     assertThat(branch.since()).isEqualTo("6.6");
+
+    WebService.Param pullRequest = action.param(PARAM_PULL_REQUEST);
+    assertThat(pullRequest.isInternal()).isTrue();
+    assertThat(pullRequest.isRequired()).isFalse();
+    assertThat(pullRequest.since()).isEqualTo("7.1");
   }
 
   @Test
@@ -307,6 +313,32 @@ public class ShowActionTest {
   }
 
   @Test
+  public void pull_request() {
+    ComponentDto project = db.components().insertMainBranch();
+    userSession.addProjectPermission(UserRole.USER, project);
+    String pullRequest = "pr-1234";
+    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey(pullRequest).setBranchType(PULL_REQUEST));
+    ComponentDto module = db.components().insertComponent(newModuleDto(branch));
+    ComponentDto directory = db.components().insertComponent(newDirectory(module, "dir"));
+    ComponentDto file = db.components().insertComponent(newFileDto(directory));
+    db.components().insertSnapshot(branch, s -> s.setVersion("1.1"));
+
+    ShowWsResponse response = ws.newRequest()
+      .setParam(PARAM_COMPONENT, file.getKey())
+      .setParam(PARAM_BRANCH, pullRequest)
+      .executeProtobuf(ShowWsResponse.class);
+
+    assertThat(response.getComponent())
+      .extracting(Component::getKey, Component::getBranch, Component::getVersion)
+      .containsExactlyInAnyOrder(file.getKey(), pullRequest, "1.1");
+    assertThat(response.getAncestorsList()).extracting(Component::getKey, Component::getBranch, Component::getVersion)
+      .containsExactlyInAnyOrder(
+        tuple(directory.getKey(), pullRequest, "1.1"),
+        tuple(module.getKey(), pullRequest, "1.1"),
+        tuple(branch.getKey(), pullRequest, "1.1"));
+  }
+
+  @Test
   public void throw_ForbiddenException_if_user_doesnt_have_browse_permission_on_project() {
     userSession.logIn();
 
@@ -343,7 +375,7 @@ public class ShowActionTest {
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("my_branch"));
 
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("'componentId' and 'branch' parameters cannot be used at the same time");
+    expectedException.expectMessage("Parameter 'componentId' cannot be used at the same time as 'branch' or 'pullRequest'");
 
     ws.newRequest()
       .setParam(PARAM_COMPONENT_ID, branch.uuid())

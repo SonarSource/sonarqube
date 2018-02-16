@@ -68,6 +68,8 @@ import static org.sonar.api.utils.DateUtils.addDays;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_02;
+import static org.sonar.db.component.BranchType.PULL_REQUEST;
+import static org.sonar.db.component.BranchType.SHORT;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
@@ -78,6 +80,7 @@ import static org.sonar.db.issue.IssueTesting.newIssue;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_BRANCH;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_COMPONENT_KEYS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_PROJECT_KEYS;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_PULL_REQUEST;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_SINCE_LEAK_PERIOD;
 
 public class SearchActionComponentsTest {
@@ -841,7 +844,7 @@ public class SearchActionComponentsTest {
     userSession.addProjectPermission(UserRole.USER, project);
     ComponentDto projectFile = db.components().insertComponent(newFileDto(project));
     IssueDto projectIssue = db.issues().insertIssue(newIssue(rule, project, projectFile));
-    ComponentDto branch = db.components().insertProjectBranch(project);
+    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(SHORT));
     ComponentDto branchFile = db.components().insertComponent(newFileDto(branch));
     IssueDto branchIssue = db.issues().insertIssue(newIssue(rule, branch, branchFile));
     allowAnyoneOnProjects(project);
@@ -860,6 +863,34 @@ public class SearchActionComponentsTest {
       .containsExactlyInAnyOrder(
         tuple(branchFile.getKey(), branchFile.getBranch()),
         tuple(branch.getKey(), branch.getBranch()));
+  }
+
+  @Test
+  public void search_by_pull_request() {
+    RuleDefinitionDto rule = db.rules().insert();
+    ComponentDto project = db.components().insertPrivateProject();
+    userSession.addProjectPermission(UserRole.USER, project);
+    ComponentDto projectFile = db.components().insertComponent(newFileDto(project));
+    IssueDto projectIssue = db.issues().insertIssue(newIssue(rule, project, projectFile));
+    ComponentDto pullRequest = db.components().insertProjectBranch(project, b -> b.setBranchType(PULL_REQUEST));
+    ComponentDto pullRequestFile = db.components().insertComponent(newFileDto(pullRequest));
+    IssueDto pullRequestIssue = db.issues().insertIssue(newIssue(rule, pullRequest, pullRequestFile));
+    allowAnyoneOnProjects(project);
+    indexIssuesAndViews();
+
+    SearchWsResponse result = ws.newRequest()
+      .setParam(PARAM_COMPONENT_KEYS, pullRequest.getKey())
+      .setParam(PARAM_PULL_REQUEST, pullRequest.getBranch())
+      .executeProtobuf(SearchWsResponse.class);
+
+    assertThat(result.getIssuesList())
+      .extracting(Issue::getKey, Issue::getComponent, Issue::getBranch)
+      .containsExactlyInAnyOrder(tuple(pullRequestIssue.getKey(), pullRequestFile.getKey(), pullRequestFile.getBranch()));
+    assertThat(result.getComponentsList())
+      .extracting(Issues.Component::getKey, Issues.Component::getBranch)
+      .containsExactlyInAnyOrder(
+        tuple(pullRequestFile.getKey(), pullRequestFile.getBranch()),
+        tuple(pullRequest.getKey(), pullRequest.getBranch()));
   }
 
   @Test

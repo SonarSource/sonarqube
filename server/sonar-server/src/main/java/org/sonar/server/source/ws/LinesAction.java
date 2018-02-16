@@ -43,7 +43,9 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static org.sonar.server.component.ComponentFinder.ParamNames.UUID_AND_KEY;
 import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_FILE_EXAMPLE_001;
+import static org.sonar.server.ws.KeyExamples.KEY_PULL_REQUEST_EXAMPLE_001;
 import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
+import static org.sonar.server.ws.WsUtils.checkRequest;
 
 public class LinesAction implements SourcesWsAction {
 
@@ -52,6 +54,7 @@ public class LinesAction implements SourcesWsAction {
   private static final String PARAM_FROM = "from";
   private static final String PARAM_TO = "to";
   private static final String PARAM_BRANCH = "branch";
+  private static final String PARAM_PULL_REQUEST = "pullRequest";
 
   private final ComponentFinder componentFinder;
   private final SourceService sourceService;
@@ -91,7 +94,7 @@ public class LinesAction implements SourcesWsAction {
           "has been renamed \"lineHits\", \"conditions\" and \"coveredConditions\""),
         new Change("6.2", "fields \"itLineHits\", \"itConditions\" and \"itCoveredConditions\" " +
           "are no more returned"),
-        new Change("6.6", "fields \"branch\" added"))
+        new Change("6.6", "field \"branch\" added"))
       .setHandler(this);
 
     action
@@ -109,6 +112,12 @@ public class LinesAction implements SourcesWsAction {
       .setDescription("Branch key")
       .setInternal(true)
       .setExampleValue(KEY_BRANCH_EXAMPLE_001);
+
+    action
+      .createParam(PARAM_PULL_REQUEST)
+      .setDescription("Pull request id")
+      .setInternal(true)
+      .setExampleValue(KEY_PULL_REQUEST_EXAMPLE_001);
 
     action
       .createParam(PARAM_FROM)
@@ -146,11 +155,15 @@ public class LinesAction implements SourcesWsAction {
     String componentKey = wsRequest.param(PARAM_KEY);
     String componentId = wsRequest.param(PARAM_UUID);
     String branch = wsRequest.param(PARAM_BRANCH);
-    checkArgument(componentId == null || branch == null, "'%s' and '%s' parameters cannot be used at the same time", PARAM_UUID,
-      PARAM_BRANCH);
-    return branch == null
-      ? componentFinder.getByUuidOrKey(dbSession, componentId, componentKey, UUID_AND_KEY)
-      : componentFinder.getByKeyAndBranch(dbSession, componentKey, branch);
+    String pullRequest = wsRequest.param(PARAM_PULL_REQUEST);
+    checkArgument(componentId == null || (branch == null && pullRequest == null), "Parameter '%s' cannot be used at the same time as '%s' or '%s'",
+      PARAM_UUID, PARAM_BRANCH, PARAM_PULL_REQUEST);
+    if (branch == null && pullRequest == null) {
+      return componentFinder.getByUuidOrKey(dbSession, componentId, componentKey, UUID_AND_KEY);
+    }
+
+    checkRequest(componentKey!=null, "The '%s' parameter is missing", PARAM_KEY);
+    return componentFinder.getByKeyAndOptionalBranchOrPullRequest(dbSession, componentKey, branch, pullRequest);
   }
 
   private void writeSource(Iterable<DbFileSources.Line> lines, JsonWriter json) {
