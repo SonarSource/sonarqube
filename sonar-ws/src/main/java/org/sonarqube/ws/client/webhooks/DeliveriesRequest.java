@@ -19,7 +19,6 @@
  */
 package org.sonarqube.ws.client.webhooks;
 
-import java.util.List;
 import javax.annotation.Generated;
 
 /**
@@ -33,6 +32,9 @@ public class DeliveriesRequest {
 
   private String ceTaskId;
   private String componentKey;
+  private String p;
+  private String ps;
+  private String webhook;
 
   /**
    * Example value: "AU-Tpxb--iU5OvuD2FLy"
@@ -56,5 +58,41 @@ public class DeliveriesRequest {
 
   public String getComponentKey() {
     return componentKey;
+  }
+
+  /**
+   * Example value: "42"
+   */
+  public DeliveriesRequest setP(String p) {
+    this.p = p;
+    return this;
+  }
+
+  public String getP() {
+    return p;
+  }
+
+  /**
+   * Example value: "20"
+   */
+  public DeliveriesRequest setPs(String ps) {
+    this.ps = ps;
+    return this;
+  }
+
+  public String getPs() {
+    return ps;
+  }
+
+  /**
+   * Example value: "AU-TpxcA-iU5OvuD2FLz"
+   */
+  public DeliveriesRequest setWebhook(String webhook) {
+    this.webhook = webhook;
+    return this;
+  }
+
+  public String getWebhook() {
+    return webhook;
   }
 }
