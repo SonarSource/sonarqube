@@ -99,6 +99,7 @@ export interface Component extends LightComponent {
 }
 
 interface ComponentConfiguration {
+  canApplyPermissionTemplate?: boolean;
   extensions?: Extension[];
   showBackgroundTasks?: boolean;
   showLinks?: boolean;
@@ -313,4 +314,20 @@ export interface CustomMeasure {
   };
   value: string;
   updatedAt?: string;
+}
+
+export interface PermissionTemplate {
+  defaultFor: string[];
+  id: string;
+  name: string;
+  description?: string;
+  projectKeyPattern?: string;
+  createdAt: string;
+  updatedAt?: string;
+  permissions: Array<{
+    key: string;
+    usersCount: number;
+    groupsCount: number;
+    withProjectCreator?: boolean;
+  }>;
 }

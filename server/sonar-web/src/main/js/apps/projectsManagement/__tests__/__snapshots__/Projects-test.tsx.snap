@@ -34,8 +34,8 @@ exports[`renders list of projects 1`] = `
           }
         }
         key="a"
-        onApplyTemplate={[Function]}
         onProjectCheck={[Function]}
+        organization="org"
         project={
           Object {
             "key": "a",
@@ -53,8 +53,8 @@ exports[`renders list of projects 1`] = `
           }
         }
         key="b"
-        onApplyTemplate={[Function]}
         onProjectCheck={[Function]}
+        organization="org"
         project={
           Object {
             "key": "b",

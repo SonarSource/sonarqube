@@ -17,43 +17,48 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
+import * as React from 'react';
+import ApplyTemplate from './ApplyTemplate';
+import { Component } from '../../../../app/types';
 import { translate } from '../../../../helpers/l10n';
-import ApplyTemplateView from '../views/ApplyTemplateView';
 
-/*::
-type Props = {|
-  component: {
-    configuration?: {
-      canApplyPermissionTemplate: boolean,
-      canUpdateProjectVisibilityToPrivate: boolean
-    },
-    key: string,
-    qualifier: string,
-    visibility: string
-  },
-  loadHolders: () => void,
-  loading: boolean
-|};
-*/
+interface Props {
+  component: Component;
+  loadHolders: () => void;
+  loading: boolean;
+}
 
-export default class PageHeader extends React.PureComponent {
-  /*:: props: Props; */
+interface State {
+  applyTemplateModal: boolean;
+}
 
-  handleApplyTemplate = (e /*: Event & { target: HTMLButtonElement } */) => {
-    e.preventDefault();
-    e.target.blur();
-    const { component, loadHolders } = this.props;
-    const organization = component.organization ? { key: component.organization } : null;
-    new ApplyTemplateView({ project: component, organization })
-      .on('done', () => loadHolders())
-      .render();
+export default class PageHeader extends React.PureComponent<Props, State> {
+  mounted = false;
+  state: State = { applyTemplateModal: false };
+
+  componentDidMount() {
+    this.mounted = true;
+  }
+
+  componentWillUnmount() {
+    this.mounted = false;
+  }
+
+  handleApplyTemplate = (event: React.SyntheticEvent<HTMLButtonElement>) => {
+    event.preventDefault();
+    event.currentTarget.blur();
+    this.setState({ applyTemplateModal: true });
+  };
+
+  handleApplyTemplateClose = () => {
+    if (this.mounted) {
+      this.setState({ applyTemplateModal: false });
+    }
   };
 
   render() {
     const { component } = this.props;
-    const configuration = component.configuration;
+    const { configuration } = component;
     const canApplyPermissionTemplate =
       configuration != null && configuration.canApplyPermissionTemplate;
 
@@ -62,7 +67,7 @@ export default class PageHeader extends React.PureComponent {
       : translate('roles.page.description2');
 
     const visibilityDescription =
-      component.qualifier === 'TRK'
+      component.qualifier === 'TRK' && component.visibility
         ? translate('visibility', component.visibility, 'description')
         : null;
 
@@ -74,9 +79,18 @@ export default class PageHeader extends React.PureComponent {
 
         {canApplyPermissionTemplate && (
           <div className="page-actions">
-            <button className="js-apply-template" onClick={this.handleApplyTemplate}>
+            <button className="js-apply-template" onClick={this.handleApplyTemplate} type="button">
               {translate('projects_role.apply_template')}
             </button>
+
+            {this.state.applyTemplateModal && (
+              <ApplyTemplate
+                onApply={this.props.loadHolders}
+                onClose={this.handleApplyTemplateClose}
+                organization={component.organization}
+                project={component}
+              />
+            )}
           </div>
         )}
 

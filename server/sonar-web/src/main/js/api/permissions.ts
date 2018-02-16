@@ -18,6 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { BaseSearchProjectsParameters } from './components';
+import { PermissionTemplate } from '../app/types';
+import throwGlobalError from '../app/utils/throwGlobalError';
 import { getJSON, post, postJSON, RequestData } from '../helpers/request';
 
 const PAGE_SIZE = 100;
@@ -86,21 +88,6 @@ export function revokePermissionFromGroup(
   return post('/api/permissions/remove_group', data);
 }
 
-export interface PermissionTemplate {
-  id: string;
-  name: string;
-  description?: string;
-  projectKeyPattern?: string;
-  createdAt: string;
-  updatedAt?: string;
-  permissions: Array<{
-    key: string;
-    usersCount: number;
-    groupsCount: number;
-    withProjectCreator?: boolean;
-  }>;
-}
-
 interface GetPermissionTemplatesResponse {
   permissionTemplates: PermissionTemplate[];
   defaultTemplates: Array<{ templateId: string; qualifier: string }>;
@@ -122,8 +109,8 @@ export function updatePermissionTemplate(data: RequestData): Promise<void> {
   return post('/api/permissions/update_template', data);
 }
 
-export function deletePermissionTemplate(data: RequestData): Promise<void> {
-  return post('/api/permissions/delete_template', data);
+export function deletePermissionTemplate(data: RequestData) {
+  return post('/api/permissions/delete_template', data).catch(throwGlobalError);
 }
 
 /**
@@ -133,8 +120,8 @@ export function setDefaultPermissionTemplate(templateId: string, qualifier: stri
   return post('/api/permissions/set_default_template', { templateId, qualifier });
 }
 
-export function applyTemplateToProject(data: RequestData): Promise<void> {
-  return post('/api/permissions/apply_template', data);
+export function applyTemplateToProject(data: RequestData) {
+  return post('/api/permissions/apply_template', data).catch(throwGlobalError);
 }
 
 export function bulkApplyTemplate(data: BaseSearchProjectsParameters): Promise<void> {
