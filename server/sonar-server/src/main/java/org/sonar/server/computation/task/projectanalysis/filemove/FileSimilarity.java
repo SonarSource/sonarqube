@@ -20,17 +20,28 @@
 package org.sonar.server.computation.task.projectanalysis.filemove;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.function.Supplier;
 
+import static java.util.Collections.emptyList;
 import static java.util.Objects.requireNonNull;
 
 public interface FileSimilarity {
 
-  final class File {
+  interface File {
+    String getPath();
+
+    List<String> getLineHashes();
+
+    int getLineCount();
+  }
+
+  final class FileImpl implements File {
     private final String path;
     private final List<String> lineHashes;
     private final int lineCount;
 
-    public File(String path, List<String> lineHashes) {
+    FileImpl(String path, List<String> lineHashes) {
       this.path = requireNonNull(path, "path can not be null");
       this.lineHashes = requireNonNull(lineHashes, "lineHashes can not be null");
       this.lineCount = lineHashes.size();
@@ -46,6 +57,42 @@ public interface FileSimilarity {
      */
     public List<String> getLineHashes() {
       return lineHashes;
+    }
+
+    public int getLineCount() {
+      return lineCount;
+    }
+  }
+
+  final class LazyFileImpl implements File {
+    private final String path;
+    private final Supplier<List<String>> supplier;
+    private final int lineCount;
+    private List<String> lineHashes;
+
+    LazyFileImpl(String path, Supplier<List<String>> supplier, int lineCount) {
+      this.path = requireNonNull(path, "path can not be null");
+      this.supplier = requireNonNull(supplier, "supplier can not be null");
+      this.lineCount = lineCount;
+    }
+
+    public String getPath() {
+      return path;
+    }
+
+    /**
+     * List of hash of each line. An empty list is returned
+     * if file content is empty.
+     */
+    public List<String> getLineHashes() {
+      ensureSupplierCalled();
+      return lineHashes;
+    }
+
+    private void ensureSupplierCalled() {
+      if (lineHashes == null) {
+        lineHashes = Optional.ofNullable(supplier.get()).orElse(emptyList());
+      }
     }
 
     public int getLineCount() {

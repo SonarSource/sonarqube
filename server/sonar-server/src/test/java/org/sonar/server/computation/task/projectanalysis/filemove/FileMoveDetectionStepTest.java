@@ -44,6 +44,8 @@ import org.sonar.db.source.FileSourceDto;
 import org.sonar.server.computation.task.projectanalysis.analysis.Analysis;
 import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
+import org.sonar.server.computation.task.projectanalysis.component.FileAttributes;
+import org.sonar.server.computation.task.projectanalysis.component.ReportComponent;
 import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.server.computation.task.projectanalysis.source.SourceLinesHashRepository;
 
@@ -66,9 +68,6 @@ public class FileMoveDetectionStepTest {
   private static final int FILE_1_REF = 2;
   private static final int FILE_2_REF = 3;
   private static final int FILE_3_REF = 4;
-  private static final Component FILE_1 = fileComponent(FILE_1_REF);
-  private static final Component FILE_2 = fileComponent(FILE_2_REF);
-  private static final Component FILE_3 = fileComponent(FILE_3_REF);
   private static final String[] CONTENT1 = {
     "package org.sonar.server.computation.task.projectanalysis.filemove;",
     "",
@@ -261,7 +260,9 @@ public class FileMoveDetectionStepTest {
   @Test
   public void execute_detects_no_move_if_baseSnapshot_has_no_file() {
     analysisMetadataHolder.setBaseAnalysis(ANALYSIS);
-    setFilesInReport(FILE_1, FILE_2);
+    Component file1 = fileComponent(FILE_1_REF, null);
+    Component file2 = fileComponent(FILE_2_REF, null);
+    setFilesInReport(file1, file2);
 
     underTest.execute();
 
@@ -282,8 +283,10 @@ public class FileMoveDetectionStepTest {
   @Test
   public void execute_detects_no_move_if_file_key_exists_in_both_DB_and_report() {
     analysisMetadataHolder.setBaseAnalysis(ANALYSIS);
-    insertFiles(FILE_1.getKey(), FILE_2.getKey());
-    setFilesInReport(FILE_2, FILE_1);
+    Component file1 = fileComponent(FILE_1_REF, null);
+    Component file2 = fileComponent(FILE_2_REF, null);
+    insertFiles(file1.getKey(), file2.getKey());
+    setFilesInReport(file2, file1);
 
     underTest.execute();
 
@@ -293,15 +296,16 @@ public class FileMoveDetectionStepTest {
   @Test
   public void execute_detects_move_if_content_of_file_is_same_in_DB_and_report() {
     analysisMetadataHolder.setBaseAnalysis(ANALYSIS);
-    ComponentDto[] dtos = insertFiles(FILE_1.getKey());
-    insertContentOfFileInDb(FILE_1.getKey(), CONTENT1);
-    setFilesInReport(FILE_2);
-    setFileLineHashesInReport(FILE_2, CONTENT1);
+    Component file1 = fileComponent(FILE_1_REF, null);
+    Component file2 = fileComponent(FILE_2_REF, CONTENT1);
+    ComponentDto[] dtos = insertFiles(file1.getKey());
+    insertContentOfFileInDb(file1.getKey(), CONTENT1);
+    setFilesInReport(file2);
 
     underTest.execute();
 
-    assertThat(movedFilesRepository.getComponentsWithOriginal()).containsExactly(FILE_2);
-    MovedFilesRepository.OriginalFile originalFile = movedFilesRepository.getOriginalFile(FILE_2).get();
+    assertThat(movedFilesRepository.getComponentsWithOriginal()).containsExactly(file2);
+    MovedFilesRepository.OriginalFile originalFile = movedFilesRepository.getOriginalFile(file2).get();
     assertThat(originalFile.getId()).isEqualTo(dtos[0].getId());
     assertThat(originalFile.getKey()).isEqualTo(dtos[0].getDbKey());
     assertThat(originalFile.getUuid()).isEqualTo(dtos[0].uuid());
@@ -310,10 +314,11 @@ public class FileMoveDetectionStepTest {
   @Test
   public void execute_detects_no_move_if_content_of_file_is_not_similar_enough() {
     analysisMetadataHolder.setBaseAnalysis(ANALYSIS);
-    insertFiles(FILE_1.getKey());
-    insertContentOfFileInDb(FILE_1.getKey(), CONTENT1);
-    setFilesInReport(FILE_2);
-    setFileLineHashesInReport(FILE_2, LESS_CONTENT1);
+    Component file1 = fileComponent(FILE_1_REF, null);
+    Component file2 = fileComponent(FILE_2_REF, LESS_CONTENT1);
+    insertFiles(file1.getKey());
+    insertContentOfFileInDb(file1.getKey(), CONTENT1);
+    setFilesInReport(file2);
 
     underTest.execute();
 
@@ -326,10 +331,11 @@ public class FileMoveDetectionStepTest {
   @Test
   public void execute_detects_no_move_if_content_of_file_is_empty_in_DB() {
     analysisMetadataHolder.setBaseAnalysis(ANALYSIS);
-    insertFiles(FILE_1.getKey());
-    insertContentOfFileInDb(FILE_1.getKey(), CONTENT_EMPTY);
-    setFilesInReport(FILE_2);
-    setFileLineHashesInReport(FILE_2, CONTENT1);
+    Component file1 = fileComponent(FILE_1_REF, null);
+    Component file2 = fileComponent(FILE_2_REF, CONTENT1);
+    insertFiles(file1.getKey());
+    insertContentOfFileInDb(file1.getKey(), CONTENT_EMPTY);
+    setFilesInReport(file2);
 
     underTest.execute();
 
@@ -340,11 +346,11 @@ public class FileMoveDetectionStepTest {
   @Test
   public void execute_detects_no_move_if_content_of_file_has_no_path_in_DB() {
     analysisMetadataHolder.setBaseAnalysis(ANALYSIS);
-
-    insertFiles(key -> newComponentDto(key).setPath(null), FILE_1.getKey());
-    insertContentOfFileInDb(FILE_1.getKey(), CONTENT1);
-    setFilesInReport(FILE_2);
-    setFileLineHashesInReport(FILE_2, CONTENT1);
+    Component file1 = fileComponent(FILE_1_REF, null);
+    Component file2 = fileComponent(FILE_2_REF, CONTENT1);
+    insertFiles(key -> newComponentDto(key).setPath(null), file1.getKey());
+    insertContentOfFileInDb(file1.getKey(), CONTENT1);
+    setFilesInReport(file2);
 
     underTest.execute();
 
@@ -355,10 +361,11 @@ public class FileMoveDetectionStepTest {
   @Test
   public void execute_detects_no_move_if_content_of_file_is_empty_in_report() {
     analysisMetadataHolder.setBaseAnalysis(ANALYSIS);
-    insertFiles(FILE_1.getKey());
-    insertContentOfFileInDb(FILE_1.getKey(), CONTENT1);
-    setFilesInReport(FILE_2);
-    setFileLineHashesInReport(FILE_2, CONTENT_EMPTY);
+    Component file1 = fileComponent(FILE_1_REF, null);
+    Component file2 = fileComponent(FILE_2_REF, CONTENT_EMPTY);
+    insertFiles(file1.getKey());
+    insertContentOfFileInDb(file1.getKey(), CONTENT1);
+    setFilesInReport(file2);
 
     underTest.execute();
 
@@ -369,11 +376,12 @@ public class FileMoveDetectionStepTest {
   @Test
   public void execute_detects_no_move_if_two_added_files_have_same_content_as_the_one_in_db() {
     analysisMetadataHolder.setBaseAnalysis(ANALYSIS);
-    insertFiles(FILE_1.getKey());
-    insertContentOfFileInDb(FILE_1.getKey(), CONTENT1);
-    setFilesInReport(FILE_2, FILE_3);
-    setFileLineHashesInReport(FILE_2, CONTENT1);
-    setFileLineHashesInReport(FILE_3, CONTENT1);
+    Component file1 = fileComponent(FILE_1_REF, null);
+    Component file2 = fileComponent(FILE_2_REF, CONTENT1);
+    Component file3 = fileComponent(FILE_3_REF, CONTENT1);
+    insertFiles(file1.getKey());
+    insertContentOfFileInDb(file1.getKey(), CONTENT1);
+    setFilesInReport(file2, file3);
 
     underTest.execute();
 
@@ -384,11 +392,13 @@ public class FileMoveDetectionStepTest {
   @Test
   public void execute_detects_no_move_if_two_deleted_files_have_same_content_as_the_one_added() {
     analysisMetadataHolder.setBaseAnalysis(ANALYSIS);
-    insertFiles(FILE_1.getKey(), FILE_2.getKey());
-    insertContentOfFileInDb(FILE_1.getKey(), CONTENT1);
-    insertContentOfFileInDb(FILE_2.getKey(), CONTENT1);
-    setFilesInReport(FILE_3);
-    setFileLineHashesInReport(FILE_3, CONTENT1);
+    Component file1 = fileComponent(FILE_1_REF, null);
+    Component file2 = fileComponent(FILE_2_REF, null);
+    Component file3 = fileComponent(FILE_3_REF, CONTENT1);
+    insertFiles(file1.getKey(), file2.getKey());
+    insertContentOfFileInDb(file1.getKey(), CONTENT1);
+    insertContentOfFileInDb(file2.getKey(), CONTENT1);
+    setFilesInReport(file3);
 
     underTest.execute();
 
@@ -399,9 +409,11 @@ public class FileMoveDetectionStepTest {
   @Test
   public void execute_detects_no_move_if_two_files_are_empty() {
     analysisMetadataHolder.setBaseAnalysis(ANALYSIS);
-    insertFiles(FILE_1.getKey(), FILE_2.getKey());
-    insertContentOfFileInDb(FILE_1.getKey(), null);
-    insertContentOfFileInDb(FILE_2.getKey(), null);
+    Component file1 = fileComponent(FILE_1_REF, null);
+    Component file2 = fileComponent(FILE_2_REF, null);
+    insertFiles(file1.getKey(), file2.getKey());
+    insertContentOfFileInDb(file1.getKey(), null);
+    insertContentOfFileInDb(file2.getKey(), null);
 
     underTest.execute();
 
@@ -417,23 +429,23 @@ public class FileMoveDetectionStepTest {
     // - file4 untouched
     // - file5 renamed to file6 with a small change
     analysisMetadataHolder.setBaseAnalysis(ANALYSIS);
-    Component file4 = fileComponent(5);
-    Component file5 = fileComponent(6);
-    Component file6 = fileComponent(7);
-    ComponentDto[] dtos = insertFiles(FILE_1.getKey(), FILE_2.getKey(), file4.getKey(), file5.getKey());
-    insertContentOfFileInDb(FILE_1.getKey(), CONTENT1);
-    insertContentOfFileInDb(FILE_2.getKey(), LESS_CONTENT1);
+    Component file1 = fileComponent(FILE_1_REF, null);
+    Component file2 = fileComponent(FILE_2_REF, null);
+    Component file3 = fileComponent(FILE_3_REF, CONTENT1);
+    Component file4 = fileComponent(5, new String[] {"a", "b"});
+    Component file5 = fileComponent(6, null);
+    Component file6 = fileComponent(7, LESS_CONTENT2);
+    ComponentDto[] dtos = insertFiles(file1.getKey(), file2.getKey(), file4.getKey(), file5.getKey());
+    insertContentOfFileInDb(file1.getKey(), CONTENT1);
+    insertContentOfFileInDb(file2.getKey(), LESS_CONTENT1);
     insertContentOfFileInDb(file4.getKey(), new String[] {"e", "f", "g", "h", "i"});
     insertContentOfFileInDb(file5.getKey(), CONTENT2);
-    setFilesInReport(FILE_3, file4, file6);
-    setFileLineHashesInReport(FILE_3, CONTENT1);
-    setFileLineHashesInReport(file4, new String[] {"a", "b"});
-    setFileLineHashesInReport(file6, LESS_CONTENT2);
+    setFilesInReport(file3, file4, file6);
 
     underTest.execute();
 
-    assertThat(movedFilesRepository.getComponentsWithOriginal()).containsOnly(FILE_3, file6);
-    MovedFilesRepository.OriginalFile originalFile2 = movedFilesRepository.getOriginalFile(FILE_3).get();
+    assertThat(movedFilesRepository.getComponentsWithOriginal()).containsOnly(file3, file6);
+    MovedFilesRepository.OriginalFile originalFile2 = movedFilesRepository.getOriginalFile(file3).get();
     assertThat(originalFile2.getId()).isEqualTo(dtos[0].getId());
     assertThat(originalFile2.getKey()).isEqualTo(dtos[0].getDbKey());
     assertThat(originalFile2.getUuid()).isEqualTo(dtos[0].uuid());
@@ -447,13 +459,14 @@ public class FileMoveDetectionStepTest {
   @Test
   public void execute_does_not_compute_any_distance_if_all_files_sizes_are_all_too_different() {
     analysisMetadataHolder.setBaseAnalysis(ANALYSIS);
-    Component file4 = fileComponent(5);
-    insertFiles(FILE_1.getKey(), FILE_2.getKey());
-    insertContentOfFileInDb(FILE_1.getKey(), arrayOf(100));
-    insertContentOfFileInDb(FILE_2.getKey(), arrayOf(30));
-    setFilesInReport(FILE_3, file4);
-    setFileLineHashesInReport(FILE_3, arrayOf(118));
-    setFileLineHashesInReport(file4, arrayOf(25));
+    Component file1 = fileComponent(FILE_1_REF, null);
+    Component file2 = fileComponent(FILE_2_REF, null);
+    Component file3 = fileComponent(FILE_3_REF, arrayOf(118));
+    Component file4 = fileComponent(5, arrayOf(25));
+    insertFiles(file1.getKey(), file2.getKey());
+    insertContentOfFileInDb(file1.getKey(), arrayOf(100));
+    insertContentOfFileInDb(file2.getKey(), arrayOf(30));
+    setFilesInReport(file3, file4);
 
     underTest.execute();
 
@@ -482,13 +495,15 @@ public class FileMoveDetectionStepTest {
     Map<String, Component> comps = new HashMap<>();
     int i = 1;
     for (File f : FileUtils.listFiles(new File("src/test/resources/org/sonar/server/computation/task/projectanalysis/filemove/FileMoveDetectionStepTest/v2"), null, false)) {
+      String[] lines = readLines(f);
       Component c = builder(Component.Type.FILE, i++)
         .setKey(f.getName())
         .setPath(f.getName())
+        .setFileAttributes(new FileAttributes(false, null, lines.length))
         .build();
 
       comps.put(f.getName(), c);
-      setFileLineHashesInReport(c, readLines(f));
+      setFileLineHashesInReport(c, lines);
     }
 
     setFilesInReport(comps.values().toArray(new Component[0]));
@@ -515,14 +530,6 @@ public class FileMoveDetectionStepTest {
     return FileUtils
       .readLines(filename, StandardCharsets.UTF_8)
       .toArray(new String[0]);
-  }
-
-  private void setFileLineHashesInReport(Component file, String[] content) {
-    SourceLineHashesComputer computer = new SourceLineHashesComputer();
-    for (String line : content) {
-      computer.addLine(line);
-    }
-    when(sourceLinesHash.getLineHashesMatchingDBVersion(file)).thenReturn(computer.getLineHashes());
   }
 
   @CheckForNull
@@ -569,10 +576,23 @@ public class FileMoveDetectionStepTest {
       .setPath("path_" + key);
   }
 
-  private static Component fileComponent(int ref) {
-    return builder(Component.Type.FILE, ref)
+  private Component fileComponent(int ref, @Nullable String[] content) {
+    ReportComponent component = builder(Component.Type.FILE, ref)
       .setPath("report_path" + ref)
+      .setFileAttributes(new FileAttributes(false, null, content == null ? 1 : content.length))
       .build();
+    if (content != null) {
+      setFileLineHashesInReport(component, content);
+    }
+    return component;
+  }
+
+  private void setFileLineHashesInReport(Component file, String[] content) {
+    SourceLineHashesComputer computer = new SourceLineHashesComputer();
+    for (String line : content) {
+      computer.addLine(line);
+    }
+    when(sourceLinesHash.getLineHashesMatchingDBVersion(file)).thenReturn(computer.getLineHashes());
   }
 
   private static class CapturingScoreMatrixDumper implements ScoreMatrixDumper {

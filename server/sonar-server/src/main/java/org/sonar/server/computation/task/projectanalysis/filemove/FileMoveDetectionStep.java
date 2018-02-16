@@ -54,6 +54,9 @@ import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolde
 import org.sonar.server.computation.task.projectanalysis.component.TypeAwareVisitorAdapter;
 import org.sonar.server.computation.task.projectanalysis.filemove.FileSimilarity.File;
 import org.sonar.server.computation.task.projectanalysis.source.SourceLinesHashRepository;
+import org.sonar.server.computation.task.projectanalysis.filemove.FileSimilarity.FileImpl;
+import org.sonar.server.computation.task.projectanalysis.filemove.FileSimilarity.LazyFileImpl;
+import org.sonar.server.computation.task.projectanalysis.source.SourceLinesRepository;
 import org.sonar.server.computation.task.step.ComputationStep;
 
 import static com.google.common.collect.FluentIterable.from;
@@ -186,10 +189,17 @@ public class FileMoveDetectionStep implements ComputationStep {
     ImmutableMap.Builder<String, File> builder = ImmutableMap.builder();
     for (String fileKey : addedFileKeys) {
       Component component = reportFilesByKey.get(fileKey);
-      List<String> lineHashes = sourceLinesHash.getLineHashesMatchingDBVersion(component);
-      builder.put(fileKey, new File(component.getReportAttributes().getPath(), lineHashes));
+      File file = new LazyFileImpl(
+        component.getReportAttributes().getPath(),
+        () -> getReportFileLineHashes(component),
+        component.getFileAttributes().getLines());
+      builder.put(fileKey, file);
     }
     return builder.build();
+  }
+
+  private List<String> getReportFileLineHashes(Component component) {
+    return sourceLinesHash.getLineHashesMatchingDBVersion(component);
   }
 
   private ScoreMatrix computeScoreMatrix(Map<String, DbComponent> dtosByKey, Set<String> removedFileKeys, Map<String, File> newFileSourcesByKey) {
@@ -267,7 +277,7 @@ public class FileMoveDetectionStep implements ComputationStep {
           break;
         }
 
-        File fileInDb = new File(lineHashesDto.getPath(), lineHashesDto.getLineHashes());
+        File fileInDb = new FileImpl(lineHashesDto.getPath(), lineHashesDto.getLineHashes());
         File unmatchedFile = newFileSourcesByKey.get(newFile.getFileKey());
         int score = fileSimilarity.score(fileInDb, unmatchedFile);
         scoreMatrix[removeFileIndex][newFileIndex] = score;
