@@ -61,6 +61,7 @@ import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.api.resources.Qualifiers.FILE;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.api.resources.Qualifiers.UNIT_TEST_FILE;
+import static org.sonar.db.component.BranchType.PULL_REQUEST;
 import static org.sonar.db.component.ComponentTesting.newChildComponent;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
@@ -71,6 +72,7 @@ import static org.sonar.db.component.ComponentTesting.newView;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_BRANCH;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_COMPONENT;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_COMPONENT_ID;
+import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_PULL_REQUEST;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_QUALIFIERS;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_STRATEGY;
 
@@ -99,7 +101,7 @@ public class TreeActionTest {
     assertThat(action.responseExample()).isNotNull();
     assertThat(action.changelog()).extracting(Change::getVersion, Change::getDescription).containsExactlyInAnyOrder(
       tuple("6.4", "The field 'id' is deprecated in the response"));
-    assertThat(action.params()).extracting(Param::key).containsExactlyInAnyOrder("component", "componentId", "branch", "qualifiers", "strategy",
+    assertThat(action.params()).extracting(Param::key).containsExactlyInAnyOrder("component", "componentId", "branch", "pullRequest", "qualifiers", "strategy",
       "q", "s", "p", "asc", "ps");
 
     Param componentId = action.param(PARAM_COMPONENT_ID);
@@ -339,6 +341,29 @@ public class TreeActionTest {
   }
 
   @Test
+  public void pull_request() {
+    ComponentDto project = db.components().insertPrivateProject();
+    userSession.addProjectPermission(UserRole.USER, project);
+    String pullRequestId = "pr-123";
+    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey(pullRequestId).setBranchType(PULL_REQUEST));
+    ComponentDto module = db.components().insertComponent(newModuleDto(branch));
+    ComponentDto directory = db.components().insertComponent(newDirectory(module, "dir"));
+    ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(directory));
+
+    TreeWsResponse response = ws.newRequest()
+      .setParam(PARAM_COMPONENT, module.getKey())
+      .setParam(PARAM_PULL_REQUEST, pullRequestId)
+      .executeProtobuf(TreeWsResponse.class);
+
+    assertThat(response.getBaseComponent()).extracting(Components.Component::getKey, Components.Component::getBranch)
+      .containsExactlyInAnyOrder(module.getKey(), pullRequestId);
+    assertThat(response.getComponentsList()).extracting(Components.Component::getKey, Components.Component::getBranch)
+      .containsExactlyInAnyOrder(
+        tuple(directory.getKey(), pullRequestId),
+        tuple(file.getKey(), pullRequestId));
+  }
+
+  @Test
   public void fail_when_using_branch_db_key() {
     ComponentDto project = db.components().insertMainBranch();
     userSession.addProjectPermission(UserRole.USER, project);
@@ -468,7 +493,7 @@ public class TreeActionTest {
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("my_branch"));
 
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("'componentId' and 'branch' parameters cannot be used at the same time");
+    expectedException.expectMessage("Parameter 'componentId' cannot be used at the same time as 'branch' or 'pullRequest'");
 
     ws.newRequest()
       .setParam(PARAM_COMPONENT_ID, branch.uuid())

@@ -68,6 +68,7 @@ import static org.sonar.api.resources.Qualifiers.UNIT_TEST_FILE;
 import static org.sonar.api.server.ws.WebService.Param.SORT;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
 import static org.sonar.api.web.UserRole.USER;
+import static org.sonar.db.component.BranchType.PULL_REQUEST;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newProjectCopy;
@@ -82,6 +83,7 @@ import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_METRIC_KE
 import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_METRIC_PERIOD_SORT;
 import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_METRIC_SORT;
 import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_METRIC_SORT_FILTER;
+import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_PULL_REQUEST;
 import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_QUALIFIERS;
 import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_STRATEGY;
 import static org.sonar.server.measure.ws.ComponentTreeAction.LEAVES_STRATEGY;
@@ -479,6 +481,29 @@ public class ComponentTreeActionTest {
     ComponentTreeWsResponse response = ws.newRequest()
       .setParam(PARAM_COMPONENT, file.getKey())
       .setParam(PARAM_BRANCH, file.getBranch())
+      .setParam(PARAM_METRIC_KEYS, complexity.getKey())
+      .executeProtobuf(Measures.ComponentTreeWsResponse.class);
+
+    assertThat(response.getBaseComponent()).extracting(Measures.Component::getKey, Measures.Component::getBranch)
+      .containsExactlyInAnyOrder(file.getKey(), file.getBranch());
+    assertThat(response.getBaseComponent().getMeasuresList())
+      .extracting(Measures.Measure::getMetric, m -> parseDouble(m.getValue()))
+      .containsExactlyInAnyOrder(tuple(complexity.getKey(), measure.getValue()));
+  }
+
+  @Test
+  public void pull_request() {
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto project = db.components().insertPrivateProject(organization);
+    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("pr-123").setBranchType(PULL_REQUEST));
+    SnapshotDto analysis = db.components().insertSnapshot(branch);
+    ComponentDto file = db.components().insertComponent(newFileDto(branch));
+    MetricDto complexity = db.measures().insertMetric(m -> m.setValueType(INT.name()));
+    LiveMeasureDto measure = db.measures().insertLiveMeasure(file, complexity, m -> m.setValue(12.0d));
+
+    ComponentTreeWsResponse response = ws.newRequest()
+      .setParam(PARAM_COMPONENT, file.getKey())
+      .setParam(PARAM_PULL_REQUEST, "pr-123")
       .setParam(PARAM_METRIC_KEYS, complexity.getKey())
       .executeProtobuf(Measures.ComponentTreeWsResponse.class);
 

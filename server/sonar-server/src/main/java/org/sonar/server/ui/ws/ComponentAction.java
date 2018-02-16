@@ -68,11 +68,13 @@ import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_
 import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
 import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
+import static org.sonar.server.ws.KeyExamples.KEY_PULL_REQUEST_EXAMPLE_001;
 
 public class ComponentAction implements NavigationWsAction {
 
   static final String PARAM_COMPONENT = "component";
   static final String PARAM_BRANCH = "branch";
+  static final String PARAM_PULL_REQUEST = "pullRequest";
 
   private static final String PROPERTY_CONFIGURABLE = "configurable";
   private static final String PROPERTY_HAS_ROLE_POLICY = "hasRolePolicy";
@@ -124,6 +126,12 @@ public class ComponentAction implements NavigationWsAction {
       .setDescription("Branch key")
       .setInternal(true)
       .setExampleValue(KEY_BRANCH_EXAMPLE_001);
+
+    projectNavigation
+      .createParam(PARAM_PULL_REQUEST)
+      .setDescription("Pull request id")
+      .setInternal(true)
+      .setExampleValue(KEY_PULL_REQUEST_EXAMPLE_001);
   }
 
   @Override
@@ -131,7 +139,8 @@ public class ComponentAction implements NavigationWsAction {
     String componentKey = request.mandatoryParam(PARAM_COMPONENT);
     try (DbSession session = dbClient.openSession(false)) {
       String branch = request.param(PARAM_BRANCH);
-      ComponentDto component = componentFinder.getByKeyAndOptionalBranch(session, componentKey, branch);
+      String pullRequest = request.param(PARAM_PULL_REQUEST);
+      ComponentDto component = componentFinder.getByKeyAndOptionalBranchOrPullRequest(session, componentKey, branch, pullRequest);
       if (!userSession.hasComponentPermission(USER, component) &&
         !userSession.hasComponentPermission(ADMIN, component) &&
         !userSession.isSystemAdministrator()) {

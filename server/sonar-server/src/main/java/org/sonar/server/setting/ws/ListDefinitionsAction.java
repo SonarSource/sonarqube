@@ -21,6 +21,8 @@ package org.sonar.server.setting.ws;
 
 import java.util.List;
 import java.util.Optional;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.PropertyFieldDefinition;
@@ -42,6 +44,7 @@ import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.server.setting.ws.SettingsWs.SETTING_ON_BRANCHES;
 import static org.sonar.server.setting.ws.SettingsWsParameters.PARAM_BRANCH;
 import static org.sonar.server.setting.ws.SettingsWsParameters.PARAM_COMPONENT;
+import static org.sonar.server.setting.ws.SettingsWsParameters.PARAM_PULL_REQUEST;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
@@ -81,6 +84,7 @@ public class ListDefinitionsAction implements SettingsWsAction {
       .setDescription("Component key")
       .setExampleValue(KEY_PROJECT_EXAMPLE_001);
     settingsWsSupport.addBranchParam(action);
+    settingsWsSupport.addPullRequestParam(action);
   }
 
   @Override
@@ -107,7 +111,8 @@ public class ListDefinitionsAction implements SettingsWsAction {
   private static ListDefinitionsRequest toWsRequest(Request request) {
     return new ListDefinitionsRequest()
       .setComponent(request.param(PARAM_COMPONENT))
-      .setBranch(request.param(PARAM_BRANCH));
+      .setBranch(request.param(PARAM_BRANCH))
+      .setPullRequest(request.param(PARAM_PULL_REQUEST));
   }
 
   private static Optional<String> getQualifier(Optional<ComponentDto> component) {
@@ -120,7 +125,7 @@ public class ListDefinitionsAction implements SettingsWsAction {
       if (componentKey == null) {
         return Optional.empty();
       }
-      ComponentDto component = componentFinder.getByKeyAndOptionalBranch(dbSession, componentKey, request.getBranch());
+      ComponentDto component = componentFinder.getByKeyAndOptionalBranchOrPullRequest(dbSession, componentKey, request.getBranch(), request.getPullRequest());
       userSession.checkComponentPermission(USER, component);
       return Optional.of(component);
     }
@@ -164,23 +169,36 @@ public class ListDefinitionsAction implements SettingsWsAction {
 
     private String branch;
     private String component;
+    private String pullRequest;
 
-    public ListDefinitionsRequest setBranch(String branch) {
-      this.branch = branch;
-      return this;
-    }
-
-    public String getBranch() {
-      return branch;
-    }
-
-    public ListDefinitionsRequest setComponent(String component) {
+    public ListDefinitionsRequest setComponent(@Nullable String component) {
       this.component = component;
       return this;
     }
 
+    @CheckForNull
     public String getComponent() {
       return component;
+    }
+
+    public ListDefinitionsRequest setBranch(@Nullable String branch) {
+      this.branch = branch;
+      return this;
+    }
+
+    @CheckForNull
+    public String getBranch() {
+      return branch;
+    }
+
+    public ListDefinitionsRequest setPullRequest(@Nullable String pullRequest) {
+      this.pullRequest = pullRequest;
+      return this;
+    }
+
+    @CheckForNull
+    public String getPullRequest() {
+      return pullRequest;
     }
   }
 }

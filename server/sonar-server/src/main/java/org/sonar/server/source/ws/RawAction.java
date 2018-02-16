@@ -36,9 +36,13 @@ import org.sonar.server.source.SourceService;
 import org.sonar.server.user.UserSession;
 
 import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
+import static org.sonar.server.ws.KeyExamples.KEY_PULL_REQUEST_EXAMPLE_001;
 
 public class RawAction implements SourcesWsAction {
 
+  private static final String PARAM_KEY = "key";
+  private static final String PARAM_BRANCH = "branch";
+  private static final String PARAM_PULL_REQUEST = "pullRequest";
   private final DbClient dbClient;
   private final SourceService sourceService;
   private final UserSession userSession;
@@ -60,24 +64,31 @@ public class RawAction implements SourcesWsAction {
       .setHandler(this);
 
     action
-      .createParam("key")
+      .createParam(PARAM_KEY)
       .setRequired(true)
       .setDescription("File key")
       .setExampleValue("my_project:src/foo/Bar.php");
 
     action
-      .createParam("branch")
+      .createParam(PARAM_BRANCH)
       .setDescription("Branch key")
       .setInternal(true)
       .setExampleValue(KEY_BRANCH_EXAMPLE_001);
+
+    action
+      .createParam(PARAM_PULL_REQUEST)
+      .setDescription("Pull request id")
+      .setInternal(true)
+      .setExampleValue(KEY_PULL_REQUEST_EXAMPLE_001);
   }
 
   @Override
   public void handle(Request request, Response response) {
-    String fileKey = request.mandatoryParam("key");
-    String branch = request.param("branch");
+    String fileKey = request.mandatoryParam(PARAM_KEY);
+    String branch = request.param(PARAM_BRANCH);
+    String pullRequest = request.param(PARAM_PULL_REQUEST);
     try (DbSession dbSession = dbClient.openSession(false)) {
-      ComponentDto file = componentFinder.getByKeyAndOptionalBranch(dbSession, fileKey, branch);
+      ComponentDto file = componentFinder.getByKeyAndOptionalBranchOrPullRequest(dbSession, fileKey, branch, pullRequest);
       userSession.checkComponentPermission(UserRole.CODEVIEWER, file);
 
       Optional<Iterable<String>> lines = sourceService.getLinesAsRawText(dbSession, file.uuid(), 1, Integer.MAX_VALUE);

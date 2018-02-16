@@ -40,6 +40,7 @@ import static org.sonar.api.measures.CoreMetrics.TECHNICAL_DEBT_KEY;
 import static org.sonar.api.measures.CoreMetrics.TESTS_KEY;
 import static org.sonar.api.measures.CoreMetrics.VIOLATIONS_KEY;
 import static org.sonar.api.web.UserRole.USER;
+import static org.sonar.db.component.BranchType.PULL_REQUEST;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
@@ -299,11 +300,26 @@ public class AppActionTest {
     ComponentDto file = db.components().insertComponent(newFileDto(branch));
 
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("'componentId' and 'branch' parameters cannot be used at the same time");
+    expectedException.expectMessage("Parameter 'componentId' cannot be used at the same time as 'branch' or 'pullRequest'");
 
     ws.newRequest()
       .setParam("uuid", file.uuid())
       .setParam("branch", file.getBranch())
+      .execute();
+  }
+
+  @Test
+  public void fail_if_both_componentId_and_pull_request_parameters_provided() {
+    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(PULL_REQUEST));
+    ComponentDto file = db.components().insertComponent(newFileDto(branch));
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Parameter 'componentId' cannot be used at the same time as 'branch' or 'pullRequest'");
+
+    ws.newRequest()
+      .setParam("uuid", file.uuid())
+      .setParam("pullRequest", file.getBranch())
       .execute();
   }
 
@@ -352,7 +368,7 @@ public class AppActionTest {
     assertThat(action.isInternal()).isTrue();
     assertThat(action.isPost()).isFalse();
     assertThat(action.handler()).isNotNull();
-    assertThat(action.params()).hasSize(3);
+    assertThat(action.params()).hasSize(4);
   }
 
 }

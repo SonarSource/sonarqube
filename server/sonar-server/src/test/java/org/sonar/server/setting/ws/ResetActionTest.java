@@ -238,7 +238,7 @@ public class ResetActionTest {
     assertThat(action.isInternal()).isFalse();
     assertThat(action.isPost()).isTrue();
     assertThat(action.responseExampleAsString()).isNull();
-    assertThat(action.params()).extracting(Param::key).containsExactlyInAnyOrder("keys", "component", "branch");
+    assertThat(action.params()).extracting(Param::key).containsExactlyInAnyOrder("keys", "component", "branch", "pullRequest");
   }
 
   @Test
