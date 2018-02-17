@@ -40,7 +40,21 @@ public class TestExecutionAndCoveragePublisherTest {
   @Test
   public void do_nothing_for_short_living_branches() throws IOException {
     BranchConfiguration branchConfiguration = mock(BranchConfiguration.class);
-    when(branchConfiguration.isShortLivingBranch()).thenReturn(true);
+    when(branchConfiguration.isShortOrPullRequest()).thenReturn(true);
+    InputComponentStore componentStore = mock(InputComponentStore.class);
+    TestExecutionAndCoveragePublisher publisher = new TestExecutionAndCoveragePublisher(componentStore, null, branchConfiguration);
+    File outputDir = temp.newFolder();
+    ScannerReportWriter writer = new ScannerReportWriter(outputDir);
+
+    publisher.publish(writer);
+
+    verifyZeroInteractions(componentStore);
+  }
+
+  @Test
+  public void do_nothing_for_pull_requests() throws IOException {
+    BranchConfiguration branchConfiguration = mock(BranchConfiguration.class);
+    when(branchConfiguration.isShortOrPullRequest()).thenReturn(true);
     InputComponentStore componentStore = mock(InputComponentStore.class);
     TestExecutionAndCoveragePublisher publisher = new TestExecutionAndCoveragePublisher(componentStore, null, branchConfiguration);
     File outputDir = temp.newFolder();
