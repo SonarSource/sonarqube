@@ -666,7 +666,7 @@
       ON p.uuid = i.component_uuid
     JOIN project_branches b
       ON i.project_uuid = b.uuid
-      AND b.branch_type = 'SHORT'
+      AND (b.branch_type = 'SHORT' OR b.branch_type = 'PULL_REQUEST')
       AND b.merge_branch_uuid = #{mergeBranchUuid,jdbcType=VARCHAR}
       AND i.status != 'CLOSED'
   </select>
