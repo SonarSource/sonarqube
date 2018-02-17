@@ -36,12 +36,8 @@ public interface BranchConfiguration {
    */
   BranchType branchType();
 
-  default boolean isShortLivingBranch() {
-    return branchType() == BranchType.SHORT;
-  }
-
-  default boolean isPullRequest() {
-    return branchType() == BranchType.PULL_REQUEST;
+  default boolean isShortOrPullRequest() {
+    return branchType() == BranchType.PULL_REQUEST || branchType() == BranchType.SHORT;
   }
 
   /**
