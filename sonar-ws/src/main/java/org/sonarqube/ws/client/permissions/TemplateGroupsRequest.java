@@ -65,7 +65,6 @@ public class TemplateGroupsRequest {
   }
 
   /**
-   * This is a mandatory parameter.
    * Possible values:
    * <ul>
    *   <li>"admin"</li>
