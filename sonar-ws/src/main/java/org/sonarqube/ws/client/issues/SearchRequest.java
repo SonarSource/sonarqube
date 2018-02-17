@@ -59,6 +59,7 @@ public class SearchRequest {
   private List<String> projectUuids;
   private List<String> projects;
   private String ps;
+  private String pullRequest;
   private List<String> resolutions;
   private String resolved;
   private List<String> rules;
@@ -467,6 +468,19 @@ public class SearchRequest {
 
   public String getPs() {
     return ps;
+  }
+
+  /**
+   * This is part of the internal API.
+   * Example value: "5461"
+   */
+  public SearchRequest setPullRequest(String pullRequest) {
+    this.pullRequest = pullRequest;
+    return this;
+  }
+
+  public String getPullRequest() {
+    return pullRequest;
   }
 
   /**

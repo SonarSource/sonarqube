@@ -45,8 +45,9 @@ import org.sonarqube.ws.client.profiles.ProfilesService;
 import org.sonarqube.ws.client.projectanalyses.ProjectAnalysesService;
 import org.sonarqube.ws.client.projectbranches.ProjectBranchesService;
 import org.sonarqube.ws.client.projectlinks.ProjectLinksService;
-import org.sonarqube.ws.client.projecttags.ProjectTagsService;
+import org.sonarqube.ws.client.projectpullrequests.ProjectPullRequestsService;
 import org.sonarqube.ws.client.projects.ProjectsService;
+import org.sonarqube.ws.client.projecttags.ProjectTagsService;
 import org.sonarqube.ws.client.properties.PropertiesService;
 import org.sonarqube.ws.client.qualitygates.QualitygatesService;
 import org.sonarqube.ws.client.qualityprofiles.QualityprofilesService;
@@ -102,6 +103,7 @@ class DefaultWsClient implements WsClient {
   private final ProjectAnalysesService projectAnalysesService;
   private final ProjectBranchesService projectBranchesService;
   private final ProjectLinksService projectLinksService;
+  private final ProjectPullRequestsService projectPullRequestsService;
   private final ProjectTagsService projectTagsService;
   private final ProjectsService projectsService;
   private final PropertiesService propertiesService;
@@ -152,6 +154,7 @@ class DefaultWsClient implements WsClient {
     this.projectAnalysesService = new ProjectAnalysesService(wsConnector);
     this.projectBranchesService = new ProjectBranchesService(wsConnector);
     this.projectLinksService = new ProjectLinksService(wsConnector);
+    this.projectPullRequestsService = new ProjectPullRequestsService(wsConnector);
     this.projectTagsService = new ProjectTagsService(wsConnector);
     this.projectsService = new ProjectsService(wsConnector);
     this.propertiesService = new PropertiesService(wsConnector);
@@ -300,6 +303,11 @@ class DefaultWsClient implements WsClient {
   @Override
   public ProjectLinksService projectLinks() {
     return projectLinksService;
+  }
+
+  @Override
+  public ProjectPullRequestsService projectPullRequests() {
+    return projectPullRequestsService;
   }
 
   @Override

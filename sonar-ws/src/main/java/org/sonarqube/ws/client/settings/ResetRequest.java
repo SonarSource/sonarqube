@@ -34,6 +34,7 @@ public class ResetRequest {
   private String branch;
   private String component;
   private List<String> keys;
+  private String pullRequest;
 
   /**
    * This is part of the internal API.
@@ -71,5 +72,18 @@ public class ResetRequest {
 
   public List<String> getKeys() {
     return keys;
+  }
+
+  /**
+   * This is part of the internal API.
+   * Example value: "5461"
+   */
+  public ResetRequest setPullRequest(String pullRequest) {
+    this.pullRequest = pullRequest;
+    return this;
+  }
+
+  public String getPullRequest() {
+    return pullRequest;
   }
 }
