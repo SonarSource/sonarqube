@@ -102,6 +102,7 @@ public class ProjectAnalysesService extends BaseService {
         .setParam("p", request.getP())
         .setParam("project", request.getProject())
         .setParam("ps", request.getPs())
+        .setParam("pullRequest", request.getPullRequest())
         .setParam("to", request.getTo()),
       SearchResponse.parser());
   }

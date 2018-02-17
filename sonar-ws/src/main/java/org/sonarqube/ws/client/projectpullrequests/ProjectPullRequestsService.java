@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonarqube.ws.client.projectbranches;
+package org.sonarqube.ws.client.projectpullrequests;
 
 import java.util.stream.Collectors;
 import javax.annotation.Generated;
@@ -26,30 +26,30 @@ import org.sonarqube.ws.client.BaseService;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsConnector;
-import org.sonarqube.ws.ProjectBranches.ListWsResponse;
+import org.sonarqube.ws.ProjectPullRequests.ListWsResponse;
 
 /**
- * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/project_branches">Further information about this web service online</a>
+ * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/project_pull_requests">Further information about this web service online</a>
  */
 @Generated("sonar-ws-generator")
-public class ProjectBranchesService extends BaseService {
+public class ProjectPullRequestsService extends BaseService {
 
-  public ProjectBranchesService(WsConnector wsConnector) {
-    super(wsConnector, "api/project_branches");
+  public ProjectPullRequestsService(WsConnector wsConnector) {
+    super(wsConnector, "api/project_pull_requests");
   }
 
   /**
    *
    * This is part of the internal API.
    * This is a POST request.
-   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/project_branches/delete">Further information about this action online (including a response example)</a>
-   * @since 6.6
+   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/project_pull_requests/delete">Further information about this action online (including a response example)</a>
+   * @since 7.1
    */
   public void delete(DeleteRequest request) {
     call(
       new PostRequest(path("delete"))
-        .setParam("branch", request.getBranch())
         .setParam("project", request.getProject())
+        .setParam("pullRequest", request.getPullRequest())
         .setMediaType(MediaTypes.JSON)
       ).content();
   }
@@ -58,29 +58,13 @@ public class ProjectBranchesService extends BaseService {
    *
    * This is part of the internal API.
    * This is a GET request.
-   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/project_branches/list">Further information about this action online (including a response example)</a>
-   * @since 6.6
+   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/project_pull_requests/list">Further information about this action online (including a response example)</a>
+   * @since 7.1
    */
   public ListWsResponse list(ListRequest request) {
     return call(
       new GetRequest(path("list"))
         .setParam("project", request.getProject()),
       ListWsResponse.parser());
-  }
-
-  /**
-   *
-   * This is part of the internal API.
-   * This is a POST request.
-   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/project_branches/rename">Further information about this action online (including a response example)</a>
-   * @since 6.6
-   */
-  public void rename(RenameRequest request) {
-    call(
-      new PostRequest(path("rename"))
-        .setParam("name", request.getName())
-        .setParam("project", request.getProject())
-        .setMediaType(MediaTypes.JSON)
-      ).content();
   }
 }

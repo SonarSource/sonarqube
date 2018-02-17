@@ -162,6 +162,7 @@ public class SearchRequest {
    *   <li>"remFn"</li>
    *   <li>"remFnOverloaded"</li>
    *   <li>"repo"</li>
+   *   <li>"scope"</li>
    *   <li>"severity"</li>
    *   <li>"status"</li>
    *   <li>"sysTags"</li>

@@ -35,6 +35,7 @@ public class SetRequest {
   private String component;
   private List<String> fieldValues;
   private String key;
+  private String pullRequest;
   private String value;
   private List<String> values;
 
@@ -86,6 +87,19 @@ public class SetRequest {
 
   public String getKey() {
     return key;
+  }
+
+  /**
+   * This is part of the internal API.
+   * Example value: "5461"
+   */
+  public SetRequest setPullRequest(String pullRequest) {
+    this.pullRequest = pullRequest;
+    return this;
+  }
+
+  public String getPullRequest() {
+    return pullRequest;
   }
 
   /**

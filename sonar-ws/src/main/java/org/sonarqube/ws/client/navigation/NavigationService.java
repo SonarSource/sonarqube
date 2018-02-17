@@ -49,6 +49,7 @@ public class NavigationService extends BaseService {
       new GetRequest(path("component"))
         .setParam("branch", request.getBranch())
         .setParam("component", request.getComponent())
+        .setParam("pullRequest", request.getPullRequest())
         .setMediaType(MediaTypes.JSON)
       ).content();
   }
