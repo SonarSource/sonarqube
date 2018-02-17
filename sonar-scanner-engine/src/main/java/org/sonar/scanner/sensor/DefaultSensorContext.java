@@ -148,7 +148,7 @@ public class DefaultSensorContext implements SensorContext {
 
   @Override
   public NewCoverage newCoverage() {
-    if (branchConfiguration.isShortLivingBranch()) {
+    if (branchConfiguration.isShortOrPullRequest()) {
       return NO_OP_NEW_COVERAGE;
     }
     return new DefaultCoverage(sensorStorage);
@@ -156,7 +156,7 @@ public class DefaultSensorContext implements SensorContext {
 
   @Override
   public NewCpdTokens newCpdTokens() {
-    if (analysisMode.isIssues() || branchConfiguration.isShortLivingBranch()) {
+    if (analysisMode.isIssues() || branchConfiguration.isShortOrPullRequest()) {
       return NO_OP_NEW_CPD_TOKENS;
     }
     return new DefaultCpdTokens(config, sensorStorage);
