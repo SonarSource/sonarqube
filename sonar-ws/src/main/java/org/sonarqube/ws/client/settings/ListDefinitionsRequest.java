@@ -33,6 +33,7 @@ public class ListDefinitionsRequest {
 
   private String branch;
   private String component;
+  private String pullRequest;
 
   /**
    * This is part of the internal API.
@@ -57,5 +58,18 @@ public class ListDefinitionsRequest {
 
   public String getComponent() {
     return component;
+  }
+
+  /**
+   * This is part of the internal API.
+   * Example value: "5461"
+   */
+  public ListDefinitionsRequest setPullRequest(String pullRequest) {
+    this.pullRequest = pullRequest;
+    return this;
+  }
+
+  public String getPullRequest() {
+    return pullRequest;
   }
 }

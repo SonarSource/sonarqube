@@ -57,7 +57,8 @@ public class MeasuresService extends BaseService {
         .setParam("componentId", request.getComponentId())
         .setParam("developerId", request.getDeveloperId())
         .setParam("developerKey", request.getDeveloperKey())
-        .setParam("metricKeys", request.getMetricKeys() == null ? null : request.getMetricKeys().stream().collect(Collectors.joining(","))),
+        .setParam("metricKeys", request.getMetricKeys() == null ? null : request.getMetricKeys().stream().collect(Collectors.joining(",")))
+        .setParam("pullRequest", request.getPullRequest()),
       ComponentWsResponse.parser());
   }
 
@@ -84,6 +85,7 @@ public class MeasuresService extends BaseService {
         .setParam("metricSortFilter", request.getMetricSortFilter())
         .setParam("p", request.getP())
         .setParam("ps", request.getPs())
+        .setParam("pullRequest", request.getPullRequest())
         .setParam("q", request.getQ())
         .setParam("qualifiers", request.getQualifiers() == null ? null : request.getQualifiers().stream().collect(Collectors.joining(",")))
         .setParam("s", request.getS() == null ? null : request.getS().stream().collect(Collectors.joining(",")))
@@ -122,6 +124,7 @@ public class MeasuresService extends BaseService {
         .setParam("metrics", request.getMetrics() == null ? null : request.getMetrics().stream().collect(Collectors.joining(",")))
         .setParam("p", request.getP())
         .setParam("ps", request.getPs())
+        .setParam("pullRequest", request.getPullRequest())
         .setParam("to", request.getTo()),
       SearchHistoryResponse.parser());
   }

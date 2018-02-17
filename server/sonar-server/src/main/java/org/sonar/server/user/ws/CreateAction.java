@@ -80,6 +80,7 @@ public class CreateAction implements UsersWsAction {
         new Change("6.3", "The password is only mandatory when creating local users, and should not be set on non local users"),
         new Change("6.3", "The 'infos' message is no more returned when a user is reactivated"))
       .setPost(true)
+      .setResponseExample(getClass().getResource("create-example.json"))
       .setHandler(this);
 
     action.createParam(PARAM_LOGIN)
@@ -104,13 +105,13 @@ public class CreateAction implements UsersWsAction {
       .setExampleValue("myname@email.com");
 
     action.createParam(PARAM_SCM_ACCOUNTS)
-      .setDescription("This parameter is deprecated, please use '%s' instead", PARAM_SCM_ACCOUNT)
+      .setDescription("Comma-separated list of SCM accounts. This parameter is deprecated, please use '%s' instead", PARAM_SCM_ACCOUNT)
       .setDeprecatedKey(PARAM_SCM_ACCOUNTS_DEPRECATED, "6.0")
       .setDeprecatedSince("6.1")
       .setExampleValue("myscmaccount1,myscmaccount2");
 
     action.createParam(PARAM_SCM_ACCOUNT)
-      .setDescription("SCM accounts. To set several values, the parameter must be called once for each value.")
+      .setDescription("List of SCM accounts. To set several values, the parameter must be called once for each value.")
       .setExampleValue("scmAccount=firstValue&scmAccount=secondValue&scmAccount=thirdValue");
 
     action.createParam(PARAM_LOCAL)
