@@ -93,7 +93,8 @@ public class SettingsService extends BaseService {
     return call(
       new GetRequest(path("list_definitions"))
         .setParam("branch", request.getBranch())
-        .setParam("component", request.getComponent()),
+        .setParam("component", request.getComponent())
+        .setParam("pullRequest", request.getPullRequest()),
       ListDefinitionsWsResponse.parser());
   }
 
@@ -110,6 +111,7 @@ public class SettingsService extends BaseService {
         .setParam("branch", request.getBranch())
         .setParam("component", request.getComponent())
         .setParam("keys", request.getKeys() == null ? null : request.getKeys().stream().collect(Collectors.joining(",")))
+        .setParam("pullRequest", request.getPullRequest())
         .setMediaType(MediaTypes.JSON)
       ).content();
   }
@@ -128,6 +130,7 @@ public class SettingsService extends BaseService {
         .setParam("component", request.getComponent())
         .setParam("fieldValues", request.getFieldValues() == null ? null : request.getFieldValues())
         .setParam("key", request.getKey())
+        .setParam("pullRequest", request.getPullRequest())
         .setParam("value", request.getValue())
         .setParam("values", request.getValues() == null ? null : request.getValues())
         .setMediaType(MediaTypes.JSON)
@@ -146,7 +149,8 @@ public class SettingsService extends BaseService {
       new GetRequest(path("values"))
         .setParam("branch", request.getBranch())
         .setParam("component", request.getComponent())
-        .setParam("keys", request.getKeys() == null ? null : request.getKeys().stream().collect(Collectors.joining(","))),
+        .setParam("keys", request.getKeys() == null ? null : request.getKeys().stream().collect(Collectors.joining(",")))
+        .setParam("pullRequest", request.getPullRequest()),
       ValuesWsResponse.parser());
   }
 }

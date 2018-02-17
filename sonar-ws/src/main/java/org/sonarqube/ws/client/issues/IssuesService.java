@@ -232,6 +232,7 @@ public class IssuesService extends BaseService {
         .setParam("projectUuids", request.getProjectUuids() == null ? null : request.getProjectUuids().stream().collect(Collectors.joining(",")))
         .setParam("projects", request.getProjects() == null ? null : request.getProjects().stream().collect(Collectors.joining(",")))
         .setParam("ps", request.getPs())
+        .setParam("pullRequest", request.getPullRequest())
         .setParam("resolutions", request.getResolutions() == null ? null : request.getResolutions().stream().collect(Collectors.joining(",")))
         .setParam("resolved", request.getResolved())
         .setParam("rules", request.getRules() == null ? null : request.getRules().stream().collect(Collectors.joining(",")))

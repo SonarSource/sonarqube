@@ -19,20 +19,21 @@
  */
 package org.sonarqube.ws.client.qualitygates;
 
+import java.util.stream.Collectors;
 import javax.annotation.Generated;
 import org.sonarqube.ws.MediaTypes;
-import org.sonarqube.ws.Qualitygates.CreateConditionResponse;
+import org.sonarqube.ws.client.BaseService;
+import org.sonarqube.ws.client.GetRequest;
+import org.sonarqube.ws.client.PostRequest;
+import org.sonarqube.ws.client.WsConnector;
 import org.sonarqube.ws.Qualitygates.CreateResponse;
+import org.sonarqube.ws.Qualitygates.CreateConditionResponse;
 import org.sonarqube.ws.Qualitygates.GetByProjectResponse;
 import org.sonarqube.ws.Qualitygates.ListWsResponse;
 import org.sonarqube.ws.Qualitygates.ProjectStatusResponse;
 import org.sonarqube.ws.Qualitygates.SearchResponse;
 import org.sonarqube.ws.Qualitygates.ShowWsResponse;
 import org.sonarqube.ws.Qualitygates.UpdateConditionResponse;
-import org.sonarqube.ws.client.BaseService;
-import org.sonarqube.ws.client.GetRequest;
-import org.sonarqube.ws.client.PostRequest;
-import org.sonarqube.ws.client.WsConnector;
 
 /**
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/qualitygates">Further information about this web service online</a>

@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonarqube.ws.client.qualitygates;
+package org.sonarqube.ws.client.projectpullrequests;
 
 import java.util.List;
 import javax.annotation.Generated;
@@ -25,23 +25,24 @@ import javax.annotation.Generated;
 /**
  * This is part of the internal API.
  * This is a POST request.
- * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/qualitygates/list">Further information about this action online (including a response example)</a>
- * @since 4.3
+ * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/project_pull_requests/list">Further information about this action online (including a response example)</a>
+ * @since 7.1
  */
 @Generated("sonar-ws-generator")
 public class ListRequest {
 
-  private String organization;
+  private String project;
 
   /**
-   * Example value: "my-org"
+   * This is a mandatory parameter.
+   * Example value: "my_project"
    */
-  public ListRequest setOrganization(String organization) {
-    this.organization = organization;
+  public ListRequest setProject(String project) {
+    this.project = project;
     return this;
   }
 
-  public String getOrganization() {
-    return organization;
+  public String getProject() {
+    return project;
   }
 }

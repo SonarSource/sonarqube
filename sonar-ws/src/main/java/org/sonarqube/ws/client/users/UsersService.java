@@ -160,6 +160,22 @@ public class UsersService extends BaseService {
    *
    * This is part of the internal API.
    * This is a POST request.
+   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/users/set_homepage">Further information about this action online (including a response example)</a>
+   * @since 7.0
+   */
+  public void setHomepage(SetHomepageRequest request) {
+    call(
+      new PostRequest(path("set_homepage"))
+        .setParam("parameter", request.getParameter())
+        .setParam("type", request.getType())
+        .setMediaType(MediaTypes.JSON)
+      ).content();
+  }
+
+  /**
+   *
+   * This is part of the internal API.
+   * This is a POST request.
    * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/users/skip_onboarding_tutorial">Further information about this action online (including a response example)</a>
    * @since 6.5
    */
