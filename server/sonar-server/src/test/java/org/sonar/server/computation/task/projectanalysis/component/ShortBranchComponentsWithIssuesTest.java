@@ -151,6 +151,25 @@ public class ShortBranchComponentsWithIssuesTest {
   }
 
   @Test
+  public void should_find_components_with_issues_to_merge_on_derived_pull_request() {
+    ComponentDto project = db.components().insertMainBranch();
+    setRootUuid(project.uuid());
+
+    ComponentDto branch = db.components().insertProjectBranch(project,
+      b -> b.setBranchType(BranchType.PULL_REQUEST),
+      b -> b.setMergeBranchUuid(project.uuid()));
+
+    RuleDefinitionDto rule = db.rules().insert();
+
+    ComponentDto fileWithResolvedIssue = db.components().insertComponent(ComponentTesting.newFileDto(branch, null));
+    db.issues().insertIssue(IssueTesting.newIssue(rule, branch, fileWithResolvedIssue).setStatus("RESOLVED"));
+
+    underTest = new ShortBranchComponentsWithIssues(treeRootHolder, db.getDbClient());
+
+    assertThat(underTest.getUuids(fileWithResolvedIssue.getKey())).hasSize(1);
+  }
+
+  @Test
   public void should_not_find_components_with_issues_to_merge_on_derived_long() {
     ComponentDto project = db.components().insertMainBranch();
     setRootUuid(project.uuid());
