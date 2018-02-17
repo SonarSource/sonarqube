@@ -45,6 +45,7 @@ import org.sonarqube.ws.client.profiles.ProfilesService;
 import org.sonarqube.ws.client.projectanalyses.ProjectAnalysesService;
 import org.sonarqube.ws.client.projectbranches.ProjectBranchesService;
 import org.sonarqube.ws.client.projectlinks.ProjectLinksService;
+import org.sonarqube.ws.client.projectpullrequests.ProjectPullRequestsService;
 import org.sonarqube.ws.client.projecttags.ProjectTagsService;
 import org.sonarqube.ws.client.projects.ProjectsService;
 import org.sonarqube.ws.client.properties.PropertiesService;
@@ -138,6 +139,8 @@ public interface WsClient {
   ProjectBranchesService projectBranches();
 
   ProjectLinksService projectLinks();
+
+  ProjectPullRequestsService projectPullRequests();
 
   ProjectTagsService projectTags();
 

@@ -44,6 +44,7 @@ public class ComponentTreeRequest {
   private String metricSortFilter;
   private String p;
   private String ps;
+  private String pullRequest;
   private String q;
   private List<String> qualifiers;
   private List<String> s;
@@ -227,6 +228,19 @@ public class ComponentTreeRequest {
 
   public String getPs() {
     return ps;
+  }
+
+  /**
+   * This is part of the internal API.
+   * Example value: "5461"
+   */
+  public ComponentTreeRequest setPullRequest(String pullRequest) {
+    this.pullRequest = pullRequest;
+    return this;
+  }
+
+  public String getPullRequest() {
+    return pullRequest;
   }
 
   /**

@@ -38,6 +38,7 @@ public class ComponentRequest {
   private String developerId;
   private String developerKey;
   private List<String> metricKeys;
+  private String pullRequest;
 
   /**
    * Example value: "periods,metrics"
@@ -132,5 +133,18 @@ public class ComponentRequest {
 
   public List<String> getMetricKeys() {
     return metricKeys;
+  }
+
+  /**
+   * This is part of the internal API.
+   * Example value: "5461"
+   */
+  public ComponentRequest setPullRequest(String pullRequest) {
+    this.pullRequest = pullRequest;
+    return this;
+  }
+
+  public String getPullRequest() {
+    return pullRequest;
   }
 }

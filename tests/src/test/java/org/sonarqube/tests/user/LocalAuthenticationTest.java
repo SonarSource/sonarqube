@@ -241,7 +241,7 @@ public class LocalAuthenticationTest {
       .setLogin("test")
       .setName("Test")
       .setEmail("test@email.com")
-      .setScmAccounts(asList("test1", "test2"))
+      .setScmAccount(asList("test1", "test2"))
       .setPassword("password"));
 
     assertThat(checkAuthenticationWithAuthenticateWebService("test", "password")).isTrue();
