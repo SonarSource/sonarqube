@@ -83,8 +83,8 @@ public class CpdExecutor {
   }
 
   public void execute() {
-    if (branchConfiguration.isShortLivingBranch()) {
-      LOG.info("Skipping CPD calculation for short living branch");
+    if (branchConfiguration.isShortOrPullRequest()) {
+      LOG.info("Skipping CPD calculation for short living branch and pull request");
       return;
     }
     execute(TIMEOUT);
