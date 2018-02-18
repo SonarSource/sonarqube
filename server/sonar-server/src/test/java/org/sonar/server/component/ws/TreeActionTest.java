@@ -355,9 +355,9 @@ public class TreeActionTest {
       .setParam(PARAM_PULL_REQUEST, pullRequestId)
       .executeProtobuf(TreeWsResponse.class);
 
-    assertThat(response.getBaseComponent()).extracting(Components.Component::getKey, Components.Component::getBranch)
+    assertThat(response.getBaseComponent()).extracting(Components.Component::getKey, Components.Component::getPullRequest)
       .containsExactlyInAnyOrder(module.getKey(), pullRequestId);
-    assertThat(response.getComponentsList()).extracting(Components.Component::getKey, Components.Component::getBranch)
+    assertThat(response.getComponentsList()).extracting(Components.Component::getKey, Components.Component::getPullRequest)
       .containsExactlyInAnyOrder(
         tuple(directory.getKey(), pullRequestId),
         tuple(file.getKey(), pullRequestId));

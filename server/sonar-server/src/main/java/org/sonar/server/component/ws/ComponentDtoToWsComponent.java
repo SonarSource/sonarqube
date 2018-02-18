@@ -61,8 +61,8 @@ class ComponentDtoToWsComponent {
       .setKey(dto.getKey())
       .setName(dto.name())
       .setQualifier(dto.qualifier());
-    // TODO add pull request id to the response when it's available in ComponentDto
     setNullable(emptyToNull(dto.getBranch()), wsComponent::setBranch);
+    setNullable(emptyToNull(dto.getPullRequest()), wsComponent::setPullRequest);
     setNullable(emptyToNull(dto.path()), wsComponent::setPath);
     setNullable(emptyToNull(dto.description()), wsComponent::setDescription);
     setNullable(emptyToNull(dto.language()), wsComponent::setLanguage);

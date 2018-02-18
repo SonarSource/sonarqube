@@ -155,14 +155,14 @@ public class ShortBranchComponentsWithIssuesTest {
     ComponentDto project = db.components().insertMainBranch();
     setRootUuid(project.uuid());
 
-    ComponentDto branch = db.components().insertProjectBranch(project,
+    ComponentDto pullRequest = db.components().insertProjectBranch(project,
       b -> b.setBranchType(BranchType.PULL_REQUEST),
       b -> b.setMergeBranchUuid(project.uuid()));
 
     RuleDefinitionDto rule = db.rules().insert();
 
-    ComponentDto fileWithResolvedIssue = db.components().insertComponent(ComponentTesting.newFileDto(branch, null));
-    db.issues().insertIssue(IssueTesting.newIssue(rule, branch, fileWithResolvedIssue).setStatus("RESOLVED"));
+    ComponentDto fileWithResolvedIssue = db.components().insertComponent(ComponentTesting.newFileDto(pullRequest, null));
+    db.issues().insertIssue(IssueTesting.newIssue(rule, pullRequest, fileWithResolvedIssue).setStatus("RESOLVED"));
 
     underTest = new ShortBranchComponentsWithIssues(treeRootHolder, db.getDbClient());
 

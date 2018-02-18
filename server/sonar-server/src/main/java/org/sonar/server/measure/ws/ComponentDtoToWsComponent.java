@@ -59,6 +59,7 @@ class ComponentDtoToWsComponent {
       .setName(component.name())
       .setQualifier(component.qualifier());
     Protobuf.setNullable(component.getBranch(), wsComponent::setBranch);
+    Protobuf.setNullable(component.getPullRequest(), wsComponent::setPullRequest);
     Protobuf.setNullable(component.path(), wsComponent::setPath);
     Protobuf.setNullable(component.description(), wsComponent::setDescription);
     Protobuf.setNullable(component.language(), wsComponent::setLanguage);

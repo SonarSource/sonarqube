@@ -153,15 +153,11 @@ public class TaskFormatter {
             builder.setBranchType(branchType);
             builder.setBranch(b);
             break;
-          case PULL_REQUEST:
-            builder.setPullRequest(b);
-            // TODO set pull request title
-            builder.setPullRequestTitle(b);
-            break;
           default:
             throw new IllegalStateException(String.format("Unknown branch type '%s'", branchType));
         }
       });
+    componentDtoCache.getPullRequest(taskUuid).ifPresent(builder::setPullRequest);
     return builder;
   }
 
@@ -259,6 +255,13 @@ public class TaskFormatter {
       return characteristicsByTaskUuid.get(taskUuid).stream()
         .filter(c -> c.getKey().equals(CeTaskCharacteristicDto.BRANCH_TYPE_KEY))
         .map(c -> Common.BranchType.valueOf(c.getValue()))
+        .findAny();
+    }
+
+    Optional<String> getPullRequest(String taskUuid) {
+      return characteristicsByTaskUuid.get(taskUuid).stream()
+        .filter(c -> c.getKey().equals(CeTaskCharacteristicDto.PULL_REQUEST))
+        .map(CeTaskCharacteristicDto::getValue)
         .findAny();
     }
   }
