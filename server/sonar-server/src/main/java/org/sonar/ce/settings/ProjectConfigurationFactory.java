@@ -24,10 +24,12 @@ import org.sonar.api.config.Configuration;
 import org.sonar.api.config.Settings;
 import org.sonar.api.config.internal.ConfigurationBridge;
 import org.sonar.db.DbClient;
+import org.sonar.db.component.BranchType;
 import org.sonar.server.computation.task.projectanalysis.analysis.Branch;
 import org.sonar.server.settings.ChildSettings;
 
 import static org.sonar.db.component.ComponentDto.generateBranchKey;
+import static org.sonar.db.component.ComponentDto.generatePullRequestKey;
 
 @ComputeEngineSide
 public class ProjectConfigurationFactory {
@@ -43,7 +45,11 @@ public class ProjectConfigurationFactory {
   public Configuration newProjectConfiguration(String projectKey, Branch branch) {
     Settings projectSettings = new ChildSettings(globalSettings);
     addSettings(projectSettings, projectKey);
-    addSettings(projectSettings, generateBranchKey(projectKey, branch.getName()));
+    if (branch.getType() == BranchType.PULL_REQUEST) {
+      addSettings(projectSettings, generatePullRequestKey(projectKey, branch.getName()));
+    } else {
+      addSettings(projectSettings, generateBranchKey(projectKey, branch.getName()));
+    }
     return new ConfigurationBridge(projectSettings);
   }
 

@@ -80,7 +80,7 @@ public class DeleteAction implements PullRequestWsAction {
         .filter(branch -> branch.getBranchType() == PULL_REQUEST)
         .orElseThrow(() -> new NotFoundException(String.format("Pull request '%s' is not found for project '%s'", pullRequestId, projectKey)));
 
-      ComponentDto branchComponent = componentFinder.getByKeyAndBranch(dbSession, projectKey, pullRequest.getKey());
+      ComponentDto branchComponent = componentFinder.getByKeyAndPullRequest(dbSession, projectKey, pullRequest.getKey());
       componentCleanerService.deleteBranch(dbSession, branchComponent);
       response.noContent();
     }

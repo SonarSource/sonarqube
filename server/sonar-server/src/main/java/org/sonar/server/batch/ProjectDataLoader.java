@@ -71,13 +71,15 @@ public class ProjectDataLoader {
       ProjectRepositories data = new ProjectRepositories();
       String moduleKey = query.getModuleKey();
       String branch = query.getBranch();
+      String pullRequest = query.getPullRequest();
       ComponentDto mainModule = componentFinder.getByKey(session, moduleKey);
       checkRequest(isProjectOrModule(mainModule), "Key '%s' belongs to a component which is not a Project", moduleKey);
       boolean hasScanPerm = userSession.hasComponentPermission(SCAN_EXECUTION, mainModule) ||
         userSession.hasPermission(OrganizationPermission.SCAN, mainModule.getOrganizationUuid());
       boolean hasBrowsePerm = userSession.hasComponentPermission(USER, mainModule);
       checkPermission(query.isIssuesMode(), hasScanPerm, hasBrowsePerm);
-      ComponentDto branchOrMainModule = branch == null ? mainModule : componentFinder.getByKeyAndBranch(session, moduleKey, branch);
+      ComponentDto branchOrMainModule = (branch == null && pullRequest == null) ? mainModule
+        : componentFinder.getByKeyAndOptionalBranchOrPullRequest(session, moduleKey, branch, pullRequest);
 
       ComponentDto project = getProject(branchOrMainModule, session);
       if (!project.getKey().equals(branchOrMainModule.getKey())) {
