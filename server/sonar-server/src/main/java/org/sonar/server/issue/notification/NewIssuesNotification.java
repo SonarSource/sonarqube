@@ -46,6 +46,7 @@ import org.sonar.server.user.index.UserIndex;
 
 import static org.sonar.server.issue.notification.AbstractNewIssuesEmailTemplate.FIELD_BRANCH;
 import static org.sonar.server.issue.notification.AbstractNewIssuesEmailTemplate.FIELD_PROJECT_VERSION;
+import static org.sonar.server.issue.notification.AbstractNewIssuesEmailTemplate.FIELD_PULL_REQUEST;
 import static org.sonar.server.issue.notification.NewIssuesEmailTemplate.FIELD_PROJECT_DATE;
 import static org.sonar.server.issue.notification.NewIssuesEmailTemplate.FIELD_PROJECT_KEY;
 import static org.sonar.server.issue.notification.NewIssuesEmailTemplate.FIELD_PROJECT_NAME;
@@ -79,11 +80,14 @@ public class NewIssuesNotification extends Notification {
     return this;
   }
 
-  public NewIssuesNotification setProject(String projectKey, String projectName, @Nullable String branchName) {
+  public NewIssuesNotification setProject(String projectKey, String projectName, @Nullable String branchName, @Nullable String pullRequest) {
     setFieldValue(FIELD_PROJECT_NAME, projectName);
     setFieldValue(FIELD_PROJECT_KEY, projectKey);
     if (branchName != null) {
       setFieldValue(FIELD_BRANCH, branchName);
+    }
+    if (pullRequest != null) {
+      setFieldValue(FIELD_PULL_REQUEST, pullRequest);
     }
     return this;
   }
