@@ -57,6 +57,7 @@ import org.sonarqube.ws.client.WsResponse;
 import static org.sonar.core.config.ScannerProperties.BRANCH_NAME;
 import static org.sonar.core.config.ScannerProperties.ORGANIZATION;
 import static org.sonar.core.util.FileUtils.deleteQuietly;
+import static org.sonar.scanner.scan.branch.BranchType.PULL_REQUEST;
 
 @ScannerSide
 public class ReportPublisher implements Startable {
@@ -180,8 +181,13 @@ public class ReportPublisher implements Startable {
 
     String branchName = branchConfiguration.branchName();
     if (branchName != null) {
-      post.setParam(CHARACTERISTIC, "branch=" + branchName);
-      post.setParam(CHARACTERISTIC, "branchType=" + branchConfiguration.branchType().name());
+      if (branchConfiguration.branchType() != PULL_REQUEST) {
+        post.setParam(CHARACTERISTIC, "branch=" + branchName);
+        post.setParam(CHARACTERISTIC, "branchType=" + branchConfiguration.branchType().name());
+      } else {
+        // TODO store the pull request id
+        post.setParam(CHARACTERISTIC, "pullRequest=" + branchName);
+      }
     }
 
     WsResponse response;

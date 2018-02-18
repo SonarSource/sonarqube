@@ -507,8 +507,8 @@ public class ComponentTreeActionTest {
       .setParam(PARAM_METRIC_KEYS, complexity.getKey())
       .executeProtobuf(Measures.ComponentTreeWsResponse.class);
 
-    assertThat(response.getBaseComponent()).extracting(Measures.Component::getKey, Measures.Component::getBranch)
-      .containsExactlyInAnyOrder(file.getKey(), file.getBranch());
+    assertThat(response.getBaseComponent()).extracting(Measures.Component::getKey, Measures.Component::getPullRequest)
+      .containsExactlyInAnyOrder(file.getKey(), "pr-123");
     assertThat(response.getBaseComponent().getMeasuresList())
       .extracting(Measures.Measure::getMetric, m -> parseDouble(m.getValue()))
       .containsExactlyInAnyOrder(tuple(complexity.getKey(), measure.getValue()));

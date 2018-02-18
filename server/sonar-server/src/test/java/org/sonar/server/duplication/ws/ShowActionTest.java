@@ -28,6 +28,7 @@ import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.organization.OrganizationDto;
@@ -157,6 +158,58 @@ public class ShowActionTest {
         "  }\n" +
         "}",
         file.getKey(), file.longName(), file.uuid(), branch.getKey(), branch.uuid(), project.longName(), file.getBranch()));
+  }
+
+  @Test
+  public void duplications_by_file_key_and_pull_request() {
+    ComponentDto project = db.components().insertMainBranch();
+    userSessionRule.addProjectPermission(UserRole.CODEVIEWER, project);
+    ComponentDto pullRequest = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.PULL_REQUEST));
+    ComponentDto file = db.components().insertComponent(newFileDto(pullRequest));
+    db.measures().insertLiveMeasure(file, dataMetric, m -> m.setData(format("<duplications>\n" +
+      "  <g>\n" +
+      "    <b s=\"31\" l=\"5\" r=\"%s\"/>\n" +
+      "    <b s=\"20\" l=\"5\" r=\"%s\"/>\n" +
+      "  </g>\n" +
+      "</duplications>\n", file.getDbKey(), file.getDbKey())));
+
+    String result = ws.newRequest()
+      .setParam("key", file.getKey())
+      .setParam("pullRequest", pullRequest.getPullRequest())
+      .execute()
+      .getInput();
+
+    assertJson(result).isSimilarTo(
+      format("{\n" +
+        "  \"duplications\": [\n" +
+        "    {\n" +
+        "      \"blocks\": [\n" +
+        "        {\n" +
+        "          \"from\": 20,\n" +
+        "          \"size\": 5,\n" +
+        "          \"_ref\": \"1\"\n" +
+        "        },\n" +
+        "        {\n" +
+        "          \"from\": 31,\n" +
+        "          \"size\": 5,\n" +
+        "          \"_ref\": \"1\"\n" +
+        "        }\n" +
+        "      ]\n" +
+        "    }\n" +
+        "  ],\n" +
+        "  \"files\": {\n" +
+        "    \"1\": {\n" +
+        "      \"key\": \"%s\",\n" +
+        "      \"name\": \"%s\",\n" +
+        "      \"uuid\": \"%s\",\n" +
+        "      \"project\": \"%s\",\n" +
+        "      \"projectUuid\": \"%s\",\n" +
+        "      \"projectName\": \"%s\"\n" +
+        "      \"pullRequest\": \"%s\"\n" +
+        "    }\n" +
+        "  }\n" +
+        "}",
+        file.getKey(), file.longName(), file.uuid(), pullRequest.getKey(), pullRequest.uuid(), project.longName(), file.getPullRequest()));
   }
 
   @Test

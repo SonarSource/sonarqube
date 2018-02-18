@@ -42,6 +42,7 @@ message CoveredFilesResponse {
     optional string longName = 3;
     optional int32 coveredLines = 4;
     optional string branch = 5;
+    optional string pullRequest = 6;
   }
 }
 
@@ -58,6 +59,7 @@ message Test {
   optional string message = 9;
   optional string stacktrace = 10;
   optional string fileBranch = 11;
+  optional string filePullRequest = 12;
 }
 
 enum TestStatus {
