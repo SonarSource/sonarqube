@@ -325,13 +325,13 @@ public class ShowActionTest {
 
     ShowWsResponse response = ws.newRequest()
       .setParam(PARAM_COMPONENT, file.getKey())
-      .setParam(PARAM_BRANCH, pullRequest)
+      .setParam(PARAM_PULL_REQUEST, pullRequest)
       .executeProtobuf(ShowWsResponse.class);
 
     assertThat(response.getComponent())
-      .extracting(Component::getKey, Component::getBranch, Component::getVersion)
+      .extracting(Component::getKey, Component::getPullRequest, Component::getVersion)
       .containsExactlyInAnyOrder(file.getKey(), pullRequest, "1.1");
-    assertThat(response.getAncestorsList()).extracting(Component::getKey, Component::getBranch, Component::getVersion)
+    assertThat(response.getAncestorsList()).extracting(Component::getKey, Component::getPullRequest, Component::getVersion)
       .containsExactlyInAnyOrder(
         tuple(directory.getKey(), pullRequest, "1.1"),
         tuple(module.getKey(), pullRequest, "1.1"),

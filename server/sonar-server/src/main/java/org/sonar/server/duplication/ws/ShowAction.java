@@ -103,8 +103,9 @@ public class ShowAction implements DuplicationsWsAction {
       userSession.checkComponentPermission(UserRole.CODEVIEWER, component);
       String duplications = findDataFromComponent(dbSession, component);
       String branch = component.getBranch();
-      List<DuplicationsParser.Block> blocks = parser.parse(dbSession, component, branch, duplications);
-      writeProtobuf(responseBuilder.build(dbSession, blocks, branch), request, response);
+      String pullRequest = component.getPullRequest();
+      List<DuplicationsParser.Block> blocks = parser.parse(dbSession, component, branch, pullRequest, duplications);
+      writeProtobuf(responseBuilder.build(dbSession, blocks, branch, pullRequest), request, response);
     }
   }
 
@@ -112,9 +113,9 @@ public class ShowAction implements DuplicationsWsAction {
     String componentUuid = request.param(PARAM_UUID);
     String branch = request.param(PARAM_BRANCH);
     String pullRequest = request.param(PARAM_PULL_REQUEST);
-    checkArgument(componentUuid == null || (branch == null && pullRequest == null),  "Parameter '%s' cannot be used at the same time as '%s' or '%s'", PARAM_UUID,
+    checkArgument(componentUuid == null || (branch == null && pullRequest == null), "Parameter '%s' cannot be used at the same time as '%s' or '%s'", PARAM_UUID,
       PARAM_BRANCH, PARAM_PULL_REQUEST);
-    if (branch == null) {
+    if (branch == null && pullRequest == null) {
       return componentFinder.getByUuidOrKey(dbSession, componentUuid, request.param(PARAM_KEY), UUID_AND_KEY);
     }
     return componentFinder.getByKeyAndOptionalBranchOrPullRequest(dbSession, request.mandatoryParam(PARAM_KEY), branch, pullRequest);

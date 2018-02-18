@@ -122,6 +122,7 @@ message Component {
   optional string project = 17;
   optional string branch = 18;
   optional string version = 19;
+  optional string pullRequest = 20;
 
   message Tags {
     repeated string tags = 1;

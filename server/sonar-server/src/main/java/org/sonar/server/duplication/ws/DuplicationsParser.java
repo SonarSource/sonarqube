@@ -52,7 +52,7 @@ public class DuplicationsParser {
     this.componentDao = componentDao;
   }
 
-  public List<Block> parse(DbSession session, ComponentDto component, @Nullable String branch, @Nullable String duplicationsData) {
+  public List<Block> parse(DbSession session, ComponentDto component, @Nullable String branch, @Nullable String pullRequest, @Nullable String duplicationsData) {
     Map<String, ComponentDto> componentsByKey = newHashMap();
     List<Block> blocks = newArrayList();
     if (duplicationsData != null) {
@@ -69,7 +69,7 @@ public class DuplicationsParser {
             String size = bCursor.getAttrValue("l");
             String componentKey = bCursor.getAttrValue("r");
             if (from != null && size != null && componentKey != null) {
-              duplications.add(createDuplication(componentsByKey, branch, from, size, componentKey, session));
+              duplications.add(createDuplication(componentsByKey, branch, pullRequest, from, size, componentKey, session));
             }
           }
           Collections.sort(duplications, new DuplicationComparator(component.uuid(), component.projectUuid()));
@@ -83,12 +83,19 @@ public class DuplicationsParser {
     return blocks;
   }
 
-  private Duplication createDuplication(Map<String, ComponentDto> componentsByKey, @Nullable String branch, String from, String size, String componentDbKey, DbSession session) {
+  private Duplication createDuplication(Map<String, ComponentDto> componentsByKey, @Nullable String branch, @Nullable String pullRequest, String from, String size,
+    String componentDbKey, DbSession session) {
     String componentKey = convertToKey(componentDbKey);
     ComponentDto component = componentsByKey.get(componentKey);
     if (component == null) {
-      Optional<ComponentDto> componentDtoOptional = branch == null ? componentDao.selectByKey(session, componentKey)
-        : Optional.fromNullable(componentDao.selectByKeyAndBranch(session, componentKey, branch).orElseGet(null));
+      Optional<ComponentDto> componentDtoOptional;
+      if (branch != null) {
+        componentDtoOptional = Optional.fromNullable(componentDao.selectByKeyAndBranch(session, componentKey, branch).orElseGet(null));
+      } else if (pullRequest != null) {
+        componentDtoOptional = Optional.fromNullable(componentDao.selectByKeyAndPullRequest(session, componentKey, pullRequest).orElseGet(null));
+      } else {
+        componentDtoOptional = componentDao.selectByKey(session, componentKey);
+      }
       component = componentDtoOptional.isPresent() ? componentDtoOptional.get() : null;
       componentsByKey.put(componentKey, component);
     }
