@@ -65,9 +65,13 @@ public class MyNewIssuesEmailTemplate extends AbstractNewIssuesEmailTemplate {
         settings.getServerBaseURL(),
         encode(projectKey),
         encode(assignee));
-      String branchName = notification.getFieldValue("branch");
+      String branchName = notification.getFieldValue(FIELD_BRANCH);
       if (branchName != null) {
         url += "&branch=" + encode(branchName);
+      }
+      String pullRequest = notification.getFieldValue(FIELD_PULL_REQUEST);
+      if (pullRequest != null) {
+        url += "&pullRequest=" + encode(pullRequest);
       }
       url += "&createdAt=" + encode(DateUtils.formatDateTime(date));
       message

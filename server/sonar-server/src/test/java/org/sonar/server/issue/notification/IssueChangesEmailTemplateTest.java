@@ -170,7 +170,7 @@ public class IssueChangesEmailTemplateTest {
 
     Notification notification = new IssueChangeNotification()
       .setChangeAuthorLogin("simon")
-      .setProject("Struts", "org.apache:struts", null);
+      .setProject("Struts", "org.apache:struts", null, null);
 
     EmailMessage message = underTest.format(notification);
     assertThat(message.getFrom()).isEqualTo("Simon");
@@ -182,7 +182,7 @@ public class IssueChangesEmailTemplateTest {
 
     Notification notification = new IssueChangeNotification()
       .setChangeAuthorLogin("simon")
-      .setProject("Struts", "org.apache:struts", null);
+      .setProject("Struts", "org.apache:struts", null, null);
 
     EmailMessage message = underTest.format(notification);
     assertThat(message.getFrom()).isEqualTo("simon");

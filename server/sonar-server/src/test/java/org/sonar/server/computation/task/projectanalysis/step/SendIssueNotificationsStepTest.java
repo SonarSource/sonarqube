@@ -67,6 +67,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.sonar.db.component.BranchType.PULL_REQUEST;
 import static org.sonar.db.component.ComponentTesting.newBranchDto;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
@@ -79,6 +80,7 @@ import static org.sonar.server.computation.task.projectanalysis.component.Report
 public class SendIssueNotificationsStepTest extends BaseStepTest {
 
   private static final String BRANCH_NAME = "feature";
+  private static final String PULL_REQUEST_ID = "pr-123";
 
   private static final long ANALYSE_DATE = 123L;
   private static final int FIVE_MINUTES_IN_MS = 1000 * 60 * 5;
@@ -143,7 +145,7 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
     underTest.execute();
 
     verify(notificationService).deliver(newIssuesNotificationMock);
-    verify(newIssuesNotificationMock).setProject(PROJECT.getPublicKey(), PROJECT.getName(), null);
+    verify(newIssuesNotificationMock).setProject(PROJECT.getPublicKey(), PROJECT.getName(), null, null);
     verify(newIssuesNotificationMock).setAnalysisDate(new Date(ANALYSE_DATE));
     verify(newIssuesNotificationMock).setStatistics(eq(PROJECT.getName()), any());
     verify(newIssuesNotificationMock).setDebt(ISSUE_DURATION);
@@ -206,7 +208,24 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
     underTest.execute();
 
     verify(notificationService).deliver(newIssuesNotificationMock);
-    verify(newIssuesNotificationMock).setProject(branch.getKey(), branch.longName(), BRANCH_NAME);
+    verify(newIssuesNotificationMock).setProject(branch.getKey(), branch.longName(), BRANCH_NAME, null);
+    verify(newIssuesNotificationMock).setAnalysisDate(new Date(ANALYSE_DATE));
+    verify(newIssuesNotificationMock).setStatistics(eq(branch.longName()), any(NewIssuesStatistics.Stats.class));
+    verify(newIssuesNotificationMock).setDebt(ISSUE_DURATION);
+  }
+
+  @Test
+  public void send_global_new_issues_notification_on_pull_request() {
+    ComponentDto branch = setUpProjectWithBranch();
+    issueCache.newAppender().append(
+      new DefaultIssue().setType(randomRuleType).setEffort(ISSUE_DURATION).setCreationDate(new Date(ANALYSE_DATE))).close();
+    when(notificationService.hasProjectSubscribersForTypes(branch.uuid(), SendIssueNotificationsStep.NOTIF_TYPES)).thenReturn(true);
+    analysisMetadataHolder.setBranch(newPullRequest());
+
+    underTest.execute();
+
+    verify(notificationService).deliver(newIssuesNotificationMock);
+    verify(newIssuesNotificationMock).setProject(branch.getKey(), branch.longName(), null, BRANCH_NAME);
     verify(newIssuesNotificationMock).setAnalysisDate(new Date(ANALYSE_DATE));
     verify(newIssuesNotificationMock).setStatistics(eq(branch.longName()), any(NewIssuesStatistics.Stats.class));
     verify(newIssuesNotificationMock).setDebt(ISSUE_DURATION);
@@ -238,7 +257,7 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
     verify(notificationService).deliver(newIssuesNotificationMock);
     verify(notificationService).deliver(myNewIssuesNotificationMock);
     verify(myNewIssuesNotificationMock).setAssignee(ISSUE_ASSIGNEE);
-    verify(myNewIssuesNotificationMock).setProject(PROJECT.getPublicKey(), PROJECT.getName(), null);
+    verify(myNewIssuesNotificationMock).setProject(PROJECT.getPublicKey(), PROJECT.getName(), null, null);
     verify(myNewIssuesNotificationMock).setAnalysisDate(new Date(ANALYSE_DATE));
     verify(myNewIssuesNotificationMock).setStatistics(eq(PROJECT.getName()), any(NewIssuesStatistics.Stats.class));
     verify(myNewIssuesNotificationMock).setDebt(ISSUE_DURATION);
@@ -424,7 +443,7 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
 
   private NewIssuesNotification createNewIssuesNotificationMock() {
     NewIssuesNotification notification = mock(NewIssuesNotification.class);
-    when(notification.setProject(any(), any(), any())).thenReturn(notification);
+    when(notification.setProject(any(), any(), any(), any())).thenReturn(notification);
     when(notification.setProjectVersion(any())).thenReturn(notification);
     when(notification.setAnalysisDate(any())).thenReturn(notification);
     when(notification.setStatistics(any(), any())).thenReturn(notification);
@@ -435,7 +454,7 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
   private MyNewIssuesNotification createMyNewIssuesNotificationMock() {
     MyNewIssuesNotification notification = mock(MyNewIssuesNotification.class);
     when(notification.setAssignee(any())).thenReturn(notification);
-    when(notification.setProject(any(), any(), any())).thenReturn(notification);
+    when(notification.setProject(any(), any(), any(), any())).thenReturn(notification);
     when(notification.setProjectVersion(any())).thenReturn(notification);
     when(notification.setAnalysisDate(any())).thenReturn(notification);
     when(notification.setStatistics(any(), any())).thenReturn(notification);
@@ -446,6 +465,14 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
   private static Branch newBranch() {
     Branch branch = mock(Branch.class);
     when(branch.isMain()).thenReturn(false);
+    when(branch.getName()).thenReturn(BRANCH_NAME);
+    return branch;
+  }
+
+  private static Branch newPullRequest() {
+    Branch branch = mock(Branch.class);
+    when(branch.isMain()).thenReturn(false);
+    when(branch.getType()).thenReturn(PULL_REQUEST);
     when(branch.getName()).thenReturn(BRANCH_NAME);
     return branch;
   }
