@@ -28,6 +28,7 @@ public class ProjectDataQuery {
   private String profileName;
   private boolean issuesMode;
   private String branch;
+  private String pullRequest;
 
   private ProjectDataQuery() {
     // No direct call
@@ -68,6 +69,16 @@ public class ProjectDataQuery {
 
   public ProjectDataQuery setBranch(@Nullable String branch) {
     this.branch = branch;
+    return this;
+  }
+
+  @CheckForNull
+  public String getPullRequest() {
+    return pullRequest;
+  }
+
+  public ProjectDataQuery setPullRequest(@Nullable String pullRequest) {
+    this.pullRequest = pullRequest;
     return this;
   }
 
