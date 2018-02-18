@@ -50,6 +50,7 @@ import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 import static org.sonar.db.DatabaseUtils.executeLargeUpdates;
 import static org.sonar.db.WildcardPosition.BEFORE_AND_AFTER;
 import static org.sonar.db.component.ComponentDto.generateBranchKey;
+import static org.sonar.db.component.ComponentDto.generatePullRequestKey;
 
 public class ComponentDao implements Dao {
 
@@ -201,6 +202,12 @@ public class ComponentDao implements Dao {
     return executeLargeInputs(allKeys, subKeys -> mapper(session).selectByKeysAndBranch(subKeys, branch));
   }
 
+  public List<ComponentDto> selectByKeysAndPullRequest(DbSession session, Collection<String> keys, String pullRequestId) {
+    List<String> dbKeys = keys.stream().map(k -> generatePullRequestKey(k, pullRequestId)).collect(toList());
+    List<String> allKeys = Stream.of(keys, dbKeys).flatMap(Collection::stream).collect(toList());
+    return executeLargeInputs(allKeys, subKeys -> mapper(session).selectByKeysAndBranch(subKeys, pullRequestId));
+  }
+
   public List<ComponentDto> selectComponentsHavingSameKeyOrderedById(DbSession session, String key) {
     return mapper(session).selectComponentsHavingSameKeyOrderedById(key);
   }
@@ -247,7 +254,11 @@ public class ComponentDao implements Dao {
   }
 
   public java.util.Optional<ComponentDto> selectByKeyAndBranch(DbSession session, String key, String branch) {
-    return java.util.Optional.ofNullable(mapper(session).selectByKeyAndBranch(key, generateBranchKey(key, branch), branch));
+    return java.util.Optional.ofNullable(mapper(session).selectByKeyAndBranchKey(key, generateBranchKey(key, branch), branch));
+  }
+
+  public java.util.Optional<ComponentDto> selectByKeyAndPullRequest(DbSession session, String key, String pullRequestId) {
+    return java.util.Optional.ofNullable(mapper(session).selectByKeyAndBranchKey(key, generatePullRequestKey(key, pullRequestId), pullRequestId));
   }
 
   public List<UuidWithProjectUuidDto> selectAllViewsAndSubViews(DbSession session) {

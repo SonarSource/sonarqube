@@ -31,7 +31,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolder;
 
 import static com.google.common.base.Preconditions.checkState;
-import static org.sonar.db.component.ComponentDto.removeBranchFromKey;
+import static org.sonar.db.component.ComponentDto.removeBranchAndPullRequestFromKey;
 
 /**
  * Cache a map between component keys and uuids in the merge branch
@@ -74,7 +74,7 @@ public class MergeBranchComponentUuids {
   @CheckForNull
   public String getUuid(String dbKey) {
     lazyInit();
-    String cleanComponentKey = removeBranchFromKey(dbKey);
+    String cleanComponentKey = removeBranchAndPullRequestFromKey(dbKey);
     return uuidsByKey.get(cleanComponentKey);
   }
 }

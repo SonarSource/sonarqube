@@ -128,4 +128,15 @@ public class ComponentDtoTest {
     assertThat(underTest.getKey()).isEqualTo("my_key");
     assertThat(underTest.getBranch()).isNull();
   }
+
+  @Test
+  public void getKey_and_getPullRequest() {
+    ComponentDto underTest = new ComponentDto().setDbKey("my_key:PULL_REQUEST:pr-123");
+    assertThat(underTest.getKey()).isEqualTo("my_key");
+    assertThat(underTest.getPullRequest()).isEqualTo("pr-123");
+
+    underTest = new ComponentDto().setDbKey("my_key");
+    assertThat(underTest.getKey()).isEqualTo("my_key");
+    assertThat(underTest.getPullRequest()).isNull();
+  }
 }
