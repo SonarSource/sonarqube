@@ -76,6 +76,7 @@ message Component {
   optional string language = 10;
   repeated Measure measures = 11;
   optional string branch = 12;
+  optional string pullRequest = 13;
 }
 
 message Period {

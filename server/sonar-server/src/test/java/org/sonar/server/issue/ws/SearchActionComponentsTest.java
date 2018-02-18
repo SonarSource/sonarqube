@@ -880,17 +880,17 @@ public class SearchActionComponentsTest {
 
     SearchWsResponse result = ws.newRequest()
       .setParam(PARAM_COMPONENT_KEYS, pullRequest.getKey())
-      .setParam(PARAM_PULL_REQUEST, pullRequest.getBranch())
+      .setParam(PARAM_PULL_REQUEST, pullRequest.getPullRequest())
       .executeProtobuf(SearchWsResponse.class);
 
     assertThat(result.getIssuesList())
-      .extracting(Issue::getKey, Issue::getComponent, Issue::getBranch)
-      .containsExactlyInAnyOrder(tuple(pullRequestIssue.getKey(), pullRequestFile.getKey(), pullRequestFile.getBranch()));
+      .extracting(Issue::getKey, Issue::getComponent, Issue::getPullRequest)
+      .containsExactlyInAnyOrder(tuple(pullRequestIssue.getKey(), pullRequestFile.getKey(), pullRequestFile.getPullRequest()));
     assertThat(result.getComponentsList())
-      .extracting(Issues.Component::getKey, Issues.Component::getBranch)
+      .extracting(Issues.Component::getKey, Issues.Component::getPullRequest)
       .containsExactlyInAnyOrder(
-        tuple(pullRequestFile.getKey(), pullRequestFile.getBranch()),
-        tuple(pullRequest.getKey(), pullRequest.getBranch()));
+        tuple(pullRequestFile.getKey(), pullRequestFile.getPullRequest()),
+        tuple(pullRequest.getKey(), pullRequest.getPullRequest()));
   }
 
   @Test

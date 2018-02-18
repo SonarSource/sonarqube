@@ -19,13 +19,13 @@
  */
 package org.sonar.server.duplication.ws;
 
-import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import java.util.List;
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 
 import static java.lang.String.format;
@@ -44,14 +44,14 @@ public class DuplicationsParserTest {
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
 
-    assertThat(parser.parse(db.getSession(), file, null, null)).isEmpty();
+    assertThat(parser.parse(db.getSession(), file, null, null, null)).isEmpty();
   }
 
   @Test
   public void duplication_on_same_file() {
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
-    List<DuplicationsParser.Block> blocks = parser.parse(db.getSession(), file, null,
+    List<DuplicationsParser.Block> blocks = parser.parse(db.getSession(), file, null, null,
       format("<duplications>\n" +
         "  <g>\n" +
         "    <b s=\"31\" l=\"5\" r=\"%s\"/>\n" +
@@ -80,7 +80,7 @@ public class DuplicationsParserTest {
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto file1 = db.components().insertComponent(newFileDto(project));
     ComponentDto file2 = db.components().insertComponent(newFileDto(project));
-    List<DuplicationsParser.Block> blocks = parser.parse(db.getSession(), file1, null,
+    List<DuplicationsParser.Block> blocks = parser.parse(db.getSession(), file1, null, null,
       format("<duplications>\n" +
         "  <g>\n" +
         "    <b s=\"20\" l=\"5\" r=\"%s\"/>\n" +
@@ -111,7 +111,7 @@ public class DuplicationsParserTest {
     ComponentDto file2 = db.components().insertComponent(newFileDto(project1));
     ComponentDto project2 = db.components().insertPrivateProject();
     ComponentDto fileOnProject2 = db.components().insertComponent(newFileDto(project2));
-    List<DuplicationsParser.Block> blocks = parser.parse(db.getSession(), file1, null,
+    List<DuplicationsParser.Block> blocks = parser.parse(db.getSession(), file1, null, null,
       format("<duplications>\n" +
         "  <g>\n" +
         "    <b s=\"148\" l=\"24\" r=\"%s\"/>\n" +
@@ -154,7 +154,7 @@ public class DuplicationsParserTest {
     ComponentDto file2 = db.components().insertComponent(newFileDto(project2)
       .setDbKey("com.sonarsource.orchestrator:sonar-orchestrator:src/main/java/com/sonar/orchestrator/util/CommandExecutor.java")
       .setLongName("CommandExecutor"));
-    List<DuplicationsParser.Block> blocks = parser.parse(db.getSession(), file1, null,
+    List<DuplicationsParser.Block> blocks = parser.parse(db.getSession(), file1, null, null,
       format("<duplications>\n" +
         "  <g>\n" +
         "    <b s=\"94\" l=\"101\" r=\"%s\"/>\n" +
@@ -180,7 +180,7 @@ public class DuplicationsParserTest {
   public void duplication_on_not_existing_file() {
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
-    List<DuplicationsParser.Block> blocks = parser.parse(db.getSession(), file, null,
+    List<DuplicationsParser.Block> blocks = parser.parse(db.getSession(), file, null, null,
       format("<duplications>\n" +
         "  <g>\n" +
         "    <b s=\"20\" l=\"5\" r=\"%s\"/>\n" +
@@ -243,7 +243,39 @@ public class DuplicationsParserTest {
     ComponentDto branch = db.components().insertProjectBranch(project);
     ComponentDto file1 = db.components().insertComponent(newFileDto(branch));
     ComponentDto file2 = db.components().insertComponent(newFileDto(branch));
-    List<DuplicationsParser.Block> blocks = parser.parse(db.getSession(), file1, branch.getBranch(),
+    List<DuplicationsParser.Block> blocks = parser.parse(db.getSession(), file1, branch.getBranch(), null,
+      format("<duplications>\n" +
+        "  <g>\n" +
+        "    <b s=\"20\" l=\"5\" r=\"%s\"/>\n" +
+        "    <b s=\"31\" l=\"5\" r=\"%s\"/>\n" +
+        "  </g>\n" +
+        "</duplications>", file2.getDbKey(), file1.getDbKey()));
+    assertThat(blocks).hasSize(1);
+
+    List<DuplicationsParser.Duplication> duplications = blocks.get(0).getDuplications();
+    assertThat(duplications).hasSize(2);
+
+    // Current file comes first
+    DuplicationsParser.Duplication duplication1 = duplications.get(0);
+    assertThat(duplication1.file()).isEqualTo(file1);
+    assertThat(duplication1.file().getKey()).isEqualTo(file1.getKey());
+    assertThat(duplication1.from()).isEqualTo(31);
+    assertThat(duplication1.size()).isEqualTo(5);
+
+    DuplicationsParser.Duplication duplication2 = duplications.get(1);
+    assertThat(duplication2.file()).isEqualTo(file2);
+    assertThat(duplication2.file().getKey()).isEqualTo(file2.getKey());
+    assertThat(duplication2.from()).isEqualTo(20);
+    assertThat(duplication2.size()).isEqualTo(5);
+  }
+
+  @Test
+  public void duplication_on_pull_request() {
+    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto pullRequest = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.PULL_REQUEST));
+    ComponentDto file1 = db.components().insertComponent(newFileDto(pullRequest));
+    ComponentDto file2 = db.components().insertComponent(newFileDto(pullRequest));
+    List<DuplicationsParser.Block> blocks = parser.parse(db.getSession(), file1, null, pullRequest.getPullRequest(),
       format("<duplications>\n" +
         "  <g>\n" +
         "    <b s=\"20\" l=\"5\" r=\"%s\"/>\n" +
@@ -270,12 +302,8 @@ public class DuplicationsParserTest {
   }
 
   private static DuplicationsParser.Duplication duplication(List<DuplicationsParser.Duplication> duplications, @Nullable final String componentKey) {
-    return Iterables.find(duplications, new Predicate<DuplicationsParser.Duplication>() {
-      @Override
-      public boolean apply(@Nullable DuplicationsParser.Duplication input) {
-        return input != null && (componentKey == null ? input.file() == null : input.file() != null && componentKey.equals(input.file().getDbKey()));
-      }
-    });
+    return Iterables.find(duplications, input -> input != null && (componentKey == null ? input.file() == null
+      : input.file() != null && componentKey.equals(input.file().getDbKey())));
   }
 
 }

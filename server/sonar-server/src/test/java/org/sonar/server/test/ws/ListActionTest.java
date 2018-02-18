@@ -52,9 +52,11 @@ import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.api.resources.Qualifiers.UNIT_TEST_FILE;
 import static org.sonar.api.web.UserRole.CODEVIEWER;
 import static org.sonar.api.web.UserRole.USER;
+import static org.sonar.db.component.BranchType.PULL_REQUEST;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.protobuf.DbFileSources.Test.TestStatus.OK;
 import static org.sonar.server.test.db.TestTesting.newTest;
+import static org.sonar.server.test.ws.ListAction.PARAM_PULL_REQUEST;
 import static org.sonar.server.test.ws.ListAction.SOURCE_FILE_ID;
 import static org.sonar.server.test.ws.ListAction.SOURCE_FILE_KEY;
 import static org.sonar.server.test.ws.ListAction.SOURCE_FILE_LINE_NUMBER;
@@ -206,6 +208,29 @@ public class ListActionTest {
       .containsOnly(
         tuple(test1.getUuid(), testFile.getKey(), testFile.getBranch()),
         tuple(test2.getUuid(), testFile.getKey(), testFile.getBranch()));
+  }
+
+  @Test
+  public void list_tests_by_test_file_key_and_pull_request() {
+    ComponentDto project = db.components().insertMainBranch();
+    userSessionRule.addProjectPermission(CODEVIEWER, project);
+    ComponentDto pullRequest = db.components().insertProjectBranch(project, b -> b.setBranchType(PULL_REQUEST));
+    ComponentDto mainFile = db.components().insertComponent(newFileDto(pullRequest));
+    ComponentDto testFile = db.components().insertComponent(newFileDto(pullRequest).setQualifier(UNIT_TEST_FILE));
+
+    DbFileSources.Test test1 = newTest(mainFile, 10).build();
+    DbFileSources.Test test2 = newTest(mainFile, 11).build();
+    insertTests(testFile, test1, test2);
+
+    ListResponse request = call(ws.newRequest()
+      .setParam(TEST_FILE_KEY, testFile.getKey())
+      .setParam(PARAM_PULL_REQUEST, testFile.getPullRequest()));
+
+    assertThat(request.getTestsList())
+      .extracting(Tests.Test::getId, Tests.Test::getFileKey, Tests.Test::getFilePullRequest)
+      .containsOnly(
+        tuple(test1.getUuid(), testFile.getKey(), testFile.getPullRequest()),
+        tuple(test2.getUuid(), testFile.getKey(), testFile.getPullRequest()));
   }
 
   @Test
