@@ -83,7 +83,7 @@ public class NewIssuesNotificationTest {
 
   @Test
   public void set_project_without_branch() {
-    underTest.setProject("project-key", "project-long-name", null);
+    underTest.setProject("project-key", "project-long-name", null, null);
 
     assertThat(underTest.getFieldValue(NewIssuesEmailTemplate.FIELD_PROJECT_NAME)).isEqualTo("project-long-name");
     assertThat(underTest.getFieldValue(NewIssuesEmailTemplate.FIELD_PROJECT_KEY)).isEqualTo("project-key");
@@ -92,11 +92,20 @@ public class NewIssuesNotificationTest {
 
   @Test
   public void set_project_with_branch() {
-    underTest.setProject("project-key", "project-long-name", "feature");
+    underTest.setProject("project-key", "project-long-name", "feature", null);
 
     assertThat(underTest.getFieldValue(NewIssuesEmailTemplate.FIELD_PROJECT_NAME)).isEqualTo("project-long-name");
     assertThat(underTest.getFieldValue(NewIssuesEmailTemplate.FIELD_PROJECT_KEY)).isEqualTo("project-key");
     assertThat(underTest.getFieldValue(NewIssuesEmailTemplate.FIELD_BRANCH)).isEqualTo("feature");
+  }
+
+  @Test
+  public void set_project_with_pull_request() {
+    underTest.setProject("project-key", "project-long-name", null, "pr-123");
+
+    assertThat(underTest.getFieldValue(NewIssuesEmailTemplate.FIELD_PROJECT_NAME)).isEqualTo("project-long-name");
+    assertThat(underTest.getFieldValue(NewIssuesEmailTemplate.FIELD_PROJECT_KEY)).isEqualTo("project-key");
+    assertThat(underTest.getFieldValue(NewIssuesEmailTemplate.FIELD_PULL_REQUEST)).isEqualTo("pr-123");
   }
 
   @Test

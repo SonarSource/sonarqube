@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
+import javax.annotation.CheckForNull;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.utils.Duration;
 import org.sonar.core.issue.DefaultIssue;
@@ -49,6 +50,7 @@ import org.sonar.server.issue.notification.NewIssuesNotificationFactory;
 import org.sonar.server.issue.notification.NewIssuesStatistics;
 import org.sonar.server.notification.NotificationService;
 
+import static org.sonar.db.component.BranchType.PULL_REQUEST;
 import static org.sonar.server.computation.task.projectanalysis.component.ComponentVisitor.Order.POST_ORDER;
 
 /**
@@ -127,7 +129,7 @@ public class SendIssueNotificationsStep implements ComputationStep {
     IssueChangeNotification changeNotification = new IssueChangeNotification();
     changeNotification.setRuleName(rules.getByKey(issue.ruleKey()).getName());
     changeNotification.setIssue(issue);
-    changeNotification.setProject(project.getPublicKey(), project.getName(), getBranchName());
+    changeNotification.setProject(project.getPublicKey(), project.getName(), getBranchName(), getPullRequest());
     getComponentKey(issue).ifPresent(c -> changeNotification.setComponent(c.getPublicKey(), c.getName()));
     service.deliver(changeNotification);
   }
@@ -136,7 +138,7 @@ public class SendIssueNotificationsStep implements ComputationStep {
     NewIssuesStatistics.Stats globalStatistics = statistics.globalStatistics();
     NewIssuesNotification notification = newIssuesNotificationFactory
       .newNewIssuesNotication()
-      .setProject(project.getPublicKey(), project.getName(), getBranchName())
+      .setProject(project.getPublicKey(), project.getName(), getBranchName(), getPullRequest())
       .setProjectVersion(project.getReportAttributes().getVersion())
       .setAnalysisDate(new Date(analysisDate))
       .setStatistics(project.getName(), globalStatistics)
@@ -155,7 +157,7 @@ public class SendIssueNotificationsStep implements ComputationStep {
           .newMyNewIssuesNotification()
           .setAssignee(assignee);
         myNewIssuesNotification
-          .setProject(project.getPublicKey(), project.getName(), getBranchName())
+          .setProject(project.getPublicKey(), project.getName(), getBranchName(), getPullRequest())
           .setProjectVersion(project.getReportAttributes().getVersion())
           .setAnalysisDate(new Date(analysisDate))
           .setStatistics(project.getName(), assigneeStatistics)
@@ -185,9 +187,17 @@ public class SendIssueNotificationsStep implements ComputationStep {
     return "Send issue notifications";
   }
 
+  @CheckForNull
   private String getBranchName() {
     Branch branch = analysisMetadataHolder.getBranch();
-    return branch.isMain() ? null : branch.getName();
+    return branch.isMain() || branch.getType() == PULL_REQUEST ? null : branch.getName();
+  }
+
+  @CheckForNull
+  private String getPullRequest() {
+    Branch branch = analysisMetadataHolder.getBranch();
+    // TODO rely on the pull request instead of the branch name
+    return branch.getType() == PULL_REQUEST ? branch.getName() : null;
   }
 
 }
