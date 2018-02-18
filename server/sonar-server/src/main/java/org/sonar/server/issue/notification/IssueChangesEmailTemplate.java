@@ -33,6 +33,8 @@ import org.sonar.plugins.emailnotifications.api.EmailMessage;
 import org.sonar.plugins.emailnotifications.api.EmailTemplate;
 
 import static java.net.URLEncoder.encode;
+import static org.sonar.server.issue.notification.AbstractNewIssuesEmailTemplate.FIELD_BRANCH;
+import static org.sonar.server.issue.notification.AbstractNewIssuesEmailTemplate.FIELD_PULL_REQUEST;
 
 /**
  * Creates email message for notification "issue-changes".
@@ -114,9 +116,13 @@ public class IssueChangesEmailTemplate extends EmailTemplate {
         .append("/project/issues?id=").append(encode(notification.getFieldValue("projectKey"), "UTF-8"))
         .append("&issues=").append(issueKey)
         .append("&open=").append(issueKey);
-      String branchName = notification.getFieldValue("branch");
+      String branchName = notification.getFieldValue(FIELD_BRANCH);
       if (branchName != null) {
         sb.append("&branch=").append(branchName);
+      }
+      String pullRequest = notification.getFieldValue(FIELD_PULL_REQUEST);
+      if (pullRequest != null) {
+        sb.append("&pullRequest=").append(branchName);
       }
       sb.append(NEW_LINE);
     } catch (UnsupportedEncodingException e) {

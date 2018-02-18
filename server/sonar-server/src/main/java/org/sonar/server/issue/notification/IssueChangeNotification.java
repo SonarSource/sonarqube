@@ -54,14 +54,18 @@ public class IssueChangeNotification extends Notification {
   }
 
   public IssueChangeNotification setProject(ComponentDto project) {
-    return setProject(project.getKey(), project.name(), project.getBranch());
+    // TODO set the pull request instead of the branch
+    return setProject(project.getKey(), project.name(), project.getBranch(), null);
   }
 
-  public IssueChangeNotification setProject(String projectKey, String projectName, @Nullable String branch) {
+  public IssueChangeNotification setProject(String projectKey, String projectName, @Nullable String branch, @Nullable String pullRequest) {
     setFieldValue("projectName", projectName);
     setFieldValue("projectKey", projectKey);
     if (branch != null) {
       setFieldValue("branch", branch);
+    }
+    if (pullRequest != null) {
+      setFieldValue("pullRequest", pullRequest);
     }
     return this;
   }
