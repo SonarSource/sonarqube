@@ -36,7 +36,7 @@
       p.kee=#{key,jdbcType=VARCHAR}
   </select>
 
-  <select id="selectByKeyAndBranch" parameterType="String" resultType="Component">
+  <select id="selectByKeyAndBranchKey" parameterType="String" resultType="Component">
     SELECT
     <include refid="componentColumns"/>
     FROM projects p

@@ -141,10 +141,14 @@ public class ComponentKeyUpdaterDao implements Dao {
 
   private static String branchBaseKey(String key) {
     int index = key.lastIndexOf(ComponentDto.BRANCH_KEY_SEPARATOR);
-    if (index == -1) {
-      return key;
+    if (index > -1) {
+      return key.substring(0, index);
     }
-    return key.substring(0, index);
+    index = key.lastIndexOf(ComponentDto.PULL_REQUEST_SEPARATOR);
+    if (index > -1) {
+      return key.substring(0, index);
+    }
+    return key;
   }
 
   private static void runBatchUpdateForAllResources(Collection<ResourceDto> resources, String oldKey, String newKey, ComponentKeyUpdaterMapper mapper) {
