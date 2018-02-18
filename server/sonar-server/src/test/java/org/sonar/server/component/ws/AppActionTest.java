@@ -319,7 +319,7 @@ public class AppActionTest {
 
     ws.newRequest()
       .setParam("uuid", file.uuid())
-      .setParam("pullRequest", file.getBranch())
+      .setParam("pullRequest", file.getPullRequest())
       .execute();
   }
 

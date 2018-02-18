@@ -54,7 +54,6 @@ import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.server.issue.IssueQuery.PeriodStart;
 import org.sonar.server.user.UserSession;
 
-import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Collections2.transform;
 import static java.lang.String.format;
@@ -346,9 +345,14 @@ public class IssueQueryFactory {
   }
 
   private List<ComponentDto> getComponentsFromKeys(DbSession dbSession, Collection<String> componentKeys, @Nullable String branch, @Nullable String pullRequest) {
-    List<ComponentDto> componentDtos = branch == null && pullRequest == null
-      ? dbClient.componentDao().selectByKeys(dbSession, componentKeys)
-      : dbClient.componentDao().selectByKeysAndBranch(dbSession, componentKeys, firstNonNull(branch, pullRequest));
+    List<ComponentDto> componentDtos;
+    if (branch != null) {
+      componentDtos = dbClient.componentDao().selectByKeysAndBranch(dbSession, componentKeys, branch);
+    } else if (pullRequest != null) {
+      componentDtos = dbClient.componentDao().selectByKeysAndPullRequest(dbSession, componentKeys, pullRequest);
+    } else {
+      componentDtos = dbClient.componentDao().selectByKeys(dbSession, componentKeys);
+    }
     if (!componentKeys.isEmpty() && componentDtos.isEmpty()) {
       return singletonList(UNKNOWN_COMPONENT);
     }
@@ -381,6 +385,6 @@ public class IssueQueryFactory {
     builder.mainBranch(UNKNOWN_COMPONENT.equals(component)
       || (branch == null && pullRequest == null)
       || (branch != null && !branch.equals(component.getBranch()))
-      || (pullRequest != null && !pullRequest.equals(component.getBranch())));
+      || (pullRequest != null && !pullRequest.equals(component.getPullRequest())));
   }
 }

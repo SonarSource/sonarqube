@@ -162,8 +162,8 @@ public class ListActionTest {
     assertThat(response.getPullRequestsList())
       .extracting(PullRequest::getId, PullRequest::getBase)
       .containsExactlyInAnyOrder(
-        tuple(pullRequestOnLong.getBranch(), longLivingBranch.getBranch()),
-        tuple(pullRequestOnMaster.getBranch(), "master"));
+        tuple(pullRequestOnLong.getPullRequest(), longLivingBranch.getBranch()),
+        tuple(pullRequestOnMaster.getPullRequest(), "master"));
   }
 
   @Test
@@ -179,7 +179,7 @@ public class ListActionTest {
 
     assertThat(response.getPullRequests(0))
       .extracting(PullRequest::getId, PullRequest::getBase)
-      .containsExactlyInAnyOrder(pullRequest.getBranch(), "master");
+      .containsExactlyInAnyOrder(pullRequest.getPullRequest(), "master");
   }
 
   @Test
@@ -196,7 +196,7 @@ public class ListActionTest {
     assertThat(response.getPullRequestsList())
       .extracting(PullRequest::getId, PullRequest::hasBase, PullRequest::getIsOrphan)
       .containsExactlyInAnyOrder(
-        tuple(pullRequest.getBranch(), false, true));
+        tuple(pullRequest.getPullRequest(), false, true));
   }
 
   @Test

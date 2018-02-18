@@ -100,6 +100,7 @@ public class ListAction implements TestsWsAction {
       .setDeprecatedSince("5.6")
       .setHandler(this)
       .setChangelog(new Change("6.6", "\"fileBranch\" field is now returned"))
+      .setChangelog(new Change("7.1", "\"filePullRequest\" field is now returned"))
       .addPagingParams(100, MAX_LIMIT);
 
     action
@@ -184,6 +185,7 @@ public class ListAction implements TestsWsAction {
         testBuilder.setFileKey(component.getKey());
         testBuilder.setFileName(component.longName());
         setNullable(component.getBranch(), testBuilder::setFileBranch);
+        setNullable(component.getPullRequest(), testBuilder::setFilePullRequest);
       }
       testBuilder.setStatus(Tests.TestStatus.valueOf(testDoc.status()));
       if (testDoc.durationInMs() != null) {

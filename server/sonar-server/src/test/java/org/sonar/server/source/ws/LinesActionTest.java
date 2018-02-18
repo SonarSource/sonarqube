@@ -65,14 +65,14 @@ public class LinesActionTest {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 
-  SourceService sourceService;
-  HtmlSourceDecorator htmlSourceDecorator;
-  ComponentDao componentDao;
+  private SourceService sourceService;
+  private HtmlSourceDecorator htmlSourceDecorator;
+  private ComponentDao componentDao;
 
-  ComponentDto project;
-  ComponentDto file;
+  private ComponentDto project;
+  private ComponentDto file;
 
-  WsTester wsTester;
+  private WsTester wsTester;
 
   @Before
   public void setUp() {
@@ -157,7 +157,7 @@ public class LinesActionTest {
 
     WsTester.TestRequest request = wsTester.newGetRequest("api/sources", "lines")
       .setParam("key", file.getKey())
-      .setParam("pullRequest", file.getBranch());
+      .setParam("pullRequest", file.getPullRequest());
 
     request.execute().assertJson(getClass(), "show_source.json");
   }

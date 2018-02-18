@@ -160,8 +160,8 @@ public class ComponentActionTest {
       .setParam(PARAM_METRIC_KEYS, complexity.getKey())
       .executeProtobuf(ComponentWsResponse.class);
 
-    assertThat(response.getComponent()).extracting(Component::getKey, Component::getBranch)
-      .containsExactlyInAnyOrder(file.getKey(), file.getBranch());
+    assertThat(response.getComponent()).extracting(Component::getKey, Component::getPullRequest)
+      .containsExactlyInAnyOrder(file.getKey(), "pr-123");
     assertThat(response.getComponent().getMeasuresList())
       .extracting(Measures.Measure::getMetric, m -> parseDouble(m.getValue()))
       .containsExactlyInAnyOrder(tuple(complexity.getKey(), measure.getValue()));
