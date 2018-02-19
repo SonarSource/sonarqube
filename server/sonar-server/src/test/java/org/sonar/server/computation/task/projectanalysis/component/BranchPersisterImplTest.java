@@ -81,7 +81,26 @@ public class BranchPersisterImplTest {
 
     assertThat(dbTester.countRowsOfTable("projects")).isEqualTo(2);
     assertThat(dbTester.countRowsOfTable("project_branches")).isEqualTo(1);
+  }
 
+  @Test
+  public void persist_pull_request_data() {
+    analysisMetadataHolder.setBranch(createBranch(BranchType.PULL_REQUEST, false, "pr-123"));
+    treeRootHolder.setRoot(BRANCH);
+
+    // add main branch in project table and in metadata
+    ComponentDto dto = ComponentTesting.newPrivateProjectDto(dbTester.organizations().insert(), MAIN.getUuid()).setDbKey(MAIN.getKey());
+    analysisMetadataHolder.setProject(Project.copyOf(dto));
+    dbTester.getDbClient().componentDao().insert(dbTester.getSession(), dto);
+
+    // this should add new columns in project and project_branches
+    underTest.persist(dbTester.getSession());
+
+    dbTester.getSession().commit();
+
+    assertThat(dbTester.countRowsOfTable("projects")).isEqualTo(2);
+    assertThat(dbTester.countRowsOfTable("project_branches")).isEqualTo(1);
+    assertThat(dbTester.countSql("select count(*) from project_branches where pull_request_binary is not null")).isEqualTo(1);
   }
 
   private static Branch createBranch(BranchType type, boolean isMain, String name) {
