@@ -19,8 +19,13 @@
  */
 package org.sonar.db.component;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.Objects;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.sonar.db.protobuf.DbProjectBranches;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
@@ -76,6 +81,12 @@ public class BranchDto {
    */
   @Nullable
   private String mergeBranchUuid;
+
+  /**
+   * Pull Request data, such as branch name, title, url, and provider specific attributes
+   */
+  @Nullable
+  private byte[] pullRequestBinary;
 
   public String getUuid() {
     return uuid;
@@ -145,6 +156,37 @@ public class BranchDto {
   public BranchDto setMergeBranchUuid(@Nullable String s) {
     this.mergeBranchUuid = s;
     return this;
+  }
+
+  public BranchDto setPullRequestData(DbProjectBranches.PullRequestData pullRequestData) {
+    this.pullRequestBinary = encodePullRequestData(pullRequestData);
+    return this;
+  }
+
+  @CheckForNull
+  public DbProjectBranches.PullRequestData getPullRequestData() {
+    if (pullRequestBinary == null) {
+      return null;
+    }
+    return decodePullRequestData(pullRequestBinary);
+  }
+
+  private static byte[] encodePullRequestData(DbProjectBranches.PullRequestData pullRequestData) {
+    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+    try {
+      pullRequestData.writeTo(outputStream);
+      return outputStream.toByteArray();
+    } catch (IOException e) {
+      throw new IllegalStateException("Fail to serialize pull request data", e);
+    }
+  }
+
+  private static DbProjectBranches.PullRequestData decodePullRequestData(byte[] pullRequestBinary) {
+    try (ByteArrayInputStream inputStream = new ByteArrayInputStream(pullRequestBinary)) {
+      return DbProjectBranches.PullRequestData.parseFrom(inputStream);
+    } catch (IOException e) {
+      throw new IllegalStateException("Fail to deserialize pull request data", e);
+    }
   }
 
   @Override

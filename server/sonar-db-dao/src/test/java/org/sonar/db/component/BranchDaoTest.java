@@ -26,6 +26,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.api.utils.internal.TestSystem2;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.protobuf.DbProjectBranches;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
@@ -37,7 +38,7 @@ public class BranchDaoTest {
 
   private static final long NOW = 1_000L;
   private static final String SELECT_FROM = "select project_uuid as \"projectUuid\", uuid as \"uuid\", branch_type as \"branchType\",  " +
-    "kee as \"kee\", merge_branch_uuid as \"mergeBranchUuid\", created_at as \"createdAt\", updated_at as \"updatedAt\" " +
+    "kee as \"kee\", merge_branch_uuid as \"mergeBranchUuid\", pull_request_binary as \"pullRequestBinary\", created_at as \"createdAt\", updated_at as \"updatedAt\" " +
     "from project_branches ";
   private System2 system2 = new TestSystem2().setNow(NOW);
 
@@ -64,6 +65,7 @@ public class BranchDaoTest {
       entry("branchType", "SHORT"),
       entry("kee", "feature/foo"),
       entry("mergeBranchUuid", null),
+      entry("pullRequestBinary", null),
       entry("createdAt", 1_000L),
       entry("updatedAt", 1_000L));
   }
@@ -110,6 +112,75 @@ public class BranchDaoTest {
   }
 
   @Test
+  public void insert_pull_request_branch_with_only_non_null_fields() {
+    String projectUuid = "U1";
+    String uuid = "U2";
+    BranchType branchType = BranchType.PULL_REQUEST;
+    String kee = "123";
+
+    BranchDto dto = new BranchDto();
+    dto.setProjectUuid(projectUuid);
+    dto.setUuid(uuid);
+    dto.setBranchType(branchType);
+    dto.setKey(kee);
+
+    underTest.insert(dbSession, dto);
+
+    BranchDto loaded = underTest.selectByUuid(dbSession, dto.getUuid()).get();
+
+    assertThat(loaded.getProjectUuid()).isEqualTo(projectUuid);
+    assertThat(loaded.getUuid()).isEqualTo(uuid);
+    assertThat(loaded.getBranchType()).isEqualTo(branchType);
+    assertThat(loaded.getKey()).isEqualTo(kee);
+    assertThat(loaded.getMergeBranchUuid()).isNull();
+    assertThat(loaded.getPullRequestData()).isNull();
+  }
+
+  @Test
+  public void insert_pull_request_branch_with_all_fields() {
+    String projectUuid = "U1";
+    String uuid = "U2";
+    BranchType branchType = BranchType.PULL_REQUEST;
+    String kee = "123";
+
+    String branch = "feature/pr1";
+    String title = "Dummy Feature Title";
+    String url = "http://example.com/pullRequests/pr1";
+    String tokenAttributeName = "token";
+    String tokenAttributeValue = "dummy token";
+    DbProjectBranches.PullRequestData pullRequestData = DbProjectBranches.PullRequestData.newBuilder()
+      .setBranch(branch)
+      .setTitle(title)
+      .setUrl(url)
+      .putAttributes(tokenAttributeName, tokenAttributeValue)
+      .build();
+
+    BranchDto dto = new BranchDto();
+    dto.setProjectUuid(projectUuid);
+    dto.setUuid(uuid);
+    dto.setBranchType(branchType);
+    dto.setKey(kee);
+    dto.setPullRequestData(pullRequestData);
+
+    underTest.insert(dbSession, dto);
+
+    BranchDto loaded = underTest.selectByUuid(dbSession, dto.getUuid()).get();
+
+    assertThat(loaded.getProjectUuid()).isEqualTo(projectUuid);
+    assertThat(loaded.getUuid()).isEqualTo(uuid);
+    assertThat(loaded.getBranchType()).isEqualTo(branchType);
+    assertThat(loaded.getKey()).isEqualTo(kee);
+    assertThat(loaded.getMergeBranchUuid()).isNull();
+
+    DbProjectBranches.PullRequestData loadedPullRequestData = loaded.getPullRequestData();
+    assertThat(loadedPullRequestData).isNotNull();
+    assertThat(loadedPullRequestData.getBranch()).isEqualTo(branch);
+    assertThat(loadedPullRequestData.getTitle()).isEqualTo(title);
+    assertThat(loadedPullRequestData.getUrl()).isEqualTo(url);
+    assertThat(loadedPullRequestData.getAttributesMap().get(tokenAttributeName)).isEqualTo(tokenAttributeValue);
+  }
+
+  @Test
   public void upsert_branch() {
     BranchDto dto = new BranchDto();
     dto.setProjectUuid("U1");
@@ -144,6 +215,19 @@ public class BranchDaoTest {
     // the fields that can be updated
     dto.setMergeBranchUuid("U3");
 
+    String branch = "feature/pr1";
+    String title = "Dummy Feature Title";
+    String url = "http://example.com/pullRequests/pr1";
+    String tokenAttributeName = "token";
+    String tokenAttributeValue = "dummy token";
+    DbProjectBranches.PullRequestData pullRequestData = DbProjectBranches.PullRequestData.newBuilder()
+      .setBranch(branch)
+      .setTitle(title)
+      .setUrl(url)
+      .putAttributes(tokenAttributeName, tokenAttributeValue)
+      .build();
+    dto.setPullRequestData(pullRequestData);
+
     // the fields that can't be updated. New values are ignored.
     dto.setProjectUuid("ignored");
     dto.setBranchType(BranchType.SHORT);
@@ -153,6 +237,13 @@ public class BranchDaoTest {
     assertThat(loaded.getMergeBranchUuid()).isEqualTo("U3");
     assertThat(loaded.getProjectUuid()).isEqualTo("U1");
     assertThat(loaded.getBranchType()).isEqualTo(BranchType.PULL_REQUEST);
+
+    DbProjectBranches.PullRequestData loadedPullRequestData = loaded.getPullRequestData();
+    assertThat(loadedPullRequestData).isNotNull();
+    assertThat(loadedPullRequestData.getBranch()).isEqualTo(branch);
+    assertThat(loadedPullRequestData.getTitle()).isEqualTo(title);
+    assertThat(loadedPullRequestData.getUrl()).isEqualTo(url);
+    assertThat(loadedPullRequestData.getAttributesMap().get(tokenAttributeName)).isEqualTo(tokenAttributeValue);
   }
 
   @Test
