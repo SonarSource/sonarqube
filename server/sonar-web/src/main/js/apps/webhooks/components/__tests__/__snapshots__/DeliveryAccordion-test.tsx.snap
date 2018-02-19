@@ -1,0 +1,56 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<BoxedGroupAccordion
+  onClick={[Function]}
+  open={false}
+  renderHeader={[Function]}
+  title={
+    <DateTimeFormatter
+      date="12.02.2018"
+    />
+  }
+>
+  <DeliveryItem
+    className="big-spacer-left"
+    delivery={
+      Object {
+        "at": "12.02.2018",
+        "durationMs": 20,
+        "httpStatus": 200,
+        "id": "2",
+        "success": true,
+      }
+    }
+    loading={false}
+  />
+</BoxedGroupAccordion>
+`;
+
+exports[`should render correctly 2`] = `
+<BoxedGroupAccordion
+  onClick={[Function]}
+  open={true}
+  renderHeader={[Function]}
+  title={
+    <DateTimeFormatter
+      date="12.02.2018"
+    />
+  }
+>
+  <DeliveryItem
+    className="big-spacer-left"
+    delivery={
+      Object {
+        "at": "12.02.2018",
+        "durationMs": 20,
+        "httpStatus": 200,
+        "id": "2",
+        "success": true,
+      }
+    }
+    loading={false}
+    payload="{ \\"success\\": true }"
+  />
+</BoxedGroupAccordion>
+`;

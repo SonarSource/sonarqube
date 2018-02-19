@@ -53,7 +53,7 @@ exports[`should render correctly 2`] = `
   <div
     className="modal-body modal-container"
   >
-    <DeliveryItem
+    <DeliveryAccordion
       delivery={
         Object {
           "at": "12.02.2018",
@@ -65,7 +65,7 @@ exports[`should render correctly 2`] = `
       }
       key="2"
     />
-    <DeliveryItem
+    <DeliveryAccordion
       delivery={
         Object {
           "at": "11.02.2018",
@@ -86,6 +86,7 @@ exports[`should render correctly 2`] = `
       />
     </div>
     <ListFooter
+      className="little-spacer-bottom"
       count={2}
       loadMore={[Function]}
       ready={true}
