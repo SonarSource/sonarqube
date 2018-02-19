@@ -45,6 +45,7 @@ public class DbVersion71 implements DbVersion {
       .add(2015, "Fill key_type column in PROJECT_BRANCHES", SetKeyTypeToBranchInProjectBranches.class)
       .add(2016, "Make key_type not nullable in PROJECT_BRANCHES", MakeKeyTypeNotNullableInProjectBranches.class)
       .add(2017, "Replace index in PROJECT_BRANCHES", ReplaceIndexInProjectBranches.class)
+      .add(2018, "Add pull_request_data in PROJECT_BRANCHES", AddPullRequestBinaryInProjectBranches.class)
     ;
   }
 }
