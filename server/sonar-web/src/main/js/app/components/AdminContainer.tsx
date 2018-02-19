@@ -86,10 +86,10 @@ class AdminContainer extends React.PureComponent<Props> {
       <div>
         <Helmet defaultTitle={defaultTitle} titleTemplate={'%s - ' + defaultTitle} />
         <SettingsNav
-          customOrganizations={organizationsEnabled}
           editionStatus={this.props.editionStatus}
           extensions={adminPages}
           location={this.props.location}
+          organizationsEnabled={organizationsEnabled}
         />
         {this.props.children}
       </div>

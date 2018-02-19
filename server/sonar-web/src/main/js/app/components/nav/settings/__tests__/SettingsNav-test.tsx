@@ -24,7 +24,7 @@ import SettingsNav from '../SettingsNav';
 it('should work with extensions', () => {
   const extensions = [{ key: 'foo', name: 'Foo' }];
   const wrapper = shallow(
-    <SettingsNav customOrganizations={false} extensions={extensions} location={{}} />
+    <SettingsNav extensions={extensions} location={{}} organizationsEnabled={false} />
   );
   expect(wrapper).toMatchSnapshot();
 });
