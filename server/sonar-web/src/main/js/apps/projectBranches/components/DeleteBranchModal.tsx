@@ -18,15 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { deleteBranch } from '../../../api/branches';
+import { deleteBranch, deletePullRequest } from '../../../api/branches';
 import { BranchLike } from '../../../app/types';
 import Modal from '../../../components/controls/Modal';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
-import {
-  getBranchLikeQuery,
-  isPullRequest,
-  getBranchLikeDisplayName
-} from '../../../helpers/branches';
+import { isPullRequest, getBranchLikeDisplayName } from '../../../helpers/branches';
 
 interface Props {
   branchLike: BranchLike;
@@ -54,10 +50,16 @@ export default class DeleteBranchModal extends React.PureComponent<Props, State>
   handleSubmit = (event: React.SyntheticEvent<HTMLFormElement>) => {
     event.preventDefault();
     this.setState({ loading: true });
-    deleteBranch({
-      project: this.props.component,
-      ...getBranchLikeQuery(this.props.branchLike)
-    }).then(
+    const request = isPullRequest(this.props.branchLike)
+      ? deletePullRequest({
+          project: this.props.component,
+          pullRequest: this.props.branchLike.id
+        })
+      : deleteBranch({
+          branch: this.props.branchLike.name,
+          project: this.props.component
+        });
+    request.then(
       () => {
         if (this.mounted) {
           this.setState({ loading: false });
