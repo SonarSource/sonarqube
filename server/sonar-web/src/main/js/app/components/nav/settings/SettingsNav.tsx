@@ -31,8 +31,8 @@ import { translate } from '../../../../helpers/l10n';
 interface Props {
   editionStatus?: EditionStatus;
   extensions: Extension[];
-  customOrganizations: boolean;
   location: {};
+  organizationsEnabled: boolean;
 }
 
 export default class SettingsNav extends React.PureComponent<Props> {
@@ -73,7 +73,7 @@ export default class SettingsNav extends React.PureComponent<Props> {
   renderExtension = ({ key, name }: Extension) => {
     return (
       <li key={key}>
-        <Link to={`/admin/extension/${key}`} activeClassName="active">
+        <Link activeClassName="active" to={`/admin/extension/${key}`}>
           {name}
         </Link>
       </li>
@@ -81,6 +81,7 @@ export default class SettingsNav extends React.PureComponent<Props> {
   };
 
   renderConfigurationTab() {
+    const { organizationsEnabled } = this.props;
     const configurationClassNames = classNames('dropdown-toggle', {
       active:
         !this.isSecurityActive() &&
@@ -97,31 +98,33 @@ export default class SettingsNav extends React.PureComponent<Props> {
         <a
           className={configurationClassNames}
           data-toggle="dropdown"
-          id="settings-navigation-configuration"
-          href="#">
+          href="#"
+          id="settings-navigation-configuration">
           {translate('sidebar.project_settings')} <i className="icon-dropdown" />
         </a>
         <ul className="dropdown-menu">
           <li>
-            <IndexLink to="/admin/settings" activeClassName="active">
+            <IndexLink activeClassName="active" to="/admin/settings">
               {translate('settings.page')}
             </IndexLink>
           </li>
           <li>
-            <IndexLink to="/admin/settings/encryption" activeClassName="active">
+            <IndexLink activeClassName="active" to="/admin/settings/encryption">
               {translate('property.category.security.encryption')}
             </IndexLink>
           </li>
           <li>
-            <IndexLink to="/admin/custom_metrics" activeClassName="active">
+            <IndexLink activeClassName="active" to="/admin/custom_metrics">
               {translate('custom_metrics.page')}
             </IndexLink>
           </li>
-          <li>
-            <IndexLink to="/admin/webhooks" activeClassName="active">
-              {translate('webhooks.page')}
-            </IndexLink>
-          </li>
+          {!organizationsEnabled && (
+            <li>
+              <IndexLink activeClassName="active" to="/admin/webhooks">
+                {translate('webhooks.page')}
+              </IndexLink>
+            </li>
+          )}
           {extensionsWithoutSupport.map(this.renderExtension)}
         </ul>
       </li>
@@ -129,7 +132,7 @@ export default class SettingsNav extends React.PureComponent<Props> {
   }
 
   renderProjectsTab() {
-    const { customOrganizations } = this.props;
+    const { organizationsEnabled } = this.props;
     const projectsClassName = classNames('dropdown-toggle', { active: this.isProjectsActive() });
     return (
       <li className="dropdown">
@@ -137,15 +140,15 @@ export default class SettingsNav extends React.PureComponent<Props> {
           {translate('sidebar.projects')} <i className="icon-dropdown" />
         </a>
         <ul className="dropdown-menu">
-          {!customOrganizations && (
+          {!organizationsEnabled && (
             <li>
-              <IndexLink to="/admin/projects_management" activeClassName="active">
+              <IndexLink activeClassName="active" to="/admin/projects_management">
                 {translate('management')}
               </IndexLink>
             </li>
           )}
           <li>
-            <IndexLink to="/admin/background_tasks" activeClassName="active">
+            <IndexLink activeClassName="active" to="/admin/background_tasks">
               {translate('background_tasks.page')}
             </IndexLink>
           </li>
@@ -155,7 +158,7 @@ export default class SettingsNav extends React.PureComponent<Props> {
   }
 
   renderSecurityTab() {
-    const { customOrganizations } = this.props;
+    const { organizationsEnabled } = this.props;
     const securityClassName = classNames('dropdown-toggle', { active: this.isSecurityActive() });
     return (
       <li className="dropdown">
@@ -164,27 +167,27 @@ export default class SettingsNav extends React.PureComponent<Props> {
         </a>
         <ul className="dropdown-menu">
           <li>
-            <IndexLink to="/admin/users" activeClassName="active">
+            <IndexLink activeClassName="active" to="/admin/users">
               {translate('users.page')}
             </IndexLink>
           </li>
-          {!customOrganizations && (
+          {!organizationsEnabled && (
             <li>
-              <IndexLink to="/admin/groups" activeClassName="active">
+              <IndexLink activeClassName="active" to="/admin/groups">
                 {translate('user_groups.page')}
               </IndexLink>
             </li>
           )}
-          {!customOrganizations && (
+          {!organizationsEnabled && (
             <li>
-              <IndexLink to="/admin/permissions" activeClassName="active">
+              <IndexLink activeClassName="active" to="/admin/permissions">
                 {translate('global_permissions.page')}
               </IndexLink>
             </li>
           )}
-          {!customOrganizations && (
+          {!organizationsEnabled && (
             <li>
-              <IndexLink to="/admin/permission_templates" activeClassName="active">
+              <IndexLink activeClassName="active" to="/admin/permission_templates">
                 {translate('permission_templates')}
               </IndexLink>
             </li>
@@ -208,8 +211,8 @@ export default class SettingsNav extends React.PureComponent<Props> {
 
     return (
       <ContextNavBar
-        id="context-navigation"
         height={notifComponent ? theme.contextNavHeightRaw + 20 : theme.contextNavHeightRaw}
+        id="context-navigation"
         notif={notifComponent}>
         <header className="navbar-context-header">
           <h1>{translate('layout.settings')}</h1>
@@ -221,20 +224,20 @@ export default class SettingsNav extends React.PureComponent<Props> {
           {this.renderProjectsTab()}
 
           <li>
-            <IndexLink to="/admin/system" activeClassName="active">
+            <IndexLink activeClassName="active" to="/admin/system">
               {translate('sidebar.system')}
             </IndexLink>
           </li>
 
           <li>
-            <IndexLink to="/admin/marketplace" activeClassName="active">
+            <IndexLink activeClassName="active" to="/admin/marketplace">
               {translate('marketplace.page')}
             </IndexLink>
           </li>
 
           {hasSupportExtension && (
             <li>
-              <IndexLink to="/admin/extension/license/support" activeClassName="active">
+              <IndexLink activeClassName="active" to="/admin/extension/license/support">
                 {translate('support')}
               </IndexLink>
             </li>
