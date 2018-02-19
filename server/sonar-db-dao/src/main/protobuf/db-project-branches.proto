@@ -20,7 +20,7 @@
 
 // Structure of db column PROJECT_BRANCHES.PULL_REQUEST_DATA
 
-syntax = "proto2";
+syntax = "proto3";
 
 package sonarqube.db.project_branches;
 
@@ -30,9 +30,9 @@ option java_package = "org.sonar.db.protobuf";
 option optimize_for = SPEED;
 
 message PullRequestData {
-  required string branch = 1;
-  required string title = 2;
-  required string url = 3;
+  string branch = 1;
+  string title = 2;
+  string url = 3;
 
   map<string, string> attributes = 4;
 }

@@ -25,7 +25,9 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
+import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.protobuf.DbProjectBranches;
 import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.server.computation.task.projectanalysis.analysis.Branch;
 
@@ -55,12 +57,11 @@ public class BranchPersisterImpl implements BranchPersister {
     if (branch.isMain()) {
       checkState(branchComponentDtoOpt.isPresent(), "Project has been deleted by end-user during analysis");
       branchComponentDto = branchComponentDtoOpt.get();
-
     } else {
       // inserts new row in table projects if it's the first time branch is analyzed
       branchComponentDto = branchComponentDtoOpt.or(() -> insertIntoProjectsTable(dbSession, branchUuid));
-
     }
+
     // insert or update in table project_branches
     dbClient.branchDao().upsert(dbSession, toBranchDto(branchComponentDto, branch));
   }
@@ -78,12 +79,24 @@ public class BranchPersisterImpl implements BranchPersister {
   private static BranchDto toBranchDto(ComponentDto componentDto, Branch branch) {
     BranchDto dto = new BranchDto();
     dto.setUuid(componentDto.uuid());
+
     // MainBranchProjectUuid will be null if it's a main branch
     dto.setProjectUuid(firstNonNull(componentDto.getMainBranchProjectUuid(), componentDto.projectUuid()));
+    // TODO if pull request, use PR id instead of branch name
     dto.setKey(branch.getName());
     dto.setBranchType(branch.getType());
+
     // merge branch is only present if it's a short living branch
     dto.setMergeBranchUuid(branch.getMergeBranchUuid().orElse(null));
+
+    if (branch.getType() == BranchType.PULL_REQUEST) {
+      DbProjectBranches.PullRequestData pullRequestData = DbProjectBranches.PullRequestData.newBuilder()
+        .setBranch(branch.getName())
+        .setTitle(branch.getName())
+        .build();
+      dto.setPullRequestData(pullRequestData);
+    }
+
     return dto;
   }
 
