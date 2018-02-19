@@ -28,6 +28,7 @@ import DateFormatter from '../../components/intl/DateFormatter';
 import DateTimeFormatter from '../../components/intl/DateTimeFormatter';
 import FavoriteContainer from '../../components/controls/FavoriteContainer';
 import LicenseEditionSet from '../../apps/marketplace/components/LicenseEditionSet';
+import HomePageSelect from '../../components/controls/HomePageSelect';
 import ListFooter from '../../components/controls/ListFooter';
 import Modal from '../../components/controls/Modal';
 import SearchBox from '../../components/controls/SearchBox';
@@ -50,20 +51,21 @@ const exposeLibraries = () => {
   global.SonarRequest = { ...request, throwGlobalError };
   global.SonarComponents = {
     CoverageRating,
-    DateFromNow,
     DateFormatter,
+    DateFromNow,
     DateTimeFormatter,
     DuplicationsRating,
     EditButton,
     FavoriteContainer,
+    HomePageSelect,
     Level,
     LicenseEditionSet,
     ListFooter,
     Modal,
-    Tooltip,
+    SearchBox,
     Select,
     SelectList,
-    SearchBox,
+    Tooltip,
     // deprecated, used in Governance
     ModalForm_deprecated: ModalForm
   };
