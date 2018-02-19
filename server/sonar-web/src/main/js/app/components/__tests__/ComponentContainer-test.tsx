@@ -20,18 +20,24 @@
 import * as React from 'react';
 import { shallow, mount } from 'enzyme';
 import { ComponentContainer } from '../ComponentContainer';
-import { getBranches } from '../../../api/branches';
+import { getBranches, getPullRequests } from '../../../api/branches';
 import { getTasksForComponent } from '../../../api/ce';
 import { getComponentData } from '../../../api/components';
 import { getComponentNavigation } from '../../../api/nav';
 
-jest.mock('../../../api/branches', () => ({ getBranches: jest.fn(() => Promise.resolve([])) }));
+jest.mock('../../../api/branches', () => ({
+  getBranches: jest.fn(() => Promise.resolve([])),
+  getPullRequests: jest.fn(() => Promise.resolve([]))
+}));
+
 jest.mock('../../../api/ce', () => ({
   getTasksForComponent: jest.fn(() => Promise.resolve({ queue: [] }))
 }));
+
 jest.mock('../../../api/components', () => ({
   getComponentData: jest.fn(() => Promise.resolve({}))
 }));
+
 jest.mock('../../../api/nav', () => ({
   getComponentNavigation: jest.fn(() =>
     Promise.resolve({
@@ -49,10 +55,11 @@ jest.mock('../nav/component/ComponentNav', () => ({
 const Inner = () => <div />;
 
 beforeEach(() => {
-  (getBranches as jest.Mock<any>).mockClear();
-  (getComponentData as jest.Mock<any>).mockClear();
-  (getComponentNavigation as jest.Mock<any>).mockClear();
-  (getTasksForComponent as jest.Mock<any>).mockClear();
+  (getBranches as jest.Mock).mockClear();
+  (getPullRequests as jest.Mock).mockClear();
+  (getComponentData as jest.Mock).mockClear();
+  (getComponentNavigation as jest.Mock).mockClear();
+  (getTasksForComponent as jest.Mock).mockClear();
 });
 
 it('changes component', () => {
@@ -90,6 +97,7 @@ it("loads branches for module's project", async () => {
 
   await new Promise(setImmediate);
   expect(getBranches).toBeCalledWith('projectKey');
+  expect(getPullRequests).toBeCalledWith('projectKey');
   expect(getComponentData).toBeCalledWith({ component: 'moduleKey', branch: undefined });
   expect(getComponentNavigation).toBeCalledWith({ componentKey: 'moduleKey', branch: undefined });
 });
@@ -103,6 +111,7 @@ it("doesn't load branches portfolio", async () => {
 
   await new Promise(setImmediate);
   expect(getBranches).not.toBeCalled();
+  expect(getPullRequests).not.toBeCalled();
   expect(getComponentData).toBeCalledWith({ component: 'portfolioKey', branch: undefined });
   expect(getComponentNavigation).toBeCalledWith({
     componentKey: 'portfolioKey',
@@ -126,6 +135,7 @@ it('updates branches on change', () => {
   });
   (wrapper.find(Inner).prop('onBranchesChange') as Function)();
   expect(getBranches).toBeCalledWith('projectKey');
+  expect(getPullRequests).toBeCalledWith('projectKey');
 });
 
 it('loads organization', async () => {

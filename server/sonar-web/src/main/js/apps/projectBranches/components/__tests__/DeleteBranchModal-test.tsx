@@ -18,14 +18,17 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 /* eslint-disable import/first */
-jest.mock('../../../../api/branches', () => ({ deleteBranch: jest.fn() }));
+jest.mock('../../../../api/branches', () => ({
+  deleteBranch: jest.fn(),
+  deletePullRequest: jest.fn()
+}));
 
 import * as React from 'react';
 import { shallow, ShallowWrapper } from 'enzyme';
 import DeleteBranchModal from '../DeleteBranchModal';
 import { ShortLivingBranch, BranchType, BranchLike, PullRequest } from '../../../../app/types';
 import { submit, doAsync, click, waitAndUpdate } from '../../../../helpers/testUtils';
-import { deleteBranch } from '../../../../api/branches';
+import { deleteBranch, deletePullRequest } from '../../../../api/branches';
 
 const branch: ShortLivingBranch = {
   isMain: false,
@@ -35,7 +38,8 @@ const branch: ShortLivingBranch = {
 };
 
 beforeEach(() => {
-  (deleteBranch as jest.Mock<any>).mockClear();
+  (deleteBranch as jest.Mock).mockClear();
+  (deletePullRequest as jest.Mock).mockClear();
 });
 
 it('renders', () => {
@@ -46,7 +50,7 @@ it('renders', () => {
 });
 
 it('deletes branch', async () => {
-  (deleteBranch as jest.Mock<any>).mockImplementation(() => Promise.resolve());
+  (deleteBranch as jest.Mock).mockImplementationOnce(() => Promise.resolve());
   const onDelete = jest.fn();
   const wrapper = shallowRender(branch, onDelete);
 
@@ -59,7 +63,7 @@ it('deletes branch', async () => {
 });
 
 it('deletes pull request', async () => {
-  (deleteBranch as jest.Mock<any>).mockImplementation(() => Promise.resolve());
+  (deletePullRequest as jest.Mock).mockImplementationOnce(() => Promise.resolve());
   const pullRequest: PullRequest = {
     base: 'master',
     branch: 'feature',
@@ -74,7 +78,7 @@ it('deletes pull request', async () => {
   await waitAndUpdate(wrapper);
   expect(wrapper.state().loading).toBe(false);
   expect(onDelete).toBeCalled();
-  expect(deleteBranch).toBeCalledWith({ project: 'foo', pullRequest: '1234' });
+  expect(deletePullRequest).toBeCalledWith({ project: 'foo', pullRequest: '1234' });
 });
 
 it('cancels', () => {
@@ -89,7 +93,7 @@ it('cancels', () => {
 });
 
 it('stops loading on WS error', async () => {
-  (deleteBranch as jest.Mock<any>).mockImplementation(() => Promise.reject(null));
+  (deleteBranch as jest.Mock).mockImplementationOnce(() => Promise.reject(null));
   const onDelete = jest.fn();
   const wrapper = shallowRender(branch, onDelete);
 
