@@ -24,6 +24,7 @@ import { formatMeasure } from '../../helpers/measures';
 
 interface Props {
   count: number;
+  className?: string;
   loadMore?: () => void;
   ready?: boolean;
   total: number;
@@ -44,9 +45,11 @@ export default function ListFooter({ ready = true, ...props }: Props) {
       {translate('show_more')}
     </a>
   );
-  const className = classNames('spacer-top note text-center', {
-    'new-loading': !ready
-  });
+  const className = classNames(
+    'spacer-top note text-center',
+    { 'new-loading': !ready },
+    props.className
+  );
 
   return (
     <footer className={className}>

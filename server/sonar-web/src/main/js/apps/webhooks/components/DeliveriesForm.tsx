@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import DeliveryItem from './DeliveryItem';
+import DeliveryAccordion from './DeliveryAccordion';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import ListFooter from '../../../components/controls/ListFooter';
 import Modal from '../../../components/controls/Modal';
@@ -96,12 +96,13 @@ export default class DeliveriesForm extends React.PureComponent<Props, State> {
           <h2>{header}</h2>
         </header>
         <div className="modal-body modal-container">
-          {deliveries.map(delivery => <DeliveryItem delivery={delivery} key={delivery.id} />)}
+          {deliveries.map(delivery => <DeliveryAccordion delivery={delivery} key={delivery.id} />)}
           <div className="text-center">
             <DeferredSpinner loading={loading} />
           </div>
           {paging !== undefined && (
             <ListFooter
+              className="little-spacer-bottom"
               count={deliveries.length}
               loadMore={this.fetchMoreDeliveries}
               ready={!loading}

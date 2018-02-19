@@ -378,16 +378,16 @@ export enum Visibility {
 }
 
 export interface Webhook {
-    key: string;
-    latestDelivery?: WebhookDelivery;
-    name: string;
-    url: string;
+  key: string;
+  latestDelivery?: WebhookDelivery;
+  name: string;
+  url: string;
 }
 
 export interface WebhookDelivery {
-    at: string;
-    durationMs: number;
-    httpStatus: number;
-    id: string;
-    success: boolean;
+  at: string;
+  durationMs: number;
+  httpStatus?: number;
+  id: string;
+  success: boolean;
 }

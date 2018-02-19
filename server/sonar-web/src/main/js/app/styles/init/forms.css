@@ -307,7 +307,7 @@ input[type='submit'].button-grey.button-active {
   font-size: 11px;
 }
 
-.button-small > svg {
+a.button-small > svg {
   padding-top: 2px;
 }
 

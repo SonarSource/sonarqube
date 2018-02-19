@@ -1,0 +1,80 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<Modal
+  contentLabel="webhooks.latest_delivery_for_x.foo"
+  onRequestClose={[MockFunction]}
+>
+  <header
+    className="modal-head"
+  >
+    <h2>
+      webhooks.latest_delivery_for_x.foo
+    </h2>
+  </header>
+  <DeliveryItem
+    className="modal-body modal-container"
+    delivery={
+      Object {
+        "at": "12.02.2018",
+        "durationMs": 20,
+        "httpStatus": 200,
+        "id": "2",
+        "success": true,
+      }
+    }
+    loading={true}
+  />
+  <footer
+    className="modal-foot"
+  >
+    <button
+      className="button-link js-modal-close"
+      onClick={[MockFunction]}
+      type="button"
+    >
+      close
+    </button>
+  </footer>
+</Modal>
+`;
+
+exports[`should render correctly 2`] = `
+<Modal
+  contentLabel="webhooks.latest_delivery_for_x.foo"
+  onRequestClose={[MockFunction]}
+>
+  <header
+    className="modal-head"
+  >
+    <h2>
+      webhooks.latest_delivery_for_x.foo
+    </h2>
+  </header>
+  <DeliveryItem
+    className="modal-body modal-container"
+    delivery={
+      Object {
+        "at": "12.02.2018",
+        "durationMs": 20,
+        "httpStatus": 200,
+        "id": "2",
+        "success": true,
+      }
+    }
+    loading={false}
+    payload="{ \\"success\\": true }"
+  />
+  <footer
+    className="modal-foot"
+  >
+    <button
+      className="button-link js-modal-close"
+      onClick={[MockFunction]}
+      type="button"
+    >
+      close
+    </button>
+  </footer>
+</Modal>
+`;

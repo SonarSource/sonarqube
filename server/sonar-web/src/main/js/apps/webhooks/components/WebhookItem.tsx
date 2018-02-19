@@ -18,12 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import WebhookItemLatestDelivery from './WebhookItemLatestDelivery';
 import WebhookActions from './WebhookActions';
-import AlertErrorIcon from '../../../components/icons-components/AlertErrorIcon';
-import AlertSuccessIcon from '../../../components/icons-components/AlertSuccessIcon';
-import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
-import { Webhook, WebhookDelivery } from '../../../app/types';
-import { translate } from '../../../helpers/l10n';
+import { Webhook } from '../../../app/types';
 
 interface Props {
   onDelete: (webhook: string) => Promise<void>;
@@ -37,25 +34,11 @@ export default function WebhookItem({ onDelete, onUpdate, webhook }: Props) {
       <td>{webhook.name}</td>
       <td>{webhook.url}</td>
       <td>
-        <LatestDelivery latestDelivery={webhook.latestDelivery} />
+        <WebhookItemLatestDelivery webhook={webhook} />
       </td>
       <td className="thin nowrap text-right">
         <WebhookActions onDelete={onDelete} onUpdate={onUpdate} webhook={webhook} />
       </td>
     </tr>
-  );
-}
-
-export function LatestDelivery({ latestDelivery }: { latestDelivery?: WebhookDelivery }) {
-  if (!latestDelivery) {
-    return <span>{translate('webhooks.last_execution.none')}</span>;
-  }
-  return (
-    <>
-      {latestDelivery.success ? <AlertSuccessIcon /> : <AlertErrorIcon />}
-      <span className="spacer-left">
-        <DateTimeFormatter date={latestDelivery.at} />
-      </span>
-    </>
   );
 }
