@@ -22,12 +22,15 @@ package org.sonar.server.computation.task.projectanalysis.component;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import javax.annotation.CheckForNull;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolder;
 
+import static com.google.common.base.Preconditions.checkState;
 import static org.sonar.db.component.ComponentDto.removeBranchFromKey;
 
 /**
@@ -56,7 +59,9 @@ public class MergeBranchComponentUuids {
           uuidsByKey.put(dto.getKey(), dto.uuid());
         }
 
-        mergeBranchName = dbClient.branchDao().selectByUuid(dbSession, mergeBranchUuid).get().getKey();
+        Optional<BranchDto> opt = dbClient.branchDao().selectByUuid(dbSession, mergeBranchUuid);
+        checkState(opt.isPresent(), "Merge branch '%s' does not exist", mergeBranchUuid);
+        mergeBranchName = opt.get().getKey();
       }
     }
   }
