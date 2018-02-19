@@ -1,84 +1,86 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should render correctly 1`] = `
-<BoxedGroupAccordion
-  onClick={[Function]}
-  open={false}
-  renderHeader={[Function]}
-  title={
-    <DateTimeFormatter
-      date="12.02.2018"
-    />
-  }
->
-  <div
-    className="big-spacer-left"
+<div>
+  <p
+    className="spacer-bottom"
   >
-    <p
-      className="spacer-bottom"
-    >
-      webhooks.delivery.response_x.200
-    </p>
-    <p
-      className="spacer-bottom"
-    >
-      webhooks.delivery.duration_x.20ms
-    </p>
-    <p
-      className="spacer-bottom"
-    >
-      webhooks.delivery.payload
-    </p>
-    <DeferredSpinner
-      className="spacer-left spacer-top"
-      loading={false}
-      timeout={100}
+    webhooks.delivery.response_x.200
+  </p>
+  <p
+    className="spacer-bottom"
+  >
+    webhooks.delivery.duration_x.20ms
+  </p>
+  <p
+    className="spacer-bottom"
+  >
+    webhooks.delivery.payload
+  </p>
+  <DeferredSpinner
+    className="spacer-left spacer-top"
+    loading={false}
+    timeout={100}
+  >
+    <CodeSnippet
+      noCopy={true}
+      snippet="{ status: \\"SUCCESS\\" }"
     />
-  </div>
-</BoxedGroupAccordion>
+  </DeferredSpinner>
+</div>
 `;
 
-exports[`should render correctly 2`] = `
-<BoxedGroupAccordion
-  onClick={[Function]}
-  open={true}
-  renderHeader={[Function]}
-  title={
-    <DateTimeFormatter
-      date="12.02.2018"
-    />
-  }
->
-  <div
-    className="big-spacer-left"
+exports[`should render correctly when no http status 1`] = `
+<div>
+  <p
+    className="spacer-bottom"
   >
-    <p
-      className="spacer-bottom"
-    >
-      webhooks.delivery.response_x.200
-    </p>
-    <p
-      className="spacer-bottom"
-    >
-      webhooks.delivery.duration_x.20ms
-    </p>
-    <p
-      className="spacer-bottom"
-    >
-      webhooks.delivery.payload
-    </p>
-    <DeferredSpinner
-      className="spacer-left spacer-top"
-      loading={false}
-      timeout={100}
-    >
-      <CodeSnippet
-        noCopy={true}
-        snippet="{
-  \\"success\\": true
-}"
-      />
-    </DeferredSpinner>
-  </div>
-</BoxedGroupAccordion>
+    webhooks.delivery.response_x.webhooks.delivery.server_unreachable
+  </p>
+  <p
+    className="spacer-bottom"
+  >
+    webhooks.delivery.duration_x.20ms
+  </p>
+  <p
+    className="spacer-bottom"
+  >
+    webhooks.delivery.payload
+  </p>
+  <DeferredSpinner
+    className="spacer-left spacer-top"
+    loading={false}
+    timeout={100}
+  >
+    <CodeSnippet
+      noCopy={true}
+      snippet="{ status: \\"SUCCESS\\" }"
+    />
+  </DeferredSpinner>
+</div>
+`;
+
+exports[`should render correctly when no payload 1`] = `
+<div>
+  <p
+    className="spacer-bottom"
+  >
+    webhooks.delivery.response_x.200
+  </p>
+  <p
+    className="spacer-bottom"
+  >
+    webhooks.delivery.duration_x.20ms
+  </p>
+  <p
+    className="spacer-bottom"
+  >
+    webhooks.delivery.payload
+  </p>
+  <DeferredSpinner
+    className="spacer-left spacer-top"
+    loading={true}
+    timeout={100}
+  />
+</div>
 `;

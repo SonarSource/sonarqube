@@ -19,7 +19,16 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import DeliveryItem from '../DeliveryItem';
+import LatestDeliveryForm from '../LatestDeliveryForm';
+import { getDelivery } from '../../../../api/webhooks';
+
+jest.mock('../../../../api/webhooks', () => ({
+  getDelivery: jest.fn(() =>
+    Promise.resolve({
+      delivery: { payload: '{ "success": true }' }
+    })
+  )
+}));
 
 const delivery = {
   at: '12.02.2018',
@@ -29,26 +38,24 @@ const delivery = {
   success: true
 };
 
-it('should render correctly', () => {
+const webhook = { key: '1', name: 'foo', url: 'http://foo.bar' };
+
+beforeEach(() => {
+  (getDelivery as jest.Mock<any>).mockClear();
+});
+
+it('should render correctly', async () => {
   const wrapper = getWrapper();
   expect(wrapper).toMatchSnapshot();
-});
 
-it('should render correctly when no payload', () => {
-  expect(getWrapper({ loading: true, payload: undefined })).toMatchSnapshot();
-});
-
-it('should render correctly when no http status', () => {
-  expect(getWrapper({ delivery: { ...delivery, httpStatus: undefined } })).toMatchSnapshot();
+  await new Promise(setImmediate);
+  expect(getDelivery).lastCalledWith({ deliveryId: delivery.id });
+  wrapper.update();
+  expect(wrapper).toMatchSnapshot();
 });
 
 function getWrapper(props = {}) {
   return shallow(
-    <DeliveryItem
-      delivery={delivery}
-      loading={false}
-      payload={'{ status: "SUCCESS" }'}
-      {...props}
-    />
+    <LatestDeliveryForm delivery={delivery} onClose={jest.fn()} webhook={webhook} {...props} />
   );
 }

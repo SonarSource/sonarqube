@@ -92,7 +92,7 @@ public class WebhooksPage {
     SelenideElement webhook = getWebhook(webhookName);
     webhook.$(".dropdown-toggle").shouldBe(visible).click();
     webhook.$(".js-webhook-deliveries").shouldBe(visible).click();
-    modalShouldBeOpen("Recent deliveries for " + webhookName);
+    modalShouldBeOpen("Recent deliveries of " + webhookName);
     return new DeliveriesForm($(".modal-body"));
   }
 

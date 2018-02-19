@@ -19,22 +19,40 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import WebhookItem from '../WebhookItem';
+import DeliveryAccordion from '../DeliveryAccordion';
+import { getDelivery } from '../../../../api/webhooks';
 
-const webhook = {
-  key: '1',
-  name: 'my webhook',
-  url: 'http://webhook.target'
+jest.mock('../../../../api/webhooks', () => ({
+  getDelivery: jest.fn(() =>
+    Promise.resolve({
+      delivery: { payload: '{ "success": true }' }
+    })
+  )
+}));
+
+const delivery = {
+  at: '12.02.2018',
+  durationMs: 20,
+  httpStatus: 200,
+  id: '2',
+  success: true
 };
 
-it('should render correctly', () => {
-  expect(
-    shallow(
-      <WebhookItem
-        onDelete={jest.fn(() => Promise.resolve())}
-        onUpdate={jest.fn(() => Promise.resolve())}
-        webhook={webhook}
-      />
-    )
-  ).toMatchSnapshot();
+beforeEach(() => {
+  (getDelivery as jest.Mock<any>).mockClear();
 });
+
+it('should render correctly', async () => {
+  const wrapper = getWrapper();
+  expect(wrapper).toMatchSnapshot();
+
+  wrapper.find('BoxedGroupAccordion').prop<Function>('onClick')();
+  await new Promise(setImmediate);
+  expect(getDelivery).lastCalledWith({ deliveryId: delivery.id });
+  wrapper.update();
+  expect(wrapper).toMatchSnapshot();
+});
+
+function getWrapper(props = {}) {
+  return shallow(<DeliveryAccordion delivery={delivery} {...props} />);
+}
