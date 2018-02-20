@@ -19,10 +19,11 @@
  */
 package org.sonar.server.project.ws;
 
-import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.util.Date;
+import java.util.List;
 import java.util.stream.IntStream;
+import org.apache.commons.lang.StringUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -31,6 +32,7 @@ import org.mockito.ArgumentCaptor;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.System2;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -86,7 +88,7 @@ public class BulkDeleteActionTest {
   }
 
   @Test
-  public void delete_projects_in_default_organization_if_no_org_provided() throws Exception {
+  public void delete_projects_in_default_organization_if_no_org_provided() {
     userSession.logIn().setRoot();
     OrganizationDto defaultOrganization = db.getDefaultOrganization();
     ComponentDto toDeleteInOrg1 = db.components().insertPrivateProject(org1);
@@ -103,7 +105,7 @@ public class BulkDeleteActionTest {
   }
 
   @Test
-  public void delete_projects_by_keys() throws Exception {
+  public void delete_projects_by_keys() {
     userSession.logIn().setRoot();
     ComponentDto toDeleteInOrg1 = db.components().insertPrivateProject(org1);
     ComponentDto toDeleteInOrg2 = db.components().insertPrivateProject(org1);
@@ -118,7 +120,7 @@ public class BulkDeleteActionTest {
   }
 
   @Test
-  public void projects_that_dont_exist_are_ignored_and_dont_break_bulk_deletion() throws Exception {
+  public void projects_that_dont_exist_are_ignored_and_dont_break_bulk_deletion() {
     userSession.logIn().setRoot();
     ComponentDto toDelete1 = db.components().insertPrivateProject(org1);
     ComponentDto toDelete2 = db.components().insertPrivateProject(org1);
@@ -172,7 +174,7 @@ public class BulkDeleteActionTest {
   }
 
   @Test
-  public void projects_and_views() throws IOException {
+  public void projects_and_views() {
     userSession.logIn().addPermission(ADMINISTER, db.getDefaultOrganization());
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto view = db.components().insertView();
@@ -183,7 +185,7 @@ public class BulkDeleteActionTest {
   }
 
   @Test
-  public void delete_by_key_query_with_partial_match_case_insensitive() throws IOException {
+  public void delete_by_key_query_with_partial_match_case_insensitive() {
     userSession.logIn().addPermission(ADMINISTER, db.getDefaultOrganization());
     ComponentDto matchKeyProject = db.components().insertPrivateProject(p -> p.setDbKey("project-_%-key"));
     ComponentDto matchUppercaseKeyProject = db.components().insertPrivateProject(p -> p.setDbKey("PROJECT-_%-KEY"));
@@ -195,7 +197,7 @@ public class BulkDeleteActionTest {
   }
 
   @Test
-  public void throw_ForbiddenException_if_organization_administrator_does_not_set_organization_parameter() throws Exception {
+  public void throw_ForbiddenException_if_organization_administrator_does_not_set_organization_parameter() {
     userSession.logIn().addPermission(ADMINISTER, org1);
     ComponentDto project = db.components().insertPrivateProject(org1);
 
@@ -209,8 +211,25 @@ public class BulkDeleteActionTest {
     verifyNoDeletions();
   }
 
+  /**
+   * SONAR-10356
+   */
   @Test
-  public void organization_administrator_deletes_projects_by_keys_in_his_organization() throws Exception {
+  public void delete_only_the_1000_first_projects() {
+    userSession.logIn().addPermission(ADMINISTER, org1);
+    List<String> keys = IntStream.range(0, 1_010).mapToObj(i -> "key" + i).collect(MoreCollectors.toArrayList());
+    keys.forEach(key -> db.components().insertPrivateProject(org1, p -> p.setDbKey(key)));
+
+    ws.newRequest()
+      .setParam("organization", org1.getKey())
+      .setParam("projects", StringUtils.join(keys, ","))
+      .execute();
+
+    verify(componentCleanerService, times(1_000)).delete(any(DbSession.class), any(ComponentDto.class));
+  }
+
+  @Test
+  public void organization_administrator_deletes_projects_by_keys_in_his_organization() {
     userSession.logIn().addPermission(ADMINISTER, org1);
     ComponentDto toDelete = db.components().insertPrivateProject(org1);
     ComponentDto cantBeDeleted = db.components().insertPrivateProject(org2);
@@ -224,7 +243,7 @@ public class BulkDeleteActionTest {
   }
 
   @Test
-  public void throw_UnauthorizedException_if_not_logged_in() throws Exception {
+  public void throw_UnauthorizedException_if_not_logged_in() {
     expectedException.expect(UnauthorizedException.class);
     expectedException.expectMessage("Authentication is required");
 
@@ -235,7 +254,7 @@ public class BulkDeleteActionTest {
   }
 
   @Test
-  public void throw_ForbiddenException_if_param_organization_is_not_set_and_not_system_administrator() throws Exception {
+  public void throw_ForbiddenException_if_param_organization_is_not_set_and_not_system_administrator() {
     userSession.logIn().setNonSystemAdministrator();
 
     expectedException.expect(ForbiddenException.class);
@@ -248,7 +267,7 @@ public class BulkDeleteActionTest {
   }
 
   @Test
-  public void throw_ForbiddenException_if_param_organization_is_set_but_not_organization_administrator() throws Exception {
+  public void throw_ForbiddenException_if_param_organization_is_set_but_not_organization_administrator() {
     userSession.logIn();
 
     expectedException.expect(ForbiddenException.class);
