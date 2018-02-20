@@ -54,7 +54,7 @@ public class UsersWsTest {
     assertThat(controller).isNotNull();
     assertThat(controller.description()).isNotEmpty();
     assertThat(controller.since()).isEqualTo("3.6");
-    assertThat(controller.actions()).hasSize(5);
+    assertThat(controller.actions()).hasSize(4);
   }
 
   @Test
