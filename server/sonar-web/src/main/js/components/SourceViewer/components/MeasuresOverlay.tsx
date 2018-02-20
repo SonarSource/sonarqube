@@ -25,7 +25,7 @@ import MeasuresOverlayTestCases from './MeasuresOverlayTestCases';
 import { getFacets } from '../../../api/issues';
 import { getMeasures } from '../../../api/measures';
 import { getAllMetrics } from '../../../api/metrics';
-import { Metric } from '../../../app/types';
+import { FacetValue } from '../../../app/types';
 import Modal from '../../controls/Modal';
 import Measure from '../../measure/Measure';
 import QualifierIcon from '../../shared/QualifierIcon';
@@ -35,7 +35,12 @@ import DuplicationsRating from '../../ui/DuplicationsRating';
 import IssueTypeIcon from '../../ui/IssueTypeIcon';
 import { SEVERITIES, TYPES } from '../../../helpers/constants';
 import { translate, getLocalizedMetricName } from '../../../helpers/l10n';
-import { formatMeasure } from '../../../helpers/measures';
+import {
+  formatMeasure,
+  MeasureEnhanced,
+  getDisplayMetrics,
+  enhanceMeasuresWithMetrics
+} from '../../../helpers/measures';
 import { getProjectUrl } from '../../../helpers/urls';
 
 interface Props {
@@ -53,27 +58,17 @@ interface Props {
   onClose: () => void;
 }
 
-interface MeasureWithMetric {
-  metric: Metric;
-  value?: string;
-}
-
 interface Measures {
-  [metricKey: string]: MeasureWithMetric;
-}
-
-interface Facet {
-  count: number;
-  val: string;
+  [metricKey: string]: MeasureEnhanced;
 }
 
 interface State {
   loading: boolean;
   measures: Measures;
-  severitiesFacet?: Facet[];
+  severitiesFacet?: FacetValue[];
   showAllMeasures: boolean;
-  tagsFacet?: Facet[];
-  typesFacet?: Facet[];
+  tagsFacet?: FacetValue[];
+  typesFacet?: FacetValue[];
 }
 
 export default class MeasuresOverlay extends React.PureComponent<Props, State> {
@@ -106,18 +101,13 @@ export default class MeasuresOverlay extends React.PureComponent<Props, State> {
 
   fetchMeasures = () => {
     return getAllMetrics().then(metrics => {
-      const metricKeys = metrics
-        .filter(metric => metric.type !== 'DATA' && !metric.hidden)
-        .map(metric => metric.key);
+      const metricKeys = getDisplayMetrics(metrics).map(metric => metric.key);
 
       // eslint-disable-next-line promise/no-nesting
       return getMeasures(this.props.component.key, metricKeys, this.props.branch).then(measures => {
-        const withMetrics = measures
-          .map(measure => {
-            const metric = metrics.find(metric => metric.key === measure.metric);
-            return { ...measure, metric };
-          })
-          .filter(measure => measure.metric) as MeasureWithMetric[];
+        const withMetrics = enhanceMeasuresWithMetrics(measures, metrics).filter(
+          measure => measure.metric
+        );
         return keyBy(withMetrics, measure => measure.metric.key);
       });
     });
@@ -155,7 +145,7 @@ export default class MeasuresOverlay extends React.PureComponent<Props, State> {
     this.setState({ showAllMeasures: true });
   };
 
-  renderMeasure = (measure: MeasureWithMetric | undefined) => {
+  renderMeasure = (measure: MeasureEnhanced | undefined) => {
     return measure ? <MeasuresOverlayMeasure key={measure.metric.key} measure={measure} /> : null;
   };
 
@@ -186,7 +176,7 @@ export default class MeasuresOverlay extends React.PureComponent<Props, State> {
     );
   };
 
-  renderBigMeasure = (measure: MeasureWithMetric | undefined) => {
+  renderBigMeasure = (measure: MeasureEnhanced | undefined) => {
     return measure ? (
       <div className="measure measure-big" data-metric={measure.metric.key}>
         <span className="measure-value">
@@ -370,7 +360,7 @@ export default class MeasuresOverlay extends React.PureComponent<Props, State> {
     );
   };
 
-  renderDomain = (domain: string, measures: MeasureWithMetric[]) => {
+  renderDomain = (domain: string, measures: MeasureEnhanced[]) => {
     return (
       <div className="source-viewer-measures-card" key={domain}>
         <div className="measures">

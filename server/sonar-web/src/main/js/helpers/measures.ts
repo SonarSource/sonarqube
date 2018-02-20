@@ -365,3 +365,7 @@ export function getRatingTooltip(metricKey: string, value: number | string): str
     ? getMaintainabilityRatingTooltip(Number(value))
     : translate('metric', finalMetricKey, 'tooltip', ratingLetter);
 }
+
+export function getDisplayMetrics(metrics: Metric[]) {
+  return metrics.filter(metric => !metric.hidden && !['DATA', 'DISTRIB'].includes(metric.type));
+}

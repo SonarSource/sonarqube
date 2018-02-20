@@ -158,7 +158,7 @@ it('should render source file', async () => {
 
 it('should render test file', async () => {
   const wrapper = shallow(
-    <MeasuresOverlay branch="branch" component={{...component, q: 'UTS' }} onClose={jest.fn()} />
+    <MeasuresOverlay branch="branch" component={{ ...component, q: 'UTS' }} onClose={jest.fn()} />
   );
   await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot();

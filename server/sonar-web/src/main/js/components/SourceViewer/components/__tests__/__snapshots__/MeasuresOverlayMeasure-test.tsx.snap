@@ -17,6 +17,7 @@ exports[`should render 1`] = `
     <Measure
       metricKey="coverage"
       metricType="PERCENT"
+      small={true}
       value="72"
     />
   </span>
@@ -44,6 +45,7 @@ exports[`should render issues icon 1`] = `
     <Measure
       metricKey="bugs"
       metricType="INT"
+      small={true}
       value="2"
     />
   </span>

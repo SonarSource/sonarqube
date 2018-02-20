@@ -350,3 +350,8 @@ export interface CoveredFile {
   longName: string;
   coveredLines: number;
 }
+
+export interface FacetValue {
+  count: number;
+  val: string;
+}

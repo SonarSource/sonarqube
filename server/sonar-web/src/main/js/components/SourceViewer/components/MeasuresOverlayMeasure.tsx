@@ -48,6 +48,7 @@ export default function MeasuresOverlayMeasure({ measure }: Props) {
         <Measure
           metricKey={measure.metric.key}
           metricType={measure.metric.type}
+          small={true}
           value={measure.value}
         />
       </span>
