@@ -70,8 +70,9 @@ public class SetHomepageActionTest {
     ws = new WsActionTester(new SetHomepageAction(userSession, dbClient, TestComponentFinder.from(db), homepageTypes));
   }
 
+
   @Test
-  public void verify_sonarcloud_definition() {
+  public void verify_definition() {
     WebService.Action action = ws.getDef();
     assertThat(action.key()).isEqualTo("set_homepage");
     assertThat(action.isInternal()).isTrue();
@@ -84,7 +85,6 @@ public class SetHomepageActionTest {
     WebService.Param typeParam = action.param("type");
     assertThat(typeParam.isRequired()).isTrue();
     assertThat(typeParam.description()).isEqualTo("Type of the requested page");
-    assertThat(typeParam.possibleValues()).containsExactlyInAnyOrder("PROJECT", "ORGANIZATION", "MY_PROJECTS", "MY_ISSUES");
 
     WebService.Param componentParam = action.param("component");
     assertThat(componentParam.isRequired()).isFalse();
@@ -93,44 +93,6 @@ public class SetHomepageActionTest {
 
     WebService.Param branchParam = action.param("branch");
     assertThat(branchParam.isRequired()).isFalse();
-    assertThat(branchParam.isInternal()).isTrue();
-    assertThat(branchParam.description()).isEqualTo("Branch key. It can only be used when parameter 'type' is set to 'PROJECT'");
-    assertThat(branchParam.since()).isEqualTo("7.1");
-
-    WebService.Param organizationParam = action.param("organization");
-    assertThat(organizationParam.isRequired()).isFalse();
-    assertThat(organizationParam.description()).isEqualTo("Organization key. It should only be used when parameter 'type' is set to 'ORGANIZATION'");
-    assertThat(organizationParam.since()).isEqualTo("7.1");
-  }
-
-  @Test
-  public void verify_sonarqube_definition() {
-
-    when(homepageTypes.getTypes()).thenReturn(asList(PROJECT, ORGANIZATION, ISSUES, PROJECTS));
-    ws = new WsActionTester(new SetHomepageAction(userSession, dbClient, TestComponentFinder.from(db), homepageTypes));
-
-    WebService.Action action = ws.getDef();
-    assertThat(action.key()).isEqualTo("set_homepage");
-    assertThat(action.isInternal()).isTrue();
-    assertThat(action.isPost()).isTrue();
-    assertThat(action.since()).isEqualTo("7.0");
-    assertThat(action.description()).isEqualTo("Set homepage of current user.<br> Requires authentication.");
-    assertThat(action.responseExample()).isNull();
-    assertThat(action.params()).hasSize(4);
-
-    WebService.Param typeParam = action.param("type");
-    assertThat(typeParam.isRequired()).isTrue();
-    assertThat(typeParam.description()).isEqualTo("Type of the requested page");
-    assertThat(typeParam.possibleValues()).containsExactlyInAnyOrder("PROJECT", "ORGANIZATION", "PROJECTS", "ISSUES");
-
-    WebService.Param componentParam = action.param("component");
-    assertThat(componentParam.isRequired()).isFalse();
-    assertThat(componentParam.description()).isEqualTo("Project key. It should only be used when parameter 'type' is set to 'PROJECT'");
-    assertThat(componentParam.since()).isEqualTo("7.1");
-
-    WebService.Param branchParam = action.param("branch");
-    assertThat(branchParam.isRequired()).isFalse();
-    assertThat(branchParam.isInternal()).isTrue();
     assertThat(branchParam.description()).isEqualTo("Branch key. It can only be used when parameter 'type' is set to 'PROJECT'");
     assertThat(branchParam.since()).isEqualTo("7.1");
 

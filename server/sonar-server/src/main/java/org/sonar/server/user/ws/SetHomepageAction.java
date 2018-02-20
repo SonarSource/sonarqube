@@ -77,12 +77,11 @@ public class SetHomepageAction implements UsersWsAction {
     action.createParam(PARAM_TYPE)
       .setDescription("Type of the requested page")
       .setRequired(true)
-      .setPossibleValues(homepageTypes.getTypes());
+      .setPossibleValues(HomepageTypes.Type.values());
 
     action.createParam(PARAM_ORGANIZATION)
       .setDescription("Organization key. It should only be used when parameter '%s' is set to '%s'", PARAM_TYPE, ORGANIZATION)
       .setSince("7.1")
-      .setInternal(false)
       .setExampleValue("my-org");
 
     action.createParam(PARAM_COMPONENT)
@@ -93,7 +92,6 @@ public class SetHomepageAction implements UsersWsAction {
     action.createParam(PARAM_BRANCH)
       .setDescription("Branch key. It can only be used when parameter '%s' is set to '%s'", PARAM_TYPE, PROJECT)
       .setExampleValue(KEY_BRANCH_EXAMPLE_001)
-      .setInternal(true)
       .setSince("7.1");
   }
 
