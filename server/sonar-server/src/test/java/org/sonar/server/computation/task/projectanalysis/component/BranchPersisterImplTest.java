@@ -85,7 +85,9 @@ public class BranchPersisterImplTest {
 
   @Test
   public void persist_pull_request_data() {
-    analysisMetadataHolder.setBranch(createBranch(BranchType.PULL_REQUEST, false, "pr-123"));
+    String pullRequestId = "pr-123";
+    analysisMetadataHolder.setBranch(createBranch(BranchType.PULL_REQUEST, false, pullRequestId));
+    analysisMetadataHolder.setPullRequestId(pullRequestId);
     treeRootHolder.setRoot(BRANCH);
 
     // add main branch in project table and in metadata

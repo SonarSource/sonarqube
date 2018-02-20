@@ -76,25 +76,27 @@ public class BranchPersisterImpl implements BranchPersister {
     return (first != null) ? first : second;
   }
 
-  private static BranchDto toBranchDto(ComponentDto componentDto, Branch branch) {
+  private BranchDto toBranchDto(ComponentDto componentDto, Branch branch) {
     BranchDto dto = new BranchDto();
     dto.setUuid(componentDto.uuid());
 
     // MainBranchProjectUuid will be null if it's a main branch
     dto.setProjectUuid(firstNonNull(componentDto.getMainBranchProjectUuid(), componentDto.projectUuid()));
-    // TODO if pull request, use PR id instead of branch name
-    dto.setKey(branch.getName());
     dto.setBranchType(branch.getType());
 
     // merge branch is only present if it's a short living branch
     dto.setMergeBranchUuid(branch.getMergeBranchUuid().orElse(null));
 
     if (branch.getType() == BranchType.PULL_REQUEST) {
+      dto.setKey(analysisMetadataHolder.getPullRequestId());
+
       DbProjectBranches.PullRequestData pullRequestData = DbProjectBranches.PullRequestData.newBuilder()
         .setBranch(branch.getName())
         .setTitle(branch.getName())
         .build();
       dto.setPullRequestData(pullRequestData);
+    } else {
+      dto.setKey(branch.getName());
     }
 
     return dto;

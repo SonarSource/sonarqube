@@ -53,4 +53,9 @@ public interface Branch extends ComponentKeyGenerator {
    * or not.
    */
   boolean supportsCrossProjectCpd();
+
+  /**
+   * @throws IllegalStateException if this branch configuration is not a pull request.
+   */
+  String getPullRequestId();
 }

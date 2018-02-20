@@ -277,8 +277,10 @@ public class ReportPublisherTest {
     settings.setProperty(ScannerProperties.ORGANIZATION, orgName);
 
     String branchName = "feature";
+    String pullRequestId = "pr-123";
     when(branchConfiguration.branchName()).thenReturn(branchName);
     when(branchConfiguration.branchType()).thenReturn(PULL_REQUEST);
+    when(branchConfiguration.pullRequestId()).thenReturn(pullRequestId);
 
     WsResponse response = mock(WsResponse.class);
 
@@ -301,7 +303,7 @@ public class ReportPublisherTest {
     assertThat(wsRequest.getParameters().getValues("organization")).containsExactly(orgName);
     assertThat(wsRequest.getParameters().getValues("projectKey")).containsExactly("struts");
     assertThat(wsRequest.getParameters().getValues("characteristic"))
-      .containsExactlyInAnyOrder("pullRequest=" + branchName);
+      .containsExactlyInAnyOrder("pullRequest=" + pullRequestId);
   }
 
 }

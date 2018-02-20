@@ -34,6 +34,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
+import org.sonar.db.protobuf.DbProjectBranches;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.issue.index.BranchStatistics;
 import org.sonar.server.issue.index.IssueIndex;
@@ -110,15 +111,16 @@ public class ListAction implements PullRequestWsAction {
   private static void addPullRequest(ProjectPullRequests.ListWsResponse.Builder response, BranchDto branch, Map<String, BranchDto> mergeBranchesByUuid,
     BranchStatistics branchStatistics, @Nullable String analysisDate) {
     Optional<BranchDto> mergeBranch = Optional.ofNullable(mergeBranchesByUuid.get(branch.getMergeBranchUuid()));
+
     ProjectPullRequests.PullRequest.Builder builder = ProjectPullRequests.PullRequest.newBuilder();
-    String branchKey = branch.getKey();
-    builder.setId(branchKey);
-    //TODO get the branch from PULL_REQUEST_DATA
-    builder.setBranch(branchKey);
-    //TODO get the URL from PULL_REQUEST_DATA
-    builder.setUrl("https://github.com/SonarSource/sonar-core-plugins/pull/32");
-    //TODO get the branch title from PULL_REQUEST_DATA
-    builder.setTitle(branchKey);
+    builder.setId(branch.getKey());
+
+    // known to be non-null; all pull requests have non-null value, and caller filters accordingly
+    DbProjectBranches.PullRequestData pullRequestData = branch.getPullRequestData();
+    builder.setBranch(pullRequestData.getBranch());
+    builder.setUrl(pullRequestData.getUrl());
+    builder.setTitle(pullRequestData.getTitle());
+
     if (mergeBranch.isPresent()) {
       String mergeBranchKey = mergeBranch.get().getKey();
       builder.setBase(mergeBranchKey);

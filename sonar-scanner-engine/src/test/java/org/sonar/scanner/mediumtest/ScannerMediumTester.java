@@ -420,6 +420,11 @@ public class ScannerMediumTester extends ExternalResource {
     public String branchBase() {
       return branchBase;
     }
+
+    @Override
+    public String pullRequestId() {
+      throw new UnsupportedOperationException();
+    }
   }
 
   public ScannerMediumTester setBranchType(BranchType branchType) {
