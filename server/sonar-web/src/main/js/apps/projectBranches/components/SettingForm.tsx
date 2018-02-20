@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import { SettingValue, setSimpleSettingValue, resetSettingValue } from '../../../api/settings';
+import { Button, SubmitButton, ResetButtonLink } from '../../../components/ui/buttons';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 
 interface Props {
@@ -75,9 +76,7 @@ export default class SettingForm extends React.PureComponent<Props, State> {
     this.setState({ value: event.currentTarget.value });
   };
 
-  handleResetClick = (event: React.SyntheticEvent<HTMLButtonElement>) => {
-    event.preventDefault();
-    event.currentTarget.blur();
+  handleResetClick = () => {
     this.setState({ submitting: true });
     resetSettingValue(this.props.setting.key, this.props.project, this.props.branch).then(
       this.props.onChange,
@@ -87,11 +86,6 @@ export default class SettingForm extends React.PureComponent<Props, State> {
         }
       }
     );
-  };
-
-  handleCancelClick = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
-    event.preventDefault();
-    this.props.onClose();
   };
 
   render() {
@@ -128,21 +122,17 @@ export default class SettingForm extends React.PureComponent<Props, State> {
         <footer className="modal-foot">
           {!setting.inherited &&
             setting.parentValue && (
-              <button
+              <Button
                 className="pull-left"
                 disabled={this.state.submitting}
                 onClick={this.handleResetClick}
                 type="reset">
                 {translate('reset_to_default')}
-              </button>
+              </Button>
             )}
           {this.state.submitting && <i className="spinner spacer-right" />}
-          <button disabled={submitDisabled} type="submit">
-            {translate('save')}
-          </button>
-          <a href="#" onClick={this.handleCancelClick}>
-            {translate('cancel')}
-          </a>
+          <SubmitButton disabled={submitDisabled}>{translate('save')}</SubmitButton>
+          <ResetButtonLink onClick={this.props.onClose}>{translate('cancel')}</ResetButtonLink>
         </footer>
       </form>
     );

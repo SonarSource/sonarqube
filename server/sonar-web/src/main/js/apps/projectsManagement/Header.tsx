@@ -20,8 +20,8 @@
 import * as React from 'react';
 import ChangeVisibilityForm from './ChangeVisibilityForm';
 import { Organization, Visibility } from '../../app/types';
+import { EditButton, Button } from '../../components/ui/buttons';
 import { translate } from '../../helpers/l10n';
-import { EditButton } from '../../components/ui/buttons';
 
 export interface Props {
   hasProvisionPermission?: boolean;
@@ -36,11 +36,6 @@ interface State {
 
 export default class Header extends React.PureComponent<Props, State> {
   state: State = { visibilityForm: false };
-
-  handleCreateProjectClick = (event: React.SyntheticEvent<HTMLButtonElement>) => {
-    event.preventDefault();
-    this.props.onProjectCreate();
-  };
 
   handleChangeVisibilityClick = () => {
     this.setState({ visibilityForm: true });
@@ -69,9 +64,9 @@ export default class Header extends React.PureComponent<Props, State> {
             />
           </span>
           {this.props.hasProvisionPermission && (
-            <button id="create-project" onClick={this.handleCreateProjectClick}>
+            <Button id="create-project" onClick={this.props.onProjectCreate}>
               {translate('qualifiers.create.TRK')}
-            </button>
+            </Button>
           )}
         </div>
 

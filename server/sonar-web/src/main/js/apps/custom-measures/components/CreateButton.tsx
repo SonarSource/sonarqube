@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import Form from './Form';
+import { Button } from '../../../components/ui/buttons';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {
@@ -55,9 +56,9 @@ export default class CreateButton extends React.PureComponent<Props, State> {
   render() {
     return (
       <>
-        <button id="custom-measures-create" onClick={this.handleClick} type="button">
+        <Button id="custom-measures-create" onClick={this.handleClick}>
           {translate('create')}
-        </button>
+        </Button>
         {this.state.modal && (
           <Form
             confirmButtonText={translate('create')}

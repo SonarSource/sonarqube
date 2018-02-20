@@ -67,19 +67,16 @@ exports[`should render form 1`] = `
         loading={false}
         timeout={100}
       />
-      <button
+      <SubmitButton
         disabled={false}
-        type="submit"
       >
         confirmButtonText
-      </button>
-      <button
-        className="button-link"
+      </SubmitButton>
+      <ResetButtonLink
         onClick={[Function]}
-        type="reset"
       >
         cancel
-      </button>
+      </ResetButtonLink>
     </footer>
   </form>
 </Modal>

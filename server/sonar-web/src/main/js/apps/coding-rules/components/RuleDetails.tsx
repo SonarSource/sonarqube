@@ -31,6 +31,7 @@ import { getRuleDetails, deleteRule, updateRule } from '../../../api/rules';
 import { RuleActivation, RuleDetails as IRuleDetails } from '../../../app/types';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import ConfirmButton from '../../../components/controls/ConfirmButton';
+import { Button } from '../../../components/ui/buttons';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 
 interface Props {
@@ -183,12 +184,12 @@ export default class RuleDetails extends React.PureComponent<Props, State> {
                 organization={organization}
                 templateRule={ruleDetails}>
                 {({ onClick }) => (
-                  <button
+                  <Button
                     className="js-edit-custom"
                     id="coding-rules-detail-custom-rule-change"
                     onClick={onClick}>
                     {translate('edit')}
-                  </button>
+                  </Button>
                 )}
               </CustomRuleButton>
               <ConfirmButton
@@ -201,12 +202,12 @@ export default class RuleDetails extends React.PureComponent<Props, State> {
                 modalHeader={translate('coding_rules.delete_rule')}
                 onConfirm={this.handleDelete}>
                 {({ onClick }) => (
-                  <button
+                  <Button
                     className="button-red spacer-left js-delete"
                     id="coding-rules-detail-rule-delete"
                     onClick={onClick}>
                     {translate('delete')}
-                  </button>
+                  </Button>
                 )}
               </ConfirmButton>
             </div>

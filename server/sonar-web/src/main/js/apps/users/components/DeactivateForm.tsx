@@ -21,6 +21,7 @@ import * as React from 'react';
 import Modal from '../../../components/controls/Modal';
 import { deactivateUser } from '../../../api/users';
 import { User } from '../../../app/types';
+import { SubmitButton, ResetButtonLink } from '../../../components/ui/buttons';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 
 export interface Props {
@@ -44,11 +45,6 @@ export default class DeactivateForm extends React.PureComponent<Props, State> {
   componentWillUnmount() {
     this.mounted = false;
   }
-
-  handleCancelClick = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
-    event.preventDefault();
-    this.props.onClose();
-  };
 
   handleDeactivate = (event: React.SyntheticEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -82,12 +78,12 @@ export default class DeactivateForm extends React.PureComponent<Props, State> {
           </div>
           <footer className="modal-foot">
             {submitting && <i className="spinner spacer-right" />}
-            <button className="js-confirm button-red" disabled={submitting} type="submit">
+            <SubmitButton className="js-confirm button-red" disabled={submitting}>
               {translate('users.deactivate')}
-            </button>
-            <a className="js-modal-close" href="#" onClick={this.handleCancelClick}>
+            </SubmitButton>
+            <ResetButtonLink className="js-modal-close" onClick={this.props.onClose}>
               {translate('cancel')}
-            </a>
+            </ResetButtonLink>
           </footer>
         </form>
       </Modal>

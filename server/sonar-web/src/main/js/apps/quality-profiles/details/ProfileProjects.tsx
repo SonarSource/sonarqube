@@ -22,6 +22,7 @@ import { Link } from 'react-router';
 import ChangeProjectsForm from './ChangeProjectsForm';
 import QualifierIcon from '../../../components/shared/QualifierIcon';
 import { getProfileProjects } from '../../../api/quality-profiles';
+import { Button } from '../../../components/ui/buttons';
 import { translate } from '../../../helpers/l10n';
 import { Profile } from '../types';
 
@@ -83,8 +84,7 @@ export default class ProfileProjects extends React.PureComponent<Props, State> {
     );
   }
 
-  handleChangeClick = (event: React.SyntheticEvent<HTMLElement>) => {
-    event.preventDefault();
+  handleChangeClick = () => {
     this.setState({ formOpen: true });
   };
 
@@ -143,9 +143,9 @@ export default class ProfileProjects extends React.PureComponent<Props, State> {
         {profile.actions &&
           profile.actions.associateProjects && (
             <div className="boxed-group-actions">
-              <button className="js-change-projects" onClick={this.handleChangeClick}>
+              <Button className="js-change-projects" onClick={this.handleChangeClick}>
                 {translate('quality_profiles.change_projects')}
-              </button>
+              </Button>
             </div>
           )}
 

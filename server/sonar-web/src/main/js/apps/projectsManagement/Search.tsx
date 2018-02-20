@@ -30,6 +30,7 @@ import Tooltip from '../../components/controls/Tooltip';
 import DateInput from '../../components/controls/DateInput';
 import Select from '../../components/controls/Select';
 import SearchBox from '../../components/controls/SearchBox';
+import { Button } from '../../components/ui/buttons';
 
 export interface Props {
   analyzedBefore?: string;
@@ -76,9 +77,7 @@ export default class Search extends React.PureComponent<Props, State> {
     }
   };
 
-  handleDeleteClick = (event: React.SyntheticEvent<HTMLButtonElement>) => {
-    event.preventDefault();
-    event.currentTarget.blur();
+  handleDeleteClick = () => {
     this.setState({ deleteModal: true });
   };
 
@@ -91,9 +90,7 @@ export default class Search extends React.PureComponent<Props, State> {
     this.props.onDeleteProjects();
   };
 
-  handleBulkApplyTemplateClick = (event: React.SyntheticEvent<HTMLButtonElement>) => {
-    event.preventDefault();
-    event.currentTarget.blur();
+  handleBulkApplyTemplateClick = () => {
     this.setState({ bulkApplyTemplateModal: true });
   };
 
@@ -204,19 +201,19 @@ export default class Search extends React.PureComponent<Props, State> {
                 />
               </td>
               <td className="thin nowrap text-middle">
-                <button
+                <Button
                   className="js-bulk-apply-permission-template"
                   disabled={this.props.total === 0}
                   onClick={this.handleBulkApplyTemplateClick}>
                   {translate('permission_templates.bulk_apply_permission_template')}
-                </button>
+                </Button>
                 {this.props.qualifiers === 'TRK' && (
-                  <button
+                  <Button
                     className="js-delete spacer-left button-red"
                     disabled={this.props.total === 0}
                     onClick={this.handleDeleteClick}>
                     {translate('delete')}
-                  </button>
+                  </Button>
                 )}
               </td>
             </tr>

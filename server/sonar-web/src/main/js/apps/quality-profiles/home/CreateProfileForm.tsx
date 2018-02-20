@@ -22,6 +22,7 @@ import { sortBy } from 'lodash';
 import { getImporters, createQualityProfile } from '../../../api/quality-profiles';
 import Modal from '../../../components/controls/Modal';
 import Select from '../../../components/controls/Select';
+import { SubmitButton, ResetButtonLink } from '../../../components/ui/buttons';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {
@@ -62,11 +63,6 @@ export default class CreateProfileForm extends React.PureComponent<Props, State>
       }
     );
   }
-
-  handleCancelClick = (event: React.SyntheticEvent<HTMLElement>) => {
-    event.preventDefault();
-    this.props.onClose();
-  };
 
   handleNameChange = (event: React.SyntheticEvent<HTMLInputElement>) => {
     this.setState({ name: event.currentTarget.value });
@@ -178,13 +174,13 @@ export default class CreateProfileForm extends React.PureComponent<Props, State>
           <div className="modal-foot">
             {this.state.loading && <i className="spinner spacer-right" />}
             {!this.state.preloading && (
-              <button disabled={this.state.loading} id="create-profile-submit">
+              <SubmitButton disabled={this.state.loading} id="create-profile-submit">
                 {translate('create')}
-              </button>
+              </SubmitButton>
             )}
-            <a href="#" id="create-profile-cancel" onClick={this.handleCancelClick}>
+            <ResetButtonLink id="create-profile-cancel" onClick={this.props.onClose}>
               {translate('cancel')}
-            </a>
+            </ResetButtonLink>
           </div>
         </form>
       </Modal>

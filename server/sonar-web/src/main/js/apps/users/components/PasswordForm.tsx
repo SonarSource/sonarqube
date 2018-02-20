@@ -24,6 +24,7 @@ import throwGlobalError from '../../../app/utils/throwGlobalError';
 import { User } from '../../../app/types';
 import { parseError } from '../../../helpers/request';
 import { changePassword } from '../../../api/users';
+import { SubmitButton, ResetButtonLink } from '../../../components/ui/buttons';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {
@@ -76,11 +77,6 @@ export default class PasswordForm extends React.PureComponent<Props, State> {
 
   handleOldPasswordChange = (event: React.SyntheticEvent<HTMLInputElement>) =>
     this.setState({ oldPassword: event.currentTarget.value });
-
-  handleCancelClick = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
-    event.preventDefault();
-    this.props.onClose();
-  };
 
   handleChangePassword = (event: React.SyntheticEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -168,15 +164,14 @@ export default class PasswordForm extends React.PureComponent<Props, State> {
           </div>
           <footer className="modal-foot">
             {submitting && <i className="spinner spacer-right" />}
-            <button
+            <SubmitButton
               className="js-confirm"
-              disabled={submitting || !newPassword || newPassword !== confirmPassword}
-              type="submit">
+              disabled={submitting || !newPassword || newPassword !== confirmPassword}>
               {translate('change_verb')}
-            </button>
-            <a className="js-modal-close" href="#" onClick={this.handleCancelClick}>
+            </SubmitButton>
+            <ResetButtonLink className="js-modal-close" onClick={this.props.onClose}>
               {translate('cancel')}
-            </a>
+            </ResetButtonLink>
           </footer>
         </form>
       </Modal>

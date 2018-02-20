@@ -24,6 +24,7 @@ import ChangeParentForm from './ChangeParentForm';
 import { translate } from '../../../helpers/l10n';
 import { getProfileInheritance } from '../../../api/quality-profiles';
 import { Profile } from '../types';
+import { Button } from '../../../components/ui/buttons';
 
 interface Props {
   onRequestFail: (reason: any) => void;
@@ -87,8 +88,7 @@ export default class ProfileInheritance extends React.PureComponent<Props, State
     });
   }
 
-  handleChangeParentClick = (event: React.SyntheticEvent<HTMLElement>) => {
-    event.preventDefault();
+  handleChangeParentClick = () => {
     this.setState({ formOpen: true });
   };
 
@@ -123,11 +123,11 @@ export default class ProfileInheritance extends React.PureComponent<Props, State
           profile.actions.edit &&
           !profile.isBuiltIn && (
             <div className="boxed-group-actions">
-              <button
+              <Button
                 className="pull-right js-change-parent"
                 onClick={this.handleChangeParentClick}>
                 {translate('quality_profiles.change_parent')}
-              </button>
+              </Button>
             </div>
           )}
 

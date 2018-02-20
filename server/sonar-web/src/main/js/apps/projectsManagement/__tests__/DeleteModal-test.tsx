@@ -39,7 +39,7 @@ it('deletes all projects', async () => {
   (wrapper.instance() as DeleteModal).mounted = true;
   expect(wrapper).toMatchSnapshot();
 
-  click(wrapper.find('button'));
+  click(wrapper.find('Button'));
   expect(wrapper).toMatchSnapshot();
   expect(bulkDeleteProjects).toBeCalledWith({
     analyzedBefore: '2017-04-08T00:00:00.000Z',
@@ -59,7 +59,7 @@ it('deletes selected projects', async () => {
   (wrapper.instance() as DeleteModal).mounted = true;
   expect(wrapper).toMatchSnapshot();
 
-  click(wrapper.find('button'));
+  click(wrapper.find('Button'));
   expect(wrapper).toMatchSnapshot();
   expect(bulkDeleteProjects).toBeCalledWith({ organization: 'org', projects: 'proj1,proj2' });
 

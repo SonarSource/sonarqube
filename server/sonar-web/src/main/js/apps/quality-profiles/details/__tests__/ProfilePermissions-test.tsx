@@ -59,7 +59,7 @@ it('opens add users form', async () => {
   await waitAndUpdate(wrapper);
   expect(wrapper.find('ProfilePermissionsForm').exists()).toBeFalsy();
 
-  click(wrapper.find('button'));
+  click(wrapper.find('Button'));
   expect(wrapper.find('ProfilePermissionsForm').exists()).toBeTruthy();
 
   wrapper.find('ProfilePermissionsForm').prop<Function>('onClose')();

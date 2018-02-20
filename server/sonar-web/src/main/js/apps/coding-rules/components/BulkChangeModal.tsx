@@ -25,6 +25,7 @@ import Modal from '../../../components/controls/Modal';
 import Select from '../../../components/controls/Select';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { formatMeasure } from '../../../helpers/measures';
+import { SubmitButton, ResetButtonLink } from '../../../components/ui/buttons';
 
 interface Props {
   action: string;
@@ -72,12 +73,6 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
   componentWillUnmount() {
     this.mounted = false;
   }
-
-  handleCloseClick = (event: React.SyntheticEvent<HTMLButtonElement>) => {
-    event.preventDefault();
-    event.currentTarget.blur();
-    this.props.onClose();
-  };
 
   handleProfileSelect = (options: { value: string }[]) => {
     const selectedProfiles = options.map(option => option.value);
@@ -238,16 +233,13 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
           <footer className="modal-foot">
             {this.state.submitting && <i className="spinner spacer-right" />}
             {!this.state.finished && (
-              <button
-                disabled={this.state.submitting}
-                id="coding-rules-submit-bulk-change"
-                type="submit">
+              <SubmitButton disabled={this.state.submitting} id="coding-rules-submit-bulk-change">
                 {translate('apply')}
-              </button>
+              </SubmitButton>
             )}
-            <button className="button-link" onClick={this.handleCloseClick} type="reset">
+            <ResetButtonLink onClick={this.props.onClose}>
               {this.state.finished ? translate('close') : translate('cancel')}
-            </button>
+            </ResetButtonLink>
           </footer>
         </form>
       </Modal>

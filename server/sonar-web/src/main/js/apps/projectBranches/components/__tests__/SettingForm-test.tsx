@@ -75,7 +75,7 @@ it('resets value', async () => {
   );
   expect(wrapper).toMatchSnapshot();
 
-  click(wrapper.find('button[type="reset"]'));
+  click(wrapper.find('Button'));
   expect(resetSettingValue).toBeCalledWith('foo', 'project', undefined);
 
   await new Promise(setImmediate);

@@ -25,6 +25,7 @@ import throwGlobalError from '../../../app/utils/throwGlobalError';
 import { parseError } from '../../../helpers/request';
 import { createUser, updateUser } from '../../../api/users';
 import { User } from '../../../app/types';
+import { Button, SubmitButton, ResetButtonLink } from '../../../components/ui/buttons';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 
 export interface Props {
@@ -101,11 +102,6 @@ export default class UserForm extends React.PureComponent<Props, State> {
   handlePasswordChange = (event: React.SyntheticEvent<HTMLInputElement>) =>
     this.setState({ password: event.currentTarget.value });
 
-  handleCancelClick = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
-    event.preventDefault();
-    this.props.onClose();
-  };
-
   handleCreateUser = (event: React.SyntheticEvent<HTMLFormElement>) => {
     event.preventDefault();
     this.setState({ submitting: true });
@@ -135,8 +131,7 @@ export default class UserForm extends React.PureComponent<Props, State> {
     }, this.handleError);
   };
 
-  handleAddScmAccount = (evt: React.SyntheticEvent<HTMLButtonElement>) => {
-    evt.preventDefault();
+  handleAddScmAccount = () => {
     this.setState(({ scmAccounts }) => ({ scmAccounts: scmAccounts.concat('') }));
   };
 
@@ -252,7 +247,9 @@ export default class UserForm extends React.PureComponent<Props, State> {
                 />
               ))}
               <div className="spacer-bottom">
-                <button onClick={this.handleAddScmAccount}>{translate('add_verb')}</button>
+                <Button onClick={this.handleAddScmAccount} type="reset">
+                  {translate('add_verb')}
+                </Button>
               </div>
               <p className="note">{translate('user.login_or_email_used_as_scm_account')}</p>
             </div>
@@ -260,12 +257,12 @@ export default class UserForm extends React.PureComponent<Props, State> {
 
           <footer className="modal-foot">
             {submitting && <i className="spinner spacer-right" />}
-            <button className="js-confirm" disabled={submitting} type="submit">
+            <SubmitButton className="js-confirm" disabled={submitting}>
               {user ? translate('update_verb') : translate('create')}
-            </button>
-            <a className="js-modal-close" href="#" onClick={this.handleCancelClick}>
+            </SubmitButton>
+            <ResetButtonLink className="js-modal-close" onClick={this.props.onClose}>
               {translate('cancel')}
-            </a>
+            </ResetButtonLink>
           </footer>
         </form>
       </Modal>

@@ -28,6 +28,7 @@ import { Rule, RuleInheritance } from '../../../app/types';
 import ConfirmButton from '../../../components/controls/ConfirmButton';
 import Tooltip from '../../../components/controls/Tooltip';
 import SeverityIcon from '../../../components/shared/SeverityIcon';
+import { Button } from '../../../components/ui/buttons';
 import IssueTypeIcon from '../../../components/ui/IssueTypeIcon';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 
@@ -141,18 +142,18 @@ export default class RuleListItem extends React.PureComponent<Props> {
         modalHeader={translate('coding_rules.deactivate')}
         onConfirm={this.handleDeactivate}>
         {({ onClick }) => (
-          <button
+          <Button
             className="coding-rules-detail-quality-profile-deactivate button-red"
             onClick={onClick}>
             {translate('coding_rules.deactivate')}
-          </button>
+          </Button>
         )}
       </ConfirmButton>
     ) : (
       <Tooltip overlay={translate('coding_rules.can_not_deactivate')} placement="left">
-        <button className="coding-rules-detail-quality-profile-deactivate button-red disabled">
+        <Button className="coding-rules-detail-quality-profile-deactivate button-red disabled">
           {translate('coding_rules.deactivate')}
-        </button>
+        </Button>
       </Tooltip>
     );
   };

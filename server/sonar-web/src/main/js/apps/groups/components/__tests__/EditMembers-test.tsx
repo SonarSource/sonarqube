@@ -32,7 +32,7 @@ it('should edit members', () => {
   click(wrapper.find('ButtonIcon'));
   expect(wrapper).toMatchSnapshot();
 
-  click(wrapper.find('button[type="reset"]'));
+  click(wrapper.find('ResetButtonLink'));
   expect(onEdit).toBeCalled();
   expect(wrapper).toMatchSnapshot();
 });

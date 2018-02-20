@@ -20,6 +20,7 @@
 import * as React from 'react';
 import UserForm from './components/UserForm';
 import DeferredSpinner from '../../components/common/DeferredSpinner';
+import { Button } from '../../components/ui/buttons';
 import { translate } from '../../helpers/l10n';
 
 interface Props {
@@ -44,9 +45,9 @@ export default class Header extends React.PureComponent<Props, State> {
         <DeferredSpinner loading={this.props.loading} />
 
         <div className="page-actions">
-          <button id="users-create" onClick={this.handleOpenUserForm}>
+          <Button id="users-create" onClick={this.handleOpenUserForm}>
             {translate('users.create_user')}
-          </button>
+          </Button>
         </div>
 
         <p className="page-description">{translate('users.page.description')}</p>

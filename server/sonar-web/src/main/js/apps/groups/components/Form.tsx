@@ -21,6 +21,7 @@ import * as React from 'react';
 import { Group } from '../../../app/types';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import SimpleModal from '../../../components/controls/SimpleModal';
+import { ResetButtonLink, SubmitButton } from '../../../components/ui/buttons';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {
@@ -102,12 +103,8 @@ export default class Form extends React.PureComponent<Props, State> {
 
             <footer className="modal-foot">
               <DeferredSpinner className="spacer-right" loading={submitting} />
-              <button disabled={submitting} type="submit">
-                {this.props.confirmButtonText}
-              </button>
-              <button className="button-link" onClick={onCloseClick} type="reset">
-                {translate('cancel')}
-              </button>
+              <SubmitButton disabled={submitting}>{this.props.confirmButtonText}</SubmitButton>
+              <ResetButtonLink onClick={onCloseClick}>{translate('cancel')}</ResetButtonLink>
             </footer>
           </form>
         )}

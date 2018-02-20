@@ -21,6 +21,7 @@ import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import RestartForm from '../../components/common/RestartForm';
 import { cancelPendingPlugins, PluginPending } from '../../api/plugins';
+import { Button } from '../../components/ui/buttons';
 import { translate } from '../../helpers/l10n';
 
 interface Props {
@@ -88,12 +89,12 @@ export default class PendingActions extends React.PureComponent<Props, State> {
           </ul>
         </div>
         <div className="pull-right">
-          <button className="js-restart little-spacer-right" onClick={this.handleOpenRestart}>
+          <Button className="js-restart little-spacer-right" onClick={this.handleOpenRestart}>
             {translate('marketplace.restart')}
-          </button>
-          <button className="js-cancel-all button-red" onClick={this.handleRevert}>
+          </Button>
+          <Button className="js-cancel-all button-red" onClick={this.handleRevert}>
             {translate('marketplace.revert')}
-          </button>
+          </Button>
         </div>
         {this.state.openRestart && <RestartForm onClose={this.hanleCloseRestart} />}
       </div>

@@ -103,6 +103,6 @@ it('should fetch upgrade when mounting', () => {
 it('should open the upgrade form', async () => {
   const wrapper = shallow(<SystemUpgradeNotif />);
   await waitAndUpdate(wrapper);
-  click(wrapper.find('button'));
+  click(wrapper.find('Button'));
   expect(wrapper.find('SystemUpgradeForm').exists()).toBeTruthy();
 });

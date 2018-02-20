@@ -2,23 +2,23 @@
 
 exports[`should create new group 1`] = `
 <React.Fragment>
-  <button
+  <Button
     id="metrics-create"
     onClick={[Function]}
   >
     custom_metrics.create_metric
-  </button>
+  </Button>
 </React.Fragment>
 `;
 
 exports[`should create new group 2`] = `
 <React.Fragment>
-  <button
+  <Button
     id="metrics-create"
     onClick={[Function]}
   >
     custom_metrics.create_metric
-  </button>
+  </Button>
   <Form
     confirmButtonText="create"
     domains={

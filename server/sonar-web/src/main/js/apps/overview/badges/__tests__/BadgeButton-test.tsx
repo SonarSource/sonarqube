@@ -32,7 +32,7 @@ it('should display correctly', () => {
 it('should return the badge type on click', () => {
   const onClick = jest.fn();
   const wrapper = getWrapper({ onClick });
-  click(wrapper.find('button'));
+  click(wrapper.find('Button'));
   expect(onClick).toHaveBeenCalledWith(BadgeType.marketing);
 });
 

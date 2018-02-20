@@ -23,6 +23,7 @@ import { PermissionTemplate } from '../../../../app/types';
 import DeferredSpinner from '../../../../components/common/DeferredSpinner';
 import SimpleModal from '../../../../components/controls/SimpleModal';
 import Select from '../../../../components/controls/Select';
+import { SubmitButton, ResetButtonLink } from '../../../../components/ui/buttons';
 import { translateWithParameters, translate } from '../../../../helpers/l10n';
 
 interface Props {
@@ -139,13 +140,13 @@ export default class ApplyTemplate extends React.PureComponent<Props, State> {
             <footer className="modal-foot">
               <DeferredSpinner className="spacer-right" loading={submitting} />
               {!this.state.done && (
-                <button disabled={submitting || !this.state.permissionTemplate} type="submit">
+                <SubmitButton disabled={submitting || !this.state.permissionTemplate}>
                   {translate('apply')}
-                </button>
+                </SubmitButton>
               )}
-              <button className="button-link" onClick={onCloseClick} type="reset">
+              <ResetButtonLink onClick={onCloseClick}>
                 {translate(this.state.done ? 'close' : 'cancel')}
-              </button>
+              </ResetButtonLink>
             </footer>
           </form>
         )}

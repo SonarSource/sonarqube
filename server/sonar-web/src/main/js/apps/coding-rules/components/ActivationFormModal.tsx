@@ -27,6 +27,7 @@ import { Rule, RuleDetails, RuleActivation } from '../../../app/types';
 import { SEVERITIES } from '../../../helpers/constants';
 import { translate } from '../../../helpers/l10n';
 import { sortProfiles } from '../../quality-profiles/utils';
+import { SubmitButton, ResetButtonLink } from '../../../components/ui/buttons';
 
 interface Props {
   activation?: RuleActivation;
@@ -98,11 +99,6 @@ export default class ActivationFormModal extends React.PureComponent<Props, Stat
       // Decrease depth by 1, so the top level starts at 0
       depth: profile.depth - 1
     }));
-
-  handleCancelClick = (event: React.SyntheticEvent<HTMLButtonElement>) => {
-    event.preventDefault();
-    event.currentTarget.blur();
-    this.props.onClose();
   };
 
   handleFormSubmit = (event: React.SyntheticEvent<HTMLFormElement>) => {
@@ -241,16 +237,12 @@ export default class ActivationFormModal extends React.PureComponent<Props, Stat
 
           <footer className="modal-foot">
             {submitting && <i className="spinner spacer-right" />}
-            <button disabled={submitting || activeInAllProfiles} type="submit">
+            <SubmitButton disabled={submitting || activeInAllProfiles}>
               {isUpdateMode ? translate('save') : translate('coding_rules.activate')}
-            </button>
-            <button
-              className="button-link"
-              disabled={submitting}
-              onClick={this.handleCancelClick}
-              type="reset">
+            </SubmitButton>
+            <ResetButtonLink disabled={submitting} onClick={this.props.onClose}>
               {translate('cancel')}
-            </button>
+            </ResetButtonLink>
           </footer>
         </form>
       </Modal>

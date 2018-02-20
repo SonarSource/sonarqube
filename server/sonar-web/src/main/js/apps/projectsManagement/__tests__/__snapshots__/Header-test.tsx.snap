@@ -43,12 +43,12 @@ exports[`renders 1`] = `
         onClick={[Function]}
       />
     </span>
-    <button
+    <Button
       id="create-project"
-      onClick={[Function]}
+      onClick={[MockFunction]}
     >
       qualifiers.create.TRK
-    </button>
+    </Button>
   </div>
   <p
     className="page-description"

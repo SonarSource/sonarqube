@@ -24,12 +24,12 @@ exports[`renders when not subscribed 1`] = `
     >
       report.unsubscribed.report.frequency.montly.effective
     </p>
-    <button
+    <Button
       className="js-report-subscribe"
       onClick={[Function]}
     >
       report.subscribe
-    </button>
+    </Button>
   </div>
 </div>
 `;
@@ -53,11 +53,11 @@ exports[`renders when subscribed 1`] = `
         report.subscribed.report.frequency.montly.effective
       </div>
     </div>
-    <button
+    <Button
       onClick={[Function]}
     >
       report.unsubscribe
-    </button>
+    </Button>
   </div>
 </div>
 `;

@@ -1,12 +1,13 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should display correctly 1`] = `
-<button
+<Button
   className="js-copy-to-clipboard no-select"
   data-clipboard-text="foo"
+  innerRef={[Function]}
 >
   copy
-</button>
+</Button>
 `;
 
 exports[`should display correctly 2`] = `
@@ -16,11 +17,12 @@ exports[`should display correctly 2`] = `
   placement="bottom"
   trigger="manual"
 >
-  <button
+  <Button
     className="js-copy-to-clipboard no-select"
     data-clipboard-text="foo"
+    innerRef={[Function]}
   >
     copy
-  </button>
+  </Button>
 </Tooltip>
 `;

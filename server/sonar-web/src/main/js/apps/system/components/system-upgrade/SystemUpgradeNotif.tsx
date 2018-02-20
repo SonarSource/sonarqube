@@ -20,6 +20,7 @@
 import * as React from 'react';
 import SystemUpgradeForm from './SystemUpgradeForm';
 import { getSystemUpgrades, SystemUpgrade } from '../../../../api/system';
+import { Button } from '../../../../components/ui/buttons';
 import { translate } from '../../../../helpers/l10n';
 import { sortUpgrades, groupUpgrades } from '../../utils';
 
@@ -65,9 +66,9 @@ export default class SystemUpgradeNotif extends React.PureComponent<{}, State> {
       <div className="page-notifs">
         <div className="alert alert-info">
           {translate('system.new_version_available')}
-          <button className="spacer-left" onClick={this.handleOpenSystemUpgradeForm}>
+          <Button className="spacer-left" onClick={this.handleOpenSystemUpgradeForm}>
             {translate('learn_more')}
-          </button>
+          </Button>
         </div>
         {this.state.openSystemUpgradeForm && (
           <SystemUpgradeForm

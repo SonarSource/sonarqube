@@ -26,6 +26,7 @@ import { Rule, RuleDetails } from '../../../app/types';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import ConfirmButton from '../../../components/controls/ConfirmButton';
 import SeverityHelper from '../../../components/shared/SeverityHelper';
+import { Button } from '../../../components/ui/buttons';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { getRuleUrl } from '../../../helpers/urls';
 
@@ -132,9 +133,9 @@ export default class RuleDetailsCustomRules extends React.PureComponent<Props, S
             modalHeader={translate('coding_rules.delete_rule')}
             onConfirm={this.handleRuleDelete}>
             {({ onClick }) => (
-              <button className="button-red js-delete-custom-rule" onClick={onClick}>
+              <Button className="button-red js-delete-custom-rule" onClick={onClick}>
                 {translate('delete')}
-              </button>
+              </Button>
             )}
           </ConfirmButton>
         </td>
@@ -158,9 +159,9 @@ export default class RuleDetailsCustomRules extends React.PureComponent<Props, S
               organization={this.props.organization}
               templateRule={this.props.ruleDetails}>
               {({ onClick }) => (
-                <button className="js-create-custom-rule spacer-left" onClick={onClick}>
+                <Button className="js-create-custom-rule spacer-left" onClick={onClick}>
                   {translate('coding_rules.create')}
-                </button>
+                </Button>
               )}
             </CustomRuleButton>
           )}

@@ -21,6 +21,7 @@ import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import NavBarNotif from '../../../../components/nav/NavBarNotif';
 import RestartForm from '../../../../components/common/RestartForm';
+import { Button } from '../../../../components/ui/buttons';
 import { dismissErrorMessage, Edition, EditionStatus } from '../../../../api/marketplace';
 import { translate, translateWithParameters } from '../../../../helpers/l10n';
 
@@ -95,9 +96,9 @@ export default class SettingsEditionsNotif extends React.PureComponent<Props, St
             </span>
           )}
         {!preventRestart && (
-          <button className="js-restart spacer-left" onClick={this.handleOpenRestart} type="button">
+          <Button className="js-restart spacer-left" onClick={this.handleOpenRestart}>
             {translate('marketplace.restart')}
-          </button>
+          </Button>
         )}
         {!preventRestart &&
           this.state.openRestart && <RestartForm onClose={this.hanleCloseRestart} />}

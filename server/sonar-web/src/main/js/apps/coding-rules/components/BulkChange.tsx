@@ -23,6 +23,7 @@ import BulkChangeModal from './BulkChangeModal';
 import { Query } from '../query';
 import { Profile } from '../../../api/quality-profiles';
 import Dropdown from '../../../components/controls/Dropdown';
+import { Button } from '../../../components/ui/buttons';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {
@@ -109,9 +110,9 @@ export default class BulkChange extends React.PureComponent<Props, State> {
             this.closeDropdown = closeDropdown;
             return (
               <div className={classNames('pull-left dropdown', { open })}>
-                <button className="js-bulk-change" onClick={onToggleClick}>
+                <Button className="js-bulk-change" onClick={onToggleClick}>
                   {translate('bulk_change')}
-                </button>
+                </Button>
                 <ul className="dropdown-menu">
                   <li>
                     <a href="#" onClick={this.handleActivateClick}>

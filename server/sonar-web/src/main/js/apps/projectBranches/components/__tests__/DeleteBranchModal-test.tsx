@@ -55,7 +55,7 @@ it('cancels', () => {
   const onClose = jest.fn();
   const wrapper = shallowRender(jest.fn(), onClose);
 
-  click(wrapper.find('a'));
+  click(wrapper.find('ResetButtonLink'));
 
   return doAsync().then(() => {
     expect(onClose).toBeCalled();

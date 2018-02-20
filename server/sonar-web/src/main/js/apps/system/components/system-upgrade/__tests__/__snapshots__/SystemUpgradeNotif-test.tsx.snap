@@ -8,12 +8,12 @@ exports[`should display correctly 1`] = `
     className="alert alert-info"
   >
     system.new_version_available
-    <button
+    <Button
       className="spacer-left"
       onClick={[Function]}
     >
       learn_more
-    </button>
+    </Button>
   </div>
 </div>
 `;

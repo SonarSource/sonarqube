@@ -22,6 +22,7 @@ import { Link } from 'react-router';
 import OAuthProviders from './OAuthProviders';
 import GlobalMessagesContainer from '../../../app/components/GlobalMessagesContainer';
 import { IdentityProvider } from '../../../app/types';
+import { SubmitButton } from '../../../components/ui/buttons';
 import { translate } from '../../../helpers/l10n';
 import './LoginForm.css';
 
@@ -129,9 +130,7 @@ export default class LoginForm extends React.PureComponent<Props, State> {
 
             <div>
               <div className="text-right overflow-hidden">
-                <button name="commit" type="submit">
-                  {translate('sessions.log_in')}
-                </button>
+                <SubmitButton>{translate('sessions.log_in')}</SubmitButton>
                 <Link className="spacer-left" to="/">
                   {translate('cancel')}
                 </Link>

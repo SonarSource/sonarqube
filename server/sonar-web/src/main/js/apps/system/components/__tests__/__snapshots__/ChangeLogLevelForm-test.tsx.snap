@@ -93,19 +93,18 @@ exports[`should display some warning messages for non INFO levels 1`] = `
     <div
       className="modal-foot"
     >
-      <button
+      <SubmitButton
         disabled={false}
         id="set-log-level-submit"
       >
         save
-      </button>
-      <a
-        href="#"
+      </SubmitButton>
+      <ResetButtonLink
         id="set-log-level-cancel"
         onClick={[Function]}
       >
         cancel
-      </a>
+      </ResetButtonLink>
     </div>
   </form>
 </Modal>
@@ -199,19 +198,18 @@ exports[`should render correctly 1`] = `
     <div
       className="modal-foot"
     >
-      <button
+      <SubmitButton
         disabled={false}
         id="set-log-level-submit"
       >
         save
-      </button>
-      <a
-        href="#"
+      </SubmitButton>
+      <ResetButtonLink
         id="set-log-level-cancel"
         onClick={[Function]}
       >
         cancel
-      </a>
+      </ResetButtonLink>
     </div>
   </form>
 </Modal>

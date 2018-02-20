@@ -22,6 +22,7 @@ import CreateQualityGateForm from '../components/CreateQualityGateForm';
 import { QualityGate } from '../../../api/quality-gates';
 import { translate } from '../../../helpers/l10n';
 import { Organization } from '../../../app/types';
+import { Button } from '../../../components/ui/buttons';
 
 interface Props {
   canCreate: boolean;
@@ -47,9 +48,9 @@ export default class ListHeader extends React.PureComponent<Props, State> {
         <h1 className="page-title">{translate('quality_gates.page')}</h1>
         {this.props.canCreate && (
           <div className="page-actions">
-            <button id="quality-gate-add" onClick={this.openCreateQualityGateForm}>
+            <Button id="quality-gate-add" onClick={this.openCreateQualityGateForm}>
               {translate('create')}
-            </button>
+            </Button>
           </div>
         )}
         {this.state.createQualityGateOpen && (

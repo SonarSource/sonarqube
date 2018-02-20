@@ -20,6 +20,7 @@
 import * as React from 'react';
 import EditionBoxBadge from './EditionBoxBadge';
 import { Edition, EditionStatus } from '../../../api/marketplace';
+import { Button } from '../../../components/ui/buttons';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {
@@ -48,9 +49,9 @@ export default class EditionBox extends React.PureComponent<Props> {
             {translate('marketplace.learn_more')}
           </a>
           {displayAction && (
-            <button disabled={disableAction} onClick={this.handleAction}>
+            <Button disabled={disableAction} onClick={this.handleAction}>
               {this.props.actionLabel}
-            </button>
+            </Button>
           )}
         </div>
       </div>

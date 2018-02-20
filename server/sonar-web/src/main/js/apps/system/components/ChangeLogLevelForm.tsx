@@ -20,6 +20,7 @@
 import * as React from 'react';
 import { setLogLevel } from '../../../api/system';
 import Modal from '../../../components/controls/Modal';
+import { SubmitButton, ResetButtonLink } from '../../../components/ui/buttons';
 import { translate } from '../../../helpers/l10n';
 import { LOGS_LEVELS } from '../utils';
 
@@ -40,11 +41,6 @@ export default class ChangeLogLevelForm extends React.PureComponent<Props, State
     super(props);
     this.state = { newLevel: props.logLevel, updating: false };
   }
-
-  handleCancelClick = (event: React.SyntheticEvent<HTMLElement>) => {
-    event.preventDefault();
-    this.props.onClose();
-  };
 
   handleFormSubmit = (event: React.SyntheticEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -96,12 +92,12 @@ export default class ChangeLogLevelForm extends React.PureComponent<Props, State
           </div>
           <div className="modal-foot">
             {updating && <i className="spinner spacer-right" />}
-            <button disabled={updating} id="set-log-level-submit">
+            <SubmitButton disabled={updating} id="set-log-level-submit">
               {translate('save')}
-            </button>
-            <a href="#" id="set-log-level-cancel" onClick={this.handleCancelClick}>
+            </SubmitButton>
+            <ResetButtonLink id="set-log-level-cancel" onClick={this.props.onClose}>
               {translate('cancel')}
-            </a>
+            </ResetButtonLink>
           </div>
         </form>
       </Modal>

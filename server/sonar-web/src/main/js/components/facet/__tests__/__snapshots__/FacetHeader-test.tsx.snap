@@ -28,12 +28,12 @@ exports[`should clear 1`] = `
       x_selected.3
     </span>
   </span>
-  <button
+  <Button
     className="search-navigator-facet-header-button button-small button-red"
-    onClick={[Function]}
+    onClick={[MockFunction]}
   >
     clear
-  </button>
+  </Button>
 </div>
 `;
 

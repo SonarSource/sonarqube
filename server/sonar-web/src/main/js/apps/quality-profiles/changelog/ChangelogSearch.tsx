@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import DateInput from '../../../components/controls/DateInput';
+import { Button } from '../../../components/ui/buttons';
 import { toShortNotSoISOString } from '../../../helpers/dates';
 import { translate } from '../../../helpers/l10n';
 
@@ -31,12 +32,6 @@ interface Props {
 }
 
 export default class ChangelogSearch extends React.PureComponent<Props> {
-  handleResetClick = (event: React.SyntheticEvent<HTMLElement>) => {
-    event.preventDefault();
-    event.currentTarget.blur();
-    this.props.onReset();
-  };
-
   formatDate = (date?: string) => (date ? toShortNotSoISOString(date) : undefined);
 
   render() {
@@ -57,9 +52,9 @@ export default class ChangelogSearch extends React.PureComponent<Props> {
           placeholder={translate('to')}
           value={this.formatDate(this.props.toDate)}
         />
-        <button className="spacer-left" onClick={this.handleResetClick}>
+        <Button className="spacer-left" onClick={this.props.onReset}>
           {translate('reset_verb')}
-        </button>
+        </Button>
       </div>
     );
   }

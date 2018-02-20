@@ -20,6 +20,7 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import SimpleModal, { ChildrenProps } from '../SimpleModal';
+import { Button } from '../../ui/buttons';
 import { click, waitAndUpdate } from '../../../helpers/testUtils';
 
 it('renders', () => {
@@ -35,22 +36,22 @@ it('renders', () => {
 
 it('closes', () => {
   const onClose = jest.fn();
-  const inner = ({ onCloseClick }: ChildrenProps) => <button onClick={onCloseClick}>close</button>;
+  const inner = ({ onCloseClick }: ChildrenProps) => <Button onClick={onCloseClick}>close</Button>;
   const wrapper = shallow(
     <SimpleModal header="" onClose={onClose} onSubmit={jest.fn()}>
       {inner}
     </SimpleModal>
   );
-  click(wrapper.find('button'));
+  click(wrapper.find('Button'));
   expect(onClose).toBeCalled();
 });
 
 it('submits', async () => {
   const onSubmit = jest.fn(() => Promise.resolve());
   const inner = ({ onSubmitClick, submitting }: ChildrenProps) => (
-    <button disabled={submitting} onClick={onSubmitClick}>
+    <Button disabled={submitting} onClick={onSubmitClick}>
       close
-    </button>
+    </Button>
   );
   const wrapper = shallow(
     <SimpleModal header="" onClose={jest.fn()} onSubmit={onSubmit}>
@@ -60,7 +61,7 @@ it('submits', async () => {
   (wrapper.instance() as SimpleModal).mounted = true;
   expect(wrapper).toMatchSnapshot();
 
-  click(wrapper.find('button'));
+  click(wrapper.find('Button'));
   expect(onSubmit).toBeCalled();
   expect(wrapper).toMatchSnapshot();
 

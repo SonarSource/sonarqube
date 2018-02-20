@@ -20,6 +20,7 @@
 import * as React from 'react';
 import { copyProfile } from '../../../api/quality-profiles';
 import Modal from '../../../components/controls/Modal';
+import { SubmitButton, ResetButtonLink } from '../../../components/ui/buttons';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { Profile } from '../types';
 
@@ -46,11 +47,6 @@ export default class CopyProfileForm extends React.PureComponent<Props, State> {
   componentWillUnmount() {
     this.mounted = false;
   }
-
-  handleCancelClick = (event: React.SyntheticEvent<HTMLElement>) => {
-    event.preventDefault();
-    this.props.onClose();
-  };
 
   handleNameChange = (event: React.SyntheticEvent<HTMLInputElement>) => {
     this.setState({ name: event.currentTarget.value });
@@ -112,12 +108,12 @@ export default class CopyProfileForm extends React.PureComponent<Props, State> {
           </div>
           <div className="modal-foot">
             {this.state.loading && <i className="spinner spacer-right" />}
-            <button disabled={submitDisabled} id="copy-profile-submit">
+            <SubmitButton disabled={submitDisabled} id="copy-profile-submit">
               {translate('copy')}
-            </button>
-            <a href="#" id="copy-profile-cancel" onClick={this.handleCancelClick}>
+            </SubmitButton>
+            <ResetButtonLink id="copy-profile-cancel" onClick={this.props.onClose}>
               {translate('cancel')}
-            </a>
+            </ResetButtonLink>
           </div>
         </form>
       </Modal>

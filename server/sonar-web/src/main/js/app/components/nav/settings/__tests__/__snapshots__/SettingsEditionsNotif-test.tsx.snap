@@ -30,13 +30,12 @@ exports[`should display a ready notification 1`] = `
   <span>
     marketplace.edition_status.AUTOMATIC_READY
   </span>
-  <button
+  <Button
     className="js-restart spacer-left"
     onClick={[Function]}
-    type="button"
   >
     marketplace.restart
-  </button>
+  </Button>
 </NavBarNotif>
 `;
 

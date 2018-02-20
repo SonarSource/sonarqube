@@ -27,6 +27,7 @@ import {
   searchGroups,
   SearchUsersGroupsParameters
 } from '../../../api/quality-profiles';
+import { Button } from '../../../components/ui/buttons';
 import { translate } from '../../../helpers/l10n';
 
 export interface User {
@@ -100,9 +101,7 @@ export default class ProfilePermissions extends React.PureComponent<Props, State
     );
   }
 
-  handleAddUserButtonClick = (event: React.SyntheticEvent<HTMLButtonElement>) => {
-    event.preventDefault();
-    event.currentTarget.blur();
+  handleAddUserButtonClick = () => {
     this.setState({ addUserForm: true });
   };
 
@@ -180,9 +179,9 @@ export default class ProfilePermissions extends React.PureComponent<Props, State
                   />
                 ))}
               <div className="text-right">
-                <button onClick={this.handleAddUserButtonClick}>
+                <Button onClick={this.handleAddUserButtonClick}>
                   {translate('quality_profiles.grant_permissions_to_more_users')}
-                </button>
+                </Button>
               </div>
             </div>
           )}

@@ -21,7 +21,7 @@ import * as React from 'react';
 import ChangeLogLevelForm from './ChangeLogLevelForm';
 import RestartForm from '../../../components/common/RestartForm';
 import { getFileNameSuffix } from '../utils';
-import { EditButton } from '../../../components/ui/buttons';
+import { EditButton, Button } from '../../../components/ui/buttons';
 import { getBaseUrl } from '../../../helpers/urls';
 import { translate } from '../../../helpers/l10n';
 
@@ -92,10 +92,11 @@ export default class PageActions extends React.PureComponent<Props, State> {
         </span>
         {this.props.canDownloadLogs && (
           <div className="display-inline-block dropdown spacer-left">
-            <button data-toggle="dropdown">
+            {/* TODO use Dropdown component */}
+            <Button data-toggle="dropdown">
               {translate('system.download_logs')}
               <i className="icon-dropdown little-spacer-left" />
-            </button>
+            </Button>
             <ul className="dropdown-menu">
               <li>
                 <a
@@ -146,12 +147,12 @@ export default class PageActions extends React.PureComponent<Props, State> {
           {translate('system.download_system_info')}
         </a>
         {this.props.canRestart && (
-          <button
-            id="restart-server-button"
+          <Button
             className="spacer-left"
+            id="restart-server-button"
             onClick={this.handleServerRestartOpen}>
             {translate('system.restart_server')}
-          </button>
+          </Button>
         )}
         {this.props.canRestart &&
           this.state.openRestartForm && <RestartForm onClose={this.handleServerRestartClose} />}

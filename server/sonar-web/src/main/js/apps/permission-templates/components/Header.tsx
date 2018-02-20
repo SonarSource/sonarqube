@@ -21,6 +21,7 @@ import * as React from 'react';
 import * as PropTypes from 'prop-types';
 import Form from './Form';
 import { createPermissionTemplate } from '../../../api/permissions';
+import { Button } from '../../../components/ui/buttons';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {
@@ -50,9 +51,7 @@ export default class Header extends React.PureComponent<Props, State> {
     this.mounted = false;
   }
 
-  handleCreateClick = (event: React.SyntheticEvent<HTMLButtonElement>) => {
-    event.preventDefault();
-    event.currentTarget.blur();
+  handleCreateClick = () => {
     this.setState({ createModal: true });
   };
 
@@ -86,9 +85,7 @@ export default class Header extends React.PureComponent<Props, State> {
         {!this.props.ready && <i className="spinner" />}
 
         <div className="page-actions">
-          <button onClick={this.handleCreateClick} type="button">
-            {translate('create')}
-          </button>
+          <Button onClick={this.handleCreateClick}>{translate('create')}</Button>
 
           {this.state.createModal && (
             <Form

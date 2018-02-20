@@ -50,7 +50,7 @@ it('should update the edition status after uninstall', async () => {
   const updateEditionStatus = jest.fn();
   const wrapper = getWrapper({ updateEditionStatus });
   (wrapper.instance() as UninstallEditionForm).mounted = true;
-  click(wrapper.find('button'));
+  click(wrapper.find('Button'));
   expect(uninstallEdition).toHaveBeenCalled();
   await new Promise(setImmediate);
   expect(updateEditionStatus).toHaveBeenCalledWith({

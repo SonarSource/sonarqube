@@ -26,6 +26,7 @@ import { Metric } from '../../../app/types';
 import Modal from '../../../components/controls/Modal';
 import { translate } from '../../../helpers/l10n';
 import './styles.css';
+import { Button, ResetButtonLink } from '../../../components/ui/buttons';
 
 interface Props {
   branch?: string;
@@ -57,7 +58,6 @@ export default class BadgesModal extends React.PureComponent<Props, State> {
       badgeOptions: { ...state.badgeOptions, ...options }
     }));
 
-  handleCancelClick = () => this.handleClose();
 
   render() {
     const { branch, project } = this.props;
@@ -66,9 +66,9 @@ export default class BadgesModal extends React.PureComponent<Props, State> {
     const fullBadgeOptions = { branch, project, ...badgeOptions };
     return (
       <div className="overview-meta-card">
-        <button className="js-project-badges" onClick={this.handleOpen}>
+        <Button className="js-project-badges" onClick={this.handleOpen}>
           {translate('overview.badges.get_badge')}
-        </button>
+        </Button>
         {this.state.open && (
           <Modal contentLabel={header} onRequestClose={this.handleClose}>
             <header className="modal-head">
@@ -100,9 +100,9 @@ export default class BadgesModal extends React.PureComponent<Props, State> {
               <BadgeSnippet snippet={getBadgeUrl(selectedType, fullBadgeOptions)} />
             </div>
             <footer className="modal-foot">
-              <button className="button-link js-modal-close" onClick={this.handleCancelClick}>
+              <ResetButtonLink className="js-modal-close" onClick={this.handleClose}>
                 {translate('close')}
-              </button>
+              </ResetButtonLink>
             </footer>
           </Modal>
         )}

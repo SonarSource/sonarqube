@@ -55,6 +55,6 @@ it('should reset', () => {
     />
   );
   expect(onReset).not.toBeCalled();
-  click(output.find('button'));
+  click(output.find('Button'));
   expect(onReset).toBeCalled();
 });

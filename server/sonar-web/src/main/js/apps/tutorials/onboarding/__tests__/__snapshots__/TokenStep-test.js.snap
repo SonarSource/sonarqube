@@ -264,17 +264,29 @@ exports[`generates token 3`] = `
               color="#d4333f"
               onClick={[Function]}
             >
-              <button
+              <Button
                 className="button-small text-middle button-icon"
                 onClick={[Function]}
+                stopPropagation={true}
                 style={
                   Object {
                     "color": "#d4333f",
                   }
                 }
               >
-                <ClearIcon />
-              </button>
+                <button
+                  className="button button-small text-middle button-icon"
+                  onClick={[Function]}
+                  style={
+                    Object {
+                      "color": "#d4333f",
+                    }
+                  }
+                  type="button"
+                >
+                  <ClearIcon />
+                </button>
+              </Button>
             </ButtonIcon>
           </DeleteButton>
         </form>
@@ -362,17 +374,29 @@ exports[`revokes token 1`] = `
               color="#d4333f"
               onClick={[Function]}
             >
-              <button
+              <Button
                 className="button-small text-middle button-icon"
                 onClick={[Function]}
+                stopPropagation={true}
                 style={
                   Object {
                     "color": "#d4333f",
                   }
                 }
               >
-                <ClearIcon />
-              </button>
+                <button
+                  className="button button-small text-middle button-icon"
+                  onClick={[Function]}
+                  style={
+                    Object {
+                      "color": "#d4333f",
+                    }
+                  }
+                  type="button"
+                >
+                  <ClearIcon />
+                </button>
+              </Button>
             </ButtonIcon>
           </DeleteButton>
         </form>

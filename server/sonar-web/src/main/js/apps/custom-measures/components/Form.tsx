@@ -23,6 +23,7 @@ import { CustomMeasure, Metric } from '../../../app/types';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import Select from '../../../components/controls/Select';
 import SimpleModal from '../../../components/controls/SimpleModal';
+import { SubmitButton, ResetButtonLink } from '../../../components/ui/buttons';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {
@@ -186,20 +187,17 @@ export default class Form extends React.PureComponent<Props, State> {
 
             <footer className="modal-foot">
               <DeferredSpinner className="spacer-right" loading={submitting} />
-              <button
+              <SubmitButton
                 disabled={forbidSubmitting || submitting}
-                id="create-custom-measure-submit"
-                type="submit">
+                id="create-custom-measure-submit">
                 {this.props.confirmButtonText}
-              </button>
-              <button
-                className="button-link"
+              </SubmitButton>
+              <ResetButtonLink
                 disabled={submitting}
                 id="create-custom-measure-cancel"
-                onClick={onCloseClick}
-                type="reset">
+                onClick={onCloseClick}>
                 {translate('cancel')}
-              </button>
+              </ResetButtonLink>
             </footer>
           </form>
         )}

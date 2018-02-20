@@ -14,12 +14,12 @@ exports[`submits 1`] = `
   contentLabel=""
   onRequestClose={[MockFunction]}
 >
-  <button
+  <Button
     disabled={false}
     onClick={[Function]}
   >
     close
-  </button>
+  </Button>
 </Modal>
 `;
 
@@ -28,12 +28,12 @@ exports[`submits 2`] = `
   contentLabel=""
   onRequestClose={[MockFunction]}
 >
-  <button
+  <Button
     disabled={true}
     onClick={[Function]}
   >
     close
-  </button>
+  </Button>
 </Modal>
 `;
 
@@ -42,11 +42,11 @@ exports[`submits 3`] = `
   contentLabel=""
   onRequestClose={[MockFunction]}
 >
-  <button
+  <Button
     disabled={false}
     onClick={[Function]}
   >
     close
-  </button>
+  </Button>
 </Modal>
 `;

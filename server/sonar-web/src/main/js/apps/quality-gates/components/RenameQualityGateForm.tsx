@@ -20,6 +20,7 @@
 import * as React from 'react';
 import Modal from '../../../components/controls/Modal';
 import { QualityGate, renameQualityGate } from '../../../api/quality-gates';
+import { SubmitButton, ResetButtonLink } from '../../../components/ui/buttons';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {
@@ -49,11 +50,6 @@ export default class RenameQualityGateForm extends React.PureComponent<Props, St
   componentWillUnmount() {
     this.mounted = false;
   }
-
-  handleCancelClick = (event: React.SyntheticEvent<HTMLElement>) => {
-    event.preventDefault();
-    this.props.onClose();
-  };
 
   handleNameChange = (event: React.SyntheticEvent<HTMLInputElement>) => {
     this.setState({ name: event.currentTarget.value });
@@ -111,12 +107,12 @@ export default class RenameQualityGateForm extends React.PureComponent<Props, St
           </div>
           <div className="modal-foot">
             {loading && <i className="spinner spacer-right" />}
-            <button disabled={submitDisabled} className="js-confirm">
+            <SubmitButton className="js-confirm" disabled={submitDisabled}>
               {translate('rename')}
-            </button>
-            <a href="#" className="js-modal-close" onClick={this.handleCancelClick}>
+            </SubmitButton>
+            <ResetButtonLink className="js-modal-close" onClick={this.props.onClose}>
               {translate('cancel')}
-            </a>
+            </ResetButtonLink>
           </div>
         </form>
       </Modal>

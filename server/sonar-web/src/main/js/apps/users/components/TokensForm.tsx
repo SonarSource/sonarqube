@@ -22,6 +22,7 @@ import TokensFormItem from './TokensFormItem';
 import TokensFormNewToken from './TokensFormNewToken';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import { getTokens, generateToken, UserToken } from '../../../api/user-tokens';
+import { SubmitButton } from '../../../components/ui/buttons';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {
@@ -157,12 +158,11 @@ export default class TokensForm extends React.PureComponent<Props, State> {
             required={true}
             value={newTokenName}
           />
-          <button
+          <SubmitButton
             className="js-generate-token"
-            disabled={generating || newTokenName.length <= 0}
-            type="submit">
+            disabled={generating || newTokenName.length <= 0}>
             {translate('users.generate')}
-          </button>
+          </SubmitButton>
         </form>
 
         {newToken && <TokensFormNewToken token={newToken} />}

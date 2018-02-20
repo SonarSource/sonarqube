@@ -21,9 +21,9 @@ import * as React from 'react';
 import Modal from '../../components/controls/Modal';
 
 export interface ChildrenProps {
-  onCloseClick: (event: React.SyntheticEvent<HTMLElement>) => void;
+  onCloseClick: (event?: React.SyntheticEvent<HTMLElement>) => void;
   onFormSubmit: (event: React.SyntheticEvent<HTMLFormElement>) => void;
-  onSubmitClick: (event: React.SyntheticEvent<HTMLElement>) => void;
+  onSubmitClick: (event?: React.SyntheticEvent<HTMLElement>) => void;
   submitting: boolean;
 }
 
@@ -56,9 +56,11 @@ export default class SimpleModal extends React.PureComponent<Props, State> {
     }
   };
 
-  handleCloseClick = (event: React.SyntheticEvent<HTMLElement>) => {
+  handleCloseClick = (event?: React.SyntheticEvent<HTMLElement>) => {
+    if (event) {
     event.preventDefault();
     event.currentTarget.blur();
+    }
     this.props.onClose();
   };
 
@@ -67,9 +69,11 @@ export default class SimpleModal extends React.PureComponent<Props, State> {
     this.submit();
   };
 
-  handleSubmitClick = (event: React.SyntheticEvent<HTMLElement>) => {
+  handleSubmitClick = (event?: React.SyntheticEvent<HTMLElement>) => {
+    if (event) {
     event.preventDefault();
     event.currentTarget.blur();
+    }
     this.submit();
   };
 

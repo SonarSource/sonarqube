@@ -25,14 +25,14 @@ exports[`should render correctly 1`] = `
   <div
     className="display-inline-block dropdown spacer-left"
   >
-    <button
+    <Button
       data-toggle="dropdown"
     >
       system.download_logs
       <i
         className="icon-dropdown little-spacer-left"
       />
-    </button>
+    </Button>
     <ul
       className="dropdown-menu"
     >
@@ -88,13 +88,13 @@ exports[`should render correctly 1`] = `
   >
     system.download_system_info
   </a>
-  <button
+  <Button
     className="spacer-left"
     id="restart-server-button"
     onClick={[Function]}
   >
     system.restart_server
-  </button>
+  </Button>
 </div>
 `;
 

@@ -18,12 +18,12 @@ exports[`should create new group 1`] = `
     <div
       className="page-actions"
     >
-      <button
+      <Button
         id="groups-create"
         onClick={[Function]}
       >
         groups.create_group
-      </button>
+      </Button>
     </div>
     <p
       className="page-description"
@@ -52,12 +52,12 @@ exports[`should create new group 2`] = `
     <div
       className="page-actions"
     >
-      <button
+      <Button
         id="groups-create"
         onClick={[Function]}
       >
         groups.create_group
-      </button>
+      </Button>
     </div>
     <p
       className="page-description"

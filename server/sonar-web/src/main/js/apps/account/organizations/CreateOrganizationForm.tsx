@@ -25,6 +25,7 @@ import { createOrganization } from '../../organizations/actions';
 import { Organization } from '../../../app/types';
 import Modal from '../../../components/controls/Modal';
 import { translate } from '../../../helpers/l10n';
+import { SubmitButton, ResetButtonLink } from '../../../components/ui/buttons';
 
 interface DispatchProps {
   createOrganization: (fields: Partial<Organization>) => Promise<{ key: string }>;
@@ -226,12 +227,8 @@ class CreateOrganizationForm extends React.PureComponent<Props, State> {
           <footer className="modal-foot">
             <div>
               {this.state.loading && <i className="spinner spacer-right" />}
-              <button disabled={this.state.loading} type="submit">
-                {translate('create')}
-              </button>
-              <button className="button-link" onClick={this.props.onClose} type="reset">
-                {translate('cancel')}
-              </button>
+              <SubmitButton disabled={this.state.loading}>{translate('create')}</SubmitButton>
+              <ResetButtonLink onClick={this.props.onClose}>{translate('cancel')}</ResetButtonLink>
             </div>
           </footer>
         </form>

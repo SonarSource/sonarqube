@@ -22,6 +22,7 @@ import RemoveExtendedDescriptionModal from './RemoveExtendedDescriptionModal';
 import { updateRule } from '../../../api/rules';
 import { RuleDetails } from '../../../app/types';
 import MarkdownTips from '../../../components/common/MarkdownTips';
+import { Button, ResetButtonLink } from '../../../components/ui/buttons';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {
@@ -58,21 +59,15 @@ export default class RuleDetailsDescription extends React.PureComponent<Props, S
   handleDescriptionChange = (event: React.SyntheticEvent<HTMLTextAreaElement>) =>
     this.setState({ description: event.currentTarget.value });
 
-  handleCancelClick = (event: React.SyntheticEvent<HTMLButtonElement>) => {
-    event.preventDefault();
-    event.currentTarget.blur();
+  handleCancelClick = () => {
     this.setState({ descriptionForm: false });
   };
 
-  handleSaveClick = (event: React.SyntheticEvent<HTMLButtonElement>) => {
-    event.preventDefault();
-    event.currentTarget.blur();
+  handleSaveClick = () => {
     this.updateDescription(this.state.description);
   };
 
-  handleRemoveDescriptionClick = (event: React.SyntheticEvent<HTMLButtonElement>) => {
-    event.preventDefault();
-    event.currentTarget.blur();
+  handleRemoveDescriptionClick = () => {
     this.setState({ removeDescriptionModal: true });
   };
 
@@ -107,9 +102,7 @@ export default class RuleDetailsDescription extends React.PureComponent<Props, S
     );
   };
 
-  handleExtendDescriptionClick = (event: React.SyntheticEvent<HTMLButtonElement>) => {
-    event.preventDefault();
-    event.currentTarget.blur();
+  handleExtendDescriptionClick = () => {
     this.setState({
       // set description` to the current `mdNote` each time the form is open
       description: this.props.ruleDetails.mdNote || '',
@@ -126,11 +119,11 @@ export default class RuleDetailsDescription extends React.PureComponent<Props, S
         />
       )}
       {this.props.canWrite && (
-        <button
+        <Button
           id="coding-rules-detail-extend-description"
           onClick={this.handleExtendDescriptionClick}>
           {translate('coding_rules.extend_description')}
-        </button>
+        </Button>
       )}
     </div>
   );
@@ -153,21 +146,21 @@ export default class RuleDetailsDescription extends React.PureComponent<Props, S
           </tr>
           <tr>
             <td>
-              <button
+              <Button
                 disabled={this.state.submitting}
                 id="coding-rules-detail-extend-description-submit"
                 onClick={this.handleSaveClick}>
                 {translate('save')}
-              </button>
+              </Button>
               {this.props.ruleDetails.mdNote !== undefined && (
                 <>
-                  <button
+                  <Button
                     className="button-red spacer-left"
                     disabled={this.state.submitting}
                     id="coding-rules-detail-extend-description-remove"
                     onClick={this.handleRemoveDescriptionClick}>
                     {translate('remove')}
-                  </button>
+                  </Button>
                   {this.state.removeDescriptionModal && (
                     <RemoveExtendedDescriptionModal
                       onCancel={this.handleCancelRemoving}
@@ -176,13 +169,13 @@ export default class RuleDetailsDescription extends React.PureComponent<Props, S
                   )}
                 </>
               )}
-              <button
-                className="spacer-left button-link"
+              <ResetButtonLink
+                className="spacer-left"
                 disabled={this.state.submitting}
                 id="coding-rules-detail-extend-description-cancel"
                 onClick={this.handleCancelClick}>
                 {translate('cancel')}
-              </button>
+              </ResetButtonLink>
               {this.state.submitting && <i className="spinner spacer-left" />}
             </td>
             <td className="text-right">

@@ -40,13 +40,11 @@ exports[`should edit members 2`] = `
     <footer
       className="modal-foot"
     >
-      <button
-        className="button-link"
+      <ResetButtonLink
         onClick={[Function]}
-        type="reset"
       >
         Done
-      </button>
+      </ResetButtonLink>
     </footer>
   </Modal>
 </React.Fragment>

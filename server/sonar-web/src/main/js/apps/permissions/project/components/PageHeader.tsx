@@ -20,6 +20,7 @@
 import * as React from 'react';
 import ApplyTemplate from './ApplyTemplate';
 import { Component } from '../../../../app/types';
+import { Button } from '../../../../components/ui/buttons';
 import { translate } from '../../../../helpers/l10n';
 
 interface Props {
@@ -44,9 +45,7 @@ export default class PageHeader extends React.PureComponent<Props, State> {
     this.mounted = false;
   }
 
-  handleApplyTemplate = (event: React.SyntheticEvent<HTMLButtonElement>) => {
-    event.preventDefault();
-    event.currentTarget.blur();
+  handleApplyTemplate = () => {
     this.setState({ applyTemplateModal: true });
   };
 
@@ -79,9 +78,9 @@ export default class PageHeader extends React.PureComponent<Props, State> {
 
         {canApplyPermissionTemplate && (
           <div className="page-actions">
-            <button className="js-apply-template" onClick={this.handleApplyTemplate} type="button">
+            <Button className="js-apply-template" onClick={this.handleApplyTemplate}>
               {translate('projects_role.apply_template')}
-            </button>
+            </Button>
 
             {this.state.applyTemplateModal && (
               <ApplyTemplate

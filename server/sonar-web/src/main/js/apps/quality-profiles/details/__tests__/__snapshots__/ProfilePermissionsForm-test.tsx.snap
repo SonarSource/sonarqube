@@ -33,19 +33,16 @@ exports[`adds group 1`] = `
     <footer
       className="modal-foot"
     >
-      <button
+      <SubmitButton
         disabled={true}
-        type="submit"
       >
         add_verb
-      </button>
-      <button
-        className="button-link"
+      </SubmitButton>
+      <ResetButtonLink
         onClick={[MockFunction]}
-        type="reset"
       >
         cancel
-      </button>
+      </ResetButtonLink>
     </footer>
   </form>
 </Modal>
@@ -89,19 +86,16 @@ exports[`adds group 2`] = `
     <footer
       className="modal-foot"
     >
-      <button
+      <SubmitButton
         disabled={false}
-        type="submit"
       >
         add_verb
-      </button>
-      <button
-        className="button-link"
+      </SubmitButton>
+      <ResetButtonLink
         onClick={[MockFunction]}
-        type="reset"
       >
         cancel
-      </button>
+      </ResetButtonLink>
     </footer>
   </form>
 </Modal>
@@ -148,19 +142,16 @@ exports[`adds group 3`] = `
       <i
         className="spinner spacer-right"
       />
-      <button
+      <SubmitButton
         disabled={true}
-        type="submit"
       >
         add_verb
-      </button>
-      <button
-        className="button-link"
+      </SubmitButton>
+      <ResetButtonLink
         onClick={[MockFunction]}
-        type="reset"
       >
         cancel
-      </button>
+      </ResetButtonLink>
     </footer>
   </form>
 </Modal>
@@ -199,19 +190,16 @@ exports[`adds user 1`] = `
     <footer
       className="modal-foot"
     >
-      <button
+      <SubmitButton
         disabled={true}
-        type="submit"
       >
         add_verb
-      </button>
-      <button
-        className="button-link"
+      </SubmitButton>
+      <ResetButtonLink
         onClick={[MockFunction]}
-        type="reset"
       >
         cancel
-      </button>
+      </ResetButtonLink>
     </footer>
   </form>
 </Modal>
@@ -255,19 +243,16 @@ exports[`adds user 2`] = `
     <footer
       className="modal-foot"
     >
-      <button
+      <SubmitButton
         disabled={false}
-        type="submit"
       >
         add_verb
-      </button>
-      <button
-        className="button-link"
+      </SubmitButton>
+      <ResetButtonLink
         onClick={[MockFunction]}
-        type="reset"
       >
         cancel
-      </button>
+      </ResetButtonLink>
     </footer>
   </form>
 </Modal>
@@ -314,19 +299,16 @@ exports[`adds user 3`] = `
       <i
         className="spinner spacer-right"
       />
-      <button
+      <SubmitButton
         disabled={true}
-        type="submit"
       >
         add_verb
-      </button>
-      <button
-        className="button-link"
+      </SubmitButton>
+      <ResetButtonLink
         onClick={[MockFunction]}
-        type="reset"
       >
         cancel
-      </button>
+      </ResetButtonLink>
     </footer>
   </form>
 </Modal>

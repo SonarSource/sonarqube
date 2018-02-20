@@ -21,6 +21,7 @@ import * as React from 'react';
 import { deleteBranch } from '../../../api/branches';
 import { Branch } from '../../../app/types';
 import Modal from '../../../components/controls/Modal';
+import { SubmitButton, ResetButtonLink } from '../../../components/ui/buttons';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 
 interface Props {
@@ -64,11 +65,6 @@ export default class DeleteBranchModal extends React.PureComponent<Props, State>
     );
   };
 
-  handleCancelClick = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
-    event.preventDefault();
-    this.props.onClose();
-  };
-
   render() {
     const { branch } = this.props;
     const header = translate('branches.delete');
@@ -84,12 +80,10 @@ export default class DeleteBranchModal extends React.PureComponent<Props, State>
           </div>
           <footer className="modal-foot">
             {this.state.loading && <i className="spinner spacer-right" />}
-            <button className="button-red" disabled={this.state.loading} type="submit">
+            <SubmitButton className="button-red" disabled={this.state.loading}>
               {translate('delete')}
-            </button>
-            <a href="#" onClick={this.handleCancelClick}>
-              {translate('cancel')}
-            </a>
+            </SubmitButton>
+            <ResetButtonLink onClick={this.props.onClose}>{translate('cancel')}</ResetButtonLink>
           </footer>
         </form>
       </Modal>

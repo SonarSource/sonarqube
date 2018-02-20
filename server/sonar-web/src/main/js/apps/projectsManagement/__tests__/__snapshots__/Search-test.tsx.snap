@@ -130,20 +130,20 @@ exports[`render qualifiers filter 1`] = `
         <td
           className="thin nowrap text-middle"
         >
-          <button
+          <Button
             className="js-bulk-apply-permission-template"
             disabled={false}
             onClick={[Function]}
           >
             permission_templates.bulk_apply_permission_template
-          </button>
-          <button
+          </Button>
+          <Button
             className="js-delete spacer-left button-red"
             disabled={false}
             onClick={[Function]}
           >
             delete
-          </button>
+          </Button>
         </td>
       </tr>
     </tbody>
@@ -220,20 +220,20 @@ exports[`renders 1`] = `
         <td
           className="thin nowrap text-middle"
         >
-          <button
+          <Button
             className="js-bulk-apply-permission-template"
             disabled={false}
             onClick={[Function]}
           >
             permission_templates.bulk_apply_permission_template
-          </button>
-          <button
+          </Button>
+          <Button
             className="js-delete spacer-left button-red"
             disabled={false}
             onClick={[Function]}
           >
             delete
-          </button>
+          </Button>
         </td>
       </tr>
     </tbody>

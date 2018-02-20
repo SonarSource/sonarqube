@@ -21,6 +21,7 @@ import * as React from 'react';
 import { restoreQualityProfile } from '../../../api/quality-profiles';
 import Modal from '../../../components/controls/Modal';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { SubmitButton, ResetButtonLink } from '../../../components/ui/buttons';
 
 interface Props {
   onClose: () => void;
@@ -47,11 +48,6 @@ export default class RestoreProfileForm extends React.PureComponent<Props, State
   componentWillUnmount() {
     this.mounted = false;
   }
-
-  handleCancelClick = (event: React.SyntheticEvent<HTMLElement>) => {
-    event.preventDefault();
-    this.props.onClose();
-  };
 
   handleFormSubmit = (event: React.SyntheticEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -130,18 +126,18 @@ export default class RestoreProfileForm extends React.PureComponent<Props, State
           {ruleSuccesses == null ? (
             <div className="modal-foot">
               {loading && <i className="spinner spacer-right" />}
-              <button disabled={loading} id="restore-profile-submit">
+              <SubmitButton disabled={loading} id="restore-profile-submit">
                 {translate('restore')}
-              </button>
-              <a href="#" id="restore-profile-cancel" onClick={this.handleCancelClick}>
+              </SubmitButton>
+              <ResetButtonLink id="restore-profile-cancel" onClick={this.props.onClose}>
                 {translate('cancel')}
-              </a>
+              </ResetButtonLink>
             </div>
           ) : (
             <div className="modal-foot">
-              <a href="#" onClick={this.handleCancelClick}>
+              <ResetButtonLink id="restore-profile-cancel" onClick={this.props.onClose}>
                 {translate('close')}
-              </a>
+              </ResetButtonLink>
             </div>
           )}
         </form>

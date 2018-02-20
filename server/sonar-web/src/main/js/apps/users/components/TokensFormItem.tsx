@@ -23,6 +23,7 @@ import DateFormatter from '../../../components/intl/DateFormatter';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import { revokeToken, UserToken } from '../../../api/user-tokens';
 import { limitComponentName } from '../../../helpers/path';
+import { Button } from '../../../components/ui/buttons';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {
@@ -81,14 +82,14 @@ export default class TokensFormItem extends React.PureComponent<Props, State> {
           <DeferredSpinner loading={loading}>
             <i className="spinner-placeholder " />
           </DeferredSpinner>
-          <button
+          <Button
             className="button-red input-small spacer-left"
-            onClick={this.handleRevoke}
-            disabled={loading}>
+            disabled={loading}
+            onClick={this.handleRevoke}>
             {this.state.deleting
               ? translate('users.tokens.sure')
               : translate('users.tokens.revoke')}
-          </button>
+          </Button>
         </td>
       </tr>
     );

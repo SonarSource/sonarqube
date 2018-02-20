@@ -21,6 +21,7 @@ import * as React from 'react';
 import OpenCloseIcon from '../icons-components/OpenCloseIcon';
 import HelpIcon from '../icons-components/HelpIcon';
 import Tooltip from '../controls/Tooltip';
+import { Button } from '../ui/buttons';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 
 interface Props {
@@ -33,14 +34,6 @@ interface Props {
 }
 
 export default class FacetHeader extends React.PureComponent<Props> {
-  handleClearClick = (event: React.SyntheticEvent<HTMLButtonElement>) => {
-    event.preventDefault();
-    event.currentTarget.blur();
-    if (this.props.onClear) {
-      this.props.onClear();
-    }
-  };
-
   handleClick = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     event.currentTarget.blur();
@@ -102,11 +95,11 @@ export default class FacetHeader extends React.PureComponent<Props> {
         </span>
 
         {showClearButton && (
-          <button
+          <Button
             className="search-navigator-facet-header-button button-small button-red"
-            onClick={this.handleClearClick}>
+            onClick={this.props.onClear}>
             {translate('clear')}
-          </button>
+          </Button>
         )}
       </div>
     );

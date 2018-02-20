@@ -17,12 +17,12 @@ exports[`should render correctly 1`] = `
   <div
     className="page-actions"
   >
-    <button
+    <Button
       id="users-create"
       onClick={[Function]}
     >
       users.create_user
-    </button>
+    </Button>
   </div>
   <p
     className="page-description"

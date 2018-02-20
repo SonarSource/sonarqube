@@ -30,6 +30,7 @@ import {
   updateCondition
 } from '../../../api/quality-gates';
 import { Metric } from '../../../app/types';
+import { Button, ResetButtonLink } from '../../../components/ui/buttons';
 import { translate, getLocalizedMetricName } from '../../../helpers/l10n';
 import { formatMeasure } from '../../../helpers/measures';
 
@@ -133,9 +134,7 @@ export default class Condition extends React.PureComponent<Props, State> {
     this.props.onResetError();
   };
 
-  handleCancelClick = (e: React.SyntheticEvent<HTMLAnchorElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
+  handleCancelClick = () => {
     this.props.onDeleteCondition(this.props.condition);
   };
 
@@ -255,17 +254,17 @@ export default class Condition extends React.PureComponent<Props, State> {
           <td className="thin text-middle nowrap">
             {condition.id ? (
               <div>
-                <button
+                <Button
                   className="update-condition"
                   disabled={!this.state.changed}
                   onClick={this.handleUpdateClick}>
                   {translate('update_verb')}
-                </button>
-                <button
+                </Button>
+                <Button
                   className="button-red delete-condition little-spacer-left"
                   onClick={this.openDeleteConditionForm}>
                   {translate('delete')}
-                </button>
+                </Button>
                 {this.state.openDeleteCondition && (
                   <DeleteConditionForm
                     condition={condition}
@@ -278,15 +277,14 @@ export default class Condition extends React.PureComponent<Props, State> {
               </div>
             ) : (
               <div>
-                <button className="add-condition" onClick={this.handleSaveClick}>
+                <Button className="add-condition" onClick={this.handleSaveClick}>
                   {translate('add_verb')}
-                </button>
-                <a
+                </Button>
+                <ResetButtonLink
                   className="cancel-add-condition spacer-left"
-                  href="#"
                   onClick={this.handleCancelClick}>
                   {translate('cancel')}
-                </a>
+                </ResetButtonLink>
               </div>
             )}
           </td>

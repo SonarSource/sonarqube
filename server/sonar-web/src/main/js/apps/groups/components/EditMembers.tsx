@@ -23,7 +23,7 @@ import { Group } from '../../../app/types';
 import Modal from '../../../components/controls/Modal';
 import BulletListIcon from '../../../components/icons-components/BulletListIcon';
 import SelectList from '../../../components/SelectList';
-import { ButtonIcon } from '../../../components/ui/buttons';
+import { ButtonIcon, ResetButtonLink } from '../../../components/ui/buttons';
 import { translate } from '../../../helpers/l10n';
 import { getBaseUrl } from '../../../helpers/urls';
 
@@ -62,12 +62,6 @@ export default class EditMembers extends React.PureComponent<Props, State> {
       this.setState({ modal: false });
       this.props.onEdit();
     }
-  };
-
-  handleCloseClick = (event: React.SyntheticEvent<HTMLElement>) => {
-    event.preventDefault();
-    event.currentTarget.blur();
-    this.handleModalClose();
   };
 
   renderSelectList = () => {
@@ -114,9 +108,7 @@ export default class EditMembers extends React.PureComponent<Props, State> {
             </div>
 
             <footer className="modal-foot">
-              <button className="button-link" onClick={this.handleCloseClick} type="reset">
-                {translate('Done')}
-              </button>
+              <ResetButtonLink onClick={this.handleModalClose}>{translate('Done')}</ResetButtonLink>
             </footer>
           </Modal>
         )}

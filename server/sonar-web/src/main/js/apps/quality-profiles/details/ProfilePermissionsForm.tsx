@@ -28,6 +28,7 @@ import {
   SearchUsersGroupsParameters
 } from '../../../api/quality-profiles';
 import Modal from '../../../components/controls/Modal';
+import { SubmitButton, ResetButtonLink } from '../../../components/ui/buttons';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {
@@ -129,12 +130,8 @@ export default class ProfilePermissionsForm extends React.PureComponent<Props, S
           </div>
           <footer className="modal-foot">
             {this.state.submitting && <i className="spinner spacer-right" />}
-            <button disabled={submitDisabled} type="submit">
-              {translate('add_verb')}
-            </button>
-            <button className="button-link" onClick={this.props.onClose} type="reset">
-              {translate('cancel')}
-            </button>
+            <SubmitButton disabled={submitDisabled}>{translate('add_verb')}</SubmitButton>
+            <ResetButtonLink onClick={this.props.onClose}>{translate('cancel')}</ResetButtonLink>
           </footer>
         </form>
       </Modal>

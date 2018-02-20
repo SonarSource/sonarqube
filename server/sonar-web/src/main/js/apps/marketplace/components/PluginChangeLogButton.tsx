@@ -21,6 +21,7 @@ import * as React from 'react';
 import PluginChangeLog from './PluginChangeLog';
 import BubblePopupHelper from '../../../components/common/BubblePopupHelper';
 import { Release, Update } from '../../../api/plugins';
+import { Button } from '../../../components/ui/buttons';
 
 interface Props {
   release: Release;
@@ -34,12 +35,6 @@ interface State {
 export default class PluginChangeLogButton extends React.PureComponent<Props, State> {
   state: State = { changelogOpen: false };
 
-  handleChangelogClick = (event: React.SyntheticEvent<HTMLButtonElement>) => {
-    event.preventDefault();
-    event.stopPropagation();
-    this.toggleChangelog();
-  };
-
   toggleChangelog = (show?: boolean) => {
     if (show !== undefined) {
       this.setState({ changelogOpen: show });
@@ -48,17 +43,21 @@ export default class PluginChangeLogButton extends React.PureComponent<Props, St
     }
   };
 
+  handleClick = () => {
+    this.toggleChangelog();
+  };
+
   render() {
     return (
       <div className="display-inline-block little-spacer-left">
-        <button
+        <Button
           className="button-link js-changelog issue-rule icon-ellipsis-h"
-          onClick={this.handleChangelogClick}
+          onClick={this.handleClick}
         />
         <BubblePopupHelper
           isOpen={this.state.changelogOpen}
-          position="bottomright"
           popup={<PluginChangeLog release={this.props.release} update={this.props.update} />}
+          position="bottomright"
           togglePopup={this.toggleChangelog}
         />
       </div>

@@ -30,6 +30,7 @@ import { getQualityProfileUrl } from '../../../helpers/urls';
 import BuiltInQualityProfileBadge from '../../quality-profiles/components/BuiltInQualityProfileBadge';
 import Tooltip from '../../../components/controls/Tooltip';
 import SeverityHelper from '../../../components/shared/SeverityHelper';
+import { Button } from '../../../components/ui/buttons';
 
 interface Props {
   activations: RuleActivation[] | undefined;
@@ -193,11 +194,11 @@ export default class RuleDetailsProfiles extends React.PureComponent<Props, Stat
                   modalHeader={translate('coding_rules.revert_to_parent_definition')}
                   onConfirm={this.handleRevert}>
                   {({ onClick }) => (
-                    <button
+                    <Button
                       className="coding-rules-detail-quality-profile-revert button-red spacer-left"
                       onClick={onClick}>
                       {translate('coding_rules.revert_to_parent_definition')}
-                    </button>
+                    </Button>
                   )}
                 </ConfirmButton>
               )
@@ -209,11 +210,11 @@ export default class RuleDetailsProfiles extends React.PureComponent<Props, Stat
                 modalHeader={translate('coding_rules.deactivate')}
                 onConfirm={this.handleDeactivate}>
                 {({ onClick }) => (
-                  <button
+                  <Button
                     className="coding-rules-detail-quality-profile-deactivate button-red spacer-left"
                     onClick={onClick}>
                     {translate('coding_rules.deactivate')}
-                  </button>
+                  </Button>
                 )}
               </ConfirmButton>
             )}
