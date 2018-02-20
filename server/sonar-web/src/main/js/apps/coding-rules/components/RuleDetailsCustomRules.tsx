@@ -101,7 +101,7 @@ export default class RuleDetailsCustomRules extends React.PureComponent<Props, S
   };
 
   renderRule = (rule: Rule) => (
-    <tr key={rule.key} data-rule={rule.key}>
+    <tr data-rule={rule.key} key={rule.key}>
       <td className="coding-rules-detail-list-name">
         <Link to={getRuleUrl(rule.key, this.props.organization)}>{rule.name}</Link>
       </td>
@@ -168,7 +168,7 @@ export default class RuleDetailsCustomRules extends React.PureComponent<Props, S
 
           <DeferredSpinner loading={loading}>
             {rules.length > 0 && (
-              <table id="coding-rules-detail-custom-rules" className="coding-rules-detail-list">
+              <table className="coding-rules-detail-list" id="coding-rules-detail-custom-rules">
                 <tbody>{sortBy(rules, rule => rule.name).map(this.renderRule)}</tbody>
               </table>
             )}

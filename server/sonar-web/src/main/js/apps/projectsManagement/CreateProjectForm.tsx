@@ -20,14 +20,14 @@
 import * as React from 'react';
 import { Link } from 'react-router';
 import { FormattedMessage } from 'react-intl';
+import { createProject } from '../../api/components';
 import { Organization } from '../../app/types';
 import UpgradeOrganizationBox from '../../components/common/UpgradeOrganizationBox';
 import VisibilitySelector from '../../components/common/VisibilitySelector';
-import { createProject } from '../../api/components';
+import Modal from '../../components/controls/Modal';
 import { SubmitButton, ResetButtonLink } from '../../components/ui/buttons';
 import { translate } from '../../helpers/l10n';
 import { getProjectUrl } from '../../helpers/urls';
-import Modal from '../../components/controls/Modal';
 
 interface Props {
   onClose: () => void;

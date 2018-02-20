@@ -77,9 +77,9 @@ export default class Dropdown extends React.PureComponent<Props, State> {
 
   handleToggleClick = (event?: React.SyntheticEvent<HTMLElement>) => {
     if (event) {
-    this.toggleNode = event.currentTarget;
-    event.preventDefault();
-    event.currentTarget.blur();
+      this.toggleNode = event.currentTarget;
+      event.preventDefault();
+      event.currentTarget.blur();
     }
     this.setState(state => ({ open: !state.open }));
   };

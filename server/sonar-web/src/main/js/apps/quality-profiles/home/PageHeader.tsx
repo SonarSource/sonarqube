@@ -21,11 +21,11 @@ import * as React from 'react';
 import * as PropTypes from 'prop-types';
 import CreateProfileForm from './CreateProfileForm';
 import RestoreProfileForm from './RestoreProfileForm';
-import { getProfilePath } from '../utils';
-import { translate } from '../../../helpers/l10n';
 import { Profile } from '../types';
+import { getProfilePath } from '../utils';
 import { Actions } from '../../../api/quality-profiles';
 import { Button } from '../../../components/ui/buttons';
+import { translate } from '../../../helpers/l10n';
 
 interface Props {
   actions: Actions;
@@ -55,11 +55,14 @@ export default class PageHeader extends React.PureComponent<Props, State> {
   };
 
   handleCreate = (profile: Profile) => {
-    this.props.updateProfiles().then(() => {
-      this.context.router.push(
-        getProfilePath(profile.name, profile.language, this.props.organization)
-      );
-    });
+    this.props.updateProfiles().then(
+      () => {
+        this.context.router.push(
+          getProfilePath(profile.name, profile.language, this.props.organization)
+        );
+      },
+      () => {}
+    );
   };
 
   closeCreateForm = () => {
@@ -112,8 +115,8 @@ export default class PageHeader extends React.PureComponent<Props, State> {
           <CreateProfileForm
             languages={this.props.languages}
             onClose={this.closeCreateForm}
-            onRequestFail={this.props.onRequestFail}
             onCreate={this.handleCreate}
+            onRequestFail={this.props.onRequestFail}
             organization={this.props.organization}
           />
         )}

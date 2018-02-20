@@ -105,7 +105,6 @@ export default class RuleDetailsMeta extends React.PureComponent<Props, State> {
         {this.props.canWrite ? (
           <BubblePopupHelper
             isOpen={this.state.tagsPopup}
-            position="bottomleft"
             popup={
               <RuleDetailsTagsPopup
                 organization={this.props.organization}
@@ -114,6 +113,7 @@ export default class RuleDetailsMeta extends React.PureComponent<Props, State> {
                 tags={tags}
               />
             }
+            position="bottomleft"
             togglePopup={this.handleTagsPopupToggle}>
             <Button className="button-link" onClick={this.handleTagsClick}>
               <TagsList

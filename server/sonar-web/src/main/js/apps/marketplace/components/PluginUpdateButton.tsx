@@ -29,7 +29,9 @@ interface Props {
 }
 
 export default class PluginUpdateButton extends React.PureComponent<Props> {
-  handleClick = () => this.props.onClick(this.props.update);
+  handleClick = () => {
+    this.props.onClick(this.props.update);
+  };
 
   render() {
     const { disabled, update } = this.props;

@@ -19,12 +19,12 @@
  */
 import * as React from 'react';
 import { sortBy } from 'lodash';
+import { Profile } from '../types';
 import { changeProfileParent } from '../../../api/quality-profiles';
 import Modal from '../../../components/controls/Modal';
 import Select from '../../../components/controls/Select';
 import { SubmitButton, ResetButtonLink } from '../../../components/ui/buttons';
 import { translate } from '../../../helpers/l10n';
-import { Profile } from '../types';
 
 interface Props {
   onChange: () => void;

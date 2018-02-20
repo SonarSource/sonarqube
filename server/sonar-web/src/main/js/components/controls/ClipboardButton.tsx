@@ -89,8 +89,8 @@ export default class ClipboardButton extends React.PureComponent<Props, State> {
       return (
         <Tooltip
           defaultVisible={true}
-          placement={this.props.tooltipPlacement || 'bottom'}
           overlay={translate('copied_action')}
+          placement={this.props.tooltipPlacement || 'bottom'}
           trigger="manual">
           {button}
         </Tooltip>

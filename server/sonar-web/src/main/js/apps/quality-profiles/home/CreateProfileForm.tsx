@@ -56,9 +56,14 @@ export default class CreateProfileForm extends React.PureComponent<Props, State>
 
   fetchImporters() {
     getImporters().then(
-      (importers: Array<{ key: string; languages: Array<string>; name: string }>) => {
+      importers => {
         if (this.mounted) {
           this.setState({ importers, preloading: false });
+        }
+      },
+      () => {
+        if (this.mounted) {
+          this.setState({ preloading: false });
         }
       }
     );
@@ -167,7 +172,7 @@ export default class CreateProfileForm extends React.PureComponent<Props, State>
                 </div>
               ))}
               {/* drop me when we stop supporting ie11 */}
-              <input type="hidden" name="hello-ie11" value="" />
+              <input name="hello-ie11" type="hidden" value="" />
             </div>
           )}
 

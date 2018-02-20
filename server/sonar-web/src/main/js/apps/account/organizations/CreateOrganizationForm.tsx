@@ -137,16 +137,16 @@ class CreateOrganizationForm extends React.PureComponent<Props, State> {
                 <em className="mandatory">*</em>
               </label>
               <input
-                id="organization-name"
                 autoFocus={true}
+                disabled={this.state.loading}
+                id="organization-name"
+                maxLength={64}
+                minLength={2}
                 name="name"
+                onChange={this.handleNameChange}
                 required={true}
                 type="text"
-                minLength={2}
-                maxLength={64}
                 value={this.state.name}
-                disabled={this.state.loading}
-                onChange={this.handleNameChange}
               />
               <div className="modal-field-description">
                 {translate('organization.name.description')}
@@ -155,14 +155,14 @@ class CreateOrganizationForm extends React.PureComponent<Props, State> {
             <div className="modal-field">
               <label htmlFor="organization-key">{translate('organization.key')}</label>
               <input
-                id="organization-key"
-                name="key"
-                type="text"
-                minLength={2}
-                maxLength={64}
-                value={this.state.key}
                 disabled={this.state.loading}
+                id="organization-key"
+                maxLength={64}
+                minLength={2}
+                name="key"
                 onChange={this.handleKeyChange}
+                type="text"
+                value={this.state.key}
               />
               <div className="modal-field-description">
                 {translate('organization.key.description')}
@@ -171,13 +171,13 @@ class CreateOrganizationForm extends React.PureComponent<Props, State> {
             <div className="modal-field">
               <label htmlFor="organization-avatar">{translate('organization.avatar')}</label>
               <input
-                id="organization-avatar"
-                name="avatar"
-                type="text"
-                maxLength={256}
-                value={this.state.avatar}
                 disabled={this.state.loading}
+                id="organization-avatar"
+                maxLength={256}
+                name="avatar"
                 onChange={this.handleAvatarInputChange}
+                type="text"
+                value={this.state.avatar}
               />
               <div className="modal-field-description">
                 {translate('organization.avatar.description')}
@@ -188,20 +188,20 @@ class CreateOrganizationForm extends React.PureComponent<Props, State> {
                     {translate('organization.avatar.preview')}
                     {':'}
                   </div>
-                  <img src={this.state.avatarImage} alt="" height={30} />
+                  <img alt="" height={30} src={this.state.avatarImage} />
                 </div>
               )}
             </div>
             <div className="modal-field">
               <label htmlFor="organization-description">{translate('description')}</label>
               <textarea
-                id="organization-description"
-                name="description"
-                rows={3}
-                maxLength={256}
-                value={this.state.description}
                 disabled={this.state.loading}
+                id="organization-description"
+                maxLength={256}
+                name="description"
                 onChange={this.handleDescriptionChange}
+                rows={3}
+                value={this.state.description}
               />
               <div className="modal-field-description">
                 {translate('organization.description.description')}
@@ -210,13 +210,13 @@ class CreateOrganizationForm extends React.PureComponent<Props, State> {
             <div className="modal-field">
               <label htmlFor="organization-url">{translate('organization.url')}</label>
               <input
-                id="organization-url"
-                name="url"
-                type="text"
-                maxLength={256}
-                value={this.state.url}
                 disabled={this.state.loading}
+                id="organization-url"
+                maxLength={256}
+                name="url"
                 onChange={this.handleUrlChange}
+                type="text"
+                value={this.state.url}
               />
               <div className="modal-field-description">
                 {translate('organization.url.description')}

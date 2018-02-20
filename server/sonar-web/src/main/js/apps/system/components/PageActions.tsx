@@ -66,12 +66,21 @@ export default class PageActions extends React.PureComponent<Props, State> {
     this.handleLogsLevelClose();
   };
 
-  handleLogsLevelClose = () => this.setState({ openLogsLevelForm: false });
+  handleLogsLevelClose = () => {
+    this.setState({ openLogsLevelForm: false });
+  };
 
-  handleServerRestartOpen = () => this.setState({ openRestartForm: true });
-  handleServerRestartClose = () => this.setState({ openRestartForm: false });
+  handleServerRestartOpen = () => {
+    this.setState({ openRestartForm: true });
+  };
 
-  removeElementFocus = (event: React.SyntheticEvent<HTMLElement>) => event.currentTarget.blur();
+  handleServerRestartClose = () => {
+    this.setState({ openRestartForm: false });
+  };
+
+  removeElementFocus = (event: React.SyntheticEvent<HTMLElement>) => {
+    event.currentTarget.blur();
+  };
 
   render() {
     const infoUrl = getBaseUrl() + '/api/system/info';
@@ -85,8 +94,8 @@ export default class PageActions extends React.PureComponent<Props, State> {
             <strong className="little-spacer-left">{this.state.logLevel}</strong>
           </span>
           <EditButton
-            id="edit-logs-level-button"
             className="spacer-left button-small"
+            id="edit-logs-level-button"
             onClick={this.handleLogsLevelOpen}
           />
         </span>
@@ -100,36 +109,36 @@ export default class PageActions extends React.PureComponent<Props, State> {
             <ul className="dropdown-menu">
               <li>
                 <a
+                  download="sonarqube_app.log"
                   href={logsUrl + '?process=app'}
                   id="logs-link"
-                  download="sonarqube_app.log"
                   target="_blank">
                   Main Process
                 </a>
               </li>
               <li>
                 <a
+                  download="sonarqube_ce.log"
                   href={logsUrl + '?process=ce'}
                   id="ce-logs-link"
-                  download="sonarqube_ce.log"
                   target="_blank">
                   Compute Engine
                 </a>
               </li>
               <li>
                 <a
+                  download="sonarqube_es.log"
                   href={logsUrl + '?process=es'}
                   id="es-logs-link"
-                  download="sonarqube_es.log"
                   target="_blank">
                   Search Engine
                 </a>
               </li>
               <li>
                 <a
+                  download="sonarqube_web.log"
                   href={logsUrl + '?process=web'}
                   id="web-logs-link"
-                  download="sonarqube_web.log"
                   target="_blank">
                   Web Server
                 </a>
@@ -138,11 +147,11 @@ export default class PageActions extends React.PureComponent<Props, State> {
           </div>
         )}
         <a
+          className="button spacer-left"
+          download={`sonarqube-support-info-${getFileNameSuffix(this.props.serverId)}.json`}
           href={infoUrl}
           id="download-link"
-          className="button spacer-left"
           onClick={this.removeElementFocus}
-          download={`sonarqube-support-info-${getFileNameSuffix(this.props.serverId)}.json`}
           target="_blank">
           {translate('system.download_system_info')}
         </a>

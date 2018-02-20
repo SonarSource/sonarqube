@@ -47,17 +47,21 @@ export default class BadgesModal extends React.PureComponent<Props, State> {
     badgeOptions: { color: 'white', metric: 'alert_status' }
   };
 
-  handleClose = () => this.setState({ open: false });
+  handleClose = () => {
+    this.setState({ open: false });
+  };
 
-  handleOpen = () => this.setState({ open: true });
+  handleOpen = () => {
+    this.setState({ open: true });
+  };
 
-  handleSelectBadge = (selectedType: BadgeType) => this.setState({ selectedType });
+  handleSelectBadge = (selectedType: BadgeType) => {
+    this.setState({ selectedType });
+  };
 
-  handleUpdateOptions = (options: Partial<BadgeOptions>) =>
-    this.setState(state => ({
-      badgeOptions: { ...state.badgeOptions, ...options }
-    }));
-
+  handleUpdateOptions = (options: Partial<BadgeOptions>) => {
+    this.setState(state => ({ badgeOptions: { ...state.badgeOptions, ...options } }));
+  };
 
   render() {
     const { branch, project } = this.props;

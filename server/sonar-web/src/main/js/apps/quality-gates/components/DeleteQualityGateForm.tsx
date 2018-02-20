@@ -19,11 +19,11 @@
  */
 import * as React from 'react';
 import * as PropTypes from 'prop-types';
-import Modal from '../../../components/controls/Modal';
-import { getQualityGatesUrl } from '../../../helpers/urls';
 import { deleteQualityGate, QualityGate } from '../../../api/quality-gates';
+import Modal from '../../../components/controls/Modal';
 import { SubmitButton, ResetButtonLink } from '../../../components/ui/buttons';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { getQualityGatesUrl } from '../../../helpers/urls';
 
 interface Props {
   onClose: () => void;

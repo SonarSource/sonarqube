@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import Modal from '../../../components/controls/Modal';
-import { Metric } from '../../../app/types';
 import { Condition, deleteCondition } from '../../../api/quality-gates';
+import { Metric } from '../../../app/types';
+import Modal from '../../../components/controls/Modal';
 import { SubmitButton, ResetButtonLink } from '../../../components/ui/buttons';
 import { getLocalizedMetricName, translate, translateWithParameters } from '../../../helpers/l10n';
 

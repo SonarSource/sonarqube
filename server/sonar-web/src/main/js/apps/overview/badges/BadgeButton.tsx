@@ -31,7 +31,9 @@ interface Props {
 }
 
 export default class BadgeButton extends React.PureComponent<Props> {
-  handleClick = () => this.props.onClick(this.props.type);
+  handleClick = () => {
+    this.props.onClick(this.props.type);
+  };
 
   render() {
     const { selected, type, url } = this.props;

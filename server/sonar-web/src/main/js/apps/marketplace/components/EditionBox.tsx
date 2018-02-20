@@ -33,7 +33,9 @@ interface Props {
 }
 
 export default class EditionBox extends React.PureComponent<Props> {
-  handleAction = () => this.props.onAction(this.props.edition);
+  handleAction = () => {
+    this.props.onAction(this.props.edition);
+  };
 
   render() {
     const { disableAction, displayAction, edition, editionStatus } = this.props;

@@ -20,8 +20,6 @@
 import * as React from 'react';
 import DeleteConditionForm from './DeleteConditionForm';
 import ThresholdInput from './ThresholdInput';
-import Checkbox from '../../../components/controls/Checkbox';
-import Select from '../../../components/controls/Select';
 import {
   Condition as ICondition,
   ConditionBase,
@@ -30,6 +28,8 @@ import {
   updateCondition
 } from '../../../api/quality-gates';
 import { Metric } from '../../../app/types';
+import Checkbox from '../../../components/controls/Checkbox';
+import Select from '../../../components/controls/Select';
 import { Button, ResetButtonLink } from '../../../components/ui/buttons';
 import { translate, getLocalizedMetricName } from '../../../helpers/l10n';
 import { formatMeasure } from '../../../helpers/measures';
@@ -138,8 +138,13 @@ export default class Condition extends React.PureComponent<Props, State> {
     this.props.onDeleteCondition(this.props.condition);
   };
 
-  openDeleteConditionForm = () => this.setState({ openDeleteCondition: true });
-  closeDeleteConditionForm = () => this.setState({ openDeleteCondition: false });
+  openDeleteConditionForm = () => {
+    this.setState({ openDeleteCondition: true });
+  };
+
+  closeDeleteConditionForm = () => {
+    this.setState({ openDeleteCondition: false });
+  };
 
   renderPeriodValue() {
     const { condition, metric } = this.props;
@@ -227,10 +232,10 @@ export default class Condition extends React.PureComponent<Props, State> {
         <td className="thin text-middle nowrap">
           {edit ? (
             <ThresholdInput
-              name="warning"
-              value={this.state.warning}
               metric={metric}
+              name="warning"
               onChange={this.handleWarningChange}
+              value={this.state.warning}
             />
           ) : (
             formatMeasure(condition.warning, metric.type)
@@ -240,10 +245,10 @@ export default class Condition extends React.PureComponent<Props, State> {
         <td className="thin text-middle nowrap">
           {edit ? (
             <ThresholdInput
-              name="error"
-              value={this.state.error}
               metric={metric}
+              name="error"
               onChange={this.handleErrorChange}
+              value={this.state.error}
             />
           ) : (
             formatMeasure(condition.error, metric.type)

@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import PluginChangeLog from './PluginChangeLog';
-import BubblePopupHelper from '../../../components/common/BubblePopupHelper';
 import { Release, Update } from '../../../api/plugins';
+import BubblePopupHelper from '../../../components/common/BubblePopupHelper';
 import { Button } from '../../../components/ui/buttons';
 
 interface Props {

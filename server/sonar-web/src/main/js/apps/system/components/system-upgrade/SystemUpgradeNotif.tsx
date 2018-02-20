@@ -19,10 +19,10 @@
  */
 import * as React from 'react';
 import SystemUpgradeForm from './SystemUpgradeForm';
+import { sortUpgrades, groupUpgrades } from '../../utils';
 import { getSystemUpgrades, SystemUpgrade } from '../../../../api/system';
 import { Button } from '../../../../components/ui/buttons';
 import { translate } from '../../../../helpers/l10n';
-import { sortUpgrades, groupUpgrades } from '../../utils';
 
 interface State {
   systemUpgrades: SystemUpgrade[][];
@@ -52,8 +52,13 @@ export default class SystemUpgradeNotif extends React.PureComponent<{}, State> {
       () => {}
     );
 
-  handleOpenSystemUpgradeForm = () => this.setState({ openSystemUpgradeForm: true });
-  handleCloseSystemUpgradeForm = () => this.setState({ openSystemUpgradeForm: false });
+  handleOpenSystemUpgradeForm = () => {
+    this.setState({ openSystemUpgradeForm: true });
+  };
+
+  handleCloseSystemUpgradeForm = () => {
+    this.setState({ openSystemUpgradeForm: false });
+  };
 
   render() {
     const { systemUpgrades } = this.state;
@@ -72,8 +77,8 @@ export default class SystemUpgradeNotif extends React.PureComponent<{}, State> {
         </div>
         {this.state.openSystemUpgradeForm && (
           <SystemUpgradeForm
-            systemUpgrades={systemUpgrades}
             onClose={this.handleCloseSystemUpgradeForm}
+            systemUpgrades={systemUpgrades}
           />
         )}
       </div>

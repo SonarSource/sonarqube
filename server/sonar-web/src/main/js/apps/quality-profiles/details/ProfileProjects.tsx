@@ -20,11 +20,11 @@
 import * as React from 'react';
 import { Link } from 'react-router';
 import ChangeProjectsForm from './ChangeProjectsForm';
-import QualifierIcon from '../../../components/shared/QualifierIcon';
+import { Profile } from '../types';
 import { getProfileProjects } from '../../../api/quality-profiles';
+import QualifierIcon from '../../../components/shared/QualifierIcon';
 import { Button } from '../../../components/ui/buttons';
 import { translate } from '../../../helpers/l10n';
-import { Profile } from '../types';
 
 interface Props {
   organization: string | null;
@@ -124,10 +124,10 @@ export default class ProfileProjects extends React.PureComponent<Props, State> {
     return (
       <ul>
         {projects.map(project => (
-          <li key={project.uuid} className="spacer-top js-profile-project" data-key={project.key}>
+          <li className="spacer-top js-profile-project" data-key={project.key} key={project.uuid}>
             <Link
-              to={{ pathname: '/dashboard', query: { id: project.key } }}
-              className="link-with-icon">
+              className="link-with-icon"
+              to={{ pathname: '/dashboard', query: { id: project.key } }}>
               <QualifierIcon qualifier="TRK" /> <span>{project.name}</span>
             </Link>
           </li>

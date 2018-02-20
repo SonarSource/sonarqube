@@ -2,13 +2,13 @@
 
 exports[`should edit group 1`] = `
 <React.Fragment>
-  <button />
+  <div />
 </React.Fragment>
 `;
 
 exports[`should edit group 2`] = `
 <React.Fragment>
-  <button />
+  <div />
   <Form
     confirmButtonText="update_verb"
     group={
@@ -27,6 +27,6 @@ exports[`should edit group 2`] = `
 
 exports[`should edit group 3`] = `
 <React.Fragment>
-  <button />
+  <div />
 </React.Fragment>
 `;

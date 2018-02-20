@@ -112,8 +112,8 @@ export default class Search extends React.PureComponent<Props, State> {
       <Checkbox
         checked={checked}
         id="projects-selection"
-        thirdState={thirdState}
         onCheck={this.onCheck}
+        thirdState={thirdState}
       />
     );
   };
@@ -136,13 +136,13 @@ export default class Search extends React.PureComponent<Props, State> {
           className="input-medium"
           clearable={false}
           disabled={!this.props.ready}
-          optionRenderer={this.renderQualifierOption}
-          options={this.getQualifierOptions()}
-          value={this.props.qualifiers}
-          valueRenderer={this.renderQualifierOption}
           name="projects-qualifier"
           onChange={this.handleQualifierChange}
+          optionRenderer={this.renderQualifierOption}
+          options={this.getQualifierOptions()}
           searchable={false}
+          value={this.props.qualifiers}
+          valueRenderer={this.renderQualifierOption}
         />
       </td>
     );
@@ -152,8 +152,8 @@ export default class Search extends React.PureComponent<Props, State> {
     this.props.qualifiers === 'TRK' ? (
       <td className="thin nowrap text-middle">
         <Checkbox
-          className="link-checkbox-control"
           checked={this.props.provisioned}
+          className="link-checkbox-control"
           id="projects-provisioned"
           onCheck={this.props.onProvisionedChanged}>
           <span className="little-spacer-left">

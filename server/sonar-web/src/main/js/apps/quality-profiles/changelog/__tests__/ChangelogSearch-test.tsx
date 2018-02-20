@@ -29,10 +29,10 @@ it('should render DateInput', () => {
   const output = shallow(
     <ChangelogSearch
       fromDate="2016-01-01"
-      toDate="2016-05-05"
       onFromDateChange={onFromDateChange}
-      onToDateChange={onToDateChange}
       onReset={jest.fn()}
+      onToDateChange={onToDateChange}
+      toDate="2016-05-05"
     />
   );
   const dateInputs = output.find(DateInput);
@@ -48,10 +48,10 @@ it('should reset', () => {
   const output = shallow(
     <ChangelogSearch
       fromDate="2016-01-01"
-      toDate="2016-05-05"
       onFromDateChange={jest.fn()}
-      onToDateChange={jest.fn()}
       onReset={onReset}
+      onToDateChange={jest.fn()}
+      toDate="2016-05-05"
     />
   );
   expect(onReset).not.toBeCalled();

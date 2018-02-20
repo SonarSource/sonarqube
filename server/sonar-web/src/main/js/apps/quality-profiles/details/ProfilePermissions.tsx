@@ -192,8 +192,8 @@ export default class ProfilePermissions extends React.PureComponent<Props, State
             onClose={this.handleAddUserFormClose}
             onGroupAdd={this.handleGroupAdd}
             onUserAdd={this.handleUserAdd}
-            profile={this.props.profile}
             organization={this.props.organization}
+            profile={this.props.profile}
           />
         )}
       </div>

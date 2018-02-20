@@ -122,9 +122,9 @@ export default class ProfilePermissionsForm extends React.PureComponent<Props, S
             <div className="modal-large-field">
               <label>{translate('quality_profiles.search_description')}</label>
               <ProfilePermissionsFormSelect
-                selected={this.state.selected}
                 onChange={this.handleValueChange}
                 onSearch={this.handleSearch}
+                selected={this.state.selected}
               />
             </div>
           </div>

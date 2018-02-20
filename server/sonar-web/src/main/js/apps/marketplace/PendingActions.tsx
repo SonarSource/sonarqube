@@ -40,8 +40,13 @@ interface State {
 export default class PendingActions extends React.PureComponent<Props, State> {
   state: State = { openRestart: false };
 
-  handleOpenRestart = () => this.setState({ openRestart: true });
-  hanleCloseRestart = () => this.setState({ openRestart: false });
+  handleOpenRestart = () => {
+    this.setState({ openRestart: true });
+  };
+
+  hanleCloseRestart = () => {
+    this.setState({ openRestart: false });
+  };
 
   handleRevert = () => {
     cancelPendingPlugins().then(this.props.refreshPending, () => {});

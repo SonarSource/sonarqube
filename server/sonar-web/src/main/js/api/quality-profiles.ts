@@ -112,7 +112,7 @@ export function getProfileProjects(data: RequestData): Promise<any> {
 }
 
 export function getProfileInheritance(profileKey: string): Promise<any> {
-  return getJSON('/api/qualityprofiles/inheritance', { profileKey });
+  return getJSON('/api/qualityprofiles/inheritance', { profileKey }).catch(throwGlobalError);
 }
 
 export function setDefaultProfile(profileKey: string): Promise<void> {
@@ -135,8 +135,10 @@ export function changeProfileParent(profileKey: string, parentKey: string): Prom
   return post('/api/qualityprofiles/change_parent', { profileKey, parentKey });
 }
 
-export function getImporters(): Promise<any> {
-  return getJSON('/api/qualityprofiles/importers').then(r => r.importers);
+export function getImporters(): Promise<
+  Array<{ key: string; languages: Array<string>; name: string }>
+> {
+  return getJSON('/api/qualityprofiles/importers').then(r => r.importers, throwGlobalError);
 }
 
 export function getExporters(): Promise<any> {

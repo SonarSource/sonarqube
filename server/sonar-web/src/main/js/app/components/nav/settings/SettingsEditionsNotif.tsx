@@ -87,6 +87,7 @@ export default class SettingsEditionsNotif extends React.PureComponent<Props, St
                   url: (
                     <a
                       href="https://redirect.sonarsource.com/doc/data-center-edition.html"
+                      rel="noopener noreferrer"
                       target="_blank">
                       {edition.name}
                     </a>

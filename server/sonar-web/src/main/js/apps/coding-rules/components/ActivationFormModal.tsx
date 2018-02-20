@@ -85,8 +85,8 @@ export default class ActivationFormModal extends React.PureComponent<Props, Stat
   };
 
   // Choose QP which a user can administrate, which are the same language and which are not built-in
-  getQualityProfilesWithDepth = ({ profiles } = this.props) =>
-    sortProfiles(
+  getQualityProfilesWithDepth = ({ profiles } = this.props) => {
+    return sortProfiles(
       profiles.filter(
         profile =>
           !profile.isBuiltIn &&
@@ -133,11 +133,17 @@ export default class ActivationFormModal extends React.PureComponent<Props, Stat
     this.setState((state: State) => ({ params: { ...state.params, [name]: value } }));
   };
 
-  handleProfileChange = ({ value }: { value: string }) => this.setState({ profile: value });
+  handleProfileChange = ({ value }: { value: string }) => {
+    this.setState({ profile: value });
+  };
 
-  handleSeverityChange = ({ value }: { value: string }) => this.setState({ severity: value });
+  handleSeverityChange = ({ value }: { value: string }) => {
+    this.setState({ severity: value });
+  };
 
-  renderSeverityOption = ({ value }: { value: string }) => <SeverityHelper severity={value} />;
+  renderSeverityOption = ({ value }: { value: string }) => {
+    return <SeverityHelper severity={value} />;
+  };
 
   render() {
     const { activation, rule } = this.props;
@@ -184,11 +190,11 @@ export default class ActivationFormModal extends React.PureComponent<Props, Stat
                 clearable={false}
                 disabled={submitting}
                 onChange={this.handleSeverityChange}
+                optionRenderer={this.renderSeverityOption}
                 options={SEVERITIES.map(severity => ({
                   label: translate('severity', severity),
                   value: severity
                 }))}
-                optionRenderer={this.renderSeverityOption}
                 searchable={false}
                 value={severity}
                 valueRenderer={this.renderSeverityOption}

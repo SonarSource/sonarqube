@@ -35,12 +35,17 @@ interface State {
 export default class Header extends React.PureComponent<Props, State> {
   state: State = { openUserForm: false };
 
-  handleOpenUserForm = () => this.setState({ openUserForm: true });
-  handleCloseUserForm = () => this.setState({ openUserForm: false });
+  handleOpenUserForm = () => {
+    this.setState({ openUserForm: true });
+  };
+
+  handleCloseUserForm = () => {
+    this.setState({ openUserForm: false });
+  };
 
   render() {
     return (
-      <header id="users-header" className="page-header">
+      <header className="page-header" id="users-header">
         <h1 className="page-title">{translate('users.page')}</h1>
         <DeferredSpinner loading={this.props.loading} />
 

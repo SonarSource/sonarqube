@@ -58,8 +58,8 @@ export default class SimpleModal extends React.PureComponent<Props, State> {
 
   handleCloseClick = (event?: React.SyntheticEvent<HTMLElement>) => {
     if (event) {
-    event.preventDefault();
-    event.currentTarget.blur();
+      event.preventDefault();
+      event.currentTarget.blur();
     }
     this.props.onClose();
   };
@@ -71,8 +71,8 @@ export default class SimpleModal extends React.PureComponent<Props, State> {
 
   handleSubmitClick = (event?: React.SyntheticEvent<HTMLElement>) => {
     if (event) {
-    event.preventDefault();
-    event.currentTarget.blur();
+      event.preventDefault();
+      event.currentTarget.blur();
     }
     this.submit();
   };

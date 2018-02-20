@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import Modal from '../../../components/controls/Modal';
 import { deactivateUser } from '../../../api/users';
 import { User } from '../../../app/types';
+import Modal from '../../../components/controls/Modal';
 import { SubmitButton, ResetButtonLink } from '../../../components/ui/buttons';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 
@@ -69,7 +69,7 @@ export default class DeactivateForm extends React.PureComponent<Props, State> {
     const header = translate('users.deactivate_user');
     return (
       <Modal contentLabel={header} onRequestClose={this.props.onClose}>
-        <form id="deactivate-user-form" onSubmit={this.handleDeactivate} autoComplete="off">
+        <form autoComplete="off" id="deactivate-user-form" onSubmit={this.handleDeactivate}>
           <header className="modal-head">
             <h2>{header}</h2>
           </header>

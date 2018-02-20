@@ -19,10 +19,10 @@
  */
 import * as React from 'react';
 import { bulkDeleteProjects } from '../../api/components';
-import { translate, translateWithParameters } from '../../helpers/l10n';
-import AlertWarnIcon from '../../components/icons-components/AlertWarnIcon';
 import Modal from '../../components/controls/Modal';
+import AlertWarnIcon from '../../components/icons-components/AlertWarnIcon';
 import { Button, ResetButtonLink } from '../../components/ui/buttons';
+import { translate, translateWithParameters } from '../../helpers/l10n';
 
 export interface Props {
   analyzedBefore?: string;

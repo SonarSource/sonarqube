@@ -95,36 +95,36 @@ export default class LoginForm extends React.PureComponent<Props, State> {
             <GlobalMessagesContainer />
 
             <div className="big-spacer-bottom">
-              <label htmlFor="login" className="login-label">
+              <label className="login-label" htmlFor="login">
                 {translate('login')}
               </label>
               <input
-                type="text"
-                id="login"
-                name="login"
-                className="login-input"
-                maxLength={255}
-                required={true}
                 autoFocus={true}
-                placeholder={translate('login')}
-                value={this.state.login}
+                className="login-input"
+                id="login"
+                maxLength={255}
+                name="login"
                 onChange={this.handleLoginChange}
+                placeholder={translate('login')}
+                required={true}
+                type="text"
+                value={this.state.login}
               />
             </div>
 
             <div className="big-spacer-bottom">
-              <label htmlFor="password" className="login-label">
+              <label className="login-label" htmlFor="password">
                 {translate('password')}
               </label>
               <input
-                type="password"
+                className="login-input"
                 id="password"
                 name="password"
-                className="login-input"
-                required={true}
-                placeholder={translate('password')}
-                value={this.state.password}
                 onChange={this.handlePwdChange}
+                placeholder={translate('password')}
+                required={true}
+                type="password"
+                value={this.state.password}
               />
             </div>
 

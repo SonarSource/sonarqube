@@ -19,10 +19,10 @@
  */
 import * as React from 'react';
 import PluginUpdateButton from './PluginUpdateButton';
+import { isPluginAvailable, isPluginInstalled } from '../utils';
+import { Plugin, installPlugin, updatePlugin, uninstallPlugin } from '../../../api/plugins';
 import Checkbox from '../../../components/controls/Checkbox';
 import CheckIcon from '../../../components/icons-components/CheckIcon';
-import { Plugin, installPlugin, updatePlugin, uninstallPlugin } from '../../../api/plugins';
-import { isPluginAvailable, isPluginInstalled } from '../utils';
 import { Button } from '../../../components/ui/buttons';
 import { translate } from '../../../helpers/l10n';
 

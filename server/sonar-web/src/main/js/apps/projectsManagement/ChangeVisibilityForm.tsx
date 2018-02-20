@@ -21,9 +21,9 @@ import * as React from 'react';
 import * as classNames from 'classnames';
 import { Organization, Visibility } from '../../app/types';
 import UpgradeOrganizationBox from '../../components/common/UpgradeOrganizationBox';
-import { translate } from '../../helpers/l10n';
 import Modal from '../../components/controls/Modal';
 import { Button, ResetButtonLink } from '../../components/ui/buttons';
+import { translate } from '../../helpers/l10n';
 
 export interface Props {
   onClose: () => void;
