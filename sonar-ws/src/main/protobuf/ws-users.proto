@@ -120,6 +120,7 @@ message CurrentWsResponse {
     MY_PROJECTS = 3;
     MY_ISSUES = 4;
     PROJECTS = 5;
+    ISSUES = 6;
   }
 
   message Homepage {
