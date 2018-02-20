@@ -46,7 +46,7 @@ public class SetHomepageAction implements UsersWsAction {
 
   private static final String ACTION = "set_homepage";
 
-  private static final String PARAM_TYPE = "type";
+  public static final String PARAM_TYPE = "type";
   private static final String PARAM_ORGANIZATION = "organization";
   private static final String PARAM_COMPONENT = "component";
   private static final String PARAM_BRANCH = "branch";
@@ -54,13 +54,11 @@ public class SetHomepageAction implements UsersWsAction {
   private final UserSession userSession;
   private final DbClient dbClient;
   private final ComponentFinder componentFinder;
-  private HomepageTypes homepageTypes;
 
-  public SetHomepageAction(UserSession userSession, DbClient dbClient, ComponentFinder componentFinder, HomepageTypes homepageTypes) {
+  public SetHomepageAction(UserSession userSession, DbClient dbClient, ComponentFinder componentFinder) {
     this.userSession = userSession;
     this.dbClient = dbClient;
     this.componentFinder = componentFinder;
-    this.homepageTypes = homepageTypes;
   }
 
   @Override
@@ -77,12 +75,11 @@ public class SetHomepageAction implements UsersWsAction {
     action.createParam(PARAM_TYPE)
       .setDescription("Type of the requested page")
       .setRequired(true)
-      .setPossibleValues(homepageTypes.getTypes());
+      .setPossibleValues(HomepageTypes.Type.values());
 
     action.createParam(PARAM_ORGANIZATION)
       .setDescription("Organization key. It should only be used when parameter '%s' is set to '%s'", PARAM_TYPE, ORGANIZATION)
       .setSince("7.1")
-      .setInternal(false)
       .setExampleValue("my-org");
 
     action.createParam(PARAM_COMPONENT)
@@ -93,7 +90,6 @@ public class SetHomepageAction implements UsersWsAction {
     action.createParam(PARAM_BRANCH)
       .setDescription("Branch key. It can only be used when parameter '%s' is set to '%s'", PARAM_TYPE, PROJECT)
       .setExampleValue(KEY_BRANCH_EXAMPLE_001)
-      .setInternal(true)
       .setSince("7.1");
   }
 
@@ -131,6 +127,8 @@ public class SetHomepageAction implements UsersWsAction {
         return dbClient.organizationDao().selectByKey(dbSession, organizationParameter)
           .orElseThrow(() -> new NotFoundException(format("No organizationDto with key '%s'", organizationParameter)))
           .getUuid();
+      case PROJECTS:
+      case ISSUES:
       case MY_PROJECTS:
       case MY_ISSUES:
         checkArgument(isBlank(componentParameter), "Parameter '%s' must not be provided when type is '%s'", PARAM_COMPONENT, type.name());

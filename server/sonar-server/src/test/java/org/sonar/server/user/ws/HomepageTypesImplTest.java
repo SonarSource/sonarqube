@@ -27,6 +27,7 @@ import org.sonar.db.DbTester;
 import org.sonar.server.organization.TestOrganizationFlags;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
+import static org.sonar.server.user.ws.HomepageTypes.Type.ISSUES;
 import static org.sonar.server.user.ws.HomepageTypes.Type.MY_ISSUES;
 import static org.sonar.server.user.ws.HomepageTypes.Type.MY_PROJECTS;
 import static org.sonar.server.user.ws.HomepageTypes.Type.ORGANIZATION;
@@ -70,7 +71,7 @@ public class HomepageTypesImplTest {
 
     underTest.start();
 
-    assertThat(underTest.getTypes()).containsExactlyInAnyOrder(PROJECT, PROJECTS);
+    assertThat(underTest.getTypes()).containsExactlyInAnyOrder(PROJECT, PROJECTS, ISSUES);
   }
 
   @Test
@@ -80,7 +81,7 @@ public class HomepageTypesImplTest {
 
     underTest.start();
 
-    assertThat(underTest.getTypes()).containsExactlyInAnyOrder(PROJECT, PROJECTS, ORGANIZATION);
+    assertThat(underTest.getTypes()).containsExactlyInAnyOrder(PROJECT, PROJECTS, ISSUES, ORGANIZATION);
   }
 
   @Test
