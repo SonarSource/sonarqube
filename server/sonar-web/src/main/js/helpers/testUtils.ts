@@ -28,7 +28,15 @@ export const mockEvent = {
 };
 
 export function click(element: ShallowWrapper | ReactWrapper, event = {}): void {
-  element.simulate('click', { ...mockEvent, ...event });
+  // `type()` returns a component constructor for a composite element and string for DOM nodes
+  if (typeof element.type() === 'function') {
+    element.prop<Function>('onClick')();
+    // TODO find out if `root` is a public api
+    // https://github.com/airbnb/enzyme/blob/master/packages/enzyme/src/ReactWrapper.js#L109
+    (element as any).root().update();
+  } else {
+    element.simulate('click', { ...mockEvent, ...event });
+  }
 }
 
 export function clickOutside(event = {}): void {
