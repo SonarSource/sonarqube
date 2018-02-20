@@ -26,6 +26,7 @@ import java.util.List;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.web.UserRole;
+import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
@@ -81,7 +82,7 @@ public class SearchMyProjectsDataLoader {
     List<Long> componentIds = dbClient.roleDao().selectComponentIdsByPermissionAndUserId(dbSession, UserRole.ADMIN, userId);
     ComponentQuery dbQuery = ComponentQuery.builder()
       .setQualifiers(Qualifiers.PROJECT)
-      .setComponentIds(ImmutableSet.copyOf(componentIds))
+      .setComponentIds(ImmutableSet.copyOf(componentIds.subList(0, Math.min(componentIds.size(), DatabaseUtils.PARTITION_SIZE_FOR_ORACLE))))
       .build();
 
     return new ProjectsResult(

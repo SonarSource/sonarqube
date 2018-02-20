@@ -56,7 +56,7 @@ public class SearchMyProjectsAction implements ProjectsWsAction {
   @Override
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction("search_my_projects")
-      .setDescription("Return list of projects for which the current user has 'Administer' permission.")
+      .setDescription("Return list of projects for which the current user has 'Administer' permission. Maximum 1'000 projects are returned.")
       .setResponseExample(getClass().getResource("search_my_projects-example.json"))
       .addPagingParams(100, MAX_SIZE)
       .setSince("6.0")
