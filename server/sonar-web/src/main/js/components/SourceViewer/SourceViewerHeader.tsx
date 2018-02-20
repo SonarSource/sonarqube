@@ -59,7 +59,7 @@ interface State {
 }
 
 export default class SourceViewerHeader extends React.PureComponent<Props, State> {
-  state: State = { measuresOverlay: true };
+  state: State = { measuresOverlay: false };
 
   handleShowMeasuresClick = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
