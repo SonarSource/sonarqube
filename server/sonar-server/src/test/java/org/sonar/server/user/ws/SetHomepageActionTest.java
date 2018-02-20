@@ -40,10 +40,13 @@ import static org.apache.http.HttpStatus.SC_NO_CONTENT;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.server.user.ws.HomepageTypes.Type.ISSUES;
 import static org.sonar.server.user.ws.HomepageTypes.Type.MY_ISSUES;
 import static org.sonar.server.user.ws.HomepageTypes.Type.MY_PROJECTS;
 import static org.sonar.server.user.ws.HomepageTypes.Type.ORGANIZATION;
 import static org.sonar.server.user.ws.HomepageTypes.Type.PROJECT;
+import static org.sonar.server.user.ws.HomepageTypes.Type.PROJECTS;
+import static org.sonar.server.user.ws.SetHomepageAction.PARAM_TYPE;
 
 public class SetHomepageActionTest {
 
@@ -68,7 +71,7 @@ public class SetHomepageActionTest {
   }
 
   @Test
-  public void verify_definition() {
+  public void verify_sonarcloud_definition() {
     WebService.Action action = ws.getDef();
     assertThat(action.key()).isEqualTo("set_homepage");
     assertThat(action.isInternal()).isTrue();
@@ -101,6 +104,43 @@ public class SetHomepageActionTest {
   }
 
   @Test
+  public void verify_sonarqube_definition() {
+
+    when(homepageTypes.getTypes()).thenReturn(asList(PROJECT, ORGANIZATION, ISSUES, PROJECTS));
+    ws = new WsActionTester(new SetHomepageAction(userSession, dbClient, TestComponentFinder.from(db), homepageTypes));
+
+    WebService.Action action = ws.getDef();
+    assertThat(action.key()).isEqualTo("set_homepage");
+    assertThat(action.isInternal()).isTrue();
+    assertThat(action.isPost()).isTrue();
+    assertThat(action.since()).isEqualTo("7.0");
+    assertThat(action.description()).isEqualTo("Set homepage of current user.<br> Requires authentication.");
+    assertThat(action.responseExample()).isNull();
+    assertThat(action.params()).hasSize(4);
+
+    WebService.Param typeParam = action.param("type");
+    assertThat(typeParam.isRequired()).isTrue();
+    assertThat(typeParam.description()).isEqualTo("Type of the requested page");
+    assertThat(typeParam.possibleValues()).containsExactlyInAnyOrder("PROJECT", "ORGANIZATION", "PROJECTS", "ISSUES");
+
+    WebService.Param componentParam = action.param("component");
+    assertThat(componentParam.isRequired()).isFalse();
+    assertThat(componentParam.description()).isEqualTo("Project key. It should only be used when parameter 'type' is set to 'PROJECT'");
+    assertThat(componentParam.since()).isEqualTo("7.1");
+
+    WebService.Param branchParam = action.param("branch");
+    assertThat(branchParam.isRequired()).isFalse();
+    assertThat(branchParam.isInternal()).isTrue();
+    assertThat(branchParam.description()).isEqualTo("Branch key. It can only be used when parameter 'type' is set to 'PROJECT'");
+    assertThat(branchParam.since()).isEqualTo("7.1");
+
+    WebService.Param organizationParam = action.param("organization");
+    assertThat(organizationParam.isRequired()).isFalse();
+    assertThat(organizationParam.description()).isEqualTo("Organization key. It should only be used when parameter 'type' is set to 'ORGANIZATION'");
+    assertThat(organizationParam.since()).isEqualTo("7.1");
+  }
+
+  @Test
   public void set_project_homepage() {
     OrganizationDto organization = db.organizations().insert();
     ComponentDto project = db.components().insertPrivateProject(organization);
@@ -110,7 +150,7 @@ public class SetHomepageActionTest {
 
     ws.newRequest()
       .setMethod("POST")
-      .setParam("type", "PROJECT")
+      .setParam(PARAM_TYPE, "PROJECT")
       .setParam("component", project.getKey())
       .execute();
 
@@ -130,7 +170,7 @@ public class SetHomepageActionTest {
 
     ws.newRequest()
       .setMethod("POST")
-      .setParam("type", "PROJECT")
+      .setParam(PARAM_TYPE, "PROJECT")
       .setParam("component", branch.getKey())
       .setParam("branch", branch.getBranch())
       .execute();
@@ -150,7 +190,7 @@ public class SetHomepageActionTest {
 
     ws.newRequest()
       .setMethod("POST")
-      .setParam("type", "ORGANIZATION")
+      .setParam(PARAM_TYPE, "ORGANIZATION")
       .setParam("organization", organization.getKey())
       .execute();
 
@@ -161,13 +201,13 @@ public class SetHomepageActionTest {
   }
 
   @Test
-  public void set_my_issues_homepage() {
+  public void set_sonarcloud_my_issues_homepage() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
 
     ws.newRequest()
       .setMethod("POST")
-      .setParam("type", "MY_ISSUES")
+      .setParam(PARAM_TYPE, "MY_ISSUES")
       .execute();
 
     UserDto actual = db.getDbClient().userDao().selectByLogin(db.getSession(), user.getLogin());
@@ -177,18 +217,57 @@ public class SetHomepageActionTest {
   }
 
   @Test
-  public void set_my_projects_homepage() {
+  public void set_sonarqube_issues_homepage() {
+
+    when(homepageTypes.getTypes()).thenReturn(asList(PROJECT, ORGANIZATION, ISSUES, PROJECTS));
+    ws = new WsActionTester(new SetHomepageAction(userSession, dbClient, TestComponentFinder.from(db), homepageTypes));
+
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
 
     ws.newRequest()
       .setMethod("POST")
-      .setParam("type", "MY_PROJECTS")
+      .setParam(PARAM_TYPE, "ISSUES")
+      .execute();
+
+    UserDto actual = db.getDbClient().userDao().selectByLogin(db.getSession(), user.getLogin());
+    assertThat(actual).isNotNull();
+    assertThat(actual.getHomepageType()).isEqualTo("ISSUES");
+    assertThat(actual.getHomepageParameter()).isNullOrEmpty();
+  }
+
+  @Test
+  public void set_sonarcloud_my_projects_homepage() {
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user);
+
+    ws.newRequest()
+      .setMethod("POST")
+      .setParam(PARAM_TYPE, "MY_PROJECTS")
       .execute();
 
     UserDto actual = db.getDbClient().userDao().selectByLogin(db.getSession(), user.getLogin());
     assertThat(actual).isNotNull();
     assertThat(actual.getHomepageType()).isEqualTo("MY_PROJECTS");
+    assertThat(actual.getHomepageParameter()).isNullOrEmpty();
+  }
+
+  @Test
+  public void set_sonarqube_projects_homepage() {
+    when(homepageTypes.getTypes()).thenReturn(asList(PROJECT, ORGANIZATION, ISSUES, PROJECTS));
+    ws = new WsActionTester(new SetHomepageAction(userSession, dbClient, TestComponentFinder.from(db), homepageTypes));
+
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user);
+
+    ws.newRequest()
+      .setMethod("POST")
+      .setParam(PARAM_TYPE, "PROJECTS")
+      .execute();
+
+    UserDto actual = db.getDbClient().userDao().selectByLogin(db.getSession(), user.getLogin());
+    assertThat(actual).isNotNull();
+    assertThat(actual.getHomepageType()).isEqualTo("PROJECTS");
     assertThat(actual.getHomepageParameter()).isNullOrEmpty();
   }
 
@@ -199,7 +278,7 @@ public class SetHomepageActionTest {
 
     TestResponse response = ws.newRequest()
       .setMethod("POST")
-      .setParam("type", "MY_PROJECTS")
+      .setParam(PARAM_TYPE, "MY_PROJECTS")
       .execute();
 
     assertThat(response.getStatus()).isEqualTo(SC_NO_CONTENT);
@@ -216,7 +295,7 @@ public class SetHomepageActionTest {
 
     ws.newRequest()
       .setMethod("POST")
-      .setParam("type", "PROJECT")
+      .setParam(PARAM_TYPE, "PROJECT")
       .execute();
 
   }
@@ -231,7 +310,7 @@ public class SetHomepageActionTest {
 
     ws.newRequest()
       .setMethod("POST")
-      .setParam("type", "ORGANIZATION")
+      .setParam(PARAM_TYPE, "ORGANIZATION")
       .execute();
   }
 

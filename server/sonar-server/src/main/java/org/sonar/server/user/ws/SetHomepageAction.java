@@ -46,7 +46,7 @@ public class SetHomepageAction implements UsersWsAction {
 
   private static final String ACTION = "set_homepage";
 
-  private static final String PARAM_TYPE = "type";
+  public static final String PARAM_TYPE = "type";
   private static final String PARAM_ORGANIZATION = "organization";
   private static final String PARAM_COMPONENT = "component";
   private static final String PARAM_BRANCH = "branch";
@@ -131,6 +131,8 @@ public class SetHomepageAction implements UsersWsAction {
         return dbClient.organizationDao().selectByKey(dbSession, organizationParameter)
           .orElseThrow(() -> new NotFoundException(format("No organizationDto with key '%s'", organizationParameter)))
           .getUuid();
+      case PROJECTS :
+      case ISSUES:
       case MY_PROJECTS:
       case MY_ISSUES:
         checkArgument(isBlank(componentParameter), "Parameter '%s' must not be provided when type is '%s'", PARAM_COMPONENT, type.name());

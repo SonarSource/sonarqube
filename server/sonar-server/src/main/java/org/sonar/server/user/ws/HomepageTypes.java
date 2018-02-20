@@ -26,9 +26,9 @@ public interface HomepageTypes {
   enum Type {
     PROJECT,
     /**
-     * This type in only available on SonarQube
+     * These types in only available on SonarQube
      */
-    PROJECTS,
+    PROJECTS, ISSUES,
     /**
      * These types are only available on SonarCloud
      */
