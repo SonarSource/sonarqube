@@ -41,6 +41,7 @@ public class BranchConfigurationProviderTest {
   private BranchConfigurationLoader loader;
   private BranchConfiguration config;
   private ProjectBranches branches;
+  private ProjectPullRequests pullRequests;
   private ProjectKey projectKey;
   private Map<String, String> globalPropertiesMap;
   private Map<String, String> remoteProjectSettings;
@@ -52,6 +53,7 @@ public class BranchConfigurationProviderTest {
     loader = mock(BranchConfigurationLoader.class);
     config = mock(BranchConfiguration.class);
     branches = mock(ProjectBranches.class);
+    pullRequests = mock(ProjectPullRequests.class);
     settingsLoader = mock(SettingsLoader.class);
     projectKey = mock(ProjectKey.class);
     globalPropertiesMap = new HashMap<>();
@@ -61,22 +63,24 @@ public class BranchConfigurationProviderTest {
 
   @Test
   public void should_cache_config() {
-    BranchConfiguration configuration = provider.provide(null, globalConfiguration, projectKey, settingsLoader, branches);
-    assertThat(provider.provide(null, globalConfiguration, projectKey, settingsLoader, branches)).isSameAs(configuration);
+    BranchConfiguration configuration = provider.provide(null, globalConfiguration, projectKey, settingsLoader, branches, pullRequests);
+    assertThat(provider.provide(null, globalConfiguration, projectKey, settingsLoader, branches, pullRequests)).isSameAs(configuration);
   }
 
   @Test
   public void should_use_loader() {
-    when(loader.load(eq(globalPropertiesMap), any(Supplier.class), eq(branches))).thenReturn(config);
-    BranchConfiguration branchConfig = provider.provide(loader, globalConfiguration, projectKey, settingsLoader, branches);
+    when(loader.load(eq(globalPropertiesMap), any(Supplier.class), eq(branches), eq(pullRequests))).thenReturn(config);
 
-    assertThat(branchConfig).isSameAs(config);
+    BranchConfiguration result = provider.provide(loader, globalConfiguration, projectKey, settingsLoader, branches, pullRequests);
+
+    assertThat(result).isSameAs(config);
   }
 
   @Test
   public void should_return_default_if_no_loader() {
-    BranchConfiguration configuration = provider.provide(null, globalConfiguration, projectKey, settingsLoader, branches);
-    assertThat(configuration.branchTarget()).isNull();
-    assertThat(configuration.branchType()).isEqualTo(BranchType.LONG);
+    BranchConfiguration result = provider.provide(null, globalConfiguration, projectKey, settingsLoader, branches, pullRequests);
+
+    assertThat(result.branchTarget()).isNull();
+    assertThat(result.branchType()).isEqualTo(BranchType.LONG);
   }
 }

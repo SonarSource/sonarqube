@@ -19,13 +19,35 @@
  */
 package org.sonar.scanner.scan.branch;
 
-import java.util.Map;
-import java.util.function.Supplier;
-import org.sonar.api.batch.InstantiationStrategy;
-import org.sonar.api.batch.ScannerSide;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+import javax.annotation.concurrent.Immutable;
 
-@ScannerSide
-@InstantiationStrategy(InstantiationStrategy.PER_BATCH)
-public interface BranchConfigurationLoader {
-  BranchConfiguration load(Map<String, String> localSettings, Supplier<Map<String, String>> remoteSettingsSupplier, ProjectBranches branches, ProjectPullRequests pullRequests);
+/**
+ * Container class for information about a pull request.
+ */
+@Immutable
+public class PullRequestInfo {
+  private final String id;
+  private final String branch;
+  private final String base;
+
+  public PullRequestInfo(String id, String branch, @Nullable String base) {
+    this.id = id;
+    this.branch = branch;
+    this.base = base;
+  }
+
+  public String getId() {
+    return id;
+  }
+
+  public String getBranch() {
+    return branch;
+  }
+
+  @CheckForNull
+  public String getBase() {
+    return base;
+  }
 }

@@ -19,13 +19,31 @@
  */
 package org.sonar.scanner.scan.branch;
 
+import java.util.List;
 import java.util.Map;
-import java.util.function.Supplier;
-import org.sonar.api.batch.InstantiationStrategy;
-import org.sonar.api.batch.ScannerSide;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import javax.annotation.CheckForNull;
+import javax.annotation.concurrent.Immutable;
 
-@ScannerSide
-@InstantiationStrategy(InstantiationStrategy.PER_BATCH)
-public interface BranchConfigurationLoader {
-  BranchConfiguration load(Map<String, String> localSettings, Supplier<Map<String, String>> remoteSettingsSupplier, ProjectBranches branches, ProjectPullRequests pullRequests);
+/**
+ * Container class for information about the pull requests of a project.
+ */
+@Immutable
+public class ProjectPullRequests {
+
+  private final Map<String, PullRequestInfo> pullRequestsById;
+
+  public ProjectPullRequests(List<PullRequestInfo> pullRequestsById) {
+    this.pullRequestsById = pullRequestsById.stream().collect(Collectors.toMap(PullRequestInfo::getBranch, Function.identity()));
+  }
+
+  @CheckForNull
+  public PullRequestInfo get(String branch) {
+    return pullRequestsById.get(branch);
+  }
+
+  public boolean isEmpty() {
+    return pullRequestsById.isEmpty();
+  }
 }

@@ -92,6 +92,7 @@ import org.sonar.scanner.scan.branch.BranchConfiguration;
 import org.sonar.scanner.scan.branch.BranchConfigurationProvider;
 import org.sonar.scanner.scan.branch.BranchType;
 import org.sonar.scanner.scan.branch.ProjectBranchesProvider;
+import org.sonar.scanner.scan.branch.ProjectPullRequestsProvider;
 import org.sonar.scanner.scan.filesystem.BatchIdGenerator;
 import org.sonar.scanner.scan.filesystem.InputComponentStoreProvider;
 import org.sonar.scanner.scan.filesystem.StatusDetection;
@@ -147,6 +148,7 @@ public class ProjectScanContainer extends ComponentContainer {
       new RulesProvider(),
       new BranchConfigurationProvider(),
       new ProjectBranchesProvider(),
+      new ProjectPullRequestsProvider(),
       DefaultAnalysisMode.class,
       new ProjectRepositoriesProvider(),
 
