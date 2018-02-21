@@ -247,6 +247,59 @@ public class BranchDaoTest {
   }
 
   @Test
+  public void update_pull_request_data() {
+    BranchDto dto = new BranchDto();
+    dto.setProjectUuid("U1");
+    dto.setUuid("U2");
+    dto.setBranchType(BranchType.PULL_REQUEST);
+    dto.setKey("foo");
+
+    // the fields that can be updated
+    String mergeBranchUuid = "U3";
+    dto.setMergeBranchUuid(mergeBranchUuid + "-dummy-suffix");
+
+    String branch = "feature/pr1";
+    String title = "Dummy Feature Title";
+    String url = "http://example.com/pullRequests/pr1";
+    String tokenAttributeName = "token";
+    String tokenAttributeValue = "dummy token";
+    DbProjectBranches.PullRequestData pullRequestData = DbProjectBranches.PullRequestData.newBuilder()
+      .setBranch(branch + "-dummy-suffix")
+      .setTitle(title + "-dummy-suffix")
+      .setUrl(url + "-dummy-suffix")
+      .putAttributes(tokenAttributeName, tokenAttributeValue + "-dummy-suffix")
+      .build();
+    dto.setPullRequestData(pullRequestData);
+
+    underTest.insert(dbSession, dto);
+
+    // modify pull request data
+
+    dto.setMergeBranchUuid(mergeBranchUuid);
+    pullRequestData = DbProjectBranches.PullRequestData.newBuilder()
+      .setBranch(branch)
+      .setTitle(title)
+      .setUrl(url)
+      .putAttributes(tokenAttributeName, tokenAttributeValue)
+      .build();
+    dto.setPullRequestData(pullRequestData);
+
+    underTest.upsert(dbSession, dto);
+
+    BranchDto loaded = underTest.selectByPullRequestKey(dbSession, "U1", "foo").get();
+    assertThat(loaded.getMergeBranchUuid()).isEqualTo(mergeBranchUuid);
+    assertThat(loaded.getProjectUuid()).isEqualTo("U1");
+    assertThat(loaded.getBranchType()).isEqualTo(BranchType.PULL_REQUEST);
+
+    DbProjectBranches.PullRequestData loadedPullRequestData = loaded.getPullRequestData();
+    assertThat(loadedPullRequestData).isNotNull();
+    assertThat(loadedPullRequestData.getBranch()).isEqualTo(branch);
+    assertThat(loadedPullRequestData.getTitle()).isEqualTo(title);
+    assertThat(loadedPullRequestData.getUrl()).isEqualTo(url);
+    assertThat(loadedPullRequestData.getAttributesMap().get(tokenAttributeName)).isEqualTo(tokenAttributeValue);
+  }
+
+  @Test
   public void selectByBranchKey() {
     BranchDto mainBranch = new BranchDto();
     mainBranch.setProjectUuid("U1");
