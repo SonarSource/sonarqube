@@ -66,6 +66,17 @@ public class SonarCloudHomepageTest {
     checkHomepage(user, MY_ISSUES, null, null);
   }
 
+
+  @Test
+  public void set_and_get_homepage_on_organizations() {
+    Organization organization = tester.organizations().generate();
+    User user = tester.users().generateMember(organization);
+
+    setHomepage(user, "ORGANIZATION", organization.getKey(), null);
+
+    checkHomepage(user, ORGANIZATION, organization, null);
+  }
+
   @Test
   public void fallback_to_my_projects_when_homepage_was_set_to_a_removed_project() {
     Organization organization = tester.organizations().generate();
