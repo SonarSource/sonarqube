@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import DeliveryAccordion from './DeliveryAccordion';
+import { Button } from '../../../components/ui/buttons';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import ListFooter from '../../../components/controls/ListFooter';
 import Modal from '../../../components/controls/Modal';
@@ -111,9 +112,9 @@ export default class DeliveriesForm extends React.PureComponent<Props, State> {
           )}
         </div>
         <footer className="modal-foot">
-          <button className="button-link js-modal-close" onClick={this.props.onClose} type="button">
+          <Button className="button-link js-modal-close" onClick={this.props.onClose}>
             {translate('close')}
-          </button>
+          </Button>
         </footer>
       </Modal>
     );

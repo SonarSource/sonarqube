@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import CreateWebhookForm from './CreateWebhookForm';
+import { Button } from '../../../components/ui/buttons';
 import Tooltip from '../../../components/controls/Tooltip';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 
@@ -62,18 +63,16 @@ export default class PageActions extends React.PureComponent<Props, State> {
         <Tooltip
           overlay={translateWithParameters('webhooks.maximum_reached', WEBHOOKS_LIMIT)}
           placement="left">
-          <button className="js-webhook-create disabled" type="button">
-            {translate('create')}
-          </button>
+          <Button className="js-webhook-create disabled">{translate('create')}</Button>
         </Tooltip>
       );
     }
 
     return (
       <>
-        <button className="js-webhook-create" onClick={this.handleCreateOpen} type="button">
+        <Button className="js-webhook-create" onClick={this.handleCreateOpen}>
           {translate('create')}
-        </button>
+        </Button>
         {this.state.openCreate && (
           <CreateWebhookForm onClose={this.handleCreateClose} onDone={this.props.onCreate} />
         )}

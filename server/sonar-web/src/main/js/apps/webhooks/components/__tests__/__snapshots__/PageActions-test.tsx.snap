@@ -8,12 +8,11 @@ exports[`should not allow to create a new webhook 1`] = `
     overlay="webhooks.maximum_reached.10"
     placement="left"
   >
-    <button
+    <Button
       className="js-webhook-create disabled"
-      type="button"
     >
       create
-    </button>
+    </Button>
   </Tooltip>
 </div>
 `;
@@ -23,13 +22,12 @@ exports[`should render correctly 1`] = `
   className="page-actions"
 >
   <React.Fragment>
-    <button
+    <Button
       className="js-webhook-create"
       onClick={[Function]}
-      type="button"
     >
       create
-    </button>
+    </Button>
   </React.Fragment>
 </div>
 `;

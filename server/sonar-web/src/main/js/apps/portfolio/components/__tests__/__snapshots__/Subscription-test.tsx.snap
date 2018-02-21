@@ -27,7 +27,6 @@ exports[`renders when not subscribed 1`] = `
     <Button
       className="js-report-subscribe"
       onClick={[Function]}
-      type="button"
     >
       report.subscribe
     </Button>
@@ -56,7 +55,6 @@ exports[`renders when subscribed 1`] = `
     </div>
     <Button
       onClick={[Function]}
-      type="button"
     >
       report.unsubscribe
     </Button>
