@@ -367,13 +367,12 @@ exports[`should render source file 1`] = `
   <footer
     className="modal-foot"
   >
-    <button
+    <Button
       className="button-link"
-      onClick={[Function]}
-      type="button"
+      onClick={[MockFunction]}
     >
       close
-    </button>
+    </Button>
   </footer>
 </Modal>
 `;
@@ -1351,13 +1350,12 @@ exports[`should render source file 2`] = `
   <footer
     className="modal-foot"
   >
-    <button
+    <Button
       className="button-link"
-      onClick={[Function]}
-      type="button"
+      onClick={[MockFunction]}
     >
       close
-    </button>
+    </Button>
   </footer>
 </Modal>
 `;
@@ -1523,13 +1521,12 @@ exports[`should render test file 1`] = `
   <footer
     className="modal-foot"
   >
-    <button
+    <Button
       className="button-link"
-      onClick={[Function]}
-      type="button"
+      onClick={[MockFunction]}
     >
       close
-    </button>
+    </Button>
   </footer>
 </Modal>
 `;

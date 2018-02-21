@@ -22,6 +22,7 @@ import { Link } from 'react-router';
 import { keyBy, sortBy, groupBy } from 'lodash';
 import MeasuresOverlayMeasure from './MeasuresOverlayMeasure';
 import MeasuresOverlayTestCases from './MeasuresOverlayTestCases';
+import { Button } from '../../../components/ui/buttons';
 import { getFacets } from '../../../api/issues';
 import { getMeasures } from '../../../api/measures';
 import { getAllMetrics } from '../../../api/metrics';
@@ -124,12 +125,6 @@ export default class MeasuresOverlay extends React.PureComponent<Props, State> {
         typesFacet: typesFacet && typesFacet.values
       };
     });
-  };
-
-  handleCloseClick = (event: React.SyntheticEvent<HTMLButtonElement>) => {
-    event.preventDefault();
-    event.currentTarget.blur();
-    this.props.onClose();
   };
 
   handleAllMeasuresClick = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
@@ -449,9 +444,9 @@ export default class MeasuresOverlay extends React.PureComponent<Props, State> {
         </div>
 
         <footer className="modal-foot">
-          <button className="button-link" onClick={this.handleCloseClick} type="button">
+          <Button className="button-link" onClick={this.props.onClose}>
             {translate('close')}
-          </button>
+          </Button>
         </footer>
       </Modal>
     );

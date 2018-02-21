@@ -20,6 +20,7 @@
 import * as React from 'react';
 import { withFormik, Form, FormikActions, FormikProps } from 'formik';
 import Modal from './Modal';
+import { ResetButtonLink, SubmitButton } from '../../components/ui/buttons';
 import DeferredSpinner from '../common/DeferredSpinner';
 import { translate } from '../../helpers/l10n';
 
@@ -38,12 +39,6 @@ interface Props<Values> extends InnerFormProps<Values> {
 }
 
 export default class ValidationModal<Values> extends React.PureComponent<Props<Values>> {
-  handleCancelClick = (event: React.SyntheticEvent<HTMLButtonElement>) => {
-    event.preventDefault();
-    event.currentTarget.blur();
-    this.props.onClose();
-  };
-
   handleSubmit = (data: Values, { setSubmitting }: FormikActions<Values>) => {
     const result = this.props.onSubmit(data);
     if (result) {
@@ -80,16 +75,12 @@ export default class ValidationModal<Values> extends React.PureComponent<Props<V
 
         <footer className="modal-foot">
           <DeferredSpinner className="spacer-right" loading={props.isSubmitting} />
-          <button disabled={props.isSubmitting || !props.isValid || !props.dirty} type="submit">
+          <SubmitButton disabled={props.isSubmitting || !props.isValid || !props.dirty}>
             {props.confirmButtonText}
-          </button>
-          <button
-            className="button-link"
-            disabled={props.isSubmitting}
-            onClick={this.handleCancelClick}
-            type="reset">
+          </SubmitButton>
+          <ResetButtonLink disabled={props.isSubmitting} onClick={this.props.onClose}>
             {translate('cancel')}
-          </button>
+          </ResetButtonLink>
         </footer>
       </Form>
     ));

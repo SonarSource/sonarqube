@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import DeliveryItem from './DeliveryItem';
+import { Button } from '../../../components/ui/buttons';
 import Modal from '../../../components/controls/Modal';
 import { Webhook, WebhookDelivery } from '../../../app/types';
 import { translateWithParameters, translate } from '../../../helpers/l10n';
@@ -88,9 +89,9 @@ export default class LatestDeliveryForm extends React.PureComponent<Props, State
           payload={payload}
         />
         <footer className="modal-foot">
-          <button className="button-link js-modal-close" onClick={this.props.onClose} type="button">
+          <Button className="button-link js-modal-close" onClick={this.props.onClose}>
             {translate('close')}
-          </button>
+          </Button>
         </footer>
       </Modal>
     );

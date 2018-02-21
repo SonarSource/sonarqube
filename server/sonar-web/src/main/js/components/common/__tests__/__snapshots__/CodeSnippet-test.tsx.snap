@@ -17,13 +17,22 @@ bar
 bar"
       tooltipPlacement="top"
     >
-      <button
+      <Button
         className="js-copy-to-clipboard no-select"
         data-clipboard-text="foo
 bar"
+        innerRef={[Function]}
       >
-        copy
-      </button>
+        <button
+          className="button js-copy-to-clipboard no-select"
+          data-clipboard-text="foo
+bar"
+          onClick={[Function]}
+          type="button"
+        >
+          copy
+        </button>
+      </Button>
     </ClipboardButton>
   </div>
 </CodeSnippet>
@@ -67,13 +76,22 @@ exports[`renders correctly with array snippet 1`] = `
   bar"
       tooltipPlacement="top"
     >
-      <button
+      <Button
         className="js-copy-to-clipboard no-select"
         data-clipboard-text="foo \\\\
   bar"
+        innerRef={[Function]}
       >
-        copy
-      </button>
+        <button
+          className="button js-copy-to-clipboard no-select"
+          data-clipboard-text="foo \\\\
+  bar"
+          onClick={[Function]}
+          type="button"
+        >
+          copy
+        </button>
+      </Button>
     </ClipboardButton>
   </div>
 </CodeSnippet>
@@ -99,12 +117,20 @@ exports[`renders correctly with array snippet 2`] = `
       copyValue="foo bar"
       tooltipPlacement="top"
     >
-      <button
+      <Button
         className="js-copy-to-clipboard no-select"
         data-clipboard-text="foo bar"
+        innerRef={[Function]}
       >
-        copy
-      </button>
+        <button
+          className="button js-copy-to-clipboard no-select"
+          data-clipboard-text="foo bar"
+          onClick={[Function]}
+          type="button"
+        >
+          copy
+        </button>
+      </Button>
     </ClipboardButton>
   </div>
 </CodeSnippet>
