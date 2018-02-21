@@ -167,6 +167,44 @@ public class CurrentActionTest {
   }
 
   @Test
+  public void return_homepage_when_set_to_portfolios() {
+    UserDto user = db.users().insertUser(u -> u.setHomepageType("PORTFOLIOS"));
+    userSessionRule.logIn(user);
+
+    CurrentWsResponse response = call();
+
+    assertThat(response.getHomepage())
+      .extracting(CurrentWsResponse.Homepage::getType)
+      .containsExactly(CurrentWsResponse.HomepageType.PORTFOLIOS);
+  }
+
+  @Test
+  public void return_homepage_when_set_to_a_portfolio() {
+    ComponentDto portfolio = db.components().insertPrivatePortfolio(db.getDefaultOrganization());
+    UserDto user = db.users().insertUser(u -> u.setHomepageType("PORTFOLIO").setHomepageParameter(portfolio.uuid()));
+    userSessionRule.logIn(user);
+
+    CurrentWsResponse response = call();
+
+    assertThat(response.getHomepage())
+      .extracting(CurrentWsResponse.Homepage::getType, CurrentWsResponse.Homepage::getComponent)
+      .containsExactly(CurrentWsResponse.HomepageType.PORTFOLIO, portfolio.getKey());
+  }
+
+  @Test
+  public void return_homepage_when_set_to_an_application() {
+    ComponentDto application = db.components().insertPrivateApplication(db.getDefaultOrganization());
+    UserDto user = db.users().insertUser(u -> u.setHomepageType("APPLICATION").setHomepageParameter(application.uuid()));
+    userSessionRule.logIn(user);
+
+    CurrentWsResponse response = call();
+
+    assertThat(response.getHomepage())
+      .extracting(CurrentWsResponse.Homepage::getType, CurrentWsResponse.Homepage::getComponent)
+      .containsExactly(CurrentWsResponse.HomepageType.APPLICATION, application.getKey());
+  }
+
+  @Test
   public void return_homepage_when_set_to_a_project() {
     ComponentDto project = db.components().insertPrivateProject();
     UserDto user = db.users().insertUser(u -> u.setHomepageType("PROJECT").setHomepageParameter(project.uuid()));

@@ -28,7 +28,7 @@ public interface HomepageTypes {
     /**
      * These types in only available on SonarQube
      */
-    PROJECTS, ISSUES,
+    PROJECTS, ISSUES, PORTFOLIOS, PORTFOLIO, APPLICATION,
     /**
      * These types are only available on SonarCloud
      */
