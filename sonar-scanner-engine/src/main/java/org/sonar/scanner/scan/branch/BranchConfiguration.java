@@ -54,7 +54,19 @@ public interface BranchConfiguration {
 
   /**
    * The name of the base branch to determine project repository and changed files.
+   *
+   * Note: this is important for the scanner during the analysis of long living branches.
+   * For short living branches, branchBase is always the same as branchTarget.
+   * For long living branches, branchBase is the target in case of first analysis,
+   * otherwise it's the branch itself.
    */
   @CheckForNull
   String branchBase();
+
+  /**
+   * The id of the pull request.
+   *
+   * @throws IllegalStateException if this branch configuration is not a pull request.
+   */
+  String pullRequestId();
 }

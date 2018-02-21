@@ -61,6 +61,11 @@ public interface MutableAnalysisMetadataHolder extends AnalysisMetadataHolder {
   MutableAnalysisMetadataHolder setBranch(Branch branch);
 
   /**
+   * @throws IllegalStateException if pull request id has already been set
+   */
+  MutableAnalysisMetadataHolder setPullRequestId(String pullRequestId);
+
+  /**
    * @throws IllegalStateException if project has already been set
    */
   MutableAnalysisMetadataHolder setProject(Project project);
