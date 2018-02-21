@@ -32,6 +32,7 @@ import org.sonar.server.organization.OrganizationFlags;
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.toList;
+import static org.sonar.server.user.ws.HomepageTypes.Type.ISSUES;
 import static org.sonar.server.user.ws.HomepageTypes.Type.MY_ISSUES;
 import static org.sonar.server.user.ws.HomepageTypes.Type.MY_PROJECTS;
 import static org.sonar.server.user.ws.HomepageTypes.Type.ORGANIZATION;
@@ -41,7 +42,7 @@ import static org.sonar.server.user.ws.HomepageTypes.Type.values;
 
 public class HomepageTypesImpl implements HomepageTypes, Startable {
 
-  private static final EnumSet<Type> ON_SONARQUBE = EnumSet.of(PROJECTS, PROJECT, ORGANIZATION);
+  private static final EnumSet<Type> ON_SONARQUBE = EnumSet.of(PROJECTS, PROJECT, ISSUES, ORGANIZATION);
   private static final EnumSet<Type> ON_SONARCLOUD = EnumSet.of(PROJECT, MY_PROJECTS, MY_ISSUES, ORGANIZATION);
 
   private final Configuration configuration;
