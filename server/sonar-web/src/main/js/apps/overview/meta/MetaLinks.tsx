@@ -19,9 +19,9 @@
  */
 import * as React from 'react';
 import MetaLink from './MetaLink';
-import { getProjectLinks, ProjectLink } from '../../../api/projectLinks';
+import { getProjectLinks } from '../../../api/projectLinks';
 import { orderLinks } from '../../project-admin/links/utils';
-import { LightComponent } from '../../../app/types';
+import { LightComponent, ProjectLink } from '../../../app/types';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {

@@ -20,82 +20,86 @@
 package org.sonarqube.qa.util.pageobjects;
 
 import com.codeborne.selenide.Condition;
-import com.codeborne.selenide.Selenide;
 import com.codeborne.selenide.SelenideElement;
+
+import static com.codeborne.selenide.Condition.visible;
+import static com.codeborne.selenide.Selenide.$;
 
 public class ProjectKeyPage {
 
   public ProjectKeyPage() {
-    Selenide.$("#project-key").should(Condition.exist);
+    $("#project-key").should(Condition.exist);
   }
 
   public ProjectKeyPage assertSimpleUpdate() {
-    Selenide.$("#update-key-new-key").shouldBe(Condition.visible);
-    Selenide.$("#update-key-submit").shouldBe(Condition.visible);
+    $("#update-key-new-key").shouldBe(visible);
+    $("#update-key-submit").shouldBe(visible);
     return this;
   }
 
   public ProjectKeyPage trySimpleUpdate(String newKey) {
-    Selenide.$("#update-key-new-key").val(newKey);
-    Selenide.$("#update-key-submit").click();
-    Selenide.$("#update-key-confirm").click();
+    $("#update-key-new-key").val(newKey);
+    $("#update-key-submit").click();
+    $(".modal").shouldBe(visible);
+    $(".modal button[type=\"submit\"]").click();
     return this;
   }
 
   public ProjectKeyPage openFineGrainedUpdate() {
-    Selenide.$("#update-key-tab-fine").click();
-    Selenide.$("#project-key-fine-grained-update").shouldBe(Condition.visible);
+    $("#update-key-tab-fine").click();
+    $("#project-key-fine-grained-update").shouldBe(visible);
     return this;
   }
 
   public ProjectKeyPage tryFineGrainedUpdate(String key, String newKey) {
-    SelenideElement form = Selenide.$(".js-fine-grained-update[data-key=\"" + key + "\"]");
-    form.shouldBe(Condition.visible);
+    SelenideElement form = $(".js-fine-grained-update[data-key=\"" + key + "\"]");
+    form.shouldBe(visible);
 
     form.$("input").val(newKey);
     form.$("button").click();
 
-    Selenide.$("#update-key-confirm").click();
+    $(".modal").shouldBe(visible);
+    $(".modal button[type=\"submit\"]").click();
     return this;
   }
 
   public ProjectKeyPage assertBulkChange() {
-    Selenide.$("#bulk-update-replace").shouldBe(Condition.visible);
-    Selenide.$("#bulk-update-by").shouldBe(Condition.visible);
-    Selenide.$("#bulk-update-see-results").shouldBe(Condition.visible);
+    $("#bulk-update-replace").shouldBe(visible);
+    $("#bulk-update-by").shouldBe(visible);
+    $("#bulk-update-see-results").shouldBe(visible);
     return this;
   }
 
   public ProjectKeyPage simulateBulkChange(String replace, String by) {
-    Selenide.$("#bulk-update-replace").val(replace);
-    Selenide.$("#bulk-update-by").val(by);
-    Selenide.$("#bulk-update-see-results").click();
+    $("#bulk-update-replace").val(replace);
+    $("#bulk-update-by").val(by);
+    $("#bulk-update-see-results").click();
 
-    Selenide.$("#bulk-update-simulation").shouldBe(Condition.visible);
+    $("#bulk-update-simulation").shouldBe(visible);
     return this;
   }
 
   public ProjectKeyPage assertBulkChangeSimulationResult(String oldKey, String newKey) {
-    SelenideElement row = Selenide.$("#bulk-update-results").$("[data-key=\"" + oldKey + "\"]");
+    SelenideElement row = $("#bulk-update-results").$("[data-key=\"" + oldKey + "\"]");
     row.$(".js-old-key").should(Condition.text(oldKey));
     row.$(".js-new-key").should(Condition.text(newKey));
     return this;
   }
 
   public ProjectKeyPage assertDuplicated(String oldKey) {
-    SelenideElement row = Selenide.$("#bulk-update-results").$("[data-key=\"" + oldKey + "\"]");
-    row.$(".js-new-key").$(".badge-danger").shouldBe(Condition.visible);
+    SelenideElement row = $("#bulk-update-results").$("[data-key=\"" + oldKey + "\"]");
+    row.$(".js-new-key").$(".badge-danger").shouldBe(visible);
     return this;
   }
 
   public ProjectKeyPage confirmBulkUpdate() {
-    Selenide.$("#bulk-update-confirm").click();
+    $("#bulk-update-confirm").click();
     return this;
   }
 
   public ProjectKeyPage assertSuccessfulBulkUpdate() {
-    Selenide.$(".process-spinner")
-      .shouldBe(Condition.visible)
+    $(".process-spinner")
+      .shouldBe(visible)
       .shouldHave(Condition.text("The key has successfully been updated for all required resources"));
     return this;
   }

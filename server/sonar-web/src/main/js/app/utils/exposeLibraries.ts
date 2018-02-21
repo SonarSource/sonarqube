@@ -33,7 +33,6 @@ import Modal from '../../components/controls/Modal';
 import SearchBox from '../../components/controls/SearchBox';
 import Select from '../../components/controls/Select';
 import Tooltip from '../../components/controls/Tooltip';
-import ModalForm from '../../components/common/modal-form';
 import SelectList from '../../components/SelectList';
 import CoverageRating from '../../components/ui/CoverageRating';
 import DuplicationsRating from '../../components/ui/DuplicationsRating';
@@ -63,9 +62,7 @@ const exposeLibraries = () => {
     Tooltip,
     Select,
     SelectList,
-    SearchBox,
-    // deprecated, used in Governance
-    ModalForm_deprecated: ModalForm
+    SearchBox
   };
 };
 

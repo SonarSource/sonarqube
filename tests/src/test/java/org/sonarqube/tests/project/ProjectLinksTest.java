@@ -37,6 +37,7 @@ import org.sonarqube.ws.client.projectlinks.CreateRequest;
 import org.sonarqube.ws.client.projectlinks.DeleteRequest;
 
 import static com.codeborne.selenide.Condition.text;
+import static com.codeborne.selenide.Condition.visible;
 import static com.codeborne.selenide.Selenide.$;
 import static util.ItUtils.projectDir;
 
@@ -88,7 +89,7 @@ public class ProjectLinksTest {
     customLink.getName().should(text("Custom"));
     customLink.getType().shouldNot(Condition.exist);
     customLink.getUrl().should(text("http://example.org/custom"));
-    customLink.getDeleteButton().shouldBe(Condition.visible);
+    customLink.getDeleteButton().shouldBe(visible);
   }
 
   @Test
@@ -109,7 +110,7 @@ public class ProjectLinksTest {
     testLink.getName().should(text("Test"));
     testLink.getType().shouldNot(Condition.exist);
     testLink.getUrl().should(text("http://example.com/test"));
-    testLink.getDeleteButton().shouldBe(Condition.visible);
+    testLink.getDeleteButton().shouldBe(visible);
   }
 
   @Test
@@ -122,9 +123,8 @@ public class ProjectLinksTest {
     ProjectLinkItem customLink = links.get(1);
 
     customLink.getDeleteButton().click();
-    $("#delete-link-confirm")
-      .shouldBe(Condition.visible)
-      .click();
+    $(".modal").shouldBe(visible);
+    $(".modal button[type=\"submit\"]").click();
 
     page.getLinks().shouldHaveSize(1);
   }

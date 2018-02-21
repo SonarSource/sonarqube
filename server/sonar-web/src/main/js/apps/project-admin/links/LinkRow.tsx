@@ -17,25 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import PropTypes from 'prop-types';
+import * as React from 'react';
 import { isProvided, getLinkName } from './utils';
-import { translate } from '../../../helpers/l10n';
+import { ProjectLink } from '../../../app/types';
+import ConfirmButton from '../../../components/controls/ConfirmButton';
 import BugTrackerIcon from '../../../components/ui/BugTrackerIcon';
+import { Button } from '../../../components/ui/buttons';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
 
-export default class LinkRow extends React.PureComponent {
-  static propTypes = {
-    link: PropTypes.object.isRequired,
-    onDelete: PropTypes.func.isRequired
-  };
+interface Props {
+  link: ProjectLink;
+  onDelete: (linkId: string) => Promise<void>;
+}
 
-  handleDeleteClick(e) {
-    e.preventDefault();
-    e.target.blur();
-    this.props.onDelete();
-  }
-
-  renderIcon(iconClassName) {
+export default class LinkRow extends React.PureComponent<Props> {
+  renderIcon = (iconClassName: string) => {
     if (iconClassName === 'icon-issue') {
       return (
         <div className="display-inline-block text-top spacer-right">
@@ -49,9 +45,9 @@ export default class LinkRow extends React.PureComponent {
         <i className={iconClassName} />
       </div>
     );
-  }
+  };
 
-  renderNameForProvided(link) {
+  renderNameForProvided = (link: ProjectLink) => {
     return (
       <div>
         {this.renderIcon(`icon-${link.type}`)}
@@ -65,9 +61,9 @@ export default class LinkRow extends React.PureComponent {
         </div>
       </div>
     );
-  }
+  };
 
-  renderName(link) {
+  renderName = (link: ProjectLink) => {
     if (isProvided(link)) {
       return this.renderNameForProvided(link);
     }
@@ -80,19 +76,32 @@ export default class LinkRow extends React.PureComponent {
         </div>
       </div>
     );
-  }
+  };
 
-  renderDeleteButton(link) {
+  renderDeleteButton = (link: ProjectLink) => {
     if (isProvided(link)) {
       return null;
     }
 
     return (
-      <button className="button-red js-delete-button" onClick={this.handleDeleteClick.bind(this)}>
-        {translate('delete')}
-      </button>
+      <ConfirmButton
+        confirmButtonText={translate('delete')}
+        confirmData={link.id}
+        isDestructive={true}
+        modalBody={translateWithParameters(
+          'project_links.are_you_sure_to_delete_x_link',
+          link.name
+        )}
+        modalHeader={translate('project_links.delete_project_link')}
+        onConfirm={this.props.onDelete}>
+        {({ onClick }) => (
+          <Button className="button-red js-delete-button" onClick={onClick}>
+            {translate('delete')}
+          </Button>
+        )}
+      </ConfirmButton>
     );
-  }
+  };
 
   render() {
     const { link } = this.props;

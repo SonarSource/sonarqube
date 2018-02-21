@@ -18,44 +18,55 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import ProjectsView from '../views/gate-projects-view';
+import escapeHtml from 'escape-html';
+import SelectList from '../../../components/SelectList';
+import { translate } from '../../../helpers/l10n';
+import { getBaseUrl } from '../../../helpers/urls';
 
 export default class Projects extends React.PureComponent {
   componentDidMount() {
-    this.renderView();
+    this.renderSelectList();
   }
 
-  componentWillUpdate() {
-    this.destroyView();
-  }
+  renderSelectList = () => {
+    if (!this.container) return;
 
-  componentDidUpdate() {
-    this.renderView();
-  }
-
-  componentWillUnmount() {
-    this.destroyView();
-  }
-
-  destroyView() {
-    if (this.projectsView) {
-      this.projectsView.destroy();
-    }
-  }
-
-  renderView() {
     const { qualityGate, edit, organization } = this.props;
 
-    this.projectsView = new ProjectsView({
-      qualityGate,
-      edit,
-      container: this.refs.container,
-      organization
+    const extra = { gateId: qualityGate.id };
+    let orgQuery = '';
+    if (organization) {
+      extra.organization = organization;
+      orgQuery = '&organization=' + organization;
+    }
+
+    // eslint-disable-next-line no-new
+    new SelectList({
+      el: this.container,
+      width: '100%',
+      readOnly: !edit,
+      focusSearch: false,
+      dangerouslyUnescapedHtmlFormat: item => escapeHtml(item.name),
+      searchUrl: getBaseUrl() + `/api/qualitygates/search?gateId=${qualityGate.id}${orgQuery}`,
+      selectUrl: getBaseUrl() + '/api/qualitygates/select',
+      deselectUrl: getBaseUrl() + '/api/qualitygates/deselect',
+      extra,
+      selectParameter: 'projectId',
+      selectParameterValue: 'id',
+      labels: {
+        selected: translate('quality_gates.projects.with'),
+        deselected: translate('quality_gates.projects.without'),
+        all: translate('quality_gates.projects.all'),
+        noResults: translate('quality_gates.projects.noResults')
+      },
+      tooltips: {
+        select: translate('quality_gates.projects.select_hint'),
+        deselect: translate('quality_gates.projects.deselect_hint')
+      }
     });
-    this.projectsView.render();
-  }
+  };
 
   render() {
-    return <div ref="container" />;
+    return <div ref={node => (this.container = node)} />;
   }
 }
