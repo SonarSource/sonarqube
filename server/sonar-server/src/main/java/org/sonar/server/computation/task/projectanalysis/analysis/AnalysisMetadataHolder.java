@@ -100,6 +100,13 @@ public interface AnalysisMetadataHolder {
   Branch getBranch();
 
   /**
+   * In a pull request analysis, return the ID of the pull request
+   *
+   * @throws IllegalStateException if current analysis is not a pull request
+   */
+  String getPullRequestId();
+
+  /**
    * The project as represented by the main branch. It is used to load settings
    * like Quality gates, webhooks and configuration.
    *
@@ -126,5 +133,4 @@ public interface AnalysisMetadataHolder {
    * Plugins used during the analysis on scanner side
    */
   Map<String, ScannerPlugin> getScannerPluginsByKey();
-
 }

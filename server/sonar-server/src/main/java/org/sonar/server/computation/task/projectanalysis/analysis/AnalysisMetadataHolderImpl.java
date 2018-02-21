@@ -39,6 +39,7 @@ public class AnalysisMetadataHolderImpl implements MutableAnalysisMetadataHolder
   private final InitializedProperty<Analysis> baseProjectSnapshot = new InitializedProperty<>();
   private final InitializedProperty<Boolean> crossProjectDuplicationEnabled = new InitializedProperty<>();
   private final InitializedProperty<Branch> branch = new InitializedProperty<>();
+  private final InitializedProperty<String> pullRequestId = new InitializedProperty<>();
   private final InitializedProperty<Project> project = new InitializedProperty<>();
   private final InitializedProperty<Integer> rootComponentRef = new InitializedProperty<>();
   private final InitializedProperty<Map<String, QualityProfile>> qProfilesPerLanguage = new InitializedProperty<>();
@@ -146,6 +147,19 @@ public class AnalysisMetadataHolderImpl implements MutableAnalysisMetadataHolder
   public Branch getBranch() {
     checkState(branch.isInitialized(), BRANCH_NOT_SET);
     return branch.getProperty();
+  }
+
+  @Override
+  public MutableAnalysisMetadataHolder setPullRequestId(String pullRequestId) {
+    checkState(!this.pullRequestId.isInitialized(), "Pull request id has already been set");
+    this.pullRequestId.setProperty(pullRequestId);
+    return this;
+  }
+
+  @Override
+  public String getPullRequestId() {
+    checkState(pullRequestId.isInitialized(), "Pull request id has not been set");
+    return pullRequestId.getProperty();
   }
 
   @Override

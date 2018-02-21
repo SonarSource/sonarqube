@@ -185,8 +185,7 @@ public class ReportPublisher implements Startable {
         post.setParam(CHARACTERISTIC, "branch=" + branchName);
         post.setParam(CHARACTERISTIC, "branchType=" + branchConfiguration.branchType().name());
       } else {
-        // TODO store the pull request id
-        post.setParam(CHARACTERISTIC, "pullRequest=" + branchName);
+        post.setParam(CHARACTERISTIC, "pullRequest=" + branchConfiguration.pullRequestId());
       }
     }
 
