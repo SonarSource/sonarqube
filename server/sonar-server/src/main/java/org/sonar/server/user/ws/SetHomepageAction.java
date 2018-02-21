@@ -54,13 +54,11 @@ public class SetHomepageAction implements UsersWsAction {
   private final UserSession userSession;
   private final DbClient dbClient;
   private final ComponentFinder componentFinder;
-  private HomepageTypes homepageTypes;
 
-  public SetHomepageAction(UserSession userSession, DbClient dbClient, ComponentFinder componentFinder, HomepageTypes homepageTypes) {
+  public SetHomepageAction(UserSession userSession, DbClient dbClient, ComponentFinder componentFinder) {
     this.userSession = userSession;
     this.dbClient = dbClient;
     this.componentFinder = componentFinder;
-    this.homepageTypes = homepageTypes;
   }
 
   @Override
@@ -129,7 +127,7 @@ public class SetHomepageAction implements UsersWsAction {
         return dbClient.organizationDao().selectByKey(dbSession, organizationParameter)
           .orElseThrow(() -> new NotFoundException(format("No organizationDto with key '%s'", organizationParameter)))
           .getUuid();
-      case PROJECTS :
+      case PROJECTS:
       case ISSUES:
       case MY_PROJECTS:
       case MY_ISSUES:

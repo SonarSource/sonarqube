@@ -67,9 +67,8 @@ public class SetHomepageActionTest {
   @Before
   public void setUp() {
     when(homepageTypes.getTypes()).thenReturn(asList(PROJECT, ORGANIZATION, MY_ISSUES, MY_PROJECTS));
-    ws = new WsActionTester(new SetHomepageAction(userSession, dbClient, TestComponentFinder.from(db), homepageTypes));
+    ws = new WsActionTester(new SetHomepageAction(userSession, dbClient, TestComponentFinder.from(db)));
   }
-
 
   @Test
   public void verify_definition() {
@@ -182,7 +181,7 @@ public class SetHomepageActionTest {
   public void set_sonarqube_issues_homepage() {
 
     when(homepageTypes.getTypes()).thenReturn(asList(PROJECT, ORGANIZATION, ISSUES, PROJECTS));
-    ws = new WsActionTester(new SetHomepageAction(userSession, dbClient, TestComponentFinder.from(db), homepageTypes));
+    ws = new WsActionTester(new SetHomepageAction(userSession, dbClient, TestComponentFinder.from(db)));
 
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
@@ -217,7 +216,7 @@ public class SetHomepageActionTest {
   @Test
   public void set_sonarqube_projects_homepage() {
     when(homepageTypes.getTypes()).thenReturn(asList(PROJECT, ORGANIZATION, ISSUES, PROJECTS));
-    ws = new WsActionTester(new SetHomepageAction(userSession, dbClient, TestComponentFinder.from(db), homepageTypes));
+    ws = new WsActionTester(new SetHomepageAction(userSession, dbClient, TestComponentFinder.from(db)));
 
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
