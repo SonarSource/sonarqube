@@ -23,7 +23,6 @@ import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 import Header from './Header';
 import Table from './Table';
-import DeletionModal from './views/DeletionModal';
 import { fetchProjectLinks, deleteProjectLink, createProjectLink } from '../store/actions';
 import { getProjectAdminProjectLinks } from '../../../store/rootReducer';
 import { translate } from '../../../helpers/l10n';
@@ -34,26 +33,17 @@ class Links extends React.PureComponent {
     links: PropTypes.array
   };
 
-  componentWillMount() {
-    this.handleCreateLink = this.handleCreateLink.bind(this);
-    this.handleDeleteLink = this.handleDeleteLink.bind(this);
-  }
-
   componentDidMount() {
     this.props.fetchProjectLinks(this.props.component.key);
   }
 
-  handleCreateLink(name, url) {
+  handleCreateLink = (name, url) => {
     return this.props.createProjectLink(this.props.component.key, name, url);
-  }
+  };
 
-  handleDeleteLink(link) {
-    new DeletionModal({ link })
-      .on('done', () => {
-        this.props.deleteProjectLink(this.props.component.key, link.id);
-      })
-      .render();
-  }
+  handleDeleteLink = linkId => {
+    return this.props.deleteProjectLink(this.props.component.key, linkId);
+  };
 
   render() {
     return (

@@ -23,8 +23,13 @@ import DeferredSpinner from '../common/DeferredSpinner';
 import { translate } from '../../helpers/l10n';
 import { SubmitButton, ResetButtonLink } from '../ui/buttons';
 
+export interface ChildrenProps {
+  onClick: () => void;
+  onFormSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
+}
+
 interface Props {
-  children: (props: { onClick: () => void }) => React.ReactNode;
+  children: (props: ChildrenProps) => React.ReactNode;
   confirmButtonText: string;
   confirmData?: string;
   isDestructive?: boolean;
@@ -53,6 +58,13 @@ export default class ConfirmButton extends React.PureComponent<Props, State> {
     this.setState({ modal: true });
   };
 
+  handleFormSubmit = (event?: React.FormEvent<HTMLFormElement>) => {
+    if (event) {
+      event.preventDefault();
+    }
+    this.setState({ modal: true });
+  };
+
   handleSubmit = () => {
     const result = this.props.onConfirm(this.props.confirmData);
     if (result) {
@@ -74,7 +86,10 @@ export default class ConfirmButton extends React.PureComponent<Props, State> {
 
     return (
       <>
-        {this.props.children({ onClick: this.handleButtonClick })}
+        {this.props.children({
+          onClick: this.handleButtonClick,
+          onFormSubmit: this.handleFormSubmit
+        })}
         {this.state.modal && (
           <SimpleModal
             header={modalHeader}

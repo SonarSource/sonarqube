@@ -17,30 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { getJSON, post, postJSON } from '../helpers/request';
+import { ProjectLink } from '../app/types';
 import throwGlobalError from '../app/utils/throwGlobalError';
-
-export interface ProjectLink {
-  id: string;
-  name: string;
-  type: string;
-  url: string;
-}
+import { getJSON, post, postJSON } from '../helpers/request';
 
 export function getProjectLinks(projectKey: string): Promise<ProjectLink[]> {
-  const url = '/api/project_links/search';
-  const data = { projectKey };
-  return getJSON(url, data).then(r => r.links, throwGlobalError);
+  return getJSON('/api/project_links/search', { projectKey }).then(r => r.links, throwGlobalError);
 }
 
-export function deleteLink(linkId: string): Promise<void> {
-  const url = '/api/project_links/delete';
-  const data = { id: linkId };
-  return post(url, data);
+export function deleteLink(linkId: string) {
+  return post('/api/project_links/delete', { id: linkId }).catch(throwGlobalError);
 }
 
-export function createLink(projectKey: string, name: string, url: string): Promise<any> {
-  const apiURL = '/api/project_links/create';
-  const data = { projectKey, name, url };
-  return postJSON(apiURL, data).then(r => r.link);
+export function createLink(projectKey: string, name: string, url: string): Promise<ProjectLink> {
+  return postJSON('/api/project_links/create', { projectKey, name, url }).then(
+    r => r.link,
+    throwGlobalError
+  );
 }

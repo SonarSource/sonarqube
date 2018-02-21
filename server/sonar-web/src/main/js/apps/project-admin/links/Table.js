@@ -29,10 +29,6 @@ export default class Table extends React.PureComponent {
     onDelete: PropTypes.func.isRequired
   };
 
-  handleDeleteLink(link) {
-    this.props.onDelete(link);
-  }
-
   renderHeader() {
     // keep empty cell for actions
     return (
@@ -50,12 +46,12 @@ export default class Table extends React.PureComponent {
     const orderedLinks = orderLinks(this.props.links);
 
     const linkRows = orderedLinks.map(link => (
-      <LinkRow key={link.id} link={link} onDelete={this.handleDeleteLink.bind(this, link)} />
+      <LinkRow key={link.id} link={link} onDelete={this.props.onDelete} />
     ));
 
     return (
       <div className="boxed-group boxed-group-inner">
-        <table id="project-links" className="data zebra">
+        <table className="data zebra" id="project-links">
           {this.renderHeader()}
           <tbody>{linkRows}</tbody>
         </table>

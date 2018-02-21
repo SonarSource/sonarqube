@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { isProvided, getLinkName } from '../../project-admin/links/utils';
+import { ProjectLink } from '../../../app/types';
 import BugTrackerIcon from '../../../components/ui/BugTrackerIcon';
-import { ProjectLink } from '../../../api/projectLinks';
 
 interface Props {
   link: ProjectLink;
