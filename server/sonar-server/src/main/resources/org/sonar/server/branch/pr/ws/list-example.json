@@ -1,8 +1,8 @@
 {
   "pullRequests": [
     {
-      "id": "feature/bar",
-      "title": "feature/bar",
+      "id": "123",
+      "title": "Add feature X",
       "branch": "feature/bar",
       "base": "feature/foo",
       "status": {

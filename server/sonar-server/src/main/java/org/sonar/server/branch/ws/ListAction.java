@@ -101,7 +101,6 @@ public class ListAction implements BranchWsAction {
       checkArgument(project.isEnabled() && PROJECT.equals(project.qualifier()), "Invalid project key");
 
       Collection<BranchDto> branches = dbClient.branchDao().selectByComponent(dbSession, project).stream()
-        // TODO replace by a check on the key_type, when available
         .filter(b -> b.getBranchType() == SHORT || b.getBranchType() == LONG)
         .collect(MoreCollectors.toList());
       List<String> branchUuids = branches.stream().map(BranchDto::getUuid).collect(toList());

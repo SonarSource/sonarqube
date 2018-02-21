@@ -35,6 +35,7 @@ import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.ResourceTypesRule;
 import org.sonar.db.component.SnapshotTesting;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.protobuf.DbProjectBranches;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.es.EsTester;
@@ -100,7 +101,15 @@ public class ListActionTest {
   public void json_example() {
     ComponentDto project = db.components().insertPrivateProject(p -> p.setDbKey("sonarqube"));
     ComponentDto longLivingBranch = db.components().insertProjectBranch(project, b -> b.setKey("feature/foo").setBranchType(LONG));
-    ComponentDto pullRequest = db.components().insertProjectBranch(project, b -> b.setKey("feature/bar").setMergeBranchUuid(longLivingBranch.uuid()).setBranchType(PULL_REQUEST));
+    ComponentDto pullRequest = db.components().insertProjectBranch(project,
+      b -> b.setKey("123")
+        .setBranchType(PULL_REQUEST)
+        .setMergeBranchUuid(longLivingBranch.uuid())
+        .setPullRequestData(DbProjectBranches.PullRequestData.newBuilder()
+          .setBranch("feature/bar")
+          .setTitle("Add feature X")
+          .setUrl("https://github.com/SonarSource/sonar-core-plugins/pull/32")
+          .build()));
     userSession.logIn().addProjectPermission(UserRole.USER, project);
 
     db.getDbClient().snapshotDao().insert(db.getSession(),
@@ -118,7 +127,11 @@ public class ListActionTest {
   @Test
   public void pull_request() {
     ComponentDto project = db.components().insertMainBranch();
-    db.components().insertProjectBranch(project, b -> b.setBranchType(PULL_REQUEST).setKey("feature/bar").setMergeBranchUuid(project.uuid()));
+    db.components().insertProjectBranch(project,
+      b -> b.setKey("123")
+        .setBranchType(PULL_REQUEST)
+        .setMergeBranchUuid(project.uuid())
+        .setPullRequestData(DbProjectBranches.PullRequestData.newBuilder().setBranch("feature/bar").build()));
     userSession.logIn().addProjectPermission(UserRole.USER, project);
 
     ListWsResponse response = ws.newRequest()
@@ -127,7 +140,7 @@ public class ListActionTest {
 
     assertThat(response.getPullRequestsList())
       .extracting(PullRequest::getId, PullRequest::getBranch, PullRequest::getIsOrphan)
-      .containsExactlyInAnyOrder(tuple("feature/bar", "feature/bar", false));
+      .containsExactlyInAnyOrder(tuple("123", "feature/bar", false));
   }
 
   @Test
@@ -151,9 +164,15 @@ public class ListActionTest {
     ComponentDto longLivingBranch = db.components().insertProjectBranch(project,
       b -> b.setKey("long").setBranchType(BranchType.LONG));
     ComponentDto pullRequestOnLong = db.components().insertProjectBranch(project,
-      b -> b.setKey("pull_request_on_long").setBranchType(BranchType.PULL_REQUEST).setMergeBranchUuid(longLivingBranch.uuid()));
+      b -> b.setKey("pull_request_on_long")
+        .setBranchType(PULL_REQUEST)
+        .setMergeBranchUuid(longLivingBranch.uuid())
+        .setPullRequestData(DbProjectBranches.PullRequestData.newBuilder().setBranch("feature/bar").build()));
     ComponentDto pullRequestOnMaster = db.components().insertProjectBranch(project,
-      b -> b.setKey("pull_request_on_master").setBranchType(BranchType.PULL_REQUEST).setMergeBranchUuid(project.uuid()));
+      b -> b.setKey("pull_request_on_master")
+        .setBranchType(PULL_REQUEST)
+        .setMergeBranchUuid(project.uuid())
+        .setPullRequestData(DbProjectBranches.PullRequestData.newBuilder().setBranch("feature/bar").build()));
 
     ListWsResponse response = ws.newRequest()
       .setParam("project", project.getKey())
@@ -171,7 +190,11 @@ public class ListActionTest {
     ComponentDto project = db.components().insertMainBranch();
     userSession.logIn().addProjectPermission(UserRole.USER, project);
     ComponentDto pullRequest = db.components().insertProjectBranch(project,
-      b -> b.setKey("pr-123").setBranchType(PULL_REQUEST).setMergeBranchUuid(project.uuid()));
+      b -> b.setKey("pr-123")
+        .setBranchType(PULL_REQUEST)
+        .setMergeBranchUuid(project.uuid())
+        .setPullRequestData(DbProjectBranches.PullRequestData.newBuilder()
+          .setBranch("feature123").build()));
 
     ListWsResponse response = ws.newRequest()
       .setParam("project", pullRequest.getKey())
@@ -187,7 +210,10 @@ public class ListActionTest {
     ComponentDto project = db.components().insertMainBranch();
     userSession.logIn().addProjectPermission(UserRole.USER, project);
     ComponentDto pullRequest = db.components().insertProjectBranch(project,
-      b -> b.setKey("pr-123").setBranchType(BranchType.PULL_REQUEST).setMergeBranchUuid("unknown"));
+      b -> b.setKey("pr-123")
+        .setBranchType(PULL_REQUEST)
+        .setMergeBranchUuid("unknown")
+        .setPullRequestData(DbProjectBranches.PullRequestData.newBuilder().setBranch("feature/bar").build()));
 
     ListWsResponse response = ws.newRequest()
       .setParam("project", project.getKey())
@@ -204,17 +230,20 @@ public class ListActionTest {
     ComponentDto project = db.components().insertMainBranch();
     userSession.logIn().addProjectPermission(UserRole.USER, project);
     ComponentDto longLivingBranch = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.LONG));
-    ComponentDto shortLivingBranch = db.components().insertProjectBranch(project,
-      b -> b.setBranchType(BranchType.PULL_REQUEST).setMergeBranchUuid(longLivingBranch.uuid()));
+    ComponentDto pullRequest = db.components().insertProjectBranch(project,
+      b -> b.setKey("pr-123")
+        .setBranchType(PULL_REQUEST)
+        .setMergeBranchUuid(longLivingBranch.uuid())
+        .setPullRequestData(DbProjectBranches.PullRequestData.newBuilder().setBranch("feature/bar").build()));
     RuleDefinitionDto rule = db.rules().insert();
-    db.issues().insert(rule, shortLivingBranch, shortLivingBranch, i -> i.setType(BUG).setResolution(null));
-    db.issues().insert(rule, shortLivingBranch, shortLivingBranch, i -> i.setType(BUG).setResolution(RESOLUTION_FIXED));
-    db.issues().insert(rule, shortLivingBranch, shortLivingBranch, i -> i.setType(VULNERABILITY).setResolution(null));
-    db.issues().insert(rule, shortLivingBranch, shortLivingBranch, i -> i.setType(VULNERABILITY).setResolution(null));
-    db.issues().insert(rule, shortLivingBranch, shortLivingBranch, i -> i.setType(CODE_SMELL).setResolution(null));
-    db.issues().insert(rule, shortLivingBranch, shortLivingBranch, i -> i.setType(CODE_SMELL).setResolution(null));
-    db.issues().insert(rule, shortLivingBranch, shortLivingBranch, i -> i.setType(CODE_SMELL).setResolution(null));
-    db.issues().insert(rule, shortLivingBranch, shortLivingBranch, i -> i.setType(CODE_SMELL).setResolution(RESOLUTION_FALSE_POSITIVE));
+    db.issues().insert(rule, pullRequest, pullRequest, i -> i.setType(BUG).setResolution(null));
+    db.issues().insert(rule, pullRequest, pullRequest, i -> i.setType(BUG).setResolution(RESOLUTION_FIXED));
+    db.issues().insert(rule, pullRequest, pullRequest, i -> i.setType(VULNERABILITY).setResolution(null));
+    db.issues().insert(rule, pullRequest, pullRequest, i -> i.setType(VULNERABILITY).setResolution(null));
+    db.issues().insert(rule, pullRequest, pullRequest, i -> i.setType(CODE_SMELL).setResolution(null));
+    db.issues().insert(rule, pullRequest, pullRequest, i -> i.setType(CODE_SMELL).setResolution(null));
+    db.issues().insert(rule, pullRequest, pullRequest, i -> i.setType(CODE_SMELL).setResolution(null));
+    db.issues().insert(rule, pullRequest, pullRequest, i -> i.setType(CODE_SMELL).setResolution(RESOLUTION_FALSE_POSITIVE));
     issueIndexer.indexOnStartup(emptySet());
     permissionIndexerTester.allowOnlyAnyone(project);
 
@@ -232,7 +261,11 @@ public class ListActionTest {
     ComponentDto project = db.components().insertMainBranch();
     userSession.logIn().addProjectPermission(UserRole.USER, project);
     ComponentDto longLivingBranch = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.LONG));
-    db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.PULL_REQUEST).setMergeBranchUuid(longLivingBranch.uuid()));
+    db.components().insertProjectBranch(project,
+      b -> b.setKey("pr-123")
+        .setBranchType(PULL_REQUEST)
+        .setMergeBranchUuid(longLivingBranch.uuid())
+        .setPullRequestData(DbProjectBranches.PullRequestData.newBuilder().setBranch("feature/bar").build()));
     issueIndexer.indexOnStartup(emptySet());
     permissionIndexerTester.allowOnlyAnyone(project);
 
@@ -253,9 +286,21 @@ public class ListActionTest {
 
     ComponentDto project = db.components().insertMainBranch();
     userSession.logIn().addProjectPermission(UserRole.USER, project);
-    ComponentDto pullRequest1 = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.PULL_REQUEST).setMergeBranchUuid(project.uuid()));
+
+    ComponentDto pullRequest1 = db.components().insertProjectBranch(project,
+      b -> b.setKey("pr1")
+        .setBranchType(PULL_REQUEST)
+        .setMergeBranchUuid(project.uuid())
+        .setPullRequestData(DbProjectBranches.PullRequestData.newBuilder().setBranch("feature/pr1").build()));
+
     ComponentDto longLivingBranch2 = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.LONG));
-    ComponentDto pullRequest2 = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.PULL_REQUEST).setMergeBranchUuid(longLivingBranch2.uuid()));
+
+    ComponentDto pullRequest2 = db.components().insertProjectBranch(project,
+      b -> b.setKey("pr2")
+        .setBranchType(PULL_REQUEST)
+        .setMergeBranchUuid(longLivingBranch2.uuid())
+        .setPullRequestData(DbProjectBranches.PullRequestData.newBuilder().setBranch("feature/pr2").build()));
+
     db.getDbClient().snapshotDao().insert(db.getSession(),
       SnapshotTesting.newAnalysis(longLivingBranch2).setCreatedAt(lastAnalysisLongLivingBranch));
     db.getDbClient().snapshotDao().insert(db.getSession(),
