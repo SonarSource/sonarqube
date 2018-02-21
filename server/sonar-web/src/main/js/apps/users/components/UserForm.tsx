@@ -20,12 +20,13 @@
 import * as React from 'react';
 import { uniq } from 'lodash';
 import UserScmAccountInput from './UserScmAccountInput';
-import Modal from '../../../components/controls/Modal';
-import throwGlobalError from '../../../app/utils/throwGlobalError';
-import { parseError } from '../../../helpers/request';
 import { createUser, updateUser } from '../../../api/users';
 import { User } from '../../../app/types';
+import throwGlobalError from '../../../app/utils/throwGlobalError';
+import Modal from '../../../components/controls/Modal';
+import { Button, SubmitButton, ResetButtonLink } from '../../../components/ui/buttons';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { parseError } from '../../../helpers/request';
 
 export interface Props {
   user?: User;
@@ -101,11 +102,6 @@ export default class UserForm extends React.PureComponent<Props, State> {
   handlePasswordChange = (event: React.SyntheticEvent<HTMLInputElement>) =>
     this.setState({ password: event.currentTarget.value });
 
-  handleCancelClick = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
-    event.preventDefault();
-    this.props.onClose();
-  };
-
   handleCreateUser = (event: React.SyntheticEvent<HTMLFormElement>) => {
     event.preventDefault();
     this.setState({ submitting: true });
@@ -135,8 +131,7 @@ export default class UserForm extends React.PureComponent<Props, State> {
     }, this.handleError);
   };
 
-  handleAddScmAccount = (evt: React.SyntheticEvent<HTMLButtonElement>) => {
-    evt.preventDefault();
+  handleAddScmAccount = () => {
     this.setState(({ scmAccounts }) => ({ scmAccounts: scmAccounts.concat('') }));
   };
 
@@ -160,9 +155,9 @@ export default class UserForm extends React.PureComponent<Props, State> {
     return (
       <Modal contentLabel={header} onRequestClose={this.props.onClose}>
         <form
+          autoComplete="off"
           id="user-form"
-          onSubmit={this.props.user ? this.handleUpdateUser : this.handleCreateUser}
-          autoComplete="off">
+          onSubmit={this.props.user ? this.handleUpdateUser : this.handleCreateUser}>
           <header className="modal-head">
             <h2>{header}</h2>
           </header>
@@ -177,15 +172,15 @@ export default class UserForm extends React.PureComponent<Props, State> {
                   <em className="mandatory">*</em>
                 </label>
                 {/* keep this fake field to hack browser autofill */}
-                <input name="login-fake" type="text" className="hidden" />
+                <input className="hidden" name="login-fake" type="text" />
                 <input
                   id="create-user-login"
-                  name="login"
-                  type="text"
-                  minLength={3}
                   maxLength={255}
+                  minLength={3}
+                  name="login"
                   onChange={this.handleLoginChange}
                   required={true}
+                  type="text"
                   value={this.state.login}
                 />
                 <p className="note">{translateWithParameters('users.minimum_x_characters', 3)}</p>
@@ -197,27 +192,27 @@ export default class UserForm extends React.PureComponent<Props, State> {
                 <em className="mandatory">*</em>
               </label>
               {/* keep this fake field to hack browser autofill */}
-              <input name="name-fake" type="text" className="hidden" />
+              <input className="hidden" name="name-fake" type="text" />
               <input
                 id="create-user-name"
-                name="name"
-                type="text"
                 maxLength={200}
+                name="name"
                 onChange={this.handleNameChange}
                 required={true}
+                type="text"
                 value={this.state.name}
               />
             </div>
             <div className="modal-field">
               <label htmlFor="create-user-email">{translate('users.email')}</label>
               {/* keep this fake field to hack browser autofill */}
-              <input name="email-fake" type="email" className="hidden" />
+              <input className="hidden" name="email-fake" type="email" />
               <input
                 id="create-user-email"
-                name="email"
-                type="email"
                 maxLength={100}
+                name="email"
                 onChange={this.handleEmailChange}
+                type="email"
                 value={this.state.email}
               />
             </div>
@@ -228,14 +223,14 @@ export default class UserForm extends React.PureComponent<Props, State> {
                   <em className="mandatory">*</em>
                 </label>
                 {/* keep this fake field to hack browser autofill */}
-                <input name="password-fake" type="password" className="hidden" />
+                <input className="hidden" name="password-fake" type="password" />
                 <input
                   id="create-user-password"
-                  name="password"
-                  type="password"
                   maxLength={50}
+                  name="password"
                   onChange={this.handlePasswordChange}
                   required={true}
+                  type="password"
                   value={this.state.password}
                 />
               </div>
@@ -252,7 +247,9 @@ export default class UserForm extends React.PureComponent<Props, State> {
                 />
               ))}
               <div className="spacer-bottom">
-                <button onClick={this.handleAddScmAccount}>{translate('add_verb')}</button>
+                <Button onClick={this.handleAddScmAccount} type="reset">
+                  {translate('add_verb')}
+                </Button>
               </div>
               <p className="note">{translate('user.login_or_email_used_as_scm_account')}</p>
             </div>
@@ -260,12 +257,12 @@ export default class UserForm extends React.PureComponent<Props, State> {
 
           <footer className="modal-foot">
             {submitting && <i className="spinner spacer-right" />}
-            <button className="js-confirm" disabled={submitting} type="submit">
+            <SubmitButton className="js-confirm" disabled={submitting}>
               {user ? translate('update_verb') : translate('create')}
-            </button>
-            <a className="js-modal-close" href="#" onClick={this.handleCancelClick}>
+            </SubmitButton>
+            <ResetButtonLink className="js-modal-close" onClick={this.props.onClose}>
               {translate('cancel')}
-            </a>
+            </ResetButtonLink>
           </footer>
         </form>
       </Modal>

@@ -144,22 +144,19 @@ exports[`should render form 1`] = `
         loading={false}
         timeout={100}
       />
-      <button
+      <SubmitButton
         disabled={false}
         id="create-metric-submit"
-        type="submit"
       >
         confirmButtonText
-      </button>
-      <button
-        className="button-link"
+      </SubmitButton>
+      <ResetButtonLink
         disabled={false}
         id="create-metric-cancel"
         onClick={[Function]}
-        type="reset"
       >
         cancel
-      </button>
+      </ResetButtonLink>
     </footer>
   </form>
 </Modal>

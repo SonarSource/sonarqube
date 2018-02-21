@@ -24,6 +24,7 @@ import { translate, translateWithParameters } from '../../helpers/l10n';
 import AlertWarnIcon from '../../components/icons-components/AlertWarnIcon';
 import Modal from '../../components/controls/Modal';
 import Select from '../../components/controls/Select';
+import { Button, ResetButtonLink } from '../../components/ui/buttons';
 
 export interface Props {
   analyzedBefore?: string;
@@ -77,11 +78,6 @@ export default class BulkApplyTemplateModal extends React.PureComponent<Props, S
       }
     );
   }
-
-  handleCancelClick = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
-    event.preventDefault();
-    this.props.onClose();
-  };
 
   handleConfirmClick = () => {
     const { permissionTemplate } = this.state;
@@ -180,13 +176,13 @@ export default class BulkApplyTemplateModal extends React.PureComponent<Props, S
           {!loading &&
             !done &&
             permissionTemplates && (
-              <button disabled={submitting} onClick={this.handleConfirmClick}>
+              <Button disabled={submitting} onClick={this.handleConfirmClick}>
                 {translate('apply')}
-              </button>
+              </Button>
             )}
-          <a className="js-modal-close" href="#" onClick={this.handleCancelClick}>
+          <ResetButtonLink className="js-modal-close" onClick={this.props.onClose}>
             {done ? translate('close') : translate('cancel')}
-          </a>
+          </ResetButtonLink>
         </footer>
       </Modal>
     );

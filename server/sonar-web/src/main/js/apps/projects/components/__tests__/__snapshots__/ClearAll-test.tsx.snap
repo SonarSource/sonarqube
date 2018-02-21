@@ -4,11 +4,11 @@ exports[`renders 1`] = `
 <div
   className="projects-facets-reset"
 >
-  <button
+  <Button
     className="button-red"
-    onClick={[Function]}
+    onClick={[MockFunction]}
   >
     clear_all_filters
-  </button>
+  </Button>
 </div>
 `;

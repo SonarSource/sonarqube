@@ -120,7 +120,7 @@ describe('Setup Page', () => {
     await waitAndUpdate(wrapper);
     expect(wrapper).toMatchSnapshot();
 
-    click(wrapper.find('button'));
+    click(wrapper.find('Button'));
     expect(migrateDatabase).toBeCalled();
     await waitAndUpdate(wrapper);
     expect(wrapper).toMatchSnapshot();

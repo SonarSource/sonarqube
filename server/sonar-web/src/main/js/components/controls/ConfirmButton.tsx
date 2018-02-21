@@ -21,11 +21,10 @@ import * as React from 'react';
 import SimpleModal from './SimpleModal';
 import DeferredSpinner from '../common/DeferredSpinner';
 import { translate } from '../../helpers/l10n';
+import { SubmitButton, ResetButtonLink } from '../ui/buttons';
 
 interface Props {
-  children: (
-    props: { onClick: (event?: React.SyntheticEvent<HTMLButtonElement>) => void }
-  ) => React.ReactNode;
+  children: (props: { onClick: () => void }) => React.ReactNode;
   confirmButtonText: string;
   confirmData?: string;
   isDestructive?: boolean;
@@ -50,11 +49,7 @@ export default class ConfirmButton extends React.PureComponent<Props, State> {
     this.mounted = false;
   }
 
-  handleButtonClick = (event?: React.SyntheticEvent<HTMLButtonElement>) => {
-    if (event) {
-      event.preventDefault();
-      event.currentTarget.blur();
-    }
+  handleButtonClick = () => {
     this.setState({ modal: true });
   };
 
@@ -85,8 +80,8 @@ export default class ConfirmButton extends React.PureComponent<Props, State> {
             header={modalHeader}
             onClose={this.handleCloseModal}
             onSubmit={this.handleSubmit}>
-            {({ onCloseClick, onSubmitClick, submitting }) => (
-              <>
+            {({ onCloseClick, onFormSubmit, submitting }) => (
+              <form onSubmit={onFormSubmit}>
                 <header className="modal-head">
                   <h2>{modalHeader}</h2>
                 </header>
@@ -95,17 +90,14 @@ export default class ConfirmButton extends React.PureComponent<Props, State> {
 
                 <footer className="modal-foot">
                   <DeferredSpinner className="spacer-right" loading={submitting} />
-                  <button
+                  <SubmitButton
                     className={isDestructive ? 'button-red' : undefined}
-                    disabled={submitting}
-                    onClick={onSubmitClick}>
+                    disabled={submitting}>
                     {confirmButtonText}
-                  </button>
-                  <a href="#" onClick={onCloseClick}>
-                    {translate('cancel')}
-                  </a>
+                  </SubmitButton>
+                  <ResetButtonLink onClick={onCloseClick}>{translate('cancel')}</ResetButtonLink>
                 </footer>
-              </>
+              </form>
             )}
           </SimpleModal>
         )}

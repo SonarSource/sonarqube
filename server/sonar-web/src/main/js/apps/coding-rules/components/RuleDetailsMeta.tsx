@@ -33,6 +33,7 @@ import SeverityHelper from '../../../components/shared/SeverityHelper';
 import BubblePopupHelper from '../../../components/common/BubblePopupHelper';
 import TagsList from '../../../components/tags/TagsList';
 import DateFormatter from '../../../components/intl/DateFormatter';
+import { Button } from '../../../components/ui/buttons';
 
 interface Props {
   canWrite: boolean | undefined;
@@ -50,9 +51,7 @@ interface State {
 export default class RuleDetailsMeta extends React.PureComponent<Props, State> {
   state: State = { tagsPopup: false };
 
-  handleTagsClick = (event: React.SyntheticEvent<HTMLButtonElement>) => {
-    event.preventDefault();
-    event.currentTarget.blur();
+  handleTagsClick = () => {
     this.setState(state => ({ tagsPopup: !state.tagsPopup }));
   };
 
@@ -106,7 +105,6 @@ export default class RuleDetailsMeta extends React.PureComponent<Props, State> {
         {this.props.canWrite ? (
           <BubblePopupHelper
             isOpen={this.state.tagsPopup}
-            position="bottomleft"
             popup={
               <RuleDetailsTagsPopup
                 organization={this.props.organization}
@@ -115,13 +113,14 @@ export default class RuleDetailsMeta extends React.PureComponent<Props, State> {
                 tags={tags}
               />
             }
+            position="bottomleft"
             togglePopup={this.handleTagsPopupToggle}>
-            <button className="button-link" onClick={this.handleTagsClick}>
+            <Button className="button-link" onClick={this.handleTagsClick}>
               <TagsList
                 allowUpdate={canWrite}
                 tags={allTags.length > 0 ? allTags : [translate('coding_rules.no_tags')]}
               />
-            </button>
+            </Button>
           </BubblePopupHelper>
         ) : (
           <TagsList

@@ -2,25 +2,23 @@
 
 exports[`should create new custom measure 1`] = `
 <React.Fragment>
-  <button
+  <Button
     id="custom-measures-create"
     onClick={[Function]}
-    type="button"
   >
     create
-  </button>
+  </Button>
 </React.Fragment>
 `;
 
 exports[`should create new custom measure 2`] = `
 <React.Fragment>
-  <button
+  <Button
     id="custom-measures-create"
     onClick={[Function]}
-    type="button"
   >
     create
-  </button>
+  </Button>
   <Form
     confirmButtonText="create"
     header="custom_measures.create_custom_measure"

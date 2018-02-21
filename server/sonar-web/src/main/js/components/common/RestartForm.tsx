@@ -21,6 +21,7 @@ import * as React from 'react';
 import * as classNames from 'classnames';
 import { restartAndWait } from '../../api/system';
 import Modal from '../../components/controls/Modal';
+import { SubmitButton, ResetButtonLink } from '../ui/buttons';
 import { translate } from '../../helpers/l10n';
 
 interface Props {
@@ -33,11 +34,6 @@ interface State {
 
 export default class RestartForm extends React.PureComponent<Props, State> {
   state: State = { restarting: false };
-
-  handleCancelClick = (event: React.SyntheticEvent<HTMLElement>) => {
-    event.preventDefault();
-    this.props.onClose();
-  };
 
   handleFormSubmit = (event: React.SyntheticEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -71,14 +67,13 @@ export default class RestartForm extends React.PureComponent<Props, State> {
           </div>
           {!restarting && (
             <div className="modal-foot">
-              <button id="restart-server-submit">{translate('restart')}</button>
-              <a
-                href="#"
+              <SubmitButton id="restart-server-submit">{translate('restart')}</SubmitButton>
+              <ResetButtonLink
                 className="js-modal-close"
                 id="restart-server-cancel"
-                onClick={this.handleCancelClick}>
+                onClick={this.props.onClose}>
                 {translate('cancel')}
-              </a>
+              </ResetButtonLink>
             </div>
           )}
         </form>

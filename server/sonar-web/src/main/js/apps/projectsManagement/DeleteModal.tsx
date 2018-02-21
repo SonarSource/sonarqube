@@ -19,9 +19,10 @@
  */
 import * as React from 'react';
 import { bulkDeleteProjects } from '../../api/components';
-import { translate, translateWithParameters } from '../../helpers/l10n';
-import AlertWarnIcon from '../../components/icons-components/AlertWarnIcon';
 import Modal from '../../components/controls/Modal';
+import AlertWarnIcon from '../../components/icons-components/AlertWarnIcon';
+import { Button, ResetButtonLink } from '../../components/ui/buttons';
+import { translate, translateWithParameters } from '../../helpers/l10n';
 
 export interface Props {
   analyzedBefore?: string;
@@ -50,11 +51,6 @@ export default class DeleteModal extends React.PureComponent<Props, State> {
   componentWillUnmount() {
     this.mounted = false;
   }
-
-  handleCancelClick = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
-    event.preventDefault();
-    this.props.onClose();
-  };
 
   handleConfirmClick = () => {
     this.setState({ loading: true });
@@ -112,15 +108,15 @@ export default class DeleteModal extends React.PureComponent<Props, State> {
 
         <footer className="modal-foot">
           {this.state.loading && <i className="spinner spacer-right" />}
-          <button
+          <Button
             className="button-red"
             disabled={this.state.loading}
             onClick={this.handleConfirmClick}>
             {translate('delete')}
-          </button>
-          <a className="js-modal-close" href="#" onClick={this.handleCancelClick}>
+          </Button>
+          <ResetButtonLink className="js-modal-close" onClick={this.props.onClose}>
             {translate('cancel')}
-          </a>
+          </ResetButtonLink>
         </footer>
       </Modal>
     );

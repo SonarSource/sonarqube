@@ -21,10 +21,11 @@ import * as React from 'react';
 import * as PropTypes from 'prop-types';
 import CreateProfileForm from './CreateProfileForm';
 import RestoreProfileForm from './RestoreProfileForm';
-import { getProfilePath } from '../utils';
-import { translate } from '../../../helpers/l10n';
 import { Profile } from '../types';
+import { getProfilePath } from '../utils';
 import { Actions } from '../../../api/quality-profiles';
+import { Button } from '../../../components/ui/buttons';
+import { translate } from '../../../helpers/l10n';
 
 interface Props {
   actions: Actions;
@@ -49,26 +50,26 @@ export default class PageHeader extends React.PureComponent<Props, State> {
     restoreFormOpen: false
   };
 
-  handleCreateClick = (event: React.SyntheticEvent<HTMLElement>) => {
-    event.preventDefault();
-    event.currentTarget.blur();
+  handleCreateClick = () => {
     this.setState({ createFormOpen: true });
   };
 
   handleCreate = (profile: Profile) => {
-    this.props.updateProfiles().then(() => {
-      this.context.router.push(
-        getProfilePath(profile.name, profile.language, this.props.organization)
-      );
-    });
+    this.props.updateProfiles().then(
+      () => {
+        this.context.router.push(
+          getProfilePath(profile.name, profile.language, this.props.organization)
+        );
+      },
+      () => {}
+    );
   };
 
   closeCreateForm = () => {
     this.setState({ createFormOpen: false });
   };
 
-  handleRestoreClick = (event: React.SyntheticEvent<HTMLElement>) => {
-    event.preventDefault();
+  handleRestoreClick = () => {
     this.setState({ restoreFormOpen: true });
   };
 
@@ -83,15 +84,15 @@ export default class PageHeader extends React.PureComponent<Props, State> {
 
         {this.props.actions.create && (
           <div className="page-actions">
-            <button id="quality-profiles-create" onClick={this.handleCreateClick}>
+            <Button id="quality-profiles-create" onClick={this.handleCreateClick}>
               {translate('create')}
-            </button>
-            <button
+            </Button>
+            <Button
               className="little-spacer-left"
               id="quality-profiles-restore"
               onClick={this.handleRestoreClick}>
               {translate('restore')}
-            </button>
+            </Button>
           </div>
         )}
 
@@ -114,8 +115,8 @@ export default class PageHeader extends React.PureComponent<Props, State> {
           <CreateProfileForm
             languages={this.props.languages}
             onClose={this.closeCreateForm}
-            onRequestFail={this.props.onRequestFail}
             onCreate={this.handleCreate}
+            onRequestFail={this.props.onRequestFail}
             organization={this.props.organization}
           />
         )}

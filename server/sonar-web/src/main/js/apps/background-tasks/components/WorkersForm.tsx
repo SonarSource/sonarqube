@@ -22,6 +22,7 @@ import { times } from 'lodash';
 import { setWorkerCount } from '../../../api/ce';
 import Modal from '../../../components/controls/Modal';
 import Select from '../../../components/controls/Select';
+import { SubmitButton, ResetButtonLink } from '../../../components/ui/buttons';
 import { translate } from '../../../helpers/l10n';
 
 const MAX_WORKERS = 10;
@@ -55,7 +56,9 @@ export default class WorkersForm extends React.PureComponent<Props, State> {
     this.mounted = false;
   }
 
-  handleClose = () => this.props.onClose();
+  handleClose = () => {
+    this.props.onClose();
+  };
 
   handleWorkerCountChange = (option: { value: number }) =>
     this.setState({ newWorkerCount: option.value });
@@ -105,12 +108,8 @@ export default class WorkersForm extends React.PureComponent<Props, State> {
           <footer className="modal-foot">
             <div>
               {this.state.submitting && <i className="spinner spacer-right" />}
-              <button disabled={this.state.submitting} type="submit">
-                {translate('save')}
-              </button>
-              <button type="reset" className="button-link" onClick={this.handleClose}>
-                {translate('cancel')}
-              </button>
+              <SubmitButton disabled={this.state.submitting}>{translate('save')}</SubmitButton>
+              <ResetButtonLink onClick={this.handleClose}>{translate('cancel')}</ResetButtonLink>
             </div>
           </footer>
         </form>

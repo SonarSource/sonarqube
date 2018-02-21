@@ -340,13 +340,12 @@ exports[`Setup Page should start migration 1`] = `
       <div
         className="maintenance-spinner"
       >
-        <button
+        <Button
           id="start-migration"
           onClick={[Function]}
-          type="button"
         >
           maintenance.upgrade
-        </button>
+        </Button>
       </div>
     </React.Fragment>
   </div>

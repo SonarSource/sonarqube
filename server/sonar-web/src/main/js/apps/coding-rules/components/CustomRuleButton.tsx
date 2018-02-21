@@ -22,9 +22,7 @@ import CustomRuleFormModal from './CustomRuleFormModal';
 import { RuleDetails } from '../../../app/types';
 
 interface Props {
-  children: (
-    props: { onClick: (event: React.SyntheticEvent<HTMLButtonElement>) => void }
-  ) => React.ReactNode;
+  children: (props: { onClick: () => void }) => React.ReactNode;
   customRule?: RuleDetails;
   onDone: (newRuleDetails: RuleDetails) => void;
   organization: string | undefined;
@@ -47,9 +45,7 @@ export default class CustomRuleButton extends React.PureComponent<Props, State> 
     this.mounted = false;
   }
 
-  handleClick = (event: React.SyntheticEvent<HTMLButtonElement>) => {
-    event.preventDefault();
-    event.currentTarget.blur();
+  handleClick = () => {
     this.setState({ modal: true });
   };
 

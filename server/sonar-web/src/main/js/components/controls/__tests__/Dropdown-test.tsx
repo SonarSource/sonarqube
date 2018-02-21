@@ -20,6 +20,7 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import Dropdown from '../Dropdown';
+import { Button } from '../../ui/buttons';
 import { click } from '../../../helpers/testUtils';
 
 it('renders', () => {
@@ -32,13 +33,13 @@ it('renders', () => {
 
 it('toggles', () => {
   const wrapper = shallow(
-    <Dropdown>{({ onToggleClick }) => <button onClick={onToggleClick} />}</Dropdown>
+    <Dropdown>{({ onToggleClick }) => <Button onClick={onToggleClick} />}</Dropdown>
   );
   expect(wrapper.state()).toEqual({ open: false });
 
-  click(wrapper.find('button'));
+  click(wrapper.find('Button'));
   expect(wrapper.state()).toEqual({ open: true });
 
-  click(wrapper.find('button'));
+  click(wrapper.find('Button'));
   expect(wrapper.state()).toEqual({ open: false });
 });

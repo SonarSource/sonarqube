@@ -20,6 +20,7 @@
 import * as React from 'react';
 import * as classNames from 'classnames';
 import { BadgeType } from './utils';
+import { Button } from '../../../components/ui/buttons';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {
@@ -30,15 +31,17 @@ interface Props {
 }
 
 export default class BadgeButton extends React.PureComponent<Props> {
-  handleClick = () => this.props.onClick(this.props.type);
+  handleClick = () => {
+    this.props.onClick(this.props.type);
+  };
 
   render() {
     const { selected, type, url } = this.props;
     const width = type !== BadgeType.measure ? '128px' : undefined;
     return (
-      <button className={classNames('badge-button', { selected })} onClick={this.handleClick}>
-        <img src={url} alt={translate('overview.badges', type, 'alt')} width={width} />
-      </button>
+      <Button className={classNames('badge-button', { selected })} onClick={this.handleClick}>
+        <img alt={translate('overview.badges', type, 'alt')} src={url} width={width} />
+      </Button>
     );
   }
 }

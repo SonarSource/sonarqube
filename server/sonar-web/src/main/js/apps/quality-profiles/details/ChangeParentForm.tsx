@@ -19,11 +19,12 @@
  */
 import * as React from 'react';
 import { sortBy } from 'lodash';
+import { Profile } from '../types';
 import { changeProfileParent } from '../../../api/quality-profiles';
 import Modal from '../../../components/controls/Modal';
 import Select from '../../../components/controls/Select';
+import { SubmitButton, ResetButtonLink } from '../../../components/ui/buttons';
 import { translate } from '../../../helpers/l10n';
-import { Profile } from '../types';
 
 interface Props {
   onChange: () => void;
@@ -52,11 +53,6 @@ export default class ChangeParentForm extends React.PureComponent<Props, State> 
   componentWillUnmount() {
     this.mounted = false;
   }
-
-  handleCancelClick = (event: React.SyntheticEvent<HTMLElement>) => {
-    event.preventDefault();
-    this.props.onClose();
-  };
 
   handleSelectChange = (option: { value: string }) => {
     this.setState({ selected: option.value });
@@ -126,12 +122,12 @@ export default class ChangeParentForm extends React.PureComponent<Props, State> 
           </div>
           <div className="modal-foot">
             {this.state.loading && <i className="spinner spacer-right" />}
-            <button disabled={submitDisabled} id="change-profile-parent-submit">
+            <SubmitButton disabled={submitDisabled} id="change-profile-parent-submit">
               {translate('change_verb')}
-            </button>
-            <a href="#" id="change-profile-parent-cancel" onClick={this.handleCancelClick}>
+            </SubmitButton>
+            <ResetButtonLink id="change-profile-parent-cancel" onClick={this.props.onClose}>
               {translate('cancel')}
-            </a>
+            </ResetButtonLink>
           </div>
         </form>
       </Modal>

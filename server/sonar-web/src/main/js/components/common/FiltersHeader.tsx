@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { Button } from '../ui/buttons';
 import { translate } from '../../helpers/l10n';
 
 interface Props {
@@ -25,29 +26,18 @@ interface Props {
   onReset: () => void;
 }
 
-export default class FiltersHeader extends React.PureComponent<Props> {
-  handleResetClick = (event: React.SyntheticEvent<HTMLButtonElement>) => {
-    event.preventDefault();
-    event.currentTarget.blur();
-    this.props.onReset();
-  };
+export default function FiltersHeader({ displayReset, onReset }: Props) {
+  return (
+    <div className="search-navigator-filters-header">
+      {displayReset && (
+        <div className="pull-right">
+          <Button className="button-red" id="coding-rules-clear-all-filters" onClick={onReset}>
+            {translate('clear_all_filters')}
+          </Button>
+        </div>
+      )}
 
-  render() {
-    return (
-      <div className="search-navigator-filters-header">
-        {this.props.displayReset && (
-          <div className="pull-right">
-            <button
-              className="button-red"
-              id="coding-rules-clear-all-filters"
-              onClick={this.handleResetClick}>
-              {translate('clear_all_filters')}
-            </button>
-          </div>
-        )}
-
-        <h3>{translate('filters')}</h3>
-      </div>
-    );
-  }
+      <h3>{translate('filters')}</h3>
+    </div>
+  );
 }

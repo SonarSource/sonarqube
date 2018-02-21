@@ -20,8 +20,9 @@
 import * as React from 'react';
 import TokensFormItem from './TokensFormItem';
 import TokensFormNewToken from './TokensFormNewToken';
-import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import { getTokens, generateToken, UserToken } from '../../../api/user-tokens';
+import DeferredSpinner from '../../../components/common/DeferredSpinner';
+import { SubmitButton } from '../../../components/ui/buttons';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {
@@ -119,7 +120,7 @@ export default class TokensForm extends React.PureComponent<Props, State> {
     if (tokens.length <= 0) {
       return (
         <tr>
-          <td colSpan={3} className="note">
+          <td className="note" colSpan={3}>
             {translate('users.no_tokens')}
           </td>
         </tr>
@@ -129,8 +130,8 @@ export default class TokensForm extends React.PureComponent<Props, State> {
       <TokensFormItem
         key={token.name}
         login={this.props.login}
-        token={token}
         onRevokeToken={this.handleRevokeToken}
+        token={token}
       />
     ));
   }
@@ -147,22 +148,21 @@ export default class TokensForm extends React.PureComponent<Props, State> {
     return (
       <>
         <h3 className="spacer-bottom">{translate('users.generate_tokens')}</h3>
-        <form id="generate-token-form" onSubmit={this.handleGenerateToken} autoComplete="off">
+        <form autoComplete="off" id="generate-token-form" onSubmit={this.handleGenerateToken}>
           <input
             className="spacer-right"
-            type="text"
             maxLength={100}
             onChange={this.handleNewTokenChange}
             placeholder={translate('users.enter_token_name')}
             required={true}
+            type="text"
             value={newTokenName}
           />
-          <button
+          <SubmitButton
             className="js-generate-token"
-            disabled={generating || newTokenName.length <= 0}
-            type="submit">
+            disabled={generating || newTokenName.length <= 0}>
             {translate('users.generate')}
-          </button>
+          </SubmitButton>
         </form>
 
         {newToken && <TokensFormNewToken token={newToken} />}

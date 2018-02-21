@@ -19,8 +19,9 @@
  */
 import * as React from 'react';
 import * as PropTypes from 'prop-types';
-import Modal from '../../../components/controls/Modal';
 import { createQualityGate, QualityGate } from '../../../api/quality-gates';
+import Modal from '../../../components/controls/Modal';
+import { Button, ResetButtonLink } from '../../../components/ui/buttons';
 import { translate } from '../../../helpers/l10n';
 import { getQualityGateUrl } from '../../../helpers/urls';
 
@@ -51,11 +52,6 @@ export default class CreateQualityGateForm extends React.PureComponent<Props, St
   componentWillUnmount() {
     this.mounted = false;
   }
-
-  handleCancelClick = (event: React.SyntheticEvent<HTMLElement>) => {
-    event.preventDefault();
-    this.props.onClose();
-  };
 
   handleNameChange = (event: React.SyntheticEvent<HTMLInputElement>) => {
     this.setState({ name: event.currentTarget.value });
@@ -113,12 +109,12 @@ export default class CreateQualityGateForm extends React.PureComponent<Props, St
           </div>
           <div className="modal-foot">
             {loading && <i className="spinner spacer-right" />}
-            <button disabled={submitDisabled} className="js-confirm">
+            <Button className="js-confirm" disabled={submitDisabled}>
               {translate('save')}
-            </button>
-            <a href="#" className="js-modal-close" onClick={this.handleCancelClick}>
+            </Button>
+            <ResetButtonLink className="js-modal-close" onClick={this.props.onClose}>
               {translate('cancel')}
-            </a>
+            </ResetButtonLink>
           </div>
         </form>
       </Modal>

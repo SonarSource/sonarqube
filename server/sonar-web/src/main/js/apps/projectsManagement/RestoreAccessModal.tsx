@@ -22,6 +22,7 @@ import { FormattedMessage } from 'react-intl';
 import { Project } from './utils';
 import { grantPermissionToUser } from '../../api/permissions';
 import Modal from '../../components/controls/Modal';
+import { SubmitButton, ResetButtonLink } from '../../components/ui/buttons';
 import { translate } from '../../helpers/l10n';
 
 interface Props {
@@ -46,11 +47,6 @@ export default class RestoreAccessModal extends React.PureComponent<Props, State
   componentWillUnmount() {
     this.mounted = false;
   }
-
-  handleCancelClick = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
-    event.preventDefault();
-    this.props.onClose();
-  };
 
   handleFormSubmit = (event: React.SyntheticEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -96,12 +92,8 @@ export default class RestoreAccessModal extends React.PureComponent<Props, State
 
           <footer className="modal-foot">
             {this.state.loading && <i className="spinner spacer-right" />}
-            <button disabled={this.state.loading} type="submit">
-              {translate('restore')}
-            </button>
-            <a className="js-modal-close" href="#" onClick={this.handleCancelClick}>
-              {translate('cancel')}
-            </a>
+            <SubmitButton disabled={this.state.loading}>{translate('restore')}</SubmitButton>
+            <ResetButtonLink onClick={this.props.onClose}>{translate('cancel')}</ResetButtonLink>
           </footer>
         </form>
       </Modal>

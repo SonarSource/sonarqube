@@ -20,6 +20,7 @@
 import * as React from 'react';
 import { Edition, EditionStatus, uninstallEdition } from '../../../api/marketplace';
 import Modal from '../../../components/controls/Modal';
+import { Button, ResetButtonLink } from '../../../components/ui/buttons';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 
 export interface Props {
@@ -45,13 +46,7 @@ export default class UninstallEditionForm extends React.PureComponent<Props, Sta
     this.mounted = false;
   }
 
-  handleCancelClick = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
-    event.preventDefault();
-    this.props.onClose();
-  };
-
-  handleConfirmClick = (event: React.SyntheticEvent<HTMLButtonElement>) => {
-    event.preventDefault();
+  handleConfirmClick = () => {
     this.setState({ loading: true });
     uninstallEdition()
       .then(() => {
@@ -86,12 +81,12 @@ export default class UninstallEditionForm extends React.PureComponent<Props, Sta
 
         <footer className="modal-foot">
           {loading && <i className="spinner spacer-right" />}
-          <button disabled={loading} onClick={this.handleConfirmClick}>
+          <Button disabled={loading} onClick={this.handleConfirmClick}>
             {translate('marketplace.downgrade')}
-          </button>
-          <a className="js-modal-close" href="#" onClick={this.handleCancelClick}>
+          </Button>
+          <ResetButtonLink className="js-modal-close" onClick={this.props.onClose}>
             {translate('cancel')}
-          </a>
+          </ResetButtonLink>
         </footer>
       </Modal>
     );

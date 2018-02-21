@@ -18,12 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { revokeToken, UserToken } from '../../../api/user-tokens';
+import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import Tooltip from '../../../components/controls/Tooltip';
 import DateFormatter from '../../../components/intl/DateFormatter';
-import DeferredSpinner from '../../../components/common/DeferredSpinner';
-import { revokeToken, UserToken } from '../../../api/user-tokens';
-import { limitComponentName } from '../../../helpers/path';
+import { Button } from '../../../components/ui/buttons';
 import { translate } from '../../../helpers/l10n';
+import { limitComponentName } from '../../../helpers/path';
 
 interface Props {
   login: string;
@@ -81,14 +82,14 @@ export default class TokensFormItem extends React.PureComponent<Props, State> {
           <DeferredSpinner loading={loading}>
             <i className="spinner-placeholder " />
           </DeferredSpinner>
-          <button
+          <Button
             className="button-red input-small spacer-left"
-            onClick={this.handleRevoke}
-            disabled={loading}>
+            disabled={loading}
+            onClick={this.handleRevoke}>
             {this.state.deleting
               ? translate('users.tokens.sure')
               : translate('users.tokens.revoke')}
-          </button>
+          </Button>
         </td>
       </tr>
     );

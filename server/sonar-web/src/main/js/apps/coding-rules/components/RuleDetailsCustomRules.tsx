@@ -26,6 +26,7 @@ import { Rule, RuleDetails } from '../../../app/types';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import ConfirmButton from '../../../components/controls/ConfirmButton';
 import SeverityHelper from '../../../components/shared/SeverityHelper';
+import { Button } from '../../../components/ui/buttons';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { getRuleUrl } from '../../../helpers/urls';
 
@@ -100,7 +101,7 @@ export default class RuleDetailsCustomRules extends React.PureComponent<Props, S
   };
 
   renderRule = (rule: Rule) => (
-    <tr key={rule.key} data-rule={rule.key}>
+    <tr data-rule={rule.key} key={rule.key}>
       <td className="coding-rules-detail-list-name">
         <Link to={getRuleUrl(rule.key, this.props.organization)}>{rule.name}</Link>
       </td>
@@ -132,9 +133,9 @@ export default class RuleDetailsCustomRules extends React.PureComponent<Props, S
             modalHeader={translate('coding_rules.delete_rule')}
             onConfirm={this.handleRuleDelete}>
             {({ onClick }) => (
-              <button className="button-red js-delete-custom-rule" onClick={onClick}>
+              <Button className="button-red js-delete-custom-rule" onClick={onClick}>
                 {translate('delete')}
-              </button>
+              </Button>
             )}
           </ConfirmButton>
         </td>
@@ -158,16 +159,16 @@ export default class RuleDetailsCustomRules extends React.PureComponent<Props, S
               organization={this.props.organization}
               templateRule={this.props.ruleDetails}>
               {({ onClick }) => (
-                <button className="js-create-custom-rule spacer-left" onClick={onClick}>
+                <Button className="js-create-custom-rule spacer-left" onClick={onClick}>
                   {translate('coding_rules.create')}
-                </button>
+                </Button>
               )}
             </CustomRuleButton>
           )}
 
           <DeferredSpinner loading={loading}>
             {rules.length > 0 && (
-              <table id="coding-rules-detail-custom-rules" className="coding-rules-detail-list">
+              <table className="coding-rules-detail-list" id="coding-rules-detail-custom-rules">
                 <tbody>{sortBy(rules, rule => rule.name).map(this.renderRule)}</tbody>
               </table>
             )}

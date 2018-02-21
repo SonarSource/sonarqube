@@ -18,13 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import Modal from '../../../components/controls/Modal';
+import { changePassword } from '../../../api/users';
+import { User } from '../../../app/types';
 import addGlobalSuccessMessage from '../../../app/utils/addGlobalSuccessMessage';
 import throwGlobalError from '../../../app/utils/throwGlobalError';
-import { User } from '../../../app/types';
-import { parseError } from '../../../helpers/request';
-import { changePassword } from '../../../api/users';
+import Modal from '../../../components/controls/Modal';
+import { SubmitButton, ResetButtonLink } from '../../../components/ui/buttons';
 import { translate } from '../../../helpers/l10n';
+import { parseError } from '../../../helpers/request';
 
 interface Props {
   isCurrentUser: boolean;
@@ -77,11 +78,6 @@ export default class PasswordForm extends React.PureComponent<Props, State> {
   handleOldPasswordChange = (event: React.SyntheticEvent<HTMLInputElement>) =>
     this.setState({ oldPassword: event.currentTarget.value });
 
-  handleCancelClick = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
-    event.preventDefault();
-    this.props.onClose();
-  };
-
   handleChangePassword = (event: React.SyntheticEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (
@@ -106,7 +102,7 @@ export default class PasswordForm extends React.PureComponent<Props, State> {
     const header = translate('my_profile.password.title');
     return (
       <Modal contentLabel={header} onRequestClose={this.props.onClose}>
-        <form id="user-password-form" onSubmit={this.handleChangePassword} autoComplete="off">
+        <form autoComplete="off" id="user-password-form" onSubmit={this.handleChangePassword}>
           <header className="modal-head">
             <h2>{header}</h2>
           </header>
@@ -119,14 +115,14 @@ export default class PasswordForm extends React.PureComponent<Props, State> {
                   <em className="mandatory">*</em>
                 </label>
                 {/* keep this fake field to hack browser autofill */}
-                <input name="old-password-fake" type="password" className="hidden" />
+                <input className="hidden" name="old-password-fake" type="password" />
                 <input
                   id="old-user-password"
-                  name="old-password"
-                  type="password"
                   maxLength={50}
+                  name="old-password"
                   onChange={this.handleOldPasswordChange}
                   required={true}
+                  type="password"
                   value={this.state.oldPassword}
                 />
               </div>
@@ -137,14 +133,14 @@ export default class PasswordForm extends React.PureComponent<Props, State> {
                 <em className="mandatory">*</em>
               </label>
               {/* keep this fake field to hack browser autofill */}
-              <input name="password-fake" type="password" className="hidden" />
+              <input className="hidden" name="password-fake" type="password" />
               <input
                 id="user-password"
-                name="password"
-                type="password"
                 maxLength={50}
+                name="password"
                 onChange={this.handleNewPasswordChange}
                 required={true}
+                type="password"
                 value={this.state.newPassword}
               />
             </div>
@@ -154,29 +150,28 @@ export default class PasswordForm extends React.PureComponent<Props, State> {
                 <em className="mandatory">*</em>
               </label>
               {/* keep this fake field to hack browser autofill */}
-              <input name="confirm-password-fake" type="password" className="hidden" />
+              <input className="hidden" name="confirm-password-fake" type="password" />
               <input
                 id="confirm-user-password"
-                name="confirm-password"
-                type="password"
                 maxLength={50}
+                name="confirm-password"
                 onChange={this.handleConfirmPasswordChange}
                 required={true}
+                type="password"
                 value={this.state.confirmPassword}
               />
             </div>
           </div>
           <footer className="modal-foot">
             {submitting && <i className="spinner spacer-right" />}
-            <button
+            <SubmitButton
               className="js-confirm"
-              disabled={submitting || !newPassword || newPassword !== confirmPassword}
-              type="submit">
+              disabled={submitting || !newPassword || newPassword !== confirmPassword}>
               {translate('change_verb')}
-            </button>
-            <a className="js-modal-close" href="#" onClick={this.handleCancelClick}>
+            </SubmitButton>
+            <ResetButtonLink className="js-modal-close" onClick={this.props.onClose}>
               {translate('cancel')}
-            </a>
+            </ResetButtonLink>
           </footer>
         </form>
       </Modal>

@@ -21,8 +21,9 @@ import * as React from 'react';
 import * as classNames from 'classnames';
 import { Organization, Visibility } from '../../app/types';
 import UpgradeOrganizationBox from '../../components/common/UpgradeOrganizationBox';
-import { translate } from '../../helpers/l10n';
 import Modal from '../../components/controls/Modal';
+import { Button, ResetButtonLink } from '../../components/ui/buttons';
+import { translate } from '../../helpers/l10n';
 
 export interface Props {
   onClose: () => void;
@@ -40,13 +41,7 @@ export default class ChangeVisibilityForm extends React.PureComponent<Props, Sta
     this.state = { visibility: props.organization.projectVisibility as Visibility };
   }
 
-  handleCancelClick = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
-    event.preventDefault();
-    this.props.onClose();
-  };
-
-  handleConfirmClick = (event: React.SyntheticEvent<HTMLButtonElement>) => {
-    event.preventDefault();
+  handleConfirmClick = () => {
     this.props.onConfirm(this.state.visibility);
     this.props.onClose();
   };
@@ -111,12 +106,12 @@ export default class ChangeVisibilityForm extends React.PureComponent<Props, Sta
         </div>
 
         <footer className="modal-foot">
-          <button className="js-confirm" onClick={this.handleConfirmClick}>
+          <Button className="js-confirm" onClick={this.handleConfirmClick}>
             {translate('organization.change_visibility_form.submit')}
-          </button>
-          <a className="js-modal-close" href="#" onClick={this.handleCancelClick}>
+          </Button>
+          <ResetButtonLink className="js-modal-close" onClick={this.props.onClose}>
             {translate('cancel')}
-          </a>
+          </ResetButtonLink>
         </footer>
       </Modal>
     );

@@ -21,6 +21,7 @@ import * as React from 'react';
 import * as classNames from 'classnames';
 import * as Clipboard from 'clipboard';
 import Tooltip from './Tooltip';
+import { Button } from '../ui/buttons';
 import { translate } from '../../helpers/l10n';
 
 interface Props {
@@ -35,7 +36,7 @@ interface State {
 
 export default class ClipboardButton extends React.PureComponent<Props, State> {
   clipboard?: Clipboard;
-  copyButton?: HTMLButtonElement | null;
+  copyButton?: HTMLElement | null;
   mounted = false;
   state: State = { tooltipShown: false };
 
@@ -77,19 +78,19 @@ export default class ClipboardButton extends React.PureComponent<Props, State> {
 
   render() {
     const button = (
-      <button
+      <Button
         className={classNames('js-copy-to-clipboard no-select', this.props.className)}
         data-clipboard-text={this.props.copyValue}
-        ref={node => (this.copyButton = node)}>
+        innerRef={node => (this.copyButton = node)}>
         {translate('copy')}
-      </button>
+      </Button>
     );
     if (this.state.tooltipShown) {
       return (
         <Tooltip
           defaultVisible={true}
-          placement={this.props.tooltipPlacement || 'bottom'}
           overlay={translate('copied_action')}
+          placement={this.props.tooltipPlacement || 'bottom'}
           trigger="manual">
           {button}
         </Tooltip>

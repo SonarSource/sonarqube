@@ -62,6 +62,6 @@ it('should render form', async () => {
   expect(onClose).toBeCalled();
 
   onClose.mockClear();
-  click(form.find('button[type="reset"]'));
+  click(form.find('ResetButtonLink'));
   expect(onClose).toBeCalled();
 });

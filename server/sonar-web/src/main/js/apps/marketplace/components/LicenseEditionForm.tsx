@@ -21,6 +21,7 @@ import * as React from 'react';
 import LicenseEditionSet from './LicenseEditionSet';
 import { Edition, EditionStatus, applyLicense } from '../../../api/marketplace';
 import Modal from '../../../components/controls/Modal';
+import { Button, ResetButtonLink } from '../../../components/ui/buttons';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 
 export interface Props {
@@ -55,13 +56,7 @@ export default class LicenseEditionForm extends React.PureComponent<Props, State
     }
   };
 
-  handleCancelClick = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
-    event.preventDefault();
-    this.props.onClose();
-  };
-
-  handleConfirmClick = (event: React.SyntheticEvent<HTMLButtonElement>) => {
-    event.preventDefault();
+  handleConfirmClick = () => {
     const { license, status } = this.state;
     if (license && status) {
       this.setState({ submitting: true });
@@ -102,18 +97,16 @@ export default class LicenseEditionForm extends React.PureComponent<Props, State
         <footer className="modal-foot">
           {submitting && <i className="spinner spacer-right" />}
           {status && (
-            <button
+            <Button
               className="js-confirm"
-              onClick={this.handleConfirmClick}
-              disabled={!license || submitting}>
+              disabled={!license || submitting}
+              onClick={this.handleConfirmClick}>
               {status === 'AUTOMATIC_INSTALL'
                 ? translate('marketplace.install')
                 : translate('save')}
-            </button>
+            </Button>
           )}
-          <a className="js-modal-close" href="#" onClick={this.handleCancelClick}>
-            {translate('cancel')}
-          </a>
+          <ResetButtonLink onClick={this.props.onClose}>{translate('cancel')}</ResetButtonLink>
         </footer>
       </Modal>
     );

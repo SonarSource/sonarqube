@@ -22,6 +22,7 @@ import * as classNames from 'classnames';
 import { getMigrationStatus, getSystemStatus, migrateDatabase } from '../../../api/system';
 import DateFromNow from '../../../components/intl/DateFromNow';
 import TimeFormatter from '../../../components/intl/TimeFormatter';
+import { Button } from '../../../components/ui/buttons';
 import { translate } from '../../../helpers/l10n';
 import { getBaseUrl } from '../../../helpers/urls';
 import '../styles.css';
@@ -113,9 +114,7 @@ export default class App extends React.PureComponent<Props, State> {
     }, 2500);
   };
 
-  handleMigrateClick = (event: React.SyntheticEvent<HTMLButtonElement>) => {
-    event.preventDefault();
-    event.currentTarget.blur();
+  handleMigrateClick = () => {
     migrateDatabase().then(
       ({ message, startedAt, state }) => {
         if (this.mounted) {
@@ -221,9 +220,9 @@ export default class App extends React.PureComponent<Props, State> {
               <p className="maintenance-text">{translate('maintenance.upgrade_database.2')}</p>
               <p className="maintenance-text">{translate('maintenance.upgrade_database.3')}</p>
               <div className="maintenance-spinner">
-                <button id="start-migration" onClick={this.handleMigrateClick} type="button">
+                <Button id="start-migration" onClick={this.handleMigrateClick}>
                   {translate('maintenance.upgrade')}
-                </button>
+                </Button>
               </div>
             </>
           )}

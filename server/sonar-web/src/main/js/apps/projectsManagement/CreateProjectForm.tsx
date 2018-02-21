@@ -20,13 +20,14 @@
 import * as React from 'react';
 import { Link } from 'react-router';
 import { FormattedMessage } from 'react-intl';
+import { createProject } from '../../api/components';
 import { Organization } from '../../app/types';
 import UpgradeOrganizationBox from '../../components/common/UpgradeOrganizationBox';
 import VisibilitySelector from '../../components/common/VisibilitySelector';
-import { createProject } from '../../api/components';
+import Modal from '../../components/controls/Modal';
+import { SubmitButton, ResetButtonLink } from '../../components/ui/buttons';
 import { translate } from '../../helpers/l10n';
 import { getProjectUrl } from '../../helpers/urls';
-import Modal from '../../components/controls/Modal';
 
 interface Props {
   onClose: () => void;
@@ -78,11 +79,6 @@ export default class CreateProjectForm extends React.PureComponent<Props, State>
   componentWillUnmount() {
     this.mounted = false;
   }
-
-  handleCancelClick = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
-    event.preventDefault();
-    this.props.onClose();
-  };
 
   handleAdvancedClick = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
@@ -155,13 +151,12 @@ export default class CreateProjectForm extends React.PureComponent<Props, State>
             </div>
 
             <footer className="modal-foot">
-              <a
-                href="#"
+              <ResetButtonLink
                 id="create-project-close"
-                onClick={this.handleCancelClick}
-                ref={node => (this.closeButton = node)}>
+                innerRef={node => (this.closeButton = node)}
+                onClick={this.props.onClose}>
                 {translate('close')}
-              </a>
+              </ResetButtonLink>
             </footer>
           </div>
         ) : (
@@ -243,12 +238,12 @@ export default class CreateProjectForm extends React.PureComponent<Props, State>
 
             <footer className="modal-foot">
               {this.state.loading && <i className="spinner spacer-right" />}
-              <button disabled={this.state.loading} id="create-project-submit" type="submit">
+              <SubmitButton disabled={this.state.loading} id="create-project-submit">
                 {translate('create')}
-              </button>
-              <a href="#" id="create-project-cancel" onClick={this.handleCancelClick}>
+              </SubmitButton>
+              <ResetButtonLink id="create-project-cancel" onClick={this.props.onClose}>
                 {translate('cancel')}
-              </a>
+              </ResetButtonLink>
             </footer>
           </form>
         )}

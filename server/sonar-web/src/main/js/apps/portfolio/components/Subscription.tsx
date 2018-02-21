@@ -20,6 +20,7 @@
 import * as React from 'react';
 import { ReportStatus, subscribe, unsubscribe } from '../../../api/report';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { Button } from '../../../components/ui/buttons';
 
 interface Props {
   component: string;
@@ -66,18 +67,14 @@ export default class Subscription extends React.PureComponent<Props, State> {
     }
   };
 
-  handleSubscribe = (e: React.SyntheticEvent<HTMLButtonElement>) => {
-    e.preventDefault();
-    e.currentTarget.blur();
+  handleSubscribe = () => {
     this.setState({ loading: true });
     subscribe(this.props.component)
       .then(() => this.handleSubscription(true))
       .catch(this.stopLoading);
   };
 
-  handleUnsubscribe = (e: React.SyntheticEvent<HTMLButtonElement>) => {
-    e.preventDefault();
-    e.currentTarget.blur();
+  handleUnsubscribe = () => {
     this.setState({ loading: true });
     unsubscribe(this.props.component)
       .then(() => this.handleSubscription(false))
@@ -100,7 +97,7 @@ export default class Subscription extends React.PureComponent<Props, State> {
           {translateWithParameters('report.subscribed', this.getEffectiveFrequencyText())}
         </div>
       </div>
-      <button onClick={this.handleUnsubscribe}>{translate('report.unsubscribe')}</button>
+      <Button onClick={this.handleUnsubscribe}>{translate('report.unsubscribe')}</Button>
       {this.renderLoading()}
     </div>
   );
@@ -110,9 +107,9 @@ export default class Subscription extends React.PureComponent<Props, State> {
       <p className="spacer-bottom">
         {translateWithParameters('report.unsubscribed', this.getEffectiveFrequencyText())}
       </p>
-      <button className="js-report-subscribe" onClick={this.handleSubscribe}>
+      <Button className="js-report-subscribe" onClick={this.handleSubscribe}>
         {translate('report.subscribe')}
-      </button>
+      </Button>
       {this.renderLoading()}
     </div>
   );

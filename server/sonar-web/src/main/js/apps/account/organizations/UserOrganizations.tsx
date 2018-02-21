@@ -26,6 +26,7 @@ import { fetchIfAnyoneCanCreateOrganizations } from './actions';
 import { translate } from '../../../helpers/l10n';
 import { getAppState, getMyOrganizations, getGlobalSettingValue } from '../../../store/rootReducer';
 import { Organization } from '../../../app/types';
+import { Button } from '../../../components/ui/buttons';
 
 interface StateProps {
   anyoneCanCreate?: { value: string };
@@ -63,18 +64,12 @@ class UserOrganizations extends React.PureComponent<Props, State> {
     }
   };
 
-  openCreateOrganizationForm = () => this.setState({ createOrganization: true });
-
-  closeCreateOrganizationForm = () => this.setState({ createOrganization: false });
-
-  handleCreateClick = (event: React.SyntheticEvent<HTMLButtonElement>) => {
-    event.preventDefault();
-    event.currentTarget.blur();
-    this.openCreateOrganizationForm();
+  openCreateOrganizationForm = () => {
+    this.setState({ createOrganization: true });
   };
 
-  handleCreate = () => {
-    this.closeCreateOrganizationForm();
+  closeCreateOrganizationForm = () => {
+    this.setState({ createOrganization: false });
   };
 
   render() {
@@ -91,7 +86,7 @@ class UserOrganizations extends React.PureComponent<Props, State> {
           {canCreateOrganizations && (
             <div className="clearfix">
               <div className="boxed-group-actions">
-                <button onClick={this.handleCreateClick}>{translate('create')}</button>
+                <Button onClick={this.openCreateOrganizationForm}>{translate('create')}</Button>
               </div>
             </div>
           )}
@@ -107,7 +102,7 @@ class UserOrganizations extends React.PureComponent<Props, State> {
         {this.state.createOrganization && (
           <CreateOrganizationForm
             onClose={this.closeCreateOrganizationForm}
-            onCreate={this.handleCreate}
+            onCreate={this.closeCreateOrganizationForm}
           />
         )}
       </div>

@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import { Update } from '../../../api/plugins';
+import { Button } from '../../../components/ui/buttons';
 import { translateWithParameters } from '../../../helpers/l10n';
 
 interface Props {
@@ -28,7 +29,9 @@ interface Props {
 }
 
 export default class PluginUpdateButton extends React.PureComponent<Props> {
-  handleClick = () => this.props.onClick(this.props.update);
+  handleClick = () => {
+    this.props.onClick(this.props.update);
+  };
 
   render() {
     const { disabled, update } = this.props;
@@ -36,13 +39,12 @@ export default class PluginUpdateButton extends React.PureComponent<Props> {
       return null;
     }
     return (
-      <button
+      <Button
         className="js-update little-spacer-bottom"
         disabled={disabled}
-        onClick={this.handleClick}
-        type="button">
+        onClick={this.handleClick}>
         {translateWithParameters('marketplace.update_to_x', update.release.version)}
-      </button>
+      </Button>
     );
   }
 }

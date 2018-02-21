@@ -18,26 +18,19 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { Button } from '../../../components/ui/buttons';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {
   onClearAll: () => void;
 }
 
-export default class ClearAll extends React.PureComponent<Props> {
-  handleClick = (event: React.SyntheticEvent<HTMLButtonElement>) => {
-    event.preventDefault();
-    event.currentTarget.blur();
-    this.props.onClearAll();
-  };
-
-  render() {
-    return (
-      <div className="projects-facets-reset">
-        <button className="button-red" onClick={this.handleClick}>
-          {translate('clear_all_filters')}
-        </button>
-      </div>
-    );
-  }
+export default function ClearAll({ onClearAll }: Props) {
+  return (
+    <div className="projects-facets-reset">
+      <Button className="button-red" onClick={onClearAll}>
+        {translate('clear_all_filters')}
+      </Button>
+    </div>
+  );
 }

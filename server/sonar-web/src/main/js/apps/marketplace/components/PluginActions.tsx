@@ -19,10 +19,11 @@
  */
 import * as React from 'react';
 import PluginUpdateButton from './PluginUpdateButton';
+import { isPluginAvailable, isPluginInstalled } from '../utils';
+import { Plugin, installPlugin, updatePlugin, uninstallPlugin } from '../../../api/plugins';
 import Checkbox from '../../../components/controls/Checkbox';
 import CheckIcon from '../../../components/icons-components/CheckIcon';
-import { Plugin, installPlugin, updatePlugin, uninstallPlugin } from '../../../api/plugins';
-import { isPluginAvailable, isPluginInstalled } from '../utils';
+import { Button } from '../../../components/ui/buttons';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {
@@ -150,23 +151,21 @@ export default class PluginActions extends React.PureComponent<Props, State> {
                   update={update}
                 />
               ))}
-            <button
+            <Button
               className="js-uninstall button-red little-spacer-left"
               disabled={loading}
-              onClick={this.handleUninstall}
-              type="button">
+              onClick={this.handleUninstall}>
               {translate('marketplace.uninstall')}
-            </button>
+            </Button>
           </div>
         )}
         {isPluginAvailable(plugin) && (
-          <button
+          <Button
             className="js-install"
             disabled={loading || (plugin.termsAndConditionsUrl != null && !this.state.acceptTerms)}
-            onClick={this.handleInstall}
-            type="button">
+            onClick={this.handleInstall}>
             {translate('marketplace.install')}
-          </button>
+          </Button>
         )}
       </div>
     );

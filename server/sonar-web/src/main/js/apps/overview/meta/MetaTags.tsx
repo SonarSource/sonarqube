@@ -24,6 +24,7 @@ import { translate } from '../../../helpers/l10n';
 import TagsList from '../../../components/tags/TagsList';
 import { BubblePopupPosition } from '../../../components/common/BubblePopup';
 import { Component } from '../../../app/types';
+import { Button } from '../../../components/ui/buttons';
 
 interface Props {
   component: Component;
@@ -37,7 +38,7 @@ interface State {
 
 export default class MetaTags extends React.PureComponent<Props, State> {
   card?: HTMLDivElement | null;
-  tagsList?: HTMLButtonElement | null;
+  tagsList?: HTMLElement | null;
   tagsSelector?: HTMLDivElement | null;
   state: State = { popupOpen: false, popupPosition: { top: 0, right: 0 } };
 
@@ -70,8 +71,7 @@ export default class MetaTags extends React.PureComponent<Props, State> {
     }
   };
 
-  handleClick = (evt: React.SyntheticEvent<HTMLButtonElement>) => {
-    evt.stopPropagation();
+  handleClick = () => {
     this.setState(state => ({ popupOpen: !state.popupOpen }));
   };
 
@@ -100,12 +100,13 @@ export default class MetaTags extends React.PureComponent<Props, State> {
     if (this.canUpdateTags()) {
       return (
         <div className="big-spacer-top overview-meta-tags" ref={card => (this.card = card)}>
-          <button
+          <Button
             className="button-link"
+            innerRef={tagsList => (this.tagsList = tagsList)}
             onClick={this.handleClick}
-            ref={tagsList => (this.tagsList = tagsList)}>
+            stopPropagation={true}>
             <TagsList allowUpdate={true} tags={tags.length ? tags : [translate('no_tags')]} />
-          </button>
+          </Button>
           {popupOpen && (
             <div ref={tagsSelector => (this.tagsSelector = tagsSelector)}>
               <MetaTagsSelector

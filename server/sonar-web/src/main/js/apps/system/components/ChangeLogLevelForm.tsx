@@ -18,10 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { LOGS_LEVELS } from '../utils';
 import { setLogLevel } from '../../../api/system';
 import Modal from '../../../components/controls/Modal';
+import { SubmitButton, ResetButtonLink } from '../../../components/ui/buttons';
 import { translate } from '../../../helpers/l10n';
-import { LOGS_LEVELS } from '../utils';
 
 interface Props {
   infoMsg: string;
@@ -40,11 +41,6 @@ export default class ChangeLogLevelForm extends React.PureComponent<Props, State
     super(props);
     this.state = { newLevel: props.logLevel, updating: false };
   }
-
-  handleCancelClick = (event: React.SyntheticEvent<HTMLElement>) => {
-    event.preventDefault();
-    this.props.onClose();
-  };
 
   handleFormSubmit = (event: React.SyntheticEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -72,15 +68,15 @@ export default class ChangeLogLevelForm extends React.PureComponent<Props, State
           </div>
           <div className="modal-body">
             {LOGS_LEVELS.map(level => (
-              <p key={level} className="spacer-bottom">
+              <p className="spacer-bottom" key={level}>
                 <input
-                  id={`loglevel-${level}`}
-                  type="radio"
-                  className="spacer-right text-middle"
-                  name="system.log_levels"
-                  value={level}
                   checked={level === newLevel}
+                  className="spacer-right text-middle"
+                  id={`loglevel-${level}`}
+                  name="system.log_levels"
                   onChange={this.handleLevelChange}
+                  type="radio"
+                  value={level}
                 />
                 <label className="text-middle" htmlFor={`loglevel-${level}`}>
                   {level}
@@ -96,12 +92,12 @@ export default class ChangeLogLevelForm extends React.PureComponent<Props, State
           </div>
           <div className="modal-foot">
             {updating && <i className="spinner spacer-right" />}
-            <button disabled={updating} id="set-log-level-submit">
+            <SubmitButton disabled={updating} id="set-log-level-submit">
               {translate('save')}
-            </button>
-            <a href="#" id="set-log-level-cancel" onClick={this.handleCancelClick}>
+            </SubmitButton>
+            <ResetButtonLink id="set-log-level-cancel" onClick={this.props.onClose}>
               {translate('cancel')}
-            </a>
+            </ResetButtonLink>
           </div>
         </form>
       </Modal>

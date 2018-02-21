@@ -23,6 +23,7 @@ import RenameQualityGateForm from './RenameQualityGateForm';
 import CopyQualityGateForm from './CopyQualityGateForm';
 import DeleteQualityGateForm from './DeleteQualityGateForm';
 import { fetchQualityGate, QualityGate, setQualityGateAsDefault } from '../../../api/quality-gates';
+import { Button } from '../../../components/ui/buttons';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {
@@ -41,18 +42,15 @@ interface State {
 export default class DetailsHeader extends React.PureComponent<Props, State> {
   state = { openPopup: undefined };
 
-  handleRenameClick = (e: React.SyntheticEvent<HTMLButtonElement>) => {
-    e.preventDefault();
+  handleRenameClick = () => {
     this.setState({ openPopup: 'rename' });
   };
 
-  handleCopyClick = (e: React.SyntheticEvent<HTMLButtonElement>) => {
-    e.preventDefault();
+  handleCopyClick = () => {
     this.setState({ openPopup: 'copy' });
   };
 
-  handleSetAsDefaultClick = (e: React.SyntheticEvent<HTMLButtonElement>) => {
-    e.preventDefault();
+  handleSetAsDefaultClick = () => {
     const { qualityGate, onSetAsDefault, organization } = this.props;
     if (!qualityGate.isDefault) {
       setQualityGateAsDefault({ id: qualityGate.id, organization })
@@ -61,8 +59,7 @@ export default class DetailsHeader extends React.PureComponent<Props, State> {
     }
   };
 
-  handleDeleteClick = (e: React.SyntheticEvent<HTMLButtonElement>) => {
-    e.preventDefault();
+  handleDeleteClick = () => {
     this.setState({ openPopup: 'delete' });
   };
 
@@ -83,57 +80,57 @@ export default class DetailsHeader extends React.PureComponent<Props, State> {
 
             <div className="pull-right">
               {actions.rename && (
-                <button id="quality-gate-rename" onClick={this.handleRenameClick}>
+                <Button id="quality-gate-rename" onClick={this.handleRenameClick}>
                   {translate('rename')}
-                </button>
+                </Button>
               )}
               {actions.copy && (
-                <button
+                <Button
                   className="little-spacer-left"
                   id="quality-gate-copy"
                   onClick={this.handleCopyClick}>
                   {translate('copy')}
-                </button>
+                </Button>
               )}
               {actions.setAsDefault && (
-                <button
+                <Button
                   className="little-spacer-left"
                   id="quality-gate-toggle-default"
                   onClick={this.handleSetAsDefaultClick}>
                   {translate('set_as_default')}
-                </button>
+                </Button>
               )}
               {actions.delete && (
-                <button
-                  id="quality-gate-delete"
+                <Button
                   className="little-spacer-left button-red"
+                  id="quality-gate-delete"
                   onClick={this.handleDeleteClick}>
                   {translate('delete')}
-                </button>
+                </Button>
               )}
               {openPopup === 'rename' && (
                 <RenameQualityGateForm
+                  onClose={this.handleClosePopup}
                   onRename={this.props.onRename}
                   organization={organization}
-                  onClose={this.handleClosePopup}
                   qualityGate={qualityGate}
                 />
               )}
 
               {openPopup === 'copy' && (
                 <CopyQualityGateForm
+                  onClose={this.handleClosePopup}
                   onCopy={this.props.onCopy}
                   organization={organization}
-                  onClose={this.handleClosePopup}
                   qualityGate={qualityGate}
                 />
               )}
 
               {openPopup === 'delete' && (
                 <DeleteQualityGateForm
+                  onClose={this.handleClosePopup}
                   onDelete={this.props.onDelete}
                   organization={organization}
-                  onClose={this.handleClosePopup}
                   qualityGate={qualityGate}
                 />
               )}

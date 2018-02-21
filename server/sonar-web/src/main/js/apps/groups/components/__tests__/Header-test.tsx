@@ -27,7 +27,7 @@ it('should create new group', () => {
   const wrapper = shallow(<Header loading={false} onCreate={onCreate} />);
   expect(wrapper).toMatchSnapshot();
 
-  click(wrapper.find('#groups-create'));
+  click(wrapper.find('[id="groups-create"]'));
   expect(wrapper).toMatchSnapshot();
 
   wrapper.find('Form').prop<Function>('onSubmit')({ name: 'foo', description: 'bar' });

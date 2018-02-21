@@ -72,10 +72,10 @@ it('should open the tag selector on click', () => {
   expect(wrapper).toMatchSnapshot();
 
   // open
-  click(wrapper.find('button'));
+  click(wrapper.find('Button'));
   expect(wrapper).toMatchSnapshot();
 
   // close
-  click(wrapper.find('button'));
+  click(wrapper.find('Button'));
   expect(wrapper).toMatchSnapshot();
 });

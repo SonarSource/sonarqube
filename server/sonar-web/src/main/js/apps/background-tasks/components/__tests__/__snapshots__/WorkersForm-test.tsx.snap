@@ -79,19 +79,16 @@ exports[`changes select 1`] = `
       className="modal-foot"
     >
       <div>
-        <button
+        <SubmitButton
           disabled={false}
-          type="submit"
         >
           save
-        </button>
-        <button
-          className="button-link"
+        </SubmitButton>
+        <ResetButtonLink
           onClick={[Function]}
-          type="reset"
         >
           cancel
-        </button>
+        </ResetButtonLink>
       </div>
     </footer>
   </form>
@@ -177,19 +174,16 @@ exports[`changes select 2`] = `
       className="modal-foot"
     >
       <div>
-        <button
+        <SubmitButton
           disabled={false}
-          type="submit"
         >
           save
-        </button>
-        <button
-          className="button-link"
+        </SubmitButton>
+        <ResetButtonLink
           onClick={[Function]}
-          type="reset"
         >
           cancel
-        </button>
+        </ResetButtonLink>
       </div>
     </footer>
   </form>

@@ -31,7 +31,7 @@ it('should edit group', () => {
     <EditGroup group={group} onEdit={onEdit}>
       {props => {
         ({ onClick } = props);
-        return <button />;
+        return <div />;
       }}
     </EditGroup>
   );

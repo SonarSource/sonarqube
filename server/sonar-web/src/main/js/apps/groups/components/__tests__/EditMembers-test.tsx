@@ -29,11 +29,10 @@ it('should edit members', () => {
   const wrapper = shallow(<EditMembers group={group} onEdit={onEdit} organization="org" />);
   expect(wrapper).toMatchSnapshot();
 
-  wrapper.find('ButtonIcon').prop<Function>('onClick')();
-  wrapper.update();
+  click(wrapper.find('ButtonIcon'));
   expect(wrapper).toMatchSnapshot();
 
-  click(wrapper.find('button[type="reset"]'));
+  click(wrapper.find('ResetButtonLink'));
   expect(onEdit).toBeCalled();
   expect(wrapper).toMatchSnapshot();
 });

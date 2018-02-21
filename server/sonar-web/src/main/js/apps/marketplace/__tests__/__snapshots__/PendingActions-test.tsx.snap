@@ -44,18 +44,18 @@ exports[`should display pending actions 1`] = `
   <div
     className="pull-right"
   >
-    <button
+    <Button
       className="js-restart little-spacer-right"
       onClick={[Function]}
     >
       marketplace.restart
-    </button>
-    <button
+    </Button>
+    <Button
       className="js-cancel-all button-red"
       onClick={[Function]}
     >
       marketplace.revert
-    </button>
+    </Button>
   </div>
 </div>
 `;

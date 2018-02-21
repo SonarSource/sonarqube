@@ -29,6 +29,7 @@ import TypeHelper from '../../../components/shared/TypeHelper';
 import SeverityHelper from '../../../components/shared/SeverityHelper';
 import { createRule, updateRule } from '../../../api/rules';
 import { csvEscape } from '../../../helpers/csv';
+import { SubmitButton, ResetButtonLink } from '../../../components/ui/buttons';
 
 interface Props {
   customRule?: RuleDetails;
@@ -83,12 +84,6 @@ export default class CustomRuleFormModal extends React.PureComponent<Props, Stat
   componentWillUnmount() {
     this.mounted = false;
   }
-
-  handleCancelClick = (event: React.SyntheticEvent<HTMLButtonElement>) => {
-    event.preventDefault();
-    event.currentTarget.blur();
-    this.props.onClose();
-  };
 
   prepareRequest = () => {
     /* eslint-disable camelcase */
@@ -248,11 +243,11 @@ export default class CustomRuleFormModal extends React.PureComponent<Props, Stat
           clearable={false}
           disabled={this.state.submitting}
           onChange={this.handleTypeChange}
+          optionRenderer={this.renderTypeOption}
           options={TYPES.map(type => ({
             label: translate('issue.type', type),
             value: type
           }))}
-          optionRenderer={this.renderTypeOption}
           searchable={false}
           value={this.state.type}
           valueRenderer={this.renderTypeOption}
@@ -274,11 +269,11 @@ export default class CustomRuleFormModal extends React.PureComponent<Props, Stat
           clearable={false}
           disabled={this.state.submitting}
           onChange={this.handleSeverityChange}
+          optionRenderer={this.renderSeverityOption}
           options={SEVERITIES.map(severity => ({
             label: translate('severity', severity),
             value: severity
           }))}
-          optionRenderer={this.renderSeverityOption}
           searchable={false}
           value={this.state.severity}
           valueRenderer={this.renderSeverityOption}
@@ -345,21 +340,19 @@ export default class CustomRuleFormModal extends React.PureComponent<Props, Stat
   renderSubmitButton = () => {
     if (this.state.reactivating) {
       return (
-        <button
+        <SubmitButton
           disabled={this.state.submitting}
-          id="coding-rules-custom-rule-creation-reactivate"
-          type="submit">
+          id="coding-rules-custom-rule-creation-reactivate">
           {translate('coding_rules.reactivate')}
-        </button>
+        </SubmitButton>
       );
     } else {
       return (
-        <button
+        <SubmitButton
           disabled={this.state.submitting}
-          id="coding-rules-custom-rule-creation-create"
-          type="submit">
+          id="coding-rules-custom-rule-creation-create">
           {translate(this.props.customRule ? 'save' : 'create')}
-        </button>
+        </SubmitButton>
       );
     }
   };
@@ -399,14 +392,12 @@ export default class CustomRuleFormModal extends React.PureComponent<Props, Stat
           <div className="modal-foot">
             {submitting && <i className="spinner spacer-right" />}
             {this.renderSubmitButton()}
-            <button
-              className="button-link"
+            <ResetButtonLink
               disabled={submitting}
               id="coding-rules-custom-rule-creation-cancel"
-              onClick={this.handleCancelClick}
-              type="reset">
+              onClick={this.props.onClose}>
               {translate('cancel')}
-            </button>
+            </ResetButtonLink>
           </div>
         </form>
       </Modal>

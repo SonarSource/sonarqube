@@ -100,20 +100,18 @@ exports[`creates project 1`] = `
     <footer
       className="modal-foot"
     >
-      <button
+      <SubmitButton
         disabled={false}
         id="create-project-submit"
-        type="submit"
       >
         create
-      </button>
-      <a
-        href="#"
+      </SubmitButton>
+      <ResetButtonLink
         id="create-project-cancel"
-        onClick={[Function]}
+        onClick={[MockFunction]}
       >
         cancel
-      </a>
+      </ResetButtonLink>
     </footer>
   </form>
 </Modal>
@@ -219,20 +217,18 @@ exports[`creates project 2`] = `
     <footer
       className="modal-foot"
     >
-      <button
+      <SubmitButton
         disabled={false}
         id="create-project-submit"
-        type="submit"
       >
         create
-      </button>
-      <a
-        href="#"
+      </SubmitButton>
+      <ResetButtonLink
         id="create-project-cancel"
-        onClick={[Function]}
+        onClick={[MockFunction]}
       >
         cancel
-      </a>
+      </ResetButtonLink>
     </footer>
   </form>
 </Modal>
@@ -341,20 +337,18 @@ exports[`creates project 3`] = `
       <i
         className="spinner spacer-right"
       />
-      <button
+      <SubmitButton
         disabled={true}
         id="create-project-submit"
-        type="submit"
       >
         create
-      </button>
-      <a
-        href="#"
+      </SubmitButton>
+      <ResetButtonLink
         id="create-project-cancel"
-        onClick={[Function]}
+        onClick={[MockFunction]}
       >
         cancel
-      </a>
+      </ResetButtonLink>
     </footer>
   </form>
 </Modal>
@@ -407,13 +401,13 @@ exports[`creates project 4`] = `
     <footer
       className="modal-foot"
     >
-      <a
-        href="#"
+      <ResetButtonLink
         id="create-project-close"
-        onClick={[Function]}
+        innerRef={[Function]}
+        onClick={[MockFunction]}
       >
         close
-      </a>
+      </ResetButtonLink>
     </footer>
   </div>
 </Modal>
@@ -519,20 +513,18 @@ exports[`shows more 1`] = `
     <footer
       className="modal-foot"
     >
-      <button
+      <SubmitButton
         disabled={false}
         id="create-project-submit"
-        type="submit"
       >
         create
-      </button>
-      <a
-        href="#"
+      </SubmitButton>
+      <ResetButtonLink
         id="create-project-cancel"
-        onClick={[Function]}
+        onClick={[MockFunction]}
       >
         cancel
-      </a>
+      </ResetButtonLink>
     </footer>
   </form>
 </Modal>
@@ -645,20 +637,18 @@ exports[`shows more 2`] = `
     <footer
       className="modal-foot"
     >
-      <button
+      <SubmitButton
         disabled={false}
         id="create-project-submit"
-        type="submit"
       >
         create
-      </button>
-      <a
-        href="#"
+      </SubmitButton>
+      <ResetButtonLink
         id="create-project-cancel"
-        onClick={[Function]}
+        onClick={[MockFunction]}
       >
         cancel
-      </a>
+      </ResetButtonLink>
     </footer>
   </form>
 </Modal>

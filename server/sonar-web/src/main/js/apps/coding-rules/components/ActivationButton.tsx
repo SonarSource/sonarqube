@@ -21,6 +21,7 @@ import * as React from 'react';
 import ActivationFormModal from './ActivationFormModal';
 import { Profile as BaseProfile } from '../../../api/quality-profiles';
 import { Rule, RuleDetails, RuleActivation } from '../../../app/types';
+import { Button } from '../../../components/ui/buttons';
 
 interface Props {
   activation?: RuleActivation;
@@ -50,23 +51,23 @@ export default class ActivationButton extends React.PureComponent<Props, State> 
     this.mounted = false;
   }
 
-  handleButtonClick = (event: React.SyntheticEvent<HTMLButtonElement>) => {
-    event.preventDefault();
-    event.currentTarget.blur();
+  handleButtonClick = () => {
     this.setState({ modal: true });
   };
 
-  handleCloseModal = () => this.setState({ modal: false });
+  handleCloseModal = () => {
+    this.setState({ modal: false });
+  };
 
   render() {
     return (
       <>
-        <button
+        <Button
           className={this.props.className}
           id="coding-rules-quality-profile-activate"
           onClick={this.handleButtonClick}>
           {this.props.buttonText}
-        </button>
+        </Button>
 
         {this.state.modal && (
           <ActivationFormModal

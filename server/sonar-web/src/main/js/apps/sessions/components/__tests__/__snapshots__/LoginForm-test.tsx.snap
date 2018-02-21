@@ -111,12 +111,9 @@ exports[`expands more options 2`] = `
       <div
         className="text-right overflow-hidden"
       >
-        <button
-          name="commit"
-          type="submit"
-        >
+        <SubmitButton>
           sessions.log_in
-        </button>
+        </SubmitButton>
         <Link
           className="spacer-left"
           onlyActiveOnIndex={false}
@@ -229,12 +226,9 @@ exports[`logs in with simple credentials 1`] = `
       <div
         className="text-right overflow-hidden"
       >
-        <button
-          name="commit"
-          type="submit"
-        >
+        <SubmitButton>
           sessions.log_in
-        </button>
+        </SubmitButton>
         <Link
           className="spacer-left"
           onlyActiveOnIndex={false}

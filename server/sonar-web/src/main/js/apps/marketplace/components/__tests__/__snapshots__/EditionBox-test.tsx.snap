@@ -70,12 +70,12 @@ exports[`should disable action button 1`] = `
     >
       marketplace.learn_more
     </a>
-    <button
+    <Button
       disabled={true}
       onClick={[Function]}
     >
       action
-    </button>
+    </Button>
   </div>
 </div>
 `;
@@ -113,12 +113,12 @@ exports[`should display the edition 1`] = `
     >
       marketplace.learn_more
     </a>
-    <button
+    <Button
       disabled={false}
       onClick={[Function]}
     >
       action
-    </button>
+    </Button>
   </div>
 </div>
 `;

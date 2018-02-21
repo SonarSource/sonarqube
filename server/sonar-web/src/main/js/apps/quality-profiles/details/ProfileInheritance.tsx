@@ -21,9 +21,10 @@ import * as React from 'react';
 import * as classNames from 'classnames';
 import ProfileInheritanceBox from './ProfileInheritanceBox';
 import ChangeParentForm from './ChangeParentForm';
-import { translate } from '../../../helpers/l10n';
-import { getProfileInheritance } from '../../../api/quality-profiles';
 import { Profile } from '../types';
+import { getProfileInheritance } from '../../../api/quality-profiles';
+import { Button } from '../../../components/ui/buttons';
+import { translate } from '../../../helpers/l10n';
 
 interface Props {
   onRequestFail: (reason: any) => void;
@@ -74,21 +75,27 @@ export default class ProfileInheritance extends React.PureComponent<Props, State
   }
 
   loadData() {
-    getProfileInheritance(this.props.profile.key).then((r: any) => {
-      if (this.mounted) {
-        const { ancestors, children } = r;
-        this.setState({
-          children,
-          ancestors: ancestors.reverse(),
-          profile: r.profile,
-          loading: false
-        });
+    getProfileInheritance(this.props.profile.key).then(
+      r => {
+        if (this.mounted) {
+          const { ancestors, children } = r;
+          this.setState({
+            children,
+            ancestors: ancestors.reverse(),
+            profile: r.profile,
+            loading: false
+          });
+        }
+      },
+      () => {
+        if (this.mounted) {
+          this.setState({ loading: false });
+        }
       }
-    });
+    );
   }
 
-  handleChangeParentClick = (event: React.SyntheticEvent<HTMLElement>) => {
-    event.preventDefault();
+  handleChangeParentClick = () => {
     this.setState({ formOpen: true });
   };
 
@@ -123,11 +130,11 @@ export default class ProfileInheritance extends React.PureComponent<Props, State
           profile.actions.edit &&
           !profile.isBuiltIn && (
             <div className="boxed-group-actions">
-              <button
+              <Button
                 className="pull-right js-change-parent"
                 onClick={this.handleChangeParentClick}>
                 {translate('quality_profiles.change_parent')}
-              </button>
+              </Button>
             </div>
           )}
 

@@ -18,9 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import Modal from '../../../components/controls/Modal';
 import { deactivateUser } from '../../../api/users';
 import { User } from '../../../app/types';
+import Modal from '../../../components/controls/Modal';
+import { SubmitButton, ResetButtonLink } from '../../../components/ui/buttons';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 
 export interface Props {
@@ -45,11 +46,6 @@ export default class DeactivateForm extends React.PureComponent<Props, State> {
     this.mounted = false;
   }
 
-  handleCancelClick = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
-    event.preventDefault();
-    this.props.onClose();
-  };
-
   handleDeactivate = (event: React.SyntheticEvent<HTMLFormElement>) => {
     event.preventDefault();
     this.setState({ submitting: true });
@@ -73,7 +69,7 @@ export default class DeactivateForm extends React.PureComponent<Props, State> {
     const header = translate('users.deactivate_user');
     return (
       <Modal contentLabel={header} onRequestClose={this.props.onClose}>
-        <form id="deactivate-user-form" onSubmit={this.handleDeactivate} autoComplete="off">
+        <form autoComplete="off" id="deactivate-user-form" onSubmit={this.handleDeactivate}>
           <header className="modal-head">
             <h2>{header}</h2>
           </header>
@@ -82,12 +78,12 @@ export default class DeactivateForm extends React.PureComponent<Props, State> {
           </div>
           <footer className="modal-foot">
             {submitting && <i className="spinner spacer-right" />}
-            <button className="js-confirm button-red" disabled={submitting} type="submit">
+            <SubmitButton className="js-confirm button-red" disabled={submitting}>
               {translate('users.deactivate')}
-            </button>
-            <a className="js-modal-close" href="#" onClick={this.handleCancelClick}>
+            </SubmitButton>
+            <ResetButtonLink className="js-modal-close" onClick={this.props.onClose}>
               {translate('cancel')}
-            </a>
+            </ResetButtonLink>
           </footer>
         </form>
       </Modal>

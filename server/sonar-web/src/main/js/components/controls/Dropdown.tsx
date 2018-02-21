@@ -21,7 +21,7 @@ import * as React from 'react';
 
 interface RenderProps {
   closeDropdown: () => void;
-  onToggleClick: (event: React.SyntheticEvent<HTMLElement>) => void;
+  onToggleClick: (event?: React.SyntheticEvent<HTMLElement>) => void;
   open: boolean;
 }
 
@@ -75,10 +75,12 @@ export default class Dropdown extends React.PureComponent<Props, State> {
 
   closeDropdown = () => this.setState({ open: false });
 
-  handleToggleClick = (event: React.SyntheticEvent<HTMLElement>) => {
-    this.toggleNode = event.currentTarget;
-    event.preventDefault();
-    event.currentTarget.blur();
+  handleToggleClick = (event?: React.SyntheticEvent<HTMLElement>) => {
+    if (event) {
+      this.toggleNode = event.currentTarget;
+      event.preventDefault();
+      event.currentTarget.blur();
+    }
     this.setState(state => ({ open: !state.open }));
   };
 

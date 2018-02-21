@@ -29,6 +29,6 @@ it('renders', () => {
 it('clears all', () => {
   const onClearAll = jest.fn();
   const wrapper = shallow(<ClearAll onClearAll={onClearAll} />);
-  click(wrapper.find('button'));
+  click(wrapper.find('Button'));
   expect(onClearAll).toBeCalled();
 });

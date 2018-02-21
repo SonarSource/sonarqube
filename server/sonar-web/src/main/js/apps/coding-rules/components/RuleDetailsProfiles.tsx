@@ -30,6 +30,7 @@ import { getQualityProfileUrl } from '../../../helpers/urls';
 import BuiltInQualityProfileBadge from '../../quality-profiles/components/BuiltInQualityProfileBadge';
 import Tooltip from '../../../components/controls/Tooltip';
 import SeverityHelper from '../../../components/shared/SeverityHelper';
+import { Button } from '../../../components/ui/buttons';
 
 interface Props {
   activations: RuleActivation[] | undefined;
@@ -193,11 +194,11 @@ export default class RuleDetailsProfiles extends React.PureComponent<Props, Stat
                   modalHeader={translate('coding_rules.revert_to_parent_definition')}
                   onConfirm={this.handleRevert}>
                   {({ onClick }) => (
-                    <button
+                    <Button
                       className="coding-rules-detail-quality-profile-revert button-red spacer-left"
                       onClick={onClick}>
                       {translate('coding_rules.revert_to_parent_definition')}
-                    </button>
+                    </Button>
                   )}
                 </ConfirmButton>
               )
@@ -209,11 +210,11 @@ export default class RuleDetailsProfiles extends React.PureComponent<Props, Stat
                 modalHeader={translate('coding_rules.deactivate')}
                 onConfirm={this.handleDeactivate}>
                 {({ onClick }) => (
-                  <button
+                  <Button
                     className="coding-rules-detail-quality-profile-deactivate button-red spacer-left"
                     onClick={onClick}>
                     {translate('coding_rules.deactivate')}
-                  </button>
+                  </Button>
                 )}
               </ConfirmButton>
             )}
@@ -233,7 +234,7 @@ export default class RuleDetailsProfiles extends React.PureComponent<Props, Stat
     const parentActivation = activations.find(x => x.qProfile === profile.parentKey);
 
     return (
-      <tr key={profile.key} data-profile={profile.key}>
+      <tr data-profile={profile.key} key={profile.key}>
         <td className="coding-rules-detail-quality-profile-name">
           <Link to={getQualityProfileUrl(profile.name, profile.language, this.props.organization)}>
             {profile.name}
@@ -281,8 +282,8 @@ export default class RuleDetailsProfiles extends React.PureComponent<Props, Stat
 
           {activations.length > 0 && (
             <table
-              id="coding-rules-detail-quality-profiles"
-              className="coding-rules-detail-quality-profiles width100">
+              className="coding-rules-detail-quality-profiles width100"
+              id="coding-rules-detail-quality-profiles">
               <tbody>{activations.map(this.renderActivation)}</tbody>
             </table>
           )}

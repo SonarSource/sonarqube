@@ -23,7 +23,7 @@ import { Group } from './ProfilePermissions';
 import { removeGroup } from '../../../api/quality-profiles';
 import SimpleModal, { ChildrenProps } from '../../../components/controls/SimpleModal';
 import GroupIcon from '../../../components/icons-components/GroupIcon';
-import { DeleteButton } from '../../../components/ui/buttons';
+import { DeleteButton, Button, ResetButtonLink } from '../../../components/ui/buttons';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {
@@ -91,12 +91,10 @@ export default class ProfilePermissionsGroup extends React.PureComponent<Props, 
 
       <footer className="modal-foot">
         {props.submitting && <i className="spinner spacer-right" />}
-        <button className="button-red" disabled={props.submitting} onClick={props.onSubmitClick}>
+        <Button className="button-red" disabled={props.submitting} onClick={props.onSubmitClick}>
           {translate('remove')}
-        </button>
-        <a href="#" onClick={props.onCloseClick}>
-          {translate('cancel')}
-        </a>
+        </Button>
+        <ResetButtonLink onClick={props.onCloseClick}>{translate('cancel')}</ResetButtonLink>
       </footer>
     </div>
   );

@@ -18,10 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { Profile } from '../types';
 import { deleteProfile } from '../../../api/quality-profiles';
 import Modal from '../../../components/controls/Modal';
+import { SubmitButton, ResetButtonLink } from '../../../components/ui/buttons';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { Profile } from '../types';
 
 interface Props {
   onClose: () => void;
@@ -46,11 +47,6 @@ export default class DeleteProfileForm extends React.PureComponent<Props, State>
   componentWillUnmount() {
     this.mounted = false;
   }
-
-  handleCancelClick = (event: React.SyntheticEvent<HTMLElement>) => {
-    event.preventDefault();
-    this.props.onClose();
-  };
 
   handleFormSubmit = (event: React.SyntheticEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -100,12 +96,15 @@ export default class DeleteProfileForm extends React.PureComponent<Props, State>
           </div>
           <div className="modal-foot">
             {this.state.loading && <i className="spinner spacer-right" />}
-            <button className="button-red" disabled={this.state.loading} id="delete-profile-submit">
+            <SubmitButton
+              className="button-red"
+              disabled={this.state.loading}
+              id="delete-profile-submit">
               {translate('delete')}
-            </button>
-            <a href="#" id="delete-profile-cancel" onClick={this.handleCancelClick}>
+            </SubmitButton>
+            <ResetButtonLink id="delete-profile-cancel" onClick={this.props.onClose}>
               {translate('cancel')}
-            </a>
+            </ResetButtonLink>
           </div>
         </form>
       </Modal>

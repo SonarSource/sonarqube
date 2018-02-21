@@ -4,9 +4,11 @@ exports[`should open the tag selector on click 1`] = `
 <div
   className="big-spacer-top overview-meta-tags"
 >
-  <button
+  <Button
     className="button-link"
+    innerRef={[Function]}
     onClick={[Function]}
+    stopPropagation={true}
   >
     <TagsList
       allowUpdate={true}
@@ -17,7 +19,7 @@ exports[`should open the tag selector on click 1`] = `
         ]
       }
     />
-  </button>
+  </Button>
 </div>
 `;
 
@@ -25,9 +27,11 @@ exports[`should open the tag selector on click 2`] = `
 <div
   className="big-spacer-top overview-meta-tags"
 >
-  <button
+  <Button
     className="button-link"
+    innerRef={[Function]}
     onClick={[Function]}
+    stopPropagation={true}
   >
     <TagsList
       allowUpdate={true}
@@ -38,7 +42,7 @@ exports[`should open the tag selector on click 2`] = `
         ]
       }
     />
-  </button>
+  </Button>
   <div>
     <MetaTagsSelector
       position={
@@ -64,9 +68,11 @@ exports[`should open the tag selector on click 3`] = `
 <div
   className="big-spacer-top overview-meta-tags"
 >
-  <button
+  <Button
     className="button-link"
+    innerRef={[Function]}
     onClick={[Function]}
+    stopPropagation={true}
   >
     <TagsList
       allowUpdate={true}
@@ -77,7 +83,7 @@ exports[`should open the tag selector on click 3`] = `
         ]
       }
     />
-  </button>
+  </Button>
 </div>
 `;
 
@@ -85,9 +91,11 @@ exports[`should render with tags and admin rights 1`] = `
 <div
   className="big-spacer-top overview-meta-tags"
 >
-  <button
+  <Button
     className="button-link"
+    innerRef={[Function]}
     onClick={[Function]}
+    stopPropagation={true}
   >
     <TagsList
       allowUpdate={true}
@@ -98,7 +106,7 @@ exports[`should render with tags and admin rights 1`] = `
         ]
       }
     />
-  </button>
+  </Button>
 </div>
 `;
 

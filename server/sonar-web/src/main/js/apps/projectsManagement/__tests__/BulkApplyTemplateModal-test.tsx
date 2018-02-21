@@ -56,7 +56,7 @@ it('bulk applies template to all results', async () => {
   });
   expect(wrapper).toMatchSnapshot();
 
-  click(wrapper.find('button'));
+  click(wrapper.find('Button'));
   expect(bulkApplyTemplate).toBeCalledWith({
     analyzedBefore: '2017-04-08T00:00:00.000Z',
     onProvisionedOnly: true,
@@ -83,7 +83,7 @@ it('bulk applies template to selected results', async () => {
   });
   expect(wrapper).toMatchSnapshot();
 
-  click(wrapper.find('button'));
+  click(wrapper.find('Button'));
   expect(wrapper).toMatchSnapshot();
   await new Promise(setImmediate);
   expect(bulkApplyTemplate).toBeCalledWith({

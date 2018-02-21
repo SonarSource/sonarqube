@@ -22,7 +22,7 @@ import { FormattedMessage } from 'react-intl';
 import { User } from './ProfilePermissions';
 import { removeUser } from '../../../api/quality-profiles';
 import SimpleModal, { ChildrenProps } from '../../../components/controls/SimpleModal';
-import { DeleteButton } from '../../../components/ui/buttons';
+import { DeleteButton, SubmitButton, ResetButtonLink } from '../../../components/ui/buttons';
 import Avatar from '../../../components/ui/Avatar';
 import { translate } from '../../../helpers/l10n';
 
@@ -91,12 +91,13 @@ export default class ProfilePermissionsUser extends React.PureComponent<Props, S
 
       <footer className="modal-foot">
         {props.submitting && <i className="spinner spacer-right" />}
-        <button className="button-red" disabled={props.submitting} onClick={props.onSubmitClick}>
+        <SubmitButton
+          className="button-red"
+          disabled={props.submitting}
+          onClick={props.onSubmitClick}>
           {translate('remove')}
-        </button>
-        <a href="#" onClick={props.onCloseClick}>
-          {translate('cancel')}
-        </a>
+        </SubmitButton>
+        <ResetButtonLink onClick={props.onCloseClick}>{translate('cancel')}</ResetButtonLink>
       </footer>
     </div>
   );

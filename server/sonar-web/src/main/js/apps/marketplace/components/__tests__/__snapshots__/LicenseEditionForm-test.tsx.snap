@@ -1,5 +1,35 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`should correctly change the button based on the status and license 1`] = `
+<Button
+  className="js-confirm"
+  disabled={false}
+  onClick={[Function]}
+>
+  save
+</Button>
+`;
+
+exports[`should correctly change the button based on the status and license 2`] = `
+<Button
+  className="js-confirm"
+  disabled={true}
+  onClick={[Function]}
+>
+  save
+</Button>
+`;
+
+exports[`should correctly change the button based on the status and license 3`] = `
+<Button
+  className="js-confirm"
+  disabled={true}
+  onClick={[Function]}
+>
+  marketplace.install
+</Button>
+`;
+
 exports[`should display correctly 1`] = `
 <Modal
   contentLabel="marketplace.upgrade_to_x.Foo"
@@ -41,13 +71,11 @@ exports[`should display correctly 1`] = `
   <footer
     className="modal-foot"
   >
-    <a
-      className="js-modal-close"
-      href="#"
-      onClick={[Function]}
+    <ResetButtonLink
+      onClick={[MockFunction]}
     >
       cancel
-    </a>
+    </ResetButtonLink>
   </footer>
 </Modal>
 `;

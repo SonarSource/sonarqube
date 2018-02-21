@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import SimpleModal from '../../../components/controls/SimpleModal';
+import { SubmitButton, ResetButtonLink } from '../../../components/ui/buttons';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {
@@ -30,8 +31,8 @@ export default function RemoveExtendedDescriptionModal({ onCancel, onSubmit }: P
   const header = translate('coding_rules.remove_extended_description');
   return (
     <SimpleModal header={header} onClose={onCancel} onSubmit={onSubmit}>
-      {({ onCloseClick, onSubmitClick, submitting }) => (
-        <>
+      {({ onCloseClick, onFormSubmit, submitting }) => (
+        <form onSubmit={onFormSubmit}>
           <header className="modal-head">
             <h2>{header}</h2>
           </header>
@@ -42,18 +43,15 @@ export default function RemoveExtendedDescriptionModal({ onCancel, onSubmit }: P
 
           <footer className="modal-foot">
             {submitting && <i className="spinner spacer-right" />}
-            <button
+            <SubmitButton
               className="button-red"
               disabled={submitting}
-              id="coding-rules-detail-extend-description-remove-submit"
-              onClick={onSubmitClick}>
+              id="coding-rules-detail-extend-description-remove-submit">
               {translate('remove')}
-            </button>
-            <a href="#" onClick={onCloseClick}>
-              {translate('cancel')}
-            </a>
+            </SubmitButton>
+            <ResetButtonLink onClick={onCloseClick}>{translate('cancel')}</ResetButtonLink>
           </footer>
-        </>
+        </form>
       )}
     </SimpleModal>
   );

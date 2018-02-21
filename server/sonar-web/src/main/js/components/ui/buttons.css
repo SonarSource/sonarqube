@@ -17,7 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-.button-icon {
+
+/* use double selector .button-icon.button-icon to increase the specificity */
+
+.button-icon.button-icon {
   display: inline-flex;
   justify-content: center;
   align-items: center;
@@ -29,28 +32,28 @@
   color: inherit;
 }
 
-.button-icon.button-small {
+.button-icon.button-icon.button-small {
   width: var(--smallControlHeight);
   height: var(--smallControlHeight);
   padding: 0;
 }
 
-.button-icon.button-small svg {
+.button-icon.button-icon.button-small svg {
   margin-top: 0;
 }
 
-.button-icon.button-tiny {
+.button-icon.button-icon.button-tiny {
   width: var(--tinyControlHeight);
   height: var(--tinyControlHeight);
   padding: 0;
 }
 
-.button-icon:hover,
-.button-icon:focus {
+.button-icon.button-icon:hover,
+.button-icon.button-icon:focus {
   background-color: currentColor;
 }
 
-.button-icon:hover svg,
-.button-icon:focus svg {
+.button-icon.button-icon:hover svg,
+.button-icon.button-icon:focus svg {
   color: #fff;
 }

@@ -27,6 +27,7 @@ import { Rule, RuleDetails, RuleActivation } from '../../../app/types';
 import { SEVERITIES } from '../../../helpers/constants';
 import { translate } from '../../../helpers/l10n';
 import { sortProfiles } from '../../quality-profiles/utils';
+import { SubmitButton, ResetButtonLink } from '../../../components/ui/buttons';
 
 interface Props {
   activation?: RuleActivation;
@@ -84,8 +85,8 @@ export default class ActivationFormModal extends React.PureComponent<Props, Stat
   };
 
   // Choose QP which a user can administrate, which are the same language and which are not built-in
-  getQualityProfilesWithDepth = ({ profiles } = this.props) =>
-    sortProfiles(
+  getQualityProfilesWithDepth = ({ profiles } = this.props) => {
+    return sortProfiles(
       profiles.filter(
         profile =>
           !profile.isBuiltIn &&
@@ -98,11 +99,6 @@ export default class ActivationFormModal extends React.PureComponent<Props, Stat
       // Decrease depth by 1, so the top level starts at 0
       depth: profile.depth - 1
     }));
-
-  handleCancelClick = (event: React.SyntheticEvent<HTMLButtonElement>) => {
-    event.preventDefault();
-    event.currentTarget.blur();
-    this.props.onClose();
   };
 
   handleFormSubmit = (event: React.SyntheticEvent<HTMLFormElement>) => {
@@ -137,11 +133,17 @@ export default class ActivationFormModal extends React.PureComponent<Props, Stat
     this.setState((state: State) => ({ params: { ...state.params, [name]: value } }));
   };
 
-  handleProfileChange = ({ value }: { value: string }) => this.setState({ profile: value });
+  handleProfileChange = ({ value }: { value: string }) => {
+    this.setState({ profile: value });
+  };
 
-  handleSeverityChange = ({ value }: { value: string }) => this.setState({ severity: value });
+  handleSeverityChange = ({ value }: { value: string }) => {
+    this.setState({ severity: value });
+  };
 
-  renderSeverityOption = ({ value }: { value: string }) => <SeverityHelper severity={value} />;
+  renderSeverityOption = ({ value }: { value: string }) => {
+    return <SeverityHelper severity={value} />;
+  };
 
   render() {
     const { activation, rule } = this.props;
@@ -188,11 +190,11 @@ export default class ActivationFormModal extends React.PureComponent<Props, Stat
                 clearable={false}
                 disabled={submitting}
                 onChange={this.handleSeverityChange}
+                optionRenderer={this.renderSeverityOption}
                 options={SEVERITIES.map(severity => ({
                   label: translate('severity', severity),
                   value: severity
                 }))}
-                optionRenderer={this.renderSeverityOption}
                 searchable={false}
                 value={severity}
                 valueRenderer={this.renderSeverityOption}
@@ -241,16 +243,12 @@ export default class ActivationFormModal extends React.PureComponent<Props, Stat
 
           <footer className="modal-foot">
             {submitting && <i className="spinner spacer-right" />}
-            <button disabled={submitting || activeInAllProfiles} type="submit">
+            <SubmitButton disabled={submitting || activeInAllProfiles}>
               {isUpdateMode ? translate('save') : translate('coding_rules.activate')}
-            </button>
-            <button
-              className="button-link"
-              disabled={submitting}
-              onClick={this.handleCancelClick}
-              type="reset">
+            </SubmitButton>
+            <ResetButtonLink disabled={submitting} onClick={this.props.onClose}>
               {translate('cancel')}
-            </button>
+            </ResetButtonLink>
           </footer>
         </form>
       </Modal>

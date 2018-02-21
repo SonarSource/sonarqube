@@ -4,12 +4,12 @@ exports[`should display the modal after click 1`] = `
 <div
   className="overview-meta-card"
 >
-  <button
+  <Button
     className="js-project-badges"
     onClick={[Function]}
   >
     overview.badges.get_badge
-  </button>
+  </Button>
 </div>
 `;
 
@@ -82,12 +82,12 @@ exports[`should display the modal after click 2`] = `
   <footer
     className="modal-foot"
   >
-    <button
-      className="button-link js-modal-close"
+    <ResetButtonLink
+      className="js-modal-close"
       onClick={[Function]}
     >
       close
-    </button>
+    </ResetButtonLink>
   </footer>
 </Modal>
 `;

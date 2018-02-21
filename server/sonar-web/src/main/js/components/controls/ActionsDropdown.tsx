@@ -22,6 +22,7 @@ import * as classNames from 'classnames';
 import { Link } from 'react-router';
 import { LocationDescriptor } from 'history';
 import SettingsIcon from '../icons-components/SettingsIcon';
+import { Button } from '../ui/buttons';
 
 interface Props {
   className?: string;
@@ -37,7 +38,7 @@ interface Props {
 export default function ActionsDropdown({ menuPosition = 'right', ...props }: Props) {
   return (
     <div className={classNames('dropdown', props.className)}>
-      <button
+      <Button
         className={classNames('dropdown-toggle', props.toggleClassName, {
           'button-small': props.small
         })}
@@ -45,7 +46,7 @@ export default function ActionsDropdown({ menuPosition = 'right', ...props }: Pr
         onClick={props.onToggleClick}>
         <SettingsIcon className="text-text-bottom" />
         <i className="icon-dropdown little-spacer-left" />
-      </button>
+      </Button>
       <ul
         className={classNames('dropdown-menu', props.menuClassName, {
           'dropdown-menu-right': menuPosition === 'right'
