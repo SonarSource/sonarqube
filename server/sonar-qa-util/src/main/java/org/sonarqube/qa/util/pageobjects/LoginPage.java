@@ -22,7 +22,6 @@ package org.sonarqube.qa.util.pageobjects;
 import com.codeborne.selenide.Condition;
 import com.codeborne.selenide.Selenide;
 import com.codeborne.selenide.SelenideElement;
-import org.openqa.selenium.By;
 
 public class LoginPage {
 
@@ -49,7 +48,7 @@ public class LoginPage {
   public LoginPage submitWrongCredentials(String login, String password) {
     Selenide.$("#login").val(login);
     Selenide.$("#password").val(password);
-    Selenide.$(By.name("commit")).click();
+    Selenide.$("[type=submit]").click();
     return Selenide.page(LoginPage.class);
   }
 
@@ -60,7 +59,7 @@ public class LoginPage {
   private static <T> T submitCredentials(String login, String password, Class<T> expectedResultPage) {
     Selenide.$("#login").val(login);
     Selenide.$("#password").val(password);
-    Selenide.$(By.name("commit")).click();
+    Selenide.$("[type=submit]").click();
     Selenide.$("#login").should(Condition.disappear);
     return Selenide.page(expectedResultPage);
   }
