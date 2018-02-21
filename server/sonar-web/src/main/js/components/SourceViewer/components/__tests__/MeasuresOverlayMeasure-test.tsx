@@ -17,22 +17,32 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import throwGlobalError from '../app/utils/throwGlobalError';
-import { Paging, TestCase, CoveredFile } from '../app/types';
-import { getJSON } from '../helpers/request';
+import * as React from 'react';
+import { shallow } from 'enzyme';
+import MeasuresOverlayMeasure from '../MeasuresOverlayMeasure';
 
-export function getTests(parameters: {
-  branch?: string;
-  p?: number;
-  ps?: number;
-  sourceFileKey?: string;
-  sourceFileLineNumber?: number;
-  testFileKey: string;
-  testId?: string;
-}): Promise<{ paging: Paging; tests: TestCase[] }> {
-  return getJSON('/api/tests/list', parameters).catch(throwGlobalError);
-}
+it('should render', () => {
+  expect(
+    shallow(
+      <MeasuresOverlayMeasure
+        measure={{
+          metric: { id: '1', key: 'coverage', name: 'Coverage', type: 'PERCENT' },
+          value: '72'
+        }}
+      />
+    )
+  ).toMatchSnapshot();
+});
 
-export function getCoveredFiles(data: { testId: string }): Promise<CoveredFile[]> {
-  return getJSON('/api/tests/covered_files', data).then(r => r.files, throwGlobalError);
-}
+it('should render issues icon', () => {
+  expect(
+    shallow(
+      <MeasuresOverlayMeasure
+        measure={{
+          metric: { id: '1', key: 'bugs', name: 'Bugs', type: 'INT' },
+          value: '2'
+        }}
+      />
+    )
+  ).toMatchSnapshot();
+});

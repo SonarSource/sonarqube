@@ -1,0 +1,53 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render 1`] = `
+<div
+  className="measure measure-one-line"
+  data-metric="coverage"
+  key="coverage"
+>
+  <span
+    className="measure-name"
+  >
+    Coverage
+  </span>
+  <span
+    className="measure-value"
+  >
+    <Measure
+      metricKey="coverage"
+      metricType="PERCENT"
+      small={true}
+      value="72"
+    />
+  </span>
+</div>
+`;
+
+exports[`should render issues icon 1`] = `
+<div
+  className="measure measure-one-line"
+  data-metric="bugs"
+  key="bugs"
+>
+  <span
+    className="measure-name"
+  >
+    <IssueTypeIcon
+      className="little-spacer-right"
+      query="bugs"
+    />
+    Bugs
+  </span>
+  <span
+    className="measure-value"
+  >
+    <Measure
+      metricKey="bugs"
+      metricType="INT"
+      small={true}
+      value="2"
+    />
+  </span>
+</div>
+`;

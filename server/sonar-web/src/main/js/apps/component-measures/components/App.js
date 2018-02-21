@@ -28,6 +28,7 @@ import ScreenPositionHelper from '../../../components/common/ScreenPositionHelpe
 import { hasBubbleChart, parseQuery, serializeQuery } from '../utils';
 import { getBranchName } from '../../../helpers/branches';
 import { translate } from '../../../helpers/l10n';
+import { getDisplayMetrics } from '../../../helpers/measures';
 /*:: import type { Component, Query, Period } from '../types'; */
 /*:: import type { RawQuery } from '../../../helpers/query'; */
 /*:: import type { Metric } from '../../../store/metrics/actions'; */
@@ -106,11 +107,9 @@ export default class App extends React.PureComponent {
     }
   }
 
-  fetchMeasures = ({ branch, component, fetchMeasures, metrics, metricsKey } /*: Props */) => {
+  fetchMeasures = ({ branch, component, fetchMeasures, metrics } /*: Props */) => {
     this.setState({ loading: true });
-    const filteredKeys = metricsKey.filter(
-      key => !metrics[key].hidden && !['DATA', 'DISTRIB'].includes(metrics[key].type)
-    );
+    const filteredKeys = getDisplayMetrics(Object.values(metrics)).map(metric => metric.key);
     fetchMeasures(component.key, filteredKeys, getBranchName(branch)).then(
       ({ measures, leakPeriod }) => {
         if (this.mounted) {

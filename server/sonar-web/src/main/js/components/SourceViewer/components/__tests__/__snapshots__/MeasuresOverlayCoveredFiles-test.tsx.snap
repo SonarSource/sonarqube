@@ -1,0 +1,76 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render ERROR test 1`] = `
+<div
+  className="source-viewer-measures-section source-viewer-measures-section-big js-selected-test"
+>
+  <DeferredSpinner
+    loading={false}
+    timeout={100}
+  >
+    <div
+      className="source-viewer-measures-card source-viewer-measures-card-fixed-height"
+    >
+      <React.Fragment>
+        <div
+          className="bubble-popup-title"
+        >
+          component_viewer.details
+        </div>
+        <pre>
+          Something failed
+        </pre>
+        <pre />
+      </React.Fragment>
+    </div>
+  </DeferredSpinner>
+</div>
+`;
+
+exports[`should render OK test 1`] = `
+<div
+  className="source-viewer-measures-section source-viewer-measures-section-big js-selected-test"
+>
+  <DeferredSpinner
+    loading={false}
+    timeout={100}
+  >
+    <div
+      className="source-viewer-measures-card source-viewer-measures-card-fixed-height"
+    >
+      <React.Fragment>
+        <div
+          className="bubble-popup-title"
+        >
+          component_viewer.transition.covers
+        </div>
+        <div
+          className="bubble-popup-section"
+          key="project:src/file.js"
+        >
+          <Link
+            onlyActiveOnIndex={false}
+            style={Object {}}
+            to={
+              Object {
+                "pathname": "/dashboard",
+                "query": Object {
+                  "branch": undefined,
+                  "id": "project:src/file.js",
+                },
+              }
+            }
+          >
+            src/file.js
+          </Link>
+          <span
+            className="note spacer-left"
+          >
+            component_viewer.x_lines_are_covered.3
+          </span>
+        </div>
+      </React.Fragment>
+    </div>
+  </DeferredSpinner>
+</div>
+`;

@@ -27,7 +27,6 @@ import CoveragePopupView from './popups/coverage-popup';
 import DuplicationPopupView from './popups/duplication-popup';
 import LineActionsPopupView from './popups/line-actions-popup';
 import SCMPopupView from './popups/scm-popup';
-import MeasuresOverlay from './views/measures-overlay';
 import loadIssues from './helpers/loadIssues';
 import getCoverageStatus from './helpers/getCoverageStatus';
 import {
@@ -464,15 +463,6 @@ export default class SourceViewerBase extends React.PureComponent {
     });
   };
 
-  showMeasures = () => {
-    const measuresOverlay = new MeasuresOverlay({
-      branch: this.props.branch,
-      component: this.state.component,
-      large: true
-    });
-    measuresOverlay.render();
-  };
-
   handleCoverageClick = (line /*: SourceLine */, element /*: HTMLElement */) => {
     getTests(this.props.component, line.line, this.props.branch).then(tests => {
       const popup = new CoveragePopupView({
@@ -691,11 +681,7 @@ export default class SourceViewerBase extends React.PureComponent {
 
     return (
       <div className={className} ref={node => (this.node = node)}>
-        <SourceViewerHeader
-          branch={this.props.branch}
-          component={this.state.component}
-          showMeasures={this.showMeasures}
-        />
+        <SourceViewerHeader branch={this.props.branch} sourceViewerFile={this.state.component} />
         {sourceRemoved && (
           <div className="alert alert-warning spacer-top">
             {translate('code_viewer.no_source_code_displayed_due_to_source_removed')}

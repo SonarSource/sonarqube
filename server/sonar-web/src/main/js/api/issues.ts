@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { FacetValue } from '../app/types';
 import { getJSON, post, postJSON, RequestData } from '../helpers/request';
 import { RawIssue } from '../helpers/issues';
 
@@ -30,7 +31,10 @@ export interface IssueResponse {
 interface IssuesResponse {
   components?: { key: string; name: string; uuid: string }[];
   debtTotal?: number;
-  facets: Array<{}>;
+  facets: Array<{
+    property: string;
+    values: { count: number; val: string }[];
+  }>;
   issues: RawIssue[];
   paging: {
     pageIndex: number;
@@ -45,7 +49,13 @@ export function searchIssues(query: RequestData): Promise<IssuesResponse> {
   return getJSON('/api/issues/search', query);
 }
 
-export function getFacets(query: RequestData, facets: string[]): Promise<any> {
+export function getFacets(
+  query: RequestData,
+  facets: string[]
+): Promise<{
+  facets: Array<{ property: string; values: FacetValue[] }>;
+  response: IssuesResponse;
+}> {
   const data = {
     ...query,
     facets: facets.join(),

@@ -27,18 +27,26 @@ import { formatMeasure } from '../../helpers/measures';
 interface Props {
   className?: string;
   decimals?: number | null;
-  value?: string;
   metricKey: string;
   metricType: string;
+  small?: boolean;
+  value: string | undefined;
 }
 
-export default function Measure({ className, decimals, metricKey, metricType, value }: Props) {
+export default function Measure({
+  className,
+  decimals,
+  metricKey,
+  metricType,
+  small,
+  value
+}: Props) {
   if (value === undefined) {
     return <span>{'–'}</span>;
   }
 
   if (metricType === 'LEVEL') {
-    return <Level className={className} level={value} />;
+    return <Level className={className} level={value} small={small} />;
   }
 
   if (metricType !== 'RATING') {
@@ -47,7 +55,7 @@ export default function Measure({ className, decimals, metricKey, metricType, va
   }
 
   const tooltip = getRatingTooltip(metricKey, Number(value));
-  const rating = <Rating value={value} />;
+  const rating = <Rating small={small} value={value} />;
   if (tooltip) {
     return (
       <Tooltips overlay={tooltip}>

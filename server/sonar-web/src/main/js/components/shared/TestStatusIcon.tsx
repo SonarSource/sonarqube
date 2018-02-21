@@ -17,22 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import throwGlobalError from '../app/utils/throwGlobalError';
-import { Paging, TestCase, CoveredFile } from '../app/types';
-import { getJSON } from '../helpers/request';
+import * as React from 'react';
+import * as classNames from 'classnames';
 
-export function getTests(parameters: {
-  branch?: string;
-  p?: number;
-  ps?: number;
-  sourceFileKey?: string;
-  sourceFileLineNumber?: number;
-  testFileKey: string;
-  testId?: string;
-}): Promise<{ paging: Paging; tests: TestCase[] }> {
-  return getJSON('/api/tests/list', parameters).catch(throwGlobalError);
+interface Props {
+  className?: string;
+  status: string;
 }
 
-export function getCoveredFiles(data: { testId: string }): Promise<CoveredFile[]> {
-  return getJSON('/api/tests/covered_files', data).then(r => r.files, throwGlobalError);
+export default function TestStatusIcon({ className, status }: Props) {
+  return <i className={classNames('icon-test-status-' + status.toLowerCase(), className)} />;
 }

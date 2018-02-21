@@ -17,49 +17,46 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
+import * as React from 'react';
 import { Link } from 'react-router';
+import MeasuresOverlay from './components/MeasuresOverlay';
+import { SourceViewerFile } from '../../app/types';
 import QualifierIcon from '../shared/QualifierIcon';
 import FavoriteContainer from '../controls/FavoriteContainer';
-import { getPathUrlAsString, getProjectUrl, getComponentIssuesUrl } from '../../helpers/urls';
+import {
+  getPathUrlAsString,
+  getProjectUrl,
+  getComponentIssuesUrl,
+  getBaseUrl
+} from '../../helpers/urls';
 import { collapsedDirFromPath, fileFromPath } from '../../helpers/path';
 import { translate } from '../../helpers/l10n';
 import { formatMeasure } from '../../helpers/measures';
 
-export default class SourceViewerHeader extends React.PureComponent {
-  /*:: props: {
-    branch?: string,
-    component: {
-      canMarkAsFavorite: boolean,
-      key: string,
-      measures: {
-        coverage?: string,
-        duplicationDensity?: string,
-        issues?: string,
-        lines?: string,
-        tests?: string
-      },
-      path: string,
-      project: string,
-      projectName: string,
-      q: string,
-      subProject?: string,
-      subProjectName?: string,
-      uuid: string
-    },
-    showMeasures: () => void
-  };
-*/
+interface Props {
+  branch: string | undefined;
+  sourceViewerFile: SourceViewerFile;
+}
 
-  showMeasures = (e /*: SyntheticInputEvent */) => {
-    e.preventDefault();
-    this.props.showMeasures();
+interface State {
+  measuresOverlay: boolean;
+}
+
+export default class SourceViewerHeader extends React.PureComponent<Props, State> {
+  state: State = { measuresOverlay: false };
+
+  handleShowMeasuresClick = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
+    event.preventDefault();
+    this.setState({ measuresOverlay: true });
   };
 
-  openInWorkspace = (e /*: SyntheticInputEvent */) => {
-    e.preventDefault();
-    const { key } = this.props.component;
+  handleMeasuresOverlayClose = () => {
+    this.setState({ measuresOverlay: false });
+  };
+
+  openInWorkspace = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
+    event.preventDefault();
+    const { key } = this.props.sourceViewerFile;
     const Workspace = require('../workspace/main').default;
     Workspace.openComponent({ key, branch: this.props.branch });
   };
@@ -75,11 +72,11 @@ export default class SourceViewerHeader extends React.PureComponent {
       subProject,
       subProjectName,
       uuid
-    } = this.props.component;
+    } = this.props.sourceViewerFile;
     const isUnitTest = q === 'UTS';
     const workspace = false;
     let rawSourcesLink =
-      window.baseUrl + `/api/sources/raw?key=${encodeURIComponent(this.props.component.key)}`;
+      getBaseUrl() + `/api/sources/raw?key=${encodeURIComponent(this.props.sourceViewerFile.key)}`;
     if (this.props.branch) {
       rawSourcesLink += `&branch=${encodeURIComponent(this.props.branch)}`;
     }
@@ -91,8 +88,8 @@ export default class SourceViewerHeader extends React.PureComponent {
           <div className="component-name">
             <div className="component-name-parent">
               <a
-                href={getPathUrlAsString(getProjectUrl(project, this.props.branch))}
-                className="link-with-icon">
+                className="link-with-icon"
+                href={getPathUrlAsString(getProjectUrl(project, this.props.branch))}>
                 <QualifierIcon qualifier="TRK" /> <span>{projectName}</span>
               </a>
             </div>
@@ -100,8 +97,8 @@ export default class SourceViewerHeader extends React.PureComponent {
             {subProject != null && (
               <div className="component-name-parent">
                 <a
-                  href={getPathUrlAsString(getProjectUrl(subProject, this.props.branch))}
-                  className="link-with-icon">
+                  className="link-with-icon"
+                  href={getPathUrlAsString(getProjectUrl(subProject, this.props.branch))}>
                   <QualifierIcon qualifier="BRC" /> <span>{subProjectName}</span>
                 </a>
               </div>
@@ -110,7 +107,7 @@ export default class SourceViewerHeader extends React.PureComponent {
             <div className="component-name-path">
               <QualifierIcon qualifier={q} /> <span>{collapsedDirFromPath(path)}</span>
               <span className="component-name-file">{fileFromPath(path)}</span>
-              {this.props.component.canMarkAsFavorite && (
+              {this.props.sourceViewerFile.canMarkAsFavorite && (
                 <FavoriteContainer className="component-name-favorite" componentKey={key} />
               )}
             </div>
@@ -125,18 +122,25 @@ export default class SourceViewerHeader extends React.PureComponent {
           />
           <ul className="dropdown-menu dropdown-menu-right">
             <li>
-              <a className="js-measures" href="#" onClick={this.showMeasures}>
+              <a className="js-measures" href="#" onClick={this.handleShowMeasuresClick}>
                 {translate('component_viewer.show_details')}
               </a>
+              {this.state.measuresOverlay && (
+                <MeasuresOverlay
+                  branch={this.props.branch}
+                  onClose={this.handleMeasuresOverlayClose}
+                  sourceViewerFile={this.props.sourceViewerFile}
+                />
+              )}
             </li>
             <li>
               <a
                 className="js-new-window"
-                target="_blank"
                 href={getPathUrlAsString({
                   pathname: '/component',
-                  query: { branch: this.props.branch, id: this.props.component.key }
-                })}>
+                  query: { branch: this.props.branch, id: this.props.sourceViewerFile.key }
+                })}
+                target="_blank">
                 {translate('component_viewer.new_window')}
               </a>
             </li>
