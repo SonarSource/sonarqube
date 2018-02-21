@@ -49,20 +49,17 @@ exports[`should render correctly 2`] = `
       loading={false}
       timeout={100}
     />
-    <button
+    <SubmitButton
       disabled={true}
-      type="submit"
     >
       confirm
-    </button>
-    <button
-      className="button-link"
+    </SubmitButton>
+    <ResetButtonLink
       disabled={false}
-      onClick={[Function]}
-      type="reset"
+      onClick={[MockFunction]}
     >
       cancel
-    </button>
+    </ResetButtonLink>
   </footer>
 </Form>
 `;
