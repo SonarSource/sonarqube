@@ -20,6 +20,7 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import MeasuresOverlay from '../MeasuresOverlay';
+import { SourceViewerFile } from '../../../../app/types';
 import { waitAndUpdate, click } from '../../../../helpers/testUtils';
 
 jest.mock('../../../../api/issues', () => ({
@@ -135,19 +136,21 @@ jest.mock('../../../../api/metrics', () => ({
     ])
 }));
 
-const component = {
+const sourceViewerFile: SourceViewerFile = {
   key: 'component-key',
+  measures: {},
   path: 'src/file.js',
   project: 'project-key',
   projectName: 'Project Name',
   q: 'FIL',
   subProject: 'sub-project-key',
-  subProjectName: 'Sub-Project Name'
+  subProjectName: 'Sub-Project Name',
+  uuid: 'abcd123'
 };
 
 it('should render source file', async () => {
   const wrapper = shallow(
-    <MeasuresOverlay branch="branch" component={component} onClose={jest.fn()} />
+    <MeasuresOverlay branch="branch" onClose={jest.fn()} sourceViewerFile={sourceViewerFile} />
   );
   await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot();
@@ -158,7 +161,11 @@ it('should render source file', async () => {
 
 it('should render test file', async () => {
   const wrapper = shallow(
-    <MeasuresOverlay branch="branch" component={{ ...component, q: 'UTS' }} onClose={jest.fn()} />
+    <MeasuresOverlay
+      branch="branch"
+      onClose={jest.fn()}
+      sourceViewerFile={{ ...sourceViewerFile, q: 'UTS' }}
+    />
   );
   await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot();

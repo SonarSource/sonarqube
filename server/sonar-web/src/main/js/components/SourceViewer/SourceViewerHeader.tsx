@@ -20,6 +20,7 @@
 import * as React from 'react';
 import { Link } from 'react-router';
 import MeasuresOverlay from './components/MeasuresOverlay';
+import { SourceViewerFile } from '../../app/types';
 import QualifierIcon from '../shared/QualifierIcon';
 import FavoriteContainer from '../controls/FavoriteContainer';
 import {
@@ -34,24 +35,7 @@ import { formatMeasure } from '../../helpers/measures';
 
 interface Props {
   branch: string | undefined;
-  component: {
-    canMarkAsFavorite: boolean;
-    key: string;
-    measures: {
-      coverage?: string;
-      duplicationDensity?: string;
-      issues?: string;
-      lines?: string;
-      tests?: string;
-    };
-    path: string;
-    project: string;
-    projectName: string;
-    q: string;
-    subProject?: string;
-    subProjectName?: string;
-    uuid: string;
-  };
+  sourceViewerFile: SourceViewerFile;
 }
 
 interface State {
@@ -72,7 +56,7 @@ export default class SourceViewerHeader extends React.PureComponent<Props, State
 
   openInWorkspace = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
-    const { key } = this.props.component;
+    const { key } = this.props.sourceViewerFile;
     const Workspace = require('../workspace/main').default;
     Workspace.openComponent({ key, branch: this.props.branch });
   };
@@ -88,11 +72,11 @@ export default class SourceViewerHeader extends React.PureComponent<Props, State
       subProject,
       subProjectName,
       uuid
-    } = this.props.component;
+    } = this.props.sourceViewerFile;
     const isUnitTest = q === 'UTS';
     const workspace = false;
     let rawSourcesLink =
-      getBaseUrl() + `/api/sources/raw?key=${encodeURIComponent(this.props.component.key)}`;
+      getBaseUrl() + `/api/sources/raw?key=${encodeURIComponent(this.props.sourceViewerFile.key)}`;
     if (this.props.branch) {
       rawSourcesLink += `&branch=${encodeURIComponent(this.props.branch)}`;
     }
@@ -123,7 +107,7 @@ export default class SourceViewerHeader extends React.PureComponent<Props, State
             <div className="component-name-path">
               <QualifierIcon qualifier={q} /> <span>{collapsedDirFromPath(path)}</span>
               <span className="component-name-file">{fileFromPath(path)}</span>
-              {this.props.component.canMarkAsFavorite && (
+              {this.props.sourceViewerFile.canMarkAsFavorite && (
                 <FavoriteContainer className="component-name-favorite" componentKey={key} />
               )}
             </div>
@@ -144,8 +128,8 @@ export default class SourceViewerHeader extends React.PureComponent<Props, State
               {this.state.measuresOverlay && (
                 <MeasuresOverlay
                   branch={this.props.branch}
-                  component={this.props.component}
                   onClose={this.handleMeasuresOverlayClose}
+                  sourceViewerFile={this.props.sourceViewerFile}
                 />
               )}
             </li>
@@ -154,7 +138,7 @@ export default class SourceViewerHeader extends React.PureComponent<Props, State
                 className="js-new-window"
                 href={getPathUrlAsString({
                   pathname: '/component',
-                  query: { branch: this.props.branch, id: this.props.component.key }
+                  query: { branch: this.props.branch, id: this.props.sourceViewerFile.key }
                 })}
                 target="_blank">
                 {translate('component_viewer.new_window')}

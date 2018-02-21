@@ -25,7 +25,7 @@ import MeasuresOverlayTestCases from './MeasuresOverlayTestCases';
 import { getFacets } from '../../../api/issues';
 import { getMeasures } from '../../../api/measures';
 import { getAllMetrics } from '../../../api/metrics';
-import { FacetValue } from '../../../app/types';
+import { FacetValue, SourceViewerFile } from '../../../app/types';
 import Modal from '../../controls/Modal';
 import Measure from '../../measure/Measure';
 import QualifierIcon from '../../shared/QualifierIcon';
@@ -45,17 +45,8 @@ import { getProjectUrl } from '../../../helpers/urls';
 
 interface Props {
   branch: string | undefined;
-  component: {
-    key: string;
-    longName?: string;
-    path: string;
-    project: string;
-    projectName: string;
-    q: string;
-    subProject?: string;
-    subProjectName?: string;
-  };
   onClose: () => void;
+  sourceViewerFile: SourceViewerFile;
 }
 
 interface Measures {
@@ -104,12 +95,14 @@ export default class MeasuresOverlay extends React.PureComponent<Props, State> {
       const metricKeys = getDisplayMetrics(metrics).map(metric => metric.key);
 
       // eslint-disable-next-line promise/no-nesting
-      return getMeasures(this.props.component.key, metricKeys, this.props.branch).then(measures => {
-        const withMetrics = enhanceMeasuresWithMetrics(measures, metrics).filter(
-          measure => measure.metric
-        );
-        return keyBy(withMetrics, measure => measure.metric.key);
-      });
+      return getMeasures(this.props.sourceViewerFile.key, metricKeys, this.props.branch).then(
+        measures => {
+          const withMetrics = enhanceMeasuresWithMetrics(measures, metrics).filter(
+            measure => measure.metric
+          );
+          return keyBy(withMetrics, measure => measure.metric.key);
+        }
+      );
     });
   };
 
@@ -117,7 +110,7 @@ export default class MeasuresOverlay extends React.PureComponent<Props, State> {
     return getFacets(
       {
         branch: this.props.branch,
-        componentKeys: this.props.component.key,
+        componentKeys: this.props.sourceViewerFile.key,
         resolved: 'false'
       },
       ['types', 'severities', 'tags']
@@ -395,7 +388,7 @@ export default class MeasuresOverlay extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const { branch, component } = this.props;
+    const { branch, sourceViewerFile } = this.props;
     const { loading } = this.state;
 
     return (
@@ -404,21 +397,23 @@ export default class MeasuresOverlay extends React.PureComponent<Props, State> {
           <div className="source-viewer-header-component source-viewer-measures-component">
             <div className="source-viewer-header-component-project">
               <QualifierIcon className="little-spacer-right" qualifier="TRK" />
-              <Link to={getProjectUrl(component.project, branch)}>{component.projectName}</Link>
+              <Link to={getProjectUrl(sourceViewerFile.project, branch)}>
+                {sourceViewerFile.projectName}
+              </Link>
 
-              {component.subProject && (
+              {sourceViewerFile.subProject && (
                 <>
                   <QualifierIcon className="big-spacer-left little-spacer-right" qualifier="BRC" />
-                  <Link to={getProjectUrl(component.subProject, branch)}>
-                    {component.subProjectName}
+                  <Link to={getProjectUrl(sourceViewerFile.subProject, branch)}>
+                    {sourceViewerFile.subProjectName}
                   </Link>
                 </>
               )}
             </div>
 
             <div className="source-viewer-header-component-name">
-              <QualifierIcon className="little-spacer-right" qualifier={component.q} />
-              {component.path || component.longName}
+              <QualifierIcon className="little-spacer-right" qualifier={sourceViewerFile.q} />
+              {sourceViewerFile.path}
             </div>
           </div>
 
@@ -426,10 +421,10 @@ export default class MeasuresOverlay extends React.PureComponent<Props, State> {
             <i className="spinner" />
           ) : (
             <>
-              {component.q === 'UTS' ? (
+              {sourceViewerFile.q === 'UTS' ? (
                 <>
                   {this.renderTests()}
-                  <MeasuresOverlayTestCases branch={branch} componentKey={component.key} />
+                  <MeasuresOverlayTestCases branch={branch} componentKey={sourceViewerFile.key} />
                 </>
               ) : (
                 <div className="source-viewer-measures">

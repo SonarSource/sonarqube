@@ -681,7 +681,7 @@ export default class SourceViewerBase extends React.PureComponent {
 
     return (
       <div className={className} ref={node => (this.node = node)}>
-        <SourceViewerHeader branch={this.props.branch} component={this.state.component} />
+        <SourceViewerHeader branch={this.props.branch} sourceViewerFile={this.state.component} />
         {sourceRemoved && (
           <div className="alert alert-warning spacer-top">
             {translate('code_viewer.no_source_code_displayed_due_to_source_removed')}
