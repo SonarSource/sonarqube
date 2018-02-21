@@ -24,60 +24,28 @@ export type Diff<T extends string, U extends string> = ({ [P in T]: P } &
 
 export type Omit<T, K extends keyof T> = Pick<T, Diff<keyof T, K>>;
 
+// Type ordered alphabetically to prevent merge conflicts
+
+export interface AppState {
+  adminPages?: Extension[];
+  authenticationError?: boolean;
+  authorizationError?: boolean;
+  canAdmin?: boolean;
+  globalPages?: Extension[];
+  organizationsEnabled?: boolean;
+  qualifiers: string[];
+}
+
+export type Branch = MainBranch | LongLivingBranch | ShortLivingBranch;
+
 export enum BranchType {
   LONG = 'LONG',
   SHORT = 'SHORT'
 }
 
-export interface MainBranch {
-  analysisDate?: string;
-  isMain: true;
-  name: string;
-  status?: {
-    qualityGateStatus: string;
-  };
-}
-
-export interface LongLivingBranch {
-  analysisDate?: string;
-  isMain: false;
-  name: string;
-  status?: {
-    qualityGateStatus: string;
-  };
-  type: BranchType.LONG;
-}
-
-export interface ShortLivingBranch {
-  analysisDate?: string;
-  isMain: false;
-  isOrphan?: true;
-  mergeBranch: string;
-  name: string;
-  status?: {
-    bugs: number;
-    codeSmells: number;
-    vulnerabilities: number;
-  };
-  type: BranchType.SHORT;
-}
-
-export type Branch = MainBranch | LongLivingBranch | ShortLivingBranch;
-
-export interface Extension {
-  key: string;
-  name: string;
-}
-
 export interface Breadcrumb {
   key: string;
   name: string;
-  qualifier: string;
-}
-
-export interface LightComponent {
-  key: string;
-  organization: string;
   qualifier: string;
 }
 
@@ -109,6 +77,119 @@ interface ComponentConfiguration {
   showPermissions?: boolean;
   showSettings?: boolean;
   showUpdateKey?: boolean;
+}
+
+export interface CoveredFile {
+  key: string;
+  longName: string;
+  coveredLines: number;
+}
+
+export interface CurrentUser {
+  isLoggedIn: boolean;
+  showOnboardingTutorial?: boolean;
+}
+
+export interface CustomMeasure {
+  createdAt?: string;
+  description?: string;
+  id: string;
+  metric: {
+    key: string;
+    name: string;
+    domain?: string;
+    type: string;
+  };
+  projectKey: string;
+  pending?: boolean;
+  user: {
+    active?: boolean;
+    email?: string;
+    login: string;
+    name: string;
+  };
+  value: string;
+  updatedAt?: string;
+}
+
+export interface Extension {
+  key: string;
+  name: string;
+}
+
+export interface FacetValue {
+  count: number;
+  val: string;
+}
+
+export interface Group {
+  default?: boolean;
+  description?: string;
+  id: number;
+  membersCount: number;
+  name: string;
+}
+
+export interface HomePage {
+  parameter?: string;
+  type: HomePageType;
+}
+
+export enum HomePageType {
+  Project = 'PROJECT',
+  Organization = 'ORGANIZATION',
+  MyProjects = 'MY_PROJECTS',
+  MyIssues = 'MY_ISSUES'
+}
+
+export interface IdentityProvider {
+  backgroundColor: string;
+  helpMessage?: string;
+  iconPath: string;
+  key: string;
+  name: string;
+}
+
+export function isLoggedIn(user: CurrentUser): user is LoggedInUser {
+  return user.isLoggedIn;
+}
+
+export function isSameHomePage(a: HomePage, b: HomePage) {
+  return a.type === b.type && a.parameter === b.parameter;
+}
+
+export interface LightComponent {
+  key: string;
+  organization: string;
+  qualifier: string;
+}
+
+export interface LoggedInUser extends CurrentUser {
+  avatar?: string;
+  email?: string;
+  homepage?: HomePage;
+  isLoggedIn: true;
+  login: string;
+  name: string;
+}
+
+export interface LongLivingBranch {
+  analysisDate?: string;
+  isMain: false;
+  name: string;
+  status?: {
+    qualityGateStatus: string;
+  };
+  type: BranchType.LONG;
+}
+
+export interface MainBranch {
+  analysisDate?: string;
+  isMain: true;
+  name: string;
+  status?: {
+    qualityGateStatus: string;
+  };
 }
 
 export interface Metric {
@@ -148,61 +229,20 @@ export interface Paging {
   total: number;
 }
 
-export enum Visibility {
-  Public = 'public',
-  Private = 'private'
-}
-
-export interface CurrentUser {
-  isLoggedIn: boolean;
-  showOnboardingTutorial?: boolean;
-}
-
-export interface Group {
-  default?: boolean;
+export interface PermissionTemplate {
+  defaultFor: string[];
+  id: string;
+  name: string;
   description?: string;
-  id: number;
-  membersCount: number;
-  name: string;
-}
-
-export enum HomePageType {
-  Project = 'PROJECT',
-  Organization = 'ORGANIZATION',
-  MyProjects = 'MY_PROJECTS',
-  MyIssues = 'MY_ISSUES'
-}
-
-export interface HomePage {
-  parameter?: string;
-  type: HomePageType;
-}
-
-export function isSameHomePage(a: HomePage, b: HomePage) {
-  return a.type === b.type && a.parameter === b.parameter;
-}
-
-export interface LoggedInUser extends CurrentUser {
-  avatar?: string;
-  email?: string;
-  homepage?: HomePage;
-  isLoggedIn: true;
-  login: string;
-  name: string;
-}
-
-export function isLoggedIn(user: CurrentUser): user is LoggedInUser {
-  return user.isLoggedIn;
-}
-
-export interface AppState {
-  adminPages?: Extension[];
-  authenticationError?: boolean;
-  authorizationError?: boolean;
-  canAdmin?: boolean;
-  globalPages?: Extension[];
-  organizationsEnabled?: boolean;
-  qualifiers: string[];
+  projectKeyPattern?: string;
+  createdAt: string;
+  updatedAt?: string;
+  permissions: Array<{
+    key: string;
+    usersCount: number;
+    groupsCount: number;
+    withProjectCreator?: boolean;
+  }>;
 }
 
 export interface Rule {
@@ -217,6 +257,14 @@ export interface Rule {
   sysTags?: string[];
   tags?: string[];
   type: string;
+}
+
+export interface RuleActivation {
+  createdAt: string;
+  inherit: RuleInheritance;
+  params: { key: string; value: string }[];
+  qProfile: string;
+  severity: string;
 }
 
 export interface RuleDetails extends Rule {
@@ -243,12 +291,10 @@ export interface RuleDetails extends Rule {
   templateKey?: string;
 }
 
-export interface RuleActivation {
-  createdAt: string;
-  inherit: RuleInheritance;
-  params: { key: string; value: string }[];
-  qProfile: string;
-  severity: string;
+export enum RuleInheritance {
+  NotInherited = 'NONE',
+  Inherited = 'INHERITED',
+  Overridden = 'OVERRIDES'
 }
 
 export interface RuleParameter {
@@ -260,100 +306,24 @@ export interface RuleParameter {
   type: string;
 }
 
-export enum RuleInheritance {
-  NotInherited = 'NONE',
-  Inherited = 'INHERITED',
-  Overridden = 'OVERRIDES'
-}
-
 export enum RuleScope {
   Main = 'MAIN',
   Test = 'TEST',
   All = 'ALL'
 }
 
-export interface IdentityProvider {
-  backgroundColor: string;
-  helpMessage?: string;
-  iconPath: string;
-  key: string;
+export interface ShortLivingBranch {
+  analysisDate?: string;
+  isMain: false;
+  isOrphan?: true;
+  mergeBranch: string;
   name: string;
-}
-
-export interface User {
-  active: boolean;
-  avatar?: string;
-  email?: string;
-  externalIdentity?: string;
-  externalProvider?: string;
-  groups?: string[];
-  local: boolean;
-  login: string;
-  name: string;
-  scmAccounts?: string[];
-  tokensCount?: number;
-}
-
-export interface CustomMeasure {
-  createdAt?: string;
-  description?: string;
-  id: string;
-  metric: {
-    key: string;
-    name: string;
-    domain?: string;
-    type: string;
+  status?: {
+    bugs: number;
+    codeSmells: number;
+    vulnerabilities: number;
   };
-  projectKey: string;
-  pending?: boolean;
-  user: {
-    active?: boolean;
-    email?: string;
-    login: string;
-    name: string;
-  };
-  value: string;
-  updatedAt?: string;
-}
-
-export interface PermissionTemplate {
-  defaultFor: string[];
-  id: string;
-  name: string;
-  description?: string;
-  projectKeyPattern?: string;
-  createdAt: string;
-  updatedAt?: string;
-  permissions: Array<{
-    key: string;
-    usersCount: number;
-    groupsCount: number;
-    withProjectCreator?: boolean;
-  }>;
-}
-
-export interface TestCase {
-  coveredLines: number;
-  durationInMs: number;
-  fileId: string;
-  fileKey: string;
-  fileName: string;
-  id: string;
-  message?: string;
-  name: string;
-  stacktrace?: string;
-  status: string;
-}
-
-export interface CoveredFile {
-  key: string;
-  longName: string;
-  coveredLines: number;
-}
-
-export interface FacetValue {
-  count: number;
-  val: string;
+  type: BranchType.SHORT;
 }
 
 export interface SourceViewerFile {
@@ -373,4 +343,36 @@ export interface SourceViewerFile {
   subProject?: string;
   subProjectName?: string;
   uuid: string;
+}
+
+export interface TestCase {
+  coveredLines: number;
+  durationInMs: number;
+  fileId: string;
+  fileKey: string;
+  fileName: string;
+  id: string;
+  message?: string;
+  name: string;
+  stacktrace?: string;
+  status: string;
+}
+
+export interface User {
+  active: boolean;
+  avatar?: string;
+  email?: string;
+  externalIdentity?: string;
+  externalProvider?: string;
+  groups?: string[];
+  local: boolean;
+  login: string;
+  name: string;
+  scmAccounts?: string[];
+  tokensCount?: number;
+}
+
+export enum Visibility {
+  Public = 'public',
+  Private = 'private'
 }
