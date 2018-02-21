@@ -46,6 +46,7 @@ import static org.sonar.server.user.ws.HomepageTypes.Type.MY_PROJECTS;
 import static org.sonar.server.user.ws.HomepageTypes.Type.ORGANIZATION;
 import static org.sonar.server.user.ws.HomepageTypes.Type.PROJECT;
 import static org.sonar.server.user.ws.HomepageTypes.Type.PROJECTS;
+import static org.sonar.server.user.ws.SetHomepageAction.PARAM_COMPONENT;
 import static org.sonar.server.user.ws.SetHomepageAction.PARAM_TYPE;
 
 public class SetHomepageActionTest {
@@ -215,9 +216,6 @@ public class SetHomepageActionTest {
 
   @Test
   public void set_sonarqube_projects_homepage() {
-    when(homepageTypes.getTypes()).thenReturn(asList(PROJECT, ORGANIZATION, ISSUES, PROJECTS));
-    ws = new WsActionTester(new SetHomepageAction(userSession, dbClient, TestComponentFinder.from(db)));
-
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
 
@@ -230,6 +228,60 @@ public class SetHomepageActionTest {
     assertThat(actual).isNotNull();
     assertThat(actual.getHomepageType()).isEqualTo("PROJECTS");
     assertThat(actual.getHomepageParameter()).isNullOrEmpty();
+  }
+
+  @Test
+  public void set_portfolios_homepage() {
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user);
+
+    ws.newRequest()
+      .setMethod("POST")
+      .setParam(PARAM_TYPE, "PORTFOLIOS")
+      .execute();
+
+    UserDto actual = db.getDbClient().userDao().selectByLogin(db.getSession(), user.getLogin());
+    assertThat(actual).isNotNull();
+    assertThat(actual.getHomepageType()).isEqualTo("PORTFOLIOS");
+    assertThat(actual.getHomepageParameter()).isNullOrEmpty();
+  }
+
+  @Test
+  public void set_portfolio_homepage() {
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto portfolio = db.components().insertPrivatePortfolio(organization);
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user);
+
+    ws.newRequest()
+      .setMethod("POST")
+      .setParam(PARAM_TYPE, "PORTFOLIO")
+      .setParam(PARAM_COMPONENT, portfolio.getKey())
+      .execute();
+
+    UserDto actual = db.getDbClient().userDao().selectByLogin(db.getSession(), user.getLogin());
+    assertThat(actual).isNotNull();
+    assertThat(actual.getHomepageType()).isEqualTo("PORTFOLIO");
+    assertThat(actual.getHomepageParameter()).isEqualTo(portfolio.uuid());
+  }
+
+  @Test
+  public void set_application_homepage() {
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto application = db.components().insertPrivateApplication(organization);
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user);
+
+    ws.newRequest()
+      .setMethod("POST")
+      .setParam(PARAM_TYPE, "APPLICATION")
+      .setParam(PARAM_COMPONENT, application.getKey())
+      .execute();
+
+    UserDto actual = db.getDbClient().userDao().selectByLogin(db.getSession(), user.getLogin());
+    assertThat(actual).isNotNull();
+    assertThat(actual.getHomepageType()).isEqualTo("APPLICATION");
+    assertThat(actual.getHomepageParameter()).isEqualTo(application.uuid());
   }
 
   @Test

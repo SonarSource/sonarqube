@@ -46,7 +46,9 @@ import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.Users.CurrentWsResponse.Permissions;
 import static org.sonarqube.ws.Users.CurrentWsResponse.newBuilder;
+import static org.sonarqube.ws.Users.CurrentWsResponse.HomepageType.APPLICATION;
 import static org.sonarqube.ws.Users.CurrentWsResponse.HomepageType.ORGANIZATION;
+import static org.sonarqube.ws.Users.CurrentWsResponse.HomepageType.PORTFOLIO;
 import static org.sonarqube.ws.Users.CurrentWsResponse.HomepageType.PROJECT;
 import static org.sonarqube.ws.client.user.UsersWsParameters.ACTION_CURRENT;
 
@@ -57,6 +59,7 @@ public class CurrentAction implements UsersWsAction {
   private final DefaultOrganizationProvider defaultOrganizationProvider;
   private final AvatarResolver avatarResolver;
   private final HomepageTypes homepageTypes;
+  private static final String HOMEPAGE_PARAMETER_SHOULD_NOT_BE_NULL = "Homepage parameter should not be null";
 
   public CurrentAction(UserSession userSession, DbClient dbClient, DefaultOrganizationProvider defaultOrganizationProvider,
     AvatarResolver avatarResolver, HomepageTypes homepageTypes) {
@@ -138,7 +141,7 @@ public class CurrentAction implements UsersWsAction {
 
   private void setHomepageParameter(DbSession dbSession, String homepageType, @Nullable String homepageParameter, CurrentWsResponse.Homepage.Builder homepage) {
     if (PROJECT.toString().equals(homepageType)) {
-      checkState(homepageParameter != null, "Homepage parameter should not be null");
+      checkState(homepageParameter != null, HOMEPAGE_PARAMETER_SHOULD_NOT_BE_NULL);
       ComponentDto component = dbClient.componentDao().selectByUuid(dbSession, homepageParameter)
         .or(() -> {
           throw new IllegalStateException(format("Unknown component '%s' for homepageParameter", homepageParameter));
@@ -147,8 +150,17 @@ public class CurrentAction implements UsersWsAction {
       setNullable(component.getBranch(), homepage::setBranch);
       return;
     }
+    if (APPLICATION.toString().equals(homepageType) || PORTFOLIO.toString().equals(homepageType)) {
+      checkState(homepageParameter != null, HOMEPAGE_PARAMETER_SHOULD_NOT_BE_NULL);
+      ComponentDto component = dbClient.componentDao().selectByUuid(dbSession, homepageParameter)
+        .or(() -> {
+          throw new IllegalStateException(format("Unknown component '%s' for homepageParameter", homepageParameter));
+        });
+      homepage.setComponent(component.getKey());
+      return;
+    }
     if (ORGANIZATION.toString().equals(homepageType)) {
-      checkState(homepageParameter != null, "Homepage parameter should not be null");
+      checkState(homepageParameter != null, HOMEPAGE_PARAMETER_SHOULD_NOT_BE_NULL);
       OrganizationDto organization = dbClient.organizationDao().selectByUuid(dbSession, homepageParameter)
         .orElseThrow(() -> new IllegalStateException(format("Unknown organization '%s' for homepageParameter", homepageParameter)));
       homepage.setOrganization(organization.getKey());
