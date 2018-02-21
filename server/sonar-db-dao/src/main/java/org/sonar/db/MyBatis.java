@@ -28,6 +28,7 @@ import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;
+import org.apache.ibatis.session.TransactionIsolationLevel;
 import org.sonar.api.Startable;
 import org.sonar.db.ce.CeActivityMapper;
 import org.sonar.db.ce.CeQueueMapper;
@@ -265,10 +266,10 @@ public class MyBatis implements Startable {
 
   public DbSession openSession(boolean batch) {
     if (batch) {
-      SqlSession session = sessionFactory.openSession(ExecutorType.BATCH);
+      SqlSession session = sessionFactory.openSession(ExecutorType.BATCH, TransactionIsolationLevel.READ_COMMITTED);
       return new BatchSession(session);
     }
-    SqlSession session = sessionFactory.openSession(ExecutorType.REUSE);
+    SqlSession session = sessionFactory.openSession(ExecutorType.REUSE, TransactionIsolationLevel.READ_COMMITTED);
     return new DbSessionImpl(session);
   }
 
