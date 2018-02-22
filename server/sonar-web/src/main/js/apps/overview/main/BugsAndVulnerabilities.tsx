@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
+import * as React from 'react';
 import { Link } from 'react-router';
-import enhance from './enhance';
+import enhance, { ComposedProps } from './enhance';
 import ApplicationLeakPeriodLegend from '../components/ApplicationLeakPeriodLegend';
 import BubblesIcon from '../../../components/icons-components/BubblesIcon';
 import BugIcon from '../../../components/icons-components/BugIcon';
@@ -29,7 +29,7 @@ import { getMetricName } from '../helpers/metrics';
 import { getComponentDrilldownUrl } from '../../../helpers/urls';
 import { translate } from '../../../helpers/l10n';
 
-class BugsAndVulnerabilities extends React.PureComponent {
+export class BugsAndVulnerabilities extends React.PureComponent<ComposedProps> {
   renderHeader() {
     const { branch, component } = this.props;
 
@@ -55,15 +55,14 @@ class BugsAndVulnerabilities extends React.PureComponent {
 
   renderLeak() {
     const { component, leakPeriod } = this.props;
-
-    if (leakPeriod == null) {
+    if (!leakPeriod) {
       return null;
     }
 
     return (
       <div className="overview-domain-leak">
         {component.qualifier === 'APP' ? (
-          <ApplicationLeakPeriodLegend component={component} />
+          <ApplicationLeakPeriodLegend component={component.key} />
         ) : (
           <LeakPeriodLegend period={leakPeriod} />
         )}
@@ -130,7 +129,7 @@ class BugsAndVulnerabilities extends React.PureComponent {
   render() {
     const { measures } = this.props;
     const bugsMeasure = measures.find(measure => measure.metric.key === 'bugs');
-    if (bugsMeasure == null) {
+    if (!bugsMeasure) {
       return null;
     }
     return (

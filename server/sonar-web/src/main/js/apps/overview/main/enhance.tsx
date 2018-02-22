@@ -21,7 +21,6 @@ import * as React from 'react';
 import { Link } from 'react-router';
 import DrilldownLink from '../../../components/shared/DrilldownLink';
 import BubblesIcon from '../../../components/icons-components/BubblesIcon';
-import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
 import HistoryIcon from '../../../components/icons-components/HistoryIcon';
 import Rating from '../../../components/ui/Rating';
 import Timeline from '../components/Timeline';
@@ -34,7 +33,7 @@ import {
   getRatingTooltip,
   MeasureEnhanced
 } from '../../../helpers/measures';
-import { translateWithParameters, getLocalizedMetricName } from '../../../helpers/l10n';
+import { getLocalizedMetricName } from '../../../helpers/l10n';
 import { getPeriodDate } from '../../../helpers/periods';
 import {
   getComponentDrilldownUrl,
@@ -155,22 +154,10 @@ export default function enhance(ComposedComponent: React.ComponentType<ComposedP
         Object.assign(params, { sinceLeakPeriod: 'true' });
       }
 
-      const tooltip = component.analysisDate && (
-        <DateTimeFormatter date={component.analysisDate}>
-          {formattedAnalysisDate => (
-            <span>
-              {translateWithParameters('widget.as_calculated_on_x', formattedAnalysisDate)}
-            </span>
-          )}
-        </DateTimeFormatter>
-      );
-
       return (
-        <Tooltip overlay={tooltip} placement="top">
-          <Link to={getComponentIssuesUrl(component.key, params)}>
-            {formatMeasure(value, 'SHORT_INT')}
-          </Link>
-        </Tooltip>
+        <Link to={getComponentIssuesUrl(component.key, params)}>
+          {formatMeasure(value, 'SHORT_INT')}
+        </Link>
       );
     };
 
@@ -209,9 +196,9 @@ export default function enhance(ComposedComponent: React.ComponentType<ComposedP
           getValue={this.getValue}
           renderHeader={this.renderHeader}
           renderHistoryLink={this.renderHistoryLink}
+          renderIssues={this.renderIssues}
           renderMeasure={this.renderMeasure}
           renderRating={this.renderRating}
-          renderIssues={this.renderIssues}
           renderTimeline={this.renderTimeline}
         />
       );
