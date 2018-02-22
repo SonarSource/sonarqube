@@ -64,11 +64,15 @@ it('should display the get license link with parameters', async () => {
 });
 
 it('should correctly display status message after checking license', async () => {
-  let wrapper = await testLicenseStatus('NO_INSTALL', jest.fn());
+  let wrapper = await testLicenseStatus('NO_INSTALL');
   expect(wrapper.find('p.alert')).toMatchSnapshot();
-  wrapper = await testLicenseStatus('AUTOMATIC_INSTALL', jest.fn());
+  wrapper = await testLicenseStatus('AUTOMATIC_INSTALL');
   expect(wrapper.find('p.alert')).toMatchSnapshot();
-  wrapper = await testLicenseStatus('MANUAL_INSTALL', jest.fn());
+  wrapper = await testLicenseStatus('MANUAL_INSTALL');
+  expect(wrapper.find('p.alert')).toMatchSnapshot();
+  wrapper = await testLicenseStatus('AUTOMATIC_INSTALL', jest.fn(), 'bar');
+  expect(wrapper.find('p.alert')).toMatchSnapshot();
+  wrapper = await testLicenseStatus('AUTOMATIC_INSTALL', jest.fn(), 'bar', { edition: undefined });
   expect(wrapper.find('p.alert')).toMatchSnapshot();
 });
 
@@ -103,11 +107,16 @@ function getWrapper(props = {}) {
   );
 }
 
-async function testLicenseStatus(status: string, updateLicense: jest.Mock<any>) {
+async function testLicenseStatus(
+  status: string,
+  updateLicense = jest.fn(),
+  nextEditionKey = 'foo',
+  props = {}
+) {
   getLicensePreview.mockImplementation(() =>
-    Promise.resolve({ nextEditionKey: 'foo', previewStatus: status })
+    Promise.resolve({ nextEditionKey, previewStatus: status })
   );
-  const wrapper = getWrapper({ updateLicense });
+  const wrapper = getWrapper({ updateLicense, ...props });
   change(wrapper.find('textarea'), 'mylicense');
   expect(getLicensePreview).toHaveBeenCalled();
   await new Promise(setImmediate);

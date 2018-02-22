@@ -24,6 +24,22 @@ exports[`should correctly display status message after checking license 3`] = `
 </p>
 `;
 
+exports[`should correctly display status message after checking license 4`] = `
+<p
+  className="alert alert-danger"
+>
+  marketplace.wrong_license_type_x.Foo
+</p>
+`;
+
+exports[`should correctly display status message after checking license 5`] = `
+<p
+  className="alert alert-danger"
+>
+  marketplace.wrong_license_type
+</p>
+`;
+
 exports[`should display correctly 1`] = `
 <div>
   <label

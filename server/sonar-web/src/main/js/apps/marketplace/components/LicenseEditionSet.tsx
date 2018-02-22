@@ -37,14 +37,15 @@ export interface Props {
 
 interface State {
   acceptTerms: boolean;
-  license: string;
-  licenseEdition?: Edition;
-  loading: boolean;
-  previewStatus?: string;
   formData?: {
     serverId?: string;
     ncloc?: number;
   };
+  license: string;
+  licenseEdition?: Edition;
+  loading: boolean;
+  previewStatus?: string;
+  wrongEdition: boolean;
 }
 
 export default class LicenseEditionSet extends React.PureComponent<Props, State> {
@@ -52,7 +53,7 @@ export default class LicenseEditionSet extends React.PureComponent<Props, State>
 
   constructor(props: Props) {
     super(props);
-    this.state = { acceptTerms: false, license: '', loading: false };
+    this.state = { acceptTerms: false, license: '', loading: false, wrongEdition: false };
     this.fetchLicensePreview = debounce(this.fetchLicensePreview, 100);
   }
 
@@ -71,16 +72,18 @@ export default class LicenseEditionSet extends React.PureComponent<Props, State>
       ({ previewStatus, nextEditionKey }) => {
         if (this.mounted) {
           const { edition } = this.props;
-          this.updateLicense(
-            license,
-            this.props.editions.find(edition => edition.key === nextEditionKey),
-            edition && edition.key !== nextEditionKey ? undefined : previewStatus
+          const licenseEdition = this.props.editions.find(
+            edition => edition.key === nextEditionKey
           );
+          const wrongEdition = Boolean(
+            !licenseEdition || (edition && edition.key !== nextEditionKey)
+          );
+          this.setLicense({ license, loading: false, licenseEdition, previewStatus, wrongEdition });
         }
       },
       () => {
         if (this.mounted) {
-          this.updateLicense(license, undefined, undefined);
+          this.resetLicense({ license, loading: false });
         }
       }
     );
@@ -114,42 +117,59 @@ export default class LicenseEditionSet extends React.PureComponent<Props, State>
       this.fetchLicensePreview(license);
       this.setState({ license });
     } else {
-      this.updateLicense(license, undefined, undefined);
+      this.resetLicense({});
     }
   };
 
-  handleTermsCheck = (checked: boolean) =>
-    this.setState({ acceptTerms: checked }, () =>
-      this.updateLicense(this.state.license, this.state.licenseEdition, this.state.previewStatus)
-    );
+  handleTermsCheck = (checked: boolean) => {
+    this.setLicense({ acceptTerms: checked });
+  };
 
-  updateLicense = (license: string, licenseEdition?: Edition, previewStatus?: string) => {
-    this.setState({ license, licenseEdition, loading: false, previewStatus });
+  resetLicense<K extends keyof State>(state: Pick<State, K>) {
+    this.setLicense(
+      Object.assign(
+        {
+          license: '',
+          licenseEdition: undefined,
+          previewStatus: undefined,
+          wrongEdition: false
+        },
+        state
+      )
+    );
+  }
+
+  setLicense<K extends keyof State>(state: Pick<State, K>) {
+    this.setState(state, this.updateParentLicense);
+  }
+
+  updateParentLicense = () => {
+    const { acceptTerms, license, previewStatus, wrongEdition } = this.state;
     this.props.updateLicense(
-      previewStatus !== 'NO_INSTALL' && !this.state.acceptTerms ? undefined : license,
-      previewStatus
+      previewStatus !== 'NO_INSTALL' && !acceptTerms ? undefined : license,
+      wrongEdition ? undefined : previewStatus
     );
   };
 
   renderAlert() {
-    const { licenseEdition, previewStatus } = this.state;
-    if (!previewStatus) {
+    const { licenseEdition, previewStatus, wrongEdition } = this.state;
+    if (!previewStatus || wrongEdition) {
       const { edition } = this.props;
-      if (!edition) {
-        return undefined;
-      }
 
       return (
         <div className="spacer-top">
-          {licenseEdition !== undefined &&
-            edition.key !== licenseEdition.key && (
-              <p className="alert alert-danger">
-                {translateWithParameters('marketplace.wrong_license_type_x', edition.name)}
-              </p>
-            )}
-          <a href={this.getLicenseFormUrl(edition)} target="_blank">
-            {translate('marketplace.i_need_a_license')}
-          </a>
+          {wrongEdition && (
+            <p className="alert alert-danger">
+              {edition
+                ? translateWithParameters('marketplace.wrong_license_type_x', edition.name)
+                : translate('marketplace.wrong_license_type')}
+            </p>
+          )}
+          {edition && (
+            <a href={this.getLicenseFormUrl(edition)} target="_blank">
+              {translate('marketplace.i_need_a_license')}
+            </a>
+          )}
         </div>
       );
     }
@@ -177,6 +197,7 @@ export default class LicenseEditionSet extends React.PureComponent<Props, State>
                     url: (
                       <a
                         href="https://redirect.sonarsource.com/doc/data-center-edition.html"
+                        rel="noopener noreferrer"
                         target="_blank">
                         {licenseEdition.name}
                       </a>
@@ -199,6 +220,7 @@ export default class LicenseEditionSet extends React.PureComponent<Props, State>
             <a
               className="nowrap little-spacer-left"
               href="http://dist.sonarsource.com/SonarSource_Terms_And_Conditions.pdf"
+              rel="noopener noreferrer"
               target="_blank">
               {translate('marketplace.terms_and_conditions')}
             </a>
@@ -222,8 +244,8 @@ export default class LicenseEditionSet extends React.PureComponent<Props, State>
         )}
         <textarea
           autoFocus={true}
-          id="set-license"
           className="display-block input-super-large"
+          id="set-license"
           onChange={this.handleLicenseChange}
           required={true}
           rows={8}
@@ -232,13 +254,13 @@ export default class LicenseEditionSet extends React.PureComponent<Props, State>
         />
 
         <DeferredSpinner
-          loading={loading}
           customSpinner={
             <p className="spacer-top">
               <i className="spinner spacer-right text-bottom" />
               {translate('marketplace.checking_license')}
             </p>
-          }>
+          }
+          loading={loading}>
           {this.renderAlert()}
         </DeferredSpinner>
       </div>
