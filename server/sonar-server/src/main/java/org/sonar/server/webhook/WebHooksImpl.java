@@ -61,12 +61,19 @@ public class WebHooksImpl implements WebHooks {
 
   private Stream<WebhookDto> readWebHooksFrom(String projectUuid) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      Optional<ComponentDto> componentDto = ofNullable(dbClient.componentDao().selectByUuid(dbSession, projectUuid).orNull());
-      ComponentDto projectDto = checkStateWithOptional(componentDto, "the requested project '%s' was not found", projectUuid);
+
+      Optional<ComponentDto> optionalComponentDto = ofNullable(dbClient.componentDao().selectByUuid(dbSession, projectUuid).orNull());
+      ComponentDto componentDto = checkStateWithOptional(optionalComponentDto, "the requested project '%s' was not found", projectUuid);
+
+      if (componentDto.getMainBranchProjectUuid() != null && !componentDto.uuid().equals(componentDto.getMainBranchProjectUuid())) {
+        Optional<ComponentDto> mainBranchComponentDto = ofNullable(dbClient.componentDao().selectByUuid(dbSession, componentDto.getMainBranchProjectUuid()).orNull());
+        componentDto = checkStateWithOptional(mainBranchComponentDto, "the requested project '%s' was not found", projectUuid);
+      }
+
       WebhookDao dao = dbClient.webhookDao();
       return Stream.concat(
-        dao.selectByProject(dbSession, projectDto).stream(),
-        dao.selectByOrganizationUuid(dbSession, projectDto.getOrganizationUuid()).stream());
+        dao.selectByProject(dbSession, componentDto).stream(),
+        dao.selectByOrganizationUuid(dbSession, componentDto.getOrganizationUuid()).stream());
     }
   }
 
