@@ -24,29 +24,29 @@ import { translate } from '../../helpers/l10n';
 import './TagsList.css';
 
 interface Props {
-  position: BubblePopupPosition;
-  tags: string[];
-  selectedTags: string[];
   listSize: number;
-  onSearch: (query: string) => void;
+  onSearch: (query: string) => Promise<void>;
   onSelect: (item: string) => void;
   onUnselect: (item: string) => void;
+  position: BubblePopupPosition;
+  selectedTags: string[];
+  tags: string[];
 }
 
 export default function TagsSelector(props: Props) {
   return (
     <BubblePopup
-      position={props.position}
-      customClass="bubble-popup-bottom-right bubble-popup-menu abs-width-300">
+      customClass="bubble-popup-bottom-right bubble-popup-menu abs-width-300"
+      position={props.position}>
       <MultiSelect
         elements={props.tags}
-        selectedElements={props.selectedTags}
         listSize={props.listSize}
         onSearch={props.onSearch}
         onSelect={props.onSelect}
         onUnselect={props.onUnselect}
-        validateSearchInput={validateTag}
         placeholder={translate('search.search_for_tags')}
+        selectedElements={props.selectedTags}
+        validateSearchInput={validateTag}
       />
     </BubblePopup>
   );

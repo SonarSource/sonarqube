@@ -10,6 +10,7 @@ exports[`should render multiselect with selected elements 1`] = `
     <SearchBox
       autoFocus={true}
       className="little-spacer-top"
+      loading={true}
       onChange={[Function]}
       placeholder=""
       value=""
@@ -40,6 +41,7 @@ exports[`should render multiselect with selected elements 2`] = `
     <SearchBox
       autoFocus={true}
       className="little-spacer-top"
+      loading={true}
       onChange={[Function]}
       placeholder=""
       value=""
@@ -84,6 +86,7 @@ exports[`should render multiselect with selected elements 3`] = `
     <SearchBox
       autoFocus={true}
       className="little-spacer-top"
+      loading={true}
       onChange={[Function]}
       placeholder=""
       value=""
@@ -128,6 +131,7 @@ exports[`should render multiselect with selected elements 4`] = `
     <SearchBox
       autoFocus={true}
       className="little-spacer-top"
+      loading={true}
       onChange={[Function]}
       placeholder=""
       value="test"

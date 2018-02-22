@@ -20,8 +20,9 @@
 import * as React from 'react';
 import * as classNames from 'classnames';
 import { debounce, Cancelable } from 'lodash';
-import SearchIcon from '../icons-components/SearchIcon';
 import ClearIcon from '../icons-components/ClearIcon';
+import SearchIcon from '../icons-components/SearchIcon';
+import DeferredSpinner from '../common/DeferredSpinner';
 import { ButtonIcon } from '../ui/buttons';
 import * as theme from '../../app/theme';
 import { translateWithParameters } from '../../helpers/l10n';
@@ -32,6 +33,7 @@ interface Props {
   className?: string;
   innerRef?: (node: HTMLInputElement | null) => void;
   id?: string;
+  loading?: boolean;
   minLength?: number;
   onChange: (value: string) => void;
   onClick?: React.MouseEventHandler<HTMLInputElement>;
@@ -119,7 +121,7 @@ export default class SearchBox extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const { minLength } = this.props;
+    const { loading, minLength } = this.props;
     const { value } = this.state;
 
     const inputClassName = classNames('search-box-input', {
@@ -145,7 +147,9 @@ export default class SearchBox extends React.PureComponent<Props, State> {
           value={value}
         />
 
-        <SearchIcon className="search-box-magnifier" />
+        <DeferredSpinner loading={loading !== undefined ? loading : false}>
+          <SearchIcon className="search-box-magnifier" />
+        </DeferredSpinner>
 
         {value && (
           <ButtonIcon

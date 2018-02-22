@@ -14,9 +14,14 @@ exports[`renders 1`] = `
     type="search"
     value="foo"
   />
-  <SearchIcon
-    className="search-box-magnifier"
-  />
+  <DeferredSpinner
+    loading={false}
+    timeout={100}
+  >
+    <SearchIcon
+      className="search-box-magnifier"
+    />
+  </DeferredSpinner>
   <ButtonIcon
     className="button-tiny search-box-clear"
     color="#999"

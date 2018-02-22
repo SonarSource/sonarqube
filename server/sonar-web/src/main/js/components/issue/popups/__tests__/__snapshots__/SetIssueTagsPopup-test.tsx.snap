@@ -6,7 +6,12 @@ exports[`should render tags popup correctly 1`] = `
   onSearch={[Function]}
   onSelect={[Function]}
   onUnselect={[Function]}
-  selectedTags="mytag"
+  position={Object {}}
+  selectedTags={
+    Array [
+      "mytag",
+    ]
+  }
   tags={
     Array [
       "mytag",
