@@ -185,7 +185,7 @@ input[type='button']:disabled:focus {
 }
 
 .button svg {
-  padding-top: calc((var(--controlHeight) - 16px - 2px) / 2);
+  margin-top: calc((var(--controlHeight) - 16px - 2px) / 2);
 }
 
 .button-red,
@@ -264,7 +264,7 @@ input[type='submit'].button-grey.button-active {
 
 .button-link {
   display: inline;
-  height: auto;
+  height: auto; /* Keep this to not inherit the height from .button */
   margin: 0;
   padding: 0;
   border: none;
@@ -274,6 +274,10 @@ input[type='submit'].button-grey.button-active {
   font-size: inherit;
   line-height: inherit;
   transition: all 0.2s ease;
+}
+
+.button-link svg {
+  margin-top: 0;
 }
 
 .button-link:hover,

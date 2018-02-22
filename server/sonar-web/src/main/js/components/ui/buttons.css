@@ -48,6 +48,10 @@
   padding: 0;
 }
 
+.button-icon.button-icon.button-tiny svg {
+  margin-top: 0;
+}
+
 .button-icon.button-icon:hover,
 .button-icon.button-icon:focus {
   background-color: currentColor;

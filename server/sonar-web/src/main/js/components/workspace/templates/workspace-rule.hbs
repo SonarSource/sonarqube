@@ -24,7 +24,7 @@
 
       <li class="coding-rules-detail-property coding-rules-detail-tag-list {{#if canWrite}}coding-rules-detail-tags-change{{/if}}"
           data-toggle="tooltip" data-placement="bottom" title="Rule tags">
-        <i class="icon-tags"></i>
+        <i class="icon-tags little-spacer-right"></i>
         <span>{{#if allTags}}{{join allTags ', '}}{{else}}{{t 'coding_rules.no_tags'}}{{/if}}</span>
       </li>
 
@@ -41,7 +41,7 @@
         </li>
       {{/if}}
 
-      <li class="pull-right spacer-left">
+      <li class="coding-rules-detail-property spacer-left">
         <a class="link-no-underline" target="_blank" href="{{permalink}}">
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -54,10 +54,7 @@
             />
           </svg>
         </a>
-      </li>
-
-      <li class="pull-right">
-        <span class="note">{{key}}</span>
+        <span class="note little-spacer-left">{{key}}</span>
       </li>
     </ul>
 

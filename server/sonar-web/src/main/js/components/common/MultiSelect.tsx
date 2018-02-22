@@ -235,6 +235,7 @@ export default class MultiSelect extends React.PureComponent<Props, State> {
         <div className="menu-search">
           <SearchBox
             autoFocus={true}
+            className="little-spacer-top"
             onChange={this.handleSearchChange}
             placeholder={this.props.placeholder}
             value={query}
@@ -244,32 +245,32 @@ export default class MultiSelect extends React.PureComponent<Props, State> {
           {selectedElements.length > 0 &&
             selectedElements.map(element => (
               <MultiSelectOption
-                key={element}
-                element={element}
-                selected={true}
                 active={activeElement === element}
-                onSelectChange={this.handleSelectChange}
+                element={element}
+                key={element}
                 onHover={this.handleElementHover}
+                onSelectChange={this.handleSelectChange}
+                selected={true}
               />
             ))}
           {unselectedElements.length > 0 &&
             unselectedElements.map(element => (
               <MultiSelectOption
-                key={element}
-                element={element}
                 active={activeElement === element}
-                onSelectChange={this.handleSelectChange}
+                element={element}
+                key={element}
                 onHover={this.handleElementHover}
+                onSelectChange={this.handleSelectChange}
               />
             ))}
           {this.isNewElement(query, this.props) && (
             <MultiSelectOption
-              key={query}
-              element={query}
-              custom={true}
               active={activeElement === query}
-              onSelectChange={this.handleSelectChange}
+              custom={true}
+              element={query}
+              key={query}
               onHover={this.handleElementHover}
+              onSelectChange={this.handleSelectChange}
             />
           )}
         </ul>
