@@ -54,6 +54,7 @@ import static java.util.Optional.of;
 import static java.util.Optional.ofNullable;
 import static org.sonar.api.ce.posttask.CeTask.Status.FAILED;
 import static org.sonar.api.ce.posttask.CeTask.Status.SUCCESS;
+import static org.sonar.db.component.BranchType.PULL_REQUEST;
 
 /**
  * Responsible for calling {@link PostProjectAnalysisTask} implementations (if any).
@@ -180,7 +181,8 @@ public class PostProjectAnalysisTasksExecutor implements ComputationStepExecutor
   private BranchImpl createBranch() {
     org.sonar.server.computation.task.projectanalysis.analysis.Branch analysisBranch = analysisMetadataHolder.getBranch();
     if (!analysisBranch.isLegacyFeature()) {
-      return new BranchImpl(analysisBranch.isMain(), analysisBranch.getName(), Branch.Type.valueOf(analysisBranch.getType().name()));
+      String branchKey = analysisBranch.getType() == PULL_REQUEST ? analysisBranch.getPullRequestId() : analysisBranch.getName();
+      return new BranchImpl(analysisBranch.isMain(), branchKey, Branch.Type.valueOf(analysisBranch.getType().name()));
     }
     return null;
   }
