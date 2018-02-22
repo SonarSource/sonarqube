@@ -39,6 +39,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Settings;
@@ -154,8 +155,10 @@ public class ValuesAction implements SettingsWsAction {
       return Optional.empty();
     }
     ComponentDto component = componentFinder.getByKeyAndOptionalBranch(dbSession, componentKey, valuesRequest.getBranch());
-    if (!userSession.hasComponentPermission(USER, component) && !userSession.hasComponentPermission(SCAN_EXECUTION, component)) {
-      throw insufficientPrivilegesException();
+    if (!userSession.hasComponentPermission(USER, component) &&
+        !userSession.hasComponentPermission(SCAN_EXECUTION, component) &&
+        !userSession.hasPermission(OrganizationPermission.SCAN, component.getOrganizationUuid())) {
+        throw insufficientPrivilegesException();
     }
     return Optional.of(component);
   }
