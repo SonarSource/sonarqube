@@ -124,12 +124,13 @@ class SetAssigneePopup extends React.PureComponent {
   render() {
     return (
       <BubblePopup
-        position={this.props.popupPosition}
-        customClass="bubble-popup-menu bubble-popup-bottom">
+        customClass="bubble-popup-menu bubble-popup-bottom"
+        position={this.props.popupPosition}>
         <div className="multi-select">
           <div className="menu-search">
             <SearchBox
               autoFocus={true}
+              className="little-spacer-top"
               minLength={2}
               onChange={this.handleSearchChange}
               placeholder={translate('search.search_for_users')}
@@ -137,8 +138,8 @@ class SetAssigneePopup extends React.PureComponent {
             />
           </div>
           <SelectList
-            items={map(this.state.users, 'login')}
             currentItem={this.state.currentUser}
+            items={map(this.state.users, 'login')}
             onSelect={this.props.onSelect}>
             {this.state.users.map(user => (
               <SelectListItem key={user.login} item={user.login}>

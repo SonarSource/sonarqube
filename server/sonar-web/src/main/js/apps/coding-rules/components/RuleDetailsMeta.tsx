@@ -125,6 +125,7 @@ export default class RuleDetailsMeta extends React.PureComponent<Props, State> {
         ) : (
           <TagsList
             allowUpdate={canWrite}
+            className="display-flex-center"
             tags={allTags.length > 0 ? allTags : [translate('coding_rules.no_tags')]}
           />
         )}
@@ -134,7 +135,7 @@ export default class RuleDetailsMeta extends React.PureComponent<Props, State> {
 
   renderCreationDate = () => (
     <li className="coding-rules-detail-property" data-meta="available-since">
-      {translate('coding_rules.available_since')}{' '}
+      <span className="little-spacer-right">{translate('coding_rules.available_since')}</span>
       <DateFormatter date={this.props.ruleDetails.createdAt} />
     </li>
   );
