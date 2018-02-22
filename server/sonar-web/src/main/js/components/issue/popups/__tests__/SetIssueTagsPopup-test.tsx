@@ -17,16 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import * as React from 'react';
 import { shallow } from 'enzyme';
-import React from 'react';
 import SetIssueTagsPopup from '../SetIssueTagsPopup';
 
 it('should render tags popup correctly', () => {
   const element = shallow(
     <SetIssueTagsPopup
-      onFail={jest.fn()}
       organization="foo"
-      selectedTags="mytag"
+      popupPosition={{}}
+      selectedTags={['mytag']}
       setTags={jest.fn()}
     />
   );

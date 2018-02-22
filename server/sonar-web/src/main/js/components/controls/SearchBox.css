@@ -85,6 +85,12 @@
   transition: color 0.3s ease;
 }
 
+.search-box > .spinner {
+  position: absolute;
+  top: 4px;
+  left: 5px;
+}
+
 .search-box-clear {
   position: absolute;
   top: 4px;

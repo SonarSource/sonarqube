@@ -17,74 +17,70 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-//@flow
-import React from 'react';
+import * as React from 'react';
 import { without } from 'lodash';
+import { BubblePopupPosition } from '../../../components/common/BubblePopup';
 import TagsSelector from '../../../components/tags/TagsSelector';
 import { searchIssueTags } from '../../../api/issues';
 
-/*::
-type Props = {
-  popupPosition?: {},
-  onFail: Error => void,
-  organization: string,
-  selectedTags: Array<string>,
-  setTags: (Array<string>) => void
-};
-*/
+interface Props {
+  popupPosition: BubblePopupPosition;
+  organization: string;
+  selectedTags: string[];
+  setTags: (tags: string[]) => void;
+}
 
-/*::
-type State = {
-  searchResult: Array<string>
-};
-*/
+interface State {
+  searchResult: string[];
+}
 
 const LIST_SIZE = 10;
 
-export default class SetIssueTagsPopup extends React.PureComponent {
-  /*:: mounted: boolean; */
-  /*:: props: Props; */
-  state /*: State */ = { searchResult: [] };
+export default class SetIssueTagsPopup extends React.PureComponent<Props, State> {
+  mounted = false;
+  state: State = { searchResult: [] };
 
   componentDidMount() {
     this.mounted = true;
-    this.onSearch('');
   }
 
   componentWillUnmount() {
     this.mounted = false;
   }
 
-  onSearch = (query /*: string */) => {
-    searchIssueTags({
+  onSearch = (query: string) => {
+    return searchIssueTags({
       q: query,
       ps: Math.min(this.props.selectedTags.length - 1 + LIST_SIZE, 100),
       organization: this.props.organization
-    }).then((tags /*: Array<string> */) => {
-      if (this.mounted) {
-        this.setState({ searchResult: tags });
-      }
-    }, this.props.onFail);
+    }).then(
+      (tags: string[]) => {
+        if (this.mounted) {
+          this.setState({ searchResult: tags });
+        }
+      },
+      () => {}
+    );
   };
 
-  onSelect = (tag /*: string */) => {
+  onSelect = (tag: string) => {
     this.props.setTags([...this.props.selectedTags, tag]);
   };
 
-  onUnselect = (tag /*: string */) => {
+  onUnselect = (tag: string) => {
     this.props.setTags(without(this.props.selectedTags, tag));
   };
 
   render() {
     return (
       <TagsSelector
-        position={this.props.popupPosition}
-        tags={this.state.searchResult}
-        selectedTags={this.props.selectedTags}
         listSize={LIST_SIZE}
         onSearch={this.onSearch}
         onSelect={this.onSelect}
         onUnselect={this.onUnselect}
+        position={this.props.popupPosition}
+        selectedTags={this.props.selectedTags}
+        tags={this.state.searchResult}
       />
     );
   }

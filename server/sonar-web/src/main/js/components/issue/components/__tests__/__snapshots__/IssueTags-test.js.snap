@@ -23,7 +23,6 @@ exports[`should open the popup when the button is clicked 2`] = `
   isOpen={true}
   popup={
     <SetIssueTagsPopup
-      onFail={[MockFunction]}
       organization="foo"
       selectedTags={
         Array [
@@ -59,7 +58,6 @@ exports[`should render with the action 1`] = `
   isOpen={false}
   popup={
     <SetIssueTagsPopup
-      onFail={[MockFunction]}
       organization="foo"
       selectedTags={
         Array [

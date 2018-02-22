@@ -24,7 +24,7 @@ import MultiSelect from '../MultiSelect';
 const props = {
   selectedElements: ['bar'],
   elements: [],
-  onSearch: () => {},
+  onSearch: () => Promise.resolve(),
   onSelect: () => {},
   onUnselect: () => {},
   placeholder: ''

@@ -20,6 +20,7 @@
 import { FacetValue } from '../app/types';
 import { getJSON, post, postJSON, RequestData } from '../helpers/request';
 import { RawIssue } from '../helpers/issues';
+import throwGlobalError from '../app/utils/throwGlobalError';
 
 export interface IssueResponse {
   components?: Array<{}>;
@@ -117,7 +118,9 @@ export function getIssuesCount(query: RequestData): Promise<any> {
 export function searchIssueTags(
   data: { organization?: string; ps?: number; q?: string } = { ps: 100 }
 ): Promise<string[]> {
-  return getJSON('/api/issues/tags', data).then(r => r.tags);
+  return getJSON('/api/issues/tags', data)
+    .then(r => r.tags)
+    .catch(throwGlobalError);
 }
 
 export function getIssueChangelog(issue: string): Promise<any> {

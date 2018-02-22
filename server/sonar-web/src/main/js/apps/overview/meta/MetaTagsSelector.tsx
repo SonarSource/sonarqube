@@ -37,17 +37,29 @@ interface State {
 const LIST_SIZE = 10;
 
 export default class MetaTagsSelector extends React.PureComponent<Props, State> {
+  mounted = false;
   state: State = { searchResult: [] };
 
   componentDidMount() {
-    this.onSearch('');
+    this.mounted = true;
+  }
+
+  componentWillUnmount() {
+    this.mounted = false;
   }
 
   onSearch = (query: string) => {
-    searchProjectTags({
+    return searchProjectTags({
       q: query,
       ps: Math.min(this.props.selectedTags.length - 1 + LIST_SIZE, 100)
-    }).then(result => this.setState({ searchResult: result.tags }), () => {});
+    }).then(
+      ({ tags }) => {
+        if (this.mounted) {
+          this.setState({ searchResult: tags });
+        }
+      },
+      () => {}
+    );
   };
 
   onSelect = (tag: string) => {
@@ -61,13 +73,13 @@ export default class MetaTagsSelector extends React.PureComponent<Props, State> 
   render() {
     return (
       <TagsSelector
-        position={this.props.position}
-        tags={this.state.searchResult}
-        selectedTags={this.props.selectedTags}
         listSize={LIST_SIZE}
         onSearch={this.onSearch}
         onSelect={this.onSelect}
         onUnselect={this.onUnselect}
+        position={this.props.position}
+        selectedTags={this.props.selectedTags}
+        tags={this.state.searchResult}
       />
     );
   }
