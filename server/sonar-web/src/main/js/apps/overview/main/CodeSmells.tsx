@@ -17,46 +17,35 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
+import * as React from 'react';
 import { Link } from 'react-router';
-import enhance from './enhance';
-import Tooltip from '../../../components/controls/Tooltip';
+import enhance, { ComposedProps } from './enhance';
 import DateFromNow from '../../../components/intl/DateFromNow';
-import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
 import { getMetricName } from '../helpers/metrics';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { formatMeasure, isDiffMetric } from '../../../helpers/measures';
 import { getComponentIssuesUrl } from '../../../helpers/urls';
 import CodeSmellIcon from '../../../components/icons-components/CodeSmellIcon';
 
-class CodeSmells extends React.PureComponent {
+export class CodeSmells extends React.PureComponent<ComposedProps> {
   renderHeader() {
     return this.props.renderHeader('Maintainability', translate('metric.code_smells.name'));
   }
 
-  renderDebt(metric, type) {
+  renderDebt(metric: string, type: string) {
     const { branch, measures, component } = this.props;
     const measure = measures.find(measure => measure.metric.key === metric);
-    const value = this.props.getValue(measure);
+    const value = measure ? this.props.getValue(measure) : undefined;
     const params = { branch, resolved: 'false', facetMode: 'effort', types: type };
 
     if (isDiffMetric(metric)) {
       Object.assign(params, { sinceLeakPeriod: 'true' });
     }
 
-    const tooltip = (
-      <DateTimeFormatter date={component.analysisDate}>
-        {formattedAnalysisDate => (
-          <span>{translateWithParameters('widget.as_calculated_on_x', formattedAnalysisDate)}</span>
-        )}
-      </DateTimeFormatter>
-    );
     return (
-      <Tooltip overlay={tooltip} placement="top">
-        <Link to={getComponentIssuesUrl(component.key, params)}>
-          {formatMeasure(value, 'SHORT_WORK_DUR')}
-        </Link>
-      </Tooltip>
+      <Link to={getComponentIssuesUrl(component.key, params)}>
+        {formatMeasure(value, 'SHORT_WORK_DUR')}
+      </Link>
     );
   }
 
@@ -75,7 +64,7 @@ class CodeSmells extends React.PureComponent {
     );
   }
 
-  renderTimeline(range, displayDate) {
+  renderTimeline(range: string, displayDate?: boolean) {
     return this.props.renderTimeline(
       'sqale_index',
       range,
@@ -85,8 +74,7 @@ class CodeSmells extends React.PureComponent {
 
   renderLeak() {
     const { leakPeriod } = this.props;
-
-    if (leakPeriod == null) {
+    if (!leakPeriod) {
       return null;
     }
 
@@ -152,7 +140,7 @@ class CodeSmells extends React.PureComponent {
   render() {
     const { measures } = this.props;
     const codeSmellsMeasure = measures.find(measure => measure.metric.key === 'code_smells');
-    if (codeSmellsMeasure == null) {
+    if (!codeSmellsMeasure) {
       return null;
     }
     return (

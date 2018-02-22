@@ -143,7 +143,9 @@ export class OverviewApp extends React.PureComponent<Props, State> {
   };
 
   getApplicationLeakPeriod = () =>
-    this.state.measures.find(measure => measure.metric.key === 'new_bugs') ? { index: 1 } : null;
+    this.state.measures.find(measure => measure.metric.key === 'new_bugs')
+      ? { index: 1 }
+      : undefined;
 
   renderLoading() {
     return (

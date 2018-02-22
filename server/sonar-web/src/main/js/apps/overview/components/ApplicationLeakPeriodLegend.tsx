@@ -17,39 +17,31 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
+import * as React from 'react';
 import Tooltip from '../../../components/controls/Tooltip';
 import DateTooltipFormatter from '../../../components/intl/DateTooltipFormatter';
 import { getApplicationLeak } from '../../../api/application';
 import { translate } from '../../../helpers/l10n';
 
-/*::
-type Props = {
-  component: { key: string }
-};
-*/
+interface Props {
+  component: string;
+}
 
-/*::
-type State = {
-  leaks: ?Array<{ date: string, project: string, projectName: string }>
-};
-*/
+interface State {
+  leaks?: Array<{ date: string; project: string; projectName: string }>;
+}
 
-export default class ApplicationLeakPeriodLegend extends React.Component {
-  /*:: mounted: boolean; */
-  /*:: props: Props; */
-  state /*: State */ = {
-    leaks: null
-  };
+export default class ApplicationLeakPeriodLegend extends React.Component<Props, State> {
+  mounted = false;
+  state: State = {};
 
   componentDidMount() {
     this.mounted = true;
   }
 
-  componentWillReceiveProps(nextProps /*: Props */) {
-    if (nextProps.component.key !== this.props.component.key) {
-      this.setState({ leaks: null });
+  componentWillReceiveProps(nextProps: Props) {
+    if (nextProps.component !== this.props.component) {
+      this.setState({ leaks: undefined });
     }
   }
 
@@ -57,9 +49,9 @@ export default class ApplicationLeakPeriodLegend extends React.Component {
     this.mounted = false;
   }
 
-  fetchLeaks = (visible /*: boolean */) => {
-    if (visible && this.state.leaks == null) {
-      getApplicationLeak(this.props.component.key).then(
+  fetchLeaks = (visible: boolean) => {
+    if (visible && this.state.leaks) {
+      getApplicationLeak(this.props.component).then(
         leaks => {
           if (this.mounted) {
             this.setState({ leaks });

@@ -17,105 +17,109 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import enhance from './enhance';
+import * as React from 'react';
+import enhance, { ComposedProps } from './enhance';
 import DrilldownLink from '../../../components/shared/DrilldownLink';
 import { getMetricName } from '../helpers/metrics';
 import { formatMeasure, getPeriodValue } from '../../../helpers/measures';
 import { translate } from '../../../helpers/l10n';
-import DuplicationsRating from '../../../components/ui/DuplicationsRating';
+import CoverageRating from '../../../components/ui/CoverageRating';
 
-class Duplications extends React.PureComponent {
+export class Coverage extends React.PureComponent<ComposedProps> {
+  getCoverage() {
+    const measure = this.props.measures.find(measure => measure.metric.key === 'coverage');
+    return Number(measure ? measure.value : undefined);
+  }
+
   renderHeader() {
-    return this.props.renderHeader('Duplications', translate('overview.domain.duplications'));
+    return this.props.renderHeader('Coverage', translate('metric.coverage.name'));
   }
 
-  renderTimeline(range) {
-    return this.props.renderTimeline('duplicated_lines_density', range);
+  renderTimeline(range: string) {
+    return this.props.renderTimeline('coverage', range);
   }
 
-  renderDuplicatedBlocks() {
-    return this.props.renderMeasure('duplicated_blocks');
+  renderTests() {
+    return this.props.renderMeasure('tests');
   }
 
-  renderDuplications() {
-    const { branch, component, measures } = this.props;
-    const measure = measures.find(measure => measure.metric.key === 'duplicated_lines_density');
-    const duplications = Number(measure.value);
+  renderCoverage() {
+    const { branch, component } = this.props;
+    const metric = 'coverage';
+    const coverage = this.getCoverage();
 
     return (
       <div className="overview-domain-measure">
         <div className="display-inline-block text-middle big-spacer-right">
-          <DuplicationsRating value={duplications} size="big" />
+          <CoverageRating size="big" value={coverage} />
         </div>
 
         <div className="display-inline-block text-middle">
           <div className="overview-domain-measure-value">
-            <DrilldownLink
-              branch={branch}
-              component={component.key}
-              metric="duplicated_lines_density">
-              {formatMeasure(duplications, 'PERCENT')}
+            <DrilldownLink branch={branch} component={component.key} metric={metric}>
+              <span className="js-overview-main-coverage">
+                {formatMeasure(coverage, 'PERCENT')}
+              </span>
             </DrilldownLink>
           </div>
 
-          <div className="overview-domain-measure-label offset-left">
-            {getMetricName('duplications')}
-            {this.props.renderHistoryLink('duplicated_lines_density')}
+          <div className="overview-domain-measure-label">
+            {getMetricName('coverage')}
+            {this.props.renderHistoryLink('coverage')}
           </div>
         </div>
       </div>
     );
   }
 
-  renderNewDuplications() {
-    const { branch, component, measures, leakPeriod } = this.props;
-    const newDuplicationsMeasure = measures.find(
-      measure => measure.metric.key === 'new_duplicated_lines_density'
-    );
-    const newLinesMeasure = measures.find(measure => measure.metric.key === 'new_lines');
+  renderNewCoverage() {
+    const { branch, component, leakPeriod, measures } = this.props;
+    if (!leakPeriod) {
+      return null;
+    }
 
-    const newDuplicationsValue = newDuplicationsMeasure
-      ? getPeriodValue(newDuplicationsMeasure, leakPeriod.index)
-      : null;
-    const newLinesValue = newLinesMeasure
-      ? getPeriodValue(newLinesMeasure, leakPeriod.index)
-      : null;
-
+    const newCoverageMeasure = measures.find(measure => measure.metric.key === 'new_coverage');
+    const newCoverageValue =
+      newCoverageMeasure && getPeriodValue(newCoverageMeasure, leakPeriod.index);
     const formattedValue =
-      newDuplicationsValue != null ? (
+      newCoverageMeasure && newCoverageValue !== undefined ? (
         <div>
           <DrilldownLink
             branch={branch}
             component={component.key}
-            metric={newDuplicationsMeasure.metric.key}>
-            <span className="js-overview-main-new-duplications">
-              {formatMeasure(newDuplicationsValue, 'PERCENT')}
+            metric={newCoverageMeasure.metric.key}>
+            <span className="js-overview-main-new-coverage">
+              {formatMeasure(newCoverageValue, 'PERCENT')}
             </span>
           </DrilldownLink>
         </div>
       ) : (
         <span>—</span>
       );
+
+    const newLinesToCover = measures.find(measure => measure.metric.key === 'new_lines_to_cover');
+    const newLinesToCoverValue =
+      newLinesToCover && getPeriodValue(newLinesToCover, leakPeriod.index);
     const label =
-      newLinesValue != null && newLinesValue > 0 ? (
+      newLinesToCover && newLinesToCoverValue !== undefined && Number(newLinesToCoverValue) > 0 ? (
         <div className="overview-domain-measure-label">
-          {translate('overview.duplications_on')}
+          {translate('overview.coverage_on')}
           <br />
           <DrilldownLink
             branch={branch}
             className="spacer-right overview-domain-secondary-measure-value"
             component={component.key}
-            metric={newLinesMeasure.metric.key}>
-            <span className="js-overview-main-new-lines">
-              {formatMeasure(newLinesValue, 'SHORT_INT')}
+            metric={newLinesToCover.metric.key}>
+            <span className="js-overview-main-new-coverage">
+              {formatMeasure(newLinesToCoverValue, 'SHORT_INT')}
             </span>
           </DrilldownLink>
-          {getMetricName('new_lines')}
+          {getMetricName('new_lines_to_cover')}
         </div>
       ) : (
-        <div className="overview-domain-measure-label">{getMetricName('new_duplications')}</div>
+        <div className="overview-domain-measure-label">{getMetricName('new_coverage')}</div>
       );
+
     return (
       <div className="overview-domain-measure">
         <div className="overview-domain-measure-value">{formattedValue}</div>
@@ -128,8 +132,8 @@ class Duplications extends React.PureComponent {
     return (
       <div className="overview-domain-nutshell">
         <div className="overview-domain-measures">
-          {this.renderDuplications()}
-          {this.renderDuplicatedBlocks()}
+          {this.renderCoverage()}
+          {this.renderTests()}
         </div>
 
         {this.renderTimeline('before')}
@@ -139,12 +143,12 @@ class Duplications extends React.PureComponent {
 
   renderLeak() {
     const { leakPeriod } = this.props;
-    if (leakPeriod == null) {
+    if (!leakPeriod) {
       return null;
     }
     return (
       <div className="overview-domain-leak">
-        <div className="overview-domain-measures">{this.renderNewDuplications()}</div>
+        <div className="overview-domain-measures">{this.renderNewCoverage()}</div>
 
         {this.renderTimeline('after')}
       </div>
@@ -153,10 +157,8 @@ class Duplications extends React.PureComponent {
 
   render() {
     const { measures } = this.props;
-    const duplications = measures.find(
-      measure => measure.metric.key === 'duplicated_lines_density'
-    );
-    if (duplications == null) {
+    const coverageMeasure = measures.find(measure => measure.metric.key === 'coverage');
+    if (!coverageMeasure) {
       return null;
     }
     return (
@@ -172,4 +174,4 @@ class Duplications extends React.PureComponent {
   }
 }
 
-export default enhance(Duplications);
+export default enhance(Coverage);
