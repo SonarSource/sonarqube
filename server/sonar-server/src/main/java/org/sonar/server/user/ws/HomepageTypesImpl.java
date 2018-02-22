@@ -50,7 +50,6 @@ public class HomepageTypesImpl implements HomepageTypes, Startable {
   private final DbClient dbClient;
 
   private List<Type> types;
-  private Type defaultType;
 
   public HomepageTypesImpl(Configuration configuration, OrganizationFlags organizationFlags, DbClient dbClient) {
     this.configuration = configuration;
@@ -66,21 +65,27 @@ public class HomepageTypesImpl implements HomepageTypes, Startable {
 
   @Override
   public Type getDefaultType() {
-    checkState(types != null, "Homepage types  have not been initialized yet");
-    return defaultType;
+    return isOnSonarCloud() ? MY_PROJECTS : PROJECTS;
   }
 
   @Override
   public void start() {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      boolean isOnSonarCloud = configuration.getBoolean(ProcessProperties.Property.SONARCLOUD_ENABLED.getKey()).orElse(false);
-      boolean isOrganizationEnabled = organizationFlags.isEnabled(dbSession);
+      boolean isOnSonarCloud = isOnSonarCloud();
+      boolean isOrganizationEnabled = isOrganizationEnabled(dbSession);
       this.types = stream(values())
         .filter(type -> (isOnSonarCloud && ON_SONARCLOUD.contains(type)) || (!isOnSonarCloud && ON_SONARQUBE.contains(type)))
         .filter(type -> isOrganizationEnabled || !(type.equals(ORGANIZATION)))
         .collect(toList());
-      this.defaultType = isOnSonarCloud ? Type.MY_PROJECTS : PROJECTS;
     }
+  }
+
+  private boolean isOrganizationEnabled(DbSession dbSession) {
+    return organizationFlags.isEnabled(dbSession);
+  }
+
+  private Boolean isOnSonarCloud() {
+    return configuration.getBoolean(ProcessProperties.Property.SONARCLOUD_ENABLED.getKey()).orElse(false);
   }
 
   @Override
