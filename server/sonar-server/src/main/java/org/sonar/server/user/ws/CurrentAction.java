@@ -21,11 +21,12 @@ package org.sonar.server.user.ws;
 
 import java.util.Collection;
 import java.util.List;
-import javax.annotation.Nullable;
+import java.util.Optional;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService.NewController;
+import org.sonar.core.platform.PluginRepository;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
@@ -39,9 +40,12 @@ import org.sonarqube.ws.Users.CurrentWsResponse;
 
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.base.Strings.emptyToNull;
-import static java.lang.String.format;
 import static java.util.Collections.singletonList;
+import static java.util.Optional.empty;
+import static java.util.Optional.of;
+import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
+import static org.apache.commons.lang.StringUtils.EMPTY;
 import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.Users.CurrentWsResponse.Permissions;
@@ -54,20 +58,23 @@ import static org.sonarqube.ws.client.user.UsersWsParameters.ACTION_CURRENT;
 
 public class CurrentAction implements UsersWsAction {
 
+  private static final String GOVERNANCE_PLUGIN_KEY = "governance";
+
   private final UserSession userSession;
   private final DbClient dbClient;
   private final DefaultOrganizationProvider defaultOrganizationProvider;
   private final AvatarResolver avatarResolver;
   private final HomepageTypes homepageTypes;
-  private static final String HOMEPAGE_PARAMETER_SHOULD_NOT_BE_NULL = "Homepage parameter should not be null";
+  private final PluginRepository pluginRepository;
 
   public CurrentAction(UserSession userSession, DbClient dbClient, DefaultOrganizationProvider defaultOrganizationProvider,
-    AvatarResolver avatarResolver, HomepageTypes homepageTypes) {
+    AvatarResolver avatarResolver, HomepageTypes homepageTypes, PluginRepository pluginRepository) {
     this.userSession = userSession;
     this.dbClient = dbClient;
     this.defaultOrganizationProvider = defaultOrganizationProvider;
     this.avatarResolver = avatarResolver;
     this.homepageTypes = homepageTypes;
+    this.pluginRepository = pluginRepository;
   }
 
   @Override
@@ -129,48 +136,84 @@ public class CurrentAction implements UsersWsAction {
   }
 
   private CurrentWsResponse.Homepage buildHomepage(DbSession dbSession, UserDto user) {
-    String homepageType = user.getHomepageType();
-    if (homepageType == null) {
+    if (noHomepageSet(user)) {
       return defaultHomepage();
     }
-    CurrentWsResponse.Homepage.Builder homepage = CurrentWsResponse.Homepage.newBuilder()
-      .setType(CurrentWsResponse.HomepageType.valueOf(homepageType));
-    setHomepageParameter(dbSession, homepageType, user.getHomepageParameter(), homepage);
-    return homepage.build();
+
+    return doBuildHomepage(dbSession, user).orElse(defaultHomepage());
   }
 
-  private void setHomepageParameter(DbSession dbSession, String homepageType, @Nullable String homepageParameter, CurrentWsResponse.Homepage.Builder homepage) {
-    if (PROJECT.toString().equals(homepageType)) {
-      checkState(homepageParameter != null, HOMEPAGE_PARAMETER_SHOULD_NOT_BE_NULL);
-      ComponentDto component = dbClient.componentDao().selectByUuid(dbSession, homepageParameter)
-        .or(() -> {
-          throw new IllegalStateException(format("Unknown component '%s' for homepageParameter", homepageParameter));
-        });
-      homepage.setComponent(component.getKey());
-      setNullable(component.getBranch(), homepage::setBranch);
-      return;
+  private Optional<CurrentWsResponse.Homepage> doBuildHomepage(DbSession dbSession, UserDto user) {
+
+    if (PROJECT.toString().equals(user.getHomepageType())) {
+      return projectHomepage(dbSession, user);
     }
-    if (APPLICATION.toString().equals(homepageType) || PORTFOLIO.toString().equals(homepageType)) {
-      checkState(homepageParameter != null, HOMEPAGE_PARAMETER_SHOULD_NOT_BE_NULL);
-      ComponentDto component = dbClient.componentDao().selectByUuid(dbSession, homepageParameter)
-        .or(() -> {
-          throw new IllegalStateException(format("Unknown component '%s' for homepageParameter", homepageParameter));
-        });
-      homepage.setComponent(component.getKey());
-      return;
+
+    if (APPLICATION.toString().equals(user.getHomepageType()) || PORTFOLIO.toString().equals(user.getHomepageType())) {
+      return applicationAndPortfolioHomepage(dbSession, user);
     }
-    if (ORGANIZATION.toString().equals(homepageType)) {
-      checkState(homepageParameter != null, HOMEPAGE_PARAMETER_SHOULD_NOT_BE_NULL);
-      OrganizationDto organization = dbClient.organizationDao().selectByUuid(dbSession, homepageParameter)
-        .orElseThrow(() -> new IllegalStateException(format("Unknown organization '%s' for homepageParameter", homepageParameter)));
-      homepage.setOrganization(organization.getKey());
+
+    if (ORGANIZATION.toString().equals(user.getHomepageType())) {
+      return organizationHomepage(dbSession, user);
     }
+
+    return of(CurrentWsResponse.Homepage.newBuilder()
+      .setType(CurrentWsResponse.HomepageType.valueOf(user.getHomepageType()))
+      .build());
+  }
+
+  private Optional<CurrentWsResponse.Homepage> projectHomepage(DbSession dbSession, UserDto user) {
+    Optional<ComponentDto> projectOptional = ofNullable(dbClient.componentDao().selectByUuid(dbSession, of(user.getHomepageParameter()).orElse(EMPTY)).orNull());
+    if (!projectOptional.isPresent()) {
+      cleanUserHomepageInDb(dbSession, user);
+      return empty();
+    }
+
+    CurrentWsResponse.Homepage.Builder homepage = CurrentWsResponse.Homepage.newBuilder()
+      .setType(CurrentWsResponse.HomepageType.valueOf(user.getHomepageType()))
+      .setComponent(projectOptional.get().getKey());
+    setNullable(projectOptional.get().getBranch(), homepage::setBranch);
+    return of(homepage.build());
+  }
+
+  private Optional<CurrentWsResponse.Homepage> applicationAndPortfolioHomepage(DbSession dbSession, UserDto user) {
+    Optional<ComponentDto> componentOptional = ofNullable(dbClient.componentDao().selectByUuid(dbSession, of(user.getHomepageParameter()).orElse(EMPTY)).orNull());
+    if (!componentOptional.isPresent() || !pluginRepository.hasPlugin(GOVERNANCE_PLUGIN_KEY)) {
+      cleanUserHomepageInDb(dbSession, user);
+      return empty();
+    }
+
+    return of(CurrentWsResponse.Homepage.newBuilder()
+      .setType(CurrentWsResponse.HomepageType.valueOf(user.getHomepageType()))
+      .setComponent(componentOptional.get().getKey())
+      .build());
+  }
+
+  private Optional<CurrentWsResponse.Homepage> organizationHomepage(DbSession dbSession, UserDto user) {
+    Optional<OrganizationDto> organizationOptional = dbClient.organizationDao().selectByUuid(dbSession, of(user.getHomepageParameter()).orElse(EMPTY));
+    if (!organizationOptional.isPresent()) {
+      cleanUserHomepageInDb(dbSession, user);
+      return empty();
+    }
+
+    return of(CurrentWsResponse.Homepage.newBuilder()
+      .setType(CurrentWsResponse.HomepageType.valueOf(user.getHomepageType()))
+      .setOrganization(organizationOptional.get().getKey())
+      .build());
+  }
+
+  private void cleanUserHomepageInDb(DbSession dbSession, UserDto user) {
+    dbClient.userDao().cleanHomepage(dbSession, user);
   }
 
   private CurrentWsResponse.Homepage defaultHomepage() {
     return CurrentWsResponse.Homepage.newBuilder()
       .setType(CurrentWsResponse.HomepageType.valueOf(homepageTypes.getDefaultType().name()))
       .build();
+  }
+
+  private static boolean noHomepageSet(UserDto user) {
+    return user.getHomepageType() == null;
   }
 
 }

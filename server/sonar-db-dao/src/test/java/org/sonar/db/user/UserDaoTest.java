@@ -467,6 +467,22 @@ public class UserDaoTest {
   }
 
   @Test
+  public void clean_user_homepage() {
+
+    UserDto user = newUserDto().setHomepageType("RANDOM").setHomepageParameter("any-string");
+    underTest.insert(session, user);
+    session.commit();
+
+    underTest.cleanHomepage(session,user);
+
+    UserDto reloaded = underTest.selectUserById(session, user.getId());
+    assertThat(reloaded.getUpdatedAt()).isEqualTo(NOW);
+    assertThat(reloaded.getHomepageType()).isNull();
+    assertThat(reloaded.getHomepageParameter()).isNull();
+
+  }
+
+  @Test
   public void does_not_fail_to_deactivate_missing_user() {
     underTest.deactivateUser(session, UserTesting.newUserDto());
   }

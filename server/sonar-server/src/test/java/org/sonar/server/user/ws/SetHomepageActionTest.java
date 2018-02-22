@@ -19,7 +19,6 @@
  */
 package org.sonar.server.user.ws;
 
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -35,17 +34,8 @@ import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 
-import static java.util.Arrays.asList;
 import static org.apache.http.HttpStatus.SC_NO_CONTENT;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import static org.sonar.server.user.ws.HomepageTypes.Type.ISSUES;
-import static org.sonar.server.user.ws.HomepageTypes.Type.MY_ISSUES;
-import static org.sonar.server.user.ws.HomepageTypes.Type.MY_PROJECTS;
-import static org.sonar.server.user.ws.HomepageTypes.Type.ORGANIZATION;
-import static org.sonar.server.user.ws.HomepageTypes.Type.PROJECT;
-import static org.sonar.server.user.ws.HomepageTypes.Type.PROJECTS;
 import static org.sonar.server.user.ws.SetHomepageAction.PARAM_COMPONENT;
 import static org.sonar.server.user.ws.SetHomepageAction.PARAM_TYPE;
 
@@ -61,15 +51,8 @@ public class SetHomepageActionTest {
   public ExpectedException expectedException = ExpectedException.none();
 
   private DbClient dbClient = db.getDbClient();
-  private HomepageTypes homepageTypes = mock(HomepageTypes.class);
 
-  private WsActionTester ws;
-
-  @Before
-  public void setUp() {
-    when(homepageTypes.getTypes()).thenReturn(asList(PROJECT, ORGANIZATION, MY_ISSUES, MY_PROJECTS));
-    ws = new WsActionTester(new SetHomepageAction(userSession, dbClient, TestComponentFinder.from(db)));
-  }
+  private WsActionTester ws = new WsActionTester(new SetHomepageAction(userSession, dbClient, TestComponentFinder.from(db)));
 
   @Test
   public void verify_definition() {
@@ -163,7 +146,7 @@ public class SetHomepageActionTest {
   }
 
   @Test
-  public void set_sonarcloud_my_issues_homepage() {
+  public void set_SonarCloud_my_issues_homepage() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
 
@@ -179,10 +162,7 @@ public class SetHomepageActionTest {
   }
 
   @Test
-  public void set_sonarqube_issues_homepage() {
-
-    when(homepageTypes.getTypes()).thenReturn(asList(PROJECT, ORGANIZATION, ISSUES, PROJECTS));
-    ws = new WsActionTester(new SetHomepageAction(userSession, dbClient, TestComponentFinder.from(db)));
+  public void set_SonarQube_issues_homepage() {
 
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
@@ -199,7 +179,7 @@ public class SetHomepageActionTest {
   }
 
   @Test
-  public void set_sonarcloud_my_projects_homepage() {
+  public void set_SonarCloud_my_projects_homepage() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
 
@@ -215,7 +195,7 @@ public class SetHomepageActionTest {
   }
 
   @Test
-  public void set_sonarqube_projects_homepage() {
+  public void set_SonarQube_projects_homepage() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
 
@@ -324,6 +304,21 @@ public class SetHomepageActionTest {
     ws.newRequest()
       .setMethod("POST")
       .setParam(PARAM_TYPE, "ORGANIZATION")
+      .execute();
+  }
+
+  @Test
+  public void fail_when_invalid_homepage_type() {
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user);
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException
+      .expectMessage("Value of parameter 'type' (PIPO) must be one of: [PROJECT, PROJECTS, ISSUES, PORTFOLIOS, PORTFOLIO, APPLICATION, MY_PROJECTS, MY_ISSUES, ORGANIZATION]");
+
+    ws.newRequest()
+      .setMethod("POST")
+      .setParam(PARAM_TYPE, "PIPO")
       .execute();
   }
 

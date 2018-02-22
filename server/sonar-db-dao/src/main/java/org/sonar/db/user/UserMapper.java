@@ -70,5 +70,7 @@ public interface UserMapper {
 
   void deactivateUser(@Param("login") String login, @Param("now") long now);
 
-  void clearHomepage(@Param("homepageType") String type, @Param("homepageParameter") String value, @Param("now") long now);
+  void clearHomepages(@Param("homepageType") String type, @Param("homepageParameter") String value, @Param("now") long now);
+
+  void clearHomepage(@Param("login") String login, @Param("now") long now);
 }
