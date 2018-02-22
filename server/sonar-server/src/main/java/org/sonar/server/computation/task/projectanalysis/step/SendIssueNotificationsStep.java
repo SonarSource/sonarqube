@@ -196,8 +196,7 @@ public class SendIssueNotificationsStep implements ComputationStep {
   @CheckForNull
   private String getPullRequest() {
     Branch branch = analysisMetadataHolder.getBranch();
-    // TODO rely on the pull request instead of the branch name
-    return branch.getType() == PULL_REQUEST ? branch.getName() : null;
+    return branch.getType() == PULL_REQUEST ? analysisMetadataHolder.getPullRequestId() : null;
   }
 
 }

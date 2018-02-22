@@ -101,9 +101,13 @@ public class IssueChangesEmailTemplate extends EmailTemplate {
 
   private static void appendHeader(Notification notif, StringBuilder sb) {
     appendLine(sb, StringUtils.defaultString(notif.getFieldValue("componentName"), notif.getFieldValue("componentKey")));
-    String branchName = notif.getFieldValue("branch");
+    String branchName = notif.getFieldValue(FIELD_BRANCH);
     if (branchName != null) {
       appendField(sb, "Branch", null, branchName);
+    }
+    String pullRequest = notif.getFieldValue(FIELD_PULL_REQUEST);
+    if (pullRequest != null) {
+      appendField(sb, "Pull request", null, pullRequest);
     }
     appendField(sb, "Rule", null, notif.getFieldValue("ruleName"));
     appendField(sb, "Message", null, notif.getFieldValue("message"));
@@ -122,7 +126,7 @@ public class IssueChangesEmailTemplate extends EmailTemplate {
       }
       String pullRequest = notification.getFieldValue(FIELD_PULL_REQUEST);
       if (pullRequest != null) {
-        sb.append("&pullRequest=").append(branchName);
+        sb.append("&pullRequest=").append(pullRequest);
       }
       sb.append(NEW_LINE);
     } catch (UnsupportedEncodingException e) {

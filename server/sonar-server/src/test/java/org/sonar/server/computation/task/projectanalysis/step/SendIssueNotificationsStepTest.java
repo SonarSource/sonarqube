@@ -221,11 +221,12 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
       new DefaultIssue().setType(randomRuleType).setEffort(ISSUE_DURATION).setCreationDate(new Date(ANALYSE_DATE))).close();
     when(notificationService.hasProjectSubscribersForTypes(branch.uuid(), SendIssueNotificationsStep.NOTIF_TYPES)).thenReturn(true);
     analysisMetadataHolder.setBranch(newPullRequest());
+    analysisMetadataHolder.setPullRequestId(PULL_REQUEST_ID);
 
     underTest.execute();
 
     verify(notificationService).deliver(newIssuesNotificationMock);
-    verify(newIssuesNotificationMock).setProject(branch.getKey(), branch.longName(), null, BRANCH_NAME);
+    verify(newIssuesNotificationMock).setProject(branch.getKey(), branch.longName(), null, PULL_REQUEST_ID);
     verify(newIssuesNotificationMock).setAnalysisDate(new Date(ANALYSE_DATE));
     verify(newIssuesNotificationMock).setStatistics(eq(branch.longName()), any(NewIssuesStatistics.Stats.class));
     verify(newIssuesNotificationMock).setDebt(ISSUE_DURATION);
@@ -474,6 +475,7 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
     when(branch.isMain()).thenReturn(false);
     when(branch.getType()).thenReturn(PULL_REQUEST);
     when(branch.getName()).thenReturn(BRANCH_NAME);
+    when(branch.getPullRequestId()).thenReturn(PULL_REQUEST_ID);
     return branch;
   }
 

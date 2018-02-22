@@ -29,6 +29,11 @@ import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.FieldDiffs;
 import org.sonar.db.component.ComponentDto;
 
+import static org.sonar.server.issue.notification.AbstractNewIssuesEmailTemplate.FIELD_BRANCH;
+import static org.sonar.server.issue.notification.AbstractNewIssuesEmailTemplate.FIELD_PROJECT_KEY;
+import static org.sonar.server.issue.notification.AbstractNewIssuesEmailTemplate.FIELD_PROJECT_NAME;
+import static org.sonar.server.issue.notification.AbstractNewIssuesEmailTemplate.FIELD_PULL_REQUEST;
+
 public class IssueChangeNotification extends Notification {
 
   public static final String TYPE = "issue-changes";
@@ -54,18 +59,17 @@ public class IssueChangeNotification extends Notification {
   }
 
   public IssueChangeNotification setProject(ComponentDto project) {
-    // TODO set the pull request instead of the branch
-    return setProject(project.getKey(), project.name(), project.getBranch(), null);
+    return setProject(project.getKey(), project.name(), project.getBranch(), project.getPullRequest());
   }
 
   public IssueChangeNotification setProject(String projectKey, String projectName, @Nullable String branch, @Nullable String pullRequest) {
-    setFieldValue("projectName", projectName);
-    setFieldValue("projectKey", projectKey);
+    setFieldValue(FIELD_PROJECT_NAME, projectName);
+    setFieldValue(FIELD_PROJECT_KEY, projectKey);
     if (branch != null) {
-      setFieldValue("branch", branch);
+      setFieldValue(FIELD_BRANCH, branch);
     }
     if (pullRequest != null) {
-      setFieldValue("pullRequest", pullRequest);
+      setFieldValue(FIELD_PULL_REQUEST, pullRequest);
     }
     return this;
   }
