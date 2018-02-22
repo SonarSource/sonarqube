@@ -124,11 +124,15 @@ public class UserDao implements Dao {
   }
 
   public void cleanHomepage(DbSession dbSession, OrganizationDto organization) {
-    mapper(dbSession).clearHomepage("ORGANIZATION", organization.getUuid(), system2.now());
+    mapper(dbSession).clearHomepages("ORGANIZATION", organization.getUuid(), system2.now());
   }
 
   public void cleanHomepage(DbSession dbSession, ComponentDto project) {
-    mapper(dbSession).clearHomepage("PROJECT", project.uuid(), system2.now());
+    mapper(dbSession).clearHomepages("PROJECT", project.uuid(), system2.now());
+  }
+
+  public void cleanHomepage(DbSession dbSession, UserDto user) {
+    mapper(dbSession).clearHomepage(user.getLogin(), system2.now());
   }
 
   @CheckForNull

@@ -19,12 +19,13 @@
  */
 package org.sonar.server.user.ws;
 
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
+import org.sonar.core.platform.PluginRepository;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
@@ -32,6 +33,7 @@ import org.sonar.db.user.UserDto;
 import org.sonar.server.issue.ws.AvatarResolverImpl;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
+import org.sonar.server.organization.TestOrganizationFlags;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Users.CurrentWsResponse;
@@ -57,15 +59,14 @@ public class CurrentActionTest {
 
   private DbClient dbClient = db.getDbClient();
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
-  private HomepageTypes homepageTypes = mock(HomepageTypes.class);
 
-  private WsActionTester ws = new WsActionTester(new CurrentAction(userSessionRule, dbClient, defaultOrganizationProvider, new AvatarResolverImpl(), homepageTypes));
+  private PluginRepository pluginRepository = mock(PluginRepository.class);
+  private MapSettings settings = new MapSettings();
+  private TestOrganizationFlags organizationFlags = TestOrganizationFlags.standalone();
+  private HomepageTypesImpl homepageTypes = new HomepageTypesImpl(settings.asConfig(), organizationFlags, db.getDbClient());
 
-  @Before
-  public void setUp() {
-    when(homepageTypes.getDefaultType()).thenReturn(HomepageTypes.Type.MY_PROJECTS);
-    ws = new WsActionTester(new CurrentAction(userSessionRule, dbClient, defaultOrganizationProvider, new AvatarResolverImpl(), homepageTypes));
-  }
+  private WsActionTester ws = new WsActionTester(
+    new CurrentAction(userSessionRule, dbClient, defaultOrganizationProvider, new AvatarResolverImpl(), homepageTypes, pluginRepository));
 
   @Test
   public void return_user_info() {
@@ -180,6 +181,7 @@ public class CurrentActionTest {
 
   @Test
   public void return_homepage_when_set_to_a_portfolio() {
+    withGovernancePlugin();
     ComponentDto portfolio = db.components().insertPrivatePortfolio(db.getDefaultOrganization());
     UserDto user = db.users().insertUser(u -> u.setHomepageType("PORTFOLIO").setHomepageParameter(portfolio.uuid()));
     userSessionRule.logIn(user);
@@ -193,6 +195,7 @@ public class CurrentActionTest {
 
   @Test
   public void return_homepage_when_set_to_an_application() {
+    withGovernancePlugin();
     ComponentDto application = db.components().insertPrivateApplication(db.getDefaultOrganization());
     UserDto user = db.users().insertUser(u -> u.setHomepageType("APPLICATION").setHomepageParameter(application.uuid()));
     userSessionRule.logIn(user);
@@ -306,25 +309,90 @@ public class CurrentActionTest {
   }
 
   @Test
-  public void fail_with_ISE_when_user_homepage_project_does_not_exist_in_db() {
+  public void fallback_when_user_homepage_project_does_not_exist_in_db() {
     UserDto user = db.users().insertUser(u -> u.setHomepageType("PROJECT").setHomepageParameter("not-existing-project-uuid"));
     userSessionRule.logIn(user.getLogin());
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Unknown component 'not-existing-project-uuid' for homepageParameter");
+    CurrentWsResponse response = ws.newRequest().executeProtobuf(CurrentWsResponse.class);
 
-    call();
+    assertThat(response.getHomepage()).isNotNull();
   }
 
   @Test
-  public void fail_with_ISE_when_user_homepage_organization_does_not_exist_in_db() {
+  public void fallback_when_user_homepage_organization_does_not_exist_in_db() {
     UserDto user = db.users().insertUser(u -> u.setHomepageType("ORGANIZATION").setHomepageParameter("not-existing-organization-uuid"));
     userSessionRule.logIn(user.getLogin());
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Unknown organization 'not-existing-organization-uuid' for homepageParameter");
+    CurrentWsResponse response = ws.newRequest().executeProtobuf(CurrentWsResponse.class);
 
-    call();
+    assertThat(response.getHomepage()).isNotNull();
+  }
+
+  @Test
+  public void fallback_when_user_homepage_portfolio_does_not_exist_in_db() {
+    withGovernancePlugin();
+    UserDto user = db.users().insertUser(u -> u.setHomepageType("PORTFOLIO").setHomepageParameter("not-existing-portfolio-uuid"));
+    userSessionRule.logIn(user.getLogin());
+
+    CurrentWsResponse response = ws.newRequest().executeProtobuf(CurrentWsResponse.class);
+
+    assertThat(response.getHomepage()).isNotNull();
+  }
+
+  @Test
+  public void fallback_when_user_homepage_application_does_not_exist_in_db() {
+    withGovernancePlugin();
+    UserDto user = db.users().insertUser(u -> u.setHomepageType("APPLICATION").setHomepageParameter("not-existing-application-uuid"));
+    userSessionRule.logIn(user.getLogin());
+
+    CurrentWsResponse response = ws.newRequest().executeProtobuf(CurrentWsResponse.class);
+
+    assertThat(response.getHomepage()).isNotNull();
+  }
+
+  @Test
+  public void fallback_when_user_homepage_application_and_governance_plugin_is_not_installed() {
+    withoutGovernancePlugin();
+    ComponentDto application = db.components().insertPrivateApplication(db.getDefaultOrganization());
+    UserDto user = db.users().insertUser(u -> u.setHomepageType("APPLICATION").setHomepageParameter(application.uuid()));
+    userSessionRule.logIn(user.getLogin());
+
+    CurrentWsResponse response = ws.newRequest().executeProtobuf(CurrentWsResponse.class);
+
+    assertThat(response.getHomepage().getType().toString()).isEqualTo("PROJECTS");
+  }
+
+  @Test
+  public void fallback_to_PROJECTS_when_on_SonarQube() {
+    UserDto user = db.users().insertUser(u -> u.setHomepageType("PROJECT").setHomepageParameter("not-existing-project-uuid"));
+    userSessionRule.logIn(user.getLogin());
+
+    CurrentWsResponse response = ws.newRequest().executeProtobuf(CurrentWsResponse.class);
+
+    assertThat(response.getHomepage().getType().toString()).isEqualTo("PROJECTS");
+  }
+
+  @Test
+  public void fallback_to_MY_PROJECTS_when_on_SonarCloud() {
+    onSonarCloud();
+    UserDto user = db.users().insertUser(u -> u.setHomepageType("PROJECT").setHomepageParameter("not-existing-project-uuid"));
+    userSessionRule.logIn(user.getLogin());
+
+    CurrentWsResponse response = ws.newRequest().executeProtobuf(CurrentWsResponse.class);
+
+    assertThat(response.getHomepage().getType().toString()).isEqualTo("MY_PROJECTS");
+  }
+
+  private void onSonarCloud() {
+    settings.setProperty("sonar.sonarcloud.enabled", true);
+  }
+
+  private void withGovernancePlugin(){
+    when(pluginRepository.hasPlugin("governance")).thenReturn(true);
+  }
+
+  private void withoutGovernancePlugin(){
+    when(pluginRepository.hasPlugin("governance")).thenReturn(false);
   }
 
 }
