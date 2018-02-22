@@ -39,6 +39,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.metric.MetricDto;
+import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.issue.index.BranchStatistics;
 import org.sonar.server.issue.index.IssueIndex;
@@ -164,7 +165,8 @@ public class ListAction implements BranchWsAction {
 
   private void checkPermission(ComponentDto component) {
     if (!userSession.hasComponentPermission(UserRole.USER, component) &&
-      !userSession.hasComponentPermission(SCAN_EXECUTION, component)) {
+      !userSession.hasComponentPermission(SCAN_EXECUTION, component) &&
+      !userSession.hasPermission(OrganizationPermission.SCAN, component.getOrganizationUuid())) {
       throw insufficientPrivilegesException();
     }
   }
