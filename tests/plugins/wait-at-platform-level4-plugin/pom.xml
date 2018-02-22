@@ -6,7 +6,7 @@
   <parent>
     <groupId>org.sonarsource.sonarqube.tests</groupId>
     <artifactId>plugins</artifactId>
-    <version>6.7.2-SNAPSHOT</version>
+    <version>6.7.2</version>
   </parent>
 
   <artifactId>wait-at-platform-level4-plugin</artifactId>
