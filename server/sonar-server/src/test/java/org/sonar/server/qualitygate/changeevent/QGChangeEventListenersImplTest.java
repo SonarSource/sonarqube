@@ -43,14 +43,17 @@ import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.server.qualitygate.changeevent.QGChangeEventListener.ChangedIssue;
+import org.sonar.server.qualitygate.changeevent.QGChangeEventListenersImpl.ChangedIssueImpl;
 
+import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptySet;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.same;
+import static org.junit.Assert.fail;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -224,20 +227,51 @@ public class QGChangeEventListenersImplTest {
     verifyNoMoreInteractions(listener1, listener2, listener3);
   }
 
+  @Test
+  public void test_status_mapping() {
+    assertThat(ChangedIssueImpl.statusOf(new DefaultIssue().setStatus(Issue.STATUS_OPEN))).isEqualTo(QGChangeEventListener.Status.OPEN);
+    assertThat(ChangedIssueImpl.statusOf(new DefaultIssue().setStatus(Issue.STATUS_REOPENED))).isEqualTo(QGChangeEventListener.Status.REOPENED);
+    assertThat(ChangedIssueImpl.statusOf(new DefaultIssue().setStatus(Issue.STATUS_CONFIRMED))).isEqualTo(QGChangeEventListener.Status.CONFIRMED);
+    assertThat(ChangedIssueImpl.statusOf(new DefaultIssue().setStatus(Issue.STATUS_RESOLVED).setResolution(Issue.RESOLUTION_FALSE_POSITIVE)))
+      .isEqualTo(QGChangeEventListener.Status.RESOLVED_FP);
+    assertThat(ChangedIssueImpl.statusOf(new DefaultIssue().setStatus(Issue.STATUS_RESOLVED).setResolution(Issue.RESOLUTION_WONT_FIX)))
+      .isEqualTo(QGChangeEventListener.Status.RESOLVED_WF);
+    assertThat(ChangedIssueImpl.statusOf(new DefaultIssue().setStatus(Issue.STATUS_RESOLVED).setResolution(Issue.RESOLUTION_FIXED)))
+      .isEqualTo(QGChangeEventListener.Status.RESOLVED_FIXED);
+    try {
+      ChangedIssueImpl.statusOf(new DefaultIssue().setStatus(Issue.STATUS_CLOSED));
+      fail("Expected exception");
+    } catch (Exception e) {
+      assertThat(e).hasMessage("Unexpected status: CLOSED");
+    }
+    try {
+      ChangedIssueImpl.statusOf(new DefaultIssue().setStatus(Issue.STATUS_RESOLVED));
+      fail("Expected exception");
+    } catch (Exception e) {
+      assertThat(e).hasMessage("A resolved issue should have a resolution");
+    }
+    try {
+      ChangedIssueImpl.statusOf(new DefaultIssue().setStatus(Issue.STATUS_RESOLVED).setResolution(Issue.RESOLUTION_REMOVED));
+      fail("Expected exception");
+    } catch (Exception e) {
+      assertThat(e).hasMessage("Unexpected resolution for a resolved issue: REMOVED");
+    }
+  }
+
   private void verifyListenerCalled(QGChangeEventListener listener, QGChangeEvent changeEvent, DefaultIssue... issues) {
     ArgumentCaptor<Set<ChangedIssue>> changedIssuesCaptor = newSetCaptor();
     verify(listener).onIssueChanges(same(changeEvent), changedIssuesCaptor.capture());
     Set<ChangedIssue> changedIssues = changedIssuesCaptor.getValue();
     Tuple[] expected = Arrays.stream(issues)
-      .map(issue -> tuple(issue.key(), issue.status(), issue.type()))
+      .map(issue -> tuple(issue.key(), ChangedIssueImpl.statusOf(issue), issue.type()))
       .toArray(Tuple[]::new);
     assertThat(changedIssues)
       .hasSize(issues.length)
-      .extracting(ChangedIssue::getKey, t -> t.getStatus().name(), ChangedIssue::getType)
+      .extracting(ChangedIssue::getKey, t -> t.getStatus(), ChangedIssue::getType)
       .containsOnly(expected);
   }
 
-  private static final String[] STATUSES = Issue.STATUSES.stream().toArray(String[]::new);
+  private static final String[] POSSIBLE_STATUSES = asList(Issue.STATUS_CONFIRMED, Issue.STATUS_REOPENED, Issue.STATUS_RESOLVED).stream().toArray(String[]::new);
   private static int issueIdCounter = 0;
 
   private static DefaultIssue newDefaultIssue(String projectUuid) {
@@ -245,8 +279,21 @@ public class QGChangeEventListenersImplTest {
     defaultIssue.setKey("issue_" + issueIdCounter++);
     defaultIssue.setProjectUuid(projectUuid);
     defaultIssue.setType(RuleType.values()[new Random().nextInt(RuleType.values().length)]);
-    defaultIssue.setStatus(STATUSES[new Random().nextInt(STATUSES.length)]);
+    defaultIssue.setStatus(POSSIBLE_STATUSES[new Random().nextInt(POSSIBLE_STATUSES.length)]);
+    String[] possibleResolutions = possibleResolutions(defaultIssue.getStatus());
+    if (possibleResolutions.length > 0) {
+      defaultIssue.setResolution(possibleResolutions[new Random().nextInt(possibleResolutions.length)]);
+    }
     return defaultIssue;
+  }
+
+  private static String[] possibleResolutions(String status) {
+    switch (status) {
+      case Issue.STATUS_RESOLVED:
+        return new String[] {Issue.RESOLUTION_FALSE_POSITIVE, Issue.RESOLUTION_WONT_FIX};
+      default:
+        return new String[0];
+    }
   }
 
   private static ComponentDto newComponentDto(String uuid) {

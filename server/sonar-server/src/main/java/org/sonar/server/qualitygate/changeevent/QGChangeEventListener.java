@@ -40,6 +40,12 @@ public interface QGChangeEventListener {
   }
 
   enum Status {
-    OPEN, CONFIRMED, REOPENED, RESOLVED, CLOSED
+    OPEN,
+    CONFIRMED,
+    REOPENED,
+    RESOLVED_FP,
+    RESOLVED_WF,
+    RESOLVED_FIXED
   }
+
 }
