@@ -94,7 +94,7 @@ public class IssueCreationDatePluginChangedTest {
 
     // Create a user and register her to receive notification on NewIssues
     tester.users().generate(t -> t.setLogin(USER_LOGIN).setPassword(USER_PASSWORD).setEmail(USER_EMAIL)
-      .setScmAccounts(ImmutableList.of("jhenry")));
+      .setScmAccount(ImmutableList.of("jhenry")));
     // Add notifications to the test user
     WsClient wsClient = newUserWsClient(ORCHESTRATOR, USER_LOGIN, USER_PASSWORD);
     wsClient.wsConnector().call(new PostRequest("api/notifications/add")

@@ -55,7 +55,6 @@ exports[`should render OK test 1`] = `
               Object {
                 "pathname": "/dashboard",
                 "query": Object {
-                  "branch": undefined,
                   "id": "project:src/file.js",
                 },
               }

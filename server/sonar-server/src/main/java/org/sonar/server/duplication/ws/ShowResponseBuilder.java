@@ -49,14 +49,14 @@ public class ShowResponseBuilder {
     this.componentDao = componentDao;
   }
 
-  ShowResponse build(DbSession session, List<DuplicationsParser.Block> blocks, @Nullable String branch) {
+  ShowResponse build(DbSession session, List<DuplicationsParser.Block> blocks, @Nullable String branch, @Nullable String pullRequest) {
     ShowResponse.Builder response = ShowResponse.newBuilder();
     Map<String, String> refByComponentKey = newHashMap();
     blocks.stream()
       .map(block -> toWsDuplication(block, refByComponentKey))
       .forEach(response::addDuplications);
 
-    writeFiles(session, response, refByComponentKey, branch);
+    writeFiles(session, response, refByComponentKey, branch, pullRequest);
 
     return response.build();
   }
@@ -86,7 +86,8 @@ public class ShowResponseBuilder {
     return block;
   }
 
-  private static Duplications.File toWsFile(ComponentDto file, @Nullable ComponentDto project, @Nullable ComponentDto subProject, @Nullable String branch) {
+  private static Duplications.File toWsFile(ComponentDto file, @Nullable ComponentDto project, @Nullable ComponentDto subProject, @Nullable String branch,
+    @Nullable String pullRequest) {
     Duplications.File.Builder wsFile = Duplications.File.newBuilder();
     wsFile.setKey(file.getKey());
     wsFile.setUuid(file.uuid());
@@ -102,15 +103,14 @@ public class ShowResponseBuilder {
         wsFile.setSubProjectUuid(subProject.uuid());
         wsFile.setSubProjectName(subProject.longName());
       }
-      if (branch != null) {
-        wsFile.setBranch(branch);
-      }
+      setNullable(branch, wsFile::setBranch);
+      setNullable(pullRequest, wsFile::setPullRequest);
       return wsFile;
     });
     return wsFile.build();
   }
 
-  private void writeFiles(DbSession session, ShowResponse.Builder response, Map<String, String> refByComponentKey, @Nullable String branch) {
+  private void writeFiles(DbSession session, ShowResponse.Builder response, Map<String, String> refByComponentKey, @Nullable String branch, @Nullable String pullRequest) {
     Map<String, ComponentDto> projectsByUuid = newHashMap();
     Map<String, ComponentDto> parentModulesByUuid = newHashMap();
     Map<String, Duplications.File> filesByRef = response.getMutableFiles();
@@ -124,7 +124,7 @@ public class ShowResponseBuilder {
 
         ComponentDto project = getProject(file.projectUuid(), projectsByUuid, session);
         ComponentDto parentModule = getParentProject(file.getRootUuid(), parentModulesByUuid, session);
-        filesByRef.put(ref, toWsFile(file, project, parentModule, branch));
+        filesByRef.put(ref, toWsFile(file, project, parentModule, branch, pullRequest));
       }
     }
   }

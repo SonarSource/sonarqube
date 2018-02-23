@@ -29,6 +29,7 @@ import org.sonar.db.organization.OrganizationDto;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
+import static org.sonar.db.component.BranchType.PULL_REQUEST;
 import static org.sonar.db.component.ComponentDto.UUID_PATH_SEPARATOR;
 
 public class ComponentTesting {
@@ -99,7 +100,15 @@ public class ComponentTesting {
 
   private static String generateKey(String key, ComponentDto parentModuleOrProject) {
     String branch = parentModuleOrProject.getBranch();
-    return branch == null ? key : ComponentDto.generateBranchKey(key, branch);
+    if (branch != null) {
+      return ComponentDto.generateBranchKey(key, branch);
+    }
+    String pullRequest = parentModuleOrProject.getPullRequest();
+    if (pullRequest != null) {
+      return ComponentDto.generatePullRequestKey(key, pullRequest);
+    }
+
+    return key;
   }
 
   public static ComponentDto newModuleDto(ComponentDto subProjectOrProject) {
@@ -231,6 +240,7 @@ public class ComponentTesting {
     checkArgument(project.qualifier().equals(Qualifiers.PROJECT));
     checkArgument(project.getMainBranchProjectUuid() == null);
     String branchName = branchDto.getKey();
+    String branchSeparator = branchDto.getBranchType() == PULL_REQUEST ? ":PULL_REQUEST:" : ":BRANCH:";
     String uuid = branchDto.getUuid();
     return new ComponentDto()
       .setUuid(uuid)
@@ -240,7 +250,7 @@ public class ComponentTesting {
       .setModuleUuidPath(UUID_PATH_SEPARATOR + uuid + UUID_PATH_SEPARATOR)
       .setRootUuid(uuid)
       // name of the branch is not mandatory on the main branch
-      .setDbKey(branchName != null ? project.getDbKey() + ":BRANCH:" + branchName : project.getKey())
+      .setDbKey(branchName != null ? project.getDbKey() + branchSeparator + branchName : project.getKey())
       .setMainBranchProjectUuid(project.uuid())
       .setName(project.name())
       .setLongName(project.longName())

@@ -37,6 +37,7 @@ public class SearchHistoryRequest {
   private List<String> metrics;
   private String p;
   private String ps;
+  private String pullRequest;
   private String to;
 
   /**
@@ -112,6 +113,19 @@ public class SearchHistoryRequest {
 
   public String getPs() {
     return ps;
+  }
+
+  /**
+   * This is part of the internal API.
+   * Example value: "5461"
+   */
+  public SearchHistoryRequest setPullRequest(String pullRequest) {
+    this.pullRequest = pullRequest;
+    return this;
+  }
+
+  public String getPullRequest() {
+    return pullRequest;
   }
 
   /**

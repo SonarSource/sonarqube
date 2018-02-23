@@ -28,6 +28,7 @@ public class ProjectAnalysesWsParameters {
   public static final String PARAM_FROM = "from";
   public static final String PARAM_TO = "to";
   public static final String PARAM_BRANCH = "branch";
+  public static final String PARAM_PULL_REQUEST = "pullRequest";
 
   private ProjectAnalysesWsParameters() {
     // static access only

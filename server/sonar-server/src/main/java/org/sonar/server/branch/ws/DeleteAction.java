@@ -19,7 +19,6 @@
  */
 package org.sonar.server.branch.ws;
 
-import com.google.common.io.Resources;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -35,10 +34,10 @@ import org.sonar.server.user.UserSession;
 
 import static org.sonar.server.branch.ws.BranchesWs.addBranchParam;
 import static org.sonar.server.branch.ws.BranchesWs.addProjectParam;
-import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
 import static org.sonar.server.branch.ws.ProjectBranchesParameters.ACTION_DELETE;
 import static org.sonar.server.branch.ws.ProjectBranchesParameters.PARAM_BRANCH;
 import static org.sonar.server.branch.ws.ProjectBranchesParameters.PARAM_PROJECT;
+import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
 
 public class DeleteAction implements BranchWsAction {
   private final DbClient dbClient;
@@ -59,7 +58,6 @@ public class DeleteAction implements BranchWsAction {
       .setSince("6.6")
       .setDescription("Delete a non-main branch of a project.<br/>" +
         "Requires 'Administer' rights on the specified project.")
-      .setResponseExample(Resources.getResource(getClass(), "list-example.json"))
       .setPost(true)
       .setHandler(this);
 
@@ -78,7 +76,7 @@ public class DeleteAction implements BranchWsAction {
       checkPermission(project);
 
       BranchDto branch = checkFoundWithOptional(
-        dbClient.branchDao().selectByKey(dbSession, project.uuid(), branchKey),
+        dbClient.branchDao().selectByBranchKey(dbSession, project.uuid(), branchKey),
         "Branch '%s' not found for project '%s'", branchKey, projectKey);
 
       if (branch.isMain()) {

@@ -27,12 +27,13 @@ import IssueTypeIcon from '../../../components/ui/IssueTypeIcon';
 import { getPeriodValue, isDiffMetric, formatMeasure } from '../../../helpers/measures';
 import { translate } from '../../../helpers/l10n';
 import { getComponentIssuesUrl } from '../../../helpers/urls';
+import { getBranchLikeQuery } from '../../../helpers/branches';
 /*:: import type { Component } from '../types'; */
 /*:: import type { MeasureEnhanced } from '../../../components/measure/types'; */
 
 export default class QualityGateCondition extends React.PureComponent {
   /*:: props: {
-    branch?: string,
+    branchLike?: { id?: string; name: string },
     component: Component,
     condition: {
       level: string,
@@ -54,7 +55,11 @@ export default class QualityGateCondition extends React.PureComponent {
   }
 
   getIssuesUrl = (sinceLeakPeriod /*: boolean */, customQuery /*: {} */) => {
-    const query /*: Object */ = { resolved: 'false', branch: this.props.branch, ...customQuery };
+    const query /*: Object */ = {
+      resolved: 'false',
+      ...getBranchLikeQuery(this.props.branchLike),
+      ...customQuery
+    };
     if (sinceLeakPeriod) {
       Object.assign(query, { sinceLeakPeriod: 'true' });
     }
@@ -89,7 +94,7 @@ export default class QualityGateCondition extends React.PureComponent {
   }
 
   wrapWithLink(children /*: React.Element<*> */) {
-    const { branch, component, condition } = this.props;
+    const { branchLike, component, condition } = this.props;
 
     const className = classNames(
       'overview-quality-gate-condition',
@@ -114,7 +119,7 @@ export default class QualityGateCondition extends React.PureComponent {
       </Link>
     ) : (
       <DrilldownLink
-        branch={branch}
+        branchLike={branchLike}
         className={className}
         component={component.key}
         metric={condition.measure.metric.key}

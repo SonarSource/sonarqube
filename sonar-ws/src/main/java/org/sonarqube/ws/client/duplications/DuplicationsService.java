@@ -50,6 +50,7 @@ public class DuplicationsService extends BaseService {
       new GetRequest(path("show"))
         .setParam("branch", request.getBranch())
         .setParam("key", request.getKey())
+        .setParam("pullRequest", request.getPullRequest())
         .setParam("uuid", request.getUuid()),
       ShowResponse.parser());
   }

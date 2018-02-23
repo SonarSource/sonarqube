@@ -18,16 +18,28 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { getJSON, post } from '../helpers/request';
+import { Branch, PullRequest } from '../app/types';
 import throwGlobalError from '../app/utils/throwGlobalError';
 
-export function getBranches(project: string): Promise<any> {
+export function getBranches(project: string): Promise<Branch[]> {
   return getJSON('/api/project_branches/list', { project }).then(r => r.branches, throwGlobalError);
 }
 
-export function deleteBranch(project: string, branch: string): Promise<void | Response> {
-  return post('/api/project_branches/delete', { project, branch }).catch(throwGlobalError);
+export function getPullRequests(project: string): Promise<PullRequest[]> {
+  return getJSON('/api/project_pull_requests/list', { project }).then(
+    r => r.pullRequests,
+    throwGlobalError
+  );
 }
 
-export function renameBranch(project: string, name: string): Promise<void | Response> {
+export function deleteBranch(data: { branch: string; project: string }) {
+  return post('/api/project_branches/delete', data).catch(throwGlobalError);
+}
+
+export function deletePullRequest(data: { project: string; pullRequest: string }) {
+  return post('/api/project_pull_requests/delete', data).catch(throwGlobalError);
+}
+
+export function renameBranch(project: string, name: string) {
   return post('/api/project_branches/rename', { project, name }).catch(throwGlobalError);
 }

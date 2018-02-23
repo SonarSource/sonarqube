@@ -46,4 +46,9 @@ public class DefaultBranchConfiguration implements BranchConfiguration {
   public String branchBase() {
     return null;
   }
+
+  @Override
+  public String pullRequestId() {
+    throw new IllegalStateException("Only a branch of type PULL_REQUEST can have a pull request id.");
+  }
 }

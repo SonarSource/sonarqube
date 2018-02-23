@@ -20,7 +20,13 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import BranchRow from '../BranchRow';
-import { MainBranch, ShortLivingBranch, BranchType } from '../../../../app/types';
+import {
+  MainBranch,
+  ShortLivingBranch,
+  BranchType,
+  PullRequest,
+  BranchLike
+} from '../../../../app/types';
 import { click } from '../../../../helpers/testUtils';
 
 const mainBranch: MainBranch = { isMain: true, name: 'master' };
@@ -33,12 +39,23 @@ const shortBranch: ShortLivingBranch = {
   type: BranchType.SHORT
 };
 
+const pullRequest: PullRequest = {
+  base: 'master',
+  branch: 'feature',
+  id: '1234',
+  title: 'Feature PR'
+};
+
 it('renders main branch', () => {
   expect(shallowRender(mainBranch)).toMatchSnapshot();
 });
 
 it('renders short-living branch', () => {
   expect(shallowRender(shortBranch)).toMatchSnapshot();
+});
+
+it('renders pull request', () => {
+  expect(shallowRender(pullRequest)).toMatchSnapshot();
 });
 
 it('renames main branch', () => {
@@ -59,8 +76,19 @@ it('deletes short-living branch', () => {
   expect(onChange).toBeCalled();
 });
 
-function shallowRender(branch: MainBranch | ShortLivingBranch, onChange: () => void = jest.fn()) {
-  const wrapper = shallow(<BranchRow branch={branch} component="foo" onChange={onChange} />);
+it('deletes pull request', () => {
+  const onChange = jest.fn();
+  const wrapper = shallowRender(pullRequest, onChange);
+
+  click(wrapper.find('.js-delete'));
+  (wrapper.find('DeleteBranchModal').prop('onDelete') as Function)();
+  expect(onChange).toBeCalled();
+});
+
+function shallowRender(branchLike: BranchLike, onChange: () => void = jest.fn()) {
+  const wrapper = shallow(
+    <BranchRow branchLike={branchLike} component="foo" isOrphan={false} onChange={onChange} />
+  );
   (wrapper.instance() as any).mounted = true;
   return wrapper;
 }

@@ -32,7 +32,12 @@ it('should not render breadcrumbs with one element', () => {
     visibility: 'public'
   };
   const result = shallow(
-    <ComponentNavHeader branches={[]} component={component} shouldOrganizationBeDisplayed={false} />
+    <ComponentNavHeader
+      branchLikes={[]}
+      component={component}
+      currentBranchLike={undefined}
+      shouldOrganizationBeDisplayed={false}
+    />
   );
   expect(result).toMatchSnapshot();
 });
@@ -53,8 +58,9 @@ it('should render organization', () => {
   };
   const result = shallow(
     <ComponentNavHeader
-      branches={[]}
+      branchLikes={[]}
       component={component}
+      currentBranchLike={undefined}
       organization={organization}
       shouldOrganizationBeDisplayed={true}
     />
@@ -72,7 +78,12 @@ it('renders private badge', () => {
     visibility: 'private'
   };
   const result = shallow(
-    <ComponentNavHeader branches={[]} component={component} shouldOrganizationBeDisplayed={false} />
+    <ComponentNavHeader
+      branchLikes={[]}
+      component={component}
+      currentBranchLike={undefined}
+      shouldOrganizationBeDisplayed={false}
+    />
   );
   expect(result.find('PrivateBadge')).toHaveLength(1);
 });

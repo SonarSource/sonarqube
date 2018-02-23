@@ -34,6 +34,7 @@ public class ListRequest {
   private String branch;
   private String p;
   private String ps;
+  private String pullRequest;
   private String sourceFileId;
   private String sourceFileKey;
   private String sourceFileLineNumber;
@@ -76,6 +77,19 @@ public class ListRequest {
 
   public String getPs() {
     return ps;
+  }
+
+  /**
+   * This is part of the internal API.
+   * Example value: "5461"
+   */
+  public ListRequest setPullRequest(String pullRequest) {
+    this.pullRequest = pullRequest;
+    return this;
+  }
+
+  public String getPullRequest() {
+    return pullRequest;
   }
 
   /**

@@ -2,7 +2,7 @@
 
 exports[`renders main branch 1`] = `
 <li
-  key="master"
+  key="branch-master"
   onMouseEnter={[Function]}
 >
   <Tooltip
@@ -27,7 +27,7 @@ exports[`renders main branch 1`] = `
         className="navbar-context-meta-branch-menu-item-name text-ellipsis"
       >
         <BranchIcon
-          branch={
+          branchLike={
             Object {
               "isMain": true,
               "name": "master",
@@ -46,7 +46,7 @@ exports[`renders main branch 1`] = `
         className="big-spacer-left note"
       >
         <BranchStatus
-          branch={
+          branchLike={
             Object {
               "isMain": true,
               "name": "master",
@@ -62,7 +62,7 @@ exports[`renders main branch 1`] = `
 
 exports[`renders short-living branch 1`] = `
 <li
-  key="foo"
+  key="branch-foo"
   onMouseEnter={[Function]}
 >
   <Tooltip
@@ -89,7 +89,7 @@ exports[`renders short-living branch 1`] = `
         className="navbar-context-meta-branch-menu-item-name text-ellipsis"
       >
         <BranchIcon
-          branch={
+          branchLike={
             Object {
               "isMain": false,
               "mergeBranch": "master",
@@ -110,7 +110,7 @@ exports[`renders short-living branch 1`] = `
         className="big-spacer-left note"
       >
         <BranchStatus
-          branch={
+          branchLike={
             Object {
               "isMain": false,
               "mergeBranch": "master",
@@ -133,7 +133,7 @@ exports[`renders short-living branch 1`] = `
 
 exports[`renders short-living orhpan branch 1`] = `
 <li
-  key="foo"
+  key="branch-foo"
   onMouseEnter={[Function]}
 >
   <Tooltip
@@ -160,7 +160,7 @@ exports[`renders short-living orhpan branch 1`] = `
         className="navbar-context-meta-branch-menu-item-name text-ellipsis"
       >
         <BranchIcon
-          branch={
+          branchLike={
             Object {
               "isMain": false,
               "isOrphan": true,
@@ -182,7 +182,7 @@ exports[`renders short-living orhpan branch 1`] = `
         className="big-spacer-left note"
       >
         <BranchStatus
-          branch={
+          branchLike={
             Object {
               "isMain": false,
               "isOrphan": true,

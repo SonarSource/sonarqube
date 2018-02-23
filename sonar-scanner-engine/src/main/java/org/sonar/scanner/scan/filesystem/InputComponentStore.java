@@ -80,7 +80,8 @@ public class InputComponentStore {
     return inputFileCache.values().stream()
       .map(f -> (DefaultInputFile) f)
       .filter(DefaultInputFile::isPublished)
-      .filter(f -> (!branchConfiguration.isShortLivingBranch()) || f.status() != Status.SAME)::iterator;
+      .filter(f -> !branchConfiguration.isShortOrPullRequest() || f.status() != Status.SAME)
+      ::iterator;
   }
 
   public Iterable<InputFile> allFiles() {

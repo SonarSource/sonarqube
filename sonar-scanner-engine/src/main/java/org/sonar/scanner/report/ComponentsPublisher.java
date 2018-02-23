@@ -152,7 +152,8 @@ public class ComponentsPublisher implements ReportPublisherStep {
   }
 
   private boolean shouldSkipComponent(DefaultInputComponent component, Collection<InputComponent> children) {
-    if (component instanceof InputModule && children.isEmpty() && branchConfiguration.isShortLivingBranch()) {
+    if (component instanceof InputModule && children.isEmpty()
+      && (branchConfiguration.isShortOrPullRequest())) {
       // no children on a module in short branch analysis -> skip it (except root)
       return !moduleHierarchy.isRoot((InputModule) component);
     } else if (component instanceof InputDir && children.isEmpty()) {
@@ -165,7 +166,7 @@ public class ComponentsPublisher implements ReportPublisherStep {
     } else if (component instanceof DefaultInputFile) {
       // skip files not marked for publishing
       DefaultInputFile inputFile = (DefaultInputFile) component;
-      return !inputFile.isPublished() || (branchConfiguration.isShortLivingBranch() && inputFile.status() == Status.SAME);
+      return !inputFile.isPublished() || (branchConfiguration.isShortOrPullRequest() && inputFile.status() == Status.SAME);
     }
     return false;
   }

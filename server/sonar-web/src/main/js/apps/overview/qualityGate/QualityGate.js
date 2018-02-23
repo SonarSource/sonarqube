@@ -38,13 +38,13 @@ function isProject(component /*: Component */) {
 
 /*::
 type Props = {
-  branch?: string,
+  branchLike?: {id?: string; name: string },
   component: Component,
   measures: MeasuresList
 };
 */
 
-export default function QualityGate({ branch, component, measures } /*: Props */) {
+export default function QualityGate({ branchLike, component, measures } /*: Props */) {
   const statusMeasure = measures.find(measure => measure.metric.key === 'alert_status');
   const detailsMeasure = measures.find(measure => measure.metric.key === 'quality_gate_details');
 
@@ -81,7 +81,11 @@ export default function QualityGate({ branch, component, measures } /*: Props */
       )}
 
       {conditions.length > 0 && (
-        <QualityGateConditions branch={branch} component={component} conditions={conditions} />
+        <QualityGateConditions
+          branchLike={branchLike}
+          component={component}
+          conditions={conditions}
+        />
       )}
     </div>
   );

@@ -20,6 +20,7 @@
 package org.sonar.scanner.scan;
 
 import com.google.common.annotations.VisibleForTesting;
+import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.InstantiationStrategy;
@@ -91,6 +92,7 @@ import org.sonar.scanner.scan.branch.BranchConfiguration;
 import org.sonar.scanner.scan.branch.BranchConfigurationProvider;
 import org.sonar.scanner.scan.branch.BranchType;
 import org.sonar.scanner.scan.branch.ProjectBranchesProvider;
+import org.sonar.scanner.scan.branch.ProjectPullRequestsProvider;
 import org.sonar.scanner.scan.filesystem.BatchIdGenerator;
 import org.sonar.scanner.scan.filesystem.InputComponentStoreProvider;
 import org.sonar.scanner.scan.filesystem.StatusDetection;
@@ -146,6 +148,7 @@ public class ProjectScanContainer extends ComponentContainer {
       new RulesProvider(),
       new BranchConfigurationProvider(),
       new ProjectBranchesProvider(),
+      new ProjectPullRequestsProvider(),
       DefaultAnalysisMode.class,
       new ProjectRepositoriesProvider(),
 
@@ -254,7 +257,13 @@ public class ProjectScanContainer extends ComponentContainer {
     String branchName = props.property(ScannerProperties.BRANCH_NAME);
     if (branchName != null) {
       BranchConfiguration branchConfig = getComponentByType(BranchConfiguration.class);
-      LOG.info("Branch name: {}, type: {}", branchName, toDisplayName(branchConfig.branchType()));
+      LOG.info("Branch name: {}, type: {}", branchName, branchTypeToDisplayName(branchConfig.branchType()));
+    }
+
+    String pullRequestBranch = props.property(ScannerProperties.PULL_REQUEST_BRANCH);
+    if (pullRequestBranch != null) {
+      String pullRequestBase = props.property(ScannerProperties.PULL_REQUEST_BASE);
+      LOG.info("Pull request into {}: {}", pullRequestBaseToDisplayName(pullRequestBase), pullRequestBranch);
     }
 
     LOG.debug("Start recursive analysis of project modules");
@@ -265,7 +274,11 @@ public class ProjectScanContainer extends ComponentContainer {
     }
   }
 
-  private static String toDisplayName(BranchType branchType) {
+  private static String pullRequestBaseToDisplayName(@Nullable String pullRequestBase) {
+    return pullRequestBase != null ? pullRequestBase : "default branch";
+  }
+
+  private static String branchTypeToDisplayName(BranchType branchType) {
     switch (branchType) {
       case LONG:
         return "long living";

@@ -89,7 +89,7 @@ public class TaskFormatter {
     builder.setSubmittedAt(formatDateTime(new Date(dto.getCreatedAt())));
     setNullable(dto.getStartedAt(), builder::setStartedAt, DateUtils::formatDateTime);
     setNullable(computeExecutionTimeMs(dto), builder::setExecutionTimeMs);
-    setBranch(builder, dto.getUuid(), componentDtoCache);
+    setBranchOrPullRequest(builder, dto.getUuid(), componentDtoCache);
     return builder.build();
   }
 
@@ -115,10 +115,8 @@ public class TaskFormatter {
     builder.setLogs(false);
     setNullable(dto.getComponentUuid(), uuid -> setComponent(builder, uuid, componentDtoCache).setComponentId(uuid));
     String analysisUuid = dto.getAnalysisUuid();
-    if (analysisUuid != null) {
-      builder.setAnalysisId(analysisUuid);
-    }
-    setBranch(builder, dto.getUuid(), componentDtoCache);
+    setNullable(analysisUuid, builder::setAnalysisId);
+    setBranchOrPullRequest(builder, dto.getUuid(), componentDtoCache);
     setNullable(analysisUuid, builder::setAnalysisId);
     setNullable(dto.getSubmitterLogin(), builder::setSubmitterLogin);
     builder.setSubmittedAt(formatDateTime(new Date(dto.getSubmittedAt())));
@@ -144,13 +142,22 @@ public class TaskFormatter {
     return builder;
   }
 
-  private static Ce.Task.Builder setBranch(Ce.Task.Builder builder, String taskUuid, DtoCache componentDtoCache) {
-    componentDtoCache.getBranchName(taskUuid).ifPresent(
+  private static Ce.Task.Builder setBranchOrPullRequest(Ce.Task.Builder builder, String taskUuid, DtoCache componentDtoCache) {
+    componentDtoCache.getBranchKey(taskUuid).ifPresent(
       b -> {
-        builder.setBranch(b);
-        builder.setBranchType(componentDtoCache.getBranchType(taskUuid)
-          .orElseThrow(() -> new IllegalStateException(format("Could not find branch type of task '%s'", taskUuid))));
+        Common.BranchType branchType = componentDtoCache.getBranchType(taskUuid)
+          .orElseThrow(() -> new IllegalStateException(format("Could not find branch type of task '%s'", taskUuid)));
+        switch (branchType) {
+          case LONG:
+          case SHORT:
+            builder.setBranchType(branchType);
+            builder.setBranch(b);
+            break;
+          default:
+            throw new IllegalStateException(String.format("Unknown branch type '%s'", branchType));
+        }
       });
+    componentDtoCache.getPullRequest(taskUuid).ifPresent(builder::setPullRequest);
     return builder;
   }
 
@@ -237,7 +244,7 @@ public class TaskFormatter {
       return organizationDto.getKey();
     }
 
-    Optional<String> getBranchName(String taskUuid) {
+    Optional<String> getBranchKey(String taskUuid) {
       return characteristicsByTaskUuid.get(taskUuid).stream()
         .filter(c -> c.getKey().equals(CeTaskCharacteristicDto.BRANCH_KEY))
         .map(CeTaskCharacteristicDto::getValue)
@@ -248,6 +255,13 @@ public class TaskFormatter {
       return characteristicsByTaskUuid.get(taskUuid).stream()
         .filter(c -> c.getKey().equals(CeTaskCharacteristicDto.BRANCH_TYPE_KEY))
         .map(c -> Common.BranchType.valueOf(c.getValue()))
+        .findAny();
+    }
+
+    Optional<String> getPullRequest(String taskUuid) {
+      return characteristicsByTaskUuid.get(taskUuid).stream()
+        .filter(c -> c.getKey().equals(CeTaskCharacteristicDto.PULL_REQUEST))
+        .map(CeTaskCharacteristicDto::getValue)
         .findAny();
     }
   }

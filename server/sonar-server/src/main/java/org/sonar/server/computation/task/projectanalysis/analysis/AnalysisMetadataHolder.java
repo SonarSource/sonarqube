@@ -83,6 +83,13 @@ public interface AnalysisMetadataHolder {
   boolean isLongLivingBranch();
 
   /**
+   * Convenience method equivalent to do the check using {@link #getBranch()}
+   *
+   * @throws IllegalStateException if branch has not been set
+   */
+  boolean isPullRequest();
+
+  /**
    * @throws IllegalStateException if cross project duplication flag has not been set
    */
   boolean isCrossProjectDuplicationEnabled();
@@ -91,6 +98,13 @@ public interface AnalysisMetadataHolder {
    * Branch being analyzed. Can be of any type: long or short, main or not. 
    */
   Branch getBranch();
+
+  /**
+   * In a pull request analysis, return the ID of the pull request
+   *
+   * @throws IllegalStateException if current analysis is not a pull request
+   */
+  String getPullRequestId();
 
   /**
    * The project as represented by the main branch. It is used to load settings
@@ -119,5 +133,4 @@ public interface AnalysisMetadataHolder {
    * Plugins used during the analysis on scanner side
    */
   Map<String, ScannerPlugin> getScannerPluginsByKey();
-
 }

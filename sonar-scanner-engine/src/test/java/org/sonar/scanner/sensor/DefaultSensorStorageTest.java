@@ -127,7 +127,7 @@ public class DefaultSensorStorageTest {
   @Test
   public void should_skip_issue_on_short_branch_when_file_status_is_SAME() {
     InputFile file = new TestInputFileBuilder("foo", "src/Foo.php").setStatus(InputFile.Status.SAME).build();
-    when(branchConfiguration.isShortLivingBranch()).thenReturn(true);
+    when(branchConfiguration.isShortOrPullRequest()).thenReturn(true);
 
     DefaultIssue issue = new DefaultIssue().at(new DefaultIssueLocation().on(file));
     underTest.store(issue);
@@ -151,7 +151,7 @@ public class DefaultSensorStorageTest {
     DefaultInputFile file = new TestInputFileBuilder("foo", "src/Foo.php")
       .setContents("// comment")
       .setStatus(InputFile.Status.SAME).build();
-    when(branchConfiguration.isShortLivingBranch()).thenReturn(true);
+    when(branchConfiguration.isShortOrPullRequest()).thenReturn(true);
 
     DefaultHighlighting highlighting = new DefaultHighlighting(underTest).onFile(file).highlight(0, 1, TypeOfText.KEYWORD);
     underTest.store(highlighting);
@@ -178,7 +178,20 @@ public class DefaultSensorStorageTest {
   @Test
   public void should_skip_file_measure_on_short_branch_when_file_status_is_SAME() {
     InputFile file = new TestInputFileBuilder("foo", "src/Foo.php").setStatus(InputFile.Status.SAME).build();
-    when(branchConfiguration.isShortLivingBranch()).thenReturn(true);
+    when(branchConfiguration.isShortOrPullRequest()).thenReturn(true);
+
+    underTest.store(new DefaultMeasure()
+      .on(file)
+      .forMetric(CoreMetrics.NCLOC)
+      .withValue(10));
+
+    verifyZeroInteractions(measureCache);
+  }
+
+  @Test
+  public void should_skip_file_measure_on_pull_request_when_file_status_is_SAME() {
+    InputFile file = new TestInputFileBuilder("foo", "src/Foo.php").setStatus(InputFile.Status.SAME).build();
+    when(branchConfiguration.isShortOrPullRequest()).thenReturn(true);
 
     underTest.store(new DefaultMeasure()
       .on(file)

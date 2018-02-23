@@ -1015,7 +1015,7 @@ public class SetActionTest {
     assertThat(definition.isInternal()).isFalse();
     assertThat(definition.since()).isEqualTo("6.1");
     assertThat(definition.params()).extracting(Param::key)
-      .containsOnly("key", "value", "values", "fieldValues", "component", "branch");
+      .containsOnly("key", "value", "values", "fieldValues", "component", "branch", "pullRequest");
 
     Param branch = definition.param("branch");
     assertThat(branch.isInternal()).isTrue();

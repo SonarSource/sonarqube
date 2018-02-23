@@ -242,6 +242,34 @@ public class AnalysisMetadataHolderImplTest {
   }
 
   @Test
+  public void setPullRequestId() {
+    AnalysisMetadataHolderImpl underTest = new AnalysisMetadataHolderImpl();
+
+    String pullRequestId = "pr-123";
+    underTest.setPullRequestId(pullRequestId);
+
+    assertThat(underTest.getPullRequestId()).isEqualTo(pullRequestId);
+  }
+
+  @Test
+  public void getPullRequestId_throws_ISE_when_holder_is_not_initialized() {
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("Pull request id has not been set");
+
+    new AnalysisMetadataHolderImpl().getPullRequestId();
+  }
+
+  @Test
+  public void setPullRequestId_throws_ISE_when_called_twice() {
+    AnalysisMetadataHolderImpl underTest = new AnalysisMetadataHolderImpl();
+    underTest.setPullRequestId("pr-123");
+
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("Pull request id has already been set");
+    underTest.setPullRequestId("pr-234");
+  }
+
+  @Test
   public void set_and_get_project() {
     AnalysisMetadataHolderImpl underTest = new AnalysisMetadataHolderImpl();
 
@@ -314,5 +342,16 @@ public class AnalysisMetadataHolderImplTest {
     underTest.setBranch(branch);
 
     assertThat(underTest.isShortLivingBranch()).isTrue();
+  }
+
+  @Test
+  public void getPullRequestBranch_returns_true() {
+    Branch branch = mock(Branch.class);
+    when(branch.getType()).thenReturn(BranchType.PULL_REQUEST);
+
+    AnalysisMetadataHolderImpl underTest = new AnalysisMetadataHolderImpl();
+    underTest.setBranch(branch);
+
+    assertThat(underTest.isPullRequest()).isTrue();
   }
 }

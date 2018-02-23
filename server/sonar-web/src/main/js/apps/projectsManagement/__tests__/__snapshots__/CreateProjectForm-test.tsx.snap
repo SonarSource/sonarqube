@@ -385,7 +385,6 @@ exports[`creates project 4`] = `
                   Object {
                     "pathname": "/dashboard",
                     "query": Object {
-                      "branch": undefined,
                       "id": "name",
                     },
                   }

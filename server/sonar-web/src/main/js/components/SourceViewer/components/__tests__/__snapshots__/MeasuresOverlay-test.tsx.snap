@@ -24,10 +24,11 @@ exports[`should render source file 1`] = `
           style={Object {}}
           to={
             Object {
-              "pathname": "/dashboard",
+              "pathname": "/project/issues",
               "query": Object {
-                "branch": "branch",
+                "branch": "feature",
                 "id": "project-key",
+                "resolved": "false",
               },
             }
           }
@@ -44,10 +45,11 @@ exports[`should render source file 1`] = `
             style={Object {}}
             to={
               Object {
-                "pathname": "/dashboard",
+                "pathname": "/project/issues",
                 "query": Object {
-                  "branch": "branch",
+                  "branch": "feature",
                   "id": "sub-project-key",
+                  "resolved": "false",
                 },
               }
             }
@@ -402,10 +404,11 @@ exports[`should render source file 2`] = `
           style={Object {}}
           to={
             Object {
-              "pathname": "/dashboard",
+              "pathname": "/project/issues",
               "query": Object {
-                "branch": "branch",
+                "branch": "feature",
                 "id": "project-key",
+                "resolved": "false",
               },
             }
           }
@@ -422,10 +425,11 @@ exports[`should render source file 2`] = `
             style={Object {}}
             to={
               Object {
-                "pathname": "/dashboard",
+                "pathname": "/project/issues",
                 "query": Object {
-                  "branch": "branch",
+                  "branch": "feature",
                   "id": "sub-project-key",
+                  "resolved": "false",
                 },
               }
             }
@@ -1386,10 +1390,11 @@ exports[`should render test file 1`] = `
           style={Object {}}
           to={
             Object {
-              "pathname": "/dashboard",
+              "pathname": "/project/issues",
               "query": Object {
-                "branch": "branch",
+                "branch": "feature",
                 "id": "project-key",
+                "resolved": "false",
               },
             }
           }
@@ -1406,10 +1411,11 @@ exports[`should render test file 1`] = `
             style={Object {}}
             to={
               Object {
-                "pathname": "/dashboard",
+                "pathname": "/project/issues",
                 "query": Object {
-                  "branch": "branch",
+                  "branch": "feature",
                   "id": "sub-project-key",
+                  "resolved": "false",
                 },
               }
             }
@@ -1503,7 +1509,14 @@ exports[`should render test file 1`] = `
           </div>
         </div>
         <MeasuresOverlayTestCases
-          branch="branch"
+          branchLike={
+            Object {
+              "isMain": false,
+              "mergeBranch": "master",
+              "name": "feature",
+              "type": "SHORT",
+            }
+          }
           componentKey="component-key"
         />
       </React.Fragment>
