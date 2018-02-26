@@ -78,9 +78,9 @@ export default class TagFacet extends React.PureComponent {
     );
   };
 
-  handleSelect = (tag /*: string */) => {
+  handleSelect = (option /*: { value: string } */) => {
     const { tags } = this.props;
-    this.props.onChange({ [this.property]: uniq([...tags, tag]) });
+    this.props.onChange({ [this.property]: uniq([...tags, option.value]) });
   };
 
   getStat(tag /*: string */) /*: ?number */ {

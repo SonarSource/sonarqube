@@ -93,6 +93,6 @@ it('should handle footer callbacks', () => {
   const wrapper = renderAssigneeFacet({ assignees: ['foo'], onChange });
   const onSelect = wrapper.find('FacetFooter').prop('onSelect');
 
-  onSelect('qux');
+  onSelect({ value: 'qux' });
   expect(onChange).lastCalledWith({ assigned: true, assignees: ['foo', 'qux'] });
 });

@@ -35,7 +35,7 @@ it('should call onSelect', () => {
   const onSelect = jest.fn();
   const wrapper = shallow(<SearchSelect onSearch={jest.fn()} onSelect={onSelect} />);
   wrapper.prop('onChange')({ value: 'foo' });
-  expect(onSelect).lastCalledWith('foo');
+  expect(onSelect).lastCalledWith({ value: 'foo' });
 });
 
 it('should call onSearch', () => {

@@ -25,7 +25,7 @@ type Option = { label: string; value: string };
 interface Props {
   minimumQueryLength?: number;
   onSearch: (query: string) => Promise<Option[]>;
-  onSelect: (value: string) => void;
+  onSelect: (option: Option) => void;
   renderOption?: (option: Object) => JSX.Element;
 }
 

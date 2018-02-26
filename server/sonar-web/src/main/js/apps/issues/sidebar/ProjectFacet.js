@@ -96,9 +96,9 @@ export default class ProjectFacet extends React.PureComponent {
     );
   };
 
-  handleSelect = (rule /*: string */) => {
+  handleSelect = (option /*: { value: string } */) => {
     const { projects } = this.props;
-    this.props.onChange({ [this.property]: uniq([...projects, rule]) });
+    this.props.onChange({ [this.property]: uniq([...projects, option.value]) });
   };
 
   getStat(project /*: string */) /*: ?number */ {

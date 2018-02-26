@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { debounce } from 'lodash';
-import Select from '../../components/controls/Select';
+import Select, { Creatable } from '../../components/controls/Select';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 
 interface Option {
@@ -29,10 +29,14 @@ interface Option {
 
 interface Props {
   autofocus?: boolean;
+  canCreate?: boolean;
   defaultOptions?: Option[];
   minimumQueryLength?: number;
+  multi?: boolean;
   onSearch: (query: string) => Promise<Option[]>;
-  onSelect: (value: string) => void;
+  onSelect?: (option: Option) => void;
+  onMultiSelect?: (options: Option[]) => void;
+  promptTextCreator?: (label: string) => string;
   renderOption?: (option: Object) => JSX.Element;
   resetOnBlur?: boolean;
   value?: string;
@@ -73,11 +77,16 @@ export default class SearchSelect extends React.PureComponent<Props, State> {
     return this.props.resetOnBlur !== undefined ? this.props.resetOnBlur : true;
   }
 
-  handleSearch = (query: string) =>
-    this.props.onSearch(query).then(
+  handleSearch = (query: string) => {
+    // Ignore the result if the query changed
+    const currentQuery = query;
+    this.props.onSearch(currentQuery).then(
       options => {
         if (this.mounted) {
-          this.setState({ loading: false, options });
+          this.setState(state => ({
+            loading: false,
+            options: state.query === currentQuery ? options : state.options
+          }));
         }
       },
       () => {
@@ -86,16 +95,25 @@ export default class SearchSelect extends React.PureComponent<Props, State> {
         }
       }
     );
+  };
 
-  handleChange = (option: Option) => this.props.onSelect(option.value);
+  handleChange = (option: Option | Option[]) => {
+    if (Array.isArray(option)) {
+      if (this.props.onMultiSelect) {
+        this.props.onMultiSelect(option);
+      }
+    } else if (this.props.onSelect) {
+      this.props.onSelect(option);
+    }
+  };
 
   handleInputChange = (query: string) => {
-    // `onInputChange` is called with an empty string after a user selects a value
-    // in this case we shouldn't reset `options`, because it also resets select value :(
     if (query.length >= this.minimumQueryLength) {
       this.setState({ loading: true, query });
       this.handleSearch(query);
     } else {
+      // `onInputChange` is called with an empty string after a user selects a value
+      // in this case we shouldn't reset `options`, because it also resets select value :(
       const options = (query.length === 0 && this.props.defaultOptions) || [];
       this.setState({ options, query });
     }
@@ -105,13 +123,16 @@ export default class SearchSelect extends React.PureComponent<Props, State> {
   handleFilterOption = () => true;
 
   render() {
+    const Component = this.props.canCreate ? Creatable : Select;
     return (
-      <Select
+      <Component
         autofocus={this.autofocus}
         className="input-super-large"
         clearable={false}
+        escapeClearsValue={false}
         filterOption={this.handleFilterOption}
         isLoading={this.state.loading}
+        multi={this.props.multi}
         noResultsText={
           this.state.query.length < this.minimumQueryLength
             ? translateWithParameters('select2.tooShort', this.minimumQueryLength)
@@ -123,6 +144,7 @@ export default class SearchSelect extends React.PureComponent<Props, State> {
         optionRenderer={this.props.renderOption}
         options={this.state.options}
         placeholder={translate('search_verb')}
+        promptTextCreator={this.props.promptTextCreator}
         searchable={true}
         value={this.props.value}
         valueRenderer={this.props.renderOption}

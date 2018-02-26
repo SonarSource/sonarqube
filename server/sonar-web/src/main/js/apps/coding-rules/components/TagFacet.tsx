@@ -28,12 +28,15 @@ interface Props extends BasicProps {
 }
 
 export default class TagFacet extends React.PureComponent<Props> {
-  handleSearch = (query: string) =>
-    getRuleTags({ organization: this.props.organization, ps: 50, q: query }).then(tags =>
+  handleSearch = (query: string) => {
+    return getRuleTags({ organization: this.props.organization, ps: 50, q: query }).then(tags =>
       tags.map(tag => ({ label: tag, value: tag }))
     );
+  };
 
-  handleSelect = (tag: string) => this.props.onChange({ tags: uniq([...this.props.values, tag]) });
+  handleSelect = (option: { value: string }) => {
+    this.props.onChange({ tags: uniq([...this.props.values, option.value]) });
+  };
 
   renderName = (tag: string) => (
     <>
