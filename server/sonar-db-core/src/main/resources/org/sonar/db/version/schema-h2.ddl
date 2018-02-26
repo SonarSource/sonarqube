@@ -1,5 +1,3 @@
--- noinspection SqlNoDataSourceInspectionForFile
-
 CREATE TABLE "ORGANIZATIONS" (
   "UUID" VARCHAR(40) NOT NULL PRIMARY KEY,
   "KEE" VARCHAR(32) NOT NULL,
