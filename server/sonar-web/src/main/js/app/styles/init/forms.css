@@ -308,7 +308,7 @@ input[type='submit'].button-grey.button-active {
 }
 
 .button-small > svg {
-  padding-top: 2px;
+  margin-top: 2px;
 }
 
 .button-group {
