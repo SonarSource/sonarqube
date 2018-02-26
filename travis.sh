@@ -189,7 +189,7 @@ BUILD)
     mvn org.jacoco:jacoco-maven-plugin:prepare-agent deploy \
         $MAVEN_ARGS \
         -Dsource.skip=true \
-        -Pdeploy-sonarsource
+        -Pdeploy-sonarsource,release
 
     # TODO remove the sonar.pullrequest.github.* settings after sonar-core-plugins 7.1.0.330 is deployed on Next
     mvn sonar:sonar \
