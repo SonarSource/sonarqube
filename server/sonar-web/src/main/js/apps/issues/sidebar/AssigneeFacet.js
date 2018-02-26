@@ -84,9 +84,9 @@ export default class AssigneeFacet extends React.PureComponent {
     return searchAssignees(query, organization);
   };
 
-  handleSelect = (assignee /*: string */) => {
+  handleSelect = (option /*: { value: string } */) => {
     const { assignees } = this.props;
-    this.props.onChange({ assigned: true, [this.property]: uniq([...assignees, assignee]) });
+    this.props.onChange({ assigned: true, [this.property]: uniq([...assignees, option.value]) });
   };
 
   isAssigneeActive(assignee /*: string */) {

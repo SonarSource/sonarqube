@@ -80,9 +80,9 @@ export default class RuleFacet extends React.PureComponent {
     );
   };
 
-  handleSelect = (rule /*: string */) => {
+  handleSelect = (option /*: { value: string } */) => {
     const { rules } = this.props;
-    this.props.onChange({ [this.property]: uniq([...rules, rule]) });
+    this.props.onChange({ [this.property]: uniq([...rules, option.value]) });
   };
 
   getRuleName(rule /*: string */) /*: string */ {

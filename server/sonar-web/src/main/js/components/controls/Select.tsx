@@ -49,7 +49,7 @@ export default function Select({ innerRef, ...props }: WithInnerRef & ReactSelec
   // hide the "x" icon when select is empty
   const clearable = props.clearable ? Boolean(props.value) : false;
   return (
-    <ReactSelectAny {...props} clearable={clearable} clearRenderer={renderInput} ref={innerRef} />
+    <ReactSelectAny {...props} clearRenderer={renderInput} clearable={clearable} ref={innerRef} />
   );
 }
 
