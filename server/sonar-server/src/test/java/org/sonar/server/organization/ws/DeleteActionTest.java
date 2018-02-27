@@ -41,6 +41,8 @@ import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.webhook.WebhookDbTester;
+import org.sonar.db.webhook.WebhookDeliveryDao;
+import org.sonar.db.webhook.WebhookDeliveryDbTester;
 import org.sonar.db.webhook.WebhookDto;
 import org.sonar.server.component.ComponentCleanerService;
 import org.sonar.server.es.EsTester;
@@ -70,6 +72,7 @@ import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.api.resources.Qualifiers.VIEW;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
 import static org.sonar.db.user.UserTesting.newUserDto;
+import static org.sonar.db.webhook.WebhookDbTesting.newDto;
 import static org.sonar.server.organization.ws.OrganizationsWsSupport.PARAM_ORGANIZATION;
 
 public class DeleteActionTest {
@@ -84,7 +87,7 @@ public class DeleteActionTest {
   public ExpectedException expectedException = ExpectedException.none();
 
   private DbClient dbClient = db.getDbClient();
-  private DbSession session = db.getSession();
+  private DbSession dbSession = db.getSession();
   private ResourceTypesRule resourceTypes = new ResourceTypesRule().setRootQualifiers(PROJECT, VIEW, APP).setAllQualifiers(PROJECT, VIEW, APP);
   private ComponentCleanerService componentCleanerService = new ComponentCleanerService(db.getDbClient(), resourceTypes, mock(ProjectIndexers.class));
   private TestOrganizationFlags organizationFlags = TestOrganizationFlags.standalone().setEnabled(true);
@@ -93,6 +96,8 @@ public class DeleteActionTest {
   private UserIndex userIndex = new UserIndex(es.client(), System2.INSTANCE);
   private UserIndexer userIndexer = new UserIndexer(dbClient, es.client());
   private final WebhookDbTester webhookDbTester = db.webhooks();
+  private final WebhookDeliveryDao deliveryDao = dbClient.webhookDeliveryDao();
+  private final WebhookDeliveryDbTester webhookDeliveryDbTester = db.webhookDelivery();
   private WsActionTester wsTester = new WsActionTester(
     new DeleteAction(userSession, dbClient, defaultOrganizationProvider, componentCleanerService, organizationFlags, userIndexer, qProfileFactory));
 
@@ -120,7 +125,9 @@ public class DeleteActionTest {
     OrganizationDto organization = db.organizations().insert();
     webhookDbTester.insertWebhook(organization);
     webhookDbTester.insertWebhook(organization);
-    webhookDbTester.insertWebhook(organization);
+    WebhookDto dto = webhookDbTester.insertWebhook(organization);
+    webhookDeliveryDbTester.insert(newDto().setWebhookUuid(dto.getUuid()));
+    webhookDeliveryDbTester.insert(newDto().setWebhookUuid(dto.getUuid()));
 
     userSession.logIn().addPermission(ADMINISTER, organization);
 
@@ -128,15 +135,19 @@ public class DeleteActionTest {
       .setParam(PARAM_ORGANIZATION, organization.getKey())
       .execute();
 
-    List<WebhookDto> webhookDtos = dbClient.webhookDao().selectByOrganization(session, organization);
+    List<WebhookDto> webhookDtos = dbClient.webhookDao().selectByOrganization(dbSession, organization);
     assertThat(webhookDtos).isEmpty();
+
+    int deliveriesCount = deliveryDao.countDeliveriesByWebhookUuid(dbSession, dto.getUuid());
+    assertThat(deliveriesCount).isEqualTo(0);
+
   }
 
   @Test
   public void organization_deletion_also_ensure_that_homepage_on_this_organization_if_it_exists_is_cleared() {
     OrganizationDto organization = db.organizations().insert();
-    UserDto user = dbClient.userDao().insert(session, newUserDto().setHomepageType("ORGANIZATION").setHomepageParameter(organization.getUuid()));
-    session.commit();
+    UserDto user = dbClient.userDao().insert(dbSession, newUserDto().setHomepageType("ORGANIZATION").setHomepageParameter(organization.getUuid()));
+    dbSession.commit();
 
     userSession.logIn().addPermission(ADMINISTER, organization);
 
@@ -144,7 +155,7 @@ public class DeleteActionTest {
       .setParam(PARAM_ORGANIZATION, organization.getKey())
       .execute();
 
-    UserDto userReloaded = dbClient.userDao().selectUserById(session, user.getId());
+    UserDto userReloaded = dbClient.userDao().selectUserById(dbSession, user.getId());
     assertThat(userReloaded.getHomepageType()).isNull();
     assertThat(userReloaded.getHomepageParameter()).isNull();
   }
@@ -153,9 +164,9 @@ public class DeleteActionTest {
   public void organization_deletion_also_ensure_that_homepage_on_project_belonging_to_this_organization_if_it_exists_is_cleared() {
     OrganizationDto organization = db.organizations().insert();
     ComponentDto project = db.components().insertPrivateProject(organization);
-    UserDto user = dbClient.userDao().insert(session,
+    UserDto user = dbClient.userDao().insert(dbSession,
       newUserDto().setHomepageType("PROJECT").setHomepageParameter(project.uuid()));
-    session.commit();
+    dbSession.commit();
 
     userSession.logIn().addPermission(ADMINISTER, organization);
 
@@ -163,7 +174,7 @@ public class DeleteActionTest {
       .setParam(PARAM_ORGANIZATION, organization.getKey())
       .execute();
 
-    UserDto userReloaded = dbClient.userDao().selectUserById(session, user.getId());
+    UserDto userReloaded = dbClient.userDao().selectUserById(dbSession, user.getId());
     assertThat(userReloaded.getHomepageType()).isNull();
     assertThat(userReloaded.getHomepageParameter()).isNull();
   }
@@ -351,12 +362,12 @@ public class DeleteActionTest {
     sendRequest(org);
 
     verifyOrganizationDoesNotExist(org);
-    assertThat(dbClient.groupDao().selectByIds(session, of(group1.getId(), otherGroup1.getId(), group2.getId(), otherGroup2.getId())))
+    assertThat(dbClient.groupDao().selectByIds(dbSession, of(group1.getId(), otherGroup1.getId(), group2.getId(), otherGroup2.getId())))
       .extracting(GroupDto::getId)
       .containsOnly(otherGroup1.getId(), otherGroup2.getId());
-    assertThat(dbClient.permissionTemplateDao().selectByUuid(session, templateDto.getUuid()))
+    assertThat(dbClient.permissionTemplateDao().selectByUuid(dbSession, templateDto.getUuid()))
       .isNull();
-    assertThat(dbClient.permissionTemplateDao().selectByUuid(session, otherTemplateDto.getUuid()))
+    assertThat(dbClient.permissionTemplateDao().selectByUuid(dbSession, otherTemplateDto.getUuid()))
       .isNotNull();
     assertThat(db.select("select role as \"role\" from USER_ROLES"))
       .extracting(row -> (String) row.get("role"))
@@ -433,7 +444,7 @@ public class DeleteActionTest {
   }
 
   private void verifyOrganizationDoesNotExist(OrganizationDto organization) {
-    assertThat(db.getDbClient().organizationDao().selectByKey(session, organization.getKey())).isEmpty();
+    assertThat(db.getDbClient().organizationDao().selectByKey(dbSession, organization.getKey())).isEmpty();
   }
 
   private void sendRequest(OrganizationDto organization) {

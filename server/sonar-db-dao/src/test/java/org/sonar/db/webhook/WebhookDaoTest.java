@@ -34,7 +34,6 @@ import org.sonar.db.organization.OrganizationDbTester;
 import org.sonar.db.organization.OrganizationDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.db.webhook.WebhookDbTesting.newDto;
 
 public class WebhookDaoTest {
 
@@ -49,7 +48,6 @@ public class WebhookDaoTest {
   private final DbClient dbClient = dbTester.getDbClient();
   private final DbSession dbSession = dbTester.getSession();
   private final WebhookDao underTest = dbClient.webhookDao();
-  private final WebhookDeliveryDao deliveryDao = dbClient.webhookDeliveryDao();
   private final WebhookDbTester webhookDbTester = dbTester.webhooks();
   private final WebhookDeliveryDbTester webhookDeliveryDbTester = dbTester.webhookDelivery();
   private final ComponentDbTester componentDbTester = dbTester.components();
@@ -166,59 +164,6 @@ public class WebhookDaoTest {
     assertThat(reloaded).isEmpty();
   }
 
-  @Test
-  public void ensure_deliveries_are_deleted_when_a_webhook_is_deleted_by_uuid() {
-
-    OrganizationDto organization = organizationDbTester.insert();
-
-    WebhookDto dto = webhookDbTester.insertWebhook(organization);
-    webhookDeliveryDbTester.insert(newDto().setWebhookUuid(dto.getUuid()));
-    webhookDeliveryDbTester.insert(newDto().setWebhookUuid(dto.getUuid()));
-
-    underTest.delete(dbSession, dto.getUuid());
-
-    Optional<WebhookDto> reloaded = underTest.selectByUuid(dbSession, dto.getUuid());
-    assertThat(reloaded).isEmpty();
-
-    int deliveriesCount = deliveryDao.countDeliveriesByWebhookUuid(dbSession, dto.getUuid());
-    assertThat(deliveriesCount).isEqualTo(0);
-  }
-
-  @Test
-  public void ensure_deliveries_are_deleted_when_a_webhooks_are_deleted_by_organization() {
-
-    OrganizationDto organization = organizationDbTester.insert();
-
-    WebhookDto dto = webhookDbTester.insertWebhook(organization);
-    webhookDeliveryDbTester.insert(newDto().setWebhookUuid(dto.getUuid()));
-    webhookDeliveryDbTester.insert(newDto().setWebhookUuid(dto.getUuid()));
-
-    underTest.deleteByOrganization(dbSession, organization);
-
-    Optional<WebhookDto> reloaded = underTest.selectByUuid(dbSession, dto.getUuid());
-    assertThat(reloaded).isEmpty();
-
-    int deliveriesCount = deliveryDao.countDeliveriesByWebhookUuid(dbSession, dto.getUuid());
-    assertThat(deliveriesCount).isEqualTo(0);
-  }
-
-  @Test
-  public void ensure_deliveries_are_deleted_when_a_webhooks_are_deleted_by_project() {
-
-    OrganizationDto organization = organizationDbTester.insert();
-    ComponentDto componentDto = componentDbTester.insertPrivateProject(organization);
-    WebhookDto dto = webhookDbTester.insertWebhook(componentDto);
-    webhookDeliveryDbTester.insert(newDto().setWebhookUuid(dto.getUuid()));
-    webhookDeliveryDbTester.insert(newDto().setWebhookUuid(dto.getUuid()));
-
-    underTest.deleteByProject(dbSession, componentDto);
-
-    Optional<WebhookDto> reloaded = underTest.selectByUuid(dbSession, dto.getUuid());
-    assertThat(reloaded).isEmpty();
-
-    int deliveriesCount = deliveryDao.countDeliveriesByWebhookUuid(dbSession, dto.getUuid());
-    assertThat(deliveriesCount).isEqualTo(0);
-  }
 
   @Test
   public void fail_if_webhook_does_not_have_an_organization_nor_a_project() {

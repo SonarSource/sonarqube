@@ -19,7 +19,6 @@
  */
 package org.sonar.db.webhook;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import org.sonar.api.utils.System2;
@@ -29,16 +28,13 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
 
 import static com.google.common.base.Preconditions.checkState;
-import static java.util.Collections.emptyList;
 
 public class WebhookDao implements Dao {
 
   private final System2 system2;
-  private final WebhookDeliveryDao webhookDeliveryDao;
 
-  public WebhookDao(System2 system2, WebhookDeliveryDao webhookDeliveryDao) {
+  public WebhookDao(System2 system2) {
     this.system2 = system2;
-    this.webhookDeliveryDao = webhookDeliveryDao;
   }
 
   public Optional<WebhookDto> selectByUuid(DbSession dbSession, String uuid) {
@@ -70,23 +66,15 @@ public class WebhookDao implements Dao {
   }
 
   public void delete(DbSession dbSession, String uuid) {
-    Optional<WebhookDto> webhookDto = selectByUuid(dbSession, uuid);
-    cascadeDeletionToDeliveries(dbSession, webhookDto.map(Collections::singletonList).orElse(emptyList()));
     mapper(dbSession).delete(uuid);
   }
 
   public void deleteByOrganization(DbSession dbSession, OrganizationDto organization) {
-    cascadeDeletionToDeliveries(dbSession, selectByOrganizationUuid(dbSession, organization.getUuid()));
     mapper(dbSession).deleteForOrganizationUuid(organization.getUuid());
   }
 
   public void deleteByProject(DbSession dbSession, ComponentDto componentDto) {
-    cascadeDeletionToDeliveries(dbSession, selectByProject(dbSession, componentDto));
     mapper(dbSession).deleteForProjectUuid(componentDto.uuid());
-  }
-
-  private void cascadeDeletionToDeliveries(DbSession dbSession, List<WebhookDto> webhooks) {
-    webhooks.forEach(wh -> webhookDeliveryDao.deleteByWebhook(dbSession, wh));
   }
 
   private static WebhookMapper mapper(DbSession dbSession) {

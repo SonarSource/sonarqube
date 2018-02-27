@@ -62,6 +62,8 @@ public class ComponentCleanerService {
     checkArgument(!hasNotProjectScope(project) && !isNotDeletable(project) && project.getMainBranchProjectUuid() == null, "Only projects can be deleted");
     dbClient.purgeDao().deleteProject(dbSession, project.uuid());
     dbClient.userDao().cleanHomepage(dbSession, project);
+    dbClient.webhookDao().selectByProject(dbSession, project)
+      .forEach(wh -> dbClient.webhookDeliveryDao().deleteByWebhook(dbSession, wh));
     dbClient.webhookDao().deleteByProject(dbSession, project);
     projectIndexers.commitAndIndex(dbSession, singletonList(project), ProjectIndexer.Cause.PROJECT_DELETION);
   }
