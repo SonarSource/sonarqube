@@ -44,4 +44,6 @@ public interface WebhookDeliveryMapper {
   void insert(WebhookDeliveryDto dto);
 
   void deleteComponentBeforeDate(@Param("componentUuid") String componentUuid, @Param("beforeDate") long beforeDate);
+
+  void deleteByWebhookUuid(@Param("webhookUuid") String webhookUuid);
 }

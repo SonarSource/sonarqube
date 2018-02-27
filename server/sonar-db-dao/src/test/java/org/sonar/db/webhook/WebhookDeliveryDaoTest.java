@@ -164,8 +164,8 @@ public class WebhookDeliveryDaoTest {
   @Test
   public void insert_row_with_only_mandatory_columns() {
     WebhookDeliveryDto dto = WebhookDbTesting.newDto("DELIVERY_1", "WEBHOOK_UUID_1", "COMPONENT_1", "TASK_1")
+      .setDurationMs(1000)
       .setHttpStatus(null)
-      .setDurationMs(null)
       .setErrorStacktrace(null);
 
     underTest.insert(dbSession, dto);
@@ -173,9 +173,10 @@ public class WebhookDeliveryDaoTest {
     WebhookDeliveryDto stored = selectByUuid(dto.getUuid());
     verifyMandatoryFields(dto, stored);
 
+    assertThat(stored.getDurationMs()).isEqualTo(1000);
+
     // optional fields are null
     assertThat(stored.getHttpStatus()).isNull();
-    assertThat(stored.getDurationMs()).isNull();
     assertThat(stored.getErrorStacktrace()).isNull();
   }
 
@@ -192,6 +193,19 @@ public class WebhookDeliveryDaoTest {
     assertThat(stored.getDurationMs()).isEqualTo(dto.getDurationMs());
     assertThat(stored.getErrorStacktrace()).isEqualTo(dto.getErrorStacktrace());
   }
+
+  @Test
+  public void deleteByWebhook() {
+
+    WebhookDto webhookDto = dbWebhooks.insert(WebhookTesting.newProjectWebhook("COMPONENT_1"));
+
+    underTest.insert(dbSession, WebhookDbTesting.newDto("DELIVERY_1", webhookDto.getUuid(), "COMPONENT_1", "TASK_1").setCreatedAt(1_000_000L));
+    underTest.insert(dbSession, WebhookDbTesting.newDto("DELIVERY_2", webhookDto.getUuid(), "COMPONENT_1", "TASK_2").setCreatedAt(2_000_000L));
+    underTest.insert(dbSession, WebhookDbTesting.newDto("DELIVERY_3", "WONT BE DELETED WEBHOOK_UUID_2", "COMPONENT_2", "TASK_3").setCreatedAt(1_000_000L));
+
+    underTest.deleteByWebhook(dbSession, webhookDto);
+
+    assertThat(dbTester.countRowsOfTable(dbSession, "webhook_deliveries")).isEqualTo(1);  }
 
   @Test
   public void deleteComponentBeforeDate_deletes_rows_before_date() {
