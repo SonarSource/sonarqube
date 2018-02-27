@@ -59,7 +59,6 @@ import org.sonar.ce.taskprocessor.CeProcessingScheduler;
 import org.sonar.ce.taskprocessor.CeTaskProcessorModule;
 import org.sonar.ce.user.CeUserSession;
 import org.sonar.core.component.DefaultResourceTypes;
-import org.sonar.server.config.ConfigurationProvider;
 import org.sonar.core.config.CorePropertyDefinitions;
 import org.sonar.core.i18n.DefaultI18n;
 import org.sonar.core.i18n.RuleI18nManager;
@@ -79,11 +78,15 @@ import org.sonar.process.NetworkUtilsImpl;
 import org.sonar.process.Props;
 import org.sonar.process.logging.LogbackHelper;
 import org.sonar.server.component.ComponentFinder;
+import org.sonar.server.component.ComponentUpdater;
 import org.sonar.server.component.index.ComponentIndexer;
 import org.sonar.server.computation.task.projectanalysis.ProjectAnalysisTaskModule;
+import org.sonar.server.config.ConfigurationProvider;
 import org.sonar.server.debt.DebtModelPluginRepository;
 import org.sonar.server.debt.DebtRulesXMLImporter;
+import org.sonar.server.es.ProjectIndexersImpl;
 import org.sonar.server.event.NewAlerts;
+import org.sonar.server.favorite.FavoriteUpdater;
 import org.sonar.server.issue.IssueFieldsSetter;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.issue.index.IssueIndexer;
@@ -363,7 +366,10 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
       UserPermissionChanger.class,
       GroupPermissionChanger.class,
 
-      // components
+      // components,
+      FavoriteUpdater.class,
+      ProjectIndexersImpl.class,
+      ComponentUpdater.class,
       ComponentFinder.class, // used in ComponentService
       NewAlerts.class,
       NewAlerts.newMetadata(),
