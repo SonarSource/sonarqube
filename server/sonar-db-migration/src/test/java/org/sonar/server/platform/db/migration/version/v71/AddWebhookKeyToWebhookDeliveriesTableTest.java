@@ -25,7 +25,13 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.db.CoreDbTester;
 
+import static java.lang.String.valueOf;
+import static java.sql.Types.BIGINT;
 import static java.sql.Types.VARCHAR;
+import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang.RandomStringUtils.randomNumeric;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.CoreDbTester.createForSchema;
 
 public class AddWebhookKeyToWebhookDeliveriesTableTest {
@@ -38,10 +44,28 @@ public class AddWebhookKeyToWebhookDeliveriesTableTest {
   private AddWebhookKeyToWebhookDeliveriesTable underTest = new AddWebhookKeyToWebhookDeliveriesTable(dbTester.database());
 
   @Test
-  public void column_is_added_to_table() throws SQLException {
+  public void table_has_been_truncated() throws SQLException {
+
+    insertDelivery();
+
     underTest.execute();
 
-    dbTester.assertColumnDefinition("webhook_deliveries", "webhook_uuid", VARCHAR, 40, true);
+    int count = dbTester.countRowsOfTable("webhook_deliveries");
+    assertThat(count).isEqualTo(0);
+  }
+
+  @Test
+  public void column_webhook_uuid_has_been_added_to_table() throws SQLException {
+    underTest.execute();
+
+    dbTester.assertColumnDefinition("webhook_deliveries", "webhook_uuid", VARCHAR, 40, false);
+  }
+
+  @Test
+  public void column_duration_ms_is_now_not_nullable() throws SQLException {
+    underTest.execute();
+
+    dbTester.assertColumnDefinition("webhook_deliveries", "duration_ms", BIGINT, null, false);
   }
 
   @Test
@@ -52,4 +76,18 @@ public class AddWebhookKeyToWebhookDeliveriesTableTest {
 
     underTest.execute();
   }
+
+  private void insertDelivery() {
+    dbTester.executeInsert("webhook_deliveries",
+      "uuid", randomAlphanumeric(40),
+//      "webhook_uuid", randomAlphanumeric(40),
+      "component_uuid", randomAlphanumeric(40),
+      "name", randomAlphabetic(60),
+      "url", randomAlphabetic(200),
+      "success", true,
+      "duration_ms", randomNumeric(7),
+      "payload", randomAlphanumeric(1000),
+      "created_at", valueOf(1_55555_555));
+  }
+
 }

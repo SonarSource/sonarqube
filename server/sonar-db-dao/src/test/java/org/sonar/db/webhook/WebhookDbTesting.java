@@ -50,6 +50,7 @@ public class WebhookDbTesting {
   public static WebhookDeliveryDto newDto() {
     return new WebhookDeliveryDto()
       .setUuid(randomAlphanumeric(40))
+      .setWebhookUuid(randomAlphanumeric(40))
       .setComponentUuid(randomAlphanumeric(40))
       .setCeTaskUuid(randomAlphanumeric(40))
       .setAnalysisUuid(randomAlphanumeric(40))

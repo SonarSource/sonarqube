@@ -524,8 +524,8 @@ public class PurgeDaoTest {
   @Test
   public void deleteProject_deletes_webhook_deliveries() {
     ComponentDto project = dbTester.components().insertPublicProject();
-    dbClient.webhookDeliveryDao().insert(dbSession, newDto().setComponentUuid(project.uuid()).setUuid("D1"));
-    dbClient.webhookDeliveryDao().insert(dbSession, newDto().setComponentUuid("P2").setUuid("D2"));
+    dbClient.webhookDeliveryDao().insert(dbSession, newDto().setComponentUuid(project.uuid()).setUuid("D1").setDurationMs(1000).setWebhookUuid("webhook-uuid"));
+    dbClient.webhookDeliveryDao().insert(dbSession, newDto().setComponentUuid("P2").setUuid("D2").setDurationMs(1000).setWebhookUuid("webhook-uuid"));
 
     underTest.deleteProject(dbSession, project.uuid());
 

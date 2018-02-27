@@ -100,6 +100,11 @@
     )
   </insert>
 
+  <select id="deleteByWebhookUuid" parameterType="String">
+    delete from webhook_deliveries
+    where webhook_uuid = #{webhookUuid,jdbcType=VARCHAR}
+  </select>
+
   <delete id="deleteComponentBeforeDate" parameterType="map">
     delete from webhook_deliveries
     where

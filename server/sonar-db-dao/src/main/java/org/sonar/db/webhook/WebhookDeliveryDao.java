@@ -85,4 +85,8 @@ public class WebhookDeliveryDao implements Dao {
   private static WebhookDeliveryMapper mapper(DbSession dbSession) {
     return dbSession.getMapper(WebhookDeliveryMapper.class);
   }
+
+  public void deleteByWebhook(DbSession dbSession, WebhookDto webhook) {
+    mapper(dbSession).deleteByWebhookUuid(webhook.getUuid());
+  }
 }

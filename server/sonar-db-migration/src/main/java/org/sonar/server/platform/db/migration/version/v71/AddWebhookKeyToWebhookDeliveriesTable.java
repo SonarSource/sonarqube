@@ -22,8 +22,10 @@ package org.sonar.server.platform.db.migration.version.v71;
 import java.sql.SQLException;
 import org.sonar.db.Database;
 import org.sonar.server.platform.db.migration.sql.AddColumnsBuilder;
+import org.sonar.server.platform.db.migration.sql.AlterColumnsBuilder;
 import org.sonar.server.platform.db.migration.step.DdlChange;
 
+import static org.sonar.server.platform.db.migration.def.BigIntegerColumnDef.newBigIntegerColumnDefBuilder;
 import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.newVarcharColumnDefBuilder;
 
 public class AddWebhookKeyToWebhookDeliveriesTable extends DdlChange {
@@ -34,11 +36,21 @@ public class AddWebhookKeyToWebhookDeliveriesTable extends DdlChange {
 
   @Override
   public void execute(Context context) throws SQLException {
+
+    context.execute("delete from webhook_deliveries");
+
     context.execute(new AddColumnsBuilder(getDialect(), "webhook_deliveries")
       .addColumn(newVarcharColumnDefBuilder()
         .setColumnName("webhook_uuid")
-        .setIsNullable(true)
+        .setIsNullable(false)
         .setLimit(40)
+        .build())
+      .build());
+
+    context.execute(new AlterColumnsBuilder(getDialect(), "webhook_deliveries")
+      .updateColumn(newBigIntegerColumnDefBuilder()
+        .setColumnName("duration_ms")
+        .setIsNullable(false)
         .build())
       .build());
   }
