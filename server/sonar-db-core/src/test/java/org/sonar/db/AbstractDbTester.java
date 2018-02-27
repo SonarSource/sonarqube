@@ -146,7 +146,7 @@ public class AbstractDbTester<T extends CoreTestDb> extends ExternalResource {
       COMMA_JOINER.join(valuesByColumn.keySet()) +
       ") values (" +
       COMMA_JOINER.join(Collections.nCopies(valuesByColumn.size(), '?')) +
-      ")";
+      ')';
     executeUpdateSql(sql, valuesByColumn.values().toArray(new Object[valuesByColumn.size()]));
   }
 
@@ -254,7 +254,7 @@ public class AbstractDbTester<T extends CoreTestDb> extends ExternalResource {
     InputStream[] streams = new InputStream[testNames.length];
     try {
       for (int i = 0; i < testNames.length; i++) {
-        String path = "/" + testClass.getName().replace('.', '/') + "/" + testNames[i];
+        String path = '/' + testClass.getName().replace('.', '/') + '/' + testNames[i];
         streams[i] = testClass.getResourceAsStream(path);
         if (streams[i] == null) {
           throw new IllegalStateException("DbUnit file not found: " + path);
@@ -293,7 +293,7 @@ public class AbstractDbTester<T extends CoreTestDb> extends ExternalResource {
     IDatabaseConnection connection = dbUnitConnection();
     try {
       IDataSet dataSet = connection.createDataSet();
-      String path = "/" + testClass.getName().replace('.', '/') + "/" + filename;
+      String path = '/' + testClass.getName().replace('.', '/') + '/' + filename;
       IDataSet expectedDataSet = dbUnitDataSet(testClass.getResourceAsStream(path));
       ITable filteredTable = DefaultColumnFilter.includedColumnsTable(dataSet.getTable(table), columns);
       ITable filteredExpectedTable = DefaultColumnFilter.includedColumnsTable(expectedDataSet.getTable(table), columns);
@@ -317,7 +317,7 @@ public class AbstractDbTester<T extends CoreTestDb> extends ExternalResource {
       connection = dbUnitConnection();
 
       IDataSet dataSet = connection.createDataSet();
-      String path = "/" + testClass.getName().replace('.', '/') + "/" + filename;
+      String path = '/' + testClass.getName().replace('.', '/') + '/' + filename;
       InputStream inputStream = testClass.getResourceAsStream(path);
       if (inputStream == null) {
         throw new IllegalStateException(String.format("File '%s' does not exist", path));

@@ -36,7 +36,7 @@ public class CoreDbTester extends AbstractDbTester<CoreTestDb> {
 
   public static CoreDbTester createForSchema(Class testClass, String filename) {
     String path = StringUtils.replaceChars(testClass.getCanonicalName(), '.', '/');
-    String schemaPath = path + "/" + filename;
+    String schemaPath = path + '/' + filename;
     return new CoreDbTester(schemaPath);
   }
 
