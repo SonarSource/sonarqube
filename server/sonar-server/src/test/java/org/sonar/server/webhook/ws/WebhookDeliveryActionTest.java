@@ -129,7 +129,6 @@ public class WebhookDeliveryActionTest {
       .setComponentUuid(project.uuid())
       .setSuccess(false)
       .setHttpStatus(null)
-      .setDurationMs(null)
       .setErrorStacktrace("IOException -> can not connect");
     dbClient.webhookDeliveryDao().insert(db.getSession(), dto);
     db.commit();
@@ -141,7 +140,6 @@ public class WebhookDeliveryActionTest {
 
     Webhooks.Delivery actual = response.getDelivery();
     assertThat(actual.hasHttpStatus()).isFalse();
-    assertThat(actual.hasDurationMs()).isFalse();
     assertThat(actual.getErrorStacktrace()).isEqualTo(dto.getErrorStacktrace());
   }
 
@@ -151,7 +149,6 @@ public class WebhookDeliveryActionTest {
       .setComponentUuid(project.uuid())
       .setCeTaskUuid(null)
       .setHttpStatus(null)
-      .setDurationMs(null)
       .setErrorStacktrace(null)
       .setAnalysisUuid(null);
     dbClient.webhookDeliveryDao().insert(db.getSession(), dto);
@@ -164,7 +161,6 @@ public class WebhookDeliveryActionTest {
 
     Webhooks.Delivery actual = response.getDelivery();
     assertThat(actual.hasHttpStatus()).isFalse();
-    assertThat(actual.hasDurationMs()).isFalse();
     assertThat(actual.hasErrorStacktrace()).isFalse();
     assertThat(actual.hasCeTaskId()).isFalse();
   }
