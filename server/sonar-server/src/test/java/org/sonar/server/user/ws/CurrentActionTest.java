@@ -29,6 +29,8 @@ import org.sonar.core.platform.PluginRepository;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.organization.OrganizationDbTester;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.issue.ws.AvatarResolverImpl;
 import org.sonar.server.organization.DefaultOrganizationProvider;
@@ -42,6 +44,7 @@ import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
 import static org.sonar.db.permission.OrganizationPermission.PROVISION_PROJECTS;
@@ -59,6 +62,7 @@ public class CurrentActionTest {
 
   private DbClient dbClient = db.getDbClient();
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
+  private OrganizationDbTester organizationDbTester = db.organizations();
 
   private PluginRepository pluginRepository = mock(PluginRepository.class);
   private MapSettings settings = new MapSettings();
@@ -184,7 +188,7 @@ public class CurrentActionTest {
     withGovernancePlugin();
     ComponentDto portfolio = db.components().insertPrivatePortfolio(db.getDefaultOrganization());
     UserDto user = db.users().insertUser(u -> u.setHomepageType("PORTFOLIO").setHomepageParameter(portfolio.uuid()));
-    userSessionRule.logIn(user);
+    userSessionRule.logIn(user).addProjectPermission(USER, portfolio);
 
     CurrentWsResponse response = call();
 
@@ -194,11 +198,25 @@ public class CurrentActionTest {
   }
 
   @Test
+  public void return_default_when_set_to_a_portfolio_but_no_rights_on_this_portfolio() {
+    withGovernancePlugin();
+    ComponentDto portfolio = db.components().insertPrivatePortfolio(db.getDefaultOrganization());
+    UserDto user = db.users().insertUser(u -> u.setHomepageType("PORTFOLIO").setHomepageParameter(portfolio.uuid()));
+    userSessionRule.logIn(user);
+
+    CurrentWsResponse response = call();
+
+    assertThat(response.getHomepage())
+      .extracting(CurrentWsResponse.Homepage::getType)
+      .containsExactly(CurrentWsResponse.HomepageType.PROJECTS);
+  }
+
+  @Test
   public void return_homepage_when_set_to_an_application() {
     withGovernancePlugin();
     ComponentDto application = db.components().insertPrivateApplication(db.getDefaultOrganization());
     UserDto user = db.users().insertUser(u -> u.setHomepageType("APPLICATION").setHomepageParameter(application.uuid()));
-    userSessionRule.logIn(user);
+    userSessionRule.logIn(user).addProjectPermission(USER, application);
 
     CurrentWsResponse response = call();
 
@@ -208,10 +226,24 @@ public class CurrentActionTest {
   }
 
   @Test
+  public void return_default_homepage_when_set_to_an_application_but_no_rights_on_this_application() {
+    withGovernancePlugin();
+    ComponentDto application = db.components().insertPrivateApplication(db.getDefaultOrganization());
+    UserDto user = db.users().insertUser(u -> u.setHomepageType("APPLICATION").setHomepageParameter(application.uuid()));
+    userSessionRule.logIn(user);
+
+    CurrentWsResponse response = call();
+
+    assertThat(response.getHomepage())
+      .extracting(CurrentWsResponse.Homepage::getType)
+      .containsExactly(CurrentWsResponse.HomepageType.PROJECTS);
+  }
+
+  @Test
   public void return_homepage_when_set_to_a_project() {
     ComponentDto project = db.components().insertPrivateProject();
     UserDto user = db.users().insertUser(u -> u.setHomepageType("PROJECT").setHomepageParameter(project.uuid()));
-    userSessionRule.logIn(user);
+    userSessionRule.logIn(user).addProjectPermission(USER, project);
 
     CurrentWsResponse response = call();
 
@@ -221,11 +253,38 @@ public class CurrentActionTest {
   }
 
   @Test
+  public void return_default_homepage_when_set_to_a_project_but_no_rights_on_this_project() {
+    ComponentDto project = db.components().insertPrivateProject();
+    UserDto user = db.users().insertUser(u -> u.setHomepageType("PROJECT").setHomepageParameter(project.uuid()));
+    userSessionRule.logIn(user);
+
+    CurrentWsResponse response = call();
+
+    assertThat(response.getHomepage())
+      .extracting(CurrentWsResponse.Homepage::getType)
+      .containsExactly(CurrentWsResponse.HomepageType.PROJECTS);
+  }
+
+  @Test
+  public void return_homepage_when_set_to_an_organization() {
+
+    OrganizationDto organizationDto = organizationDbTester.insert();
+    UserDto user = db.users().insertUser(u -> u.setHomepageType("ORGANIZATION").setHomepageParameter(organizationDto.getUuid()));
+    userSessionRule.logIn(user);
+
+    CurrentWsResponse response = call();
+
+    assertThat(response.getHomepage())
+      .extracting(CurrentWsResponse.Homepage::getType, CurrentWsResponse.Homepage::getOrganization)
+      .containsExactly(CurrentWsResponse.HomepageType.ORGANIZATION, organizationDto.getKey());
+  }
+
+  @Test
   public void return_homepage_when_set_to_a_branch() {
     ComponentDto project = db.components().insertMainBranch();
     ComponentDto branch = db.components().insertProjectBranch(project);
     UserDto user = db.users().insertUser(u -> u.setHomepageType("PROJECT").setHomepageParameter(branch.uuid()));
-    userSessionRule.logIn(user);
+    userSessionRule.logIn(user).addProjectPermission(USER, project);
 
     CurrentWsResponse response = call();
 
@@ -266,10 +325,12 @@ public class CurrentActionTest {
 
   @Test
   public void json_example() {
+    ComponentDto componentDto = db.components().insertPrivateProject(u -> u.setUuid("UUID-of-the-death-star"), u -> u.setDbKey("death-star-key"));
     userSessionRule
       .logIn("obiwan.kenobi")
       .addPermission(SCAN, db.getDefaultOrganization())
-      .addPermission(ADMINISTER_QUALITY_PROFILES, db.getDefaultOrganization());
+      .addPermission(ADMINISTER_QUALITY_PROFILES, db.getDefaultOrganization())
+      .addProjectPermission(USER, componentDto);
     UserDto obiwan = db.users().insertUser(user -> user
       .setLogin("obiwan.kenobi")
       .setName("Obiwan Kenobi")
@@ -284,7 +345,6 @@ public class CurrentActionTest {
     db.users().insertMember(db.users().insertGroup(newGroupDto().setName("Jedi")), obiwan);
     db.users().insertMember(db.users().insertGroup(newGroupDto().setName("Rebel")), obiwan);
 
-    db.components().insertPublicProject(u -> u.setUuid("UUID-of-the-death-star"), u -> u.setDbKey("death-star-key"));
 
     String response = ws.newRequest().execute().getInput();
 
