@@ -46,6 +46,7 @@ import static java.util.Optional.of;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang.StringUtils.EMPTY;
+import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.Users.CurrentWsResponse.Permissions;
@@ -164,7 +165,7 @@ public class CurrentAction implements UsersWsAction {
 
   private Optional<CurrentWsResponse.Homepage> projectHomepage(DbSession dbSession, UserDto user) {
     Optional<ComponentDto> projectOptional = ofNullable(dbClient.componentDao().selectByUuid(dbSession, of(user.getHomepageParameter()).orElse(EMPTY)).orNull());
-    if (!projectOptional.isPresent()) {
+    if (shouldCleanProjectHomepage(projectOptional)) {
       cleanUserHomepageInDb(dbSession, user);
       return empty();
     }
@@ -176,9 +177,13 @@ public class CurrentAction implements UsersWsAction {
     return of(homepage.build());
   }
 
+  private boolean shouldCleanProjectHomepage(Optional<ComponentDto> projectOptional) {
+    return !projectOptional.isPresent() || !userSession.hasComponentPermission(USER, projectOptional.get());
+  }
+
   private Optional<CurrentWsResponse.Homepage> applicationAndPortfolioHomepage(DbSession dbSession, UserDto user) {
     Optional<ComponentDto> componentOptional = ofNullable(dbClient.componentDao().selectByUuid(dbSession, of(user.getHomepageParameter()).orElse(EMPTY)).orNull());
-    if (!componentOptional.isPresent() || !pluginRepository.hasPlugin(GOVERNANCE_PLUGIN_KEY)) {
+    if (shouldCleanApplicationOrPortfolioHomepage(componentOptional)) {
       cleanUserHomepageInDb(dbSession, user);
       return empty();
     }
@@ -187,6 +192,11 @@ public class CurrentAction implements UsersWsAction {
       .setType(CurrentWsResponse.HomepageType.valueOf(user.getHomepageType()))
       .setComponent(componentOptional.get().getKey())
       .build());
+  }
+
+  private boolean shouldCleanApplicationOrPortfolioHomepage(Optional<ComponentDto> componentOptional) {
+    return !componentOptional.isPresent() || !pluginRepository.hasPlugin(GOVERNANCE_PLUGIN_KEY)
+      || !userSession.hasComponentPermission(USER, componentOptional.get());
   }
 
   private Optional<CurrentWsResponse.Homepage> organizationHomepage(DbSession dbSession, UserDto user) {
