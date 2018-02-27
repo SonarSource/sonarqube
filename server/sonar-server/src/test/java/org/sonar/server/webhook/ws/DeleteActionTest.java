@@ -25,12 +25,15 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDbTester;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.webhook.WebhookDbTester;
+import org.sonar.db.webhook.WebhookDeliveryDao;
+import org.sonar.db.webhook.WebhookDeliveryDbTester;
 import org.sonar.db.webhook.WebhookDto;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -47,6 +50,7 @@ import static org.junit.rules.ExpectedException.none;
 import static org.sonar.api.web.UserRole.ADMIN;
 import static org.sonar.db.DbTester.create;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
+import static org.sonar.db.webhook.WebhookDbTesting.newDto;
 import static org.sonar.server.organization.TestDefaultOrganizationProvider.from;
 import static org.sonar.server.tester.UserSessionRule.standalone;
 import static org.sonar.server.webhook.ws.WebhooksWsParameters.KEY_PARAM;
@@ -62,7 +66,10 @@ public class DeleteActionTest {
   @Rule
   public DbTester db = create();
   private DbClient dbClient = db.getDbClient();
+  private final DbSession dbSession = db.getSession();
   private WebhookDbTester webhookDbTester = db.webhooks();
+  private WebhookDeliveryDbTester webhookDeliveryDbTester = db.webhookDelivery();
+  private final WebhookDeliveryDao deliveryDao = dbClient.webhookDeliveryDao();
   private OrganizationDbTester organizationDbTester = db.organizations();
   private ComponentDbTester componentDbTester = db.components();
 
@@ -91,6 +98,9 @@ public class DeleteActionTest {
 
     ComponentDto project = componentDbTester.insertPrivateProject();
     WebhookDto dto = webhookDbTester.insertWebhook(project);
+    webhookDeliveryDbTester.insert(newDto().setWebhookUuid(dto.getUuid()));
+    webhookDeliveryDbTester.insert(newDto().setWebhookUuid(dto.getUuid()));
+
     userSession.logIn().addProjectPermission(ADMIN, project);
 
     TestResponse response = wsActionTester.newRequest()
@@ -101,6 +111,9 @@ public class DeleteActionTest {
     Optional<WebhookDto> reloaded = webhookDbTester.selectWebhook(dto.getUuid());
     assertThat(reloaded).isEmpty();
 
+    int deliveriesCount = deliveryDao.countDeliveriesByWebhookUuid(dbSession, dto.getUuid());
+    assertThat(deliveriesCount).isEqualTo(0);
+
   }
 
   @Test
@@ -108,6 +121,9 @@ public class DeleteActionTest {
 
     OrganizationDto organization = organizationDbTester.insert();
     WebhookDto dto = webhookDbTester.insertWebhook(organization);
+    webhookDeliveryDbTester.insert(newDto().setWebhookUuid(dto.getUuid()));
+    webhookDeliveryDbTester.insert(newDto().setWebhookUuid(dto.getUuid()));
+
     userSession.logIn().addPermission(ADMINISTER, organization.getUuid());
 
     TestResponse response = wsActionTester.newRequest()
@@ -118,6 +134,8 @@ public class DeleteActionTest {
     Optional<WebhookDto> reloaded = webhookDbTester.selectWebhook(dto.getUuid());
     assertThat(reloaded).isEmpty();
 
+    int deliveriesCount = deliveryDao.countDeliveriesByWebhookUuid(dbSession, dto.getUuid());
+    assertThat(deliveriesCount).isEqualTo(0);
   }
 
   @Test
