@@ -17,30 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import escapeHtml from 'escape-html';
 import { uniq } from 'lodash';
+import { LinearIssueLocation } from '../../../app/types';
 
-/*::
-export type Token = { className: string, markers: Array<number>, text: string };
-*/
-/*::
-export type Tokens = Array<Token>; */
+export interface Token {
+  className: string;
+  markers: number[];
+  text: string;
+}
 
 const ISSUE_LOCATION_CLASS = 'source-line-code-issue';
 
-export function splitByTokens(code /*: string */, rootClassName /*: string */ = '') /*: Tokens */ {
+export function splitByTokens(code: string, rootClassName = ''): Token[] {
   const container = document.createElement('div');
-  let tokens = [];
+  let tokens: Token[] = [];
   container.innerHTML = code;
-  [].forEach.call(container.childNodes, node => {
+  [].forEach.call(container.childNodes, (node: Element) => {
     if (node.nodeType === 1) {
       // ELEMENT NODE
       const fullClassName = rootClassName ? rootClassName + ' ' + node.className : node.className;
       const innerTokens = splitByTokens(node.innerHTML, fullClassName);
       tokens = tokens.concat(innerTokens);
     }
-    if (node.nodeType === 3) {
+    if (node.nodeType === 3 && node.nodeValue) {
       // TEXT NODE
       tokens.push({ className: rootClassName, markers: [], text: node.nodeValue });
     }
@@ -48,7 +47,7 @@ export function splitByTokens(code /*: string */, rootClassName /*: string */ = 
   return tokens;
 }
 
-export function highlightSymbol(tokens /*: Tokens */, symbol /*: string */) /*: Tokens */ {
+export function highlightSymbol(tokens: Token[], symbol: string): Token[] {
   const symbolRegExp = new RegExp(`\\b${symbol}\\b`);
   return tokens.map(
     token =>
@@ -65,12 +64,7 @@ export function highlightSymbol(tokens /*: Tokens */, symbol /*: string */) /*: 
  * @param s2 Start position of the second range
  * @param e2 End position of the second range
  */
-function intersect(
-  s1 /*: number */,
-  e1 /*: number */,
-  s2 /*: number */,
-  e2 /*: number */
-) /*: { from: number, to: number } */ {
+function intersect(s1: number, e1: number, s2: number, e2: number) {
   return { from: Math.max(s1, s2), to: Math.min(e1, e2) };
 }
 
@@ -81,12 +75,7 @@ function intersect(
  * @param to "To" offset
  * @param acc Global offset to eliminate
  */
-function part(
-  str /*: string */,
-  from /*: number */,
-  to /*: number */,
-  acc /*: number */
-) /*: string */ {
+function part(str: string, from: number, to: number, acc: number): string {
   // we do not want negative number as the first argument of `substr`
   return from >= acc ? str.substr(from - acc, to - from) : str.substr(0, to - from);
 }
@@ -95,12 +84,12 @@ function part(
  * Highlight issue locations in the list of tokens
  */
 export function highlightIssueLocations(
-  tokens /*: Tokens */,
-  issueLocations /*: Array<*> */,
-  rootClassName /*: string */ = ISSUE_LOCATION_CLASS
-) /*: Tokens */ {
+  tokens: Token[],
+  issueLocations: LinearIssueLocation[],
+  rootClassName: string = ISSUE_LOCATION_CLASS
+): Token[] {
   issueLocations.forEach(location => {
-    const nextTokens = [];
+    const nextTokens: Token[] = [];
     let acc = 0;
     let markerAdded = location.line !== location.startLine;
     tokens.forEach(token => {
@@ -134,10 +123,4 @@ export function highlightIssueLocations(
     tokens = nextTokens.slice();
   });
   return tokens;
-}
-
-export function generateHTML(tokens /*: Tokens */) /*: string */ {
-  return tokens
-    .map(token => `<span class="${token.className}">${escapeHtml(token.text)}</span>`)
-    .join('');
 }

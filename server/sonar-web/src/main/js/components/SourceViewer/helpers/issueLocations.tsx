@@ -17,12 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-/*:: import type { TextRange, Issue } from '../../issue/types'; */
+import { LinearIssueLocation, TextRange } from '../../../app/types';
 
-export function getLinearLocations(
-  textRange /*: ?TextRange */
-) /*: Array<{ line: number, from: number, to: number }> */ {
+export function getLinearLocations(textRange: TextRange | undefined): LinearIssueLocation[] {
   if (!textRange) {
     return [];
   }
@@ -36,34 +33,4 @@ export function getLinearLocations(
     locations.push({ line, from, to });
   }
   return locations;
-}
-
-/*::
-type Location = {
-  msg: string,
-  flowIndex: number,
-  locationIndex: number,
-  textRange?: TextRange,
-  index?: number
-}
-*/
-
-export function getIssueLocations(issue /*: Issue */) /*: Array<Location> */ {
-  const allLocations = [];
-  issue.flows.forEach((locations, flowIndex) => {
-    if (locations) {
-      const locationsCount = locations.length;
-      locations.forEach((location, index) => {
-        const flowLocation = {
-          ...location,
-          flowIndex,
-          locationIndex: index,
-          // set index only for real flows, do not set for just secondary locations
-          index: locationsCount > 1 ? locationsCount - index : undefined
-        };
-        allLocations.push(flowLocation);
-      });
-    }
-  });
-  return allLocations;
 }

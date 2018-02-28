@@ -17,21 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
 import { searchIssues } from '../../../api/issues';
+import { Issue } from '../../../app/types';
 import { parseIssueFromResponse } from '../../../helpers/issues';
-
-/*::
-export type Query = { [string]: string | void };
-*/
-
-/*::
-export type Issues = Array<*>; */
+import { RawQuery } from '../../../helpers/query';
 
 // maximum possible value
 const PAGE_SIZE = 500;
 
-function buildQuery(component /*: string */, branch /*: string | void */) /*: Query */ {
+function buildQuery(component: string, branch: string | undefined) {
   return {
     additionalFields: '_all',
     resolved: 'false',
@@ -41,11 +35,7 @@ function buildQuery(component /*: string */, branch /*: string | void */) /*: Qu
   };
 }
 
-export function loadPage(
-  query /*: Query */,
-  page /*: number */,
-  pageSize /*: number */ = PAGE_SIZE
-) /*: Promise<Issues> */ {
+export function loadPage(query: RawQuery, page: number, pageSize = PAGE_SIZE): Promise<Issue[]> {
   return searchIssues({
     ...query,
     p: page,
@@ -56,11 +46,11 @@ export function loadPage(
 }
 
 export function loadPageAndNext(
-  query /*: Query */,
-  toLine /*: number */,
-  page /*: number */,
-  pageSize /*: number */ = PAGE_SIZE
-) /*: Promise<Issues> */ {
+  query: RawQuery,
+  toLine: number,
+  page: number,
+  pageSize = PAGE_SIZE
+): Promise<Issue[]> {
   return loadPage(query, page).then(issues => {
     if (issues.length === 0) {
       return [];
@@ -82,11 +72,11 @@ export function loadPageAndNext(
 }
 
 export default function loadIssues(
-  component /*: string */,
-  fromLine /*: number */,
-  toLine /*: number */,
-  branch /*: string | void */
-) /*: Promise<Issues> */ {
+  component: string,
+  _fromLine: number,
+  toLine: number,
+  branch: string | undefined
+): Promise<Issue[]> {
   const query = buildQuery(component, branch);
   return new Promise(resolve => {
     loadPageAndNext(query, toLine, 1).then(issues => {

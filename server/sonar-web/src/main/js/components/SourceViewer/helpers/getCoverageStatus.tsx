@@ -17,11 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-/*:: import type { SourceLine } from '../types'; */
+import { SourceLine } from '../../../app/types';
 
-export default function getCoverageStatus(s /*: SourceLine */) /*: string | null */ {
-  let status = null;
+export default function getCoverageStatus(s: SourceLine): string | undefined {
+  let status: string | undefined;
   if (s.lineHits != null && s.lineHits > 0) {
     status = 'partially-covered';
   }

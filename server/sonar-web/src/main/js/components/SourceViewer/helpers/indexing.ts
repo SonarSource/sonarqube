@@ -17,40 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
 import { flatten } from 'lodash';
 import { splitByTokens } from './highlight';
 import { getLinearLocations } from './issueLocations';
-/*:: import type { Issue } from '../../issue/types'; */
-/*:: import type { SourceLine } from '../types'; */
+import { Duplication, Issue, LinearIssueLocation, SourceLine } from '../../../app/types';
 
-/*::
-export type LinearIssueLocation = {
-  from: number,
-  line: number,
-  to: number,
-  index?: number
-};
-*/
-
-/*::
-export type IndexedIssueLocation = {
-  from: number,
-  line: number,
-  to: number
-};
-*/
-
-/*::
-export type IndexedIssueLocationMessage = {
-  flowIndex: number,
-  locationIndex: number,
-  msg?: string
-};
-*/
-
-export const issuesByLine = (issues /*: Array<Issue> */) => {
-  const index = {};
+export function issuesByLine(issues: Issue[]) {
+  const index: { [line: number]: Issue[] } = {};
   issues.forEach(issue => {
     const line = issue.textRange ? issue.textRange.endLine : 0;
     if (!(line in index)) {
@@ -59,12 +32,10 @@ export const issuesByLine = (issues /*: Array<Issue> */) => {
     index[line].push(issue);
   });
   return index;
-};
+}
 
-export function locationsByLine(
-  issues /*: Array<Issue> */
-) /*: { [number]: Array<LinearIssueLocation> } */ {
-  const index = {};
+export function locationsByLine(issues: Issue[]) {
+  const index: { [line: number]: LinearIssueLocation[] } = {};
   issues.forEach(issue => {
     getLinearLocations(issue.textRange).forEach(location => {
       if (!(location.line in index)) {
@@ -76,15 +47,16 @@ export function locationsByLine(
   return index;
 }
 
-export const duplicationsByLine = (duplications /*: Array<*> | null */) => {
+export function duplicationsByLine(duplications: Duplication[] | undefined) {
   if (duplications == null) {
     return {};
   }
 
-  const duplicationsByLine = {};
+  const duplicationsByLine: { [line: number]: number[] } = {};
 
   duplications.forEach(({ blocks }, duplicationIndex) => {
     blocks.forEach(block => {
+      // eslint-disable-next-line no-underscore-dangle
       if (block._ref === '1') {
         for (let line = block.from; line < block.from + block.size; line++) {
           if (!(line in duplicationsByLine)) {
@@ -97,12 +69,12 @@ export const duplicationsByLine = (duplications /*: Array<*> | null */) => {
   });
 
   return duplicationsByLine;
-};
+}
 
-export const symbolsByLine = (sources /*: Array<SourceLine> */) => {
-  const index = {};
+export function symbolsByLine(sources: SourceLine[]) {
+  const index: { [line: number]: string[] } = {};
   sources.forEach(line => {
-    const tokens = splitByTokens(line.code);
+    const tokens = splitByTokens(line.code || '');
     const symbols = flatten(
       tokens.map(token => {
         const keys = token.className.match(/sym-\d+/g);
@@ -112,4 +84,4 @@ export const symbolsByLine = (sources /*: Array<SourceLine> */) => {
     index[line.line] = symbols.filter(key => key);
   });
   return index;
-};
+}
