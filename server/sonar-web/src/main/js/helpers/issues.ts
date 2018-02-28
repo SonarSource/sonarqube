@@ -19,6 +19,7 @@
  */
 import { flatten, sortBy } from 'lodash';
 import { SEVERITIES } from './constants';
+import { Issue } from '../app/types';
 
 interface TextRange {
   startLine: number;
@@ -66,8 +67,6 @@ export interface RawIssue extends IssueBase {
   subProject?: string;
   textRange?: TextRange;
 }
-
-interface Issue extends IssueBase {}
 
 export function sortBySeverity(issues: Issue[]): Issue[] {
   return sortBy(issues, issue => SEVERITIES.indexOf(issue.severity));
@@ -173,5 +172,5 @@ export function parseIssueFromResponse(
     ...ensureTextRange(issue),
     secondaryLocations,
     flows
-  };
+  } as Issue;
 }
