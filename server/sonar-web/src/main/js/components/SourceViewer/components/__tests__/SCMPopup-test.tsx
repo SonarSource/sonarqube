@@ -17,30 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
+import * as React from 'react';
 import { shallow } from 'enzyme';
-import LineCode from '../LineCode';
+import SCMPopup from '../SCMPopup';
 
-it('render code', () => {
-  const line = {
-    line: 3,
-    code: '<span class="k">class</span> <span class="sym sym-1">Foo</span> {'
-  };
-  const issueLocations = [{ from: 0, to: 5, line: 3 }];
-  const wrapper = shallow(
-    <LineCode
-      highlightedSymbols={['sym1']}
-      issues={[{ key: 'issue-1' }, { key: 'issue-2' }]}
-      issueLocations={issueLocations}
-      line={line}
-      onIssueSelect={jest.fn()}
-      onSelectLocation={jest.fn()}
-      onSymbolClick={jest.fn()}
-      onPopupToggle={jest.fn()}
-      openPopup={null}
-      selectedIssue="issue-1"
-      showIssues={true}
-    />
-  );
-  expect(wrapper).toMatchSnapshot();
+it('should render', () => {
+  const line = { line: 3, scmAuthor: 'foo', scmDate: '2017-01-01' };
+  expect(shallow(<SCMPopup line={line} />)).toMatchSnapshot();
 });

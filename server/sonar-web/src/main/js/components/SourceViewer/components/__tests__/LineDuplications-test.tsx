@@ -17,37 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
-/*:: import type { SourceLine } from '../types'; */
+import * as React from 'react';
+import { shallow } from 'enzyme';
+import { click } from '../../../../helpers/testUtils';
+import LineDuplications from '../LineDuplications';
 
-/*::
-type Props = {
-  line: SourceLine,
-  onClick: (SourceLine, HTMLElement) => void
-};
-*/
+it('render duplicated line', () => {
+  const line = { line: 3, duplicated: true };
+  const onClick = jest.fn();
+  const wrapper = shallow(<LineDuplications line={line} onClick={onClick} />);
+  expect(wrapper).toMatchSnapshot();
+  click(wrapper.find('[tabIndex]'));
+  expect(onClick).toHaveBeenCalled();
+});
 
-export default class LineNumber extends React.PureComponent {
-  /*:: props: Props; */
-
-  handleClick = (e /*: SyntheticInputEvent */) => {
-    e.preventDefault();
-    this.props.onClick(this.props.line, e.target);
-  };
-
-  render() {
-    const { line } = this.props.line;
-
-    return (
-      <td
-        className="source-meta source-line-number"
-        /* don't display 0 */
-        data-line-number={line ? line : undefined}
-        role={line ? 'button' : undefined}
-        tabIndex={line ? 0 : undefined}
-        onClick={line ? this.handleClick : undefined}
-      />
-    );
-  }
-}
+it('render not duplicated line', () => {
+  const line = { line: 3, duplicated: false };
+  const onClick = jest.fn();
+  const wrapper = shallow(<LineDuplications line={line} onClick={onClick} />);
+  expect(wrapper).toMatchSnapshot();
+});

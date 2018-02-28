@@ -17,47 +17,41 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
+import * as React from 'react';
+import * as classNames from 'classnames';
+import { SourceLine } from '../../../app/types';
 import Tooltip from '../../controls/Tooltip';
 import { translate } from '../../../helpers/l10n';
-/*:: import type { SourceLine } from '../types'; */
 
-/*::
-type Props = {
-  line: SourceLine,
-  onClick: (SourceLine, HTMLElement) => void
-};
-*/
+interface Props {
+  line: SourceLine;
+  onClick: (line: SourceLine) => void;
+}
 
-export default class LineCoverage extends React.PureComponent {
-  /*:: props: Props; */
-
-  handleClick = (e /*: SyntheticInputEvent */) => {
-    e.preventDefault();
-    this.props.onClick(this.props.line, e.target);
+export default class LineDuplications extends React.PureComponent<Props> {
+  handleClick = (event: React.MouseEvent<HTMLElement>) => {
+    event.preventDefault();
+    this.props.onClick(this.props.line);
   };
 
   render() {
     const { line } = this.props;
-    const className =
-      'source-meta source-line-coverage' +
-      (line.coverageStatus != null ? ` source-line-${line.coverageStatus}` : '');
-    const hasPopup =
-      line.coverageStatus === 'covered' || line.coverageStatus === 'partially-covered';
+    const className = classNames('source-meta', 'source-line-duplications', {
+      'source-line-duplicated': line.duplicated
+    });
+
     const cell = (
       <td
         className={className}
-        data-line-number={line.line}
-        role={hasPopup ? 'button' : undefined}
-        tabIndex={hasPopup ? 0 : undefined}
-        onClick={hasPopup ? this.handleClick : undefined}>
+        onClick={line.duplicated ? this.handleClick : undefined}
+        role={line.duplicated ? 'button' : undefined}
+        tabIndex={line.duplicated ? 0 : undefined}>
         <div className="source-line-bar" />
       </td>
     );
 
-    return line.coverageStatus != null ? (
-      <Tooltip overlay={translate('source_viewer.tooltip', line.coverageStatus)} placement="right">
+    return line.duplicated ? (
+      <Tooltip overlay={translate('source_viewer.tooltip.duplicated_line')} placement="right">
         {cell}
       </Tooltip>
     ) : (

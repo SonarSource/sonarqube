@@ -17,62 +17,57 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
-import classNames from 'classnames';
+import * as React from 'react';
+import * as classNames from 'classnames';
 import LineIssuesList from './LineIssuesList';
+import { Issue, LinearIssueLocation, SourceLine } from '../../../app/types';
 import LocationIndex from '../../common/LocationIndex';
 import LocationMessage from '../../common/LocationMessage';
-import { splitByTokens, highlightSymbol, highlightIssueLocations } from '../helpers/highlight';
-/*:: import type { Tokens } from '../helpers/highlight'; */
-/*:: import type { SourceLine } from '../types'; */
-/*:: import type { LinearIssueLocation } from '../helpers/indexing'; */
-/*:: import type { Issue } from '../../issue/types'; */
+import {
+  highlightIssueLocations,
+  highlightSymbol,
+  splitByTokens,
+  Token
+} from '../helpers/highlight';
 
-/*::
-type Props = {|
-  branch?: string,
-  displayIssueLocationsCount?: boolean,
-  displayIssueLocationsLink?: boolean,
-  displayLocationMarkers?: boolean,
-  highlightedLocationMessage?: { index: number, text: string },
-  highlightedSymbols?: Array<string>,
-  issues: Array<Issue>,
-  issueLocations: Array<LinearIssueLocation>,
-  line: SourceLine,
-  onIssueChange: Issue => void,
-  onIssueSelect: (issueKey: string) => void,
-  onLocationSelect?: number => void,
-  onSymbolClick: (Array<string>) => void,
-  onPopupToggle: (issue: string, popupName: string, open: ?boolean ) => void,
-  openPopup: ?{ issue: string, name: string},
-  scroll?: HTMLElement => void,
+interface Props {
+  branch: string | undefined;
+  displayIssueLocationsCount?: boolean;
+  displayIssueLocationsLink?: boolean;
+  displayLocationMarkers?: boolean;
+  highlightedLocationMessage: { index: number; text: string } | undefined;
+  highlightedSymbols: string[] | undefined;
+  issueLocations: LinearIssueLocation[];
+  issuePopup: { issue: string; name: string } | undefined;
+  issues: Issue[];
+  line: SourceLine;
+  onIssueChange: (issue: Issue) => void;
+  onIssuePopupToggle: (issue: string, popupName: string, open?: boolean) => void;
+  onIssueSelect: (issueKey: string) => void;
+  onLocationSelect: ((index: number) => void) | undefined;
+  onSymbolClick: (symbols: Array<string>) => void;
+  scroll?: (element: HTMLElement) => void;
   secondaryIssueLocations: Array<{
-    from: number,
-    to: number,
-    line: number,
-    index: number,
-    startLine: number
-  }>,
-  selectedIssue: string | null,
-  showIssues: boolean
-|};
-*/
+    from: number;
+    to: number;
+    line: number;
+    index: number;
+    startLine: number;
+  }>;
+  selectedIssue: string | undefined;
+  showIssues?: boolean;
+}
 
-/*::
-type State = {
-  tokens: Tokens
-};
-*/
+interface State {
+  tokens: Token[];
+}
 
-export default class LineCode extends React.PureComponent {
-  /*:: activeMarkerNode: ?HTMLElement; */
-  /*:: codeNode: HTMLElement; */
-  /*:: props: Props; */
-  /*:: state: State; */
-  /*:: symbols: NodeList<HTMLElement>; */
+export default class LineCode extends React.PureComponent<Props, State> {
+  activeMarkerNode?: HTMLElement | null;
+  codeNode?: HTMLElement | null;
+  symbols?: NodeListOf<HTMLElement>;
 
-  constructor(props /*: Props */) {
+  constructor(props: Props) {
     super(props);
     this.state = {
       tokens: splitByTokens(props.line.code || '')
@@ -86,7 +81,7 @@ export default class LineCode extends React.PureComponent {
     }
   }
 
-  componentWillReceiveProps(nextProps /*: Props */) {
+  componentWillReceiveProps(nextProps: Props) {
     if (nextProps.line.code !== this.props.line.code) {
       this.setState({
         tokens: splitByTokens(nextProps.line.code || '')
@@ -98,7 +93,7 @@ export default class LineCode extends React.PureComponent {
     this.detachEvents();
   }
 
-  componentDidUpdate(prevProps /*: Props */) {
+  componentDidUpdate(prevProps: Props) {
     this.attachEvents();
     if (
       this.props.highlightedLocationMessage &&
@@ -117,41 +112,42 @@ export default class LineCode extends React.PureComponent {
   attachEvents() {
     if (this.codeNode) {
       this.symbols = this.codeNode.querySelectorAll('.sym');
-      for (const symbol of this.symbols) {
-        symbol.addEventListener('click', this.handleSymbolClick);
+      if (this.symbols) {
+        this.symbols.forEach(symbol => {
+          symbol.addEventListener('click', this.handleSymbolClick);
+        });
       }
     }
   }
 
   detachEvents() {
     if (this.symbols) {
-      for (const symbol of this.symbols) {
+      this.symbols.forEach(symbol => {
         symbol.removeEventListener('click', this.handleSymbolClick);
-      }
+      });
     }
   }
 
-  handleSymbolClick = (e /*: Object */) => {
-    e.preventDefault();
-    const keys = e.currentTarget.className.match(/sym-\d+/g);
-    if (keys.length > 0) {
+  handleSymbolClick = (event: MouseEvent) => {
+    event.preventDefault();
+    const keys = (event.currentTarget as HTMLElement).className.match(/sym-\d+/g);
+    if (keys && keys.length > 0) {
       this.props.onSymbolClick(keys);
     }
   };
 
-  renderMarker(index /*: number */, message /*: ?string */, leading /*: boolean */ = false) {
+  renderMarker(index: number, message: string | undefined, leading = false) {
     const { onLocationSelect } = this.props;
     const onClick = onLocationSelect ? () => onLocationSelect(index) : undefined;
-    const ref = message != null ? node => (this.activeMarkerNode = node) : undefined;
+    const ref =
+      message != null ? (node: HTMLElement | null) => (this.activeMarkerNode = node) : undefined;
     return (
       <LocationIndex
         key={`marker-${index}`}
         leading={leading}
         onClick={onClick}
         selected={message != null}>
-        <span href="#" ref={ref}>
-          {index + 1}
-        </span>
+        <span ref={ref}>{index + 1}</span>
         {message != null && <LocationMessage selected={true}>{message}</LocationMessage>}
       </LocationIndex>
     );
@@ -199,7 +195,7 @@ export default class LineCode extends React.PureComponent {
       'has-issues': issues.length > 0
     });
 
-    const renderedTokens = [];
+    const renderedTokens: React.ReactNode[] = [];
 
     // track if the first marker is displayed before the source code
     // set `false` for the first token in a row
@@ -211,7 +207,7 @@ export default class LineCode extends React.PureComponent {
           const message =
             highlightedLocationMessage != null && highlightedLocationMessage.index === marker
               ? highlightedLocationMessage.text
-              : null;
+              : undefined;
           renderedTokens.push(this.renderMarker(marker, message, leadingMarker));
         });
       }
@@ -236,11 +232,11 @@ export default class LineCode extends React.PureComponent {
               branch={this.props.branch}
               displayIssueLocationsCount={this.props.displayIssueLocationsCount}
               displayIssueLocationsLink={this.props.displayIssueLocationsLink}
+              issuePopup={this.props.issuePopup}
               issues={issues}
               onIssueChange={this.props.onIssueChange}
               onIssueClick={onIssueSelect}
-              onPopupToggle={this.props.onPopupToggle}
-              openPopup={this.props.openPopup}
+              onIssuePopupToggle={this.props.onIssuePopupToggle}
               selectedIssue={selectedIssue}
             />
           )}

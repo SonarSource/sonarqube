@@ -17,23 +17,36 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
+import * as React from 'react';
 import { shallow } from 'enzyme';
 import { click } from '../../../../helpers/testUtils';
-import LineDuplications from '../LineDuplications';
+import LineNumber from '../LineNumber';
 
-it('render duplicated line', () => {
-  const line = { line: 3, duplicated: true };
-  const onClick = jest.fn();
-  const wrapper = shallow(<LineDuplications line={line} onClick={onClick} />);
+it('render line 3', () => {
+  const line = { line: 3 };
+  const wrapper = shallow(
+    <LineNumber
+      branch={undefined}
+      componentKey="foo"
+      line={line}
+      onPopupToggle={jest.fn()}
+      popupOpen={false}
+    />
+  );
   expect(wrapper).toMatchSnapshot();
-  click(wrapper.find('[tabIndex]'));
-  expect(onClick).toHaveBeenCalled();
+  click(wrapper);
 });
 
-it('render not duplicated line', () => {
-  const line = { line: 3, duplicated: false };
-  const onClick = jest.fn();
-  const wrapper = shallow(<LineDuplications line={line} onClick={onClick} />);
+it('render line 0', () => {
+  const line = { line: 0 };
+  const wrapper = shallow(
+    <LineNumber
+      branch={undefined}
+      componentKey="foo"
+      line={line}
+      onPopupToggle={jest.fn()}
+      popupOpen={false}
+    />
+  );
   expect(wrapper).toMatchSnapshot();
 });

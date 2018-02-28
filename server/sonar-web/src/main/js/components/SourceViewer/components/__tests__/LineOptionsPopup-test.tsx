@@ -17,28 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-/*::
-export type SourceLine = {
-  code: string,
-  conditions?: number,
-  coverageStatus?: string | null,
-  coveredConditions?: number,
-  duplicated: boolean,
-  line: number,
-  lineHits?: number,
-  scmAuthor?: string,
-  scmDate?: string,
-  scmRevision?: string
-};
-*/
+import * as React from 'react';
+import { shallow } from 'enzyme';
+import LineOptionsPopup from '../LineOptionsPopup';
 
-/*::
-export type Duplication = {
-  blocks: Array<{
-    _ref: string,
-    from: number,
-    size: number
-  }>
-};
-*/
+it('should render', () => {
+  const line = { line: 3 };
+  const wrapper = shallow(<LineOptionsPopup branch="feature" componentKey="foo" line={line} />);
+  expect(wrapper).toMatchSnapshot();
+});

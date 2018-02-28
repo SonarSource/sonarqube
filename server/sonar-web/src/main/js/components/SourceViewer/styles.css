@@ -94,7 +94,8 @@
 }
 
 .source-viewer pre,
-.source-meta {
+.source-line-number,
+.source-line-scm {
   line-height: 18px;
   font-family: Consolas, 'Liberation Mono', Menlo, Courier, monospace;
   font-size: var(--smallFontSize);
@@ -134,6 +135,7 @@
 }
 
 .source-meta {
+  position: relative;
   vertical-align: top;
   width: 1px;
   background-clip: padding-box;
@@ -499,6 +501,15 @@
 .source-table + .source-viewer-more-code {
   border-bottom: none;
   border-top: 1px solid var(--barBorderColor);
+}
+
+.source-viewer-bubble-popup {
+  top: -16px;
+  left: 100%;
+  width: 480px;
+  font-family: var(--baseFontFamily);
+  font-size: var(--baseFontSize);
+  text-align: left;
 }
 
 .issue-location {

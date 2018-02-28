@@ -1,0 +1,29 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render 1`] = `
+<BubblePopup
+  customClass="source-viewer-bubble-popup"
+>
+  <div
+    className="bubble-popup-section"
+  >
+    <Link
+      className="js-get-permalink"
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to={
+        Object {
+          "pathname": "/component",
+          "query": Object {
+            "branch": "feature",
+            "id": "foo",
+            "line": 3,
+          },
+        }
+      }
+    >
+      component_viewer.get_permalink
+    </Link>
+  </div>
+</BubblePopup>
+`;

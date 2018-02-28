@@ -68,7 +68,7 @@ module.exports = ({ production = true, fast = false }) => ({
     app: [
       './src/main/js/app/utils/setPublicPath.js',
       './src/main/js/app/index.js',
-      './src/main/js/components/SourceViewer/SourceViewer.js'
+      './src/main/js/components/SourceViewer/SourceViewer'
     ]
   },
   output: {

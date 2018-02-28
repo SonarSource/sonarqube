@@ -17,14 +17,40 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
+import * as React from 'react';
 import { shallow } from 'enzyme';
 import { click } from '../../../../helpers/testUtils';
 import LineIssuesIndicator from '../LineIssuesIndicator';
+import { Issue } from '../../../../app/types';
+
+const issueBase: Issue = {
+  component: '',
+  componentLongName: '',
+  componentQualifier: '',
+  componentUuid: '',
+  creationDate: '',
+  key: '',
+  flows: [],
+  message: '',
+  organization: '',
+  project: '',
+  projectName: '',
+  projectOrganization: '',
+  projectUuid: '',
+  rule: '',
+  ruleName: '',
+  secondaryLocations: [],
+  severity: '',
+  status: '',
+  type: ''
+};
 
 it('render highest severity', () => {
   const line = { line: 3 };
-  const issues = [{ severity: 'MINOR' }, { severity: 'CRITICAL' }];
+  const issues = [
+    { ...issueBase, key: 'foo', severity: 'MINOR' },
+    { ...issueBase, key: 'bar', severity: 'CRITICAL' }
+  ];
   const onClick = jest.fn();
   const wrapper = shallow(<LineIssuesIndicator issues={issues} line={line} onClick={onClick} />);
   expect(wrapper).toMatchSnapshot();
@@ -39,7 +65,7 @@ it('render highest severity', () => {
 
 it('no issues', () => {
   const line = { line: 3 };
-  const issues = [];
+  const issues: Issue[] = [];
   const onClick = jest.fn();
   const wrapper = shallow(<LineIssuesIndicator issues={issues} line={line} onClick={onClick} />);
   expect(wrapper).toMatchSnapshot();

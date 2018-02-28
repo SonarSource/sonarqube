@@ -17,23 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import { shallow } from 'enzyme';
-import LineIssuesList from '../LineIssuesList';
+import * as React from 'react';
+import { SourceLine } from '../../../app/types';
+import BubblePopup from '../../common/BubblePopup';
+import DateFormatter from '../../intl/DateFormatter';
 
-it('render issues list', () => {
-  const line = { line: 3 };
-  const issues = [{ key: 'foo' }, { key: 'bar' }];
-  const onIssueClick = jest.fn();
-  const wrapper = shallow(
-    <LineIssuesList
-      issues={issues}
-      line={line}
-      onIssueClick={onIssueClick}
-      onPopupToggle={jest.fn()}
-      openPopup={null}
-      selectedIssue="foo"
-    />
+interface Props {
+  line: SourceLine;
+  popupPosition?: any;
+}
+
+export default function SCMPopup({ line, popupPosition }: Props) {
+  return (
+    <BubblePopup customClass="source-viewer-bubble-popup" position={popupPosition}>
+      <div className="bubble-popup-section">{line.scmAuthor}</div>
+      {line.scmDate && (
+        <div className="bubble-popup-section">
+          <DateFormatter date={line.scmDate} />
+        </div>
+      )}
+      {line.scmRevision && <div className="bubble-popup-section">{line.scmRevision}</div>}
+    </BubblePopup>
   );
-  expect(wrapper).toMatchSnapshot();
-});
+}

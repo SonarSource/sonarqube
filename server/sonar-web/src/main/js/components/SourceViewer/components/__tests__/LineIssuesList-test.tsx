@@ -17,30 +17,46 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
+import * as React from 'react';
 import { shallow } from 'enzyme';
-import { click } from '../../../../helpers/testUtils';
-import LineCoverage from '../LineCoverage';
+import LineIssuesList from '../LineIssuesList';
+import { Issue } from '../../../../app/types';
 
-it('render covered line', () => {
-  const line = { line: 3, coverageStatus: 'covered' };
-  const onClick = jest.fn();
-  const wrapper = shallow(<LineCoverage line={line} onClick={onClick} />);
-  expect(wrapper).toMatchSnapshot();
-  click(wrapper.find('[tabIndex]'));
-  expect(onClick).toHaveBeenCalled();
-});
+const issueBase: Issue = {
+  component: '',
+  componentLongName: '',
+  componentQualifier: '',
+  componentUuid: '',
+  creationDate: '',
+  key: '',
+  flows: [],
+  message: '',
+  organization: '',
+  project: '',
+  projectName: '',
+  projectOrganization: '',
+  projectUuid: '',
+  rule: '',
+  ruleName: '',
+  secondaryLocations: [],
+  severity: '',
+  status: '',
+  type: ''
+};
 
-it('render uncovered line', () => {
-  const line = { line: 3, coverageStatus: 'uncovered' };
-  const onClick = jest.fn();
-  const wrapper = shallow(<LineCoverage line={line} onClick={onClick} />);
-  expect(wrapper).toMatchSnapshot();
-});
-
-it('render line with unknown coverage', () => {
-  const line = { line: 3 };
-  const onClick = jest.fn();
-  const wrapper = shallow(<LineCoverage line={line} onClick={onClick} />);
+it('render issues list', () => {
+  const issues: Issue[] = [{ ...issueBase, key: 'foo' }, { ...issueBase, key: 'bar' }];
+  const onIssueClick = jest.fn();
+  const wrapper = shallow(
+    <LineIssuesList
+      branch={undefined}
+      issuePopup={undefined}
+      issues={issues}
+      onIssueChange={jest.fn()}
+      onIssueClick={onIssueClick}
+      onIssuePopupToggle={jest.fn()}
+      selectedIssue="foo"
+    />
+  );
   expect(wrapper).toMatchSnapshot();
 });

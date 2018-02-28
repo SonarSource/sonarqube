@@ -17,20 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
+import { Dispatch } from 'redux';
 import { connect } from 'react-redux';
 import SourceViewerBase from './SourceViewerBase';
+import { SourceViewerFile } from '../../app/types';
 import { receiveFavorites } from '../../store/favorites/duck';
 
 const mapStateToProps = null;
 
-const onReceiveComponent = (
-  component /*: {
-  key: string,
-  canMarkAsFavorite: boolean,
-  fav: boolean
-} */
-) => dispatch => {
+interface DispatchProps {
+  onReceiveComponent: (component: SourceViewerFile) => void;
+}
+
+const onReceiveComponent = (component: SourceViewerFile) => (dispatch: Dispatch<any>) => {
   if (component.canMarkAsFavorite) {
     const favorites = [];
     const notFavorites = [];
@@ -43,6 +42,6 @@ const onReceiveComponent = (
   }
 };
 
-const mapDispatchToProps = { onReceiveComponent };
+const mapDispatchToProps: DispatchProps = { onReceiveComponent };
 
 export default connect(mapStateToProps, mapDispatchToProps)(SourceViewerBase);

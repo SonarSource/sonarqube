@@ -17,27 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
-import classNames from 'classnames';
+import * as React from 'react';
+import * as classNames from 'classnames';
 import SeverityIcon from '../../shared/SeverityIcon';
 import { sortBySeverity } from '../../../helpers/issues';
-/*:: import type { SourceLine } from '../types'; */
-/*:: import type { Issue } from '../../issue/types'; */
+import { Issue, SourceLine } from '../../../app/types';
 
-/*::
-type Props = {
-  issues: Array<Issue>,
-  line: SourceLine,
-  onClick: () => void
-};
-*/
+interface Props {
+  issues: Issue[];
+  line: SourceLine;
+  onClick: () => void;
+}
 
-export default class LineIssuesIndicator extends React.PureComponent {
-  /*:: props: Props; */
-
-  handleClick = (e /*: SyntheticInputEvent */) => {
-    e.preventDefault();
+export default class LineIssuesIndicator extends React.PureComponent<Props> {
+  handleClick = (event: React.MouseEvent<HTMLElement>) => {
+    event.preventDefault();
     this.props.onClick();
   };
 
@@ -53,9 +47,9 @@ export default class LineIssuesIndicator extends React.PureComponent {
       <td
         className={className}
         data-line-number={line.line}
+        onClick={hasIssues ? this.handleClick : undefined}
         role={hasIssues ? 'button' : undefined}
-        tabIndex={hasIssues ? '0' : undefined}
-        onClick={hasIssues ? this.handleClick : undefined}>
+        tabIndex={hasIssues ? 0 : undefined}>
         {mostImportantIssue != null && <SeverityIcon severity={mostImportantIssue.severity} />}
         {issues.length > 1 && <span className="source-line-issues-counter">{issues.length}</span>}
       </td>

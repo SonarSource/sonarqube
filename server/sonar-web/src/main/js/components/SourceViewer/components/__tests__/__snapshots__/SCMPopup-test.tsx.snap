@@ -1,0 +1,20 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render 1`] = `
+<BubblePopup
+  customClass="source-viewer-bubble-popup"
+>
+  <div
+    className="bubble-popup-section"
+  >
+    foo
+  </div>
+  <div
+    className="bubble-popup-section"
+  >
+    <DateFormatter
+      date="2017-01-01"
+    />
+  </div>
+</BubblePopup>
+`;
