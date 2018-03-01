@@ -20,6 +20,7 @@
 package org.sonar.server.badge.ws;
 
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
 import java.util.Locale;
 
@@ -34,7 +35,7 @@ class SvgFormatter {
   private static final String NUMERIC_SUFFIX_LIST = " kmbt";
   private static final String NUMERIC_REGEXP = "\\.[0-9]+";
 
-  private static final DecimalFormat PERCENT_FORMATTER = new DecimalFormat("#.#");
+  private static final DecimalFormat PERCENT_FORMATTER = new DecimalFormat("#.#", DecimalFormatSymbols.getInstance(Locale.ENGLISH));
 
   private static final String DURATION_MINUTES_FORMAT = "%smin";
   private static final String DURATION_HOURS_FORMAT = "%sh";
