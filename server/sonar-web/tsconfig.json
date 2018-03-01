@@ -9,8 +9,7 @@
     "strictFunctionTypes": false,
     "target": "es5",
     "jsx": "react",
-    // "dom.iterable" is required to iterate over NodeList
-    "lib": ["es2017", "dom", "dom.iterable"],
+    "lib": ["es2017", "dom"],
     "module": "esnext",
     "moduleResolution": "node",
     "typeRoots": ["./src/main/js/typings", "./node_modules/@types"]

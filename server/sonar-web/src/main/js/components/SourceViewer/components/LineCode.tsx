@@ -113,18 +113,20 @@ export default class LineCode extends React.PureComponent<Props, State> {
     if (this.codeNode) {
       this.symbols = this.codeNode.querySelectorAll('.sym');
       if (this.symbols) {
-        this.symbols.forEach(symbol => {
+        for (let i = 0; i < this.symbols.length; i++) {
+          const symbol = this.symbols[i];
           symbol.addEventListener('click', this.handleSymbolClick);
-        });
+        }
       }
     }
   }
 
   detachEvents() {
     if (this.symbols) {
-      this.symbols.forEach(symbol => {
-        symbol.removeEventListener('click', this.handleSymbolClick);
-      });
+      for (let i = 0; i < this.symbols.length; i++) {
+        const symbol = this.symbols[i];
+        symbol.addEventListener('click', this.handleSymbolClick);
+      }
     }
   }
 
