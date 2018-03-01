@@ -49,6 +49,21 @@
       </if>
   </select>
 
+  <select id="countByStatusAndComponentUuids" resultType="org.sonar.db.ce.QueueCount">
+    select
+      component_uuid as componentUuid,
+      count(1) as total
+    from
+      ce_queue
+    where
+      status=#{status,jdbcType=VARCHAR}
+      and component_uuid in
+      <foreach collection="componentUuids" open="(" close=")" item="cUuid" separator=",">
+        #{cUuid,jdbcType=VARCHAR}
+      </foreach>
+    group by component_uuid
+  </select>
+
   <select id="countAll" resultType="int">
     select
       count(1)
