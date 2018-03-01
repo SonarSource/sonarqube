@@ -122,10 +122,7 @@ export default class SourceViewerBase extends React.PureComponent<Props, State> 
     displayAllIssues: false,
     displayIssueLocationsCount: true,
     displayIssueLocationsLink: true,
-    displayLocationMarkers: true,
-    loadComponent: defaultLoadComponent,
-    loadIssues: defaultLoadIssues,
-    loadSources: defaultLoadSources
+    displayLocationMarkers: true
   };
 
   constructor(props: Props) {
@@ -190,6 +187,21 @@ export default class SourceViewerBase extends React.PureComponent<Props, State> 
     this.mounted = false;
   }
 
+  // react typings do not take `defaultProps` into account,
+  // so use these getters to get type-safe methods
+
+  get safeLoadComponent() {
+    return this.props.loadComponent || defaultLoadComponent;
+  }
+
+  get safeLoadIssues() {
+    return this.props.loadIssues || defaultLoadIssues;
+  }
+
+  get safeLoadSources() {
+    return this.props.loadSources || defaultLoadSources;
+  }
+
   computeCoverageStatus(lines: SourceLine[]) {
     return lines.map(line => ({ ...line, coverageStatus: getCoverageStatus(line) }));
   }
@@ -208,7 +220,7 @@ export default class SourceViewerBase extends React.PureComponent<Props, State> 
   fetchComponent() {
     this.setState({ loading: true });
     const loadIssues = (component: SourceViewerFile, sources: SourceLine[]) => {
-      this.props.loadIssues!(this.props.component, 1, LINES, this.props.branch).then(
+      this.safeLoadIssues(this.props.component, 1, LINES, this.props.branch).then(
         issues => {
           if (this.mounted) {
             const finalSources = sources.slice(0, LINES);
@@ -272,7 +284,7 @@ export default class SourceViewerBase extends React.PureComponent<Props, State> 
       );
     };
 
-    this.props.loadComponent!(this.props.component, this.props.branch).then(
+    this.safeLoadComponent(this.props.component, this.props.branch).then(
       onResolve,
       onFailLoadComponent
     );
@@ -308,7 +320,7 @@ export default class SourceViewerBase extends React.PureComponent<Props, State> 
     }
     const firstSourceLine = this.state.sources[0];
     const lastSourceLine = this.state.sources[this.state.sources.length - 1];
-    this.props.loadIssues!(
+    this.safeLoadIssues(
       this.props.component,
       firstSourceLine && firstSourceLine.line,
       lastSourceLine && lastSourceLine.line,
@@ -352,7 +364,7 @@ export default class SourceViewerBase extends React.PureComponent<Props, State> 
       // request one additional line to define `hasSourcesAfter`
       to++;
 
-      return this.props.loadSources!(this.props.component, from, to, this.props.branch).then(
+      return this.safeLoadSources(this.props.component, from, to, this.props.branch).then(
         sources => resolve(sources),
         onFailLoadSources
       );
@@ -366,14 +378,14 @@ export default class SourceViewerBase extends React.PureComponent<Props, State> 
     const firstSourceLine = this.state.sources[0];
     this.setState({ loadingSourcesBefore: true });
     const from = Math.max(1, firstSourceLine.line - LINES);
-    this.props.loadSources!(
+    this.safeLoadSources(
       this.props.component,
       from,
       firstSourceLine.line - 1,
       this.props.branch
     ).then(
       sources => {
-        this.props.loadIssues!(
+        this.safeLoadIssues(
           this.props.component,
           from,
           firstSourceLine.line - 1,
@@ -417,9 +429,9 @@ export default class SourceViewerBase extends React.PureComponent<Props, State> 
     const fromLine = lastSourceLine.line + 1;
     // request one additional line to define `hasSourcesAfter`
     const toLine = lastSourceLine.line + LINES + 1;
-    this.props.loadSources!(this.props.component, fromLine, toLine, this.props.branch).then(
+    this.safeLoadSources(this.props.component, fromLine, toLine, this.props.branch).then(
       sources => {
-        this.props.loadIssues!(this.props.component, fromLine, toLine, this.props.branch).then(
+        this.safeLoadIssues(this.props.component, fromLine, toLine, this.props.branch).then(
           issues => {
             if (this.mounted) {
               this.setState(prevState => {

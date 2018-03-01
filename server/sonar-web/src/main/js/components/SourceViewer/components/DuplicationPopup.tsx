@@ -65,12 +65,17 @@ export default class DuplicationPopup extends React.PureComponent<Props> {
         file: duplicatedFiles[fileRef]
       };
     });
-    duplications = sortBy(duplications, d => {
-      const a = d.file.projectName !== sourceViewerFile.projectName;
-      const b = d.file.subProjectName !== sourceViewerFile.subProjectName;
-      const c = d.file.key !== sourceViewerFile.key;
-      return '' + a + b + c;
-    });
+
+    // first duplications in the same file
+    // then duplications in the same sub-project
+    // then duplications in the same project
+    // then duplications in other projects
+    duplications = sortBy(
+      duplications,
+      d => d.file.projectName !== sourceViewerFile.projectName,
+      d => d.file.subProjectName !== sourceViewerFile.subProjectName,
+      d => d.file.key !== sourceViewerFile.key
+    );
 
     return (
       <BubblePopup customClass="source-viewer-bubble-popup" position={this.props.popupPosition}>
