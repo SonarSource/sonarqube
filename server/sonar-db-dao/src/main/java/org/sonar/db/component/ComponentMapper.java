@@ -21,6 +21,7 @@ package org.sonar.db.component;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.ibatis.annotations.Param;
@@ -119,6 +120,8 @@ public interface ComponentMapper {
    * Return keys and UUIDs of all components belonging to a project
    */
   List<KeyWithUuidDto> selectUuidsByKeyFromProjectKey(@Param("projectKey") String projectKey);
+
+  Set<String> selectViewKeysWithEnabledCopyOfProject(@Param("projectUuid") String projectUuid);
 
   /**
    * Return technical projects from a view or a sub-view

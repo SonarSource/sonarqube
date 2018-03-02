@@ -396,6 +396,22 @@
       </foreach>
   </select>
 
+  <select id="selectViewKeysWithEnabledCopyOfProject" resultType="String">
+    select
+      distinct p.kee
+    from projects p
+    inner join projects leaf on
+      leaf.qualifier = 'TRK'
+      and leaf.scope = 'FIL'
+      and leaf.enabled = ${_true}
+      and leaf.copy_component_uuid = #{projectUuid,jdbcType=VARCHAR}
+    where
+      p.enabled = ${_true}
+      and p.uuid = leaf.project_uuid
+      and p.scope = 'PRJ'
+      and p.qualifier in ('VW', 'APP')
+  </select>
+
   <select id="selectProjectsFromView" resultType="String">
     select p.copy_component_uuid
     from projects p
