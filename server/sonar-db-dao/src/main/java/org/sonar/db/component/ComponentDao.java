@@ -265,6 +265,13 @@ public class ComponentDao implements Dao {
     return mapper(session).selectUuidsForQualifiers(Qualifiers.APP, Qualifiers.VIEW, Qualifiers.SUBVIEW);
   }
 
+  /**
+   * Used by Governance
+   */
+  public Set<String> selectViewKeysWithEnabledCopyOfProject(DbSession session, String projectUuid) {
+    return mapper(session).selectViewKeysWithEnabledCopyOfProject(projectUuid);
+  }
+
   public List<String> selectProjectsFromView(DbSession session, String viewUuid, String projectViewUuid) {
     return mapper(session).selectProjectsFromView("%." + viewUuid + ".%", projectViewUuid);
   }
