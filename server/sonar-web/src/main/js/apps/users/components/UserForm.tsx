@@ -24,7 +24,7 @@ import { createUser, updateUser } from '../../../api/users';
 import { User } from '../../../app/types';
 import throwGlobalError from '../../../app/utils/throwGlobalError';
 import Modal from '../../../components/controls/Modal';
-import { Button, SubmitButton, ResetButtonLink } from '../../../components/ui/buttons';
+import { Button, ResetButtonLink, SubmitButton } from '../../../components/ui/buttons';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { parseError } from '../../../helpers/request';
 
@@ -174,6 +174,7 @@ export default class UserForm extends React.PureComponent<Props, State> {
                 {/* keep this fake field to hack browser autofill */}
                 <input className="hidden" name="login-fake" type="text" />
                 <input
+                  autoFocus={true}
                   id="create-user-login"
                   maxLength={255}
                   minLength={3}
@@ -194,6 +195,7 @@ export default class UserForm extends React.PureComponent<Props, State> {
               {/* keep this fake field to hack browser autofill */}
               <input className="hidden" name="name-fake" type="text" />
               <input
+                autoFocus={!!user}
                 id="create-user-name"
                 maxLength={200}
                 name="name"
