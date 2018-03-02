@@ -112,6 +112,25 @@ export interface CustomMeasure {
   updatedAt?: string;
 }
 
+export interface Duplication {
+  blocks: DuplicationBlock[];
+}
+
+export interface DuplicationBlock {
+  _ref: string;
+  from: number;
+  size: number;
+}
+
+export interface DuplicatedFile {
+  key: string;
+  name: string;
+  project: string;
+  projectName: string;
+  subProject?: string;
+  subProjectName?: string;
+}
+
 export interface Extension {
   key: string;
   name: string;
@@ -120,6 +139,11 @@ export interface Extension {
 export interface FacetValue {
   count: number;
   val: string;
+}
+
+export interface FlowLocation {
+  msg: string;
+  textRange: TextRange;
 }
 
 export interface Group {
@@ -174,10 +198,70 @@ export function isSameHomePage(a: HomePage, b: HomePage) {
   );
 }
 
+export interface Issue {
+  actions?: string[];
+  assignee?: string;
+  assigneeActive?: string;
+  assigneeAvatar?: string;
+  assigneeLogin?: string;
+  assigneeName?: string;
+  author?: string;
+  comments?: IssueComment[];
+  component: string;
+  componentLongName: string;
+  componentQualifier: string;
+  componentUuid: string;
+  creationDate: string;
+  effort?: string;
+  key: string;
+  flows: FlowLocation[][];
+  line?: number;
+  message: string;
+  organization: string;
+  project: string;
+  projectName: string;
+  projectOrganization: string;
+  projectUuid: string;
+  resolution?: string;
+  rule: string;
+  ruleName: string;
+  secondaryLocations: FlowLocation[];
+  severity: string;
+  status: string;
+  subProject?: string;
+  subProjectName?: string;
+  subProjectUuid?: string;
+  tags?: string[];
+  textRange?: TextRange;
+  transitions?: string[];
+  type: string;
+}
+
+export interface IssueComment {
+  author?: string;
+  authorActive?: boolean;
+  authorAvatar?: string;
+  authorLogin?: string;
+  authorName?: string;
+  createdAt: string;
+  htmlText: string;
+  key: string;
+  markdown: string;
+  updatable: boolean;
+}
+
 export interface LightComponent {
   key: string;
   organization: string;
   qualifier: string;
+}
+
+export interface LinearIssueLocation {
+  from: number;
+  index?: number;
+  line: number;
+  startLine?: number;
+  to: number;
 }
 
 export interface LoggedInUser extends CurrentUser {
@@ -349,9 +433,24 @@ export interface ShortLivingBranch {
   type: BranchType.SHORT;
 }
 
+export interface SourceLine {
+  code?: string;
+  conditions?: number;
+  coverageStatus?: string;
+  coveredConditions?: number;
+  duplicated?: boolean;
+  line: number;
+  lineHits?: number;
+  scmAuthor?: string;
+  scmDate?: string;
+  scmRevision?: string;
+}
+
 export interface SourceViewerFile {
   canMarkAsFavorite?: boolean;
+  fav?: boolean;
   key: string;
+  leakPeriodDate?: string;
   measures: {
     coverage?: string;
     duplicationDensity?: string;
@@ -379,6 +478,13 @@ export interface TestCase {
   name: string;
   stacktrace?: string;
   status: string;
+}
+
+export interface TextRange {
+  startLine: number;
+  startOffset: number;
+  endLine: number;
+  endOffset: number;
 }
 
 export interface User {

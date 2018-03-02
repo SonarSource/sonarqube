@@ -1,0 +1,46 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`no issues 1`] = `
+<td
+  className="source-meta source-line-issues"
+  data-line-number={3}
+/>
+`;
+
+exports[`render highest severity 1`] = `
+<td
+  className="source-meta source-line-issues source-line-with-issues"
+  data-line-number={3}
+  onClick={[Function]}
+  role="button"
+  tabIndex={0}
+>
+  <SeverityIcon
+    severity="CRITICAL"
+  />
+  <span
+    className="source-line-issues-counter"
+  >
+    2
+  </span>
+</td>
+`;
+
+exports[`render highest severity 2`] = `
+<td
+  className="source-meta source-line-issues source-line-with-issues"
+  data-line-number={3}
+  onClick={[Function]}
+  role="button"
+  tabIndex={0}
+>
+  <SeverityIcon
+    severity="MINOR"
+  />
+  <span
+    className="source-line-issues-counter"
+  >
+    2
+  </span>
+</td>
+`;

@@ -1,0 +1,72 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`render issues list 1`] = `
+<div
+  className="issue-list"
+>
+  <Issue
+    displayLocationsCount={true}
+    displayLocationsLink={true}
+    issue={
+      Object {
+        "component": "",
+        "componentLongName": "",
+        "componentQualifier": "",
+        "componentUuid": "",
+        "creationDate": "",
+        "flows": Array [],
+        "key": "foo",
+        "message": "",
+        "organization": "",
+        "project": "",
+        "projectName": "",
+        "projectOrganization": "",
+        "projectUuid": "",
+        "rule": "",
+        "ruleName": "",
+        "secondaryLocations": Array [],
+        "severity": "",
+        "status": "",
+        "type": "",
+      }
+    }
+    key="foo"
+    onChange={[MockFunction]}
+    onClick={[MockFunction]}
+    onPopupToggle={[MockFunction]}
+    selected={true}
+  />
+  <Issue
+    displayLocationsCount={true}
+    displayLocationsLink={true}
+    issue={
+      Object {
+        "component": "",
+        "componentLongName": "",
+        "componentQualifier": "",
+        "componentUuid": "",
+        "creationDate": "",
+        "flows": Array [],
+        "key": "bar",
+        "message": "",
+        "organization": "",
+        "project": "",
+        "projectName": "",
+        "projectOrganization": "",
+        "projectUuid": "",
+        "rule": "",
+        "ruleName": "",
+        "secondaryLocations": Array [],
+        "severity": "",
+        "status": "",
+        "type": "",
+      }
+    }
+    key="bar"
+    onChange={[MockFunction]}
+    onClick={[MockFunction]}
+    onPopupToggle={[MockFunction]}
+    selected={false}
+  />
+</div>
+`;

@@ -73,6 +73,7 @@ module.exports = {
   pagePadding: '20px',
 
   // different
+  baseFontFamily: "'Helvetica Neue', 'Segoe UI', Helvetica, Arial, sans-serif",
   defaultShadow: '0 6px 12px rgba(0, 0, 0, 0.175)',
 
   // z-index

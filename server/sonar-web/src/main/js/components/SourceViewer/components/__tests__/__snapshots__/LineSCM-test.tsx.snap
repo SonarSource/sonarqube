@@ -1,0 +1,90 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`does not render scm details 1`] = `
+<td
+  className="source-meta source-line-scm"
+  data-line-number={3}
+  onClick={[Function]}
+  role="button"
+  tabIndex={0}
+>
+  <BubblePopupHelper
+    isOpen={false}
+    popup={
+      <SCMPopup
+        line={
+          Object {
+            "line": 3,
+            "scmAuthor": "foo",
+            "scmDate": "2017-01-01",
+          }
+        }
+      />
+    }
+    position="bottomright"
+    togglePopup={[Function]}
+  />
+</td>
+`;
+
+exports[`render scm details 1`] = `
+<td
+  className="source-meta source-line-scm"
+  data-line-number={3}
+  onClick={[Function]}
+  role="button"
+  tabIndex={0}
+>
+  <div
+    className="source-line-scm-inner"
+    data-author="foo"
+  />
+  <BubblePopupHelper
+    isOpen={false}
+    popup={
+      <SCMPopup
+        line={
+          Object {
+            "line": 3,
+            "scmAuthor": "foo",
+            "scmDate": "2017-01-01",
+          }
+        }
+      />
+    }
+    position="bottomright"
+    togglePopup={[Function]}
+  />
+</td>
+`;
+
+exports[`render scm details for the first line 1`] = `
+<td
+  className="source-meta source-line-scm"
+  data-line-number={3}
+  onClick={[Function]}
+  role="button"
+  tabIndex={0}
+>
+  <div
+    className="source-line-scm-inner"
+    data-author="foo"
+  />
+  <BubblePopupHelper
+    isOpen={false}
+    popup={
+      <SCMPopup
+        line={
+          Object {
+            "line": 3,
+            "scmAuthor": "foo",
+            "scmDate": "2017-01-01",
+          }
+        }
+      />
+    }
+    position="bottomright"
+    togglePopup={[Function]}
+  />
+</td>
+`;

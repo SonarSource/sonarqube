@@ -25,7 +25,7 @@ interface Props {
   children?: React.ReactNode;
   isOpen: boolean;
   offset?: { vertical: number; horizontal: number };
-  popup: React.ReactElement<any>;
+  popup: JSX.Element;
   position: 'bottomleft' | 'bottomright';
   togglePopup: (show: boolean) => void;
 }
@@ -92,10 +92,10 @@ export default class BubblePopupHelper extends React.PureComponent<Props, State>
     return (
       <div
         className={classNames(this.props.className, 'bubble-popup-helper')}
-        ref={container => (this.container = container)}
         onClick={this.handleClick}
-        tabIndex={0}
-        role="tooltip">
+        ref={container => (this.container = container)}
+        role="tooltip"
+        tabIndex={0}>
         {this.props.children}
         {this.props.isOpen && (
           <div ref={popupContainer => (this.popupContainer = popupContainer)}>

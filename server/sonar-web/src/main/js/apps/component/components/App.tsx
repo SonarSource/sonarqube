@@ -47,7 +47,7 @@ export default class App extends React.PureComponent<Props> {
   render() {
     const { branch, id, line } = this.props.location.query;
 
-    const finalLine = line != null ? Number(line) : null;
+    const finalLine = line ? Number(line) : undefined;
 
     return (
       <div className="page page-limited">
