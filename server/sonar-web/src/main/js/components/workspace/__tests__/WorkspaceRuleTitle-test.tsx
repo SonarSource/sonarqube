@@ -17,18 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import * as React from 'react';
 import { shallow } from 'enzyme';
-import React from 'react';
-import IssueMessage from '../IssueMessage';
+import WorkspaceRuleTitle from '../WorkspaceRuleTitle';
 
-it('should render with the message and a link to open the rule', () => {
-  const element = shallow(
-    <IssueMessage
-      rule="javascript:S1067"
-      message="Reduce the number of conditional operators (4) used in the expression"
-      organization="myorg"
-    />,
-    { context: { workspace: {} } }
-  );
-  expect(element).toMatchSnapshot();
+it('should render rule', () => {
+  const rule = { key: 'foo', organization: 'org' };
+  expect(shallow(<WorkspaceRuleTitle rule={rule} />)).toMatchSnapshot();
+});
+
+it('should render loaded rule', () => {
+  const rule = { key: 'foo', name: 'Foo', organization: 'org' };
+  expect(shallow(<WorkspaceRuleTitle rule={rule} />)).toMatchSnapshot();
 });

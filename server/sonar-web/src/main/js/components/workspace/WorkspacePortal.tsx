@@ -17,42 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
-import PropTypes from 'prop-types';
-import { translate } from '../../../helpers/l10n';
+import * as React from 'react';
+import { createPortal } from 'react-dom';
 
-export default class IssueMessage extends React.PureComponent {
-  /*:: props: {
-    message: string,
-    rule: string,
-    organization: string
-  };
-  */
+export default class WorkspacePortal extends React.PureComponent {
+  el: HTMLElement;
 
-  static contextTypes = {
-    workspace: PropTypes.object.isRequired
-  };
+  constructor(props: {}) {
+    super(props);
+    this.el = document.createElement('div');
+    this.el.classList.add('workspace');
+  }
 
-  handleClick = (e /*: MouseEvent */) => {
-    e.preventDefault();
-    e.stopPropagation();
-    this.context.workspace.openRule({
-      key: this.props.rule,
-      organization: this.props.organization
-    });
-  };
+  componentDidMount() {
+    document.body.appendChild(this.el);
+  }
+
+  componentWillUnmount() {
+    document.body.removeChild(this.el);
+  }
 
   render() {
-    return (
-      <div className="issue-message">
-        {this.props.message}
-        <button
-          className="button-link issue-rule icon-ellipsis-h little-spacer-left"
-          aria-label={translate('issue.rule_details')}
-          onClick={this.handleClick}
-        />
-      </div>
-    );
+    return createPortal(this.props.children, this.el);
   }
 }

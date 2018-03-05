@@ -1,0 +1,18 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render 1`] = `
+<WorkspaceNavItem
+  onClose={[Function]}
+  onOpen={[Function]}
+>
+  <WorkspaceRuleTitle
+    limited={true}
+    rule={
+      Object {
+        "key": "foo",
+        "organization": "org",
+      }
+    }
+  />
+</WorkspaceNavItem>
+`;

@@ -22,7 +22,7 @@
   z-index: 451;
   bottom: 0;
   right: 0;
-  height: 30px;
+  height: 28px;
 }
 
 .workspace-nav-list {
@@ -30,21 +30,33 @@
 }
 
 .workspace-nav-item {
-  float: left;
-  vertical-align: middle;
-  margin-right: 10px;
-  padding: 3px 10px;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  margin-right: var(--gridSize);
+}
+
+.workspace-nav-item-link {
+  display: inline-flex;
+  align-items: center;
+  height: 28px;
+  padding: 0 calc(3.5 * var(--gridSize)) 0 var(--gridSize);
+  border: none;
   background-color: var(--gray40);
   color: #fff;
   font-size: var(--smallFontSize);
-  font-weight: 300;
-  cursor: pointer;
 }
 
-.workspace-nav-item > i {
-  position: relative;
-  top: -2px;
-  vertical-align: middle;
+.workspace-nav-item-link:hover,
+.workspace-nav-item-link:focus {
+  color: #fff;
+  opacity: 0.9;
+}
+
+.workspace-nav-item-close {
+  position: absolute;
+  right: 4px;
+  top: 4px;
 }
 
 .workspace-viewer {
@@ -72,7 +84,7 @@
   float: left;
   line-height: var(--controlHeight);
   color: #fff;
-  font-weight: 300;
+  font-weight: 400;
 }
 
 .workspace-viewer-name i {
@@ -92,11 +104,15 @@
 
 .workspace-viewer-actions {
   float: right;
-  line-height: var(--controlHeight);
 }
 
 .workspace-viewer-actions a {
   color: inherit;
+}
+
+.workspace-header-icon:hover path,
+.workspace-header-icon:focus path {
+  color: var(--gray40);
 }
 
 .workspace-viewer-container {

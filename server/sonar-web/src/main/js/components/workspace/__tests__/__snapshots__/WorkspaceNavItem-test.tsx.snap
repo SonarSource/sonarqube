@@ -1,0 +1,26 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render 1`] = `
+<li
+  className="workspace-nav-item"
+>
+  <a
+    className="workspace-nav-item-link"
+    href="#"
+    onClick={[Function]}
+  >
+    <div
+      id="workspace-nav-item"
+    />
+  </a>
+  <ButtonIcon
+    className="js-close workspace-nav-item-close workspace-header-icon button-small little-spacer-left"
+    color="#fff"
+    onClick={[MockFunction]}
+  >
+    <ClearIcon
+      size={12}
+    />
+  </ButtonIcon>
+</li>
+`;

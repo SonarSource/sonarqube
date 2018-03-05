@@ -17,41 +17,31 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import Marionette from 'backbone.marionette';
-import Template from '../templates/workspace-item.hbs';
+import * as React from 'react';
+import { RuleDescriptor } from './context';
+import WorkspaceNavItem from './WorkspaceNavItem';
+import WorkspaceRuleTitle from './WorkspaceRuleTitle';
 
-export default Marionette.ItemView.extend({
-  tagName: 'li',
-  className: 'workspace-nav-item',
-  template: Template,
+export interface Props {
+  rule: RuleDescriptor;
+  onClose: (ruleKey: string) => void;
+  onOpen: (ruleKey: string) => void;
+}
 
-  modelEvents: {
-    change: 'render',
-    showViewer: 'onViewerShow',
-    hideViewer: 'onViewerHide'
-  },
+export default class WorkspaceNavRule extends React.PureComponent<Props> {
+  handleClose = () => {
+    this.props.onClose(this.props.rule.key);
+  };
 
-  events: {
-    click: 'onClick',
-    'click .js-close': 'onCloseClick'
-  },
+  handleOpen = () => {
+    this.props.onOpen(this.props.rule.key);
+  };
 
-  onClick(e) {
-    e.preventDefault();
-    this.options.collectionView.trigger('click', this.model);
-  },
-
-  onCloseClick(e) {
-    e.preventDefault();
-    e.stopPropagation();
-    this.model.destroy();
-  },
-
-  onViewerShow() {
-    this.$el.addClass('hidden');
-  },
-
-  onViewerHide() {
-    this.$el.removeClass('hidden');
+  render() {
+    return (
+      <WorkspaceNavItem onClose={this.handleClose} onOpen={this.handleOpen}>
+        <WorkspaceRuleTitle limited={true} rule={this.props.rule} />
+      </WorkspaceNavItem>
+    );
   }
-});
+}

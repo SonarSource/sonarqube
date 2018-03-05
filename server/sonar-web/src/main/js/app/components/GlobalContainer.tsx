@@ -22,6 +22,7 @@ import * as PropTypes from 'prop-types';
 import GlobalNav from './nav/global/GlobalNav';
 import GlobalFooterContainer from './GlobalFooterContainer';
 import GlobalMessagesContainer from './GlobalMessagesContainer';
+import Workspace from '../../components/workspace/Workspace';
 
 interface Props {
   children: React.ReactNode;
@@ -61,14 +62,16 @@ export default class GlobalContainer extends React.PureComponent<Props, State> {
       <div className="global-container">
         <div className="page-wrapper" id="container">
           <div className="page-container">
-            <GlobalNav
-              closeOnboardingTutorial={this.closeOnboardingTutorial}
-              isOnboardingTutorialOpen={this.state.isOnboardingTutorialOpen}
-              location={this.props.location}
-              openOnboardingTutorial={this.openOnboardingTutorial}
-            />
-            <GlobalMessagesContainer />
-            {this.props.children}
+            <Workspace>
+              <GlobalNav
+                closeOnboardingTutorial={this.closeOnboardingTutorial}
+                isOnboardingTutorialOpen={this.state.isOnboardingTutorialOpen}
+                location={this.props.location}
+                openOnboardingTutorial={this.openOnboardingTutorial}
+              />
+              <GlobalMessagesContainer />
+              {this.props.children}
+            </Workspace>
           </div>
         </div>
         <GlobalFooterContainer />

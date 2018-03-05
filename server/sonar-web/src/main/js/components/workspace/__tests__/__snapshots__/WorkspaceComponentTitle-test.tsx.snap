@@ -1,0 +1,17 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render component 1`] = `
+<React.Fragment>
+  —
+</React.Fragment>
+`;
+
+exports[`should render loaded component 1`] = `
+<React.Fragment>
+  <QualifierIcon
+    className="little-spacer-right"
+    qualifier="FIL"
+  />
+  src/foo.js
+</React.Fragment>
+`;

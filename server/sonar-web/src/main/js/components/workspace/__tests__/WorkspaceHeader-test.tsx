@@ -17,18 +17,31 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import * as React from 'react';
 import { shallow } from 'enzyme';
-import React from 'react';
-import IssueMessage from '../IssueMessage';
+import WorkspaceHeader, { Props } from '../WorkspaceHeader';
 
-it('should render with the message and a link to open the rule', () => {
-  const element = shallow(
-    <IssueMessage
-      rule="javascript:S1067"
-      message="Reduce the number of conditional operators (4) used in the expression"
-      organization="myorg"
-    />,
-    { context: { workspace: {} } }
-  );
-  expect(element).toMatchSnapshot();
+it('should render', () => {
+  expect(shallowRender()).toMatchSnapshot();
 });
+
+it('should resize', () => {
+  const onResize = jest.fn();
+  const wrapper = shallowRender({ onResize });
+  wrapper.find('DraggableCore').prop<Function>('onDrag')({}, { deltaY: 15 });
+  expect(onResize).toBeCalledWith(15);
+});
+
+function shallowRender(props?: Partial<Props>) {
+  return shallow(
+    <WorkspaceHeader
+      onClose={jest.fn()}
+      onCollapse={jest.fn()}
+      onMaximize={jest.fn()}
+      onMinimize={jest.fn()}
+      onResize={jest.fn()}
+      {...props}>
+      <div id="workspace-header-children" />
+    </WorkspaceHeader>
+  );
+}

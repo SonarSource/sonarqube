@@ -17,31 +17,31 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import Backbone from 'backbone';
+import * as React from 'react';
+import { shallow } from 'enzyme';
+import WorkspaceNavRule, { Props } from '../WorkspaceNavRule';
 
-export default Backbone.Model.extend({
-  validate() {
-    if (!this.has('__type__')) {
-      return 'type is missing';
-    }
-    if (this.get('__type__') === 'component' && !this.has('key')) {
-      return 'key is missing';
-    }
-    if (this.get('__type__') === 'rule' && !this.has('key')) {
-      return 'key is missing';
-    }
-  },
-
-  isComponent() {
-    return this.get('__type__') === 'component';
-  },
-
-  isRule() {
-    return this.get('__type__') === 'rule';
-  },
-
-  destroy(options) {
-    this.stopListening();
-    this.trigger('destroy', this, this.collection, options);
-  }
+it('should render', () => {
+  expect(shallowRender()).toMatchSnapshot();
 });
+
+it('should close', () => {
+  const onClose = jest.fn();
+  const wrapper = shallowRender({ onClose });
+  wrapper.find('WorkspaceNavItem').prop<Function>('onClose')();
+  expect(onClose).toBeCalledWith('foo');
+});
+
+it('should open', () => {
+  const onOpen = jest.fn();
+  const wrapper = shallowRender({ onOpen });
+  wrapper.find('WorkspaceNavItem').prop<Function>('onOpen')();
+  expect(onOpen).toBeCalledWith('foo');
+});
+
+function shallowRender(props?: Partial<Props>) {
+  const rule = { key: 'foo', organization: 'org' };
+  return shallow(
+    <WorkspaceNavRule onClose={jest.fn()} onOpen={jest.fn()} rule={rule} {...props} />
+  );
+}

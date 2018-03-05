@@ -19,10 +19,12 @@
  */
 import * as React from 'react';
 import { Link } from 'react-router';
+import * as PropTypes from 'prop-types';
 import { groupBy, sortBy } from 'lodash';
 import { BranchLike, DuplicatedFile, DuplicationBlock, SourceViewerFile } from '../../../app/types';
 import BubblePopup from '../../common/BubblePopup';
 import QualifierIcon from '../../shared/QualifierIcon';
+import { WorkspaceContext } from '../../workspace/context';
 import { translate } from '../../../helpers/l10n';
 import { collapsedDirFromPath, fileFromPath } from '../../../helpers/path';
 import { getProjectUrl } from '../../../helpers/urls';
@@ -38,6 +40,13 @@ interface Props {
 }
 
 export default class DuplicationPopup extends React.PureComponent<Props> {
+  // prettier-ignore
+  context!: { workspace: WorkspaceContext };
+
+  static contextTypes = {
+    workspace: PropTypes.object.isRequired
+  };
+
   isDifferentComponent = (
     a: { project: string; subProject?: string },
     b: { project: string; subProject?: string }
@@ -48,9 +57,14 @@ export default class DuplicationPopup extends React.PureComponent<Props> {
   handleFileClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     event.currentTarget.blur();
-    const Workspace = require('../../workspace/main').default;
     const { key, line } = event.currentTarget.dataset;
-    Workspace.openComponent({ key, line, branchLike: this.props.branchLike });
+    if (key) {
+      this.context.workspace.openComponent({
+        branchLike: this.props.branchLike,
+        key,
+        line: line ? Number(line) : undefined
+      });
+    }
     this.props.onClose();
   };
 
