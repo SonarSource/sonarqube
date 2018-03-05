@@ -127,6 +127,8 @@ public class QualityGateServiceImplTest {
     MetricImpl bugsMetric = mockMetricInRepository(CoreMetrics.BUGS_KEY);
     MetricImpl vulnerabilitiesMetric = mockMetricInRepository(CoreMetrics.VULNERABILITIES_KEY);
     MetricImpl codeSmellsMetric = mockMetricInRepository(CoreMetrics.CODE_SMELLS_KEY);
+    MetricImpl openedIssueMetric = mockMetricInRepository(CoreMetrics.OPEN_ISSUES_KEY);
+    MetricImpl reOpenedIssueMetric = mockMetricInRepository(CoreMetrics.REOPENED_ISSUES_KEY);
 
     Optional<QualityGate> res = underTest.findById(ShortLivingBranchQualityGate.ID);
 
@@ -137,9 +139,8 @@ public class QualityGateServiceImplTest {
     assertThat(qualityGate.getConditions())
       .extracting(Condition::getMetric, Condition::getOperator, Condition::getErrorThreshold, Condition::getWarningThreshold, Condition::hasPeriod)
       .containsOnly(
-        tuple(bugsMetric, GREATER_THAN, "0", null, false),
-        tuple(vulnerabilitiesMetric, GREATER_THAN, "0", null, false),
-        tuple(codeSmellsMetric, GREATER_THAN, "0", null, false));
+        tuple(openedIssueMetric, GREATER_THAN, "0", null, false),
+        tuple(reOpenedIssueMetric, GREATER_THAN, "0", null, false));
   }
 
   private MetricImpl mockMetricInRepository(String metricKey) {

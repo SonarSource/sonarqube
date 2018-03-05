@@ -34,14 +34,12 @@ public final class ShortLivingBranchQualityGate {
   public static final long ID = -1_963_456_987L;
   public static final String NAME = "Hardcoded short living branch quality gate";
   public static final List<Condition> CONDITIONS = ImmutableList.of(
-    new Condition(CoreMetrics.BUGS_KEY, OPERATOR_GREATER_THAN, "0", false),
-    new Condition(CoreMetrics.VULNERABILITIES_KEY, OPERATOR_GREATER_THAN, "0", false),
-    new Condition(CoreMetrics.CODE_SMELLS_KEY, OPERATOR_GREATER_THAN, "0", false));
+    new Condition(CoreMetrics.OPEN_ISSUES_KEY, OPERATOR_GREATER_THAN, "0", false),
+    new Condition(CoreMetrics.REOPENED_ISSUES_KEY, OPERATOR_GREATER_THAN, "0", false));
 
   public static final QualityGate GATE = new QualityGate(String.valueOf(ID), NAME, ImmutableSet.of(
-    new org.sonar.server.qualitygate.Condition(CoreMetrics.BUGS_KEY, org.sonar.server.qualitygate.Condition.Operator.GREATER_THAN, "0", null, false),
-    new org.sonar.server.qualitygate.Condition(CoreMetrics.VULNERABILITIES_KEY, org.sonar.server.qualitygate.Condition.Operator.GREATER_THAN, "0", null, false),
-    new org.sonar.server.qualitygate.Condition(CoreMetrics.CODE_SMELLS_KEY, org.sonar.server.qualitygate.Condition.Operator.GREATER_THAN, "0", null, false)));
+    new org.sonar.server.qualitygate.Condition(CoreMetrics.OPEN_ISSUES_KEY, org.sonar.server.qualitygate.Condition.Operator.GREATER_THAN, "0", null, false),
+    new org.sonar.server.qualitygate.Condition(CoreMetrics.REOPENED_ISSUES_KEY, org.sonar.server.qualitygate.Condition.Operator.GREATER_THAN, "0", null, false)));
 
   private ShortLivingBranchQualityGate() {
     // prevents instantiation

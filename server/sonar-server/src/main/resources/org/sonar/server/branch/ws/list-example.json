@@ -4,6 +4,9 @@
       "name": "feature/bar",
       "isMain": false,
       "type": "LONG",
+      "status": {
+        "qualityGateStatus": "OK"
+      },
       "analysisDate": "2017-04-01T01:15:42+0100"
     },
     {
@@ -11,6 +14,12 @@
       "isMain": false,
       "type": "SHORT",
       "mergeBranch": "feature/bar",
+      "status": {
+        "qualityGateStatus": "OK",
+        "bugs": 1,
+        "vulnerabilities": 0,
+        "codeSmells": 0
+      },
       "analysisDate": "2017-04-03T13:37:00+0100"
     }
   ]
