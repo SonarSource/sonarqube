@@ -158,13 +158,14 @@ public class ListAction implements BranchWsAction {
     ProjectBranches.Status.Builder statusBuilder = ProjectBranches.Status.newBuilder();
     if (qualityGateMeasure != null) {
       Protobuf.setNullable(qualityGateMeasure.getDataAsString(), statusBuilder::setQualityGateStatus);
+      builder.setStatus(statusBuilder);
     }
     if (branch.getBranchType() == BranchType.SHORT) {
       statusBuilder.setBugs(branchStatistics == null ? 0L : branchStatistics.getBugs());
       statusBuilder.setVulnerabilities(branchStatistics == null ? 0L : branchStatistics.getVulnerabilities());
       statusBuilder.setCodeSmells(branchStatistics == null ? 0L : branchStatistics.getCodeSmells());
+      builder.setStatus(statusBuilder);
     }
-    builder.setStatus(statusBuilder);
   }
 
   private void checkPermission(ComponentDto component) {

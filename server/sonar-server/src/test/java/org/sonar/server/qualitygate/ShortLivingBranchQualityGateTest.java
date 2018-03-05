@@ -27,14 +27,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 
 public class ShortLivingBranchQualityGateTest {
+
   @Test
-  public void defines_3_conditions() {
+  public void defines_short_living_branches_hardcoded_quality_gate_conditions() {
     assertThat(ShortLivingBranchQualityGate.CONDITIONS)
       .extracting(Condition::getMetricKey, Condition::getOperator, Condition::getErrorThreshold, Condition::getWarnThreshold, Condition::isOnLeak)
       .containsExactly(
-        tuple(CoreMetrics.BUGS_KEY, "GT", "0", null, false),
-        tuple(CoreMetrics.VULNERABILITIES_KEY, "GT", "0", null, false),
-        tuple(CoreMetrics.CODE_SMELLS_KEY, "GT", "0", null, false));
+        tuple(CoreMetrics.OPEN_ISSUES_KEY, "GT", "0", null, false),
+        tuple(CoreMetrics.REOPENED_ISSUES_KEY, "GT", "0", null, false));
   }
 
 }
