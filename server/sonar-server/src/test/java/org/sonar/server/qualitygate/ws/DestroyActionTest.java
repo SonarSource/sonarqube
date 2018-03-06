@@ -28,9 +28,9 @@ import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualitygate.QGateWithOrgDto;
-import org.sonar.db.qualitygate.QualityGateDbTester;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -95,6 +95,30 @@ public class DestroyActionTest {
       .execute();
 
     assertThat(db.getDbClient().qualityGateDao().selectByOrganizationAndId(dbSession, organization, qualityGate.getId())).isNull();
+  }
+
+  @Test
+  public void delete_quality_gate_and_any_association_to_any_project() {
+    OrganizationDto organization = db.organizations().insert();
+    db.qualityGates().createDefaultQualityGate(organization);
+    QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization);
+    ComponentDto prj1 = db.components().insertPublicProject(organization);
+    ComponentDto prj2 = db.components().insertPublicProject(organization);
+    db.qualityGates().associateProjectToQualityGate(prj1, qualityGate);
+    db.qualityGates().associateProjectToQualityGate(prj2, qualityGate);
+    userSession.addPermission(ADMINISTER_QUALITY_GATES, organization);
+
+    ws.newRequest()
+      .setParam(PARAM_ID, valueOf(qualityGate.getId()))
+      .setParam(PARAM_ORGANIZATION, organization.getKey())
+      .execute();
+
+    assertThat(db.getDbClient().qualityGateDao().selectByOrganizationAndId(dbSession, organization, qualityGate.getId()))
+      .isNull();
+    assertThat(db.getDbClient().propertiesDao().selectProjectProperties(prj1.getDbKey()))
+      .isEmpty();
+    assertThat(db.getDbClient().propertiesDao().selectProjectProperties(prj2.getDbKey()))
+      .isEmpty();
   }
 
   @Test

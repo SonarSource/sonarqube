@@ -30,6 +30,7 @@ import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.qualitygate.QualityGateFinder;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static org.sonar.server.qualitygate.QualityGateFinder.SONAR_QUALITYGATE_PROPERTY;
 
 public class DestroyAction implements QualityGatesWsAction {
 
@@ -70,6 +71,7 @@ public class DestroyAction implements QualityGatesWsAction {
       checkArgument(!defaultQualityGate.getId().equals(qualityGate.getId()), "The default quality gate cannot be removed");
       wsSupport.checkCanEdit(qualityGate);
 
+      dbClient.propertiesDao().deleteByKeyAndValue(dbSession, SONAR_QUALITYGATE_PROPERTY, String.valueOf(qualityGate.getId()));
       dbClient.qualityGateDao().delete(qualityGate, dbSession);
       dbSession.commit();
       response.noContent();
