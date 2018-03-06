@@ -50,7 +50,7 @@ export default class ApplicationLeakPeriodLegend extends React.Component<Props, 
   }
 
   fetchLeaks = (visible: boolean) => {
-    if (visible && this.state.leaks) {
+    if (visible && !this.state.leaks) {
       getApplicationLeak(this.props.component).then(
         leaks => {
           if (this.mounted) {

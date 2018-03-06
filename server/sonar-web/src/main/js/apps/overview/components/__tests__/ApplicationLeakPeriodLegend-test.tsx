@@ -20,15 +20,22 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import ApplicationLeakPeriodLegend from '../ApplicationLeakPeriodLegend';
+import { waitAndUpdate } from '../../../../helpers/testUtils';
 
-it('renders', () => {
-  const wrapper = shallow(<ApplicationLeakPeriodLegend component="foo" />);
-  expect(wrapper).toMatchSnapshot();
-  wrapper.setState({
-    leaks: [
+jest.mock('../../../../api/application', () => ({
+  getApplicationLeak: jest.fn(() =>
+    Promise.resolve([
       { date: '2017-01-01T11:39:03+0100', project: 'foo', projectName: 'Foo' },
       { date: '2017-02-01T11:39:03+0100', project: 'bar', projectName: 'Bar' }
-    ]
-  });
+    ])
+  )
+}));
+
+it('renders', async () => {
+  const wrapper = shallow(<ApplicationLeakPeriodLegend component="foo" />);
+  expect(wrapper).toMatchSnapshot();
+
+  wrapper.find('Tooltip').prop<Function>('onVisibleChange')(true);
+  await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot();
 });
