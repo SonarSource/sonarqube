@@ -53,7 +53,7 @@ export default class IssueView extends React.PureComponent {
     event.preventDefault();
     event.stopPropagation();
     if (this.props.onCheck) {
-      this.props.onCheck(this.props.issue.key);
+      this.props.onCheck(this.props.issue.key, event);
     }
   };
 

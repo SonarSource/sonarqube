@@ -122,6 +122,7 @@ export default class App extends React.PureComponent {
     super(props);
     this.state = {
       bulkChange: null,
+      lastChecked: null,
       checked: [],
       facets: {},
       issues: [],
@@ -652,8 +653,32 @@ export default class App extends React.PureComponent {
     });
   };
 
-  handleIssueCheck = (issue /*: string */) => {
+  handleIssueCheck = (issue /*: string */, event /*: Event */) => {
+    // If the Alt key is pressed while (un)checking, we should (un)checked all the issues
+    // between the issue clicked and the previously clicked one
+    if (event.altKey && this.state.lastChecked !== null) {
+      const issueIndexes = this.state.issues.map(issue => {
+        return issue.key;
+      });
+      const currentIssueIndex = issueIndexes.indexOf(issue);
+      const lastSelectedIndex = issueIndexes.indexOf(this.state.lastChecked);
+      const shouldCheck = this.state.checked.includes(this.state.lastChecked);
+      let checked = this.state.checked;
+      const start = Math.min(currentIssueIndex, lastSelectedIndex);
+      const end = Math.max(currentIssueIndex, lastSelectedIndex);
+
+      for (let i = start; i < end + 1; i++) {
+        checked = shouldCheck
+          ? [...checked, this.state.issues[i].key]
+          : without(checked, this.state.issues[i].key);
+      }
+
+      this.setState(state => ({ checked }));
+      return;
+    }
+
     this.setState(state => ({
+      lastChecked: issue,
       checked: state.checked.includes(issue)
         ? without(state.checked, issue)
         : [...state.checked, issue]
