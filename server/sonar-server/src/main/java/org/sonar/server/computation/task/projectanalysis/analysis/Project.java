@@ -19,6 +19,7 @@
  */
 package org.sonar.server.computation.task.projectanalysis.analysis;
 
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
 @Immutable
@@ -27,11 +28,17 @@ public class Project {
   private final String uuid;
   private final String key;
   private final String name;
+  private final String description;
 
   public Project(String uuid, String key, String name) {
+    this(uuid, key, name, null);
+  }
+
+  public Project(String uuid, String key, String name, @Nullable String description) {
     this.uuid = uuid;
     this.key = key;
     this.name = name;
+    this.description = description;
   }
 
   /**
@@ -50,6 +57,10 @@ public class Project {
 
   public String getName() {
     return name;
+  }
+
+  public String getDescription() {
+    return description;
   }
 
   @Override
@@ -75,8 +86,16 @@ public class Project {
     sb.append("uuid='").append(uuid).append('\'');
     sb.append(", key='").append(key).append('\'');
     sb.append(", name='").append(name).append('\'');
+    sb.append(", description=").append(toString(this.description));
     sb.append('}');
     return sb.toString();
+  }
+
+  private static String toString(@Nullable String s) {
+    if (s == null) {
+      return null;
+    }
+    return '\'' + s + '\'';
   }
 
 }

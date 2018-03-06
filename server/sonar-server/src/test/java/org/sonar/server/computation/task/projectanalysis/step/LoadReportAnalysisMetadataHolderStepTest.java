@@ -39,6 +39,7 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.server.computation.task.projectanalysis.analysis.MutableAnalysisMetadataHolderRule;
 import org.sonar.server.computation.task.projectanalysis.analysis.Organization;
+import org.sonar.server.computation.task.projectanalysis.analysis.Project;
 import org.sonar.server.computation.task.projectanalysis.analysis.ScannerPlugin;
 import org.sonar.server.computation.task.projectanalysis.batch.BatchReportReaderRule;
 import org.sonar.server.computation.task.projectanalysis.component.BranchLoader;
@@ -71,14 +72,15 @@ public class LoadReportAnalysisMetadataHolderStepTest {
   private DbClient dbClient = db.getDbClient();
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
   private PluginRepository pluginRepository = mock(PluginRepository.class);
-  private ComputationStep underTest;
   private OrganizationFlags organizationFlags = mock(OrganizationFlags.class);
+  private ComponentDto project;
+  private ComputationStep underTest;
 
   @Before
   public void setUp() {
     CeTask defaultOrgCeTask = createCeTask(PROJECT_KEY, db.getDefaultOrganization().getUuid());
     underTest = createStep(defaultOrgCeTask);
-    db.components().insertPublicProject(db.getDefaultOrganization(), p -> p.setDbKey(PROJECT_KEY));
+    project = db.components().insertPublicProject(db.getDefaultOrganization(), p -> p.setDbKey(PROJECT_KEY));
   }
 
   @Test
@@ -103,6 +105,22 @@ public class LoadReportAnalysisMetadataHolderStepTest {
     underTest.execute();
 
     assertThat(analysisMetadataHolder.getAnalysisDate()).isEqualTo(ANALYSIS_DATE);
+  }
+
+  @Test
+  public void set_project_from_dto() {
+    reportReader.setMetadata(
+      newBatchReportBuilder()
+        .setRootComponentRef(1)
+        .build());
+
+    underTest.execute();
+
+    Project project = analysisMetadataHolder.getProject();
+    assertThat(project.getUuid()).isEqualTo(this.project.uuid());
+    assertThat(project.getKey()).isEqualTo(this.project.getDbKey());
+    assertThat(project.getName()).isEqualTo(this.project.name());
+    assertThat(project.getDescription()).isEqualTo(this.project.description());
   }
 
   @Test

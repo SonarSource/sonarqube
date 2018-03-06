@@ -25,29 +25,53 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class ProjectTest {
   @Test
-  public void test_bean() {
-    Project project = new Project("U1", "K1", "N1");
+  public void test_bean_without_description() {
+    Project project1 = new Project("U1", "K1", "N1");
+    Project project2 = new Project("U1", "K1", "N1", null);
 
-    assertThat(project.getUuid()).isEqualTo("U1");
-    assertThat(project.getKey()).isEqualTo("K1");
-    assertThat(project.getName()).isEqualTo("N1");
+    assertThat(project1.getUuid()).isEqualTo(project2.getUuid()).isEqualTo("U1");
+    assertThat(project1.getKey()).isEqualTo(project2.getKey()).isEqualTo("K1");
+    assertThat(project1.getName()).isEqualTo(project2.getName()).isEqualTo("N1");
+    assertThat(project1.getDescription()).isEqualTo(project2.getDescription()).isNull();
 
-    assertThat(project.toString()).isEqualTo("Project{uuid='U1', key='K1', name='N1'}");
+    assertThat(project1.toString())
+      .isEqualTo(project2.toString())
+      .isEqualTo("Project{uuid='U1', key='K1', name='N1', description=null}");
+  }
+  @Test
+  public void test_bean_with_description() {
+    Project project1 = new Project("U1", "K1", "N1", "D1");
+
+    assertThat(project1.getUuid()).isEqualTo("U1");
+    assertThat(project1.getKey()).isEqualTo("K1");
+    assertThat(project1.getName()).isEqualTo("N1");
+    assertThat(project1.getDescription()).isEqualTo("D1");
+
+    assertThat(project1.toString())
+      .isEqualTo(project1.toString())
+      .isEqualTo("Project{uuid='U1', key='K1', name='N1', description='D1'}");
   }
 
   @Test
   public void test_equals_and_hashCode() {
     Project project1 = new Project("U1", "K1", "N1");
-    Project project1bis = new Project("U1", "K1", "N1");
-    Project project2 = new Project("U2", "K2", project1.getName() /* same name */);
+    Project project2 = new Project("U1", "K1", "N1", "D1");
 
-    assertThat(project1.equals(project1)).isTrue();
-    assertThat(project1.equals(project1bis)).isTrue();
-    assertThat(project1.equals(project2)).isFalse();
-    assertThat(project1.equals("U1")).isFalse();
+    assertThat(project1).isEqualTo(project1);
+    assertThat(project1).isNotEqualTo(null);
+    assertThat(project1).isNotEqualTo(new Object());
+    assertThat(project1).isEqualTo(new Project("U1", "K1", "N1", null));
+    assertThat(project1).isEqualTo(new Project("U1", "K2", "N1", null));
+    assertThat(project1).isEqualTo(new Project("U1", "K1", "N2", null));
+    assertThat(project1).isEqualTo(project2);
 
     assertThat(project1.hashCode()).isEqualTo(project1.hashCode());
-    assertThat(project1.hashCode()).isEqualTo(project1bis.hashCode());
+    assertThat(project1.hashCode()).isNotEqualTo(null);
+    assertThat(project1.hashCode()).isNotEqualTo(new Object().hashCode());
+    assertThat(project1.hashCode()).isEqualTo(new Project("U1", "K1", "N1", null).hashCode());
+    assertThat(project1.hashCode()).isEqualTo(new Project("U1", "K2", "N1", null).hashCode());
+    assertThat(project1.hashCode()).isEqualTo(new Project("U1", "K1", "N2", null).hashCode());
+    assertThat(project1.hashCode()).isEqualTo(project2.hashCode());
   }
 
 }
