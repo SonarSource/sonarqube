@@ -26,33 +26,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const webpack = require('webpack');
 const InterpolateHtmlPlugin = require('./InterpolateHtmlPlugin');
 const paths = require('./paths');
-
-const cssMinimizeOptions = {
-  discardComments: { removeAll: true }
-};
-
-const cssLoader = ({ production }) => ({
-  loader: 'css-loader',
-  options: {
-    importLoaders: 1,
-    minimize: production && cssMinimizeOptions,
-    url: false
-  }
-});
-
-const postcssLoader = () => ({
-  loader: 'postcss-loader',
-  options: {
-    ident: 'postcss',
-    plugins: () => [
-      require('autoprefixer'),
-      require('postcss-custom-properties')({
-        variables: require('../src/main/js/app/theme')
-      }),
-      require('postcss-calc')
-    ]
-  }
-});
+const utils = require('./utils');
 
 module.exports = ({ production = true }) => ({
   mode: production ? 'production' : 'development',
@@ -122,18 +96,7 @@ module.exports = ({ production = true }) => ({
     new HtmlWebpackPlugin({
       inject: false,
       template: paths.appHtml,
-      minify: production && {
-        removeComments: true,
-        collapseWhitespace: true,
-        removeRedundantAttributes: true,
-        useShortDoctype: true,
-        removeEmptyAttributes: true,
-        removeStyleLinkTypeAttributes: true,
-        keepClosingSlash: true,
-        minifyJS: true,
-        minifyCSS: true,
-        minifyURLs: true
-      }
+      minify: utils.minifyParams({ production })
     }),
 
     // keep `InterpolateHtmlPlugin` after `HtmlWebpackPlugin`

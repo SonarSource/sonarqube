@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8" charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+  <meta name="application-name" content="SonarQube VSTS Widget" />
+
+  <script src="%WEB_CONTEXT%/integration/vsts/js/VSS.SDK.min.js"></script>
+  <title>SonarQube VSTS Widget</title>
+</head>
+
+<body>
+  <div id="content">
+    <div class="vsts-loading">
+      <i class="spinner global-loading-spinner"></i>
+    </div>
+  </div>
+  <script>window.baseUrl = '%WEB_CONTEXT%';</script>
+  <% for (var chunk in htmlWebpackPlugin.files.chunks) { %>
+    <script src="%WEB_CONTEXT%<%= htmlWebpackPlugin.files.chunks[chunk].entry %>"></script>
+  <% } %>
+</body>
+
+</html>

@@ -1,0 +1,89 @@
+/*
+ * SonarQube
+ * Copyright (C) 2009-2018 SonarSource SA
+ * mailto:info AT sonarsource DOT com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+
+@import '../../styles/components/spinner.css';
+@import '../../styles/components/global-loading.css';
+
+#content {
+  height: 100%;
+}
+
+.vsts-loading {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.vsts-widget-configure {
+  display: block;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  padding: 10px 14px;
+  font-size: 16px;
+}
+
+.vsts-widget-configure .title {
+  color: #333;
+  font-weight: normal;
+}
+
+.vsts-widget-configure .content {
+  padding-top: 10%;
+  text-align: center;
+  color: #666;
+}
+
+.vsts-widget-configure img {
+  height: 40px;
+  margin-top: 10px;
+}
+
+.widget.dark-widget.clickable > a {
+  color: white;
+}
+
+.big-value {
+  font-size: 36px;
+  line-height: 68px;
+  margin: 20px 0 10px 0;
+  font-weight: 300;
+}
+
+.level-OK {
+  background-color: var(--green);
+}
+
+.level-WARN {
+  background-color: var(--orange);
+}
+
+.level-ERROR {
+  background-color: var(--red);
+}
+
+.level-NONE {
+  background-color: var(--gray71);
+}
+
+.Select {
+  width: 100%;
+}
