@@ -140,7 +140,7 @@ public abstract class ServletFilter implements Filter {
      */
     public static class Builder {
       private static final String WILDCARD_CHAR = "*";
-      private static final Collection<String> STATIC_RESOURCES = unmodifiableList(asList("/css/*", "/fonts/*", "/images/*", "/js/*", "/static/*",
+      private static final Collection<String> STATIC_RESOURCES = unmodifiableList(asList("*.css", "*.css.map", "*.ico", "*.png", "*.gif", "*.svg", "*.js", "*.js.map", "*.eot", "*.ttf", "*.woff", "/static/*",
         "/robots.txt", "/favicon.ico", "/apple-touch-icon*", "/mstile*"));
 
       private final Set<String> inclusions = new LinkedHashSet<>();

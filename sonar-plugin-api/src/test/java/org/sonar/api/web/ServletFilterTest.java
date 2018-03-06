@@ -217,10 +217,17 @@ public class ServletFilterTest {
   @Test
   public void test_staticResourcePatterns() {
     assertThat(ServletFilter.UrlPattern.Builder.staticResourcePatterns()).containsOnly(
-      "/css/*",
-      "/fonts/*",
-      "/images/*",
-      "/js/*",
+      "*.css",
+      "*.css.map",
+      "*.ico",
+      "*.png",
+      "*.gif",
+      "*.svg",
+      "*.js",
+      "*.js.map",
+      "*.eot",
+      "*.ttf",
+      "*.woff",
       "/static/*",
       "/robots.txt",
       "/favicon.ico",
