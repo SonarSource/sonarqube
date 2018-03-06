@@ -297,16 +297,6 @@ exports[`should not display subtitles of new measures if there is none 1`] = `
     />
     <span
       className="facet search-navigator-facet facet-category"
-      key="new_code_category"
-    >
-      <span
-        className="facet-name"
-      >
-        component_measures.facet_category.new_code_category
-      </span>
-    </span>
-    <span
-      className="facet search-navigator-facet facet-category"
       key="overall_category"
     >
       <span

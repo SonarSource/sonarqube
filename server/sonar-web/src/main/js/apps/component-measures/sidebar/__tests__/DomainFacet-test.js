@@ -84,7 +84,11 @@ it('should not display subtitles of new measures if there is none', () => {
   expect(
     shallow(
       <DomainFacet
-        {...{ onChange: () => {}, onToggle: () => {}, open: true, domain, selected: 'foo' }}
+        domain={domain}
+        onChange={() => {}}
+        onToggle={() => {}}
+        open={true}
+        selected={'foo'}
       />
     )
   ).toMatchSnapshot();
