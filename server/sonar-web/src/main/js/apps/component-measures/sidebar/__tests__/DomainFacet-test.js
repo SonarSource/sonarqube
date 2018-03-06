@@ -75,26 +75,17 @@ it('should not display subtitles of new measures if there is none', () => {
     name: 'Reliability',
     measures: [
       {
-        metric: {
-          key: 'bugs',
-          type: 'INT',
-          name: 'Bugs',
-          domain: 'Reliability'
-        },
-        value: '5',
-        periods: [{ index: 1, value: '5' }],
-        leak: '5'
+        metric: { key: 'bugs', type: 'INT', name: 'Bugs', domain: 'Reliability' },
+        value: '5'
       }
     ]
   };
 
-  const props = {
-    onChange: () => {},
-    onToggle: () => {},
-    open: true,
-    domain,
-    selected: 'foo'
-  };
-
-  expect(shallow(<DomainFacet {...props} />)).toMatchSnapshot();
+  expect(
+    shallow(
+      <DomainFacet
+        {...{ onChange: () => {}, onToggle: () => {}, open: true, domain, selected: 'foo' }}
+      />
+    )
+  ).toMatchSnapshot();
 });

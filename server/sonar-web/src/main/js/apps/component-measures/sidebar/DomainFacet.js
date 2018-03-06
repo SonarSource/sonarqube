@@ -77,22 +77,20 @@ export default class DomainFacet extends React.PureComponent {
 
   renderItemsFacet = () => {
     const { domain, selected } = this.props;
-
     const items = addMeasureCategories(domain.name, filterMeasures(domain.measures));
     const hasCategories = items.some(item => typeof item === 'string');
     const translateMetric = hasCategories ? getLocalizedCategoryMetricName : getLocalizedMetricName;
     let sortedItems = sortMeasures(domain.name, items);
 
-    sortedItems = sortedItems.filter((item, id, array) => {
-      return (
-        typeof item !== 'string' || (array.length > id - 1 && typeof array[id + 1] !== 'string')
-      );
+    sortedItems = sortedItems.filter((item, index) => {
+      if (item !== 'string') return true;
+      return sortedItems.length === index - 1 || typeof sortedItems[index + 1] !== 'string';
     });
 
     return sortedItems.map(
       item =>
         typeof item === 'string' ? (
-          <span key={item} className="facet search-navigator-facet facet-category">
+          <span className="facet search-navigator-facet facet-category" key={item}>
             <span className="facet-name">
               {translate('component_measures.facet_category', item)}
             </span>

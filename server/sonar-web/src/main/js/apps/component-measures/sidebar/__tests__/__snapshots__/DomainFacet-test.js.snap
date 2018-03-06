@@ -297,6 +297,16 @@ exports[`should not display subtitles of new measures if there is none 1`] = `
     />
     <span
       className="facet search-navigator-facet facet-category"
+      key="new_code_category"
+    >
+      <span
+        className="facet-name"
+      >
+        component_measures.facet_category.new_code_category
+      </span>
+    </span>
+    <span
+      className="facet search-navigator-facet facet-category"
       key="overall_category"
     >
       <span
@@ -323,19 +333,12 @@ exports[`should not display subtitles of new measures if there is none 1`] = `
         <FacetMeasureValue
           measure={
             Object {
-              "leak": "5",
               "metric": Object {
                 "domain": "Reliability",
                 "key": "bugs",
                 "name": "Bugs",
                 "type": "INT",
               },
-              "periods": Array [
-                Object {
-                  "index": 1,
-                  "value": "5",
-                },
-              ],
               "value": "5",
             }
           }
