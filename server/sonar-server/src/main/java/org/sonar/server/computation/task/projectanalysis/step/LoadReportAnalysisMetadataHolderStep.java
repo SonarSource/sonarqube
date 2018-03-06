@@ -88,9 +88,10 @@ public class LoadReportAnalysisMetadataHolderStep implements ComputationStep {
 
     loadMetadata(reportMetadata);
     Organization organization = loadOrganization(reportMetadata);
-    loadProject(reportMetadata, organization);
+    Runnable projectValidation = loadProject(reportMetadata, organization);
     loadQualityProfiles(reportMetadata, organization);
     branchLoader.load(reportMetadata);
+    projectValidation.run();
   }
 
   private void loadMetadata(ScannerReport.Metadata reportMetadata) {
@@ -99,17 +100,33 @@ public class LoadReportAnalysisMetadataHolderStep implements ComputationStep {
     analysisMetadata.setCrossProjectDuplicationEnabled(reportMetadata.getCrossProjectDuplicationActivated());
   }
 
-  private void loadProject(ScannerReport.Metadata reportMetadata, Organization organization) {
+  /**
+   * @return a {@link Runnable} to execute some checks on the project at the end of the step
+   */
+  private Runnable loadProject(ScannerReport.Metadata reportMetadata, Organization organization) {
     String reportProjectKey = projectKeyFromReport(reportMetadata);
-    checkProjectKeyConsistency(reportProjectKey);
+    String componentKey = ceTask.getComponentKey();
+    if (componentKey == null) {
+      throw MessageException.of(format(
+        "Compute Engine task component key is null. Project with UUID %s must have been deleted since report was uploaded. Can not proceed.",
+        ceTask.getComponentUuid()));
+    }
     ComponentDto dto = toProject(reportProjectKey);
-    if (!dto.getOrganizationUuid().equals(organization.getUuid())) {
-      throw MessageException.of(format("Project is not in the expected organization: %s", organization.getKey()));
-    }
-    if (dto.getMainBranchProjectUuid() != null) {
-      throw MessageException.of("Project should not reference a branch");
-    }
     analysisMetadata.setProject(new Project(dto.uuid(), dto.getDbKey(), dto.name()));
+    return () -> {
+      if (!componentKey.equals(reportProjectKey)) {
+        throw MessageException.of(format(
+          "ProjectKey in report (%s) is not consistent with projectKey under which the report has been submitted (%s)",
+          reportProjectKey,
+          componentKey));
+      }
+      if (!dto.getOrganizationUuid().equals(organization.getUuid())) {
+        throw MessageException.of(format("Project is not in the expected organization: %s", organization.getKey()));
+      }
+      if (dto.getMainBranchProjectUuid() != null) {
+        throw MessageException.of("Project should not reference a branch");
+      }
+    };
   }
 
   private Organization loadOrganization(ScannerReport.Metadata reportMetadata) {
@@ -161,21 +178,6 @@ public class LoadReportAnalysisMetadataHolderStep implements ComputationStep {
       if (!badKeys.isEmpty()) {
         throw MessageException.of(format("Quality profiles with following keys don't exist in organization [%s]: %s", organization.getKey(), badKeys));
       }
-    }
-  }
-
-  private void checkProjectKeyConsistency(String reportProjectKey) {
-    String componentKey = ceTask.getComponentKey();
-    if (componentKey == null) {
-      throw MessageException.of(format(
-        "Compute Engine task component key is null. Project with UUID %s must have been deleted since report was uploaded. Can not proceed.",
-        ceTask.getComponentUuid()));
-    }
-    if (!componentKey.equals(reportProjectKey)) {
-      throw MessageException.of(format(
-        "ProjectKey in report (%s) is not consistent with projectKey under which the report as been submitted (%s)",
-        reportProjectKey,
-        componentKey));
     }
   }
 

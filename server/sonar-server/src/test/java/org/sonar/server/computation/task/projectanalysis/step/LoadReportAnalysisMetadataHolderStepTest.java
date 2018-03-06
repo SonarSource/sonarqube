@@ -157,22 +157,42 @@ public class LoadReportAnalysisMetadataHolderStepTest {
 
   @Test
   public void execute_fails_with_MessageException_when_projectKey_in_report_is_different_from_componentKey_in_CE_task() {
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto otherProject = db.components().insertPublicProject(organization);
     reportReader.setMetadata(
       ScannerReport.Metadata.newBuilder()
-        .setProjectKey("some other key")
+        .setProjectKey(otherProject.getDbKey())
         .build());
 
     expectedException.expect(MessageException.class);
-    expectedException.expectMessage("ProjectKey in report (some other key) is not consistent with projectKey under which the report as been submitted (" + PROJECT_KEY + ")");
+    expectedException.expectMessage("ProjectKey in report (" + otherProject.getDbKey() + ") is not consistent with projectKey under which the report has been submitted (" + PROJECT_KEY + ")");
 
     underTest.execute();
   }
 
   @Test
-  public void execute_sets_analysis_date_even_if_MessageException_is_thrown_because_projectKey_is_different_from_componentKey_in_CE_task() {
+  public void execute_sets_branch_even_if_MessageException_is_thrown_because_projectKey_in_report_is_different_from_componentKey_in_CE_task() {
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto otherProject = db.components().insertPublicProject(organization);
     reportReader.setMetadata(
       ScannerReport.Metadata.newBuilder()
-        .setProjectKey("some other key")
+        .setProjectKey(otherProject.getDbKey())
+        .build());
+
+    try {
+      underTest.execute();
+    } catch (MessageException e) {
+      assertThat(analysisMetadataHolder.getBranch()).isNotNull();
+    }
+  }
+
+  @Test
+  public void execute_sets_analysis_date_even_if_MessageException_is_thrown_because_projectKey_is_different_from_componentKey_in_CE_task() {
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto otherProject = db.components().insertPublicProject(organization);
+    reportReader.setMetadata(
+      ScannerReport.Metadata.newBuilder()
+        .setProjectKey(otherProject.getDbKey())
         .setAnalysisDate(ANALYSIS_DATE)
         .build());
 
