@@ -84,10 +84,10 @@ export default class DomainFacet extends React.PureComponent {
     let sortedItems = sortMeasures(domain.name, items);
 
     sortedItems = sortedItems.filter((item, index) => {
-      if (typeof item !== 'string') {
-        return true;
-      }
-      return sortedItems.length === index - 1 || typeof sortedItems[index + 1] !== 'string';
+      return (
+        typeof item !== 'string' ||
+        (index + 1 !== sortedItems.length && typeof sortedItems[index + 1] !== 'string')
+      );
     });
 
     return sortedItems.map(
