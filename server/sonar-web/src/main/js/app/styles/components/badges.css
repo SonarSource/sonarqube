@@ -20,7 +20,7 @@
 .badge {
   display: inline-block;
   vertical-align: middle;
-  min-height: var(--smallControlHeight);
+  height: var(--smallControlHeight);
   line-height: calc(var(--smallControlHeight) - 1px);
   padding: 0 var(--gridSize);
   border-radius: 2px;
