@@ -31,6 +31,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.ProjectLinkDto;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.ComponentLink.ComponentLinkType;
+import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.server.computation.task.projectanalysis.batch.BatchReportReader;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolder;
@@ -40,6 +41,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 
 public class PersistProjectLinksStep implements ComputationStep {
 
+  private final AnalysisMetadataHolder analysisMetadataHolder;
   private final DbClient dbClient;
   private final TreeRootHolder treeRootHolder;
   private final BatchReportReader reportReader;
@@ -51,7 +53,9 @@ public class PersistProjectLinksStep implements ComputationStep {
     ComponentLinkType.CI, ProjectLinkDto.TYPE_CI,
     ComponentLinkType.ISSUE, ProjectLinkDto.TYPE_ISSUE_TRACKER);
 
-  public PersistProjectLinksStep(DbClient dbClient, TreeRootHolder treeRootHolder, BatchReportReader reportReader, UuidFactory uuidFactory) {
+  public PersistProjectLinksStep(AnalysisMetadataHolder analysisMetadataHolder, DbClient dbClient, TreeRootHolder treeRootHolder,
+    BatchReportReader reportReader, UuidFactory uuidFactory) {
+    this.analysisMetadataHolder = analysisMetadataHolder;
     this.dbClient = dbClient;
     this.treeRootHolder = treeRootHolder;
     this.reportReader = reportReader;
@@ -60,6 +64,10 @@ public class PersistProjectLinksStep implements ComputationStep {
 
   @Override
   public void execute() {
+    if (!analysisMetadataHolder.getBranch().isMain()) {
+      return;
+    }
+
     try (DbSession session = dbClient.openSession(false)) {
       Component project = treeRootHolder.getRoot();
       ScannerReport.Component batchComponent = reportReader.readComponent(project.getReportAttributes().getRef());

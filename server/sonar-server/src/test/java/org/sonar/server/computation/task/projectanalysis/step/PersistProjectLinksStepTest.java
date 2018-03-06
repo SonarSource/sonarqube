@@ -22,21 +22,31 @@ package org.sonar.server.computation.task.projectanalysis.step;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.mockito.Mockito;
 import org.sonar.api.utils.System2;
+import org.sonar.core.util.UuidFactory;
 import org.sonar.core.util.UuidFactoryFast;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ProjectLinkDto;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.Component.ComponentType;
+import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
+import org.sonar.server.computation.task.projectanalysis.analysis.Branch;
+import org.sonar.server.computation.task.projectanalysis.batch.BatchReportReader;
 import org.sonar.server.computation.task.projectanalysis.batch.BatchReportReaderRule;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.component.ReportComponent;
+import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolder;
 import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.server.computation.task.step.ComputationStep;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 import static org.sonar.scanner.protocol.output.ScannerReport.ComponentLink.ComponentLinkType.CI;
 import static org.sonar.scanner.protocol.output.ScannerReport.ComponentLink.ComponentLinkType.HOME;
 import static org.sonar.scanner.protocol.output.ScannerReport.ComponentLink.ComponentLinkType.ISSUE;
@@ -46,17 +56,16 @@ public class PersistProjectLinksStepTest extends BaseStepTest {
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
-
+  @Rule
+  public AnalysisMetadataHolderRule analysisMetadataHolder = new AnalysisMetadataHolderRule();
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
-
   @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
-
   @Rule
   public BatchReportReaderRule reportReader = new BatchReportReaderRule();
 
-  PersistProjectLinksStep step = new PersistProjectLinksStep(db.getDbClient(), treeRootHolder, reportReader, UuidFactoryFast.getInstance());
+  PersistProjectLinksStep step = new PersistProjectLinksStep(analysisMetadataHolder, db.getDbClient(), treeRootHolder, reportReader, UuidFactoryFast.getInstance());
 
   @Override
   protected ComputationStep step() {
@@ -64,7 +73,22 @@ public class PersistProjectLinksStepTest extends BaseStepTest {
   }
 
   @Test
+  public void no_effect_if_branch_is_not_main() {
+    DbClient dbClient = mock(DbClient.class);
+    TreeRootHolder treeRootHolder = mock(TreeRootHolder.class);
+    BatchReportReader reportReader = mock(BatchReportReader.class);
+    UuidFactory uuidFactory = mock(UuidFactory.class);
+    mockBranch(false);
+    PersistProjectLinksStep underTest = new PersistProjectLinksStep(analysisMetadataHolder, dbClient, treeRootHolder, reportReader, uuidFactory);
+
+    underTest.execute();
+
+    verifyZeroInteractions(uuidFactory, reportReader, treeRootHolder, dbClient);
+  }
+
+  @Test
   public void add_links_on_project() {
+    mockBranch(true);
     treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").addChildren(
       ReportComponent.builder(Component.Type.MODULE, 2).setUuid("BCDE").build())
       .build());
@@ -93,6 +117,7 @@ public class PersistProjectLinksStepTest extends BaseStepTest {
 
   @Test
   public void nothing_to_do_when_link_already_exists() {
+    mockBranch(true);
     ComponentDto project = db.components().insertPrivateProject(p -> p.setUuid("ABCD"));
     db.componentLinks().insertProvidedLink(project, l -> l.setType("homepage").setName("Home").setHref("http://www.sonarqube.org"));
 
@@ -113,6 +138,7 @@ public class PersistProjectLinksStepTest extends BaseStepTest {
 
   @Test
   public void do_not_add_links_on_module() {
+    mockBranch(true);
     treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").addChildren(
       ReportComponent.builder(Component.Type.MODULE, 2).setUuid("BCDE").build())
       .build());
@@ -134,6 +160,7 @@ public class PersistProjectLinksStepTest extends BaseStepTest {
 
   @Test
   public void do_not_add_links_on_file() {
+    mockBranch(true);
     treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").addChildren(
       ReportComponent.builder(Component.Type.FILE, 2).setUuid("BCDE").build())
       .build());
@@ -156,6 +183,7 @@ public class PersistProjectLinksStepTest extends BaseStepTest {
 
   @Test
   public void update_link() {
+    mockBranch(true);
     ComponentDto project = db.components().insertPrivateProject(p -> p.setUuid("ABCD"));
     db.componentLinks().insertProvidedLink(project, l -> l.setType("homepage").setName("Home").setHref("http://www.sonar.org"));
 
@@ -176,6 +204,7 @@ public class PersistProjectLinksStepTest extends BaseStepTest {
 
   @Test
   public void delete_link() {
+    mockBranch(true);
     ComponentDto project = db.components().insertPrivateProject(p -> p.setUuid("ABCD"));
     db.componentLinks().insertProvidedLink(project, l -> l.setType("homepage").setName("Home").setHref("http://www.sonar.org"));
 
@@ -193,6 +222,7 @@ public class PersistProjectLinksStepTest extends BaseStepTest {
 
   @Test
   public void not_delete_custom_link() {
+    mockBranch(true);
     ComponentDto project = db.components().insertPrivateProject(p -> p.setUuid("ABCD"));
     db.componentLinks().insertCustomLink(project);
 
@@ -210,6 +240,7 @@ public class PersistProjectLinksStepTest extends BaseStepTest {
 
   @Test
   public void fail_when_trying_to_add_same_link_type_multiple_times() {
+    mockBranch(true);
     treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").build());
 
     reportReader.putComponent(ScannerReport.Component.newBuilder()
@@ -223,5 +254,11 @@ public class PersistProjectLinksStepTest extends BaseStepTest {
     expectedException.expectMessage("Link of type 'homepage' has already been declared on component 'ABCD'");
 
     step.execute();
+  }
+
+  private void mockBranch(boolean isMain) {
+    Branch branch = Mockito.mock(Branch.class);
+    when(branch.isMain()).thenReturn(isMain);
+    analysisMetadataHolder.setBranch(branch);
   }
 }
