@@ -20,14 +20,11 @@
 .badge {
   display: inline-block;
   vertical-align: middle;
-  height: 20px;
-  line-height: 19px;
-  border: 1px solid var(--blue);
-  box-sizing: border-box;
-  padding: 0 8px;
+  min-height: var(--smallControlHeight);
+  line-height: calc(var(--smallControlHeight) - 1px);
+  padding: 0 var(--gridSize);
   border-radius: 2px;
   font-size: var(--smallFontSize);
-  font-weight: 400;
   min-width: 10px;
   letter-spacing: 0.03em;
   color: #ffffff;
@@ -132,9 +129,9 @@ a.badge-focus:active {
 .outline-badge {
   display: inline-block;
   vertical-align: middle;
-  height: 20px;
-  line-height: 19px;
-  padding: 0 8px;
+  height: var(--smallControlHeight);
+  line-height: calc(var(--smallControlHeight) - 1px);
+  padding: 0 var(--gridSize);
   border: 1px solid var(--gray80);
   border-radius: 2px;
   box-sizing: border-box;
