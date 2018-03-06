@@ -20,8 +20,6 @@
 package org.sonar.server.computation.task.projectanalysis.analysis;
 
 import javax.annotation.concurrent.Immutable;
-import org.sonar.db.component.ComponentDto;
-import org.sonar.server.computation.task.projectanalysis.component.Component;
 
 @Immutable
 public class Project {
@@ -81,11 +79,4 @@ public class Project {
     return sb.toString();
   }
 
-  public static Project copyOf(Component component) {
-    return new Project(component.getUuid(), component.getKey(), component.getName());
-  }
-
-  public static Project copyOf(ComponentDto component) {
-    return new Project(component.uuid(), component.getDbKey(), component.name());
-  }
 }

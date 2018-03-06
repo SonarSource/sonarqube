@@ -234,7 +234,7 @@ public class PersistLiveMeasuresStepTest extends BaseStepTest {
           .build())
       .build();
     treeRootHolder.setRoot(project);
-    analysisMetadataHolder.setProject(Project.copyOf(project));
+    analysisMetadataHolder.setProject(new Project(project.getUuid(), project.getKey(), project.getName()));
 
     // components as persisted in db
     ComponentDto projectDto = insertComponent("project-key", "project-uuid");
@@ -259,7 +259,7 @@ public class PersistLiveMeasuresStepTest extends BaseStepTest {
     ComponentDto portfolioDto = insertComponent("view-key", "view-uuid");
     ComponentDto subViewDto = insertComponent("subview-key", "subview-uuid");
     ComponentDto projectDto = insertComponent("project-key", "project-uuid");
-    analysisMetadataHolder.setProject(Project.copyOf(portfolioDto));
+    analysisMetadataHolder.setProject(new Project(portfolioDto.uuid(), portfolioDto.getDbKey(), portfolioDto.name()));
   }
 
   private void assertThatMeasureIsNotPersisted(String componentUuid, Metric metric) {

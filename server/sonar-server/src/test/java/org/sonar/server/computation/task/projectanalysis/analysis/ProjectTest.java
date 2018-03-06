@@ -20,11 +20,8 @@
 package org.sonar.server.computation.task.projectanalysis.analysis;
 
 import org.junit.Test;
-import org.sonar.server.computation.task.projectanalysis.component.Component;
-import org.sonar.server.computation.task.projectanalysis.component.ReportComponent;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.server.computation.task.projectanalysis.component.Component.Type.PROJECT;
 
 public class ProjectTest {
   @Test
@@ -53,13 +50,4 @@ public class ProjectTest {
     assertThat(project1.hashCode()).isEqualTo(project1bis.hashCode());
   }
 
-  @Test
-  public void test_copyOf() {
-    Component root = ReportComponent.builder(PROJECT, 1).setKey("ROOT").build();
-
-    Project project = Project.copyOf(root);
-    assertThat(project.getUuid()).isEqualTo(root.getUuid()).isNotNull();
-    assertThat(project.getKey()).isEqualTo(root.getKey()).isNotNull();
-    assertThat(project.getName()).isEqualTo(root.getName()).isNotNull();
-  }
 }

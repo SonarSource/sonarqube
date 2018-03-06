@@ -71,7 +71,7 @@ public class BranchPersisterImplTest {
 
     // add main branch in project table and in metadata
     ComponentDto dto = ComponentTesting.newPrivateProjectDto(dbTester.organizations().insert(), MAIN.getUuid()).setDbKey(MAIN.getKey());
-    analysisMetadataHolder.setProject(Project.copyOf(dto));
+    analysisMetadataHolder.setProject(new Project(dto.uuid(), dto.getDbKey(), dto.name()));
     dbTester.getDbClient().componentDao().insert(dbTester.getSession(), dto);
 
     // this should add new columns in project and project_branches

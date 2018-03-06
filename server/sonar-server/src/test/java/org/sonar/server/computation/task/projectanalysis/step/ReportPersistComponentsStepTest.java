@@ -894,14 +894,14 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
 
   private ComponentDto prepareProject(Consumer<ComponentDto>... populators) {
     ComponentDto dto = db.components().insertPrivateProject(db.organizations().insert(), populators);
-    analysisMetadataHolder.setProject(Project.copyOf(dto));
+    analysisMetadataHolder.setProject(new Project(dto.uuid(), dto.getDbKey(), dto.name()));
     analysisMetadataHolder.setBranch(new DefaultBranchImpl());
     return dto;
   }
 
   private ComponentDto prepareBranch(String branchName, Consumer<ComponentDto>... populators) {
     ComponentDto dto = db.components().insertPrivateProject(db.organizations().insert(), populators);
-    analysisMetadataHolder.setProject(Project.copyOf(dto));
+    analysisMetadataHolder.setProject(new Project(dto.uuid(), dto.getDbKey(), dto.name()));
     analysisMetadataHolder.setBranch(new TestBranch(branchName));
     return dto;
   }

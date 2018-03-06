@@ -71,7 +71,7 @@ public class ConfigurationRepositoryTest {
   @Test
   public void get_project_settings_from_db() {
     ComponentDto project = db.components().insertPrivateProject();
-    analysisMetadataHolder.setProject(Project.copyOf(project));
+    analysisMetadataHolder.setProject(new Project(project.uuid(), project.getDbKey(), project.name()));
     insertProjectProperty(project, "key", "value");
 
     Configuration config = underTest.getConfiguration();
@@ -96,7 +96,7 @@ public class ConfigurationRepositoryTest {
     globalSettings.setProperty("key", "value1");
     ComponentDto project = db.components().insertPrivateProject();
     insertProjectProperty(project, "key", "value2");
-    analysisMetadataHolder.setProject(Project.copyOf(project));
+    analysisMetadataHolder.setProject(new Project(project.uuid(), project.getDbKey(), project.name()));
 
     Configuration config = underTest.getConfiguration();
     assertThat(config.get("key")).hasValue("value2");
@@ -106,7 +106,7 @@ public class ConfigurationRepositoryTest {
   public void project_settings_are_cached_to_avoid_db_access() {
     ComponentDto project = db.components().insertPrivateProject();
     insertProjectProperty(project, "key", "value");
-    analysisMetadataHolder.setProject(Project.copyOf(project));
+    analysisMetadataHolder.setProject(new Project(project.uuid(), project.getDbKey(), project.name()));
 
     Configuration config = underTest.getConfiguration();
     assertThat(config.get("key")).hasValue("value");
@@ -123,7 +123,7 @@ public class ConfigurationRepositoryTest {
     ComponentDto branchDto = db.components().insertProjectBranch(project);
     Branch branch = mock(Branch.class);
     when(branch.getName()).thenReturn(branchDto.getBranch());
-    analysisMetadataHolder.setProject(Project.copyOf(project)).setBranch(branch);
+    analysisMetadataHolder.setProject(new Project(project.uuid(), project.getDbKey(), project.name())).setBranch(branch);
     globalSettings.setProperty("global", "global value");
     insertProjectProperty(project, "project", "project value");
     insertProjectProperty(branchDto, "branch", "branch value");
