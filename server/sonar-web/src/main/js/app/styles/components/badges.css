@@ -19,14 +19,18 @@
  */
 .badge {
   display: inline-block;
+  vertical-align: middle;
+  height: 20px;
+  line-height: 19px;
+  border: 1px solid var(--blue);
+  box-sizing: border-box;
+  padding: 0 8px;
+  border-radius: 2px;
+  font-size: var(--smallFontSize);
+  font-weight: 400;
   min-width: 10px;
-  padding: 2px 7px;
-  font-size: 11px;
-  font-weight: normal;
   letter-spacing: 0.03em;
   color: #ffffff;
-  line-height: var(--smallFontSize);
-  vertical-align: baseline;
   white-space: nowrap;
   text-align: center;
   background-color: var(--blue);
