@@ -42,6 +42,7 @@ import static com.google.common.collect.FluentIterable.from;
 import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.entry;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.ce.CeQueueDto.Status.IN_PROGRESS;
@@ -280,7 +281,6 @@ public class CeQueueDaoTest {
     verifyUnchangedByResetToPendingForWorker(o3);
     verifyUnchangedByResetToPendingForWorker(o4);
   }
-
 
   @Test
   public void resetTasksWithUnknownWorkerUUIDs_with_empty_set_resets_status_of_all_pending_tasks() {
@@ -594,6 +594,36 @@ public class CeQueueDaoTest {
       .setCreatedAt(100_000L));
 
     assertThat(underTest.countByStatusAndComponentUuid(db.getSession(), IN_PROGRESS, COMPONENT_UUID_1)).isEqualTo(1);
+    assertThat(underTest.countByStatus(db.getSession(), IN_PROGRESS)).isEqualTo(2);
+  }
+
+  @Test
+  public void count_by_status_and_component_uuids() {
+    // task retrieved in the queue
+    insert(newCeQueueDto(TASK_UUID_1)
+      .setComponentUuid(COMPONENT_UUID_1)
+      .setStatus(IN_PROGRESS)
+      .setTaskType(CeTaskTypes.REPORT)
+      .setCreatedAt(100_000L));
+    // on component uuid 2, not returned
+    insert(newCeQueueDto(TASK_UUID_2)
+      .setComponentUuid(COMPONENT_UUID_2)
+      .setStatus(IN_PROGRESS)
+      .setTaskType(CeTaskTypes.REPORT)
+      .setCreatedAt(100_000L));
+    // pending status, not returned
+    insert(newCeQueueDto(TASK_UUID_3)
+      .setComponentUuid(COMPONENT_UUID_1)
+      .setStatus(PENDING)
+      .setTaskType(CeTaskTypes.REPORT)
+      .setCreatedAt(100_000L));
+
+    assertThat(underTest.countByStatusAndComponentUuids(db.getSession(), IN_PROGRESS, ImmutableSet.of())).isEmpty();
+    assertThat(underTest.countByStatusAndComponentUuids(db.getSession(), IN_PROGRESS, ImmutableSet.of("non existing component uuid"))).isEmpty();
+    assertThat(underTest.countByStatusAndComponentUuids(db.getSession(), IN_PROGRESS, ImmutableSet.of(COMPONENT_UUID_1, COMPONENT_UUID_2)))
+      .containsOnly(entry(COMPONENT_UUID_1, 1), entry(COMPONENT_UUID_2, 1));
+    assertThat(underTest.countByStatusAndComponentUuids(db.getSession(), PENDING, ImmutableSet.of(COMPONENT_UUID_1, COMPONENT_UUID_2)))
+      .containsOnly(entry(COMPONENT_UUID_1, 1));
     assertThat(underTest.countByStatus(db.getSession(), IN_PROGRESS)).isEqualTo(2);
   }
 

@@ -19,7 +19,9 @@
  */
 package org.sonar.db.ce;
 
+import com.google.common.collect.ImmutableMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import javax.annotation.Nullable;
@@ -30,6 +32,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.Pagination;
 
 import static java.util.Collections.emptyList;
+import static java.util.Collections.emptyMap;
 import static org.sonar.db.DatabaseUtils.executeLargeUpdates;
 import static org.sonar.db.ce.CeQueueDto.Status.IN_PROGRESS;
 import static org.sonar.db.ce.CeQueueDto.Status.PENDING;
@@ -92,8 +95,7 @@ public class CeQueueDao implements Dao {
     } else {
       // executeLargeUpdates won't call the SQL command if knownWorkerUUIDs is empty
       executeLargeUpdates(knownWorkerUUIDs,
-        uuids -> mapper(dbSession).resetTasksWithUnknownWorkerUUIDs(uuids, system2.now())
-      );
+        uuids -> mapper(dbSession).resetTasksWithUnknownWorkerUUIDs(uuids, system2.now()));
     }
   }
 
@@ -133,6 +135,27 @@ public class CeQueueDao implements Dao {
 
   public int countByStatusAndComponentUuid(DbSession dbSession, CeQueueDto.Status status, @Nullable String componentUuid) {
     return mapper(dbSession).countByStatusAndComponentUuid(status, componentUuid);
+  }
+
+  /**
+   * Counts entries in the queue with the specified status for each specified component uuid.
+   *
+   * The returned map doesn't contain any entry for component uuid for which there is no entry in the queue (ie.
+   * all entries have a value >= 0).
+   */
+  public Map<String, Integer> countByStatusAndComponentUuids(DbSession dbSession, CeQueueDto.Status status, Set<String> componentUuids) {
+    if (componentUuids.isEmpty()) {
+      return emptyMap();
+    }
+
+    ImmutableMap.Builder<String, Integer> builder = ImmutableMap.builder();
+    executeLargeUpdates(
+      componentUuids,
+      uuids -> {
+        List<QueueCount> i = mapper(dbSession).countByStatusAndComponentUuids(status, componentUuids);
+        i.forEach(o -> builder.put(o.getComponentUuid(), o.getTotal()));
+      });
+    return builder.build();
   }
 
   public Optional<CeQueueDto> peek(DbSession session, String workerUuid, int maxExecutionCount) {
