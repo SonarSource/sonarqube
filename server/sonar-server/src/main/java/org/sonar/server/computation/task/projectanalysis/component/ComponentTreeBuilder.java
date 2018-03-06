@@ -27,6 +27,7 @@ import javax.annotation.Nullable;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.Component.FileStatus;
+import org.sonar.server.computation.task.projectanalysis.analysis.Branch;
 import org.sonar.server.computation.task.projectanalysis.analysis.Project;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
@@ -47,7 +48,6 @@ public class ComponentTreeBuilder {
    * </p>
    */
   private final Function<String, String> uuidSupplier;
-
   /**
    * Will supply the {@link ScannerReport.Component} of all the components in the component tree as we crawl it from the
    * root.
@@ -56,9 +56,8 @@ public class ComponentTreeBuilder {
    * </p>
    */
   private final Function<Integer, ScannerReport.Component> scannerComponentSupplier;
-
   private final Project project;
-
+  private final Branch branch;
   @Nullable
   private final SnapshotDto baseAnalysis;
 
@@ -68,13 +67,14 @@ public class ComponentTreeBuilder {
     Function<String, String> uuidSupplier,
     Function<Integer, ScannerReport.Component> scannerComponentSupplier,
     Project project,
-    @Nullable SnapshotDto baseAnalysis) {
+    Branch branch, @Nullable SnapshotDto baseAnalysis) {
 
     this.keyGenerator = keyGenerator;
     this.publicKeyGenerator = publicKeyGenerator;
     this.uuidSupplier = uuidSupplier;
     this.scannerComponentSupplier = scannerComponentSupplier;
     this.project = project;
+    this.branch = branch;
     this.baseAnalysis = baseAnalysis;
   }
 
@@ -98,18 +98,17 @@ public class ComponentTreeBuilder {
         String projectKey = keyGenerator.generateKey(component, null);
         String uuid = uuidSupplier.apply(projectKey);
         String projectPublicKey = publicKeyGenerator.generateKey(component, null);
-        return ComponentImpl.builder(Component.Type.PROJECT)
+        ComponentImpl.Builder builder = ComponentImpl.builder(Component.Type.PROJECT)
           .setUuid(uuid)
           .setKey(projectKey)
           .setPublicKey(projectPublicKey)
-          .setName(nameOfProject(component))
           .setStatus(convertStatus(component.getStatus()))
-          .setDescription(trimToNull(component.getDescription()))
           .setReportAttributes(createAttributesBuilder(component, scmBasePath)
             .setVersion(createProjectVersion(component))
             .build())
-          .addChildren(buildChildren(component, component, scmBasePath))
-          .build();
+          .addChildren(buildChildren(component, component, scmBasePath));
+        setNameAndDescription(component, builder);
+        return builder.build();
 
       case MODULE:
         String moduleKey = keyGenerator.generateKey(component, null);
@@ -143,6 +142,18 @@ public class ComponentTreeBuilder {
 
       default:
         throw new IllegalArgumentException(format("Unsupported component type '%s'", component.getType()));
+    }
+  }
+
+  private void setNameAndDescription(ScannerReport.Component component, ComponentImpl.Builder builder) {
+    if (branch.isMain()) {
+      builder
+        .setName(nameOfProject(component))
+        .setDescription(trimToNull(component.getDescription()));
+    } else {
+      builder
+        .setName(project.getName())
+        .setDescription(project.getDescription());
     }
   }
 

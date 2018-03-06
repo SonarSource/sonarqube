@@ -30,21 +30,24 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.ExternalResource;
+import org.mockito.Mockito;
 import org.sonar.core.component.ComponentKeys;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.scanner.protocol.output.ScannerReport;
+import org.sonar.server.computation.task.projectanalysis.analysis.Branch;
 import org.sonar.server.computation.task.projectanalysis.analysis.Project;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
-import static org.sonar.scanner.protocol.output.ScannerReport.Component.newBuilder;
+import static org.mockito.Mockito.when;
 import static org.sonar.scanner.protocol.output.ScannerReport.Component.ComponentType.DIRECTORY;
 import static org.sonar.scanner.protocol.output.ScannerReport.Component.ComponentType.FILE;
 import static org.sonar.scanner.protocol.output.ScannerReport.Component.ComponentType.MODULE;
 import static org.sonar.scanner.protocol.output.ScannerReport.Component.ComponentType.PROJECT;
 import static org.sonar.scanner.protocol.output.ScannerReport.Component.ComponentType.UNRECOGNIZED;
+import static org.sonar.scanner.protocol.output.ScannerReport.Component.newBuilder;
 import static org.sonar.server.computation.task.projectanalysis.component.ComponentVisitor.Order.PRE_ORDER;
 
 public class ComponentTreeBuilderTest {
@@ -117,6 +120,32 @@ public class ComponentTreeBuilderTest {
   }
 
   @Test
+  public void project_name_is_loaded_from_report_if_present_and_on_main_branch() {
+    String reportName = randomAlphabetic(5);
+    ScannerReport.Component reportProject = newBuilder()
+      .setType(PROJECT)
+      .setName(reportName)
+      .build();
+
+    Component root = newUnderTest(null, true).buildProject(reportProject, NO_SCM_BASE_PATH);
+
+    assertThat(root.getName()).isEqualTo(reportName);
+  }
+
+  @Test
+  public void project_name_is_loaded_from_db_if_not_on_main_branch() {
+    String reportName = randomAlphabetic(5);
+    ScannerReport.Component reportProject = newBuilder()
+      .setType(PROJECT)
+      .setName(reportName)
+      .build();
+
+    Component root = newUnderTest(null, false).buildProject(reportProject, NO_SCM_BASE_PATH);
+
+    assertThat(root.getName()).isEqualTo(projectInDb.getName());
+  }
+
+  @Test
   public void project_version_is_loaded_from_db_if_absent_from_report() {
     SnapshotDto baseAnalysis = new SnapshotDto().setVersion("6.5");
     Component root = call(newBuilder()
@@ -147,12 +176,38 @@ public class ComponentTreeBuilderTest {
   }
 
   @Test
-  public void project_description_is_null_if_absent_from_report() {
+  public void project_description_is_loaded_from_db_if_absent_from_report() {
     Component root = call(newBuilder()
       .setType(PROJECT)
       .build());
 
-    assertThat(root.getDescription()).isNull();
+    assertThat(root.getDescription()).isEqualTo(projectInDb.getDescription());
+  }
+
+  @Test
+  public void project_description_is_loaded_from_report_if_present_and_on_main_branch() {
+    String reportDescription = randomAlphabetic(5);
+    ScannerReport.Component reportProject = newBuilder()
+      .setType(PROJECT)
+      .setDescription(reportDescription)
+      .build();
+
+    Component root = newUnderTest(null, true).buildProject(reportProject, NO_SCM_BASE_PATH);
+
+    assertThat(root.getDescription()).isEqualTo(reportDescription);
+  }
+
+  @Test
+  public void project_description_is_loaded_from_db_if_not_on_main_branch() {
+    String reportDescription = randomAlphabetic(5);
+    ScannerReport.Component reportProject = newBuilder()
+      .setType(PROJECT)
+      .setDescription(reportDescription)
+      .build();
+
+    Component root = newUnderTest(null, false).buildProject(reportProject, NO_SCM_BASE_PATH);
+
+    assertThat(root.getDescription()).isEqualTo(projectInDb.getDescription());
   }
 
   @Test
@@ -846,7 +901,7 @@ public class ComponentTreeBuilderTest {
   }
 
   private Component call(ScannerReport.Component project, String scmBasePath) {
-    return newUnderTest(null).buildProject(project, scmBasePath);
+    return newUnderTest(null, true).buildProject(project, scmBasePath);
   }
 
   private Component call(ScannerReport.Component project, @Nullable SnapshotDto baseAnalysis) {
@@ -854,11 +909,13 @@ public class ComponentTreeBuilderTest {
   }
 
   private Component call(ScannerReport.Component project, @Nullable SnapshotDto baseAnalysis, String scmBasePath) {
-    return newUnderTest(baseAnalysis).buildProject(project, scmBasePath);
+    return newUnderTest(baseAnalysis, true).buildProject(project, scmBasePath);
   }
 
-  private ComponentTreeBuilder newUnderTest(@Nullable SnapshotDto baseAnalysis) {
-    return new ComponentTreeBuilder(KEY_GENERATOR, PUBLIC_KEY_GENERATOR, UUID_SUPPLIER, scannerComponentProvider, projectInDb, baseAnalysis);
+  private ComponentTreeBuilder newUnderTest(@Nullable SnapshotDto baseAnalysis, boolean mainBranch) {
+    Branch branch = Mockito.mock(Branch.class);
+    when(branch.isMain()).thenReturn(mainBranch);
+    return new ComponentTreeBuilder(KEY_GENERATOR, PUBLIC_KEY_GENERATOR, UUID_SUPPLIER, scannerComponentProvider, projectInDb, branch, baseAnalysis);
   }
 
   private static Map<Integer, Component> indexComponentByRef(Component root) {

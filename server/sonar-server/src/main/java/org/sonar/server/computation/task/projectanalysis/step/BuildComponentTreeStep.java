@@ -81,6 +81,7 @@ public class BuildComponentTreeStep implements ComputationStep {
         componentUuidFactory::getOrCreateForKey,
         reportReader::readComponent,
         analysisMetadataHolder.getProject(),
+        analysisMetadataHolder.getBranch(),
         baseAnalysis);
       String relativePathFromScmRoot = reportReader.readMetadata().getRelativePathFromScmRoot();
       Component project = builder.buildProject(reportProject, relativePathFromScmRoot);
