@@ -19,7 +19,12 @@
  */
 package org.sonar.server.platform.web;
 
+import com.google.common.collect.ImmutableSet;
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -47,15 +52,24 @@ public class WebPagesFilter implements Filter {
 
   private static final String CACHE_CONTROL_HEADER = "Cache-Control";
   private static final String CACHE_CONTROL_VALUE = "no-cache, no-store, must-revalidate";
-
-  private static final String CONTEXT_PLACEHOLDER = "%WEB_CONTEXT%";
+  private static final String WEB_CONTEXT_PLACEHOLDER = "%WEB_CONTEXT%";
+  private static final String DEFAULT_HTML_PATH = "/index.html";
+  // all the html files to be loaded from disk
+  private static final Set<String> HTML_PATHS = ImmutableSet.of(DEFAULT_HTML_PATH, "/integration/vsts/index.html");
+  private static final Map<String, String> HTML_CONTENTS_BY_PATH = new HashMap<>();
 
   private static final ServletFilter.UrlPattern URL_PATTERN = ServletFilter.UrlPattern
     .builder()
     .excludes(staticResourcePatterns())
     .build();
 
-  private String indexDotHtml;
+  @Override
+  public void init(FilterConfig filterConfig) {
+    HTML_PATHS.forEach(path -> {
+      ServletContext servletContext = filterConfig.getServletContext();
+      HTML_CONTENTS_BY_PATH.put(path, loadHtmlFile(servletContext, path));
+    });
+  }
 
   @Override
   public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
@@ -69,21 +83,17 @@ public class WebPagesFilter implements Filter {
     httpServletResponse.setContentType(HTML);
     httpServletResponse.setCharacterEncoding(UTF_8.name().toLowerCase(ENGLISH));
     httpServletResponse.setHeader(CACHE_CONTROL_HEADER, CACHE_CONTROL_VALUE);
-    write(indexDotHtml, httpServletResponse.getOutputStream(), UTF_8);
+    String htmlPath = HTML_PATHS.contains(path) ? path : DEFAULT_HTML_PATH;
+    String htmlContent = requireNonNull(HTML_CONTENTS_BY_PATH.get(htmlPath));
+    write(htmlContent, httpServletResponse.getOutputStream(), UTF_8);
   }
 
-  @Override
-  public void init(FilterConfig filterConfig) {
-    String context = filterConfig.getServletContext().getContextPath();
-    String indexFile = readIndexFile(filterConfig.getServletContext());
-    this.indexDotHtml = indexFile.replaceAll(CONTEXT_PLACEHOLDER, context);
-  }
-
-  private static String readIndexFile(ServletContext servletContext) {
-    try {
-      return IOUtils.toString(requireNonNull(servletContext.getResource("/index.html")), UTF_8);
+  private static String loadHtmlFile(ServletContext context, String path) {
+    try (InputStream input = context.getResourceAsStream(path)) {
+      String template = IOUtils.toString(requireNonNull(input), UTF_8);
+      return template.replaceAll(WEB_CONTEXT_PLACEHOLDER, context.getContextPath());
     } catch (Exception e) {
-      throw new IllegalStateException("Fail to provide index file", e);
+      throw new IllegalStateException("Fail to load file " + path, e);
     }
   }
 

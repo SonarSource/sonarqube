@@ -5,33 +5,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const InterpolateHtmlPlugin = require('react-dev-utils/InterpolateHtmlPlugin');
 const webpack = require('webpack');
 const paths = require('./paths');
-
-const cssMinimizeOptions = {
-  discardComments: { removeAll: true }
-};
-
-const cssLoader = ({ production, fast }) => ({
-  loader: 'css-loader',
-  options: {
-    importLoaders: 1,
-    minimize: production && !fast && cssMinimizeOptions,
-    url: false
-  }
-});
-
-const postcssLoader = () => ({
-  loader: 'postcss-loader',
-  options: {
-    ident: 'postcss',
-    plugins: () => [
-      require('autoprefixer'),
-      require('postcss-custom-properties')({
-        variables: require('../src/main/js/app/theme')
-      }),
-      require('postcss-calc')
-    ]
-  }
-});
+const utils = require('./utils');
 
 module.exports = ({ production = true, fast = false }) => ({
   bail: production,
@@ -113,12 +87,12 @@ module.exports = ({ production = true, fast = false }) => ({
             test: /\.css$/,
             loader: ExtractTextPlugin.extract({
               fallback: 'style-loader',
-              use: [cssLoader({ production, fast }), postcssLoader()]
+              use: [utils.cssLoader({ production, fast }), utils.postcssLoader()]
             })
           }
         : {
             test: /\.css$/,
-            use: ['style-loader', cssLoader({ production, fast }), postcssLoader()]
+            use: ['style-loader', utils.cssLoader({ production, fast }), utils.postcssLoader()]
           },
       { test: require.resolve('jquery'), loader: 'expose-loader?$!expose-loader?jQuery' },
       { test: require.resolve('underscore'), loader: 'expose-loader?_' },
@@ -141,19 +115,7 @@ module.exports = ({ production = true, fast = false }) => ({
     new HtmlWebpackPlugin({
       inject: false,
       template: paths.appHtml,
-      minify: production &&
-        !fast && {
-          removeComments: true,
-          collapseWhitespace: true,
-          removeRedundantAttributes: true,
-          useShortDoctype: true,
-          removeEmptyAttributes: true,
-          removeStyleLinkTypeAttributes: true,
-          keepClosingSlash: true,
-          minifyJS: true,
-          minifyCSS: true,
-          minifyURLs: true
-        }
+      minify: utils.minifyParams({ production, fast })
     }),
 
     new webpack.DefinePlugin({

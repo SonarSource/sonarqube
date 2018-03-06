@@ -33,7 +33,7 @@ export function getMeasures(
   return getJSON(url, data).then(r => r.component.measures, throwGlobalError);
 }
 
-interface MeasureComponent {
+export interface MeasureComponent {
   key: string;
   description?: string;
   measures: Measure[];
