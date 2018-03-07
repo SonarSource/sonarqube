@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { concat } from 'lodash';
 import { Breadcrumb, Component } from './types';
 
 let bucket: { [key: string]: Component } = {};
@@ -44,10 +43,6 @@ export function addComponentChildren(
   total: number,
   page: number
 ): void {
-  const previous = getComponentChildren(componentKey);
-  if (previous) {
-    children = concat(previous.children, children);
-  }
   childrenBucket[componentKey] = { children, total, page };
 }
 

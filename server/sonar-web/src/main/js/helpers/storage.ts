@@ -28,8 +28,6 @@ const PROJECTS_SORT = 'sonarqube.projects.sort';
 const PROJECT_ACTIVITY_GRAPH = 'sonarqube.project_activity.graph';
 const PROJECT_ACTIVITY_GRAPH_CUSTOM = 'sonarqube.project_activity.graph.custom';
 
-const WORKSPACE = 'sonarqube-workspace';
-
 function save(key: string, value?: string): void {
   try {
     if (value) {
@@ -41,14 +39,6 @@ function save(key: string, value?: string): void {
     // usually that means the storage is full
     // just do nothing in this case
   }
-}
-
-export function saveWorkspace(dump: string): void {
-  window.localStorage.setItem(WORKSPACE, dump);
-}
-
-export function getWorkspace(): string | null {
-  return window.localStorage.getItem(WORKSPACE);
 }
 
 export function saveFavorite(): void {
