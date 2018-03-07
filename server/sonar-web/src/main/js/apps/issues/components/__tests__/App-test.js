@@ -48,7 +48,7 @@ const PROPS = {
   organization: { key: 'foo' }
 };
 
-it('Should render a list of issue', async () => {
+it('should render a list of issue', async () => {
   const wrapper = shallowWithIntl(<App {...PROPS} />, {
     context: { router: { replace } }
   });
@@ -57,7 +57,7 @@ it('Should render a list of issue', async () => {
   expect(wrapper.state().issues.length).toBe(4);
 });
 
-it('Should be able to check/uncheck a group of issues with the Shift key', async () => {
+it('should be able to check/uncheck a group of issues with the Shift key', async () => {
   const wrapper = shallowWithIntl(<App {...PROPS} />, {
     context: { router: { replace } }
   });
@@ -78,7 +78,7 @@ it('Should be able to check/uncheck a group of issues with the Shift key', async
   expect(wrapper.state().checked.length).toBe(1);
 });
 
-it('Should avoid non-existing keys', async () => {
+it('should avoid non-existing keys', async () => {
   const wrapper = shallowWithIntl(<App {...PROPS} />, {
     context: { router: { replace } }
   });

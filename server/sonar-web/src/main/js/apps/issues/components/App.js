@@ -658,22 +658,24 @@ export default class App extends React.PureComponent {
     // Selecting multiple issues with shift+click
     const { lastChecked } = this.state;
     if (event.shiftKey && lastChecked !== null) {
-      const issueIndexes = this.state.issues.map(issue => issue.key);
-      const currentIssueIndex = issueIndexes.indexOf(issue);
-      const lastSelectedIndex = issueIndexes.indexOf(lastChecked);
-      const shouldCheck = this.state.checked.includes(lastChecked);
-      let { checked } = this.state;
-      if (currentIssueIndex < 0) {
-        return;
-      }
-      const start = Math.min(currentIssueIndex, lastSelectedIndex);
-      const end = Math.max(currentIssueIndex, lastSelectedIndex);
-      for (let i = start; i < end + 1; i++) {
-        checked = shouldCheck
-          ? union(checked, [this.state.issues[i].key])
-          : without(checked, this.state.issues[i].key);
-      }
-      this.setState(state => ({ checked }));
+      this.setState(state => {
+        const issueKeys = state.issues.map(issue => issue.key);
+        const currentIssueIndex = issueKeys.indexOf(issue);
+        const lastSelectedIndex = issueKeys.indexOf(lastChecked);
+        const shouldCheck = state.checked.includes(lastChecked);
+        let { checked } = state;
+        if (currentIssueIndex < 0) {
+          return null;
+        }
+        const start = Math.min(currentIssueIndex, lastSelectedIndex);
+        const end = Math.max(currentIssueIndex, lastSelectedIndex);
+        for (let i = start; i < end + 1; i++) {
+          checked = shouldCheck
+            ? union(checked, [state.issues[i].key])
+            : without(checked, state.issues[i].key);
+        }
+        return { checked };
+      });
       return;
     }
     this.setState(state => ({
