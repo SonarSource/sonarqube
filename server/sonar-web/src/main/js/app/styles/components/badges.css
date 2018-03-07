@@ -69,6 +69,11 @@ a.badge {
   letter-spacing: inherit;
 }
 
+.badge-tiny-height {
+  height: var(--tinyControlHeight);
+  line-height: calc(var(--tinyControlHeight) - 1px);
+}
+
 .badge-muted {
   background-color: transparent;
   color: var(--secondFontColor);
