@@ -21,7 +21,7 @@
 import React from 'react';
 import Helmet from 'react-helmet';
 import key from 'keymaster';
-import { keyBy, without } from 'lodash';
+import { keyBy, union, without } from 'lodash';
 import PropTypes from 'prop-types';
 import PageActions from './PageActions';
 import MyIssuesFilter from './MyIssuesFilter';
@@ -654,9 +654,9 @@ export default class App extends React.PureComponent {
   };
 
   handleIssueCheck = (issue /*: string */, event /*: Event */) => {
-    // If the Alt key is pressed while (un)checking, we should (un)checked all the issues
+    // If the Shift key is pressed while (un)checking, we should (un)checked all the issues
     // between the issue clicked and the previously clicked one
-    if (event.altKey && this.state.lastChecked !== null) {
+    if (event.shiftKey && this.state.lastChecked !== null) {
       const issueIndexes = this.state.issues.map(issue => {
         return issue.key;
       });
@@ -664,12 +664,16 @@ export default class App extends React.PureComponent {
       const lastSelectedIndex = issueIndexes.indexOf(this.state.lastChecked);
       const shouldCheck = this.state.checked.includes(this.state.lastChecked);
       let checked = this.state.checked;
+
+      if (currentIssueIndex < 0) {
+        return;
+      }
+
       const start = Math.min(currentIssueIndex, lastSelectedIndex);
       const end = Math.max(currentIssueIndex, lastSelectedIndex);
-
       for (let i = start; i < end + 1; i++) {
         checked = shouldCheck
-          ? [...checked, this.state.issues[i].key]
+          ? union(checked, [this.state.issues[i].key])
           : without(checked, this.state.issues[i].key);
       }
 
