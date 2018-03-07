@@ -655,8 +655,7 @@ export default class App extends React.PureComponent {
   };
 
   handleIssueCheck = (issue /*: string */, event /*: Event */) => {
-    // If the Shift key is pressed while (un)checking, we should (un)checked all the issues
-    // between the issue clicked and the previously clicked one
+    // Selecting multiple issues with shift+click
     const { lastChecked } = this.state;
     if (event.shiftKey && lastChecked !== null) {
       const issueIndexes = this.state.issues.map(issue => issue.key);
@@ -664,11 +663,9 @@ export default class App extends React.PureComponent {
       const lastSelectedIndex = issueIndexes.indexOf(lastChecked);
       const shouldCheck = this.state.checked.includes(lastChecked);
       let { checked } = this.state;
-
       if (currentIssueIndex < 0) {
         return;
       }
-
       const start = Math.min(currentIssueIndex, lastSelectedIndex);
       const end = Math.max(currentIssueIndex, lastSelectedIndex);
       for (let i = start; i < end + 1; i++) {
@@ -676,11 +673,9 @@ export default class App extends React.PureComponent {
           ? union(checked, [this.state.issues[i].key])
           : without(checked, this.state.issues[i].key);
       }
-
       this.setState(state => ({ checked }));
       return;
     }
-
     this.setState(state => ({
       lastChecked: issue,
       checked: state.checked.includes(issue)
