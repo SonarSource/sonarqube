@@ -31,7 +31,7 @@ type Props = {|
   component?: Component,
   issue: IssueType,
   onChange: IssueType => void,
-  onCheck?: string => void,
+  onCheck?: (issue: string, event: Event) => void,
   onClick: string => void,
   onFilterChange: (changes: {}) => void,
   onPopupToggle: (issue: string, popupName: string, open: ?boolean ) => void,

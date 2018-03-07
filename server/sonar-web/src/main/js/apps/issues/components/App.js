@@ -657,14 +657,15 @@ export default class App extends React.PureComponent {
   handleIssueCheck = (issue /*: string */, event /*: Event */) => {
     // If the Shift key is pressed while (un)checking, we should (un)checked all the issues
     // between the issue clicked and the previously clicked one
-    if (event.shiftKey && this.state.lastChecked !== null) {
+    const { lastChecked } = this.state;
+    if (event.shiftKey && lastChecked !== null) {
       const issueIndexes = this.state.issues.map(issue => {
         return issue.key;
       });
       const currentIssueIndex = issueIndexes.indexOf(issue);
-      const lastSelectedIndex = issueIndexes.indexOf(this.state.lastChecked);
-      const shouldCheck = this.state.checked.includes(this.state.lastChecked);
-      let checked = this.state.checked;
+      const lastSelectedIndex = issueIndexes.indexOf(lastChecked);
+      const shouldCheck = this.state.checked.includes(lastChecked);
+      let { checked } = this.state;
 
       if (currentIssueIndex < 0) {
         return;

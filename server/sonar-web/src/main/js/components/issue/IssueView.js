@@ -37,7 +37,7 @@ type Props = {|
   issue: Issue,
   onAssign: string => void,
   onChange: Issue => void,
-  onCheck?: string => void,
+  onCheck?: (issue: string, event: Event) => void,
   onClick: string => void,
   onFail: Error => void,
   onFilter?: (property: string, issue: Issue) => void,
