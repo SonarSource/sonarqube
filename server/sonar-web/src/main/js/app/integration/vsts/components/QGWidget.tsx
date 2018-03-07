@@ -19,13 +19,12 @@
  */
 import * as React from 'react';
 import * as classNames from 'classnames';
+import SonarCloudIcon from './SonarCloudIcon';
 import { MeasureComponent } from '../../../../api/measures';
-import { Metric } from '../../../types';
 import { getPathUrlAsString, getProjectUrl } from '../../../../helpers/urls';
 
 interface Props {
   component: MeasureComponent;
-  metrics: Metric[];
 }
 
 const QG_LEVELS: { [level: string]: string } = {
@@ -35,8 +34,7 @@ const QG_LEVELS: { [level: string]: string } = {
   NONE: 'None'
 };
 
-export default function QGWidget({ component, metrics }: Props) {
-  const qgMetric = metrics && metrics.find(m => m.key === 'alert_status');
+export default function QGWidget({ component }: Props) {
   const qgMeasure = component && component.measures.find(m => m.metric === 'alert_status');
 
   if (!qgMeasure || !qgMeasure.value) {
@@ -49,7 +47,7 @@ export default function QGWidget({ component, metrics }: Props) {
         <h2 className="title truncated-text-ellipsis">{component.name}</h2>
         <div className="big-value truncated-text-ellipsis">{QG_LEVELS[qgMeasure.value]}</div>
         <div className="footer truncated-text-ellipsis">
-          {qgMetric ? qgMetric.name : 'Quality Gate'}
+          <SonarCloudIcon fill="#FFF" /> Quality Gate
         </div>
       </a>
     </div>

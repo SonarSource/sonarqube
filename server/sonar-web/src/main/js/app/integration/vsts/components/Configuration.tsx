@@ -18,78 +18,97 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { searchProjects } from '../../../../api/components';
-
-interface Settings {
-  project: string;
-}
+import LoginForm from './LoginForm';
+import ProjectSelector from './ProjectSelector';
+import { Component, searchProjects } from '../../../../api/components';
+import {
+  Settings,
+  VSTSWidgetSettings,
+  VSTSConfigurationContext,
+  serializeWidgetSettings,
+  parseWidgetSettings
+} from '../utils';
+import { getCurrentUser } from '../../../../api/users';
+import { CurrentUser } from '../../../types';
 
 interface Props {
+  contribution: string;
   widgetHelpers: any;
 }
 
 interface State {
+  currentUser?: CurrentUser;
   loading: boolean;
-  organizations?: Array<{ key: string; name: string }>;
-  projects?: Array<{ label: string; value: string }>;
+  projects: Component[];
   settings: Settings;
-  widgetConfigurationContext?: any;
+  selectedProject?: Component;
+  widgetConfigurationContext?: VSTSConfigurationContext;
 }
 
-declare const VSS: any;
+declare const VSS: {
+  register: (contributionId: string, callback: Function) => void;
+  resize: Function;
+};
+
+const PAGE_SIZE = 10;
 
 export default class Configuration extends React.PureComponent<Props, State> {
   mounted = false;
-  state: State = { loading: true, settings: { project: '' } };
+  state: State = { loading: true, projects: [], settings: { project: '' } };
 
   componentDidMount() {
     this.mounted = true;
-    this.props.widgetHelpers.IncludeWidgetConfigurationStyles();
-    VSS.register('e56c6ff0-c6f9-43d0-bdef-b3f1aa0dc6dd', () => {
+    VSS.register(this.props.contribution, () => {
       return { load: this.load, onSave: this.onSave };
     });
+  }
+
+  componentDidUpdate() {
+    VSS.resize();
   }
 
   componentWillUnmount() {
     this.mounted = false;
   }
 
-  load = (widgetSettings: any, widgetConfigurationContext: any) => {
-    const settings: Settings = JSON.parse(widgetSettings.customSettings.data);
+  load = (
+    widgetSettings: VSTSWidgetSettings,
+    widgetConfigurationContext: VSTSConfigurationContext
+  ) => {
+    const settings = parseWidgetSettings(widgetSettings);
     if (this.mounted) {
       this.setState({ settings: settings || {}, widgetConfigurationContext });
-      this.fetchProjects();
+      this.fetchInitialData();
     }
     return this.props.widgetHelpers.WidgetStatusHelper.Success();
   };
 
   onSave = () => {
-    if (!this.state.settings || !this.state.settings.project) {
+    const { settings } = this.state;
+    if (!settings.project) {
       return this.props.widgetHelpers.WidgetConfigurationSave.Invalid();
     }
-    return this.props.widgetHelpers.WidgetConfigurationSave.Valid({
-      data: JSON.stringify(this.state.settings)
-    });
+    return this.props.widgetHelpers.WidgetConfigurationSave.Valid(
+      serializeWidgetSettings(settings)
+    );
   };
 
-  fetchProjects = (organization?: string) => {
+  fetchInitialData = () => {
     this.setState({ loading: true });
-    searchProjects({ organization, ps: 100 }).then(
-      ({ components }) => {
-        if (this.mounted) {
-          this.setState({
-            projects: components.map(c => ({ label: c.name, value: c.key })),
-            loading: false
-          });
+    getCurrentUser()
+      .then(currentUser => {
+        this.setState({ currentUser });
+        const params: { ps: number; filter?: string } = { ps: PAGE_SIZE };
+        if (currentUser.isLoggedIn) {
+          params.filter = 'isFavorite';
         }
-      },
-      () => {
-        this.setState({
-          projects: [],
-          loading: false
-        });
-      }
-    );
+        return searchProjects(params);
+      })
+      .then(this.handleSearchProjectsResult, this.stopLoading);
+  };
+
+  handleReload = () => {
+    this.fetchInitialData();
   };
 
   handleProjectChange = (
@@ -106,13 +125,41 @@ export default class Configuration extends React.PureComponent<Props, State> {
     const { widgetHelpers } = this.props;
     if (widgetConfigurationContext && widgetConfigurationContext.notify) {
       const eventName = widgetHelpers.WidgetEvent.ConfigurationChange;
-      const eventArgs = widgetHelpers.WidgetEvent.Args({ data: JSON.stringify(settings) });
+      const eventArgs = widgetHelpers.WidgetEvent.Args(serializeWidgetSettings(settings));
       widgetConfigurationContext.notify(eventName, eventArgs);
     }
   };
 
+  handleProjectSearch = (query: string) => {
+    const searchParams: { ps: number; filter?: string } = { ps: PAGE_SIZE };
+    if (query) {
+      searchParams.filter = query;
+    }
+    return searchProjects(searchParams).then(this.handleSearchProjectsResult, this.stopLoading);
+  };
+
+  handleProjectSelect = (project: Component) => {
+    this.setState(
+      ({ settings }) => ({
+        selectedProject: project,
+        settings: { ...settings, project: project.key }
+      }),
+      this.notifyChange
+    );
+  };
+
+  handleSearchProjectsResult = ({ components }: { components: Component[] }) => {
+    if (this.mounted) {
+      this.setState({ loading: false, projects: components });
+    }
+  };
+
+  stopLoading = () => {
+    this.setState({ loading: false });
+  };
+
   render() {
-    const { projects, loading, settings } = this.state;
+    const { currentUser, projects, loading, selectedProject, settings } = this.state;
     if (loading) {
       return (
         <div className="vsts-loading">
@@ -120,27 +167,27 @@ export default class Configuration extends React.PureComponent<Props, State> {
         </div>
       );
     }
+
+    const isLoggedIn = Boolean(currentUser && currentUser.isLoggedIn);
+    const selected = selectedProject || projects.find(project => project.key === settings.project);
     return (
-      <div className="widget-configuration">
-        <div className="dropdown" id="project">
+      <div className="widget-configuration vsts-configuration bowtie">
+        <div className="dropdown config-settings-field" id="sonarcloud-project">
           <label>SonarCloud project</label>
-          <div className="wrapper">
-            <select
-              onBlur={this.handleProjectChange}
-              onChange={this.handleProjectChange}
-              value={settings.project}>
-              <option disabled={true} hidden={true} value="">
-                Select a project...
-              </option>
-              {projects &&
-                projects.map(project => (
-                  <option key={project.value} value={project.value}>
-                    {project.label}
-                  </option>
-                ))}
-            </select>
-          </div>
+          <ProjectSelector
+            isLoggedIn={isLoggedIn}
+            onQueryChange={this.handleProjectSearch}
+            onSelect={this.handleProjectSelect}
+            projects={projects}
+            selected={selected}
+          />
         </div>
+        {!isLoggedIn && (
+          <div className="config-settings-field">
+            <label>You must be logged in to see your private projects :</label>
+            <LoginForm onReload={this.handleReload} />
+          </div>
+        )}
       </div>
     );
   }

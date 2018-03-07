@@ -19,65 +19,77 @@
  */
 import * as React from 'react';
 import QGWidget from './QGWidget';
+import LoginForm from './LoginForm';
 import { getMeasuresAndMeta, MeasureComponent } from '../../../../api/measures';
 import { Metric } from '../../../types';
+import { Settings } from '../utils';
 
 interface Props {
-  widgetHelpers: any;
+  settings: Settings;
 }
 
 interface State {
   component?: MeasureComponent;
   loading: boolean;
   metrics?: Metric[];
+  unauthorized: boolean;
 }
-
-declare const VSS: any;
-
 export default class Widget extends React.PureComponent<Props, State> {
   mounted = false;
-  state: State = { loading: true };
+  state: State = { loading: true, unauthorized: false };
 
   componentDidMount() {
     this.mounted = true;
-    this.props.widgetHelpers.IncludeWidgetStyles();
-    VSS.register('3c598f25-01c1-4c09-97c6-926476882688', () => {
-      return { load: this.load, reload: this.load };
-    });
+    const { settings } = this.props;
+    if (settings.project) {
+      this.fetchProjectMeasures(settings.project);
+    } else {
+      this.setState({ loading: false });
+    }
+  }
+
+  componentWillReceiveProps(nextProps: Props) {
+    const { project } = nextProps.settings;
+    if (project !== this.props.settings.project) {
+      if (project) {
+        this.fetchProjectMeasures(project);
+      } else {
+        this.setState({ component: undefined });
+      }
+    }
   }
 
   componentWillUnmount() {
     this.mounted = false;
   }
 
-  load = (widgetSettings: any) => {
-    const settings = JSON.parse(widgetSettings.customSettings.data);
-    if (this.mounted) {
-      if (settings && settings.project) {
-        this.fetchProjectMeasures(settings.project);
-      } else {
-        this.setState({ loading: false });
-      }
-    }
-    return this.props.widgetHelpers.WidgetStatusHelper.Success();
-  };
-
   fetchProjectMeasures = (project: string) => {
     this.setState({ loading: true });
     getMeasuresAndMeta(project, ['alert_status'], { additionalFields: 'metrics' }).then(
       ({ component, metrics }) => {
         if (this.mounted) {
-          this.setState({ component, loading: false, metrics });
+          this.setState({ component, loading: false, metrics, unauthorized: false });
         }
       },
-      () => {
-        this.setState({ loading: false });
+      response => {
+        if (response && response.response.status === 403) {
+          this.setState({ loading: false, unauthorized: true });
+        } else {
+          this.setState({ loading: false });
+        }
       }
     );
   };
 
+  handleReload = () => {
+    const { settings } = this.props;
+    if (settings.project) {
+      this.fetchProjectMeasures(settings.project);
+    }
+  };
+
   render() {
-    const { component, loading, metrics } = this.state;
+    const { component, loading, metrics, unauthorized } = this.state;
     if (loading) {
       return (
         <div className="vsts-loading">
@@ -86,10 +98,18 @@ export default class Widget extends React.PureComponent<Props, State> {
       );
     }
 
+    if (unauthorized) {
+      return (
+        <div className="widget">
+          <LoginForm onReload={this.handleReload} title="Authentication on SonarCloud required" />
+        </div>
+      );
+    }
+
     if (!component || !metrics) {
       return (
         <div className="vsts-widget-configure widget">
-          <h2 className="title">Quality Widget</h2>
+          <h2 className="title">Code Quality</h2>
           <div className="content">
             <div>Configure widget</div>
             <img
@@ -101,6 +121,6 @@ export default class Widget extends React.PureComponent<Props, State> {
       );
     }
 
-    return <QGWidget component={component} metrics={metrics} />;
+    return <QGWidget component={component} />;
   }
 }
