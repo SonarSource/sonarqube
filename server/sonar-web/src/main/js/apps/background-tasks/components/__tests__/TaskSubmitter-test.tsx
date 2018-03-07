@@ -17,21 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export interface Task {
-  branch?: string;
-  branchType?: string;
-  componentKey?: string;
-  componentName?: string;
-  componentQualifier?: string;
-  errorMessage?: string;
-  executedAt?: string;
-  executionTimeMs?: number;
-  hasScannerContext?: boolean;
-  id: string;
-  organization?: string;
-  startedAt?: string;
-  status: string;
-  submittedAt: string;
-  submitter?: string;
-  type: string;
-}
+import * as React from 'react';
+import { shallow } from 'enzyme';
+import TaskSubmitter from '../TaskSubmitter';
+
+it('renders', () => {
+  expect(shallow(<TaskSubmitter submitter="admin" />)).toMatchSnapshot();
+});
