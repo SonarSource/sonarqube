@@ -659,9 +659,7 @@ export default class App extends React.PureComponent {
     // between the issue clicked and the previously clicked one
     const { lastChecked } = this.state;
     if (event.shiftKey && lastChecked !== null) {
-      const issueIndexes = this.state.issues.map(issue => {
-        return issue.key;
-      });
+      const issueIndexes = this.state.issues.map(issue => issue.key);
       const currentIssueIndex = issueIndexes.indexOf(issue);
       const lastSelectedIndex = issueIndexes.indexOf(lastChecked);
       const shouldCheck = this.state.checked.includes(lastChecked);
