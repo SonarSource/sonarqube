@@ -19,6 +19,7 @@
  */
 import Backbone from 'backbone';
 import Item from './item';
+import { saveWorkspace, getWorkspace } from '../../../helpers/storage';
 
 const STORAGE_KEY = 'sonarqube-workspace';
 
@@ -31,11 +32,11 @@ export default Backbone.Collection.extend({
 
   save() {
     const dump = JSON.stringify(this.toJSON());
-    window.localStorage.setItem(STORAGE_KEY, dump);
+    saveWorkspace(dump);
   },
 
   load() {
-    const dump = window.localStorage.getItem(STORAGE_KEY);
+    const dump = getWorkspace(STORAGE_KEY);
     if (dump != null) {
       try {
         const parsed = JSON.parse(dump);

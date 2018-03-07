@@ -46,7 +46,7 @@ export function addComponentChildren(
 ): void {
   const previous = getComponentChildren(componentKey);
   if (previous) {
-    children = concat(children, previous.children);
+    children = concat(previous.children, children);
   }
   childrenBucket[componentKey] = { children, total, page };
 }
