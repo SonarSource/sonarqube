@@ -69,3 +69,51 @@ it('should render closed', () => {
   const wrapper = shallow(<DomainFacet {...PROPS} open={false} />);
   expect(wrapper.find('FacetItemsList')).toHaveLength(0);
 });
+
+it('should not display subtitles of new measures if there is none', () => {
+  const domain = {
+    name: 'Reliability',
+    measures: [
+      {
+        metric: { key: 'bugs', type: 'INT', name: 'Bugs', domain: 'Reliability' },
+        value: '5'
+      }
+    ]
+  };
+
+  expect(
+    shallow(
+      <DomainFacet
+        domain={domain}
+        onChange={() => {}}
+        onToggle={() => {}}
+        open={true}
+        selected={'foo'}
+      />
+    )
+  ).toMatchSnapshot();
+});
+
+it('should not display subtitles of new measures if there is none, even on last line', () => {
+  const domain = {
+    name: 'Reliability',
+    measures: [
+      {
+        metric: { key: 'new_bugs', type: 'INT', name: 'New Bugs', domain: 'Reliability' },
+        value: '5'
+      }
+    ]
+  };
+
+  expect(
+    shallow(
+      <DomainFacet
+        domain={domain}
+        onChange={() => {}}
+        onToggle={() => {}}
+        open={true}
+        selected={'foo'}
+      />
+    )
+  ).toMatchSnapshot();
+});
