@@ -31,7 +31,7 @@ type Props = {|
   issues: Array<Issue>,
   onFilterChange: (changes: {}) => void,
   onIssueChange: Issue => void,
-  onIssueCheck?: string => void,
+  onIssueCheck?: (issue: string, event: Event) => void,
   onIssueClick: string => void,
   onPopupToggle: (issue: string, popupName: string, open: ?boolean ) => void,
   openPopup: ?{ issue: string, name: string},

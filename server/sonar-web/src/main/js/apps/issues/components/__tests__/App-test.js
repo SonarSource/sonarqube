@@ -33,8 +33,14 @@ const eventWithShiftKey = { shiftKey: true };
 
 const PROPS = {
   branch: { isMain: true, name: 'master' },
-  currentUser: { isLoggedIn: true },
-  component: { key: 'foo' },
+  currentUser: {
+    isLoggedIn: true,
+    avatar: 'foo',
+    email: 'forr@bar.com',
+    login: 'JohnDoe',
+    name: 'John Doe'
+  },
+  component: { key: 'foo', name: 'bar', organization: 'John', qualifier: 'Doe' },
   location: { pathname: '/issues', query: {} },
   fetchIssues: () => Promise.resolve({ facets, issues, paging }),
   onBranchesChange: () => {},

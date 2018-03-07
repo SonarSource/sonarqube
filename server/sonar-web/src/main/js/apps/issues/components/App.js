@@ -83,6 +83,7 @@ export type Props = {
 /*::
 export type State = {
   bulkChange: 'all' | 'selected' | null,
+  lastChecked: null | string,
   checked: Array<string>,
   facets: { [string]: Facet },
   issues: Array<Issue>,
