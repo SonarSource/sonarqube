@@ -263,3 +263,155 @@ exports[`should display facet item list with bugs selected 1`] = `
   </FacetItemsList>
 </FacetBox>
 `;
+
+exports[`should not display subtitles of new measures if there is none 1`] = `
+<FacetBox
+  property="Reliability"
+>
+  <FacetHeader
+    name="Reliability"
+    onClick={[Function]}
+    open={true}
+    values={Array []}
+  />
+  <FacetItemsList>
+    <FacetItem
+      active={false}
+      disabled={false}
+      halfWidth={false}
+      key="Reliability"
+      name={
+        <span
+          id="measure-overview-Reliability-name"
+        >
+          component_measures.domain_overview
+        </span>
+      }
+      onClick={[Function]}
+      stat={
+        <BubblesIcon
+          size={14}
+        />
+      }
+      value="Reliability"
+    />
+    <span
+      className="facet search-navigator-facet facet-category"
+      key="overall_category"
+    >
+      <span
+        className="facet-name"
+      >
+        component_measures.facet_category.overall_category
+      </span>
+    </span>
+    <FacetItem
+      active={false}
+      disabled={false}
+      halfWidth={false}
+      key="bugs"
+      name={
+        <span
+          className="big-spacer-left"
+          id="measure-bugs-name"
+        >
+          Bugs
+        </span>
+      }
+      onClick={[Function]}
+      stat={
+        <FacetMeasureValue
+          measure={
+            Object {
+              "metric": Object {
+                "domain": "Reliability",
+                "key": "bugs",
+                "name": "Bugs",
+                "type": "INT",
+              },
+              "value": "5",
+            }
+          }
+        />
+      }
+      value="bugs"
+    />
+  </FacetItemsList>
+</FacetBox>
+`;
+
+exports[`should not display subtitles of new measures if there is none, even on last line 1`] = `
+<FacetBox
+  property="Reliability"
+>
+  <FacetHeader
+    name="Reliability"
+    onClick={[Function]}
+    open={true}
+    values={Array []}
+  />
+  <FacetItemsList>
+    <FacetItem
+      active={false}
+      disabled={false}
+      halfWidth={false}
+      key="Reliability"
+      name={
+        <span
+          id="measure-overview-Reliability-name"
+        >
+          component_measures.domain_overview
+        </span>
+      }
+      onClick={[Function]}
+      stat={
+        <BubblesIcon
+          size={14}
+        />
+      }
+      value="Reliability"
+    />
+    <span
+      className="facet search-navigator-facet facet-category"
+      key="new_code_category"
+    >
+      <span
+        className="facet-name"
+      >
+        component_measures.facet_category.new_code_category
+      </span>
+    </span>
+    <FacetItem
+      active={false}
+      disabled={false}
+      halfWidth={false}
+      key="new_bugs"
+      name={
+        <span
+          className="big-spacer-left"
+          id="measure-new_bugs-name"
+        >
+          New Bugs
+        </span>
+      }
+      onClick={[Function]}
+      stat={
+        <FacetMeasureValue
+          measure={
+            Object {
+              "metric": Object {
+                "domain": "Reliability",
+                "key": "new_bugs",
+                "name": "New Bugs",
+                "type": "INT",
+              },
+              "value": "5",
+            }
+          }
+        />
+      }
+      value="new_bugs"
+    />
+  </FacetItemsList>
+</FacetBox>
+`;

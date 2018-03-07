@@ -67,9 +67,10 @@ export default class DomainFacet extends React.PureComponent {
     const { domain, selected } = this.props;
     const measureSelected = domain.measures.find(measure => measure.metric.key === selected);
     const overviewSelected = domain.name === selected && hasBubbleChart(domain.name);
-    return measureSelected
-      ? [getLocalizedMetricName(measureSelected.metric)]
-      : overviewSelected ? [translate('component_measures.domain_overview')] : [];
+    if (measureSelected) {
+      return [getLocalizedMetricName(measureSelected.metric)];
+    }
+    return overviewSelected ? [translate('component_measures.domain_overview')] : [];
   };
 
   renderItemFacetStat = (item /*: MeasureEnhanced */) =>
@@ -80,11 +81,19 @@ export default class DomainFacet extends React.PureComponent {
     const items = addMeasureCategories(domain.name, filterMeasures(domain.measures));
     const hasCategories = items.some(item => typeof item === 'string');
     const translateMetric = hasCategories ? getLocalizedCategoryMetricName : getLocalizedMetricName;
-    const sortedItems = sortMeasures(domain.name, items);
+    let sortedItems = sortMeasures(domain.name, items);
+
+    sortedItems = sortedItems.filter((item, index) => {
+      return (
+        typeof item !== 'string' ||
+        (index + 1 !== sortedItems.length && typeof sortedItems[index + 1] !== 'string')
+      );
+    });
+
     return sortedItems.map(
       item =>
         typeof item === 'string' ? (
-          <span key={item} className="facet search-navigator-facet facet-category">
+          <span className="facet search-navigator-facet facet-category" key={item}>
             <span className="facet-name">
               {translate('component_measures.facet_category', item)}
             </span>
