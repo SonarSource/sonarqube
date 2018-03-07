@@ -22,21 +22,50 @@ import React from 'react';
 import { render } from 'react-dom';
 import Configuration from './components/Configuration';
 import Widget from './components/Widget';
+import { parseWidgetSettings } from './utils';
 import './vsts.css';
 
-VSS.init({
-  explicitNotifyLoaded: true,
-  usePlatformStyles: true
-});
+const container = document.getElementById('content');
+const query = parse(window.location.search.replace('?', ''));
 
-VSS.require('TFS/Dashboards/WidgetHelpers', widgetHelpers => {
-  const container = document.getElementById('content');
-  const query = parse(window.location.search.replace('?', ''));
-
-  if (query.type === 'configuration') {
-    render(<Configuration widgetHelpers={widgetHelpers} />, container);
-  } else {
-    render(<Widget widgetHelpers={widgetHelpers} />, container);
+if (query.type === 'authenticated') {
+  if (window.opener && window.opener.authenticationDone) {
+    window.opener.authenticationDone();
   }
-  VSS.notifyLoadSucceeded();
-});
+  window.close();
+} else if (VSS && query.contribution && VSS.init && VSS.require) {
+  VSS.init({
+    explicitNotifyLoaded: true,
+    usePlatformStyles: true
+  });
+
+  VSS.require('TFS/Dashboards/WidgetHelpers', WidgetHelpers => {
+    WidgetHelpers.IncludeWidgetStyles();
+    WidgetHelpers.IncludeWidgetConfigurationStyles();
+
+    if (query.type === 'configuration') {
+      render(
+        <Configuration contribution={query.contribution} widgetHelpers={WidgetHelpers} />,
+        container
+      );
+    } else {
+      VSS.register(query.contribution, () => {
+        const loadFunction = loadVSTSWidget(WidgetHelpers);
+        return { load: loadFunction, reload: loadFunction };
+      });
+    }
+    VSS.notifyLoadSucceeded();
+  });
+}
+
+function loadVSTSWidget(WidgetHelpers) {
+  return widgetSettings => {
+    try {
+      render(<Widget settings={parseWidgetSettings(widgetSettings)} />, container);
+    } catch (error) {
+      return WidgetHelpers.WidgetStatusHelper.Failure(error);
+    }
+
+    return WidgetHelpers.WidgetStatusHelper.Success();
+  };
+}
