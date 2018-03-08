@@ -69,11 +69,6 @@ message SuggestionsWsResponse {
     optional bool isFavorite = 7;
   }
 
-  message Organization {
-    optional string key = 1;
-    optional string name = 2;
-  }
-
   message Project {
     optional string key = 1;
     optional string name = 2;
@@ -83,8 +78,9 @@ message SuggestionsWsResponse {
 // WS api/components/search_projects
 message SearchProjectsWsResponse {
   optional sonarqube.ws.commons.Paging paging = 1;
-  repeated Component components = 2;
-  optional sonarqube.ws.commons.Facets facets = 3;
+  repeated Organization organizations = 2;
+  repeated Component components = 3;
+  optional sonarqube.ws.commons.Facets facets = 4;
 }
 
 // WS api/components/provisioned
@@ -127,4 +123,11 @@ message Component {
     repeated string tags = 1;
   }
 }
+
+message Organization {
+  optional string key = 1;
+  optional string name = 2;
+}
+
+
 

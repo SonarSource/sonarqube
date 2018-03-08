@@ -54,7 +54,6 @@ import org.sonar.server.measure.index.ProjectMeasuresIndexer;
 import org.sonar.server.permission.index.AuthorizationTypeSupport;
 import org.sonar.server.permission.index.PermissionIndexerTester;
 import org.sonar.server.tester.UserSessionRule;
-import org.sonar.server.ws.KeyExamples;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Common;
@@ -89,6 +88,9 @@ import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.server.computation.task.projectanalysis.metric.Metric.MetricType.DATA;
 import static org.sonar.server.computation.task.projectanalysis.metric.Metric.MetricType.PERCENT;
 import static org.sonar.server.computation.task.projectanalysis.metric.Metric.MetricType.RATING;
+import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
+import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_002;
+import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_003;
 import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_FILTER;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_ORGANIZATION;
@@ -183,9 +185,9 @@ public class SearchProjectsActionTest {
     assertThat(asc.defaultValue()).isEqualTo("true");
     assertThat(asc.possibleValues()).containsOnly("true", "false", "yes", "no");
 
-    Param additionalFields = def.param("f");
-    assertThat(additionalFields.defaultValue()).isNull();
-    assertThat(additionalFields.possibleValues()).containsOnly("analysisDate", "leakPeriodDate");
+    Param f = def.param("f");
+    assertThat(f.defaultValue()).isNull();
+    assertThat(f.possibleValues()).containsOnly("_all", "organizations", "analysisDate", "leakPeriodDate");
 
     Param facets = def.param("facets");
     assertThat(facets.defaultValue()).isNull();
@@ -196,31 +198,40 @@ public class SearchProjectsActionTest {
   @Test
   public void json_example() {
     userSession.logIn();
-    OrganizationDto organization1Dto = db.organizations().insertForKey("my-org-key-1");
-    OrganizationDto organization2Dto = db.organizations().insertForKey("my-org-key-2");
+    OrganizationDto organization2Dto = db.organizations().insert(dto-> dto.setKey("my-org-key-2").setName("Bar"));
+    OrganizationDto organization1Dto = db.organizations().insert(dto-> dto.setKey("my-org-key-1").setName("Foo"));
+
     MetricDto coverage = db.measures().insertMetric(c -> c.setKey(COVERAGE).setValueType(PERCENT.name()));
     ComponentDto project1 = insertProject(organization1Dto, c -> c
-      .setDbKey(KeyExamples.KEY_PROJECT_EXAMPLE_001)
+      .setDbKey(KEY_PROJECT_EXAMPLE_001)
       .setName("My Project 1")
       .setTagsString("finance, java"),
       new Measure(coverage, c -> c.setValue(80d)));
     ComponentDto project2 = insertProject(organization1Dto, c -> c
-      .setDbKey(KeyExamples.KEY_PROJECT_EXAMPLE_002)
+      .setDbKey(KEY_PROJECT_EXAMPLE_002)
       .setName("My Project 2"),
       new Measure(coverage, c -> c.setValue(90d)));
     ComponentDto project3 = insertProject(organization2Dto, c -> c
-      .setDbKey(KeyExamples.KEY_PROJECT_EXAMPLE_003)
+      .setDbKey(KEY_PROJECT_EXAMPLE_003)
       .setName("My Project 3")
       .setTagsString("sales, offshore, java"),
       new Measure(coverage, c -> c.setValue(20d)));
     addFavourite(project1);
 
-    String jsonResult = ws.newRequest().setParam(Param.FACETS, COVERAGE).execute().getInput();
-    SearchProjectsWsResponse protobufResult = ws.newRequest().setParam(Param.FACETS, COVERAGE).executeProtobuf(SearchProjectsWsResponse.class);
+    String jsonResult = ws.newRequest()
+      .setParam(FACETS, COVERAGE)
+      .setParam(FIELDS, "_all")
+      .execute().getInput();
 
     assertJson(jsonResult).withStrictArrayOrder().ignoreFields("id").isSimilarTo(ws.getDef().responseExampleAsString());
     assertJson(ws.getDef().responseExampleAsString()).ignoreFields("id").withStrictArrayOrder().isSimilarTo(jsonResult);
-    assertThat(protobufResult.getComponentsList()).extracting(Component::getId).containsExactly(project1.uuid(), project2.uuid(), project3.uuid());
+
+    SearchProjectsWsResponse protobufResult = ws.newRequest()
+      .setParam(FACETS, COVERAGE)
+      .executeProtobuf(SearchProjectsWsResponse.class);
+
+    assertThat(protobufResult.getComponentsList()).extracting(Component::getId)
+      .containsExactly(project1.uuid(), project2.uuid(), project3.uuid());
   }
 
   @Test
