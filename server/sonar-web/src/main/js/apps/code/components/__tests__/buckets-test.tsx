@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { concat } from 'lodash';
 import { Component } from '../../types';
 import {
   addComponent,
@@ -38,28 +37,28 @@ const childrenB: Component[] = [
   { key: 'simpson', name: 'simpson', qualifier: 'simpson' }
 ];
 
-it('Should have empty bucket at start', () => {
+it('should have empty bucket at start', () => {
   expect(getComponent(component.key)).toBeUndefined();
 });
 
-it('Should be able to store components in a bucket', () => {
+it('should be able to store components in a bucket', () => {
   addComponent(component);
   expect(getComponent(component.key)).toEqual(component);
 });
 
-it('Should have empty children bucket at start', () => {
+it('should have empty children bucket at start', () => {
   expect(getComponentChildren(componentKey)).toBeUndefined();
 });
 
-it('Should be able to store children components in a bucket', () => {
+it('should be able to store children components in a bucket', () => {
   addComponentChildren(componentKey, childrenA, childrenA.length, 1);
   expect(getComponentChildren(componentKey).children).toEqual(childrenA);
 });
 
-it('Should append new children components at the end of the bucket', () => {
+it('should append new children components at the end of the bucket', () => {
   addComponentChildren(componentKey, childrenB, 4, 2);
   const finalBucket = getComponentChildren(componentKey);
-  expect(finalBucket.children).toEqual(concat(childrenA, childrenB));
+  expect(finalBucket.children).toEqual([...childrenA, ...childrenB]);
   expect(finalBucket.total).toBe(4);
   expect(finalBucket.page).toBe(2);
 });
