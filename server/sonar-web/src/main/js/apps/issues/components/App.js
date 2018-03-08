@@ -62,6 +62,7 @@ import ScreenPositionHelper from '../../../components/common/ScreenPositionHelpe
 import { getBranchName, isShortLivingBranch } from '../../../helpers/branches';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { scrollToElement } from '../../../helpers/scrolling';
+import Checkbox from '../../../components/controls/Checkbox';
 /*:: import type { Issue } from '../../../components/issue/types'; */
 /*:: import type { RawQuery } from '../../../helpers/query'; */
 import '../styles.css';
@@ -741,9 +742,21 @@ export default class App extends React.PureComponent {
   selectNextFlow = () => this.setState(actions.selectNextFlow);
   selectPreviousFlow = () => this.setState(actions.selectPreviousFlow);
 
+  onCheckAll = (checked /*: boolean */) => {
+    if (checked) {
+      this.setState(state => ({ checked: state.issues.map(issue => issue.key) }));
+    } else {
+      this.setState(state => ({ checked: [] }));
+    }
+  };
+
   renderBulkChange(openIssue /*: ?Issue */) {
     const { component, currentUser } = this.props;
-    const { bulkChange, checked, paging } = this.state;
+    const { bulkChange, checked, paging, issues } = this.state;
+
+    const isAllChecked = checked.length > 0 && issues.length === checked.length;
+    const thirdState = checked.length > 0 && !isAllChecked;
+    const isChecked = isAllChecked || thirdState;
 
     if (!currentUser.isLoggedIn || openIssue != null) {
       return null;
@@ -751,8 +764,15 @@ export default class App extends React.PureComponent {
 
     return (
       <div className="pull-left">
+        <Checkbox
+          checked={isChecked}
+          className="spacer-right vertical-middle"
+          id="issues-selection"
+          onCheck={this.onCheckAll}
+          thirdState={thirdState}
+        />
         {checked.length > 0 ? (
-          <div className="dropdown">
+          <div className="dropdown display-inline-block">
             <button id="issues-bulk-change" data-toggle="dropdown">
               {translate('bulk_change')}
               <i className="icon-dropdown little-spacer-left" />

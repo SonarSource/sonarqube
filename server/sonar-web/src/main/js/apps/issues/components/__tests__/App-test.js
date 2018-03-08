@@ -92,3 +92,31 @@ it('should avoid non-existing keys', async () => {
   wrapper.instance().handleIssueCheck('non-existing-key', eventWithShiftKey);
   expect(wrapper.state().checked.length).toBe(1);
 });
+
+it('should be able to uncheck all issue with global checkbox', async () => {
+  const wrapper = shallowWithIntl(<App {...PROPS} />, {
+    context: { router: { replace } }
+  });
+
+  await waitAndUpdate(wrapper);
+  expect(wrapper.state().issues.length).toBe(4);
+
+  wrapper.instance().handleIssueCheck('foo', eventNoShiftKey);
+  wrapper.instance().handleIssueCheck('bar', eventNoShiftKey);
+  expect(wrapper.state().checked.length).toBe(2);
+
+  wrapper.instance().onCheckAll(false);
+  expect(wrapper.state().checked.length).toBe(0);
+});
+
+it('should be able to check all issue with global checkbox', async () => {
+  const wrapper = shallowWithIntl(<App {...PROPS} />, {
+    context: { router: { replace } }
+  });
+
+  await waitAndUpdate(wrapper);
+
+  expect(wrapper.state().checked.length).toBe(0);
+  wrapper.instance().onCheckAll(true);
+  expect(wrapper.state().checked.length).toBe(wrapper.state().issues.length);
+});
