@@ -27,11 +27,6 @@ interface Props {
 }
 
 export default class PluginDescription extends React.PureComponent<Props> {
-  handleCategoryClick = (e: React.SyntheticEvent<HTMLAnchorElement>) => {
-    e.preventDefault();
-    this.props.updateQuery({ search: this.props.plugin.category });
-  };
-
   render() {
     const { plugin } = this.props;
     return (
@@ -39,12 +34,7 @@ export default class PluginDescription extends React.PureComponent<Props> {
         <div>
           <strong className="js-plugin-name">{plugin.name}</strong>
           {plugin.category && (
-            <a
-              className="js-plugin-category badge spacer-left"
-              href="#"
-              onClick={this.handleCategoryClick}>
-              {plugin.category}
-            </a>
+            <span className="js-plugin-category badge spacer-left">{plugin.category}</span>
           )}
         </div>
         <div className="js-plugin-description little-spacer-top">{plugin.description}</div>

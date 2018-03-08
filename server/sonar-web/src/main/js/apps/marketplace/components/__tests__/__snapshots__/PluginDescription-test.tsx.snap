@@ -10,13 +10,11 @@ exports[`should display the description and category 1`] = `
     >
       Foo
     </strong>
-    <a
+    <span
       className="js-plugin-category badge spacer-left"
-      href="#"
-      onClick={[Function]}
     >
       foocategory
-    </a>
+    </span>
   </div>
   <div
     className="js-plugin-description little-spacer-top"
