@@ -56,7 +56,7 @@ a.badge {
 .list-group-item > .badge,
 .list-group-item-heading > .badge {
   float: right;
-  margin-top: 3px;
+  margin: 3px;
 }
 
 .list-group-item > .badge + .badge,

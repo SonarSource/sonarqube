@@ -55,6 +55,7 @@
 a.list-group-item {
   color: var(--baseFontColor);
   transition: none;
+  clear: both;
 }
 
 .list-group-item-heading {
