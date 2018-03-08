@@ -55,12 +55,17 @@
 a.list-group-item {
   color: var(--baseFontColor);
   transition: none;
-  clear: both;
 }
 
 .list-group-item-heading {
   margin-top: 5px;
   margin-bottom: 5px;
+}
+
+.list-group-item-heading:after {
+  content: '';
+  display: table;
+  clear: both;
 }
 
 .list-group-item-text {
