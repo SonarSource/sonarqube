@@ -191,19 +191,18 @@ BUILD)
         -Dsource.skip=true \
         -Pdeploy-sonarsource,release
 
-    # TODO remove the sonar.pullrequest.github.* settings after sonar-core-plugins 7.1.0.330 is deployed on Next
     mvn sonar:sonar \
         -Dsonar.host.url=$SONAR_HOST_URL \
         -Dsonar.login=$SONAR_TOKEN \
-        -Dsonar.branch.name=$TRAVIS_PULL_REQUEST_BRANCH \
-        -Dsonar.branch.target=$TRAVIS_BRANCH \
         -Dsonar.analysis.buildNumber=$BUILD_NUMBER \
         -Dsonar.analysis.pipeline=$BUILD_NUMBER \
         -Dsonar.analysis.sha1=$TRAVIS_PULL_REQUEST_SHA \
         -Dsonar.analysis.prNumber=$TRAVIS_PULL_REQUEST \
         -Dsonar.analysis.repository=$TRAVIS_REPO_SLUG \
-        -Dsonar.pullrequest.id=$TRAVIS_PULL_REQUEST \
-        -Dsonar.pullrequest.github.id=$TRAVIS_PULL_REQUEST \
+        -Dsonar.pullrequest.key=$TRAVIS_PULL_REQUEST \
+        -Dsonar.pullrequest.branch=$TRAVIS_PULL_REQUEST_BRANCH \
+        -Dsonar.pullrequest.base=$TRAVIS_BRANCH \
+        -Dsonar.pullrequest.provider=github \
         -Dsonar.pullrequest.github.repository=$TRAVIS_REPO_SLUG
 
   else
