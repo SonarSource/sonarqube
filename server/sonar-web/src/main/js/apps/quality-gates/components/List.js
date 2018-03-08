@@ -28,19 +28,17 @@ export default function List({ organization, qualityGates }) {
     <div className="list-group">
       {qualityGates.map(qualityGate => (
         <Link
-          key={qualityGate.id}
-          to={getQualityGateUrl(String(qualityGate.id), organization && organization.key)}
           activeClassName="active"
           className="list-group-item"
-          data-id={qualityGate.id}>
+          data-id={qualityGate.id}
+          key={qualityGate.id}
+          to={getQualityGateUrl(String(qualityGate.id), organization && organization.key)}>
           <table>
             <tbody>
               <tr>
                 <td>{qualityGate.name}</td>
                 <td className="thin nowrap spacer-left text-right">
-                  {qualityGate.isDefault && (
-                    <span className="text-middle badge">{translate('default')}</span>
-                  )}
+                  {qualityGate.isDefault && <span className="badge">{translate('default')}</span>}
                   {qualityGate.isBuiltIn && (
                     <BuiltInQualityGateBadge className="little-spacer-left" tooltip={false} />
                   )}

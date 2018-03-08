@@ -41,6 +41,8 @@
   top: 16px;
   padding: 4px 8px;
   border-radius: 2px 0 0 2px;
+  height: inherit;
+  line-height: inherit;
 }
 
 .marketplace-edition-action {

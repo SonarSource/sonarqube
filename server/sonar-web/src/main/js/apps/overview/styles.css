@@ -431,11 +431,8 @@
 }
 
 .overview-analysis-event.badge {
-  vertical-align: middle;
   /* 260px to match the sidebar width on project dashboard */
   max-width: 260px;
-  padding: 4px 14px;
-  box-sizing: border-box;
   border-radius: 2px;
   font-weight: bold;
   font-size: var(--smallFontSize);
