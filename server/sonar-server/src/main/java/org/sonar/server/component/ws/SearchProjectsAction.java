@@ -23,6 +23,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Ordering;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -58,16 +59,19 @@ import org.sonar.server.measure.index.ProjectMeasuresQuery;
 import org.sonar.server.project.Visibility;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Common;
+import org.sonarqube.ws.Components;
 import org.sonarqube.ws.Components.Component;
 import org.sonarqube.ws.Components.SearchProjectsWsResponse;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.collect.ImmutableList.of;
 import static com.google.common.collect.Sets.newHashSet;
 import static java.lang.String.format;
 import static java.util.Collections.emptyMap;
 import static java.util.Objects.requireNonNull;
 import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
+import static org.sonar.api.server.ws.WebService.Param.FACETS;
 import static org.sonar.api.server.ws.WebService.Param.FIELDS;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.core.util.Protobuf.setNullable;
@@ -92,9 +96,11 @@ public class SearchProjectsAction implements ComponentsWsAction {
 
   public static final int MAX_PAGE_SIZE = 500;
   public static final int DEFAULT_PAGE_SIZE = 100;
+  private static final String ALL = "_all";
+  private static final String ORGANIZATIONS = "organizations";
   private static final String ANALYSIS_DATE = "analysisDate";
   private static final String LEAK_PERIOD_DATE = "leakPeriodDate";
-  private static final Set<String> POSSIBLE_FIELDS = newHashSet(ANALYSIS_DATE, LEAK_PERIOD_DATE);
+  private static final Set<String> POSSIBLE_FIELDS = newHashSet(ALL, ORGANIZATIONS, ANALYSIS_DATE, LEAK_PERIOD_DATE);
 
   private final DbClient dbClient;
   private final ProjectMeasuresIndex index;
@@ -130,7 +136,7 @@ public class SearchProjectsAction implements ComponentsWsAction {
       .setRequired(false)
       .setInternal(true)
       .setSince("6.3");
-    action.createParam(Param.FACETS)
+    action.createParam(FACETS)
       .setDescription("Comma-separated list of the facets to be computed. No facet is computed by default.")
       .setPossibleValues(SUPPORTED_FACETS.stream().sorted().collect(MoreCollectors.toList(SUPPORTED_FACETS.size())));
     action
@@ -299,11 +305,16 @@ public class SearchProjectsAction implements ComponentsWsAction {
       .setAsc(httpRequest.mandatoryParamAsBoolean(Param.ASCENDING))
       .setPage(httpRequest.mandatoryParamAsInt(Param.PAGE))
       .setPageSize(httpRequest.mandatoryParamAsInt(Param.PAGE_SIZE));
-    if (httpRequest.hasParam(Param.FACETS)) {
-      request.setFacets(httpRequest.paramAsStrings(Param.FACETS));
+    if (httpRequest.hasParam(FACETS)) {
+      request.setFacets(httpRequest.mandatoryParamAsStrings(FACETS));
     }
     if (httpRequest.hasParam(FIELDS)) {
-      request.setAdditionalFields(httpRequest.paramAsStrings(FIELDS));
+      List<String> paramsAsString = httpRequest.mandatoryParamAsStrings(FIELDS);
+      if (paramsAsString.contains(ALL)) {
+        request.setAdditionalFields(of(ORGANIZATIONS, ANALYSIS_DATE, LEAK_PERIOD_DATE));
+      } else {
+        request.setAdditionalFields(paramsAsString);
+      }
     }
     return request.build();
   }
@@ -311,6 +322,11 @@ public class SearchProjectsAction implements ComponentsWsAction {
   private SearchProjectsWsResponse buildResponse(SearchProjectsRequest request, SearchResults searchResults, Map<String, OrganizationDto> organizationsByUuid) {
     Function<ComponentDto, Component> dbToWsComponent = new DbToWsComponent(request, organizationsByUuid, searchResults.favoriteProjectUuids, searchResults.analysisByProjectUuid,
       userSession.isLoggedIn());
+
+    Map<String, OrganizationDto> organizationsByUuidForAdditionalInfo = new HashMap<>();
+    if (request.additionalFields.contains(ORGANIZATIONS)) {
+      organizationsByUuidForAdditionalInfo.putAll(organizationsByUuid);
+    }
 
     return Stream.of(SearchProjectsWsResponse.newBuilder())
       .map(response -> response.setPaging(Common.Paging.newBuilder()
@@ -321,6 +337,15 @@ public class SearchProjectsAction implements ComponentsWsAction {
         searchResults.projects.stream()
           .map(dbToWsComponent)
           .forEach(response::addComponents);
+        return response;
+      })
+      .map(response -> {
+        organizationsByUuidForAdditionalInfo.values().stream().forEach(
+          dto -> response.addOrganizations(
+            Components.Organization.newBuilder()
+              .setKey(dto.getKey())
+              .setName(dto.getName())
+              .build()));
         return response;
       })
       .map(response -> addFacets(searchResults, response))
@@ -532,6 +557,7 @@ public class SearchProjectsAction implements ComponentsWsAction {
     public static RequestBuilder builder() {
       return new RequestBuilder();
     }
+
   }
 
   static class RequestBuilder {
