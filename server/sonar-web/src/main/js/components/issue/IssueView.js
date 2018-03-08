@@ -37,7 +37,7 @@ type Props = {|
   issue: Issue,
   onAssign: string => void,
   onChange: Issue => void,
-  onCheck?: string => void,
+  onCheck?: (issue: string, event: Event) => void,
   onClick: string => void,
   onFail: Error => void,
   onFilter?: (property: string, issue: Issue) => void,
@@ -53,7 +53,7 @@ export default class IssueView extends React.PureComponent {
     event.preventDefault();
     event.stopPropagation();
     if (this.props.onCheck) {
-      this.props.onCheck(this.props.issue.key);
+      this.props.onCheck(this.props.issue.key, event);
     }
   };
 

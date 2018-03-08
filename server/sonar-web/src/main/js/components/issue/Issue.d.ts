@@ -27,7 +27,7 @@ interface IssueProps {
   displayLocationsLink?: boolean;
   issue: IssueType;
   onChange: (issue: IssueType) => void;
-  onCheck?: (issueKey: string) => void;
+  onCheck?: (issueKey: string, event: Event) => void;
   onClick: (issueKey: string) => void;
   onFilter?: (property: string, issue: IssueType) => void;
   onPopupToggle: (issue: string, popupName: string, open?: boolean) => void;

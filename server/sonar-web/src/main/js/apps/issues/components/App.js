@@ -21,7 +21,7 @@
 import React from 'react';
 import Helmet from 'react-helmet';
 import key from 'keymaster';
-import { keyBy, without } from 'lodash';
+import { keyBy, union, without } from 'lodash';
 import PropTypes from 'prop-types';
 import PageActions from './PageActions';
 import MyIssuesFilter from './MyIssuesFilter';
@@ -83,6 +83,7 @@ export type Props = {
 /*::
 export type State = {
   bulkChange: 'all' | 'selected' | null,
+  lastChecked: null | string,
   checked: Array<string>,
   facets: { [string]: Facet },
   issues: Array<Issue>,
@@ -122,6 +123,7 @@ export default class App extends React.PureComponent {
     super(props);
     this.state = {
       bulkChange: null,
+      lastChecked: null,
       checked: [],
       facets: {},
       issues: [],
@@ -652,12 +654,36 @@ export default class App extends React.PureComponent {
     });
   };
 
-  handleIssueCheck = (issue /*: string */) => {
-    this.setState(state => ({
-      checked: state.checked.includes(issue)
-        ? without(state.checked, issue)
-        : [...state.checked, issue]
-    }));
+  handleIssueCheck = (issue /*: string */, event /*: Event */) => {
+    // Selecting multiple issues with shift+click
+    const { lastChecked } = this.state;
+    if (event.shiftKey && lastChecked !== null) {
+      this.setState(state => {
+        const issueKeys = state.issues.map(issue => issue.key);
+        const currentIssueIndex = issueKeys.indexOf(issue);
+        const lastSelectedIndex = issueKeys.indexOf(lastChecked);
+        const shouldCheck = state.checked.includes(lastChecked);
+        let { checked } = state;
+        if (currentIssueIndex < 0) {
+          return null;
+        }
+        const start = Math.min(currentIssueIndex, lastSelectedIndex);
+        const end = Math.max(currentIssueIndex, lastSelectedIndex);
+        for (let i = start; i < end + 1; i++) {
+          checked = shouldCheck
+            ? union(checked, [state.issues[i].key])
+            : without(checked, state.issues[i].key);
+        }
+        return { checked };
+      });
+    } else {
+      this.setState(state => ({
+        lastChecked: issue,
+        checked: state.checked.includes(issue)
+          ? without(state.checked, issue)
+          : [...state.checked, issue]
+      }));
+    }
   };
 
   handleIssueChange = (issue /*: Issue */) => {

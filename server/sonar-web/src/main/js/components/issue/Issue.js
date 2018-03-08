@@ -35,7 +35,7 @@ type Props = {|
   displayLocationsLink?: boolean;
   issue: IssueType,
   onChange: IssueType => void,
-  onCheck?: string => void,
+  onCheck?: (issue: string, event: Event) => void,
   onClick: string => void,
   onFilter?: (property: string, issue: IssueType) => void,
   onPopupToggle: (issue: string, popupName: string, open: ?boolean) => void,
@@ -108,9 +108,9 @@ export default class Issue extends React.PureComponent {
       this.togglePopup('edit-tags');
       return false;
     });
-    key('space', 'issues', () => {
+    key('space', 'issues', (event /*: Event*/) => {
       if (this.props.onCheck) {
-        this.props.onCheck(this.props.issue.key);
+        this.props.onCheck(this.props.issue.key, event);
         return false;
       }
       return undefined;
