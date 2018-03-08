@@ -196,8 +196,9 @@ public class SearchProjectsActionTest {
   @Test
   public void json_example() {
     userSession.logIn();
-    OrganizationDto organization1Dto = db.organizations().insertForKey("my-org-key-1");
-    OrganizationDto organization2Dto = db.organizations().insertForKey("my-org-key-2");
+    OrganizationDto organization2Dto = db.organizations().insert(dto-> dto.setKey("my-org-key-2").setName("Bar"));
+    OrganizationDto organization1Dto = db.organizations().insert(dto-> dto.setKey("my-org-key-1").setName("Foo"));
+
     MetricDto coverage = db.measures().insertMetric(c -> c.setKey(COVERAGE).setValueType(PERCENT.name()));
     ComponentDto project1 = insertProject(organization1Dto, c -> c
       .setDbKey(KeyExamples.KEY_PROJECT_EXAMPLE_001)
