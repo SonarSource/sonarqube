@@ -97,6 +97,7 @@ exports[`renders short-living branch 1`] = `
               "status": Object {
                 "bugs": 1,
                 "codeSmells": 2,
+                "qualityGateStatus": "ERROR",
                 "vulnerabilities": 3,
               },
               "type": "SHORT",
@@ -118,6 +119,7 @@ exports[`renders short-living branch 1`] = `
               "status": Object {
                 "bugs": 1,
                 "codeSmells": 2,
+                "qualityGateStatus": "ERROR",
                 "vulnerabilities": 3,
               },
               "type": "SHORT",
@@ -169,6 +171,7 @@ exports[`renders short-living orhpan branch 1`] = `
               "status": Object {
                 "bugs": 1,
                 "codeSmells": 2,
+                "qualityGateStatus": "ERROR",
                 "vulnerabilities": 3,
               },
               "type": "SHORT",
@@ -191,6 +194,7 @@ exports[`renders short-living orhpan branch 1`] = `
               "status": Object {
                 "bugs": 1,
                 "codeSmells": 2,
+                "qualityGateStatus": "ERROR",
                 "vulnerabilities": 3,
               },
               "type": "SHORT",

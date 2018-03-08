@@ -78,8 +78,12 @@ describe('#isSameBranchLike', () => {
   });
 
   it('compares pull requests', () => {
-    expect(isSameBranchLike(pullRequest({ key: '1234' }), pullRequest({ key: '1234' }))).toBeTruthy();
-    expect(isSameBranchLike(pullRequest({ key: '1234' }), pullRequest({ key: '5678' }))).toBeFalsy();
+    expect(
+      isSameBranchLike(pullRequest({ key: '1234' }), pullRequest({ key: '1234' }))
+    ).toBeTruthy();
+    expect(
+      isSameBranchLike(pullRequest({ key: '1234' }), pullRequest({ key: '5678' }))
+    ).toBeFalsy();
   });
 
   it('compares branches', () => {
@@ -103,7 +107,7 @@ function mainBranch(): MainBranch {
 }
 
 function shortLivingBranch(overrides?: Partial<ShortLivingBranch>): ShortLivingBranch {
-  const status = { bugs: 0, codeSmells: 0, vulnerabilities: 0 };
+  const status = { bugs: 0, codeSmells: 0, qualityGateStatus: 'OK', vulnerabilities: 0 };
   return {
     isMain: false,
     mergeBranch: 'master',
@@ -120,7 +124,7 @@ function longLivingBranch(overrides?: Partial<LongLivingBranch>): LongLivingBran
 }
 
 function pullRequest(overrides?: Partial<PullRequest>): PullRequest {
-  const status = { bugs: 0, codeSmells: 0, vulnerabilities: 0 };
+  const status = { bugs: 0, codeSmells: 0, qualityGateStatus: 'OK', vulnerabilities: 0 };
   return {
     base: 'master',
     branch: 'feature',

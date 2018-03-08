@@ -37,7 +37,7 @@ it('renders status of short-living branch', () => {
     isMain: false,
     mergeBranch: 'master',
     name: 'feature',
-    status: { bugs: 0, codeSmells: 2, vulnerabilities: 3 },
+    status: { bugs: 0, codeSmells: 2, qualityGateStatus: 'ERROR', vulnerabilities: 3 },
     type: BranchType.SHORT
   };
   expect(
@@ -74,7 +74,7 @@ it('renders meta for pull request', () => {
     base: 'master',
     branch: 'feature',
     key: '1234',
-    status: { bugs: 0, codeSmells: 2, vulnerabilities: 3 },
+    status: { bugs: 0, codeSmells: 2, qualityGateStatus: 'ERROR', vulnerabilities: 3 },
     title: 'Feature PR',
     url: 'https://example.com/pull/1234'
   };

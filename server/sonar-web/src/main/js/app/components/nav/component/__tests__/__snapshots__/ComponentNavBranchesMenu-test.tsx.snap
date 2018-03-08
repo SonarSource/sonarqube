@@ -55,6 +55,7 @@ exports[`renders list 1`] = `
             "status": Object {
               "bugs": 0,
               "codeSmells": 0,
+              "qualityGateStatus": "OK",
               "vulnerabilities": 0,
             },
             "title": "qux",
@@ -99,6 +100,7 @@ exports[`renders list 1`] = `
             "status": Object {
               "bugs": 0,
               "codeSmells": 0,
+              "qualityGateStatus": "OK",
               "vulnerabilities": 0,
             },
             "type": "SHORT",
@@ -127,6 +129,7 @@ exports[`renders list 1`] = `
             "status": Object {
               "bugs": 0,
               "codeSmells": 0,
+              "qualityGateStatus": "OK",
               "vulnerabilities": 0,
             },
             "type": "SHORT",
@@ -195,6 +198,7 @@ exports[`renders list 1`] = `
             "status": Object {
               "bugs": 0,
               "codeSmells": 0,
+              "qualityGateStatus": "OK",
               "vulnerabilities": 0,
             },
             "type": "SHORT",
@@ -250,6 +254,7 @@ exports[`searches 1`] = `
             "status": Object {
               "bugs": 0,
               "codeSmells": 0,
+              "qualityGateStatus": "OK",
               "vulnerabilities": 0,
             },
             "type": "SHORT",

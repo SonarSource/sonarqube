@@ -152,6 +152,7 @@ exports[`renders short-living branch 1`] = `
           "status": Object {
             "bugs": 0,
             "codeSmells": 0,
+            "qualityGateStatus": "OK",
             "vulnerabilities": 0,
           },
           "type": "SHORT",

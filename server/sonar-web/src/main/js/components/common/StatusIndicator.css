@@ -51,3 +51,11 @@
 .status-indicator.green {
   background-color: var(--green);
 }
+
+.status-indicator.orange {
+  background-color: var(--orange);
+}
+
+.status-indicator.gray {
+  background-color: var(--gray71);
+}
