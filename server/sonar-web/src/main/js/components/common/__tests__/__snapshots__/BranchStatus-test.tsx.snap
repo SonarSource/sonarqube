@@ -19,7 +19,7 @@ exports[`renders status of short-living branches 1`] = `
   className="branch-status"
 >
   <li
-    className="spacer-right"
+    className="little-spacer-right"
   >
     <StatusIndicator
       color="green"
@@ -30,19 +30,25 @@ exports[`renders status of short-living branches 1`] = `
     className="spacer-left"
   >
     0
-    <BugIcon />
+    <BugIcon
+      className="little-spacer-left"
+    />
   </li>
   <li
     className="spacer-left"
   >
     0
-    <VulnerabilityIcon />
+    <VulnerabilityIcon
+      className="little-spacer-left"
+    />
   </li>
   <li
     className="spacer-left"
   >
     0
-    <CodeSmellIcon />
+    <CodeSmellIcon
+      className="little-spacer-left"
+    />
   </li>
 </ul>
 `;
@@ -52,10 +58,10 @@ exports[`renders status of short-living branches 2`] = `
   className="branch-status"
 >
   <li
-    className="spacer-right"
+    className="little-spacer-right"
   >
     <StatusIndicator
-      color="red"
+      color="orange"
       size="small"
     />
   </li>
@@ -63,19 +69,25 @@ exports[`renders status of short-living branches 2`] = `
     className="spacer-left"
   >
     0
-    <BugIcon />
+    <BugIcon
+      className="little-spacer-left"
+    />
   </li>
   <li
     className="spacer-left"
   >
     0
-    <VulnerabilityIcon />
+    <VulnerabilityIcon
+      className="little-spacer-left"
+    />
   </li>
   <li
     className="spacer-left"
   >
     1
-    <CodeSmellIcon />
+    <CodeSmellIcon
+      className="little-spacer-left"
+    />
   </li>
 </ul>
 `;
@@ -85,7 +97,7 @@ exports[`renders status of short-living branches 3`] = `
   className="branch-status"
 >
   <li
-    className="spacer-right"
+    className="little-spacer-right"
   >
     <StatusIndicator
       color="red"
@@ -96,19 +108,76 @@ exports[`renders status of short-living branches 3`] = `
     className="spacer-left"
   >
     7
-    <BugIcon />
+    <BugIcon
+      className="little-spacer-left"
+    />
   </li>
   <li
     className="spacer-left"
   >
     6
-    <VulnerabilityIcon />
+    <VulnerabilityIcon
+      className="little-spacer-left"
+    />
   </li>
   <li
     className="spacer-left"
   >
     3
-    <CodeSmellIcon />
+    <CodeSmellIcon
+      className="little-spacer-left"
+    />
   </li>
+</ul>
+`;
+
+exports[`renders status of short-living branches 4`] = `
+<ul
+  className="branch-status"
+>
+  <li
+    className="little-spacer-right"
+  >
+    <StatusIndicator
+      color="green"
+      size="small"
+    />
+  </li>
+  <li
+    className="spacer-left"
+  >
+    0
+    <BugIcon
+      className="little-spacer-left"
+    />
+  </li>
+  <li
+    className="spacer-left"
+  >
+    1
+    <VulnerabilityIcon
+      className="little-spacer-left"
+    />
+  </li>
+  <li
+    className="spacer-left"
+  >
+    0
+    <CodeSmellIcon
+      className="little-spacer-left"
+    />
+  </li>
+  <Tooltip
+    overlay="branches.short_lived.quality_gate.description.1"
+    placement="right"
+  >
+    <li
+      className="spacer-left"
+    >
+      <HelpIcon
+        className="text-info"
+      />
+    </li>
+  </Tooltip>
 </ul>
 `;

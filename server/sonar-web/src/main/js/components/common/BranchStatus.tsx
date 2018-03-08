@@ -22,9 +22,12 @@ import StatusIndicator from './StatusIndicator';
 import Level from '../ui/Level';
 import BugIcon from '../icons-components/BugIcon';
 import CodeSmellIcon from '../icons-components/CodeSmellIcon';
+import HelpIcon from '../icons-components/HelpIcon';
+import Tooltip from '../controls/Tooltip';
 import VulnerabilityIcon from '../icons-components/VulnerabilityIcon';
 import { BranchLike } from '../../app/types';
 import { isShortLivingBranch, isPullRequest, isLongLivingBranch } from '../../helpers/branches';
+import { translateWithParameters } from '../../helpers/l10n';
 import './BranchStatus.css';
 
 interface Props {
@@ -40,8 +43,8 @@ export default function BranchStatus({ branchLike, concise = false }: Props) {
 
     const totalIssues =
       branchLike.status.bugs + branchLike.status.vulnerabilities + branchLike.status.codeSmells;
-
-    const indicatorColor = totalIssues > 0 ? 'red' : 'green';
+    const indicatorColor = getQualityGateColor(branchLike.status.qualityGateStatus);
+    const shouldDisplayHelper = branchLike.status.qualityGateStatus === 'OK' && totalIssues > 0;
 
     return concise ? (
       <ul className="branch-status">
@@ -52,21 +55,33 @@ export default function BranchStatus({ branchLike, concise = false }: Props) {
       </ul>
     ) : (
       <ul className="branch-status">
-        <li className="spacer-right">
+        <li className="little-spacer-right">
           <StatusIndicator color={indicatorColor} size="small" />
         </li>
         <li className="spacer-left">
           {branchLike.status.bugs}
-          <BugIcon />
+          <BugIcon className="little-spacer-left" />
         </li>
         <li className="spacer-left">
           {branchLike.status.vulnerabilities}
-          <VulnerabilityIcon />
+          <VulnerabilityIcon className="little-spacer-left" />
         </li>
         <li className="spacer-left">
           {branchLike.status.codeSmells}
-          <CodeSmellIcon />
+          <CodeSmellIcon className="little-spacer-left" />
         </li>
+        {shouldDisplayHelper && (
+          <Tooltip
+            overlay={translateWithParameters(
+              'branches.short_lived.quality_gate.description',
+              totalIssues
+            )}
+            placement="right">
+            <li className="spacer-left">
+              <HelpIcon className="text-info" />
+            </li>
+          </Tooltip>
+        )}
       </ul>
     );
   } else if (isLongLivingBranch(branchLike)) {
@@ -78,4 +93,16 @@ export default function BranchStatus({ branchLike, concise = false }: Props) {
   } else {
     return null;
   }
+}
+
+function getQualityGateColor(status: string) {
+  let indicatorColor = 'gray';
+  if (status === 'ERROR') {
+    indicatorColor = 'red';
+  } else if (status === 'WARN') {
+    indicatorColor = 'orange';
+  } else if (status === 'OK') {
+    indicatorColor = 'green';
+  }
+  return indicatorColor;
 }

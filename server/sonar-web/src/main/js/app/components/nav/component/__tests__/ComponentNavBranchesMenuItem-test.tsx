@@ -28,7 +28,7 @@ const shortBranch: ShortLivingBranch = {
   isMain: false,
   mergeBranch: 'master',
   name: 'foo',
-  status: { bugs: 1, codeSmells: 2, vulnerabilities: 3 },
+  status: { bugs: 1, codeSmells: 2, qualityGateStatus: 'ERROR', vulnerabilities: 3 },
   type: BranchType.SHORT
 };
 

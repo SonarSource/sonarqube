@@ -94,7 +94,7 @@ function shortBranch(name: string, isOrphan?: true): ShortLivingBranch {
     isOrphan,
     mergeBranch: 'master',
     name,
-    status: { bugs: 0, codeSmells: 0, vulnerabilities: 0 },
+    status: { bugs: 0, codeSmells: 0, qualityGateStatus: 'OK', vulnerabilities: 0 },
     type: BranchType.SHORT
   };
 }
@@ -108,7 +108,7 @@ function pullRequest(title: string): PullRequest {
     base: 'master',
     branch: 'feature',
     key: '1234',
-    status: { bugs: 0, codeSmells: 0, vulnerabilities: 0 },
+    status: { bugs: 0, codeSmells: 0, qualityGateStatus: 'OK', vulnerabilities: 0 },
     title
   };
 }

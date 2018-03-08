@@ -360,6 +360,7 @@ export interface PullRequest {
   status?: {
     bugs: number;
     codeSmells: number;
+    qualityGateStatus: string;
     vulnerabilities: number;
   };
   title: string;
@@ -440,6 +441,7 @@ export interface ShortLivingBranch extends Branch {
   status?: {
     bugs: number;
     codeSmells: number;
+    qualityGateStatus: string;
     vulnerabilities: number;
   };
   type: BranchType.SHORT;

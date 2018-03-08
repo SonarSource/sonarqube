@@ -23,16 +23,22 @@ import BranchStatus from '../BranchStatus';
 import { BranchType, LongLivingBranch, ShortLivingBranch } from '../../../app/types';
 
 it('renders status of short-living branches', () => {
-  checkShort(0, 0, 0);
-  checkShort(0, 1, 0);
-  checkShort(7, 3, 6);
+  checkShort('OK', 0, 0, 0);
+  checkShort('WARN', 0, 1, 0);
+  checkShort('ERROR', 7, 3, 6);
+  checkShort('OK', 0, 0, 1);
 
-  function checkShort(bugs: number, codeSmells: number, vulnerabilities: number) {
+  function checkShort(
+    qualityGateStatus: string,
+    bugs: number,
+    codeSmells: number,
+    vulnerabilities: number
+  ) {
     const shortBranch: ShortLivingBranch = {
       isMain: false,
       mergeBranch: 'master',
       name: 'foo',
-      status: { bugs, codeSmells, vulnerabilities },
+      status: { bugs, codeSmells, qualityGateStatus, vulnerabilities },
       type: BranchType.SHORT
     };
     expect(shallow(<BranchStatus branchLike={shortBranch} />)).toMatchSnapshot();

@@ -61,6 +61,7 @@ exports[`renders meta for pull request 1`] = `
           "status": Object {
             "bugs": 0,
             "codeSmells": 2,
+            "qualityGateStatus": "ERROR",
             "vulnerabilities": 3,
           },
           "title": "Feature PR",
@@ -95,6 +96,7 @@ exports[`renders status of short-living branch 1`] = `
           "status": Object {
             "bugs": 0,
             "codeSmells": 2,
+            "qualityGateStatus": "ERROR",
             "vulnerabilities": 3,
           },
           "type": "SHORT",
