@@ -676,14 +676,14 @@ export default class App extends React.PureComponent {
         }
         return { checked };
       });
-      return;
+    } else {
+      this.setState(state => ({
+        lastChecked: issue,
+        checked: state.checked.includes(issue)
+          ? without(state.checked, issue)
+          : [...state.checked, issue]
+      }));
     }
-    this.setState(state => ({
-      lastChecked: issue,
-      checked: state.checked.includes(issue)
-        ? without(state.checked, issue)
-        : [...state.checked, issue]
-    }));
   };
 
   handleIssueChange = (issue /*: Issue */) => {
