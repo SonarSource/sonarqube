@@ -40,7 +40,6 @@ function getWrapper(props = {}) {
         description: 'foo description',
         category: 'foocategory'
       }}
-      updateQuery={() => {}}
       {...props}
     />
   );

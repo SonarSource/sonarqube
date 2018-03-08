@@ -184,7 +184,6 @@ export default class App extends React.PureComponent<Props, State> {
             plugins={filteredPlugins}
             readOnly={!standaloneMode}
             refreshPending={this.fetchPendingPlugins}
-            updateQuery={this.updateQuery}
           />
         )}
         {!loadingPlugins && <Footer total={filteredPlugins.length} />}
