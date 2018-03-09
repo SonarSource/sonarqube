@@ -23,6 +23,7 @@ exports[`should work for all qualifiers 1`] = `
   <li>
     <Link
       activeClassName="active"
+      className=""
       onlyActiveOnIndex={false}
       style={Object {}}
       to={
@@ -216,6 +217,7 @@ exports[`should work for all qualifiers 2`] = `
   <li>
     <Link
       activeClassName="active"
+      className=""
       onlyActiveOnIndex={false}
       style={Object {}}
       to={
@@ -352,6 +354,7 @@ exports[`should work for all qualifiers 3`] = `
   <li>
     <Link
       activeClassName="active"
+      className=""
       onlyActiveOnIndex={false}
       style={Object {}}
       to={
@@ -487,6 +490,7 @@ exports[`should work for all qualifiers 4`] = `
   <li>
     <Link
       activeClassName="active"
+      className=""
       onlyActiveOnIndex={false}
       style={Object {}}
       to={
@@ -583,6 +587,7 @@ exports[`should work for all qualifiers 5`] = `
   <li>
     <Link
       activeClassName="active"
+      className=""
       onlyActiveOnIndex={false}
       style={Object {}}
       to={
@@ -718,6 +723,7 @@ exports[`should work for long-living branches 1`] = `
   <li>
     <Link
       activeClassName="active"
+      className=""
       onlyActiveOnIndex={false}
       style={Object {}}
       to={
@@ -814,6 +820,7 @@ exports[`should work for long-living branches 2`] = `
   <li>
     <Link
       activeClassName="active"
+      className=""
       onlyActiveOnIndex={false}
       style={Object {}}
       to={
@@ -892,6 +899,7 @@ exports[`should work for short-living branches 1`] = `
   <li>
     <Link
       activeClassName="active"
+      className=""
       onlyActiveOnIndex={false}
       style={Object {}}
       to={
@@ -952,6 +960,7 @@ exports[`should work with extensions 1`] = `
   <li>
     <Link
       activeClassName="active"
+      className=""
       onlyActiveOnIndex={false}
       style={Object {}}
       to={
@@ -1203,6 +1212,7 @@ exports[`should work with multiple extensions 1`] = `
   <li>
     <Link
       activeClassName="active"
+      className=""
       onlyActiveOnIndex={false}
       style={Object {}}
       to={
