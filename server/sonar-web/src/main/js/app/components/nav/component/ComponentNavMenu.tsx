@@ -148,6 +148,7 @@ export default class ComponentNavMenu extends React.PureComponent<Props> {
   }
 
   renderIssuesLink() {
+    const isIssuesActive = window.location.href.indexOf('/project/issues') !== -1;
     return (
       <li>
         <Link
@@ -159,6 +160,7 @@ export default class ComponentNavMenu extends React.PureComponent<Props> {
               resolved: 'false'
             }
           }}
+          className={classNames({ active: isIssuesActive })}
           activeClassName="active">
           {translate('issues.page')}
         </Link>
