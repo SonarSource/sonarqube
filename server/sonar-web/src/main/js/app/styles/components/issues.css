@@ -27,7 +27,7 @@
   padding-bottom: 8px;
   background-color: #ffeaea;
   box-shadow: inset 0px 0px 0px 1px #ffeaea;
-  transition: all 0.3s ease;
+  transition: all 0.3s ease, border 0 ease;
 }
 
 .issue-list,

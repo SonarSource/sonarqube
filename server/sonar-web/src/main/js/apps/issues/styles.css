@@ -145,6 +145,11 @@
 
 .issues .issue:hover {
   border: 1px dashed #dd4040;
+  transition: all 0.3s ease;
+}
+
+.issues .issue:focus {
+  outline: none;
 }
 
 @media (max-width: 1320px) {
