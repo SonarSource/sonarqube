@@ -842,7 +842,7 @@ export default class App extends React.PureComponent {
   }
 
   renderConciseIssuesList() {
-    const { issues, paging } = this.state;
+    const { issues, paging, query } = this.state;
 
     return (
       <div className="layout-page-filters">
@@ -851,6 +851,7 @@ export default class App extends React.PureComponent {
           onBackClick={this.closeIssue}
           onReload={this.handleReloadAndOpenFirst}
           paging={paging}
+          displayBackButton={query.issues.length !== 1}
           selectedIndex={this.getSelectedIndex()}
         />
         <ConciseIssuesList
