@@ -148,7 +148,8 @@ export default class ComponentNavMenu extends React.PureComponent<Props> {
   }
 
   renderIssuesLink() {
-    const isIssuesActive = window.location.href.indexOf('/project/issues') !== -1;
+    const { location = { pathname: '' } } = this.props;
+    const isIssuesActive = location.pathname.indexOf('project/issues') !== -1;
     return (
       <li>
         <Link

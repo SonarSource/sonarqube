@@ -36,16 +36,12 @@ type Props = {|
 */
 
 export default function ConciseIssuesListHeader(props /*: Props */) {
-  const { paging, selectedIndex } = props;
-  const shouldDisplayBackButton =
-    typeof props.displayBackButton === 'undefined' || props.displayBackButton;
+  const { displayBackButton = true, paging, selectedIndex } = props;
 
   return (
     <header className="layout-page-header-panel concise-issues-list-header">
       <div className="layout-page-header-panel-inner concise-issues-list-header-inner">
-        {shouldDisplayBackButton && (
-          <BackButton className="pull-left" onClick={props.onBackClick} />
-        )}
+        {displayBackButton && <BackButton className="pull-left" onClick={props.onBackClick} />}
         {props.loading ? (
           <i className="spinner pull-right" />
         ) : (
