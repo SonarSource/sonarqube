@@ -42,7 +42,7 @@ public class Jmx {
    */
   public static void register(String name, Object instance) {
     try {
-      Class mbeanInterface = guessMBeanInterface(instance);
+      Class<Object> mbeanInterface = guessMBeanInterface(instance);
       ManagementFactory.getPlatformMBeanServer().registerMBean(new StandardMBean(instance, mbeanInterface), new ObjectName(name));
 
     } catch (MalformedObjectNameException | NotCompliantMBeanException | InstanceAlreadyExistsException | MBeanRegistrationException e) {
@@ -58,10 +58,11 @@ public class Jmx {
    * To avoid the last convention, we wrap the mbean within a StandardMBean. That
    * requires to find the related interface.
    */
-  private static Class guessMBeanInterface(Object instance) {
-    Class mbeanInterface = null;
-    Class<?>[] interfaces = instance.getClass().getInterfaces();
-    for (Class<?> anInterface : interfaces) {
+
+  private static Class<Object> guessMBeanInterface(Object instance) {
+    Class<Object> mbeanInterface = null;
+    Class<Object>[] interfaces = (Class<Object>[])instance.getClass().getInterfaces();
+    for (Class<Object> anInterface : interfaces) {
       if (anInterface.getName().endsWith("MBean")) {
         mbeanInterface = anInterface;
         break;

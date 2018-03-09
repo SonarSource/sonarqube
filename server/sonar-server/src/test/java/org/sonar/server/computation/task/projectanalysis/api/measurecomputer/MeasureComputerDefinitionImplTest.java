@@ -82,7 +82,7 @@ public class MeasureComputerDefinitionImplTest {
     thrown.expectMessage("Input metrics cannot be null");
 
     new MeasureComputerDefinitionImpl.BuilderImpl()
-      .setInputMetrics(null)
+      .setInputMetrics((String[])null)
       .setOutputMetrics("comment_density_1", "comment_density_2");
   }
 
@@ -113,7 +113,7 @@ public class MeasureComputerDefinitionImplTest {
 
     new MeasureComputerDefinitionImpl.BuilderImpl()
       .setInputMetrics("ncloc", "comment")
-      .setOutputMetrics(null);
+      .setOutputMetrics((String[])null);
   }
 
   @Test

@@ -34,7 +34,7 @@ public class TestMeasureComputerDefinitionTest {
   public ExpectedException thrown = ExpectedException.none();
 
   @Test
-  public void build_definition() throws Exception {
+  public void build_definition() {
     MeasureComputerDefinition definition = new MeasureComputerDefinitionBuilderImpl()
       .setInputMetrics("INPUT_1", "INPUT_2")
       .setOutputMetrics("OUTPUT_1", "OUTPUT_2")
@@ -45,7 +45,7 @@ public class TestMeasureComputerDefinitionTest {
   }
 
   @Test
-  public void build_definition_without_input_metric() throws Exception {
+  public void build_definition_without_input_metric() {
     MeasureComputerDefinition definition = new MeasureComputerDefinitionBuilderImpl()
       .setOutputMetrics("OUTPUT_1", "OUTPUT_2")
       .build();
@@ -55,18 +55,18 @@ public class TestMeasureComputerDefinitionTest {
   }
 
   @Test
-  public void fail_with_NPE_when_building_definition_with_null_input_metrics() throws Exception {
+  public void fail_with_NPE_when_building_definition_with_null_input_metrics() {
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("Input metrics cannot be null");
 
     new MeasureComputerDefinitionBuilderImpl()
-      .setInputMetrics(null)
+      .setInputMetrics((String[]) null)
       .setOutputMetrics("OUTPUT_1", "OUTPUT_2")
       .build();
   }
 
   @Test
-  public void fail_with_NPE_when_building_definition_with_on_null_input_metric() throws Exception {
+  public void fail_with_NPE_when_building_definition_with_on_null_input_metric() {
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("Null metric is not allowed");
 
@@ -77,18 +77,18 @@ public class TestMeasureComputerDefinitionTest {
   }
 
   @Test
-  public void fail_with_NPE_when_building_definition_with_null_output_metrics() throws Exception {
+  public void fail_with_NPE_when_building_definition_with_null_output_metrics() {
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("Output metrics cannot be null");
 
     new MeasureComputerDefinitionBuilderImpl()
       .setInputMetrics("INPUT_1", "INPUT_2")
-      .setOutputMetrics(null)
+      .setOutputMetrics((String[]) null)
       .build();
   }
 
   @Test
-  public void fail_with_NPE_when_building_definition_without_output_metrics() throws Exception {
+  public void fail_with_NPE_when_building_definition_without_output_metrics() {
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("Output metrics cannot be null");
 
@@ -98,7 +98,7 @@ public class TestMeasureComputerDefinitionTest {
   }
 
   @Test
-  public void fail_with_NPE_when_building_definition_with_on_null_ouput_metric() throws Exception {
+  public void fail_with_NPE_when_building_definition_with_on_null_ouput_metric() {
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("Null metric is not allowed");
 
@@ -109,7 +109,7 @@ public class TestMeasureComputerDefinitionTest {
   }
 
   @Test
-  public void fail_with_IAE_when_building_definition_with_empty_output_metrics() throws Exception {
+  public void fail_with_IAE_when_building_definition_with_empty_output_metrics() {
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("At least one output metric must be defined");
 
@@ -120,7 +120,7 @@ public class TestMeasureComputerDefinitionTest {
   }
 
   @Test
-  public void fail_with_IAE_when_building_definition_with_core_metrics_in_output_metrics() throws Exception {
+  public void fail_with_IAE_when_building_definition_with_core_metrics_in_output_metrics() {
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("Core metrics are not allowed");
 

@@ -83,9 +83,9 @@ public class DropOldLicensesTest {
   private void assertProperties(String... expectedSettingKeys) {
     assertThat(db.select("SELECT PROP_KEY FROM PROPERTIES")
       .stream()
-      .map(map -> map.get("PROP_KEY"))
+      .map(map -> (String)map.get("PROP_KEY"))
       .collect(Collectors.toList()))
-        .containsExactlyInAnyOrder(expectedSettingKeys);
+        .containsExactly(expectedSettingKeys);
   }
 
   public void insertProperty(String propertyKey) {

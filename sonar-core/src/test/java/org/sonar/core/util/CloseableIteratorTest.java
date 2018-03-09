@@ -167,7 +167,7 @@ public class CloseableIteratorTest {
 
   @Test(expected = NullPointerException.class)
   public void wrap_fails_if_null_closeable() {
-    CloseableIterator.wrap(new SimpleCloseableIterator(), null);
+    CloseableIterator.wrap(new SimpleCloseableIterator(), (AutoCloseable)null);
   }
 
   private static class CloseableIt implements Iterator<String>, AutoCloseable {

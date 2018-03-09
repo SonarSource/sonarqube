@@ -19,14 +19,13 @@
  */
 package org.sonar.server.startup;
 
+import javax.servlet.ServletException;
 import org.junit.Test;
 import org.sonar.api.web.ServletFilter;
 import org.sonar.server.platform.web.MasterServletFilter;
-
-import javax.servlet.ServletException;
 import org.sonar.server.platform.web.RegisterServletFilters;
 
-import static org.mockito.Matchers.anyListOf;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
@@ -42,7 +41,7 @@ public class RegisterServletFiltersTest {
     MasterServletFilter.INSTANCE = mock(MasterServletFilter.class);
     new RegisterServletFilters(new ServletFilter[2]).start();
 
-    verify(MasterServletFilter.INSTANCE).initFilters(anyListOf(ServletFilter.class));
+    verify(MasterServletFilter.INSTANCE).initFilters(anyList());
   }
 
   @Test
@@ -50,6 +49,6 @@ public class RegisterServletFiltersTest {
     MasterServletFilter.INSTANCE = mock(MasterServletFilter.class);
     new RegisterServletFilters().start();
     // do not fail
-    verify(MasterServletFilter.INSTANCE).initFilters(anyListOf(ServletFilter.class));
+    verify(MasterServletFilter.INSTANCE).initFilters(anyList());
   }
 }

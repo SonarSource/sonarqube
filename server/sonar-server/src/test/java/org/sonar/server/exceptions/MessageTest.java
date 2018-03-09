@@ -83,6 +83,6 @@ public class MessageTest {
   public void to_string() {
     assertThat(Message.of("key1 %s", "param1").toString()).isEqualTo("key1 param1");
     assertThat(Message.of("key1").toString()).isEqualTo("key1");
-    assertThat(Message.of("key1", null).toString()).isEqualTo("key1");
+    assertThat(Message.of("key1", (Object[])null).toString()).isEqualTo("key1");
   }
 }

@@ -26,7 +26,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.IsAliveMapper;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 

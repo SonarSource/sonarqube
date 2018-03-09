@@ -67,6 +67,7 @@ abstract class BaseRequest<SELF extends BaseRequest> implements WsRequest {
   /**
    * Expected media type of response. Default is {@link MediaTypes#JSON}.
    */
+  @SuppressWarnings("unchecked")
   public SELF setMediaType(String s) {
     requireNonNull(s, "media type of response cannot be null");
     this.mediaType = s;
@@ -93,6 +94,7 @@ abstract class BaseRequest<SELF extends BaseRequest> implements WsRequest {
     return setSingleValueParam(key, value);
   }
 
+  @SuppressWarnings("unchecked")
   private SELF setSingleValueParam(String key, @Nullable Object value) {
     checkArgument(!isNullOrEmpty(key), "a WS parameter key cannot be null");
     if (value == null) {
@@ -103,6 +105,7 @@ abstract class BaseRequest<SELF extends BaseRequest> implements WsRequest {
     return (SELF) this;
   }
 
+  @SuppressWarnings("unchecked")
   public SELF setParam(String key, @Nullable Collection<? extends Object> values) {
     checkArgument(!isNullOrEmpty(key), "a WS parameter key cannot be null");
     if (values == null || values.isEmpty()) {
@@ -140,6 +143,7 @@ abstract class BaseRequest<SELF extends BaseRequest> implements WsRequest {
     return headers;
   }
 
+  @SuppressWarnings("unchecked")
   public SELF setHeader(String name, @Nullable String value) {
     requireNonNull(name, "Header name can't be null");
     headers.setValue(name, value);

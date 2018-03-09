@@ -44,7 +44,7 @@ import org.sonar.server.computation.task.projectanalysis.metric.MetricRepository
 import org.sonar.server.notification.NotificationService;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;

@@ -23,7 +23,6 @@ import java.util.Arrays;
 import java.util.List;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Matchers;
 import org.sonar.duplications.statement.matcher.AnyTokenMatcher;
 import org.sonar.duplications.statement.matcher.TokenMatcher;
 import org.sonar.duplications.token.Token;
@@ -31,6 +30,9 @@ import org.sonar.duplications.token.TokenQueue;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
@@ -45,7 +47,7 @@ public class StatementChannelTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void shouldNotAcceptEmpty() {
-    StatementChannel.create(new TokenMatcher[] {});
+    StatementChannel.create(new TokenMatcher[]{});
   }
 
   @Test
@@ -57,7 +59,7 @@ public class StatementChannelTest {
 
     assertThat(channel.consume(tokenQueue, output), is(false));
     ArgumentCaptor<List> matchedTokenList = ArgumentCaptor.forClass(List.class);
-    verify(matcher).matchToken(Matchers.eq(tokenQueue), matchedTokenList.capture());
+    verify(matcher).matchToken(eq(tokenQueue), matchedTokenList.capture());
     verifyNoMoreInteractions(matcher);
     verify(tokenQueue).pushForward(matchedTokenList.getValue());
     verifyNoMoreInteractions(tokenQueue);
@@ -73,7 +75,7 @@ public class StatementChannelTest {
     List<Statement> output = mock(List.class);
 
     assertThat(channel.consume(tokenQueue, output), is(true));
-    verify(matcher).matchToken(Matchers.eq(tokenQueue), Matchers.anyList());
+    verify(matcher).matchToken(eq(tokenQueue), anyList());
     verifyNoMoreInteractions(matcher);
     ArgumentCaptor<Statement> statement = ArgumentCaptor.forClass(Statement.class);
     verify(output).add(statement.capture());
@@ -91,9 +93,9 @@ public class StatementChannelTest {
     List<Statement> output = mock(List.class);
 
     assertThat(channel.consume(tokenQueue, output), is(true));
-    verify(matcher).matchToken(Matchers.eq(tokenQueue), Matchers.anyList());
+    verify(matcher).matchToken(eq(tokenQueue), anyList());
     verifyNoMoreInteractions(matcher);
-    verify(output).add(Matchers.any(Statement.class));
+    verify(output).add(any());
     verifyNoMoreInteractions(output);
   }
 

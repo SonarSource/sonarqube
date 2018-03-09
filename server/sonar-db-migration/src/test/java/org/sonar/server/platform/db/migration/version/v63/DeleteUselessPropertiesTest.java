@@ -155,7 +155,7 @@ public class DeleteUselessPropertiesTest {
 
   private void verifyPropertyKeys(String... propertyKeys) {
     List<Map<String, Object>> rows = db.select("select prop_key from " + TABLE_PROPERTIES);
-    Set<Object> result = rows.stream().map(cols -> cols.get("PROP_KEY")).collect(Collectors.toSet());
+    Set<String> result = rows.stream().map(cols -> (String)cols.get("PROP_KEY")).collect(Collectors.toSet());
     assertThat(result).containsOnly(propertyKeys);
   }
 

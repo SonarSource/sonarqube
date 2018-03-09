@@ -32,7 +32,7 @@ public final class TextSet extends AbstractText {
 
   public static final class Builder {
 
-    private List<Object> symbols = new ArrayList();
+    private List<Object> symbols = new ArrayList<>();
     private Integer lengthOfOrigin;
     private int count;
 

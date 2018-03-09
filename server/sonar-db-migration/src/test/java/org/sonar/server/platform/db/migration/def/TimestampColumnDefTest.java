@@ -31,6 +31,7 @@ import org.sonar.db.dialect.PostgreSql;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.server.platform.db.migration.def.TimestampColumnDef.newTimestampColumnDefBuilder;
 
+@SuppressWarnings("deprecation")
 public class TimestampColumnDefTest {
 
   @Rule

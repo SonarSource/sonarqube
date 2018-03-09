@@ -27,7 +27,7 @@ import org.mockito.Mockito;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.server.es.metadata.MetadataIndex;
 
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
