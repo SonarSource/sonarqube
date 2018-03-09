@@ -54,7 +54,7 @@ public class ModuleTest {
     new Module() {
       @Override
       protected void configureModule() {
-        add(null);
+        add((Object)null);
       }
     }.configure(container);
 

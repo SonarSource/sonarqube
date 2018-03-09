@@ -37,7 +37,7 @@ import org.sonar.server.computation.task.projectanalysis.event.Event;
 import org.sonar.server.computation.task.projectanalysis.event.EventRepository;
 import org.sonar.server.computation.task.step.ComputationStep;
 
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.server.computation.task.projectanalysis.component.Component.Type.DIRECTORY;

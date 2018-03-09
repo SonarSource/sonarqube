@@ -23,7 +23,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.utils.log.Logger;
 
-import static org.mockito.Matchers.contains;
+import static org.mockito.ArgumentMatchers.contains;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 

@@ -53,7 +53,7 @@ import org.sonar.server.computation.task.projectanalysis.qualitygate.QualityGate
 import org.sonar.server.computation.task.projectanalysis.qualitygate.QualityGateStatusHolder;
 
 import static com.google.common.collect.ImmutableList.of;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;

@@ -20,7 +20,6 @@
 package org.sonar.server.platform.db.migration.version.v67;
 
 import java.sql.SQLException;
-import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.db.CoreDbTester;
@@ -76,8 +75,8 @@ public class CopyDeprecatedServerIdTest {
   }
 
   private void assertThatDeprecatedKeyDoesNotExist() {
-    List rows = db.select("SELECT * FROM PROPERTIES WHERE PROP_KEY = '" + DEPRECATED_KEY + "'");
-    assertThat(rows).isEmpty();
+    assertThat(db.select("SELECT * FROM PROPERTIES WHERE PROP_KEY = '" + DEPRECATED_KEY + "'"))
+      .isEmpty();
   }
 
   public void insertProperty(String key, String value) {

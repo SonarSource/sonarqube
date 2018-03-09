@@ -94,10 +94,10 @@ public class PageTest {
   }
 
   @Test
-  public void fail_if_no_qualifier() {
+  public void fail_if_null_qualifiers() {
     expectedException.expect(NullPointerException.class);
 
-    underTest.setComponentQualifiers(null).build();
+    underTest.setComponentQualifiers((Qualifier[])null).build();
   }
 
   @Test

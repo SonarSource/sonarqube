@@ -45,7 +45,7 @@ import org.sonar.server.computation.task.projectanalysis.component.ShortBranchCo
 import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.sonar.db.component.ComponentTesting.newFileDto;

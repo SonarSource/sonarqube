@@ -28,8 +28,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.junit.Test;
 import org.sonar.server.platform.web.SecurityServletFilter;
 
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.startsWith;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.startsWith;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;

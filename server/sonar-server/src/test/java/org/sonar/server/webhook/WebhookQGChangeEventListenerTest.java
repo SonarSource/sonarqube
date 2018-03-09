@@ -35,7 +35,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Matchers;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.measures.Metric;
@@ -59,7 +59,8 @@ import static java.util.stream.Stream.concat;
 import static java.util.stream.Stream.of;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -214,7 +215,7 @@ public class WebhookQGChangeEventListenerTest {
   @DataProvider
   public static Object[][] newQGorNot() {
     EvaluatedQualityGate newQualityGate = mock(EvaluatedQualityGate.class);
-    return new Object[][] {
+    return new Object[][]{
       {null},
       {newQualityGate}
     };
@@ -238,7 +239,7 @@ public class WebhookQGChangeEventListenerTest {
       supplier.get();
       return null;
     }).when(webHooks)
-      .sendProjectAnalysisUpdate(Matchers.any(), Matchers.any());
+      .sendProjectAnalysisUpdate(ArgumentMatchers.any(), ArgumentMatchers.any());
   }
 
   private void insertPropertiesFor(String snapshotUuid, Map<String, String> properties) {
@@ -266,8 +267,8 @@ public class WebhookQGChangeEventListenerTest {
   private void verifyWebhookCalled(ComponentAndBranch componentAndBranch, SnapshotDto analysis, ComponentDto project) {
     verify(webHooks).isEnabled(project);
     verify(webHooks).sendProjectAnalysisUpdate(
-      Matchers.eq(new WebHooks.Analysis(componentAndBranch.uuid(), analysis.getUuid(), null)),
-      any(Supplier.class));
+      eq(new WebHooks.Analysis(componentAndBranch.uuid(), analysis.getUuid(), null)),
+      any());
   }
 
   private List<ProjectAnalysis> extractPayloadFactoryArguments(int time) {

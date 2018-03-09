@@ -32,7 +32,7 @@ import org.sonar.server.organization.BillingValidations.BillingValidationsExcept
 import org.sonar.server.organization.BillingValidationsProxy;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;

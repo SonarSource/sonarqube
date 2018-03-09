@@ -39,8 +39,8 @@ import org.sonar.server.qualitygate.ShortLivingBranchQualityGate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.server.computation.task.projectanalysis.qualitygate.Condition.Operator.GREATER_THAN;

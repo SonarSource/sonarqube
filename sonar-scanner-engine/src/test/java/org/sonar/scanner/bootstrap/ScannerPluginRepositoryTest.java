@@ -27,8 +27,8 @@ import org.sonar.core.platform.PluginLoader;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
-import static org.mockito.Matchers.anyCollectionOf;
-import static org.mockito.Matchers.anyMapOf;
+import static org.mockito.ArgumentMatchers.anyCollection;
+import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -44,7 +44,7 @@ public class ScannerPluginRepositoryTest {
     PluginInfo info = new PluginInfo("squid");
     ImmutableMap<String, ScannerPlugin> plugins = ImmutableMap.of("squid", new ScannerPlugin("squid", 1L, info));
     Plugin instance = mock(Plugin.class);
-    when(loader.load(anyMapOf(String.class, PluginInfo.class))).thenReturn(ImmutableMap.of("squid", instance));
+    when(loader.load(anyMap())).thenReturn(ImmutableMap.of("squid", instance));
     when(installer.installRemotes()).thenReturn(plugins);
 
     underTest.start();
@@ -55,7 +55,7 @@ public class ScannerPluginRepositoryTest {
     assertThat(underTest.getPluginInstance("squid")).isSameAs(instance);
 
     underTest.stop();
-    verify(loader).unload(anyCollectionOf(Plugin.class));
+    verify(loader).unload(anyCollection());
   }
 
   @Test

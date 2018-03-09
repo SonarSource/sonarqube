@@ -26,7 +26,7 @@ import org.sonar.api.config.Configuration;
 import org.sonar.scanner.bootstrap.GlobalConfiguration;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 

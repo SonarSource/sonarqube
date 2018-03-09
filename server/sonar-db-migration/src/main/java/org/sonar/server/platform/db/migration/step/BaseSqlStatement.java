@@ -41,12 +41,14 @@ class BaseSqlStatement<CHILD extends SqlStatement> implements SqlStatement<CHILD
   }
 
   @Override
+  @SuppressWarnings("unchecked")
   public CHILD setString(int columnIndex, @Nullable String value) throws SQLException {
     pstmt.setString(columnIndex, value);
     return (CHILD) this;
   }
 
   @Override
+  @SuppressWarnings("unchecked")
   public CHILD setInt(int columnIndex, @Nullable Integer value) throws SQLException {
     if (value == null) {
       pstmt.setNull(columnIndex, Types.INTEGER);
@@ -57,6 +59,7 @@ class BaseSqlStatement<CHILD extends SqlStatement> implements SqlStatement<CHILD
   }
 
   @Override
+  @SuppressWarnings("unchecked")
   public CHILD setLong(int columnIndex, @Nullable Long value) throws SQLException {
     if (value == null) {
       pstmt.setNull(columnIndex, Types.BIGINT);
@@ -67,6 +70,7 @@ class BaseSqlStatement<CHILD extends SqlStatement> implements SqlStatement<CHILD
   }
 
   @Override
+  @SuppressWarnings("unchecked")
   public CHILD setBoolean(int columnIndex, @Nullable Boolean value) throws SQLException {
     if (value == null) {
       pstmt.setNull(columnIndex, Types.BOOLEAN);
@@ -77,6 +81,7 @@ class BaseSqlStatement<CHILD extends SqlStatement> implements SqlStatement<CHILD
   }
 
   @Override
+  @SuppressWarnings("unchecked")
   public CHILD setBytes(int columnIndex, @Nullable byte[] value) throws SQLException {
     if (value == null) {
       pstmt.setNull(columnIndex, Types.BINARY);
@@ -87,6 +92,7 @@ class BaseSqlStatement<CHILD extends SqlStatement> implements SqlStatement<CHILD
   }
 
   @Override
+  @SuppressWarnings("unchecked")
   public CHILD setDouble(int columnIndex, @Nullable Double value) throws SQLException {
     if (value == null) {
       pstmt.setNull(columnIndex, Types.DECIMAL);
@@ -97,6 +103,7 @@ class BaseSqlStatement<CHILD extends SqlStatement> implements SqlStatement<CHILD
   }
 
   @Override
+  @SuppressWarnings("unchecked")
   public CHILD setDate(int columnIndex, @Nullable Date value) throws SQLException {
     if (value == null) {
       pstmt.setNull(columnIndex, Types.TIMESTAMP);

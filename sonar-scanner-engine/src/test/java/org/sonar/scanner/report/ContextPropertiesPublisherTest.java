@@ -34,7 +34,7 @@ import org.sonar.scanner.protocol.output.ScannerReportWriter;
 import org.sonar.scanner.repository.ContextPropertiesCache;
 
 import static java.util.Collections.emptyList;
-import static org.mockito.Matchers.argThat;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;

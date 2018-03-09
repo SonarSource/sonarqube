@@ -27,7 +27,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
-import org.mockito.Matchers;
 import org.mockito.MockitoAnnotations;
 import org.sonar.ce.queue.CeTask;
 import org.sonar.db.ce.CeTaskTypes;
@@ -39,13 +38,13 @@ import org.sonar.server.ws.WsActionTester;
 import org.sonar.test.JsonAssert;
 import org.sonarqube.ws.Ce;
 import org.sonarqube.ws.MediaTypes;
-import org.sonarqube.ws.Ce;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyMapOf;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyMap;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -75,8 +74,8 @@ public class SubmitActionTest {
 
   @Test
   public void submit_task_to_the_queue_and_ask_for_immediate_processing() {
-    when(reportSubmitter.submit(eq(organizationKey), eq("my_project"), Matchers.isNull(String.class), eq("My Project"),
-      anyMapOf(String.class, String.class), any(InputStream.class))).thenReturn(A_CE_TASK);
+    when(reportSubmitter.submit(eq(organizationKey), eq("my_project"), isNull(), eq("My Project"),
+      anyMap(), any())).thenReturn(A_CE_TASK);
 
     Ce.SubmitResponse submitResponse = tester.newRequest()
       .setParam("projectKey", "my_project")
@@ -85,8 +84,8 @@ public class SubmitActionTest {
       .setMethod("POST")
       .executeProtobuf(Ce.SubmitResponse.class);
 
-    verify(reportSubmitter).submit(eq(organizationKey), eq("my_project"), Matchers.isNull(String.class), eq("My Project"),
-      anyMapOf(String.class, String.class), any(InputStream.class));
+    verify(reportSubmitter).submit(eq(organizationKey), eq("my_project"), isNull(), eq("My Project"),
+      anyMap(), any());
 
     assertThat(submitResponse.getTaskId()).isEqualTo("TASK_1");
     assertThat(submitResponse.getProjectId()).isEqualTo("PROJECT_1");
@@ -94,8 +93,8 @@ public class SubmitActionTest {
 
   @Test
   public void submit_task_with_multiple_characteristics() {
-    when(reportSubmitter.submit(eq(organizationKey), eq("my_project"), Matchers.isNull(String.class), eq("My Project"),
-      anyMapOf(String.class, String.class), any(InputStream.class))).thenReturn(A_CE_TASK);
+    when(reportSubmitter.submit(eq(organizationKey), eq("my_project"), isNull(), eq("My Project"),
+      anyMap(), any())).thenReturn(A_CE_TASK);
 
     String[] characteristics = {"branch=branch1", "key=value1=value2"};
     Ce.SubmitResponse submitResponse = tester.newRequest()
@@ -107,7 +106,7 @@ public class SubmitActionTest {
       .executeProtobuf(Ce.SubmitResponse.class);
 
     assertThat(submitResponse.getTaskId()).isEqualTo("TASK_1");
-    verify(reportSubmitter).submit(eq(organizationKey), eq("my_project"), Matchers.isNull(String.class), eq("My Project"),
+    verify(reportSubmitter).submit(eq(organizationKey), eq("my_project"), isNull(), eq("My Project"),
       map.capture(), any(InputStream.class));
 
     assertThat(map.getValue()).containsOnly(entry("branch", "branch1"), entry("key", "value1=value2"));
@@ -115,8 +114,8 @@ public class SubmitActionTest {
 
   @Test
   public void test_example_json_response() {
-    when(reportSubmitter.submit(eq(organizationKey), eq("my_project"), Matchers.isNull(String.class), eq("My Project"),
-      anyMapOf(String.class, String.class), any(InputStream.class))).thenReturn(A_CE_TASK);
+    when(reportSubmitter.submit(eq(organizationKey), eq("my_project"), isNull(), eq("My Project"),
+      anyMap(), any())).thenReturn(A_CE_TASK);
 
     TestResponse wsResponse = tester.newRequest()
       .setParam("projectKey", "my_project")
@@ -134,8 +133,8 @@ public class SubmitActionTest {
    */
   @Test
   public void project_name_is_optional() {
-    when(reportSubmitter.submit(eq(organizationKey), eq("my_project"), Matchers.isNull(String.class), eq("my_project"),
-      anyMapOf(String.class, String.class), any(InputStream.class))).thenReturn(A_CE_TASK);
+    when(reportSubmitter.submit(eq(organizationKey), eq("my_project"), isNull(), eq("my_project"),
+      anyMap(), any())).thenReturn(A_CE_TASK);
 
     tester.newRequest()
       .setParam("projectKey", "my_project")
@@ -144,8 +143,8 @@ public class SubmitActionTest {
       .setMethod("POST")
       .execute();
 
-    verify(reportSubmitter).submit(eq(organizationKey), eq("my_project"), Matchers.isNull(String.class), eq("my_project"),
-      anyMapOf(String.class, String.class), any(InputStream.class));
+    verify(reportSubmitter).submit(eq(organizationKey), eq("my_project"), isNull(), eq("my_project"),
+      anyMap(), any());
 
   }
 }

@@ -33,7 +33,7 @@ import org.sonar.core.platform.ComponentContainer;
 import org.sonar.core.platform.PluginRepository;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;

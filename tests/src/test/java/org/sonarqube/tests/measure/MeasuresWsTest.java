@@ -30,8 +30,8 @@ import org.sonarqube.qa.util.Tester;
 import org.sonarqube.ws.Measures;
 import org.sonarqube.ws.Measures.ComponentTreeWsResponse;
 import org.sonarqube.ws.Measures.ComponentWsResponse;
-import org.sonarqube.ws.client.measures.ComponentTreeRequest;
 import org.sonarqube.ws.client.measures.ComponentRequest;
+import org.sonarqube.ws.client.measures.ComponentTreeRequest;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Arrays.asList;
@@ -130,7 +130,8 @@ public class MeasuresWsTest {
 
     assertThat(response.getBaseComponent().getKey()).isEqualTo(baseComponentKey);
     assertThat(response.getComponentsList())
-      .extracting("key").containsOnly(childKeys);
+      .extracting(org.sonarqube.ws.Measures.Component::getKey)
+      .containsOnly(childKeys);
   }
 
   @Test
