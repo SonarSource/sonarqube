@@ -187,9 +187,10 @@ subprojects {
       dependency 'org.nanohttpd:nanohttpd:2.3.0'
       dependency 'org.picocontainer:picocontainer:2.15'
       dependencySet(group: 'org.slf4j', version: '1.7.25') {
-        entry 'slf4j-api'
+        entry 'jcl-over-slf4j'
         entry 'jul-to-slf4j'
         entry 'log4j-over-slf4j'
+        entry 'slf4j-api'
       }
       dependency 'org.postgresql:postgresql:42.2.1'
       dependency 'org.reflections:reflections:0.9.9'
