@@ -37,7 +37,7 @@ exports[`renders 2`] = `
   <span
     className="spacer-left"
   >
-    &lt; 80%
+    70% - 80%
   </span>
 </span>
 `;
