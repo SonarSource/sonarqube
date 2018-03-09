@@ -75,6 +75,7 @@
   color: #ccc;
   font-size: var(--smallFontSize);
   letter-spacing: 0.05em;
+  white-space: nowrap;
 }
 
 .navbar-brand:hover,
