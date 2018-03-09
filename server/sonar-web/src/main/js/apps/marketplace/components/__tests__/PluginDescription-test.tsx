@@ -19,7 +19,6 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import { click } from '../../../../helpers/testUtils';
 import PluginDescription from '../PluginDescription';
 
 it('should display the description and category', () => {
@@ -32,13 +31,6 @@ it('should not display any category', () => {
   ).toMatchSnapshot();
 });
 
-it('should update query when clicking on category', () => {
-  const updateQuery = jest.fn();
-  const wrapper = getWrapper({ updateQuery });
-  click(wrapper.find('.js-plugin-category'));
-  expect(updateQuery).toHaveBeenCalledWith({ search: 'foocategory' });
-});
-
 function getWrapper(props = {}) {
   return shallow(
     <PluginDescription
@@ -48,7 +40,6 @@ function getWrapper(props = {}) {
         description: 'foo description',
         category: 'foocategory'
       }}
-      updateQuery={() => {}}
       {...props}
     />
   );

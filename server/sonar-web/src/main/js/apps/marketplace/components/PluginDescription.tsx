@@ -19,36 +19,23 @@
  */
 import * as React from 'react';
 import { Plugin } from '../../../api/plugins';
-import { Query } from '../utils';
 
 interface Props {
   plugin: Plugin;
-  updateQuery: (newQuery: Partial<Query>) => void;
 }
 
-export default class PluginDescription extends React.PureComponent<Props> {
-  handleCategoryClick = (e: React.SyntheticEvent<HTMLAnchorElement>) => {
-    e.preventDefault();
-    this.props.updateQuery({ search: this.props.plugin.category });
-  };
+const PluginDescription = (props: Props) => {
+  return (
+    <td className="text-top width-25 big-spacer-right">
+      <div>
+        <strong className="js-plugin-name">{props.plugin.name}</strong>
+        {props.plugin.category && (
+          <span className="js-plugin-category badge spacer-left">{props.plugin.category}</span>
+        )}
+      </div>
+      <div className="js-plugin-description little-spacer-top">{props.plugin.description}</div>
+    </td>
+  );
+};
 
-  render() {
-    const { plugin } = this.props;
-    return (
-      <td className="text-top width-25 big-spacer-right">
-        <div>
-          <strong className="js-plugin-name">{plugin.name}</strong>
-          {plugin.category && (
-            <a
-              className="js-plugin-category badge spacer-left"
-              href="#"
-              onClick={this.handleCategoryClick}>
-              {plugin.category}
-            </a>
-          )}
-        </div>
-        <div className="js-plugin-description little-spacer-top">{plugin.description}</div>
-      </td>
-    );
-  }
-}
+export default PluginDescription;

@@ -20,7 +20,7 @@
 import * as React from 'react';
 import PluginAvailable from './components/PluginAvailable';
 import PluginInstalled from './components/PluginInstalled';
-import { isPluginAvailable, isPluginInstalled, Query } from './utils';
+import { isPluginAvailable, isPluginInstalled } from './utils';
 import { Plugin, PluginPending } from '../../api/plugins';
 
 interface Props {
@@ -32,7 +32,6 @@ interface Props {
   };
   readOnly: boolean;
   refreshPending: () => void;
-  updateQuery: (newQuery: Partial<Query>) => void;
 }
 
 export default class PluginsList extends React.PureComponent<Props> {
@@ -59,7 +58,6 @@ export default class PluginsList extends React.PureComponent<Props> {
           readOnly={this.props.readOnly}
           refreshPending={this.props.refreshPending}
           status={status}
-          updateQuery={this.props.updateQuery}
         />
       );
     }
@@ -70,7 +68,6 @@ export default class PluginsList extends React.PureComponent<Props> {
           readOnly={this.props.readOnly}
           refreshPending={this.props.refreshPending}
           status={status}
-          updateQuery={this.props.updateQuery}
         />
       );
     }

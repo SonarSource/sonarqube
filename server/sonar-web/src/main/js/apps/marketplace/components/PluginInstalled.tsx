@@ -26,26 +26,18 @@ import PluginUpdates from './PluginUpdates';
 import PluginUrls from './PluginUrls';
 import { PluginInstalled as IPluginInstalled } from '../../../api/plugins';
 import { translate } from '../../../helpers/l10n';
-import { Query } from '../utils';
 
 interface Props {
   plugin: IPluginInstalled;
   readOnly: boolean;
   refreshPending: () => void;
   status?: string;
-  updateQuery: (newQuery: Partial<Query>) => void;
 }
 
-export default function PluginInstalled({
-  plugin,
-  readOnly,
-  refreshPending,
-  status,
-  updateQuery
-}: Props) {
+export default function PluginInstalled({ plugin, readOnly, refreshPending, status }: Props) {
   return (
     <tr>
-      <PluginDescription plugin={plugin} updateQuery={updateQuery} />
+      <PluginDescription plugin={plugin} />
       <td className="text-top big-spacer-right">
         <ul>
           <li className="little-spacer-bottom">
