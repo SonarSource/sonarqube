@@ -10,9 +10,10 @@ server/sonar-web/src/main/webapp/deploy/jdbc-driver.txt
 # ---- Gradle
 build/
 .gradle/
+out/
 
-# ---- Javadoc
-docs.tar
+# ---- Maven (in integration tests)
+target/
 
 # ---- IntelliJ IDEA
 *.iws
