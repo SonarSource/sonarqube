@@ -59,7 +59,7 @@ subprojects {
   apply plugin: 'java'
   // protobuf must be applied after java
   apply plugin: 'com.google.protobuf'
-  apply plugin: "jacoco"
+  apply plugin: 'jacoco'
   apply plugin: 'idea'
 
   // do not deploy to Artifactory by default
@@ -251,6 +251,9 @@ subprojects {
         testSourceDirs += file("${protobuf.generatedFilesBaseDir}/test/java")
       }
     }
+  }
+
+  task ide(dependsOn: ['generateProto', 'generateTestProto']) {
   }
 
   if (release) {
