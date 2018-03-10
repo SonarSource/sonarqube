@@ -56,6 +56,14 @@ The zip distribution file is generated in `sonar-application/build/distributions
     # or on Windows
     bin\windows-x86-64\StartSonar.bat 
 
+### Open in IDE
+
+If the project has never been built, then build it as usual (see previous section) or use the quicker command:
+
+    ./gradlew ide
+    
+Then simply open the root file `build.gradle` as a project in Intellij or Eclipse.
+
 ### Run Integration Tests
 
 Integration tests are grouped into categories, listed in [tests/build.gradle]().
