@@ -9,26 +9,30 @@ configurations {
 }
 
 dependencies {
-  compileOnly 'com.google.code.findbugs:jsr305'
-  compile 'commons-codec:commons-codec'
-  compile 'org.apache.commons:commons-csv'
-  compile 'org.picocontainer:picocontainer'
-  compile 'com.google.protobuf:protobuf-java'
-  compile 'org.codehaus.sonar:sonar-classloader'
-  compile project(path: ':sonar-plugin-api', configuration: 'shadow')
-  compile 'org.sonarsource.update-center:sonar-update-center-common'
-  compile 'org.slf4j:slf4j-api'
+  // please keep list ordered
+
   compile 'ch.qos.logback:logback-classic'
   compile 'ch.qos.logback:logback-core'
+  compile 'com.google.protobuf:protobuf-java'
+  compile 'commons-codec:commons-codec'
+  compile 'org.apache.commons:commons-csv'
+  compile 'org.codehaus.sonar:sonar-classloader'
+  compile 'org.picocontainer:picocontainer'
+  compile 'org.slf4j:slf4j-api'
+  compile 'org.sonarsource.update-center:sonar-update-center-common'
+  compile project(path: ':sonar-plugin-api', configuration: 'shadow')
+
+  compileOnly 'com.google.code.findbugs:jsr305'
 
   includeInResources project(path: ':sonar-plugin-api-deps', configuration: 'shadow')
 
+  testCompile 'com.tngtech.java:junit-dataprovider'
   testCompile 'junit:junit'
   testCompile 'org.assertj:assertj-core'
-  testCompile 'com.tngtech.java:junit-dataprovider'
   testCompile 'org.mockito:mockito-core'
-  testCompile project(':sonar-testing-harness')
   testCompile 'org.simpleframework:simple'
+  testCompile project(':sonar-testing-harness')
+
   testCompileOnly 'com.google.code.findbugs:jsr305'
 }
 

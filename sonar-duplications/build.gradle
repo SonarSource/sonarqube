@@ -5,6 +5,8 @@ sonarqube {
 }
 
 dependencies {
+  // please keep list ordered
+
   compile 'org.codehaus.sonar:sonar-channel'
 
   compileOnly 'com.google.code.findbugs:jsr305'
