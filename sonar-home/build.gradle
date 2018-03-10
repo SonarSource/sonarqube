@@ -5,6 +5,8 @@ sonarqube {
 }
 
 dependencies {
+  // please keep list ordered
+
   compileOnly 'com.google.code.findbugs:jsr305'
 
   testCompile 'commons-codec:commons-codec'

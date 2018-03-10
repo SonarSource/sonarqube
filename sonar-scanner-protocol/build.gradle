@@ -6,9 +6,10 @@ sonarqube {
 }
 
 dependencies {
-  compile 'commons-io:commons-io'
+  // please keep the list ordered
   compile 'com.google.code.gson:gson'
   compile 'com.google.protobuf:protobuf-java'
+  compile 'commons-io:commons-io'
   compile 'net.jpountz.lz4:lz4'
   compile project(':sonar-core')
 
@@ -16,9 +17,9 @@ dependencies {
 
   testCompile 'com.google.guava:guava'
   testCompile 'junit:junit'
+  testCompile 'net.javacrumbs.json-unit:json-unit-assertj:0.0.15'
   testCompile 'org.assertj:assertj-core'
   testCompile 'org.mockito:mockito-core'
-  testCompile 'net.javacrumbs.json-unit:json-unit-assertj:0.0.15'
 }
 
 // Used by sonar-db-core to run DB Unit Tests

@@ -5,6 +5,8 @@ sonarqube {
 }
 
 dependencies {
+  // please keep list ordered
+
   compile 'commons-lang:commons-lang'
   compile 'org.codehaus.sonar:sonar-channel'
   compile 'org.slf4j:slf4j-api'

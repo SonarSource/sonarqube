@@ -3,6 +3,8 @@ sonarqube {
 }
 
 dependencies {
+  // please keep list ordered
+
   compile 'com.google.code.gson:gson:2.8.2'
   compile 'com.google.guava:guava'
   compile 'org.apache.velocity:velocity:1.7'

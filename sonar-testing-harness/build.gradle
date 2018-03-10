@@ -5,9 +5,11 @@ sonarqube {
 }
 
 dependencies {
-  compile 'commons-io:commons-io'
-  compile 'com.googlecode.json-simple:json-simple'
+  // please keep list ordered
+
   compile 'com.google.code.gson:gson'
+  compile 'com.googlecode.json-simple:json-simple'
+  compile 'commons-io:commons-io'
   compile 'junit:junit'
   compile 'org.hamcrest:hamcrest-core'
 
