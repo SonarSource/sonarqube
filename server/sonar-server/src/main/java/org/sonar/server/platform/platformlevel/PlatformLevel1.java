@@ -43,6 +43,7 @@ import org.sonar.process.logging.LogbackHelper;
 import org.sonar.server.app.ProcessCommandWrapperImpl;
 import org.sonar.server.app.RestartFlagHolderImpl;
 import org.sonar.server.app.WebServerProcessLogging;
+import org.sonar.server.es.EsModule;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.platform.LogServerVersion;
 import org.sonar.server.platform.Platform;
@@ -52,7 +53,6 @@ import org.sonar.server.platform.UrlSettings;
 import org.sonar.server.platform.WebServerImpl;
 import org.sonar.server.platform.db.EmbeddedDatabaseFactory;
 import org.sonar.server.rule.index.RuleIndex;
-import org.sonar.server.search.EsSearchModule;
 import org.sonar.server.setting.ThreadLocalSettings;
 import org.sonar.server.user.SystemPasscodeImpl;
 import org.sonar.server.user.ThreadLocalUserSession;
@@ -112,7 +112,7 @@ public class PlatformLevel1 extends PlatformLevel {
       DaoModule.class,
 
       // Elasticsearch
-      EsSearchModule.class,
+      EsModule.class,
 
       // rules/qprofiles
       RuleIndex.class,

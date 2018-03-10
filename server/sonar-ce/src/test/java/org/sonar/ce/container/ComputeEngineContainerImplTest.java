@@ -119,7 +119,7 @@ public class ComputeEngineContainerImplTest {
       COMPONENTS_IN_LEVEL_1_AT_CONSTRUCTION
         + 26 // level 1
         + 53 // content of DaoModule
-        + 3 // content of EsSearchModule
+        + 3 // content of EsModule
         + 57 // content of CorePropertyDefinitions
         + 1 // StopFlagContainer
     );

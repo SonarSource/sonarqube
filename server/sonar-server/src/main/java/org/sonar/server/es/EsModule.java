@@ -17,7 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@ParametersAreNonnullByDefault
-package org.sonar.server.search;
+package org.sonar.server.es;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import org.sonar.core.platform.Module;
+import org.sonar.server.permission.index.AuthorizationTypeSupport;
+
+public class EsModule extends Module {
+  @Override
+  protected void configureModule() {
+    add(AuthorizationTypeSupport.class);
+    add(new EsClientProvider());
+    add(EsClientStopper.class);
+  }
+}

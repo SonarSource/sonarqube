@@ -143,7 +143,7 @@ import org.sonar.server.rule.DefaultRuleFinder;
 import org.sonar.server.rule.DeprecatedRulesDefinitionLoader;
 import org.sonar.server.rule.RuleDefinitionsLoader;
 import org.sonar.server.rule.index.RuleIndex;
-import org.sonar.server.search.EsSearchModule;
+import org.sonar.server.es.EsModule;
 import org.sonar.server.setting.DatabaseSettingLoader;
 import org.sonar.server.setting.DatabaseSettingsEnabler;
 import org.sonar.server.setting.ThreadLocalSettings;
@@ -265,7 +265,7 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
       DbClient.class,
 
       // Elasticsearch
-      EsSearchModule.class,
+      EsModule.class,
 
       // rules/qprofiles
       RuleIndex.class,

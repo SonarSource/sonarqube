@@ -17,50 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.search;
+package org.sonar.server.es;
 
-public class FacetValue {
+import org.junit.Test;
+import org.sonar.core.platform.ComponentContainer;
 
-  private final String key;
-  private final long value;
+import static org.assertj.core.api.Assertions.assertThat;
 
-  public FacetValue(String key, long value) {
-    this.key = key;
-    this.value = value;
+public class EsModuleTest {
+  @Test
+  public void verify_count_of_added_components() {
+    ComponentContainer container = new ComponentContainer();
+    new EsModule().configure(container);
+    assertThat(container.size()).isEqualTo(3 + 2);
   }
 
-  public String getKey() {
-    return key;
-  }
-
-  public long getValue() {
-    return value;
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
-
-    FacetValue that = (FacetValue) o;
-    if (key == null) {
-      return that.key == null;
-    } else {
-      return key.equals(that.key);
-    }
-  }
-
-  @Override
-  public int hashCode() {
-    return key != null ? key.hashCode() : 0;
-  }
-
-  @Override
-  public String toString() {
-    return String.format("{%s=%d}", getKey(), getValue());
-  }
 }
