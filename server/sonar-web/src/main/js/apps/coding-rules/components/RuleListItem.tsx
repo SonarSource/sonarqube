@@ -186,7 +186,7 @@ export default class RuleListItem extends React.PureComponent<Props> {
               <td className="coding-rule-table-meta-cell">
                 <div className="display-flex-center coding-rule-meta">
                   {rule.status !== 'READY' && (
-                    <span className="spacer-left badge badge-normal-size badge-danger-light">
+                    <span className="spacer-left badge badge-normal-size badge-tiny-height badge-danger-light">
                       {translate('rules.status', rule.status)}
                     </span>
                   )}

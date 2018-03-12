@@ -30,13 +30,14 @@ import org.sonarqube.ws.client.users.DeactivateRequest;
 import util.ItUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static util.ItUtils.newOrchestratorBuilder;
 
 public class OnboardingTest {
 
   private static final String ONBOARDING_TUTORIAL_SHOW_TO_NEW_USERS = "sonar.onboardingTutorial.showToNewUsers";
 
   @ClassRule
-  public static final Orchestrator orchestrator = Orchestrator.builderEnv().build();
+  public static final Orchestrator orchestrator = newOrchestratorBuilder().build();
 
   @Rule
   public Tester tester = new Tester(orchestrator).disableOrganizations();

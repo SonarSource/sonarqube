@@ -32,13 +32,14 @@ import org.sonarqube.ws.client.GetRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.jsonToMap;
+import static util.ItUtils.newOrchestratorBuilder;
 import static util.ItUtils.xooPlugin;
 
 public class TelemetryOptOutTest {
 
   public static MockWebServer server = new MockWebServer();
 
-  private static Orchestrator orchestrator = Orchestrator.builderEnv()
+  private static Orchestrator orchestrator = newOrchestratorBuilder()
     .addPlugin(xooPlugin())
     .setServerProperty("sonar.telemetry.enable", "false")
     .setServerProperty("sonar.telemetry.url", server.url("").toString())

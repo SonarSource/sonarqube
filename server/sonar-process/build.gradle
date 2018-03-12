@@ -1,0 +1,49 @@
+sonarqube {
+  properties {
+    property 'sonar.projectName', "${projectTitle} :: Process"
+  }
+}
+
+dependencies {
+  // please keep the list grouped by configuration and ordered by name
+
+  compile 'ch.qos.logback:logback-classic'
+  compile 'commons-codec:commons-codec'
+  compile 'commons-io:commons-io'
+  compile 'commons-lang:commons-lang'
+  compile 'com.google.guava:guava'
+  compile 'com.hazelcast:hazelcast'
+  compile 'org.slf4j:jul-to-slf4j'
+  compile 'org.slf4j:slf4j-api'
+
+  compileOnly 'com.google.code.findbugs:jsr305'
+  compileOnly 'com.google.protobuf:protobuf-java'
+  compileOnly 'org.nanohttpd:nanohttpd'
+
+  testCompile 'com.google.code.findbugs:jsr305'
+  testCompile 'com.google.protobuf:protobuf-java'
+  testCompile 'com.tngtech.java:junit-dataprovider'
+  testCompile 'org.assertj:assertj-core'
+  testCompile 'org.mockito:mockito-core'
+  testCompile project(':sonar-testing-harness')
+  // Workaround to resolve dependencies of eclipse specific packaging: https://issues.gradle.org/browse/GRADLE-2076
+  testCompile module('org.eclipse.jetty:jetty-server') {
+    dependencies(
+      "org.eclipse.jetty.orbit:javax.servlet:3.0.0.v201112011016@jar",
+      "org.eclipse.jetty:jetty-continuation:8.1.2.v20120308",
+      "org.eclipse.jetty:jetty-http:8.1.2.v20120308"
+    )
+  }
+}
+
+artifactoryPublish.skip = false
+
+publishing {
+  publications {
+    mavenJava(MavenPublication) {
+      from components.java
+      artifact sourcesJar
+      artifact javadocJar
+    }
+  }
+}

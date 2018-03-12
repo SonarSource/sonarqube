@@ -20,6 +20,7 @@
 package org.sonarqube.wsgenerator;
 
 import com.sonar.orchestrator.Orchestrator;
+import com.sonar.orchestrator.OrchestratorBuilder;
 import com.sonar.orchestrator.http.HttpCall;
 import com.sonar.orchestrator.http.HttpResponse;
 import com.sonar.orchestrator.locator.FileLocation;
@@ -32,10 +33,10 @@ public class ApiDefinitionDownloader {
   }
 
   public static String downloadApiDefinition() {
-    Orchestrator orchestrator = Orchestrator
-      .builderEnv()
-      .setZipFile(FileLocation.byWildcardMavenFilename(new File("../sonar-application/target"), "sonarqube-*.zip").getFile())
-      .build();
+    OrchestratorBuilder builder = Orchestrator.builderEnv();
+    builder.setZipFile(FileLocation.byWildcardMavenFilename(new File("../sonar-application/build/distributions"), "sonar-application-*.zip").getFile())
+      .setOrchestratorProperty("orchestrator.workspaceDir", "build");
+    Orchestrator orchestrator = builder.build();
 
     orchestrator.start();
     try {

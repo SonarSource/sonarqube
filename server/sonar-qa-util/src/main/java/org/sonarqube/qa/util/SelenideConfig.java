@@ -57,7 +57,7 @@ public class SelenideConfig {
     Configuration.browser = browser.name();
     Configuration.baseUrl = orchestrator.getServer().getUrl();
     Configuration.timeout = 8_000;
-    Configuration.reportsFolder = "target/screenshots";
+    Configuration.reportsFolder = "build/screenshots";
     Configuration.screenshots = true;
     Configuration.captureJavascriptErrors = true;
     Configuration.savePageSource = true;

@@ -36,15 +36,15 @@ else
   OS='linux-x86-64'
 fi
 
-if ! ls sonar-application/target/sonarqube-*.zip &> /dev/null; then
+if ! ls sonar-application/build/distributions/sonar-application-*.zip &> /dev/null; then
   echo 'Sources are not built'
   "$ROOT"/build.sh
 fi
 
-cd sonar-application/target/
+cd sonar-application/build/distributions/
 if ! ls sonarqube-*/bin/$OS/sonar.sh &> /dev/null; then
   echo "Unzipping SQ..."
-  unzip -qq sonarqube-*.zip
+  unzip -qq sonar-application-*.zip
 fi
 cd $(find sonarqube-* -type d | head -1)
 

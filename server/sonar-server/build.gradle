@@ -1,0 +1,96 @@
+sonarqube {
+  properties {
+    property 'sonar.projectName', "${projectTitle} :: Server"
+  }
+}
+
+sourceSets {
+  test {
+    resources {
+      srcDirs += ['src/test/projects']
+    }
+  }
+}
+
+dependencies {
+  // please keep the list grouped by configuration and ordered by name
+
+  compile 'ch.qos.logback:logback-access'
+  compile 'ch.qos.logback:logback-classic'
+  compile 'ch.qos.logback:logback-core'
+  compile 'commons-dbcp:commons-dbcp'
+  compile 'commons-dbutils:commons-dbutils'
+  compile 'com.googlecode.java-diff-utils:diffutils'
+  compile 'com.google.code.gson:gson'
+  compile 'com.google.protobuf:protobuf-java'
+  compile 'com.hazelcast:hazelcast-client'
+  compile 'io.jsonwebtoken:jjwt'
+  compile 'javax.xml.bind:jaxb-api'
+  compile 'org.apache.commons:commons-email'
+  compile 'org.apache.httpcomponents:httpclient'
+  compile 'org.apache.logging.log4j:log4j-api'
+  compile 'org.apache.tomcat.embed:tomcat-embed-core'
+  compile 'org.elasticsearch.client:transport'
+  compile 'org.picocontainer:picocontainer'
+  compile 'org.slf4j:jul-to-slf4j'
+  compile 'org.slf4j:slf4j-api'
+  compile 'org.sonarsource.update-center:sonar-update-center-common'
+
+  compile project(':server:sonar-db-dao')
+  compile project(':server:sonar-db-migration')
+  compile project(':server:sonar-plugin-bridge')
+  compile project(':server:sonar-process')
+  compile project(':sonar-core')
+  compile project(':sonar-scanner-protocol')
+  compile(project(':sonar-markdown')) {
+    // already shaded with sonar-plugin-api
+    exclude group: 'org.codehaus.sonar', module: 'sonar-channel'
+  }
+  compile project(path: ':sonar-plugin-api', configuration: 'shadow')
+  compile project(':sonar-ws')
+
+  compileOnly 'com.google.code.findbugs:jsr305'
+  // not a transitive dep. At runtime lib/jdbc/h2 is used
+  compileOnly 'com.h2database:h2'
+
+  testCompile 'com.github.kevinsawicki:http-request'
+  testCompile 'com.github.tlrx:elasticsearch-test'
+  testCompile 'com.google.code.findbugs:jsr305'
+  testCompile 'com.h2database:h2'
+  testCompile 'com.squareup.okhttp3:mockwebserver'
+  testCompile 'com.tngtech.java:junit-dataprovider'
+  testCompile 'junit:junit'
+  testCompile 'org.apache.logging.log4j:log4j-api'
+  testCompile 'org.apache.logging.log4j:log4j-core'
+  testCompile 'org.assertj:assertj-core'
+  testCompile 'org.assertj:assertj-guava'
+  testCompile("org.elasticsearch.test:framework:${elasticsearchVersion}") {
+    // should be excluded to avoid ES go into "test mode" and require to run EsTester-based UTs with RandomizedRunner
+    exclude group: 'com.carrotsearch.randomizedtesting', module: 'randomizedtesting-runner'
+    exclude group: 'org.elasticsearch', module: 'securemock'
+  }
+  testCompile 'org.hamcrest:hamcrest-all'
+  testCompile 'org.mockito:mockito-core'
+  testCompile 'org.reflections:reflections'
+  testCompile 'org.subethamail:subethasmtp'
+  testCompile project(':server:sonar-db-testing')
+}
+
+task testJar(type: Jar) {
+  classifier = 'tests'
+  from sourceSets.test.output
+}
+
+artifactoryPublish.skip = false
+
+// Used by core plugins
+publishing {
+  publications {
+    mavenJava(MavenPublication) {
+      from components.java
+      artifact testJar
+      artifact sourcesJar
+      artifact javadocJar
+    }
+  }
+}

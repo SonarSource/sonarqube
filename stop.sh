@@ -8,7 +8,7 @@ else
   OS='linux-x86-64'
 fi
 
-SONAR_SH=sonar-application/target/sonarqube-*/bin/$OS/sonar.sh
+SONAR_SH=sonar-application/build/distributions/sonarqube-*/bin/$OS/sonar.sh
 if [ -f $SONAR_SH ]; then
   sh $SONAR_SH stop
 fi

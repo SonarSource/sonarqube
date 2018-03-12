@@ -7,13 +7,12 @@ server/sonar-web/src/main/webapp/WEB-INF/log/
 server/sonar-web/src/main/webapp/deploy/*.jar
 server/sonar-web/src/main/webapp/deploy/jdbc-driver.txt
 
+# ---- Gradle
+build/
+.gradle/
 
 # ---- Javadoc
 docs.tar
-
-# ---- Maven
-target/
-dependency-reduced-pom.xml
 
 # ---- IntelliJ IDEA
 *.iws

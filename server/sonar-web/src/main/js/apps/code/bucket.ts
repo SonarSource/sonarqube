@@ -43,6 +43,10 @@ export function addComponentChildren(
   total: number,
   page: number
 ): void {
+  const previous = getComponentChildren(componentKey);
+  if (previous) {
+    children = [...previous.children, ...children];
+  }
   childrenBucket[componentKey] = { children, total, page };
 }
 

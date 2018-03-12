@@ -1,0 +1,297 @@
+buildscript {
+  repositories {
+    maven {
+      url 'https://plugins.gradle.org/m2/'
+    }
+  }
+  dependencies {
+    // check updates with https://plugins.gradle.org/
+    // Ordered alphabeticly to avoid duplication
+    classpath 'com.github.jengelman.gradle.plugins:shadow:2.0.2'
+    classpath 'com.google.protobuf:protobuf-gradle-plugin:0.8.4'
+    classpath 'com.moowork.gradle:gradle-node-plugin:1.2.0'
+    classpath 'io.spring.gradle:dependency-management-plugin:1.0.4.RELEASE'
+    classpath 'org.jfrog.buildinfo:build-info-extractor-gradle:4.6.2'
+    classpath 'org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:2.6.2'
+  }
+}
+
+// Analyze SonarQube with SonarQube!
+apply plugin: 'org.sonarqube'
+sonarqube {
+  properties {
+    property 'sonar.projectName', projectTitle
+  }
+}
+
+allprojects {
+  apply plugin: 'com.jfrog.artifactory'
+  apply plugin: 'maven-publish'
+
+  // Replaces the version defined in sources, usually x.y-SNAPSHOT, by a version identifying the build.
+  def buildNumber = System.getProperty("buildNumber")
+  if (version.endsWith('-SNAPSHOT') && buildNumber != null) {
+    version = version.replace('-SNAPSHOT', ".0.$buildNumber")
+  }
+
+  ext {
+    release = project.hasProperty('release') && project.getProperty('release')
+  }
+
+  repositories {
+    def repository = project.hasProperty('cix') ? 'sonarsource-qa' : 'sonarsource'
+    maven {
+      url "https://repox.sonarsource.com/${repository}"
+      def artifactoryUsername = System.env.'ARTIFACTORY_PRIVATE_USERNAME'
+      def artifactoryPassword = System.env.'ARTIFACTORY_PRIVATE_PASSWORD'
+      if (artifactoryUsername && artifactoryPassword) {
+        credentials {
+          username artifactoryUsername
+          password artifactoryPassword
+        }
+      }
+    }
+  }
+}
+
+subprojects {
+  apply plugin: 'io.spring.dependency-management'
+  apply plugin: 'java'
+  // protobuf must be applied after java
+  apply plugin: 'com.google.protobuf'
+  apply plugin: "jacoco"
+  apply plugin: 'idea'
+
+  // do not deploy to Artifactory by default
+  artifactoryPublish.skip = true
+
+  ext {
+    elasticsearchVersion = '5.6.3'
+    protobufVersion = '3.5.1'
+  }
+
+  sonarqube {
+    properties {
+      property 'sonar.moduleKey', project.group + ':' + project.name
+    }
+  }
+
+  // Central place for definition dependency versions and exclusions.
+  dependencyManagement {
+    dependencies {
+      // please keep this list alphabetically ordered
+      dependencySet(group: 'ch.qos.logback', version: '1.2.3') {
+        entry 'logback-access'
+        entry 'logback-classic'
+        entry 'logback-core'
+      }
+      dependency('commons-beanutils:commons-beanutils:1.8.3') {
+        exclude 'commons-logging:commons-logging'
+      }
+      dependency 'commons-codec:commons-codec:1.8'
+      dependency 'commons-dbcp:commons-dbcp:1.4'
+      dependency 'commons-dbutils:commons-dbutils:1.5'
+      dependency 'commons-io:commons-io:2.4'
+      dependency 'commons-lang:commons-lang:2.6'
+      dependencySet(group: 'com.fasterxml.jackson.core', version: '2.6.6') {
+        entry 'jackson-core'
+        entry 'jackson-databind'
+        entry 'jackson-annotations'
+      }
+      dependency 'com.github.kevinsawicki:http-request:5.4.1'
+      dependency 'com.github.tlrx:elasticsearch-test:1.2.1'
+      dependency 'com.googlecode.java-diff-utils:diffutils:1.2'
+      dependency('com.googlecode.json-simple:json-simple:1.1.1') {
+        exclude 'junit:junit'
+      }
+      dependency 'com.google.code.findbugs:jsr305:3.0.2'
+      dependency 'com.google.code.gson:gson:2.3.1'
+      dependency 'com.google.guava:guava:18.0'
+      dependency "com.google.protobuf:protobuf-java:${protobufVersion}"
+      dependency 'com.h2database:h2:1.3.176'
+      dependencySet(group: 'com.hazelcast', version: '3.8.6') {
+        entry 'hazelcast'
+        entry 'hazelcast-client'
+      }
+      dependency 'com.ibm.icu:icu4j:3.4.4'
+      dependency 'com.microsoft.sqlserver:mssql-jdbc:6.2.2.jre8'
+      dependency 'com.oracle.jdbc:ojdbc8:12.2.0.1.0'
+      dependencySet(group: 'com.squareup.okhttp3', version: '3.7.0') {
+        entry 'okhttp'
+        entry 'mockwebserver'
+      }
+      dependency 'com.tngtech.java:junit-dataprovider:1.9.2'
+      dependency 'io.jsonwebtoken:jjwt:0.9.0'
+      dependency 'javax.servlet:javax.servlet-api:3.0.1'
+      dependency 'javax.xml.bind:jaxb-api:2.3.0'
+      dependency 'junit:junit:4.12'
+      dependency 'mysql:mysql-connector-java:5.1.42'
+      dependency 'net.jpountz.lz4:lz4:1.3.0'
+      dependency 'org.apache.commons:commons-csv:1.4'
+      dependency 'org.apache.commons:commons-email:1.5'
+      dependency('org.apache.httpcomponents:httpclient:4.5.2'){
+        exclude 'commons-logging:commons-logging'
+      }
+      // Be aware that Log4j is used by Elasticsearch client
+      dependencySet(group: 'org.apache.logging.log4j', version: '2.8.2') {
+        entry 'log4j-api'
+        entry 'log4j-to-slf4j'
+        entry 'log4j-core'
+      }
+      dependencySet(group: 'org.apache.tomcat.embed', version: '8.5.23') {
+        entry 'tomcat-embed-core'
+        entry('tomcat-embed-jasper') {
+          exclude 'org.eclipse.jdt.core.compiler:ecj'
+        }
+      }
+      dependency 'org.assertj:assertj-core:3.9.0'
+      dependency 'org.assertj:assertj-guava:3.1.0'
+      dependency('org.codehaus.sonar:sonar-channel:4.1') {
+        exclude 'org.slf4j:slf4j-api'
+      }
+      dependency 'org.codehaus.sonar:sonar-classloader:1.0'
+      dependency('org.codehaus.woodstox:woodstox-core-lgpl:4.4.0') {
+        exclude 'javax.xml.stream:stax-api'
+      }
+      dependency 'org.codehaus.sonar.runner:sonar-runner-api:2.4'
+      dependency('org.codehaus.sonar:sonar-squid:4.1') {
+        exclude 'org.codehaus.sonar:sonar-check-api'
+      }
+      dependency('org.codehaus.staxmate:staxmate:2.0.1') {
+        exclude 'org.codehaus.woodstox:stax2-api'
+        exclude 'stax:stax-api'
+        exclude 'org.codehaus.woodstox:woodstox-core-asl'
+      }
+      dependency('org.codehaus.woodstox:stax2-api:3.1.4') {
+        exclude 'stax:stax-api'
+      }
+      dependency('org.dbunit:dbunit:2.4.5') {
+        exclude 'commons-lang:commons-lang'
+        exclude 'xerces:xmlParserAPIs'
+        exclude 'xerces:xercesImpl'
+      }
+      dependency 'org.eclipse.jetty:jetty-server:8.1.12.v20130726'
+      dependency 'org.eclipse.jetty:test-jetty-servlet:8.1.12.v20130726'
+      dependency("org.elasticsearch.client:transport:${elasticsearchVersion}") {
+        exclude 'org.elasticsearch.plugin:lang-mustache-client'
+        exclude 'org.elasticsearch.plugin:transport-netty3-client'
+        exclude 'commons-logging:commons-logging'
+        exclude 'org.elasticsearch.plugin:reindex-client'
+      }
+      dependency 'org.freemarker:freemarker:2.3.20'
+      dependency 'org.hamcrest:hamcrest-all:1.3'
+      dependency('org.mockito:mockito-core:2.13.0') {
+        exclude 'org.hamcrest:hamcrest-core'
+      }
+      dependency 'org.mybatis:mybatis:3.4.4'
+      dependency 'org.nanohttpd:nanohttpd:2.3.0'
+      dependency 'org.picocontainer:picocontainer:2.15'
+      dependencySet(group: 'org.slf4j', version: '1.7.25') {
+        entry 'jcl-over-slf4j'
+        entry 'jul-to-slf4j'
+        entry 'log4j-over-slf4j'
+        entry 'slf4j-api'
+      }
+      dependency 'org.postgresql:postgresql:42.2.1'
+      dependency 'org.reflections:reflections:0.9.9'
+      dependency 'org.simpleframework:simple:4.1.21'
+      dependency 'org.sonarsource.orchestrator:sonar-orchestrator:3.16.1.1446'
+      dependency('org.sonarsource:sonar-persistit:3.3.2') {
+        exclude 'commons-logging:commons-logging'
+      }
+      dependency 'org.sonarsource.update-center:sonar-update-center-common:1.18.0.487'
+      dependency 'org.subethamail:subethasmtp:3.1.7'
+      dependency 'xml-apis:xml-apis:1.4.01'
+
+      // please keep this list alphabetically ordered
+    }
+  }
+
+  sourceCompatibility = 1.8
+  tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+  }
+
+  tasks.withType(Javadoc) {
+    options.addStringOption('Xdoclint:none', '-quiet')
+  }
+
+  task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+  }
+
+  task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+  }
+
+  test {
+    systemProperty 'java.awt.headless', true
+    jacoco.enabled = project.hasProperty('jacocoEnabled')
+    testLogging {
+      exceptionFormat 'full' // log the full stack trace (default is the 1st line of the stack trace)
+      events "skipped", "failed" // verbose log for failed and skipped tests (by default the name of the tests are not logged)
+    }
+  }
+
+  def protoMainSrc = 'src/main/protobuf'
+  def protoTestSrc = 'src/test/protobuf'
+  if (file(protoMainSrc).exists() || file(protoTestSrc).exists()) {
+    sourceSets.main.proto.srcDir protoMainSrc  // in addition to the default 'src/main/proto'
+    sourceSets.test.proto.srcDir protoTestSrc  // in addition to the default 'src/test/proto'
+    protobuf {
+      protoc {
+        artifact = "com.google.protobuf:protoc:${protobufVersion}"
+      }
+    }
+    idea {
+      module {
+        sourceDirs += file("${protobuf.generatedFilesBaseDir}/main/java")
+        testSourceDirs += file("${protobuf.generatedFilesBaseDir}/test/java")
+      }
+    }
+  }
+
+  if (release) {
+    jar {
+      // do not break incremental build on non-release versions
+      manifest {
+        attributes(
+          'Version': "${version}",
+          'Implementation-Build': 'git rev-parse HEAD'.execute().text.trim(),
+          'Build-Time': new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
+        )
+      }
+    }
+  }
+}
+
+artifactory {
+  clientConfig.setIncludeEnvVars(true)
+  clientConfig.setEnvVarsExcludePatterns('*password*,*PASSWORD*,*secret*,*MAVEN_CMD_LINE_ARGS*,sun.java.command,*token*,*TOKEN*,*LOGIN*,*login*')
+  contextUrl = System.getenv('ARTIFACTORY_URL')
+  publish {
+    repository {
+      repoKey = System.getenv('ARTIFACTORY_DEPLOY_REPO')
+      username = System.getenv('ARTIFACTORY_DEPLOY_USERNAME')
+      password = System.getenv('ARTIFACTORY_DEPLOY_PASSWORD')
+    }
+    defaults {
+      properties = [
+        'vcs.revision': System.getenv('GIT_COMMIT'),
+        'vcs.branch': System.getenv('GIT_BRANCH'),
+        'build.name': 'sonarqube',
+        'build.number': (System.getenv('BUILD_ID') ?: System.getenv('BUILD_NUMBER'))
+      ]
+      publications('mavenJava')
+      publishPom = true
+      publishIvy = false
+    }
+  }
+  clientConfig.info.setBuildNumber(System.getenv('BUILD_NUMBER'))
+  // Define the artifacts to be deployed to https://sonarsource.bintray.com on releases
+  clientConfig.info.addEnvironmentProperty('ARTIFACTS_TO_PUBLISH', "${project.group}:sonar-application:zip")
+  // The name of this variable is important because it's used by the delivery process when extracting version from Artifactory build info.
+  clientConfig.info.addEnvironmentProperty('PROJECT_VERSION', "${version}")
+}

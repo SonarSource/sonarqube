@@ -24,6 +24,7 @@ import org.junit.ClassRule;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
+import static util.ItUtils.newOrchestratorBuilder;
 import static util.ItUtils.xooPlugin;
 
 @RunWith(Suite.class)
@@ -37,9 +38,7 @@ import static util.ItUtils.xooPlugin;
 public class SourceSuite {
 
   @ClassRule
-  public static final Orchestrator ORCHESTRATOR = Orchestrator
-    .builderEnv()
-    .setServerProperty("sonar.search.javaOpts", "-Xms128m -Xmx128m")
+  public static final Orchestrator ORCHESTRATOR = newOrchestratorBuilder()
     .setOrchestratorProperty("scmgitVersion", "LATEST_RELEASE")
     .addPlugin(xooPlugin())
     .addPlugin("scmgit")

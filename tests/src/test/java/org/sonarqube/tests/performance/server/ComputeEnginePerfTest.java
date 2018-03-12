@@ -34,6 +34,9 @@ import org.junit.rules.TemporaryFolder;
 import org.sonarqube.tests.performance.AbstractPerfTest;
 import org.sonarqube.tests.performance.ServerLogs;
 
+import static util.ItUtils.newOrchestratorBuilder;
+import static util.ItUtils.xooPlugin;
+
 public class ComputeEnginePerfTest extends AbstractPerfTest {
   private static int MAX_HEAP_SIZE_IN_MEGA = 600;
 
@@ -41,9 +44,8 @@ public class ComputeEnginePerfTest extends AbstractPerfTest {
   public static TemporaryFolder temp = new TemporaryFolder();
 
   @ClassRule
-  public static Orchestrator orchestrator = Orchestrator
-    .builderEnv()
-    .addPlugin(FileLocation.byWildcardMavenFilename(new File("../plugins/sonar-xoo-plugin/target"), "sonar-xoo-plugin-*.jar"))
+  public static Orchestrator orchestrator = newOrchestratorBuilder()
+    .addPlugin(xooPlugin())
     .setServerProperty(
       "sonar.web.javaOpts",
       String.format("-Xms%dm -Xmx%dm -XX:+HeapDumpOnOutOfMemoryError -Djava.awt.headless=true", MAX_HEAP_SIZE_IN_MEGA, MAX_HEAP_SIZE_IN_MEGA))

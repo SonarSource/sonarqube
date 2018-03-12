@@ -24,7 +24,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
-import org.json.JSONException;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
@@ -34,6 +33,7 @@ import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.WsResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static util.ItUtils.newOrchestratorBuilder;
 import static util.ItUtils.projectDir;
 import static util.ItUtils.xooPlugin;
 
@@ -42,7 +42,7 @@ import static util.ItUtils.xooPlugin;
  */
 public class CompressPluginsTest {
   @ClassRule
-  public static Orchestrator orchestrator = Orchestrator.builderEnv()
+  public static Orchestrator orchestrator = newOrchestratorBuilder()
     .addPlugin(xooPlugin())
     .setServerProperty("sonar.pluginsCompression.enable", "true")
     .build();

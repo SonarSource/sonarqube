@@ -1,0 +1,67 @@
+sonarqube {
+  properties {
+    property 'sonar.projectName', "${projectTitle} :: Scanner Engine"
+  }
+}
+
+// Excluding scanner files in order to benefit of incremental build support
+sourceSets.test.resources {
+  exclude '**/.sonar/**'
+}
+
+configurations {
+  testCompile.extendsFrom(compileOnly)
+}
+
+dependencies {
+  // please keep the list ordered
+
+  compile 'commons-codec:commons-codec'
+  compile 'commons-lang:commons-lang'
+  compile 'com.google.code.gson:gson'
+  compile 'com.google.guava:guava'
+  compile 'org.apache.commons:commons-csv'
+  compile 'org.freemarker:freemarker'
+  compile 'org.slf4j:jcl-over-slf4j'
+  compile 'org.slf4j:jul-to-slf4j'
+  compile 'org.slf4j:log4j-over-slf4j'
+  compile 'org.slf4j:slf4j-api'
+  compile 'org.sonarsource:sonar-persistit'
+  compile project(':sonar-core')
+  compile project(':sonar-home')
+  compile project(':sonar-scanner-protocol')
+  compile project(':sonar-ws')
+  compile project(path: ':sonar-plugin-api', configuration: 'shadow')
+
+  compileOnly 'com.google.code.findbugs:jsr305'
+
+  testCompile 'com.tngtech.java:junit-dataprovider'
+  testCompile 'javax.servlet:javax.servlet-api'
+  testCompile 'junit:junit'
+  // Workaround to resolve dependencies of eclipse specific packaging: https://issues.gradle.org/browse/GRADLE-2076
+  testCompile module('org.eclipse.jetty:jetty-server') {
+    dependencies(
+        "org.eclipse.jetty.orbit:javax.servlet:3.0.0.v201112011016@jar",
+        "org.eclipse.jetty:jetty-continuation:8.1.2.v20120308",
+        "org.eclipse.jetty:jetty-http:8.1.2.v20120308"
+    )
+  }
+  testCompile 'net.javacrumbs.json-unit:json-unit-assertj:0.0.15'
+  testCompile 'org.assertj:assertj-core'
+  testCompile 'org.mockito:mockito-core'
+  testCompile project(':plugins:sonar-xoo-plugin')
+  testCompile project(':sonar-plugin-api').sourceSets.test.output
+}
+
+artifactoryPublish.skip = false
+
+// Used by core plugins
+publishing {
+  publications {
+    mavenJava(MavenPublication) {
+      from components.java
+      artifact sourcesJar
+      artifact javadocJar
+    }
+  }
+}

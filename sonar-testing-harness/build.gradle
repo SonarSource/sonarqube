@@ -1,0 +1,29 @@
+sonarqube {
+  properties {
+    property 'sonar.projectName', "${projectTitle} :: Testing Harness"
+  }
+}
+
+dependencies {
+  compile 'commons-io:commons-io'
+  compile 'com.googlecode.json-simple:json-simple'
+  compile 'com.google.code.gson:gson'
+  compile 'junit:junit'
+  compile 'org.hamcrest:hamcrest-core'
+
+  compileOnly 'com.google.code.findbugs:jsr305'
+
+  testCompile 'org.assertj:assertj-core'
+}
+
+// Used by sonar-db-core to run DB Unit Tests
+artifactoryPublish.skip = false
+publishing {
+  publications {
+    mavenJava(MavenPublication) {
+      from components.java
+      artifact sourcesJar
+      artifact javadocJar
+    }
+  }
+}

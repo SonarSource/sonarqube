@@ -24,6 +24,7 @@ import org.junit.ClassRule;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
+import static util.ItUtils.newOrchestratorBuilder;
 import static util.ItUtils.pluginArtifact;
 import static util.ItUtils.xooPlugin;
 
@@ -40,14 +41,11 @@ import static util.ItUtils.xooPlugin;
 public class OrganizationSuite {
 
   @ClassRule
-  public static final Orchestrator ORCHESTRATOR = Orchestrator.builderEnv()
+  public static final Orchestrator ORCHESTRATOR = newOrchestratorBuilder()
 
     .addPlugin(xooPlugin())
     .addPlugin(pluginArtifact("fake-billing-plugin"))
     .addPlugin(pluginArtifact("ui-extensions-plugin"))
-    
-    // reduce memory for Elasticsearch to 128M
-    .setServerProperty("sonar.search.javaOpts", "-Xms128m -Xmx128m")
 
     .build();
 }

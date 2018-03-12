@@ -96,7 +96,7 @@ public class CommandFactoryImplTest {
   }
 
   @Test
-  public void createEsCommand_throws_ISE_if_es_binary_is_not_found() throws Exception {
+  public void createEsCommand_throws_ISE_if_es_binary_is_not_found() {
     expectedException.expect(IllegalStateException.class);
     expectedException.expectMessage("Cannot find elasticsearch binary");
 
@@ -194,13 +194,13 @@ public class CommandFactoryImplTest {
   }
 
   @Test
-  public void createWebCommand_returns_command_for_default_settings() throws Exception {
+  public void createWebCommand_returns_command_for_default_settings() {
     JavaCommand command = newFactory(new Properties()).createWebCommand(true);
 
     assertThat(command.getClassName()).isEqualTo("org.sonar.server.app.WebServer");
     assertThat(command.getWorkDir().getAbsolutePath()).isEqualTo(homeDir.getAbsolutePath());
     assertThat(command.getClasspath())
-      .containsExactlyInAnyOrder("./lib/common/*", "./lib/server/*");
+      .containsExactly("./lib/common/*");
     assertThat(command.getJvmOptions().getAll())
       // enforced values
       .contains("-Djava.awt.headless=true", "-Dfile.encoding=UTF-8")
@@ -219,13 +219,13 @@ public class CommandFactoryImplTest {
   }
 
   @Test
-  public void createCeCommand_returns_command_for_default_settings() throws Exception {
+  public void createCeCommand_returns_command_for_default_settings() {
     JavaCommand command = newFactory(new Properties()).createCeCommand();
 
     assertThat(command.getClassName()).isEqualTo("org.sonar.ce.app.CeServer");
     assertThat(command.getWorkDir().getAbsolutePath()).isEqualTo(homeDir.getAbsolutePath());
     assertThat(command.getClasspath())
-      .containsExactlyInAnyOrder("./lib/common/*", "./lib/server/*", "./lib/ce/*");
+      .containsExactly("./lib/common/*");
     assertThat(command.getJvmOptions().getAll())
       // enforced values
       .contains("-Djava.awt.headless=true", "-Dfile.encoding=UTF-8")
@@ -244,7 +244,7 @@ public class CommandFactoryImplTest {
   }
 
   @Test
-  public void createWebCommand_configures_command_with_overridden_settings() throws Exception {
+  public void createWebCommand_configures_command_with_overridden_settings() {
     Properties props = new Properties();
     props.setProperty("sonar.web.port", "1234");
     props.setProperty("sonar.web.javaOpts", "-Xmx10G");
@@ -275,7 +275,7 @@ public class CommandFactoryImplTest {
     JavaCommand command = newFactory(props).createWebCommand(true);
 
     assertThat(command.getClasspath())
-      .containsExactlyInAnyOrder("./lib/common/*", "./lib/server/*", driverFile.getAbsolutePath());
+      .containsExactlyInAnyOrder("./lib/common/*", driverFile.getAbsolutePath());
   }
 
   private void prepareEsFileSystem() throws IOException {
@@ -283,7 +283,7 @@ public class CommandFactoryImplTest {
     FileUtils.touch(new File(homeDir, "elasticsearch/bin/elasticsearch.bat"));
   }
 
-  private CommandFactoryImpl newFactory(Properties userProps) throws IOException {
+  private CommandFactoryImpl newFactory(Properties userProps) {
     return newFactory(userProps, System2.INSTANCE);
   }
 

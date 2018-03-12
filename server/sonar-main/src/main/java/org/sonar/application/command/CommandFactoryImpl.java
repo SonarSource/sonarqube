@@ -152,8 +152,7 @@ public class CommandFactoryImpl implements CommandFactory {
       .setEnvVariable(PATH_LOGS.getKey(), props.nonNullValue(PATH_LOGS.getKey()))
       .setArgument("sonar.cluster.web.startupLeader", Boolean.toString(leader))
       .setClassName("org.sonar.server.app.WebServer")
-      .addClasspath("./lib/common/*")
-      .addClasspath("./lib/server/*");
+      .addClasspath("./lib/common/*");
     String driverPath = props.value(JDBC_DRIVER_PATH.getKey());
     if (driverPath != null) {
       command.addClasspath(driverPath);
@@ -176,9 +175,7 @@ public class CommandFactoryImpl implements CommandFactory {
       .setArguments(props.rawProperties())
       .setJvmOptions(jvmOptions)
       .setClassName("org.sonar.ce.app.CeServer")
-      .addClasspath("./lib/common/*")
-      .addClasspath("./lib/server/*")
-      .addClasspath("./lib/ce/*");
+      .addClasspath("./lib/common/*");
     String driverPath = props.value(JDBC_DRIVER_PATH.getKey());
     if (driverPath != null) {
       command.addClasspath(driverPath);

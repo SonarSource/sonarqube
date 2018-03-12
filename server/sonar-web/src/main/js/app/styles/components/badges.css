@@ -19,14 +19,15 @@
  */
 .badge {
   display: inline-block;
+  vertical-align: middle;
+  height: var(--smallControlHeight);
+  line-height: calc(var(--smallControlHeight) - 1px);
+  padding: 0 var(--gridSize);
+  border-radius: 2px;
+  font-size: var(--smallFontSize);
   min-width: 10px;
-  padding: 2px 7px;
-  font-size: 11px;
-  font-weight: normal;
   letter-spacing: 0.03em;
   color: #ffffff;
-  line-height: var(--smallFontSize);
-  vertical-align: baseline;
   white-space: nowrap;
   text-align: center;
   background-color: var(--blue);
@@ -55,7 +56,7 @@ a.badge {
 .list-group-item > .badge,
 .list-group-item-heading > .badge {
   float: right;
-  margin-top: 3px;
+  margin: 3px;
 }
 
 .list-group-item > .badge + .badge,
@@ -66,6 +67,11 @@ a.badge {
 .badge-normal-size {
   font-size: inherit;
   letter-spacing: inherit;
+}
+
+.badge-tiny-height {
+  height: var(--tinyControlHeight);
+  line-height: calc(var(--tinyControlHeight) - 1px);
 }
 
 .badge-muted {
@@ -128,9 +134,9 @@ a.badge-focus:active {
 .outline-badge {
   display: inline-block;
   vertical-align: middle;
-  height: 20px;
-  line-height: 19px;
-  padding: 0 8px;
+  height: var(--smallControlHeight);
+  line-height: calc(var(--smallControlHeight) - 1px);
+  padding: 0 var(--gridSize);
   border: 1px solid var(--gray80);
   border-radius: 2px;
   box-sizing: border-box;

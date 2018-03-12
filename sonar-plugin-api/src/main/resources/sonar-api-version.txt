@@ -1,1 +1,1 @@
-${buildVersion}
+@project.buildVersion@

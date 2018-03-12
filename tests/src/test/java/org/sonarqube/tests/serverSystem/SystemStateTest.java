@@ -41,6 +41,7 @@ import org.sonarqube.ws.client.WsClient;
 
 import static com.google.common.base.Preconditions.checkState;
 import static org.assertj.core.api.Assertions.assertThat;
+import static util.ItUtils.newOrchestratorBuilder;
 import static util.ItUtils.newSystemUserWsClient;
 import static util.ItUtils.newWsClient;
 import static util.ItUtils.pluginArtifact;
@@ -128,7 +129,7 @@ public class SystemStateTest {
 
     void start(Lock lock) {
       checkState(orchestrator == null);
-      orchestrator = Orchestrator.builderEnv()
+      orchestrator = newOrchestratorBuilder()
         .addPlugin(pluginArtifact("server-plugin"))
         .setServerProperty("sonar.web.startupLock.path", lock.webFile.getAbsolutePath())
         .setServerProperty("sonar.ce.startupLock.path", lock.ceFile.getAbsolutePath())

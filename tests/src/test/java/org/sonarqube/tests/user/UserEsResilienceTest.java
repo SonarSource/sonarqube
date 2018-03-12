@@ -39,6 +39,7 @@ import util.ItUtils;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonarqube.tests.Byteman.Process.WEB;
 import static util.ItUtils.expectHttpError;
+import static util.ItUtils.newOrchestratorBuilder;
 
 public class UserEsResilienceTest {
 
@@ -47,7 +48,7 @@ public class UserEsResilienceTest {
   private static final Byteman byteman;
 
   static {
-    byteman = new Byteman(Orchestrator.builderEnv(), WEB);
+    byteman = new Byteman(newOrchestratorBuilder(), WEB);
     orchestrator = byteman
       .getOrchestratorBuilder()
       .setServerProperty("sonar.search.recovery.delayInMs", "1000")

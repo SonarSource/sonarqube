@@ -1,0 +1,44 @@
+sonarqube {
+  properties {
+    property "sonar.projectName", "${projectTitle} :: Web"
+    property "sonar.sources", "src/main/js"
+    property "sonar.tests", "src/main/js"
+    property "sonar.test.inclusions", "src/main/js/**/__tests__/**"
+    property "sonar.exclusions", "src/main/js/libs/third-party/**/*,src/main/js/libs/require.js,src/main/js/**/__tests__/**"
+  }
+}
+
+apply plugin: 'com.moowork.node'
+apply plugin: 'war'
+
+configurations {
+  branding
+}
+dependencies {
+  branding 'com.sonarsource:sonarsource-branding:1.3.0.307@war'
+}
+task unzipBranding(type: Copy) {
+  into projectDir
+  from { zipTree(configurations.branding.singleFile) }
+  include '**/*.js'
+  include '**/*.svg'
+  includeEmptyDirs = false
+}
+
+node {
+  version = '8.5.0'
+  yarnVersion = '1.1.0'
+  download = true
+}
+
+yarn_run {
+  if (release) { dependsOn unzipBranding }
+  inputs.dir('scripts')
+  inputs.dir('src/main/js')
+  inputs.file('build.gradle')
+  outputs.dir('src/main/webapp')
+
+  args = ['build']
+}
+
+war.dependsOn yarn_run

@@ -24,6 +24,7 @@ import org.junit.ClassRule;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
+import static util.ItUtils.newOrchestratorBuilder;
 import static util.ItUtils.pluginArtifact;
 import static util.ItUtils.xooPlugin;
 
@@ -33,6 +34,7 @@ import static util.ItUtils.xooPlugin;
   IssuePermissionTest.class,
   PermissionSearchTest.class,
   PermissionTemplatePageTest.class,
+
   ProvisioningPermissionTest.class,
   QualityProfileAdminPermissionTest.class,
   SystemPasscodeTest.class
@@ -40,10 +42,7 @@ import static util.ItUtils.xooPlugin;
 public class AuthorizationSuite {
 
   @ClassRule
-  public static final Orchestrator ORCHESTRATOR = Orchestrator.builderEnv()
-    // reduce memory for Elasticsearch
-    .setServerProperty("sonar.search.javaOpts", "-Xms128m -Xmx128m")
-
+  public static final Orchestrator ORCHESTRATOR = newOrchestratorBuilder()
     // for SystemPasscodeTest
     // this privileged plugin provides the WS api/system_passcode/check
     // that is used by the tests
@@ -52,5 +51,4 @@ public class AuthorizationSuite {
 
     .addPlugin(xooPlugin())
     .build();
-
 }

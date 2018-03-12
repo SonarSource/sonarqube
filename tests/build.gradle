@@ -1,0 +1,149 @@
+ext {
+  jettyVersion = '9.3.11.v20160721'
+  bytemanVersion = '3.0.10'
+}
+
+configurations {
+  sqZip
+  includeInTestResources
+}
+
+def pluginsForITs = [
+    ':plugins:sonar-xoo-plugin',
+    ':tests:plugins:access-secured-props-plugin',
+    ':tests:plugins:base-auth-plugin',
+    ':tests:plugins:batch-plugin',
+    ':tests:plugins:extension-lifecycle-plugin',
+    ':tests:plugins:fake-billing-plugin',
+    ':tests:plugins:fake-governance-plugin',
+    ':tests:plugins:foo-plugin-v1',
+    ':tests:plugins:foo-plugin-v2',
+    ':tests:plugins:global-property-change-plugin',
+    ':tests:plugins:issue-filter-plugin',
+    ':tests:plugins:l10n-fr-pack',
+    ':tests:plugins:license-plugin',
+    ':tests:plugins:oauth2-auth-plugin',
+    ':tests:plugins:project-builder-plugin',
+    ':tests:plugins:property-relocation-plugin',
+    ':tests:plugins:property-sets-plugin',
+    ':tests:plugins:security-plugin',
+    ':tests:plugins:server-plugin',
+    ':tests:plugins:settings-encryption-plugin',
+    ':tests:plugins:settings-plugin',
+    ':tests:plugins:sonar-fake-plugin',
+    ':tests:plugins:sonar-subcategories-plugin',
+    ':tests:plugins:ui-extensions-plugin',
+    ':tests:plugins:posttask-plugin',
+    ':tests:plugins:wait-at-platform-level4-plugin',
+    ':tests:plugins:ws-plugin',
+    ':tests:plugins:backdating-plugin-v1',
+    ':tests:plugins:backdating-plugin-v2',
+    ':tests:plugins:backdating-customplugin'
+]
+
+dependencies {
+  testCompile 'org.sonarsource.orchestrator:sonar-orchestrator'
+  testCompile project(':server:sonar-qa-util')
+  testCompile project(':sonar-ws')
+  // required version 23.0 for selenide
+  testCompile 'com.google.guava:guava:23.0'
+  testCompile 'junit:junit'
+  testCompile 'org.assertj:assertj-core'
+  testCompile 'org.assertj:assertj-guava'
+  testCompile 'com.googlecode.json-simple:json-simple'
+  testCompile 'org.skyscreamer:jsonassert:1.2.0'
+  testCompile 'com.squareup.okhttp3:mockwebserver'
+  testCompile 'org.subethamail:subethasmtp'
+  testCompile "org.eclipse.jetty:jetty-server:${jettyVersion}"
+  testCompile "org.eclipse.jetty:jetty-servlet:${jettyVersion}"
+  testCompile "org.eclipse.jetty:jetty-proxy:${jettyVersion}"
+  testCompile "org.jboss.byteman:byteman-submit:${bytemanVersion}"
+  testCompile 'com.microsoft.sqlserver:mssql-jdbc'
+  testCompile 'mysql:mysql-connector-java'
+  testCompile 'org.postgresql:postgresql'
+  testCompile 'com.oracle.jdbc:ojdbc8'
+
+  includeInTestResources "org.jboss.byteman:byteman:${bytemanVersion}"
+}
+
+sonarqube {
+  skipProject = true
+}
+
+//UT are excluding in order for ITs to only run when needed
+test{
+  exclude '*'
+}
+
+task integrationTest(type: Test) {
+  description = 'Runs integration tests'
+
+  for (plugin in pluginsForITs) {
+    dependsOn project(plugin).assemble
+  }
+
+  jacoco.enabled = false
+
+  systemProperty 'orchestrator.configUrl', System.getProperty('orchestrator.configUrl')
+  systemProperty 'orchestrator.artifactory.apiKey', System.getProperty('orchestrator.artifactory.apiKey')
+  systemProperty 'orchestrator.artifactory.repositories', System.getProperty('orchestrator.artifactory.repositories')
+  if (project.hasProperty('cix')) {
+    systemProperty 'sonar.runtimeVersion', version
+  }
+
+  def category = System.getProperty('category')
+  filter {
+    switch (category) {
+      case 'Lite':
+        includeTestsMatching 'org.sonarqube.tests.lite.*Suite'
+        break
+      case 'Category1':
+        includeTestsMatching 'org.sonarqube.tests.Category1Suite'
+        includeTestsMatching 'org.sonarqube.tests.authorization.*Suite'
+        includeTestsMatching 'org.sonarqube.tests.measure.*Suite'
+        includeTestsMatching 'org.sonarqube.tests.qualityGate.*Suite'
+        includeTestsMatching 'org.sonarqube.tests.source.*Suite'
+        break
+      case 'Category2':
+        includeTestsMatching 'org.sonarqube.tests.issue.*Suite'
+        includeTestsMatching 'org.sonarqube.tests.test.*Suite'
+        includeTestsMatching 'org.sonarqube.tests.qualityModel.*Suite'
+        break
+      case 'Category3':
+        includeTestsMatching 'org.sonarqube.tests.Category3Suite'
+        includeTestsMatching 'org.sonarqube.tests.component.*Suite'
+        includeTestsMatching 'org.sonarqube.tests.project.*Suite'
+        break
+      case 'Category4':
+        includeTestsMatching 'org.sonarqube.tests.Category4Suite'
+        includeTestsMatching 'org.sonarqube.tests.duplication.*Suite'
+        includeTestsMatching 'org.sonarqube.tests.user.*Suite'
+        includeTestsMatching 'org.sonarqube.tests.webhook.*Suite'
+        break
+      case 'Category5':
+        includeTestsMatching 'org.sonarqube.tests.Category5Suite'
+        break
+      case 'Category6':
+        includeTestsMatching 'org.sonarqube.tests.Category6Suite'
+        includeTestsMatching 'org.sonarqube.tests.organization.*Suite'
+        break
+      case 'Plugins':
+        includeTestsMatching 'org.sonarqube.tests.plugins.PluginsSuite'
+        break
+      case 'Upgrade':
+        includeTestsMatching 'org.sonarqube.tests.upgrade.UpgradeSuite'
+        break
+      case 'ServerPerformance':
+        includeTestsMatching 'org.sonarqube.tests.performance.server.ServerPerformanceSuite'
+        break
+    }
+  }
+}
+
+processTestResources() {
+  into('/') {
+    from configurations.includeInTestResources
+    // TODO cache not invalidated when pattern changes?
+    rename '(.*)-' + bytemanVersion + '.jar', '$1.jar'
+  }
+}

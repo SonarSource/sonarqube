@@ -1,0 +1,18 @@
+sonarqube {
+  properties {
+    property 'sonar.projectName', "${projectTitle} :: Duplications"
+  }
+}
+
+dependencies {
+  compile 'org.codehaus.sonar:sonar-channel'
+
+  compileOnly 'com.google.code.findbugs:jsr305'
+
+  testCompile 'ch.qos.logback:logback-classic'
+  testCompile 'commons-io:commons-io'
+  testCompile 'junit:junit'
+  testCompile 'org.assertj:assertj-core'
+  testCompile 'org.mockito:mockito-core'
+  testCompile 'pmd:pmd:4.3'
+}

@@ -28,6 +28,7 @@ import org.sonarqube.qa.util.pageobjects.MarketplacePage;
 import org.sonarqube.qa.util.pageobjects.Navigation;
 import util.user.UserRule;
 
+import static util.ItUtils.newOrchestratorBuilder;
 import static util.ItUtils.pluginArtifact;
 
 /**
@@ -36,7 +37,7 @@ import static util.ItUtils.pluginArtifact;
 public class UpdateCenterTest {
 
   @ClassRule
-  public static final Orchestrator orchestrator = Orchestrator.builderEnv()
+  public static final Orchestrator orchestrator = newOrchestratorBuilder()
     .setServerProperty("sonar.updatecenter.url", UpdateCenterTest.class.getResource("/marketplace/UpdateCenterTest/update-center.properties").toString())
     .addPlugin(pluginArtifact("sonar-fake-plugin"))
     .build();

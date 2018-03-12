@@ -1,0 +1,148 @@
+sonarqube {
+  properties {
+    property 'sonar.projectName', "${projectTitle} :: Application"
+  }
+}
+
+configurations {
+  ce
+  jsw
+  scanner
+  server
+  webapp
+  jdbc_mssql {
+    transitive = false
+  }
+  jdbc_mysql {
+    transitive = false
+  }
+  jdbc_postgresql {
+    transitive = false
+  }
+  jdbc_h2 {
+    transitive = false
+  }
+  bundledPlugin {
+    transitive = false
+  }
+}
+
+dependencies {
+  compile 'org.elasticsearch.client:transport'
+  compile project(':server:sonar-main')
+  compile project(':server:sonar-process')
+
+  compileOnly 'com.google.code.findbugs:jsr305'
+
+  ce project(':server:sonar-ce')
+  jsw 'tanukisoft:wrapper:3.2.3'
+  scanner project(path: ':sonar-scanner-engine-shaded', configuration: 'shadow')
+  server project(':server:sonar-server')
+  webapp project(path: ':server:sonar-web', configuration: 'archives')
+
+  jdbc_mssql 'com.microsoft.sqlserver:mssql-jdbc'
+  jdbc_mysql 'mysql:mysql-connector-java'
+  jdbc_postgresql 'org.postgresql:postgresql'
+  jdbc_h2 'com.h2database:h2'
+
+  bundledPlugin 'org.sonarsource.java:sonar-java-plugin:5.1.0.13090@jar'
+  bundledPlugin 'org.sonarsource.javascript:sonar-javascript-plugin:4.0.0.5862@jar'
+  bundledPlugin 'org.sonarsource.dotnet:sonar-csharp-plugin:6.7.1.4347@jar'
+  bundledPlugin 'org.sonarsource.scm.git:sonar-scm-git-plugin:1.4.0.1037@jar'
+  bundledPlugin 'org.sonarsource.scm.svn:sonar-scm-svn-plugin:1.7.0.1017@jar'
+  bundledPlugin 'org.sonarsource.php:sonar-php-plugin:2.12.1.3018@jar'
+  bundledPlugin 'org.sonarsource.python:sonar-python-plugin:1.9.0.2010@jar'
+  bundledPlugin 'org.sonarsource.flex:sonar-flex-plugin:2.3@jar'
+  bundledPlugin 'org.sonarsource.xml:sonar-xml-plugin:1.4.3.1027@jar'
+  bundledPlugin 'org.sonarsource.typescript:sonar-typescript-plugin:1.5.0.2122@jar'
+
+  testCompile 'junit:junit'
+  testCompile 'org.assertj:assertj-core'
+  testCompile 'org.mockito:mockito-core'
+
+}
+
+jar {
+  manifest {
+    attributes(
+      'Class-Path': configurations.compile.collect { "common/${it.getName()}" }.join(' '),
+      'Main-Class': 'org.sonar.application.App'
+    )
+  }
+}
+
+task zip(type: Zip) {
+  duplicatesStrategy DuplicatesStrategy.EXCLUDE
+  def archiveDir = "sonarqube-$version"
+  into("${archiveDir}/") {
+    from file('src/main/assembly')
+    exclude 'elasticsearch/modules/lang-expression/**'
+    exclude 'elasticsearch/modules/lang-groovy/**'
+    exclude 'elasticsearch/modules/lang-mustache/**'
+    exclude 'elasticsearch/modules/lang-painless/**'
+    exclude 'elasticsearch/modules/transport-netty3/**'
+  }
+  // Create the empty dir (plugins) required by elasticsearch
+  into("${archiveDir}/elasticsearch/") {
+    from "$buildDir/elasticsearch"
+  }
+  into("${archiveDir}/lib/") {
+    from jar
+  }
+  into("${archiveDir}/lib/bundled-plugins/") {
+    from configurations.bundledPlugin
+  }
+  into("${archiveDir}/lib/jsw/") {
+    from configurations.jsw
+  }
+  into("${archiveDir}/lib/scanner/") {
+    from configurations.scanner
+  }
+  into("${archiveDir}/lib/common/") {
+    from configurations.ce + configurations.server + configurations.compile
+  }
+  dependsOn configurations.webapp
+  into("${archiveDir}/web/") {
+    from {
+      configurations.webapp.files.collect { zipTree(it) }
+    }
+  }
+  into("${archiveDir}/lib/jdbc/mssql/") {
+    from configurations.jdbc_mssql
+  }
+  into("${archiveDir}/lib/jdbc/mysql/") {
+    from configurations.jdbc_mysql
+  }
+  into("${archiveDir}/lib/jdbc/postgresql/") {
+    from configurations.jdbc_postgresql
+  }
+  into("${archiveDir}/lib/jdbc/h2/") {
+    from configurations.jdbc_h2
+  }
+}
+// Create the empty dir required by elasticsearch
+zip.doFirst {
+  new File(buildDir, 'elasticsearch/plugins').mkdirs()
+}
+// Check the size of the archive
+zip.doLast {
+  def minLength = 155000000
+  def maxLength = 170000000
+  def length = new File(distsDir, archiveName).length()
+  if (length < minLength)
+    throw new GradleException("$archiveName size ($length) too small. Min is $minLength")
+  if (length > maxLength)
+    throw new GradleException("$distsDir/$archiveName size ($length) too large. Max is $maxLength")
+}
+
+assemble.dependsOn zip
+
+artifactoryPublish.skip = false
+
+publishing {
+  publications {
+    mavenJava(MavenPublication) {
+      artifact zip
+    }
+  }
+}

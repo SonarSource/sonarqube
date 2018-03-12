@@ -29,6 +29,7 @@ import org.sonarqube.tests.settings.EmailsTest;
 import org.sonarqube.tests.settings.PropertySetsTest;
 import org.sonarqube.tests.settings.SettingsTest;
 
+import static util.ItUtils.newOrchestratorBuilder;
 import static util.ItUtils.pluginArtifact;
 import static util.ItUtils.xooPlugin;
 
@@ -48,7 +49,7 @@ import static util.ItUtils.xooPlugin;
 public class Category1Suite {
 
   @ClassRule
-  public static final Orchestrator ORCHESTRATOR = Orchestrator.builderEnv()
+  public static final Orchestrator ORCHESTRATOR = newOrchestratorBuilder()
     .setServerProperty("sonar.notifications.delay", "1")
     .addPlugin(pluginArtifact("property-sets-plugin"))
     .addPlugin(pluginArtifact("sonar-subcategories-plugin"))
@@ -66,9 +67,6 @@ public class Category1Suite {
     .setServerProperty("sonar.notifications.delay", "1")
 
     .addPlugin(pluginArtifact("posttask-plugin"))
-
-    // reduce memory for Elasticsearch to 128M
-    .setServerProperty("sonar.search.javaOpts", "-Xms128m -Xmx128m")
 
     .addPlugin(xooPlugin())
     .build();

@@ -1,0 +1,19 @@
+dependencies {
+  compileOnly project(path: ':sonar-plugin-api', configuration: 'shadow')
+  compileOnly project(':server:sonar-server')
+}
+
+jar {
+  manifest {
+    attributes(
+      'Plugin-Key': 'governance',
+      'Plugin-Version': version,
+      'Plugin-Class': 'FakeGovernancePlugin',
+      'Plugin-ChildFirstClassLoader': 'false',
+      'Sonar-Version': '7.1-SNAPSHOT',
+      'SonarLint-Supported': 'false',
+      'Plugin-Name': 'Plugins :: Fake Governance Plugin',
+      'Plugin-License': 'GNU LGPL 3'
+    )
+  }
+}

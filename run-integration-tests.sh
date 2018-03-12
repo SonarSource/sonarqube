@@ -16,12 +16,8 @@ CATEGORY=$1
 ORCHESTRATOR_CONFIG_URL=$2
 shift 2
 
-cd tests/plugins
-mvn clean package -B -e -V
-
-cd ..
-mvn verify \
+./gradlew --no-daemon --console plain -i \
+  :tests:integrationTest \
   -Dcategory="$CATEGORY" \
-  -Dorchestrator.configUrl=$ORCHESTRATOR_CONFIG_URL \
-  -Pwith-db-drivers \
-  -B -e -V $*
+  -Dorchestrator.configUrl=$ORCHESTRATOR_CONFIG_URL  \
+  $*

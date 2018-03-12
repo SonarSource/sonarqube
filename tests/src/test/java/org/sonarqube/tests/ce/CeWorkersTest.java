@@ -58,6 +58,7 @@ import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.newAdminWsClient;
+import static util.ItUtils.newOrchestratorBuilder;
 import static util.ItUtils.pluginArtifact;
 import static util.ItUtils.xooPlugin;
 
@@ -82,7 +83,7 @@ public class CeWorkersTest {
   public static void setUp() throws Exception {
     sharedMemory = temporaryFolder.newFile();
 
-    OrchestratorBuilder builder = Orchestrator.builderEnv()
+    OrchestratorBuilder builder = newOrchestratorBuilder()
       .addPlugin(pluginArtifact("fake-governance-plugin"))
       .setServerProperty("fakeGoverance.workerLatch.sharedMemoryFile", sharedMemory.getAbsolutePath())
       // overwrite default value to display heap dump on OOM and reduce max heap

@@ -13,8 +13,8 @@ set -euo pipefail
 ORCHESTRATOR_CONFIG_URL=$1
 shift 1
 
-cd tests
-mvn verify \
-  -Pwith-db-drivers \
+./gradlew --no-daemon --console plain -i \
+  :tests:integrationTest \
   -Dorchestrator.configUrl=$ORCHESTRATOR_CONFIG_URL \
-  -Dcategory=Upgrade -B -e -V $*
+  -Dcategory=Upgrade \
+  $*

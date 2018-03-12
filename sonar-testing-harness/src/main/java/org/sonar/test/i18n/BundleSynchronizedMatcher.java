@@ -83,7 +83,7 @@ public class BundleSynchronizedMatcher extends BaseMatcher<String> {
   @Override
   public void describeTo(Description description) {
     // report file
-    File dumpFile = new File("target/l10n/" + bundleName + ".report.txt");
+    File dumpFile = new File("build/l10n/" + bundleName + ".report.txt");
 
     // prepare message
     StringBuilder details = prepareDetailsMessage(dumpFile);

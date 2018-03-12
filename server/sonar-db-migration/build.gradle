@@ -1,0 +1,42 @@
+sonarqube {
+  properties {
+    property 'sonar.projectName', "${projectTitle} :: Database Migration"
+  }
+}
+
+dependencies {
+  // please keep the list grouped by configuration and ordered by name
+
+  compile project(':server:sonar-db-core')
+  compile project(':sonar-core')
+
+  compileOnly 'com.google.code.findbugs:jsr305'
+
+  testCompile 'com.google.code.findbugs:jsr305'
+  testCompile 'com.h2database:h2'
+  testCompile 'com.tngtech.java:junit-dataprovider'
+  testCompile 'junit:junit'
+  testCompile 'org.assertj:assertj-core'
+  testCompile 'org.dbunit:dbunit'
+  testCompile 'org.mockito:mockito-core'
+  testCompile project(':sonar-testing-harness')
+  testCompile project(':server:sonar-db-core').sourceSets.test.output
+}
+
+test {
+  if (System.hasProperty('orchestrator.configUrl'))
+    systemProperty 'orchestrator.configUrl', System.getProperty('orchestrator.configUrl')
+}
+
+artifactoryPublish.skip = false
+
+// Used by core plugins
+publishing {
+  publications {
+    mavenJava(MavenPublication) {
+      from components.java
+      artifact sourcesJar
+      artifact javadocJar
+    }
+  }
+}
