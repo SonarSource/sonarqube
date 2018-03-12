@@ -128,3 +128,8 @@ enum BranchType {
   LONG = 1;
   SHORT = 2;
 }
+
+message Organization {
+  optional string key = 1;
+  optional string name = 2;
+}
