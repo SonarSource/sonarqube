@@ -21,6 +21,7 @@ package org.sonar.server.qualityprofile;
 
 import java.util.List;
 import java.util.Optional;
+import org.assertj.core.groups.Tuple;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -32,8 +33,10 @@ import org.sonar.api.utils.System2;
 import org.sonar.api.utils.internal.TestSystem2;
 import org.sonar.db.DbTester;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
+import org.sonar.db.qualityprofile.ActiveRuleParamDto;
 import org.sonar.db.qualityprofile.RulesProfileDto;
 import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.rule.RuleParamDto;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.util.IntegerTypeValidation;
@@ -42,10 +45,12 @@ import org.sonar.server.util.TypeValidations;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.groups.Tuple.tuple;
 import static org.mockito.Mockito.mock;
 import static org.sonar.api.rules.RulePriority.BLOCKER;
 import static org.sonar.api.rules.RulePriority.CRITICAL;
 import static org.sonar.api.rules.RulePriority.MAJOR;
+import static org.sonar.api.rules.RulePriority.MINOR;
 import static org.sonar.db.qualityprofile.QualityProfileTesting.newRuleProfileDto;
 
 public class BuiltInQProfileUpdateImplTest {
@@ -187,6 +192,56 @@ public class BuiltInQProfileUpdateImplTest {
     assertThatProfileIsMarkedAsUpdated(persistedProfile);
   }
 
+  // SONAR-10473
+  @Test
+  public void activate_rule_on_built_in_profile_resets_severity_to_default_if_not_overridden() {
+    RuleDefinitionDto rule = db.rules().insert(r -> r.setSeverity(Severity.MAJOR).setLanguage("xoo"));
+
+    BuiltInQualityProfilesDefinition.Context context = new BuiltInQualityProfilesDefinition.Context();
+    NewBuiltInQualityProfile newQp = context.createBuiltInQualityProfile("Sonar way", "xoo");
+    newQp.activateRule(rule.getRepositoryKey(), rule.getRuleKey());
+    newQp.done();
+    BuiltInQProfile builtIn = builtInProfileRepository.create(context.profile("xoo", "Sonar way"), rule);
+    underTest.update(db.getSession(), builtIn, persistedProfile);
+
+    List<ActiveRuleDto> activeRules = db.getDbClient().activeRuleDao().selectByRuleProfile(db.getSession(), persistedProfile);
+    assertThatRuleIsNewlyActivated(activeRules, rule, MAJOR);
+
+    // emulate an upgrade of analyzer that changes the default severity of the rule
+    rule.setSeverity(Severity.MINOR);
+    db.rules().update(rule);
+
+    underTest.update(db.getSession(), builtIn, persistedProfile);
+    activeRules = db.getDbClient().activeRuleDao().selectByRuleProfile(db.getSession(), persistedProfile);
+    assertThatRuleIsNewlyActivated(activeRules, rule, MINOR);
+  }
+
+  @Test
+  public void activate_rule_on_built_in_profile_resets_params_to_default_if_not_overridden() {
+    RuleDefinitionDto rule = db.rules().insert(r -> r.setLanguage("xoo"));
+    RuleParamDto ruleParam = db.rules().insertRuleParam(rule, p -> p.setName("min").setDefaultValue("10"));
+
+    BuiltInQualityProfilesDefinition.Context context = new BuiltInQualityProfilesDefinition.Context();
+    NewBuiltInQualityProfile newQp = context.createBuiltInQualityProfile("Sonar way", "xoo");
+    newQp.activateRule(rule.getRepositoryKey(), rule.getRuleKey());
+    newQp.done();
+    BuiltInQProfile builtIn = builtInProfileRepository.create(context.profile("xoo", "Sonar way"), rule);
+    underTest.update(db.getSession(), builtIn, persistedProfile);
+
+    List<ActiveRuleDto> activeRules = db.getDbClient().activeRuleDao().selectByRuleProfile(db.getSession(), persistedProfile);
+    assertThat(activeRules).hasSize(1);
+    assertThatRuleHasParams(db, activeRules.get(0), tuple("min", "10"));
+
+    // emulate an upgrade of analyzer that changes the default value of parameter min
+    ruleParam.setDefaultValue("20");
+    db.getDbClient().ruleDao().updateRuleParam(db.getSession(), rule, ruleParam);
+
+    underTest.update(db.getSession(), builtIn, persistedProfile);
+    activeRules = db.getDbClient().activeRuleDao().selectByRuleProfile(db.getSession(), persistedProfile);
+    assertThat(activeRules).hasSize(1);
+    assertThatRuleHasParams(db, activeRules.get(0), tuple("min", "20"));
+  }
+
 //  @Test
 //  public void propagate_new_activation_to_profiles() {
 //    RuleDefinitionDto rule = createJavaRule();
@@ -228,6 +283,12 @@ public class BuiltInQProfileUpdateImplTest {
 //    assertThatRuleIsNotPresent(childProfile, rule);
 //    assertThatRuleIsNotPresent(grandchildProfile, rule);
 //  }
+
+  private static void assertThatRuleHasParams(DbTester db, ActiveRuleDto activeRule, Tuple... expectedParams) {
+    assertThat(db.getDbClient().activeRuleDao().selectParamsByActiveRuleId(db.getSession(), activeRule.getId()))
+      .extracting(ActiveRuleParamDto::getKey, ActiveRuleParamDto::getValue)
+      .containsExactlyInAnyOrder(expectedParams);
+  }
 
   private static void assertThatRuleIsNewlyActivated(List<ActiveRuleDto> activeRules, RuleDefinitionDto rule, RulePriority severity) {
     ActiveRuleDto activeRule = findRule(activeRules, rule).get();
