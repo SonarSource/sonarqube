@@ -139,6 +139,10 @@ task integrationTest(type: Test) {
         includeTestsMatching 'org.sonarqube.tests.performance.server.ServerPerformanceSuite'
         break
     }
+    testLogging {
+      exceptionFormat 'full' // log the full stack trace (default is the 1st line of the stack trace)
+      events "skipped", "failed" // verbose log for failed and skipped tests (by default the name of the tests are not logged)
+    }
   }
 }
 

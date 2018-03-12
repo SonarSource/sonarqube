@@ -13,7 +13,7 @@ set -euo pipefail
 ORCHESTRATOR_CONFIG_URL=$1
 shift 1
 
-./gradlew --no-daemon --console plain -i \
+./gradlew --no-daemon --console plain \
   :tests:integrationTest \
   -Dorchestrator.configUrl=$ORCHESTRATOR_CONFIG_URL \
   -Dcategory=Upgrade \
