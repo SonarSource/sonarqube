@@ -18,11 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { Issue as IssueType } from '../../../app/types';
+import { BranchLike, Issue as IssueType } from '../../../app/types';
 import Issue from '../../issue/Issue';
 
 interface Props {
-  branch: string | undefined;
+  branchLike: BranchLike | undefined;
   displayIssueLocationsCount?: boolean;
   displayIssueLocationsLink?: boolean;
   issuePopup: { issue: string; name: string } | undefined;
@@ -40,7 +40,7 @@ export default function LineIssuesList(props: Props) {
     <div className="issue-list">
       {props.issues.map(issue => (
         <Issue
-          branch={props.branch}
+          branchLike={props.branchLike}
           displayLocationsCount={props.displayIssueLocationsCount}
           displayLocationsLink={props.displayIssueLocationsLink}
           issue={issue}

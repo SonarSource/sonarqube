@@ -39,8 +39,7 @@ export class Duplications extends React.PureComponent<ComposedProps> {
   }
 
   renderDuplications() {
-    const { branch, component, measures } = this.props;
-
+    const { branchLike, component, measures } = this.props;
     const measure = measures.find(measure => measure.metric.key === 'duplicated_lines_density');
     if (!measure) {
       return null;
@@ -57,7 +56,7 @@ export class Duplications extends React.PureComponent<ComposedProps> {
         <div className="display-inline-block text-middle">
           <div className="overview-domain-measure-value">
             <DrilldownLink
-              branch={branch}
+              branchLike={branchLike}
               component={component.key}
               metric="duplicated_lines_density">
               {formatMeasure(duplications, 'PERCENT')}
@@ -74,11 +73,10 @@ export class Duplications extends React.PureComponent<ComposedProps> {
   }
 
   renderNewDuplications() {
-    const { branch, component, measures, leakPeriod } = this.props;
+    const { branchLike, component, measures, leakPeriod } = this.props;
     if (!leakPeriod) {
       return null;
     }
-
     const newDuplicationsMeasure = measures.find(
       measure => measure.metric.key === 'new_duplicated_lines_density'
     );
@@ -88,7 +86,7 @@ export class Duplications extends React.PureComponent<ComposedProps> {
       newDuplicationsMeasure && newDuplicationsValue ? (
         <div>
           <DrilldownLink
-            branch={branch}
+            branchLike={branchLike}
             component={component.key}
             metric={newDuplicationsMeasure.metric.key}>
             <span className="js-overview-main-new-duplications">
@@ -108,7 +106,7 @@ export class Duplications extends React.PureComponent<ComposedProps> {
           {translate('overview.duplications_on')}
           <br />
           <DrilldownLink
-            branch={branch}
+            branchLike={branchLike}
             className="spacer-right overview-domain-secondary-measure-value"
             component={component.key}
             metric={newLinesMeasure.metric.key}>

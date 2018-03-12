@@ -28,14 +28,14 @@ it('renders status of short-living branches', () => {
   checkShort(7, 3, 6);
 
   function checkShort(bugs: number, codeSmells: number, vulnerabilities: number) {
-    const branch: ShortLivingBranch = {
+    const shortBranch: ShortLivingBranch = {
       isMain: false,
       mergeBranch: 'master',
       name: 'foo',
       status: { bugs, codeSmells, vulnerabilities },
       type: BranchType.SHORT
     };
-    expect(shallow(<BranchStatus branch={branch} />)).toMatchSnapshot();
+    expect(shallow(<BranchStatus branchLike={shortBranch} />)).toMatchSnapshot();
   }
 });
 
@@ -53,6 +53,6 @@ it('renders status of long-living branches', () => {
     if (qualityGateStatus) {
       branch.status = { qualityGateStatus };
     }
-    return shallow(<BranchStatus branch={branch} />);
+    return shallow(<BranchStatus branchLike={branch} />);
   }
 });

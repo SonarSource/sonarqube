@@ -20,7 +20,7 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import MeasuresOverlay from '../MeasuresOverlay';
-import { SourceViewerFile } from '../../../../app/types';
+import { SourceViewerFile, ShortLivingBranch, BranchType } from '../../../../app/types';
 import { waitAndUpdate, click } from '../../../../helpers/testUtils';
 
 jest.mock('../../../../api/issues', () => ({
@@ -148,9 +148,20 @@ const sourceViewerFile: SourceViewerFile = {
   uuid: 'abcd123'
 };
 
+const branchLike: ShortLivingBranch = {
+  isMain: false,
+  mergeBranch: 'master',
+  name: 'feature',
+  type: BranchType.SHORT
+};
+
 it('should render source file', async () => {
   const wrapper = shallow(
-    <MeasuresOverlay branch="branch" onClose={jest.fn()} sourceViewerFile={sourceViewerFile} />
+    <MeasuresOverlay
+      branchLike={branchLike}
+      onClose={jest.fn()}
+      sourceViewerFile={sourceViewerFile}
+    />
   );
   await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot();
@@ -162,7 +173,7 @@ it('should render source file', async () => {
 it('should render test file', async () => {
   const wrapper = shallow(
     <MeasuresOverlay
-      branch="branch"
+      branchLike={branchLike}
       onClose={jest.fn()}
       sourceViewerFile={{ ...sourceViewerFile, q: 'UTS' }}
     />

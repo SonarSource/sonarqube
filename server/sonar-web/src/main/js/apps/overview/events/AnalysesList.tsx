@@ -23,11 +23,13 @@ import Analysis from './Analysis';
 import { getProjectActivity, Analysis as IAnalysis } from '../../../api/projectActivity';
 import PreviewGraph from '../../../components/preview-graph/PreviewGraph';
 import { translate } from '../../../helpers/l10n';
-import { Metric, Component } from '../../../app/types';
+import { Metric, Component, BranchLike } from '../../../app/types';
 import { History } from '../../../api/time-machine';
+import { getBranchLikeQuery } from '../../../helpers/branches';
+import { getActivityUrl } from '../../../helpers/urls';
 
 interface Props {
-  branch?: string;
+  branchLike?: BranchLike;
   component: Component;
   history?: History;
   metrics: { [key: string]: Metric };
@@ -76,7 +78,7 @@ export default class AnalysesList extends React.PureComponent<Props, State> {
     this.setState({ loading: true });
 
     getProjectActivity({
-      branch: this.props.branch,
+      ...getBranchLikeQuery(this.props.branchLike),
       project: this.getTopLevelComponent(),
       ps: PAGE_SIZE
     }).then(
@@ -101,7 +103,7 @@ export default class AnalysesList extends React.PureComponent<Props, State> {
     return (
       <ul className="spacer-top">
         {analyses.map(analysis => (
-          <Analysis key={analysis.key} analysis={analysis} qualifier={this.props.qualifier} />
+          <Analysis analysis={analysis} key={analysis.key} qualifier={this.props.qualifier} />
         ))}
       </ul>
     );
@@ -121,20 +123,16 @@ export default class AnalysesList extends React.PureComponent<Props, State> {
         </h4>
 
         <PreviewGraph
-          branch={this.props.branch}
+          branchLike={this.props.branchLike}
           history={this.props.history}
-          project={this.props.component.key}
           metrics={this.props.metrics}
+          project={this.props.component.key}
         />
 
         {this.renderList(analyses)}
 
         <div className="spacer-top small">
-          <Link
-            to={{
-              pathname: '/project/activity',
-              query: { id: this.props.component.key, branch: this.props.branch }
-            }}>
+          <Link to={getActivityUrl(this.props.component.key, this.props.branchLike)}>
             {translate('show_more')}
           </Link>
         </div>

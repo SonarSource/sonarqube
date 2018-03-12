@@ -19,7 +19,14 @@
  */
 import * as React from 'react';
 import { connect } from 'react-redux';
-import { Branch, Component, CurrentUser, isLoggedIn, HomePageType, HomePage } from '../../../types';
+import {
+  BranchLike,
+  Component,
+  CurrentUser,
+  isLoggedIn,
+  HomePageType,
+  HomePage
+} from '../../../types';
 import BranchStatus from '../../../../components/common/BranchStatus';
 import DateTimeFormatter from '../../../../components/intl/DateTimeFormatter';
 import Favorite from '../../../../components/controls/Favorite';
@@ -28,7 +35,8 @@ import Tooltip from '../../../../components/controls/Tooltip';
 import {
   isShortLivingBranch,
   isLongLivingBranch,
-  getBranchName
+  isMainBranch,
+  isPullRequest
 } from '../../../../helpers/branches';
 import { translate } from '../../../../helpers/l10n';
 import { getCurrentUser } from '../../../../store/rootReducer';
@@ -38,27 +46,15 @@ interface StateProps {
 }
 
 interface Props extends StateProps {
-  branch?: Branch;
+  branchLike?: BranchLike;
   component: Component;
 }
 
-export function ComponentNavMeta({ branch, component, currentUser }: Props) {
-  const shortBranch = isShortLivingBranch(branch);
-  const mainBranch = !branch || branch.isMain;
-  const longBranch = isLongLivingBranch(branch);
-
-  let currentPage: HomePage | undefined;
-  if (component.qualifier === 'VW' || component.qualifier === 'SVW') {
-    currentPage = { type: HomePageType.Portfolio, component: component.key };
-  } else if (component.qualifier === 'APP') {
-    currentPage = { type: HomePageType.Application, component: component.key };
-  } else if (component.qualifier === 'TRK') {
-    currentPage = {
-      type: HomePageType.Project,
-      component: component.key,
-      branch: getBranchName(branch)
-    };
-  }
+export function ComponentNavMeta({ branchLike, component, currentUser }: Props) {
+  const mainBranch = !branchLike || isMainBranch(branchLike);
+  const longBranch = isLongLivingBranch(branchLike);
+  const currentPage = getCurrentPage(component, branchLike);
+  const displayVersion = component.version !== undefined && (mainBranch || longBranch);
 
   return (
     <div className="navbar-context-meta">
@@ -67,14 +63,13 @@ export function ComponentNavMeta({ branch, component, currentUser }: Props) {
           <DateTimeFormatter date={component.analysisDate} />
         </div>
       )}
-      {component.version &&
-        !shortBranch && (
-          <Tooltip mouseEnterDelay={0.5} overlay={`${translate('version')} ${component.version}`}>
-            <div className="spacer-left text-limited">
-              {translate('version')} {component.version}
-            </div>
-          </Tooltip>
-        )}
+      {displayVersion && (
+        <Tooltip mouseEnterDelay={0.5} overlay={`${translate('version')} ${component.version}`}>
+          <div className="spacer-left text-limited">
+            {translate('version')} {component.version}
+          </div>
+        </Tooltip>
+      )}
       {isLoggedIn(currentUser) && (
         <div className="navbar-context-meta-secondary">
           {mainBranch && (
@@ -90,13 +85,34 @@ export function ComponentNavMeta({ branch, component, currentUser }: Props) {
             )}
         </div>
       )}
-      {shortBranch && (
+      {(isShortLivingBranch(branchLike) || isPullRequest(branchLike)) && (
         <div className="navbar-context-meta-secondary">
-          <BranchStatus branch={branch!} />
+          {isPullRequest(branchLike) &&
+            branchLike.url !== undefined && (
+              <a className="big-spacer-right" href={branchLike.url} rel="nofollow" target="_blank">
+                {translate('branches.see_the_pr')}
+                <i className="icon-detach little-spacer-left" />
+              </a>
+            )}
+          <BranchStatus branchLike={branchLike} />
         </div>
       )}
     </div>
   );
+}
+
+function getCurrentPage(component: Component, branchLike: BranchLike | undefined) {
+  let currentPage: HomePage | undefined;
+  if (component.qualifier === 'VW' || component.qualifier === 'SVW') {
+    currentPage = { type: HomePageType.Portfolio, component: component.key };
+  } else if (component.qualifier === 'APP') {
+    currentPage = { type: HomePageType.Application, component: component.key };
+  } else if (component.qualifier === 'TRK') {
+    const branch =
+      isMainBranch(branchLike) || isLongLivingBranch(branchLike) ? branchLike.name : undefined;
+    currentPage = { type: HomePageType.Project, component: component.key, branch };
+  }
+  return currentPage;
 }
 
 const mapStateToProps = (state: any): StateProps => ({

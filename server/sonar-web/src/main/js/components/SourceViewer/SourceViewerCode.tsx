@@ -21,7 +21,14 @@ import * as React from 'react';
 import { intersection } from 'lodash';
 import Line from './components/Line';
 import { getLinearLocations } from './helpers/issueLocations';
-import { Duplication, FlowLocation, Issue, LinearIssueLocation, SourceLine } from '../../app/types';
+import {
+  BranchLike,
+  Duplication,
+  FlowLocation,
+  Issue,
+  LinearIssueLocation,
+  SourceLine
+} from '../../app/types';
 import { translate } from '../../helpers/l10n';
 import { Button } from '../ui/buttons';
 
@@ -34,7 +41,7 @@ const ZERO_LINE = {
 };
 
 interface Props {
-  branch: string | undefined;
+  branchLike: BranchLike | undefined;
   componentKey: string;
   displayAllIssues?: boolean;
   displayIssueLocationsCount?: boolean;
@@ -153,7 +160,7 @@ export default class SourceViewerCode extends React.PureComponent<Props> {
 
     return (
       <Line
-        branch={this.props.branch}
+        branchLike={this.props.branchLike}
         componentKey={this.props.componentKey}
         displayAllIssues={this.props.displayAllIssues}
         displayCoverage={displayCoverage}

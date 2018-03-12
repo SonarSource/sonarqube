@@ -26,7 +26,7 @@ import { Button } from '../../../components/ui/buttons';
 import { getFacets } from '../../../api/issues';
 import { getMeasures } from '../../../api/measures';
 import { getAllMetrics } from '../../../api/metrics';
-import { FacetValue, SourceViewerFile } from '../../../app/types';
+import { FacetValue, SourceViewerFile, BranchLike } from '../../../app/types';
 import Modal from '../../controls/Modal';
 import Measure from '../../measure/Measure';
 import QualifierIcon from '../../shared/QualifierIcon';
@@ -42,10 +42,11 @@ import {
   getDisplayMetrics,
   enhanceMeasuresWithMetrics
 } from '../../../helpers/measures';
-import { getProjectUrl } from '../../../helpers/urls';
+import { getBranchLikeUrl } from '../../../helpers/urls';
+import { getBranchLikeQuery } from '../../../helpers/branches';
 
 interface Props {
-  branch: string | undefined;
+  branchLike: BranchLike | undefined;
   onClose: () => void;
   sourceViewerFile: SourceViewerFile;
 }
@@ -96,23 +97,25 @@ export default class MeasuresOverlay extends React.PureComponent<Props, State> {
       const metricKeys = getDisplayMetrics(metrics).map(metric => metric.key);
 
       // eslint-disable-next-line promise/no-nesting
-      return getMeasures(this.props.sourceViewerFile.key, metricKeys, this.props.branch).then(
-        measures => {
-          const withMetrics = enhanceMeasuresWithMetrics(measures, metrics).filter(
-            measure => measure.metric
-          );
-          return keyBy(withMetrics, measure => measure.metric.key);
-        }
-      );
+      return getMeasures({
+        componentKey: this.props.sourceViewerFile.key,
+        metricKeys: metricKeys.join(),
+        ...getBranchLikeQuery(this.props.branchLike)
+      }).then(measures => {
+        const withMetrics = enhanceMeasuresWithMetrics(measures, metrics).filter(
+          measure => measure.metric
+        );
+        return keyBy(withMetrics, measure => measure.metric.key);
+      });
     });
   };
 
   fetchIssues = () => {
     return getFacets(
       {
-        branch: this.props.branch,
         componentKeys: this.props.sourceViewerFile.key,
-        resolved: 'false'
+        resolved: 'false',
+        ...getBranchLikeQuery(this.props.branchLike)
       },
       ['types', 'severities', 'tags']
     ).then(({ facets }) => {
@@ -383,7 +386,7 @@ export default class MeasuresOverlay extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const { branch, sourceViewerFile } = this.props;
+    const { branchLike, sourceViewerFile } = this.props;
     const { loading } = this.state;
 
     return (
@@ -392,14 +395,14 @@ export default class MeasuresOverlay extends React.PureComponent<Props, State> {
           <div className="source-viewer-header-component source-viewer-measures-component">
             <div className="source-viewer-header-component-project">
               <QualifierIcon className="little-spacer-right" qualifier="TRK" />
-              <Link to={getProjectUrl(sourceViewerFile.project, branch)}>
+              <Link to={getBranchLikeUrl(sourceViewerFile.project, branchLike)}>
                 {sourceViewerFile.projectName}
               </Link>
 
               {sourceViewerFile.subProject && (
                 <>
                   <QualifierIcon className="big-spacer-left little-spacer-right" qualifier="BRC" />
-                  <Link to={getProjectUrl(sourceViewerFile.subProject, branch)}>
+                  <Link to={getBranchLikeUrl(sourceViewerFile.subProject, branchLike)}>
                     {sourceViewerFile.subProjectName}
                   </Link>
                 </>
@@ -419,7 +422,10 @@ export default class MeasuresOverlay extends React.PureComponent<Props, State> {
               {sourceViewerFile.q === 'UTS' ? (
                 <>
                   {this.renderTests()}
-                  <MeasuresOverlayTestCases branch={branch} componentKey={sourceViewerFile.key} />
+                  <MeasuresOverlayTestCases
+                    branchLike={branchLike}
+                    componentKey={sourceViewerFile.key}
+                  />
                 </>
               ) : (
                 <div className="source-viewer-measures">

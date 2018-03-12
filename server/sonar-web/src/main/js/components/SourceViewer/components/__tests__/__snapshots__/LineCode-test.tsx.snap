@@ -36,7 +36,14 @@ exports[`render code 1`] = `
     </pre>
   </div>
   <LineIssuesList
-    branch="feature"
+    branchLike={
+      Object {
+        "isMain": false,
+        "mergeBranch": "master",
+        "name": "feature",
+        "type": "SHORT",
+      }
+    }
     issues={
       Array [
         Object {

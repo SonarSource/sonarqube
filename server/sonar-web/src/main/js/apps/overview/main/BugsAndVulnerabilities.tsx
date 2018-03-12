@@ -31,7 +31,7 @@ import { translate } from '../../../helpers/l10n';
 
 export class BugsAndVulnerabilities extends React.PureComponent<ComposedProps> {
   renderHeader() {
-    const { branch, component } = this.props;
+    const { branchLike, component } = this.props;
 
     return (
       <div className="overview-card-header">
@@ -39,13 +39,13 @@ export class BugsAndVulnerabilities extends React.PureComponent<ComposedProps> {
           <span>{translate('metric.bugs.name')}</span>
           <Link
             className="button button-small spacer-left text-text-bottom"
-            to={getComponentDrilldownUrl(component.key, 'Reliability', branch)}>
+            to={getComponentDrilldownUrl(component.key, 'Reliability', branchLike)}>
             <BubblesIcon size={14} />
           </Link>
           <span className="big-spacer-left">{translate('metric.vulnerabilities.name')}</span>
           <Link
             className="button button-small spacer-left text-text-bottom"
-            to={getComponentDrilldownUrl(component.key, 'Security', branch)}>
+            to={getComponentDrilldownUrl(component.key, 'Security', branchLike)}>
             <BubblesIcon size={14} />
           </Link>
         </div>

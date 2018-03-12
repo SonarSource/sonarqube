@@ -27,7 +27,7 @@ it('render covered line', () => {
   const line: SourceLine = { line: 3, coverageStatus: 'covered' };
   const wrapper = shallow(
     <LineCoverage
-      branch={undefined}
+      branchLike={undefined}
       componentKey="foo"
       line={line}
       onPopupToggle={jest.fn()}
@@ -42,7 +42,7 @@ it('render uncovered line', () => {
   const line: SourceLine = { line: 3, coverageStatus: 'uncovered' };
   const wrapper = shallow(
     <LineCoverage
-      branch={undefined}
+      branchLike={undefined}
       componentKey="foo"
       line={line}
       onPopupToggle={jest.fn()}
@@ -56,7 +56,7 @@ it('render line with unknown coverage', () => {
   const line: SourceLine = { line: 3 };
   const wrapper = shallow(
     <LineCoverage
-      branch={undefined}
+      branchLike={undefined}
       componentKey="foo"
       line={line}
       onPopupToggle={jest.fn()}
@@ -71,7 +71,7 @@ it('should open coverage popup', () => {
   const onPopupToggle = jest.fn();
   const wrapper = shallow(
     <LineCoverage
-      branch={undefined}
+      branchLike={undefined}
       componentKey="foo"
       line={line}
       onPopupToggle={onPopupToggle}

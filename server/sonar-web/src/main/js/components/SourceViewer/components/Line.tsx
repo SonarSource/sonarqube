@@ -27,10 +27,10 @@ import LineDuplications from './LineDuplications';
 import LineDuplicationBlock from './LineDuplicationBlock';
 import LineIssuesIndicator from './LineIssuesIndicator';
 import LineCode from './LineCode';
-import { Issue, LinearIssueLocation, SourceLine } from '../../../app/types';
+import { BranchLike, Issue, LinearIssueLocation, SourceLine } from '../../../app/types';
 
 interface Props {
-  branch: string | undefined;
+  branchLike: BranchLike | undefined;
   componentKey: string;
   displayAllIssues?: boolean;
   displayCoverage: boolean;
@@ -121,7 +121,7 @@ export default class Line extends React.PureComponent<Props> {
     return (
       <tr className={className} data-line-number={line.line}>
         <LineNumber
-          branch={this.props.branch}
+          branchLike={this.props.branchLike}
           componentKey={this.props.componentKey}
           line={line}
           onPopupToggle={this.props.onLinePopupToggle}
@@ -137,7 +137,7 @@ export default class Line extends React.PureComponent<Props> {
 
         {this.props.displayCoverage && (
           <LineCoverage
-            branch={this.props.branch}
+            branchLike={this.props.branchLike}
             componentKey={this.props.componentKey}
             line={line}
             onPopupToggle={this.props.onLinePopupToggle}
@@ -171,7 +171,7 @@ export default class Line extends React.PureComponent<Props> {
           )}
 
         <LineCode
-          branch={this.props.branch}
+          branchLike={this.props.branchLike}
           displayIssueLocationsCount={this.props.displayIssueLocationsCount}
           displayIssueLocationsLink={this.props.displayIssueLocationsLink}
           displayLocationMarkers={this.props.displayLocationMarkers}

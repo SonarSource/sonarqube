@@ -21,12 +21,12 @@ import * as React from 'react';
 import * as PropTypes from 'prop-types';
 import OverviewApp from './OverviewApp';
 import EmptyOverview from './EmptyOverview';
-import { getBranchName, isShortLivingBranch } from '../../../helpers/branches';
-import { getProjectBranchUrl, getCodeUrl } from '../../../helpers/urls';
-import { Branch, Component } from '../../../app/types';
+import { Component, BranchLike } from '../../../app/types';
+import { isShortLivingBranch } from '../../../helpers/branches';
+import { getShortLivingBranchUrl, getCodeUrl } from '../../../helpers/urls';
 
 interface Props {
-  branch?: Branch;
+  branchLike?: BranchLike;
   component: Component;
   isInProgress?: boolean;
   isPending?: boolean;
@@ -39,7 +39,7 @@ export default class App extends React.PureComponent<Props> {
   };
 
   componentDidMount() {
-    const { branch, component } = this.props;
+    const { branchLike, component } = this.props;
 
     if (this.isPortfolio()) {
       this.context.router.replace({
@@ -48,10 +48,10 @@ export default class App extends React.PureComponent<Props> {
       });
     } else if (this.isFile()) {
       this.context.router.replace(
-        getCodeUrl(component.breadcrumbs[0].key, getBranchName(branch), component.key)
+        getCodeUrl(component.breadcrumbs[0].key, branchLike, component.key)
       );
-    } else if (isShortLivingBranch(branch)) {
-      this.context.router.replace(getProjectBranchUrl(component.key, branch));
+    } else if (isShortLivingBranch(branchLike)) {
+      this.context.router.replace(getShortLivingBranchUrl(component.key, branchLike.name));
     }
   }
 
@@ -60,9 +60,9 @@ export default class App extends React.PureComponent<Props> {
   isFile = () => ['FIL', 'UTS'].includes(this.props.component.qualifier);
 
   render() {
-    const { branch, component } = this.props;
+    const { branchLike, component } = this.props;
 
-    if (this.isPortfolio() || this.isFile() || isShortLivingBranch(branch)) {
+    if (this.isPortfolio() || this.isFile() || isShortLivingBranch(branchLike)) {
       return null;
     }
 
@@ -77,7 +77,7 @@ export default class App extends React.PureComponent<Props> {
 
     return (
       <OverviewApp
-        branch={branch}
+        branchLike={branchLike}
         component={component}
         onComponentChange={this.props.onComponentChange}
       />

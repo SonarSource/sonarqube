@@ -20,6 +20,8 @@
 import * as React from 'react';
 import { Link } from 'react-router';
 import { getComponentDrilldownUrl, getComponentIssuesUrl } from '../../helpers/urls';
+import { BranchLike } from '../../app/types';
+import { getBranchLikeQuery } from '../../helpers/branches';
 
 const ISSUE_MEASURES = [
   'violations',
@@ -47,7 +49,7 @@ const ISSUE_MEASURES = [
 ];
 
 interface Props {
-  branch?: string;
+  branchLike?: BranchLike;
   children?: React.ReactNode;
   className?: string;
   component: string;
@@ -121,7 +123,7 @@ export default class DrilldownLink extends React.PureComponent<Props> {
   renderIssuesLink = () => {
     const url = getComponentIssuesUrl(this.props.component, {
       ...this.propsToIssueParams(),
-      branch: this.props.branch
+      ...getBranchLikeQuery(this.props.branchLike)
     });
 
     return (
@@ -139,7 +141,7 @@ export default class DrilldownLink extends React.PureComponent<Props> {
     const url = getComponentDrilldownUrl(
       this.props.component,
       this.props.metric,
-      this.props.branch
+      this.props.branchLike
     );
     return (
       <Link to={url} className={this.props.className}>

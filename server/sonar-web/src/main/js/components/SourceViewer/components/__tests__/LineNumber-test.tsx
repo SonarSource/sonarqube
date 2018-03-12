@@ -26,7 +26,7 @@ it('render line 3', () => {
   const line = { line: 3 };
   const wrapper = shallow(
     <LineNumber
-      branch={undefined}
+      branchLike={undefined}
       componentKey="foo"
       line={line}
       onPopupToggle={jest.fn()}
@@ -41,7 +41,7 @@ it('render line 0', () => {
   const line = { line: 0 };
   const wrapper = shallow(
     <LineNumber
-      branch={undefined}
+      branchLike={undefined}
       componentKey="foo"
       line={line}
       onPopupToggle={jest.fn()}

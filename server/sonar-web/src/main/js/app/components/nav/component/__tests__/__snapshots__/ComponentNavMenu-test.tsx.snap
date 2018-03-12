@@ -11,7 +11,6 @@ exports[`should work for all qualifiers 1`] = `
         Object {
           "pathname": "/dashboard",
           "query": Object {
-            "branch": undefined,
             "id": "foo",
           },
         }
@@ -30,7 +29,6 @@ exports[`should work for all qualifiers 1`] = `
         Object {
           "pathname": "/project/issues",
           "query": Object {
-            "branch": undefined,
             "id": "foo",
             "resolved": "false",
           },
@@ -49,7 +47,6 @@ exports[`should work for all qualifiers 1`] = `
         Object {
           "pathname": "/component_measures",
           "query": Object {
-            "branch": undefined,
             "id": "foo",
           },
         }
@@ -67,7 +64,6 @@ exports[`should work for all qualifiers 1`] = `
         Object {
           "pathname": "/code",
           "query": Object {
-            "branch": undefined,
             "id": "foo",
           },
         }
@@ -85,7 +81,6 @@ exports[`should work for all qualifiers 1`] = `
         Object {
           "pathname": "/project/activity",
           "query": Object {
-            "branch": undefined,
             "id": "foo",
           },
         }
@@ -123,7 +118,6 @@ exports[`should work for all qualifiers 1`] = `
             Object {
               "pathname": "/project/settings",
               "query": Object {
-                "branch": undefined,
                 "id": "foo",
               },
             }
@@ -205,7 +199,6 @@ exports[`should work for all qualifiers 2`] = `
         Object {
           "pathname": "/dashboard",
           "query": Object {
-            "branch": undefined,
             "id": "foo",
           },
         }
@@ -224,7 +217,6 @@ exports[`should work for all qualifiers 2`] = `
         Object {
           "pathname": "/project/issues",
           "query": Object {
-            "branch": undefined,
             "id": "foo",
             "resolved": "false",
           },
@@ -243,7 +235,6 @@ exports[`should work for all qualifiers 2`] = `
         Object {
           "pathname": "/component_measures",
           "query": Object {
-            "branch": undefined,
             "id": "foo",
           },
         }
@@ -261,7 +252,6 @@ exports[`should work for all qualifiers 2`] = `
         Object {
           "pathname": "/code",
           "query": Object {
-            "branch": undefined,
             "id": "foo",
           },
         }
@@ -279,7 +269,6 @@ exports[`should work for all qualifiers 2`] = `
         Object {
           "pathname": "/project/activity",
           "query": Object {
-            "branch": undefined,
             "id": "foo",
           },
         }
@@ -317,7 +306,6 @@ exports[`should work for all qualifiers 2`] = `
             Object {
               "pathname": "/project/settings",
               "query": Object {
-                "branch": undefined,
                 "id": "foo",
               },
             }
@@ -342,7 +330,6 @@ exports[`should work for all qualifiers 3`] = `
         Object {
           "pathname": "/portfolio",
           "query": Object {
-            "branch": undefined,
             "id": "foo",
           },
         }
@@ -361,7 +348,6 @@ exports[`should work for all qualifiers 3`] = `
         Object {
           "pathname": "/project/issues",
           "query": Object {
-            "branch": undefined,
             "id": "foo",
             "resolved": "false",
           },
@@ -380,7 +366,6 @@ exports[`should work for all qualifiers 3`] = `
         Object {
           "pathname": "/component_measures",
           "query": Object {
-            "branch": undefined,
             "id": "foo",
           },
         }
@@ -398,7 +383,6 @@ exports[`should work for all qualifiers 3`] = `
         Object {
           "pathname": "/code",
           "query": Object {
-            "branch": undefined,
             "id": "foo",
           },
         }
@@ -416,7 +400,6 @@ exports[`should work for all qualifiers 3`] = `
         Object {
           "pathname": "/project/activity",
           "query": Object {
-            "branch": undefined,
             "id": "foo",
           },
         }
@@ -478,7 +461,6 @@ exports[`should work for all qualifiers 4`] = `
         Object {
           "pathname": "/portfolio",
           "query": Object {
-            "branch": undefined,
             "id": "foo",
           },
         }
@@ -497,7 +479,6 @@ exports[`should work for all qualifiers 4`] = `
         Object {
           "pathname": "/project/issues",
           "query": Object {
-            "branch": undefined,
             "id": "foo",
             "resolved": "false",
           },
@@ -516,7 +497,6 @@ exports[`should work for all qualifiers 4`] = `
         Object {
           "pathname": "/component_measures",
           "query": Object {
-            "branch": undefined,
             "id": "foo",
           },
         }
@@ -534,7 +514,6 @@ exports[`should work for all qualifiers 4`] = `
         Object {
           "pathname": "/code",
           "query": Object {
-            "branch": undefined,
             "id": "foo",
           },
         }
@@ -552,7 +531,6 @@ exports[`should work for all qualifiers 4`] = `
         Object {
           "pathname": "/project/activity",
           "query": Object {
-            "branch": undefined,
             "id": "foo",
           },
         }
@@ -575,7 +553,6 @@ exports[`should work for all qualifiers 5`] = `
         Object {
           "pathname": "/dashboard",
           "query": Object {
-            "branch": undefined,
             "id": "foo",
           },
         }
@@ -594,7 +571,6 @@ exports[`should work for all qualifiers 5`] = `
         Object {
           "pathname": "/project/issues",
           "query": Object {
-            "branch": undefined,
             "id": "foo",
             "resolved": "false",
           },
@@ -613,7 +589,6 @@ exports[`should work for all qualifiers 5`] = `
         Object {
           "pathname": "/component_measures",
           "query": Object {
-            "branch": undefined,
             "id": "foo",
           },
         }
@@ -631,7 +606,6 @@ exports[`should work for all qualifiers 5`] = `
         Object {
           "pathname": "/code",
           "query": Object {
-            "branch": undefined,
             "id": "foo",
           },
         }
@@ -649,7 +623,6 @@ exports[`should work for all qualifiers 5`] = `
         Object {
           "pathname": "/project/activity",
           "query": Object {
-            "branch": undefined,
             "id": "foo",
           },
         }
@@ -948,7 +921,6 @@ exports[`should work with extensions 1`] = `
         Object {
           "pathname": "/dashboard",
           "query": Object {
-            "branch": undefined,
             "id": "foo",
           },
         }
@@ -967,7 +939,6 @@ exports[`should work with extensions 1`] = `
         Object {
           "pathname": "/project/issues",
           "query": Object {
-            "branch": undefined,
             "id": "foo",
             "resolved": "false",
           },
@@ -986,7 +957,6 @@ exports[`should work with extensions 1`] = `
         Object {
           "pathname": "/component_measures",
           "query": Object {
-            "branch": undefined,
             "id": "foo",
           },
         }
@@ -1004,7 +974,6 @@ exports[`should work with extensions 1`] = `
         Object {
           "pathname": "/code",
           "query": Object {
-            "branch": undefined,
             "id": "foo",
           },
         }
@@ -1022,7 +991,6 @@ exports[`should work with extensions 1`] = `
         Object {
           "pathname": "/project/activity",
           "query": Object {
-            "branch": undefined,
             "id": "foo",
           },
         }
@@ -1060,7 +1028,6 @@ exports[`should work with extensions 1`] = `
             Object {
               "pathname": "/project/settings",
               "query": Object {
-                "branch": undefined,
                 "id": "foo",
               },
             }
@@ -1200,7 +1167,6 @@ exports[`should work with multiple extensions 1`] = `
         Object {
           "pathname": "/dashboard",
           "query": Object {
-            "branch": undefined,
             "id": "foo",
           },
         }
@@ -1219,7 +1185,6 @@ exports[`should work with multiple extensions 1`] = `
         Object {
           "pathname": "/project/issues",
           "query": Object {
-            "branch": undefined,
             "id": "foo",
             "resolved": "false",
           },
@@ -1238,7 +1203,6 @@ exports[`should work with multiple extensions 1`] = `
         Object {
           "pathname": "/component_measures",
           "query": Object {
-            "branch": undefined,
             "id": "foo",
           },
         }
@@ -1256,7 +1220,6 @@ exports[`should work with multiple extensions 1`] = `
         Object {
           "pathname": "/code",
           "query": Object {
-            "branch": undefined,
             "id": "foo",
           },
         }
@@ -1274,7 +1237,6 @@ exports[`should work with multiple extensions 1`] = `
         Object {
           "pathname": "/project/activity",
           "query": Object {
-            "branch": undefined,
             "id": "foo",
           },
         }
@@ -1312,7 +1274,6 @@ exports[`should work with multiple extensions 1`] = `
             Object {
               "pathname": "/project/settings",
               "query": Object {
-                "branch": undefined,
                 "id": "foo",
               },
             }

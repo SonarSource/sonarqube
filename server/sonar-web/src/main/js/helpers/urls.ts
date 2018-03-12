@@ -19,9 +19,14 @@
  */
 import { stringify } from 'querystring';
 import { omitBy, isNil } from 'lodash';
-import { isShortLivingBranch } from './branches';
+import {
+  isShortLivingBranch,
+  isPullRequest,
+  isLongLivingBranch,
+  getBranchLikeQuery
+} from './branches';
 import { getProfilePath } from '../apps/quality-profiles/utils';
-import { Branch, HomePage, HomePageType } from '../app/types';
+import { BranchLike, HomePage, HomePageType } from '../app/types';
 
 interface Query {
   [x: string]: string | undefined;
@@ -44,8 +49,8 @@ export function getPathUrlAsString(path: Location): string {
   return `${getBaseUrl()}${path.pathname}?${stringify(omitBy(path.query, isNil))}`;
 }
 
-export function getProjectUrl(key: string, branch?: string): Location {
-  return { pathname: '/dashboard', query: { id: key, branch } };
+export function getProjectUrl(project: string): Location {
+  return { pathname: '/dashboard', query: { id: project } };
 }
 
 export function getPortfolioUrl(key: string): Location {
@@ -56,17 +61,28 @@ export function getComponentBackgroundTaskUrl(componentKey: string, status?: str
   return { pathname: '/project/background_tasks', query: { id: componentKey, status } };
 }
 
-export function getProjectBranchUrl(key: string, branch: Branch): Location {
-  if (isShortLivingBranch(branch)) {
-    return {
-      pathname: '/project/issues',
-      query: { branch: branch.name, id: key, resolved: 'false' }
-    };
-  } else if (!branch.isMain) {
-    return { pathname: '/dashboard', query: { branch: branch.name, id: key } };
+export function getBranchLikeUrl(project: string, branchLike?: BranchLike): Location {
+  if (isPullRequest(branchLike)) {
+    return getPullRequestUrl(project, branchLike.key);
+  } else if (isShortLivingBranch(branchLike)) {
+    return getShortLivingBranchUrl(project, branchLike.name);
+  } else if (isLongLivingBranch(branchLike)) {
+    return getLongLivingBranchUrl(project, branchLike.name);
   } else {
-    return { pathname: '/dashboard', query: { id: key } };
+    return getProjectUrl(project);
   }
+}
+
+export function getLongLivingBranchUrl(project: string, branch: string): Location {
+  return { pathname: '/dashboard', query: { branch, id: project } };
+}
+
+export function getShortLivingBranchUrl(project: string, branch: string): Location {
+  return { pathname: '/project/issues', query: { branch, id: project, resolved: 'false' } };
+}
+
+export function getPullRequestUrl(project: string, pullRequest: string): Location {
+  return { pathname: '/project/issues', query: { id: project, pullRequest, resolved: 'false' } };
 }
 
 /**
@@ -90,25 +106,40 @@ export function getComponentIssuesUrl(componentKey: string, query?: Query): Loca
 export function getComponentDrilldownUrl(
   componentKey: string,
   metric: string,
-  branch?: string
+  branchLike?: BranchLike
 ): Location {
-  return { pathname: '/component_measures', query: { id: componentKey, metric, branch } };
-}
-
-export function getMeasureTreemapUrl(component: string, metric: string, branch?: string) {
   return {
     pathname: '/component_measures',
-    query: { id: component, metric, branch, view: 'treemap' }
+    query: { id: componentKey, metric, ...getBranchLikeQuery(branchLike) }
+  };
+}
+
+export function getMeasureTreemapUrl(component: string, metric: string) {
+  return {
+    pathname: '/component_measures',
+    query: { id: component, metric, view: 'treemap' }
+  };
+}
+
+export function getActivityUrl(component: string, branchLike?: BranchLike) {
+  return {
+    pathname: '/project/activity',
+    query: { id: component, ...getBranchLikeQuery(branchLike) }
   };
 }
 
 /**
  * Generate URL for a component's measure history
  */
-export function getMeasureHistoryUrl(component: string, metric: string, branch?: string) {
+export function getMeasureHistoryUrl(component: string, metric: string, branchLike?: BranchLike) {
   return {
     pathname: '/project/activity',
-    query: { id: component, graph: 'custom', custom_metrics: metric, branch }
+    query: {
+      id: component,
+      graph: 'custom',
+      custom_metrics: metric,
+      ...getBranchLikeQuery(branchLike)
+    }
   };
 }
 
@@ -172,8 +203,8 @@ export function getMarkdownHelpUrl(): string {
   return getBaseUrl() + '/markdown/help';
 }
 
-export function getCodeUrl(project: string, branch?: string, selected?: string) {
-  return { pathname: '/code', query: { id: project, branch, selected } };
+export function getCodeUrl(project: string, branchLike?: BranchLike, selected?: string) {
+  return { pathname: '/code', query: { id: project, ...getBranchLikeQuery(branchLike), selected } };
 }
 
 export function getOrganizationUrl(organization: string) {
@@ -185,7 +216,9 @@ export function getHomePageUrl(homepage: HomePage) {
     case HomePageType.Application:
       return getProjectUrl(homepage.component);
     case HomePageType.Project:
-      return getProjectUrl(homepage.component, homepage.branch);
+      return homepage.branch
+        ? getLongLivingBranchUrl(homepage.component, homepage.branch)
+        : getProjectUrl(homepage.component);
     case HomePageType.Organization:
       return getOrganizationUrl(homepage.organization);
     case HomePageType.Portfolio:

@@ -36,14 +36,14 @@ import { getLeakPeriod, Period } from '../../../helpers/periods';
 import { getCustomGraph, getGraph } from '../../../helpers/storage';
 import { METRICS, HISTORY_METRICS_LIST } from '../utils';
 import { DEFAULT_GRAPH, getDisplayedHistoryMetrics } from '../../projectActivity/utils';
-import { getBranchName } from '../../../helpers/branches';
+import { isSameBranchLike, getBranchLikeQuery } from '../../../helpers/branches';
 import { fetchMetrics } from '../../../store/rootActions';
 import { getMetrics } from '../../../store/rootReducer';
-import { Branch, Component, Metric } from '../../../app/types';
+import { BranchLike, Component, Metric } from '../../../app/types';
 import '../styles.css';
 
 interface OwnProps {
-  branch?: Branch;
+  branchLike?: BranchLike;
   component: Component;
   onComponentChange: (changes: {}) => void;
 }
@@ -79,7 +79,7 @@ export class OverviewApp extends React.PureComponent<Props, State> {
   componentDidUpdate(prevProps: Props) {
     if (
       this.props.component.key !== prevProps.component.key ||
-      this.props.branch !== prevProps.branch
+      !isSameBranchLike(this.props.branchLike, prevProps.branchLike)
     ) {
       this.loadMeasures().then(this.loadHistory, () => {});
     }
@@ -90,12 +90,12 @@ export class OverviewApp extends React.PureComponent<Props, State> {
   }
 
   loadMeasures() {
-    const { branch, component } = this.props;
+    const { branchLike, component } = this.props;
     this.setState({ loading: true });
 
     return getMeasuresAndMeta(component.key, METRICS, {
       additionalFields: 'metrics,periods',
-      branch: getBranchName(branch)
+      ...getBranchLikeQuery(branchLike)
     }).then(
       r => {
         if (this.mounted && r.metrics) {
@@ -116,7 +116,7 @@ export class OverviewApp extends React.PureComponent<Props, State> {
   }
 
   loadHistory = () => {
-    const { branch, component } = this.props;
+    const { branchLike, component } = this.props;
 
     let graphMetrics = getDisplayedHistoryMetrics(getGraph(), getCustomGraph());
     if (!graphMetrics || graphMetrics.length <= 0) {
@@ -124,22 +124,24 @@ export class OverviewApp extends React.PureComponent<Props, State> {
     }
 
     const metrics = uniq(HISTORY_METRICS_LIST.concat(graphMetrics));
-    return getAllTimeMachineData(component.key, metrics, { branch: getBranchName(branch) }).then(
-      r => {
-        if (this.mounted) {
-          const history: History = {};
-          r.measures.forEach(measure => {
-            const measureHistory = measure.history.map(analysis => ({
-              date: parseDate(analysis.date),
-              value: analysis.value
-            }));
-            history[measure.metric] = measureHistory;
-          });
-          const historyStartDate = history[HISTORY_METRICS_LIST[0]][0].date;
-          this.setState({ history, historyStartDate });
-        }
+    return getAllTimeMachineData({
+      ...getBranchLikeQuery(branchLike),
+      component: component.key,
+      metrics: metrics.join()
+    }).then(r => {
+      if (this.mounted) {
+        const history: History = {};
+        r.measures.forEach(measure => {
+          const measureHistory = measure.history.map(analysis => ({
+            date: parseDate(analysis.date),
+            value: analysis.value
+          }));
+          history[measure.metric] = measureHistory;
+        });
+        const historyStartDate = history[HISTORY_METRICS_LIST[0]][0].date;
+        this.setState({ history, historyStartDate });
       }
-    );
+    });
   };
 
   getApplicationLeakPeriod = () =>
@@ -156,7 +158,7 @@ export class OverviewApp extends React.PureComponent<Props, State> {
   }
 
   render() {
-    const { branch, component } = this.props;
+    const { branchLike, component } = this.props;
     const { loading, measures, periods, history, historyStartDate } = this.state;
 
     if (loading) {
@@ -165,9 +167,8 @@ export class OverviewApp extends React.PureComponent<Props, State> {
 
     const leakPeriod =
       component.qualifier === 'APP' ? this.getApplicationLeakPeriod() : getLeakPeriod(periods);
-    const branchName = getBranchName(branch);
     const domainProps = {
-      branch: branchName,
+      branchLike,
       component,
       measures,
       leakPeriod,
@@ -182,7 +183,7 @@ export class OverviewApp extends React.PureComponent<Props, State> {
             {component.qualifier === 'APP' ? (
               <ApplicationQualityGate component={component} />
             ) : (
-              <QualityGate branch={branchName} component={component} measures={measures} />
+              <QualityGate branchLike={branchLike} component={component} measures={measures} />
             )}
 
             <div className="overview-domains-list">
@@ -195,7 +196,7 @@ export class OverviewApp extends React.PureComponent<Props, State> {
 
           <div className="overview-sidebar page-sidebar-fixed">
             <Meta
-              branch={branchName}
+              branchLike={branchLike}
               component={component}
               history={history}
               measures={measures}

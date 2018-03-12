@@ -19,12 +19,12 @@
  */
 import * as React from 'react';
 import handleRequiredAuthorization from '../utils/handleRequiredAuthorization';
-import { Component, Branch } from '../types';
+import { BranchLike, Component } from '../types';
 
 interface Props {
   children: JSX.Element;
-  branch?: Branch;
-  branches: Branch[];
+  branchLike?: BranchLike;
+  branchLikes: BranchLike[];
   component: Component;
   isInProgress?: boolean;
   isPending?: boolean;

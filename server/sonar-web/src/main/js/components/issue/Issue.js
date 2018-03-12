@@ -29,7 +29,7 @@ import { setIssueAssignee } from '../../api/issues';
 
 /*::
 type Props = {|
-  branch?: string,
+  branchLike?: { id?: string; name: string },
   checked?: boolean,
   displayLocationsCount?: boolean;
   displayLocationsLink?: boolean;
@@ -150,7 +150,7 @@ export default class Issue extends React.PureComponent {
   render() {
     return (
       <IssueView
-        branch={this.props.branch}
+        branchLike={this.props.branchLike}
         checked={this.props.checked}
         currentPopup={this.props.openPopup}
         displayLocationsCount={this.props.displayLocationsCount}

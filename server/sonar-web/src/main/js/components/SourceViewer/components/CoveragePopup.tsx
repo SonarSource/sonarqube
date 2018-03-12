@@ -20,14 +20,15 @@
 import * as React from 'react';
 import { groupBy } from 'lodash';
 import { getTests } from '../../../api/components';
-import { SourceLine, TestCase } from '../../../app/types';
+import { BranchLike, SourceLine, TestCase } from '../../../app/types';
 import BubblePopup from '../../common/BubblePopup';
 import TestStatusIcon from '../../shared/TestStatusIcon';
+import { isSameBranchLike, getBranchLikeQuery } from '../../../helpers/branches';
 import { translate } from '../../../helpers/l10n';
 import { collapsePath } from '../../../helpers/path';
 
 interface Props {
-  branch: string | undefined;
+  branchLike: BranchLike | undefined;
   componentKey: string;
   line: SourceLine;
   onClose: () => void;
@@ -49,9 +50,8 @@ export default class CoveragePopup extends React.PureComponent<Props, State> {
   }
 
   componentDidUpdate(prevProps: Props) {
-    // TODO use branchLike
     if (
-      prevProps.branch !== this.props.branch ||
+      !isSameBranchLike(prevProps.branchLike, this.props.branchLike) ||
       prevProps.componentKey !== this.props.componentKey ||
       prevProps.line.line !== this.props.line.line
     ) {
@@ -65,7 +65,11 @@ export default class CoveragePopup extends React.PureComponent<Props, State> {
 
   fetchTests = () => {
     this.setState({ loading: true });
-    getTests(this.props.componentKey, this.props.line.line, this.props.branch).then(
+    getTests({
+      sourceFileKey: this.props.componentKey,
+      sourceFileLineNumber: this.props.line.line,
+      ...getBranchLikeQuery(this.props.branchLike)
+    }).then(
       testCases => {
         if (this.mounted) {
           this.setState({ loading: false, testCases });
@@ -84,7 +88,7 @@ export default class CoveragePopup extends React.PureComponent<Props, State> {
     event.currentTarget.blur();
     const { key } = event.currentTarget.dataset;
     const Workspace = require('../../workspace/main').default;
-    Workspace.openComponent({ key, branch: this.props.branch });
+    Workspace.openComponent({ key, branchLike: this.props.branchLike });
     this.props.onClose();
   };
 
