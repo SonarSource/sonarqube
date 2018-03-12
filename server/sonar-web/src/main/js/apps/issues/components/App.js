@@ -237,7 +237,9 @@ export default class App extends React.PureComponent {
       return false;
     });
     key('left', 'issues', () => {
-      this.closeIssue();
+      if (this.state.query.issues.length !== 1) {
+        this.closeIssue();
+      }
       return false;
     });
     window.addEventListener('keydown', this.handleKeyDown);
@@ -842,11 +844,12 @@ export default class App extends React.PureComponent {
   }
 
   renderConciseIssuesList() {
-    const { issues, paging } = this.state;
+    const { issues, paging, query } = this.state;
 
     return (
       <div className="layout-page-filters">
         <ConciseIssuesListHeader
+          displayBackButton={query.issues.length !== 1}
           loading={this.state.loading}
           onBackClick={this.closeIssue}
           onReload={this.handleReloadAndOpenFirst}
