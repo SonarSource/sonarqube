@@ -139,12 +139,17 @@
 }
 
 .issues .issue {
-  outline: 1px dashed transparent;
+  border: 1px solid transparent;
   cursor: pointer;
 }
 
 .issues .issue:hover {
-  outline-color: #dd4040;
+  border: 1px dashed #dd4040;
+  transition: all 0.3s ease;
+}
+
+.issues .issue:focus {
+  outline: none;
 }
 
 @media (max-width: 1320px) {

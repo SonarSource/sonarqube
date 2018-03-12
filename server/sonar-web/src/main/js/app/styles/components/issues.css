@@ -26,8 +26,8 @@
   padding-top: 8px;
   padding-bottom: 8px;
   background-color: #ffeaea;
-  box-shadow: 0px 0px 0px 1px #ffeaea;
-  transition: all 0.3s ease;
+  box-shadow: inset 0px 0px 0px 1px #ffeaea;
+  transition: all 0.3s ease, border 0 ease;
 }
 
 .issue-list,
@@ -36,7 +36,8 @@
 }
 
 .issue.selected {
-  box-shadow: 0px 0px 0px 1px #dd4040;
+  box-shadow: none;
+  border: 1px solid #dd4040 !important;
 }
 
 .issue + .issue,
