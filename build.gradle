@@ -278,10 +278,13 @@ artifactory {
     }
     defaults {
       properties = [
-        'vcs.revision': System.getenv('GIT_COMMIT'),
-        'vcs.branch': System.getenv('GIT_BRANCH'),
         'build.name': 'sonarqube',
-        'build.number': (System.getenv('BUILD_ID') ?: System.getenv('BUILD_NUMBER'))
+        'build.number': (System.getenv('BUILD_ID') ?: System.getenv('BUILD_NUMBER')),
+        'pr.branch.target': System.getenv('PULL_REQUEST_BRANCH_TARGET'),
+        'pr.number': System.getenv('PULL_REQUEST_NUMBER'),
+        'vcs.branch': System.getenv('GIT_BRANCH'),
+        'vcs.revision': System.getenv('GIT_COMMIT'),
+        'version': version
       ]
       publications('mavenJava')
       publishPom = true
