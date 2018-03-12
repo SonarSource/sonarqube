@@ -40,11 +40,11 @@ module.exports = ({ production = true, fast = false }) => ({
       !production && require.resolve('react-error-overlay'),
       'react',
       'react-dom',
-      './src/main/js/app/integration/vsts/index.js'
+      './src/main/js/index.js'
     ].filter(Boolean)
   },
   output: {
-    path: paths.vstsBuild,
+    path: paths.appBuild,
     pathinfo: !production,
     publicPath: '/integration/vsts/',
     filename: production ? 'js/[name].[chunkhash:8].js' : 'js/[name].js',
@@ -81,7 +81,7 @@ module.exports = ({ production = true, fast = false }) => ({
 
     new HtmlWebpackPlugin({
       inject: false,
-      template: paths.vstsHtml,
+      template: paths.appHtml,
       minify: utils.minifyParams({ production, fast })
     }),
 

@@ -21,7 +21,7 @@ import * as React from 'react';
 import * as classNames from 'classnames';
 import { debounce } from 'lodash';
 import ProjectSelectorItem from './ProjectSelectorItem';
-import { Component } from '../../../../api/components';
+import { Component } from '../../../../../sonar-web/src/main/js/api/components';
 
 interface Props {
   isLoggedIn: boolean;

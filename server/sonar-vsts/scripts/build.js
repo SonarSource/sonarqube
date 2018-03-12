@@ -24,9 +24,9 @@ const chalk = require('chalk');
 const fs = require('fs-extra');
 const rimrafSync = require('rimraf').sync;
 const webpack = require('webpack');
-const paths = require('../config/paths');
 const formatSize = require('./utils/formatSize');
-const getConfig = require('../config/vsts.webpack.config');
+const paths = require('../config/paths');
+const getConfig = require('../config/webpack.config');
 
 const fast = process.argv.some(arg => arg.indexOf('--fast') > -1);
 
@@ -37,8 +37,11 @@ function clean() {
   // if you're in it, you don't end up in Trash
   console.log(chalk.cyan.bold('Cleaning output directories and files...'));
 
-  console.log(paths.vstsBuild + '/*');
-  rimrafSync(paths.vstsBuild + '/*');
+  console.log(paths.jsBuild + '/*');
+  rimrafSync(paths.jsBuild + '/*');
+
+  console.log(paths.htmlBuild);
+  rimrafSync(paths.htmlBuild);
 
   console.log();
 }

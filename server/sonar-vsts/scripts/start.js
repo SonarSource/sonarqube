@@ -26,7 +26,7 @@ const WebpackDevServer = require('webpack-dev-server');
 const clearConsole = require('react-dev-utils/clearConsole');
 const formatWebpackMessages = require('react-dev-utils/formatWebpackMessages');
 const errorOverlayMiddleware = require('react-error-overlay/middleware');
-const getConfig = require('../config/vsts.webpack.config');
+const getConfig = require('../config/webpack.config');
 const paths = require('../config/paths');
 
 const config = getConfig({ production: false });
