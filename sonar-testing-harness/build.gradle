@@ -11,7 +11,7 @@ dependencies {
   compile 'com.googlecode.json-simple:json-simple'
   compile 'commons-io:commons-io'
   compile 'junit:junit'
-  compile 'org.hamcrest:hamcrest-core'
+  compile 'org.hamcrest:hamcrest-all'
 
   compileOnly 'com.google.code.findbugs:jsr305'
 
