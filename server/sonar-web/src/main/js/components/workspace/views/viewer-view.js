@@ -49,7 +49,7 @@ export default BaseView.extend({
   },
 
   showViewer() {
-    const { branch, key, line } = this.model.toJSON();
+    const { branchLike, key, line } = this.model.toJSON();
 
     const el = document.querySelector(this.viewerRegion.el);
 
@@ -57,7 +57,7 @@ export default BaseView.extend({
       <WithStore>
         <SourceViewer
           aroundLine={line}
-          branch={branch}
+          branchLike={branchLike}
           component={key}
           fromWorkspace={true}
           highlightedLine={line}

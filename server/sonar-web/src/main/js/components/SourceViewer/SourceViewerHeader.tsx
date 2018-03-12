@@ -17,24 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { stringify } from 'querystring';
 import * as React from 'react';
 import { Link } from 'react-router';
 import MeasuresOverlay from './components/MeasuresOverlay';
-import { SourceViewerFile } from '../../app/types';
+import { SourceViewerFile, BranchLike } from '../../app/types';
 import QualifierIcon from '../shared/QualifierIcon';
 import FavoriteContainer from '../controls/FavoriteContainer';
 import {
   getPathUrlAsString,
-  getProjectUrl,
+  getBranchLikeUrl,
   getComponentIssuesUrl,
   getBaseUrl
 } from '../../helpers/urls';
 import { collapsedDirFromPath, fileFromPath } from '../../helpers/path';
 import { translate } from '../../helpers/l10n';
+import { getBranchLikeQuery } from '../../helpers/branches';
 import { formatMeasure } from '../../helpers/measures';
+import { omitNil } from '../../helpers/request';
 
 interface Props {
-  branch: string | undefined;
+  branchLike: BranchLike | undefined;
   sourceViewerFile: SourceViewerFile;
 }
 
@@ -58,7 +61,7 @@ export default class SourceViewerHeader extends React.PureComponent<Props, State
     event.preventDefault();
     const { key } = this.props.sourceViewerFile;
     const Workspace = require('../workspace/main').default;
-    Workspace.openComponent({ key, branch: this.props.branch });
+    Workspace.openComponent({ key, branchLike: this.props.branchLike });
   };
 
   render() {
@@ -75,11 +78,10 @@ export default class SourceViewerHeader extends React.PureComponent<Props, State
     } = this.props.sourceViewerFile;
     const isUnitTest = q === 'UTS';
     const workspace = false;
-    let rawSourcesLink =
-      getBaseUrl() + `/api/sources/raw?key=${encodeURIComponent(this.props.sourceViewerFile.key)}`;
-    if (this.props.branch) {
-      rawSourcesLink += `&branch=${encodeURIComponent(this.props.branch)}`;
-    }
+    const rawSourcesLink =
+      getBaseUrl() +
+      '/api/sources/raw?' +
+      stringify(omitNil({ key, ...getBranchLikeQuery(this.props.branchLike) }));
 
     // TODO favorite
     return (
@@ -89,7 +91,7 @@ export default class SourceViewerHeader extends React.PureComponent<Props, State
             <div className="component-name-parent">
               <a
                 className="link-with-icon"
-                href={getPathUrlAsString(getProjectUrl(project, this.props.branch))}>
+                href={getPathUrlAsString(getBranchLikeUrl(project, this.props.branchLike))}>
                 <QualifierIcon qualifier="TRK" /> <span>{projectName}</span>
               </a>
             </div>
@@ -98,7 +100,7 @@ export default class SourceViewerHeader extends React.PureComponent<Props, State
               <div className="component-name-parent">
                 <a
                   className="link-with-icon"
-                  href={getPathUrlAsString(getProjectUrl(subProject, this.props.branch))}>
+                  href={getPathUrlAsString(getBranchLikeUrl(subProject, this.props.branchLike))}>
                   <QualifierIcon qualifier="BRC" /> <span>{subProjectName}</span>
                 </a>
               </div>
@@ -127,7 +129,7 @@ export default class SourceViewerHeader extends React.PureComponent<Props, State
               </a>
               {this.state.measuresOverlay && (
                 <MeasuresOverlay
-                  branch={this.props.branch}
+                  branchLike={this.props.branchLike}
                   onClose={this.handleMeasuresOverlayClose}
                   sourceViewerFile={this.props.sourceViewerFile}
                 />
@@ -138,7 +140,7 @@ export default class SourceViewerHeader extends React.PureComponent<Props, State
                 className="js-new-window"
                 href={getPathUrlAsString({
                   pathname: '/component',
-                  query: { branch: this.props.branch, id: this.props.sourceViewerFile.key }
+                  query: { id: key, ...getBranchLikeQuery(this.props.branchLike) }
                 })}
                 target="_blank">
                 {translate('component_viewer.new_window')}
@@ -188,7 +190,7 @@ export default class SourceViewerHeader extends React.PureComponent<Props, State
                 to={getComponentIssuesUrl(project, {
                   resolved: 'false',
                   fileUuids: uuid,
-                  branch: this.props.branch
+                  ...getBranchLikeQuery(this.props.branchLike)
                 })}>
                 {measures.issues != null ? formatMeasure(measures.issues, 'SHORT_INT') : 0}
               </Link>

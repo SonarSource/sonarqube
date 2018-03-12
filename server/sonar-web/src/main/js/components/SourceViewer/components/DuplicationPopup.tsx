@@ -20,7 +20,7 @@
 import * as React from 'react';
 import { Link } from 'react-router';
 import { groupBy, sortBy } from 'lodash';
-import { SourceViewerFile, DuplicationBlock, DuplicatedFile } from '../../../app/types';
+import { BranchLike, DuplicatedFile, DuplicationBlock, SourceViewerFile } from '../../../app/types';
 import BubblePopup from '../../common/BubblePopup';
 import QualifierIcon from '../../shared/QualifierIcon';
 import { translate } from '../../../helpers/l10n';
@@ -29,8 +29,7 @@ import { getProjectUrl } from '../../../helpers/urls';
 
 interface Props {
   blocks: DuplicationBlock[];
-  // TODO use branchLike
-  branch: string | undefined;
+  branchLike: BranchLike | undefined;
   duplicatedFiles?: { [ref: string]: DuplicatedFile };
   inRemovedComponent: boolean;
   onClose: () => void;
@@ -51,7 +50,7 @@ export default class DuplicationPopup extends React.PureComponent<Props> {
     event.currentTarget.blur();
     const Workspace = require('../../workspace/main').default;
     const { key, line } = event.currentTarget.dataset;
-    Workspace.openComponent({ key, line, branch: this.props.branch });
+    Workspace.openComponent({ key, line, branchLike: this.props.branchLike });
     this.props.onClose();
   };
 

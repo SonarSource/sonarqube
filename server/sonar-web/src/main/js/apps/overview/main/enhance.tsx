@@ -40,11 +40,12 @@ import {
   getComponentIssuesUrl,
   getMeasureHistoryUrl
 } from '../../../helpers/urls';
-import { Component } from '../../../app/types';
+import { Component, BranchLike } from '../../../app/types';
 import { History } from '../../../api/time-machine';
+import { getBranchLikeQuery } from '../../../helpers/branches';
 
 export interface EnhanceProps {
-  branch?: string;
+  branchLike?: BranchLike;
   component: Component;
   measures: MeasureEnhanced[];
   leakPeriod?: { index: number; date?: string };
@@ -77,14 +78,14 @@ export default function enhance(ComposedComponent: React.ComponentType<ComposedP
     };
 
     renderHeader = (domain: string, label: string) => {
-      const { branch, component } = this.props;
+      const { branchLike, component } = this.props;
       return (
         <div className="overview-card-header">
           <div className="overview-title">
             <span>{label}</span>
             <Link
               className="button button-small spacer-left text-text-bottom"
-              to={getComponentDrilldownUrl(component.key, domain, branch)}>
+              to={getComponentDrilldownUrl(component.key, domain, branchLike)}>
               <BubblesIcon size={14} />
             </Link>
           </div>
@@ -93,7 +94,7 @@ export default function enhance(ComposedComponent: React.ComponentType<ComposedP
     };
 
     renderMeasure = (metricKey: string) => {
-      const { branch, measures, component } = this.props;
+      const { branchLike, measures, component } = this.props;
       const measure = measures.find(measure => measure.metric.key === metricKey);
       if (!measure) {
         return null;
@@ -102,7 +103,7 @@ export default function enhance(ComposedComponent: React.ComponentType<ComposedP
       return (
         <div className="overview-domain-measure">
           <div className="overview-domain-measure-value">
-            <DrilldownLink branch={branch} component={component.key} metric={metricKey}>
+            <DrilldownLink branchLike={branchLike} component={component.key} metric={metricKey}>
               <span className="js-overview-main-tests">
                 {formatMeasure(measure.value, getShortType(measure.metric.type))}
               </span>
@@ -118,7 +119,7 @@ export default function enhance(ComposedComponent: React.ComponentType<ComposedP
     };
 
     renderRating = (metricKey: string) => {
-      const { branch, component, measures } = this.props;
+      const { branchLike, component, measures } = this.props;
       const measure = measures.find(measure => measure.metric.key === metricKey);
       if (!measure) {
         return null;
@@ -130,7 +131,7 @@ export default function enhance(ComposedComponent: React.ComponentType<ComposedP
         <Tooltip overlay={title} placement="top">
           <div className="overview-domain-measure-sup">
             <DrilldownLink
-              branch={branch}
+              branchLike={branchLike}
               className="link-no-underline"
               component={component.key}
               metric={metricKey}>
@@ -142,14 +143,14 @@ export default function enhance(ComposedComponent: React.ComponentType<ComposedP
     };
 
     renderIssues = (metric: string, type: string) => {
-      const { branch, measures, component } = this.props;
+      const { branchLike, measures, component } = this.props;
       const measure = measures.find(measure => measure.metric.key === metric);
       if (!measure) {
         return null;
       }
 
       const value = this.getValue(measure);
-      const params = { branch, resolved: 'false', types: type };
+      const params = { ...getBranchLikeQuery(branchLike), resolved: 'false', types: type };
       if (isDiffMetric(metric)) {
         Object.assign(params, { sinceLeakPeriod: 'true' });
       }
@@ -166,7 +167,7 @@ export default function enhance(ComposedComponent: React.ComponentType<ComposedP
       return (
         <Link
           className={linkClass}
-          to={getMeasureHistoryUrl(this.props.component.key, metricKey, this.props.branch)}>
+          to={getMeasureHistoryUrl(this.props.component.key, metricKey, this.props.branchLike)}>
           <HistoryIcon />
         </Link>
       );

@@ -19,22 +19,22 @@
  */
 import * as React from 'react';
 import { Link } from 'react-router';
-import { SourceLine } from '../../../app/types';
+import { BranchLike, SourceLine } from '../../../app/types';
 import BubblePopup from '../../common/BubblePopup';
 import { translate } from '../../../helpers/l10n';
+import { getBranchLikeQuery } from '../../../helpers/branches';
 
 interface Props {
-  // TODO use branchLike
-  branch: string | undefined;
+  branchLike: BranchLike | undefined;
   componentKey: string;
   line: SourceLine;
   popupPosition?: any;
 }
 
-export default function LineOptionsPopup({ branch, componentKey, line, popupPosition }: Props) {
+export default function LineOptionsPopup({ branchLike, componentKey, line, popupPosition }: Props) {
   const permalink = {
     pathname: '/component',
-    query: { branch, id: componentKey, line: line.line }
+    query: { id: componentKey, line: line.line, ...getBranchLikeQuery(branchLike) }
   };
   return (
     <BubblePopup customClass="source-viewer-bubble-popup" position={popupPosition}>

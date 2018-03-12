@@ -20,17 +20,13 @@
 import { getJSON, RequestData, postJSON, post } from '../helpers/request';
 import throwGlobalError from '../app/utils/throwGlobalError';
 import { Measure, MeasurePeriod } from '../helpers/measures';
-import { Metric, CustomMeasure, Paging } from '../app/types';
+import { Metric, CustomMeasure, Paging, BranchParameters } from '../app/types';
 import { Period } from '../helpers/periods';
 
 export function getMeasures(
-  componentKey: string,
-  metrics: string[],
-  branch?: string
+  data: { componentKey: string; metricKeys: string } & BranchParameters
 ): Promise<{ metric: string; value?: string }[]> {
-  const url = '/api/measures/component';
-  const data = { componentKey, metricKeys: metrics.join(','), branch };
-  return getJSON(url, data).then(r => r.component.measures, throwGlobalError);
+  return getJSON('/api/measures/component', data).then(r => r.component.measures, throwGlobalError);
 }
 
 interface MeasureComponent {

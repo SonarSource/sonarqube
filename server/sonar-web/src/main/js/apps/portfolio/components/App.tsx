@@ -81,7 +81,7 @@ export class App extends React.PureComponent<Props, State> {
   fetchData() {
     this.setState({ loading: true });
     Promise.all([
-      getMeasures(this.props.component.key, PORTFOLIO_METRICS),
+      getMeasures({ componentKey: this.props.component.key, metricKeys: PORTFOLIO_METRICS.join() }),
       getChildren(this.props.component.key, SUB_COMPONENTS_METRICS, { ps: 20, s: 'qualifier' })
     ]).then(
       ([measures, subComponents]) => {

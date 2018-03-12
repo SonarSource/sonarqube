@@ -23,7 +23,7 @@ import { receiveValues } from '../settings/store/values/actions';
 export const fetchAboutPageSettings = () => dispatch => {
   const keys = ['sonar.lf.aboutText'];
 
-  return getValues(keys.join()).then(values => {
+  return getValues({ keys: keys.join() }).then(values => {
     dispatch(receiveValues(values));
   });
 };

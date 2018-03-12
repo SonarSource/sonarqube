@@ -18,19 +18,21 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { Component, CurrentUser, BranchLike } from '../../../app/types';
-import { RawQuery } from '../../../helpers/query';
+import { shallow } from 'enzyme';
+import AnalysesList from '../AnalysesList';
 
-interface Props {
-  branchLike?: BranchLike;
-  component?: Component;
-  currentUser: CurrentUser;
-  fetchIssues: (query: RawQuery, requestOrganizations?: boolean) => Promise<any>;
-  location: { pathname: string; query: RawQuery };
-  myIssues?: boolean;
-  onBranchesChange: () => void;
-  onSonarCloud: boolean;
-  organization?: { key: string };
-}
-
-export default class App extends React.Component<Props> {}
+it('should render show more link', () => {
+  const branchLike = { analysisDate: '2018-03-08T09:49:22+0100', isMain: true, name: 'master' };
+  const component = {
+    breadcrumbs: [{ key: 'foo', name: 'foo', qualifier: 'TRK' }],
+    key: 'foo',
+    name: 'foo',
+    organization: 'org',
+    qualifier: 'TRK'
+  };
+  const wrapper = shallow(
+    <AnalysesList branchLike={branchLike} component={component} metrics={{}} qualifier="TRK" />
+  );
+  wrapper.setState({ loading: false });
+  expect(wrapper.find('Link')).toMatchSnapshot();
+});

@@ -19,12 +19,11 @@
  */
 import * as React from 'react';
 import LineOptionsPopup from './LineOptionsPopup';
-import { SourceLine } from '../../../app/types';
+import { BranchLike, SourceLine } from '../../../app/types';
 import BubblePopupHelper from '../../common/BubblePopupHelper';
 
 interface Props {
-  // TODO use branchLike
-  branch: string | undefined;
+  branchLike: BranchLike | undefined;
   componentKey: string;
   line: SourceLine;
   onPopupToggle: (x: { index?: number; line: number; name: string; open?: boolean }) => void;
@@ -44,7 +43,7 @@ export default class LineNumber extends React.PureComponent<Props> {
   };
 
   render() {
-    const { branch, componentKey, line, popupOpen } = this.props;
+    const { branchLike, componentKey, line, popupOpen } = this.props;
     const { line: lineNumber } = line;
     const hasLineNumber = !!lineNumber;
     return hasLineNumber ? (
@@ -57,7 +56,9 @@ export default class LineNumber extends React.PureComponent<Props> {
         tabIndex={0}>
         <BubblePopupHelper
           isOpen={popupOpen}
-          popup={<LineOptionsPopup branch={branch} componentKey={componentKey} line={line} />}
+          popup={
+            <LineOptionsPopup branchLike={branchLike} componentKey={componentKey} line={line} />
+          }
           position="bottomright"
           togglePopup={this.handleTogglePopup}
         />

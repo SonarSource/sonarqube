@@ -20,7 +20,7 @@ exports[`render covered line 1`] = `
     isOpen={false}
     popup={
       <CoveragePopup
-        branch={undefined}
+        branchLike={undefined}
         componentKey="foo"
         line={
           Object {

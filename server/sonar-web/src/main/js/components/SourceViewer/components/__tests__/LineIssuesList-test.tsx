@@ -49,7 +49,7 @@ it('render issues list', () => {
   const onIssueClick = jest.fn();
   const wrapper = shallow(
     <LineIssuesList
-      branch={undefined}
+      branchLike={undefined}
       issuePopup={undefined}
       issues={issues}
       onIssueChange={jest.fn()}

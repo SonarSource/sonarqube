@@ -20,7 +20,7 @@
 import * as React from 'react';
 import * as classNames from 'classnames';
 import LineIssuesList from './LineIssuesList';
-import { Issue, LinearIssueLocation, SourceLine } from '../../../app/types';
+import { BranchLike, Issue, LinearIssueLocation, SourceLine } from '../../../app/types';
 import LocationIndex from '../../common/LocationIndex';
 import LocationMessage from '../../common/LocationMessage';
 import {
@@ -31,7 +31,7 @@ import {
 } from '../helpers/highlight';
 
 interface Props {
-  branch: string | undefined;
+  branchLike: BranchLike | undefined;
   displayIssueLocationsCount?: boolean;
   displayIssueLocationsLink?: boolean;
   displayLocationMarkers?: boolean;
@@ -231,7 +231,7 @@ export default class LineCode extends React.PureComponent<Props, State> {
         {showIssues &&
           issues.length > 0 && (
             <LineIssuesList
-              branch={this.props.branch}
+              branchLike={this.props.branchLike}
               displayIssueLocationsCount={this.props.displayIssueLocationsCount}
               displayIssueLocationsLink={this.props.displayIssueLocationsLink}
               issuePopup={this.props.issuePopup}

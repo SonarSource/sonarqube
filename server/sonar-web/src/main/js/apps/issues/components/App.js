@@ -59,7 +59,12 @@ import ListFooter from '../../../components/controls/ListFooter';
 import EmptySearch from '../../../components/common/EmptySearch';
 import FiltersHeader from '../../../components/common/FiltersHeader';
 import ScreenPositionHelper from '../../../components/common/ScreenPositionHelper';
-import { getBranchName, isShortLivingBranch } from '../../../helpers/branches';
+import {
+  isShortLivingBranch,
+  isSameBranchLike,
+  getBranchLikeQuery,
+  isPullRequest
+} from '../../../helpers/branches';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { scrollToElement } from '../../../helpers/scrolling';
 import Checkbox from '../../../components/controls/Checkbox';
@@ -69,7 +74,7 @@ import '../styles.css';
 
 /*::
 export type Props = {
-  branch?: { name: string },
+  branchLike?: { id?: string; name: string },
   component?: Component,
   currentUser: CurrentUser,
   fetchIssues: (query: RawQuery, requestOrganizations?: boolean) => Promise<*>,
@@ -193,7 +198,7 @@ export default class App extends React.PureComponent {
     const { query: prevQuery } = prevProps.location;
     if (
       prevProps.component !== this.props.component ||
-      prevProps.branch !== this.props.branch ||
+      !isSameBranchLike(prevProps.branchLike, this.props.branchLike) ||
       !areQueriesEqual(prevQuery, query) ||
       areMyIssuesSelected(prevQuery) !== areMyIssuesSelected(query)
     ) {
@@ -337,7 +342,7 @@ export default class App extends React.PureComponent {
       pathname: this.props.location.pathname,
       query: {
         ...serializeQuery(this.state.query),
-        branch: getBranchName(this.props.branch),
+        ...getBranchLikeQuery(this.props.branchLike),
         id: this.props.component && this.props.component.key,
         myIssues: this.state.myIssues ? 'true' : undefined,
         open: issue
@@ -356,7 +361,7 @@ export default class App extends React.PureComponent {
         pathname: this.props.location.pathname,
         query: {
           ...serializeQuery(this.state.query),
-          branch: getBranchName(this.props.branch),
+          ...getBranchLikeQuery(this.props.branchLike),
           id: this.props.component && this.props.component.key,
           myIssues: this.state.myIssues ? 'true' : undefined,
           open: undefined
@@ -399,7 +404,7 @@ export default class App extends React.PureComponent {
       : undefined;
 
     const parameters = {
-      branch: getBranchName(this.props.branch),
+      ...getBranchLikeQuery(this.props.branchLike),
       componentKeys: component && component.key,
       s: 'FILE_LINE',
       ...serializeQuery(query),
@@ -594,7 +599,7 @@ export default class App extends React.PureComponent {
       pathname: this.props.location.pathname,
       query: {
         ...serializeQuery({ ...this.state.query, ...changes }),
-        branch: getBranchName(this.props.branch),
+        ...getBranchLikeQuery(this.props.branchLike),
         id: this.props.component && this.props.component.key,
         myIssues: this.state.myIssues ? 'true' : undefined
       }
@@ -610,7 +615,7 @@ export default class App extends React.PureComponent {
       pathname: this.props.location.pathname,
       query: {
         ...serializeQuery({ ...this.state.query, assigned: true, assignees: [] }),
-        branch: getBranchName(this.props.branch),
+        ...getBranchLikeQuery(this.props.branchLike),
         id: this.props.component && this.props.component.key,
         myIssues: myIssues ? 'true' : undefined
       }
@@ -637,7 +642,7 @@ export default class App extends React.PureComponent {
       pathname: this.props.location.pathname,
       query: {
         ...DEFAULT_QUERY,
-        branch: getBranchName(this.props.branch),
+        ...getBranchLikeQuery(this.props.branchLike),
         id: this.props.component && this.props.component.key,
         myIssues: this.state.myIssues ? 'true' : undefined
       }
@@ -724,7 +729,7 @@ export default class App extends React.PureComponent {
 
   handleReload = () => {
     this.fetchFirstIssues();
-    if (isShortLivingBranch(this.props.branch)) {
+    if (isShortLivingBranch(this.props.branchLike) || isPullRequest(this.props.branchLike)) {
       this.props.onBranchesChange();
     }
   };
@@ -892,7 +897,7 @@ export default class App extends React.PureComponent {
   }
 
   renderList() {
-    const { branch, component, currentUser, organization } = this.props;
+    const { branchLike, component, currentUser, organization } = this.props;
     const { issues, openIssue, paging } = this.state;
     const selectedIndex = this.getSelectedIndex();
     const selectedIssue = selectedIndex != null ? issues[selectedIndex] : null;
@@ -905,7 +910,7 @@ export default class App extends React.PureComponent {
       <div>
         {paging.total > 0 && (
           <IssuesList
-            branch={getBranchName(branch)}
+            branchLike={branchLike}
             checked={this.state.checked}
             component={component}
             issues={issues}
@@ -971,7 +976,7 @@ export default class App extends React.PureComponent {
                 {openIssue != null ? (
                   <div className="pull-left width-60">
                     <ComponentBreadcrumbs
-                      branch={getBranchName(this.props.branch)}
+                      branchLike={this.props.branchLike}
                       component={component}
                       issue={openIssue}
                       organization={this.props.organization}
@@ -1000,7 +1005,7 @@ export default class App extends React.PureComponent {
             <div>
               {openIssue ? (
                 <IssuesSourceViewer
-                  branch={getBranchName(this.props.branch)}
+                  branchLike={this.props.branchLike}
                   component={component}
                   openIssue={openIssue}
                   loadIssues={this.fetchIssuesForComponent}

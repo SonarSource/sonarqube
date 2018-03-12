@@ -1,23 +1,18 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`renders 1`] = `
+exports[`should render show more link 1`] = `
 <Link
-  className="button button-small spacer-left text-text-bottom"
   onlyActiveOnIndex={false}
   style={Object {}}
   to={
     Object {
       "pathname": "/project/activity",
       "query": Object {
-        "custom_metrics": "security_rating",
-        "graph": "custom",
         "id": "foo",
       },
     }
   }
 >
-  <IconHistory
-    size={14}
-  />
+  show_more
 </Link>
 `;

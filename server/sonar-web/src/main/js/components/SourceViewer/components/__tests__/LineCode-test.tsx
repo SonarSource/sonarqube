@@ -20,7 +20,7 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import LineCode from '../LineCode';
-import { Issue } from '../../../../app/types';
+import { BranchType, Issue, ShortLivingBranch } from '../../../../app/types';
 
 const issueBase: Issue = {
   component: '',
@@ -50,9 +50,15 @@ it('render code', () => {
     code: '<span class="k">class</span> <span class="sym sym-1">Foo</span> {'
   };
   const issueLocations = [{ from: 0, to: 5, line: 3 }];
+  const branch: ShortLivingBranch = {
+    isMain: false,
+    mergeBranch: 'master',
+    name: 'feature',
+    type: BranchType.SHORT
+  };
   const wrapper = shallow(
     <LineCode
-      branch="feature"
+      branchLike={branch}
       highlightedLocationMessage={undefined}
       highlightedSymbols={['sym1']}
       issueLocations={issueLocations}

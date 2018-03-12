@@ -34,6 +34,7 @@ import { complementary } from '../config/complementary';
 import { enhanceComponent, isFileType, isViewType } from '../utils';
 import { getProjectUrl } from '../../../helpers/urls';
 import { isDiffMetric } from '../../../helpers/measures';
+import { isSameBranchLike, getBranchLikeQuery } from '../../../helpers/branches';
 /*:: import type { Component, ComponentEnhanced, Paging, Period } from '../types'; */
 /*:: import type { MeasureEnhanced } from '../../../components/measure/types'; */
 /*:: import type { Metric } from '../../../store/metrics/actions'; */
@@ -42,7 +43,7 @@ import { isDiffMetric } from '../../../helpers/measures';
 // https://github.com/facebook/flow/issues/3147
 // router: { push: ({ pathname: string, query?: RawQuery }) => void }
 /*:: type Props = {|
-  branch?: string,
+  branchLike?: { id?: string; name: string },
   className?: string,
   component: Component,
   currentUser: { isLoggedIn: boolean },
@@ -87,7 +88,7 @@ export default class MeasureContent extends React.PureComponent {
 
   componentWillReceiveProps(nextProps /*: Props */) {
     if (
-      nextProps.branch !== this.props.branch ||
+      !isSameBranchLike(nextProps.branchLike, this.props.branchLike) ||
       nextProps.component !== this.props.component ||
       nextProps.metric !== this.props.metric
     ) {
@@ -115,7 +116,7 @@ export default class MeasureContent extends React.PureComponent {
     const strategy = view === 'list' ? 'leaves' : 'children';
     const metricKeys = [metric.key];
     const opts /*: Object */ = {
-      branch: this.props.branch,
+      ...getBranchLikeQuery(this.props.branchLike),
       metricSortFilter: 'withMeasuresOnly'
     };
     const isDiff = isDiffMetric(metric.key);
@@ -225,7 +226,7 @@ export default class MeasureContent extends React.PureComponent {
     return (
       <div className="measure-details-viewer">
         <CodeView
-          branch={this.props.branch}
+          branchLike={this.props.branchLike}
           component={this.props.component}
           components={this.state.components}
           leakPeriod={this.props.leakPeriod}
@@ -244,7 +245,7 @@ export default class MeasureContent extends React.PureComponent {
         const selectedIdx = this.getSelectedIndex();
         return (
           <FilesView
-            branch={this.props.branch}
+            branchLike={this.props.branchLike}
             components={this.state.components}
             fetchMore={this.fetchMoreComponents}
             handleOpen={this.onOpenComponent}
@@ -261,7 +262,7 @@ export default class MeasureContent extends React.PureComponent {
       if (view === 'treemap') {
         return (
           <TreeMapView
-            branch={this.props.branch}
+            branchLike={this.props.branchLike}
             components={this.state.components}
             handleSelect={this.onOpenComponent}
             metric={metric}
@@ -274,7 +275,7 @@ export default class MeasureContent extends React.PureComponent {
   }
 
   render() {
-    const { branch, component, currentUser, measure, metric, rootComponent, view } = this.props;
+    const { branchLike, component, currentUser, measure, metric, rootComponent, view } = this.props;
     const isLoggedIn = currentUser && currentUser.isLoggedIn;
     const isFile = isFileType(component);
     const selectedIdx = this.getSelectedIndex();
@@ -288,7 +289,7 @@ export default class MeasureContent extends React.PureComponent {
             <div className="layout-page-main-inner">
               <Breadcrumbs
                 backToFirst={view === 'list'}
-                branch={branch}
+                branchLike={branchLike}
                 className="measure-breadcrumbs spacer-right text-ellipsis"
                 component={component}
                 handleSelect={this.onOpenComponent}
@@ -327,7 +328,7 @@ export default class MeasureContent extends React.PureComponent {
           measure != null && (
             <div className="layout-page-main-inner measure-details-content">
               <MeasureHeader
-                branch={branch}
+                branchLike={branchLike}
                 component={component}
                 components={this.state.components}
                 leakPeriod={this.props.leakPeriod}

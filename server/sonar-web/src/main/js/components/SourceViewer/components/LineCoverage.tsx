@@ -19,13 +19,13 @@
  */
 import * as React from 'react';
 import CoveragePopup from './CoveragePopup';
-import { SourceLine } from '../../../app/types';
+import { BranchLike, SourceLine } from '../../../app/types';
 import Tooltip from '../../controls/Tooltip';
 import { translate } from '../../../helpers/l10n';
 import BubblePopupHelper from '../../common/BubblePopupHelper';
 
 interface Props {
-  branch: string | undefined;
+  branchLike: BranchLike | undefined;
   componentKey: string;
   line: SourceLine;
   onPopupToggle: (x: { index?: number; line: number; name: string; open?: boolean }) => void;
@@ -49,7 +49,7 @@ export default class LineCoverage extends React.PureComponent<Props> {
   };
 
   render() {
-    const { branch, componentKey, line, popupOpen } = this.props;
+    const { branchLike, componentKey, line, popupOpen } = this.props;
 
     const className =
       'source-meta source-line-coverage' +
@@ -80,7 +80,7 @@ export default class LineCoverage extends React.PureComponent<Props> {
             isOpen={popupOpen}
             popup={
               <CoveragePopup
-                branch={branch}
+                branchLike={branchLike}
                 componentKey={componentKey}
                 line={line}
                 onClose={this.closePopup}
