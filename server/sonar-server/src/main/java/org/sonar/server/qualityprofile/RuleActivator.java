@@ -158,70 +158,64 @@ public class RuleActivator {
   }
 
   /**
-   * Severity and parameter values are :
-   * 1. defined by end-user
-   * 2. else inherited from parent profile
-   * 3. else defined by rule defaults
-   * <p/>
-   * On custom rules, it's always rule parameters that are used
+   * Update severity and params
    */
   private void applySeverityAndParamToChange(RuleActivation request, RuleActivationContext context, ActiveRuleChange change) {
     RuleWrapper rule = context.getRule();
     ActiveRuleWrapper activeRule = context.getActiveRule();
     ActiveRuleWrapper parentActiveRule = context.getParentActiveRule();
 
+    // First apply severity
+    String severity;
     if (request.isReset()) {
-      // load severity and params from parent profile, else from default values
-      change.setSeverity(firstNonNull(
+      // load severity from parent profile, else from default values
+      severity = firstNonNull(
         parentActiveRule != null ? parentActiveRule.get().getSeverityString() : null,
-        rule.get().getSeverityString()));
-
-      for (RuleParamDto ruleParamDto : rule.getParams()) {
-        String paramKey = ruleParamDto.getName();
-        change.setParameter(paramKey, validateParam(ruleParamDto, firstNonNull(
-          parentActiveRule != null ? parentActiveRule.getParamValue(paramKey) : null,
-          rule.getParamDefaultValue(paramKey))));
-      }
-
-    } else if (activeRule != null) {
-      // already activated -> load severity and parameters from request, else keep existing ones, else from parent,
-      // else from default
-      change.setSeverity(firstNonNull(
+        rule.get().getSeverityString());
+    } else if (context.getRulesProfile().isBuiltIn()) {
+      // for builtin quality profiles, the severity from profile, when null use the default severity of the rule
+      severity = firstNonNull(request.getSeverity(), rule.get().getSeverityString());
+    } else {
+      // load severity from request, else keep existing one (if already activated), else from parent, else from default
+      severity = firstNonNull(
         request.getSeverity(),
-        activeRule.get().getSeverityString(),
+        activeRule == null ? null : activeRule.get().getSeverityString(),
         parentActiveRule != null ? parentActiveRule.get().getSeverityString() : null,
-        rule.get().getSeverityString()));
-      for (RuleParamDto ruleParamDto : rule.getParams()) {
-        String paramKey = ruleParamDto.getName();
+        rule.get().getSeverityString());
+    }
+    change.setSeverity(severity);
+
+    // Apply param values
+    for (RuleParamDto ruleParamDto : rule.getParams()) {
+      String paramKey = ruleParamDto.getName();
+      String paramValue;
+      if (request.isReset()) {
+        // load params from parent profile, else from default values
+        paramValue = firstNonNull(
+          parentActiveRule != null ? parentActiveRule.getParamValue(paramKey) : null,
+          rule.getParamDefaultValue(paramKey));
+      } else if (context.getRulesProfile().isBuiltIn()) {
+        // use the value defined in the profile definition, else the rule default value
+        paramValue = firstNonNull(
+          context.getRequestedParamValue(request, paramKey),
+          rule.getParamDefaultValue(paramKey));
+      } else {
         String parentValue = parentActiveRule != null ? parentActiveRule.getParamValue(paramKey) : null;
-        String paramValue = context.hasRequestedParamValue(request, paramKey) ?
-        // If the request contains the parameter then we're using either value from request, or parent value, or default value
+        String activeRuleValue = activeRule == null ? null : activeRule.getParamValue(paramKey);
+        paramValue = context.hasRequestedParamValue(request, paramKey) ?
+          // If the request contains the parameter then we're using either value from request, or parent value, or default value
           firstNonNull(
             context.getRequestedParamValue(request, paramKey),
             parentValue,
             rule.getParamDefaultValue(paramKey))
           // If the request doesn't contain the parameter, then we're using either value in DB, or parent value, or default value
           : firstNonNull(
-            activeRule.getParamValue(paramKey),
-            parentValue,
-            rule.getParamDefaultValue(paramKey));
-        change.setParameter(paramKey, validateParam(ruleParamDto, paramValue));
+          activeRuleValue,
+          parentValue,
+          rule.getParamDefaultValue(paramKey));
       }
 
-    } else {
-      // not activated -> load severity and parameters from request, else from parent, else from defaults
-      change.setSeverity(firstNonNull(
-        request.getSeverity(),
-        parentActiveRule != null ? parentActiveRule.get().getSeverityString() : null,
-        rule.get().getSeverityString()));
-      for (RuleParamDto ruleParamDto : rule.getParams()) {
-        String paramKey = ruleParamDto.getName();
-        change.setParameter(paramKey, validateParam(ruleParamDto,
-          firstNonNull(
-            context.getRequestedParamValue(request, paramKey),
-            parentActiveRule != null ? parentActiveRule.getParamValue(paramKey) : null,
-            rule.getParamDefaultValue(paramKey))));
-      }
+      change.setParameter(paramKey, validateParam(ruleParamDto, paramValue));
     }
   }
 
