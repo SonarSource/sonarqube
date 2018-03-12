@@ -95,8 +95,6 @@ class RuleActivatorContext {
     return this;
   }
 
-
-
   Date getInitDate() {
     return initDate;
   }
