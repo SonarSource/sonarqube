@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-@import '../../styles/components/spinner.css';
-@import '../../styles/components/global-loading.css';
+@import '../../../../sonar-web/src/main/js/app/styles/components/spinner.css';
+@import '../../../../sonar-web/src/main/js/app/styles/components/global-loading.css';
 
 #content {
   height: 100%;
@@ -84,6 +84,7 @@
   margin-top: 8px;
   margin-bottom: 8px;
 }
+
 .vsts-widget-login .oauth-providers a {
   display: inline-block;
   line-height: 22px;

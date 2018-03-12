@@ -20,7 +20,7 @@
 import * as React from 'react';
 import LoginForm from './LoginForm';
 import ProjectSelector from './ProjectSelector';
-import { Component, searchProjects } from '../../../../api/components';
+import { Component, searchProjects } from '../../../../../sonar-web/src/main/js/api/components';
 import {
   Settings,
   VSTSWidgetSettings,
@@ -28,8 +28,8 @@ import {
   serializeWidgetSettings,
   parseWidgetSettings
 } from '../utils';
-import { getCurrentUser } from '../../../../api/users';
-import { CurrentUser } from '../../../types';
+import { getCurrentUser } from '../../../../../sonar-web/src/main/js/api/users';
+import { CurrentUser } from '../../../../../sonar-web/src/main/js/app/types';
 
 interface Props {
   contribution: string;

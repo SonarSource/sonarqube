@@ -52,7 +52,6 @@ module.exports = {
   appPackageJson: resolveApp('package.json'),
   appSrc: resolveApp('src/main/js'),
   jsBuild: resolveApp('src/main/webapp/js'),
-  cssBuild: resolveApp('src/main/webapp/css'),
   htmlBuild: resolveApp('src/main/webapp/index.html'),
   appNodeModules: resolveApp('node_modules'),
   ownNodeModules: resolveApp('node_modules'),

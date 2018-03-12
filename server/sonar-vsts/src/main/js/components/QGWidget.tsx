@@ -20,8 +20,11 @@
 import * as React from 'react';
 import * as classNames from 'classnames';
 import SonarCloudIcon from './SonarCloudIcon';
-import { MeasureComponent } from '../../../../api/measures';
-import { getPathUrlAsString, getProjectUrl } from '../../../../helpers/urls';
+import { MeasureComponent } from '../../../../../sonar-web/src/main/js/api/measures';
+import {
+  getPathUrlAsString,
+  getProjectUrl
+} from '../../../../../sonar-web/src/main/js/helpers/urls';
 
 interface Props {
   component: MeasureComponent;
