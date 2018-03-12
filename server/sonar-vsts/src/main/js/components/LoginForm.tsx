@@ -20,11 +20,11 @@
 import * as React from 'react';
 import LoginLink from './LoginLink';
 import SonarCloudIcon from './SonarCloudIcon';
-import * as theme from '../../../../app/theme';
-import { IdentityProvider } from '../../../types';
-import { getIdentityProviders } from '../../../../api/users';
-import { getTextColor } from '../../../../helpers/colors';
-import { getBaseUrl } from '../../../../helpers/urls';
+import * as theme from '../../../../../sonar-web/src/main/js/app/theme';
+import { IdentityProvider } from '../../../../../sonar-web/src/main/js/app/types';
+import { getIdentityProviders } from '../../../../../sonar-web/src/main/js/api/users';
+import { getTextColor } from '../../../../../sonar-web/src/main/js/helpers/colors';
+import { getBaseUrl } from '../../../../../sonar-web/src/main/js/helpers/urls';
 
 interface Props {
   onReload: () => void;

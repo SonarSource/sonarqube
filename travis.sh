@@ -150,8 +150,9 @@ WEB_TESTS)
   curl -o- -L https://yarnpkg.com/install.sh | bash
   export PATH=$HOME/.yarn/bin:$PATH
   cd server/sonar-web && yarn && yarn validate
+  cd ../sonar-vsts && yarn && yarn validate
   ;;
-
+  
 *)
   echo "Unexpected TARGET value: $TARGET"
   exit 1

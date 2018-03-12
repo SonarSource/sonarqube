@@ -65,8 +65,8 @@ module.exports = ({ production = true }) => ({
         test: /\.css$/,
         use: [
           production ? MiniCssExtractPlugin.loader : 'style-loader',
-          cssLoader({ production }),
-          postcssLoader()
+          utils.cssLoader({ production }),
+          utils.postcssLoader()
         ].filter(Boolean)
       },
       { test: require.resolve('lodash'), loader: 'expose-loader?_' },

@@ -17,6 +17,9 @@ yarn-error.log*
 #webpack
 .awcache/
 
+# build
+build/
+
 # tests
 src/test/json/**/*.png
 lcov.info

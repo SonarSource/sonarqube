@@ -20,8 +20,12 @@
 import * as React from 'react';
 import * as classNames from 'classnames';
 import SonarCloudIcon from './SonarCloudIcon';
-import { MeasureComponent } from '../../../../api/measures';
-import { getPathUrlAsString, getProjectUrl } from '../../../../helpers/urls';
+import Tooltip from '../../../../../sonar-web/src/main/js/components/controls/Tooltip';
+import { MeasureComponent } from '../../../../../sonar-web/src/main/js/api/measures';
+import {
+  getPathUrlAsString,
+  getProjectUrl
+} from '../../../../../sonar-web/src/main/js/helpers/urls';
 
 interface Props {
   component: MeasureComponent;
@@ -44,7 +48,9 @@ export default function QGWidget({ component }: Props) {
   return (
     <div className={classNames('widget dark-widget clickable', 'level-' + qgMeasure.value)}>
       <a href={getPathUrlAsString(getProjectUrl(component.key))} target="_blank">
-        <h2 className="title truncated-text-ellipsis">{component.name}</h2>
+        <Tooltip mouseEnterDelay={0.5} overlay={component.name} placement="bottom">
+          <h2 className="title truncated-text-ellipsis">{component.name}</h2>
+        </Tooltip>
         <div className="big-value truncated-text-ellipsis">{QG_LEVELS[qgMeasure.value]}</div>
         <div className="footer truncated-text-ellipsis">
           <SonarCloudIcon fill="#FFF" /> Quality Gate

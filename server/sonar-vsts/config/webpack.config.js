@@ -19,91 +19,73 @@
  */
 /* eslint-disable import/no-extraneous-dependencies */
 const path = require('path');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
+const CleanWebpackPlugin = require('clean-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
-const InterpolateHtmlPlugin = require('react-dev-utils/InterpolateHtmlPlugin');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 const webpack = require('webpack');
+const InterpolateHtmlPlugin = require('./InterpolateHtmlPlugin');
 const paths = require('./paths');
 const utils = require('./utils');
 
-module.exports = ({ production = true, fast = false }) => ({
-  bail: production,
-
-  devtool: production ? (fast ? false : 'source-map') : 'cheap-module-source-map',
+module.exports = ({ production = true }) => ({
+  mode: production ? 'production' : 'development',
+  devtool: production ? 'source-map' : 'cheap-module-source-map',
   resolve: {
     // Add '.ts' and '.tsx' as resolvable extensions.
     extensions: ['.ts', '.tsx', '.js', '.json']
   },
-  entry: {
-    vsts: [
-      !production && require.resolve('react-dev-utils/webpackHotDevClient'),
-      !production && require.resolve('react-error-overlay'),
-      'react',
-      'react-dom',
-      './src/main/js/app/integration/vsts/index.js'
-    ].filter(Boolean)
-  },
+  entry: [
+    !production && require.resolve('react-dev-utils/webpackHotDevClient'),
+    require.resolve('./polyfills'),
+    !production && require.resolve('react-error-overlay'),
+    './src/main/js/index.js'
+  ].filter(Boolean),
   output: {
-    path: paths.vstsBuild,
+    path: paths.appBuild,
     pathinfo: !production,
-    publicPath: '/integration/vsts/',
+    publicPath: paths.publicPath,
     filename: production ? 'js/[name].[chunkhash:8].js' : 'js/[name].js',
     chunkFilename: production ? 'js/[name].[chunkhash:8].chunk.js' : 'js/[name].chunk.js'
   },
   module: {
     rules: [
       {
-        test: /\.js$/,
-        loader: 'babel-loader',
-        exclude: /(node_modules|libs)/
-      },
-      {
-        test: /\.tsx?$/,
+        test: /(\.js$|\.ts(x?)$)/,
+        exclude: /(node_modules|libs)/,
         use: [
+          { loader: 'babel-loader' },
           {
-            loader: 'awesome-typescript-loader',
-            options: {
-              transpileOnly: true,
-              useBabel: true,
-              useCache: true
-            }
+            loader: 'ts-loader',
+            options: { transpileOnly: true }
           }
         ]
       },
       {
         test: /\.css$/,
-        use: ['style-loader', utils.cssLoader({ production, fast }), utils.postcssLoader()]
+        use: ['style-loader', utils.cssLoader({ production }), utils.postcssLoader()].filter(
+          Boolean
+        )
       }
     ].filter(Boolean)
   },
   plugins: [
-    !production && new InterpolateHtmlPlugin({ WEB_CONTEXT: '' }),
+    // `allowExternal: true` to remove files outside of the current dir
+    production && new CleanWebpackPlugin([paths.appBuild], { allowExternal: true, verbose: false }),
+
+    production &&
+      new CopyWebpackPlugin([
+        { from: paths.appPublic, to: paths.appBuild, ignore: [paths.appHtml] },
+        { from: paths.jsLib, to: paths.jsBuild }
+      ]),
 
     new HtmlWebpackPlugin({
       inject: false,
-      template: paths.vstsHtml,
-      minify: utils.minifyParams({ production, fast })
+      template: paths.appHtml,
+      minify: utils.minifyParams({ production })
     }),
 
-    new webpack.DefinePlugin({
-      'process.env.NODE_ENV': JSON.stringify(production ? 'production' : 'development')
-    }),
-
-    new CopyWebpackPlugin([
-      {
-        from: './src/main/js/libs/third-party/VSS.SDK.min.js',
-        to: 'js/'
-      }
-    ]),
-
-    production &&
-      !fast &&
-      new webpack.optimize.UglifyJsPlugin({
-        sourceMap: true,
-        compress: { screw_ie8: true, warnings: false },
-        mangle: { screw_ie8: true },
-        output: { comments: false, screw_ie8: true }
-      }),
+    // keep `InterpolateHtmlPlugin` after `HtmlWebpackPlugin`
+    !production && new InterpolateHtmlPlugin({ WEB_CONTEXT: '' }),
 
     !production && new webpack.HotModuleReplacementPlugin()
   ].filter(Boolean)

@@ -17,9 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
-@import '../../styles/components/spinner.css';
-@import '../../styles/components/global-loading.css';
+@import '../../../../sonar-web/src/main/js/app/styles/components/spinner.css';
+@import '../../../../sonar-web/src/main/js/app/styles/components/global-loading.css';
 
 #content {
   height: 100%;
@@ -67,7 +66,7 @@
 }
 
 .widget .footer svg {
-  margin-right: 8px;
+  margin-right: 6px;
 }
 
 .vsts-widget-login {
@@ -84,6 +83,7 @@
   margin-top: 8px;
   margin-bottom: 8px;
 }
+
 .vsts-widget-login .oauth-providers a {
   display: inline-block;
   line-height: 22px;
@@ -291,4 +291,62 @@
 
 .filtered-list-control .filtered-list > li.filtered-list-item.current-item.active-item {
   font-weight: 700;
+}
+
+.rc-tooltip {
+  position: absolute;
+  z-index: var(--tooltipZIndex);
+  display: block;
+  height: auto;
+  font-size: var(--smallFontSize);
+  font-weight: 300;
+  line-height: 1.5;
+  animation: fadeIn 0.3s forwards;
+}
+
+.rc-tooltip-hidden {
+  display: none;
+}
+
+.rc-tooltip-placement-bottom {
+  padding: 5px 0;
+  margin-top: 3px;
+}
+
+.rc-tooltip-inner {
+  max-width: 300px;
+  padding: 3px 8px;
+  color: var(--baseFontColor);
+  text-align: left;
+  text-decoration: none;
+  background-color: #fff;
+  border-radius: 4px;
+  letter-spacing: 0.04em;
+  overflow: hidden;
+  word-break: break-word;
+}
+
+.rc-tooltip-arrow {
+  position: absolute;
+  width: 0;
+  height: 0;
+  border: solid transparent;
+}
+
+.rc-tooltip-placement-bottom .rc-tooltip-arrow {
+  top: -3px;
+  left: 50%;
+  margin-left: -10px;
+  border-width: 0 10px 8px;
+  border-bottom-color: #fff;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }

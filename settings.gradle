@@ -12,6 +12,7 @@ include 'server:sonar-plugin-bridge'
 include 'server:sonar-process'
 include 'server:sonar-qa-util'
 include 'server:sonar-server'
+include 'server:sonar-vsts'
 include 'server:sonar-web'
 
 include 'sonar-application'
