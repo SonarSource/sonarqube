@@ -36,6 +36,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.api.utils.TempFolder;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assume.assumeTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -130,6 +131,7 @@ public class GlobalTempFolderProviderTest {
 
   @Test
   public void homeIsSymbolicLink() throws IOException {
+    assumeTrue(!System2.INSTANCE.isOsWindows());
     File realSonarHome = temp.newFolder();
     File symlink = temp.newFolder();
     symlink.delete();

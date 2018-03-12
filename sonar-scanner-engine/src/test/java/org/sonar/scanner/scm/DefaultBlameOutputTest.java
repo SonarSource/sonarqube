@@ -45,7 +45,7 @@ public class DefaultBlameOutputTest {
     InputFile file = new TestInputFileBuilder("foo", "src/main/java/Foo.java").build();
 
     thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("It was not expected to blame file src/main/java/Foo.java");
+    thrown.expectMessage("It was not expected to blame file " + file);
 
     new DefaultBlameOutput(null, Arrays.<InputFile>asList(new TestInputFileBuilder("foo", "src/main/java/Foo2.java").build()))
       .blameResult(file, Arrays.asList(new BlameLine().revision("1").author("guy")));
@@ -56,7 +56,7 @@ public class DefaultBlameOutputTest {
     InputFile file = new TestInputFileBuilder("foo", "src/main/java/Foo.java").setLines(1).build();
 
     thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("Blame date is null for file src/main/java/Foo.java at line 1");
+    thrown.expectMessage("Blame date is null for file " + file + " at line 1");
 
     new DefaultBlameOutput(null, Arrays.<InputFile>asList(file))
       .blameResult(file, Arrays.asList(new BlameLine().revision("1").author("guy")));
@@ -67,7 +67,7 @@ public class DefaultBlameOutputTest {
     InputFile file = new TestInputFileBuilder("foo", "src/main/java/Foo.java").setLines(1).build();
 
     thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("Blame revision is blank for file src/main/java/Foo.java at line 1");
+    thrown.expectMessage("Blame revision is blank for file " + file + " at line 1");
 
     new DefaultBlameOutput(null, Arrays.<InputFile>asList(file))
       .blameResult(file, Arrays.asList(new BlameLine().date(new Date()).author("guy")));
