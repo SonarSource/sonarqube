@@ -19,27 +19,30 @@
  */
 package org.sonar.server.platform.db.migration.version.v71;
 
+import com.google.common.collect.Multimap;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Function;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.util.UuidFactory;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.Database;
 import org.sonar.server.platform.db.migration.step.DataChange;
 import org.sonar.server.platform.db.migration.version.v63.DefaultOrganizationUuidProvider;
 
-import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toMap;
 
 public class MigrateWebhooksToWebhooksTable extends DataChange {
 
+  private static final long NO_RESOURCE_ID = -8_435_121;
   private static final Logger LOGGER = Loggers.get(MigrateWebhooksToWebhooksTable.class);
 
   private DefaultOrganizationUuidProvider defaultOrganizationUuidProvider;
@@ -53,45 +56,111 @@ public class MigrateWebhooksToWebhooksTable extends DataChange {
 
   @Override
   public void execute(Context context) throws SQLException {
-    Map<String, PropertyRow> rows = context
-      .prepareSelect("select id, prop_key, resource_id, text_value, created_at from properties where prop_key like 'sonar.webhooks%'")
+    Multimap<Long, PropertyRow> rows = context
+      .prepareSelect("select" +
+        " props.id, props.prop_key, props.resource_id, prj.uuid, props.text_value, props.created_at" +
+        " from properties props" +
+        " left join projects prj on prj.id = props.resource_id and prj.scope = ? and prj.qualifier = ? and prj.enabled = ?" +
+        " where" +
+        " props.prop_key like 'sonar.webhooks%'" +
+        " and props.text_value is not null")
+      .setString(1, "PRJ")
+      .setString(2, "TRK")
+      .setBoolean(3, true)
       .list(row -> new PropertyRow(
         row.getLong(1),
         row.getString(2),
-        row.getLong(3),
-        row.getString(4),
-        row.getLong(5)))
+        row.getNullableLong(3),
+        row.getNullableString(4),
+        row.getString(5),
+        row.getLong(6)))
       .stream()
-      .collect(toMap(PropertyRow::key, Function.identity()));
+      .collect(MoreCollectors.index(PropertyRow::getResourceId, Function.identity()));
 
-    if (!rows.isEmpty()) {
-      migrateGlobalWebhooks(context, rows);
-      migrateProjectsWebhooks(context, rows);
-      context
-        .prepareUpsert("delete from properties where prop_key like 'sonar.webhooks.global%' or prop_key like 'sonar.webhooks.project%'")
-        .execute()
-        .commit();
+    for (Map.Entry<Long, Collection<PropertyRow>> entry : rows.asMap().entrySet()) {
+      long projectId = entry.getKey();
+      if (projectId == NO_RESOURCE_ID) {
+        migrateGlobalWebhooks(context, entry.getValue());
+      } else {
+        migrateProjectsWebhooks(context, entry.getValue());
+      }
+      deleteAllWebhookProperties(context);
     }
   }
 
-  private void migrateProjectsWebhooks(Context context, Map<String, PropertyRow> properties) throws SQLException {
-    PropertyRow index = properties.get("sonar.webhooks.project");
-    if (index != null) {
+  private static void deleteAllWebhookProperties(Context context) throws SQLException {
+    context
+      .prepareUpsert("delete from properties where prop_key like 'sonar.webhooks.global%' or prop_key like 'sonar.webhooks.project%'")
+      .execute()
+      .commit();
+  }
+
+  private void migrateGlobalWebhooks(Context context, Collection<PropertyRow> rows) throws SQLException {
+    Multimap<String, PropertyRow> rowsByPropertyKey = rows.stream()
+      .collect(MoreCollectors.index(PropertyRow::getPropertyKey));
+    Optional<PropertyRow> rootProperty = rowsByPropertyKey.get("sonar.webhooks.global").stream().findFirst();
+    if (rootProperty.isPresent()) {
+      PropertyRow row = rootProperty.get();
       // can't lambda due to checked exception.
-      for (Webhook webhook : extractProjectWebhooksFrom(context, properties, index.value().split(","))) {
+      for (Webhook webhook : extractGlobalWebhooksFrom(context, rowsByPropertyKey, row.value().split(","))) {
         insert(context, webhook);
       }
     }
   }
 
-  private void migrateGlobalWebhooks(Context context, Map<String, PropertyRow> properties) throws SQLException {
-    PropertyRow index = properties.get("sonar.webhooks.global");
-    if (index != null) {
-      // can't lambda due to checked exception.
-      for (Webhook webhook : extractGlobalWebhooksFrom(context, properties, index.value().split(","))) {
-        insert(context, webhook);
+  private List<Webhook> extractGlobalWebhooksFrom(Context context, Multimap<String, PropertyRow> rowsByPropertyKey, String[] values) throws SQLException {
+    String defaultOrganizationUuid = defaultOrganizationUuidProvider.get(context);
+    return Arrays.stream(values)
+      .map(value -> {
+        Optional<PropertyRow> name = rowsByPropertyKey.get("sonar.webhooks.global." + value + ".name").stream().findFirst();
+        Optional<PropertyRow> url = rowsByPropertyKey.get("sonar.webhooks.global." + value + ".url").stream().findFirst();
+        if (name.isPresent() && url.isPresent()) {
+          return new Webhook(
+            name.get(),
+            url.get(),
+            defaultOrganizationUuid,
+            null);
+        }
+        LOGGER.warn(
+          "Global webhook missing name and/or url will be deleted (name='{}', url='{}')",
+          name.map(PropertyRow::value).orElse(null),
+          url.map(PropertyRow::value).orElse(null));
+        return null;
+      })
+      .filter(Objects::nonNull)
+      .collect(toList());
+  }
+
+  private void migrateProjectsWebhooks(Context context, Collection<PropertyRow> rows) throws SQLException {
+    Multimap<String, PropertyRow> rowsByPropertyKey = rows.stream()
+      .collect(MoreCollectors.index(PropertyRow::getPropertyKey));
+    Optional<PropertyRow> rootProperty = rowsByPropertyKey.get("sonar.webhooks.project").stream().findFirst();
+    if (rootProperty.isPresent()) {
+      PropertyRow row = rootProperty.get();
+      if (row.getProjectUuid() == null) {
+        LOGGER.warn("At least one webhook referenced missing or non project resource '{}' and will be deleted", row.getResourceId());
+      } else {
+        for (Webhook webhook : extractProjectWebhooksFrom(row, rowsByPropertyKey, row.value().split(","))) {
+          insert(context, webhook);
+        }
       }
     }
+  }
+
+  private static List<Webhook> extractProjectWebhooksFrom(PropertyRow row, Multimap<String, PropertyRow> properties, String[] values) {
+    return Arrays.stream(values)
+      .map(value -> {
+        Optional<PropertyRow> name = properties.get("sonar.webhooks.project." + value + ".name").stream().findFirst();
+        Optional<PropertyRow> url = properties.get("sonar.webhooks.project." + value + ".url").stream().findFirst();
+        if (name.isPresent() && url.isPresent()) {
+          return new Webhook(name.get(), url.get(), null, row.projectUuid);
+        }
+        LOGGER.warn("Project webhook for project {} (id={}) missing name and/or url will be deleted (name='{}', url='{}')",
+          row.getProjectUuid(), row.getResourceId(), name.map(PropertyRow::value).orElse(null), url.map(PropertyRow::value).orElse(null));
+        return null;
+      })
+      .filter(Objects::nonNull)
+      .collect(MoreCollectors.toList());
   }
 
   private void insert(Context context, Webhook webhook) throws SQLException {
@@ -111,47 +180,19 @@ public class MigrateWebhooksToWebhooksTable extends DataChange {
     }
   }
 
-  private List<Webhook> extractGlobalWebhooksFrom(Context context, Map<String, PropertyRow> properties, String[] values) throws SQLException {
-    String defaultOrganizationUuid = defaultOrganizationUuidProvider.get(context);
-    return Arrays.stream(values)
-      .map(value -> new Webhook(
-        properties.get("sonar.webhooks.global." + value + ".name"),
-        properties.get("sonar.webhooks.global." + value + ".url"),
-        defaultOrganizationUuid, null))
-      .collect(toList());
-  }
-
-  private static List<Webhook> extractProjectWebhooksFrom(Context context, Map<String, PropertyRow> properties, String[] values) throws SQLException {
-    List<Webhook> webhooks = new ArrayList<>();
-    for (String value : values) {
-      PropertyRow name = properties.get("sonar.webhooks.project." + value + ".name");
-      PropertyRow url = properties.get("sonar.webhooks.project." + value + ".url");
-      String projectUuid = checkNotNull(projectUuidOf(context, name), "Project was not found for property : sonar.webhooks.project.%s", value);
-      webhooks.add(new Webhook(name, url, null, projectUuid));
-    }
-    return webhooks;
-  }
-
-  @CheckForNull
-  private static String projectUuidOf(Context context, PropertyRow row) throws SQLException {
-    return context
-      .prepareSelect("select uuid from projects where id = ?")
-      .setLong(1, row.resourceId())
-      .list(row1 -> row1.getString(1)).stream().findFirst().orElse(null);
-  }
-
   private static class PropertyRow {
-
     private final Long id;
-    private final String key;
+    private final String propertyKey;
     private final Long resourceId;
+    private final String projectUuid;
     private final String value;
     private final Long createdAt;
 
-    public PropertyRow(long id, String key, Long resourceId, String value, Long createdAt) {
+    private PropertyRow(long id, String propertyKey, @Nullable Long resourceId, @Nullable String projectUuid, String value, Long createdAt) {
       this.id = id;
-      this.key = key;
+      this.propertyKey = propertyKey;
       this.resourceId = resourceId;
+      this.projectUuid = projectUuid;
       this.value = value;
       this.createdAt = createdAt;
     }
@@ -160,12 +201,17 @@ public class MigrateWebhooksToWebhooksTable extends DataChange {
       return id;
     }
 
-    public String key() {
-      return key;
+    public String getPropertyKey() {
+      return propertyKey;
     }
 
-    public Long resourceId() {
-      return resourceId;
+    public long getResourceId() {
+      return resourceId == null ? NO_RESOURCE_ID : resourceId;
+    }
+
+    @CheckForNull
+    public String getProjectUuid() {
+      return projectUuid;
     }
 
     public String value() {
@@ -180,8 +226,9 @@ public class MigrateWebhooksToWebhooksTable extends DataChange {
     public String toString() {
       return "{" +
         "id=" + id +
-        ", key='" + key + '\'' +
+        ", propertyKey='" + propertyKey + '\'' +
         ", resourceId=" + resourceId +
+        ", projectUuid=" + projectUuid +
         ", value='" + value + '\'' +
         ", createdAt=" + createdAt +
         '}';
