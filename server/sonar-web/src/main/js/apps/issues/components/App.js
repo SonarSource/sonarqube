@@ -237,7 +237,7 @@ export default class App extends React.PureComponent {
       return false;
     });
     key('left', 'issues', () => {
-      if (this.state.query.issues.length > 1) {
+      if (this.state.query.issues.length !== 1) {
         this.closeIssue();
       }
       return false;
@@ -849,7 +849,7 @@ export default class App extends React.PureComponent {
     return (
       <div className="layout-page-filters">
         <ConciseIssuesListHeader
-          displayBackButton={query.issues.length > 1}
+          displayBackButton={query.issues.length !== 1}
           loading={this.state.loading}
           onBackClick={this.closeIssue}
           onReload={this.handleReloadAndOpenFirst}
