@@ -19,6 +19,7 @@ docs.tar
 *.iml
 *.ipr
 .idea/
+out/
 
 # ---- Eclipse
 .classpath
