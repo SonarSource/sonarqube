@@ -49,7 +49,7 @@ import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
-import org.sonarqube.ws.Components.Organization;
+import org.sonarqube.ws.Common.Organization;
 import org.sonarqube.ws.Components.SuggestionsWsResponse;
 import org.sonarqube.ws.Components.SuggestionsWsResponse.Category;
 import org.sonarqube.ws.Components.SuggestionsWsResponse.Project;

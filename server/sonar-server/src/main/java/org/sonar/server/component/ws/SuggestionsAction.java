@@ -72,7 +72,7 @@ import static org.sonar.core.util.stream.MoreCollectors.toSet;
 import static org.sonar.server.component.index.SuggestionQuery.DEFAULT_LIMIT;
 import static org.sonar.server.es.DefaultIndexSettings.MINIMUM_NGRAM_LENGTH;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
-import static org.sonarqube.ws.Components.Organization;
+import static org.sonarqube.ws.Common.Organization;
 import static org.sonarqube.ws.Components.SuggestionsWsResponse.newBuilder;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.ACTION_SUGGESTIONS;
 

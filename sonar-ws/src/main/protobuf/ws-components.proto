@@ -50,7 +50,7 @@ message ShowWsResponse {
 message SuggestionsWsResponse {
   repeated Category results = 1;
   optional string warning = 2;
-  repeated Organization organizations = 3;
+  repeated sonarqube.ws.commons.Organization organizations = 3;
   repeated Project projects = 4;
 
   message Category {
@@ -78,7 +78,7 @@ message SuggestionsWsResponse {
 // WS api/components/search_projects
 message SearchProjectsWsResponse {
   optional sonarqube.ws.commons.Paging paging = 1;
-  repeated Organization organizations = 2;
+  repeated sonarqube.ws.commons.Organization organizations = 2;
   repeated Component components = 3;
   optional sonarqube.ws.commons.Facets facets = 4;
 }
@@ -125,10 +125,6 @@ message Component {
   }
 }
 
-message Organization {
-  optional string key = 1;
-  optional string name = 2;
-}
 
 
 

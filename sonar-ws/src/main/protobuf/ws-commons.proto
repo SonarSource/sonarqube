@@ -129,3 +129,8 @@ enum BranchType {
   SHORT = 2;
   PULL_REQUEST = 3;
 }
+
+message Organization {
+  optional string key = 1;
+  optional string name = 2;
+}

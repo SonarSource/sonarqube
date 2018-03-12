@@ -59,7 +59,6 @@ import org.sonar.server.measure.index.ProjectMeasuresQuery;
 import org.sonar.server.project.Visibility;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Common;
-import org.sonarqube.ws.Components;
 import org.sonarqube.ws.Components.Component;
 import org.sonarqube.ws.Components.SearchProjectsWsResponse;
 
@@ -342,7 +341,7 @@ public class SearchProjectsAction implements ComponentsWsAction {
       .map(response -> {
         organizationsByUuidForAdditionalInfo.values().stream().forEach(
           dto -> response.addOrganizations(
-            Components.Organization.newBuilder()
+            Common.Organization.newBuilder()
               .setKey(dto.getKey())
               .setName(dto.getName())
               .build()));
