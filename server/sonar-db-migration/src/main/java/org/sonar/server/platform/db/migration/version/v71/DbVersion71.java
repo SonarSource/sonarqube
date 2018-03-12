@@ -49,6 +49,7 @@ public class DbVersion71 implements DbVersion {
       .add(2019, "Make key_type not nullable in PROJECT_BRANCHES", MakeKeyTypeNotNullableInProjectBranches.class)
       .add(2020, "Replace index in PROJECT_BRANCHES", ReplaceIndexInProjectBranches.class)
       .add(2021, "Add pull_request_data in PROJECT_BRANCHES", AddPullRequestBinaryInProjectBranches.class)
+      .add(2022, "Clean broken project to QG references", CleanBrokenProjectToQGReferences.class)
     ;
   }
 }
