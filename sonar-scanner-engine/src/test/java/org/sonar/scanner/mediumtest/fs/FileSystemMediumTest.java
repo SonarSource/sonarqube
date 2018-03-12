@@ -46,6 +46,7 @@ import org.sonar.xoo.XooPlugin;
 import org.sonar.xoo.rule.XooRulesDefinition;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assume.assumeTrue;
 
 public class FileSystemMediumTest {
 
@@ -311,7 +312,7 @@ public class FileSystemMediumTest {
       .execute();
 
     assertThat(logs.getAllAsString()).contains("1 file indexed");
-    assertThat(logs.getAllAsString()).contains("'src/sample.unknown' indexed with language 'null'");
+    assertThat(logs.getAllAsString()).contains("'src" + File.separator + "sample.unknown' indexed with language 'null'");
     assertThat(logs.getAllAsString()).contains("'src/sample.unknown' generated metadata");
     DefaultInputFile inputFile = (DefaultInputFile) result.inputFile("src/sample.unknown");
     assertThat(result.getReportComponent(inputFile.key())).isNotNull();
@@ -343,7 +344,7 @@ public class FileSystemMediumTest {
         .build())
       .execute();
 
-    assertThat(logs.getAllAsString()).containsOnlyOnce("'src/myfile.binary' indexed with language 'null'");
+    assertThat(logs.getAllAsString()).containsOnlyOnce("'src" + File.separator + "myfile.binary' indexed with language 'null'");
     assertThat(logs.getAllAsString()).doesNotContain("'src/myfile.binary' generating issue exclusions");
     assertThat(logs.getAllAsString()).containsOnlyOnce("'src/sample.xoo' generating issue exclusions");
   }
@@ -614,35 +615,33 @@ public class FileSystemMediumTest {
   // SONAR-5330
   @Test
   public void scanProjectWithSourceSymlink() {
-    if (!System2.INSTANCE.isOsWindows()) {
-      File projectDir = new File("src/test/resources/mediumtest/xoo/sample-with-symlink");
-      TaskResult result = tester
-        .newScanTask(new File(projectDir, "sonar-project.properties"))
-        .execute();
+    assumeTrue(!System2.INSTANCE.isOsWindows());
+    File projectDir = new File("src/test/resources/mediumtest/xoo/sample-with-symlink");
+    TaskResult result = tester
+      .newScanTask(new File(projectDir, "sonar-project.properties"))
+      .execute();
 
-      assertThat(result.inputFiles()).hasSize(3);
-      // check that symlink was not resolved to target
-      assertThat(result.inputFiles()).extractingResultOf("path").toString().startsWith(projectDir.toString());
-    }
+    assertThat(result.inputFiles()).hasSize(3);
+    // check that symlink was not resolved to target
+    assertThat(result.inputFiles()).extractingResultOf("path").toString().startsWith(projectDir.toString());
   }
 
   // SONAR-6719
   @Test
   public void scanProjectWithWrongCase() {
-    if (System2.INSTANCE.isOsWindows()) {
-      File projectDir = new File("src/test/resources/mediumtest/xoo/sample");
-      TaskResult result = tester
-        .newScanTask(new File(projectDir, "sonar-project.properties"))
-        .property("sonar.sources", "XOURCES")
-        .property("sonar.tests", "TESTX")
-        .execute();
+    assumeTrue(System2.INSTANCE.isOsWindows());
+    File projectDir = new File("src/test/resources/mediumtest/xoo/sample");
+    TaskResult result = tester
+      .newScanTask(new File(projectDir, "sonar-project.properties"))
+      .property("sonar.sources", "XOURCES")
+      .property("sonar.tests", "TESTX")
+      .execute();
 
-      assertThat(result.inputFiles()).hasSize(3);
-      assertThat(result.inputFiles()).extractingResultOf("relativePath").containsOnly(
-        "xources/hello/HelloJava.xoo",
-        "xources/hello/helloscala.xoo",
-        "testx/ClassOneTest.xoo");
-    }
+    assertThat(result.inputFiles()).hasSize(3);
+    assertThat(result.inputFiles()).extractingResultOf("relativePath").containsOnly(
+      "xources/hello/HelloJava.xoo",
+      "xources/hello/helloscala.xoo",
+      "testx/ClassOneTest.xoo");
   }
 
   @Test
@@ -740,7 +739,8 @@ public class FileSystemMediumTest {
       assertThat(e)
         .isInstanceOf(MessageException.class)
         .hasMessage(
-          "Language of file 'src/sample.xoo' can not be decided as the file matches patterns of both sonar.lang.patterns.xoo : **/*.xoo and sonar.lang.patterns.xoo2 : **/*.xoo");
+          "Language of file 'src" + File.separator
+            + "sample.xoo' can not be decided as the file matches patterns of both sonar.lang.patterns.xoo : **/*.xoo and sonar.lang.patterns.xoo2 : **/*.xoo");
     }
 
     // SONAR-9561

@@ -58,7 +58,7 @@ public class TestInputFileBuilderTest {
     assertThat(file.isPublished()).isTrue();
     assertThat(file.type()).isEqualTo(Type.MAIN);
     assertThat(file.relativePath()).isEqualTo("path");
-    assertThat(file.absolutePath()).isEqualTo(new File("baseDir", "path").toString());
+    assertThat(file.absolutePath()).isEqualTo("baseDir/path");
 
   }
 

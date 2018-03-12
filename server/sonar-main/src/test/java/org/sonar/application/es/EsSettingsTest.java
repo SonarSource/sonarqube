@@ -210,18 +210,23 @@ public class EsSettingsTest {
 
   @Test
   public void path_properties_are_values_from_EsFileSystem_argument() throws IOException {
+    File foo = temp.newFolder();
     EsInstallation mockedEsInstallation = mock(EsInstallation.class);
-    when(mockedEsInstallation.getHomeDirectory()).thenReturn(new File("/foo/home"));
-    when(mockedEsInstallation.getConfDirectory()).thenReturn(new File("/foo/conf"));
-    when(mockedEsInstallation.getLogDirectory()).thenReturn(new File("/foo/log"));
-    when(mockedEsInstallation.getDataDirectory()).thenReturn(new File("/foo/data"));
+    File home = new File(foo, "home");
+    when(mockedEsInstallation.getHomeDirectory()).thenReturn(home);
+    File conf = new File(foo, "conf");
+    when(mockedEsInstallation.getConfDirectory()).thenReturn(conf);
+    File log = new File(foo, "log");
+    when(mockedEsInstallation.getLogDirectory()).thenReturn(log);
+    File data = new File(foo, "data");
+    when(mockedEsInstallation.getDataDirectory()).thenReturn(data);
 
     EsSettings underTest = new EsSettings(minProps(new Random().nextBoolean()), mockedEsInstallation, System2.INSTANCE);
 
     Map<String, String> generated = underTest.build();
-    assertThat(generated.get("path.data")).isEqualTo("/foo/data");
-    assertThat(generated.get("path.logs")).isEqualTo("/foo/log");
-    assertThat(generated.get("path.conf")).isEqualTo("/foo/conf");
+    assertThat(generated.get("path.data")).isEqualTo(data.getPath());
+    assertThat(generated.get("path.logs")).isEqualTo(log.getPath());
+    assertThat(generated.get("path.conf")).isEqualTo(conf.getPath());
   }
 
   @Test
