@@ -983,6 +983,42 @@ public class RuleActivatorTest {
     assertThatRuleIsActivated(grandchildProfile, rule, changes, rule.getSeverityString(), INHERITED, emptyMap());
   }
 
+  // SONAR-10473
+  @Test
+  public void activateOnBuiltInRulesProfile_resets_severity_to_default_if_not_overridden() {
+    RuleDefinitionDto rule = db.rules().insert(r -> r.setSeverity(Severity.MAJOR).setLanguage("java"));
+    QProfileDto profile = db.qualityProfiles().insert(db.getDefaultOrganization(),
+      p -> p.setLanguage(rule.getLanguage())
+        .setIsBuiltIn(true));
+    List<ActiveRuleChange> changes = underTest.activateOnBuiltInRulesProfile(db.getSession(), RuleActivation.create(rule.getKey()), RulesProfileDto.from(profile));
+    assertThatRuleIsActivated(profile, rule, changes, "MAJOR", null, emptyMap());
+
+    // emulate an upgrade of analyzer that changes the default severity of the rule
+    rule.setSeverity(Severity.MINOR);
+    db.rules().update(rule);
+
+    underTest.activateOnBuiltInRulesProfile(db.getSession(), RuleActivation.create(rule.getKey()), RulesProfileDto.from(profile));
+    assertThatRuleIsUpdated(profile, rule, "MINOR", null, emptyMap());
+  }
+
+  @Test
+  public void activateOnBuiltInRulesProfile_resets_params_to_default_if_not_overridden() {
+    RuleDefinitionDto rule = db.rules().insert(r -> r.setSeverity(Severity.MAJOR).setLanguage("java"));
+    RuleParamDto ruleParam = db.rules().insertRuleParam(rule, p -> p.setName("min").setDefaultValue("10"));
+    QProfileDto profile = db.qualityProfiles().insert(db.getDefaultOrganization(),
+      p -> p.setLanguage(rule.getLanguage())
+        .setIsBuiltIn(true));
+    List<ActiveRuleChange> changes = underTest.activateOnBuiltInRulesProfile(db.getSession(), RuleActivation.create(rule.getKey()), RulesProfileDto.from(profile));
+    assertThatRuleIsActivated(profile, rule, changes, "MAJOR", null, of("min", "20"));
+
+    // emulate an upgrade of analyzer that changes the default value of parameter min
+    ruleParam.setDefaultValue("20");
+    db.getDbClient().ruleDao().updateRuleParam(db.getSession(), rule, ruleParam);
+
+    underTest.activateOnBuiltInRulesProfile(db.getSession(), RuleActivation.create(rule.getKey()), RulesProfileDto.from(profile));
+    assertThatRuleIsUpdated(profile, rule, "MAJOR", null, of("min", "20"));
+  }
+
   @Test
   public void deactivateOnBuiltInProfile_throws_IAE_when_profile_is_not_built_in() {
     RuleDefinitionDto rule = createJavaRule();
