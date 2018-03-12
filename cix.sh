@@ -31,7 +31,7 @@ case "$RUN_ACTIVITY" in
       exit 0
 
     else
-      ./gradlew --no-daemon --console plain -i \
+      ./gradlew --no-daemon --console plain \
           :tests:integrationTest \
           -Dcategory="$CATEGORY" \
           -Dorchestrator.configUrl="http://infra.internal.sonarsource.com/jenkins/orch-$DB_ENGINE.properties" \
