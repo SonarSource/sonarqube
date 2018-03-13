@@ -171,14 +171,16 @@ export default class CreationDateFacet extends React.PureComponent {
         endDate = createdBefore && parseDate(createdBefore);
       }
 
-      let tooltip =
-        formatMeasure(stats[start], 'SHORT_INT') +
-        '<br/>' +
-        formatDate(startDate, longFormatterOption);
       const tooltipEndDate = endDate || Date.now();
-      if (!isSameDay(tooltipEndDate, startDate)) {
-        tooltip += ' – ' + formatDate(tooltipEndDate, longFormatterOption);
-      }
+      const tooltip = (
+        <React.Fragment>
+          {formatMeasure(stats[start], 'SHORT_INT')}
+          <br />
+          {formatDate(startDate, longFormatterOption)}
+          {!isSameDay(tooltipEndDate, startDate) &&
+            ` - ${formatDate(tooltipEndDate, longFormatterOption)}`}
+        </React.Fragment>
+      );
 
       return {
         createdAfter: startDate,

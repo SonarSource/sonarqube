@@ -45,28 +45,37 @@ export default class SimpleBubbleChart extends React.PureComponent<Props> {
   getMetricTooltip(metric: Metric, value?: number) {
     const name = translate('metric', metric.key, 'name');
     const formattedValue = value != null ? formatMeasure(value, metric.type) : '–';
-    return `<div>${name}: ${formattedValue}</div>`;
+    return (
+      <div>
+        {name}
+        {': '}
+        {formattedValue}
+      </div>
+    );
   }
 
   getTooltip(project: Project, x?: number, y?: number, size?: number, color?: number) {
     const fullProjectName =
-      this.props.displayOrganizations && project.organization
-        ? `${project.organization.name} / <strong>${project.name}</strong>`
-        : `<strong>${project.name}</strong>`;
+      this.props.displayOrganizations && project.organization ? (
+        <>
+          {project.organization.name}
+          {' / '}
+          <strong>{project.name}</strong>
+        </>
+      ) : (
+        <strong>{project.name}</strong>
+      );
 
-    const inner = [
-      `<div class="little-spacer-bottom">${fullProjectName}</div>`,
-      this.getMetricTooltip(this.props.xMetric, x),
-      this.getMetricTooltip(this.props.yMetric, y),
-      this.getMetricTooltip(this.props.sizeMetric, size)
-    ];
-
-    if (color) {
-      // if `color` is defined then `this.props.colorMetric` is defined too
-      this.getMetricTooltip({ key: this.props.colorMetric!, type: 'RATING' }, color);
-    }
-
-    return `<div class="text-left">${inner.join('')}</div>`;
+    return (
+      <div className="text-left">
+        <div className="little-spacer-bottom">{fullProjectName}</div>
+        {this.getMetricTooltip(this.props.xMetric, x)}
+        {this.getMetricTooltip(this.props.yMetric, y)}
+        {this.getMetricTooltip(this.props.sizeMetric, size)}
+        {/* if `color` is defined then `this.props.colorMetric` is defined too */}
+        {color && this.getMetricTooltip({ key: this.props.colorMetric!, type: 'RATING' }, color)}
+      </div>
+    );
   }
 
   render() {

@@ -24,7 +24,6 @@ import { extent, max } from 'd3-array';
 import { scaleLinear } from 'd3-scale';
 import { area as d3Area, line as d3Line, curveBasis } from 'd3-shape';
 import { ResizeMixin } from './../mixins/resize-mixin';
-import { TooltipsMixin } from './../mixins/tooltips-mixin';
 
 export const LineChart = createReactClass({
   displayName: 'LineChart',
@@ -41,7 +40,7 @@ export const LineChart = createReactClass({
     height: PropTypes.number
   },
 
-  mixins: [ResizeMixin, TooltipsMixin],
+  mixins: [ResizeMixin],
 
   getDefaultProps() {
     return {

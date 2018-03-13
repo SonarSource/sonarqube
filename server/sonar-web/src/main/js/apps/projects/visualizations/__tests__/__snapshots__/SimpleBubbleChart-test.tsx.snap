@@ -13,7 +13,7 @@ exports[`renders 1`] = `
     items={
       Array [
         Object {
-          "color": undefined,
+          "color": "#b0d513",
           "key": "foo",
           "link": Object {
             "pathname": "/dashboard",
@@ -22,7 +22,37 @@ exports[`renders 1`] = `
             },
           },
           "size": 1734,
-          "tooltip": "<div class=\\"text-left\\"><div class=\\"little-spacer-bottom\\"><strong>Foo</strong></div><div>metric.complexity.name: 17</div><div>metric.coverage.name: 53.5%</div><div>metric.ncloc.name: 1,734</div></div>",
+          "tooltip": <div
+            className="text-left"
+          >
+            <div
+              className="little-spacer-bottom"
+            >
+              <strong>
+                Foo
+              </strong>
+            </div>
+            <div>
+              metric.complexity.name
+              : 
+              17
+            </div>
+            <div>
+              metric.coverage.name
+              : 
+              53.5%
+            </div>
+            <div>
+              metric.ncloc.name
+              : 
+              1,734
+            </div>
+            <div>
+              metric.security_rating.name
+              : 
+              B
+            </div>
+          </div>,
           "x": 17.2,
           "y": 53.5,
         },
