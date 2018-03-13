@@ -21,11 +21,18 @@
 import React from 'react';
 import classNames from 'classnames';
 import DropdownIcon from '../../../../components/icons-components/DropdownIcon';
-import BubblePopup, { BubblePopupPosition } from '../../../../components/common/BubblePopup';
-import MultiSelect, { MultiSelectValue } from '../../../../components/common/MultiSelect';
+import BubblePopup from '../../../../components/common/BubblePopup';
+import MultiSelect from '../../../../components/common/MultiSelect';
 import { isDiffMetric } from '../../../../helpers/measures';
 import { getLocalizedMetricName, translate } from '../../../../helpers/l10n';
 /*:: import type { Metric } from '../../types'; */
+
+/*::
+type MultiSelectValue = {
+  key: string,
+  label: string
+}
+*/
 
 /*::
 type Props = {
@@ -42,7 +49,7 @@ type Props = {
 type State = {
   open: boolean,
   selectedMetric?: string,
-  popupPosition: BubblePopupPosition,
+  popupPosition: { left?: number, top?: number, right?: number },
   metrics: Array<MultiSelectValue>,
   selectedMetrics: Array<MultiSelectValue>,
   query: string
