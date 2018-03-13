@@ -19,7 +19,6 @@
  */
 // @flow
 import React from 'react';
-import classNames from 'classnames';
 import DropdownIcon from '../../../../components/icons-components/DropdownIcon';
 import BubblePopup from '../../../../components/common/BubblePopup';
 import MultiSelect from '../../../../components/common/MultiSelect';
@@ -78,7 +77,7 @@ export default class AddGraphMetric extends React.PureComponent {
     }
     this.setState({
       metrics: this.createMetricsElements(this.props),
-      selectedMetrics: this.getSelectedMetricsElements(this.props.metrics)
+      selectedMetrics: this.getSelectedMetricsElements(this.props.metrics, null)
     });
   }
 
@@ -86,7 +85,15 @@ export default class AddGraphMetric extends React.PureComponent {
     if (nextProps.metrics.length > this.props.metrics.length) {
       this.setState({
         metrics: this.createMetricsElements(nextProps),
-        selectedMetrics: this.getSelectedMetricsElements(nextProps.metrics)
+        selectedMetrics: this.getSelectedMetricsElements(nextProps.metrics, null)
+      });
+    }
+    if (nextProps.selectedMetrics.length < this.props.selectedMetrics.length) {
+      this.setState({
+        selectedMetrics: this.getSelectedMetricsElements(
+          nextProps.metrics,
+          nextProps.selectedMetrics
+        )
       });
     }
   }
@@ -138,10 +145,13 @@ export default class AddGraphMetric extends React.PureComponent {
       }));
   };
 
-  getSelectedMetricsElements = (metrics /*: Array<Metric> */) => {
-    return metrics.filter(metric => this.props.selectedMetrics.includes(metric.key)).map((
-      metric /*: Metric */
-    ) => ({
+  getSelectedMetricsElements = (
+    metrics /*: Array<Metric> */,
+    selectedMetrics /*: Array<string> | null */
+  ) => {
+    const selected /*: Array<string> */ =
+      selectedMetrics === null ? this.props.selectedMetrics : selectedMetrics;
+    return metrics.filter(metric => selected.includes(metric.key)).map((metric /*: Metric */) => ({
       key: metric.key,
       label: getLocalizedMetricName(metric)
     }));
@@ -197,8 +207,8 @@ export default class AddGraphMetric extends React.PureComponent {
         <MultiSelect
           alertMessage={translate('project_activity.graphs.custom.add_metric_info')}
           allowNewElements={false}
-          allowSelection={this.state.selectedMetrics.length < 6}
-          displayAlertMessage={this.state.selectedMetrics.length >= 6}
+          allowSelection={selectedMetrics.length < 6}
+          displayAlertMessage={selectedMetrics.length >= 6}
           elements={filteredMetrics}
           onSearch={this.onSearch}
           onSelect={this.onSelect}
