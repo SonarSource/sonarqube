@@ -105,6 +105,7 @@ it('bulk applies permission template', () => {
 function shallowRender(props?: { [P in keyof Props]?: Props[P] }) {
   return shallow(
     <Search
+      analyzedBefore={undefined}
       onAllDeselected={jest.fn()}
       onAllSelected={jest.fn()}
       onDateChanged={jest.fn()}

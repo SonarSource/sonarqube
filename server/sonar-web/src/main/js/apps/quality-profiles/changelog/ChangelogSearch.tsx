@@ -20,37 +20,34 @@
 import * as React from 'react';
 import DateInput from '../../../components/controls/DateInput';
 import { Button } from '../../../components/ui/buttons';
-import { toShortNotSoISOString } from '../../../helpers/dates';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {
-  fromDate?: string;
-  toDate?: string;
-  onFromDateChange: () => void;
+  fromDate: Date | undefined;
+  toDate: Date | undefined;
+  onFromDateChange: (date: Date | undefined) => void;
   onReset: () => void;
-  onToDateChange: () => void;
+  onToDateChange: (date: Date | undefined) => void;
 }
 
 export default class ChangelogSearch extends React.PureComponent<Props> {
-  formatDate = (date?: string) => (date ? toShortNotSoISOString(date) : undefined);
-
   render() {
     return (
       <div className="display-inline-block" id="quality-profile-changelog-form">
         <DateInput
-          maxDate={this.formatDate(this.props.toDate) || '+0'}
+          maxDate={this.props.toDate}
           name="since"
           onChange={this.props.onFromDateChange}
           placeholder={translate('from')}
-          value={this.formatDate(this.props.fromDate)}
+          value={this.props.fromDate}
         />
         {' — '}
         <DateInput
-          minDate={this.formatDate(this.props.fromDate)}
+          minDate={this.props.fromDate}
           name="to"
           onChange={this.props.onToDateChange}
           placeholder={translate('to')}
-          value={this.formatDate(this.props.toDate)}
+          value={this.props.toDate}
         />
         <Button className="spacer-left" onClick={this.props.onReset}>
           {translate('reset_verb')}

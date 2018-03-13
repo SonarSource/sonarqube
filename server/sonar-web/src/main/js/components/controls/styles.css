@@ -24,8 +24,9 @@
 }
 
 .date-input-control-input {
-  width: 130px;
+  width: 160px;
   padding-left: var(--controlHeight) !important;
+  padding-right: var(--controlHeight) !important;
   cursor: pointer;
 }
 
@@ -49,6 +50,16 @@
   top: 4px;
   right: 4px;
   border: none;
+}
+
+.date-input-calendar {
+  position: absolute;
+  z-index: var(--dropdownMenuZIndex);
+  top: 100%;
+  left: 0;
+  border: 1px solid var(--barBorderColor);
+  background-color: #fff;
+  box-shadow: var(--defaultShadow);
 }
 
 .boolean-toggle {

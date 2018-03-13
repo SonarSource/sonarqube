@@ -1,0 +1,30 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render 1`] = `
+<div
+  className="display-inline-block"
+  id="quality-profile-changelog-form"
+>
+  <DateInput
+    maxDate={2016-05-04T22:00:00.000Z}
+    name="since"
+    onChange={[MockFunction]}
+    placeholder="from"
+    value={2015-12-31T23:00:00.000Z}
+  />
+   — 
+  <DateInput
+    minDate={2015-12-31T23:00:00.000Z}
+    name="to"
+    onChange={[MockFunction]}
+    placeholder="to"
+    value={2016-05-04T22:00:00.000Z}
+  />
+  <Button
+    className="spacer-left"
+    onClick={[MockFunction]}
+  >
+    reset_verb
+  </Button>
+</div>
+`;

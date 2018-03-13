@@ -29,7 +29,9 @@ import {
   parseAsArray,
   parseAsString,
   serializeString,
-  serializeStringArray
+  serializeStringArray,
+  parseAsDate,
+  serializeDateShort
 } from '../../helpers/query';
 /*:: import type { RawQuery } from '../../helpers/query'; */
 
@@ -38,9 +40,9 @@ export type Query = {|
   assigned: boolean,
   assignees: Array<string>,
   authors: Array<string>,
-  createdAfter: string,
+  createdAfter: Date | void,
   createdAt: string,
-  createdBefore: string,
+  createdBefore: Date | void,
   createdInLast: string,
   directories: Array<string>,
   facetMode: string,
@@ -77,9 +79,9 @@ export function parseQuery(query /*: RawQuery */) /*: Query */ {
     assigned: parseAsBoolean(query.assigned),
     assignees: parseAsArray(query.assignees, parseAsString),
     authors: parseAsArray(query.authors, parseAsString),
-    createdAfter: parseAsString(query.createdAfter),
+    createdAfter: parseAsDate(query.createdAfter),
     createdAt: parseAsString(query.createdAt),
-    createdBefore: parseAsString(query.createdBefore),
+    createdBefore: parseAsDate(query.createdBefore),
     createdInLast: parseAsString(query.createdInLast),
     directories: parseAsArray(query.directories, parseAsString),
     facetMode: parseAsFacetMode(query.facetMode),
@@ -111,9 +113,9 @@ export function serializeQuery(query /*: Query */) /*: RawQuery */ {
     assigned: query.assigned ? undefined : 'false',
     assignees: serializeStringArray(query.assignees),
     authors: serializeStringArray(query.authors),
-    createdAfter: serializeString(query.createdAfter),
+    createdAfter: serializeDateShort(query.createdAfter),
     createdAt: serializeString(query.createdAt),
-    createdBefore: serializeString(query.createdBefore),
+    createdBefore: serializeDateShort(query.createdBefore),
     createdInLast: serializeString(query.createdInLast),
     directories: serializeStringArray(query.directories),
     facetMode: query.facetMode === 'effort' ? serializeString(query.facetMode) : undefined,

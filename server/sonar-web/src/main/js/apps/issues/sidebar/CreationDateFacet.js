@@ -22,7 +22,7 @@ import React from 'react';
 import { max } from 'lodash';
 import { intlShape } from 'react-intl';
 import DateFromNow from '../../../components/intl/DateFromNow';
-import { longFormatterOption } from '../../../components/intl/DateFormatter';
+import { formatterOption, longFormatterOption } from '../../../components/intl/DateFormatter';
 import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
 import FacetBox from '../../../components/facet/FacetBox';
 import FacetHeader from '../../../components/facet/FacetHeader';
@@ -37,9 +37,9 @@ import { formatMeasure } from '../../../helpers/measures';
 /*::
 type Props = {|
   component?: Component,
-  createdAfter: string,
+  createdAfter: Date | void,
   createdAt: string,
-  createdBefore: string,
+  createdBefore: Date | void,
   createdInLast: string,
   facetMode: string,
   onChange: (changes: {}) => void,
@@ -64,9 +64,9 @@ export default class CreationDateFacet extends React.PureComponent {
   };
 
   hasValue = () =>
-    this.props.createdAfter.length > 0 ||
+    this.props.createdAfter !== undefined ||
     this.props.createdAt.length > 0 ||
-    this.props.createdBefore.length > 0 ||
+    this.props.createdBefore !== undefined ||
     this.props.createdInLast.length > 0 ||
     this.props.sinceLeakPeriod;
 
@@ -95,10 +95,7 @@ export default class CreationDateFacet extends React.PureComponent {
     createdBefore?: Date
   } */
   ) => {
-    this.resetTo({
-      createdAfter: toShortNotSoISOString(createdAfter),
-      createdBefore: createdBefore && toShortNotSoISOString(createdBefore)
-    });
+    this.resetTo({ createdAfter, createdBefore });
   };
 
   handlePeriodChange = (property /*: string */, value /*: string */) => {
@@ -106,7 +103,7 @@ export default class CreationDateFacet extends React.PureComponent {
       createdAt: undefined,
       createdInLast: undefined,
       sinceLeakPeriod: undefined,
-      [property]: value ? toShortNotSoISOString(parseDate(value)) : undefined
+      [property]: value ? parseDate(value) : undefined
     });
   };
 
@@ -230,18 +227,18 @@ export default class CreationDateFacet extends React.PureComponent {
         <DateInput
           className="search-navigator-date-facet-selection-dropdown-left"
           inputClassName="search-navigator-date-facet-selection-input"
-          maxDate={createdBefore ? toShortNotSoISOString(createdBefore) : '+0'}
+          maxDate={createdBefore}
           onChange={this.handlePeriodChangeAfter}
           placeholder={translate('from')}
-          value={createdAfter ? toShortNotSoISOString(createdAfter) : undefined}
+          value={createdAfter}
         />
         <DateInput
           className="search-navigator-date-facet-selection-dropdown-right"
           inputClassName="search-navigator-date-facet-selection-input"
-          minDate={createdAfter ? toShortNotSoISOString(createdAfter) : undefined}
+          minDate={createdAfter}
           onChange={this.handlePeriodChangeBefore}
           placeholder={translate('to')}
-          value={createdBefore ? toShortNotSoISOString(createdBefore) : undefined}
+          value={createdBefore}
         />
       </div>
     );

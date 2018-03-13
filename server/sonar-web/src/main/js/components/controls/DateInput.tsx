@@ -17,108 +17,111 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as $ from 'jquery';
 import * as React from 'react';
 import * as classNames from 'classnames';
-import { pick } from 'lodash';
+import DayPicker, { DayModifiers } from 'react-day-picker';
+import { intlShape, InjectedIntlProps } from 'react-intl';
+import OutsideClickHandler from './OutsideClickHandler';
 import * as theme from '../../app/theme';
 import ClearIcon from '../icons-components/ClearIcon';
+import { longFormatterOption } from '../intl/DateFormatter';
 import { ButtonIcon } from '../ui/buttons';
+import 'react-day-picker/lib/style.css';
 import './styles.css';
 
 interface Props {
   className?: string;
-  format?: string;
   inputClassName?: string;
-  // see http://api.jqueryui.com/datepicker/#option-maxDate for details
-  maxDate?: Date | string | number;
-  minDate?: Date | string | number;
+  maxDate?: Date;
+  minDate?: Date;
   name: string;
-  onChange: (value?: string) => void;
+  onChange: (date: Date | undefined) => void;
   placeholder: string;
-  value?: string;
+  value?: Date;
 }
 
-export default class DateInput extends React.PureComponent<Props> {
+interface State {
+  open: boolean;
+}
+
+// TODO calendar localization
+
+export default class DateInput extends React.PureComponent<Props, State> {
+  // prettier-ignore
+  context!: InjectedIntlProps;
   input?: HTMLInputElement | null;
 
-  static defaultProps = {
-    format: 'yy-mm-dd',
-    maxDate: '+0'
+  static contextTypes = {
+    intl: intlShape
   };
 
-  componentDidMount() {
-    this.attachDatePicker();
-  }
-
-  componentDidUpdate(prevProps: Props) {
-    if ($.fn && ($.fn as any).datepicker && this.input) {
-      if (prevProps.maxDate !== this.props.maxDate) {
-        ($(this.input) as any).datepicker('option', { maxDate: this.props.maxDate });
-      }
-      if (prevProps.minDate !== this.props.minDate) {
-        ($(this.input) as any).datepicker('option', { minDate: this.props.minDate });
-      }
-    }
-  }
-
-  handleChange = () => {
-    if (this.input) {
-      const { value } = this.input;
-      this.props.onChange(value);
-    }
-  };
+  state: State = { open: false };
 
   handleResetClick = () => {
+    this.closeCalendar();
     this.props.onChange(undefined);
   };
 
-  attachDatePicker() {
-    const opts = {
-      dateFormat: this.props.format,
-      changeMonth: true,
-      changeYear: true,
-      maxDate: this.props.maxDate,
-      minDate: this.props.minDate,
-      onSelect: this.handleChange
-    };
+  openCalendar = () => {
+    this.setState({ open: true });
+  };
 
-    if ($.fn && ($.fn as any).datepicker && this.input) {
-      ($(this.input) as any).datepicker(opts);
+  closeCalendar = () => {
+    this.setState({ open: false });
+  };
+
+  handleDayClick = (day: Date, modifiers: DayModifiers) => {
+    if (!modifiers.disabled) {
+      this.closeCalendar();
+      this.props.onChange(day);
     }
-  }
+  };
 
   render() {
-    const inputProps: { name?: string; placeholder?: string } = pick(this.props, [
-      'placeholder',
-      'name'
-    ]);
+    const { minDate, value } = this.props;
+    const { formatDate } = this.context.intl;
+    const formattedValue = value && formatDate(value, longFormatterOption);
+
+    const after = this.props.maxDate || new Date();
 
     return (
-      <span className={classNames('date-input-control', this.props.className)}>
-        <input
-          className={classNames('date-input-control-input', this.props.inputClassName)}
-          onChange={this.handleChange}
-          readOnly={true}
-          ref={node => (this.input = node)}
-          type="text"
-          value={this.props.value || ''}
-          {...inputProps}
-        />
-        <span className="date-input-control-icon">
-          <svg width="14" height="14" viewBox="0 0 16 16">
-            <path d="M5.5 6h2v2h-2V6zm3 0h2v2h-2V6zm3 0h2v2h-2V6zm-9 6h2v2h-2v-2zm3 0h2v2h-2v-2zm3 0h2v2h-2v-2zm-3-3h2v2h-2V9zm3 0h2v2h-2V9zm3 0h2v2h-2V9zm-9 0h2v2h-2V9zm11-9v1h-2V0h-7v1h-2V0h-2v16h15V0h-2zm1 15h-13V4h13v11z" />
-          </svg>
-        </span>
-        {this.props.value !== undefined && (
-          <ButtonIcon
-            className="button-tiny date-input-control-reset"
-            color={theme.gray60}
-            onClick={this.handleResetClick}>
-            <ClearIcon size={12} />
-          </ButtonIcon>
+      <OutsideClickHandler onClickOutside={this.closeCalendar}>
+        {({ ref }) => (
+          <span className={classNames('date-input-control', this.props.className)} ref={ref}>
+            <input
+              className={classNames('date-input-control-input', this.props.inputClassName)}
+              name={this.props.name}
+              onFocus={this.openCalendar}
+              placeholder={this.props.placeholder}
+              readOnly={true}
+              ref={node => (this.input = node)}
+              type="text"
+              value={formattedValue || ''}
+            />
+            <span className="date-input-control-icon">
+              <svg height="14" viewBox="0 0 16 16" width="14">
+                <path d="M5.5 6h2v2h-2V6zm3 0h2v2h-2V6zm3 0h2v2h-2V6zm-9 6h2v2h-2v-2zm3 0h2v2h-2v-2zm3 0h2v2h-2v-2zm-3-3h2v2h-2V9zm3 0h2v2h-2V9zm3 0h2v2h-2V9zm-9 0h2v2h-2V9zm11-9v1h-2V0h-7v1h-2V0h-2v16h15V0h-2zm1 15h-13V4h13v11z" />
+              </svg>
+            </span>
+            {this.props.value !== undefined && (
+              <ButtonIcon
+                className="button-tiny date-input-control-reset"
+                color={theme.gray60}
+                onClick={this.handleResetClick}>
+                <ClearIcon size={12} />
+              </ButtonIcon>
+            )}
+            {this.state.open && (
+              <DayPicker
+                className="date-input-calendar"
+                disabledDays={{ after, before: minDate }}
+                onDayClick={this.handleDayClick}
+                selectedDays={this.props.value}
+              />
+            )}
+          </span>
         )}
-      </span>
+      </OutsideClickHandler>
     );
   }
 }

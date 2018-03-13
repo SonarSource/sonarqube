@@ -20,9 +20,7 @@
 // @flow
 import React from 'react';
 import DateInput from '../../../components/controls/DateInput';
-import { parseAsDate } from '../../../helpers/query';
 import { translate } from '../../../helpers/l10n';
-import { toShortNotSoISOString } from '../../../helpers/dates';
 /*:: import type { RawQuery } from '../../../helpers/query'; */
 
 /*::
@@ -36,33 +34,35 @@ type Props = {
 export default class ProjectActivityDateInput extends React.PureComponent {
   /*:: props: Props; */
 
-  handleFromDateChange = (from /*: string */) => this.props.onChange({ from: parseAsDate(from) });
+  handleFromDateChange = (from /*: ?Date */) => {
+    this.props.onChange({ from });
+  };
 
-  handleToDateChange = (to /*: string */) => this.props.onChange({ to: parseAsDate(to) });
+  handleToDateChange = (to /*: ?Date */) => {
+    this.props.onChange({ to });
+  };
 
   handleResetClick = () => this.props.onChange({ from: null, to: null });
-
-  formatDate = (date /*: ?Date */) => (date ? toShortNotSoISOString(date) : undefined);
 
   render() {
     return (
       <div>
         <DateInput
           className="little-spacer-right"
-          maxDate={this.formatDate(this.props.to) || '+0'}
+          maxDate={this.props.to}
           name="from"
           onChange={this.handleFromDateChange}
           placeholder={translate('from')}
-          value={this.formatDate(this.props.from)}
+          value={this.props.from}
         />
         {'—'}
         <DateInput
           className="little-spacer-left"
-          minDate={this.formatDate(this.props.from)}
+          minDate={this.props.from}
           name="to"
           onChange={this.handleToDateChange}
           placeholder={translate('to')}
-          value={this.formatDate(this.props.to)}
+          value={this.props.to}
         />
         <button
           className="spacer-left"

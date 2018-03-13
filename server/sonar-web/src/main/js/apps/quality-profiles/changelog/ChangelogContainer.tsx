@@ -26,6 +26,7 @@ import { getProfileChangelog } from '../../../api/quality-profiles';
 import { translate } from '../../../helpers/l10n';
 import { getProfileChangelogPath } from '../utils';
 import { Profile, ProfileChangelogEvent } from '../types';
+import { parseDate, toShortNotSoISOString } from '../../../helpers/dates';
 
 interface Props {
   location: {
@@ -125,27 +126,27 @@ export default class ChangelogContainer extends React.PureComponent<Props, State
     }
   }
 
-  handleFromDateChange = (fromDate?: string) => {
+  handleFromDateChange = (fromDate: Date | undefined) => {
     const path = getProfileChangelogPath(
       this.props.profile.name,
       this.props.profile.language,
       this.props.organization,
       {
-        since: fromDate,
+        since: fromDate && toShortNotSoISOString(fromDate),
         to: this.props.location.query.to
       }
     );
     this.context.router.push(path);
   };
 
-  handleToDateChange = (toDate?: string) => {
+  handleToDateChange = (toDate: Date | undefined) => {
     const path = getProfileChangelogPath(
       this.props.profile.name,
       this.props.profile.language,
       this.props.organization,
       {
         since: this.props.location.query.since,
-        to: toDate
+        to: toDate && toShortNotSoISOString(toDate)
       }
     );
     this.context.router.push(path);
@@ -172,11 +173,11 @@ export default class ChangelogContainer extends React.PureComponent<Props, State
       <div className="boxed-group boxed-group-inner js-profile-changelog">
         <header className="spacer-bottom">
           <ChangelogSearch
-            fromDate={query.since}
-            toDate={query.to}
+            fromDate={query.since ? parseDate(query.since) : undefined}
             onFromDateChange={this.handleFromDateChange}
-            onToDateChange={this.handleToDateChange}
             onReset={this.handleReset}
+            onToDateChange={this.handleToDateChange}
+            toDate={query.to ? parseDate(query.to) : undefined}
           />
 
           {this.state.loading && <i className="spinner spacer-left" />}
