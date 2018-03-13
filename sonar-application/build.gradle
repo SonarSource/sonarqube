@@ -9,7 +9,6 @@ configurations {
   jsw
   scanner
   server
-  webapp
   jdbc_mssql {
     transitive = false
   }
@@ -40,7 +39,6 @@ dependencies {
   jsw 'tanukisoft:wrapper:3.2.3'
   scanner project(path: ':sonar-scanner-engine-shaded', configuration: 'shadow')
   server project(':server:sonar-server')
-  webapp project(path: ':server:sonar-web', configuration: 'archives')
 
   jdbc_h2 'com.h2database:h2'
   jdbc_mssql 'com.microsoft.sqlserver:mssql-jdbc'
@@ -103,11 +101,8 @@ task zip(type: Zip) {
   into("${archiveDir}/lib/common/") {
     from configurations.ce + configurations.server + configurations.compile
   }
-  dependsOn configurations.webapp
   into("${archiveDir}/web/") {
-    from {
-      configurations.webapp.files.collect { zipTree(it) }
-    }
+    from tasks.getByPath(':server:sonar-web:yarn_run').outputs
   }
   into("${archiveDir}/lib/jdbc/mssql/") {
     from configurations.jdbc_mssql

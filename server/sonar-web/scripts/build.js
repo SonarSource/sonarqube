@@ -37,14 +37,8 @@ function clean() {
   // if you're in it, you don't end up in Trash
   console.log(chalk.cyan.bold('Cleaning output directories and files...'));
 
-  console.log(paths.jsBuild + '/*');
-  rimrafSync(paths.jsBuild + '/*');
-
-  console.log(paths.cssBuild + '/*');
-  rimrafSync(paths.cssBuild + '/*');
-
-  console.log(paths.htmlBuild);
-  rimrafSync(paths.htmlBuild);
+  console.log(paths.appBuild + '/*');
+  rimrafSync(paths.appBuild + '/*');
 
   console.log();
 }

@@ -9,7 +9,6 @@ sonarqube {
 }
 
 apply plugin: 'com.moowork.node'
-apply plugin: 'war'
 
 configurations {
   branding
@@ -17,27 +16,34 @@ configurations {
 dependencies {
   branding 'com.sonarsource:sonarsource-branding:1.3.0.307@war'
 }
+def webappDir = "${buildDir}/webapp"
 def brandingDir = "${buildDir}/branding"
 
 task unzipBranding(type: Copy) {
   from { zipTree(configurations.branding.singleFile) }
   into brandingDir
 }
-task copyBranding1(type: Copy, dependsOn: unzipBranding) {
+task copyBrandingSrc(type: Copy, dependsOn: unzipBranding) {
   into projectDir
   from file(brandingDir)
   include '**/*.js'
+  includeEmptyDirs = false
+}
+task copyBrandingWebapp(type: Copy, dependsOn: unzipBranding) {
+  into "${projectDir}/public"
+  from file("${brandingDir}/src/main/webapp")
   include '**/*.svg'
   includeEmptyDirs = false
 }
-task copyBranding2(type: Copy, dependsOn: unzipBranding) {
-  into "${projectDir}/src/main/webapp"
+task copyBrandingFile(type: Copy, dependsOn: unzipBranding) {
+  into webappDir
   from file(brandingDir)
   include '**/branding'
 }
 task copyBranding() {
-  dependsOn copyBranding1
-  dependsOn copyBranding2
+  dependsOn copyBrandingSrc
+  dependsOn copyBrandingWebapp
+  dependsOn copyBrandingFile
 }
 
 node {
@@ -48,12 +54,16 @@ node {
 
 yarn_run {
   if (release) { dependsOn copyBranding }
+  inputs.dir('config')
+  inputs.dir('public')
   inputs.dir('scripts')
-  inputs.dir('src/main/js')
+  inputs.dir('src')
+  inputs.file('.babelrc')
   inputs.file('build.gradle')
-  outputs.dir('src/main/webapp')
+  inputs.file('package.json')
+  inputs.file('tsconfig.json')
+  inputs.file('yarn.lock')
+  outputs.dir(webappDir)
 
   args = ['build']
 }
-
-war.dependsOn yarn_run
