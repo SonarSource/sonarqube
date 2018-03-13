@@ -24,7 +24,7 @@ import { min, max } from 'd3-array';
 import { scaleLinear } from 'd3-scale';
 import { sortBy, uniq } from 'lodash';
 import AutoSizer from 'react-virtualized/dist/commonjs/AutoSizer';
-import { TooltipsContainer } from '../mixins/tooltips-mixin';
+import Tooltip from '../controls/Tooltip';
 
 /*::
 type Scale = {
@@ -42,7 +42,7 @@ export class Bubble extends React.PureComponent {
     link?: string,
     onClick: (?string) => void,
     r: number,
-    tooltip?: string,
+    tooltip?: string | React$Element<*>,
     x: number,
     y: number
   };
@@ -55,23 +55,12 @@ export class Bubble extends React.PureComponent {
   };
 
   render() {
-    const tooltipAttrs = this.props.tooltip
-      ? {
-          'data-toggle': 'tooltip',
-          title: this.props.tooltip
-        }
-      : {};
-
     let circle = (
       <circle
-        {...tooltipAttrs}
-        onClick={this.props.onClick ? this.handleClick : undefined}
         className="bubble-chart-bubble"
+        onClick={this.props.onClick ? this.handleClick : undefined}
         r={this.props.r}
-        style={{
-          fill: this.props.color,
-          stroke: this.props.color
-        }}
+        style={{ fill: this.props.color, stroke: this.props.color }}
         transform={`translate(${this.props.x}, ${this.props.y})`}
       />
     );
@@ -81,9 +70,9 @@ export class Bubble extends React.PureComponent {
     }
 
     return this.props.tooltip ? (
-      <TooltipsContainer>
+      <Tooltip overlay={this.props.tooltip}>
         <g>{circle}</g>
-      </TooltipsContainer>
+      </Tooltip>
     ) : (
       circle
     );
@@ -99,7 +88,7 @@ export default class BubbleChart extends React.PureComponent {
       color?: string,
       key?: string,
       link?: string,
-      tooltip?: string
+      tooltip?: string | React$Element<*>
     |}>,
     sizeRange?: [number, number],
     displayXGrid: boolean,

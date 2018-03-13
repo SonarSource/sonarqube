@@ -22,7 +22,42 @@ exports[`renders 1`] = `
             },
           },
           "size": 1734,
-          "tooltip": "<div class=\\"text-left\\"><div class=\\"little-spacer-bottom\\"><strong>Foo</strong></div><div>metric.reliability_rating.name: –</div><div>metric.security_rating.name: –</div><div>metric.coverage.name: 53.5%</div><div>metric.sqale_index.name: –</div><div>metric.ncloc.name: 1.7short_number_suffix.k</div></div>",
+          "tooltip": <div
+            className="text-left"
+          >
+            <div
+              className="little-spacer-bottom"
+            >
+              <strong>
+                Foo
+              </strong>
+            </div>
+            <div>
+              metric.reliability_rating.name
+              : 
+              –
+            </div>
+            <div>
+              metric.security_rating.name
+              : 
+              –
+            </div>
+            <div>
+              metric.coverage.name
+              : 
+              53.5%
+            </div>
+            <div>
+              metric.sqale_index.name
+              : 
+              –
+            </div>
+            <div>
+              metric.ncloc.name
+              : 
+              1.7short_number_suffix.k
+            </div>
+          </div>,
           "x": 0,
           "y": 53.5,
         },

@@ -38,11 +38,11 @@ it('should work with extensions', () => {
     configuration: { showSettings: true, extensions: [{ key: 'foo', name: 'Foo' }] },
     extensions: [{ key: 'component-foo', name: 'ComponentFoo' }]
   };
-  expect(
-    shallow(<ComponentNavMenu branchLike={mainBranch} component={component} />, {
-      context: { branchesEnabled: true }
-    })
-  ).toMatchSnapshot();
+  const wrapper = shallow(<ComponentNavMenu branchLike={mainBranch} component={component} />, {
+    context: { branchesEnabled: true }
+  });
+  expect(wrapper.find('Dropdown[data-test="extensions"]').dive()).toMatchSnapshot();
+  expect(wrapper.find('Dropdown[data-test="admin-extensions"]').dive()).toMatchSnapshot();
 });
 
 it('should work with multiple extensions', () => {
@@ -57,11 +57,11 @@ it('should work with multiple extensions', () => {
       { key: 'component-bar', name: 'ComponentBar' }
     ]
   };
-  expect(
-    shallow(<ComponentNavMenu branchLike={mainBranch} component={component} />, {
-      context: { branchesEnabled: true }
-    })
-  ).toMatchSnapshot();
+  const wrapper = shallow(<ComponentNavMenu branchLike={mainBranch} component={component} />, {
+    context: { branchesEnabled: true }
+  });
+  expect(wrapper.find('Dropdown[data-test="extensions"]').dive()).toMatchSnapshot();
+  expect(wrapper.find('Dropdown[data-test="admin-extensions"]').dive()).toMatchSnapshot();
 });
 
 it('should work for short-living branches', () => {

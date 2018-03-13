@@ -95,10 +95,6 @@ export default class MeasureContentContainer extends React.PureComponent {
     const metricKeys = [metric.key];
     if (metric.key === 'ncloc') {
       metricKeys.push('ncloc_language_distribution');
-    } else if (metric.key === 'function_complexity') {
-      metricKeys.push('function_complexity_distribution');
-    } else if (metric.key === 'file_complexity') {
-      metricKeys.push('file_complexity_distribution');
     }
 
     fetchMeasures(selected || rootComponent.key, metricKeys, branchLike).then(

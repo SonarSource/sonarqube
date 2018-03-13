@@ -21,7 +21,6 @@
 import React from 'react';
 import { Link } from 'react-router';
 import LeakPeriodLegend from './LeakPeriodLegend';
-import ComplexityDistribution from '../../../components/shared/ComplexityDistribution';
 import HistoryIcon from '../../../components/icons-components/HistoryIcon';
 import IssueTypeIcon from '../../../components/ui/IssueTypeIcon';
 import LanguageDistributionContainer from '../../../components/charts/LanguageDistributionContainer';
@@ -92,18 +91,6 @@ export default function MeasureHeader(props /*: Props*/) {
               distribution={secondaryMeasure.value}
               width={260}
             />
-          </div>
-        )}
-      {secondaryMeasure &&
-        secondaryMeasure.metric.key === 'function_complexity_distribution' && (
-          <div className="measure-details-secondary">
-            <ComplexityDistribution distribution={secondaryMeasure.value} of="function" />
-          </div>
-        )}
-      {secondaryMeasure &&
-        secondaryMeasure.metric.key === 'file_complexity_distribution' && (
-          <div className="measure-details-secondary">
-            <ComplexityDistribution distribution={secondaryMeasure.value} of="file" />
           </div>
         )}
     </div>

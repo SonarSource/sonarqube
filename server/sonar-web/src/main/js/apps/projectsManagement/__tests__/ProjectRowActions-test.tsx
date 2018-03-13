@@ -44,7 +44,7 @@ it('restores access', async () => {
   const wrapper = shallowRender();
   expect(wrapper).toMatchSnapshot();
 
-  wrapper.prop<Function>('onToggleClick')();
+  wrapper.prop<Function>('onOpen')();
   await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot();
 

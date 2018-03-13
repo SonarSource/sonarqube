@@ -89,102 +89,9 @@ exports[`should work for all qualifiers 1`] = `
       project_activity.page
     </Link>
   </li>
-  <li
-    className="dropdown"
-  >
-    <a
-      className="dropdown-toggle"
-      data-toggle="dropdown"
-      href="#"
-      id="component-navigation-admin"
-    >
-      layout.settings
-       
-      <i
-        className="icon-dropdown"
-      />
-    </a>
-    <ul
-      className="dropdown-menu"
-    >
-      <li
-        key="settings"
-      >
-        <Link
-          activeClassName="active"
-          onlyActiveOnIndex={false}
-          style={Object {}}
-          to={
-            Object {
-              "pathname": "/project/settings",
-              "query": Object {
-                "id": "foo",
-              },
-            }
-          }
-        >
-          project_settings.page
-        </Link>
-      </li>
-      <li
-        key="branches"
-      >
-        <Link
-          activeClassName="active"
-          onlyActiveOnIndex={false}
-          style={Object {}}
-          to={
-            Object {
-              "pathname": "/project/branches",
-              "query": Object {
-                "id": "foo",
-              },
-            }
-          }
-        >
-          project_branches.page
-        </Link>
-      </li>
-      <li
-        key="webhooks"
-      >
-        <Link
-          activeClassName="active"
-          onlyActiveOnIndex={false}
-          style={Object {}}
-          to={
-            Object {
-              "pathname": "/project/webhooks",
-              "query": Object {
-                "id": "foo",
-              },
-            }
-          }
-        >
-          webhooks.page
-        </Link>
-      </li>
-      <li
-        key="project_delete"
-      >
-        <Link
-          activeClassName="active"
-          onlyActiveOnIndex={false}
-          style={Object {}}
-          to={
-            Object {
-              "pathname": "/project/deletion",
-              "query": Object {
-                "id": "foo",
-              },
-            }
-          }
-        >
-          deletion.page
-        </Link>
-      </li>
-    </ul>
-  </li>
+  <Dropdown
+    data-test="extensions"
+  />
 </NavBarTabs>
 `;
 
@@ -277,45 +184,9 @@ exports[`should work for all qualifiers 2`] = `
       project_activity.page
     </Link>
   </li>
-  <li
-    className="dropdown"
-  >
-    <a
-      className="dropdown-toggle"
-      data-toggle="dropdown"
-      href="#"
-      id="component-navigation-admin"
-    >
-      layout.settings
-       
-      <i
-        className="icon-dropdown"
-      />
-    </a>
-    <ul
-      className="dropdown-menu"
-    >
-      <li
-        key="settings"
-      >
-        <Link
-          activeClassName="active"
-          onlyActiveOnIndex={false}
-          style={Object {}}
-          to={
-            Object {
-              "pathname": "/project/settings",
-              "query": Object {
-                "id": "foo",
-              },
-            }
-          }
-        >
-          project_settings.page
-        </Link>
-      </li>
-    </ul>
-  </li>
+  <Dropdown
+    data-test="extensions"
+  />
 </NavBarTabs>
 `;
 
@@ -408,45 +279,9 @@ exports[`should work for all qualifiers 3`] = `
       project_activity.page
     </Link>
   </li>
-  <li
-    className="dropdown"
-  >
-    <a
-      className="dropdown-toggle"
-      data-toggle="dropdown"
-      href="#"
-      id="component-navigation-admin"
-    >
-      layout.settings
-       
-      <i
-        className="icon-dropdown"
-      />
-    </a>
-    <ul
-      className="dropdown-menu"
-    >
-      <li
-        key="project_delete"
-      >
-        <Link
-          activeClassName="active"
-          onlyActiveOnIndex={false}
-          style={Object {}}
-          to={
-            Object {
-              "pathname": "/project/deletion",
-              "query": Object {
-                "id": "foo",
-              },
-            }
-          }
-        >
-          deletion.page
-        </Link>
-      </li>
-    </ul>
-  </li>
+  <Dropdown
+    data-test="extensions"
+  />
 </NavBarTabs>
 `;
 
@@ -631,45 +466,9 @@ exports[`should work for all qualifiers 5`] = `
       project_activity.page
     </Link>
   </li>
-  <li
-    className="dropdown"
-  >
-    <a
-      className="dropdown-toggle"
-      data-toggle="dropdown"
-      href="#"
-      id="component-navigation-admin"
-    >
-      layout.settings
-       
-      <i
-        className="icon-dropdown"
-      />
-    </a>
-    <ul
-      className="dropdown-menu"
-    >
-      <li
-        key="project_delete"
-      >
-        <Link
-          activeClassName="active"
-          onlyActiveOnIndex={false}
-          style={Object {}}
-          to={
-            Object {
-              "pathname": "/project/deletion",
-              "query": Object {
-                "id": "foo",
-              },
-            }
-          }
-        >
-          deletion.page
-        </Link>
-      </li>
-    </ul>
-  </li>
+  <Dropdown
+    data-test="extensions"
+  />
 </NavBarTabs>
 `;
 
@@ -911,531 +710,355 @@ exports[`should work for short-living branches 1`] = `
 `;
 
 exports[`should work with extensions 1`] = `
-<NavBarTabs>
-  <li>
-    <Link
-      activeClassName="active"
-      onlyActiveOnIndex={false}
-      style={Object {}}
-      to={
-        Object {
-          "pathname": "/dashboard",
-          "query": Object {
-            "id": "foo",
-          },
-        }
-      }
-    >
-      overview.page
-    </Link>
-  </li>
-  <li>
-    <Link
-      activeClassName="active"
-      className=""
-      onlyActiveOnIndex={false}
-      style={Object {}}
-      to={
-        Object {
-          "pathname": "/project/issues",
-          "query": Object {
-            "id": "foo",
-            "resolved": "false",
-          },
-        }
-      }
-    >
-      issues.page
-    </Link>
-  </li>
-  <li>
-    <Link
-      activeClassName="active"
-      onlyActiveOnIndex={false}
-      style={Object {}}
-      to={
-        Object {
-          "pathname": "/component_measures",
-          "query": Object {
-            "id": "foo",
-          },
-        }
-      }
-    >
-      layout.measures
-    </Link>
-  </li>
-  <li>
-    <Link
-      activeClassName="active"
-      onlyActiveOnIndex={false}
-      style={Object {}}
-      to={
-        Object {
-          "pathname": "/code",
-          "query": Object {
-            "id": "foo",
-          },
-        }
-      }
-    >
-      code.page
-    </Link>
-  </li>
-  <li>
-    <Link
-      activeClassName="active"
-      onlyActiveOnIndex={false}
-      style={Object {}}
-      to={
-        Object {
-          "pathname": "/project/activity",
-          "query": Object {
-            "id": "foo",
-          },
-        }
-      }
-    >
-      project_activity.page
-    </Link>
-  </li>
-  <li
-    className="dropdown"
+<li
+  className="dropdown"
+>
+  <a
+    className="dropdown-toggle"
+    href="#"
+    id="component-navigation-admin"
+    onClick={[Function]}
   >
-    <a
-      className="dropdown-toggle"
-      data-toggle="dropdown"
-      href="#"
-      id="component-navigation-admin"
-    >
-      layout.settings
-       
-      <i
-        className="icon-dropdown"
-      />
-    </a>
-    <ul
-      className="dropdown-menu"
-    >
-      <li
-        key="settings"
-      >
-        <Link
-          activeClassName="active"
-          onlyActiveOnIndex={false}
-          style={Object {}}
-          to={
-            Object {
-              "pathname": "/project/settings",
-              "query": Object {
-                "id": "foo",
-              },
-            }
-          }
-        >
-          project_settings.page
-        </Link>
-      </li>
-      <li
-        key="branches"
-      >
-        <Link
-          activeClassName="active"
-          onlyActiveOnIndex={false}
-          style={Object {}}
-          to={
-            Object {
-              "pathname": "/project/branches",
-              "query": Object {
-                "id": "foo",
-              },
-            }
-          }
-        >
-          project_branches.page
-        </Link>
-      </li>
-      <li
-        key="webhooks"
-      >
-        <Link
-          activeClassName="active"
-          onlyActiveOnIndex={false}
-          style={Object {}}
-          to={
-            Object {
-              "pathname": "/project/webhooks",
-              "query": Object {
-                "id": "foo",
-              },
-            }
-          }
-        >
-          webhooks.page
-        </Link>
-      </li>
-      <li
-        key="foo"
-      >
-        <Link
-          activeClassName="active"
-          onlyActiveOnIndex={false}
-          style={Object {}}
-          to={
-            Object {
-              "pathname": "/project/admin/extension/foo",
-              "query": Object {
-                "id": "foo",
-              },
-            }
-          }
-        >
-          Foo
-        </Link>
-      </li>
-      <li
-        key="project_delete"
-      >
-        <Link
-          activeClassName="active"
-          onlyActiveOnIndex={false}
-          style={Object {}}
-          to={
-            Object {
-              "pathname": "/project/deletion",
-              "query": Object {
-                "id": "foo",
-              },
-            }
-          }
-        >
-          deletion.page
-        </Link>
-      </li>
-    </ul>
-  </li>
-  <li
-    className="dropdown"
+    layout.settings
+    <i
+      className="icon-dropdown little-spacer-left"
+    />
+  </a>
+  <ul
+    className="dropdown-menu"
   >
-    <a
-      className="dropdown-toggle"
-      data-toggle="dropdown"
-      href="#"
-      id="component-navigation-more"
+    <li
+      key="settings"
     >
-      more
-       
-      <i
-        className="icon-dropdown"
-      />
-    </a>
-    <ul
-      className="dropdown-menu"
-    >
-      <li
-        key="component-foo"
-      >
-        <Link
-          activeClassName="active"
-          onlyActiveOnIndex={false}
-          style={Object {}}
-          to={
-            Object {
-              "pathname": "/project/extension/component-foo",
-              "query": Object {
-                "id": "foo",
-              },
-            }
+      <Link
+        activeClassName="active"
+        onlyActiveOnIndex={false}
+        style={Object {}}
+        to={
+          Object {
+            "pathname": "/project/settings",
+            "query": Object {
+              "id": "foo",
+            },
           }
-        >
-          ComponentFoo
-        </Link>
-      </li>
-    </ul>
-  </li>
-</NavBarTabs>
+        }
+      >
+        project_settings.page
+      </Link>
+    </li>
+    <li
+      key="branches"
+    >
+      <Link
+        activeClassName="active"
+        onlyActiveOnIndex={false}
+        style={Object {}}
+        to={
+          Object {
+            "pathname": "/project/branches",
+            "query": Object {
+              "id": "foo",
+            },
+          }
+        }
+      >
+        project_branches.page
+      </Link>
+    </li>
+    <li
+      key="webhooks"
+    >
+      <Link
+        activeClassName="active"
+        onlyActiveOnIndex={false}
+        style={Object {}}
+        to={
+          Object {
+            "pathname": "/project/webhooks",
+            "query": Object {
+              "id": "foo",
+            },
+          }
+        }
+      >
+        webhooks.page
+      </Link>
+    </li>
+    <li
+      key="foo"
+    >
+      <Link
+        activeClassName="active"
+        onlyActiveOnIndex={false}
+        style={Object {}}
+        to={
+          Object {
+            "pathname": "/project/admin/extension/foo",
+            "query": Object {
+              "id": "foo",
+            },
+          }
+        }
+      >
+        Foo
+      </Link>
+    </li>
+    <li
+      key="project_delete"
+    >
+      <Link
+        activeClassName="active"
+        onlyActiveOnIndex={false}
+        style={Object {}}
+        to={
+          Object {
+            "pathname": "/project/deletion",
+            "query": Object {
+              "id": "foo",
+            },
+          }
+        }
+      >
+        deletion.page
+      </Link>
+    </li>
+  </ul>
+</li>
+`;
+
+exports[`should work with extensions 2`] = `
+<li
+  className="dropdown"
+>
+  <a
+    className="dropdown-toggle"
+    href="#"
+    id="component-navigation-more"
+    onClick={[Function]}
+  >
+    more
+    <i
+      className="icon-dropdown little-spacer-left"
+    />
+  </a>
+  <ul
+    className="dropdown-menu"
+  >
+    <li
+      key="component-foo"
+    >
+      <Link
+        activeClassName="active"
+        onlyActiveOnIndex={false}
+        style={Object {}}
+        to={
+          Object {
+            "pathname": "/project/extension/component-foo",
+            "query": Object {
+              "id": "foo",
+            },
+          }
+        }
+      >
+        ComponentFoo
+      </Link>
+    </li>
+  </ul>
+</li>
 `;
 
 exports[`should work with multiple extensions 1`] = `
-<NavBarTabs>
-  <li>
-    <Link
-      activeClassName="active"
-      onlyActiveOnIndex={false}
-      style={Object {}}
-      to={
-        Object {
-          "pathname": "/dashboard",
-          "query": Object {
-            "id": "foo",
-          },
-        }
-      }
-    >
-      overview.page
-    </Link>
-  </li>
-  <li>
-    <Link
-      activeClassName="active"
-      className=""
-      onlyActiveOnIndex={false}
-      style={Object {}}
-      to={
-        Object {
-          "pathname": "/project/issues",
-          "query": Object {
-            "id": "foo",
-            "resolved": "false",
-          },
-        }
-      }
-    >
-      issues.page
-    </Link>
-  </li>
-  <li>
-    <Link
-      activeClassName="active"
-      onlyActiveOnIndex={false}
-      style={Object {}}
-      to={
-        Object {
-          "pathname": "/component_measures",
-          "query": Object {
-            "id": "foo",
-          },
-        }
-      }
-    >
-      layout.measures
-    </Link>
-  </li>
-  <li>
-    <Link
-      activeClassName="active"
-      onlyActiveOnIndex={false}
-      style={Object {}}
-      to={
-        Object {
-          "pathname": "/code",
-          "query": Object {
-            "id": "foo",
-          },
-        }
-      }
-    >
-      code.page
-    </Link>
-  </li>
-  <li>
-    <Link
-      activeClassName="active"
-      onlyActiveOnIndex={false}
-      style={Object {}}
-      to={
-        Object {
-          "pathname": "/project/activity",
-          "query": Object {
-            "id": "foo",
-          },
-        }
-      }
-    >
-      project_activity.page
-    </Link>
-  </li>
-  <li
-    className="dropdown"
+<li
+  className="dropdown"
+>
+  <a
+    className="dropdown-toggle"
+    href="#"
+    id="component-navigation-admin"
+    onClick={[Function]}
   >
-    <a
-      className="dropdown-toggle"
-      data-toggle="dropdown"
-      href="#"
-      id="component-navigation-admin"
-    >
-      layout.settings
-       
-      <i
-        className="icon-dropdown"
-      />
-    </a>
-    <ul
-      className="dropdown-menu"
-    >
-      <li
-        key="settings"
-      >
-        <Link
-          activeClassName="active"
-          onlyActiveOnIndex={false}
-          style={Object {}}
-          to={
-            Object {
-              "pathname": "/project/settings",
-              "query": Object {
-                "id": "foo",
-              },
-            }
-          }
-        >
-          project_settings.page
-        </Link>
-      </li>
-      <li
-        key="branches"
-      >
-        <Link
-          activeClassName="active"
-          onlyActiveOnIndex={false}
-          style={Object {}}
-          to={
-            Object {
-              "pathname": "/project/branches",
-              "query": Object {
-                "id": "foo",
-              },
-            }
-          }
-        >
-          project_branches.page
-        </Link>
-      </li>
-      <li
-        key="webhooks"
-      >
-        <Link
-          activeClassName="active"
-          onlyActiveOnIndex={false}
-          style={Object {}}
-          to={
-            Object {
-              "pathname": "/project/webhooks",
-              "query": Object {
-                "id": "foo",
-              },
-            }
-          }
-        >
-          webhooks.page
-        </Link>
-      </li>
-      <li
-        key="foo"
-      >
-        <Link
-          activeClassName="active"
-          onlyActiveOnIndex={false}
-          style={Object {}}
-          to={
-            Object {
-              "pathname": "/project/admin/extension/foo",
-              "query": Object {
-                "id": "foo",
-              },
-            }
-          }
-        >
-          Foo
-        </Link>
-      </li>
-      <li
-        key="bar"
-      >
-        <Link
-          activeClassName="active"
-          onlyActiveOnIndex={false}
-          style={Object {}}
-          to={
-            Object {
-              "pathname": "/project/admin/extension/bar",
-              "query": Object {
-                "id": "foo",
-              },
-            }
-          }
-        >
-          Bar
-        </Link>
-      </li>
-      <li
-        key="project_delete"
-      >
-        <Link
-          activeClassName="active"
-          onlyActiveOnIndex={false}
-          style={Object {}}
-          to={
-            Object {
-              "pathname": "/project/deletion",
-              "query": Object {
-                "id": "foo",
-              },
-            }
-          }
-        >
-          deletion.page
-        </Link>
-      </li>
-    </ul>
-  </li>
-  <li
-    className="dropdown"
+    layout.settings
+    <i
+      className="icon-dropdown little-spacer-left"
+    />
+  </a>
+  <ul
+    className="dropdown-menu"
   >
-    <a
-      className="dropdown-toggle"
-      data-toggle="dropdown"
-      href="#"
-      id="component-navigation-more"
+    <li
+      key="settings"
     >
-      more
-       
-      <i
-        className="icon-dropdown"
-      />
-    </a>
-    <ul
-      className="dropdown-menu"
+      <Link
+        activeClassName="active"
+        onlyActiveOnIndex={false}
+        style={Object {}}
+        to={
+          Object {
+            "pathname": "/project/settings",
+            "query": Object {
+              "id": "foo",
+            },
+          }
+        }
+      >
+        project_settings.page
+      </Link>
+    </li>
+    <li
+      key="branches"
     >
-      <li
-        key="component-foo"
-      >
-        <Link
-          activeClassName="active"
-          onlyActiveOnIndex={false}
-          style={Object {}}
-          to={
-            Object {
-              "pathname": "/project/extension/component-foo",
-              "query": Object {
-                "id": "foo",
-              },
-            }
+      <Link
+        activeClassName="active"
+        onlyActiveOnIndex={false}
+        style={Object {}}
+        to={
+          Object {
+            "pathname": "/project/branches",
+            "query": Object {
+              "id": "foo",
+            },
           }
-        >
-          ComponentFoo
-        </Link>
-      </li>
-      <li
-        key="component-bar"
+        }
       >
-        <Link
-          activeClassName="active"
-          onlyActiveOnIndex={false}
-          style={Object {}}
-          to={
-            Object {
-              "pathname": "/project/extension/component-bar",
-              "query": Object {
-                "id": "foo",
-              },
-            }
+        project_branches.page
+      </Link>
+    </li>
+    <li
+      key="webhooks"
+    >
+      <Link
+        activeClassName="active"
+        onlyActiveOnIndex={false}
+        style={Object {}}
+        to={
+          Object {
+            "pathname": "/project/webhooks",
+            "query": Object {
+              "id": "foo",
+            },
           }
-        >
-          ComponentBar
-        </Link>
-      </li>
-    </ul>
-  </li>
-</NavBarTabs>
+        }
+      >
+        webhooks.page
+      </Link>
+    </li>
+    <li
+      key="foo"
+    >
+      <Link
+        activeClassName="active"
+        onlyActiveOnIndex={false}
+        style={Object {}}
+        to={
+          Object {
+            "pathname": "/project/admin/extension/foo",
+            "query": Object {
+              "id": "foo",
+            },
+          }
+        }
+      >
+        Foo
+      </Link>
+    </li>
+    <li
+      key="bar"
+    >
+      <Link
+        activeClassName="active"
+        onlyActiveOnIndex={false}
+        style={Object {}}
+        to={
+          Object {
+            "pathname": "/project/admin/extension/bar",
+            "query": Object {
+              "id": "foo",
+            },
+          }
+        }
+      >
+        Bar
+      </Link>
+    </li>
+    <li
+      key="project_delete"
+    >
+      <Link
+        activeClassName="active"
+        onlyActiveOnIndex={false}
+        style={Object {}}
+        to={
+          Object {
+            "pathname": "/project/deletion",
+            "query": Object {
+              "id": "foo",
+            },
+          }
+        }
+      >
+        deletion.page
+      </Link>
+    </li>
+  </ul>
+</li>
+`;
+
+exports[`should work with multiple extensions 2`] = `
+<li
+  className="dropdown"
+>
+  <a
+    className="dropdown-toggle"
+    href="#"
+    id="component-navigation-more"
+    onClick={[Function]}
+  >
+    more
+    <i
+      className="icon-dropdown little-spacer-left"
+    />
+  </a>
+  <ul
+    className="dropdown-menu"
+  >
+    <li
+      key="component-foo"
+    >
+      <Link
+        activeClassName="active"
+        onlyActiveOnIndex={false}
+        style={Object {}}
+        to={
+          Object {
+            "pathname": "/project/extension/component-foo",
+            "query": Object {
+              "id": "foo",
+            },
+          }
+        }
+      >
+        ComponentFoo
+      </Link>
+    </li>
+    <li
+      key="component-bar"
+    >
+      <Link
+        activeClassName="active"
+        onlyActiveOnIndex={false}
+        style={Object {}}
+        to={
+          Object {
+            "pathname": "/project/extension/component-bar",
+            "query": Object {
+              "id": "foo",
+            },
+          }
+        }
+      >
+        ComponentBar
+      </Link>
+    </li>
+  </ul>
+</li>
 `;

@@ -26,7 +26,7 @@ interface Item {
   color?: string;
   key?: string;
   link?: any;
-  tooltip?: string;
+  tooltip?: React.ReactNode;
 }
 
 interface Props {

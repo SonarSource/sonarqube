@@ -21,6 +21,7 @@ import * as React from 'react';
 import * as classNames from 'classnames';
 import { Link } from 'react-router';
 import { LocationDescriptor } from 'history';
+import Dropdown from './Dropdown';
 import SettingsIcon from '../icons-components/SettingsIcon';
 import { Button } from '../ui/buttons';
 
@@ -29,31 +30,33 @@ interface Props {
   children: React.ReactNode;
   menuClassName?: string;
   menuPosition?: 'left' | 'right';
-  // TODO: replace with `onOpen` & `onClose`
-  onToggleClick?: () => void;
+  onOpen?: () => void;
   small?: boolean;
   toggleClassName?: string;
 }
 
 export default function ActionsDropdown({ menuPosition = 'right', ...props }: Props) {
   return (
-    <div className={classNames('dropdown', props.className)}>
-      <Button
-        className={classNames('dropdown-toggle', props.toggleClassName, {
-          'button-small': props.small
-        })}
-        data-toggle="dropdown"
-        onClick={props.onToggleClick}>
-        <SettingsIcon className="text-text-bottom" />
-        <i className="icon-dropdown little-spacer-left" />
-      </Button>
-      <ul
-        className={classNames('dropdown-menu', props.menuClassName, {
-          'dropdown-menu-right': menuPosition === 'right'
-        })}>
-        {props.children}
-      </ul>
-    </div>
+    <Dropdown onOpen={props.onOpen}>
+      {({ onToggleClick, open }) => (
+        <div className={classNames('dropdown', props.className, { open })}>
+          <Button
+            className={classNames('dropdown-toggle', props.toggleClassName, {
+              'button-small': props.small
+            })}
+            onClick={onToggleClick}>
+            <SettingsIcon className="text-text-bottom" />
+            <i className="icon-dropdown little-spacer-left" />
+          </Button>
+          <ul
+            className={classNames('dropdown-menu', props.menuClassName, {
+              'dropdown-menu-right': menuPosition === 'right'
+            })}>
+            {props.children}
+          </ul>
+        </div>
+      )}
+    </Dropdown>
   );
 }
 
