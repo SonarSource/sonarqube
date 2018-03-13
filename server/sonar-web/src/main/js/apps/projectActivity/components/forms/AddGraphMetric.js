@@ -20,18 +20,11 @@
 // @flow
 import React from 'react';
 import classNames from 'classnames';
-import Modal from '../../../../components/controls/Modal';
-import Select from '../../../../components/controls/Select';
-import Tooltip from '../../../../components/controls/Tooltip';
 import DropdownIcon from '../../../../components/icons-components/DropdownIcon';
 import BubblePopup, { BubblePopupPosition } from '../../../../components/common/BubblePopup';
 import MultiSelect, { MultiSelectValue } from '../../../../components/common/MultiSelect';
 import { isDiffMetric } from '../../../../helpers/measures';
-import {
-  getLocalizedMetricName,
-  translate,
-  translateWithParameters
-} from '../../../../helpers/l10n';
+import { getLocalizedMetricName, translate } from '../../../../helpers/l10n';
 /*:: import type { Metric } from '../../types'; */
 
 /*::
@@ -109,8 +102,8 @@ export default class AddGraphMetric extends React.PureComponent {
   };
 
   handleOutsideClick = (evt /*: Event*/) => {
-    const { target /*: Node */ } = evt /* as Node*/;
-    if (!this.card || !this.card.contains(target)) {
+    // $FlowFixMe
+    if (!this.card || !this.card.contains(evt.target)) {
       this.setState({ open: false });
     }
   };
