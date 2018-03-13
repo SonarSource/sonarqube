@@ -25,7 +25,7 @@ import { click } from '../../../../helpers/testUtils';
 const issue = {
   key: 'issuekey',
   projectOrganization: 'foo',
-  tags: ['mytag', 'test']
+  tags: [{ key: 'mytag', label: 'mytag' }, { key: 'test', label: 'test' }]
 };
 
 it('should render without the action when the correct rights are missing', () => {

@@ -18,20 +18,21 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { without } from 'lodash';
+import { differenceBy } from 'lodash';
 import TagsSelector from '../../../components/tags/TagsSelector';
+import { MultiSelectValue } from '../../../components/common/MultiSelect';
 import { BubblePopupPosition } from '../../../components/common/BubblePopup';
 import { searchProjectTags } from '../../../api/components';
 
 interface Props {
   position: BubblePopupPosition;
   project: string;
-  selectedTags: string[];
-  setProjectTags: (tags: string[]) => void;
+  selectedTags: MultiSelectValue[];
+  setProjectTags: (tags: MultiSelectValue[]) => void;
 }
 
 interface State {
-  searchResult: string[];
+  searchResult: MultiSelectValue[];
 }
 
 const LIST_SIZE = 10;
@@ -55,22 +56,27 @@ export default class MetaTagsSelector extends React.PureComponent<Props, State> 
     }).then(
       ({ tags }) => {
         if (this.mounted) {
-          this.setState({ searchResult: tags });
+          this.setState({
+            searchResult: tags.map((tag: string) => {
+              return { key: tag, label: tag };
+            })
+          });
         }
       },
       () => {}
     );
   };
 
-  onSelect = (tag: string) => {
+  onSelect = (tag: MultiSelectValue) => {
     this.props.setProjectTags([...this.props.selectedTags, tag]);
   };
 
-  onUnselect = (tag: string) => {
-    this.props.setProjectTags(without(this.props.selectedTags, tag));
+  onUnselect = (tag: MultiSelectValue) => {
+    this.props.setProjectTags(this.props.selectedTags.filter(selected => selected.key !== tag.key));
   };
 
   render() {
+    const availableTags = differenceBy(this.state.searchResult, this.props.selectedTags, 'key');
     return (
       <TagsSelector
         listSize={LIST_SIZE}
@@ -79,7 +85,7 @@ export default class MetaTagsSelector extends React.PureComponent<Props, State> 
         onUnselect={this.onUnselect}
         position={this.props.position}
         selectedTags={this.props.selectedTags}
-        tags={this.state.searchResult}
+        tags={availableTags}
       />
     );
   }

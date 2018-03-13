@@ -18,7 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { without, uniq } from 'lodash';
+import { without, uniqBy, differenceBy } from 'lodash';
+import { MultiSelectValue } from '../../../components/common/MultiSelect';
 import TagsSelector from '../../../components/tags/TagsSelector';
 import { getRuleTags } from '../../../api/rules';
 import { BubblePopupPosition } from '../../../components/common/BubblePopup';
@@ -28,11 +29,11 @@ interface Props {
   popupPosition?: BubblePopupPosition;
   setTags: (tags: string[]) => void;
   sysTags: string[];
-  tags: string[];
+  tags: MultiSelectValue[];
 }
 
 interface State {
-  searchResult: string[];
+  searchResult: MultiSelectValue[];
 }
 
 const LIST_SIZE = 10;
@@ -58,22 +59,29 @@ export default class RuleDetailsTagsPopup extends React.PureComponent<Props, Sta
       tags => {
         if (this.mounted) {
           // systems tags can not be unset, don't display them in the results
-          this.setState({ searchResult: without(tags, ...this.props.sysTags) });
+          this.setState({
+            searchResult: without(tags, ...this.props.sysTags).map((tag: string) => {
+              return { key: tag, label: tag };
+            })
+          });
         }
       },
       () => {}
     );
   };
 
-  onSelect = (tag: string) => {
-    this.props.setTags(uniq([...this.props.tags, tag]));
+  onSelect = (tag: MultiSelectValue) => {
+    this.props.setTags(uniqBy([...this.props.tags, tag], 'key').map(tag => tag.key));
   };
 
-  onUnselect = (tag: string) => {
-    this.props.setTags(without(this.props.tags, tag));
+  onUnselect = (tag: MultiSelectValue) => {
+    this.props.setTags(
+      this.props.tags.filter(selected => selected.key !== tag.key).map(tag => tag.key)
+    );
   };
 
   render() {
+    const availableTags = differenceBy(this.state.searchResult, this.props.tags, 'key');
     return (
       <TagsSelector
         listSize={LIST_SIZE}
@@ -82,7 +90,7 @@ export default class RuleDetailsTagsPopup extends React.PureComponent<Props, Sta
         onUnselect={this.onUnselect}
         position={this.props.popupPosition || {}}
         selectedTags={this.props.tags}
-        tags={this.state.searchResult}
+        tags={availableTags}
       />
     );
   }

@@ -22,14 +22,22 @@ import { difference } from 'lodash';
 import MultiSelectOption from './MultiSelectOption';
 import SearchBox from '../controls/SearchBox';
 
+export interface MultiSelectValue {
+  key: string;
+  label: string;
+}
 interface Props {
-  elements: string[];
+  elements: MultiSelectValue[];
   listSize?: number;
+  allowSelection?: boolean;
+  allowNewElements?: boolean;
+  displayAlertMessage?: boolean;
+  alertMessage?: string;
   onSearch: (query: string) => Promise<void>;
-  onSelect: (item: string) => void;
-  onUnselect: (item: string) => void;
+  onSelect: (item: MultiSelectValue) => void;
+  onUnselect: (item: MultiSelectValue) => void;
   placeholder: string;
-  selectedElements: string[];
+  selectedElements: MultiSelectValue[];
   validateSearchInput?: (value: string) => string;
 }
 
@@ -37,8 +45,8 @@ interface State {
   activeIdx: number;
   loading: boolean;
   query: string;
-  selectedElements: string[];
-  unselectedElements: string[];
+  selectedElements: MultiSelectValue[];
+  unselectedElements: MultiSelectValue[];
 }
 
 interface DefaultProps {
@@ -107,7 +115,7 @@ export default class MultiSelect extends React.PureComponent<Props, State> {
     }
   }
 
-  handleSelectChange = (item: string, selected: boolean) => {
+  handleSelectChange = (item: MultiSelectValue, selected: boolean) => {
     if (selected) {
       this.onSelectItem(item);
     } else {
@@ -119,7 +127,7 @@ export default class MultiSelect extends React.PureComponent<Props, State> {
     this.onSearchQuery((this.props as PropsWithDefault).validateSearchInput(value));
   };
 
-  handleElementHover = (element: string) => {
+  handleElementHover = (element: MultiSelectValue) => {
     this.setState((prevState, props) => {
       return { activeIdx: this.getAllElements(props, prevState).indexOf(element) };
     });
@@ -154,23 +162,27 @@ export default class MultiSelect extends React.PureComponent<Props, State> {
     this.props.onSearch(query).then(this.stopLoading, this.stopLoading);
   };
 
-  onSelectItem = (item: string) => {
+  onSelectItem = (item: MultiSelectValue) => {
     if (this.isNewElement(item, this.props)) {
       this.onSearchQuery('');
     }
     this.props.onSelect(item);
   };
 
-  onUnselectItem = (item: string) => this.props.onUnselect(item);
+  onUnselectItem = (item: MultiSelectValue) => this.props.onUnselect(item);
 
-  isNewElement = (elem: string, { selectedElements, elements }: Props) =>
-    elem && selectedElements.indexOf(elem) === -1 && elements.indexOf(elem) === -1;
+  isNewElement = (elem: MultiSelectValue, { selectedElements, elements }: Props) =>
+    elem.key.length > 0 && selectedElements.indexOf(elem) === -1 && elements.indexOf(elem) === -1;
 
   updateSelectedElements = (props: Props) => {
     this.setState((state: State) => {
       if (state.query) {
         return {
-          selectedElements: [...props.selectedElements.filter(elem => elem.includes(state.query))]
+          selectedElements: [
+            ...props.selectedElements.filter(
+              elem => elem.key.includes(state.query) || elem.label.includes(state.query)
+            )
+          ]
         };
       } else {
         return { selectedElements: [...props.selectedElements] };
@@ -194,8 +206,12 @@ export default class MultiSelect extends React.PureComponent<Props, State> {
   };
 
   getAllElements = (props: Props, state: State) => {
-    if (this.isNewElement(state.query, props)) {
-      return [...state.selectedElements, ...state.unselectedElements, state.query];
+    if (this.isNewElement({ key: state.query, label: state.query }, props)) {
+      return [
+        ...state.selectedElements,
+        ...state.unselectedElements,
+        { key: state.query, label: state.query }
+      ];
     } else {
       return [...state.selectedElements, ...state.unselectedElements];
     }
@@ -230,7 +246,7 @@ export default class MultiSelect extends React.PureComponent<Props, State> {
     }
   };
 
-  toggleSelect = (item: string) => {
+  toggleSelect = (item: MultiSelectValue) => {
     if (this.props.selectedElements.indexOf(item) === -1) {
       this.onSelectItem(item);
     } else {
@@ -239,6 +255,12 @@ export default class MultiSelect extends React.PureComponent<Props, State> {
   };
 
   render() {
+    const {
+      allowSelection = true,
+      allowNewElements = true,
+      displayAlertMessage = false,
+      alertMessage = ''
+    } = this.props;
     const { query, activeIdx, selectedElements, unselectedElements } = this.state;
     const activeElement = this.getAllElements(this.props, this.state)[activeIdx];
 
@@ -260,7 +282,7 @@ export default class MultiSelect extends React.PureComponent<Props, State> {
               <MultiSelectOption
                 active={activeElement === element}
                 element={element}
-                key={element}
+                key={element.key}
                 onHover={this.handleElementHover}
                 onSelectChange={this.handleSelectChange}
                 selected={true}
@@ -270,23 +292,28 @@ export default class MultiSelect extends React.PureComponent<Props, State> {
             unselectedElements.map(element => (
               <MultiSelectOption
                 active={activeElement === element}
+                disabled={!allowSelection}
                 element={element}
-                key={element}
+                key={element.key}
                 onHover={this.handleElementHover}
                 onSelectChange={this.handleSelectChange}
               />
             ))}
-          {this.isNewElement(query, this.props) && (
-            <MultiSelectOption
-              active={activeElement === query}
-              custom={true}
-              element={query}
-              key={query}
-              onHover={this.handleElementHover}
-              onSelectChange={this.handleSelectChange}
-            />
-          )}
+          {allowNewElements &&
+            this.isNewElement({ key: query, label: query }, this.props) && (
+              <MultiSelectOption
+                active={activeElement === { key: query, label: query }}
+                custom={true}
+                element={{ key: query, label: query }}
+                key={query}
+                onHover={this.handleElementHover}
+                onSelectChange={this.handleSelectChange}
+              />
+            )}
         </ul>
+        {displayAlertMessage && (
+          <span className="alert alert-info spacer-left spacer-right">{alertMessage}</span>
+        )}
       </div>
     );
   }

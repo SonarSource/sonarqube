@@ -23,6 +23,9 @@ import classNames from 'classnames';
 import Modal from '../../../../components/controls/Modal';
 import Select from '../../../../components/controls/Select';
 import Tooltip from '../../../../components/controls/Tooltip';
+import DropdownIcon from '../../../../components/icons-components/DropdownIcon';
+import BubblePopup, { BubblePopupPosition } from '../../../../components/common/BubblePopup';
+import MultiSelect, { MultiSelectValue } from '../../../../components/common/MultiSelect';
 import { isDiffMetric } from '../../../../helpers/measures';
 import {
   getLocalizedMetricName,
@@ -34,6 +37,7 @@ import {
 /*::
 type Props = {
   addMetric: (metric: string) => void,
+  removeMetric: (metric: string) => void,
   className?: string,
   metrics: Array<Metric>,
   metricsTypeFilter: ?Array<string>,
@@ -44,18 +48,76 @@ type Props = {
 /*::
 type State = {
   open: boolean,
-  selectedMetric?: string
+  selectedMetric?: string,
+  popupPosition: BubblePopupPosition,
+  metrics: Array<MultiSelectValue>,
+  selectedMetrics: Array<MultiSelectValue>,
+  query: string
 };
 */
 
 export default class AddGraphMetric extends React.PureComponent {
+  card /*: HTMLDivElement | null*/ = null;
+
   /*:: props: Props; */
   state /*: State */ = {
-    open: false
+    open: false,
+    popupPosition: { top: 0, right: 0 },
+    metrics: [],
+    selectedMetrics: [],
+    query: ''
   };
 
-  getMetricsOptions = (metricsTypeFilter /*: ?Array<string> */) => {
-    return this.props.metrics
+  componentDidMount() {
+    if (this.card !== null) {
+      const cardPos = this.card.getBoundingClientRect();
+      this.setState({ popupPosition: this.getPopupPos(cardPos) });
+
+      window.addEventListener('keydown', this.handleKey, false);
+      window.addEventListener('click', this.handleOutsideClick, false);
+    }
+    this.setState({
+      metrics: this.createMetricsElements(this.props),
+      selectedMetrics: this.getSelectedMetricsElements(this.props.metrics)
+    });
+  }
+
+  componentWillReceiveProps(nextProps /*: Props */) {
+    if (nextProps.metrics.length > this.props.metrics.length) {
+      this.setState({
+        metrics: this.createMetricsElements(nextProps),
+        selectedMetrics: this.getSelectedMetricsElements(nextProps.metrics)
+      });
+    }
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('keydown', this.handleKey);
+    window.removeEventListener('click', this.handleOutsideClick);
+  }
+
+  getPopupPos = (containerPos /*: ClientRect*/) => ({
+    top: containerPos.height,
+    right: containerPos.width - 240
+  });
+
+  handleKey = (evt /*: KeyboardEvent*/) => {
+    // Escape key
+    if (evt.keyCode === 27) {
+      this.setState({ open: false });
+    }
+  };
+
+  handleOutsideClick = (evt /*: Event*/) => {
+    const { target /*: Node */ } = evt /* as Node*/;
+    if (!this.card || !this.card.contains(target)) {
+      this.setState({ open: false });
+    }
+  };
+
+  createMetricsElements = (nextProps /*: Props */) => {
+    const { metricsTypeFilter, metrics } = nextProps;
+    return metrics
       .filter(metric => {
         if (
           metric.hidden ||
@@ -71,111 +133,97 @@ export default class AddGraphMetric extends React.PureComponent {
         return true;
       })
       .map((metric /*: Metric */) => ({
-        value: metric.key,
+        key: metric.key,
         label: getLocalizedMetricName(metric)
       }));
   };
 
-  openForm = () => {
-    this.setState({
-      open: true
+  getSelectedMetricsElements = (metrics /*: Array<Metric> */) => {
+    return metrics.filter(metric => this.props.selectedMetrics.includes(metric.key)).map((
+      metric /*: Metric */
+    ) => ({
+      key: metric.key,
+      label: getLocalizedMetricName(metric)
+    }));
+  };
+
+  toggleForm = () => {
+    this.setState(state => {
+      return { open: !state.open };
     });
   };
 
-  closeForm = () => {
-    this.setState({
-      open: false,
-      selectedMetric: undefined
+  onSearch = (query /*: string */) => {
+    return new Promise(resolve => {
+      this.setState({ query }, () => {
+        resolve();
+      });
     });
   };
 
-  handleChange = (option /*: { value: string, label: string } */) =>
-    this.setState({ selectedMetric: option.value });
-
-  handleSubmit = (e /*: Object */) => {
-    e.preventDefault();
-    if (this.state.selectedMetric) {
-      this.props.addMetric(this.state.selectedMetric);
-      this.closeForm();
-    }
+  onSelect = (metric /*: MultiSelectValue */) => {
+    this.props.addMetric(metric.key);
+    this.setState(state => {
+      return {
+        selectedMetrics: [...state.selectedMetrics, metric].sort(
+          (a, b) => (a.label > b.label ? 1 : -1)
+        ),
+        metrics: state.metrics.filter(selected => selected.key !== metric.key)
+      };
+    });
   };
 
-  renderModal() {
-    const { metricsTypeFilter } = this.props;
-    const header = translate('project_activity.graphs.custom.add_metric');
+  onUnselect = (metric /*: MultiSelectValue */) => {
+    this.props.removeMetric(metric.key);
+    this.setState(state => {
+      return {
+        metrics: [...state.metrics, metric].sort((a, b) => (a.label > b.label ? 1 : -1)),
+        selectedMetrics: state.selectedMetrics.filter(selected => selected.key !== metric.key)
+      };
+    });
+  };
+
+  renderSelector() {
+    const { popupPosition, metrics, selectedMetrics, query } = this.state;
+    const filteredMetrics = metrics.filter(
+      (metric /*: MultiSelectValue */) =>
+        metric.label.toLowerCase().indexOf(query.toLowerCase()) > -1
+    );
+
     return (
-      <Modal key="add-metric-modal" contentLabel={header} onRequestClose={this.closeForm}>
-        <header className="modal-head">
-          <h2>{header}</h2>
-        </header>
-        <form onSubmit={this.handleSubmit}>
-          <div className="modal-body">
-            <div className="modal-large-field">
-              <label>{translate('project_activity.graphs.custom.search')}</label>
-              <Select
-                autofocus={true}
-                className="Select-big"
-                clearable={false}
-                noResultsText={translate('no_results')}
-                onChange={this.handleChange}
-                options={this.getMetricsOptions(metricsTypeFilter)}
-                placeholder=""
-                searchable={true}
-                value={this.state.selectedMetric}
-              />
-              <span className="alert alert-info">
-                {metricsTypeFilter != null && metricsTypeFilter.length > 0
-                  ? translateWithParameters(
-                      'project_activity.graphs.custom.type_x_message',
-                      metricsTypeFilter
-                        .map(type => translate('metric.type', type))
-                        .sort()
-                        .join(', ')
-                    )
-                  : translate('project_activity.graphs.custom.add_metric_info')}
-              </span>
-            </div>
-          </div>
-          <footer className="modal-foot">
-            <div>
-              <button type="submit" disabled={!this.state.selectedMetric}>
-                {translate('project_activity.graphs.custom.add')}
-              </button>
-              <button type="reset" className="button-link" onClick={this.closeForm}>
-                {translate('cancel')}
-              </button>
-            </div>
-          </footer>
-        </form>
-      </Modal>
+      <BubblePopup
+        customClass="bubble-popup-bottom-right bubble-popup-menu abs-width-300"
+        position={popupPosition}>
+        <MultiSelect
+          alertMessage={translate('project_activity.graphs.custom.add_metric_info')}
+          allowNewElements={false}
+          allowSelection={this.state.selectedMetrics.length < 6}
+          displayAlertMessage={this.state.selectedMetrics.length >= 6}
+          elements={filteredMetrics}
+          listSize={10}
+          onSearch={this.onSearch}
+          onSelect={this.onSelect}
+          onUnselect={this.onUnselect}
+          placeholder={translate('search.search_for_tags')}
+          selectedElements={selectedMetrics}
+        />
+      </BubblePopup>
     );
   }
 
   render() {
-    if (this.props.selectedMetrics.length >= 6) {
-      // Use the class .disabled instead of the property to prevent a bug from
-      // rc-tooltip : https://github.com/react-component/tooltip/issues/18
-      return (
-        <Tooltip
-          placement="right"
-          overlay={translate('project_activity.graphs.custom.add_metric_info')}>
-          <button className={classNames('disabled', this.props.className)}>
-            {translate('project_activity.graphs.custom.add')}
-          </button>
-        </Tooltip>
-      );
-    }
-
-    const buttonComponent = (
-      <button key="add-metric-button" className={this.props.className} onClick={this.openForm}>
-        {translate('project_activity.graphs.custom.add')}
-      </button>
+    return (
+      <div ref={card => (this.card = card)}>
+        <button className="spacer-left" onClick={this.toggleForm} type="button">
+          <span>
+            <span className="text-ellipsis spacer-right">
+              {translate('project_activity.graphs.custom.add')}
+            </span>
+            <DropdownIcon className="vertical-text-top" />
+          </span>
+        </button>
+        {this.state.open && this.renderSelector()}
+      </div>
     );
-
-    if (this.state.open) {
-      return [buttonComponent, this.renderModal()];
-    }
-
-    return buttonComponent;
   }
 }

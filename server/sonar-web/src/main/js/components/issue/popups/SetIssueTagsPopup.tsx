@@ -18,7 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { without } from 'lodash';
+import { differenceBy } from 'lodash';
+import { MultiSelectValue } from '../../../components/common/MultiSelect';
 import { BubblePopupPosition } from '../../../components/common/BubblePopup';
 import TagsSelector from '../../../components/tags/TagsSelector';
 import { searchIssueTags } from '../../../api/issues';
@@ -26,12 +27,12 @@ import { searchIssueTags } from '../../../api/issues';
 interface Props {
   popupPosition: BubblePopupPosition;
   organization: string;
-  selectedTags: string[];
+  selectedTags: MultiSelectValue[];
   setTags: (tags: string[]) => void;
 }
 
 interface State {
-  searchResult: string[];
+  searchResult: MultiSelectValue[];
 }
 
 const LIST_SIZE = 10;
@@ -56,22 +57,29 @@ export default class SetIssueTagsPopup extends React.PureComponent<Props, State>
     }).then(
       (tags: string[]) => {
         if (this.mounted) {
-          this.setState({ searchResult: tags });
+          this.setState({
+            searchResult: tags.map((tag: string) => {
+              return { key: tag, label: tag };
+            })
+          });
         }
       },
       () => {}
     );
   };
 
-  onSelect = (tag: string) => {
-    this.props.setTags([...this.props.selectedTags, tag]);
+  onSelect = (tag: MultiSelectValue) => {
+    this.props.setTags([...this.props.selectedTags, tag].map(tag => tag.key));
   };
 
-  onUnselect = (tag: string) => {
-    this.props.setTags(without(this.props.selectedTags, tag));
+  onUnselect = (tag: MultiSelectValue) => {
+    this.props.setTags(
+      this.props.selectedTags.filter(selected => selected.key !== tag.key).map(tag => tag.key)
+    );
   };
 
   render() {
+    const availableTags = differenceBy(this.state.searchResult, this.props.selectedTags, 'key');
     return (
       <TagsSelector
         listSize={LIST_SIZE}
@@ -80,7 +88,7 @@ export default class SetIssueTagsPopup extends React.PureComponent<Props, State>
         onUnselect={this.onUnselect}
         position={this.props.popupPosition}
         selectedTags={this.props.selectedTags}
-        tags={this.state.searchResult}
+        tags={availableTags}
       />
     );
   }

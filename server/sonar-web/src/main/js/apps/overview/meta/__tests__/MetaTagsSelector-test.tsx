@@ -50,21 +50,24 @@ it('searches tags on mount', () => {
 });
 
 it('selects and deselects tags', () => {
+  const itemA = { key: 'foo', label: 'foo' };
+  const itemB = { key: 'bar', label: 'bar' };
+  const itemC = { key: 'baz', label: 'baz' };
   const setProjectTags = jest.fn();
   const wrapper = shallow(
     <MetaTagsSelector
       position={{ top: 0, right: 0 }}
       project="foo"
-      selectedTags={['foo', 'bar']}
+      selectedTags={[itemA, itemB]}
       setProjectTags={setProjectTags}
     />
   );
 
   const tagSelect: any = wrapper.find('TagsSelector');
-  tagSelect.prop('onSelect')('baz');
-  expect(setProjectTags).toHaveBeenLastCalledWith(['foo', 'bar', 'baz']);
+  tagSelect.prop('onSelect')(itemC);
+  expect(setProjectTags).toHaveBeenLastCalledWith([itemA, itemB, itemC]);
 
   // note that the `selectedTags` is a prop and so it wasn't changed
-  tagSelect.prop('onUnselect')('bar');
-  expect(setProjectTags).toHaveBeenLastCalledWith(['foo']);
+  tagSelect.prop('onUnselect')(itemB);
+  expect(setProjectTags).toHaveBeenLastCalledWith([itemA]);
 });

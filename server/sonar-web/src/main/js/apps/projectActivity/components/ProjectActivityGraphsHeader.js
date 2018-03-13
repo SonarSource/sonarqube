@@ -28,6 +28,7 @@ import { translate } from '../../../helpers/l10n';
 /*::
 type Props = {
   addCustomMetric: string => void,
+  removeCustomMetric: string => void,
   graph: string,
   metrics: Array<Metric>,
   metricsTypeFilter: ?Array<string>,
@@ -56,10 +57,10 @@ export default class ProjectActivityGraphsHeader extends React.PureComponent {
         <Select
           className="pull-left input-medium"
           clearable={false}
+          onChange={this.handleGraphChange}
+          options={selectOptions}
           searchable={false}
           value={this.props.graph}
-          options={selectOptions}
-          onChange={this.handleGraphChange}
         />
         {isCustomGraph(this.props.graph) && (
           <AddGraphMetric
@@ -67,6 +68,7 @@ export default class ProjectActivityGraphsHeader extends React.PureComponent {
             className="pull-left spacer-left"
             metrics={this.props.metrics}
             metricsTypeFilter={this.props.metricsTypeFilter}
+            removeMetric={this.props.removeCustomMetric}
             selectedMetrics={this.props.selectedMetrics}
           />
         )}

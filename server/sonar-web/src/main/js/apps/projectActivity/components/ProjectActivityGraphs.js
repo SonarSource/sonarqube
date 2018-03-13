@@ -202,6 +202,7 @@ export default class ProjectActivityGraphs extends React.PureComponent {
           graph={query.graph}
           metrics={metrics}
           metricsTypeFilter={this.getMetricsTypeFilter()}
+          removeCustomMetric={this.removeCustomMetric}
           selectedMetrics={this.props.query.customMetrics}
           updateGraph={this.updateGraph}
         />

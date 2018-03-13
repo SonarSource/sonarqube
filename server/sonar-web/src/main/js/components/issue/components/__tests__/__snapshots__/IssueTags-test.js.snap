@@ -26,8 +26,26 @@ exports[`should open the popup when the button is clicked 2`] = `
       organization="foo"
       selectedTags={
         Array [
-          "mytag",
-          "test",
+          Object {
+            "key": Object {
+              "key": "mytag",
+              "label": "mytag",
+            },
+            "label": Object {
+              "key": "mytag",
+              "label": "mytag",
+            },
+          },
+          Object {
+            "key": Object {
+              "key": "test",
+              "label": "test",
+            },
+            "label": Object {
+              "key": "test",
+              "label": "test",
+            },
+          },
         ]
       }
       setTags={[Function]}
@@ -44,8 +62,14 @@ exports[`should open the popup when the button is clicked 2`] = `
       allowUpdate={true}
       tags={
         Array [
-          "mytag",
-          "test",
+          Object {
+            "key": "mytag",
+            "label": "mytag",
+          },
+          Object {
+            "key": "test",
+            "label": "test",
+          },
         ]
       }
     />
@@ -61,8 +85,26 @@ exports[`should render with the action 1`] = `
       organization="foo"
       selectedTags={
         Array [
-          "mytag",
-          "test",
+          Object {
+            "key": Object {
+              "key": "mytag",
+              "label": "mytag",
+            },
+            "label": Object {
+              "key": "mytag",
+              "label": "mytag",
+            },
+          },
+          Object {
+            "key": Object {
+              "key": "test",
+              "label": "test",
+            },
+            "label": Object {
+              "key": "test",
+              "label": "test",
+            },
+          },
         ]
       }
       setTags={[Function]}
@@ -79,8 +121,14 @@ exports[`should render with the action 1`] = `
       allowUpdate={true}
       tags={
         Array [
-          "mytag",
-          "test",
+          Object {
+            "key": "mytag",
+            "label": "mytag",
+          },
+          Object {
+            "key": "test",
+            "label": "test",
+          },
         ]
       }
     />

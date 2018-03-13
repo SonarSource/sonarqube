@@ -13,9 +13,18 @@ exports[`should render with selected tags 1`] = `
   <MultiSelect
     elements={
       Array [
-        "foo",
-        "bar",
-        "baz",
+        Object {
+          "key": "foo",
+          "label": "foo",
+        },
+        Object {
+          "key": "bar",
+          "label": "bar",
+        },
+        Object {
+          "key": "baz",
+          "label": "baz",
+        },
       ]
     }
     listSize={10}
@@ -25,7 +34,10 @@ exports[`should render with selected tags 1`] = `
     placeholder="search.search_for_tags"
     selectedElements={
       Array [
-        "bar",
+        Object {
+          "key": "bar",
+          "label": "bar",
+        },
       ]
     }
     validateSearchInput={[Function]}

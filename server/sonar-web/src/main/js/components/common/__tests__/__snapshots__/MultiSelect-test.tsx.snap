@@ -21,7 +21,12 @@ exports[`should render multiselect with selected elements 1`] = `
   >
     <MultiSelectOption
       active={true}
-      element="bar"
+      element={
+        Object {
+          "key": "bar",
+          "label": "bar",
+        }
+      }
       key="bar"
       onHover={[Function]}
       onSelectChange={[Function]}
@@ -52,7 +57,12 @@ exports[`should render multiselect with selected elements 2`] = `
   >
     <MultiSelectOption
       active={true}
-      element="bar"
+      element={
+        Object {
+          "key": "bar",
+          "label": "bar",
+        }
+      }
       key="bar"
       onHover={[Function]}
       onSelectChange={[Function]}
@@ -60,14 +70,39 @@ exports[`should render multiselect with selected elements 2`] = `
     />
     <MultiSelectOption
       active={false}
-      element="foo"
+      disabled={false}
+      element={
+        Object {
+          "key": "foo",
+          "label": "foo",
+        }
+      }
       key="foo"
       onHover={[Function]}
       onSelectChange={[Function]}
     />
     <MultiSelectOption
       active={false}
-      element="baz"
+      disabled={false}
+      element={
+        Object {
+          "key": "bar",
+          "label": "bar",
+        }
+      }
+      key="bar"
+      onHover={[Function]}
+      onSelectChange={[Function]}
+    />
+    <MultiSelectOption
+      active={false}
+      disabled={false}
+      element={
+        Object {
+          "key": "baz",
+          "label": "baz",
+        }
+      }
       key="baz"
       onHover={[Function]}
       onSelectChange={[Function]}
@@ -97,7 +132,12 @@ exports[`should render multiselect with selected elements 3`] = `
   >
     <MultiSelectOption
       active={false}
-      element="bar"
+      element={
+        Object {
+          "key": "bar",
+          "label": "bar",
+        }
+      }
       key="bar"
       onHover={[Function]}
       onSelectChange={[Function]}
@@ -105,14 +145,39 @@ exports[`should render multiselect with selected elements 3`] = `
     />
     <MultiSelectOption
       active={false}
-      element="foo"
+      disabled={false}
+      element={
+        Object {
+          "key": "foo",
+          "label": "foo",
+        }
+      }
       key="foo"
       onHover={[Function]}
       onSelectChange={[Function]}
     />
     <MultiSelectOption
       active={true}
-      element="baz"
+      disabled={false}
+      element={
+        Object {
+          "key": "bar",
+          "label": "bar",
+        }
+      }
+      key="bar"
+      onHover={[Function]}
+      onSelectChange={[Function]}
+    />
+    <MultiSelectOption
+      active={false}
+      disabled={false}
+      element={
+        Object {
+          "key": "baz",
+          "label": "baz",
+        }
+      }
       key="baz"
       onHover={[Function]}
       onSelectChange={[Function]}
@@ -142,7 +207,12 @@ exports[`should render multiselect with selected elements 4`] = `
   >
     <MultiSelectOption
       active={false}
-      element="bar"
+      element={
+        Object {
+          "key": "bar",
+          "label": "bar",
+        }
+      }
       key="bar"
       onHover={[Function]}
       onSelectChange={[Function]}
@@ -150,14 +220,39 @@ exports[`should render multiselect with selected elements 4`] = `
     />
     <MultiSelectOption
       active={false}
-      element="foo"
+      disabled={false}
+      element={
+        Object {
+          "key": "foo",
+          "label": "foo",
+        }
+      }
       key="foo"
       onHover={[Function]}
       onSelectChange={[Function]}
     />
     <MultiSelectOption
       active={true}
-      element="baz"
+      disabled={false}
+      element={
+        Object {
+          "key": "bar",
+          "label": "bar",
+        }
+      }
+      key="bar"
+      onHover={[Function]}
+      onSelectChange={[Function]}
+    />
+    <MultiSelectOption
+      active={false}
+      disabled={false}
+      element={
+        Object {
+          "key": "baz",
+          "label": "baz",
+        }
+      }
       key="baz"
       onHover={[Function]}
       onSelectChange={[Function]}
@@ -165,7 +260,12 @@ exports[`should render multiselect with selected elements 4`] = `
     <MultiSelectOption
       active={false}
       custom={true}
-      element="test"
+      element={
+        Object {
+          "key": "test",
+          "label": "test",
+        }
+      }
       key="test"
       onHover={[Function]}
       onSelectChange={[Function]}
