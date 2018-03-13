@@ -33,9 +33,16 @@ interface Props {
 
 export default class MultiSelectOption extends React.PureComponent<Props> {
   handleSelect = (evt: React.SyntheticEvent<HTMLAnchorElement>) => {
+    const { disabled = false } = this.props;
+
     evt.stopPropagation();
     evt.preventDefault();
     evt.currentTarget.blur();
+
+    if (disabled) {
+      return;
+    }
+
     this.props.onSelectChange(this.props.element, !this.props.selected);
   };
 
