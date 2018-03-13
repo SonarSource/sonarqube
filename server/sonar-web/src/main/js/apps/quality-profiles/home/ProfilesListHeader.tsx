@@ -19,8 +19,10 @@
  */
 import * as React from 'react';
 import { IndexLink } from 'react-router';
+import * as classNames from 'classnames';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { getProfilesPath, getProfilesForLanguagePath } from '../utils';
+import Dropdown from '../../../components/controls/Dropdown';
 
 interface Props {
   currentFilter?: string;
@@ -28,67 +30,55 @@ interface Props {
   organization: string | null;
 }
 
-export default class ProfilesListHeader extends React.PureComponent<Props> {
-  renderFilterToggle() {
-    const { languages, currentFilter } = this.props;
-    const currentLanguage = currentFilter && languages.find(l => l.key === currentFilter);
-
-    const label = currentLanguage
-      ? translateWithParameters('quality_profiles.x_Profiles', currentLanguage.name)
-      : translate('quality_profiles.all_profiles');
-
-    return (
-      <a
-        className="dropdown-toggle link-no-underline js-language-filter"
-        href="#"
-        data-toggle="dropdown">
-        {label} <i className="icon-dropdown" />
-      </a>
-    );
+export default function ProfilesListHeader({ currentFilter, languages, organization }: Props) {
+  if (languages.length < 2) {
+    return null;
   }
 
-  renderFilterMenu() {
-    return (
-      <ul className="dropdown-menu">
-        <li>
-          <IndexLink to={getProfilesPath(this.props.organization)}>
-            {translate('quality_profiles.all_profiles')}
-          </IndexLink>
-        </li>
-        {this.props.languages.map(language => (
-          <li key={language.key}>
-            <IndexLink
-              to={getProfilesForLanguagePath(language.key, this.props.organization)}
-              className="js-language-filter-option"
-              data-language={language.key}>
-              {language.name}
-            </IndexLink>
-          </li>
-        ))}
-      </ul>
-    );
+  const currentLanguage = currentFilter && languages.find(l => l.key === currentFilter);
+
+  // if unknown language, then
+  if (currentFilter && !currentLanguage) {
+    return null;
   }
 
-  render() {
-    if (this.props.languages.length < 2) {
-      return null;
-    }
+  const label = currentLanguage
+    ? translateWithParameters('quality_profiles.x_Profiles', currentLanguage.name)
+    : translate('quality_profiles.all_profiles');
 
-    const { languages, currentFilter } = this.props;
-    const currentLanguage = currentFilter && languages.find(l => l.key === currentFilter);
+  return (
+    <header className="quality-profiles-list-header clearfix">
+      <Dropdown>
+        {({ onToggleClick, open }) => (
+          <div className={classNames('dropdown', { open })}>
+            <a
+              className="dropdown-toggle link-no-underline js-language-filter"
+              href="#"
+              onClick={onToggleClick}>
+              {label}
+              <i className="icon-dropdown little-spacer-left" />
+            </a>
 
-    // if unknown language, then
-    if (currentFilter && !currentLanguage) {
-      return null;
-    }
-
-    return (
-      <header className="quality-profiles-list-header clearfix">
-        <div className="dropdown">
-          {this.renderFilterToggle()}
-          {this.renderFilterMenu()}
-        </div>
-      </header>
-    );
-  }
+            <ul className="dropdown-menu">
+              <li>
+                <IndexLink to={getProfilesPath(organization)}>
+                  {translate('quality_profiles.all_profiles')}
+                </IndexLink>
+              </li>
+              {languages.map(language => (
+                <li key={language.key}>
+                  <IndexLink
+                    className="js-language-filter-option"
+                    data-language={language.key}
+                    to={getProfilesForLanguagePath(language.key, organization)}>
+                    {language.name}
+                  </IndexLink>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </Dropdown>
+    </header>
+  );
 }

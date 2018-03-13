@@ -84,7 +84,16 @@ export default class BubbleChart extends React.PureComponent {
         }
       });
     }
-    return `<div class="text-left">${inner.join('<br/>')}</div>`;
+    return (
+      <div className="text-left">
+        {inner.map((line, index) => (
+          <React.Fragment key={index}>
+            {line}
+            {index < inner.length - 1 && <br />}
+          </React.Fragment>
+        ))}
+      </div>
+    );
   }
 
   handleBubbleClick = (component /*: ComponentEnhanced */) =>

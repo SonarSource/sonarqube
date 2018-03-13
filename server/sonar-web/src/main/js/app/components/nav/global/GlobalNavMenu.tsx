@@ -19,10 +19,12 @@
  */
 import * as React from 'react';
 import { Link } from 'react-router';
+import * as classNames from 'classnames';
 import { isLoggedIn, CurrentUser, AppState, Extension } from '../../../../app/types';
 import { translate } from '../../../../helpers/l10n';
 import { getQualityGatesUrl, getBaseUrl } from '../../../../helpers/urls';
 import { isMySet } from '../../../../apps/issues/utils';
+import Dropdown from '../../../../components/controls/Dropdown';
 
 interface Props {
   appState: AppState;
@@ -151,13 +153,21 @@ export default class GlobalNavMenu extends React.PureComponent<Props> {
       return null;
     }
     return (
-      <li className="dropdown">
-        <a className="dropdown-toggle" id="global-navigation-more" data-toggle="dropdown" href="#">
-          {translate('more')}&nbsp;
-          <span className="icon-dropdown" />
-        </a>
-        <ul className="dropdown-menu">{withoutPortfolios.map(this.renderGlobalPageLink)}</ul>
-      </li>
+      <Dropdown>
+        {({ onToggleClick, open }) => (
+          <li className={classNames('dropdown', { open })}>
+            <a
+              className={classNames('dropdown-toggle', { active: open })}
+              href="#"
+              id="global-navigation-more"
+              onClick={onToggleClick}>
+              {translate('more')}
+              <span className="icon-dropdown little-spacer-left" />
+            </a>
+            <ul className="dropdown-menu">{withoutPortfolios.map(this.renderGlobalPageLink)}</ul>
+          </li>
+        )}
+      </Dropdown>
     );
   }
 

@@ -45,7 +45,13 @@ export default class Risk extends React.PureComponent<Props> {
   getMetricTooltip(metric: { key: string; type: string }, value?: number) {
     const name = translate('metric', metric.key, 'name');
     const formattedValue = value != null ? formatMeasure(value, metric.type) : '–';
-    return `<div>${name}: ${formattedValue}</div>`;
+    return (
+      <div>
+        {name}
+        {': '}
+        {formattedValue}
+      </div>
+    );
   }
 
   getTooltip(
@@ -57,18 +63,26 @@ export default class Risk extends React.PureComponent<Props> {
     color2?: number
   ) {
     const fullProjectName =
-      this.props.displayOrganizations && project.organization
-        ? `${project.organization.name} / <strong>${project.name}</strong>`
-        : `<strong>${project.name}</strong>`;
-    const inner = [
-      `<div class="little-spacer-bottom">${fullProjectName}</div>`,
-      this.getMetricTooltip({ key: COLOR_METRIC_1, type: COLOR_METRIC_TYPE }, color1),
-      this.getMetricTooltip({ key: COLOR_METRIC_2, type: COLOR_METRIC_TYPE }, color2),
-      this.getMetricTooltip({ key: Y_METRIC, type: Y_METRIC_TYPE }, y),
-      this.getMetricTooltip({ key: X_METRIC, type: X_METRIC_TYPE }, x),
-      this.getMetricTooltip({ key: SIZE_METRIC, type: SIZE_METRIC_TYPE }, size)
-    ].join('');
-    return `<div class="text-left">${inner}</div>`;
+      this.props.displayOrganizations && project.organization ? (
+        <>
+          {project.organization.name}
+          {' / '}
+          <strong>{project.name}</strong>
+        </>
+      ) : (
+        <strong>{project.name}</strong>
+      );
+
+    return (
+      <div className="text-left">
+        <div className="little-spacer-bottom">{fullProjectName}</div>
+        {this.getMetricTooltip({ key: COLOR_METRIC_1, type: COLOR_METRIC_TYPE }, color1)}
+        {this.getMetricTooltip({ key: COLOR_METRIC_2, type: COLOR_METRIC_TYPE }, color2)}
+        {this.getMetricTooltip({ key: Y_METRIC, type: Y_METRIC_TYPE }, y)}
+        {this.getMetricTooltip({ key: X_METRIC, type: X_METRIC_TYPE }, x)}
+        {this.getMetricTooltip({ key: SIZE_METRIC, type: SIZE_METRIC_TYPE }, size)}
+      </div>
+    );
   }
 
   render() {

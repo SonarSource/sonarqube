@@ -21,10 +21,14 @@ import { stringify } from 'querystring';
 import * as React from 'react';
 import { Link } from 'react-router';
 import * as PropTypes from 'prop-types';
+import * as classNames from 'classnames';
 import MeasuresOverlay from './components/MeasuresOverlay';
 import { SourceViewerFile, BranchLike } from '../../app/types';
 import QualifierIcon from '../shared/QualifierIcon';
+import Dropdown from '../controls/Dropdown';
 import FavoriteContainer from '../controls/FavoriteContainer';
+import ListIcon from '../icons-components/ListIcon';
+import { ButtonIcon } from '../ui/buttons';
 import { WorkspaceContext } from '../workspace/context';
 import {
   getPathUrlAsString,
@@ -124,50 +128,55 @@ export default class SourceViewerHeader extends React.PureComponent<Props, State
           </div>
         </div>
 
-        <div className="dropdown source-viewer-header-actions">
-          <a
-            className="js-actions icon-list dropdown-toggle"
-            data-toggle="dropdown"
-            title={translate('component_viewer.more_actions')}
-          />
-          <ul className="dropdown-menu dropdown-menu-right">
-            <li>
-              <a className="js-measures" href="#" onClick={this.handleShowMeasuresClick}>
-                {translate('component_viewer.show_details')}
-              </a>
-              {this.state.measuresOverlay && (
-                <MeasuresOverlay
-                  branchLike={this.props.branchLike}
-                  onClose={this.handleMeasuresOverlayClose}
-                  sourceViewerFile={this.props.sourceViewerFile}
-                />
-              )}
-            </li>
-            <li>
-              <a
-                className="js-new-window"
-                href={getPathUrlAsString({
-                  pathname: '/component',
-                  query: { id: key, ...getBranchLikeQuery(this.props.branchLike) }
-                })}
-                target="_blank">
-                {translate('component_viewer.new_window')}
-              </a>
-            </li>
-            {!workspace && (
-              <li>
-                <a className="js-workspace" href="#" onClick={this.openInWorkspace}>
-                  {translate('component_viewer.open_in_workspace')}
-                </a>
-              </li>
-            )}
-            <li>
-              <a className="js-raw-source" href={rawSourcesLink} target="_blank">
-                {translate('component_viewer.show_raw_source')}
-              </a>
-            </li>
-          </ul>
-        </div>
+        <Dropdown>
+          {({ onToggleClick, open }) => (
+            <div className={classNames('dropdown source-viewer-header-actions', { open })}>
+              <ButtonIcon
+                className="js-actions"
+                onClick={onToggleClick}
+                tooltip={translate('component_viewer.more_actions')}>
+                <ListIcon />
+              </ButtonIcon>
+              <ul className="dropdown-menu dropdown-menu-right">
+                <li>
+                  <a className="js-measures" href="#" onClick={this.handleShowMeasuresClick}>
+                    {translate('component_viewer.show_details')}
+                  </a>
+                  {this.state.measuresOverlay && (
+                    <MeasuresOverlay
+                      branchLike={this.props.branchLike}
+                      onClose={this.handleMeasuresOverlayClose}
+                      sourceViewerFile={this.props.sourceViewerFile}
+                    />
+                  )}
+                </li>
+                <li>
+                  <a
+                    className="js-new-window"
+                    href={getPathUrlAsString({
+                      pathname: '/component',
+                      query: { id: key, ...getBranchLikeQuery(this.props.branchLike) }
+                    })}
+                    target="_blank">
+                    {translate('component_viewer.new_window')}
+                  </a>
+                </li>
+                {!workspace && (
+                  <li>
+                    <a className="js-workspace" href="#" onClick={this.openInWorkspace}>
+                      {translate('component_viewer.open_in_workspace')}
+                    </a>
+                  </li>
+                )}
+                <li>
+                  <a className="js-raw-source" href={rawSourcesLink} target="_blank">
+                    {translate('component_viewer.show_raw_source')}
+                  </a>
+                </li>
+              </ul>
+            </div>
+          )}
+        </Dropdown>
 
         <div className="source-viewer-header-measures">
           {isUnitTest && (

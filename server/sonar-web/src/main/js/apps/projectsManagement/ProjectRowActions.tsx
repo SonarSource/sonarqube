@@ -76,7 +76,7 @@ export default class ProjectRowActions extends React.PureComponent<Props, State>
     );
   };
 
-  handleDropdownClick = () => {
+  handleDropdownOpen = () => {
     if (this.state.hasAccess === undefined && !this.state.loading) {
       this.fetchPermissions();
     }
@@ -106,7 +106,7 @@ export default class ProjectRowActions extends React.PureComponent<Props, State>
     const { hasAccess } = this.state;
 
     return (
-      <ActionsDropdown onToggleClick={this.handleDropdownClick}>
+      <ActionsDropdown onOpen={this.handleDropdownOpen}>
         {hasAccess === true && (
           <ActionsDropdownItem to={getComponentPermissionsUrl(this.props.project.key)}>
             {translate('edit_permissions')}

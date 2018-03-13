@@ -22,6 +22,7 @@ import { Link } from 'react-router';
 import * as classNames from 'classnames';
 import * as PropTypes from 'prop-types';
 import { BranchLike, Component, Extension } from '../../../types';
+import Dropdown from '../../../../components/controls/Dropdown';
 import NavBarTabs from '../../../../components/nav/NavBarTabs';
 import {
   isShortLivingBranch,
@@ -182,17 +183,21 @@ export default class ComponentNavMenu extends React.PureComponent<Props> {
     }
 
     return (
-      <li className="dropdown">
-        <a
-          className={classNames('dropdown-toggle', { active: isSettingsActive })}
-          id="component-navigation-admin"
-          data-toggle="dropdown"
-          href="#">
-          {translate('layout.settings')}&nbsp;
-          <i className="icon-dropdown" />
-        </a>
-        <ul className="dropdown-menu">{adminLinks}</ul>
-      </li>
+      <Dropdown data-test="extensions">
+        {({ onToggleClick, open }) => (
+          <li className={classNames('dropdown', { open })}>
+            <a
+              className={classNames('dropdown-toggle', { active: isSettingsActive || open })}
+              href="#"
+              id="component-navigation-admin"
+              onClick={onToggleClick}>
+              {translate('layout.settings')}
+              <i className="icon-dropdown little-spacer-left" />
+            </a>
+            <ul className="dropdown-menu">{adminLinks}</ul>
+          </li>
+        )}
+      </Dropdown>
     );
   }
 
@@ -416,17 +421,21 @@ export default class ComponentNavMenu extends React.PureComponent<Props> {
     }
 
     return (
-      <li className="dropdown">
-        <a
-          className="dropdown-toggle"
-          id="component-navigation-more"
-          data-toggle="dropdown"
-          href="#">
-          {translate('more')}&nbsp;
-          <i className="icon-dropdown" />
-        </a>
-        <ul className="dropdown-menu">{extensions.map(e => this.renderExtension(e, false))}</ul>
-      </li>
+      <Dropdown data-test="admin-extensions">
+        {({ onToggleClick, open }) => (
+          <li className={classNames('dropdown', { open })}>
+            <a
+              className={classNames('dropdown-toggle', { active: open })}
+              href="#"
+              id="component-navigation-more"
+              onClick={onToggleClick}>
+              {translate('more')}
+              <i className="icon-dropdown little-spacer-left" />
+            </a>
+            <ul className="dropdown-menu">{extensions.map(e => this.renderExtension(e, false))}</ul>
+          </li>
+        )}
+      </Dropdown>
     );
   }
 
