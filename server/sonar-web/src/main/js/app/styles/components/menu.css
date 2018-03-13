@@ -79,9 +79,18 @@
   background-color: var(--barBackgroundColor);
 }
 
-.menu .menu-vertically-limited {
+.menu .menu-vertically-limited,
+.menu.menu-vertically-limited {
   max-height: 300px;
   overflow-y: auto;
+}
+
+.menu-vertically-limited.with-top-separator {
+  border-top: 1px solid #e6e6e6;
+}
+
+.menu-vertically-limited.with-bottom-separator {
+  border-bottom: 1px solid #e6e6e6;
 }
 
 .menu .menu-footer > a > span {

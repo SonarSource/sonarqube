@@ -200,7 +200,6 @@ export default class AddGraphMetric extends React.PureComponent {
           allowSelection={this.state.selectedMetrics.length < 6}
           displayAlertMessage={this.state.selectedMetrics.length >= 6}
           elements={filteredMetrics}
-          listSize={10}
           onSearch={this.onSearch}
           onSelect={this.onSelect}
           onUnselect={this.onUnselect}

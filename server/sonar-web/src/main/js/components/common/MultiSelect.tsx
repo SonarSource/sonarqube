@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import * as classNames from 'classnames';
 import { difference } from 'lodash';
 import MultiSelectOption from './MultiSelectOption';
 import SearchBox from '../controls/SearchBox';
@@ -62,7 +63,7 @@ export default class MultiSelect extends React.PureComponent<Props, State> {
   mounted = false;
 
   static defaultProps: DefaultProps = {
-    listSize: 10,
+    listSize: 0,
     validateSearchInput: (value: string) => value
   };
 
@@ -192,7 +193,9 @@ export default class MultiSelect extends React.PureComponent<Props, State> {
 
   updateUnselectedElements = (props: PropsWithDefault) => {
     this.setState((state: State) => {
-      if (props.listSize < state.selectedElements.length) {
+      if (props.listSize === 0) {
+        return { unselectedElements: difference(props.elements, props.selectedElements) };
+      } else if (props.listSize < state.selectedElements.length) {
         return { unselectedElements: [] };
       } else {
         return {
@@ -263,6 +266,13 @@ export default class MultiSelect extends React.PureComponent<Props, State> {
     } = this.props;
     const { query, activeIdx, selectedElements, unselectedElements } = this.state;
     const activeElement = this.getAllElements(this.props, this.state)[activeIdx];
+    const infiniteList = this.props.listSize === 0;
+    const listClasses = classNames('menu', {
+      'menu-vertically-limited': infiniteList,
+      'spacer-top': infiniteList,
+      'with-top-separator': infiniteList,
+      'with-bottom-separator': displayAlertMessage
+    });
 
     return (
       <div className="multi-select" ref={div => (this.container = div)}>
@@ -276,7 +286,7 @@ export default class MultiSelect extends React.PureComponent<Props, State> {
             value={query}
           />
         </div>
-        <ul className="menu">
+        <ul className={listClasses}>
           {selectedElements.length > 0 &&
             selectedElements.map(element => (
               <MultiSelectOption
@@ -312,7 +322,9 @@ export default class MultiSelect extends React.PureComponent<Props, State> {
             )}
         </ul>
         {displayAlertMessage && (
-          <span className="alert alert-info spacer-left spacer-right">{alertMessage}</span>
+          <span className="alert alert-info spacer-left spacer-right spacer-top">
+            {alertMessage}
+          </span>
         )}
       </div>
     );
