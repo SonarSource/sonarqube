@@ -336,7 +336,11 @@
   float: right;
   display: block;
   margin-left: 25px;
-  padding: 13px 5px;
+  padding: 8px 5px;
+}
+
+.source-viewer-header-actions svg {
+  margin-top: 2px;
 }
 
 .source-viewer-header-more-actions {
