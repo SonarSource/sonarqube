@@ -18,8 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 @import './jquery-ui.css';
-@import './select2.css';
-@import './select2-sonar.css';
 
 @import './init/base.css';
 @import './init/type.css';
