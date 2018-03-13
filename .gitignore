@@ -22,6 +22,9 @@ target/
 .idea/
 out/
 
+# Directories generated on build on Windows
+bin/
+
 # ---- Eclipse
 .classpath
 .project
