@@ -33,8 +33,11 @@ exports[`should edit members 2`] = `
     <div
       className="modal-body"
     >
-      <div
-        id="groups-users"
+      <SelectList
+        elements={Array []}
+        onSearch={[Function]}
+        onSelect={[Function]}
+        onUnselect={[Function]}
       />
     </div>
     <footer

@@ -18,14 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import * as escapeHtml from 'escape-html';
 import { Group } from '../../../app/types';
 import Modal from '../../../components/controls/Modal';
 import BulletListIcon from '../../../components/icons-components/BulletListIcon';
-import SelectList from '../../../components/SelectList';
+import SelectList from '../../../components/SelectList/SelectList';
 import { ButtonIcon, ResetButtonLink } from '../../../components/ui/buttons';
 import { translate } from '../../../helpers/l10n';
-import { getBaseUrl } from '../../../helpers/urls';
+import { getUsersInGroup, addUserToGroup, removeUserFromGroup } from '../../../api/user_groups';
 
 interface Props {
   group: Group;
@@ -35,14 +34,16 @@ interface Props {
 
 interface State {
   modal: boolean;
+  users: Array<{ key: string; name: string; selected: boolean }>;
 }
 
 export default class EditMembers extends React.PureComponent<Props, State> {
   container?: HTMLElement | null;
   mounted = false;
-  state: State = { modal: false };
+  state: State = { modal: false, users: [] };
 
   componentDidMount() {
+    this.handleSearch('', 'selected');
     this.mounted = true;
   }
 
@@ -50,42 +51,90 @@ export default class EditMembers extends React.PureComponent<Props, State> {
     this.mounted = false;
   }
 
+  handleSearch = (query: string, selected: string) => {
+    const requestData: any = {
+      id: this.props.group.id,
+      ps: 100,
+      p: 1,
+      selected
+    };
+
+    if (query !== '') {
+      requestData.q = query;
+    }
+
+    if (this.props.organization) {
+      requestData.organization = this.props.organization;
+    }
+
+    return getUsersInGroup(requestData).then(
+      (data: any) => {
+        this.setState({
+          users: data.users.map((user: any) => {
+            return { key: user.login, name: user.name, selected: user.selected };
+          })
+        });
+      },
+      () => {}
+    );
+  };
+
+  handleSelect = (key: number | string) => {
+    const requestData: any = {
+      name: this.props.group.name,
+      login: key
+    };
+
+    if (this.props.organization) {
+      requestData.organization = this.props.organization;
+    }
+
+    return addUserToGroup(requestData).then(
+      () => {
+        this.setState((state: State) => {
+          return {
+            users: state.users.map((user: any) => {
+              return user.key === key ? { ...user, selected: true } : user;
+            })
+          };
+        });
+      },
+      () => {}
+    );
+  };
+
+  handleUnselect = (key: number | string) => {
+    const requestData: any = {
+      name: this.props.group.name,
+      login: key
+    };
+
+    if (this.props.organization) {
+      requestData.organization = this.props.organization;
+    }
+
+    return removeUserFromGroup(requestData).then(
+      () => {
+        this.setState((state: State) => {
+          return {
+            users: state.users.map((user: any) => {
+              return user.key === key ? { ...user, selected: false } : user;
+            })
+          };
+        });
+      },
+      () => {}
+    );
+  };
+
   handleMembersClick = () => {
-    this.setState({ modal: true }, () => {
-      // defer rendering of the SelectList to make sure we have `ref` assigned
-      setTimeout(this.renderSelectList, 0);
-    });
+    this.setState({ modal: true });
   };
 
   handleModalClose = () => {
     if (this.mounted) {
       this.setState({ modal: false });
       this.props.onEdit();
-    }
-  };
-
-  renderSelectList = () => {
-    if (this.container) {
-      const extra = { name: this.props.group.name, organization: this.props.organization };
-
-      /* eslint-disable no-new */
-      new SelectList({
-        el: this.container,
-        width: '100%',
-        readOnly: false,
-        focusSearch: false,
-        dangerouslyUnescapedHtmlFormat: (item: { login: string; name: string }) =>
-          `${escapeHtml(item.name)}<br><span class="note">${escapeHtml(item.login)}</span>`,
-        queryParam: 'q',
-        searchUrl: getBaseUrl() + '/api/user_groups/users?ps=100&id=' + this.props.group.id,
-        selectUrl: getBaseUrl() + '/api/user_groups/add_user',
-        deselectUrl: getBaseUrl() + '/api/user_groups/remove_user',
-        extra,
-        selectParameter: 'login',
-        selectParameterValue: 'login',
-        parse: (r: any) => r.users
-      });
-      /* eslint-enable no-new */
     }
   };
 
@@ -104,7 +153,12 @@ export default class EditMembers extends React.PureComponent<Props, State> {
             </header>
 
             <div className="modal-body">
-              <div id="groups-users" ref={node => (this.container = node)} />
+              <SelectList
+                elements={this.state.users}
+                onSearch={this.handleSearch}
+                onSelect={this.handleSelect}
+                onUnselect={this.handleUnselect}
+              />
             </div>
 
             <footer className="modal-foot">

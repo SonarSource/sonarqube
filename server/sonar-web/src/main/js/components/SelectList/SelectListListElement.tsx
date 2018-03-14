@@ -21,7 +21,7 @@ import * as React from 'react';
 import * as classNames from 'classnames';
 
 export interface SelectListItem {
-  id: number;
+  key: string | number;
   name: string;
   selected: boolean;
 }
@@ -32,9 +32,7 @@ interface Props {
   onSelectChange: (element: SelectListItem) => void;
 }
 
-interface State {}
-
-export default class SelectListListElement extends React.PureComponent<Props, State> {
+export default class SelectListListElement extends React.PureComponent<Props, {}> {
   handleSelect = (evt: React.SyntheticEvent<HTMLAnchorElement>) => {
     evt.stopPropagation();
     evt.preventDefault();

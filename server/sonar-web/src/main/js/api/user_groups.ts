@@ -31,6 +31,18 @@ export function searchUsersGroups(data: {
   return getJSON('/api/user_groups/search', data);
 }
 
+export function getUsersInGroup(data: {
+  id?: number;
+  name?: string;
+  organization?: string;
+  p?: number;
+  ps?: number;
+  q?: string;
+  selected?: string;
+}): Promise<{ groups: Group[]; paging: Paging }> {
+  return getJSON('/api/user_groups/users', data);
+}
+
 export function addUserToGroup(data: {
   id?: string;
   name?: string;
@@ -46,7 +58,7 @@ export function removeUserFromGroup(data: {
   login?: string;
   organization?: string;
 }) {
-  return post('/api/user_groups/remove_user', data);
+  return post('/api/user_groups/remove_user', data).catch(throwGlobalError);
 }
 
 export function createGroup(data: {

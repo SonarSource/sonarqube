@@ -23,18 +23,16 @@ import SelectListListElement, { SelectListItem } from './SelectListListElement';
 interface Props {
   elements: SelectListItem[];
   filter: string;
-  onSelect: (id: number) => void;
-  onUnselect: (id: number) => void;
+  onSelect: (key: string | number) => void;
+  onUnselect: (key: string | number) => void;
 }
 
-interface State {}
-
-export default class SelectListListContainer extends React.PureComponent<Props, State> {
+export default class SelectListListContainer extends React.PureComponent<Props, {}> {
   handleSelectChange = (element: SelectListItem) => {
     if (element.selected) {
-      this.props.onUnselect(element.id);
+      this.props.onUnselect(element.key);
     } else {
-      this.props.onSelect(element.id);
+      this.props.onSelect(element.key);
     }
   };
 
@@ -53,7 +51,7 @@ export default class SelectListListContainer extends React.PureComponent<Props, 
           {filteredElements.map(element => (
             <SelectListListElement
               element={element}
-              key={element.id}
+              key={element.key}
               onSelectChange={this.handleSelectChange}
             />
           ))}

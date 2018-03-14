@@ -23,10 +23,13 @@ import { translate } from '../../helpers/l10n';
 import SearchBox from '../controls/SearchBox';
 
 interface Props {
+  labelSelected?: string;
+  labelDeselected?: string;
+  labelAll?: string;
   onSearch: (query: string, selected: string) => Promise<void>;
-  onSelect: (id: number) => Promise<void>;
-  onUnselect: (id: number) => Promise<void>;
-  elements: Array<{ id: number; name: string; selected: boolean }>;
+  onSelect: (key: string | number) => Promise<void>;
+  onUnselect: (key: string | number) => Promise<void>;
+  elements: Array<{ key: string | number; name: string; selected: boolean }>;
 }
 
 interface State {
@@ -60,40 +63,46 @@ export default class SelectList extends React.PureComponent<Props, State> {
     this.props.onSearch(query, this.getSelectedValueFromTabIndex(this.state.activeTab));
   };
 
-  handleSelect = (id: number) => {
-    this.props.onSelect(id);
+  handleSelect = (key: string | number) => {
+    this.props.onSelect(key);
   };
 
-  handleUnselect = (id: number) => {
-    this.props.onUnselect(id);
+  handleUnselect = (key: string | number) => {
+    this.props.onUnselect(key);
   };
 
   render() {
+    const {
+      labelSelected = 'Selected',
+      labelDeselected = 'Deselected',
+      labelAll = 'All'
+    } = this.props;
+    const buttonActive = 'button-active';
     const { activeTab } = this.state;
 
     return (
       <div>
         <div className="button-group pull-left spacer-right">
           <button
-            className={activeTab === 0 ? 'button-active' : undefined}
+            className={activeTab === 0 ? buttonActive : undefined}
             disabled={this.state.query !== ''}
             onClick={() => this.changeTab(0)}
             type="button">
-            {translate('quality_gates.projects.with')}
+            {labelSelected}
           </button>
           <button
-            className={activeTab === 1 ? 'button-active' : undefined}
+            className={activeTab === 1 ? buttonActive : undefined}
             disabled={this.state.query !== ''}
             onClick={() => this.changeTab(1)}
             type="button">
-            {translate('quality_gates.projects.without')}
+            {labelDeselected}
           </button>
           <button
-            className={activeTab === 2 ? 'button-active' : undefined}
+            className={activeTab === 2 ? buttonActive : undefined}
             disabled={this.state.query !== ''}
             onClick={() => this.changeTab(2)}
             type="button">
-            {translate('quality_gates.projects.all')}
+            {labelAll}
           </button>
         </div>
         <SearchBox

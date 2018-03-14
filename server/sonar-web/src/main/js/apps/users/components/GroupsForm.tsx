@@ -18,12 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import * as escapeHtml from 'escape-html';
 import { User } from '../../../app/types';
 import Modal from '../../../components/controls/Modal';
-import SelectList from '../../../components/SelectList';
+import SelectList from '../../../components/SelectList/SelectList';
 import { translate } from '../../../helpers/l10n';
-import { getBaseUrl } from '../../../helpers/urls';
+import { getUserGroups } from '../../../api/users';
+import { addUserToGroup, removeUserFromGroup } from '../../../api/user_groups';
 
 interface Props {
   onClose: () => void;
@@ -31,8 +31,68 @@ interface Props {
   user: User;
 }
 
+interface State {
+  error: string;
+  groups: Array<{ key: string; name: string; selected: boolean }>;
+}
+
 export default class GroupsForm extends React.PureComponent<Props> {
   container?: HTMLDivElement | null;
+  state: State = { error: '', groups: [] };
+
+  componentDidMount() {
+    this.handleSearch('', 'selected');
+  }
+
+  handleSearch = (query: string, selected: string) => {
+    return getUserGroups(this.props.user.login, undefined, query, selected).then(
+      (data: any) => {
+        this.setState({
+          groups: data.groups.map((group: any) => {
+            return { key: group.id, name: group.name, selected: group.selected };
+          })
+        });
+      },
+      () => {}
+    );
+  };
+
+  handleSelect = (key: number | string) => {
+    const requestData: any = {
+      id: key,
+      login: this.props.user.login
+    };
+
+    return addUserToGroup(requestData).then(
+      () => {
+        this.setState((state: State) => {
+          return {
+            groups: state.groups.map((group: any) => {
+              return group.key === key ? { ...group, selected: true } : group;
+            })
+          };
+        });
+      },
+      () => {}
+    );
+  };
+
+  handleUnselect = (key: number | string) => {
+    const requestData: any = {
+      id: key,
+      login: this.props.user.login
+    };
+
+    return removeUserFromGroup(requestData).then(() => {
+      this.setState((state: State) => {
+        return {
+          groups: state.groups.map((group: any) => {
+            return group.key === key ? { ...group, selected: false } : group;
+          })
+        };
+      });
+    });
+  };
 
   handleCloseClick = (event: React.SyntheticEvent<HTMLElement>) => {
     event.preventDefault();
@@ -44,46 +104,27 @@ export default class GroupsForm extends React.PureComponent<Props> {
     this.props.onClose();
   };
 
-  renderSelectList = () => {
-    const searchUrl = `${getBaseUrl()}/api/users/groups?ps=100&login=${encodeURIComponent(
-      this.props.user.login
-    )}`;
-
-    new (SelectList as any)({
-      el: this.container,
-      width: '100%',
-      readOnly: false,
-      focusSearch: false,
-      dangerouslyUnescapedHtmlFormat: (item: { name: string; description: string }) =>
-        `${escapeHtml(item.name)}<br><span class="note">${escapeHtml(item.description)}</span>`,
-      queryParam: 'q',
-      searchUrl,
-      selectUrl: getBaseUrl() + '/api/user_groups/add_user',
-      deselectUrl: getBaseUrl() + '/api/user_groups/remove_user',
-      extra: { login: this.props.user.login },
-      selectParameter: 'id',
-      selectParameterValue: 'id',
-      parse(r: any) {
-        this.more = false;
-        return r.groups;
-      }
-    });
-  };
-
   render() {
     const header = translate('users.update_groups');
 
     return (
-      <Modal
-        contentLabel={header}
-        onAfterOpen={this.renderSelectList}
-        onRequestClose={this.handleClose}>
+      <Modal contentLabel={header} onRequestClose={this.handleClose}>
         <div className="modal-head">
           <h2>{header}</h2>
         </div>
 
         <div className="modal-body">
-          <div id="user-groups" ref={node => (this.container = node)} />
+          {this.state.error !== '' && (
+            <div className="alert alert-danger">
+              <p>{this.state.error}</p>
+            </div>
+          )}
+          <SelectList
+            elements={this.state.groups}
+            onSearch={this.handleSearch}
+            onSelect={this.handleSelect}
+            onUnselect={this.handleUnselect}
+          />
         </div>
 
         <footer className="modal-foot">

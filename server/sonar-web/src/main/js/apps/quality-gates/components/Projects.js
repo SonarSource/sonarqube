@@ -19,10 +19,8 @@
  */
 import React from 'react';
 import escapeHtml from 'escape-html';
-import SelectList from '../../../components/SelectList';
-import SelectList2 from '../../../components/SelectList/SelectList';
+import SelectList from '../../../components/SelectList/SelectList';
 import { translate } from '../../../helpers/l10n';
-import { getBaseUrl } from '../../../helpers/urls';
 import {
   searchGates,
   associateGateWithProject,
@@ -41,7 +39,6 @@ export default class Projects extends React.PureComponent {
   };
 
   componentDidMount() {
-    this.renderSelectList();
     this.handleSearch('', 'selected');
   }
 
@@ -61,19 +58,23 @@ export default class Projects extends React.PureComponent {
       requestData.organization = organization;
     }
 
-    searchGates(requestData).then(
+    return searchGates(requestData).then(
       data => {
-        this.setState({ projects: data.results });
+        this.setState({
+          projects: data.results.map(project => {
+            return { key: project.id, name: project.name, selected: project.selected };
+          })
+        });
       },
       () => {}
     );
   };
 
-  handleSelect = (id /*: number*/) => {
+  handleSelect = (key /*: number|string*/) => {
     const { qualityGate, organization } = this.props;
     const requestData = {
       gateId: qualityGate.id,
-      projectId: id
+      projectId: parseInt(key, 10)
     };
 
     if (organization) {
@@ -83,22 +84,21 @@ export default class Projects extends React.PureComponent {
     return associateGateWithProject(requestData).then(
       () => {
         this.setState(state => {
-          return {
-            projects: state.projects.map(project => {
-              return project.id === id ? { ...project, selected: true } : project;
-            })
-          };
+          const projects = state.projects.map(project => {
+            return project.key === key ? { ...project, selected: true } : project;
+          });
+          return { projects };
         });
       },
       () => {}
     );
   };
 
-  handleUnselect = (id /*: number*/) => {
+  handleUnselect = (key /*: number|string*/) => {
     const { qualityGate, organization } = this.props;
     const requestData = {
       gateId: qualityGate.id,
-      projectId: id
+      projectId: parseInt(key, 10)
     };
 
     if (organization) {
@@ -108,66 +108,27 @@ export default class Projects extends React.PureComponent {
     return dissociateGateWithProject(requestData).then(
       () => {
         this.setState(state => {
-          return {
-            projects: state.projects.map(project => {
-              return project.id === id ? { ...project, selected: false } : project;
-            })
-          };
+          const projects = state.projects.map(project => {
+            return project.key === key ? { ...project, selected: false } : project;
+          });
+          return { projects };
         });
       },
       () => {}
     );
   };
 
-  renderSelectList = () => {
-    if (!this.container) return;
-
-    const { qualityGate, edit, organization } = this.props;
-
-    const extra = { gateId: qualityGate.id };
-    let orgQuery = '';
-    if (organization) {
-      extra.organization = organization;
-      orgQuery = '&organization=' + organization;
-    }
-
-    // eslint-disable-next-line no-new
-    new SelectList({
-      el: this.container,
-      width: '100%',
-      readOnly: !edit,
-      focusSearch: false,
-      dangerouslyUnescapedHtmlFormat: item => escapeHtml(item.name),
-      searchUrl: getBaseUrl() + `/api/qualitygates/search?gateId=${qualityGate.id}${orgQuery}`,
-      selectUrl: getBaseUrl() + '/api/qualitygates/select',
-      deselectUrl: getBaseUrl() + '/api/qualitygates/deselect',
-      extra,
-      selectParameter: 'projectId',
-      selectParameterValue: 'id',
-      labels: {
-        selected: translate('quality_gates.projects.with'),
-        deselected: translate('quality_gates.projects.without'),
-        all: translate('quality_gates.projects.all'),
-        noResults: translate('quality_gates.projects.noResults')
-      },
-      tooltips: {
-        select: translate('quality_gates.projects.select_hint'),
-        deselect: translate('quality_gates.projects.deselect_hint')
-      }
-    });
-  };
-
   render() {
     return (
-      <div>
-        <div ref={node => (this.container = node)} />
-        <SelectList2
-          elements={this.state.projects}
-          onSearch={this.handleSearch}
-          onSelect={this.handleSelect}
-          onUnselect={this.handleUnselect}
-        />
-      </div>
+      <SelectList
+        elements={this.state.projects}
+        labelAll={translate('quality_gates.projects.all')}
+        labelDeselected={translate('quality_gates.projects.without')}
+        labelSelected={translate('quality_gates.projects.with')}
+        onSearch={this.handleSearch}
+        onSelect={this.handleSelect}
+        onUnselect={this.handleUnselect}
+      />
     );
   }
 }
