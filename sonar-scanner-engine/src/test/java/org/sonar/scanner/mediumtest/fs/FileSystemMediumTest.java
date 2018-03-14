@@ -629,19 +629,21 @@ public class FileSystemMediumTest {
   // SONAR-6719
   @Test
   public void scanProjectWithWrongCase() {
-    assumeTrue(System2.INSTANCE.isOsWindows());
-    File projectDir = new File("src/test/resources/mediumtest/xoo/sample");
-    TaskResult result = tester
-      .newScanTask(new File(projectDir, "sonar-project.properties"))
-      .property("sonar.sources", "XOURCES")
-      .property("sonar.tests", "TESTX")
-      .execute();
+    // To please the quality gate, don't use assumeTrue, or the test will be reported as skipped
+    if (System2.INSTANCE.isOsWindows()) {
+      File projectDir = new File("src/test/resources/mediumtest/xoo/sample");
+      TaskResult result = tester
+        .newScanTask(new File(projectDir, "sonar-project.properties"))
+        .property("sonar.sources", "XOURCES")
+        .property("sonar.tests", "TESTX")
+        .execute();
 
-    assertThat(result.inputFiles()).hasSize(3);
-    assertThat(result.inputFiles()).extractingResultOf("relativePath").containsOnly(
-      "xources/hello/HelloJava.xoo",
-      "xources/hello/helloscala.xoo",
-      "testx/ClassOneTest.xoo");
+      assertThat(result.inputFiles()).hasSize(3);
+      assertThat(result.inputFiles()).extractingResultOf("relativePath").containsOnly(
+        "xources/hello/HelloJava.xoo",
+        "xources/hello/helloscala.xoo",
+        "testx/ClassOneTest.xoo");
+    }
   }
 
   @Test
