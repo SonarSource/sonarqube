@@ -9,7 +9,6 @@ sonarqube {
 }
 
 apply plugin: 'com.moowork.node'
-apply plugin: 'war'
 
 node {
   version = '8.5.0'
@@ -18,12 +17,18 @@ node {
 }
 
 yarn_run {
+  inputs.dir('config')
+  inputs.dir('public')
   inputs.dir('scripts')
-  inputs.dir('src/main/js')
-  inputs.file('build.gradle')
-  outputs.dir('src/main/webapp')
+  inputs.dir('src')
+  inputs.file('.babelrc')
+  inputs.file('package.json')
+  inputs.file('tsconfig.json')
+  inputs.file('yarn.lock')
+  outputs.dir('build/webapp')
 
   args = ['build']
 }
 
-war.dependsOn yarn_run
+yarn_run.dependsOn ':server:sonar-web:yarn_run'
+

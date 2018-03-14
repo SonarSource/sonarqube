@@ -108,6 +108,9 @@ task zip(type: Zip) {
     from {
       configurations.webapp.files.collect { zipTree(it) }
     }
+    from {
+      tasks.getByPath(':server:sonar-vsts:yarn_run').outputs
+    }
   }
   into("${archiveDir}/lib/jdbc/mssql/") {
     from configurations.jdbc_mssql

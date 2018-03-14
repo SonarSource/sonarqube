@@ -6,13 +6,16 @@
     "noUnusedParameters": true,
     "noImplicitAny": true,
     "strict": true,
-    "strictFunctionTypes": false,
     "target": "es5",
     "jsx": "react",
     "lib": ["es2017", "dom"],
     "module": "esnext",
     "moduleResolution": "node",
-    "typeRoots": ["./node_modules/@types"]
+    "strictFunctionTypes": false,
+    "baseUrl": "./",
+    "paths": {
+      "*": ["../sonar-web/node_modules/@types/*", "./node_modules/@types/*", "*"]
+    }
   },
   "include": ["./src/main/js/**/*"]
 }
