@@ -20,13 +20,104 @@
 import React from 'react';
 import escapeHtml from 'escape-html';
 import SelectList from '../../../components/SelectList';
+import SelectList2 from '../../../components/SelectList/SelectList';
 import { translate } from '../../../helpers/l10n';
 import { getBaseUrl } from '../../../helpers/urls';
+import {
+  searchGates,
+  associateGateWithProject,
+  dissociateGateWithProject
+} from '../../../api/quality-gates';
+
+/*::
+type State = {
+  projects: Array<{ id: number; name: string; selected: boolean }>
+};
+*/
 
 export default class Projects extends React.PureComponent {
+  state /*: State */ = {
+    projects: []
+  };
+
   componentDidMount() {
     this.renderSelectList();
+    this.handleSearch('', 'selected');
   }
+
+  handleSearch = (query /*: string*/, selected /*: string */) => {
+    const { qualityGate, organization } = this.props;
+    const requestData = {
+      gateId: qualityGate.id,
+      pageSize: 100,
+      selected
+    };
+
+    if (query !== '') {
+      requestData.query = query;
+    }
+
+    if (organization) {
+      requestData.organization = organization;
+    }
+
+    searchGates(requestData).then(
+      data => {
+        this.setState({ projects: data.results });
+      },
+      () => {}
+    );
+  };
+
+  handleSelect = (id /*: number*/) => {
+    const { qualityGate, organization } = this.props;
+    const requestData = {
+      gateId: qualityGate.id,
+      projectId: id
+    };
+
+    if (organization) {
+      requestData.organization = organization;
+    }
+
+    return associateGateWithProject(requestData).then(
+      () => {
+        this.setState(state => {
+          return {
+            projects: state.projects.map(project => {
+              return project.id === id ? { ...project, selected: true } : project;
+            })
+          };
+        });
+      },
+      () => {}
+    );
+  };
+
+  handleUnselect = (id /*: number*/) => {
+    const { qualityGate, organization } = this.props;
+    const requestData = {
+      gateId: qualityGate.id,
+      projectId: id
+    };
+
+    if (organization) {
+      requestData.organization = organization;
+    }
+
+    return dissociateGateWithProject(requestData).then(
+      () => {
+        this.setState(state => {
+          return {
+            projects: state.projects.map(project => {
+              return project.id === id ? { ...project, selected: false } : project;
+            })
+          };
+        });
+      },
+      () => {}
+    );
+  };
 
   renderSelectList = () => {
     if (!this.container) return;
@@ -67,6 +158,16 @@ export default class Projects extends React.PureComponent {
   };
 
   render() {
-    return <div ref={node => (this.container = node)} />;
+    return (
+      <div>
+        <div ref={node => (this.container = node)} />
+        <SelectList2
+          elements={this.state.projects}
+          onSearch={this.handleSearch}
+          onSelect={this.handleSelect}
+          onUnselect={this.handleUnselect}
+        />
+      </div>
+    );
   }
 }

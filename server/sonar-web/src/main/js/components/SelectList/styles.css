@@ -30,6 +30,8 @@
 .select-list-list-container {
   border: 1px solid #bfbfbf;
   box-sizing: border-box;
+  height: 400px;
+  overflow: auto;
 }
 
 .select-list-list-container.loading .select-list-list {

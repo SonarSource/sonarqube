@@ -133,10 +133,21 @@ export function getGateForProject(data: {
   );
 }
 
+export function searchGates(data: {
+  gateId: number;
+  organization?: string;
+  page: number;
+  pageSize: number;
+  selected: string;
+}): Promise<void | Response> {
+  return getJSON('/api/qualitygates/search', data).catch(throwGlobalError);
+}
+
 export function associateGateWithProject(data: {
   gateId: number;
   organization?: string;
-  projectKey: string;
+  projectKey?: string;
+  projectId?: string;
 }): Promise<void | Response> {
   return post('/api/qualitygates/select', data).catch(throwGlobalError);
 }
@@ -144,7 +155,8 @@ export function associateGateWithProject(data: {
 export function dissociateGateWithProject(data: {
   gateId: number;
   organization?: string;
-  projectKey: string;
+  projectKey?: string;
+  projectId?: string;
 }): Promise<void | Response> {
   return post('/api/qualitygates/deselect', data).catch(throwGlobalError);
 }
