@@ -19,13 +19,25 @@
  */
 import * as React from 'react';
 import { IconProps } from './types';
-import ChevronDownIcon from './ChevronDownIcon';
-import ChevronRightIcon from './ChevronRightcon';
 
-interface Props extends IconProps {
-  open: boolean;
-}
-
-export default function OpenCloseIcon({ open, ...props }: Props) {
-  return open ? <ChevronDownIcon {...props} /> : <ChevronRightIcon {...props} />;
+export default function ChevronLeftIcon({
+  className,
+  fill = 'currentColor',
+  size = 16
+}: IconProps) {
+  return (
+    <svg
+      className={className}
+      height={size}
+      version="1.1"
+      viewBox="0 0 16 16"
+      width={size}
+      xmlSpace="preserve"
+      xmlnsXlink="http://www.w3.org/1999/xlink">
+      <path
+        d="M4.404 8.28l4.604 4.602a.382.382 0 0 0 .279.118c.108 0 .2-.04.279-.118l1.03-1.03a.382.382 0 0 0 .117-.278.382.382 0 0 0-.117-.28L7.3 8l3.295-3.294a.382.382 0 0 0 .117-.28.382.382 0 0 0-.117-.279l-1.03-1.03A.382.382 0 0 0 9.286 3a.382.382 0 0 0-.278.118L4.404 7.72A.382.382 0 0 0 4.287 8c0 .108.04.201.117.28z"
+        style={{ fill }}
+      />;
+    </svg>
+  );
 }
