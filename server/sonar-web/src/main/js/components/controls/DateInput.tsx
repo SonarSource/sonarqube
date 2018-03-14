@@ -34,7 +34,7 @@ interface Props {
   inputClassName?: string;
   maxDate?: Date;
   minDate?: Date;
-  name: string;
+  name?: string;
   onChange: (date: Date | undefined) => void;
   placeholder: string;
   value?: Date;
