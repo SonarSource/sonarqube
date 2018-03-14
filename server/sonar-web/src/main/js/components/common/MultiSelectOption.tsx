@@ -33,23 +33,19 @@ interface Props {
 
 export default class MultiSelectOption extends React.PureComponent<Props> {
   handleSelect = (evt: React.SyntheticEvent<HTMLAnchorElement>) => {
-    const { disabled = false } = this.props;
-
     evt.stopPropagation();
     evt.preventDefault();
     evt.currentTarget.blur();
 
-    if (disabled) {
-      return;
+    if (!this.props.disabled) {
+      this.props.onSelectChange(this.props.element, !this.props.selected);
     }
-
-    this.props.onSelectChange(this.props.element, !this.props.selected);
   };
 
   handleHover = () => this.props.onHover(this.props.element);
 
   render() {
-    const { selected, disabled = false } = this.props;
+    const { selected, disabled } = this.props;
     const className = classNames('icon-checkbox', {
       'icon-checkbox-checked': selected,
       'icon-checkbox-invisible': disabled

@@ -28,12 +28,12 @@ export interface MultiSelectValue {
   label: string;
 }
 interface Props {
+  alertMessage?: string;
+  allowNewElements?: boolean;
+  allowSelection?: boolean;
+  displayAlertMessage?: boolean;
   elements: MultiSelectValue[];
   listSize?: number;
-  allowSelection?: boolean;
-  allowNewElements?: boolean;
-  displayAlertMessage?: boolean;
-  alertMessage?: string;
   onSearch: (query: string) => Promise<void>;
   onSelect: (item: MultiSelectValue) => void;
   onUnselect: (item: MultiSelectValue) => void;
@@ -179,11 +179,9 @@ export default class MultiSelect extends React.PureComponent<Props, State> {
     this.setState((state: State) => {
       if (state.query) {
         return {
-          selectedElements: [
-            ...props.selectedElements.filter(
-              elem => elem.key.includes(state.query) || elem.label.includes(state.query)
-            )
-          ]
+          selectedElements: props.selectedElements.filter(
+            elem => elem.key.includes(state.query) || elem.label.includes(state.query)
+          )
         };
       } else {
         return { selectedElements: [...props.selectedElements] };

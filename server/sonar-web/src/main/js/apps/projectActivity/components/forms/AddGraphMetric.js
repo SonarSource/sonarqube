@@ -19,6 +19,7 @@
  */
 // @flow
 import React from 'react';
+import { sortBy } from 'lodash';
 import DropdownIcon from '../../../../components/icons-components/DropdownIcon';
 import BubblePopup from '../../../../components/common/BubblePopup';
 import MultiSelect from '../../../../components/common/MultiSelect';
@@ -164,20 +165,15 @@ export default class AddGraphMetric extends React.PureComponent {
   };
 
   onSearch = (query /*: string */) => {
-    return new Promise(resolve => {
-      this.setState({ query }, () => {
-        resolve();
-      });
-    });
+    this.setState({ query });
+    return Promise.resolve();
   };
 
   onSelect = (metric /*: MultiSelectValue */) => {
     this.props.addMetric(metric.key);
     this.setState(state => {
       return {
-        selectedMetrics: [...state.selectedMetrics, metric].sort(
-          (a, b) => (a.label > b.label ? 1 : -1)
-        ),
+        selectedMetrics: sortBy([...state.selectedMetrics, metric], 'label'),
         metrics: state.metrics.filter(selected => selected.key !== metric.key)
       };
     });
@@ -187,7 +183,7 @@ export default class AddGraphMetric extends React.PureComponent {
     this.props.removeMetric(metric.key);
     this.setState(state => {
       return {
-        metrics: [...state.metrics, metric].sort((a, b) => (a.label > b.label ? 1 : -1)),
+        metrics: sortBy([...state.metrics, metric], 'label'),
         selectedMetrics: state.selectedMetrics.filter(selected => selected.key !== metric.key)
       };
     });
