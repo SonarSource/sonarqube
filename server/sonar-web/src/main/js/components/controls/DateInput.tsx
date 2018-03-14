@@ -21,12 +21,18 @@ import * as React from 'react';
 import * as classNames from 'classnames';
 import DayPicker, { DayModifiers } from 'react-day-picker';
 import { intlShape, InjectedIntlProps } from 'react-intl';
+import { range } from 'lodash';
+import { addMonths, subMonths, setYear, setMonth } from 'date-fns';
 import OutsideClickHandler from './OutsideClickHandler';
+import Select from './Select';
 import * as theme from '../../app/theme';
 import CalendarIcon from '../icons-components/CalendarIcon';
+import ChevronLeftIcon from '../icons-components/ChevronLeftIcon';
+import ChevronRightIcon from '../icons-components/ChevronRightcon';
 import ClearIcon from '../icons-components/ClearIcon';
 import { longFormatterOption } from '../intl/DateFormatter';
 import { ButtonIcon } from '../ui/buttons';
+import { getShortMonthName } from '../../helpers/l10n';
 import 'react-day-picker/lib/style.css';
 import './styles.css';
 
@@ -42,6 +48,7 @@ interface Props {
 }
 
 interface State {
+  currentMonth: Date;
   open: boolean;
 }
 
@@ -56,7 +63,7 @@ export default class DateInput extends React.PureComponent<Props, State> {
     intl: intlShape
   };
 
-  state: State = { open: false };
+  state: State = { currentMonth: new Date(), open: false };
 
   handleResetClick = () => {
     this.closeCalendar();
@@ -64,7 +71,7 @@ export default class DateInput extends React.PureComponent<Props, State> {
   };
 
   openCalendar = () => {
-    this.setState({ open: true });
+    this.setState({ currentMonth: this.props.value || new Date(), open: true });
   };
 
   closeCalendar = () => {
@@ -78,12 +85,31 @@ export default class DateInput extends React.PureComponent<Props, State> {
     }
   };
 
+  handleCurrentMonthChange = ({ value }: { value: number }) => {
+    this.setState((state: State) => ({ currentMonth: setMonth(state.currentMonth, value) }));
+  };
+
+  handleCurrentYearChange = ({ value }: { value: number }) => {
+    this.setState(state => ({ currentMonth: setYear(state.currentMonth, value) }));
+  };
+
+  handlePreviousMonthClick = () => {
+    this.setState(state => ({ currentMonth: subMonths(state.currentMonth, 1) }));
+  };
+
+  handleNextMonthClick = () => {
+    this.setState(state => ({ currentMonth: addMonths(state.currentMonth, 1) }));
+  };
+
   render() {
     const { minDate, value } = this.props;
     const { formatDate } = this.context.intl;
     const formattedValue = value && formatDate(value, longFormatterOption);
 
     const after = this.props.maxDate || new Date();
+
+    const months = range(12);
+    const years = range(new Date().getFullYear() - 10, new Date().getFullYear() + 1);
 
     return (
       <OutsideClickHandler onClickOutside={this.closeCalendar}>
@@ -109,16 +135,49 @@ export default class DateInput extends React.PureComponent<Props, State> {
               </ButtonIcon>
             )}
             {this.state.open && (
-              <DayPicker
-                className="date-input-calendar"
-                disabledDays={{ after, before: minDate }}
-                onDayClick={this.handleDayClick}
-                selectedDays={this.props.value}
-              />
+              <div className="date-input-calendar">
+                <nav className="date-input-calendar-nav">
+                  <ButtonIcon className="button-small" onClick={this.handlePreviousMonthClick}>
+                    <ChevronLeftIcon />
+                  </ButtonIcon>
+                  <div className="date-input-calender-month">
+                    <Select
+                      className="date-input-calender-month-select"
+                      onChange={this.handleCurrentMonthChange}
+                      options={months.map(month => ({
+                        label: getShortMonthName(month),
+                        value: month
+                      }))}
+                      value={this.state.currentMonth.getMonth()}
+                    />
+                    <Select
+                      className="date-input-calender-month-select spacer-left"
+                      onChange={this.handleCurrentYearChange}
+                      options={years.map(year => ({ label: String(year), value: year }))}
+                      value={this.state.currentMonth.getFullYear()}
+                    />
+                  </div>
+                  <ButtonIcon className="button-small" onClick={this.handleNextMonthClick}>
+                    <ChevronRightIcon />
+                  </ButtonIcon>
+                </nav>
+                <DayPicker
+                  captionElement={<NullComponent />}
+                  disabledDays={{ after, before: minDate }}
+                  month={this.state.currentMonth}
+                  navbarElement={<NullComponent />}
+                  onDayClick={this.handleDayClick}
+                  selectedDays={this.props.value}
+                />
+              </div>
             )}
           </span>
         )}
       </OutsideClickHandler>
     );
   }
+}
+
+function NullComponent() {
+  return null;
 }

@@ -62,6 +62,22 @@
   box-shadow: var(--defaultShadow);
 }
 
+.date-input-calendar-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: var(--gridSize);
+  padding-left: var(--gridSize);
+  padding-right: var(--gridSize);
+}
+
+.date-input-calender-month {
+}
+
+.date-input-calender-month-select {
+  width: 70px;
+}
+
 .boolean-toggle {
   display: inline-block;
   vertical-align: middle;
