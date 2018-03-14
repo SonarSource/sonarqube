@@ -33,7 +33,7 @@ import ClearIcon from '../icons-components/ClearIcon';
 import { longFormatterOption } from '../intl/DateFormatter';
 import { ButtonIcon } from '../ui/buttons';
 import { getShortMonthName } from '../../helpers/l10n';
-import 'react-day-picker/lib/style.css';
+import './DayPicker.css';
 import './styles.css';
 
 interface Props {
@@ -164,6 +164,7 @@ export default class DateInput extends React.PureComponent<Props, State> {
                 <DayPicker
                   captionElement={<NullComponent />}
                   disabledDays={{ after, before: minDate }}
+                  firstDayOfWeek={1}
                   month={this.state.currentMonth}
                   navbarElement={<NullComponent />}
                   onDayClick={this.handleDayClick}
