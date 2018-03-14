@@ -1,12 +1,3 @@
-# The following should be moved in related sub-directories
-server/sonar-web/src/main/webapp/stylesheets/sonar-colorizer.css
-server/sonar-web/src/main/webapp/deploy/plugins
-server/sonar-web/src/main/webapp/deploy/bootstrap
-server/sonar-web/src/main/webapp/deploy/maven/org
-server/sonar-web/src/main/webapp/WEB-INF/log/
-server/sonar-web/src/main/webapp/deploy/*.jar
-server/sonar-web/src/main/webapp/deploy/jdbc-driver.txt
-
 # ---- Gradle
 build/
 .gradle/
