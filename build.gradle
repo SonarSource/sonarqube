@@ -170,7 +170,7 @@ subprojects {
         exclude 'xerces:xmlParserAPIs'
         exclude 'xerces:xercesImpl'
       }
-      dependencySet(group: 'org.eclipse.jetty', version: '9.3.11.v20160721') {
+      dependencySet(group: 'org.eclipse.jetty', version: '9.4.8.v20171121') {
         entry 'jetty-proxy'
         entry 'jetty-server'
         entry 'jetty-servlet'
