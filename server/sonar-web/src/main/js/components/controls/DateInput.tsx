@@ -23,6 +23,7 @@ import DayPicker, { DayModifiers } from 'react-day-picker';
 import { intlShape, InjectedIntlProps } from 'react-intl';
 import OutsideClickHandler from './OutsideClickHandler';
 import * as theme from '../../app/theme';
+import CalendarIcon from '../icons-components/CalendarIcon';
 import ClearIcon from '../icons-components/ClearIcon';
 import { longFormatterOption } from '../intl/DateFormatter';
 import { ButtonIcon } from '../ui/buttons';
@@ -98,11 +99,7 @@ export default class DateInput extends React.PureComponent<Props, State> {
               type="text"
               value={formattedValue || ''}
             />
-            <span className="date-input-control-icon">
-              <svg height="14" viewBox="0 0 16 16" width="14">
-                <path d="M5.5 6h2v2h-2V6zm3 0h2v2h-2V6zm3 0h2v2h-2V6zm-9 6h2v2h-2v-2zm3 0h2v2h-2v-2zm3 0h2v2h-2v-2zm-3-3h2v2h-2V9zm3 0h2v2h-2V9zm3 0h2v2h-2V9zm-9 0h2v2h-2V9zm11-9v1h-2V0h-7v1h-2V0h-2v16h15V0h-2zm1 15h-13V4h13v11z" />
-              </svg>
-            </span>
+            <CalendarIcon className="date-input-control-icon" fill="" />
             {this.props.value !== undefined && (
               <ButtonIcon
                 className="button-tiny date-input-control-reset"
