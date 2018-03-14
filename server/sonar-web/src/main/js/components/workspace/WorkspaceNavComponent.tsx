@@ -17,17 +17,31 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import Marionette from 'backbone.marionette';
-import ItemView from './item-view';
-import Template from '../templates/workspace-items.hbs';
+import * as React from 'react';
+import { ComponentDescriptor } from './context';
+import WorkspaceComponentTitle from './WorkspaceComponentTitle';
+import WorkspaceNavItem from './WorkspaceNavItem';
 
-export default Marionette.CompositeView.extend({
-  className: 'workspace-nav',
-  template: Template,
-  childViewContainer: '.workspace-nav-list',
-  childView: ItemView,
+export interface Props {
+  component: ComponentDescriptor;
+  onClose: (componentKey: string) => void;
+  onOpen: (componentKey: string) => void;
+}
 
-  childViewOptions() {
-    return { collectionView: this };
+export default class WorkspaceNavComponent extends React.PureComponent<Props> {
+  handleClose = () => {
+    this.props.onClose(this.props.component.key);
+  };
+
+  handleOpen = () => {
+    this.props.onOpen(this.props.component.key);
+  };
+
+  render() {
+    return (
+      <WorkspaceNavItem onClose={this.handleClose} onOpen={this.handleOpen}>
+        <WorkspaceComponentTitle component={this.props.component} limited={true} />
+      </WorkspaceNavItem>
+    );
   }
-});
+}

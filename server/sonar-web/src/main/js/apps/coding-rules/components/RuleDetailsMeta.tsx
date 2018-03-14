@@ -37,6 +37,7 @@ import { Button } from '../../../components/ui/buttons';
 
 interface Props {
   canWrite: boolean | undefined;
+  hideSimilarRulesFilter?: boolean;
   onFilterChange: (changes: Partial<Query>) => void;
   onTagsChange: (tags: string[]) => void;
   organization: string | undefined;
@@ -228,7 +229,9 @@ export default class RuleDetailsMeta extends React.PureComponent<Props, State> {
               to={getRuleUrl(ruleDetails.key, this.props.organization)}>
               <LinkIcon />
             </Link>
-            <SimilarRulesFilter onFilterChange={this.props.onFilterChange} rule={ruleDetails} />
+            {!this.props.hideSimilarRulesFilter && (
+              <SimilarRulesFilter onFilterChange={this.props.onFilterChange} rule={ruleDetails} />
+            )}
           </div>
           <h3 className="page-title coding-rules-detail-header">
             <big>{ruleDetails.name}</big>

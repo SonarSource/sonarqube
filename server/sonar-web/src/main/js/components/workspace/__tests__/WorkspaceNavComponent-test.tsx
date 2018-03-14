@@ -17,18 +17,36 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import * as React from 'react';
 import { shallow } from 'enzyme';
-import React from 'react';
-import IssueMessage from '../IssueMessage';
+import WorkspaceNavComponent, { Props } from '../WorkspaceNavComponent';
 
-it('should render with the message and a link to open the rule', () => {
-  const element = shallow(
-    <IssueMessage
-      rule="javascript:S1067"
-      message="Reduce the number of conditional operators (4) used in the expression"
-      organization="myorg"
-    />,
-    { context: { workspace: {} } }
-  );
-  expect(element).toMatchSnapshot();
+it('should render', () => {
+  expect(shallowRender()).toMatchSnapshot();
 });
+
+it('should close', () => {
+  const onClose = jest.fn();
+  const wrapper = shallowRender({ onClose });
+  wrapper.find('WorkspaceNavItem').prop<Function>('onClose')();
+  expect(onClose).toBeCalledWith('foo');
+});
+
+it('should open', () => {
+  const onOpen = jest.fn();
+  const wrapper = shallowRender({ onOpen });
+  wrapper.find('WorkspaceNavItem').prop<Function>('onOpen')();
+  expect(onOpen).toBeCalledWith('foo');
+});
+
+function shallowRender(props?: Partial<Props>) {
+  const component = { branchLike: undefined, key: 'foo' };
+  return shallow(
+    <WorkspaceNavComponent
+      component={component}
+      onClose={jest.fn()}
+      onOpen={jest.fn()}
+      {...props}
+    />
+  );
+}

@@ -1,0 +1,52 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render 1`] = `
+<header
+  className="workspace-viewer-header"
+>
+  <h6
+    className="workspace-viewer-name"
+  >
+    <div
+      id="workspace-header-children"
+    />
+  </h6>
+  <DraggableCore
+    allowAnyClick={false}
+    cancel={null}
+    disabled={false}
+    enableUserSelectHack={true}
+    grid={null}
+    handle={null}
+    offsetParent={<body />}
+    onDrag={[Function]}
+    onMouseDown={[Function]}
+    onStart={[Function]}
+    onStop={[Function]}
+    transform={null}
+  >
+    <div
+      className="workspace-viewer-resize js-resize"
+    />
+  </DraggableCore>
+  <div
+    className="workspace-viewer-actions"
+  >
+    <WorkspaceHeaderButton
+      icon={[Function]}
+      onClick={[MockFunction]}
+      tooltip="workspace.minimize"
+    />
+    <WorkspaceHeaderButton
+      icon={[Function]}
+      onClick={[MockFunction]}
+      tooltip="workspace.full_window"
+    />
+    <WorkspaceHeaderButton
+      icon={[Function]}
+      onClick={[MockFunction]}
+      tooltip="workspace.close"
+    />
+  </div>
+</header>
+`;

@@ -20,10 +20,12 @@
 import { stringify } from 'querystring';
 import * as React from 'react';
 import { Link } from 'react-router';
+import * as PropTypes from 'prop-types';
 import MeasuresOverlay from './components/MeasuresOverlay';
 import { SourceViewerFile, BranchLike } from '../../app/types';
 import QualifierIcon from '../shared/QualifierIcon';
 import FavoriteContainer from '../controls/FavoriteContainer';
+import { WorkspaceContext } from '../workspace/context';
 import {
   getPathUrlAsString,
   getBranchLikeUrl,
@@ -46,6 +48,13 @@ interface State {
 }
 
 export default class SourceViewerHeader extends React.PureComponent<Props, State> {
+  // prettier-ignore
+  context!: { workspace: WorkspaceContext };
+
+  static contextTypes = {
+    workspace: PropTypes.object.isRequired
+  };
+
   state: State = { measuresOverlay: false };
 
   handleShowMeasuresClick = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
@@ -60,8 +69,7 @@ export default class SourceViewerHeader extends React.PureComponent<Props, State
   openInWorkspace = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     const { key } = this.props.sourceViewerFile;
-    const Workspace = require('../workspace/main').default;
-    Workspace.openComponent({ key, branchLike: this.props.branchLike });
+    this.context.workspace.openComponent({ branchLike: this.props.branchLike, key });
   };
 
   render() {

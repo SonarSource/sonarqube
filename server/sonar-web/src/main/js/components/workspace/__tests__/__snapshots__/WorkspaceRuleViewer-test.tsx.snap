@@ -1,0 +1,38 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render 1`] = `
+<div
+  className="workspace-viewer"
+>
+  <WorkspaceHeader
+    onClose={[Function]}
+    onCollapse={[MockFunction]}
+    onMaximize={[MockFunction]}
+    onMinimize={[MockFunction]}
+    onResize={[MockFunction]}
+  >
+    <WorkspaceRuleTitle
+      rule={
+        Object {
+          "key": "foo",
+          "organization": "org",
+        }
+      }
+    />
+  </WorkspaceHeader>
+  <div
+    className="workspace-viewer-container"
+    style={
+      Object {
+        "height": 300,
+      }
+    }
+  >
+    <WorkspaceRuleDetails
+      onLoad={[Function]}
+      organization="org"
+      ruleKey="foo"
+    />
+  </div>
+</div>
+`;

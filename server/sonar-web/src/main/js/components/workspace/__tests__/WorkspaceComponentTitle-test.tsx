@@ -17,38 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import Marionette from 'backbone.marionette';
-import HeaderView from './viewer-header-view';
+import * as React from 'react';
+import { shallow } from 'enzyme';
+import WorkspaceComponentTitle from '../WorkspaceComponentTitle';
 
-export default Marionette.LayoutView.extend({
-  className: 'workspace-viewer',
+it('should render component', () => {
+  const component = { branchLike: undefined, key: 'foo' };
+  expect(shallow(<WorkspaceComponentTitle component={component} />)).toMatchSnapshot();
+});
 
-  modelEvents: {
-    destroy: 'destroy'
-  },
-
-  regions: {
-    headerRegion: '.workspace-viewer-header',
-    viewerRegion: '.workspace-viewer-container'
-  },
-
-  onRender() {
-    this.showHeader();
-    this.$('.workspace-viewer-container').isolatedScroll();
-  },
-
-  onViewerMinimize() {
-    this.trigger('viewerMinimize');
-  },
-
-  onViewerClose() {
-    this.trigger('viewerClose', this.model);
-  },
-
-  showHeader() {
-    const headerView = new HeaderView({ model: this.model });
-    this.listenTo(headerView, 'viewerMinimize', this.onViewerMinimize);
-    this.listenTo(headerView, 'viewerClose', this.onViewerClose);
-    this.headerRegion.show(headerView);
-  }
+it('should render loaded component', () => {
+  const component = { branchLike: undefined, key: 'foo', name: 'src/foo.js', qualifier: 'FIL' };
+  expect(shallow(<WorkspaceComponentTitle component={component} />)).toMatchSnapshot();
 });

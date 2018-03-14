@@ -18,10 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import * as PropTypes from 'prop-types';
 import { Component } from '../types';
 import { BranchLike } from '../../../app/types';
 import PinIcon from '../../../components/shared/pin-icon';
-import Workspace from '../../../components/workspace/main';
+import { WorkspaceContext } from '../../../components/workspace/context';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {
@@ -29,19 +30,34 @@ interface Props {
   component: Component;
 }
 
-export default function ComponentPin({ branchLike, component }: Props) {
-  const handleClick = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
-    event.preventDefault();
-    Workspace.openComponent({ branchLike, key: component.key });
+export default class ComponentPin extends React.PureComponent<Props> {
+  // prettier-ignore
+  context!: { workspace: WorkspaceContext };
+
+  static contextTypes = {
+    workspace: PropTypes.object.isRequired
   };
 
-  return (
-    <a
-      className="link-no-underline"
-      onClick={handleClick}
-      title={translate('component_viewer.open_in_workspace')}
-      href="#">
-      <PinIcon />
-    </a>
-  );
+  handleClick = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
+    event.preventDefault();
+    event.currentTarget.blur();
+    this.context.workspace.openComponent({
+      branchLike: this.props.branchLike,
+      key: this.props.component.key,
+      name: this.props.component.path,
+      qualifier: this.props.component.qualifier
+    });
+  };
+
+  render() {
+    return (
+      <a
+        className="link-no-underline"
+        href="#"
+        onClick={this.handleClick}
+        title={translate('component_viewer.open_in_workspace')}>
+        <PinIcon />
+      </a>
+    );
+  }
 }
