@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import escapeHtml from 'escape-html';
 import SelectList from '../../../components/SelectList/SelectList';
 import { translate } from '../../../helpers/l10n';
 import {

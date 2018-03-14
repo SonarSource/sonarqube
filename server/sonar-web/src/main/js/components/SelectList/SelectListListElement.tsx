@@ -32,7 +32,7 @@ interface Props {
   onSelectChange: (element: SelectListItem) => void;
 }
 
-export default class SelectListListElement extends React.PureComponent<Props, {}> {
+export default class SelectListListElement extends React.PureComponent<Props> {
   handleSelect = (evt: React.SyntheticEvent<HTMLAnchorElement>) => {
     evt.stopPropagation();
     evt.preventDefault();

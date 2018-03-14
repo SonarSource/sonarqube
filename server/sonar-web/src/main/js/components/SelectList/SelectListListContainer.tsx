@@ -27,7 +27,7 @@ interface Props {
   onUnselect: (key: string | number) => void;
 }
 
-export default class SelectListListContainer extends React.PureComponent<Props, {}> {
+export default class SelectListListContainer extends React.PureComponent<Props> {
   handleSelectChange = (element: SelectListItem) => {
     if (element.selected) {
       this.props.onUnselect(element.key);
