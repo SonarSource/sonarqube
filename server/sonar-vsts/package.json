@@ -1,9 +1,10 @@
 {
-  "name": "SonarQube-VSTS",
+  "name": "sonarqube-vsts",
   "version": "0.0.1",
   "description": "Quality Widget for VSTS",
   "repository": "SonarSource/sonarqube",
   "license": "LGPL-3.0",
+  "private": true,
   "dependencies": {
     "babel-polyfill": "6.26.0",
     "classnames": "2.2.5",

@@ -23,11 +23,6 @@
     }
   },
 
-  "globals": {
-    "baseUrl": true,
-    "SyntheticInputEvent": true
-  },
-
   "parser": "typescript-eslint-parser",
 
   "plugins": ["import", "jsx-a11y", "react", "promise"],

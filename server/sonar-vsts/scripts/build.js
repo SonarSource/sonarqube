@@ -24,7 +24,6 @@ const chalk = require('chalk');
 const fs = require('fs-extra');
 const rimrafSync = require('rimraf').sync;
 const webpack = require('webpack');
-const formatSize = require('./utils/formatSize');
 const paths = require('../config/paths');
 const getConfig = require('../config/webpack.config');
 
@@ -37,11 +36,8 @@ function clean() {
   // if you're in it, you don't end up in Trash
   console.log(chalk.cyan.bold('Cleaning output directories and files...'));
 
-  console.log(paths.jsBuild + '/*');
-  rimrafSync(paths.jsBuild + '/*');
-
-  console.log(paths.htmlBuild);
-  rimrafSync(paths.htmlBuild);
+  console.log(paths.appBuild + '/*');
+  rimrafSync(paths.appBuild + '/*');
 
   console.log();
 }
@@ -68,18 +64,6 @@ function build() {
     }
 
     const jsonStats = stats.toJson();
-
-    console.log('Assets:');
-    const assets = jsonStats.assets.slice();
-    assets.sort((a, b) => b.size - a.size);
-    assets.forEach(asset => {
-      let sizeLabel = formatSize(asset.size);
-      const leftPadding = ' '.repeat(Math.max(0, 8 - sizeLabel.length));
-      sizeLabel = leftPadding + sizeLabel;
-      console.log('', chalk.yellow(sizeLabel), asset.name);
-    });
-    console.log();
-
     const seconds = jsonStats.time / 1000;
     console.log('Duration: ' + seconds.toFixed(2) + 's');
     console.log();

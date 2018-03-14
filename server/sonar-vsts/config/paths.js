@@ -46,13 +46,13 @@ const nodePaths = (process.env.NODE_PATH || '')
 
 // config after eject: we're in ./config/
 module.exports = {
-  appBuild: resolveApp('src/main/webapp'),
+  appBuild: resolveApp('build/webapp/integration/vsts'),
   appPublic: resolveApp('public'),
   appHtml: resolveApp('public/index.html'),
   appPackageJson: resolveApp('package.json'),
   appSrc: resolveApp('src/main/js'),
-  jsBuild: resolveApp('src/main/webapp/js'),
-  htmlBuild: resolveApp('src/main/webapp/index.html'),
+  jsBuild: resolveApp('build/webapp/integration/vsts/js'),
+  htmlBuild: resolveApp('build/webapp/integration/vsts/index.html'),
   appNodeModules: resolveApp('node_modules'),
   ownNodeModules: resolveApp('node_modules'),
   nodePaths

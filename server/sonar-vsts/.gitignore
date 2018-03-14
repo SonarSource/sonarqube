@@ -19,8 +19,6 @@ yarn-error.log*
 
 # build
 build/
-src/main/webapp/js/
-src/main/webapp/index.html
 
 # tests
 src/test/json/**/*.png
