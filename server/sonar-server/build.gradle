@@ -68,6 +68,7 @@ dependencies {
     // should be excluded to avoid ES go into "test mode" and require to run EsTester-based UTs with RandomizedRunner
     exclude group: 'com.carrotsearch.randomizedtesting', module: 'randomizedtesting-runner'
     exclude group: 'org.elasticsearch', module: 'securemock'
+    exclude group: 'commons-logging', module: 'commons-logging'
   }
   testCompile 'org.hamcrest:hamcrest-all'
   testCompile 'org.mockito:mockito-core'

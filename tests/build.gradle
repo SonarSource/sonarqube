@@ -54,9 +54,9 @@ dependencies {
   testCompile 'mysql:mysql-connector-java'
   testCompile 'org.assertj:assertj-core'
   testCompile 'org.assertj:assertj-guava'
-  testCompile "org.eclipse.jetty:jetty-proxy:${jettyVersion}"
-  testCompile "org.eclipse.jetty:jetty-server:${jettyVersion}"
-  testCompile "org.eclipse.jetty:jetty-servlet:${jettyVersion}"
+  testCompile 'org.eclipse.jetty:jetty-proxy'
+  testCompile 'org.eclipse.jetty:jetty-server'
+  testCompile 'org.eclipse.jetty:jetty-servlet'
   testCompile "org.jboss.byteman:byteman-submit:${bytemanVersion}"
   testCompile 'org.postgresql:postgresql'
   testCompile 'org.skyscreamer:jsonassert:1.2.0'
