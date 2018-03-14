@@ -1,3 +1,2 @@
 * rewrite SelectList
-* rewrite datepicker
 * ...
