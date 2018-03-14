@@ -170,8 +170,11 @@ subprojects {
         exclude 'xerces:xmlParserAPIs'
         exclude 'xerces:xercesImpl'
       }
-      dependency 'org.eclipse.jetty:jetty-server:8.1.12.v20130726'
-      dependency 'org.eclipse.jetty:test-jetty-servlet:8.1.12.v20130726'
+      dependencySet(group: 'org.eclipse.jetty', version: '9.3.11.v20160721') {
+        entry 'jetty-proxy'
+        entry 'jetty-server'
+        entry 'jetty-servlet'
+      }
       dependency("org.elasticsearch.client:transport:${elasticsearchVersion}") {
         exclude 'org.elasticsearch.plugin:lang-mustache-client'
         exclude 'org.elasticsearch.plugin:transport-netty3-client'
