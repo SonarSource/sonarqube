@@ -33,24 +33,21 @@ interface Props {
   selectedElements: string[];
 }
 
-export default function AddGraphMetricPopup(props: Props) {
+export default function AddGraphMetricPopup({ elements, metricsTypeFilter, ...props }: Props) {
   let footerNode: React.ReactNode = '';
-  let displayFooterNode: boolean = false;
 
   if (props.selectedElements.length >= 6) {
-    displayFooterNode = true;
     footerNode = (
       <span className="alert alert-info spacer-left spacer-right spacer-top">
         {translate('project_activity.graphs.custom.add_metric_info')}
       </span>
     );
-  } else if (props.metricsTypeFilter != null && props.metricsTypeFilter.length > 0) {
-    displayFooterNode = true;
+  } else if (metricsTypeFilter != null && metricsTypeFilter.length > 0) {
     footerNode = (
       <span className="alert alert-info spacer-left spacer-right spacer-top">
         {translateWithParameters(
           'project_activity.graphs.custom.type_x_message',
-          props.metricsTypeFilter
+          metricsTypeFilter
             .map((type: string) => translate('metric.type', type))
             .sort()
             .join(', ')
@@ -66,8 +63,7 @@ export default function AddGraphMetricPopup(props: Props) {
       <MultiSelect
         allowNewElements={false}
         allowSelection={props.selectedElements.length < 6}
-        displayFooterNode={displayFooterNode}
-        elements={props.elements}
+        elements={elements}
         footerNode={footerNode}
         onSearch={props.onSearch}
         onSelect={props.onSelect}

@@ -76,8 +76,7 @@ export default class AddGraphMetric extends React.PureComponent {
     right: containerPos.width - 240
   });
 
-  filterMetricsElements = (props /*: Props */) => {
-    const { metricsTypeFilter, metrics, selectedMetrics } = props;
+  filterMetricsElements = ({ metricsTypeFilter, metrics, selectedMetrics } /*: Props */) => {
     return metrics
       .filter(metric => {
         if (

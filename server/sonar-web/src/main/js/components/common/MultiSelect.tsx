@@ -26,7 +26,6 @@ import SearchBox from '../controls/SearchBox';
 interface Props {
   allowNewElements?: boolean;
   allowSelection?: boolean;
-  displayFooterNode?: boolean;
   elements: string[];
   footerNode?: React.ReactNode;
   listSize?: number;
@@ -247,12 +246,7 @@ export default class MultiSelect extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const {
-      allowSelection = true,
-      allowNewElements = true,
-      displayFooterNode = false,
-      footerNode = ''
-    } = this.props;
+    const { allowSelection = true, allowNewElements = true, footerNode = '' } = this.props;
     const { query, activeIdx, selectedElements, unselectedElements } = this.state;
     const activeElement = this.getAllElements(this.props, this.state)[activeIdx];
     const infiniteList = this.props.listSize === 0;
@@ -260,7 +254,7 @@ export default class MultiSelect extends React.PureComponent<Props, State> {
       'menu-vertically-limited': infiniteList,
       'spacer-top': infiniteList,
       'with-top-separator': infiniteList,
-      'with-bottom-separator': displayFooterNode
+      'with-bottom-separator': footerNode !== ''
     });
 
     return (
@@ -313,7 +307,7 @@ export default class MultiSelect extends React.PureComponent<Props, State> {
               />
             )}
         </ul>
-        {displayFooterNode && footerNode}
+        {footerNode}
       </div>
     );
   }
