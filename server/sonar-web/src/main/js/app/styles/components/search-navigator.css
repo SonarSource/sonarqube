@@ -641,6 +641,13 @@ a.search-navigator-facet:focus .facet-stat {
   visibility: hidden;
 }
 
+.search-navigator-date-facet-selection
+  .date-input-control:not(:nth-of-type(1))
+  .date-input-calendar {
+  left: auto;
+  right: 0;
+}
+
 .search-navigator-filters {
   position: relative;
   padding: 5px 10px;
