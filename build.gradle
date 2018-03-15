@@ -224,6 +224,10 @@ subprojects {
     from sourceSets.main.allSource
   }
 
+  javadoc {
+    options.encoding = 'UTF-8'
+  }
+
   task javadocJar(type: Jar, dependsOn: javadoc) {
     classifier = 'javadoc'
     from javadoc.destinationDir
