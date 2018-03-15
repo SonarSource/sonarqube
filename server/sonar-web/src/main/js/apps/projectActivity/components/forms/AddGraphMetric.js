@@ -22,6 +22,7 @@ import React from 'react';
 import { find } from 'lodash';
 import DropdownIcon from '../../../../components/icons-components/DropdownIcon';
 import BubblePopup from '../../../../components/common/BubblePopup';
+import BubblePopupHelper from '../../../../components/common/BubblePopupHelper';
 import MultiSelect from '../../../../components/common/MultiSelect';
 import { isDiffMetric } from '../../../../helpers/measures';
 import { getLocalizedMetricName, translate } from '../../../../helpers/l10n';
@@ -42,7 +43,6 @@ type Props = {
 type State = {
   open: boolean,
   selectedMetric?: string,
-  popupPosition: { left?: number, top?: number, right?: number },
   metrics: Array<string>,
   selectedMetrics: Array<string>,
   query: string
@@ -55,7 +55,6 @@ export default class AddGraphMetric extends React.PureComponent {
   /*:: props: Props; */
   state /*: State */ = {
     open: false,
-    popupPosition: { top: 0, right: 0 },
     metrics: [],
     selectedMetrics: [],
     query: ''
@@ -63,9 +62,6 @@ export default class AddGraphMetric extends React.PureComponent {
 
   componentDidMount() {
     if (this.card !== null) {
-      const cardPos = this.card.getBoundingClientRect();
-      this.setState({ popupPosition: this.getPopupPos(cardPos) });
-
       window.addEventListener('keydown', this.handleKey, false);
       window.addEventListener('click', this.handleOutsideClick, false);
     }
@@ -182,29 +178,34 @@ export default class AddGraphMetric extends React.PureComponent {
   };
 
   renderSelector() {
-    const { popupPosition, metrics, selectedMetrics, query } = this.state;
+    const { metrics, selectedMetrics, query } = this.state;
     const filteredMetrics = metrics.filter(
       (metric /*: string */) => metric.toLowerCase().indexOf(query.toLowerCase()) > -1
     );
 
     return (
-      <BubblePopup
-        customClass="bubble-popup-bottom-right bubble-popup-menu abs-width-300"
-        position={popupPosition}>
-        <MultiSelect
-          alertMessage={translate('project_activity.graphs.custom.add_metric_info')}
-          allowNewElements={false}
-          allowSelection={selectedMetrics.length < 6}
-          displayAlertMessage={selectedMetrics.length >= 6}
-          elements={filteredMetrics}
-          onSearch={this.onSearch}
-          onSelect={this.onSelect}
-          onUnselect={this.onUnselect}
-          placeholder={translate('search.search_for_tags')}
-          renderLabel={element => this.getLocalizedMetricNameFromKey(element)}
-          selectedElements={selectedMetrics}
-        />
-      </BubblePopup>
+      <BubblePopupHelper
+        isOpen={this.state.open}
+        popup={
+          <BubblePopup customClass="bubble-popup-bottom-right bubble-popup-menu abs-width-300">
+            <MultiSelect
+              alertMessage={translate('project_activity.graphs.custom.add_metric_info')}
+              allowNewElements={false}
+              allowSelection={selectedMetrics.length < 6}
+              displayAlertMessage={selectedMetrics.length >= 6}
+              elements={filteredMetrics}
+              onSearch={this.onSearch}
+              onSelect={this.onSelect}
+              onUnselect={this.onUnselect}
+              placeholder={translate('search.search_for_tags')}
+              renderLabel={element => this.getLocalizedMetricNameFromKey(element)}
+              selectedElements={selectedMetrics}
+            />
+          </BubblePopup>
+        }
+        position="bottomright"
+        togglePopup={() => {}}
+      />
     );
   }
 
@@ -219,7 +220,7 @@ export default class AddGraphMetric extends React.PureComponent {
             <DropdownIcon className="vertical-text-top" />
           </span>
         </button>
-        {this.state.open && this.renderSelector()}
+        {this.renderSelector()}
       </div>
     );
   }
