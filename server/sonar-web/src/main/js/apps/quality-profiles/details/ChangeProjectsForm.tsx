@@ -128,7 +128,7 @@ export default class ChangeProjectsForm extends React.PureComponent<Props> {
           <h2>{header}</h2>
         </div>
 
-        <div className="modal-body">
+        <div className="modal-body" id="profile-projects">
           <SelectList
             elements={this.state.projects.map(project => project.key)}
             labelAll={translate('quality_gates.projects.all')}
