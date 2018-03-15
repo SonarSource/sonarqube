@@ -50,11 +50,7 @@ export default class MultiSelectOption extends React.PureComponent<Props> {
       'icon-checkbox-checked': selected,
       'icon-checkbox-invisible': disabled
     });
-    const activeClass = classNames({
-      active: this.props.active,
-      disabled,
-      'cursor-not-allowed': disabled
-    });
+    const activeClass = classNames({ active: this.props.active, disabled });
 
     return (
       <li>

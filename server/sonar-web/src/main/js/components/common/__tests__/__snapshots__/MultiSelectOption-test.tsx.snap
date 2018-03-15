@@ -40,7 +40,7 @@ exports[`should render custom element 1`] = `
 exports[`should render disabled element 1`] = `
 <li>
   <a
-    className="disabled cursor-not-allowed"
+    className="disabled"
     href="#"
     onClick={[Function]}
     onFocus={[Function]}

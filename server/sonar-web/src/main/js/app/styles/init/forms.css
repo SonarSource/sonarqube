@@ -80,6 +80,20 @@ select.invalid {
   border-color: var(--red);
 }
 
+input.disabled,
+input:disabled,
+textarea.disabled,
+textarea:disabled,
+select.disabled,
+select:disabled {
+  color: var(--disableGrayText) !important;
+  border-color: var(--disableGrayBorder) !important;
+  background: var(--disableGrayBg) !important;
+  cursor: not-allowed !important;
+  pointer-events: none !important;
+  box-shadow: none !important;
+}
+
 input[type='text'],
 input[type='password'],
 input[type='email'],
@@ -177,9 +191,9 @@ button:disabled:focus,
 .button:disabled:focus,
 input[type='submit']:disabled:focus,
 input[type='button']:disabled:focus {
-  color: #bbb !important;
-  border-color: #ddd !important;
-  background: #ebebeb !important;
+  color: var(--disableGrayText) !important;
+  border-color: var(--disableGrayBorder) !important;
+  background: var(--disableGrayBg) !important;
   cursor: not-allowed !important;
   box-shadow: none !important;
 }

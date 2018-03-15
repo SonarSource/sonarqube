@@ -40,6 +40,10 @@ module.exports = {
   gray60: '#999',
   gray40: '#404040',
 
+  disableGrayText: '#bbb',
+  disableGrayBorder: '#ddd',
+  disableGrayBg: '#ebebeb',
+
   barBackgroundColor: '#f3f3f3',
   barBorderColor: '#e6e6e6',
 

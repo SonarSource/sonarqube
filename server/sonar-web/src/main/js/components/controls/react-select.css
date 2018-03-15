@@ -33,16 +33,22 @@
 }
 
 .Select.is-disabled > .Select-control {
-  background-color: #f9f9f9;
+  background-color: var(--disableGrayBg) !important;
+  border-color: var(--disableGrayBorder) !important;
 }
 
 .Select.is-disabled > .Select-control:hover {
-  box-shadow: none;
+  box-shadow: none !important;
 }
 
 .Select.is-disabled .Select-arrow-zone {
-  cursor: default;
-  pointer-events: none;
+  cursor: not-allowed !important;
+  pointer-events: none !important;
+}
+
+.Select.is-disabled .Select-placeholder,
+.Select.is-disabled .Select-value {
+  color: var(--disableGrayText) !important;
 }
 
 .Select-control {
