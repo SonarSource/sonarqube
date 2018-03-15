@@ -204,3 +204,13 @@ export function getShortMonthName(index: number) {
   ];
   return translate(months[index]);
 }
+
+export function getWeekDayName(index: number) {
+  const weekdays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  return translate(weekdays[index]);
+}
+
+export function getShortWeekDayName(index: number) {
+  const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  return translate(weekdays[index]);
+}

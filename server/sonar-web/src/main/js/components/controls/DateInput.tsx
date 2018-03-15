@@ -31,7 +31,7 @@ import ChevronLeftIcon from '../icons-components/ChevronLeftIcon';
 import ChevronRightIcon from '../icons-components/ChevronRightcon';
 import ClearIcon from '../icons-components/ClearIcon';
 import { ButtonIcon } from '../ui/buttons';
-import { getShortMonthName } from '../../helpers/l10n';
+import { getShortMonthName, getWeekDayName, getShortWeekDayName } from '../../helpers/l10n';
 import './DayPicker.css';
 import './styles.css';
 
@@ -55,7 +55,7 @@ interface State {
   lastHovered?: Date;
 }
 
-// TODO calendar localization
+type Week = [string, string, string, string, string, string, string];
 
 export default class DateInput extends React.PureComponent<Props, State> {
   // prettier-ignore
@@ -146,6 +146,9 @@ export default class DateInput extends React.PureComponent<Props, State> {
       selectedDays.push(highlightTo);
     }
 
+    const weekdaysLong = range(7).map(getWeekDayName) as Week;
+    const weekdaysShort = range(7).map(getShortWeekDayName) as Week;
+
     return (
       <OutsideClickHandler onClickOutside={this.closeCalendar}>
         {({ ref }) => (
@@ -208,6 +211,8 @@ export default class DateInput extends React.PureComponent<Props, State> {
                   onDayClick={this.handleDayClick}
                   onDayMouseEnter={this.handleDayMouseEnter}
                   selectedDays={selectedDays}
+                  weekdaysLong={weekdaysLong}
+                  weekdaysShort={weekdaysShort}
                 />
               </div>
             )}
