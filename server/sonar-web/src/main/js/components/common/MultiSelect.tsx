@@ -24,11 +24,11 @@ import MultiSelectOption from './MultiSelectOption';
 import SearchBox from '../controls/SearchBox';
 
 interface Props {
-  alertMessage?: string;
   allowNewElements?: boolean;
   allowSelection?: boolean;
-  displayAlertMessage?: boolean;
+  displayFooterNode?: boolean;
   elements: string[];
+  footerNode?: React.ReactNode;
   listSize?: number;
   onSearch: (query: string) => Promise<void>;
   onSelect: (item: string) => void;
@@ -250,8 +250,8 @@ export default class MultiSelect extends React.PureComponent<Props, State> {
     const {
       allowSelection = true,
       allowNewElements = true,
-      displayAlertMessage = false,
-      alertMessage = ''
+      displayFooterNode = false,
+      footerNode = ''
     } = this.props;
     const { query, activeIdx, selectedElements, unselectedElements } = this.state;
     const activeElement = this.getAllElements(this.props, this.state)[activeIdx];
@@ -260,7 +260,7 @@ export default class MultiSelect extends React.PureComponent<Props, State> {
       'menu-vertically-limited': infiniteList,
       'spacer-top': infiniteList,
       'with-top-separator': infiniteList,
-      'with-bottom-separator': displayAlertMessage
+      'with-bottom-separator': displayFooterNode
     });
 
     return (
@@ -313,11 +313,7 @@ export default class MultiSelect extends React.PureComponent<Props, State> {
               />
             )}
         </ul>
-        {displayAlertMessage && (
-          <span className="alert alert-info spacer-left spacer-right spacer-top">
-            {alertMessage}
-          </span>
-        )}
+        {displayFooterNode && footerNode}
       </div>
     );
   }

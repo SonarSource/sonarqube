@@ -20,10 +20,11 @@
 import * as React from 'react';
 import BubblePopup from '../../../../components/common/BubblePopup';
 import MultiSelect from '../../../../components/common/MultiSelect';
-import { translate } from '../../../../helpers/l10n';
+import { translate, translateWithParameters } from '../../../../helpers/l10n';
 
 interface Props {
   elements: string[];
+  metricsTypeFilter: string[];
   onSearch: (query: string) => Promise<void>;
   onSelect: (item: string) => void;
   onUnselect: (item: string) => void;
@@ -33,16 +34,41 @@ interface Props {
 }
 
 export default function AddGraphMetricPopup(props: Props) {
+  let footerNode: React.ReactNode = '';
+  let displayFooterNode: boolean = false;
+
+  if (props.selectedElements.length >= 6) {
+    displayFooterNode = true;
+    footerNode = (
+      <span className="alert alert-info spacer-left spacer-right spacer-top">
+        {translate('project_activity.graphs.custom.add_metric_info')}
+      </span>
+    );
+  } else if (props.metricsTypeFilter != null && props.metricsTypeFilter.length > 0) {
+    displayFooterNode = true;
+    footerNode = (
+      <span className="alert alert-info spacer-left spacer-right spacer-top">
+        {translateWithParameters(
+          'project_activity.graphs.custom.type_x_message',
+          props.metricsTypeFilter
+            .map((type: string) => translate('metric.type', type))
+            .sort()
+            .join(', ')
+        )}
+      </span>
+    );
+  }
+
   return (
     <BubblePopup
       customClass="bubble-popup-bottom-right  bubble-popup-menu abs-width-300"
       position={props.popupPosition}>
       <MultiSelect
-        alertMessage={translate('project_activity.graphs.custom.add_metric_info')}
         allowNewElements={false}
         allowSelection={props.selectedElements.length < 6}
-        displayAlertMessage={props.selectedElements.length >= 6}
+        displayFooterNode={displayFooterNode}
         elements={props.elements}
+        footerNode={footerNode}
         onSearch={props.onSearch}
         onSelect={props.onSelect}
         onUnselect={props.onUnselect}

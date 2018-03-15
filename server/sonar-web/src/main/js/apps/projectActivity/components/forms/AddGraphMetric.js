@@ -19,12 +19,10 @@
  */
 // @flow
 import React from 'react';
-import { find } from 'lodash';
+import { find, sortBy } from 'lodash';
 import AddGraphMetricPopup from './AddGraphMetricPopup';
 import DropdownIcon from '../../../../components/icons-components/DropdownIcon';
-import BubblePopup from '../../../../components/common/BubblePopup';
 import BubblePopupHelper from '../../../../components/common/BubblePopupHelper';
-import MultiSelect from '../../../../components/common/MultiSelect';
 import { isDiffMetric } from '../../../../helpers/measures';
 import { getLocalizedMetricName, translate } from '../../../../helpers/l10n';
 /*:: import type { Metric } from '../../types'; */
@@ -32,10 +30,10 @@ import { getLocalizedMetricName, translate } from '../../../../helpers/l10n';
 /*::
 type Props = {
   addMetric: (metric: string) => void,
-  removeMetric: (metric: string) => void,
   className?: string,
   metrics: Array<Metric>,
   metricsTypeFilter: ?Array<string>,
+  removeMetric: (metric: string) => void,
   selectedMetrics: Array<string>
 };
 */
@@ -51,8 +49,6 @@ type State = {
 */
 
 export default class AddGraphMetric extends React.PureComponent {
-  card /*: HTMLDivElement | null*/ = null;
-
   /*:: props: Props; */
   state /*: State */ = {
     open: false,
@@ -62,10 +58,6 @@ export default class AddGraphMetric extends React.PureComponent {
   };
 
   componentDidMount() {
-    if (this.card !== null) {
-      window.addEventListener('keydown', this.handleKey, false);
-      window.addEventListener('click', this.handleOutsideClick, false);
-    }
     this.setState({
       metrics: this.filterMetricsElements(this.props),
       selectedMetrics: this.getSelectedMetricsElements(this.props.metrics, null)
@@ -73,25 +65,10 @@ export default class AddGraphMetric extends React.PureComponent {
   }
 
   componentWillReceiveProps(nextProps /*: Props */) {
-    if (nextProps.metrics.length > this.props.metrics.length) {
-      this.setState({
-        metrics: this.filterMetricsElements(nextProps),
-        selectedMetrics: this.getSelectedMetricsElements(nextProps.metrics, null)
-      });
-    }
-    if (nextProps.selectedMetrics.length < this.props.selectedMetrics.length) {
-      this.setState({
-        selectedMetrics: this.getSelectedMetricsElements(
-          nextProps.metrics,
-          nextProps.selectedMetrics
-        )
-      });
-    }
-  }
-
-  componentWillUnmount() {
-    window.removeEventListener('keydown', this.handleKey);
-    window.removeEventListener('click', this.handleOutsideClick);
+    this.setState({
+      metrics: this.filterMetricsElements(nextProps),
+      selectedMetrics: this.getSelectedMetricsElements(nextProps.metrics, nextProps.selectedMetrics)
+    });
   }
 
   getPopupPos = (containerPos /*: ClientRect*/) => ({
@@ -99,29 +76,15 @@ export default class AddGraphMetric extends React.PureComponent {
     right: containerPos.width - 240
   });
 
-  handleKey = (evt /*: KeyboardEvent*/) => {
-    // Escape key
-    if (evt.keyCode === 27) {
-      this.setState({ open: false });
-    }
-  };
-
-  handleOutsideClick = (evt /*: Event*/) => {
-    // $FlowFixMe
-    if (!this.card || !this.card.contains(evt.target)) {
-      this.setState({ open: false });
-    }
-  };
-
-  filterMetricsElements = (nextProps /*: Props */) => {
-    const { metricsTypeFilter, metrics } = nextProps;
+  filterMetricsElements = (props /*: Props */) => {
+    const { metricsTypeFilter, metrics, selectedMetrics } = props;
     return metrics
       .filter(metric => {
         if (
           metric.hidden ||
           isDiffMetric(metric.key) ||
           ['DATA', 'DISTRIB'].includes(metric.type) ||
-          this.props.selectedMetrics.includes(metric.key)
+          selectedMetrics.includes(metric.key)
         ) {
           return false;
         }
@@ -144,7 +107,7 @@ export default class AddGraphMetric extends React.PureComponent {
 
   getLocalizedMetricNameFromKey = (key /*: string*/) => {
     const metric = find(this.props.metrics, { key });
-    return getLocalizedMetricName(metric);
+    return metric === undefined ? key : getLocalizedMetricName(metric);
   };
 
   toggleForm = () => {
@@ -162,8 +125,8 @@ export default class AddGraphMetric extends React.PureComponent {
     this.props.addMetric(metric);
     this.setState(state => {
       return {
-        selectedMetrics: [...state.selectedMetrics, metric].sort(),
-        metrics: state.metrics.filter(selected => selected !== metric)
+        selectedMetrics: sortBy([...state.selectedMetrics, metric]),
+        metrics: this.filterMetricsElements(this.props)
       };
     });
   };
@@ -172,10 +135,14 @@ export default class AddGraphMetric extends React.PureComponent {
     this.props.removeMetric(metric);
     this.setState(state => {
       return {
-        metrics: [...state.metrics, metric].sort(),
+        metrics: sortBy([...state.metrics, metric]),
         selectedMetrics: state.selectedMetrics.filter(selected => selected !== metric)
       };
     });
+  };
+
+  togglePopup = (open /*: boolean*/) => {
+    this.setState({ open });
   };
 
   render() {
@@ -185,13 +152,14 @@ export default class AddGraphMetric extends React.PureComponent {
     );
 
     return (
-      <div className="display-inline-block" ref={card => (this.card = card)}>
+      <div className="display-inline-block">
         <BubblePopupHelper
           isOpen={this.state.open}
           offset={{ horizontal: 16, vertical: 0 }}
           popup={
             <AddGraphMetricPopup
               elements={filteredMetrics}
+              metricsTypeFilter={this.props.metricsTypeFilter}
               onSearch={this.onSearch}
               onSelect={this.onSelect}
               onUnselect={this.onUnselect}
@@ -200,7 +168,7 @@ export default class AddGraphMetric extends React.PureComponent {
             />
           }
           position="bottomright"
-          togglePopup={() => {}}>
+          togglePopup={this.togglePopup}>
           <button className="spacer-left" onClick={this.toggleForm} type="button">
             <span>
               <span className="text-ellipsis spacer-right">
