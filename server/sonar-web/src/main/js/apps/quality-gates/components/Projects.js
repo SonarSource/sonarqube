@@ -43,70 +43,43 @@ export default class Projects extends React.PureComponent {
   }
 
   handleSearch = (query /*: string*/, selected /*: string */) => {
-    const { qualityGate, organization } = this.props;
-    const requestData = {
-      gateId: qualityGate.id,
+    return searchGates({
+      gateId: this.props.qualityGate.id,
+      organization: this.props.organization,
       pageSize: 100,
+      query: query !== '' ? query : undefined,
       selected
-    };
-
-    if (query !== '') {
-      requestData.query = query;
-    }
-
-    if (organization) {
-      requestData.organization = organization;
-    }
-
-    return searchGates(requestData).then(
-      data => {
-        this.setState({
-          projects: data.results,
-          selectedProjects: data.results
-            .filter((project /*: any */) => project.selected)
-            .map((project /*: any */) => project.id)
-        });
-      },
-      () => {}
-    );
+    }).then(data => {
+      this.setState({
+        projects: data.results,
+        selectedProjects: data.results
+          .filter((project /*: any */) => project.selected)
+          .map((project /*: any */) => project.id)
+      });
+    });
   };
 
-  handleSelect = (key /*: string*/) => {
-    const { qualityGate, organization } = this.props;
-    const requestData = {
-      gateId: qualityGate.id,
-      projectId: parseInt(key, 10)
-    };
-
-    if (organization) {
-      requestData.organization = organization;
-    }
-
-    return associateGateWithProject(requestData).then(
-      () => {
-        this.setState((state /*: State*/) => ({
-          selectedProjects: [...state.selectedProjects, key]
-        }));
-      },
-      () => {}
-    );
+  handleSelect = (id /*: string*/) => {
+    return associateGateWithProject({
+      gateId: this.props.qualityGate.id,
+      organization: this.props.organization,
+      projectId: parseInt(id, 10)
+    }).then(() => {
+      this.setState((state /*: State*/) => ({
+        selectedProjects: [...state.selectedProjects, id]
+      }));
+    });
   };
 
-  handleUnselect = (key /*: string*/) => {
-    const { qualityGate, organization } = this.props;
-    const requestData = {
-      gateId: qualityGate.id,
-      projectId: parseInt(key, 10)
-    };
-
-    if (organization) {
-      requestData.organization = organization;
-    }
-
-    return dissociateGateWithProject(requestData).then(
+  handleUnselect = (id /*: string*/) => {
+    return dissociateGateWithProject({
+      gateId: this.props.qualityGate.id,
+      organization: this.props.organization,
+      projectId: parseInt(id, 10)
+    }).then(
       () => {
         this.setState((state /*: State*/) => ({
-          selectedProjects: without(state.selectedProjects, key)
+          selectedProjects: without(state.selectedProjects, id)
         }));
       },
       () => {}

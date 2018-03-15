@@ -29,7 +29,6 @@ import {
   dissociateProject
 } from '../../../api/quality-profiles';
 import { Project } from '../../projects/types';
-import throwGlobalError from '../../../app/utils/throwGlobalError';
 
 interface Props {
   onClose: () => void;
@@ -51,22 +50,13 @@ export default class ChangeProjectsForm extends React.PureComponent<Props> {
   }
 
   handleSearch = (query: string, selected: Filter) => {
-    const requestData: any = {
+    return getProfileProjects({
       key: this.props.profile.key,
+      organization: this.props.organization,
       pageSize: 100,
-      page: 1,
+      query: query !== '' ? query : undefined,
       selected
-    };
-
-    if (query !== '') {
-      requestData.query = query;
-    }
-
-    if (this.props.organization) {
-      requestData.organization = this.props.organization;
-    }
-
-    return getProfileProjects(requestData).then(
+    }).then(
       (data: any) => {
         this.setState({
           projects: data.results,
@@ -80,33 +70,17 @@ export default class ChangeProjectsForm extends React.PureComponent<Props> {
   };
 
   handleSelect = (key: string) => {
-    return associateProject(this.props.profile.key, String(key)).then(
-      () => {
-        this.setState((state: State) => {
-          return {
-            selectedProjects: [...state.selectedProjects, key]
-          };
-        });
-      },
-      e => {
-        throwGlobalError(e);
-      }
-    );
+    return associateProject(this.props.profile.key, String(key)).then(() => {
+      this.setState((state: State) => ({
+        selectedProjects: [...state.selectedProjects, key]
+      }));
+    });
   };
 
   handleUnselect = (key: string) => {
-    return dissociateProject(this.props.profile.key, String(key)).then(
-      () => {
-        this.setState((state: State) => {
-          return {
-            selectedProjects: without(state.selectedProjects, key)
-          };
-        });
-      },
-      e => {
-        throwGlobalError(e);
-      }
-    );
+    return dissociateProject(this.props.profile.key, String(key)).then(() => {
+      this.setState((state: State) => ({ selectedProjects: without(state.selectedProjects, key) }));
+    });
   };
 
   handleCloseClick = (event: React.SyntheticEvent<HTMLElement>) => {

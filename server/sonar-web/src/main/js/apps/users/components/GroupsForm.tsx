@@ -25,7 +25,6 @@ import SelectList, { Filter } from '../../../components/SelectList/SelectList';
 import { translate } from '../../../helpers/l10n';
 import { getUserGroups } from '../../../api/users';
 import { addUserToGroup, removeUserFromGroup } from '../../../api/user_groups';
-import throwGlobalError from '../../../app/utils/throwGlobalError';
 
 interface Props {
   onClose: () => void;
@@ -48,57 +47,34 @@ export default class GroupsForm extends React.PureComponent<Props> {
   }
 
   handleSearch = (query: string, selected: Filter) => {
-    return getUserGroups(this.props.user.login, undefined, query, selected).then(
-      (data: any) => {
-        this.setState({
-          groups: data.groups,
-          selectedGroups: data.groups
-            .filter((group: any) => group.selected)
-            .map((group: any) => group.name)
-        });
-      },
-      () => {}
-    );
+    return getUserGroups(this.props.user.login, undefined, query, selected).then((data: any) => {
+      this.setState({
+        groups: data.groups,
+        selectedGroups: data.groups
+          .filter((group: any) => group.selected)
+          .map((group: any) => group.name)
+      });
+    });
   };
 
   handleSelect = (name: string) => {
-    const requestData: any = {
+    return addUserToGroup({
       name,
       login: this.props.user.login
-    };
-
-    return addUserToGroup(requestData).then(
-      () => {
-        this.setState((state: State) => {
-          return {
-            selectedGroups: [...state.selectedGroups, name]
-          };
-        });
-      },
-      e => {
-        throwGlobalError(e);
-      }
-    );
+    }).then(() => {
+      this.setState((state: State) => ({ selectedGroups: [...state.selectedGroups, name] }));
+    });
   };
 
   handleUnselect = (name: string) => {
-    const requestData: any = {
+    return removeUserFromGroup({
       name,
       login: this.props.user.login
-    };
-
-    return removeUserFromGroup(requestData).then(
-      () => {
-        this.setState((state: State) => {
-          return {
-            selectedGroups: without(state.selectedGroups, name)
-          };
-        });
-      },
-      e => {
-        throwGlobalError(e);
-      }
-    );
+    }).then(() => {
+      this.setState((state: State) => ({
+        selectedGroups: without(state.selectedGroups, name)
+      }));
+    });
   };
 
   handleCloseClick = (event: React.SyntheticEvent<HTMLElement>) => {

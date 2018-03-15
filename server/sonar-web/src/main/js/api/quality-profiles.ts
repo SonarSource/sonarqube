@@ -153,7 +153,7 @@ export function compareProfiles(leftKey: string, rightKey: string): Promise<any>
   return getJSON('/api/qualityprofiles/compare', { leftKey, rightKey });
 }
 
-export function associateProject(profileKey: string, projectKey: string): Promise<void> {
+export function associateProject(profileKey: string, projectKey: string): Promise<any> {
   return post('/api/qualityprofiles/add_project', { profileKey, projectKey });
 }
 

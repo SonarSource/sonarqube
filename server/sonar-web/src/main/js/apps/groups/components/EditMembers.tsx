@@ -110,7 +110,7 @@ export default class EditMembers extends React.PureComponent<Props, State> {
 
   renderElement = (login: string): React.ReactNode => {
     const user = find(this.state.users, { login });
-    return user === undefined ? key : user.login;
+    return user === undefined ? login : user.login;
   };
 
   render() {
