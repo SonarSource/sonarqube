@@ -19,35 +19,30 @@
  */
 import * as React from 'react';
 import * as classNames from 'classnames';
+import Checkbox from '../controls/Checkbox';
 
 interface Props {
-  element: string | number;
-  selected: boolean;
   active?: boolean;
-  renderElement: (element: string | number) => React.ReactNode;
-  onSelectChange: (element: string | number) => void;
+  element: string;
+  onSelectChange: (element: string) => void;
+  renderElement: (element: string) => React.ReactNode;
+  selected: boolean;
 }
 
 export default class SelectListListElement extends React.PureComponent<Props> {
-  handleSelect = (evt: React.SyntheticEvent<HTMLAnchorElement>) => {
-    evt.stopPropagation();
-    evt.preventDefault();
-    evt.currentTarget.blur();
+  handleCheck = () => {
     this.props.onSelectChange(this.props.element);
   };
 
   render() {
-    const linkClasses = classNames({ active: this.props.active });
-    const checkboxClasses = classNames('spacer-right', 'icon-checkbox', {
-      'icon-checkbox-checked': this.props.selected
-    });
-
     return (
       <li>
-        <a className={linkClasses} href="#" onClick={this.handleSelect}>
-          <i className={checkboxClasses} />
-          {this.props.renderElement(this.props.element)}
-        </a>
+        <Checkbox
+          checked={this.props.selected}
+          className={classNames({ active: this.props.active })}
+          onCheck={this.handleCheck}>
+          <span className="little-spacer-left">{this.props.renderElement(this.props.element)}</span>
+        </Checkbox>
       </li>
     );
   }

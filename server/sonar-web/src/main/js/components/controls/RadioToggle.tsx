@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import * as classNames from 'classnames';
 import Tooltip from './Tooltip';
 
 interface Option {
@@ -28,6 +29,7 @@ interface Option {
 }
 
 interface Props {
+  className?: string;
   name: string;
   onCheck: (value: string) => void;
   options: Option[];
@@ -71,6 +73,10 @@ export default class RadioToggle extends React.PureComponent<Props> {
   };
 
   render() {
-    return <ul className="radio-toggle">{this.props.options.map(this.renderOption)}</ul>;
+    return (
+      <ul className={classNames('radio-toggle', this.props.className)}>
+        {this.props.options.map(this.renderOption)}
+      </ul>
+    );
   }
 }

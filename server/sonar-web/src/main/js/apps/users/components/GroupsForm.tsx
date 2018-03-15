@@ -21,7 +21,7 @@ import * as React from 'react';
 import { find, without } from 'lodash';
 import { User, Group } from '../../../app/types';
 import Modal from '../../../components/controls/Modal';
-import SelectList from '../../../components/SelectList/SelectList';
+import SelectList, { Filter } from '../../../components/SelectList/SelectList';
 import { translate } from '../../../helpers/l10n';
 import { getUserGroups } from '../../../api/users';
 import { addUserToGroup, removeUserFromGroup } from '../../../api/user_groups';
@@ -36,7 +36,7 @@ interface Props {
 interface State {
   error: string;
   groups: Group[];
-  selectedGroups: number[];
+  selectedGroups: string[];
 }
 
 export default class GroupsForm extends React.PureComponent<Props> {
@@ -44,26 +44,26 @@ export default class GroupsForm extends React.PureComponent<Props> {
   state: State = { error: '', groups: [], selectedGroups: [] };
 
   componentDidMount() {
-    this.handleSearch('', 'selected');
+    this.handleSearch('', Filter.Selected);
   }
 
-  handleSearch = (query: string, selected: string) => {
+  handleSearch = (query: string, selected: Filter) => {
     return getUserGroups(this.props.user.login, undefined, query, selected).then(
       (data: any) => {
         this.setState({
           groups: data.groups,
           selectedGroups: data.groups
             .filter((group: any) => group.selected)
-            .map((group: any) => group.id)
+            .map((group: any) => group.name)
         });
       },
       () => {}
     );
   };
 
-  handleSelect = (key: number) => {
+  handleSelect = (name: string) => {
     const requestData: any = {
-      id: key,
+      name,
       login: this.props.user.login
     };
 
@@ -71,7 +71,7 @@ export default class GroupsForm extends React.PureComponent<Props> {
       () => {
         this.setState((state: State) => {
           return {
-            selectedGroups: [...state.selectedGroups, key]
+            selectedGroups: [...state.selectedGroups, name]
           };
         });
       },
@@ -81,9 +81,9 @@ export default class GroupsForm extends React.PureComponent<Props> {
     );
   };
 
-  handleUnselect = (key: number) => {
+  handleUnselect = (name: string) => {
     const requestData: any = {
-      id: key,
+      name,
       login: this.props.user.login
     };
 
@@ -91,7 +91,7 @@ export default class GroupsForm extends React.PureComponent<Props> {
       () => {
         this.setState((state: State) => {
           return {
-            selectedGroups: without(state.selectedGroups, key)
+            selectedGroups: without(state.selectedGroups, name)
           };
         });
       },
@@ -111,9 +111,9 @@ export default class GroupsForm extends React.PureComponent<Props> {
     this.props.onClose();
   };
 
-  renderElement = (id: number): React.ReactNode => {
-    const group = find(this.state.groups, { id });
-    return group === undefined ? id : group.name;
+  renderElement = (name: string): React.ReactNode => {
+    const group = find(this.state.groups, { name });
+    return group === undefined ? name : group.name;
   };
 
   render() {
@@ -132,7 +132,7 @@ export default class GroupsForm extends React.PureComponent<Props> {
             </div>
           )}
           <SelectList
-            elements={this.state.groups.map(group => group.id)}
+            elements={this.state.groups.map(group => group.name)}
             onSearch={this.handleSearch}
             onSelect={this.handleSelect}
             onUnselect={this.handleUnselect}

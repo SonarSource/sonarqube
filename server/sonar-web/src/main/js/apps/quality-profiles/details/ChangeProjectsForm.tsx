@@ -20,7 +20,7 @@
 import * as React from 'react';
 import { find, without } from 'lodash';
 import Modal from '../../../components/controls/Modal';
-import SelectList from '../../../components/SelectList/SelectList';
+import SelectList, { Filter } from '../../../components/SelectList/SelectList';
 import { translate } from '../../../helpers/l10n';
 import { Profile } from '../types';
 import {
@@ -47,10 +47,10 @@ export default class ChangeProjectsForm extends React.PureComponent<Props> {
   state: State = { projects: [], selectedProjects: [] };
 
   componentDidMount() {
-    this.handleSearch('', 'selected');
+    this.handleSearch('', Filter.Selected);
   }
 
-  handleSearch = (query: string, selected: string) => {
+  handleSearch = (query: string, selected: Filter) => {
     const requestData: any = {
       key: this.props.profile.key,
       pageSize: 100,
@@ -132,8 +132,8 @@ export default class ChangeProjectsForm extends React.PureComponent<Props> {
           <SelectList
             elements={this.state.projects.map(project => project.key)}
             labelAll={translate('quality_gates.projects.all')}
-            labelDeselected={translate('quality_gates.projects.without')}
             labelSelected={translate('quality_gates.projects.with')}
+            labelUnselected={translate('quality_gates.projects.without')}
             onSearch={this.handleSearch}
             onSelect={this.handleSelect}
             onUnselect={this.handleUnselect}

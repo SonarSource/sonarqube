@@ -22,7 +22,7 @@ import { find, without } from 'lodash';
 import { Group, User } from '../../../app/types';
 import Modal from '../../../components/controls/Modal';
 import BulletListIcon from '../../../components/icons-components/BulletListIcon';
-import SelectList from '../../../components/SelectList/SelectList';
+import SelectList, { Filter } from '../../../components/SelectList/SelectList';
 import { ButtonIcon, ResetButtonLink } from '../../../components/ui/buttons';
 import { translate } from '../../../helpers/l10n';
 import { getUsersInGroup, addUserToGroup, removeUserFromGroup } from '../../../api/user_groups';
@@ -45,7 +45,7 @@ export default class EditMembers extends React.PureComponent<Props, State> {
   state: State = { modal: false, users: [], selectedUsers: [] };
 
   componentDidMount() {
-    this.handleSearch('', 'selected');
+    this.handleSearch('', Filter.Selected);
     this.mounted = true;
   }
 
@@ -53,7 +53,7 @@ export default class EditMembers extends React.PureComponent<Props, State> {
     this.mounted = false;
   }
 
-  handleSearch = (query: string, selected: string) => {
+  handleSearch = (query: string, selected: Filter) => {
     const requestData: any = {
       id: this.props.group.id,
       ps: 100,

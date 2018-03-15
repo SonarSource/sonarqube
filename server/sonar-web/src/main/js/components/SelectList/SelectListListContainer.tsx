@@ -18,15 +18,16 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { Filter } from './SelectList';
 import SelectListListElement from './SelectListListElement';
 
 interface Props {
-  elements: Array<string | number>;
-  filter: string;
-  onSelect: (element: string | number) => void;
-  onUnselect: (element: string | number) => void;
-  renderElement: (element: string | number) => React.ReactNode;
-  selectedElements: Array<string | number>;
+  elements: string[];
+  filter: Filter;
+  onSelect: (element: string) => void;
+  onUnselect: (element: string) => void;
+  renderElement: (element: string) => React.ReactNode;
+  selectedElements: string[];
 }
 
 export default class SelectListListContainer extends React.PureComponent<Props> {
@@ -38,24 +39,24 @@ export default class SelectListListContainer extends React.PureComponent<Props> 
     }
   };
 
-  isSelected = (element: string | number): boolean => {
-    return this.props.selectedElements.indexOf(element) > -1;
+  isSelected = (element: string): boolean => {
+    return this.props.selectedElements.includes(element);
   };
 
   render() {
     const { elements, filter } = this.props;
-    const filteredElements = elements.filter((element: string | number) => {
-      if (filter === 'all') {
+    const filteredElements = elements.filter(element => {
+      if (filter === Filter.All) {
         return true;
       }
-      const isSelected: boolean = this.isSelected(element);
-      return filter === 'selected' ? isSelected : !isSelected;
+      const isSelected = this.isSelected(element);
+      return filter === Filter.Selected ? isSelected : !isSelected;
     });
 
     return (
       <div className="select-list-list-container spacer-top">
         <ul className="menu">
-          {filteredElements.map((element: string | number) => (
+          {filteredElements.map(element => (
             <SelectListListElement
               element={element}
               key={element}

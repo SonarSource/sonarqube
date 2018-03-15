@@ -19,7 +19,7 @@
  */
 import React from 'react';
 import { find, without } from 'lodash';
-import SelectList from '../../../components/SelectList/SelectList';
+import SelectList, { Filter } from '../../../components/SelectList/SelectList';
 import { translate } from '../../../helpers/l10n';
 import {
   searchGates,
@@ -39,7 +39,7 @@ export default class Projects extends React.PureComponent {
   state /*: State */ = { projects: [], selectedProjects: [] };
 
   componentDidMount() {
-    this.handleSearch('', 'selected');
+    this.handleSearch('', Filter.Selected);
   }
 
   handleSearch = (query /*: string*/, selected /*: string */) => {
@@ -123,8 +123,8 @@ export default class Projects extends React.PureComponent {
       <SelectList
         elements={this.state.projects.map(project => project.id)}
         labelAll={translate('quality_gates.projects.all')}
-        labelDeselected={translate('quality_gates.projects.without')}
         labelSelected={translate('quality_gates.projects.with')}
+        labelUnselected={translate('quality_gates.projects.without')}
         onSearch={this.handleSearch}
         onSelect={this.handleSelect}
         onUnselect={this.handleUnselect}
