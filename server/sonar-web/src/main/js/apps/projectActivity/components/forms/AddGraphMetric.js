@@ -20,6 +20,7 @@
 // @flow
 import React from 'react';
 import { find } from 'lodash';
+import AddGraphMetricPopup from './AddGraphMetricPopup';
 import DropdownIcon from '../../../../components/icons-components/DropdownIcon';
 import BubblePopup from '../../../../components/common/BubblePopup';
 import BubblePopupHelper from '../../../../components/common/BubblePopupHelper';
@@ -177,50 +178,38 @@ export default class AddGraphMetric extends React.PureComponent {
     });
   };
 
-  renderSelector() {
+  render() {
     const { metrics, selectedMetrics, query } = this.state;
     const filteredMetrics = metrics.filter(
       (metric /*: string */) => metric.toLowerCase().indexOf(query.toLowerCase()) > -1
     );
 
     return (
-      <BubblePopupHelper
-        isOpen={this.state.open}
-        popup={
-          <BubblePopup customClass="bubble-popup-bottom-right bubble-popup-menu abs-width-300">
-            <MultiSelect
-              alertMessage={translate('project_activity.graphs.custom.add_metric_info')}
-              allowNewElements={false}
-              allowSelection={selectedMetrics.length < 6}
-              displayAlertMessage={selectedMetrics.length >= 6}
+      <div className="display-inline-block" ref={card => (this.card = card)}>
+        <BubblePopupHelper
+          isOpen={this.state.open}
+          offset={{ horizontal: 16, vertical: 0 }}
+          popup={
+            <AddGraphMetricPopup
               elements={filteredMetrics}
               onSearch={this.onSearch}
               onSelect={this.onSelect}
               onUnselect={this.onUnselect}
-              placeholder={translate('search.search_for_tags')}
               renderLabel={element => this.getLocalizedMetricNameFromKey(element)}
               selectedElements={selectedMetrics}
             />
-          </BubblePopup>
-        }
-        position="bottomright"
-        togglePopup={() => {}}
-      />
-    );
-  }
-
-  render() {
-    return (
-      <div ref={card => (this.card = card)}>
-        <button className="spacer-left" onClick={this.toggleForm} type="button">
-          <span>
-            <span className="text-ellipsis spacer-right">
-              {translate('project_activity.graphs.custom.add')}
+          }
+          position="bottomright"
+          togglePopup={() => {}}>
+          <button className="spacer-left" onClick={this.toggleForm} type="button">
+            <span>
+              <span className="text-ellipsis spacer-right">
+                {translate('project_activity.graphs.custom.add')}
+              </span>
+              <DropdownIcon className="vertical-text-top" />
             </span>
-            <DropdownIcon className="vertical-text-top" />
-          </span>
-        </button>
-        {this.renderSelector()}
+          </button>
+        </BubblePopupHelper>
       </div>
     );
   }
