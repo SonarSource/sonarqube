@@ -18,37 +18,21 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import DateInput from '../../../components/controls/DateInput';
+import DateRangeInput from '../../../components/controls/DateRangeInput';
 import { Button } from '../../../components/ui/buttons';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {
-  fromDate: Date | undefined;
-  toDate: Date | undefined;
-  onFromDateChange: (date: Date | undefined) => void;
+  dateRange: { from?: Date; to?: Date } | undefined;
+  onDateRangeChange: (range: { from?: Date; to?: Date }) => void;
   onReset: () => void;
-  onToDateChange: (date: Date | undefined) => void;
 }
 
 export default class ChangelogSearch extends React.PureComponent<Props> {
   render() {
     return (
       <div className="display-inline-block" id="quality-profile-changelog-form">
-        <DateInput
-          maxDate={this.props.toDate}
-          name="since"
-          onChange={this.props.onFromDateChange}
-          placeholder={translate('from')}
-          value={this.props.fromDate}
-        />
-        {' — '}
-        <DateInput
-          minDate={this.props.fromDate}
-          name="to"
-          onChange={this.props.onToDateChange}
-          placeholder={translate('to')}
-          value={this.props.toDate}
-        />
+        <DateRangeInput onChange={this.props.onDateRangeChange} value={this.props.dateRange} />
         <Button className="spacer-left" onClick={this.props.onReset}>
           {translate('reset_verb')}
         </Button>

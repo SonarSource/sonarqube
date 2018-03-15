@@ -18,8 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import DateInput from '../../../components/controls/DateInput';
-import { translate } from '../../../helpers/l10n';
+import DageRangeInput from '../../../components/controls/DateRangeInput';
 
 interface Props {
   maxExecutedAt: Date | undefined;
@@ -28,30 +27,15 @@ interface Props {
 }
 
 export default class DateFilter extends React.PureComponent<Props> {
-  handleFromChange = (date: Date | undefined) => {
-    this.props.onChange({ minSubmittedAt: date });
-  };
-
-  handleToChange = (date: Date | undefined) => {
-    this.props.onChange({ maxExecutedAt: date });
+  handleDateRangeChange = ({ from, to }: { from?: Date; to?: Date }) => {
+    this.props.onChange({ minSubmittedAt: from, maxExecutedAt: to });
   };
 
   render() {
+    const dateRange = { from: this.props.minSubmittedAt, to: this.props.maxExecutedAt };
     return (
       <div className="nowrap">
-        <DateInput
-          name="from"
-          onChange={this.handleFromChange}
-          placeholder={translate('from')}
-          value={this.props.minSubmittedAt}
-        />
-        <DateInput
-          className="little-spacer-left"
-          name="to"
-          onChange={this.handleToChange}
-          placeholder={translate('to')}
-          value={this.props.maxExecutedAt}
-        />
+        <DageRangeInput onChange={this.handleDateRangeChange} value={dateRange} />
       </div>
     );
   }

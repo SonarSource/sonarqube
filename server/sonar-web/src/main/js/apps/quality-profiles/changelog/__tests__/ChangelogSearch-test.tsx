@@ -24,15 +24,11 @@ import { click } from '../../../../helpers/testUtils';
 import { parseDate } from '../../../../helpers/dates';
 
 it('should render', () => {
-  const onFromDateChange = jest.fn();
-  const onToDateChange = jest.fn();
   const output = shallow(
     <ChangelogSearch
-      fromDate={parseDate('2016-01-01')}
-      onFromDateChange={onFromDateChange}
+      dateRange={{ from: parseDate('2016-01-01'), to: parseDate('2016-05-05') }}
+      onDateRangeChange={jest.fn()}
       onReset={jest.fn()}
-      onToDateChange={onToDateChange}
-      toDate={parseDate('2016-05-05')}
     />
   );
   expect(output).toMatchSnapshot();
@@ -42,11 +38,9 @@ it('should reset', () => {
   const onReset = jest.fn();
   const output = shallow(
     <ChangelogSearch
-      fromDate={parseDate('2016-01-01')}
-      onFromDateChange={jest.fn()}
+      dateRange={{ from: parseDate('2016-01-01'), to: parseDate('2016-05-05') }}
+      onDateRangeChange={jest.fn()}
       onReset={onReset}
-      onToDateChange={jest.fn()}
-      toDate={parseDate('2016-05-05')}
     />
   );
   expect(onReset).not.toBeCalled();

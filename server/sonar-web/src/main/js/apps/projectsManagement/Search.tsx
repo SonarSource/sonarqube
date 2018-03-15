@@ -170,7 +170,7 @@ export default class Search extends React.PureComponent<Props, State> {
     return (
       <td className="thin nowrap text-middle">
         <DateInput
-          inputClassName="input-large"
+          inputClassName="input-medium"
           name="analyzed-before"
           onChange={this.props.onDateChanged}
           placeholder={translate('last_analysis_before')}

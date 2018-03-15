@@ -76,7 +76,6 @@
   display: table-cell;
   line-height: 15px;
   padding: var(--gridSize);
-  border-radius: 2px;
   text-align: center;
   cursor: pointer;
   vertical-align: top;
@@ -118,10 +117,15 @@
 }
 
 .DayPicker-Day--selected:not(.DayPicker-Day--disabled):not(.DayPicker-Day--outside) {
-  background-color: var(--lightBlue);
+  background-color: var(--blue);
+  color: #fff;
 }
 
 .DayPicker:not(.DayPicker--interactionDisabled)
-  .DayPicker-Day:not(.DayPicker-Day--disabled):not(.DayPicker-Day--selected):not(.DayPicker-Day--outside):hover {
+  .DayPicker-Day:not(.DayPicker-Day--disabled):not(.DayPicker-Day--selected):not(.DayPicker-Day--highlighted):not(.DayPicker-Day--outside):hover {
   background-color: var(--barBackgroundColor);
+}
+
+.DayPicker-Day--highlighted:not(.DayPicker-Day--disabled):not(.DayPicker-Day--selected):not(.DayPicker-Day--outside) {
+  background-color: var(--lightBlue);
 }

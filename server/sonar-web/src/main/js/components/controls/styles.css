@@ -24,10 +24,13 @@
 }
 
 .date-input-control-input {
-  width: 160px;
+  width: 130px;
   padding-left: var(--controlHeight) !important;
-  padding-right: var(--controlHeight) !important;
   cursor: pointer;
+}
+
+.date-input-control-input.is-filled {
+  padding-right: 16px !important;
 }
 
 .date-input-control-icon {

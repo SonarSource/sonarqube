@@ -2,22 +2,14 @@
 
 exports[`should render correctly the date inputs 1`] = `
 <div>
-  <DateInput
-    className="little-spacer-right"
-    maxDate={2016-12-27T12:21:15.000Z}
-    name="from"
+  <DateRangeInput
     onChange={[Function]}
-    placeholder="from"
-    value={2016-10-27T12:21:15.000Z}
-  />
-  —
-  <DateInput
-    className="little-spacer-left"
-    minDate={2016-10-27T12:21:15.000Z}
-    name="to"
-    onChange={[Function]}
-    placeholder="to"
-    value={2016-12-27T12:21:15.000Z}
+    value={
+      Object {
+        "from": 2016-10-27T12:21:15.000Z,
+        "to": 2016-12-27T12:21:15.000Z,
+      }
+    }
   />
   <button
     className="spacer-left"

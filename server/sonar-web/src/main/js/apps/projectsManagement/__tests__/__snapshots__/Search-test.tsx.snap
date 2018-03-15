@@ -84,7 +84,7 @@ exports[`render qualifiers filter 1`] = `
           className="thin nowrap text-middle"
         >
           <DateInput
-            inputClassName="input-large"
+            inputClassName="input-medium"
             name="analyzed-before"
             onChange={[MockFunction]}
             placeholder="last_analysis_before"
@@ -172,7 +172,7 @@ exports[`renders 1`] = `
           className="thin nowrap text-middle"
         >
           <DateInput
-            inputClassName="input-large"
+            inputClassName="input-medium"
             name="analyzed-before"
             onChange={[MockFunction]}
             placeholder="last_analysis_before"
