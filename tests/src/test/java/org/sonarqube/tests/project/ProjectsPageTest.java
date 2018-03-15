@@ -80,10 +80,10 @@ public class ProjectsPageTest {
   public void should_display_facets() {
     ProjectsPage page = tester.openBrowser().openProjects();
     page.getFacetByProperty("duplications")
-      .shouldHaveValue("1", "1")
-      .shouldHaveValue("2", "1")
-      .shouldHaveValue("3", "1")
-      .shouldHaveValue("4", "1")
+      .shouldHaveValue("1", "0")
+      .shouldHaveValue("2", "0")
+      .shouldHaveValue("3", "0")
+      .shouldHaveValue("4", "0")
       .shouldHaveValue("5", "1")
       .shouldHaveValue("6", "0");
   }
