@@ -24,14 +24,38 @@ import Checkbox from '../controls/Checkbox';
 interface Props {
   active?: boolean;
   element: string;
-  onSelectChange: (element: string) => void;
+  onSelect: (element: string) => Promise<void>;
+  onUnselect: (element: string) => Promise<void>;
   renderElement: (element: string) => React.ReactNode;
   selected: boolean;
 }
 
-export default class SelectListListElement extends React.PureComponent<Props> {
-  handleCheck = () => {
-    this.props.onSelectChange(this.props.element);
+interface State {
+  loading: boolean;
+}
+
+export default class SelectListListElement extends React.PureComponent<Props, State> {
+  mounted = false;
+  state: State = { loading: false };
+
+  componentDidMount() {
+    this.mounted = true;
+  }
+
+  componentWillUnmount() {
+    this.mounted = false;
+  }
+
+  stopLoading = () => {
+    if (this.mounted) {
+      this.setState({ loading: false });
+    }
+  };
+
+  handleCheck = (checked: boolean) => {
+    this.setState({ loading: true });
+    const request = checked ? this.props.onSelect : this.props.onUnselect;
+    request(this.props.element).then(this.stopLoading, this.stopLoading);
   };
 
   render() {

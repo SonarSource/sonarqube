@@ -24,21 +24,13 @@ import SelectListListElement from './SelectListListElement';
 interface Props {
   elements: string[];
   filter: Filter;
-  onSelect: (element: string) => void;
-  onUnselect: (element: string) => void;
+  onSelect: (element: string) => Promise<void>;
+  onUnselect: (element: string) => Promise<void>;
   renderElement: (element: string) => React.ReactNode;
   selectedElements: string[];
 }
 
 export default class SelectListListContainer extends React.PureComponent<Props> {
-  handleSelectChange = (element: string) => {
-    if (this.isSelected(element)) {
-      this.props.onUnselect(element);
-    } else {
-      this.props.onSelect(element);
-    }
-  };
-
   isSelected = (element: string): boolean => {
     return this.props.selectedElements.includes(element);
   };
@@ -60,7 +52,8 @@ export default class SelectListListContainer extends React.PureComponent<Props> 
             <SelectListListElement
               element={element}
               key={element}
-              onSelectChange={this.handleSelectChange}
+              onSelect={this.props.onSelect}
+              onUnselect={this.props.onUnselect}
               renderElement={this.props.renderElement}
               selected={this.isSelected(element)}
             />

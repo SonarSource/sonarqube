@@ -19,13 +19,18 @@
  */
 import * as React from 'react';
 import { find, without } from 'lodash';
-import { Group, User } from '../../../app/types';
+import { Group } from '../../../app/types';
 import Modal from '../../../components/controls/Modal';
 import BulletListIcon from '../../../components/icons-components/BulletListIcon';
 import SelectList, { Filter } from '../../../components/SelectList/SelectList';
 import { ButtonIcon, ResetButtonLink } from '../../../components/ui/buttons';
 import { translate } from '../../../helpers/l10n';
-import { getUsersInGroup, addUserToGroup, removeUserFromGroup } from '../../../api/user_groups';
+import {
+  getUsersInGroup,
+  addUserToGroup,
+  removeUserFromGroup,
+  GroupUser
+} from '../../../api/user_groups';
 
 interface Props {
   group: Group;
@@ -35,7 +40,7 @@ interface Props {
 
 interface State {
   modal: boolean;
-  users: User[];
+  users: GroupUser[];
   selectedUsers: string[];
 }
 
@@ -54,76 +59,42 @@ export default class EditMembers extends React.PureComponent<Props, State> {
   }
 
   handleSearch = (query: string, selected: Filter) => {
-    const requestData: any = {
+    return getUsersInGroup({
       id: this.props.group.id,
+      organization: this.props.organization,
       ps: 100,
-      p: 1,
+      q: query !== '' ? query : undefined,
       selected
-    };
-
-    if (query !== '') {
-      requestData.q = query;
-    }
-
-    if (this.props.organization) {
-      requestData.organization = this.props.organization;
-    }
-
-    return getUsersInGroup(requestData).then(
-      (data: any) => {
-        this.setState({
-          users: data.users,
-          selectedUsers: data.users
-            .filter((user: any) => user.selected)
-            .map((user: any) => user.login)
-        });
-      },
-      () => {}
-    );
+    }).then(data => {
+      this.setState({
+        users: data.users,
+        selectedUsers: data.users.filter(user => user.selected).map(user => user.login)
+      });
+    });
   };
 
-  handleSelect = (key: string) => {
-    const requestData: any = {
+  handleSelect = (login: string) => {
+    return addUserToGroup({
       name: this.props.group.name,
-      login: key
-    };
-
-    if (this.props.organization) {
-      requestData.organization = this.props.organization;
-    }
-
-    return addUserToGroup(requestData).then(
-      () => {
-        this.setState((state: State) => {
-          return {
-            selectedUsers: [...state.selectedUsers, key]
-          };
-        });
-      },
-      () => {}
-    );
+      login,
+      organization: this.props.organization
+    }).then(() => {
+      this.setState((state: State) => ({
+        selectedUsers: [...state.selectedUsers, login]
+      }));
+    });
   };
 
-  handleUnselect = (key: string) => {
-    const requestData: any = {
+  handleUnselect = (login: string) => {
+    return removeUserFromGroup({
       name: this.props.group.name,
-      login: key
-    };
-
-    if (this.props.organization) {
-      requestData.organization = this.props.organization;
-    }
-
-    return removeUserFromGroup(requestData).then(
-      () => {
-        this.setState((state: State) => {
-          return {
-            selectedUsers: without(state.selectedUsers, key)
-          };
-        });
-      },
-      () => {}
-    );
+      login,
+      organization: this.props.organization
+    }).then(() => {
+      this.setState((state: State) => ({
+        selectedUsers: without(state.selectedUsers, login)
+      }));
+    });
   };
 
   handleMembersClick = () => {

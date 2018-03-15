@@ -43,28 +43,36 @@ interface Props {
 
 interface State {
   filter: Filter;
+  loading: boolean;
   query: string;
 }
 
 export default class SelectList extends React.PureComponent<Props, State> {
-  state: State = { filter: Filter.Selected, query: '' };
+  mounted = false;
+  state: State = { filter: Filter.Selected, loading: false, query: '' };
+
+  componentDidMount() {
+    this.mounted = true;
+  }
+
+  componentWillUnmount() {
+    this.mounted = false;
+  }
+
+  stopLoading = () => {
+    if (this.mounted) {
+      this.setState({ loading: false });
+    }
+  };
 
   changeFilter = (filter: Filter) => {
-    this.setState({ filter });
-    this.props.onSearch(this.state.query, filter);
+    this.setState({ filter, loading: true });
+    this.props.onSearch(this.state.query, filter).then(this.stopLoading, this.stopLoading);
   };
 
   handleQueryChange = (query: string) => {
-    this.setState({ query });
-    this.props.onSearch(query, this.state.filter);
-  };
-
-  handleSelect = (element: string) => {
-    this.props.onSelect(element);
-  };
-
-  handleUnselect = (element: string) => {
-    this.props.onUnselect(element);
+    this.setState({ loading: true, query });
+    this.props.onSearch(query, this.state.filter).then(this.stopLoading, this.stopLoading);
   };
 
   render() {
@@ -93,7 +101,7 @@ export default class SelectList extends React.PureComponent<Props, State> {
           />
           <SearchBox
             autoFocus={true}
-            loading={false}
+            loading={this.state.loading}
             onChange={this.handleQueryChange}
             placeholder={translate('search_verb')}
             value={this.state.query}
@@ -102,8 +110,8 @@ export default class SelectList extends React.PureComponent<Props, State> {
         <SelectListListContainer
           elements={this.props.elements}
           filter={filter}
-          onSelect={this.handleSelect}
-          onUnselect={this.handleUnselect}
+          onSelect={this.props.onSelect}
+          onUnselect={this.props.onUnselect}
           renderElement={this.props.renderElement}
           selectedElements={this.props.selectedElements}
         />

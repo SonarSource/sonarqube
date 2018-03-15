@@ -31,6 +31,12 @@ export function searchUsersGroups(data: {
   return getJSON('/api/user_groups/search', data);
 }
 
+export interface GroupUser {
+  login: string;
+  name: string;
+  selected: boolean;
+}
+
 export function getUsersInGroup(data: {
   id?: number;
   name?: string;
@@ -39,7 +45,7 @@ export function getUsersInGroup(data: {
   ps?: number;
   q?: string;
   selected?: string;
-}): Promise<{ groups: Group[]; paging: Paging }> {
+}): Promise<{ paging: Paging; users: GroupUser[] }> {
   return getJSON('/api/user_groups/users', data);
 }
 
