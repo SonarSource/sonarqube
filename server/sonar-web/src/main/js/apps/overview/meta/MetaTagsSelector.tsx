@@ -18,21 +18,20 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { differenceBy } from 'lodash';
+import { without, difference } from 'lodash';
 import TagsSelector from '../../../components/tags/TagsSelector';
-import { MultiSelectValue } from '../../../components/common/MultiSelect';
 import { BubblePopupPosition } from '../../../components/common/BubblePopup';
 import { searchProjectTags } from '../../../api/components';
 
 interface Props {
   position: BubblePopupPosition;
   project: string;
-  selectedTags: MultiSelectValue[];
-  setProjectTags: (tags: MultiSelectValue[]) => void;
+  selectedTags: string[];
+  setProjectTags: (tags: string[]) => void;
 }
 
 interface State {
-  searchResult: MultiSelectValue[];
+  searchResult: string[];
 }
 
 const LIST_SIZE = 10;
@@ -56,27 +55,23 @@ export default class MetaTagsSelector extends React.PureComponent<Props, State> 
     }).then(
       ({ tags }) => {
         if (this.mounted) {
-          this.setState({
-            searchResult: tags.map((tag: string) => {
-              return { key: tag, label: tag };
-            })
-          });
+          this.setState({ searchResult: tags });
         }
       },
       () => {}
     );
   };
 
-  onSelect = (tag: MultiSelectValue) => {
+  onSelect = (tag: string) => {
     this.props.setProjectTags([...this.props.selectedTags, tag]);
   };
 
-  onUnselect = (tag: MultiSelectValue) => {
-    this.props.setProjectTags(this.props.selectedTags.filter(selected => selected.key !== tag.key));
+  onUnselect = (tag: string) => {
+    this.props.setProjectTags(without(this.props.selectedTags, tag));
   };
 
   render() {
-    const availableTags = differenceBy(this.state.searchResult, this.props.selectedTags, 'key');
+    const availableTags = difference(this.state.searchResult, this.props.selectedTags);
     return (
       <TagsSelector
         listSize={LIST_SIZE}

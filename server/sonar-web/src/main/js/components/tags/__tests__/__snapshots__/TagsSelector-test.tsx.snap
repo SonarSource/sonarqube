@@ -13,18 +13,9 @@ exports[`should render with selected tags 1`] = `
   <MultiSelect
     elements={
       Array [
-        Object {
-          "key": "foo",
-          "label": "foo",
-        },
-        Object {
-          "key": "bar",
-          "label": "bar",
-        },
-        Object {
-          "key": "baz",
-          "label": "baz",
-        },
+        "foo",
+        "bar",
+        "baz",
       ]
     }
     listSize={10}
@@ -32,12 +23,10 @@ exports[`should render with selected tags 1`] = `
     onSelect={[Function]}
     onUnselect={[Function]}
     placeholder="search.search_for_tags"
+    renderLabel={[Function]}
     selectedElements={
       Array [
-        Object {
-          "key": "bar",
-          "label": "bar",
-        },
+        "bar",
       ]
     }
     validateSearchInput={[Function]}
@@ -62,6 +51,7 @@ exports[`should render without tags at all 1`] = `
     onSelect={[Function]}
     onUnselect={[Function]}
     placeholder="search.search_for_tags"
+    renderLabel={[Function]}
     selectedElements={Array []}
     validateSearchInput={[Function]}
   />

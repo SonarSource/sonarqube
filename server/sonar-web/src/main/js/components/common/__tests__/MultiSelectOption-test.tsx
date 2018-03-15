@@ -22,9 +22,10 @@ import { shallow } from 'enzyme';
 import MultiSelectOption from '../MultiSelectOption';
 
 const props = {
-  element: { key: 'mytag', label: 'mytag' },
+  element: 'mytag',
   onSelectChange: () => {},
-  onHover: () => {}
+  onHover: () => {},
+  renderLabel: (element: string) => element
 };
 
 it('should render standard tag', () => {

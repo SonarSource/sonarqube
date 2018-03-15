@@ -9,22 +9,13 @@ exports[`should render tags popup correctly 1`] = `
   position={Object {}}
   selectedTags={
     Array [
-      Object {
-        "key": "mytag",
-        "label": "mytag",
-      },
+      "mytag",
     ]
   }
   tags={
     Array [
-      Object {
-        "key": "test",
-        "label": "test",
-      },
-      Object {
-        "key": "second",
-        "label": "second",
-      },
+      "test",
+      "second",
     ]
   }
 />

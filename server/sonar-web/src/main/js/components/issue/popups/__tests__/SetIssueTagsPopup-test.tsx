@@ -26,16 +26,10 @@ it('should render tags popup correctly', () => {
     <SetIssueTagsPopup
       organization="foo"
       popupPosition={{}}
-      selectedTags={[{ key: 'mytag', label: 'mytag' }]}
+      selectedTags={['mytag']}
       setTags={jest.fn()}
     />
   );
-  element.setState({
-    searchResult: [
-      { key: 'mytag', label: 'mytag' },
-      { key: 'test', label: 'test' },
-      { key: 'second', label: 'second' }
-    ]
-  });
+  element.setState({ searchResult: ['mytag', 'test', 'second'] });
   expect(element).toMatchSnapshot();
 });

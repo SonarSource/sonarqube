@@ -18,8 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { without, uniqBy, differenceBy } from 'lodash';
-import { MultiSelectValue } from '../../../components/common/MultiSelect';
+import { without, uniq, difference } from 'lodash';
 import TagsSelector from '../../../components/tags/TagsSelector';
 import { getRuleTags } from '../../../api/rules';
 import { BubblePopupPosition } from '../../../components/common/BubblePopup';
@@ -29,11 +28,11 @@ interface Props {
   popupPosition?: BubblePopupPosition;
   setTags: (tags: string[]) => void;
   sysTags: string[];
-  tags: MultiSelectValue[];
+  tags: string[];
 }
 
 interface State {
-  searchResult: MultiSelectValue[];
+  searchResult: string[];
 }
 
 const LIST_SIZE = 10;
@@ -59,29 +58,23 @@ export default class RuleDetailsTagsPopup extends React.PureComponent<Props, Sta
       tags => {
         if (this.mounted) {
           // systems tags can not be unset, don't display them in the results
-          this.setState({
-            searchResult: without(tags, ...this.props.sysTags).map((tag: string) => {
-              return { key: tag, label: tag };
-            })
-          });
+          this.setState({ searchResult: without(tags, ...this.props.sysTags) });
         }
       },
       () => {}
     );
   };
 
-  onSelect = (tag: MultiSelectValue) => {
-    this.props.setTags(uniqBy([...this.props.tags, tag], 'key').map(tag => tag.key));
+  onSelect = (tag: string) => {
+    this.props.setTags(uniq([...this.props.tags, tag]));
   };
 
-  onUnselect = (tag: MultiSelectValue) => {
-    this.props.setTags(
-      this.props.tags.filter(selected => selected.key !== tag.key).map(tag => tag.key)
-    );
+  onUnselect = (tag: string) => {
+    this.props.setTags(without(this.props.tags, tag));
   };
 
   render() {
-    const availableTags = differenceBy(this.state.searchResult, this.props.tags, 'key');
+    const availableTags = difference(this.state.searchResult, this.props.tags);
     return (
       <TagsSelector
         listSize={LIST_SIZE}

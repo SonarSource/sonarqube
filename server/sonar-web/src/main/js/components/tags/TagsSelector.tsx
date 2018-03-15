@@ -19,18 +19,18 @@
  */
 import * as React from 'react';
 import BubblePopup, { BubblePopupPosition } from '../common/BubblePopup';
-import MultiSelect, { MultiSelectValue } from '../common/MultiSelect';
+import MultiSelect from '../common/MultiSelect';
 import { translate } from '../../helpers/l10n';
 import './TagsList.css';
 
 interface Props {
   listSize: number;
   onSearch: (query: string) => Promise<void>;
-  onSelect: (item: MultiSelectValue) => void;
-  onUnselect: (item: MultiSelectValue) => void;
+  onSelect: (item: string) => void;
+  onUnselect: (item: string) => void;
   position: BubblePopupPosition;
-  selectedTags: MultiSelectValue[];
-  tags: MultiSelectValue[];
+  selectedTags: string[];
+  tags: string[];
 }
 
 export default function TagsSelector(props: Props) {
@@ -45,6 +45,7 @@ export default function TagsSelector(props: Props) {
         onSelect={props.onSelect}
         onUnselect={props.onUnselect}
         placeholder={translate('search.search_for_tags')}
+        renderLabel={(element: string) => element}
         selectedElements={props.selectedTags}
         validateSearchInput={validateTag}
       />

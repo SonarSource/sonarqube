@@ -19,16 +19,16 @@
  */
 import * as React from 'react';
 import * as classNames from 'classnames';
-import { MultiSelectValue } from './MultiSelect';
 
 interface Props {
-  element: MultiSelectValue;
-  selected?: boolean;
-  disabled?: boolean;
-  custom?: boolean;
   active?: boolean;
-  onSelectChange: (elem: MultiSelectValue, selected: boolean) => void;
-  onHover: (elem: MultiSelectValue) => void;
+  custom?: boolean;
+  disabled?: boolean;
+  element: string;
+  onHover: (elem: string) => void;
+  onSelectChange: (elem: string, selected: boolean) => void;
+  renderLabel: (element: string) => React.ReactNode;
+  selected?: boolean;
 }
 
 export default class MultiSelectOption extends React.PureComponent<Props> {
@@ -61,7 +61,7 @@ export default class MultiSelectOption extends React.PureComponent<Props> {
           onFocus={this.handleHover}
           onMouseOver={this.handleHover}>
           <i className={className} /> {this.props.custom && '+ '}
-          {this.props.element.label}
+          {this.props.renderLabel(this.props.element)}
         </a>
       </li>
     );

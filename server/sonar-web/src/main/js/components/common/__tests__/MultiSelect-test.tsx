@@ -22,11 +22,12 @@ import { shallow, mount } from 'enzyme';
 import MultiSelect from '../MultiSelect';
 
 const props = {
-  selectedElements: [{ key: 'bar', label: 'bar' }],
+  selectedElements: ['bar'],
   elements: [],
   onSearch: () => Promise.resolve(),
   onSelect: () => {},
   onUnselect: () => {},
+  renderLabel: (element: string) => element,
   placeholder: ''
 };
 

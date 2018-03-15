@@ -23,22 +23,19 @@ import { difference } from 'lodash';
 import MultiSelectOption from './MultiSelectOption';
 import SearchBox from '../controls/SearchBox';
 
-export interface MultiSelectValue {
-  key: string;
-  label: string;
-}
 interface Props {
   alertMessage?: string;
   allowNewElements?: boolean;
   allowSelection?: boolean;
   displayAlertMessage?: boolean;
-  elements: MultiSelectValue[];
+  elements: string[];
   listSize?: number;
   onSearch: (query: string) => Promise<void>;
-  onSelect: (item: MultiSelectValue) => void;
-  onUnselect: (item: MultiSelectValue) => void;
+  onSelect: (item: string) => void;
+  onUnselect: (item: string) => void;
   placeholder: string;
-  selectedElements: MultiSelectValue[];
+  renderLabel: (element: string) => React.ReactNode;
+  selectedElements: string[];
   validateSearchInput?: (value: string) => string;
 }
 
@@ -46,8 +43,8 @@ interface State {
   activeIdx: number;
   loading: boolean;
   query: string;
-  selectedElements: MultiSelectValue[];
-  unselectedElements: MultiSelectValue[];
+  selectedElements: string[];
+  unselectedElements: string[];
 }
 
 interface DefaultProps {
@@ -116,7 +113,7 @@ export default class MultiSelect extends React.PureComponent<Props, State> {
     }
   }
 
-  handleSelectChange = (item: MultiSelectValue, selected: boolean) => {
+  handleSelectChange = (item: string, selected: boolean) => {
     if (selected) {
       this.onSelectItem(item);
     } else {
@@ -128,7 +125,7 @@ export default class MultiSelect extends React.PureComponent<Props, State> {
     this.onSearchQuery((this.props as PropsWithDefault).validateSearchInput(value));
   };
 
-  handleElementHover = (element: MultiSelectValue) => {
+  handleElementHover = (element: string) => {
     this.setState((prevState, props) => {
       return { activeIdx: this.getAllElements(props, prevState).indexOf(element) };
     });
@@ -163,25 +160,23 @@ export default class MultiSelect extends React.PureComponent<Props, State> {
     this.props.onSearch(query).then(this.stopLoading, this.stopLoading);
   };
 
-  onSelectItem = (item: MultiSelectValue) => {
+  onSelectItem = (item: string) => {
     if (this.isNewElement(item, this.props)) {
       this.onSearchQuery('');
     }
     this.props.onSelect(item);
   };
 
-  onUnselectItem = (item: MultiSelectValue) => this.props.onUnselect(item);
+  onUnselectItem = (item: string) => this.props.onUnselect(item);
 
-  isNewElement = (elem: MultiSelectValue, { selectedElements, elements }: Props) =>
-    elem.key.length > 0 && selectedElements.indexOf(elem) === -1 && elements.indexOf(elem) === -1;
+  isNewElement = (elem: string, { selectedElements, elements }: Props) =>
+    elem.length > 0 && selectedElements.indexOf(elem) === -1 && elements.indexOf(elem) === -1;
 
   updateSelectedElements = (props: Props) => {
     this.setState((state: State) => {
       if (state.query) {
         return {
-          selectedElements: props.selectedElements.filter(
-            elem => elem.key.includes(state.query) || elem.label.includes(state.query)
-          )
+          selectedElements: props.selectedElements.filter(elem => elem.includes(state.query))
         };
       } else {
         return { selectedElements: [...props.selectedElements] };
@@ -207,12 +202,8 @@ export default class MultiSelect extends React.PureComponent<Props, State> {
   };
 
   getAllElements = (props: Props, state: State) => {
-    if (this.isNewElement({ key: state.query, label: state.query }, props)) {
-      return [
-        ...state.selectedElements,
-        ...state.unselectedElements,
-        { key: state.query, label: state.query }
-      ];
+    if (this.isNewElement(state.query, props)) {
+      return [...state.selectedElements, ...state.unselectedElements, state.query];
     } else {
       return [...state.selectedElements, ...state.unselectedElements];
     }
@@ -247,7 +238,7 @@ export default class MultiSelect extends React.PureComponent<Props, State> {
     }
   };
 
-  toggleSelect = (item: MultiSelectValue) => {
+  toggleSelect = (item: string) => {
     if (this.props.selectedElements.indexOf(item) === -1) {
       this.onSelectItem(item);
     } else {
@@ -290,9 +281,10 @@ export default class MultiSelect extends React.PureComponent<Props, State> {
               <MultiSelectOption
                 active={activeElement === element}
                 element={element}
-                key={element.key}
+                key={element}
                 onHover={this.handleElementHover}
                 onSelectChange={this.handleSelectChange}
+                renderLabel={this.props.renderLabel}
                 selected={true}
               />
             ))}
@@ -302,20 +294,22 @@ export default class MultiSelect extends React.PureComponent<Props, State> {
                 active={activeElement === element}
                 disabled={!allowSelection}
                 element={element}
-                key={element.key}
+                key={element}
                 onHover={this.handleElementHover}
                 onSelectChange={this.handleSelectChange}
+                renderLabel={this.props.renderLabel}
               />
             ))}
           {allowNewElements &&
-            this.isNewElement({ key: query, label: query }, this.props) && (
+            this.isNewElement(query, this.props) && (
               <MultiSelectOption
-                active={activeElement === { key: query, label: query }}
+                active={activeElement === query}
                 custom={true}
-                element={{ key: query, label: query }}
+                element={query}
                 key={query}
                 onHover={this.handleElementHover}
                 onSelectChange={this.handleSelectChange}
+                renderLabel={this.props.renderLabel}
               />
             )}
         </ul>

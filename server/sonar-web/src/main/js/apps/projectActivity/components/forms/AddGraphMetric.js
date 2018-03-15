@@ -19,20 +19,13 @@
  */
 // @flow
 import React from 'react';
-import { sortBy } from 'lodash';
+import { find } from 'lodash';
 import DropdownIcon from '../../../../components/icons-components/DropdownIcon';
 import BubblePopup from '../../../../components/common/BubblePopup';
 import MultiSelect from '../../../../components/common/MultiSelect';
 import { isDiffMetric } from '../../../../helpers/measures';
 import { getLocalizedMetricName, translate } from '../../../../helpers/l10n';
 /*:: import type { Metric } from '../../types'; */
-
-/*::
-type MultiSelectValue = {
-  key: string,
-  label: string
-}
-*/
 
 /*::
 type Props = {
@@ -50,8 +43,8 @@ type State = {
   open: boolean,
   selectedMetric?: string,
   popupPosition: { left?: number, top?: number, right?: number },
-  metrics: Array<MultiSelectValue>,
-  selectedMetrics: Array<MultiSelectValue>,
+  metrics: Array<string>,
+  selectedMetrics: Array<string>,
   query: string
 };
 */
@@ -77,7 +70,7 @@ export default class AddGraphMetric extends React.PureComponent {
       window.addEventListener('click', this.handleOutsideClick, false);
     }
     this.setState({
-      metrics: this.createMetricsElements(this.props),
+      metrics: this.filterMetricsElements(this.props),
       selectedMetrics: this.getSelectedMetricsElements(this.props.metrics, null)
     });
   }
@@ -85,7 +78,7 @@ export default class AddGraphMetric extends React.PureComponent {
   componentWillReceiveProps(nextProps /*: Props */) {
     if (nextProps.metrics.length > this.props.metrics.length) {
       this.setState({
-        metrics: this.createMetricsElements(nextProps),
+        metrics: this.filterMetricsElements(nextProps),
         selectedMetrics: this.getSelectedMetricsElements(nextProps.metrics, null)
       });
     }
@@ -123,7 +116,7 @@ export default class AddGraphMetric extends React.PureComponent {
     }
   };
 
-  createMetricsElements = (nextProps /*: Props */) => {
+  filterMetricsElements = (nextProps /*: Props */) => {
     const { metricsTypeFilter, metrics } = nextProps;
     return metrics
       .filter(metric => {
@@ -140,10 +133,7 @@ export default class AddGraphMetric extends React.PureComponent {
         }
         return true;
       })
-      .map((metric /*: Metric */) => ({
-        key: metric.key,
-        label: getLocalizedMetricName(metric)
-      }));
+      .map(metric => metric.key);
   };
 
   getSelectedMetricsElements = (
@@ -152,10 +142,12 @@ export default class AddGraphMetric extends React.PureComponent {
   ) => {
     const selected /*: Array<string> */ =
       selectedMetrics === null ? this.props.selectedMetrics : selectedMetrics;
-    return metrics.filter(metric => selected.includes(metric.key)).map((metric /*: Metric */) => ({
-      key: metric.key,
-      label: getLocalizedMetricName(metric)
-    }));
+    return metrics.filter(metric => selected.includes(metric.key)).map(metric => metric.key);
+  };
+
+  getLocalizedMetricNameFromKey = (key /*: string*/) => {
+    const metric = find(this.props.metrics, { key });
+    return getLocalizedMetricName(metric);
   };
 
   toggleForm = () => {
@@ -169,22 +161,22 @@ export default class AddGraphMetric extends React.PureComponent {
     return Promise.resolve();
   };
 
-  onSelect = (metric /*: MultiSelectValue */) => {
-    this.props.addMetric(metric.key);
+  onSelect = (metric /*: string */) => {
+    this.props.addMetric(metric);
     this.setState(state => {
       return {
-        selectedMetrics: sortBy([...state.selectedMetrics, metric], 'label'),
-        metrics: state.metrics.filter(selected => selected.key !== metric.key)
+        selectedMetrics: [...state.selectedMetrics, metric].sort(),
+        metrics: state.metrics.filter(selected => selected !== metric)
       };
     });
   };
 
-  onUnselect = (metric /*: MultiSelectValue */) => {
-    this.props.removeMetric(metric.key);
+  onUnselect = (metric /*: string */) => {
+    this.props.removeMetric(metric);
     this.setState(state => {
       return {
-        metrics: sortBy([...state.metrics, metric], 'label'),
-        selectedMetrics: state.selectedMetrics.filter(selected => selected.key !== metric.key)
+        metrics: [...state.metrics, metric].sort(),
+        selectedMetrics: state.selectedMetrics.filter(selected => selected !== metric)
       };
     });
   };
@@ -192,8 +184,7 @@ export default class AddGraphMetric extends React.PureComponent {
   renderSelector() {
     const { popupPosition, metrics, selectedMetrics, query } = this.state;
     const filteredMetrics = metrics.filter(
-      (metric /*: MultiSelectValue */) =>
-        metric.label.toLowerCase().indexOf(query.toLowerCase()) > -1
+      (metric /*: string */) => metric.toLowerCase().indexOf(query.toLowerCase()) > -1
     );
 
     return (
@@ -210,6 +201,7 @@ export default class AddGraphMetric extends React.PureComponent {
           onSelect={this.onSelect}
           onUnselect={this.onUnselect}
           placeholder={translate('search.search_for_tags')}
+          renderLabel={element => this.getLocalizedMetricNameFromKey(element)}
           selectedElements={selectedMetrics}
         />
       </BubblePopup>

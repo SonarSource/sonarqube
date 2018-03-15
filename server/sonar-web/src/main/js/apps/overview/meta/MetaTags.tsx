@@ -25,7 +25,6 @@ import TagsList from '../../../components/tags/TagsList';
 import { BubblePopupPosition } from '../../../components/common/BubblePopup';
 import { Component } from '../../../app/types';
 import { Button } from '../../../components/ui/buttons';
-import { MultiSelectValue } from '../../../components/common/MultiSelect';
 
 interface Props {
   component: Component;
@@ -86,21 +85,17 @@ export default class MetaTags extends React.PureComponent<Props, State> {
     right: containerPos.width - eltPos.width
   });
 
-  handleSetProjectTags = (values: MultiSelectValue[]) => {
-    const parsedValues = values.map(tag => tag.key);
+  handleSetProjectTags = (values: string[]) => {
     setProjectTags({
       project: this.props.component.key,
-      tags: parsedValues.join(',')
-    }).then(() => this.props.onComponentChange({ tags: parsedValues }), () => {});
+      tags: values.join(',')
+    }).then(() => this.props.onComponentChange({ tags: values }), () => {});
   };
 
   render() {
     const { key } = this.props.component;
     const { popupOpen, popupPosition } = this.state;
     const tags = this.props.component.tags || [];
-    const values = tags.map(tag => {
-      return { key: tag, label: tag };
-    });
 
     if (this.canUpdateTags()) {
       return (
@@ -117,7 +112,7 @@ export default class MetaTags extends React.PureComponent<Props, State> {
               <MetaTagsSelector
                 position={popupPosition}
                 project={key}
-                selectedTags={values}
+                selectedTags={tags}
                 setProjectTags={this.handleSetProjectTags}
               />
             </div>

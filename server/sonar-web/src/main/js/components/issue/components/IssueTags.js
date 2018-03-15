@@ -60,9 +60,6 @@ export default class IssueTags extends React.PureComponent {
   render() {
     const { issue } = this.props;
     const { tags = [] } = issue;
-    const values = tags.map(tag => {
-      return { key: tag, label: tag };
-    });
 
     if (this.props.canSetTags) {
       return (
@@ -71,7 +68,7 @@ export default class IssueTags extends React.PureComponent {
           popup={
             <SetIssueTagsPopup
               organization={issue.projectOrganization}
-              selectedTags={values}
+              selectedTags={tags}
               setTags={this.setTags}
             />
           }

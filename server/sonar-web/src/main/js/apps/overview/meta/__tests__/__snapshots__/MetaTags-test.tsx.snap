@@ -54,14 +54,8 @@ exports[`should open the tag selector on click 2`] = `
       project="my-second-project"
       selectedTags={
         Array [
-          Object {
-            "key": "foo",
-            "label": "foo",
-          },
-          Object {
-            "key": "bar",
-            "label": "bar",
-          },
+          "foo",
+          "bar",
         ]
       }
       setProjectTags={[Function]}

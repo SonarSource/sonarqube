@@ -26,9 +26,10 @@ const props = {
   onSearch: () => Promise.resolve(),
   onSelect: () => {},
   onUnselect: () => {},
+  renderLabel: (element: string) => element,
   position: { right: 0, top: 0 },
-  selectedTags: [{ key: 'bar', label: 'bar' }],
-  tags: [{ key: 'foo', label: 'foo' }, { key: 'bar', label: 'bar' }, { key: 'baz', label: 'baz' }]
+  selectedTags: ['bar'],
+  tags: ['foo', 'bar', 'baz']
 };
 
 it('should render with selected tags', () => {
