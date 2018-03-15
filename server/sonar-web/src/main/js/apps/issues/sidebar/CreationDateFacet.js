@@ -22,14 +22,14 @@ import React from 'react';
 import { max } from 'lodash';
 import { intlShape } from 'react-intl';
 import DateFromNow from '../../../components/intl/DateFromNow';
-import { formatterOption, longFormatterOption } from '../../../components/intl/DateFormatter';
+import { longFormatterOption } from '../../../components/intl/DateFormatter';
 import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
 import FacetBox from '../../../components/facet/FacetBox';
 import FacetHeader from '../../../components/facet/FacetHeader';
 import FacetItem from '../../../components/facet/FacetItem';
 import { BarChart } from '../../../components/charts/bar-chart';
 import DateRangeInput from '../../../components/controls/DateRangeInput';
-import { isSameDay, parseDate, toShortNotSoISOString } from '../../../helpers/dates';
+import { isSameDay, parseDate } from '../../../helpers/dates';
 import { translate } from '../../../helpers/l10n';
 import { formatMeasure } from '../../../helpers/measures';
 /*:: import type { Component } from '../utils'; */
