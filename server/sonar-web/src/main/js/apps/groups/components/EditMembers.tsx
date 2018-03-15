@@ -18,7 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { Group } from '../../../app/types';
+import { find, without } from 'lodash';
+import { Group, User } from '../../../app/types';
 import Modal from '../../../components/controls/Modal';
 import BulletListIcon from '../../../components/icons-components/BulletListIcon';
 import SelectList from '../../../components/SelectList/SelectList';
@@ -34,13 +35,14 @@ interface Props {
 
 interface State {
   modal: boolean;
-  users: Array<{ key: string; name: string; selected: boolean }>;
+  users: User[];
+  selectedUsers: string[];
 }
 
 export default class EditMembers extends React.PureComponent<Props, State> {
   container?: HTMLElement | null;
   mounted = false;
-  state: State = { modal: false, users: [] };
+  state: State = { modal: false, users: [], selectedUsers: [] };
 
   componentDidMount() {
     this.handleSearch('', 'selected');
@@ -70,16 +72,17 @@ export default class EditMembers extends React.PureComponent<Props, State> {
     return getUsersInGroup(requestData).then(
       (data: any) => {
         this.setState({
-          users: data.users.map((user: any) => {
-            return { key: user.login, name: user.name, selected: user.selected };
-          })
+          users: data.users,
+          selectedUsers: data.users
+            .filter((user: any) => user.selected)
+            .map((user: any) => user.login)
         });
       },
       () => {}
     );
   };
 
-  handleSelect = (key: number | string) => {
+  handleSelect = (key: string) => {
     const requestData: any = {
       name: this.props.group.name,
       login: key
@@ -93,9 +96,7 @@ export default class EditMembers extends React.PureComponent<Props, State> {
       () => {
         this.setState((state: State) => {
           return {
-            users: state.users.map((user: any) => {
-              return user.key === key ? { ...user, selected: true } : user;
-            })
+            selectedUsers: [...state.selectedUsers, key]
           };
         });
       },
@@ -103,7 +104,7 @@ export default class EditMembers extends React.PureComponent<Props, State> {
     );
   };
 
-  handleUnselect = (key: number | string) => {
+  handleUnselect = (key: string) => {
     const requestData: any = {
       name: this.props.group.name,
       login: key
@@ -117,9 +118,7 @@ export default class EditMembers extends React.PureComponent<Props, State> {
       () => {
         this.setState((state: State) => {
           return {
-            users: state.users.map((user: any) => {
-              return user.key === key ? { ...user, selected: false } : user;
-            })
+            selectedUsers: without(state.selectedUsers, key)
           };
         });
       },
@@ -138,6 +137,11 @@ export default class EditMembers extends React.PureComponent<Props, State> {
     }
   };
 
+  renderElement = (login: string): React.ReactNode => {
+    const user = find(this.state.users, { login });
+    return user === undefined ? key : user.login;
+  };
+
   render() {
     const modalHeader = translate('users.update');
 
@@ -154,10 +158,12 @@ export default class EditMembers extends React.PureComponent<Props, State> {
 
             <div className="modal-body">
               <SelectList
-                elements={this.state.users}
+                elements={this.state.users.map(user => user.login)}
                 onSearch={this.handleSearch}
                 onSelect={this.handleSelect}
                 onUnselect={this.handleUnselect}
+                renderElement={this.renderElement}
+                selectedElements={this.state.selectedUsers}
               />
             </div>
 

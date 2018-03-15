@@ -23,13 +23,15 @@ import { translate } from '../../helpers/l10n';
 import SearchBox from '../controls/SearchBox';
 
 interface Props {
+  elements: string[] | number[];
   labelSelected?: string;
   labelDeselected?: string;
   labelAll?: string;
   onSearch: (query: string, selected: string) => Promise<void>;
-  onSelect: (key: string | number) => Promise<void>;
-  onUnselect: (key: string | number) => Promise<void>;
-  elements: Array<{ key: string | number; name: string; selected: boolean }>;
+  onSelect: (element: string | number) => Promise<void>;
+  onUnselect: (element: string | number) => Promise<void>;
+  renderElement: (element: string | number) => React.ReactNode;
+  selectedElements: string[] | number[];
 }
 
 interface State {
@@ -63,12 +65,12 @@ export default class SelectList extends React.PureComponent<Props, State> {
     this.props.onSearch(query, this.getSelectedValueFromTabIndex(this.state.activeTab));
   };
 
-  handleSelect = (key: string | number) => {
-    this.props.onSelect(key);
+  handleSelect = (element: string) => {
+    this.props.onSelect(element);
   };
 
-  handleUnselect = (key: string | number) => {
-    this.props.onUnselect(key);
+  handleUnselect = (element: string) => {
+    this.props.onUnselect(element);
   };
 
   render() {
@@ -117,6 +119,8 @@ export default class SelectList extends React.PureComponent<Props, State> {
           filter={this.getSelectedValueFromTabIndex(this.state.activeTab)}
           onSelect={this.handleSelect}
           onUnselect={this.handleUnselect}
+          renderElement={this.props.renderElement}
+          selectedElements={this.props.selectedElements}
         />
       </div>
     );

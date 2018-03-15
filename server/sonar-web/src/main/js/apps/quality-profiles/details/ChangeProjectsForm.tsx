@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { find, without } from 'lodash';
 import Modal from '../../../components/controls/Modal';
 import SelectList from '../../../components/SelectList/SelectList';
 import { translate } from '../../../helpers/l10n';
@@ -27,6 +28,8 @@ import {
   associateProject,
   dissociateProject
 } from '../../../api/quality-profiles';
+import { Project } from '../../projects/types';
+import throwGlobalError from '../../../app/utils/throwGlobalError';
 
 interface Props {
   onClose: () => void;
@@ -35,12 +38,13 @@ interface Props {
 }
 
 interface State {
-  projects: Array<{ key: string; name: string; selected: boolean }>;
+  projects: Project[];
+  selectedProjects: string[];
 }
 
 export default class ChangeProjectsForm extends React.PureComponent<Props> {
   container?: HTMLElement | null;
-  state: State = { projects: [] };
+  state: State = { projects: [], selectedProjects: [] };
 
   componentDidMount() {
     this.handleSearch('', 'selected');
@@ -65,48 +69,54 @@ export default class ChangeProjectsForm extends React.PureComponent<Props> {
     return getProfileProjects(requestData).then(
       (data: any) => {
         this.setState({
-          projects: data.results.map((project: any) => {
-            return { key: project.key, name: project.name, selected: project.selected };
-          })
+          projects: data.results,
+          selectedProjects: data.results
+            .filter((project: any) => project.selected)
+            .map((project: any) => project.key)
         });
       },
       () => {}
     );
   };
 
-  handleSelect = (key: number | string) => {
+  handleSelect = (key: string) => {
     return associateProject(this.props.profile.key, String(key)).then(
       () => {
         this.setState((state: State) => {
           return {
-            projects: state.projects.map((project: any) => {
-              return project.key === key ? { ...project, selected: true } : project;
-            })
+            selectedProjects: [...state.selectedProjects, key]
           };
         });
       },
-      () => {}
+      e => {
+        throwGlobalError(e);
+      }
     );
   };
 
-  handleUnselect = (key: number | string) => {
+  handleUnselect = (key: string) => {
     return dissociateProject(this.props.profile.key, String(key)).then(
       () => {
         this.setState((state: State) => {
           return {
-            projects: state.projects.map((project: any) => {
-              return project.key === key ? { ...project, selected: false } : project;
-            })
+            selectedProjects: without(state.selectedProjects, key)
           };
         });
       },
-      () => {}
+      e => {
+        throwGlobalError(e);
+      }
     );
   };
 
   handleCloseClick = (event: React.SyntheticEvent<HTMLElement>) => {
     event.preventDefault();
     this.props.onClose();
+  };
+
+  renderElement = (key: string): React.ReactNode => {
+    const project = find(this.state.projects, { key });
+    return project === undefined ? key : project.name;
   };
 
   render() {
@@ -120,13 +130,15 @@ export default class ChangeProjectsForm extends React.PureComponent<Props> {
 
         <div className="modal-body">
           <SelectList
-            elements={this.state.projects}
+            elements={this.state.projects.map(project => project.key)}
             labelAll={translate('quality_gates.projects.all')}
             labelDeselected={translate('quality_gates.projects.without')}
             labelSelected={translate('quality_gates.projects.with')}
             onSearch={this.handleSearch}
             onSelect={this.handleSelect}
             onUnselect={this.handleUnselect}
+            renderElement={this.renderElement}
+            selectedElements={this.state.selectedProjects}
           />
         </div>
 

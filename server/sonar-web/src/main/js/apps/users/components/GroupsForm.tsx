@@ -18,12 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { User } from '../../../app/types';
+import { find, without } from 'lodash';
+import { User, Group } from '../../../app/types';
 import Modal from '../../../components/controls/Modal';
 import SelectList from '../../../components/SelectList/SelectList';
 import { translate } from '../../../helpers/l10n';
 import { getUserGroups } from '../../../api/users';
 import { addUserToGroup, removeUserFromGroup } from '../../../api/user_groups';
+import throwGlobalError from '../../../app/utils/throwGlobalError';
 
 interface Props {
   onClose: () => void;
@@ -33,12 +35,13 @@ interface Props {
 
 interface State {
   error: string;
-  groups: Array<{ key: string; name: string; selected: boolean }>;
+  groups: Group[];
+  selectedGroups: number[];
 }
 
 export default class GroupsForm extends React.PureComponent<Props> {
   container?: HTMLDivElement | null;
-  state: State = { error: '', groups: [] };
+  state: State = { error: '', groups: [], selectedGroups: [] };
 
   componentDidMount() {
     this.handleSearch('', 'selected');
@@ -48,16 +51,17 @@ export default class GroupsForm extends React.PureComponent<Props> {
     return getUserGroups(this.props.user.login, undefined, query, selected).then(
       (data: any) => {
         this.setState({
-          groups: data.groups.map((group: any) => {
-            return { key: group.id, name: group.name, selected: group.selected };
-          })
+          groups: data.groups,
+          selectedGroups: data.groups
+            .filter((group: any) => group.selected)
+            .map((group: any) => group.id)
         });
       },
       () => {}
     );
   };
 
-  handleSelect = (key: number | string) => {
+  handleSelect = (key: number) => {
     const requestData: any = {
       id: key,
       login: this.props.user.login
@@ -67,31 +71,34 @@ export default class GroupsForm extends React.PureComponent<Props> {
       () => {
         this.setState((state: State) => {
           return {
-            groups: state.groups.map((group: any) => {
-              return group.key === key ? { ...group, selected: true } : group;
-            })
+            selectedGroups: [...state.selectedGroups, key]
           };
         });
       },
-      () => {}
+      e => {
+        throwGlobalError(e);
+      }
     );
   };
 
-  handleUnselect = (key: number | string) => {
+  handleUnselect = (key: number) => {
     const requestData: any = {
       id: key,
       login: this.props.user.login
     };
 
-    return removeUserFromGroup(requestData).then(() => {
-      this.setState((state: State) => {
-        return {
-          groups: state.groups.map((group: any) => {
-            return group.key === key ? { ...group, selected: false } : group;
-          })
-        };
-      });
-    });
+    return removeUserFromGroup(requestData).then(
+      () => {
+        this.setState((state: State) => {
+          return {
+            selectedGroups: without(state.selectedGroups, key)
+          };
+        });
+      },
+      e => {
+        throwGlobalError(e);
+      }
+    );
   };
 
   handleCloseClick = (event: React.SyntheticEvent<HTMLElement>) => {
@@ -102,6 +109,11 @@ export default class GroupsForm extends React.PureComponent<Props> {
   handleClose = () => {
     this.props.onUpdateUsers();
     this.props.onClose();
+  };
+
+  renderElement = (id: number): React.ReactNode => {
+    const group = find(this.state.groups, { id });
+    return group === undefined ? id : group.name;
   };
 
   render() {
@@ -120,10 +132,12 @@ export default class GroupsForm extends React.PureComponent<Props> {
             </div>
           )}
           <SelectList
-            elements={this.state.groups}
+            elements={this.state.groups.map(group => group.id)}
             onSearch={this.handleSearch}
             onSelect={this.handleSelect}
             onUnselect={this.handleUnselect}
+            renderElement={this.renderElement}
+            selectedElements={this.state.selectedGroups}
           />
         </div>
 

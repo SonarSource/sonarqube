@@ -38,6 +38,8 @@ exports[`should edit members 2`] = `
         onSearch={[Function]}
         onSelect={[Function]}
         onUnselect={[Function]}
+        renderElement={[Function]}
+        selectedElements={Array []}
       />
     </div>
     <footer

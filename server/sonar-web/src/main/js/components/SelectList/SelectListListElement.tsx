@@ -20,16 +20,12 @@
 import * as React from 'react';
 import * as classNames from 'classnames';
 
-export interface SelectListItem {
-  key: string | number;
-  name: string;
-  selected: boolean;
-}
-
 interface Props {
-  element: SelectListItem;
+  element: string | number;
+  selected: boolean;
   active?: boolean;
-  onSelectChange: (element: SelectListItem) => void;
+  renderElement: (element: string | number) => React.ReactNode;
+  onSelectChange: (element: string | number) => void;
 }
 
 export default class SelectListListElement extends React.PureComponent<Props> {
@@ -43,14 +39,14 @@ export default class SelectListListElement extends React.PureComponent<Props> {
   render() {
     const linkClasses = classNames({ active: this.props.active });
     const checkboxClasses = classNames('spacer-right', 'icon-checkbox', {
-      'icon-checkbox-checked': this.props.element.selected
+      'icon-checkbox-checked': this.props.selected
     });
 
     return (
       <li>
         <a className={linkClasses} href="#" onClick={this.handleSelect}>
           <i className={checkboxClasses} />
-          {this.props.element.name}
+          {this.props.renderElement(this.props.element)}
         </a>
       </li>
     );

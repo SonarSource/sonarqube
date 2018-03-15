@@ -58,7 +58,7 @@ export function removeUserFromGroup(data: {
   login?: string;
   organization?: string;
 }) {
-  return post('/api/user_groups/remove_user', data).catch(throwGlobalError);
+  return post('/api/user_groups/remove_user', data);
 }
 
 export function createGroup(data: {

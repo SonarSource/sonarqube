@@ -18,41 +18,50 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import SelectListListElement, { SelectListItem } from './SelectListListElement';
+import SelectListListElement from './SelectListListElement';
 
 interface Props {
-  elements: SelectListItem[];
+  elements: Array<string | number>;
   filter: string;
-  onSelect: (key: string | number) => void;
-  onUnselect: (key: string | number) => void;
+  onSelect: (element: string | number) => void;
+  onUnselect: (element: string | number) => void;
+  renderElement: (element: string | number) => React.ReactNode;
+  selectedElements: Array<string | number>;
 }
 
 export default class SelectListListContainer extends React.PureComponent<Props> {
-  handleSelectChange = (element: SelectListItem) => {
-    if (element.selected) {
-      this.props.onUnselect(element.key);
+  handleSelectChange = (element: string) => {
+    if (this.isSelected(element)) {
+      this.props.onUnselect(element);
     } else {
-      this.props.onSelect(element.key);
+      this.props.onSelect(element);
     }
+  };
+
+  isSelected = (element: string | number): boolean => {
+    return this.props.selectedElements.indexOf(element) > -1;
   };
 
   render() {
     const { elements, filter } = this.props;
-    const filteredElements = elements.filter(element => {
+    const filteredElements = elements.filter((element: string | number) => {
       if (filter === 'all') {
         return true;
       }
-      return filter === 'selected' ? element.selected : !element.selected;
+      const isSelected: boolean = this.isSelected(element);
+      return filter === 'selected' ? isSelected : !isSelected;
     });
 
     return (
       <div className="select-list-list-container spacer-top">
         <ul className="menu">
-          {filteredElements.map(element => (
+          {filteredElements.map((element: string | number) => (
             <SelectListListElement
               element={element}
-              key={element.key}
+              key={element}
               onSelectChange={this.handleSelectChange}
+              renderElement={this.props.renderElement}
+              selected={this.isSelected(element)}
             />
           ))}
         </ul>
