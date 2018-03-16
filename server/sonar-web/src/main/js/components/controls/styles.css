@@ -29,10 +29,14 @@
   cursor: pointer;
 }
 
+.date-input-control-input.is-filled {
+  padding-right: 16px !important;
+}
+
 .date-input-control-icon {
   position: absolute;
-  top: 5px;
-  left: 5px;
+  top: 4px;
+  left: 4px;
 }
 
 .date-input-control-icon path {
@@ -49,6 +53,32 @@
   top: 4px;
   right: 4px;
   border: none;
+}
+
+.date-input-calendar {
+  position: absolute;
+  z-index: var(--dropdownMenuZIndex);
+  top: 100%;
+  left: 0;
+  border: 1px solid var(--barBorderColor);
+  background-color: #fff;
+  box-shadow: var(--defaultShadow);
+}
+
+.date-input-calendar-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: var(--gridSize);
+  padding-left: var(--gridSize);
+  padding-right: var(--gridSize);
+}
+
+.date-input-calender-month {
+}
+
+.date-input-calender-month-select {
+  width: 70px;
 }
 
 .boolean-toggle {

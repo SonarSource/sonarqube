@@ -17,108 +17,213 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as $ from 'jquery';
 import * as React from 'react';
 import * as classNames from 'classnames';
-import { pick } from 'lodash';
+import DayPicker, { DayModifiers, Modifier, Modifiers } from 'react-day-picker';
+import { intlShape, InjectedIntlProps } from 'react-intl';
+import { range } from 'lodash';
+import { addMonths, subMonths, setYear, setMonth } from 'date-fns';
+import OutsideClickHandler from './OutsideClickHandler';
+import Select from './Select';
 import * as theme from '../../app/theme';
+import CalendarIcon from '../icons-components/CalendarIcon';
+import ChevronLeftIcon from '../icons-components/ChevronLeftIcon';
+import ChevronRightIcon from '../icons-components/ChevronRightcon';
 import ClearIcon from '../icons-components/ClearIcon';
 import { ButtonIcon } from '../ui/buttons';
+import { getShortMonthName, getWeekDayName, getShortWeekDayName } from '../../helpers/l10n';
+import './DayPicker.css';
 import './styles.css';
 
-interface Props {
+export interface Props {
   className?: string;
-  format?: string;
+  currentMonth?: Date;
+  highlightFrom?: Date;
+  highlightTo?: Date;
   inputClassName?: string;
-  // see http://api.jqueryui.com/datepicker/#option-maxDate for details
-  maxDate?: Date | string | number;
-  minDate?: Date | string | number;
-  name: string;
-  onChange: (value?: string) => void;
+  maxDate?: Date;
+  minDate?: Date;
+  name?: string;
+  onChange: (date: Date | undefined) => void;
   placeholder: string;
-  value?: string;
+  value?: Date;
 }
 
-export default class DateInput extends React.PureComponent<Props> {
+interface State {
+  currentMonth: Date;
+  open: boolean;
+  lastHovered?: Date;
+}
+
+type Week = [string, string, string, string, string, string, string];
+
+export default class DateInput extends React.PureComponent<Props, State> {
+  // prettier-ignore
+  context!: InjectedIntlProps;
   input?: HTMLInputElement | null;
 
-  static defaultProps = {
-    format: 'yy-mm-dd',
-    maxDate: '+0'
+  static contextTypes = {
+    intl: intlShape
   };
 
-  componentDidMount() {
-    this.attachDatePicker();
+  constructor(props: Props) {
+    super(props);
+    this.state = { currentMonth: props.value || props.currentMonth || new Date(), open: false };
   }
 
-  componentDidUpdate(prevProps: Props) {
-    if ($.fn && ($.fn as any).datepicker && this.input) {
-      if (prevProps.maxDate !== this.props.maxDate) {
-        ($(this.input) as any).datepicker('option', { maxDate: this.props.maxDate });
-      }
-      if (prevProps.minDate !== this.props.minDate) {
-        ($(this.input) as any).datepicker('option', { minDate: this.props.minDate });
-      }
-    }
-  }
-
-  handleChange = () => {
+  focus = () => {
     if (this.input) {
-      const { value } = this.input;
-      this.props.onChange(value);
+      this.input.focus();
     }
+    this.openCalendar();
   };
 
   handleResetClick = () => {
+    this.closeCalendar();
     this.props.onChange(undefined);
   };
 
-  attachDatePicker() {
-    const opts = {
-      dateFormat: this.props.format,
-      changeMonth: true,
-      changeYear: true,
-      maxDate: this.props.maxDate,
-      minDate: this.props.minDate,
-      onSelect: this.handleChange
-    };
+  openCalendar = () => {
+    this.setState({
+      currentMonth: this.props.value || this.props.currentMonth || new Date(),
+      lastHovered: undefined,
+      open: true
+    });
+  };
 
-    if ($.fn && ($.fn as any).datepicker && this.input) {
-      ($(this.input) as any).datepicker(opts);
+  closeCalendar = () => {
+    this.setState({ open: false });
+  };
+
+  handleDayClick = (day: Date, modifiers: DayModifiers) => {
+    if (!modifiers.disabled) {
+      this.closeCalendar();
+      this.props.onChange(day);
     }
-  }
+  };
+
+  handleDayMouseEnter = (day: Date, modifiers: DayModifiers) => {
+    this.setState({ lastHovered: modifiers.disabled ? undefined : day });
+  };
+
+  handleCurrentMonthChange = ({ value }: { value: number }) => {
+    this.setState((state: State) => ({ currentMonth: setMonth(state.currentMonth, value) }));
+  };
+
+  handleCurrentYearChange = ({ value }: { value: number }) => {
+    this.setState(state => ({ currentMonth: setYear(state.currentMonth, value) }));
+  };
+
+  handlePreviousMonthClick = () => {
+    this.setState(state => ({ currentMonth: subMonths(state.currentMonth, 1) }));
+  };
+
+  handleNextMonthClick = () => {
+    this.setState(state => ({ currentMonth: addMonths(state.currentMonth, 1) }));
+  };
 
   render() {
-    const inputProps: { name?: string; placeholder?: string } = pick(this.props, [
-      'placeholder',
-      'name'
-    ]);
+    const { highlightFrom, highlightTo, minDate, value } = this.props;
+    const { formatDate } = this.context.intl;
+    const { lastHovered } = this.state;
+    const formattedValue =
+      value && formatDate(value, { year: 'numeric', month: 'short', day: 'numeric' });
+
+    const after = this.props.maxDate || new Date();
+
+    const months = range(12);
+    const years = range(new Date().getFullYear() - 10, new Date().getFullYear() + 1);
+
+    const selectedDays: Modifier[] = value ? [value] : [];
+    let modifiers: Partial<Modifiers> | undefined;
+    const lastHoveredOrValue = lastHovered || value;
+
+    if (highlightFrom && lastHoveredOrValue) {
+      modifiers = { highlighted: { from: highlightFrom, to: lastHoveredOrValue } };
+      selectedDays.push(highlightFrom);
+    }
+    if (highlightTo && lastHoveredOrValue) {
+      modifiers = { highlighted: { from: lastHoveredOrValue, to: highlightTo } };
+      selectedDays.push(highlightTo);
+    }
+
+    const weekdaysLong = range(7).map(getWeekDayName) as Week;
+    const weekdaysShort = range(7).map(getShortWeekDayName) as Week;
 
     return (
-      <span className={classNames('date-input-control', this.props.className)}>
-        <input
-          className={classNames('date-input-control-input', this.props.inputClassName)}
-          onChange={this.handleChange}
-          readOnly={true}
-          ref={node => (this.input = node)}
-          type="text"
-          value={this.props.value || ''}
-          {...inputProps}
-        />
-        <span className="date-input-control-icon">
-          <svg width="14" height="14" viewBox="0 0 16 16">
-            <path d="M5.5 6h2v2h-2V6zm3 0h2v2h-2V6zm3 0h2v2h-2V6zm-9 6h2v2h-2v-2zm3 0h2v2h-2v-2zm3 0h2v2h-2v-2zm-3-3h2v2h-2V9zm3 0h2v2h-2V9zm3 0h2v2h-2V9zm-9 0h2v2h-2V9zm11-9v1h-2V0h-7v1h-2V0h-2v16h15V0h-2zm1 15h-13V4h13v11z" />
-          </svg>
-        </span>
-        {this.props.value !== undefined && (
-          <ButtonIcon
-            className="button-tiny date-input-control-reset"
-            color={theme.gray60}
-            onClick={this.handleResetClick}>
-            <ClearIcon size={12} />
-          </ButtonIcon>
+      <OutsideClickHandler onClickOutside={this.closeCalendar}>
+        {({ ref }) => (
+          <span className={classNames('date-input-control', this.props.className)} ref={ref}>
+            <input
+              className={classNames('date-input-control-input', this.props.inputClassName, {
+                'is-filled': this.props.value !== undefined
+              })}
+              name={this.props.name}
+              onFocus={this.openCalendar}
+              placeholder={this.props.placeholder}
+              readOnly={true}
+              ref={node => (this.input = node)}
+              type="text"
+              value={formattedValue || ''}
+            />
+            <CalendarIcon className="date-input-control-icon" fill="" />
+            {this.props.value !== undefined && (
+              <ButtonIcon
+                className="button-tiny date-input-control-reset"
+                color={theme.gray60}
+                onClick={this.handleResetClick}>
+                <ClearIcon size={12} />
+              </ButtonIcon>
+            )}
+            {this.state.open && (
+              <div className="date-input-calendar">
+                <nav className="date-input-calendar-nav">
+                  <ButtonIcon className="button-small" onClick={this.handlePreviousMonthClick}>
+                    <ChevronLeftIcon />
+                  </ButtonIcon>
+                  <div className="date-input-calender-month">
+                    <Select
+                      className="date-input-calender-month-select"
+                      onChange={this.handleCurrentMonthChange}
+                      options={months.map(month => ({
+                        label: getShortMonthName(month),
+                        value: month
+                      }))}
+                      value={this.state.currentMonth.getMonth()}
+                    />
+                    <Select
+                      className="date-input-calender-month-select spacer-left"
+                      onChange={this.handleCurrentYearChange}
+                      options={years.map(year => ({ label: String(year), value: year }))}
+                      value={this.state.currentMonth.getFullYear()}
+                    />
+                  </div>
+                  <ButtonIcon className="button-small" onClick={this.handleNextMonthClick}>
+                    <ChevronRightIcon />
+                  </ButtonIcon>
+                </nav>
+                <DayPicker
+                  captionElement={<NullComponent />}
+                  disabledDays={{ after, before: minDate }}
+                  firstDayOfWeek={1}
+                  modifiers={modifiers}
+                  month={this.state.currentMonth}
+                  navbarElement={<NullComponent />}
+                  onDayClick={this.handleDayClick}
+                  onDayMouseEnter={this.handleDayMouseEnter}
+                  selectedDays={selectedDays}
+                  weekdaysLong={weekdaysLong}
+                  weekdaysShort={weekdaysShort}
+                />
+              </div>
+            )}
+          </span>
         )}
-      </span>
+      </OutsideClickHandler>
     );
   }
+}
+
+function NullComponent() {
+  return null;
 }

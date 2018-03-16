@@ -33,10 +33,10 @@ import SearchBox from '../../components/controls/SearchBox';
 import { Button } from '../../components/ui/buttons';
 
 export interface Props {
-  analyzedBefore?: string;
+  analyzedBefore: Date | undefined;
   onAllDeselected: () => void;
   onAllSelected: () => void;
-  onDateChanged: (analyzedBefore?: string) => void;
+  onDateChanged: (analyzedBefore: Date | undefined) => void;
   onDeleteProjects: () => void;
   onProvisionedChanged: (provisioned: boolean) => void;
   onQualifierChanged: (qualifier: string) => void;

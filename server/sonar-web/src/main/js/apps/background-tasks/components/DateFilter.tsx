@@ -17,39 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-/* @flow */
-export const STATUSES = {
-  ALL: '__ALL__',
-  ALL_EXCEPT_PENDING: '__ALL_EXCEPT_PENDING__',
-  PENDING: 'PENDING',
-  IN_PROGRESS: 'IN_PROGRESS',
-  SUCCESS: 'SUCCESS',
-  FAILED: 'FAILED',
-  CANCELED: 'CANCELED'
-};
+import * as React from 'react';
+import DageRangeInput from '../../../components/controls/DateRangeInput';
 
-export const ALL_TYPES = 'ALL_TYPES';
+interface Props {
+  maxExecutedAt: Date | undefined;
+  minSubmittedAt: Date | undefined;
+  onChange: (x: { maxExecutedAt?: Date; minSubmittedAt?: Date }) => void;
+}
 
-export const CURRENTS = {
-  ALL: '__ALL__',
-  ONLY_CURRENTS: 'CURRENTS'
-};
+export default class DateFilter extends React.PureComponent<Props> {
+  handleDateRangeChange = ({ from, to }: { from?: Date; to?: Date }) => {
+    this.props.onChange({ minSubmittedAt: from, maxExecutedAt: to });
+  };
 
-export const DATE = {
-  ANY: 'ANY',
-  TODAY: 'TODAY',
-  CUSTOM: 'CUSTOM'
-};
-
-export const DEFAULT_FILTERS = {
-  status: STATUSES.ALL_EXCEPT_PENDING,
-  taskType: ALL_TYPES,
-  currents: CURRENTS.ALL,
-  minSubmittedAt: undefined,
-  maxExecutedAt: undefined,
-  query: ''
-};
-
-export const DATE_FORMAT = 'YYYY-MM-DD';
-
-export const DEBOUNCE_DELAY = 250;
+  render() {
+    const dateRange = { from: this.props.minSubmittedAt, to: this.props.maxExecutedAt };
+    return (
+      <div className="nowrap">
+        <DageRangeInput onChange={this.handleDateRangeChange} value={dateRange} />
+      </div>
+    );
+  }
+}

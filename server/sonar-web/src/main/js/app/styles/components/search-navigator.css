@@ -598,7 +598,7 @@ a.search-navigator-facet:focus .facet-stat {
 
 .search-navigator-date-facet-selection {
   position: relative;
-  padding: 0 10px;
+  padding-left: var(--gridSize);
   font-size: var(--smallFontSize);
 }
 
@@ -613,7 +613,7 @@ a.search-navigator-facet:focus .facet-stat {
   clear: both;
 }
 
-.search-navigator-date-facet-selection-input {
+.search-navigator-date-facet-selection .date-input-control-input {
   width: 115px !important;
 }
 
@@ -639,6 +639,13 @@ a.search-navigator-facet:focus .facet-stat {
   right: 0;
   width: 100px;
   visibility: hidden;
+}
+
+.search-navigator-date-facet-selection
+  .date-input-control:not(:nth-of-type(1))
+  .date-input-calendar {
+  left: auto;
+  right: 0;
 }
 
 .search-navigator-filters {

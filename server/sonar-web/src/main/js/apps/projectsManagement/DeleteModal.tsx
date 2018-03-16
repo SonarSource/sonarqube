@@ -23,9 +23,10 @@ import Modal from '../../components/controls/Modal';
 import AlertWarnIcon from '../../components/icons-components/AlertWarnIcon';
 import { Button, ResetButtonLink } from '../../components/ui/buttons';
 import { translate, translateWithParameters } from '../../helpers/l10n';
+import { toNotSoISOString } from '../../helpers/dates';
 
 export interface Props {
-  analyzedBefore?: string;
+  analyzedBefore: Date | undefined;
   onClose: () => void;
   onConfirm: () => void;
   organization: string;
@@ -54,13 +55,14 @@ export default class DeleteModal extends React.PureComponent<Props, State> {
 
   handleConfirmClick = () => {
     this.setState({ loading: true });
+    const { analyzedBefore } = this.props;
     const parameters = this.props.selection.length
       ? {
           organization: this.props.organization,
           projects: this.props.selection.join()
         }
       : {
-          analyzedBefore: this.props.analyzedBefore,
+          analyzedBefore: analyzedBefore && toNotSoISOString(analyzedBefore),
           onProvisionedOnly: this.props.provisioned || undefined,
           organization: this.props.organization,
           qualifiers: this.props.qualifier,

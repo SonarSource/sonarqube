@@ -28,8 +28,8 @@ import FacetBox from '../../../components/facet/FacetBox';
 import FacetHeader from '../../../components/facet/FacetHeader';
 import FacetItem from '../../../components/facet/FacetItem';
 import { BarChart } from '../../../components/charts/bar-chart';
-import DateInput from '../../../components/controls/DateInput';
-import { isSameDay, parseDate, toShortNotSoISOString } from '../../../helpers/dates';
+import DateRangeInput from '../../../components/controls/DateRangeInput';
+import { isSameDay, parseDate } from '../../../helpers/dates';
 import { translate } from '../../../helpers/l10n';
 import { formatMeasure } from '../../../helpers/measures';
 /*:: import type { Component } from '../utils'; */
@@ -37,9 +37,9 @@ import { formatMeasure } from '../../../helpers/measures';
 /*::
 type Props = {|
   component?: Component,
-  createdAfter: string,
+  createdAfter: Date | void,
   createdAt: string,
-  createdBefore: string,
+  createdBefore: Date | void,
   createdInLast: string,
   facetMode: string,
   onChange: (changes: {}) => void,
@@ -64,9 +64,9 @@ export default class CreationDateFacet extends React.PureComponent {
   };
 
   hasValue = () =>
-    this.props.createdAfter.length > 0 ||
+    this.props.createdAfter !== undefined ||
     this.props.createdAt.length > 0 ||
-    this.props.createdBefore.length > 0 ||
+    this.props.createdBefore !== undefined ||
     this.props.createdInLast.length > 0 ||
     this.props.sinceLeakPeriod;
 
@@ -95,25 +95,12 @@ export default class CreationDateFacet extends React.PureComponent {
     createdBefore?: Date
   } */
   ) => {
-    this.resetTo({
-      createdAfter: toShortNotSoISOString(createdAfter),
-      createdBefore: createdBefore && toShortNotSoISOString(createdBefore)
-    });
+    this.resetTo({ createdAfter, createdBefore });
   };
 
-  handlePeriodChange = (property /*: string */, value /*: string */) => {
-    this.props.onChange({
-      createdAt: undefined,
-      createdInLast: undefined,
-      sinceLeakPeriod: undefined,
-      [property]: value ? toShortNotSoISOString(parseDate(value)) : undefined
-    });
+  handlePeriodChange = ({ from, to } /*: { from?: Date, to?: Date } */) => {
+    this.resetTo({ createdAfter: from, createdBefore: to });
   };
-
-  handlePeriodChangeBefore = (value /*: string */) =>
-    this.handlePeriodChange('createdBefore', value);
-
-  handlePeriodChangeAfter = (value /*: string */) => this.handlePeriodChange('createdAfter', value);
 
   handlePeriodClick = (period /*: string */) => this.resetTo({ createdInLast: period });
 
@@ -191,8 +178,8 @@ export default class CreationDateFacet extends React.PureComponent {
       };
     });
 
-    const barsWidth = Math.floor(240 / data.length);
-    const width = barsWidth * data.length - 1 + 20;
+    const barsWidth = Math.floor(250 / data.length);
+    const width = barsWidth * data.length - 1 + 10;
 
     const maxValue = max(data.map(d => d.y));
     const format = this.props.facetMode === 'count' ? 'SHORT_INT' : 'SHORT_WORK_DUR';
@@ -204,7 +191,7 @@ export default class CreationDateFacet extends React.PureComponent {
         data={data}
         height={75}
         onBarClick={this.handleBarClick}
-        padding={[25, 10, 5, 10]}
+        padding={[25, 0, 5, 10]}
         width={width}
         xValues={xValues}
       />
@@ -227,21 +214,9 @@ export default class CreationDateFacet extends React.PureComponent {
     const { createdAfter, createdBefore } = this.props;
     return (
       <div className="search-navigator-date-facet-selection">
-        <DateInput
-          className="search-navigator-date-facet-selection-dropdown-left"
-          inputClassName="search-navigator-date-facet-selection-input"
-          maxDate={createdBefore ? toShortNotSoISOString(createdBefore) : '+0'}
-          onChange={this.handlePeriodChangeAfter}
-          placeholder={translate('from')}
-          value={createdAfter ? toShortNotSoISOString(createdAfter) : undefined}
-        />
-        <DateInput
-          className="search-navigator-date-facet-selection-dropdown-right"
-          inputClassName="search-navigator-date-facet-selection-input"
-          minDate={createdAfter ? toShortNotSoISOString(createdAfter) : undefined}
-          onChange={this.handlePeriodChangeBefore}
-          placeholder={translate('to')}
-          value={createdBefore ? toShortNotSoISOString(createdBefore) : undefined}
+        <DateRangeInput
+          onChange={this.handlePeriodChange}
+          value={{ from: createdAfter, to: createdBefore }}
         />
       </div>
     );

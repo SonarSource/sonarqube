@@ -17,39 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
 import * as React from 'react';
-import ChangelogSearch from '../ChangelogSearch';
-import { click } from '../../../../helpers/testUtils';
-import { parseDate } from '../../../../helpers/dates';
+import { shallow } from 'enzyme';
+import DateRangeInput from '../DateRangeInput';
+import { parseDate } from '../../../helpers/dates';
+
+const dateA = parseDate('2018-01-17T00:00:00.000Z');
+const dateB = parseDate('2018-02-05T00:00:00.000Z');
 
 it('should render', () => {
-  const output = shallow(
-    <ChangelogSearch
-      dateRange={{
-        from: parseDate('2016-01-01T00:00:00.000Z'),
-        to: parseDate('2016-05-05T00:00:00.000Z')
-      }}
-      onDateRangeChange={jest.fn()}
-      onReset={jest.fn()}
-    />
-  );
-  expect(output).toMatchSnapshot();
+  expect(
+    shallow(<DateRangeInput onChange={jest.fn()} value={{ from: dateA, to: dateB }} />)
+  ).toMatchSnapshot();
 });
 
-it('should reset', () => {
-  const onReset = jest.fn();
-  const output = shallow(
-    <ChangelogSearch
-      dateRange={{
-        from: parseDate('2016-01-01T00:00:00.000Z'),
-        to: parseDate('2016-05-05T00:00:00.000Z')
-      }}
-      onDateRangeChange={jest.fn()}
-      onReset={onReset}
-    />
-  );
-  expect(onReset).not.toBeCalled();
-  click(output.find('Button'));
-  expect(onReset).toBeCalled();
+it('should change', () => {
+  const onChange = jest.fn();
+  const wrapper = shallow(<DateRangeInput onChange={onChange} />);
+
+  wrapper.find('DateInput[data-test="from"]').prop<Function>('onChange')(dateA);
+  expect(onChange).lastCalledWith({ from: dateA, to: undefined });
+  wrapper.setProps({ value: { from: dateA } });
+
+  wrapper.find('DateInput[data-test="to"]').prop<Function>('onChange')(dateB);
+  wrapper.update();
+  expect(onChange).lastCalledWith({ from: dateA, to: dateB });
 });

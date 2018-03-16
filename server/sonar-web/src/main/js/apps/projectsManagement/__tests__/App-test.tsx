@@ -19,25 +19,15 @@
  */
 /* eslint-disable import/order */
 import * as React from 'react';
-import { mount } from 'enzyme';
+import { shallow } from 'enzyme';
 import App, { Props } from '../App';
 import { Visibility } from '../../../app/types';
-
-jest.mock('react-dom');
 
 jest.mock('lodash', () => {
   const lodash = require.requireActual('lodash');
   lodash.debounce = (fn: Function) => (...args: any[]) => fn(args);
   return lodash;
 });
-
-// actual version breaks `mount`
-jest.mock('rc-tooltip', () => ({
-  // eslint-disable-next-line
-  default: function Tooltip() {
-    return null;
-  }
-}));
 
 jest.mock('../../../api/components', () => ({ getComponents: jest.fn() }));
 
@@ -59,12 +49,12 @@ beforeEach(() => {
 });
 
 it('fetches all projects on mount', () => {
-  mountRender();
+  shallowRender();
   expect(getComponents).lastCalledWith({ ...defaultSearchParameters, qualifiers: 'TRK' });
 });
 
 it('selects provisioned', () => {
-  const wrapper = mountRender();
+  const wrapper = shallowRender();
   wrapper.find('Search').prop<Function>('onProvisionedChanged')(true);
   expect(getComponents).lastCalledWith({
     ...defaultSearchParameters,
@@ -74,20 +64,20 @@ it('selects provisioned', () => {
 });
 
 it('changes qualifier and resets provisioned', () => {
-  const wrapper = mountRender();
+  const wrapper = shallowRender();
   wrapper.setState({ provisioned: true });
   wrapper.find('Search').prop<Function>('onQualifierChanged')('VW');
   expect(getComponents).lastCalledWith({ ...defaultSearchParameters, qualifiers: 'VW' });
 });
 
 it('searches', () => {
-  const wrapper = mountRender();
+  const wrapper = shallowRender();
   wrapper.find('Search').prop<Function>('onSearch')('foo');
   expect(getComponents).lastCalledWith({ ...defaultSearchParameters, q: 'foo', qualifiers: 'TRK' });
 });
 
 it('loads more', () => {
-  const wrapper = mountRender();
+  const wrapper = shallowRender();
   wrapper.find('ListFooter').prop<Function>('loadMore')();
   expect(getComponents).lastCalledWith({ ...defaultSearchParameters, p: 2, qualifiers: 'TRK' });
 });
@@ -96,7 +86,7 @@ it('selects and deselects projects', async () => {
   getComponents.mockImplementation(() =>
     Promise.resolve({ paging: { total: 2 }, components: [{ key: 'foo' }, { key: 'bar' }] })
   );
-  const wrapper = mountRender();
+  const wrapper = shallowRender();
   await new Promise(setImmediate);
 
   wrapper.find('Projects').prop<Function>('onProjectSelected')('foo');
@@ -120,7 +110,7 @@ it('selects and deselects projects', async () => {
 });
 
 it('creates project', () => {
-  const wrapper = mountRender();
+  const wrapper = shallowRender();
   expect(wrapper.find('CreateProjectForm').exists()).toBeFalsy();
 
   wrapper.find('Header').prop<Function>('onProjectCreate')();
@@ -138,13 +128,13 @@ it('creates project', () => {
 
 it('changes default project visibility', () => {
   const onVisibilityChange = jest.fn();
-  const wrapper = mountRender({ onVisibilityChange });
+  const wrapper = shallowRender({ onVisibilityChange });
   wrapper.find('Header').prop<Function>('onVisibilityChange')('private');
   expect(onVisibilityChange).toBeCalledWith('private');
 });
 
-function mountRender(props?: { [P in keyof Props]?: Props[P] }) {
-  return mount(
+function shallowRender(props?: { [P in keyof Props]?: Props[P] }) {
+  return shallow(
     <App
       currentUser={{ login: 'foo' }}
       hasProvisionPermission={true}

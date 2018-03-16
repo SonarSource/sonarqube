@@ -18,25 +18,42 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import DateRangeInput from '../../../components/controls/DateRangeInput';
-import { Button } from '../../../components/ui/buttons';
-import { translate } from '../../../helpers/l10n';
 
 interface Props {
-  dateRange: { from?: Date; to?: Date } | undefined;
-  onDateRangeChange: (range: { from?: Date; to?: Date }) => void;
-  onReset: () => void;
+  children: (props: { ref: React.Ref<Element> }) => React.ReactNode;
+  onClickOutside: () => void;
 }
 
-export default class ChangelogSearch extends React.PureComponent<Props> {
+export default class OutsideClickHandler extends React.Component<Props> {
+  element?: Element | null;
+
+  componentDidMount() {
+    this.addClickHandler();
+  }
+
+  componentWillUnmount() {
+    this.removeClickHandler();
+  }
+
+  addClickHandler = () => {
+    window.addEventListener('click', this.handleWindowClick);
+  };
+
+  removeClickHandler = () => {
+    window.removeEventListener('click', this.handleWindowClick);
+  };
+
+  handleWindowClick = (event: MouseEvent) => {
+    if (!this.element || !this.element.contains(event.target as Node)) {
+      this.props.onClickOutside();
+    }
+  };
+
+  handleRef = (element: Element | null) => {
+    this.element = element;
+  };
+
   render() {
-    return (
-      <div className="display-inline-block" id="quality-profile-changelog-form">
-        <DateRangeInput onChange={this.props.onDateRangeChange} value={this.props.dateRange} />
-        <Button className="spacer-left" onClick={this.props.onReset}>
-          {translate('reset_verb')}
-        </Button>
-      </div>
-    );
+    return this.props.children({ ref: this.handleRef });
   }
 }

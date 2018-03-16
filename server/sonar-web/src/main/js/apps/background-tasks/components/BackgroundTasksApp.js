@@ -41,6 +41,8 @@ import { updateTask, mapFiltersToParameters } from '../utils';
 import '../background-tasks.css';
 import { fetchOrganizations } from '../../../store/rootActions';
 import { translate } from '../../../helpers/l10n';
+import { parseAsDate } from '../../../helpers/query';
+import { toShortNotSoISOString } from '../../../helpers/dates';
 
 /*::
 type Props = {
@@ -157,6 +159,14 @@ class BackgroundTasksApp extends React.PureComponent {
       }
     });
 
+    if (nextQuery.minSubmittedAt) {
+      nextQuery.minSubmittedAt = toShortNotSoISOString(nextQuery.minSubmittedAt);
+    }
+
+    if (nextQuery.maxExecutedAt) {
+      nextQuery.maxExecutedAt = toShortNotSoISOString(nextQuery.maxExecutedAt);
+    }
+
     this.context.router.push({
       pathname: this.props.location.pathname,
       query: nextQuery
@@ -211,8 +221,8 @@ class BackgroundTasksApp extends React.PureComponent {
     const status = this.props.location.query.status || DEFAULT_FILTERS.status;
     const taskType = this.props.location.query.taskType || DEFAULT_FILTERS.taskType;
     const currents = this.props.location.query.currents || DEFAULT_FILTERS.currents;
-    const minSubmittedAt = this.props.location.query.minSubmittedAt || '';
-    const maxExecutedAt = this.props.location.query.maxExecutedAt || '';
+    const minSubmittedAt = parseAsDate(this.props.location.query.minSubmittedAt);
+    const maxExecutedAt = parseAsDate(this.props.location.query.maxExecutedAt);
     const query = this.props.location.query.query || '';
 
     return (
