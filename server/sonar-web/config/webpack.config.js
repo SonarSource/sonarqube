@@ -46,8 +46,6 @@ module.exports = ({ production = true, fast = false }) => ({
       !production && require.resolve('react-dev-utils/webpackHotDevClient'),
       require.resolve('./polyfills'),
       !production && require.resolve('react-error-overlay'),
-      'jquery',
-      'underscore',
       'lodash',
       'd3-array',
       'd3-hierarchy',
@@ -55,10 +53,7 @@ module.exports = ({ production = true, fast = false }) => ({
       'd3-selection',
       'd3-shape',
       'react',
-      'react-dom',
-      'backbone',
-      'backbone.marionette',
-      'handlebars/runtime'
+      'react-dom'
     ].filter(Boolean),
 
     app: [
@@ -93,17 +88,6 @@ module.exports = ({ production = true, fast = false }) => ({
           }
         ]
       },
-      {
-        test: /\.hbs$/,
-        use: [
-          {
-            loader: 'handlebars-loader',
-            options: {
-              helperDirs: path.join(__dirname, '../src/main/js/helpers/handlebars')
-            }
-          }
-        ]
-      },
       production
         ? {
             test: /\.css$/,
@@ -116,10 +100,7 @@ module.exports = ({ production = true, fast = false }) => ({
             test: /\.css$/,
             use: ['style-loader', cssLoader({ production, fast }), postcssLoader()]
           },
-      { test: require.resolve('jquery'), loader: 'expose-loader?$!expose-loader?jQuery' },
-      { test: require.resolve('underscore'), loader: 'expose-loader?_' },
-      { test: require.resolve('backbone'), loader: 'expose-loader?Backbone' },
-      { test: require.resolve('backbone.marionette'), loader: 'expose-loader?Marionette' },
+      { test: require.resolve('lodash'), loader: 'expose-loader?_' },
       { test: require.resolve('react'), loader: 'expose-loader?React' },
       { test: require.resolve('react-dom'), loader: 'expose-loader?ReactDOM' }
     ].filter(Boolean)
