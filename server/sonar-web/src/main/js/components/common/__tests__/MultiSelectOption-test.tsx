@@ -24,7 +24,8 @@ import MultiSelectOption from '../MultiSelectOption';
 const props = {
   element: 'mytag',
   onSelectChange: () => {},
-  onHover: () => {}
+  onHover: () => {},
+  renderLabel: (element: string) => element
 };
 
 it('should render standard tag', () => {

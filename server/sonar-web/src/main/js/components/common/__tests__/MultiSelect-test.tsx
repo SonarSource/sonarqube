@@ -27,10 +27,15 @@ const props = {
   onSearch: () => Promise.resolve(),
   onSelect: () => {},
   onUnselect: () => {},
+  renderLabel: (element: string) => element,
   placeholder: ''
 };
 
-const elements = ['foo', 'bar', 'baz'];
+const elements = [
+  { key: 'foo', label: 'foo' },
+  { key: 'bar', label: 'bar' },
+  { key: 'baz', label: 'baz' }
+];
 
 it('should render multiselect with selected elements', () => {
   const multiselect = shallow(<MultiSelect {...props} />);

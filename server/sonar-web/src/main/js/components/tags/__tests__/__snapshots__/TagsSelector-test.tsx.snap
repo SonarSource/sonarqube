@@ -23,6 +23,7 @@ exports[`should render with selected tags 1`] = `
     onSelect={[Function]}
     onUnselect={[Function]}
     placeholder="search.search_for_tags"
+    renderLabel={[Function]}
     selectedElements={
       Array [
         "bar",
@@ -50,6 +51,7 @@ exports[`should render without tags at all 1`] = `
     onSelect={[Function]}
     onUnselect={[Function]}
     placeholder="search.search_for_tags"
+    renderLabel={[Function]}
     selectedElements={Array []}
     validateSearchInput={[Function]}
   />

@@ -17,7 +17,7 @@ exports[`should render multiselect with selected elements 1`] = `
     />
   </div>
   <ul
-    className="menu"
+    className="menu menu-vertically-limited spacer-top with-top-separator"
   >
     <MultiSelectOption
       active={true}
@@ -25,6 +25,7 @@ exports[`should render multiselect with selected elements 1`] = `
       key="bar"
       onHover={[Function]}
       onSelectChange={[Function]}
+      renderLabel={[Function]}
       selected={true}
     />
   </ul>
@@ -48,7 +49,7 @@ exports[`should render multiselect with selected elements 2`] = `
     />
   </div>
   <ul
-    className="menu"
+    className="menu menu-vertically-limited spacer-top with-top-separator"
   >
     <MultiSelectOption
       active={true}
@@ -56,21 +57,50 @@ exports[`should render multiselect with selected elements 2`] = `
       key="bar"
       onHover={[Function]}
       onSelectChange={[Function]}
+      renderLabel={[Function]}
       selected={true}
     />
     <MultiSelectOption
       active={false}
-      element="foo"
-      key="foo"
+      disabled={false}
+      element={
+        Object {
+          "key": "foo",
+          "label": "foo",
+        }
+      }
+      key="[object Object]"
       onHover={[Function]}
       onSelectChange={[Function]}
+      renderLabel={[Function]}
     />
     <MultiSelectOption
       active={false}
-      element="baz"
-      key="baz"
+      disabled={false}
+      element={
+        Object {
+          "key": "bar",
+          "label": "bar",
+        }
+      }
+      key="[object Object]"
       onHover={[Function]}
       onSelectChange={[Function]}
+      renderLabel={[Function]}
+    />
+    <MultiSelectOption
+      active={false}
+      disabled={false}
+      element={
+        Object {
+          "key": "baz",
+          "label": "baz",
+        }
+      }
+      key="[object Object]"
+      onHover={[Function]}
+      onSelectChange={[Function]}
+      renderLabel={[Function]}
     />
   </ul>
 </div>
@@ -93,7 +123,7 @@ exports[`should render multiselect with selected elements 3`] = `
     />
   </div>
   <ul
-    className="menu"
+    className="menu menu-vertically-limited spacer-top with-top-separator"
   >
     <MultiSelectOption
       active={false}
@@ -101,21 +131,50 @@ exports[`should render multiselect with selected elements 3`] = `
       key="bar"
       onHover={[Function]}
       onSelectChange={[Function]}
+      renderLabel={[Function]}
       selected={true}
     />
     <MultiSelectOption
       active={false}
-      element="foo"
-      key="foo"
+      disabled={false}
+      element={
+        Object {
+          "key": "foo",
+          "label": "foo",
+        }
+      }
+      key="[object Object]"
       onHover={[Function]}
       onSelectChange={[Function]}
+      renderLabel={[Function]}
     />
     <MultiSelectOption
       active={true}
-      element="baz"
-      key="baz"
+      disabled={false}
+      element={
+        Object {
+          "key": "bar",
+          "label": "bar",
+        }
+      }
+      key="[object Object]"
       onHover={[Function]}
       onSelectChange={[Function]}
+      renderLabel={[Function]}
+    />
+    <MultiSelectOption
+      active={false}
+      disabled={false}
+      element={
+        Object {
+          "key": "baz",
+          "label": "baz",
+        }
+      }
+      key="[object Object]"
+      onHover={[Function]}
+      onSelectChange={[Function]}
+      renderLabel={[Function]}
     />
   </ul>
 </div>
@@ -138,7 +197,7 @@ exports[`should render multiselect with selected elements 4`] = `
     />
   </div>
   <ul
-    className="menu"
+    className="menu menu-vertically-limited spacer-top with-top-separator"
   >
     <MultiSelectOption
       active={false}
@@ -146,21 +205,50 @@ exports[`should render multiselect with selected elements 4`] = `
       key="bar"
       onHover={[Function]}
       onSelectChange={[Function]}
+      renderLabel={[Function]}
       selected={true}
     />
     <MultiSelectOption
       active={false}
-      element="foo"
-      key="foo"
+      disabled={false}
+      element={
+        Object {
+          "key": "foo",
+          "label": "foo",
+        }
+      }
+      key="[object Object]"
       onHover={[Function]}
       onSelectChange={[Function]}
+      renderLabel={[Function]}
     />
     <MultiSelectOption
       active={true}
-      element="baz"
-      key="baz"
+      disabled={false}
+      element={
+        Object {
+          "key": "bar",
+          "label": "bar",
+        }
+      }
+      key="[object Object]"
       onHover={[Function]}
       onSelectChange={[Function]}
+      renderLabel={[Function]}
+    />
+    <MultiSelectOption
+      active={false}
+      disabled={false}
+      element={
+        Object {
+          "key": "baz",
+          "label": "baz",
+        }
+      }
+      key="[object Object]"
+      onHover={[Function]}
+      onSelectChange={[Function]}
+      renderLabel={[Function]}
     />
     <MultiSelectOption
       active={false}
@@ -169,6 +257,7 @@ exports[`should render multiselect with selected elements 4`] = `
       key="test"
       onHover={[Function]}
       onSelectChange={[Function]}
+      renderLabel={[Function]}
     />
   </ul>
 </div>

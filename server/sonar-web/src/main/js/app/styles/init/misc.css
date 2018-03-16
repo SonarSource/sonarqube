@@ -29,6 +29,10 @@
   vertical-align: middle;
 }
 
+.vertical-text-top {
+  vertical-align: text-top;
+}
+
 .nowrap {
   white-space: nowrap;
 }

@@ -101,6 +101,7 @@ export default class RuleDetailsMeta extends React.PureComponent<Props, State> {
     const { canWrite, ruleDetails } = this.props;
     const { sysTags = [], tags = [] } = ruleDetails;
     const allTags = [...sysTags, ...tags];
+
     return (
       <li className="coding-rules-detail-property" data-meta="tags">
         {this.props.canWrite ? (
@@ -111,7 +112,7 @@ export default class RuleDetailsMeta extends React.PureComponent<Props, State> {
                 organization={this.props.organization}
                 setTags={this.props.onTagsChange}
                 sysTags={sysTags}
-                tags={tags}
+                tags={allTags}
               />
             }
             position="bottomleft"

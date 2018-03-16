@@ -17,6 +17,7 @@ exports[`should render correctly the graph and legends 1`] = `
       ]
     }
     metricsTypeFilter={null}
+    removeCustomMetric={[Function]}
     updateGraph={[Function]}
   />
   <GraphsHistory

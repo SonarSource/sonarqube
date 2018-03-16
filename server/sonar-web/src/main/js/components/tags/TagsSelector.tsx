@@ -45,6 +45,7 @@ export default function TagsSelector(props: Props) {
         onSelect={props.onSelect}
         onUnselect={props.onUnselect}
         placeholder={translate('search.search_for_tags')}
+        renderLabel={(element: string) => element}
         selectedElements={props.selectedTags}
         validateSearchInput={validateTag}
       />
