@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { sumBy, uniq } from 'lodash';
+import { uniq } from 'lodash';
 import { Query, convertToFilter } from './query';
 import { translate } from '../../helpers/l10n';
 import { RequestData } from '../../helpers/request';
@@ -145,21 +145,6 @@ const LEAK_FACETS = [
   'tags'
 ];
 
-const CUMULATIVE_FACETS = [
-  'reliability',
-  'new_reliability',
-  'security',
-  'new_security',
-  'maintainability',
-  'new_maintainability',
-  'coverage',
-  'new_coverage',
-  'duplications',
-  'new_duplications',
-  'size',
-  'new_lines'
-];
-
 const REVERSED_FACETS = ['coverage', 'new_coverage'];
 
 export function localizeSorting(sort?: string): string {
@@ -281,23 +266,6 @@ function mapFacetValues(values: Array<{ val: string; count: number }>) {
   return map;
 }
 
-export function cumulativeMapFacetValues(values: Array<{ val: string; count: number }>) {
-  const noDataVal = values.find(value => value.val === 'NO_DATA');
-  const filteredValues = noDataVal ? values.filter(value => value.val !== 'NO_DATA') : values;
-
-  let sum = sumBy(filteredValues, value => value.count);
-  const map: { [value: string]: number } = {};
-  filteredValues.forEach((value, index) => {
-    map[value.val] = index > 0 && index < values.length - 1 ? sum : value.count;
-    sum -= value.count;
-  });
-
-  if (noDataVal) {
-    map[noDataVal.val] = noDataVal.count;
-  }
-  return map;
-}
-
 function getFacetsMap(facets: Facet[]) {
   const map: { [property: string]: { [value: string]: number } } = {};
   facets.forEach(facet => {
@@ -306,9 +274,7 @@ function getFacetsMap(facets: Facet[]) {
     if (REVERSED_FACETS.includes(property)) {
       values.reverse();
     }
-    map[property] = CUMULATIVE_FACETS.includes(property)
-      ? cumulativeMapFacetValues(values)
-      : mapFacetValues(values);
+    map[property] = mapFacetValues(values);
   });
   return map;
 }

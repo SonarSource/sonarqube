@@ -32,10 +32,5 @@ exports[`renders 2`] = `
     small={true}
     value={2}
   />
-  <span
-    className="note spacer-left"
-  >
-    and_worse
-  </span>
 </span>
 `;

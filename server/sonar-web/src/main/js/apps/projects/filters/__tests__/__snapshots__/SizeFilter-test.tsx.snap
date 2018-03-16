@@ -35,7 +35,7 @@ exports[`renders 2`] = `
   <span
     className="spacer-left"
   >
-    ≥ 1k
+    1k - 10k
   </span>
 </span>
 `;
