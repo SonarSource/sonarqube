@@ -21,6 +21,7 @@ package org.sonar.scanner.scan.branch;
 
 import java.util.List;
 import java.util.Map;
+import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
@@ -32,18 +33,21 @@ import javax.annotation.concurrent.Immutable;
 @Immutable
 public class ProjectPullRequests {
 
-  private final Map<String, PullRequestInfo> pullRequestsById;
+  private final Map<String, PullRequestInfo> pullRequestsByBranchName;
 
-  public ProjectPullRequests(List<PullRequestInfo> pullRequestsById) {
-    this.pullRequestsById = pullRequestsById.stream().collect(Collectors.toMap(PullRequestInfo::getBranch, Function.identity()));
+  public ProjectPullRequests(List<PullRequestInfo> pullRequestInfos) {
+    // when multiple pull requests with same branch name exist,
+    // pick the one with the most recent analysis date
+    BinaryOperator<PullRequestInfo> mergeFunction = (a, b) -> a.getAnalysisDate().before(b.getAnalysisDate()) ? b : a;
+    this.pullRequestsByBranchName = pullRequestInfos.stream().collect(Collectors.toMap(PullRequestInfo::getBranch, Function.identity(), mergeFunction));
   }
 
   @CheckForNull
   public PullRequestInfo get(String branch) {
-    return pullRequestsById.get(branch);
+    return pullRequestsByBranchName.get(branch);
   }
 
   public boolean isEmpty() {
-    return pullRequestsById.isEmpty();
+    return pullRequestsByBranchName.isEmpty();
   }
 }
