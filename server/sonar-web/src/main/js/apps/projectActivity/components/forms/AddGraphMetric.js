@@ -43,8 +43,8 @@ type State = {
   open: boolean,
   selectedMetric?: string,
   metrics: Array<string>,
-  selectedMetrics: Array<string>,
-  query: string
+  query: string,
+  selectedMetrics: Array<string>
 };
 */
 
@@ -53,22 +53,26 @@ export default class AddGraphMetric extends React.PureComponent {
   state /*: State */ = {
     open: false,
     metrics: [],
-    selectedMetrics: [],
-    query: ''
+    query: '',
+    selectedMetrics: []
   };
 
   componentDidMount() {
     this.setState({
-      metrics: this.filterMetricsElements(this.props),
-      selectedMetrics: this.getSelectedMetricsElements(this.props.metrics, null)
+      metrics: this.filterMetricsElements(this.props, ''),
+      selectedMetrics: this.getSelectedMetricsElements(this.props.metrics, null, '')
     });
   }
 
   componentWillReceiveProps(nextProps /*: Props */) {
-    this.setState({
-      metrics: this.filterMetricsElements(nextProps),
-      selectedMetrics: this.getSelectedMetricsElements(nextProps.metrics, nextProps.selectedMetrics)
-    });
+    this.setState(state => ({
+      metrics: this.filterMetricsElements(nextProps, state.query),
+      selectedMetrics: this.getSelectedMetricsElements(
+        nextProps.metrics,
+        nextProps.selectedMetrics,
+        state.query
+      )
+    }));
   }
 
   getPopupPos = (containerPos /*: ClientRect*/) => ({
@@ -76,7 +80,10 @@ export default class AddGraphMetric extends React.PureComponent {
     right: containerPos.width - 240
   });
 
-  filterMetricsElements = ({ metricsTypeFilter, metrics, selectedMetrics } /*: Props */) => {
+  filterMetricsElements = (
+    { metricsTypeFilter, metrics, selectedMetrics } /*: Props */,
+    query /*: string*/
+  ) => {
     return metrics
       .filter(metric => {
         if (
@@ -92,16 +99,21 @@ export default class AddGraphMetric extends React.PureComponent {
         }
         return true;
       })
-      .map(metric => metric.key);
+      .map(metric => getLocalizedMetricName(metric))
+      .filter(metric => metric.toLowerCase().includes(query.toLowerCase()));
   };
 
   getSelectedMetricsElements = (
     metrics /*: Array<Metric> */,
-    selectedMetrics /*: Array<string> | null */
+    selectedMetrics /*: Array<string> | null */,
+    query /*: string */
   ) => {
     const selected /*: Array<string> */ =
       selectedMetrics === null ? this.props.selectedMetrics : selectedMetrics;
-    return metrics.filter(metric => selected.includes(metric.key)).map(metric => metric.key);
+    return metrics
+      .filter(metric => selected.includes(metric.key))
+      .map(metric => metric.key)
+      .filter(metric => metric.toLowerCase().includes(query.toLowerCase()));
   };
 
   getLocalizedMetricNameFromKey = (key /*: string*/) => {
@@ -116,7 +128,15 @@ export default class AddGraphMetric extends React.PureComponent {
   };
 
   onSearch = (query /*: string */) => {
-    this.setState({ query });
+    this.setState({
+      query,
+      metrics: this.filterMetricsElements(this.props, query),
+      selectedMetrics: this.getSelectedMetricsElements(
+        this.props.metrics,
+        this.props.selectedMetrics,
+        query
+      )
+    });
     return Promise.resolve();
   };
 
@@ -125,7 +145,7 @@ export default class AddGraphMetric extends React.PureComponent {
     this.setState(state => {
       return {
         selectedMetrics: sortBy([...state.selectedMetrics, metric]),
-        metrics: this.filterMetricsElements(this.props)
+        metrics: this.filterMetricsElements(this.props, state.query)
       };
     });
   };
@@ -145,10 +165,7 @@ export default class AddGraphMetric extends React.PureComponent {
   };
 
   render() {
-    const { metrics, selectedMetrics, query } = this.state;
-    const filteredMetrics = metrics.filter(
-      (metric /*: string */) => metric.toLowerCase().indexOf(query.toLowerCase()) > -1
-    );
+    const { metrics, selectedMetrics } = this.state;
 
     return (
       <div className="display-inline-block">
@@ -157,7 +174,7 @@ export default class AddGraphMetric extends React.PureComponent {
           offset={{ horizontal: 16, vertical: 0 }}
           popup={
             <AddGraphMetricPopup
-              elements={filteredMetrics}
+              elements={metrics}
               metricsTypeFilter={this.props.metricsTypeFilter}
               onSearch={this.onSearch}
               onSelect={this.onSelect}

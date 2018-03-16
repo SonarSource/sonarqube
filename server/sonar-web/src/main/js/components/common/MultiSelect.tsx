@@ -172,15 +172,7 @@ export default class MultiSelect extends React.PureComponent<Props, State> {
     elem.length > 0 && selectedElements.indexOf(elem) === -1 && elements.indexOf(elem) === -1;
 
   updateSelectedElements = (props: Props) => {
-    this.setState((state: State) => {
-      if (state.query) {
-        return {
-          selectedElements: props.selectedElements.filter(elem => elem.includes(state.query))
-        };
-      } else {
-        return { selectedElements: [...props.selectedElements] };
-      }
-    });
+    this.setState({ selectedElements: [...props.selectedElements] });
   };
 
   updateUnselectedElements = (props: PropsWithDefault) => {
@@ -254,7 +246,7 @@ export default class MultiSelect extends React.PureComponent<Props, State> {
       'menu-vertically-limited': infiniteList,
       'spacer-top': infiniteList,
       'with-top-separator': infiniteList,
-      'with-bottom-separator': footerNode !== ''
+      'with-bottom-separator': Boolean(footerNode)
     });
 
     return (
