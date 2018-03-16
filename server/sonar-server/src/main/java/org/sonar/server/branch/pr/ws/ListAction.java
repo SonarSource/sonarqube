@@ -34,6 +34,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
+import org.sonar.db.measure.LiveMeasureDto;
 import org.sonar.db.protobuf.DbProjectBranches;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.issue.index.BranchStatistics;
@@ -42,7 +43,9 @@ import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.ProjectPullRequests;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static java.util.Collections.singletonList;
 import static java.util.Objects.requireNonNull;
+import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.core.util.Protobuf.setNullable;
@@ -98,19 +101,22 @@ public class ListAction implements PullRequestWsAction {
         .stream().collect(uniqueIndex(BranchDto::getUuid));
       Map<String, BranchStatistics> branchStatisticsByBranchUuid = issueIndex.searchBranchStatistics(project.uuid(), pullRequestUuids).stream()
         .collect(uniqueIndex(BranchStatistics::getBranchUuid, Function.identity()));
+      Map<String, LiveMeasureDto> qualityGateMeasuresByComponentUuids = dbClient.liveMeasureDao()
+        .selectByComponentUuidsAndMetricKeys(dbSession, pullRequestUuids, singletonList(ALERT_STATUS_KEY)).stream()
+        .collect(uniqueIndex(LiveMeasureDto::getComponentUuid));
       Map<String, String> analysisDateByBranchUuid = dbClient.snapshotDao().selectLastAnalysesByRootComponentUuids(dbSession, pullRequestUuids).stream()
         .collect(uniqueIndex(SnapshotDto::getComponentUuid, s -> formatDateTime(s.getCreatedAt())));
 
       ProjectPullRequests.ListWsResponse.Builder protobufResponse = ProjectPullRequests.ListWsResponse.newBuilder();
       pullRequests
-        .forEach(b -> addPullRequest(protobufResponse, b, mergeBranchesByUuid, branchStatisticsByBranchUuid.get(b.getUuid()),
+        .forEach(b -> addPullRequest(protobufResponse, b, mergeBranchesByUuid, qualityGateMeasuresByComponentUuids.get(b.getUuid()),  branchStatisticsByBranchUuid.get(b.getUuid()),
           analysisDateByBranchUuid.get(b.getUuid())));
       writeProtobuf(protobufResponse.build(), request, response);
     }
   }
 
   private static void addPullRequest(ProjectPullRequests.ListWsResponse.Builder response, BranchDto branch, Map<String, BranchDto> mergeBranchesByUuid,
-                                     BranchStatistics branchStatistics, @Nullable String analysisDate) {
+                                     @Nullable LiveMeasureDto qualityGateMeasure, BranchStatistics branchStatistics, @Nullable String analysisDate) {
     Optional<BranchDto> mergeBranch = Optional.ofNullable(mergeBranchesByUuid.get(branch.getMergeBranchUuid()));
 
     ProjectPullRequests.PullRequest.Builder builder = ProjectPullRequests.PullRequest.newBuilder();
@@ -128,12 +134,15 @@ public class ListAction implements PullRequestWsAction {
       builder.setIsOrphan(true);
     }
     setNullable(analysisDate, builder::setAnalysisDate);
-    setBranchStatus(builder, branchStatistics);
+    setQualityGate(builder, qualityGateMeasure, branchStatistics);
     response.addPullRequests(builder);
   }
 
-  private static void setBranchStatus(ProjectPullRequests.PullRequest.Builder builder, @Nullable BranchStatistics branchStatistics) {
+  private static void setQualityGate(ProjectPullRequests.PullRequest.Builder builder, @Nullable LiveMeasureDto qualityGateMeasure, @Nullable BranchStatistics branchStatistics) {
     ProjectPullRequests.Status.Builder statusBuilder = ProjectPullRequests.Status.newBuilder();
+    if (qualityGateMeasure != null) {
+      setNullable(qualityGateMeasure.getDataAsString(), statusBuilder::setQualityGateStatus);
+    }
     statusBuilder.setBugs(branchStatistics == null ? 0L : branchStatistics.getBugs());
     statusBuilder.setVulnerabilities(branchStatistics == null ? 0L : branchStatistics.getVulnerabilities());
     statusBuilder.setCodeSmells(branchStatistics == null ? 0L : branchStatistics.getCodeSmells());
