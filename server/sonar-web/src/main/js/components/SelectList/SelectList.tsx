@@ -74,9 +74,7 @@ export default class SelectList extends React.PureComponent<Props, State> {
 
   handleQueryChange = (query: string) => {
     this.setState({ loading: true, query });
-    this.props
-      .onSearch(query, query === '' ? this.state.filter : Filter.All)
-      .then(this.stopLoading, this.stopLoading);
+    this.props.onSearch(query, this.getFilter()).then(this.stopLoading, this.stopLoading);
   };
 
   getFilter = () => {
