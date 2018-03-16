@@ -312,6 +312,7 @@ a[class*=' icon-'] {
 
 .icon-checkbox-disabled:before {
   border: 1px solid #bbb;
+  cursor: not-allowed;
 }
 
 .icon-checkbox-disabled.icon-checkbox-checked:before {

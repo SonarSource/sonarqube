@@ -79,6 +79,10 @@ export default class SelectList extends React.PureComponent<Props, State> {
       .then(this.stopLoading, this.stopLoading);
   };
 
+  getFilter = () => {
+    return this.state.query === '' ? this.state.filter : Filter.All;
+  };
+
   render() {
     const {
       labelSelected = translate('selected'),
@@ -114,11 +118,11 @@ export default class SelectList extends React.PureComponent<Props, State> {
         <SelectListListContainer
           disabledElements={this.props.disabledElements || []}
           elements={this.props.elements}
-          filter={this.state.query === '' ? filter : Filter.All}
+          filter={this.getFilter()}
           onSelect={this.props.onSelect}
           onUnselect={this.props.onUnselect}
           renderElement={this.props.renderElement}
-          selectedElements={this.props.selectedElements || []}
+          selectedElements={this.props.selectedElements}
         />
       </div>
     );
