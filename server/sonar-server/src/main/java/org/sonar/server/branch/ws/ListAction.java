@@ -30,7 +30,6 @@ import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.core.util.Protobuf;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -157,15 +156,15 @@ public class ListAction implements BranchWsAction {
     @Nullable BranchStatistics branchStatistics) {
     ProjectBranches.Status.Builder statusBuilder = ProjectBranches.Status.newBuilder();
     if (qualityGateMeasure != null) {
-      Protobuf.setNullable(qualityGateMeasure.getDataAsString(), statusBuilder::setQualityGateStatus);
-      builder.setStatus(statusBuilder);
+      setNullable(qualityGateMeasure.getDataAsString(), statusBuilder::setQualityGateStatus);
     }
     if (branch.getBranchType() == BranchType.SHORT) {
       statusBuilder.setBugs(branchStatistics == null ? 0L : branchStatistics.getBugs());
       statusBuilder.setVulnerabilities(branchStatistics == null ? 0L : branchStatistics.getVulnerabilities());
       statusBuilder.setCodeSmells(branchStatistics == null ? 0L : branchStatistics.getCodeSmells());
-      builder.setStatus(statusBuilder);
     }
+
+    builder.setStatus(statusBuilder);
   }
 
   private void checkPermission(ComponentDto component) {

@@ -6,6 +6,7 @@
       "branch": "feature/bar",
       "base": "feature/foo",
       "status": {
+        "qualityGateStatus": "OK",
         "bugs": 0,
         "vulnerabilities": 0,
         "codeSmells": 0

@@ -19,6 +19,7 @@
  */
 package org.sonar.server.branch.pr.ws;
 
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -33,7 +34,7 @@ import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.ResourceTypesRule;
-import org.sonar.db.component.SnapshotTesting;
+import org.sonar.db.metric.MetricDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.protobuf.DbProjectBranches;
 import org.sonar.db.rule.RuleDefinitionDto;
@@ -58,6 +59,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.api.issue.Issue.RESOLUTION_FALSE_POSITIVE;
 import static org.sonar.api.issue.Issue.RESOLUTION_FIXED;
+import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.api.rules.RuleType.BUG;
 import static org.sonar.api.rules.RuleType.CODE_SMELL;
@@ -66,6 +68,8 @@ import static org.sonar.api.utils.DateUtils.dateToLong;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
 import static org.sonar.db.component.BranchType.LONG;
 import static org.sonar.db.component.BranchType.PULL_REQUEST;
+import static org.sonar.db.component.SnapshotTesting.newAnalysis;
+import static org.sonar.server.branch.pr.ws.PullRequestsWsParameters.PARAM_PROJECT;
 import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonarqube.ws.ProjectPullRequests.Status;
 
@@ -80,12 +84,19 @@ public class ListActionTest {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 
+  private MetricDto qualityGateStatus;
+
   private ResourceTypes resourceTypes = new ResourceTypesRule().setRootQualifiers(PROJECT);
   private IssueIndexer issueIndexer = new IssueIndexer(es.client(), db.getDbClient(), new IssueIteratorFactory(db.getDbClient()));
   private IssueIndex issueIndex = new IssueIndex(es.client(), System2.INSTANCE, userSession, new AuthorizationTypeSupport(userSession));
   private PermissionIndexerTester permissionIndexerTester = new PermissionIndexerTester(es, issueIndexer);
 
   public WsActionTester ws = new WsActionTester(new ListAction(db.getDbClient(), userSession, new ComponentFinder(db.getDbClient(), resourceTypes), issueIndex));
+
+  @Before
+  public void setUp() {
+    qualityGateStatus = db.measures().insertMetric(m -> m.setKey(ALERT_STATUS_KEY));
+  }
 
   @Test
   public void definition() {
@@ -110,18 +121,19 @@ public class ListActionTest {
           .setTitle("Add feature X")
           .setUrl("https://github.com/SonarSource/sonar-core-plugins/pull/32")
           .build()));
+    db.getDbClient().snapshotDao().insert(db.getSession(), newAnalysis(pullRequest).setLast(true).setCreatedAt(DateUtils.parseDateTime("2017-04-01T01:15:42+0100").getTime()));
+    db.measures().insertLiveMeasure(pullRequest, qualityGateStatus, m -> m.setData("OK"));
     userSession.logIn().addProjectPermission(UserRole.USER, project);
 
-    db.getDbClient().snapshotDao().insert(db.getSession(),
-      SnapshotTesting.newAnalysis(pullRequest).setLast(true).setCreatedAt(DateUtils.parseDateTime("2017-04-01T01:15:42+0100").getTime()));
     db.commit();
 
     String json = ws.newRequest()
-      .setParam("project", project.getDbKey())
+      .setParam(PARAM_PROJECT, project.getKey())
       .execute()
       .getInput();
 
     assertJson(json).isSimilarTo(ws.getDef().responseExampleAsString());
+    assertJson(ws.getDef().responseExampleAsString()).isSimilarTo(json);
   }
 
   @Test
@@ -235,6 +247,7 @@ public class ListActionTest {
         .setBranchType(PULL_REQUEST)
         .setMergeBranchUuid(longLivingBranch.uuid())
         .setPullRequestData(DbProjectBranches.PullRequestData.newBuilder().setBranch("feature/bar").build()));
+    db.measures().insertLiveMeasure(pullRequest, qualityGateStatus, m -> m.setData("ERROR"));
     RuleDefinitionDto rule = db.rules().insert();
     db.issues().insert(rule, pullRequest, pullRequest, i -> i.setType(BUG).setResolution(null));
     db.issues().insert(rule, pullRequest, pullRequest, i -> i.setType(BUG).setResolution(RESOLUTION_FIXED));
@@ -252,8 +265,8 @@ public class ListActionTest {
       .executeProtobuf(ListWsResponse.class);
 
     assertThat(response.getPullRequestsList().stream().map(PullRequest::getStatus))
-      .extracting(Status::hasBugs, Status::getBugs, Status::hasVulnerabilities, Status::getVulnerabilities, Status::hasCodeSmells, Status::getCodeSmells)
-      .containsExactlyInAnyOrder(tuple(true, 1L, true, 2L, true, 3L));
+      .extracting(Status::getQualityGateStatus, Status::hasBugs, Status::getBugs, Status::hasVulnerabilities, Status::getVulnerabilities, Status::hasCodeSmells, Status::getCodeSmells)
+      .containsExactlyInAnyOrder(tuple("ERROR", true, 1L, true, 2L, true, 3L));
   }
 
   @Test
@@ -302,11 +315,11 @@ public class ListActionTest {
         .setPullRequestData(DbProjectBranches.PullRequestData.newBuilder().setBranch("feature/pr2").build()));
 
     db.getDbClient().snapshotDao().insert(db.getSession(),
-      SnapshotTesting.newAnalysis(longLivingBranch2).setCreatedAt(lastAnalysisLongLivingBranch));
+      newAnalysis(longLivingBranch2).setCreatedAt(lastAnalysisLongLivingBranch));
     db.getDbClient().snapshotDao().insert(db.getSession(),
-      SnapshotTesting.newAnalysis(pullRequest2).setCreatedAt(previousAnalysisPullRequest).setLast(false));
+      newAnalysis(pullRequest2).setCreatedAt(previousAnalysisPullRequest).setLast(false));
     db.getDbClient().snapshotDao().insert(db.getSession(),
-      SnapshotTesting.newAnalysis(pullRequest2).setCreatedAt(lastAnalysisPullRequest));
+      newAnalysis(pullRequest2).setCreatedAt(lastAnalysisPullRequest));
     db.commit();
     issueIndexer.indexOnStartup(emptySet());
     permissionIndexerTester.allowOnlyAnyone(project);
