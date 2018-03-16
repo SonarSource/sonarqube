@@ -64,6 +64,7 @@ export default class DateRangeInput extends React.PureComponent<Props> {
       <div className={classNames('display-inline-flex-center', this.props.className)}>
         <DateInput
           currentMonth={this.to}
+          data-test="from"
           highlightTo={this.to}
           maxDate={this.to}
           onChange={this.handleFromChange}
@@ -73,6 +74,7 @@ export default class DateRangeInput extends React.PureComponent<Props> {
         <span className="note little-spacer-left little-spacer-right">{translate('to_')}</span>
         <DateInput
           currentMonth={this.from}
+          data-test="to"
           highlightFrom={this.from}
           minDate={this.from}
           onChange={this.handleToChange}

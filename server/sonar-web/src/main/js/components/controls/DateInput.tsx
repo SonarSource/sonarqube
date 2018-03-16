@@ -35,7 +35,7 @@ import { getShortMonthName, getWeekDayName, getShortWeekDayName } from '../../he
 import './DayPicker.css';
 import './styles.css';
 
-interface Props {
+export interface Props {
   className?: string;
   currentMonth?: Date;
   highlightFrom?: Date;
@@ -137,6 +137,7 @@ export default class DateInput extends React.PureComponent<Props, State> {
     const selectedDays: Modifier[] = value ? [value] : [];
     let modifiers: Partial<Modifiers> | undefined;
     const lastHoveredOrValue = lastHovered || value;
+
     if (highlightFrom && lastHoveredOrValue) {
       modifiers = { highlighted: { from: highlightFrom, to: lastHoveredOrValue } };
       selectedDays.push(highlightFrom);
