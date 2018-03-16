@@ -43,10 +43,6 @@
     "@types/cheerio" "*"
     "@types/react" "*"
 
-"@types/escape-html@0.0.20":
-  version "0.0.20"
-  resolved "https://registry.yarnpkg.com/@types/escape-html/-/escape-html-0.0.20.tgz#cae698714dd61ebee5ab3f2aeb9a34ba1011735a"
-
 "@types/history@^3":
   version "3.2.2"
   resolved "https://registry.yarnpkg.com/@types/history/-/history-3.2.2.tgz#b6affa240cb10b5f841c6443d8a24d7f3fc8bb0c"
@@ -54,10 +50,6 @@
 "@types/jest@22.0.1":
   version "22.0.1"
   resolved "https://registry.yarnpkg.com/@types/jest/-/jest-22.0.1.tgz#6370a6d60cce3845e4cd5d00bf65f654264685bc"
-
-"@types/jquery@3.2.11":
-  version "3.2.11"
-  resolved "https://registry.yarnpkg.com/@types/jquery/-/jquery-3.2.11.tgz#9119f91bb103b16ae8c4375b019a9b341b409f50"
 
 "@types/keymaster@1.6.28":
   version "1.6.28"
@@ -446,10 +438,6 @@ async@^2.1.2, async@^2.1.4, async@^2.4.1:
   resolved "https://registry.yarnpkg.com/async/-/async-2.5.0.tgz#843190fd6b7357a0b9e1c956edddd5ec8462b54d"
   dependencies:
     lodash "^4.14.0"
-
-async@~0.2.10, async@~0.2.6:
-  version "0.2.10"
-  resolved "https://registry.yarnpkg.com/async/-/async-0.2.10.tgz#b6bbe0b0674b9d719708ca38de8c237cb526c3d1"
 
 asynckit@^0.4.0:
   version "0.4.0"
@@ -1136,35 +1124,6 @@ babel-types@^6.18.0, babel-types@^6.19.0, babel-types@^6.24.1, babel-types@^6.26
 babylon@^6.18.0:
   version "6.18.0"
   resolved "https://registry.yarnpkg.com/babylon/-/babylon-6.18.0.tgz#af2f3b88fa6f5c1e4c634d1a0f8eac4f55b395e3"
-
-backbone.babysitter@^0.1.0:
-  version "0.1.12"
-  resolved "https://registry.yarnpkg.com/backbone.babysitter/-/backbone.babysitter-0.1.12.tgz#7ca946434eeefbde1a553605c74b7049b6dfafc1"
-  dependencies:
-    backbone ">=0.9.9 <=1.3.x"
-    underscore ">=1.4.0 <=1.8.3"
-
-backbone.marionette@2.4.3:
-  version "2.4.3"
-  resolved "https://registry.yarnpkg.com/backbone.marionette/-/backbone.marionette-2.4.3.tgz#a4c93a317f5d9932bc717caf76163a48c53c0ae9"
-  dependencies:
-    backbone "1.0.0 - 1.2.3"
-    backbone.babysitter "^0.1.0"
-    backbone.wreqr "^1.0.0"
-    underscore "1.4.4 - 1.8.3"
-
-backbone.wreqr@^1.0.0:
-  version "1.4.0"
-  resolved "https://registry.yarnpkg.com/backbone.wreqr/-/backbone.wreqr-1.4.0.tgz#7682030c9aaf090ecd873b21dbf48501693b2696"
-  dependencies:
-    backbone ">=0.9.9 <=1.3.x"
-    underscore ">=1.3.3 <=1.8.3"
-
-"backbone@1.0.0 - 1.2.3", backbone@1.2.3, "backbone@>=0.9.9 <=1.3.x":
-  version "1.2.3"
-  resolved "https://registry.yarnpkg.com/backbone/-/backbone-1.2.3.tgz#c22cfd07fc86ebbeae61d18929ed115e999d65b9"
-  dependencies:
-    underscore ">=1.7.0"
 
 balanced-match@^0.4.2:
   version "0.4.2"
@@ -2606,7 +2565,7 @@ es6-weak-map@^2.0.1:
     es6-iterator "^2.0.1"
     es6-symbol "^3.1.1"
 
-escape-html@1.0.3, escape-html@~1.0.3:
+escape-html@~1.0.3:
   version "1.0.3"
   resolved "https://registry.yarnpkg.com/escape-html/-/escape-html-1.0.3.tgz#0258eae4d3d0c0974de1c169188ef0051d1d1988"
 
@@ -2993,7 +2952,7 @@ fast-levenshtein@~2.0.4:
   version "2.0.6"
   resolved "https://registry.yarnpkg.com/fast-levenshtein/-/fast-levenshtein-2.0.6.tgz#3d8a5c66883a16a30ca8643e851f19baa7797917"
 
-fastparse@^1.0.0, fastparse@^1.1.1:
+fastparse@^1.1.1:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/fastparse/-/fastparse-1.1.1.tgz#d1e2643b38a94d7583b479060e6c4affc94071f8"
 
@@ -3398,23 +3357,6 @@ gzip-size@3.0.0, gzip-size@^3.0.0:
 handle-thing@^1.2.5:
   version "1.2.5"
   resolved "https://registry.yarnpkg.com/handle-thing/-/handle-thing-1.2.5.tgz#fd7aad726bf1a5fd16dfc29b2f7a6601d27139c4"
-
-handlebars-loader@1.6.0:
-  version "1.6.0"
-  resolved "https://registry.yarnpkg.com/handlebars-loader/-/handlebars-loader-1.6.0.tgz#767a5843de30ffe795730f7d8a1ba3ce07af5b62"
-  dependencies:
-    async "~0.2.10"
-    fastparse "^1.0.0"
-    loader-utils "1.0.x"
-    object-assign "^4.1.0"
-
-handlebars@2.0.0:
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/handlebars/-/handlebars-2.0.0.tgz#6e9d7f8514a3467fa5e9f82cc158ecfc1d5ac76f"
-  dependencies:
-    optimist "~0.3"
-  optionalDependencies:
-    uglify-js "~2.3"
 
 handlebars@^4.0.3:
   version "4.0.11"
@@ -4482,10 +4424,6 @@ jest@22.0.6:
   dependencies:
     jest-cli "^22.0.6"
 
-jquery@2.2.0:
-  version "2.2.0"
-  resolved "https://registry.yarnpkg.com/jquery/-/jquery-2.2.0.tgz#d0e84ebbf199da51bf7ec39307f19b35754e9cba"
-
 js-base64@^2.1.9:
   version "2.3.2"
   resolved "https://registry.yarnpkg.com/js-base64/-/js-base64-2.3.2.tgz#a79a923666372b580f8e27f51845c6f7e8fbfbaf"
@@ -4772,14 +4710,6 @@ load-json-file@^2.0.0:
 loader-runner@^2.3.0:
   version "2.3.0"
   resolved "https://registry.yarnpkg.com/loader-runner/-/loader-runner-2.3.0.tgz#f482aea82d543e07921700d5a46ef26fdac6b8a2"
-
-loader-utils@1.0.x:
-  version "1.0.4"
-  resolved "https://registry.yarnpkg.com/loader-utils/-/loader-utils-1.0.4.tgz#13f56197f1523a305891248b4c7244540848426c"
-  dependencies:
-    big.js "^3.1.3"
-    emojis-list "^2.0.0"
-    json5 "^0.5.0"
 
 loader-utils@^0.2.16:
   version "0.2.17"
@@ -5482,12 +5412,6 @@ optimist@^0.6.1:
   resolved "https://registry.yarnpkg.com/optimist/-/optimist-0.6.1.tgz#da3ea74686fa21a19a111c326e90eb15a0196686"
   dependencies:
     minimist "~0.0.1"
-    wordwrap "~0.0.2"
-
-optimist@~0.3, optimist@~0.3.5:
-  version "0.3.7"
-  resolved "https://registry.yarnpkg.com/optimist/-/optimist-0.3.7.tgz#c90941ad59e4273328923074d2cf2e7cbc6ec0d9"
-  dependencies:
     wordwrap "~0.0.2"
 
 optionator@^0.8.1, optionator@^0.8.2:
@@ -7153,12 +7077,6 @@ source-map@^0.6.0, source-map@^0.6.1, source-map@~0.6.1:
   version "0.6.1"
   resolved "https://registry.yarnpkg.com/source-map/-/source-map-0.6.1.tgz#74722af32e9614e9c287a8d0bbde48b5e2f1a263"
 
-source-map@~0.1.7:
-  version "0.1.43"
-  resolved "https://registry.yarnpkg.com/source-map/-/source-map-0.1.43.tgz#c24bc146ca517c1471f5dacbe2571b2b7f9e3346"
-  dependencies:
-    amdefine ">=0.0.4"
-
 spdx-correct@~1.0.0:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/spdx-correct/-/spdx-correct-1.0.2.tgz#4b3073d933ff51f3912f03ac5519498a4150db40"
@@ -7621,14 +7539,6 @@ uglify-js@^2.6, uglify-js@^2.8.29:
   optionalDependencies:
     uglify-to-browserify "~1.0.0"
 
-uglify-js@~2.3:
-  version "2.3.6"
-  resolved "https://registry.yarnpkg.com/uglify-js/-/uglify-js-2.3.6.tgz#fa0984770b428b7a9b2a8058f46355d14fef211a"
-  dependencies:
-    async "~0.2.6"
-    optimist "~0.3.5"
-    source-map "~0.1.7"
-
 uglify-to-browserify@~1.0.0:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/uglify-to-browserify/-/uglify-to-browserify-1.0.2.tgz#6e0924d6bda6b5afe349e39a6d632850a0f882b7"
@@ -7648,10 +7558,6 @@ uid-number@^0.0.6:
 ultron@~1.1.0:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/ultron/-/ultron-1.1.0.tgz#b07a2e6a541a815fc6a34ccd4533baec307ca864"
-
-"underscore@1.4.4 - 1.8.3", underscore@1.8.3, "underscore@>=1.3.3 <=1.8.3", "underscore@>=1.4.0 <=1.8.3", underscore@>=1.7.0:
-  version "1.8.3"
-  resolved "https://registry.yarnpkg.com/underscore/-/underscore-1.8.3.tgz#4f3fb53b106e6097fcf9cb4109f2a5e9bdfa5022"
 
 underscore@~1.4.4:
   version "1.4.4"

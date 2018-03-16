@@ -18,17 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import exposeLibraries from './utils/exposeLibraries';
-import startAjaxMonitoring from './utils/startAjaxMonitoring';
 import startReactApp from './utils/startReactApp';
 import installExtensionsHandler from './utils/installExtensionsHandler';
 import { installGlobal } from '../helpers/l10n';
-import '../helpers/isolatedScroll';
 // styles
 import '../components/ui/Level.css';
 import '../components/ui/Rating.css';
 import './styles/sonar.css';
 
-startAjaxMonitoring();
 installGlobal();
 startReactApp();
 exposeLibraries();
