@@ -18,12 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import * as escapeHtml from 'escape-html';
+import { find, without } from 'lodash';
 import { User } from '../../../app/types';
 import Modal from '../../../components/controls/Modal';
-import SelectList from '../../../components/SelectList';
+import SelectList, { Filter } from '../../../components/SelectList/SelectList';
 import { translate } from '../../../helpers/l10n';
-import { getBaseUrl } from '../../../helpers/urls';
+import { getUserGroups, UserGroup } from '../../../api/users';
+import { addUserToGroup, removeUserFromGroup } from '../../../api/user_groups';
 
 interface Props {
   onClose: () => void;
@@ -31,8 +32,48 @@ interface Props {
   user: User;
 }
 
+interface State {
+  error: string;
+  groups: UserGroup[];
+  selectedGroups: string[];
+}
+
 export default class GroupsForm extends React.PureComponent<Props> {
   container?: HTMLDivElement | null;
+  state: State = { error: '', groups: [], selectedGroups: [] };
+
+  componentDidMount() {
+    this.handleSearch('', Filter.Selected);
+  }
+
+  handleSearch = (query: string, selected: Filter) => {
+    return getUserGroups(this.props.user.login, undefined, query, selected).then(data => {
+      this.setState({
+        groups: data.groups,
+        selectedGroups: data.groups.filter(group => group.selected).map(group => group.name)
+      });
+    });
+  };
+
+  handleSelect = (name: string) => {
+    return addUserToGroup({
+      name,
+      login: this.props.user.login
+    }).then(() => {
+      this.setState((state: State) => ({ selectedGroups: [...state.selectedGroups, name] }));
+    });
+  };
+
+  handleUnselect = (name: string) => {
+    return removeUserFromGroup({
+      name,
+      login: this.props.user.login
+    }).then(() => {
+      this.setState((state: State) => ({
+        selectedGroups: without(state.selectedGroups, name)
+      }));
+    });
+  };
 
   handleCloseClick = (event: React.SyntheticEvent<HTMLElement>) => {
     event.preventDefault();
@@ -44,46 +85,34 @@ export default class GroupsForm extends React.PureComponent<Props> {
     this.props.onClose();
   };
 
-  renderSelectList = () => {
-    const searchUrl = `${getBaseUrl()}/api/users/groups?ps=100&login=${encodeURIComponent(
-      this.props.user.login
-    )}`;
-
-    new (SelectList as any)({
-      el: this.container,
-      width: '100%',
-      readOnly: false,
-      focusSearch: false,
-      dangerouslyUnescapedHtmlFormat: (item: { name: string; description: string }) =>
-        `${escapeHtml(item.name)}<br><span class="note">${escapeHtml(item.description)}</span>`,
-      queryParam: 'q',
-      searchUrl,
-      selectUrl: getBaseUrl() + '/api/user_groups/add_user',
-      deselectUrl: getBaseUrl() + '/api/user_groups/remove_user',
-      extra: { login: this.props.user.login },
-      selectParameter: 'id',
-      selectParameterValue: 'id',
-      parse(r: any) {
-        this.more = false;
-        return r.groups;
-      }
-    });
+  renderElement = (name: string): React.ReactNode => {
+    const group = find(this.state.groups, { name });
+    return group === undefined ? name : group.name;
   };
 
   render() {
     const header = translate('users.update_groups');
 
     return (
-      <Modal
-        contentLabel={header}
-        onAfterOpen={this.renderSelectList}
-        onRequestClose={this.handleClose}>
+      <Modal contentLabel={header} onRequestClose={this.handleClose}>
         <div className="modal-head">
           <h2>{header}</h2>
         </div>
 
         <div className="modal-body">
-          <div id="user-groups" ref={node => (this.container = node)} />
+          {this.state.error !== '' && (
+            <div className="alert alert-danger">
+              <p>{this.state.error}</p>
+            </div>
+          )}
+          <SelectList
+            elements={this.state.groups.map(group => group.name)}
+            onSearch={this.handleSearch}
+            onSelect={this.handleSelect}
+            onUnselect={this.handleUnselect}
+            renderElement={this.renderElement}
+            selectedElements={this.state.selectedGroups}
+          />
         </div>
 
         <footer className="modal-foot">

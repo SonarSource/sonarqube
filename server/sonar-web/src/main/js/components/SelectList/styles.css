@@ -17,6 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+.select-list {
+}
+
 .select-list-container {
   min-width: 500px;
   box-sizing: border-box;
@@ -30,6 +33,8 @@
 .select-list-list-container {
   border: 1px solid #bfbfbf;
   box-sizing: border-box;
+  height: 400px;
+  overflow: auto;
 }
 
 .select-list-list-container.loading .select-list-list {

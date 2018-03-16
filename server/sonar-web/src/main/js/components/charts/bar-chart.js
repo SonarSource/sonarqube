@@ -22,8 +22,8 @@ import createReactClass from 'create-react-class';
 import PropTypes from 'prop-types';
 import { max } from 'd3-array';
 import { scaleLinear, scaleBand } from 'd3-scale';
-import { ResizeMixin } from './../mixins/resize-mixin';
-import { TooltipsContainer } from './../mixins/tooltips-mixin';
+import Tooltip from '../controls/Tooltip';
+import { ResizeMixin } from '../mixins/resize-mixin';
 
 export const BarChart = createReactClass({
   displayName: 'BarChart',
@@ -74,23 +74,24 @@ export const BarChart = createReactClass({
       const x = Math.round(xScale(point.x) + xScale.bandwidth() / 2);
       const y = yScale.range()[0];
       const d = this.props.data[index];
-      const tooltipAtts = {};
-      if (d.tooltip) {
-        tooltipAtts['title'] = d.tooltip;
-        tooltipAtts['data-toggle'] = 'tooltip';
-      }
-      return (
+      const text = (
         <text
-          {...tooltipAtts}
-          key={index}
           className="bar-chart-tick"
-          x={x}
-          y={y}
           dy="1.5em"
+          key={index}
           onClick={this.props.onBarClick && this.handleClick.bind(this, point)}
-          style={{ cursor: this.props.onBarClick ? 'pointer' : 'default' }}>
+          style={{ cursor: this.props.onBarClick ? 'pointer' : 'default' }}
+          x={x}
+          y={y}>
           {tick}
         </text>
+      );
+      return d.tooltip ? (
+        <Tooltip key={index} overlay={d.tooltip}>
+          {text}
+        </Tooltip>
+      ) : (
+        text
       );
     });
     return <g>{ticks}</g>;
@@ -105,23 +106,24 @@ export const BarChart = createReactClass({
       const x = Math.round(xScale(point.x) + xScale.bandwidth() / 2);
       const y = yScale(point.y);
       const d = this.props.data[index];
-      const tooltipAtts = {};
-      if (d.tooltip) {
-        tooltipAtts['title'] = d.tooltip;
-        tooltipAtts['data-toggle'] = 'tooltip';
-      }
-      return (
+      const text = (
         <text
-          key={index}
           className="bar-chart-tick"
-          x={x}
-          y={y}
           dy="-1em"
+          key={index}
           onClick={this.props.onBarClick && this.handleClick.bind(this, point)}
           style={{ cursor: this.props.onBarClick ? 'pointer' : 'default' }}
-          {...tooltipAtts}>
+          x={x}
+          y={y}>
           {value}
         </text>
+      );
+      return d.tooltip ? (
+        <Tooltip key={index} overlay={d.tooltip}>
+          {text}
+        </Tooltip>
+      ) : (
+        text
       );
     });
     return <g>{ticks}</g>;
@@ -133,23 +135,24 @@ export const BarChart = createReactClass({
       const maxY = yScale.range()[0];
       const y = Math.round(yScale(d.y)) - /* minimum bar height */ 1;
       const height = maxY - y;
-      const tooltipAtts = {};
-      if (d.tooltip) {
-        tooltipAtts['title'] = d.tooltip;
-        tooltipAtts['data-toggle'] = 'tooltip';
-      }
-      return (
+      const rect = (
         <rect
-          key={index}
           className="bar-chart-bar"
-          {...tooltipAtts}
-          x={x}
-          y={y}
-          width={this.props.barsWidth}
           height={height}
+          key={index}
           onClick={this.props.onBarClick && this.handleClick.bind(this, d)}
           style={{ cursor: this.props.onBarClick ? 'pointer' : 'default' }}
+          width={this.props.barsWidth}
+          x={x}
+          y={y}
         />
+      );
+      return d.tooltip ? (
+        <Tooltip key={index} overlay={d.tooltip}>
+          {rect}
+        </Tooltip>
+      ) : (
+        rect
       );
     });
     return <g>{bars}</g>;
@@ -178,15 +181,13 @@ export const BarChart = createReactClass({
       .range([availableHeight, 0]);
 
     return (
-      <TooltipsContainer>
-        <svg className="bar-chart" width={this.state.width} height={this.state.height}>
-          <g transform={`translate(${this.props.padding[3]}, ${this.props.padding[0]})`}>
-            {this.renderXTicks(xScale, yScale)}
-            {this.renderXValues(xScale, yScale)}
-            {this.renderBars(xScale, yScale)}
-          </g>
-        </svg>
-      </TooltipsContainer>
+      <svg className="bar-chart" height={this.state.height} width={this.state.width}>
+        <g transform={`translate(${this.props.padding[3]}, ${this.props.padding[0]})`}>
+          {this.renderXTicks(xScale, yScale)}
+          {this.renderXValues(xScale, yScale)}
+          {this.renderBars(xScale, yScale)}
+        </g>
+      </svg>
     );
   }
 });

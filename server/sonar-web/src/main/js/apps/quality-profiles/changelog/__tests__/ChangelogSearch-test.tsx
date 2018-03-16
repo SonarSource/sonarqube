@@ -20,38 +20,33 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import ChangelogSearch from '../ChangelogSearch';
-import DateInput from '../../../../components/controls/DateInput';
 import { click } from '../../../../helpers/testUtils';
+import { parseDate } from '../../../../helpers/dates';
 
-it('should render DateInput', () => {
-  const onFromDateChange = jest.fn();
-  const onToDateChange = jest.fn();
+it('should render', () => {
   const output = shallow(
     <ChangelogSearch
-      fromDate="2016-01-01"
-      onFromDateChange={onFromDateChange}
+      dateRange={{
+        from: parseDate('2016-01-01T00:00:00.000Z'),
+        to: parseDate('2016-05-05T00:00:00.000Z')
+      }}
+      onDateRangeChange={jest.fn()}
       onReset={jest.fn()}
-      onToDateChange={onToDateChange}
-      toDate="2016-05-05"
     />
   );
-  const dateInputs = output.find(DateInput);
-  expect(dateInputs.length).toBe(2);
-  expect(dateInputs.at(0).prop('value')).toBe('2016-01-01');
-  expect(dateInputs.at(0).prop('onChange')).toBe(onFromDateChange);
-  expect(dateInputs.at(1).prop('value')).toBe('2016-05-05');
-  expect(dateInputs.at(1).prop('onChange')).toBe(onToDateChange);
+  expect(output).toMatchSnapshot();
 });
 
 it('should reset', () => {
   const onReset = jest.fn();
   const output = shallow(
     <ChangelogSearch
-      fromDate="2016-01-01"
-      onFromDateChange={jest.fn()}
+      dateRange={{
+        from: parseDate('2016-01-01T00:00:00.000Z'),
+        to: parseDate('2016-05-05T00:00:00.000Z')
+      }}
+      onDateRangeChange={jest.fn()}
       onReset={onReset}
-      onToDateChange={jest.fn()}
-      toDate="2016-05-05"
     />
   );
   expect(onReset).not.toBeCalled();

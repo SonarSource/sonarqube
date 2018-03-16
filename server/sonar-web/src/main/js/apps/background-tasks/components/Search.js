@@ -51,9 +51,9 @@ export default class Search extends React.PureComponent {
     this.props.onFilterUpdate({ currents });
   }
 
-  handleDateChange(date /*: string */) {
+  handleDateChange = (date /*: { maxExecutedAt?: Date; minSubmittedAt?: Date } */) => {
     this.props.onFilterUpdate(date);
-  }
+  };
 
   handleQueryChange = (query /*: string */) => {
     this.props.onFilterUpdate({ query });
@@ -129,9 +129,9 @@ export default class Search extends React.PureComponent {
           <li>
             <h6 className="bt-search-form-label">{translate('date')}</h6>
             <DateFilter
-              minSubmittedAt={minSubmittedAt}
               maxExecutedAt={maxExecutedAt}
-              onChange={this.handleDateChange.bind(this)}
+              minSubmittedAt={minSubmittedAt}
+              onChange={this.handleDateChange}
             />
           </li>
 

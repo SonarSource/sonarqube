@@ -27,4 +27,5 @@ it('should work with extensions', () => {
     <SettingsNav extensions={extensions} location={{}} organizationsEnabled={false} />
   );
   expect(wrapper).toMatchSnapshot();
+  expect(wrapper.find('Dropdown').map(x => x.dive())).toMatchSnapshot();
 });

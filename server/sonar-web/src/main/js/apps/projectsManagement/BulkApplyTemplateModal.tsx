@@ -25,9 +25,10 @@ import AlertWarnIcon from '../../components/icons-components/AlertWarnIcon';
 import Modal from '../../components/controls/Modal';
 import Select from '../../components/controls/Select';
 import { Button, ResetButtonLink } from '../../components/ui/buttons';
+import { toNotSoISOString } from '../../helpers/dates';
 
 export interface Props {
-  analyzedBefore?: string;
+  analyzedBefore: Date | undefined;
   onClose: () => void;
   organization: string;
   provisioned: boolean;
@@ -80,6 +81,7 @@ export default class BulkApplyTemplateModal extends React.PureComponent<Props, S
   }
 
   handleConfirmClick = () => {
+    const { analyzedBefore } = this.props;
     const { permissionTemplate } = this.state;
     if (permissionTemplate) {
       this.setState({ submitting: true });
@@ -90,7 +92,7 @@ export default class BulkApplyTemplateModal extends React.PureComponent<Props, S
             templateId: permissionTemplate
           }
         : {
-            analyzedBefore: this.props.analyzedBefore,
+            analyzedBefore: analyzedBefore && toNotSoISOString(analyzedBefore),
             onProvisionedOnly: this.props.provisioned || undefined,
             organization: this.props.organization,
             qualifiers: this.props.qualifier,

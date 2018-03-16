@@ -22,6 +22,7 @@ import * as React from 'react';
 import { mount, shallow } from 'enzyme';
 import BulkApplyTemplateModal, { Props } from '../BulkApplyTemplateModal';
 import { click, waitAndUpdate } from '../../../helpers/testUtils';
+import { parseDate } from '../../../helpers/dates';
 
 jest.mock('react-dom');
 
@@ -58,7 +59,7 @@ it('bulk applies template to all results', async () => {
 
   click(wrapper.find('Button'));
   expect(bulkApplyTemplate).toBeCalledWith({
-    analyzedBefore: '2017-04-08T00:00:00.000Z',
+    analyzedBefore: '2017-04-08T00:00:00+0000',
     onProvisionedOnly: true,
     organization: 'org',
     q: 'bla',
@@ -106,7 +107,7 @@ it('closes', () => {
 function render(props?: { [P in keyof Props]?: Props[P] }) {
   return (
     <BulkApplyTemplateModal
-      analyzedBefore="2017-04-08T00:00:00.000Z"
+      analyzedBefore={parseDate('2017-04-08T00:00:00.000Z')}
       onClose={jest.fn()}
       organization="org"
       provisioned={true}

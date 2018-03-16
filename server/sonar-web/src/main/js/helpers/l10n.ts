@@ -186,3 +186,31 @@ export function getCurrentLocale() {
     DEFAULT_LANGUAGE
   );
 }
+
+export function getShortMonthName(index: number) {
+  const months = [
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec'
+  ];
+  return translate(months[index]);
+}
+
+export function getWeekDayName(index: number) {
+  const weekdays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  return weekdays[index] ? translate(weekdays[index]) : '';
+}
+
+export function getShortWeekDayName(index: number) {
+  const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  return weekdays[index] ? translate(weekdays[index]) : '';
+}

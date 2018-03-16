@@ -28,6 +28,7 @@ import { PAGE_SIZE, Project } from './utils';
 import ListFooter from '../../components/controls/ListFooter';
 import { getComponents } from '../../api/components';
 import { Organization } from '../../app/types';
+import { toNotSoISOString } from '../../helpers/dates';
 import { translate } from '../../helpers/l10n';
 
 export interface Props {
@@ -39,7 +40,7 @@ export interface Props {
 }
 
 interface State {
-  analyzedBefore?: string;
+  analyzedBefore?: Date;
   createProjectForm: boolean;
   page: number;
   projects: Project[];
@@ -80,8 +81,9 @@ export default class App extends React.PureComponent<Props, State> {
   }
 
   requestProjects = () => {
+    const { analyzedBefore } = this.state;
     const parameters = {
-      analyzedBefore: this.state.analyzedBefore,
+      analyzedBefore: analyzedBefore && toNotSoISOString(analyzedBefore),
       onProvisionedOnly: this.state.provisioned || undefined,
       organization: this.props.organization.key,
       p: this.state.page !== 1 ? this.state.page : undefined,
@@ -129,7 +131,7 @@ export default class App extends React.PureComponent<Props, State> {
     );
   };
 
-  handleDateChanged = (analyzedBefore?: string) =>
+  handleDateChanged = (analyzedBefore: Date | undefined) =>
     this.setState({ ready: false, page: 1, analyzedBefore }, this.requestProjects);
 
   onProjectSelected = (project: string) => {

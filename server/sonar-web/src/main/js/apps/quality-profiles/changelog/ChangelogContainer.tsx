@@ -26,6 +26,7 @@ import { getProfileChangelog } from '../../../api/quality-profiles';
 import { translate } from '../../../helpers/l10n';
 import { getProfileChangelogPath } from '../utils';
 import { Profile, ProfileChangelogEvent } from '../types';
+import { parseDate, toShortNotSoISOString } from '../../../helpers/dates';
 
 interface Props {
   location: {
@@ -125,27 +126,14 @@ export default class ChangelogContainer extends React.PureComponent<Props, State
     }
   }
 
-  handleFromDateChange = (fromDate?: string) => {
+  handleDateRangeChange = ({ from, to }: { from?: Date; to?: Date }) => {
     const path = getProfileChangelogPath(
       this.props.profile.name,
       this.props.profile.language,
       this.props.organization,
       {
-        since: fromDate,
-        to: this.props.location.query.to
-      }
-    );
-    this.context.router.push(path);
-  };
-
-  handleToDateChange = (toDate?: string) => {
-    const path = getProfileChangelogPath(
-      this.props.profile.name,
-      this.props.profile.language,
-      this.props.organization,
-      {
-        since: this.props.location.query.since,
-        to: toDate
+        since: from && toShortNotSoISOString(from),
+        to: to && toShortNotSoISOString(to)
       }
     );
     this.context.router.push(path);
@@ -172,10 +160,11 @@ export default class ChangelogContainer extends React.PureComponent<Props, State
       <div className="boxed-group boxed-group-inner js-profile-changelog">
         <header className="spacer-bottom">
           <ChangelogSearch
-            fromDate={query.since}
-            toDate={query.to}
-            onFromDateChange={this.handleFromDateChange}
-            onToDateChange={this.handleToDateChange}
+            dateRange={{
+              from: query.since ? parseDate(query.since) : undefined,
+              to: query.to ? parseDate(query.to) : undefined
+            }}
+            onDateRangeChange={this.handleDateRangeChange}
             onReset={this.handleReset}
           />
 

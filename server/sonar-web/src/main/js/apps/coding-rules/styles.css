@@ -85,10 +85,6 @@
   font-size: var(--smallFontSize);
 }
 
-.coding-rules-detail-property .select2-search-field {
-  line-height: 1;
-}
-
 .coding-rules-detail-tag + .coding-rules-detail-tag {
   margin-left: 10px;
 }

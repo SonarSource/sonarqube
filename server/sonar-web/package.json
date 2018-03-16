@@ -6,8 +6,6 @@
   "license": "LGPL-3.0",
   "dependencies": {
     "babel-polyfill": "6.26.0",
-    "backbone": "1.2.3",
-    "backbone.marionette": "2.4.3",
     "classnames": "2.2.5",
     "clipboard": "1.7.1",
     "create-react-class": "15.6.2",
@@ -17,17 +15,15 @@
     "d3-selection": "1.1.0",
     "d3-shape": "1.2.0",
     "date-fns": "1.29.0",
-    "escape-html": "1.0.3",
     "formik": "0.11.7",
-    "handlebars": "2.0.0",
     "history": "3.3.0",
     "intl-relativeformat": "2.1.0",
-    "jquery": "2.2.0",
     "keymaster": "1.6.2",
     "lodash": "4.17.4",
     "prop-types": "15.6.0",
     "rc-tooltip": "3.5.0",
     "react": "16.2.0",
+    "react-day-picker": "7.1.2",
     "react-dom": "16.2.0",
     "react-draggable": "3.0.3",
     "react-helmet": "5.2.0",
@@ -40,7 +36,6 @@
     "redux": "3.7.2",
     "redux-logger": "3.0.6",
     "redux-thunk": "2.2.0",
-    "underscore": "1.8.3",
     "whatwg-fetch": "2.0.3"
   },
   "devDependencies": {
@@ -49,9 +44,7 @@
     "@types/d3-array": "1.2.1",
     "@types/d3-scale": "1.0.10",
     "@types/enzyme": "3.1.6",
-    "@types/escape-html": "0.0.20",
     "@types/jest": "22.0.1",
-    "@types/jquery": "3.2.11",
     "@types/keymaster": "1.6.28",
     "@types/lodash": "4.14.102",
     "@types/prop-types": "15.5.2",
@@ -91,7 +84,6 @@
     "extract-text-webpack-plugin": "3.0.1",
     "flow-bin": "^0.52.0",
     "fs-extra": "0.30.0",
-    "handlebars-loader": "1.6.0",
     "html-webpack-plugin": "2.30.1",
     "jest": "22.0.6",
     "lint-staged": "4.3.0",
@@ -139,7 +131,7 @@
     "mapCoverage": true,
     "moduleFileExtensions": ["ts", "tsx", "js", "json"],
     "moduleNameMapper": {
-      "^.+\\.(hbs|jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$":
+      "^.+\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$":
         "<rootDir>/config/jest/FileStub.js",
       "^.+\\.css$": "<rootDir>/config/jest/CSSStub.js"
     },

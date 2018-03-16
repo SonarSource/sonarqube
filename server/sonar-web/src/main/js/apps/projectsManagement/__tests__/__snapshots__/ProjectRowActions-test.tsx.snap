@@ -19,7 +19,7 @@ exports[`applies permission template 1`] = `
 
 exports[`restores access 1`] = `
 <ActionsDropdown
-  onToggleClick={[Function]}
+  onOpen={[Function]}
 >
   <ActionsDropdownItem
     className="js-apply-template"
@@ -32,7 +32,7 @@ exports[`restores access 1`] = `
 
 exports[`restores access 2`] = `
 <ActionsDropdown
-  onToggleClick={[Function]}
+  onOpen={[Function]}
 >
   <ActionsDropdownItem
     className="js-restore-access"
@@ -51,7 +51,7 @@ exports[`restores access 2`] = `
 
 exports[`restores access 3`] = `
 <ActionsDropdown
-  onToggleClick={[Function]}
+  onOpen={[Function]}
 >
   <ActionsDropdownItem
     className="js-restore-access"

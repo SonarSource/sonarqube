@@ -23,6 +23,7 @@ import Helmet from 'react-helmet';
 import key from 'keymaster';
 import { keyBy, union, without } from 'lodash';
 import PropTypes from 'prop-types';
+import classNames from 'classnames';
 import PageActions from './PageActions';
 import MyIssuesFilter from './MyIssuesFilter';
 import IssuesList from './IssuesList';
@@ -55,10 +56,12 @@ import {
   CurrentUser
 } from '../utils'; */
 import handleRequiredAuthentication from '../../../app/utils/handleRequiredAuthentication';
+import Dropdown from '../../../components/controls/Dropdown';
 import ListFooter from '../../../components/controls/ListFooter';
 import EmptySearch from '../../../components/common/EmptySearch';
 import FiltersHeader from '../../../components/common/FiltersHeader';
 import ScreenPositionHelper from '../../../components/common/ScreenPositionHelper';
+import { Button } from '../../../components/ui/buttons';
 import {
   isShortLivingBranch,
   isSameBranchLike,
@@ -710,9 +713,7 @@ export default class App extends React.PureComponent {
     this.setState({ bulkChange: null });
   };
 
-  handleBulkChangeClick = (e /*: Event & { target: HTMLElement } */) => {
-    e.preventDefault();
-    e.target.blur();
+  handleBulkChangeClick = () => {
     this.openBulkChange('all');
   };
 
@@ -779,28 +780,32 @@ export default class App extends React.PureComponent {
           thirdState={thirdState}
         />
         {checked.length > 0 ? (
-          <div className="dropdown display-inline-block">
-            <button id="issues-bulk-change" data-toggle="dropdown">
-              {translate('bulk_change')}
-              <i className="icon-dropdown little-spacer-left" />
-            </button>
-            <ul className="dropdown-menu">
-              <li>
-                <a href="#" onClick={this.handleBulkChangeClick}>
-                  {translateWithParameters('issues.bulk_change', paging ? paging.total : 0)}
-                </a>
-              </li>
-              <li>
-                <a href="#" onClick={this.handleBulkChangeSelectedClick}>
-                  {translateWithParameters('issues.bulk_change_selected', checked.length)}
-                </a>
-              </li>
-            </ul>
-          </div>
+          <Dropdown>
+            {({ onToggleClick, open }) => (
+              <div className={classNames('dropdown display-inline-block', { open })}>
+                <Button id="issues-bulk-change" onClick={onToggleClick}>
+                  {translate('bulk_change')}
+                  <i className="icon-dropdown little-spacer-left" />
+                </Button>
+                <ul className="dropdown-menu">
+                  <li>
+                    <a href="#" onClick={this.handleBulkChangeClick}>
+                      {translateWithParameters('issues.bulk_change', paging ? paging.total : 0)}
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#" onClick={this.handleBulkChangeSelectedClick}>
+                      {translateWithParameters('issues.bulk_change_selected', checked.length)}
+                    </a>
+                  </li>
+                </ul>
+              </div>
+            )}
+          </Dropdown>
         ) : (
-          <button id="issues-bulk-change" onClick={this.handleBulkChangeClick}>
+          <Button id="issues-bulk-change" onClick={this.handleBulkChangeClick}>
             {translate('bulk_change')}
-          </button>
+          </Button>
         )}
         {bulkChange != null && (
           <BulkChangeModal

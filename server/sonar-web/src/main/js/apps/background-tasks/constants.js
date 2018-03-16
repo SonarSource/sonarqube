@@ -45,8 +45,8 @@ export const DEFAULT_FILTERS = {
   status: STATUSES.ALL_EXCEPT_PENDING,
   taskType: ALL_TYPES,
   currents: CURRENTS.ALL,
-  minSubmittedAt: '',
-  maxExecutedAt: '',
+  minSubmittedAt: undefined,
+  maxExecutedAt: undefined,
   query: ''
 };
 

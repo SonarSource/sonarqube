@@ -18,14 +18,19 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import * as escapeHtml from 'escape-html';
+import { find, without } from 'lodash';
 import { Group } from '../../../app/types';
 import Modal from '../../../components/controls/Modal';
 import BulletListIcon from '../../../components/icons-components/BulletListIcon';
-import SelectList from '../../../components/SelectList';
+import SelectList, { Filter } from '../../../components/SelectList/SelectList';
 import { ButtonIcon, ResetButtonLink } from '../../../components/ui/buttons';
 import { translate } from '../../../helpers/l10n';
-import { getBaseUrl } from '../../../helpers/urls';
+import {
+  getUsersInGroup,
+  addUserToGroup,
+  removeUserFromGroup,
+  GroupUser
+} from '../../../api/user_groups';
 
 interface Props {
   group: Group;
@@ -35,14 +40,17 @@ interface Props {
 
 interface State {
   modal: boolean;
+  users: GroupUser[];
+  selectedUsers: string[];
 }
 
 export default class EditMembers extends React.PureComponent<Props, State> {
   container?: HTMLElement | null;
   mounted = false;
-  state: State = { modal: false };
+  state: State = { modal: false, users: [], selectedUsers: [] };
 
   componentDidMount() {
+    this.handleSearch('', Filter.Selected);
     this.mounted = true;
   }
 
@@ -50,11 +58,47 @@ export default class EditMembers extends React.PureComponent<Props, State> {
     this.mounted = false;
   }
 
-  handleMembersClick = () => {
-    this.setState({ modal: true }, () => {
-      // defer rendering of the SelectList to make sure we have `ref` assigned
-      setTimeout(this.renderSelectList, 0);
+  handleSearch = (query: string, selected: Filter) => {
+    return getUsersInGroup({
+      id: this.props.group.id,
+      organization: this.props.organization,
+      ps: 100,
+      q: query !== '' ? query : undefined,
+      selected
+    }).then(data => {
+      this.setState({
+        users: data.users,
+        selectedUsers: data.users.filter(user => user.selected).map(user => user.login)
+      });
     });
+  };
+
+  handleSelect = (login: string) => {
+    return addUserToGroup({
+      name: this.props.group.name,
+      login,
+      organization: this.props.organization
+    }).then(() => {
+      this.setState((state: State) => ({
+        selectedUsers: [...state.selectedUsers, login]
+      }));
+    });
+  };
+
+  handleUnselect = (login: string) => {
+    return removeUserFromGroup({
+      name: this.props.group.name,
+      login,
+      organization: this.props.organization
+    }).then(() => {
+      this.setState((state: State) => ({
+        selectedUsers: without(state.selectedUsers, login)
+      }));
+    });
+  };
+
+  handleMembersClick = () => {
+    this.setState({ modal: true });
   };
 
   handleModalClose = () => {
@@ -64,29 +108,9 @@ export default class EditMembers extends React.PureComponent<Props, State> {
     }
   };
 
-  renderSelectList = () => {
-    if (this.container) {
-      const extra = { name: this.props.group.name, organization: this.props.organization };
-
-      /* eslint-disable no-new */
-      new SelectList({
-        el: this.container,
-        width: '100%',
-        readOnly: false,
-        focusSearch: false,
-        dangerouslyUnescapedHtmlFormat: (item: { login: string; name: string }) =>
-          `${escapeHtml(item.name)}<br><span class="note">${escapeHtml(item.login)}</span>`,
-        queryParam: 'q',
-        searchUrl: getBaseUrl() + '/api/user_groups/users?ps=100&id=' + this.props.group.id,
-        selectUrl: getBaseUrl() + '/api/user_groups/add_user',
-        deselectUrl: getBaseUrl() + '/api/user_groups/remove_user',
-        extra,
-        selectParameter: 'login',
-        selectParameterValue: 'login',
-        parse: (r: any) => r.users
-      });
-      /* eslint-enable no-new */
-    }
+  renderElement = (login: string): React.ReactNode => {
+    const user = find(this.state.users, { login });
+    return user === undefined ? login : user.login;
   };
 
   render() {
@@ -104,7 +128,14 @@ export default class EditMembers extends React.PureComponent<Props, State> {
             </header>
 
             <div className="modal-body">
-              <div id="groups-users" ref={node => (this.container = node)} />
+              <SelectList
+                elements={this.state.users.map(user => user.login)}
+                onSearch={this.handleSearch}
+                onSelect={this.handleSelect}
+                onUnselect={this.handleUnselect}
+                renderElement={this.renderElement}
+                selectedElements={this.state.selectedUsers}
+              />
             </div>
 
             <footer className="modal-foot">

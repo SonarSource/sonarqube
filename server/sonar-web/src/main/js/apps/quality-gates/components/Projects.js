@@ -18,55 +18,92 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import escapeHtml from 'escape-html';
-import SelectList from '../../../components/SelectList';
+import { find, without } from 'lodash';
+import SelectList, { Filter } from '../../../components/SelectList/SelectList';
 import { translate } from '../../../helpers/l10n';
-import { getBaseUrl } from '../../../helpers/urls';
+import {
+  searchGates,
+  associateGateWithProject,
+  dissociateGateWithProject
+} from '../../../api/quality-gates';
+/*:: import { Project } from '../../projects/types'; */
+
+/*::
+type State = {
+  projects: Projects[],
+  selectedProjects: string[]
+};
+*/
 
 export default class Projects extends React.PureComponent {
+  state /*: State */ = { projects: [], selectedProjects: [] };
+
   componentDidMount() {
-    this.renderSelectList();
+    this.handleSearch('', Filter.Selected);
   }
 
-  renderSelectList = () => {
-    if (!this.container) return;
-
-    const { qualityGate, edit, organization } = this.props;
-
-    const extra = { gateId: qualityGate.id };
-    let orgQuery = '';
-    if (organization) {
-      extra.organization = organization;
-      orgQuery = '&organization=' + organization;
-    }
-
-    // eslint-disable-next-line no-new
-    new SelectList({
-      el: this.container,
-      width: '100%',
-      readOnly: !edit,
-      focusSearch: false,
-      dangerouslyUnescapedHtmlFormat: item => escapeHtml(item.name),
-      searchUrl: getBaseUrl() + `/api/qualitygates/search?gateId=${qualityGate.id}${orgQuery}`,
-      selectUrl: getBaseUrl() + '/api/qualitygates/select',
-      deselectUrl: getBaseUrl() + '/api/qualitygates/deselect',
-      extra,
-      selectParameter: 'projectId',
-      selectParameterValue: 'id',
-      labels: {
-        selected: translate('quality_gates.projects.with'),
-        deselected: translate('quality_gates.projects.without'),
-        all: translate('quality_gates.projects.all'),
-        noResults: translate('quality_gates.projects.noResults')
-      },
-      tooltips: {
-        select: translate('quality_gates.projects.select_hint'),
-        deselect: translate('quality_gates.projects.deselect_hint')
-      }
+  handleSearch = (query /*: string*/, selected /*: string */) => {
+    return searchGates({
+      gateId: this.props.qualityGate.id,
+      organization: this.props.organization,
+      pageSize: 100,
+      query: query !== '' ? query : undefined,
+      selected
+    }).then(data => {
+      this.setState({
+        projects: data.results,
+        selectedProjects: data.results
+          .filter(project => project.selected)
+          .map(project => project.id)
+      });
     });
   };
 
+  handleSelect = (id /*: string*/) => {
+    return associateGateWithProject({
+      gateId: this.props.qualityGate.id,
+      organization: this.props.organization,
+      projectId: id
+    }).then(() => {
+      this.setState((state /*: State*/) => ({
+        selectedProjects: [...state.selectedProjects, id]
+      }));
+    });
+  };
+
+  handleUnselect = (id /*: string*/) => {
+    return dissociateGateWithProject({
+      gateId: this.props.qualityGate.id,
+      organization: this.props.organization,
+      projectId: id
+    }).then(
+      () => {
+        this.setState((state /*: State*/) => ({
+          selectedProjects: without(state.selectedProjects, id)
+        }));
+      },
+      () => {}
+    );
+  };
+
+  renderElement = (id /*: string*/) /*: React.ReactNode*/ => {
+    const project = find(this.state.projects, { id });
+    return project === undefined ? id : project.name;
+  };
+
   render() {
-    return <div ref={node => (this.container = node)} />;
+    return (
+      <SelectList
+        elements={this.state.projects.map(project => project.id)}
+        labelAll={translate('quality_gates.projects.all')}
+        labelSelected={translate('quality_gates.projects.with')}
+        labelUnselected={translate('quality_gates.projects.without')}
+        onSearch={this.handleSearch}
+        onSelect={this.handleSelect}
+        onUnselect={this.handleUnselect}
+        renderElement={this.renderElement}
+        selectedElements={this.state.selectedProjects}
+      />
+    );
   }
 }
