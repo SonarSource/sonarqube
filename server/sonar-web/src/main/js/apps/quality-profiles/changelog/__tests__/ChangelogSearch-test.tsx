@@ -26,7 +26,10 @@ import { parseDate } from '../../../../helpers/dates';
 it('should render', () => {
   const output = shallow(
     <ChangelogSearch
-      dateRange={{ from: parseDate('2016-01-01'), to: parseDate('2016-05-05') }}
+      dateRange={{
+        from: parseDate('2016-01-01T00:00:00.000Z'),
+        to: parseDate('2016-05-05T00:00:00.000Z')
+      }}
       onDateRangeChange={jest.fn()}
       onReset={jest.fn()}
     />
@@ -38,7 +41,10 @@ it('should reset', () => {
   const onReset = jest.fn();
   const output = shallow(
     <ChangelogSearch
-      dateRange={{ from: parseDate('2016-01-01'), to: parseDate('2016-05-05') }}
+      dateRange={{
+        from: parseDate('2016-01-01T00:00:00.000Z'),
+        to: parseDate('2016-05-05T00:00:00.000Z')
+      }}
       onDateRangeChange={jest.fn()}
       onReset={onReset}
     />

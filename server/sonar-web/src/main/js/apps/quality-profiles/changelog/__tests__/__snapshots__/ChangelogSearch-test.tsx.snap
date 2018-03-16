@@ -9,8 +9,8 @@ exports[`should render 1`] = `
     onChange={[MockFunction]}
     value={
       Object {
-        "from": 2015-12-31T23:00:00.000Z,
-        "to": 2016-05-04T22:00:00.000Z,
+        "from": 2016-01-01T00:00:00.000Z,
+        "to": 2016-05-05T00:00:00.000Z,
       }
     }
   />
