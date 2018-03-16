@@ -198,8 +198,8 @@ public class SearchProjectsActionTest {
   @Test
   public void json_example() {
     userSession.logIn();
-    OrganizationDto organization2Dto = db.organizations().insert(dto-> dto.setKey("my-org-key-2").setName("Bar"));
     OrganizationDto organization1Dto = db.organizations().insert(dto-> dto.setKey("my-org-key-1").setName("Foo"));
+    OrganizationDto organization2Dto = db.organizations().insert(dto-> dto.setKey("my-org-key-2").setName("Bar"));
 
     MetricDto coverage = db.measures().insertMetric(c -> c.setKey(COVERAGE).setValueType(PERCENT.name()));
     ComponentDto project1 = insertProject(organization1Dto, c -> c
@@ -223,8 +223,8 @@ public class SearchProjectsActionTest {
       .setParam(FIELDS, "_all")
       .execute().getInput();
 
-    assertJson(jsonResult).withStrictArrayOrder().ignoreFields("id").isSimilarTo(ws.getDef().responseExampleAsString());
-    assertJson(ws.getDef().responseExampleAsString()).ignoreFields("id").withStrictArrayOrder().isSimilarTo(jsonResult);
+    assertJson(jsonResult).ignoreFields("id").isSimilarTo(ws.getDef().responseExampleAsString());
+    assertJson(ws.getDef().responseExampleAsString()).ignoreFields("id").isSimilarTo(jsonResult);
 
     SearchProjectsWsResponse protobufResult = ws.newRequest()
       .setParam(FACETS, COVERAGE)
