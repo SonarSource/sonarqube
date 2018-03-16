@@ -154,11 +154,15 @@ export function compareProfiles(leftKey: string, rightKey: string): Promise<any>
 }
 
 export function associateProject(profileKey: string, projectKey: string): Promise<any> {
-  return post('/api/qualityprofiles/add_project', { profileKey, projectKey });
+  return post('/api/qualityprofiles/add_project', { profileKey, projectKey }).catch(
+    throwGlobalError
+  );
 }
 
-export function dissociateProject(profileKey: string, projectKey: string): Promise<void> {
-  return post('/api/qualityprofiles/remove_project', { profileKey, projectKey });
+export function dissociateProject(profileKey: string, projectKey: string): Promise<any> {
+  return post('/api/qualityprofiles/remove_project', { profileKey, projectKey }).catch(
+    throwGlobalError
+  );
 }
 
 export interface SearchUsersGroupsParameters {
