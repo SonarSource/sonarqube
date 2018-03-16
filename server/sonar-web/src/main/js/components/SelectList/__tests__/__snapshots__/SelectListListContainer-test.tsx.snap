@@ -8,6 +8,7 @@ exports[`should display elements based on filters 1`] = `
     className="menu"
   >
     <SelectListListElement
+      disabled={false}
       element="foo"
       key="foo"
       onSelect={[MockFunction]}
@@ -16,6 +17,7 @@ exports[`should display elements based on filters 1`] = `
       selected={true}
     />
     <SelectListListElement
+      disabled={false}
       element="bar"
       key="bar"
       onSelect={[MockFunction]}
@@ -24,6 +26,7 @@ exports[`should display elements based on filters 1`] = `
       selected={false}
     />
     <SelectListListElement
+      disabled={false}
       element="baz"
       key="baz"
       onSelect={[MockFunction]}
@@ -43,6 +46,7 @@ exports[`should display elements based on filters 2`] = `
     className="menu"
   >
     <SelectListListElement
+      disabled={false}
       element="bar"
       key="bar"
       onSelect={[MockFunction]}
@@ -51,6 +55,7 @@ exports[`should display elements based on filters 2`] = `
       selected={false}
     />
     <SelectListListElement
+      disabled={false}
       element="baz"
       key="baz"
       onSelect={[MockFunction]}
@@ -70,6 +75,7 @@ exports[`should display elements based on filters 3`] = `
     className="menu"
   >
     <SelectListListElement
+      disabled={false}
       element="foo"
       key="foo"
       onSelect={[MockFunction]}

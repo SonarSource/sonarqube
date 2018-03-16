@@ -23,6 +23,7 @@ import Checkbox from '../controls/Checkbox';
 
 interface Props {
   active?: boolean;
+  disabled?: boolean;
   element: string;
   onSelect: (element: string) => Promise<void>;
   onUnselect: (element: string) => Promise<void>;
@@ -64,6 +65,7 @@ export default class SelectListListElement extends React.PureComponent<Props, St
         <Checkbox
           checked={this.props.selected}
           className={classNames({ active: this.props.active })}
+          disabled={this.props.disabled}
           onCheck={this.handleCheck}>
           <span className="little-spacer-left">{this.props.renderElement(this.props.element)}</span>
         </Checkbox>

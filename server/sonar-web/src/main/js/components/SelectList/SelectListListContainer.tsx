@@ -23,6 +23,7 @@ import SelectListListElement from './SelectListListElement';
 
 interface Props {
   elements: string[];
+  disabledElements: string[];
   filter: Filter;
   onSelect: (element: string) => Promise<void>;
   onUnselect: (element: string) => Promise<void>;
@@ -31,6 +32,10 @@ interface Props {
 }
 
 export default class SelectListListContainer extends React.PureComponent<Props> {
+  isDisabled = (element: string): boolean => {
+    return this.props.disabledElements.includes(element);
+  };
+
   isSelected = (element: string): boolean => {
     return this.props.selectedElements.includes(element);
   };
@@ -50,6 +55,7 @@ export default class SelectListListContainer extends React.PureComponent<Props> 
         <ul className="menu">
           {filteredElements.map(element => (
             <SelectListListElement
+              disabled={this.isDisabled(element)}
               element={element}
               key={element}
               onSelect={this.props.onSelect}

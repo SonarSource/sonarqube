@@ -112,12 +112,13 @@ export default class SelectList extends React.PureComponent<Props, State> {
           />
         </div>
         <SelectListListContainer
+          disabledElements={this.props.disabledElements || []}
           elements={this.props.elements}
-          disabledElements={this.props.disabledElements}
           filter={this.state.query === '' ? filter : Filter.All}
           onSelect={this.props.onSelect}
           onUnselect={this.props.onUnselect}
           renderElement={this.props.renderElement}
+          selectedElements={this.props.selectedElements || []}
         />
       </div>
     );

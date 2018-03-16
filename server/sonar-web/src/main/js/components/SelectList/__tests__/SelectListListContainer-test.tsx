@@ -24,6 +24,7 @@ import { Filter } from '../SelectList';
 
 const elementsContainer = (
   <SelectListListContainer
+    disabledElements={[]}
     elements={['foo', 'bar', 'baz']}
     filter={Filter.All}
     onSelect={jest.fn(() => Promise.resolve())}

@@ -22,6 +22,7 @@ import * as classNames from 'classnames';
 
 interface Props {
   checked: boolean;
+  disabled?: boolean;
   children?: React.ReactNode;
   className?: string;
   id?: string;
@@ -34,24 +35,27 @@ export default class Checkbox extends React.PureComponent<Props> {
     thirdState: false
   };
 
-  handleClick = (e: React.SyntheticEvent<HTMLElement>) => {
-    e.preventDefault();
-    e.currentTarget.blur();
-    this.props.onCheck(!this.props.checked, this.props.id);
+  handleClick = (event: React.SyntheticEvent<HTMLElement>) => {
+    event.preventDefault();
+    event.currentTarget.blur();
+    if (!this.props.disabled) {
+      this.props.onCheck(!this.props.checked, this.props.id);
+    }
   };
 
   render() {
     const className = classNames('icon-checkbox', {
       'icon-checkbox-checked': this.props.checked,
-      'icon-checkbox-single': this.props.thirdState
+      'icon-checkbox-single': this.props.thirdState,
+      'icon-checkbox-disabled': this.props.disabled
     });
 
     if (this.props.children) {
       return (
         <a
-          id={this.props.id}
           className={classNames('link-checkbox', this.props.className)}
           href="#"
+          id={this.props.id}
           onClick={this.handleClick}>
           <i className={className} />
           {this.props.children}
@@ -61,9 +65,9 @@ export default class Checkbox extends React.PureComponent<Props> {
 
     return (
       <a
-        id={this.props.id}
         className={classNames(className, this.props.className)}
         href="#"
+        id={this.props.id}
         onClick={this.handleClick}
       />
     );

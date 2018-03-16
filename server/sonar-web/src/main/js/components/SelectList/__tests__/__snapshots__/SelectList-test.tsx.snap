@@ -42,6 +42,7 @@ exports[`should cancel filter selection when search is active 1`] = `
     />
   </div>
   <SelectListListContainer
+    disabledElements={Array []}
     elements={
       Array [
         "foo",
@@ -104,6 +105,7 @@ exports[`should cancel filter selection when search is active 2`] = `
     />
   </div>
   <SelectListListContainer
+    disabledElements={Array []}
     elements={
       Array [
         "foo",
@@ -166,6 +168,7 @@ exports[`should display a loader when searching 1`] = `
     />
   </div>
   <SelectListListContainer
+    disabledElements={Array []}
     elements={
       Array [
         "foo",
@@ -228,6 +231,7 @@ exports[`should display a loader when searching 2`] = `
     />
   </div>
   <SelectListListContainer
+    disabledElements={Array []}
     elements={
       Array [
         "foo",
@@ -290,6 +294,7 @@ exports[`should display a loader when updating filter 1`] = `
     />
   </div>
   <SelectListListContainer
+    disabledElements={Array []}
     elements={
       Array [
         "foo",
@@ -352,6 +357,7 @@ exports[`should display a loader when updating filter 2`] = `
     />
   </div>
   <SelectListListContainer
+    disabledElements={Array []}
     elements={
       Array [
         "foo",
