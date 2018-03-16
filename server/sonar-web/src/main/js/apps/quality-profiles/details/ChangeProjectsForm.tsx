@@ -18,11 +18,17 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import * as escapeHtml from 'escape-html';
+import { find, without } from 'lodash';
 import Modal from '../../../components/controls/Modal';
-import SelectList from '../../../components/SelectList';
+import SelectList, { Filter } from '../../../components/SelectList/SelectList';
 import { translate } from '../../../helpers/l10n';
 import { Profile } from '../types';
+import {
+  getProfileProjects,
+  associateProject,
+  dissociateProject,
+  ProfileProject
+} from '../../../api/quality-profiles';
 
 interface Props {
   onClose: () => void;
@@ -30,61 +36,84 @@ interface Props {
   profile: Profile;
 }
 
+interface State {
+  projects: ProfileProject[];
+  selectedProjects: string[];
+}
+
 export default class ChangeProjectsForm extends React.PureComponent<Props> {
   container?: HTMLElement | null;
+  state: State = { projects: [], selectedProjects: [] };
+
+  componentDidMount() {
+    this.handleSearch('', Filter.Selected);
+  }
+
+  handleSearch = (query: string, selected: Filter) => {
+    return getProfileProjects({
+      key: this.props.profile.key,
+      organization: this.props.organization,
+      pageSize: 100,
+      query: query !== '' ? query : undefined,
+      selected
+    }).then(
+      data => {
+        this.setState({
+          projects: data.results,
+          selectedProjects: data.results
+            .filter(project => project.selected)
+            .map(project => project.key)
+        });
+      },
+      () => {}
+    );
+  };
+
+  handleSelect = (key: string) => {
+    return associateProject(this.props.profile.key, key).then(() => {
+      this.setState((state: State) => ({
+        selectedProjects: [...state.selectedProjects, key]
+      }));
+    });
+  };
+
+  handleUnselect = (key: string) => {
+    return dissociateProject(this.props.profile.key, key).then(() => {
+      this.setState((state: State) => ({ selectedProjects: without(state.selectedProjects, key) }));
+    });
+  };
 
   handleCloseClick = (event: React.SyntheticEvent<HTMLElement>) => {
     event.preventDefault();
     this.props.onClose();
   };
 
-  renderSelectList = () => {
-    if (this.container) {
-      const { key } = this.props.profile;
-
-      const searchUrl =
-        (window as any).baseUrl + '/api/qualityprofiles/projects?key=' + encodeURIComponent(key);
-
-      new SelectList({
-        searchUrl,
-        el: this.container,
-        width: '100%',
-        readOnly: false,
-        focusSearch: false,
-        dangerouslyUnescapedHtmlFormat: (item: { name: string }) => escapeHtml(item.name),
-        selectUrl: (window as any).baseUrl + '/api/qualityprofiles/add_project',
-        deselectUrl: (window as any).baseUrl + '/api/qualityprofiles/remove_project',
-        extra: { profileKey: key },
-        selectParameter: 'projectUuid',
-        selectParameterValue: 'uuid',
-        labels: {
-          selected: translate('quality_gates.projects.with'),
-          deselected: translate('quality_gates.projects.without'),
-          all: translate('quality_gates.projects.all'),
-          noResults: translate('quality_gates.projects.noResults')
-        },
-        tooltips: {
-          select: translate('quality_profiles.projects.select_hint'),
-          deselect: translate('quality_profiles.projects.deselect_hint')
-        }
-      });
-    }
+  renderElement = (key: string): React.ReactNode => {
+    const project = find(this.state.projects, { key });
+    return project === undefined ? key : project.name;
   };
 
   render() {
     const header = translate('projects');
 
     return (
-      <Modal
-        contentLabel={header}
-        onAfterOpen={this.renderSelectList}
-        onRequestClose={this.props.onClose}>
+      <Modal contentLabel={header} onRequestClose={this.props.onClose}>
         <div className="modal-head">
           <h2>{header}</h2>
         </div>
 
-        <div className="modal-body">
-          <div id="profile-projects" ref={node => (this.container = node)} />
+        <div className="modal-body" id="profile-projects">
+          <SelectList
+            elements={this.state.projects.map(project => project.key)}
+            labelAll={translate('quality_gates.projects.all')}
+            labelSelected={translate('quality_gates.projects.with')}
+            labelUnselected={translate('quality_gates.projects.without')}
+            onSearch={this.handleSearch}
+            onSelect={this.handleSelect}
+            onUnselect={this.handleUnselect}
+            renderElement={this.renderElement}
+            selectedElements={this.state.selectedProjects}
+          />
         </div>
 
         <div className="modal-foot">

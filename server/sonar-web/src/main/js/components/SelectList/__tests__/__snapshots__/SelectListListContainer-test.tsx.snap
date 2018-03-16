@@ -1,0 +1,88 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should display elements based on filters 1`] = `
+<div
+  className="select-list-list-container spacer-top"
+>
+  <ul
+    className="menu"
+  >
+    <SelectListListElement
+      disabled={false}
+      element="foo"
+      key="foo"
+      onSelect={[MockFunction]}
+      onUnselect={[MockFunction]}
+      renderElement={[Function]}
+      selected={true}
+    />
+    <SelectListListElement
+      disabled={false}
+      element="bar"
+      key="bar"
+      onSelect={[MockFunction]}
+      onUnselect={[MockFunction]}
+      renderElement={[Function]}
+      selected={false}
+    />
+    <SelectListListElement
+      disabled={false}
+      element="baz"
+      key="baz"
+      onSelect={[MockFunction]}
+      onUnselect={[MockFunction]}
+      renderElement={[Function]}
+      selected={false}
+    />
+  </ul>
+</div>
+`;
+
+exports[`should display elements based on filters 2`] = `
+<div
+  className="select-list-list-container spacer-top"
+>
+  <ul
+    className="menu"
+  >
+    <SelectListListElement
+      disabled={false}
+      element="bar"
+      key="bar"
+      onSelect={[MockFunction]}
+      onUnselect={[MockFunction]}
+      renderElement={[Function]}
+      selected={false}
+    />
+    <SelectListListElement
+      disabled={false}
+      element="baz"
+      key="baz"
+      onSelect={[MockFunction]}
+      onUnselect={[MockFunction]}
+      renderElement={[Function]}
+      selected={false}
+    />
+  </ul>
+</div>
+`;
+
+exports[`should display elements based on filters 3`] = `
+<div
+  className="select-list-list-container spacer-top"
+>
+  <ul
+    className="menu"
+  >
+    <SelectListListElement
+      disabled={false}
+      element="foo"
+      key="foo"
+      onSelect={[MockFunction]}
+      onUnselect={[MockFunction]}
+      renderElement={[Function]}
+      selected={true}
+    />
+  </ul>
+</div>
+`;
