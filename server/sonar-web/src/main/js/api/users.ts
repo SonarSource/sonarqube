@@ -33,18 +33,26 @@ export function changePassword(data: {
   return post('/api/users/change_password', data);
 }
 
+export interface UserGroup {
+  default: boolean;
+  description: string;
+  id: number;
+  name: string;
+  selected: boolean;
+}
+
 export function getUserGroups(
   login: string,
   organization?: string,
   query?: string,
   selected?: string
-): Promise<any> {
+): Promise<{ paging: Paging; groups: UserGroup[] }> {
   const data: RequestData = { login };
   if (organization) {
     data.organization = organization;
   }
   if (query) {
-    data.query = query;
+    data.q = query;
   }
   if (selected) {
     data.selected = selected;

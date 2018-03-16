@@ -53,8 +53,8 @@ export default class Projects extends React.PureComponent {
       this.setState({
         projects: data.results,
         selectedProjects: data.results
-          .filter((project /*: any */) => project.selected)
-          .map((project /*: any */) => project.id)
+          .filter(project => project.selected)
+          .map(project => project.id)
       });
     });
   };
@@ -63,7 +63,7 @@ export default class Projects extends React.PureComponent {
     return associateGateWithProject({
       gateId: this.props.qualityGate.id,
       organization: this.props.organization,
-      projectId: parseInt(id, 10)
+      projectId: id
     }).then(() => {
       this.setState((state /*: State*/) => ({
         selectedProjects: [...state.selectedProjects, id]
@@ -75,7 +75,7 @@ export default class Projects extends React.PureComponent {
     return dissociateGateWithProject({
       gateId: this.props.qualityGate.id,
       organization: this.props.organization,
-      projectId: parseInt(id, 10)
+      projectId: id
     }).then(
       () => {
         this.setState((state /*: State*/) => ({

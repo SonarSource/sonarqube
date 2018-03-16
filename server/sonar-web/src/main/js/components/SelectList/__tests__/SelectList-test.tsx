@@ -64,3 +64,15 @@ it('should display a loader when updating filter', async () => {
   expect(wrapper.state().filter).toBe(Filter.Unselected);
   expect(wrapper.state().loading).toBe(false);
 });
+
+it('should cancel filter selection when search is active', async () => {
+  const wrapper = shallow(selectList);
+
+  wrapper.setState({ filter: Filter.Selected });
+  await waitAndUpdate(wrapper);
+  expect(wrapper).toMatchSnapshot();
+
+  wrapper.setState({ query: 'foobar' });
+  await waitAndUpdate(wrapper);
+  expect(wrapper).toMatchSnapshot();
+});

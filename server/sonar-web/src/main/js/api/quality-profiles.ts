@@ -107,7 +107,16 @@ export function restoreQualityProfile(data: RequestData): Promise<any> {
     .then(parseJSON);
 }
 
-export function getProfileProjects(data: RequestData): Promise<any> {
+export interface ProfileProject {
+  id: number;
+  key: string;
+  name: string;
+  selected: boolean;
+}
+
+export function getProfileProjects(
+  data: RequestData
+): Promise<{ more: boolean; results: ProfileProject[] }> {
   return getJSON('/api/qualityprofiles/projects', data).catch(throwGlobalError);
 }
 
@@ -153,13 +162,13 @@ export function compareProfiles(leftKey: string, rightKey: string): Promise<any>
   return getJSON('/api/qualityprofiles/compare', { leftKey, rightKey });
 }
 
-export function associateProject(profileKey: string, projectKey: string): Promise<any> {
+export function associateProject(profileKey: string, projectKey: string) {
   return post('/api/qualityprofiles/add_project', { profileKey, projectKey }).catch(
     throwGlobalError
   );
 }
 
-export function dissociateProject(profileKey: string, projectKey: string): Promise<any> {
+export function dissociateProject(profileKey: string, projectKey: string) {
   return post('/api/qualityprofiles/remove_project', { profileKey, projectKey }).catch(
     throwGlobalError
   );

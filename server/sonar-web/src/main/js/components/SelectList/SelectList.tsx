@@ -22,6 +22,7 @@ import SelectListListContainer from './SelectListListContainer';
 import { translate } from '../../helpers/l10n';
 import SearchBox from '../controls/SearchBox';
 import RadioToggle from '../controls/RadioToggle';
+import './styles.css';
 
 export enum Filter {
   All = 'all',
@@ -31,6 +32,7 @@ export enum Filter {
 
 interface Props {
   elements: string[];
+  disabledElements?: string[];
   labelSelected?: string;
   labelUnselected?: string;
   labelAll?: string;
@@ -72,7 +74,9 @@ export default class SelectList extends React.PureComponent<Props, State> {
 
   handleQueryChange = (query: string) => {
     this.setState({ loading: true, query });
-    this.props.onSearch(query, this.state.filter).then(this.stopLoading, this.stopLoading);
+    this.props
+      .onSearch(query, query === '' ? this.state.filter : Filter.All)
+      .then(this.stopLoading, this.stopLoading);
   };
 
   render() {
@@ -109,11 +113,11 @@ export default class SelectList extends React.PureComponent<Props, State> {
         </div>
         <SelectListListContainer
           elements={this.props.elements}
-          filter={filter}
+          disabledElements={this.props.disabledElements}
+          filter={this.state.query === '' ? filter : Filter.All}
           onSelect={this.props.onSelect}
           onUnselect={this.props.onUnselect}
           renderElement={this.props.renderElement}
-          selectedElements={this.props.selectedElements}
         />
       </div>
     );

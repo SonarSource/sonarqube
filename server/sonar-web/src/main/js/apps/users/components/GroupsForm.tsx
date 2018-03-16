@@ -19,11 +19,11 @@
  */
 import * as React from 'react';
 import { find, without } from 'lodash';
-import { User, Group } from '../../../app/types';
+import { User } from '../../../app/types';
 import Modal from '../../../components/controls/Modal';
 import SelectList, { Filter } from '../../../components/SelectList/SelectList';
 import { translate } from '../../../helpers/l10n';
-import { getUserGroups } from '../../../api/users';
+import { getUserGroups, UserGroup } from '../../../api/users';
 import { addUserToGroup, removeUserFromGroup } from '../../../api/user_groups';
 
 interface Props {
@@ -34,7 +34,7 @@ interface Props {
 
 interface State {
   error: string;
-  groups: Group[];
+  groups: UserGroup[];
   selectedGroups: string[];
 }
 
@@ -47,12 +47,10 @@ export default class GroupsForm extends React.PureComponent<Props> {
   }
 
   handleSearch = (query: string, selected: Filter) => {
-    return getUserGroups(this.props.user.login, undefined, query, selected).then((data: any) => {
+    return getUserGroups(this.props.user.login, undefined, query, selected).then(data => {
       this.setState({
         groups: data.groups,
-        selectedGroups: data.groups
-          .filter((group: any) => group.selected)
-          .map((group: any) => group.name)
+        selectedGroups: data.groups.filter(group => group.selected).map(group => group.name)
       });
     });
   };

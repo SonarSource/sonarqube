@@ -26,9 +26,9 @@ import { Profile } from '../types';
 import {
   getProfileProjects,
   associateProject,
-  dissociateProject
+  dissociateProject,
+  ProfileProject
 } from '../../../api/quality-profiles';
-import { Project } from '../../projects/types';
 
 interface Props {
   onClose: () => void;
@@ -37,7 +37,7 @@ interface Props {
 }
 
 interface State {
-  projects: Project[];
+  projects: ProfileProject[];
   selectedProjects: string[];
 }
 
@@ -57,12 +57,12 @@ export default class ChangeProjectsForm extends React.PureComponent<Props> {
       query: query !== '' ? query : undefined,
       selected
     }).then(
-      (data: any) => {
+      data => {
         this.setState({
           projects: data.results,
           selectedProjects: data.results
-            .filter((project: any) => project.selected)
-            .map((project: any) => project.key)
+            .filter(project => project.selected)
+            .map(project => project.key)
         });
       },
       () => {}
@@ -70,7 +70,7 @@ export default class ChangeProjectsForm extends React.PureComponent<Props> {
   };
 
   handleSelect = (key: string) => {
-    return associateProject(this.props.profile.key, String(key)).then(() => {
+    return associateProject(this.props.profile.key, key).then(() => {
       this.setState((state: State) => ({
         selectedProjects: [...state.selectedProjects, key]
       }));
@@ -78,7 +78,7 @@ export default class ChangeProjectsForm extends React.PureComponent<Props> {
   };
 
   handleUnselect = (key: string) => {
-    return dissociateProject(this.props.profile.key, String(key)).then(() => {
+    return dissociateProject(this.props.profile.key, key).then(() => {
       this.setState((state: State) => ({ selectedProjects: without(state.selectedProjects, key) }));
     });
   };
