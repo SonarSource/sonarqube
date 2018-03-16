@@ -48,8 +48,7 @@
   transition: none;
 }
 
-.tabs li a.selected,
-.tabs .ui-tabs-active a {
+.tabs li a.selected {
   text-decoration: none;
   color: #555 !important;
   font-weight: bold;

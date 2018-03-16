@@ -19,6 +19,7 @@
  */
 /* @flow */
 import { STATUSES, ALL_TYPES, CURRENTS } from './constants';
+import { toShortNotSoISOString } from '../../helpers/dates';
 /*:: import type { Task } from './types'; */
 
 export function updateTask(tasks /*: Task[] */, newTask /*: Task */) {
@@ -56,11 +57,11 @@ export function mapFiltersToParameters(filters /*: Object */ = {}) {
   }
 
   if (filters.minSubmittedAt) {
-    parameters.minSubmittedAt = filters.minSubmittedAt;
+    parameters.minSubmittedAt = toShortNotSoISOString(filters.minSubmittedAt);
   }
 
   if (filters.maxExecutedAt) {
-    parameters.maxExecutedAt = filters.maxExecutedAt;
+    parameters.maxExecutedAt = toShortNotSoISOString(filters.maxExecutedAt);
   }
 
   if (filters.query) {

@@ -1,0 +1,31 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render 1`] = `
+<div
+  className="display-inline-flex-center"
+>
+  <DateInput
+    currentMonth={2018-02-05T00:00:00.000Z}
+    data-test="from"
+    highlightTo={2018-02-05T00:00:00.000Z}
+    maxDate={2018-02-05T00:00:00.000Z}
+    onChange={[Function]}
+    placeholder="start_date"
+    value={2018-01-17T00:00:00.000Z}
+  />
+  <span
+    className="note little-spacer-left little-spacer-right"
+  >
+    to_
+  </span>
+  <DateInput
+    currentMonth={2018-01-17T00:00:00.000Z}
+    data-test="to"
+    highlightFrom={2018-01-17T00:00:00.000Z}
+    minDate={2018-01-17T00:00:00.000Z}
+    onChange={[Function]}
+    placeholder="end_date"
+    value={2018-02-05T00:00:00.000Z}
+  />
+</div>
+`;

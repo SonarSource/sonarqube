@@ -24,9 +24,7 @@ import DateInput from '../../../components/controls/DateInput';
 import FacetBox from '../../../components/facet/FacetBox';
 import FacetHeader from '../../../components/facet/FacetHeader';
 import { longFormatterOption } from '../../../components/intl/DateFormatter';
-import { parseDate } from '../../../helpers/dates';
 import { translate } from '../../../helpers/l10n';
-import { serializeDateShort } from '../../../helpers/query';
 
 interface Props {
   onChange: (changes: Partial<Query>) => void;
@@ -44,22 +42,14 @@ export default class AvailableSinceFacet extends React.PureComponent<Props> {
 
   handleClear = () => this.props.onChange({ availableSince: undefined });
 
-  handlePeriodChange = (value?: string) =>
-    this.props.onChange({ availableSince: value ? parseDate(value) : undefined });
+  handlePeriodChange = (date: Date | undefined) => {
+    this.props.onChange({ availableSince: date });
+  };
 
   getValues = () =>
     this.props.value
       ? [this.context.intl.formatDate(this.props.value, longFormatterOption)]
       : undefined;
-
-  renderDateInput = () => (
-    <DateInput
-      name="available-since"
-      onChange={this.handlePeriodChange}
-      placeholder={translate('date')}
-      value={serializeDateShort(this.props.value)}
-    />
-  );
 
   render() {
     return (
@@ -72,7 +62,14 @@ export default class AvailableSinceFacet extends React.PureComponent<Props> {
           values={this.getValues()}
         />
 
-        {this.props.open && this.renderDateInput()}
+        {this.props.open && (
+          <DateInput
+            name="available-since"
+            onChange={this.handlePeriodChange}
+            placeholder={translate('date')}
+            value={this.props.value}
+          />
+        )}
       </FacetBox>
     );
   }

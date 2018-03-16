@@ -17,39 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-/* @flow */
-export const STATUSES = {
-  ALL: '__ALL__',
-  ALL_EXCEPT_PENDING: '__ALL_EXCEPT_PENDING__',
-  PENDING: 'PENDING',
-  IN_PROGRESS: 'IN_PROGRESS',
-  SUCCESS: 'SUCCESS',
-  FAILED: 'FAILED',
-  CANCELED: 'CANCELED'
-};
+import * as React from 'react';
+import { IconProps } from './types';
 
-export const ALL_TYPES = 'ALL_TYPES';
-
-export const CURRENTS = {
-  ALL: '__ALL__',
-  ONLY_CURRENTS: 'CURRENTS'
-};
-
-export const DATE = {
-  ANY: 'ANY',
-  TODAY: 'TODAY',
-  CUSTOM: 'CUSTOM'
-};
-
-export const DEFAULT_FILTERS = {
-  status: STATUSES.ALL_EXCEPT_PENDING,
-  taskType: ALL_TYPES,
-  currents: CURRENTS.ALL,
-  minSubmittedAt: undefined,
-  maxExecutedAt: undefined,
-  query: ''
-};
-
-export const DATE_FORMAT = 'YYYY-MM-DD';
-
-export const DEBOUNCE_DELAY = 250;
+export default function ChevronUpIcon({ className, fill = 'currentColor', size = 16 }: IconProps) {
+  return (
+    <svg
+      className={className}
+      height={size}
+      version="1.1"
+      viewBox="0 0 16 16"
+      width={size}
+      xmlSpace="preserve"
+      xmlnsXlink="http://www.w3.org/1999/xlink">
+      <path
+        d="M8.28 4.404l4.602 4.604a.382.382 0 0 1 .118.279c0 .108-.04.2-.118.279l-1.03 1.03a.382.382 0 0 1-.278.117.382.382 0 0 1-.28-.117L8 7.3l-3.294 3.295a.382.382 0 0 1-.28.117.382.382 0 0 1-.279-.117l-1.03-1.03A.382.382 0 0 1 3 9.286c0-.107.04-.2.118-.278L7.72 4.404A.382.382 0 0 1 8 4.287c.108 0 .201.04.28.117z"
+        style={{ fill }}
+      />;
+    </svg>
+  );
+}
