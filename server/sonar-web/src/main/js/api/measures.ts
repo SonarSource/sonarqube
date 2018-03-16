@@ -29,7 +29,7 @@ export function getMeasures(
   return getJSON('/api/measures/component', data).then(r => r.component.measures, throwGlobalError);
 }
 
-interface MeasureComponent {
+export interface MeasureComponent {
   key: string;
   description?: string;
   measures: Measure[];

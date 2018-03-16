@@ -1,0 +1,295 @@
+/*
+ * SonarQube
+ * Copyright (C) 2009-2018 SonarSource SA
+ * mailto:info AT sonarsource DOT com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+
+@import '../../../../sonar-web/src/main/js/app/styles/components/spinner.css';
+@import '../../../../sonar-web/src/main/js/app/styles/components/global-loading.css';
+
+#content {
+  height: 100%;
+}
+
+.vsts-loading {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.vsts-widget-configure {
+  display: block;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  padding: 10px 14px;
+  font-size: 16px;
+}
+
+.vsts-widget-configure .title {
+  color: #333;
+  font-weight: normal;
+}
+
+.vsts-widget-configure .content {
+  padding-top: 10%;
+  text-align: center;
+  color: #666;
+}
+
+.vsts-widget-configure img {
+  height: 40px;
+  margin-top: 10px;
+}
+
+.widget.dark-widget.clickable > a {
+  color: white;
+}
+
+.widget .footer {
+  display: flex;
+  align-items: center;
+}
+
+.widget .footer svg {
+  margin-right: 8px;
+}
+
+.vsts-widget-login {
+  text-align: center;
+  padding-top: 4px;
+}
+
+.vsts-widget-login .login-message-text {
+  color: #666;
+  margin: 0;
+}
+
+.vsts-widget-login .oauth-providers {
+  margin-top: 8px;
+  margin-bottom: 8px;
+}
+
+.vsts-widget-login .oauth-providers a {
+  display: inline-block;
+  line-height: 22px;
+  padding: 4px 6px;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  border-radius: 2px;
+  box-sizing: border-box;
+  background-color: var(--darkBlue);
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.vsts-widget-login .oauth-providers a:hover,
+.vsts-widget-login .oauth-providers a:focus {
+  box-shadow: 0 0 16px rgba(0, 0, 0, 0.2);
+}
+
+.vsts-widget-login .oauth-providers span {
+  padding-left: 4px;
+}
+
+.vsts-widget-login .oauth-providers img {
+  vertical-align: top;
+}
+
+.vsts-configuration {
+  min-height: 540px;
+}
+
+.vsts-configuration .config-settings-field {
+  margin-bottom: 20px;
+}
+
+.big-value {
+  font-size: 36px;
+  line-height: 68px;
+  margin: 20px 0 10px 0;
+  font-weight: 300;
+}
+
+.level-OK {
+  background-color: var(--green);
+}
+
+.level-WARN {
+  background-color: var(--orange);
+}
+
+.level-ERROR {
+  background-color: var(--red);
+}
+
+.level-NONE {
+  background-color: var(--gray71);
+}
+
+.Select {
+  width: 100%;
+}
+
+.project-picker {
+  position: relative;
+  width: 100%;
+  height: 32px;
+}
+
+.filtered-list-dropdown-menu {
+  white-space: nowrap;
+  position: relative;
+  cursor: pointer;
+  padding: 6px;
+  border: 1px solid #c8c8c8;
+}
+
+.filtered-list-dropdown-menu .drop-icon {
+  float: right;
+  position: relative;
+  overflow: hidden;
+  vertical-align: middle;
+}
+
+.filtered-list-dropdown-menu .selected-item-text {
+  width: 90%;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  word-wrap: normal;
+  vertical-align: middle;
+  display: inline-block;
+}
+
+.filtered-list-popup {
+  position: absolute;
+  display: block;
+  width: 100%;
+  top: 30px;
+  left: 0;
+  z-index: 20000;
+  overflow-y: auto;
+  max-height: 400px;
+  font-size: 12px;
+  background-color: #fff;
+  border: 1px solid #c8c8c8;
+  box-shadow: 0 2.5px 5px rgba(0, 0, 0, 0.4);
+}
+
+.filtered-list-popup .filtered-list-control .pivot-view {
+  margin-left: 0;
+}
+
+.filtered-list-control.bowtie-filtered-list .filtered-list-tab > a {
+  outline: none;
+}
+
+.filtered-list-tab.selected::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 10px;
+  right: 10px;
+  height: 2px;
+  background-color: #0078d7;
+}
+
+.filtered-list-tab:first-child.selected::before {
+  left: 0;
+}
+
+.filtered-list-control .filter-container {
+  position: relative;
+}
+
+.filtered-list-search::placeholder {
+  font-size: 12px;
+}
+
+.filtered-list-search-container .spinner {
+  position: absolute;
+  right: 16px;
+  bottom: 18px;
+}
+
+.filtered-list-control.bowtie-filtered-list .filter-container {
+  padding: 10px;
+  width: 100%;
+}
+
+.filtered-list-control.bowtie-filtered-list .filtered-list {
+  padding: 0;
+  margin: 0 0 4px 0;
+  max-height: 300px;
+  overflow: auto;
+}
+
+.filtered-list-control .filtered-list > li {
+  list-style-type: none;
+  padding: 5px 10px;
+  border: none;
+  margin: 0;
+  height: 30px;
+  line-height: 20px;
+  cursor: pointer;
+  position: relative;
+  vertical-align: middle;
+  outline: none;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-wrap: normal;
+  white-space: pre;
+}
+
+.filtered-list-control .filtered-list > li.filtered-list-message {
+  white-space: normal;
+  color: #666;
+  cursor: default;
+  overflow: visible;
+}
+
+.filtered-list-control .filtered-list > li.filtered-list-item.current-item {
+  font-weight: 700;
+  color: #212121;
+  background-color: #f4f4f4;
+}
+
+.filtered-list-control .filtered-list > li.filtered-list-item.active-item {
+  font-weight: normal;
+  color: #212121;
+  background-color: #eff6fc;
+}
+
+.filtered-list-control .filtered-list > li.filtered-list-item.active-item::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  pointer-events: none;
+  border: 1px solid #a6a6a6;
+}
+
+.filtered-list-control .filtered-list > li.filtered-list-item.current-item.active-item {
+  font-weight: 700;
+}

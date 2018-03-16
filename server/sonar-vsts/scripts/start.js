@@ -28,7 +28,6 @@ const formatWebpackMessages = require('react-dev-utils/formatWebpackMessages');
 const errorOverlayMiddleware = require('react-error-overlay/middleware');
 const getConfig = require('../config/webpack.config');
 const paths = require('../config/paths');
-const getMessages = require('./utils/getMessages');
 
 const config = getConfig({ production: false });
 
@@ -82,11 +81,6 @@ function runDevServer(compiler, host, port, protocol) {
   const devServer = new WebpackDevServer(compiler, {
     before(app) {
       app.use(errorOverlayMiddleware());
-      app.get('/api/l10n/index', (req, res) => {
-        getMessages()
-          .then(messages => res.json({ effectiveLocale: 'en', messages }))
-          .catch(() => res.status(500));
-      });
     },
     compress: true,
     clientLogLevel: 'none',
@@ -101,15 +95,8 @@ function runDevServer(compiler, host, port, protocol) {
     https: protocol === 'https',
     host,
     overlay: false,
-    historyApiFallback: {
-      disableDotRule: true
-    },
     proxy: {
-      '/api': proxy,
-      '/fonts': proxy,
-      '/images': proxy,
-      '/static': proxy,
-      '/integration': proxy
+      '/': proxy
     }
   });
 
