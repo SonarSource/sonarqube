@@ -19,6 +19,7 @@
  */
 package org.sonar.scanner.scan.branch;
 
+import java.util.Date;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
@@ -31,11 +32,13 @@ public class PullRequestInfo {
   private final String id;
   private final String branch;
   private final String base;
+  private final Date analysisDate;
 
-  public PullRequestInfo(String id, String branch, @Nullable String base) {
+  public PullRequestInfo(String id, String branch, @Nullable String base, Date analysisDate) {
     this.id = id;
     this.branch = branch;
     this.base = base;
+    this.analysisDate = analysisDate;
   }
 
   public String getId() {
@@ -49,5 +52,9 @@ public class PullRequestInfo {
   @CheckForNull
   public String getBase() {
     return base;
+  }
+
+  public Date getAnalysisDate() {
+    return analysisDate;
   }
 }
