@@ -82,6 +82,14 @@ task testJar(type: Jar) {
   from sourceSets.test.output
 }
 
+configurations {
+  tests
+}
+
+artifacts {
+   tests testJar
+}
+
 artifactoryPublish.skip = false
 
 // Used by core plugins

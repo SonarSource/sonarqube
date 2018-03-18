@@ -43,6 +43,7 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.dialect.H2;
 import org.sonar.process.logging.LogbackHelper;
 
+import static org.apache.commons.lang.StringUtils.isNotEmpty;
 import static org.sonar.process.ProcessProperties.Property.JDBC_USERNAME;
 
 /**
@@ -73,7 +74,7 @@ class CoreTestDb {
   CoreTestDb(@Nullable String schemaPath) {
     if (db == null) {
       Settings settings = new MapSettings().addProperties(System.getProperties());
-      if (settings.hasKey("orchestrator.configUrl")) {
+      if (isNotEmpty(settings.getString("orchestrator.configUrl"))) {
         loadOrchestratorSettings(settings);
       }
       String login = settings.getString(JDBC_USERNAME.getKey());
@@ -176,7 +177,7 @@ class CoreTestDb {
         settings.setProperty(entry.getKey(), interpolatedValue);
       }
     } catch (Exception e) {
-      throw new IllegalStateException(e);
+      throw new IllegalStateException("Cannot load Orchestrator properties from:" + url, e);
     } finally {
       IOUtils.closeQuietly(input);
     }

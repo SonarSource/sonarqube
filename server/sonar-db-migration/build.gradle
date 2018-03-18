@@ -13,7 +13,6 @@ dependencies {
   compileOnly 'com.google.code.findbugs:jsr305'
 
   testCompile 'com.google.code.findbugs:jsr305'
-  testCompile 'com.h2database:h2'
   testCompile 'com.tngtech.java:junit-dataprovider'
   testCompile 'junit:junit'
   testCompile 'org.assertj:assertj-core'
@@ -21,10 +20,15 @@ dependencies {
   testCompile 'org.mockito:mockito-core'
   testCompile project(':sonar-testing-harness')
   testCompile project(':server:sonar-db-core').sourceSets.test.output
+
+  testRuntime 'com.h2database:h2'
+  testRuntime 'com.microsoft.sqlserver:mssql-jdbc'
+  testRuntime 'com.oracle.jdbc:ojdbc8'
+  testRuntime 'mysql:mysql-connector-java'
+  testRuntime 'org.postgresql:postgresql'
 }
 
 test {
-  if (System.hasProperty('orchestrator.configUrl'))
     systemProperty 'orchestrator.configUrl', System.getProperty('orchestrator.configUrl')
 }
 

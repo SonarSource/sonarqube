@@ -24,7 +24,6 @@ dependencies {
   compileOnly 'com.google.code.findbugs:jsr305'
 
   testCompile 'com.google.code.findbugs:jsr305'
-  testCompile 'com.h2database:h2'
   testCompile 'com.microsoft.sqlserver:mssql-jdbc'
   testCompile 'com.oracle.jdbc:ojdbc8'
   testCompile 'junit:junit'
@@ -35,13 +34,19 @@ dependencies {
   testCompile 'org.postgresql:postgresql'
   testCompile 'org.sonarsource.orchestrator:sonar-orchestrator'
   testCompile project(':sonar-testing-harness')
+
+  testRuntime 'com.h2database:h2'
+  testRuntime 'com.microsoft.sqlserver:mssql-jdbc'
+  testRuntime 'com.oracle.jdbc:ojdbc8'
+  testRuntime 'mysql:mysql-connector-java'
+  testRuntime 'org.postgresql:postgresql'
 }
 
 task createDB(type:JavaExec) {
   main = 'org.sonar.db.CreateDb'
   classpath = sourceSets.test.runtimeClasspath
   systemProperty 'orchestrator.configUrl', System.getProperty('orchestrator.configUrl')
-  systemProperty 'sonar.runtimeVersion', version
+  systemProperty 'sonar.runtimeVersion', System.getProperty('sonar.runtimeVersion')
   systemProperty 'orchestrator.artifactory.apiKey', System.getProperty('orchestrator.artifactory.apiKey')
   systemProperty 'orchestrator.artifactory.repositories', System.getProperty('orchestrator.artifactory.repositories')
 }
@@ -54,6 +59,14 @@ test {
 task testJar(type: Jar) {
   classifier = 'tests'
   from sourceSets.test.output
+}
+
+configurations {
+  tests
+}
+
+artifacts {
+   tests testJar
 }
 
 artifactoryPublish.skip = false

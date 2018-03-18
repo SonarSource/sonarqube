@@ -1,4 +1,4 @@
-rootProject.name = 'sonarqube'
+rootProject.name = 'sonar-enterprise'
 
 include 'plugins:sonar-xoo-plugin'
 
@@ -59,3 +59,9 @@ include 'tests:plugins:ui-extensions-plugin'
 include 'tests:plugins:wait-at-platform-level4-plugin'
 include 'tests:plugins:ws-plugin'
 include 'tests'
+
+// use Settings.getRootDir() so that it doesn't matter which directory you are executing from
+File extraSettings = new File(rootDir, 'private/settings.gradle')
+if (extraSettings.exists()) {
+  apply from: extraSettings
+}
