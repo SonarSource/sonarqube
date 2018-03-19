@@ -75,8 +75,11 @@ BUILD)
   # For this reason errors are ignored with "|| true"
   git fetch --unshallow || true
 
+  if [ "$TRAVIS_REPO_SLUG" == "SonarSource/sonarqube" ]; then
+    # public repository
+    ./gradlew build --no-daemon --console plain
 
-  if [ "$TRAVIS_BRANCH" == "master" ] && [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
+  elif [ "$TRAVIS_BRANCH" == "master" ] && [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
     echo 'Build and analyze master'
     # FIXME analysis disabled for now
     ./gradlew --no-daemon --console plain \
