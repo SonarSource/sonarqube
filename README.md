@@ -1,4 +1,4 @@
-SonarQube [![Build Status](https://travis-ci.org/SonarSource/sonarqube.svg?branch=master)](https://travis-ci.org/SonarSource/sonarqube) [![Quality Gate](https://next.sonarqube.com/sonarqube/api/badges/gate?key=org.sonarsource.sonarqube%3Asonarqube)](https://next.sonarqube.com/sonarqube/dashboard?id=org.sonarsource.sonarqube%3Asonarqube) [![Coverage](https://next.sonarqube.com/sonarqube/api/badges/measure?key=org.sonarsource.sonarqube%3Asonarqube&metric=coverage)](https://next.sonarqube.com/sonarqube/component_measures/domain/Coverage?id=org.sonarsource.sonarqube%3Asonarqube)
+SonarQube [![Build Status](https://travis-ci.org/SonarSource/sonarqube.svg?branch=master)](https://travis-ci.org/SonarSource/sonarqube)
 =========
 
 Continuous Inspection
