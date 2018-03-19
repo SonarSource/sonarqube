@@ -1,4 +1,4 @@
-rootProject.name = 'sonar-enterprise'
+rootProject.name = 'sonarqube'
 
 include 'plugins:sonar-xoo-plugin'
 

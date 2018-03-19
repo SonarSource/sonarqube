@@ -78,10 +78,10 @@ BUILD)
 
   if [ "$TRAVIS_BRANCH" == "master" ] && [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
     echo 'Build and analyze master'
-    # FIXME analysis and deployment disabled for now
+    # FIXME analysis disabled for now
     ./gradlew --no-daemon --console plain \
         -DbuildNumber=$BUILD_NUMBER \
-        build -PjacocoEnabled=true -Prelease=true \
+        build artifactoryPublish -PjacocoEnabled=true -Prelease=true \
         -Dsonar.host.url=$SONAR_HOST_URL \
         -Dsonar.login=$SONAR_TOKEN \
         -Dsonar.projectVersion=$INITIAL_VERSION \
@@ -92,10 +92,10 @@ BUILD)
 
   elif [[ "$TRAVIS_BRANCH" == "branch-"* ]] && [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
     echo 'Build release branch'
-    # FIXME analysis and deployment disabled for now
+    # FIXME analysis disabled for now
     ./gradlew --no-daemon --console plain \
         -DbuildNumber=$BUILD_NUMBER \
-        build -PjacocoEnabled=true -Prelease=true \
+        build artifactoryPublish -PjacocoEnabled=true -Prelease=true \
         -Dsonar.host.url=$SONAR_HOST_URL \
         -Dsonar.login=$SONAR_TOKEN \
         -Dsonar.branch.name=$TRAVIS_BRANCH \
