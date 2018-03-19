@@ -89,9 +89,7 @@ task integrationTest(type: Test) {
   systemProperty 'orchestrator.configUrl', System.getProperty('orchestrator.configUrl')
   systemProperty 'orchestrator.artifactory.apiKey', System.getProperty('orchestrator.artifactory.apiKey')
   systemProperty 'orchestrator.artifactory.repositories', System.getProperty('orchestrator.artifactory.repositories')
-  if (project.hasProperty('cix')) {
-    systemProperty 'sonar.runtimeVersion', version
-  }
+  systemProperty 'sonar.runtimeVersion', System.getProperty('sonar.runtimeVersion')
 
   def category = System.getProperty('category')
   filter {
