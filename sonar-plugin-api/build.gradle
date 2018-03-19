@@ -74,6 +74,10 @@ artifactoryPublish.skip = false
 publishing {
   publications {
     mavenJava(MavenPublication) {
+      pom.withXml {
+        asNode().appendNode('description', description)
+        asNode().children().last() + pomConfig
+      }
       artifact source: shadowJar, classifier: null
       if (release) {
         artifact sourcesJar
