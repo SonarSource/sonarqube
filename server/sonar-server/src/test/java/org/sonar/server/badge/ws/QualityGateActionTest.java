@@ -24,6 +24,7 @@ import org.apache.commons.io.IOUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.measures.Metric.Level;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
@@ -55,8 +56,10 @@ public class QualityGateActionTest {
   @Rule
   public DbTester db = DbTester.create();
 
+  private MapSettings mapSettings = new MapSettings().setProperty("sonar.sonarcloud.enabled", false);
+
   private WsActionTester ws = new WsActionTester(
-    new QualityGateAction(userSession, db.getDbClient(), new ComponentFinder(db.getDbClient(), null), new SvgGenerator()));
+    new QualityGateAction(userSession, db.getDbClient(), new ComponentFinder(db.getDbClient(), null), new SvgGenerator(mapSettings.asConfig())));
 
   @Test
   public void quality_gate_passed() {
@@ -217,7 +220,7 @@ public class QualityGateActionTest {
 
   private String readTemplate(String template) {
     try {
-      return IOUtils.toString(getClass().getResource("templates/" + template), UTF_8);
+      return IOUtils.toString(getClass().getResource("templates/sonarqube/" + template), UTF_8);
     } catch (IOException e) {
       throw new IllegalStateException(String.format("Can't read svg template '%s'", template), e);
     }

@@ -32,6 +32,7 @@ import static util.ItUtils.xooPlugin;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
+  ProjectBadgesTest.class,
   ProjectBulkDeletionTest.class,
   ProjectBulkDeletionPageTest.class,
   ProjectDeletionTest.class,

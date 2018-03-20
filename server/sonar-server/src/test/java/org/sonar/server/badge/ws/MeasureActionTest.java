@@ -26,6 +26,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
+import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric.Level;
 import org.sonar.api.server.ws.WebService;
@@ -70,8 +71,10 @@ public class MeasureActionTest {
   @Rule
   public DbTester db = DbTester.create();
 
+  private MapSettings mapSettings = new MapSettings().setProperty("sonar.sonarcloud.enabled", false);
+
   private WsActionTester ws = new WsActionTester(
-    new MeasureAction(userSession, db.getDbClient(), new ComponentFinder(db.getDbClient(), null), new SvgGenerator()));
+    new MeasureAction(userSession, db.getDbClient(), new ComponentFinder(db.getDbClient(), null), new SvgGenerator(mapSettings.asConfig())));
 
   @Test
   public void int_measure() {

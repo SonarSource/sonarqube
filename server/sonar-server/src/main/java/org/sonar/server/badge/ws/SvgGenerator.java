@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.util.Map;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.text.StrSubstitutor;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.server.ServerSide;
 
@@ -35,9 +36,13 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.sonar.api.measures.Metric.Level.ERROR;
 import static org.sonar.api.measures.Metric.Level.OK;
 import static org.sonar.api.measures.Metric.Level.WARN;
+import static org.sonar.process.ProcessProperties.Property.SONARCLOUD_ENABLED;
 
 @ServerSide
 public class SvgGenerator {
+
+  private static final String TEMPLATES_SONARCLOUD = "templates/sonarcloud";
+  private static final String TEMPLATES_SONARQUBE = "templates/sonarqube";
 
   private static final FontRenderContext FONT_RENDER_CONTEXT = new FontRenderContext(new AffineTransform(), true, true);
   private static final Font FONT = new Font("Verdana", Font.PLAIN, 11);
@@ -58,13 +63,15 @@ public class SvgGenerator {
   private final String badgeTemplate;
   private final Map<Metric.Level, String> qualityGateTemplates;
 
-  public SvgGenerator() {
-    this.errorTemplate = readTemplate("error.svg");
-    this.badgeTemplate = readTemplate("badge.svg");
+  public SvgGenerator(Configuration config) {
+    boolean isOnSonarCloud = config.getBoolean(SONARCLOUD_ENABLED.getKey()).orElse(false);
+    String templatePath = isOnSonarCloud ? TEMPLATES_SONARCLOUD : TEMPLATES_SONARQUBE;
+    this.errorTemplate = readTemplate("templates/error.svg");
+    this.badgeTemplate = readTemplate(templatePath + "/badge.svg");
     this.qualityGateTemplates = ImmutableMap.of(
-      OK, readTemplate("quality_gate_passed.svg"),
-      WARN, readTemplate("quality_gate_warn.svg"),
-      ERROR, readTemplate("quality_gate_failed.svg"));
+      OK, readTemplate(templatePath + "/quality_gate_passed.svg"),
+      WARN, readTemplate(templatePath + "/quality_gate_warn.svg"),
+      ERROR, readTemplate(templatePath + "/quality_gate_failed.svg"));
   }
 
   public String generateBadge(String label, String value, Color backgroundValueColor) {
@@ -103,7 +110,7 @@ public class SvgGenerator {
 
   private String readTemplate(String template) {
     try {
-      return IOUtils.toString(getClass().getResource("templates/" + template), UTF_8);
+      return IOUtils.toString(getClass().getResource(template), UTF_8);
     } catch (IOException e) {
       throw new IllegalStateException(String.format("Can't read svg template '%s'", template), e);
     }

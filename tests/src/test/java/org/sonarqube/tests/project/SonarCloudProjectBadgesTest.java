@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2017 SonarSource SA
+ * Copyright (C) 2009-2018 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -37,15 +37,16 @@ import static com.codeborne.selenide.Selenide.$;
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.projectDir;
 
-public class ProjectBadgesTest {
+public class SonarCloudProjectBadgesTest {
 
   private static final String PROJECT_KEY = "sample";
   private static final String WS_MEASURE_BADGES_ON_QUALITY_GATE = "api/project_badges/measure?project=" + PROJECT_KEY + "&metric=alert_status";
   private static final String WS_MEASURE_BADGES_ON_BUGS = "api/project_badges/measure?project=" + PROJECT_KEY + "&metric=bugs";
   private static final String WS_QUALITY_GATE_BADGE = "api/project_badges/quality_gate?project=" + PROJECT_KEY;
+  private static final String SONAR_CLOUD_ORANGE_BADGE = "images/project_badges/sonarcloud-orange.svg";
 
   @ClassRule
-  public static Orchestrator orchestrator = ProjectSuite.ORCHESTRATOR;
+  public static Orchestrator orchestrator = SonarCloudProjectSuite.ORCHESTRATOR;
 
   @Rule
   public Tester tester = new Tester(orchestrator);
@@ -56,7 +57,7 @@ public class ProjectBadgesTest {
     tester.openBrowser("/projects").openProjectDashboard(PROJECT_KEY);
 
     SelenideElement badgesModal = openBadgesModal();
-    ElementsCollection badgeButtons = badgesModal.$$(".badge-button").shouldHaveSize(2);
+    ElementsCollection badgeButtons = badgesModal.$$(".badge-button").shouldHaveSize(3);
 
     // Check quality gate badge
     shouldHaveUrl(badgesModal, WS_MEASURE_BADGES_ON_QUALITY_GATE);
@@ -68,6 +69,11 @@ public class ProjectBadgesTest {
     // Check marketing quality gate badge
     badgeButtons.get(1).click();
     shouldHaveUrl(badgesModal, WS_QUALITY_GATE_BADGE);
+
+    // Check scanned on SonarCloud badge
+    badgeButtons.get(2).click();
+    selectOption("Orange");
+    shouldHaveUrl(badgesModal, SONAR_CLOUD_ORANGE_BADGE);
   }
 
   @Test
@@ -90,6 +96,7 @@ public class ProjectBadgesTest {
     assertThat(tester.wsClient().wsConnector().call(new GetRequest(WS_MEASURE_BADGES_ON_QUALITY_GATE)).failIfNotSuccessful().contentType()).isEqualTo("image/svg+xml");
     assertThat(tester.wsClient().wsConnector().call(new GetRequest(WS_MEASURE_BADGES_ON_BUGS)).failIfNotSuccessful().contentType()).isEqualTo("image/svg+xml");
     assertThat(tester.wsClient().wsConnector().call(new GetRequest(WS_QUALITY_GATE_BADGE)).failIfNotSuccessful().contentType()).isEqualTo("image/svg+xml");
+    assertThat(tester.wsClient().wsConnector().call(new GetRequest(SONAR_CLOUD_ORANGE_BADGE)).failIfNotSuccessful().contentType()).isEqualTo("image/svg+xml");
   }
 
   private void shouldNotHaveBadges() {

@@ -29,7 +29,7 @@ import static util.ItUtils.xooPlugin;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
-  ProjectBadgesTest.class
+  SonarCloudProjectBadgesTest.class
 })
 public class SonarCloudProjectSuite {
 

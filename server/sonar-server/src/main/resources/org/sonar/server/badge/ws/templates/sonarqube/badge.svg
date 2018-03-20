@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" height="20" width="${totalWidth}">
+    <linearGradient id="b" x2="0" y2="100%">
+        <stop offset="0" stop-color="#bbb" stop-opacity=".1"/>
+        <stop offset="1" stop-opacity=".1"/>
+    </linearGradient>
+    <clipPath id="a">
+        <rect width="${totalWidth}" height="20" rx="3" fill="#fff"/>
+    </clipPath>
+    <g clip-path="url(#a)">
+        <rect fill="#555" height="20" width="${labelWidth}"/>
+        <rect fill="${color}" height="20" width="${valueWidth}" x="${labelWidth}"/>
+        <rect fill="url(#b)" height="20" width="${totalWidth}"/>
+    </g>
+    <g fill="#fff" font-family="DejaVu Sans,Verdana,Geneva,sans-serif" font-size="11" text-anchor="left">
+        <text x="${iconWidthPlusMargin}" y="15" fill="#010101" fill-opacity=".3">${label}</text>
+        <text x="${iconWidthPlusMargin}" y="14">${label}</text>
+        <text x="${labelWidthPlusMargin}" y="15" fill="#010101" fill-opacity=".3">${value}</text>
+        <text x="${labelWidthPlusMargin}" y="14">${value}</text>
+    </g>
+    <path fill="#010101" fill-opacity=".3" d="M19.58682 9.81722A3.78893 3.78893 0 0 0 17.78048 8.603v-.04378a3.77165 3.77165 0 1 0-7.5433 0v.05069a3.77165 3.77165 0 1 0 3.78317 6.28186 3.7705 3.7705 0 0 0 5.56416-5.0688zm-2.91802 5.21164a2.8247 2.8247 0 0 1-2.8224-2.82124.47463.47463 0 0 0-.94925 0 3.7486 3.7486 0 0 0 .53223 1.9296 2.8201 2.8201 0 1 1-1.08058-4.57805h.01152a1.3202 1.3202 0 0 1 .30758.14745.4747.4747 0 0 0 .61748-.72115 2.1266 2.1266 0 0 0-.61402-.32371 3.75898 3.75898 0 0 0-1.29946-.2304h-.182a2.82125 2.82125 0 1 1 4.45478 2.4192.47462.47462 0 1 0 .55066.773 3.78317 3.78317 0 0 0 1.44806-2.0736 2.8224 2.8224 0 0 1-.97574 5.46969z"/>
+    <path fill="#f3702a" d="M19.58682 9.09722A3.78893 3.78893 0 0 0 17.78048 7.883v-.04378a3.77165 3.77165 0 1 0-7.5433 0v.05069a3.77165 3.77165 0 1 0 3.78317 6.28186 3.7705 3.7705 0 0 0 5.56416-5.0688zm-2.91802 5.21164a2.8247 2.8247 0 0 1-2.8224-2.82124.47463.47463 0 0 0-.94925 0 3.7486 3.7486 0 0 0 .53223 1.9296 2.8201 2.8201 0 1 1-1.08058-4.57805h.01152a1.3202 1.3202 0 0 1 .30758.14745.4747.4747 0 0 0 .61748-.72115 2.1266 2.1266 0 0 0-.61402-.32371 3.75898 3.75898 0 0 0-1.29946-.2304h-.182a2.82125 2.82125 0 1 1 4.45478 2.4192.47462.47462 0 1 0 .55066.773 3.78317 3.78317 0 0 0 1.44806-2.0736 2.8224 2.8224 0 0 1-.97574 5.46969z"/>
+</svg>
