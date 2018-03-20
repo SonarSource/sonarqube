@@ -159,10 +159,9 @@ public class PersistMeasuresStepTest extends BaseStepTest {
 
     execute(true);
 
-    assertThat(db.countRowsOfTable("project_measures")).isEqualTo(3);
+    assertThat(db.countRowsOfTable("project_measures")).isEqualTo(2);
     assertThat(selectMeasure("view-uuid", STRING_METRIC).get().getData()).isEqualTo("view-value");
     assertThat(selectMeasure("subview-uuid", STRING_METRIC).get().getData()).isEqualTo("subview-value");
-    assertThat(selectMeasure("project-uuid", STRING_METRIC).get().getData()).isEqualTo("project-value");
   }
 
   private void prepareProject() {

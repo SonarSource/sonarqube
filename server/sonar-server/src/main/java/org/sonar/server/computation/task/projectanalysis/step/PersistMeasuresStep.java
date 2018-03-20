@@ -121,7 +121,7 @@ public class PersistMeasuresStep implements ComputationStep {
 
     @Override
     public void visitProjectView(Component projectView) {
-      persistMeasures(projectView);
+      // measures of project copies are never read. No need to persist them.
     }
 
     private void persistMeasures(Component component) {
