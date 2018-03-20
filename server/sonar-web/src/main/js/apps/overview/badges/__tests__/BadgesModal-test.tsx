@@ -27,14 +27,26 @@ jest.mock('../../../../helpers/urls', () => ({
   getHostUrl: () => 'host'
 }));
 
-it('should display the modal after click', () => {
-  const shortBranch: ShortLivingBranch = {
-    isMain: false,
-    mergeBranch: '',
-    name: 'branch-6.6',
-    type: BranchType.SHORT
-  };
-  const wrapper = shallow(<BadgesModal branchLike={shortBranch} metrics={{}} project="foo" />);
+const shortBranch: ShortLivingBranch = {
+  isMain: false,
+  mergeBranch: '',
+  name: 'branch-6.6',
+  type: BranchType.SHORT
+};
+
+it('should display the modal after click on sonar cloud', () => {
+  const wrapper = shallow(
+    <BadgesModal branchLike={shortBranch} metrics={{}} onSonarCloud={true} project="foo" />
+  );
+  expect(wrapper).toMatchSnapshot();
+  click(wrapper.find('Button'));
+  expect(wrapper.find('Modal')).toMatchSnapshot();
+});
+
+it('should display the modal after click on sonar qube', () => {
+  const wrapper = shallow(
+    <BadgesModal branchLike={shortBranch} metrics={{}} onSonarCloud={false} project="foo" />
+  );
   expect(wrapper).toMatchSnapshot();
   click(wrapper.find('Button'));
   expect(wrapper.find('Modal')).toMatchSnapshot();

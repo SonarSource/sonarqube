@@ -32,6 +32,7 @@ import { Button, ResetButtonLink } from '../../../components/ui/buttons';
 interface Props {
   branchLike?: BranchLike;
   metrics: { [key: string]: Metric };
+  onSonarCloud: boolean;
   project: string;
 }
 
@@ -69,6 +70,9 @@ export default class BadgesModal extends React.PureComponent<Props, State> {
     const { selectedType, badgeOptions } = this.state;
     const header = translate('overview.badges.title');
     const fullBadgeOptions = { project, ...badgeOptions, ...getBranchLikeQuery(branchLike) };
+    const badges = this.props.onSonarCloud
+      ? [BadgeType.measure, BadgeType.qualityGate, BadgeType.marketing]
+      : [BadgeType.measure, BadgeType.qualityGate];
     return (
       <div className="overview-meta-card">
         <Button className="js-project-badges" onClick={this.handleOpen}>
@@ -82,7 +86,7 @@ export default class BadgesModal extends React.PureComponent<Props, State> {
             <div className="modal-body">
               <p className="huge-spacer-bottom">{translate('overview.badges.description')}</p>
               <div className="badges-list spacer-bottom">
-                {[BadgeType.measure, BadgeType.qualityGate, BadgeType.marketing].map(type => (
+                {badges.map(type => (
                   <BadgeButton
                     key={type}
                     onClick={this.handleSelectBadge}
