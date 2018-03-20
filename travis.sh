@@ -58,6 +58,10 @@ else
   export PULL_REQUEST_NUMBER=$TRAVIS_PULL_REQUEST
 fi
 
+# Hack to keep job alive even if no logs during more than 10 minutes.
+# That can occur when uploading sonarqube.zip to Artifactory.
+./travis-clock.sh &
+
 case "$TARGET" in
 
 BUILD)
@@ -145,3 +149,6 @@ WEB_TESTS)
   ;;
 
 esac
+
+#stop the clock
+touch stop
