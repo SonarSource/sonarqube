@@ -19,7 +19,6 @@
  */
 import React from 'react';
 import { sortBy, uniqBy } from 'lodash';
-import ConditionsAlert from './ConditionsAlert';
 import AddConditionForm from './AddConditionForm';
 import Condition from './Condition';
 import { translate, getLocalizedMetricName } from '../../../helpers/l10n';
@@ -89,10 +88,10 @@ export default class Conditions extends React.PureComponent {
       metric: metrics[condition.metric]
     }));
     return (
-      <div id="quality-gate-conditions" className="quality-gate-section">
+      <div className="quality-gate-section" id="quality-gate-conditions">
         <h3 className="spacer-bottom">{translate('quality_gates.conditions')}</h3>
 
-        <ConditionsAlert />
+        <div className="big-spacer-bottom">{translate('quality_gates.introduction')}</div>
 
         {this.state.error && <div className="alert alert-danger">{this.state.error}</div>}
 
@@ -108,7 +107,7 @@ export default class Conditions extends React.PureComponent {
         )}
 
         {sortedConditions.length ? (
-          <table id="quality-gate-conditions" className="data zebra zebra-hover">
+          <table className="data zebra zebra-hover" id="quality-gate-conditions">
             <thead>
               <tr>
                 <th className="nowrap">{translate('quality_gates.conditions.metric')}</th>
