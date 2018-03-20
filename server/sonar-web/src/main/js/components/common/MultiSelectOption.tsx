@@ -21,12 +21,14 @@ import * as React from 'react';
 import * as classNames from 'classnames';
 
 interface Props {
-  element: string;
-  selected?: boolean;
-  custom?: boolean;
   active?: boolean;
-  onSelectChange: (elem: string, selected: boolean) => void;
+  custom?: boolean;
+  disabled?: boolean;
+  element: string;
   onHover: (elem: string) => void;
+  onSelectChange: (elem: string, selected: boolean) => void;
+  renderLabel: (element: string) => React.ReactNode;
+  selected?: boolean;
 }
 
 export default class MultiSelectOption extends React.PureComponent<Props> {
@@ -34,27 +36,36 @@ export default class MultiSelectOption extends React.PureComponent<Props> {
     evt.stopPropagation();
     evt.preventDefault();
     evt.currentTarget.blur();
-    this.props.onSelectChange(this.props.element, !this.props.selected);
+
+    if (!this.props.disabled) {
+      this.props.onSelectChange(this.props.element, !this.props.selected);
+    }
   };
 
   handleHover = () => this.props.onHover(this.props.element);
 
   render() {
+    const { selected, disabled } = this.props;
     const className = classNames('icon-checkbox', {
-      'icon-checkbox-checked': this.props.selected
+      'icon-checkbox-checked': selected,
+      'icon-checkbox-invisible': disabled
     });
-    const activeClass = classNames({ active: this.props.active });
+    const activeClass = classNames({
+      active: this.props.active,
+      disabled,
+      'cursor-not-allowed': disabled
+    });
 
     return (
       <li>
         <a
-          href="#"
           className={activeClass}
+          href="#"
           onClick={this.handleSelect}
-          onMouseOver={this.handleHover}
-          onFocus={this.handleHover}>
+          onFocus={this.handleHover}
+          onMouseOver={this.handleHover}>
           <i className={className} /> {this.props.custom && '+ '}
-          {this.props.element}
+          {this.props.renderLabel(this.props.element)}
         </a>
       </li>
     );

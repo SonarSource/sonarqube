@@ -111,7 +111,7 @@ export function generateSeries(
   metrics /*:  Array<Metric> | { [string]: Metric } */,
   displayedMetrics /*: Array<string> */
 ) /*: Array<Serie> */ {
-  if (displayedMetrics.length <= 0) {
+  if (displayedMetrics.length <= 0 || typeof measuresHistory === 'undefined') {
     return [];
   }
   return sortBy(

@@ -18,17 +18,24 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import * as classNames from 'classnames';
 import { difference } from 'lodash';
 import MultiSelectOption from './MultiSelectOption';
 import SearchBox from '../controls/SearchBox';
+import { translateWithParameters } from '../../helpers/l10n';
 
 interface Props {
+  allowNewElements?: boolean;
+  allowSelection?: boolean;
   elements: string[];
+  filterSelected?: (query: string, selectedElements: string[]) => string[];
+  footerNode?: React.ReactNode;
   listSize?: number;
   onSearch: (query: string) => Promise<void>;
   onSelect: (item: string) => void;
   onUnselect: (item: string) => void;
   placeholder: string;
+  renderLabel?: (element: string) => React.ReactNode;
   selectedElements: string[];
   validateSearchInput?: (value: string) => string;
 }
@@ -42,7 +49,9 @@ interface State {
 }
 
 interface DefaultProps {
+  filterSelected: (query: string, selectedElements: string[]) => string[];
   listSize: number;
+  renderLabel: (element: string) => React.ReactNode;
   validateSearchInput: (value: string) => string;
 }
 
@@ -54,7 +63,10 @@ export default class MultiSelect extends React.PureComponent<Props, State> {
   mounted = false;
 
   static defaultProps: DefaultProps = {
-    listSize: 10,
+    filterSelected: (query: string, selectedElements: string[]) =>
+      selectedElements.filter(elem => elem.includes(query)),
+    listSize: 0,
+    renderLabel: (element: string) => element,
     validateSearchInput: (value: string) => value
   };
 
@@ -72,7 +84,7 @@ export default class MultiSelect extends React.PureComponent<Props, State> {
   componentDidMount() {
     this.mounted = true;
     this.onSearchQuery('');
-    this.updateSelectedElements(this.props);
+    this.updateSelectedElements(this.props as PropsWithDefault);
     this.updateUnselectedElements(this.props as PropsWithDefault);
     if (this.container) {
       this.container.addEventListener('keydown', this.handleKeyboard, true);
@@ -164,13 +176,13 @@ export default class MultiSelect extends React.PureComponent<Props, State> {
   onUnselectItem = (item: string) => this.props.onUnselect(item);
 
   isNewElement = (elem: string, { selectedElements, elements }: Props) =>
-    elem && selectedElements.indexOf(elem) === -1 && elements.indexOf(elem) === -1;
+    elem.length > 0 && selectedElements.indexOf(elem) === -1 && elements.indexOf(elem) === -1;
 
-  updateSelectedElements = (props: Props) => {
+  updateSelectedElements = (props: PropsWithDefault) => {
     this.setState((state: State) => {
       if (state.query) {
         return {
-          selectedElements: [...props.selectedElements.filter(elem => elem.includes(state.query))]
+          selectedElements: props.filterSelected(state.query, props.selectedElements)
         };
       } else {
         return { selectedElements: [...props.selectedElements] };
@@ -180,7 +192,9 @@ export default class MultiSelect extends React.PureComponent<Props, State> {
 
   updateUnselectedElements = (props: PropsWithDefault) => {
     this.setState((state: State) => {
-      if (props.listSize < state.selectedElements.length) {
+      if (props.listSize === 0) {
+        return { unselectedElements: difference(props.elements, props.selectedElements) };
+      } else if (props.listSize < state.selectedElements.length) {
         return { unselectedElements: [] };
       } else {
         return {
@@ -239,8 +253,17 @@ export default class MultiSelect extends React.PureComponent<Props, State> {
   };
 
   render() {
+    const { allowSelection = true, allowNewElements = true, footerNode = '' } = this.props;
+    const { renderLabel } = this.props as PropsWithDefault;
     const { query, activeIdx, selectedElements, unselectedElements } = this.state;
     const activeElement = this.getAllElements(this.props, this.state)[activeIdx];
+    const infiniteList = this.props.listSize === 0;
+    const listClasses = classNames('menu', {
+      'menu-vertically-limited': infiniteList,
+      'spacer-top': infiniteList,
+      'with-top-separator': infiniteList,
+      'with-bottom-separator': Boolean(footerNode)
+    });
 
     return (
       <div className="multi-select" ref={div => (this.container = div)}>
@@ -254,7 +277,11 @@ export default class MultiSelect extends React.PureComponent<Props, State> {
             value={query}
           />
         </div>
-        <ul className="menu">
+        <ul className={listClasses}>
+          {selectedElements.length < 1 &&
+            unselectedElements.length < 1 && (
+              <li className="spacer-left">{translateWithParameters('no_results_for_x', query)}</li>
+            )}
           {selectedElements.length > 0 &&
             selectedElements.map(element => (
               <MultiSelectOption
@@ -263,6 +290,7 @@ export default class MultiSelect extends React.PureComponent<Props, State> {
                 key={element}
                 onHover={this.handleElementHover}
                 onSelectChange={this.handleSelectChange}
+                renderLabel={renderLabel}
                 selected={true}
               />
             ))}
@@ -270,23 +298,28 @@ export default class MultiSelect extends React.PureComponent<Props, State> {
             unselectedElements.map(element => (
               <MultiSelectOption
                 active={activeElement === element}
+                disabled={!allowSelection}
                 element={element}
                 key={element}
                 onHover={this.handleElementHover}
                 onSelectChange={this.handleSelectChange}
+                renderLabel={renderLabel}
               />
             ))}
-          {this.isNewElement(query, this.props) && (
-            <MultiSelectOption
-              active={activeElement === query}
-              custom={true}
-              element={query}
-              key={query}
-              onHover={this.handleElementHover}
-              onSelectChange={this.handleSelectChange}
-            />
-          )}
+          {allowNewElements &&
+            this.isNewElement(query, this.props) && (
+              <MultiSelectOption
+                active={activeElement === query}
+                custom={true}
+                element={query}
+                key={query}
+                onHover={this.handleElementHover}
+                onSelectChange={this.handleSelectChange}
+                renderLabel={renderLabel}
+              />
+            )}
         </ul>
+        {footerNode}
       </div>
     );
   }

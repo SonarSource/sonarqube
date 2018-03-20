@@ -59,20 +59,21 @@ export default class IssueTags extends React.PureComponent {
 
   render() {
     const { issue } = this.props;
+    const { tags = [] } = issue;
 
     if (this.props.canSetTags) {
       return (
         <BubblePopupHelper
           isOpen={this.props.isOpen}
-          position="bottomright"
-          togglePopup={this.toggleSetTags}
           popup={
             <SetIssueTagsPopup
               organization={issue.projectOrganization}
-              selectedTags={issue.tags}
+              selectedTags={tags}
               setTags={this.setTags}
             />
-          }>
+          }
+          position="bottomright"
+          togglePopup={this.toggleSetTags}>
           <button
             className={'js-issue-edit-tags button-link issue-action issue-action-with-options'}
             onClick={this.toggleSetTags}>

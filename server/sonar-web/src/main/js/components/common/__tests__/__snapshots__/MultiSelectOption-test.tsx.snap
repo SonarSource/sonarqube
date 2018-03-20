@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`should render active tag 1`] = `
+exports[`should render active element 1`] = `
 <li>
   <a
     className="active"
@@ -18,7 +18,7 @@ exports[`should render active tag 1`] = `
 </li>
 `;
 
-exports[`should render custom tag 1`] = `
+exports[`should render custom element 1`] = `
 <li>
   <a
     className=""
@@ -37,7 +37,25 @@ exports[`should render custom tag 1`] = `
 </li>
 `;
 
-exports[`should render selected tag 1`] = `
+exports[`should render disabled element 1`] = `
+<li>
+  <a
+    className="disabled cursor-not-allowed"
+    href="#"
+    onClick={[Function]}
+    onFocus={[Function]}
+    onMouseOver={[Function]}
+  >
+    <i
+      className="icon-checkbox icon-checkbox-invisible"
+    />
+     
+    mytag
+  </a>
+</li>
+`;
+
+exports[`should render selected element 1`] = `
 <li>
   <a
     className=""
@@ -55,7 +73,7 @@ exports[`should render selected tag 1`] = `
 </li>
 `;
 
-exports[`should render standard tag 1`] = `
+exports[`should render standard element 1`] = `
 <li>
   <a
     className=""

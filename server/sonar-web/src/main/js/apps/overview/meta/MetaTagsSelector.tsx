@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { without } from 'lodash';
+import { without, difference } from 'lodash';
 import TagsSelector from '../../../components/tags/TagsSelector';
 import { BubblePopupPosition } from '../../../components/common/BubblePopup';
 import { searchProjectTags } from '../../../api/components';
@@ -71,6 +71,7 @@ export default class MetaTagsSelector extends React.PureComponent<Props, State> 
   };
 
   render() {
+    const availableTags = difference(this.state.searchResult, this.props.selectedTags);
     return (
       <TagsSelector
         listSize={LIST_SIZE}
@@ -79,7 +80,7 @@ export default class MetaTagsSelector extends React.PureComponent<Props, State> 
         onUnselect={this.onUnselect}
         position={this.props.position}
         selectedTags={this.props.selectedTags}
-        tags={this.state.searchResult}
+        tags={availableTags}
       />
     );
   }

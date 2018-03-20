@@ -85,11 +85,11 @@ export default class MetaTags extends React.PureComponent<Props, State> {
     right: containerPos.width - eltPos.width
   });
 
-  handleSetProjectTags = (tags: string[]) => {
-    setProjectTags({ project: this.props.component.key, tags: tags.join(',') }).then(
-      () => this.props.onComponentChange({ tags }),
-      () => {}
-    );
+  handleSetProjectTags = (values: string[]) => {
+    setProjectTags({
+      project: this.props.component.key,
+      tags: values.join(',')
+    }).then(() => this.props.onComponentChange({ tags: values }), () => {});
   };
 
   render() {

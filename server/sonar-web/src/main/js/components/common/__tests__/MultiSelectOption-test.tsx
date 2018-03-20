@@ -24,21 +24,26 @@ import MultiSelectOption from '../MultiSelectOption';
 const props = {
   element: 'mytag',
   onSelectChange: () => {},
-  onHover: () => {}
+  onHover: () => {},
+  renderLabel: (element: string) => element
 };
 
-it('should render standard tag', () => {
+it('should render standard element', () => {
   expect(shallow(<MultiSelectOption {...props} />)).toMatchSnapshot();
 });
 
-it('should render selected tag', () => {
+it('should render selected element', () => {
   expect(shallow(<MultiSelectOption {...props} selected={true} />)).toMatchSnapshot();
 });
 
-it('should render custom tag', () => {
+it('should render custom element', () => {
   expect(shallow(<MultiSelectOption {...props} custom={true} />)).toMatchSnapshot();
 });
 
-it('should render active tag', () => {
-  expect(shallow(<MultiSelectOption {...props} selected={true} active={true} />)).toMatchSnapshot();
+it('should render active element', () => {
+  expect(shallow(<MultiSelectOption {...props} active={true} selected={true} />)).toMatchSnapshot();
+});
+
+it('should render disabled element', () => {
+  expect(shallow(<MultiSelectOption {...props} disabled={true} />)).toMatchSnapshot();
 });
