@@ -24,12 +24,12 @@ import java.util.concurrent.atomic.AtomicLong;
 public class IndexingResult {
 
   // FIXME should be private
-  AtomicLong total = new AtomicLong(0L);
-  private long successes = 0L;
+  final AtomicLong total = new AtomicLong(0L);
+  private final AtomicLong successes = new AtomicLong(0L);
 
   IndexingResult clear() {
     total.set(0L);
-    successes = 0L;
+    successes.set(0L);
     return this;
   }
 
@@ -38,17 +38,17 @@ public class IndexingResult {
   }
 
   public IndexingResult incrementSuccess() {
-    successes += 1;
+    successes.incrementAndGet();
     return this;
   }
 
   public void add(IndexingResult other) {
     total.addAndGet(other.total.get());
-    successes += other.successes;
+    successes.addAndGet(other.successes.get());
   }
 
   public long getFailures() {
-    return total.get() - successes;
+    return total.get() - successes.get();
   }
 
   public long getTotal() {
@@ -56,14 +56,14 @@ public class IndexingResult {
   }
 
   public long getSuccess() {
-    return successes;
+    return successes.get();
   }
 
   public double getSuccessRatio() {
-    return total.get() == 0 ? 1.0 : ((1.0 * successes) / total.get());
+    return total.get() == 0 ? 1.0 : ((1.0 * successes.get()) / total.get());
   }
 
   public boolean isSuccess() {
-    return total.get() == successes;
+    return total.get() == successes.get();
   }
 }
