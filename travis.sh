@@ -39,6 +39,14 @@ function configureTravis {
 }
 configureTravis
 
+function keep_alive() {
+  while true; do
+    echo -en "foo"
+    sleep 5
+  done
+}
+keep_alive &
+
 # When a pull request is open on the branch, then the job related
 # to the branch does not need to be executed and should be canceled.
 # It does not book slaves for nothing.
@@ -57,10 +65,6 @@ else
   export PULL_REQUEST_BRANCH_TARGET=$TRAVIS_BRANCH
   export PULL_REQUEST_NUMBER=$TRAVIS_PULL_REQUEST
 fi
-
-# Hack to keep job alive even if no logs during more than 10 minutes.
-# That can occur when uploading sonarqube.zip to Artifactory.
-./travis-clock.sh &
 
 case "$TARGET" in
 
@@ -150,5 +154,3 @@ WEB_TESTS)
 
 esac
 
-#stop the clock
-touch stop
