@@ -46,7 +46,8 @@ dependencies {
     // already shaded with sonar-plugin-api
     exclude group: 'org.codehaus.sonar', module: 'sonar-channel'
   }
-  compile project(path: ':sonar-plugin-api', configuration: 'shadow')
+  runtime project(path: ':sonar-plugin-api', configuration: 'shadow')
+  compileOnly project(path: ':sonar-plugin-api')
   compile project(':sonar-ws')
 
   compileOnly 'com.google.code.findbugs:jsr305'

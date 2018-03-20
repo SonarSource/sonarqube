@@ -31,7 +31,8 @@ dependencies {
   compile project(':sonar-home')
   compile project(':sonar-scanner-protocol')
   compile project(':sonar-ws')
-  compile project(path: ':sonar-plugin-api', configuration: 'shadow')
+  runtime project(path: ':sonar-plugin-api', configuration: 'shadow')
+  compileOnly project(path: ':sonar-plugin-api')
 
   compileOnly 'com.google.code.findbugs:jsr305'
 
