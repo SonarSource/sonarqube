@@ -50,6 +50,7 @@ public class DbVersion71 implements DbVersion {
       .add(2020, "Replace index in PROJECT_BRANCHES", ReplaceIndexInProjectBranches.class)
       .add(2021, "Add pull_request_data in PROJECT_BRANCHES", AddPullRequestBinaryInProjectBranches.class)
       .add(2022, "Clean broken project to QG references", CleanBrokenProjectToQGReferences.class)
+      .add(2023, "Delete measures of project copies", DeleteMeasuresOfProjectCopies.class)
     ;
   }
 }
