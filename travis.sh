@@ -39,10 +39,15 @@ function configureTravis {
 }
 configureTravis
 
+#
+# Travis fails on timeout when build does not print logs
+# during 10 minutes. This function aims to bypass this
+# behavior when building the slow sonar-server sub-project.
+#
 function keep_alive() {
   while true; do
-    echo -en "foo"
-    sleep 5
+    echo -en "\a"
+    sleep 60
   done
 }
 keep_alive &
