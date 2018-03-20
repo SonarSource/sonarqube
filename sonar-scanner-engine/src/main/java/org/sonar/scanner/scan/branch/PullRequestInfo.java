@@ -28,18 +28,20 @@ import javax.annotation.concurrent.Immutable;
  */
 @Immutable
 public class PullRequestInfo {
-  private final String id;
+  private final String key;
   private final String branch;
   private final String base;
+  private final long analysisDate;
 
-  public PullRequestInfo(String id, String branch, @Nullable String base) {
-    this.id = id;
+  public PullRequestInfo(String key, String branch, @Nullable String base, long analysisDate) {
+    this.key = key;
     this.branch = branch;
     this.base = base;
+    this.analysisDate = analysisDate;
   }
 
-  public String getId() {
-    return id;
+  public String getKey() {
+    return key;
   }
 
   public String getBranch() {
@@ -49,5 +51,9 @@ public class PullRequestInfo {
   @CheckForNull
   public String getBase() {
     return base;
+  }
+
+  public long getAnalysisDate() {
+    return analysisDate;
   }
 }
