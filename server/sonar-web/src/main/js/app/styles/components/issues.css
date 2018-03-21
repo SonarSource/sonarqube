@@ -217,6 +217,7 @@
   line-height: 18px;
   line-height: 1.5;
   outline: none;
+  word-break: break-all;
 }
 
 .issue-comment-text p,
