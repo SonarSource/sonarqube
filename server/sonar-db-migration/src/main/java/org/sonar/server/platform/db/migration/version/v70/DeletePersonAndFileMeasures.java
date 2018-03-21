@@ -52,7 +52,11 @@ public class DeletePersonAndFileMeasures extends DataChange {
     massUpdate.update(getDeleteSql());
 
     massUpdate.execute((row, update) -> {
-      update.setString(1, row.getString(1));
+      String analysisUuid = row.getString(1);
+      update.setString(1, analysisUuid);
+      if (getDialect().getId().equals(Oracle.ID)) {
+        update.setString(2, analysisUuid);
+      }
       return true;
     });
   }
@@ -86,7 +90,7 @@ public class DeletePersonAndFileMeasures extends DataChange {
           "  where pm2.analysis_uuid = ? " +
           "  and (c.qualifier in ('UTS', 'FIL') or pm.person_id is not null) " +
           "  and pm.id = pm2.id" +
-          ")";
+          ") and pm.analysis_uuid = ?";
       default:
         throw new IllegalStateException("Unsupported DB dialect: " + getDialect());
     }
