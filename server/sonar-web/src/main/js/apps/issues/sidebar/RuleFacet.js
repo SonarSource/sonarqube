@@ -102,7 +102,7 @@ export default class RuleFacet extends React.PureComponent {
       return null;
     }
 
-    const rules = sortBy(Object.keys(stats), key => -stats[key]);
+    const rules = sortBy(Object.keys(stats), key => -stats[key], key => this.getRuleName(key));
 
     return (
       <FacetItemsList>
