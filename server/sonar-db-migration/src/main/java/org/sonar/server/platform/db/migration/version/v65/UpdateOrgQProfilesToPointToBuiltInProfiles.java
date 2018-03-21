@@ -59,8 +59,9 @@ public class UpdateOrgQProfilesToPointToBuiltInProfiles extends DataChange {
 
     massUpdate.update("update org_qprofiles " +
       "set rules_profile_uuid = ? " +
-      "where uuid=?")
-      .execute((row, update) -> {
+      "where uuid=?");
+
+    massUpdate.execute((row, update) -> {
         String orgQProfileUuid = row.getString(1);
         String language = row.getString(2);
         String name = row.getString(3);

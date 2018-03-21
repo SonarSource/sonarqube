@@ -23,10 +23,13 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
+import static com.google.common.base.Preconditions.checkArgument;
+
 public class UpsertImpl extends BaseSqlStatement<Upsert> implements Upsert {
 
   private static final int MAX_BATCH_SIZE = 250;
 
+  private int maxBatchSize = MAX_BATCH_SIZE;
   private long batchCount = 0L;
 
   private UpsertImpl(PreparedStatement pstmt) {
@@ -34,15 +37,27 @@ public class UpsertImpl extends BaseSqlStatement<Upsert> implements Upsert {
   }
 
   @Override
-  public Upsert addBatch() throws SQLException {
+  public Upsert setBatchSize(int i) {
+    checkArgument(i >= 0, "size must be positive. Got %s", i);
+    this.maxBatchSize = i;
+    return this;
+  }
+
+  public int getMaxBatchSize() {
+    return maxBatchSize;
+  }
+
+  @Override
+  public boolean addBatch() throws SQLException {
     pstmt.addBatch();
     pstmt.clearParameters();
     batchCount++;
-    if (batchCount % MAX_BATCH_SIZE == 0L) {
+    if (batchCount % maxBatchSize == 0L) {
       pstmt.executeBatch();
       pstmt.getConnection().commit();
+      return true;
     }
-    return this;
+    return false;
   }
 
   @Override

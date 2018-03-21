@@ -72,9 +72,10 @@ public class MassUpdate {
     return this.select;
   }
 
-  public MassUpdate update(String sql) throws SQLException {
-    this.updates.add(UpsertImpl.create(writeConnection, sql));
-    return this;
+  public Upsert update(String sql) throws SQLException {
+    UpsertImpl upsert = UpsertImpl.create(writeConnection, sql);
+    this.updates.add(upsert);
+    return upsert;
   }
 
   public MassUpdate rowPluralName(String s) {

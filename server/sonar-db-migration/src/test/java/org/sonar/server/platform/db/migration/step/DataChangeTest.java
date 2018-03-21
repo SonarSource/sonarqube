@@ -34,7 +34,6 @@ import org.sonar.server.platform.db.migration.step.Select.RowReader;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 
-
 public class DataChangeTest {
 
   private static final int MAX_BATCH_SIZE = 250;
@@ -205,32 +204,67 @@ public class DataChangeTest {
   }
 
   @Test
-  public void batch_insert() throws Exception {
+  public void batch_inserts() throws Exception {
     db.prepareDbUnit(getClass(), "persons.xml");
 
     new DataChange(db.database()) {
       @Override
       public void execute(Context context) throws SQLException {
         Upsert upsert = context.prepareUpsert("insert into persons(id,login,age,enabled,coeff) values (?,?,?,?,?)");
-        upsert
+        boolean committed = upsert
           .setLong(1, 10L)
           .setString(2, "kurt")
           .setInt(3, 27)
           .setBoolean(4, true)
           .setDouble(5, 2.2)
           .addBatch();
-        upsert
+        assertThat(committed).isFalse();
+
+        committed = upsert
           .setLong(1, 11L)
           .setString(2, "courtney")
           .setInt(3, 25)
           .setBoolean(4, false)
           .setDouble(5, 2.3)
           .addBatch();
+        assertThat(committed).isFalse();
+
         upsert.execute().commit().close();
       }
     }.execute();
 
     db.assertDbUnit(getClass(), "batch-insert-result.xml", "persons");
+  }
+
+  @Test
+  public void override_size_of_batch_inserts() throws Exception {
+    new DataChange(db.database()) {
+      @Override
+      public void execute(Context context) throws SQLException {
+        Upsert upsert = context.prepareUpsert("insert into persons(id,login,age,enabled,coeff) values (?,?,?,?,?)")
+          .setBatchSize(3);
+        long id = 100L;
+        assertThat(addBatchInsert(upsert, id++)).isFalse();
+        assertThat(addBatchInsert(upsert, id++)).isFalse();
+        assertThat(addBatchInsert(upsert, id++)).isTrue();
+        assertThat(addBatchInsert(upsert, id++)).isFalse();
+        assertThat(addBatchInsert(upsert, id++)).isFalse();
+        assertThat(addBatchInsert(upsert, id++)).isTrue();
+        assertThat(addBatchInsert(upsert, id)).isFalse();
+        upsert.execute().commit().close();
+      }
+    }.execute();
+    assertThat(db.countRowsOfTable("persons")).isEqualTo(7);
+  }
+
+  private boolean addBatchInsert(Upsert upsert, long id) throws SQLException {
+    return upsert
+      .setLong(1, id)
+      .setString(2, "kurt")
+      .setInt(3, 27)
+      .setBoolean(4, true)
+      .setDouble(5, 2.2)
+      .addBatch();
   }
 
   @Test

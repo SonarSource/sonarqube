@@ -25,9 +25,20 @@ import java.sql.SQLException;
  * INSERT, UPDATE or DELETE
  */
 public interface Upsert extends SqlStatement<Upsert> {
-  Upsert addBatch() throws SQLException;
+  /**
+   * Prepare for next statement.
+   * @return {@code true} if the buffer of batched requests has been sent and transaction
+   * has been committed, else {@code false}.
+   */
+  boolean addBatch() throws SQLException;
 
   Upsert execute() throws SQLException;
 
   Upsert commit() throws SQLException;
+
+  /**
+   * Number of requests required before sending group of batched
+   * requests and before committing. Default value is {@link UpsertImpl#MAX_BATCH_SIZE}
+   */
+  Upsert setBatchSize(int i);
 }

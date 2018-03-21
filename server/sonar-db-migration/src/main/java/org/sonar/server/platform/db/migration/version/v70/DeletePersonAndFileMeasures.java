@@ -49,7 +49,7 @@ public class DeletePersonAndFileMeasures extends DataChange {
     MassUpdate massUpdate = context.prepareMassUpdate();
     massUpdate.select("select uuid from snapshots");
     massUpdate.rowPluralName("snapshots");
-    massUpdate.update(getDeleteSql());
+    massUpdate.update(getDeleteSql()).setBatchSize(1);
 
     massUpdate.execute((row, update) -> {
       String analysisUuid = row.getString(1);

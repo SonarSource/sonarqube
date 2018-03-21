@@ -24,6 +24,7 @@ import java.util.Date;
 import org.sonar.api.utils.System2;
 import org.sonar.db.Database;
 import org.sonar.server.platform.db.migration.step.DataChange;
+import org.sonar.server.platform.db.migration.step.Upsert;
 
 public class PopulateInitialSchema extends DataChange {
 
@@ -51,17 +52,18 @@ public class PopulateInitialSchema extends DataChange {
     truncateTable(context, "groups");
 
     Date now = new Date(system2.now());
-    context.prepareUpsert("insert into groups (name, description, created_at, updated_at) values (?, ?, ?, ?)")
-      .setString(1, ADMINS_GROUP)
+    Upsert upsert = context.prepareUpsert("insert into groups (name, description, created_at, updated_at) values (?, ?, ?, ?)");
+    upsert.setString(1, ADMINS_GROUP)
       .setString(2, "System administrators")
       .setDate(3, now)
       .setDate(4, now)
-      .addBatch()
-      .setString(1, USERS_GROUP)
+      .addBatch();
+    upsert.setString(1, USERS_GROUP)
       .setString(2, "Any new users created will automatically join this group")
       .setDate(3, now)
       .setDate(4, now)
-      .addBatch()
+      .addBatch();
+    upsert
       .execute()
       .commit();
   }
@@ -70,19 +72,21 @@ public class PopulateInitialSchema extends DataChange {
     truncateTable(context, "group_roles");
 
     // admin group
-    context.prepareUpsert("insert into group_roles (group_id, resource_id, role) values ((select id from groups where name='" + ADMINS_GROUP + "'), null, ?)")
-      .setString(1, "admin").addBatch()
-      .setString(1, "profileadmin").addBatch()
-      .setString(1, "gateadmin").addBatch()
-      .setString(1, "shareDashboard").addBatch()
-      .setString(1, "provisioning").addBatch()
+    Upsert upsert = context.prepareUpsert("insert into group_roles (group_id, resource_id, role) values ((select id from groups where name='" + ADMINS_GROUP + "'), null, ?)");
+    upsert.setString(1, "admin").addBatch();
+    upsert.setString(1, "profileadmin").addBatch();
+    upsert.setString(1, "gateadmin").addBatch();
+    upsert.setString(1, "shareDashboard").addBatch();
+    upsert.setString(1, "provisioning").addBatch();
+    upsert
       .execute()
       .commit();
 
     // anyone
-    context.prepareUpsert("insert into group_roles (group_id, resource_id, role) values (null, null, ?)")
-      .setString(1, "scan").addBatch()
-      .setString(1, "provisioning").addBatch()
+    upsert = context.prepareUpsert("insert into group_roles (group_id, resource_id, role) values (null, null, ?)");
+    upsert.setString(1, "scan").addBatch();
+    upsert.setString(1, "provisioning").addBatch();
+    upsert
       .execute()
       .commit();
   }
@@ -106,10 +110,11 @@ public class PopulateInitialSchema extends DataChange {
   private static void insertGroupMemberships(Context context) throws SQLException {
     truncateTable(context, "groups_users");
 
-    context.prepareUpsert("insert into groups_users (user_id, group_id) values " +
-      "((select id from users where login='" + ADMIN_USER + "'), (select id from groups where name=?))")
-      .setString(1, ADMINS_GROUP).addBatch()
-      .setString(1, USERS_GROUP).addBatch()
+    Upsert upsert = context.prepareUpsert("insert into groups_users (user_id, group_id) values " +
+      "((select id from users where login='" + ADMIN_USER + "'), (select id from groups where name=?))");
+    upsert.setString(1, ADMINS_GROUP).addBatch();
+    upsert.setString(1, USERS_GROUP).addBatch();
+    upsert
       .execute()
       .commit();
   }
