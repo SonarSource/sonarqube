@@ -4,7 +4,6 @@ exports[`should render Select 1`] = `
 <Select
   autofocus={true}
   className="input-super-large"
-  clearable={false}
   escapeClearsValue={false}
   filterOption={[Function]}
   isLoading={false}

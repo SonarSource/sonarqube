@@ -177,8 +177,14 @@ export default class BulkChangeModal extends React.PureComponent {
     this.setState({ [field]: event.target.value });
   };
 
-  handleSelectFieldChange = (field /*: string */) => ({ value } /*: { value: string } */) => {
-    this.setState({ [field]: value });
+  handleSelectFieldChange = (field /*: string */) => (
+    data /*: { label: string, value: string } */
+  ) => {
+    if (data) {
+      this.setState({ [field]: data.value });
+    } else {
+      this.setState({ [field]: null });
+    }
   };
 
   handleSubmit = (e /*: Event */) => {
@@ -236,7 +242,7 @@ export default class BulkChangeModal extends React.PureComponent {
   }
 
   renderCancelButton = () => (
-    <a id="bulk-change-cancel" href="#" onClick={this.handleCloseClick}>
+    <a href="#" id="bulk-change-cancel" onClick={this.handleCloseClick}>
       {translate('cancel')}
     </a>
   );
@@ -273,7 +279,6 @@ export default class BulkChangeModal extends React.PureComponent {
   ) => (
     <div className="modal-field" id={`issues-bulk-change-${field}`}>
       <label htmlFor={field}>{translate(label)}</label>
-      {this.renderCheckbox(field)}
       {input}
       {affected != null && this.renderAffected(affected)}
     </div>
@@ -299,6 +304,7 @@ export default class BulkChangeModal extends React.PureComponent {
 
     const input = (
       <SearchSelect
+        clearable={true}
         defaultOptions={this.getDefaultAssignee()}
         onSearch={this.handleAssigneeSearch}
         onSelect={this.handleAssigneeSelect}
@@ -330,7 +336,7 @@ export default class BulkChangeModal extends React.PureComponent {
 
     const input = (
       <Select
-        clearable={false}
+        clearable={true}
         id="type"
         onChange={this.handleSelectFieldChange('type')}
         optionRenderer={optionRenderer}
@@ -359,7 +365,7 @@ export default class BulkChangeModal extends React.PureComponent {
 
     const input = (
       <Select
-        clearable={false}
+        clearable={true}
         id="severity"
         onChange={this.handleSelectFieldChange('severity')}
         optionRenderer={option => <SeverityHelper severity={option.value} />}
@@ -384,6 +390,7 @@ export default class BulkChangeModal extends React.PureComponent {
     const input = (
       <SearchSelect
         canCreate={allowCreate}
+        clearable={true}
         defaultOptions={this.state.initialTags}
         id={field}
         minimumQueryLength={0}

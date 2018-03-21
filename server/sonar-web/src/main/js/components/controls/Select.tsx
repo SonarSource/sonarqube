@@ -54,7 +54,9 @@ export default function Select({ innerRef, ...props }: WithInnerRef & ReactSelec
 }
 
 export function Creatable(props: ReactCreatableSelectProps) {
-  return <ReactCreatable {...props} />;
+  // ReactSelect doesn't declare `clearRenderer` prop
+  const ReactCreatableAny = ReactCreatable as any;
+  return <ReactCreatableAny {...props} clearRenderer={renderInput} />;
 }
 
 // TODO figure out why `ref` prop is incompatible

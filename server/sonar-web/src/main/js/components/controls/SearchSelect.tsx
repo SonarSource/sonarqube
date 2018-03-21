@@ -30,6 +30,7 @@ interface Option {
 interface Props {
   autofocus?: boolean;
   canCreate?: boolean;
+  clearable?: boolean;
   defaultOptions?: Option[];
   minimumQueryLength?: number;
   multi?: boolean;
@@ -128,7 +129,7 @@ export default class SearchSelect extends React.PureComponent<Props, State> {
       <Component
         autofocus={this.autofocus}
         className="input-super-large"
-        clearable={false}
+        clearable={this.props.clearable}
         escapeClearsValue={false}
         filterOption={this.handleFilterOption}
         isLoading={this.state.loading}
