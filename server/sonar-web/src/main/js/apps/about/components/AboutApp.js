@@ -78,6 +78,8 @@ class AboutApp extends React.PureComponent {
       this.loadData();
       // $FlowFixMe
       document.body.classList.add('white-page');
+      // $FlowFixMe
+      document.documentElement.classList.add('white-page');
     }
   }
 
@@ -85,6 +87,8 @@ class AboutApp extends React.PureComponent {
     this.mounted = false;
     // $FlowFixMe
     document.body.classList.remove('white-page');
+    // $FlowFixMe
+    document.documentElement.classList.remove('white-page');
   }
 
   loadProjects() {
