@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { without } from 'lodash';
 import Checkbox from '../../../../components/controls/Checkbox';
 import GroupIcon from '../../../../components/icons-components/GroupIcon';
 import { PermissionGroup } from '../../../../api/permissions';
@@ -27,22 +28,50 @@ interface Props {
   permissions: string[];
   selectedPermission?: string;
   permissionsOrder: string[];
-  onToggle: (group: PermissionGroup, permission: string) => void;
+  onToggle: (group: PermissionGroup, permission: string) => Promise<void>;
 }
 
-export default class GroupHolder extends React.PureComponent<Props> {
-  handleCheck = (_checked: boolean, permission?: string) =>
-    permission && this.props.onToggle(this.props.group, permission);
+interface State {
+  loading: string[];
+}
+
+export default class GroupHolder extends React.PureComponent<Props, State> {
+  mounted = false;
+  state: State = { loading: [] };
+
+  componentDidMount() {
+    this.mounted = true;
+  }
+
+  componentWillUnmount() {
+    this.mounted = false;
+  }
+
+  stopLoading = (permission: string) => {
+    if (this.mounted) {
+      this.setState(state => ({ loading: without(state.loading, permission) }));
+    }
+  };
+
+  handleCheck = (_checked: boolean, permission?: string) => {
+    if (permission !== undefined) {
+      this.setState(state => ({ loading: [...state.loading, permission] }));
+      this.props
+        .onToggle(this.props.group, permission)
+        .then(() => this.stopLoading(permission), () => this.stopLoading(permission));
+    }
+  };
 
   render() {
     const { selectedPermission } = this.props;
     const permissionCells = this.props.permissionsOrder.map(permission => (
       <td
-        key={permission}
         className="text-center text-middle"
+        key={permission}
         style={{ backgroundColor: permission === selectedPermission ? '#d9edf7' : 'transparent' }}>
         <Checkbox
           checked={this.props.permissions.includes(permission)}
+          disabled={this.state.loading.includes(permission)}
           id={permission}
           onCheck={this.handleCheck}
         />

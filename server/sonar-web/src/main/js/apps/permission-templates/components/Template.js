@@ -89,8 +89,7 @@ export default class Template extends React.PureComponent {
 
   handleToggleUser = (user, permission) => {
     if (user.login === '<creator>') {
-      this.handleToggleProjectCreator(user, permission);
-      return;
+      return this.handleToggleProjectCreator(user, permission);
     }
     const { template, organization } = this.props;
     const hasPermission = user.permissions.includes(permission);
@@ -105,7 +104,7 @@ export default class Template extends React.PureComponent {
     const request = hasPermission
       ? api.revokeTemplatePermissionFromUser(data)
       : api.grantTemplatePermissionToUser(data);
-    request.then(() => this.requestHolders()).then(this.props.refresh);
+    return request.then(() => this.requestHolders()).then(this.props.refresh);
   };
 
   handleToggleProjectCreator = (user, permission) => {
@@ -114,7 +113,7 @@ export default class Template extends React.PureComponent {
     const request = hasPermission
       ? api.removeProjectCreatorFromTemplate(template.id, permission)
       : api.addProjectCreatorToTemplate(template.id, permission);
-    request.then(() => this.requestHolders()).then(this.props.refresh);
+    return request.then(() => this.requestHolders()).then(this.props.refresh);
   };
 
   handleToggleGroup = (group, permission) => {
@@ -131,7 +130,7 @@ export default class Template extends React.PureComponent {
     const request = hasPermission
       ? api.revokeTemplatePermissionFromGroup(data)
       : api.grantTemplatePermissionToGroup(data);
-    request.then(() => this.requestHolders()).then(this.props.refresh);
+    return request.then(() => this.requestHolders()).then(this.props.refresh);
   };
 
   handleSearch = query => {
@@ -193,29 +192,29 @@ export default class Template extends React.PureComponent {
         <Helmet title={this.props.template.name} />
 
         <TemplateHeader
-          organization={this.props.organization}
-          template={this.props.template}
           loading={this.state.loading}
+          organization={this.props.organization}
           refresh={this.props.refresh}
+          template={this.props.template}
           topQualifiers={this.props.topQualifiers}
         />
 
         <TemplateDetails organization={this.props.organization} template={this.props.template} />
 
         <HoldersList
+          groups={this.state.groups}
+          onSelectPermission={this.handleSelectPermission}
+          onToggleGroup={this.handleToggleGroup}
+          onToggleUser={this.handleToggleUser}
           permissions={permissions}
           selectedPermission={this.state.selectedPermission}
-          users={allUsers}
-          groups={this.state.groups}
           showPublicProjectsWarning={true}
-          onSelectPermission={this.handleSelectPermission}
-          onToggleUser={this.handleToggleUser}
-          onToggleGroup={this.handleToggleGroup}>
+          users={allUsers}>
           <SearchForm
-            query={this.state.query}
             filter={this.state.filter}
-            onSearch={this.handleSearch}
             onFilter={this.handleFilter}
+            onSearch={this.handleSearch}
+            query={this.state.query}
           />
         </HoldersList>
       </div>

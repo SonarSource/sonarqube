@@ -1,0 +1,129 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should display users and groups 1`] = `
+<div
+  className="boxed-group boxed-group-inner"
+>
+  <table
+    className="data zebra permissions-table"
+  >
+    <thead>
+      <tr>
+        <td
+          className="nowrap bordered-bottom"
+        />
+        <PermissionHeader
+          key="bar"
+          onSelectPermission={[MockFunction]}
+          permission={
+            Object {
+              "description": "foo",
+              "key": "bar",
+              "name": "bar",
+            }
+          }
+          selectedPermission="bar"
+        />
+      </tr>
+    </thead>
+    <tbody>
+      <UserHolder
+        key="user-foobar"
+        onToggle={[MockFunction]}
+        permissions={
+          Array [
+            "bar",
+          ]
+        }
+        permissionsOrder={
+          Array [
+            "bar",
+          ]
+        }
+        selectedPermission="bar"
+        user={
+          Object {
+            "login": "foobar",
+            "name": "Foobar",
+            "permissions": Array [
+              "bar",
+            ],
+          }
+        }
+      />
+      <UserHolder
+        key="user-barbaz"
+        onToggle={[MockFunction]}
+        permissions={
+          Array [
+            "bar",
+          ]
+        }
+        permissionsOrder={
+          Array [
+            "bar",
+          ]
+        }
+        selectedPermission="bar"
+        user={
+          Object {
+            "login": "barbaz",
+            "name": "Barbaz",
+            "permissions": Array [
+              "bar",
+            ],
+          }
+        }
+      />
+      <GroupHolder
+        group={
+          Object {
+            "id": "foobar",
+            "name": "Foobar",
+            "permissions": Array [
+              "bar",
+            ],
+          }
+        }
+        key="group-foobar"
+        onToggle={[MockFunction]}
+        permissions={
+          Array [
+            "bar",
+          ]
+        }
+        permissionsOrder={
+          Array [
+            "bar",
+          ]
+        }
+        selectedPermission="bar"
+      />
+      <GroupHolder
+        group={
+          Object {
+            "id": "barbaz",
+            "name": "Barbaz",
+            "permissions": Array [
+              "bar",
+            ],
+          }
+        }
+        key="group-barbaz"
+        onToggle={[MockFunction]}
+        permissions={
+          Array [
+            "bar",
+          ]
+        }
+        permissionsOrder={
+          Array [
+            "bar",
+          ]
+        }
+        selectedPermission="bar"
+      />
+    </tbody>
+  </table>
+</div>
+`;

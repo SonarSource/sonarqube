@@ -28,8 +28,8 @@ const PERMISSIONS_ORDER = ['admin', 'profileadmin', 'gateadmin', 'scan', 'provis
 
 interface Props {
   filter: string;
-  grantPermissionToGroup: (groupName: string, permission: string) => void;
-  grantPermissionToUser: (login: string, permission: string) => void;
+  grantPermissionToGroup: (groupName: string, permission: string) => Promise<void>;
+  grantPermissionToUser: (login: string, permission: string) => Promise<void>;
   groups: PermissionGroup[];
   loadHolders: () => void;
   onFilter: (filter: string) => void;
@@ -37,8 +37,8 @@ interface Props {
   onSelectPermission: (permission: string) => void;
   organization?: Organization;
   query: string;
-  revokePermissionFromGroup: (groupName: string, permission: string) => void;
-  revokePermissionFromUser: (login: string, permission: string) => void;
+  revokePermissionFromGroup: (groupName: string, permission: string) => Promise<void>;
+  revokePermissionFromUser: (login: string, permission: string) => Promise<void>;
   selectedPermission?: string;
   users: PermissionUser[];
 }
@@ -52,9 +52,9 @@ export default class AllHoldersList extends React.PureComponent<Props> {
     const hasPermission = user.permissions.includes(permission);
 
     if (hasPermission) {
-      this.props.revokePermissionFromUser(user.login, permission);
+      return this.props.revokePermissionFromUser(user.login, permission);
     } else {
-      this.props.grantPermissionToUser(user.login, permission);
+      return this.props.grantPermissionToUser(user.login, permission);
     }
   };
 
@@ -62,9 +62,9 @@ export default class AllHoldersList extends React.PureComponent<Props> {
     const hasPermission = group.permissions.includes(permission);
 
     if (hasPermission) {
-      this.props.revokePermissionFromGroup(group.name, permission);
+      return this.props.revokePermissionFromGroup(group.name, permission);
     } else {
-      this.props.grantPermissionToGroup(group.name, permission);
+      return this.props.grantPermissionToGroup(group.name, permission);
     }
   };
 
@@ -78,18 +78,18 @@ export default class AllHoldersList extends React.PureComponent<Props> {
 
     return (
       <HoldersList
-        permissions={permissions}
-        selectedPermission={this.props.selectedPermission}
-        users={this.props.users}
         groups={this.props.groups}
         onSelectPermission={this.props.onSelectPermission}
+        onToggleGroup={this.handleToggleGroup}
         onToggleUser={this.handleToggleUser}
-        onToggleGroup={this.handleToggleGroup}>
+        permissions={permissions}
+        selectedPermission={this.props.selectedPermission}
+        users={this.props.users}>
         <SearchForm
-          query={this.props.query}
           filter={this.props.filter}
-          onSearch={this.props.onSearch}
           onFilter={this.props.onFilter}
+          onSearch={this.props.onSearch}
+          query={this.props.query}
         />
       </HoldersList>
     );

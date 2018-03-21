@@ -52,14 +52,14 @@ interface StateToProps {
 }
 
 interface DispatchToProps {
-  grantPermissionToGroup: (groupName: string, permission: string) => void;
-  grantPermissionToUser: (login: string, permission: string) => void;
+  grantPermissionToGroup: (groupName: string, permission: string) => Promise<void>;
+  grantPermissionToUser: (login: string, permission: string) => Promise<void>;
   loadHolders: () => void;
   onFilter: (filter: string) => void;
   onSearch: (query: string) => void;
   onSelectPermission: (permission: string) => void;
-  revokePermissionFromGroup: (groupName: string, permission: string) => void;
-  revokePermissionFromUser: (login: string, permission: string) => void;
+  revokePermissionFromGroup: (groupName: string, permission: string) => Promise<void>;
+  revokePermissionFromUser: (login: string, permission: string) => Promise<void>;
 }
 
 const mapStateToProps = (state: any) => ({

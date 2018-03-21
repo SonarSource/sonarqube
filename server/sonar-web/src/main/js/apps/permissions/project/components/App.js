@@ -202,7 +202,7 @@ export default class App extends React.PureComponent {
   grantPermissionToGroup = (group /*: string */, permission /*: string */) => {
     if (this.mounted) {
       this.setState({ loading: true, groups: this.addPermissionToGroup(group, permission) });
-      api
+      return api
         .grantPermissionToGroup(
           this.props.component.key,
           group,
@@ -219,12 +219,13 @@ export default class App extends React.PureComponent {
           }
         });
     }
+    return Promise.resolve();
   };
 
   grantPermissionToUser = (user /*: string */, permission /*: string */) => {
     if (this.mounted) {
       this.setState({ loading: true, users: this.addPermissionToUser(user, permission) });
-      api
+      return api
         .grantPermissionToUser(
           this.props.component.key,
           user,
@@ -241,12 +242,13 @@ export default class App extends React.PureComponent {
           }
         });
     }
+    return Promise.resolve();
   };
 
   revokePermissionFromGroup = (group /*: string */, permission /*: string */) => {
     if (this.mounted) {
       this.setState({ loading: true, groups: this.removePermissionFromGroup(group, permission) });
-      api
+      return api
         .revokePermissionFromGroup(
           this.props.component.key,
           group,
@@ -263,12 +265,13 @@ export default class App extends React.PureComponent {
           }
         });
     }
+    return Promise.resolve();
   };
 
   revokePermissionFromUser = (user /*: string */, permission /*: string */) => {
     if (this.mounted) {
       this.setState({ loading: true, users: this.removePermissionFromUser(user, permission) });
-      api
+      return api
         .revokePermissionFromUser(
           this.props.component.key,
           user,
@@ -285,6 +288,7 @@ export default class App extends React.PureComponent {
           }
         });
     }
+    return Promise.resolve();
   };
 
   handleVisibilityChange = (visibility /*: string */) => {
@@ -380,8 +384,8 @@ export default class App extends React.PureComponent {
           revokePermissionFromGroup={this.revokePermissionFromGroup}
           revokePermissionFromUser={this.revokePermissionFromUser}
           selectedPermission={this.state.selectedPermission}
-          visibility={this.props.component.visibility}
           users={this.state.users}
+          visibility={this.props.component.visibility}
         />
       </div>
     );

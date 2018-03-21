@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { without } from 'lodash';
 import Avatar from '../../../../components/ui/Avatar';
 import Checkbox from '../../../../components/controls/Checkbox';
 import { PermissionUser } from '../../../../api/permissions';
@@ -28,22 +29,50 @@ interface Props {
   permissions: string[];
   selectedPermission?: string;
   permissionsOrder: string[];
-  onToggle: (user: PermissionUser, permission: string) => void;
+  onToggle: (user: PermissionUser, permission: string) => Promise<void>;
 }
 
-export default class UserHolder extends React.PureComponent<Props> {
-  handleCheck = (_checked: boolean, permission?: string) =>
-    permission && this.props.onToggle(this.props.user, permission);
+interface State {
+  loading: string[];
+}
+
+export default class UserHolder extends React.PureComponent<Props, State> {
+  mounted = false;
+  state: State = { loading: [] };
+
+  componentDidMount() {
+    this.mounted = true;
+  }
+
+  componentWillUnmount() {
+    this.mounted = false;
+  }
+
+  stopLoading = (permission: string) => {
+    if (this.mounted) {
+      this.setState(state => ({ loading: without(state.loading, permission) }));
+    }
+  };
+
+  handleCheck = (_checked: boolean, permission?: string) => {
+    if (permission !== undefined) {
+      this.setState(state => ({ loading: [...state.loading, permission] }));
+      this.props
+        .onToggle(this.props.user, permission)
+        .then(() => this.stopLoading(permission), () => this.stopLoading(permission));
+    }
+  };
 
   render() {
     const { selectedPermission } = this.props;
     const permissionCells = this.props.permissionsOrder.map(permission => (
       <td
-        key={permission}
         className="text-center text-middle"
+        key={permission}
         style={{ backgroundColor: permission === selectedPermission ? '#d9edf7' : 'transparent' }}>
         <Checkbox
           checked={this.props.permissions.includes(permission)}
+          disabled={this.state.loading.includes(permission)}
           id={permission}
           onCheck={this.handleCheck}
         />
@@ -73,10 +102,10 @@ export default class UserHolder extends React.PureComponent<Props> {
       <tr>
         <td className="nowrap">
           <Avatar
+            className="text-middle big-spacer-right"
             hash={user.avatar}
             name={user.name}
             size={36}
-            className="text-middle big-spacer-right"
           />
           <div className="display-inline-block text-middle">
             <div>

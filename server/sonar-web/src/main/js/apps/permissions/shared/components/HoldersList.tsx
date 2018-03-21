@@ -31,8 +31,8 @@ interface Props {
   selectedPermission?: string;
   showPublicProjectsWarning?: boolean;
   onSelectPermission: (permission: string) => void;
-  onToggleUser: (user: PermissionUser, permission: string) => void;
-  onToggleGroup: (group: PermissionGroup, permission: string) => void;
+  onToggleUser: (user: PermissionUser, permission: string) => Promise<void>;
+  onToggleGroup: (group: PermissionGroup, permission: string) => Promise<void>;
 }
 
 export default class HoldersList extends React.PureComponent<Props> {
@@ -72,22 +72,22 @@ export default class HoldersList extends React.PureComponent<Props> {
     const users = this.props.users.map(user => (
       <UserHolder
         key={'user-' + user.login}
-        user={user}
-        permissions={user.permissions}
-        selectedPermission={this.props.selectedPermission}
-        permissionsOrder={permissionsOrder}
         onToggle={this.props.onToggleUser}
+        permissions={user.permissions}
+        permissionsOrder={permissionsOrder}
+        selectedPermission={this.props.selectedPermission}
+        user={user}
       />
     ));
 
     const groups = this.props.groups.map(group => (
       <GroupHolder
-        key={'group-' + group.id}
         group={group}
-        permissions={group.permissions}
-        selectedPermission={this.props.selectedPermission}
-        permissionsOrder={permissionsOrder}
+        key={'group-' + group.id}
         onToggle={this.props.onToggleGroup}
+        permissions={group.permissions}
+        permissionsOrder={permissionsOrder}
+        selectedPermission={this.props.selectedPermission}
       />
     ));
 

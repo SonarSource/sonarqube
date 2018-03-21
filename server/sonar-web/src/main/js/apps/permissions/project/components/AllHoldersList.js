@@ -38,8 +38,8 @@ type Props = {|
     visibility: string
   },
   filter: string,
-  grantPermissionToGroup: (group: string, permission: string) => void,
-  grantPermissionToUser: (user: string, permission: string) => void,
+  grantPermissionToGroup: (group: string, permission: string) => Promise<void>,
+  grantPermissionToUser: (user: string, permission: string) => Promise<void>,
   groups: Array<{
     name: string,
     permissions: Array<string>
@@ -48,8 +48,8 @@ type Props = {|
   onPermissionSelect: (string | void) => void,
   onQueryChange: string => void,
   query: string,
-  revokePermissionFromGroup: (group: string, permission: string) => void,
-  revokePermissionFromUser: (user: string, permission: string) => void,
+  revokePermissionFromGroup: (group: string, permission: string) => Promise<void>,
+  revokePermissionFromUser: (user: string, permission: string) => Promise<void>,
   selectedPermission: ?string,
   visibility: string,
   users: Array<{
@@ -67,9 +67,9 @@ export default class AllHoldersList extends React.PureComponent {
     const hasPermission = user.permissions.includes(permission);
 
     if (hasPermission) {
-      this.props.revokePermissionFromUser(user.login, permission);
+      return this.props.revokePermissionFromUser(user.login, permission);
     } else {
-      this.props.grantPermissionToUser(user.login, permission);
+      return this.props.grantPermissionToUser(user.login, permission);
     }
   };
 
@@ -77,9 +77,9 @@ export default class AllHoldersList extends React.PureComponent {
     const hasPermission = group.permissions.includes(permission);
 
     if (hasPermission) {
-      this.props.revokePermissionFromGroup(group.name, permission);
+      return this.props.revokePermissionFromGroup(group.name, permission);
     } else {
-      this.props.grantPermissionToGroup(group.name, permission);
+      return this.props.grantPermissionToGroup(group.name, permission);
     }
   };
 
@@ -101,18 +101,18 @@ export default class AllHoldersList extends React.PureComponent {
 
     return (
       <HoldersList
-        permissions={permissions}
-        selectedPermission={this.props.selectedPermission}
-        users={this.props.users}
         groups={this.props.groups}
         onSelectPermission={this.handleSelectPermission}
+        onToggleGroup={this.handleToggleGroup}
         onToggleUser={this.handleToggleUser}
-        onToggleGroup={this.handleToggleGroup}>
+        permissions={permissions}
+        selectedPermission={this.props.selectedPermission}
+        users={this.props.users}>
         <SearchForm
-          query={this.props.query}
           filter={this.props.filter}
-          onSearch={this.props.onQueryChange}
           onFilter={this.props.onFilterChange}
+          onSearch={this.props.onQueryChange}
+          query={this.props.query}
         />
       </HoldersList>
     );

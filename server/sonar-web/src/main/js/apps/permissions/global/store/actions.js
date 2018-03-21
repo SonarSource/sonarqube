@@ -115,7 +115,7 @@ export const grantToUser = (
   permission /*: string */,
   organization /*: ?string */
 ) => (dispatch /*: Dispatch */) => {
-  api
+  return api
     .grantPermissionToUser(null, login, permission, organization)
     .then(() => {
       dispatch({ type: GRANT_PERMISSION_TO_USER, login, permission });
@@ -130,7 +130,7 @@ export const revokeFromUser = (
   permission /*: string */,
   organization /*: ?string */
 ) => (dispatch /*: Dispatch */) => {
-  api
+  return api
     .revokePermissionFromUser(null, login, permission, organization)
     .then(() => {
       dispatch({ type: REVOKE_PERMISSION_TO_USER, login, permission });
@@ -145,7 +145,7 @@ export const grantToGroup = (
   permission /*: string */,
   organization /*: ?string */
 ) => (dispatch /*: Dispatch */) => {
-  api
+  return api
     .grantPermissionToGroup(null, groupName, permission, organization)
     .then(() => {
       dispatch({
@@ -164,7 +164,7 @@ export const revokeFromGroup = (
   permission /*: string */,
   organization /*: ?string */
 ) => (dispatch /*: Dispatch */) => {
-  api
+  return api
     .revokePermissionFromGroup(null, groupName, permission, organization)
     .then(() => {
       dispatch({
