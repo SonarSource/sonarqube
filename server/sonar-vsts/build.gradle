@@ -32,3 +32,14 @@ yarn_run {
 
 yarn_run.dependsOn ':server:sonar-web:yarn_run'
 
+def sources = fileTree(dir: "src") + fileTree(dir: "scripts") + fileTree(dir: "config")
+
+task licenseCheckWeb(type: com.hierynomus.gradle.license.tasks.LicenseCheck) {
+  source = sources
+}
+licenseMain.dependsOn licenseCheckWeb
+
+task licenseFormatWeb(type: com.hierynomus.gradle.license.tasks.LicenseFormat) {
+  source = sources
+}
+licenseFormat.dependsOn licenseFormatWeb

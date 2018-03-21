@@ -46,6 +46,10 @@ dependencies {
   testCompile project(':sonar-plugin-api').sourceSets.test.output
 }
 
+license {
+  excludes(["**/Fake.java", "**/Fake.groovy", "org/sonar/scanner/cpd/deprecated/ManyStatements.java"])
+}
+
 artifactoryPublish.skip = false
 
 // Used by core plugins
