@@ -53,7 +53,7 @@ export default class ConciseIssueLocationsNavigatorLocation extends React.PureCo
     return (
       <div className="little-spacer-top" ref={node => (this.node = node)}>
         <a
-          className="consice-issue-locations-navigator-location"
+          className="concise-issue-locations-navigator-location"
           href="#"
           onClick={this.handleClick}>
           <LocationIndex selected={this.props.selected}>{this.props.index + 1}</LocationIndex>

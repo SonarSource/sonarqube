@@ -25,9 +25,11 @@ import { ShortLivingBranch, BranchType } from '../../../../app/types';
 const baseIssue = {
   component: 'comp',
   componentLongName: 'comp-name',
+  flows: [],
   organization: 'org',
   project: 'proj',
-  projectName: 'proj-name'
+  projectName: 'proj-name',
+  secondaryLocations: []
 };
 
 it('renders', () => {

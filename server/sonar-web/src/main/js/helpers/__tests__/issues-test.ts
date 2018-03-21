@@ -60,16 +60,61 @@ it('should populate comments data', () => {
 it('orders secondary locations', () => {
   const issue = {
     flows: [
-      { locations: [{ textRange: { startLine: 68, startOffset: 5, endLine: 68, endOffset: 7 } }] },
-      { locations: [{ textRange: { startLine: 43, startOffset: 8, endLine: 43, endOffset: 12 } }] },
-      { locations: [{ textRange: { startLine: 43, startOffset: 6, endLine: 43, endOffset: 8 } }] },
-      { locations: [{ textRange: { startLine: 70, startOffset: 12, endLine: 70, endOffset: 16 } }] }
+      {
+        locations: [
+          {
+            component: 'foo',
+            textRange: { startLine: 68, startOffset: 5, endLine: 68, endOffset: 7 }
+          }
+        ]
+      },
+      {
+        locations: [
+          {
+            component: 'unknown',
+            textRange: { startLine: 43, startOffset: 8, endLine: 43, endOffset: 12 }
+          }
+        ]
+      },
+      {
+        locations: [
+          {
+            component: 'bar',
+            textRange: { startLine: 43, startOffset: 6, endLine: 43, endOffset: 8 }
+          }
+        ]
+      },
+      {
+        locations: [
+          {
+            component: 'foo',
+            textRange: { startLine: 70, startOffset: 12, endLine: 70, endOffset: 16 }
+          }
+        ]
+      }
     ]
   } as any;
-  expect(parseIssueFromResponse(issue).secondaryLocations).toEqual([
-    { textRange: { startLine: 43, startOffset: 6, endLine: 43, endOffset: 8 } },
-    { textRange: { startLine: 43, startOffset: 8, endLine: 43, endOffset: 12 } },
-    { textRange: { startLine: 68, startOffset: 5, endLine: 68, endOffset: 7 } },
-    { textRange: { startLine: 70, startOffset: 12, endLine: 70, endOffset: 16 } }
+  const components = [{ key: 'foo', name: 'src/foo.js' }, { key: 'bar', name: 'src/bar.js' }];
+  expect(parseIssueFromResponse(issue, components).secondaryLocations).toEqual([
+    {
+      component: 'bar',
+      componentName: 'src/bar.js',
+      textRange: { endLine: 43, endOffset: 8, startLine: 43, startOffset: 6 }
+    },
+    {
+      component: 'unknown',
+      componentName: undefined,
+      textRange: { endLine: 43, endOffset: 12, startLine: 43, startOffset: 8 }
+    },
+    {
+      component: 'foo',
+      componentName: 'src/foo.js',
+      textRange: { endLine: 68, endOffset: 7, startLine: 68, startOffset: 5 }
+    },
+    {
+      component: 'foo',
+      componentName: 'src/foo.js',
+      textRange: { endLine: 70, endOffset: 16, startLine: 70, startOffset: 12 }
+    }
   ]);
 });

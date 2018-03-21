@@ -1,0 +1,76 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render 1`] = `
+<div
+  className="concise-issue-locations-navigator spacer-top"
+>
+  <div
+    className="concise-issue-locations-navigator-file"
+    key="0"
+  >
+    <div
+      className="concise-issue-location-file"
+    >
+      <i
+        className="concise-issue-location-file-circle little-spacer-right"
+      />
+      src/foo.js
+    </div>
+    <div
+      className="concise-issue-location-file-locations"
+    >
+      <ConciseIssueLocationsNavigatorLocation
+        index={0}
+        key="0"
+        message="Do not use foo"
+        onClick={[MockFunction]}
+        scroll={[MockFunction]}
+        selected={false}
+      />
+    </div>
+  </div>
+  <div
+    className="concise-issue-locations-navigator-file"
+  >
+    <div
+      className="concise-issue-location-file"
+    >
+      <i
+        className="concise-issue-location-file-circle-multiple little-spacer-right"
+      />
+      <a
+        className="concise-issue-location-file-more"
+        href="#"
+        onClick={[Function]}
+      >
+        issues.x_more_locations.1
+      </a>
+    </div>
+  </div>
+  <div
+    className="concise-issue-locations-navigator-file"
+    key="1"
+  >
+    <div
+      className="concise-issue-location-file"
+    >
+      <i
+        className="concise-issue-location-file-circle little-spacer-right"
+      />
+      src/bar.js
+    </div>
+    <div
+      className="concise-issue-location-file-locations"
+    >
+      <ConciseIssueLocationsNavigatorLocation
+        index={2}
+        key="2"
+        message="Do not use bar"
+        onClick={[MockFunction]}
+        scroll={[MockFunction]}
+        selected={false}
+      />
+    </div>
+  </div>
+</div>
+`;

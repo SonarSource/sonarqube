@@ -347,7 +347,14 @@ export default class App extends React.PureComponent<Props, State> {
     };
     if (this.state.openIssue) {
       if (path.query.open && path.query.open === this.state.openIssue.key) {
-        this.scrollToSelectedIssue();
+        this.setState(
+          {
+            locationsNavigator: false,
+            selectedFlowIndex: undefined,
+            selectedLocationIndex: undefined
+          },
+          this.scrollToSelectedIssue
+        );
       } else {
         this.context.router.replace(path);
       }
@@ -384,7 +391,7 @@ export default class App extends React.PureComponent<Props, State> {
     if (selected) {
       const element = document.querySelector(`[data-issue="${selected}"]`);
       if (element) {
-        scrollToElement(element, { topOffset: 150, bottomOffset: 100, smooth });
+        scrollToElement(element, { topOffset: 250, bottomOffset: 100, smooth });
       }
     }
   };
@@ -993,6 +1000,8 @@ export default class App extends React.PureComponent<Props, State> {
                       component={component}
                       issue={openIssue}
                       organization={this.props.organization}
+                      selectedFlowIndex={this.state.selectedFlowIndex}
+                      selectedLocationIndex={this.state.selectedLocationIndex}
                     />
                   </div>
                 ) : (
@@ -1020,14 +1029,13 @@ export default class App extends React.PureComponent<Props, State> {
                 <IssuesSourceViewer
                   branchLike={this.props.branchLike}
                   loadIssues={this.fetchIssuesForComponent}
+                  locationsNavigator={this.state.locationsNavigator}
                   onIssueChange={this.handleIssueChange}
                   onIssueSelect={this.openIssue}
                   onLocationSelect={this.selectLocation}
                   openIssue={openIssue}
                   selectedFlowIndex={this.state.selectedFlowIndex}
-                  selectedLocationIndex={
-                    this.state.locationsNavigator ? this.state.selectedLocationIndex : undefined
-                  }
+                  selectedLocationIndex={this.state.selectedLocationIndex}
                 />
               ) : (
                 this.renderList()

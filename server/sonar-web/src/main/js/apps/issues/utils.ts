@@ -19,6 +19,7 @@
  */
 import { searchMembers } from '../../api/organizations';
 import { searchUsers } from '../../api/users';
+import { Issue } from '../../app/types';
 import { formatMeasure } from '../../helpers/measures';
 import {
   queriesEqual,
@@ -227,3 +228,31 @@ const save = (value: string) => {
 
 export const saveMyIssues = (myIssues: boolean) =>
   save(myIssues ? LOCALSTORAGE_MY : LOCALSTORAGE_ALL);
+
+export function getLocations(
+  { flows, secondaryLocations }: Pick<Issue, 'flows' | 'secondaryLocations'>,
+  selectedFlowIndex: number | undefined
+) {
+  if (selectedFlowIndex !== undefined) {
+    return flows[selectedFlowIndex] || [];
+  } else {
+    return flows.length > 0 ? flows[0] : secondaryLocations;
+  }
+}
+
+export function getSelectedLocation(
+  issue: Pick<Issue, 'flows' | 'secondaryLocations'>,
+  selectedFlowIndex: number | undefined,
+  selectedLocationIndex: number | undefined
+) {
+  const locations = getLocations(issue, selectedFlowIndex);
+  if (
+    selectedLocationIndex !== undefined &&
+    selectedLocationIndex >= 0 &&
+    locations.length >= selectedLocationIndex
+  ) {
+    return locations[selectedLocationIndex];
+  } else {
+    return undefined;
+  }
+}

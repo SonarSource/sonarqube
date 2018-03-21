@@ -23,32 +23,12 @@ import ConciseIssueLocations from '../ConciseIssueLocations';
 
 const textRange = { startLine: 1, startOffset: 1, endLine: 1, endOffset: 1 };
 
-const baseIssue = {
-  component: '',
-  componentLongName: '',
-  componentQualifier: '',
-  componentUuid: '',
-  creationDate: '',
-  key: '',
-  message: '',
-  organization: '',
-  project: '',
-  projectName: '',
-  projectOrganization: '',
-  projectUuid: '',
-  rule: '',
-  ruleName: '',
-  severity: '',
-  status: '',
-  type: '',
-  secondaryLocations: [],
-  flows: []
-};
+const loc = { component: '', msg: '', textRange };
 
 it('should render secondary locations', () => {
   const issue = {
-    ...baseIssue,
-    secondaryLocations: [{ msg: '', textRange }, { msg: '', textRange }, { msg: '', textRange }]
+    flows: [],
+    secondaryLocations: [loc, loc, loc]
   };
   expect(
     shallow(
@@ -59,9 +39,8 @@ it('should render secondary locations', () => {
 
 it('should render one flow', () => {
   const issue = {
-    ...baseIssue,
-    secondaryLocations: [],
-    flows: [[{ msg: '', textRange }, { msg: '', textRange }, { msg: '', textRange }]]
+    flows: [[loc, loc, loc]],
+    secondaryLocations: []
   };
   expect(
     shallow(
@@ -72,12 +51,8 @@ it('should render one flow', () => {
 
 it('should render several flows', () => {
   const issue = {
-    ...baseIssue,
-    flows: [
-      [{ msg: '', textRange }, { msg: '', textRange }, { msg: '', textRange }],
-      [{ msg: '', textRange }, { msg: '', textRange }],
-      [{ msg: '', textRange }, { msg: '', textRange }, { msg: '', textRange }]
-    ]
+    flows: [[loc, loc, loc], [loc, loc], [loc, loc, loc]],
+    secondaryLocations: []
   };
   expect(
     shallow(

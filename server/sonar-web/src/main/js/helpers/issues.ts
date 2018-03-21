@@ -19,19 +19,7 @@
  */
 import { flatten, sortBy } from 'lodash';
 import { SEVERITIES } from './constants';
-import { Issue } from '../app/types';
-
-interface TextRange {
-  startLine: number;
-  endLine: number;
-  startOffset: number;
-  endOffset: number;
-}
-
-interface FlowLocation {
-  msg: string;
-  textRange?: TextRange;
-}
+import { Issue, FlowLocation, TextRange, Omit } from '../app/types';
 
 interface Comment {
   login: string;
@@ -44,7 +32,10 @@ interface User {
 
 interface Rule {}
 
-interface Component {}
+interface Component {
+  key: string;
+  name: string;
+}
 
 interface IssueBase {
   severity: string;
@@ -57,7 +48,8 @@ export interface RawIssue extends IssueBase {
   comments?: Array<Comment>;
   component: string;
   flows?: Array<{
-    locations?: FlowLocation[];
+    // `componentName` is not available in RawIssue
+    locations?: Array<Omit<FlowLocation, 'componentName'>>;
   }>;
   key: string;
   line?: number;
@@ -132,11 +124,18 @@ function reverseLocations(locations: FlowLocation[]): FlowLocation[] {
 }
 
 function splitFlows(
-  issue: RawIssue
+  issue: RawIssue,
+  components: Component[] = []
 ): { secondaryLocations: FlowLocation[]; flows: FlowLocation[][] } {
-  const parsedFlows = (issue.flows || [])
-    .filter(flow => flow.locations != null)
-    .map(flow => flow.locations!.filter(location => location.textRange != null));
+  const parsedFlows: FlowLocation[][] = (issue.flows || [])
+    .filter(flow => flow.locations !== undefined)
+    .map(flow => flow.locations!.filter(location => location.textRange != null))
+    .map(flow =>
+      flow.map(location => {
+        const component = components.find(component => component.key === location.component);
+        return { ...location, componentName: component && component.name };
+      })
+    );
 
   const onlySecondaryLocations = parsedFlows.every(flow => flow.length === 1);
 
@@ -159,7 +158,7 @@ export function parseIssueFromResponse(
   users?: User[],
   rules?: Rule[]
 ): Issue {
-  const { secondaryLocations, flows } = splitFlows(issue);
+  const { secondaryLocations, flows } = splitFlows(issue, components);
   return {
     ...issue,
     ...injectRelational(issue, components, 'component', 'key'),

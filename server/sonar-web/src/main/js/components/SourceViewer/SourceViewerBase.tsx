@@ -63,7 +63,9 @@ interface Props {
   displayIssueLocationsLink?: boolean;
   displayLocationMarkers?: boolean;
   highlightedLine?: number;
-  highlightedLocations?: FlowLocation[];
+  // `undefined` elements mean they are located in a different file,
+  // but kept to maintaint the location indexes
+  highlightedLocations?: (FlowLocation | undefined)[];
   highlightedLocationMessage?: { index: number; text: string };
   loadComponent?: (
     component: string,
@@ -158,6 +160,14 @@ export default class SourceViewerBase extends React.PureComponent<Props, State> 
   }
 
   componentWillReceiveProps(nextProps: Props) {
+    // if a component or a branch has changed,
+    // set `loading: true` immediately to avoid unwanted scrolling in `LineCode`
+    if (
+      nextProps.component !== this.props.component ||
+      !isSameBranchLike(nextProps.branchLike, this.props.branchLike)
+    ) {
+      this.setState({ loading: true });
+    }
     if (
       nextProps.onIssueSelect !== undefined &&
       nextProps.selectedIssue !== this.props.selectedIssue

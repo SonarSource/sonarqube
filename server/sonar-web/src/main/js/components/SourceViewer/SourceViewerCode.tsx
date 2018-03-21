@@ -54,7 +54,9 @@ interface Props {
   hasSourcesBefore: boolean;
   highlightedLine: number | undefined;
   highlightedLocationMessage: { index: number; text: string } | undefined;
-  highlightedLocations: FlowLocation[] | undefined;
+  // `undefined` elements mean they are located in a different file,
+  // but kept to maintain the location indexes
+  highlightedLocations: (FlowLocation | undefined)[] | undefined;
   highlightedSymbols: string[];
   issueLocationsByLine: { [line: number]: LinearIssueLocation[] };
   issuePopup: { issue: string; name: string } | undefined;
@@ -102,9 +104,11 @@ export default class SourceViewerCode extends React.PureComponent<Props> {
       return EMPTY_ARRAY;
     }
     return highlightedLocations.reduce((locations, location, index) => {
-      const linearLocations: LinearIssueLocation[] = getLinearLocations(location.textRange)
-        .filter(l => l.line === line.line)
-        .map(l => ({ ...l, startLine: location.textRange.startLine, index }));
+      const linearLocations: LinearIssueLocation[] = location
+        ? getLinearLocations(location.textRange)
+            .filter(l => l.line === line.line)
+            .map(l => ({ ...l, startLine: location.textRange.startLine, index }))
+        : [];
       return [...locations, ...linearLocations];
     }, []);
   };

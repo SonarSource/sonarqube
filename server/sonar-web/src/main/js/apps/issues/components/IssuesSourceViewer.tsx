@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { getLocations, getSelectedLocation } from '../utils';
 import { BranchLike, Issue } from '../../../app/types';
 import SourceViewer from '../../../components/SourceViewer/SourceViewer';
 import { scrollToElement } from '../../../helpers/scrolling';
@@ -25,6 +26,7 @@ import { scrollToElement } from '../../../helpers/scrolling';
 interface Props {
   branchLike: BranchLike | undefined;
   loadIssues: (component: string, from: number, to: number) => Promise<Issue[]>;
+  locationsNavigator: boolean;
   onIssueChange: (issue: Issue) => void;
   onIssueSelect: (issueKey: string) => void;
   onLocationSelect: (index: number) => void;
@@ -71,53 +73,57 @@ export default class IssuesSourceViewer extends React.PureComponent<Props> {
   render() {
     const { openIssue, selectedFlowIndex, selectedLocationIndex } = this.props;
 
-    const locations =
-      selectedFlowIndex !== undefined
-        ? openIssue.flows[selectedFlowIndex]
-        : openIssue.flows.length > 0 ? openIssue.flows[0] : openIssue.secondaryLocations;
+    const locations = getLocations(openIssue, selectedFlowIndex);
+    const selectedLocation = getSelectedLocation(
+      openIssue,
+      selectedFlowIndex,
+      selectedLocationIndex
+    );
 
-    let locationMessage = undefined;
-    let locationLine = undefined;
-
-    // We don't want to display a location message when selected location is -1
-    if (
-      locations !== undefined &&
-      selectedLocationIndex !== undefined &&
-      selectedLocationIndex >= 0 &&
-      locations.length >= selectedLocationIndex
-    ) {
-      locationMessage = {
-        index: selectedLocationIndex,
-        text: locations[selectedLocationIndex].msg
-      };
-      locationLine = locations[selectedLocationIndex].textRange.startLine;
-    }
+    const component = selectedLocation ? selectedLocation.component : openIssue.component;
 
     // if location is selected, show (and load) code around it
     // otherwise show code around the open issue
-    const aroundLine = locationLine || (openIssue.textRange && openIssue.textRange.endLine);
+    const aroundLine = selectedLocation
+      ? selectedLocation.textRange.startLine
+      : openIssue.textRange && openIssue.textRange.endLine;
+
+    // replace locations in another file with `undefined` to keep the same location indexes
+    const highlightedLocations = locations.map(
+      location => (location.component === component ? location : undefined)
+    );
+
+    const highlightedLocationMessage =
+      this.props.locationsNavigator && selectedLocationIndex !== undefined
+        ? selectedLocation && { index: selectedLocationIndex, text: selectedLocation.msg }
+        : undefined;
 
     const allMessagesEmpty = locations !== undefined && locations.every(location => !location.msg);
+
+    // do not load issues when open another file for a location
+    const loadIssues =
+      component === openIssue.component ? this.props.loadIssues : () => Promise.resolve([]);
+    const selectedIssue = component === openIssue.component ? openIssue.key : undefined;
 
     return (
       <div ref={node => (this.node = node)}>
         <SourceViewer
           aroundLine={aroundLine}
           branchLike={this.props.branchLike}
-          component={openIssue.component}
+          component={component}
           displayAllIssues={true}
           displayIssueLocationsCount={false}
           displayIssueLocationsLink={false}
           displayLocationMarkers={!allMessagesEmpty}
-          highlightedLocationMessage={locationMessage}
-          highlightedLocations={locations}
-          loadIssues={this.props.loadIssues}
+          highlightedLocationMessage={highlightedLocationMessage}
+          highlightedLocations={highlightedLocations}
+          loadIssues={loadIssues}
           onIssueChange={this.props.onIssueChange}
           onIssueSelect={this.props.onIssueSelect}
           onLoaded={this.handleLoaded}
           onLocationSelect={this.props.onLocationSelect}
           scroll={this.handleScroll}
-          selectedIssue={openIssue.key}
+          selectedIssue={selectedIssue}
         />
       </div>
     );

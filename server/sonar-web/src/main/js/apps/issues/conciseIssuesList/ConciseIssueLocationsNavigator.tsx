@@ -18,11 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { uniq } from 'lodash';
 import ConciseIssueLocationsNavigatorLocation from './ConciseIssueLocationsNavigatorLocation';
+import CrossFileLocationsNavigator from './CrossFileLocationsNavigator';
+import { getLocations } from '../utils';
 import { Issue } from '../../../app/types';
 
 interface Props {
-  issue: Issue;
+  issue: Pick<Issue, 'component' | 'key' | 'flows' | 'secondaryLocations'>;
   onLocationSelect: (index: number) => void;
   scroll: (element: Element) => void;
   selectedFlowIndex: number | undefined;
@@ -31,31 +34,43 @@ interface Props {
 
 export default class ConciseIssueLocationsNavigator extends React.PureComponent<Props> {
   render() {
-    const { selectedFlowIndex, selectedLocationIndex } = this.props;
-    const { flows, secondaryLocations } = this.props.issue;
-
-    const locations =
-      selectedFlowIndex !== undefined
-        ? flows[selectedFlowIndex]
-        : flows.length > 0 ? flows[0] : secondaryLocations;
+    const locations = getLocations(this.props.issue, this.props.selectedFlowIndex);
 
     if (!locations || locations.length === 0 || locations.every(location => !location.msg)) {
       return null;
     }
 
-    return (
-      <div className="spacer-top">
-        {locations.map((location, index) => (
-          <ConciseIssueLocationsNavigatorLocation
-            index={index}
-            key={index}
-            message={location.msg}
-            onClick={this.props.onLocationSelect}
-            scroll={this.props.scroll}
-            selected={index === selectedLocationIndex}
-          />
-        ))}
-      </div>
-    );
+    const locationComponents = [
+      this.props.issue.component,
+      ...locations.map(location => location.component)
+    ];
+    const isCrossFile = uniq(locationComponents).length > 1;
+
+    if (isCrossFile) {
+      return (
+        <CrossFileLocationsNavigator
+          issue={this.props.issue}
+          locations={locations}
+          onLocationSelect={this.props.onLocationSelect}
+          scroll={this.props.scroll}
+          selectedLocationIndex={this.props.selectedLocationIndex}
+        />
+      );
+    } else {
+      return (
+        <div className="concise-issue-locations-navigator spacer-top">
+          {locations.map((location, index) => (
+            <ConciseIssueLocationsNavigatorLocation
+              index={index}
+              key={index}
+              message={location.msg}
+              onClick={this.props.onLocationSelect}
+              scroll={this.props.scroll}
+              selected={index === this.props.selectedLocationIndex}
+            />
+          ))}
+        </div>
+      );
+    }
   }
 }

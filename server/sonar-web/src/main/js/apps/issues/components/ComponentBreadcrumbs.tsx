@@ -19,7 +19,8 @@
  */
 import * as React from 'react';
 import { Link } from 'react-router';
-import { BranchLike, Component } from '../../../app/types';
+import { getSelectedLocation } from '../utils';
+import { BranchLike, Component, Issue } from '../../../app/types';
 import Organization from '../../../components/shared/Organization';
 import { collapsePath, limitComponentName } from '../../../helpers/path';
 import { getBranchLikeUrl, getCodeUrl } from '../../../helpers/urls';
@@ -27,28 +28,39 @@ import { getBranchLikeUrl, getCodeUrl } from '../../../helpers/urls';
 interface Props {
   branchLike?: BranchLike;
   component?: Component;
-  issue: {
-    component: string;
-    componentLongName: string;
-    organization: string;
-    project: string;
-    projectName: string;
-    subProject?: string;
-    subProjectName?: string;
-  };
+  issue: Pick<
+    Issue,
+    | 'component'
+    | 'componentLongName'
+    | 'flows'
+    | 'organization'
+    | 'project'
+    | 'projectName'
+    | 'secondaryLocations'
+    | 'subProject'
+    | 'subProjectName'
+  >;
   organization: { key: string } | undefined;
+  selectedFlowIndex?: number;
+  selectedLocationIndex?: number;
 }
 
 export default function ComponentBreadcrumbs({
   branchLike,
   component,
   issue,
-  organization
+  organization,
+  selectedFlowIndex,
+  selectedLocationIndex
 }: Props) {
   const displayOrganization =
     !organization && (!component || ['VW', 'SVW'].includes(component.qualifier));
   const displayProject = !component || !['TRK', 'BRC', 'DIR'].includes(component.qualifier);
   const displaySubProject = !component || !['BRC', 'DIR'].includes(component.qualifier);
+
+  const selectedLocation = getSelectedLocation(issue, selectedFlowIndex, selectedLocationIndex);
+  const componentKey = selectedLocation ? selectedLocation.component : issue.component;
+  const componentName = selectedLocation ? selectedLocation.componentName : issue.componentLongName;
 
   return (
     <div className="component-name text-ellipsis">
@@ -76,10 +88,8 @@ export default function ComponentBreadcrumbs({
           </span>
         )}
 
-      <Link
-        className="link-no-underline"
-        to={getCodeUrl(issue.project, branchLike, issue.component)}>
-        <span title={issue.componentLongName}>{collapsePath(issue.componentLongName)}</span>
+      <Link className="link-no-underline" to={getCodeUrl(issue.project, branchLike, componentKey)}>
+        <span title={componentName}>{collapsePath(componentName || '')}</span>
       </Link>
     </div>
   );

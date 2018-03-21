@@ -22,7 +22,7 @@ import ConciseIssueLocationBadge from './ConciseIssueLocationBadge';
 import { Issue } from '../../../app/types';
 
 interface Props {
-  issue: Issue;
+  issue: Pick<Issue, 'flows' | 'secondaryLocations'>;
   onFlowSelect: (index: number) => void;
   selectedFlowIndex: number | undefined;
 }
