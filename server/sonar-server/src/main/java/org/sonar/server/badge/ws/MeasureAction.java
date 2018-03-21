@@ -154,13 +154,9 @@ public class MeasureAction implements ProjectBadgesWsAction {
   @Override
   public void handle(Request request, Response response) throws Exception {
     response.stream().setMediaType(SVG);
-    String projectKey = request.mandatoryParam(PARAM_PROJECT);
-    String branch = request.param(PARAM_BRANCH);
-    String pullRequest = request.param(PARAM_PULL_REQUEST);
     String metricKey = request.mandatoryParam(PARAM_METRIC);
     try (DbSession dbSession = dbClient.openSession(false)) {
-      ComponentDto project = componentFinder.getByKeyAndOptionalBranchOrPullRequest(dbSession, projectKey, branch, pullRequest);
-      userSession.checkComponentPermission(USER, project);
+      ComponentDto project = getProject(dbSession, request);
       MetricDto metric = dbClient.metricDao().selectByKey(dbSession, metricKey);
       checkState(metric != null && metric.isEnabled(), "Metric '%s' hasn't been found", metricKey);
       LiveMeasureDto measure = getMeasure(dbSession, project, metricKey);
@@ -170,9 +166,22 @@ public class MeasureAction implements ProjectBadgesWsAction {
     }
   }
 
+  private ComponentDto getProject(DbSession dbSession, Request request) {
+    try {
+      String projectKey = request.mandatoryParam(PARAM_PROJECT);
+      String branch = request.param(PARAM_BRANCH);
+      String pullRequest = request.param(PARAM_PULL_REQUEST);
+      ComponentDto project = componentFinder.getByKeyAndOptionalBranchOrPullRequest(dbSession, projectKey, branch, pullRequest);
+      userSession.checkComponentPermission(USER, project);
+      return project;
+    } catch (NotFoundException e) {
+      throw new NotFoundException("Component not found");
+    }
+  }
+
   private LiveMeasureDto getMeasure(DbSession dbSession, ComponentDto project, String metricKey) {
     return dbClient.liveMeasureDao().selectMeasure(dbSession, project.uuid(), metricKey)
-      .orElseThrow(() -> new ProjectBadgesException(format("Measure '%s' has not been found for project '%s' and branch '%s'", metricKey, project.getKey(), project.getBranch())));
+      .orElseThrow(() -> new ProjectBadgesException("Measure has not been found"));
   }
 
   private String generateSvg(MetricDto metric, LiveMeasureDto measure) {

@@ -20,9 +20,6 @@
 package org.sonar.server.badge.ws;
 
 import com.google.common.collect.ImmutableMap;
-import java.awt.Font;
-import java.awt.font.FontRenderContext;
-import java.awt.geom.AffineTransform;
 import java.io.IOException;
 import java.util.Map;
 import org.apache.commons.io.IOUtils;
@@ -31,6 +28,7 @@ import org.sonar.api.config.Configuration;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.server.ServerSide;
 
+import static com.google.common.base.Preconditions.checkState;
 import static java.lang.String.valueOf;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.sonar.api.measures.Metric.Level.ERROR;
@@ -41,19 +39,88 @@ import static org.sonar.process.ProcessProperties.Property.SONARCLOUD_ENABLED;
 @ServerSide
 public class SvgGenerator {
 
+  private static final Map<Character, Integer> CHAR_LENGTH = ImmutableMap.<Character, Integer>builder()
+    .put('0', 7)
+    .put('1', 7)
+    .put('2', 7)
+    .put('3', 7)
+    .put('4', 7)
+    .put('5', 7)
+    .put('6', 7)
+    .put('7', 7)
+    .put('8', 7)
+    .put('9', 7)
+    .put('a', 7)
+    .put('b', 7)
+    .put('c', 6)
+    .put('d', 7)
+    .put('e', 6)
+    .put('f', 4)
+    .put('g', 7)
+    .put('h', 7)
+    .put('i', 3)
+    .put('j', 5)
+    .put('k', 6)
+    .put('l', 3)
+    .put('m', 11)
+    .put('n', 7)
+    .put('o', 7)
+    .put('p', 7)
+    .put('q', 7)
+    .put('r', 5)
+    .put('s', 6)
+    .put('t', 4)
+    .put('u', 7)
+    .put('v', 6)
+    .put('w', 9)
+    .put('x', 6)
+    .put('y', 6)
+    .put('z', 6)
+    .put('A', 7)
+    .put('B', 7)
+    .put('C', 8)
+    .put('D', 8)
+    .put('E', 7)
+    .put('F', 6)
+    .put('G', 8)
+    .put('H', 8)
+    .put('I', 5)
+    .put('J', 5)
+    .put('K', 7)
+    .put('L', 6)
+    .put('M', 9)
+    .put('N', 8)
+    .put('O', 9)
+    .put('P', 7)
+    .put('Q', 9)
+    .put('R', 8)
+    .put('S', 7)
+    .put('T', 7)
+    .put('U', 8)
+    .put('V', 10)
+    .put('W', 10)
+    .put('X', 7)
+    .put('Y', 7)
+    .put('Z', 7)
+    .put('%', 12)
+    .put(' ', 4)
+    .put('.', 4)
+    .put('_', 7)
+    .put('\'', 3)
+    .build();
+
   private static final String TEMPLATES_SONARCLOUD = "templates/sonarcloud";
   private static final String TEMPLATES_SONARQUBE = "templates/sonarqube";
-
-  private static final FontRenderContext FONT_RENDER_CONTEXT = new FontRenderContext(new AffineTransform(), true, true);
-  private static final Font FONT = new Font("Verdana", Font.PLAIN, 11);
 
   private static final int MARGIN = 6;
   private static final int ICON_WIDTH = 20;
 
   private static final String PARAMETER_ICON_WIDTH_PLUS_MARGIN = "iconWidthPlusMargin";
   private static final String PARAMETER_TOTAL_WIDTH = "totalWidth";
+  private static final String PARAMETER_LEFT_WIDTH = "leftWidth";
+  private static final String PARAMETER_LEFT_WIDTH_PLUS_MARGIN = "leftWidthPlusMargin";
+  private static final String PARAMETER_RIGHT_WIDTH = "rightWidth";
   private static final String PARAMETER_LABEL_WIDTH = "labelWidth";
-  private static final String PARAMETER_LABEL_WIDTH_PLUS_MARGIN = "labelWidthPlusMargin";
   private static final String PARAMETER_VALUE_WIDTH = "valueWidth";
   private static final String PARAMETER_COLOR = "color";
   private static final String PARAMETER_LABEL = "label";
@@ -79,11 +146,13 @@ public class SvgGenerator {
     int valueWidth = computeWidth(value);
 
     Map<String, String> values = ImmutableMap.<String, String>builder()
-      .put(PARAMETER_ICON_WIDTH_PLUS_MARGIN, valueOf(MARGIN + ICON_WIDTH))
       .put(PARAMETER_TOTAL_WIDTH, valueOf(MARGIN * 4 + ICON_WIDTH + labelWidth + valueWidth))
-      .put(PARAMETER_LABEL_WIDTH, valueOf(MARGIN * 2 + ICON_WIDTH + labelWidth))
-      .put(PARAMETER_LABEL_WIDTH_PLUS_MARGIN, valueOf( MARGIN * 3 + ICON_WIDTH + labelWidth))
-      .put(PARAMETER_VALUE_WIDTH, valueOf(MARGIN * 2 + valueWidth))
+      .put(PARAMETER_LABEL_WIDTH, valueOf(labelWidth))
+      .put(PARAMETER_VALUE_WIDTH, valueOf(valueWidth))
+      .put(PARAMETER_LEFT_WIDTH, valueOf(MARGIN * 2 + ICON_WIDTH + labelWidth))
+      .put(PARAMETER_LEFT_WIDTH_PLUS_MARGIN, valueOf(MARGIN * 3 + ICON_WIDTH + labelWidth))
+      .put(PARAMETER_RIGHT_WIDTH, valueOf(MARGIN * 2 + valueWidth))
+      .put(PARAMETER_ICON_WIDTH_PLUS_MARGIN, valueOf(MARGIN + ICON_WIDTH))
       .put(PARAMETER_COLOR, backgroundValueColor.getValue())
       .put(PARAMETER_LABEL, label)
       .put(PARAMETER_VALUE, value)
@@ -92,7 +161,7 @@ public class SvgGenerator {
     return strSubstitutor.replace(badgeTemplate);
   }
 
-  public String generateQualityGate(Metric.Level level){
+  public String generateQualityGate(Metric.Level level) {
     return qualityGateTemplates.get(level);
   }
 
@@ -105,7 +174,14 @@ public class SvgGenerator {
   }
 
   private static int computeWidth(String text) {
-    return (int) FONT.getStringBounds(text, FONT_RENDER_CONTEXT).getWidth();
+    return text.chars()
+      .mapToObj(i -> (char)i)
+      .mapToInt(c -> {
+        Integer length = CHAR_LENGTH.get(c);
+        checkState(length != null, "Invalid character '%s'", c);
+        return length;
+      })
+      .sum();
   }
 
   private String readTemplate(String template) {

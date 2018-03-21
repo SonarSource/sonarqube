@@ -214,7 +214,7 @@ public class MeasureActionTest {
       .setParam("metric", metric.getKey())
       .execute().getInput();
 
-    checkError(response, "Component key 'unknown' not found");
+    checkError(response, "Component not found");
   }
 
   @Test
@@ -231,7 +231,7 @@ public class MeasureActionTest {
       .setParam("metric", metric.getKey())
       .execute().getInput();
 
-    checkError(response, String.format("Component '%s' on branch 'unknown' not found", branch.getKey()));
+    checkError(response, "Component not found");
   }
 
   @Test
@@ -245,7 +245,7 @@ public class MeasureActionTest {
       .setParam("metric", metric.getKey())
       .execute().getInput();
 
-    checkError(response, String.format("Measure '%s' has not been found for project '%s' and branch 'null'", metric.getKey(), project.getKey()));
+    checkError(response, "Measure has not been found");
   }
 
   @Test

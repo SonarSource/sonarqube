@@ -87,16 +87,26 @@ public class QualityGateAction implements ProjectBadgesWsAction {
   @Override
   public void handle(Request request, Response response) throws Exception {
     response.stream().setMediaType(SVG);
-    String projectKey = request.mandatoryParam(PARAM_PROJECT);
-    String branch = request.param(PARAM_BRANCH);
-    String pullRequest = request.param(PARAM_PULL_REQUEST);
     try (DbSession dbSession = dbClient.openSession(false)) {
-      ComponentDto project = componentFinder.getByKeyAndOptionalBranchOrPullRequest(dbSession, projectKey, branch, pullRequest);
+      ComponentDto project = getProject(dbSession, request);
       userSession.checkComponentPermission(USER, project);
       Level qualityGateStatus = getQualityGate(dbSession, project);
       write(svgGenerator.generateQualityGate(qualityGateStatus), response.stream().output(), UTF_8);
     } catch (ProjectBadgesException | ForbiddenException | NotFoundException e) {
       write(svgGenerator.generateError(e.getMessage()), response.stream().output(), UTF_8);
+    }
+  }
+
+  private ComponentDto getProject(DbSession dbSession, Request request) {
+    try {
+      String projectKey = request.mandatoryParam(PARAM_PROJECT);
+      String branch = request.param(PARAM_BRANCH);
+      String pullRequest = request.param(PARAM_PULL_REQUEST);
+      ComponentDto project = componentFinder.getByKeyAndOptionalBranchOrPullRequest(dbSession, projectKey, branch, pullRequest);
+      userSession.checkComponentPermission(USER, project);
+      return project;
+    } catch (NotFoundException e) {
+      throw new NotFoundException("Component not found");
     }
   }
 

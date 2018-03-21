@@ -109,7 +109,7 @@ public class QualityGateActionTest {
       .setParam("project", "unknown")
       .execute().getInput();
 
-    checkError(response, "Component key 'unknown' not found");
+    checkError(response, "Component not found");
   }
 
   @Test
@@ -123,7 +123,7 @@ public class QualityGateActionTest {
       .setParam("branch", "unknown")
       .execute().getInput();
 
-    checkError(response, format("Component '%s' on branch 'unknown' not found", branch.getKey()));
+    checkError(response, format("Component not found", branch.getKey()));
   }
 
   @Test
