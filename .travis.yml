@@ -5,6 +5,10 @@ jdk: oraclejdk8
 script: ./travis.sh
 dist: trusty
 
+branches:
+  except:
+  - /^dogfood\/.*$/
+
 env:
   - TARGET=BUILD
   - TARGET=WEB_TESTS
