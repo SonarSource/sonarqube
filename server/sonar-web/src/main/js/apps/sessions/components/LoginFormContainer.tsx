@@ -73,7 +73,7 @@ class LoginFormContainer extends React.PureComponent<Props, State> {
   };
 
   handleSubmit = (login: string, password: string) => {
-    this.props.doLogin(login, password).then(this.handleSuccessfulLogin, () => {});
+    return this.props.doLogin(login, password).then(this.handleSuccessfulLogin, () => {});
   };
 
   render() {

@@ -19,22 +19,25 @@
  */
 import * as React from 'react';
 import { Link } from 'react-router';
+import * as classNames from 'classnames';
 import OAuthProviders from './OAuthProviders';
 import GlobalMessagesContainer from '../../../app/components/GlobalMessagesContainer';
 import { IdentityProvider } from '../../../app/types';
 import { SubmitButton } from '../../../components/ui/buttons';
 import { translate } from '../../../helpers/l10n';
+import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import './LoginForm.css';
 
 interface Props {
   onSonarCloud: boolean;
   identityProviders: IdentityProvider[];
-  onSubmit: (login: string, password: string) => void;
+  onSubmit: (login: string, password: string) => Promise<void>;
   returnTo: string;
 }
 
 interface State {
   collapsed: boolean;
+  loading: boolean;
   login: string;
   password: string;
 }
@@ -44,14 +47,22 @@ export default class LoginForm extends React.PureComponent<Props, State> {
     super(props);
     this.state = {
       collapsed: props.identityProviders.length > 0,
+      loading: false,
       login: '',
       password: ''
     };
   }
 
+  stopLoading = () => {
+    this.setState({ loading: false });
+  };
+
   handleSubmit = (event: React.SyntheticEvent<HTMLFormElement>) => {
     event.preventDefault();
-    this.props.onSubmit(this.state.login, this.state.password);
+    this.setState({ loading: true });
+    this.props
+      .onSubmit(this.state.login, this.state.password)
+      .then(this.stopLoading, this.stopLoading);
   };
 
   handleMoreOptionsClick = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
@@ -130,7 +141,10 @@ export default class LoginForm extends React.PureComponent<Props, State> {
 
             <div>
               <div className="text-right overflow-hidden">
-                <SubmitButton>{translate('sessions.log_in')}</SubmitButton>
+                <DeferredSpinner className="spacer-right" loading={this.state.loading} />
+                <SubmitButton className={classNames({ disabled: this.state.loading })}>
+                  {translate('sessions.log_in')}
+                </SubmitButton>
                 <Link className="spacer-left" to="/">
                   {translate('cancel')}
                 </Link>
