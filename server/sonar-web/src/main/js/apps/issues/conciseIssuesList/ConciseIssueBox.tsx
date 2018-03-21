@@ -79,16 +79,23 @@ export default class ConciseIssueBox extends React.PureComponent<Props> {
   render() {
     const { issue, selected } = this.props;
 
-    const clickAttributes = selected
+    const clickAttributesMain = selected
       ? {}
       : { onClick: this.handleClick, role: 'listitem', tabIndex: 0 };
+
+    const clickAttributesTitle = selected
+      ? { onClick: this.handleClick, role: 'listitem', tabIndex: 0 }
+      : {};
 
     return (
       <div
         className={classNames('concise-issue-box', 'clearfix', { selected })}
         ref={node => (this.rootElement = node)}
-        {...clickAttributes}>
-        <div className="concise-issue-box-message" ref={node => (this.messageElement = node)}>
+        {...clickAttributesMain}>
+        <div
+          className="concise-issue-box-message"
+          {...clickAttributesTitle}
+          ref={node => (this.messageElement = node)}>
           {issue.message}
         </div>
         <div className="concise-issue-box-attributes">

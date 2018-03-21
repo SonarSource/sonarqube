@@ -346,7 +346,11 @@ export default class App extends React.PureComponent<Props, State> {
       }
     };
     if (this.state.openIssue) {
-      this.context.router.replace(path);
+      if (path.query.open && path.query.open === this.state.openIssue.key) {
+        this.scrollToSelectedIssue();
+      } else {
+        this.context.router.replace(path);
+      }
     } else {
       this.context.router.push(path);
     }

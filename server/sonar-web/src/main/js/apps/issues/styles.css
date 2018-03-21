@@ -95,6 +95,14 @@
   font-weight: bold;
 }
 
+.concise-issue-box-message:focus {
+  outline: none;
+}
+
+.concise-issue-box.selected .concise-issue-box-message {
+  cursor: pointer;
+}
+
 .concise-issue-box-attributes {
   margin-top: 8px;
   line-height: 16px;
