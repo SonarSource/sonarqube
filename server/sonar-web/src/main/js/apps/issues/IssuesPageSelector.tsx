@@ -21,8 +21,8 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import AppContainer from './components/AppContainer';
 import { CurrentUser, isLoggedIn } from '../../app/types';
-import { getCurrentUser, getGlobalSettingValue } from '../../store/rootReducer';
 import { RawQuery } from '../../helpers/query';
+import { getCurrentUser, getGlobalSettingValue } from '../../store/rootReducer';
 
 interface StateProps {
   currentUser: CurrentUser;

@@ -23,15 +23,15 @@ const SCROLLING_DURATION = 100;
 const SCROLLING_INTERVAL = 10;
 const SCROLLING_STEPS = SCROLLING_DURATION / SCROLLING_INTERVAL;
 
-function isWindow(element: HTMLElement | Window): element is Window {
+function isWindow(element: Element | Window): element is Window {
   return element === window;
 }
 
-function getScrollPosition(element: HTMLElement | Window): number {
+function getScrollPosition(element: Element | Window): number {
   return isWindow(element) ? window.pageYOffset : element.scrollTop;
 }
 
-function scrollElement(element: HTMLElement | Window, position: number): void {
+function scrollElement(element: Element | Window, position: number): void {
   if (isWindow(element)) {
     window.scrollTo(0, position);
   } else {
@@ -39,7 +39,7 @@ function scrollElement(element: HTMLElement | Window, position: number): void {
   }
 }
 
-let smoothScrollTop = (y: number, parent: HTMLElement | Window) => {
+let smoothScrollTop = (y: number, parent: Element | Window) => {
   let scrollTop = getScrollPosition(parent);
   const scrollingDown = y > scrollTop;
   const step = Math.ceil(Math.abs(y - scrollTop) / SCROLLING_STEPS);
@@ -69,7 +69,7 @@ export function scrollToElement(
   options: {
     topOffset?: number;
     bottomOffset?: number;
-    parent?: HTMLElement;
+    parent?: Element;
     smooth?: boolean;
   }
 ): void {

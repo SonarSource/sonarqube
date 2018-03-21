@@ -19,10 +19,10 @@
  */
 import * as React from 'react';
 import { Link } from 'react-router';
+import { BranchLike, Component } from '../../../app/types';
 import Organization from '../../../components/shared/Organization';
 import { collapsePath, limitComponentName } from '../../../helpers/path';
 import { getBranchLikeUrl, getCodeUrl } from '../../../helpers/urls';
-import { Component, BranchLike } from '../../../app/types';
 
 interface Props {
   branchLike?: BranchLike;
@@ -36,7 +36,7 @@ interface Props {
     subProject?: string;
     subProjectName?: string;
   };
-  organization?: { key: string };
+  organization: { key: string } | undefined;
 }
 
 export default function ComponentBreadcrumbs({
@@ -46,9 +46,9 @@ export default function ComponentBreadcrumbs({
   organization
 }: Props) {
   const displayOrganization =
-    !organization && (component == null || ['VW', 'SVW'].includes(component.qualifier));
-  const displayProject = component == null || !['TRK', 'BRC', 'DIR'].includes(component.qualifier);
-  const displaySubProject = component == null || !['BRC', 'DIR'].includes(component.qualifier);
+    !organization && (!component || ['VW', 'SVW'].includes(component.qualifier));
+  const displayProject = !component || !['TRK', 'BRC', 'DIR'].includes(component.qualifier);
+  const displaySubProject = !component || !['BRC', 'DIR'].includes(component.qualifier);
 
   return (
     <div className="component-name text-ellipsis">
@@ -58,7 +58,7 @@ export default function ComponentBreadcrumbs({
 
       {displayProject && (
         <span title={issue.projectName}>
-          <Link to={getBranchLikeUrl(issue.project, branchLike)} className="link-no-underline">
+          <Link className="link-no-underline" to={getBranchLikeUrl(issue.project, branchLike)}>
             {limitComponentName(issue.projectName)}
           </Link>
           <span className="slash-separator" />
@@ -69,7 +69,7 @@ export default function ComponentBreadcrumbs({
         issue.subProject !== undefined &&
         issue.subProjectName !== undefined && (
           <span title={issue.subProjectName}>
-            <Link to={getBranchLikeUrl(issue.subProject, branchLike)} className="link-no-underline">
+            <Link className="link-no-underline" to={getBranchLikeUrl(issue.subProject, branchLike)}>
               {limitComponentName(issue.subProjectName)}
             </Link>
             <span className="slash-separator" />
@@ -77,8 +77,8 @@ export default function ComponentBreadcrumbs({
         )}
 
       <Link
-        to={getCodeUrl(issue.project, branchLike, issue.component)}
-        className="link-no-underline">
+        className="link-no-underline"
+        to={getCodeUrl(issue.project, branchLike, issue.component)}>
         <span title={issue.componentLongName}>{collapsePath(issue.componentLongName)}</span>
       </Link>
     </div>

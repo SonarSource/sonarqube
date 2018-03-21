@@ -32,7 +32,7 @@ interface Query {
   [x: string]: string | undefined;
 }
 
-interface Location {
+export interface Location {
   pathname: string;
   query?: Query;
 }

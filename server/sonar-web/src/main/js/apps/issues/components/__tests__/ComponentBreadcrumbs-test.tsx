@@ -31,12 +31,30 @@ const baseIssue = {
 };
 
 it('renders', () => {
-  expect(shallow(<ComponentBreadcrumbs issue={baseIssue} />)).toMatchSnapshot();
+  expect(
+    shallow(
+      <ComponentBreadcrumbs
+        branchLike={undefined}
+        component={undefined}
+        issue={baseIssue}
+        organization={undefined}
+      />
+    )
+  ).toMatchSnapshot();
 });
 
 it('renders with sub-project', () => {
   const issue = { ...baseIssue, subProject: 'sub-proj', subProjectName: 'sub-proj-name' };
-  expect(shallow(<ComponentBreadcrumbs issue={issue} />)).toMatchSnapshot();
+  expect(
+    shallow(
+      <ComponentBreadcrumbs
+        branchLike={undefined}
+        component={undefined}
+        issue={issue}
+        organization={undefined}
+      />
+    )
+  ).toMatchSnapshot();
 });
 
 it('renders with branch', () => {
@@ -48,6 +66,13 @@ it('renders with branch', () => {
     type: BranchType.SHORT
   };
   expect(
-    shallow(<ComponentBreadcrumbs branchLike={shortBranch} issue={issue} />)
+    shallow(
+      <ComponentBreadcrumbs
+        branchLike={shortBranch}
+        component={undefined}
+        issue={issue}
+        organization={undefined}
+      />
+    )
   ).toMatchSnapshot();
 });

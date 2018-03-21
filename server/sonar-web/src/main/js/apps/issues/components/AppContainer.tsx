@@ -20,19 +20,19 @@
 import { connect } from 'react-redux';
 import { Dispatch } from 'redux';
 import { uniq } from 'lodash';
+import { searchIssues } from '../../../api/issues';
+import { getOrganizations } from '../../../api/organizations';
+import { CurrentUser, Issue } from '../../../app/types';
 import throwGlobalError from '../../../app/utils/throwGlobalError';
 import {
   getCurrentUser,
   areThereCustomOrganizations,
   getGlobalSettingValue
 } from '../../../store/rootReducer';
-import { getOrganizations } from '../../../api/organizations';
-import { receiveOrganizations } from '../../../store/organizations/duck';
-import { searchIssues } from '../../../api/issues';
+import { lazyLoad } from '../../../components/lazyLoad';
 import { parseIssueFromResponse } from '../../../helpers/issues';
 import { RawQuery } from '../../../helpers/query';
-import { CurrentUser } from '../../../app/types';
-import { lazyLoad } from '../../../components/lazyLoad';
+import { receiveOrganizations } from '../../../store/organizations/duck';
 
 interface StateProps {
   currentUser: CurrentUser;
@@ -47,7 +47,7 @@ const mapStateToProps = (state: any): StateProps => {
   };
 };
 
-const fetchIssueOrganizations = (issues: any[]) => (dispatch: Dispatch<any>) => {
+const fetchIssueOrganizations = (issues: Issue[]) => (dispatch: Dispatch<any>) => {
   if (!issues.length) {
     return Promise.resolve();
   }

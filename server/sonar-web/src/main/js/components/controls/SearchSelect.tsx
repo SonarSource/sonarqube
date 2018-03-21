@@ -22,37 +22,35 @@ import { debounce } from 'lodash';
 import Select, { Creatable } from '../../components/controls/Select';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 
-interface Option {
-  label: string;
-  value: string;
-}
-
-interface Props {
+interface Props<T> {
   autofocus?: boolean;
   canCreate?: boolean;
   clearable?: boolean;
-  defaultOptions?: Option[];
+  defaultOptions?: T[];
   minimumQueryLength?: number;
   multi?: boolean;
-  onSearch: (query: string) => Promise<Option[]>;
-  onSelect?: (option: Option) => void;
-  onMultiSelect?: (options: Option[]) => void;
+  onSearch: (query: string) => Promise<T[]>;
+  onSelect?: (option: T) => void;
+  onMultiSelect?: (options: T[]) => void;
   promptTextCreator?: (label: string) => string;
-  renderOption?: (option: Object) => JSX.Element;
+  renderOption?: (option: T) => JSX.Element;
   resetOnBlur?: boolean;
-  value?: string;
+  value?: T | T[];
 }
 
-interface State {
+interface State<T> {
   loading: boolean;
-  options: Option[];
+  options: T[];
   query: string;
 }
 
-export default class SearchSelect extends React.PureComponent<Props, State> {
+export default class SearchSelect<T extends { value: string }> extends React.PureComponent<
+  Props<T>,
+  State<T>
+> {
   mounted = false;
 
-  constructor(props: Props) {
+  constructor(props: Props<T>) {
     super(props);
     this.state = { loading: false, options: props.defaultOptions || [], query: '' };
     this.handleSearch = debounce(this.handleSearch, 250);
@@ -98,7 +96,7 @@ export default class SearchSelect extends React.PureComponent<Props, State> {
     );
   };
 
-  handleChange = (option: Option | Option[]) => {
+  handleChange = (option: T | T[]) => {
     if (Array.isArray(option)) {
       if (this.props.onMultiSelect) {
         this.props.onMultiSelect(option);

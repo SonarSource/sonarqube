@@ -1,0 +1,37 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render 1`] = `
+<div>
+  <ConciseIssue
+    issue={
+      Object {
+        "key": "foo",
+      }
+    }
+    key="foo"
+    onFlowSelect={[MockFunction]}
+    onLocationSelect={[MockFunction]}
+    onSelect={[MockFunction]}
+    scroll={[Function]}
+    selected={false}
+  />
+  <ConciseIssue
+    issue={
+      Object {
+        "key": "bar",
+      }
+    }
+    key="bar"
+    onFlowSelect={[MockFunction]}
+    onLocationSelect={[MockFunction]}
+    onSelect={[MockFunction]}
+    previousIssue={
+      Object {
+        "key": "foo",
+      }
+    }
+    scroll={[Function]}
+    selected={false}
+  />
+</div>
+`;

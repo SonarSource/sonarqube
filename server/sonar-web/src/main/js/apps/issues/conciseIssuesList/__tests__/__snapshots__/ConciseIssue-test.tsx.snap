@@ -1,0 +1,39 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render 1`] = `
+<div>
+  <ConciseIssueComponent
+    path="src/file.js"
+  />
+  <ConciseIssueBox
+    issue={
+      Object {
+        "component": "",
+        "componentLongName": "src/file.js",
+        "componentQualifier": "",
+        "componentUuid": "",
+        "creationDate": "",
+        "flows": Array [],
+        "key": "",
+        "message": "",
+        "organization": "",
+        "project": "",
+        "projectName": "",
+        "projectOrganization": "",
+        "projectUuid": "",
+        "rule": "",
+        "ruleName": "",
+        "secondaryLocations": Array [],
+        "severity": "",
+        "status": "",
+        "type": "",
+      }
+    }
+    onClick={[MockFunction]}
+    onFlowSelect={[MockFunction]}
+    onLocationSelect={[MockFunction]}
+    scroll={[MockFunction]}
+    selected={false}
+  />
+</div>
+`;

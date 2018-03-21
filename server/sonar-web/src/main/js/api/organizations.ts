@@ -19,6 +19,7 @@
  */
 import { getJSON, post, postJSON, RequestData } from '../helpers/request';
 import throwGlobalError from '../app/utils/throwGlobalError';
+import { Paging } from '../app/types';
 
 interface GetOrganizationsParameters {
   organizations?: string;
@@ -85,7 +86,7 @@ export function searchMembers(data: {
   ps?: number;
   q?: string;
   selected?: string;
-}): Promise<any> {
+}): Promise<{ paging: Paging; users: Array<{ avatar?: string; login: string; name: string }> }> {
   return getJSON('/api/organizations/search_members', data);
 }
 
