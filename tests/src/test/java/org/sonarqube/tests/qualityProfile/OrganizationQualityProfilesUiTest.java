@@ -86,7 +86,7 @@ public class OrganizationQualityProfilesUiTest {
       "/organization/OrganizationQualityProfilesUiTest/should_display_profile_inheritance.html",
       "/organization/OrganizationQualityProfilesUiTest/should_display_profile_exporters.html");
 
-    tester.openBrowser().openHome().logIn().submitCredentials(user.getLogin())
+    tester.openBrowser().logIn().submitCredentials(user.getLogin())
       .openQualityProfile("xoo", "sample", organization.getKey())
       .shouldHaveAssociatedProject("Sample")
       .shouldAllowToChangeProjects();

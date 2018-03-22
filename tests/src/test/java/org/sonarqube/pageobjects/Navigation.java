@@ -31,12 +31,12 @@ import javax.annotation.Nullable;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.html5.WebStorage;
-import org.sonarqube.pageobjects.measures.MeasuresPage;
-import org.sonarqube.tests.Tester;
 import org.sonarqube.pageobjects.issues.IssuesPage;
+import org.sonarqube.pageobjects.measures.MeasuresPage;
 import org.sonarqube.pageobjects.organization.MembersPage;
 import org.sonarqube.pageobjects.projects.ProjectsPage;
 import org.sonarqube.pageobjects.settings.SettingsPage;
+import org.sonarqube.tests.Tester;
 
 import static com.codeborne.selenide.Condition.visible;
 import static com.codeborne.selenide.Selenide.$;
@@ -59,7 +59,7 @@ public class Navigation {
     clearStorage(d -> d.getLocalStorage().clear());
     clearStorage(d -> d.getSessionStorage().clear());
     clearStorage(d -> clearBrowserLocalStorage());
-    return Selenide.open("/", Navigation.class);
+    return Selenide.open("/projects", Navigation.class);
   }
 
   private static void clearStorage(Consumer<WebStorage> cleaner) {
