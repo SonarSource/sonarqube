@@ -24,6 +24,7 @@
   left: 50%;
   width: 350px;
   margin-left: -175px;
+  word-break: break-all;
 }
 
 .process-spinner {
