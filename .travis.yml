@@ -8,6 +8,7 @@ dist: trusty
 branches:
   except:
   - /^dogfood\/.*$/
+  - public_master
 
 env:
   - TARGET=BUILD
