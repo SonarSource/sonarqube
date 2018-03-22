@@ -19,7 +19,6 @@
  */
 package org.sonar.server.issue.ws;
 
-import com.google.common.base.Strings;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -186,14 +185,14 @@ public class SearchResponseFormat {
     }
     setNullable(dto.getLine(), issueBuilder::setLine);
     setNullable(emptyToNull(dto.getChecksum()), issueBuilder::setHash);
-    completeIssueLocations(dto, issueBuilder);
+    completeIssueLocations(dto, issueBuilder, data);
     issueBuilder.setAuthor(nullToEmpty(dto.getAuthorLogin()));
     setNullable(dto.getIssueCreationDate(), issueBuilder::setCreationDate, DateUtils::formatDateTime);
     setNullable(dto.getIssueUpdateDate(), issueBuilder::setUpdateDate, DateUtils::formatDateTime);
     setNullable(dto.getIssueCloseDate(), issueBuilder::setCloseDate, DateUtils::formatDateTime);
   }
 
-  private static void completeIssueLocations(IssueDto dto, Issue.Builder issueBuilder) {
+  private static void completeIssueLocations(IssueDto dto, Issue.Builder issueBuilder, SearchResponseData data) {
     DbIssues.Locations locations = dto.parseLocations();
     if (locations == null) {
       return;
@@ -205,13 +204,13 @@ public class SearchResponseFormat {
     for (DbIssues.Flow flow : locations.getFlowList()) {
       Flow.Builder targetFlow = Flow.newBuilder();
       for (DbIssues.Location flowLocation : flow.getLocationList()) {
-        targetFlow.addLocations(convertLocation(flowLocation));
+        targetFlow.addLocations(convertLocation(issueBuilder, flowLocation, data));
       }
       issueBuilder.addFlows(targetFlow);
     }
   }
 
-  private static Location convertLocation(DbIssues.Location source) {
+  private static Location convertLocation(Issue.Builder issueBuilder, DbIssues.Location source, SearchResponseData data) {
     Location.Builder target = Location.newBuilder();
     if (source.hasMsg()) {
       target.setMsg(source.getMsg());
@@ -220,6 +219,11 @@ public class SearchResponseFormat {
       DbCommons.TextRange sourceRange = source.getTextRange();
       Common.TextRange.Builder targetRange = convertTextRange(sourceRange);
       target.setTextRange(targetRange);
+    }
+    if (source.hasComponentId()) {
+      setNullable(data.getComponentByUuid(source.getComponentId()), c -> target.setComponent(c.getKey()));
+    } else {
+      target.setComponent(issueBuilder.getComponent());
     }
     return target.build();
   }
@@ -311,12 +315,7 @@ public class SearchResponseFormat {
         .setEnabled(dto.isEnabled());
       setNullable(dto.getBranch(), builder::setBranch);
       setNullable(dto.getPullRequest(), builder::setPullRequest);
-      String path = dto.path();
-      // path is not applicable to the components that are not files.
-      // Value must not be "" in this case.
-      if (!Strings.isNullOrEmpty(path)) {
-        builder.setPath(path);
-      }
+      setNullable(emptyToNull(dto.path()), builder::setPath);
 
       result.add(builder.build());
     }
