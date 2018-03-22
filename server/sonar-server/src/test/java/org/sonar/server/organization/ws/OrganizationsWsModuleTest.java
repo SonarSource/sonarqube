@@ -20,18 +20,34 @@
 package org.sonar.server.organization.ws;
 
 import org.junit.Test;
+import org.sonar.api.config.internal.MapSettings;
 import org.sonar.core.platform.ComponentContainer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.core.platform.ComponentContainer.COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER;
 
 public class OrganizationsWsModuleTest {
-  private OrganizationsWsModule underTest = new OrganizationsWsModule();
+
+  private ComponentContainer container = new ComponentContainer();
+  private MapSettings mapSettings = new MapSettings();
+  private OrganizationsWsModule underTest = new OrganizationsWsModule(mapSettings.asConfig());
 
   @Test
-  public void verify_component_count() {
-    ComponentContainer container = new ComponentContainer();
+  public void verify_component_count_when_not_on_sonar_cloud() {
+    mapSettings.setProperty("sonar.sonarcloud.enabled", false);
+
     underTest.configure(container);
+
+    assertThat(container.getPicoContainer().getComponentAdapters())
+      .hasSize(COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER + 5);
+  }
+
+  @Test
+  public void verify_component_count_when_on_sonar_cloud() {
+    mapSettings.setProperty("sonar.sonarcloud.enabled", true);
+
+    underTest.configure(container);
+
     assertThat(container.getPicoContainer().getComponentAdapters())
       .hasSize(COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER + 12);
   }

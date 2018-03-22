@@ -21,13 +21,14 @@
 package org.sonarqube.tests.issue;
 
 import com.sonar.orchestrator.Orchestrator;
-import org.sonarqube.tests.Category6Suite;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonarqube.pageobjects.issues.IssuesPage;
+import org.sonarqube.tests.Category6Suite;
 import org.sonarqube.tests.Tester;
 import org.sonarqube.ws.Issues;
 import org.sonarqube.ws.Issues.Issue;
@@ -38,7 +39,6 @@ import org.sonarqube.ws.client.issue.BulkChangeRequest;
 import org.sonarqube.ws.client.issue.SearchWsRequest;
 import org.sonarqube.ws.client.project.CreateRequest;
 import org.sonarqube.ws.client.qualityprofile.AddProjectRequest;
-import org.sonarqube.pageobjects.issues.IssuesPage;
 import util.issue.IssueRule;
 
 import static java.lang.String.format;
@@ -66,7 +66,7 @@ public class OrganizationIssueAssignTest {
   private User user;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     org1 = tester.organizations().generate();
     org2 = tester.organizations().generate();
     user = tester.users().generate();

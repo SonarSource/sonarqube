@@ -26,8 +26,8 @@ import org.junit.ClassRule;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.sonarqube.tests.authorisation.PermissionTemplateTest;
-import org.sonarqube.tests.issue.IssueNotificationsTest;
 import org.sonarqube.tests.ce.ReportFailureNotificationTest;
+import org.sonarqube.tests.issue.IssueNotificationsTest;
 import org.sonarqube.tests.issue.IssueTagsTest;
 import org.sonarqube.tests.issue.OrganizationIssueAssignTest;
 import org.sonarqube.tests.issue.OrganizationIssuesPageTest;
@@ -109,6 +109,8 @@ public class Category6Suite {
 
     // reduce memory for Elasticsearch to 128M
     .setServerProperty("sonar.search.javaOpts", "-Xms128m -Xmx128m")
+
+    .setServerProperty("sonar.sonarcloud.enabled", "true")
 
     .build();
 }
