@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import org.apache.commons.lang.StringUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -397,6 +398,20 @@ public class SnapshotDaoTest {
     assertThat(result.getVersion()).isEqualTo("5.6.3");
     assertThat(result.getStatus()).isEqualTo(STATUS_UNPROCESSED);
     assertThat(result.getComponentUuid()).isEqualTo("P1");
+  }
+
+  @Test
+  public void snashotDto_can_hold_version_larger_than_100_read_from_database() {
+    SnapshotDto analysis = insertAnalysis("P1", "A1", STATUS_PROCESSED, false);
+    db.commit();
+    String tooLongVersion = StringUtils.repeat("d", 200);
+    db.executeUpdateSql("update snapshots set version='" + tooLongVersion + "' where uuid='" + analysis.getUuid() + "'");
+    db.commit();
+
+    assertThat(underTest.selectByUuid(dbSession, analysis.getUuid())
+      .map(SnapshotDto::getVersion))
+        .contains(tooLongVersion);
+
   }
 
   private SnapshotDto insertAnalysis(String projectUuid, String uuid, String status, boolean isLastFlag) {

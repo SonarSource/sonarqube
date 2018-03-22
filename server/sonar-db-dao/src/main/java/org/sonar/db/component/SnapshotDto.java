@@ -128,6 +128,13 @@ public final class SnapshotDto {
     return this;
   }
 
+  /**
+   * Used by MyBatis
+   */
+  private void setRawVersion(@Nullable String version) {
+    this.version = version;
+  }
+
   public SnapshotDto setPeriodMode(@Nullable String p) {
     periodMode = p;
     return this;

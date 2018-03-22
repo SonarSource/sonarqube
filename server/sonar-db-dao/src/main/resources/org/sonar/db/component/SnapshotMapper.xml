@@ -11,7 +11,7 @@
     s.status as status,
     s.purge_status as purgeStatus,
     s.islast as last,
-    s.version as version,
+    s.version as rawVersion,
     s.period1_mode as periodMode,
     s.period1_param as periodParam,
     s.period1_date as periodDate
