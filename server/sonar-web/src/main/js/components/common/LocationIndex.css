@@ -30,6 +30,7 @@
   font-family: var(--baseFontFamily);
   font-size: var(--smallFontSize);
   transition: background-color 0.3s ease;
+  user-select: none;
 }
 
 .location-index.selected {
