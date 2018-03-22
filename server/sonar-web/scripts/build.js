@@ -21,34 +21,15 @@
 process.env.NODE_ENV = 'production';
 
 const chalk = require('chalk');
-const fs = require('fs-extra');
-const rimrafSync = require('rimraf').sync;
 const webpack = require('webpack');
-const paths = require('../config/paths');
+const sortBy = require('lodash/sortBy');
 const formatSize = require('./utils/formatSize');
 const getConfig = require('../config/webpack.config');
 
-const fast = process.argv.some(arg => arg.indexOf('--fast') > -1);
-
-const config = getConfig({ fast, production: true });
-
-function clean() {
-  // Remove all content but keep the directory so that
-  // if you're in it, you don't end up in Trash
-  console.log(chalk.cyan.bold('Cleaning output directories and files...'));
-
-  console.log(paths.appBuild + '/*');
-  rimrafSync(paths.appBuild + '/*');
-
-  console.log();
-}
+const config = getConfig({ production: true });
 
 function build() {
-  if (fast) {
-    console.log(chalk.magenta.bold('Running fast build...'));
-  } else {
-    console.log(chalk.cyan.bold('Creating optimized production build...'));
-  }
+  console.log(chalk.cyan.bold('Creating optimized production build...'));
   console.log();
 
   webpack(config, (err, stats) => {
@@ -65,16 +46,17 @@ function build() {
     }
 
     const jsonStats = stats.toJson();
+    const withoutSourceMaps = jsonStats.assets.filter(asset => !asset.name.endsWith('.map'));
 
-    console.log('Assets:');
-    const assets = jsonStats.assets.slice();
-    assets.sort((a, b) => b.size - a.size);
-    assets.forEach(asset => {
-      let sizeLabel = formatSize(asset.size);
-      const leftPadding = ' '.repeat(Math.max(0, 8 - sizeLabel.length));
-      sizeLabel = leftPadding + sizeLabel;
-      console.log('', chalk.yellow(sizeLabel), asset.name);
-    });
+    console.log(`Biggest assets (${withoutSourceMaps.length} total):`);
+    sortBy(withoutSourceMaps, asset => -asset.size)
+      .slice(0, 5)
+      .forEach(asset => {
+        let sizeLabel = formatSize(asset.size);
+        const leftPadding = ' '.repeat(Math.max(0, 8 - sizeLabel.length));
+        sizeLabel = leftPadding + sizeLabel;
+        console.log('', chalk.yellow(sizeLabel), asset.name);
+      });
     console.log();
 
     const seconds = jsonStats.time / 1000;
@@ -85,13 +67,4 @@ function build() {
   });
 }
 
-function copyPublicFolder() {
-  fs.copySync(paths.appPublic, paths.appBuild, {
-    dereference: true,
-    filter: file => file !== paths.appHtml
-  });
-}
-
-clean();
 build();
-copyPublicFolder();

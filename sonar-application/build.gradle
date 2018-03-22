@@ -123,7 +123,7 @@ zip.doFirst {
 }
 // Check the size of the archive
 zip.doLast {
-  def minLength = 155000000
+  def minLength = 150000000
   def maxLength = 170000000
   def length = new File(distsDir, archiveName).length()
   if (length < minLength)

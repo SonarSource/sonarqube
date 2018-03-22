@@ -12,7 +12,8 @@
     "lib": ["es2017", "dom"],
     "module": "esnext",
     "moduleResolution": "node",
-    "typeRoots": ["./src/main/js/typings", "./node_modules/@types"]
+    "typeRoots": ["./src/main/js/typings", "./node_modules/@types"],
+    "sourceMap": true
   },
   "include": ["./src/main/js/**/*"]
 }

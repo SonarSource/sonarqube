@@ -1,20 +1,41 @@
+/*
+ * SonarQube
+ * Copyright (C) 2009-2018 SonarSource SA
+ * mailto:info AT sonarsource DOT com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
 /* eslint-disable import/no-extraneous-dependencies */
 const path = require('path');
-const ExtractTextPlugin = require('extract-text-webpack-plugin');
+const CleanWebpackPlugin = require('clean-webpack-plugin');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-const InterpolateHtmlPlugin = require('react-dev-utils/InterpolateHtmlPlugin');
 const webpack = require('webpack');
+const InterpolateHtmlPlugin = require('./InterpolateHtmlPlugin');
 const paths = require('./paths');
 
 const cssMinimizeOptions = {
   discardComments: { removeAll: true }
 };
 
-const cssLoader = ({ production, fast }) => ({
+const cssLoader = ({ production }) => ({
   loader: 'css-loader',
   options: {
     importLoaders: 1,
-    minimize: production && !fast && cssMinimizeOptions,
+    minimize: production && cssMinimizeOptions,
     url: false
   }
 });
@@ -33,35 +54,20 @@ const postcssLoader = () => ({
   }
 });
 
-module.exports = ({ production = true, fast = false }) => ({
-  bail: production,
-
-  devtool: production ? (fast ? false : 'source-map') : 'cheap-module-source-map',
+module.exports = ({ production = true }) => ({
+  mode: production ? 'production' : 'development',
+  devtool: production ? 'source-map' : 'cheap-module-source-map',
   resolve: {
     // Add '.ts' and '.tsx' as resolvable extensions.
     extensions: ['.ts', '.tsx', '.js', '.json']
   },
-  entry: {
-    vendor: [
-      !production && require.resolve('react-dev-utils/webpackHotDevClient'),
-      require.resolve('./polyfills'),
-      !production && require.resolve('react-error-overlay'),
-      'lodash',
-      'd3-array',
-      'd3-hierarchy',
-      'd3-scale',
-      'd3-selection',
-      'd3-shape',
-      'react',
-      'react-dom'
-    ].filter(Boolean),
-
-    app: [
-      './src/main/js/app/utils/setPublicPath.js',
-      './src/main/js/app/index.js',
-      './src/main/js/components/SourceViewer/SourceViewer'
-    ]
-  },
+  entry: [
+    !production && require.resolve('react-dev-utils/webpackHotDevClient'),
+    require.resolve('./polyfills'),
+    !production && require.resolve('react-error-overlay'),
+    './src/main/js/app/utils/setPublicPath.js',
+    './src/main/js/app/index.js'
+  ].filter(Boolean),
   output: {
     path: paths.appBuild,
     pathinfo: !production,
@@ -71,88 +77,71 @@ module.exports = ({ production = true, fast = false }) => ({
   module: {
     rules: [
       {
-        test: /\.js$/,
-        loader: 'babel-loader',
-        exclude: /(node_modules|libs)/
-      },
-      {
-        test: /\.tsx?$/,
+        test: /(\.js$|\.ts(x?)$)/,
+        exclude: /(node_modules|libs)/,
         use: [
+          { loader: 'babel-loader' },
           {
-            loader: 'awesome-typescript-loader',
-            options: {
-              transpileOnly: true,
-              useBabel: true,
-              useCache: true
-            }
+            loader: 'ts-loader',
+            options: { transpileOnly: true }
           }
         ]
       },
-      production
-        ? {
-            test: /\.css$/,
-            loader: ExtractTextPlugin.extract({
-              fallback: 'style-loader',
-              use: [cssLoader({ production, fast }), postcssLoader()]
-            })
-          }
-        : {
-            test: /\.css$/,
-            use: ['style-loader', cssLoader({ production, fast }), postcssLoader()]
-          },
+      {
+        test: /\.css$/,
+        use: [
+          production ? MiniCssExtractPlugin.loader : 'style-loader',
+          cssLoader({ production }),
+          postcssLoader()
+        ].filter(Boolean)
+      },
       { test: require.resolve('lodash'), loader: 'expose-loader?_' },
       { test: require.resolve('react'), loader: 'expose-loader?React' },
       { test: require.resolve('react-dom'), loader: 'expose-loader?ReactDOM' }
     ].filter(Boolean)
   },
   plugins: [
-    new webpack.optimize.CommonsChunkPlugin({ name: 'vendor' }),
+    // `allowExternal: true` to remove files outside of the current dir
+    production && new CleanWebpackPlugin([paths.appBuild], { allowExternal: true, verbose: false }),
 
     production &&
-      new ExtractTextPlugin({
-        filename: production ? 'css/sonar.[chunkhash:8].css' : 'css/sonar.css'
-      }),
+      new CopyWebpackPlugin([
+        {
+          from: paths.appPublic,
+          to: paths.appBuild,
+          ignore: [paths.appHtml]
+        }
+      ]),
 
-    !production && new InterpolateHtmlPlugin({ WEB_CONTEXT: '' }),
+    production &&
+      new MiniCssExtractPlugin({
+        filename: 'css/[name].[chunkhash:8].css',
+        chunkFilename: 'css/[name].[chunkhash:8].chunk.css'
+      }),
 
     new HtmlWebpackPlugin({
       inject: false,
       template: paths.appHtml,
-      minify: production &&
-        !fast && {
-          removeComments: true,
-          collapseWhitespace: true,
-          removeRedundantAttributes: true,
-          useShortDoctype: true,
-          removeEmptyAttributes: true,
-          removeStyleLinkTypeAttributes: true,
-          keepClosingSlash: true,
-          minifyJS: true,
-          minifyCSS: true,
-          minifyURLs: true
-        }
+      minify: production && {
+        removeComments: true,
+        collapseWhitespace: true,
+        removeRedundantAttributes: true,
+        useShortDoctype: true,
+        removeEmptyAttributes: true,
+        removeStyleLinkTypeAttributes: true,
+        keepClosingSlash: true,
+        minifyJS: true,
+        minifyCSS: true,
+        minifyURLs: true
+      }
     }),
 
-    new webpack.DefinePlugin({
-      'process.env.NODE_ENV': JSON.stringify(production ? 'production' : 'development')
-    }),
-
-    production &&
-      !fast &&
-      new webpack.optimize.UglifyJsPlugin({
-        sourceMap: true,
-        compress: { screw_ie8: true, warnings: false },
-        mangle: { screw_ie8: true },
-        output: { comments: false, screw_ie8: true }
-      }),
+    // keep `InterpolateHtmlPlugin` after `HtmlWebpackPlugin`
+    !production && new InterpolateHtmlPlugin({ WEB_CONTEXT: '' }),
 
     !production && new webpack.HotModuleReplacementPlugin()
   ].filter(Boolean),
-  // Some libraries import Node modules but don't use them in the browser.
-  // Tell Webpack to provide empty mocks for them so importing them works.
-  node: {
-    fs: 'empty',
-    net: 'empty',
-    tls: 'empty'
+  optimization: {
+    splitChunks: { chunks: 'all' }
   }
 });
