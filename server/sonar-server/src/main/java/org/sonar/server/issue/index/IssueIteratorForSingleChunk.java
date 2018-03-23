@@ -84,7 +84,7 @@ class IssueIteratorForSingleChunk implements IssueIterator {
     "inner join rules r on r.id = i.rule_id " +
     "inner join projects c on c.uuid = i.component_uuid ";
 
-  private static final String PROJECT_FILTER = " and c.project_uuid = ?";
+  private static final String PROJECT_FILTER = " and c.project_uuid = ? and i.project_uuid = ? ";
   private static final String ISSUE_KEY_FILTER_PREFIX = " and i.kee in (";
   private static final String ISSUE_KEY_FILTER_SUFFIX = ")";
 
@@ -153,6 +153,8 @@ class IssueIteratorForSingleChunk implements IssueIterator {
   private void setParameters(PreparedStatement stmt) throws SQLException {
     int index = 1;
     if (projectUuid != null) {
+      stmt.setString(index, projectUuid);
+      index++;
       stmt.setString(index, projectUuid);
       index++;
     }
