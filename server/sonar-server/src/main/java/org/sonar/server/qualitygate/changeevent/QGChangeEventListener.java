@@ -21,7 +21,9 @@ package org.sonar.server.qualitygate.changeevent;
 
 import java.util.Set;
 import org.sonar.api.rules.RuleType;
+import org.sonar.api.server.ServerSide;
 
+@ServerSide
 public interface QGChangeEventListener {
   /**
    * Called consequently to a change done on one or more issue of a given project.
