@@ -21,12 +21,18 @@ import React from 'react';
 import { shallow } from 'enzyme';
 import EmptyOverview from '../EmptyOverview';
 
+const component = {
+  id: 'id',
+  key: 'abcd',
+  analysisDate: '2016-01-01'
+};
+
 it('should render component key', () => {
-  const component = {
-    id: 'id',
-    key: 'abcd',
-    analysisDate: '2016-01-01'
-  };
   const output = shallow(<EmptyOverview component={component} />);
   expect(output.find('code').text()).toBe('abcd');
+});
+
+it('should render another message when there are branches', () => {
+  const wrapper = shallow(<EmptyOverview component={component} hasBranches={true} />);
+  expect(wrapper).toMatchSnapshot();
 });

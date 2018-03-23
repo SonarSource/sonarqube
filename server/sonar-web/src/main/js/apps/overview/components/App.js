@@ -28,6 +28,7 @@ import { getProjectBranchUrl, getCodeUrl } from '../../../helpers/urls';
 /*::
 type Props = {
   branch?: { name: string },
+  branches: Array<*>,
   component: {
     analysisDate?: string,
     breadcrumbs: Array<{ key: string }>,
@@ -75,14 +76,19 @@ export default class App extends React.PureComponent {
   }
 
   render() {
-    const { branch, component } = this.props;
+    const { branch, branches, component } = this.props;
 
     if (this.isPortfolio() || this.isFile() || isShortLivingBranch(branch)) {
       return null;
     }
 
     if (!component.analysisDate) {
-      return <EmptyOverview component={component} />;
+      return (
+        <EmptyOverview
+          component={component}
+          hasBranches={branches !== undefined && branches.length > 1}
+        />
+      );
     }
 
     return (
