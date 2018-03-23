@@ -34,7 +34,7 @@ import {
 import AlertErrorIcon from '../../../components/icons-components/AlertErrorIcon';
 import AlertSuccessIcon from '../../../components/icons-components/AlertSuccessIcon';
 import { translateWithParameters, translate } from '../../../helpers/l10n';
-import { resetValue, saveValue } from '../store/actions';
+import { resetValue, saveValue, checkValue } from '../store/actions';
 import { passValidation } from '../store/settingsPage/validationMessages/actions';
 import { cancelChange, changeValue } from '../store/settingsPage/changedValues/actions';
 import { TYPE_PASSWORD } from '../constants';
@@ -63,7 +63,8 @@ class Definition extends React.PureComponent {
   };
 
   state = {
-    success: false
+    success: false,
+    hasError: false
   };
 
   componentDidMount() {
@@ -85,6 +86,8 @@ class Definition extends React.PureComponent {
     this.props.changeValue(this.props.setting.definition.key, value);
     if (this.props.setting.definition.type === TYPE_PASSWORD) {
       this.handleSave();
+    } else {
+      this.handleCheck();
     }
   };
 
@@ -94,7 +97,8 @@ class Definition extends React.PureComponent {
     return this.props
       .resetValue(definition.key, componentKey)
       .then(() => {
-        this.safeSetState({ success: true });
+        this.props.changeValue(definition.key, definition.defaultValue);
+        this.safeSetState({ success: true, hasError: false });
         this.timeout = setTimeout(() => this.safeSetState({ success: false }), 3000);
       })
       .catch(() => {
@@ -106,6 +110,16 @@ class Definition extends React.PureComponent {
     const componentKey = this.props.component ? this.props.component.key : null;
     this.props.cancelChange(this.props.setting.definition.key, componentKey);
     this.props.passValidation(this.props.setting.definition.key);
+  };
+
+  handleCheck = () => {
+    this.safeSetState({ success: false });
+    const componentKey = this.props.component ? this.props.component.key : null;
+    if (this.props.checkValue(this.props.setting.definition.key, componentKey)) {
+      this.safeSetState({ hasError: false });
+    } else {
+      this.safeSetState({ hasError: true });
+    }
   };
 
   handleSave = () => {
@@ -126,6 +140,7 @@ class Definition extends React.PureComponent {
 
   render() {
     const { setting, changedValue, loading } = this.props;
+    const { hasError } = this.state;
     const { definition } = setting;
     const propertyName = getPropertyName(definition);
 
@@ -195,7 +210,7 @@ class Definition extends React.PureComponent {
             value={effectiveValue}
           />
 
-          {!hasValueChanged && (
+          {(!hasValueChanged || hasError) && (
             <DefinitionDefaults
               isDefault={isDefault}
               onReset={this.handleReset}
@@ -203,9 +218,10 @@ class Definition extends React.PureComponent {
             />
           )}
 
-          {hasValueChanged && (
-            <DefinitionChanges onCancel={this.handleCancel} onSave={this.handleSave} />
-          )}
+          {hasValueChanged &&
+            !hasError && (
+              <DefinitionChanges onCancel={this.handleCancel} onSave={this.handleSave} />
+            )}
         </div>
       </div>
     );
@@ -223,5 +239,6 @@ export default connect(mapStateToProps, {
   saveValue,
   resetValue,
   passValidation,
-  cancelChange
+  cancelChange,
+  checkValue
 })(Definition);

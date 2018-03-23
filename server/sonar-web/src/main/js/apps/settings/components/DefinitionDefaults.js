@@ -67,7 +67,7 @@ export default class DefinitionDefaults extends React.PureComponent {
           </div>
           <footer className="modal-foot">
             <button className="button-red">{translate('reset_verb')}</button>
-            <button type="reset" className="button-link" onClick={this.handleClose}>
+            <button className="button-link" onClick={this.handleClose} type="reset">
               {translate('cancel')}
             </button>
           </footer>

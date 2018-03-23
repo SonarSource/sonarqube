@@ -59,6 +59,24 @@ export const fetchValues = (keys, component) => dispatch =>
     () => {}
   );
 
+export const checkValue = (key, componentKey) => (dispatch, getState) => {
+  const state = getState();
+  const definition = getSettingsAppDefinition(state, key);
+  const value = getSettingsAppChangedValue(state, key);
+
+  if (isEmptyValue(definition, value)) {
+    if (definition.defaultValue === undefined) {
+      dispatch(failValidation(key, translate('settings.state.value_cant_be_empty_no_default')));
+    } else {
+      dispatch(failValidation(key, translate('settings.state.value_cant_be_empty')));
+    }
+    return false;
+  }
+
+  dispatch(passValidation(key));
+  return true;
+};
+
 export const saveValue = (key, componentKey) => (dispatch, getState) => {
   dispatch(startLoading(key));
 

@@ -117,6 +117,10 @@ function getParentValue(setting) {
 export function getDefaultValue(setting) {
   const parentValue = getParentValue(setting);
 
+  if (parentValue === undefined) {
+    return setting.value;
+  }
+
   if (parentValue == null) {
     return translate('settings.default.no_value');
   }
