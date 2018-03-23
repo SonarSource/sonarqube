@@ -111,12 +111,6 @@ public class ModuleIssues {
       flowBuilder.clear();
       for (org.sonar.api.batch.sensor.issue.IssueLocation location : flow.locations()) {
         int locationComponentRef = ((DefaultInputComponent) location.inputComponent()).batchId();
-        if (locationComponentRef != componentRef) {
-          // Some analyzers are trying to report cross file secondary locations. The API was designed to support it, but server side is not
-          // ready to handle it (especially the UI)
-          // So let's skip them for now (SONAR-9929)
-          continue;
-        }
         locationBuilder.clear();
         locationBuilder.setComponentRef(locationComponentRef);
         String message = location.message();
