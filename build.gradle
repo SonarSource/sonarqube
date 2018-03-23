@@ -28,10 +28,11 @@ allprojects {
   apply plugin: 'com.jfrog.artifactory'
   apply plugin: 'maven-publish'
 
+  ext.buildNumber = System.getProperty("buildNumber")
   // Replaces the version defined in sources, usually x.y-SNAPSHOT, by a version identifying the build.
-  def buildNumber = System.getProperty("buildNumber")
-  if (version.endsWith('-SNAPSHOT') && buildNumber != null) {
-    version = version.replace('-SNAPSHOT', ".0.$buildNumber")
+  if (version.endsWith('-SNAPSHOT') && ext.buildNumber != null) {
+    def versionSuffix = (version.toString().count('.') == 1 ? ".0.${ext.buildNumber}" : ".${ext.buildNumber}")
+    version = version.replace('-SNAPSHOT', versionSuffix)
   }
 
   ext {
