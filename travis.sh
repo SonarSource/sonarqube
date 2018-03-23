@@ -23,12 +23,6 @@ function installJdk8 {
   export PATH=$JAVA_HOME/bin:$PATH
 }
 
-function installNode {
-  set +u
-  source ~/.nvm/nvm.sh && nvm install 8
-  set -u
-}
-
 #
 # Configure Maven settings and install some script utilities
 #
@@ -58,23 +52,9 @@ keep_alive &
 # @TravisCI please provide the feature natively, like at AppVeyor or CircleCI ;-)
 cancel_branch_build_with_pr || if [[ $? -eq 1 ]]; then exit 0; fi
 
-# configure environment variables for Artifactory
-export GIT_COMMIT=$TRAVIS_COMMIT
-export BUILD_NUMBER=$TRAVIS_BUILD_NUMBER
-if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
-  export GIT_BRANCH=$TRAVIS_BRANCH
-  unset PULL_REQUEST_BRANCH_TARGET
-  unset PULL_REQUEST_NUMBER
-else
-  export GIT_BRANCH=$TRAVIS_PULL_REQUEST_BRANCH
-  export PULL_REQUEST_BRANCH_TARGET=$TRAVIS_BRANCH
-  export PULL_REQUEST_NUMBER=$TRAVIS_PULL_REQUEST
-fi
-
 case "$TARGET" in
 
 BUILD)
-
   installJdk8
   installNode
 
@@ -146,11 +126,8 @@ BUILD)
   ;;
 
 WEB_TESTS)
-  installNode
-  curl -o- -L https://yarnpkg.com/install.sh | bash
-  export PATH=$HOME/.yarn/bin:$PATH
-  cd server/sonar-web && yarn && yarn validate
-  cd ../sonar-vsts && yarn && yarn validate
+  ./gradlew :server:sonar-web:yarn :server:sonar-web:yarn_validate --no-daemon --console plain
+  ./gradlew :server:sonar-vsts:yarn :server:sonar-vsts:yarn_validate --no-daemon --console plain
   ;;
   
 *)
