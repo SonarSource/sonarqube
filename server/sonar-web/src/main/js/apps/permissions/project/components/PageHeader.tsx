@@ -67,7 +67,7 @@ export default class PageHeader extends React.PureComponent<Props, State> {
 
     const visibilityDescription =
       component.qualifier === 'TRK' && component.visibility
-        ? translate('visibility', component.visibility, 'description')
+        ? translate('visibility', component.visibility, 'description', component.qualifier)
         : null;
 
     return (
