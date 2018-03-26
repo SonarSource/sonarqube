@@ -5,8 +5,8 @@ buildscript {
     }
   }
   dependencies {
-    // check updates with https://plugins.gradle.org/
     // Ordered alphabeticly to avoid duplication
+    classpath 'com.github.ben-manes:gradle-versions-plugin:0.17.0'
     classpath 'com.github.jengelman.gradle.plugins:shadow:2.0.2'
     classpath 'com.google.protobuf:protobuf-gradle-plugin:0.8.4'
     classpath 'com.moowork.gradle:gradle-node-plugin:1.2.0'
@@ -26,6 +26,7 @@ sonarqube {
 }
 
 allprojects {
+  apply plugin: 'com.github.ben-manes.versions'
   apply plugin: 'com.jfrog.artifactory'
   apply plugin: 'maven-publish'
 
