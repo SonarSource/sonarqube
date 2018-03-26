@@ -717,11 +717,6 @@ a.search-navigator-facet:focus .facet-stat {
   color: var(--baseFontColor);
 }
 
-.search-navigator-filters-show-list > .icon-list {
-  position: relative;
-  top: -2px;
-}
-
 .search-navigator-filters-actions {
   float: right;
 }
