@@ -256,3 +256,10 @@ export function getSelectedLocation(
     return undefined;
   }
 }
+
+export function allLocationsEmpty(
+  issue: Pick<Issue, 'flows' | 'secondaryLocations'>,
+  selectedFlowIndex: number | undefined
+) {
+  return getLocations(issue, selectedFlowIndex).every(location => !location.msg);
+}

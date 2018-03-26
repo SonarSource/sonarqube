@@ -23,7 +23,7 @@ import LocationMessage from '../../../components/common/LocationMessage';
 
 interface Props {
   index: number;
-  message: string;
+  message: string | undefined;
   onClick: (index: number) => void;
   scroll: (element: Element) => void;
   selected: boolean;

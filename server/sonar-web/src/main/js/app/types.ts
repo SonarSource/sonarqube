@@ -152,7 +152,7 @@ export interface FacetValue {
 export interface FlowLocation {
   component: string;
   componentName?: string;
-  msg: string;
+  msg?: string;
   textRange: TextRange;
 }
 

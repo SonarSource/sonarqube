@@ -66,7 +66,7 @@ interface Props {
   // `undefined` elements mean they are located in a different file,
   // but kept to maintaint the location indexes
   highlightedLocations?: (FlowLocation | undefined)[];
-  highlightedLocationMessage?: { index: number; text: string };
+  highlightedLocationMessage?: { index: number; text: string | undefined };
   loadComponent?: (
     component: string,
     branchLike: BranchLike | undefined

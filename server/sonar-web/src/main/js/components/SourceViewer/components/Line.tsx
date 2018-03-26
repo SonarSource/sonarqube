@@ -43,7 +43,7 @@ interface Props {
   duplicationsCount: number;
   filtered: boolean | undefined;
   highlighted: boolean;
-  highlightedLocationMessage: { index: number; text: string } | undefined;
+  highlightedLocationMessage: { index: number; text: string | undefined } | undefined;
   highlightedSymbols: string[] | undefined;
   issueLocations: LinearIssueLocation[];
   issuePopup: { issue: string; name: string } | undefined;

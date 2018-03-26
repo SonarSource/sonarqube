@@ -53,7 +53,7 @@ interface Props {
   hasSourcesAfter: boolean;
   hasSourcesBefore: boolean;
   highlightedLine: number | undefined;
-  highlightedLocationMessage: { index: number; text: string } | undefined;
+  highlightedLocationMessage: { index: number; text: string | undefined } | undefined;
   // `undefined` elements mean they are located in a different file,
   // but kept to maintain the location indexes
   highlightedLocations: (FlowLocation | undefined)[] | undefined;

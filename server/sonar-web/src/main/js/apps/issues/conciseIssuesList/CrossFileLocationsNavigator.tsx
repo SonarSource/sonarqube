@@ -108,7 +108,7 @@ export default class CrossFileLocationsNavigator extends React.PureComponent<Pro
     return groups;
   };
 
-  renderLocation = (index: number, message: string) => {
+  renderLocation = (index: number, message: string | undefined) => {
     return (
       <ConciseIssueLocationsNavigatorLocation
         index={index}

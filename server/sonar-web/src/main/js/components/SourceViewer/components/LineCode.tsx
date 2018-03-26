@@ -35,7 +35,7 @@ interface Props {
   displayIssueLocationsCount?: boolean;
   displayIssueLocationsLink?: boolean;
   displayLocationMarkers?: boolean;
-  highlightedLocationMessage: { index: number; text: string } | undefined;
+  highlightedLocationMessage: { index: number; text: string | undefined } | undefined;
   highlightedSymbols: string[] | undefined;
   issueLocations: LinearIssueLocation[];
   issuePopup: { issue: string; name: string } | undefined;
@@ -138,19 +138,18 @@ export default class LineCode extends React.PureComponent<Props, State> {
     }
   };
 
-  renderMarker(index: number, message: string | undefined, leading = false) {
+  renderMarker(index: number, message: string | undefined, selected: boolean, leading: boolean) {
     const { onLocationSelect } = this.props;
     const onClick = onLocationSelect ? () => onLocationSelect(index) : undefined;
-    const ref =
-      message != null ? (node: HTMLElement | null) => (this.activeMarkerNode = node) : undefined;
+    const ref = selected ? (node: HTMLElement | null) => (this.activeMarkerNode = node) : undefined;
     return (
       <LocationIndex
         key={`marker-${index}`}
         leading={leading}
         onClick={onClick}
-        selected={message != null}>
+        selected={selected}>
         <span ref={ref}>{index + 1}</span>
-        {message != null && <LocationMessage selected={true}>{message}</LocationMessage>}
+        {message && <LocationMessage selected={true}>{message}</LocationMessage>}
       </LocationIndex>
     );
   }
@@ -206,11 +205,10 @@ export default class LineCode extends React.PureComponent<Props, State> {
     tokens.forEach((token, index) => {
       if (this.props.displayLocationMarkers && token.markers.length > 0) {
         token.markers.forEach(marker => {
-          const message =
-            highlightedLocationMessage != null && highlightedLocationMessage.index === marker
-              ? highlightedLocationMessage.text
-              : undefined;
-          renderedTokens.push(this.renderMarker(marker, message, leadingMarker));
+          const selected =
+            highlightedLocationMessage !== undefined && highlightedLocationMessage.index === marker;
+          const message = selected ? highlightedLocationMessage!.text : undefined;
+          renderedTokens.push(this.renderMarker(marker, message, selected, leadingMarker));
         });
       }
       renderedTokens.push(
