@@ -77,7 +77,8 @@ public class CreateAction implements ProjectsWsAction {
 
     action.setChangelog(
       new Change("6.3", "The response format has been updated and does not contain the database ID anymore"),
-      new Change("6.3", "The 'key' parameter has been renamed 'project'"));
+      new Change("6.3", "The 'key' parameter has been renamed 'project'"),
+      new Change("7.1", "The 'visibility' parameter is public"));
 
     action.createParam(PARAM_PROJECT)
       .setDescription("Key of the project")
@@ -100,7 +101,6 @@ public class CreateAction implements ProjectsWsAction {
       .setDescription("Whether the created project should be visible to everyone, or only specific user/groups.<br/>" +
         "If no visibility is specified, the default project visibility of the organization will be used.")
       .setRequired(false)
-      .setInternal(true)
       .setSince("6.4")
       .setPossibleValues(Visibility.getLabels());
 

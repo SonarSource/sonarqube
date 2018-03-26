@@ -322,12 +322,12 @@ public class CreateActionTest {
     assertThat(organization.isRequired()).isFalse();
     assertThat(organization.since()).isEqualTo("6.3");
 
-    WebService.Param isPrivate = definition.param(PARAM_VISIBILITY);
-    assertThat(isPrivate.description()).isNotEmpty();
-    assertThat(isPrivate.isInternal()).isTrue();
-    assertThat(isPrivate.isRequired()).isFalse();
-    assertThat(isPrivate.since()).isEqualTo("6.4");
-    assertThat(isPrivate.possibleValues()).containsExactlyInAnyOrder("private", "public");
+    WebService.Param visibilityParam = definition.param(PARAM_VISIBILITY);
+    assertThat(visibilityParam.description()).isNotEmpty();
+    assertThat(visibilityParam.isInternal()).isFalse();
+    assertThat(visibilityParam.isRequired()).isFalse();
+    assertThat(visibilityParam.since()).isEqualTo("6.4");
+    assertThat(visibilityParam.possibleValues()).containsExactlyInAnyOrder("private", "public");
 
     WebService.Param project = definition.param(PARAM_PROJECT);
     assertThat(project.isRequired()).isTrue();
