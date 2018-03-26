@@ -12,6 +12,16 @@ sourceSets {
   }
 }
 
+
+import org.apache.tools.ant.filters.ReplaceTokens
+processResources {
+  filesMatching('build.properties') {
+    filter ReplaceTokens, tokens: [
+      'buildNumber': release ? 'git rev-parse HEAD'.execute().text.trim() : 'N/A'
+    ]
+  }
+}
+
 dependencies {
   // please keep the list grouped by configuration and ordered by name
 
