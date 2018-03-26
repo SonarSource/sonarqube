@@ -45,13 +45,13 @@ public class CoreMetricsTest {
   }
 
   @Test
-  public void get_metric_by_key() throws Exception {
+  public void get_metric_by_key() {
     Metric metric = getMetric("ncloc");
     assertThat(metric.getKey()).isEqualTo("ncloc");
   }
 
   @Test
-  public void fail_get_unknown_metric_by_key() throws Exception {
+  public void fail_get_unknown_metric_by_key() {
     expectedException.expect(NoSuchElementException.class);
     getMetric("unknown");
   }

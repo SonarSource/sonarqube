@@ -19,24 +19,10 @@
  */
 package org.sonar.server.computation.task.projectanalysis.step;
 
-import static org.sonar.api.measures.CoreMetrics.ACCESSORS_KEY;
-import static org.sonar.api.measures.CoreMetrics.CLASSES_KEY;
-import static org.sonar.api.measures.CoreMetrics.DIRECTORIES_KEY;
-import static org.sonar.api.measures.CoreMetrics.FILES_KEY;
-import static org.sonar.api.measures.CoreMetrics.FUNCTIONS_KEY;
-import static org.sonar.api.measures.CoreMetrics.GENERATED_LINES_KEY;
-import static org.sonar.api.measures.CoreMetrics.GENERATED_NCLOC_KEY;
-import static org.sonar.api.measures.CoreMetrics.LINES_KEY;
-import static org.sonar.api.measures.CoreMetrics.NCLOC_KEY;
-import static org.sonar.api.measures.CoreMetrics.STATEMENTS_KEY;
-import static org.sonar.server.computation.task.projectanalysis.component.ComponentVisitor.Order.POST_ORDER;
-import static org.sonar.server.computation.task.projectanalysis.formula.SumFormula.createIntSumFormula;
-import static org.sonar.server.computation.task.projectanalysis.measure.Measure.newMeasureBuilder;
-
+import com.google.common.base.Optional;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.component.CrawlerDepthLimit;
 import org.sonar.server.computation.task.projectanalysis.component.PathAwareCrawler;
@@ -50,7 +36,18 @@ import org.sonar.server.computation.task.projectanalysis.metric.Metric;
 import org.sonar.server.computation.task.projectanalysis.metric.MetricRepository;
 import org.sonar.server.computation.task.step.ComputationStep;
 
-import com.google.common.base.Optional;
+import static org.sonar.api.measures.CoreMetrics.CLASSES_KEY;
+import static org.sonar.api.measures.CoreMetrics.DIRECTORIES_KEY;
+import static org.sonar.api.measures.CoreMetrics.FILES_KEY;
+import static org.sonar.api.measures.CoreMetrics.FUNCTIONS_KEY;
+import static org.sonar.api.measures.CoreMetrics.GENERATED_LINES_KEY;
+import static org.sonar.api.measures.CoreMetrics.GENERATED_NCLOC_KEY;
+import static org.sonar.api.measures.CoreMetrics.LINES_KEY;
+import static org.sonar.api.measures.CoreMetrics.NCLOC_KEY;
+import static org.sonar.api.measures.CoreMetrics.STATEMENTS_KEY;
+import static org.sonar.server.computation.task.projectanalysis.component.ComponentVisitor.Order.POST_ORDER;
+import static org.sonar.server.computation.task.projectanalysis.formula.SumFormula.createIntSumFormula;
+import static org.sonar.server.computation.task.projectanalysis.measure.Measure.newMeasureBuilder;
 
 /**
  * Compute size measures
@@ -63,8 +60,7 @@ public class SizeMeasuresStep implements ComputationStep {
     createIntSumFormula(GENERATED_NCLOC_KEY),
     createIntSumFormula(FUNCTIONS_KEY),
     createIntSumFormula(STATEMENTS_KEY),
-    createIntSumFormula(CLASSES_KEY),
-    createIntSumFormula(ACCESSORS_KEY)));
+    createIntSumFormula(CLASSES_KEY)));
 
   private final TreeRootHolder treeRootHolder;
   private final MetricRepository metricRepository;

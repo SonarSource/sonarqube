@@ -32,7 +32,6 @@ import static com.google.common.collect.FluentIterable.from;
 import static com.google.common.collect.Iterables.concat;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.api.measures.CoreMetrics.ACCESSORS;
 import static org.sonar.api.measures.CoreMetrics.CLASSES;
 import static org.sonar.api.measures.CoreMetrics.CLASSES_KEY;
 import static org.sonar.api.measures.CoreMetrics.DIRECTORIES;
@@ -105,8 +104,7 @@ public class ViewsSizeMeasuresStepTest {
     .add(GENERATED_NCLOC)
     .add(FUNCTIONS)
     .add(STATEMENTS)
-    .add(CLASSES)
-    .add(ACCESSORS);
+    .add(CLASSES);
   @Rule
   public MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(treeRootHolder, metricRepository)
     .addRawMeasure(PROJECTVIEW_1_REF, LINES_KEY, newMeasureBuilder().create(1))

@@ -209,26 +209,6 @@ public final class CoreMetrics {
     .setDomain(DOMAIN_SIZE)
     .create();
 
-  /**
-   * @deprecated since 5.0.
-   * @see <a href="https://jira.sonarsource.com/browse/SONAR-5224">SONAR-5224</a>
-   */
-  @Deprecated
-  public static final String ACCESSORS_KEY = "accessors";
-
-  /**
-   * @deprecated since 5.0.
-   * @see <a href="https://jira.sonarsource.com/browse/SONAR-5224">SONAR-5224</a>
-   */
-  @Deprecated
-  public static final Metric<Integer> ACCESSORS = new Metric.Builder(ACCESSORS_KEY, "Accessors", Metric.ValueType.INT)
-    .setDescription("Accessors")
-    .setDirection(Metric.DIRECTION_WORST)
-    .setQualitative(false)
-    .setDomain(DOMAIN_SIZE)
-    .setHidden(true)
-    .create();
-
   public static final String STATEMENTS_KEY = "statements";
   public static final Metric<Integer> STATEMENTS = new Metric.Builder(STATEMENTS_KEY, "Statements", Metric.ValueType.INT)
     .setDescription("Number of statements")

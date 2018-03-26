@@ -34,12 +34,12 @@ public class ScannerMetricsTest {
   private static final List<Metric> SENSOR_METRICS_WITHOUT_METRIC_PLUGIN = metrics();
 
   @Test
-  public void check_number_of_allowed_core_metrics() throws Exception {
-    assertThat(SENSOR_METRICS_WITHOUT_METRIC_PLUGIN).hasSize(34);
+  public void check_number_of_allowed_core_metrics() {
+    assertThat(SENSOR_METRICS_WITHOUT_METRIC_PLUGIN).hasSize(33);
   }
 
   @Test
-  public void check_metrics_from_plugin() throws Exception {
+  public void check_metrics_from_plugin() {
     List<Metric> metrics = metrics(new FakeMetrics());
     metrics.removeAll(SENSOR_METRICS_WITHOUT_METRIC_PLUGIN);
     assertThat(metrics).hasSize(2);

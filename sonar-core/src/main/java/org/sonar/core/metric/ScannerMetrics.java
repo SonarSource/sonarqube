@@ -33,7 +33,6 @@ import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.Metrics;
 
-import static org.sonar.api.measures.CoreMetrics.ACCESSORS;
 import static org.sonar.api.measures.CoreMetrics.CLASSES;
 import static org.sonar.api.measures.CoreMetrics.COGNITIVE_COMPLEXITY;
 import static org.sonar.api.measures.CoreMetrics.COMMENT_LINES;
@@ -96,7 +95,6 @@ public class ScannerMetrics {
     CLASSES,
     FUNCTIONS,
     STATEMENTS,
-    ACCESSORS,
 
     COMPLEXITY,
     COMPLEXITY_IN_CLASSES,

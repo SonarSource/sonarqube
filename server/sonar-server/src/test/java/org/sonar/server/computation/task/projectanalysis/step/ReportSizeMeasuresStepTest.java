@@ -102,8 +102,7 @@ public class ReportSizeMeasuresStepTest {
     .add(CoreMetrics.GENERATED_NCLOC)
     .add(CoreMetrics.FUNCTIONS)
     .add(CoreMetrics.STATEMENTS)
-    .add(CoreMetrics.CLASSES)
-    .add(CoreMetrics.ACCESSORS);
+    .add(CoreMetrics.CLASSES);
   @Rule
   public MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(treeRootHolder, metricRepository);
 
