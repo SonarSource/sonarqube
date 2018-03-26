@@ -22,6 +22,12 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { translate } from '../../../helpers/l10n';
 
+/*::
+type Props = {
+  enableSave: boolean
+};
+*/
+
 export default class DefinitionChanges extends React.PureComponent {
   static propTypes = {
     onSave: PropTypes.func.isRequired,
@@ -43,10 +49,11 @@ export default class DefinitionChanges extends React.PureComponent {
   render() {
     return (
       <div className="settings-definition-changes">
-        <button className="js-save-changes button-success" onClick={e => this.handleSaveClick(e)}>
-          {translate('save')}
-        </button>
-
+        {this.props.enableSave && (
+          <button className="js-save-changes button-success" onClick={e => this.handleSaveClick(e)}>
+            {translate('save')}
+          </button>
+        )}
         <button
           className="js-cancel-changes big-spacer-left button-link"
           onClick={e => this.handleCancelChange(e)}>

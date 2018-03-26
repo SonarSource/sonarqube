@@ -97,7 +97,7 @@ class Definition extends React.PureComponent {
     return this.props
       .resetValue(definition.key, componentKey)
       .then(() => {
-        this.props.changeValue(definition.key, definition.defaultValue);
+        this.props.cancelChange(definition.key, componentKey);
         this.safeSetState({ success: true, hasError: false });
         this.timeout = setTimeout(() => this.safeSetState({ success: false }), 3000);
       })
@@ -113,13 +113,9 @@ class Definition extends React.PureComponent {
   };
 
   handleCheck = () => {
-    this.safeSetState({ success: false });
     const componentKey = this.props.component ? this.props.component.key : null;
-    if (this.props.checkValue(this.props.setting.definition.key, componentKey)) {
-      this.safeSetState({ hasError: false });
-    } else {
-      this.safeSetState({ hasError: true });
-    }
+    const hasError = !this.props.checkValue(this.props.setting.definition.key, componentKey);
+    this.safeSetState({ hasError });
   };
 
   handleSave = () => {
@@ -194,6 +190,7 @@ class Definition extends React.PureComponent {
               )}
 
             {!loading &&
+              this.props.validationMessage == null &&
               this.state.success && (
                 <span className="text-success">
                   <AlertSuccessIcon className="spacer-right" />
@@ -218,10 +215,13 @@ class Definition extends React.PureComponent {
             />
           )}
 
-          {hasValueChanged &&
-            !hasError && (
-              <DefinitionChanges onCancel={this.handleCancel} onSave={this.handleSave} />
-            )}
+          {hasValueChanged && (
+            <DefinitionChanges
+              enableSave={!hasError}
+              onCancel={this.handleCancel}
+              onSave={this.handleSave}
+            />
+          )}
         </div>
       </div>
     );
