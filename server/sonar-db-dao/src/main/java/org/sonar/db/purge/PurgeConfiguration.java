@@ -25,9 +25,9 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.Optional;
 import javax.annotation.CheckForNull;
-import org.apache.commons.lang.time.DateUtils;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.resources.Scopes;
+import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.core.config.PurgeConstants;
 
