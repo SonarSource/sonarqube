@@ -46,7 +46,6 @@ import org.sonarqube.tests.Category1Suite;
 import org.sonarqube.tests.Session;
 import org.sonarqube.tests.Tester;
 import org.sonarqube.ws.MediaTypes;
-import org.sonarqube.ws.Organizations.Organization;
 import org.sonarqube.ws.WsCe;
 import org.sonarqube.ws.WsMeasures.Measure;
 import org.sonarqube.ws.WsProjects.CreateWsResponse.Project;
@@ -290,9 +289,8 @@ public class QualityGateTest {
   @Test
   public void administrate_quality_gate_with_gateadmin_permission() {
     // user is quality gate admin of default organization
-    Organization organization = tester.organizations().getDefaultOrganization();
-    WsUsers.CreateWsResponse.User user = tester.users().generateMember(organization);
-    tester.wsClient().permissions().addUser(new AddUserWsRequest().setLogin(user.getLogin()).setPermission("gateadmin").setOrganization(organization.getKey()));
+    WsUsers.CreateWsResponse.User user = tester.users().generate();
+    tester.wsClient().permissions().addUser(new AddUserWsRequest().setLogin(user.getLogin()).setPermission("gateadmin"));
     Session qGateAdminTester = tester.as(user.getLogin());
     QualityGatesService qGateService = qGateAdminTester.qGates().service();
     // perform administration operations
