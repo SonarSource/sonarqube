@@ -11,8 +11,8 @@ sonarqube {
 apply plugin: 'com.moowork.node'
 
 node {
-  version = '8.5.0'
-  yarnVersion = '1.1.0'
+  version = '8.10.0'
+  yarnVersion = '1.5.1'
   download = true
 }
 
