@@ -130,9 +130,7 @@ public abstract class Request {
   @CheckForNull
   public abstract List<String> paramAsStrings(String key);
 
-  public Map<String, String[]> getParams() {
-    return ImmutableMap.of();
-  }
+  public abstract Map<String, String[]> getParams();
 
   @CheckForNull
   public abstract String param(String key);

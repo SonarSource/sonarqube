@@ -89,6 +89,11 @@ public class ServletRequest extends ValidatingRequest {
   }
 
   @Override
+  public Map<String, String[]> getParams() {
+    return source.getParameterMap();
+  }
+
+  @Override
   protected List<String> readMultiParam(String key) {
     String[] values = source.getParameterValues(key);
     return values == null ? emptyList() : ImmutableList.copyOf(values);
@@ -163,10 +168,5 @@ public class ServletRequest extends ValidatingRequest {
       mapBuilder.put(headerName, source.getHeader(headerName));
     }
     return mapBuilder.build();
-  }
-
-  @Override
-  public Map<String, String[]> getParams() {
-    return source.getParameterMap();
   }
 }

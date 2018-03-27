@@ -20,19 +20,13 @@
 // @flow
 import { connect } from 'react-redux';
 import Onboarding from './Onboarding';
-import {
-  getCurrentUser,
-  areThereCustomOrganizations,
-  getGlobalSettingValue
-} from '../../../store/rootReducer';
+import { getCurrentUser, areThereCustomOrganizations } from '../../../store/rootReducer';
 
 const mapStateToProps = state => {
-  const sonarCloudSetting = getGlobalSettingValue(state, 'sonar.sonarcloud.enabled');
-
   return {
+    className: 'modal-container',
     currentUser: getCurrentUser(state),
-    organizationsEnabled: areThereCustomOrganizations(state),
-    sonarCloud: sonarCloudSetting != null && sonarCloudSetting.value === 'true'
+    organizationsEnabled: areThereCustomOrganizations(state)
   };
 };
 

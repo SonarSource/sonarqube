@@ -1,0 +1,119 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should display a no analysis message 1`] = `
+<p
+  className="pr-widget empty"
+>
+  Not analyzed on SonarCloud yet
+</p>
+`;
+
+exports[`should display a no issues message 1`] = `
+<p
+  className="pr-widget"
+>
+  <span
+    title="Quality Gate OK"
+  >
+    <StatusIndicator
+      className="little-spacer-left little-spacer-right"
+      color="green"
+      size="small"
+    />
+  </span>
+  Hooray! SonarCloud analysis didn't find any issue!
+</p>
+`;
+
+exports[`should display correctly 1`] = `
+<div
+  className="pr-widget"
+>
+  <Spinner
+    delay={100}
+    invertColor={false}
+    isCompleting={false}
+    onComplete={[Function]}
+    size="small"
+  />
+</div>
+`;
+
+exports[`should display correctly 2`] = `
+<div
+  className="pr-widget"
+>
+  <div
+    className="pr-widget-inner"
+  >
+    <span
+      title="Quality Gate ERROR"
+    >
+      <StatusIndicator
+        className="little-spacer-left little-spacer-right"
+        color="red"
+        size="small"
+      />
+    </span>
+    <span
+      className="little-spacer-right"
+    >
+      SonarCloud found issues:
+    </span>
+    <span
+      className="little-spacer-right"
+    >
+      <BugIcon
+        className="little-spacer-right"
+      />
+       
+      2
+       Bugs
+    </span>
+    <span
+      className="little-spacer-right"
+    >
+      <VulnerabilityIcon
+        className="little-spacer-right"
+      />
+       
+      1
+       Vulnerabilities
+    </span>
+    <span
+      className="little-spacer-right"
+    >
+      <CodeSmellIcon
+        className="little-spacer-right"
+      />
+       
+      12
+       Code Smells
+    </span>
+  </div>
+  <a
+    href="/project/issues?id=foo&pullRequest=1&resolved=false"
+    target="_blank"
+  >
+    See all issues on SonarCloud
+  </a>
+</div>
+`;
+
+exports[`should display projects not bound message 1`] = `
+<p
+  className="pr-widget empty"
+>
+  <React.Fragment>
+    No link between repository and SonarCloud project. Go to your 
+    <a
+      href="https://bitbucketcloud.org/{}/{repo_uuid}/admin/addon/admin/app-key/repository-config"
+      rel="noopener noreferrer"
+      target="_parent"
+    >
+      repository settings
+    </a>
+    .
+  </React.Fragment>
+</p>
+`;

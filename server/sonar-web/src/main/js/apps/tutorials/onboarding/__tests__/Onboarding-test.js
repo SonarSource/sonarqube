@@ -32,10 +32,10 @@ const currentUser = { login: 'admin', isLoggedIn: true };
 it('guides for on-premise', () => {
   const wrapper = shallow(
     <Onboarding
+      className="modal-container"
       currentUser={currentUser}
       onFinish={jest.fn()}
       organizationsEnabled={false}
-      sonarCloud={false}
     />
   );
   expect(wrapper).toMatchSnapshot();
@@ -48,12 +48,8 @@ it('guides for on-premise', () => {
 
 it('guides for sonarcloud', () => {
   const wrapper = shallow(
-    <Onboarding
-      currentUser={currentUser}
-      onFinish={jest.fn()}
-      organizationsEnabled={true}
-      sonarCloud={true}
-    />
+    <Onboarding currentUser={currentUser} onFinish={jest.fn()} organizationsEnabled={true} />,
+    { context: { onSonarCloud: true } }
   );
   expect(wrapper).toMatchSnapshot();
 
@@ -71,12 +67,7 @@ it('guides for sonarcloud', () => {
 it('finishes', () => {
   const onFinish = jest.fn();
   const wrapper = mount(
-    <Onboarding
-      currentUser={currentUser}
-      onFinish={onFinish}
-      organizationsEnabled={false}
-      sonarCloud={false}
-    />
+    <Onboarding currentUser={currentUser} onFinish={onFinish} organizationsEnabled={false} />
   );
   click(wrapper.find('.js-skip'));
   return doAsync(() => {

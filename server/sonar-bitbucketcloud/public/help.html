@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8" charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="application-name" content="Help - SonarCloud extension for Bitbucket Cloud" />
+
+  <link rel="stylesheet" type="text/css" href="//unpkg.com/@atlassian/aui@7.8.0/dist/aui/css/aui.css" />
+  
+  <title>Help - SonarCloud extension for Bitbucket Cloud</title>
+
+  <style>
+    html,
+    body,
+    section.aui-dialog2 {
+      width: 100%;
+      height: 100%;
+    }
+  </style>
+</head>
+
+<body>
+  <section class="aui-dialog2 aui-dialog2-large" role="dialog">
+    <!-- Dialog header -->
+    <header class="aui-dialog2-header">
+      <!-- The dialog's title -->
+      <h2 class="aui-dialog2-header-main">Sonarcloud Help</h2>
+      <!-- Close icon -->
+      <a class="aui-dialog2-header-close">
+        <span class="aui-icon aui-icon-small aui-iconfont-close-dialog js-close">Close</span>
+      </a>
+    </header>
+    <!-- Main dialog content -->
+    <div class="aui-dialog2-content">
+      <p>
+        <a href="https://sonarcloud.io" target="_blank">SonarCloud</a> is the leading product for Continuous Code Quality online. 
+        It is a static source code analysis solution that enables continuous tracking of bugs, code smells and 
+        vulnerabilities for 17 different languages such as C#, VB .Net, Java, C, C++, JavaScript, ...
+      </p>
+      <p>
+        SonarCloud is totally free for open-source projects, and has a paid plan for private ones. 
+        Simply sign up with your Bitbucket Cloud account, create an organization for your team, and 
+        then configure your CI to run the scanners and get your projects analyzed in a couple of minutes.
+      </p>
+      <h3>Requirements</h3>
+      <p>
+        Here is what you need to successfully analyze your projects on SonarCloud:
+        <ul>
+          <li>
+            <b>A user account</b>: simply <a href="https://sonarcloud.io/sessions/new" target="_blank">log in or sign up</a>
+            on the service with your Bitbucket Cloud account
+          </li>
+          <li>
+            <b>A SonarCloud organization to host your projects</b>: this is optional, but recommended to 
+            have a dedicated organization for your team. You can create one from the <code>+</code> icon available
+            at the top right part of the screen.
+          </li>
+        </ul>
+      </p>
+      <h3>Analyze my repository using Pipelines</h3>
+      <p>
+        SonarCloud integrates with BitBucket Pipelines to make it easier to trigger analyses.
+        Follow the steps:
+      </p>
+      <ol>
+        <li>
+          On SonarCloud, open and follow the "New Project" tutorial available from the <code>+</code> 
+          icon available at the top right part of the screen. You can copy-paste the command line
+          displayed at the end.
+          <br/>&nbsp;
+        </li>
+        <li>
+          On BitBucket, go to the "Settings > Pipelines > Environment variables" page of your team, and add
+          a new <code>SONAR_TOKEN</code> variable that contains the value of the SonarCloud token 
+          (something like <code>9ad01c85336b265406fa6554a9a681a4b281135f</code>) which 
+          you created during the tutorial (and which is available inside the command line that you 
+          copy-pasted). <b>Make sure that you click on the "Lock" icon</b> to encrypt and hide this token.
+          <br/>&nbsp;
+        </li>
+        <li>
+          Inside the <code>bitbucket-pipelines.yml</code> file of your repository, copy the command line
+          provided by the tutorial and replace the actual token by its variable name. For example, for a 
+          Java Maven-based project, you should have something like:
+<pre>
+...
+script:
+  - mvn sonar:sonar -Dsonar.host.url=https://sonarcloud.io -Dsonar.organization=my-team-org -Dsonar.login=$SONAR_TOKEN
+...
+</pre>
+          When this change on <code>bitbucket-pipelines.yml</code> is committed and pushed, Pipelines should
+          automatically run a new build and therefore trigger the analysis of the repository. Shortly after,
+          your project will appear on SonarCloud in your organization.
+          <br/>&nbsp;
+        </li>
+        <li>
+          Once you see your project in SonarCloud, go to the BitBucket Cloud "Settings > SonarCloud" page of 
+          your repository and find it in the select box to link it.
+        </li>
+      </ol>
+      <p>
+        From now on, everytime Pipelines triggers a build, SonarCloud will:
+        <ul>
+          <li>Analyze every new branch that contains the change on the <code>bitbucket-pipelines.yml</code> file.</li>
+          <li>Analyze and decorate every pull request based on such a branch.</li>
+        </ul>
+      </p>
+      <h3>Displaying the quality of a repository inside Bitbucket Cloud</h3>
+      <p>
+        Once your project is successfully configured and analyzed by SonarCloud, you will automatically
+        get feedback at pull request level (status based on the quality gate, and summary of the analysis).
+        <br/>
+        You will also see the overall quality of the repository on its overview page, giving your team an always
+        up-to-date visibility on the quality of the project.
+      </p>
+      <p>
+        If you want to hide this widget (e.g. because your repository is not analyzed on SonarCloud), you can
+        go to the "Settings > SonarCloud" page of your repository and check the "Hide repository overview widget".
+      </p>
+      <h3>FAQ</h3>
+      <h4>Do you have a sample project on Bitbucket Cloud?</h4>
+      <p>
+        For the time being, you can take a look at this very simple JS project: 
+        <a href="https://bitbucket.org/bellingard/fab" target="_blank">Sample project analysed on SonarCloud</a>
+      </p>
+      <h4>Pipelines can't find sonar-scanner</h4>
+      <p>
+        If you want to analyze a non-Java project (JS, TS, PHP, Python, Go, ...), you will need to 
+        download and install the 
+        <a href="https://redirect.sonarsource.com/doc/install-configure-scanner.html" target="_blank">Scanner CLI</a>
+        during the execution of your build prior to the actual code scan. You have two options:
+        <ul>
+          <li>You can download it (with <code>curl</code> for instance) from the links available
+          on the documentation page and unpack it (preferably in a cached folder for later reuse).</li>
+          <li>On Node environments, you can rely on a 
+            <a href="https://www.npmjs.com/package/sonarqube-scanner" target="_blank">community NPM module</a>
+            to install it globally and therefore make it available in the PATH.
+          </li>
+        </ul>
+      </p>
+      <h4>I don't see the any quality information whereas I configured everything</h4>
+      <p>
+        Make sure that your browser is not using some extensions like AdBlocks. They tend to break the 
+        integration of third-party applications in BitBucket Cloud.
+      </p>
+      <h3>Upcoming features and improvements</h3>
+      There are various areas in which you can expect new features and improvements:
+      <ul>
+        <li>Tighter integration with Pipelines (less parameters to pass on the CLI, availability of
+          the scanner, ...)
+        </li>
+        <li>Pull request decoration with inline comments to show the issues within the PR</li>
+        <li>Better and easier team onboarding</li>
+        <li>Automatic analysis (i.e. no need to configure anything from Pipelines)</li>
+      </ul>
+
+    </div>
+    <!-- Dialog footer -->
+    <footer class="aui-dialog2-footer">
+      <!-- Actions to render on the right of the footer -->
+      <div class="aui-dialog2-footer-actions">
+        <button class="aui-button aui-button-link js-close">Close</button>
+      </div>
+    </footer>
+  </section>
+
+  <script>
+    var elements = document.getElementsByClassName('js-close');
+    for (var i = 0; i < elements.length; i++) {
+      elements[i].addEventListener('click', function () {
+        window.close();
+      });
+    }
+  </script>
+</body>
+
+</html>

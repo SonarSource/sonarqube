@@ -25,10 +25,13 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import org.sonar.api.server.ws.LocalConnector;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.function.Function.identity;
 
 class LocalWsConnector implements WsConnector {
 
@@ -95,6 +98,16 @@ class LocalWsConnector implements WsConnector {
     @Override
     public Optional<String> getHeader(String name) {
       return wsRequest.getHeaders().getValue(name);
+    }
+
+    @Override
+    public Map<String, String[]> getParameterMap() {
+      return wsRequest.getParameters()
+          .getKeys()
+          .stream()
+          .collect(Collectors.toMap(
+              identity(),
+              k -> wsRequest.getParameters().getValues(k).toArray(new String[0])));
     }
   }
 

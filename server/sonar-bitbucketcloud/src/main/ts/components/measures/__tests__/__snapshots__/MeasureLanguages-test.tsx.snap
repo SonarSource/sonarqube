@@ -1,0 +1,26 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should display correctly 1`] = `
+<div
+  className="project-card-measure-language"
+>
+  <div
+    className="project-card-measure-value"
+  >
+    <Measure
+      className="little-spacer-right"
+      metricKey="ncloc"
+      metricType="SHORT_INT"
+      value="2053"
+    />
+    <SizeRating
+      value={2053}
+    />
+  </div>
+  <div
+    className="project-card-measure-title"
+  >
+    java, js
+  </div>
+</div>
+`;

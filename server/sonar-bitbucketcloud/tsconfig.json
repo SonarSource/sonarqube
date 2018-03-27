@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "allowJs": true,
+    "checkJs": false,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitAny": true,
+    "strict": true,
+    "strictFunctionTypes": false,
+    "target": "es5",
+    "jsx": "react",
+    "lib": ["es2017", "dom"],
+    "module": "esnext",
+    "moduleResolution": "node",
+    "baseUrl": "./",
+    "paths": {
+      "@sqcore/*": ["../sonar-web/src/main/js/*"],
+      "*": ["./node_modules/@types/*", "../sonar-web/node_modules/@types/*"]
+    }
+  },
+  "include": ["./src/main/ts/**/*"]
+}

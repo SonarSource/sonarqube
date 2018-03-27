@@ -17,13 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
+import * as React from 'react';
 import { shallow } from 'enzyme';
 import { Link } from 'react-router';
 import ProjectCard from '../ProjectCard';
 import Level from '../../../../components/ui/Level';
 
-const BASE = { id: 'id', key: 'key', name: 'name', links: [] };
+const BASE = { key: 'key', links: [], name: 'name' };
 
 it('should render key and name', () => {
   const project = { ...BASE };

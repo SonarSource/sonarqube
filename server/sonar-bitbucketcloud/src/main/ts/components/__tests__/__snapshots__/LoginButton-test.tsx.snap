@@ -1,0 +1,26 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should correctly open a popup 1`] = `
+<WithAnalyticsContext(WithAnalyticsEvents(WithDeprecationWarnings(Button)))
+  analyticsContext={Object {}}
+  appearance="link"
+  onClick={[Function]}
+>
+  Connect
+</WithAnalyticsContext(WithAnalyticsEvents(WithDeprecationWarnings(Button)))>
+`;
+
+exports[`should display correctly as a button with icon 1`] = `
+<WithAnalyticsContext(WithAnalyticsEvents(WithDeprecationWarnings(Button)))
+  analyticsContext={Object {}}
+  appearance="primary"
+  iconBefore={
+    <i
+      className="my-icon"
+    />
+  }
+  onClick={[Function]}
+>
+  Connect
+</WithAnalyticsContext(WithAnalyticsEvents(WithDeprecationWarnings(Button)))>
+`;

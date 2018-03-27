@@ -1,0 +1,134 @@
+{
+  "name": "sonarcloud-bitbucketcloud",
+  "version": "0.0.1",
+  "description": "Bitbucket Cloud integration for SonarCloud",
+  "repository": "SonarSource/sonarqube",
+  "license": "LGPL-3.0",
+  "private": true,
+  "dependencies": {
+    "@atlaskit/button": "7.2.4",
+    "@atlaskit/checkbox": "2.0.1",
+    "@atlaskit/css-reset": "2.0.0",
+    "@atlaskit/icon": "11.1.1",
+    "@atlaskit/logo": "7.0.0",
+    "@atlaskit/reduced-ui-pack": "8.8.0",
+    "@atlaskit/single-select": "4.0.1",
+    "@atlaskit/spinner": "5.0.1",
+    "@atlaskit/tooltip": "9.2.0",
+    "babel-polyfill": "6.26.0",
+    "classnames": "2.2.5",
+    "lodash": "4.17.10",
+    "react": "16.2.0",
+    "react-dom": "16.2.0",
+    "react-intl": "2.4.0",
+    "whatwg-fetch": "2.0.4"
+  },
+  "devDependencies": {
+    "@types/classnames": "2.2.3",
+    "@types/enzyme": "3.1.10",
+    "@types/jest": "22.2.3",
+    "@types/lodash": "4.14.108",
+    "@types/react": "16.0.29",
+    "@types/react-dom": "16.0.3",
+    "@types/react-intl": "2.3.8",
+    "autoprefixer": "7.1.6",
+    "babel-core": "6.26.3",
+    "babel-jest": "22.4.3",
+    "babel-loader": "7.1.4",
+    "babel-plugin-dynamic-import-node": "1.2.0",
+    "babel-plugin-syntax-dynamic-import": "6.18.0",
+    "babel-plugin-transform-class-properties": "6.24.1",
+    "babel-plugin-transform-object-rest-spread": "6.26.0",
+    "babel-plugin-transform-react-constant-elements": "6.23.0",
+    "babel-plugin-transform-react-jsx-self": "6.22.0",
+    "babel-plugin-transform-react-jsx-source": "6.22.0",
+    "babel-preset-env": "1.6.1",
+    "babel-preset-react": "6.22.0",
+    "chalk": "2.3.2",
+    "clean-webpack-plugin": "0.1.19",
+    "copy-webpack-plugin": "4.5.1",
+    "css-loader": "0.28.11",
+    "enzyme": "3.3.0",
+    "enzyme-adapter-react-16": "1.1.1",
+    "enzyme-to-json": "3.3.0",
+    "escape-string-regexp": "1.0.5",
+    "eslint": "4.17.0",
+    "eslint-config-sonarqube": "0.1.0",
+    "eslint-plugin-import": "2.11.0",
+    "eslint-plugin-jsx-a11y": "6.0.3",
+    "eslint-plugin-promise": "3.7.0",
+    "eslint-plugin-react": "7.7.0",
+    "eslint-plugin-sonarjs": "0.1.0",
+    "html-webpack-plugin": "3.0.6",
+    "jest": "22.4.3",
+    "postcss-calc": "6.0.1",
+    "postcss-custom-properties": "6.2.0",
+    "postcss-loader": "2.1.1",
+    "prettier": "1.10.2",
+    "react-dev-utils": "5.0.0",
+    "react-error-overlay": "1.0.7",
+    "react-test-renderer": "16.2.0",
+    "request": "2.85.0",
+    "style-loader": "0.20.3",
+    "ts-jest": "22.4.6",
+    "ts-loader": "4.3.0",
+    "typescript": "2.8.3",
+    "typescript-eslint-parser": "15.0.0",
+    "webpack": "4.1.1",
+    "webpack-bundle-analyzer": "2.11.1",
+    "webpack-dev-server": "3.1.4"
+  },
+  "scripts": {
+    "start": "node scripts/start.js",
+    "build": "node scripts/build.js",
+    "test": "node scripts/test.js",
+    "coverage": "yarn jest --coverage",
+    "format": "yarn prettier --write --list-different 'src/main/ts/**/*.{js,ts,tsx,css}'",
+    "lint": "yarn eslint --ext js,ts,tsx --quiet src/main/ts",
+    "prettier-check": "yarn prettier --list-different 'src/main/ts/**/*.{js,ts,tsx,css}'",
+    "ts-check": "yarn tsc --noEmit",
+    "validate": "yarn lint && yarn ts-check && yarn prettier-check && NODE_ENV=test jest"
+  },
+  "engines": {
+    "node": ">=6"
+  },
+  "browserslist": [
+    "last 3 Chrome versions",
+    "last 3 Firefox versions",
+    "last 3 Safari versions",
+    "last 3 Edge versions",
+    "IE 11"
+  ],
+  "jest": {
+    "coverageDirectory": "<rootDir>/target/coverage",
+    "coveragePathIgnorePatterns": ["<rootDir>/node_modules", "<rootDir>/tests"],
+    "moduleFileExtensions": ["ts", "tsx", "js", "json"],
+    "moduleNameMapper": {
+      "^.+\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$":
+        "<rootDir>/config/jest/FileStub.js",
+      "^.+\\.css$": "<rootDir>/config/jest/CSSStub.js",
+      "^@sqcore(.*)$": "<rootDir>/../sonar-web/src/main/js$1"
+    },
+    "setupFiles": [
+      "<rootDir>/config/polyfills.js",
+      "<rootDir>/config/jest/SetupTestEnvironment.js",
+      "<rootDir>/config/jest/SetupEnzyme.js"
+    ],
+    "snapshotSerializers": ["enzyme-to-json/serializer"],
+    "testPathIgnorePatterns": [
+      "<rootDir>/node_modules",
+      "<rootDir>/src/main/webapp",
+      "<rootDir>/scripts"
+    ],
+    "testRegex": "(/__tests__/.*|\\-test)\\.(ts|tsx|js)$",
+    "transform": {
+      "^.+\\.js$": "<rootDir>/node_modules/babel-jest",
+      ".(ts|tsx)$": "<rootDir>/node_modules/ts-jest/preprocessor.js"
+    }
+  },
+  "prettier": {
+    "jsxBracketSameLine": true,
+    "printWidth": 100,
+    "singleQuote": true
+  }
+}

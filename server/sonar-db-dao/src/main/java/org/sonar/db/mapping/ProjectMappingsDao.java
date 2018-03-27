@@ -31,6 +31,7 @@ import static org.apache.commons.lang.StringUtils.isNotEmpty;
 
 public class ProjectMappingsDao implements Dao {
 
+  public static final String BITBUCKETCLOUD_REPO_MAPPING = "bitbucketcloud.repo";
   private final System2 system2;
   private final UuidFactory uuidFactory;
 

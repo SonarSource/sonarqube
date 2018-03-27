@@ -312,6 +312,19 @@ export interface Metric {
   type: string;
 }
 
+export interface MyProject {
+  description?: string;
+  key: string;
+  lastAnalysisDate?: string;
+  links: Array<{
+    name: string;
+    type: string;
+    href: string;
+  }>;
+  name: string;
+  qualityGate?: string;
+}
+
 export interface Notification {
   channel: string;
   organization?: string;

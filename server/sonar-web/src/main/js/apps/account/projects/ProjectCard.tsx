@@ -20,29 +20,29 @@
 import * as React from 'react';
 import { sortBy } from 'lodash';
 import { Link } from 'react-router';
-import { Project } from './types';
 import DateFromNow from '../../../components/intl/DateFromNow';
 import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
 import Level from '../../../components/ui/Level';
 import Tooltip from '../../../components/controls/Tooltip';
 import { translateWithParameters, translate } from '../../../helpers/l10n';
+import { MyProject } from '../../../app/types';
 
 interface Props {
-  project: Project;
+  project: MyProject;
 }
 
 export default function ProjectCard({ project }: Props) {
-  const isAnalyzed = project.lastAnalysisDate != null;
   const links = sortBy(project.links, 'type');
+  const { lastAnalysisDate } = project;
 
   return (
     <div className="account-project-card clearfix">
       <aside className="account-project-side">
-        {isAnalyzed ? (
+        {lastAnalysisDate !== undefined ? (
           <div className="account-project-analysis">
-            <DateFromNow date={project.lastAnalysisDate}>
+            <DateFromNow date={lastAnalysisDate}>
               {fromNow => (
-                <Tooltip overlay={<DateTimeFormatter date={project.lastAnalysisDate} />}>
+                <Tooltip overlay={<DateTimeFormatter date={lastAnalysisDate} />}>
                   <span>{translateWithParameters('my_account.projects.analyzed_x', fromNow)}</span>
                 </Tooltip>
               )}
@@ -54,7 +54,7 @@ export default function ProjectCard({ project }: Props) {
           </div>
         )}
 
-        {project.qualityGate != null && (
+        {project.qualityGate !== undefined && (
           <div className="account-project-quality-gate">
             <Level level={project.qualityGate} />
           </div>
@@ -73,9 +73,9 @@ export default function ProjectCard({ project }: Props) {
                 <a
                   className="link-with-icon"
                   href={link.href}
-                  title={link.name}
+                  rel="nofollow"
                   target="_blank"
-                  rel="nofollow">
+                  title={link.name}>
                   <i className={`icon-color-link icon-${link.type}`} />
                 </a>
               </li>

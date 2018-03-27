@@ -1,0 +1,29 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should display correctly 1`] = `
+<div
+  className="project-card-measure"
+>
+  <div
+    className="project-card-measure-value"
+  >
+    <span
+      className="no-line-height little-spacer-right"
+    >
+      <CoverageRating
+        value="88.3"
+      />
+    </span>
+    <Measure
+      metricKey="coverage"
+      metricType="PERCENT"
+      value="88.3"
+    />
+  </div>
+  <div
+    className="project-card-measure-title"
+  >
+    Coverage
+  </div>
+</div>
+`;

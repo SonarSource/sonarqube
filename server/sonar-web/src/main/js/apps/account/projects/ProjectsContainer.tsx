@@ -22,22 +22,18 @@ import Helmet from 'react-helmet';
 import Projects from './Projects';
 import { getMyProjects } from '../../../api/components';
 import { translate } from '../../../helpers/l10n';
+import { MyProject } from '../../../app/types';
 
 interface State {
   loading: boolean;
   page: number;
-  projects?: any[];
-  query: string;
+  projects?: MyProject[];
   total?: number;
 }
 
 export default class ProjectsContainer extends React.PureComponent<{}, State> {
   mounted = false;
-  state: State = {
-    loading: true,
-    page: 1,
-    query: ''
-  };
+  state: State = { loading: true, page: 1 };
 
   componentDidMount() {
     this.mounted = true;
@@ -48,30 +44,22 @@ export default class ProjectsContainer extends React.PureComponent<{}, State> {
     this.mounted = false;
   }
 
-  loadProjects(page = this.state.page, query = this.state.query) {
+  loadProjects(page = this.state.page) {
     this.setState({ loading: true });
-    const data: { [p: string]: any } = { ps: 100 };
-    if (page > 1) {
-      data.p = page;
-    }
-    if (query) {
-      data.q = query;
-    }
-    return getMyProjects(data).then((r: any) => {
-      const projects = page > 1 ? [...(this.state.projects || []), ...r.projects] : r.projects;
-      this.setState({
-        projects,
-        query,
+    const data = { p: page, ps: 100 };
+    return getMyProjects(data).then(({ paging, projects }) => {
+      this.setState(state => ({
+        projects: page > 1 ? [...(state.projects || []), ...projects] : projects,
         loading: false,
-        page: r.paging.pageIndex,
-        total: r.paging.total
-      });
+        page: paging.pageIndex,
+        total: paging.total
+      }));
     });
   }
 
-  loadMore = () => this.loadProjects(this.state.page + 1);
-
-  search = (query: string) => this.loadProjects(1, query);
+  loadMore = () => {
+    this.loadProjects(this.state.page + 1);
+  };
 
   render() {
     const helmet = <Helmet title={translate('my_account.projects')} />;
@@ -89,11 +77,10 @@ export default class ProjectsContainer extends React.PureComponent<{}, State> {
       <div className="account-body account-container">
         {helmet}
         <Projects
+          loadMore={this.loadMore}
+          loading={this.state.loading}
           projects={this.state.projects}
           total={this.state.total}
-          loading={this.state.loading}
-          loadMore={this.loadMore}
-          search={this.search}
         />
       </div>
     );

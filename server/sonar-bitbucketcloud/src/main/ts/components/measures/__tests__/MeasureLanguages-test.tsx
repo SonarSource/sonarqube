@@ -17,16 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export interface Project {
-  id: string;
-  key: string;
-  name: string;
-  lastAnalysisDate: string;
-  description: string;
-  links: Array<{
-    href: string;
-    name: string;
-    type: string;
-  }>;
-  qualityGate: string;
-}
+/* eslint-disable camelcase */
+import * as React from 'react';
+import { shallow } from 'enzyme';
+import MeasureLanguages from '../MeasureLanguages';
+
+const MEASURES = { ncloc: '2053', ncloc_language_distribution: 'js=2004;java=564644' };
+
+it('should display correctly', () => {
+  expect(shallow(<MeasureLanguages languages={[]} measures={MEASURES} />)).toMatchSnapshot();
+});

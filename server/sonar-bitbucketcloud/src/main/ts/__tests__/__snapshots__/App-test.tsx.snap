@@ -1,0 +1,26 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should display the config page 1`] = `
+<Config
+  context={
+    Object {
+      "jwt": "jwtfoo",
+    }
+  }
+  disabled={false}
+  projectKey="projectfoo"
+  updateDisabled={[Function]}
+  updateProjectKey={[Function]}
+/>
+`;
+
+exports[`should display the pullrequest page 1`] = `
+<PullRequestWidget
+  context={
+    Object {
+      "prId": "1",
+      "repoUuid": "repo_uuid",
+    }
+  }
+/>
+`;

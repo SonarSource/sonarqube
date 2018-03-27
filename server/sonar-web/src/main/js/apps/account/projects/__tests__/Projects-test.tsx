@@ -17,46 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
+import * as React from 'react';
 import { shallow } from 'enzyme';
 import Projects from '../Projects';
 import ProjectCard from '../ProjectCard';
 import ListFooter from '../../../../components/controls/ListFooter';
 
+const PROJECTS = [
+  { key: 'key1', links: [], name: 'name1' },
+  { key: 'key2', links: [], name: 'name2' }
+];
 it('should render list of ProjectCards', () => {
-  const projects = [
-    { id: 'id1', key: 'key1', name: 'name1', links: [] },
-    { id: 'id2', key: 'key2', name: 'name2', links: [] }
-  ];
-
   const output = shallow(
-    <Projects
-      projects={projects}
-      total={5}
-      loading={false}
-      search={() => true}
-      loadMore={() => true}
-    />
+    <Projects loadMore={() => true} loading={false} projects={PROJECTS} total={5} />
   );
 
   expect(output.find(ProjectCard).length).toBe(2);
 });
 
 it('should render ListFooter', () => {
-  const projects = [
-    { id: 'id1', key: 'key1', name: 'name1', links: [] },
-    { id: 'id2', key: 'key2', name: 'name2', links: [] }
-  ];
   const loadMore = jest.fn();
 
   const footer = shallow(
-    <Projects
-      projects={projects}
-      total={5}
-      loading={false}
-      search={() => true}
-      loadMore={loadMore}
-    />
+    <Projects loadMore={loadMore} loading={false} projects={PROJECTS} total={5} />
   ).find(ListFooter);
 
   expect(footer.length).toBe(1);
@@ -67,7 +50,7 @@ it('should render ListFooter', () => {
 
 it('should render when no results', () => {
   const output = shallow(
-    <Projects projects={[]} total={0} loading={false} search={() => true} loadMore={() => true} />
+    <Projects loadMore={() => true} loading={false} projects={[]} total={0} />
   );
 
   expect(output.find('.js-no-results').length).toBe(1);

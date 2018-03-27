@@ -1,0 +1,27 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should display correctly 1`] = `
+<div
+  className="project-card-measure"
+>
+  <div
+    className="project-card-measure-value"
+  >
+    <Measure
+      className="little-spacer-right"
+      metricKey="vulnerabilities"
+      metricType="SHORT_INT"
+      value="0"
+    />
+    <Rating
+      value="1.0"
+    />
+  </div>
+  <div
+    className="project-card-measure-title"
+  >
+    <VulnerabilityIcon />
+    Vulnerabilities
+  </div>
+</div>
+`;

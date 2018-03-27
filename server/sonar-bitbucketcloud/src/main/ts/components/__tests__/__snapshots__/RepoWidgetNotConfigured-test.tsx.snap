@@ -1,0 +1,69 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should display correctly 1`] = `
+<React.Fragment>
+  <div
+    className="project-card-header"
+  >
+    <div
+      className="project-card-header-inner"
+    >
+      <SonarCloudIcon
+        size={24}
+      />
+      <h4
+        className="spacer-left"
+      >
+        Code Quality
+      </h4>
+    </div>
+  </div>
+  <div
+    className="spacer-top"
+  >
+    <React.Fragment>
+      You have to link your repository with an existing SonarCloud project. Go to your
+       
+      repository settings
+      .
+    </React.Fragment>
+  </div>
+</React.Fragment>
+`;
+
+exports[`should display correctly 2`] = `
+<React.Fragment>
+  <div
+    className="project-card-header"
+  >
+    <div
+      className="project-card-header-inner"
+    >
+      <SonarCloudIcon
+        size={24}
+      />
+      <h4
+        className="spacer-left"
+      >
+        Code Quality
+      </h4>
+    </div>
+  </div>
+  <div
+    className="spacer-top"
+  >
+    <React.Fragment>
+      You have to link your repository with an existing SonarCloud project. Go to your
+       
+      <a
+        href="https://bitbucketcloud.org/{}/{repo_uuid}/admin/addon/admin/app-key/repository-config"
+        rel="noopener noreferrer"
+        target="_parent"
+      >
+        repository settings
+      </a>
+      .
+    </React.Fragment>
+  </div>
+</React.Fragment>
+`;

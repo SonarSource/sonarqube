@@ -108,6 +108,8 @@ public class ProcessProperties {
     SONAR_UPDATECENTER_ACTIVATE("sonar.updatecenter.activate", "true"),
 
     SONARCLOUD_ENABLED("sonar.sonarcloud.enabled", "false"),
+    BITBUCKETCLOUD_APP_KEY("sonar.bitbucketcloud.appKey", "sonarcloud"),
+    BITBUCKETCLOUD_ENDPOINT("sonar.bitbucketcloud.endpoint", "https://api.bitbucket.org"),
 
     /**
      * Used by Orchestrator to ask for shutdown of monitor process

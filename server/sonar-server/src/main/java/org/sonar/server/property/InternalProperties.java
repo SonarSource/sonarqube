@@ -41,6 +41,7 @@ public interface InternalProperties {
    */
   String COMPUTE_ENGINE_PAUSE = "ce.pause";
 
+  String BITBUCKETCLOUD_APP_SHAREDSECRET = "bbc.app.sharedSecret";
   /**
    * Read the value of the specified property.
    *

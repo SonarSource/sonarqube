@@ -21,7 +21,10 @@ package org.sonar.server.ws;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.net.HttpHeaders;
+import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringReader;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.Part;
@@ -201,6 +204,14 @@ public class ServletRequestTest {
   public void header_has_empty_value_if_present_in_request_without_value() {
     when(source.getHeader("Accept")).thenReturn("");
     assertThat(underTest.header("Accept")).hasValue("");
+  }
+
+  @Test
+  public void getReader() throws IOException {
+    BufferedReader reader = new BufferedReader(new StringReader("foo"));
+    when(source.getReader()).thenReturn(reader);
+
+    assertThat(underTest.getReader()).isEqualTo(reader);
   }
 
 }

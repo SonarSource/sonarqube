@@ -32,6 +32,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
@@ -684,6 +685,13 @@ public class RequestTest {
     @Override
     protected String readParam(String key) {
       return params.get(key);
+    }
+
+    @Override
+    public Map<String, String[]> getParams() {
+      ArrayListMultimap<String, String> result = ArrayListMultimap.create(multiParams);
+      params.forEach(result::put);
+      return result.asMap().entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().toArray(new String[0])));
     }
 
     @Override

@@ -41,6 +41,7 @@ import GlobalPageExtension from '../components/extensions/GlobalPageExtension';
 import GlobalAdminPageExtension from '../components/extensions/GlobalAdminPageExtension';
 import MarkdownHelp from '../components/MarkdownHelp';
 import NotFound from '../components/NotFound';
+import OnboardingPage from '../../apps/tutorials/onboarding/OnboardingPage';
 import aboutRoutes from '../../apps/about/routes';
 import accountRoutes from '../../apps/account/routes';
 import backgroundTasksRoutes from '../../apps/background-tasks/routes';
@@ -179,6 +180,7 @@ const startReactApp = () => {
                 </Route>
                 <Route path="extension/:pluginKey/:extensionKey" component={GlobalPageExtension} />
                 <Route path="issues" component={IssuesPageSelector} />
+                <Route path="onboarding" component={OnboardingPage} />
                 <Route path="organizations" childRoutes={organizationsRoutes} />
                 <Route path="projects" childRoutes={projectsRoutes} />
                 <Route path="quality_gates" childRoutes={qualityGatesRoutes} />

@@ -1,0 +1,29 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should display correctly 1`] = `
+<div
+  className="project-card-measure"
+>
+  <div
+    className="project-card-measure-value"
+  >
+    <span
+      className="no-line-height little-spacer-right"
+    >
+      <DuplicationsRating
+        value={9.8}
+      />
+    </span>
+    <Measure
+      metricKey="duplicated_lines_density"
+      metricType="PERCENT"
+      value="9.8"
+    />
+  </div>
+  <div
+    className="project-card-measure-title"
+  >
+    Duplications
+  </div>
+</div>
+`;

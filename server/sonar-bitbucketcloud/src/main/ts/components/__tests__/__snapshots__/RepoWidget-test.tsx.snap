@@ -1,0 +1,54 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should display a project not bound message 1`] = `
+<div
+  className="widget-padding spacer-top"
+>
+  <Spinner
+    delay={100}
+    invertColor={false}
+    isCompleting={false}
+    onComplete={[Function]}
+    size="large"
+  />
+</div>
+`;
+
+exports[`should display a project not bound message 2`] = `
+<div
+  className="widget-padding"
+>
+  <RepoWidgetNotConfigured />
+</div>
+`;
+
+exports[`should display correctly 1`] = `
+<div
+  className="widget-padding spacer-top"
+>
+  <Spinner
+    delay={100}
+    invertColor={false}
+    isCompleting={false}
+    onComplete={[Function]}
+    size="large"
+  />
+</div>
+`;
+
+exports[`should display correctly 2`] = `
+<div
+  className="widget-padding"
+>
+  <ProjectCard
+    languages={Array []}
+    project={
+      Object {
+        "key": "foo",
+        "measures": Object {},
+        "name": "Foo",
+      }
+    }
+  />
+</div>
+`;

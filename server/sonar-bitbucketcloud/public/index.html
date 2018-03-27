@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8" charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+  <meta name="application-name" content="SonarCloud extension for Bitbucket Cloud" />
+
+  <script src="https://bitbucket.org/atlassian-connect/all.js" data-options="resize:true"></script>
+  <title>SonarCloud extension for Bitbucket Cloud</title>
+</head>
+
+<body>
+  <div id="content"></div>
+
+  <script>
+    window.baseUrl = '%WEB_CONTEXT%';
+    window.bbcAppKey = '%BBC_APP_KEY%'
+    window.bbcJWT = '%BBC_JWT%';
+    window.bbcWidgetKey = '%BBC_WIDGET_KEY%';
+    window.projectKey = '%BBC_PROJECT_KEY%';
+  </script>
+  <% for (var chunk in htmlWebpackPlugin.files.chunks) { %>
+    <script src="%WEB_CONTEXT%<%= htmlWebpackPlugin.files.chunks[chunk].entry %>"></script>
+    <% } %>
+</body>
+
+</html>

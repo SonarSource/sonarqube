@@ -31,6 +31,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import org.apache.commons.io.IOUtils;
 import org.sonar.api.server.ws.internal.PartImpl;
 import org.sonar.api.server.ws.internal.ValidatingRequest;
@@ -113,6 +114,13 @@ public class TestRequest extends ValidatingRequest {
   @Override
   public String getPath() {
     return path;
+  }
+
+  @Override
+  public Map<String, String[]> getParams() {
+    ArrayListMultimap<String, String> result = ArrayListMultimap.create(multiParams);
+    params.forEach(result::put);
+    return result.asMap().entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().toArray(new String[0])));
   }
 
   public TestRequest setPath(String path) {

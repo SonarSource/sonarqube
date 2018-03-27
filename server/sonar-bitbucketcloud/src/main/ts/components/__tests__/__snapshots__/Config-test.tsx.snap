@@ -1,0 +1,295 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should correctly bind a project 1`] = `
+<React.Fragment>
+  <h2>
+    SonarCloud Settings
+  </h2>
+  <div
+    className="settings-content"
+  >
+    <div
+      className="settings-logo"
+    >
+      <SonarCloudIcon
+        size={128}
+      />
+    </div>
+    <p
+      className="settings-description"
+    >
+      To display the quality of your repository, you have to link it with a project analyzed on SonarCloud.
+    </p>
+    <React.Fragment>
+      <form
+        className="settings-form"
+        onSubmit={[Function]}
+      >
+        <div
+          className="settings-projects"
+        >
+          <AkSingleSelect
+            appearance="default"
+            droplistShouldFitContainer={true}
+            hasAutocomplete={true}
+            isRequired={false}
+            items={
+              Array [
+                Object {
+                  "items": Array [
+                    Object {
+                      "content": "Foo",
+                      "filterValues": Array [
+                        "Foo",
+                        "foo",
+                      ],
+                      "value": "foo",
+                    },
+                    Object {
+                      "content": "Bar",
+                      "filterValues": Array [
+                        "Bar",
+                        "bar",
+                      ],
+                      "value": "bar",
+                    },
+                    Object {
+                      "content": "FooBar",
+                      "filterValues": Array [
+                        "FooBar",
+                        "baz",
+                      ],
+                      "value": "baz",
+                    },
+                  ],
+                },
+              ]
+            }
+            label="Project to link to"
+            maxHeight={300}
+            onFilterChange={[Function]}
+            onOpenChange={[Function]}
+            onSelected={[Function]}
+            placeholder="Select a project"
+            position="bottom left"
+            shouldFlip={false}
+            shouldFocus={true}
+          />
+          <small>
+            You see only the projects you administer.
+          </small>
+        </div>
+        <div
+          className="ak-field-group display-flex-justify-center"
+        >
+          <Component
+            isChecked={false}
+            label="Hide repository overview widget"
+            name="hide-widget"
+            onChange={[Function]}
+            value="hide-widget"
+          />
+        </div>
+        <div
+          className="ak-field-group"
+        >
+          <WithAnalyticsContext(WithAnalyticsEvents(WithDeprecationWarnings(Button)))
+            analyticsContext={Object {}}
+            appearance="primary"
+            isDisabled={true}
+            type="submit"
+          >
+            Save
+          </WithAnalyticsContext(WithAnalyticsEvents(WithDeprecationWarnings(Button)))>
+        </div>
+      </form>
+      <DocModal />
+    </React.Fragment>
+  </div>
+</React.Fragment>
+`;
+
+exports[`should display correctly 1`] = `
+<React.Fragment>
+  <h2>
+    SonarCloud Settings
+  </h2>
+  <div
+    className="settings-content"
+  >
+    <div
+      className="settings-logo"
+    >
+      <SonarCloudIcon
+        size={128}
+      />
+    </div>
+    <p
+      className="settings-description"
+    >
+      To display the quality of your repository, you have to link it with a project analyzed on SonarCloud.
+    </p>
+    <div
+      className="huge-spacer-top"
+    >
+      <Spinner
+        delay={100}
+        invertColor={false}
+        isCompleting={false}
+        onComplete={[Function]}
+        size="large"
+      />
+    </div>
+  </div>
+</React.Fragment>
+`;
+
+exports[`should display correctly 2`] = `
+<React.Fragment>
+  <h2>
+    SonarCloud Settings
+  </h2>
+  <div
+    className="settings-content"
+  >
+    <div
+      className="settings-logo"
+    >
+      <SonarCloudIcon
+        size={128}
+      />
+    </div>
+    <p
+      className="settings-description"
+    >
+      To display the quality of your repository, you have to link it with a project analyzed on SonarCloud.
+    </p>
+    <React.Fragment>
+      <form
+        className="settings-form"
+        onSubmit={[Function]}
+      >
+        <div
+          className="settings-projects"
+        >
+          <AkSingleSelect
+            appearance="default"
+            defaultSelected={
+              Object {
+                "content": "Foo",
+                "filterValues": Array [
+                  "Foo",
+                  "foo",
+                ],
+                "value": "foo",
+              }
+            }
+            droplistShouldFitContainer={true}
+            hasAutocomplete={true}
+            isRequired={false}
+            items={
+              Array [
+                Object {
+                  "items": Array [
+                    Object {
+                      "content": "Foo",
+                      "filterValues": Array [
+                        "Foo",
+                        "foo",
+                      ],
+                      "value": "foo",
+                    },
+                    Object {
+                      "content": "Bar",
+                      "filterValues": Array [
+                        "Bar",
+                        "bar",
+                      ],
+                      "value": "bar",
+                    },
+                    Object {
+                      "content": "FooBar",
+                      "filterValues": Array [
+                        "FooBar",
+                        "baz",
+                      ],
+                      "value": "baz",
+                    },
+                  ],
+                },
+              ]
+            }
+            label="Project to link to"
+            maxHeight={300}
+            onFilterChange={[Function]}
+            onOpenChange={[Function]}
+            onSelected={[Function]}
+            placeholder="Select a project"
+            position="bottom left"
+            shouldFlip={false}
+            shouldFocus={true}
+          />
+          <small>
+            You see only the projects you administer.
+          </small>
+        </div>
+        <div
+          className="ak-field-group display-flex-justify-center"
+        >
+          <Component
+            isChecked={false}
+            label="Hide repository overview widget"
+            name="hide-widget"
+            onChange={[Function]}
+            value="hide-widget"
+          />
+        </div>
+        <div
+          className="ak-field-group"
+        >
+          <WithAnalyticsContext(WithAnalyticsEvents(WithDeprecationWarnings(Button)))
+            analyticsContext={Object {}}
+            appearance="primary"
+            isDisabled={true}
+            type="submit"
+          >
+            Save
+          </WithAnalyticsContext(WithAnalyticsEvents(WithDeprecationWarnings(Button)))>
+        </div>
+      </form>
+      <DocModal />
+    </React.Fragment>
+  </div>
+</React.Fragment>
+`;
+
+exports[`should display the authentication component and the display checkbox 1`] = `
+<form
+  className="settings-form"
+  onSubmit={[Function]}
+>
+  <div
+    className="ak-field-group display-flex-justify-center"
+  >
+    <Component
+      isChecked={false}
+      label="Hide repository overview widget"
+      name="hide-widget"
+      onChange={[Function]}
+      value="hide-widget"
+    />
+  </div>
+  <div
+    className="ak-field-group"
+  >
+    <WithAnalyticsContext(WithAnalyticsEvents(WithDeprecationWarnings(Button)))
+      analyticsContext={Object {}}
+      appearance="primary"
+      isDisabled={true}
+      type="submit"
+    >
+      Save
+    </WithAnalyticsContext(WithAnalyticsEvents(WithDeprecationWarnings(Button)))>
+  </div>
+</form>
+`;

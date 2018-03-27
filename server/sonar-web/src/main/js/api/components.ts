@@ -19,7 +19,7 @@
  */
 import { getJSON, postJSON, post, RequestData } from '../helpers/request';
 import throwGlobalError from '../app/utils/throwGlobalError';
-import { Paging, Visibility, BranchParameters } from '../app/types';
+import { Paging, Visibility, BranchParameters, MyProject } from '../app/types';
 
 export interface BaseSearchProjectsParameters {
   analyzedBefore?: string;
@@ -145,9 +145,11 @@ export function getComponentData(data: { component: string } & BranchParameters)
   return getComponentShow(data).then(r => r.component);
 }
 
-export function getMyProjects(data: RequestData): Promise<any> {
-  const url = '/api/projects/search_my_projects';
-  return getJSON(url, data);
+export function getMyProjects(data: {
+  p?: number;
+  ps?: number;
+}): Promise<{ paging: Paging; projects: MyProject[] }> {
+  return getJSON('/api/projects/search_my_projects', data);
 }
 
 export interface Component {

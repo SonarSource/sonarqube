@@ -59,7 +59,6 @@ exports[`guides for on-premise 1`] = `
       onFinish={[Function]}
       onReset={[Function]}
       open={false}
-      sonarCloud={false}
       stepNumber={2}
     />
   </div>
@@ -125,7 +124,6 @@ exports[`guides for on-premise 2`] = `
       onFinish={[Function]}
       onReset={[Function]}
       open={true}
-      sonarCloud={false}
       stepNumber={2}
       token="abcd1234"
     />
@@ -134,9 +132,7 @@ exports[`guides for on-premise 2`] = `
 `;
 
 exports[`guides for sonarcloud 1`] = `
-<div
-  className="modal-container"
->
+<div>
   <InstanceMessage
     message="onboarding.header"
   />
@@ -213,9 +209,7 @@ exports[`guides for sonarcloud 1`] = `
 `;
 
 exports[`guides for sonarcloud 2`] = `
-<div
-  className="modal-container"
->
+<div>
   <InstanceMessage
     message="onboarding.header"
   />
@@ -293,9 +287,7 @@ exports[`guides for sonarcloud 2`] = `
 `;
 
 exports[`guides for sonarcloud 3`] = `
-<div
-  className="modal-container"
->
+<div>
   <InstanceMessage
     message="onboarding.header"
   />

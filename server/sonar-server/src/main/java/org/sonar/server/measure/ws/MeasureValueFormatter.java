@@ -21,14 +21,21 @@ package org.sonar.server.measure.ws;
 
 import javax.annotation.Nullable;
 import org.sonar.api.measures.Metric;
+import org.sonar.db.measure.LiveMeasureDto;
 import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.metric.MetricDto;
 
-class MeasureValueFormatter {
+public class MeasureValueFormatter {
   private static final double DELTA = 0.000001d;
 
   private MeasureValueFormatter() {
     // static methods
+  }
+
+  public static String formatMeasureValue(LiveMeasureDto measure, MetricDto metric) {
+    Double doubleValue = measure.getValue();
+    String stringValue = measure.getDataAsString();
+    return formatMeasureValue(doubleValue == null ? Double.NaN : doubleValue, stringValue, metric);
   }
 
   static String formatMeasureValue(MeasureDto measure, MetricDto metric) {

@@ -258,16 +258,11 @@ public class ProjectScanContainer extends ComponentContainer {
         ScannerProperties.BRANCH_NAME, ScannerProperties.BRANCHES_DOC_LINK);
     }
 
-    String branchName = props.property(ScannerProperties.BRANCH_NAME);
-    if (branchName != null) {
-      BranchConfiguration branchConfig = getComponentByType(BranchConfiguration.class);
-      LOG.info("Branch name: {}, type: {}", branchName, branchTypeToDisplayName(branchConfig.branchType()));
-    }
-
-    String pullRequestBranch = props.property(ScannerProperties.PULL_REQUEST_BRANCH);
-    if (pullRequestBranch != null) {
-      String pullRequestBase = props.property(ScannerProperties.PULL_REQUEST_BASE);
-      LOG.info("Pull request into {}: {}", pullRequestBaseToDisplayName(pullRequestBase), pullRequestBranch);
+    BranchConfiguration branchConfig = getComponentByType(BranchConfiguration.class);
+    if (branchConfig.branchType() == BranchType.PULL_REQUEST) {
+      LOG.info("Pull request {} for merge into {} from {}", branchConfig.pullRequestKey(), pullRequestBaseToDisplayName(branchConfig.branchBase()), branchConfig.branchName());
+    } else if (branchConfig.branchName() != null) {
+      LOG.info("Branch name: {}, type: {}", branchConfig.branchName(), branchTypeToDisplayName(branchConfig.branchType()));
     }
 
     LOG.debug("Start recursive analysis of project modules");

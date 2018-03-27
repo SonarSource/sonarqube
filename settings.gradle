@@ -2,6 +2,7 @@ rootProject.name = 'sonarqube'
 
 include 'plugins:sonar-xoo-plugin'
 
+include 'server:sonar-bitbucketcloud'
 include 'server:sonar-ce'
 include 'server:sonar-db-testing'
 include 'server:sonar-db-core'

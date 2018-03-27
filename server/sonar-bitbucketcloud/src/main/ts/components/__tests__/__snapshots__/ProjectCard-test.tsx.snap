@@ -1,0 +1,50 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should display correctly 1`] = `
+<React.Fragment>
+  <ProjectCardHeader
+    project={
+      Object {
+        "analysisDate": "2017-11-14T13:45:05+0100",
+        "key": "foobar",
+        "measures": Object {
+          "alert_status": "OK",
+        },
+        "name": "FooBar",
+      }
+    }
+  />
+  <ProjectCardMeasures
+    languages={Array []}
+    measures={
+      Object {
+        "alert_status": "OK",
+      }
+    }
+  />
+</React.Fragment>
+`;
+
+exports[`should display correctly when not analyzed 1`] = `
+<React.Fragment>
+  <ProjectCardHeader
+    project={
+      Object {
+        "analysisDate": undefined,
+        "key": "foobar",
+        "measures": Object {
+          "alert_status": "OK",
+        },
+        "name": "FooBar",
+      }
+    }
+  />
+  <div
+    className="spacer-top"
+  >
+    <small>
+      Project is not analyzed yet.
+    </small>
+  </div>
+</React.Fragment>
+`;

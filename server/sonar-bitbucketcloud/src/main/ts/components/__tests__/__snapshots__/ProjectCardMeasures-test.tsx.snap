@@ -1,0 +1,134 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should display correctly 1`] = `
+<div
+  className="project-card-measures"
+>
+  <div
+    className="project-card-measures-left"
+  >
+    <MeasureBugs
+      measures={
+        Object {
+          "alert_status": "ERROR",
+          "bugs": "17",
+          "code_smells": "132",
+          "coverage": "88.3",
+          "duplicated_lines_density": "9.8",
+          "ncloc": "2053",
+          "ncloc_language_distribution": "js=2004;java=564644",
+          "reliability_rating": "1.0",
+          "security_rating": "1.0",
+          "sqale_rating": "1.0",
+          "vulnerabilities": "0",
+        }
+      }
+    />
+    <i
+      className="project-card-measure-separator"
+    />
+    <MeasureVulnerabilities
+      measures={
+        Object {
+          "alert_status": "ERROR",
+          "bugs": "17",
+          "code_smells": "132",
+          "coverage": "88.3",
+          "duplicated_lines_density": "9.8",
+          "ncloc": "2053",
+          "ncloc_language_distribution": "js=2004;java=564644",
+          "reliability_rating": "1.0",
+          "security_rating": "1.0",
+          "sqale_rating": "1.0",
+          "vulnerabilities": "0",
+        }
+      }
+    />
+    <i
+      className="project-card-measure-separator"
+    />
+    <MeasureCodeSmells
+      measures={
+        Object {
+          "alert_status": "ERROR",
+          "bugs": "17",
+          "code_smells": "132",
+          "coverage": "88.3",
+          "duplicated_lines_density": "9.8",
+          "ncloc": "2053",
+          "ncloc_language_distribution": "js=2004;java=564644",
+          "reliability_rating": "1.0",
+          "security_rating": "1.0",
+          "sqale_rating": "1.0",
+          "vulnerabilities": "0",
+        }
+      }
+    />
+    <i
+      className="project-card-measure-separator hidden-small"
+    />
+  </div>
+  <div
+    className="project-card-measures-right"
+  >
+    <MeasureCoverage
+      measures={
+        Object {
+          "alert_status": "ERROR",
+          "bugs": "17",
+          "code_smells": "132",
+          "coverage": "88.3",
+          "duplicated_lines_density": "9.8",
+          "ncloc": "2053",
+          "ncloc_language_distribution": "js=2004;java=564644",
+          "reliability_rating": "1.0",
+          "security_rating": "1.0",
+          "sqale_rating": "1.0",
+          "vulnerabilities": "0",
+        }
+      }
+    />
+    <i
+      className="project-card-measure-separator"
+    />
+    <MeasureDuplication
+      measures={
+        Object {
+          "alert_status": "ERROR",
+          "bugs": "17",
+          "code_smells": "132",
+          "coverage": "88.3",
+          "duplicated_lines_density": "9.8",
+          "ncloc": "2053",
+          "ncloc_language_distribution": "js=2004;java=564644",
+          "reliability_rating": "1.0",
+          "security_rating": "1.0",
+          "sqale_rating": "1.0",
+          "vulnerabilities": "0",
+        }
+      }
+    />
+    <i
+      className="project-card-measure-separator hidden-big"
+    />
+    <MeasureLanguages
+      languages={Array []}
+      measures={
+        Object {
+          "alert_status": "ERROR",
+          "bugs": "17",
+          "code_smells": "132",
+          "coverage": "88.3",
+          "duplicated_lines_density": "9.8",
+          "ncloc": "2053",
+          "ncloc_language_distribution": "js=2004;java=564644",
+          "reliability_rating": "1.0",
+          "security_rating": "1.0",
+          "sqale_rating": "1.0",
+          "vulnerabilities": "0",
+        }
+      }
+    />
+  </div>
+</div>
+`;

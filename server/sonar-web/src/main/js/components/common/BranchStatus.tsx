@@ -26,7 +26,12 @@ import HelpTooltip from '../controls/HelpTooltip';
 import Tooltip from '../controls/Tooltip';
 import VulnerabilityIcon from '../icons-components/VulnerabilityIcon';
 import { BranchLike } from '../../app/types';
-import { isShortLivingBranch, isPullRequest, isLongLivingBranch } from '../../helpers/branches';
+import {
+  getBranchQualityGateColor,
+  isShortLivingBranch,
+  isPullRequest,
+  isLongLivingBranch
+} from '../../helpers/branches';
 import { translateWithParameters } from '../../helpers/l10n';
 import { formatMeasure } from '../../helpers/measures';
 import './BranchStatus.css';
@@ -45,7 +50,7 @@ export default function BranchStatus({ branchLike, concise = false }: Props) {
     const totalIssues =
       branchLike.status.bugs + branchLike.status.vulnerabilities + branchLike.status.codeSmells;
     const status = branchLike.status.qualityGateStatus;
-    const indicatorColor = getQualityGateColor(status);
+    const indicatorColor = getBranchQualityGateColor(status);
     const shouldDisplayHelper = status === 'OK' && totalIssues > 0;
 
     const label =
@@ -101,16 +106,4 @@ export default function BranchStatus({ branchLike, concise = false }: Props) {
   } else {
     return null;
   }
-}
-
-function getQualityGateColor(status: string) {
-  let indicatorColor = 'gray';
-  if (status === 'ERROR') {
-    indicatorColor = 'red';
-  } else if (status === 'WARN') {
-    indicatorColor = 'orange';
-  } else if (status === 'OK') {
-    indicatorColor = 'green';
-  }
-  return indicatorColor;
 }

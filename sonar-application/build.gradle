@@ -104,6 +104,7 @@ task zip(type: Zip) {
   }
   into("${archiveDir}/web/") {
     from tasks.getByPath(':server:sonar-web:yarn_run').outputs
+    from tasks.getByPath(':server:sonar-bitbucketcloud:yarn_run').outputs
     from tasks.getByPath(':server:sonar-vsts:yarn_run').outputs
   }
   into("${archiveDir}/lib/jdbc/mssql/") {

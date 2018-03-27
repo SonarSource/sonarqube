@@ -69,6 +69,18 @@ export function getBranchLikeKey(branchLike: BranchLike) {
   return isPullRequest(branchLike) ? `pull-request-${branchLike.key}` : `branch-${branchLike.name}`;
 }
 
+export function getBranchQualityGateColor(status: string) {
+  let indicatorColor = 'gray';
+  if (status === 'ERROR') {
+    indicatorColor = 'red';
+  } else if (status === 'WARN') {
+    indicatorColor = 'orange';
+  } else if (status === 'OK') {
+    indicatorColor = 'green';
+  }
+  return indicatorColor;
+}
+
 export function isSameBranchLike(a: BranchLike | undefined, b: BranchLike | undefined) {
   // main branches are always equal
   if (isMainBranch(a) && isMainBranch(b)) {

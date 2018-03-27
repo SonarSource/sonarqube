@@ -23,6 +23,7 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import org.sonar.api.server.ws.LocalConnector;
 import org.sonar.api.server.ws.internal.ValidatingRequest;
@@ -38,6 +39,11 @@ public class LocalRequestAdapter extends ValidatingRequest {
   @Override
   protected String readParam(String key) {
     return localRequest.getParam(key);
+  }
+
+  @Override
+  public Map<String, String[]> getParams() {
+    return localRequest.getParameterMap();
   }
 
   @Override

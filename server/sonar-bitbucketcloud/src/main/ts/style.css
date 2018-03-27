@@ -1,0 +1,263 @@
+/*
+ * SonarQube
+ * Copyright (C) 2009-2018 SonarSource SA
+ * mailto:info AT sonarsource DOT com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+
+@import '../../../node_modules/@atlaskit/css-reset/dist/bundle.css';
+@import '../../../node_modules/@atlaskit/reduced-ui-pack/dist/bundle.css';
+
+.widget-padding {
+  padding: 16px;
+  box-sizing: border-box;
+}
+
+.settings-content {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  min-height: 650px;
+  text-align: center;
+}
+
+.settings-logo {
+  margin-top: 12px;
+}
+
+.settings-description {
+  max-width: 400px;
+}
+
+.settings-form small {
+  display: block;
+  margin-top: 8px;
+}
+
+.settings-form .settings-projects > div {
+  width: 300px;
+}
+
+.settings-help {
+  position: absolute;
+  bottom: 20px;
+  font-size: 16px;
+}
+
+.pr-widget {
+  min-height: 30px;
+}
+
+.pr-widget-inner {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.pr-widget.empty {
+  font-style: italic;
+}
+
+.pr-widget span {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.pr-widget:not(.empty) a {
+  display: inline-block;
+  margin: 4px;
+}
+
+.pr-widget.empty a {
+  outline: none;
+}
+
+.project-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.project-card-header-inner {
+  flex: 1 1 0;
+  display: flex;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+  margin-right: 16px;
+}
+
+.project-card-header svg {
+  flex: 0 0 auto;
+}
+
+.project-card-header h4 {
+  margin-top: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.project-card-analysis-date {
+  margin-top: 0;
+  text-align: right;
+}
+
+.project-card-measures {
+  display: flex;
+  margin-top: 16px;
+}
+
+.project-card-measures-left,
+.project-card-measures-right {
+  display: flex;
+}
+
+.project-card-measure-value {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.project-card-measure-value > span:not(.rating) {
+  font-weight: 600;
+  font-size: 1.15em;
+}
+
+.project-card-measure-title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  margin-top: 4px;
+}
+
+.project-card-measure-language .project-card-measure-title {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+}
+
+.project-card-measure-separator {
+  width: 0;
+  height: 28px;
+  margin: 12px 16px;
+  border-right: 1px solid #e6e6e6;
+}
+
+@media (min-width: 701px) {
+  .hidden-big {
+    display: none;
+  }
+
+  .project-card-measures-right {
+    flex: 1;
+    overflow: hidden;
+  }
+
+  .project-card-measure-language {
+    flex-grow: 1;
+    overflow: hidden;
+    position: relative;
+    padding-left: 24px;
+  }
+
+  .project-card-measure-language .project-card-measure-title {
+    text-align: right;
+  }
+
+  .project-card-measure-language .project-card-measure-value {
+    justify-content: flex-end;
+  }
+}
+
+@media (max-width: 700px) {
+  .hidden-small {
+    display: none;
+  }
+
+  .project-card-measures {
+    flex-direction: column;
+  }
+
+  .project-card-measures-left {
+    margin-top: 12px;
+  }
+
+  .project-card-measures-right {
+    margin-top: 24px;
+  }
+
+  .project-card-measure,
+  .project-card-measure-language {
+    flex: 1 0 0;
+  }
+
+  .project-card-measure {
+    min-width: 110px;
+  }
+
+  .project-card-measure:first-of-type {
+    min-width: 78px;
+  }
+
+  .project-card-measure-language,
+  .project-card-measure:last-of-type {
+    min-width: 118px;
+  }
+
+  .project-card-measure-language .project-card-measure-title {
+    text-align: center;
+  }
+}
+
+@media (min-width: 850px) {
+  .project-card-measure-separator {
+    margin: 0 28px;
+  }
+}
+
+.no-line-height {
+  line-height: 0;
+}
+
+.spacer-top {
+  margin-top: 8px;
+}
+
+.huge-spacer-top {
+  margin-top: 32px;
+}
+
+.little-spacer-left {
+  margin-left: 8px;
+}
+
+.spacer-left {
+  margin-left: 8px;
+}
+
+.little-spacer-right {
+  margin-right: 4px;
+}
+
+.display-flex-justify-center {
+  display: flex;
+  justify-content: center;
+}

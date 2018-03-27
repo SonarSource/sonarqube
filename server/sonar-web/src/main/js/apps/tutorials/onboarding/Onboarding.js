@@ -34,10 +34,10 @@ import './styles.css';
 
 /*::
 type Props = {|
+  className?: string,
   currentUser: { login: string, isLoggedIn: boolean },
   onFinish: () => void,
-  organizationsEnabled: boolean,
-  sonarCloud: boolean
+  organizationsEnabled: boolean
 |};
 */
 
@@ -58,6 +58,7 @@ export default class Onboarding extends React.PureComponent {
   /*:: state: State; */
 
   static contextTypes = {
+    onSonarCloud: PropTypes.bool,
     router: PropTypes.object
   };
 
@@ -144,13 +145,13 @@ export default class Onboarding extends React.PureComponent {
       return null;
     }
 
-    const { organizationsEnabled, sonarCloud } = this.props;
+    const { onSonarCloud } = this.context;
+    const { organizationsEnabled } = this.props;
     const { step, token } = this.state;
-
     let stepNumber = 1;
 
     return (
-      <div className="modal-container">
+      <div className={this.props.className}>
         <InstanceMessage message={translate('onboarding.header')}>
           {transformedMessage => <Helmet title={transformedMessage} titleTemplate="%s" />}
         </InstanceMessage>
@@ -170,7 +171,7 @@ export default class Onboarding extends React.PureComponent {
               )}
               <p className="note">
                 {translate(
-                  sonarCloud ? 'tutorials.find_it_back_in_plus' : 'tutorials.find_it_back_in_help'
+                  onSonarCloud ? 'tutorials.find_it_back_in_plus' : 'tutorials.find_it_back_in_help'
                 )}
               </p>
             </div>
@@ -205,9 +206,9 @@ export default class Onboarding extends React.PureComponent {
           <AnalysisStep
             onFinish={this.handleFinish}
             onReset={this.handleReset}
-            organization={this.state.organization}
             open={step === 'analysis'}
-            sonarCloud={sonarCloud}
+            organization={this.state.organization}
+            sonarCloud={onSonarCloud}
             stepNumber={stepNumber}
             token={token}
           />

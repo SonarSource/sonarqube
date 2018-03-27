@@ -1,0 +1,34 @@
+sonarqube {
+  properties {
+    property "sonar.projectName", "${projectTitle} :: Bitbucket Cloud"
+    property "sonar.sources", "src/main/ts"
+    property "sonar.tests", "src/main/ts"
+    property "sonar.test.inclusions", "src/main/ts/**/__tests__/**"
+    property "sonar.exclusions", "src/main/ts/**/__tests__/**"
+  }
+}
+
+apply plugin: 'com.moowork.node'
+
+node {
+  version = '8.10.0'
+  yarnVersion = '1.5.1'
+  download = true
+}
+
+yarn_run {
+  inputs.dir('config')
+  inputs.dir('public')
+  inputs.dir('scripts')
+  inputs.dir('src')
+  inputs.file('.babelrc')
+  inputs.file('package.json')
+  inputs.file('tsconfig.json')
+  inputs.file('yarn.lock')
+  outputs.dir('build/webapp')
+
+  args = ['build']
+}
+
+yarn_run.dependsOn ':server:sonar-web:yarn_run'
+

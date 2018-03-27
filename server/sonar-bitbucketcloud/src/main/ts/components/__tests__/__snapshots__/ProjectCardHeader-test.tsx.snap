@@ -1,0 +1,65 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should display correctly 1`] = `
+<div
+  className="project-card-header"
+>
+  <div
+    className="project-card-header-inner"
+  >
+    <SonarCloudIcon
+      size={24}
+    />
+    <WithRenamedProps(Tooltip)
+      content="FooBar"
+    >
+      <h4
+        className="spacer-left"
+      >
+        <a
+          href="/dashboard?id=foobar"
+          target="_blank"
+        >
+          FooBar
+        </a>
+      </h4>
+    </WithRenamedProps(Tooltip)>
+    <Level
+      className="spacer-left"
+      level="OK"
+      small={true}
+    />
+  </div>
+  <DateTimeFormatter
+    date="2017-11-14T13:45:05+0100"
+  />
+</div>
+`;
+
+exports[`should not display analysis related info 1`] = `
+<div
+  className="project-card-header"
+>
+  <div
+    className="project-card-header-inner"
+  >
+    <SonarCloudIcon
+      size={24}
+    />
+    <WithRenamedProps(Tooltip)
+      content="FooBar"
+    >
+      <h4
+        className="spacer-left"
+      >
+        <a
+          href="/dashboard?id=foobar"
+          target="_blank"
+        >
+          FooBar
+        </a>
+      </h4>
+    </WithRenamedProps(Tooltip)>
+  </div>
+</div>
+`;

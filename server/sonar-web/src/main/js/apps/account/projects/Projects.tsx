@@ -19,15 +19,14 @@
  */
 import * as React from 'react';
 import ProjectCard from './ProjectCard';
-import { Project } from './types';
 import ListFooter from '../../../components/controls/ListFooter';
 import { translate } from '../../../helpers/l10n';
+import { MyProject } from '../../../app/types';
 
 interface Props {
   loading: boolean;
   loadMore: () => void;
-  projects: Project[];
-  search: (query: string) => void;
+  projects: MyProject[];
   total?: number;
 }
 
@@ -55,9 +54,9 @@ export default function Projects(props: Props) {
       {projects.length > 0 && (
         <ListFooter
           count={projects.length}
-          total={props.total || 0}
-          ready={!props.loading}
           loadMore={props.loadMore}
+          ready={!props.loading}
+          total={props.total || 0}
         />
       )}
     </div>

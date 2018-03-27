@@ -1,0 +1,77 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should display correctly 1`] = `
+<div
+  className="huge-spacer-top"
+>
+  <Spinner
+    delay={100}
+    invertColor={false}
+    isCompleting={false}
+    onComplete={[Function]}
+    size="large"
+  />
+</div>
+`;
+
+exports[`should display correctly 2`] = `
+<React.Fragment>
+  <p
+    className="huge-spacer-top"
+  >
+    You must be logged in SonarCloud to link to a project you administer:
+  </p>
+  <div
+    className="ak-field-group"
+  >
+    <LoginButton
+      appearance="primary"
+      icon={
+        <BitbucketIcon
+          iconColor="inherit"
+          iconGradientStart="inherit"
+          iconGradientStop="inherit"
+          label="Bitbucket"
+          size="small"
+          textColor="currentColor"
+        />
+      }
+      onReload={[MockFunction]}
+      sessionUrl="sessions/init/bitbucket"
+    >
+      <span>
+        Log in with 
+        Bitbucket
+      </span>
+    </LoginButton>
+    <LoginButton
+      appearance="link"
+      onReload={[MockFunction]}
+      sessionUrl="sessions/new"
+    >
+      More options
+    </LoginButton>
+  </div>
+</React.Fragment>
+`;
+
+exports[`should display correctly without the bitbucket login button 1`] = `
+<React.Fragment>
+  <p
+    className="huge-spacer-top"
+  >
+    You must be logged in SonarCloud to link to a project you administer:
+  </p>
+  <div
+    className="ak-field-group"
+  >
+    <LoginButton
+      appearance="link"
+      onReload={[MockFunction]}
+      sessionUrl="sessions/new"
+    >
+      Log in on SonarCloud
+    </LoginButton>
+  </div>
+</React.Fragment>
+`;
