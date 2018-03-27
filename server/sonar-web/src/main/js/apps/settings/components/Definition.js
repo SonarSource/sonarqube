@@ -23,8 +23,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
 import Input from './inputs/Input';
-import DefinitionDefaults from './DefinitionDefaults';
-import DefinitionChanges from './DefinitionChanges';
+import DefinitionActions from './DefinitionActions';
 import {
   getPropertyName,
   getPropertyDescription,
@@ -63,8 +62,7 @@ class Definition extends React.PureComponent {
   };
 
   state = {
-    success: false,
-    hasError: false
+    success: false
   };
 
   componentDidMount() {
@@ -98,7 +96,7 @@ class Definition extends React.PureComponent {
       .resetValue(definition.key, componentKey)
       .then(() => {
         this.props.cancelChange(definition.key, componentKey);
-        this.safeSetState({ success: true, hasError: false });
+        this.safeSetState({ success: true });
         this.timeout = setTimeout(() => this.safeSetState({ success: false }), 3000);
       })
       .catch(() => {
@@ -114,8 +112,7 @@ class Definition extends React.PureComponent {
 
   handleCheck = () => {
     const componentKey = this.props.component ? this.props.component.key : null;
-    const hasError = !this.props.checkValue(this.props.setting.definition.key, componentKey);
-    this.safeSetState({ hasError });
+    this.props.checkValue(this.props.setting.definition.key, componentKey);
   };
 
   handleSave = () => {
@@ -136,9 +133,9 @@ class Definition extends React.PureComponent {
 
   render() {
     const { setting, changedValue, loading } = this.props;
-    const { hasError } = this.state;
     const { definition } = setting;
     const propertyName = getPropertyName(definition);
+    const hasError = this.props.validationMessage != null;
 
     const hasValueChanged = changedValue != null;
 
@@ -177,7 +174,7 @@ class Definition extends React.PureComponent {
             )}
 
             {!loading &&
-              this.props.validationMessage != null && (
+              hasError && (
                 <span className="text-danger">
                   <AlertErrorIcon className="spacer-right" />
                   <span>
@@ -190,7 +187,7 @@ class Definition extends React.PureComponent {
               )}
 
             {!loading &&
-              this.props.validationMessage == null &&
+              !hasError &&
               this.state.success && (
                 <span className="text-success">
                   <AlertSuccessIcon className="spacer-right" />
@@ -207,21 +204,15 @@ class Definition extends React.PureComponent {
             value={effectiveValue}
           />
 
-          {(!hasValueChanged || hasError) && (
-            <DefinitionDefaults
-              isDefault={isDefault}
-              onReset={this.handleReset}
-              setting={setting}
-            />
-          )}
-
-          {hasValueChanged && (
-            <DefinitionChanges
-              enableSave={!hasError}
-              onCancel={this.handleCancel}
-              onSave={this.handleSave}
-            />
-          )}
+          <DefinitionActions
+            changedValue={changedValue}
+            hasError={hasError}
+            isDefault={isDefault}
+            onCancel={this.handleCancel}
+            onReset={this.handleReset}
+            onSave={this.handleSave}
+            setting={setting}
+          />
         </div>
       </div>
     );

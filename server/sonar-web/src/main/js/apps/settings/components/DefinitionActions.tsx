@@ -17,39 +17,38 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
-import { getSettingValue, isEmptyValue, getDefaultValue } from '../utils';
+import * as React from 'react';
 import Modal from '../../../components/controls/Modal';
+import { isEmptyValue, getDefaultValue, getSettingValue } from '../utils';
 import { translate } from '../../../helpers/l10n';
+import { Button } from '../../../components/ui/buttons';
+import { SettingValue, Definition } from '../../../api/settings';
 
-/*::
 type Props = {
-  isDefault: boolean,
-  onReset: () => void,
-  setting: Object
+  changedValue: string;
+  hasError: boolean;
+  isDefault: boolean;
+  onCancel: () => void;
+  onReset: () => void;
+  onSave: () => void;
+  setting: SettingValue & { definition: Definition };
+  valueChanged: boolean;
 };
-*/
-/*::
-type State = { reseting: boolean };
-*/
 
-export default class DefinitionDefaults extends React.PureComponent {
-  /*:: props: Props; */
-  state /*: State*/ = { reseting: false };
+type State = { reseting: boolean };
+
+export default class DefinitionActions extends React.PureComponent<Props, State> {
+  state: State = { reseting: false };
 
   handleClose = () => {
     this.setState({ reseting: false });
   };
 
-  handleReset = (e /*: Event & {target: HTMLElement} */) => {
-    e.preventDefault();
-    e.target.blur();
+  handleReset = () => {
     this.setState({ reseting: true });
   };
 
-  handleSubmit = (event /*: Event */) => {
-    event.preventDefault();
+  handleSubmit = () => {
     this.props.onReset();
     this.handleClose();
   };
@@ -77,31 +76,52 @@ export default class DefinitionDefaults extends React.PureComponent {
   }
 
   render() {
-    const { setting, isDefault } = this.props;
-    const { definition } = setting;
-
-    const isExplicitlySet = !isDefault && !isEmptyValue(definition, getSettingValue(setting));
+    const { setting, isDefault, changedValue } = this.props;
+    const hasValueChanged = changedValue != null;
+    const canBeReset = !isDefault && isEmptyValue(setting.definition, changedValue);
+    const isExplicitlySet =
+      !isDefault && !isEmptyValue(setting.definition, getSettingValue(setting));
 
     return (
-      <div>
+      <>
         {isDefault && (
           <div className="spacer-top note" style={{ lineHeight: '24px' }}>
             {translate('settings._default')}
           </div>
         )}
+        <div className="settings-definition-changes nowrap">
+          {hasValueChanged && (
+            <Button
+              className="spacer-right button-success"
+              disabled={this.props.hasError}
+              onClick={this.props.onSave}>
+              {translate('save')}
+            </Button>
+          )}
 
-        {isExplicitlySet && (
-          <div className="spacer-top nowrap">
-            <button onClick={this.handleReset}>{translate('reset_verb')}</button>
-            <span className="spacer-left note">
+          {canBeReset && (
+            <Button className="spacer-right" onClick={this.handleReset}>
+              {translate('reset_verb')}
+            </Button>
+          )}
+
+          {hasValueChanged && (
+            <Button className="spacer-right button-link" onClick={this.props.onCancel}>
+              {translate('cancel')}
+            </Button>
+          )}
+
+          {isExplicitlySet && (
+            <span className="note">
               {translate('default')}
               {': '}
               {getDefaultValue(setting)}
             </span>
-          </div>
-        )}
-        {this.state.reseting && this.renderModal()}
-      </div>
+          )}
+
+          {this.state.reseting && this.renderModal()}
+        </div>
+      </>
     );
   }
 }

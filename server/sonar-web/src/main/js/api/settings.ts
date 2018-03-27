@@ -23,6 +23,24 @@ import { TYPE_PROPERTY_SET } from '../apps/settings/constants';
 import { BranchParameters } from '../app/types';
 import throwGlobalError from '../app/utils/throwGlobalError';
 
+interface DefinitionField {
+  description: string;
+  key: string;
+  name: string;
+  options: string[];
+}
+
+export interface Definition {
+  category: string;
+  description: string;
+  fields: DefinitionField[];
+  key: string;
+  name: string;
+  options: string[];
+  subCategory: string;
+  type: string;
+}
+
 export function getDefinitions(component?: string): Promise<any> {
   return getJSON('/api/settings/list_definitions', { component }).then(r => r.definitions);
 }
