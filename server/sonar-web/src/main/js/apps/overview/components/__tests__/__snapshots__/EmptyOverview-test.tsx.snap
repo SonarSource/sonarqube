@@ -19,6 +19,71 @@ exports[`renders 1`] = `
 <div
   className="page page-limited"
 >
+  <div
+    className="big-spacer-bottom"
+  >
+    <div
+      className="alert alert-warning"
+    >
+      provisioning.no_analysis
+    </div>
+    <div
+      className="big-spacer-top"
+    >
+      <Link
+        className="text-danger"
+        onlyActiveOnIndex={false}
+        style={Object {}}
+        to={
+          Object {
+            "pathname": "/project/deletion",
+            "query": Object {
+              "id": "abcd",
+            },
+          }
+        }
+      >
+        provisioning.no_analysis.delete_project
+      </Link>
+      ovisioning.no_analysis.delete
+    </div>
+  </div>
+  <div>
+    <h4>
+      key
+    </h4>
+    <code>
+      abcd
+    </code>
+  </div>
+</div>
+`;
+
+exports[`should render another message when there are branches 1`] = `
+<div
+  className="page page-limited"
+>
+  <div
+    className="big-spacer-bottom"
+  >
+    <div
+      className="alert alert-warning"
+    >
+      <FormattedMessage
+        defaultMessage="provisioning.no_analysis_on_main_branch"
+        id="provisioning.no_analysis_on_main_branch"
+        values={
+          Object {
+            "branch": <div
+              className="outline-badge text-baseline little-spacer-right"
+            >
+              branches.main_branch
+            </div>,
+          }
+        }
+      />
+    </div>
+  </div>
   <div>
     <h4>
       key

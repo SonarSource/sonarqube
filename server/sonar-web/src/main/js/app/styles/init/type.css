@@ -211,6 +211,10 @@ small,
   vertical-align: text-bottom !important;
 }
 
+.text-baseline {
+  vertical-align: baseline !important;
+}
+
 .text-ellipsis {
   overflow: hidden;
   text-overflow: ellipsis;

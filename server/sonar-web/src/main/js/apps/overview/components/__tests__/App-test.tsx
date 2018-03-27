@@ -54,9 +54,17 @@ it('redirects on Code page for files', () => {
     qualifier: 'FIL'
   };
   const replace = jest.fn();
-  mount(<App branchLike={branch} component={newComponent} onComponentChange={jest.fn()} />, {
-    context: { router: { replace } }
-  });
+  mount(
+    <App
+      branchLike={branch}
+      branchLikes={[branch]}
+      component={newComponent}
+      onComponentChange={jest.fn()}
+    />,
+    {
+      context: { router: { replace } }
+    }
+  );
   expect(replace).toBeCalledWith({
     pathname: '/code',
     query: { branch: 'b', id: 'project', selected: 'foo' }
@@ -64,5 +72,7 @@ it('redirects on Code page for files', () => {
 });
 
 function getWrapper(props = {}) {
-  return shallow(<App component={component} onComponentChange={jest.fn()} {...props} />);
+  return shallow(
+    <App branchLikes={[]} component={component} onComponentChange={jest.fn()} {...props} />
+  );
 }

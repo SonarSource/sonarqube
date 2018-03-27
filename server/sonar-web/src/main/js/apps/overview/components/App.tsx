@@ -27,6 +27,7 @@ import { getShortLivingBranchUrl, getCodeUrl } from '../../../helpers/urls';
 
 interface Props {
   branchLike?: BranchLike;
+  branchLikes: BranchLike[];
   component: Component;
   isInProgress?: boolean;
   isPending?: boolean;
@@ -60,7 +61,7 @@ export default class App extends React.PureComponent<Props> {
   isFile = () => ['FIL', 'UTS'].includes(this.props.component.qualifier);
 
   render() {
-    const { branchLike, component } = this.props;
+    const { branchLike, branchLikes, component } = this.props;
 
     if (this.isPortfolio() || this.isFile() || isShortLivingBranch(branchLike)) {
       return null;
@@ -70,6 +71,7 @@ export default class App extends React.PureComponent<Props> {
       return (
         <EmptyOverview
           component={component.key}
+          hasBranches={branchLikes.length > 1}
           showWarning={!this.props.isPending && !this.props.isInProgress}
         />
       );

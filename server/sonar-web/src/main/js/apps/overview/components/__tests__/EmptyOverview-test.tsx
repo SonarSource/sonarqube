@@ -22,9 +22,15 @@ import { shallow } from 'enzyme';
 import EmptyOverview from '../EmptyOverview';
 
 it('renders', () => {
-  expect(shallow(<EmptyOverview component="abcd" />)).toMatchSnapshot();
+  expect(shallow(<EmptyOverview component="abcd" showWarning={true} />)).toMatchSnapshot();
 });
 
 it('does not render warning', () => {
   expect(shallow(<EmptyOverview component="abcd" showWarning={false} />)).toMatchSnapshot();
+});
+
+it('should render another message when there are branches', () => {
+  expect(
+    shallow(<EmptyOverview component="abcd" hasBranches={true} showWarning={true} />)
+  ).toMatchSnapshot();
 });
