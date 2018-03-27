@@ -31,44 +31,49 @@ import { getMeasureHistoryUrl } from '../../../helpers/urls';
 import { isDiffMetric } from '../../../helpers/measures';
 /*:: import type { Component, Period } from '../types'; */
 /*:: import type { MeasureEnhanced } from '../../../components/measure/types'; */
+/*:: import type { Metric } from '../../../store/metrics/actions'; */
 
 /*:: type Props = {|
   branchLike?: { id?: string; name: string },
   component: Component,
   components: Array<Component>,
   leakPeriod?: Period,
-  measure: MeasureEnhanced,
+  measure?: MeasureEnhanced,
+  metric: Metric,
   secondaryMeasure: ?MeasureEnhanced
 |}; */
 
 export default function MeasureHeader(props /*: Props*/) {
-  const { branchLike, component, leakPeriod, measure, secondaryMeasure } = props;
-  const { metric } = measure;
+  const { branchLike, component, leakPeriod, measure, metric, secondaryMeasure } = props;
   const isDiff = isDiffMetric(metric.key);
   return (
     <div className="measure-details-header big-spacer-bottom">
       <div className="measure-details-primary">
         <div className="measure-details-metric">
-          <IssueTypeIcon query={metric.key} className="little-spacer-right text-text-bottom" />
+          <IssueTypeIcon className="little-spacer-right text-text-bottom" query={metric.key} />
           {getLocalizedMetricName(metric)}
           <span className="measure-details-value spacer-left">
             <strong>
               {isDiff ? (
                 <Measure
                   className="domain-measures-leak"
-                  value={measure.leak}
                   metricKey={metric.key}
                   metricType={metric.type}
+                  value={measure && measure.leak}
                 />
               ) : (
-                <Measure value={measure.value} metricKey={metric.key} metricType={metric.type} />
+                <Measure
+                  metricKey={metric.key}
+                  metricType={metric.type}
+                  value={measure && measure.value}
+                />
               )}
             </strong>
           </span>
           {!isDiff && (
             <Tooltip
-              placement="right"
-              overlay={translate('component_measures.show_metric_history')}>
+              overlay={translate('component_measures.show_metric_history')}
+              placement="right">
               <Link
                 className="js-show-history spacer-left button button-small"
                 to={getMeasureHistoryUrl(component.key, metric.key, branchLike)}>

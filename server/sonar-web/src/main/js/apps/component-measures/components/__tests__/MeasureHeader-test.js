@@ -21,24 +21,28 @@ import React from 'react';
 import { shallow } from 'enzyme';
 import MeasureHeader from '../MeasureHeader';
 
+const METRIC = {
+  key: 'reliability_rating',
+  type: 'RATING',
+  name: 'Reliability Rating'
+};
+
 const MEASURE = {
   value: '3.0',
   periods: [{ index: 1, value: '0.0' }],
-  metric: {
-    key: 'reliability_rating',
-    type: 'RATING',
-    name: 'Reliability Rating'
-  },
+  metric: METRIC,
   leak: '0.0'
+};
+
+const LEAK_METRIC = {
+  key: 'new_reliability_rating',
+  type: 'RATING',
+  name: 'Reliability Rating on New Code'
 };
 
 const LEAK_MEASURE = {
   periods: [{ index: 1, value: '3.0' }],
-  metric: {
-    key: 'new_reliability_rating',
-    type: 'RATING',
-    name: 'Reliability Rating on New Code'
-  },
+  metric: LEAK_METRIC,
   leak: '3.0'
 };
 
@@ -63,6 +67,7 @@ const PROPS = {
     parameter: '6,4'
   },
   measure: MEASURE,
+  metric: METRIC,
   paging: null,
   secondaryMeasure: null,
   selectedIdx: null
@@ -73,7 +78,9 @@ it('should render correctly', () => {
 });
 
 it('should render correctly for leak', () => {
-  expect(shallow(<MeasureHeader {...PROPS} measure={LEAK_MEASURE} />)).toMatchSnapshot();
+  expect(
+    shallow(<MeasureHeader {...PROPS} measure={LEAK_MEASURE} metric={LEAK_METRIC} />)
+  ).toMatchSnapshot();
 });
 
 it('should render with branch', () => {
@@ -100,4 +107,8 @@ it('should display correctly for open file', () => {
   expect(wrapper.find('.measure-details-primary-actions')).toMatchSnapshot();
   wrapper.setProps({ components: [{ key: 'foo' }, { key: 'bar' }] });
   expect(wrapper.find('.measure-details-primary-actions')).toMatchSnapshot();
+});
+
+it('should work with measure without value', () => {
+  expect(shallow(<MeasureHeader {...PROPS} measure={undefined} />)).toMatchSnapshot();
 });

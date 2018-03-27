@@ -70,12 +70,11 @@ export default class TreeMapView extends React.PureComponent {
       .map(component => {
         const colorMeasure = component.measures.find(measure => measure.metric.key === metric.key);
         const sizeMeasure = component.measures.find(measure => measure.metric.key !== metric.key);
-        if (colorMeasure == null || sizeMeasure == null) {
+        if (sizeMeasure == null) {
           return null;
         }
-        const colorValue = isDiffMetric(colorMeasure.metric.key)
-          ? colorMeasure.leak
-          : colorMeasure.value;
+        const colorValue =
+          colorMeasure && (isDiffMetric(metric.key) ? colorMeasure.leak : colorMeasure.value);
         const sizeValue = isDiffMetric(sizeMeasure.metric.key)
           ? sizeMeasure.leak
           : sizeMeasure.value;
@@ -89,7 +88,7 @@ export default class TreeMapView extends React.PureComponent {
           icon: <QualifierIcon color={theme.baseFontColor} qualifier={component.qualifier} />,
           tooltip: this.getTooltip(
             component.name,
-            colorMeasure.metric,
+            metric,
             sizeMeasure.metric,
             colorValue,
             sizeValue

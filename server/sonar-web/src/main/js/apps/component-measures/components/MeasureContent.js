@@ -324,20 +324,21 @@ export default class MeasureContent extends React.PureComponent {
         {metric == null && (
           <MetricNotFound className="layout-page-main-inner measure-details-content" />
         )}
-        {metric != null &&
-          measure != null && (
-            <div className="layout-page-main-inner measure-details-content">
-              <MeasureHeader
-                branchLike={branchLike}
-                component={component}
-                components={this.state.components}
-                leakPeriod={this.props.leakPeriod}
-                measure={measure}
-                secondaryMeasure={this.props.secondaryMeasure}
-              />
-              {isFileType(component) ? this.renderCode() : this.renderMeasure()}
-            </div>
-          )}
+        {metric != null && (
+          <div className="layout-page-main-inner measure-details-content">
+            <MeasureHeader
+              branchLike={branchLike}
+              component={component}
+              components={this.state.components}
+              leakPeriod={this.props.leakPeriod}
+              // fall back to `undefined` to be compatible with typescript files where we compare with `=== undefined`
+              measure={measure || undefined}
+              metric={metric}
+              secondaryMeasure={this.props.secondaryMeasure}
+            />
+            {isFileType(component) ? this.renderCode() : this.renderMeasure()}
+          </div>
+        )}
       </div>
     );
   }
