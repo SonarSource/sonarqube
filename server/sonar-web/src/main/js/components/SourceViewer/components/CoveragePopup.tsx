@@ -43,7 +43,6 @@ interface State {
 }
 
 export default class CoveragePopup extends React.PureComponent<Props, State> {
-  // prettier-ignore
   context!: { workspace: WorkspaceContext };
   mounted = false;
 

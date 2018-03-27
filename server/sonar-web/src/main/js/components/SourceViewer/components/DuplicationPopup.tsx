@@ -40,7 +40,6 @@ interface Props {
 }
 
 export default class DuplicationPopup extends React.PureComponent<Props> {
-  // prettier-ignore
   context!: { workspace: WorkspaceContext };
 
   static contextTypes = {

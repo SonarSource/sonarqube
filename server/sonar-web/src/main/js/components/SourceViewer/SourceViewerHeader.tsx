@@ -52,7 +52,6 @@ interface State {
 }
 
 export default class SourceViewerHeader extends React.PureComponent<Props, State> {
-  // prettier-ignore
   context!: { workspace: WorkspaceContext };
 
   static contextTypes = {

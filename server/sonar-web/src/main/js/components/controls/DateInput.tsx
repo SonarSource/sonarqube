@@ -58,7 +58,6 @@ interface State {
 type Week = [string, string, string, string, string, string, string];
 
 export default class DateInput extends React.PureComponent<Props, State> {
-  // prettier-ignore
   context!: InjectedIntlProps;
   input?: HTMLInputElement | null;
 

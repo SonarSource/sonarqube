@@ -31,7 +31,6 @@ interface Props {
 }
 
 export default class ComponentPin extends React.PureComponent<Props> {
-  // prettier-ignore
   context!: { workspace: WorkspaceContext };
 
   static contextTypes = {

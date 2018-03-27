@@ -51,7 +51,7 @@
     "postcss-calc": "6.0.1",
     "postcss-custom-properties": "6.2.0",
     "postcss-loader": "2.1.1",
-    "prettier": "1.10.2",
+    "prettier": "1.11.1",
     "react-dev-utils": "5.0.0",
     "react-error-overlay": "1.0.7",
     "react-test-renderer": "16.2.0",
