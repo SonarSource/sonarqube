@@ -1,0 +1,35 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render another message when there are branches 1`] = `
+<div
+  className="page page-limited"
+>
+  <div
+    className="alert alert-warning"
+  >
+    <FormattedMessage
+      defaultMessage="provisioning.no_analysis_on_main_branch"
+      id="provisioning.no_analysis_on_main_branch"
+      values={
+        Object {
+          "branch": <div
+            className="outline-badge text-baseline little-spacer-right"
+        >
+            branches.main_branch
+        </div>,
+        }
+      }
+    />
+  </div>
+  <div
+    className="big-spacer-top"
+  >
+    <h4>
+      key
+    </h4>
+    <code>
+      abcd
+    </code>
+  </div>
+</div>
+`;

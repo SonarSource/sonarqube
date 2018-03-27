@@ -20,32 +20,52 @@
 // @flow
 import React from 'react';
 import { Link } from 'react-router';
+import { FormattedMessage } from 'react-intl';
 import { translate } from '../../../helpers/l10n';
 
 /*::
 type Props = {
-  component: { key: string }
+  component: { key: string },
+  hasBranches: bool
 };
 */
 
-export default function EmptyOverview({ component } /*: Props */) {
+export default function EmptyOverview({ component, hasBranches } /*: Props */) {
   const rawMessage = translate('provisioning.no_analysis.delete');
   const head = rawMessage.substr(0, rawMessage.indexOf('{0}'));
   const tail = rawMessage.substr(rawMessage.indexOf('{0}') + 3);
 
   return (
     <div className="page page-limited">
-      <div className="alert alert-warning">{translate('provisioning.no_analysis')}</div>
-
-      <div className="big-spacer-top">
-        {head}
-        <Link
-          className="text-danger"
-          to={{ pathname: '/project/deletion', query: { id: component.key } }}>
-          {translate('provisioning.no_analysis.delete_project')}
-        </Link>
-        {tail}
+      <div className="alert alert-warning">
+        {hasBranches ? (
+          <FormattedMessage
+            defaultMessage={translate('provisioning.no_analysis_on_main_branch')}
+            id="provisioning.no_analysis_on_main_branch"
+            values={{
+              branch: (
+                <div className="outline-badge text-baseline little-spacer-right">
+                  {translate('branches.main_branch')}
+                </div>
+              )
+            }}
+          />
+        ) : (
+          translate('provisioning.no_analysis')
+        )}
       </div>
+
+      {!hasBranches && (
+        <div className="big-spacer-top">
+          {head}
+          <Link
+            className="text-danger"
+            to={{ pathname: '/project/deletion', query: { id: component.key } }}>
+            {translate('provisioning.no_analysis.delete_project')}
+          </Link>
+          {tail}
+        </div>
+      )}
 
       <div className="big-spacer-top">
         <h4>{translate('key')}</h4>
