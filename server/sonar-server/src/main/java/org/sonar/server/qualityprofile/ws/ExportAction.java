@@ -87,13 +87,13 @@ public class ExportAction implements QProfileWsAction {
       .setExampleValue(UUID_EXAMPLE_01);
 
     action.createParam(PARAM_QUALITY_PROFILE)
-      .setDescription("Quality profile name to export. If left empty, the default profile for the language is exported. If this parameter is set, '%s' must not be set.",
-        PARAM_KEY)
+      .setDescription("Quality profile name to export. If left empty, the default profile for the language is exported.",
+        PARAM_QUALITY_PROFILE)
       .setDeprecatedKey("name", "6.6")
       .setExampleValue("My Sonar way");
 
     action.createParam(PARAM_LANGUAGE)
-      .setDescription("Quality profile language.  If this parameter is set, '%s' must not be set.", PARAM_KEY)
+      .setDescription("Quality profile language")
       .setExampleValue(LanguageParamUtils.getExampleValue(languages))
       .setPossibleValues(LanguageParamUtils.getLanguageKeys(languages));
 

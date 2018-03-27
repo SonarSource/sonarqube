@@ -34,8 +34,8 @@ import static java.util.Objects.requireNonNull;
 import static org.apache.commons.lang.StringUtils.isEmpty;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_ORGANIZATION;
-import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_LANGUAGE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_KEY;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_LANGUAGE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_QUALITY_PROFILE;
 
 /**
@@ -182,12 +182,12 @@ public class QProfileReference {
       .setExampleValue(UUID_EXAMPLE_01);
 
     action.createParam(PARAM_QUALITY_PROFILE)
-      .setDescription("Quality profile name. If this parameter is set, '%s' must not be set and '%s' must be set to disambiguate.", PARAM_KEY, PARAM_LANGUAGE)
+      .setDescription("Quality profile name")
       .setDeprecatedKey("profileName", "6.6")
       .setExampleValue("Sonar way");
 
     action.createParam(PARAM_LANGUAGE)
-      .setDescription("Quality profile language. If this parameter is set, '%s' must not be set and '%s' must be set to disambiguate.", PARAM_KEY, PARAM_LANGUAGE)
+      .setDescription("Quality profile language")
       .setPossibleValues(Arrays.stream(languages.all()).map(Language::getKey).collect(MoreCollectors.toSet()));
   }
 }
