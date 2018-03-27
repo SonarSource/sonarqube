@@ -39,7 +39,7 @@ import org.sonar.scanner.protocol.output.ScannerReport.Component.ComponentType;
 import org.sonar.scanner.protocol.output.ScannerReport.Component.FileStatus;
 import org.sonar.server.computation.task.projectanalysis.analysis.Branch;
 import org.sonar.server.computation.task.projectanalysis.analysis.MutableAnalysisMetadataHolderRule;
-import org.sonar.server.computation.task.projectanalysis.analysis.Project;
+import org.sonar.server.project.Project;
 import org.sonar.server.computation.task.projectanalysis.batch.BatchReportReaderRule;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.component.DefaultBranchImpl;

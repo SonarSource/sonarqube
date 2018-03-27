@@ -25,6 +25,7 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.db.component.BranchType;
 import org.sonar.server.computation.util.InitializedProperty;
+import org.sonar.server.project.Project;
 import org.sonar.server.qualityprofile.QualityProfile;
 
 import static com.google.common.base.Preconditions.checkState;

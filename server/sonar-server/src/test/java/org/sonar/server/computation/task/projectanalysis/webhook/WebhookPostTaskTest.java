@@ -158,7 +158,7 @@ public class WebhookPostTaskTest {
     }
 
     verify(payloadFactory).create(new ProjectAnalysis(
-      new org.sonar.server.webhook.Project(project.getUuid(), project.getKey(), project.getName()),
+      new org.sonar.server.project.Project(project.getUuid(), project.getKey(), project.getName()),
       new org.sonar.server.webhook.CeTask(ceTask.getId(), org.sonar.server.webhook.CeTask.Status.valueOf(ceTask.getStatus().name())),
       analysisUUid == null ? null : new Analysis(analysisUUid, date.getTime()),
       new org.sonar.server.webhook.Branch(branch.isMain(), branch.getName().get(), org.sonar.server.webhook.Branch.Type.valueOf(branch.getType().name())),

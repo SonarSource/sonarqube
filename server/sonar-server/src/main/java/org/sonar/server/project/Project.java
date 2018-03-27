@@ -17,33 +17,51 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.webhook;
+package org.sonar.server.project;
 
 import java.util.Objects;
+import javax.annotation.Nullable;
+import javax.annotation.concurrent.Immutable;
 
-import static java.util.Objects.requireNonNull;
+@Immutable
+public class Project {
 
-public final class Project {
   private final String uuid;
   private final String key;
   private final String name;
+  private final String description;
 
   public Project(String uuid, String key, String name) {
-    this.uuid = requireNonNull(uuid, "uuid can't be null");
-    this.key = requireNonNull(key, "key can't be null");
-    this.name = requireNonNull(name, "name can't be null");
+    this(uuid, key, name, null);
   }
 
+  public Project(String uuid, String key, String name, @Nullable String description) {
+    this.uuid = uuid;
+    this.key = key;
+    this.name = name;
+    this.description = description;
+  }
+
+  /**
+   * Always links to a row that exists in database.
+   */
   public String getUuid() {
     return uuid;
   }
 
+  /**
+   * Always links to a row that exists in database.
+   */
   public String getKey() {
     return key;
   }
 
   public String getName() {
     return name;
+  }
+
+  public String getDescription() {
+    return description;
   }
 
   @Override
@@ -55,9 +73,9 @@ public final class Project {
       return false;
     }
     Project project = (Project) o;
-    return Objects.equals(uuid, project.uuid) &&
-      Objects.equals(key, project.key) &&
-      Objects.equals(name, project.name);
+    return uuid.equals(project.uuid)
+      && key.equals(project.key)
+      && name.equals(project.name);
   }
 
   @Override
@@ -67,10 +85,20 @@ public final class Project {
 
   @Override
   public String toString() {
-    return "Project{" +
-      "uuid='" + uuid + '\'' +
-      ", key='" + key + '\'' +
-      ", name='" + name + '\'' +
-      '}';
+    StringBuilder sb = new StringBuilder("Project{");
+    sb.append("uuid='").append(uuid).append('\'');
+    sb.append(", key='").append(key).append('\'');
+    sb.append(", name='").append(name).append('\'');
+    sb.append(", description=").append(toString(this.description));
+    sb.append('}');
+    return sb.toString();
   }
+
+  private static String toString(@Nullable String s) {
+    if (s == null) {
+      return null;
+    }
+    return '\'' + s + '\'';
+  }
+
 }

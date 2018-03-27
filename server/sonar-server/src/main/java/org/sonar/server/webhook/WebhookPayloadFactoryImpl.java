@@ -30,6 +30,7 @@ import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.platform.Server;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.text.JsonWriter;
+import org.sonar.server.project.Project;
 import org.sonar.server.qualitygate.Condition;
 import org.sonar.server.qualitygate.EvaluatedCondition;
 import org.sonar.server.qualitygate.EvaluatedQualityGate;

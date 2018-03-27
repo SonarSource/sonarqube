@@ -25,6 +25,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.measures.Metric;
+import org.sonar.server.project.Project;
 import org.sonar.server.qualitygate.EvaluatedQualityGate;
 import org.sonar.server.qualitygate.QualityGate;
 
@@ -148,6 +149,6 @@ public class ProjectAnalysisTest {
   @Test
   public void verify_toString() {
     assertThat(underTest.toString()).isEqualTo(
-      "ProjectAnalysis{project=Project{uuid='uuid', key='key', name='name'}, ceTask=CeTask{id='id', status=SUCCESS}, branch=Branch{main=true, name='name', type=SHORT}, qualityGate=EvaluatedQualityGate{qualityGate=QualityGate{id=id, name='name', conditions=[]}, status=WARN, evaluatedConditions=[]}, updatedAt=1, properties={a=b}, analysis=Analysis{uuid='analysis_uuid', date=1500}}");
+      "ProjectAnalysis{project=Project{uuid='uuid', key='key', name='name', description=null}, ceTask=CeTask{id='id', status=SUCCESS}, branch=Branch{main=true, name='name', type=SHORT}, qualityGate=EvaluatedQualityGate{qualityGate=QualityGate{id=id, name='name', conditions=[]}, status=WARN, evaluatedConditions=[]}, updatedAt=1, properties={a=b}, analysis=Analysis{uuid='analysis_uuid', date=1500}}");
   }
 }

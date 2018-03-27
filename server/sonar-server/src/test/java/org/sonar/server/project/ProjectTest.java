@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.computation.task.projectanalysis.analysis;
+package org.sonar.server.project;
 
 import org.junit.Test;
 
@@ -38,6 +38,7 @@ public class ProjectTest {
       .isEqualTo(project2.toString())
       .isEqualTo("Project{uuid='U1', key='K1', name='N1', description=null}");
   }
+
   @Test
   public void test_bean_with_description() {
     Project project1 = new Project("U1", "K1", "N1", "D1");
@@ -61,16 +62,16 @@ public class ProjectTest {
     assertThat(project1).isNotEqualTo(null);
     assertThat(project1).isNotEqualTo(new Object());
     assertThat(project1).isEqualTo(new Project("U1", "K1", "N1", null));
-    assertThat(project1).isEqualTo(new Project("U1", "K2", "N1", null));
-    assertThat(project1).isEqualTo(new Project("U1", "K1", "N2", null));
+    assertThat(project1).isNotEqualTo(new Project("U1", "K2", "N1", null));
+    assertThat(project1).isNotEqualTo(new Project("U1", "K1", "N2", null));
     assertThat(project1).isEqualTo(project2);
 
     assertThat(project1.hashCode()).isEqualTo(project1.hashCode());
     assertThat(project1.hashCode()).isNotEqualTo(null);
     assertThat(project1.hashCode()).isNotEqualTo(new Object().hashCode());
     assertThat(project1.hashCode()).isEqualTo(new Project("U1", "K1", "N1", null).hashCode());
-    assertThat(project1.hashCode()).isEqualTo(new Project("U1", "K2", "N1", null).hashCode());
-    assertThat(project1.hashCode()).isEqualTo(new Project("U1", "K1", "N2", null).hashCode());
+    assertThat(project1.hashCode()).isNotEqualTo(new Project("U1", "K2", "N1", null).hashCode());
+    assertThat(project1.hashCode()).isNotEqualTo(new Project("U1", "K1", "N2", null).hashCode());
     assertThat(project1.hashCode()).isEqualTo(project2.hashCode());
   }
 

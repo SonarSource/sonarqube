@@ -28,7 +28,7 @@ import org.sonar.api.notifications.Notification;
 import org.sonar.db.component.BranchType;
 import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
 import org.sonar.server.computation.task.projectanalysis.analysis.Branch;
-import org.sonar.server.computation.task.projectanalysis.analysis.Project;
+import org.sonar.server.project.Project;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.component.DefaultBranchImpl;
 import org.sonar.server.computation.task.projectanalysis.component.ReportComponent;

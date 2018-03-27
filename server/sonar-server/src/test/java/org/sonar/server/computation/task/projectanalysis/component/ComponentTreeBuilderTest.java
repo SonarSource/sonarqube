@@ -35,7 +35,7 @@ import org.sonar.core.component.ComponentKeys;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.server.computation.task.projectanalysis.analysis.Branch;
-import org.sonar.server.computation.task.projectanalysis.analysis.Project;
+import org.sonar.server.project.Project;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;

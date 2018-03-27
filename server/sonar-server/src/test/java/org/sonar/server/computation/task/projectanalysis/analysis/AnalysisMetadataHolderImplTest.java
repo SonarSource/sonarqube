@@ -25,6 +25,7 @@ import org.junit.rules.ExpectedException;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.computation.task.projectanalysis.component.DefaultBranchImpl;
+import org.sonar.server.project.Project;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;

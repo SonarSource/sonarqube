@@ -28,7 +28,7 @@ import org.sonar.db.component.SnapshotDto;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.Component.FileStatus;
 import org.sonar.server.computation.task.projectanalysis.analysis.Branch;
-import org.sonar.server.computation.task.projectanalysis.analysis.Project;
+import org.sonar.server.project.Project;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.base.Preconditions.checkArgument;

@@ -21,7 +21,7 @@ package org.sonar.server.computation.task.projectanalysis.step;
 
 import org.junit.Test;
 import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolder;
-import org.sonar.server.computation.task.projectanalysis.analysis.Project;
+import org.sonar.server.project.Project;
 import org.sonar.server.computation.task.projectanalysis.view.TriggerViewRefreshDelegate;
 
 import static org.mockito.Mockito.mock;

@@ -25,13 +25,13 @@ import java.util.Set;
 import org.sonar.api.ce.posttask.PostProjectAnalysisTask;
 import org.sonar.api.measures.Metric;
 import org.sonar.core.util.stream.MoreCollectors;
+import org.sonar.server.project.Project;
 import org.sonar.server.qualitygate.Condition;
 import org.sonar.server.qualitygate.EvaluatedCondition;
 import org.sonar.server.qualitygate.EvaluatedQualityGate;
 import org.sonar.server.webhook.Analysis;
 import org.sonar.server.webhook.Branch;
 import org.sonar.server.webhook.CeTask;
-import org.sonar.server.webhook.Project;
 import org.sonar.server.webhook.WebHooks;
 import org.sonar.server.webhook.WebhookPayloadFactory;
 

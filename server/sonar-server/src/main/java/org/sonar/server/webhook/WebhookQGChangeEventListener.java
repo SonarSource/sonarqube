@@ -32,6 +32,7 @@ import org.sonar.db.component.AnalysisPropertyDto;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
+import org.sonar.server.project.Project;
 import org.sonar.server.qualitygate.EvaluatedQualityGate;
 import org.sonar.server.qualitygate.changeevent.QGChangeEvent;
 import org.sonar.server.qualitygate.changeevent.QGChangeEventListener;

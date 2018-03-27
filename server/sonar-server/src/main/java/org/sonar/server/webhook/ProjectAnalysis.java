@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import javax.annotation.Nullable;
+import org.sonar.server.project.Project;
 import org.sonar.server.qualitygate.EvaluatedQualityGate;
 
 import static com.google.common.collect.ImmutableMap.copyOf;

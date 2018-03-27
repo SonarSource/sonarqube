@@ -21,6 +21,7 @@ package org.sonar.server.computation.task.projectanalysis.analysis;
 
 import java.util.Map;
 import javax.annotation.Nullable;
+import org.sonar.server.project.Project;
 import org.sonar.server.qualityprofile.QualityProfile;
 
 public interface MutableAnalysisMetadataHolder extends AnalysisMetadataHolder {

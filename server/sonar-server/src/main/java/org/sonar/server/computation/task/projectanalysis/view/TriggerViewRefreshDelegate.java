@@ -21,7 +21,7 @@
 package org.sonar.server.computation.task.projectanalysis.view;
 
 import java.util.function.Consumer;
-import org.sonar.server.computation.task.projectanalysis.analysis.Project;
+import org.sonar.server.project.Project;
 
 public interface TriggerViewRefreshDelegate extends Consumer<Project> {
 }

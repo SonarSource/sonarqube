@@ -42,7 +42,7 @@ import org.sonar.scanner.protocol.output.ScannerReport.Metadata.Plugin;
 import org.sonar.scanner.protocol.output.ScannerReport.Metadata.QProfile;
 import org.sonar.server.computation.task.projectanalysis.analysis.MutableAnalysisMetadataHolder;
 import org.sonar.server.computation.task.projectanalysis.analysis.Organization;
-import org.sonar.server.computation.task.projectanalysis.analysis.Project;
+import org.sonar.server.project.Project;
 import org.sonar.server.computation.task.projectanalysis.analysis.ScannerPlugin;
 import org.sonar.server.computation.task.projectanalysis.batch.BatchReportReader;
 import org.sonar.server.computation.task.projectanalysis.component.BranchLoader;

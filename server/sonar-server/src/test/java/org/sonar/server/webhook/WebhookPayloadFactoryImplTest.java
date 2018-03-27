@@ -27,6 +27,7 @@ import org.junit.Test;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.platform.Server;
 import org.sonar.api.utils.System2;
+import org.sonar.server.project.Project;
 import org.sonar.server.qualitygate.Condition;
 import org.sonar.server.qualitygate.EvaluatedCondition;
 import org.sonar.server.qualitygate.EvaluatedQualityGate;
