@@ -120,8 +120,8 @@ export function sortBranchesAsTree(branchLikes: BranchLike[]) {
 
   // finally all orhpan pull requests and branches
   result.push(
-    ...pullRequests.filter(pr => pr.isOrphan),
-    ...shortLivingBranches.filter(branch => branch.isOrphan)
+    ...sortBy(pullRequests.filter(pr => pr.isOrphan), pullRequest => pullRequest.key),
+    ...sortBy(shortLivingBranches.filter(branch => branch.isOrphan), branch => branch.name)
   );
 
   return result;
@@ -139,11 +139,11 @@ export function sortBranchesAsTree(branchLikes: BranchLike[]) {
       i++;
     }
 
-    return sortBy(found, 'name');
+    return sortBy(found, branch => branch.name);
   }
 
   function getPullRequests(base: string) {
-    return pullRequests.filter(pr => pr.base === base);
+    return sortBy(pullRequests.filter(pr => pr.base === base), pullRequest => pullRequest.key);
   }
 }
 
