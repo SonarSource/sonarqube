@@ -26,12 +26,14 @@ import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.server.component.ComponentCleanerService;
 import org.sonar.server.component.ComponentFinder;
-import org.sonar.db.permission.OrganizationPermission;
+import org.sonar.server.project.ProjectLifeCycleListeners;
 import org.sonar.server.user.UserSession;
 
 import static org.sonar.server.component.ComponentFinder.ParamNames.PROJECT_ID_AND_PROJECT;
+import static org.sonar.server.project.Project.from;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_PROJECT;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_PROJECT_ID;
@@ -43,12 +45,15 @@ public class DeleteAction implements ProjectsWsAction {
   private final ComponentFinder componentFinder;
   private final DbClient dbClient;
   private final UserSession userSession;
+  private final ProjectLifeCycleListeners projectLifeCycleListeners;
 
-  public DeleteAction(ComponentCleanerService componentCleanerService, ComponentFinder componentFinder, DbClient dbClient, UserSession userSession) {
+  public DeleteAction(ComponentCleanerService componentCleanerService, ComponentFinder componentFinder, DbClient dbClient,
+    UserSession userSession, ProjectLifeCycleListeners projectLifeCycleListeners) {
     this.componentCleanerService = componentCleanerService;
     this.componentFinder = componentFinder;
     this.dbClient = dbClient;
     this.userSession = userSession;
+    this.projectLifeCycleListeners = projectLifeCycleListeners;
   }
 
   @Override
@@ -86,6 +91,7 @@ public class DeleteAction implements ProjectsWsAction {
       ComponentDto project = componentFinder.getByUuidOrKey(dbSession, uuid, key, PROJECT_ID_AND_PROJECT);
       checkPermission(project);
       componentCleanerService.delete(dbSession, project);
+      projectLifeCycleListeners.onProjectDeleted(from(project));
     }
 
     response.noContent();

@@ -20,11 +20,14 @@
 package org.sonar.server.project.ws;
 
 import org.sonar.core.platform.Module;
+import org.sonar.server.project.ProjectLifeCycleListenersImpl;
 
 public class ProjectsWsModule extends Module {
+
   @Override
   protected void configureModule() {
     add(
+      ProjectLifeCycleListenersImpl.class,
       ProjectsWsSupport.class,
       ProjectsWs.class,
       CreateAction.class,

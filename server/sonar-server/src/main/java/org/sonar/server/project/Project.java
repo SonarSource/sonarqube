@@ -22,6 +22,7 @@ package org.sonar.server.project;
 import java.util.Objects;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
+import org.sonar.db.component.ComponentDto;
 
 @Immutable
 public class Project {
@@ -40,6 +41,10 @@ public class Project {
     this.key = key;
     this.name = name;
     this.description = description;
+  }
+
+  public static Project from(ComponentDto project) {
+    return new Project(project.uuid(), project.getDbKey(), project.name(), project.description());
   }
 
   /**

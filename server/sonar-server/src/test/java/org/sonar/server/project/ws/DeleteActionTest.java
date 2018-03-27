@@ -20,7 +20,6 @@
 package org.sonar.server.project.ws;
 
 import java.util.List;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -41,6 +40,8 @@ import org.sonar.server.es.TestProjectIndexers;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
+import org.sonar.server.project.Project;
+import org.sonar.server.project.ProjectLifeCycleListeners;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
 
@@ -70,26 +71,18 @@ public class DeleteActionTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-
-  private WsTester ws;
   private DbClient dbClient = db.getDbClient();
   private DbSession dbSession = db.getSession();
   private WebhookDbTester webhookDbTester = db.webhooks();
   private ComponentDbTester componentDbTester = new ComponentDbTester(db);
   private ComponentCleanerService componentCleanerService = mock(ComponentCleanerService.class);
-
-
-
-
-  @Before
-  public void setUp() {
-    ws = new WsTester(new ProjectsWs(
-      new DeleteAction(
-        componentCleanerService,
-        from(db),
-        dbClient,
-        userSessionRule)));
-  }
+  private ProjectLifeCycleListeners projectLifeCycleListeners = mock(ProjectLifeCycleListeners.class);
+  private WsTester ws = new WsTester(new ProjectsWs(
+    new DeleteAction(
+      componentCleanerService,
+      from(db),
+      dbClient,
+      userSessionRule, projectLifeCycleListeners)));
 
   @Test
   public void organization_administrator_deletes_project_by_id() throws Exception {
@@ -100,6 +93,7 @@ public class DeleteActionTest {
     call(request);
 
     assertThat(verifyDeletedKey()).isEqualTo(project.getDbKey());
+    verify(projectLifeCycleListeners).onProjectDeleted(Project.from(project));
   }
 
   @Test
@@ -110,12 +104,7 @@ public class DeleteActionTest {
     call(newRequest().setParam(PARAM_PROJECT, project.getDbKey()));
 
     assertThat(verifyDeletedKey()).isEqualTo(project.getDbKey());
-  }
-
-  private String verifyDeletedKey() {
-    ArgumentCaptor<ComponentDto> argument = ArgumentCaptor.forClass(ComponentDto.class);
-    verify(componentCleanerService).delete(any(DbSession.class), argument.capture());
-    return argument.getValue().getDbKey();
+    verify(projectLifeCycleListeners).onProjectDeleted(Project.from(project));
   }
 
   @Test
@@ -126,6 +115,7 @@ public class DeleteActionTest {
     call(newRequest().setParam(PARAM_PROJECT_ID, project.uuid()));
 
     assertThat(verifyDeletedKey()).isEqualTo(project.getDbKey());
+    verify(projectLifeCycleListeners).onProjectDeleted(Project.from(project));
   }
 
   @Test
@@ -136,6 +126,7 @@ public class DeleteActionTest {
     call(newRequest().setParam(PARAM_PROJECT, project.getDbKey()));
 
     assertThat(verifyDeletedKey()).isEqualTo(project.getDbKey());
+    verify(projectLifeCycleListeners).onProjectDeleted(Project.from(project));
   }
 
   @Test
@@ -150,7 +141,8 @@ public class DeleteActionTest {
     new WsTester(new ProjectsWs(
       new DeleteAction(
         new ComponentCleanerService(dbClient, new ResourceTypesRule().setAllQualifiers(PROJECT),
-          new TestProjectIndexers()), from(db), dbClient, userSessionRule)))
+          new TestProjectIndexers()),
+        from(db), dbClient, userSessionRule, projectLifeCycleListeners)))
           .newPostRequest(CONTROLLER, ACTION)
           .setParam(PARAM_PROJECT, project.getDbKey())
           .execute();
@@ -173,7 +165,8 @@ public class DeleteActionTest {
     new WsTester(new ProjectsWs(
       new DeleteAction(
         new ComponentCleanerService(dbClient, new ResourceTypesRule().setAllQualifiers(PROJECT),
-          new TestProjectIndexers()), from(db), dbClient, userSessionRule)))
+          new TestProjectIndexers()),
+        from(db), dbClient, userSessionRule, projectLifeCycleListeners)))
           .newPostRequest(CONTROLLER, ACTION)
           .setParam(PARAM_PROJECT, project.getDbKey())
           .execute();
@@ -227,6 +220,12 @@ public class DeleteActionTest {
     expectedException.expectMessage(String.format("Component id '%s' not found", branch.uuid()));
 
     call(newRequest().setParam(PARAM_PROJECT_ID, branch.uuid()));
+  }
+
+  private String verifyDeletedKey() {
+    ArgumentCaptor<ComponentDto> argument = ArgumentCaptor.forClass(ComponentDto.class);
+    verify(componentCleanerService).delete(any(DbSession.class), argument.capture());
+    return argument.getValue().getDbKey();
   }
 
   private WsTester.TestRequest newRequest() {
