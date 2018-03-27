@@ -34,6 +34,7 @@ interface Props {
   metrics: { [key: string]: Metric };
   onSonarCloud: boolean;
   project: string;
+  qualifier: string;
 }
 
 interface State {
@@ -66,7 +67,7 @@ export default class BadgesModal extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const { branchLike, project } = this.props;
+    const { branchLike, project, qualifier } = this.props;
     const { selectedType, badgeOptions } = this.state;
     const header = translate('overview.badges.title');
     const fullBadgeOptions = { project, ...badgeOptions, ...getBranchLikeQuery(branchLike) };
@@ -76,7 +77,7 @@ export default class BadgesModal extends React.PureComponent<Props, State> {
     return (
       <div className="overview-meta-card">
         <Button className="js-project-badges" onClick={this.handleOpen}>
-          {translate('overview.badges.get_badge')}
+          {translate('overview.badges.get_badge', qualifier)}
         </Button>
         {this.state.open && (
           <Modal contentLabel={header} onRequestClose={this.handleClose}>
@@ -84,7 +85,9 @@ export default class BadgesModal extends React.PureComponent<Props, State> {
               <h2>{header}</h2>
             </header>
             <div className="modal-body">
-              <p className="huge-spacer-bottom">{translate('overview.badges.description')}</p>
+              <p className="huge-spacer-bottom">
+                {translate('overview.badges.description', qualifier)}
+              </p>
               <div className="badges-list spacer-bottom">
                 {badges.map(type => (
                   <BadgeButton
@@ -97,7 +100,7 @@ export default class BadgesModal extends React.PureComponent<Props, State> {
                 ))}
               </div>
               <p className="text-center note huge-spacer-bottom">
-                {translate('overview.badges', selectedType, 'description')}
+                {translate('overview.badges', selectedType, 'description', qualifier)}
               </p>
               <BadgeParams
                 className="big-spacer-bottom"

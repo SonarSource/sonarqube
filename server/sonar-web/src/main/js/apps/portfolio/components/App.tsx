@@ -34,11 +34,11 @@ import { getChildren } from '../../../api/components';
 import { translate } from '../../../helpers/l10n';
 import { fetchMetrics } from '../../../store/rootActions';
 import { getMetrics } from '../../../store/rootReducer';
-import { Metric } from '../../../app/types';
+import { Metric, Component } from '../../../app/types';
 import '../styles.css';
 
 interface OwnProps {
-  component: { key: string; name: string };
+  component: Component;
 }
 
 interface StateToProps {
@@ -184,10 +184,21 @@ export class App extends React.PureComponent<Props, State> {
           <div className="page-main">{this.renderMain()}</div>
 
           <aside className="page-sidebar-fixed">
-            {!this.isEmpty() &&
-              !this.isNotComputed() && <Summary component={component} measures={measures!} />}
-            <Activity component={component.key} metrics={this.props.metrics} />
-            <Report component={component} />
+            <div className="portfolio-meta-card">
+              <h4 className="portfolio-meta-header">
+                {translate('overview.about_this_portfolio')}
+              </h4>
+              {!this.isEmpty() &&
+                !this.isNotComputed() && <Summary component={component} measures={measures!} />}
+            </div>
+
+            <div className="portfolio-meta-card">
+              <Activity component={component.key} metrics={this.props.metrics} />
+            </div>
+
+            <div className="portfolio-meta-card">
+              <Report component={component} />
+            </div>
           </aside>
         </div>
       </div>

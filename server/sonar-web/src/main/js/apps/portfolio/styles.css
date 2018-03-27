@@ -110,3 +110,19 @@
 .portfolio-sub-components-cell {
   width: 90px;
 }
+
+.portfolio-meta-header {
+  margin-bottom: calc(0.5 * var(--gridSize));
+  color: var(--baseFontColor);
+}
+
+.portfolio-meta-card {
+  min-width: 200px;
+  box-sizing: border-box;
+}
+
+.portfolio-meta-card + .portfolio-meta-card {
+  margin-top: calc(2 * var(--gridSize));
+  padding-top: calc(2 * var(--gridSize) - 1px);
+  border-top: 1px solid var(--barBorderColor);
+}

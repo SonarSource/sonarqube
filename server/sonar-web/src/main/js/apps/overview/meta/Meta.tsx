@@ -104,15 +104,15 @@ export default class Meta extends React.PureComponent<Props> {
           {organizationsEnabled && <MetaOrganizationKey organization={component.organization} />}
         </div>
 
-        {isProject &&
-          !isPrivate && (
-            <BadgesModal
-              branchLike={branchLike}
-              metrics={metrics}
-              onSonarCloud={onSonarCloud}
-              project={component.key}
-            />
-          )}
+        {!isPrivate && (
+          <BadgesModal
+            branchLike={branchLike}
+            metrics={metrics}
+            onSonarCloud={onSonarCloud}
+            project={component.key}
+            qualifier={component.qualifier}
+          />
+        )}
       </div>
     );
   }

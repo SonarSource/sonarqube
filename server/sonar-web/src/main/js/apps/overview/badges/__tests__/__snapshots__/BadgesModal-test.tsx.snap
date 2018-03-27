@@ -8,7 +8,7 @@ exports[`should display the modal after click on sonar cloud 1`] = `
     className="js-project-badges"
     onClick={[Function]}
   >
-    overview.badges.get_badge
+    overview.badges.get_badge.TRK
   </Button>
 </div>
 `;
@@ -31,7 +31,7 @@ exports[`should display the modal after click on sonar cloud 2`] = `
     <p
       className="huge-spacer-bottom"
     >
-      overview.badges.description
+      overview.badges.description.TRK
     </p>
     <div
       className="badges-list spacer-bottom"
@@ -61,7 +61,7 @@ exports[`should display the modal after click on sonar cloud 2`] = `
     <p
       className="text-center note huge-spacer-bottom"
     >
-      overview.badges.measure.description
+      overview.badges.measure.description.TRK
     </p>
     <BadgeParams
       className="big-spacer-bottom"
@@ -101,7 +101,7 @@ exports[`should display the modal after click on sonar qube 1`] = `
     className="js-project-badges"
     onClick={[Function]}
   >
-    overview.badges.get_badge
+    overview.badges.get_badge.TRK
   </Button>
 </div>
 `;
@@ -124,7 +124,7 @@ exports[`should display the modal after click on sonar qube 2`] = `
     <p
       className="huge-spacer-bottom"
     >
-      overview.badges.description
+      overview.badges.description.TRK
     </p>
     <div
       className="badges-list spacer-bottom"
@@ -147,7 +147,7 @@ exports[`should display the modal after click on sonar qube 2`] = `
     <p
       className="text-center note huge-spacer-bottom"
     >
-      overview.badges.measure.description
+      overview.badges.measure.description.TRK
     </p>
     <BadgeParams
       className="big-spacer-bottom"

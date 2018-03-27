@@ -36,7 +36,13 @@ const shortBranch: ShortLivingBranch = {
 
 it('should display the modal after click on sonar cloud', () => {
   const wrapper = shallow(
-    <BadgesModal branchLike={shortBranch} metrics={{}} onSonarCloud={true} project="foo" />
+    <BadgesModal
+      branchLike={shortBranch}
+      metrics={{}}
+      onSonarCloud={true}
+      project="foo"
+      qualifier="TRK"
+    />
   );
   expect(wrapper).toMatchSnapshot();
   click(wrapper.find('Button'));
@@ -45,7 +51,13 @@ it('should display the modal after click on sonar cloud', () => {
 
 it('should display the modal after click on sonar qube', () => {
   const wrapper = shallow(
-    <BadgesModal branchLike={shortBranch} metrics={{}} onSonarCloud={false} project="foo" />
+    <BadgesModal
+      branchLike={shortBranch}
+      metrics={{}}
+      onSonarCloud={false}
+      project="foo"
+      qualifier="TRK"
+    />
   );
   expect(wrapper).toMatchSnapshot();
   click(wrapper.find('Button'));
