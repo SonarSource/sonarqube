@@ -25,12 +25,14 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
 import javax.annotation.CheckForNull;
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.ibatis.session.ResultHandler;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.source.FileSourceDto.Type;
@@ -72,6 +74,10 @@ public class FileSourceDao implements Dao {
     } finally {
       DbUtils.closeQuietly(connection, pstmt, rs);
     }
+  }
+
+  public void scrollLineHashes(DbSession dbSession, Collection<String> fileKeys, ResultHandler<LineHashesWithKeyDto> rowHandler) {
+    mapper(dbSession).scrollLineHashes(fileKeys, rowHandler);
   }
 
   public <T> void readLineHashesStream(DbSession dbSession, String fileUuid, Function<Reader, T> function) {

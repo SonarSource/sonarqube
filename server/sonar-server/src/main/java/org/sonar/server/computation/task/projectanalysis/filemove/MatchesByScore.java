@@ -55,7 +55,7 @@ abstract class MatchesByScore implements Iterable<List<Match>> {
     }
 
     @Override
-    public void visit(String dbFileKey, String reportFileKey, int score) {
+    public void visit(ScoreMatrix.ScoreFile removedFile, ScoreMatrix.ScoreFile newFile, int score) {
       if (!isAcceptableScore(score)) {
         return;
       }
@@ -65,7 +65,7 @@ abstract class MatchesByScore implements Iterable<List<Match>> {
       if (matches[index] == null) {
         matches[index] = new ArrayList<>(1);
       }
-      Match match = new Match(dbFileKey, reportFileKey);
+      Match match = new Match(removedFile.getFileKey(), newFile.getFileKey());
       matches[index].add(match);
       totalMatches++;
     }

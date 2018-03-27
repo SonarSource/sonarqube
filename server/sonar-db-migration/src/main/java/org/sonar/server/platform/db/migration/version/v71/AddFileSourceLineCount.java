@@ -17,26 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
 package org.sonar.server.platform.db.migration.version.v71;
 
-import org.junit.Test;
+import java.sql.SQLException;
+import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.def.IntegerColumnDef;
+import org.sonar.server.platform.db.migration.sql.AddColumnsBuilder;
+import org.sonar.server.platform.db.migration.step.DdlChange;
 
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationCount;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
-
-public class DbVersion71Test {
-
-  private DbVersion71 underTest = new DbVersion71();
-
-  @Test
-  public void migrationNumber_starts_at_2000() {
-    verifyMinimumMigrationNumber(underTest, 2000);
+public class AddFileSourceLineCount extends DdlChange {
+  public AddFileSourceLineCount(Database db) {
+    super(db);
   }
 
-  @Test
-  public void verify_migration_count() {
-    verifyMigrationCount(underTest, 26);
+  @Override
+  public void execute(Context context) throws SQLException {
+    context.execute(new AddColumnsBuilder(getDialect(), "file_sources")
+      .addColumn(IntegerColumnDef.newIntegerColumnDefBuilder()
+        .setColumnName("line_count")
+        .setIsNullable(true)
+        .build())
+      .build());
   }
-
 }

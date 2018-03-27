@@ -19,7 +19,6 @@
  */
 package org.sonar.server.computation.task.projectanalysis.source;
 
-import com.google.common.base.Joiner;
 import java.util.Iterator;
 import java.util.List;
 import org.sonar.core.hash.SourceHashComputer;
@@ -63,7 +62,6 @@ public class ComputeFileSourceData {
   }
 
   public static class Data {
-    private static final Joiner LINE_RETURN_JOINER = Joiner.on('\n');
 
     private final SourceLinesHashesComputer linesHashesComputer;
     private final SourceHashComputer sourceHashComputer = new SourceHashComputer();
@@ -77,8 +75,8 @@ public class ComputeFileSourceData {
       return sourceHashComputer.getHash();
     }
 
-    public String getLineHashes() {
-      return LINE_RETURN_JOINER.join(linesHashesComputer.getLineHashes());
+    public List<String> getLineHashes() {
+      return linesHashesComputer.getLineHashes();
     }
 
     public DbFileSources.Data getFileSourceData() {

@@ -32,7 +32,6 @@ import org.sonar.db.source.FileSourceDao;
 import org.sonar.db.source.FileSourceDto;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 
-import static com.google.common.base.Joiner.on;
 import static java.lang.String.valueOf;
 import static java.util.Arrays.stream;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -91,11 +90,11 @@ public class SourceLinesDiffImplTest {
     if (content != null) {
       SourceLinesHashesComputer linesHashesComputer = new SourceLinesHashesComputer();
       stream(content).forEach(linesHashesComputer::addLine);
-      dto.setLineHashes(on('\n').join(linesHashesComputer.getLineHashes()));
+      dto.setLineHashes(linesHashesComputer.getLineHashes());
     }
 
     when(fileSourceDao.selectLineHashes(dbSession, componentUuidOf(key)))
-      .thenReturn(END_OF_LINE_SPLITTER.splitToList(dto.getLineHashes()));
+      .thenReturn(dto.getLineHashes());
   }
 
   private static String componentUuidOf(String key) {

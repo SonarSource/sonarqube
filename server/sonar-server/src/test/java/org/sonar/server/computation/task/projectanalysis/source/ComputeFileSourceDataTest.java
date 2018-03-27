@@ -20,6 +20,7 @@
 package org.sonar.server.computation.task.projectanalysis.source;
 
 import com.google.common.collect.Lists;
+import java.util.List;
 import org.junit.Test;
 import org.sonar.db.protobuf.DbFileSources;
 
@@ -36,7 +37,7 @@ public class ComputeFileSourceDataTest {
       1);
 
     ComputeFileSourceData.Data data = computeFileSourceData.compute();
-    assertThat(data.getLineHashes()).isEqualTo("137f72c3708c6bd0de00a0e5a69c699b");
+    assertThat(data.getLineHashes()).containsOnly("137f72c3708c6bd0de00a0e5a69c699b");
     assertThat(data.getSrcHash()).isEqualTo("137f72c3708c6bd0de00a0e5a69c699b");
     assertThat(data.getFileSourceData().getLinesList()).hasSize(1);
     assertThat(data.getFileSourceData().getLines(0).getHighlighting()).isEqualTo("h-1");
@@ -50,7 +51,7 @@ public class ComputeFileSourceDataTest {
       2);
 
     ComputeFileSourceData.Data data = computeFileSourceData.compute();
-    assertThat(data.getLineHashes()).isEqualTo("137f72c3708c6bd0de00a0e5a69c699b\ne6251bcf1a7dc3ba5e7933e325bbe605");
+    assertThat(data.getLineHashes()).containsExactly("137f72c3708c6bd0de00a0e5a69c699b", "e6251bcf1a7dc3ba5e7933e325bbe605");
     assertThat(data.getSrcHash()).isEqualTo("ee5a58024a155466b43bc559d953e018");
     assertThat(data.getFileSourceData().getLinesList()).hasSize(2);
     assertThat(data.getFileSourceData().getLines(0).getHighlighting()).isEqualTo("h-1");
@@ -59,7 +60,7 @@ public class ComputeFileSourceDataTest {
 
   @Test
   public void remove_tabs_and_spaces_in_line_hashes() {
-    String refLineHashes = new ComputeFileSourceData(
+    List<String> refLineHashes = new ComputeFileSourceData(
       newArrayList("line1").iterator(),
       Lists.newArrayList(new MockLineReader()),
       1).compute().getLineHashes();
@@ -75,7 +76,7 @@ public class ComputeFileSourceDataTest {
     assertThat(new ComputeFileSourceData(
       newArrayList("   ").iterator(),
       Lists.newArrayList(new MockLineReader()),
-      1).compute().getLineHashes()).isEqualTo("");
+      1).compute().getLineHashes()).containsOnly("");
   }
 
   private static class MockLineReader implements LineReader {

@@ -17,26 +17,41 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+package org.sonar.db.source;
 
-package org.sonar.server.platform.db.migration.version.v71;
+import java.util.Collections;
+import java.util.List;
+import javax.annotation.Nullable;
 
-import org.junit.Test;
+import static org.sonar.db.source.FileSourceDto.LINES_HASHES_SPLITTER;
 
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationCount;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
+public class LineHashesWithKeyDto {
+  private String kee;
+  private String path;
+  private String lineHashes;
 
-public class DbVersion71Test {
-
-  private DbVersion71 underTest = new DbVersion71();
-
-  @Test
-  public void migrationNumber_starts_at_2000() {
-    verifyMinimumMigrationNumber(underTest, 2000);
+  public String getKey() {
+    return kee;
   }
 
-  @Test
-  public void verify_migration_count() {
-    verifyMigrationCount(underTest, 26);
+  public String getPath() {
+    return path;
   }
 
+  /** Used by MyBatis */
+  public String getRawLineHashes() {
+    return lineHashes;
+  }
+
+  /** Used by MyBatis */
+  public void setRawLineHashes(@Nullable String lineHashes) {
+    this.lineHashes = lineHashes;
+  }
+
+  public List<String> getLineHashes() {
+    if (lineHashes == null) {
+      return Collections.emptyList();
+    }
+    return LINES_HASHES_SPLITTER.splitToList(lineHashes);
+  }
 }

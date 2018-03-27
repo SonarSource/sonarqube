@@ -490,6 +490,24 @@
       </if>
   </select>
 
+  <select id="scrollAllFilesForFileMove" parameterType="map" resultType="org.sonar.db.component.FileMoveRowDto" fetchSize="${_scrollFetchSize}" resultSetType="FORWARD_ONLY">
+    select
+      p.id,
+      p.uuid as uuid,
+      p.kee as kee,
+      p.path as path,
+      fs.line_count as lineCount
+    from projects p
+    inner join file_sources fs on
+      fs.file_uuid = p.uuid
+      and fs.data_type = 'SOURCE'
+    where
+      p.enabled=${_true}
+      and p.copy_component_uuid is null
+      and p.main_branch_project_uuid is null
+      and p.project_uuid = #{projectUuid,jdbcType=VARCHAR}
+  </select>
+
   <select id="selectProjectsByNameQuery" resultType="Component">
     select
     <include refid="componentColumns"/>

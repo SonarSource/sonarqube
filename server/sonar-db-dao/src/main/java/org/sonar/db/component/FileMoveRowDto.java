@@ -17,26 +17,32 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+package org.sonar.db.component;
 
-package org.sonar.server.platform.db.migration.version.v71;
+public class FileMoveRowDto {
+  private long id;
+  private String kee;
+  private String uuid;
+  private String path;
+  private int lineCount;
 
-import org.junit.Test;
-
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationCount;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
-
-public class DbVersion71Test {
-
-  private DbVersion71 underTest = new DbVersion71();
-
-  @Test
-  public void migrationNumber_starts_at_2000() {
-    verifyMinimumMigrationNumber(underTest, 2000);
+  public long getId() {
+    return id;
   }
 
-  @Test
-  public void verify_migration_count() {
-    verifyMigrationCount(underTest, 26);
+  public String getKey() {
+    return kee;
   }
 
+  public String getUuid() {
+    return uuid;
+  }
+
+  public String getPath() {
+    return path;
+  }
+
+  public int getLineCount() {
+    return lineCount;
+  }
 }
