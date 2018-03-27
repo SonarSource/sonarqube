@@ -96,15 +96,16 @@ interface Props {
 interface State {
   component?: SourceViewerFile;
   displayDuplications: boolean;
+  duplicatedFiles?: { [ref: string]: DuplicatedFile };
   duplications?: Duplication[];
   duplicationsByLine: { [line: number]: number[] };
-  duplicatedFiles?: { [ref: string]: DuplicatedFile };
   hasSourcesAfter: boolean;
   highlightedLine?: number;
   highlightedSymbols: string[];
+  issueLocationsByLine: { [line: number]: LinearIssueLocation[] };
+  issuePopup?: { issue: string; name: string };
   issues?: Issue[];
   issuesByLine: { [line: number]: Issue[] };
-  issueLocationsByLine: { [line: number]: LinearIssueLocation[] };
   linePopup?: { index?: number; line: number; name: string };
   loading: boolean;
   loadingSourcesAfter: boolean;
@@ -112,10 +113,9 @@ interface State {
   notAccessible: boolean;
   notExist: boolean;
   openIssuesByLine: { [line: number]: boolean };
-  issuePopup?: { issue: string; name: string };
   selectedIssue?: string;
-  sources?: SourceLine[];
   sourceRemoved: boolean;
+  sources?: SourceLine[];
   symbolsByLine: { [line: number]: string[] };
 }
 
@@ -245,15 +245,24 @@ export default class SourceViewerBase extends React.PureComponent<Props, State> 
             this.setState(
               {
                 component,
+                displayDuplications: false,
+                duplicatedFiles: undefined,
+                duplications: undefined,
+                duplicationsByLine: {},
+                hasSourcesAfter: sources.length > LINES,
+                highlightedLine: undefined,
+                highlightedSymbols: [],
+                issueLocationsByLine: locationsByLine(issues),
                 issues,
                 issuesByLine: issuesByLine(issues),
-                issueLocationsByLine: locationsByLine(issues),
+                linePopup: undefined,
                 loading: false,
                 notAccessible: false,
                 notExist: false,
-                hasSourcesAfter: sources.length > LINES,
-                sources: this.computeCoverageStatus(finalSources),
+                openIssuesByLine: {},
+                issuePopup: undefined,
                 sourceRemoved: false,
+                sources: this.computeCoverageStatus(finalSources),
                 symbolsByLine: symbolsByLine(sources.slice(0, LINES))
               },
               () => {
