@@ -114,7 +114,7 @@ exports[`renders pull request 1`] = `
     />
   </a>
   <span
-    className="note big-spacer-left text-lowercase"
+    className="note big-spacer-left"
   >
     <FormattedMessage
       defaultMessage="branches.pull_request.for_merge_into_x_from_y"
@@ -176,7 +176,7 @@ exports[`renders short-living branch 1`] = `
     />
   </a>
   <span
-    className="note big-spacer-left text-lowercase"
+    className="note big-spacer-left"
   >
     from
      

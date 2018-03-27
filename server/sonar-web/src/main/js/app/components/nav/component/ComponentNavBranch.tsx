@@ -144,20 +144,20 @@ export default class ComponentNavBranch extends React.PureComponent<Props, State
     const { currentBranchLike } = this.props;
     if (isShortLivingBranch(currentBranchLike)) {
       return currentBranchLike.isOrphan ? (
-        <span className="note big-spacer-left text-lowercase">
+        <span className="note big-spacer-left">
           {translate('branches.orphan_branch')}
           <Tooltip overlay={translate('branches.orphan_branches.tooltip')}>
             <i className="icon-help spacer-left" />
           </Tooltip>
         </span>
       ) : (
-        <span className="note big-spacer-left text-lowercase">
+        <span className="note big-spacer-left">
           {translate('from')} <strong>{currentBranchLike.mergeBranch}</strong>
         </span>
       );
     } else if (isPullRequest(currentBranchLike)) {
       return (
-        <span className="note big-spacer-left text-lowercase">
+        <span className="note big-spacer-left">
           <FormattedMessage
             defaultMessage={translate('branches.pull_request.for_merge_into_x_from_y')}
             id="branches.pull_request.for_merge_into_x_from_y"
@@ -180,8 +180,8 @@ export default class ComponentNavBranch extends React.PureComponent<Props, State
       </a>
       <BubblePopupHelper
         isOpen={this.state.singleBranchPopupOpen}
-        position="bottomleft"
         popup={<SingleBranchHelperPopup />}
+        position="bottomleft"
         togglePopup={this.toggleSingleBranchPopup}
       />
     </div>
@@ -194,8 +194,8 @@ export default class ComponentNavBranch extends React.PureComponent<Props, State
       </a>
       <BubblePopupHelper
         isOpen={this.state.noBranchSupportPopupOpen}
-        position="bottomleft"
         popup={<NoBranchSupportPopup />}
+        position="bottomleft"
         togglePopup={this.toggleNoBranchSupportPopup}
       />
     </div>
@@ -241,7 +241,7 @@ export default class ComponentNavBranch extends React.PureComponent<Props, State
         })}>
         <a className="link-base-color link-no-underline" href="#" onClick={this.handleClick}>
           <BranchIcon branchLike={currentBranchLike} className="little-spacer-right" />
-          <Tooltip overlay={displayName} mouseEnterDelay={1}>
+          <Tooltip mouseEnterDelay={1} overlay={displayName}>
             <span className="text-limited text-top">{displayName}</span>
           </Tooltip>
           <i className="icon-dropdown little-spacer-left" />
