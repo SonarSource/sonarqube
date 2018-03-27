@@ -51,16 +51,16 @@ export function ComponentNavHeader(props: Props) {
   return (
     <header className="navbar-context-header">
       <OrganizationHelmet
-        title={component.name}
         organization={organization && shouldOrganizationBeDisplayed ? organization : undefined}
+        title={component.name}
       />
       {organization &&
         shouldOrganizationBeDisplayed && (
           <>
             <OrganizationAvatar organization={organization} />
             <OrganizationLink
-              organization={organization}
-              className="link-base-color link-no-underline spacer-left">
+              className="navbar-context-header-breadcrumb-link link-base-color link-no-underline spacer-left"
+              organization={organization}>
               {organization.name}
             </OrganizationLink>
             <span className="slash-separator" />
@@ -93,7 +93,7 @@ function renderBreadcrumbs(breadcrumbs: Breadcrumb[]) {
       <React.Fragment key={item.key}>
         {index === 0 && <QualifierIcon className="spacer-right" qualifier={lastItem.qualifier} />}
         <Link
-          className="link-base-color link-no-underline"
+          className="navbar-context-header-breadcrumb-link link-base-color link-no-underline"
           title={item.name}
           to={getProjectUrl(item.key)}>
           {itemName}

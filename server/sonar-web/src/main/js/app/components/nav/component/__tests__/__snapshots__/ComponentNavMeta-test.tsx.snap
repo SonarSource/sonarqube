@@ -5,7 +5,7 @@ exports[`renders meta for long-living branch 1`] = `
   className="navbar-context-meta"
 >
   <div
-    className="spacer-left"
+    className="spacer-left text-ellipsis"
   >
     <DateTimeFormatter
       date="2017-01-02T00:00:00.000Z"
@@ -32,7 +32,7 @@ exports[`renders meta for pull request 1`] = `
   className="navbar-context-meta"
 >
   <div
-    className="spacer-left"
+    className="spacer-left text-ellipsis"
   >
     <DateTimeFormatter
       date="2017-01-02T00:00:00.000Z"
@@ -78,7 +78,7 @@ exports[`renders status of short-living branch 1`] = `
   className="navbar-context-meta"
 >
   <div
-    className="spacer-left"
+    className="spacer-left text-ellipsis"
   >
     <DateTimeFormatter
       date="2017-01-02T00:00:00.000Z"

@@ -81,20 +81,22 @@ export default class ComponentNav extends React.PureComponent<Props> {
     }
     return (
       <ContextNavBar
-        id="context-navigation"
         height={notifComponent ? theme.contextNavHeightRaw + 20 : theme.contextNavHeightRaw}
+        id="context-navigation"
         notif={notifComponent}>
-        <ComponentNavHeader
-          branchLikes={this.props.branchLikes}
-          component={this.props.component}
-          currentBranchLike={this.props.currentBranchLike}
-          // to close dropdown on any location change
-          location={this.props.location}
-        />
-        <ComponentNavMeta
-          branchLike={this.props.currentBranchLike}
-          component={this.props.component}
-        />
+        <div className="navbar-context-justified">
+          <ComponentNavHeader
+            branchLikes={this.props.branchLikes}
+            component={this.props.component}
+            currentBranchLike={this.props.currentBranchLike}
+            // to close dropdown on any location change
+            location={this.props.location}
+          />
+          <ComponentNavMeta
+            branchLike={this.props.currentBranchLike}
+            component={this.props.component}
+          />
+        </div>
         <ComponentNavMenu
           branchLike={this.props.currentBranchLike}
           component={this.props.component}

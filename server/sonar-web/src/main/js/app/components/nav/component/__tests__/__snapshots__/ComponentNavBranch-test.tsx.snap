@@ -5,7 +5,7 @@ exports[`renders main branch 1`] = `
   className="navbar-context-branches dropdown"
 >
   <a
-    className="link-base-color link-no-underline"
+    className="link-base-color link-no-underline nowrap"
     href="#"
     onClick={[Function]}
   >
@@ -82,7 +82,7 @@ exports[`renders pull request 1`] = `
   className="navbar-context-branches dropdown"
 >
   <a
-    className="link-base-color link-no-underline"
+    className="link-base-color link-no-underline nowrap"
     href="#"
     onClick={[Function]}
   >
@@ -114,7 +114,7 @@ exports[`renders pull request 1`] = `
     />
   </a>
   <span
-    className="note big-spacer-left"
+    className="note big-spacer-left text-ellipsis flex-shrink"
   >
     <FormattedMessage
       defaultMessage="branches.pull_request.for_merge_into_x_from_y"
@@ -139,7 +139,7 @@ exports[`renders short-living branch 1`] = `
   className="navbar-context-branches dropdown"
 >
   <a
-    className="link-base-color link-no-underline"
+    className="link-base-color link-no-underline nowrap"
     href="#"
     onClick={[Function]}
   >

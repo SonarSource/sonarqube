@@ -302,6 +302,11 @@ td.big-spacer-top {
   flex: 1;
 }
 
+.flex-shrink {
+  flex-shrink: 1;
+  min-width: 0;
+}
+
 .space-between {
   justify-content: space-between !important;
 }

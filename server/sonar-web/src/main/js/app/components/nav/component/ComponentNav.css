@@ -17,9 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+.navbar-context-justified {
+  display: flex;
+  justify-content: space-between;
+}
+
 .navbar-context-branches {
   display: inline-flex;
   justify-content: center;
+  flex-shrink: 1 !important;
+  min-width: 0;
   line-height: calc(2 * var(--gridSize));
   margin-left: calc(2 * var(--gridSize));
   font-size: var(--baseFontSize);

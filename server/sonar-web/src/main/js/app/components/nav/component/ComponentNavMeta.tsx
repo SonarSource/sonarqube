@@ -59,7 +59,7 @@ export function ComponentNavMeta({ branchLike, component, currentUser }: Props) 
   return (
     <div className="navbar-context-meta">
       {component.analysisDate && (
-        <div className="spacer-left">
+        <div className="spacer-left text-ellipsis">
           <DateTimeFormatter date={component.analysisDate} />
         </div>
       )}

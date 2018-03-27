@@ -15,7 +15,7 @@ exports[`should not render breadcrumbs with one element 1`] = `
       qualifier="TRK"
     />
     <Link
-      className="link-base-color link-no-underline"
+      className="navbar-context-header-breadcrumb-link link-base-color link-no-underline"
       onlyActiveOnIndex={false}
       style={Object {}}
       title="My Project"
@@ -59,7 +59,7 @@ exports[`should render organization 1`] = `
       }
     />
     <OrganizationLink
-      className="link-base-color link-no-underline spacer-left"
+      className="navbar-context-header-breadcrumb-link link-base-color link-no-underline spacer-left"
       organization={
         Object {
           "key": "foo",
@@ -82,7 +82,7 @@ exports[`should render organization 1`] = `
       qualifier="TRK"
     />
     <Link
-      className="link-base-color link-no-underline"
+      className="navbar-context-header-breadcrumb-link link-base-color link-no-underline"
       onlyActiveOnIndex={false}
       style={Object {}}
       title="My Project"

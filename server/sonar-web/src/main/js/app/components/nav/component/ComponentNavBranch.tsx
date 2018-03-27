@@ -144,7 +144,7 @@ export default class ComponentNavBranch extends React.PureComponent<Props, State
     const { currentBranchLike } = this.props;
     if (isShortLivingBranch(currentBranchLike)) {
       return currentBranchLike.isOrphan ? (
-        <span className="note big-spacer-left">
+        <span className="note big-spacer-left text-ellipsis flex-shrink">
           {translate('branches.orphan_branch')}
           <Tooltip overlay={translate('branches.orphan_branches.tooltip')}>
             <i className="icon-help spacer-left" />
@@ -157,7 +157,7 @@ export default class ComponentNavBranch extends React.PureComponent<Props, State
       );
     } else if (isPullRequest(currentBranchLike)) {
       return (
-        <span className="note big-spacer-left">
+        <span className="note big-spacer-left text-ellipsis flex-shrink">
           <FormattedMessage
             defaultMessage={translate('branches.pull_request.for_merge_into_x_from_y')}
             id="branches.pull_request.for_merge_into_x_from_y"
@@ -239,7 +239,7 @@ export default class ComponentNavBranch extends React.PureComponent<Props, State
         className={classNames('navbar-context-branches', 'dropdown', {
           open: this.state.dropdownOpen
         })}>
-        <a className="link-base-color link-no-underline" href="#" onClick={this.handleClick}>
+        <a className="link-base-color link-no-underline nowrap" href="#" onClick={this.handleClick}>
           <BranchIcon branchLike={currentBranchLike} className="little-spacer-right" />
           <Tooltip mouseEnterDelay={1} overlay={displayName}>
             <span className="text-limited text-top">{displayName}</span>

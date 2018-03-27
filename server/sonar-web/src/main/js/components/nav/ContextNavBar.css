@@ -32,11 +32,26 @@
   border-bottom: none;
 }
 
+/* use `min-width: 0` to cut breadcrumb links (to end with "...") */
+/* https://stackoverflow.com/questions/38223879/white-space-nowrap-breaks-flexbox-layout */
 .navbar-context-header {
   display: flex;
   align-items: center;
+  min-width: 0;
   height: calc(4 * var(--gridSize));
   font-size: var(--bigFontSize);
+}
+
+/* disallow icons and slash separators to shrink */
+.navbar-context-header > *:not(.navbar-context-header-breadcrumb-link) {
+  flex-shrink: 0;
+}
+
+.navbar-context-header-breadcrumb-link {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .navbar-context-header .slash-separator {
@@ -49,14 +64,14 @@
   color: rgba(68, 68, 68, 0.2);
 }
 
+/* set `min-width: 0` to allow flexbox item to shrink */
+/* https://stackoverflow.com/questions/38223879/white-space-nowrap-breaks-flexbox-layout */
 .navbar-context-meta {
-  position: absolute;
-  top: 0;
-  right: 0;
   display: flex;
   align-items: center;
+  min-width: 0;
   height: calc(4 * var(--gridSize));
-  padding: 0 20px;
+  padding-left: 20px;
   color: var(--secondFontColor);
   font-size: var(--smallFontSize);
   text-align: right;
