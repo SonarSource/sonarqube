@@ -2,7 +2,7 @@
 
 exports[`should render correctly 1`] = `
 <BubblePopup
-  customClass="bubble-popup-right"
+  customClass="bubble-popup-right disabled-pointer-events"
   position={
     Object {
       "left": -135,

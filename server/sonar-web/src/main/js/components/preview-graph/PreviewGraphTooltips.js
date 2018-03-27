@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import classNames from 'classnames';
 import PreviewGraphTooltipsContent from './PreviewGraphTooltipsContent';
 import BubblePopup from '../common/BubblePopup';
 import DateFormatter from '../intl/DateFormatter';
@@ -53,7 +54,9 @@ export default class PreviewGraphTooltips extends React.PureComponent {
     }
 
     return (
-      <BubblePopup customClass={customClass} position={{ top, left, width: TOOLTIP_WIDTH }}>
+      <BubblePopup
+        customClass={classNames(customClass, 'disabled-pointer-events')}
+        position={{ top, left, width: TOOLTIP_WIDTH }}>
         <div className="overview-analysis-graph-tooltip">
           <div className="overview-analysis-graph-tooltip-title">
             <DateFormatter date={this.props.selectedDate} long={true} />

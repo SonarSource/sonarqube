@@ -19,6 +19,7 @@
  */
 // @flow
 import React from 'react';
+import classNames from 'classnames';
 import GraphsTooltipsContent from './GraphsTooltipsContent';
 import GraphsTooltipsContentEvents from './GraphsTooltipsContentEvents';
 import GraphsTooltipsContentCoverage from './GraphsTooltipsContentCoverage';
@@ -95,7 +96,9 @@ export default class GraphsTooltips extends React.PureComponent {
     const tooltipContent = this.renderContent().filter(Boolean);
     const addSeparator = tooltipContent.length > 0;
     return (
-      <BubblePopup customClass={customClass} position={{ top, left, width: TOOLTIP_WIDTH }}>
+      <BubblePopup
+        customClass={classNames(customClass, 'disabled-pointer-events')}
+        position={{ top, left, width: TOOLTIP_WIDTH }}>
         <div className="project-activity-graph-tooltip">
           <div className="project-activity-graph-tooltip-title spacer-bottom">
             <DateTimeFormatter date={this.props.selectedDate} />
