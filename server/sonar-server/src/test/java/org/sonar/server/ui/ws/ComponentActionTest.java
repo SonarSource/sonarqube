@@ -87,19 +87,17 @@ public class ComponentActionTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  public DbTester db = DbTester.create(System2.INSTANCE);
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 
-  private DbClient dbClient = dbTester.getDbClient();
-  private ComponentDbTester componentDbTester = dbTester.components();
-  private PropertyDbTester propertyDbTester = new PropertyDbTester(dbTester);
+  private DbClient dbClient = db.getDbClient();
+  private ComponentDbTester componentDbTester = db.components();
+  private PropertyDbTester propertyDbTester = new PropertyDbTester(db);
   private ResourceTypes resourceTypes = mock(ResourceTypes.class);
   private BillingValidationsProxy billingValidations = mock(BillingValidationsProxy.class);
 
-  private ComponentDto project;
   private WsActionTester ws;
-  private OrganizationDto organization;
 
   @Test
   public void return_info_if_user_has_browse_permission_on_project() {
@@ -140,7 +138,7 @@ public class ComponentActionTest {
   @Test
   public void return_component_info_with_favourite() {
     ComponentDto project = insertOrganizationAndProject();
-    UserDto user = dbTester.users().insertUser("obiwan");
+    UserDto user = db.users().insertUser("obiwan");
     propertyDbTester.insertProperty(new PropertyDto().setKey("favourite").setResourceId(project.getId()).setUserId(user.getId()));
     userSession.logIn(user).addProjectPermission(UserRole.USER, project);
     init();
@@ -151,7 +149,7 @@ public class ComponentActionTest {
   @Test
   public void return_component_info_when_snapshot() {
     ComponentDto project = insertOrganizationAndProject();
-    dbTester.components().insertSnapshot(project, snapshot -> snapshot
+    db.components().insertSnapshot(project, snapshot -> snapshot
       .setCreatedAt(parseDateTime("2015-04-22T11:44:00+0200").getTime())
       .setVersion("3.14"));
     userSession.addProjectPermission(UserRole.USER, project);
@@ -162,8 +160,8 @@ public class ComponentActionTest {
 
   @Test
   public void return_component_info_when_file_on_master() {
-    OrganizationDto organization = dbTester.organizations().insert(o -> o.setKey("my-org2"));
-    dbTester.qualityGates().createDefaultQualityGate(organization);
+    OrganizationDto organization = db.organizations().insert(o -> o.setKey("my-org2"));
+    db.qualityGates().createDefaultQualityGate(organization);
     ComponentDto main = componentDbTester.insertMainBranch(organization, p -> p.setName("Sample"), p -> p.setDbKey("sample"));
     userSession.addProjectPermission(UserRole.USER, main);
     init();
@@ -180,26 +178,45 @@ public class ComponentActionTest {
 
   @Test
   public void return_component_info_when_file_on_branch() {
-    OrganizationDto organization = dbTester.organizations().insertForKey("my-org2");
-    dbTester.qualityGates().createDefaultQualityGate(organization);
-    ComponentDto project = componentDbTester.insertMainBranch(organization, p -> p.setName("Sample"), p -> p.setDbKey("sample"));
+    OrganizationDto organization = db.organizations().insertForKey("my-org2");
+    db.qualityGates().createDefaultQualityGate(organization);
+    ComponentDto project = componentDbTester.insertMainBranch(organization, p -> p.setName("Sample").setDbKey("sample"));
     ComponentDto branch = componentDbTester.insertProjectBranch(project, b -> b.setKey("feature1"));
     userSession.addProjectPermission(UserRole.USER, project);
     init();
-
     ComponentDto dirDto = componentDbTester.insertComponent(newDirectory(branch, "src"));
-
     ComponentDto fileDto = componentDbTester.insertComponent(newFileDto(branch, dirDto)
       .setUuid("abcd")
-      .setName("Main.xoo")
-      .setDbKey("sample:src/Main.xoo"));
+      .setName("Main.xoo"));
 
     String json = ws.newRequest()
-      .setParam("componentKey", fileDto.getDbKey())
+      .setParam("componentKey", fileDto.getKey())
       .setParam("branch", branch.getBranch())
       .execute()
       .getInput();
-    verify(json, "return_component_info_when_file_on_branch.json");
+
+    assertJson(json).isSimilarTo("{\n" +
+      "  \"key\": \"" + fileDto.getKey() + "\",\n" +
+      "  \"branch\": \"feature1\",\n" +
+      "  \"name\": \"Main.xoo\",\n" +
+      "  \"breadcrumbs\": [\n" +
+      "    {\n" +
+      "      \"key\": \"sample\",\n" +
+      "      \"name\": \"Sample\",\n" +
+      "      \"qualifier\": \"TRK\"\n" +
+      "    },\n" +
+      "    {\n" +
+      "      \"key\": \"sample:src\",\n" +
+      "      \"name\": \"src\",\n" +
+      "      \"qualifier\": \"DIR\"\n" +
+      "    },\n" +
+      "    {\n" +
+      "      \"key\": \"" + fileDto.getKey() + "\",\n" +
+      "      \"name\": \"Main.xoo\",\n" +
+      "      \"qualifier\": \"FIL\"\n" +
+      "    }\n" +
+      "  ]\n" +
+      "}\n");
   }
 
   @Test
@@ -225,11 +242,11 @@ public class ComponentActionTest {
 
   @Test
   public void return_quality_gate_defined_on_project() {
-    OrganizationDto organization = dbTester.organizations().insert(o -> o.setKey("my-org"));
-    dbTester.qualityGates().createDefaultQualityGate(organization);
-    ComponentDto project = dbTester.components().insertPrivateProject(organization);
-    QualityGateDto qualityGateDto = dbTester.qualityGates().insertQualityGate(organization, qg -> qg.setName("Sonar way"));
-    dbTester.qualityGates().associateProjectToQualityGate(project, qualityGateDto);
+    OrganizationDto organization = db.organizations().insert(o -> o.setKey("my-org"));
+    db.qualityGates().createDefaultQualityGate(organization);
+    ComponentDto project = db.components().insertPrivateProject(organization);
+    QualityGateDto qualityGateDto = db.qualityGates().insertQualityGate(organization, qg -> qg.setName("Sonar way"));
+    db.qualityGates().associateProjectToQualityGate(project, qualityGateDto);
     userSession.addProjectPermission(UserRole.USER, project);
     init();
 
@@ -238,9 +255,9 @@ public class ComponentActionTest {
 
   @Test
   public void return_default_quality_gate() {
-    OrganizationDto organization = dbTester.organizations().insert(o -> o.setKey("my-org"));
-    ComponentDto project = dbTester.components().insertPrivateProject(organization);
-    dbTester.qualityGates().createDefaultQualityGate(organization, qg -> qg.setName("Sonar way"));
+    OrganizationDto organization = db.organizations().insert(o -> o.setKey("my-org"));
+    ComponentDto project = db.components().insertPrivateProject(organization);
+    db.qualityGates().createDefaultQualityGate(organization, qg -> qg.setName("Sonar way"));
     userSession.addProjectPermission(UserRole.USER, project);
     init();
 
@@ -258,17 +275,17 @@ public class ComponentActionTest {
 
   @Test
   public void return_extensions_for_application() {
-    OrganizationDto organization = dbTester.organizations().insert(o -> o.setKey("my-org"));
-    dbTester.qualityGates().createDefaultQualityGate(organization);
-    ComponentDto project = dbTester.components().insertPrivateProject(organization);
+    OrganizationDto organization = db.organizations().insert(o -> o.setKey("my-org"));
+    db.qualityGates().createDefaultQualityGate(organization);
+    ComponentDto project = db.components().insertPrivateProject(organization);
     Page page = Page.builder("my_plugin/app_page")
       .setName("App Page")
       .setScope(COMPONENT)
       .setComponentQualifiers(Qualifier.VIEW, Qualifier.APP)
       .build();
     ComponentDto application = componentDbTester.insertPublicApplication(organization);
-    QualityGateDto qualityGateDto = dbTester.qualityGates().insertQualityGate(organization, qg -> qg.setName("Sonar way"));
-    dbTester.qualityGates().associateProjectToQualityGate(project, qualityGateDto);
+    QualityGateDto qualityGateDto = db.qualityGates().insertQualityGate(organization, qg -> qg.setName("Sonar way"));
+    db.qualityGates().associateProjectToQualityGate(project, qualityGateDto);
     userSession.registerComponents(application);
     init(page);
 
@@ -293,7 +310,7 @@ public class ComponentActionTest {
   @Test
   public void return_configuration_for_admin() {
     ComponentDto project = insertOrganizationAndProject();
-    UserDto user = dbTester.users().insertUser();
+    UserDto user = db.users().insertUser();
     userSession.logIn(user)
       .addProjectPermission(UserRole.USER, project)
       .addProjectPermission(UserRole.ADMIN, project);
@@ -394,9 +411,9 @@ public class ComponentActionTest {
 
   @Test
   public void should_return_private_flag_for_project() {
-    OrganizationDto org = dbTester.organizations().insert();
-    dbTester.qualityGates().createDefaultQualityGate(org);
-    ComponentDto project = dbTester.components().insertPrivateProject(org);
+    OrganizationDto org = db.organizations().insert();
+    db.qualityGates().createDefaultQualityGate(org);
+    ComponentDto project = db.components().insertPrivateProject(org);
     init();
 
     userSession.logIn()
@@ -407,9 +424,9 @@ public class ComponentActionTest {
 
   @Test
   public void should_return_public_flag_for_project() {
-    OrganizationDto org = dbTester.organizations().insert();
-    dbTester.qualityGates().createDefaultQualityGate(org);
-    ComponentDto project = dbTester.components().insertPublicProject(org);
+    OrganizationDto org = db.organizations().insert();
+    db.qualityGates().createDefaultQualityGate(org);
+    ComponentDto project = db.components().insertPublicProject(org);
     init();
 
     userSession.logIn()
@@ -420,10 +437,10 @@ public class ComponentActionTest {
 
   @Test
   public void should_not_return_private_flag_for_module() {
-    OrganizationDto org = dbTester.organizations().insert();
-    dbTester.qualityGates().createDefaultQualityGate(org);
-    ComponentDto project = dbTester.components().insertPrivateProject(org);
-    ComponentDto module = dbTester.components().insertComponent(ComponentTesting.newModuleDto(project));
+    OrganizationDto org = db.organizations().insert();
+    db.qualityGates().createDefaultQualityGate(org);
+    ComponentDto project = db.components().insertPrivateProject(org);
+    ComponentDto module = db.components().insertComponent(ComponentTesting.newModuleDto(project));
     init();
 
     userSession.logIn()
@@ -435,9 +452,9 @@ public class ComponentActionTest {
 
   @Test
   public void canApplyPermissionTemplate_is_true_if_logged_in_as_organization_administrator() {
-    OrganizationDto org = dbTester.organizations().insert();
-    dbTester.qualityGates().createDefaultQualityGate(org);
-    ComponentDto project = dbTester.components().insertPrivateProject(org);
+    OrganizationDto org = db.organizations().insert();
+    db.qualityGates().createDefaultQualityGate(org);
+    ComponentDto project = db.components().insertPrivateProject(org);
     init(createPages());
 
     userSession.logIn()
@@ -453,9 +470,9 @@ public class ComponentActionTest {
 
   @Test
   public void canUpdateProjectVisibilityToPrivate_is_true_if_logged_in_as_project_administrator_and_extension_returns_false() {
-    OrganizationDto org = dbTester.organizations().insert();
-    dbTester.qualityGates().createDefaultQualityGate(org);
-    ComponentDto project = dbTester.components().insertPublicProject(org);
+    OrganizationDto org = db.organizations().insert();
+    db.qualityGates().createDefaultQualityGate(org);
+    ComponentDto project = db.components().insertPublicProject(org);
     init(createPages());
 
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
@@ -498,7 +515,7 @@ public class ComponentActionTest {
   @Test
   public void test_example_response() {
     init(createPages());
-    OrganizationDto organizationDto = dbTester.organizations().insertForKey("my-org-1");
+    OrganizationDto organizationDto = db.organizations().insertForKey("my-org-1");
     ComponentDto project = newPrivateProjectDto(organizationDto, "ABCD")
       .setDbKey("org.codehaus.sonar:sonar")
       .setName("Sonarqube")
@@ -510,13 +527,13 @@ public class ComponentActionTest {
       .setLast(true);
     componentDbTester.insertSnapshot(analysis);
     when(resourceTypes.get(project.qualifier())).thenReturn(DefaultResourceTypes.get().getRootType());
-    UserDto user = dbTester.users().insertUser("obiwan");
+    UserDto user = db.users().insertUser("obiwan");
     propertyDbTester.insertProperty(new PropertyDto().setKey("favourite").setResourceId(project.getId()).setUserId(user.getId()));
     addQualityProfiles(project,
       createQProfile("qp1", "Sonar Way Java", "java"),
       createQProfile("qp2", "Sonar Way Xoo", "xoo"));
-    QualityGateDto qualityGateDto = dbTester.qualityGates().insertQualityGate(dbTester.getDefaultOrganization(), qg -> qg.setName("Sonar way"));
-    dbTester.qualityGates().associateProjectToQualityGate(project, qualityGateDto);
+    QualityGateDto qualityGateDto = db.qualityGates().insertQualityGate(db.getDefaultOrganization(), qg -> qg.setName("Sonar way"));
+    db.qualityGates().associateProjectToQualityGate(project, qualityGateDto);
     userSession.logIn(user)
       .addProjectPermission(UserRole.USER, project)
       .addProjectPermission(UserRole.ADMIN, project);
@@ -546,10 +563,10 @@ public class ComponentActionTest {
     assertThat(componentId.deprecatedKeySince()).isEqualTo("6.4");
   }
 
-  private ComponentDto insertOrganizationAndProject(){
-    OrganizationDto organization = dbTester.organizations().insert(o -> o.setKey("my-org"));
-    dbTester.qualityGates().createDefaultQualityGate(organization);
-    return dbTester.components().insertPrivateProject(organization, "abcd", p -> p.setDbKey("polop").setName("Polop").setDescription("test project"));
+  private ComponentDto insertOrganizationAndProject() {
+    OrganizationDto organization = db.organizations().insert(o -> o.setKey("my-org"));
+    db.qualityGates().createDefaultQualityGate(organization);
+    return db.components().insertPrivateProject(organization, "abcd", p -> p.setDbKey("polop").setName("Polop").setDescription("test project"));
   }
 
   private void init(Page... pages) {
@@ -580,11 +597,11 @@ public class ComponentActionTest {
 
   private void addQualityProfiles(ComponentDto project, QualityProfile... qps) {
     MetricDto metric = newMetricDto().setKey(QUALITY_PROFILES_KEY);
-    dbClient.metricDao().insert(dbTester.getSession(), metric);
-    dbClient.liveMeasureDao().insert(dbTester.getSession(),
+    dbClient.metricDao().insert(db.getSession(), metric);
+    dbClient.liveMeasureDao().insert(db.getSession(),
       newLiveMeasure(project, metric)
         .setData(qualityProfilesToJson(qps)));
-    dbTester.commit();
+    db.commit();
   }
 
   private Page[] createPages() {

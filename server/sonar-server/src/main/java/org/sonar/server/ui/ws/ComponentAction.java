@@ -180,12 +180,16 @@ public class ComponentAction implements NavigationWsAction {
   }
 
   private void writeComponent(JsonWriter json, DbSession session, ComponentDto component, OrganizationDto organizationDto, @Nullable SnapshotDto analysis) {
-    json.prop("key", component.getDbKey())
+    json.prop("key", component.getKey())
       .prop("organization", organizationDto.getKey())
       .prop("id", component.uuid())
       .prop("name", component.name())
       .prop("description", component.description())
       .prop("isFavorite", isFavourite(session, component));
+    String branch = component.getBranch();
+    if (branch != null) {
+      json.prop("branch", branch);
+    }
     if (QUALIFIERS_WITH_VISIBILITY.contains(component.qualifier())) {
       json.prop("visibility", Visibility.getLabel(component.isPrivate()));
     }
