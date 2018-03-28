@@ -23,10 +23,12 @@ import { connect } from 'react-redux';
 import FavoriteContainer from '../../../components/controls/FavoriteContainer';
 import { getComponentForSourceViewer } from '../../../api/components';
 import { receiveFavorites } from '../../../store/favorites/duck';
+import { isMainBranch } from '../../../helpers/branches';
 
 /*:: type FavComponent = { key: string, canMarkAsFavorite: boolean, fav: boolean }; */
 
 /*:: type Props = {
+  branchLike?: { id?: string; name: string },
   className?: string,
   component: string,
   onReceiveComponent: (component: FavComponent) => void
@@ -65,7 +67,11 @@ class MeasureFavoriteContainer extends React.PureComponent {
 
   render() {
     const { component } = this.state;
-    if (component == null || !component.canMarkAsFavorite) {
+    if (
+      component == null ||
+      !component.canMarkAsFavorite ||
+      (this.props.branchLike && !isMainBranch(this.props.branchLike))
+    ) {
       return null;
     }
     return (

@@ -38,7 +38,7 @@ import {
 } from '../../helpers/urls';
 import { collapsedDirFromPath, fileFromPath } from '../../helpers/path';
 import { translate } from '../../helpers/l10n';
-import { getBranchLikeQuery } from '../../helpers/branches';
+import { getBranchLikeQuery, isMainBranch } from '../../helpers/branches';
 import { formatMeasure } from '../../helpers/measures';
 import { omitNil } from '../../helpers/request';
 
@@ -120,9 +120,10 @@ export default class SourceViewerHeader extends React.PureComponent<Props, State
             <div className="component-name-path">
               <QualifierIcon qualifier={q} /> <span>{collapsedDirFromPath(path)}</span>
               <span className="component-name-file">{fileFromPath(path)}</span>
-              {this.props.sourceViewerFile.canMarkAsFavorite && (
-                <FavoriteContainer className="component-name-favorite" componentKey={key} />
-              )}
+              {this.props.sourceViewerFile.canMarkAsFavorite &&
+                (!this.props.branchLike || isMainBranch(this.props.branchLike)) && (
+                  <FavoriteContainer className="component-name-favorite" componentKey={key} />
+                )}
             </div>
           </div>
         </div>

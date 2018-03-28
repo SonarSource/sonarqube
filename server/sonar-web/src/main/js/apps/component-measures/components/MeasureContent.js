@@ -298,6 +298,7 @@ export default class MeasureContent extends React.PureComponent {
               {component.key !== rootComponent.key &&
                 isLoggedIn && (
                   <MeasureFavoriteContainer
+                    branchLike={branchLike}
                     component={component.key}
                     className="measure-favorite spacer-right"
                   />
