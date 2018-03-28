@@ -45,6 +45,7 @@ import org.sonar.server.project.ProjectLifeCycleListeners;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
 
+import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -93,7 +94,7 @@ public class DeleteActionTest {
     call(request);
 
     assertThat(verifyDeletedKey()).isEqualTo(project.getDbKey());
-    verify(projectLifeCycleListeners).onProjectDeleted(Project.from(project));
+    verify(projectLifeCycleListeners).onProjectsDeleted(singleton(Project.from(project)));
   }
 
   @Test
@@ -104,7 +105,7 @@ public class DeleteActionTest {
     call(newRequest().setParam(PARAM_PROJECT, project.getDbKey()));
 
     assertThat(verifyDeletedKey()).isEqualTo(project.getDbKey());
-    verify(projectLifeCycleListeners).onProjectDeleted(Project.from(project));
+    verify(projectLifeCycleListeners).onProjectsDeleted(singleton(Project.from(project)));
   }
 
   @Test
@@ -115,7 +116,7 @@ public class DeleteActionTest {
     call(newRequest().setParam(PARAM_PROJECT_ID, project.uuid()));
 
     assertThat(verifyDeletedKey()).isEqualTo(project.getDbKey());
-    verify(projectLifeCycleListeners).onProjectDeleted(Project.from(project));
+    verify(projectLifeCycleListeners).onProjectsDeleted(singleton(Project.from(project)));
   }
 
   @Test
@@ -126,7 +127,7 @@ public class DeleteActionTest {
     call(newRequest().setParam(PARAM_PROJECT, project.getDbKey()));
 
     assertThat(verifyDeletedKey()).isEqualTo(project.getDbKey());
-    verify(projectLifeCycleListeners).onProjectDeleted(Project.from(project));
+    verify(projectLifeCycleListeners).onProjectsDeleted(singleton(Project.from(project)));
   }
 
   @Test

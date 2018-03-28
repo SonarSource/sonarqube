@@ -409,7 +409,8 @@
       leaf.qualifier = 'TRK'
       and leaf.scope = 'FIL'
       and leaf.enabled = ${_true}
-      and leaf.copy_component_uuid = #{projectUuid,jdbcType=VARCHAR}
+      and leaf.copy_component_uuid in
+        <foreach collection="projectUuids" open="(" close=")" item="uuid" separator=",">#{uuid,jdbcType=VARCHAR}</foreach>
     where
       p.enabled = ${_true}
       and p.uuid = leaf.project_uuid

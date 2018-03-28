@@ -35,6 +35,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
+import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.assertj.core.api.ListAssert;
 import org.junit.Rule;
@@ -50,12 +51,15 @@ import org.sonar.db.RowNotFoundException;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.source.FileSourceDto;
 
+import static com.google.common.collect.ImmutableSet.of;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptySet;
+import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
+import static java.util.stream.Collectors.toSet;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
@@ -658,10 +662,27 @@ public class ComponentDaoTest {
   }
 
   @Test
-  public void selectViewKeysWithEnabledCopyOfProject_returns_empty_when_there_is_no_view() {
-    String projectUuid = randomAlphabetic(5);
+  public void selectViewKeysWithEnabledCopyOfProject_returns_empty_when_set_is_empty() {
+    assertThat(underTest.selectViewKeysWithEnabledCopyOfProject(dbSession, emptySet()))
+      .isEmpty();
+  }
 
-    assertThat(underTest.selectViewKeysWithEnabledCopyOfProject(dbSession, projectUuid)).isEmpty();
+  @Test
+  @UseDataProvider("oneOrMoreProjects")
+  public void selectViewKeysWithEnabledCopyOfProject_returns_empty_when_there_is_no_view(int projectCount) {
+    Set<String> projectUuids = IntStream.range(0, projectCount)
+      .mapToObj(i -> randomAlphabetic(5))
+      .collect(toSet());
+
+    assertThat(underTest.selectViewKeysWithEnabledCopyOfProject(dbSession, projectUuids)).isEmpty();
+  }
+
+  @DataProvider
+  public static Object[][] oneOrMoreProjects() {
+    return new Object[][] {
+      {1},
+      {1 + new Random().nextInt(10)}
+    };
   }
 
   @Test
@@ -672,9 +693,47 @@ public class ComponentDaoTest {
     ComponentDto view = insertView(organization, rootViewQualifier);
     insertProjectCopy(view, project);
 
-    Set<String> keys = underTest.selectViewKeysWithEnabledCopyOfProject(dbSession, project.uuid());
+    Set<String> keys = underTest.selectViewKeysWithEnabledCopyOfProject(dbSession, singleton(project.uuid()));
 
     assertThat(keys).containsOnly(view.getDbKey());
+
+    assertThat(underTest.selectViewKeysWithEnabledCopyOfProject(dbSession, shuffleWithInexistingUuids(project.uuid())))
+      .isEqualTo(keys);
+  }
+
+  @Test
+  @UseDataProvider("portfolioOrApplicationRootViewQualifier")
+  public void selectViewKeysWithEnabledCopyOfProject_returns_root_views_with_direct_copy_of_projects(String rootViewQualifier) {
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto project1 = insertProject(organization);
+    ComponentDto project2 = insertProject(organization);
+    ComponentDto view = insertView(organization, rootViewQualifier);
+    insertProjectCopy(view, project1);
+    insertProjectCopy(view, project2);
+    ComponentDto view2 = insertView(organization, rootViewQualifier);
+    ComponentDto project3 = insertProject(organization);
+    insertProjectCopy(view2, project3);
+
+    assertThat(underTest.selectViewKeysWithEnabledCopyOfProject(dbSession, singleton(project1.uuid())))
+      .containsOnly(view.getDbKey());
+    assertThat(underTest.selectViewKeysWithEnabledCopyOfProject(dbSession, shuffleWithInexistingUuids(project1.uuid())))
+      .containsOnly(view.getDbKey());
+    assertThat(underTest.selectViewKeysWithEnabledCopyOfProject(dbSession, singleton(project2.uuid())))
+      .containsOnly(view.getDbKey());
+    assertThat(underTest.selectViewKeysWithEnabledCopyOfProject(dbSession, shuffleWithInexistingUuids(project2.uuid())))
+      .containsOnly(view.getDbKey());
+    assertThat(underTest.selectViewKeysWithEnabledCopyOfProject(dbSession, singleton(project3.uuid())))
+      .containsOnly(view2.getDbKey());
+    assertThat(underTest.selectViewKeysWithEnabledCopyOfProject(dbSession, shuffleWithInexistingUuids(project3.uuid())))
+      .containsOnly(view2.getDbKey());
+    assertThat(underTest.selectViewKeysWithEnabledCopyOfProject(dbSession, of(project2.uuid(), project1.uuid())))
+      .containsOnly(view.getDbKey());
+    assertThat(underTest.selectViewKeysWithEnabledCopyOfProject(dbSession, shuffleWithInexistingUuids(project2.uuid(), project1.uuid())))
+      .containsOnly(view.getDbKey());
+    assertThat(underTest.selectViewKeysWithEnabledCopyOfProject(dbSession, of(project1.uuid(), project3.uuid())))
+      .containsOnly(view.getDbKey(), view2.getDbKey());
+    assertThat(underTest.selectViewKeysWithEnabledCopyOfProject(dbSession, shuffleWithInexistingUuids(project1.uuid(), project3.uuid())))
+      .containsOnly(view.getDbKey(), view2.getDbKey());
   }
 
   @Test
@@ -688,9 +747,12 @@ public class ComponentDaoTest {
     ComponentDto view2 = insertView(organization, rootViewQualifier);
     insertProjectCopy(view2, project2);
 
-    Set<String> keys = underTest.selectViewKeysWithEnabledCopyOfProject(dbSession, project2.uuid());
+    Set<String> keys = underTest.selectViewKeysWithEnabledCopyOfProject(dbSession, singleton(project2.uuid()));
 
     assertThat(keys).containsOnly(view2.getDbKey());
+
+    assertThat(underTest.selectViewKeysWithEnabledCopyOfProject(dbSession, shuffleWithInexistingUuids(project2.uuid())))
+      .isEqualTo(keys);
   }
 
   @Test
@@ -703,9 +765,12 @@ public class ComponentDaoTest {
     ComponentDto view2 = insertView(organization, rootViewQualifier);
     insertProjectCopy(view2, project, t -> t.setEnabled(false));
 
-    Set<String> keys = underTest.selectViewKeysWithEnabledCopyOfProject(dbSession, project.uuid());
+    Set<String> keys = underTest.selectViewKeysWithEnabledCopyOfProject(dbSession, singleton(project.uuid()));
 
     assertThat(keys).containsOnly(view1.getDbKey());
+
+    assertThat(underTest.selectViewKeysWithEnabledCopyOfProject(dbSession, shuffleWithInexistingUuids(project.uuid())))
+      .isEqualTo(keys);
   }
 
   @Test
@@ -718,9 +783,12 @@ public class ComponentDaoTest {
     ComponentDto view2 = insertView(organization, rootViewQualifier);
     insertProjectCopy(view2, project);
 
-    Set<String> keys = underTest.selectViewKeysWithEnabledCopyOfProject(dbSession, project.uuid());
+    Set<String> keys = underTest.selectViewKeysWithEnabledCopyOfProject(dbSession, singleton(project.uuid()));
 
     assertThat(keys).containsOnly(view2.getDbKey());
+
+    assertThat(underTest.selectViewKeysWithEnabledCopyOfProject(dbSession, shuffleWithInexistingUuids(project.uuid())))
+      .isEqualTo(keys);
   }
 
   @Test
@@ -732,9 +800,49 @@ public class ComponentDaoTest {
     ComponentDto lowestSubview = insertSubviews(view);
     insertProjectCopy(lowestSubview, project);
 
-    Set<String> keys = underTest.selectViewKeysWithEnabledCopyOfProject(dbSession, project.uuid());
+    Set<String> keys = underTest.selectViewKeysWithEnabledCopyOfProject(dbSession, singleton(project.uuid()));
 
     assertThat(keys).containsOnly(view.getDbKey());
+
+    assertThat(underTest.selectViewKeysWithEnabledCopyOfProject(dbSession, shuffleWithInexistingUuids(project.uuid())))
+      .isEqualTo(keys);
+  }
+
+  @Test
+  @UseDataProvider("portfolioOrApplicationRootViewQualifier")
+  public void selectViewKeysWithEnabledCopyOfProject_returns_root_views_with_indirect_copy_of_projects(String rootViewQualifier) {
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto project1 = insertProject(organization);
+    ComponentDto project2 = insertProject(organization);
+    ComponentDto view1 = insertView(organization, rootViewQualifier);
+    ComponentDto lowestSubview1 = insertSubviews(view1);
+    insertProjectCopy(lowestSubview1, project1);
+    insertProjectCopy(lowestSubview1, project2);
+    ComponentDto view2 = insertView(organization, rootViewQualifier);
+    ComponentDto lowestSubview2 = insertSubviews(view2);
+    ComponentDto project3 = insertProject(organization);
+    insertProjectCopy(lowestSubview2, project3);
+
+    assertThat(underTest.selectViewKeysWithEnabledCopyOfProject(dbSession, singleton(project1.uuid())))
+      .containsOnly(view1.getDbKey());
+    assertThat(underTest.selectViewKeysWithEnabledCopyOfProject(dbSession, shuffleWithInexistingUuids(project1.uuid())))
+      .containsOnly(view1.getDbKey());
+    assertThat(underTest.selectViewKeysWithEnabledCopyOfProject(dbSession, singleton(project2.uuid())))
+      .containsOnly(view1.getDbKey());
+    assertThat(underTest.selectViewKeysWithEnabledCopyOfProject(dbSession, shuffleWithInexistingUuids(project2.uuid())))
+      .containsOnly(view1.getDbKey());
+    assertThat(underTest.selectViewKeysWithEnabledCopyOfProject(dbSession, singleton(project3.uuid())))
+      .containsOnly(view2.getDbKey());
+    assertThat(underTest.selectViewKeysWithEnabledCopyOfProject(dbSession, shuffleWithInexistingUuids(project3.uuid())))
+      .containsOnly(view2.getDbKey());
+    assertThat(underTest.selectViewKeysWithEnabledCopyOfProject(dbSession, of(project2.uuid(), project1.uuid())))
+      .containsOnly(view1.getDbKey());
+    assertThat(underTest.selectViewKeysWithEnabledCopyOfProject(dbSession, shuffleWithInexistingUuids(project2.uuid(), project1.uuid())))
+      .containsOnly(view1.getDbKey());
+    assertThat(underTest.selectViewKeysWithEnabledCopyOfProject(dbSession, of(project1.uuid(), project3.uuid())))
+      .containsOnly(view1.getDbKey(), view2.getDbKey());
+    assertThat(underTest.selectViewKeysWithEnabledCopyOfProject(dbSession, shuffleWithInexistingUuids(project1.uuid(), project3.uuid())))
+      .containsOnly(view1.getDbKey(), view2.getDbKey());
   }
 
   @Test
@@ -750,9 +858,12 @@ public class ComponentDaoTest {
     ComponentDto lowestSubview2 = insertSubviews(view2);
     insertProjectCopy(lowestSubview2, project2);
 
-    Set<String> keys = underTest.selectViewKeysWithEnabledCopyOfProject(dbSession, project2.uuid());
+    Set<String> keys = underTest.selectViewKeysWithEnabledCopyOfProject(dbSession, singleton(project2.uuid()));
 
     assertThat(keys).containsOnly(view2.getDbKey());
+
+    assertThat(underTest.selectViewKeysWithEnabledCopyOfProject(dbSession, shuffleWithInexistingUuids(project2.uuid())))
+      .isEqualTo(keys);
   }
 
   @Test
@@ -767,9 +878,12 @@ public class ComponentDaoTest {
     ComponentDto lowestSubview2 = insertSubviews(view2);
     insertProjectCopy(lowestSubview2, project, t -> t.setEnabled(false));
 
-    Set<String> keys = underTest.selectViewKeysWithEnabledCopyOfProject(dbSession, project.uuid());
+    Set<String> keys = underTest.selectViewKeysWithEnabledCopyOfProject(dbSession, singleton(project.uuid()));
 
     assertThat(keys).containsOnly(view1.getDbKey());
+
+    assertThat(underTest.selectViewKeysWithEnabledCopyOfProject(dbSession, shuffleWithInexistingUuids(project.uuid())))
+      .isEqualTo(keys);
   }
 
   @Test
@@ -784,9 +898,12 @@ public class ComponentDaoTest {
     ComponentDto lowestSubview2 = insertSubviews(view2);
     insertProjectCopy(lowestSubview2, project);
 
-    Set<String> keys = underTest.selectViewKeysWithEnabledCopyOfProject(dbSession, project.uuid());
+    Set<String> keys = underTest.selectViewKeysWithEnabledCopyOfProject(dbSession, singleton(project.uuid()));
 
     assertThat(keys).containsOnly(view2.getDbKey());
+
+    assertThat(underTest.selectViewKeysWithEnabledCopyOfProject(dbSession, shuffleWithInexistingUuids(project.uuid())))
+      .isEqualTo(keys);
   }
 
   @DataProvider
@@ -992,7 +1109,7 @@ public class ComponentDaoTest {
 
   @Test
   public void countByQuery_throws_IAE_if_too_many_component_ids() {
-    Set<Long> ids = LongStream.range(0L, 1_010L).boxed().collect(Collectors.toSet());
+    Set<Long> ids = LongStream.range(0L, 1_010L).boxed().collect(toSet());
     ComponentQuery.Builder query = ComponentQuery.builder()
       .setQualifiers(Qualifiers.PROJECT)
       .setComponentIds(ids);
@@ -1002,7 +1119,7 @@ public class ComponentDaoTest {
 
   @Test
   public void countByQuery_throws_IAE_if_too_many_component_keys() {
-    Set<String> keys = IntStream.range(0, 1_010).mapToObj(String::valueOf).collect(Collectors.toSet());
+    Set<String> keys = IntStream.range(0, 1_010).mapToObj(String::valueOf).collect(toSet());
     ComponentQuery.Builder query = ComponentQuery.builder()
       .setQualifiers(Qualifiers.PROJECT)
       .setComponentKeys(keys);
@@ -1012,7 +1129,7 @@ public class ComponentDaoTest {
 
   @Test
   public void countByQuery_throws_IAE_if_too_many_component_uuids() {
-    Set<String> uuids = IntStream.range(0, 1_010).mapToObj(String::valueOf).collect(Collectors.toSet());
+    Set<String> uuids = IntStream.range(0, 1_010).mapToObj(String::valueOf).collect(toSet());
     ComponentQuery.Builder query = ComponentQuery.builder()
       .setQualifiers(Qualifiers.PROJECT)
       .setComponentUuids(uuids);
@@ -1258,7 +1375,7 @@ public class ComponentDaoTest {
 
   @Test
   public void selectByQuery_throws_IAE_if_too_many_component_ids() {
-    Set<Long> ids = LongStream.range(0L, 1_010L).boxed().collect(Collectors.toSet());
+    Set<Long> ids = LongStream.range(0L, 1_010L).boxed().collect(toSet());
     ComponentQuery.Builder query = ComponentQuery.builder()
       .setQualifiers(Qualifiers.PROJECT)
       .setComponentIds(ids);
@@ -1268,7 +1385,7 @@ public class ComponentDaoTest {
 
   @Test
   public void selectByQuery_throws_IAE_if_too_many_component_keys() {
-    Set<String> keys = IntStream.range(0, 1_010).mapToObj(String::valueOf).collect(Collectors.toSet());
+    Set<String> keys = IntStream.range(0, 1_010).mapToObj(String::valueOf).collect(toSet());
     ComponentQuery.Builder query = ComponentQuery.builder()
       .setQualifiers(Qualifiers.PROJECT)
       .setComponentKeys(keys);
@@ -1278,7 +1395,7 @@ public class ComponentDaoTest {
 
   @Test
   public void selectByQuery_throws_IAE_if_too_many_component_uuids() {
-    Set<String> uuids = IntStream.range(0, 1_010).mapToObj(String::valueOf).collect(Collectors.toSet());
+    Set<String> uuids = IntStream.range(0, 1_010).mapToObj(String::valueOf).collect(toSet());
     ComponentQuery.Builder query = ComponentQuery.builder()
       .setQualifiers(Qualifiers.PROJECT)
       .setComponentUuids(uuids);
@@ -1767,6 +1884,13 @@ public class ComponentDaoTest {
 
   private boolean privateFlagOfUuid(String uuid) {
     return underTest.selectByUuid(db.getSession(), uuid).get().isPrivate();
+  }
+
+  private static Set<String> shuffleWithInexistingUuids(String... uuids) {
+    return Stream.concat(
+      IntStream.range(0, 1 + new Random().nextInt(5)).mapToObj(i -> randomAlphabetic(9)),
+      Arrays.stream(uuids))
+      .collect(toSet());
   }
 
 }

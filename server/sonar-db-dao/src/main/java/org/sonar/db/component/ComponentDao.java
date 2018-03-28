@@ -47,6 +47,7 @@ import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.db.DaoDatabaseUtils.buildLikeValue;
 import static org.sonar.db.DatabaseUtils.checkThatNotTooManyConditions;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
+import static org.sonar.db.DatabaseUtils.executeLargeInputsIntoSet;
 import static org.sonar.db.DatabaseUtils.executeLargeUpdates;
 import static org.sonar.db.WildcardPosition.BEFORE_AND_AFTER;
 import static org.sonar.db.component.ComponentDto.generateBranchKey;
@@ -268,8 +269,10 @@ public class ComponentDao implements Dao {
   /**
    * Used by Governance
    */
-  public Set<String> selectViewKeysWithEnabledCopyOfProject(DbSession session, String projectUuid) {
-    return mapper(session).selectViewKeysWithEnabledCopyOfProject(projectUuid);
+  public Set<String> selectViewKeysWithEnabledCopyOfProject(DbSession session, Set<String> projectUuids) {
+    return executeLargeInputsIntoSet(projectUuids,
+      partition -> mapper(session).selectViewKeysWithEnabledCopyOfProject(partition),
+      i -> i);
   }
 
   public List<String> selectProjectsFromView(DbSession session, String viewUuid, String projectViewUuid) {

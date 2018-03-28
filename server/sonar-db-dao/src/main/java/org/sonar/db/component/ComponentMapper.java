@@ -121,7 +121,7 @@ public interface ComponentMapper {
    */
   List<KeyWithUuidDto> selectUuidsByKeyFromProjectKey(@Param("projectKey") String projectKey);
 
-  Set<String> selectViewKeysWithEnabledCopyOfProject(@Param("projectUuid") String projectUuid);
+  Set<String> selectViewKeysWithEnabledCopyOfProject(@Param("projectUuids") Collection<String> projectUuids);
 
   /**
    * Return technical projects from a view or a sub-view

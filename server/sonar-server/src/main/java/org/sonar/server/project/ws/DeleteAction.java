@@ -32,6 +32,7 @@ import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.project.ProjectLifeCycleListeners;
 import org.sonar.server.user.UserSession;
 
+import static java.util.Collections.singleton;
 import static org.sonar.server.component.ComponentFinder.ParamNames.PROJECT_ID_AND_PROJECT;
 import static org.sonar.server.project.Project.from;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
@@ -91,7 +92,7 @@ public class DeleteAction implements ProjectsWsAction {
       ComponentDto project = componentFinder.getByUuidOrKey(dbSession, uuid, key, PROJECT_ID_AND_PROJECT);
       checkPermission(project);
       componentCleanerService.delete(dbSession, project);
-      projectLifeCycleListeners.onProjectDeleted(from(project));
+      projectLifeCycleListeners.onProjectsDeleted(singleton(from(project)));
     }
 
     response.noContent();

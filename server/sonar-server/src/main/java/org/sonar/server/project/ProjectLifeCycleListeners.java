@@ -19,14 +19,16 @@
  */
 package org.sonar.server.project;
 
+import java.util.Set;
+
 public interface ProjectLifeCycleListeners {
   /**
-   * This method is called after the specified project has been deleted and will call method
-   * {@link ProjectLifeCycleListener#onProjectDeleted(Project) onProjectDeleted(Project)} of all known
+   * This method is called after the specified projects have been deleted and will call method
+   * {@link ProjectLifeCycleListener#onProjectsDeleted(Set) onProjectsDeleted(Set)} of all known
    * {@link ProjectLifeCycleListener} implementations.
-   *
-   * This method will ensure all {@link ProjectLifeCycleListener} implementations are called, even if one or more of
+   * <p>
+   * This method ensures all {@link ProjectLifeCycleListener} implementations are called, even if one or more of
    * them fail with an exception.
    */
-  void onProjectDeleted(Project project);
+  void onProjectsDeleted(Set<Project> projects);
 }

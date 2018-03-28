@@ -21,6 +21,7 @@ package org.sonar.server.project;
 
 import com.google.common.base.Preconditions;
 import java.util.Arrays;
+import java.util.Set;
 import java.util.function.Consumer;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -37,16 +38,22 @@ public class ProjectLifeCycleListenersImpl implements ProjectLifeCycleListeners 
     this.listeners = new ProjectLifeCycleListener[0];
   }
 
+  /**
+   * Used by Pico when there is at least one ProjectLifeCycleListener implementation in container.
+   */
   public ProjectLifeCycleListenersImpl(ProjectLifeCycleListener[] listeners) {
     this.listeners = listeners;
   }
 
   @Override
-  public void onProjectDeleted(Project project) {
-    Preconditions.checkNotNull(project, "project can't be null");
+  public void onProjectsDeleted(Set<Project> projects) {
+    Preconditions.checkNotNull(projects, "projects can't be null");
+    if (projects.isEmpty()) {
+      return;
+    }
 
     Arrays.stream(listeners)
-      .forEach(safelyCallListener(listener -> listener.onProjectDeleted(project)));
+      .forEach(safelyCallListener(listener -> listener.onProjectsDeleted(projects)));
   }
 
   private static Consumer<ProjectLifeCycleListener> safelyCallListener(Consumer<ProjectLifeCycleListener> task) {

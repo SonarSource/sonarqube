@@ -27,12 +27,16 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentQuery;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.server.component.ComponentCleanerService;
+import org.sonar.server.project.Project;
+import org.sonar.server.project.ProjectLifeCycleListeners;
 import org.sonar.server.project.Visibility;
 import org.sonar.server.user.UserSession;
 
@@ -61,13 +65,15 @@ public class BulkDeleteAction implements ProjectsWsAction {
   private final DbClient dbClient;
   private final UserSession userSession;
   private final ProjectsWsSupport support;
+  private final ProjectLifeCycleListeners projectLifeCycleListeners;
 
   public BulkDeleteAction(ComponentCleanerService componentCleanerService, DbClient dbClient, UserSession userSession,
-    ProjectsWsSupport support) {
+                          ProjectsWsSupport support, ProjectLifeCycleListeners projectLifeCycleListeners) {
     this.componentCleanerService = componentCleanerService;
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.support = support;
+    this.projectLifeCycleListeners = projectLifeCycleListeners;
   }
 
   @Override
@@ -139,8 +145,12 @@ public class BulkDeleteAction implements ProjectsWsAction {
       userSession.checkPermission(OrganizationPermission.ADMINISTER, organization);
 
       ComponentQuery query = buildDbQuery(searchRequest);
-      dbClient.componentDao().selectByQuery(dbSession, organization.getUuid(), query, 0, Integer.MAX_VALUE)
-        .forEach(p -> componentCleanerService.delete(dbSession, p));
+      List<ComponentDto> componentDtos = dbClient.componentDao().selectByQuery(dbSession, organization.getUuid(), query, 0, Integer.MAX_VALUE);
+      try {
+        componentDtos.forEach(p -> componentCleanerService.delete(dbSession, p));
+      } finally {
+        projectLifeCycleListeners.onProjectsDeleted(componentDtos.stream().map(Project::from).collect(MoreCollectors.toSet(componentDtos.size())));
+      }
     }
     response.noContent();
   }

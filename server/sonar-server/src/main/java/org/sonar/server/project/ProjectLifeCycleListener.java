@@ -19,12 +19,13 @@
  */
 package org.sonar.server.project;
 
+import java.util.Set;
 import org.sonar.api.server.ServerSide;
 
 @ServerSide
 public interface ProjectLifeCycleListener {
   /**
-   * This method is called after the specified project has been deleted.
+   * This method is called after the specified projects have been deleted.
    */
-  void onProjectDeleted(Project project);
+  void onProjectsDeleted(Set<Project> projects);
 }
