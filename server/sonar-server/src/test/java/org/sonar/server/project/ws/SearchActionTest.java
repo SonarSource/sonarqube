@@ -387,7 +387,7 @@ public class SearchActionTest {
     Param psParam = action.param("ps");
     assertThat(psParam.isRequired()).isFalse();
     assertThat(psParam.defaultValue()).isEqualTo("100");
-    assertThat(psParam.description()).isEqualTo("Page size. Must be greater than 0 and less than 500");
+    assertThat(psParam.description()).isEqualTo("Page size. Must be greater than 0 and less or equal than 500");
 
     Param visibilityParam = action.param("visibility");
     assertThat(visibilityParam.isRequired()).isFalse();

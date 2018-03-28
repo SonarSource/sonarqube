@@ -20,7 +20,6 @@
 package org.sonar.server.user.ws;
 
 import com.google.common.collect.Multimap;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -108,7 +107,7 @@ public class SearchAction implements UsersWsAction {
 
     action.createParam(TEXT_QUERY)
       .setMinimumLength(2)
-      .setDescription("Filter on login or name.");
+      .setDescription("Filter on login, name and email");
   }
 
   @Override

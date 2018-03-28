@@ -390,7 +390,7 @@ public interface WebService extends Definable<WebService.Context> {
         .setDeprecatedKey("pageSize", "5.2")
         .setDefaultValue(String.valueOf(defaultPageSize))
         .setMaximumValue(maxPageSize)
-        .setDescription("Page size. Must be greater than 0 and less than " + maxPageSize)
+        .setDescription("Page size. Must be greater than 0 and less or equal than " + maxPageSize)
         .setExampleValue("20");
     }
 

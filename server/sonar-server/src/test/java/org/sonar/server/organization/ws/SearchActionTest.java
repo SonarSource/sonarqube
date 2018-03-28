@@ -98,7 +98,7 @@ public class SearchActionTest {
     assertThat(pageSize.isRequired()).isFalse();
     assertThat(pageSize.defaultValue()).isEqualTo("100");
     assertThat(pageSize.maximumValue()).isEqualTo(500);
-    assertThat(pageSize.description()).isEqualTo("Page size. Must be greater than 0 and less than 500");
+    assertThat(pageSize.description()).isEqualTo("Page size. Must be greater than 0 and less or equal than 500");
 
     WebService.Param member = action.param("member");
     assertThat(member.since()).isEqualTo("7.0");

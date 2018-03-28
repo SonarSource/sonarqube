@@ -20,7 +20,6 @@
 package org.sonar.server.component.ws;
 
 import com.google.common.base.Joiner;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -127,7 +126,7 @@ public class SearchActionTest {
     assertThat(pageSize.isRequired()).isFalse();
     assertThat(pageSize.defaultValue()).isEqualTo("100");
     assertThat(pageSize.maximumValue()).isEqualTo(500);
-    assertThat(pageSize.description()).isEqualTo("Page size. Must be greater than 0 and less than 500");
+    assertThat(pageSize.description()).isEqualTo("Page size. Must be greater than 0 and less or equal than 500");
 
     WebService.Param qualifiers = action.param("qualifiers");
     assertThat(qualifiers.isRequired()).isTrue();
