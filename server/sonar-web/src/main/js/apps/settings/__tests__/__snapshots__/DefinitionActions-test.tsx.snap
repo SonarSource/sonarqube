@@ -1,0 +1,225 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`disables save button on error 1`] = `
+<React.Fragment>
+  <div
+    className="spacer-top note"
+    style={
+      Object {
+        "lineHeight": "24px",
+      }
+    }
+  >
+    settings._default
+  </div>
+  <div
+    className="settings-definition-changes nowrap"
+  >
+    <Button
+      className="spacer-right button-success"
+      disabled={true}
+      onClick={[Function]}
+    >
+      save
+    </Button>
+    <Button
+      className="spacer-right button-link"
+      onClick={[Function]}
+    >
+      cancel
+    </Button>
+  </div>
+</React.Fragment>
+`;
+
+exports[`displays cancel button when value changed and has error 1`] = `
+<React.Fragment>
+  <div
+    className="spacer-top note"
+    style={
+      Object {
+        "lineHeight": "24px",
+      }
+    }
+  >
+    settings._default
+  </div>
+  <div
+    className="settings-definition-changes nowrap"
+  >
+    <Button
+      className="spacer-right button-success"
+      disabled={true}
+      onClick={[Function]}
+    >
+      save
+    </Button>
+    <Button
+      className="spacer-right button-link"
+      onClick={[Function]}
+    >
+      cancel
+    </Button>
+  </div>
+</React.Fragment>
+`;
+
+exports[`displays cancel button when value changed and no error 1`] = `
+<React.Fragment>
+  <div
+    className="spacer-top note"
+    style={
+      Object {
+        "lineHeight": "24px",
+      }
+    }
+  >
+    settings._default
+  </div>
+  <div
+    className="settings-definition-changes nowrap"
+  >
+    <Button
+      className="spacer-right button-success"
+      disabled={false}
+      onClick={[Function]}
+    >
+      save
+    </Button>
+    <Button
+      className="spacer-right button-link"
+      onClick={[Function]}
+    >
+      cancel
+    </Button>
+  </div>
+</React.Fragment>
+`;
+
+exports[`displays default message when value is default 1`] = `
+<React.Fragment>
+  <div
+    className="spacer-top note"
+    style={
+      Object {
+        "lineHeight": "24px",
+      }
+    }
+  >
+    settings._default
+  </div>
+  <div
+    className="settings-definition-changes nowrap"
+  >
+    <Button
+      className="spacer-right button-success"
+      disabled={false}
+      onClick={[Function]}
+    >
+      save
+    </Button>
+    <Button
+      className="spacer-right button-link"
+      onClick={[Function]}
+    >
+      cancel
+    </Button>
+  </div>
+</React.Fragment>
+`;
+
+exports[`displays default value label when current value differs 1`] = `
+<React.Fragment>
+  <div
+    className="settings-definition-changes nowrap"
+  >
+    <Button
+      className="spacer-right button-success"
+      disabled={true}
+      onClick={[Function]}
+    >
+      save
+    </Button>
+    <Button
+      className="spacer-right button-link"
+      onClick={[Function]}
+    >
+      cancel
+    </Button>
+    <span
+      className="note"
+    >
+      default
+      : 
+      settings.default.no_value
+    </span>
+  </div>
+</React.Fragment>
+`;
+
+exports[`displays reset button when empty and not default 1`] = `
+<React.Fragment>
+  <div
+    className="settings-definition-changes nowrap"
+  >
+    <Button
+      className="spacer-right button-success"
+      disabled={true}
+      onClick={[Function]}
+    >
+      save
+    </Button>
+    <Button
+      className="spacer-right"
+      onClick={[Function]}
+    >
+      reset_verb
+    </Button>
+    <Button
+      className="spacer-right button-link"
+      onClick={[Function]}
+    >
+      cancel
+    </Button>
+    <span
+      className="note"
+    >
+      default
+      : 
+      settings.default.no_value
+    </span>
+  </div>
+</React.Fragment>
+`;
+
+exports[`displays save button when it can be saved 1`] = `
+<React.Fragment>
+  <div
+    className="spacer-top note"
+    style={
+      Object {
+        "lineHeight": "24px",
+      }
+    }
+  >
+    settings._default
+  </div>
+  <div
+    className="settings-definition-changes nowrap"
+  >
+    <Button
+      className="spacer-right button-success"
+      disabled={false}
+      onClick={[Function]}
+    >
+      save
+    </Button>
+    <Button
+      className="spacer-right button-link"
+      onClick={[Function]}
+    >
+      cancel
+    </Button>
+  </div>
+</React.Fragment>
+`;
