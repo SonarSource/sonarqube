@@ -32,7 +32,7 @@ interface Props {
 export default function ProjectCardLeakMeasures({ measures }: Props) {
   return (
     <div className="project-card-leak-measures">
-      <div className="project-card-measure smaller-card" data-key="new_reliability_rating">
+      <div className="project-card-measure" data-key="new_reliability_rating">
         <div className="project-card-measure-inner">
           <div className="project-card-measure-number">
             <Measure
@@ -114,7 +114,7 @@ export default function ProjectCardLeakMeasures({ measures }: Props) {
         </div>
       </div>
 
-      <div className="project-card-measure smaller-card project-card-ncloc" data-key="new_lines">
+      <div className="project-card-measure project-card-ncloc" data-key="new_lines">
         <div className="project-card-measure-inner">
           <div className="project-card-measure-number">
             <Measure metricKey="new_lines" metricType="SHORT_INT" value={measures['new_lines']} />

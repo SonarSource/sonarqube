@@ -42,28 +42,30 @@ export default function ProjectCardLeak({ organization, project }: Props) {
   const hasTags = project.tags.length > 0;
 
   return (
-    <div data-key={project.key} className="boxed-group project-card">
+    <div className="boxed-group project-card" data-key={project.key}>
       <div className="boxed-group-header clearfix">
-        {project.isFavorite != null && (
-          <Favorite
-            className="spacer-right"
-            component={project.key}
-            favorite={project.isFavorite}
-            qualifier="TRK"
-          />
-        )}
-        <h2 className="project-card-name">
-          {!organization && (
-            <ProjectCardOrganizationContainer organization={project.organization} />
+        <div className="project-card-header">
+          {project.isFavorite != null && (
+            <Favorite
+              className="spacer-right"
+              component={project.key}
+              favorite={project.isFavorite}
+              qualifier="TRK"
+            />
           )}
-          <Link to={{ pathname: '/dashboard', query: { id: project.key } }}>{project.name}</Link>
-        </h2>
-        {project.analysisDate && <ProjectCardQualityGate status={measures!['alert_status']} />}
-        <div className="pull-right text-right">
-          {isPrivate && (
-            <PrivateBadge className="spacer-left" qualifier="TRK" tooltipPlacement="left" />
-          )}
-          {hasTags && <TagsList className="spacer-left note" tags={project.tags} />}
+          <h2 className="project-card-name">
+            {!organization && (
+              <ProjectCardOrganizationContainer organization={project.organization} />
+            )}
+            <Link to={{ pathname: '/dashboard', query: { id: project.key } }}>{project.name}</Link>
+          </h2>
+          {project.analysisDate && <ProjectCardQualityGate status={measures!['alert_status']} />}
+          <div className="project-card-header-right">
+            {isPrivate && (
+              <PrivateBadge className="spacer-left" qualifier="TRK" tooltipPlacement="left" />
+            )}
+            {hasTags && <TagsList className="spacer-left note" tags={project.tags} />}
+          </div>
         </div>
         {project.analysisDate &&
           project.leakPeriodDate && (

@@ -65,8 +65,20 @@
   box-sizing: border-box;
 }
 
+.project-card-header {
+  display: flex;
+  align-items: center;
+}
+
+.project-card-header-right {
+  margin-left: auto;
+}
+
 .project-card-name {
   font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .project-card-dates {
@@ -109,10 +121,6 @@
   width: 130px;
 }
 
-.project-card-measure.smaller-card {
-  width: 90px;
-}
-
 .project-card-measure {
   position: relative;
   display: inline-block;
@@ -147,6 +155,7 @@
 .project-card-measure-number {
   line-height: 25px;
   font-size: 18px;
+  white-space: nowrap;
 }
 
 .project-card-measure-label {

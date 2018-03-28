@@ -8,38 +8,42 @@ exports[`should display the leak measures and quality gate 1`] = `
   <div
     className="boxed-group-header clearfix"
   >
-    <h2
-      className="project-card-name"
-    >
-      <Connect(ProjectCardOrganization)
-        organization={
-          Object {
-            "key": "org",
-            "name": "org",
-          }
-        }
-      />
-      <Link
-        onlyActiveOnIndex={false}
-        style={Object {}}
-        to={
-          Object {
-            "pathname": "/dashboard",
-            "query": Object {
-              "id": "foo",
-            },
-          }
-        }
-      >
-        Foo
-      </Link>
-    </h2>
-    <ProjectCardQualityGate
-      status="OK"
-    />
     <div
-      className="pull-right text-right"
-    />
+      className="project-card-header"
+    >
+      <h2
+        className="project-card-name"
+      >
+        <Connect(ProjectCardOrganization)
+          organization={
+            Object {
+              "key": "org",
+              "name": "org",
+            }
+          }
+        />
+        <Link
+          onlyActiveOnIndex={false}
+          style={Object {}}
+          to={
+            Object {
+              "pathname": "/dashboard",
+              "query": Object {
+                "id": "foo",
+              },
+            }
+          }
+        >
+          Foo
+        </Link>
+      </h2>
+      <ProjectCardQualityGate
+        status="OK"
+      />
+      <div
+        className="project-card-header-right"
+      />
+    </div>
     <div
       className="project-card-dates note text-right pull-right"
     >

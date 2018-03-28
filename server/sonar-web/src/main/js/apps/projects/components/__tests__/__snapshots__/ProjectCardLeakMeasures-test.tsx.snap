@@ -5,7 +5,7 @@ exports[`should render correctly with all data 1`] = `
   className="project-card-leak-measures"
 >
   <div
-    className="project-card-measure smaller-card"
+    className="project-card-measure"
     data-key="new_reliability_rating"
   >
     <div
@@ -141,7 +141,7 @@ exports[`should render correctly with all data 1`] = `
     </div>
   </div>
   <div
-    className="project-card-measure smaller-card project-card-ncloc"
+    className="project-card-measure project-card-ncloc"
     data-key="new_lines"
   >
     <div
@@ -171,7 +171,7 @@ exports[`should render no data style new coverage, new duplications and new line
   className="project-card-leak-measures"
 >
   <div
-    className="project-card-measure smaller-card"
+    className="project-card-measure"
     data-key="new_reliability_rating"
   >
     <div
@@ -305,7 +305,7 @@ exports[`should render no data style new coverage, new duplications and new line
     </div>
   </div>
   <div
-    className="project-card-measure smaller-card project-card-ncloc"
+    className="project-card-measure project-card-ncloc"
     data-key="new_lines"
   >
     <div

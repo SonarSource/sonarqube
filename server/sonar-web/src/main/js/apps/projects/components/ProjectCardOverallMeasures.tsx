@@ -40,7 +40,7 @@ export default function ProjectCardOverallMeasures({ measures }: Props) {
 
   return (
     <div className="project-card-measures">
-      <div className="project-card-measure smaller-card" data-key="reliability_rating">
+      <div className="project-card-measure" data-key="reliability_rating">
         <div className="project-card-measure-inner">
           <div className="project-card-measure-number">
             <Measure

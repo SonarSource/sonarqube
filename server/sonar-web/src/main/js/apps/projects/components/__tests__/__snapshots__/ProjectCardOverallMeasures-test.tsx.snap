@@ -55,7 +55,7 @@ exports[`should render correctly with all data 1`] = `
   className="project-card-measures"
 >
   <div
-    className="project-card-measure smaller-card"
+    className="project-card-measure"
     data-key="reliability_rating"
   >
     <div
