@@ -21,6 +21,9 @@ package org.sonar.server.organization.ws;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
+import org.sonar.api.resources.Qualifiers;
+import org.sonar.api.resources.Scopes;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -35,6 +38,8 @@ import org.sonar.server.component.ComponentCleanerService;
 import org.sonar.server.organization.DefaultOrganization;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.OrganizationFlags;
+import org.sonar.server.project.Project;
+import org.sonar.server.project.ProjectLifeCycleListeners;
 import org.sonar.server.qualityprofile.QProfileFactory;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.user.index.UserIndexer;
@@ -56,9 +61,11 @@ public class DeleteAction implements OrganizationsWsAction {
   private final OrganizationFlags organizationFlags;
   private final UserIndexer userIndexer;
   private final QProfileFactory qProfileFactory;
+  private final ProjectLifeCycleListeners projectLifeCycleListeners;
 
   public DeleteAction(UserSession userSession, DbClient dbClient, DefaultOrganizationProvider defaultOrganizationProvider,
-    ComponentCleanerService componentCleanerService, OrganizationFlags organizationFlags, UserIndexer userIndexer, QProfileFactory qProfileFactory) {
+    ComponentCleanerService componentCleanerService, OrganizationFlags organizationFlags, UserIndexer userIndexer,
+    QProfileFactory qProfileFactory, ProjectLifeCycleListeners projectLifeCycleListeners) {
     this.userSession = userSession;
     this.dbClient = dbClient;
     this.defaultOrganizationProvider = defaultOrganizationProvider;
@@ -66,6 +73,7 @@ public class DeleteAction implements OrganizationsWsAction {
     this.organizationFlags = organizationFlags;
     this.userIndexer = userIndexer;
     this.qProfileFactory = qProfileFactory;
+    this.projectLifeCycleListeners = projectLifeCycleListeners;
   }
 
   @Override
@@ -118,7 +126,21 @@ public class DeleteAction implements OrganizationsWsAction {
     roots.forEach(project -> dbClient.webhookDao().selectByProject(dbSession, project)
       .forEach(wh -> dbClient.webhookDeliveryDao().deleteByWebhook(dbSession, wh)));
     roots.forEach(project -> dbClient.webhookDao().deleteByProject(dbSession, project));
-    componentCleanerService.delete(dbSession, roots);
+    try {
+      componentCleanerService.delete(dbSession, roots);
+    } finally {
+      Set<Project> projects = roots.stream()
+        .filter(DeleteAction::isMainProject)
+        .map(Project::from)
+        .collect(MoreCollectors.toSet());
+      projectLifeCycleListeners.onProjectsDeleted(projects);
+    }
+  }
+
+  private static boolean isMainProject(ComponentDto p) {
+    return Scopes.PROJECT.equals(p.scope())
+      && Qualifiers.PROJECT.equals(p.qualifier())
+      && p.getMainBranchProjectUuid() == null;
   }
 
   private void deletePermissions(DbSession dbSession, OrganizationDto organization) {
