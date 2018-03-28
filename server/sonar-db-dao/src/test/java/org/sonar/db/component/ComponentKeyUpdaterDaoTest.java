@@ -162,6 +162,18 @@ public class ComponentKeyUpdaterDaoTest {
   }
 
   @Test
+  public void bulk_updateKey_on_branch_containing_slash() {
+    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("branch/with/slash"));
+    String newKey = "newKey";
+
+    underTest.bulkUpdateKey(dbSession, project.uuid(), project.getKey(), newKey);
+
+    assertThat(dbClient.componentDao().selectAllComponentsFromProjectKey(dbSession, newKey)).hasSize(1);
+    assertThat(dbClient.componentDao().selectAllComponentsFromProjectKey(dbSession, ComponentDto.generateBranchKey(newKey, branch.getBranch()))).hasSize(1);
+  }
+
+  @Test
   public void bulk_updateKey_updates_pull_requests_too() {
     ComponentDto project = db.components().insertMainBranch();
     ComponentDto pullRequest = db.components().insertProjectBranch(project, b -> b.setBranchType(PULL_REQUEST));

@@ -110,8 +110,9 @@ public class ComponentKeyUpdaterDao implements Dao {
     ComponentKeyUpdaterMapper mapper = session.getMapper(ComponentKeyUpdaterMapper.class);
     // must SELECT first everything
     Set<ResourceDto> modules = collectAllModules(projectUuid, stringToReplace, mapper);
+    checkNewNameOfAllModules(modules, stringToReplace, replacementString, mapper);
 
-    // add branches
+    // add branches (no check should be done as branch keys cannot be changed by the user)
     Map<String, String> branchBaseKeys = new HashMap<>();
     session.getMapper(BranchMapper.class).selectByProjectUuid(projectUuid)
       .stream()
@@ -122,7 +123,6 @@ public class ComponentKeyUpdaterDao implements Dao {
         branchModules.forEach(module -> branchBaseKeys.put(module.getKey(), branchBaseKey(module.getKey())));
       });
 
-    checkNewNameOfAllModules(modules, stringToReplace, replacementString, mapper);
     Map<ResourceDto, List<ResourceDto>> allResourcesByModuleMap = Maps.newHashMap();
     for (ResourceDto module : modules) {
       allResourcesByModuleMap.put(module, mapper.selectProjectResources(module.getUuid()));
