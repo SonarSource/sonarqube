@@ -26,6 +26,7 @@ import org.junit.Test;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
+import org.sonar.server.issue.IssueQuery.PeriodStart;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -35,6 +36,7 @@ public class IssueQueryTest {
 
   @Test
   public void build_query() {
+    PeriodStart filterDate = new IssueQuery.PeriodStart(new Date(10_000_000_000L),false);
     IssueQuery query = IssueQuery.builder()
       .issueKeys(newArrayList("ABCDE"))
       .severities(newArrayList(Severity.BLOCKER))
@@ -50,7 +52,7 @@ public class IssueQueryTest {
       .types(newArrayList("RELIABILITY", "SECURITY"))
       .organizationUuid("orga")
       .branchUuid("my_branch")
-      .createdAfterByProjectUuids(ImmutableMap.of("PROJECT", new Date(10_000_000_000L)))
+      .createdAfterByProjectUuids(ImmutableMap.of("PROJECT", filterDate))
       .assigned(true)
       .createdAfter(new Date())
       .createdBefore(new Date())
@@ -72,7 +74,7 @@ public class IssueQueryTest {
     assertThat(query.types()).containsOnly("RELIABILITY", "SECURITY");
     assertThat(query.organizationUuid()).isEqualTo("orga");
     assertThat(query.branchUuid()).isEqualTo("my_branch");
-    assertThat(query.createdAfterByProjectUuids()).containsOnly(entry("PROJECT", new Date(10_000_000_000L)));
+    assertThat(query.createdAfterByProjectUuids()).containsOnly(entry("PROJECT", filterDate));
     assertThat(query.assigned()).isTrue();
     assertThat(query.rules()).containsOnly(RuleKey.of("squid", "AvoidCycle"));
     assertThat(query.createdAfter()).isNotNull();
