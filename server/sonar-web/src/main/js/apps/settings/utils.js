@@ -115,16 +115,12 @@ function getParentValue(setting) {
  * @returns {string}
  */
 export function getDefaultValue(setting) {
-  let parentValue = getParentValue(setting);
+  const parentValue = getParentValue(setting);
 
   if (parentValue == null) {
-    if (setting.definition.defaultValue) {
-      return setting.definition.defaultValue;
-    }
-    parentValue = getSettingValue(setting);
-    if (parentValue == null) {
-      return translate('settings.default.no_value');
-    }
+    return setting.definition.defaultValue
+      ? setting.definition.defaultValue
+      : translate('settings.default.no_value');
   }
 
   if (setting.definition.multiValues) {

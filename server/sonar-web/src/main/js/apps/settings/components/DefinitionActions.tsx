@@ -32,7 +32,6 @@ type Props = {
   onReset: () => void;
   onSave: () => void;
   setting: SettingValue & { definition: Definition };
-  valueChanged: boolean;
 };
 
 type State = { reseting: boolean };
