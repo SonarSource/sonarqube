@@ -25,6 +25,7 @@ import { translate } from '../../helpers/l10n';
 
 interface Props {
   className?: string;
+  tooltip?: string;
   onClick: () => void;
 }
 
@@ -45,8 +46,9 @@ export default class ReloadButton extends React.PureComponent<Props> {
   );
 
   render() {
+    const { tooltip = translate('reload') } = this.props;
     return (
-      <Tooltip overlay={translate('reload')}>
+      <Tooltip overlay={tooltip}>
         <a
           className={classNames('link-no-underline', this.props.className)}
           href="#"

@@ -39,6 +39,8 @@ import CoverageRating from '../../components/ui/CoverageRating';
 import DuplicationsRating from '../../components/ui/DuplicationsRating';
 import Level from '../../components/ui/Level';
 import { EditButton } from '../../components/ui/buttons';
+import DeferredSpinner from '../../components/common/DeferredSpinner';
+import ReloadButton from '../../components/controls/ReloadButton';
 
 const exposeLibraries = () => {
   const global = window as any;
@@ -53,6 +55,7 @@ const exposeLibraries = () => {
     DateFormatter,
     DateFromNow,
     DateTimeFormatter,
+    DeferredSpinner,
     DuplicationsRating,
     EditButton,
     FavoriteContainer,
@@ -61,6 +64,7 @@ const exposeLibraries = () => {
     LicenseEditionSet,
     ListFooter,
     Modal,
+    ReloadButton,
     SearchBox,
     Select,
     SelectList,
