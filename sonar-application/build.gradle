@@ -132,8 +132,21 @@ zip.doLast {
   if (length > maxLength)
     throw new GradleException("$distsDir/$archiveName size ($length) too large. Max is $maxLength")
 }
-
 assemble.dependsOn zip
+
+// the script start.sh unzips distribution into $buildDir/distributions.
+// This directory should be deleted when the zip is changed.
+task cleanLocalUnzippedDir(dependsOn: zip) {
+  def unzippedDir = file("$buildDir/distributions/sonarqube-$version")
+  inputs.files(file("$buildDir/distributions/sonar-application-${version}.zip"))
+  outputs.upToDateWhen { true }
+
+  doLast {
+    println("delete directory ${unzippedDir}")
+    project.delete(unzippedDir)
+  }
+}
+assemble.dependsOn cleanLocalUnzippedDir
 
 artifactoryPublish.skip = false
 
