@@ -90,6 +90,20 @@ it('should render with branch', () => {
   ).toMatchSnapshot();
 });
 
+it('should not render link to activity page for files', () => {
+  expect(
+    shallow(<MeasureHeader {...PROPS} />)
+      .find('IconHistory')
+      .exists()
+  ).toBeTruthy();
+
+  expect(
+    shallow(<MeasureHeader {...PROPS} component={{ ...PROPS.component, qualifier: 'FIL' }} />)
+      .find('IconHistory')
+      .exists()
+  ).toBeFalsy();
+});
+
 it('should display secondary measure too', () => {
   const wrapper = shallow(<MeasureHeader {...PROPS} secondaryMeasure={SECONDARY} />);
   expect(wrapper.find('Connect(LanguageDistribution)')).toHaveLength(1);

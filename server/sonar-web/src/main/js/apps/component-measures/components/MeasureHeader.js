@@ -46,6 +46,7 @@ import { isDiffMetric } from '../../../helpers/measures';
 export default function MeasureHeader(props /*: Props*/) {
   const { branchLike, component, leakPeriod, measure, metric, secondaryMeasure } = props;
   const isDiff = isDiffMetric(metric.key);
+  const hasHistory = component.qualifier !== 'FIL' && component.qualifier !== 'UTS';
   return (
     <div className="measure-details-header big-spacer-bottom">
       <div className="measure-details-primary">
@@ -70,17 +71,18 @@ export default function MeasureHeader(props /*: Props*/) {
               )}
             </strong>
           </span>
-          {!isDiff && (
-            <Tooltip
-              overlay={translate('component_measures.show_metric_history')}
-              placement="right">
-              <Link
-                className="js-show-history spacer-left button button-small"
-                to={getMeasureHistoryUrl(component.key, metric.key, branchLike)}>
-                <HistoryIcon />
-              </Link>
-            </Tooltip>
-          )}
+          {!isDiff &&
+            hasHistory && (
+              <Tooltip
+                overlay={translate('component_measures.show_metric_history')}
+                placement="right">
+                <Link
+                  className="js-show-history spacer-left button button-small"
+                  to={getMeasureHistoryUrl(component.key, metric.key, branchLike)}>
+                  <HistoryIcon />
+                </Link>
+              </Tooltip>
+            )}
         </div>
         <div className="measure-details-primary-actions">
           {leakPeriod != null && (
