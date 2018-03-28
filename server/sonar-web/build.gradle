@@ -55,7 +55,7 @@ node {
 }
 
 yarn_run {
-  if (release) { dependsOn copyBranding }
+  if (official) { dependsOn copyBranding }
   inputs.dir('config')
   inputs.dir('public')
   inputs.dir('scripts')

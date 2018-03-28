@@ -38,6 +38,7 @@ allprojects {
 
   ext {
     release = project.hasProperty('release') && project.getProperty('release')
+    official = project.hasProperty('official') && project.getProperty('official')
   }
 
   repositories {
@@ -264,9 +265,9 @@ subprojects {
   task ide(dependsOn: ['generateProto', 'generateTestProto']) {
   }
 
-  if (release) {
+  if (official) {
     jar {
-      // do not break incremental build on non-release versions
+      // do not break incremental build on non official versions
       manifest {
         attributes(
           'Version': "${version}",

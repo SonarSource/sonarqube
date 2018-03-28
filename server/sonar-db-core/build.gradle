@@ -76,9 +76,11 @@ publishing {
   publications {
     mavenJava(MavenPublication) {
       from components.java
-      artifact testJar
-      artifact sourcesJar
-      artifact javadocJar
+      if (release) {
+        artifact sourcesJar
+        artifact javadocJar
+        artifact testJar
+      }
     }
   }
 }

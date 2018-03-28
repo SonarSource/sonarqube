@@ -96,7 +96,7 @@ BUILD)
     echo 'Build and analyze master'
     ./gradlew --no-daemon --console plain \
         -DbuildNumber=$BUILD_NUMBER \
-        build sonarqube artifactoryPublish -PjacocoEnabled=true -Prelease=true \
+        build sonarqube artifactoryPublish -PjacocoEnabled=true -Pofficial=true -Prelease=true \
         -Dsonar.host.url=$SONAR_HOST_URL \
         -Dsonar.login=$SONAR_TOKEN \
         -Dsonar.projectVersion=$INITIAL_VERSION \
@@ -109,7 +109,7 @@ BUILD)
     echo 'Build release branch'
     ./gradlew --no-daemon --console plain \
         -DbuildNumber=$BUILD_NUMBER \
-        build sonarqube artifactoryPublish -PjacocoEnabled=true -Prelease=true \
+        build sonarqube artifactoryPublish -PjacocoEnabled=true -Pofficial=true -Prelease=true \
         -Dsonar.host.url=$SONAR_HOST_URL \
         -Dsonar.login=$SONAR_TOKEN \
         -Dsonar.branch.name=$TRAVIS_BRANCH \
@@ -123,7 +123,7 @@ BUILD)
     echo 'Build and analyze internal pull request'
     ./gradlew --no-daemon --console plain \
         -DbuildNumber=$BUILD_NUMBER \
-        build sonarqube artifactoryPublish -PjacocoEnabled=true -Prelease=true \
+        build sonarqube artifactoryPublish -PjacocoEnabled=true -Pofficial=true \
         -Dsonar.host.url=$SONAR_HOST_URL \
         -Dsonar.login=$SONAR_TOKEN \
         -Dsonar.analysis.buildNumber=$BUILD_NUMBER \
@@ -140,7 +140,7 @@ BUILD)
   else
     echo 'Build feature branch or external pull request'
     ./gradlew  --no-daemon --console plain \
-        -DbuildNumber=$BUILD_NUMBER -Prelease=true \
+        -DbuildNumber=$BUILD_NUMBER -Pofficial=true \
         build artifactoryPublish
   fi
   ;;
