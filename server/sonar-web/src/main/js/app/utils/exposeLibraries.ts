@@ -20,6 +20,7 @@
 import * as ReactRedux from 'react-redux';
 import * as ReactRouter from 'react-router';
 import throwGlobalError from './throwGlobalError';
+import addGlobalSuccessMessage from './addGlobalSuccessMessage';
 import * as measures from '../../helpers/measures';
 import * as request from '../../helpers/request';
 import * as icons from '../../components/icons-components/icons';
@@ -49,7 +50,7 @@ const exposeLibraries = () => {
   global.ReactRouter = ReactRouter;
   global.SonarIcons = icons;
   global.SonarMeasures = measures;
-  global.SonarRequest = { ...request, throwGlobalError };
+  global.SonarRequest = { ...request, throwGlobalError, addGlobalSuccessMessage };
   global.SonarComponents = {
     CoverageRating,
     DateFormatter,
