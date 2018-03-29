@@ -29,8 +29,15 @@ export default class InputForPassword extends React.PureComponent {
     changing: false
   };
 
+  componentWillReceiveProps(nextProps /*: Props*/) {
+    if (!nextProps.hasValueChanged && this.props.hasValueChanged) {
+      this.setState({ changing: false, value: '' });
+    }
+  }
+
   handleInputChange(e) {
-    this.setState({ value: e.target.value });
+    this.props.onChange(e.target.value);
+    this.setState({ changing: true, value: e.target.value });
   }
 
   handleChangeClick(e) {
@@ -39,57 +46,34 @@ export default class InputForPassword extends React.PureComponent {
     this.setState({ changing: true });
   }
 
-  handleCancelChangeClick(e) {
-    e.preventDefault();
-    e.target.blur();
-    this.setState({ changing: false, value: '' });
-  }
-
-  handleFormSubmit(e) {
-    e.preventDefault();
-    this.props.onChange(this.state.value);
-    this.setState({ changing: false, value: '' });
-  }
-
   renderInput() {
     return (
-      <div>
-        <form onSubmit={e => this.handleFormSubmit(e)}>
-          <input className="hidden" type="password" />
-          <input
-            value={this.state.value}
-            name={this.props.name}
-            className="js-password-input settings-large-input text-top"
-            type="password"
-            autoFocus={true}
-            autoComplete={false}
-            onChange={e => this.handleInputChange(e)}
-          />
-
-          <button className="spacer-left button-success">{translate('save')}</button>
-
-          <a className="spacer-left" href="#" onClick={e => this.handleCancelChangeClick(e)}>
-            {translate('cancel')}
-          </a>
-        </form>
-      </div>
+      <form>
+        <input className="hidden" type="password" />
+        <input
+          autoComplete="off"
+          autoFocus={this.state.changing}
+          className="js-password-input settings-large-input text-top"
+          name={this.props.name}
+          onChange={e => this.handleInputChange(e)}
+          type="password"
+          value={this.state.value}
+        />
+      </form>
     );
   }
 
   render() {
-    if (this.state.changing) {
+    const hasValue = !!this.props.value;
+
+    if (this.state.changing || !hasValue) {
       return this.renderInput();
     }
 
-    const hasValue = !!this.props.value;
-
     return (
       <div>
-        {hasValue && <i className="big-spacer-right icon-lock icon-gray" />}
-
-        <button onClick={e => this.handleChangeClick(e)}>
-          {hasValue ? translate('change_verb') : translate('set')}
-        </button>
+        <i className="big-spacer-right icon-lock icon-gray" />
+        <button onClick={e => this.handleChangeClick(e)}>{translate('change_verb')}</button>
       </div>
     );
   }

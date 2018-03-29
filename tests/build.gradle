@@ -102,6 +102,7 @@ task integrationTest(type: Test) {
         includeTestsMatching 'org.sonarqube.tests.authorization.*Suite'
         includeTestsMatching 'org.sonarqube.tests.measure.*Suite'
         includeTestsMatching 'org.sonarqube.tests.qualityGate.*Suite'
+        includeTestsMatching 'org.sonarqube.tests.settings.*Suite'
         includeTestsMatching 'org.sonarqube.tests.source.*Suite'
         break
       case 'Category2':

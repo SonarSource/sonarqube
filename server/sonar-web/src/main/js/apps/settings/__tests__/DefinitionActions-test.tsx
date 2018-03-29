@@ -69,16 +69,12 @@ it('displays reset button when empty and not default', () => {
   expect(wrapper).toMatchSnapshot();
 });
 
-it('displays default value label when current value differs', () => {
-  const wrapper = shallowRender('foobar', true, false);
-  expect(wrapper).toMatchSnapshot();
-});
-
 function shallowRender(changedValue: string, hasError: boolean, isDefault: boolean) {
   return shallow(
     <DefinitionActions
       changedValue={changedValue}
       hasError={hasError}
+      hasValueChanged={changedValue !== ''}
       isDefault={isDefault}
       onCancel={() => {}}
       onReset={() => {}}

@@ -23,6 +23,9 @@ import com.codeborne.selenide.Condition;
 import com.codeborne.selenide.Selenide;
 import com.codeborne.selenide.SelenideElement;
 import org.openqa.selenium.By;
+import org.openqa.selenium.Keys;
+
+import static com.codeborne.selenide.Selectors.byText;
 
 public class SettingsPage {
 
@@ -55,6 +58,12 @@ public class SettingsPage {
     return this;
   }
 
+  public SettingsPage assertSettingValueIsNotedAsDefault(String settingKey) {
+    Selenide.$("[data-key=\"" + settingKey + "\"]").find(".spacer-top.note")
+      .shouldBe(Condition.text("(default)"));
+    return this;
+  }
+
   public SettingsPage assertBooleanSettingValue(String settingKey, boolean value) {
     SelenideElement toggle = Selenide.$("button[name=\"settings[" + settingKey + "]\"]");
     if (value) {
@@ -62,6 +71,62 @@ public class SettingsPage {
     } else {
       toggle.shouldNotHave(Condition.cssClass("boolean-toggle-on"));
     }
+    return this;
+  }
+
+  public SettingsPage assertSettingValueCanBeSaved(String settingKey) {
+    Selenide.$("[data-key=\"" + settingKey + "\"]").find(byText("Save"))
+      .should(Condition.exist)
+      .shouldNotBe(Condition.attribute("disabled"));
+    return this;
+  }
+
+  public SettingsPage assertSettingValueCannotBeSaved(String settingKey) {
+    Selenide.$("[data-key=\"" + settingKey + "\"]").find(byText("Save"))
+      .should(Condition.exist)
+      .shouldBe(Condition.attribute("disabled"));
+    return this;
+  }
+
+  public SettingsPage assertSettingValueCanBeReset(String settingKey) {
+    Selenide.$("[data-key=\"" + settingKey + "\"]").find(byText("Reset"))
+      .should(Condition.exist);
+    return this;
+  }
+
+  public SettingsPage assertSettingValueCanBeCanceled(String settingKey) {
+    Selenide.$("[data-key=\"" + settingKey + "\"]").find(byText("Cancel"))
+      .should(Condition.exist);
+    return this;
+  }
+
+  public SettingsPage assertInputCount(String settingKey, int count) {
+    Selenide.$("[data-key=\"" + settingKey + "\"]").findAll("input").shouldHaveSize(count);
+    return this;
+  }
+
+  public SettingsPage changeSettingValue(String settingKey, String value) {
+    Selenide.$("[data-key=\"" + settingKey + "\"]").find("input").val(value);
+    return this;
+  }
+
+  public SettingsPage changeSettingValue(String settingKey, int index, String value) {
+    Selenide.$("[data-key=\"" + settingKey + "\"]").findAll("input").get(index).val(value);
+    return this;
+  }
+
+  public SettingsPage clickOnCancel(String settingKey) {
+    Selenide.$("[data-key=\"" + settingKey + "\"]").find(byText("Cancel")).click();
+    return this;
+  }
+
+  public SettingsPage removeFirstValue(String settingKey) {
+    Selenide.$("[data-key=\"" + settingKey + "\"]").find(".button.js-remove-value.button-icon").click();
+    return this;
+  }
+
+  public SettingsPage sendDeleteKeyToSettingField(String settingKey) {
+    Selenide.$("[data-key=\"" + settingKey + "\"]").find("input").sendKeys(Keys.BACK_SPACE);
     return this;
   }
 

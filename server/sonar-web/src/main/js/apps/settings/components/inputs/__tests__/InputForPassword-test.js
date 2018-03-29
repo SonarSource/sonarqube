@@ -43,21 +43,6 @@ it('should open form', () => {
   expect(input.find('form').length).toBe(1);
 });
 
-it('should close form', () => {
-  const onChange = jest.fn();
-  const input = shallow(
-    <InputForPassword name="foo" value="bar" isDefault={false} onChange={onChange} />
-  );
-  const button = input.find('button');
-  expect(button.length).toBe(1);
-
-  click(button);
-  expect(input.find('form').length).toBe(1);
-
-  click(input.find('form').find('a'));
-  expect(input.find('form').length).toBe(0);
-});
-
 it('should set value', () => {
   const onChange = jest.fn(() => Promise.resolve());
   const input = shallow(
