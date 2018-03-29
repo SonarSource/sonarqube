@@ -75,7 +75,6 @@ public class TaskFormatter {
   private Ce.Task formatQueue(CeQueueDto dto, DtoCache componentDtoCache) {
     Ce.Task.Builder builder = Ce.Task.newBuilder();
     String organizationKey = componentDtoCache.getOrganizationKey(dto.getComponentUuid());
-    // FIXME organization field should be set from the CeQueueDto rather than from the ComponentDto
     setNullable(organizationKey, builder::setOrganization);
     if (dto.getComponentUuid() != null) {
       builder.setComponentId(dto.getComponentUuid());
@@ -107,7 +106,6 @@ public class TaskFormatter {
   private static Ce.Task formatActivity(CeActivityDto dto, DtoCache componentDtoCache, @Nullable String scannerContext) {
     Ce.Task.Builder builder = Ce.Task.newBuilder();
     String organizationKey = componentDtoCache.getOrganizationKey(dto.getComponentUuid());
-    // FIXME organization field should be set from the CeActivityDto rather than from the ComponentDto
     setNullable(organizationKey, builder::setOrganization);
     builder.setId(dto.getUuid());
     builder.setStatus(Ce.TaskStatus.valueOf(dto.getStatus().name()));
@@ -174,7 +172,7 @@ public class TaskFormatter {
     }
 
     static DtoCache forQueueDtos(DbClient dbClient, DbSession dbSession, Collection<CeQueueDto> ceQueueDtos) {
-      Map<String, ComponentDto> componentsByUuid = dbClient.componentDao().selectByUuids(dbSession, uuidOfCeQueueDtos(ceQueueDtos))
+      Map<String, ComponentDto> componentsByUuid = dbClient.componentDao().selectByUuids(dbSession, componentUuidsOfCeQueues(ceQueueDtos))
         .stream()
         .collect(MoreCollectors.uniqueIndex(ComponentDto::uuid));
       Multimap<String, CeTaskCharacteristicDto> characteristicsByTaskUuid = dbClient.ceTaskCharacteristicsDao()
@@ -183,7 +181,7 @@ public class TaskFormatter {
       return new DtoCache(componentsByUuid, buildOrganizationsByUuid(dbClient, dbSession, componentsByUuid), characteristicsByTaskUuid);
     }
 
-    private static Set<String> uuidOfCeQueueDtos(Collection<CeQueueDto> ceQueueDtos) {
+    private static Set<String> componentUuidsOfCeQueues(Collection<CeQueueDto> ceQueueDtos) {
       return ceQueueDtos.stream()
         .filter(Objects::nonNull)
         .map(CeQueueDto::getComponentUuid)
@@ -194,7 +192,7 @@ public class TaskFormatter {
     static DtoCache forActivityDtos(DbClient dbClient, DbSession dbSession, Collection<CeActivityDto> ceActivityDtos) {
       Map<String, ComponentDto> componentsByUuid = dbClient.componentDao().selectByUuids(
         dbSession,
-        uuidOfCeActivityDtos(ceActivityDtos))
+        getComponentUuidsOfCeActivities(ceActivityDtos))
         .stream()
         .collect(MoreCollectors.uniqueIndex(ComponentDto::uuid));
       Multimap<String, CeTaskCharacteristicDto> characteristicsByTaskUuid = dbClient.ceTaskCharacteristicsDao()
@@ -203,7 +201,7 @@ public class TaskFormatter {
       return new DtoCache(componentsByUuid, buildOrganizationsByUuid(dbClient, dbSession, componentsByUuid), characteristicsByTaskUuid);
     }
 
-    private static Set<String> uuidOfCeActivityDtos(Collection<CeActivityDto> ceActivityDtos) {
+    private static Set<String> getComponentUuidsOfCeActivities(Collection<CeActivityDto> ceActivityDtos) {
       return ceActivityDtos.stream()
         .filter(Objects::nonNull)
         .map(CeActivityDto::getComponentUuid)

@@ -19,7 +19,6 @@
  */
 package org.sonar.server.ce.ws;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.Date;
 import org.junit.Rule;
@@ -31,7 +30,6 @@ import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonarqube.ws.Ce;
 import org.sonarqube.ws.Ce;
 
 import static java.util.Arrays.asList;

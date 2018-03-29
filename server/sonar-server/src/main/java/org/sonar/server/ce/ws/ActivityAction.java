@@ -58,9 +58,6 @@ import static org.sonar.api.utils.DateUtils.parseEndingDateOrDateTime;
 import static org.sonar.api.utils.DateUtils.parseStartingDateOrDateTime;
 import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.db.Pagination.forPage;
-import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
-import static org.sonar.server.ws.WsUtils.checkRequest;
-import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonar.server.ce.ws.CeWsParameters.PARAM_COMPONENT_ID;
 import static org.sonar.server.ce.ws.CeWsParameters.PARAM_COMPONENT_QUERY;
 import static org.sonar.server.ce.ws.CeWsParameters.PARAM_MAX_EXECUTED_AT;
@@ -68,6 +65,9 @@ import static org.sonar.server.ce.ws.CeWsParameters.PARAM_MIN_SUBMITTED_AT;
 import static org.sonar.server.ce.ws.CeWsParameters.PARAM_ONLY_CURRENTS;
 import static org.sonar.server.ce.ws.CeWsParameters.PARAM_STATUS;
 import static org.sonar.server.ce.ws.CeWsParameters.PARAM_TYPE;
+import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
+import static org.sonar.server.ws.WsUtils.checkRequest;
+import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class ActivityAction implements CeWsAction {
   private static final int MAX_PAGE_SIZE = 1000;
@@ -101,7 +101,7 @@ public class ActivityAction implements CeWsAction {
         new Change("5.5", "it's no more possible to specify the page parameter."),
         new Change("6.1", "field \"logs\" is deprecated and its value is always false"),
         new Change("6.6", "fields \"branch\" and \"branchType\" added"),
-        new Change("7.1", "fields \"pullRequest\" and \"pullRequestTitle\" added"))
+        new Change("7.1", "field \"pullRequest\" added"))
       .setSince("5.2");
 
     action.createParam(PARAM_COMPONENT_ID)
@@ -238,7 +238,9 @@ public class ActivityAction implements CeWsAction {
     if (component != null) {
       query.setComponentUuid(component.uuid());
     } else if (componentQuery != null) {
-      query.setComponentUuids(loadComponents(dbSession, componentQuery).stream().map(ComponentDto::uuid).collect(toList()));
+      query.setComponentUuids(loadComponents(dbSession, componentQuery).stream()
+        .map(ComponentDto::uuid)
+        .collect(toList()));
     }
     return query;
   }
