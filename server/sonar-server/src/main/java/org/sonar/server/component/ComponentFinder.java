@@ -63,16 +63,6 @@ public class ComponentFinder {
     return getByKey(dbSession, checkParamNotEmpty(componentKey, parameterNames.getKeyParam()));
   }
 
-  public ComponentDto getRootComponentByUuidOrKey(DbSession dbSession, @Nullable String componentUuid, @Nullable String componentKey, ParamNames parameterNames) {
-    checkByUuidOrKey(componentUuid, componentKey, parameterNames);
-
-    if (componentUuid != null) {
-      return checkIsProject(getByUuid(dbSession, checkParamNotEmpty(componentUuid, parameterNames.getUuidParam()), LABEL_PROJECT));
-    }
-
-    return checkIsProject(getByKey(dbSession, checkParamNotEmpty(componentKey, parameterNames.getKeyParam()), LABEL_PROJECT));
-  }
-
   private static String checkParamNotEmpty(String value, String param) {
     checkArgument(!value.isEmpty(), MSG_PARAMETER_MUST_NOT_BE_EMPTY, param);
     return value;
