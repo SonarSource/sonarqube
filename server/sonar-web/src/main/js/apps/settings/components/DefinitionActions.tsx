@@ -27,6 +27,7 @@ import { SettingValue, Definition } from '../../../api/settings';
 type Props = {
   changedValue: string;
   hasError: boolean;
+  hasValueChanged: boolean;
   isDefault: boolean;
   onCancel: () => void;
   onReset: () => void;
@@ -75,19 +76,22 @@ export default class DefinitionActions extends React.PureComponent<Props, State>
   }
 
   render() {
-    const { setting, isDefault, changedValue } = this.props;
-    const hasValueChanged = changedValue != null;
-    const canBeReset = !isDefault && isEmptyValue(setting.definition, changedValue);
-    const isExplicitlySet =
-      !isDefault && !isEmptyValue(setting.definition, getSettingValue(setting));
+    const { setting, isDefault, changedValue, hasValueChanged } = this.props;
+
+    const hasValueToResetTo = !isEmptyValue(setting.definition, getSettingValue(setting));
+    const hasBeenChangedToEmptyValue =
+      changedValue != null && isEmptyValue(setting.definition, changedValue);
+    const showReset =
+      hasValueToResetTo && (hasBeenChangedToEmptyValue || (!isDefault && !hasValueChanged));
 
     return (
       <>
-        {isDefault && (
-          <div className="spacer-top note" style={{ lineHeight: '24px' }}>
-            {translate('settings._default')}
-          </div>
-        )}
+        {isDefault &&
+          !hasValueChanged && (
+            <div className="spacer-top note" style={{ lineHeight: '24px' }}>
+              {translate('settings._default')}
+            </div>
+          )}
         <div className="settings-definition-changes nowrap">
           {hasValueChanged && (
             <Button
@@ -98,7 +102,7 @@ export default class DefinitionActions extends React.PureComponent<Props, State>
             </Button>
           )}
 
-          {canBeReset && (
+          {showReset && (
             <Button className="spacer-right" onClick={this.handleReset}>
               {translate('reset_verb')}
             </Button>
@@ -110,7 +114,7 @@ export default class DefinitionActions extends React.PureComponent<Props, State>
             </Button>
           )}
 
-          {isExplicitlySet && (
+          {showReset && (
             <span className="note">
               {translate('default')}
               {': '}

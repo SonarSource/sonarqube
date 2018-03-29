@@ -82,11 +82,7 @@ class Definition extends React.PureComponent {
   handleChange = value => {
     clearTimeout(this.timeout);
     this.props.changeValue(this.props.setting.definition.key, value);
-    if (this.props.setting.definition.type === TYPE_PASSWORD) {
-      this.handleSave();
-    } else {
-      this.handleCheck();
-    }
+    this.handleCheck();
   };
 
   handleReset = () => {
@@ -145,7 +141,7 @@ class Definition extends React.PureComponent {
 
     const effectiveValue = hasValueChanged ? changedValue : getSettingValue(setting);
 
-    const isDefault = isDefaultOrInherited(setting) && !hasValueChanged;
+    const isDefault = isDefaultOrInherited(setting);
 
     return (
       <div className={className} data-key={definition.key}>
@@ -197,9 +193,9 @@ class Definition extends React.PureComponent {
           </div>
 
           <Input
+            hasValueChanged={hasValueChanged}
             onCancel={this.handleCancel}
             onChange={this.handleChange}
-            onSave={this.handleSave}
             setting={setting}
             value={effectiveValue}
           />
@@ -207,6 +203,7 @@ class Definition extends React.PureComponent {
           <DefinitionActions
             changedValue={changedValue}
             hasError={hasError}
+            hasValueChanged={hasValueChanged}
             isDefault={isDefault}
             onCancel={this.handleCancel}
             onReset={this.handleReset}
