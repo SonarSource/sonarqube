@@ -31,4 +31,15 @@ public interface ProjectLifeCycleListeners {
    * them fail with an exception.
    */
   void onProjectsDeleted(Set<Project> projects);
+
+  /**
+   * This method is called after the specified project's key has been changed and will call method
+   * {@link ProjectLifeCycleListener#onProjectRekeyed(RekeyedProject) onProjectRekeyed(RekeyedProject)} of all known
+   * {@link ProjectLifeCycleListener} implementations.
+   * <p>
+   * This method ensures all {@link ProjectLifeCycleListener} implementations are called, even if one or more of
+   * them fail with an exception.
+   */
+  void onProjectRekeyed(RekeyedProject rekeyedProject);
+
 }

@@ -26,6 +26,9 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.server.es.ProjectIndexer;
 import org.sonar.server.es.ProjectIndexers;
+import org.sonar.server.project.Project;
+import org.sonar.server.project.ProjectLifeCycleListeners;
+import org.sonar.server.project.RekeyedProject;
 import org.sonar.server.user.UserSession;
 
 import static java.util.Collections.singletonList;
@@ -38,23 +41,27 @@ public class ComponentService {
   private final DbClient dbClient;
   private final UserSession userSession;
   private final ProjectIndexers projectIndexers;
+  private final ProjectLifeCycleListeners projectLifeCycleListeners;
 
-  public ComponentService(DbClient dbClient, UserSession userSession, ProjectIndexers projectIndexers) {
+  public ComponentService(DbClient dbClient, UserSession userSession, ProjectIndexers projectIndexers, ProjectLifeCycleListeners projectLifeCycleListeners) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.projectIndexers = projectIndexers;
+    this.projectLifeCycleListeners = projectLifeCycleListeners;
   }
 
-  // TODO should be moved to UpdateKeyAction
   public void updateKey(DbSession dbSession, ComponentDto projectOrModule, String newKey) {
     userSession.checkComponentPermission(UserRole.ADMIN, projectOrModule);
     checkIsProjectOrModule(projectOrModule);
     checkProjectOrModuleKeyFormat(newKey);
     dbClient.componentKeyUpdaterDao().updateKey(dbSession, projectOrModule.uuid(), newKey);
     projectIndexers.commitAndIndex(dbSession, singletonList(projectOrModule), ProjectIndexer.Cause.PROJECT_KEY_UPDATE);
+    if (projectOrModule.isRootProject() && projectOrModule.getMainBranchProjectUuid() == null) {
+      Project newProject = new Project(projectOrModule.uuid(), newKey, projectOrModule.name(), projectOrModule.description());
+      projectLifeCycleListeners.onProjectRekeyed(new RekeyedProject(newProject, projectOrModule.getDbKey()));
+    }
   }
 
-  // TODO should be moved to BulkUpdateKeyAction
   public void bulkUpdateKey(DbSession dbSession, ComponentDto projectOrModule, String stringToReplace, String replacementString) {
     dbClient.componentKeyUpdaterDao().bulkUpdateKey(dbSession, projectOrModule.uuid(), stringToReplace, replacementString);
     projectIndexers.commitAndIndex(dbSession, singletonList(projectOrModule), ProjectIndexer.Cause.PROJECT_KEY_UPDATE);

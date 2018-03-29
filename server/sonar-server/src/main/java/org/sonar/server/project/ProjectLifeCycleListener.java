@@ -28,4 +28,9 @@ public interface ProjectLifeCycleListener {
    * This method is called after the specified projects have been deleted.
    */
   void onProjectsDeleted(Set<Project> projects);
+
+  /**
+   * This method is called after the specified project's key has been modified.
+   */
+  void onProjectRekeyed(RekeyedProject rekeyedProject);
 }

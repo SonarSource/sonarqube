@@ -19,12 +19,13 @@
  */
 package org.sonar.server.project;
 
-import com.google.common.base.Preconditions;
 import java.util.Arrays;
 import java.util.Set;
 import java.util.function.Consumer;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 public class ProjectLifeCycleListenersImpl implements ProjectLifeCycleListeners {
   private static final Logger LOG = Loggers.get(ProjectLifeCycleListenersImpl.class);
@@ -47,7 +48,7 @@ public class ProjectLifeCycleListenersImpl implements ProjectLifeCycleListeners 
 
   @Override
   public void onProjectsDeleted(Set<Project> projects) {
-    Preconditions.checkNotNull(projects, "projects can't be null");
+    checkNotNull(projects, "projects can't be null");
     if (projects.isEmpty()) {
       return;
     }
@@ -56,12 +57,20 @@ public class ProjectLifeCycleListenersImpl implements ProjectLifeCycleListeners 
       .forEach(safelyCallListener(listener -> listener.onProjectsDeleted(projects)));
   }
 
+  @Override
+  public void onProjectRekeyed(RekeyedProject rekeyedProject) {
+    checkNotNull(rekeyedProject, "rekeyedProject can't be null");
+
+    Arrays.stream(listeners)
+      .forEach(safelyCallListener(listener -> listener.onProjectRekeyed(rekeyedProject)));
+  }
+
   private static Consumer<ProjectLifeCycleListener> safelyCallListener(Consumer<ProjectLifeCycleListener> task) {
     return listener -> {
       try {
         task.accept(listener);
       } catch (Error | Exception e) {
-        LOG.error("Call to ProjectLifeCycleListener \"{}\" failed", listener.getClass(), e);
+        LOG.error("Call on ProjectLifeCycleListener \"{}\" failed", listener.getClass(), e);
       }
     };
   }
