@@ -19,6 +19,7 @@
  */
 package org.sonarqube.tests.qualityGate;
 
+import com.google.common.collect.ImmutableList;
 import com.google.gson.Gson;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.BuildResult;
@@ -34,49 +35,45 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import org.apache.commons.io.Charsets;
 import org.apache.commons.io.FileUtils;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.wsclient.qualitygate.NewCondition;
-import org.sonar.wsclient.qualitygate.QualityGate;
-import org.sonar.wsclient.qualitygate.QualityGateClient;
+import org.sonarqube.qa.util.QGateTester;
 import org.sonarqube.qa.util.Tester;
-import org.sonarqube.qa.util.TesterSession;
-import org.sonarqube.ws.Ce;
 import org.sonarqube.ws.Measures.Measure;
-import org.sonarqube.ws.MediaTypes;
-import org.sonarqube.ws.Organizations.Organization;
 import org.sonarqube.ws.Projects.CreateWsResponse.Project;
 import org.sonarqube.ws.Qualitygates;
 import org.sonarqube.ws.Qualitygates.CreateResponse;
+import org.sonarqube.ws.Qualitygates.ListWsResponse.QualityGate;
 import org.sonarqube.ws.Qualitygates.ProjectStatusResponse;
 import org.sonarqube.ws.Users;
-import org.sonarqube.ws.client.GetRequest;
-import org.sonarqube.ws.client.PostRequest;
-import org.sonarqube.ws.client.WsResponse;
+import org.sonarqube.ws.client.ce.TaskRequest;
+import org.sonarqube.ws.client.metrics.CreateRequest;
+import org.sonarqube.ws.client.metrics.DeleteRequest;
 import org.sonarqube.ws.client.permissions.AddUserRequest;
 import org.sonarqube.ws.client.qualitygates.CreateConditionRequest;
+import org.sonarqube.ws.client.qualitygates.DeleteConditionRequest;
+import org.sonarqube.ws.client.qualitygates.DestroyRequest;
+import org.sonarqube.ws.client.qualitygates.ListRequest;
 import org.sonarqube.ws.client.qualitygates.ProjectStatusRequest;
-import org.sonarqube.ws.client.qualitygates.QualitygatesService;
 import org.sonarqube.ws.client.qualitygates.SelectRequest;
+import org.sonarqube.ws.client.qualitygates.SetAsDefaultRequest;
 import org.sonarqube.ws.client.qualitygates.UpdateConditionRequest;
 
+import static java.lang.String.format;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
 import static org.sonarqube.ws.Qualitygates.ProjectStatusResponse.Status.ERROR;
 import static util.ItUtils.concat;
+import static util.ItUtils.expectHttpError;
 import static util.ItUtils.extractCeTaskId;
 import static util.ItUtils.getMeasure;
-import static util.ItUtils.newProjectKey;
 import static util.ItUtils.projectDir;
 
 public class QualityGateTest {
 
   private static final String TASK_STATUS_SUCCESS = "SUCCESS";
-  private static final String QG_STATUS_NO_QG = "null";
   private static final String QG_STATUS_OK = "OK";
   private static final String QG_STATUS_ERROR = "ERROR";
   private static final String QG_STATUS_WARN = "WARN";
@@ -85,114 +82,101 @@ public class QualityGateTest {
   public static Orchestrator orchestrator = QualityGateSuite.ORCHESTRATOR;
 
   @Rule
-  public Tester tester = new Tester(orchestrator)
-    // all the tests of QualityGateSuite must disable organizations
-    .disableOrganizations();
-
-  private QualityGate defaultGate;
-
-  @Before
-  public void setUp() {
-    defaultGate = qgClient().list().defaultGate();
-  }
-
-  @After
-  public void tearDown() {
-    if (defaultGate != null) {
-      qgClient().setDefault(defaultGate.id());
-    }
-  }
+  public Tester tester = new Tester(orchestrator).disableOrganizations();
 
   @Test
   public void status_ok_if_empty_gate() throws Exception {
-    Qualitygates.CreateResponse empty = tester.qGates().generate();
-    qgClient().setDefault(empty.getId());
+    Project project = tester.projects().provision();
+    Qualitygates.CreateResponse qualityGate = tester.qGates().generate();
+    tester.qGates().associateProject(qualityGate, project);
+    BuildResult buildResult = executeAnalysis(project.getKey());
 
-    String projectKey = newProjectKey();
-    BuildResult buildResult = executeAnalysis(projectKey);
+    verifyQGStatusInPostTask(buildResult, project.getKey(), TASK_STATUS_SUCCESS, QG_STATUS_OK);
 
-    verifyQGStatusInPostTask(buildResult, projectKey, TASK_STATUS_SUCCESS, QG_STATUS_OK);
-
-    assertThat(getGateStatusMeasure(projectKey).getValue()).isEqualTo("OK");
+    assertThat(getGateStatusMeasure(project.getKey()).getValue()).isEqualTo("OK");
   }
 
   @Test
   public void test_status_ok() throws IOException {
-    Qualitygates.CreateResponse simple = tester.qGates().generate();
-    qgClient().setDefault(simple.getId());
-    qgClient().createCondition(NewCondition.create(simple.getId()).metricKey("ncloc").operator("GT").warningThreshold("40"));
+    Project project = tester.projects().provision();
+    Qualitygates.CreateResponse qualityGate = tester.qGates().generate();
+    tester.qGates().associateProject(qualityGate, project);
+    tester.qGates().service().createCondition(new CreateConditionRequest().setGateId(Long.toString(qualityGate.getId())).setMetric("ncloc").setOp("GT").setWarning("40"));
+    BuildResult buildResult = executeAnalysis(project.getKey());
 
-    String projectKey = newProjectKey();
-    BuildResult buildResult = executeAnalysis(projectKey);
+    verifyQGStatusInPostTask(buildResult, project.getKey(), TASK_STATUS_SUCCESS, QG_STATUS_OK);
 
-    verifyQGStatusInPostTask(buildResult, projectKey, TASK_STATUS_SUCCESS, QG_STATUS_OK);
-
-    assertThat(getGateStatusMeasure(projectKey).getValue()).isEqualTo("OK");
+    assertThat(getGateStatusMeasure(project.getKey()).getValue()).isEqualTo("OK");
   }
 
   @Test
   public void test_status_warning() throws IOException {
-    Qualitygates.CreateResponse simple = tester.qGates().generate();
-    qgClient().setDefault(simple.getId());
-    qgClient().createCondition(NewCondition.create(simple.getId()).metricKey("ncloc").operator("GT").warningThreshold("10"));
+    Project project = tester.projects().provision();
+    Qualitygates.CreateResponse qualityGate = tester.qGates().generate();
+    tester.qGates().associateProject(qualityGate, project);
+    tester.qGates().service().createCondition(new CreateConditionRequest().setGateId(Long.toString(qualityGate.getId())).setMetric("ncloc").setOp("GT").setWarning("10"));
+    BuildResult buildResult = executeAnalysis(project.getKey());
 
-    String projectKey = newProjectKey();
-    BuildResult buildResult = executeAnalysis(projectKey);
+    verifyQGStatusInPostTask(buildResult, project.getKey(), TASK_STATUS_SUCCESS, QG_STATUS_WARN);
 
-    verifyQGStatusInPostTask(buildResult, projectKey, TASK_STATUS_SUCCESS, QG_STATUS_WARN);
-
-    assertThat(getGateStatusMeasure(projectKey).getValue()).isEqualTo("WARN");
+    assertThat(getGateStatusMeasure(project.getKey()).getValue()).isEqualTo("WARN");
   }
 
   @Test
   public void test_status_error() throws IOException {
-    Qualitygates.CreateResponse simple = tester.qGates().generate();
-    qgClient().setDefault(simple.getId());
-    qgClient().createCondition(NewCondition.create(simple.getId()).metricKey("ncloc").operator("GT").errorThreshold("10"));
+    Project project = tester.projects().provision();
+    Qualitygates.CreateResponse qualityGate = tester.qGates().generate();
+    tester.qGates().associateProject(qualityGate, project);
+    tester.qGates().service().createCondition(new CreateConditionRequest().setGateId(Long.toString(qualityGate.getId())).setMetric("ncloc").setOp("GT").setError("10"));
+    BuildResult buildResult = executeAnalysis(project.getKey());
 
-    String projectKey = newProjectKey();
-    BuildResult buildResult = executeAnalysis(projectKey);
+    verifyQGStatusInPostTask(buildResult, project.getKey(), TASK_STATUS_SUCCESS, QG_STATUS_ERROR);
 
-    verifyQGStatusInPostTask(buildResult, projectKey, TASK_STATUS_SUCCESS, QG_STATUS_ERROR);
-
-    assertThat(getGateStatusMeasure(projectKey).getValue()).isEqualTo("ERROR");
+    assertThat(getGateStatusMeasure(project.getKey()).getValue()).isEqualTo("ERROR");
   }
 
   @Test
   public void use_server_settings_instead_of_default_gate() throws IOException {
-    Qualitygates.CreateResponse alert = tester.qGates().generate();
-    qgClient().createCondition(NewCondition.create(alert.getId()).metricKey("ncloc").operator("GT").warningThreshold("10"));
-    Qualitygates.CreateResponse error = tester.qGates().generate();
-    qgClient().createCondition(NewCondition.create(error.getId()).metricKey("ncloc").operator("GT").errorThreshold("10"));
+    QualityGate existingDefaultQualityGate = tester.qGates().service().list(new ListRequest()).getQualitygatesList()
+      .stream()
+      .filter(QualityGate::getIsDefault)
+      .findFirst()
+      .orElseThrow(() -> new IllegalStateException("No default quality gate found"));
+    try {
+      Qualitygates.CreateResponse defaultQualityGate = tester.qGates().generate();
+      tester.qGates().service().createCondition(new CreateConditionRequest().setGateId(Long.toString(defaultQualityGate.getId())).setMetric("ncloc").setOp("GT").setWarning("10"));
+      tester.qGates().service().setAsDefault(new SetAsDefaultRequest().setId(Long.toString(defaultQualityGate.getId())));
 
-    qgClient().setDefault(alert.getId());
-    String projectKey = newProjectKey();
-    orchestrator.getServer().provisionProject(projectKey, projectKey);
-    associateQualityGateToProject(error.getId(), projectKey);
+      Project project = tester.projects().provision();
+      Qualitygates.CreateResponse qualityGate = tester.qGates().generate();
+      tester.qGates().service().createCondition(new CreateConditionRequest().setGateId(Long.toString(qualityGate.getId())).setMetric("ncloc").setOp("GT").setError("10"));
+      tester.qGates().associateProject(qualityGate, project);
 
-    BuildResult buildResult = executeAnalysis(projectKey);
+      BuildResult buildResult = executeAnalysis(project.getKey());
 
-    verifyQGStatusInPostTask(buildResult, projectKey, TASK_STATUS_SUCCESS, QG_STATUS_ERROR);
-
-    assertThat(getGateStatusMeasure(projectKey).getValue()).isEqualTo("ERROR");
+      verifyQGStatusInPostTask(buildResult, project.getKey(), TASK_STATUS_SUCCESS, QG_STATUS_ERROR);
+      assertThat(getGateStatusMeasure(project.getKey()).getValue()).isEqualTo("ERROR");
+    } finally {
+      tester.qGates().service().setAsDefault(new SetAsDefaultRequest().setId(Long.toString(existingDefaultQualityGate.getId())));
+    }
   }
 
   @Test
   public void conditions_on_multiple_metric_types() throws IOException {
-    Qualitygates.CreateResponse allTypes = tester.qGates().generate();
-    qgClient().createCondition(NewCondition.create(allTypes.getId()).metricKey("ncloc").operator("GT").warningThreshold("10"));
-    qgClient().createCondition(NewCondition.create(allTypes.getId()).metricKey("duplicated_lines_density").operator("GT").warningThreshold("20"));
-    qgClient().setDefault(allTypes.getId());
+    Project project = tester.projects().provision();
+    Qualitygates.CreateResponse qualityGate = tester.qGates().generate();
+    tester.qGates().associateProject(qualityGate, project);
+    tester.qGates().service().createCondition(new CreateConditionRequest().setGateId(Long.toString(qualityGate.getId())).setMetric("ncloc").setOp("GT").setWarning("10"));
+    tester.qGates().service()
+      .createCondition(new CreateConditionRequest().setGateId(Long.toString(qualityGate.getId())).setMetric("duplicated_lines_density").setOp("GT").setWarning("20"));
+    BuildResult buildResult = executeAnalysis(project.getKey(), "sonar.cpd.xoo.minimumLines", "2", "sonar.cpd.xoo.minimumTokens", "5");
 
-    String projectKey = newProjectKey();
-    BuildResult buildResult = executeAnalysis(projectKey, "sonar.cpd.xoo.minimumLines", "2", "sonar.cpd.xoo.minimumTokens", "5");
+    verifyQGStatusInPostTask(buildResult, project.getKey(), TASK_STATUS_SUCCESS, QG_STATUS_WARN);
 
-    verifyQGStatusInPostTask(buildResult, projectKey, TASK_STATUS_SUCCESS, QG_STATUS_WARN);
-
-    Measure alertStatus = getGateStatusMeasure(projectKey);
+    Measure alertStatus = getGateStatusMeasure(project.getKey());
     assertThat(alertStatus.getValue()).isEqualTo("WARN");
 
-    String qualityGateDetailJson = getMeasure(orchestrator, projectKey, "quality_gate_details").getValue();
+    String qualityGateDetailJson = getMeasure(orchestrator, project.getKey(), "quality_gate_details").getValue();
     assertThat(QualityGateDetails.parse(qualityGateDetailJson).getConditions())
       .extracting(QualityGateDetails.Conditions::getMetric, QualityGateDetails.Conditions::getOp, QualityGateDetails.Conditions::getWarning)
       .contains(tuple("ncloc", "GT", "10"), tuple("duplicated_lines_density", "GT", "20"));
@@ -200,19 +184,18 @@ public class QualityGateTest {
 
   @Test
   public void ad_hoc_build_break_strategy() throws IOException {
-    Qualitygates.CreateResponse simple = tester.qGates().generate();
-    qgClient().setDefault(simple.getId());
-    qgClient().createCondition(NewCondition.create(simple.getId()).metricKey("ncloc").operator("GT").errorThreshold("7"));
+    Project project = tester.projects().provision();
+    Qualitygates.CreateResponse qualityGate = tester.qGates().generate();
+    tester.qGates().associateProject(qualityGate, project);
+    tester.qGates().service().createCondition(new CreateConditionRequest().setGateId(Long.toString(qualityGate.getId())).setMetric("ncloc").setOp("GT").setError("7"));
+    BuildResult buildResult = executeAnalysis(project.getKey());
 
-    String projectKey = newProjectKey();
-    BuildResult buildResult = executeAnalysis(projectKey);
-
-    verifyQGStatusInPostTask(buildResult, projectKey, TASK_STATUS_SUCCESS, QG_STATUS_ERROR);
+    verifyQGStatusInPostTask(buildResult, project.getKey(), TASK_STATUS_SUCCESS, QG_STATUS_ERROR);
 
     String taskId = getTaskIdInLocalReport(projectDir("qualitygate/xoo-sample"));
-    String analysisId = getAnalysisId(taskId);
+    String analysisId = tester.wsClient().ce().task(new TaskRequest().setId(taskId)).getTask().getAnalysisId();
 
-    ProjectStatusResponse projectStatusWsResponse = tester.wsClient().qualitygates().projectStatus(new ProjectStatusRequest().setAnalysisId(analysisId));
+    ProjectStatusResponse projectStatusWsResponse = tester.qGates().service().projectStatus(new ProjectStatusRequest().setAnalysisId(analysisId));
     ProjectStatusResponse.ProjectStatus projectStatus = projectStatusWsResponse.getProjectStatus();
     assertThat(projectStatus.getStatus()).isEqualTo(ERROR);
     assertThat(projectStatus.getConditionsCount()).isEqualTo(1);
@@ -223,52 +206,59 @@ public class QualityGateTest {
 
   @Test
   public void does_not_fail_when_condition_is_on_removed_metric() throws Exception {
-    // create project
     Project project = tester.projects().provision();
-    String projectKey = project.getKey();
-
-    // create custom metric
     String customMetricKey = randomAlphabetic(10);
-    createCustomIntMetric(customMetricKey);
+    tester.wsClient().metrics().create(new CreateRequest().setKey(customMetricKey).setName(customMetricKey).setType("INT"));
     try {
       // create quality gate
-      Qualitygates.CreateResponse simple = tester.qGates().generate();
-      Long qualityGateId = simple.getId();
-      qgClient().createCondition(NewCondition.create(qualityGateId).metricKey(customMetricKey).operator("GT").warningThreshold("40"));
-
+      Qualitygates.CreateResponse qualityGate = tester.qGates().generate();
+      Long qualityGateId = qualityGate.getId();
+      tester.qGates().service().createCondition(new CreateConditionRequest().setGateId(Long.toString(qualityGate.getId())).setMetric(customMetricKey).setOp("GT").setWarning("40"));
       // delete custom metric
-      deleteCustomMetric(customMetricKey);
+      tester.wsClient().metrics().delete(new DeleteRequest().setKeys(ImmutableList.of(customMetricKey)));
 
       // run analysis
-      tester.wsClient().qualitygates().select(new SelectRequest().setProjectKey(projectKey).setGateId(String.valueOf(qualityGateId)));
-      BuildResult buildResult = executeAnalysis(projectKey);
+      tester.qGates().service().select(new SelectRequest().setProjectKey(project.getKey()).setGateId(String.valueOf(qualityGateId)));
+      BuildResult buildResult = executeAnalysis(project.getKey());
 
       // verify quality gate
-      verifyQGStatusInPostTask(buildResult, projectKey, TASK_STATUS_SUCCESS, QG_STATUS_OK);
-      assertThat(getGateStatusMeasure(projectKey).getValue()).isEqualTo("OK");
+      verifyQGStatusInPostTask(buildResult, project.getKey(), TASK_STATUS_SUCCESS, QG_STATUS_OK);
+      assertThat(getGateStatusMeasure(project.getKey()).getValue()).isEqualTo("OK");
     } finally {
-      deleteCustomMetric(customMetricKey);
+      tester.wsClient().metrics().delete(new DeleteRequest().setKeys(ImmutableList.of(customMetricKey)));
     }
   }
 
   @Test
   public void administrate_quality_gate_with_gateadmin_permission() {
     // user is quality gate admin of default organization
-    Organization organization = tester.organizations().getDefaultOrganization();
-    Users.CreateWsResponse.User user = tester.users().generateMember(organization);
-    tester.wsClient().permissions().addUser(new AddUserRequest().setLogin(user.getLogin()).setPermission("gateadmin").setOrganization(organization.getKey()));
-    TesterSession qGateAdminTester = tester.as(user.getLogin());
-    QualitygatesService qGateService = qGateAdminTester.qGates().service();
+    Users.CreateWsResponse.User user = tester.users().generate();
+    tester.wsClient().permissions().addUser(new AddUserRequest().setLogin(user.getLogin()).setPermission("gateadmin"));
+    QGateTester qGateAdminTester = tester.as(user.getLogin()).qGates();
+
     // perform administration operations
-    CreateResponse qualityGate = qGateAdminTester.qGates().generate();
-    Qualitygates.CreateConditionResponse condition = qGateService.createCondition(new CreateConditionRequest()
+    CreateResponse qualityGate = qGateAdminTester.generate();
+    Qualitygates.CreateConditionResponse condition = qGateAdminTester.service().createCondition(new CreateConditionRequest()
       .setGateId(String.valueOf(qualityGate.getId())).setMetric("coverage").setOp("LT").setError("90"));
-    qGateService.updateCondition(new UpdateConditionRequest()
+    qGateAdminTester.service().updateCondition(new UpdateConditionRequest()
       .setId(String.valueOf(condition.getId())).setMetric("coverage").setOp("LT").setError("90").setWarning("80"));
-    qGateAdminTester.wsClient().wsConnector().call(new PostRequest("api/qualitygates/set_as_default").setParam("id", qualityGate.getId()));
-    qGateAdminTester.wsClient().wsConnector().call(new PostRequest("api/qualitygates/delete_condition").setParam("id", condition.getId()));
-    qGateAdminTester.wsClient().wsConnector().call(new PostRequest("api/qualitygates/unset_default").setParam("id", qualityGate.getId()));
-    qGateAdminTester.wsClient().wsConnector().call(new PostRequest("api/qualitygates/destroy").setParam("id", qualityGate.getId()));
+    qGateAdminTester.service().deleteCondition(new DeleteConditionRequest().setId(Long.toString(condition.getId())));
+    qGateAdminTester.service().destroy(new DestroyRequest().setId(Long.toString(qualityGate.getId())));
+  }
+
+  @Test
+  public void fail_to_create_and_update_conditions_when_using_invalid_values() {
+    Qualitygates.CreateResponse qualityGate = tester.qGates().generate();
+
+    expectHttpError(400,
+      format("Invalid value 'INVALID' for metric 'ncloc'"),
+      () -> tester.qGates().service().createCondition(new CreateConditionRequest().setGateId(Long.toString(qualityGate.getId())).setMetric("ncloc").setOp("GT").setWarning("INVALID")));
+    expectHttpError(400,
+      format("User '%s' is not member of organization '%s'"),
+      () -> tester.qGates().service().createCondition(new CreateConditionRequest().setGateId(Long.toString(qualityGate.getId())).setMetric("sqale_index").setOp("GT").setWarning("10d")));
+    expectHttpError(400,
+      format("User '%s' is not member of organization '%s'"),
+      () -> tester.qGates().service().createCondition(new CreateConditionRequest().setGateId(Long.toString(qualityGate.getId())).setMetric("coverage").setOp("GT").setWarning("10%")));
   }
 
   private BuildResult executeAnalysis(String projectKey, String... keyValueProperties) {
@@ -287,16 +277,6 @@ public class QualityGateTest {
       .contains("QualityGate[" + qgStatus + "]");
   }
 
-  private String getAnalysisId(String taskId) throws IOException {
-    WsResponse activity = tester.wsClient()
-      .wsConnector()
-      .call(new GetRequest("api/ce/task")
-        .setParam("id", taskId)
-        .setMediaType(MediaTypes.PROTOBUF));
-    Ce.TaskResponse activityWsResponse = Ce.TaskResponse.parseFrom(activity.contentStream());
-    return activityWsResponse.getTask().getAnalysisId();
-  }
-
   private String getTaskIdInLocalReport(File projectDirectory) throws IOException {
     File metadata = new File(projectDirectory, ".sonar/report-task.txt");
     assertThat(metadata).exists().isFile();
@@ -312,37 +292,11 @@ public class QualityGateTest {
     return getMeasure(orchestrator, projectKey, "alert_status");
   }
 
-  private QualityGateClient qgClient() {
-    return orchestrator.getServer().adminWsClient().qualityGateClient();
-  }
-
-  private void associateQualityGateToProject(long qGateId, String projectKey) {
-    tester.wsClient().wsConnector()
-      .call(new PostRequest("api/qualitygates/select")
-        .setParam("gateId", qGateId)
-        .setParam("projectKey", projectKey))
-      .failIfNotSuccessful();
-  }
-
   private static List<String> extractPosttaskPluginLogs(String taskUuid, Iterable<String> ceLogs) {
     return StreamSupport.stream(ceLogs.spliterator(), false)
       .filter(s -> s.contains("POSTASKPLUGIN: finished()"))
       .filter(s -> s.contains(taskUuid))
       .collect(Collectors.toList());
-  }
-
-  private void createCustomIntMetric(String metricKey) {
-    tester.wsClient().wsConnector().call(new PostRequest("api/metrics/create")
-      .setParam("key", metricKey)
-      .setParam("name", metricKey)
-      .setParam("type", "INT"))
-      .failIfNotSuccessful();
-  }
-
-  private void deleteCustomMetric(String metricKey) {
-    tester.wsClient().wsConnector().call(new PostRequest("api/metrics/delete")
-      .setParam("keys", metricKey))
-      .failIfNotSuccessful();
   }
 
   static class QualityGateDetails {

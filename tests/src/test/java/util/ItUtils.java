@@ -85,7 +85,6 @@ import static com.sonar.orchestrator.container.Server.ADMIN_PASSWORD;
 import static java.lang.Double.parseDouble;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
-import static java.util.Locale.ENGLISH;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
@@ -314,7 +313,7 @@ public class ItUtils {
   }
 
   /**
-   * @deprecated no more needed as already done by n by {@link Tester#after()}
+   * @deprecated no more needed as already done by {@link Tester#after()}
    */
   @Deprecated
   public static void resetEmailSettings(Orchestrator orchestrator) {
@@ -323,7 +322,7 @@ public class ItUtils {
   }
 
   /**
-   * @deprecated no more needed as already done by n by {@link Tester#after()}
+   * @deprecated no more needed as already done by {@link Tester#after()}
    */
   @Deprecated
   public static void resetPeriod(Orchestrator orchestrator) {
@@ -432,10 +431,6 @@ public class ItUtils {
       .build().call(httpRequest);
   }
 
-  public static String newOrganizationKey() {
-    return randomAlphabetic(32).toLowerCase(ENGLISH);
-  }
-
   public static String newProjectKey() {
     return "key-" + randomAlphabetic(100);
   }
@@ -496,11 +491,6 @@ public class ItUtils {
 
   public static String formatDate(Date d) {
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-    return sdf.format(d);
-  }
-
-  public static String formatDateTime(Date d) {
-    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
     return sdf.format(d);
   }
 

@@ -31,6 +31,7 @@ import org.sonar.server.qualitygate.QualityGateConditionsUpdater;
 import org.sonar.server.qualitygate.QualityGateFinder;
 import org.sonarqube.ws.Qualitygates.CreateConditionResponse;
 
+import static com.google.common.base.Strings.emptyToNull;
 import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.server.qualitygate.ws.QualityGatesWs.addConditionParams;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.ACTION_CREATE_CONDITION;
@@ -89,7 +90,7 @@ public class CreateConditionAction implements QualityGatesWsAction {
       OrganizationDto organization = wsSupport.getOrganization(dbSession, request);
       QGateWithOrgDto qualityGate = qualityGateFinder.getByOrganizationAndId(dbSession, organization, gateId);
       wsSupport.checkCanEdit(qualityGate);
-      QualityGateConditionDto condition = qualityGateConditionsUpdater.createCondition(dbSession, qualityGate, metric, operator, warning, error, period);
+      QualityGateConditionDto condition = qualityGateConditionsUpdater.createCondition(dbSession, qualityGate, metric, operator, emptyToNull(warning), emptyToNull(error), period);
       CreateConditionResponse.Builder createConditionResponse = CreateConditionResponse.newBuilder()
         .setId(condition.getId())
         .setMetric(condition.getMetricKey())

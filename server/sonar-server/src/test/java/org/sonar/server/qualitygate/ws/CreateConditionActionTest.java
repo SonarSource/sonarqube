@@ -148,6 +148,44 @@ public class CreateConditionActionTest {
   }
 
   @Test
+  public void create_warning_condition_with_empty_string_on_error() {
+    OrganizationDto organization = db.organizations().insert();
+    logInAsQualityGateAdmin(organization);
+    QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization);
+    MetricDto metric = insertMetric();
+
+    ws.newRequest()
+      .setParam(PARAM_GATE_ID, qualityGate.getId().toString())
+      .setParam(PARAM_METRIC, metric.getKey())
+      .setParam(PARAM_OPERATOR, "LT")
+      .setParam(PARAM_WARNING, "90")
+      .setParam(PARAM_ERROR, "")
+      .setParam(PARAM_ORGANIZATION, organization.getKey())
+      .execute();
+
+    assertCondition(qualityGate, metric, "LT", "90", null, null);
+  }
+
+  @Test
+  public void create_error_condition_with_empty_string_on_warning() {
+    OrganizationDto organization = db.organizations().insert();
+    logInAsQualityGateAdmin(organization);
+    QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization);
+    MetricDto metric = insertMetric();
+
+    ws.newRequest()
+      .setParam(PARAM_GATE_ID, qualityGate.getId().toString())
+      .setParam(PARAM_METRIC, metric.getKey())
+      .setParam(PARAM_OPERATOR, "LT")
+      .setParam(PARAM_WARNING, "")
+      .setParam(PARAM_ERROR, "90")
+      .setParam(PARAM_ORGANIZATION, organization.getKey())
+      .execute();
+
+    assertCondition(qualityGate, metric, "LT", null, "90", null);
+  }
+
+  @Test
   public void fail_to_update_built_in_quality_gate() {
     OrganizationDto organization = db.organizations().insert();
     logInAsQualityGateAdmin(organization);

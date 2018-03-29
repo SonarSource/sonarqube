@@ -38,7 +38,9 @@ import org.sonar.server.computation.task.projectanalysis.qualitymodel.Rating;
 import org.sonar.server.exceptions.NotFoundException;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
+import static java.lang.Double.parseDouble;
 import static java.lang.Integer.parseInt;
+import static java.lang.Long.parseLong;
 import static java.lang.String.format;
 import static java.util.Arrays.stream;
 import static org.sonar.api.measures.Metric.ValueType.RATING;
@@ -115,6 +117,9 @@ public class QualityGateConditionsUpdater {
     checkOperator(metric, operator, errors);
     checkThresholds(warningThreshold, errorThreshold, errors);
     checkPeriod(metric, period, errors);
+
+    validateThresholdValues(metric, warningThreshold, errors);
+    validateThresholdValues(metric, errorThreshold, errors);
     checkRatingMetric(metric, warningThreshold, errorThreshold, period, errors);
     checkRequest(errors.isEmpty(), errors);
   }
@@ -157,6 +162,37 @@ public class QualityGateConditionsUpdater {
     checkRequest(!conditionExists, period == null
       ? format("Condition on metric '%s' already exists.", metric.getShortName())
       : format("Condition on metric '%s' over leak period already exists.", metric.getShortName()));
+  }
+
+  private static void validateThresholdValues(MetricDto metric, @Nullable String value, List<String> errors) {
+    if (value == null) {
+      return;
+    }
+    try {
+      ValueType valueType = ValueType.valueOf(metric.getValueType());
+      switch (valueType) {
+        case BOOL:
+        case INT:
+        case RATING:
+          parseInt(value);
+          return;
+        case MILLISEC:
+        case WORK_DUR:
+          parseLong(value);
+          return;
+        case FLOAT:
+        case PERCENT:
+          parseDouble(value);
+          return;
+        case STRING:
+        case LEVEL:
+          return;
+        default:
+          throw new IllegalArgumentException(format("Unsupported value type %s. Cannot convert condition value", valueType));
+      }
+    } catch (Exception e) {
+      errors.add(format("Invalid value '%s' for metric '%s'", value, metric.getShortName()));
+    }
   }
 
   private static void checkRatingMetric(MetricDto metric, @Nullable String warningThreshold, @Nullable String errorThreshold, @Nullable Integer period, List<String> errors) {
