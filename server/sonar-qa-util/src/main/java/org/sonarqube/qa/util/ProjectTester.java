@@ -22,8 +22,11 @@ package org.sonarqube.qa.util;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
+import org.sonarqube.ws.Components;
 import org.sonarqube.ws.Organizations;
 import org.sonarqube.ws.Projects;
+import org.sonarqube.ws.client.HttpException;
+import org.sonarqube.ws.client.components.ShowRequest;
 import org.sonarqube.ws.client.projects.CreateRequest;
 import org.sonarqube.ws.client.projects.DeleteRequest;
 import org.sonarqube.ws.client.projects.ProjectsService;
@@ -63,5 +66,17 @@ public class ProjectTester {
     stream(populators).forEach(p -> p.accept(request));
 
     return session.wsClient().projects().create(request).getProject();
+  }
+
+  public boolean exists(String projectKey) {
+    try {
+      Components.ShowWsResponse response = session.wsClient().components().show(new ShowRequest().setComponent(projectKey));
+      return response.getComponent() != null;
+    } catch (HttpException e) {
+      if (e.code() == 404) {
+        return false;
+      }
+      throw new IllegalStateException(e);
+    }
   }
 }

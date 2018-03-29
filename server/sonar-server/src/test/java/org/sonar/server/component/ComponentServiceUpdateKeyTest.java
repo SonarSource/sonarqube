@@ -76,8 +76,9 @@ public class ComponentServiceUpdateKeyTest {
     // Check file key has been updated
     assertThat(db.getDbClient().componentDao().selectByKey(dbSession, file.getDbKey())).isAbsent();
     assertThat(db.getDbClient().componentDao().selectByKey(dbSession, "sample2:root:src/File.xoo")).isNotNull();
+    assertThat(db.getDbClient().componentDao().selectByKey(dbSession, "sample2:root:src/InactiveFile.xoo")).isNotNull();
 
-    assertThat(dbClient.componentDao().selectByKey(dbSession, inactiveFile.getDbKey())).isPresent();
+    assertThat(dbClient.componentDao().selectByKey(dbSession, inactiveFile.getDbKey())).isAbsent();
 
     org.assertj.core.api.Assertions.assertThat(projectIndexers.hasBeenCalled(project.uuid(), ProjectIndexer.Cause.PROJECT_KEY_UPDATE)).isTrue();
   }
@@ -185,17 +186,13 @@ public class ComponentServiceUpdateKeyTest {
     assertComponentKeyUpdated(project.getDbKey(), "your_project");
     assertComponentKeyUpdated(module.getDbKey(), "your_project:root:module");
     assertComponentKeyUpdated(file.getDbKey(), "your_project:root:module:src/File.xoo");
-    assertComponentKeyNotUpdated(inactiveModule.getDbKey());
-    assertComponentKeyNotUpdated(inactiveFile.getDbKey());
+    assertComponentKeyUpdated(inactiveModule.getDbKey(), "your_project:root:inactive_module");
+    assertComponentKeyUpdated(inactiveFile.getDbKey(), "your_project:root:module:src/InactiveFile.xoo");
   }
 
   private void assertComponentKeyUpdated(String oldKey, String newKey) {
     assertThat(dbClient.componentDao().selectByKey(dbSession, oldKey)).isAbsent();
     assertThat(dbClient.componentDao().selectByKey(dbSession, newKey)).isPresent();
-  }
-
-  private void assertComponentKeyNotUpdated(String key) {
-    assertThat(dbClient.componentDao().selectByKey(dbSession, key)).isPresent();
   }
 
   private ComponentDto insertSampleRootProject() {

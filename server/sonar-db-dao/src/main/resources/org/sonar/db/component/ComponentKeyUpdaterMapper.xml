@@ -29,7 +29,6 @@
     where
     root_uuid = #{rootUuid,jdbcType=VARCHAR}
     and scope != 'PRJ'
-    and enabled = ${_true}
   </select>
 
   <select id="selectDescendantProjects" parameterType="String" resultMap="resourceResultMap">
@@ -38,7 +37,6 @@
     scope='PRJ'
     and root_uuid = #{rootUuid,jdbcType=VARCHAR}
     and uuid != #{rootUuid,jdbcType=VARCHAR}
-    and enabled = ${_true}
   </select>
 
   <update id="update" parameterType="Resource">

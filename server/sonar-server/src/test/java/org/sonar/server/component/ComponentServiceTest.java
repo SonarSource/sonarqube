@@ -65,8 +65,8 @@ public class ComponentServiceTest {
     assertComponentKeyUpdated(project.getDbKey(), "your_project");
     assertComponentKeyUpdated(module.getDbKey(), "your_project:root:module");
     assertComponentKeyUpdated(file.getDbKey(), "your_project:root:module:src/File.xoo");
-    assertComponentKeyNotUpdated(inactiveModule.getDbKey());
-    assertComponentKeyNotUpdated(inactiveFile.getDbKey());
+    assertComponentKeyUpdated(inactiveModule.getDbKey(), "your_project:root:inactive_module");
+    assertComponentKeyUpdated(inactiveFile.getDbKey(), "your_project:root:module:src/InactiveFile.xoo");
   }
 
   private void assertComponentKeyUpdated(String oldKey, String newKey) {

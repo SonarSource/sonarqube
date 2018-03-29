@@ -21,31 +21,43 @@ package org.sonarqube.tests.project;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
+import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
 import org.junit.After;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.DisableOnDebug;
+import org.junit.rules.TemporaryFolder;
 import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
 import org.sonarqube.qa.util.Tester;
 import org.sonarqube.ws.Components;
 import org.sonarqube.ws.Organizations;
 import org.sonarqube.ws.Projects;
+import org.sonarqube.ws.Projects.BulkUpdateKeyWsResponse.Key;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.WsResponse;
 import org.sonarqube.ws.client.components.SearchProjectsRequest;
 import org.sonarqube.ws.client.components.ShowRequest;
+import org.sonarqube.ws.client.components.TreeRequest;
+import org.sonarqube.ws.client.projects.BulkUpdateKeyRequest;
 import org.sonarqube.ws.client.projects.UpdateKeyRequest;
-import org.sonarqube.ws.client.projects.CreateRequest;
 import util.ItUtils;
 
+import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.groups.Tuple.tuple;
 import static util.ItUtils.projectDir;
 
 public class ProjectKeyUpdateTest {
@@ -57,7 +69,8 @@ public class ProjectKeyUpdateTest {
 
   @Rule
   public TestRule safeguard = new DisableOnDebug(Timeout.seconds(300));
-
+  @Rule
+  public TemporaryFolder temp = new TemporaryFolder();
   @Rule
   public Tester tester = new Tester(orchestrator).setElasticsearchHttpPort(ProjectSuite.SEARCH_HTTP_PORT);
 
@@ -67,17 +80,18 @@ public class ProjectKeyUpdateTest {
   }
 
   @Test
-  public void update_key() {
-    analyzeXooSample();
-    String newProjectKey = "another_project_key";
-    Components.Component project = tester.wsClient().components().show(new ShowRequest().setComponent(PROJECT_KEY)).getComponent();
-    assertThat(project.getKey()).isEqualTo(PROJECT_KEY);
+  public void update_key() throws IOException {
+    Organizations.Organization organization = tester.organizations().generate();
+    File projectDir = new XooProjectBuilder(PROJECT_KEY)
+      .build(temp.newFolder());
+    analyze(organization, projectDir);
+    assertThat(tester.projects().exists(PROJECT_KEY)).isTrue();
 
-    tester.wsClient().projects().updateKey(new UpdateKeyRequest()
-      .setFrom(PROJECT_KEY)
-      .setTo(newProjectKey));
+    String newProjectKey = "renamed";
+    updateProjectKey(PROJECT_KEY, newProjectKey, false);
 
-    assertThat(tester.wsClient().components().show(new ShowRequest().setComponentId(project.getId())).getComponent().getKey()).isEqualTo(newProjectKey);
+    assertThat(tester.projects().exists(PROJECT_KEY)).isFalse();
+    assertThat(tester.projects().exists(newProjectKey)).isTrue();
   }
 
   @Test
@@ -85,7 +99,7 @@ public class ProjectKeyUpdateTest {
     Organizations.Organization organization = tester.organizations().generate();
     Projects.CreateWsResponse.Project project = createProject(organization, "one", "Foo");
 
-    updateKey(project, "two");
+    updateProjectKey(project.getKey(), "two", false);
 
     assertThat(isProjectInDatabase("one")).isFalse();
     assertThat(isProjectInDatabase("two")).isTrue();
@@ -102,7 +116,7 @@ public class ProjectKeyUpdateTest {
 
     lockWritesOnProjectIndices();
 
-    updateKey(project, "two");
+    updateProjectKey(project.getKey(), "two", false);
 
     assertThat(isProjectInDatabase("one")).isFalse();
 
@@ -142,7 +156,7 @@ public class ProjectKeyUpdateTest {
     String initialKey = "com.sonarsource.it.samples:multi-modules-sample:module_a";
     String newKey = "com.sonarsource.it.samples:multi-modules-sample:module_c";
 
-    updateKey(initialKey, newKey);
+    updateModuleKey(initialKey, newKey);
 
     assertThat(isComponentInDatabase(initialKey)).isFalse();
     assertThat(isComponentInDatabase(newKey)).isTrue();
@@ -168,7 +182,7 @@ public class ProjectKeyUpdateTest {
     String newKey = "com.sonarsource.it.samples:multi-modules-sample:module_c";
 
     lockWritesOnProjectIndices();
-    updateKey(initialKey, newKey);
+    updateModuleKey(initialKey, newKey);
 
     // api/components/search loads keys from db, so results are consistent
     assertThat(isComponentInDatabase(initialKey)).isFalse();
@@ -193,7 +207,133 @@ public class ProjectKeyUpdateTest {
       Thread.sleep(1_000L);
       recovered = keysInComponentSuggestions(newKey).contains(newKey) && keysInComponentSuggestions(initialKey).isEmpty();
     }
+  }
 
+  /**
+   * SONAR-10511
+   */
+  @Test
+  public void update_key_of_disabled_files() throws Exception {
+    Organizations.Organization organization = tester.organizations().generate();
+
+    // first analysis
+    File projectWith2Files = new XooProjectBuilder(PROJECT_KEY)
+      .setFilesPerModule(2)
+      .build(temp.newFolder());
+    analyze(organization, projectWith2Files);
+    assertThat(countFilesInProject()).isEqualTo(2);
+
+    // second analysis emulates a deletion of file
+    File projectWith1File = new XooProjectBuilder(PROJECT_KEY)
+      .setFilesPerModule(1)
+      .build(temp.newFolder());
+    analyze(organization, projectWith1File);
+    assertThat(countFilesInProject()).isEqualTo(1);
+
+    // update the project key
+    updateProjectKey(PROJECT_KEY, "renamed", false);
+    ItUtils.expectNotFoundError(() -> tester.wsClient().components().show(new ShowRequest().setComponent(PROJECT_KEY)));
+
+    // first analysis of the new project, which re-enables the deleted file
+    analyze(organization, projectWith2Files);
+    assertThat(countFilesInProject()).isEqualTo(2);
+  }
+
+  /**
+   * SONAR-10511
+   */
+  @Test
+  public void update_of_project_key_includes_disabled_modules() throws Exception {
+    Organizations.Organization organization = tester.organizations().generate();
+
+    // first analysis
+    File projectWithModulesAB = new XooProjectBuilder(PROJECT_KEY)
+      .addModules("module_a", "module_b")
+      .build(temp.newFolder());
+    analyze(organization, projectWithModulesAB);
+    assertThat(countFilesInProject()).isEqualTo(3);
+
+    // second analysis emulates deletion of module_b
+    File projectWithModuleA = new XooProjectBuilder(PROJECT_KEY)
+      .addModules("module_a")
+      .build(temp.newFolder());
+    analyze(organization, projectWithModuleA);
+    assertThat(countFilesInProject()).isEqualTo(2);
+
+    // update the project key
+    updateProjectKey(PROJECT_KEY, "renamed", false);
+    assertThat(tester.projects().exists(PROJECT_KEY)).isFalse();
+
+    // analysis of new project, re-enabling the deleted module
+    File projectWithModulesBC = new XooProjectBuilder(PROJECT_KEY)
+      .addModules("module_b", "module_c")
+      .build(temp.newFolder());
+    analyze(organization, projectWithModulesBC);
+    assertThat(countFilesInProject()).isEqualTo(3);
+  }
+
+  @Test
+  public void simulate_update_key_of_modules() throws Exception {
+    Organizations.Organization organization = tester.organizations().generate();
+
+    File project = new XooProjectBuilder(PROJECT_KEY)
+      .addModules("module_a", "module_b")
+      .build(temp.newFolder());
+    analyze(organization, project);
+    assertThat(tester.projects().exists(PROJECT_KEY)).isTrue();
+
+    // simulate update of project key
+    Projects.BulkUpdateKeyWsResponse response = updateProjectKey(PROJECT_KEY, "renamed", true);
+
+    assertThat(tester.projects().exists(PROJECT_KEY)).isTrue();
+    assertThat(tester.projects().exists("renamed")).isFalse();
+    assertThat(response.getKeysList())
+      .extracting(Key::getKey, Key::getNewKey)
+      .containsExactlyInAnyOrder(
+        tuple(PROJECT_KEY, "renamed"),
+        tuple(PROJECT_KEY + ":module_a", "renamed:module_a"),
+        tuple(PROJECT_KEY + ":module_b", "renamed:module_b"));
+  }
+
+  @Test
+  public void simulate_update_key_of_disabled_modules() throws Exception {
+    Organizations.Organization organization = tester.organizations().generate();
+
+    // first analysis
+    File projectWithModulesAB = new XooProjectBuilder(PROJECT_KEY)
+      .addModules("module_a", "module_b")
+      .build(temp.newFolder());
+    analyze(organization, projectWithModulesAB);
+    assertThat(countFilesInProject()).isEqualTo(3);
+
+    // second analysis emulates deletion of module_b
+    File projectWithModuleA = new XooProjectBuilder(PROJECT_KEY)
+      .addModules("module_a")
+      .build(temp.newFolder());
+    analyze(organization, projectWithModuleA);
+    assertThat(countFilesInProject()).isEqualTo(2);
+
+    // update the project key
+    Projects.BulkUpdateKeyWsResponse response = updateProjectKey(PROJECT_KEY, "renamed", true);
+
+    assertThat(tester.projects().exists(PROJECT_KEY)).isTrue();
+    assertThat(tester.projects().exists("renamed")).isFalse();
+    assertThat(response.getKeysList())
+      .extracting(Key::getKey, Key::getNewKey)
+      .containsExactlyInAnyOrder(
+        tuple(PROJECT_KEY, "renamed"),
+        tuple(PROJECT_KEY + ":module_a", "renamed:module_a"));
+  }
+
+  private int countFilesInProject() {
+    TreeRequest request = new TreeRequest().setComponent(PROJECT_KEY).setQualifiers(asList("FIL"));
+    return tester.wsClient().components().tree(request).getComponentsCount();
+  }
+
+  private void analyze(Organizations.Organization organization, File projectDir) {
+    orchestrator.executeBuild(SonarScanner.create(projectDir,
+      "sonar.organization", organization.getKey(),
+      "sonar.login", "admin", "sonar.password", "admin"));
   }
 
   private void lockWritesOnProjectIndices() throws Exception {
@@ -206,17 +346,20 @@ public class ProjectKeyUpdateTest {
     tester.elasticsearch().unlockWrites("projectmeasures");
   }
 
-  private void updateKey(Projects.CreateWsResponse.Project project, String newKey) {
-    tester.wsClient().projects().updateKey(new UpdateKeyRequest().setFrom(project.getKey()).setTo(newKey));
-  }
-
-  private void updateKey(String initialKey, String newKey) {
+  private void updateModuleKey(String initialKey, String newKey) {
     tester.wsClient().projects().updateKey(new UpdateKeyRequest().setFrom(initialKey).setTo(newKey));
   }
 
+  private Projects.BulkUpdateKeyWsResponse updateProjectKey(String initialKey, String newKey, boolean dryRun) {
+    return tester.wsClient().projects().bulkUpdateKey(new BulkUpdateKeyRequest()
+      .setProject(initialKey)
+      .setFrom(initialKey)
+      .setTo(newKey)
+      .setDryRun(String.valueOf(dryRun)));
+  }
+
   private Projects.CreateWsResponse.Project createProject(Organizations.Organization organization, String key, String name) {
-    CreateRequest createRequest = new CreateRequest().setProject(key).setName(name).setOrganization(organization.getKey());
-    return tester.wsClient().projects().create(createRequest).getProject();
+    return tester.projects().provision(organization, r -> r.setProject(key).setName(name));
   }
 
   private boolean isProjectInDatabase(String projectKey) {
@@ -255,8 +398,58 @@ public class ProjectKeyUpdateTest {
       .collect(Collectors.toList());
   }
 
-  private void analyzeXooSample() {
-    SonarScanner build = SonarScanner.create(projectDir("shared/xoo-sample"));
-    orchestrator.executeBuild(build);
+  private static class XooProjectBuilder {
+    private final String key;
+    private final List<String> moduleKeys = new ArrayList<>();
+    private int filesPerModule = 1;
+
+    XooProjectBuilder(String projectKey) {
+      this.key = projectKey;
+    }
+
+    XooProjectBuilder addModules(String key, String... otherKeys) {
+      this.moduleKeys.add(key);
+      this.moduleKeys.addAll(asList(otherKeys));
+      return this;
+    }
+
+    XooProjectBuilder setFilesPerModule(int i) {
+      this.filesPerModule = i;
+      return this;
+    }
+
+    File build(File dir) {
+      for (String moduleKey : moduleKeys) {
+        generateModule(moduleKey, new File(dir, moduleKey), new Properties());
+      }
+      Properties additionalProps = new Properties();
+      additionalProps.setProperty("sonar.modules", StringUtils.join(moduleKeys, ","));
+      generateModule(key, dir, additionalProps);
+      return dir;
+    }
+
+    private void generateModule(String key, File dir, Properties additionalProps) {
+      try {
+        File sourceDir = new File(dir, "src");
+        FileUtils.forceMkdir(sourceDir);
+        for (int i = 0; i < filesPerModule; i++) {
+          File sourceFile = new File(sourceDir, "File" + i + ".xoo");
+          FileUtils.write(sourceFile, "content of " + sourceFile.getName());
+        }
+        Properties props = new Properties();
+        props.setProperty("sonar.projectKey", key);
+        props.setProperty("sonar.projectName", key);
+        props.setProperty("sonar.projectVersion", "1.0");
+        props.setProperty("sonar.sources", sourceDir.getName());
+        props.putAll(additionalProps);
+        File propsFile = new File(dir, "sonar-project.properties");
+        try (OutputStream output = FileUtils.openOutputStream(propsFile)) {
+          props.store(output, "generated");
+        }
+      } catch (IOException e) {
+        throw new IllegalStateException(e);
+      }
+    }
   }
+
 }
