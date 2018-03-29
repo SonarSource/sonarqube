@@ -64,7 +64,7 @@ exports[`should render the right interface for anonymous user 1`] = `
 <li>
   <a
     className="navbar-login"
-    href="#"
+    href="/sessions/new"
     onClick={[Function]}
   >
     layout.login

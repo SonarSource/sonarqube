@@ -116,7 +116,7 @@ export default class GlobalNavUser extends React.PureComponent<Props> {
   renderAnonymous() {
     return (
       <li>
-        <a className="navbar-login" onClick={this.handleLogin} href="#">
+        <a className="navbar-login" href="/sessions/new" onClick={this.handleLogin}>
           {translate('layout.login')}
         </a>
       </li>
