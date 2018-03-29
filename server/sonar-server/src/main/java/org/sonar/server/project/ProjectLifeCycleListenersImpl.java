@@ -58,11 +58,14 @@ public class ProjectLifeCycleListenersImpl implements ProjectLifeCycleListeners 
   }
 
   @Override
-  public void onProjectRekeyed(RekeyedProject rekeyedProject) {
-    checkNotNull(rekeyedProject, "rekeyedProject can't be null");
+  public void onProjectsRekeyed(Set<RekeyedProject> rekeyedProjects) {
+    checkNotNull(rekeyedProjects, "rekeyedProjects can't be null");
+    if (rekeyedProjects.isEmpty()) {
+      return;
+    }
 
     Arrays.stream(listeners)
-      .forEach(safelyCallListener(listener -> listener.onProjectRekeyed(rekeyedProject)));
+      .forEach(safelyCallListener(listener -> listener.onProjectsRekeyed(rekeyedProjects)));
   }
 
   private static Consumer<ProjectLifeCycleListener> safelyCallListener(Consumer<ProjectLifeCycleListener> task) {

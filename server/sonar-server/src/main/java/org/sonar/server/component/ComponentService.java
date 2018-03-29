@@ -19,11 +19,17 @@
  */
 package org.sonar.server.component;
 
+import java.util.Set;
+import org.sonar.api.resources.Qualifiers;
+import org.sonar.api.resources.Scopes;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.web.UserRole;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentKeyUpdaterDao;
+import org.sonar.db.component.ResourceDto;
 import org.sonar.server.es.ProjectIndexer;
 import org.sonar.server.es.ProjectIndexers;
 import org.sonar.server.project.Project;
@@ -31,6 +37,7 @@ import org.sonar.server.project.ProjectLifeCycleListeners;
 import org.sonar.server.project.RekeyedProject;
 import org.sonar.server.user.UserSession;
 
+import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
 import static org.sonar.core.component.ComponentKeys.isValidModuleKey;
 import static org.sonar.db.component.ComponentKeyUpdaterDao.checkIsProjectOrModule;
@@ -56,15 +63,41 @@ public class ComponentService {
     checkProjectOrModuleKeyFormat(newKey);
     dbClient.componentKeyUpdaterDao().updateKey(dbSession, projectOrModule.uuid(), newKey);
     projectIndexers.commitAndIndex(dbSession, singletonList(projectOrModule), ProjectIndexer.Cause.PROJECT_KEY_UPDATE);
-    if (projectOrModule.isRootProject() && projectOrModule.getMainBranchProjectUuid() == null) {
+    if (isMainProject(projectOrModule)) {
       Project newProject = new Project(projectOrModule.uuid(), newKey, projectOrModule.name(), projectOrModule.description());
-      projectLifeCycleListeners.onProjectRekeyed(new RekeyedProject(newProject, projectOrModule.getDbKey()));
+      projectLifeCycleListeners.onProjectsRekeyed(singleton(new RekeyedProject(newProject, projectOrModule.getDbKey())));
     }
   }
 
+  private static boolean isMainProject(ComponentDto projectOrModule) {
+    return projectOrModule.isRootProject() && projectOrModule.getMainBranchProjectUuid() == null;
+  }
+
   public void bulkUpdateKey(DbSession dbSession, ComponentDto projectOrModule, String stringToReplace, String replacementString) {
-    dbClient.componentKeyUpdaterDao().bulkUpdateKey(dbSession, projectOrModule.uuid(), stringToReplace, replacementString);
+    Set<ComponentKeyUpdaterDao.RekeyedResource> rekeyedProjects = dbClient.componentKeyUpdaterDao().bulkUpdateKey(
+      dbSession, projectOrModule.uuid(), stringToReplace, replacementString,
+      ComponentService::isMainProject);
     projectIndexers.commitAndIndex(dbSession, singletonList(projectOrModule), ProjectIndexer.Cause.PROJECT_KEY_UPDATE);
+    if (!rekeyedProjects.isEmpty()) {
+      projectLifeCycleListeners.onProjectsRekeyed(rekeyedProjects.stream()
+        .map(ComponentService::toRekeyedProject)
+        .collect(MoreCollectors.toSet(rekeyedProjects.size())));
+    }
+  }
+
+  private static boolean isMainProject(ComponentKeyUpdaterDao.RekeyedResource rekeyedResource) {
+    ResourceDto resource = rekeyedResource.getResource();
+    String resourceKey = resource.getKey();
+    return Scopes.PROJECT.equals(resource.getScope())
+      && Qualifiers.PROJECT.equals(resource.getQualifier())
+      && !resourceKey.contains(ComponentDto.BRANCH_KEY_SEPARATOR)
+      && !resourceKey.contains(ComponentDto.PULL_REQUEST_SEPARATOR);
+  }
+
+  private static RekeyedProject toRekeyedProject(ComponentKeyUpdaterDao.RekeyedResource rekeyedResource) {
+    ResourceDto resource = rekeyedResource.getResource();
+    Project project = new Project(resource.getUuid(), resource.getKey(), resource.getName(), resource.getDescription());
+    return new RekeyedProject(project, rekeyedResource.getOldKey());
   }
 
   private static void checkProjectOrModuleKeyFormat(String key) {

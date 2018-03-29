@@ -135,11 +135,101 @@ public class ProjectLifeCycleListenersImplTest {
       {IntStream.range(0, 1 + new Random().nextInt(10)).mapToObj(i -> newUniqueProject()).collect(MoreCollectors.toSet())}
     };
   }
+  // SDSDS
+
+  @Test
+  public void onProjectsRekeyed_throws_NPE_if_set_is_null() {
+    expectedException.expect(NullPointerException.class);
+    expectedException.expectMessage("rekeyedProjects can't be null");
+
+    underTestWithListeners.onProjectsRekeyed(null);
+  }
+
+  @Test
+  public void onProjectsRekeyed_throws_NPE_if_set_is_null_even_if_no_listeners() {
+    expectedException.expect(NullPointerException.class);
+    expectedException.expectMessage("rekeyedProjects can't be null");
+
+    underTestNoListeners.onProjectsRekeyed(null);
+  }
+
+  @Test
+  public void onProjectsRekeyed_has_no_effect_if_set_is_empty() {
+    underTestNoListeners.onProjectsRekeyed(Collections.emptySet());
+
+    underTestWithListeners.onProjectsRekeyed(Collections.emptySet());
+    verifyZeroInteractions(listener1, listener2, listener3);
+  }
+
+  @Test
+  @UseDataProvider("oneOrManyRekeyedProjects")
+  public void onProjectsRekeyed_does_not_fail_if_there_is_no_listener(Set<RekeyedProject> projects) {
+    underTestNoListeners.onProjectsRekeyed(projects);
+  }
+
+  @Test
+  @UseDataProvider("oneOrManyRekeyedProjects")
+  public void onProjectsRekeyed_calls_all_listeners_in_order_of_addition_to_constructor(Set<RekeyedProject> projects) {
+    InOrder inOrder = Mockito.inOrder(listener1, listener2, listener3);
+
+    underTestWithListeners.onProjectsRekeyed(projects);
+
+    inOrder.verify(listener1).onProjectsRekeyed(same(projects));
+    inOrder.verify(listener2).onProjectsRekeyed(same(projects));
+    inOrder.verify(listener3).onProjectsRekeyed(same(projects));
+    inOrder.verifyNoMoreInteractions();
+  }
+
+  @Test
+  @UseDataProvider("oneOrManyRekeyedProjects")
+  public void onProjectsRekeyed_calls_all_listeners_even_if_one_throws_an_Exception(Set<RekeyedProject> projects) {
+    InOrder inOrder = Mockito.inOrder(listener1, listener2, listener3);
+    doThrow(new RuntimeException("Faking listener2 throwing an exception"))
+      .when(listener2)
+      .onProjectsRekeyed(any());
+
+    underTestWithListeners.onProjectsRekeyed(projects);
+
+    inOrder.verify(listener1).onProjectsRekeyed(same(projects));
+    inOrder.verify(listener2).onProjectsRekeyed(same(projects));
+    inOrder.verify(listener3).onProjectsRekeyed(same(projects));
+    inOrder.verifyNoMoreInteractions();
+  }
+
+  @Test
+  @UseDataProvider("oneOrManyRekeyedProjects")
+  public void onProjectsRekeyed_calls_all_listeners_even_if_one_throws_an_Error(Set<RekeyedProject> projects) {
+    InOrder inOrder = Mockito.inOrder(listener1, listener2, listener3);
+    doThrow(new Error("Faking listener2 throwing an Error"))
+      .when(listener2)
+      .onProjectsRekeyed(any());
+
+    underTestWithListeners.onProjectsRekeyed(projects);
+
+    inOrder.verify(listener1).onProjectsRekeyed(same(projects));
+    inOrder.verify(listener2).onProjectsRekeyed(same(projects));
+    inOrder.verify(listener3).onProjectsRekeyed(same(projects));
+    inOrder.verifyNoMoreInteractions();
+  }
+
+  @DataProvider
+  public static Object[][] oneOrManyRekeyedProjects() {
+    return new Object[][] {
+      {singleton(newUniqueRekeyedProject())},
+      {IntStream.range(0, 1 + new Random().nextInt(10)).mapToObj(i -> newUniqueRekeyedProject()).collect(MoreCollectors.toSet())}
+    };
+  }
 
   private static int counter = 3_989;
 
   private static Project newUniqueProject() {
     int base = counter++;
     return new Project(base + "_uuid", base + "_key", base + "_name");
+  }
+
+  private static RekeyedProject newUniqueRekeyedProject() {
+    int base = counter++;
+    Project project = new Project(base + "_uuid", base + "_key", base + "_name");
+    return new RekeyedProject(project, base + "_old_key");
   }
 }

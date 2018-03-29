@@ -37,6 +37,7 @@ import org.sonar.server.es.ProjectIndexers;
 import org.sonar.server.es.ProjectIndexersImpl;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.project.ProjectLifeCycleListenersImpl;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
@@ -57,7 +58,7 @@ public class UpdateKeyActionTest {
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
   private DbClient dbClient = db.getDbClient();
   private ProjectIndexers projectIndexers = new ProjectIndexersImpl();
-  private ComponentService componentService = new ComponentService(dbClient, userSessionRule, projectIndexers);
+  private ComponentService componentService = new ComponentService(dbClient, userSessionRule, projectIndexers, new ProjectLifeCycleListenersImpl());
   private WsActionTester ws = new WsActionTester(new UpdateKeyAction(dbClient, componentService));
 
   @Test

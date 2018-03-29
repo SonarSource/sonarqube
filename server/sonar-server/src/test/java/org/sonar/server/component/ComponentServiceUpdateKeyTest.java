@@ -19,6 +19,7 @@
  */
 package org.sonar.server.component;
 
+import com.google.common.collect.ImmutableSet;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -34,11 +35,14 @@ import org.sonar.server.es.ProjectIndexer;
 import org.sonar.server.es.TestProjectIndexers;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.project.Project;
 import org.sonar.server.project.ProjectLifeCycleListeners;
+import org.sonar.server.project.RekeyedProject;
 import org.sonar.server.tester.UserSessionRule;
 
 import static org.assertj.guava.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
 
@@ -191,6 +195,26 @@ public class ComponentServiceUpdateKeyTest {
     assertComponentKeyUpdated(file.getDbKey(), "your_project:root:module:src/File.xoo");
     assertComponentKeyUpdated(inactiveModule.getDbKey(), "your_project:root:inactive_module");
     assertComponentKeyUpdated(inactiveFile.getDbKey(), "your_project:root:module:src/InactiveFile.xoo");
+    verify(projectLifeCycleListeners).onProjectsRekeyed(ImmutableSet.of(
+      new RekeyedProject(new Project(project.uuid(), "your_project", project.name(), project.uuid()), "my_project")
+    ));
+  }
+
+  @Test
+  public void bulk_update_key_with_branch_and_pr() {
+    ComponentDto project = componentDb.insertComponent(ComponentTesting.newPrivateProjectDto(db.organizations().insert()).setDbKey("my_project"));
+    ComponentDto branch = componentDb.insertProjectBranch(project);
+    ComponentDto module = componentDb.insertComponent(newModuleDto(branch).setDbKey("my_project:root:module"));
+    ComponentDto file = componentDb.insertComponent(newFileDto(module, null).setDbKey("my_project:root:module:src/File.xoo"));
+
+    underTest.bulkUpdateKey(dbSession, project, "my_", "your_");
+
+    assertComponentKeyUpdated(project.getDbKey(), "your_project");
+    assertComponentKeyUpdated(module.getDbKey(), "your_project:root:module");
+    assertComponentKeyUpdated(file.getDbKey(), "your_project:root:module:src/File.xoo");
+    verify(projectLifeCycleListeners).onProjectsRekeyed(ImmutableSet.of(
+      new RekeyedProject(new Project(project.uuid(), "your_project", project.name(), project.uuid()), "my_project")
+    ));
   }
 
   private void assertComponentKeyUpdated(String oldKey, String newKey) {

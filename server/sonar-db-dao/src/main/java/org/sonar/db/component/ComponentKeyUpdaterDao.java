@@ -28,9 +28,13 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
+import java.util.function.BiConsumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.db.Dao;
@@ -71,7 +75,8 @@ public class ComponentKeyUpdaterDao implements Dao {
       });
 
     // and then proceed with the batch UPDATE at once
-    runBatchUpdateForAllResources(resources, projectOldKey, newKey, mapper);
+    runBatchUpdateForAllResources(resources, projectOldKey, newKey, mapper, (resource, oldKey) -> {
+    });
   }
 
   public static void checkIsProjectOrModule(ComponentDto component) {
@@ -106,7 +111,8 @@ public class ComponentKeyUpdaterDao implements Dao {
     return key.replace(stringToReplace, replacementString);
   }
 
-  public void bulkUpdateKey(DbSession session, String projectUuid, String stringToReplace, String replacementString) {
+  public Set<RekeyedResource> bulkUpdateKey(DbSession session, String projectUuid, String stringToReplace, String replacementString,
+    Predicate<RekeyedResource> rekeyedResourceFilter) {
     ComponentKeyUpdaterMapper mapper = session.getMapper(ComponentKeyUpdaterMapper.class);
     // must SELECT first everything
     Set<ResourceDto> modules = collectAllModules(projectUuid, stringToReplace, mapper, true);
@@ -128,6 +134,7 @@ public class ComponentKeyUpdaterDao implements Dao {
       allResourcesByModuleMap.put(module, mapper.selectProjectResources(module.getUuid()));
     }
 
+    Set<RekeyedResource> rekeyedResources = new HashSet<>();
     // and then proceed with the batch UPDATE at once
     for (ResourceDto module : modules) {
       String oldModuleKey = module.getKey();
@@ -135,8 +142,15 @@ public class ComponentKeyUpdaterDao implements Dao {
       String newModuleKey = computeNewKey(oldModuleKey, stringToReplace, replacementString);
       Collection<ResourceDto> resources = Lists.newArrayList(module);
       resources.addAll(allResourcesByModuleMap.get(module));
-      runBatchUpdateForAllResources(resources, oldModuleKey, newModuleKey, mapper);
+      runBatchUpdateForAllResources(resources, oldModuleKey, newModuleKey, mapper,
+        (resource, oldKey) -> {
+          RekeyedResource rekeyedResource = new RekeyedResource(resource, oldKey);
+          if (rekeyedResourceFilter.test(rekeyedResource)) {
+            rekeyedResources.add(rekeyedResource);
+          }
+        });
     }
+    return rekeyedResources;
   }
 
   private static String branchBaseKey(String key) {
@@ -151,7 +165,8 @@ public class ComponentKeyUpdaterDao implements Dao {
     return key;
   }
 
-  private static void runBatchUpdateForAllResources(Collection<ResourceDto> resources, String oldKey, String newKey, ComponentKeyUpdaterMapper mapper) {
+  private static void runBatchUpdateForAllResources(Collection<ResourceDto> resources, String oldKey, String newKey, ComponentKeyUpdaterMapper mapper,
+    @Nullable BiConsumer<ResourceDto, String> consumer) {
     for (ResourceDto resource : resources) {
       String oldResourceKey = resource.getKey();
       String newResourceKey = newKey + oldResourceKey.substring(oldKey.length(), oldResourceKey.length());
@@ -162,6 +177,44 @@ public class ComponentKeyUpdaterDao implements Dao {
         resource.setDeprecatedKey(newResourceDeprecatedKey);
       }
       mapper.update(resource);
+      if (consumer != null) {
+        consumer.accept(resource, oldResourceKey);
+      }
+    }
+  }
+
+  public static final class RekeyedResource {
+    private final ResourceDto resource;
+    private final String oldKey;
+
+    public RekeyedResource(ResourceDto resource, String oldKey) {
+      this.resource = resource;
+      this.oldKey = oldKey;
+    }
+
+    public ResourceDto getResource() {
+      return resource;
+    }
+
+    public String getOldKey() {
+      return oldKey;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) {
+        return true;
+      }
+      if (o == null || getClass() != o.getClass()) {
+        return false;
+      }
+      RekeyedResource that = (RekeyedResource) o;
+      return Objects.equals(resource.getUuid(), that.resource.getUuid());
+    }
+
+    @Override
+    public int hashCode() {
+      return resource.getUuid().hashCode();
     }
   }
 
