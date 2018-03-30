@@ -33,6 +33,7 @@ public class DbVersion72 implements DbVersion {
       .add(2103, "Add isExternal boolean to rules", AddRuleExternal.class)
       .add(2104, "Create ALM_APP_INSTALLS table", CreateAlmAppInstallsTable.class)
       .add(2105, "Add LINE_HASHES_VERSION to table FILE_SOURCES", AddLineHashesVersionToFileSources.class)
+      .add(2106, "Create PROJECT_MAPPINGS table", CreateProjectMappingsTable.class)
     ;
   }
 }

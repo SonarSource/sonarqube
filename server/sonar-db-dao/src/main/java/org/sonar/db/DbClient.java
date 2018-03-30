@@ -38,6 +38,7 @@ import org.sonar.db.event.EventDao;
 import org.sonar.db.issue.IssueChangeDao;
 import org.sonar.db.issue.IssueDao;
 import org.sonar.db.alm.AlmAppInstallDao;
+import org.sonar.db.mapping.ProjectMappingsDao;
 import org.sonar.db.measure.LiveMeasureDao;
 import org.sonar.db.measure.MeasureDao;
 import org.sonar.db.measure.custom.CustomMeasureDao;
@@ -136,6 +137,7 @@ public class DbClient {
   private final LiveMeasureDao liveMeasureDao;
   private final WebhookDao webhookDao;
   private final WebhookDeliveryDao webhookDeliveryDao;
+  private final ProjectMappingsDao projectMappingsDao;
 
   public DbClient(Database database, MyBatis myBatis, DBSessions dbSessions, Dao... daos) {
     this.database = database;
@@ -200,6 +202,7 @@ public class DbClient {
     liveMeasureDao = getDao(map, LiveMeasureDao.class);
     webhookDao = getDao(map, WebhookDao.class);
     webhookDeliveryDao = getDao(map, WebhookDeliveryDao.class);
+    projectMappingsDao = getDao(map, ProjectMappingsDao.class);
   }
 
   public DbSession openSession(boolean batch) {
@@ -434,5 +437,9 @@ public class DbClient {
 
   public WebhookDeliveryDao webhookDeliveryDao() {
     return webhookDeliveryDao;
+  }
+
+  public ProjectMappingsDao projectMappingsDao() {
+    return projectMappingsDao;
   }
 }

@@ -533,6 +533,18 @@ public class PurgeDaoTest {
   }
 
   @Test
+  public void deleteProject_deletes_project_mappings() {
+    ComponentDto project = dbTester.components().insertPublicProject();
+    dbClient.projectMappingsDao().put(dbSession, "a.key.type", "a.key", project.uuid());
+    dbClient.projectMappingsDao().put(dbSession, "a.key.type", "another.key", "D2");
+
+    underTest.deleteProject(dbSession, project.uuid());
+
+    assertThat(dbClient.projectMappingsDao().get(dbSession, "a.key.type", "a.key")).isEmpty();
+    assertThat(dbClient.projectMappingsDao().get(dbSession, "a.key.type", "another.key")).isNotEmpty();
+  }
+
+  @Test
   public void deleteNonRootComponents_has_no_effect_when_parameter_is_empty() {
     DbSession dbSession = mock(DbSession.class);
 

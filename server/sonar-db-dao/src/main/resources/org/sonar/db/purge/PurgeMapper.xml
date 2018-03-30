@@ -360,6 +360,10 @@
     delete from webhook_deliveries where component_uuid=#{projectUuid,jdbcType=VARCHAR}
   </delete>
 
+  <delete id="deleteProjectMappingsByProjectUuid">
+    delete from project_mappings where project_uuid=#{projectUuid,jdbcType=VARCHAR}
+  </delete>
+
   <delete id="deleteBranchByUuid">
     delete from project_branches where uuid=#{uuid,jdbcType=VARCHAR}
   </delete>

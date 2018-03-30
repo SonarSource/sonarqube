@@ -87,6 +87,7 @@ public final class SqTables {
     "projects",
     "project_branches",
     "project_links",
+    "project_mappings",
     "project_measures",
     "project_qprofiles",
     "properties",

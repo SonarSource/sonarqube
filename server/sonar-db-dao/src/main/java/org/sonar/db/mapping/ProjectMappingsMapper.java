@@ -17,24 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v72;
+package org.sonar.db.mapping;
 
-import org.junit.Test;
+import javax.annotation.CheckForNull;
+import org.apache.ibatis.annotations.Param;
 
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationCount;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
+public interface ProjectMappingsMapper {
 
-public class DbVersion72Test {
-  private DbVersion72 underTest = new DbVersion72();
+  @CheckForNull
+  ProjectMappingDto selectByKey(@Param("keyType") String keyType, @Param("key") String key);
 
-  @Test
-  public void migrationNumber_starts_at_2100() {
-    verifyMinimumMigrationNumber(underTest, 2100);
-  }
+  void put(@Param("uuid") String uuid, @Param("keyType") String keyType, @Param("key") String key, @Param("projectUuid") String projectUuid, @Param("createdAt") long createdAt);
 
-  @Test
-  public void verify_migration_count() {
-    verifyMigrationCount(underTest, 7);
-  }
-
+  void deleteByKey(@Param("keyType") String keyType, @Param("key") String key);
 }

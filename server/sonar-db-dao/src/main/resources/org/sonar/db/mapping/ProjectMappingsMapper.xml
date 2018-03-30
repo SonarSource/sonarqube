@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd">
+
+<mapper namespace="org.sonar.db.mapping.ProjectMappingsMapper">
+
+  <select id="selectByKey" parameterType="Map" resultType="ProjectMapping">
+    select
+      uuid as "uuid",
+      key_type as "key_type",
+      kee as "key",
+      project_uuid as projectUuid
+    from
+      project_mappings
+    where
+      key_type = #{keyType, jdbcType=VARCHAR}
+      and kee = #{key, jdbcType=VARCHAR}
+  </select>
+
+  <insert id="put" parameterType="Map" useGeneratedKeys="false">
+    INSERT INTO project_mappings
+    (
+      uuid,
+      key_type,
+      kee,
+      project_uuid,
+      created_at
+    )
+    VALUES (
+      #{uuid,jdbcType=VARCHAR},
+      #{keyType,jdbcType=VARCHAR},
+      #{key,jdbcType=VARCHAR},
+      #{projectUuid,jdbcType=VARCHAR},
+      #{createdAt,jdbcType=BIGINT}
+    )
+  </insert>
+
+  <delete id="deleteByKey" parameterType="Map">
+    delete from project_mappings
+    where
+      key_type=#{keyType,jdbcType=VARCHAR}
+      and kee=#{key,jdbcType=VARCHAR}
+  </delete>
+
+
+</mapper>

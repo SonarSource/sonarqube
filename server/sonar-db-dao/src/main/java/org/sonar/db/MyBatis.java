@@ -63,6 +63,8 @@ import org.sonar.db.issue.IssueChangeMapper;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.issue.IssueMapper;
 import org.sonar.db.issue.ShortBranchIssueDto;
+import org.sonar.db.mapping.ProjectMappingDto;
+import org.sonar.db.mapping.ProjectMappingsMapper;
 import org.sonar.db.measure.LiveMeasureMapper;
 import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.measure.MeasureMapper;
@@ -176,6 +178,7 @@ public class MyBatis implements Startable {
     confBuilder.loadAlias("PermissionTemplateUser", PermissionTemplateUserDto.class);
     confBuilder.loadAlias("Plugin", PluginDto.class);
     confBuilder.loadAlias("ProjectQgateAssociation", ProjectQgateAssociationDto.class);
+    confBuilder.loadAlias("ProjectMapping", ProjectMappingDto.class);
     confBuilder.loadAlias("PurgeableAnalysis", PurgeableAnalysisDto.class);
     confBuilder.loadAlias("QualityGateCondition", QualityGateConditionDto.class);
     confBuilder.loadAlias("QualityGate", QualityGateDto.class);
@@ -232,6 +235,7 @@ public class MyBatis implements Startable {
       PermissionTemplateCharacteristicMapper.class,
       PermissionTemplateMapper.class,
       PluginMapper.class,
+      ProjectMappingsMapper.class,
       ProjectQgateAssociationMapper.class,
       PropertiesMapper.class,
       PurgeMapper.class,
