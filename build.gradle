@@ -40,79 +40,6 @@ allprojects {
   ext {
     release = project.hasProperty('release') && project.getProperty('release')
     official = project.hasProperty('official') && project.getProperty('official')
-    pomConfig = {
-      name projectTitle
-      description description
-      url 'http://www.sonarqube.org/'
-      organization {
-        name 'SonarSource'
-        url 'http://www.sonarsource.com'
-      }
-      licenses {
-        license {
-          name 'GNU LGPL 3'
-          url 'http://www.gnu.org/licenses/lgpl.txt'
-          distribution 'repo'
-        }
-      }
-      scm {
-        url 'https://github.com/SonarSource/sonarqube'
-      }
-      developers {
-        developer {
-          id 'bellingard'
-          name 'Fabrice Bellingard'
-        }
-        developer {
-          id 'dbolkensteyn'
-          name 'Dinesh Bolkensteyn'
-        }
-        developer {
-          id 'ehartmann'
-          name 'Eric Hartmann'
-        }
-        developer {
-          id 'fmallet'
-          name 'Freddy Mallet'
-        }
-        developer {
-          id 'Godin'
-          name 'Evgeny Mandrikov'
-        }
-        developer {
-          id 'henryju'
-          name 'Julien Henry'
-        }
-        developer {
-          id 'jblievremont'
-          name 'Jean-Baptiste Lievremont'
-        }
-        developer {
-          id 'julienlancelot'
-          name 'Julien Lancelot'
-        }
-        developer {
-          id 'olivier.gaudin'
-          name 'Olivier Gaudin'
-        }
-        developer {
-          id 'simonbrandhof'
-          name 'Simon Brandhof'
-        }
-        developer {
-          id 'sns-seb'
-          name 'Sebastien Lesaint'
-        }
-        developer {
-          id 'stas-vilchik'
-          name 'Stas Vilchik'
-        }
-        developer {
-          id 'teryk'
-          name 'Teryk Bellahsene'
-        }
-      }
-    }
   }
 
   repositories {
@@ -365,6 +292,86 @@ subprojects {
       less = 'SLASHSTAR_STYLE'
     }
     excludes(["**/*.txt", "**/*.properties", "**/*.xml", "**/*.xsd", "**/*.html", "**/*.json", "**/*.sql", "**/*.rb", "**/*.vm"])
+  }
+
+  publishing {
+    publications {
+      mavenJava(MavenPublication) {
+        if (release) {
+          pom.withXml {
+            asNode().appendNode('name', projectTitle)
+            asNode().appendNode('description', description)
+            asNode().appendNode('url', 'http://www.sonarqube.org/')
+            
+            def organization = asNode().appendNode('organization')
+            organization.appendNode('name', 'SonarSource')
+            organization.appendNode('url', 'http://www.sonarsource.com')
+
+            def licenses = asNode().appendNode('licenses')
+            def license = licenses.appendNode('license')
+            license.appendNode('name', 'GNU LGPL 3')
+            license.appendNode('url', 'http://www.gnu.org/licenses/lgpl.txt')
+            license.appendNode('distribution', 'repo')
+
+            def scm = asNode().appendNode('scm')
+            scm.appendNode('url', 'https://github.com/SonarSource/sonarqube')
+
+            def developers = asNode().appendNode('developers')
+            def developer = developers.appendNode('developer')
+            developer.appendNode('id', 'bellingard')
+            developer.appendNode('name', 'Fabrice Bellingard')
+
+            developer = developers.appendNode('developer')
+            developer.appendNode('id', 'dbolkensteyn')
+            developer.appendNode('name', 'Dinesh Bolkensteyn')
+
+            developer = developers.appendNode('developer')
+            developer.appendNode('id', 'ehartmann')
+            developer.appendNode('name', 'Eric Hartmann')
+
+            developer = developers.appendNode('developer')
+            developer.appendNode('id', 'fmallet')
+            developer.appendNode('name', 'Freddy Mallet')
+
+            developer = developers.appendNode('developer')
+            developer.appendNode('id', 'Godin')
+            developer.appendNode('name', 'Evgeny Mandrikov')
+
+            developer = developers.appendNode('developer')
+            developer.appendNode('id', 'henryju')
+            developer.appendNode('name', 'Julien Henry')
+
+            developer = developers.appendNode('developer')
+            developer.appendNode('id', 'jblievremont')
+            developer.appendNode('name', 'Jean-Baptiste Lievremont')
+
+            developer = developers.appendNode('developer')
+            developer.appendNode('id', 'julienlancelot')
+            developer.appendNode('name', 'Julien Lancelot')
+
+            developer = developers.appendNode('developer')
+            developer.appendNode('id', 'olivier.gaudin')
+            developer.appendNode('name', 'Olivier Gaudin')
+
+            developer = developers.appendNode('developer')
+            developer.appendNode('id', 'simonbrandhof')
+            developer.appendNode('name', 'Simon Brandhof')
+
+            developer = developers.appendNode('developer')
+            developer.appendNode('id', 'sns-seb')
+            developer.appendNode('name', 'Sebastien Lesaint')
+
+            developer = developers.appendNode('developer')
+            developer.appendNode('id', 'stas-vilchik')
+            developer.appendNode('name', 'Stas Vilchik')
+
+            developer = developers.appendNode('developer')
+            developer.appendNode('id', 'teryk')
+            developer.appendNode('name', 'Teryk Bellahsene')
+          }
+        }
+      }
+    }
   }
 }
 

@@ -153,12 +153,6 @@ artifactoryPublish.skip = false
 publishing {
   publications {
     mavenJava(MavenPublication) {
-      if (release) {
-        pom.withXml {
-          asNode().appendNode('description', description)
-          asNode().children().last() + pomConfig
-        }
-      }
       artifact zip
     }
   }

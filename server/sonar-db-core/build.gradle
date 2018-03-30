@@ -80,10 +80,6 @@ publishing {
         artifact sourcesJar
         artifact javadocJar
         artifact testJar
-        pom.withXml {
-          asNode().appendNode('description', description)
-          asNode().children().last() + pomConfig
-        }
       }
     }
   }
