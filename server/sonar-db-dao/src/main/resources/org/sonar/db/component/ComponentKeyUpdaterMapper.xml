@@ -19,7 +19,7 @@
     WHERE kee = #{key,jdbcType=VARCHAR}
   </select>
 
-  <select id="selectProject" parameterType="String" resultMap="resourceResultMap">
+  <select id="selectProjectByUuid" parameterType="String" resultMap="resourceResultMap">
     select * from projects
     where uuid = #{uuid,jdbcType=VARCHAR}
   </select>

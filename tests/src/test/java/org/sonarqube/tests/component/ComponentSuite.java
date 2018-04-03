@@ -31,15 +31,14 @@ import static util.ItUtils.xooPlugin;
 @Suite.SuiteClasses({
   BranchTest.class,
   CodePageTest.class,
-  ComponentsWsTest.class
+  ComponentsWsTest.class,
+  ModuleTest.class
 })
 public class ComponentSuite {
 
   @ClassRule
   public static final Orchestrator ORCHESTRATOR = ItUtils.newOrchestratorBuilder()
-
     .addPlugin(xooPlugin())
-
     .build();
 
 }

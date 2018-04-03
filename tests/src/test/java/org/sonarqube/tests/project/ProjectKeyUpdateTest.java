@@ -23,16 +23,11 @@ import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
 import java.io.File;
 import java.io.IOException;
-import java.io.OutputStream;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.StringUtils;
 import org.junit.After;
 import org.junit.ClassRule;
 import org.junit.Rule;
@@ -54,6 +49,7 @@ import org.sonarqube.ws.client.components.TreeRequest;
 import org.sonarqube.ws.client.projects.BulkUpdateKeyRequest;
 import org.sonarqube.ws.client.projects.UpdateKeyRequest;
 import util.ItUtils;
+import util.XooProjectBuilder;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -396,60 +392,6 @@ public class ProjectKeyUpdateTest {
       .flatMap(map -> ((Collection<Map<String, Object>>) map.get("items")).stream())
       .map(map -> (String) map.get("key"))
       .collect(Collectors.toList());
-  }
-
-  private static class XooProjectBuilder {
-    private final String key;
-    private final List<String> moduleKeys = new ArrayList<>();
-    private int filesPerModule = 1;
-
-    XooProjectBuilder(String projectKey) {
-      this.key = projectKey;
-    }
-
-    XooProjectBuilder addModules(String key, String... otherKeys) {
-      this.moduleKeys.add(key);
-      this.moduleKeys.addAll(asList(otherKeys));
-      return this;
-    }
-
-    XooProjectBuilder setFilesPerModule(int i) {
-      this.filesPerModule = i;
-      return this;
-    }
-
-    File build(File dir) {
-      for (String moduleKey : moduleKeys) {
-        generateModule(moduleKey, new File(dir, moduleKey), new Properties());
-      }
-      Properties additionalProps = new Properties();
-      additionalProps.setProperty("sonar.modules", StringUtils.join(moduleKeys, ","));
-      generateModule(key, dir, additionalProps);
-      return dir;
-    }
-
-    private void generateModule(String key, File dir, Properties additionalProps) {
-      try {
-        File sourceDir = new File(dir, "src");
-        FileUtils.forceMkdir(sourceDir);
-        for (int i = 0; i < filesPerModule; i++) {
-          File sourceFile = new File(sourceDir, "File" + i + ".xoo");
-          FileUtils.write(sourceFile, "content of " + sourceFile.getName());
-        }
-        Properties props = new Properties();
-        props.setProperty("sonar.projectKey", key);
-        props.setProperty("sonar.projectName", key);
-        props.setProperty("sonar.projectVersion", "1.0");
-        props.setProperty("sonar.sources", sourceDir.getName());
-        props.putAll(additionalProps);
-        File propsFile = new File(dir, "sonar-project.properties");
-        try (OutputStream output = FileUtils.openOutputStream(propsFile)) {
-          props.store(output, "generated");
-        }
-      } catch (IOException e) {
-        throw new IllegalStateException(e);
-      }
-    }
   }
 
 }

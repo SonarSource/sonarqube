@@ -125,9 +125,9 @@ public class ReportSubmitter {
     if (!Qualifiers.PROJECT.equals(component.qualifier()) || !Scopes.PROJECT.equals(component.scope())) {
       errors.add(format("Component '%s' is not a project", rawProjectKey));
     }
-    if (!project.get().projectUuid().equals(project.get().uuid())) {
+    if (!component.projectUuid().equals(component.uuid())) {
       // Project key is already used as a module of another project
-      ComponentDto anotherBaseProject = dbClient.componentDao().selectOrFailByUuid(dbSession, project.get().projectUuid());
+      ComponentDto anotherBaseProject = dbClient.componentDao().selectOrFailByUuid(dbSession, component.projectUuid());
       errors.add(format("The project '%s' is already defined in SonarQube but as a module of project '%s'. "
         + "If you really want to stop directly analysing project '%s', please first delete it from SonarQube and then relaunch the analysis of project '%s'.",
         rawProjectKey, anotherBaseProject.getKey(), anotherBaseProject.getKey(), rawProjectKey));

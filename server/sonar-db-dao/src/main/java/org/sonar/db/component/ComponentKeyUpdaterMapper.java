@@ -22,14 +22,11 @@ package org.sonar.db.component;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
 
-/**
- * @since 3.2
- */
 public interface ComponentKeyUpdaterMapper {
 
   int countResourceByKey(String key);
 
-  ResourceDto selectProject(@Param("uuid") String uuid);
+  ResourceDto selectProjectByUuid(@Param("uuid") String uuid);
 
   List<ResourceDto> selectProjectResources(@Param("rootUuid") String rootUuid);
 

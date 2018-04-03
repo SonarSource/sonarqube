@@ -56,7 +56,7 @@ public class ComponentKeyUpdaterDao implements Dao {
     }
 
     // must SELECT first everything
-    ResourceDto project = mapper.selectProject(projectOrModuleUuid);
+    ResourceDto project = mapper.selectProjectByUuid(projectOrModuleUuid);
     String projectOldKey = project.getKey();
     List<ResourceDto> resources = mapper.selectProjectResources(projectOrModuleUuid);
     resources.add(project);
@@ -67,7 +67,7 @@ public class ComponentKeyUpdaterDao implements Dao {
       .filter(branch -> !projectOrModuleUuid.equals(branch.getUuid()))
       .forEach(branch -> {
         resources.addAll(mapper.selectProjectResources(branch.getUuid()));
-        resources.add(mapper.selectProject(branch.getUuid()));
+        resources.add(mapper.selectProjectByUuid(branch.getUuid()));
       });
 
     // and then proceed with the batch UPDATE at once
@@ -166,7 +166,7 @@ public class ComponentKeyUpdaterDao implements Dao {
   }
 
   private static Set<ResourceDto> collectAllModules(String projectUuid, String stringToReplace, ComponentKeyUpdaterMapper mapper, boolean includeDisabled) {
-    ResourceDto project = mapper.selectProject(projectUuid);
+    ResourceDto project = mapper.selectProjectByUuid(projectUuid);
     Set<ResourceDto> modules = new HashSet<>();
     if (project.getKey().contains(stringToReplace) && (project.isEnabled() || includeDisabled)) {
       modules.add(project);

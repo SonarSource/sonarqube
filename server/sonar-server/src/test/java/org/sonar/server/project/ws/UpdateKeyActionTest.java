@@ -19,6 +19,7 @@
  */
 package org.sonar.server.project.ws;
 
+import com.google.common.base.Optional;
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
@@ -26,23 +27,21 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.System2;
+import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.server.component.ComponentService;
-import org.sonar.server.component.TestComponentFinder;
+import org.sonar.server.es.ProjectIndexers;
+import org.sonar.server.es.ProjectIndexersImpl;
+import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_FROM;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_PROJECT_ID;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_TO;
@@ -54,55 +53,104 @@ public class UpdateKeyActionTest {
   public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
-
-  ComponentDbTester componentDb = new ComponentDbTester(db);
-  DbClient dbClient = db.getDbClient();
-
-  ComponentService componentService = mock(ComponentService.class);
-
-  WsActionTester ws = new WsActionTester(new org.sonar.server.project.ws.UpdateKeyAction(dbClient, TestComponentFinder.from(db), componentService));
+  @Rule
+  public UserSessionRule userSessionRule = UserSessionRule.standalone();
+  private DbClient dbClient = db.getDbClient();
+  private ProjectIndexers projectIndexers = new ProjectIndexersImpl();
+  private ComponentService componentService = new ComponentService(dbClient, userSessionRule, projectIndexers);
+  private WsActionTester ws = new WsActionTester(new UpdateKeyAction(dbClient, componentService));
 
   @Test
-  public void call_by_key() {
+  public void update_key_of_project_referenced_by_its_key() {
     ComponentDto project = insertProject();
+    userSessionRule.addProjectPermission(UserRole.ADMIN, project);
 
-    callByKey(project.getDbKey(), ANOTHER_KEY);
+    callByKey(project.getKey(), ANOTHER_KEY);
 
-    assertCallComponentService(ANOTHER_KEY);
+    assertThat(selectByKey(project.getKey()).isPresent()).isFalse();
+    assertThat(selectByKey(ANOTHER_KEY).get().uuid()).isEqualTo(project.uuid());
   }
 
   @Test
-  public void call_by_uuid() {
+  public void update_key_of_project_referenced_by_its_uuid() {
     ComponentDto project = insertProject();
+    userSessionRule.addProjectPermission(UserRole.ADMIN, project);
 
     callByUuid(project.uuid(), ANOTHER_KEY);
 
-    assertCallComponentService(ANOTHER_KEY);
+    assertThat(selectByKey(project.getKey()).isPresent()).isFalse();
+    assertThat(selectByKey(ANOTHER_KEY).get().uuid()).isEqualTo(project.uuid());
+  }
+
+  @Test
+  public void update_key_of_module_referenced_by_its_uuid() {
+    ComponentDto project = insertProject();
+    ComponentDto module = db.components().insertComponent(ComponentTesting.newModuleDto(project));
+    userSessionRule.addProjectPermission(UserRole.ADMIN, project);
+
+    callByUuid(module.uuid(), ANOTHER_KEY);
+
+    assertThat(selectByKey(project.getKey()).isPresent()).isTrue();
+    assertThat(selectByKey(module.getKey()).isPresent()).isFalse();
+    assertThat(selectByKey(ANOTHER_KEY).get().uuid()).isEqualTo(module.uuid());
+  }
+
+  @Test
+  public void update_key_of_disabled_module() {
+    ComponentDto project = insertProject();
+    ComponentDto module = db.components().insertComponent(ComponentTesting.newModuleDto(project).setEnabled(false));
+    userSessionRule.addProjectPermission(UserRole.ADMIN, project);
+
+    callByKey(module.getKey(), ANOTHER_KEY);
+
+    assertThat(selectByKey(project.getKey()).isPresent()).isTrue();
+    assertThat(selectByKey(module.getKey()).isPresent()).isFalse();
+    ComponentDto loadedModule = selectByKey(ANOTHER_KEY).get();
+    assertThat(loadedModule.uuid()).isEqualTo(module.uuid());
+    assertThat(loadedModule.isEnabled()).isFalse();
+  }
+
+
+  @Test
+  public void fail_if_not_authorized() {
+    ComponentDto project = insertProject();
+    userSessionRule.addProjectPermission(UserRole.USER, project);
+
+    expectedException.expect(ForbiddenException.class);
+    expectedException.expectMessage("Insufficient privileges");
+
+    callByKey(project.getKey(), ANOTHER_KEY);
   }
 
   @Test
   public void fail_if_new_key_is_not_provided() {
-    expectedException.expect(IllegalArgumentException.class);
-
     ComponentDto project = insertProject();
+    userSessionRule.addProjectPermission(UserRole.ADMIN, project);
 
-    callByKey(project.getDbKey(), null);
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("The 'to' parameter is missing");
+
+    callByKey(project.getKey(), null);
   }
 
   @Test
   public void fail_if_uuid_nor_key_provided() {
     expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Either 'projectId' or 'from' must be provided");
 
     call(null, null, ANOTHER_KEY);
   }
 
   @Test
-  public void fail_if_uuid_and_key_provided() {
-    expectedException.expect(IllegalArgumentException.class);
-
+  public void fail_if_both_uuid_and_key_provided() {
     ComponentDto project = insertProject();
+    userSessionRule.addProjectPermission(UserRole.ADMIN, project);
 
-    call(project.uuid(), project.getDbKey(), ANOTHER_KEY);
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Either 'projectId' or 'from' must be provided");
+
+
+    call(project.uuid(), project.getKey(), ANOTHER_KEY);
   }
 
   @Test
@@ -116,9 +164,10 @@ public class UpdateKeyActionTest {
   public void fail_when_using_branch_db_key() throws Exception {
     ComponentDto project = db.components().insertMainBranch();
     ComponentDto branch = db.components().insertProjectBranch(project);
+    userSessionRule.addProjectPermission(UserRole.ADMIN, project);
 
     expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage(String.format("Component key '%s' not found", branch.getDbKey()));
+    expectedException.expectMessage("Component not found");
 
     callByKey(branch.getDbKey(), ANOTHER_KEY);
   }
@@ -127,9 +176,10 @@ public class UpdateKeyActionTest {
   public void fail_when_using_branch_uuid() {
     ComponentDto project = db.components().insertMainBranch();
     ComponentDto branch = db.components().insertProjectBranch(project);
+    userSessionRule.addProjectPermission(UserRole.ADMIN, project);
 
     expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage(String.format("Component id '%s' not found", branch.uuid()));
+    expectedException.expectMessage("Component not found");
 
     callByUuid(branch.uuid(), ANOTHER_KEY);
   }
@@ -141,26 +191,23 @@ public class UpdateKeyActionTest {
     assertThat(definition.since()).isEqualTo("6.1");
     assertThat(definition.isPost()).isTrue();
     assertThat(definition.key()).isEqualTo("update_key");
+    assertThat(definition.changelog()).hasSize(2);
     assertThat(definition.params())
       .hasSize(3)
       .extracting(Param::key)
       .containsOnlyOnce("projectId", "from", "to");
   }
 
-  private void assertCallComponentService(@Nullable String newKey) {
-    verify(componentService).updateKey(any(DbSession.class), any(ComponentDto.class), eq(newKey));
-  }
-
   private ComponentDto insertProject() {
-    return componentDb.insertComponent(ComponentTesting.newPrivateProjectDto(db.organizations().insert()));
+    return db.components().insertComponent(ComponentTesting.newPrivateProjectDto(db.organizations().insert()));
   }
 
-  private String callByUuid(@Nullable String uuid, @Nullable String newKey) {
-    return call(uuid, null, newKey);
+  private void callByUuid(@Nullable String uuid, @Nullable String newKey) {
+    call(uuid, null, newKey);
   }
 
-  private String callByKey(@Nullable String key, @Nullable String newKey) {
-    return call(null, key, newKey);
+  private void callByKey(@Nullable String key, @Nullable String newKey) {
+    call(null, key, newKey);
   }
 
   private String call(@Nullable String uuid, @Nullable String key, @Nullable String newKey) {
@@ -177,5 +224,9 @@ public class UpdateKeyActionTest {
     }
 
     return request.execute().getInput();
+  }
+
+  private Optional<ComponentDto> selectByKey(String key) {
+    return db.getDbClient().componentDao().selectByKey(db.getSession(), key);
   }
 }
