@@ -19,13 +19,19 @@
  */
 package org.sonar.scanner.profiling;
 
-import com.google.common.annotations.VisibleForTesting;
+import static org.sonar.scanner.profiling.AbstractTimeProfiling.sortByDescendingTotalTime;
+import static org.sonar.scanner.profiling.AbstractTimeProfiling.truncate;
+
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+
 import javax.annotation.Nullable;
+
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,8 +50,7 @@ import org.sonar.scanner.bootstrap.GlobalProperties;
 import org.sonar.scanner.events.BatchStepHandler;
 import org.sonar.scanner.util.ScannerUtils;
 
-import static org.sonar.scanner.profiling.AbstractTimeProfiling.sortByDescendingTotalTime;
-import static org.sonar.scanner.profiling.AbstractTimeProfiling.truncate;
+import com.google.common.annotations.VisibleForTesting;
 
 public class PhasesSumUpTimeProfiler implements ProjectAnalysisHandler, SensorExecutionHandler, PostJobExecutionHandler,
   SensorsPhaseHandler, PostJobsPhaseHandler, InitializersPhaseHandler, InitializerExecutionHandler, BatchStepHandler {
@@ -136,7 +141,7 @@ public class PhasesSumUpTimeProfiler implements ProjectAnalysisHandler, SensorEx
 
   private void dumpToFile(Properties props, String fileName) {
     File file = new File(out, fileName);
-    try (FileOutputStream fos = new FileOutputStream(file)) {
+    try (OutputStream fos = new BufferedOutputStream(new FileOutputStream(file))) {
       props.store(fos, "SonarQube");
       println("Profiling data stored in " + file.getAbsolutePath());
     } catch (Exception e) {
