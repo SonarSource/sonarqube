@@ -108,8 +108,8 @@ function getCurrentPage(component: Component, branchLike: BranchLike | undefined
   } else if (component.qualifier === 'APP') {
     currentPage = { type: HomePageType.Application, component: component.key };
   } else if (component.qualifier === 'TRK') {
-    const branch =
-      isMainBranch(branchLike) || isLongLivingBranch(branchLike) ? branchLike.name : undefined;
+    // when home page is set to the default branch of a project, its name is returned as `undefined`
+    const branch = isLongLivingBranch(branchLike) ? branchLike.name : undefined;
     currentPage = { type: HomePageType.Project, component: component.key, branch };
   }
   return currentPage;
