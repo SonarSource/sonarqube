@@ -20,6 +20,7 @@
 package org.sonar.api.server.ws;
 
 import com.google.common.base.Splitter;
+import java.io.BufferedReader;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Date;
@@ -51,6 +52,10 @@ public abstract class Request {
    * values are GET and POST. Others are not supported.
    */
   public abstract String method();
+
+  public BufferedReader getReader() {
+    throw new UnsupportedOperationException("getReader not supported");
+  }
 
   /**
    * Returns the requested MIME type, or {@code "application/octet-stream"} if not specified.

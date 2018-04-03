@@ -22,6 +22,8 @@ package org.sonar.server.ws;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.net.HttpHeaders;
+import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
@@ -64,6 +66,15 @@ public class ServletRequest extends ValidatingRequest {
       firstNonNull(
         acceptedContentTypeInResponse(),
         MediaTypes.DEFAULT));
+  }
+
+  @Override
+  public BufferedReader getReader() {
+    try {
+      return source.getReader();
+    } catch (IOException e) {
+      throw new IllegalStateException("Failed to read", e);
+    }
   }
 
   @Override

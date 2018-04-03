@@ -24,7 +24,9 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Maps;
 import com.google.protobuf.GeneratedMessageV3;
+import java.io.BufferedReader;
 import java.io.InputStream;
+import java.io.StringReader;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,6 +36,7 @@ import org.sonar.api.server.ws.internal.PartImpl;
 import org.sonar.api.server.ws.internal.ValidatingRequest;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
 import static java.util.Objects.requireNonNull;
 import static org.sonarqube.ws.MediaTypes.PROTOBUF;
 
@@ -43,9 +46,30 @@ public class TestRequest extends ValidatingRequest {
   private final Map<String, String> params = new HashMap<>();
   private final Map<String, String> headers = new HashMap<>();
   private final Map<String, Part> parts = Maps.newHashMap();
+  private String payload = "";
+  private boolean payloadConsumed = false;
   private String method = "GET";
   private String mimeType = "application/octet-stream";
   private String path;
+
+  @Override
+  public BufferedReader getReader() {
+    checkState(!payloadConsumed, "Payload already consumed");
+    if (payload == null) {
+      return super.getReader();
+    }
+
+    BufferedReader res = new BufferedReader(new StringReader(payload));
+    payloadConsumed = true;
+    return res;
+  }
+
+  public TestRequest setPayload(String payload) {
+    checkState(!payloadConsumed, "Payload already consumed");
+
+    this.payload = payload;
+    return this;
+  }
 
   @Override
   protected String readParam(String key) {
