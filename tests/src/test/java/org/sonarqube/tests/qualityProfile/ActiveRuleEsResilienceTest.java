@@ -29,8 +29,8 @@ import org.junit.Test;
 import org.junit.rules.DisableOnDebug;
 import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
-import org.sonarqube.tests.Byteman;
 import org.sonarqube.qa.util.Tester;
+import org.sonarqube.tests.Byteman;
 import org.sonarqube.ws.Organizations;
 import org.sonarqube.ws.Qualityprofiles;
 import org.sonarqube.ws.client.rules.SearchRequest;
@@ -53,6 +53,7 @@ public class ActiveRuleEsResilienceTest {
       .getOrchestratorBuilder()
       .setServerProperty("sonar.search.recovery.delayInMs", "1000")
       .setServerProperty("sonar.search.recovery.minAgeInMs", "3000")
+      .setServerProperty("sonar.sonarcloud.enabled", "true")
       .addPlugin(ItUtils.xooPlugin())
       .build();
   }

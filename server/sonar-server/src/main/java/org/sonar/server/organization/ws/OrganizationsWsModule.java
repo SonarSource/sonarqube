@@ -19,9 +19,18 @@
  */
 package org.sonar.server.organization.ws;
 
+import org.sonar.api.config.Configuration;
 import org.sonar.core.platform.Module;
 
+import static org.sonar.process.ProcessProperties.Property.SONARCLOUD_ENABLED;
+
 public class OrganizationsWsModule extends Module {
+
+  private final Configuration config;
+
+  public OrganizationsWsModule(Configuration config) {
+    this.config = config;
+  }
 
   @Override
   protected void configureModule() {
@@ -29,15 +38,18 @@ public class OrganizationsWsModule extends Module {
       OrganizationsWs.class,
       OrganizationsWsSupport.class,
       // actions
-      AddMemberAction.class,
-      CreateAction.class,
-      DeleteAction.class,
-      EnableSupportAction.class,
-      RemoveMemberAction.class,
       SearchAction.class,
-      SearchMembersAction.class,
-      UpdateAction.class,
-      UpdateProjectVisibilityAction.class);
+      SearchMembersAction.class);
+    if (config.getBoolean(SONARCLOUD_ENABLED.getKey()).orElse(false)) {
+      add(
+        EnableSupportAction.class,
+        AddMemberAction.class,
+        CreateAction.class,
+        DeleteAction.class,
+        RemoveMemberAction.class,
+        UpdateAction.class,
+        UpdateProjectVisibilityAction.class);
+    }
   }
 
 }

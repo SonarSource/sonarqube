@@ -69,6 +69,7 @@ public class AnalysisEsResilienceTest {
       .getOrchestratorBuilder()
       .addPlugin(ItUtils.xooPlugin())
       .setServerProperty("sonar.search.httpPort", "" + esHttpPort)
+      .setServerProperty("sonar.sonarcloud.enabled", "true")
       .build();
   }
 

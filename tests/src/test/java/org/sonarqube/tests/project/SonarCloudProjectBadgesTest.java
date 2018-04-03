@@ -54,7 +54,7 @@ public class SonarCloudProjectBadgesTest {
   @Test
   public void public_project_badges() {
     orchestrator.executeBuild(SonarScanner.create(projectDir("shared/xoo-sample")));
-    tester.openBrowser("/projects").openProjectDashboard(PROJECT_KEY);
+    tester.openBrowser().openProjectDashboard(PROJECT_KEY);
 
     SelenideElement badgesModal = openBadgesModal();
     ElementsCollection badgeButtons = badgesModal.$$(".badge-button").shouldHaveSize(3);
@@ -86,7 +86,7 @@ public class SonarCloudProjectBadgesTest {
         .setProperties("sonar.organization", org.getKey(), "sonar.login", user.getLogin(), "sonar.password", user.getLogin())
     );
     tester.wsClient().projects().updateVisibility(new UpdateVisibilityRequest().setProject("sample").setVisibility("private"));
-    tester.openBrowser("/projects").logIn().submitCredentials(user.getLogin()).openProjectDashboard(PROJECT_KEY);
+    tester.openBrowser().logIn().submitCredentials(user.getLogin()).openProjectDashboard(PROJECT_KEY);
     shouldNotHaveBadges();
   }
 

@@ -83,5 +83,7 @@ public class Category6Suite {
     .addPlugin(pluginArtifact("base-auth-plugin"))
     .addPlugin(pluginArtifact("ui-extensions-plugin"))
 
+    .setServerProperty("sonar.sonarcloud.enabled", "true")
+
     .build();
 }

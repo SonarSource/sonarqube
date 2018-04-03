@@ -139,12 +139,8 @@ public class Tester extends ExternalResource implements TesterSession {
    */
   public Navigation openBrowser() {
     verifyStarted();
-    return Navigation.create(orchestrator);
-  }
-
-  public Navigation openBrowser(String path) {
-    verifyStarted();
-    return Navigation.create(orchestrator, path);
+    // /projects is used as on SonarCloud instance, the "/" is redirected to SonarCloud website
+    return Navigation.create(orchestrator, "/projects");
   }
 
   private void verifyNotStarted() {
