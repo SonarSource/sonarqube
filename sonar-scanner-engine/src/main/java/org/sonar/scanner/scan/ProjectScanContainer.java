@@ -243,6 +243,7 @@ public class ProjectScanContainer extends ComponentContainer {
     InputModuleHierarchy tree = getComponentByType(InputModuleHierarchy.class);
 
     LOG.info("Project key: {}", tree.root().key());
+    LOG.info("Project base dir: {}", tree.root().getBaseDir());
     String organization = props.property("sonar.organization");
     if (StringUtils.isNotEmpty(organization)) {
       LOG.info("Organization key: {}", organization);
