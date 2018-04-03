@@ -62,7 +62,7 @@ public class WebServiceFilterTest {
   }
 
   @Test
-  public void match_declared_web_services() {
+  public void match_declared_web_services_with_optional_suffix() {
     initWebServiceEngine(
       newWsUrl("api/issues", "search"),
       newWsUrl("batch", "index"));
@@ -70,6 +70,7 @@ public class WebServiceFilterTest {
     assertThat(underTest.doGetPattern().matches("/api/issues/search")).isTrue();
     assertThat(underTest.doGetPattern().matches("/api/issues/search.protobuf")).isTrue();
     assertThat(underTest.doGetPattern().matches("/batch/index")).isTrue();
+    assertThat(underTest.doGetPattern().matches("/batch/index.protobuf")).isTrue();
 
     assertThat(underTest.doGetPattern().matches("/foo")).isFalse();
   }
@@ -87,6 +88,16 @@ public class WebServiceFilterTest {
     initWebServiceEngine(newWsUrl("api/authentication", "login").setHandler(ServletFilterHandler.INSTANCE));
 
     assertThat(underTest.doGetPattern().matches("/api/authentication/login")).isFalse();
+  }
+
+  @Test
+  public void does_not_match_servlet_filter_that_prefix_a_ws() {
+    initWebServiceEngine(
+        newWsUrl("api/foo", "action").setHandler(ServletFilterHandler.INSTANCE),
+        newWsUrl("api/foo", "action_2"));
+
+    assertThat(underTest.doGetPattern().matches("/api/foo/action")).isFalse();
+    assertThat(underTest.doGetPattern().matches("/api/foo/action_2")).isTrue();
   }
 
   @Test

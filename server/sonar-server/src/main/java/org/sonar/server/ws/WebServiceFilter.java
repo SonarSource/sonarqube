@@ -95,7 +95,7 @@ public class WebServiceFilter extends ServletFilter {
   }
 
   private static Function<WebService.Action, String> toPath() {
-    return action -> "/" + action.path() + "/*";
+    return action -> "/" + action.path() + ".*";
   }
 
 }
