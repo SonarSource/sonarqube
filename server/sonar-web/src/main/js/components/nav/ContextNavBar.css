@@ -32,6 +32,11 @@
   border-bottom: none;
 }
 
+.navbar-context-justified {
+  display: flex;
+  justify-content: space-between;
+}
+
 /* use `min-width: 0` to cut breadcrumb links (to end with "...") */
 /* https://stackoverflow.com/questions/38223879/white-space-nowrap-breaks-flexbox-layout */
 .navbar-context-header {

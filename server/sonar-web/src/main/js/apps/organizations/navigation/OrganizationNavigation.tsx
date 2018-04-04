@@ -33,9 +33,11 @@ interface Props {
 
 export default function OrganizationNavigation({ organization, location }: Props) {
   return (
-    <ContextNavBar id="context-navigation" height={theme.contextNavHeightRaw}>
-      <OrganizationNavigationHeaderContainer organization={organization} />
-      <OrganizationNavigationMeta organization={organization} />
+    <ContextNavBar height={theme.contextNavHeightRaw} id="context-navigation">
+      <div className="navbar-context-justified">
+        <OrganizationNavigationHeaderContainer organization={organization} />
+        <OrganizationNavigationMeta organization={organization} />
+      </div>
       <OrganizationNavigationMenu location={location} organization={organization} />
     </ContextNavBar>
   );

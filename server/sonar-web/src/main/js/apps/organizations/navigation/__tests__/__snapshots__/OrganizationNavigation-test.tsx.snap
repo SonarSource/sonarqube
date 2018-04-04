@@ -5,24 +5,28 @@ exports[`render 1`] = `
   height={72}
   id="context-navigation"
 >
-  <Connect(OrganizationNavigationHeader)
-    organization={
-      Object {
-        "key": "foo",
-        "name": "Foo",
-        "projectVisibility": "public",
+  <div
+    className="navbar-context-justified"
+  >
+    <Connect(OrganizationNavigationHeader)
+      organization={
+        Object {
+          "key": "foo",
+          "name": "Foo",
+          "projectVisibility": "public",
+        }
       }
-    }
-  />
-  <Connect(OrganizationNavigationMeta)
-    organization={
-      Object {
-        "key": "foo",
-        "name": "Foo",
-        "projectVisibility": "public",
+    />
+    <Connect(OrganizationNavigationMeta)
+      organization={
+        Object {
+          "key": "foo",
+          "name": "Foo",
+          "projectVisibility": "public",
+        }
       }
-    }
-  />
+    />
+  </div>
   <OrganizationNavigationMenu
     location={
       Object {
