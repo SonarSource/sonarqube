@@ -35,7 +35,7 @@ it('renders', async () => {
   const wrapper = shallow(<ApplicationLeakPeriodLegend component="foo" />);
   expect(wrapper).toMatchSnapshot();
 
-  wrapper.find('Tooltip').prop<Function>('onVisibleChange')(true);
+  wrapper.find('Tooltip').prop<Function>('onShow')();
   await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot();
 });

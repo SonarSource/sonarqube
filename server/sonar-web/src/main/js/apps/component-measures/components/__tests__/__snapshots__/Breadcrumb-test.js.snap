@@ -2,12 +2,14 @@
 
 exports[`should correctly show a middle element 1`] = `
 <span>
-  <a
-    href="#"
-    onClick={[Function]}
-  >
-    Foo
-  </a>
+  <Tooltip>
+    <a
+      href="#"
+      onClick={[Function]}
+    >
+      Foo
+    </a>
+  </Tooltip>
   <span
     className="slash-separator"
   />
@@ -16,8 +18,10 @@ exports[`should correctly show a middle element 1`] = `
 
 exports[`should show the last element without clickable link 1`] = `
 <span>
-  <span>
-    Foo
-  </span>
+  <Tooltip>
+    <span>
+      Foo
+    </span>
+  </Tooltip>
 </span>
 `;

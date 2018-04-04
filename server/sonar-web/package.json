@@ -21,7 +21,6 @@
     "keymaster": "1.6.2",
     "lodash": "4.17.4",
     "prop-types": "15.6.0",
-    "rc-tooltip": "3.5.0",
     "react": "16.2.0",
     "react-day-picker": "7.1.2",
     "react-dom": "16.2.0",

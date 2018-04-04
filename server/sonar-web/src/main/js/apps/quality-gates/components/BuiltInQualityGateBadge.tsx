@@ -43,5 +43,5 @@ export default function BuiltInQualityGateBadge({ className, tooltip = true }: P
     </div>
   );
 
-  return tooltip ? <Tooltip overlay={overlay}>{badge}</Tooltip> : badge;
+  return <Tooltip overlay={tooltip ? overlay : undefined}>{badge}</Tooltip>;
 }

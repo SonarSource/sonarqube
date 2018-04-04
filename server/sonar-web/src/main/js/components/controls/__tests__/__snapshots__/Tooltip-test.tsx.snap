@@ -1,0 +1,73 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should open & close 1`] = `
+<React.Fragment>
+  <div
+    id="tooltip"
+    onMouseEnter={[Function]}
+    onMouseLeave={[Function]}
+  />
+  <TooltipPortal>
+    <div
+      className="tooltip bottom"
+    >
+      <div
+        className="tooltip-inner"
+      >
+        <span
+          id="overlay"
+        />
+      </div>
+      <div
+        className="tooltip-arrow"
+      />
+    </div>
+  </TooltipPortal>
+</React.Fragment>
+`;
+
+exports[`should open & close 2`] = `
+<React.Fragment>
+  <div
+    id="tooltip"
+    onMouseEnter={[Function]}
+    onMouseLeave={[Function]}
+  />
+</React.Fragment>
+`;
+
+exports[`should render 1`] = `
+<React.Fragment>
+  <div
+    id="tooltip"
+    onMouseEnter={[Function]}
+    onMouseLeave={[Function]}
+  />
+</React.Fragment>
+`;
+
+exports[`should render 2`] = `
+<React.Fragment>
+  <div
+    id="tooltip"
+    onMouseEnter={[Function]}
+    onMouseLeave={[Function]}
+  />
+  <TooltipPortal>
+    <div
+      className="tooltip bottom"
+    >
+      <div
+        className="tooltip-inner"
+      >
+        <span
+          id="overlay"
+        />
+      </div>
+      <div
+        className="tooltip-arrow"
+      />
+    </div>
+  </TooltipPortal>
+</React.Fragment>
+`;

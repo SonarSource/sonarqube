@@ -60,8 +60,7 @@ export default function IssueTitleBar(props /*: Props */) {
       overlay={translateWithParameters(
         'issue.this_issue_involves_x_code_locations',
         formatMeasure(locationsCount)
-      )}
-      placement="left">
+      )}>
       <LocationIndex>{locationsCount}</LocationIndex>
     </Tooltip>
   );

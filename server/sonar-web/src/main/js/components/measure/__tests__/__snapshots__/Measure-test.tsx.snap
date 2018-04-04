@@ -9,7 +9,6 @@ exports[`renders LEVEL 1`] = `
 exports[`renders known RATING 1`] = `
 <Tooltip
   overlay="tooltip"
-  placement="bottom"
 >
   <span>
     <Rating

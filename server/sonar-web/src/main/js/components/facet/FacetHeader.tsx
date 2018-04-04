@@ -47,7 +47,7 @@ export default class FacetHeader extends React.PureComponent<Props> {
       return null;
     }
     return (
-      <Tooltip overlay={this.props.helper} placement="right">
+      <Tooltip overlay={this.props.helper}>
         <span>
           <HelpIcon className="spacer-left text-info" />
         </span>

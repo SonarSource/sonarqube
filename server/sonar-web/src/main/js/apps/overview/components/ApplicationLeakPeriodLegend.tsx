@@ -49,8 +49,8 @@ export default class ApplicationLeakPeriodLegend extends React.Component<Props, 
     this.mounted = false;
   }
 
-  fetchLeaks = (visible: boolean) => {
-    if (visible && !this.state.leaks) {
+  fetchLeaks = () => {
+    if (!this.state.leaks) {
       getApplicationLeak(this.props.component).then(
         leaks => {
           if (this.mounted) {
@@ -81,7 +81,7 @@ export default class ApplicationLeakPeriodLegend extends React.Component<Props, 
 
   render() {
     return (
-      <Tooltip onVisibleChange={this.fetchLeaks} overlay={this.renderOverlay()}>
+      <Tooltip onShow={this.fetchLeaks} overlay={this.renderOverlay()}>
         <div className="overview-legend  overview-legend-spaced-line">
           {translate('issues.leak_period')}
         </div>

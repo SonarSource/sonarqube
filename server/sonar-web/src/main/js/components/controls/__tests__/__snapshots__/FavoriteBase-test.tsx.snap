@@ -3,7 +3,6 @@
 exports[`should render favorite 1`] = `
 <Tooltip
   overlay="favorite.current.TRK"
-  placement="left"
 >
   <a
     className="display-inline-block link-no-underline"
@@ -20,7 +19,6 @@ exports[`should render favorite 1`] = `
 exports[`should render not favorite 1`] = `
 <Tooltip
   overlay="favorite.check.TRK"
-  placement="left"
 >
   <a
     className="display-inline-block link-no-underline"

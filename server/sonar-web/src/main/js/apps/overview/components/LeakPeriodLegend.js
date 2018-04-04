@@ -98,7 +98,7 @@ export default function LeakPeriodLegend({ period } /*: { period: Period } */) {
     </DateFormatter>
   );
   return (
-    <Tooltip overlay={tooltip} placement="top">
+    <Tooltip overlay={tooltip}>
       <div className="overview-legend">
         {translateWithParameters('overview.leak_period_x', leakPeriodLabel)}
         <br />

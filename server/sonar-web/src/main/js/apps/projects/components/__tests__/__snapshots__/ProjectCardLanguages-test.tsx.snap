@@ -17,7 +17,6 @@ exports[`handles unknown languages 1`] = `
         </span>
       </span>
     }
-    placement="bottom"
   >
     <span>
       cpp, Java
@@ -43,7 +42,6 @@ exports[`handles unknown languages 2`] = `
         </span>
       </span>
     }
-    placement="bottom"
   >
     <span>
       unknown, Java
@@ -69,7 +67,6 @@ exports[`renders 1`] = `
         </span>
       </span>
     }
-    placement="bottom"
   >
     <span>
       Java, JavaScript
@@ -95,7 +92,6 @@ exports[`sorts languages 1`] = `
         </span>
       </span>
     }
-    placement="bottom"
   >
     <span>
       JavaScript, Java

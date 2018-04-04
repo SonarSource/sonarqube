@@ -87,7 +87,7 @@ export default class FavoriteBase extends React.PureComponent<Props, State> {
       ? translate('favorite.current', this.props.qualifier)
       : translate('favorite.check', this.props.qualifier);
     return (
-      <Tooltip overlay={tooltip} placement="left">
+      <Tooltip overlay={tooltip}>
         <a
           className={classNames('display-inline-block', 'link-no-underline', this.props.className)}
           href="#"

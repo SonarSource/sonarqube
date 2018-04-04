@@ -4,7 +4,6 @@ exports[`should render a version correctly 1`] = `
 <Tooltip
   mouseEnterDelay={0.5}
   overlay="version 6.5-SNAPSHOT"
-  placement="bottom"
 >
   <span
     className="overview-analysis-event badge"

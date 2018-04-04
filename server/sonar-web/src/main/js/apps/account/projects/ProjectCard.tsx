@@ -39,17 +39,15 @@ export default function ProjectCard({ project }: Props) {
     <div className="account-project-card clearfix">
       <aside className="account-project-side">
         {isAnalyzed ? (
-          <Tooltip
-            overlay={<DateTimeFormatter date={project.lastAnalysisDate} />}
-            placement="right">
-            <div className="account-project-analysis">
-              <DateFromNow date={project.lastAnalysisDate}>
-                {(fromNow: string) => (
+          <div className="account-project-analysis">
+            <DateFromNow date={project.lastAnalysisDate}>
+              {fromNow => (
+                <Tooltip overlay={<DateTimeFormatter date={project.lastAnalysisDate} />}>
                   <span>{translateWithParameters('my_account.projects.analyzed_x', fromNow)}</span>
-                )}
-              </DateFromNow>
-            </div>
-          </Tooltip>
+                </Tooltip>
+              )}
+            </DateFromNow>
+          </div>
         ) : (
           <div className="account-project-analysis">
             {translate('my_account.projects.never_analyzed')}

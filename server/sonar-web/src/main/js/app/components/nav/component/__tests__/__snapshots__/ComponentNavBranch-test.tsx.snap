@@ -21,7 +21,6 @@ exports[`renders main branch 1`] = `
     <Tooltip
       mouseEnterDelay={1}
       overlay="master"
-      placement="bottom"
     >
       <span
         className="text-limited text-top"
@@ -101,7 +100,6 @@ exports[`renders pull request 1`] = `
     <Tooltip
       mouseEnterDelay={1}
       overlay="1234 – Feature PR"
-      placement="bottom"
     >
       <span
         className="text-limited text-top"
@@ -163,7 +161,6 @@ exports[`renders short-living branch 1`] = `
     <Tooltip
       mouseEnterDelay={1}
       overlay="foo"
-      placement="bottom"
     >
       <span
         className="text-limited text-top"

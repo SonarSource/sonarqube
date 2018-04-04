@@ -74,7 +74,7 @@ export default class ProjectActivityAnalysis extends React.PureComponent {
         role="listitem"
         tabIndex="0">
         <div className="project-activity-time spacer-right">
-          <TimeTooltipFormatter className="text-middle" date={date} placement="right" />
+          <TimeTooltipFormatter className="text-middle" date={date} />
         </div>
         <div className="project-activity-analysis-icon spacer-right" title={analysisTitle} />
 

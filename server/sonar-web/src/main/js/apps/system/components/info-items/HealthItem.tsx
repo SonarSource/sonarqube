@@ -45,9 +45,7 @@ export default function HealthItem({ biggerHealth, className, name, health, heal
           <HealthCauseItem key={idx} className="spacer-right" health={health} healthCause={cause} />
         ))}
       {name ? (
-        <Tooltip
-          overlay={translateWithParameters('system.current_health_of_x', name)}
-          placement="left">
+        <Tooltip overlay={translateWithParameters('system.current_health_of_x', name)}>
           <span>{statusIndicator}</span>
         </Tooltip>
       ) : (

@@ -6,7 +6,6 @@ exports[`should not allow to create a new webhook 1`] = `
 >
   <Tooltip
     overlay="webhooks.maximum_reached.10"
-    placement="left"
   >
     <Button
       className="js-webhook-create disabled"

@@ -45,7 +45,7 @@ export default function Search(props: Props) {
         <Checkbox checked={showInternal} onCheck={onToggleInternal}>
           <span className="little-spacer-left">{translate('api_documentation.show_internal')}</span>
         </Checkbox>
-        <Tooltip overlay={translate('api_documentation.internal_tooltip')} placement="right">
+        <Tooltip overlay={translate('api_documentation.internal_tooltip')}>
           <span>
             <HelpIcon className="spacer-left text-info" />
           </span>
@@ -58,7 +58,7 @@ export default function Search(props: Props) {
             {translate('api_documentation.show_deprecated')}
           </span>
         </Checkbox>
-        <Tooltip overlay={translate('api_documentation.deprecation_tooltip')} placement="right">
+        <Tooltip overlay={translate('api_documentation.deprecation_tooltip')}>
           <span>
             <HelpIcon className="spacer-left text-info" />
           </span>

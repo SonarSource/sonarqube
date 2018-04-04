@@ -169,7 +169,6 @@ exports[`renders status of short-living branches 4`] = `
   </li>
   <Tooltip
     overlay="branches.short_lived.quality_gate.description.1"
-    placement="right"
   >
     <li
       className="spacer-left"

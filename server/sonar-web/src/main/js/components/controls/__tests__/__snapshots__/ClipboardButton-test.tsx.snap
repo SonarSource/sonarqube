@@ -1,21 +1,39 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should display correctly 1`] = `
-<Button
-  className="js-copy-to-clipboard no-select"
-  data-clipboard-text="foo"
-  innerRef={[Function]}
+<Tooltip
+  overlay="copied_action"
+  visible={false}
 >
-  copy
-</Button>
+  <Button
+    className="js-copy-to-clipboard no-select"
+    data-clipboard-text="foo"
+    innerRef={[Function]}
+  >
+    copy
+  </Button>
+</Tooltip>
 `;
 
 exports[`should display correctly 2`] = `
 <Tooltip
-  defaultVisible={true}
   overlay="copied_action"
-  placement="bottom"
-  trigger="manual"
+  visible={true}
+>
+  <Button
+    className="js-copy-to-clipboard no-select"
+    data-clipboard-text="foo"
+    innerRef={[Function]}
+  >
+    copy
+  </Button>
+</Tooltip>
+`;
+
+exports[`should display correctly 3`] = `
+<Tooltip
+  overlay="copied_action"
+  visible={false}
 >
   <Button
     className="js-copy-to-clipboard no-select"

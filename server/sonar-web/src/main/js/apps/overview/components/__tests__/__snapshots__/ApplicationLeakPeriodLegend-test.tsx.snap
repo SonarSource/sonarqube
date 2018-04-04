@@ -2,13 +2,12 @@
 
 exports[`renders 1`] = `
 <Tooltip
-  onVisibleChange={[Function]}
+  onShow={[Function]}
   overlay={
     <i
       className="spinner spinner-margin"
     />
   }
-  placement="bottom"
 >
   <div
     className="overview-legend  overview-legend-spaced-line"
@@ -20,7 +19,7 @@ exports[`renders 1`] = `
 
 exports[`renders 2`] = `
 <Tooltip
-  onVisibleChange={[Function]}
+  onShow={[Function]}
   overlay={
     <ul
       className="text-left"
@@ -41,7 +40,6 @@ exports[`renders 2`] = `
       </li>
     </ul>
   }
-  placement="bottom"
 >
   <div
     className="overview-legend  overview-legend-spaced-line"

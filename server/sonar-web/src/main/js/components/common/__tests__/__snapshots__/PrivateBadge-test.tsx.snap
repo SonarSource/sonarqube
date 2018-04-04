@@ -3,7 +3,6 @@
 exports[`renders 1`] = `
 <Tooltip
   overlay="visibility.private.description.TRK"
-  placement="bottom"
 >
   <div
     className="outline-badge"

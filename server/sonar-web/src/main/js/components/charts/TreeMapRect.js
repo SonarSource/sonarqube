@@ -112,13 +112,10 @@ export default class TreeMapRect extends React.PureComponent {
 
   render() {
     const { placement, tooltip } = this.props;
-    if (tooltip != null) {
-      return (
-        <Tooltip overlay={tooltip} placement={placement || 'left'} mouseLeaveDelay={0}>
-          {this.renderCell()}
-        </Tooltip>
-      );
-    }
-    return this.renderCell();
+    return (
+      <Tooltip overlay={tooltip || undefined} placement={placement || 'left'}>
+        {this.renderCell()}
+      </Tooltip>
+    );
   }
 }

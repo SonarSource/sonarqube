@@ -55,13 +55,9 @@ export default class Breadcrumb extends React.PureComponent {
 
     return (
       <span>
-        {component.name !== componentName ? (
-          <Tooltip overlay={component.name} placement="bottom">
-            {breadcrumbItem}
-          </Tooltip>
-        ) : (
-          breadcrumbItem
-        )}
+        <Tooltip overlay={component.name !== componentName ? component.name : undefined}>
+          {breadcrumbItem}
+        </Tooltip>
         {!isLast && <span className="slash-separator" />}
       </span>
     );

@@ -86,12 +86,10 @@ export const BarChart = createReactClass({
           {tick}
         </text>
       );
-      return d.tooltip ? (
-        <Tooltip key={index} overlay={d.tooltip}>
+      return (
+        <Tooltip key={index} overlay={d.tooltip || undefined}>
           {text}
         </Tooltip>
-      ) : (
-        text
       );
     });
     return <g>{ticks}</g>;
@@ -118,12 +116,10 @@ export const BarChart = createReactClass({
           {value}
         </text>
       );
-      return d.tooltip ? (
-        <Tooltip key={index} overlay={d.tooltip}>
+      return (
+        <Tooltip key={index} overlay={d.tooltip || undefined}>
           {text}
         </Tooltip>
-      ) : (
-        text
       );
     });
     return <g>{ticks}</g>;
@@ -147,12 +143,10 @@ export const BarChart = createReactClass({
           y={y}
         />
       );
-      return d.tooltip ? (
-        <Tooltip key={index} overlay={d.tooltip}>
+      return (
+        <Tooltip key={index} overlay={d.tooltip || undefined}>
           {rect}
         </Tooltip>
-      ) : (
-        rect
       );
     });
     return <g>{bars}</g>;

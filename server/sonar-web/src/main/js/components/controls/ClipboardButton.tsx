@@ -27,7 +27,6 @@ import { translate } from '../../helpers/l10n';
 interface Props {
   className?: string;
   copyValue: string;
-  tooltipPlacement?: string;
 }
 
 interface State {
@@ -77,25 +76,15 @@ export default class ClipboardButton extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const button = (
-      <Button
-        className={classNames('js-copy-to-clipboard no-select', this.props.className)}
-        data-clipboard-text={this.props.copyValue}
-        innerRef={node => (this.copyButton = node)}>
-        {translate('copy')}
-      </Button>
+    return (
+      <Tooltip overlay={translate('copied_action')} visible={this.state.tooltipShown}>
+        <Button
+          className={classNames('js-copy-to-clipboard no-select', this.props.className)}
+          data-clipboard-text={this.props.copyValue}
+          innerRef={node => (this.copyButton = node)}>
+          {translate('copy')}
+        </Button>
+      </Tooltip>
     );
-    if (this.state.tooltipShown) {
-      return (
-        <Tooltip
-          defaultVisible={true}
-          overlay={translate('copied_action')}
-          placement={this.props.tooltipPlacement || 'bottom'}
-          trigger="manual">
-          {button}
-        </Tooltip>
-      );
-    }
-    return button;
   }
 }

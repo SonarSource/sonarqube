@@ -3,7 +3,6 @@
 exports[`should display the license field 1`] = `
 <Tooltip
   overlay="SonarSource license"
-  placement="bottom"
 >
   <li
     className="little-spacer-bottom marketplace-plugin-license"

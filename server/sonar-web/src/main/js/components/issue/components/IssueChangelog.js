@@ -56,9 +56,8 @@ export default class IssueChangelog extends React.PureComponent {
         togglePopup={this.toggleChangelog}
         popup={<ChangelogPopup issue={this.props.issue} onFail={this.props.onFail} />}>
         <Tooltip
-          overlay={<DateTimeFormatter date={this.props.creationDate} />}
-          placement="left"
-          mouseEnterDelay={0.5}>
+          mouseEnterDelay={0.5}
+          overlay={<DateTimeFormatter date={this.props.creationDate} />}>
           <button
             className="button-link issue-action issue-action-with-options js-issue-show-changelog"
             onClick={this.handleClick}>

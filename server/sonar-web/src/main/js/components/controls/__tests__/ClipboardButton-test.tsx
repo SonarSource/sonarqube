@@ -31,5 +31,5 @@ it('should display correctly', () => {
   expect(wrapper).toMatchSnapshot();
   jest.runAllTimers();
   wrapper.update();
-  expect(wrapper.find('Tooltip')).toHaveLength(0);
+  expect(wrapper).toMatchSnapshot();
 });

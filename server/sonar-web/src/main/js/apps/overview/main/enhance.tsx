@@ -128,7 +128,7 @@ export default function enhance(ComposedComponent: React.ComponentType<ComposedP
       const value = this.getValue(measure);
       const title = value && getRatingTooltip(metricKey, value);
       return (
-        <Tooltip overlay={title} placement="top">
+        <Tooltip overlay={title}>
           <div className="overview-domain-measure-sup">
             <DrilldownLink
               branchLike={branchLike}

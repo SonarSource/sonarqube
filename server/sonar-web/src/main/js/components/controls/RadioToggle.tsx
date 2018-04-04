@@ -61,13 +61,9 @@ export default class RadioToggle extends React.PureComponent<Props> {
           checked={checked}
           onChange={this.handleChange}
         />
-        {option.tooltip ? (
-          <Tooltip overlay={option.tooltip}>
-            <label htmlFor={htmlId}>{option.label}</label>
-          </Tooltip>
-        ) : (
+        <Tooltip overlay={option.tooltip || undefined}>
           <label htmlFor={htmlId}>{option.label}</label>
-        )}
+        </Tooltip>
       </li>
     );
   };

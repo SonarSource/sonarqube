@@ -29,7 +29,7 @@ interface Props {
 export default function Event({ event }: Props) {
   if (event.category === 'VERSION') {
     return (
-      <Tooltip overlay={`${translate('version')} ${event.name}`} mouseEnterDelay={0.5}>
+      <Tooltip mouseEnterDelay={0.5} overlay={`${translate('version')} ${event.name}`}>
         <span className="overview-analysis-event badge">{event.name}</span>
       </Tooltip>
     );
@@ -39,7 +39,7 @@ export default function Event({ event }: Props) {
     <div className="overview-analysis-event">
       <span className="note">{translate('event.category', event.category)}:</span>{' '}
       {event.description ? (
-        <Tooltip overlay={event.description} placement="left" mouseEnterDelay={0.5}>
+        <Tooltip mouseEnterDelay={0.5} overlay={event.description}>
           <strong>{event.name}</strong>
         </Tooltip>
       ) : (

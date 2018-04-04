@@ -45,7 +45,7 @@ export default function Analysis({ analysis, ...props }: Props) {
     <li className="overview-analysis">
       <div className="small little-spacer-bottom">
         <strong>
-          <DateTooltipFormatter date={analysis.date} placement="right" />
+          <DateTooltipFormatter date={analysis.date} />
         </strong>
       </div>
 

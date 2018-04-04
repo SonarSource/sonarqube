@@ -75,8 +75,7 @@ export default function BranchStatus({ branchLike, concise = false }: Props) {
             overlay={translateWithParameters(
               'branches.short_lived.quality_gate.description',
               totalIssues
-            )}
-            placement="right">
+            )}>
             <li className="spacer-left">
               <HelpIcon className="text-info" />
             </li>

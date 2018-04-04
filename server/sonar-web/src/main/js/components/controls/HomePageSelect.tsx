@@ -59,7 +59,7 @@ class HomePageSelect extends React.PureComponent<Props> {
     const tooltip = checked ? translate('homepage.current') : translate('homepage.check');
 
     return (
-      <Tooltip overlay={tooltip} placement="left">
+      <Tooltip overlay={tooltip}>
         {checked ? (
           <span className={classNames('display-inline-block', this.props.className)}>
             <HomeIcon filled={checked} />

@@ -26,7 +26,6 @@ exports[`should render correctly 1`] = `
     </Checkbox>
     <Tooltip
       overlay="api_documentation.internal_tooltip"
-      placement="right"
     >
       <span>
         <HelpIcon
@@ -51,7 +50,6 @@ exports[`should render correctly 1`] = `
     </Checkbox>
     <Tooltip
       overlay="api_documentation.deprecation_tooltip"
-      placement="right"
     >
       <span>
         <HelpIcon

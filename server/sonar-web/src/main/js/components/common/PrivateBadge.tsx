@@ -25,14 +25,11 @@ import { translate } from '../../helpers/l10n';
 interface Props {
   className?: string;
   qualifier: string;
-  tooltipPlacement?: string;
 }
 
-export default function PrivateBadge({ className, qualifier, tooltipPlacement = 'bottom' }: Props) {
+export default function PrivateBadge({ className, qualifier }: Props) {
   return (
-    <Tooltip
-      overlay={translate('visibility.private.description', qualifier)}
-      placement={tooltipPlacement}>
+    <Tooltip overlay={translate('visibility.private.description', qualifier)}>
       <div className={classNames('outline-badge', className)}>
         {translate('visibility.private')}
       </div>

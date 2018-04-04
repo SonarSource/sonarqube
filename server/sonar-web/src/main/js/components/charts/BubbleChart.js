@@ -69,12 +69,10 @@ export class Bubble extends React.PureComponent {
       circle = <Link to={this.props.link}>{circle}</Link>;
     }
 
-    return this.props.tooltip ? (
-      <Tooltip overlay={this.props.tooltip}>
+    return (
+      <Tooltip overlay={this.props.tooltip || undefined}>
         <g>{circle}</g>
       </Tooltip>
-    ) : (
-      circle
     );
   }
 }

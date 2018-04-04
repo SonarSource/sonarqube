@@ -69,14 +69,10 @@ export default class SelectListItem extends React.PureComponent {
   }
 
   render() {
-    if (this.props.title) {
-      return (
-        <Tooltip placement="right" overlay={this.props.title}>
-          {this.renderLink()}
-        </Tooltip>
-      );
-    } else {
-      return this.renderLink();
-    }
+    return (
+      <Tooltip overlay={this.props.title || undefined} placement="right">
+        {this.renderLink()}
+      </Tooltip>
+    );
   }
 }

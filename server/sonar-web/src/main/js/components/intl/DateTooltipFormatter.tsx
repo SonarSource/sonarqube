@@ -26,18 +26,14 @@ import { parseDate } from '../../helpers/dates';
 interface Props {
   className?: string;
   date: Date | string | number;
-  placement?: string;
 }
 
-export default function DateTooltipFormatter({ className, date, placement }: Props) {
+export default function DateTooltipFormatter({ className, date }: Props) {
   const parsedDate = parseDate(date);
   return (
     <DateFormatter date={parsedDate} long={true}>
       {formattedDate => (
-        <Tooltip
-          overlay={<DateTimeFormatter date={parsedDate} />}
-          placement={placement}
-          mouseEnterDelay={0.5}>
+        <Tooltip mouseEnterDelay={0.5} overlay={<DateTimeFormatter date={parsedDate} />}>
           <time className={className} dateTime={parsedDate.toISOString()}>
             {formattedDate}
           </time>

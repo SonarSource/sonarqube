@@ -19,7 +19,6 @@ exports[`should correctly filter analyses by category 1`] = `
       <Tooltip
         mouseEnterDelay={0.5}
         overlay="version 6.4"
-        placement="bottom"
       >
         <span
           className="badge"
@@ -99,7 +98,6 @@ exports[`should correctly filter analyses by date range 1`] = `
       <Tooltip
         mouseEnterDelay={0.5}
         overlay="version 6.5-SNAPSHOT"
-        placement="bottom"
       >
         <span
           className="badge"
@@ -179,7 +177,6 @@ exports[`should render correctly 1`] = `
       <Tooltip
         mouseEnterDelay={0.5}
         overlay="version 6.5-SNAPSHOT"
-        placement="bottom"
       >
         <span
           className="badge"
@@ -266,7 +263,6 @@ exports[`should render correctly 1`] = `
       <Tooltip
         mouseEnterDelay={0.5}
         overlay="version 6.4"
-        placement="bottom"
       >
         <span
           className="badge"

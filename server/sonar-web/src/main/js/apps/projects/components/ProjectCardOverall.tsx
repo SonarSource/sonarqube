@@ -60,9 +60,7 @@ export default function ProjectCardOverall({ organization, project }: Props) {
           </h2>
           {project.analysisDate && <ProjectCardQualityGate status={measures['alert_status']} />}
           <div className="project-card-header-right">
-            {isPrivate && (
-              <PrivateBadge className="spacer-left" qualifier="TRK" tooltipPlacement="left" />
-            )}
+            {isPrivate && <PrivateBadge className="spacer-left" qualifier="TRK" />}
             {hasTags && <TagsList className="spacer-left note" tags={project.tags} />}
           </div>
         </div>

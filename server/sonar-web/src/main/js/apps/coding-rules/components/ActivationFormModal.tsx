@@ -207,9 +207,11 @@ export default class ActivationFormModal extends React.PureComponent<Props, Stat
             ) : (
               params.map(param => (
                 <div className="modal-field" key={param.key}>
-                  <Tooltip overlay={param.key} placement="left">
-                    <label>{param.key}</label>
-                  </Tooltip>
+                  <label>
+                    <Tooltip overlay={param.key}>
+                      <span>{param.key}</span>
+                    </Tooltip>
+                  </label>
                   {param.type === 'TEXT' ? (
                     <textarea
                       className="width100"

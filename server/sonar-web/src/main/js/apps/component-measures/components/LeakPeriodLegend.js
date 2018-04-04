@@ -57,9 +57,5 @@ export default function LeakPeriodLegend({ className, component, period } /*: Pr
       <DateFormatter date={date} long={true} />
     </div>
   );
-  return (
-    <Tooltip placement="left" overlay={tooltip}>
-      {label}
-    </Tooltip>
-  );
+  return <Tooltip overlay={tooltip}>{label}</Tooltip>;
 }

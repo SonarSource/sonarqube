@@ -41,11 +41,5 @@ export default function BuiltInQualityProfileBadge({ className, tooltip = true }
     </span>
   );
 
-  return tooltip ? (
-    <Tooltip overlay={overlay} placement="right">
-      {badge}
-    </Tooltip>
-  ) : (
-    badge
-  );
+  return <Tooltip overlay={tooltip ? overlay : undefined}>{badge}</Tooltip>;
 }

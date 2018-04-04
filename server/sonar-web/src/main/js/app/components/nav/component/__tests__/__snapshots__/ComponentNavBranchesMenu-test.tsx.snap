@@ -83,7 +83,6 @@ exports[`renders list 1`] = `
         branches.orphan_branches
         <Tooltip
           overlay="branches.orphan_branches.tooltip"
-          placement="bottom"
         >
           <i
             className="icon-help spacer-left"
@@ -181,7 +180,6 @@ exports[`renders list 1`] = `
         branches.orphan_branches
         <Tooltip
           overlay="branches.orphan_branches.tooltip"
-          placement="bottom"
         >
           <i
             className="icon-help spacer-left"

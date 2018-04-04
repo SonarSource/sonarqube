@@ -7,58 +7,8 @@ exports[`should display bubbles 1`] = `
   x={-10}
   y={52.3015873015873}
 >
-  <circle
-    className="bubble-chart-bubble"
-    r={45}
-    style={
-      Object {
-        "fill": undefined,
-        "stroke": undefined,
-      }
-    }
-    transform="translate(-10, 52.3015873015873)"
-  />
-</Bubble>
-`;
-
-exports[`should display bubbles 2`] = `
-<Bubble
-  key="1"
-  r={33.57142857142857}
-  x={-75}
-  y={33.57142857142857}
->
-  <circle
-    className="bubble-chart-bubble"
-    r={33.57142857142857}
-    style={
-      Object {
-        "fill": undefined,
-        "stroke": undefined,
-      }
-    }
-    transform="translate(-75, 33.57142857142857)"
-  />
-</Bubble>
-`;
-
-exports[`should render bubble links 1`] = `
-<Bubble
-  key="0"
-  link="foo"
-  r={45}
-  x={-10}
-  y={52.3015873015873}
->
-  <Link
-    onlyActiveOnIndex={false}
-    style={Object {}}
-    to="foo"
-  >
-    <a
-      onClick={[Function]}
-      style={Object {}}
-    >
+  <Tooltip>
+    <g>
       <circle
         className="bubble-chart-bubble"
         r={45}
@@ -70,28 +20,20 @@ exports[`should render bubble links 1`] = `
         }
         transform="translate(-10, 52.3015873015873)"
       />
-    </a>
-  </Link>
+    </g>
+  </Tooltip>
 </Bubble>
 `;
 
-exports[`should render bubble links 2`] = `
+exports[`should display bubbles 2`] = `
 <Bubble
   key="1"
-  link="bar"
   r={33.57142857142857}
   x={-75}
   y={33.57142857142857}
 >
-  <Link
-    onlyActiveOnIndex={false}
-    style={Object {}}
-    to="bar"
-  >
-    <a
-      onClick={[Function]}
-      style={Object {}}
-    >
+  <Tooltip>
+    <g>
       <circle
         className="bubble-chart-bubble"
         r={33.57142857142857}
@@ -103,8 +45,82 @@ exports[`should render bubble links 2`] = `
         }
         transform="translate(-75, 33.57142857142857)"
       />
-    </a>
-  </Link>
+    </g>
+  </Tooltip>
+</Bubble>
+`;
+
+exports[`should render bubble links 1`] = `
+<Bubble
+  key="0"
+  link="foo"
+  r={45}
+  x={-10}
+  y={52.3015873015873}
+>
+  <Tooltip>
+    <g>
+      <Link
+        onlyActiveOnIndex={false}
+        style={Object {}}
+        to="foo"
+      >
+        <a
+          onClick={[Function]}
+          style={Object {}}
+        >
+          <circle
+            className="bubble-chart-bubble"
+            r={45}
+            style={
+              Object {
+                "fill": undefined,
+                "stroke": undefined,
+              }
+            }
+            transform="translate(-10, 52.3015873015873)"
+          />
+        </a>
+      </Link>
+    </g>
+  </Tooltip>
+</Bubble>
+`;
+
+exports[`should render bubble links 2`] = `
+<Bubble
+  key="1"
+  link="bar"
+  r={33.57142857142857}
+  x={-75}
+  y={33.57142857142857}
+>
+  <Tooltip>
+    <g>
+      <Link
+        onlyActiveOnIndex={false}
+        style={Object {}}
+        to="bar"
+      >
+        <a
+          onClick={[Function]}
+          style={Object {}}
+        >
+          <circle
+            className="bubble-chart-bubble"
+            r={33.57142857142857}
+            style={
+              Object {
+                "fill": undefined,
+                "stroke": undefined,
+              }
+            }
+            transform="translate(-75, 33.57142857142857)"
+          />
+        </a>
+      </Link>
+    </g>
+  </Tooltip>
 </Bubble>
 `;
 
@@ -117,18 +133,22 @@ exports[`should render bubbles with click handlers 1`] = `
   x={-10}
   y={52.3015873015873}
 >
-  <circle
-    className="bubble-chart-bubble"
-    onClick={[Function]}
-    r={45}
-    style={
-      Object {
-        "fill": undefined,
-        "stroke": undefined,
-      }
-    }
-    transform="translate(-10, 52.3015873015873)"
-  />
+  <Tooltip>
+    <g>
+      <circle
+        className="bubble-chart-bubble"
+        onClick={[Function]}
+        r={45}
+        style={
+          Object {
+            "fill": undefined,
+            "stroke": undefined,
+          }
+        }
+        transform="translate(-10, 52.3015873015873)"
+      />
+    </g>
+  </Tooltip>
 </Bubble>
 `;
 
@@ -141,17 +161,21 @@ exports[`should render bubbles with click handlers 2`] = `
   x={-75}
   y={33.57142857142857}
 >
-  <circle
-    className="bubble-chart-bubble"
-    onClick={[Function]}
-    r={33.57142857142857}
-    style={
-      Object {
-        "fill": undefined,
-        "stroke": undefined,
-      }
-    }
-    transform="translate(-75, 33.57142857142857)"
-  />
+  <Tooltip>
+    <g>
+      <circle
+        className="bubble-chart-bubble"
+        onClick={[Function]}
+        r={33.57142857142857}
+        style={
+          Object {
+            "fill": undefined,
+            "stroke": undefined,
+          }
+        }
+        transform="translate(-75, 33.57142857142857)"
+      />
+    </g>
+  </Tooltip>
 </Bubble>
 `;

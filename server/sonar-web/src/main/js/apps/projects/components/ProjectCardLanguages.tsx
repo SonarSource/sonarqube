@@ -54,7 +54,7 @@ export default function ProjectCardLanguages({ distribution, languages }: Props)
 
   return (
     <div className="project-card-languages">
-      <Tooltip placement="bottom" overlay={tooltip}>
+      <Tooltip overlay={tooltip}>
         <span>{languagesText}</span>
       </Tooltip>
     </div>

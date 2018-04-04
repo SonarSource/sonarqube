@@ -76,7 +76,6 @@ exports[`should render correctly 1`] = `
       </span>
       <Tooltip
         overlay="component_measures.show_metric_history"
-        placement="right"
       >
         <Link
           className="js-show-history spacer-left button button-small"
@@ -223,7 +222,6 @@ exports[`should work with measure without value 1`] = `
       </span>
       <Tooltip
         overlay="component_measures.show_metric_history"
-        placement="right"
       >
         <Link
           className="js-show-history spacer-left button button-small"

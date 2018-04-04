@@ -32,7 +32,6 @@ exports[`should render correctly 1`] = `
   />
   <Tooltip
     overlay="system.current_health_of_x.Foo"
-    placement="left"
   >
     <span>
       <StatusIndicator

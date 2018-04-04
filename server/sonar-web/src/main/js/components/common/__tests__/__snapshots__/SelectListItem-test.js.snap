@@ -20,48 +20,60 @@ exports[`should render correctly with a tooltip 1`] = `
 `;
 
 exports[`should render correctly with children 1`] = `
-<li>
-  <a
-    className=""
-    href="#"
-    onClick={[Function]}
-    onFocus={[Function]}
-    onMouseOver={[Function]}
-  >
-    <i
-      className="custom-icon"
-    />
-    <p>
-      seconditem
-    </p>
-  </a>
-</li>
+<Tooltip
+  placement="right"
+>
+  <li>
+    <a
+      className=""
+      href="#"
+      onClick={[Function]}
+      onFocus={[Function]}
+      onMouseOver={[Function]}
+    >
+      <i
+        className="custom-icon"
+      />
+      <p>
+        seconditem
+      </p>
+    </a>
+  </li>
+</Tooltip>
 `;
 
 exports[`should render correctly without children 1`] = `
-<li>
-  <a
-    className=""
-    href="#"
-    onClick={[Function]}
-    onFocus={[Function]}
-    onMouseOver={[Function]}
-  >
-    myitem
-  </a>
-</li>
+<Tooltip
+  placement="right"
+>
+  <li>
+    <a
+      className=""
+      href="#"
+      onClick={[Function]}
+      onFocus={[Function]}
+      onMouseOver={[Function]}
+    >
+      myitem
+    </a>
+  </li>
+</Tooltip>
 `;
 
 exports[`should render with the active class 1`] = `
-<li>
-  <a
-    className="active"
-    href="#"
-    onClick={[Function]}
-    onFocus={[Function]}
-    onMouseOver={[Function]}
-  >
-    myitem
-  </a>
-</li>
+<Tooltip
+  placement="right"
+>
+  <li>
+    <a
+      className="active"
+      href="#"
+      onClick={[Function]}
+      onFocus={[Function]}
+      onMouseOver={[Function]}
+    >
+      myitem
+    </a>
+  </li>
+</Tooltip>
 `;

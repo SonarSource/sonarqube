@@ -68,15 +68,17 @@ exports[`renders with yValues 1`] = `
           x={0}
           y={10}
         />
-        <text
-          className="bar-chart-tick histogram-value"
-          dx="1em"
-          dy="0.3em"
-          x={53.33333333333333}
-          y={15}
-        >
-          100.0
-        </text>
+        <Tooltip>
+          <text
+            className="bar-chart-tick histogram-value"
+            dx="1em"
+            dy="0.3em"
+            x={53.33333333333333}
+            y={15}
+          >
+            100.0
+          </text>
+        </Tooltip>
       </g>
       <g
         key="1"
@@ -88,15 +90,17 @@ exports[`renders with yValues 1`] = `
           x={0}
           y={28}
         />
-        <text
-          className="bar-chart-tick histogram-value"
-          dx="1em"
-          dy="0.3em"
-          x={40}
-          y={33}
-        >
-          75.0
-        </text>
+        <Tooltip>
+          <text
+            className="bar-chart-tick histogram-value"
+            dx="1em"
+            dy="0.3em"
+            x={40}
+            y={33}
+          >
+            75.0
+          </text>
+        </Tooltip>
       </g>
       <g
         key="2"
@@ -108,15 +112,17 @@ exports[`renders with yValues 1`] = `
           x={0}
           y={46}
         />
-        <text
-          className="bar-chart-tick histogram-value"
-          dx="1em"
-          dy="0.3em"
-          x={80}
-          y={51}
-        >
-          150.0
-        </text>
+        <Tooltip>
+          <text
+            className="bar-chart-tick histogram-value"
+            dx="1em"
+            dy="0.3em"
+            x={80}
+            y={51}
+          >
+            150.0
+          </text>
+        </Tooltip>
       </g>
     </g>
   </g>
@@ -143,15 +149,17 @@ exports[`renders with yValues and yTicks 1`] = `
           x={0}
           y={10}
         />
-        <text
-          className="bar-chart-tick histogram-value"
-          dx="1em"
-          dy="0.3em"
-          x={53.33333333333333}
-          y={15}
-        >
-          100.0
-        </text>
+        <Tooltip>
+          <text
+            className="bar-chart-tick histogram-value"
+            dx="1em"
+            dy="0.3em"
+            x={53.33333333333333}
+            y={15}
+          >
+            100.0
+          </text>
+        </Tooltip>
         <text
           className="bar-chart-tick histogram-tick"
           dx="-1em"
@@ -172,15 +180,17 @@ exports[`renders with yValues and yTicks 1`] = `
           x={0}
           y={28}
         />
-        <text
-          className="bar-chart-tick histogram-value"
-          dx="1em"
-          dy="0.3em"
-          x={40}
-          y={33}
-        >
-          75.0
-        </text>
+        <Tooltip>
+          <text
+            className="bar-chart-tick histogram-value"
+            dx="1em"
+            dy="0.3em"
+            x={40}
+            y={33}
+          >
+            75.0
+          </text>
+        </Tooltip>
         <text
           className="bar-chart-tick histogram-tick"
           dx="-1em"
@@ -201,15 +211,17 @@ exports[`renders with yValues and yTicks 1`] = `
           x={0}
           y={46}
         />
-        <text
-          className="bar-chart-tick histogram-value"
-          dx="1em"
-          dy="0.3em"
-          x={80}
-          y={51}
-        >
-          150.0
-        </text>
+        <Tooltip>
+          <text
+            className="bar-chart-tick histogram-value"
+            dx="1em"
+            dy="0.3em"
+            x={80}
+            y={51}
+          >
+            150.0
+          </text>
+        </Tooltip>
         <text
           className="bar-chart-tick histogram-tick"
           dx="-1em"
@@ -246,9 +258,7 @@ exports[`renders with yValues, yTicks and yTooltips 1`] = `
           y={10}
         />
         <Tooltip
-          key="0"
           overlay="a - 100"
-          placement="top"
         >
           <text
             className="bar-chart-tick histogram-value"
@@ -281,9 +291,7 @@ exports[`renders with yValues, yTicks and yTooltips 1`] = `
           y={28}
         />
         <Tooltip
-          key="1"
           overlay="b - 75"
-          placement="top"
         >
           <text
             className="bar-chart-tick histogram-value"
@@ -316,9 +324,7 @@ exports[`renders with yValues, yTicks and yTooltips 1`] = `
           y={46}
         />
         <Tooltip
-          key="2"
           overlay="c - 150"
-          placement="top"
         >
           <text
             className="bar-chart-tick histogram-value"

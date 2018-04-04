@@ -17,7 +17,6 @@ exports[`accepts advanced options fields 1`] = `
     />
     <Tooltip
       overlay="foo"
-      placement="bottom"
     >
       <label
         htmlFor="sample__one"
@@ -40,7 +39,6 @@ exports[`accepts advanced options fields 1`] = `
     />
     <Tooltip
       overlay="bar"
-      placement="bottom"
     >
       <label
         htmlFor="sample__two"
@@ -67,11 +65,13 @@ exports[`renders 1`] = `
       type="radio"
       value="one"
     />
-    <label
-      htmlFor="sample__one"
-    >
-      first
-    </label>
+    <Tooltip>
+      <label
+        htmlFor="sample__one"
+      >
+        first
+      </label>
+    </Tooltip>
   </li>
   <li
     key="two"
@@ -84,11 +84,13 @@ exports[`renders 1`] = `
       type="radio"
       value="two"
     />
-    <label
-      htmlFor="sample__two"
-    >
-      second
-    </label>
+    <Tooltip>
+      <label
+        htmlFor="sample__two"
+      >
+        second
+      </label>
+    </Tooltip>
   </li>
 </ul>
 `;

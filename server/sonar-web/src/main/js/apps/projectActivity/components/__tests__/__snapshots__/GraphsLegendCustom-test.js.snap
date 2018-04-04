@@ -31,7 +31,6 @@ exports[`should render correctly the list of series 1`] = `
   <Tooltip
     key="foo"
     overlay="project_activity.graphs.custom.metric_no_history"
-    placement="bottom"
   >
     <span
       className="spacer-left spacer-right"

@@ -110,18 +110,9 @@ class GlobalNav extends React.PureComponent<Props, State> {
     }, 3000);
   };
 
-  withTutorialTooltip = (element: React.ReactNode) =>
-    this.state.onboardingTutorialTooltip ? (
-      <Tooltip defaultVisible={true} overlay={translate('tutorials.follow_later')} trigger="manual">
-        {element}
-      </Tooltip>
-    ) : (
-      element
-    );
-
   render() {
     return (
-      <NavBar className="navbar-global" id="global-navigation" height={theme.globalNavHeightRaw}>
+      <NavBar className="navbar-global" height={theme.globalNavHeightRaw} id="global-navigation">
         <GlobalNavBranding />
 
         <GlobalNavMenu {...this.props} />
@@ -129,15 +120,22 @@ class GlobalNav extends React.PureComponent<Props, State> {
         <ul className="global-navbar-menu pull-right">
           <GlobalNavExplore location={this.props.location} onSonarCloud={this.props.onSonarCloud} />
           <li>
-            <a className="navbar-help" onClick={this.handleHelpClick} href="#">
-              {this.props.onSonarCloud ? <HelpIcon /> : this.withTutorialTooltip(<HelpIcon />)}
-            </a>
+            <Tooltip
+              overlay={this.props.onSonarCloud ? undefined : translate('tutorials.follow_later')}
+              visible={this.state.onboardingTutorialTooltip}>
+              <a className="navbar-help" href="#" onClick={this.handleHelpClick}>
+                <HelpIcon />
+              </a>
+            </Tooltip>
           </li>
           <Search appState={this.props.appState} currentUser={this.props.currentUser} />
           {isLoggedIn(this.props.currentUser) &&
-            this.props.onSonarCloud &&
-            this.withTutorialTooltip(
-              <GlobalNavPlus openOnboardingTutorial={this.openOnboardingTutorial} />
+            this.props.onSonarCloud && (
+              <Tooltip
+                overlay={translate('tutorials.follow_later')}
+                visible={this.state.onboardingTutorialTooltip}>
+                <GlobalNavPlus openOnboardingTutorial={this.openOnboardingTutorial} />
+              </Tooltip>
             )}
           <GlobalNavUserContainer {...this.props} />
         </ul>
@@ -146,8 +144,8 @@ class GlobalNav extends React.PureComponent<Props, State> {
           <GlobalHelp
             currentUser={this.props.currentUser}
             onClose={this.closeHelp}
-            onTutorialSelect={this.openOnboardingTutorial}
             onSonarCloud={this.props.onSonarCloud}
+            onTutorialSelect={this.openOnboardingTutorial}
           />
         )}
 

@@ -40,17 +40,6 @@ type XScale = ScaleLinear<number, number>;
 type YScale = ScaleBand<number>;
 
 export default class Histogram extends React.PureComponent<Props> {
-  wrapWithTooltip(element: React.ReactNode, index: number) {
-    const tooltip = this.props.yTooltips && this.props.yTooltips[index];
-    return tooltip ? (
-      <Tooltip key={index} overlay={tooltip} placement="top">
-        {element}
-      </Tooltip>
-    ) : (
-      element
-    );
-  }
-
   renderBar(d: number, index: number, xScale: XScale, yScale: YScale) {
     const { alignTicks, padding = DEFAULT_PADDING } = this.props;
 
@@ -73,11 +62,12 @@ export default class Histogram extends React.PureComponent<Props> {
     const x = xScale(d) + (alignTicks ? padding[3] : 0);
     const y = Math.round(yScale(index)! + yScale.bandwidth() / 2 + BAR_HEIGHT / 2);
 
-    return this.wrapWithTooltip(
-      <text className="bar-chart-tick histogram-value" x={x} y={y} dx="1em" dy="0.3em">
-        {value}
-      </text>,
-      index
+    return (
+      <Tooltip overlay={this.props.yTooltips && this.props.yTooltips[index]}>
+        <text className="bar-chart-tick histogram-value" x={x} y={y} dx="1em" dy="0.3em">
+          {value}
+        </text>
+      </Tooltip>
     );
   }
 

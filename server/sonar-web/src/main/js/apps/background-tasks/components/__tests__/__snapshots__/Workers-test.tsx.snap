@@ -14,7 +14,6 @@ exports[`opens form 1`] = `
   </span>
   <Tooltip
     overlay="background_tasks.change_number_of_workers"
-    placement="bottom"
   >
     <EditButton
       className="js-edit button-small spacer-left"
@@ -38,7 +37,6 @@ exports[`opens form 2`] = `
   </span>
   <Tooltip
     overlay="background_tasks.change_number_of_workers"
-    placement="bottom"
   >
     <EditButton
       className="js-edit button-small spacer-left"
@@ -79,7 +77,6 @@ exports[`renders 2`] = `
   </span>
   <Tooltip
     overlay="background_tasks.change_number_of_workers"
-    placement="bottom"
   >
     <EditButton
       className="js-edit button-small spacer-left"
@@ -93,7 +90,6 @@ exports[`renders 3`] = `
 <div>
   <Tooltip
     overlay="background_tasks.number_of_workers.warning"
-    placement="bottom"
   >
     <span>
       <AlertWarnIcon
@@ -114,7 +110,6 @@ exports[`renders 3`] = `
   </span>
   <Tooltip
     overlay="background_tasks.change_number_of_workers"
-    placement="bottom"
   >
     <EditButton
       className="js-edit button-small spacer-left"
@@ -128,7 +123,6 @@ exports[`renders 4`] = `
 <div>
   <Tooltip
     overlay="background_tasks.number_of_workers.warning"
-    placement="bottom"
   >
     <span>
       <AlertWarnIcon
@@ -184,7 +178,6 @@ exports[`updates worker count 1`] = `
   </span>
   <Tooltip
     overlay="background_tasks.change_number_of_workers"
-    placement="bottom"
   >
     <EditButton
       className="js-edit button-small spacer-left"
@@ -202,7 +195,6 @@ exports[`updates worker count 2`] = `
 <div>
   <Tooltip
     overlay="background_tasks.number_of_workers.warning"
-    placement="bottom"
   >
     <span>
       <AlertWarnIcon
@@ -223,7 +215,6 @@ exports[`updates worker count 2`] = `
   </span>
   <Tooltip
     overlay="background_tasks.change_number_of_workers"
-    placement="bottom"
   >
     <EditButton
       className="js-edit button-small spacer-left"

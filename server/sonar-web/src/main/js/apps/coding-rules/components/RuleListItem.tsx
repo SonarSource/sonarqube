@@ -150,7 +150,7 @@ export default class RuleListItem extends React.PureComponent<Props> {
         )}
       </ConfirmButton>
     ) : (
-      <Tooltip overlay={translate('coding_rules.can_not_deactivate')} placement="left">
+      <Tooltip overlay={translate('coding_rules.can_not_deactivate')}>
         <Button className="coding-rules-detail-quality-profile-deactivate button-red disabled">
           {translate('coding_rules.deactivate')}
         </Button>

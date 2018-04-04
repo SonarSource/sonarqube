@@ -41,7 +41,7 @@ export default function CodeSnippet({ className, isOneLine, noCopy, snippet }: P
   return (
     <div className={classNames('code-snippet', { 'code-snippet-oneline': isOneLine }, className)}>
       <pre>{finalSnippet}</pre>
-      {!noCopy && <ClipboardButton copyValue={finalSnippet} tooltipPlacement="top" />}
+      {!noCopy && <ClipboardButton copyValue={finalSnippet} />}
     </div>
   );
 }
