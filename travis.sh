@@ -56,73 +56,7 @@ case "$TARGET" in
 
 BUILD)
   installJdk8
-  installNode
-
-  # Used by Next
-  export INITIAL_VERSION=$(cat gradle.properties | grep version | awk -F= '{print $2}')
-
-  # Fetch all commit history so that SonarQube has exact blame information
-  # for issue auto-assignment
-  # This command can fail with "fatal: --unshallow on a complete repository does not make sense"
-  # if there are not enough commits in the Git repository (even if Travis executed git clone --depth 50).
-  # For this reason errors are ignored with "|| true"
-  git fetch --unshallow || true
-
-  if [ "$TRAVIS_REPO_SLUG" == "SonarSource/sonarqube" ]; then
-    # public repository
-    ./gradlew build --no-daemon --console plain
-
-  elif [ "$TRAVIS_BRANCH" == "master" ] && [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
-    echo 'Build and analyze master'
-    ./gradlew --no-daemon --console plain \
-        -DbuildNumber=$BUILD_NUMBER \
-        build sonarqube artifactoryPublish -PjacocoEnabled=true -Pofficial=true -Prelease=true \
-        -Dsonar.host.url=$SONAR_HOST_URL \
-        -Dsonar.login=$SONAR_TOKEN \
-        -Dsonar.projectVersion=$INITIAL_VERSION \
-        -Dsonar.analysis.buildNumber=$BUILD_NUMBER \
-        -Dsonar.analysis.pipeline=$BUILD_NUMBER \
-        -Dsonar.analysis.sha1=$GIT_COMMIT \
-        -Dsonar.analysis.repository=$TRAVIS_REPO_SLUG
-
-  elif [[ "$TRAVIS_BRANCH" == "branch-"* ]] && [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
-    echo 'Build release branch'
-    ./gradlew --no-daemon --console plain \
-        -DbuildNumber=$BUILD_NUMBER \
-        build sonarqube artifactoryPublish -PjacocoEnabled=true -Pofficial=true -Prelease=true \
-        -Dsonar.host.url=$SONAR_HOST_URL \
-        -Dsonar.login=$SONAR_TOKEN \
-        -Dsonar.branch.name=$TRAVIS_BRANCH \
-        -Dsonar.projectVersion=$INITIAL_VERSION \
-        -Dsonar.analysis.buildNumber=$BUILD_NUMBER \
-        -Dsonar.analysis.pipeline=$BUILD_NUMBER \
-        -Dsonar.analysis.sha1=$GIT_COMMIT \
-        -Dsonar.analysis.repository=$TRAVIS_REPO_SLUG
-  
-  elif [ "$TRAVIS_PULL_REQUEST" != "false" ] && [ -n "${GITHUB_TOKEN:-}" ]; then
-    echo 'Build and analyze internal pull request'
-    ./gradlew --no-daemon --console plain \
-        -DbuildNumber=$BUILD_NUMBER \
-        build sonarqube artifactoryPublish -PjacocoEnabled=true -Pofficial=true \
-        -Dsonar.host.url=$SONAR_HOST_URL \
-        -Dsonar.login=$SONAR_TOKEN \
-        -Dsonar.analysis.buildNumber=$BUILD_NUMBER \
-        -Dsonar.analysis.pipeline=$BUILD_NUMBER \
-        -Dsonar.analysis.sha1=$TRAVIS_PULL_REQUEST_SHA \
-        -Dsonar.analysis.prNumber=$TRAVIS_PULL_REQUEST \
-        -Dsonar.analysis.repository=$TRAVIS_REPO_SLUG \
-        -Dsonar.pullrequest.key=$TRAVIS_PULL_REQUEST \
-        -Dsonar.pullrequest.branch=$TRAVIS_PULL_REQUEST_BRANCH \
-        -Dsonar.pullrequest.base=$TRAVIS_BRANCH \
-        -Dsonar.pullrequest.provider=github \
-        -Dsonar.pullrequest.github.repository=$TRAVIS_REPO_SLUG
-
-  else
-    echo 'Build feature branch or external pull request'
-    ./gradlew  --no-daemon --console plain \
-        -DbuildNumber=$BUILD_NUMBER -Pofficial=true \
-        build artifactoryPublish
-  fi
+  ./gradlew build --no-daemon --console plain
   ;;
 
 WEB_TESTS)

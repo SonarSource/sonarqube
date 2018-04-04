@@ -74,12 +74,12 @@ def sources = fileTree(dir: "src") + fileTree(dir: "scripts") + fileTree(dir: "c
 
 task licenseCheckWeb(type: com.hierynomus.gradle.license.tasks.LicenseCheck) {
   source = sources
-  if (release) exclude 'main/js/app/components/GlobalFooterBranding.js'
+  if (official) exclude 'main/js/app/components/GlobalFooterBranding.js'
 }
 licenseMain.dependsOn licenseCheckWeb
 
 task licenseFormatWeb(type: com.hierynomus.gradle.license.tasks.LicenseFormat) {
   source = sources
-  if (release) exclude 'main/js/app/components/GlobalFooterBranding.js'
+  if (official) exclude 'main/js/app/components/GlobalFooterBranding.js'
 }
 licenseFormat.dependsOn licenseFormatWeb

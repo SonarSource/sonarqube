@@ -139,6 +139,12 @@ Here is a template example:
 The path to a custom configuration file can be provided with command-line property `-Dorchestrator.configUrl=file:///path/to/orchestrator.properties` or with
 environment variable `ORCHESTRATOR_CONFIG_URL=file:///path/to/orchestrator.properties`.
 
+### Find available updates of dependencies
+
+Execute from project base directory:
+
+    ./gradlew dependencyUpdates
+
 ### Update the files missing the license header
 
 Execute from project base directory:

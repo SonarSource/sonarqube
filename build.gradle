@@ -40,6 +40,79 @@ allprojects {
   ext {
     release = project.hasProperty('release') && project.getProperty('release')
     official = project.hasProperty('official') && project.getProperty('official')
+    pomConfig = {
+      name projectTitle
+      description description
+      url 'http://www.sonarqube.org/'
+      organization {
+        name 'SonarSource'
+        url 'http://www.sonarsource.com'
+      }
+      licenses {
+        license {
+          name 'GNU LGPL 3'
+          url 'http://www.gnu.org/licenses/lgpl.txt'
+          distribution 'repo'
+        }
+      }
+      scm {
+        url 'https://github.com/SonarSource/sonarqube'
+      }
+      developers {
+        developer {
+          id 'bellingard'
+          name 'Fabrice Bellingard'
+        }
+        developer {
+          id 'dbolkensteyn'
+          name 'Dinesh Bolkensteyn'
+        }
+        developer {
+          id 'ehartmann'
+          name 'Eric Hartmann'
+        }
+        developer {
+          id 'fmallet'
+          name 'Freddy Mallet'
+        }
+        developer {
+          id 'Godin'
+          name 'Evgeny Mandrikov'
+        }
+        developer {
+          id 'henryju'
+          name 'Julien Henry'
+        }
+        developer {
+          id 'jblievremont'
+          name 'Jean-Baptiste Lievremont'
+        }
+        developer {
+          id 'julienlancelot'
+          name 'Julien Lancelot'
+        }
+        developer {
+          id 'olivier.gaudin'
+          name 'Olivier Gaudin'
+        }
+        developer {
+          id 'simonbrandhof'
+          name 'Simon Brandhof'
+        }
+        developer {
+          id 'sns-seb'
+          name 'Sebastien Lesaint'
+        }
+        developer {
+          id 'stas-vilchik'
+          name 'Stas Vilchik'
+        }
+        developer {
+          id 'teryk'
+          name 'Teryk Bellahsene'
+        }
+      }
+    }
   }
 
   repositories {

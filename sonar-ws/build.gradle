@@ -37,6 +37,10 @@ publishing {
       if (release) {
         artifact sourcesJar
         artifact javadocJar
+        pom.withXml {
+          asNode().appendNode('description', description)
+          asNode().children().last() + pomConfig
+        }
       }
     }
   }
