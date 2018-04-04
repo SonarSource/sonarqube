@@ -35,6 +35,7 @@ import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.config.PropertyDefinitions;
 
+import static java.util.Collections.emptyMap;
 import static java.util.Collections.unmodifiableMap;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
@@ -78,7 +79,7 @@ public class ThreadLocalSettingsTest {
 
     underTest.remove("foo");
 
-    assertThat(underTest.get("foo").get()).isEqualTo("bar");
+    assertThat(underTest.get("foo")).hasValue("bar");
   }
 
   @Test
@@ -87,7 +88,7 @@ public class ThreadLocalSettingsTest {
 
     underTest.load();
     underTest.set("foo", "bar");
-    assertThat(underTest.get("foo").get()).isEqualTo("bar");
+    assertThat(underTest.get("foo")).hasValue("bar");
     underTest.unload();
 
     // no more cache
@@ -100,7 +101,7 @@ public class ThreadLocalSettingsTest {
 
     underTest.load();
     underTest.set("foo", "bar");
-    assertThat(underTest.get("foo").get()).isEqualTo("bar");
+    assertThat(underTest.get("foo")).hasValue("bar");
     underTest.remove("foo");
     assertThat(underTest.get("foo")).isNotPresent();
     underTest.unload();
@@ -147,7 +148,7 @@ public class ThreadLocalSettingsTest {
   public void load_system_properties() {
     underTest = create(ImmutableMap.of("foo", "1", "bar", "2"));
 
-    assertThat(underTest.get("foo").get()).isEqualTo("1");
+    assertThat(underTest.get("foo")).hasValue("1");
     assertThat(underTest.get("missing")).isNotPresent();
     assertThat(underTest.getProperties()).containsOnly(entry("foo", "1"), entry("bar", "2"));
   }
@@ -157,7 +158,7 @@ public class ThreadLocalSettingsTest {
     insertPropertyIntoDb("foo", "from db");
     underTest = create(Collections.emptyMap());
 
-    assertThat(underTest.get("foo").get()).isEqualTo("from db");
+    assertThat(underTest.get("foo")).hasValue("from db");
 
     deletePropertyFromDb("foo");
     // no cache, change is visible immediately
@@ -169,7 +170,7 @@ public class ThreadLocalSettingsTest {
     insertPropertyIntoDb("foo", "from db");
     underTest = create(ImmutableMap.of("foo", "from system"));
 
-    assertThat(underTest.get("foo").get()).isEqualTo("from system");
+    assertThat(underTest.get("foo")).hasValue("from system");
   }
 
   @Test
@@ -207,31 +208,30 @@ public class ThreadLocalSettingsTest {
     underTest = create(Collections.emptyMap());
     underTest.load();
 
-    assertThat(underTest.get(A_KEY).get()).isEqualTo("v1");
+    assertThat(underTest.get(A_KEY)).hasValue("v1");
 
     deletePropertyFromDb(A_KEY);
     // the main thread still has "v1" in cache, but not new thread
-    assertThat(underTest.get(A_KEY).get()).isEqualTo("v1");
+    assertThat(underTest.get(A_KEY)).hasValue("v1");
     verifyValueInNewThread(underTest, null);
 
     insertPropertyIntoDb(A_KEY, "v2");
     // the main thread still has the old value "v1" in cache, but new thread loads "v2"
-    assertThat(underTest.get(A_KEY).get()).isEqualTo("v1");
+    assertThat(underTest.get(A_KEY)).hasValue("v1");
     verifyValueInNewThread(underTest, "v2");
 
     underTest.unload();
   }
 
   @Test
-  public void load_throws_ISE_if_load_called_twice_without_unload_in_between() {
-    underTest = create(Collections.emptyMap());
+  public void load_invalidates_cache_if_unload_has_not_been_called() {
+    underTest = create(emptyMap());
     underTest.load();
-
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("load called twice for thread '" + Thread.currentThread().getName()
-      + "' or state wasn't cleared last time it was used");
+    underTest.set("foo", "bar");
+    // unload() is not called
 
     underTest.load();
+    assertThat(underTest.get("foo")).isEmpty();
   }
 
   @Test
@@ -343,7 +343,7 @@ public class ThreadLocalSettingsTest {
     assertThat(underTest.get(key)).isEmpty();
   }
 
-  private void insertPropertyIntoDb(String key, @Nullable String value) {
+  private void insertPropertyIntoDb(String key, String value) {
     dbSettingLoader.put(key, value);
   }
 

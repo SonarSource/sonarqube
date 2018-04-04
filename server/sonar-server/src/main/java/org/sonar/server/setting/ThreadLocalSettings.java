@@ -34,7 +34,6 @@ import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.Settings;
 import org.sonar.api.server.ServerSide;
 
-import static com.google.common.base.Preconditions.checkState;
 import static java.util.Collections.unmodifiableMap;
 import static java.util.Objects.requireNonNull;
 
@@ -146,12 +145,8 @@ public class ThreadLocalSettings extends Settings {
 
   /**
    * Enables the thread specific cache of settings.
-   *
-   * @throws IllegalStateException if the current thread already has specific cache
    */
   public void load() {
-    checkState(CACHE.get() == null,
-      "load called twice for thread '%s' or state wasn't cleared last time it was used", Thread.currentThread().getName());
     CACHE.set(new HashMap<>());
   }
 
