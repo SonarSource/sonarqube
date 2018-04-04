@@ -73,6 +73,7 @@ import org.sonar.db.DaoModule;
 import org.sonar.db.DatabaseChecker;
 import org.sonar.db.DbClient;
 import org.sonar.db.DefaultDatabase;
+import org.sonar.db.MyBatis;
 import org.sonar.db.purge.PurgeProfiler;
 import org.sonar.process.NetworkUtilsImpl;
 import org.sonar.process.Props;
@@ -84,6 +85,7 @@ import org.sonar.server.computation.task.projectanalysis.ProjectAnalysisTaskModu
 import org.sonar.server.config.ConfigurationProvider;
 import org.sonar.server.debt.DebtModelPluginRepository;
 import org.sonar.server.debt.DebtRulesXMLImporter;
+import org.sonar.server.es.EsModule;
 import org.sonar.server.es.ProjectIndexersImpl;
 import org.sonar.server.event.NewAlerts;
 import org.sonar.server.favorite.FavoriteUpdater;
@@ -146,7 +148,6 @@ import org.sonar.server.rule.DefaultRuleFinder;
 import org.sonar.server.rule.DeprecatedRulesDefinitionLoader;
 import org.sonar.server.rule.RuleDefinitionsLoader;
 import org.sonar.server.rule.index.RuleIndex;
-import org.sonar.server.es.EsModule;
 import org.sonar.server.setting.DatabaseSettingLoader;
 import org.sonar.server.setting.DatabaseSettingsEnabler;
 import org.sonar.server.setting.ThreadLocalSettings;
@@ -250,9 +251,7 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
       LogbackHelper.class,
       DefaultDatabase.class,
       DatabaseChecker.class,
-      // must instantiate deprecated class in 5.2 and only this one (and not its replacement)
-      // to avoid having two SqlSessionFactory instances
-      org.sonar.core.persistence.MyBatis.class,
+      MyBatis.class,
       PurgeProfiler.class,
       ServerFileSystemImpl.class,
       new TempFolderProvider(),

@@ -29,7 +29,6 @@ import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.Version;
 import org.sonar.api.utils.internal.TempFolderCleaner;
-import org.sonar.server.config.ConfigurationProvider;
 import org.sonar.core.config.CorePropertyDefinitions;
 import org.sonar.core.util.UuidFactoryImpl;
 import org.sonar.db.DBSessionsImpl;
@@ -37,12 +36,14 @@ import org.sonar.db.DaoModule;
 import org.sonar.db.DatabaseChecker;
 import org.sonar.db.DbClient;
 import org.sonar.db.DefaultDatabase;
+import org.sonar.db.MyBatis;
 import org.sonar.db.purge.PurgeProfiler;
 import org.sonar.process.NetworkUtilsImpl;
 import org.sonar.process.logging.LogbackHelper;
 import org.sonar.server.app.ProcessCommandWrapperImpl;
 import org.sonar.server.app.RestartFlagHolderImpl;
 import org.sonar.server.app.WebServerProcessLogging;
+import org.sonar.server.config.ConfigurationProvider;
 import org.sonar.server.es.EsModule;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.platform.LogServerVersion;
@@ -92,9 +93,7 @@ public class PlatformLevel1 extends PlatformLevel {
       WebServerProcessLogging.class,
       DefaultDatabase.class,
       DatabaseChecker.class,
-      // must instantiate deprecated class in 5.2 and only this one (and not its replacement)
-      // to avoid having two SqlSessionFactory instances
-      org.sonar.core.persistence.MyBatis.class,
+      MyBatis.class,
       PurgeProfiler.class,
       ServerFileSystemImpl.class,
       TempFolderCleaner.class,
@@ -120,9 +119,7 @@ public class PlatformLevel1 extends PlatformLevel {
       // issues
       IssueIndex.class,
 
-      new OkHttpClientProvider(),
-      // Classes kept for backward compatibility of plugins/libs (like sonar-license) that are directly calling classes from the core
-      org.sonar.core.properties.PropertiesDao.class);
+      new OkHttpClientProvider());
     addAll(CorePropertyDefinitions.all());
 
     // cluster
