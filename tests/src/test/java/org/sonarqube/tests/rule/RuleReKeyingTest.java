@@ -95,7 +95,7 @@ public class RuleReKeyingTest {
     tester.wsClient().wsConnector().call(new PostRequest("api/plugins/uninstall").setParam("key", "foo")).failIfNotSuccessful();
     // install plugin V2
     File pluginsDir = new File(orchestrator.getServer().getHome() + "/extensions/plugins");
-    orchestrator.getConfiguration().fileSystem().copyToDirectory(pluginArtifact("foo-plugin-v2"), pluginsDir);
+    orchestrator.getConfiguration().locators().copyToDirectory(pluginArtifact("foo-plugin-v2"), pluginsDir);
 
     orchestrator.restartServer();
 
@@ -128,7 +128,7 @@ public class RuleReKeyingTest {
     // uninstall plugin V2
     tester.wsClient().wsConnector().call(new PostRequest("api/plugins/uninstall").setParam("key", "foo")).failIfNotSuccessful();
     // install plugin V1
-    orchestrator.getConfiguration().fileSystem().copyToDirectory(pluginArtifact("foo-plugin-v1"), pluginsDir);
+    orchestrator.getConfiguration().locators().copyToDirectory(pluginArtifact("foo-plugin-v1"), pluginsDir);
 
     orchestrator.restartServer();
 

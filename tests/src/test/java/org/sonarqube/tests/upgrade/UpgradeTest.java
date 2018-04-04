@@ -58,7 +58,6 @@ import static util.ItUtils.newOrchestratorBuilder;
 public class UpgradeTest {
 
   private static final String PROJECT_KEY = "org.apache.struts:struts-parent";
-  private static final String LATEST_JAVA_RELEASE = "LATEST_RELEASE";
   private static final Version DEV_VERSION = Version.create("DEV");
 
   private Orchestrator orchestrator;
@@ -165,8 +164,7 @@ public class UpgradeTest {
   private void startAndUpgradeDevServer() {
     OrchestratorBuilder builder = newOrchestratorBuilder()
       .setOrchestratorProperty("orchestrator.keepDatabase", "true")
-      .setOrchestratorProperty("javaVersion", LATEST_JAVA_RELEASE)
-      .addPlugin("java")
+      .addPlugin(MavenLocation.of("org.sonarsource.java", "sonar-java-plugin", "LATEST_RELEASE"))
       .setStartupLogWatcher(log -> log.contains("Database must be upgraded"));
     orchestrator = builder.build();
     orchestrator.start();

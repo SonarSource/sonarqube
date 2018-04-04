@@ -20,6 +20,7 @@
 package org.sonarqube.tests;
 
 import com.sonar.orchestrator.Orchestrator;
+import com.sonar.orchestrator.locator.MavenLocation;
 import org.junit.ClassRule;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
@@ -38,7 +39,6 @@ import org.sonarqube.tests.analysis.ScannerTest;
 import org.sonarqube.tests.analysis.SettingsEncryptionTest;
 import org.sonarqube.tests.analysis.TempFolderTest;
 import org.sonarqube.tests.plugins.VersionPluginTest;
-import org.sonarqube.tests.webhook.WebhooksTest;
 
 import static util.ItUtils.newOrchestratorBuilder;
 import static util.ItUtils.pluginArtifact;
@@ -73,7 +73,7 @@ public class Category3Suite {
   @ClassRule
   public static final Orchestrator ORCHESTRATOR = newOrchestratorBuilder()
     .addPlugin(xooPlugin())
-    .setOrchestratorProperty("javaVersion", "LATEST_RELEASE").addPlugin("java")
+    .addPlugin(MavenLocation.of("org.sonarsource.java", "sonar-java-plugin", "LATEST_RELEASE"))
 
     // Used by SettingsEncryptionTest
     .addPlugin(pluginArtifact("settings-encryption-plugin"))

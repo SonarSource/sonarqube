@@ -17,31 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonarqube.tests.source;
+package org.sonarqube.tests.plugins.checks;
 
-import com.sonar.orchestrator.Orchestrator;
-import com.sonar.orchestrator.locator.MavenLocation;
-import org.junit.ClassRule;
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
+public class GoCheck implements Check {
 
-import static util.ItUtils.newOrchestratorBuilder;
-import static util.ItUtils.xooPlugin;
+  public static final String DIR = "src/go";
 
-@RunWith(Suite.class)
-@Suite.SuiteClasses({
-  EncodingTest.class,
-  ScmTest.class,
-  NoScmTest.class,
-  ScmThenNoScmTest.class,
-  SourceViewerTest.class
-})
-public class SourceSuite {
-
-  @ClassRule
-  public static final Orchestrator ORCHESTRATOR = newOrchestratorBuilder()
-    .addPlugin(xooPlugin())
-    .addPlugin(MavenLocation.of("org.sonarsource.scm.git", "sonar-scm-git-plugin", "LATEST_RELEASE"))
-    .build();
-
+  @Override
+  public void validate(Validation validation) {
+    validation.mustHaveNonEmptySource(DIR);
+    validation.mustHaveSize(DIR);
+    validation.mustHaveComments(DIR);
+    validation.mustHaveComplexity(DIR);
+    validation.mustHaveIssues(DIR + "/sample.go");
+  }
 }

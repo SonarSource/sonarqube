@@ -21,8 +21,7 @@ package org.sonarqube.tests.performance.scanner;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.locator.FileLocation;
-import java.io.File;
-import java.io.IOException;
+import com.sonar.orchestrator.locator.MavenLocation;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.runner.RunWith;
@@ -49,7 +48,7 @@ public class ScannerPerformanceSuite {
     // should not be so high, but required as long embedded h2 is used -> requires more memory on server
     .setServerProperty("sonar.web.javaOpts", "-Xmx1G -XX:+HeapDumpOnOutOfMemoryError")
     // Needed by DuplicationTest::hugeJavaFile
-    .setOrchestratorProperty("javaVersion", "LATEST_RELEASE").addPlugin("java")
+    .addPlugin(MavenLocation.of("org.sonarsource.java", "sonar-java-plugin", "LATEST_RELEASE"))
     .restoreProfileAtStartup(FileLocation.ofClasspath("/one-xoo-issue-per-line.xml"))
     .build();
 

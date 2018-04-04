@@ -24,6 +24,9 @@ import com.sonar.orchestrator.OrchestratorBuilder;
 import com.sonar.orchestrator.build.BuildResult;
 import com.sonar.orchestrator.build.SonarScanner;
 import com.sonar.orchestrator.locator.MavenLocation;
+import com.sonar.orchestrator.locator.URLLocation;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
 import org.junit.BeforeClass;
@@ -36,6 +39,7 @@ import org.sonarqube.tests.plugins.checks.Check;
 import org.sonarqube.tests.plugins.checks.CobolCheck;
 import org.sonarqube.tests.plugins.checks.CppCheck;
 import org.sonarqube.tests.plugins.checks.FlexCheck;
+import org.sonarqube.tests.plugins.checks.GoCheck;
 import org.sonarqube.tests.plugins.checks.GroovyCheck;
 import org.sonarqube.tests.plugins.checks.JavaCheck;
 import org.sonarqube.tests.plugins.checks.JavascriptCheck;
@@ -61,9 +65,8 @@ public class PluginsTest {
     new AbapCheck(),
     new CCheck(), new CppCheck(),
     new CobolCheck(),
-    // FIXME css plugin is temporary disabled as for the moment incompatible with the web plugin
-    // new CssCheck(),
     new FlexCheck(),
+    new GoCheck(),
     new GroovyCheck(),
     new JavaCheck(),
     new JavascriptCheck(),
@@ -73,82 +76,50 @@ public class PluginsTest {
     new PythonCheck(),
     new RpgCheck(),
     new SwiftCheck(),
-    // SONAR-7618 Visual Basic 2.2 not compatible with CE not loading @ServerSide
-    // new VbCheck(),
     new WebCheck());
 
   private static Orchestrator ORCHESTRATOR;
 
   @BeforeClass
-  public static void startServer() {
+  public static void startServer() throws MalformedURLException {
     OrchestratorBuilder builder = newOrchestratorBuilder();
 
-    builder.addPlugin(MavenLocation.of("com.sonarsource.license", "sonar-dev-license-plugin", "3.2.0.1163"));
+    installPlugin(builder, "com.sonarsource.abap", "sonar-abap-plugin");
+    installPlugin(builder, "org.codehaus.sonar-plugins.android", "sonar-android-plugin");
+    installPlugin(builder, "org.sonarsource.auth.bitbucket", "sonar-auth-bitbucket-plugin");
+    installPlugin(builder, "org.sonarsource.auth.github", "sonar-auth-github-plugin");
+    installPlugin(builder, "org.sonarsource.clover", "sonar-clover-plugin");
+    installPlugin(builder, "com.sonarsource.cobol", "sonar-cobol-plugin");
+    installPlugin(builder, "com.sonarsource.cpp", "sonar-cfamily-plugin");
+    installPlugin(builder, "org.sonarsource.dotnet", "sonar-csharp-plugin");
+    installPlugin(builder, "org.sonarsource.sonar-findbugs-plugin", "sonar-findbugs-plugin");
+    installPlugin(builder, "org.sonarsource.flex", "sonar-flex-plugin");
+    installPlugin(builder, "org.sonarsource.sonar-plugins.github", "sonar-github-plugin");
+    installPlugin(builder, "org.sonarsource.go", "sonar-go-plugin");
+    installPlugin(builder, "org.sonarsource.groovy", "sonar-groovy-plugin");
+    installPlugin(builder, "org.sonarsource.java", "sonar-java-plugin");
+    installPlugin(builder, "org.sonarsource.javascript", "sonar-javascript-plugin");
+    installPlugin(builder, "org.sonarsource.ldap", "sonar-ldap-plugin");
+    installPlugin(builder, "org.sonarsource.php", "sonar-php-plugin");
+    installPlugin(builder, "com.sonarsource.pli", "sonar-pli-plugin");
+    installPlugin(builder, "com.sonarsource.plsql", "sonar-plsql-plugin");
+    installPlugin(builder, "org.sonarsource.pmd", "sonar-pmd-plugin");
+    installPlugin(builder, "org.sonarsource.python", "sonar-python-plugin");
+    installPlugin(builder, "com.sonarsource.rpg", "sonar-rpg-plugin");
+    builder.addPlugin(URLLocation.create(new URL("https://sonarsource.bintray.com/Distribution/sonar-scm-clearcase-plugin/sonar-scm-clearcase-plugin-1.1.jar")));
+    installPlugin(builder, "org.codehaus.sonar-plugins", "sonar-scm-cvs-plugin");
+    installPlugin(builder, "org.sonarsource.scm.git", "sonar-scm-git-plugin");
+    builder.addPlugin(URLLocation.create(new URL("http://downloads.sonarsource.com/plugins/org/codehaus/sonar-plugins/sonar-scm-jazzrtc-plugin/1.1/sonar-scm-jazzrtc-plugin-1.1.jar")));
+    installPlugin(builder, "org.sonarsource.scm.mercurial", "sonar-scm-mercurial-plugin");
+    installPlugin(builder, "org.sonarsource.scm.perforce", "sonar-scm-perforce-plugin");
+    installPlugin(builder, "org.sonarsource.scm.svn", "sonar-scm-svn-plugin");
+    installPlugin(builder, "com.sonarsource.swift", "sonar-swift-plugin");
+    installPlugin(builder, "com.sonarsource.vbnet", "sonar-vbnet-plugin");
+    installPlugin(builder, "org.sonarsource.web", "sonar-web-plugin");
+    installPlugin(builder, "org.sonarsource.xml", "sonar-xml-plugin");
+    installPlugin(builder, "com.sonarsource.license", "sonar-dev-license-plugin");
 
-    // FIXME JSON plugin is temporarily disabled as for the moment the github repo doesn't exist anymore installPlugin(builder, "JSON");;
-    installPlugin(builder, "Sonargraph");
-    installPlugin(builder, "abap");
-    // FIXME AEM Rules plugin is disabled because it is no more compatible with SonarQube 6.4 (ClassNotFoundException: com.google.common.base.Functions) installPlugin(builder, "aemrules");
-    installPlugin(builder, "android");
-    installPlugin(builder, "authbitbucket");
-    installPlugin(builder, "authgithub");
-    installPlugin(builder, "checkstyle");
-    installPlugin(builder, "clover");
-    installPlugin(builder, "cobol");
-    installPlugin(builder, "codecrackercsharp");
-    installPlugin(builder, "cpp");
-    installPlugin(builder, "csharp");
-    // FIXME css plugin is temporarily disabled as for the moment incompatible with the web plugin installPlugin(builder, "css");
-    // FIXME erlang plugin is temporarily disabled because it is not compatible with SQ 6.4 until usage of Colorizer API is removed
-    // FIXME findbugs plugin is temporarily disabled because it is not compatible with SQ 6.4 until usage of Colorizer API is removed
-    installPlugin(builder, "flex");
-    installPlugin(builder, "github");
-    installPlugin(builder, "googleanalytics");
-    installPlugin(builder, "groovy");
-    installPlugin(builder, "java");
-    // FIXME javaProperties plugin is temporarily disabled as for the moment the github repo doesn't exist anymore installPlugin(builder, "javaProperties");
-    installPlugin(builder, "javascript");
-    installPlugin(builder, "jdepend");
-    installPlugin(builder, "l10nde");
-    installPlugin(builder, "l10nel");
-    installPlugin(builder, "l10nes");
-    installPlugin(builder, "l10nfr");
-    installPlugin(builder, "l10nit");
-    installPlugin(builder, "l10nja");
-    installPlugin(builder, "l10nko");
-    installPlugin(builder, "l10npt");
-    installPlugin(builder, "l10nru");
-    installPlugin(builder, "l10nzh");
-    installPlugin(builder, "ldap");
-    installPlugin(builder, "lua");
-    installPlugin(builder, "php");
-    installPlugin(builder, "pitest");
-    installPlugin(builder, "pli");
-    installPlugin(builder, "plsql");
-    installPlugin(builder, "pmd");
-    // FIXME puppet plugin is temporarily disabled because it is not compatible with SQ 6.4 until usage of Colorizer API is removed
-    installPlugin(builder, "python");
-    installPlugin(builder, "rci");
-    installPlugin(builder, "rpg");
-    installPlugin(builder, "scmclearcase");
-    installPlugin(builder, "scmcvs");
-    installPlugin(builder, "scmgit");
-    installPlugin(builder, "scmjazzrtc");
-    installPlugin(builder, "scmmercurial");
-    installPlugin(builder, "scmperforce");
-    installPlugin(builder, "scmsvn");
-    installPlugin(builder, "scmtfvc");
-    installPlugin(builder, "softvis3d");
-    installPlugin(builder, "sonargraphintegration");
-    installPlugin(builder, "status");
-    installPlugin(builder, "swift");
-    // SONAR-7618 Visual Basic 2.2 not compatible with CE not loading @ServerSide installPlugin(builder, "vb");
-    installPlugin(builder, "vbnet");
-    installPlugin(builder, "web");
-    installPlugin(builder, "xanitizer");
-    installPlugin(builder, "xml");
-
-    activateLicenses(builder);
+    builder.activateLicense();
     ORCHESTRATOR = builder.build();
     ORCHESTRATOR.start();
   }
@@ -187,12 +158,7 @@ public class PluginsTest {
     return analysis;
   }
 
-  private static void activateLicenses(OrchestratorBuilder builder) {
-    builder.activateLicense();
-  }
-
-  private static void installPlugin(OrchestratorBuilder builder, String pluginKey) {
-    builder.setOrchestratorProperty(pluginKey + "Version", "LATEST_RELEASE");
-    builder.addPlugin(pluginKey);
+  private static void installPlugin(OrchestratorBuilder builder, String groupId, String artifactId) {
+    builder.addPlugin(MavenLocation.of(groupId, artifactId, "LATEST_RELEASE"));
   }
 }

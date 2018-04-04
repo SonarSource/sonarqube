@@ -143,7 +143,7 @@ public class IssueCreationDatePluginChangedTest {
     ItUtils.newAdminWsClient(ORCHESTRATOR).wsConnector().call(new PostRequest("api/plugins/uninstall").setParam("key", "backdating")).failIfNotSuccessful();
     // install plugin V2
     File pluginsDir = new File(ORCHESTRATOR.getServer().getHome() + "/extensions/plugins");
-    ORCHESTRATOR.getConfiguration().fileSystem().copyToDirectory(pluginArtifact("backdating-plugin-v2"), pluginsDir);
+    ORCHESTRATOR.getConfiguration().locators().copyToDirectory(pluginArtifact("backdating-plugin-v2"), pluginsDir);
 
     ORCHESTRATOR.restartServer();
 

@@ -26,6 +26,7 @@ import com.sonar.orchestrator.build.BuildResult;
 import com.sonar.orchestrator.build.SonarScanner;
 import com.sonar.orchestrator.build.SonarScannerInstaller;
 import com.sonar.orchestrator.config.FileSystem;
+import com.sonar.orchestrator.locator.Locators;
 import com.sonar.orchestrator.version.Version;
 import java.io.File;
 import java.io.IOException;
@@ -388,7 +389,8 @@ public class IssuesModeTest {
   private void runConcurrentIssues(final String workDirPath) throws Exception {
     // Install sonar-runner in advance to avoid concurrent unzip issues
     FileSystem fileSystem = orchestrator.getConfiguration().fileSystem();
-    new SonarScannerInstaller(fileSystem).install(Version.create(SonarScanner.DEFAULT_SCANNER_VERSION), fileSystem.workspace(), true);
+    Locators locators = orchestrator.getConfiguration().locators();
+    new SonarScannerInstaller(locators).install(Version.create(SonarScanner.DEFAULT_SCANNER_VERSION), fileSystem.workspace(), true);
     final int nThreads = 3;
     ExecutorService executorService = Executors.newFixedThreadPool(nThreads);
     List<Callable<BuildResult>> tasks = new ArrayList<>();
