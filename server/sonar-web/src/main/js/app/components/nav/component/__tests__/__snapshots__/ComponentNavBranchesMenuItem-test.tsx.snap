@@ -5,23 +5,23 @@ exports[`renders main branch 1`] = `
   key="branch-master"
   onMouseEnter={[Function]}
 >
-  <Tooltip
-    mouseEnterDelay={0.5}
-    overlay="master"
-    placement="right"
-  >
-    <Link
-      className="navbar-context-meta-branch-menu-item"
-      onlyActiveOnIndex={false}
-      style={Object {}}
-      to={
-        Object {
-          "pathname": "/dashboard",
-          "query": Object {
-            "id": "component",
-          },
-        }
+  <Link
+    className="navbar-context-meta-branch-menu-item"
+    onlyActiveOnIndex={false}
+    style={Object {}}
+    to={
+      Object {
+        "pathname": "/dashboard",
+        "query": Object {
+          "id": "component",
+        },
       }
+    }
+  >
+    <Tooltip
+      mouseEnterDelay={0.5}
+      overlay="master"
+      placement="left"
     >
       <div
         className="navbar-context-meta-branch-menu-item-name text-ellipsis"
@@ -42,21 +42,21 @@ exports[`renders main branch 1`] = `
           branches.main_branch
         </div>
       </div>
-      <div
-        className="big-spacer-left note"
-      >
-        <BranchStatus
-          branchLike={
-            Object {
-              "isMain": true,
-              "name": "master",
-            }
+    </Tooltip>
+    <div
+      className="big-spacer-left note"
+    >
+      <BranchStatus
+        branchLike={
+          Object {
+            "isMain": true,
+            "name": "master",
           }
-          concise={true}
-        />
-      </div>
-    </Link>
-  </Tooltip>
+        }
+        concise={true}
+      />
+    </div>
+  </Link>
 </li>
 `;
 
@@ -65,25 +65,25 @@ exports[`renders short-living branch 1`] = `
   key="branch-foo"
   onMouseEnter={[Function]}
 >
-  <Tooltip
-    mouseEnterDelay={0.5}
-    overlay="foo"
-    placement="right"
-  >
-    <Link
-      className="navbar-context-meta-branch-menu-item"
-      onlyActiveOnIndex={false}
-      style={Object {}}
-      to={
-        Object {
-          "pathname": "/project/issues",
-          "query": Object {
-            "branch": "foo",
-            "id": "component",
-            "resolved": "false",
-          },
-        }
+  <Link
+    className="navbar-context-meta-branch-menu-item"
+    onlyActiveOnIndex={false}
+    style={Object {}}
+    to={
+      Object {
+        "pathname": "/project/issues",
+        "query": Object {
+          "branch": "foo",
+          "id": "component",
+          "resolved": "false",
+        },
       }
+    }
+  >
+    <Tooltip
+      mouseEnterDelay={0.5}
+      overlay="foo"
+      placement="left"
     >
       <div
         className="navbar-context-meta-branch-menu-item-name text-ellipsis"
@@ -107,29 +107,29 @@ exports[`renders short-living branch 1`] = `
         />
         foo
       </div>
-      <div
-        className="big-spacer-left note"
-      >
-        <BranchStatus
-          branchLike={
-            Object {
-              "isMain": false,
-              "mergeBranch": "master",
-              "name": "foo",
-              "status": Object {
-                "bugs": 1,
-                "codeSmells": 2,
-                "qualityGateStatus": "ERROR",
-                "vulnerabilities": 3,
-              },
-              "type": "SHORT",
-            }
+    </Tooltip>
+    <div
+      className="big-spacer-left note"
+    >
+      <BranchStatus
+        branchLike={
+          Object {
+            "isMain": false,
+            "mergeBranch": "master",
+            "name": "foo",
+            "status": Object {
+              "bugs": 1,
+              "codeSmells": 2,
+              "qualityGateStatus": "ERROR",
+              "vulnerabilities": 3,
+            },
+            "type": "SHORT",
           }
-          concise={true}
-        />
-      </div>
-    </Link>
-  </Tooltip>
+        }
+        concise={true}
+      />
+    </div>
+  </Link>
 </li>
 `;
 
@@ -138,25 +138,25 @@ exports[`renders short-living orhpan branch 1`] = `
   key="branch-foo"
   onMouseEnter={[Function]}
 >
-  <Tooltip
-    mouseEnterDelay={0.5}
-    overlay="foo"
-    placement="right"
-  >
-    <Link
-      className="navbar-context-meta-branch-menu-item"
-      onlyActiveOnIndex={false}
-      style={Object {}}
-      to={
-        Object {
-          "pathname": "/project/issues",
-          "query": Object {
-            "branch": "foo",
-            "id": "component",
-            "resolved": "false",
-          },
-        }
+  <Link
+    className="navbar-context-meta-branch-menu-item"
+    onlyActiveOnIndex={false}
+    style={Object {}}
+    to={
+      Object {
+        "pathname": "/project/issues",
+        "query": Object {
+          "branch": "foo",
+          "id": "component",
+          "resolved": "false",
+        },
       }
+    }
+  >
+    <Tooltip
+      mouseEnterDelay={0.5}
+      overlay="foo"
+      placement="left"
     >
       <div
         className="navbar-context-meta-branch-menu-item-name text-ellipsis"
@@ -181,29 +181,29 @@ exports[`renders short-living orhpan branch 1`] = `
         />
         foo
       </div>
-      <div
-        className="big-spacer-left note"
-      >
-        <BranchStatus
-          branchLike={
-            Object {
-              "isMain": false,
-              "isOrphan": true,
-              "mergeBranch": "master",
-              "name": "foo",
-              "status": Object {
-                "bugs": 1,
-                "codeSmells": 2,
-                "qualityGateStatus": "ERROR",
-                "vulnerabilities": 3,
-              },
-              "type": "SHORT",
-            }
+    </Tooltip>
+    <div
+      className="big-spacer-left note"
+    >
+      <BranchStatus
+        branchLike={
+          Object {
+            "isMain": false,
+            "isOrphan": true,
+            "mergeBranch": "master",
+            "name": "foo",
+            "status": Object {
+              "bugs": 1,
+              "codeSmells": 2,
+              "qualityGateStatus": "ERROR",
+              "vulnerabilities": 3,
+            },
+            "type": "SHORT",
           }
-          concise={true}
-        />
-      </div>
-    </Link>
-  </Tooltip>
+        }
+        concise={true}
+      />
+    </div>
+  </Link>
 </li>
 `;

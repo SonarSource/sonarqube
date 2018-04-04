@@ -52,12 +52,12 @@ export default function ComponentNavBranchesMenuItem({ branchLike, ...props }: P
 
   return (
     <li key={getBranchLikeKey(branchLike)} onMouseEnter={handleMouseEnter}>
-      <Tooltip mouseEnterDelay={0.5} overlay={displayName} placement="right">
-        <Link
-          className={classNames('navbar-context-meta-branch-menu-item', {
-            active: props.selected
-          })}
-          to={getBranchLikeUrl(props.component.key, branchLike)}>
+      <Link
+        className={classNames('navbar-context-meta-branch-menu-item', {
+          active: props.selected
+        })}
+        to={getBranchLikeUrl(props.component.key, branchLike)}>
+        <Tooltip mouseEnterDelay={0.5} overlay={displayName} placement="left">
           <div className="navbar-context-meta-branch-menu-item-name text-ellipsis">
             <BranchIcon
               branchLike={branchLike}
@@ -68,11 +68,11 @@ export default function ComponentNavBranchesMenuItem({ branchLike, ...props }: P
               <div className="outline-badge spacer-left">{translate('branches.main_branch')}</div>
             )}
           </div>
-          <div className="big-spacer-left note">
-            <BranchStatus branchLike={branchLike} concise={true} />
-          </div>
-        </Link>
-      </Tooltip>
+        </Tooltip>
+        <div className="big-spacer-left note">
+          <BranchStatus branchLike={branchLike} concise={true} />
+        </div>
+      </Link>
     </li>
   );
 }

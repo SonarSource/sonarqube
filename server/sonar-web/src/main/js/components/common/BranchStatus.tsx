@@ -28,6 +28,7 @@ import VulnerabilityIcon from '../icons-components/VulnerabilityIcon';
 import { BranchLike } from '../../app/types';
 import { isShortLivingBranch, isPullRequest, isLongLivingBranch } from '../../helpers/branches';
 import { translateWithParameters } from '../../helpers/l10n';
+import { formatMeasure } from '../../helpers/measures';
 import './BranchStatus.css';
 
 interface Props {
@@ -43,16 +44,25 @@ export default function BranchStatus({ branchLike, concise = false }: Props) {
 
     const totalIssues =
       branchLike.status.bugs + branchLike.status.vulnerabilities + branchLike.status.codeSmells;
-    const indicatorColor = getQualityGateColor(branchLike.status.qualityGateStatus);
-    const shouldDisplayHelper = branchLike.status.qualityGateStatus === 'OK' && totalIssues > 0;
+    const status = branchLike.status.qualityGateStatus;
+    const indicatorColor = getQualityGateColor(status);
+    const shouldDisplayHelper = status === 'OK' && totalIssues > 0;
+
+    const label =
+      translateWithParameters('overview.quality_gate_x', formatMeasure(status, 'LEVEL')) +
+      (status !== 'OK'
+        ? ' ' + translateWithParameters('overview.quality_gate_failed_with_x', totalIssues)
+        : '');
 
     return concise ? (
-      <ul className="branch-status">
-        <li>{totalIssues}</li>
-        <li className="spacer-left">
-          <StatusIndicator color={indicatorColor} size="small" />
-        </li>
-      </ul>
+      <Tooltip overlay={label} placement="right">
+        <ul className="branch-status">
+          <li>{totalIssues}</li>
+          <li className="spacer-left">
+            <StatusIndicator color={indicatorColor} size="small" />
+          </li>
+        </ul>
+      </Tooltip>
     ) : (
       <ul className="branch-status">
         <li className="little-spacer-right">

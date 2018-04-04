@@ -70,7 +70,6 @@ export function deletePortfolio(portfolio: string): Promise<void | Response> {
 }
 
 export function createProject(data: {
-  branch?: string;
   name: string;
   project: string;
   organization?: string;
