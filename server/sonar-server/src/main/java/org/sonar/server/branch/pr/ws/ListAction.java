@@ -28,13 +28,13 @@ import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.measure.LiveMeasureDto;
+import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.protobuf.DbProjectBranches;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.issue.index.BranchStatistics;
@@ -48,12 +48,15 @@ import static java.util.Objects.requireNonNull;
 import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
+import static org.sonar.api.web.UserRole.USER;
+import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
 import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.db.component.BranchType.PULL_REQUEST;
 import static org.sonar.server.branch.pr.ws.PullRequestsWs.addProjectParam;
 import static org.sonar.server.branch.pr.ws.PullRequestsWsParameters.PARAM_PROJECT;
+import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class ListAction implements PullRequestWsAction {
@@ -75,7 +78,11 @@ public class ListAction implements PullRequestWsAction {
     WebService.NewAction action = context.createAction("list")
       .setSince("7.1")
       .setDescription("List the pull requests of a project.<br/>" +
-        "Requires 'Administer' rights on the specified project.")
+        "One of the following permissions is required: " +
+        "<ul>" +
+        "<li>'Browse' rights on the specified project</li>" +
+        "<li>'Execute Analysis' rights on the specified project</li>" +
+        "</ul>")
       .setResponseExample(getClass().getResource("list-example.json"))
       .setHandler(this);
 
@@ -88,7 +95,7 @@ public class ListAction implements PullRequestWsAction {
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       ComponentDto project = componentFinder.getByKey(dbSession, projectKey);
-      userSession.checkComponentPermission(UserRole.USER, project);
+      checkPermission(project);
       checkArgument(project.isEnabled() && PROJECT.equals(project.qualifier()), "Invalid project key");
 
       List<BranchDto> pullRequests = dbClient.branchDao().selectByComponent(dbSession, project).stream()
@@ -109,14 +116,23 @@ public class ListAction implements PullRequestWsAction {
 
       ProjectPullRequests.ListWsResponse.Builder protobufResponse = ProjectPullRequests.ListWsResponse.newBuilder();
       pullRequests
-        .forEach(b -> addPullRequest(protobufResponse, b, mergeBranchesByUuid, qualityGateMeasuresByComponentUuids.get(b.getUuid()),  branchStatisticsByBranchUuid.get(b.getUuid()),
+        .forEach(b -> addPullRequest(protobufResponse, b, mergeBranchesByUuid, qualityGateMeasuresByComponentUuids.get(b.getUuid()), branchStatisticsByBranchUuid.get(b.getUuid()),
           analysisDateByBranchUuid.get(b.getUuid())));
       writeProtobuf(protobufResponse.build(), request, response);
     }
   }
 
+  private void checkPermission(ComponentDto component) {
+    if (userSession.hasComponentPermission(USER, component) ||
+      userSession.hasComponentPermission(SCAN_EXECUTION, component) ||
+      userSession.hasPermission(OrganizationPermission.SCAN, component.getOrganizationUuid())) {
+      return;
+    }
+    throw insufficientPrivilegesException();
+  }
+
   private static void addPullRequest(ProjectPullRequests.ListWsResponse.Builder response, BranchDto branch, Map<String, BranchDto> mergeBranchesByUuid,
-                                     @Nullable LiveMeasureDto qualityGateMeasure, BranchStatistics branchStatistics, @Nullable String analysisDate) {
+    @Nullable LiveMeasureDto qualityGateMeasure, BranchStatistics branchStatistics, @Nullable String analysisDate) {
     Optional<BranchDto> mergeBranch = Optional.ofNullable(mergeBranchesByUuid.get(branch.getMergeBranchUuid()));
 
     ProjectPullRequests.PullRequest.Builder builder = ProjectPullRequests.PullRequest.newBuilder();

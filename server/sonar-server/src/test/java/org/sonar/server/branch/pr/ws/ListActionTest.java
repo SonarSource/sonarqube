@@ -36,10 +36,12 @@ import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.ResourceTypesRule;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.protobuf.DbProjectBranches;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.es.EsTester;
+import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.issue.index.IssueIndexDefinition;
@@ -66,6 +68,8 @@ import static org.sonar.api.rules.RuleType.CODE_SMELL;
 import static org.sonar.api.rules.RuleType.VULNERABILITY;
 import static org.sonar.api.utils.DateUtils.dateToLong;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
+import static org.sonar.api.web.UserRole.CODEVIEWER;
+import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
 import static org.sonar.db.component.BranchType.LONG;
 import static org.sonar.db.component.BranchType.PULL_REQUEST;
 import static org.sonar.db.component.SnapshotTesting.newAnalysis;
@@ -265,7 +269,8 @@ public class ListActionTest {
       .executeProtobuf(ListWsResponse.class);
 
     assertThat(response.getPullRequestsList().stream().map(PullRequest::getStatus))
-      .extracting(Status::getQualityGateStatus, Status::hasBugs, Status::getBugs, Status::hasVulnerabilities, Status::getVulnerabilities, Status::hasCodeSmells, Status::getCodeSmells)
+      .extracting(Status::getQualityGateStatus, Status::hasBugs, Status::getBugs, Status::hasVulnerabilities, Status::getVulnerabilities, Status::hasCodeSmells,
+        Status::getCodeSmells)
       .containsExactlyInAnyOrder(tuple("ERROR", true, 1L, true, 2L, true, 3L));
   }
 
@@ -336,6 +341,64 @@ public class ListActionTest {
   }
 
   @Test
+  public void does_not_fail_when_only_browse_permission_on_project() {
+    ComponentDto project = db.components().insertMainBranch();
+    db.components().insertProjectBranch(project,
+      b -> b.setKey("123")
+        .setBranchType(PULL_REQUEST)
+        .setMergeBranchUuid(project.uuid())
+        .setPullRequestData(DbProjectBranches.PullRequestData.newBuilder().setBranch("feature/bar").build()));
+    userSession.logIn().addProjectPermission(UserRole.USER, project);
+
+    ListWsResponse response = ws.newRequest()
+      .setParam("project", project.getKey())
+      .executeProtobuf(ListWsResponse.class);
+
+    assertThat(response.getPullRequestsList())
+      .extracting(PullRequest::getKey)
+      .containsExactlyInAnyOrder("123");
+  }
+
+  @Test
+  public void does_not_fail_when_only_scan_permission_on_project() {
+    ComponentDto project = db.components().insertMainBranch();
+    db.components().insertProjectBranch(project,
+      b -> b.setKey("123")
+        .setBranchType(PULL_REQUEST)
+        .setMergeBranchUuid(project.uuid())
+        .setPullRequestData(DbProjectBranches.PullRequestData.newBuilder().setBranch("feature/bar").build()));
+    userSession.logIn().addProjectPermission(SCAN_EXECUTION, project);
+
+    ListWsResponse response = ws.newRequest()
+      .setParam("project", project.getKey())
+      .executeProtobuf(ListWsResponse.class);
+
+    assertThat(response.getPullRequestsList())
+      .extracting(PullRequest::getKey)
+      .containsExactlyInAnyOrder("123");
+  }
+
+  @Test
+  public void does_not_fail_when_only_scan_permission_on_organization() {
+    OrganizationDto organization = db.organizations().insert();
+    userSession.logIn().addPermission(OrganizationPermission.SCAN, organization);
+    ComponentDto project = db.components().insertMainBranch(organization);
+    db.components().insertProjectBranch(project,
+      b -> b.setKey("123")
+        .setBranchType(PULL_REQUEST)
+        .setMergeBranchUuid(project.uuid())
+        .setPullRequestData(DbProjectBranches.PullRequestData.newBuilder().setBranch("feature/bar").build()));
+
+    ListWsResponse response = ws.newRequest()
+      .setParam("project", project.getKey())
+      .executeProtobuf(ListWsResponse.class);
+
+    assertThat(response.getPullRequestsList())
+      .extracting(PullRequest::getKey)
+      .containsExactlyInAnyOrder("123");
+  }
+
+  @Test
   public void fail_when_using_branch_db_key() throws Exception {
     OrganizationDto organization = db.organizations().insert();
     ComponentDto project = db.components().insertMainBranch(organization);
@@ -379,6 +442,23 @@ public class ListActionTest {
 
     ws.newRequest()
       .setParam("project", "foo")
+      .execute();
+  }
+
+  @Test
+  public void fail_when_not_having_right_permission() {
+    ComponentDto project = db.components().insertMainBranch();
+    db.components().insertProjectBranch(project,
+      b -> b.setKey("123")
+        .setBranchType(PULL_REQUEST)
+        .setMergeBranchUuid(project.uuid())
+        .setPullRequestData(DbProjectBranches.PullRequestData.newBuilder().setBranch("feature/bar").build()));
+    userSession.logIn().addProjectPermission(CODEVIEWER, project);
+
+    expectedException.expect(ForbiddenException.class);
+
+    ws.newRequest()
+      .setParam("project", project.getDbKey())
       .execute();
   }
 

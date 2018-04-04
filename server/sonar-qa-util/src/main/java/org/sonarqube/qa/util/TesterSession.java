@@ -43,4 +43,6 @@ public interface TesterSession {
 
   WebhookTester webhooks();
 
+  PermissionTester permissions();
+
 }

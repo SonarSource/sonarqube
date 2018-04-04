@@ -213,6 +213,11 @@ public class Tester extends ExternalResource implements TesterSession {
     return rootSession.webhooks();
   }
 
+  @Override
+  public PermissionTester permissions() {
+    return rootSession.permissions();
+  }
+
   private static class TesterSessionImpl implements TesterSession {
     private final WsClient client;
 
@@ -272,6 +277,11 @@ public class Tester extends ExternalResource implements TesterSession {
     @Override
     public WebhookTester webhooks() {
       return new WebhookTester(this);
+    }
+
+    @Override
+    public PermissionTester permissions() {
+      return new PermissionTester(this);
     }
   }
 }
