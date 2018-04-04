@@ -43,7 +43,7 @@ import static java.util.Objects.requireNonNull;
  */
 public class SimpleGetRequest extends Request {
 
-  private final Map<String, String> params = new HashMap<>();
+  private final Map<String, String[]> params = new HashMap<>();
   private final Map<String, Part> parts = new HashMap<>();
   private final Map<String, String> headers = new HashMap<>();
   private String mediaType = "application/json";
@@ -72,12 +72,13 @@ public class SimpleGetRequest extends Request {
 
   @Override
   public String param(String key) {
-    return params.get(key);
+    String[] strings = params.get(key);
+    return strings == null || strings.length == 0 ? null : strings[0];
   }
 
   @Override
   public List<String> multiParam(String key) {
-    String value = params.get(key);
+    String value = param(key);
     return value == null ? emptyList() : singletonList(value);
   }
 
@@ -98,12 +99,13 @@ public class SimpleGetRequest extends Request {
 
   public SimpleGetRequest setParam(String key, @Nullable String value) {
     if (value != null) {
-      params.put(key, value);
+      params.put(key, new String[] {value});
     }
     return this;
   }
 
-  public Map<String, String> getParams() {
+  @Override
+  public Map<String, String[]> getParams() {
     return params;
   }
 

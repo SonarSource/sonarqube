@@ -86,7 +86,9 @@ public class SimpleGetRequestTest {
       .setParam("foo", "bar")
       .setParam("fee", "beer");
 
-    assertThat(underTest.getParams()).containsOnly(entry("foo", "bar"), entry("fee", "beer"));
+    assertThat(underTest.getParams()).containsOnly(
+      entry("foo", new String[] {"bar"}),
+      entry("fee", new String[] {"beer"}));
   }
 
   @Test

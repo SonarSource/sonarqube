@@ -25,6 +25,7 @@ import com.google.common.net.HttpHeaders;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -151,5 +152,21 @@ public class ServletRequest extends ValidatingRequest {
   @Override
   public Optional<String> header(String name) {
     return Optional.ofNullable(source.getHeader(name));
+  }
+
+  @Override
+  public Map<String, String> getHeaders() {
+    ImmutableMap.Builder<String, String> mapBuilder = ImmutableMap.builder();
+    Enumeration<String> headerNames = source.getHeaderNames();
+    while (headerNames.hasMoreElements()) {
+      String headerName = headerNames.nextElement();
+      mapBuilder.put(headerName, source.getHeader(headerName));
+    }
+    return mapBuilder.build();
+  }
+
+  @Override
+  public Map<String, String[]> getParams() {
+    return source.getParameterMap();
   }
 }
