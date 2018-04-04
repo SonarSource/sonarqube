@@ -19,66 +19,84 @@
  */
 package org.sonar.scanner.scan.branch;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.function.Supplier;
-import org.junit.Before;
-import org.junit.Test;
-import org.sonar.api.batch.bootstrap.ProjectKey;
-import org.sonar.scanner.bootstrap.GlobalConfiguration;
-import org.sonar.scanner.repository.settings.SettingsLoader;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Supplier;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.MockitoAnnotations;
+import org.sonar.api.batch.bootstrap.ProjectDefinition;
+import org.sonar.api.batch.bootstrap.ProjectReactor;
+import org.sonar.scanner.bootstrap.GlobalConfiguration;
+import org.sonar.scanner.repository.settings.SettingsLoader;
 
 public class BranchConfigurationProviderTest {
   private BranchConfigurationProvider provider = new BranchConfigurationProvider();
-  private GlobalConfiguration globalConfiguration;
-  private BranchConfigurationLoader loader;
-  private BranchConfiguration config;
-  private ProjectBranches branches;
-  private ProjectPullRequests pullRequests;
-  private ProjectKey projectKey;
-  private Map<String, String> globalPropertiesMap;
+  private GlobalConfiguration globalConfiguration = mock(GlobalConfiguration.class);
+  private BranchConfigurationLoader loader = mock(BranchConfigurationLoader.class);
+  private BranchConfiguration config = mock(BranchConfiguration.class);
+  private ProjectBranches branches = mock(ProjectBranches.class);
+  private ProjectPullRequests pullRequests = mock(ProjectPullRequests.class);
+  private ProjectReactor reactor = mock(ProjectReactor.class);;
+  private Map<String, String> globalPropertiesMap = new HashMap<>();;
   private Map<String, String> remoteProjectSettings;
-  private SettingsLoader settingsLoader;
+  private ProjectDefinition root = mock(ProjectDefinition.class);
+  private SettingsLoader settingsLoader = mock(SettingsLoader.class);
+
+  @Captor
+  private ArgumentCaptor<Supplier<Map<String, String>>> settingsCaptor;
 
   @Before
   public void setUp() {
-    globalConfiguration = mock(GlobalConfiguration.class);
-    loader = mock(BranchConfigurationLoader.class);
-    config = mock(BranchConfiguration.class);
-    branches = mock(ProjectBranches.class);
-    pullRequests = mock(ProjectPullRequests.class);
-    settingsLoader = mock(SettingsLoader.class);
-    projectKey = mock(ProjectKey.class);
-    globalPropertiesMap = new HashMap<>();
+    MockitoAnnotations.initMocks(this);
     when(globalConfiguration.getProperties()).thenReturn(globalPropertiesMap);
     when(settingsLoader.load(anyString())).thenReturn(remoteProjectSettings);
+    when(reactor.getRoot()).thenReturn(root);
   }
 
   @Test
   public void should_cache_config() {
-    BranchConfiguration configuration = provider.provide(null, globalConfiguration, projectKey, settingsLoader, branches, pullRequests);
-    assertThat(provider.provide(null, globalConfiguration, projectKey, settingsLoader, branches, pullRequests)).isSameAs(configuration);
+    BranchConfiguration configuration = provider.provide(null, globalConfiguration, reactor, settingsLoader, branches, pullRequests);
+    assertThat(provider.provide(null, globalConfiguration, reactor, settingsLoader, branches, pullRequests)).isSameAs(configuration);
   }
 
   @Test
   public void should_use_loader() {
     when(loader.load(eq(globalPropertiesMap), any(Supplier.class), eq(branches), eq(pullRequests))).thenReturn(config);
 
-    BranchConfiguration result = provider.provide(loader, globalConfiguration, projectKey, settingsLoader, branches, pullRequests);
+    BranchConfiguration result = provider.provide(loader, globalConfiguration, reactor, settingsLoader, branches, pullRequests);
 
     assertThat(result).isSameAs(config);
   }
 
   @Test
+  public void settings_should_include_command_line_args_with_highest_priority() {
+    when(globalConfiguration.getProperties()).thenReturn(Collections.singletonMap("key", "global"));
+    when(settingsLoader.load(anyString())).thenReturn(Collections.singletonMap("key", "settings"));
+    when(root.properties()).thenReturn(Collections.singletonMap("key", "root"));
+    provider.provide(loader, globalConfiguration, reactor, settingsLoader, branches, pullRequests);
+    verify(loader).load(anyMap(), settingsCaptor.capture(), any(ProjectBranches.class), any(ProjectPullRequests.class));
+
+    Map<String, String> map = settingsCaptor.getValue().get();
+    assertThat(map.get("key")).isEqualTo("root");
+  }
+
+  @Test
   public void should_return_default_if_no_loader() {
-    BranchConfiguration result = provider.provide(null, globalConfiguration, projectKey, settingsLoader, branches, pullRequests);
+    BranchConfiguration result = provider.provide(null, globalConfiguration, reactor, settingsLoader, branches, pullRequests);
 
     assertThat(result.branchTarget()).isNull();
     assertThat(result.branchType()).isEqualTo(BranchType.LONG);

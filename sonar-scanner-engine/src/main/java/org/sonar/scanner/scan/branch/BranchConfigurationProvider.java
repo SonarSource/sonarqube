@@ -22,9 +22,11 @@ package org.sonar.scanner.scan.branch;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;
+
 import org.picocontainer.annotations.Nullable;
 import org.picocontainer.injectors.ProviderAdapter;
-import org.sonar.api.batch.bootstrap.ProjectKey;
+import org.sonar.api.batch.bootstrap.ProjectDefinition;
+import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
@@ -38,14 +40,14 @@ public class BranchConfigurationProvider extends ProviderAdapter {
 
   private BranchConfiguration branchConfiguration = null;
 
-  public BranchConfiguration provide(@Nullable BranchConfigurationLoader loader, GlobalConfiguration globalConfiguration, ProjectKey projectKey,
+  public BranchConfiguration provide(@Nullable BranchConfigurationLoader loader, GlobalConfiguration globalConfiguration, ProjectReactor reactor,
     SettingsLoader settingsLoader, ProjectBranches branches, ProjectPullRequests pullRequests) {
     if (branchConfiguration == null) {
       if (loader == null) {
         branchConfiguration = new DefaultBranchConfiguration();
       } else {
         Profiler profiler = Profiler.create(LOG).startInfo(LOG_MSG);
-        Supplier<Map<String, String>> settingsSupplier = createSettingsSupplier(globalConfiguration, projectKey, settingsLoader);
+        Supplier<Map<String, String>> settingsSupplier = createSettingsSupplier(globalConfiguration, reactor.getRoot(), settingsLoader);
         branchConfiguration = loader.load(globalConfiguration.getProperties(), settingsSupplier, branches, pullRequests);
         profiler.stopInfo();
       }
@@ -53,11 +55,14 @@ public class BranchConfigurationProvider extends ProviderAdapter {
     return branchConfiguration;
   }
 
-  private static Supplier<Map<String, String>> createSettingsSupplier(GlobalConfiguration globalConfiguration, ProjectKey projectKey, SettingsLoader settingsLoader) {
+  private static Supplier<Map<String, String>> createSettingsSupplier(GlobalConfiguration globalConfiguration, ProjectDefinition root, SettingsLoader settingsLoader) {
+    // we can't get ProjectSettings because it creates a circular dependency.
+    // We create our own settings which will only be loaded if needed.
     return () -> {
       Map<String, String> settings = new HashMap<>();
       settings.putAll(globalConfiguration.getProperties());
-      settings.putAll(settingsLoader.load(projectKey.get()));
+      settings.putAll(settingsLoader.load(root.getKeyWithBranch()));
+      settings.putAll(root.properties());
       return settings;
     };
   }
