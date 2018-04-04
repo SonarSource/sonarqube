@@ -340,6 +340,11 @@
       </if>
       <if test="query.isOnProvisionedOnly()">
         and not exists(select 1 from snapshots sp where sp.component_uuid=p.uuid)
+        and not exists(
+          select 1 from snapshots sp
+          inner join project_branches pb on sp.component_uuid = pb.uuid
+          where pb.project_uuid = p.uuid
+        )
       </if>
   </sql>
 

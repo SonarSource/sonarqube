@@ -903,14 +903,16 @@ public class ComponentDaoTest {
   @Test
   public void selectByQuery_provisioned() {
     OrganizationDto organization = db.organizations().insert();
-    ComponentDto provisionedProject = db.components()
-      .insertComponent(newPrivateProjectDto(organization).setDbKey("provisioned.project").setName("Provisioned Project"));
-    ComponentDto provisionedView = db.components().insertView(organization);
-    String projectUuid = db.components().insertProjectAndSnapshot(newPrivateProjectDto(organization)).getComponentUuid();
-    String disabledProjectUuid = db.components().insertProjectAndSnapshot(newPrivateProjectDto(organization).setEnabled(false)).getComponentUuid();
-    String viewUuid = db.components().insertProjectAndSnapshot(ComponentTesting.newView(organization)).getComponentUuid();
 
-    Set<String> projectQualifiers = newHashSet(Qualifiers.PROJECT);
+    ComponentDto provisionedProject = db.components()
+      .insertPrivateProject(organization, p -> p.setDbKey("provisioned.project").setName("Provisioned Project"));
+    ComponentDto provisionedPortfolio = db.components().insertPrivatePortfolio(organization);
+
+    SnapshotDto analyzedProject = db.components().insertProjectAndSnapshot(newPrivateProjectDto(organization));
+    SnapshotDto analyzedDisabledProject = db.components().insertProjectAndSnapshot(newPrivateProjectDto(organization)
+      .setEnabled(false));
+    SnapshotDto analyzedPortfolio = db.components().insertProjectAndSnapshot(ComponentTesting.newView(organization));
+
     Supplier<ComponentQuery.Builder> query = () -> ComponentQuery.builder().setQualifiers(Qualifiers.PROJECT).setOnProvisionedOnly(true);
     assertThat(underTest.selectByQuery(dbSession, organization.getUuid(), query.get().build(), 0, 10))
       .extracting(ComponentDto::uuid)
@@ -926,7 +928,7 @@ public class ComponentDaoTest {
       .containsOnly(provisionedProject.uuid());
     assertThat(underTest.selectByQuery(dbSession, organization.getUuid(), query.get().setQualifiers(Qualifiers.PROJECT, Qualifiers.VIEW).build(), 0, 10))
       .extracting(ComponentDto::uuid)
-      .containsOnly(provisionedProject.uuid(), provisionedView.uuid());
+      .containsOnly(provisionedProject.uuid(), provisionedPortfolio.uuid());
 
     // match key
     assertThat(underTest.selectByQuery(dbSession, organization.getUuid(), query.get().setNameOrKeyQuery(provisionedProject.getDbKey()).build(), 0, 10))
@@ -943,6 +945,28 @@ public class ComponentDaoTest {
     assertThat(underTest.selectByQuery(dbSession, organization.getUuid(), query.get().setNameOrKeyQuery("ned proj").setPartialMatchOnKey(true).build(), 0, 10))
       .extracting(ComponentDto::uuid)
       .containsExactly(provisionedProject.uuid());
+  }
+
+  @Test
+  public void selectByQuery_onProvisionedOnly_filters_projects_with_analysis_on_branch() {
+    Supplier<ComponentQuery.Builder> query = () -> ComponentQuery.builder()
+      .setQualifiers(Qualifiers.PROJECT)
+      .setOnProvisionedOnly(true);
+
+    // the project does not have any analysis
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto project = db.components().insertMainBranch(organization);
+    assertThat(underTest.selectByQuery(dbSession, organization.getUuid(), query.get().build(), 0, 10))
+      .extracting(ComponentDto::uuid)
+      .containsOnly(project.uuid());
+
+    // the project does not have analysis of main branch but only
+    // analysis of non-main branches
+    ComponentDto branchWithoutAnalysis = db.components().insertProjectBranch(project);
+    ComponentDto branchWithAnalysis = db.components().insertProjectBranch(project);
+    db.components().insertSnapshot(branchWithAnalysis);
+    assertThat(underTest.selectByQuery(dbSession, organization.getUuid(), query.get().build(), 0, 10))
+      .isEmpty();
   }
 
   @Test
