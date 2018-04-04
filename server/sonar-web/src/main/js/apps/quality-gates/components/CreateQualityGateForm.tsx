@@ -21,7 +21,7 @@ import * as React from 'react';
 import * as PropTypes from 'prop-types';
 import { createQualityGate, QualityGate } from '../../../api/quality-gates';
 import Modal from '../../../components/controls/Modal';
-import { Button, ResetButtonLink } from '../../../components/ui/buttons';
+import { SubmitButton, ResetButtonLink } from '../../../components/ui/buttons';
 import { translate } from '../../../helpers/l10n';
 import { getQualityGateUrl } from '../../../helpers/urls';
 
@@ -80,7 +80,7 @@ export default class CreateQualityGateForm extends React.PureComponent<Props, St
 
   render() {
     const { loading, name } = this.state;
-    const header = translate('quality_gates.rename');
+    const header = translate('quality_gates.create');
     const submitDisabled = loading || !name;
 
     return (
@@ -109,9 +109,9 @@ export default class CreateQualityGateForm extends React.PureComponent<Props, St
           </div>
           <div className="modal-foot">
             {loading && <i className="spinner spacer-right" />}
-            <Button className="js-confirm" disabled={submitDisabled}>
+            <SubmitButton className="js-confirm" disabled={submitDisabled}>
               {translate('save')}
-            </Button>
+            </SubmitButton>
             <ResetButtonLink className="js-modal-close" onClick={this.props.onClose}>
               {translate('cancel')}
             </ResetButtonLink>

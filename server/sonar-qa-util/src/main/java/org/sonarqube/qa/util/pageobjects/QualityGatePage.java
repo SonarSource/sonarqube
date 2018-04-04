@@ -19,36 +19,47 @@
  */
 package org.sonarqube.qa.util.pageobjects;
 
-import com.codeborne.selenide.Condition;
-import com.codeborne.selenide.Selenide;
+import static com.codeborne.selenide.Condition.exist;
+import static com.codeborne.selenide.Condition.text;
+import static com.codeborne.selenide.Condition.visible;
+import static com.codeborne.selenide.Selenide.$;
+import static com.codeborne.selenide.Selenide.$$;
 
 public class QualityGatePage {
   public QualityGatePage() {
-    Selenide.$("#quality-gates-page").shouldBe(Condition.visible);
+    $("#quality-gates-page").shouldBe(visible);
   }
 
   public QualityGatePage countQualityGates(Integer count) {
-    Selenide.$$("#quality-gates-page .list-group-item").shouldHaveSize(count);
+    $$("#quality-gates-page .list-group-item").shouldHaveSize(count);
     return this;
   }
 
   public QualityGatePage canCreateQG() {
-    Selenide.$("#quality-gate-add").should(Condition.exist).shouldBe(Condition.visible);
+    $("#quality-gate-add").should(exist).shouldBe(visible);
+    return this;
+  }
+
+  public QualityGatePage createQG(String name) {
+    $("#quality-gate-add").click();
+    $(".modal-head").should(exist).shouldHave(text("Create Quality Gate"));
+    $("#quality-gate-form-name").sendKeys(name);
+    $(".js-confirm").click();
     return this;
   }
 
   public QualityGatePage canNotCreateQG() {
-    Selenide.$("#quality-gate-add").shouldNot(Condition.exist);
+    $("#quality-gate-add").shouldNot(exist);
     return this;
   }
 
   public QualityGatePage displayIntro() {
-    Selenide.$(".search-navigator-intro").should(Condition.exist).shouldBe(Condition.visible);
+    $(".search-navigator-intro").should(exist).shouldBe(visible);
     return this;
   }
 
   public QualityGatePage displayQualityGateDetail(String qualityGateName) {
-    Selenide.$(".layout-page-main-header").shouldHave(Condition.text(qualityGateName));
+    $(".layout-page-main-header").shouldHave(text(qualityGateName));
     return this;
   }
 }

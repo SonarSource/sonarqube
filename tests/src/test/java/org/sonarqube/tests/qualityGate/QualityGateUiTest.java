@@ -121,6 +121,18 @@ public class QualityGateUiTest {
       .displayIntro();
   }
 
+  @Test
+  public void create_quality_gate() {
+    String admin = tester.users().generateAdministrator().getLogin();
+    tester.openBrowser()
+      .logIn().submitCredentials(admin)
+      .openQualityGates()
+      .countQualityGates(1)
+      .canCreateQG()
+      .createQG("QG Create Test")
+      .countQualityGates(2);
+  }
+
   private void scanSampleWithDate(Project project, String date) {
     scanSample(project, date, null);
   }
