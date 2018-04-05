@@ -62,7 +62,7 @@ public class ComponentKeyUpdaterDaoTest {
   }
 
   @Test
-  public void updateKey_does_not_update_inactive_components() {
+  public void updateKey_updates_disabled_components() {
     OrganizationDto organizationDto = db.organizations().insert();
     ComponentDto project = db.components().insertComponent(newPrivateProjectDto(organizationDto, "A").setDbKey("my_project"));
     ComponentDto directory = db.components().insertComponent(newDirectory(project, "/directory").setDbKey("my_project:directory"));
@@ -74,8 +74,10 @@ public class ComponentKeyUpdaterDaoTest {
     dbSession.commit();
 
     List<ComponentDto> result = dbClient.componentDao().selectAllComponentsFromProjectKey(dbSession, "your_project");
-    assertThat(result).hasSize(5).extracting(ComponentDto::getDbKey)
-      .containsOnlyOnce("your_project", "your_project:directory", "your_project:directory/file", "my_project:inactive_directory", "my_project:inactive_directory/file");
+    assertThat(result)
+      .hasSize(5)
+      .extracting(ComponentDto::getDbKey)
+      .containsOnlyOnce("your_project", "your_project:directory", "your_project:directory/file", "your_project:inactive_directory", "your_project:inactive_directory/file");
   }
 
   @Test
@@ -148,7 +150,7 @@ public class ComponentKeyUpdaterDaoTest {
   }
 
   @Test
-  public void bulk_update_key_does_not_update_inactive_components() {
+  public void bulk_update_key_updates_disabled_components() {
     ComponentDto project = db.components().insertComponent(newPrivateProjectDto(db.getDefaultOrganization(), "A").setDbKey("my_project"));
     db.components().insertComponent(newModuleDto(project).setDbKey("my_project:module"));
     db.components().insertComponent(newModuleDto(project).setDbKey("my_project:inactive_module").setEnabled(false));
@@ -156,8 +158,10 @@ public class ComponentKeyUpdaterDaoTest {
     underTest.bulkUpdateKey(dbSession, "A", "my_", "your_");
 
     List<ComponentDto> result = dbClient.componentDao().selectAllComponentsFromProjectKey(dbSession, "your_project");
-    assertThat(result).hasSize(3).extracting(ComponentDto::getDbKey)
-      .containsOnlyOnce("your_project", "your_project:module", "my_project:inactive_module");
+    assertThat(result)
+      .hasSize(3)
+      .extracting(ComponentDto::getDbKey)
+      .containsOnlyOnce("your_project", "your_project:module", "your_project:inactive_module");
   }
 
   @Test
@@ -260,16 +264,17 @@ public class ComponentKeyUpdaterDaoTest {
   }
 
   @Test
-  public void simulate_bulk_update_key_do_not_return_disable_components() {
+  public void simulate_bulk_update_key_does_not_return_disable_components() {
     ComponentDto project = db.components().insertComponent(newPrivateProjectDto(db.getDefaultOrganization(), "A").setDbKey("project"));
     db.components().insertComponent(newModuleDto(project).setDbKey("project:enabled-module"));
     db.components().insertComponent(newModuleDto(project).setDbKey("project:disabled-module").setEnabled(false));
+    db.components().insertComponent(newPrivateProjectDto(db.getDefaultOrganization(), "D").setDbKey("other-project"));
 
     Map<String, String> result = underTest.simulateBulkUpdateKey(dbSession, "A", "project", "new-project");
 
-    assertThat(result)
-      .hasSize(2)
-      .containsOnly(entry("project", "new-project"), entry("project:enabled-module", "new-project:enabled-module"));
+    assertThat(result).containsOnly(
+      entry("project", "new-project"),
+      entry("project:enabled-module", "new-project:enabled-module"));
   }
 
   @Test
