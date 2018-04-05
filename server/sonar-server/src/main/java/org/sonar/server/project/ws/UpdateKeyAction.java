@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
 package org.sonar.server.project.ws;
 
+import com.google.common.base.Optional;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -27,11 +27,10 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.server.component.ComponentFinder;
-import org.sonar.server.component.ComponentFinder.ParamNames;
 import org.sonar.server.component.ComponentService;
-import org.sonarqube.ws.client.project.UpdateKeyWsRequest;
+import org.sonar.server.exceptions.NotFoundException;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.ACTION_UPDATE_KEY;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_FROM;
@@ -40,12 +39,10 @@ import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_TO;
 
 public class UpdateKeyAction implements ProjectsWsAction {
   private final DbClient dbClient;
-  private final ComponentFinder componentFinder;
   private final ComponentService componentService;
 
-  public UpdateKeyAction(DbClient dbClient, ComponentFinder componentFinder, ComponentService componentService) {
+  public UpdateKeyAction(DbClient dbClient, ComponentService componentService) {
     this.dbClient = dbClient;
-    this.componentFinder = componentFinder;
     this.componentService = componentService;
   }
 
@@ -57,19 +54,20 @@ public class UpdateKeyAction implements ProjectsWsAction {
   public WebService.NewAction doDefine(WebService.NewController context) {
     WebService.NewAction action = context.createAction(ACTION_UPDATE_KEY)
       .setDescription("Update a project or module key and all its sub-components keys.<br>" +
-        "Either '%s' or '%s' must be provided.<br> " +
-        "Requires one of the following permissions: " +
-        "<ul>" +
-        "<li>'Administer System'</li>" +
-        "<li>'Administer' rights on the specified project</li>" +
-        "</ul>",
+          "Either '%s' or '%s' must be provided.<br> " +
+          "Requires one of the following permissions: " +
+          "<ul>" +
+          "<li>'Administer System'</li>" +
+          "<li>'Administer' rights on the specified project</li>" +
+          "</ul>",
         PARAM_FROM, PARAM_PROJECT_ID)
       .setSince("6.1")
       .setPost(true)
       .setHandler(this);
 
     action.setChangelog(
-      new Change("6.4", "Move from api/components/update_key to api/projects/update_key"));
+      new Change("6.4", "Move from api/components/update_key to api/projects/update_key"),
+      new Change("7.1", "Ability to update key of a disabled module"));
 
     action.createParam(PARAM_PROJECT_ID)
       .setDescription("Project or module id")
@@ -93,22 +91,24 @@ public class UpdateKeyAction implements ProjectsWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    doHandle(toWsRequest(request));
-    response.noContent();
-  }
+    String uuid = request.param(PARAM_PROJECT_ID);
+    String key = request.param(PARAM_FROM);
+    String newKey = request.mandatoryParam(PARAM_TO);
+    checkArgument(uuid != null ^ key != null, "Either '%s' or '%s' must be provided", PARAM_PROJECT_ID, PARAM_FROM);
 
-  private void doHandle(UpdateKeyWsRequest request) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      ComponentDto projectOrModule = componentFinder.getByUuidOrKey(dbSession, request.getId(), request.getKey(), ParamNames.PROJECT_ID_AND_FROM);
-      componentService.updateKey(dbSession, projectOrModule, request.getNewKey());
-    }
-  }
+      Optional<ComponentDto> component;
+      if (uuid != null) {
+        component = dbClient.componentDao().selectByUuid(dbSession, uuid);
+      } else {
+        component = dbClient.componentDao().selectByKey(dbSession, key);
+      }
+      if (!component.isPresent() || component.get().getMainBranchProjectUuid() != null) {
+        throw new NotFoundException("Component not found");
+      }
 
-  private static UpdateKeyWsRequest toWsRequest(Request request) {
-    return UpdateKeyWsRequest.builder()
-      .setId(request.param(PARAM_PROJECT_ID))
-      .setKey(request.param(PARAM_FROM))
-      .setNewKey(request.mandatoryParam(PARAM_TO))
-      .build();
+      componentService.updateKey(dbSession, component.get(), newKey);
+    }
+    response.noContent();
   }
 }
