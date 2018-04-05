@@ -389,10 +389,10 @@ artifactory {
       properties = [
         'build.name': 'sonar-enterprise',
         'build.number': (System.getenv('BUILD_ID') ?: System.getenv('BUILD_NUMBER')),
-        'pr.branch.target': System.getenv('PULL_REQUEST_BRANCH_TARGET'),
-        'pr.number': System.getenv('PULL_REQUEST_NUMBER'),
-        'vcs.branch': System.getenv('GIT_BRANCH'),
-        'vcs.revision': System.getenv('GIT_COMMIT'),
+        'pr.branch.target': System.getenv('GITHUB_TARGET_BRANCH'),
+        'pr.number': System.getenv('PULL_REQUEST'),
+        'vcs.branch': System.getenv('GITHUB_BASE_BRANCH') ?: System.getenv('GITHUB_BRANCH'),
+        'vcs.revision': System.getenv('GIT_SHA1'),
         'version': version
       ]
       publications('mavenJava')
