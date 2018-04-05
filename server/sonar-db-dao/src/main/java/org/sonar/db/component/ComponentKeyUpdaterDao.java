@@ -83,7 +83,7 @@ public class ComponentKeyUpdaterDao implements Dao {
    * @return a map with currentKey/newKey is a bulk update was executed
    */
   public Map<String, String> simulateBulkUpdateKey(DbSession dbSession, String projectUuid, String stringToReplace, String replacementString) {
-    return collectAllModules(projectUuid, stringToReplace, mapper(dbSession))
+    return collectAllModules(projectUuid, stringToReplace, mapper(dbSession), false)
       .stream()
       .collect(Collectors.toMap(
         ResourceDto::getKey,
@@ -109,7 +109,7 @@ public class ComponentKeyUpdaterDao implements Dao {
   public void bulkUpdateKey(DbSession session, String projectUuid, String stringToReplace, String replacementString) {
     ComponentKeyUpdaterMapper mapper = session.getMapper(ComponentKeyUpdaterMapper.class);
     // must SELECT first everything
-    Set<ResourceDto> modules = collectAllModules(projectUuid, stringToReplace, mapper);
+    Set<ResourceDto> modules = collectAllModules(projectUuid, stringToReplace, mapper, true);
 
     // add branches
     Map<String, String> branchBaseKeys = new HashMap<>();
@@ -117,7 +117,7 @@ public class ComponentKeyUpdaterDao implements Dao {
       .stream()
       .filter(branch -> !projectUuid.equals(branch.getUuid()))
       .forEach(branch -> {
-        Set<ResourceDto> branchModules = collectAllModules(branch.getUuid(), stringToReplace, mapper);
+        Set<ResourceDto> branchModules = collectAllModules(branch.getUuid(), stringToReplace, mapper, true);
         modules.addAll(branchModules);
         branchModules.forEach(module -> branchBaseKeys.put(module.getKey(), branchBaseKey(module.getKey())));
       });
@@ -161,14 +161,14 @@ public class ComponentKeyUpdaterDao implements Dao {
     }
   }
 
-  private static Set<ResourceDto> collectAllModules(String projectUuid, String stringToReplace, ComponentKeyUpdaterMapper mapper) {
+  private static Set<ResourceDto> collectAllModules(String projectUuid, String stringToReplace, ComponentKeyUpdaterMapper mapper, boolean includeDisabled) {
     ResourceDto project = mapper.selectProject(projectUuid);
     Set<ResourceDto> modules = new HashSet<>();
-    if (project.getKey().contains(stringToReplace)) {
+    if (project.getKey().contains(stringToReplace) && (project.isEnabled() || includeDisabled)) {
       modules.add(project);
     }
     for (ResourceDto submodule : mapper.selectDescendantProjects(projectUuid)) {
-      modules.addAll(collectAllModules(submodule.getUuid(), stringToReplace, mapper));
+      modules.addAll(collectAllModules(submodule.getUuid(), stringToReplace, mapper, includeDisabled));
     }
     return modules;
   }
