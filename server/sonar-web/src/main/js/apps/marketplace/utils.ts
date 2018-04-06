@@ -44,7 +44,7 @@ export function filterPlugins(plugins: Plugin[], search: string): Plugin[] {
   return plugins.filter(plugin => {
     return (
       plugin.name.toLowerCase().includes(s) ||
-      plugin.description.toLowerCase().includes(s) ||
+      (plugin.description || '').toLowerCase().includes(s) ||
       (plugin.category || '').toLowerCase().includes(s)
     );
   });

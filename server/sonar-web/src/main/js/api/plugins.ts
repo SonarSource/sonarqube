@@ -25,7 +25,7 @@ export interface Plugin {
   key: string;
   name: string;
   category?: string;
-  description: string;
+  description?: string;
   editionBundled?: boolean;
   license?: string;
   organizationName?: string;
