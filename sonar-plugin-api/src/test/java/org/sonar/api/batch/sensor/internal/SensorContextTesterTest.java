@@ -34,16 +34,19 @@ import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.DefaultTextPointer;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.rule.ActiveRules;
+import org.sonar.api.batch.rule.Severity;
 import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
 import org.sonar.api.batch.sensor.error.AnalysisError;
 import org.sonar.api.batch.sensor.error.NewAnalysisError;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
+import org.sonar.api.batch.sensor.issue.NewExternalIssue;
 import org.sonar.api.batch.sensor.issue.NewIssue;
 import org.sonar.api.batch.sensor.symbol.NewSymbolTable;
 import org.sonar.api.config.Settings;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.SonarException;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -103,6 +106,26 @@ public class SensorContextTesterTest {
       .forRule(RuleKey.of("repo", "rule"))
       .save();
     assertThat(tester.allIssues()).hasSize(2);
+  }
+
+  @Test
+  public void testExternalIssues() {
+    assertThat(tester.allExternalIssues()).isEmpty();
+    NewExternalIssue newExternalIssue = tester.newExternalIssue();
+    newExternalIssue
+      .at(newExternalIssue.newLocation().on(new TestInputFileBuilder("foo", "src/Foo.java").build()))
+      .forRule(RuleKey.of("repo", "rule"))
+      .type(RuleType.BUG)
+      .severity(Severity.BLOCKER)
+      .save();
+    newExternalIssue = tester.newExternalIssue();
+    newExternalIssue
+      .at(newExternalIssue.newLocation().on(new TestInputFileBuilder("foo", "src/Foo.java").build()))
+      .type(RuleType.BUG)
+      .severity(Severity.BLOCKER)
+      .forRule(RuleKey.of("repo", "rule"))
+      .save();
+    assertThat(tester.allExternalIssues()).hasSize(2);
   }
 
   @Test

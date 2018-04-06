@@ -39,6 +39,7 @@ public class RuleKey implements Serializable, Comparable<RuleKey> {
    */
   @Deprecated
   public static final String MANUAL_REPOSITORY_KEY = "manual";
+  public static final String EXTERNAL_RULE_REPO_PREFIX = "external_";
 
   private final String repository;
   private final String rule;

@@ -37,7 +37,9 @@ import org.sonar.api.batch.sensor.error.NewAnalysisError;
 import org.sonar.api.batch.sensor.highlighting.NewHighlighting;
 import org.sonar.api.batch.sensor.highlighting.internal.DefaultHighlighting;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
+import org.sonar.api.batch.sensor.issue.NewExternalIssue;
 import org.sonar.api.batch.sensor.issue.NewIssue;
+import org.sonar.api.batch.sensor.issue.internal.DefaultExternalIssue;
 import org.sonar.api.batch.sensor.issue.internal.DefaultIssue;
 import org.sonar.api.batch.sensor.measure.NewMeasure;
 import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
@@ -131,6 +133,11 @@ public class DefaultSensorContext implements SensorContext {
   }
 
   @Override
+  public NewExternalIssue newExternalIssue() {
+    return new DefaultExternalIssue(sensorStorage);
+  }
+
+  @Override
   public NewHighlighting newHighlighting() {
     if (analysisMode.isIssues()) {
       return NO_OP_NEW_HIGHLIGHTING;
@@ -182,4 +189,5 @@ public class DefaultSensorContext implements SensorContext {
     DefaultInputFile file = (DefaultInputFile) inputFile;
     file.setPublished(true);
   }
+
 }

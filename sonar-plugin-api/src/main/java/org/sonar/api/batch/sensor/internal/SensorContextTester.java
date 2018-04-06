@@ -58,8 +58,11 @@ import org.sonar.api.batch.sensor.highlighting.NewHighlighting;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
 import org.sonar.api.batch.sensor.highlighting.internal.DefaultHighlighting;
 import org.sonar.api.batch.sensor.highlighting.internal.SyntaxHighlightingRule;
+import org.sonar.api.batch.sensor.issue.ExternalIssue;
 import org.sonar.api.batch.sensor.issue.Issue;
+import org.sonar.api.batch.sensor.issue.NewExternalIssue;
 import org.sonar.api.batch.sensor.issue.NewIssue;
+import org.sonar.api.batch.sensor.issue.internal.DefaultExternalIssue;
 import org.sonar.api.batch.sensor.issue.internal.DefaultIssue;
 import org.sonar.api.batch.sensor.measure.Measure;
 import org.sonar.api.batch.sensor.measure.NewMeasure;
@@ -217,6 +220,15 @@ public class SensorContextTester implements SensorContext {
 
   public Collection<Issue> allIssues() {
     return sensorStorage.allIssues;
+  }
+
+  @Override
+  public NewExternalIssue newExternalIssue() {
+    return new DefaultExternalIssue(sensorStorage);
+  }
+
+  public Collection<ExternalIssue> allExternalIssues() {
+    return sensorStorage.allExternalIssues;
   }
 
   public Collection<AnalysisError> allAnalysisErrors() {

@@ -20,6 +20,8 @@
 package org.sonar.scanner.issue;
 
 import com.google.common.base.Strings;
+import java.util.Collection;
+import java.util.function.Consumer;
 import javax.annotation.concurrent.ThreadSafe;
 import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.fs.internal.DefaultInputComponent;
@@ -27,6 +29,7 @@ import org.sonar.api.batch.rule.ActiveRule;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.rule.Rule;
 import org.sonar.api.batch.rule.Rules;
+import org.sonar.api.batch.sensor.issue.ExternalIssue;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.issue.Issue.Flow;
 import org.sonar.api.rule.RuleKey;
@@ -73,6 +76,12 @@ public class ModuleIssues {
     return false;
   }
 
+  public void initAndAddExternalIssue(ExternalIssue issue) {
+    DefaultInputComponent inputComponent = (DefaultInputComponent) issue.primaryLocation().inputComponent();
+    ScannerReport.ExternalIssue rawExternalIssue = createReportExternalIssue(issue, inputComponent.batchId());
+    write(inputComponent.batchId(), rawExternalIssue);
+  }
+
   private static ScannerReport.Issue createReportIssue(Issue issue, int componentRef, String ruleName, String activeRuleSeverity) {
     String primaryMessage = Strings.isNullOrEmpty(issue.primaryLocation().message()) ? ruleName : issue.primaryLocation().message();
     org.sonar.api.batch.rule.Severity overriddenSeverity = issue.overriddenSeverity();
@@ -97,14 +106,41 @@ public class ModuleIssues {
     if (gap != null) {
       builder.setGap(gap);
     }
-    applyFlows(componentRef, builder, locationBuilder, textRangeBuilder, issue);
+    applyFlows(builder::addFlow, locationBuilder, textRangeBuilder, issue.flows());
     return builder.build();
   }
 
-  private static void applyFlows(int componentRef, ScannerReport.Issue.Builder builder, ScannerReport.IssueLocation.Builder locationBuilder,
-    ScannerReport.TextRange.Builder textRangeBuilder, Issue issue) {
+  private static ScannerReport.ExternalIssue createReportExternalIssue(ExternalIssue issue, int componentRef) {
+    String primaryMessage = issue.primaryLocation().message();
+    Severity severity = Severity.valueOf(issue.severity().name());
+
+    ScannerReport.ExternalIssue.Builder builder = ScannerReport.ExternalIssue.newBuilder();
+    ScannerReport.IssueLocation.Builder locationBuilder = IssueLocation.newBuilder();
+    ScannerReport.TextRange.Builder textRangeBuilder = ScannerReport.TextRange.newBuilder();
+    // non-null fields
+    builder.setSeverity(severity);
+    builder.setRuleRepository(issue.ruleKey().repository());
+    builder.setRuleKey(issue.ruleKey().rule());
+    builder.setMsg(primaryMessage);
+    locationBuilder.setMsg(primaryMessage);
+
+    locationBuilder.setComponentRef(componentRef);
+    TextRange primaryTextRange = issue.primaryLocation().textRange();
+    if (primaryTextRange != null) {
+      builder.setTextRange(toProtobufTextRange(textRangeBuilder, primaryTextRange));
+    }
+    Long effort = issue.remediationEffort();
+    if (effort != null) {
+      builder.setEffort(effort);
+    }
+    applyFlows(builder::addFlow, locationBuilder, textRangeBuilder, issue.flows());
+    return builder.build();
+  }
+
+  private static void applyFlows(Consumer<ScannerReport.Flow> consumer, ScannerReport.IssueLocation.Builder locationBuilder,
+    ScannerReport.TextRange.Builder textRangeBuilder, Collection<Flow> flows) {
     ScannerReport.Flow.Builder flowBuilder = ScannerReport.Flow.newBuilder();
-    for (Flow flow : issue.flows()) {
+    for (Flow flow : flows) {
       if (flow.locations().isEmpty()) {
         return;
       }
@@ -123,7 +159,7 @@ public class ModuleIssues {
         }
         flowBuilder.addLocation(locationBuilder.build());
       }
-      builder.addFlow(flowBuilder.build());
+      consumer.accept(flowBuilder.build());
     }
   }
 
@@ -152,4 +188,7 @@ public class ModuleIssues {
     reportPublisher.getWriter().appendComponentIssue(batchId, rawIssue);
   }
 
+  public void write(int batchId, ScannerReport.ExternalIssue rawIssue) {
+    reportPublisher.getWriter().appendComponentExternalIssue(batchId, rawIssue);
+  }
 }

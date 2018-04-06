@@ -20,32 +20,20 @@
 package org.sonar.api.batch.sensor.issue.internal;
 
 import com.google.common.base.Preconditions;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import javax.annotation.Nullable;
 import org.sonar.api.batch.rule.Severity;
-import org.sonar.api.batch.sensor.internal.DefaultStorable;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.issue.IssueLocation;
 import org.sonar.api.batch.sensor.issue.NewIssue;
-import org.sonar.api.batch.sensor.issue.NewIssueLocation;
-import org.sonar.api.rule.RuleKey;
 
 import static com.google.common.base.Preconditions.checkState;
 import static java.lang.String.format;
-import static java.util.Collections.unmodifiableList;
 import static java.util.Objects.requireNonNull;
-import static java.util.stream.Collectors.toList;
 
-public class DefaultIssue extends DefaultStorable implements Issue, NewIssue {
-
-  private RuleKey ruleKey;
+public class DefaultIssue extends AbstractDefaultIssue<DefaultIssue> implements Issue, NewIssue {
   private Double gap;
   private Severity overriddenSeverity;
-  private IssueLocation primaryLocation;
-  private List<List<IssueLocation>> flows = new ArrayList<>();
 
   public DefaultIssue() {
     super(null);
@@ -53,12 +41,6 @@ public class DefaultIssue extends DefaultStorable implements Issue, NewIssue {
 
   public DefaultIssue(SensorStorage storage) {
     super(storage);
-  }
-
-  @Override
-  public DefaultIssue forRule(RuleKey ruleKey) {
-    this.ruleKey = ruleKey;
-    return this;
   }
 
   @Override
@@ -80,41 +62,6 @@ public class DefaultIssue extends DefaultStorable implements Issue, NewIssue {
   }
 
   @Override
-  public NewIssueLocation newLocation() {
-    return new DefaultIssueLocation();
-  }
-
-  @Override
-  public DefaultIssue at(NewIssueLocation primaryLocation) {
-    Preconditions.checkArgument(primaryLocation != null, "Cannot use a location that is null");
-    checkState(this.primaryLocation == null, "at() already called");
-    this.primaryLocation = (DefaultIssueLocation) primaryLocation;
-    Preconditions.checkArgument(this.primaryLocation.inputComponent() != null, "Cannot use a location with no input component");
-    return this;
-  }
-
-  @Override
-  public NewIssue addLocation(NewIssueLocation secondaryLocation) {
-    flows.add(Arrays.asList((IssueLocation) secondaryLocation));
-    return this;
-  }
-
-  @Override
-  public DefaultIssue addFlow(Iterable<NewIssueLocation> locations) {
-    List<IssueLocation> flowAsList = new ArrayList<>();
-    for (NewIssueLocation issueLocation : locations) {
-      flowAsList.add((DefaultIssueLocation) issueLocation);
-    }
-    flows.add(flowAsList);
-    return this;
-  }
-
-  @Override
-  public RuleKey ruleKey() {
-    return this.ruleKey;
-  }
-
-  @Override
   public Severity overriddenSeverity() {
     return this.overriddenSeverity;
   }
@@ -132,13 +79,6 @@ public class DefaultIssue extends DefaultStorable implements Issue, NewIssue {
   @Override
   public IssueLocation primaryLocation() {
     return primaryLocation;
-  }
-
-  @Override
-  public List<Flow> flows() {
-    return this.flows.stream()
-      .<Flow>map(l -> () -> unmodifiableList(new ArrayList<>(l)))
-      .collect(toList());
   }
 
   @Override

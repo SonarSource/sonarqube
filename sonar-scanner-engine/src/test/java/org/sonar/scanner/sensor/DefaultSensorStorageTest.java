@@ -36,7 +36,9 @@ import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.measure.MetricFinder;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
 import org.sonar.api.batch.sensor.highlighting.internal.DefaultHighlighting;
+import org.sonar.api.batch.sensor.issue.ExternalIssue;
 import org.sonar.api.batch.sensor.issue.Issue;
+import org.sonar.api.batch.sensor.issue.internal.DefaultExternalIssue;
 import org.sonar.api.batch.sensor.issue.internal.DefaultIssue;
 import org.sonar.api.batch.sensor.issue.internal.DefaultIssueLocation;
 import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
@@ -122,6 +124,18 @@ public class DefaultSensorStorageTest {
     ArgumentCaptor<Issue> argumentCaptor = ArgumentCaptor.forClass(Issue.class);
     verify(moduleIssues).initAndAddIssue(argumentCaptor.capture());
     assertThat(argumentCaptor.getValue()).isEqualTo(issue);
+  }
+
+  @Test
+  public void should_save_external_issue() {
+    InputFile file = new TestInputFileBuilder("foo", "src/Foo.php").build();
+
+    DefaultExternalIssue externalIssue = new DefaultExternalIssue().at(new DefaultIssueLocation().on(file));
+    underTest.store(externalIssue);
+
+    ArgumentCaptor<ExternalIssue> argumentCaptor = ArgumentCaptor.forClass(ExternalIssue.class);
+    verify(moduleIssues).initAndAddExternalIssue(argumentCaptor.capture());
+    assertThat(argumentCaptor.getValue()).isEqualTo(externalIssue);
   }
 
   @Test

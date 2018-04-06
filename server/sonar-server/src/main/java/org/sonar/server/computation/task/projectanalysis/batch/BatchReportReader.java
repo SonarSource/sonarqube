@@ -39,6 +39,8 @@ public interface BatchReportReader {
   ScannerReport.Component readComponent(int componentRef);
 
   CloseableIterator<ScannerReport.Issue> readComponentIssues(int componentRef);
+  
+  CloseableIterator<ScannerReport.ExternalIssue> readComponentExternalIssues(int componentRef);
 
   CloseableIterator<ScannerReport.Duplication> readComponentDuplications(int componentRef);
 

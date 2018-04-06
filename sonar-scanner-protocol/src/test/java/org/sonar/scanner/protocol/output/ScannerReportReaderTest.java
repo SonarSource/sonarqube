@@ -105,6 +105,17 @@ public class ScannerReportReaderTest {
   }
 
   @Test
+  public void read_external_issues() {
+    ScannerReportWriter writer = new ScannerReportWriter(dir);
+    ScannerReport.ExternalIssue issue = ScannerReport.ExternalIssue.newBuilder()
+      .build();
+    writer.writeComponentExternalIssues(1, asList(issue));
+
+    assertThat(underTest.readComponentExternalIssues(1)).hasSize(1);
+    assertThat(underTest.readComponentExternalIssues(200)).isEmpty();
+  }
+
+  @Test
   public void empty_list_if_no_issue_found() {
     assertThat(underTest.readComponentIssues(UNKNOWN_COMPONENT_REF)).isEmpty();
   }

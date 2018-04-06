@@ -29,8 +29,10 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.scanner.mediumtest.ScannerMediumTester;
 import org.sonar.scanner.mediumtest.TaskResult;
+import org.sonar.scanner.protocol.output.ScannerReport.ExternalIssue;
 import org.sonar.scanner.protocol.output.ScannerReport.Issue;
 import org.sonar.xoo.XooPlugin;
+import org.sonar.xoo.rule.OneExternalIssuePerLineSensor;
 import org.sonar.xoo.rule.XooRulesDefinition;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -60,9 +62,30 @@ public class IssuesMediumTest {
 
     List<Issue> issues = result.issuesFor(result.inputFile("xources/hello/HelloJava.xoo"));
     assertThat(issues).hasSize(8 /* lines */);
+    
+    List<ExternalIssue> externalIssues = result.externalIssuesFor(result.inputFile("xources/hello/HelloJava.xoo"));
+    assertThat(externalIssues).isEmpty();
 
     Issue issue = issues.get(0);
     assertThat(issue.getTextRange().getStartLine()).isEqualTo(issue.getTextRange().getStartLine());
+  }
+  
+  @Test
+  public void testOneExternalIssuePerLine() throws Exception {
+    File projectDir = new File(IssuesMediumTest.class.getResource("/mediumtest/xoo/sample").toURI());
+    File tmpDir = temp.newFolder();
+    FileUtils.copyDirectory(projectDir, tmpDir);
+
+    TaskResult result = tester
+      .newScanTask(new File(tmpDir, "sonar-project.properties"))
+      .property(OneExternalIssuePerLineSensor.ACTIVATE_EXTERNAL_ISSUES, "true")
+      .execute();
+
+    List<ExternalIssue> externalIssues = result.externalIssuesFor(result.inputFile("xources/hello/HelloJava.xoo"));
+    assertThat(externalIssues).hasSize(8 /* lines */);
+
+    ExternalIssue externalIssue = externalIssues.get(0);
+    assertThat(externalIssue.getTextRange().getStartLine()).isEqualTo(externalIssue.getTextRange().getStartLine());
   }
 
   @Test

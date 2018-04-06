@@ -55,4 +55,12 @@ public class XooPluginTest {
     new XooPlugin().define(context);
     assertThat(context.getExtensions()).hasSize(51).contains(CpdTokenizerSensor.class);
   }
+  
+  @Test
+  public void provide_extensions_for_7_2() {
+    SonarRuntime runtime = SonarRuntimeImpl.forSonarQube(Version.parse("7.2"), SonarQubeSide.SCANNER);
+    Plugin.Context context = new PluginContextImpl.Builder().setSonarRuntime(runtime).build();
+    new XooPlugin().define(context);
+    assertThat(context.getExtensions()).hasSize(52).contains(CpdTokenizerSensor.class);
+  }
 }

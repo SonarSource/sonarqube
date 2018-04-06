@@ -117,6 +117,26 @@ public class ScannerReportWriterTest {
   }
 
   @Test
+  public void write_external_issues() {
+    // no data yet
+    assertThat(underTest.hasComponentData(FileStructure.Domain.EXTERNAL_ISSUES, 1)).isFalse();
+
+    // write data
+    ScannerReport.ExternalIssue issue = ScannerReport.ExternalIssue.newBuilder()
+      .setMsg("the message")
+      .build();
+
+    underTest.writeComponentExternalIssues(1, asList(issue));
+
+    assertThat(underTest.hasComponentData(FileStructure.Domain.EXTERNAL_ISSUES, 1)).isTrue();
+    File file = underTest.getFileStructure().fileFor(FileStructure.Domain.EXTERNAL_ISSUES, 1);
+    assertThat(file).exists().isFile();
+    try (CloseableIterator<ScannerReport.ExternalIssue> read = Protobuf.readStream(file, ScannerReport.ExternalIssue.parser())) {
+      assertThat(Iterators.size(read)).isEqualTo(1);
+    }
+  }
+
+  @Test
   public void write_measures() {
     assertThat(underTest.hasComponentData(FileStructure.Domain.MEASURES, 1)).isFalse();
 

@@ -186,6 +186,30 @@ message Issue {
   repeated Flow flow = 7;
 }
 
+message ExternalIssue {
+  string rule_repository = 1;
+  string rule_key = 2;
+  // Only when issue component is a file. Can also be empty for a file if this is an issue global to the file.
+  string msg = 3;
+  Severity severity = 4;
+  int64 effort = 5;
+  // Only when issue component is a file. Can also be empty for a file if this is an issue global to the file.
+  // Will be identical to the first location of the first flow
+  TextRange text_range = 6;
+  repeated Flow flow = 7;
+  // Can be empty as the field is optional
+  string descriptionUrl = 8;
+  IssueType type = 9;
+  string rule_title = 10;
+  string rule_name = 11;
+}
+
+enum IssueType {
+  CODE_SMELL = 0;
+  BUG = 1;
+  VULNERABILITY = 2;
+}
+
 message IssueLocation {
   int32 component_ref = 1;
   // Only when component is a file. Can be empty for a file if this is an issue global to the file.

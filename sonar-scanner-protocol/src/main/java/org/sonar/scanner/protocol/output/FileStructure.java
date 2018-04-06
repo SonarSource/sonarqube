@@ -31,6 +31,7 @@ public class FileStructure {
 
   public enum Domain {
     ISSUES("issues-", Domain.PB),
+    EXTERNAL_ISSUES("external-issues-", Domain.PB),
     COMPONENT("component-", Domain.PB),
     MEASURES("measures-", Domain.PB),
     DUPLICATIONS("duplications-", Domain.PB),

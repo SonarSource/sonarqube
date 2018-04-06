@@ -20,55 +20,25 @@
 package org.sonar.api.batch.sensor.issue;
 
 import java.util.List;
-import javax.annotation.CheckForNull;
-import org.sonar.api.batch.rule.Severity;
-import org.sonar.api.batch.sensor.Sensor;
+import org.sonar.api.batch.sensor.issue.Issue.Flow;
+import org.sonar.api.rule.RuleKey;
 
 /**
- * Represents an issue detected by a {@link Sensor}.
- *
- * @since 5.1
+ * @since 7.2
  */
-public interface Issue extends IIssue {
-  interface Flow {
-    /**
-     * @return Ordered list of locations for the execution flow
-     */
-    List<IssueLocation> locations();
-  }
-  
+public interface IIssue {
   /**
-   * Effort to fix the issue. Used by technical debt model.
-   * @deprecated since 5.5 use {@link #gap()}
+   * The {@link RuleKey} of this issue.
    */
-  @CheckForNull
-  @Deprecated
-  Double effortToFix();
-
-  /**
-   * Gap used to compute the effort for fixing the issue.
-   * @since 5.5
-   */
-  @CheckForNull
-  Double gap();
-  
-  /**
-   * Overridden severity.
-   */
-  @CheckForNull
-  Severity overriddenSeverity();
+  RuleKey ruleKey();
   
   /**
    * Primary locations for this issue.
-   * @since 5.2
    */
-  @Override
   IssueLocation primaryLocation();
 
   /**
    * List of flows for this issue. Can be empty.
-   * @since 5.2
    */
-  @Override
   List<Flow> flows();
 }

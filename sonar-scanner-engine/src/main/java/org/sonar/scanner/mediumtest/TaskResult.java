@@ -123,6 +123,11 @@ public class TaskResult implements org.sonar.scanner.mediumtest.ScanTaskObserver
     int ref = reportComponents.get(inputComponent.key()).getRef();
     return issuesFor(ref);
   }
+  
+  public List<ScannerReport.ExternalIssue> externalIssuesFor(InputComponent inputComponent) {
+    int ref = reportComponents.get(inputComponent.key()).getRef();
+    return externalIssuesFor(ref);
+  }
 
   public List<ScannerReport.Issue> issuesFor(Component reportComponent) {
     int ref = reportComponent.getRef();
@@ -132,6 +137,16 @@ public class TaskResult implements org.sonar.scanner.mediumtest.ScanTaskObserver
   private List<ScannerReport.Issue> issuesFor(int ref) {
     List<ScannerReport.Issue> result = Lists.newArrayList();
     try (CloseableIterator<ScannerReport.Issue> it = reader.readComponentIssues(ref)) {
+      while (it.hasNext()) {
+        result.add(it.next());
+      }
+    }
+    return result;
+  }
+  
+  private List<ScannerReport.ExternalIssue> externalIssuesFor(int ref) {
+    List<ScannerReport.ExternalIssue> result = Lists.newArrayList();
+    try (CloseableIterator<ScannerReport.ExternalIssue> it = reader.readComponentExternalIssues(ref)) {
       while (it.hasNext()) {
         result.add(it.next());
       }

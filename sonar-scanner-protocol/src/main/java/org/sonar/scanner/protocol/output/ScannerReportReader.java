@@ -83,6 +83,14 @@ public class ScannerReportReader {
     return emptyCloseableIterator();
   }
 
+  public CloseableIterator<ScannerReport.ExternalIssue> readComponentExternalIssues(int componentRef) {
+    File file = fileStructure.fileFor(FileStructure.Domain.EXTERNAL_ISSUES, componentRef);
+    if (fileExists(file)) {
+      return Protobuf.readStream(file, ScannerReport.ExternalIssue.parser());
+    }
+    return emptyCloseableIterator();
+  }
+
   public CloseableIterator<ScannerReport.Duplication> readComponentDuplications(int componentRef) {
     File file = fileStructure.fileFor(FileStructure.Domain.DUPLICATIONS, componentRef);
     if (fileExists(file)) {

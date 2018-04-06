@@ -41,6 +41,7 @@ import org.sonar.api.batch.sensor.cpd.internal.DefaultCpdTokens;
 import org.sonar.api.batch.sensor.error.AnalysisError;
 import org.sonar.api.batch.sensor.highlighting.internal.DefaultHighlighting;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
+import org.sonar.api.batch.sensor.issue.ExternalIssue;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.measure.Measure;
 import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
@@ -373,6 +374,18 @@ public class DefaultSensorStorage implements SensorStorage {
     moduleIssues.initAndAddIssue(issue);
   }
 
+  /**
+   * Thread safe assuming that each issues for each file are only written once.
+   */
+  @Override
+  public void store(ExternalIssue externalIssue) {
+    if (externalIssue.primaryLocation().inputComponent() instanceof DefaultInputFile) {
+      DefaultInputFile defaultInputFile = (DefaultInputFile) externalIssue.primaryLocation().inputComponent();
+      defaultInputFile.setPublished(true);
+    }
+    moduleIssues.initAndAddExternalIssue(externalIssue);
+  }
+
   @Override
   public void store(DefaultHighlighting highlighting) {
     ScannerReportWriter writer = reportPublisher.getWriter();
@@ -493,4 +506,5 @@ public class DefaultSensorStorage implements SensorStorage {
   public void storeProperty(String key, String value) {
     contextPropertiesCache.put(key, value);
   }
+
 }

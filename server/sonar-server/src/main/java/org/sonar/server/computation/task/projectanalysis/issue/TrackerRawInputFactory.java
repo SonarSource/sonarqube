@@ -22,8 +22,11 @@ package org.sonar.server.computation.task.projectanalysis.issue;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import org.apache.commons.lang.StringUtils;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rules.RuleType;
+import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.tracking.Input;
@@ -34,6 +37,7 @@ import org.sonar.db.protobuf.DbCommons;
 import org.sonar.db.protobuf.DbIssues;
 import org.sonar.scanner.protocol.Constants.Severity;
 import org.sonar.scanner.protocol.output.ScannerReport;
+import org.sonar.scanner.protocol.output.ScannerReport.IssueType;
 import org.sonar.server.computation.task.projectanalysis.batch.BatchReportReader;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolder;
@@ -111,6 +115,16 @@ public class TrackerRawInputFactory {
         }
       }
 
+      try (CloseableIterator<ScannerReport.ExternalIssue> reportIssues = reportReader.readComponentExternalIssues(component.getReportAttributes().getRef())) {
+        // optimization - do not load line hashes if there are no issues -> getLineHashSequence() is executed
+        // as late as possible
+        while (reportIssues.hasNext()) {
+          ScannerReport.ExternalIssue reportExternalIssue = reportIssues.next();
+          DefaultIssue issue = toIssue(getLineHashSequence(), reportExternalIssue);
+          result.add(issue);
+        }
+      }
+
       return result;
     }
 
@@ -155,6 +169,59 @@ public class TrackerRawInputFactory {
       }
       issue.setLocations(dbLocationsBuilder.build());
       return issue;
+    }
+
+    private DefaultIssue toIssue(LineHashSequence lineHashSeq, ScannerReport.ExternalIssue reportIssue) {
+      DefaultIssue issue = new DefaultIssue();
+      init(issue);
+      issue.setRuleKey(RuleKey.of(reportIssue.getRuleRepository(), reportIssue.getRuleKey()));
+      if (reportIssue.hasTextRange()) {
+        int startLine = reportIssue.getTextRange().getStartLine();
+        issue.setLine(startLine);
+        issue.setChecksum(lineHashSeq.getHashForLine(startLine));
+      } else {
+        issue.setChecksum("");
+      }
+      if (isNotEmpty(reportIssue.getMsg())) {
+        issue.setMessage(reportIssue.getMsg());
+      }
+      if (reportIssue.getSeverity() != Severity.UNSET_SEVERITY) {
+        issue.setSeverity(reportIssue.getSeverity().name());
+      }
+      if (reportIssue.getEffort() != 0) {
+        issue.setEffort(Duration.create(reportIssue.getEffort()));
+      }
+      DbIssues.Locations.Builder dbLocationsBuilder = DbIssues.Locations.newBuilder();
+      if (reportIssue.hasTextRange()) {
+        dbLocationsBuilder.setTextRange(convertTextRange(reportIssue.getTextRange()));
+      }
+      for (ScannerReport.Flow flow : reportIssue.getFlowList()) {
+        if (flow.getLocationCount() > 0) {
+          DbIssues.Flow.Builder dbFlowBuilder = DbIssues.Flow.newBuilder();
+          for (ScannerReport.IssueLocation location : flow.getLocationList()) {
+            dbFlowBuilder.addLocation(convertLocation(location));
+          }
+          dbLocationsBuilder.addFlow(dbFlowBuilder);
+        }
+      }
+      issue.setLocations(dbLocationsBuilder.build());
+      issue.setType(toRuleType(reportIssue.getType()));
+      issue.setDescriptionUrl(StringUtils.stripToNull(reportIssue.getDescriptionUrl()));
+      return issue;
+    }
+
+    private RuleType toRuleType(IssueType type) {
+      switch (type) {
+        case BUG:
+          return RuleType.BUG;
+        case CODE_SMELL:
+          return RuleType.CODE_SMELL;
+        case VULNERABILITY:
+          return RuleType.VULNERABILITY;
+        case UNRECOGNIZED:
+        default:
+          throw new IllegalStateException("Invalid issue type: " + type);
+      }
     }
 
     private DefaultIssue init(DefaultIssue issue) {

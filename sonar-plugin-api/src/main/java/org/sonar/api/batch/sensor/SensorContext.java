@@ -20,6 +20,7 @@
 package org.sonar.api.batch.sensor;
 
 import java.io.Serializable;
+
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
@@ -30,7 +31,9 @@ import org.sonar.api.batch.sensor.cpd.NewCpdTokens;
 import org.sonar.api.batch.sensor.error.NewAnalysisError;
 import org.sonar.api.batch.sensor.highlighting.NewHighlighting;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
+import org.sonar.api.batch.sensor.issue.ExternalIssue;
 import org.sonar.api.batch.sensor.issue.Issue;
+import org.sonar.api.batch.sensor.issue.NewExternalIssue;
 import org.sonar.api.batch.sensor.issue.NewIssue;
 import org.sonar.api.batch.sensor.measure.Measure;
 import org.sonar.api.batch.sensor.measure.NewMeasure;
@@ -111,6 +114,12 @@ public interface SensorContext {
    * Fluent builder to create a new {@link Issue}. Don't forget to call {@link NewIssue#save()} once all parameters are provided.
    */
   NewIssue newIssue();
+
+  /**
+   * Fluent builder to create a new {@link ExternalIssue}. Don't forget to call {@link NewExternalIssue#save()} once all parameters are provided.
+   * @since 7.2
+   */
+  NewExternalIssue newExternalIssue();
 
   // ------------ HIGHLIGHTING ------------
 

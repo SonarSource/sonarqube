@@ -84,6 +84,7 @@ public class DefaultSensorContextTest {
     assertThat(adaptor.runtime()).isEqualTo(runtime);
 
     assertThat(adaptor.newIssue()).isNotNull();
+    assertThat(adaptor.newExternalIssue()).isNotNull();
     assertThat(adaptor.newMeasure()).isNotNull();
 
     assertThat(adaptor.isCancelled()).isFalse();

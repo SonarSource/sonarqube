@@ -61,7 +61,8 @@ public class FileStructureTest {
   public void locate_files() throws Exception {
     File dir = temp.newFolder();
     FileUtils.write(new File(dir, "metadata.pb"), "metadata content");
-    FileUtils.write(new File(dir, "issues-3.pb"), "issues of component 3");
+    FileUtils.write(new File(dir, "issues-3.pb"), "external issues of component 3");
+    FileUtils.write(new File(dir, "external-issues-3.pb"), "issues of component 3");
     FileUtils.write(new File(dir, "component-42.pb"), "details of component 42");
 
     FileStructure structure = new FileStructure(dir);
@@ -69,6 +70,8 @@ public class FileStructureTest {
     assertThat(structure.fileFor(FileStructure.Domain.COMPONENT, 42)).exists().isFile();
     assertThat(structure.fileFor(FileStructure.Domain.ISSUES, 3)).exists().isFile();
     assertThat(structure.fileFor(FileStructure.Domain.ISSUES, 42)).doesNotExist();
+    assertThat(structure.fileFor(FileStructure.Domain.EXTERNAL_ISSUES, 3)).exists().isFile();
+    assertThat(structure.fileFor(FileStructure.Domain.EXTERNAL_ISSUES, 42)).doesNotExist();
   }
 
   @Test

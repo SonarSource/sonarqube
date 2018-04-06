@@ -108,6 +108,12 @@ public class BatchReportReaderImpl implements BatchReportReader {
     ensureInitialized();
     return delegate.readComponentIssues(componentRef);
   }
+  
+  @Override
+  public CloseableIterator<ScannerReport.ExternalIssue> readComponentExternalIssues(int componentRef) {
+    ensureInitialized();
+    return delegate.readComponentExternalIssues(componentRef);
+  }
 
   @Override
   public CloseableIterator<ScannerReport.Duplication> readComponentDuplications(int componentRef) {

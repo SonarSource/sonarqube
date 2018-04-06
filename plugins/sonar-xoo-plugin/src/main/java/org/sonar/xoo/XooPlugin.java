@@ -48,6 +48,7 @@ import org.sonar.xoo.rule.NoSonarSensor;
 import org.sonar.xoo.rule.OneBlockerIssuePerFileSensor;
 import org.sonar.xoo.rule.OneBugIssuePerLineSensor;
 import org.sonar.xoo.rule.OneDayDebtPerFileSensor;
+import org.sonar.xoo.rule.OneExternalIssuePerLineSensor;
 import org.sonar.xoo.rule.OneIssueOnDirPerFileSensor;
 import org.sonar.xoo.rule.OneIssuePerDirectorySensor;
 import org.sonar.xoo.rule.OneIssuePerFileSensor;
@@ -164,8 +165,12 @@ public class XooPlugin implements Plugin {
     if (context.getSonarQubeVersion().isGreaterThanOrEqual(Version.create(5, 5))) {
       context.addExtension(CpdTokenizerSensor.class);
     }
-    if (context.getSonarQubeVersion().isGreaterThanOrEqual(Version.create(6,6))) {
+    if (context.getSonarQubeVersion().isGreaterThanOrEqual(Version.create(6, 6))) {
       context.addExtension(XooBuiltInQualityProfilesDefinition.class);
+    }
+    // TODO change to v7.2 once version of SQ was updated
+    if (context.getSonarQubeVersion().isGreaterThanOrEqual(Version.create(7, 1))) {
+      context.addExtension(OneExternalIssuePerLineSensor.class);
     }
   }
 

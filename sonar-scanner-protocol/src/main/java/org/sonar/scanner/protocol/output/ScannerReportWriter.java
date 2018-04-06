@@ -82,6 +82,21 @@ public class ScannerReportWriter {
     }
   }
 
+  public File writeComponentExternalIssues(int componentRef, Iterable<ScannerReport.ExternalIssue> issues) {
+    File file = fileStructure.fileFor(FileStructure.Domain.EXTERNAL_ISSUES, componentRef);
+    Protobuf.writeStream(issues, file, false);
+    return file;
+  }
+
+  public void appendComponentExternalIssue(int componentRef, ScannerReport.ExternalIssue issue) {
+    File file = fileStructure.fileFor(FileStructure.Domain.EXTERNAL_ISSUES, componentRef);
+    try (OutputStream out = new BufferedOutputStream(new FileOutputStream(file, true))) {
+      issue.writeDelimitedTo(out);
+    } catch (Exception e) {
+      throw ContextException.of("Unable to write external issue", e).addContext("file", file);
+    }
+  }
+
   public File writeComponentMeasures(int componentRef, Iterable<ScannerReport.Measure> measures) {
     File file = fileStructure.fileFor(FileStructure.Domain.MEASURES, componentRef);
     Protobuf.writeStream(measures, file, false);

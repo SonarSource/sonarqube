@@ -28,6 +28,7 @@ import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
 import org.sonar.api.batch.rule.internal.RulesBuilder;
+import org.sonar.api.batch.sensor.issue.internal.DefaultExternalIssue;
 import org.sonar.api.batch.sensor.issue.internal.DefaultIssue;
 import org.sonar.api.batch.sensor.issue.internal.DefaultIssueLocation;
 import org.sonar.api.rule.RuleKey;
@@ -143,6 +144,23 @@ public class ModuleIssuesTest {
     assertThat(added).isTrue();
     ArgumentCaptor<ScannerReport.Issue> argument = ArgumentCaptor.forClass(ScannerReport.Issue.class);
     verify(reportPublisher.getWriter()).appendComponentIssue(eq(file.batchId()), argument.capture());
+    assertThat(argument.getValue().getSeverity()).isEqualTo(org.sonar.scanner.protocol.Constants.Severity.CRITICAL);
+  }
+
+  @Test
+  public void add_external_issue_to_cache() {
+    ruleBuilder.add(SQUID_RULE_KEY).setName(SQUID_RULE_NAME);
+    initModuleIssues();
+
+    DefaultExternalIssue issue = new DefaultExternalIssue()
+      .at(new DefaultIssueLocation().on(file).at(file.selectLine(3)).message("Foo"))
+      .forRule(SQUID_RULE_KEY)
+      .severity(org.sonar.api.batch.rule.Severity.CRITICAL);
+
+    moduleIssues.initAndAddExternalIssue(issue);
+
+    ArgumentCaptor<ScannerReport.ExternalIssue> argument = ArgumentCaptor.forClass(ScannerReport.ExternalIssue.class);
+    verify(reportPublisher.getWriter()).appendComponentExternalIssue(eq(file.batchId()), argument.capture());
     assertThat(argument.getValue().getSeverity()).isEqualTo(org.sonar.scanner.protocol.Constants.Severity.CRITICAL);
   }
 
