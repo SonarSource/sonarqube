@@ -17,15 +17,14 @@ node {
 }
 
 yarn_run {
-  inputs.dir('config')
-  inputs.dir('public')
-  inputs.dir('scripts')
-  inputs.dir('src')
-  inputs.file('.babelrc')
-  inputs.file('package.json')
-  inputs.file('tsconfig.json')
-  inputs.file('yarn.lock')
+  ['config', 'public', 'scripts', 'src'].each {
+    inputs.dir(it).withPathSensitivity(PathSensitivity.RELATIVE)
+  }
+  ['.babelrc', 'package.json', 'tsconfig.json', 'yarn.lock'].each {
+    inputs.file(it).withPathSensitivity(PathSensitivity.RELATIVE)
+  }
   outputs.dir('build/webapp')
+  outputs.cacheIf { true }
 
   args = ['build']
 }

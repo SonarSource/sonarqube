@@ -56,16 +56,14 @@ node {
 
 yarn_run {
   if (official) { dependsOn copyBranding }
-  inputs.dir('config')
-  inputs.dir('public')
-  inputs.dir('scripts')
-  inputs.dir('src')
-  inputs.file('.babelrc')
-  inputs.file('build.gradle')
-  inputs.file('package.json')
-  inputs.file('tsconfig.json')
-  inputs.file('yarn.lock')
+  ['config', 'public', 'scripts', 'src'].each {
+    inputs.dir(it).withPathSensitivity(PathSensitivity.RELATIVE)
+  }
+  ['.babelrc', 'build.gradle', 'package.json', 'tsconfig.json', 'yarn.lock'].each {
+    inputs.file(it).withPathSensitivity(PathSensitivity.RELATIVE)
+  }
   outputs.dir(webappDir)
+  outputs.cacheIf { true }
 
   args = ['build']
 }
