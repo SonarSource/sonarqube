@@ -21,7 +21,7 @@ import * as React from 'react';
 import * as PropTypes from 'prop-types';
 import { copyQualityGate, QualityGate } from '../../../api/quality-gates';
 import Modal from '../../../components/controls/Modal';
-import { Button, ResetButtonLink } from '../../../components/ui/buttons';
+import { ResetButtonLink, SubmitButton } from '../../../components/ui/buttons';
 import { translate } from '../../../helpers/l10n';
 import { getQualityGateUrl } from '../../../helpers/urls';
 
@@ -116,9 +116,9 @@ export default class CopyQualityGateForm extends React.PureComponent<Props, Stat
           </div>
           <div className="modal-foot">
             {loading && <i className="spinner spacer-right" />}
-            <Button className="js-confirm" disabled={submitDisabled}>
+            <SubmitButton className="js-confirm" disabled={submitDisabled}>
               {translate('copy')}
-            </Button>
+            </SubmitButton>
             <ResetButtonLink className="js-modal-close" onClick={this.props.onClose}>
               {translate('cancel')}
             </ResetButtonLink>

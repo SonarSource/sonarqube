@@ -43,7 +43,10 @@ export default function rootReducer(state = initialState, action = {}) {
     case DELETE:
       return {
         ...state,
-        qualityGates: state.qualityGates.filter(candidate => candidate.id !== action.qualityGate.id)
+        qualityGates: state.qualityGates.filter(
+          candidate => candidate.id !== action.qualityGate.id
+        ),
+        qualityGate: state.qualityGate.id === action.qualityGate.id ? undefined : state.qualityGate
       };
     case SHOW:
       return {
