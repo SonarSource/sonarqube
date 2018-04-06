@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.sonarsource.sonarqube</groupId>
     <artifactId>sonarqube</artifactId>
-    <version>6.7.3-SNAPSHOT</version>
+    <version>6.7.3</version>
     <relativePath>../..</relativePath>
   </parent>
   <artifactId>backdating-plugin-v1</artifactId>
