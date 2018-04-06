@@ -26,7 +26,6 @@ import com.sonar.orchestrator.OrchestratorBuilder;
 import com.sonar.orchestrator.build.MavenBuild;
 import com.sonar.orchestrator.container.Server;
 import com.sonar.orchestrator.locator.MavenLocation;
-import com.sonar.orchestrator.version.Version;
 import java.io.File;
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -52,13 +51,11 @@ import static com.codeborne.selenide.Selenide.$;
 import static java.lang.Integer.parseInt;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
-
 import static util.ItUtils.newOrchestratorBuilder;
 
 public class UpgradeTest {
 
   private static final String PROJECT_KEY = "org.apache.struts:struts-parent";
-  private static final Version DEV_VERSION = Version.create("DEV");
 
   private Orchestrator orchestrator;
 
@@ -71,12 +68,12 @@ public class UpgradeTest {
   }
 
   @Test
-  public void test_upgrade_from_6_7() {
-    testDatabaseUpgrade(Version.create("6.7"));
+  public void test_upgrade_from_6_7_LTS() {
+    testDatabaseUpgrade("LATEST_RELEASE[6.7]");
   }
 
-  private void testDatabaseUpgrade(Version fromVersion) {
-    startOldVersionServer(fromVersion, false);
+  private void testDatabaseUpgrade(String fromVersion) {
+    startOldVersionServer(fromVersion);
     scanProject();
     int files = countFilesOld(PROJECT_KEY);
     assertThat(files).isGreaterThan(0);
@@ -94,12 +91,10 @@ public class UpgradeTest {
     browseWebapp();
   }
 
-  private void checkSystemStatus(Version sqVersion, ServerStatusResponse.Status serverStatus) {
+  private void checkSystemStatus(ServerStatusResponse.Status serverStatus) {
     ServerStatusResponse serverStatusResponse = new ServerStatusCall(orchestrator).callAndWait();
 
-    assertThat(serverStatusResponse.getStatus())
-      .describedAs("Server status of version " + sqVersion + " should be " + serverStatus)
-      .isEqualTo(serverStatus);
+    assertThat(serverStatusResponse.getStatus()).isEqualTo(serverStatus);
   }
 
   private void checkUrlsBeforeUpgrade() {
@@ -149,10 +144,10 @@ public class UpgradeTest {
     testUrl("/profiles");
   }
 
-  private void startOldVersionServer(Version sqVersion, boolean keepDatabase) {
+  private void startOldVersionServer(String sqVersion) {
     OrchestratorBuilder builder = Orchestrator.builderEnv()
-      .setSonarVersion(sqVersion.toString())
-      .setOrchestratorProperty("orchestrator.keepDatabase", String.valueOf(keepDatabase))
+      .setSonarVersion(sqVersion)
+      .setOrchestratorProperty("orchestrator.keepDatabase", "false")
       .setOrchestratorProperty("orchestrator.workspaceDir", "build/it")
       .addPlugin(MavenLocation.of("org.sonarsource.java", "sonar-java-plugin", "5.1.0.13090"))
       .setStartupLogWatcher(log -> log.contains("Process[web] is up"));
@@ -170,13 +165,13 @@ public class UpgradeTest {
     orchestrator.start();
     initSelenide(orchestrator);
 
-    checkSystemStatus(DEV_VERSION, ServerStatusResponse.Status.DB_MIGRATION_NEEDED);
+    checkSystemStatus(ServerStatusResponse.Status.DB_MIGRATION_NEEDED);
     checkUrlsBeforeUpgrade();
     ServerMigrationResponse serverMigrationResponse = new ServerMigrationCall(orchestrator).callAndWait();
     assertThat(serverMigrationResponse.getStatus())
       .describedAs("Migration status should be MIGRATION_SUCCEEDED")
       .isEqualTo(ServerMigrationResponse.Status.MIGRATION_SUCCEEDED);
-    checkSystemStatus(DEV_VERSION, ServerStatusResponse.Status.UP);
+    checkSystemStatus(ServerStatusResponse.Status.UP);
     checkUrlsAfterUpgrade();
   }
 
