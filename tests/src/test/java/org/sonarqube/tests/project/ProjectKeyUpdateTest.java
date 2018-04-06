@@ -61,14 +61,14 @@ public class ProjectKeyUpdateTest {
   private static final String PROJECT_KEY = "sample";
 
   @ClassRule
-  public static final Orchestrator orchestrator = ProjectSuite.ORCHESTRATOR;
+  public static final Orchestrator orchestrator = OrganizationProjectSuite.ORCHESTRATOR;
 
   @Rule
   public TestRule safeguard = new DisableOnDebug(Timeout.seconds(300));
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
   @Rule
-  public Tester tester = new Tester(orchestrator).setElasticsearchHttpPort(ProjectSuite.SEARCH_HTTP_PORT);
+  public Tester tester = new Tester(orchestrator).setElasticsearchHttpPort(OrganizationProjectSuite.SEARCH_HTTP_PORT);
 
   @After
   public void tearDown() throws Exception {

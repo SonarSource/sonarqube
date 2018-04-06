@@ -10,6 +10,12 @@ exports[`does not render scm details 1`] = `
 >
   <BubblePopupHelper
     isOpen={false}
+    offset={
+      Object {
+        "horizontal": 0,
+        "vertical": -18,
+      }
+    }
     popup={
       <SCMPopup
         line={
@@ -41,6 +47,12 @@ exports[`render scm details 1`] = `
   />
   <BubblePopupHelper
     isOpen={false}
+    offset={
+      Object {
+        "horizontal": 0,
+        "vertical": -18,
+      }
+    }
     popup={
       <SCMPopup
         line={
@@ -72,6 +84,12 @@ exports[`render scm details for the first line 1`] = `
   />
   <BubblePopupHelper
     isOpen={false}
+    offset={
+      Object {
+        "horizontal": 0,
+        "vertical": -18,
+      }
+    }
     popup={
       <SCMPopup
         line={

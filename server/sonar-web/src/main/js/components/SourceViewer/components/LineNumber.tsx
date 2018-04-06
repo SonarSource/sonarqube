@@ -56,6 +56,7 @@ export default class LineNumber extends React.PureComponent<Props> {
         tabIndex={0}>
         <BubblePopupHelper
           isOpen={popupOpen}
+          offset={{ vertical: -18, horizontal: 0 }}
           popup={
             <LineOptionsPopup branchLike={branchLike} componentKey={componentKey} line={line} />
           }

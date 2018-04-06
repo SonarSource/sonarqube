@@ -97,7 +97,7 @@ public class NotificationsWsTest {
 
   @Test
   public void add_global_and_project_notifications_on_another_user_as_a_system_administrator() {
-    Users.CreateWsResponse.User admin = tester.users().generateAdministratorOnDefaultOrganization();
+    Users.CreateWsResponse.User admin = tester.users().generateAdministrator();
     Users.CreateWsResponse.User user = tester.users().generate();
     assertThat(tester.as(user.getLogin()).wsClient().notifications().list(new ListRequest()).getNotificationsList()).isEmpty();
     Projects.CreateWsResponse.Project project = tester.projects().provision();
@@ -114,7 +114,7 @@ public class NotificationsWsTest {
 
   @Test
   public void remove_global_and_project_notifications_on_another_user_as_a_system_administrator() {
-    Users.CreateWsResponse.User admin = tester.users().generateAdministratorOnDefaultOrganization();
+    Users.CreateWsResponse.User admin = tester.users().generateAdministrator();
     Users.CreateWsResponse.User user = tester.users().generate();
     assertThat(tester.as(user.getLogin()).wsClient().notifications().list(new ListRequest()).getNotificationsList()).isEmpty();
     Projects.CreateWsResponse.Project project = tester.projects().provision();

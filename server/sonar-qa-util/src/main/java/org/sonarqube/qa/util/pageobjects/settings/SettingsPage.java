@@ -116,12 +116,12 @@ public class SettingsPage {
   }
 
   public SettingsPage clickOnCancel(String settingKey) {
-    Selenide.$("[data-key=\"" + settingKey + "\"]").find(byText("Cancel")).click();
+    click(Selenide.$("[data-key=\"" + settingKey + "\"]").find(byText("Cancel")));
     return this;
   }
 
   public SettingsPage removeFirstValue(String settingKey) {
-    Selenide.$("[data-key=\"" + settingKey + "\"]").find(".button.js-remove-value.button-icon").click();
+    click(Selenide.$("[data-key=\"" + settingKey + "\"]").find(".js-remove-value"));
     return this;
   }
 
@@ -133,8 +133,8 @@ public class SettingsPage {
   public SettingsPage setStringValue(String settingKey, String value) {
     SelenideElement setting = Selenide.$(".settings-definition[data-key=\"" + settingKey + "\"]");
     setting.find("input").val(value);
-    setting.find(".js-save-changes").click();
-    setting.find(".js-save-changes").shouldNot(Condition.exist);
+    setting.find(".button-success").click();
+    setting.find(".button-success").shouldNot(Condition.exist);
     return this;
   }
 
@@ -142,4 +142,10 @@ public class SettingsPage {
     SelenideElement setting = Selenide.$(".settings-definition[data-key=\"" + settingKey + "\"]");
     return new PropertySetInput(setting);
   }
+
+  private void click(SelenideElement selenideElement){
+    // FIXME Temporary fix to correctly scroll in Firefox 46
+    Selenide.executeJavaScript("arguments[0].click()", selenideElement);
+  }
+
 }

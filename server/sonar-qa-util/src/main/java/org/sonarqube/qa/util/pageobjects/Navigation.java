@@ -55,13 +55,26 @@ public class Navigation {
     driver.manage().deleteAllCookies();
     clearStorage(d -> d.getLocalStorage().clear());
     clearStorage(d -> d.getSessionStorage().clear());
-    clearStorage(d -> Selenide.clearBrowserLocalStorage());
+    clearBrowserLocalStorage();
     return Selenide.open(path, Navigation.class);
   }
 
   private static void clearStorage(Consumer<WebStorage> cleaner) {
     try {
       cleaner.accept((WebStorage) WebDriverRunner.getWebDriver());
+    } catch (Exception e) {
+      // ignore, it may occur when the first test opens browser. No pages are loaded
+      // and local/session storages are not available yet.
+      // Example with Chrome: "Failed to read the 'localStorage' property from 'Window': Storage is disabled inside 'data:' URLs."
+    }
+  }
+
+  /**
+   * Do not call {@link #clearStorage(Consumer)} for {@link Selenide#clearBrowserLocalStorage} as it's failing on Firefox 46
+   */
+  private static void clearBrowserLocalStorage() {
+    try {
+      Selenide.clearBrowserLocalStorage();
     } catch (Exception e) {
       // ignore, it may occur when the first test opens browser. No pages are loaded
       // and local/session storages are not available yet.
@@ -85,8 +98,16 @@ public class Navigation {
     return open("/projects?" + query, ProjectsPage.class);
   }
 
+  public ProjectsPage openExploreProjects() {
+    return open("/explore/projects", ProjectsPage.class);
+  }
+
   public IssuesPage openIssues() {
     return open("/issues", IssuesPage.class);
+  }
+
+  public IssuesPage openExploreIssues() {
+    return open("/explore/issues", IssuesPage.class);
   }
 
   public IssuesPage openIssues(String organization) {

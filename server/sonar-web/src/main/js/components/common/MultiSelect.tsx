@@ -257,6 +257,7 @@ export default class MultiSelect extends React.PureComponent<Props, State> {
     const { renderLabel } = this.props as PropsWithDefault;
     const { query, activeIdx, selectedElements, unselectedElements } = this.state;
     const activeElement = this.getAllElements(this.props, this.state)[activeIdx];
+    const showNewElement = allowNewElements && this.isNewElement(query, this.props);
     const infiniteList = this.props.listSize === 0;
     const listClasses = classNames('menu', {
       'menu-vertically-limited': infiniteList,
@@ -278,10 +279,6 @@ export default class MultiSelect extends React.PureComponent<Props, State> {
           />
         </div>
         <ul className={listClasses}>
-          {selectedElements.length < 1 &&
-            unselectedElements.length < 1 && (
-              <li className="spacer-left">{translateWithParameters('no_results_for_x', query)}</li>
-            )}
           {selectedElements.length > 0 &&
             selectedElements.map(element => (
               <MultiSelectOption
@@ -306,17 +303,21 @@ export default class MultiSelect extends React.PureComponent<Props, State> {
                 renderLabel={renderLabel}
               />
             ))}
-          {allowNewElements &&
-            this.isNewElement(query, this.props) && (
-              <MultiSelectOption
-                active={activeElement === query}
-                custom={true}
-                element={query}
-                key={query}
-                onHover={this.handleElementHover}
-                onSelectChange={this.handleSelectChange}
-                renderLabel={renderLabel}
-              />
+          {showNewElement && (
+            <MultiSelectOption
+              active={activeElement === query}
+              custom={true}
+              element={query}
+              key={query}
+              onHover={this.handleElementHover}
+              onSelectChange={this.handleSelectChange}
+              renderLabel={renderLabel}
+            />
+          )}
+          {!showNewElement &&
+            selectedElements.length < 1 &&
+            unselectedElements.length < 1 && (
+              <li className="spacer-left">{translateWithParameters('no_results_for_x', query)}</li>
             )}
         </ul>
         {footerNode}

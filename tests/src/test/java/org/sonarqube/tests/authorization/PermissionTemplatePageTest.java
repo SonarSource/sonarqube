@@ -45,8 +45,8 @@ public class PermissionTemplatePageTest {
   @Test
   public void bulk_apply_permission_template() {
     String project = tester.projects().provision().getKey();
-    String userLogin = tester.users().generateMemberOfDefaultOrganization().getLogin();
-    String adminLogin = tester.users().generateAdministratorOnDefaultOrganization().getLogin();
+    String userLogin = tester.users().generate().getLogin();
+    String adminLogin = tester.users().generateAdministrator().getLogin();
 
     tester.wsClient().permissions().createTemplate(new CreateTemplateRequest().setName("foo-template"));
     tester.wsClient().permissions().addUserToTemplate(

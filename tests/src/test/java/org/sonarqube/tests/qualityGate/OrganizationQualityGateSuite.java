@@ -40,6 +40,7 @@ public class OrganizationQualityGateSuite {
   public static final Orchestrator ORCHESTRATOR = newOrchestratorBuilder()
     // required for notification tests
     .setServerProperty("sonar.notifications.delay", "1")
+    .setServerProperty("sonar.sonarcloud.enabled", "true")
 
     .addPlugin(pluginArtifact("posttask-plugin"))
     .addPlugin(xooPlugin())

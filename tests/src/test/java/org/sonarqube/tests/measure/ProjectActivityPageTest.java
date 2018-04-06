@@ -76,7 +76,7 @@ public class ProjectActivityPageTest {
   }
 
   private ProjectActivityPage openPage() {
-    String userAdmin = tester.users().generateAdministratorOnDefaultOrganization().getLogin();
+    String userAdmin = tester.users().generateAdministrator().getLogin();
     return tester.openBrowser()
       .logIn()
       .submitCredentials(userAdmin, userAdmin)

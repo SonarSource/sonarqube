@@ -78,7 +78,8 @@ public class ValidatorsTest {
       .assertSettingValueCanBeSaved(elementSelector)
       .assertSettingValueCanBeCanceled(elementSelector);
 
-    page.clickOnCancel(elementSelector).assertSettingValueIsNotedAsDefault(elementSelector);
+    page.clickOnCancel(elementSelector)
+      .assertSettingValueIsNotedAsDefault(elementSelector);
   }
 
   @Test
@@ -116,7 +117,8 @@ public class ValidatorsTest {
       .assertSettingValueCanBeSaved(elementSelector)
       .assertSettingValueCanBeCanceled(elementSelector);
 
-    page.clickOnCancel(elementSelector).assertInputCount(elementSelector, 1);
+    page.clickOnCancel(elementSelector)
+      .assertInputCount(elementSelector, 1);
   }
 
   private void analyzeSample() {

@@ -26,5 +26,5 @@ interface Props {
 }
 
 export default function ExploreProjects(props: Props) {
-  return <AllProjectsContainer isFavorite={false} {...props} />;
+  return <AllProjectsContainer isFavorite={false} storageOptionsSuffix="explore" {...props} />;
 }

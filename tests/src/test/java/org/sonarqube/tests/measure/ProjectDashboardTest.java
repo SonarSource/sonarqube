@@ -48,7 +48,7 @@ public class ProjectDashboardTest {
 
   @Before
   public void setUp() {
-    adminUser = tester.users().generateAdministratorOnDefaultOrganization().getLogin();
+    adminUser = tester.users().generateAdministrator().getLogin();
   }
 
   @Test

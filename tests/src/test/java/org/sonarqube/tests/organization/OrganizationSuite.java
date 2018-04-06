@@ -47,5 +47,7 @@ public class OrganizationSuite {
     .addPlugin(pluginArtifact("fake-billing-plugin"))
     .addPlugin(pluginArtifact("ui-extensions-plugin"))
 
+    .setServerProperty("sonar.sonarcloud.enabled", "true")
+
     .build();
 }

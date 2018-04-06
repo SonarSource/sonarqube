@@ -37,6 +37,7 @@ interface OwnProps {
   isFavorite: boolean;
   location: { pathname: string; query: RawQuery };
   organization?: { key: string };
+  storageOptionsSuffix?: string;
 }
 
 const stateToProps = (state: any) => {

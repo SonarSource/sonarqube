@@ -37,6 +37,8 @@ public class OrganizationIssueSuite {
   public static final Orchestrator ORCHESTRATOR = newOrchestratorBuilder()
     .addPlugin(xooPlugin())
 
+    .setServerProperty("sonar.sonarcloud.enabled", "true")
+
     .build();
 
 }

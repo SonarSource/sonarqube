@@ -16,6 +16,12 @@ exports[`render line 3 1`] = `
 >
   <BubblePopupHelper
     isOpen={false}
+    offset={
+      Object {
+        "horizontal": 0,
+        "vertical": -18,
+      }
+    }
     popup={
       <LineOptionsPopup
         branchLike={undefined}

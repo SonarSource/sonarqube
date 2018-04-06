@@ -41,6 +41,7 @@ import static util.ItUtils.xooPlugin;
   IssueFilterTest.class,
   IssueFilterExtensionTest.class,
   IssueMeasureTest.class,
+  IssueNotificationsTest.class,
   IssuePurgeTest.class,
   IssueSearchTest.class,
   IssueTrackingTest.class,
@@ -61,8 +62,6 @@ public class IssueSuite {
 
     // 1 second. Required for notification test.
     .setServerProperty("sonar.notifications.delay", "1")
-
-    .setServerProperty("organization.enabled", "true")
 
     .build();
 

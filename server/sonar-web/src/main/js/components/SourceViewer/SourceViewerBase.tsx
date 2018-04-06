@@ -100,7 +100,6 @@ interface State {
   duplications?: Duplication[];
   duplicationsByLine: { [line: number]: number[] };
   hasSourcesAfter: boolean;
-  highlightedLine?: number;
   highlightedSymbols: string[];
   issueLocationsByLine: { [line: number]: LinearIssueLocation[] };
   issuePopup?: { issue: string; name: string };
@@ -134,11 +133,11 @@ export default class SourceViewerBase extends React.PureComponent<Props, State> 
 
   constructor(props: Props) {
     super(props);
+
     this.state = {
       displayDuplications: false,
       duplicationsByLine: {},
       hasSourcesAfter: false,
-      highlightedLine: props.highlightedLine,
       highlightedSymbols: [],
       issuesByLine: {},
       issueLocationsByLine: {},
@@ -242,6 +241,7 @@ export default class SourceViewerBase extends React.PureComponent<Props, State> 
         issues => {
           if (this.mounted) {
             const finalSources = sources.slice(0, LINES);
+
             this.setState(
               {
                 component,
@@ -250,7 +250,6 @@ export default class SourceViewerBase extends React.PureComponent<Props, State> 
                 duplications: undefined,
                 duplicationsByLine: {},
                 hasSourcesAfter: sources.length > LINES,
-                highlightedLine: undefined,
                 highlightedSymbols: [],
                 issueLocationsByLine: locationsByLine(issues),
                 issues,
@@ -669,7 +668,7 @@ export default class SourceViewerBase extends React.PureComponent<Props, State> 
         filterLine={this.handleFilterLine}
         hasSourcesAfter={this.state.hasSourcesAfter}
         hasSourcesBefore={hasSourcesBefore}
-        highlightedLine={this.state.highlightedLine}
+        highlightedLine={this.props.highlightedLine}
         highlightedLocationMessage={this.props.highlightedLocationMessage}
         highlightedLocations={this.props.highlightedLocations}
         highlightedSymbols={this.state.highlightedSymbols}

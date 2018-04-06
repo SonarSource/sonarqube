@@ -158,7 +158,7 @@ public class OrganizationIssueAssignTest {
     User otherUser = tester.users().generate();
     provisionAndAnalyseProject(SAMPLE_PROJECT_KEY, organization);
 
-    IssuesPage page = tester.openBrowser().logIn().submitCredentials(user.getLogin()).openIssues();
+    IssuesPage page = tester.openBrowser().logIn().submitCredentials(user.getLogin()).openExploreIssues();
     page.getFirstIssue()
       .shouldAllowAssign()
       .assigneeSearchResultCount(otherUser.getLogin(), 0)
@@ -189,7 +189,7 @@ public class OrganizationIssueAssignTest {
     provisionAndAnalyseProject(SAMPLE_PROJECT_KEY, organization);
     IssuesPage page = tester.openBrowser()
       .logIn().submitCredentials(user.getLogin())
-      .openIssues();
+      .openExploreIssues();
     page
       .bulkChangeOpen()
       .bulkChangeAssigneeSearchCount(user.getLogin(), 1)

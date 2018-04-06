@@ -48,7 +48,7 @@ public class ProjectBadgesTest {
   public static Orchestrator orchestrator = ProjectSuite.ORCHESTRATOR;
 
   @Rule
-  public Tester tester = new Tester(orchestrator);
+  public Tester tester = new Tester(orchestrator).disableOrganizations();
 
   @Test
   public void public_project_badges() {
@@ -72,12 +72,11 @@ public class ProjectBadgesTest {
 
   @Test
   public void private_project_do_not_have_badges() {
-    Organization org = tester.organizations().generate();
-    User user = tester.users().generateAdministrator(org);
+    User user = tester.users().generateAdministrator();
     orchestrator.executeBuild(
       SonarScanner
         .create(projectDir("shared/xoo-sample"))
-        .setProperties("sonar.organization", org.getKey(), "sonar.login", user.getLogin(), "sonar.password", user.getLogin())
+        .setProperties("sonar.login", user.getLogin(), "sonar.password", user.getLogin())
     );
     tester.wsClient().projects().updateVisibility(new UpdateVisibilityRequest().setProject("sample").setVisibility("private"));
     tester.openBrowser().logIn().submitCredentials(user.getLogin()).openProjectDashboard(PROJECT_KEY);

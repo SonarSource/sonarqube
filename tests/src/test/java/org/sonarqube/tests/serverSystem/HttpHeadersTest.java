@@ -20,7 +20,6 @@
 package org.sonarqube.tests.serverSystem;
 
 import com.sonar.orchestrator.Orchestrator;
-import org.sonarqube.tests.Category4Suite;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -29,6 +28,7 @@ import okhttp3.Response;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
+import org.sonarqube.tests.Category4Suite;
 
 import static com.google.common.io.Files.getFileExtension;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -77,7 +77,7 @@ public class HttpHeadersTest {
 
   @Test
   public void verify_headers_of_css() {
-    Response response = call(orchestrator.getServer().getUrl() + "/css/sonar." + JS_HASH + ".css");
+    Response response = call(orchestrator.getServer().getUrl() + "/css/main." + JS_HASH + ".css");
 
     verifySecurityHeaders(response);
     verifyContentType(response, "text/css");
@@ -86,7 +86,7 @@ public class HttpHeadersTest {
 
   @Test
   public void verify_headers_of_js() {
-    Response response = call(orchestrator.getServer().getUrl() + "/js/app." + JS_HASH + ".js");
+    Response response = call(orchestrator.getServer().getUrl() + "/js/main." + JS_HASH + ".js");
 
     verifySecurityHeaders(response);
     verifyContentType(response, "application/javascript");
@@ -152,8 +152,9 @@ public class HttpHeadersTest {
     String fileName = Files.list(cssFolder.toPath())
       .map(path -> path.toFile().getName())
       .filter(name -> getFileExtension(name).equals("css"))
+      .filter(name -> name.startsWith("main"))
       .findFirst()
-      .orElseThrow(() -> new IllegalStateException("sonar.css hasn't been found"));
-    return fileName.replace("sonar.", "").replace(".css", "");
+      .orElseThrow(() -> new IllegalStateException("css file hasn't been found"));
+    return fileName.replace("main.", "").replace(".css", "");
   }
 }

@@ -22,6 +22,7 @@ package org.sonarqube.qa.util;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
+import javax.annotation.Nullable;
 import org.assertj.core.api.Assertions;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Organizations.Organization;
@@ -55,10 +56,15 @@ public class QProfileTester {
   }
 
   @SafeVarargs
-  public final QualityProfile createXooProfile(Organization organization, Consumer<CreateRequest>... populators) {
+  public final QualityProfile createXooProfile(Consumer<CreateRequest>... populators) {
+    return createXooProfile(null, populators);
+  }
+
+  @SafeVarargs
+  public final QualityProfile createXooProfile(@Nullable Organization organization, Consumer<CreateRequest>... populators) {
     int id = ID_GENERATOR.getAndIncrement();
     CreateRequest request = new CreateRequest()
-      .setOrganization(organization.getKey())
+      .setOrganization(organization == null ? null : organization.getKey())
       .setLanguage("xoo")
       .setName("Profile" + id);
     stream(populators).forEach(p -> p.accept(request));

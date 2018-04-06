@@ -28,12 +28,13 @@ const PROJECTS_SORT = 'sonarqube.projects.sort';
 const PROJECT_ACTIVITY_GRAPH = 'sonarqube.project_activity.graph';
 const PROJECT_ACTIVITY_GRAPH_CUSTOM = 'sonarqube.project_activity.graph.custom';
 
-function save(key: string, value?: string): void {
+function save(key: string, value?: string, suffix?: string): void {
   try {
+    const finalKey = suffix ? `${key}.${suffix}` : key;
     if (value) {
-      window.localStorage.setItem(key, value);
+      window.localStorage.setItem(finalKey, value);
     } else {
-      window.localStorage.removeItem(key);
+      window.localStorage.removeItem(finalKey);
     }
   } catch (e) {
     // usually that means the storage is full
@@ -41,12 +42,16 @@ function save(key: string, value?: string): void {
   }
 }
 
+function get(key: string, suffix?: string): string | null {
+  return window.localStorage.getItem(suffix ? `${key}.${suffix}` : key);
+}
+
 export function saveFavorite(): void {
   save(PROJECTS_DEFAULT_FILTER, PROJECTS_FAVORITE);
 }
 
 export function isFavoriteSet(): boolean {
-  const setting = window.localStorage.getItem(PROJECTS_DEFAULT_FILTER);
+  const setting = get(PROJECTS_DEFAULT_FILTER);
   return setting === PROJECTS_FAVORITE;
 }
 
@@ -55,32 +60,32 @@ export function saveAll(): void {
 }
 
 export function isAllSet(): boolean {
-  const setting = window.localStorage.getItem(PROJECTS_DEFAULT_FILTER);
+  const setting = get(PROJECTS_DEFAULT_FILTER);
   return setting === PROJECTS_ALL;
 }
 
-export function saveView(view?: string): void {
-  save(PROJECTS_VIEW, view);
+export function saveView(view?: string, suffix?: string): void {
+  save(PROJECTS_VIEW, view, suffix);
 }
 
-export function getView(): string | null {
-  return window.localStorage.getItem(PROJECTS_VIEW);
+export function getView(suffix?: string): string | null {
+  return get(PROJECTS_VIEW, suffix);
 }
 
-export function saveVisualization(visualization?: string): void {
-  save(PROJECTS_VISUALIZATION, visualization);
+export function saveVisualization(visualization?: string, suffix?: string): void {
+  save(PROJECTS_VISUALIZATION, visualization, suffix);
 }
 
-export function getVisualization(): string | null {
-  return window.localStorage.getItem(PROJECTS_VISUALIZATION);
+export function getVisualization(suffix?: string): string | null {
+  return get(PROJECTS_VISUALIZATION, suffix);
 }
 
-export function saveSort(sort?: string): void {
-  save(PROJECTS_SORT, sort);
+export function saveSort(sort?: string, suffix?: string): void {
+  save(PROJECTS_SORT, sort, suffix);
 }
 
-export function getSort(): string | null {
-  return window.localStorage.getItem(PROJECTS_SORT);
+export function getSort(suffix?: string): string | null {
+  return get(PROJECTS_SORT, suffix);
 }
 
 export function saveCustomGraph(metrics?: string[]): void {
@@ -88,7 +93,7 @@ export function saveCustomGraph(metrics?: string[]): void {
 }
 
 export function getCustomGraph(): string[] {
-  const customGraphs = window.localStorage.getItem(PROJECT_ACTIVITY_GRAPH_CUSTOM);
+  const customGraphs = get(PROJECT_ACTIVITY_GRAPH_CUSTOM);
   return customGraphs ? customGraphs.split(',') : [];
 }
 
@@ -97,5 +102,5 @@ export function saveGraph(graph?: string): void {
 }
 
 export function getGraph(): string {
-  return window.localStorage.getItem(PROJECT_ACTIVITY_GRAPH) || 'issues';
+  return get(PROJECT_ACTIVITY_GRAPH) || 'issues';
 }

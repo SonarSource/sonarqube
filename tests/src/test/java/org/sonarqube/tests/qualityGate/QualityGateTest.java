@@ -60,7 +60,6 @@ import org.sonarqube.ws.client.qualitygates.SelectRequest;
 import org.sonarqube.ws.client.qualitygates.SetAsDefaultRequest;
 import org.sonarqube.ws.client.qualitygates.UpdateConditionRequest;
 
-import static java.lang.String.format;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
@@ -251,13 +250,13 @@ public class QualityGateTest {
     Qualitygates.CreateResponse qualityGate = tester.qGates().generate();
 
     expectHttpError(400,
-      format("Invalid value 'INVALID' for metric 'ncloc'"),
+      "Invalid value 'INVALID' for metric 'Lines of Code'",
       () -> tester.qGates().service().createCondition(new CreateConditionRequest().setGateId(Long.toString(qualityGate.getId())).setMetric("ncloc").setOp("GT").setWarning("INVALID")));
     expectHttpError(400,
-      format("User '%s' is not member of organization '%s'"),
+      "Invalid value '10d' for metric 'Technical Debt'",
       () -> tester.qGates().service().createCondition(new CreateConditionRequest().setGateId(Long.toString(qualityGate.getId())).setMetric("sqale_index").setOp("GT").setWarning("10d")));
     expectHttpError(400,
-      format("User '%s' is not member of organization '%s'"),
+      "Invalid value '10%' for metric 'Coverage'",
       () -> tester.qGates().service().createCondition(new CreateConditionRequest().setGateId(Long.toString(qualityGate.getId())).setMetric("coverage").setOp("GT").setWarning("10%")));
   }
 

@@ -40,13 +40,13 @@ public class ProjectSettingsTest {
   public static Orchestrator orchestrator = ProjectSuite.ORCHESTRATOR;
 
   @Rule
-  public Tester tester = new Tester(orchestrator);
+  public Tester tester = new Tester(orchestrator).disableOrganizations();
 
   private String adminUser;
 
   @Before
   public void setUp() {
-    adminUser = tester.users().generateAdministratorOnDefaultOrganization().getLogin();
+    adminUser = tester.users().generateAdministrator().getLogin();
   }
 
   @Test

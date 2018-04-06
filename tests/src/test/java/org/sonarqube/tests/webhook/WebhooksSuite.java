@@ -41,5 +41,7 @@ public class WebhooksSuite {
     // reduce memory for Elasticsearch
     .setServerProperty("sonar.search.javaOpts", "-Xms128m -Xmx128m")
 
+    .setServerProperty("sonar.sonarcloud.enabled", "true")
+
     .build();
 }

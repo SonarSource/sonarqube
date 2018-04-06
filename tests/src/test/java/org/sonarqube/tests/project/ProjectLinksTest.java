@@ -44,7 +44,7 @@ import static util.ItUtils.projectDir;
 public class ProjectLinksTest {
 
   @ClassRule
-  public static Orchestrator orchestrator = ProjectSuite.ORCHESTRATOR;
+  public static Orchestrator orchestrator = OrganizationProjectSuite.ORCHESTRATOR;
 
   private static Tester tester = new Tester(orchestrator);
 

@@ -129,13 +129,13 @@ task integrationTest(type: Test) {
         includeTestsMatching 'org.sonarqube.tests.organization.*Suite'
         break
       case 'Plugins':
-        includeTestsMatching 'org.sonarqube.tests.plugins.PluginsSuite'
+        includeTestsMatching 'org.sonarqube.tests.plugins.*Suite'
         break
       case 'Upgrade':
-        includeTestsMatching 'org.sonarqube.tests.upgrade.UpgradeSuite'
+        includeTestsMatching 'org.sonarqube.tests.upgrade.*Suite'
         break
       case 'ServerPerformance':
-        includeTestsMatching 'org.sonarqube.tests.performance.server.ServerPerformanceSuite'
+        includeTestsMatching 'org.sonarqube.tests.performance.server.*Suite'
         break
     }
     testLogging {

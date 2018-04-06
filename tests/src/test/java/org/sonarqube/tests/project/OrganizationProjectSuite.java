@@ -20,22 +20,51 @@
 package org.sonarqube.tests.project;
 
 import com.sonar.orchestrator.Orchestrator;
+import com.sonar.orchestrator.util.NetworkUtils;
+import java.net.InetAddress;
 import org.junit.ClassRule;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
 import static util.ItUtils.newOrchestratorBuilder;
+import static util.ItUtils.pluginArtifact;
 import static util.ItUtils.xooPlugin;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
+  ProjectBulkDeletionTest.class,
+  ProjectBulkDeletionPageTest.class,
+  ProjectDeletionTest.class,
+  ProjectFilterTest.class,
+  ProjectKeyUpdateTest.class,
+  ProjectKeyUpdatePageTest.class,
+  ProjectLeakPageTest.class,
+  ProjectLinksTest.class,
+  ProjectListTest.class,
+  ProjectProvisioningTest.class,
+  ProjectSearchTest.class,
+  ProjectVisibilityPageTest.class,
+  ProjectsExplorePageTest.class,
   SonarCloudProjectBadgesTest.class
 })
-public class SonarCloudProjectSuite {
+public class OrganizationProjectSuite {
+  static final int SEARCH_HTTP_PORT = NetworkUtils.getNextAvailablePort(InetAddress.getLoopbackAddress());
 
   @ClassRule
   public static final Orchestrator ORCHESTRATOR = newOrchestratorBuilder()
-    .addPlugin(xooPlugin())
+    // for ES resiliency tests
+    .setServerProperty("sonar.search.httpPort", "" + SEARCH_HTTP_PORT)
+    .setServerProperty("sonar.search.recovery.delayInMs", "1000")
+    .setServerProperty("sonar.search.recovery.minAgeInMs", "3000")
+    .setServerProperty("sonar.notifications.delay", "1")
+
     .setServerProperty("sonar.sonarcloud.enabled", "true")
+
+    .addPlugin(xooPlugin())
+
+    // for ProjectSettingsTest
+    .addPlugin(pluginArtifact("sonar-subcategories-plugin"))
+
     .build();
+
 }

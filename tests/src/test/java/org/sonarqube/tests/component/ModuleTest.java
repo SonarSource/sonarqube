@@ -28,7 +28,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonarqube.qa.util.Tester;
-import org.sonarqube.ws.Organizations;
 import org.sonarqube.ws.client.components.ShowRequest;
 import org.sonarqube.ws.client.components.TreeRequest;
 import org.sonarqube.ws.client.projects.UpdateKeyRequest;
@@ -48,14 +47,13 @@ public class ModuleTest {
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
   @Rule
-  public Tester tester = new Tester(orchestrator);
+  public Tester tester = new Tester(orchestrator).disableOrganizations();
 
   /**
    * SONAR-10536
    */
   @Test
   public void analyze_disabled_module_as_a_new_project() throws Exception {
-    Organizations.Organization organization = tester.organizations().generate();
     String projectKey = PROJECT_KEY;
     String moduleKey = projectKey + ":module_a";
 
@@ -63,7 +61,7 @@ public class ModuleTest {
     File projectWithModule = new XooProjectBuilder(projectKey)
       .addModules("module_a")
       .build(temp.newFolder());
-    analyze(organization, projectWithModule);
+    analyze(projectWithModule);
     assertThat(tester.projects().exists(moduleKey)).isTrue();
     assertThat(countFilesInProject(projectKey)).isEqualTo(2 /* 1 file in project and 1 file in module */);
 
@@ -71,7 +69,7 @@ public class ModuleTest {
     // is considered as disabled
     File projectWithoutModule = new XooProjectBuilder(projectKey)
       .build(temp.newFolder());
-    analyze(organization, projectWithoutModule);
+    analyze(projectWithoutModule);
     assertThat(tester.projects().exists(moduleKey)).isFalse();
     assertThat(countFilesInProject(projectKey)).isEqualTo(1 /* 1 file in project */);
 
@@ -79,7 +77,7 @@ public class ModuleTest {
     File moduleAsProject = new XooProjectBuilder(moduleKey)
       .build(temp.newFolder());
     try {
-      analyze(organization, moduleAsProject);
+      analyze(moduleAsProject);
       fail();
     } catch (BuildFailureException e) {
       assertThat(e.getResult().getLogs()).contains("The project '" + moduleKey + "' is already defined in SonarQube but as a module of project '" + projectKey + "'");
@@ -90,16 +88,14 @@ public class ModuleTest {
     updateModuleKey(moduleKey, moduleKey + "_old");
 
     // module_a can now be analyzed as a project
-    analyze(organization, moduleAsProject);
+    analyze(moduleAsProject);
     assertThat(tester.projects().exists(moduleKey)).isTrue();
     assertThat(countFilesInProject(moduleKey)).isEqualTo(1);
     assertThat(tester.wsClient().components().show(new ShowRequest().setComponent(moduleKey)).getComponent().getQualifier()).isEqualTo("TRK");
   }
 
-  private void analyze(Organizations.Organization organization, File projectDir) {
-    orchestrator.executeBuild(SonarScanner.create(projectDir,
-      "sonar.organization", organization.getKey(),
-      "sonar.login", "admin", "sonar.password", "admin"));
+  private void analyze(File projectDir) {
+    orchestrator.executeBuild(SonarScanner.create(projectDir));
   }
 
   private int countFilesInProject(String projectKey) {

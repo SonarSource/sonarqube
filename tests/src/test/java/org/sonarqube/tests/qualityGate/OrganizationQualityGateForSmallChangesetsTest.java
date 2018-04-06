@@ -21,30 +21,25 @@ package org.sonarqube.tests.qualityGate;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
-import java.io.File;
-import java.io.IOException;
-import java.io.StringReader;
-import java.nio.charset.StandardCharsets;
-import java.util.Properties;
-import org.apache.commons.io.FileUtils;
+import java.util.Date;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonarqube.qa.util.Tester;
-import org.sonarqube.ws.Ce;
-import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.Organizations;
+import org.sonarqube.ws.ProjectAnalyses;
 import org.sonarqube.ws.Projects.CreateWsResponse.Project;
 import org.sonarqube.ws.Qualitygates;
+import org.sonarqube.ws.Qualitygates.ProjectStatusResponse.Status;
 import org.sonarqube.ws.Users;
-import org.sonarqube.ws.client.GetRequest;
-import org.sonarqube.ws.client.WsResponse;
+import org.sonarqube.ws.client.projectanalyses.SearchRequest;
 import org.sonarqube.ws.client.qualitygates.CreateConditionRequest;
 import org.sonarqube.ws.client.qualitygates.ProjectStatusRequest;
 import org.sonarqube.ws.client.qualitygates.UpdateConditionRequest;
 
+import static org.apache.commons.lang.time.DateUtils.addMonths;
 import static org.assertj.core.api.Assertions.assertThat;
-import static util.ItUtils.getMeasure;
+import static util.ItUtils.formatDate;
 import static util.ItUtils.projectDir;
 
 public class OrganizationQualityGateForSmallChangesetsTest {
@@ -56,7 +51,7 @@ public class OrganizationQualityGateForSmallChangesetsTest {
   public Tester tester = new Tester(orchestrator);
 
   @Test
-  public void do_not_fail_quality_gate_with_poor_LEAK_coverage_and_a_max_of_19_lines_of_NEW_code() throws Exception {
+  public void do_not_fail_quality_gate_with_poor_LEAK_coverage_and_a_max_of_19_lines_of_NEW_code() {
     Organizations.Organization organization = tester.organizations().generate();
     Project project = tester.projects().provision(organization);
     Qualitygates.CreateResponse qualityGate = tester.qGates().generate(organization);
@@ -83,11 +78,10 @@ public class OrganizationQualityGateForSmallChangesetsTest {
       .setProperty("sonar.password", password)
       .setProperty("sonar.scm.provider", "xoo")
       .setProperty("sonar.scm.disabled", "false")
-      .setProperty("sonar.projectDate", "2013-04-01")
+      .setProperty("sonar.projectDate", formatDate(addMonths(new Date(), -4)))
       .setDebugLogs(true);
     orchestrator.executeBuild(analysis);
-    assertThat(getMeasure(orchestrator, project.getKey(), "alert_status").getValue()).isEqualTo("OK");
-    assertIgnoredConditions("qualitygate/small-changesets/v1-1000-lines", false);
+    verifyGateStatus(project, Status.OK, false);
 
     // small leak => ignore coverage warning or error
     SonarScanner analysis2 = SonarScanner
@@ -98,11 +92,10 @@ public class OrganizationQualityGateForSmallChangesetsTest {
       .setProperty("sonar.password", password)
       .setProperty("sonar.scm.provider", "xoo")
       .setProperty("sonar.scm.disabled", "false")
-      .setProperty("sonar.projectDate", "2014-04-01")
+      .setProperty("sonar.projectDate", formatDate(addMonths(new Date(), -3)))
       .setDebugLogs(true);
     orchestrator.executeBuild(analysis2);
-    assertThat(getMeasure(orchestrator, project.getKey(), "alert_status").getValue()).isEqualTo("OK");
-    assertIgnoredConditions("qualitygate/small-changesets/v2-1019-lines", true);
+    verifyGateStatus(project, Status.OK, true);
 
     // small leak => if coverage is OK anyways, we do not have to ignore anything
     tester.wsClient().qualitygates().updateCondition(new UpdateConditionRequest()
@@ -121,11 +114,10 @@ public class OrganizationQualityGateForSmallChangesetsTest {
       .setProperty("sonar.password", password)
       .setProperty("sonar.scm.provider", "xoo")
       .setProperty("sonar.scm.disabled", "false")
-      .setProperty("sonar.projectDate", "2014-04-02")
+      .setProperty("sonar.projectDate", formatDate(addMonths(new Date(), -2)))
       .setDebugLogs(true);
     orchestrator.executeBuild(analysis3);
-    assertThat(getMeasure(orchestrator, project.getKey(), "alert_status").getValue()).isEqualTo("OK");
-    assertIgnoredConditions("qualitygate/small-changesets/v2-1019-lines", false);
+    verifyGateStatus(project, Status.OK, false);
 
     // big leak => use usual behaviour
     tester.wsClient().qualitygates().updateCondition(new UpdateConditionRequest()
@@ -144,40 +136,21 @@ public class OrganizationQualityGateForSmallChangesetsTest {
       .setProperty("sonar.password", password)
       .setProperty("sonar.scm.provider", "xoo")
       .setProperty("sonar.scm.disabled", "false")
-      .setProperty("sonar.projectDate", "2014-04-03")
+      .setProperty("sonar.projectDate", formatDate(addMonths(new Date(), -1)))
       .setDebugLogs(true);
     orchestrator.executeBuild(analysis4);
-    assertThat(getMeasure(orchestrator, project.getKey(), "alert_status").getValue()).isEqualTo("ERROR");
-    assertIgnoredConditions("qualitygate/small-changesets/v2-1020-lines", false);
+    verifyGateStatus(project, Status.ERROR, false);
   }
 
-  private void assertIgnoredConditions(String projectDir, boolean expected) throws IOException {
-    String analysisId = getAnalysisId(getTaskIdInLocalReport(projectDir(projectDir)));
-    boolean ignoredConditions = tester.wsClient().qualitygates()
+  private void verifyGateStatus(Project project, Status expectedStatus, boolean expectedIgnoredConditions) {
+    ProjectAnalyses.SearchResponse analysis = tester.wsClient().projectAnalyses().search(new SearchRequest().setProject(project.getKey()));
+    String analysisId = analysis.getAnalysesList().get(0).getKey();
+    Qualitygates.ProjectStatusResponse.ProjectStatus gateStatus = tester.wsClient().qualitygates()
       .projectStatus(new ProjectStatusRequest().setAnalysisId(analysisId))
-      .getProjectStatus()
-      .getIgnoredConditions();
-    assertThat(ignoredConditions).isEqualTo(expected);
+      .getProjectStatus();
+
+    assertThat(gateStatus.getStatus()).isEqualTo(expectedStatus);
+    assertThat(gateStatus.getIgnoredConditions()).isEqualTo(expectedIgnoredConditions);
   }
 
-  private String getAnalysisId(String taskId) throws IOException {
-    WsResponse activity = tester.wsClient()
-      .wsConnector()
-      .call(new GetRequest("api/ce/task")
-        .setParam("id", taskId)
-        .setMediaType(MediaTypes.PROTOBUF));
-    Ce.TaskResponse activityWsResponse = Ce.TaskResponse.parseFrom(activity.contentStream());
-    return activityWsResponse.getTask().getAnalysisId();
-  }
-
-  private String getTaskIdInLocalReport(File projectDirectory) throws IOException {
-    File metadata = new File(projectDirectory, ".sonar/report-task.txt");
-    assertThat(metadata).exists().isFile();
-    // verify properties
-    Properties props = new Properties();
-    props.load(new StringReader(FileUtils.readFileToString(metadata, StandardCharsets.UTF_8)));
-    assertThat(props.getProperty("ceTaskId")).isNotEmpty();
-
-    return props.getProperty("ceTaskId");
-  }
 }

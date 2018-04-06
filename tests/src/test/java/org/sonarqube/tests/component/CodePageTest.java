@@ -35,7 +35,7 @@ public class CodePageTest {
   public static Orchestrator orchestrator = ComponentSuite.ORCHESTRATOR;
 
   @Rule
-  public Tester tester = new Tester(orchestrator);
+  public Tester tester = new Tester(orchestrator).disableOrganizations();
 
   @Test
   public void code_page() {

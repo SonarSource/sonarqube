@@ -58,6 +58,7 @@ export default class LineSCM extends React.PureComponent<Props> {
         {cell}
         <BubblePopupHelper
           isOpen={popupOpen}
+          offset={{ vertical: -18, horizontal: 0 }}
           popup={<SCMPopup line={line} />}
           position="bottomright"
           togglePopup={this.handleTogglePopup}

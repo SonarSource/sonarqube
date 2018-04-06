@@ -24,9 +24,9 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonarqube.qa.util.Tester;
 import org.sonarqube.qa.util.pageobjects.Navigation;
 import org.sonarqube.tests.Category6Suite;
-import org.sonarqube.qa.util.Tester;
 import org.sonarqube.ws.Organizations;
 import org.sonarqube.ws.Users;
 import util.issue.IssueRule;
@@ -74,7 +74,7 @@ public class OrganizationIssuesPageTest {
       .issuesCount(2)
       .componentsShouldNotContain(org1.getName());
 
-    nav.openIssues()
+    nav.openExploreIssues()
       .issuesCount(4)
       .componentsShouldContain("Org ");
   }

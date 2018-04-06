@@ -46,7 +46,7 @@ public class SonarCloudProjectBadgesTest {
   private static final String SONAR_CLOUD_ORANGE_BADGE = "images/project_badges/sonarcloud-orange.svg";
 
   @ClassRule
-  public static Orchestrator orchestrator = SonarCloudProjectSuite.ORCHESTRATOR;
+  public static Orchestrator orchestrator = OrganizationProjectSuite.ORCHESTRATOR;
 
   @Rule
   public Tester tester = new Tester(orchestrator);

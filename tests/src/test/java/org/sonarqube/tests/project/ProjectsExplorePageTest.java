@@ -38,14 +38,14 @@ import static com.codeborne.selenide.WebDriverRunner.url;
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.projectDir;
 
-public class ProjectsPageTest {
+public class ProjectsExplorePageTest {
 
   private static final String PROJECT_KEY = "key-foo";
 
   @ClassRule
-  public static Orchestrator orchestrator = ProjectSuite.ORCHESTRATOR;
+  public static Orchestrator orchestrator = OrganizationProjectSuite.ORCHESTRATOR;
 
-  private static Tester tester = new Tester(orchestrator).disableOrganizations();
+  private static Tester tester = new Tester(orchestrator);
 
   @ClassRule
   public static RuleChain ruleChain = RuleChain.outerRule(orchestrator).around(tester);
@@ -58,7 +58,7 @@ public class ProjectsPageTest {
 
   @Test
   public void should_display_projects() {
-    ProjectsPage page = tester.openBrowser().openProjects();
+    ProjectsPage page = tester.openBrowser().openExploreProjects();
     page.shouldHaveTotal(2);
     page.getProjectByKey(PROJECT_KEY)
       .shouldHaveMeasure("reliability_rating", "A")
@@ -71,7 +71,7 @@ public class ProjectsPageTest {
 
   @Test
   public void should_display_facets() {
-    ProjectsPage page = tester.openBrowser().openProjects();
+    ProjectsPage page = tester.openBrowser().openExploreProjects();
     page.getFacetByProperty("duplications")
       .shouldHaveValue("1", "1")
       .shouldHaveValue("2", "0")
@@ -83,51 +83,15 @@ public class ProjectsPageTest {
 
   @Test
   public void should_filter_using_facet() {
-    ProjectsPage page = tester.openBrowser().openProjects();
+    ProjectsPage page = tester.openBrowser().openExploreProjects();
     page.shouldHaveTotal(2);
     page.getFacetByProperty("duplications").selectValue("3");
     page.shouldHaveTotal(1);
   }
 
   @Test
-  public void should_open_default_page() {
-    // default page can be "All Projects" or "Favorite Projects" depending on your last choice
-    Navigation nav = tester.openBrowser();
-    ProjectsPage page = nav.openProjects();
-
-    // all projects for anonymous user with default sorting to analysis date
-    page.shouldHaveTotal(2).shouldDisplayAllProjectsWidthSort("-analysis_date");
-
-    // all projects by default for logged in user
-    Users.CreateWsResponse.User administrator = tester.users().generateAdministrator();
-    page = nav.logIn().submitCredentials(administrator.getLogin()).openProjects();
-    page.shouldHaveTotal(2).shouldDisplayAllProjects();
-
-    // favorite one project
-    WsClient administratorWsClient = tester.as(administrator.getLogin()).wsClient();
-    administratorWsClient.favorites().add(new AddRequest().setComponent(PROJECT_KEY));
-    page = nav.openProjects();
-    page.shouldHaveTotal(1).shouldDisplayFavoriteProjects();
-
-    // un-favorite this project
-    administratorWsClient.favorites().remove(new RemoveRequest().setComponent(PROJECT_KEY));
-    page = nav.openProjects();
-    page.shouldHaveTotal(2).shouldDisplayAllProjects();
-
-    // select favorite
-    page.selectFavoriteProjects();
-    page = nav.openProjects();
-    page.shouldHaveTotal(0).shouldDisplayFavoriteProjects();
-
-    // select all
-    page.selectAllProjects();
-    page = nav.openProjects();
-    page.shouldHaveTotal(2).shouldDisplayAllProjects();
-  }
-
-  @Test
   public void should_add_language_to_facet() {
-    ProjectsPage page = tester.openBrowser().openProjects();
+    ProjectsPage page = tester.openBrowser().openExploreProjects();
     page.getFacetByProperty("languages")
       .selectOptionItem("xoo2")
       .shouldHaveValue("xoo2", "0");
@@ -141,7 +105,7 @@ public class ProjectsPageTest {
         .setParam("project", PROJECT_KEY)
         .setParam("tags", "aa,bb,cc,dd,ee,ff,gg,hh,ii,jj,zz"));
 
-    ProjectsPage page = tester.openBrowser().openProjects();
+    ProjectsPage page = tester.openBrowser().openExploreProjects();
     page.getFacetByProperty("tags")
       .shouldHaveValue("aa", "1")
       .shouldHaveValue("ii", "1")
@@ -151,10 +115,10 @@ public class ProjectsPageTest {
 
   @Test
   public void should_switch_between_perspectives() {
-    Users.CreateWsResponse.User administrator = tester.users().generateAdministrator();
+    Users.CreateWsResponse.User administrator = tester.users().generateAdministratorOnDefaultOrganization();
     ProjectsPage page = tester.openBrowser()
       .logIn().submitCredentials(administrator.getLogin())
-      .openProjects();
+      .openExploreProjects();
     page.changePerspective("Risk");
     assertThat(url()).endsWith("/projects?view=visualizations&visualization=risk");
     page.changePerspective("Leak");
@@ -163,23 +127,23 @@ public class ProjectsPageTest {
 
   @Test
   public void should_sort_by_facet() {
-    ProjectsPage page = tester.openBrowser().openProjects();
+    ProjectsPage page = tester.openBrowser().openExploreProjects();
     page.sortProjects("Duplications");
-    page.getProjectByIdx(0).shouldHaveMeasure("duplicated_lines_density", "63.7%");
-    page.invertSorting();
     page.getProjectByIdx(0).shouldHaveMeasure("duplicated_lines_density", "0.0%");
+    page.invertSorting();
+    page.getProjectByIdx(0).shouldHaveMeasure("duplicated_lines_density", "63.7%");
   }
 
   @Test
   public void should_search_for_project() {
-    ProjectsPage page = tester.openBrowser().openProjects();
+    ProjectsPage page = tester.openBrowser().openExploreProjects();
     page.searchProject("s").shouldHaveTotal(2);
     page.searchProject("sam").shouldHaveTotal(1);
   }
 
   @Test
   public void should_search_for_project_and_keep_other_filters() {
-    ProjectsPage page = tester.openBrowser().openProjects();
+    ProjectsPage page = tester.openBrowser().openExploreProjects();
     page.shouldHaveTotal(2);
     page.getFacetByProperty("duplications").selectValue("3");
     page.shouldHaveTotal(1);
@@ -192,7 +156,7 @@ public class ProjectsPageTest {
     Navigation nav = tester.openBrowser().logIn().submitCredentials(user);
 
     // make a search, so its parameters saved to local storage
-    nav.openProjects().changePerspective("Leak");
+    nav.openExploreProjects().changePerspective("Leak");
 
     // change a page
     nav.openHome();

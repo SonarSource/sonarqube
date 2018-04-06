@@ -41,7 +41,7 @@ import static util.ItUtils.runProjectAnalysis;
 public class ProjectSearchTest {
 
   @ClassRule
-  public static Orchestrator orchestrator = ProjectSuite.ORCHESTRATOR;
+  public static Orchestrator orchestrator = OrganizationProjectSuite.ORCHESTRATOR;
 
   @Rule
   public Tester tester = new Tester(orchestrator);

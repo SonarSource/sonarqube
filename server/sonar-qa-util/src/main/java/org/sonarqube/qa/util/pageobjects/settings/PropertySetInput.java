@@ -40,8 +40,8 @@ public class PropertySetInput {
   }
 
   public PropertySetInput save() {
-    elt.find(".js-save-changes").click();
-    elt.find(".js-save-changes").shouldNot(Condition.exist);
+    elt.find(".button-success").click();
+    elt.find(".button-success").shouldNot(Condition.exist);
     return this;
   }
 }

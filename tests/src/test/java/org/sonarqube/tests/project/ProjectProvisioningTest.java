@@ -46,13 +46,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ProjectProvisioningTest {
 
   @ClassRule
-  public static final Orchestrator orchestrator = ProjectSuite.ORCHESTRATOR;
+  public static final Orchestrator orchestrator = OrganizationProjectSuite.ORCHESTRATOR;
 
   @Rule
   public TestRule safeguard = new DisableOnDebug(Timeout.seconds(300));
 
   @Rule
-  public Tester tester = new Tester(orchestrator).setElasticsearchHttpPort(ProjectSuite.SEARCH_HTTP_PORT);
+  public Tester tester = new Tester(orchestrator).setElasticsearchHttpPort(OrganizationProjectSuite.SEARCH_HTTP_PORT);
 
   @Test
   public void provisioned_project_is_available_in_search_engines() {

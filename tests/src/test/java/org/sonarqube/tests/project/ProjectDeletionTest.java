@@ -55,13 +55,13 @@ import static util.ItUtils.projectDir;
 public class ProjectDeletionTest {
 
   @ClassRule
-  public static final Orchestrator orchestrator = ProjectSuite.ORCHESTRATOR;
+  public static final Orchestrator orchestrator = OrganizationProjectSuite.ORCHESTRATOR;
 
   @Rule
   public TestRule safeguard = new DisableOnDebug(Timeout.seconds(300));
 
   @Rule
-  public Tester tester = new Tester(orchestrator).setElasticsearchHttpPort(ProjectSuite.SEARCH_HTTP_PORT);
+  public Tester tester = new Tester(orchestrator).setElasticsearchHttpPort(OrganizationProjectSuite.SEARCH_HTTP_PORT);
 
   @Test
   public void delete_project_by_web_service() {

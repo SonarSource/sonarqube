@@ -44,6 +44,7 @@ export interface Props {
   onSonarCloud: boolean;
   organization?: { key: string };
   organizationsEnabled: boolean;
+  storageOptionsSuffix?: string;
 }
 
 interface State {
@@ -151,25 +152,27 @@ export default class AllProjects extends React.PureComponent<Props, State> {
     }
   };
 
-  getSavedOptions = () => {
+  getStorageOptions = () => {
+    const { storageOptionsSuffix } = this.props;
     const options: {
       sort?: string;
       view?: string;
       visualization?: string;
     } = {};
-    if (storage.getSort()) {
-      options.sort = storage.getSort() || undefined;
+    if (storage.getSort(storageOptionsSuffix)) {
+      options.sort = storage.getSort(storageOptionsSuffix) || undefined;
     }
-    if (storage.getView()) {
-      options.view = storage.getView() || undefined;
+    if (storage.getView(storageOptionsSuffix)) {
+      options.view = storage.getView(storageOptionsSuffix) || undefined;
     }
-    if (storage.getVisualization()) {
-      options.visualization = storage.getVisualization() || undefined;
+    if (storage.getVisualization(storageOptionsSuffix)) {
+      options.visualization = storage.getVisualization(storageOptionsSuffix) || undefined;
     }
     return options;
   };
 
   handlePerspectiveChange = ({ view, visualization }: { view: string; visualization?: string }) => {
+    const { storageOptionsSuffix } = this.props;
     const query: {
       view: string | undefined;
       visualization: string | undefined;
@@ -191,20 +194,20 @@ export default class AllProjects extends React.PureComponent<Props, State> {
       this.updateLocationQuery(query);
     }
 
-    storage.saveSort(query.sort);
-    storage.saveView(query.view);
-    storage.saveVisualization(visualization);
+    storage.saveSort(query.sort, storageOptionsSuffix);
+    storage.saveView(query.view, storageOptionsSuffix);
+    storage.saveVisualization(visualization, storageOptionsSuffix);
   };
 
   handleSortChange = (sort: string, desc: boolean) => {
     const asString = (desc ? '-' : '') + sort;
     this.updateLocationQuery({ sort: asString });
-    storage.saveSort(asString);
+    storage.saveSort(asString, this.props.storageOptionsSuffix);
   };
 
   handleQueryChange(initialMount: boolean) {
     const query = parseUrlQuery(this.props.location.query);
-    const savedOptions = this.getSavedOptions();
+    const savedOptions = this.getStorageOptions();
     const savedOptionsSet = savedOptions.sort || savedOptions.view || savedOptions.visualization;
 
     // if there is no filter, but there are saved preferences in the localStorage

@@ -117,7 +117,7 @@ it('changes sort', () => {
   const wrapper = shallowRender({}, push);
   wrapper.find('PageHeader').prop<Function>('onSortChange')('size', false);
   expect(push).lastCalledWith({ pathname: '/projects', query: { sort: 'size' } });
-  expect(saveSort).lastCalledWith('size');
+  expect(saveSort).lastCalledWith('size', undefined);
 });
 
 it('changes perspective to leak', () => {
@@ -128,9 +128,9 @@ it('changes perspective to leak', () => {
     pathname: '/projects',
     query: { view: 'leak', visualization: undefined }
   });
-  expect(saveSort).lastCalledWith(undefined);
-  expect(saveView).lastCalledWith('leak');
-  expect(saveVisualization).lastCalledWith(undefined);
+  expect(saveSort).lastCalledWith(undefined, undefined);
+  expect(saveView).lastCalledWith('leak', undefined);
+  expect(saveVisualization).lastCalledWith(undefined, undefined);
 });
 
 it('updates sorting when changing perspective from leak', () => {
@@ -144,9 +144,9 @@ it('updates sorting when changing perspective from leak', () => {
     pathname: '/projects',
     query: { sort: 'coverage', view: undefined, visualization: undefined }
   });
-  expect(saveSort).lastCalledWith('coverage');
-  expect(saveView).lastCalledWith(undefined);
-  expect(saveVisualization).lastCalledWith(undefined);
+  expect(saveSort).lastCalledWith('coverage', undefined);
+  expect(saveView).lastCalledWith(undefined, undefined);
+  expect(saveVisualization).lastCalledWith(undefined, undefined);
 });
 
 it('changes perspective to risk visualization', () => {
@@ -160,9 +160,9 @@ it('changes perspective to risk visualization', () => {
     pathname: '/projects',
     query: { view: 'visualizations', visualization: 'risk' }
   });
-  expect(saveSort).lastCalledWith(undefined);
-  expect(saveView).lastCalledWith('visualizations');
-  expect(saveVisualization).lastCalledWith('risk');
+  expect(saveSort).lastCalledWith(undefined, undefined);
+  expect(saveView).lastCalledWith('visualizations', undefined);
+  expect(saveVisualization).lastCalledWith('risk', undefined);
 });
 
 function mountRender(props: any = {}, push: Function = jest.fn(), replace: Function = jest.fn()) {

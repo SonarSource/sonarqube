@@ -39,7 +39,7 @@ public class ComponentsWsTest {
   @ClassRule
   public static final Orchestrator orchestrator = ComponentSuite.ORCHESTRATOR;
 
-  private static Tester tester = new Tester(orchestrator);
+  private static Tester tester = new Tester(orchestrator).disableOrganizations();
 
   @ClassRule
   public static RuleChain ruleChain = RuleChain.outerRule(orchestrator).around(tester);

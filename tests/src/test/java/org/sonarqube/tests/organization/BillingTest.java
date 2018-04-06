@@ -28,7 +28,6 @@ import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonarqube.qa.util.Tester;
-import org.sonarqube.qa.util.pageobjects.Navigation;
 import org.sonarqube.ws.Organizations;
 import org.sonarqube.ws.Users.CreateWsResponse.User;
 import org.sonarqube.ws.client.GetRequest;
@@ -191,7 +190,7 @@ public class BillingTest {
     String projectKey = createPublicProject();
     tester.settings().setGlobalSettings("sonar.billing.preventUpdatingProjectsVisibilityToPrivate", "true");
 
-    Navigation.create(orchestrator)
+    tester.openBrowser()
       .logIn().submitCredentials(orgAdministrator.getLogin())
       .openProjectPermissions(projectKey)
       .shouldBePublic()

@@ -34,7 +34,7 @@ import static util.ItUtils.projectDir;
 public class ProjectListTest {
 
   @ClassRule
-  public static final Orchestrator orchestrator = ProjectSuite.ORCHESTRATOR;
+  public static final Orchestrator orchestrator = OrganizationProjectSuite.ORCHESTRATOR;
 
   @Rule
   public Tester tester = new Tester(orchestrator);

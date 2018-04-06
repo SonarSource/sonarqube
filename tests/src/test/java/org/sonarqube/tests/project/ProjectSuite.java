@@ -33,20 +33,8 @@ import static util.ItUtils.xooPlugin;
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
   ProjectBadgesTest.class,
-  ProjectBulkDeletionTest.class,
-  ProjectBulkDeletionPageTest.class,
-  ProjectDeletionTest.class,
-  ProjectFilterTest.class,
-  ProjectKeyUpdateTest.class,
-  ProjectKeyUpdatePageTest.class,
-  ProjectLeakPageTest.class,
-  ProjectLinksTest.class,
-  ProjectListTest.class,
   ProjectsPageTest.class,
-  ProjectProvisioningTest.class,
-  ProjectSearchTest.class,
-  ProjectSettingsTest.class,
-  ProjectVisibilityPageTest.class
+  ProjectSettingsTest.class
 })
 public class ProjectSuite {
   static final int SEARCH_HTTP_PORT = NetworkUtils.getNextAvailablePort(InetAddress.getLoopbackAddress());
