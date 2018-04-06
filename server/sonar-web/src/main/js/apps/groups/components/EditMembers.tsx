@@ -60,17 +60,20 @@ export default class EditMembers extends React.PureComponent<Props, State> {
 
   handleSearch = (query: string, selected: Filter) => {
     return getUsersInGroup({
-      id: this.props.group.id,
+      name: this.props.group.name,
       organization: this.props.organization,
       ps: 100,
       q: query !== '' ? query : undefined,
       selected
-    }).then(data => {
-      this.setState({
-        users: data.users,
-        selectedUsers: data.users.filter(user => user.selected).map(user => user.login)
-      });
-    });
+    }).then(
+      data => {
+        this.setState({
+          users: data.users,
+          selectedUsers: data.users.filter(user => user.selected).map(user => user.login)
+        });
+      },
+      () => {}
+    );
   };
 
   handleSelect = (login: string) => {
@@ -110,7 +113,19 @@ export default class EditMembers extends React.PureComponent<Props, State> {
 
   renderElement = (login: string): React.ReactNode => {
     const user = find(this.state.users, { login });
-    return user === undefined ? login : user.login;
+    return (
+      <div className="select-list-list-item">
+        {user === undefined ? (
+          login
+        ) : (
+          <>
+            {user.name}
+            <br />
+            <span className="note">{user.login}</span>
+          </>
+        )}
+      </div>
+    );
   };
 
   render() {

@@ -87,7 +87,19 @@ export default class GroupsForm extends React.PureComponent<Props> {
 
   renderElement = (name: string): React.ReactNode => {
     const group = find(this.state.groups, { name });
-    return group === undefined ? name : group.name;
+    return (
+      <div className="select-list-list-item">
+        {group === undefined ? (
+          name
+        ) : (
+          <>
+            {group.name}
+            <br />
+            <span className="note">{group.description}</span>
+          </>
+        )}
+      </div>
+    );
   };
 
   render() {

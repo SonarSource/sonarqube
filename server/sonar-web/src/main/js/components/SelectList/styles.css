@@ -89,7 +89,7 @@
   background-color: var(--gray94);
 }
 
-.select-list-list-checkbox {
+.select-list-list-checkbox i {
   display: inline-block;
   vertical-align: middle;
   margin-right: 10px;
