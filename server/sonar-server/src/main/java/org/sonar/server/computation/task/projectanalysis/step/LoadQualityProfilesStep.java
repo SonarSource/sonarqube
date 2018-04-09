@@ -54,7 +54,7 @@ public class LoadQualityProfilesStep implements ComputationStep {
       while (batchActiveRules.hasNext()) {
         ScannerReport.ActiveRule scannerReportActiveRule = batchActiveRules.next();
         Optional<Rule> rule = ruleRepository.findByKey(RuleKey.of(scannerReportActiveRule.getRuleRepository(), scannerReportActiveRule.getRuleKey()));
-        if (rule.isPresent() && rule.get().getStatus() != RuleStatus.REMOVED) {
+        if (rule.isPresent() && rule.get().getStatus() != RuleStatus.REMOVED && !rule.get().isExternal()) {
           ActiveRule activeRule = convert(scannerReportActiveRule, rule.get());
           activeRules.add(activeRule);
         }

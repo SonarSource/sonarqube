@@ -34,7 +34,9 @@ public class RuleTypeCopier extends IssueVisitor {
   public void onIssue(Component component, DefaultIssue issue) {
     if (issue.type() == null) {
       Rule rule = ruleRepository.getByKey(issue.ruleKey());
-      issue.setType(rule.getType());
+      if (!rule.isExternal()) {
+        issue.setType(rule.getType());
+      }
     }
   }
 }

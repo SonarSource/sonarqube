@@ -44,6 +44,7 @@ public class RuleImpl implements Rule {
   private final DebtRemediationFunction remediationFunction;
   private final RuleType type;
   private final String pluginKey;
+  private final boolean external;
 
   public RuleImpl(RuleDto dto) {
     this.id = dto.getId();
@@ -54,6 +55,8 @@ public class RuleImpl implements Rule {
     this.remediationFunction = effectiveRemediationFunction(dto);
     this.type = RuleType.valueOf(dto.getType());
     this.pluginKey = dto.getPluginKey();
+    // TODO
+    this.external = false;
   }
 
   @Override
@@ -137,5 +140,10 @@ public class RuleImpl implements Rule {
       return new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.valueOf(defaultFn), dto.getDefRemediationGapMultiplier(), dto.getDefRemediationBaseEffort());
     }
     return null;
+  }
+
+  @Override
+  public boolean isExternal() {
+    return external;
   }
 }

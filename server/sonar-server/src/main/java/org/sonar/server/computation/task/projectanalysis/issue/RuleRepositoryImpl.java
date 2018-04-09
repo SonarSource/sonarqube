@@ -21,8 +21,10 @@ package org.sonar.server.computation.task.projectanalysis.issue;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Multimap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Supplier;
 import javax.annotation.CheckForNull;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.core.util.stream.MoreCollectors;
@@ -41,6 +43,8 @@ public class RuleRepositoryImpl implements RuleRepository {
   private Map<RuleKey, Rule> rulesByKey;
   @CheckForNull
   private Map<Integer, Rule> rulesById;
+  @CheckForNull
+  private Map<RuleKey, NewExternalRule> newExternalRulesByKey;
 
   private final DbClient dbClient;
   private final AnalysisMetadataHolder analysisMetadataHolder;
@@ -48,6 +52,12 @@ public class RuleRepositoryImpl implements RuleRepository {
   public RuleRepositoryImpl(DbClient dbClient, AnalysisMetadataHolder analysisMetadataHolder) {
     this.dbClient = dbClient;
     this.analysisMetadataHolder = analysisMetadataHolder;
+  }
+
+  public void insertNewExternalRuleIfAbsent(RuleKey ruleKey, Supplier<NewExternalRule> ruleSupplier) {
+    if (!rulesByKey.containsKey(ruleKey)) {
+      newExternalRulesByKey.computeIfAbsent(ruleKey, s -> ruleSupplier.get());
+    }
   }
 
   @Override
@@ -112,6 +122,7 @@ public class RuleRepositoryImpl implements RuleRepository {
     }
     this.rulesByKey = rulesByKeyBuilder.build();
     this.rulesById = rulesByIdBuilder.build();
+    this.newExternalRulesByKey = new LinkedHashMap<>();
   }
 
 }

@@ -62,12 +62,13 @@ public class TrackerRawInputFactoryTest {
 
   @Rule
   public SourceLinesRepositoryRule fileSourceRepository = new SourceLinesRepositoryRule();
+  
+  @Rule
+  public RuleRepositoryRule ruleRepository = new RuleRepositoryRule();
 
   CommonRuleEngine commonRuleEngine = mock(CommonRuleEngine.class);
-
   IssueFilter issueFilter = mock(IssueFilter.class);
-
-  TrackerRawInputFactory underTest = new TrackerRawInputFactory(treeRootHolder, reportReader, fileSourceRepository, commonRuleEngine, issueFilter);
+  TrackerRawInputFactory underTest = new TrackerRawInputFactory(treeRootHolder, reportReader, fileSourceRepository, commonRuleEngine, issueFilter, ruleRepository);
 
   @Test
   public void load_source_hash_sequences() {

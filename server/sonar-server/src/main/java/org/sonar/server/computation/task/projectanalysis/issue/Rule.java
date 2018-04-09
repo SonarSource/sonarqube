@@ -37,6 +37,8 @@ public interface Rule {
   RuleStatus getStatus();
 
   RuleType getType();
+  
+  boolean isExternal();
 
   /**
    * Get all tags, whatever system or user tags.

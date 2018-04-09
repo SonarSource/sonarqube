@@ -38,6 +38,7 @@ public class DumbRule implements Rule {
   private Set<String> tags = new HashSet<>();
   private DebtRemediationFunction function;
   private String pluginKey;
+  private boolean isExternal;
 
   public DumbRule(RuleKey key) {
     this.key = key;
@@ -84,6 +85,11 @@ public class DumbRule implements Rule {
     return pluginKey;
   }
 
+  @Override
+  public boolean isExternal() {
+    return isExternal;
+  }
+
   public DumbRule setId(Integer id) {
     this.id = id;
     return this;
@@ -116,6 +122,11 @@ public class DumbRule implements Rule {
 
   public DumbRule setPluginKey(String pluginKey) {
     this.pluginKey = pluginKey;
+    return this;
+  }
+
+  public DumbRule setIsExtenral(boolean isExternal) {
+    this.isExternal = isExternal;
     return this;
   }
 

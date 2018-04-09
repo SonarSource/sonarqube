@@ -56,14 +56,16 @@ public class TrackerRawInputFactory {
   private final SourceLinesRepository sourceLinesRepository;
   private final CommonRuleEngine commonRuleEngine;
   private final IssueFilter issueFilter;
+  private final RuleRepository ruleRepository;
 
   public TrackerRawInputFactory(TreeRootHolder treeRootHolder, BatchReportReader reportReader,
-    SourceLinesRepository sourceLinesRepository, CommonRuleEngine commonRuleEngine, IssueFilter issueFilter) {
+    SourceLinesRepository sourceLinesRepository, CommonRuleEngine commonRuleEngine, IssueFilter issueFilter, RuleRepository ruleRepository) {
     this.treeRootHolder = treeRootHolder;
     this.reportReader = reportReader;
     this.sourceLinesRepository = sourceLinesRepository;
     this.commonRuleEngine = commonRuleEngine;
     this.issueFilter = issueFilter;
+    this.ruleRepository = ruleRepository;
   }
 
   public Input<DefaultIssue> create(Component component) {
@@ -120,8 +122,7 @@ public class TrackerRawInputFactory {
         // as late as possible
         while (reportIssues.hasNext()) {
           ScannerReport.ExternalIssue reportExternalIssue = reportIssues.next();
-          DefaultIssue issue = toIssue(getLineHashSequence(), reportExternalIssue);
-          result.add(issue);
+          result.add(toExternalIssue(getLineHashSequence(), reportExternalIssue));
         }
       }
 
@@ -171,10 +172,11 @@ public class TrackerRawInputFactory {
       return issue;
     }
 
-    private DefaultIssue toIssue(LineHashSequence lineHashSeq, ScannerReport.ExternalIssue reportIssue) {
+    private DefaultIssue toExternalIssue(LineHashSequence lineHashSeq, ScannerReport.ExternalIssue reportIssue) {
       DefaultIssue issue = new DefaultIssue();
       init(issue);
-      issue.setRuleKey(RuleKey.of(reportIssue.getRuleRepository(), reportIssue.getRuleKey()));
+
+      issue.setRuleKey(RuleKey.of(RuleKey.EXTERNAL_RULE_REPO_PREFIX + reportIssue.getRuleRepository(), reportIssue.getRuleKey()));
       if (reportIssue.hasTextRange()) {
         int startLine = reportIssue.getTextRange().getStartLine();
         issue.setLine(startLine);
@@ -206,8 +208,23 @@ public class TrackerRawInputFactory {
       }
       issue.setLocations(dbLocationsBuilder.build());
       issue.setType(toRuleType(reportIssue.getType()));
-      issue.setDescriptionUrl(StringUtils.stripToNull(reportIssue.getDescriptionUrl()));
+
+      ruleRepository.insertNewExternalRuleIfAbsent(issue.getRuleKey(), () -> toExternalRule(reportIssue));
       return issue;
+    }
+
+    private NewExternalRule toExternalRule(ScannerReport.ExternalIssue reportIssue) {
+      NewExternalRule.Builder builder = new NewExternalRule.Builder()
+        .setDescriptionUrl(StringUtils.stripToNull(reportIssue.getDescriptionUrl()))
+        .setType(toRuleType(reportIssue.getType()))
+        .setKey(RuleKey.of(RuleKey.EXTERNAL_RULE_REPO_PREFIX + reportIssue.getRuleRepository(), reportIssue.getRuleKey()))
+        .setPluginKey(reportIssue.getRuleRepository())
+        .setName(reportIssue.getRuleName());
+
+      if (reportIssue.getSeverity() != Severity.UNSET_SEVERITY) {
+        builder.setSeverity(reportIssue.getSeverity().name());
+      }
+      return builder.build();
     }
 
     private RuleType toRuleType(IssueType type) {

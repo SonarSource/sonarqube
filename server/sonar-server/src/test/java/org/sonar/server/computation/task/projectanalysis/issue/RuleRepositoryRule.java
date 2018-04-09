@@ -22,6 +22,7 @@ package org.sonar.server.computation.task.projectanalysis.issue;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Supplier;
 import org.junit.rules.ExternalResource;
 import org.sonar.api.rule.RuleKey;
 
@@ -32,6 +33,7 @@ public class RuleRepositoryRule extends ExternalResource implements RuleReposito
 
   private final Map<RuleKey, Rule> rulesByKey = new HashMap<>();
   private final Map<Integer, Rule> rulesById = new HashMap<>();
+  private final Map<RuleKey, NewExternalRule> newExternalRulesById = new HashMap<>();
 
   @Override
   protected void after() {
@@ -75,6 +77,11 @@ public class RuleRepositoryRule extends ExternalResource implements RuleReposito
     rulesByKey.put(requireNonNull(rule.getKey()), rule);
     rulesById.put(requireNonNull(rule.getId()), rule);
     return this;
+  }
+
+  @Override
+  public void insertNewExternalRuleIfAbsent(RuleKey ruleKey, Supplier<NewExternalRule> ruleSupplier) {
+    newExternalRulesById.computeIfAbsent(ruleKey, k -> ruleSupplier.get());
   }
 
 }

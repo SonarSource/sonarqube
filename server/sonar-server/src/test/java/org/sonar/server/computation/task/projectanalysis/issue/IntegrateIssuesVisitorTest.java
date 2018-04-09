@@ -27,8 +27,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
@@ -104,23 +102,17 @@ public class IntegrateIssuesVisitorTest {
   public RuleRepositoryRule ruleRepositoryRule = new RuleRepositoryRule();
   @Rule
   public SourceLinesRepositoryRule fileSourceRepository = new SourceLinesRepositoryRule();
+  @Rule
+  public RuleRepositoryRule ruleRepository = new RuleRepositoryRule();
 
-  @Mock
-  private AnalysisMetadataHolder analysisMetadataHolder;
-  @Mock
-  private IssueFilter issueFilter;
-  @Mock
-  private MovedFilesRepository movedFilesRepository;
-  @Mock
-  private IssueLifecycle issueLifecycle;
-  @Mock
-  private IssueVisitor issueVisitor;
-  @Mock
-  private MergeBranchComponentUuids mergeBranchComponentsUuids;
-  @Mock
-  private ShortBranchIssueMerger issueStatusCopier;
-  @Mock
-  private MergeBranchComponentUuids mergeBranchComponentUuids;
+  private AnalysisMetadataHolder analysisMetadataHolder = mock(AnalysisMetadataHolder.class);
+  private IssueFilter issueFilter = mock(IssueFilter.class);
+  private MovedFilesRepository movedFilesRepository = mock(MovedFilesRepository.class);
+  private IssueLifecycle issueLifecycle = mock(IssueLifecycle.class);
+  private IssueVisitor issueVisitor = mock(IssueVisitor.class);
+  private MergeBranchComponentUuids mergeBranchComponentsUuids = mock(MergeBranchComponentUuids.class);
+  private ShortBranchIssueMerger issueStatusCopier = mock(ShortBranchIssueMerger.class);
+  private MergeBranchComponentUuids mergeBranchComponentUuids = mock(MergeBranchComponentUuids.class);
 
   ArgumentCaptor<DefaultIssue> defaultIssueCaptor;
 
@@ -135,13 +127,13 @@ public class IntegrateIssuesVisitorTest {
 
   @Before
   public void setUp() throws Exception {
-    MockitoAnnotations.initMocks(this);
     IssueVisitors issueVisitors = new IssueVisitors(new IssueVisitor[] {issueVisitor});
 
     defaultIssueCaptor = ArgumentCaptor.forClass(DefaultIssue.class);
     when(movedFilesRepository.getOriginalFile(any(Component.class))).thenReturn(Optional.absent());
 
-    TrackerRawInputFactory rawInputFactory = new TrackerRawInputFactory(treeRootHolder, reportReader, fileSourceRepository, new CommonRuleEngineImpl(), issueFilter);
+    TrackerRawInputFactory rawInputFactory = new TrackerRawInputFactory(treeRootHolder, reportReader, fileSourceRepository, new CommonRuleEngineImpl(),
+      issueFilter, ruleRepository);
     TrackerBaseInputFactory baseInputFactory = new TrackerBaseInputFactory(issuesLoader, dbTester.getDbClient(), movedFilesRepository);
     TrackerMergeBranchInputFactory mergeInputFactory = new TrackerMergeBranchInputFactory(issuesLoader, mergeBranchComponentsUuids, dbTester.getDbClient());
     tracker = new TrackerExecution(baseInputFactory, rawInputFactory, new Tracker<>());
