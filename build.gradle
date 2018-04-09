@@ -291,7 +291,7 @@ subprojects {
       css = 'SLASHSTAR_STYLE'
       less = 'SLASHSTAR_STYLE'
     }
-    excludes(["**/*.txt", "**/*.properties", "**/*.xml", "**/*.xsd", "**/*.html", "**/*.json", "**/*.sql", "**/*.rb", "**/*.vm"])
+    excludes(['**/*.txt', '**/*.properties', '**/*.xml', '**/*.xsd', '**/*.html', '**/*.json', '**/*.sql', '**/*.rb', '**/*.vm', '**/*.snap', '**/*.svg', '**/*.jar', '**/*.zip', '**/*.log', '**/*.cnf', '**/*.jks', '**/README'])
   }
 
   publishing {
