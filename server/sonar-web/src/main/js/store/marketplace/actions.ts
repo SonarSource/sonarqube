@@ -20,10 +20,16 @@
 import { Dispatch } from 'react-redux';
 import { getEditionsForVersion, getEditionsForLastVersion } from './utils';
 import { Edition, EditionStatus, getEditionStatus, getEditionsList } from '../../api/marketplace';
+import { getPendingPlugins, PluginPendingResult } from '../../api/plugins';
 
 interface LoadEditionsAction {
   type: 'LOAD_EDITIONS';
   loading: boolean;
+}
+
+interface SetPendingPluginsAction {
+  type: 'SET_PENDING_PLUGINS';
+  pending: PluginPendingResult;
 }
 
 interface SetEditionsAction {
@@ -37,10 +43,18 @@ interface SetEditionStatusAction {
   status: EditionStatus;
 }
 
-export type Action = LoadEditionsAction | SetEditionsAction | SetEditionStatusAction;
+export type Action =
+  | LoadEditionsAction
+  | SetEditionsAction
+  | SetEditionStatusAction
+  | SetPendingPluginsAction;
 
 export function loadEditions(loading = true): LoadEditionsAction {
   return { type: 'LOAD_EDITIONS', loading };
+}
+
+export function setPendingPlugins(pending: PluginPendingResult): SetPendingPluginsAction {
+  return { type: 'SET_PENDING_PLUGINS', pending };
 }
 
 export function setEditions(editions: Edition[], readOnly?: boolean): SetEditionsAction {
@@ -60,6 +74,15 @@ export const setEditionStatus = (status: EditionStatus) => (dispatch: Dispatch<A
       editionTimer = undefined;
     }, 2000);
   }
+};
+
+export const fetchPendingPlugins = () => (dispatch: Dispatch<Action>) => {
+  getPendingPlugins().then(
+    pending => {
+      dispatch(setPendingPlugins(pending));
+    },
+    () => {}
+  );
 };
 
 export const fetchEditions = (url: string, version: string) => (dispatch: Dispatch<Action>) => {

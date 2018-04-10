@@ -24,7 +24,13 @@ import SettingsNav from '../SettingsNav';
 it('should work with extensions', () => {
   const extensions = [{ key: 'foo', name: 'Foo' }];
   const wrapper = shallow(
-    <SettingsNav extensions={extensions} location={{}} organizationsEnabled={false} />
+    <SettingsNav
+      extensions={extensions}
+      fetchPendingPlugins={() => {}}
+      location={{}}
+      organizationsEnabled={false}
+      pendingPlugins={{ installing: [], removing: [], updating: [] }}
+    />
   );
   expect(wrapper).toMatchSnapshot();
   expect(wrapper.find('Dropdown').map(x => x.dive())).toMatchSnapshot();

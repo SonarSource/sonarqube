@@ -34,7 +34,10 @@ export default function NavBarNotif(props: Props) {
   return (
     <div className={classNames('navbar-notif', props.className)}>
       <div className="navbar-limited clearfix">
-        <div className={classNames({ 'navbar-notif-cancelable': !!props.onCancel })}>
+        <div
+          className={classNames('display-flex-center', {
+            'navbar-notif-cancelable': !!props.onCancel
+          })}>
           {props.children}
           {props.onCancel && <DeleteButton className="button-small" onClick={props.onCancel} />}
         </div>

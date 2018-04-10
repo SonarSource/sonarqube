@@ -44,7 +44,7 @@ exports[`should display an in progress notif 1`] = `
   className="alert alert-info"
 >
   <i
-    className="spinner spacer-right text-bottom"
+    className="spinner spacer-right"
   />
   <span>
     marketplace.edition_status.AUTOMATIC_IN_PROGRESS

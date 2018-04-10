@@ -52,7 +52,7 @@ export default class SettingsEditionsNotif extends React.PureComponent<Props, St
     const { editionStatus } = this.props;
     return (
       <NavBarNotif className="alert alert-info">
-        <i className="spinner spacer-right text-bottom" />
+        <i className="spinner spacer-right" />
         <span>
           {edition
             ? translateWithParameters(

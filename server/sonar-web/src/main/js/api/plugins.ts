@@ -49,6 +49,12 @@ export interface Update {
   previousUpdates?: Update[];
 }
 
+export interface PluginPendingResult {
+  installing: PluginPending[];
+  updating: PluginPending[];
+  removing: PluginPending[];
+}
+
 export interface PluginAvailable extends Plugin {
   release: Release;
   update: Update;
@@ -74,11 +80,7 @@ export function getAvailablePlugins(): Promise<{
   return getJSON('/api/plugins/available').catch(throwGlobalError);
 }
 
-export function getPendingPlugins(): Promise<{
-  installing: PluginPending[];
-  updating: PluginPending[];
-  removing: PluginPending[];
-}> {
+export function getPendingPlugins(): Promise<PluginPendingResult> {
   return getJSON('/api/plugins/pending').catch(throwGlobalError);
 }
 

@@ -82,6 +82,9 @@ export const getMarketplaceEditions = state => fromMarketplace.getEditions(state
 export const getMarketplaceEditionStatus = state =>
   fromMarketplace.getEditionStatus(state.marketplace);
 
+export const getMarketplacePendingPlugins = state =>
+  fromMarketplace.getPendingPlugins(state.marketplace);
+
 export const getMetrics = state => fromMetrics.getMetrics(state.metrics);
 
 export const getMetricByKey = (state, key) => fromMetrics.getMetricByKey(state.metrics, key);

@@ -20,14 +20,15 @@
 /* eslint-disable import/order */
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import { click } from '../../../helpers/testUtils';
-import PendingActions from '../PendingActions';
+import { click } from '../../../../../helpers/testUtils';
+import PendingPluginsActionNotif from '../PendingPluginsActionNotif';
 
-jest.mock('../../../api/plugins', () => ({
+jest.mock('../../../../../api/plugins', () => ({
   cancelPendingPlugins: jest.fn(() => Promise.resolve())
 }));
 
-const cancelPendingPlugins = require('../../../api/plugins').cancelPendingPlugins as jest.Mock<any>;
+const cancelPendingPlugins = require('../../../../../api/plugins')
+  .cancelPendingPlugins as jest.Mock<any>;
 
 beforeEach(() => {
   cancelPendingPlugins.mockClear();
@@ -59,7 +60,7 @@ it('should cancel all pending and refresh them', async () => {
 
 function getWrapper(props = {}) {
   return shallow(
-    <PendingActions
+    <PendingPluginsActionNotif
       pending={{
         installing: [
           {

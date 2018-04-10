@@ -19,17 +19,20 @@
  */
 import { Action } from './actions';
 import { Edition, EditionStatus } from '../../api/marketplace';
+import { PluginPendingResult } from '../../api/plugins';
 
 interface State {
   editions?: Edition[];
   loading: boolean;
   status?: EditionStatus;
   readOnly: boolean;
+  pending: PluginPendingResult;
 }
 
 const defaultState: State = {
   loading: true,
-  readOnly: false
+  readOnly: false,
+  pending: { installing: [], removing: [], updating: [] }
 };
 
 export default function(state: State = defaultState, action: Action): State {
@@ -38,6 +41,12 @@ export default function(state: State = defaultState, action: Action): State {
   }
   if (action.type === 'LOAD_EDITIONS') {
     return { ...state, loading: action.loading };
+  }
+  if (action.type === 'SET_PENDING_PLUGINS') {
+    return {
+      ...state,
+      pending: action.pending
+    };
   }
   if (action.type === 'SET_EDITION_STATUS') {
     const hasChanged = Object.keys(action.status).some(
@@ -53,3 +62,4 @@ export default function(state: State = defaultState, action: Action): State {
 
 export const getEditions = (state: State) => state.editions;
 export const getEditionStatus = (state: State) => state.status;
+export const getPendingPlugins = (state: State) => state.pending;

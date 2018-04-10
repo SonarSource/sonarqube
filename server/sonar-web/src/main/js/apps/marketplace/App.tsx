@@ -24,17 +24,15 @@ import Helmet from 'react-helmet';
 import Header from './Header';
 import EditionBoxes from './EditionBoxes';
 import Footer from './Footer';
-import PendingActions from './PendingActions';
 import PluginsList from './PluginsList';
 import Search from './Search';
 import { filterPlugins, parseQuery, Query, serializeQuery } from './utils';
 import {
   getAvailablePlugins,
   getInstalledPluginsWithUpdates,
-  getPendingPlugins,
   getPluginUpdates,
   Plugin,
-  PluginPending,
+  PluginPendingResult,
   getInstalledPlugins
 } from '../../api/plugins';
 import { Edition, EditionStatus } from '../../api/marketplace';
@@ -46,20 +44,17 @@ export interface Props {
   editions?: Edition[];
   editionsReadOnly: boolean;
   editionStatus?: EditionStatus;
+  fetchPendingPlugins: () => void;
   loadingEditions: boolean;
   location: { pathname: string; query: RawQuery };
+  pendingPlugins: PluginPendingResult;
   standaloneMode: boolean;
-  updateCenterActive: boolean;
   setEditionStatus: (editionStatus: EditionStatus) => void;
+  updateCenterActive: boolean;
 }
 
 interface State {
   loadingPlugins: boolean;
-  pending: {
-    installing: PluginPending[];
-    updating: PluginPending[];
-    removing: PluginPending[];
-  };
   plugins: Plugin[];
 }
 
@@ -74,18 +69,13 @@ export default class App extends React.PureComponent<Props, State> {
     super(props);
     this.state = {
       loadingPlugins: true,
-      pending: {
-        installing: [],
-        updating: [],
-        removing: []
-      },
       plugins: []
     };
   }
 
   componentDidMount() {
     this.mounted = true;
-    this.fetchPendingPlugins();
+    this.props.fetchPendingPlugins();
     this.fetchQueryPlugins();
   }
 
@@ -127,16 +117,6 @@ export default class App extends React.PureComponent<Props, State> {
     );
   };
 
-  fetchPendingPlugins = () =>
-    getPendingPlugins().then(
-      pending => {
-        if (this.mounted) {
-          this.setState({ pending });
-        }
-      },
-      () => {}
-    );
-
   updateQuery = (newQuery: Partial<Query>) => {
     const query = serializeQuery({ ...parseQuery(this.props.location.query), ...newQuery });
     this.context.router.push({ pathname: this.props.location.pathname, query });
@@ -149,19 +129,14 @@ export default class App extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const { editions, editionStatus, standaloneMode } = this.props;
-    const { loadingPlugins, plugins, pending } = this.state;
+    const { editions, editionStatus, standaloneMode, pendingPlugins } = this.props;
+    const { loadingPlugins, plugins } = this.state;
     const query = parseQuery(this.props.location.query);
     const filteredPlugins = query.search ? filterPlugins(plugins, query.search) : plugins;
 
     return (
       <div className="page page-limited" id="marketplace-page">
         <Helmet title={translate('marketplace.page')} />
-        <div className="page-notifs">
-          {standaloneMode && (
-            <PendingActions pending={pending} refreshPending={this.fetchPendingPlugins} />
-          )}
-        </div>
         <Header />
         <EditionBoxes
           canInstall={standaloneMode && !this.props.editionsReadOnly}
@@ -180,10 +155,10 @@ export default class App extends React.PureComponent<Props, State> {
         {loadingPlugins && <i className="spinner" />}
         {!loadingPlugins && (
           <PluginsList
-            pending={pending}
+            pending={pendingPlugins}
             plugins={filteredPlugins}
             readOnly={!standaloneMode}
-            refreshPending={this.fetchPendingPlugins}
+            refreshPending={this.props.fetchPendingPlugins}
           />
         )}
         {!loadingPlugins && <Footer total={filteredPlugins.length} />}

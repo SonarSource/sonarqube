@@ -25,14 +25,20 @@ import SettingsNav from './nav/settings/SettingsNav';
 import {
   getAppState,
   getGlobalSettingValue,
-  getMarketplaceEditionStatus
+  getMarketplaceEditionStatus,
+  getMarketplacePendingPlugins
 } from '../../store/rootReducer';
 import { getSettingsNavigation } from '../../api/nav';
 import { EditionStatus, getEditionStatus } from '../../api/marketplace';
 import { setAdminPages } from '../../store/appState/duck';
-import { fetchEditions, setEditionStatus } from '../../store/marketplace/actions';
+import {
+  fetchEditions,
+  setEditionStatus,
+  fetchPendingPlugins
+} from '../../store/marketplace/actions';
 import { translate } from '../../helpers/l10n';
 import { Extension } from '../types';
+import { PluginPendingResult } from '../../api/plugins';
 
 interface Props {
   appState: {
@@ -43,7 +49,9 @@ interface Props {
   editionsUrl: string;
   editionStatus?: EditionStatus;
   fetchEditions: (url: string, version: string) => void;
+  fetchPendingPlugins: () => void;
   location: {};
+  pendingPlugins: PluginPendingResult;
   setAdminPages: (adminPages: Extension[]) => void;
   setEditionStatus: (editionStatus: EditionStatus) => void;
 }
@@ -88,8 +96,10 @@ class AdminContainer extends React.PureComponent<Props> {
         <SettingsNav
           editionStatus={this.props.editionStatus}
           extensions={adminPages}
+          fetchPendingPlugins={this.props.fetchPendingPlugins}
           location={this.props.location}
           organizationsEnabled={organizationsEnabled}
+          pendingPlugins={this.props.pendingPlugins}
         />
         {this.props.children}
       </div>
@@ -100,9 +110,10 @@ class AdminContainer extends React.PureComponent<Props> {
 const mapStateToProps = (state: any) => ({
   appState: getAppState(state),
   editionStatus: getMarketplaceEditionStatus(state),
-  editionsUrl: (getGlobalSettingValue(state, 'sonar.editions.jsonUrl') || {}).value
+  editionsUrl: (getGlobalSettingValue(state, 'sonar.editions.jsonUrl') || {}).value,
+  pendingPlugins: getMarketplacePendingPlugins(state)
 });
 
-const mapDispatchToProps = { setAdminPages, setEditionStatus, fetchEditions };
+const mapDispatchToProps = { setAdminPages, setEditionStatus, fetchEditions, fetchPendingPlugins };
 
 export default connect(mapStateToProps, mapDispatchToProps)(AdminContainer as any);

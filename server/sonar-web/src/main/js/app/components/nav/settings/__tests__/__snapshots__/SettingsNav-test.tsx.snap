@@ -4,6 +4,7 @@ exports[`should work with extensions 1`] = `
 <ContextNavBar
   height={72}
   id="context-navigation"
+  notif={null}
 >
   <header
     className="navbar-context-header"
