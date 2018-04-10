@@ -39,7 +39,9 @@ public class OrganizationsWsModule extends Module {
       OrganizationsWsSupport.class,
       // actions
       SearchAction.class,
-      SearchMembersAction.class);
+      SearchMembersAction.class,
+      // Update of project visibility is used on on-premise instances, not only on SonarCloud / Organizations
+      UpdateProjectVisibilityAction.class);
     if (config.getBoolean(SONARCLOUD_ENABLED.getKey()).orElse(false)) {
       add(
         EnableSupportAction.class,
@@ -47,8 +49,7 @@ public class OrganizationsWsModule extends Module {
         CreateAction.class,
         DeleteAction.class,
         RemoveMemberAction.class,
-        UpdateAction.class,
-        UpdateProjectVisibilityAction.class);
+        UpdateAction.class);
     }
   }
 
