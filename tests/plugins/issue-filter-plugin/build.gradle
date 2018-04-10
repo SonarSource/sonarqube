@@ -9,7 +9,7 @@ jar {
       'Plugin-Version': version,
       'Plugin-Class': 'IssueFilterPlugin',
       'Plugin-ChildFirstClassLoader': 'false',
-      'Sonar-Version': '7.1-SNAPSHOT',
+      'Sonar-Version': version,
       'SonarLint-Supported': 'false',
       'Plugin-Name': 'IT :: Issue Filter',
       'Plugin-License': 'GNU LGPL 3'

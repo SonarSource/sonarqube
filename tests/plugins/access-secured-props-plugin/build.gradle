@@ -10,7 +10,7 @@ jar {
       'Plugin-Display-Version': '1.0.2 (build 42)',
       'Plugin-Class': 'AccessSecuredPropsPlugin',
       'Plugin-ChildFirstClassLoader': 'false',
-      'Sonar-Version': '7.1-SNAPSHOT',
+      'Sonar-Version': version,
       'SonarLint-Supported': 'false',
       'Plugin-Name': 'Plugins :: Access Secured PropertiesFoo',
       'Plugin-License': 'GNU LGPL 3'

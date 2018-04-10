@@ -9,7 +9,7 @@ jar {
       'Plugin-Version': version,
       'Plugin-Class': 'FakePlugin',
       'Plugin-ChildFirstClassLoader': 'false',
-      'Sonar-Version': '7.1-SNAPSHOT',
+      'Sonar-Version': version,
       'SonarLint-Supported': 'false',
       'Plugin-Name': 'Plugins :: Fake',
       'Plugin-License': 'GNU LGPL 3',

@@ -9,7 +9,7 @@ jar {
       'Plugin-Version': version,
       'Plugin-Class': 'SimpleFrenchPackPlugin',
       'Plugin-ChildFirstClassLoader': 'false',
-      'Sonar-Version': '7.1-SNAPSHOT',
+      'Sonar-Version': version,
       'SonarLint-Supported': 'false',
       'Plugin-Name': 'l10n-fr-pack',
       'Plugin-License': 'GNU LGPL 3'

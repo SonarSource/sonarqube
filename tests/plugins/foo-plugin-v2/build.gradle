@@ -17,7 +17,7 @@ jar {
       'Plugin-Version': version,
       'Plugin-Class': 'org.sonar.foo.FooPlugin',
       'Plugin-ChildFirstClassLoader': 'false',
-      'Sonar-Version': '7.1-SNAPSHOT',
+      'Sonar-Version': version,
       'SonarLint-Supported': 'false',
       'Plugin-Name': 'Foo',
       'Plugin-License': 'GNU LGPL 3'

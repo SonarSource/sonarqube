@@ -9,7 +9,7 @@ jar {
       'Plugin-Version': version,
       'Plugin-Class': 'GlobalPropertyChangePlugin',
       'Plugin-ChildFirstClassLoader': 'false',
-      'Sonar-Version': '7.1-SNAPSHOT',
+      'Sonar-Version': version,
       'SonarLint-Supported': 'false',
       'Plugin-Name': 'Plugins :: Plugins :: Global Property Change',
       'Plugin-License': 'GNU LGPL 3'

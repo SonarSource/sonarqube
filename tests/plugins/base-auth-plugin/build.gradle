@@ -13,7 +13,7 @@ jar {
       'Plugin-Version': version,
       'Plugin-Class': 'FakeBaseAuthPlugin',
       'Plugin-ChildFirstClassLoader': 'false',
-      'Sonar-Version': '7.1-SNAPSHOT',
+      'Sonar-Version': version,
       'SonarLint-Supported': 'false',
       'Plugin-Name': 'Plugins :: Fake Base Authentication Plugin',
       'Plugin-License': 'GNU LGPL 3'
