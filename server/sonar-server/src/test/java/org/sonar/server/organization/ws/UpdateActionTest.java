@@ -173,13 +173,13 @@ public class UpdateActionTest {
   }
 
   @Test
-  public void request_fails_if_name_is_one_char_long() {
+  public void request_fails_if_name_is_empty() {
     userSession.logIn();
 
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Name 'a' must be at least 2 chars long");
+    expectedException.expectMessage("Name must not be empty");
 
-    executeKeyRequest(SOME_KEY, "a");
+    executeKeyRequest(SOME_KEY, "");
   }
 
   @Test

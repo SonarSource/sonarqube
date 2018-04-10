@@ -21,6 +21,7 @@ package org.sonarqube.tests.organization;
 
 import com.sonar.orchestrator.Orchestrator;
 import java.util.List;
+import org.assertj.core.api.Java6Assertions;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
@@ -31,10 +32,9 @@ import org.sonarqube.ws.Users;
 import org.sonarqube.ws.client.organizations.SearchRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Java6Assertions.tuple;
 
 public class PersonalOrganizationTest {
-
-  private static final String SETTING_CREATE_PERSONAL_ORG = "sonar.organizations.createPersonalOrg";
 
   @ClassRule
   public static Orchestrator orchestrator = OrganizationSuite.ORCHESTRATOR;
@@ -44,7 +44,7 @@ public class PersonalOrganizationTest {
 
   @Before
   public void setUp() {
-    tester.settings().setGlobalSettings(SETTING_CREATE_PERSONAL_ORG, "true");
+    tester.settings().setGlobalSettings("sonar.organizations.createPersonalOrg", "true");
   }
 
   @Test
@@ -59,5 +59,15 @@ public class PersonalOrganizationTest {
       .matches(l -> l.get(0).getName().equals(user.getName()));
 
     tester.organizations().assertThatMemberOf(existing.get(0), user);
+  }
+
+  @Test
+  public void create_personal_for_user_having_one_character_size_name() {
+    tester.users().generate(u -> u.setName("A"));
+
+    List<Organizations.Organization> organizations = tester.organizations().service().search(new SearchRequest()).getOrganizationsList();
+    Java6Assertions.assertThat(organizations)
+      .extracting(Organizations.Organization::getName, Organizations.Organization::getGuarded)
+      .contains(tuple("A", true));
   }
 }

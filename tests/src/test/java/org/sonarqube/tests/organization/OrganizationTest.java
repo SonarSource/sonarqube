@@ -30,6 +30,7 @@ import org.junit.Test;
 import org.sonarqube.qa.util.OrganizationTester;
 import org.sonarqube.qa.util.Tester;
 import org.sonarqube.ws.Components;
+import org.sonarqube.ws.Organizations;
 import org.sonarqube.ws.Organizations.Organization;
 import org.sonarqube.ws.Qualityprofiles;
 import org.sonarqube.ws.Rules;
@@ -43,7 +44,6 @@ import org.sonarqube.ws.client.organizations.OrganizationsService;
 import org.sonarqube.ws.client.organizations.SearchRequest;
 import org.sonarqube.ws.client.organizations.UpdateRequest;
 import org.sonarqube.ws.client.permissions.AddUserRequest;
-import org.sonarqube.ws.client.permissions.PermissionsService;
 import org.sonarqube.ws.client.roots.SetRootRequest;
 import org.sonarqube.ws.client.roots.UnsetRootRequest;
 
@@ -192,11 +192,9 @@ public class OrganizationTest {
   @Test
   public void an_organization_member_can_analyze_project() {
     Organization organization = tester.organizations().generate();
-    User user = tester.users().generate();
-    Group group = tester.groups().generate(organization);
-    // users.removeGroups("sonar-users");
-    tester.organizations().service().addMember(new AddMemberRequest().setOrganization(organization.getKey()).setLogin(user.getLogin()));
-    addPermissionsToUser(organization.getKey(), user.getLogin(), "provisioning", "scan");
+    User user = tester.users().generateMember(organization);
+    tester.wsClient().permissions().addUser(new AddUserRequest().setLogin(user.getLogin()).setOrganization(organization.getKey()).setPermission("provisioning"));
+    tester.wsClient().permissions().addUser(new AddUserRequest().setLogin(user.getLogin()).setOrganization(organization.getKey()).setPermission("scan"));
 
     runProjectAnalysis(orchestrator, "shared/xoo-sample",
       "sonar.organization", organization.getKey(),
@@ -227,14 +225,6 @@ public class OrganizationTest {
     runProjectAnalysis(orchestrator, "shared/xoo-sample", "sonar.organization", organization.getKey(), "sonar.login", "admin", "sonar.password", "admin");
 
     assertThat(searchSampleProject(organization.getKey()).getComponentsList()).hasSize(1);
-  }
-
-  private void addPermissionsToUser(String orgKeyAndName, String login, String permission, String... otherPermissions) {
-    PermissionsService permissionsService = tester.wsClient().permissions();
-    permissionsService.addUser(new AddUserRequest().setLogin(login).setOrganization(orgKeyAndName).setPermission(permission));
-    for (String otherPermission : otherPermissions) {
-      permissionsService.addUser(new AddUserRequest().setLogin(login).setOrganization(orgKeyAndName).setPermission(otherPermission));
-    }
   }
 
   @Test
@@ -290,6 +280,16 @@ public class OrganizationTest {
     assertThat(reloadedOrgs)
       .filteredOn(o -> o.getKey().equals(organization.getKey()))
       .hasSize(1);
+  }
+
+  @Test
+  public void create_organization_having_name_of_one_character() {
+    tester.organizations().generate(o -> o.setName("A"));
+
+    Organizations.SearchWsResponse search = tester.organizations().service().search(new SearchRequest());
+
+    assertThat(search.getOrganizationsList())
+      .extracting(Organization::getName).contains("A");
   }
 
   private Components.SearchWsResponse searchSampleProject(String organizationKey) {

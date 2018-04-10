@@ -32,7 +32,7 @@ public class OrganizationValidationImpl implements OrganizationValidation {
   @Override
   public String checkKey(String keyCandidate) {
     requireNonNull(keyCandidate, "key can't be null");
-    checkArgument(keyCandidate.length() >= KEY_MIN_LENGTH, "Key '%s' must be at least %s chars long", keyCandidate, KEY_MIN_LENGTH);
+    checkArgument(keyCandidate.length() >= KEY_MIN_LENGTH, "Key must not be empty");
     checkArgument(keyCandidate.length() <= KEY_MAX_LENGTH, "Key '%s' must be at most %s chars long", keyCandidate, KEY_MAX_LENGTH);
     checkArgument(slugify(keyCandidate).equals(keyCandidate), "Key '%s' contains at least one invalid char", keyCandidate);
 
@@ -43,7 +43,7 @@ public class OrganizationValidationImpl implements OrganizationValidation {
   public String checkName(String nameCandidate) {
     requireNonNull(nameCandidate, "name can't be null");
 
-    checkArgument(nameCandidate.length() >= NAME_MIN_LENGTH, "Name '%s' must be at least %s chars long", nameCandidate, NAME_MIN_LENGTH);
+    checkArgument(nameCandidate.length() >= NAME_MIN_LENGTH, "Name must not be empty");
     checkArgument(nameCandidate.length() <= NAME_MAX_LENGTH, "Name '%s' must be at most %s chars long", nameCandidate, NAME_MAX_LENGTH);
 
     return nameCandidate;

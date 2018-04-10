@@ -48,17 +48,17 @@ public class OrganizationValidationImplTest {
   @Test
   public void checkValidKey_throws_IAE_if_arg_is_empty() {
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Key '' must be at least 2 chars long");
+    expectedException.expectMessage("Key must not be empty");
 
     underTest.checkKey("");
   }
 
   @Test
-  public void checkValidKey_throws_IAE_if_arg_is_1_char_long() {
+  public void checkValidKey_throws_IAE_if_key_is_empty() {
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Key 'a' must be at least 2 chars long");
+    expectedException.expectMessage("Key must not be empty");
 
-    underTest.checkKey("a");
+    underTest.checkKey("");
   }
 
   @Test
@@ -109,19 +109,11 @@ public class OrganizationValidationImplTest {
   }
 
   @Test
-  public void checkValidName_throws_IAE_if_arg_is_empty() {
+  public void checkValidName_throws_IAE_if_empty() {
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Name '' must be at least 2 chars long");
+    expectedException.expectMessage("Name must not be empty");
 
     underTest.checkName("");
-  }
-
-  @Test
-  public void checkValidName_throws_IAE_if_arg_is_1_char_long() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Name 'a' must be at least 2 chars long");
-
-    underTest.checkName("a");
   }
 
   @Test

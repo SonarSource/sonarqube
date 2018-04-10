@@ -22,6 +22,7 @@ package org.sonar.server.organization.ws;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.config.Configuration;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -73,6 +74,7 @@ public class CreateAction implements OrganizationsWsAction {
       .setResponseExample(getClass().getResource("create-example.json"))
       .setInternal(true)
       .setSince("6.2")
+      .setChangelog(new Change("7.2", "Minimal number of character of name and key is one character"))
       .setHandler(this);
 
     action.createParam(PARAM_KEY)
@@ -81,7 +83,7 @@ public class CreateAction implements OrganizationsWsAction {
       .setDescription("Key of the organization. <br />" +
         "The key is unique to the whole SonarQube. <br/>" +
         "When not specified, the key is computed from the name. <br />" +
-        "Otherwise, it must be between 2 and 32 chars long. All chars must be lower-case letters (a to z), digits or dash (but dash can neither be trailing nor heading)")
+        "Otherwise, it must be between 1 and 32 chars long. All chars must be lower-case letters (a to z), digits or dash (but dash can neither be trailing nor heading)")
       .setExampleValue("foo-company");
 
     wsSupport.addOrganizationDetailsParams(action, true);
