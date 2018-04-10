@@ -26,6 +26,7 @@ import org.junit.runners.Suite;
 import org.sonarqube.tests.authorisation.ExecuteAnalysisPermissionTest;
 import org.sonarqube.tests.authorisation.IssuePermissionTest;
 import org.sonarqube.tests.authorisation.PermissionSearchTest;
+import org.sonarqube.tests.authorisation.ProjectPermissionsTest;
 import org.sonarqube.tests.authorisation.ProvisioningPermissionTest;
 import org.sonarqube.tests.authorisation.QualityProfileAdminPermissionTest;
 import org.sonarqube.tests.complexity.ComplexityMeasuresTest;
@@ -88,6 +89,7 @@ import static util.ItUtils.xooPlugin;
   PermissionSearchTest.class,
   ProvisioningPermissionTest.class,
   QualityProfileAdminPermissionTest.class,
+  ProjectPermissionsTest.class,
   // custom measure
   CustomMeasuresTest.class,
   // measure
