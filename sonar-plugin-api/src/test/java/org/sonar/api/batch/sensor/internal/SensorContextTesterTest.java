@@ -117,6 +117,7 @@ public class SensorContextTesterTest {
       .forRule(RuleKey.of("repo", "rule"))
       .type(RuleType.BUG)
       .severity(Severity.BLOCKER)
+      .ruleTitle("title")
       .save();
     newExternalIssue = tester.newExternalIssue();
     newExternalIssue
@@ -124,6 +125,7 @@ public class SensorContextTesterTest {
       .type(RuleType.BUG)
       .severity(Severity.BLOCKER)
       .forRule(RuleKey.of("repo", "rule"))
+      .ruleTitle("title")
       .save();
     assertThat(tester.allExternalIssues()).hasSize(2);
   }

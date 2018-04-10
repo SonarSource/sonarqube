@@ -80,6 +80,11 @@ public interface NewExternalIssue {
   NewIssueLocation newLocation();
 
   /**
+   * Add the description of the rule. Should not depend on the issue being raised.
+   */
+  NewExternalIssue ruleTitle(String title);
+  
+  /**
    * Save the issue. If rule key is unknown or rule not enabled in the current quality profile then a warning is logged but no exception
    * is thrown.
    */

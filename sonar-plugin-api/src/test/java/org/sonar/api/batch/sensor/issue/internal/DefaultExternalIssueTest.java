@@ -54,6 +54,7 @@ public class DefaultExternalIssueTest {
       .remediationEffort(10l)
       .descriptionUrl("url")
       .type(RuleType.BUG)
+      .ruleTitle("rule")
       .severity(Severity.BLOCKER);
 
     assertThat(issue.primaryLocation().inputComponent()).isEqualTo(inputFile);
@@ -63,6 +64,7 @@ public class DefaultExternalIssueTest {
     assertThat(issue.descriptionUrl()).isEqualTo("url");
     assertThat(issue.type()).isEqualTo(RuleType.BUG);
     assertThat(issue.severity()).isEqualTo(Severity.BLOCKER);
+    assertThat(issue.ruleTitle()).isEqualTo("rule");
     assertThat(issue.primaryLocation().message()).isEqualTo("Wrong way!");
 
     issue.save();
@@ -81,6 +83,7 @@ public class DefaultExternalIssueTest {
       .forRule(RuleKey.of("repo", "rule"))
       .remediationEffort(10l)
       .descriptionUrl("url")
+      .ruleTitle("rule")
       .severity(Severity.BLOCKER);
 
     exception.expect(IllegalStateException.class);
@@ -98,6 +101,7 @@ public class DefaultExternalIssueTest {
       .forRule(RuleKey.of("repo", "rule"))
       .remediationEffort(10l)
       .descriptionUrl("url")
+      .ruleTitle("rule")
       .severity(Severity.BLOCKER);
 
     exception.expect(IllegalStateException.class);
@@ -116,10 +120,30 @@ public class DefaultExternalIssueTest {
       .forRule(RuleKey.of("repo", "rule"))
       .remediationEffort(10l)
       .descriptionUrl("url")
+      .ruleTitle("rule")
       .type(RuleType.BUG);
 
     exception.expect(IllegalStateException.class);
     exception.expectMessage("Severity is mandatory");
+    issue.save();
+  }
+
+  @Test
+  public void fail_to_store_if_no_rule_title() {
+    SensorStorage storage = mock(SensorStorage.class);
+    DefaultExternalIssue issue = new DefaultExternalIssue(storage)
+      .at(new DefaultIssueLocation()
+        .on(inputFile)
+        .at(inputFile.selectLine(1))
+        .message("Wrong way!"))
+      .forRule(RuleKey.of("repo", "rule"))
+      .remediationEffort(10l)
+      .descriptionUrl("url")
+      .severity(Severity.BLOCKER)
+      .type(RuleType.BUG);
+
+    exception.expect(IllegalStateException.class);
+    exception.expectMessage("Rule title is mandatory");
     issue.save();
   }
 

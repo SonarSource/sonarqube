@@ -201,7 +201,6 @@ message ExternalIssue {
   string descriptionUrl = 8;
   IssueType type = 9;
   string rule_title = 10;
-  string rule_name = 11;
 }
 
 enum IssueType {

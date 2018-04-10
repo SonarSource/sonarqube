@@ -40,11 +40,12 @@ public class OneExternalIssuePerLineSensor implements Sensor {
   public static final Long EFFORT = 10l;
   public static final RuleType type = RuleType.BUG;
   public static final String ACTIVATE_EXTERNAL_ISSUES = "sonar.oneExternalIssuePerLine.activate";
+  private static final String NAME = "One External Issue Per Line";
 
   @Override
   public void describe(SensorDescriptor descriptor) {
     descriptor
-      .name("One External Issue Per Line")
+      .name(NAME)
       .onlyOnLanguages(Xoo.KEY, Xoo2.KEY)
       .onlyWhenConfiguration(c -> c.getBoolean(ACTIVATE_EXTERNAL_ISSUES).orElse(false));
   }
@@ -73,6 +74,8 @@ public class OneExternalIssuePerLineSensor implements Sensor {
           .on(file)
           .at(file.selectLine(line))
           .message("This issue is generated on each line"))
+        .ruleTitle(NAME)
+        .descriptionUrl("http://oneexternalissueperline.xoo.net")
         .severity(Severity.valueOf(SEVERITY))
         .remediationEffort(EFFORT)
         .type(type)

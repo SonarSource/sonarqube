@@ -48,4 +48,9 @@ public interface ExternalIssue extends IIssue {
    * Type of the issue.
    */
   RuleType type();
+  
+  /**
+   * Short description of the rule. Should not depend on the issue being raised.
+   */
+  String ruleTitle();
 }

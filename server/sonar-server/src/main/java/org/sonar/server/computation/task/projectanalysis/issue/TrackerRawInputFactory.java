@@ -219,7 +219,7 @@ public class TrackerRawInputFactory {
         .setType(toRuleType(reportIssue.getType()))
         .setKey(RuleKey.of(RuleKey.EXTERNAL_RULE_REPO_PREFIX + reportIssue.getRuleRepository(), reportIssue.getRuleKey()))
         .setPluginKey(reportIssue.getRuleRepository())
-        .setName(reportIssue.getRuleName());
+        .setName(reportIssue.getRuleTitle());
 
       if (reportIssue.getSeverity() != Severity.UNSET_SEVERITY) {
         builder.setSeverity(reportIssue.getSeverity().name());

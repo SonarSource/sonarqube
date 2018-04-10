@@ -121,6 +121,7 @@ public class ModuleIssues {
     builder.setSeverity(severity);
     builder.setRuleRepository(issue.ruleKey().repository());
     builder.setRuleKey(issue.ruleKey().rule());
+    builder.setRuleTitle(issue.ruleTitle());
     builder.setMsg(primaryMessage);
     locationBuilder.setMsg(primaryMessage);
 
