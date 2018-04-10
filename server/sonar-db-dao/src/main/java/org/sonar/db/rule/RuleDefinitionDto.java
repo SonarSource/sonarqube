@@ -42,11 +42,13 @@ public class RuleDefinitionDto {
   private String ruleKey;
   private String description;
   private RuleDto.Format descriptionFormat;
+  private String descriptionURL;
   private RuleStatus status;
   private String name;
   private String configKey;
   private Integer severity;
   private boolean isTemplate;
+  private boolean isExternal;
   private String language;
   private Integer templateId;
   private String defRemediationFunction;
@@ -120,6 +122,15 @@ public class RuleDefinitionDto {
     return this;
   }
 
+  public String getDescriptionURL() {
+    return descriptionURL;
+  }
+
+  public RuleDefinitionDto setDescriptionURL(String descriptionURL) {
+    this.descriptionURL = descriptionURL;
+    return this;
+  }
+
   public RuleDto.Format getDescriptionFormat() {
     return descriptionFormat;
   }
@@ -182,6 +193,16 @@ public class RuleDefinitionDto {
 
   public RuleDefinitionDto setIsTemplate(boolean isTemplate) {
     this.isTemplate = isTemplate;
+    return this;
+  }
+
+
+  public boolean isExternal() {
+    return isExternal;
+  }
+
+  public RuleDefinitionDto setIsExternal(boolean isExternal) {
+    this.isExternal = isExternal;
     return this;
   }
 

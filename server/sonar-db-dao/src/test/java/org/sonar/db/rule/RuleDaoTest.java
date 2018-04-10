@@ -476,10 +476,12 @@ public class RuleDaoTest {
       .setName("new name")
       .setDescription("new description")
       .setDescriptionFormat(RuleDto.Format.MARKDOWN)
+      .setDescriptionURL("https://eslint.org/docs/rules/no-cond-assign")
       .setStatus(RuleStatus.DEPRECATED)
       .setConfigKey("NewConfigKey")
       .setSeverity(Severity.INFO)
       .setIsTemplate(true)
+      .setIsExternal(true)
       .setLanguage("dart")
       .setTemplateId(3)
       .setDefRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.toString())
@@ -499,6 +501,7 @@ public class RuleDaoTest {
     assertThat(ruleDto.getName()).isEqualTo("new name");
     assertThat(ruleDto.getDescription()).isEqualTo("new description");
     assertThat(ruleDto.getDescriptionFormat()).isEqualTo(RuleDto.Format.MARKDOWN);
+    assertThat(ruleDto.getDescriptionURL()).isEqualTo("https://eslint.org/docs/rules/no-cond-assign");
     assertThat(ruleDto.getStatus()).isEqualTo(RuleStatus.DEPRECATED);
     assertThat(ruleDto.getRuleKey()).isEqualTo("NewRuleKey");
     assertThat(ruleDto.getRepositoryKey()).isEqualTo("plugin");
@@ -506,6 +509,7 @@ public class RuleDaoTest {
     assertThat(ruleDto.getSeverity()).isEqualTo(0);
     assertThat(ruleDto.getLanguage()).isEqualTo("dart");
     assertThat(ruleDto.isTemplate()).isTrue();
+    assertThat(ruleDto.isExternal()).isTrue();
     assertThat(ruleDto.getTemplateId()).isEqualTo(3);
     assertThat(ruleDto.getDefRemediationFunction()).isEqualTo("LINEAR_OFFSET");
     assertThat(ruleDto.getDefRemediationGapMultiplier()).isEqualTo("5d");
@@ -529,10 +533,12 @@ public class RuleDaoTest {
       .setName("new name")
       .setDescription("new description")
       .setDescriptionFormat(RuleDto.Format.MARKDOWN)
+      .setDescriptionURL("https://eslint.org/docs/rules/no-cond-assign")
       .setStatus(RuleStatus.DEPRECATED)
       .setConfigKey("NewConfigKey")
       .setSeverity(Severity.INFO)
       .setIsTemplate(true)
+      .setIsExternal(true)
       .setLanguage("dart")
       .setTemplateId(3)
       .setDefRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.toString())
@@ -551,6 +557,7 @@ public class RuleDaoTest {
     assertThat(ruleDto.getName()).isEqualTo("new name");
     assertThat(ruleDto.getDescription()).isEqualTo("new description");
     assertThat(ruleDto.getDescriptionFormat()).isEqualTo(RuleDto.Format.MARKDOWN);
+    assertThat(ruleDto.getDescriptionURL()).isEqualTo("https://eslint.org/docs/rules/no-cond-assign");
     assertThat(ruleDto.getStatus()).isEqualTo(RuleStatus.DEPRECATED);
     assertThat(ruleDto.getRuleKey()).isEqualTo("NewRuleKey");
     assertThat(ruleDto.getRepositoryKey()).isEqualTo("plugin");
@@ -558,6 +565,7 @@ public class RuleDaoTest {
     assertThat(ruleDto.getSeverity()).isEqualTo(0);
     assertThat(ruleDto.getLanguage()).isEqualTo("dart");
     assertThat(ruleDto.isTemplate()).isTrue();
+    assertThat(ruleDto.isExternal()).isTrue();
     assertThat(ruleDto.getTemplateId()).isEqualTo(3);
     assertThat(ruleDto.getDefRemediationFunction()).isEqualTo("LINEAR_OFFSET");
     assertThat(ruleDto.getDefRemediationGapMultiplier()).isEqualTo("5d");
