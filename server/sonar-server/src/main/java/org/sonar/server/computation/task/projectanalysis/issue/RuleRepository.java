@@ -22,6 +22,7 @@ package org.sonar.server.computation.task.projectanalysis.issue;
 import java.util.Optional;
 import java.util.function.Supplier;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.db.DbSession;
 
 /**
  * Repository of every rule in DB (including manual rules) whichever their status.
@@ -45,6 +46,9 @@ public interface RuleRepository {
   Optional<Rule> findByKey(RuleKey key);
 
   Optional<Rule> findById(int id);
-  
+
   void insertNewExternalRuleIfAbsent(RuleKey ruleKey, Supplier<NewExternalRule> ruleSupplier);
+
+  void persistNewExternalRules(DbSession dbSession);
+
 }

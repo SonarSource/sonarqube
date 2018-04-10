@@ -23,8 +23,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Supplier;
+
 import org.junit.rules.ExternalResource;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.db.DbSession;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
@@ -63,6 +65,10 @@ public class RuleRepositoryRule extends ExternalResource implements RuleReposito
   @Override
   public Optional<Rule> findById(int id) {
     return Optional.ofNullable(rulesById.get(id));
+  }
+
+  @Override public void persistNewExternalRules(DbSession dbSession) {
+    throw new UnsupportedOperationException();
   }
 
   public DumbRule add(RuleKey key) {

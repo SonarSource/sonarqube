@@ -42,7 +42,11 @@ public class AddRuleExternalTest {
 
   @Test
   public void column_are_added_to_table() throws SQLException {
+    dbTester.assertColumnDoesNotExist("rules", "is_external");
+    dbTester.assertColumnDoesNotExist("rules", "description_url");
+
     underTest.execute();
+
     dbTester.assertColumnDefinition("rules", "is_external", BOOLEAN, null, true);
     dbTester.assertColumnDefinition("rules", "description_url", VARCHAR, 256, true);
   }

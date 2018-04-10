@@ -25,6 +25,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
+
 import org.apache.ibatis.session.ResultHandler;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.RuleQuery;
@@ -47,6 +48,11 @@ public class RuleDao implements Dao {
     RuleDto res = mapper(session).selectByKey(organization.getUuid(), key);
     ensureOrganizationIsSet(organization.getUuid(), res);
     return ofNullable(res);
+  }
+
+  public RuleDto selectOrFailByKey(DbSession session, RuleKey key) {
+    RuleDefinitionDto ruleDefinitionDto = selectOrFailDefinitionByKey(session, key);
+    return new RuleDto(ruleDefinitionDto, new RuleMetadataDto());
   }
 
   public Optional<RuleDefinitionDto> selectDefinitionByKey(DbSession session, RuleKey key) {

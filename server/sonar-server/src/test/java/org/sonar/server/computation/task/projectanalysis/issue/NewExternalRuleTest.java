@@ -35,6 +35,7 @@ public class NewExternalRuleTest {
     NewExternalRule.Builder builder = new NewExternalRule.Builder()
       .setDescriptionUrl("url")
       .setKey(RuleKey.of("repo", "rule"))
+      .setPluginKey("repo")
       .setName("name")
       .setSeverity("MAJOR")
       .setType(RuleType.BUG);
@@ -49,7 +50,7 @@ public class NewExternalRuleTest {
 
     assertThat(rule.getDescriptionUrl()).isEqualTo("url");
     assertThat(rule.getName()).isEqualTo("name");
-    assertThat(rule.getPluginKey()).isNull();
+    assertThat(rule.getPluginKey()).isEqualTo("repo");
     assertThat(rule.getSeverity()).isEqualTo("MAJOR");
     assertThat(rule.getType()).isEqualTo(RuleType.BUG);
     assertThat(rule.getDescriptionUrl()).isEqualTo("url");

@@ -27,6 +27,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.System2;
@@ -50,6 +51,10 @@ import org.sonar.server.computation.task.projectanalysis.issue.IssueCache;
 import org.sonar.server.computation.task.projectanalysis.issue.RuleRepositoryImpl;
 import org.sonar.server.computation.task.projectanalysis.issue.UpdateConflictResolver;
 import org.sonar.server.computation.task.step.ComputationStep;
+import org.sonar.server.es.EsTester;
+import org.sonar.server.rule.RuleCreator;
+import org.sonar.server.rule.index.RuleIndexDefinition;
+import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.util.cache.DiskCache;
 
 import static java.util.Collections.singletonList;
@@ -61,6 +66,8 @@ import static org.sonar.api.issue.Issue.STATUS_CLOSED;
 import static org.sonar.api.issue.Issue.STATUS_OPEN;
 import static org.sonar.api.rule.Severity.BLOCKER;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
+import static org.sonar.server.organization.TestDefaultOrganizationProvider.from;
+import static org.sonar.server.util.TypeValidationsTesting.newFullTypeValidations;
 
 public class PersistIssuesStepTest extends BaseStepTest {
 
@@ -82,6 +89,12 @@ public class PersistIssuesStepTest extends BaseStepTest {
   private IssueCache issueCache;
   private ComputationStep step;
 
+  @org.junit.Rule
+  public EsTester es = new EsTester(new RuleIndexDefinition(new MapSettings().asConfig()));
+
+  private RuleIndexer ruleIndexer = new RuleIndexer(es.client(), db.getDbClient());
+  private RuleCreator creator = new RuleCreator(System2.INSTANCE, ruleIndexer, db.getDbClient(), newFullTypeValidations(), from(db));
+
   @Override
   protected ComputationStep step() {
     return step;
@@ -94,7 +107,7 @@ public class PersistIssuesStepTest extends BaseStepTest {
     when(system2.now()).thenReturn(NOW);
     reportReader.setMetadata(ScannerReport.Metadata.getDefaultInstance());
 
-    step = new PersistIssuesStep(dbClient, system2, new UpdateConflictResolver(), new RuleRepositoryImpl(dbClient, analysisMetadataHolder), issueCache);
+    step = new PersistIssuesStep(dbClient, system2, new UpdateConflictResolver(), new RuleRepositoryImpl(creator, dbClient, analysisMetadataHolder), issueCache);
   }
 
   @After

@@ -36,6 +36,7 @@ public class NewExternalRule implements Rule {
   private final String descriptionUrl;
   private final String severity;
   private final RuleType type;
+  private final String pluginKey;
 
   private NewExternalRule(Builder builder) {
     this.key = checkNotNull(builder.key, "key");
@@ -43,6 +44,7 @@ public class NewExternalRule implements Rule {
     this.descriptionUrl = builder.descriptionUrl;
     this.severity = checkNotEmpty(builder.severity, "severity");
     this.type = checkNotNull(builder.type, "type");
+    this.pluginKey = builder.pluginKey;
   }
 
   private static String checkNotEmpty(String str, String name) {
@@ -110,7 +112,7 @@ public class NewExternalRule implements Rule {
 
   @Override
   public String getPluginKey() {
-    return null;
+    return pluginKey;
   }
 
   public static class Builder {
@@ -119,6 +121,7 @@ public class NewExternalRule implements Rule {
     private String descriptionUrl;
     private String severity;
     private RuleType type;
+    private String pluginKey;
 
     public Builder setKey(RuleKey key) {
       this.key = key;
@@ -163,6 +166,11 @@ public class NewExternalRule implements Rule {
 
     public NewExternalRule build() {
       return new NewExternalRule(this);
+    }
+
+    public Builder setPluginKey(String pluginKey) {
+      this.pluginKey = pluginKey;
+      return this;
     }
   }
 }

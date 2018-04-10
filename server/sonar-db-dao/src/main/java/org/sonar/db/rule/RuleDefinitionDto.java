@@ -122,11 +122,12 @@ public class RuleDefinitionDto {
     return this;
   }
 
+  @CheckForNull
   public String getDescriptionURL() {
     return descriptionURL;
   }
 
-  public RuleDefinitionDto setDescriptionURL(String descriptionURL) {
+  public RuleDefinitionDto setDescriptionURL(@Nullable String descriptionURL) {
     this.descriptionURL = descriptionURL;
     return this;
   }

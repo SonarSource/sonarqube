@@ -19,13 +19,7 @@
  */
 package org.sonar.server.computation.task.projectanalysis.issue;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Multimap;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.function.Supplier;
-import javax.annotation.CheckForNull;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
@@ -33,6 +27,13 @@ import org.sonar.db.DbSession;
 import org.sonar.db.rule.DeprecatedRuleKeyDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolder;
+import org.sonar.server.rule.RuleCreator;
+
+import javax.annotation.CheckForNull;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.Supplier;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
@@ -43,21 +44,37 @@ public class RuleRepositoryImpl implements RuleRepository {
   private Map<RuleKey, Rule> rulesByKey;
   @CheckForNull
   private Map<Integer, Rule> rulesById;
-  @CheckForNull
-  private Map<RuleKey, NewExternalRule> newExternalRulesByKey;
 
+  private final RuleCreator creator;
   private final DbClient dbClient;
   private final AnalysisMetadataHolder analysisMetadataHolder;
 
-  public RuleRepositoryImpl(DbClient dbClient, AnalysisMetadataHolder analysisMetadataHolder) {
+  public RuleRepositoryImpl(RuleCreator creator, DbClient dbClient, AnalysisMetadataHolder analysisMetadataHolder) {
+    this.creator = creator;
     this.dbClient = dbClient;
     this.analysisMetadataHolder = analysisMetadataHolder;
   }
 
   public void insertNewExternalRuleIfAbsent(RuleKey ruleKey, Supplier<NewExternalRule> ruleSupplier) {
+    ensureInitialized();
+
     if (!rulesByKey.containsKey(ruleKey)) {
-      newExternalRulesByKey.computeIfAbsent(ruleKey, s -> ruleSupplier.get());
+      rulesByKey.computeIfAbsent(ruleKey, s -> ruleSupplier.get());
     }
+  }
+
+  @Override public void persistNewExternalRules(DbSession dbSession) {
+    ensureInitialized();
+
+    rulesByKey.values().stream()
+      .filter(NewExternalRule.class::isInstance)
+      .forEach(extRule -> persistAndIndex(dbSession, (NewExternalRule) extRule));
+  }
+
+  private void persistAndIndex(DbSession dbSession, NewExternalRule external) {
+    Rule rule = creator.create(dbSession, external);
+    rulesById.put(rule.getId(), rule);
+    rulesByKey.put(external.getKey(), rule);
   }
 
   @Override
@@ -109,20 +126,17 @@ public class RuleRepositoryImpl implements RuleRepository {
   }
 
   private void loadRulesFromDb(DbSession dbSession) {
-    ImmutableMap.Builder<RuleKey, Rule> rulesByKeyBuilder = ImmutableMap.builder();
-    ImmutableMap.Builder<Integer, Rule> rulesByIdBuilder = ImmutableMap.builder();
+    this.rulesByKey = new HashMap<>();
+    this.rulesById = new HashMap<>();
     String organizationUuid = analysisMetadataHolder.getOrganization().getUuid();
     Multimap<Integer, DeprecatedRuleKeyDto> deprecatedRuleKeysByRuleId = dbClient.ruleDao().selectAllDeprecatedRuleKeys(dbSession).stream()
       .collect(MoreCollectors.index(DeprecatedRuleKeyDto::getRuleId));
     for (RuleDto ruleDto : dbClient.ruleDao().selectAll(dbSession, organizationUuid)) {
       Rule rule = new RuleImpl(ruleDto);
-      rulesByKeyBuilder.put(ruleDto.getKey(), rule);
-      rulesByIdBuilder.put(ruleDto.getId(), rule);
-      deprecatedRuleKeysByRuleId.get(ruleDto.getId()).forEach(t -> rulesByKeyBuilder.put(RuleKey.of(t.getOldRepositoryKey(), t.getOldRuleKey()), rule));
+      rulesByKey.put(ruleDto.getKey(), rule);
+      rulesById.put(ruleDto.getId(), rule);
+      deprecatedRuleKeysByRuleId.get(ruleDto.getId()).forEach(t -> rulesByKey.put(RuleKey.of(t.getOldRepositoryKey(), t.getOldRuleKey()), rule));
     }
-    this.rulesByKey = rulesByKeyBuilder.build();
-    this.rulesById = rulesByIdBuilder.build();
-    this.newExternalRulesByKey = new LinkedHashMap<>();
   }
 
 }
