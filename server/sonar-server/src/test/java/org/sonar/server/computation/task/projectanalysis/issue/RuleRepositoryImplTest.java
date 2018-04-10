@@ -21,16 +21,13 @@ package org.sonar.server.computation.task.projectanalysis.issue;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-
 import java.util.Optional;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
-import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
@@ -42,14 +39,10 @@ import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
 import org.sonar.server.es.EsTester;
-import org.sonar.server.organization.TestDefaultOrganizationProvider;
-import org.sonar.server.rule.RuleCreator;
+import org.sonar.server.rule.ExternalRuleCreator;
 import org.sonar.server.rule.index.RuleIndexDefinition;
-import org.sonar.server.rule.index.RuleIndexer;
-import org.sonar.server.util.TypeValidationsTesting;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.eq;
@@ -61,8 +54,6 @@ import static org.mockito.Mockito.when;
 import static org.mockito.internal.verification.VerificationModeFactory.times;
 import static org.sonar.api.rule.Severity.BLOCKER;
 import static org.sonar.api.rules.RuleType.BUG;
-import static org.sonar.server.organization.TestDefaultOrganizationProvider.from;
-import static org.sonar.server.util.TypeValidationsTesting.newFullTypeValidations;
 
 public class RuleRepositoryImplTest {
 
@@ -87,14 +78,12 @@ public class RuleRepositoryImplTest {
   @org.junit.Rule
   public EsTester es = new EsTester(new RuleIndexDefinition(new MapSettings().asConfig()));
 
-  private RuleIndexer ruleIndexer = new RuleIndexer(es.client(), db.getDbClient());
-  private RuleCreator creator = new RuleCreator(System2.INSTANCE, ruleIndexer, db.getDbClient(), newFullTypeValidations(), from(db));
-
   private DbClient dbClient = mock(DbClient.class);
   private DbSession dbSession = mock(DbSession.class);
   private RuleDao ruleDao = mock(RuleDao.class);
 
-  private RuleRepositoryImpl underTest = new RuleRepositoryImpl(creator, dbClient, analysisMetadataHolder);
+  private ExternalRuleCreator externalRuleCreator = new ExternalRuleCreator(dbClient, System2.INSTANCE);
+  private RuleRepositoryImpl underTest = new RuleRepositoryImpl(externalRuleCreator, dbClient, analysisMetadataHolder);
 
   @Before
   public void setUp() throws Exception {
@@ -284,7 +273,8 @@ public class RuleRepositoryImplTest {
   @Test
   public void accept_new_externally_defined_Rules() {
     DbClient dbClient = db.getDbClient();
-    underTest = new RuleRepositoryImpl(creator, dbClient, analysisMetadataHolder);
+    externalRuleCreator = new ExternalRuleCreator(dbClient, System2.INSTANCE);
+    underTest = new RuleRepositoryImpl(externalRuleCreator, dbClient, analysisMetadataHolder);
 
     RuleKey ruleKey = RuleKey.of("eslint", "no-cond-assign");
 
@@ -296,7 +286,6 @@ public class RuleRepositoryImplTest {
       .setSeverity(BLOCKER)
       .setType(BUG)
       .build());
-
 
     assertThat(underTest.getByKey(ruleKey)).isNotNull();
     assertThat(underTest.getByKey(ruleKey).getPluginKey()).isEqualTo("eslint");
@@ -312,7 +301,8 @@ public class RuleRepositoryImplTest {
   public void persist_new_externally_defined_Rules() {
     DbClient dbClient = db.getDbClient();
     DbSession dbSession = dbClient.openSession(false);
-    underTest = new RuleRepositoryImpl(creator, dbClient, analysisMetadataHolder);
+    externalRuleCreator = new ExternalRuleCreator(dbClient, System2.INSTANCE);
+    underTest = new RuleRepositoryImpl(externalRuleCreator, dbClient, analysisMetadataHolder);
 
     RuleKey ruleKey = RuleKey.of("eslint", "no-cond-assign");
     underTest.insertNewExternalRuleIfAbsent(ruleKey, () -> new NewExternalRule.Builder()
@@ -323,7 +313,6 @@ public class RuleRepositoryImplTest {
       .setSeverity(BLOCKER)
       .setType(BUG)
       .build());
-
 
     underTest.persistNewExternalRules(dbSession);
 

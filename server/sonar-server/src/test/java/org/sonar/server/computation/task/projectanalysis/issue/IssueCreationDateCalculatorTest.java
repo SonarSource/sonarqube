@@ -59,33 +59,25 @@ public class IssueCreationDateCalculatorTest {
   @Rule
   public AnalysisMetadataHolderRule analysisMetadataHolder = new AnalysisMetadataHolderRule();
 
-  private ScmInfoRepository scmInfoRepository;
-  private IssueFieldsSetter issueUpdater;
-  private ActiveRulesHolder activeRulesHolder;
-  private Component component;
-  private RuleKey ruleKey;
-  private DefaultIssue issue;
-  private ActiveRule activeRule;
+  private ScmInfoRepository scmInfoRepository = mock(ScmInfoRepository.class);
+  private IssueFieldsSetter issueUpdater = mock(IssueFieldsSetter.class);
+  private ActiveRulesHolder activeRulesHolder = mock(ActiveRulesHolder.class);
+  private Component component = mock(Component.class);
+  private RuleKey ruleKey = RuleKey.of("reop", "rule");
+  private DefaultIssue issue = mock(DefaultIssue.class);
+  private ActiveRule activeRule = mock(ActiveRule.class);
   private IssueCreationDateCalculator calculator;
-  private Analysis baseAnalysis;
-  private Map<String, ScannerPlugin> scannerPlugins;
+  private Analysis baseAnalysis = mock(Analysis.class);
+  private Map<String, ScannerPlugin> scannerPlugins = new HashMap<>();
+  private RuleRepository ruleRepository = mock(RuleRepository.class);
   private ScmInfo scmInfo;
 
   @Before
   public void before() {
-    scannerPlugins = new HashMap<>();
     analysisMetadataHolder.setScannerPluginsByKey(scannerPlugins);
     analysisMetadataHolder.setAnalysisDate(new Date());
-    scmInfoRepository = mock(ScmInfoRepository.class);
-    issueUpdater = mock(IssueFieldsSetter.class);
-    activeRulesHolder = mock(ActiveRulesHolder.class);
-    component = mock(Component.class);
     when(component.getUuid()).thenReturn(COMPONENT_UUID);
-    ruleKey = RuleKey.of("reop", "rule");
-    issue = mock(DefaultIssue.class);
-    activeRule = mock(ActiveRule.class);
-    baseAnalysis = mock(Analysis.class);
-    calculator = new IssueCreationDateCalculator(analysisMetadataHolder, scmInfoRepository, issueUpdater, activeRulesHolder);
+    calculator = new IssueCreationDateCalculator(analysisMetadataHolder, scmInfoRepository, issueUpdater, activeRulesHolder, ruleRepository);
 
     when(activeRulesHolder.get(any(RuleKey.class)))
       .thenReturn(Optional.absent());

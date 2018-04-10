@@ -55,8 +55,7 @@ public class RuleImpl implements Rule {
     this.remediationFunction = effectiveRemediationFunction(dto);
     this.type = RuleType.valueOf(dto.getType());
     this.pluginKey = dto.getPluginKey();
-    // TODO
-    this.external = false;
+    this.external = dto.isExternal();
   }
 
   @Override

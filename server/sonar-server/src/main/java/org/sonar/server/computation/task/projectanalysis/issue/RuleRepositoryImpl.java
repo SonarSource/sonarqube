@@ -20,6 +20,11 @@
 package org.sonar.server.computation.task.projectanalysis.issue;
 
 import com.google.common.collect.Multimap;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.Supplier;
+import javax.annotation.CheckForNull;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
@@ -27,13 +32,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.rule.DeprecatedRuleKeyDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolder;
-import org.sonar.server.rule.RuleCreator;
-
-import javax.annotation.CheckForNull;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.function.Supplier;
+import org.sonar.server.rule.ExternalRuleCreator;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
@@ -45,11 +44,11 @@ public class RuleRepositoryImpl implements RuleRepository {
   @CheckForNull
   private Map<Integer, Rule> rulesById;
 
-  private final RuleCreator creator;
+  private final ExternalRuleCreator creator;
   private final DbClient dbClient;
   private final AnalysisMetadataHolder analysisMetadataHolder;
 
-  public RuleRepositoryImpl(RuleCreator creator, DbClient dbClient, AnalysisMetadataHolder analysisMetadataHolder) {
+  public RuleRepositoryImpl(ExternalRuleCreator creator, DbClient dbClient, AnalysisMetadataHolder analysisMetadataHolder) {
     this.creator = creator;
     this.dbClient = dbClient;
     this.analysisMetadataHolder = analysisMetadataHolder;
@@ -63,7 +62,8 @@ public class RuleRepositoryImpl implements RuleRepository {
     }
   }
 
-  @Override public void persistNewExternalRules(DbSession dbSession) {
+  @Override
+  public void persistNewExternalRules(DbSession dbSession) {
     ensureInitialized();
 
     rulesByKey.values().stream()

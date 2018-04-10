@@ -36,14 +36,11 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.rule.RuleDao;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleDto.Format;
 import org.sonar.db.rule.RuleMetadataDto;
 import org.sonar.db.rule.RuleParamDto;
-import org.sonar.server.computation.task.projectanalysis.issue.NewExternalRule;
-import org.sonar.server.computation.task.projectanalysis.issue.RuleImpl;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.rule.index.RuleIndexer;
@@ -52,7 +49,6 @@ import org.sonar.server.util.TypeValidations;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Lists.newArrayList;
 import static java.lang.String.format;
-import static org.sonar.db.rule.RuleDto.Scope.ALL;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 
 @ServerSide
@@ -91,20 +87,6 @@ public class RuleCreator {
 
     ruleIndexer.commitAndIndex(dbSession, customRuleId);
     return customRuleKey;
-  }
-
-  public org.sonar.server.computation.task.projectanalysis.issue.Rule create(DbSession dbSession, NewExternalRule external) {
-    RuleDao dao = dbClient.ruleDao();
-    dao.insert(dbSession, new RuleDefinitionDto()
-      .setRuleKey(external.getKey())
-      .setPluginKey(external.getPluginKey())
-      .setIsExternal(true)
-      .setName(external.getName())
-      .setDescriptionURL(external.getDescriptionUrl())
-      .setType(external.getType())
-      .setScope(ALL)
-      .setSeverity(external.getSeverity()));
-    return new RuleImpl(dao.selectOrFailByKey(dbSession, external.getKey()));
   }
 
   private void validateCustomRule(NewCustomRule newRule, DbSession dbSession, RuleKey templateKey) {

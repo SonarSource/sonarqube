@@ -72,9 +72,10 @@ public class ComponentIssuesLoader {
     List<DefaultIssue> result = new ArrayList<>();
     dbSession.getMapper(IssueMapper.class).scrollNonClosedByComponentUuid(componentUuid, resultContext -> {
       DefaultIssue issue = (resultContext.getResultObject()).toDefaultIssue();
+      Rule rule = ruleRepository.getByKey(issue.ruleKey());
 
       // TODO this field should be set outside this class
-      if (!isActive(issue.ruleKey()) || ruleRepository.getByKey(issue.ruleKey()).getStatus() == RuleStatus.REMOVED) {
+      if ((!rule.isExternal() && !isActive(issue.ruleKey())) || rule.getStatus() == RuleStatus.REMOVED) {
         issue.setOnDisabledRule(true);
         // TODO to be improved, why setOnDisabledRule(true) is not enough ?
         issue.setBeingClosed(true);

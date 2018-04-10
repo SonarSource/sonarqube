@@ -28,6 +28,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
+import javax.annotation.Nullable;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -63,12 +65,14 @@ public class IssueCreationDateCalculator extends IssueVisitor {
   private final AnalysisMetadataHolder analysisMetadataHolder;
   private final IssueChangeContext changeContext;
   private final ActiveRulesHolder activeRulesHolder;
+  private final RuleRepository ruleRepository;
 
   public IssueCreationDateCalculator(AnalysisMetadataHolder analysisMetadataHolder, ScmInfoRepository scmInfoRepository,
-    IssueFieldsSetter issueUpdater, ActiveRulesHolder activeRulesHolder) {
+    IssueFieldsSetter issueUpdater, ActiveRulesHolder activeRulesHolder, RuleRepository ruleRepository) {
     this.scmInfoRepository = scmInfoRepository;
     this.issueUpdater = issueUpdater;
     this.analysisMetadataHolder = analysisMetadataHolder;
+    this.ruleRepository = ruleRepository;
     this.changeContext = createScan(new Date(analysisMetadataHolder.getAnalysisDate()));
     this.activeRulesHolder = activeRulesHolder;
   }
@@ -80,24 +84,28 @@ public class IssueCreationDateCalculator extends IssueVisitor {
     }
     Optional<Long> lastAnalysisOptional = lastAnalysis();
     boolean firstAnalysis = !lastAnalysisOptional.isPresent();
-    ActiveRule activeRule = toJavaUtilOptional(activeRulesHolder.get(issue.getRuleKey()))
-      .orElseThrow(illegalStateException("The rule %s raised an issue, but is not one of the active rules.", issue.getRuleKey()));
-    if (firstAnalysis
-      || activeRuleIsNew(activeRule, lastAnalysisOptional.get())
-      || ruleImplementationChanged(activeRule, lastAnalysisOptional.get())) {
-      getScmChangeDate(component, issue)
-        .ifPresent(changeDate -> updateDate(issue, changeDate));
+    Rule rule = ruleRepository.findByKey(issue.getRuleKey())
+      .orElseThrow(illegalStateException("The rule with key '%s' raised an issue, but no rule with that key was found", issue.getRuleKey()));
+
+    if (rule.isExternal()) {
+      getScmChangeDate(component, issue).ifPresent(changeDate -> updateDate(issue, changeDate));
+    } else {
+      ActiveRule activeRule = toJavaUtilOptional(activeRulesHolder.get(issue.getRuleKey()))
+        .orElseThrow(illegalStateException("The rule %s raised an issue, but is not one of the active rules.", issue.getRuleKey()));
+      if (firstAnalysis || activeRuleIsNew(activeRule, lastAnalysisOptional.get())
+        || ruleImplementationChanged(activeRule.getRuleKey(), activeRule.getPluginKey(), lastAnalysisOptional.get())) {
+        getScmChangeDate(component, issue).ifPresent(changeDate -> updateDate(issue, changeDate));
+      }
     }
   }
 
-  private boolean ruleImplementationChanged(ActiveRule activeRule, long lastAnalysisDate) {
-    String pluginKey = activeRule.getPluginKey();
+  private boolean ruleImplementationChanged(RuleKey ruleKey, @Nullable String pluginKey, long lastAnalysisDate) {
     if (pluginKey == null) {
       return false;
     }
 
     ScannerPlugin scannerPlugin = Optional.ofNullable(analysisMetadataHolder.getScannerPluginsByKey().get(pluginKey))
-      .orElseThrow(illegalStateException("The rule %s is declared to come from plugin %s, but this plugin was not used by scanner.", activeRule.getRuleKey(), pluginKey));
+      .orElseThrow(illegalStateException("The rule %s is declared to come from plugin %s, but this plugin was not used by scanner.", ruleKey, pluginKey));
     return pluginIsNew(scannerPlugin, lastAnalysisDate)
       || basePluginIsNew(scannerPlugin, lastAnalysisDate);
   }

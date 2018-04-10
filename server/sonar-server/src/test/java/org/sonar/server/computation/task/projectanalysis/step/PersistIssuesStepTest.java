@@ -52,9 +52,8 @@ import org.sonar.server.computation.task.projectanalysis.issue.RuleRepositoryImp
 import org.sonar.server.computation.task.projectanalysis.issue.UpdateConflictResolver;
 import org.sonar.server.computation.task.step.ComputationStep;
 import org.sonar.server.es.EsTester;
-import org.sonar.server.rule.RuleCreator;
+import org.sonar.server.rule.ExternalRuleCreator;
 import org.sonar.server.rule.index.RuleIndexDefinition;
-import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.util.cache.DiskCache;
 
 import static java.util.Collections.singletonList;
@@ -66,8 +65,6 @@ import static org.sonar.api.issue.Issue.STATUS_CLOSED;
 import static org.sonar.api.issue.Issue.STATUS_OPEN;
 import static org.sonar.api.rule.Severity.BLOCKER;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
-import static org.sonar.server.organization.TestDefaultOrganizationProvider.from;
-import static org.sonar.server.util.TypeValidationsTesting.newFullTypeValidations;
 
 public class PersistIssuesStepTest extends BaseStepTest {
 
@@ -92,8 +89,7 @@ public class PersistIssuesStepTest extends BaseStepTest {
   @org.junit.Rule
   public EsTester es = new EsTester(new RuleIndexDefinition(new MapSettings().asConfig()));
 
-  private RuleIndexer ruleIndexer = new RuleIndexer(es.client(), db.getDbClient());
-  private RuleCreator creator = new RuleCreator(System2.INSTANCE, ruleIndexer, db.getDbClient(), newFullTypeValidations(), from(db));
+  private ExternalRuleCreator externalRuleCreator = new ExternalRuleCreator(dbClient, System2.INSTANCE);
 
   @Override
   protected ComputationStep step() {
@@ -107,7 +103,7 @@ public class PersistIssuesStepTest extends BaseStepTest {
     when(system2.now()).thenReturn(NOW);
     reportReader.setMetadata(ScannerReport.Metadata.getDefaultInstance());
 
-    step = new PersistIssuesStep(dbClient, system2, new UpdateConflictResolver(), new RuleRepositoryImpl(creator, dbClient, analysisMetadataHolder), issueCache);
+    step = new PersistIssuesStep(dbClient, system2, new UpdateConflictResolver(), new RuleRepositoryImpl(externalRuleCreator, dbClient, analysisMetadataHolder), issueCache);
   }
 
   @After

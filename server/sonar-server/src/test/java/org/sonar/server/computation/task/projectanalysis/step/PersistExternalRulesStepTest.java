@@ -34,17 +34,14 @@ import org.sonar.server.computation.task.projectanalysis.issue.NewExternalRule;
 import org.sonar.server.computation.task.projectanalysis.issue.RuleRepositoryImpl;
 import org.sonar.server.computation.task.step.ComputationStep;
 import org.sonar.server.es.EsTester;
-import org.sonar.server.rule.RuleCreator;
+import org.sonar.server.rule.ExternalRuleCreator;
 import org.sonar.server.rule.index.RuleIndexDefinition;
-import org.sonar.server.rule.index.RuleIndexer;
 
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.rule.Severity.BLOCKER;
 import static org.sonar.api.rules.RuleType.BUG;
-import static org.sonar.server.organization.TestDefaultOrganizationProvider.from;
-import static org.sonar.server.util.TypeValidationsTesting.newFullTypeValidations;
 
 public class PersistExternalRulesStepTest extends BaseStepTest {
 
@@ -56,7 +53,6 @@ public class PersistExternalRulesStepTest extends BaseStepTest {
     .setOrganizationUuid("org-1", "qg-uuid-1");
 
   private DbClient dbClient = db.getDbClient();
-  private System2 system2 = System2.INSTANCE;
 
   private ComputationStep underTest;
   private RuleRepositoryImpl ruleRepository;
@@ -64,9 +60,7 @@ public class PersistExternalRulesStepTest extends BaseStepTest {
   @org.junit.Rule
   public EsTester es = new EsTester(new RuleIndexDefinition(new MapSettings().asConfig()));
 
-  private RuleIndexer ruleIndexer = new RuleIndexer(es.client(), db.getDbClient());
-  private RuleCreator creator = new RuleCreator(System2.INSTANCE, ruleIndexer, db.getDbClient(), newFullTypeValidations(), from(db));
-
+  private ExternalRuleCreator externalRuleCreator = new ExternalRuleCreator(dbClient, System2.INSTANCE);
 
   @Override
   protected ComputationStep step() {
@@ -75,7 +69,7 @@ public class PersistExternalRulesStepTest extends BaseStepTest {
 
   @Before
   public void setup() {
-    ruleRepository = new RuleRepositoryImpl(creator, dbClient, analysisMetadataHolder);
+    ruleRepository = new RuleRepositoryImpl(externalRuleCreator, dbClient, analysisMetadataHolder);
     underTest = new PersistExternalRulesStep(dbClient, ruleRepository);
   }
 
