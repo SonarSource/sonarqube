@@ -57,7 +57,7 @@ export default class PendingPluginsActionNotif extends React.PureComponent<Props
     }
 
     return (
-      <NavBarNotif className="alert alert-info">
+      <NavBarNotif className="alert alert-info js-pending">
         <span className="little-spacer-right">
           {translate('marketplace.sonarqube_needs_to_be_restarted_to')}
         </span>

@@ -2,7 +2,7 @@
 
 exports[`should display pending actions 1`] = `
 <NavBarNotif
-  className="alert alert-info"
+  className="alert alert-info js-pending"
 >
   <span
     className="little-spacer-right"
