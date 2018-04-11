@@ -104,7 +104,6 @@ subprojects {
         entry 'jackson-annotations'
       }
       dependency 'com.github.kevinsawicki:http-request:5.4.1'
-      dependency 'com.github.tlrx:elasticsearch-test:1.2.1'
       dependency 'com.googlecode.java-diff-utils:diffutils:1.2'
       dependency('com.googlecode.json-simple:json-simple:1.1.1') {
         exclude 'junit:junit'

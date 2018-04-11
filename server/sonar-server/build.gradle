@@ -65,7 +65,6 @@ dependencies {
   compileOnly 'com.h2database:h2'
 
   testCompile 'com.github.kevinsawicki:http-request'
-  testCompile 'com.github.tlrx:elasticsearch-test'
   testCompile 'com.google.code.findbugs:jsr305'
   testCompile 'com.h2database:h2'
   testCompile 'com.squareup.okhttp3:mockwebserver'
