@@ -22,5 +22,7 @@ import { shallow } from 'enzyme';
 import Maintainability from '../Maintainability';
 
 it('renders', () => {
-  expect(shallow(<Maintainability displayOrganizations={false} projects={[]} />)).toMatchSnapshot();
+  expect(
+    shallow(<Maintainability displayOrganizations={false} helpText="foobar" projects={[]} />)
+  ).toMatchSnapshot();
 });

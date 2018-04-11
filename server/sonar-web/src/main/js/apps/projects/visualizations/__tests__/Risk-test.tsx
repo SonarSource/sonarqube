@@ -29,5 +29,7 @@ it('renders', () => {
     tags: [],
     visibility: 'public'
   };
-  expect(shallow(<Risk displayOrganizations={false} projects={[project1]} />)).toMatchSnapshot();
+  expect(
+    shallow(<Risk displayOrganizations={false} helpText="foobar" projects={[project1]} />)
+  ).toMatchSnapshot();
 });

@@ -22,6 +22,8 @@ import React from 'react';
 import EmptyResult from './EmptyResult';
 import OriginalBubbleChart from '../../../components/charts/BubbleChart';
 import ColorRatingsLegend from '../../../components/charts/ColorRatingsLegend';
+import Tooltip from '../../../components/controls/Tooltip';
+import HelpIcon from '../../../components/icons-components/HelpIcon';
 import { formatMeasure, isDiffMetric } from '../../../helpers/measures';
 import {
   getLocalizedMetricDomain,
@@ -99,6 +101,15 @@ export default class BubbleChart extends React.PureComponent {
   handleBubbleClick = (component /*: ComponentEnhanced */) =>
     this.props.updateSelected(component.refKey || component.key);
 
+  getDescription(domain /*: string */) {
+    const description = `component_measures.overview.${domain}.description`;
+    const translatedDescription = translate(description);
+    if (description === translatedDescription) {
+      return null;
+    }
+    return translatedDescription;
+  }
+
   renderBubbleChart(
     metrics /*: {
       x: Metric ,
@@ -158,7 +169,14 @@ export default class BubbleChart extends React.PureComponent {
         );
     return (
       <div className="measure-overview-bubble-chart-header">
-        <span className="measure-overview-bubble-chart-title">{title}</span>
+        <span className="measure-overview-bubble-chart-title">
+          {title}
+          <Tooltip overlay={this.getDescription(domain)}>
+            <span className="spacer-left text-info">
+              <HelpIcon />
+            </span>
+          </Tooltip>
+        </span>
         <span className="measure-overview-bubble-chart-legend">
           <span className="note">
             {colorsMetric && (
@@ -185,15 +203,6 @@ export default class BubbleChart extends React.PureComponent {
     );
   }
 
-  renderChartFooter(domain /*: string */) {
-    const description = `component_measures.overview.${domain}.description`;
-    const translatedDescription = translate(description);
-    if (description === translatedDescription) {
-      return null;
-    }
-    return <div className="measure-overview-bubble-chart-footer">{translatedDescription}</div>;
-  }
-
   render() {
     if (this.props.components.length <= 0) {
       return <EmptyResult />;
@@ -213,7 +222,6 @@ export default class BubbleChart extends React.PureComponent {
         <div className="measure-overview-bubble-chart-axis y">
           {getLocalizedMetricName(metrics.y)}
         </div>
-        {this.renderChartFooter(domain)}
       </div>
     );
   }

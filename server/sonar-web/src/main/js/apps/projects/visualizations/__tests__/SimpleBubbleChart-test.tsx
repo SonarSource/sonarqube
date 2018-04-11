@@ -35,6 +35,7 @@ it('renders', () => {
       <SimpleBubbleChart
         colorMetric="security_rating"
         displayOrganizations={false}
+        helpText="foobar"
         projects={[project1]}
         sizeMetric={{ key: 'ncloc', type: 'INT' }}
         xMetric={{ key: 'complexity', type: 'INT' }}

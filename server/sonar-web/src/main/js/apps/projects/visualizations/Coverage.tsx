@@ -20,9 +20,11 @@
 import * as React from 'react';
 import SimpleBubbleChart from './SimpleBubbleChart';
 import { Project } from '../types';
+import { translate } from '../../../helpers/l10n';
 
 interface Props {
   displayOrganizations: boolean;
+  helpText: string;
   projects: Project[];
 }
 
@@ -30,10 +32,11 @@ export default function Coverage(props: Props) {
   return (
     <SimpleBubbleChart
       {...props}
-      xMetric={{ key: 'complexity', type: 'SHORT_INT' }}
-      yMetric={{ key: 'coverage', type: 'PERCENT' }}
-      yDomain={[100, 0]}
       sizeMetric={{ key: 'uncovered_lines', type: 'SHORT_INT' }}
+      title={translate('projects.visualization', 'coverage')}
+      xMetric={{ key: 'complexity', type: 'SHORT_INT' }}
+      yDomain={[100, 0]}
+      yMetric={{ key: 'coverage', type: 'PERCENT' }}
     />
   );
 }

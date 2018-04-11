@@ -25,6 +25,8 @@ import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { RATING_COLORS } from '../../../helpers/constants';
 import { getProjectUrl } from '../../../helpers/urls';
 import { Project } from '../types';
+import Tooltip from '../../../components/controls/Tooltip';
+import HelpIcon from '../../../components/icons-components/HelpIcon';
 
 export interface Metric {
   key: string;
@@ -34,8 +36,10 @@ export interface Metric {
 interface Props {
   colorMetric?: string;
   displayOrganizations: boolean;
+  helpText: string;
   projects: Project[];
   sizeMetric: Metric;
+  title?: string;
   xMetric: Metric;
   yDomain?: [number, number];
   yMetric: Metric;
@@ -124,19 +128,29 @@ export default class SimpleBubbleChart extends React.PureComponent<Props> {
           {translate('metric', yMetric.key, 'name')}
         </div>
         <div className="measure-details-bubble-chart-axis size">
-          {colorMetric != null && (
-            <span className="spacer-right">
-              {translateWithParameters(
-                'component_measures.legend.color_x',
-                translate('metric', colorMetric, 'name')
-              )}
-            </span>
-          )}
-          {translateWithParameters(
-            'component_measures.legend.size_x',
-            translate('metric', sizeMetric.key, 'name')
-          )}
-          {colorMetric != null && <ColorRatingsLegend className="big-spacer-top" />}
+          <span className="measure-details-bubble-chart-title">
+            {this.props.title}
+            <Tooltip overlay={this.props.helpText}>
+              <span className="spacer-left text-info">
+                <HelpIcon className="text-bottom" />
+              </span>
+            </Tooltip>
+          </span>
+          <div>
+            {colorMetric != null && (
+              <span className="spacer-right">
+                {translateWithParameters(
+                  'component_measures.legend.color_x',
+                  translate('metric', colorMetric, 'name')
+                )}
+              </span>
+            )}
+            {translateWithParameters(
+              'component_measures.legend.size_x',
+              translate('metric', sizeMetric.key, 'name')
+            )}
+            {colorMetric != null && <ColorRatingsLegend className="big-spacer-top" />}
+          </div>
         </div>
       </div>
     );

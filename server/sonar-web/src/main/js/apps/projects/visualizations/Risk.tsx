@@ -25,6 +25,8 @@ import { formatMeasure } from '../../../helpers/measures';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { RATING_COLORS } from '../../../helpers/constants';
 import { getProjectUrl } from '../../../helpers/urls';
+import Tooltip from '../../../components/controls/Tooltip';
+import HelpIcon from '../../../components/icons-components/HelpIcon';
 
 const X_METRIC = 'sqale_index';
 const X_METRIC_TYPE = 'SHORT_WORK_DUR';
@@ -38,6 +40,7 @@ const COLOR_METRIC_TYPE = 'RATING';
 
 interface Props {
   displayOrganizations: boolean;
+  helpText: string;
   projects: Project[];
 }
 
@@ -126,6 +129,7 @@ export default class Risk extends React.PureComponent<Props> {
           padding={[80, 20, 60, 100]}
           yDomain={[100, 0]}
         />
+
         <div className="measure-details-bubble-chart-axis x">
           {translate('metric', X_METRIC, 'name')}
         </div>
@@ -133,17 +137,27 @@ export default class Risk extends React.PureComponent<Props> {
           {translate('metric', Y_METRIC, 'name')}
         </div>
         <div className="measure-details-bubble-chart-axis size">
-          <span className="spacer-right">
-            {translateWithParameters(
-              'component_measures.legend.color_x',
-              translate('projects.worse_of_reliablity_and_security')
-            )}
+          <span className="measure-details-bubble-chart-title">
+            {translate('projects.visualization.risk')}
+            <Tooltip overlay={this.props.helpText}>
+              <span className="spacer-left text-info">
+                <HelpIcon />
+              </span>
+            </Tooltip>
           </span>
-          {translateWithParameters(
-            'component_measures.legend.size_x',
-            translate('metric', SIZE_METRIC, 'name')
-          )}
-          <ColorRatingsLegend className="big-spacer-top" />
+          <div>
+            <span className="spacer-right">
+              {translateWithParameters(
+                'component_measures.legend.color_x',
+                translate('projects.worse_of_reliablity_and_security')
+              )}
+            </span>
+            {translateWithParameters(
+              'component_measures.legend.size_x',
+              translate('metric', SIZE_METRIC, 'name')
+            )}
+            <ColorRatingsLegend className="big-spacer-top" />
+          </div>
         </div>
       </div>
     );

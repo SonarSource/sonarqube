@@ -20,9 +20,11 @@
 import * as React from 'react';
 import SimpleBubbleChart from './SimpleBubbleChart';
 import { Project } from '../types';
+import { translate } from '../../../helpers/l10n';
 
 interface Props {
   displayOrganizations: boolean;
+  helpText: string;
   projects: Project[];
 }
 
@@ -30,10 +32,11 @@ export default function Maintainability(props: Props) {
   return (
     <SimpleBubbleChart
       {...props}
+      colorMetric="sqale_rating"
+      sizeMetric={{ key: 'code_smells', type: 'SHORT_INT' }}
+      title={translate('projects.visualization', 'maintainability')}
       xMetric={{ key: 'ncloc', type: 'SHORT_INT' }}
       yMetric={{ key: 'sqale_index', type: 'SHORT_WORK_DUR' }}
-      sizeMetric={{ key: 'code_smells', type: 'SHORT_INT' }}
-      colorMetric="sqale_rating"
     />
   );
 }

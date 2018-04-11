@@ -20,9 +20,11 @@
 import * as React from 'react';
 import SimpleBubbleChart from './SimpleBubbleChart';
 import { Project } from '../types';
+import { translate } from '../../../helpers/l10n';
 
 interface Props {
   displayOrganizations: boolean;
+  helpText: string;
   projects: Project[];
 }
 
@@ -30,9 +32,10 @@ export default function Duplications(props: Props) {
   return (
     <SimpleBubbleChart
       {...props}
+      sizeMetric={{ key: 'duplicated_blocks', type: 'SHORT_INT' }}
+      title={translate('projects.visualization', 'duplications')}
       xMetric={{ key: 'ncloc', type: 'SHORT_INT' }}
       yMetric={{ key: 'duplicated_lines_density', type: 'PERCENT' }}
-      sizeMetric={{ key: 'duplicated_blocks', type: 'SHORT_INT' }}
     />
   );
 }

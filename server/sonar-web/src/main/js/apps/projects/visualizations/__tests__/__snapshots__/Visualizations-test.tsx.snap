@@ -9,16 +9,10 @@ exports[`renders 1`] = `
   >
     <Coverage
       displayOrganizations={false}
+      helpText="projects.visualization.coverage.description"
       projects={Array []}
     />
   </div>
-  <footer
-    className="projects-visualizations-footer"
-  >
-    <p>
-      projects.visualization.coverage.description
-    </p>
-  </footer>
 </div>
 `;
 
@@ -31,15 +25,13 @@ exports[`renders when limit is reached 1`] = `
   >
     <Coverage
       displayOrganizations={false}
+      helpText="projects.visualization.coverage.description"
       projects={Array []}
     />
   </div>
   <footer
     className="projects-visualizations-footer"
   >
-    <p>
-      projects.visualization.coverage.description
-    </p>
     <p
       className="note spacer-top"
     >

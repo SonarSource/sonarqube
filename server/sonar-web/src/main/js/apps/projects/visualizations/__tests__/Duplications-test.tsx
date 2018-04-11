@@ -22,5 +22,7 @@ import { shallow } from 'enzyme';
 import Duplications from '../Duplications';
 
 it('renders', () => {
-  expect(shallow(<Duplications displayOrganizations={false} projects={[]} />)).toMatchSnapshot();
+  expect(
+    shallow(<Duplications displayOrganizations={false} helpText="foobar" projects={[]} />)
+  ).toMatchSnapshot();
 });

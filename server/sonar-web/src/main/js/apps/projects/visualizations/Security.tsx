@@ -20,9 +20,11 @@
 import * as React from 'react';
 import SimpleBubbleChart from './SimpleBubbleChart';
 import { Project } from '../types';
+import { translate } from '../../../helpers/l10n';
 
 interface Props {
   displayOrganizations: boolean;
+  helpText: string;
   projects: Project[];
 }
 
@@ -30,10 +32,11 @@ export default function Security(props: Props) {
   return (
     <SimpleBubbleChart
       {...props}
+      colorMetric="security_rating"
+      sizeMetric={{ key: 'vulnerabilities', type: 'SHORT_INT' }}
+      title={translate('projects.visualization', 'security')}
       xMetric={{ key: 'ncloc', type: 'SHORT_INT' }}
       yMetric={{ key: 'security_remediation_effort', type: 'SHORT_WORK_DUR' }}
-      sizeMetric={{ key: 'vulnerabilities', type: 'SHORT_INT' }}
-      colorMetric="security_rating"
     />
   );
 }

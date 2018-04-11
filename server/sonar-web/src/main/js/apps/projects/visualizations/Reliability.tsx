@@ -20,9 +20,11 @@
 import * as React from 'react';
 import SimpleBubbleChart from './SimpleBubbleChart';
 import { Project } from '../types';
+import { translate } from '../../../helpers/l10n';
 
 interface Props {
   displayOrganizations: boolean;
+  helpText: string;
   projects: Project[];
 }
 
@@ -30,10 +32,11 @@ export default function Reliability(props: Props) {
   return (
     <SimpleBubbleChart
       {...props}
+      colorMetric="reliability_rating"
+      sizeMetric={{ key: 'bugs', type: 'SHORT_INT' }}
+      title={translate('projects.visualization', 'reliability')}
       xMetric={{ key: 'ncloc', type: 'SHORT_INT' }}
       yMetric={{ key: 'reliability_remediation_effort', type: 'SHORT_WORK_DUR' }}
-      sizeMetric={{ key: 'bugs', type: 'SHORT_INT' }}
-      colorMetric="reliability_rating"
     />
   );
 }

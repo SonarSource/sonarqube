@@ -268,6 +268,11 @@
   font-style: italic;
 }
 
+.measure-details-bubble-chart-title {
+  position: absolute;
+  left: 20px;
+}
+
 .measure-details-bubble-chart-axis {
   position: absolute;
   color: var(--secondFontColor);
@@ -276,7 +281,7 @@
 
 .measure-details-bubble-chart-axis.x {
   left: 50%;
-  bottom: 10px;
+  bottom: 16px;
   width: 500px;
   margin-left: -250px;
   text-align: center;
@@ -289,11 +294,11 @@
 }
 
 .measure-details-bubble-chart-axis.size {
-  left: 50%;
-  top: 10px;
-  width: 500px;
-  margin-left: -250px;
-  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  top: 16px;
+  width: 100%;
 }
 
 .projects-empty-list {

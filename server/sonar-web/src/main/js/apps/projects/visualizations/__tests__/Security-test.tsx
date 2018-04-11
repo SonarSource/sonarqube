@@ -22,5 +22,7 @@ import { shallow } from 'enzyme';
 import Security from '../Security';
 
 it('renders', () => {
-  expect(shallow(<Security displayOrganizations={false} projects={[]} />)).toMatchSnapshot();
+  expect(
+    shallow(<Security displayOrganizations={false} helpText="foobar" projects={[]} />)
+  ).toMatchSnapshot();
 });

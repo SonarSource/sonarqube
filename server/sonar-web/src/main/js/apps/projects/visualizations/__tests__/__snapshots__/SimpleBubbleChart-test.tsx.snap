@@ -87,14 +87,31 @@ exports[`renders 1`] = `
     className="measure-details-bubble-chart-axis size"
   >
     <span
-      className="spacer-right"
+      className="measure-details-bubble-chart-title"
     >
-      component_measures.legend.color_x.metric.security_rating.name
+      <Tooltip
+        overlay="foobar"
+      >
+        <span
+          className="spacer-left text-info"
+        >
+          <HelpIcon
+            className="text-bottom"
+          />
+        </span>
+      </Tooltip>
     </span>
-    component_measures.legend.size_x.metric.ncloc.name
-    <ColorRatingsLegend
-      className="big-spacer-top"
-    />
+    <div>
+      <span
+        className="spacer-right"
+      >
+        component_measures.legend.color_x.metric.security_rating.name
+      </span>
+      component_measures.legend.size_x.metric.ncloc.name
+      <ColorRatingsLegend
+        className="big-spacer-top"
+      />
+    </div>
   </div>
 </div>
 `;

@@ -3,6 +3,7 @@
 exports[`renders 1`] = `
 <SimpleBubbleChart
   displayOrganizations={false}
+  helpText="foobar"
   projects={Array []}
   sizeMetric={
     Object {
@@ -10,6 +11,7 @@ exports[`renders 1`] = `
       "type": "SHORT_INT",
     }
   }
+  title="projects.visualization.coverage"
   xMetric={
     Object {
       "key": "complexity",

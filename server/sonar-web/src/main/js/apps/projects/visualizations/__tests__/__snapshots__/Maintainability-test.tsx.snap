@@ -4,6 +4,7 @@ exports[`renders 1`] = `
 <SimpleBubbleChart
   colorMetric="sqale_rating"
   displayOrganizations={false}
+  helpText="foobar"
   projects={Array []}
   sizeMetric={
     Object {
@@ -11,6 +12,7 @@ exports[`renders 1`] = `
       "type": "SHORT_INT",
     }
   }
+  title="projects.visualization.maintainability"
   xMetric={
     Object {
       "key": "ncloc",
