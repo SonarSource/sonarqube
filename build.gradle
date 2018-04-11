@@ -71,7 +71,6 @@ subprojects {
   artifactoryPublish.skip = true
 
   ext {
-    elasticsearchVersion = '5.6.3'
     protobufVersion = '3.5.1'
   }
 
@@ -179,7 +178,7 @@ subprojects {
         entry 'jetty-server'
         entry 'jetty-servlet'
       }
-      dependency("org.elasticsearch.client:transport:${elasticsearchVersion}") {
+      dependency('org.elasticsearch.client:transport:5.6.3') {
         exclude 'org.elasticsearch.plugin:lang-mustache-client'
         exclude 'org.elasticsearch.plugin:transport-netty3-client'
         exclude 'commons-logging:commons-logging'

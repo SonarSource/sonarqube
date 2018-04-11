@@ -54,7 +54,6 @@ import org.elasticsearch.env.Environment;
 import org.elasticsearch.env.NodeEnvironment;
 import org.elasticsearch.index.IndexNotFoundException;
 import org.elasticsearch.indices.recovery.RecoverySettings;
-import org.elasticsearch.node.MockNode;
 import org.elasticsearch.node.Node;
 import org.elasticsearch.search.SearchHit;
 import org.junit.rules.ExternalResource;
@@ -70,7 +69,6 @@ import org.sonar.server.view.index.ViewIndexDefinition;
 
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.Lists.newArrayList;
-import static java.util.Collections.emptyList;
 import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
 import static org.sonar.server.es.DefaultIndexSettings.REFRESH_IMMEDIATE;
 
@@ -328,7 +326,7 @@ public class EsTester extends ExternalResource {
         .put(NetworkModule.HTTP_ENABLED.getKey(), false)
         .put(DiscoveryModule.DISCOVERY_TYPE_SETTING.getKey(), "single-node")
         .build();
-      MockNode node = new MockNode(settings, emptyList());
+      Node node = new Node(settings);
       return node.start();
     } catch (Exception e) {
       throw new IllegalStateException("Fail to start embedded Elasticsearch", e);
