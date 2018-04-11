@@ -89,7 +89,7 @@ public class ShowActionTest {
   @org.junit.Rule
   public DbTester dbTester = DbTester.create();
   @org.junit.Rule
-  public EsTester es = EsTester.core();
+  public EsTester es = EsTester.create();
   @org.junit.Rule
   public ExpectedException thrown = ExpectedException.none();
 

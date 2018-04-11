@@ -56,7 +56,7 @@ public class ProjectMeasuresIndexTextSearchTest {
   private static final OrganizationDto ORG = OrganizationTesting.newOrganizationDto();
 
   @Rule
-  public EsTester es = EsTester.core();
+  public EsTester es = EsTester.create();
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();

@@ -85,7 +85,7 @@ public class SearchActionTest {
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
   @Rule
-  public EsTester es = EsTester.core();
+  public EsTester es = EsTester.create();
 
   private I18nRule i18n = new I18nRule();
   private TestDefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);

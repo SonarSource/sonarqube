@@ -45,7 +45,7 @@ import static org.sonar.db.component.ComponentTesting.newFileDto;
 
 public class ComponentIndexSearchTest {
   @Rule
-  public EsTester es = EsTester.core();
+  public EsTester es = EsTester.create();
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
   @Rule

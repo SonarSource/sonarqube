@@ -40,7 +40,7 @@ public class UserIndexerTest {
   public DbTester db = DbTester.create(system2);
 
   @Rule
-  public EsTester es = EsTester.core();
+  public EsTester es = EsTester.create();
 
   private UserIndexer underTest = new UserIndexer(db.getDbClient(), es.client());
 

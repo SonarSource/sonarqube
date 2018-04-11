@@ -50,7 +50,7 @@ public class IssueIndexProjectStatisticsTest {
 
   private System2 system2 = mock(System2.class);
   @Rule
-  public EsTester es = EsTester.core();
+  public EsTester es = EsTester.create();
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 

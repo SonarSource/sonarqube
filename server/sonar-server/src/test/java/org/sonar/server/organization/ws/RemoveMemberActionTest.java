@@ -72,7 +72,7 @@ public class RemoveMemberActionTest {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone().logIn().setRoot();
   @Rule
-  public EsTester es = EsTester.core();
+  public EsTester es = EsTester.create();
   @Rule
   public DbTester db = DbTester.create();
   private DbClient dbClient = db.getDbClient();

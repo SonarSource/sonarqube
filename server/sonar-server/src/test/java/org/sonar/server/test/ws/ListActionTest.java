@@ -67,7 +67,7 @@ public class ListActionTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
   @Rule
-  public EsTester es = EsTester.core();
+  public EsTester es = EsTester.create();
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
   @Rule

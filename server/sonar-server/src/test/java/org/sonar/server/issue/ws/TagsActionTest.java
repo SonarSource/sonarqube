@@ -57,7 +57,7 @@ public class TagsActionTest {
   @Rule
   public DbTester dbTester = DbTester.create();
   @Rule
-  public EsTester es = EsTester.core();
+  public EsTester es = EsTester.create();
 
   private IssueIndexer issueIndexer = new IssueIndexer(es.client(), dbTester.getDbClient(), new IssueIteratorFactory(dbTester.getDbClient()));
   private RuleIndexer ruleIndexer = new RuleIndexer(es.client(), dbTester.getDbClient());

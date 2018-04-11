@@ -70,7 +70,7 @@ public class ViewIndexerTest {
   public DbTester dbTester = DbTester.create(system2);
 
   @Rule
-  public EsTester es = EsTester.core();
+  public EsTester es = EsTester.create();
 
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();

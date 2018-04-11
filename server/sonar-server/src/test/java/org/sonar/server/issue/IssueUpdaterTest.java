@@ -68,7 +68,7 @@ public class IssueUpdaterTest {
   public DbTester dbTester = DbTester.create(system2);
 
   @Rule
-  public EsTester es = EsTester.core();
+  public EsTester es = EsTester.create();
 
   private DbClient dbClient = dbTester.getDbClient();
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(dbTester);

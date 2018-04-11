@@ -56,7 +56,7 @@ public class QProfileComparisonTest {
   @Rule
   public DbTester dbTester = DbTester.create();
   @Rule
-  public EsTester es = EsTester.core();
+  public EsTester es = EsTester.create();
 
   private DbClient db;
   private DbSession dbSession;

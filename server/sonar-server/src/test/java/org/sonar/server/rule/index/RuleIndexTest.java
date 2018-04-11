@@ -90,7 +90,7 @@ public class RuleIndexTest {
   private System2 system2 = new AlwaysIncreasingSystem2();
 
   @Rule
-  public EsTester es = EsTester.core();
+  public EsTester es = EsTester.create();
   @Rule
   public DbTester db = DbTester.create(system2);
   @Rule

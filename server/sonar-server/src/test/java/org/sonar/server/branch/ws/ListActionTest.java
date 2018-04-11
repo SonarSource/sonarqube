@@ -78,7 +78,7 @@ public class ListActionTest {
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
   @Rule
-  public EsTester es = EsTester.core();
+  public EsTester es = EsTester.create();
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 

@@ -60,7 +60,7 @@ import static org.sonar.server.permission.index.AuthorizationTypeSupport.TYPE_AU
 public class IssueIndexerTest {
 
   @Rule
-  public EsTester es = EsTester.core();
+  public EsTester es = EsTester.create();
   @Rule
   public DbTester db = DbTester.create();
   @Rule

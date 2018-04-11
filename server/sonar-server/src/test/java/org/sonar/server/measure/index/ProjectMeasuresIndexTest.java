@@ -96,7 +96,7 @@ public class ProjectMeasuresIndexTest {
   private static final GroupDto GROUP2 = newGroupDto();
 
   @Rule
-  public EsTester es = EsTester.core();
+  public EsTester es = EsTester.create();
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();

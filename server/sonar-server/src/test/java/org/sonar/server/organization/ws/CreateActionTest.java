@@ -84,7 +84,7 @@ public class CreateActionTest {
   @Rule
   public DbTester dbTester = DbTester.create(system2).setDisableDefaultOrganization(true);
   @Rule
-  public EsTester es = EsTester.core();
+  public EsTester es = EsTester.create();
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 

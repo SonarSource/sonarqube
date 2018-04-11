@@ -33,7 +33,7 @@ import static org.junit.Assert.fail;
 public class ProxyClearCacheRequestBuilderTest {
 
   @Rule
-  public EsTester es = EsTester.core();
+  public EsTester es = EsTester.create();
 
   @Rule
   public LogTester logTester = new LogTester();

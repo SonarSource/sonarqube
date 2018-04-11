@@ -45,7 +45,7 @@ import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 public class RuleIndexerTest {
 
   @Rule
-  public EsTester es = EsTester.core();
+  public EsTester es = EsTester.create();
 
   @Rule
   public DbTester dbTester = DbTester.create();

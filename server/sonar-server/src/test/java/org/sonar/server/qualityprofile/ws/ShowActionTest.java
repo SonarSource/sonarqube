@@ -61,7 +61,7 @@ public class ShowActionTest {
   private static Languages LANGUAGES = new Languages(XOO1, XOO2);
 
   @Rule
-  public EsTester es = EsTester.core();
+  public EsTester es = EsTester.create();
   @Rule
   public DbTester db = DbTester.create();
   @Rule

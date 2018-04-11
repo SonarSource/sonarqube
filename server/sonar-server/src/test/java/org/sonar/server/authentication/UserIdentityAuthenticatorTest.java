@@ -79,7 +79,7 @@ public class UserIdentityAuthenticatorTest {
   @Rule
   public DbTester db = DbTester.create(new AlwaysIncreasingSystem2());
   @Rule
-  public EsTester es = EsTester.core();
+  public EsTester es = EsTester.create();
   private UserIndexer userIndexer = new UserIndexer(db.getDbClient(), es.client());
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
   private OrganizationCreation organizationCreation = mock(OrganizationCreation.class);

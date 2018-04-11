@@ -32,7 +32,7 @@ import static org.sonar.server.view.index.ViewIndexDefinition.INDEX_TYPE_VIEW;
 public class ViewIndexTest {
 
   @Rule
-  public EsTester es = EsTester.core();
+  public EsTester es = EsTester.create();
 
   private ViewIndex index = new ViewIndex(es.client());
 

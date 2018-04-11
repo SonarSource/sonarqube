@@ -58,7 +58,7 @@ public class IssueIndexDebtTest {
   private System2 system2 = new TestSystem2().setNow(1_500_000_000_000L).setDefaultTimeZone(TimeZone.getTimeZone("GMT-01:00"));
 
   @Rule
-  public EsTester es = EsTester.core();
+  public EsTester es = EsTester.create();
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
   @Rule

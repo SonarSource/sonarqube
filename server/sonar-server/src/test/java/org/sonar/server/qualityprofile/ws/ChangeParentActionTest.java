@@ -80,7 +80,7 @@ public class ChangeParentActionTest {
   @Rule
   public DbTester db = new DbTester(System2.INSTANCE, null);
   @Rule
-  public EsTester es = EsTester.core();
+  public EsTester es = EsTester.create();
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule

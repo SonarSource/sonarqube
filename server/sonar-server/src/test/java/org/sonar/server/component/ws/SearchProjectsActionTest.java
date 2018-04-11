@@ -110,7 +110,7 @@ public class SearchProjectsActionTest {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
-  public EsTester es = EsTester.core();
+  public EsTester es = EsTester.create();
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 

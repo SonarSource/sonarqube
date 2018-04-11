@@ -73,7 +73,7 @@ public class SsoAuthenticatorTest {
   @Rule
   public DbTester db = DbTester.create(new AlwaysIncreasingSystem2());
   @Rule
-  public EsTester es = EsTester.core();
+  public EsTester es = EsTester.create();
 
   private static final String DEFAULT_LOGIN = "john";
   private static final String DEFAULT_NAME = "John";

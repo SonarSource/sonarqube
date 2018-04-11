@@ -70,7 +70,7 @@ public class CreateActionTest {
   @Rule
   public DbTester db = DbTester.create(system2);
   @Rule
-  public EsTester es = EsTester.core();
+  public EsTester es = EsTester.create();
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
   @Rule

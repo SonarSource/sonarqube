@@ -73,7 +73,7 @@ public class CreateActionTest {
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
   @Rule
-  public EsTester es = EsTester.core();
+  public EsTester es = EsTester.create();
 
   private DbClient dbClient = db.getDbClient();
   private ComponentDto project;

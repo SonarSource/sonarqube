@@ -63,7 +63,7 @@ public class RecoveryIndexerTest {
   private MapSettings emptySettings = new MapSettings();
 
   @Rule
-  public EsTester es = EsTester.custom();
+  public EsTester es = EsTester.createCustom();
   @Rule
   public DbTester db = DbTester.create(system2);
   @Rule

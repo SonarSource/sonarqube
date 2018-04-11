@@ -53,7 +53,7 @@ public class MetricsActionTest {
   private static final String DEFAULT_PROJECT_KEY = "project-key";
 
   @Rule
-  public EsTester es = EsTester.core();
+  public EsTester es = EsTester.create();
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
   @Rule

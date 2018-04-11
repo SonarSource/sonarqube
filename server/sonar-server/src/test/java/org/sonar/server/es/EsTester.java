@@ -101,7 +101,7 @@ public class EsTester extends ExternalResource {
   /**
    * New instance which contains the core indices (rules, issues, ...).
    */
-  public static EsTester core() {
+  public static EsTester create() {
     if (!CORE_INDICES_CREATED.get()) {
       Configuration config = new MapSettings().asConfig();
       List<IndexDefinitions.Index> createdIndices = createIndices(
@@ -123,7 +123,7 @@ public class EsTester extends ExternalResource {
    * New instance which contains the specified indices. Note that
    * core indices may exist.
    */
-  public static EsTester custom(IndexDefinition... definitions) {
+  public static EsTester createCustom(IndexDefinition... definitions) {
     createIndices(definitions);
     return new EsTester(true);
   }

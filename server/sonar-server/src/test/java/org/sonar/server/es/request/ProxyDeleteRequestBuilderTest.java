@@ -33,7 +33,7 @@ import static org.junit.Assert.fail;
 public class ProxyDeleteRequestBuilderTest {
 
   @Rule
-  public EsTester es = EsTester.custom(new FakeIndexDefinition());
+  public EsTester es = EsTester.createCustom(new FakeIndexDefinition());
 
   @Rule
   public LogTester logTester = new LogTester();

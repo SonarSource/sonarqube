@@ -34,7 +34,7 @@ import static org.junit.Assert.fail;
 public class ProxySearchScrollRequestBuilderTest {
 
   @Rule
-  public EsTester es = EsTester.custom(new FakeIndexDefinition());
+  public EsTester es = EsTester.createCustom(new FakeIndexDefinition());
 
   @Rule
   public LogTester logTester = new LogTester();

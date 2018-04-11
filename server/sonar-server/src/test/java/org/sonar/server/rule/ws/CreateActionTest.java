@@ -70,7 +70,7 @@ public class CreateActionTest {
   public DbTester db = DbTester.create(system2);
 
   @Rule
-  public EsTester es = EsTester.core();
+  public EsTester es = EsTester.create();
 
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
 

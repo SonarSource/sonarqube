@@ -39,7 +39,7 @@ import static org.sonar.server.issue.index.IssueIndexDefinition.INDEX_TYPE_ISSUE
 public class OneToManyResilientIndexingListenerTest {
 
   @Rule
-  public EsTester es = EsTester.core();
+  public EsTester es = EsTester.create();
   @Rule
   public DbTester db = DbTester.create();
   @Rule

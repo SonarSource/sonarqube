@@ -82,7 +82,7 @@ public class CreateActionTest {
   @Rule
   public DbTester db = DbTester.create();
   @Rule
-  public EsTester es = EsTester.core();
+  public EsTester es = EsTester.create();
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 

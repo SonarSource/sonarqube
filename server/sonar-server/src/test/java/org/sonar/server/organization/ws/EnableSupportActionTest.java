@@ -68,7 +68,7 @@ public class EnableSupportActionTest {
   @Rule
   public DbTester dbTester = DbTester.create();
   @Rule
-  public EsTester es = EsTester.core();
+  public EsTester es = EsTester.create();
 
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(dbTester);
   private OrganizationFlags organizationFlags = new OrganizationFlagsImpl(dbTester.getDbClient());

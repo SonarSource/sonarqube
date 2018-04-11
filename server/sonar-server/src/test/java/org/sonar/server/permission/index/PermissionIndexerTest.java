@@ -53,7 +53,7 @@ public class PermissionIndexerTest {
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
   @Rule
-  public EsTester es = EsTester.custom(new FooIndexDefinition());
+  public EsTester es = EsTester.createCustom(new FooIndexDefinition());
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 

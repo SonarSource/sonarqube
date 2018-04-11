@@ -77,7 +77,7 @@ public class QProfileRuleImplTest {
   @Rule
   public DbTester db = DbTester.create(system2);
   @Rule
-  public EsTester es = EsTester.core();
+  public EsTester es = EsTester.create();
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   private RuleIndex ruleIndex = new RuleIndex(es.client(), system2);

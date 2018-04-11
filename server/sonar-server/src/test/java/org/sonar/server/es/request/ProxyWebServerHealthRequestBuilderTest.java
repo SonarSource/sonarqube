@@ -35,7 +35,7 @@ import static org.junit.Assert.fail;
 public class ProxyWebServerHealthRequestBuilderTest {
 
   @Rule
-  public EsTester es = EsTester.custom();
+  public EsTester es = EsTester.createCustom();
 
   @Rule
   public LogTester logTester = new LogTester();

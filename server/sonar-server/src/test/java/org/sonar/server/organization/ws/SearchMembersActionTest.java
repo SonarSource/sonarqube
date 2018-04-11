@@ -60,7 +60,7 @@ public class SearchMembersActionTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
   @Rule
-  public EsTester es = EsTester.core();
+  public EsTester es = EsTester.create();
 
   @Rule
   public DbTester db = DbTester.create();

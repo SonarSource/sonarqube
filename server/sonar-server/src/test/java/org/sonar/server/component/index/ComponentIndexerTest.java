@@ -52,7 +52,7 @@ public class ComponentIndexerTest {
   private System2 system2 = System2.INSTANCE;
 
   @Rule
-  public EsTester es = EsTester.core();
+  public EsTester es = EsTester.create();
   @Rule
   public DbTester db = DbTester.create(system2);
 

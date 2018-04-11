@@ -51,7 +51,7 @@ public class ChangePasswordActionTest {
   @Rule
   public DbTester db = DbTester.create();
   @Rule
-  public EsTester es = EsTester.core();
+  public EsTester es = EsTester.create();
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone().logIn();
 

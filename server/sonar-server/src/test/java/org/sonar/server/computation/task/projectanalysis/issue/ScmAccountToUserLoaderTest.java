@@ -43,7 +43,7 @@ public class ScmAccountToUserLoaderTest {
   private static final String ORGANIZATION_UUID = "my-organization";
 
   @Rule
-  public EsTester es = EsTester.core();
+  public EsTester es = EsTester.create();
 
   @Rule
   public LogTester logTester = new LogTester();

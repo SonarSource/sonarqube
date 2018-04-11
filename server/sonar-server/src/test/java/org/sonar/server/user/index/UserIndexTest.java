@@ -42,7 +42,7 @@ public class UserIndexTest {
   private static final String USER2_LOGIN = "user2";
 
   @Rule
-  public EsTester es = EsTester.core();
+  public EsTester es = EsTester.create();
 
   private UserIndex underTest = new UserIndex(es.client(), System2.INSTANCE);
   private UserQuery.Builder userQuery = UserQuery.builder();

@@ -43,7 +43,7 @@ public class BulkIndexerTest {
   private TestSystem2 testSystem2 = new TestSystem2().setNow(1_000L);
 
   @Rule
-  public EsTester es = EsTester.custom(new FakeIndexDefinition().setReplicas(1));
+  public EsTester es = EsTester.createCustom(new FakeIndexDefinition().setReplicas(1));
   @Rule
   public DbTester dbTester = DbTester.create(testSystem2);
 

@@ -77,7 +77,7 @@ public class QProfilesWsMediumTest {
   public UserSessionRule userSessionRule = UserSessionRule.standalone()
     .logIn().setRoot();
   @Rule
-  public EsTester es = EsTester.core();
+  public EsTester es = EsTester.create();
   @Rule
   public DbTester dbTester = DbTester.create();
 

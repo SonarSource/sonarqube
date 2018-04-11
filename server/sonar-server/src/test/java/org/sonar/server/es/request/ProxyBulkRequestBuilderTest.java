@@ -37,7 +37,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ProxyBulkRequestBuilderTest {
 
   @Rule
-  public EsTester es = EsTester.custom(new FakeIndexDefinition());
+  public EsTester es = EsTester.createCustom(new FakeIndexDefinition());
 
   @Rule
   public LogTester logTester = new LogTester();

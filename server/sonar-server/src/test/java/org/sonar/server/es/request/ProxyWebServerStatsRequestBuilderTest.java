@@ -33,7 +33,7 @@ import static org.junit.Assert.fail;
 public class ProxyWebServerStatsRequestBuilderTest {
 
   @Rule
-  public EsTester es = EsTester.custom();
+  public EsTester es = EsTester.createCustom();
 
   @Rule
   public LogTester logTester = new LogTester();

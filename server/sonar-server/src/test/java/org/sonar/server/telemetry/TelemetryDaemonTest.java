@@ -84,7 +84,7 @@ public class TelemetryDaemonTest {
   @Rule
   public DbTester db = DbTester.create();
   @Rule
-  public EsTester es = EsTester.core();
+  public EsTester es = EsTester.create();
   @Rule
   public LogTester logger = new LogTester().setLevel(LoggerLevel.DEBUG);
 

@@ -48,7 +48,7 @@ public class TagsActionTest {
   @Rule
   public DbTester db = DbTester.create();
   @Rule
-  public EsTester es = EsTester.core();
+  public EsTester es = EsTester.create();
 
   private DbClient dbClient = db.getDbClient();
   private EsClient esClient = es.client();

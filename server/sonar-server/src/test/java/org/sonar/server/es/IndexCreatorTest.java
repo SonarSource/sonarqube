@@ -48,7 +48,7 @@ public class IndexCreatorTest {
   public LogTester logTester = new LogTester();
 
   @Rule
-  public EsTester es = EsTester.custom();
+  public EsTester es = EsTester.createCustom();
 
   private MetadataIndexDefinition metadataIndexDefinition = new MetadataIndexDefinition(new MapSettings().asConfig());
   private MetadataIndex metadataIndex = new MetadataIndex(es.client());

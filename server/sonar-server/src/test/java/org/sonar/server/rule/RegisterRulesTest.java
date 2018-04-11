@@ -103,7 +103,7 @@ public class RegisterRulesTest {
   @org.junit.Rule
   public DbTester dbTester = DbTester.create(system);
   @org.junit.Rule
-  public EsTester es = EsTester.core();
+  public EsTester es = EsTester.create();
   @org.junit.Rule
   public LogTester logTester = new LogTester();
 

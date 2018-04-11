@@ -53,7 +53,7 @@ public class ActiveRuleIndexerTest {
   public DbTester db = DbTester.create(system2);
 
   @Rule
-  public EsTester es = EsTester.core();
+  public EsTester es = EsTester.create();
 
   private ActiveRuleIndexer underTest = new ActiveRuleIndexer(db.getDbClient(), es.client());
   private RuleDefinitionDto rule1;

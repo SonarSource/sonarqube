@@ -33,7 +33,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ProxyNodesStatsRequestBuilderTest {
 
   @Rule
-  public EsTester es = EsTester.custom();
+  public EsTester es = EsTester.createCustom();
 
   @Rule
   public LogTester logTester = new LogTester();

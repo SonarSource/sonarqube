@@ -38,7 +38,7 @@ public class EsDbCompatibilityImplTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
   @Rule
-  public EsTester es = EsTester.custom(new MetadataIndexDefinitionBridge(), new FakeIndexDefinition());
+  public EsTester es = EsTester.createCustom(new MetadataIndexDefinitionBridge(), new FakeIndexDefinition());
   private DbClient dbClient = mock(DbClient.class, Mockito.RETURNS_DEEP_STUBS);
   private MigrationHistory migrationHistory = mock(MigrationHistory.class);
   private MetadataIndex metadataIndex = new MetadataIndex(es.client());

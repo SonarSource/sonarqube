@@ -48,7 +48,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class BackendCleanupTest {
 
   @Rule
-  public EsTester es = EsTester.core();
+  public EsTester es = EsTester.create();
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);

@@ -37,7 +37,7 @@ import static org.sonar.server.es.FakeIndexDefinition.INDEX_TYPE_FAKE;
 public class IndexerStartupTaskTest {
 
   @Rule
-  public EsTester es = EsTester.custom(new FakeIndexDefinition());
+  public EsTester es = EsTester.createCustom(new FakeIndexDefinition());
 
   private final MapSettings settings = new MapSettings();
   private final MetadataIndex metadataIndex = mock(MetadataIndex.class);

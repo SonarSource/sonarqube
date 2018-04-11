@@ -85,7 +85,7 @@ import static org.sonar.server.issue.IssueDocTesting.newDoc;
 public class IssueIndexTest {
 
   @Rule
-  public EsTester es = EsTester.core();
+  public EsTester es = EsTester.create();
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
   @Rule
