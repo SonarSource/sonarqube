@@ -31,7 +31,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class SearchNodesInfoLoaderImplTest {
 
   @Rule
-  public EsTester es = new EsTester(new FakeIndexDefinition());
+  public EsTester es = EsTester.custom(new FakeIndexDefinition());
 
   private SearchNodesInfoLoaderImpl underTest = new SearchNodesInfoLoaderImpl(es.client());
 

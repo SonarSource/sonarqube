@@ -64,7 +64,7 @@ public class UserUpdaterUpdateTest {
   public ExpectedException expectedException = ExpectedException.none();
 
   @Rule
-  public EsTester es = new EsTester(new UserIndexDefinition(new MapSettings().asConfig()));
+  public EsTester es = EsTester.core();
 
   @Rule
   public DbTester db = DbTester.create(system2);
@@ -94,7 +94,7 @@ public class UserUpdaterUpdateTest {
       .setEmail("marius2@mail.com")
       .setPassword("password2")
       .setScmAccounts(asList("ma2")), u -> {
-      });
+    });
 
     UserDto updatedUser = dbClient.userDao().selectByLogin(session, DEFAULT_LOGIN);
     assertThat(updatedUser.isActive()).isTrue();
@@ -125,7 +125,7 @@ public class UserUpdaterUpdateTest {
       .setName("Marius2")
       .setEmail("marius2@email.com")
       .setExternalIdentity(new ExternalIdentity("github", "john")), u -> {
-      });
+    });
 
     UserDto dto = dbClient.userDao().selectByLogin(session, DEFAULT_LOGIN);
     assertThat(dto.getExternalIdentity()).isEqualTo("john");
@@ -142,7 +142,7 @@ public class UserUpdaterUpdateTest {
       .setName("Marius2")
       .setEmail("marius2@email.com")
       .setExternalIdentity(new ExternalIdentity("github", "john")), u -> {
-      });
+    });
 
     UserDto dto = dbClient.userDao().selectByLogin(session, DEFAULT_LOGIN);
     assertThat(dto.getExternalIdentity()).isEqualTo("john");
@@ -166,7 +166,7 @@ public class UserUpdaterUpdateTest {
       .setEmail("marius2@mail.com")
       .setPassword("password2")
       .setScmAccounts(asList("ma2")), u -> {
-      });
+    });
 
     UserDto dto = dbClient.userDao().selectByLogin(session, DEFAULT_LOGIN);
     assertThat(dto.isActive()).isTrue();
@@ -199,7 +199,7 @@ public class UserUpdaterUpdateTest {
       .setEmail("marius2@mail.com")
       .setPassword("password2")
       .setScmAccounts(asList("ma2", "", null)), u -> {
-      });
+    });
 
     UserDto dto = dbClient.userDao().selectByLogin(session, DEFAULT_LOGIN);
     assertThat(dto.getScmAccountsAsList()).containsOnly("ma2");
@@ -215,7 +215,7 @@ public class UserUpdaterUpdateTest {
 
     underTest.updateAndCommit(session, UpdateUser.create(DEFAULT_LOGIN)
       .setName("Marius2"), u -> {
-      });
+    });
 
     UserDto dto = dbClient.userDao().selectByLogin(session, DEFAULT_LOGIN);
     assertThat(dto.getName()).isEqualTo("Marius2");
@@ -237,7 +237,7 @@ public class UserUpdaterUpdateTest {
 
     underTest.updateAndCommit(session, UpdateUser.create(DEFAULT_LOGIN)
       .setEmail("marius2@mail.com"), u -> {
-      });
+    });
 
     UserDto dto = dbClient.userDao().selectByLogin(session, DEFAULT_LOGIN);
     assertThat(dto.getEmail()).isEqualTo("marius2@mail.com");
@@ -259,7 +259,7 @@ public class UserUpdaterUpdateTest {
 
     underTest.updateAndCommit(session, UpdateUser.create(DEFAULT_LOGIN)
       .setScmAccounts(asList("ma2")), u -> {
-      });
+    });
 
     UserDto dto = dbClient.userDao().selectByLogin(session, DEFAULT_LOGIN);
     assertThat(dto.getScmAccountsAsList()).containsOnly("ma2");
@@ -279,7 +279,7 @@ public class UserUpdaterUpdateTest {
 
     underTest.updateAndCommit(session, UpdateUser.create(DEFAULT_LOGIN)
       .setScmAccounts(asList("ma", "marius33")), u -> {
-      });
+    });
 
     UserDto dto = dbClient.userDao().selectByLogin(session, DEFAULT_LOGIN);
     assertThat(dto.getScmAccountsAsList()).containsOnly("ma", "marius33");
@@ -293,7 +293,7 @@ public class UserUpdaterUpdateTest {
 
     underTest.updateAndCommit(session, UpdateUser.create(DEFAULT_LOGIN)
       .setScmAccounts(null), u -> {
-      });
+    });
 
     UserDto dto = dbClient.userDao().selectByLogin(session, DEFAULT_LOGIN);
     assertThat(dto.getScmAccounts()).isNull();
@@ -309,7 +309,7 @@ public class UserUpdaterUpdateTest {
 
     underTest.updateAndCommit(session, UpdateUser.create(DEFAULT_LOGIN)
       .setPassword("password2"), u -> {
-      });
+    });
 
     UserDto dto = dbClient.userDao().selectByLogin(session, DEFAULT_LOGIN);
     assertThat(dto.getSalt()).isNotEqualTo("salt");
@@ -365,7 +365,7 @@ public class UserUpdaterUpdateTest {
       .setEmail(user.getEmail())
       .setScmAccounts(user.getScmAccountsAsList())
       .setExternalIdentity(new ExternalIdentity(user.getExternalIdentityProvider(), user.getExternalIdentity())), u -> {
-      });
+    });
 
     assertThat(dbClient.userDao().selectByLogin(session, DEFAULT_LOGIN).getUpdatedAt()).isEqualTo(user.getUpdatedAt());
   }
@@ -384,7 +384,7 @@ public class UserUpdaterUpdateTest {
       .setEmail(user.getEmail())
       .setScmAccounts(asList("ma2", "ma1"))
       .setExternalIdentity(new ExternalIdentity(user.getExternalIdentityProvider(), user.getExternalIdentity())), u -> {
-      });
+    });
 
     assertThat(dbClient.userDao().selectByLogin(session, DEFAULT_LOGIN).getUpdatedAt()).isEqualTo(user.getUpdatedAt());
   }
@@ -441,7 +441,7 @@ public class UserUpdaterUpdateTest {
       .setEmail("marius2@mail.com")
       .setPassword("password2")
       .setScmAccounts(asList("ma2")), u -> {
-      });
+    });
 
     Multimap<String, String> groups = dbClient.groupMembershipDao().selectGroupsByLogins(session, asList(DEFAULT_LOGIN));
     assertThat(groups.get(DEFAULT_LOGIN).stream().anyMatch(g -> g.equals(defaultGroup.getName()))).isFalse();
@@ -462,7 +462,7 @@ public class UserUpdaterUpdateTest {
       .setEmail("marius2@mail.com")
       .setPassword("password2")
       .setScmAccounts(asList("ma2")), u -> {
-      });
+    });
 
     // Nothing as changed
     groups = dbClient.groupMembershipDao().selectGroupsByLogins(session, asList(DEFAULT_LOGIN));
@@ -483,7 +483,7 @@ public class UserUpdaterUpdateTest {
       .setEmail("marius2@mail.com")
       .setPassword("password2")
       .setScmAccounts(asList("jo")), u -> {
-      });
+    });
   }
 
   @Test
@@ -518,7 +518,7 @@ public class UserUpdaterUpdateTest {
     underTest.updateAndCommit(session, UpdateUser.create(DEFAULT_LOGIN)
       .setEmail("marius@newmail.com")
       .setScmAccounts(asList("marius@newmail.com")), u -> {
-      });
+    });
   }
 
   private GroupDto createDefaultGroup() {

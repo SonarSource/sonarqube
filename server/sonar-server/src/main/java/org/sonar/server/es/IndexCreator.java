@@ -20,8 +20,10 @@
 package org.sonar.server.es;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
@@ -74,7 +76,7 @@ public class IndexCreator implements Startable {
       createIndex(new Index(index), false);
     }
 
-    checkDbCompatibility();
+    checkDbCompatibility(definitions.getIndices().values());
 
     // create indices that do not exist or that have a new definition (different mapping, cluster enabled, ...)
     for (Index index : definitions.getIndices().values()) {
@@ -140,13 +142,13 @@ public class IndexCreator implements Startable {
       }).orElse(true);
   }
 
-  private void checkDbCompatibility() {
+  private void checkDbCompatibility(Collection<Index> definitions) {
     boolean disabledCheck = configuration.getBoolean(PROPERY_DISABLE_CHECK).orElse(false);
     if (disabledCheck) {
       LOGGER.warn("Automatic drop of search indices in turned off (see property " + PROPERY_DISABLE_CHECK + ")");
     }
 
-    List<String> existingIndices = loadExistingIndicesExceptMetadata();
+    List<String> existingIndices = loadExistingIndicesExceptMetadata(definitions);
     if (!disabledCheck && !existingIndices.isEmpty()) {
       boolean delete = false;
       if (!esDbCompatibility.hasSameDbVendor()) {
@@ -163,8 +165,10 @@ public class IndexCreator implements Startable {
     esDbCompatibility.markAsCompatible();
   }
 
-  private List<String> loadExistingIndicesExceptMetadata() {
+  private List<String> loadExistingIndicesExceptMetadata(Collection<Index> definitions) {
+    Set<String> definedNames = definitions.stream().map(Index::getName).collect(Collectors.toSet());
     return Arrays.stream(client.nativeClient().admin().indices().prepareGetIndex().get().getIndices())
+      .filter(definedNames::contains)
       .filter(index -> !MetadataIndexDefinition.INDEX_TYPE_METADATA.getIndex().equals(index))
       .collect(Collectors.toList());
   }

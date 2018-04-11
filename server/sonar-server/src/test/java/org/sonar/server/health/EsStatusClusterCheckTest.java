@@ -38,7 +38,7 @@ import static org.mockito.Mockito.when;
 public class EsStatusClusterCheckTest {
 
   @Rule
-  public EsTester esTester = new EsTester();
+  public EsTester esTester = EsTester.custom();
 
   private final Random random = new Random();
   private EsStatusClusterCheck underTest = new EsStatusClusterCheck(esTester.client());

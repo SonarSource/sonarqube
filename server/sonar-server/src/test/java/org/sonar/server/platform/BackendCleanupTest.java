@@ -23,7 +23,6 @@ import java.util.Random;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentTesting;
@@ -49,12 +48,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class BackendCleanupTest {
 
   @Rule
-  public EsTester esTester = new EsTester(
-    new RuleIndexDefinition(new MapSettings().asConfig()),
-    new IssueIndexDefinition(new MapSettings().asConfig()),
-    new ViewIndexDefinition(new MapSettings().asConfig()),
-    new ProjectMeasuresIndexDefinition(new MapSettings().asConfig()),
-    new ComponentIndexDefinition(new MapSettings().asConfig()));
+  public EsTester esTester = EsTester.core();
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);

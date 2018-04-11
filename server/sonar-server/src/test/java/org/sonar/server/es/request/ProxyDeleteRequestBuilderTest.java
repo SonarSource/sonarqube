@@ -20,7 +20,6 @@
 package org.sonar.server.es.request;
 
 import org.elasticsearch.common.unit.TimeValue;
-import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.log.LogTester;
@@ -33,26 +32,26 @@ import static org.junit.Assert.fail;
 
 public class ProxyDeleteRequestBuilderTest {
 
-  @ClassRule
-  public static EsTester esTester = new EsTester(new FakeIndexDefinition());
+  @Rule
+  public EsTester es = EsTester.custom(new FakeIndexDefinition());
 
   @Rule
   public LogTester logTester = new LogTester();
 
   @Test
   public void delete() {
-    esTester.client().prepareDelete("fakes", "fake", "the_id").get();
+    es.client().prepareDelete("fakes", "fake", "the_id").get();
   }
 
   @Test
   public void to_string() {
-    assertThat(esTester.client().prepareDelete("fakes", "fake", "the_id").toString()).isEqualTo("ES delete request of doc the_id in index fakes/fake");
+    assertThat(es.client().prepareDelete("fakes", "fake", "the_id").toString()).isEqualTo("ES delete request of doc the_id in index fakes/fake");
   }
 
   @Test
   public void trace_logs() {
     logTester.setLevel(LoggerLevel.TRACE);
-    esTester.client().prepareDelete("fakes", "fake", "the_id").get();
+    es.client().prepareDelete("fakes", "fake", "the_id").get();
 
     assertThat(logTester.logs()).hasSize(1);
   }
@@ -60,7 +59,7 @@ public class ProxyDeleteRequestBuilderTest {
   @Test
   public void get_with_string_timeout_is_not_yet_implemented() {
     try {
-      esTester.client().prepareDelete("fakes", "fake", "the_id").get("1");
+      es.client().prepareDelete("fakes", "fake", "the_id").get("1");
       fail();
     } catch (UnsupportedOperationException e) {
       assertThat(e).hasMessage("Not yet implemented");
@@ -70,7 +69,7 @@ public class ProxyDeleteRequestBuilderTest {
   @Test
   public void get_with_time_value_timeout_is_not_yet_implemented() {
     try {
-      esTester.client().prepareDelete("fakes", "fake", "the_id").get(TimeValue.timeValueMinutes(1));
+      es.client().prepareDelete("fakes", "fake", "the_id").get(TimeValue.timeValueMinutes(1));
       fail();
     } catch (UnsupportedOperationException e) {
       assertThat(e).hasMessage("Not yet implemented");
@@ -80,7 +79,7 @@ public class ProxyDeleteRequestBuilderTest {
   @Test
   public void execute_should_throw_an_unsupported_operation_exception() {
     try {
-      esTester.client().prepareDelete("fakes", "fake", "the_id").execute();
+      es.client().prepareDelete("fakes", "fake", "the_id").execute();
       fail();
     } catch (UnsupportedOperationException e) {
       assertThat(e).hasMessage("execute() should not be called as it's used for asynchronous");

@@ -23,7 +23,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.measures.Metric.ValueType;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
@@ -43,7 +42,6 @@ import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.ServerException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.tester.UserSessionRule;
-import org.sonar.server.user.index.UserIndexDefinition;
 import org.sonar.server.user.ws.UserJsonWriter;
 import org.sonar.server.ws.WsTester;
 
@@ -65,7 +63,7 @@ public class UpdateActionTest {
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
   @Rule
-  public EsTester es = new EsTester(new UserIndexDefinition(new MapSettings().asConfig()));
+  public EsTester es = EsTester.core();
 
   private DbClient dbClient = db.getDbClient();
   private DbSession dbSession = db.getSession();

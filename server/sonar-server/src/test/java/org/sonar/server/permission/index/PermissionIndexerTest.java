@@ -53,12 +53,12 @@ public class PermissionIndexerTest {
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
   @Rule
-  public EsTester es = new EsTester(new FooIndexDefinition());
+  public EsTester es = EsTester.custom(new FooIndexDefinition());
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 
   private FooIndex fooIndex = new FooIndex(es.client(), new AuthorizationTypeSupport(userSession));
-  private FooIndexer fooIndexer = new FooIndexer(db.getDbClient(), es.client());
+  private FooIndexer fooIndexer = new FooIndexer(es.client());
   private PermissionIndexer underTest = new PermissionIndexer(db.getDbClient(), es.client(), fooIndexer);
 
   @Test

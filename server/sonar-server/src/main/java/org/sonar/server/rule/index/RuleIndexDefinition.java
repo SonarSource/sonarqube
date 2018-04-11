@@ -19,11 +19,11 @@
  */
 package org.sonar.server.rule.index;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import java.util.Set;
 import org.sonar.api.config.Configuration;
+import org.sonar.api.config.internal.MapSettings;
 import org.sonar.server.es.IndexDefinition;
 import org.sonar.server.es.IndexType;
 import org.sonar.server.es.NewIndex;
@@ -39,7 +39,7 @@ import static org.sonar.server.es.NewIndex.SettingsConfiguration.newBuilder;
  */
 public class RuleIndexDefinition implements IndexDefinition {
 
-  static final String INDEX = "rules";
+  private static final String INDEX = "rules";
 
   public static final IndexType INDEX_TYPE_RULE = new IndexType(INDEX, "rule");
   public static final String FIELD_RULE_ID = "id";
@@ -66,7 +66,9 @@ public class RuleIndexDefinition implements IndexDefinition {
 
   // Rule extension fields
   public static final IndexType INDEX_TYPE_RULE_EXTENSION = new IndexType(INDEX, "ruleExtension");
-  /** The uuid of a {@link RuleExtensionScope} */
+  /**
+   * The uuid of a {@link RuleExtensionScope}
+   */
   public static final String FIELD_RULE_EXTENSION_SCOPE = "scope";
   public static final String FIELD_RULE_EXTENSION_RULE_ID = "ruleId";
   public static final String FIELD_RULE_EXTENSION_TAGS = "tags";
@@ -95,9 +97,8 @@ public class RuleIndexDefinition implements IndexDefinition {
    * Keep the document sources in index so that indexer tests can verify content
    * of indexed documents.
    */
-  @VisibleForTesting
-  public static RuleIndexDefinition createForTest(Configuration config) {
-    return new RuleIndexDefinition(config, true);
+  public static RuleIndexDefinition createForTest() {
+    return new RuleIndexDefinition(new MapSettings().asConfig(), true);
   }
 
   @Override

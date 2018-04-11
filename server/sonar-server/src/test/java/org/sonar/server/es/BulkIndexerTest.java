@@ -43,13 +43,13 @@ public class BulkIndexerTest {
   private TestSystem2 testSystem2 = new TestSystem2().setNow(1_000L);
 
   @Rule
-  public EsTester esTester = new EsTester(new FakeIndexDefinition().setReplicas(1));
+  public EsTester es = EsTester.custom(new FakeIndexDefinition().setReplicas(1));
   @Rule
   public DbTester dbTester = DbTester.create(testSystem2);
 
   @Test
   public void index_nothing() {
-    BulkIndexer indexer = new BulkIndexer(esTester.client(), INDEX_TYPE_FAKE, Size.REGULAR);
+    BulkIndexer indexer = new BulkIndexer(es.client(), INDEX_TYPE_FAKE, Size.REGULAR);
     indexer.start();
     indexer.stop();
 
@@ -58,7 +58,7 @@ public class BulkIndexerTest {
 
   @Test
   public void index_documents() {
-    BulkIndexer indexer = new BulkIndexer(esTester.client(), INDEX_TYPE_FAKE, Size.REGULAR);
+    BulkIndexer indexer = new BulkIndexer(es.client(), INDEX_TYPE_FAKE, Size.REGULAR);
     indexer.start();
     indexer.add(newIndexRequest(42));
     indexer.add(newIndexRequest(78));
@@ -76,7 +76,7 @@ public class BulkIndexerTest {
     // index has one replica
     assertThat(replicas()).isEqualTo(1);
 
-    BulkIndexer indexer = new BulkIndexer(esTester.client(), INDEX_TYPE_FAKE, Size.LARGE);
+    BulkIndexer indexer = new BulkIndexer(es.client(), INDEX_TYPE_FAKE, Size.LARGE);
     indexer.start();
 
     // replicas are temporarily disabled
@@ -104,12 +104,12 @@ public class BulkIndexerTest {
     for (int i = 0; i < max; i++) {
       docs[i] = FakeIndexDefinition.newDoc(i);
     }
-    esTester.putDocuments(INDEX_TYPE_FAKE, docs);
+    es.putDocuments(INDEX_TYPE_FAKE, docs);
     assertThat(count()).isEqualTo(max);
 
-    SearchRequestBuilder req = esTester.client().prepareSearch(INDEX_TYPE_FAKE)
+    SearchRequestBuilder req = es.client().prepareSearch(INDEX_TYPE_FAKE)
       .setQuery(QueryBuilders.rangeQuery(FakeIndexDefinition.INT_FIELD).gte(removeFrom));
-    BulkIndexer.delete(esTester.client(), INDEX_TYPE_FAKE, req);
+    BulkIndexer.delete(es.client(), INDEX_TYPE_FAKE, req);
 
     assertThat(count()).isEqualTo(removeFrom);
   }
@@ -117,7 +117,7 @@ public class BulkIndexerTest {
   @Test
   public void listener_is_called_on_successful_requests() {
     FakeListener listener = new FakeListener();
-    BulkIndexer indexer = new BulkIndexer(esTester.client(), INDEX_TYPE_FAKE, Size.REGULAR, listener);
+    BulkIndexer indexer = new BulkIndexer(es.client(), INDEX_TYPE_FAKE, Size.REGULAR, listener);
     indexer.start();
     indexer.addDeletion(INDEX_TYPE_FAKE, "foo");
     indexer.stop();
@@ -130,7 +130,7 @@ public class BulkIndexerTest {
   @Test
   public void listener_is_called_even_if_deleting_a_doc_that_does_not_exist() {
     FakeListener listener = new FakeListener();
-    BulkIndexer indexer = new BulkIndexer(esTester.client(), INDEX_TYPE_FAKE, Size.REGULAR, listener);
+    BulkIndexer indexer = new BulkIndexer(es.client(), INDEX_TYPE_FAKE, Size.REGULAR, listener);
     indexer.start();
     indexer.add(newIndexRequestWithDocId("foo"));
     indexer.add(newIndexRequestWithDocId("bar"));
@@ -144,7 +144,7 @@ public class BulkIndexerTest {
   @Test
   public void listener_is_not_called_with_errors() {
     FakeListener listener = new FakeListener();
-    BulkIndexer indexer = new BulkIndexer(esTester.client(), INDEX_TYPE_FAKE, Size.REGULAR, listener);
+    BulkIndexer indexer = new BulkIndexer(es.client(), INDEX_TYPE_FAKE, Size.REGULAR, listener);
     indexer.start();
     indexer.add(newIndexRequestWithDocId("foo"));
     indexer.add(new IndexRequest("index_does_not_exist", "index_does_not_exist", "bar").source(emptyMap()));
@@ -170,11 +170,11 @@ public class BulkIndexerTest {
   }
 
   private long count() {
-    return esTester.countDocuments("fakes", "fake");
+    return es.countDocuments("fakes", "fake");
   }
 
   private int replicas() {
-    GetSettingsResponse settingsResp = esTester.client().nativeClient().admin().indices()
+    GetSettingsResponse settingsResp = es.client().nativeClient().admin().indices()
       .prepareGetSettings(INDEX).get();
     return Integer.parseInt(settingsResp.getSetting(INDEX, IndexMetaData.SETTING_NUMBER_OF_REPLICAS));
   }

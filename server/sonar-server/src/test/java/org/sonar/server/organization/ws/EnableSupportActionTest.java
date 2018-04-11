@@ -27,7 +27,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
-import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbTester;
@@ -46,7 +45,6 @@ import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.OrganizationFlags;
 import org.sonar.server.organization.OrganizationFlagsImpl;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
-import org.sonar.server.rule.index.RuleIndexDefinition;
 import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.usergroups.DefaultGroupCreatorImpl;
@@ -70,11 +68,11 @@ public class EnableSupportActionTest {
   @Rule
   public DbTester dbTester = DbTester.create();
   @Rule
-  public EsTester esTester = new EsTester(new RuleIndexDefinition(new MapSettings().asConfig()));
+  public EsTester es = EsTester.core();
 
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(dbTester);
   private OrganizationFlags organizationFlags = new OrganizationFlagsImpl(dbTester.getDbClient());
-  private RuleIndexer ruleIndexer = spy(new RuleIndexer(esTester.client(), dbTester.getDbClient()));
+  private RuleIndexer ruleIndexer = spy(new RuleIndexer(es.client(), dbTester.getDbClient()));
   private EnableSupportAction underTest = new EnableSupportAction(userSession, dbTester.getDbClient(), defaultOrganizationProvider, organizationFlags,
     new DefaultGroupCreatorImpl(dbTester.getDbClient()), new DefaultGroupFinder(dbTester.getDbClient()), ruleIndexer);
   private WsActionTester tester = new WsActionTester(underTest);

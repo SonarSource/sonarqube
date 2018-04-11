@@ -30,7 +30,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.utils.System2;
@@ -91,7 +90,7 @@ public class RuleIndexTest {
   private System2 system2 = new AlwaysIncreasingSystem2();
 
   @Rule
-  public EsTester es = new EsTester(RuleIndexDefinition.createForTest(new MapSettings().asConfig()));
+  public EsTester es = EsTester.core();
   @Rule
   public DbTester db = DbTester.create(system2);
   @Rule
@@ -780,8 +779,8 @@ public class RuleIndexTest {
   }
 
   /**
-  * Facet with no filters at all
-  */
+   * Facet with no filters at all
+   */
   @Test
   public void sticky_facets_no_filters() {
     setupStickyFacets();
@@ -800,9 +799,9 @@ public class RuleIndexTest {
   }
 
   /**
-  * Facet with a language filter
-  * -- lang facet should still have all language
-  */
+   * Facet with a language filter
+   * -- lang facet should still have all language
+   */
   @Test
   public void sticky_facets_with_1_filter() {
     setupStickyFacets();
@@ -908,11 +907,11 @@ public class RuleIndexTest {
   }
 
   /**
-  * Facet with 2 filters
-  * -- lang facet for tag T2
-  * -- tag facet for lang cpp
-  * -- repository for cpp & T2
-  */
+   * Facet with 2 filters
+   * -- lang facet for tag T2
+   * -- tag facet for lang cpp
+   * -- repository for cpp & T2
+   */
   @Test
   public void sticky_facets_with_2_filters() {
     setupStickyFacets();
@@ -933,12 +932,12 @@ public class RuleIndexTest {
   }
 
   /**
-  * Facet with 3 filters
-  * -- lang facet for tag T2
-  * -- tag facet for lang cpp & java
-  * -- repository for (cpp || java) & T2
-  * -- type
-  */
+   * Facet with 3 filters
+   * -- lang facet for tag T2
+   * -- tag facet for lang cpp & java
+   * -- repository for (cpp || java) & T2
+   * -- type
+   */
   @Test
   public void sticky_facets_with_3_filters() {
     setupStickyFacets();

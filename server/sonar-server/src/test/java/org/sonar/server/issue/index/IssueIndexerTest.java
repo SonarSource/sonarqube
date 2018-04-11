@@ -30,7 +30,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
@@ -61,7 +60,7 @@ import static org.sonar.server.permission.index.AuthorizationTypeSupport.TYPE_AU
 public class IssueIndexerTest {
 
   @Rule
-  public EsTester es = new EsTester(IssueIndexDefinition.createForTest(new MapSettings().asConfig()));
+  public EsTester es = EsTester.core();
   @Rule
   public DbTester db = DbTester.create();
   @Rule
@@ -148,6 +147,7 @@ public class IssueIndexerTest {
     } finally {
       assertThatIndexHasSize(0);
       assertThatEsQueueTableHasSize(0);
+      es.unlockWrites(INDEX_TYPE_ISSUE);
     }
   }
 
@@ -198,6 +198,7 @@ public class IssueIndexerTest {
     } finally {
       assertThatIndexHasSize(0);
       assertThatEsQueueTableHasSize(0);
+      es.unlockWrites(INDEX_TYPE_ISSUE);
     }
   }
 
@@ -431,6 +432,7 @@ public class IssueIndexerTest {
     } finally {
       assertThatIndexHasOnly("Issue1");
       assertThatEsQueueTableHasSize(0);
+      es.unlockWrites(INDEX_TYPE_ISSUE);
     }
   }
 

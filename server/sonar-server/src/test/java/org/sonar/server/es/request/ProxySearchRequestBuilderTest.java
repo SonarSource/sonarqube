@@ -34,36 +34,36 @@ import static org.junit.Assert.fail;
 public class ProxySearchRequestBuilderTest {
 
   @Rule
-  public EsTester esTester = new EsTester(new FakeIndexDefinition());
+  public EsTester es = EsTester.custom(new FakeIndexDefinition());
 
   @Rule
   public LogTester logTester = new LogTester();
 
   @Test
   public void search() {
-    esTester.client().prepareSearch(FakeIndexDefinition.INDEX).get();
+    es.client().prepareSearch(FakeIndexDefinition.INDEX).get();
   }
 
   @Test
   public void to_string() {
-    assertThat(esTester.client().prepareSearch(FakeIndexDefinition.INDEX).setTypes(FakeIndexDefinition.TYPE).toString()).contains("ES search request '").contains(
+    assertThat(es.client().prepareSearch(FakeIndexDefinition.INDEX).setTypes(FakeIndexDefinition.TYPE).toString()).contains("ES search request '").contains(
       "' on indices '[fakes]' on types '[fake]'");
-    assertThat(esTester.client().prepareSearch(FakeIndexDefinition.INDEX).toString()).contains("ES search request '").contains("' on indices '[fakes]'");
-    assertThat(esTester.client().prepareSearch(new IndexType[0]).toString()).contains("ES search request");
+    assertThat(es.client().prepareSearch(FakeIndexDefinition.INDEX).toString()).contains("ES search request '").contains("' on indices '[fakes]'");
+    assertThat(es.client().prepareSearch(new IndexType[0]).toString()).contains("ES search request");
   }
 
   @Test
   public void trace_logs() {
     logTester.setLevel(LoggerLevel.TRACE);
 
-    esTester.client().prepareSearch(FakeIndexDefinition.INDEX).get();
+    es.client().prepareSearch(FakeIndexDefinition.INDEX).get();
     assertThat(logTester.logs(LoggerLevel.TRACE)).hasSize(1);
   }
 
   @Test
   public void fail_to_search_bad_query() {
     try {
-      esTester.client().prepareSearch("non-existing-index").get();
+      es.client().prepareSearch("non-existing-index").get();
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalStateException.class);
@@ -74,7 +74,7 @@ public class ProxySearchRequestBuilderTest {
   @Test
   public void get_with_string_timeout_is_not_yet_implemented() {
     try {
-      esTester.client().prepareSearch(FakeIndexDefinition.INDEX).get("1");
+      es.client().prepareSearch(FakeIndexDefinition.INDEX).get("1");
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("Not yet implemented");
@@ -84,7 +84,7 @@ public class ProxySearchRequestBuilderTest {
   @Test
   public void get_with_time_value_timeout_is_not_yet_implemented() {
     try {
-      esTester.client().prepareSearch(FakeIndexDefinition.INDEX).get(TimeValue.timeValueMinutes(1));
+      es.client().prepareSearch(FakeIndexDefinition.INDEX).get(TimeValue.timeValueMinutes(1));
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("Not yet implemented");
@@ -94,7 +94,7 @@ public class ProxySearchRequestBuilderTest {
   @Test
   public void execute_should_throw_an_unsupported_operation_exception() {
     try {
-      esTester.client().prepareSearch(FakeIndexDefinition.INDEX).execute();
+      es.client().prepareSearch(FakeIndexDefinition.INDEX).execute();
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(UnsupportedOperationException.class).hasMessage("execute() should not be called as it's used for asynchronous");

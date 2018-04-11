@@ -47,7 +47,6 @@ import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.organization.TestOrganizationFlags;
 import org.sonar.server.user.NewUserNotifier;
 import org.sonar.server.user.UserUpdater;
-import org.sonar.server.user.index.UserIndexDefinition;
 import org.sonar.server.user.index.UserIndexer;
 import org.sonar.server.usergroups.DefaultGroupFinder;
 
@@ -74,7 +73,7 @@ public class SsoAuthenticatorTest {
   @Rule
   public DbTester db = DbTester.create(new AlwaysIncreasingSystem2());
   @Rule
-  public EsTester es = new EsTester(new UserIndexDefinition(settings.asConfig()));
+  public EsTester es = EsTester.core();
 
   private static final String DEFAULT_LOGIN = "john";
   private static final String DEFAULT_NAME = "John";

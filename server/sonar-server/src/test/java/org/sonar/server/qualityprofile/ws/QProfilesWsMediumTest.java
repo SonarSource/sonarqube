@@ -25,7 +25,6 @@ import java.util.Optional;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
@@ -52,7 +51,6 @@ import org.sonar.server.qualityprofile.QProfileTesting;
 import org.sonar.server.qualityprofile.RuleActivator;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.rule.index.RuleIndex;
-import org.sonar.server.rule.index.RuleIndexDefinition;
 import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.rule.index.RuleQuery;
 import org.sonar.server.rule.ws.RuleQueryFactory;
@@ -79,7 +77,7 @@ public class QProfilesWsMediumTest {
   public UserSessionRule userSessionRule = UserSessionRule.standalone()
     .logIn().setRoot();
   @Rule
-  public EsTester esTester = new EsTester(new RuleIndexDefinition(new MapSettings().asConfig()));
+  public EsTester esTester = EsTester.core();
   @Rule
   public DbTester dbTester = DbTester.create();
 

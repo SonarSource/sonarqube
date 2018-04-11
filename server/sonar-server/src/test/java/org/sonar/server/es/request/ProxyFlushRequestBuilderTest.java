@@ -33,34 +33,34 @@ import static org.junit.Assert.fail;
 public class ProxyFlushRequestBuilderTest {
 
   @Rule
-  public EsTester esTester = new EsTester(new FakeIndexDefinition());
+  public EsTester es = EsTester.custom(new FakeIndexDefinition());
 
   @Rule
   public LogTester logTester = new LogTester();
 
   @Test
   public void flush() {
-    esTester.client().prepareFlush(FakeIndexDefinition.INDEX).get();
+    es.client().prepareFlush(FakeIndexDefinition.INDEX).get();
   }
 
   @Test
   public void to_string() {
-    assertThat(esTester.client().prepareFlush(FakeIndexDefinition.INDEX).toString()).isEqualTo("ES flush request on indices 'fakes'");
-    assertThat(esTester.client().prepareFlush().toString()).isEqualTo("ES flush request");
+    assertThat(es.client().prepareFlush(FakeIndexDefinition.INDEX).toString()).isEqualTo("ES flush request on indices 'fakes'");
+    assertThat(es.client().prepareFlush().toString()).isEqualTo("ES flush request");
   }
 
   @Test
   public void trace_logs() {
     logTester.setLevel(LoggerLevel.TRACE);
 
-    esTester.client().prepareFlush(FakeIndexDefinition.INDEX).get();
+    es.client().prepareFlush(FakeIndexDefinition.INDEX).get();
     assertThat(logTester.logs(LoggerLevel.TRACE)).hasSize(1);
   }
 
   @Test
   public void fail_to_refresh() {
     try {
-      esTester.client().prepareFlush("unknown").get();
+      es.client().prepareFlush("unknown").get();
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalStateException.class);
@@ -71,7 +71,7 @@ public class ProxyFlushRequestBuilderTest {
   @Test
   public void get_with_string_timeout_is_not_yet_implemented() {
     try {
-      esTester.client().prepareFlush(FakeIndexDefinition.INDEX).get("1");
+      es.client().prepareFlush(FakeIndexDefinition.INDEX).get("1");
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("Not yet implemented");
@@ -81,7 +81,7 @@ public class ProxyFlushRequestBuilderTest {
   @Test
   public void get_with_time_value_timeout_is_not_yet_implemented() {
     try {
-      esTester.client().prepareFlush(FakeIndexDefinition.INDEX).get(TimeValue.timeValueMinutes(1));
+      es.client().prepareFlush(FakeIndexDefinition.INDEX).get(TimeValue.timeValueMinutes(1));
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("Not yet implemented");
@@ -91,7 +91,7 @@ public class ProxyFlushRequestBuilderTest {
   @Test
   public void execute_should_throw_an_unsupported_operation_exception() {
     try {
-      esTester.client().prepareFlush(FakeIndexDefinition.INDEX).execute();
+      es.client().prepareFlush(FakeIndexDefinition.INDEX).execute();
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(UnsupportedOperationException.class).hasMessage("execute() should not be called as it's used for asynchronous");

@@ -25,7 +25,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
-import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -46,7 +45,6 @@ import org.sonar.server.issue.IssueFinder;
 import org.sonar.server.issue.IssueUpdater;
 import org.sonar.server.issue.ServerIssueStorage;
 import org.sonar.server.issue.TestIssueChangePostProcessor;
-import org.sonar.server.issue.index.IssueIndexDefinition;
 import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.issue.index.IssueIteratorFactory;
 import org.sonar.server.notification.NotificationManager;
@@ -81,7 +79,7 @@ public class AddCommentActionTest {
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   @Rule
-  public EsTester esTester = new EsTester(new IssueIndexDefinition(new MapSettings().asConfig()));
+  public EsTester esTester = EsTester.core();
 
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();

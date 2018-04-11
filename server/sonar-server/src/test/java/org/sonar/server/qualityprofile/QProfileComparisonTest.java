@@ -26,7 +26,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.api.utils.System2;
@@ -42,7 +41,6 @@ import org.sonar.server.qualityprofile.QProfileComparison.ActiveRuleDiff;
 import org.sonar.server.qualityprofile.QProfileComparison.QProfileComparisonResult;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.rule.index.RuleIndex;
-import org.sonar.server.rule.index.RuleIndexDefinition;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.util.IntegerTypeValidation;
 import org.sonar.server.util.TypeValidations;
@@ -58,7 +56,7 @@ public class QProfileComparisonTest {
   @Rule
   public DbTester dbTester = DbTester.create();
   @Rule
-  public EsTester esTester = new EsTester(RuleIndexDefinition.createForTest(new MapSettings().asConfig()));
+  public EsTester es = EsTester.core();
 
   private DbClient db;
   private DbSession dbSession;
@@ -74,8 +72,8 @@ public class QProfileComparisonTest {
   public void before() {
     db = dbTester.getDbClient();
     dbSession = db.openSession(false);
-    RuleIndex ruleIndex = new RuleIndex(esTester.client(), System2.INSTANCE);
-    ActiveRuleIndexer activeRuleIndexer = new ActiveRuleIndexer(db, esTester.client());
+    RuleIndex ruleIndex = new RuleIndex(es.client(), System2.INSTANCE);
+    ActiveRuleIndexer activeRuleIndexer = new ActiveRuleIndexer(db, es.client());
     RuleActivator ruleActivator = new RuleActivator(System2.INSTANCE, db, new TypeValidations(singletonList(new IntegerTypeValidation())), userSession);
     qProfileRules = new QProfileRulesImpl(db, ruleActivator, ruleIndex, activeRuleIndexer);
     comparison = new QProfileComparison(db);

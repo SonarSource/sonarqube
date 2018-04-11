@@ -21,10 +21,8 @@ package org.sonar.server.platform.monitoring.cluster;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.config.internal.MapSettings;
 import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
 import org.sonar.server.es.EsTester;
-import org.sonar.server.issue.index.IssueIndexDefinition;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.process.systeminfo.SystemInfoUtils.attribute;
@@ -32,7 +30,7 @@ import static org.sonar.process.systeminfo.SystemInfoUtils.attribute;
 public class EsClusterStateSectionTest {
 
   @Rule
-  public EsTester esTester = new EsTester(new IssueIndexDefinition(new MapSettings().asConfig()));
+  public EsTester esTester = EsTester.core();
 
   private EsClusterStateSection underTest = new EsClusterStateSection(esTester.client());
 

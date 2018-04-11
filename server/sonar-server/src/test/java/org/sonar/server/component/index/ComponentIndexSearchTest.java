@@ -25,7 +25,6 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
@@ -46,7 +45,7 @@ import static org.sonar.db.component.ComponentTesting.newFileDto;
 
 public class ComponentIndexSearchTest {
   @Rule
-  public EsTester es = new EsTester(new ComponentIndexDefinition(new MapSettings().asConfig()));
+  public EsTester es = EsTester.core();
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
   @Rule

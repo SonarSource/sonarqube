@@ -32,7 +32,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
-import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
@@ -49,7 +48,6 @@ import org.sonar.server.component.ws.SearchProjectsAction.RequestBuilder;
 import org.sonar.server.component.ws.SearchProjectsAction.SearchProjectsRequest;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.measure.index.ProjectMeasuresIndex;
-import org.sonar.server.measure.index.ProjectMeasuresIndexDefinition;
 import org.sonar.server.measure.index.ProjectMeasuresIndexer;
 import org.sonar.server.permission.index.AuthorizationTypeSupport;
 import org.sonar.server.permission.index.PermissionIndexerTester;
@@ -112,18 +110,18 @@ public class SearchProjectsActionTest {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
-  public EsTester es = new EsTester(new ProjectMeasuresIndexDefinition(new MapSettings().asConfig()));
+  public EsTester es = EsTester.core();
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
   @DataProvider
   public static Object[][] rating_metric_keys() {
-    return new Object[][] {{SQALE_RATING_KEY}, {RELIABILITY_RATING_KEY}, {SECURITY_RATING_KEY}};
+    return new Object[][]{{SQALE_RATING_KEY}, {RELIABILITY_RATING_KEY}, {SECURITY_RATING_KEY}};
   }
 
   @DataProvider
   public static Object[][] new_rating_metric_keys() {
-    return new Object[][] {{NEW_MAINTAINABILITY_RATING_KEY}, {NEW_RELIABILITY_RATING_KEY}, {NEW_SECURITY_RATING_KEY}};
+    return new Object[][]{{NEW_MAINTAINABILITY_RATING_KEY}, {NEW_RELIABILITY_RATING_KEY}, {NEW_SECURITY_RATING_KEY}};
   }
 
   private DbClient dbClient = db.getDbClient();
@@ -198,23 +196,23 @@ public class SearchProjectsActionTest {
   @Test
   public void json_example() {
     userSession.logIn();
-    OrganizationDto organization1Dto = db.organizations().insert(dto-> dto.setKey("my-org-key-1").setName("Foo"));
-    OrganizationDto organization2Dto = db.organizations().insert(dto-> dto.setKey("my-org-key-2").setName("Bar"));
+    OrganizationDto organization1Dto = db.organizations().insert(dto -> dto.setKey("my-org-key-1").setName("Foo"));
+    OrganizationDto organization2Dto = db.organizations().insert(dto -> dto.setKey("my-org-key-2").setName("Bar"));
 
     MetricDto coverage = db.measures().insertMetric(c -> c.setKey(COVERAGE).setValueType(PERCENT.name()));
     ComponentDto project1 = insertProject(organization1Dto, c -> c
-      .setDbKey(KEY_PROJECT_EXAMPLE_001)
-      .setName("My Project 1")
-      .setTagsString("finance, java"),
+        .setDbKey(KEY_PROJECT_EXAMPLE_001)
+        .setName("My Project 1")
+        .setTagsString("finance, java"),
       new Measure(coverage, c -> c.setValue(80d)));
     ComponentDto project2 = insertProject(organization1Dto, c -> c
-      .setDbKey(KEY_PROJECT_EXAMPLE_002)
-      .setName("My Project 2"),
+        .setDbKey(KEY_PROJECT_EXAMPLE_002)
+        .setName("My Project 2"),
       new Measure(coverage, c -> c.setValue(90d)));
     ComponentDto project3 = insertProject(organization2Dto, c -> c
-      .setDbKey(KEY_PROJECT_EXAMPLE_003)
-      .setName("My Project 3")
-      .setTagsString("sales, offshore, java"),
+        .setDbKey(KEY_PROJECT_EXAMPLE_003)
+        .setName("My Project 3")
+        .setTagsString("sales, offshore, java"),
       new Measure(coverage, c -> c.setValue(20d)));
     addFavourite(project1);
 

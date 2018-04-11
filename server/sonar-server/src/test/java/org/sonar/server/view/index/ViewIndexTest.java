@@ -22,7 +22,6 @@ package org.sonar.server.view.index;
 import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.config.internal.MapSettings;
 import org.sonar.server.es.EsTester;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -33,7 +32,7 @@ import static org.sonar.server.view.index.ViewIndexDefinition.INDEX_TYPE_VIEW;
 public class ViewIndexTest {
 
   @Rule
-  public EsTester esTester = new EsTester(new ViewIndexDefinition(new MapSettings().asConfig()));
+  public EsTester esTester = EsTester.core();
 
   ViewIndex index = new ViewIndex(esTester.client());
 

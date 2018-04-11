@@ -23,7 +23,6 @@ import java.util.HashSet;
 import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.user.UserDto;
@@ -41,7 +40,7 @@ public class UserIndexerTest {
   public DbTester db = DbTester.create(system2);
 
   @Rule
-  public EsTester es = new EsTester(new UserIndexDefinition(new MapSettings().asConfig()));
+  public EsTester es = EsTester.core();
 
   private UserIndexer underTest = new UserIndexer(db.getDbClient(), es.client());
 

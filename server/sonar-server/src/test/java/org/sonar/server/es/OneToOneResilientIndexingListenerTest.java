@@ -25,11 +25,9 @@ import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.config.internal.MapSettings;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.es.EsQueueDto;
-import org.sonar.server.issue.index.IssueIndexDefinition;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
@@ -41,7 +39,7 @@ import static org.sonar.server.issue.index.IssueIndexDefinition.INDEX_TYPE_ISSUE
 public class OneToOneResilientIndexingListenerTest {
 
   @Rule
-  public EsTester es = new EsTester(new IssueIndexDefinition(new MapSettings().asConfig()));
+  public EsTester es = EsTester.core();
   @Rule
   public DbTester db = DbTester.create();
   @Rule

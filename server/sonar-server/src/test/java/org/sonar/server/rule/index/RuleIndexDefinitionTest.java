@@ -46,7 +46,7 @@ public class RuleIndexDefinitionTest {
   private RuleIndexDefinition underTest = new RuleIndexDefinition(settings.asConfig());
 
   @Rule
-  public EsTester tester = new EsTester(underTest);
+  public EsTester tester = EsTester.core();
 
   @Test
   public void test_definition_of_index() {

@@ -27,7 +27,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.rule.RuleStatus;
@@ -60,7 +59,6 @@ import org.sonar.server.issue.IssueQuery;
 import org.sonar.server.issue.IssueQueryFactory;
 import org.sonar.server.issue.TransitionService;
 import org.sonar.server.issue.index.IssueIndex;
-import org.sonar.server.issue.index.IssueIndexDefinition;
 import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.issue.index.IssueIteratorFactory;
 import org.sonar.server.issue.workflow.FunctionExecutor;
@@ -97,7 +95,7 @@ public class SearchActionTest {
   @Rule
   public DbTester db = DbTester.create();
   @Rule
-  public EsTester es = new EsTester(new IssueIndexDefinition(new MapSettings().asConfig()));
+  public EsTester es = EsTester.core();
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 

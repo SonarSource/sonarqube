@@ -31,7 +31,7 @@ import static org.mockito.Mockito.when;
 public class EsStatusNodeCheckTest {
 
   @Rule
-  public EsTester esTester = new EsTester();
+  public EsTester esTester = EsTester.custom();
 
   private EsStatusNodeCheck underTest = new EsStatusNodeCheck(esTester.client());
 

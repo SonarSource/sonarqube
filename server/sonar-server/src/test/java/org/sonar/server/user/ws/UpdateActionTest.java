@@ -40,7 +40,6 @@ import org.sonar.server.organization.TestOrganizationFlags;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.NewUserNotifier;
 import org.sonar.server.user.UserUpdater;
-import org.sonar.server.user.index.UserIndexDefinition;
 import org.sonar.server.user.index.UserIndexer;
 import org.sonar.server.usergroups.DefaultGroupFinder;
 import org.sonar.server.ws.WsActionTester;
@@ -60,7 +59,7 @@ public class UpdateActionTest {
   @Rule
   public DbTester db = DbTester.create(system2);
   @Rule
-  public EsTester es = new EsTester(new UserIndexDefinition(settings.asConfig()));
+  public EsTester es = EsTester.core();
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone().logIn().setSystemAdministrator();
   @Rule

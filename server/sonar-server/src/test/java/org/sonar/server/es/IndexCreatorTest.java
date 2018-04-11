@@ -20,7 +20,6 @@
 package org.sonar.server.es;
 
 import com.google.common.collect.ImmutableMap;
-import java.io.IOException;
 import java.util.Map;
 import java.util.function.Consumer;
 import javax.annotation.CheckForNull;
@@ -49,7 +48,7 @@ public class IndexCreatorTest {
   public LogTester logTester = new LogTester();
 
   @Rule
-  public EsTester es = new EsTester();
+  public EsTester es = EsTester.custom();
 
   private MetadataIndexDefinition metadataIndexDefinition = new MetadataIndexDefinition(new MapSettings().asConfig());
   private MetadataIndex metadataIndex = new MetadataIndex(es.client());
@@ -57,9 +56,7 @@ public class IndexCreatorTest {
   private MapSettings settings = new MapSettings();
 
   @Test
-  public void create_index() throws Exception {
-    assertThat(mappings()).isEmpty();
-
+  public void create_index() {
     IndexCreator underTest = startNewCreator(new FakeIndexDefinition());
 
     // check that index is created with related mapping
@@ -78,18 +75,18 @@ public class IndexCreatorTest {
   @Test
   public void mark_all_non_existing_index_types_as_uninitialized() {
     startNewCreator(context -> {
-      NewIndex i = context.create("i", SETTINGS_CONFIGURATION);
+      NewIndex i = context.create("fakes", SETTINGS_CONFIGURATION);
       i.createType("t1");
       i.createType("t2");
     });
 
-    assertThat(metadataIndex.getHash("i")).isNotEmpty();
-    assertThat(metadataIndex.getInitialized(new IndexType("i", "t1"))).isFalse();
-    assertThat(metadataIndex.getInitialized(new IndexType("i", "t2"))).isFalse();
+    assertThat(metadataIndex.getHash("fakes")).isNotEmpty();
+    assertThat(metadataIndex.getInitialized(new IndexType("fakes", "t1"))).isFalse();
+    assertThat(metadataIndex.getInitialized(new IndexType("fakes", "t2"))).isFalse();
   }
 
   @Test
-  public void recreate_index_on_definition_changes() throws Exception {
+  public void recreate_index_on_definition_changes() {
     // v1
     startNewCreator(new FakeIndexDefinition());
 

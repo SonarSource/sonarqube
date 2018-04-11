@@ -19,8 +19,8 @@
  */
 package org.sonar.server.issue.index;
 
-import com.google.common.annotations.VisibleForTesting;
 import org.sonar.api.config.Configuration;
+import org.sonar.api.config.internal.MapSettings;
 import org.sonar.server.es.IndexDefinition;
 import org.sonar.server.es.IndexType;
 import org.sonar.server.es.NewIndex;
@@ -109,9 +109,8 @@ public class IssueIndexDefinition implements IndexDefinition {
    * Keep the document sources in index so that indexer tests can verify content
    * of indexed documents.
    */
-  @VisibleForTesting
-  public static IssueIndexDefinition createForTest(Configuration config) {
-    return new IssueIndexDefinition(config, true);
+  public static IssueIndexDefinition createForTest() {
+    return new IssueIndexDefinition(new MapSettings().asConfig(), true);
   }
 
   @Override

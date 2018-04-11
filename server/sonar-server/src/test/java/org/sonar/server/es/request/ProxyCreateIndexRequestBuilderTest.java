@@ -21,7 +21,6 @@ package org.sonar.server.es.request;
 
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequestBuilder;
 import org.elasticsearch.common.unit.TimeValue;
-import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
@@ -34,29 +33,29 @@ import static org.junit.Assert.fail;
 
 public class ProxyCreateIndexRequestBuilderTest {
 
-  @ClassRule
-  public static EsTester esTester = new EsTester();
+  @Rule
+  public EsTester es = EsTester.custom();
 
   @Rule
   public LogTester logTester = new LogTester();
 
   @Test
   public void create_index() {
-    CreateIndexRequestBuilder requestBuilder = esTester.client().prepareCreate(generateNewIndexName());
+    CreateIndexRequestBuilder requestBuilder = es.client().prepareCreate(generateNewIndexName());
     requestBuilder.get();
   }
 
   @Test
   public void to_string() {
     String indexName = generateNewIndexName();
-    assertThat(esTester.client().prepareCreate(indexName).toString()).contains("ES create index '" + indexName + "'");
+    assertThat(es.client().prepareCreate(indexName).toString()).contains("ES create index '" + indexName + "'");
   }
 
   @Test
   public void trace_logs() {
     logTester.setLevel(LoggerLevel.TRACE);
 
-    CreateIndexRequestBuilder requestBuilder = esTester.client().prepareCreate(generateNewIndexName());
+    CreateIndexRequestBuilder requestBuilder = es.client().prepareCreate(generateNewIndexName());
     requestBuilder.get();
     assertThat(logTester.logs()).hasSize(1);
   }
@@ -64,7 +63,7 @@ public class ProxyCreateIndexRequestBuilderTest {
   @Test
   public void get_with_string_timeout_is_not_yet_implemented() {
     try {
-      esTester.client().prepareCreate(generateNewIndexName()).get("1");
+      es.client().prepareCreate(generateNewIndexName()).get("1");
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("Not yet implemented");
@@ -74,7 +73,7 @@ public class ProxyCreateIndexRequestBuilderTest {
   @Test
   public void get_with_time_value_timeout_is_not_yet_implemented() {
     try {
-      esTester.client().prepareCreate(generateNewIndexName()).get(TimeValue.timeValueMinutes(1));
+      es.client().prepareCreate(generateNewIndexName()).get(TimeValue.timeValueMinutes(1));
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("Not yet implemented");
@@ -84,7 +83,7 @@ public class ProxyCreateIndexRequestBuilderTest {
   @Test
   public void execute_should_throw_an_unsupported_operation_exception() {
     try {
-      esTester.client().prepareCreate(generateNewIndexName()).execute();
+      es.client().prepareCreate(generateNewIndexName()).execute();
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(UnsupportedOperationException.class).hasMessage("execute() should not be called as it's used for asynchronous");

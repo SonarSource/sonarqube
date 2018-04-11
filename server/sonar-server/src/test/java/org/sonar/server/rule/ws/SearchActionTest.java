@@ -27,7 +27,6 @@ import org.assertj.core.api.iterable.Extractor;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
@@ -56,7 +55,6 @@ import org.sonar.server.qualityprofile.RuleActivation;
 import org.sonar.server.qualityprofile.RuleActivator;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.rule.index.RuleIndex;
-import org.sonar.server.rule.index.RuleIndexDefinition;
 import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.text.MacroInterpreter;
@@ -103,10 +101,10 @@ public class SearchActionTest {
   @org.junit.Rule
   public DbTester db = DbTester.create(system2);
   @org.junit.Rule
-  public EsTester es = new EsTester(new RuleIndexDefinition(new MapSettings().asConfig()));
+  public EsTester es = EsTester.core();
 
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
-  private RuleIndex ruleIndex = new RuleIndex(es.client() ,system2);
+  private RuleIndex ruleIndex = new RuleIndex(es.client(), system2);
   private RuleIndexer ruleIndexer = new RuleIndexer(es.client(), db.getDbClient());
   private ActiveRuleIndexer activeRuleIndexer = new ActiveRuleIndexer(db.getDbClient(), es.client());
   private Languages languages = LanguageTesting.newLanguages(JAVA, "js");
@@ -331,7 +329,7 @@ public class SearchActionTest {
       .executeProtobuf(SearchResponse.class);
     assertThat(result.getFacets().getFacets(0).getValuesList()).extracting(v -> v.getVal(), v -> v.getCount())
       .containsExactly(tuple("tag1", 1L), tuple("tag2", 1L), tuple("tag3", 1L), tuple("tag4", 1L), tuple("tag5", 1L), tuple("tag6", 1L), tuple("tag7", 1L), tuple("tag8", 1L),
-              tuple("tag9", 1L), tuple("tagA", 1L));
+        tuple("tag9", 1L), tuple("tagA", 1L));
   }
 
   @Test
@@ -348,7 +346,7 @@ public class SearchActionTest {
       .executeProtobuf(SearchResponse.class);
     assertThat(result.getFacets().getFacets(0).getValuesList()).extracting(v -> v.getVal(), v -> v.getCount())
       .containsExactly(tuple("tag2", 2L), tuple("tag1", 1L), tuple("tag3", 1L), tuple("tag4", 1L), tuple("tag5", 1L), tuple("tag6", 1L), tuple("tag7", 1L), tuple("tag8", 1L),
-              tuple("tag9", 1L), tuple("tagA", 1L));
+        tuple("tag9", 1L), tuple("tagA", 1L));
   }
 
   @Test
@@ -824,40 +822,40 @@ public class SearchActionTest {
       );
 
     assertThat(result.getFacets().getFacetsList().stream().filter(f -> "repositories".equals(f.getProperty())).findAny().get().getValuesList())
-        .extracting(Common.FacetValue::getVal, Common.FacetValue::getCount)
-        .as("Facet repositories")
-        .containsExactlyInAnyOrder(
-          tuple(rule1.getRepositoryKey(), 1L)
-        );
+      .extracting(Common.FacetValue::getVal, Common.FacetValue::getCount)
+      .as("Facet repositories")
+      .containsExactlyInAnyOrder(
+        tuple(rule1.getRepositoryKey(), 1L)
+      );
 
-      assertThat(result.getFacets().getFacetsList().stream().filter(f -> "severities".equals(f.getProperty())).findAny().get().getValuesList())
-        .extracting(Common.FacetValue::getVal, Common.FacetValue::getCount)
-        .as("Facet severities")
-        .containsExactlyInAnyOrder(
-          tuple("BLOCKER" /*rule2*/, 0L),
-          tuple("CRITICAL"/*rule1*/, 1L),
-          tuple("MAJOR", 0L),
-          tuple("MINOR", 0L),
-          tuple("INFO", 0L)
-        );
+    assertThat(result.getFacets().getFacetsList().stream().filter(f -> "severities".equals(f.getProperty())).findAny().get().getValuesList())
+      .extracting(Common.FacetValue::getVal, Common.FacetValue::getCount)
+      .as("Facet severities")
+      .containsExactlyInAnyOrder(
+        tuple("BLOCKER" /*rule2*/, 0L),
+        tuple("CRITICAL"/*rule1*/, 1L),
+        tuple("MAJOR", 0L),
+        tuple("MINOR", 0L),
+        tuple("INFO", 0L)
+      );
 
-      assertThat(result.getFacets().getFacetsList().stream().filter(f -> "statuses".equals(f.getProperty())).findAny().get().getValuesList())
-        .extracting(Common.FacetValue::getVal, Common.FacetValue::getCount)
-        .as("Facet statuses")
-        .containsExactlyInAnyOrder(
-          tuple("READY"/*rule2*/, 0L),
-          tuple("BETA" /*rule1*/, 1L),
-          tuple("DEPRECATED", 0L)
-        );
+    assertThat(result.getFacets().getFacetsList().stream().filter(f -> "statuses".equals(f.getProperty())).findAny().get().getValuesList())
+      .extracting(Common.FacetValue::getVal, Common.FacetValue::getCount)
+      .as("Facet statuses")
+      .containsExactlyInAnyOrder(
+        tuple("READY"/*rule2*/, 0L),
+        tuple("BETA" /*rule1*/, 1L),
+        tuple("DEPRECATED", 0L)
+      );
 
-      assertThat(result.getFacets().getFacetsList().stream().filter(f -> "types".equals(f.getProperty())).findAny().get().getValuesList())
-        .extracting(Common.FacetValue::getVal, Common.FacetValue::getCount)
-        .as("Facet types")
-        .containsExactlyInAnyOrder(
-          tuple("BUG"       /*rule2*/, 0L),
-          tuple("CODE_SMELL"/*rule1*/, 1L),
-          tuple("VULNERABILITY", 0L)
-        );
+    assertThat(result.getFacets().getFacetsList().stream().filter(f -> "types".equals(f.getProperty())).findAny().get().getValuesList())
+      .extracting(Common.FacetValue::getVal, Common.FacetValue::getCount)
+      .as("Facet types")
+      .containsExactlyInAnyOrder(
+        tuple("BUG"       /*rule2*/, 0L),
+        tuple("CODE_SMELL"/*rule1*/, 1L),
+        tuple("VULNERABILITY", 0L)
+      );
   }
 
   @Test

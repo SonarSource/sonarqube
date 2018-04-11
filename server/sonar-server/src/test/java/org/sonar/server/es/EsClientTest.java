@@ -44,7 +44,7 @@ import static org.sonar.server.es.FakeIndexDefinition.INDEX_TYPE_FAKE;
 public class EsClientTest {
 
   @Rule
-  public EsTester es = new EsTester(new FakeIndexDefinition());
+  public EsTester es = EsTester.custom(new FakeIndexDefinition());
 
   @Test
   public void proxify_requests() {

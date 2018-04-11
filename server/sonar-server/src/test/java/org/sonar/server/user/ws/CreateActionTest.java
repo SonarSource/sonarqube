@@ -45,7 +45,6 @@ import org.sonar.server.user.NewUserNotifier;
 import org.sonar.server.user.UserUpdater;
 import org.sonar.server.user.index.UserDoc;
 import org.sonar.server.user.index.UserIndex;
-import org.sonar.server.user.index.UserIndexDefinition;
 import org.sonar.server.user.index.UserIndexer;
 import org.sonar.server.user.ws.CreateAction.CreateRequest;
 import org.sonar.server.usergroups.DefaultGroupFinder;
@@ -71,7 +70,7 @@ public class CreateActionTest {
   @Rule
   public DbTester db = DbTester.create(system2);
   @Rule
-  public EsTester esTester = new EsTester(new UserIndexDefinition(settings.asConfig()));
+  public EsTester esTester = EsTester.core();
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
   @Rule

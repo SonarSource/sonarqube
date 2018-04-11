@@ -41,7 +41,6 @@ import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.organization.TestOrganizationFlags;
 import org.sonar.server.user.NewUserNotifier;
 import org.sonar.server.user.UserUpdater;
-import org.sonar.server.user.index.UserIndexDefinition;
 import org.sonar.server.user.index.UserIndexer;
 import org.sonar.server.usergroups.DefaultGroupFinder;
 
@@ -80,7 +79,7 @@ public class UserIdentityAuthenticatorTest {
   @Rule
   public DbTester db = DbTester.create(new AlwaysIncreasingSystem2());
   @Rule
-  public EsTester es = new EsTester(new UserIndexDefinition(settings.asConfig()));
+  public EsTester es = EsTester.core();
   private UserIndexer userIndexer = new UserIndexer(db.getDbClient(), es.client());
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
   private OrganizationCreation organizationCreation = mock(OrganizationCreation.class);

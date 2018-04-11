@@ -27,7 +27,6 @@ import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.search.SearchHit;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.server.es.EsTester;
@@ -50,7 +49,7 @@ public class TestIndexerTest {
   private System2 system2 = System2.INSTANCE;
 
   @Rule
-  public EsTester es = new EsTester(new TestIndexDefinition(new MapSettings().asConfig()));
+  public EsTester es = EsTester.core();
 
   @Rule
   public DbTester db = DbTester.create(system2);

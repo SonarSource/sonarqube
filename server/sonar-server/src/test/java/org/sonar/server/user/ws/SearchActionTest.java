@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.function.Consumer;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
@@ -38,7 +37,6 @@ import org.sonar.server.es.EsTester;
 import org.sonar.server.issue.ws.AvatarResolverImpl;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.index.UserIndex;
-import org.sonar.server.user.index.UserIndexDefinition;
 import org.sonar.server.user.index.UserIndexer;
 import org.sonar.server.ws.WsTester;
 
@@ -56,7 +54,7 @@ public class SearchActionTest {
   private System2 system2 = System2.INSTANCE;
 
   @Rule
-  public EsTester esTester = new EsTester(new UserIndexDefinition(new MapSettings().asConfig()));
+  public EsTester esTester = EsTester.core();
 
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();

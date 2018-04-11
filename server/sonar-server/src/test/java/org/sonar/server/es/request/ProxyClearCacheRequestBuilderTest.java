@@ -21,7 +21,6 @@ package org.sonar.server.es.request;
 
 import org.elasticsearch.action.admin.indices.cache.clear.ClearIndicesCacheRequestBuilder;
 import org.elasticsearch.common.unit.TimeValue;
-import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.log.LogTester;
@@ -33,8 +32,8 @@ import static org.junit.Assert.fail;
 
 public class ProxyClearCacheRequestBuilderTest {
 
-  @ClassRule
-  public static EsTester esTester = new EsTester();
+  @Rule
+  public EsTester esTester = EsTester.core();
 
   @Rule
   public LogTester logTester = new LogTester();

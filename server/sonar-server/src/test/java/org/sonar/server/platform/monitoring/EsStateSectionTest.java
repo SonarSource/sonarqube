@@ -23,11 +23,9 @@ import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.cluster.health.ClusterHealthStatus;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.config.internal.MapSettings;
 import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.es.EsTester;
-import org.sonar.server.issue.index.IssueIndexDefinition;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -38,7 +36,7 @@ import static org.sonar.server.platform.monitoring.SystemInfoTesting.assertThatA
 public class EsStateSectionTest {
 
   @Rule
-  public EsTester esTester = new EsTester(new IssueIndexDefinition(new MapSettings().asConfig()));
+  public EsTester esTester = EsTester.core();
 
   private EsStateSection underTest = new EsStateSection(esTester.client());
 

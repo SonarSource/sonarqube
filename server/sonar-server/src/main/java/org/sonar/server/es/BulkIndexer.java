@@ -56,8 +56,8 @@ import static java.lang.String.format;
 /**
  * Helper to bulk requests in an efficient way :
  * <ul>
- *   <li>bulk request is sent on the wire when its size is higher than 5Mb</li>
- *   <li>on large table indexing, replicas and automatic refresh can be temporarily disabled</li>
+ * <li>bulk request is sent on the wire when its size is higher than 5Mb</li>
+ * <li>on large table indexing, replicas and automatic refresh can be temporarily disabled</li>
  * </ul>
  */
 public class BulkIndexer {
@@ -160,6 +160,9 @@ public class BulkIndexer {
       }
 
       String scrollId = searchResponse.getScrollId();
+      if (scrollId == null) {
+        break;
+      }
       searchResponse = client.prepareSearchScroll(scrollId).setScroll(TimeValue.timeValueMinutes(5)).get();
       if (hits.length == 0) {
         client.nativeClient().prepareClearScroll().addScrollId(scrollId).get();
@@ -179,7 +182,7 @@ public class BulkIndexer {
   /**
    * Delete all the documents matching the given search request. This method is blocking.
    * Index is refreshed, so docs are not searchable as soon as method is executed.
-   *
+   * <p>
    * Note that the parameter indexType could be removed if progress logs are not needed.
    */
   public static IndexingResult delete(EsClient client, IndexType indexType, SearchRequestBuilder searchRequest) {
@@ -216,7 +219,9 @@ public class BulkIndexer {
   }
 
   public enum Size {
-    /** Use this size for a limited number of documents. */
+    /**
+     * Use this size for a limited number of documents.
+     */
     REGULAR {
       @Override
       SizeHandler createHandler(Runtime2 runtime2) {

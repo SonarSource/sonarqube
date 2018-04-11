@@ -72,7 +72,7 @@ public class UserUpdaterCreateTest {
   public ExpectedException expectedException = ExpectedException.none();
 
   @Rule
-  public EsTester es = new EsTester(new UserIndexDefinition(new MapSettings().asConfig()));
+  public EsTester es = EsTester.core();
 
   @Rule
   public DbTester db = DbTester.create(system2);
@@ -100,7 +100,7 @@ public class UserUpdaterCreateTest {
       .setPassword("PASSWORD")
       .setScmAccounts(ImmutableList.of("u1", "u_1", "User 1"))
       .build(), u -> {
-      });
+    });
 
     assertThat(dto.getId()).isNotNull();
     assertThat(dto.getLogin()).isEqualTo("user");
@@ -134,7 +134,7 @@ public class UserUpdaterCreateTest {
       .setLogin("us")
       .setName("User")
       .build(), u -> {
-      });
+    });
 
     UserDto dto = dbClient.userDao().selectByLogin(session, "us");
     assertThat(dto.getId()).isNotNull();
@@ -154,7 +154,7 @@ public class UserUpdaterCreateTest {
       .setName("User")
       .setPassword("password")
       .build(), u -> {
-      });
+    });
 
     UserDto dto = dbClient.userDao().selectByLogin(session, "user");
     assertThat(dto.getExternalIdentity()).isEqualTo("user");
@@ -171,7 +171,7 @@ public class UserUpdaterCreateTest {
       .setName("User")
       .setExternalIdentity(new ExternalIdentity("github", "github-user"))
       .build(), u -> {
-      });
+    });
 
     UserDto dto = dbClient.userDao().selectByLogin(session, "user");
     assertThat(dto.isLocal()).isFalse();
@@ -190,7 +190,7 @@ public class UserUpdaterCreateTest {
       .setName("User")
       .setExternalIdentity(new ExternalIdentity(SQ_AUTHORITY, "user"))
       .build(), u -> {
-      });
+    });
 
     UserDto dto = dbClient.userDao().selectByLogin(session, "user");
     assertThat(dto.isLocal()).isFalse();
@@ -210,7 +210,7 @@ public class UserUpdaterCreateTest {
       .setPassword("password")
       .setScmAccounts(asList("u1", "", null))
       .build(), u -> {
-      });
+    });
 
     assertThat(dbClient.userDao().selectByLogin(session, "user").getScmAccountsAsList()).containsOnly("u1");
   }
@@ -225,7 +225,7 @@ public class UserUpdaterCreateTest {
       .setPassword("password")
       .setScmAccounts(asList(""))
       .build(), u -> {
-      });
+    });
 
     assertThat(dbClient.userDao().selectByLogin(session, "user").getScmAccounts()).isNull();
   }
@@ -240,7 +240,7 @@ public class UserUpdaterCreateTest {
       .setPassword("password")
       .setScmAccounts(asList("u1", "u1"))
       .build(), u -> {
-      });
+    });
 
     assertThat(dbClient.userDao().selectByLogin(session, "user").getScmAccountsAsList()).containsOnly("u1");
   }
@@ -254,7 +254,7 @@ public class UserUpdaterCreateTest {
       .setLogin("user")
       .setName("User")
       .build(), u -> {
-      });
+    });
 
     assertThat(dbClient.userDao().selectByLogin(session, "user").isOnboarded()).isTrue();
   }
@@ -268,7 +268,7 @@ public class UserUpdaterCreateTest {
       .setLogin("user")
       .setName("User")
       .build(), u -> {
-      });
+    });
 
     assertThat(dbClient.userDao().selectByLogin(session, "user").isOnboarded()).isFalse();
   }
@@ -284,7 +284,7 @@ public class UserUpdaterCreateTest {
       .setEmail("user@mail.com")
       .setPassword("PASSWORD")
       .build(), u -> {
-      }, otherUser);
+    }, otherUser);
 
     assertThat(es.getIds(UserIndexDefinition.INDEX_TYPE_USER)).containsExactlyInAnyOrder(created.getLogin(), otherUser.getLogin());
   }
@@ -300,7 +300,7 @@ public class UserUpdaterCreateTest {
       .setEmail("marius@mail.com")
       .setPassword("password")
       .build(), u -> {
-      });
+    });
   }
 
   @Test
@@ -314,7 +314,7 @@ public class UserUpdaterCreateTest {
       .setEmail("marius@mail.com")
       .setPassword("password")
       .build(), u -> {
-      });
+    });
   }
 
   @Test
@@ -328,7 +328,7 @@ public class UserUpdaterCreateTest {
       .setEmail("marius@mail.com")
       .setPassword("password")
       .build(), u -> {
-      });
+    });
   }
 
   @Test
@@ -342,7 +342,7 @@ public class UserUpdaterCreateTest {
       .setEmail("marius@mail.com")
       .setPassword("password")
       .build(), u -> {
-      });
+    });
   }
 
   @Test
@@ -356,7 +356,7 @@ public class UserUpdaterCreateTest {
       .setEmail("marius@mail.com")
       .setPassword("password")
       .build(), u -> {
-      });
+    });
   }
 
   @Test
@@ -370,7 +370,7 @@ public class UserUpdaterCreateTest {
       .setEmail("marius@mail.com")
       .setPassword("password")
       .build(), u -> {
-      });
+    });
   }
 
   @Test
@@ -384,7 +384,7 @@ public class UserUpdaterCreateTest {
       .setEmail("marius@mail.com")
       .setPassword("password")
       .build(), u -> {
-      });
+    });
   }
 
   @Test
@@ -398,7 +398,7 @@ public class UserUpdaterCreateTest {
       .setEmail(Strings.repeat("m", 101))
       .setPassword("password")
       .build(), u -> {
-      });
+    });
   }
 
   @Test
@@ -410,7 +410,7 @@ public class UserUpdaterCreateTest {
         .setEmail("marius@mail.com")
         .setPassword("")
         .build(), u -> {
-        });
+      });
       fail();
     } catch (BadRequestException e) {
       assertThat(e.errors()).hasSize(3);
@@ -431,7 +431,7 @@ public class UserUpdaterCreateTest {
       .setPassword("password")
       .setScmAccounts(asList("jo"))
       .build(), u -> {
-      });
+    });
   }
 
   @Test
@@ -449,7 +449,7 @@ public class UserUpdaterCreateTest {
       .setPassword("password")
       .setScmAccounts(asList("john@email.com"))
       .build(), u -> {
-      });
+    });
   }
 
   @Test
@@ -464,7 +464,7 @@ public class UserUpdaterCreateTest {
       .setPassword("password2")
       .setScmAccounts(asList(DEFAULT_LOGIN))
       .build(), u -> {
-      });
+    });
   }
 
   @Test
@@ -479,7 +479,7 @@ public class UserUpdaterCreateTest {
       .setPassword("password2")
       .setScmAccounts(asList("marius2@mail.com"))
       .build(), u -> {
-      });
+    });
   }
 
   @Test
@@ -493,7 +493,7 @@ public class UserUpdaterCreateTest {
       .setPassword("password")
       .setScmAccounts(asList("u1", "u_1"))
       .build(), u -> {
-      });
+    });
 
     verify(newUserNotifier).onNewUser(newUserHandler.capture());
     assertThat(newUserHandler.getValue().getLogin()).isEqualTo("user");
@@ -512,7 +512,7 @@ public class UserUpdaterCreateTest {
       .setEmail("user@mail.com")
       .setPassword("password")
       .build(), u -> {
-      });
+    });
 
     Multimap<String, String> groups = dbClient.groupMembershipDao().selectGroupsByLogins(session, asList("user"));
     assertThat(groups.get("user")).containsOnly(defaultGroup.getName());
@@ -529,7 +529,7 @@ public class UserUpdaterCreateTest {
       .setEmail("user@mail.com")
       .setPassword("password")
       .build(), u -> {
-      });
+    });
 
     Multimap<String, String> groups = dbClient.groupMembershipDao().selectGroupsByLogins(session, asList("user"));
     assertThat(groups.get("user")).isEmpty();
@@ -547,7 +547,7 @@ public class UserUpdaterCreateTest {
       .setPassword("password")
       .setScmAccounts(asList("u1", "u_1"))
       .build(), u -> {
-      });
+    });
   }
 
   @Test
@@ -560,7 +560,7 @@ public class UserUpdaterCreateTest {
       .setEmail("user@mail.com")
       .setPassword("PASSWORD")
       .build(), u -> {
-      });
+    });
 
     verify(organizationCreation).createForUser(any(DbSession.class), eq(dto));
   }
@@ -576,7 +576,7 @@ public class UserUpdaterCreateTest {
       .setEmail("user@mail.com")
       .setPassword("PASSWORD")
       .build(), u -> {
-      });
+    });
 
     assertThat(dbClient.organizationMemberDao().select(db.getSession(), defaultOrganizationProvider.get().getUuid(), dto.getId())).isPresent();
   }
@@ -592,7 +592,7 @@ public class UserUpdaterCreateTest {
       .setEmail("user@mail.com")
       .setPassword("PASSWORD")
       .build(), u -> {
-      });
+    });
 
     assertThat(dbClient.organizationMemberDao().select(db.getSession(), defaultOrganizationProvider.get().getUuid(), dto.getId())).isNotPresent();
   }
@@ -609,7 +609,7 @@ public class UserUpdaterCreateTest {
       .setEmail("marius2@mail.com")
       .setPassword("password2")
       .build(), u -> {
-      });
+    });
     session.commit();
 
     assertThat(dto.isActive()).isTrue();
@@ -638,7 +638,7 @@ public class UserUpdaterCreateTest {
       .setName("Marius2")
       .setEmail("marius2@mail.com")
       .build(), u -> {
-      });
+    });
     session.commit();
 
     assertThat(dto.isActive()).isTrue();
@@ -663,7 +663,7 @@ public class UserUpdaterCreateTest {
       .setName("Marius2")
       .setExternalIdentity(new ExternalIdentity("github", "john"))
       .build(), u -> {
-      });
+    });
     session.commit();
 
     UserDto dto = dbClient.userDao().selectByLogin(session, DEFAULT_LOGIN);
@@ -683,7 +683,7 @@ public class UserUpdaterCreateTest {
       .setName("Marius2")
       .setPassword("password")
       .build(), u -> {
-      });
+    });
     session.commit();
 
     UserDto dto = dbClient.userDao().selectByLogin(session, DEFAULT_LOGIN);
@@ -706,7 +706,7 @@ public class UserUpdaterCreateTest {
       .setEmail("marius2@mail.com")
       .setPassword("password2")
       .build(), u -> {
-      });
+    });
   }
 
   @Test
@@ -725,7 +725,7 @@ public class UserUpdaterCreateTest {
       .setEmail("marius2@mail.com")
       .setPassword("password2")
       .build(), u -> {
-      });
+    });
     session.commit();
 
     Multimap<String, String> groups = dbClient.groupMembershipDao().selectGroupsByLogins(session, asList(DEFAULT_LOGIN));
@@ -748,7 +748,7 @@ public class UserUpdaterCreateTest {
       .setEmail("marius2@mail.com")
       .setPassword("password2")
       .build(), u -> {
-      });
+    });
     session.commit();
 
     Multimap<String, String> groups = dbClient.groupMembershipDao().selectGroupsByLogins(session, asList(DEFAULT_LOGIN));
@@ -793,7 +793,7 @@ public class UserUpdaterCreateTest {
       .setLogin(user.getLogin())
       .setName("name")
       .build(), u -> {
-      });
+    });
 
     assertThat(dbClient.userDao().selectByLogin(session, user.getLogin()).isOnboarded()).isTrue();
   }
@@ -810,7 +810,7 @@ public class UserUpdaterCreateTest {
       .setLogin(user.getLogin())
       .setName("name")
       .build(), u -> {
-      });
+    });
 
     assertThat(dbClient.userDao().selectByLogin(session, user.getLogin()).isOnboarded()).isFalse();
   }

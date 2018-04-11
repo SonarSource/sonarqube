@@ -20,7 +20,6 @@
 package org.sonar.server.es.request;
 
 import org.elasticsearch.common.unit.TimeValue;
-import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -33,8 +32,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class ProxyNodesStatsRequestBuilderTest {
 
-  @ClassRule
-  public static EsTester esTester = new EsTester();
+  @Rule
+  public EsTester es = EsTester.custom();
 
   @Rule
   public LogTester logTester = new LogTester();
@@ -44,20 +43,20 @@ public class ProxyNodesStatsRequestBuilderTest {
 
   @Test
   public void stats() {
-    esTester.client().prepareNodesStats().get();
+    es.client().prepareNodesStats().get();
   }
 
   @Test
   public void to_string() {
-    assertThat(esTester.client().prepareNodesStats().setNodesIds("node1").toString()).isEqualTo("ES nodes stats request on nodes 'node1'");
-    assertThat(esTester.client().prepareNodesStats().toString()).isEqualTo("ES nodes stats request");
+    assertThat(es.client().prepareNodesStats().setNodesIds("node1").toString()).isEqualTo("ES nodes stats request on nodes 'node1'");
+    assertThat(es.client().prepareNodesStats().toString()).isEqualTo("ES nodes stats request");
   }
 
   @Test
   public void trace_logs() {
     logTester.setLevel(LoggerLevel.TRACE);
 
-    esTester.client().prepareNodesStats().get();
+    es.client().prepareNodesStats().get();
 
     assertThat(logTester.logs()).hasSize(1);
   }
@@ -67,7 +66,7 @@ public class ProxyNodesStatsRequestBuilderTest {
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("Not yet implemented");
 
-    esTester.client().prepareNodesStats(FakeIndexDefinition.INDEX).get("1");
+    es.client().prepareNodesStats(FakeIndexDefinition.INDEX).get("1");
   }
 
   @Test
@@ -75,7 +74,7 @@ public class ProxyNodesStatsRequestBuilderTest {
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("Not yet implemented");
 
-    esTester.client().prepareNodesStats(FakeIndexDefinition.INDEX).get(TimeValue.timeValueMinutes(1));
+    es.client().prepareNodesStats(FakeIndexDefinition.INDEX).get(TimeValue.timeValueMinutes(1));
   }
 
   @Test
@@ -83,7 +82,7 @@ public class ProxyNodesStatsRequestBuilderTest {
     thrown.expect(UnsupportedOperationException.class);
     thrown.expectMessage("execute() should not be called as it's used for asynchronous");
 
-    esTester.client().prepareNodesStats(FakeIndexDefinition.INDEX).execute();
+    es.client().prepareNodesStats(FakeIndexDefinition.INDEX).execute();
   }
 
 }

@@ -19,60 +19,59 @@
  */
 package org.sonar.server.es;
 
-import com.google.common.base.Function;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Collection;
-import java.util.Collections;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.apache.commons.lang.reflect.ConstructorUtils;
+import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
+import org.elasticsearch.action.admin.indices.delete.DeleteIndexResponse;
+import org.elasticsearch.action.admin.indices.mapping.put.PutMappingResponse;
 import org.elasticsearch.action.admin.indices.settings.put.UpdateSettingsResponse;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.client.Client;
-import org.elasticsearch.cluster.ClusterState;
-import org.elasticsearch.cluster.metadata.MetaData;
+import org.elasticsearch.cluster.health.ClusterHealthStatus;
+import org.elasticsearch.cluster.routing.allocation.DiskThresholdSettings;
 import org.elasticsearch.common.Strings;
 import org.elasticsearch.common.network.NetworkModule;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.discovery.DiscoveryModule;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.join.ParentJoinPlugin;
-import org.elasticsearch.plugins.Plugin;
+import org.elasticsearch.env.Environment;
+import org.elasticsearch.env.NodeEnvironment;
+import org.elasticsearch.index.IndexNotFoundException;
+import org.elasticsearch.indices.recovery.RecoverySettings;
+import org.elasticsearch.node.MockNode;
+import org.elasticsearch.node.Node;
 import org.elasticsearch.search.SearchHit;
-import org.elasticsearch.test.NodeConfigurationSource;
 import org.junit.rules.ExternalResource;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.config.internal.MapSettings;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.LoggerLevel;
-import org.sonar.api.utils.log.Loggers;
-import org.sonar.server.config.ConfigurationProvider;
-import org.sonar.core.platform.ComponentContainer;
-import org.sonar.elasticsearch.test.EsTestCluster;
-import org.sonar.server.es.metadata.MetadataIndex;
-import org.sonar.server.es.metadata.MetadataIndexDefinition;
+import org.sonar.server.component.index.ComponentIndexDefinition;
+import org.sonar.server.issue.index.IssueIndexDefinition;
+import org.sonar.server.measure.index.ProjectMeasuresIndexDefinition;
+import org.sonar.server.rule.index.RuleIndexDefinition;
+import org.sonar.server.test.index.TestIndexDefinition;
+import org.sonar.server.user.index.UserIndexDefinition;
+import org.sonar.server.view.index.ViewIndexDefinition;
 
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.Lists.newArrayList;
-import static java.util.Arrays.asList;
-import static junit.framework.TestCase.assertNull;
-import static org.elasticsearch.test.XContentTestUtils.convertToMap;
-import static org.elasticsearch.test.XContentTestUtils.differenceBetweenMapsIgnoringArrayOrder;
-import static org.elasticsearch.test.hamcrest.ElasticsearchAssertions.assertNoTimeout;
-import static org.junit.Assert.assertEquals;
+import static java.util.Collections.emptyList;
+import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
 import static org.sonar.server.es.DefaultIndexSettings.REFRESH_IMMEDIATE;
 
 public class EsTester extends ExternalResource {
@@ -91,174 +90,60 @@ public class EsTester extends ExternalResource {
     }
   }
 
-  private static final Set<String> NO_TEMPLATES_SURVIVING_WIPE = Collections.emptySet();
-  private static EsTestCluster cluster;
-  private final List<IndexDefinition> indexDefinitions;
+  private static final Node SHARED_NODE = createNode();
+  private static final AtomicBoolean CORE_INDICES_CREATED = new AtomicBoolean(false);
+  private static final Set<String> CORE_INDICES_NAMES = new HashSet<>();
 
-  public EsTester(IndexDefinition... defs) {
-    this.indexDefinitions = asList(defs);
-  }
+  private final boolean isCustom;
 
-  public void init() {
-    Path tempDirectory;
-    try {
-      tempDirectory = Files.createTempDirectory("es-unit-test");
-      tempDirectory.toFile().deleteOnExit();
-      cluster = new EsTestCluster(new Random().nextLong(), tempDirectory, 1, "test cluster", getNodeConfigSource(), "node-",
-        Collections.singletonList(ParentJoinPlugin.class), i -> i);
-      Random random = new Random();
-      cluster.beforeTest(random, random.nextDouble());
-      cluster.wipe(NO_TEMPLATES_SURVIVING_WIPE);
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
-  }
-
-  private NodeConfigurationSource getNodeConfigSource() {
-    Settings.Builder networkSettings = Settings.builder();
-    networkSettings.put(NetworkModule.TRANSPORT_TYPE_KEY, "local");
-
-    return new NodeConfigurationSource() {
-      @Override
-      public Settings nodeSettings(int nodeOrdinal) {
-        return Settings.builder()
-          .put(NetworkModule.HTTP_ENABLED.getKey(), false)
-          .put(DiscoveryModule.DISCOVERY_TYPE_SETTING.getKey(), "single-node")
-          .put(networkSettings.build())
-          .build();
-      }
-
-      @Override
-      public Collection<Class<? extends Plugin>> nodePlugins() {
-        return Collections.emptyList();
-      }
-
-      @Override
-      public Settings transportClientSettings() {
-        return Settings.builder().put(networkSettings.build()).build();
-      }
-
-      @Override
-      public Collection<Class<? extends Plugin>> transportClientPlugins() {
-        return Collections.emptyList();
-      }
-    };
-  }
-
-  @Override
-  public void before() {
-    if (cluster == null) {
-      init();
-    }
-
-    if (!indexDefinitions.isEmpty()) {
-      EsClient esClient = new NonClosingEsClient(cluster.client());
-      ComponentContainer container = new ComponentContainer();
-      container.addSingleton(new MapSettings());
-      container.addSingleton(new ConfigurationProvider());
-      container.addSingletons(indexDefinitions);
-      container.addSingleton(esClient);
-      container.addSingleton(IndexDefinitions.class);
-      container.addSingleton(IndexCreator.class);
-      container.addSingleton(MetadataIndex.class);
-      container.addSingleton(MetadataIndexDefinition.class);
-      container.addSingleton(TestEsDbCompatibility.class);
-
-      Logger logger = Loggers.get(IndexCreator.class);
-      LoggerLevel oldLevel = logger.getLevel();
-      if (oldLevel == LoggerLevel.INFO) {
-        logger.setLevel(LoggerLevel.WARN);
-      }
-
-      try {
-        container.startComponents();
-      } finally {
-        logger.setLevel(oldLevel);
-      }
-
-      container.stopComponents();
-      client().close();
-    }
-  }
-
-  public static class NonClosingEsClient extends EsClient {
-    NonClosingEsClient(Client nativeClient) {
-      super(nativeClient);
-    }
-
-    @Override
-    public void close() {
-      // do nothing
-    }
-  }
-
-  @Override
-  public void after() {
-    try {
-      afterTest();
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
-  }
-
-  private void afterTest() throws Exception {
-    if (cluster != null) {
-      MetaData metaData = cluster.client().admin().cluster().prepareState().execute().actionGet().getState().getMetaData();
-      assertEquals("test leaves persistent cluster metadata behind: " + metaData.persistentSettings().getAsMap(),
-        0,
-        metaData.persistentSettings().getAsMap().size());
-      assertEquals("test leaves transient cluster metadata behind: " + metaData.transientSettings().getAsMap(), 0, metaData
-        .transientSettings().getAsMap().size());
-      ensureClusterSizeConsistency();
-      ensureClusterStateConsistency();
-      cluster.beforeIndexDeletion();
-      cluster.wipe(NO_TEMPLATES_SURVIVING_WIPE); // wipe after to make sure we fail in the test that didn't ack the delete
-      cluster.assertAfterTest();
-    }
-  }
-
-  private void ensureClusterSizeConsistency() {
-    if (cluster != null) { // if static init fails the cluster can be null
-      // logger.trace("Check consistency for [{}] nodes", cluster().size());
-      assertNoTimeout(cluster.client().admin().cluster().prepareHealth().setWaitForNodes(Integer.toString(cluster.size())).get());
-    }
+  private EsTester(boolean isCustom) {
+    this.isCustom = isCustom;
   }
 
   /**
-   * Verifies that all nodes that have the same version of the cluster state as master have same cluster state
+   * New instance which contains the core indices (rules, issues, ...).
    */
-  private void ensureClusterStateConsistency() throws IOException {
-    if (cluster != null) {
-      ClusterState masterClusterState = cluster.client().admin().cluster().prepareState().all().get().getState();
-      Map<String, Object> masterStateMap = convertToMap(masterClusterState);
-      int masterClusterStateSize = ClusterState.Builder.toBytes(masterClusterState).length;
-      String masterId = masterClusterState.nodes().getMasterNodeId();
-      for (Client client : cluster.getClients()) {
-        ClusterState localClusterState = client.admin().cluster().prepareState().all().setLocal(true).get().getState();
-        final Map<String, Object> localStateMap = convertToMap(localClusterState);
-        final int localClusterStateSize = ClusterState.Builder.toBytes(localClusterState).length;
-        // Check that the non-master node has the same version of the cluster state as the master and
-        // that the master node matches the master (otherwise there is no requirement for the cluster state to match)
-        if (masterClusterState.version() == localClusterState.version() && masterId.equals(localClusterState.nodes().getMasterNodeId())) {
-          try {
-            assertEquals("clusterstate UUID does not match", masterClusterState.stateUUID(), localClusterState.stateUUID());
-            // We cannot compare serialization bytes since serialization order of maps is not guaranteed
-            // but we can compare serialization sizes - they should be the same
-            assertEquals("clusterstate size does not match", masterClusterStateSize, localClusterStateSize);
-            // Compare JSON serialization
-            assertNull("clusterstate JSON serialization does not match", differenceBetweenMapsIgnoringArrayOrder(masterStateMap, localStateMap));
-          } catch (AssertionError error) {
-            // logger.error("Cluster state from master:\n{}\nLocal cluster state:\n{}", masterClusterState.toString(), localClusterState.toString());
-            throw error;
-          }
-        }
-      }
-    }
+  public static EsTester core() {
+    if (!CORE_INDICES_CREATED.get()) {
+      Configuration config = new MapSettings().asConfig();
+      List<IndexDefinitions.Index> createdIndices = createIndices(
+        new ComponentIndexDefinition(config),
+        IssueIndexDefinition.createForTest(),
+        new ProjectMeasuresIndexDefinition(config),
+        RuleIndexDefinition.createForTest(),
+        new TestIndexDefinition(config),
+        new UserIndexDefinition(config),
+        new ViewIndexDefinition(config));
 
+      CORE_INDICES_CREATED.set(true);
+      createdIndices.stream().map(IndexDefinitions.Index::getName).forEach(CORE_INDICES_NAMES::add);
+    }
+    return new EsTester(false);
   }
 
-  public void deleteIndex(String indexName) {
-    cluster.wipeIndices(indexName);
+  /**
+   * New instance which contains the specified indices. Note that
+   * core indices may exist.
+   */
+  public static EsTester custom(IndexDefinition... definitions) {
+    createIndices(definitions);
+    return new EsTester(true);
+  }
+
+  @Override
+  protected void after() {
+    if (isCustom) {
+      // delete non-core indices
+      String[] existingIndices = SHARED_NODE.client().admin().indices().prepareGetIndex().get().getIndices();
+      Stream.of(existingIndices)
+        .filter(i -> !CORE_INDICES_NAMES.contains(i))
+        .forEach(EsTester::deleteIndexIfExists);
+    }
+    BulkIndexer.delete(client(), new IndexType("_all", ""), client().prepareSearch("_all").setQuery(matchAllQuery()));
+  }
+
+  public EsClient client() {
+    return new EsClient(SHARED_NODE.client());
   }
 
   public void putDocuments(String index, String type, BaseDoc... docs) {
@@ -267,7 +152,7 @@ public class EsTester extends ExternalResource {
 
   public void putDocuments(IndexType indexType, BaseDoc... docs) {
     try {
-      BulkRequestBuilder bulk = cluster.client().prepareBulk()
+      BulkRequestBuilder bulk = SHARED_NODE.client().prepareBulk()
         .setRefreshPolicy(REFRESH_IMMEDIATE);
       for (BaseDoc doc : docs) {
         bulk.add(new IndexRequest(indexType.getIndex(), indexType.getType(), doc.getId())
@@ -284,11 +169,11 @@ public class EsTester extends ExternalResource {
     }
   }
 
-  public void putDocuments(IndexType indexType, Map<String,Object>... docs) {
+  public void putDocuments(IndexType indexType, Map<String, Object>... docs) {
     try {
-      BulkRequestBuilder bulk = cluster.client().prepareBulk()
+      BulkRequestBuilder bulk = SHARED_NODE.client().prepareBulk()
         .setRefreshPolicy(REFRESH_IMMEDIATE);
-      for (Map<String,Object> doc : docs) {
+      for (Map<String, Object> doc : docs) {
         bulk.add(new IndexRequest(indexType.getIndex(), indexType.getType())
           .source(doc));
       }
@@ -328,8 +213,7 @@ public class EsTester extends ExternalResource {
    * Get all the indexed documents (no paginated results). Results are not sorted.
    */
   public List<SearchHit> getDocuments(IndexType indexType) {
-    Client client = cluster.client();
-    SearchRequestBuilder req = client.prepareSearch(indexType.getIndex()).setTypes(indexType.getType()).setQuery(QueryBuilders.matchAllQuery());
+    SearchRequestBuilder req = SHARED_NODE.client().prepareSearch(indexType.getIndex()).setTypes(indexType.getType()).setQuery(matchAllQuery());
     EsUtils.optimizeScrollRequest(req);
     req.setScroll(new TimeValue(60000))
       .setSize(100);
@@ -338,7 +222,7 @@ public class EsTester extends ExternalResource {
     List<SearchHit> result = newArrayList();
     while (true) {
       Iterables.addAll(result, response.getHits());
-      response = client.prepareSearchScroll(response.getScrollId()).setScroll(new TimeValue(600000)).execute().actionGet();
+      response = SHARED_NODE.client().prepareSearchScroll(response.getScrollId()).setScroll(new TimeValue(600000)).execute().actionGet();
       // Break condition: No hits are returned
       if (response.getHits().getHits().length == 0) {
         break;
@@ -351,47 +235,100 @@ public class EsTester extends ExternalResource {
    * Get a list of a specific field from all indexed documents.
    */
   public <T> List<T> getDocumentFieldValues(IndexType indexType, final String fieldNameToReturn) {
-    return newArrayList(Iterables.transform(getDocuments(indexType), new Function<SearchHit, T>() {
-      @Override
-      public T apply(SearchHit input) {
-        return (T) input.sourceAsMap().get(fieldNameToReturn);
-      }
-    }));
+    return newArrayList(Iterables.transform(getDocuments(indexType), input -> (T) input.sourceAsMap().get(fieldNameToReturn)));
   }
 
   public List<String> getIds(IndexType indexType) {
     return getDocuments(indexType).stream().map(SearchHit::id).collect(Collectors.toList());
   }
 
-  public EsClient client() {
-    // EsClient which do not hold any reference to client returned by cluster and does not close them, to avoid leaks
-    return new EsClient() {
-      @Override
-      public Client nativeClient() {
-        return cluster.client();
-      }
-
-      @Override
-      public void close() {
-        // do nothing
-      }
-    };
+  public void lockWrites(IndexType index) {
+    setIndexSettings(index.getIndex(), ImmutableMap.of("index.blocks.write", "true"));
   }
 
-  public EsTester lockWrites(IndexType index) {
-    return setIndexSettings(index.getIndex(), ImmutableMap.of("index.blocks.write", "true"));
+  public void unlockWrites(IndexType index) {
+    setIndexSettings(index.getIndex(), ImmutableMap.of("index.blocks.write", "false"));
   }
 
-  public EsTester unlockWrites(IndexType index) {
-    return setIndexSettings(index.getIndex(), ImmutableMap.of("index.blocks.write", "false"));
-  }
-
-  private EsTester setIndexSettings(String index, Map<String, Object> settings) {
-    UpdateSettingsResponse response = client().nativeClient().admin().indices()
+  private void setIndexSettings(String index, Map<String, Object> settings) {
+    UpdateSettingsResponse response = SHARED_NODE.client().admin().indices()
       .prepareUpdateSettings(index)
       .setSettings(settings)
       .get();
     checkState(response.isAcknowledged());
-    return this;
+  }
+
+  private static void deleteIndexIfExists(String name) {
+    try {
+      DeleteIndexResponse response = SHARED_NODE.client().admin().indices().prepareDelete(name).get();
+      checkState(response.isAcknowledged(), "Fail to drop the index " + name);
+    } catch (IndexNotFoundException e) {
+      // ignore
+    }
+  }
+
+  private static List<IndexDefinitions.Index> createIndices(IndexDefinition... definitions) {
+    IndexDefinition.IndexDefinitionContext context = new IndexDefinition.IndexDefinitionContext();
+    Stream.of(definitions).forEach(d -> d.define(context));
+
+    List<IndexDefinitions.Index> result = new ArrayList<>();
+    for (NewIndex newIndex : context.getIndices().values()) {
+      IndexDefinitions.Index index = new IndexDefinitions.Index(newIndex);
+
+      deleteIndexIfExists(index.getName());
+
+      // create index
+      Settings.Builder settings = Settings.builder();
+      settings.put(index.getSettings());
+      CreateIndexResponse indexResponse = SHARED_NODE.client().admin().indices()
+        .prepareCreate(index.getName())
+        .setSettings(settings)
+        .get();
+      if (!indexResponse.isAcknowledged()) {
+        throw new IllegalStateException("Failed to create index " + index.getName());
+      }
+      SHARED_NODE.client().admin().cluster().prepareHealth(index.getName()).setWaitForStatus(ClusterHealthStatus.YELLOW).get();
+
+      // create types
+      for (Map.Entry<String, IndexDefinitions.IndexType> entry : index.getTypes().entrySet()) {
+        PutMappingResponse mappingResponse = SHARED_NODE.client().admin().indices().preparePutMapping(index.getName())
+          .setType(entry.getKey())
+          .setSource(entry.getValue().getAttributes())
+          .get();
+        if (!mappingResponse.isAcknowledged()) {
+          throw new IllegalStateException("Failed to create type " + entry.getKey());
+        }
+      }
+      SHARED_NODE.client().admin().cluster().prepareHealth(index.getName()).setWaitForStatus(ClusterHealthStatus.YELLOW).get();
+      result.add(index);
+    }
+    return result;
+  }
+
+  private static Node createNode() {
+    try {
+      Path tempDir = Files.createTempDirectory("EsTester");
+      tempDir.toFile().deleteOnExit();
+      Settings settings = Settings.builder()
+        .put(Environment.PATH_HOME_SETTING.getKey(), tempDir)
+        .put("node.name", "EsTester")
+        .put(NodeEnvironment.MAX_LOCAL_STORAGE_NODES_SETTING.getKey(), Integer.MAX_VALUE)
+        .put("logger.level", "INFO")
+        .put("action.auto_create_index", false)
+        // Default the watermarks to absurdly low to prevent the tests
+        // from failing on nodes without enough disk space
+        .put(DiskThresholdSettings.CLUSTER_ROUTING_ALLOCATION_LOW_DISK_WATERMARK_SETTING.getKey(), "1b")
+        .put(DiskThresholdSettings.CLUSTER_ROUTING_ALLOCATION_HIGH_DISK_WATERMARK_SETTING.getKey(), "1b")
+        // always reduce this - it can make tests really slow
+        .put(RecoverySettings.INDICES_RECOVERY_RETRY_DELAY_STATE_SYNC_SETTING.getKey(), TimeValue.timeValueMillis(20))
+        .put(NetworkModule.TRANSPORT_TYPE_KEY, "local")
+        .put(NetworkModule.HTTP_ENABLED.getKey(), false)
+        .put(DiscoveryModule.DISCOVERY_TYPE_SETTING.getKey(), "single-node")
+        .build();
+      MockNode node = new MockNode(settings, emptyList());
+      return node.start();
+    } catch (Exception e) {
+      throw new IllegalStateException("Fail to start embedded Elasticsearch", e);
+    }
   }
 }

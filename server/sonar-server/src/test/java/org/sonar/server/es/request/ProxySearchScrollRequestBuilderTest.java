@@ -34,7 +34,7 @@ import static org.junit.Assert.fail;
 public class ProxySearchScrollRequestBuilderTest {
 
   @Rule
-  public EsTester esTester = new EsTester(new FakeIndexDefinition());
+  public EsTester es = EsTester.custom(new FakeIndexDefinition());
 
   @Rule
   public LogTester logTester = new LogTester();
@@ -43,11 +43,11 @@ public class ProxySearchScrollRequestBuilderTest {
   public void trace_logs() {
     logTester.setLevel(LoggerLevel.TRACE);
 
-    SearchResponse response = esTester.client().prepareSearch(FakeIndexDefinition.INDEX)
+    SearchResponse response = es.client().prepareSearch(FakeIndexDefinition.INDEX)
       .setScroll(TimeValue.timeValueMinutes(1))
       .get();
     logTester.clear();
-    esTester.client().prepareSearchScroll(response.getScrollId()).get();
+    es.client().prepareSearchScroll(response.getScrollId()).get();
     assertThat(logTester.logs()).hasSize(1);
   }
 
@@ -55,18 +55,18 @@ public class ProxySearchScrollRequestBuilderTest {
   public void no_trace_logs() {
     logTester.setLevel(LoggerLevel.DEBUG);
 
-    SearchResponse response = esTester.client().prepareSearch(FakeIndexDefinition.INDEX)
+    SearchResponse response = es.client().prepareSearch(FakeIndexDefinition.INDEX)
       .setScroll(TimeValue.timeValueMinutes(1))
       .get();
     logTester.clear();
-    esTester.client().prepareSearchScroll(response.getScrollId()).get();
+    es.client().prepareSearchScroll(response.getScrollId()).get();
     assertThat(logTester.logs()).isEmpty();
   }
 
   @Test
   public void fail_to_search_bad_query() {
     try {
-      esTester.client().prepareSearchScroll("unknown").get();
+      es.client().prepareSearchScroll("unknown").get();
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalStateException.class);
@@ -77,7 +77,7 @@ public class ProxySearchScrollRequestBuilderTest {
   @Test
   public void get_with_string_timeout_is_not_yet_implemented() {
     try {
-      esTester.client().prepareSearchScroll("scrollId").get("1");
+      es.client().prepareSearchScroll("scrollId").get("1");
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("Not yet implemented");
@@ -87,7 +87,7 @@ public class ProxySearchScrollRequestBuilderTest {
   @Test
   public void get_with_time_value_timeout_is_not_yet_implemented() {
     try {
-      esTester.client().prepareSearchScroll("scrollId").get(TimeValue.timeValueMinutes(1));
+      es.client().prepareSearchScroll("scrollId").get(TimeValue.timeValueMinutes(1));
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("Not yet implemented");
@@ -97,7 +97,7 @@ public class ProxySearchScrollRequestBuilderTest {
   @Test
   public void execute_should_throw_an_unsupported_operation_exception() {
     try {
-      esTester.client().prepareSearchScroll("scrollId").execute();
+      es.client().prepareSearchScroll("scrollId").execute();
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(UnsupportedOperationException.class).hasMessage("execute() should not be called as it's used for asynchronous");

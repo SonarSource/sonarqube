@@ -41,13 +41,11 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.measure.index.ProjectMeasuresIndex;
-import org.sonar.server.measure.index.ProjectMeasuresIndexDefinition;
 import org.sonar.server.measure.index.ProjectMeasuresIndexer;
 import org.sonar.server.property.InternalProperties;
 import org.sonar.server.property.MapInternalProperties;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.index.UserIndex;
-import org.sonar.server.user.index.UserIndexDefinition;
 import org.sonar.server.user.index.UserIndexer;
 import org.sonar.updatecenter.common.Version;
 
@@ -86,7 +84,7 @@ public class TelemetryDaemonTest {
   @Rule
   public DbTester db = DbTester.create();
   @Rule
-  public EsTester es = new EsTester(new UserIndexDefinition(emptyConfig), new ProjectMeasuresIndexDefinition(emptyConfig));
+  public EsTester es = EsTester.core();
   @Rule
   public LogTester logger = new LogTester().setLevel(LoggerLevel.DEBUG);
 
@@ -273,7 +271,7 @@ public class TelemetryDaemonTest {
       .setVersion(Version.create(version));
   }
 
-  private void initTelemetrySettingsToDefaultValues(){
+  private void initTelemetrySettingsToDefaultValues() {
     settings.setProperty(SONAR_TELEMETRY_ENABLE.getKey(), SONAR_TELEMETRY_ENABLE.getDefaultValue());
     settings.setProperty(SONAR_TELEMETRY_URL.getKey(), SONAR_TELEMETRY_URL.getDefaultValue());
     settings.setProperty(SONAR_TELEMETRY_FREQUENCY_IN_SECONDS.getKey(), SONAR_TELEMETRY_FREQUENCY_IN_SECONDS.getDefaultValue());

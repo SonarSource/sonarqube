@@ -36,14 +36,14 @@ import static org.junit.Assert.fail;
 public class ProxyMultiGetRequestBuilderTest {
 
   @Rule
-  public EsTester esTester = new EsTester(new FakeIndexDefinition());
+  public EsTester es = EsTester.custom(new FakeIndexDefinition());
 
   @Rule
   public LogTester logTester = new LogTester();
 
   @Test
   public void multi_get() {
-    MultiGetRequestBuilder request = esTester.client().prepareMultiGet();
+    MultiGetRequestBuilder request = es.client().prepareMultiGet();
     request.add(new MultiGetRequest.Item(FakeIndexDefinition.INDEX, FakeIndexDefinition.TYPE, "ruleKey")
       .fetchSourceContext(FetchSourceContext.FETCH_SOURCE));
     request.get();
@@ -52,10 +52,10 @@ public class ProxyMultiGetRequestBuilderTest {
 
   @Test
   public void to_string() {
-    assertThat(esTester.client().prepareMultiGet().toString()).isEqualTo("ES multi get request");
-    assertThat(esTester.client().prepareMultiGet().add(new MultiGetRequest.Item(FakeIndexDefinition.INDEX, null, "fake1")
+    assertThat(es.client().prepareMultiGet().toString()).isEqualTo("ES multi get request");
+    assertThat(es.client().prepareMultiGet().add(new MultiGetRequest.Item(FakeIndexDefinition.INDEX, null, "fake1")
       .fetchSourceContext(FetchSourceContext.FETCH_SOURCE)).toString()).isEqualTo("ES multi get request [key 'fake1', index 'fakes'],");
-    assertThat(esTester.client().prepareMultiGet().add(new MultiGetRequest.Item(FakeIndexDefinition.INDEX, FakeIndexDefinition.TYPE, "fake1")
+    assertThat(es.client().prepareMultiGet().add(new MultiGetRequest.Item(FakeIndexDefinition.INDEX, FakeIndexDefinition.TYPE, "fake1")
       .fetchSourceContext(FetchSourceContext.FETCH_SOURCE)).toString()).isEqualTo("ES multi get request [key 'fake1', index 'fakes', type 'fake'],");
   }
 
@@ -63,7 +63,7 @@ public class ProxyMultiGetRequestBuilderTest {
   public void trace_logs() {
     logTester.setLevel(LoggerLevel.TRACE);
 
-    MultiGetRequestBuilder request = esTester.client().prepareMultiGet();
+    MultiGetRequestBuilder request = es.client().prepareMultiGet();
     request.add(new MultiGetRequest.Item(FakeIndexDefinition.INDEX, FakeIndexDefinition.TYPE, "ruleKey")
       .fetchSourceContext(FetchSourceContext.FETCH_SOURCE));
     request.get();
@@ -74,7 +74,7 @@ public class ProxyMultiGetRequestBuilderTest {
   @Test
   public void get_with_string_timeout_is_not_yet_implemented() {
     try {
-      esTester.client().prepareMultiGet().get("1");
+      es.client().prepareMultiGet().get("1");
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("Not yet implemented");
@@ -84,7 +84,7 @@ public class ProxyMultiGetRequestBuilderTest {
   @Test
   public void get_with_time_value_timeout_is_not_yet_implemented() {
     try {
-      esTester.client().prepareMultiGet().get(TimeValue.timeValueMinutes(1));
+      es.client().prepareMultiGet().get(TimeValue.timeValueMinutes(1));
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("Not yet implemented");
@@ -94,7 +94,7 @@ public class ProxyMultiGetRequestBuilderTest {
   @Test
   public void execute_should_throw_an_unsupported_operation_exception() {
     try {
-      esTester.client().prepareMultiGet().execute();
+      es.client().prepareMultiGet().execute();
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(UnsupportedOperationException.class).hasMessage("execute() should not be called as it's used for asynchronous");

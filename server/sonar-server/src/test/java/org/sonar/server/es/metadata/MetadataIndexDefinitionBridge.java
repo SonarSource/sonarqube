@@ -17,23 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.component.index;
+package org.sonar.server.es.metadata;
 
-import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsResponse;
-import org.junit.Rule;
-import org.junit.Test;
-import org.sonar.server.es.EsTester;
+import org.sonar.api.config.internal.MapSettings;
+import org.sonar.server.es.IndexDefinition;
 
-public class NewTest {
-
-  @Rule
-  public EsTester es = EsTester.core();
-
-  @Test
-  public void name() {
-    IndicesExistsResponse x = es.client().prepareIndicesExist("components").get();
-    System.out.println(x.isExists());
-    IndicesExistsResponse x2 = es.client().prepareIndicesExist("components").get();
-    System.out.println(x2.isExists());
+class MetadataIndexDefinitionBridge implements IndexDefinition {
+  @Override
+  public void define(IndexDefinitionContext context) {
+    new MetadataIndexDefinition(new MapSettings().asConfig()).define(context);
   }
 }

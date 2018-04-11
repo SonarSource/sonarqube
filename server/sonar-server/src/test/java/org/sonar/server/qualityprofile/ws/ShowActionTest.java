@@ -22,7 +22,6 @@ package org.sonar.server.qualityprofile.ws;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.WebService;
@@ -36,7 +35,6 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.rule.index.RuleIndex;
-import org.sonar.server.rule.index.RuleIndexDefinition;
 import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
@@ -63,7 +61,7 @@ public class ShowActionTest {
   private static Languages LANGUAGES = new Languages(XOO1, XOO2);
 
   @Rule
-  public EsTester es = new EsTester(new RuleIndexDefinition(new MapSettings().asConfig()));
+  public EsTester es = EsTester.core();
   @Rule
   public DbTester db = DbTester.create();
   @Rule
@@ -194,7 +192,7 @@ public class ShowActionTest {
     CompareToSonarWay result = call(ws.newRequest()
       .setParam(PARAM_KEY, profile.getKee())
       .setParam(PARAM_COMPARE_TO_SONAR_WAY, "true"))
-        .getCompareToSonarWay();
+      .getCompareToSonarWay();
 
     assertThat(result)
       .extracting(CompareToSonarWay::getProfile, CompareToSonarWay::getProfileName, CompareToSonarWay::getMissingRuleCount)
@@ -214,7 +212,7 @@ public class ShowActionTest {
     CompareToSonarWay result = call(ws.newRequest()
       .setParam(PARAM_KEY, profile.getKee())
       .setParam(PARAM_COMPARE_TO_SONAR_WAY, "true"))
-        .getCompareToSonarWay();
+      .getCompareToSonarWay();
 
     assertThat(result)
       .extracting(CompareToSonarWay::getProfile, CompareToSonarWay::getProfileName, CompareToSonarWay::getMissingRuleCount)
@@ -278,7 +276,7 @@ public class ShowActionTest {
     CompareToSonarWay result = call(ws.newRequest()
       .setParam(PARAM_KEY, profile.getKee())
       .setParam(PARAM_COMPARE_TO_SONAR_WAY, "true"))
-        .getCompareToSonarWay();
+      .getCompareToSonarWay();
 
     assertThat(result)
       .extracting(CompareToSonarWay::getProfile, CompareToSonarWay::getProfileName)
@@ -294,7 +292,7 @@ public class ShowActionTest {
     CompareToSonarWay result = call(ws.newRequest()
       .setParam(PARAM_KEY, profile.getKee())
       .setParam(PARAM_COMPARE_TO_SONAR_WAY, "true"))
-        .getCompareToSonarWay();
+      .getCompareToSonarWay();
 
     assertThat(result)
       .extracting(CompareToSonarWay::getProfile, CompareToSonarWay::getProfileName)

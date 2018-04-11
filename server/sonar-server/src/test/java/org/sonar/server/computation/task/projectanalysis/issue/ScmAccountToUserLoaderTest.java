@@ -22,7 +22,6 @@ package org.sonar.server.computation.task.projectanalysis.issue;
 import java.util.Collections;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
@@ -44,7 +43,7 @@ public class ScmAccountToUserLoaderTest {
   private static final String ORGANIZATION_UUID = "my-organization";
 
   @Rule
-  public EsTester esTester = new EsTester(new UserIndexDefinition(new MapSettings().asConfig()));
+  public EsTester es = EsTester.core();
 
   @Rule
   public LogTester logTester = new LogTester();
@@ -62,9 +61,9 @@ public class ScmAccountToUserLoaderTest {
       .setActive(true)
       .setScmAccounts(asList("charlie", "jesuis@charlie.com"))
       .setOrganizationUuids(singletonList(ORGANIZATION_UUID));
-    esTester.putDocuments(UserIndexDefinition.INDEX_TYPE_USER.getIndex(), UserIndexDefinition.INDEX_TYPE_USER.getType(), user);
+    es.putDocuments(UserIndexDefinition.INDEX_TYPE_USER.getIndex(), UserIndexDefinition.INDEX_TYPE_USER.getType(), user);
 
-    UserIndex index = new UserIndex(esTester.client(), System2.INSTANCE);
+    UserIndex index = new UserIndex(es.client(), System2.INSTANCE);
     ScmAccountToUserLoader underTest = new ScmAccountToUserLoader(index, analysisMetadataHolder);
 
     assertThat(underTest.load("missing")).isNull();
@@ -80,7 +79,7 @@ public class ScmAccountToUserLoaderTest {
       .setActive(true)
       .setScmAccounts(asList("charlie", "jesuis@charlie.com"))
       .setOrganizationUuids(singletonList(ORGANIZATION_UUID));
-    esTester.putDocuments(UserIndexDefinition.INDEX_TYPE_USER.getIndex(), UserIndexDefinition.INDEX_TYPE_USER.getType(), user1);
+    es.putDocuments(UserIndexDefinition.INDEX_TYPE_USER.getIndex(), UserIndexDefinition.INDEX_TYPE_USER.getType(), user1);
 
     UserDoc user2 = new UserDoc()
       .setLogin("another.charlie")
@@ -88,9 +87,9 @@ public class ScmAccountToUserLoaderTest {
       .setActive(true)
       .setScmAccounts(singletonList("charlie"))
       .setOrganizationUuids(singletonList(ORGANIZATION_UUID));
-    esTester.putDocuments(UserIndexDefinition.INDEX_TYPE_USER.getIndex(), UserIndexDefinition.INDEX_TYPE_USER.getType(), user2);
+    es.putDocuments(UserIndexDefinition.INDEX_TYPE_USER.getIndex(), UserIndexDefinition.INDEX_TYPE_USER.getType(), user2);
 
-    UserIndex index = new UserIndex(esTester.client(), System2.INSTANCE);
+    UserIndex index = new UserIndex(es.client(), System2.INSTANCE);
     ScmAccountToUserLoader underTest = new ScmAccountToUserLoader(index, analysisMetadataHolder);
 
     assertThat(underTest.load("charlie")).isNull();
@@ -99,7 +98,7 @@ public class ScmAccountToUserLoaderTest {
 
   @Test
   public void load_by_multiple_scm_accounts_is_not_supported_yet() {
-    UserIndex index = new UserIndex(esTester.client(), System2.INSTANCE);
+    UserIndex index = new UserIndex(es.client(), System2.INSTANCE);
     ScmAccountToUserLoader underTest = new ScmAccountToUserLoader(index, analysisMetadataHolder);
     try {
       underTest.loadAll(Collections.emptyList());

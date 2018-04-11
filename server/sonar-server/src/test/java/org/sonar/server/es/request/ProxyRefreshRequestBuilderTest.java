@@ -34,28 +34,28 @@ import static org.junit.Assert.fail;
 public class ProxyRefreshRequestBuilderTest {
 
   @Rule
-  public EsTester esTester = new EsTester(new FakeIndexDefinition());
+  public EsTester es = EsTester.custom(new FakeIndexDefinition());
 
   @Rule
   public LogTester logTester = new LogTester();
 
   @Test
   public void refresh() {
-    RefreshRequestBuilder requestBuilder = esTester.client().prepareRefresh(FakeIndexDefinition.INDEX);
+    RefreshRequestBuilder requestBuilder = es.client().prepareRefresh(FakeIndexDefinition.INDEX);
     requestBuilder.get();
   }
 
   @Test
   public void to_string() {
-    assertThat(esTester.client().prepareRefresh(FakeIndexDefinition.INDEX).toString()).isEqualTo("ES refresh request on indices 'fakes'");
-    assertThat(esTester.client().prepareRefresh().toString()).isEqualTo("ES refresh request");
+    assertThat(es.client().prepareRefresh(FakeIndexDefinition.INDEX).toString()).isEqualTo("ES refresh request on indices 'fakes'");
+    assertThat(es.client().prepareRefresh().toString()).isEqualTo("ES refresh request");
   }
 
   @Test
   public void trace_logs() {
     logTester.setLevel(LoggerLevel.TRACE);
 
-    RefreshRequestBuilder requestBuilder = esTester.client().prepareRefresh(FakeIndexDefinition.INDEX);
+    RefreshRequestBuilder requestBuilder = es.client().prepareRefresh(FakeIndexDefinition.INDEX);
     requestBuilder.get();
     assertThat(logTester.logs(LoggerLevel.TRACE)).hasSize(1);
   }
@@ -63,7 +63,7 @@ public class ProxyRefreshRequestBuilderTest {
   @Test
   public void fail_to_refresh() {
     try {
-      esTester.client().prepareRefresh("unknown").get();
+      es.client().prepareRefresh("unknown").get();
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalStateException.class);
@@ -74,7 +74,7 @@ public class ProxyRefreshRequestBuilderTest {
   @Test
   public void get_with_string_timeout_is_not_yet_implemented() {
     try {
-      esTester.client().prepareRefresh(FakeIndexDefinition.INDEX).get("1");
+      es.client().prepareRefresh(FakeIndexDefinition.INDEX).get("1");
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("Not yet implemented");
@@ -84,7 +84,7 @@ public class ProxyRefreshRequestBuilderTest {
   @Test
   public void get_with_time_value_timeout_is_not_yet_implemented() {
     try {
-      esTester.client().prepareRefresh(FakeIndexDefinition.INDEX).get(TimeValue.timeValueMinutes(1));
+      es.client().prepareRefresh(FakeIndexDefinition.INDEX).get(TimeValue.timeValueMinutes(1));
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("Not yet implemented");
@@ -94,7 +94,7 @@ public class ProxyRefreshRequestBuilderTest {
   @Test
   public void execute_should_throw_an_unsupported_operation_exception() {
     try {
-      esTester.client().prepareRefresh(FakeIndexDefinition.INDEX).execute();
+      es.client().prepareRefresh(FakeIndexDefinition.INDEX).execute();
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(UnsupportedOperationException.class).hasMessage("execute() should not be called as it's used for asynchronous");

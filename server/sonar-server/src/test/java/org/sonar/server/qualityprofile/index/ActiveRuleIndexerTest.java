@@ -27,7 +27,6 @@ import org.assertj.core.groups.Tuple;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.es.EsQueueDto;
@@ -37,7 +36,6 @@ import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.qualityprofile.ActiveRuleChange;
-import org.sonar.server.rule.index.RuleIndexDefinition;
 
 import static java.lang.String.valueOf;
 import static java.util.Arrays.asList;
@@ -55,7 +53,7 @@ public class ActiveRuleIndexerTest {
   public DbTester db = DbTester.create(system2);
 
   @Rule
-  public EsTester es = new EsTester(RuleIndexDefinition.createForTest(new MapSettings().asConfig()));
+  public EsTester es = EsTester.core();
 
   private ActiveRuleIndexer underTest = new ActiveRuleIndexer(db.getDbClient(), es.client());
   private RuleDefinitionDto rule1;
@@ -127,6 +125,7 @@ public class ActiveRuleIndexerTest {
 
     EsQueueDto expectedItem = EsQueueDto.create(INDEX_TYPE_ACTIVE_RULE.format(), "" + ar.getId(), "activeRuleId", valueOf(ar.getRuleId()));
     assertThatEsQueueContainsExactly(expectedItem);
+    es.unlockWrites(INDEX_TYPE_ACTIVE_RULE);
   }
 
   @Test

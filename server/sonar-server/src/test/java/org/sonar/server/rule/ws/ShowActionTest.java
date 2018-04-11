@@ -27,7 +27,6 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
-import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
@@ -59,7 +58,6 @@ import org.sonar.server.qualityprofile.QProfileTesting;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.rule.NewCustomRule;
 import org.sonar.server.rule.RuleCreator;
-import org.sonar.server.rule.index.RuleIndexDefinition;
 import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.text.MacroInterpreter;
 import org.sonar.server.util.TypeValidations;
@@ -91,8 +89,7 @@ public class ShowActionTest {
   @org.junit.Rule
   public DbTester dbTester = DbTester.create();
   @org.junit.Rule
-  public EsTester esTester = new EsTester(
-    new RuleIndexDefinition(new MapSettings().asConfig()));
+  public EsTester esTester = EsTester.core();
   @org.junit.Rule
   public ExpectedException thrown = ExpectedException.none();
 
@@ -143,9 +140,9 @@ public class ShowActionTest {
     RuleMetadataDto metadata = insertMetadata(organization, rule, setTags("tag1", "tag2"));
 
     Rules.ShowResponse result = actionTester.newRequest()
-        .setParam(PARAM_KEY, rule.getKey().toString())
-        .setParam(PARAM_ORGANIZATION, organization.getKey())
-        .executeProtobuf(Rules.ShowResponse.class);
+      .setParam(PARAM_KEY, rule.getKey().toString())
+      .setParam(PARAM_ORGANIZATION, organization.getKey())
+      .executeProtobuf(Rules.ShowResponse.class);
     assertThat(result.getRule().getTags().getTagsList())
       .containsExactly(metadata.getTags().toArray(new String[0]));
   }

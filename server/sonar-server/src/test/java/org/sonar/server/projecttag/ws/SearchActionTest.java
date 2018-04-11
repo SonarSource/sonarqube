@@ -19,12 +19,10 @@
  */
 package org.sonar.server.projecttag.ws;
 
-import java.io.IOException;
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
@@ -35,7 +33,6 @@ import org.sonar.db.organization.OrganizationTesting;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.measure.index.ProjectMeasuresDoc;
 import org.sonar.server.measure.index.ProjectMeasuresIndex;
-import org.sonar.server.measure.index.ProjectMeasuresIndexDefinition;
 import org.sonar.server.measure.index.ProjectMeasuresIndexer;
 import org.sonar.server.permission.index.AuthorizationTypeSupport;
 import org.sonar.server.permission.index.PermissionIndexerDao;
@@ -55,7 +52,7 @@ public class SearchActionTest {
   private static final OrganizationDto ORG = OrganizationTesting.newOrganizationDto();
 
   @Rule
-  public EsTester es = new EsTester(new ProjectMeasuresIndexDefinition(new MapSettings().asConfig()));
+  public EsTester es = EsTester.core();
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();

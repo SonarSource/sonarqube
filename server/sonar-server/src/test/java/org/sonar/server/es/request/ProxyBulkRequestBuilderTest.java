@@ -37,7 +37,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ProxyBulkRequestBuilderTest {
 
   @Rule
-  public EsTester esTester = new EsTester(new FakeIndexDefinition());
+  public EsTester es = EsTester.custom(new FakeIndexDefinition());
 
   @Rule
   public LogTester logTester = new LogTester();
@@ -57,7 +57,7 @@ public class ProxyBulkRequestBuilderTest {
   }
 
   private void testBulk() {
-    BulkRequestBuilder req = esTester.client().prepareBulk();
+    BulkRequestBuilder req = es.client().prepareBulk();
     req.add(new UpdateRequest(FakeIndexDefinition.INDEX, FakeIndexDefinition.INDEX_TYPE_FAKE.getType(), "key1")
       .doc(FakeIndexDefinition.newDoc(1).getFields()));
     req.add(new DeleteRequest(FakeIndexDefinition.INDEX, FakeIndexDefinition.INDEX_TYPE_FAKE.getType(), "key2"));
@@ -73,17 +73,17 @@ public class ProxyBulkRequestBuilderTest {
 
   @Test(expected = UnsupportedOperationException.class)
   public void get_with_string_timeout_is_not_yet_implemented() {
-    esTester.client().prepareBulk().get("1");
+    es.client().prepareBulk().get("1");
   }
 
   @Test(expected = UnsupportedOperationException.class)
   public void get_with_time_value_timeout_is_not_yet_implemented() {
-    esTester.client().prepareBulk().get(TimeValue.timeValueMinutes(1));
+    es.client().prepareBulk().get(TimeValue.timeValueMinutes(1));
   }
 
   @Test(expected = UnsupportedOperationException.class)
   public void execute_is_not_yet_implemented() {
-    esTester.client().prepareBulk().execute();
+    es.client().prepareBulk().execute();
   }
 
 }

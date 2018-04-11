@@ -31,7 +31,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class MetadataIndexTest {
 
   @Rule
-  public EsTester es = new EsTester(new FakeIndexDefinition());
+  public EsTester es = EsTester.custom(new MetadataIndexDefinitionBridge(), new FakeIndexDefinition());
   private final MetadataIndex underTest = new MetadataIndex(es.client());
   private final String index = randomAlphanumeric(20);
 

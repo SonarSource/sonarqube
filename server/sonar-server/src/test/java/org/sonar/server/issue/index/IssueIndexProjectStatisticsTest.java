@@ -52,14 +52,14 @@ public class IssueIndexProjectStatisticsTest {
   private System2 system2 = mock(System2.class);
   private MapSettings settings = new MapSettings();
   @Rule
-  public EsTester esTester = new EsTester(new IssueIndexDefinition(settings.asConfig()));
+  public EsTester es = EsTester.core();
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
-  private IssueIndexer issueIndexer = new IssueIndexer(esTester.client(), null, new IssueIteratorFactory(null));
-  private PermissionIndexerTester authorizationIndexerTester = new PermissionIndexerTester(esTester, issueIndexer);
+  private IssueIndexer issueIndexer = new IssueIndexer(es.client(), null, new IssueIteratorFactory(null));
+  private PermissionIndexerTester authorizationIndexerTester = new PermissionIndexerTester(es, issueIndexer);
 
-  private IssueIndex underTest = new IssueIndex(esTester.client(), system2, userSessionRule, new AuthorizationTypeSupport(userSessionRule));
+  private IssueIndex underTest = new IssueIndex(es.client(), system2, userSessionRule, new AuthorizationTypeSupport(userSessionRule));
 
   @Test
   public void searchProjectStatistics_returns_empty_list_if_no_input() {

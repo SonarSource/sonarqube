@@ -27,7 +27,6 @@ import org.assertj.core.groups.Tuple;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.WebService;
@@ -39,7 +38,6 @@ import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.ResourceTypesRule;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.component.index.ComponentIndex;
-import org.sonar.server.component.index.ComponentIndexDefinition;
 import org.sonar.server.component.index.ComponentIndexer;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.favorite.FavoriteFinder;
@@ -91,7 +89,7 @@ public class SuggestionsActionTest {
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
   @Rule
-  public EsTester es = new EsTester(new ComponentIndexDefinition(new MapSettings().asConfig()));
+  public EsTester es = EsTester.core();
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
   public ResourceTypesRule resourceTypes = new ResourceTypesRule();
@@ -718,7 +716,7 @@ public class SuggestionsActionTest {
   }
 
   private void check_proposal_to_show_more_results(int numberOfProjects, int expectedNumberOfResults, long expectedNumberOfMoreResults, @Nullable SuggestionCategory more,
-    boolean useQuery) {
+                                                   boolean useQuery) {
     String namePrefix = "MyProject";
 
     List<ComponentDto> projects = range(0, numberOfProjects)

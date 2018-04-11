@@ -46,7 +46,6 @@ import org.sonar.server.es.RecoveryIndexer;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.issue.IssueQuery;
 import org.sonar.server.issue.index.IssueIndex;
-import org.sonar.server.issue.index.IssueIndexDefinition;
 import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.issue.index.IssueIteratorFactory;
 import org.sonar.server.permission.index.AuthorizationTypeSupport;
@@ -71,7 +70,7 @@ public class ViewIndexerTest {
   public DbTester dbTester = DbTester.create(system2);
 
   @Rule
-  public EsTester esTester = new EsTester(new IssueIndexDefinition(new MapSettings().asConfig()), new ViewIndexDefinition(new MapSettings().asConfig()));
+  public EsTester esTester = EsTester.core();
 
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();

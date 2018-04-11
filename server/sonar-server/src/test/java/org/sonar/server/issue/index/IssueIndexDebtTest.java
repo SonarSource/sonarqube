@@ -24,7 +24,6 @@ import java.util.TimeZone;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.rule.RuleKey;
@@ -46,7 +45,6 @@ import org.sonar.server.permission.index.AuthorizationTypeSupport;
 import org.sonar.server.permission.index.PermissionIndexerDao;
 import org.sonar.server.permission.index.PermissionIndexerTester;
 import org.sonar.server.tester.UserSessionRule;
-import org.sonar.server.view.index.ViewIndexDefinition;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -60,7 +58,7 @@ public class IssueIndexDebtTest {
   private System2 system2 = new TestSystem2().setNow(1_500_000_000_000L).setDefaultTimeZone(TimeZone.getTimeZone("GMT-01:00"));
 
   @Rule
-  public EsTester es = new EsTester(new IssueIndexDefinition(new MapSettings().asConfig()), new ViewIndexDefinition(new MapSettings().asConfig()));
+  public EsTester es = EsTester.core();
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
   @Rule

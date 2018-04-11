@@ -30,7 +30,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.PropertyType;
-import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.System2;
@@ -47,7 +46,6 @@ import org.sonar.server.es.SearchOptions;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.rule.index.RuleIndex;
-import org.sonar.server.rule.index.RuleIndexDefinition;
 import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.rule.index.RuleQuery;
 import org.sonar.server.tester.UserSessionRule;
@@ -79,7 +77,7 @@ public class QProfileRuleImplTest {
   @Rule
   public DbTester db = DbTester.create(system2);
   @Rule
-  public EsTester es = new EsTester(RuleIndexDefinition.createForTest(new MapSettings().asConfig()));
+  public EsTester es = EsTester.core();
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   private RuleIndex ruleIndex = new RuleIndex(es.client(), system2);
@@ -152,8 +150,8 @@ public class QProfileRuleImplTest {
   }
 
   /**
-      * SONAR-5841
-      */
+   * SONAR-5841
+   */
   @Test
   public void activate_rule_with_empty_parameter_having_no_default_value() {
     RuleDefinitionDto rule = createRule();
@@ -168,8 +166,9 @@ public class QProfileRuleImplTest {
   }
 
   /**
-   //   * SONAR-5840
-   //   */
+   * //   * SONAR-5840
+   * //
+   */
   @Test
   public void activate_rule_with_negative_integer_value_on_parameter_having_no_default_value() {
     RuleDefinitionDto rule = createRule();

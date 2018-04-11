@@ -24,7 +24,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
-import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.utils.System2;
 import org.sonar.core.issue.DefaultIssue;
@@ -40,7 +39,6 @@ import org.sonar.db.rule.RuleDbTester;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.server.es.EsTester;
-import org.sonar.server.issue.index.IssueIndexDefinition;
 import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.issue.index.IssueIteratorFactory;
 import org.sonar.server.issue.notification.IssueChangeNotification;
@@ -70,7 +68,7 @@ public class IssueUpdaterTest {
   public DbTester dbTester = DbTester.create(system2);
 
   @Rule
-  public EsTester esTester = new EsTester(new IssueIndexDefinition(new MapSettings().asConfig()));
+  public EsTester esTester = EsTester.core();
 
   private DbClient dbClient = dbTester.getDbClient();
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(dbTester);

@@ -37,14 +37,14 @@ import static org.junit.Assert.fail;
 public class ProxyIndexRequestBuilderTest {
 
   @Rule
-  public EsTester esTester = new EsTester(new FakeIndexDefinition());
+  public EsTester es = EsTester.custom(new FakeIndexDefinition());
 
   @Rule
   public LogTester logTester = new LogTester();
 
   @Test
   public void index_with_index_type_and_id() {
-    IndexResponse response = esTester.client().prepareIndex(FakeIndexDefinition.INDEX_TYPE_FAKE)
+    IndexResponse response = es.client().prepareIndex(FakeIndexDefinition.INDEX_TYPE_FAKE)
       .setSource(FakeIndexDefinition.newDoc(42).getFields())
       .get();
     assertThat(response.getResult()).isSameAs(Result.CREATED);
@@ -53,7 +53,7 @@ public class ProxyIndexRequestBuilderTest {
   @Test
   public void trace_logs() {
     logTester.setLevel(LoggerLevel.TRACE);
-    IndexResponse response = esTester.client().prepareIndex(FakeIndexDefinition.INDEX_TYPE_FAKE)
+    IndexResponse response = es.client().prepareIndex(FakeIndexDefinition.INDEX_TYPE_FAKE)
       .setSource(FakeIndexDefinition.newDoc(42).getFields())
       .get();
     assertThat(response.getResult()).isSameAs(Result.CREATED);
@@ -62,7 +62,7 @@ public class ProxyIndexRequestBuilderTest {
 
   @Test
   public void fail_if_bad_query() {
-    IndexRequestBuilder requestBuilder = esTester.client().prepareIndex(new IndexType("unknownIndex", "unknownType"));
+    IndexRequestBuilder requestBuilder = es.client().prepareIndex(new IndexType("unknownIndex", "unknownType"));
     try {
       requestBuilder.get();
       fail();
@@ -74,7 +74,7 @@ public class ProxyIndexRequestBuilderTest {
 
   @Test
   public void fail_if_bad_query_with_basic_profiling() {
-    IndexRequestBuilder requestBuilder = esTester.client().prepareIndex(new IndexType("unknownIndex", "unknownType"));
+    IndexRequestBuilder requestBuilder = es.client().prepareIndex(new IndexType("unknownIndex", "unknownType"));
     try {
       requestBuilder.get();
       fail();
@@ -87,7 +87,7 @@ public class ProxyIndexRequestBuilderTest {
   @Test
   public void get_with_string_timeout_is_not_yet_implemented() {
     try {
-      esTester.client().prepareIndex(FakeIndexDefinition.INDEX_TYPE_FAKE).get("1");
+      es.client().prepareIndex(FakeIndexDefinition.INDEX_TYPE_FAKE).get("1");
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("Not yet implemented");
@@ -97,7 +97,7 @@ public class ProxyIndexRequestBuilderTest {
   @Test
   public void get_with_time_value_timeout_is_not_yet_implemented() {
     try {
-      esTester.client().prepareIndex(FakeIndexDefinition.INDEX_TYPE_FAKE).get(TimeValue.timeValueMinutes(1));
+      es.client().prepareIndex(FakeIndexDefinition.INDEX_TYPE_FAKE).get(TimeValue.timeValueMinutes(1));
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("Not yet implemented");
@@ -107,7 +107,7 @@ public class ProxyIndexRequestBuilderTest {
   @Test
   public void do_not_support_execute_method() {
     try {
-      esTester.client().prepareIndex(FakeIndexDefinition.INDEX_TYPE_FAKE).execute();
+      es.client().prepareIndex(FakeIndexDefinition.INDEX_TYPE_FAKE).execute();
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(UnsupportedOperationException.class).hasMessage("execute() should not be called as it's used for asynchronous");

@@ -37,14 +37,14 @@ import static org.junit.Assert.fail;
 public class ProxyPutMappingRequestBuilderTest {
 
   @Rule
-  public EsTester esTester = new EsTester(new FakeIndexDefinition());
+  public EsTester es = EsTester.custom(new FakeIndexDefinition());
 
   @Rule
   public LogTester logTester = new LogTester();
 
   @Test
   public void put_mapping() {
-    PutMappingRequestBuilder requestBuilder = esTester.client().preparePutMapping(FakeIndexDefinition.INDEX)
+    PutMappingRequestBuilder requestBuilder = es.client().preparePutMapping(FakeIndexDefinition.INDEX)
       .setType(FakeIndexDefinition.TYPE)
       .setSource(mapDomain());
     requestBuilder.get();
@@ -52,9 +52,9 @@ public class ProxyPutMappingRequestBuilderTest {
 
   @Test
   public void to_string() {
-    assertThat(esTester.client().preparePutMapping(FakeIndexDefinition.INDEX).setSource(mapDomain()).toString())
+    assertThat(es.client().preparePutMapping(FakeIndexDefinition.INDEX).setSource(mapDomain()).toString())
       .isEqualTo("ES put mapping request on indices 'fakes' with source '{\"dynamic\":false,\"_all\":{\"enabled\":false}}'");
-    assertThat(esTester.client().preparePutMapping(FakeIndexDefinition.INDEX).setType(FakeIndexDefinition.TYPE).setSource(mapDomain()).toString())
+    assertThat(es.client().preparePutMapping(FakeIndexDefinition.INDEX).setType(FakeIndexDefinition.TYPE).setSource(mapDomain()).toString())
       .isEqualTo("ES put mapping request on indices 'fakes' on type 'fake' with source '{\"dynamic\":false,\"_all\":{\"enabled\":false}}'");
   }
 
@@ -62,7 +62,7 @@ public class ProxyPutMappingRequestBuilderTest {
   public void trace_logs() {
     logTester.setLevel(LoggerLevel.TRACE);
 
-    PutMappingRequestBuilder requestBuilder = esTester.client().preparePutMapping(FakeIndexDefinition.INDEX)
+    PutMappingRequestBuilder requestBuilder = es.client().preparePutMapping(FakeIndexDefinition.INDEX)
       .setType(FakeIndexDefinition.TYPE)
       .setSource(mapDomain());
     requestBuilder.get();
@@ -73,7 +73,7 @@ public class ProxyPutMappingRequestBuilderTest {
   @Test
   public void fail_on_bad_query() {
     try {
-      esTester.client().preparePutMapping().get();
+      es.client().preparePutMapping().get();
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalStateException.class);
@@ -84,7 +84,7 @@ public class ProxyPutMappingRequestBuilderTest {
   @Test
   public void get_with_string_timeout_is_not_yet_implemented() {
     try {
-      esTester.client().preparePutMapping().get("1");
+      es.client().preparePutMapping().get("1");
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("Not yet implemented");
@@ -94,7 +94,7 @@ public class ProxyPutMappingRequestBuilderTest {
   @Test
   public void get_with_time_value_timeout_is_not_yet_implemented() {
     try {
-      esTester.client().preparePutMapping().get(TimeValue.timeValueMinutes(1));
+      es.client().preparePutMapping().get(TimeValue.timeValueMinutes(1));
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("Not yet implemented");
@@ -104,7 +104,7 @@ public class ProxyPutMappingRequestBuilderTest {
   @Test
   public void execute_should_throw_an_unsupported_operation_exception() {
     try {
-      esTester.client().preparePutMapping().execute();
+      es.client().preparePutMapping().execute();
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(UnsupportedOperationException.class).hasMessage("execute() should not be called as it's used for asynchronous");

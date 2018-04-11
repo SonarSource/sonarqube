@@ -34,14 +34,12 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.issue.index.IssueIndex;
-import org.sonar.server.issue.index.IssueIndexDefinition;
 import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.issue.index.IssueIteratorFactory;
 import org.sonar.server.permission.index.AuthorizationTypeSupport;
 import org.sonar.server.permission.index.PermissionIndexerDao;
 import org.sonar.server.permission.index.PermissionIndexerTester;
 import org.sonar.server.rule.index.RuleIndex;
-import org.sonar.server.rule.index.RuleIndexDefinition;
 import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
@@ -61,13 +59,13 @@ public class TagsActionTest {
   @Rule
   public DbTester dbTester = DbTester.create();
   @Rule
-  public EsTester esTester = new EsTester(new IssueIndexDefinition(settings.asConfig()), new RuleIndexDefinition(settings.asConfig()));
+  public EsTester es = EsTester.core();
 
-  private IssueIndexer issueIndexer = new IssueIndexer(esTester.client(), dbTester.getDbClient(), new IssueIteratorFactory(dbTester.getDbClient()));
-  private RuleIndexer ruleIndexer = new RuleIndexer(esTester.client(), dbTester.getDbClient());
-  private PermissionIndexerTester permissionIndexerTester = new PermissionIndexerTester(esTester, issueIndexer);
-  private IssueIndex issueIndex = new IssueIndex(esTester.client(), System2.INSTANCE, userSession, new AuthorizationTypeSupport(userSession));
-  private RuleIndex ruleIndex = new RuleIndex(esTester.client(), System2.INSTANCE);
+  private IssueIndexer issueIndexer = new IssueIndexer(es.client(), dbTester.getDbClient(), new IssueIteratorFactory(dbTester.getDbClient()));
+  private RuleIndexer ruleIndexer = new RuleIndexer(es.client(), dbTester.getDbClient());
+  private PermissionIndexerTester permissionIndexerTester = new PermissionIndexerTester(es, issueIndexer);
+  private IssueIndex issueIndex = new IssueIndex(es.client(), System2.INSTANCE, userSession, new AuthorizationTypeSupport(userSession));
+  private RuleIndex ruleIndex = new RuleIndex(es.client(), System2.INSTANCE);
 
   private WsActionTester ws = new WsActionTester(new TagsAction(issueIndex, ruleIndex, dbTester.getDbClient()));
   private OrganizationDto organization;

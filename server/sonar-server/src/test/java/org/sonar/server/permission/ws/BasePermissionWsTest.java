@@ -53,7 +53,7 @@ public abstract class BasePermissionWsTest<A extends PermissionsWsAction> {
   public DbTester db = DbTester.create(new AlwaysIncreasingSystem2());
 
   @Rule
-  public EsTester esTester = new EsTester(new FooIndexDefinition());
+  public EsTester esTester = EsTester.custom(new FooIndexDefinition());
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();

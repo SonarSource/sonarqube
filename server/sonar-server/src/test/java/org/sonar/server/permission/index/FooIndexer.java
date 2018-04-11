@@ -23,7 +23,6 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import java.util.Collection;
 import java.util.Set;
-import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.es.EsQueueDto;
 import org.sonar.server.es.EsClient;
@@ -37,11 +36,9 @@ public class FooIndexer implements ProjectIndexer, NeedAuthorizationIndexer {
 
   private static final AuthorizationScope AUTHORIZATION_SCOPE = new AuthorizationScope(INDEX_TYPE_FOO, p -> true);
 
-  private final DbClient dbClient;
   private final EsClient esClient;
 
-  public FooIndexer(DbClient dbClient, EsClient esClient) {
-    this.dbClient = dbClient;
+  public FooIndexer(EsClient esClient) {
     this.esClient = esClient;
   }
 

@@ -25,7 +25,6 @@ import java.util.Locale;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.System2;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.es.SearchOptions;
@@ -46,7 +45,7 @@ public class UserIndexTest {
   private static final long DATE_2 = 1_500_000_000_001L;
 
   @Rule
-  public EsTester esTester = new EsTester(new UserIndexDefinition(new MapSettings().asConfig()));
+  public EsTester esTester = EsTester.core();
 
   private UserIndex underTest;
 
@@ -58,7 +57,7 @@ public class UserIndexTest {
   }
 
   @Test
-  public void get_nullable_by_login()  {
+  public void get_nullable_by_login() {
     UserDoc user1 = newUser(USER1_LOGIN, asList("scmA", "scmB"));
     esTester.putDocuments(INDEX_TYPE_USER, user1);
     esTester.putDocuments(INDEX_TYPE_USER, newUser(USER2_LOGIN, Collections.emptyList()));
@@ -76,7 +75,7 @@ public class UserIndexTest {
   }
 
   @Test
-  public void getNullableByLogin_is_case_sensitive()  {
+  public void getNullableByLogin_is_case_sensitive() {
     UserDoc user1 = newUser(USER1_LOGIN, asList("scmA", "scmB"));
     esTester.putDocuments(INDEX_TYPE_USER, user1);
 
@@ -85,7 +84,7 @@ public class UserIndexTest {
   }
 
   @Test
-  public void getAtMostThreeActiveUsersForScmAccount_returns_the_users_with_specified_scm_account()  {
+  public void getAtMostThreeActiveUsersForScmAccount_returns_the_users_with_specified_scm_account() {
     UserDoc user1 = newUser("user1", asList("user_1", "u1"));
     UserDoc user2 = newUser("user_with_same_email_as_user1", asList("user_2")).setEmail(user1.email());
     UserDoc user3 = newUser("inactive_user_with_same_scm_as_user1", user1.scmAccounts()).setActive(false);
@@ -104,7 +103,7 @@ public class UserIndexTest {
   }
 
   @Test
-  public void getAtMostThreeActiveUsersForScmAccount_ignores_inactive_user()  {
+  public void getAtMostThreeActiveUsersForScmAccount_ignores_inactive_user() {
     String scmAccount = "scmA";
     UserDoc user = newUser(USER1_LOGIN, singletonList(scmAccount)).setActive(false);
     esTester.putDocuments(INDEX_TYPE_USER, user);
@@ -114,7 +113,7 @@ public class UserIndexTest {
   }
 
   @Test
-  public void getAtMostThreeActiveUsersForScmAccount_returns_maximum_three_users()  {
+  public void getAtMostThreeActiveUsersForScmAccount_returns_maximum_three_users() {
     String email = "user@mail.com";
     UserDoc user1 = newUser("user1", Collections.emptyList()).setEmail(email);
     UserDoc user2 = newUser("user2", Collections.emptyList()).setEmail(email);
@@ -130,7 +129,7 @@ public class UserIndexTest {
   }
 
   @Test
-  public void getAtMostThreeActiveUsersForScmAccount_is_case_sensitive_for_login()  {
+  public void getAtMostThreeActiveUsersForScmAccount_is_case_sensitive_for_login() {
     UserDoc user = newUser("the_login", singletonList("John.Smith"));
     esTester.putDocuments(INDEX_TYPE_USER, user);
 
@@ -139,7 +138,7 @@ public class UserIndexTest {
   }
 
   @Test
-  public void getAtMostThreeActiveUsersForScmAccount_is_case_insensitive_for_email()  {
+  public void getAtMostThreeActiveUsersForScmAccount_is_case_insensitive_for_email() {
     UserDoc user = newUser("the_login", "the_EMAIL@corp.com", singletonList("John.Smith"));
     esTester.putDocuments(INDEX_TYPE_USER, user);
 
@@ -149,7 +148,7 @@ public class UserIndexTest {
   }
 
   @Test
-  public void getAtMostThreeActiveUsersForScmAccount_is_case_insensitive_for_scm_account()  {
+  public void getAtMostThreeActiveUsersForScmAccount_is_case_insensitive_for_scm_account() {
     UserDoc user = newUser("the_login", singletonList("John.Smith"));
     esTester.putDocuments(INDEX_TYPE_USER, user);
 
@@ -160,7 +159,7 @@ public class UserIndexTest {
   }
 
   @Test
-  public void getAtMostThreeActiveUsersForScmAccount_search_only_user_within_given_organization()  {
+  public void getAtMostThreeActiveUsersForScmAccount_search_only_user_within_given_organization() {
     UserDoc user1 = newUser("user1", singletonList("same_scm")).setOrganizationUuids(singletonList(ORGANIZATION_UUID));
     UserDoc user2 = newUser("user2", singletonList("same_scm")).setOrganizationUuids(singletonList("another_organization"));
     esTester.putDocuments(INDEX_TYPE_USER, user1);
@@ -170,7 +169,7 @@ public class UserIndexTest {
   }
 
   @Test
-  public void searchUsers()  {
+  public void searchUsers() {
     esTester.putDocuments(INDEX_TYPE_USER, newUser(USER1_LOGIN, asList("user_1", "u1")).setEmail("email1"));
     esTester.putDocuments(INDEX_TYPE_USER, newUser(USER2_LOGIN, Collections.emptyList()).setEmail("email2"));
 

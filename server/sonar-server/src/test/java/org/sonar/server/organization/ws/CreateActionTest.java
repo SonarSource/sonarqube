@@ -19,8 +19,6 @@
  */
 package org.sonar.server.organization.ws;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -58,7 +56,6 @@ import org.sonar.server.organization.TestOrganizationFlags;
 import org.sonar.server.qualityprofile.BuiltInQProfileRepository;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.index.UserIndex;
-import org.sonar.server.user.index.UserIndexDefinition;
 import org.sonar.server.user.index.UserIndexer;
 import org.sonar.server.usergroups.DefaultGroupCreatorImpl;
 import org.sonar.server.ws.TestRequest;
@@ -87,7 +84,7 @@ public class CreateActionTest {
   @Rule
   public DbTester dbTester = DbTester.create(system2).setDisableDefaultOrganization(true);
   @Rule
-  public EsTester es = new EsTester(new UserIndexDefinition(new MapSettings().asConfig()));
+  public EsTester es = EsTester.core();
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
@@ -614,7 +611,7 @@ public class CreateActionTest {
   }
 
   private static void populateRequest(@Nullable String name, @Nullable String key, @Nullable String description, @Nullable String url, @Nullable String avatar,
-    TestRequest request) {
+                                      TestRequest request) {
     OrganizationsWsTestSupport.setParam(request, "name", name);
     OrganizationsWsTestSupport.setParam(request, "key", key);
     OrganizationsWsTestSupport.setParam(request, "description", description);
@@ -623,15 +620,15 @@ public class CreateActionTest {
   }
 
   private void verifyResponseAndDb(CreateWsResponse response,
-    String uuid, String name, String key,
-    long createdAt) {
+                                   String uuid, String name, String key,
+                                   long createdAt) {
     verifyResponseAndDb(response, uuid, name, key, null, null, null, createdAt);
   }
 
   private void verifyResponseAndDb(CreateWsResponse response,
-    String id, String name, String key,
-    @Nullable String description, @Nullable String url, @Nullable String avatar,
-    long createdAt) {
+                                   String id, String name, String key,
+                                   @Nullable String description, @Nullable String url, @Nullable String avatar,
+                                   long createdAt) {
     Organization organization = response.getOrganization();
     assertThat(organization.getName()).isEqualTo(name);
     assertThat(organization.getKey()).isEqualTo(key);

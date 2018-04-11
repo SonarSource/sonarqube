@@ -25,7 +25,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.Metric.ValueType;
 import org.sonar.api.utils.System2;
@@ -49,7 +48,6 @@ import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.ServerException;
 import org.sonar.server.tester.UserSessionRule;
-import org.sonar.server.user.index.UserIndexDefinition;
 import org.sonar.server.user.ws.UserJsonWriter;
 import org.sonar.server.ws.WsTester;
 
@@ -75,7 +73,7 @@ public class CreateActionTest {
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
   @Rule
-  public EsTester es = new EsTester(new UserIndexDefinition(new MapSettings().asConfig()));
+  public EsTester es = EsTester.core();
 
   DbClient dbClient = db.getDbClient();
   ComponentDto project;

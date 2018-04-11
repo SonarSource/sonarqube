@@ -22,11 +22,9 @@ package org.sonar.server.platform.monitoring;
 import org.elasticsearch.ElasticsearchException;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.config.internal.MapSettings;
 import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.es.EsTester;
-import org.sonar.server.issue.index.IssueIndexDefinition;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -37,7 +35,7 @@ import static org.sonar.server.platform.monitoring.SystemInfoTesting.assertThatA
 public class EsIndexesSectionTest {
 
   @Rule
-  public EsTester esTester = new EsTester(new IssueIndexDefinition(new MapSettings().asConfig()));
+  public EsTester esTester = EsTester.core();
 
   private EsIndexesSection underTest = new EsIndexesSection(esTester.client());
 

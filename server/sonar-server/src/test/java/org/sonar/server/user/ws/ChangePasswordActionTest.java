@@ -37,7 +37,6 @@ import org.sonar.server.user.ExternalIdentity;
 import org.sonar.server.user.NewUser;
 import org.sonar.server.user.NewUserNotifier;
 import org.sonar.server.user.UserUpdater;
-import org.sonar.server.user.index.UserIndexDefinition;
 import org.sonar.server.user.index.UserIndexer;
 import org.sonar.server.usergroups.DefaultGroupFinder;
 import org.sonar.server.ws.WsTester;
@@ -52,7 +51,7 @@ public class ChangePasswordActionTest {
   @Rule
   public DbTester db = DbTester.create();
   @Rule
-  public EsTester esTester = new EsTester(new UserIndexDefinition(new MapSettings().asConfig()));
+  public EsTester esTester = EsTester.core();
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone().logIn();
 
@@ -182,6 +181,6 @@ public class ChangePasswordActionTest {
       .setScmAccounts(newArrayList("jn"))
       .setPassword("Valar Dohaeris")
       .build(), u -> {
-      });
+    });
   }
 }

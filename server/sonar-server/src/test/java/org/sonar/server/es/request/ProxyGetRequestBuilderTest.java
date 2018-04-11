@@ -34,14 +34,14 @@ import static org.junit.Assert.fail;
 public class ProxyGetRequestBuilderTest {
 
   @Rule
-  public EsTester esTester = new EsTester(new FakeIndexDefinition());
+  public EsTester es = EsTester.custom(new FakeIndexDefinition());
 
   @Rule
   public LogTester logTester = new LogTester();
 
   @Test
   public void get() {
-    esTester.client().prepareGet()
+    es.client().prepareGet()
       .setIndex(FakeIndexDefinition.INDEX)
       .setType(FakeIndexDefinition.TYPE)
       .setId("ruleKey")
@@ -52,7 +52,7 @@ public class ProxyGetRequestBuilderTest {
   public void trace_logs() {
     logTester.setLevel(LoggerLevel.TRACE);
 
-    esTester.client().prepareGet()
+    es.client().prepareGet()
       .setIndex(FakeIndexDefinition.INDEX)
       .setType(FakeIndexDefinition.TYPE)
       .setId("ruleKey")
@@ -62,7 +62,7 @@ public class ProxyGetRequestBuilderTest {
 
   @Test
   public void fail_to_get_bad_query() {
-    GetRequestBuilder requestBuilder = esTester.client().prepareGet()
+    GetRequestBuilder requestBuilder = es.client().prepareGet()
       .setIndex("unknown")
       .setType("test")
       .setId("rule1");
@@ -78,7 +78,7 @@ public class ProxyGetRequestBuilderTest {
   @Test
   public void get_with_string_timeout_is_not_yet_implemented() {
     try {
-      esTester.client().prepareGet().get("1");
+      es.client().prepareGet().get("1");
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("Not yet implemented");
@@ -88,7 +88,7 @@ public class ProxyGetRequestBuilderTest {
   @Test
   public void get_with_time_value_timeout_is_not_yet_implemented() {
     try {
-      esTester.client().prepareGet().get(TimeValue.timeValueMinutes(1));
+      es.client().prepareGet().get(TimeValue.timeValueMinutes(1));
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("Not yet implemented");
@@ -98,7 +98,7 @@ public class ProxyGetRequestBuilderTest {
   @Test
   public void execute_should_throw_an_unsupported_operation_exception() {
     try {
-      esTester.client().prepareGet().execute();
+      es.client().prepareGet().execute();
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(UnsupportedOperationException.class).hasMessage("execute() should not be called as it's used for asynchronous");

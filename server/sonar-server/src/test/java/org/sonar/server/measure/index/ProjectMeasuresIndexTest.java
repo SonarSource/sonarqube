@@ -33,7 +33,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
-import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.System2;
 import org.sonar.db.component.ComponentDto;
@@ -97,7 +96,7 @@ public class ProjectMeasuresIndexTest {
   private static final GroupDto GROUP2 = newGroupDto();
 
   @Rule
-  public EsTester es = new EsTester(new ProjectMeasuresIndexDefinition(new MapSettings().asConfig()));
+  public EsTester es = EsTester.core();
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
@@ -107,7 +106,7 @@ public class ProjectMeasuresIndexTest {
 
   @DataProvider
   public static Object[][] rating_metric_keys() {
-    return new Object[][] {{MAINTAINABILITY_RATING}, {NEW_MAINTAINABILITY_RATING_KEY}, {RELIABILITY_RATING}, {NEW_RELIABILITY_RATING}, {SECURITY_RATING}, {NEW_SECURITY_RATING}};
+    return new Object[][]{{MAINTAINABILITY_RATING}, {NEW_MAINTAINABILITY_RATING_KEY}, {RELIABILITY_RATING}, {NEW_RELIABILITY_RATING}, {SECURITY_RATING}, {NEW_SECURITY_RATING}};
   }
 
   private ProjectMeasuresIndexer projectMeasureIndexer = new ProjectMeasuresIndexer(null, es.client());
@@ -522,8 +521,8 @@ public class ProjectMeasuresIndexTest {
       newDoc(NCLOC, 501_000d, COVERAGE, 81d, DUPLICATION, 20d));
 
     Facets facets = underTest.search(new ProjectMeasuresQuery()
-      .addMetricCriterion(MetricCriterion.create(NCLOC, Operator.LT, 10_000d))
-      .addMetricCriterion(MetricCriterion.create(DUPLICATION, Operator.LT, 10d)),
+        .addMetricCriterion(MetricCriterion.create(NCLOC, Operator.LT, 10_000d))
+        .addMetricCriterion(MetricCriterion.create(DUPLICATION, Operator.LT, 10d)),
       new SearchOptions().addFacets(NCLOC, COVERAGE)).getFacets();
 
     // Sticky facet on ncloc does not take into account ncloc filter
@@ -671,8 +670,8 @@ public class ProjectMeasuresIndexTest {
       newDoc(NCLOC, 501_000d, COVERAGE, 810d, DUPLICATION, 20d));
 
     Facets facets = underTest.search(new ProjectMeasuresQuery()
-      .addMetricCriterion(MetricCriterion.create(COVERAGE, Operator.LT, 30d))
-      .addMetricCriterion(MetricCriterion.create(DUPLICATION, Operator.LT, 10d)),
+        .addMetricCriterion(MetricCriterion.create(COVERAGE, Operator.LT, 30d))
+        .addMetricCriterion(MetricCriterion.create(DUPLICATION, Operator.LT, 10d)),
       new SearchOptions().addFacets(COVERAGE, NCLOC)).getFacets();
 
     // Sticky facet on coverage does not take into account coverage filter
@@ -825,8 +824,8 @@ public class ProjectMeasuresIndexTest {
       newDoc(DUPLICATION, 20d, NCLOC, 1000000d, COVERAGE, 40d));
 
     Facets facets = underTest.search(new ProjectMeasuresQuery()
-      .addMetricCriterion(MetricCriterion.create(DUPLICATION, Operator.LT, 10d))
-      .addMetricCriterion(MetricCriterion.create(COVERAGE, Operator.LT, 30d)),
+        .addMetricCriterion(MetricCriterion.create(DUPLICATION, Operator.LT, 10d))
+        .addMetricCriterion(MetricCriterion.create(COVERAGE, Operator.LT, 30d)),
       new SearchOptions().addFacets(DUPLICATION, NCLOC)).getFacets();
 
     // Sticky facet on duplication does not take into account duplication filter
@@ -983,8 +982,8 @@ public class ProjectMeasuresIndexTest {
       newDoc(metricKey, 5d, NCLOC, 800000d, COVERAGE, 60d));
 
     Facets facets = underTest.search(new ProjectMeasuresQuery()
-      .addMetricCriterion(MetricCriterion.create(metricKey, Operator.LT, 3d))
-      .addMetricCriterion(MetricCriterion.create(COVERAGE, Operator.LT, 30d)),
+        .addMetricCriterion(MetricCriterion.create(metricKey, Operator.LT, 3d))
+        .addMetricCriterion(MetricCriterion.create(COVERAGE, Operator.LT, 30d)),
       new SearchOptions().addFacets(metricKey, NCLOC)).getFacets();
 
     // Sticky facet on maintainability rating does not take into account maintainability rating filter
@@ -1077,8 +1076,8 @@ public class ProjectMeasuresIndexTest {
       newDoc(NCLOC, 13000d, COVERAGE, 60d).setQualityGateStatus(ERROR.name()));
 
     Facets facets = underTest.search(new ProjectMeasuresQuery()
-      .setQualityGateStatus(ERROR)
-      .addMetricCriterion(MetricCriterion.create(COVERAGE, Operator.LT, 55d)),
+        .setQualityGateStatus(ERROR)
+        .addMetricCriterion(MetricCriterion.create(COVERAGE, Operator.LT, 55d)),
       new SearchOptions().addFacets(ALERT_STATUS_KEY, NCLOC)).getFacets();
 
     // Sticky facet on quality gate does not take into account quality gate filter

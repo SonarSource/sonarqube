@@ -32,7 +32,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
-import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.rule.RuleKey;
@@ -104,7 +103,7 @@ public class RegisterRulesTest {
   @org.junit.Rule
   public DbTester dbTester = DbTester.create(system);
   @org.junit.Rule
-  public EsTester esTester = new EsTester(new RuleIndexDefinition(new MapSettings().asConfig()));
+  public EsTester esTester = EsTester.core();
   @org.junit.Rule
   public LogTester logTester = new LogTester();
 
@@ -497,7 +496,7 @@ public class RegisterRulesTest {
 
   @DataProvider
   public static Object[][] allRenamingCases() {
-    return new Object[][] {
+    return new Object[][]{
       {"repo1", "rule1", "repo1", "rule2"},
       {"repo1", "rule1", "repo2", "rule1"},
       {"repo1", "rule1", "repo2", "rule2"},

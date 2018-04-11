@@ -25,7 +25,6 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.RuleType;
@@ -35,8 +34,8 @@ import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
-import org.sonar.db.rule.RuleTesting;
 import org.sonar.db.rule.RuleDto.Scope;
+import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.es.EsTester;
 
 import static com.google.common.collect.Sets.newHashSet;
@@ -46,7 +45,7 @@ import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 public class RuleIndexerTest {
 
   @Rule
-  public EsTester esTester = new EsTester(new RuleIndexDefinition(new MapSettings().asConfig()));
+  public EsTester esTester = EsTester.core();
 
   @Rule
   public DbTester dbTester = DbTester.create();

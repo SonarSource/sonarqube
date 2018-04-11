@@ -37,7 +37,6 @@ import org.elasticsearch.search.SearchHit;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.System2;
@@ -55,11 +54,9 @@ import org.sonar.server.issue.IssueQuery;
 import org.sonar.server.permission.index.AuthorizationTypeSupport;
 import org.sonar.server.permission.index.PermissionIndexerDao;
 import org.sonar.server.permission.index.PermissionIndexerTester;
-import org.sonar.server.rule.index.RuleIndexDefinition;
 import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.view.index.ViewDoc;
-import org.sonar.server.view.index.ViewIndexDefinition;
 import org.sonar.server.view.index.ViewIndexer;
 
 import static com.google.common.collect.ImmutableSortedSet.of;
@@ -87,13 +84,8 @@ import static org.sonar.server.issue.IssueDocTesting.newDoc;
 
 public class IssueIndexTest {
 
-  private MapSettings settings = new MapSettings();
-
   @Rule
-  public EsTester es = new EsTester(
-    new IssueIndexDefinition(settings.asConfig()),
-    new ViewIndexDefinition(settings.asConfig()),
-    new RuleIndexDefinition(settings.asConfig()));
+  public EsTester es = EsTester.core();
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
   @Rule

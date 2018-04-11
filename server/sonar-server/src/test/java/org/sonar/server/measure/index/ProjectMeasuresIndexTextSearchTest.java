@@ -25,7 +25,6 @@ import java.util.Map;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.System2;
 import org.sonar.db.component.ComponentDto;
@@ -57,7 +56,7 @@ public class ProjectMeasuresIndexTextSearchTest {
   private static final OrganizationDto ORG = OrganizationTesting.newOrganizationDto();
 
   @Rule
-  public EsTester es = new EsTester(new ProjectMeasuresIndexDefinition(new MapSettings().asConfig()));
+  public EsTester es = EsTester.core();
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
