@@ -46,7 +46,7 @@ export default function SecurityBox({ component, measures }: Props) {
 
       {rating && <MainRating component={component} metric="security_rating" value={rating} />}
 
-      <RatingFreshness lastChange={lastSecurityChange} />
+      <RatingFreshness lastChange={lastSecurityChange} rating={rating} />
 
       {effort && <Effort component={component} effort={effort} metricKey="security_rating" />}
     </div>

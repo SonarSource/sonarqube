@@ -46,7 +46,7 @@ export default function MaintainabilityBox({ component, measures }: Props) {
 
       {rating && <MainRating component={component} metric={'sqale_rating'} value={rating} />}
 
-      <RatingFreshness lastChange={lastMaintainabilityChange} />
+      <RatingFreshness lastChange={lastMaintainabilityChange} rating={rating} />
 
       {effort && <Effort component={component} effort={effort} metricKey={'sqale_rating'} />}
     </div>

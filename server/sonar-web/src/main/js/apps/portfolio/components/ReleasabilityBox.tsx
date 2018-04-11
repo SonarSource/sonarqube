@@ -47,7 +47,7 @@ export default function ReleasabilityBox({ component, measures }: Props) {
         </Link>
       )}
 
-      <RatingFreshness lastChange={lastReleasabilityChange} />
+      <RatingFreshness lastChange={lastReleasabilityChange} rating={rating} />
 
       {effort &&
         Number(effort) > 0 && (

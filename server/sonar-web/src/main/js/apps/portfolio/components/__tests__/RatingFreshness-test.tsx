@@ -26,6 +26,10 @@ it('renders', () => {
   expect(shallow(<RatingFreshness lastChange={lastChange} />)).toMatchSnapshot();
 });
 
+it('renders has always been', () => {
+  expect(shallow(<RatingFreshness rating="A" />)).toMatchSnapshot();
+});
+
 it('renders empty', () => {
   expect(shallow(<RatingFreshness />)).toMatchSnapshot();
 });

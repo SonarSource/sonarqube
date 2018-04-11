@@ -25,7 +25,20 @@ exports[`renders 1`] = `
 exports[`renders empty 1`] = `
 <div
   className="portfolio-freshness"
+/>
+`;
+
+exports[`renders has always been 1`] = `
+<div
+  className="portfolio-freshness"
 >
-   
+  <React.Fragment>
+    portfolio.has_always_been
+     
+    <Rating
+      small={true}
+      value="A"
+    />
+  </React.Fragment>
 </div>
 `;

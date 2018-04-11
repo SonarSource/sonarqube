@@ -46,7 +46,7 @@ export default function ReliabilityBox({ component, measures }: Props) {
 
       {rating && <MainRating component={component} metric="reliability_rating" value={rating} />}
 
-      <RatingFreshness lastChange={lastReliabilityChange} />
+      <RatingFreshness lastChange={lastReliabilityChange} rating={rating} />
 
       {effort && <Effort component={component} effort={effort} metricKey="reliability_rating" />}
     </div>

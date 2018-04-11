@@ -25,11 +25,20 @@ import { translate } from '../../../helpers/l10n';
 
 interface Props {
   lastChange?: string;
+  rating?: string;
 }
 
-export default function RatingFreshness({ lastChange }: Props) {
+export default function RatingFreshness({ lastChange, rating }: Props) {
   if (!lastChange) {
-    return <div className="portfolio-freshness">&nbsp;</div>;
+    return (
+      <div className="portfolio-freshness">
+        {rating && (
+          <>
+            {translate('portfolio.has_always_been')} <Rating small={true} value={rating} />
+          </>
+        )}
+      </div>
+    );
   }
 
   const data = JSON.parse(lastChange);
@@ -40,7 +49,7 @@ export default function RatingFreshness({ lastChange }: Props) {
         defaultMessage={translate('portfolio.was_x_y')}
         id="portfolio.was_x_y"
         values={{
-          rating: <Rating value={data.value} small={true} />,
+          rating: <Rating small={true} value={data.value} />,
           date: <DateFromNow date={data.date} />
         }}
       />

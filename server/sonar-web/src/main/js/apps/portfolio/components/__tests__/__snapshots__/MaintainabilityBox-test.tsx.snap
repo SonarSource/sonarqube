@@ -24,6 +24,7 @@ exports[`renders 1`] = `
   />
   <RatingFreshness
     lastChange="{\\"date\\":\\"2017-01-02T00:00:00.000Z\\",\\"value\\":2}"
+    rating="3"
   />
   <Effort
     component="foo"
