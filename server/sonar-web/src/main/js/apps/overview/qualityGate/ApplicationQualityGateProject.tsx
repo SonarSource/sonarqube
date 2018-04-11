@@ -50,7 +50,9 @@ export default class ApplicationQualityGateProject extends React.PureComponent<P
             'text-danger': condition.status === 'ERROR',
             'text-warning': condition.status === 'WARN'
           })}>
-          {translate('quality_gates.operator', condition.comparator, 'short')}{' '}
+          {metric.type === 'RATING'
+            ? translate('quality_gates.operator', condition.comparator, 'rating')
+            : translate('quality_gates.operator', condition.comparator)}{' '}
           {formatMeasure(threshold, metric.type)}
         </span>
       </li>

@@ -39,7 +39,7 @@ exports[`renders 1`] = `
         <span
           className="big-spacer-left text-danger"
         >
-          quality_gates.operator.LT.short
+          quality_gates.operator.LT
            
           85.0%
         </span>
@@ -60,7 +60,7 @@ exports[`renders 1`] = `
         <span
           className="big-spacer-left text-warning"
         >
-          quality_gates.operator.GT.short
+          quality_gates.operator.GT
            
           0
         </span>
@@ -82,7 +82,7 @@ exports[`renders 1`] = `
         <span
           className="big-spacer-left text-danger"
         >
-          quality_gates.operator.GT.short
+          quality_gates.operator.GT
            
           0
         </span>
