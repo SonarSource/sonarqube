@@ -37,3 +37,6 @@ dependencies {
     exclude group: 'org.codehaus.sonar', module: 'sonar-plugin-api'
   }
 }
+
+// This JAR is cached because used as a resource in sonar-core:
+shadowJar.outputs.cacheIf { true }
