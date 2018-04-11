@@ -33,30 +33,30 @@ import static org.junit.Assert.fail;
 public class ProxyClearCacheRequestBuilderTest {
 
   @Rule
-  public EsTester esTester = EsTester.core();
+  public EsTester es = EsTester.core();
 
   @Rule
   public LogTester logTester = new LogTester();
 
   @Test
   public void clear_cache() {
-    ClearIndicesCacheRequestBuilder requestBuilder = esTester.client().prepareClearCache();
+    ClearIndicesCacheRequestBuilder requestBuilder = es.client().prepareClearCache();
     requestBuilder.get();
   }
 
   @Test
   public void to_string() {
-    assertThat(esTester.client().prepareClearCache().toString()).isEqualTo("ES clear cache request");
-    assertThat(esTester.client().prepareClearCache("rules").toString()).isEqualTo("ES clear cache request on indices 'rules'");
-    assertThat(esTester.client().prepareClearCache().setFields("key").toString()).isEqualTo("ES clear cache request on fields 'key'");
-    assertThat(esTester.client().prepareClearCache().setFieldDataCache(true).toString()).isEqualTo("ES clear cache request with field data cache");
-    assertThat(esTester.client().prepareClearCache().setRequestCache(true).toString()).isEqualTo("ES clear cache request with request cache");
+    assertThat(es.client().prepareClearCache().toString()).isEqualTo("ES clear cache request");
+    assertThat(es.client().prepareClearCache("rules").toString()).isEqualTo("ES clear cache request on indices 'rules'");
+    assertThat(es.client().prepareClearCache().setFields("key").toString()).isEqualTo("ES clear cache request on fields 'key'");
+    assertThat(es.client().prepareClearCache().setFieldDataCache(true).toString()).isEqualTo("ES clear cache request with field data cache");
+    assertThat(es.client().prepareClearCache().setRequestCache(true).toString()).isEqualTo("ES clear cache request with request cache");
   }
 
   @Test
   public void trace_logs() {
     logTester.setLevel(LoggerLevel.TRACE);
-    ClearIndicesCacheRequestBuilder requestBuilder = esTester.client().prepareClearCache();
+    ClearIndicesCacheRequestBuilder requestBuilder = es.client().prepareClearCache();
     requestBuilder.get();
 
     assertThat(logTester.logs()).hasSize(1);
@@ -65,7 +65,7 @@ public class ProxyClearCacheRequestBuilderTest {
   @Test
   public void no_trace_logs() {
     logTester.setLevel(LoggerLevel.DEBUG);
-    ClearIndicesCacheRequestBuilder requestBuilder = esTester.client().prepareClearCache();
+    ClearIndicesCacheRequestBuilder requestBuilder = es.client().prepareClearCache();
     requestBuilder.get();
 
     assertThat(logTester.logs()).isEmpty();
@@ -74,7 +74,7 @@ public class ProxyClearCacheRequestBuilderTest {
   @Test
   public void get_with_string_timeout_is_not_yet_implemented() {
     try {
-      esTester.client().prepareClearCache().get("1");
+      es.client().prepareClearCache().get("1");
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("Not yet implemented");
@@ -84,7 +84,7 @@ public class ProxyClearCacheRequestBuilderTest {
   @Test
   public void get_with_time_value_timeout_is_not_yet_implemented() {
     try {
-      esTester.client().prepareClearCache().get(TimeValue.timeValueMinutes(1));
+      es.client().prepareClearCache().get(TimeValue.timeValueMinutes(1));
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("Not yet implemented");
@@ -94,7 +94,7 @@ public class ProxyClearCacheRequestBuilderTest {
   @Test
   public void execute_should_throw_an_unsupported_operation_exception() {
     try {
-      esTester.client().prepareClearCache().execute();
+      es.client().prepareClearCache().execute();
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(UnsupportedOperationException.class).hasMessage("execute() should not be called as it's used for asynchronous");

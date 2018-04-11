@@ -23,7 +23,6 @@ import java.util.Date;
 import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.utils.System2;
 import org.sonar.db.component.ComponentDto;
@@ -50,7 +49,6 @@ import static org.sonar.server.issue.IssueDocTesting.newDoc;
 public class IssueIndexProjectStatisticsTest {
 
   private System2 system2 = mock(System2.class);
-  private MapSettings settings = new MapSettings();
   @Rule
   public EsTester es = EsTester.core();
   @Rule

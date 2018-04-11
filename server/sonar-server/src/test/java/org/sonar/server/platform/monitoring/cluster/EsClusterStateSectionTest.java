@@ -30,9 +30,9 @@ import static org.sonar.process.systeminfo.SystemInfoUtils.attribute;
 public class EsClusterStateSectionTest {
 
   @Rule
-  public EsTester esTester = EsTester.core();
+  public EsTester es = EsTester.core();
 
-  private EsClusterStateSection underTest = new EsClusterStateSection(esTester.client());
+  private EsClusterStateSection underTest = new EsClusterStateSection(es.client());
 
   @Test
   public void test_name() {

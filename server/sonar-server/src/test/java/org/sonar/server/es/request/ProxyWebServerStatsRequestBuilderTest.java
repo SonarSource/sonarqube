@@ -33,28 +33,28 @@ import static org.junit.Assert.fail;
 public class ProxyWebServerStatsRequestBuilderTest {
 
   @Rule
-  public EsTester esTester = EsTester.custom();
+  public EsTester es = EsTester.custom();
 
   @Rule
   public LogTester logTester = new LogTester();
 
   @Test
   public void stats() {
-    ClusterStatsRequestBuilder requestBuilder = esTester.client().prepareClusterStats();
+    ClusterStatsRequestBuilder requestBuilder = es.client().prepareClusterStats();
     requestBuilder.get();
   }
 
   @Test
   public void to_string() {
-    assertThat(esTester.client().prepareClusterStats().setNodesIds("node1").toString()).isEqualTo("ES cluster stats request on nodes 'node1'");
-    assertThat(esTester.client().prepareClusterStats().toString()).isEqualTo("ES cluster stats request");
+    assertThat(es.client().prepareClusterStats().setNodesIds("node1").toString()).isEqualTo("ES cluster stats request on nodes 'node1'");
+    assertThat(es.client().prepareClusterStats().toString()).isEqualTo("ES cluster stats request");
   }
 
   @Test
   public void trace_logs() {
     logTester.setLevel(LoggerLevel.TRACE);
 
-    ClusterStatsRequestBuilder requestBuilder = esTester.client().prepareClusterStats();
+    ClusterStatsRequestBuilder requestBuilder = es.client().prepareClusterStats();
     requestBuilder.get();
     assertThat(logTester.logs()).hasSize(1);
   }
@@ -62,7 +62,7 @@ public class ProxyWebServerStatsRequestBuilderTest {
   @Test
   public void get_with_string_timeout_is_not_yet_implemented() {
     try {
-      esTester.client().prepareClusterStats().get("1");
+      es.client().prepareClusterStats().get("1");
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("Not yet implemented");
@@ -72,7 +72,7 @@ public class ProxyWebServerStatsRequestBuilderTest {
   @Test
   public void get_with_time_value_timeout_is_not_yet_implemented() {
     try {
-      esTester.client().prepareClusterStats().get(TimeValue.timeValueMinutes(1));
+      es.client().prepareClusterStats().get(TimeValue.timeValueMinutes(1));
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("Not yet implemented");
@@ -82,7 +82,7 @@ public class ProxyWebServerStatsRequestBuilderTest {
   @Test
   public void execute_should_throw_an_unsupported_operation_exception() {
     try {
-      esTester.client().prepareClusterStats().execute();
+      es.client().prepareClusterStats().execute();
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(UnsupportedOperationException.class).hasMessage("execute() should not be called as it's used for asynchronous");

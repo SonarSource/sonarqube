@@ -51,13 +51,13 @@ public class ChangePasswordActionTest {
   @Rule
   public DbTester db = DbTester.create();
   @Rule
-  public EsTester esTester = EsTester.core();
+  public EsTester es = EsTester.core();
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone().logIn();
 
   private TestOrganizationFlags organizationFlags = TestOrganizationFlags.standalone();
 
-  private UserUpdater userUpdater = new UserUpdater(mock(NewUserNotifier.class), db.getDbClient(), new UserIndexer(db.getDbClient(), esTester.client()),
+  private UserUpdater userUpdater = new UserUpdater(mock(NewUserNotifier.class), db.getDbClient(), new UserIndexer(db.getDbClient(), es.client()),
     organizationFlags,
     TestDefaultOrganizationProvider.from(db),
     mock(OrganizationCreation.class),

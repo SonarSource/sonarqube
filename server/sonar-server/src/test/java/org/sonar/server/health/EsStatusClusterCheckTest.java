@@ -38,10 +38,10 @@ import static org.mockito.Mockito.when;
 public class EsStatusClusterCheckTest {
 
   @Rule
-  public EsTester esTester = EsTester.custom();
+  public EsTester es = EsTester.custom();
 
   private final Random random = new Random();
-  private EsStatusClusterCheck underTest = new EsStatusClusterCheck(esTester.client());
+  private EsStatusClusterCheck underTest = new EsStatusClusterCheck(es.client());
 
   @Test
   public void check_ignores_NodeHealth_arg_and_returns_RED_with_cause_if_an_exception_occurs_checking_ES_cluster_status() {

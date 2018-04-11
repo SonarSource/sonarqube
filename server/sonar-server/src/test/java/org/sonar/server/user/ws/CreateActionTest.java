@@ -70,14 +70,14 @@ public class CreateActionTest {
   @Rule
   public DbTester db = DbTester.create(system2);
   @Rule
-  public EsTester esTester = EsTester.core();
+  public EsTester es = EsTester.core();
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private UserIndex index = new UserIndex(esTester.client(), System2.INSTANCE);
-  private UserIndexer userIndexer = new UserIndexer(db.getDbClient(), esTester.client());
+  private UserIndex index = new UserIndex(es.client(), System2.INSTANCE);
+  private UserIndexer userIndexer = new UserIndexer(db.getDbClient(), es.client());
   private GroupDto defaultGroupInDefaultOrg;
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
   private TestOrganizationFlags organizationFlags = TestOrganizationFlags.standalone();

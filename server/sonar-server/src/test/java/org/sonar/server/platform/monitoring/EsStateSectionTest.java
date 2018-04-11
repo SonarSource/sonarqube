@@ -36,9 +36,9 @@ import static org.sonar.server.platform.monitoring.SystemInfoTesting.assertThatA
 public class EsStateSectionTest {
 
   @Rule
-  public EsTester esTester = EsTester.core();
+  public EsTester es = EsTester.core();
 
-  private EsStateSection underTest = new EsStateSection(esTester.client());
+  private EsStateSection underTest = new EsStateSection(es.client());
 
   @Test
   public void name() {

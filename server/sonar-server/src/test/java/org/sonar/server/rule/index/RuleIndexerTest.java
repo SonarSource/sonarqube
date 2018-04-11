@@ -45,13 +45,13 @@ import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 public class RuleIndexerTest {
 
   @Rule
-  public EsTester esTester = EsTester.core();
+  public EsTester es = EsTester.core();
 
   @Rule
   public DbTester dbTester = DbTester.create();
 
   private DbClient dbClient = dbTester.getDbClient();
-  private final RuleIndexer underTest = new RuleIndexer(esTester.client(), dbClient);
+  private final RuleIndexer underTest = new RuleIndexer(es.client(), dbClient);
   private DbSession dbSession = dbTester.getSession();
   private RuleDefinitionDto rule = new RuleDefinitionDto()
     .setRuleKey("S001")
@@ -73,7 +73,7 @@ public class RuleIndexerTest {
   @Test
   public void index_nothing() {
     underTest.index(dbSession, Collections.emptyList());
-    assertThat(esTester.countDocuments(RuleIndexDefinition.INDEX_TYPE_RULE)).isEqualTo(0L);
+    assertThat(es.countDocuments(RuleIndexDefinition.INDEX_TYPE_RULE)).isEqualTo(0L);
   }
 
   @Test
@@ -81,7 +81,7 @@ public class RuleIndexerTest {
     dbClient.ruleDao().insert(dbSession, rule);
     underTest.commitAndIndex(dbSession, rule.getId());
 
-    assertThat(esTester.countDocuments(RuleIndexDefinition.INDEX_TYPE_RULE)).isEqualTo(1);
+    assertThat(es.countDocuments(RuleIndexDefinition.INDEX_TYPE_RULE)).isEqualTo(1);
   }
 
   @Test
@@ -90,13 +90,13 @@ public class RuleIndexerTest {
     dbClient.ruleDao().insert(dbSession, rule.setStatus(RuleStatus.READY));
     dbSession.commit();
     underTest.commitAndIndex(dbTester.getSession(), rule.getId());
-    assertThat(esTester.countDocuments(RuleIndexDefinition.INDEX_TYPE_RULE)).isEqualTo(1);
+    assertThat(es.countDocuments(RuleIndexDefinition.INDEX_TYPE_RULE)).isEqualTo(1);
 
     // Remove rule
     dbTester.getDbClient().ruleDao().update(dbTester.getSession(), rule.setStatus(RuleStatus.READY).setUpdatedAt(2000000000000L));
     underTest.commitAndIndex(dbTester.getSession(), rule.getId());
 
-    assertThat(esTester.countDocuments(RuleIndexDefinition.INDEX_TYPE_RULE)).isEqualTo(1);
+    assertThat(es.countDocuments(RuleIndexDefinition.INDEX_TYPE_RULE)).isEqualTo(1);
   }
 
   @Test
@@ -111,7 +111,7 @@ public class RuleIndexerTest {
       .setRuleId(rule.getId())
       .setScope(RuleExtensionScope.organization(organization.getUuid()));
     assertThat(
-      esTester.client()
+      es.client()
         .prepareSearch(RuleIndexDefinition.INDEX_TYPE_RULE_EXTENSION)
         .setQuery(termQuery("_id", doc.getId()))
         .get()
@@ -126,6 +126,6 @@ public class RuleIndexerTest {
     RuleDefinitionDto rule = dbTester.rules().insert(r -> r.setDescription(description));
     underTest.commitAndIndex(dbTester.getSession(), rule.getId());
 
-    assertThat(esTester.countDocuments(RuleIndexDefinition.INDEX_TYPE_RULE)).isEqualTo(1);
+    assertThat(es.countDocuments(RuleIndexDefinition.INDEX_TYPE_RULE)).isEqualTo(1);
   }
 }

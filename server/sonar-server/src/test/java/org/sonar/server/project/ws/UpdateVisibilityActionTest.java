@@ -85,10 +85,9 @@ public class UpdateVisibilityActionTest {
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
   @Rule
-  public EsTester esTester = EsTester.custom(new FooIndexDefinition());
+  public EsTester es = EsTester.custom(new FooIndexDefinition());
   @Rule
-  public UserSessionRule userSessionRule = UserSessionRule.standalone()
-    .logIn();
+  public UserSessionRule userSessionRule = UserSessionRule.standalone().logIn();
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 

@@ -35,9 +35,9 @@ import static org.sonar.server.platform.monitoring.SystemInfoTesting.assertThatA
 public class EsIndexesSectionTest {
 
   @Rule
-  public EsTester esTester = EsTester.core();
+  public EsTester es = EsTester.core();
 
-  private EsIndexesSection underTest = new EsIndexesSection(esTester.client());
+  private EsIndexesSection underTest = new EsIndexesSection(es.client());
 
   @Test
   public void name() {

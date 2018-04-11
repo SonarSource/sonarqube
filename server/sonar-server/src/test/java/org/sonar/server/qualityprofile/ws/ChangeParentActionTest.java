@@ -80,7 +80,7 @@ public class ChangeParentActionTest {
   @Rule
   public DbTester db = new DbTester(System2.INSTANCE, null);
   @Rule
-  public EsTester esTester = EsTester.core();
+  public EsTester es = EsTester.core();
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
@@ -101,7 +101,7 @@ public class ChangeParentActionTest {
   public void setUp() {
     dbClient = db.getDbClient();
     dbSession = db.getSession();
-    EsClient esClient = esTester.client();
+    EsClient esClient = es.client();
     ruleIndex = new RuleIndex(esClient, System2.INSTANCE);
     ruleIndexer = new RuleIndexer(esClient, dbClient);
     activeRuleIndexer = new ActiveRuleIndexer(dbClient, esClient);

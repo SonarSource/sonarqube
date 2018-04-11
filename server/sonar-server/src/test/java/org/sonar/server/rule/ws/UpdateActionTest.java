@@ -81,20 +81,19 @@ public class UpdateActionTest {
   public DbTester db = DbTester.create();
 
   @Rule
-  public EsTester esTester = EsTester.core();
+  public EsTester es = EsTester.core();
 
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 
   private DbClient dbClient = db.getDbClient();
-  private EsClient esClient = esTester.client();
+  private EsClient esClient = es.client();
 
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
   private Languages languages = new Languages();
   private RuleMapper mapper = new RuleMapper(languages, createMacroInterpreter());
   private RuleIndexer ruleIndexer = new RuleIndexer(esClient, dbClient);
   private RuleUpdater ruleUpdater = new RuleUpdater(dbClient, ruleIndexer, System2.INSTANCE);
-  private RuleWsSupport ruleWsSupport = new RuleWsSupport(dbClient, userSession, defaultOrganizationProvider);
   private WsAction underTest = new UpdateAction(dbClient, ruleUpdater, mapper, userSession, defaultOrganizationProvider);
   private WsActionTester ws = new WsActionTester(underTest);
 

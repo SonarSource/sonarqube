@@ -66,10 +66,10 @@ public class SearchActionTest {
   @Rule
   public EsTester es = EsTester.core();
 
-  WsTester ws;
-  DbClient dbClient = db.getDbClient();
-  DbSession dbSession = db.getSession();
-  ComponentDto defaultProject;
+  private WsTester ws;
+  private DbClient dbClient = db.getDbClient();
+  private DbSession dbSession = db.getSession();
+  private ComponentDto defaultProject;
 
   @Before
   public void setUp() {

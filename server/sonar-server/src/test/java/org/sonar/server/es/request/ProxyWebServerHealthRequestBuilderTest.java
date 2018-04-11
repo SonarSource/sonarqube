@@ -35,29 +35,29 @@ import static org.junit.Assert.fail;
 public class ProxyWebServerHealthRequestBuilderTest {
 
   @Rule
-  public EsTester esTester = EsTester.custom();
+  public EsTester es = EsTester.custom();
 
   @Rule
   public LogTester logTester = new LogTester();
 
   @Test
   public void state() {
-    ClusterHealthRequestBuilder requestBuilder = esTester.client().prepareHealth();
+    ClusterHealthRequestBuilder requestBuilder = es.client().prepareHealth();
     ClusterHealthResponse state = requestBuilder.get();
     assertThat(state.getStatus()).isEqualTo(ClusterHealthStatus.GREEN);
   }
 
   @Test
   public void to_string() {
-    assertThat(esTester.client().prepareHealth("rules").toString()).isEqualTo("ES cluster health request on indices 'rules'");
-    assertThat(esTester.client().prepareHealth().toString()).isEqualTo("ES cluster health request");
+    assertThat(es.client().prepareHealth("rules").toString()).isEqualTo("ES cluster health request on indices 'rules'");
+    assertThat(es.client().prepareHealth().toString()).isEqualTo("ES cluster health request");
   }
 
   @Test
   public void trace_logs() {
     logTester.setLevel(LoggerLevel.TRACE);
 
-    ClusterHealthRequestBuilder requestBuilder = esTester.client().prepareHealth();
+    ClusterHealthRequestBuilder requestBuilder = es.client().prepareHealth();
     ClusterHealthResponse state = requestBuilder.get();
     assertThat(state.getStatus()).isEqualTo(ClusterHealthStatus.GREEN);
 
@@ -67,7 +67,7 @@ public class ProxyWebServerHealthRequestBuilderTest {
   @Test
   public void get_with_string_timeout_is_not_yet_implemented() {
     try {
-      esTester.client().prepareHealth().get("1");
+      es.client().prepareHealth().get("1");
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("Not yet implemented");
@@ -77,7 +77,7 @@ public class ProxyWebServerHealthRequestBuilderTest {
   @Test
   public void get_with_time_value_timeout_is_not_yet_implemented() {
     try {
-      esTester.client().prepareHealth().get(TimeValue.timeValueMinutes(1));
+      es.client().prepareHealth().get(TimeValue.timeValueMinutes(1));
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("Not yet implemented");
@@ -87,7 +87,7 @@ public class ProxyWebServerHealthRequestBuilderTest {
   @Test
   public void execute_should_throw_an_unsupported_operation_exception() {
     try {
-      esTester.client().prepareHealth().execute();
+      es.client().prepareHealth().execute();
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(UnsupportedOperationException.class).hasMessage("execute() should not be called as it's used for asynchronous");

@@ -68,7 +68,7 @@ public class IssueUpdaterTest {
   public DbTester dbTester = DbTester.create(system2);
 
   @Rule
-  public EsTester esTester = EsTester.core();
+  public EsTester es = EsTester.core();
 
   private DbClient dbClient = dbTester.getDbClient();
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(dbTester);
@@ -80,7 +80,7 @@ public class IssueUpdaterTest {
   private NotificationManager notificationManager = mock(NotificationManager.class);
   private ArgumentCaptor<IssueChangeNotification> notificationArgumentCaptor = ArgumentCaptor.forClass(IssueChangeNotification.class);
 
-  private IssueIndexer issueIndexer = new IssueIndexer(esTester.client(), dbClient, new IssueIteratorFactory(dbClient));
+  private IssueIndexer issueIndexer = new IssueIndexer(es.client(), dbClient, new IssueIteratorFactory(dbClient));
   private TestIssueChangePostProcessor issueChangePostProcessor = new TestIssueChangePostProcessor();
   private IssueUpdater underTest = new IssueUpdater(dbClient,
     new ServerIssueStorage(system2, new DefaultRuleFinder(dbClient, defaultOrganizationProvider), dbClient, issueIndexer), notificationManager, issueChangePostProcessor);

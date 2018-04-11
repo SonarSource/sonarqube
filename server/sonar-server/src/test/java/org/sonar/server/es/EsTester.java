@@ -200,7 +200,7 @@ public class EsTester extends ExternalResource {
    */
   public <E extends BaseDoc> List<E> getDocuments(IndexType indexType, final Class<E> docClass) {
     List<SearchHit> hits = getDocuments(indexType);
-    return newArrayList(Collections2.transform(hits, input -> {
+    return new ArrayList<>(Collections2.transform(hits, input -> {
       try {
         return (E) ConstructorUtils.invokeConstructor(docClass, input.getSource());
       } catch (Exception e) {
@@ -235,11 +235,14 @@ public class EsTester extends ExternalResource {
    * Get a list of a specific field from all indexed documents.
    */
   public <T> List<T> getDocumentFieldValues(IndexType indexType, final String fieldNameToReturn) {
-    return newArrayList(Iterables.transform(getDocuments(indexType), input -> (T) input.sourceAsMap().get(fieldNameToReturn)));
+    return getDocuments(indexType)
+      .stream()
+      .map(input -> (T) input.getSourceAsMap().get(fieldNameToReturn))
+      .collect(Collectors.toList());
   }
 
   public List<String> getIds(IndexType indexType) {
-    return getDocuments(indexType).stream().map(SearchHit::id).collect(Collectors.toList());
+    return getDocuments(indexType).stream().map(SearchHit::getId).collect(Collectors.toList());
   }
 
   public void lockWrites(IndexType index) {

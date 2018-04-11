@@ -87,7 +87,7 @@ public class DoTransitionActionTest {
   public DbTester dbTester = DbTester.create(system2);
 
   @Rule
-  public EsTester esTester = EsTester.core();
+  public EsTester es = EsTester.core();
 
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
@@ -103,7 +103,7 @@ public class DoTransitionActionTest {
   private IssueWorkflow workflow = new IssueWorkflow(new FunctionExecutor(updater), updater);
   private TransitionService transitionService = new TransitionService(userSession, workflow);
   private OperationResponseWriter responseWriter = mock(OperationResponseWriter.class);
-  private IssueIndexer issueIndexer = new IssueIndexer(esTester.client(), dbClient, new IssueIteratorFactory(dbClient));
+  private IssueIndexer issueIndexer = new IssueIndexer(es.client(), dbClient, new IssueIteratorFactory(dbClient));
   private TestIssueChangePostProcessor issueChangePostProcessor = new TestIssueChangePostProcessor();
   private IssueUpdater issueUpdater = new IssueUpdater(dbClient,
     new ServerIssueStorage(system2, new DefaultRuleFinder(dbClient, defaultOrganizationProvider), dbClient, issueIndexer), mock(NotificationManager.class),

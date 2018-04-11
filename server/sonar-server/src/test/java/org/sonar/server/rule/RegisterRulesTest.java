@@ -103,7 +103,7 @@ public class RegisterRulesTest {
   @org.junit.Rule
   public DbTester dbTester = DbTester.create(system);
   @org.junit.Rule
-  public EsTester esTester = EsTester.core();
+  public EsTester es = EsTester.core();
   @org.junit.Rule
   public LogTester logTester = new LogTester();
 
@@ -120,9 +120,9 @@ public class RegisterRulesTest {
   @Before
   public void before() {
     when(system.now()).thenReturn(DATE1.getTime());
-    ruleIndexer = new RuleIndexer(esTester.client(), dbClient);
-    ruleIndex = new RuleIndex(esTester.client(), system);
-    activeRuleIndexer = new ActiveRuleIndexer(dbClient, esTester.client());
+    ruleIndexer = new RuleIndexer(es.client(), dbClient);
+    ruleIndex = new RuleIndex(es.client(), system);
+    activeRuleIndexer = new ActiveRuleIndexer(dbClient, es.client());
     defaultOrganization = dbTester.getDefaultOrganization();
   }
 
@@ -227,7 +227,7 @@ public class RegisterRulesTest {
       .containsOnly(RuleStatus.READY);
 
     // verify index
-    assertThat(esTester.countDocuments(RuleIndexDefinition.INDEX_TYPE_RULE)).isEqualTo(numberOfRules);
+    assertThat(es.countDocuments(RuleIndexDefinition.INDEX_TYPE_RULE)).isEqualTo(numberOfRules);
     assertThat(ruleIndex.search(new RuleQuery(), new SearchOptions()).getIds())
       .isNotEmpty();
 
@@ -241,7 +241,7 @@ public class RegisterRulesTest {
       .containsOnly(RuleStatus.REMOVED);
 
     // verify index (documents are still in the index, but all are removed)
-    assertThat(esTester.countDocuments(RuleIndexDefinition.INDEX_TYPE_RULE)).isEqualTo(numberOfRules);
+    assertThat(es.countDocuments(RuleIndexDefinition.INDEX_TYPE_RULE)).isEqualTo(numberOfRules);
     assertThat(ruleIndex.search(new RuleQuery(), new SearchOptions()).getIds())
       .isEmpty();
   }
@@ -264,7 +264,7 @@ public class RegisterRulesTest {
     assertThat(dbClient.ruleDao().selectAllDefinitions(dbTester.getSession())).hasSize(2);
     RuleDto rule1 = dbClient.ruleDao().selectOrFailByKey(dbTester.getSession(), defaultOrganization, RULE_KEY1);
     RuleDto rule2 = dbClient.ruleDao().selectOrFailByKey(dbTester.getSession(), defaultOrganization, RULE_KEY2);
-    assertThat(esTester.getIds(RuleIndexDefinition.INDEX_TYPE_RULE)).containsOnly(valueOf(rule1.getId()), valueOf(rule2.getId()));
+    assertThat(es.getIds(RuleIndexDefinition.INDEX_TYPE_RULE)).containsOnly(valueOf(rule1.getId()), valueOf(rule2.getId()));
 
     // user adds tags and sets markdown note
     rule1.setTags(newHashSet("usertag1", "usertag2"));
@@ -615,7 +615,7 @@ public class RegisterRulesTest {
 
     RuleDto rule1 = dbClient.ruleDao().selectOrFailByKey(dbTester.getSession(), defaultOrganization, RULE_KEY1);
     RuleDto rule2 = dbClient.ruleDao().selectOrFailByKey(dbTester.getSession(), defaultOrganization, RULE_KEY2);
-    assertThat(esTester.getIds(RuleIndexDefinition.INDEX_TYPE_RULE)).containsOnly(valueOf(rule1.getId()), valueOf(rule2.getId()));
+    assertThat(es.getIds(RuleIndexDefinition.INDEX_TYPE_RULE)).containsOnly(valueOf(rule1.getId()), valueOf(rule2.getId()));
 
     assertThat(rule2.getStatus()).isEqualTo(RuleStatus.READY);
 
@@ -650,7 +650,7 @@ public class RegisterRulesTest {
     execute(new BigRepository());
     assertThat(dbTester.countRowsOfTable("rules")).isEqualTo(BigRepository.SIZE);
     assertThat(dbTester.countRowsOfTable("rules_parameters")).isEqualTo(BigRepository.SIZE * 20);
-    assertThat(esTester.getIds(RuleIndexDefinition.INDEX_TYPE_RULE)).hasSize(BigRepository.SIZE);
+    assertThat(es.getIds(RuleIndexDefinition.INDEX_TYPE_RULE)).hasSize(BigRepository.SIZE);
   }
 
   @Test

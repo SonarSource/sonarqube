@@ -70,21 +70,21 @@ public class ViewIndexerTest {
   public DbTester dbTester = DbTester.create(system2);
 
   @Rule
-  public EsTester esTester = EsTester.core();
+  public EsTester es = EsTester.core();
 
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
   private DbClient dbClient = dbTester.getDbClient();
   private DbSession dbSession = dbTester.getSession();
-  private IssueIndexer issueIndexer = new IssueIndexer(esTester.client(), dbClient, new IssueIteratorFactory(dbClient));
-  private PermissionIndexer permissionIndexer = new PermissionIndexer(dbClient, esTester.client(), issueIndexer);
-  private ViewIndexer underTest = new ViewIndexer(dbClient, esTester.client());
+  private IssueIndexer issueIndexer = new IssueIndexer(es.client(), dbClient, new IssueIteratorFactory(dbClient));
+  private PermissionIndexer permissionIndexer = new PermissionIndexer(dbClient, es.client(), issueIndexer);
+  private ViewIndexer underTest = new ViewIndexer(dbClient, es.client());
 
   @Test
   public void index_nothing() {
     underTest.indexOnStartup(emptySet());
-    assertThat(esTester.countDocuments(ViewIndexDefinition.INDEX_TYPE_VIEW)).isEqualTo(0L);
+    assertThat(es.countDocuments(ViewIndexDefinition.INDEX_TYPE_VIEW)).isEqualTo(0L);
   }
 
   @Test
@@ -93,7 +93,7 @@ public class ViewIndexerTest {
 
     underTest.indexOnStartup(emptySet());
 
-    List<ViewDoc> docs = esTester.getDocuments(ViewIndexDefinition.INDEX_TYPE_VIEW, ViewDoc.class);
+    List<ViewDoc> docs = es.getDocuments(ViewIndexDefinition.INDEX_TYPE_VIEW, ViewDoc.class);
     assertThat(docs).hasSize(4);
 
     Map<String, ViewDoc> viewsByUuid = Maps.uniqueIndex(docs, ViewDoc::uuid);
@@ -110,7 +110,7 @@ public class ViewIndexerTest {
 
     underTest.index("EFGH");
 
-    List<ViewDoc> docs = esTester.getDocuments(ViewIndexDefinition.INDEX_TYPE_VIEW, ViewDoc.class);
+    List<ViewDoc> docs = es.getDocuments(ViewIndexDefinition.INDEX_TYPE_VIEW, ViewDoc.class);
     assertThat(docs).hasSize(2);
 
     Map<String, ViewDoc> viewsByUuid = Maps.uniqueIndex(docs, ViewDoc::uuid);
@@ -123,7 +123,7 @@ public class ViewIndexerTest {
   public void index_view_doc() {
     underTest.index(new ViewDoc().setUuid("EFGH").setProjects(newArrayList("KLMN", "JKLM")));
 
-    List<ViewDoc> result = esTester.getDocuments(ViewIndexDefinition.INDEX_TYPE_VIEW, ViewDoc.class);
+    List<ViewDoc> result = es.getDocuments(ViewIndexDefinition.INDEX_TYPE_VIEW, ViewDoc.class);
 
     assertThat(result).hasSize(1);
     ViewDoc view = result.get(0);
@@ -138,7 +138,7 @@ public class ViewIndexerTest {
     dbTester.components().insertComponent(newProjectCopy("PC1", project, application));
 
     underTest.index(application.uuid());
-    List<ViewDoc> result = esTester.getDocuments(ViewIndexDefinition.INDEX_TYPE_VIEW, ViewDoc.class);
+    List<ViewDoc> result = es.getDocuments(ViewIndexDefinition.INDEX_TYPE_VIEW, ViewDoc.class);
 
     assertThat(result).hasSize(1);
     ViewDoc resultApp = result.get(0);
@@ -153,7 +153,7 @@ public class ViewIndexerTest {
     dbTester.components().insertComponent(newProjectCopy("PC1", project, application));
 
     underTest.indexOnStartup(emptySet());
-    List<ViewDoc> result = esTester.getDocuments(ViewIndexDefinition.INDEX_TYPE_VIEW, ViewDoc.class);
+    List<ViewDoc> result = es.getDocuments(ViewIndexDefinition.INDEX_TYPE_VIEW, ViewDoc.class);
 
     assertThat(result).hasSize(1);
     ViewDoc resultApp = result.get(0);
@@ -163,8 +163,8 @@ public class ViewIndexerTest {
 
   @Test
   public void clear_views_lookup_cache_on_index_view_uuid() {
-    IssueIndex issueIndex = new IssueIndex(esTester.client(), System2.INSTANCE, userSessionRule, new AuthorizationTypeSupport(userSessionRule));
-    IssueIndexer issueIndexer = new IssueIndexer(esTester.client(), dbClient, new IssueIteratorFactory(dbClient));
+    IssueIndex issueIndex = new IssueIndex(es.client(), System2.INSTANCE, userSessionRule, new AuthorizationTypeSupport(userSessionRule));
+    IssueIndexer issueIndexer = new IssueIndexer(es.client(), dbClient, new IssueIteratorFactory(dbClient));
 
     String viewUuid = "ABCD";
 
@@ -206,16 +206,16 @@ public class ViewIndexerTest {
     ViewDoc view1 = new ViewDoc().setUuid("UUID1").setProjects(asList("P1"));
     ViewDoc view2 = new ViewDoc().setUuid("UUID2").setProjects(asList("P2", "P3", "P4"));
     ViewDoc view3 = new ViewDoc().setUuid("UUID3").setProjects(asList("P2", "P3", "P4"));
-    esTester.putDocuments(INDEX_TYPE_VIEW, view1);
-    esTester.putDocuments(INDEX_TYPE_VIEW, view2);
-    esTester.putDocuments(INDEX_TYPE_VIEW, view3);
+    es.putDocuments(INDEX_TYPE_VIEW, view1);
+    es.putDocuments(INDEX_TYPE_VIEW, view2);
+    es.putDocuments(INDEX_TYPE_VIEW, view3);
 
-    assertThat(esTester.getDocumentFieldValues(INDEX_TYPE_VIEW, ViewIndexDefinition.FIELD_UUID))
+    assertThat(es.getDocumentFieldValues(INDEX_TYPE_VIEW, ViewIndexDefinition.FIELD_UUID))
       .containsOnly(view1.uuid(), view2.uuid(), view3.uuid());
 
     underTest.delete(dbSession, asList(view1.uuid(), view2.uuid()));
 
-    assertThat(esTester.getDocumentFieldValues(INDEX_TYPE_VIEW, ViewIndexDefinition.FIELD_UUID))
+    assertThat(es.getDocumentFieldValues(INDEX_TYPE_VIEW, ViewIndexDefinition.FIELD_UUID))
       .containsOnly(view3.uuid());
   }
 
@@ -224,26 +224,26 @@ public class ViewIndexerTest {
     ViewDoc view1 = new ViewDoc().setUuid("UUID1").setProjects(asList("P1"));
     ViewDoc view2 = new ViewDoc().setUuid("UUID2").setProjects(asList("P2", "P3", "P4"));
     ViewDoc view3 = new ViewDoc().setUuid("UUID3").setProjects(asList("P2", "P3", "P4"));
-    esTester.putDocuments(INDEX_TYPE_VIEW, view1);
-    esTester.putDocuments(INDEX_TYPE_VIEW, view2);
-    esTester.putDocuments(INDEX_TYPE_VIEW, view3);
+    es.putDocuments(INDEX_TYPE_VIEW, view1);
+    es.putDocuments(INDEX_TYPE_VIEW, view2);
+    es.putDocuments(INDEX_TYPE_VIEW, view3);
 
-    assertThat(esTester.getDocumentFieldValues(INDEX_TYPE_VIEW, ViewIndexDefinition.FIELD_UUID))
+    assertThat(es.getDocumentFieldValues(INDEX_TYPE_VIEW, ViewIndexDefinition.FIELD_UUID))
       .containsOnly(view1.uuid(), view2.uuid(), view3.uuid());
 
     // Lock writes
-    esTester.lockWrites(INDEX_TYPE_VIEW);
+    es.lockWrites(INDEX_TYPE_VIEW);
     underTest.delete(dbSession, asList(view1.uuid(), view2.uuid()));
 
-    assertThat(esTester.getDocumentFieldValues(INDEX_TYPE_VIEW, ViewIndexDefinition.FIELD_UUID))
+    assertThat(es.getDocumentFieldValues(INDEX_TYPE_VIEW, ViewIndexDefinition.FIELD_UUID))
       .containsOnly(view1.uuid(), view2.uuid(), view3.uuid());
 
     // Unlock writes
-    esTester.unlockWrites(INDEX_TYPE_VIEW);
+    es.unlockWrites(INDEX_TYPE_VIEW);
 
-    doRecover(() -> esTester.getDocumentFieldValues(INDEX_TYPE_VIEW, ViewIndexDefinition.FIELD_UUID).size() == 3);
+    doRecover(() -> es.getDocumentFieldValues(INDEX_TYPE_VIEW, ViewIndexDefinition.FIELD_UUID).size() == 3);
 
-    assertThat(esTester.getDocumentFieldValues(INDEX_TYPE_VIEW, ViewIndexDefinition.FIELD_UUID))
+    assertThat(es.getDocumentFieldValues(INDEX_TYPE_VIEW, ViewIndexDefinition.FIELD_UUID))
       .containsOnly(view3.uuid());
   }
 

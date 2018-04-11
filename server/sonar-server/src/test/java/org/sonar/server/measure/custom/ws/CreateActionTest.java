@@ -75,12 +75,10 @@ public class CreateActionTest {
   @Rule
   public EsTester es = EsTester.core();
 
-  DbClient dbClient = db.getDbClient();
-  ComponentDto project;
-
-  final DbSession dbSession = db.getSession();
-
-  WsTester ws;
+  private DbClient dbClient = db.getDbClient();
+  private ComponentDto project;
+  private final DbSession dbSession = db.getSession();
+  private WsTester ws;
 
   @Before
   public void setUp() {

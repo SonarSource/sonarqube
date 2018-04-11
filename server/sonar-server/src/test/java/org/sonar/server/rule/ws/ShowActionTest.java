@@ -84,17 +84,17 @@ import static org.sonarqube.ws.MediaTypes.PROTOBUF;
 
 public class ShowActionTest {
 
-  public static final String INTERPRETED = "interpreted";
+  private static final String INTERPRETED = "interpreted";
 
   @org.junit.Rule
   public DbTester dbTester = DbTester.create();
   @org.junit.Rule
-  public EsTester esTester = EsTester.core();
+  public EsTester es = EsTester.core();
   @org.junit.Rule
   public ExpectedException thrown = ExpectedException.none();
 
   private DbClient dbClient = dbTester.getDbClient();
-  private EsClient esClient = esTester.client();
+  private EsClient esClient = es.client();
 
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(dbTester);
   private MacroInterpreter macroInterpreter = mock(MacroInterpreter.class);

@@ -23,7 +23,6 @@ import java.util.Collections;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.server.ws.WebService.Action;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.System2;
@@ -53,7 +52,6 @@ import static org.sonar.test.JsonAssert.assertJson;
 
 public class TagsActionTest {
 
-  private MapSettings settings = new MapSettings();
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule

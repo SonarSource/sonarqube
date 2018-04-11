@@ -31,9 +31,9 @@ import static org.mockito.Mockito.when;
 public class EsStatusNodeCheckTest {
 
   @Rule
-  public EsTester esTester = EsTester.custom();
+  public EsTester es = EsTester.custom();
 
-  private EsStatusNodeCheck underTest = new EsStatusNodeCheck(esTester.client());
+  private EsStatusNodeCheck underTest = new EsStatusNodeCheck(es.client());
 
   @Test
   public void check_ignores_NodeHealth_arg_and_returns_RED_with_cause_if_an_exception_occurs_checking_ES_cluster_status() {

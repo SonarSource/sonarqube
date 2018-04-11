@@ -61,11 +61,10 @@ public class MetricsActionTest {
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
-  final DbClient dbClient = db.getDbClient();
-  final DbSession dbSession = db.getSession();
-
-  WsTester ws;
-  ComponentDto defaultProject;
+  private final DbClient dbClient = db.getDbClient();
+  private final DbSession dbSession = db.getSession();
+  private WsTester ws;
+  private ComponentDto defaultProject;
 
   @Before
   public void setUp() throws Exception {

@@ -54,7 +54,7 @@ public class SearchActionTest {
   private System2 system2 = System2.INSTANCE;
 
   @Rule
-  public EsTester esTester = EsTester.core();
+  public EsTester es = EsTester.core();
 
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
@@ -64,8 +64,8 @@ public class SearchActionTest {
 
   private DbClient dbClient = db.getDbClient();
   private DbSession dbSession = db.getSession();
-  private UserIndex index = new UserIndex(esTester.client(), system2);
-  private UserIndexer userIndexer = new UserIndexer(dbClient, esTester.client());
+  private UserIndex index = new UserIndex(es.client(), system2);
+  private UserIndexer userIndexer = new UserIndexer(dbClient, es.client());
   private WsTester ws = new WsTester(new UsersWs(new SearchAction(userSession, index, dbClient, new AvatarResolverImpl())));
 
   @Test

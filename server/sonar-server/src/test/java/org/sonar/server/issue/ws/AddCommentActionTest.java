@@ -79,7 +79,7 @@ public class AddCommentActionTest {
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   @Rule
-  public EsTester esTester = EsTester.core();
+  public EsTester es = EsTester.core();
 
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
@@ -91,7 +91,7 @@ public class AddCommentActionTest {
 
   private IssueDbTester issueDbTester = new IssueDbTester(dbTester);
 
-  private IssueIndexer issueIndexer = new IssueIndexer(esTester.client(), dbClient, new IssueIteratorFactory(dbClient));
+  private IssueIndexer issueIndexer = new IssueIndexer(es.client(), dbClient, new IssueIteratorFactory(dbClient));
   private ServerIssueStorage serverIssueStorage = new ServerIssueStorage(system2, new DefaultRuleFinder(dbClient, defaultOrganizationProvider), dbClient, issueIndexer);
   private TestIssueChangePostProcessor issueChangePostProcessor = new TestIssueChangePostProcessor();
   private IssueUpdater issueUpdater = new IssueUpdater(dbClient, serverIssueStorage, mock(NotificationManager.class), issueChangePostProcessor);

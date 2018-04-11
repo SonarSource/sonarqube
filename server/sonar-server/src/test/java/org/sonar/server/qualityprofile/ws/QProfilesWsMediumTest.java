@@ -77,15 +77,15 @@ public class QProfilesWsMediumTest {
   public UserSessionRule userSessionRule = UserSessionRule.standalone()
     .logIn().setRoot();
   @Rule
-  public EsTester esTester = EsTester.core();
+  public EsTester es = EsTester.core();
   @Rule
   public DbTester dbTester = DbTester.create();
 
   private DbClient dbClient = dbTester.getDbClient();
   private DbSession dbSession = dbTester.getSession();
-  private RuleIndex ruleIndex = new RuleIndex(esTester.client(), System2.INSTANCE);
-  private RuleIndexer ruleIndexer = new RuleIndexer(esTester.client(), dbClient);
-  private ActiveRuleIndexer activeRuleIndexer = new ActiveRuleIndexer(dbClient, esTester.client());
+  private RuleIndex ruleIndex = new RuleIndex(es.client(), System2.INSTANCE);
+  private RuleIndexer ruleIndexer = new RuleIndexer(es.client(), dbClient);
+  private ActiveRuleIndexer activeRuleIndexer = new ActiveRuleIndexer(dbClient, es.client());
   private TypeValidations typeValidations = new TypeValidations(emptyList());
   private RuleActivator ruleActivator = new RuleActivator(System2.INSTANCE, dbClient, typeValidations, userSessionRule);
   private QProfileRules qProfileRules = new QProfileRulesImpl(dbClient, ruleActivator, ruleIndex, activeRuleIndexer);

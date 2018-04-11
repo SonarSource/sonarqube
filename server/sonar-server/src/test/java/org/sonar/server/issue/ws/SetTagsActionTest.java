@@ -76,7 +76,7 @@ public class SetTagsActionTest {
   @Rule
   public DbTester db = DbTester.create();
   @Rule
-  public EsTester esTester = EsTester.core();
+  public EsTester es = EsTester.core();
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 
@@ -84,7 +84,7 @@ public class SetTagsActionTest {
   private DbClient dbClient = db.getDbClient();
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
   private OperationResponseWriter responseWriter = mock(OperationResponseWriter.class);
-  private IssueIndexer issueIndexer = new IssueIndexer(esTester.client(), dbClient, new IssueIteratorFactory(dbClient));
+  private IssueIndexer issueIndexer = new IssueIndexer(es.client(), dbClient, new IssueIteratorFactory(dbClient));
   private ArgumentCaptor<SearchResponseData> preloadedSearchResponseDataCaptor = ArgumentCaptor.forClass(SearchResponseData.class);
   private TestIssueChangePostProcessor issueChangePostProcessor = new TestIssueChangePostProcessor();
 
