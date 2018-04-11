@@ -2,7 +2,6 @@
 
 exports[`renders 1`] = `
 <Tooltip
-  onShow={[Function]}
   overlay={
     <i
       className="spinner spinner-margin"
@@ -10,16 +9,17 @@ exports[`renders 1`] = `
   }
 >
   <div
-    className="overview-legend  overview-legend-spaced-line"
+    className="overview-legend overview-legend-spaced-line"
   >
-    issues.leak_period
+    issues.max_leak_period
+    :
+     
   </div>
 </Tooltip>
 `;
 
 exports[`renders 2`] = `
 <Tooltip
-  onShow={[Function]}
   overlay={
     <ul
       className="text-left"
@@ -42,9 +42,24 @@ exports[`renders 2`] = `
   }
 >
   <div
-    className="overview-legend  overview-legend-spaced-line"
+    className="overview-legend"
   >
-    issues.leak_period
+    issues.max_leak_period
+    :
+     
+    <React.Fragment>
+      <DateFromNow
+        date="2017-01-01T11:39:03+0100"
+      />
+      <br />
+      <span
+        className="note"
+      >
+        from
+        :
+        Foo
+      </span>
+    </React.Fragment>
   </div>
 </Tooltip>
 `;

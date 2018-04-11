@@ -18,10 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import * as classNames from 'classnames';
+import { sortBy } from 'lodash';
 import Tooltip from '../../../components/controls/Tooltip';
 import DateTooltipFormatter from '../../../components/intl/DateTooltipFormatter';
 import { getApplicationLeak } from '../../../api/application';
-import { translate } from '../../../helpers/l10n';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
+import DateFromNow from '../../../components/intl/DateFromNow';
 
 interface Props {
   component: string;
@@ -37,6 +40,7 @@ export default class ApplicationLeakPeriodLegend extends React.Component<Props, 
 
   componentDidMount() {
     this.mounted = true;
+    this.fetchLeaks();
   }
 
   componentWillReceiveProps(nextProps: Props) {
@@ -54,12 +58,16 @@ export default class ApplicationLeakPeriodLegend extends React.Component<Props, 
       getApplicationLeak(this.props.component).then(
         leaks => {
           if (this.mounted) {
-            this.setState({ leaks });
+            this.setState({
+              leaks: sortBy(leaks, value => {
+                return new Date(value.date);
+              })
+            });
           }
         },
         () => {
           if (this.mounted) {
-            this.setState({ leaks: [] });
+            this.setState({ leaks: undefined });
           }
         }
       );
@@ -80,10 +88,22 @@ export default class ApplicationLeakPeriodLegend extends React.Component<Props, 
     );
 
   render() {
+    const leak = this.state.leaks && this.state.leaks.length > 0 ? this.state.leaks[0] : undefined;
     return (
-      <Tooltip onShow={this.fetchLeaks} overlay={this.renderOverlay()}>
-        <div className="overview-legend  overview-legend-spaced-line">
-          {translate('issues.leak_period')}
+      <Tooltip overlay={this.renderOverlay()}>
+        <div className={classNames('overview-legend', { 'overview-legend-spaced-line': !leak })}>
+          {translate('issues.max_leak_period')}:{' '}
+          {leak && (
+            <>
+              <DateFromNow date={leak.date}>
+                {fromNow => <span>{translateWithParameters('overview.started_x', fromNow)}</span>}
+              </DateFromNow>
+              <br />
+              <span className="note">
+                {translate('from')}:{leak.projectName}
+              </span>
+            </>
+          )}
         </div>
       </Tooltip>
     );
