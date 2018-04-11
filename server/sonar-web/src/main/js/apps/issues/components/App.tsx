@@ -28,6 +28,7 @@ import ComponentBreadcrumbs from './ComponentBreadcrumbs';
 import IssuesList from './IssuesList';
 import IssuesSourceViewer from './IssuesSourceViewer';
 import MyIssuesFilter from './MyIssuesFilter';
+import NoIssues from './NoIssues';
 import NoMyIssues from './NoMyIssues';
 import PageActions from './PageActions';
 import ConciseIssuesList from '../conciseIssuesList/ConciseIssuesList';
@@ -54,7 +55,6 @@ import { Component, CurrentUser, Issue, Paging, BranchLike } from '../../../app/
 import handleRequiredAuthentication from '../../../app/utils/handleRequiredAuthentication';
 import Dropdown from '../../../components/controls/Dropdown';
 import ListFooter from '../../../components/controls/ListFooter';
-import EmptySearch from '../../../components/common/EmptySearch';
 import FiltersHeader from '../../../components/common/FiltersHeader';
 import ScreenPositionHelper from '../../../components/common/ScreenPositionHelper';
 import { Button } from '../../../components/ui/buttons';
@@ -950,7 +950,7 @@ export default class App extends React.PureComponent<Props, State> {
         )}
 
         {paging.total === 0 &&
-          (this.state.myIssues && !this.isFiltered() ? <NoMyIssues /> : <EmptySearch />)}
+          (this.state.myIssues && !this.isFiltered() ? <NoMyIssues /> : <NoIssues />)}
       </div>
     );
   }
