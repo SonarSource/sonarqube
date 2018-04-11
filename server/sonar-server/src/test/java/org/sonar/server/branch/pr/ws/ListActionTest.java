@@ -153,8 +153,8 @@ public class ListActionTest {
       .executeProtobuf(ListWsResponse.class);
 
     assertThat(response.getPullRequestsList())
-      .extracting(PullRequest::getKey, PullRequest::getBranch, PullRequest::getIsOrphan)
-      .containsExactlyInAnyOrder(tuple("123", "feature/bar", false));
+      .extracting(PullRequest::getKey, PullRequest::getBranch, PullRequest::getIsOrphan, PullRequest::hasUrl, PullRequest::hasTitle)
+      .containsExactlyInAnyOrder(tuple("123", "feature/bar", false, false, false));
   }
 
   @Test

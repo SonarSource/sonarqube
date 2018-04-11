@@ -43,6 +43,7 @@ import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.ProjectPullRequests;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Strings.emptyToNull;
 import static java.util.Collections.singletonList;
 import static java.util.Objects.requireNonNull;
 import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
@@ -140,8 +141,8 @@ public class ListAction implements PullRequestWsAction {
 
     DbProjectBranches.PullRequestData pullRequestData = requireNonNull(branch.getPullRequestData(), "Pull request data should be available for branch type PULL_REQUEST");
     builder.setBranch(pullRequestData.getBranch());
-    builder.setUrl(pullRequestData.getUrl());
-    builder.setTitle(pullRequestData.getTitle());
+    setNullable(emptyToNull(pullRequestData.getUrl()), builder::setUrl);
+    setNullable(emptyToNull(pullRequestData.getTitle()), builder::setTitle);
 
     if (mergeBranch.isPresent()) {
       String mergeBranchKey = mergeBranch.get().getKey();
