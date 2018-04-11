@@ -55,6 +55,7 @@
     "@types/react-redux": "5.0.12",
     "@types/react-router": "3.0.13",
     "@types/react-select": "1.0.59",
+    "@types/react-virtualized": "9.7.15",
     "autoprefixer": "7.1.6",
     "babel-core": "6.26.0",
     "babel-jest": "22.0.6",

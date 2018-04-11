@@ -63,7 +63,7 @@
   version "6.0.90"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-6.0.90.tgz#0ed74833fa1b73dcdb9409dcb1c97ec0a8b13b02"
 
-"@types/prop-types@15.5.2":
+"@types/prop-types@*", "@types/prop-types@15.5.2":
   version "15.5.2"
   resolved "https://registry.yarnpkg.com/@types/prop-types/-/prop-types-15.5.2.tgz#3c6b8dceb2906cc87fe4358e809f9d20c8d59be1"
 
@@ -108,6 +108,13 @@
   version "1.0.59"
   resolved "https://registry.yarnpkg.com/@types/react-select/-/react-select-1.0.59.tgz#791022e5b2c7cd5c86301949ea5e4cc94a55bc66"
   dependencies:
+    "@types/react" "*"
+
+"@types/react-virtualized@9.7.15":
+  version "9.7.15"
+  resolved "https://registry.yarnpkg.com/@types/react-virtualized/-/react-virtualized-9.7.15.tgz#223a30403317e9955d836a3c4f0561087b43617e"
+  dependencies:
+    "@types/prop-types" "*"
     "@types/react" "*"
 
 "@types/react@*", "@types/react@16.0.29":

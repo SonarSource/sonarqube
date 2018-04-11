@@ -199,12 +199,20 @@
  * Bubble Chart
  */
 
+.bubble-chart.is-moving {
+  cursor: move;
+}
+
+.bubble-chart text {
+  user-select: none;
+}
+
 .bubble-chart-bubble {
   fill: var(--blue);
   fill-opacity: 0.2;
   stroke: var(--blue);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: fill-opacity 0.2s ease;
 }
 
 .bubble-chart-bubble:hover {
@@ -224,6 +232,13 @@
 
 .bubble-chart-tick-y {
   text-anchor: end;
+}
+
+.bubble-chart-zoom {
+  position: absolute;
+  right: 20px;
+  top: 20px;
+  z-index: var(--aboveNormalZIndex);
 }
 
 /*
