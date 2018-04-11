@@ -32,13 +32,17 @@ exports[`renders has always been 1`] = `
 <div
   className="portfolio-freshness"
 >
-  <React.Fragment>
-    portfolio.has_always_been
-     
-    <Rating
-      small={true}
-      value="A"
-    />
-  </React.Fragment>
+  <FormattedMessage
+    defaultMessage="portfolio.has_always_been_x"
+    id="portfolio.has_always_been_x"
+    values={
+      Object {
+        "rating": <Rating
+          small={true}
+          value="A"
+        />,
+      }
+    }
+  />
 </div>
 `;

@@ -45,6 +45,7 @@ import { isSameBranchLike, getBranchLikeQuery } from '../../../helpers/branches'
 import { fetchMetrics } from '../../../store/rootActions';
 import { getMetrics } from '../../../store/rootReducer';
 import { BranchLike, Component, Metric } from '../../../app/types';
+import { translate } from '../../../helpers/l10n';
 import '../styles.css';
 
 interface OwnProps {
@@ -158,6 +159,10 @@ export class OverviewApp extends React.PureComponent<Props, State> {
       ? { index: 1 }
       : undefined;
 
+  isEmpty = () =>
+    this.state.measures === undefined ||
+    this.state.measures.find(measure => measure.metric.key === 'ncloc') === undefined;
+
   renderLoading() {
     return (
       <div className="text-center">
@@ -166,14 +171,22 @@ export class OverviewApp extends React.PureComponent<Props, State> {
     );
   }
 
-  render() {
+  renderEmpty() {
+    return (
+      <div className="overview-main page-main">
+        <h3>
+          {!this.state.measures ||
+          !this.state.measures.find(measure => measure.metric.key === 'projects')
+            ? translate('portfolio.app.empty')
+            : translate('portfolio.app.no_lines_of_code')}
+        </h3>
+      </div>
+    );
+  }
+
+  renderMain() {
     const { branchLike, component } = this.props;
-    const { loading, measures, periods, history, historyStartDate } = this.state;
-
-    if (loading) {
-      return this.renderLoading();
-    }
-
+    const { periods, measures, history, historyStartDate } = this.state;
     const leakPeriod =
       component.qualifier === 'APP' ? this.getApplicationLeakPeriod() : getLeakPeriod(periods);
     const domainProps = {
@@ -185,23 +198,40 @@ export class OverviewApp extends React.PureComponent<Props, State> {
       historyStartDate
     };
 
+    if (this.isEmpty()) {
+      return this.renderEmpty();
+    }
+
+    return (
+      <div className="overview-main page-main">
+        {component.qualifier === 'APP' ? (
+          <ApplicationQualityGate component={component} />
+        ) : (
+          <QualityGate branchLike={branchLike} component={component} measures={measures} />
+        )}
+
+        <div className="overview-domains-list">
+          <BugsAndVulnerabilities {...domainProps} />
+          <CodeSmells {...domainProps} />
+          <Coverage {...domainProps} />
+          <Duplications {...domainProps} />
+        </div>
+      </div>
+    );
+  }
+
+  render() {
+    const { branchLike, component } = this.props;
+    const { loading, measures, history } = this.state;
+
+    if (loading) {
+      return this.renderLoading();
+    }
+
     return (
       <div className="page page-limited">
         <div className="overview page-with-sidebar">
-          <div className="overview-main page-main">
-            {component.qualifier === 'APP' ? (
-              <ApplicationQualityGate component={component} />
-            ) : (
-              <QualityGate branchLike={branchLike} component={component} measures={measures} />
-            )}
-
-            <div className="overview-domains-list">
-              <BugsAndVulnerabilities {...domainProps} />
-              <CodeSmells {...domainProps} />
-              <Coverage {...domainProps} />
-              <Duplications {...domainProps} />
-            </div>
-          </div>
+          {this.renderMain()}
 
           <div className="overview-sidebar page-sidebar-fixed">
             <Meta

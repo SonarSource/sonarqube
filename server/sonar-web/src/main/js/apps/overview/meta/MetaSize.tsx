@@ -34,21 +34,27 @@ interface Props {
 }
 
 export default class MetaSize extends React.PureComponent<Props> {
-  renderLoC = (ncloc: MeasureEnhanced) => (
+  renderLoC = (ncloc?: MeasureEnhanced) => (
     <div
-      id="overview-ncloc"
       className={classNames('overview-meta-size-ncloc', {
         'is-half-width': this.props.component.qualifier === 'APP'
-      })}>
-      <span className="spacer-right">
-        <SizeRating value={Number(ncloc.value)} />
-      </span>
-      <DrilldownLink
-        branchLike={this.props.branchLike}
-        component={this.props.component.key}
-        metric="ncloc">
-        {formatMeasure(ncloc.value, 'SHORT_INT')}
-      </DrilldownLink>
+      })}
+      id="overview-ncloc">
+      {ncloc && (
+        <span className="spacer-right">
+          <SizeRating value={Number(ncloc.value)} />
+        </span>
+      )}
+      {ncloc ? (
+        <DrilldownLink
+          branchLike={this.props.branchLike}
+          component={this.props.component.key}
+          metric="ncloc">
+          {formatMeasure(ncloc.value, 'SHORT_INT')}
+        </DrilldownLink>
+      ) : (
+        <span>0</span>
+      )}
       <div className="spacer-top text-muted">{getMetricName('ncloc')}</div>
     </div>
   );
@@ -70,24 +76,27 @@ export default class MetaSize extends React.PureComponent<Props> {
 
   renderProjects = () => {
     const projects = this.props.measures.find(measure => measure.metric.key === 'projects');
-
-    return projects ? (
-      <div id="overview-projects" className="overview-meta-size-ncloc is-half-width">
-        <DrilldownLink
-          branchLike={this.props.branchLike}
-          component={this.props.component.key}
-          metric="projects">
-          {formatMeasure(projects.value, 'SHORT_INT')}
-        </DrilldownLink>
+    return (
+      <div className="overview-meta-size-ncloc is-half-width" id="overview-projects">
+        {projects ? (
+          <DrilldownLink
+            branchLike={this.props.branchLike}
+            component={this.props.component.key}
+            metric="projects">
+            {formatMeasure(projects.value, 'SHORT_INT')}
+          </DrilldownLink>
+        ) : (
+          <span>0</span>
+        )}
         <div className="spacer-top text-muted">{translate('metric.projects.name')}</div>
       </div>
-    ) : null;
+    );
   };
 
   render() {
     const ncloc = this.props.measures.find(measure => measure.metric.key === 'ncloc');
 
-    if (ncloc == null) {
+    if (ncloc == null && this.props.component.qualifier !== 'APP') {
       return null;
     }
 

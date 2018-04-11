@@ -40,17 +40,25 @@ export default function Summary({ component, measures }: Props) {
       <ul className="portfolio-grid">
         <li>
           <div className="portfolio-measure-secondary-value">
-            <Link to={getComponentDrilldownUrl(component.key, 'projects')}>
-              <Measure metricKey="projects" metricType="SHORT_INT" value={projects} />
-            </Link>
+            {projects ? (
+              <Link to={getComponentDrilldownUrl(component.key, 'projects')}>
+                <Measure metricKey="projects" metricType="SHORT_INT" value={projects} />
+              </Link>
+            ) : (
+              '0'
+            )}
           </div>
           <div className="spacer-top text-muted">{translate('projects')}</div>
         </li>
         <li>
           <div className="portfolio-measure-secondary-value">
-            <Link to={getComponentDrilldownUrl(component.key, 'ncloc')}>
-              <Measure metricKey="ncloc" metricType="SHORT_INT" value={ncloc} />
-            </Link>
+            {ncloc ? (
+              <Link to={getComponentDrilldownUrl(component.key, 'ncloc')}>
+                <Measure metricKey="ncloc" metricType="SHORT_INT" value={ncloc} />
+              </Link>
+            ) : (
+              '0'
+            )}
           </div>
           <div className="spacer-top text-muted">{translate('metric.ncloc.name')}</div>
         </li>

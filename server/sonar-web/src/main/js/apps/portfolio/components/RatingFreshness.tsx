@@ -33,9 +33,11 @@ export default function RatingFreshness({ lastChange, rating }: Props) {
     return (
       <div className="portfolio-freshness">
         {rating && (
-          <>
-            {translate('portfolio.has_always_been')} <Rating small={true} value={rating} />
-          </>
+          <FormattedMessage
+            defaultMessage={translate('portfolio.has_always_been_x')}
+            id="portfolio.has_always_been_x"
+            values={{ rating: <Rating small={true} value={rating} /> }}
+          />
         )}
       </div>
     );

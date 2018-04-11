@@ -67,6 +67,7 @@ import {
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { RawQuery } from '../../../helpers/query';
 import { scrollToElement } from '../../../helpers/scrolling';
+import EmptySearch from '../../../components/common/EmptySearch';
 import Checkbox from '../../../components/controls/Checkbox';
 
 import '../styles.css';
@@ -926,6 +927,17 @@ export default class App extends React.PureComponent<Props, State> {
       return null;
     }
 
+    let noIssuesMessage = null;
+    if (paging.total === 0) {
+      if (this.isFiltered()) {
+        noIssuesMessage = <EmptySearch />;
+      } else if (this.state.myIssues) {
+        noIssuesMessage = <NoMyIssues />;
+      } else {
+        noIssuesMessage = <NoIssues />;
+      }
+    }
+
     return (
       <div>
         {paging.total > 0 && (
@@ -949,8 +961,7 @@ export default class App extends React.PureComponent<Props, State> {
           <ListFooter count={issues.length} loadMore={this.fetchMoreIssues} total={paging.total} />
         )}
 
-        {paging.total === 0 &&
-          (this.state.myIssues && !this.isFiltered() ? <NoMyIssues /> : <NoIssues />)}
+        {noIssuesMessage}
       </div>
     );
   }

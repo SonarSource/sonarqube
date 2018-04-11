@@ -123,8 +123,11 @@ export class App extends React.PureComponent<Props, State> {
   renderEmpty() {
     return (
       <div className="empty-search">
-        <h3>{translate('portfolio.empty')}</h3>
-        <p>{translate('portfolio.empty.hint')}</p>
+        <h3>
+          {!this.state.measures || !this.state.measures['projects']
+            ? translate('portfolio.empty')
+            : translate('portfolio.no_lines_of_code')}
+        </h3>
       </div>
     );
   }
@@ -188,8 +191,7 @@ export class App extends React.PureComponent<Props, State> {
               <h4 className="portfolio-meta-header">
                 {translate('overview.about_this_portfolio')}
               </h4>
-              {!this.isEmpty() &&
-                !this.isNotComputed() && <Summary component={component} measures={measures!} />}
+              <Summary component={component} measures={measures || {}} />
             </div>
 
             <div className="portfolio-meta-card">

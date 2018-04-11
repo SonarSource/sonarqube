@@ -127,9 +127,6 @@ exports[`renders when portfolio is empty 1`] = `
         <h3>
           portfolio.empty
         </h3>
-        <p>
-          portfolio.empty.hint
-        </p>
       </div>
     </div>
     <aside
@@ -143,6 +140,20 @@ exports[`renders when portfolio is empty 1`] = `
         >
           overview.about_this_portfolio
         </h4>
+        <Summary
+          component={
+            Object {
+              "key": "foo",
+              "name": "Foo",
+              "qualifier": "TRK",
+            }
+          }
+          measures={
+            Object {
+              "reliability_rating": "1",
+            }
+          }
+        />
       </div>
       <div
         className="portfolio-meta-card"
@@ -199,6 +210,20 @@ exports[`renders when portfolio is not computed 1`] = `
         >
           overview.about_this_portfolio
         </h4>
+        <Summary
+          component={
+            Object {
+              "key": "foo",
+              "name": "Foo",
+              "qualifier": "TRK",
+            }
+          }
+          measures={
+            Object {
+              "ncloc": "173",
+            }
+          }
+        />
       </div>
       <div
         className="portfolio-meta-card"

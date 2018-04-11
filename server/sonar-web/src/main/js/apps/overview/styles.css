@@ -363,7 +363,8 @@
   box-sizing: border-box;
 }
 
-.overview-meta-size-ncloc a {
+.overview-meta-size-ncloc a,
+.overview-meta-size-ncloc span {
   line-height: var(--controlHeight);
   font-size: 18px;
   font-weight: 300;
