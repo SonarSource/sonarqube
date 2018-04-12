@@ -30,6 +30,8 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.internal.TestSystem2;
+import org.sonar.api.utils.log.LogTester;
+import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.db.DbTester;
 import org.sonar.server.es.BulkIndexer.Size;
 
@@ -46,6 +48,8 @@ public class BulkIndexerTest {
   public EsTester es = EsTester.createCustom(new FakeIndexDefinition().setReplicas(1));
   @Rule
   public DbTester dbTester = DbTester.create(testSystem2);
+  @Rule
+  public LogTester logTester = new LogTester();
 
   @Test
   public void index_nothing() {
@@ -152,6 +156,24 @@ public class BulkIndexerTest {
     assertThat(listener.calledDocIds).containsExactly(new DocId(INDEX_TYPE_FAKE, "foo"));
     assertThat(listener.calledResult.getSuccess()).isEqualTo(1);
     assertThat(listener.calledResult.getTotal()).isEqualTo(2);
+  }
+
+  @Test
+  public void log_requests_when_TRACE_level_is_enabled() {
+    logTester.setLevel(LoggerLevel.TRACE);
+
+    BulkIndexer indexer = new BulkIndexer(es.client(), INDEX_TYPE_FAKE, Size.REGULAR, new FakeListener());
+    indexer.start();
+    indexer.add(newIndexRequestWithDocId("foo"));
+    indexer.addDeletion(INDEX_TYPE_FAKE, "foo");
+    indexer.add(newIndexRequestWithDocId("bar"));
+    indexer.stop();
+
+    assertThat(logTester.logs(LoggerLevel.TRACE)
+      .stream()
+      .filter(log -> log.contains("Bulk[2 index requests on fakes/fake, 1 delete requests on fakes/fake]"))
+      .count()).isNotZero();
+
   }
 
   private static class FakeListener implements IndexingListener {
