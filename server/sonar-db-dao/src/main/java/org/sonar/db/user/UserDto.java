@@ -46,6 +46,7 @@ public class UserDto {
   private String externalIdentityProvider;
   private String cryptedPassword;
   private String salt;
+  private String hashMethod;
   private Long createdAt;
   private Long updatedAt;
   private String homepageType;
@@ -183,6 +184,16 @@ public class UserDto {
 
   public UserDto setSalt(@Nullable String salt) {
     this.salt = salt;
+    return this;
+  }
+
+  @CheckForNull
+  public String getHashMethod() {
+    return hashMethod;
+  }
+
+  public UserDto setHashMethod(String hashMethod) {
+    this.hashMethod = hashMethod;
     return this;
   }
 

@@ -19,17 +19,27 @@
  */
 package org.sonar.server.platform.db.migration.version.v72;
 
-import org.sonar.server.platform.db.migration.step.MigrationStepRegistry;
-import org.sonar.server.platform.db.migration.version.DbVersion;
+import java.sql.SQLException;
+import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.def.VarcharColumnDef;
+import org.sonar.server.platform.db.migration.sql.AddColumnsBuilder;
+import org.sonar.server.platform.db.migration.step.DdlChange;
 
-public class DbVersion72 implements DbVersion {
+public class AddHashMethodToUsersTable extends DdlChange {
+
+  public AddHashMethodToUsersTable(Database db) {
+    super(db);
+  }
 
   @Override
-  public void addSteps(MigrationStepRegistry registry) {
-    registry
-      .add(2100, "Increase size of CRYPTED_PASSWORD", IncreaseCryptedPasswordSize.class)
-      .add(2101, "Add HASH_METHOD to table users", AddHashMethodToUsersTable.class)
-      .add(2102, "Populate HASH_METHOD on table users", PopulateHashMethodOnUsers.class)
-    ;
+  public void execute(Context context) throws SQLException {
+    context.execute(new AddColumnsBuilder(getDialect(), "users")
+      .addColumn(VarcharColumnDef.newVarcharColumnDefBuilder()
+        .setColumnName("hash_method")
+        .setIsNullable(true)
+        .setLimit(10)
+        .build())
+      .build());    
   }
+
 }
