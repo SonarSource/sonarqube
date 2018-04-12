@@ -20,6 +20,7 @@
     "lang": "java",
     "langName": "Java",
     "scope": "MAIN",
+    "isExternal": false,
     "type": "CODE_SMELL",
     "params": [
         {

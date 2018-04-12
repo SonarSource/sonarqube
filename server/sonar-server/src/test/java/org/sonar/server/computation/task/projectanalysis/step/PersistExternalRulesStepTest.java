@@ -19,6 +19,7 @@
  */
 package org.sonar.server.computation.task.projectanalysis.step;
 
+import java.util.Optional;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -36,8 +37,7 @@ import org.sonar.server.computation.task.step.ComputationStep;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.rule.ExternalRuleCreator;
 import org.sonar.server.rule.index.RuleIndexDefinition;
-
-import java.util.Optional;
+import org.sonar.server.rule.index.RuleIndexer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.rule.Severity.BLOCKER;
@@ -60,7 +60,8 @@ public class PersistExternalRulesStepTest extends BaseStepTest {
   @org.junit.Rule
   public EsTester es = new EsTester(new RuleIndexDefinition(new MapSettings().asConfig()));
 
-  private ExternalRuleCreator externalRuleCreator = new ExternalRuleCreator(dbClient, System2.INSTANCE);
+  private RuleIndexer indexer = new RuleIndexer(es.client(), dbClient);
+  private ExternalRuleCreator externalRuleCreator = new ExternalRuleCreator(dbClient, System2.INSTANCE, indexer);
 
   @Override
   protected ComputationStep step() {
@@ -74,7 +75,7 @@ public class PersistExternalRulesStepTest extends BaseStepTest {
   }
 
   @Test
-  public void persist_new_external_rules() {
+  public void persist_and_index_new_external_rules() {
 
     RuleKey ruleKey = RuleKey.of("eslint", "no-cond-assign");
     ruleRepository.insertNewExternalRuleIfAbsent(ruleKey, () -> new NewExternalRule.Builder()
@@ -102,7 +103,28 @@ public class PersistExternalRulesStepTest extends BaseStepTest {
     assertThat(reloaded.getName()).isEqualTo("disallow assignment operators in conditional statements (no-cond-assign)");
     assertThat(reloaded.getPluginKey()).isEqualTo("eslint");
 
+    assertThat(es.countDocuments(RuleIndexDefinition.INDEX_TYPE_RULE)).isEqualTo(1l);
+    assertThat(es.getDocuments(RuleIndexDefinition.INDEX_TYPE_RULE).iterator().next().getId()).isEqualTo(Integer.toString(reloaded.getId()));
+  }
 
+  @Test
+  public void do_not_persist_existing_external_rules() {
+    RuleKey ruleKey = RuleKey.of("eslint", "no-cond-assign");
+    db.rules().insert(ruleKey, r -> r.setIsExternal(true));
+    ruleRepository.insertNewExternalRuleIfAbsent(ruleKey, () -> new NewExternalRule.Builder()
+      .setKey(ruleKey)
+      .setPluginKey("eslint")
+      .setName("disallow assignment operators in conditional statements (no-cond-assign)")
+      .setDescriptionUrl("https://eslint.org/docs/rules/no-cond-assign")
+      .setSeverity(BLOCKER)
+      .setType(BUG)
+      .build());
+
+    underTest.execute();
+
+    RuleDao ruleDao = dbClient.ruleDao();
+    assertThat(ruleDao.selectAllDefinitions(dbClient.openSession(false))).hasSize(1);
+    assertThat(es.countDocuments(RuleIndexDefinition.INDEX_TYPE_RULE)).isZero();
   }
 
 }

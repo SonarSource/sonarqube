@@ -181,6 +181,11 @@ public class RuleDto {
     return definition.isExternal();
   }
 
+  public RuleDto setIsExternal(boolean isExternal) {
+    definition.setIsExternal(isExternal);
+    return this;
+  }
+
   public boolean isTemplate() {
     return definition.isTemplate();
   }

@@ -54,6 +54,7 @@ public class RuleQuery {
   private String internalKey;
   private String ruleKey;
   private OrganizationDto organization;
+  private Boolean isExternal;
 
   @CheckForNull
   public QProfileDto getQProfile() {
@@ -202,6 +203,16 @@ public class RuleQuery {
 
   public RuleQuery setIsTemplate(@Nullable Boolean b) {
     this.isTemplate = b;
+    return this;
+  }
+
+  @CheckForNull
+  public Boolean isExternal() {
+    return isExternal;
+  }
+
+  public RuleQuery setIsExternal(@Nullable Boolean b) {
+    this.isExternal = b;
     return this;
   }
 

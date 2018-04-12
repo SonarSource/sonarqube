@@ -63,6 +63,7 @@ import static org.sonar.api.rules.RuleType.CODE_SMELL;
 import static org.sonar.api.rules.RuleType.VULNERABILITY;
 import static org.sonar.db.rule.RuleTesting.setCreatedAt;
 import static org.sonar.db.rule.RuleTesting.setIsTemplate;
+import static org.sonar.db.rule.RuleTesting.setIsExternal;
 import static org.sonar.db.rule.RuleTesting.setLanguage;
 import static org.sonar.db.rule.RuleTesting.setName;
 import static org.sonar.db.rule.RuleTesting.setOrganization;
@@ -366,7 +367,7 @@ public class RuleIndexTest {
 
     // find all
     RuleQuery query = new RuleQuery();
-    SearchIdResult results = underTest.search(query, new SearchOptions());
+    SearchIdResult<Integer>  results = underTest.search(query, new SearchOptions());
     assertThat(results.getIds()).hasSize(2);
 
     // Only template
@@ -383,6 +384,33 @@ public class RuleIndexTest {
     query = new RuleQuery().setIsTemplate(null);
     results = underTest.search(query, new SearchOptions());
     assertThat(results.getIds()).containsOnly(ruleIsTemplate.getId(), ruleNoTemplate.getId());
+  }
+  
+  @Test
+  public void search_by_is_external() {
+    RuleDefinitionDto ruleIsNotExternal = createRule(setIsExternal(false));
+    RuleDefinitionDto ruleIsExternal = createRule(setIsExternal(true));
+    index();
+
+    // find all
+    RuleQuery query = new RuleQuery();
+    SearchIdResult<Integer> results = underTest.search(query, new SearchOptions());
+    assertThat(results.getIds()).hasSize(2);
+
+    // Only template
+    query = new RuleQuery().setIsTemplate(true);
+    results = underTest.search(query, new SearchOptions());
+    assertThat(results.getIds()).containsOnly(ruleIsExternal.getId());
+
+    // Only not template
+    query = new RuleQuery().setIsTemplate(false);
+    results = underTest.search(query, new SearchOptions());
+    assertThat(results.getIds()).containsOnly(ruleIsNotExternal.getId());
+
+    // null => no filter
+    query = new RuleQuery().setIsTemplate(null);
+    results = underTest.search(query, new SearchOptions());
+    assertThat(results.getIds()).containsOnly(ruleIsExternal.getId(), ruleIsNotExternal.getId());
   }
 
   @Test

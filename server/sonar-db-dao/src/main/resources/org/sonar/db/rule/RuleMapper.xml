@@ -252,6 +252,7 @@
       r.priority as "severity",
       r.status as "status",
       r.is_template as "isTemplate",
+      r.is_external as "isExternal",
       r.system_tags as "systemTags",
       t.plugin_rule_key as "templateRuleKey",
       t.plugin_name as "templateRepository",

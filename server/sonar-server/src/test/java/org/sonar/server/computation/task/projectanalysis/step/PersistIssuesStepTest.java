@@ -89,7 +89,7 @@ public class PersistIssuesStepTest extends BaseStepTest {
   @org.junit.Rule
   public EsTester es = new EsTester(new RuleIndexDefinition(new MapSettings().asConfig()));
 
-  private ExternalRuleCreator externalRuleCreator = new ExternalRuleCreator(dbClient, System2.INSTANCE);
+  private ExternalRuleCreator externalRuleCreator = mock(ExternalRuleCreator.class);
 
   @Override
   protected ComputationStep step() {

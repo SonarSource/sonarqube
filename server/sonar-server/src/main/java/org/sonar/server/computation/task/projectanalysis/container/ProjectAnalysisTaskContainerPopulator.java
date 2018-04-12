@@ -122,7 +122,6 @@ import org.sonar.server.computation.task.projectanalysis.webhook.WebhookPostTask
 import org.sonar.server.computation.task.step.ComputationStepExecutor;
 import org.sonar.server.computation.task.step.ComputationSteps;
 import org.sonar.server.computation.taskprocessor.MutableTaskResultHolderImpl;
-import org.sonar.server.rule.ExternalRuleCreator;
 import org.sonar.server.view.index.ViewIndex;
 
 public final class ProjectAnalysisTaskContainerPopulator implements ContainerPopulator<TaskContainer> {
@@ -197,7 +196,6 @@ public final class ProjectAnalysisTaskContainerPopulator implements ContainerPop
       DuplicationRepositoryImpl.class,
 
       // issues
-      ExternalRuleCreator.class,
       RuleRepositoryImpl.class,
       ScmAccountToUserLoader.class,
       ScmAccountToUser.class,

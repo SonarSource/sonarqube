@@ -51,13 +51,14 @@ import static org.sonar.api.server.ws.WebService.Param.SORT;
 import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
 import static org.sonar.db.qualityprofile.ActiveRuleDto.INHERITED;
 import static org.sonar.db.qualityprofile.ActiveRuleDto.OVERRIDES;
-import static org.sonar.server.rule.ws.SearchAction.defineRuleSearchParameters;
+import static org.sonar.server.rule.ws.SearchAction.defineGenericRuleSearchParameters;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_ACTIVATION;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_ACTIVE_SEVERITIES;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_AVAILABLE_SINCE;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_COMPARE_TO_PROFILE;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_INHERITANCE;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_IS_TEMPLATE;
+import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_IS_EXTERNAL;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_LANGUAGES;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_ORGANIZATION;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_QPROFILE;
@@ -99,6 +100,7 @@ public class RuleQueryFactoryTest {
     assertThat(result.isAscendingSort()).isTrue();
     assertThat(result.getAvailableSinceLong()).isNull();
     assertThat(result.getInheritance()).isNull();
+    assertThat(result.isExternal()).isNull();
     assertThat(result.isTemplate()).isNull();
     assertThat(result.getLanguages()).isNull();
     assertThat(result.getQueryText()).isNull();
@@ -126,7 +128,8 @@ public class RuleQueryFactoryTest {
       PARAM_ACTIVE_SEVERITIES, "MINOR,MAJOR",
       PARAM_AVAILABLE_SINCE, "2016-01-01",
       PARAM_INHERITANCE, "INHERITED,OVERRIDES",
-      PARAM_IS_TEMPLATE, "true",
+      PARAM_IS_TEMPLATE, "true",      
+      PARAM_IS_EXTERNAL, "true",
       PARAM_LANGUAGES, "java,js",
       TEXT_QUERY, "S001",
       PARAM_ORGANIZATION, organization.getKey(),
@@ -149,6 +152,7 @@ public class RuleQueryFactoryTest {
     assertThat(result.isAscendingSort()).isFalse();
     assertThat(result.getAvailableSinceLong()).isNotNull();
     assertThat(result.getInheritance()).containsOnly(INHERITED, OVERRIDES);
+    assertThat(result.isExternal()).isTrue();
     assertThat(result.isTemplate()).isTrue();
     assertThat(result.getLanguages()).containsOnly(qualityProfile.getLanguage());
     assertThat(result.getQueryText()).isEqualTo("S001");
@@ -308,7 +312,7 @@ public class RuleQueryFactoryTest {
     public void define(WebService.NewController controller) {
       WebService.NewAction action = controller.createAction("fake")
         .setHandler(this);
-      defineRuleSearchParameters(action);
+      defineGenericRuleSearchParameters(action);
     }
 
     @Override

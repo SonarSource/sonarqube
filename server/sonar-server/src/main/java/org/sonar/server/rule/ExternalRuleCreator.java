@@ -19,7 +19,7 @@
  */
 package org.sonar.server.rule;
 
-import org.sonar.api.server.ServerSide;
+import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -28,34 +28,45 @@ import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.server.computation.task.projectanalysis.issue.NewExternalRule;
 import org.sonar.server.computation.task.projectanalysis.issue.Rule;
 import org.sonar.server.computation.task.projectanalysis.issue.RuleImpl;
+import org.sonar.server.rule.index.RuleIndexer;
 
 import static org.sonar.db.rule.RuleDto.Scope.ALL;
 
-@ServerSide
 public class ExternalRuleCreator {
 
   private final DbClient dbClient;
   private final System2 system2;
+  private final RuleIndexer ruleIndexer;
 
-  public ExternalRuleCreator(DbClient dbClient, System2 system2) {
+  public ExternalRuleCreator(DbClient dbClient, System2 system2, RuleIndexer ruleIndexer) {
     this.dbClient = dbClient;
     this.system2 = system2;
+    this.ruleIndexer = ruleIndexer;
   }
 
-  public Rule create(DbSession dbSession, NewExternalRule external) {
+  /**
+   * Persists a rule in the DB and indexes it.
+   * @return the rule that was inserted in the DB, which <b>includes the generated ID</b>. 
+   */
+  public Rule persistAndIndex(DbSession dbSession, NewExternalRule external) {
     RuleDao dao = dbClient.ruleDao();
     dao.insert(dbSession, new RuleDefinitionDto()
       .setRuleKey(external.getKey())
       .setPluginKey(external.getPluginKey())
-      .setIsExternal(true)
+      .setIsExternal(external.isExternal())
       .setName(external.getName())
       .setDescriptionURL(external.getDescriptionUrl())
       .setType(external.getType())
       .setScope(ALL)
+      .setStatus(RuleStatus.READY)
       .setSeverity(external.getSeverity())
       .setCreatedAt(system2.now())
       .setUpdatedAt(system2.now()));
-    return new RuleImpl(dao.selectOrFailByKey(dbSession, external.getKey()));
+
+    Rule newRule = new RuleImpl(dao.selectOrFailByKey(dbSession, external.getKey()));
+    // TODO write rule repository if needed
+    ruleIndexer.commitAndIndex(dbSession, newRule.getId());
+    return newRule;
   }
 
 }

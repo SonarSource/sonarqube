@@ -36,6 +36,7 @@ public class RulesWsParameters {
   public static final String PARAM_INHERITANCE = "inheritance";
   public static final String PARAM_ACTIVE_SEVERITIES = "active_severities";
   public static final String PARAM_IS_TEMPLATE = "is_template";
+  public static final String PARAM_IS_EXTERNAL = "is_external";
   public static final String PARAM_TEMPLATE_KEY = "template_key";
   public static final String PARAM_ORGANIZATION = "organization";
   public static final String PARAM_COMPARE_TO_PROFILE = "compareToProfile";
@@ -46,6 +47,7 @@ public class RulesWsParameters {
   public static final String FIELD_SEVERITY = "severity";
   public static final String FIELD_STATUS = "status";
   public static final String FIELD_INTERNAL_KEY = "internalKey";
+  public static final String FIELD_IS_EXTERNAL = "isExternal";
   public static final String FIELD_IS_TEMPLATE = "isTemplate";
   public static final String FIELD_TEMPLATE_KEY = "templateKey";
   public static final String FIELD_TAGS = "tags";
@@ -90,11 +92,11 @@ public class RulesWsParameters {
    * @since 7.1
    */
   public static final String FIELD_SCOPE = "scope";
-  
+
   public static final String FIELD_PARAMS = "params";
   public static final String FIELD_ACTIVES = "actives";
 
-  public static final Set<String> OPTIONAL_FIELDS = ImmutableSet.of(FIELD_REPO, FIELD_NAME, FIELD_CREATED_AT, FIELD_SEVERITY, FIELD_STATUS, FIELD_INTERNAL_KEY, FIELD_IS_TEMPLATE,
+  public static final Set<String> OPTIONAL_FIELDS = ImmutableSet.of(FIELD_REPO, FIELD_NAME, FIELD_CREATED_AT, FIELD_SEVERITY, FIELD_STATUS, FIELD_INTERNAL_KEY, FIELD_IS_EXTERNAL, FIELD_IS_TEMPLATE,
     FIELD_TEMPLATE_KEY, FIELD_TAGS, FIELD_SYSTEM_TAGS, FIELD_LANGUAGE, FIELD_LANGUAGE_NAME, FIELD_HTML_DESCRIPTION, FIELD_MARKDOWN_DESCRIPTION, FIELD_NOTE_LOGIN,
     FIELD_MARKDOWN_NOTE, FIELD_HTML_NOTE,
     FIELD_DEFAULT_DEBT_REM_FUNCTION, FIELD_EFFORT_TO_FIX_DESCRIPTION, FIELD_DEBT_OVERLOADED, FIELD_DEBT_REM_FUNCTION,

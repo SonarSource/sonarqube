@@ -72,7 +72,7 @@ public class RuleRepositoryImpl implements RuleRepository {
   }
 
   private void persistAndIndex(DbSession dbSession, NewExternalRule external) {
-    Rule rule = creator.create(dbSession, external);
+    Rule rule = creator.persistAndIndex(dbSession, external);
     rulesById.put(rule.getId(), rule);
     rulesByKey.put(external.getKey(), rule);
   }

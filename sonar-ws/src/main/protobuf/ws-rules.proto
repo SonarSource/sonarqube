@@ -120,6 +120,7 @@ message Rule {
   optional bool remFnOverloaded = 45;
   optional string gapDescription = 44;
   optional sonarqube.ws.commons.RuleScope scope = 46;
+  optional bool isExternal = 47;
 
   optional sonarqube.ws.commons.RuleType type = 37;
 

@@ -18,6 +18,7 @@
       "lang": "java",
       "langName": "Java",
       "scope": "MAIN",
+      "isExternal": false,
       "type": "CODE_SMELL",
       "params": [
         {
@@ -42,6 +43,7 @@
       "lang": "java",
       "langName": "Java",
       "scope": "MAIN",
+      "isExternal": false,
       "type": "BUG",
       "params": [
         {
@@ -66,6 +68,7 @@
       "lang": "java",
       "langName": "Java",
       "scope": "MAIN",
+      "isExternal": false,
       "type": "VULNERABILITY",
       "params": [
         {
@@ -93,6 +96,7 @@
       "lang": "java",
       "langName": "Java",
       "scope": "MAIN",
+      "isExternal": false,
       "type": "CODE_SMELL",
       "params": [
         {
@@ -123,6 +127,7 @@
       "lang": "java",
       "langName": "Java",
       "scope": "MAIN",
+      "isExternal": false,
       "type": "CODE_SMELL",
       "params": [
         {

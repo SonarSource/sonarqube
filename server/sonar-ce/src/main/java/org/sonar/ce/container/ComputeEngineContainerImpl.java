@@ -146,8 +146,10 @@ import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.rule.CommonRuleDefinitionsImpl;
 import org.sonar.server.rule.DefaultRuleFinder;
 import org.sonar.server.rule.DeprecatedRulesDefinitionLoader;
+import org.sonar.server.rule.ExternalRuleCreator;
 import org.sonar.server.rule.RuleDefinitionsLoader;
 import org.sonar.server.rule.index.RuleIndex;
+import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.setting.DatabaseSettingLoader;
 import org.sonar.server.setting.DatabaseSettingsEnabler;
 import org.sonar.server.setting.ThreadLocalSettings;
@@ -343,6 +345,8 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
       CommonRuleDefinitionsImpl.class,
       RuleDefinitionsLoader.class,
       RulesDefinitionXmlLoader.class,
+      ExternalRuleCreator.class,
+      RuleIndexer.class,
 
       // languages
       Languages.class, // used by CommonRuleDefinitionsImpl

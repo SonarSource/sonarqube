@@ -21,6 +21,7 @@ package org.sonar.server.computation.task.projectanalysis.issue;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import java.util.List;
 import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
@@ -41,6 +42,7 @@ import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetada
 import org.sonar.server.es.EsTester;
 import org.sonar.server.rule.ExternalRuleCreator;
 import org.sonar.server.rule.index.RuleIndexDefinition;
+import org.sonar.server.rule.index.RuleIndexer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -75,14 +77,13 @@ public class RuleRepositoryImplTest {
 
   @org.junit.Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
-  @org.junit.Rule
-  public EsTester es = new EsTester(new RuleIndexDefinition(new MapSettings().asConfig()));
 
   private DbClient dbClient = mock(DbClient.class);
   private DbSession dbSession = mock(DbSession.class);
   private RuleDao ruleDao = mock(RuleDao.class);
 
-  private ExternalRuleCreator externalRuleCreator = new ExternalRuleCreator(dbClient, System2.INSTANCE);
+  private RuleIndexer ruleIndexer = mock(RuleIndexer.class);
+  private ExternalRuleCreator externalRuleCreator = new ExternalRuleCreator(db.getDbClient(), System2.INSTANCE, ruleIndexer);
   private RuleRepositoryImpl underTest = new RuleRepositoryImpl(externalRuleCreator, dbClient, analysisMetadataHolder);
 
   @Before
@@ -272,10 +273,6 @@ public class RuleRepositoryImplTest {
 
   @Test
   public void accept_new_externally_defined_Rules() {
-    DbClient dbClient = db.getDbClient();
-    externalRuleCreator = new ExternalRuleCreator(dbClient, System2.INSTANCE);
-    underTest = new RuleRepositoryImpl(externalRuleCreator, dbClient, analysisMetadataHolder);
-
     RuleKey ruleKey = RuleKey.of("eslint", "no-cond-assign");
 
     underTest.insertNewExternalRuleIfAbsent(ruleKey, () -> new NewExternalRule.Builder()
@@ -299,10 +296,7 @@ public class RuleRepositoryImplTest {
 
   @Test
   public void persist_new_externally_defined_Rules() {
-    DbClient dbClient = db.getDbClient();
-    DbSession dbSession = dbClient.openSession(false);
-    externalRuleCreator = new ExternalRuleCreator(dbClient, System2.INSTANCE);
-    underTest = new RuleRepositoryImpl(externalRuleCreator, dbClient, analysisMetadataHolder);
+    underTest = new RuleRepositoryImpl(externalRuleCreator, db.getDbClient(), analysisMetadataHolder);
 
     RuleKey ruleKey = RuleKey.of("eslint", "no-cond-assign");
     underTest.insertNewExternalRuleIfAbsent(ruleKey, () -> new NewExternalRule.Builder()
@@ -314,18 +308,17 @@ public class RuleRepositoryImplTest {
       .setType(BUG)
       .build());
 
-    underTest.persistNewExternalRules(dbSession);
+    underTest.persistNewExternalRules(db.getSession());
+    db.commit();
 
-    dbSession.commit();
-
-    RuleDao ruleDao = dbClient.ruleDao();
-    Optional<RuleDefinitionDto> ruleDefinitionDto = ruleDao.selectDefinitionByKey(dbClient.openSession(false), ruleKey);
+    Optional<RuleDefinitionDto> ruleDefinitionDto = db.getDbClient().ruleDao().selectDefinitionByKey(db.getSession(), ruleKey);
     assertThat(ruleDefinitionDto).isPresent();
 
     Rule rule = underTest.getByKey(ruleKey);
     assertThat(rule).isNotNull();
 
     assertThat(underTest.getById(ruleDefinitionDto.get().getId())).isNotNull();
+    verify(ruleIndexer).commitAndIndex(db.getSession(), ruleDefinitionDto.get().getId());
   }
 
   private void expectNullRuleKeyNPE() {

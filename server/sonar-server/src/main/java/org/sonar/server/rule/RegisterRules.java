@@ -391,6 +391,7 @@ public class RegisterRules implements Startable {
       .setSystemTags(ruleDef.tags())
       .setType(RuleType.valueOf(ruleDef.type().name()))
       .setScope(toDtoScope(ruleDef.scope()))
+      .setIsExternal(false)
       .setCreatedAt(system2.now())
       .setUpdatedAt(system2.now());
     if (ruleDef.htmlDescription() != null) {
@@ -633,7 +634,7 @@ public class RegisterRules implements Startable {
     recorder.getRemaining().forEach(rule -> {
       if (rule.isCustomRule()) {
         customRules.add(rule);
-      } else if (rule.getStatus() != RuleStatus.REMOVED) {
+      } else if (!rule.isExternal() && rule.getStatus() != RuleStatus.REMOVED) {
         removeRule(dbSession, recorder, rule);
       }
     });

@@ -93,6 +93,7 @@ import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_RULE_EXTENSI
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_RULE_EXTENSION_TAGS;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_RULE_HTML_DESCRIPTION;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_RULE_INTERNAL_KEY;
+import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_RULE_IS_EXTERNAL;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_RULE_IS_TEMPLATE;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_RULE_KEY;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_RULE_LANGUAGE;
@@ -205,13 +206,12 @@ public class RuleIndex {
         .stream().map(token -> boolQuery().should(
           matchQuery(
             SEARCH_GRAMS_ANALYZER.subField(FIELD_RULE_NAME),
-            StringUtils.left(token, DefaultIndexSettings.MAXIMUM_NGRAM_LENGTH)
-          ).boost(20f)).should(
-          matchPhraseQuery(
-            ENGLISH_HTML_ANALYZER.subField(FIELD_RULE_HTML_DESCRIPTION),
-            token
-          ).boost(3f))
-      ).forEach(textQuery::must);
+            StringUtils.left(token, DefaultIndexSettings.MAXIMUM_NGRAM_LENGTH)).boost(20f))
+          .should(
+            matchPhraseQuery(
+              ENGLISH_HTML_ANALYZER.subField(FIELD_RULE_HTML_DESCRIPTION),
+              token).boost(3f)))
+        .forEach(textQuery::must);
       qb.should(textQuery.boost(20f));
     }
 
@@ -300,6 +300,12 @@ public class RuleIndex {
     if (isTemplate != null) {
       filters.put(FIELD_RULE_IS_TEMPLATE,
         QueryBuilders.termQuery(FIELD_RULE_IS_TEMPLATE, Boolean.toString(isTemplate)));
+    }
+
+    Boolean isExternal = query.isExternal();
+    if (isExternal != null) {
+      filters.put(FIELD_RULE_IS_EXTERNAL,
+        QueryBuilders.termQuery(FIELD_RULE_IS_EXTERNAL, Boolean.toString(isExternal)));
     }
 
     String template = query.templateKey();

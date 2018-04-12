@@ -181,6 +181,15 @@ public class RuleDoc extends BaseDoc {
     return this;
   }
 
+  public boolean isExternal() {
+    return getField(RuleIndexDefinition.FIELD_RULE_IS_EXTERNAL);
+  }
+
+  public RuleDoc setIsExternal(boolean b) {
+    setField(RuleIndexDefinition.FIELD_RULE_IS_EXTERNAL, b);
+    return this;
+  }
+
   public RuleType type() {
     return RuleType.valueOf(getField(RuleIndexDefinition.FIELD_RULE_TYPE));
   }
@@ -220,6 +229,7 @@ public class RuleDoc extends BaseDoc {
       .setRepository(dto.getRepository())
       .setInternalKey(dto.getInternalKey())
       .setIsTemplate(dto.isTemplate())
+      .setIsExternal(dto.isExternal())
       .setLanguage(dto.getLanguage())
       .setName(dto.getName())
       .setRuleKey(dto.getPluginRuleKey())

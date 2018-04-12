@@ -85,6 +85,7 @@ import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_ACTIVE_SEVERITIES
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_AVAILABLE_SINCE;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_COMPARE_TO_PROFILE;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_INHERITANCE;
+import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_IS_EXTERNAL;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_IS_TEMPLATE;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_LANGUAGES;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_ORGANIZATION;
@@ -132,7 +133,9 @@ public class SearchAction implements RulesWsAction {
       .addPagingParams(100, MAX_LIMIT)
       .setHandler(this)
       .setChangelog(new Change("7.1", "The field 'scope' has been added to the response"))
-      .setChangelog(new Change("7.1", "The field 'scope' has been added to the 'f' parameter"));
+      .setChangelog(new Change("7.1", "The field 'scope' has been added to the 'f' parameter"))
+      .setChangelog(new Change("7.2", "The field 'isExternal' has been added to the response"))
+      .setChangelog(new Change("7.2", "The field 'isExternal' has been added to the 'f' parameter"));;
 
     action.createParam(FACETS)
       .setDescription("Comma-separated list of the facets to be computed. No facet is computed by default.")
@@ -291,6 +294,12 @@ public class SearchAction implements RulesWsAction {
       .createParam(PARAM_IS_TEMPLATE)
       .setDescription("Filter template rules")
       .setBooleanPossibleValues();
+
+    action
+      .createParam(PARAM_IS_EXTERNAL)
+      .setDescription("Filter external engine rules")
+      .setBooleanPossibleValues()
+      .setSince("7.2");
 
     action
       .createParam(PARAM_TEMPLATE_KEY)

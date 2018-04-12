@@ -52,6 +52,7 @@ import static org.sonar.server.rule.ws.RulesWsParameters.FIELD_EFFORT_TO_FIX_DES
 import static org.sonar.server.rule.ws.RulesWsParameters.FIELD_GAP_DESCRIPTION;
 import static org.sonar.server.rule.ws.RulesWsParameters.FIELD_HTML_DESCRIPTION;
 import static org.sonar.server.rule.ws.RulesWsParameters.FIELD_INTERNAL_KEY;
+import static org.sonar.server.rule.ws.RulesWsParameters.FIELD_IS_EXTERNAL;
 import static org.sonar.server.rule.ws.RulesWsParameters.FIELD_IS_TEMPLATE;
 import static org.sonar.server.rule.ws.RulesWsParameters.FIELD_LANGUAGE;
 import static org.sonar.server.rule.ws.RulesWsParameters.FIELD_LANGUAGE_NAME;
@@ -115,6 +116,7 @@ public class RuleMapper {
     setLanguage(ruleResponse, ruleDefinitionDto, fieldsToReturn);
     setLanguageName(ruleResponse, ruleDefinitionDto, fieldsToReturn);
     setIsTemplate(ruleResponse, ruleDefinitionDto, fieldsToReturn);
+    setIsExternal(ruleResponse, ruleDefinitionDto, fieldsToReturn);
     setTemplateKey(ruleResponse, ruleDefinitionDto, result, fieldsToReturn);
     setDefaultDebtRemediationFunctionFields(ruleResponse, ruleDefinitionDto, fieldsToReturn);
     setEffortToFixDescription(ruleResponse, ruleDefinitionDto, fieldsToReturn);
@@ -321,6 +323,12 @@ public class RuleMapper {
   private static void setIsTemplate(Rules.Rule.Builder ruleResponse, RuleDefinitionDto ruleDto, Set<String> fieldsToReturn) {
     if (shouldReturnField(fieldsToReturn, FIELD_IS_TEMPLATE)) {
       ruleResponse.setIsTemplate(ruleDto.isTemplate());
+    }
+  }
+  
+  private static void setIsExternal(Rules.Rule.Builder ruleResponse, RuleDefinitionDto ruleDto, Set<String> fieldsToReturn) {
+    if (shouldReturnField(fieldsToReturn, FIELD_IS_EXTERNAL)) {
+      ruleResponse.setIsExternal(ruleDto.isExternal());
     }
   }
 

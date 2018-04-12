@@ -305,6 +305,10 @@ public class RuleTesting {
   public static Consumer<RuleDefinitionDto> setType(RuleType type) {
     return rule -> rule.setType(type);
   }
+  
+  public static Consumer<RuleDefinitionDto> setIsExternal(boolean isExternal) {
+    return rule -> rule.setIsExternal(isExternal);
+  }
 
   public static Consumer<RuleDefinitionDto> setIsTemplate(boolean isTemplate) {
     return rule -> rule.setIsTemplate(isTemplate);

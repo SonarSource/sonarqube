@@ -42,6 +42,7 @@ public class RuleForIndexingDto {
   private String templateRepository;
   private String internalKey;
   private String language;
+  private boolean isExternal;
   private int type;
   private long createdAt;
   private long updatedAt;
@@ -106,6 +107,10 @@ public class RuleForIndexingDto {
 
   public int getType() {
     return type;
+  }
+  
+  public boolean isExternal() {
+    return isExternal;
   }
 
   public long getCreatedAt() {

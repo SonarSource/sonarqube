@@ -23,6 +23,7 @@ import com.google.common.collect.Iterables;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -360,6 +361,7 @@ public class RuleDaoTest {
     assertThat(actual.getConfigKey()).isEqualTo(expected.getConfigKey());
     assertThat(actual.getSeverity()).isEqualTo(expected.getSeverity());
     assertThat(actual.getSeverityString()).isEqualTo(expected.getSeverityString());
+    assertThat(actual.isExternal()).isEqualTo(expected.isExternal());
     assertThat(actual.isTemplate()).isEqualTo(expected.isTemplate());
     assertThat(actual.getLanguage()).isEqualTo(expected.getLanguage());
     assertThat(actual.getTemplateId()).isEqualTo(expected.getTemplateId());
@@ -809,14 +811,15 @@ public class RuleDaoTest {
   public void scrollIndexingRules() {
     Accumulator<RuleForIndexingDto> accumulator = new Accumulator<>();
     RuleDefinitionDto r1 = db.rules().insert();
-    RuleDefinitionDto r2 = db.rules().insert();
+    RuleDefinitionDto r2 = db.rules().insert(r -> r.setIsExternal(true));
 
     underTest.scrollIndexingRules(db.getSession(), accumulator);
 
     assertThat(accumulator.list)
       .extracting(RuleForIndexingDto::getId, RuleForIndexingDto::getRuleKey)
       .containsExactlyInAnyOrder(tuple(r1.getId(), r1.getKey()), tuple(r2.getId(), r2.getKey()));
-    RuleForIndexingDto firstRule = accumulator.list.iterator().next();
+    Iterator<RuleForIndexingDto> it = accumulator.list.iterator();
+    RuleForIndexingDto firstRule = it.next();
 
     assertThat(firstRule.getRepository()).isEqualTo(r1.getRepositoryKey());
     assertThat(firstRule.getPluginRuleKey()).isEqualTo(r1.getRuleKey());
@@ -825,6 +828,7 @@ public class RuleDaoTest {
     assertThat(firstRule.getDescriptionFormat()).isEqualTo(r1.getDescriptionFormat());
     assertThat(firstRule.getSeverity()).isEqualTo(r1.getSeverity());
     assertThat(firstRule.getStatus()).isEqualTo(r1.getStatus());
+    assertThat(firstRule.isExternal()).isFalse();
     assertThat(firstRule.isTemplate()).isEqualTo(r1.isTemplate());
     assertThat(firstRule.getSystemTagsAsSet()).isEqualTo(r1.getSystemTags());
     assertThat(firstRule.getTemplateRuleKey()).isNull();
@@ -834,6 +838,10 @@ public class RuleDaoTest {
     assertThat(firstRule.getType()).isEqualTo(r1.getType());
     assertThat(firstRule.getCreatedAt()).isEqualTo(r1.getCreatedAt());
     assertThat(firstRule.getUpdatedAt()).isEqualTo(r1.getUpdatedAt());
+    
+    RuleForIndexingDto secondRule = it.next();
+    assertThat(secondRule.isExternal()).isTrue();
+    
   }
 
   @Test

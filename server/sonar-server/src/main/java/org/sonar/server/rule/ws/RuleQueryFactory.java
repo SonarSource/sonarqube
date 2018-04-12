@@ -43,6 +43,7 @@ import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_AVAILABLE_SINCE;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_COMPARE_TO_PROFILE;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_INHERITANCE;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_IS_TEMPLATE;
+import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_IS_EXTERNAL;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_LANGUAGES;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_ORGANIZATION;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_QPROFILE;
@@ -91,6 +92,7 @@ public class RuleQueryFactory {
     query.setInheritance(request.paramAsStrings(PARAM_INHERITANCE));
     query.setActiveSeverities(request.paramAsStrings(PARAM_ACTIVE_SEVERITIES));
     query.setIsTemplate(request.paramAsBoolean(PARAM_IS_TEMPLATE));
+    query.setIsExternal(request.paramAsBoolean(PARAM_IS_EXTERNAL));
     query.setTemplateKey(request.param(PARAM_TEMPLATE_KEY));
     query.setTypes(toEnums(request.paramAsStrings(PARAM_TYPES), RuleType.class));
     query.setKey(request.param(PARAM_RULE_KEY));
