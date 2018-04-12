@@ -81,57 +81,99 @@ exports[`renders sorted list of branches 1`] = `
         </tr>
       </thead>
       <tbody>
-        <BranchRow
-          branchLike={
-            Object {
-              "isMain": true,
-              "name": "master",
-            }
-          }
-          component="foo"
-          isOrphan={false}
+        <React.Fragment
           key="branch-master"
-          onChange={[MockFunction]}
-        />
-        <BranchRow
-          branchLike={
-            Object {
-              "base": "master",
-              "branch": "feature",
-              "key": "1234",
-              "title": "Feature PR",
+        >
+          <BranchRow
+            branchLike={
+              Object {
+                "isMain": true,
+                "name": "master",
+              }
             }
-          }
-          component="foo"
+            component="foo"
+            isOrphan={false}
+            onChange={[MockFunction]}
+          />
+        </React.Fragment>
+        <React.Fragment
           key="pull-request-1234"
-          onChange={[MockFunction]}
-        />
-        <BranchRow
-          branchLike={
-            Object {
-              "isMain": false,
-              "mergeBranch": "master",
-              "name": "feature",
-              "type": "SHORT",
+        >
+          <BranchRow
+            branchLike={
+              Object {
+                "base": "master",
+                "branch": "feature",
+                "key": "1234",
+                "title": "Feature PR",
+              }
             }
-          }
-          component="foo"
+            component="foo"
+            onChange={[MockFunction]}
+          />
+        </React.Fragment>
+        <React.Fragment
           key="branch-feature"
-          onChange={[MockFunction]}
-        />
-        <BranchRow
-          branchLike={
-            Object {
-              "isMain": false,
-              "name": "branch-1.0",
-              "type": "LONG",
+        >
+          <BranchRow
+            branchLike={
+              Object {
+                "isMain": false,
+                "mergeBranch": "master",
+                "name": "feature",
+                "type": "SHORT",
+              }
             }
-          }
-          component="foo"
-          isOrphan={false}
+            component="foo"
+            onChange={[MockFunction]}
+          />
+        </React.Fragment>
+        <React.Fragment
           key="branch-branch-1.0"
-          onChange={[MockFunction]}
-        />
+        >
+          <BranchRow
+            branchLike={
+              Object {
+                "isMain": false,
+                "name": "branch-1.0",
+                "type": "LONG",
+              }
+            }
+            component="foo"
+            isOrphan={false}
+            onChange={[MockFunction]}
+          />
+        </React.Fragment>
+        <React.Fragment
+          key="branch-feature"
+        >
+          <li
+            className="dropdown-header"
+          >
+            branches.orphan_branches
+            <Tooltip
+              overlay="branches.orphan_branches.tooltip"
+            >
+              <i
+                className="icon-help spacer-left"
+              />
+            </Tooltip>
+          </li>
+          <BranchRow
+            branchLike={
+              Object {
+                "isMain": false,
+                "isOrphan": true,
+                "mergeBranch": "foobar",
+                "name": "feature",
+                "type": "SHORT",
+              }
+            }
+            component="foo"
+            isOrphan={true}
+            onChange={[MockFunction]}
+          />
+        </React.Fragment>
       </tbody>
     </table>
   </div>

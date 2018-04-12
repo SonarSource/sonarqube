@@ -202,7 +202,7 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
     const query = pickBy(
       {
         add_tags: this.state.addTags && this.state.addTags.map(t => t.value).join(),
-        assign: this.state.assignee,
+        assign: this.state.assignee ? this.state.assignee.value : null,
         comment: this.state.comment,
         do_transition: this.state.transition,
         remove_tags: this.state.removeTags && this.state.removeTags.map(t => t.value).join(),

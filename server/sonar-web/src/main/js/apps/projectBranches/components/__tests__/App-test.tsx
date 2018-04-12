@@ -40,11 +40,24 @@ beforeEach(() => {
 });
 
 it('renders sorted list of branches', () => {
-  const branchLikes: [MainBranch, LongLivingBranch, ShortLivingBranch, PullRequest] = [
+  const branchLikes: [
+    MainBranch,
+    LongLivingBranch,
+    ShortLivingBranch,
+    PullRequest,
+    ShortLivingBranch
+  ] = [
     { isMain: true, name: 'master' },
     { isMain: false, name: 'branch-1.0', type: BranchType.LONG },
     { isMain: false, mergeBranch: 'master', name: 'feature', type: BranchType.SHORT },
-    { base: 'master', branch: 'feature', key: '1234', title: 'Feature PR' }
+    { base: 'master', branch: 'feature', key: '1234', title: 'Feature PR' },
+    {
+      isMain: false,
+      mergeBranch: 'foobar',
+      isOrphan: true,
+      name: 'feature',
+      type: BranchType.SHORT
+    }
   ];
   const wrapper = shallow(
     <App

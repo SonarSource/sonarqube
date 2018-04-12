@@ -93,6 +93,8 @@ module.exports = {
   belowNormalZIndex: '1',
 
   // ui elements
+  pageMainZIndex: '50',
+
   tooltipZIndex: '8000',
 
   dropdownMenuZIndex: '7500',

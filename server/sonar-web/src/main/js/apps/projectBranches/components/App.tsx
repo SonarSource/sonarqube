@@ -32,6 +32,7 @@ import {
 import { translate } from '../../../helpers/l10n';
 import { getValues } from '../../../api/settings';
 import { formatMeasure } from '../../../helpers/measures';
+import Tooltip from '../../../components/controls/Tooltip';
 
 interface Props {
   branchLikes: BranchLike[];
@@ -76,6 +77,10 @@ export default class App extends React.PureComponent<Props, State> {
       }
     );
   }
+
+  isOrphan = (branchLike: BranchLike) => {
+    return (isShortLivingBranch(branchLike) || isPullRequest(branchLike)) && branchLike.isOrphan;
+  };
 
   renderBranchLifeTime() {
     const { branchLifeTime } = this.state;
@@ -140,18 +145,30 @@ export default class App extends React.PureComponent<Props, State> {
               </tr>
             </thead>
             <tbody>
-              {sortBranchesAsTree(branchLikes).map(branchLike => (
-                <BranchRow
-                  branchLike={branchLike}
-                  component={component.key}
-                  isOrphan={
-                    (isShortLivingBranch(branchLike) || isPullRequest(branchLike)) &&
-                    branchLike.isOrphan
-                  }
-                  key={getBranchLikeKey(branchLike)}
-                  onChange={onBranchesChange}
-                />
-              ))}
+              {sortBranchesAsTree(branchLikes).map((branchLike, index) => {
+                const isOrphan = this.isOrphan(branchLike);
+                const previous = index > 0 ? branchLikes[index - 1] : undefined;
+                const isPreviousOrphan = previous !== undefined && this.isOrphan(previous);
+                const showOrphanHeader = isOrphan && !isPreviousOrphan;
+                return (
+                  <React.Fragment key={getBranchLikeKey(branchLike)}>
+                    {showOrphanHeader && (
+                      <li className="dropdown-header">
+                        {translate('branches.orphan_branches')}
+                        <Tooltip overlay={translate('branches.orphan_branches.tooltip')}>
+                          <i className="icon-help spacer-left" />
+                        </Tooltip>
+                      </li>
+                    )}
+                    <BranchRow
+                      branchLike={branchLike}
+                      component={component.key}
+                      isOrphan={isOrphan}
+                      onChange={onBranchesChange}
+                    />
+                  </React.Fragment>
+                );
+              })}
             </tbody>
           </table>
         </div>

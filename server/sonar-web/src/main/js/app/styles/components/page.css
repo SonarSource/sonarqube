@@ -255,6 +255,7 @@
   flex-grow: 1;
   min-width: 740px;
   padding: 20px;
+  z-index: var(--pageMainZIndex);
 }
 
 .layout-page-main-inner {
