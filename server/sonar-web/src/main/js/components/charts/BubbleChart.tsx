@@ -184,7 +184,7 @@ export default class BubbleChart extends React.Component<Props, State> {
         delta = -delta;
       }
 
-      if (delta < 0) {
+      if (delta > 0) {
         this.handleZoomOut(mouseX, mouseY);
       } else {
         this.handleZoomIn(mouseX, mouseY);
@@ -218,7 +218,9 @@ export default class BubbleChart extends React.Component<Props, State> {
     }
   };
 
-  resetZoom = () => {
+  resetZoom = (event: React.MouseEvent<Link>) => {
+    event.stopPropagation();
+    event.preventDefault();
     this.setState({
       zoom: 1,
       zoomOrigin: { x: 0, y: 0 }
