@@ -27,39 +27,30 @@ import org.elasticsearch.action.admin.cluster.stats.ClusterStatsRequestBuilder;
 import org.elasticsearch.action.admin.indices.cache.clear.ClearIndicesCacheRequestBuilder;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequestBuilder;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsRequestBuilder;
-import org.elasticsearch.action.admin.indices.flush.FlushRequestBuilder;
 import org.elasticsearch.action.admin.indices.forcemerge.ForceMergeRequestBuilder;
 import org.elasticsearch.action.admin.indices.mapping.put.PutMappingRequestBuilder;
 import org.elasticsearch.action.admin.indices.refresh.RefreshRequestBuilder;
 import org.elasticsearch.action.admin.indices.stats.IndicesStatsRequestBuilder;
-import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.delete.DeleteRequestBuilder;
 import org.elasticsearch.action.get.GetRequestBuilder;
-import org.elasticsearch.action.get.MultiGetRequestBuilder;
 import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchScrollRequestBuilder;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.cluster.health.ClusterHealthStatus;
 import org.elasticsearch.common.Priority;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.search.aggregations.AggregationBuilders;
-import org.elasticsearch.search.aggregations.metrics.max.Max;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.server.es.request.ProxyBulkRequestBuilder;
 import org.sonar.server.es.request.ProxyClearCacheRequestBuilder;
 import org.sonar.server.es.request.ProxyClusterHealthRequestBuilder;
 import org.sonar.server.es.request.ProxyClusterStateRequestBuilder;
 import org.sonar.server.es.request.ProxyClusterStatsRequestBuilder;
 import org.sonar.server.es.request.ProxyCreateIndexRequestBuilder;
 import org.sonar.server.es.request.ProxyDeleteRequestBuilder;
-import org.sonar.server.es.request.ProxyFlushRequestBuilder;
 import org.sonar.server.es.request.ProxyGetRequestBuilder;
 import org.sonar.server.es.request.ProxyIndexRequestBuilder;
 import org.sonar.server.es.request.ProxyIndicesExistsRequestBuilder;
 import org.sonar.server.es.request.ProxyIndicesStatsRequestBuilder;
-import org.sonar.server.es.request.ProxyMultiGetRequestBuilder;
 import org.sonar.server.es.request.ProxyNodesStatsRequestBuilder;
 import org.sonar.server.es.request.ProxyPutMappingRequestBuilder;
 import org.sonar.server.es.request.ProxyRefreshRequestBuilder;
@@ -88,10 +79,6 @@ public class EsClient implements Closeable {
 
   public RefreshRequestBuilder prepareRefresh(String... indices) {
     return new ProxyRefreshRequestBuilder(nativeClient()).setIndices(indices);
-  }
-
-  public FlushRequestBuilder prepareFlush(String... indices) {
-    return new ProxyFlushRequestBuilder(nativeClient()).setIndices(indices);
   }
 
   public IndicesStatsRequestBuilder prepareStats(String... indices) {
@@ -144,20 +131,8 @@ public class EsClient implements Closeable {
     return new ProxySearchScrollRequestBuilder(scrollId, nativeClient());
   }
 
-  public GetRequestBuilder prepareGet() {
-    return new ProxyGetRequestBuilder(nativeClient());
-  }
-
   public GetRequestBuilder prepareGet(IndexType indexType, String id) {
     return new ProxyGetRequestBuilder(nativeClient()).setIndex(indexType.getIndex()).setType(indexType.getType()).setId(id);
-  }
-
-  public MultiGetRequestBuilder prepareMultiGet() {
-    return new ProxyMultiGetRequestBuilder(nativeClient());
-  }
-
-  public BulkRequestBuilder prepareBulk() {
-    return new ProxyBulkRequestBuilder(nativeClient());
   }
 
   public DeleteRequestBuilder prepareDelete(IndexType indexType, String id) {
@@ -182,29 +157,8 @@ public class EsClient implements Closeable {
     return new ProxyClearCacheRequestBuilder(nativeClient()).setIndices(indices);
   }
 
-  public long getMaxFieldValue(IndexType indexType, String fieldName) {
-    SearchRequestBuilder request = prepareSearch(indexType)
-      .setQuery(QueryBuilders.matchAllQuery())
-      .setSize(0)
-      .addAggregation(AggregationBuilders.max("latest").field(fieldName));
-
-    Max max = request.get().getAggregations().get("latest");
-    return (long) max.getValue();
-  }
-
   public Client nativeClient() {
     return nativeClient;
-  }
-
-  /**
-   * Checks whether there is any document in any mentioned type.
-   */
-  public boolean isEmpty(IndexType indexType) {
-    return count(indexType) <= 0;
-  }
-
-  private long count(IndexType indexType) {
-    return prepareSearch(indexType).setSize(0).get().getHits().getTotalHits();
   }
 
   @Override

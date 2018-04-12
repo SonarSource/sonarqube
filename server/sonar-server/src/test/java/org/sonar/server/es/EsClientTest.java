@@ -21,17 +21,14 @@ package org.sonar.server.es;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.server.es.request.ProxyBulkRequestBuilder;
 import org.sonar.server.es.request.ProxyClusterHealthRequestBuilder;
 import org.sonar.server.es.request.ProxyClusterStateRequestBuilder;
 import org.sonar.server.es.request.ProxyClusterStatsRequestBuilder;
 import org.sonar.server.es.request.ProxyCreateIndexRequestBuilder;
 import org.sonar.server.es.request.ProxyDeleteRequestBuilder;
-import org.sonar.server.es.request.ProxyFlushRequestBuilder;
 import org.sonar.server.es.request.ProxyGetRequestBuilder;
 import org.sonar.server.es.request.ProxyIndicesExistsRequestBuilder;
 import org.sonar.server.es.request.ProxyIndicesStatsRequestBuilder;
-import org.sonar.server.es.request.ProxyMultiGetRequestBuilder;
 import org.sonar.server.es.request.ProxyNodesStatsRequestBuilder;
 import org.sonar.server.es.request.ProxyPutMappingRequestBuilder;
 import org.sonar.server.es.request.ProxyRefreshRequestBuilder;
@@ -39,7 +36,6 @@ import org.sonar.server.es.request.ProxySearchRequestBuilder;
 import org.sonar.server.es.request.ProxySearchScrollRequestBuilder;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.server.es.FakeIndexDefinition.INDEX_TYPE_FAKE;
 
 public class EsClientTest {
 
@@ -50,16 +46,12 @@ public class EsClientTest {
   public void proxify_requests() {
     EsClient underTest = es.client();
     assertThat(underTest.nativeClient()).isNotNull();
-    assertThat(underTest.prepareBulk()).isInstanceOf(ProxyBulkRequestBuilder.class);
     assertThat(underTest.prepareClusterStats()).isInstanceOf(ProxyClusterStatsRequestBuilder.class);
     assertThat(underTest.prepareCreate("fakes")).isInstanceOf(ProxyCreateIndexRequestBuilder.class);
     assertThat(underTest.prepareDelete("fakes", "fake", "my_id")).isInstanceOf(ProxyDeleteRequestBuilder.class);
     assertThat(underTest.prepareIndicesExist()).isInstanceOf(ProxyIndicesExistsRequestBuilder.class);
-    assertThat(underTest.prepareFlush()).isInstanceOf(ProxyFlushRequestBuilder.class);
-    assertThat(underTest.prepareGet()).isInstanceOf(ProxyGetRequestBuilder.class);
     assertThat(underTest.prepareGet(new IndexType("fakes", "fake"), "1")).isInstanceOf(ProxyGetRequestBuilder.class);
     assertThat(underTest.prepareHealth()).isInstanceOf(ProxyClusterHealthRequestBuilder.class);
-    assertThat(underTest.prepareMultiGet()).isInstanceOf(ProxyMultiGetRequestBuilder.class);
     assertThat(underTest.prepareNodesStats()).isInstanceOf(ProxyNodesStatsRequestBuilder.class);
     assertThat(underTest.preparePutMapping()).isInstanceOf(ProxyPutMappingRequestBuilder.class);
     assertThat(underTest.prepareRefresh()).isInstanceOf(ProxyRefreshRequestBuilder.class);
@@ -69,16 +61,5 @@ public class EsClientTest {
     assertThat(underTest.prepareStats()).isInstanceOf(ProxyIndicesStatsRequestBuilder.class);
 
     underTest.close();
-  }
-
-  @Test
-  public void isEmpty_should_return_true_if_index_is_empty() {
-    assertThat(es.client().isEmpty(INDEX_TYPE_FAKE)).isTrue();
-  }
-
-  @Test
-  public void isEmpty_should_return_false_if_index_is_not_empty() {
-    es.putDocuments(INDEX_TYPE_FAKE, new FakeDoc());
-    assertThat(es.client().isEmpty(INDEX_TYPE_FAKE)).isFalse();
   }
 }

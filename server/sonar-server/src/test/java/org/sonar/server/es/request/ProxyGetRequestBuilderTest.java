@@ -27,9 +27,11 @@ import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.es.FakeIndexDefinition;
+import org.sonar.server.es.IndexType;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
+import static org.sonar.server.es.FakeIndexDefinition.INDEX_TYPE_FAKE;
 
 public class ProxyGetRequestBuilderTest {
 
@@ -40,32 +42,17 @@ public class ProxyGetRequestBuilderTest {
   public LogTester logTester = new LogTester();
 
   @Test
-  public void get() {
-    es.client().prepareGet()
-      .setIndex(FakeIndexDefinition.INDEX)
-      .setType(FakeIndexDefinition.TYPE)
-      .setId("ruleKey")
-      .get();
-  }
-
-  @Test
   public void trace_logs() {
     logTester.setLevel(LoggerLevel.TRACE);
 
-    es.client().prepareGet()
-      .setIndex(FakeIndexDefinition.INDEX)
-      .setType(FakeIndexDefinition.TYPE)
-      .setId("ruleKey")
+    es.client().prepareGet(INDEX_TYPE_FAKE, "ruleKey")
       .get();
     assertThat(logTester.logs(LoggerLevel.TRACE)).hasSize(1);
   }
 
   @Test
   public void fail_to_get_bad_query() {
-    GetRequestBuilder requestBuilder = es.client().prepareGet()
-      .setIndex("unknown")
-      .setType("test")
-      .setId("rule1");
+    GetRequestBuilder requestBuilder = es.client().prepareGet(new IndexType("unknown", "test"), "rule1");
     try {
       requestBuilder.get();
       fail();
@@ -76,9 +63,9 @@ public class ProxyGetRequestBuilderTest {
   }
 
   @Test
-  public void get_with_string_timeout_is_not_yet_implemented() {
+  public void get_with_string_timeout_is_not_implemented() {
     try {
-      es.client().prepareGet().get("1");
+      es.client().prepareGet(INDEX_TYPE_FAKE, "ruleKey").get("1");
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("Not yet implemented");
@@ -88,7 +75,7 @@ public class ProxyGetRequestBuilderTest {
   @Test
   public void get_with_time_value_timeout_is_not_yet_implemented() {
     try {
-      es.client().prepareGet().get(TimeValue.timeValueMinutes(1));
+      es.client().prepareGet(INDEX_TYPE_FAKE, "ruleKey").get(TimeValue.timeValueMinutes(1));
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("Not yet implemented");
@@ -98,7 +85,7 @@ public class ProxyGetRequestBuilderTest {
   @Test
   public void execute_should_throw_an_unsupported_operation_exception() {
     try {
-      es.client().prepareGet().execute();
+      es.client().prepareGet(INDEX_TYPE_FAKE, "ruleKey").execute();
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(UnsupportedOperationException.class).hasMessage("execute() should not be called as it's used for asynchronous");
