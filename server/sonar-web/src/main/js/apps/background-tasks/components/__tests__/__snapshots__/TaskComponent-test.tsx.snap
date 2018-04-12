@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`renders 1`] = `
+exports[`renders correctly 1`] = `
 <td>
   <span
     className="little-spacer-right"
@@ -33,7 +33,7 @@ exports[`renders 1`] = `
 </td>
 `;
 
-exports[`renders 2`] = `
+exports[`renders correctly 2`] = `
 <td>
   <span
     className="note"
@@ -46,15 +46,11 @@ exports[`renders 2`] = `
 </td>
 `;
 
-exports[`renders 3`] = `
+exports[`renders correctly for branches and pullrequest 1`] = `
 <td>
-  <span
+  <ShortLivingBranchIcon
     className="little-spacer-right"
-  >
-    <QualifierIcon
-      qualifier="TRK"
-    />
-  </span>
+  />
   <Connect(Organization)
     organizationKey="org"
   />
@@ -64,9 +60,11 @@ exports[`renders 3`] = `
     style={Object {}}
     to={
       Object {
-        "pathname": "/dashboard",
+        "pathname": "/project/issues",
         "query": Object {
+          "branch": "feature",
           "id": "foo",
+          "resolved": "false",
         },
       }
     }
@@ -88,6 +86,100 @@ exports[`renders 3`] = `
       </span>
       feature
     </span>
+  </Link>
+  <TaskType
+    type="REPORT"
+  />
+</td>
+`;
+
+exports[`renders correctly for branches and pullrequest 2`] = `
+<td>
+  <LongLivingBranchIcon
+    className="little-spacer-right"
+  />
+  <Connect(Organization)
+    organizationKey="org"
+  />
+  <Link
+    className="spacer-right"
+    onlyActiveOnIndex={false}
+    style={Object {}}
+    to={
+      Object {
+        "pathname": "/dashboard",
+        "query": Object {
+          "branch": "branch-6.7",
+          "id": "foo",
+        },
+      }
+    }
+  >
+    foo
+    <span
+      className="text-limited text-text-top"
+      title="branch-6.7"
+    >
+      <span
+        style={
+          Object {
+            "marginLeft": 5,
+            "marginRight": 5,
+          }
+        }
+      >
+        /
+      </span>
+      branch-6.7
+    </span>
+  </Link>
+  <TaskType
+    type="REPORT"
+  />
+</td>
+`;
+
+exports[`renders correctly for branches and pullrequest 3`] = `
+<td>
+  <PullRequestIcon
+    className="little-spacer-right"
+  />
+  <Connect(Organization)
+    organizationKey="org"
+  />
+  <Link
+    className="spacer-right"
+    onlyActiveOnIndex={false}
+    style={Object {}}
+    to={
+      Object {
+        "pathname": "/project/issues",
+        "query": Object {
+          "id": "foo",
+          "pullRequest": "pr-89",
+          "resolved": "false",
+        },
+      }
+    }
+  >
+    foo
+    <Tooltip>
+      <span
+        className="text-limited text-text-top"
+      >
+        <span
+          style={
+            Object {
+              "marginLeft": 5,
+              "marginRight": 5,
+            }
+          }
+        >
+          /
+        </span>
+        pr-89
+      </span>
+    </Tooltip>
   </Link>
   <TaskType
     type="REPORT"

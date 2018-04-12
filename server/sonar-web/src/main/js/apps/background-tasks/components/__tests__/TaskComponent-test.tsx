@@ -21,18 +21,28 @@ import * as React from 'react';
 import { shallow } from 'enzyme';
 import TaskComponent from '../TaskComponent';
 
-it('renders', () => {
-  const task = {
-    componentKey: 'foo',
-    componentName: 'foo',
-    componentQualifier: 'TRK',
-    id: 'bar',
-    organization: 'org',
-    status: 'PENDING',
-    submittedAt: '2017-01-01',
-    type: 'REPORT'
-  };
-  expect(shallow(<TaskComponent task={task} />)).toMatchSnapshot();
-  expect(shallow(<TaskComponent task={{ ...task, componentKey: undefined }} />)).toMatchSnapshot();
-  expect(shallow(<TaskComponent task={{ ...task, branch: 'feature' }} />)).toMatchSnapshot();
+const TASK = {
+  componentKey: 'foo',
+  componentName: 'foo',
+  componentQualifier: 'TRK',
+  id: 'bar',
+  organization: 'org',
+  status: 'PENDING',
+  submittedAt: '2017-01-01',
+  type: 'REPORT'
+};
+
+it('renders correctly', () => {
+  expect(shallow(<TaskComponent task={TASK} />)).toMatchSnapshot();
+  expect(shallow(<TaskComponent task={{ ...TASK, componentKey: undefined }} />)).toMatchSnapshot();
+});
+
+it('renders correctly for branches and pullrequest', () => {
+  expect(
+    shallow(<TaskComponent task={{ ...TASK, branch: 'feature', branchType: 'SHORT' }} />)
+  ).toMatchSnapshot();
+  expect(
+    shallow(<TaskComponent task={{ ...TASK, branch: 'branch-6.7', branchType: 'LONG' }} />)
+  ).toMatchSnapshot();
+  expect(shallow(<TaskComponent task={{ ...TASK, pullRequest: 'pr-89' }} />)).toMatchSnapshot();
 });

@@ -92,13 +92,14 @@ export default function TaskComponent({ task }: Props) {
 }
 
 function getTaskComponentUrl(componentKey: string, task: Task) {
-  if (task.branch && task.branchType === 'SHORT') {
-    return getShortLivingBranchUrl(componentKey, task.branchType);
-  } else if (task.branchType && task.branchType === 'LONG') {
-    return getLongLivingBranchUrl(componentKey, task.branchType);
+  if (task.branch) {
+    if (task.branchType === 'SHORT') {
+      return getShortLivingBranchUrl(componentKey, task.branch);
+    } else if (task.branchType === 'LONG') {
+      return getLongLivingBranchUrl(componentKey, task.branch);
+    }
   } else if (task.pullRequest) {
     return getPullRequestUrl(componentKey, task.pullRequest);
-  } else {
-    return getProjectUrl(componentKey);
   }
+  return getProjectUrl(componentKey);
 }
