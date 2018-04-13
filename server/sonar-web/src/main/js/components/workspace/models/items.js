@@ -31,7 +31,11 @@ export default Backbone.Collection.extend({
 
   save() {
     const dump = JSON.stringify(this.toJSON());
-    window.localStorage.setItem(STORAGE_KEY, dump);
+    try {
+      window.localStorage.setItem(STORAGE_KEY, dump);
+    } catch (e) {
+      /* Fail silently*/
+    }
   },
 
   load() {
