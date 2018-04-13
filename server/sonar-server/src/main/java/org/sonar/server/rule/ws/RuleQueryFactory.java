@@ -67,6 +67,16 @@ public class RuleQueryFactory {
   }
 
   /**
+   * Similar to {@link #createRuleQuery(DbSession, Request)} but sets additional fields which are only used
+   * for the rule search WS. 
+   */
+  public RuleQuery createRuleSearchQuery(DbSession dbSession, Request request) {
+    RuleQuery query = createRuleQuery(dbSession, request);
+    query.setIsExternal(request.paramAsBoolean(PARAM_IS_EXTERNAL));
+    return query;
+  }
+
+  /**
    * Create a {@link RuleQuery} from a {@link Request}.
    * When a profile key is set, the language of the profile is automatically set in the query
    */
@@ -92,7 +102,6 @@ public class RuleQueryFactory {
     query.setInheritance(request.paramAsStrings(PARAM_INHERITANCE));
     query.setActiveSeverities(request.paramAsStrings(PARAM_ACTIVE_SEVERITIES));
     query.setIsTemplate(request.paramAsBoolean(PARAM_IS_TEMPLATE));
-    query.setIsExternal(request.paramAsBoolean(PARAM_IS_EXTERNAL));
     query.setTemplateKey(request.param(PARAM_TEMPLATE_KEY));
     query.setTypes(toEnums(request.paramAsStrings(PARAM_TYPES), RuleType.class));
     query.setKey(request.param(PARAM_RULE_KEY));

@@ -111,7 +111,7 @@ public class ModuleIssues {
   }
 
   private static ScannerReport.ExternalIssue createReportExternalIssue(ExternalIssue issue, int componentRef) {
-    String primaryMessage = issue.primaryLocation().message();
+    String primaryMessage = Strings.isNullOrEmpty(issue.primaryLocation().message()) ? issue.ruleTitle() : issue.primaryLocation().message();
     Severity severity = Severity.valueOf(issue.severity().name());
 
     ScannerReport.ExternalIssue.Builder builder = ScannerReport.ExternalIssue.newBuilder();

@@ -23,6 +23,7 @@ import com.google.common.base.Preconditions;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import javax.annotation.Nullable;
 import org.sonar.api.batch.sensor.internal.DefaultStorable;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
 import org.sonar.api.batch.sensor.issue.IssueLocation;
@@ -43,7 +44,7 @@ public abstract class AbstractDefaultIssue<T extends AbstractDefaultIssue>  exte
     super(null);
   }
   
-  public AbstractDefaultIssue(SensorStorage storage) {
+  public AbstractDefaultIssue(@Nullable SensorStorage storage) {
     super(storage);
   }
   

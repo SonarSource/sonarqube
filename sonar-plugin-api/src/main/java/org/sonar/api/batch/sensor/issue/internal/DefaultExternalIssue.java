@@ -42,7 +42,7 @@ public class DefaultExternalIssue extends AbstractDefaultIssue<DefaultExternalIs
     super(null);
   }
 
-  public DefaultExternalIssue(SensorStorage storage) {
+  public DefaultExternalIssue(@Nullable SensorStorage storage) {
     super(storage);
   }
 

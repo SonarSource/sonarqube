@@ -39,7 +39,7 @@ public class DefaultIssue extends AbstractDefaultIssue<DefaultIssue> implements 
     super(null);
   }
 
-  public DefaultIssue(SensorStorage storage) {
+  public DefaultIssue(@Nullable SensorStorage storage) {
     super(storage);
   }
 

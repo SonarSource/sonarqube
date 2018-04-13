@@ -397,18 +397,18 @@ public class RuleIndexTest {
     SearchIdResult<Integer> results = underTest.search(query, new SearchOptions());
     assertThat(results.getIds()).hasSize(2);
 
-    // Only template
-    query = new RuleQuery().setIsTemplate(true);
+    // Only external
+    query = new RuleQuery().setIsExternal(true);
     results = underTest.search(query, new SearchOptions());
     assertThat(results.getIds()).containsOnly(ruleIsExternal.getId());
 
-    // Only not template
-    query = new RuleQuery().setIsTemplate(false);
+    // Only not external
+    query = new RuleQuery().setIsExternal(false);
     results = underTest.search(query, new SearchOptions());
     assertThat(results.getIds()).containsOnly(ruleIsNotExternal.getId());
 
     // null => no filter
-    query = new RuleQuery().setIsTemplate(null);
+    query = new RuleQuery().setIsExternal(null);
     results = underTest.search(query, new SearchOptions());
     assertThat(results.getIds()).containsOnly(ruleIsExternal.getId(), ruleIsNotExternal.getId());
   }

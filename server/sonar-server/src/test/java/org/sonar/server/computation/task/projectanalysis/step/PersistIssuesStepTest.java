@@ -27,7 +27,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.System2;
@@ -53,7 +52,6 @@ import org.sonar.server.computation.task.projectanalysis.issue.UpdateConflictRes
 import org.sonar.server.computation.task.step.ComputationStep;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.rule.ExternalRuleCreator;
-import org.sonar.server.rule.index.RuleIndexDefinition;
 import org.sonar.server.util.cache.DiskCache;
 
 import static java.util.Collections.singletonList;
@@ -78,7 +76,7 @@ public class PersistIssuesStepTest extends BaseStepTest {
   public BatchReportReaderRule reportReader = new BatchReportReaderRule();
   @Rule
   public AnalysisMetadataHolderRule analysisMetadataHolder = new AnalysisMetadataHolderRule()
-    .setOrganizationUuid("org-1","qg-uuid-1");
+    .setOrganizationUuid("org-1", "qg-uuid-1");
 
   private DbSession session = db.getSession();
   private DbClient dbClient = db.getDbClient();
@@ -87,7 +85,7 @@ public class PersistIssuesStepTest extends BaseStepTest {
   private ComputationStep step;
 
   @org.junit.Rule
-  public EsTester es = new EsTester(new RuleIndexDefinition(new MapSettings().asConfig()));
+  public EsTester es = EsTester.create();
 
   private ExternalRuleCreator externalRuleCreator = mock(ExternalRuleCreator.class);
 

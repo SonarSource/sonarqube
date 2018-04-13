@@ -20,7 +20,6 @@
 package org.sonar.server.rule;
 
 import org.junit.Test;
-import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbSession;
@@ -28,7 +27,6 @@ import org.sonar.db.DbTester;
 import org.sonar.server.computation.task.projectanalysis.issue.NewExternalRule;
 import org.sonar.server.computation.task.projectanalysis.issue.Rule;
 import org.sonar.server.es.EsTester;
-import org.sonar.server.rule.index.RuleIndexDefinition;
 import org.sonar.server.rule.index.RuleIndexer;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -40,8 +38,8 @@ public class ExternalRuleCreatorTest {
   @org.junit.Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
   @org.junit.Rule
-  public EsTester es = new EsTester(new RuleIndexDefinition(new MapSettings().asConfig()));
-  
+  public EsTester es = EsTester.create();
+
   private RuleIndexer indexer = new RuleIndexer(es.client(), dbTester.getDbClient());
   private ExternalRuleCreator underTest = new ExternalRuleCreator(dbTester.getDbClient(), System2.INSTANCE, indexer);
   private DbSession dbSession = dbTester.getSession();

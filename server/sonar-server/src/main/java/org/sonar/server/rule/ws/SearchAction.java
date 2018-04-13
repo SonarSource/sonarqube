@@ -135,7 +135,7 @@ public class SearchAction implements RulesWsAction {
       .setChangelog(new Change("7.1", "The field 'scope' has been added to the response"))
       .setChangelog(new Change("7.1", "The field 'scope' has been added to the 'f' parameter"))
       .setChangelog(new Change("7.2", "The field 'isExternal' has been added to the response"))
-      .setChangelog(new Change("7.2", "The field 'isExternal' has been added to the 'f' parameter"));;
+      .setChangelog(new Change("7.2", "The field 'isExternal' has been added to the 'f' parameter"));
 
     action.createParam(FACETS)
       .setDescription("Comma-separated list of the facets to be computed. No facet is computed by default.")
@@ -163,7 +163,7 @@ public class SearchAction implements RulesWsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
       SearchRequest searchWsRequest = toSearchWsRequest(request);
       SearchOptions context = buildSearchOptions(searchWsRequest);
-      RuleQuery query = ruleQueryFactory.createRuleQuery(dbSession, request);
+      RuleQuery query = ruleQueryFactory.createRuleSearchQuery(dbSession, request);
       SearchResult searchResult = doSearch(dbSession, query, context);
       SearchResponse responseBuilder = buildResponse(dbSession, searchWsRequest, context, searchResult, query);
       writeProtobuf(responseBuilder, request, response);
@@ -202,10 +202,16 @@ public class SearchAction implements RulesWsAction {
       .setHandler(this);
 
     // Rule-specific search parameters
-    defineRuleSearchParameters(action);
+    defineGenericRuleSearchParameters(action);
+    
+    action
+    .createParam(PARAM_IS_EXTERNAL)
+    .setDescription("Filter external engine rules")
+    .setBooleanPossibleValues()
+    .setSince("7.2");
   }
 
-  public static void defineRuleSearchParameters(WebService.NewAction action) {
+  public static void defineGenericRuleSearchParameters(WebService.NewAction action) {
     action
       .createParam(TEXT_QUERY)
       .setMinimumLength(2)
@@ -294,12 +300,6 @@ public class SearchAction implements RulesWsAction {
       .createParam(PARAM_IS_TEMPLATE)
       .setDescription("Filter template rules")
       .setBooleanPossibleValues();
-
-    action
-      .createParam(PARAM_IS_EXTERNAL)
-      .setDescription("Filter external engine rules")
-      .setBooleanPossibleValues()
-      .setSince("7.2");
 
     action
       .createParam(PARAM_TEMPLATE_KEY)

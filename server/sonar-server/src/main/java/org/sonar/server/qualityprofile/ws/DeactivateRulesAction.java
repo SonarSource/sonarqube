@@ -33,7 +33,7 @@ import org.sonar.server.user.UserSession;
 
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_04;
 import static org.sonar.server.qualityprofile.ws.BulkChangeWsResponse.writeResponse;
-import static org.sonar.server.rule.ws.SearchAction.defineRuleSearchParameters;
+import static org.sonar.server.rule.ws.SearchAction.defineGenericRuleSearchParameters;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_DEACTIVATE_RULES;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_TARGET_KEY;
 
@@ -67,7 +67,7 @@ public class DeactivateRulesAction implements QProfileWsAction {
       .setSince("4.4")
       .setHandler(this);
 
-    defineRuleSearchParameters(deactivate);
+    defineGenericRuleSearchParameters(deactivate);
 
     deactivate.createParam(PARAM_TARGET_KEY)
       .setDescription("Quality Profile key on which the rule deactivation is done. To retrieve a profile key please see <code>api/qualityprofiles/search</code>")

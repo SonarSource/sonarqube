@@ -152,7 +152,6 @@ public class RuleQueryFactoryTest {
     assertThat(result.isAscendingSort()).isFalse();
     assertThat(result.getAvailableSinceLong()).isNotNull();
     assertThat(result.getInheritance()).containsOnly(INHERITED, OVERRIDES);
-    assertThat(result.isExternal()).isTrue();
     assertThat(result.isTemplate()).isTrue();
     assertThat(result.getLanguages()).containsOnly(qualityProfile.getLanguage());
     assertThat(result.getQueryText()).isEqualTo("S001");

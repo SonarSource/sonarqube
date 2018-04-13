@@ -24,8 +24,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.db.protobuf.DbCommons.TextRange;
@@ -51,13 +51,17 @@ import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 public class IssueCreationDateCalculatorTest {
   private static final String COMPONENT_UUID = "ab12";
 
-  @Rule
+  @org.junit.Rule
   public AnalysisMetadataHolderRule analysisMetadataHolder = new AnalysisMetadataHolderRule();
+
+  @org.junit.Rule
+  public ExpectedException exception = ExpectedException.none();
 
   private ScmInfoRepository scmInfoRepository = mock(ScmInfoRepository.class);
   private IssueFieldsSetter issueUpdater = mock(IssueFieldsSetter.class);
@@ -71,6 +75,7 @@ public class IssueCreationDateCalculatorTest {
   private Map<String, ScannerPlugin> scannerPlugins = new HashMap<>();
   private RuleRepository ruleRepository = mock(RuleRepository.class);
   private ScmInfo scmInfo;
+  private Rule rule = mock(Rule.class);
 
   @Before
   public void before() {
@@ -79,6 +84,7 @@ public class IssueCreationDateCalculatorTest {
     when(component.getUuid()).thenReturn(COMPONENT_UUID);
     calculator = new IssueCreationDateCalculator(analysisMetadataHolder, scmInfoRepository, issueUpdater, activeRulesHolder, ruleRepository);
 
+    when(ruleRepository.findByKey(ruleKey)).thenReturn(java.util.Optional.of(rule));
     when(activeRulesHolder.get(any(RuleKey.class)))
       .thenReturn(Optional.absent());
     when(activeRulesHolder.get(ruleKey))
@@ -163,6 +169,19 @@ public class IssueCreationDateCalculatorTest {
   }
 
   @Test
+  public void should_fail_if_rule_is_not_found() {
+    previousAnalysisWas(2000L);
+    currentAnalysisIs(3000L);
+
+    when(ruleRepository.findByKey(ruleKey)).thenReturn(java.util.Optional.empty());
+    newIssue();
+
+    exception.expect(IllegalStateException.class);
+    exception.expectMessage("The rule with key 'reop:rule' raised an issue, but no rule with that key was found");
+    run();
+  }
+
+  @Test
   public void should_change_date_if_scm_is_available_and_rule_is_new() {
     previousAnalysisWas(2000L);
     currentAnalysisIs(3000L);
@@ -220,6 +239,23 @@ public class IssueCreationDateCalculatorTest {
     run();
 
     assertChangeOfCreationDateTo(1200L);
+  }
+
+  @Test
+  public void should_backdate_external_issues() {
+    analysisMetadataHolder.setBaseAnalysis(null);
+    currentAnalysisIs(3000L);
+
+    newIssue();
+    when(rule.isExternal()).thenReturn(true);
+    when(issue.getLocations()).thenReturn(DbIssues.Locations.newBuilder().setTextRange(range(2, 3)).build());
+    withScmAt(2, 1200L);
+    withScmAt(3, 1300L);
+
+    run();
+
+    assertChangeOfCreationDateTo(1300L);
+    verifyZeroInteractions(activeRulesHolder);
   }
 
   @Test

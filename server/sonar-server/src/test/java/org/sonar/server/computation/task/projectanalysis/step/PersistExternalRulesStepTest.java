@@ -23,7 +23,6 @@ import java.util.Optional;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
@@ -58,7 +57,7 @@ public class PersistExternalRulesStepTest extends BaseStepTest {
   private RuleRepositoryImpl ruleRepository;
 
   @org.junit.Rule
-  public EsTester es = new EsTester(new RuleIndexDefinition(new MapSettings().asConfig()));
+  public EsTester es =  EsTester.create();
 
   private RuleIndexer indexer = new RuleIndexer(es.client(), dbClient);
   private ExternalRuleCreator externalRuleCreator = new ExternalRuleCreator(dbClient, System2.INSTANCE, indexer);
