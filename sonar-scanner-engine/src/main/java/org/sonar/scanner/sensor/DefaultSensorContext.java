@@ -52,17 +52,19 @@ import org.sonar.scanner.scan.branch.BranchConfiguration;
 import org.sonar.scanner.sensor.noop.NoOpNewAnalysisError;
 import org.sonar.scanner.sensor.noop.NoOpNewCoverage;
 import org.sonar.scanner.sensor.noop.NoOpNewCpdTokens;
+import org.sonar.scanner.sensor.noop.NoOpNewExternalIssue;
 import org.sonar.scanner.sensor.noop.NoOpNewHighlighting;
 import org.sonar.scanner.sensor.noop.NoOpNewSymbolTable;
 
 @ThreadSafe
 public class DefaultSensorContext implements SensorContext {
 
-  private static final NoOpNewHighlighting NO_OP_NEW_HIGHLIGHTING = new NoOpNewHighlighting();
-  private static final NoOpNewSymbolTable NO_OP_NEW_SYMBOL_TABLE = new NoOpNewSymbolTable();
+  static final NoOpNewHighlighting NO_OP_NEW_HIGHLIGHTING = new NoOpNewHighlighting();
+  static final NoOpNewSymbolTable NO_OP_NEW_SYMBOL_TABLE = new NoOpNewSymbolTable();
   static final NoOpNewCpdTokens NO_OP_NEW_CPD_TOKENS = new NoOpNewCpdTokens();
-  private static final NoOpNewAnalysisError NO_OP_NEW_ANALYSIS_ERROR = new NoOpNewAnalysisError();
+  static final NoOpNewAnalysisError NO_OP_NEW_ANALYSIS_ERROR = new NoOpNewAnalysisError();
   static final NoOpNewCoverage NO_OP_NEW_COVERAGE = new NoOpNewCoverage();
+  static final NoOpNewExternalIssue NO_OP_NEW_EXTERNAL_ISSUE = new NoOpNewExternalIssue();
 
   private final Settings mutableSettings;
   private final FileSystem fs;
@@ -134,7 +136,11 @@ public class DefaultSensorContext implements SensorContext {
 
   @Override
   public NewExternalIssue newExternalIssue() {
+    if (analysisMode.isIssues()) {
+      return NO_OP_NEW_EXTERNAL_ISSUE;
+    }
     return new DefaultExternalIssue(sensorStorage);
+
   }
 
   @Override

@@ -86,8 +86,18 @@ public class DefaultSensorContextTest {
     assertThat(adaptor.newIssue()).isNotNull();
     assertThat(adaptor.newExternalIssue()).isNotNull();
     assertThat(adaptor.newMeasure()).isNotNull();
-
+    assertThat(adaptor.newAnalysisError()).isEqualTo(DefaultSensorContext.NO_OP_NEW_ANALYSIS_ERROR);
     assertThat(adaptor.isCancelled()).isFalse();
+  }
+
+  @Test
+  public void shouldSkipSeveralObjectsInPreviewMode() {
+    when(analysisMode.isIssues()).thenReturn(true);
+    when(analysisMode.isPreview()).thenReturn(true);
+    assertThat(adaptor.newCpdTokens()).isEqualTo(DefaultSensorContext.NO_OP_NEW_CPD_TOKENS);
+    assertThat(adaptor.newSymbolTable()).isEqualTo(DefaultSensorContext.NO_OP_NEW_SYMBOL_TABLE);
+    assertThat(adaptor.newExternalIssue()).isEqualTo(DefaultSensorContext.NO_OP_NEW_EXTERNAL_ISSUE);
+    assertThat(adaptor.newHighlighting()).isEqualTo(DefaultSensorContext.NO_OP_NEW_HIGHLIGHTING);
   }
 
   @Test
