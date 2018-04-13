@@ -67,12 +67,12 @@ export default class ComponentNav extends React.PureComponent<Props> {
   };
 
   render() {
-    const { currentTask, isInProgress, isPending } = this.props;
+    const { component, currentBranchLike, currentTask, isInProgress, isPending } = this.props;
     let notifComponent;
     if (isInProgress || isPending || (currentTask && currentTask.status === STATUSES.FAILED)) {
       notifComponent = (
         <ComponentNavBgTaskNotif
-          component={this.props.component}
+          component={component}
           currentTask={currentTask}
           isInProgress={isInProgress}
           isPending={isPending}
@@ -87,19 +87,16 @@ export default class ComponentNav extends React.PureComponent<Props> {
         <div className="navbar-context-justified">
           <ComponentNavHeader
             branchLikes={this.props.branchLikes}
-            component={this.props.component}
-            currentBranchLike={this.props.currentBranchLike}
+            component={component}
+            currentBranchLike={currentBranchLike}
             // to close dropdown on any location change
             location={this.props.location}
           />
-          <ComponentNavMeta
-            branchLike={this.props.currentBranchLike}
-            component={this.props.component}
-          />
+          <ComponentNavMeta branchLike={currentBranchLike} component={component} />
         </div>
         <ComponentNavMenu
-          branchLike={this.props.currentBranchLike}
-          component={this.props.component}
+          branchLike={currentBranchLike}
+          component={component}
           // to re-render selected menu item
           location={this.props.location}
         />

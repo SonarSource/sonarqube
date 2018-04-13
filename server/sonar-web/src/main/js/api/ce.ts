@@ -21,12 +21,16 @@ import { getJSON, post, RequestData } from '../helpers/request';
 import throwGlobalError from '../app/utils/throwGlobalError';
 
 export interface PendingTask {
+  branch?: string;
+  branchType?: string;
   componentKey: string;
   componentName: string;
   componentQualifier: string;
   id: string;
   logs: boolean;
   organization: string;
+  pullRequest?: string;
+  pullRequestTitle?: string;
   status: string;
   submittedAt: Date;
   submitterLogin?: string;

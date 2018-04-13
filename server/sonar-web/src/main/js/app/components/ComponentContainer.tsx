@@ -25,12 +25,18 @@ import ComponentNav from './nav/component/ComponentNav';
 import { Component, BranchLike } from '../types';
 import handleRequiredAuthorization from '../utils/handleRequiredAuthorization';
 import { getBranches, getPullRequests } from '../../api/branches';
-import { Task, getTasksForComponent } from '../../api/ce';
+import { Task, getTasksForComponent, PendingTask } from '../../api/ce';
 import { getComponentData } from '../../api/components';
 import { getComponentNavigation } from '../../api/nav';
 import { fetchOrganizations } from '../../store/rootActions';
 import { STATUSES } from '../../apps/background-tasks/constants';
-import { isPullRequest, isBranch } from '../../helpers/branches';
+import {
+  isPullRequest,
+  isBranch,
+  isMainBranch,
+  isLongLivingBranch,
+  isShortLivingBranch
+} from '../../helpers/branches';
 
 interface Props {
   children: any;
@@ -42,11 +48,10 @@ interface Props {
 
 interface State {
   branchLikes: BranchLike[];
-  loading: boolean;
   component?: Component;
   currentTask?: Task;
-  isInProgress?: boolean;
-  isPending?: boolean;
+  loading: boolean;
+  pendingTasks?: PendingTask[];
 }
 
 export class ComponentContainer extends React.PureComponent<Props, State> {
@@ -132,15 +137,36 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
     getTasksForComponent(component.key).then(
       ({ current, queue }) => {
         if (this.mounted) {
-          this.setState({
-            currentTask: current,
-            isInProgress: queue.some(task => task.status === STATUSES.IN_PROGRESS),
-            isPending: queue.some(task => task.status === STATUSES.PENDING)
-          });
+          this.setState({ currentTask: current, pendingTasks: queue });
         }
       },
       () => {}
     );
+  };
+
+  getCurrentTask = (branchLike?: BranchLike) => {
+    const { currentTask } = this.state;
+    return currentTask && this.isSameBranch(currentTask, branchLike) ? currentTask : undefined;
+  };
+
+  getPendingTasks = (branchLike?: BranchLike) => {
+    const { pendingTasks = [] } = this.state;
+    return pendingTasks.filter(task => this.isSameBranch(task, branchLike));
+  };
+
+  isSameBranch = (
+    task: Pick<PendingTask, 'branch' | 'branchType' | 'pullRequest'>,
+    branchLike?: BranchLike
+  ) => {
+    if (branchLike && !isMainBranch(branchLike)) {
+      if (isPullRequest(branchLike)) {
+        return branchLike.key === task.pullRequest;
+      }
+      if (isShortLivingBranch(branchLike) || isLongLivingBranch(branchLike)) {
+        return branchLike.type === task.branchType && branchLike.name === task.branch;
+      }
+    }
+    return !task.branch && !task.pullRequest;
   };
 
   handleComponentChange = (changes: {}) => {
@@ -174,6 +200,11 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
       ? branchLikes.find(b => isPullRequest(b) && b.key === query.pullRequest)
       : branchLikes.find(b => isBranch(b) && (query.branch ? b.name === query.branch : b.isMain));
 
+    const currentTask = this.getCurrentTask(branchLike);
+    const pendingTasks = this.getPendingTasks(branchLike);
+    const isInProgress = pendingTasks.some(task => task.status === STATUSES.IN_PROGRESS);
+    const isPending = pendingTasks.some(task => task.status === STATUSES.PENDING);
+
     return (
       <div>
         {component &&
@@ -182,9 +213,9 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
               branchLikes={branchLikes}
               component={component}
               currentBranchLike={branchLike}
-              currentTask={this.state.currentTask}
-              isInProgress={this.state.isInProgress}
-              isPending={this.state.isPending}
+              currentTask={currentTask}
+              isInProgress={isInProgress}
+              isPending={isPending}
               location={this.props.location}
             />
           )}
@@ -197,8 +228,8 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
             branchLike,
             branchLikes,
             component,
-            isInProgress: this.state.isInProgress,
-            isPending: this.state.isPending,
+            isInProgress,
+            isPending,
             onBranchesChange: this.handleBranchesChange,
             onComponentChange: this.handleComponentChange
           })
