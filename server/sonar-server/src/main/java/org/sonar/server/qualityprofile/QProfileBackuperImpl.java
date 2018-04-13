@@ -33,6 +33,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
@@ -182,6 +183,15 @@ public class QProfileBackuperImpl implements QProfileBackuper {
     Map<RuleKey, RuleDefinitionDto> ruleDefinitionsByKey = db.ruleDao().selectDefinitionByKeys(dbSession, ruleKeys)
       .stream()
       .collect(MoreCollectors.uniqueIndex(RuleDefinitionDto::getKey));
+
+    List<RuleDefinitionDto> externalRules = ruleDefinitionsByKey.values().stream()
+      .filter(RuleDefinitionDto::isExternal)
+      .collect(Collectors.toList());
+
+    if (!externalRules.isEmpty()) {
+      throw new IllegalArgumentException("The quality profile cannot be restored as it contains rules from external rule engines: "
+        + externalRules.stream().map(r -> r.getKey().toString()).collect(Collectors.joining(", ")));
+    }
 
     return rules.stream()
       .map(r -> {

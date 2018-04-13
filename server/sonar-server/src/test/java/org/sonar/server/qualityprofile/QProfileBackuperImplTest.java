@@ -220,6 +220,30 @@ public class QProfileBackuperImplTest {
     }
   }
 
+  @Test
+  public void fail_to_restore_external_rule() throws Exception {
+    db.rules().insert(RuleKey.of("sonarjs", "s001"), r -> r.setIsExternal(true)).getId();
+    OrganizationDto organization = db.organizations().insert();
+    Reader backup = new StringReader("<?xml version='1.0' encoding='UTF-8'?>" +
+      "<profile><name>foo</name>" +
+      "<language>js</language>" +
+      "<rules>" +
+      "<rule>" +
+      "<repositoryKey>sonarjs</repositoryKey>" +
+      "<key>s001</key>" +
+      "<priority>BLOCKER</priority>" +
+      "<parameters>" +
+      "<parameter><key>bar</key><value>baz</value></parameter>" +
+      "</parameters>" +
+      "</rule>" +
+      "</rules>" +
+      "</profile>");
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("The quality profile cannot be restored as it contains rules from external rule engines: sonarjs:s001");
+    underTest.restore(db.getSession(), backup, organization, null);
+  }
+
   private RuleDefinitionDto createRule() {
     return db.rules().insert();
   }

@@ -26,6 +26,8 @@ import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.qualityprofile.QualityProfileTesting;
+import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
@@ -91,6 +93,16 @@ public class QProfileWsSupportTest {
   }
 
   @Test
+  public void getRule_throws_BadRequest_if_rule_is_external() {
+    RuleDefinitionDto rule = db.rules().insert(r -> r.setIsExternal(true));
+
+    expectedException.expect(BadRequestException.class);
+    expectedException.expectMessage(format("Operation forbidden for rule '%s' imported from an external rule engine.", rule.getKey()));
+
+    underTest.getRule(db.getSession(), rule.getKey());
+  }
+
+  @Test
   public void getProfile_throws_NotFoundException_if_specified_name_does_not_exist_on_specified_organization() {
     OrganizationDto org1 = db.organizations().insert();
     QProfileDto profile = QualityProfileTesting.newQualityProfileDto().setOrganizationUuid(org1.getUuid());
@@ -98,7 +110,8 @@ public class QProfileWsSupportTest {
     OrganizationDto org2 = db.organizations().insert();
 
     expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage(format("Quality Profile for language '%s' and name '%s' does not exist in organization '%s'", profile.getLanguage(), profile.getName(), org2.getKey()));
+    expectedException
+      .expectMessage(format("Quality Profile for language '%s' and name '%s' does not exist in organization '%s'", profile.getLanguage(), profile.getName(), org2.getKey()));
 
     underTest.getProfile(db.getSession(), QProfileReference.fromName(org2.getKey(), profile.getLanguage(), profile.getName()));
   }

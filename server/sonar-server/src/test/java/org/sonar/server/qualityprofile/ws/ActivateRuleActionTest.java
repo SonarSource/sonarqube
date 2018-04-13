@@ -26,6 +26,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.MockitoAnnotations;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.server.ws.WebService;
@@ -67,6 +69,8 @@ public class ActivateRuleActionTest {
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
+  @Captor
+  public ArgumentCaptor<Collection<RuleActivation>> ruleActivationCaptor;
 
   private DbClient dbClient = db.getDbClient();
   private QProfileRules qProfileRules = mock(QProfileRules.class);
@@ -79,6 +83,7 @@ public class ActivateRuleActionTest {
 
   @Before
   public void before() {
+    MockitoAnnotations.initMocks(this);
     defaultOrganization = db.getDefaultOrganization();
     organization = db.organizations().insert();
   }
@@ -103,7 +108,7 @@ public class ActivateRuleActionTest {
       .setParam(PARAM_KEY, randomAlphanumeric(UUID_SIZE));
 
     expectedException.expect(UnauthorizedException.class);
-    
+
     request.execute();
   }
 
@@ -113,7 +118,7 @@ public class ActivateRuleActionTest {
     QProfileDto qualityProfile = db.qualityProfiles().insert(organization);
     TestRequest request = ws.newRequest()
       .setMethod("POST")
-      .setParam(PARAM_RULE, RuleTesting.newRuleDto().getKey().toString())
+      .setParam(PARAM_RULE, RuleTesting.newRule().getKey().toString())
       .setParam(PARAM_KEY, qualityProfile.getKee());
 
     expectedException.expect(ForbiddenException.class);
@@ -128,11 +133,28 @@ public class ActivateRuleActionTest {
     QProfileDto qualityProfile = db.qualityProfiles().insert(defaultOrganization, profile -> profile.setIsBuiltIn(true).setName("Xoo profile").setLanguage("xoo"));
     TestRequest request = ws.newRequest()
       .setMethod("POST")
-      .setParam(PARAM_RULE, RuleTesting.newRuleDto().getKey().toString())
+      .setParam(PARAM_RULE, RuleTesting.newRule().getKey().toString())
       .setParam(PARAM_KEY, qualityProfile.getKee());
 
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("Operation forbidden for built-in Quality Profile 'Xoo profile' with language 'xoo'");
+
+    request.execute();
+  }
+
+  @Test
+  public void fail_activate_external_rule() {
+    userSession.logIn(db.users().insertUser()).addPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES, defaultOrganization);
+    QProfileDto qualityProfile = db.qualityProfiles().insert(defaultOrganization);
+    RuleDefinitionDto rule = db.rules().insert(r -> r.setIsExternal(true));
+
+    TestRequest request = ws.newRequest()
+      .setMethod("POST")
+      .setParam(PARAM_RULE, rule.getKey().toString())
+      .setParam(PARAM_KEY, qualityProfile.getKee());
+
+    expectedException.expect(BadRequestException.class);
+    expectedException.expectMessage(String.format("Operation forbidden for rule '%s' imported from an external rule engine.", rule.getKey()));
 
     request.execute();
   }
@@ -153,8 +175,6 @@ public class ActivateRuleActionTest {
     TestResponse response = request.execute();
 
     assertThat(response.getStatus()).isEqualTo(HttpURLConnection.HTTP_NO_CONTENT);
-    Class<Collection<RuleActivation>> collectionClass = (Class<Collection<RuleActivation>>) (Class) Collection.class;
-    ArgumentCaptor<Collection<RuleActivation>> ruleActivationCaptor = ArgumentCaptor.forClass(collectionClass);
     verify(qProfileRules).activateAndCommit(any(DbSession.class), any(QProfileDto.class), ruleActivationCaptor.capture());
 
     Collection<RuleActivation> activations = ruleActivationCaptor.getValue();
@@ -183,8 +203,6 @@ public class ActivateRuleActionTest {
     TestResponse response = request.execute();
 
     assertThat(response.getStatus()).isEqualTo(HttpURLConnection.HTTP_NO_CONTENT);
-    Class<Collection<RuleActivation>> collectionClass = (Class<Collection<RuleActivation>>) (Class) Collection.class;
-    ArgumentCaptor<Collection<RuleActivation>> ruleActivationCaptor = ArgumentCaptor.forClass(collectionClass);
     verify(qProfileRules).activateAndCommit(any(DbSession.class), any(QProfileDto.class), ruleActivationCaptor.capture());
 
     Collection<RuleActivation> activations = ruleActivationCaptor.getValue();

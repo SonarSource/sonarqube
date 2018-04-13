@@ -63,7 +63,7 @@ public class DeactivateRulesActionTest {
   private DbClient dbClient = db.getDbClient();
   private QProfileRules qProfileRules = mock(QProfileRules.class, RETURNS_DEEP_STUBS);
   private QProfileWsSupport wsSupport = new QProfileWsSupport(dbClient, userSession, TestDefaultOrganizationProvider.from(db));
-  private RuleQueryFactory ruleQueryFactory = mock(RuleQueryFactory.class);
+  private RuleQueryFactory ruleQueryFactory = mock(RuleQueryFactory.class, RETURNS_DEEP_STUBS);
   private DeactivateRulesAction underTest = new DeactivateRulesAction(ruleQueryFactory, userSession, qProfileRules, wsSupport, dbClient);
   private WsActionTester ws = new WsActionTester(underTest);
   private OrganizationDto defaultOrganization;

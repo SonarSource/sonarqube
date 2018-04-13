@@ -62,7 +62,7 @@ public class ActivateRulesActionTest {
 
   private DbClient dbClient = db.getDbClient();
   private QProfileWsSupport wsSupport = new QProfileWsSupport(dbClient, userSession, TestDefaultOrganizationProvider.from(db));
-  private RuleQueryFactory ruleQueryFactory = mock(RuleQueryFactory.class);
+  private RuleQueryFactory ruleQueryFactory = mock(RuleQueryFactory.class, Mockito.RETURNS_MOCKS);
 
   private QProfileRules qProfileRules = mock(QProfileRules.class, Mockito.RETURNS_DEEP_STUBS);
   private WsActionTester ws = new WsActionTester(new ActivateRulesAction(ruleQueryFactory, userSession, qProfileRules, wsSupport, dbClient));

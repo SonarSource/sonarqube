@@ -85,7 +85,9 @@ public class QProfileWsSupport {
 
   public RuleDefinitionDto getRule(DbSession dbSession, RuleKey ruleKey) {
     Optional<RuleDefinitionDto> ruleDefinitionDto = dbClient.ruleDao().selectDefinitionByKey(dbSession, ruleKey);
-    return checkFoundWithOptional(ruleDefinitionDto, "Rule with key '%s' not found", ruleKey);
+    RuleDefinitionDto rule = checkFoundWithOptional(ruleDefinitionDto, "Rule with key '%s' not found", ruleKey);
+    checkRequest(!rule.isExternal(), "Operation forbidden for rule '%s' imported from an external rule engine.", ruleKey);
+    return rule;
   }
 
   /**
