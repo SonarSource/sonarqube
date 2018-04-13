@@ -60,9 +60,11 @@ import org.sonarqube.ws.Issues.SearchWsResponse;
 import org.sonarqube.ws.Issues.Transitions;
 import org.sonarqube.ws.Issues.Users;
 
+import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.base.Strings.emptyToNull;
 import static com.google.common.base.Strings.nullToEmpty;
+import static java.util.Collections.emptyList;
 import static org.sonar.api.rule.RuleKey.EXTERNAL_RULE_REPO_PREFIX;
 import static org.sonar.core.util.Protobuf.setNullable;
 
@@ -302,11 +304,9 @@ public class SearchResponseFormat {
 
   private Common.Rules.Builder formatRules(SearchResponseData data) {
     Common.Rules.Builder wsRules = Common.Rules.newBuilder();
-    List<RuleDefinitionDto> rules = data.getRules();
-    if (rules != null) {
-      for (RuleDefinitionDto rule : rules) {
-        wsRules.addRules(commonFormat.formatRule(rule));
-      }
+    List<RuleDefinitionDto> rules = firstNonNull(data.getRules(), emptyList());
+    for (RuleDefinitionDto rule : rules) {
+      wsRules.addRules(commonFormat.formatRule(rule));
     }
     return wsRules;
   }

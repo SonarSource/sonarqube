@@ -38,6 +38,7 @@ import org.sonar.db.rule.RuleDbTester;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.server.es.EsTester;
+import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
@@ -73,6 +74,7 @@ import static org.sonar.api.web.UserRole.CODEVIEWER;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.issue.IssueTesting.newDto;
+import static org.sonar.db.rule.RuleTesting.newRule;
 import static org.sonar.db.rule.RuleTesting.newRuleDto;
 
 public class DoTransitionActionTest {
@@ -185,6 +187,22 @@ public class DoTransitionActionTest {
   public void fail_if_not_authenticated() {
     expectedException.expect(UnauthorizedException.class);
     call("ISSUE_KEY", "confirm");
+  }
+
+  @Test
+  public void fail_if_external_issue() {
+    expectedException.expect(BadRequestException.class);
+
+    RuleDefinitionDto rule = ruleDbTester.insert(newRule()
+      .setIsExternal(true));
+    IssueDto issueDto = issueDbTester.insertIssue(newIssue()
+      .setStatus(STATUS_OPEN)
+      .setResolution(null)
+      .setRuleId(rule.getId())
+      .setRuleKey(rule.getRuleKey(), rule.getRepositoryKey()));
+    userSession.logIn("john").addProjectPermission(USER, project, file);
+
+    call(issueDto.getKey(), "confirm");
   }
 
   private TestResponse call(@Nullable String issueKey, @Nullable String transition) {

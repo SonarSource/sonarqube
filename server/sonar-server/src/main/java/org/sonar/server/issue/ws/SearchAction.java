@@ -61,6 +61,7 @@ import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Issues.SearchWsResponse;
 
+import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Iterables.concat;
 import static com.google.common.collect.Sets.newHashSet;
@@ -384,7 +385,7 @@ public class SearchAction implements IssuesWsAction {
     // Must be done after loading of data as the "hidden" facet "debt"
     // can be used to get total debt.
     facets = reorderFacets(facets, options.getFacets());
-    replaceRuleIdsByRuleKeys(facets, data.getRules() == null ? emptyList() : data.getRules());
+    replaceRuleIdsByRuleKeys(facets, firstNonNull(data.getRules(), emptyList()));
 
     // FIXME allow long in Paging
     Paging paging = forPageIndex(options.getPage()).withPageSize(options.getLimit()).andTotal((int) result.getHits().getTotalHits());

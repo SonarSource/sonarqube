@@ -189,7 +189,7 @@ public class SearchActionTest {
     ComponentDto project = insertComponent(ComponentTesting.newPublicProjectDto(otherOrganization2, "PROJECT_ID").setDbKey("PROJECT_KEY"));
     indexPermissions();
     ComponentDto file = insertComponent(newFileDto(project, null, "FILE_ID").setDbKey("FILE_KEY"));
-    IssueDto issue = IssueTesting.newDto(newRule(), file, project)
+    IssueDto issue = IssueTesting.newDto(newExternalRule(), file, project)
       .setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2")
       .setEffort(10L)
       .setLine(42)

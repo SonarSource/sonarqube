@@ -236,15 +236,15 @@ public class SearchResponseLoader {
         .stream()
         .filter(ComponentDto::isRootProject)
         .collect(MoreCollectors.uniqueIndex(ComponentDto::projectUuid));
-      for (IssueDto dto : result.getIssues()) {
+      for (IssueDto issueDto : result.getIssues()) {
         // so that IssueDto can be used.
         if (collector.contains(ACTIONS)) {
-          ComponentDto project = componentsByProjectUuid.get(dto.getProjectUuid());
-          result.addActions(dto.getKey(), listAvailableActions(dto, project));
+          ComponentDto project = componentsByProjectUuid.get(issueDto.getProjectUuid());
+          result.addActions(issueDto.getKey(), listAvailableActions(issueDto, project));
         }
-        if (collector.contains(TRANSITIONS)) {
+        if (collector.contains(TRANSITIONS) && !issueDto.isExternal()) {
           // TODO workflow and action engines must not depend on org.sonar.api.issue.Issue but on a generic interface
-          DefaultIssue issue = dto.toDefaultIssue();
+          DefaultIssue issue = issueDto.toDefaultIssue();
           result.addTransitions(issue.key(), transitionService.listTransitions(issue));
         }
       }

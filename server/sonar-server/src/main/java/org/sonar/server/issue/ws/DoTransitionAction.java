@@ -37,7 +37,7 @@ import org.sonar.server.issue.IssueFinder;
 import org.sonar.server.issue.IssueUpdater;
 import org.sonar.server.issue.TransitionService;
 import org.sonar.server.user.UserSession;
-
+import static org.sonar.server.ws.WsUtils.checkRequest;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.ACTION_DO_TRANSITION;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ISSUE;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_TRANSITION;
@@ -92,6 +92,7 @@ public class DoTransitionAction implements IssuesWsAction {
     String issue = request.mandatoryParam(PARAM_ISSUE);
     try (DbSession dbSession = dbClient.openSession(false)) {
       IssueDto issueDto = issueFinder.getByKey(dbSession, issue);
+      checkRequest(!issueDto.isExternal(), "Transition are not allowed on issues imported from external rule engines");
       SearchResponseData preloadedSearchResponseData = doTransition(dbSession, issueDto, request.mandatoryParam(PARAM_TRANSITION));
       responseWriter.write(issue, preloadedSearchResponseData, request, response);
     }
