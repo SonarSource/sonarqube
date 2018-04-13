@@ -81,6 +81,8 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
   private Set<String> tags = null;
   // temporarily an Object as long as DefaultIssue is used by sonar-batch
   private Object locations = null;
+
+  private boolean isFromExternalRuleEngine;
   // FUNCTIONAL DATES
   private Date creationDate;
   private Date updateDate;
@@ -236,6 +238,15 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
 
   public DefaultIssue setManualSeverity(boolean b) {
     this.manualSeverity = b;
+    return this;
+  }
+
+  public boolean isFromExternalRuleEngine() {
+    return isFromExternalRuleEngine;
+  }
+
+  public DefaultIssue setFromExternalRuleEngine(boolean fromExternalRuleEngine) {
+    isFromExternalRuleEngine = fromExternalRuleEngine;
     return this;
   }
 

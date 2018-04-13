@@ -41,12 +41,14 @@ import static java.util.Objects.requireNonNull;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.apache.commons.lang.math.RandomUtils.nextInt;
+import static org.sonar.api.rule.RuleKey.EXTERNAL_RULE_REPO_PREFIX;
 
 /**
  * Utility class for tests involving rules
  */
 public class RuleTesting {
 
+  public static final RuleKey EXTERNAL_XOO = RuleKey.of(EXTERNAL_RULE_REPO_PREFIX + "xoo", "x1");
   public static final RuleKey XOO_X1 = RuleKey.of("xoo", "x1");
   public static final RuleKey XOO_X2 = RuleKey.of("xoo", "x2");
   public static final RuleKey XOO_X3 = RuleKey.of("xoo", "x3");

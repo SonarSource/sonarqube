@@ -35,13 +35,18 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueChangeDto;
+import org.sonar.db.issue.IssueDbTester;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.rule.RuleDbTester;
+import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.es.EsTester;
+import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.issue.Action;
 import org.sonar.server.issue.IssueFieldsSetter;
@@ -86,6 +91,7 @@ import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.issue.IssueChangeDto.TYPE_COMMENT;
 import static org.sonar.db.issue.IssueTesting.newDto;
+import static org.sonar.db.rule.RuleTesting.newRule;
 import static org.sonar.db.rule.RuleTesting.newRuleDto;
 
 public class BulkChangeActionTest {
@@ -113,6 +119,9 @@ public class BulkChangeActionTest {
   private NotificationManager notificationManager = mock(NotificationManager.class);
   private TestIssueChangePostProcessor issueChangePostProcessor = new TestIssueChangePostProcessor();
   private List<Action> actions = new ArrayList<>();
+
+  private RuleDbTester ruleDbTester = new RuleDbTester(db);
+  private IssueDbTester issueDbTester = new IssueDbTester(db);
 
   private RuleDto rule;
   private OrganizationDto organization;
@@ -501,6 +510,39 @@ public class BulkChangeActionTest {
   }
 
   @Test
+  public void fail_when_requesting_transition_on_issue_from_external_rules_engine(){
+
+    setUserProjectPermissions(USER, ISSUE_ADMIN);
+    UserDto userToAssign = db.users().insertUser("arthur");
+    db.organizations().addMember(organization, user);
+    db.organizations().addMember(organization, userToAssign);
+
+    RuleDefinitionDto rule = ruleDbTester.insert(newRule()
+      .setIsExternal(true));
+    IssueDto issue1 = issueDbTester.insertIssue(newIssue()
+      .setStatus(STATUS_OPEN)
+      .setResolution(null)
+      .setRuleId(rule.getId())
+      .setRuleKey(rule.getRuleKey(), rule.getRepositoryKey())
+      .setAssignee(user.getLogin())
+      .setType(BUG)
+      .setSeverity(MINOR));
+
+    IssueDto issue2 = issueDbTester.insertIssue(newIssue()
+      .setStatus(STATUS_OPEN)
+      .setResolution(null)
+      .setRuleId(rule.getId())
+      .setRuleKey(rule.getRuleKey(), rule.getRepositoryKey())
+      .setAssignee(user.getLogin())
+      .setType(BUG)
+      .setSeverity(MAJOR));
+
+    BulkChangeWsResponse confirm = call(builder().setIssues(asList(issue1.getKey(), issue2.getKey())).setDoTransition("confirm").build());
+
+    assertThat(confirm.getFailures()).isEqualTo(2);
+  }
+
+  @Test
   public void fail_when_number_of_issues_is_more_than_500() {
     userSession.logIn("john");
 
@@ -589,6 +631,11 @@ public class BulkChangeActionTest {
 
   private IssueDto newResolvedIssue() {
     return newDto(rule, file, project).setStatus(STATUS_CLOSED).setResolution(RESOLUTION_FIXED);
+  }
+
+  private IssueDto newIssue() {
+    RuleDto rule = ruleDbTester.insertRule(newRuleDto());
+    return newDto(rule, file, project);
   }
 
   private void addActions() {

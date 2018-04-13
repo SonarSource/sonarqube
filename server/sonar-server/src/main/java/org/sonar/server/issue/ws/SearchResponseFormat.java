@@ -30,6 +30,7 @@ import java.util.Set;
 import javax.annotation.Nullable;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.Durations;
@@ -59,8 +60,10 @@ import org.sonarqube.ws.Issues.SearchWsResponse;
 import org.sonarqube.ws.Issues.Transitions;
 import org.sonarqube.ws.Issues.Users;
 
+import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.base.Strings.emptyToNull;
 import static com.google.common.base.Strings.nullToEmpty;
+import static org.sonar.api.rule.RuleKey.EXTERNAL_RULE_REPO_PREFIX;
 import static org.sonar.core.util.Protobuf.setNullable;
 
 public class SearchResponseFormat {
@@ -171,6 +174,9 @@ public class SearchResponseFormat {
       }
     }
     issueBuilder.setRule(dto.getRuleKey().toString());
+    if (dto.isExternal()) {
+      issueBuilder.setExternalRuleEngine(engineNameFrom(dto.getRuleKey()));
+    }
     issueBuilder.setSeverity(Common.Severity.valueOf(dto.getSeverity()));
     setNullable(emptyToNull(dto.getAssignee()), issueBuilder::setAssignee);
     setNullable(emptyToNull(dto.getResolution()), issueBuilder::setResolution);
@@ -190,6 +196,11 @@ public class SearchResponseFormat {
     setNullable(dto.getIssueCreationDate(), issueBuilder::setCreationDate, DateUtils::formatDateTime);
     setNullable(dto.getIssueUpdateDate(), issueBuilder::setUpdateDate, DateUtils::formatDateTime);
     setNullable(dto.getIssueCloseDate(), issueBuilder::setCloseDate, DateUtils::formatDateTime);
+  }
+
+  private String engineNameFrom(RuleKey ruleKey) {
+    checkState(ruleKey.repository().startsWith(EXTERNAL_RULE_REPO_PREFIX));
+    return ruleKey.repository().replace(EXTERNAL_RULE_REPO_PREFIX, "");
   }
 
   private static void completeIssueLocations(IssueDto dto, Issue.Builder issueBuilder, SearchResponseData data) {

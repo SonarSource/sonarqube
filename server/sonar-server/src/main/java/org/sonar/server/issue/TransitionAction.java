@@ -21,9 +21,12 @@ package org.sonar.server.issue;
 
 import java.util.Collection;
 import java.util.Map;
+
+import com.google.common.base.Preconditions;
 import org.sonar.api.server.ServerSide;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.util.stream.MoreCollectors;
+import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.issue.workflow.Transition;
 import org.sonar.server.user.UserSession;
 
@@ -62,6 +65,9 @@ public class TransitionAction extends Action {
   }
 
   private boolean canExecuteTransition(DefaultIssue issue, String transitionKey) {
+
+    checkArgument(!issue.isFromExternalRuleEngine(), "No transition allowed on issue from externally define rule");
+
     return transitionService.listTransitions(issue)
       .stream()
       .map(Transition::key)

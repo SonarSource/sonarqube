@@ -213,7 +213,7 @@ public class IssueAssignerTest {
         "moduleUuid=<null>,moduleUuidPath=<null>,projectUuid=<null>,projectKey=<null>,ruleKey=<null>,language=<null>,severity=<null>," +
         "manualSeverity=false,message=<null>,line=2,gap=<null>,effort=<null>,status=<null>,resolution=<null>," +
         "assignee=<null>,checksum=<null>,attributes=<null>,authorLogin=<null>,comments=<null>,tags=<null>," +
-        "locations=<null>,creationDate=<null>,updateDate=<null>,closeDate=<null>,currentChange=<null>,changes=<null>,isNew=true,isCopied=false," +
+        "locations=<null>,isFromExternalRuleEngine=false,creationDate=<null>,updateDate=<null>,closeDate=<null>,currentChange=<null>,changes=<null>,isNew=true,isCopied=false," +
         "beingClosed=false,onDisabledRule=false,isChanged=false,sendNotifications=false,selectedAt=<null>]");
   }
 

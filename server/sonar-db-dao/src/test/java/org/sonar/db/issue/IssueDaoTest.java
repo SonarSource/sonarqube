@@ -100,6 +100,7 @@ public class IssueDaoTest {
     assertThat(issue.getProjectKey()).isEqualTo(PROJECT_KEY);
     assertThat(issue.getLocations()).isNull();
     assertThat(issue.parseLocations()).isNull();
+    assertThat(issue.isExternal()).isTrue();
   }
 
   @Test
@@ -304,7 +305,7 @@ public class IssueDaoTest {
   }
 
   private void prepareTables() {
-    db.rules().insertRule(RULE);
+    db.rules().insertRule(RULE.setIsExternal(true));
     OrganizationDto organizationDto = db.organizations().insert();
     ComponentDto projectDto = db.components().insertPrivateProject(organizationDto, (t) -> t.setUuid(PROJECT_UUID).setDbKey(PROJECT_KEY));
     db.components().insertComponent(newFileDto(projectDto).setUuid(FILE_UUID).setDbKey(FILE_KEY));

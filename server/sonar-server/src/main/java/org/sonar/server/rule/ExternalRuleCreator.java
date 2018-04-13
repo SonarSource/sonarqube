@@ -30,6 +30,7 @@ import org.sonar.server.computation.task.projectanalysis.issue.Rule;
 import org.sonar.server.computation.task.projectanalysis.issue.RuleImpl;
 import org.sonar.server.rule.index.RuleIndexer;
 
+import static org.sonar.api.rule.RuleStatus.READY;
 import static org.sonar.db.rule.RuleDto.Scope.ALL;
 
 public class ExternalRuleCreator {
@@ -59,6 +60,7 @@ public class ExternalRuleCreator {
       .setScope(ALL)
       .setStatus(RuleStatus.READY)
       .setSeverity(external.getSeverity())
+      .setStatus(READY)
       .setCreatedAt(system2.now())
       .setUpdatedAt(system2.now()));
 

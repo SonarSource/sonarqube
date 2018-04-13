@@ -162,8 +162,9 @@ public class SearchAction implements IssuesWsAction {
         new Change("6.3", "response field 'email' is renamed 'avatar'"),
         new Change("5.5", "response fields 'reporter' and 'actionPlan' are removed (drop of action plan and manual issue features)"),
         new Change("5.5", "parameters 'reporters', 'actionPlans' and 'planned' are dropped and therefore ignored (drop of action plan and manual issue features)"),
-        new Change("5.5", "response field 'debt' is renamed 'effort'"))
-      .setResponseExample(getClass().getResource("search-example.json"));
+        new Change("5.5", "response field 'debt' is renamed 'effort'"),
+        new Change("7.2", "response 'issue' now indicates if issue has been created by an externally defined rule engine and his name through the optional 'externalRuleEngine' field")
+      ).setResponseExample(getClass().getResource("search-example.json"));
 
     action.addPagingParams(100, MAX_LIMIT);
     action.createParam(Param.FACETS)

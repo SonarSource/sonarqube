@@ -39,6 +39,7 @@ public class DefaultIssueBuilderTest {
       .line(123)
       .effortToFix(10000.0)
       .ruleKey(RuleKey.of("squid", "NullDereference"))
+      .fromExternalRuleEngine(false)
       .severity(Severity.CRITICAL)
       .attribute("JIRA", "FOO-123")
       .attribute("YOUTRACK", "YT-123")
@@ -53,6 +54,7 @@ public class DefaultIssueBuilderTest {
     assertThat(issue.line()).isEqualTo(123);
     assertThat(issue.ruleKey().repository()).isEqualTo("squid");
     assertThat(issue.ruleKey().rule()).isEqualTo("NullDereference");
+    assertThat(issue.isFromExternalRuleEngine()).isFalse();
     assertThat(issue.severity()).isEqualTo(Severity.CRITICAL);
     assertThat(issue.assignee()).isNull();
     assertThat(issue.isNew()).isTrue();

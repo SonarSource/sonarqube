@@ -824,6 +824,16 @@ public class SearchActionTest {
     return rule;
   }
 
+  private RuleDto newExternalRule() {
+    RuleDto rule = RuleTesting.newDto(RuleTesting.EXTERNAL_XOO).setLanguage("xoo")
+      .setName("Rule name")
+      .setDescription("Rule desc")
+      .setIsExternal(true)
+      .setStatus(RuleStatus.READY);
+    db.rules().insert(rule.getDefinition());
+    return rule;
+  }
+
   private void indexPermissions() {
     permissionIndexer.indexOnStartup(permissionIndexer.getIndexTypes());
   }

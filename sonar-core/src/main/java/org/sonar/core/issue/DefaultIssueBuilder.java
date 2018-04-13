@@ -44,6 +44,7 @@ public class DefaultIssueBuilder implements Issuable.IssueBuilder {
   private String assignee;
   private RuleType type;
   private Map<String, String> attributes;
+  private boolean isFromExternalRuleEngine;
 
   public DefaultIssueBuilder componentKey(String componentKey) {
     this.componentKey = componentKey;
@@ -52,6 +53,11 @@ public class DefaultIssueBuilder implements Issuable.IssueBuilder {
 
   public DefaultIssueBuilder projectKey(String projectKey) {
     this.projectKey = projectKey;
+    return this;
+  }
+
+  public DefaultIssueBuilder fromExternalRuleEngine(boolean fromExternalRuleEngine) {
+    isFromExternalRuleEngine = fromExternalRuleEngine;
     return this;
   }
 
@@ -164,6 +170,7 @@ public class DefaultIssueBuilder implements Issuable.IssueBuilder {
     issue.setCopied(false);
     issue.setBeingClosed(false);
     issue.setOnDisabledRule(false);
+    issue.setFromExternalRuleEngine(isFromExternalRuleEngine);
     return issue;
   }
 }

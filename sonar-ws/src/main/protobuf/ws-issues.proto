@@ -157,6 +157,8 @@ message Issue {
   optional string organization = 29;
   optional string branch = 30;
   optional string pullRequest = 32;
+
+  optional string externalRuleEngine = 33;
 }
 
 message Transitions {

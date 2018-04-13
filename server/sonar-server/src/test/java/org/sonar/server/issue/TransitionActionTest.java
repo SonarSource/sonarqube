@@ -21,7 +21,9 @@ package org.sonar.server.issue;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
+
 import java.util.Date;
+
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -42,6 +44,7 @@ import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.api.issue.Issue.STATUS_CLOSED;
 import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.issue.IssueTesting.newDto;
@@ -86,11 +89,11 @@ public class TransitionActionTest {
   @Test
   public void does_not_execute_if_transition_is_not_available() {
     loginAndAddProjectPermission("john", ISSUE_ADMIN);
-    issue.setStatus(Issue.STATUS_CLOSED);
+    issue.setStatus(STATUS_CLOSED);
 
     action.execute(ImmutableMap.of("transition", "reopen"), context);
 
-    assertThat(issue.status()).isEqualTo(Issue.STATUS_CLOSED);
+    assertThat(issue.status()).isEqualTo(STATUS_CLOSED);
   }
 
   @Test
@@ -104,6 +107,21 @@ public class TransitionActionTest {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Missing parameter : 'transition'");
     action.verify(ImmutableMap.of("unknwown", "reopen"), Lists.newArrayList(), userSession);
+  }
+
+  @Test
+  public void do_not_allow_transitions_for_issues_from_external_rule_engine() {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("No transition allowed on issue from externally define rule");
+
+    loginAndAddProjectPermission("john", ISSUE_ADMIN);
+
+    context.issue()
+      .setFromExternalRuleEngine(true)
+      .setStatus(STATUS_CLOSED);
+
+    action.execute(ImmutableMap.of("transition", "close"), context);
+
   }
 
   @Test

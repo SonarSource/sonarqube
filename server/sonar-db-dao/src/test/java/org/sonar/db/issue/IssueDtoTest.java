@@ -116,7 +116,7 @@ public class IssueDtoTest {
   public void set_rule() {
     IssueDto dto = new IssueDto()
       .setKee("100")
-      .setRule(new RuleDefinitionDto().setId(1).setRuleKey("AvoidCycle").setRepositoryKey("squid"))
+      .setRule(new RuleDefinitionDto().setId(1).setRuleKey("AvoidCycle").setRepositoryKey("squid").setIsExternal(true))
       .setLanguage("xoo");
 
     assertThat(dto.getRuleId()).isEqualTo(1);
@@ -124,6 +124,7 @@ public class IssueDtoTest {
     assertThat(dto.getRule()).isEqualTo("AvoidCycle");
     assertThat(dto.getRuleKey().toString()).isEqualTo("squid:AvoidCycle");
     assertThat(dto.getLanguage()).isEqualTo("xoo");
+    assertThat(dto.isExternal()).isEqualTo(true);
   }
 
   @Test

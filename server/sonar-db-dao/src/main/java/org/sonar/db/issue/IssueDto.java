@@ -91,6 +91,7 @@ public final class IssueDto implements Serializable {
   // joins
   private String ruleKey;
   private String ruleRepo;
+  private boolean isExternal;
   private String language;
   private String componentKey;
   private String moduleUuid;
@@ -119,6 +120,7 @@ public final class IssueDto implements Serializable {
       .setAssignee(issue.assignee())
       .setRuleId(ruleId)
       .setRuleKey(issue.ruleKey().repository(), issue.ruleKey().rule())
+      .setExternal(issue.isFromExternalRuleEngine())
       .setTags(issue.tags())
       .setComponentUuid(issue.componentUuid())
       .setComponentKey(issue.componentKey())
@@ -166,6 +168,7 @@ public final class IssueDto implements Serializable {
       .setIssueAttributes(KeyValueFormat.format(issue.attributes()))
       .setAuthorLogin(issue.authorLogin())
       .setRuleKey(issue.ruleKey().repository(), issue.ruleKey().rule())
+      .setExternal(issue.isFromExternalRuleEngine())
       .setTags(issue.tags())
       .setComponentUuid(issue.componentUuid())
       .setComponentKey(issue.componentKey())
@@ -185,6 +188,7 @@ public final class IssueDto implements Serializable {
   public static IssueDto createFor(Project project, RuleDto rule) {
     return new IssueDto()
       .setProjectUuid(project.getUuid())
+      .setExternal(rule.isExternal())
       .setRuleId(rule.getId())
       .setKee(Uuids.create());
   }
@@ -455,6 +459,7 @@ public final class IssueDto implements Serializable {
     this.ruleKey = rule.getRuleKey();
     this.ruleRepo = rule.getRepositoryKey();
     this.language = rule.getLanguage();
+    this.isExternal = rule.isExternal();
     return this;
   }
 
@@ -477,6 +482,15 @@ public final class IssueDto implements Serializable {
    */
   public IssueDto setLanguage(String language) {
     this.language = language;
+    return this;
+  }
+
+  public boolean isExternal() {
+    return isExternal;
+  }
+
+  public IssueDto setExternal(boolean external) {
+    isExternal = external;
     return this;
   }
 
@@ -719,6 +733,7 @@ public final class IssueDto implements Serializable {
     issue.setUpdateDate(longToDate(issueUpdateDate));
     issue.setSelectedAt(selectedAt);
     issue.setLocations(parseLocations());
+    issue.setFromExternalRuleEngine(isExternal);
     return issue;
   }
 }
