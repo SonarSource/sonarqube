@@ -197,10 +197,7 @@ message ExternalIssue {
   // Will be identical to the first location of the first flow
   TextRange text_range = 6;
   repeated Flow flow = 7;
-  // Can be empty as the field is optional
-  string descriptionUrl = 8;
-  IssueType type = 9;
-  string rule_title = 10;
+  IssueType type = 8;
 }
 
 enum IssueType {

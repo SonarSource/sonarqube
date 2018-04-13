@@ -34,9 +34,7 @@ import static java.util.Objects.requireNonNull;
 public class DefaultExternalIssue extends AbstractDefaultIssue<DefaultExternalIssue> implements ExternalIssue, NewExternalIssue {
   private Long effort;
   private Severity severity;
-  private String url;
   private RuleType type;
-  private String ruleTitle;
 
   public DefaultExternalIssue() {
     super(null);
@@ -74,21 +72,9 @@ public class DefaultExternalIssue extends AbstractDefaultIssue<DefaultExternalIs
     requireNonNull(this.ruleKey, "Rule key is mandatory on external issue");
     checkState(primaryLocation != null, "Primary location is mandatory on every external issue");
     checkState(primaryLocation.inputComponent().isFile(), "External issues must be located in files");
-    checkState(ruleTitle != null, "Rule title is mandatory on every external issue");
     checkState(severity != null, "Severity is mandatory on every external issue");
     checkState(type != null, "Type is mandatory on every external issue");
     storage.store(this);
-  }
-
-  @Override
-  public DefaultExternalIssue descriptionUrl(String url) {
-    this.url = url;
-    return this;
-  }
-
-  @Override
-  public String descriptionUrl() {
-    return url;
   }
 
   @Override
@@ -102,14 +88,4 @@ public class DefaultExternalIssue extends AbstractDefaultIssue<DefaultExternalIs
     return this;
   }
 
-  @Override
-  public String ruleTitle() {
-    return ruleTitle;
-  }
-
-  @Override
-  public DefaultExternalIssue ruleTitle(String ruleTitle) {
-    this.ruleTitle = ruleTitle;
-    return this;
-  }
 }

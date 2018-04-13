@@ -168,8 +168,7 @@ public class XooPlugin implements Plugin {
     if (context.getSonarQubeVersion().isGreaterThanOrEqual(Version.create(6, 6))) {
       context.addExtension(XooBuiltInQualityProfilesDefinition.class);
     }
-    // TODO change to v7.2 once version of SQ was updated
-    if (context.getSonarQubeVersion().isGreaterThanOrEqual(Version.create(7, 1))) {
+    if (context.getSonarQubeVersion().isGreaterThanOrEqual(Version.create(7, 2))) {
       context.addExtension(OneExternalIssuePerLineSensor.class);
     }
   }

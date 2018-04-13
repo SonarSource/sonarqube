@@ -155,8 +155,7 @@ public class ModuleIssuesTest {
     DefaultExternalIssue issue = new DefaultExternalIssue()
       .at(new DefaultIssueLocation().on(file).at(file.selectLine(3)).message("Foo"))
       .forRule(SQUID_RULE_KEY)
-      .severity(org.sonar.api.batch.rule.Severity.CRITICAL)
-      .ruleTitle("title");
+      .severity(org.sonar.api.batch.rule.Severity.CRITICAL);
 
     moduleIssues.initAndAddExternalIssue(issue);
 

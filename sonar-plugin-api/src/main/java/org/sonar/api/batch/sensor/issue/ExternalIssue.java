@@ -33,12 +33,6 @@ public interface ExternalIssue extends IIssue {
   Severity severity();
 
   /**
-   * Link to a page describing more details about the rule that triggered this issue.
-   */
-  @CheckForNull
-  String descriptionUrl();
-
-  /**
    * Effort to fix the issue, in minutes.
    */
   @CheckForNull
@@ -48,9 +42,5 @@ public interface ExternalIssue extends IIssue {
    * Type of the issue.
    */
   RuleType type();
-  
-  /**
-   * Short description of the rule. Should not depend on the issue being raised.
-   */
-  String ruleTitle();
+
 }

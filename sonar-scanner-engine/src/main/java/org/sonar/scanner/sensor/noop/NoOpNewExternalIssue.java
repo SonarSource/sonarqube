@@ -65,12 +65,6 @@ public class NoOpNewExternalIssue implements NewExternalIssue {
   }
 
   @Override
-  public NewExternalIssue descriptionUrl(String url) {
-    // no op
-    return this;
-  }
-
-  @Override
   public NewExternalIssue addFlow(Iterable<NewIssueLocation> flowLocations) {
     // no op
     return this;
@@ -80,12 +74,6 @@ public class NoOpNewExternalIssue implements NewExternalIssue {
   public NewIssueLocation newLocation() {
     // no op
     return new DefaultIssueLocation();
-  }
-
-  @Override
-  public NewExternalIssue ruleTitle(String title) {
-    // no op
-    return this;
   }
 
   @Override

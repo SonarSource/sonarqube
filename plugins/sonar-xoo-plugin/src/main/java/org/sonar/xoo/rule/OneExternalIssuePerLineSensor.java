@@ -74,8 +74,6 @@ public class OneExternalIssuePerLineSensor implements Sensor {
           .on(file)
           .at(file.selectLine(line))
           .message("This issue is generated on each line"))
-        .ruleTitle(NAME)
-        .descriptionUrl("http://oneexternalissueperline.xoo.net")
         .severity(Severity.valueOf(SEVERITY))
         .remediationEffort(EFFORT)
         .type(type)

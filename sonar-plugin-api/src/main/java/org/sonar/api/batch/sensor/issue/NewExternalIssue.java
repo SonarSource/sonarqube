@@ -63,11 +63,6 @@ public interface NewExternalIssue {
   NewExternalIssue addLocation(NewIssueLocation secondaryLocation);
 
   /**
-   * Add a URL pointing to more information about the rule triggering this issue. 
-   */
-  NewExternalIssue descriptionUrl(String url);
-
-  /**
    * Register a flow for this issue. A flow is an ordered list of issue locations that help to understand the issue.
    * It should be a <b>path that backtracks the issue from its primary location to the start of the flow</b>. 
    * Several flows can be registered.
@@ -79,11 +74,6 @@ public interface NewExternalIssue {
    */
   NewIssueLocation newLocation();
 
-  /**
-   * Add the description of the rule. Should not depend on the issue being raised.
-   */
-  NewExternalIssue ruleTitle(String title);
-  
   /**
    * Save the issue. If rule key is unknown or rule not enabled in the current quality profile then a warning is logged but no exception
    * is thrown.
