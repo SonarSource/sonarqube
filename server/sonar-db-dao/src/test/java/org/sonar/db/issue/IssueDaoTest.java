@@ -133,16 +133,19 @@ public class IssueDaoTest {
     IssueDto closedIssueOnFile = db.issues().insert(rule, project, file, i -> i.setStatus("CLOSED").setResolution("FIXED"));
     IssueDto openIssueOnProject = db.issues().insert(rule, project, project, i -> i.setStatus("OPEN").setResolution(null));
 
+    RuleDefinitionDto external = db.rules().insert(ruleDefinitionDto -> ruleDefinitionDto.setIsExternal(true));
+    IssueDto issueFromExteralruleOnFile = db.issues().insert(external, project, file, i -> i.setKee("ON_FILE_FROM_EXTERNAL"));
+
     Accumulator accumulator = new Accumulator();
-    underTest.scrollNonClosedByComponentUuid(db.getSession(), file.uuid(), accumulator);
+    underTest.scrollNonClosedByComponentUuidExcludingExternals(db.getSession(), file.uuid(), accumulator);
     accumulator.assertThatContainsOnly(openIssue1OnFile, openIssue2OnFile);
 
     accumulator.clear();
-    underTest.scrollNonClosedByComponentUuid(db.getSession(), project.uuid(), accumulator);
+    underTest.scrollNonClosedByComponentUuidExcludingExternals(db.getSession(), project.uuid(), accumulator);
     accumulator.assertThatContainsOnly(openIssueOnProject);
 
     accumulator.clear();
-    underTest.scrollNonClosedByComponentUuid(db.getSession(), "does_not_exist", accumulator);
+    underTest.scrollNonClosedByComponentUuidExcludingExternals(db.getSession(), "does_not_exist", accumulator);
     assertThat(accumulator.list).isEmpty();
   }
 
@@ -160,17 +163,20 @@ public class IssueDaoTest {
     IssueDto openIssueOnProject = db.issues().insert(rule, project, project, i -> i.setStatus("OPEN").setResolution(null));
     IssueDto openIssueOnAnotherProject = db.issues().insert(rule, anotherProject, anotherProject, i -> i.setStatus("OPEN").setResolution(null));
 
+    RuleDefinitionDto external = db.rules().insert(ruleDefinitionDto -> ruleDefinitionDto.setIsExternal(true));
+    IssueDto issueFromExteralruleOnFile = db.issues().insert(external, project, file, i -> i.setKee("ON_FILE_FROM_EXTERNAL"));
+
     Accumulator accumulator = new Accumulator();
-    underTest.scrollNonClosedByModuleOrProject(db.getSession(), project, accumulator);
+    underTest.scrollNonClosedByModuleOrProjectExcludingExternals(db.getSession(), project, accumulator);
     accumulator.assertThatContainsOnly(openIssue1OnFile, openIssue2OnFile, openIssueOnModule, openIssueOnProject);
 
     accumulator.clear();
-    underTest.scrollNonClosedByModuleOrProject(db.getSession(), module, accumulator);
+    underTest.scrollNonClosedByModuleOrProjectExcludingExternals(db.getSession(), module, accumulator);
     accumulator.assertThatContainsOnly(openIssue1OnFile, openIssue2OnFile, openIssueOnModule);
 
     accumulator.clear();
     ComponentDto notPersisted = ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization());
-    underTest.scrollNonClosedByModuleOrProject(db.getSession(), notPersisted, accumulator);
+    underTest.scrollNonClosedByModuleOrProjectExcludingExternals(db.getSession(), notPersisted, accumulator);
     assertThat(accumulator.list).isEmpty();
   }
 

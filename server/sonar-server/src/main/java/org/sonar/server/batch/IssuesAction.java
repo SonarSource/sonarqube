@@ -102,10 +102,10 @@ public class IssuesAction implements BatchWsAction {
       };
       switch (component.scope()) {
         case Scopes.PROJECT:
-          dbClient.issueDao().scrollNonClosedByModuleOrProject(dbSession, component, handler);
+          dbClient.issueDao().scrollNonClosedByModuleOrProjectExcludingExternals(dbSession, component, handler);
           break;
         case Scopes.FILE:
-          dbClient.issueDao().scrollNonClosedByComponentUuid(dbSession, component.uuid(), handler);
+          dbClient.issueDao().scrollNonClosedByComponentUuidExcludingExternals(dbSession, component.uuid(), handler);
           break;
         default:
           // only projects, modules and files are supported. Other types of components are not allowed.

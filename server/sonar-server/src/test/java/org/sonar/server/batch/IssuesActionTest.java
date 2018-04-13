@@ -160,6 +160,30 @@ public class IssuesActionTest {
   }
 
   @Test
+  public void does_not_return_issues_from_external_rules() {
+    RuleDefinitionDto rule = db.rules().insert();
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto module = db.components().insertComponent(newModuleDto(project));
+    ComponentDto file = db.components().insertComponent(newFileDto(module, null));
+    IssueDto issueOnProject = db.issues().insert(rule, project, project, i -> i.setKee("ON_PROJECT"));
+    IssueDto issueOnModule = db.issues().insert(rule, project, module, i -> i.setKee("ON_MODULE"));
+    IssueDto issueOnFile = db.issues().insert(rule, project, file, i -> i.setKee("ON_FILE"));
+
+    RuleDefinitionDto external = db.rules().insert(ruleDefinitionDto -> ruleDefinitionDto.setIsExternal(true));
+    IssueDto issueFromExteralruleOnFile = db.issues().insert(external, project, file, i -> i.setKee("ON_FILE_FROM_EXTERNAL"));
+
+    addPermissionTo(project);
+    try (CloseableIterator<ServerIssue> result = callStream(project.getKey(), null)) {
+      assertThat(result)
+        .extracting(ServerIssue::getKey, ServerIssue::getModuleKey)
+        .containsExactlyInAnyOrder(
+          tuple(issueOnFile.getKey(), module.getKey()),
+          tuple(issueOnModule.getKey(), module.getKey()),
+          tuple(issueOnProject.getKey(), project.getKey()));
+    }
+  }
+
+  @Test
   public void return_issues_of_module() {
     RuleDefinitionDto rule = db.rules().insert();
     ComponentDto project = db.components().insertPrivateProject();
