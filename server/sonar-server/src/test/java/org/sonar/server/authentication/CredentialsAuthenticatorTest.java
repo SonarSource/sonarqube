@@ -62,14 +62,16 @@ public class CredentialsAuthenticatorTest {
   private RealmAuthenticator externalAuthenticator = mock(RealmAuthenticator.class);
   private HttpServletRequest request = mock(HttpServletRequest.class);
   private AuthenticationEvent authenticationEvent = mock(AuthenticationEvent.class);
+  private LocalAuthentication localAuthentication = new LocalAuthentication(dbClient);
 
-  private CredentialsAuthenticator underTest = new CredentialsAuthenticator(dbClient, externalAuthenticator, authenticationEvent);
+  private CredentialsAuthenticator underTest = new CredentialsAuthenticator(dbClient, externalAuthenticator, authenticationEvent, localAuthentication);
 
   @Test
   public void authenticate_local_user() {
     insertUser(newUserDto()
       .setLogin(LOGIN)
       .setCryptedPassword(CRYPTED_PASSWORD)
+      .setHashMethod(LocalAuthentication.HashMethod.SHA1.name())
       .setSalt(SALT)
       .setLocal(true));
 
@@ -84,6 +86,7 @@ public class CredentialsAuthenticatorTest {
       .setLogin(LOGIN)
       .setCryptedPassword("Wrong password")
       .setSalt("Wrong salt")
+      .setHashMethod(LocalAuthentication.HashMethod.SHA1.name())
       .setLocal(true));
 
     expectedException.expect(authenticationException().from(Source.local(BASIC)).withLogin(LOGIN).andNoPublicMessage());
@@ -130,6 +133,7 @@ public class CredentialsAuthenticatorTest {
       .setLogin(LOGIN)
       .setCryptedPassword(null)
       .setSalt(SALT)
+      .setHashMethod(LocalAuthentication.HashMethod.SHA1.name())
       .setLocal(true));
 
     expectedException.expect(authenticationException().from(Source.local(BASIC)).withLogin(LOGIN).andNoPublicMessage());
@@ -147,6 +151,7 @@ public class CredentialsAuthenticatorTest {
       .setLogin(LOGIN)
       .setCryptedPassword(CRYPTED_PASSWORD)
       .setSalt(null)
+      .setHashMethod(LocalAuthentication.HashMethod.SHA1.name())
       .setLocal(true));
 
     expectedException.expect(authenticationException().from(Source.local(BASIC_TOKEN)).withLogin(LOGIN).andNoPublicMessage());

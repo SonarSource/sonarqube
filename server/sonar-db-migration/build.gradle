@@ -18,6 +18,7 @@ dependencies {
   testCompile 'org.assertj:assertj-core'
   testCompile 'org.dbunit:dbunit'
   testCompile 'org.mockito:mockito-core'
+  testCompile 'org.mindrot:jbcrypt'
   testCompile project(':sonar-testing-harness')
   testCompile project(':server:sonar-db-core').sourceSets.test.output
 

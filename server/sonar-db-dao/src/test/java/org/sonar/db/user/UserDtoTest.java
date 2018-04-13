@@ -46,21 +46,4 @@ public class UserDtoTest {
     assertThat(UserDto.decodeScmAccounts("\nfoo\n")).containsOnly("foo");
     assertThat(UserDto.decodeScmAccounts("\nfoo\nbar\n")).containsOnly("foo", "bar");
   }
-
-  @Test
-  public void encrypt_password() {
-    assertThat(UserDto.encryptPassword("PASSWORD", "0242b0b4c0a93ddfe09dd886de50bc25ba000b51")).isEqualTo("540e4fc4be4e047db995bc76d18374a5b5db08cc");
-  }
-
-  @Test
-  public void fail_to_encrypt_password_when_password_is_null() {
-    expectedException.expect(NullPointerException.class);
-    UserDto.encryptPassword(null, "salt");
-  }
-
-  @Test
-  public void fail_to_encrypt_password_when_salt_is_null() {
-    expectedException.expect(NullPointerException.class);
-    UserDto.encryptPassword("password", null);
-  }
 }

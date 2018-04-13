@@ -30,6 +30,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.authentication.LocalAuthentication;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -70,10 +71,11 @@ public class UpdateActionTest {
   private UserIndexer userIndexer = new UserIndexer(dbClient, es.client());
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
   private TestOrganizationFlags organizationFlags = TestOrganizationFlags.standalone();
+  private LocalAuthentication localAuthentication = new LocalAuthentication(db.getDbClient());
 
   private WsActionTester ws = new WsActionTester(new UpdateAction(
     new UserUpdater(mock(NewUserNotifier.class), dbClient, userIndexer, organizationFlags, defaultOrganizationProvider, ORGANIZATION_CREATION_NOT_USED_FOR_UPDATE,
-      new DefaultGroupFinder(db.getDbClient()), settings.asConfig()), userSession, new UserJsonWriter(userSession), dbClient));
+      new DefaultGroupFinder(db.getDbClient()), settings.asConfig(), localAuthentication), userSession, new UserJsonWriter(userSession), dbClient));
 
   @Before
   public void setUp() {
@@ -81,7 +83,7 @@ public class UpdateActionTest {
   }
 
   @Test
-  public void update_user() throws Exception {
+  public void update_user() {
     createUser();
 
     ws.newRequest()
@@ -94,7 +96,7 @@ public class UpdateActionTest {
   }
 
   @Test
-  public void update_only_name() throws Exception {
+  public void update_only_name() {
     createUser();
 
     ws.newRequest()
@@ -105,7 +107,7 @@ public class UpdateActionTest {
   }
 
   @Test
-  public void update_only_email() throws Exception {
+  public void update_only_email() {
     createUser();
 
     ws.newRequest()
@@ -116,7 +118,7 @@ public class UpdateActionTest {
   }
 
   @Test
-  public void blank_email_is_updated_to_null() throws Exception {
+  public void blank_email_is_updated_to_null() {
     createUser();
 
     ws.newRequest()
@@ -143,7 +145,7 @@ public class UpdateActionTest {
   }
 
   @Test
-  public void update_only_scm_accounts() throws Exception {
+  public void update_only_scm_accounts() {
     createUser();
 
     ws.newRequest()
@@ -196,7 +198,7 @@ public class UpdateActionTest {
   }
 
   @Test
-  public void update_only_scm_accounts_with_deprecated_scmAccounts_parameter() throws Exception {
+  public void update_only_scm_accounts_with_deprecated_scmAccounts_parameter() {
     createUser();
 
     ws.newRequest()
@@ -210,7 +212,7 @@ public class UpdateActionTest {
   }
 
   @Test
-  public void update_only_scm_accounts_with_deprecated_scm_accounts_parameter() throws Exception {
+  public void update_only_scm_accounts_with_deprecated_scm_accounts_parameter() {
     createUser();
 
     ws.newRequest()

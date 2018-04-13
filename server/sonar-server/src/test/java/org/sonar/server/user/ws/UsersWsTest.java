@@ -24,6 +24,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
+import org.sonar.db.DbTester;
+import org.sonar.server.authentication.LocalAuthentication;
 import org.sonar.server.issue.ws.AvatarResolver;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.UserUpdater;
@@ -36,15 +38,18 @@ import static org.mockito.Mockito.mock;
 public class UsersWsTest {
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
+  @Rule
+  public DbTester db = DbTester.create();
 
   private WebService.Controller controller;
+  private LocalAuthentication localAuthentication = new LocalAuthentication(db.getDbClient());
 
   @Before
   public void setUp() {
     WsTester tester = new WsTester(new UsersWs(
       new CreateAction(mock(DbClient.class), mock(UserUpdater.class), userSessionRule),
       new UpdateAction(mock(UserUpdater.class), userSessionRule, mock(UserJsonWriter.class), mock(DbClient.class)),
-      new ChangePasswordAction(mock(DbClient.class), mock(UserUpdater.class), userSessionRule),
+      new ChangePasswordAction(mock(DbClient.class), mock(UserUpdater.class), userSessionRule, localAuthentication),
       new SearchAction(userSessionRule, mock(UserIndex.class), mock(DbClient.class), mock(AvatarResolver.class))));
     controller = tester.controller("api/users");
   }

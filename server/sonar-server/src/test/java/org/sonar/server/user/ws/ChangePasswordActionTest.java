@@ -25,6 +25,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.db.DbTester;
+import org.sonar.server.authentication.LocalAuthentication;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -56,15 +57,17 @@ public class ChangePasswordActionTest {
   public UserSessionRule userSessionRule = UserSessionRule.standalone().logIn();
 
   private TestOrganizationFlags organizationFlags = TestOrganizationFlags.standalone();
+  private LocalAuthentication localAuthentication = new LocalAuthentication(db.getDbClient());
 
   private UserUpdater userUpdater = new UserUpdater(mock(NewUserNotifier.class), db.getDbClient(), new UserIndexer(db.getDbClient(), es.client()),
     organizationFlags,
     TestDefaultOrganizationProvider.from(db),
     mock(OrganizationCreation.class),
     new DefaultGroupFinder(db.getDbClient()),
-    new MapSettings().asConfig());
+    new MapSettings().asConfig(),
+    localAuthentication);
 
-  private WsTester tester = new WsTester(new UsersWs(new ChangePasswordAction(db.getDbClient(), userUpdater, userSessionRule)));
+  private WsTester tester = new WsTester(new UsersWs(new ChangePasswordAction(db.getDbClient(), userUpdater, userSessionRule, localAuthentication)));
 
   @Before
   public void setUp() {

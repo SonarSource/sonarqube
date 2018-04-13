@@ -38,6 +38,8 @@ import org.sonar.db.DbTester;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.GroupTesting;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.authentication.LocalAuthentication;
+import org.sonar.server.authentication.LocalAuthentication.HashMethod;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.organization.DefaultOrganizationProvider;
@@ -86,8 +88,9 @@ public class UserUpdaterCreateTest {
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
   private TestOrganizationFlags organizationFlags = TestOrganizationFlags.standalone();
   private MapSettings settings = new MapSettings();
+  private LocalAuthentication localAuthentication = new LocalAuthentication(db.getDbClient());
   private UserUpdater underTest = new UserUpdater(newUserNotifier, dbClient, userIndexer, organizationFlags, defaultOrganizationProvider, organizationCreation,
-    new DefaultGroupFinder(dbClient), settings.asConfig());
+    new DefaultGroupFinder(dbClient), settings.asConfig(), localAuthentication);
 
   @Test
   public void create_user() {
@@ -110,7 +113,8 @@ public class UserUpdaterCreateTest {
     assertThat(dto.isActive()).isTrue();
     assertThat(dto.isLocal()).isTrue();
 
-    assertThat(dto.getSalt()).isNotNull();
+    assertThat(dto.getSalt()).isNull();
+    assertThat(dto.getHashMethod()).isEqualTo(HashMethod.BCRYPT.name());
     assertThat(dto.getCryptedPassword()).isNotNull();
     assertThat(dto.getCreatedAt())
       .isPositive()
@@ -618,7 +622,8 @@ public class UserUpdaterCreateTest {
     assertThat(dto.getScmAccounts()).isNull();
     assertThat(dto.isLocal()).isTrue();
 
-    assertThat(dto.getSalt()).isNotNull().isNotEqualTo("79bd6a8e79fb8c76ac8b121cc7e8e11ad1af8365");
+    assertThat(dto.getSalt()).isNull();
+    assertThat(dto.getHashMethod()).isEqualTo(HashMethod.BCRYPT.name());
     assertThat(dto.getCryptedPassword()).isNotNull().isNotEqualTo("650d2261c98361e2f67f90ce5c65a95e7d8ea2fg");
     assertThat(dto.getCreatedAt()).isEqualTo(user.getCreatedAt());
     assertThat(dto.getUpdatedAt()).isGreaterThan(user.getCreatedAt());

@@ -25,12 +25,12 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.authentication.LocalAuthentication;
+import org.sonar.server.authentication.event.AuthenticationEvent;
+import org.sonar.server.authentication.event.AuthenticationException;
 import org.sonar.server.user.UpdateUser;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.user.UserUpdater;
-
-import static com.google.common.base.Preconditions.checkArgument;
-import static org.sonar.db.user.UserDto.encryptPassword;
 
 public class ChangePasswordAction implements UsersWsAction {
 
@@ -41,11 +41,13 @@ public class ChangePasswordAction implements UsersWsAction {
   private final DbClient dbClient;
   private final UserUpdater userUpdater;
   private final UserSession userSession;
+  private final LocalAuthentication localAuthentication;
 
-  public ChangePasswordAction(DbClient dbClient, UserUpdater userUpdater, UserSession userSession) {
+  public ChangePasswordAction(DbClient dbClient, UserUpdater userUpdater, UserSession userSession, LocalAuthentication localAuthentication) {
     this.dbClient = dbClient;
     this.userUpdater = userUpdater;
     this.userSession = userSession;
+    this.localAuthentication = localAuthentication;
   }
 
   @Override
@@ -97,7 +99,10 @@ public class ChangePasswordAction implements UsersWsAction {
 
   private void checkCurrentPassword(DbSession dbSession, String login, String password) {
     UserDto user = dbClient.userDao().selectOrFailByLogin(dbSession, login);
-    String cryptedPassword = encryptPassword(password, user.getSalt());
-    checkArgument(cryptedPassword.equals(user.getCryptedPassword()), "Incorrect password");
+    try {
+      localAuthentication.authenticate(dbSession, user, password, AuthenticationEvent.Method.BASIC);
+    } catch (AuthenticationException ex) {
+      throw new IllegalArgumentException("Incorrect password");
+    }
   }
 }

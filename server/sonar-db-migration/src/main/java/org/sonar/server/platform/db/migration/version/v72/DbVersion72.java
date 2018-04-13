@@ -27,7 +27,7 @@ public class DbVersion72 implements DbVersion {
   @Override
   public void addSteps(MigrationStepRegistry registry) {
     registry
-      .add(2100, "Increase size of CRYPTED_PASSWORD", IncreaseCryptedPasswordSize.class)
+      .add(2100, "Increase size of USERS.CRYPTED_PASSWORD", IncreaseCryptedPasswordSize.class)
       .add(2101, "Add HASH_METHOD to table users", AddHashMethodToUsersTable.class)
       .add(2102, "Populate HASH_METHOD on table users", PopulateHashMethodOnUsers.class)
     ;

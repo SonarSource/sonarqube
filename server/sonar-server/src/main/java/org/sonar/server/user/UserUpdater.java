@@ -27,11 +27,9 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
-import java.util.Random;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
-import org.apache.commons.codec.digest.DigestUtils;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.platform.NewUserHandler;
 import org.sonar.api.server.ServerSide;
@@ -41,6 +39,7 @@ import org.sonar.db.organization.OrganizationMemberDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserGroupDto;
+import org.sonar.server.authentication.LocalAuthentication;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.OrganizationCreation;
 import org.sonar.server.organization.OrganizationFlags;
@@ -56,7 +55,6 @@ import static java.util.Arrays.stream;
 import static java.util.stream.Stream.concat;
 import static org.sonar.core.config.CorePropertyDefinitions.ONBOARDING_TUTORIAL_SHOW_TO_NEW_USERS;
 import static org.sonar.core.util.stream.MoreCollectors.toList;
-import static org.sonar.db.user.UserDto.encryptPassword;
 import static org.sonar.server.ws.WsUtils.checkFound;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 
@@ -83,9 +81,11 @@ public class UserUpdater {
   private final OrganizationCreation organizationCreation;
   private final DefaultGroupFinder defaultGroupFinder;
   private final Configuration config;
+  private final LocalAuthentication localAuthentication;
 
   public UserUpdater(NewUserNotifier newUserNotifier, DbClient dbClient, UserIndexer userIndexer, OrganizationFlags organizationFlags,
-    DefaultOrganizationProvider defaultOrganizationProvider, OrganizationCreation organizationCreation, DefaultGroupFinder defaultGroupFinder, Configuration config) {
+    DefaultOrganizationProvider defaultOrganizationProvider, OrganizationCreation organizationCreation, DefaultGroupFinder defaultGroupFinder, Configuration config,
+    LocalAuthentication localAuthentication) {
     this.newUserNotifier = newUserNotifier;
     this.dbClient = dbClient;
     this.userIndexer = userIndexer;
@@ -94,6 +94,7 @@ public class UserUpdater {
     this.organizationCreation = organizationCreation;
     this.defaultGroupFinder = defaultGroupFinder;
     this.config = config;
+    this.localAuthentication = localAuthentication;
   }
 
   public UserDto createAndCommit(DbSession dbSession, NewUser newUser, Consumer<UserDto> beforeCommit, UserDto... otherUsersToIndex) {
@@ -165,7 +166,7 @@ public class UserUpdater {
 
     String password = newUser.password();
     if (password != null && validatePasswords(password, messages)) {
-      setEncryptedPassword(password, userDto);
+      localAuthentication.storeHashPassword(userDto, password);
     }
 
     List<String> scmAccounts = sanitizeScmAccounts(newUser.scmAccounts());
@@ -218,10 +219,10 @@ public class UserUpdater {
     return false;
   }
 
-  private static boolean updatePassword(UpdateUser updateUser, UserDto userDto, List<String> messages) {
+  private boolean updatePassword(UpdateUser updateUser, UserDto userDto, List<String> messages) {
     String password = updateUser.password();
     if (updateUser.isPasswordChanged() && validatePasswords(password, messages) && checkPasswordChangeAllowed(userDto, messages)) {
-      setEncryptedPassword(password, userDto);
+      localAuthentication.storeHashPassword(userDto, password);
       return true;
     }
     return false;
@@ -375,15 +376,6 @@ public class UserUpdater {
   private void updateUser(DbSession dbSession, UserDto dto) {
     dto.setActive(true);
     dbClient.userDao().update(dbSession, dto);
-  }
-
-  private static void setEncryptedPassword(String password, UserDto userDto) {
-    Random random = new SecureRandom();
-    byte[] salt = new byte[32];
-    random.nextBytes(salt);
-    String saltHex = DigestUtils.sha1Hex(salt);
-    userDto.setSalt(saltHex);
-    userDto.setCryptedPassword(encryptPassword(password, saltHex));
   }
 
   private void notifyNewUser(String login, String name, @Nullable String email) {

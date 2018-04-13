@@ -36,6 +36,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserTesting;
+import org.sonar.server.authentication.LocalAuthentication;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.organization.DefaultOrganizationProvider;
@@ -71,15 +72,15 @@ public class UserUpdaterUpdateTest {
 
   private DbClient dbClient = db.getDbClient();
   private NewUserNotifier newUserNotifier = mock(NewUserNotifier.class);
-  private ArgumentCaptor<NewUserHandler.Context> newUserHandler = ArgumentCaptor.forClass(NewUserHandler.Context.class);
   private DbSession session = db.getSession();
   private UserIndexer userIndexer = new UserIndexer(dbClient, es.client());
   private OrganizationCreation organizationCreation = mock(OrganizationCreation.class);
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
   private TestOrganizationFlags organizationFlags = TestOrganizationFlags.standalone();
   private MapSettings settings = new MapSettings();
+  private LocalAuthentication localAuthentication = new LocalAuthentication(db.getDbClient());
   private UserUpdater underTest = new UserUpdater(newUserNotifier, dbClient, userIndexer, organizationFlags, defaultOrganizationProvider, organizationCreation,
-    new DefaultGroupFinder(dbClient), settings.asConfig());
+    new DefaultGroupFinder(dbClient), settings.asConfig(), localAuthentication);
 
   @Test
   public void update_user() {

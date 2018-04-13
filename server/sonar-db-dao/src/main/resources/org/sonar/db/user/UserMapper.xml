@@ -221,6 +221,7 @@
         onboarded = #{user.onboarded, jdbcType=BOOLEAN},
         salt = #{user.salt, jdbcType=VARCHAR},
         crypted_password = #{user.cryptedPassword, jdbcType=BIGINT},
+        hash_method = #{user.hashMethod, jdbcType=VARCHAR},
         updated_at = #{now, jdbcType=BIGINT},
         homepage_type = #{user.homepageType, jdbcType=VARCHAR},
         homepage_parameter = #{user.homepageParameter, jdbcType=VARCHAR}

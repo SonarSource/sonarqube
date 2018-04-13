@@ -319,6 +319,7 @@ public class UserDaoTest {
       .setOnboarded(true)
       .setSalt("1234")
       .setCryptedPassword("abcd")
+      .setHashMethod("SHA1")
       .setExternalIdentity("johngithub")
       .setExternalIdentityProvider("github")
       .setLocal(true)
@@ -340,6 +341,7 @@ public class UserDaoTest {
     assertThat(user.getScmAccounts()).isEqualTo(",jo.hn,john2,");
     assertThat(user.getSalt()).isEqualTo("1234");
     assertThat(user.getCryptedPassword()).isEqualTo("abcd");
+    assertThat(user.getHashMethod()).isEqualTo("SHA1");
     assertThat(user.getExternalIdentity()).isEqualTo("johngithub");
     assertThat(user.getExternalIdentityProvider()).isEqualTo("github");
     assertThat(user.isLocal()).isTrue();
@@ -368,6 +370,7 @@ public class UserDaoTest {
       .setOnboarded(true)
       .setSalt("12345")
       .setCryptedPassword("abcde")
+      .setHashMethod("BCRYPT")
       .setExternalIdentity("johngithub")
       .setExternalIdentityProvider("github")
       .setLocal(false)
@@ -386,6 +389,7 @@ public class UserDaoTest {
     assertThat(reloaded.getScmAccounts()).isEqualTo(",jo.hn,john2,johndoo,");
     assertThat(reloaded.getSalt()).isEqualTo("12345");
     assertThat(reloaded.getCryptedPassword()).isEqualTo("abcde");
+    assertThat(reloaded.getHashMethod()).isEqualTo("BCRYPT");
     assertThat(reloaded.getExternalIdentity()).isEqualTo("johngithub");
     assertThat(reloaded.getExternalIdentityProvider()).isEqualTo("github");
     assertThat(reloaded.isLocal()).isFalse();

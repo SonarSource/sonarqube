@@ -47,6 +47,7 @@ public class AuthenticationModule extends Module {
       LoginAction.class,
       LogoutAction.class,
       CredentialsAuthenticator.class,
+      LocalAuthentication.class,
       RealmAuthenticator.class,
       BasicAuthenticator.class,
       ValidateAction.class,

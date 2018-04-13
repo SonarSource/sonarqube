@@ -100,12 +100,13 @@ public class SsoAuthenticatorTest {
   private OrganizationCreation organizationCreation = mock(OrganizationCreation.class);
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
   private TestOrganizationFlags organizationFlags = TestOrganizationFlags.standalone();
+  private LocalAuthentication localAuthentication = new LocalAuthentication(db.getDbClient());
 
   private UserIndexer userIndexer = new UserIndexer(db.getDbClient(), es.client());
   private UserIdentityAuthenticator userIdentityAuthenticator = new UserIdentityAuthenticator(
     db.getDbClient(),
     new UserUpdater(mock(NewUserNotifier.class), db.getDbClient(), userIndexer, organizationFlags, defaultOrganizationProvider, organizationCreation,
-      new DefaultGroupFinder(db.getDbClient()), settings.asConfig()),
+      new DefaultGroupFinder(db.getDbClient()), settings.asConfig(), localAuthentication),
     defaultOrganizationProvider, organizationFlags, new DefaultGroupFinder(db.getDbClient()));
 
   private HttpServletResponse response = mock(HttpServletResponse.class);

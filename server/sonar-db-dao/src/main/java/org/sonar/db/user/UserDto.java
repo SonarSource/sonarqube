@@ -25,10 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.apache.commons.codec.digest.DigestUtils;
 import org.sonar.core.user.DefaultUser;
-
-import static java.util.Objects.requireNonNull;
 
 /**
  * @since 3.2
@@ -44,8 +41,11 @@ public class UserDto {
   private String scmAccounts;
   private String externalIdentity;
   private String externalIdentityProvider;
+  // Hashed password that may be null in case of external authentication
   private String cryptedPassword;
+  // Salt used for SHA1, null when bcrypt is used or for external authentication
   private String salt;
+  // Hash method used to generate cryptedPassword, my be null in case of external authentication
   private String hashMethod;
   private Long createdAt;
   private Long updatedAt;
@@ -192,7 +192,7 @@ public class UserDto {
     return hashMethod;
   }
 
-  public UserDto setHashMethod(String hashMethod) {
+  public UserDto setHashMethod(@Nullable String hashMethod) {
     this.hashMethod = hashMethod;
     return this;
   }
@@ -258,12 +258,6 @@ public class UserDto {
   public UserDto setOnboarded(boolean onboarded) {
     this.onboarded = onboarded;
     return this;
-  }
-
-  public static String encryptPassword(String password, String salt) {
-    requireNonNull(password, "Password cannot be empty");
-    requireNonNull(salt, "Salt cannot be empty");
-    return DigestUtils.sha1Hex("--" + salt + "--" + password + "--");
   }
 
   public DefaultUser toUser() {

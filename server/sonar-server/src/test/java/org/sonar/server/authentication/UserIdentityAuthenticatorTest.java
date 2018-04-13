@@ -84,6 +84,7 @@ public class UserIdentityAuthenticatorTest {
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
   private OrganizationCreation organizationCreation = mock(OrganizationCreation.class);
   private TestOrganizationFlags organizationFlags = TestOrganizationFlags.standalone();
+  private LocalAuthentication localAuthentication = new LocalAuthentication(db.getDbClient());
   private UserUpdater userUpdater = new UserUpdater(
     mock(NewUserNotifier.class),
     db.getDbClient(),
@@ -92,7 +93,8 @@ public class UserIdentityAuthenticatorTest {
     defaultOrganizationProvider,
     organizationCreation,
     new DefaultGroupFinder(db.getDbClient()),
-    settings.asConfig());
+    settings.asConfig(),
+    localAuthentication);
 
   private UserIdentityAuthenticator underTest = new UserIdentityAuthenticator(db.getDbClient(), userUpdater, defaultOrganizationProvider, organizationFlags,
     new DefaultGroupFinder(db.getDbClient()));

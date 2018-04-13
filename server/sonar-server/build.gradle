@@ -45,6 +45,7 @@ dependencies {
   compile 'org.slf4j:jul-to-slf4j'
   compile 'org.slf4j:slf4j-api'
   compile 'org.sonarsource.update-center:sonar-update-center-common'
+  compile 'org.mindrot:jbcrypt'
 
   compile project(':server:sonar-db-dao')
   compile project(':server:sonar-db-migration')
