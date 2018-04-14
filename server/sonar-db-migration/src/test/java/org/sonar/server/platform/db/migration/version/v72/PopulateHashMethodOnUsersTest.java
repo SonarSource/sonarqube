@@ -35,7 +35,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class PopulateHashMethodOnUsersTest {
 
-  private static final long PAST = 5_000_000_000L;
   private static final long NOW = 10_000_000_000L;
 
   @Rule

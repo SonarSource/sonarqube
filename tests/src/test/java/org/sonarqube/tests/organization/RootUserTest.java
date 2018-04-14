@@ -20,7 +20,6 @@
 package org.sonarqube.tests.organization;
 
 import com.sonar.orchestrator.Orchestrator;
-import java.sql.SQLException;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;

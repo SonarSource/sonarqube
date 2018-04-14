@@ -172,7 +172,7 @@ public class LocalAuthentication {
         .setSalt(salt);
     }
 
-    private String hash(String salt, String password) {
+    private static String hash(String salt, String password) {
       return DigestUtils.sha1Hex("--" + salt + "--" + password + "--");
     }
   }

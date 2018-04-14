@@ -21,7 +21,6 @@ package org.sonar.server.user;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
-import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
