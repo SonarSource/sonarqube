@@ -1,0 +1,19 @@
+dependencies {
+  compileOnly project(path: ':sonar-plugin-api', configuration: 'shadow')
+}
+
+jar {
+  manifest {
+    attributes(
+      'Plugin-Key': 'save-measure-on-project-plugin',
+      'Plugin-Version': version,
+      'Plugin-Class': 'org.sonar.measure.SaveMeasureOnModulePlugin',
+      'Plugin-ChildFirstClassLoader': 'false',
+      'Sonar-Version': version,
+      'SonarLint-Supported': 'false',
+      'Plugin-Name': 'Custom',
+      'Plugin-License': 'GNU LGPL 3',
+    )
+  }
+}
+

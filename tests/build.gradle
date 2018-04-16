@@ -11,6 +11,9 @@ configurations {
 def pluginsForITs = [
     ':plugins:sonar-xoo-plugin',
     ':tests:plugins:access-secured-props-plugin',
+    ':tests:plugins:backdating-plugin-v1',
+    ':tests:plugins:backdating-plugin-v2',
+    ':tests:plugins:backdating-customplugin',
     ':tests:plugins:base-auth-plugin',
     ':tests:plugins:batch-plugin',
     ':tests:plugins:extension-lifecycle-plugin',
@@ -23,9 +26,11 @@ def pluginsForITs = [
     ':tests:plugins:l10n-fr-pack',
     ':tests:plugins:license-plugin',
     ':tests:plugins:oauth2-auth-plugin',
+    ':tests:plugins:posttask-plugin',
     ':tests:plugins:project-builder-plugin',
     ':tests:plugins:property-relocation-plugin',
     ':tests:plugins:property-sets-plugin',
+    ':tests:plugins:save-measure-on-project-plugin',
     ':tests:plugins:security-plugin',
     ':tests:plugins:server-plugin',
     ':tests:plugins:settings-encryption-plugin',
@@ -33,12 +38,8 @@ def pluginsForITs = [
     ':tests:plugins:sonar-fake-plugin',
     ':tests:plugins:sonar-subcategories-plugin',
     ':tests:plugins:ui-extensions-plugin',
-    ':tests:plugins:posttask-plugin',
     ':tests:plugins:wait-at-platform-level4-plugin',
-    ':tests:plugins:ws-plugin',
-    ':tests:plugins:backdating-plugin-v1',
-    ':tests:plugins:backdating-plugin-v2',
-    ':tests:plugins:backdating-customplugin'
+    ':tests:plugins:ws-plugin'
 ]
 
 dependencies {

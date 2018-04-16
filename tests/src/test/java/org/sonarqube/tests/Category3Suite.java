@@ -32,6 +32,7 @@ import org.sonarqube.tests.analysis.LinksTest;
 import org.sonarqube.tests.analysis.MultiLanguageTest;
 import org.sonarqube.tests.analysis.PermissionTest;
 import org.sonarqube.tests.analysis.ProjectBuilderTest;
+import org.sonarqube.tests.analysis.ProjectMeasureTest;
 import org.sonarqube.tests.analysis.RedirectTest;
 import org.sonarqube.tests.analysis.ReportDumpTest;
 import org.sonarqube.tests.analysis.SSLTest;
@@ -66,7 +67,8 @@ import static util.ItUtils.xooPlugin;
   ReportDumpTest.class,
   SSLTest.class,
   FavoriteTest.class,
-  RedirectTest.class
+  RedirectTest.class,
+  ProjectMeasureTest.class
 })
 public class Category3Suite {
 
@@ -89,6 +91,11 @@ public class Category3Suite {
 
     // used by ProjectBuilderTest
     .addPlugin(pluginArtifact("project-builder-plugin"))
+
+    // used by ProjectWithoutSourceTest
+    .addPlugin(pluginArtifact("save-measure-on-project-plugin"))
+
+    .setServerProperty("sonar.ce.javaAdditionalOpts", "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005")
 
     .build();
 }
