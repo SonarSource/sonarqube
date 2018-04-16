@@ -22,7 +22,6 @@ package org.sonar.server.computation.task.projectanalysis.issue;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import org.apache.commons.lang.StringUtils;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.RuleType;
@@ -215,11 +214,9 @@ public class TrackerRawInputFactory {
 
     private NewExternalRule toExternalRule(ScannerReport.ExternalIssue reportIssue) {
       NewExternalRule.Builder builder = new NewExternalRule.Builder()
-        .setDescriptionUrl(StringUtils.stripToNull(reportIssue.getDescriptionUrl()))
         .setType(toRuleType(reportIssue.getType()))
         .setKey(RuleKey.of(RuleKey.EXTERNAL_RULE_REPO_PREFIX + reportIssue.getRuleRepository(), reportIssue.getRuleKey()))
-        .setPluginKey(reportIssue.getRuleRepository())
-        .setName(reportIssue.getRuleTitle());
+        .setPluginKey(reportIssue.getRuleRepository());
 
       if (reportIssue.getSeverity() != Severity.UNSET_SEVERITY) {
         builder.setSeverity(reportIssue.getSeverity().name());

@@ -55,7 +55,6 @@ public class ExternalRuleCreator {
       .setPluginKey(external.getPluginKey())
       .setIsExternal(external.isExternal())
       .setName(external.getName())
-      .setDescriptionURL(external.getDescriptionUrl())
       .setType(external.getType())
       .setScope(ALL)
       .setStatus(RuleStatus.READY)

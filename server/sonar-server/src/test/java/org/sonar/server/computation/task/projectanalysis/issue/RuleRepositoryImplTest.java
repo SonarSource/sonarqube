@@ -21,12 +21,10 @@ package org.sonar.server.computation.task.projectanalysis.issue;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import java.util.List;
 import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rules.RuleType;
@@ -39,9 +37,7 @@ import org.sonar.db.rule.RuleDao;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
-import org.sonar.server.es.EsTester;
 import org.sonar.server.rule.ExternalRuleCreator;
-import org.sonar.server.rule.index.RuleIndexDefinition;
 import org.sonar.server.rule.index.RuleIndexer;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -278,15 +274,12 @@ public class RuleRepositoryImplTest {
     underTest.insertNewExternalRuleIfAbsent(ruleKey, () -> new NewExternalRule.Builder()
       .setKey(ruleKey)
       .setPluginKey("eslint")
-      .setName("disallow assignment operators in conditional statements (no-cond-assign)")
-      .setDescriptionUrl("https://eslint.org/docs/rules/no-cond-assign")
       .setSeverity(BLOCKER)
       .setType(BUG)
       .build());
 
     assertThat(underTest.getByKey(ruleKey)).isNotNull();
     assertThat(underTest.getByKey(ruleKey).getPluginKey()).isEqualTo("eslint");
-    assertThat(underTest.getByKey(ruleKey).getName()).isEqualTo("disallow assignment operators in conditional statements (no-cond-assign)");
     assertThat(underTest.getByKey(ruleKey).getType()).isEqualTo(BUG);
 
     RuleDao ruleDao = dbClient.ruleDao();
@@ -302,8 +295,6 @@ public class RuleRepositoryImplTest {
     underTest.insertNewExternalRuleIfAbsent(ruleKey, () -> new NewExternalRule.Builder()
       .setKey(ruleKey)
       .setPluginKey("eslint")
-      .setName("disallow assignment operators in conditional statements (no-cond-assign)")
-      .setDescriptionUrl("https://eslint.org/docs/rules/no-cond-assign")
       .setSeverity(BLOCKER)
       .setType(BUG)
       .build());

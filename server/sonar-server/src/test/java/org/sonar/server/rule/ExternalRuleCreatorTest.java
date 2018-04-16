@@ -50,8 +50,6 @@ public class ExternalRuleCreatorTest {
     NewExternalRule externalRule = new NewExternalRule.Builder()
       .setKey(ruleKey)
       .setPluginKey("eslint")
-      .setName("disallow assignment operators in conditional statements (no-cond-assign)")
-      .setDescriptionUrl("https://eslint.org/docs/rules/no-cond-assign")
       .setSeverity(BLOCKER)
       .setType(BUG)
       .build();
@@ -63,7 +61,7 @@ public class ExternalRuleCreatorTest {
     assertThat(rule1.getId()).isGreaterThan(0);
     assertThat(rule1.getKey()).isEqualTo(ruleKey);
     assertThat(rule1.getPluginKey()).isEqualTo("eslint");
-    assertThat(rule1.getName()).isEqualTo("disallow assignment operators in conditional statements (no-cond-assign)");
+    assertThat(rule1.getName()).isEqualTo(ruleKey.toString());
     assertThat(rule1.getType()).isEqualTo(BUG);
 
   }

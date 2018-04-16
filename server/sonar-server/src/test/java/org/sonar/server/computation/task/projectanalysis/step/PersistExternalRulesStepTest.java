@@ -80,8 +80,6 @@ public class PersistExternalRulesStepTest extends BaseStepTest {
     ruleRepository.insertNewExternalRuleIfAbsent(ruleKey, () -> new NewExternalRule.Builder()
       .setKey(ruleKey)
       .setPluginKey("eslint")
-      .setName("disallow assignment operators in conditional statements (no-cond-assign)")
-      .setDescriptionUrl("https://eslint.org/docs/rules/no-cond-assign")
       .setSeverity(BLOCKER)
       .setType(BUG)
       .build());
@@ -98,8 +96,7 @@ public class PersistExternalRulesStepTest extends BaseStepTest {
     assertThat(reloaded.isExternal()).isTrue();
     assertThat(reloaded.getType()).isEqualTo(2);
     assertThat(reloaded.getSeverity()).isEqualTo(4);
-    assertThat(reloaded.getDescriptionURL()).isEqualTo("https://eslint.org/docs/rules/no-cond-assign");
-    assertThat(reloaded.getName()).isEqualTo("disallow assignment operators in conditional statements (no-cond-assign)");
+    assertThat(reloaded.getName()).isEqualTo("eslint:no-cond-assign");
     assertThat(reloaded.getPluginKey()).isEqualTo("eslint");
 
     assertThat(es.countDocuments(RuleIndexDefinition.INDEX_TYPE_RULE)).isEqualTo(1l);
@@ -113,8 +110,6 @@ public class PersistExternalRulesStepTest extends BaseStepTest {
     ruleRepository.insertNewExternalRuleIfAbsent(ruleKey, () -> new NewExternalRule.Builder()
       .setKey(ruleKey)
       .setPluginKey("eslint")
-      .setName("disallow assignment operators in conditional statements (no-cond-assign)")
-      .setDescriptionUrl("https://eslint.org/docs/rules/no-cond-assign")
       .setSeverity(BLOCKER)
       .setType(BUG)
       .build());

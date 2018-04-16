@@ -21,7 +21,6 @@ package org.sonar.server.computation.task.projectanalysis.issue;
 
 import java.util.Collections;
 import java.util.Set;
-import javax.annotation.CheckForNull;
 import javax.annotation.concurrent.Immutable;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.rule.RuleKey;
@@ -32,16 +31,12 @@ import org.sonar.api.server.debt.DebtRemediationFunction;
 @Immutable
 public class NewExternalRule implements Rule {
   private final RuleKey key;
-  private final String name;
-  private final String descriptionUrl;
   private final String severity;
   private final RuleType type;
   private final String pluginKey;
 
   private NewExternalRule(Builder builder) {
     this.key = checkNotNull(builder.key, "key");
-    this.name = checkNotEmpty(builder.name, "name");
-    this.descriptionUrl = builder.descriptionUrl;
     this.severity = checkNotEmpty(builder.severity, "severity");
     this.type = checkNotNull(builder.type, "type");
     this.pluginKey = builder.pluginKey;
@@ -61,11 +56,6 @@ public class NewExternalRule implements Rule {
     return obj;
   }
 
-  @CheckForNull
-  public String getDescriptionUrl() {
-    return descriptionUrl;
-  }
-
   public String getSeverity() {
     return severity;
   }
@@ -82,7 +72,7 @@ public class NewExternalRule implements Rule {
 
   @Override
   public String getName() {
-    return name;
+    return key.toString();
   }
 
   @Override
@@ -117,24 +107,12 @@ public class NewExternalRule implements Rule {
 
   public static class Builder {
     private RuleKey key;
-    private String name;
-    private String descriptionUrl;
     private String severity;
     private RuleType type;
     private String pluginKey;
 
     public Builder setKey(RuleKey key) {
       this.key = key;
-      return this;
-    }
-
-    public Builder setName(String name) {
-      this.name = StringUtils.trimToNull(name);
-      return this;
-    }
-
-    public Builder setDescriptionUrl(String descriptionUrl) {
-      this.descriptionUrl = StringUtils.trimToNull(descriptionUrl);
       return this;
     }
 
@@ -146,14 +124,6 @@ public class NewExternalRule implements Rule {
     public Builder setType(RuleType type) {
       this.type = type;
       return this;
-    }
-
-    public String name() {
-      return name;
-    }
-
-    public String descriptionUrl() {
-      return descriptionUrl;
     }
 
     public String severity() {

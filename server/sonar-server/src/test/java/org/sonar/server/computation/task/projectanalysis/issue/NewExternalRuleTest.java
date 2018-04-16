@@ -33,39 +33,30 @@ public class NewExternalRuleTest {
   @Test
   public void should_build_new_external_rule() {
     NewExternalRule.Builder builder = new NewExternalRule.Builder()
-      .setDescriptionUrl("url")
       .setKey(RuleKey.of("repo", "rule"))
       .setPluginKey("repo")
-      .setName("name")
       .setSeverity("MAJOR")
       .setType(RuleType.BUG);
 
-    assertThat(builder.descriptionUrl()).isEqualTo("url");
-    assertThat(builder.name()).isEqualTo("name");
     assertThat(builder.severity()).isEqualTo("MAJOR");
     assertThat(builder.type()).isEqualTo(RuleType.BUG);
-    assertThat(builder.descriptionUrl()).isEqualTo("url");
 
     NewExternalRule rule = builder.build();
 
-    assertThat(rule.getDescriptionUrl()).isEqualTo("url");
-    assertThat(rule.getName()).isEqualTo("name");
+    assertThat(rule.getName()).isEqualTo("repo:rule");
     assertThat(rule.getPluginKey()).isEqualTo("repo");
     assertThat(rule.getSeverity()).isEqualTo("MAJOR");
     assertThat(rule.getType()).isEqualTo(RuleType.BUG);
-    assertThat(rule.getDescriptionUrl()).isEqualTo("url");
   }
 
   @Test
-  public void fail_if_name_is_not_set() {
+  public void fail_if_type_is_not_set() {
     exception.expect(IllegalStateException.class);
-    exception.expectMessage("'name' not expected to be empty for an external rule");
+    exception.expectMessage("'type' not expected to be null for an external rule");
 
     new NewExternalRule.Builder()
-      .setDescriptionUrl("url")
       .setKey(RuleKey.of("repo", "rule"))
       .setSeverity("MAJOR")
-      .setType(RuleType.BUG)
       .build();
   }
 
@@ -75,8 +66,6 @@ public class NewExternalRuleTest {
     exception.expectMessage("'key' not expected to be null for an external rule");
 
     new NewExternalRule.Builder()
-      .setDescriptionUrl("url")
-      .setName("name")
       .setSeverity("MAJOR")
       .setType(RuleType.BUG)
       .build();
