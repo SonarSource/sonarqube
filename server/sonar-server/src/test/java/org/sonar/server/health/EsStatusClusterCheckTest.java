@@ -19,35 +19,31 @@
  */
 package org.sonar.server.health;
 
+import com.google.common.collect.ImmutableSet;
 import java.util.Random;
 import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-import org.junit.Rule;
+import org.elasticsearch.cluster.health.ClusterHealthStatus;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.sonar.process.cluster.health.NodeDetails;
 import org.sonar.process.cluster.health.NodeHealth;
 import org.sonar.server.es.EsClient;
-import org.sonar.server.es.EsTester;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.when;
 
 public class EsStatusClusterCheckTest {
 
-  @Rule
-  public EsTester es = EsTester.createCustom();
-
-  private final Random random = new Random();
-  private EsStatusClusterCheck underTest = new EsStatusClusterCheck(es.client());
+  private EsClient esClient = Mockito.mock(EsClient.class, RETURNS_DEEP_STUBS);
+  private Random random = new Random();
+  private EsStatusClusterCheck underTest = new EsStatusClusterCheck(esClient);
 
   @Test
   public void check_ignores_NodeHealth_arg_and_returns_RED_with_cause_if_an_exception_occurs_checking_ES_cluster_status() {
-    Set<NodeHealth> nodeHealths = randomNodeHealths();
-    EsClient esClient = Mockito.mock(EsClient.class);
-    when(esClient.prepareClusterStats()).thenThrow(new RuntimeException("Faking an exception occuring while using the EsClient"));
+    Set<NodeHealth> nodeHealths = ImmutableSet.of(newNodeHealth(NodeHealth.Status.GREEN));
+    when(esClient.prepareClusterStats()).thenThrow(new RuntimeException("Faking an exception occurring while using the EsClient"));
 
     Health health = new EsStatusClusterCheck(esClient).check(nodeHealths);
 
@@ -57,26 +53,25 @@ public class EsStatusClusterCheckTest {
 
   @Test
   public void check_ignores_NodeHealth_arg_and_returns_GREEN_without_cause_if_ES_cluster_status_is_GREEN() {
-    Set<NodeHealth> nodeHealths = randomNodeHealths();
+    Set<NodeHealth> nodeHealths = ImmutableSet.of(newNodeHealth(NodeHealth.Status.YELLOW));
+    when(esClient.prepareClusterStats().get().getStatus()).thenReturn(ClusterHealthStatus.GREEN);
 
     Health health = underTest.check(nodeHealths);
 
     assertThat(health).isEqualTo(Health.GREEN);
   }
 
-  private Set<NodeHealth> randomNodeHealths() {
-    return IntStream.range(0, random.nextInt(20))
-      .mapToObj(i -> NodeHealth.newNodeHealthBuilder()
-        .setStatus(NodeHealth.Status.values()[random.nextInt(NodeHealth.Status.values().length)])
-        .setDetails(NodeDetails.newNodeDetailsBuilder()
-          .setType(random.nextBoolean() ? NodeDetails.Type.APPLICATION : NodeDetails.Type.SEARCH)
-          .setName(randomAlphanumeric(23))
-          .setHost(randomAlphanumeric(23))
-          .setPort(1 + random.nextInt(96))
-          .setStartedAt(1 + random.nextInt(966))
-          .build())
+  private NodeHealth newNodeHealth(NodeHealth.Status status) {
+    return NodeHealth.newNodeHealthBuilder()
+      .setStatus(status)
+      .setDetails(NodeDetails.newNodeDetailsBuilder()
+        .setType(random.nextBoolean() ? NodeDetails.Type.APPLICATION : NodeDetails.Type.SEARCH)
+        .setName(randomAlphanumeric(23))
+        .setHost(randomAlphanumeric(23))
+        .setPort(1 + random.nextInt(96))
+        .setStartedAt(1 + random.nextInt(966))
         .build())
-      .collect(Collectors.toSet());
+      .build();
   }
 
 }

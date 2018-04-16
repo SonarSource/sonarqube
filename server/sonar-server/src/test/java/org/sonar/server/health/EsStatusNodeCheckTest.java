@@ -19,25 +19,23 @@
  */
 package org.sonar.server.health;
 
-import org.junit.Rule;
+import org.elasticsearch.cluster.health.ClusterHealthStatus;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.sonar.server.es.EsClient;
-import org.sonar.server.es.EsTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class EsStatusNodeCheckTest {
 
-  @Rule
-  public EsTester es = EsTester.createCustom();
-
-  private EsStatusNodeCheck underTest = new EsStatusNodeCheck(es.client());
+  private EsClient esClient = mock(EsClient.class, Mockito.RETURNS_DEEP_STUBS);
+  private EsStatusNodeCheck underTest = new EsStatusNodeCheck(esClient);
 
   @Test
   public void check_ignores_NodeHealth_arg_and_returns_RED_with_cause_if_an_exception_occurs_checking_ES_cluster_status() {
-    EsClient esClient = Mockito.mock(EsClient.class);
+    EsClient esClient = mock(EsClient.class);
     when(esClient.prepareClusterStats()).thenThrow(new RuntimeException("Faking an exception occurring while using the EsClient"));
 
     Health health = new EsStatusNodeCheck(esClient).check();
@@ -48,6 +46,8 @@ public class EsStatusNodeCheckTest {
 
   @Test
   public void check_returns_GREEN_without_cause_if_ES_cluster_status_is_GREEN() {
+    when(esClient.prepareClusterStats().get().getStatus()).thenReturn(ClusterHealthStatus.GREEN);
+
     Health health = underTest.check();
 
     assertThat(health).isEqualTo(Health.GREEN);
