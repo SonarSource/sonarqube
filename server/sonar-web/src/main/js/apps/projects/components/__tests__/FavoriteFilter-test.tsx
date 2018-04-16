@@ -19,22 +19,20 @@
  */
 /* eslint-disable import/first */
 jest.mock('../../../../helpers/storage', () => ({
-  saveAll: jest.fn(),
-  saveFavorite: jest.fn()
+  save: jest.fn()
 }));
 
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import FavoriteFilter from '../FavoriteFilter';
-import { saveAll, saveFavorite } from '../../../../helpers/storage';
+import { save } from '../../../../helpers/storage';
 import { click } from '../../../../helpers/testUtils';
 
 const currentUser = { isLoggedIn: true };
 const query = { size: 1 };
 
 beforeEach(() => {
-  (saveAll as jest.Mock<any>).mockClear();
-  (saveFavorite as jest.Mock<any>).mockClear();
+  (save as jest.Mock<any>).mockClear();
 });
 
 it('renders for logged in user', () => {
@@ -44,9 +42,9 @@ it('renders for logged in user', () => {
 it('saves last selection', () => {
   const wrapper = shallow(<FavoriteFilter currentUser={currentUser} query={query} />);
   click(wrapper.find('#favorite-projects'));
-  expect(saveFavorite).toBeCalled();
+  expect(save).toBeCalledWith('sonarqube.projects.default', 'favorite');
   click(wrapper.find('#all-projects'));
-  expect(saveAll).toBeCalled();
+  expect(save).toBeCalledWith('sonarqube.projects.default', 'all');
 });
 
 it('handles organization', () => {
@@ -62,9 +60,9 @@ it('does not save last selection with organization', () => {
     <FavoriteFilter currentUser={currentUser} organization={{ key: 'org' }} query={query} />
   );
   click(wrapper.find('#favorite-projects'));
-  expect(saveFavorite).not.toBeCalled();
+  expect(save).not.toBeCalled();
   click(wrapper.find('#all-projects'));
-  expect(saveAll).not.toBeCalled();
+  expect(save).not.toBeCalled();
 });
 
 it('does not render for anonymous', () => {

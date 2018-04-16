@@ -53,6 +53,9 @@ export const GRAPHS_METRICS = {
   duplications: GRAPHS_METRICS_DISPLAYED['duplications'].concat(['duplicated_lines_density'])
 };
 
+export const PROJECT_ACTIVITY_GRAPH = 'sonarqube.project_activity.graph';
+export const PROJECT_ACTIVITY_GRAPH_CUSTOM = 'sonarqube.project_activity.graph.custom';
+
 export const datesQueryChanged = (prevQuery /*: Query */, nextQuery /*: Query */) =>
   !isEqual(prevQuery.from, nextQuery.from) || !isEqual(prevQuery.to, nextQuery.to);
 

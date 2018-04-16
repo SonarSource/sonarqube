@@ -21,7 +21,7 @@
 import * as React from 'react';
 import { mount, shallow } from 'enzyme';
 import AllProjects, { Props } from '../AllProjects';
-import { getView, saveSort, saveView, saveVisualization } from '../../../../helpers/storage';
+import { get, save } from '../../../../helpers/storage';
 
 jest.mock('../ProjectsList', () => ({
   // eslint-disable-next-line
@@ -51,21 +51,15 @@ jest.mock('../../utils', () => {
 });
 
 jest.mock('../../../../helpers/storage', () => ({
-  getSort: () => null,
-  getView: jest.fn(() => null),
-  getVisualization: () => null,
-  saveSort: jest.fn(),
-  saveView: jest.fn(),
-  saveVisualization: jest.fn()
+  get: jest.fn(() => null),
+  save: jest.fn()
 }));
 
 const fetchProjects = require('../../utils').fetchProjects as jest.Mock<any>;
 
 beforeEach(() => {
-  (getView as jest.Mock<any>).mockImplementation(() => null);
-  (saveSort as jest.Mock<any>).mockClear();
-  (saveView as jest.Mock<any>).mockClear();
-  (saveVisualization as jest.Mock<any>).mockClear();
+  (get as jest.Mock<any>).mockImplementation(() => null);
+  (save as jest.Mock<any>).mockClear();
   fetchProjects.mockClear();
 });
 
@@ -106,7 +100,9 @@ it('fetches projects', () => {
 });
 
 it('redirects to the saved search', () => {
-  (getView as jest.Mock<any>).mockImplementation(() => 'leak');
+  (get as jest.Mock<any>).mockImplementation(
+    (key: string) => (key === 'sonarqube.projects.view' ? 'leak' : null)
+  );
   const replace = jest.fn();
   mountRender({}, jest.fn(), replace);
   expect(replace).lastCalledWith({ pathname: '/projects', query: { view: 'leak' } });
@@ -117,7 +113,7 @@ it('changes sort', () => {
   const wrapper = shallowRender({}, push);
   wrapper.find('PageHeader').prop<Function>('onSortChange')('size', false);
   expect(push).lastCalledWith({ pathname: '/projects', query: { sort: 'size' } });
-  expect(saveSort).lastCalledWith('size', undefined);
+  expect(save).lastCalledWith('sonarqube.projects.sort', 'size', undefined);
 });
 
 it('changes perspective to leak', () => {
@@ -128,9 +124,9 @@ it('changes perspective to leak', () => {
     pathname: '/projects',
     query: { view: 'leak', visualization: undefined }
   });
-  expect(saveSort).lastCalledWith(undefined, undefined);
-  expect(saveView).lastCalledWith('leak', undefined);
-  expect(saveVisualization).lastCalledWith(undefined, undefined);
+  expect(save).toHaveBeenCalledWith('sonarqube.projects.sort', undefined, undefined);
+  expect(save).toHaveBeenCalledWith('sonarqube.projects.view', 'leak', undefined);
+  expect(save).toHaveBeenCalledWith('sonarqube.projects.visualization', undefined, undefined);
 });
 
 it('updates sorting when changing perspective from leak', () => {
@@ -144,9 +140,9 @@ it('updates sorting when changing perspective from leak', () => {
     pathname: '/projects',
     query: { sort: 'coverage', view: undefined, visualization: undefined }
   });
-  expect(saveSort).lastCalledWith('coverage', undefined);
-  expect(saveView).lastCalledWith(undefined, undefined);
-  expect(saveVisualization).lastCalledWith(undefined, undefined);
+  expect(save).toHaveBeenCalledWith('sonarqube.projects.sort', 'coverage', undefined);
+  expect(save).toHaveBeenCalledWith('sonarqube.projects.view', undefined, undefined);
+  expect(save).toHaveBeenCalledWith('sonarqube.projects.visualization', undefined, undefined);
 });
 
 it('changes perspective to risk visualization', () => {
@@ -160,9 +156,9 @@ it('changes perspective to risk visualization', () => {
     pathname: '/projects',
     query: { view: 'visualizations', visualization: 'risk' }
   });
-  expect(saveSort).lastCalledWith(undefined, undefined);
-  expect(saveView).lastCalledWith('visualizations', undefined);
-  expect(saveVisualization).lastCalledWith('risk', undefined);
+  expect(save).toHaveBeenCalledWith('sonarqube.projects.sort', undefined, undefined);
+  expect(save).toHaveBeenCalledWith('sonarqube.projects.view', 'visualizations', undefined);
+  expect(save).toHaveBeenCalledWith('sonarqube.projects.visualization', 'risk', undefined);
 });
 
 function mountRender(props: any = {}, push: Function = jest.fn(), replace: Function = jest.fn()) {

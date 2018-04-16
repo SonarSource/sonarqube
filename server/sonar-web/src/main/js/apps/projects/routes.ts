@@ -20,14 +20,15 @@
 import { RouterState, RedirectFunction } from 'react-router';
 import DefaultPageSelectorContainer from './components/DefaultPageSelectorContainer';
 import FavoriteProjectsContainer from './components/FavoriteProjectsContainer';
-import { saveAll } from '../../helpers/storage';
+import { PROJECTS_DEFAULT_FILTER, PROJECTS_ALL } from './utils';
+import { save } from '../../helpers/storage';
 
 const routes = [
   { indexRoute: { component: DefaultPageSelectorContainer } },
   {
     path: 'all',
     onEnter(_: RouterState, replace: RedirectFunction) {
-      saveAll();
+      save(PROJECTS_DEFAULT_FILTER, PROJECTS_ALL);
       replace('/projects');
     }
   },

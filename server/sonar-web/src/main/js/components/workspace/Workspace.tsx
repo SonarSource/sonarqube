@@ -23,9 +23,11 @@ import { omit, uniqBy } from 'lodash';
 import { WorkspaceContext, ComponentDescriptor, RuleDescriptor } from './context';
 import WorkspaceNav from './WorkspaceNav';
 import WorkspacePortal from './WorkspacePortal';
+import { get, save } from '../../helpers/storage';
 import { lazyLoad } from '../lazyLoad';
 import './styles.css';
 
+const WORKSPACE = 'sonarqube-workspace';
 const WorkspaceRuleViewer = lazyLoad(() => import('./WorkspaceRuleViewer'));
 const WorkspaceComponentViewer = lazyLoad(() => import('./WorkspaceComponentViewer'));
 
@@ -41,7 +43,6 @@ const MIN_HEIGHT = 0.05;
 const MAX_HEIGHT = 0.85;
 const INITIAL_HEIGHT = 300;
 
-const STORAGE_KEY = 'sonarqube-workspace';
 const TYPE_KEY = '__type__';
 
 export default class Workspace extends React.PureComponent<{}, State> {
@@ -76,7 +77,7 @@ export default class Workspace extends React.PureComponent<{}, State> {
 
   loadWorkspace = () => {
     try {
-      const data: any[] = JSON.parse(window.localStorage.getItem(STORAGE_KEY) || '');
+      const data: any[] = JSON.parse(get(WORKSPACE) || '');
       const components: ComponentDescriptor[] = data.filter(x => x[TYPE_KEY] === 'component');
       const rules: RuleDescriptor[] = data.filter(x => x[TYPE_KEY] === 'rule');
       return { components, rules };
@@ -92,11 +93,7 @@ export default class Workspace extends React.PureComponent<{}, State> {
       ...this.state.components.map(x => omit({ ...x, [TYPE_KEY]: 'component' }, 'line')),
       ...this.state.rules.map(x => ({ ...x, [TYPE_KEY]: 'rule' }))
     ];
-    try {
-      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-    } catch {
-      // fail silently
-    }
+    save(WORKSPACE, JSON.stringify(data));
   };
 
   openComponent = (component: ComponentDescriptor) => {

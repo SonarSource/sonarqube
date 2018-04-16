@@ -30,7 +30,7 @@ import handleRequiredAuthentication from '../../../app/utils/handleRequiredAuthe
 import ScreenPositionHelper from '../../../components/common/ScreenPositionHelper';
 import ListFooter from '../../../components/controls/ListFooter';
 import { translate } from '../../../helpers/l10n';
-import * as storage from '../../../helpers/storage';
+import { get, save } from '../../../helpers/storage';
 import { RawQuery } from '../../../helpers/query';
 import '../styles.css';
 import { Project, Facets } from '../types';
@@ -55,6 +55,10 @@ interface State {
   query: Query;
   total?: number;
 }
+
+const PROJECTS_SORT = 'sonarqube.projects.sort';
+const PROJECTS_VIEW = 'sonarqube.projects.view';
+const PROJECTS_VISUALIZATION = 'sonarqube.projects.visualization';
 
 export default class AllProjects extends React.PureComponent<Props, State> {
   mounted = false;
@@ -159,14 +163,14 @@ export default class AllProjects extends React.PureComponent<Props, State> {
       view?: string;
       visualization?: string;
     } = {};
-    if (storage.getSort(storageOptionsSuffix)) {
-      options.sort = storage.getSort(storageOptionsSuffix) || undefined;
+    if (get(PROJECTS_SORT, storageOptionsSuffix)) {
+      options.sort = get(PROJECTS_SORT, storageOptionsSuffix) || undefined;
     }
-    if (storage.getView(storageOptionsSuffix)) {
-      options.view = storage.getView(storageOptionsSuffix) || undefined;
+    if (get(PROJECTS_VIEW, storageOptionsSuffix)) {
+      options.view = get(PROJECTS_VIEW, storageOptionsSuffix) || undefined;
     }
-    if (storage.getVisualization(storageOptionsSuffix)) {
-      options.visualization = storage.getVisualization(storageOptionsSuffix) || undefined;
+    if (get(PROJECTS_VISUALIZATION, storageOptionsSuffix)) {
+      options.visualization = get(PROJECTS_VISUALIZATION, storageOptionsSuffix) || undefined;
     }
     return options;
   };
@@ -194,15 +198,15 @@ export default class AllProjects extends React.PureComponent<Props, State> {
       this.updateLocationQuery(query);
     }
 
-    storage.saveSort(query.sort, storageOptionsSuffix);
-    storage.saveView(query.view, storageOptionsSuffix);
-    storage.saveVisualization(visualization, storageOptionsSuffix);
+    save(PROJECTS_SORT, query.sort, storageOptionsSuffix);
+    save(PROJECTS_VIEW, query.view, storageOptionsSuffix);
+    save(PROJECTS_VISUALIZATION, visualization, storageOptionsSuffix);
   };
 
   handleSortChange = (sort: string, desc: boolean) => {
     const asString = (desc ? '-' : '') + sort;
     this.updateLocationQuery({ sort: asString });
-    storage.saveSort(asString, this.props.storageOptionsSuffix);
+    save(PROJECTS_SORT, asString, this.props.storageOptionsSuffix);
   };
 
   handleQueryChange(initialMount: boolean) {

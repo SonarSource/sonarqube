@@ -21,8 +21,9 @@ import * as React from 'react';
 import { IndexLink, Link } from 'react-router';
 import { translate } from '../../../helpers/l10n';
 import { CurrentUser, isLoggedIn } from '../../../app/types';
-import { saveAll, saveFavorite } from '../../../helpers/storage';
+import { save } from '../../../helpers/storage';
 import { RawQuery } from '../../../helpers/query';
+import { PROJECTS_DEFAULT_FILTER, PROJECTS_FAVORITE, PROJECTS_ALL } from '../utils';
 
 interface Props {
   currentUser: CurrentUser;
@@ -33,13 +34,13 @@ interface Props {
 export default class FavoriteFilter extends React.PureComponent<Props> {
   handleSaveFavorite = () => {
     if (!this.props.organization) {
-      saveFavorite();
+      save(PROJECTS_DEFAULT_FILTER, PROJECTS_FAVORITE);
     }
   };
 
   handleSaveAll = () => {
     if (!this.props.organization) {
-      saveAll();
+      save(PROJECTS_DEFAULT_FILTER, PROJECTS_ALL);
     }
   };
 
@@ -60,19 +61,19 @@ export default class FavoriteFilter extends React.PureComponent<Props> {
       <header className="page-header text-center">
         <div className="button-group">
           <Link
-            id="favorite-projects"
-            to={{ pathname: pathnameForFavorite, query: this.props.query }}
-            className="button"
             activeClassName="button-active"
-            onClick={this.handleSaveFavorite}>
+            className="button"
+            id="favorite-projects"
+            onClick={this.handleSaveFavorite}
+            to={{ pathname: pathnameForFavorite, query: this.props.query }}>
             {translate('my_favorites')}
           </Link>
           <IndexLink
-            id="all-projects"
-            to={{ pathname: pathnameForAll, query: this.props.query }}
-            className="button"
             activeClassName="button-active"
-            onClick={this.handleSaveAll}>
+            className="button"
+            id="all-projects"
+            onClick={this.handleSaveAll}
+            to={{ pathname: pathnameForAll, query: this.props.query }}>
             {translate('all')}
           </IndexLink>
         </div>

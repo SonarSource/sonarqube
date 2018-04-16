@@ -18,7 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 // @flow
-const STORAGE_KEY = 'sonar_recent_history';
+import { get, remove, save } from '../../helpers/storage';
+
+const RECENT_HISTORY = 'sonar_recent_history';
 const HISTORY_LIMIT = 10;
 
 /*::
@@ -32,33 +34,25 @@ type History = Array<{
 
 export default class RecentHistory {
   static get() /*: History */ {
-    if (!window.localStorage) {
-      return [];
-    }
-    let history = window.localStorage.getItem(STORAGE_KEY);
+    const history = get(RECENT_HISTORY);
     if (history == null) {
-      history = [];
+      return [];
     } else {
       try {
-        history = JSON.parse(history);
+        return JSON.parse(history);
       } catch (e) {
-        RecentHistory.clear();
-        history = [];
+        remove(RECENT_HISTORY);
+        return [];
       }
     }
-    return history;
   }
 
   static set(newHistory /*: History */) /*: void */ {
-    if (window.localStorage) {
-      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(newHistory));
-    }
+    save(RECENT_HISTORY, JSON.stringify(newHistory));
   }
 
   static clear() /*: void */ {
-    if (window.localStorage) {
-      window.localStorage.removeItem(STORAGE_KEY);
-    }
+    remove(RECENT_HISTORY);
   }
 
   static add(

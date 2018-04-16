@@ -20,7 +20,8 @@
 import * as React from 'react';
 import * as PropTypes from 'prop-types';
 import AllProjectsContainer from './AllProjectsContainer';
-import { isFavoriteSet, isAllSet } from '../../../helpers/storage';
+import { PROJECTS_DEFAULT_FILTER, PROJECTS_FAVORITE, PROJECTS_ALL } from '../utils';
+import { get } from '../../../helpers/storage';
 import { searchProjects } from '../../../api/components';
 import { CurrentUser, isLoggedIn } from '../../../app/types';
 
@@ -73,6 +74,16 @@ export default class DefaultPageSelector extends React.PureComponent<Props, Stat
     }
   }
 
+  isFavoriteSet = (): boolean => {
+    const setting = get(PROJECTS_DEFAULT_FILTER);
+    return setting === PROJECTS_FAVORITE;
+  };
+
+  isAllSet = (): boolean => {
+    const setting = get(PROJECTS_DEFAULT_FILTER);
+    return setting === PROJECTS_ALL;
+  };
+
   defineIfShouldBeRedirected() {
     if (Object.keys(this.props.location.query).length > 0) {
       // show ALL projects when there are some filters
@@ -85,10 +96,10 @@ export default class DefaultPageSelector extends React.PureComponent<Props, Stat
       } else {
         this.setState({ shouldBeRedirected: false, shouldForceSorting: undefined });
       }
-    } else if (isFavoriteSet()) {
+    } else if (this.isFavoriteSet()) {
       // show FAVORITE projects if "favorite" setting is explicitly set
       this.setState({ shouldBeRedirected: true, shouldForceSorting: undefined });
-    } else if (isAllSet()) {
+    } else if (this.isAllSet()) {
       // show ALL projects if "all" setting is explicitly set
       this.setState({ shouldBeRedirected: false, shouldForceSorting: undefined });
     } else {

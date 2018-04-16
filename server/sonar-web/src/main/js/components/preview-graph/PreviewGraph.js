@@ -30,9 +30,11 @@ import {
   generateSeries,
   getSeriesMetricType,
   hasHistoryDataValue,
+  PROJECT_ACTIVITY_GRAPH,
+  PROJECT_ACTIVITY_GRAPH_CUSTOM,
   splitSeriesInGraphs
 } from '../../apps/projectActivity/utils';
-import { getCustomGraph, getGraph } from '../../helpers/storage';
+import { get } from '../../helpers/storage';
 import { formatMeasure, getShortType } from '../../helpers/measures';
 import { getBranchLikeQuery } from '../../helpers/branches';
 /*:: import type { Serie } from '../charts/AdvancedTimeline'; */
@@ -73,8 +75,9 @@ export default class PreviewGraph extends React.PureComponent {
 
   constructor(props /*: Props */) {
     super(props);
-    const graph = getGraph();
-    const customMetrics = getCustomGraph();
+    const customGraphs = get(PROJECT_ACTIVITY_GRAPH_CUSTOM);
+    const graph = get(PROJECT_ACTIVITY_GRAPH) || 'issues';
+    const customMetrics = customGraphs ? customGraphs.split(',') : [];
     const series = splitSeriesInGraphs(
       this.getSeries(props.history, graph, customMetrics, props.metrics),
       MAX_GRAPH_NB,
@@ -92,8 +95,9 @@ export default class PreviewGraph extends React.PureComponent {
 
   componentWillReceiveProps(nextProps /*: Props */) {
     if (nextProps.history !== this.props.history || nextProps.metrics !== this.props.metrics) {
-      const graph = getGraph();
-      const customMetrics = getCustomGraph();
+      const customGraphs = get(PROJECT_ACTIVITY_GRAPH_CUSTOM);
+      const graph = get(PROJECT_ACTIVITY_GRAPH) || 'issues';
+      const customMetrics = customGraphs ? customGraphs.split(',') : [];
       const series = splitSeriesInGraphs(
         this.getSeries(nextProps.history, graph, customMetrics, nextProps.metrics),
         MAX_GRAPH_NB,

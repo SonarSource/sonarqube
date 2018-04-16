@@ -21,6 +21,7 @@ import { searchMembers } from '../../api/organizations';
 import { searchUsers } from '../../api/users';
 import { Issue } from '../../app/types';
 import { formatMeasure } from '../../helpers/measures';
+import { get, save } from '../../helpers/storage';
 import {
   queriesEqual,
   cleanQuery,
@@ -63,6 +64,7 @@ export interface Query {
 
 // allow sorting by CREATION_DATE only
 const parseAsSort = (sort: string) => (sort === 'CREATION_DATE' ? 'CREATION_DATE' : '');
+const ISSUES_DEFAULT = 'sonarqube.issues.default';
 
 export function parseQuery(query: RawQuery): Query {
   return {
@@ -208,26 +210,15 @@ export const searchAssignees = (query: string, organization?: string) => {
       );
 };
 
-const LOCALSTORAGE_KEY = 'sonarqube.issues.default';
 const LOCALSTORAGE_MY = 'my';
 const LOCALSTORAGE_ALL = 'all';
 
 export const isMySet = () => {
-  const setting = window.localStorage.getItem(LOCALSTORAGE_KEY);
-  return setting === LOCALSTORAGE_MY;
-};
-
-const save = (value: string) => {
-  try {
-    window.localStorage.setItem(LOCALSTORAGE_KEY, value);
-  } catch (e) {
-    // usually that means the storage is full
-    // just do nothing in this case
-  }
+  return get(ISSUES_DEFAULT) === LOCALSTORAGE_MY;
 };
 
 export const saveMyIssues = (myIssues: boolean) =>
-  save(myIssues ? LOCALSTORAGE_MY : LOCALSTORAGE_ALL);
+  save(ISSUES_DEFAULT, myIssues ? LOCALSTORAGE_MY : LOCALSTORAGE_ALL);
 
 export function getLocations(
   { flows, secondaryLocations }: Pick<Issue, 'flows' | 'secondaryLocations'>,

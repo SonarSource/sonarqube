@@ -23,7 +23,7 @@ import { debounce, findLast, maxBy, minBy, sortBy } from 'lodash';
 import ProjectActivityGraphsHeader from './ProjectActivityGraphsHeader';
 import GraphsZoom from './GraphsZoom';
 import GraphsHistory from './GraphsHistory';
-import { getCustomGraph, saveCustomGraph, saveGraph } from '../../../helpers/storage';
+import { get, save } from '../../../helpers/storage';
 import {
   datesQueryChanged,
   generateSeries,
@@ -31,6 +31,8 @@ import {
   getSeriesMetricType,
   historyQueryChanged,
   isCustomGraph,
+  PROJECT_ACTIVITY_GRAPH,
+  PROJECT_ACTIVITY_GRAPH_CUSTOM,
   splitSeriesInGraphs
 } from '../utils';
 /*:: import type { RawQuery } from '../../../helpers/query'; */
@@ -148,20 +150,21 @@ export default class ProjectActivityGraphs extends React.PureComponent {
 
   addCustomMetric = (metric /*: string */) => {
     const customMetrics = [...this.props.query.customMetrics, metric];
-    saveCustomGraph(customMetrics);
+    save(PROJECT_ACTIVITY_GRAPH_CUSTOM, customMetrics.join(','));
     this.props.updateQuery({ customMetrics });
   };
 
   removeCustomMetric = (removedMetric /*: string */) => {
     const customMetrics = this.props.query.customMetrics.filter(metric => metric !== removedMetric);
-    saveCustomGraph(customMetrics);
+    save(PROJECT_ACTIVITY_GRAPH_CUSTOM, customMetrics.join(','));
     this.props.updateQuery({ customMetrics });
   };
 
   updateGraph = (graph /*: string */) => {
-    saveGraph(graph);
+    save(PROJECT_ACTIVITY_GRAPH, graph);
     if (isCustomGraph(graph) && this.props.query.customMetrics.length <= 0) {
-      this.props.updateQuery({ graph, customMetrics: getCustomGraph() });
+      const customGraphs = get(PROJECT_ACTIVITY_GRAPH_CUSTOM);
+      this.props.updateQuery({ graph, customMetrics: customGraphs ? customGraphs.split(',') : [] });
     } else {
       this.props.updateQuery({ graph, customMetrics: [] });
     }
@@ -210,9 +213,9 @@ export default class ProjectActivityGraphs extends React.PureComponent {
           analyses={this.props.analyses}
           eventFilter={query.category}
           graph={query.graph}
-          graphs={this.state.graphs}
           graphEndDate={graphEndDate}
           graphStartDate={graphStartDate}
+          graphs={this.state.graphs}
           leakPeriodDate={leakPeriodDate}
           loading={loading}
           measuresHistory={this.props.measuresHistory}

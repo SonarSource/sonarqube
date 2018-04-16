@@ -28,13 +28,15 @@ import * as api from '../../../api/projectActivity';
 import * as actions from '../actions';
 import { getBranchLikeQuery } from '../../../helpers/branches';
 import { parseDate } from '../../../helpers/dates';
-import { getCustomGraph, getGraph } from '../../../helpers/storage';
+import { get } from '../../../helpers/storage';
 import {
   customMetricsChanged,
   DEFAULT_GRAPH,
   getHistoryMetrics,
   isCustomGraph,
   parseQuery,
+  PROJECT_ACTIVITY_GRAPH,
+  PROJECT_ACTIVITY_GRAPH_CUSTOM,
   serializeQuery,
   serializeUrlQuery
 } from '../utils';
@@ -95,9 +97,10 @@ export default class ProjectActivityAppContainer extends React.PureComponent {
   componentDidMount() {
     this.mounted = true;
     if (this.shouldRedirect()) {
-      const newQuery = { ...this.state.query, graph: getGraph() };
+      const newQuery = { ...this.state.query, graph: get(PROJECT_ACTIVITY_GRAPH) || 'issues' };
       if (isCustomGraph(newQuery.graph)) {
-        newQuery.customMetrics = getCustomGraph();
+        const customGraphs = get(PROJECT_ACTIVITY_GRAPH_CUSTOM);
+        newQuery.customMetrics = customGraphs ? customGraphs.split(',') : [];
       }
       this.context.router.replace({
         pathname: this.props.location.pathname,
@@ -312,8 +315,10 @@ export default class ProjectActivityAppContainer extends React.PureComponent {
       key => key !== 'id' && locationQuery[key] !== ''
     );
 
-    const graph = getGraph();
-    const emptyCustomGraph = isCustomGraph(graph) && getCustomGraph().length <= 0;
+    const customGraphs = get(PROJECT_ACTIVITY_GRAPH_CUSTOM);
+    const graph = get(PROJECT_ACTIVITY_GRAPH) || 'issues';
+    const emptyCustomGraph =
+      isCustomGraph(graph) && customGraphs && customGraphs.split(',').length <= 0;
 
     // if there is no filter, but there are saved preferences in the localStorage
     // also don't redirect to custom if there is no metrics selected for it
@@ -336,8 +341,8 @@ export default class ProjectActivityAppContainer extends React.PureComponent {
         deleteEvent={this.deleteEvent}
         graphLoading={!this.state.initialized || this.state.graphLoading}
         initializing={!this.state.initialized}
-        metrics={this.state.metrics}
         measuresHistory={this.state.measuresHistory}
+        metrics={this.state.metrics}
         project={this.props.component}
         query={this.state.query}
         updateQuery={this.updateQuery}

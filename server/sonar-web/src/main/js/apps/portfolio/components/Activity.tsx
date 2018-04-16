@@ -18,13 +18,18 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { getDisplayedHistoryMetrics, DEFAULT_GRAPH } from '../../projectActivity/utils';
+import {
+  getDisplayedHistoryMetrics,
+  DEFAULT_GRAPH,
+  PROJECT_ACTIVITY_GRAPH,
+  PROJECT_ACTIVITY_GRAPH_CUSTOM
+} from '../../projectActivity/utils';
 import PreviewGraph from '../../../components/preview-graph/PreviewGraph';
 import { getAllTimeMachineData, History } from '../../../api/time-machine';
 import { Metric } from '../../../app/types';
 import { parseDate } from '../../../helpers/dates';
 import { translate } from '../../../helpers/l10n';
-import { getCustomGraph, getGraph } from '../../../helpers/storage';
+import { get } from '../../../helpers/storage';
 
 const AnyPreviewGraph = PreviewGraph as any;
 
@@ -60,7 +65,11 @@ export default class Activity extends React.PureComponent<Props> {
   fetchHistory = () => {
     const { component } = this.props;
 
-    let graphMetrics: string[] = getDisplayedHistoryMetrics(getGraph(), getCustomGraph());
+    const customGraphs = get(PROJECT_ACTIVITY_GRAPH_CUSTOM);
+    let graphMetrics = getDisplayedHistoryMetrics(
+      get(PROJECT_ACTIVITY_GRAPH) || 'issues',
+      customGraphs ? customGraphs.split(',') : []
+    );
     if (!graphMetrics || graphMetrics.length <= 0) {
       graphMetrics = getDisplayedHistoryMetrics(DEFAULT_GRAPH, []);
     }

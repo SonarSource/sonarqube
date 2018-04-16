@@ -19,8 +19,7 @@
  */
 /* eslint-disable import/first, import/order */
 jest.mock('../../../../helpers/storage', () => ({
-  getCustomGraph: () => ['coverage'],
-  getGraph: () => 'custom'
+  get: (key: string) => (key === 'sonarqube.project_activity.graph.custom' ? 'coverage' : 'custom')
 }));
 
 jest.mock('../../../../api/time-machine', () => ({

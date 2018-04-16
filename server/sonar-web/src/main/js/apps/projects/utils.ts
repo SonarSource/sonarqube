@@ -31,6 +31,10 @@ interface SortingOption {
   value: string;
 }
 
+export const PROJECTS_DEFAULT_FILTER = 'sonarqube.projects.default';
+export const PROJECTS_FAVORITE = 'favorite';
+export const PROJECTS_ALL = 'all';
+
 export const SORTING_METRICS: SortingOption[] = [
   { value: 'name' },
   { value: 'analysis_date' },

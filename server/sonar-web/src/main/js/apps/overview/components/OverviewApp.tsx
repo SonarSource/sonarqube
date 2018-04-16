@@ -33,9 +33,14 @@ import { getAllTimeMachineData, History } from '../../../api/time-machine';
 import { parseDate } from '../../../helpers/dates';
 import { enhanceMeasuresWithMetrics, MeasureEnhanced } from '../../../helpers/measures';
 import { getLeakPeriod, Period } from '../../../helpers/periods';
-import { getCustomGraph, getGraph } from '../../../helpers/storage';
+import { get } from '../../../helpers/storage';
 import { METRICS, HISTORY_METRICS_LIST } from '../utils';
-import { DEFAULT_GRAPH, getDisplayedHistoryMetrics } from '../../projectActivity/utils';
+import {
+  DEFAULT_GRAPH,
+  getDisplayedHistoryMetrics,
+  PROJECT_ACTIVITY_GRAPH,
+  PROJECT_ACTIVITY_GRAPH_CUSTOM
+} from '../../projectActivity/utils';
 import { isSameBranchLike, getBranchLikeQuery } from '../../../helpers/branches';
 import { fetchMetrics } from '../../../store/rootActions';
 import { getMetrics } from '../../../store/rootReducer';
@@ -118,7 +123,11 @@ export class OverviewApp extends React.PureComponent<Props, State> {
   loadHistory = () => {
     const { branchLike, component } = this.props;
 
-    let graphMetrics = getDisplayedHistoryMetrics(getGraph(), getCustomGraph());
+    const customGraphs = get(PROJECT_ACTIVITY_GRAPH_CUSTOM);
+    let graphMetrics = getDisplayedHistoryMetrics(
+      get(PROJECT_ACTIVITY_GRAPH) || 'issues',
+      customGraphs ? customGraphs.split(',') : []
+    );
     if (!graphMetrics || graphMetrics.length <= 0) {
       graphMetrics = getDisplayedHistoryMetrics(DEFAULT_GRAPH, []);
     }
