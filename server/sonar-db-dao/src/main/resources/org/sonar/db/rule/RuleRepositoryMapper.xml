@@ -20,12 +20,6 @@
     order by kee
   </select>
 
-  <select id="selectByKey" parameterType="String" resultType="org.sonar.db.rule.RuleRepositoryDto">
-    select <include refid="sqlColumns"/>
-    from rule_repositories
-    where kee = #{key}
-  </select>
-
   <update id="truncate">
     delete from rule_repositories
   </update>

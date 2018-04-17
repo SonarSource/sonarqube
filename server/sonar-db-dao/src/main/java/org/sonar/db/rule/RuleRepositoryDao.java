@@ -21,7 +21,6 @@ package org.sonar.db.rule;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 import org.sonar.api.utils.System2;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
@@ -48,10 +47,6 @@ public class RuleRepositoryDao implements Dao {
    */
   public List<RuleRepositoryDto> selectByLanguage(DbSession dbSession, String language) {
     return dbSession.getMapper(RuleRepositoryMapper.class).selectByLanguage(language);
-  }
-
-  public Optional<RuleRepositoryDto> selectByKey(DbSession dbSession, String key) {
-    return Optional.ofNullable(dbSession.getMapper(RuleRepositoryMapper.class).selectByKey(key));
   }
 
   public void truncate(DbSession dbSession) {

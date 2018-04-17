@@ -89,16 +89,6 @@ public class RuleRepositoryDaoTest {
   }
 
   @Test
-  public void selectByKey() {
-    DbSession dbSession = dbTester.getSession();
-    RuleRepositoryDto dto1 = new RuleRepositoryDto("findbugs", "java", "Findbugs");
-    underTest.insert(dbSession, asList(dto1));
-
-    assertThat(underTest.selectByKey(dbSession, "findbugs").get().getKey()).isEqualTo("findbugs");
-    assertThat(underTest.selectByKey(dbSession, "missing")).isNotPresent();
-  }
-
-  @Test
   public void truncate() {
     DbSession dbSession = dbTester.getSession();
     RuleRepositoryDto dto1 = new RuleRepositoryDto("findbugs", "java", "Findbugs");
