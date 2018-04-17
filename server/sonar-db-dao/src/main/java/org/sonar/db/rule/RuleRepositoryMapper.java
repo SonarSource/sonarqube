@@ -33,8 +33,6 @@ public interface RuleRepositoryMapper {
   @CheckForNull
   RuleRepositoryDto selectByKey(@Param("key") String key);
 
-  void truncate();
-
   void insert(@Param("repository") RuleRepositoryDto repository, @Param("now") long now);
 
   int update(@Param("repository") RuleRepositoryDto repository);

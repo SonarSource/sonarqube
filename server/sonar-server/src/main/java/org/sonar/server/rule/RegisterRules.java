@@ -325,12 +325,13 @@ public class RegisterRules implements Startable {
   }
 
   private void persistRepositories(DbSession dbSession, List<RulesDefinition.Repository> repositories) {
-    dbClient.ruleRepositoryDao().truncate(dbSession);
     List<RuleRepositoryDto> dtos = repositories
       .stream()
       .map(r -> new RuleRepositoryDto(r.key(), r.language(), r.name()))
       .collect(toList(repositories.size()));
-    dbClient.ruleRepositoryDao().insert(dbSession, dtos);
+    List<String> keys = dtos.stream().map(RuleRepositoryDto::getKey).collect(toList(repositories.size()));
+    dbClient.ruleRepositoryDao().insertOrUpdate(dbSession, dtos);
+    dbClient.ruleRepositoryDao().deleteIfKeyNotIn(dbSession, keys);
     dbSession.commit();
   }
 

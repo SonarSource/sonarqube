@@ -20,10 +20,6 @@
     order by kee
   </select>
 
-  <update id="truncate">
-    delete from rule_repositories
-  </update>
-
   <insert id="insert" parameterType="map" useGeneratedKeys="false">
     insert into rule_repositories (kee, language, name, created_at)
     values (

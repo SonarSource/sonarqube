@@ -123,39 +123,12 @@ public class RuleRepositoryDaoTest {
   }
 
   @Test
-  public void test_insert_and_selectAll() {
-    DbSession dbSession = dbTester.getSession();
-    RuleRepositoryDto dto = new RuleRepositoryDto("findbugs", "java", "Findbugs");
-    underTest.insert(dbSession, asList(dto));
-
-    List<RuleRepositoryDto> rows = underTest.selectAll(dbSession);
-    assertThat(rows).hasSize(1);
-    RuleRepositoryDto row = rows.get(0);
-    assertThat(row.getKey()).isEqualTo("findbugs");
-    assertThat(row.getName()).isEqualTo("Findbugs");
-    assertThat(row.getLanguage()).isEqualTo("java");
-  }
-
-  @Test
-  public void insert_multiple_rows() {
-    DbSession dbSession = dbTester.getSession();
-    RuleRepositoryDto dto1 = new RuleRepositoryDto("findbugs", "java", "Findbugs");
-    RuleRepositoryDto dto2 = new RuleRepositoryDto("squid", "java", "Java");
-    RuleRepositoryDto dto3 = new RuleRepositoryDto("cobol-lint", "cobol", "Cobol Lint");
-    underTest.insert(dbSession, asList(dto1, dto2, dto3));
-
-    assertThat(underTest.selectAll(dbSession)).extracting(RuleRepositoryDto::getKey)
-      // ordered by key
-      .containsExactly("cobol-lint", "findbugs", "squid");
-  }
-
-  @Test
   public void selectByLanguage() {
     DbSession dbSession = dbTester.getSession();
     RuleRepositoryDto dto1 = new RuleRepositoryDto("findbugs", "java", "Findbugs");
     RuleRepositoryDto dto2 = new RuleRepositoryDto("squid", "java", "Java");
     RuleRepositoryDto dto3 = new RuleRepositoryDto("cobol-lint", "cobol", "Cobol Lint");
-    underTest.insert(dbSession, asList(dto1, dto2, dto3));
+    underTest.insertOrUpdate(dbSession, asList(dto1, dto2, dto3));
 
     assertThat(underTest.selectByLanguage(dbSession, "java")).extracting(RuleRepositoryDto::getKey)
       // ordered by key
@@ -166,23 +139,10 @@ public class RuleRepositoryDaoTest {
   public void selectByLanguage_returns_empty_list_if_no_results() {
     DbSession dbSession = dbTester.getSession();
     RuleRepositoryDto dto1 = new RuleRepositoryDto("findbugs", "java", "Findbugs");
-    underTest.insert(dbSession, asList(dto1));
+    underTest.insertOrUpdate(dbSession, asList(dto1));
 
     assertThat(underTest.selectByLanguage(dbSession, "missing")).hasSize(0);
   }
-
-  @Test
-  public void truncate() {
-    DbSession dbSession = dbTester.getSession();
-    RuleRepositoryDto dto1 = new RuleRepositoryDto("findbugs", "java", "Findbugs");
-    RuleRepositoryDto dto2 = new RuleRepositoryDto("squid", "java", "Java");
-    underTest.insert(dbSession, asList(dto1, dto2));
-
-    underTest.truncate(dbSession);
-
-    assertThat(underTest.selectAll(dbSession)).isEmpty();
-  }
-
 
   private long selectCreatedAtByKey(DbSession dbSession, String key) {
     return (long) dbTester.selectFirst(dbSession, "select created_at as \"created_at\" from rule_repositories where kee='" + key + "'")

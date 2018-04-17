@@ -162,7 +162,7 @@ public class AppActionTest {
   private void insertRules() {
     RuleRepositoryDto repo1 = new RuleRepositoryDto("xoo", "xoo", "SonarQube");
     RuleRepositoryDto repo2 = new RuleRepositoryDto("squid", "ws", "SonarQube");
-    db.getDbClient().ruleRepositoryDao().insert(db.getSession(), asList(repo1, repo2));
+    db.getDbClient().ruleRepositoryDao().insertOrUpdate(db.getSession(), asList(repo1, repo2));
     db.getSession().commit();
   }
 

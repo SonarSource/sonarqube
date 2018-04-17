@@ -45,7 +45,7 @@ public class RepositoriesActionTest {
     RuleRepositoryDto repo1 = new RuleRepositoryDto("xoo", "xoo", "SonarQube");
     RuleRepositoryDto repo2 = new RuleRepositoryDto("squid", "ws", "SonarQube");
     RuleRepositoryDto repo3 = new RuleRepositoryDto("common-ws", "ws", "SonarQube Common");
-    dbTester.getDbClient().ruleRepositoryDao().insert(dbSession, asList(repo1, repo2, repo3));
+    dbTester.getDbClient().ruleRepositoryDao().insertOrUpdate(dbSession, asList(repo1, repo2, repo3));
     dbSession.commit();
 
     wsTester = new WsTester(new RulesWs(new RepositoriesAction(dbTester.getDbClient())));

@@ -38,9 +38,9 @@ import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.qualityprofile.QualityProfileTesting;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
+import org.sonar.db.rule.RuleDto.Scope;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.db.rule.RuleRepositoryDto;
-import org.sonar.db.rule.RuleDto.Scope;
 import org.sonar.server.language.LanguageTesting;
 import org.sonar.server.qualityprofile.QProfileComparison;
 import org.sonar.server.qualityprofile.QProfileName;
@@ -49,7 +49,7 @@ import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 
-import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 
 public class CompareActionTest {
 
@@ -246,7 +246,7 @@ public class CompareActionTest {
 
   private void createRepository(String repositoryKey, String repositoryLanguage, String repositoryName) {
     RuleRepositoryDto dto = new RuleRepositoryDto(repositoryKey, repositoryLanguage, repositoryName);
-    db.ruleRepositoryDao().insert(session, asList(dto));
+    db.ruleRepositoryDao().insertOrUpdate(session, singletonList(dto));
     session.commit();
   }
 }

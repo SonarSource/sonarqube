@@ -52,18 +52,6 @@ public class RuleRepositoryDao implements Dao {
     return dbSession.getMapper(RuleRepositoryMapper.class).selectByLanguage(language);
   }
 
-  public void truncate(DbSession dbSession) {
-    dbSession.getMapper(RuleRepositoryMapper.class).truncate();
-  }
-
-  public void insert(DbSession dbSession, Collection<RuleRepositoryDto> dtos) {
-    RuleRepositoryMapper mapper = dbSession.getMapper(RuleRepositoryMapper.class);
-    long now = system2.now();
-    for (RuleRepositoryDto dto : dtos) {
-      mapper.insert(dto, now);
-    }
-  }
-
   public void insertOrUpdate(DbSession dbSession, Collection<RuleRepositoryDto> dtos) {
     RuleRepositoryMapper mapper = dbSession.getMapper(RuleRepositoryMapper.class);
     long now = system2.now();
