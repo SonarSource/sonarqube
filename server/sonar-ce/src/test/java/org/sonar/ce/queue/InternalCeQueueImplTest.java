@@ -120,16 +120,6 @@ public class InternalCeQueueImplTest {
   }
 
   @Test
-  public void submit_fails_with_ISE_if_paused() {
-    underTest.pauseSubmit();
-
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Compute Engine does not currently accept new tasks");
-
-    submit(CeTaskTypes.REPORT, "PROJECT_1");
-  }
-
-  @Test
   public void massSubmit_returns_tasks_for_each_CeTaskSubmit_populated_from_CeTaskSubmit_and_creates_CeQueue_row_for_each() {
     CeTaskSubmit taskSubmit1 = createTaskSubmit(CeTaskTypes.REPORT, "PROJECT_1", "rob");
     CeTaskSubmit taskSubmit2 = createTaskSubmit("some type");
@@ -686,15 +676,6 @@ public class InternalCeQueueImplTest {
     db.getDbClient().ceQueueDao().insert(db.getSession(), dto);
     db.commit();
     return dto;
-  }
-
-  @Test
-  public void pause_and_resume_submits() {
-    assertThat(underTest.isSubmitPaused()).isFalse();
-    underTest.pauseSubmit();
-    assertThat(underTest.isSubmitPaused()).isTrue();
-    underTest.resumeSubmit();
-    assertThat(underTest.isSubmitPaused()).isFalse();
   }
 
   private void verifyCeTask(CeTaskSubmit taskSubmit, CeTask task, @Nullable ComponentDto componentDto) {

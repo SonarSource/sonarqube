@@ -24,8 +24,6 @@ import org.apache.ibatis.annotations.Param;
 
 public interface CeTaskCharacteristicMapper {
 
-  List<CeTaskCharacteristicDto> selectByTaskUuid(@Param("taskUuid") String taskUuid);
-
   List<CeTaskCharacteristicDto> selectByTaskUuids(@Param("taskUuids") List<String> taskUuids);
 
   void insert(CeTaskCharacteristicDto taskCharacteristic);

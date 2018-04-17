@@ -34,7 +34,7 @@ import org.sonar.db.WildcardPosition;
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
 import static org.apache.commons.lang.StringUtils.substringBeforeLast;
-import static org.sonar.db.DaoDatabaseUtils.buildLikeValue;
+import static org.sonar.db.DaoUtils.buildLikeValue;
 import static org.sonar.db.component.ComponentValidator.checkComponentKey;
 import static org.sonar.db.component.ComponentValidator.checkComponentLongName;
 import static org.sonar.db.component.ComponentValidator.checkComponentName;

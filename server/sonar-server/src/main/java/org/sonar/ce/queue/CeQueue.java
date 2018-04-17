@@ -49,8 +49,6 @@ public interface CeQueue {
    * <p>
    * This method is equivalent to calling {@link #massSubmit(Collection, SubmitOption...)} with a singleton list and no
    * option.
-   *
-   * @throws IllegalStateException If submits are paused (see {@link #isSubmitPaused()})
    */
   CeTask submit(CeTaskSubmit submission);
 
@@ -69,8 +67,6 @@ public interface CeQueue {
    * <p>
    * This method will perform significantly better that calling {@link #submit(CeTaskSubmit, SubmitOption...)} in a loop.
    * </p>
-   *
-   * @throws IllegalStateException If submits are paused (see {@link #isSubmitPaused()})
    */
   List<CeTask> massSubmit(Collection<CeTaskSubmit> submissions, SubmitOption... options);
 
@@ -89,12 +85,6 @@ public interface CeQueue {
    * @return the number of canceled tasks
    */
   int cancelAll();
-
-  void pauseSubmit();
-
-  void resumeSubmit();
-
-  boolean isSubmitPaused();
 
   enum SubmitOption {
     UNIQUE_QUEUE_PER_COMPONENT

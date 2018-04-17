@@ -27,7 +27,7 @@ import javax.annotation.Nullable;
 import org.sonar.db.WildcardPosition;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static org.sonar.db.DaoDatabaseUtils.buildLikeValue;
+import static org.sonar.db.DaoUtils.buildLikeValue;
 
 public class ComponentQuery {
   private final String nameOrKeyQuery;

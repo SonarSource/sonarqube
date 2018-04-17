@@ -28,7 +28,7 @@ import org.sonar.db.component.ComponentDto;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Objects.requireNonNull;
-import static org.sonar.db.DaoDatabaseUtils.buildLikeValue;
+import static org.sonar.db.DaoUtils.buildLikeValue;
 import static org.sonar.db.WildcardPosition.BEFORE_AND_AFTER;
 
 public class MeasureTreeQuery {

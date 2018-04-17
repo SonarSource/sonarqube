@@ -29,7 +29,7 @@ import org.sonar.db.organization.OrganizationDto;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.base.Preconditions.checkArgument;
-import static org.sonar.db.DaoDatabaseUtils.buildLikeValue;
+import static org.sonar.db.DaoUtils.buildLikeValue;
 import static org.sonar.db.WildcardPosition.BEFORE_AND_AFTER;
 
 public class SearchGroupsQuery {

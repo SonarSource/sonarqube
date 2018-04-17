@@ -10,15 +10,6 @@
     c.text_value as "value"
   </sql>
 
-  <select id="selectByTaskUuid" parameterType="map" resultType="CeTaskCharacteristic">
-    SELECT
-      <include refid="columns"/>
-    FROM 
-      ce_task_characteristics c 
-    WHERE
-      c.task_uuid = #{taskUuid,jdbcType=VARCHAR}
-  </select>
-
   <select id="selectByTaskUuids" parameterType="map" resultType="CeTaskCharacteristic">
     SELECT
       <include refid="columns"/>

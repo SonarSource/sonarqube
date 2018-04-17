@@ -21,7 +21,6 @@ package org.sonar.db.ce;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.Charset;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -37,10 +36,9 @@ import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbSession;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class CeScannerContextDao implements Dao {
-
-  private static final Charset UTF_8 = Charset.forName("UTF-8");
 
   private final System2 system;
 

@@ -39,29 +39,6 @@ public class CeTaskCharacteristicDaoTest {
   private CeTaskCharacteristicDao underTest = new CeTaskCharacteristicDao();
 
   @Test
-  public void selectByTaskUuid() {
-    CeTaskCharacteristicDto dto1 = new CeTaskCharacteristicDto()
-      .setKey("key1")
-      .setValue("value1")
-      .setUuid("uuid1")
-      .setTaskUuid("task");
-    CeTaskCharacteristicDto dto2 = new CeTaskCharacteristicDto()
-      .setKey("key2")
-      .setValue("value2")
-      .setUuid("uuid2")
-      .setTaskUuid("task");
-    underTest.insert(dbTester.getSession(), asList(dto1, dto2));
-    dbTester.getSession().commit();
-
-    assertThat(underTest.selectByTaskUuid(dbTester.getSession(), "task"))
-      .extracting(CeTaskCharacteristicDto::getTaskUuid, CeTaskCharacteristicDto::getUuid, CeTaskCharacteristicDto::getKey, CeTaskCharacteristicDto::getValue)
-      .containsOnly(
-        tuple("task", "uuid1", "key1", "value1"),
-        tuple("task", "uuid2", "key2", "value2"));
-    assertThat(underTest.selectByTaskUuid(dbTester.getSession(), "unknown")).isEmpty();
-  }
-
-  @Test
   public void selectByTaskUuids() {
     CeTaskCharacteristicDto dto1 = new CeTaskCharacteristicDto()
       .setKey("key1")

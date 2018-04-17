@@ -115,13 +115,6 @@ public class CeQueueDao implements Dao {
   }
 
   /**
-   * Update all rows with: STATUS='PENDING', STARTED_AT=NULL, UPDATED_AT={now}
-   */
-  public void resetAllToPendingStatus(DbSession session) {
-    mapper(session).resetAllToPendingStatus(system2.now());
-  }
-
-  /**
    * Update all tasks for the specified worker uuid which are not PENDING to:
    * STATUS='PENDING', STARTED_AT=NULL, UPDATED_AT={now}.
    */
@@ -179,7 +172,7 @@ public class CeQueueDao implements Dao {
 
     CeQueueDto result = mapper(session).selectByUuid(eligible.getUuid());
     session.commit();
-    return Optional.of(result);
+    return Optional.ofNullable(result);
   }
 
   private static CeQueueMapper mapper(DbSession session) {

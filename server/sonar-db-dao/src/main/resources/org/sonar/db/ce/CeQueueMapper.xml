@@ -228,15 +228,6 @@
     )
   </insert>
 
-  <update id="resetAllToPendingStatus" parameterType="map">
-    update ce_queue set
-      status='PENDING',
-      started_at=NULL,
-      updated_at=#{updatedAt,jdbcType=BIGINT}
-    where
-      status &lt;&gt; 'PENDING'
-  </update>
-
   <update id="resetToPendingForWorker">
     update ce_queue set
       status='PENDING',

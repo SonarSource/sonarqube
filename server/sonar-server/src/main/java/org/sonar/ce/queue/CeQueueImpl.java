@@ -30,7 +30,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
@@ -59,9 +58,6 @@ public class CeQueueImpl implements CeQueue {
   private final UuidFactory uuidFactory;
   private final DefaultOrganizationProvider defaultOrganizationProvider;
 
-  // state
-  private AtomicBoolean submitPaused = new AtomicBoolean(false);
-
   public CeQueueImpl(DbClient dbClient, UuidFactory uuidFactory, DefaultOrganizationProvider defaultOrganizationProvider) {
     this.dbClient = dbClient;
     this.uuidFactory = uuidFactory;
@@ -84,7 +80,6 @@ public class CeQueueImpl implements CeQueue {
   }
 
   private java.util.Optional<CeTask> submit(CeTaskSubmit submission, EnumSet<SubmitOption> submitOptions) {
-    checkState(!submitPaused.get(), "Compute Engine does not currently accept new tasks");
     try (DbSession dbSession = dbClient.openSession(false)) {
       if (submitOptions.contains(UNIQUE_QUEUE_PER_COMPONENT)
         && submission.getComponentUuid() != null
@@ -100,7 +95,6 @@ public class CeQueueImpl implements CeQueue {
 
   @Override
   public List<CeTask> massSubmit(Collection<CeTaskSubmit> submissions, SubmitOption... options) {
-    checkState(!submitPaused.get(), "Compute Engine does not currently accept new tasks");
     if (submissions.isEmpty()) {
       return Collections.emptyList();
     }
@@ -224,21 +218,6 @@ public class CeQueueImpl implements CeQueue {
     dbClient.ceQueueDao().deleteByUuid(dbSession, queueDto.getUuid());
     dbClient.ceTaskInputDao().deleteByUuids(dbSession, singleton(queueDto.getUuid()));
     dbSession.commit();
-  }
-
-  @Override
-  public void pauseSubmit() {
-    this.submitPaused.set(true);
-  }
-
-  @Override
-  public void resumeSubmit() {
-    this.submitPaused.set(false);
-  }
-
-  @Override
-  public boolean isSubmitPaused() {
-    return submitPaused.get();
   }
 
   private static class CeQueueDtoToCeTask implements Function<CeQueueDto, CeTask> {

@@ -19,7 +19,11 @@
  */
 package org.sonar.db;
 
-public class DaoDatabaseUtils extends DatabaseUtils {
+public class DaoUtils {
+
+  private DaoUtils() {
+    // prevent new instances
+  }
 
   /**
    * Returns an escaped value in parameter, with the desired wildcards. Suitable to be used in a like sql query<br />

@@ -63,8 +63,6 @@ public interface CeQueueMapper {
 
   void insert(CeQueueDto dto);
 
-  void resetAllToPendingStatus(@Param("updatedAt") long updatedAt);
-
   int resetToPendingForWorker(@Param("workerUuid") String workerUuid, @Param("updatedAt") long updatedAt);
 
   int updateIf(@Param("uuid") String uuid,

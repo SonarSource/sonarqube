@@ -54,13 +54,14 @@ import org.sonar.server.permission.PermissionTemplateService;
 import org.sonar.server.tester.UserSessionRule;
 
 import static java.lang.String.format;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.junit.Assert.fail;
-import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -112,7 +113,7 @@ public class ReportSubmitterTest {
     when(componentUpdater.create(any(), any(), any())).thenReturn(project);
     when(permissionTemplateService.wouldUserHaveScanPermissionWithDefaultTemplate(any(), eq(defaultOrganizationUuid), any(), eq(PROJECT_KEY),
       eq(Qualifiers.PROJECT)))
-        .thenReturn(true);
+      .thenReturn(true);
 
     Map<String, String> taskCharacteristics = new HashMap<>();
     taskCharacteristics.put("incremental", "true");
@@ -124,7 +125,7 @@ public class ReportSubmitterTest {
     verify(queue).submit(submittedTask.capture());
     String taskUuid = submittedTask.getValue().getUuid();
 
-    List<CeTaskCharacteristicDto> insertedCharacteristics = db.getDbClient().ceTaskCharacteristicsDao().selectByTaskUuid(db.getSession(), taskUuid);
+    List<CeTaskCharacteristicDto> insertedCharacteristics = db.getDbClient().ceTaskCharacteristicsDao().selectByTaskUuids(db.getSession(), singletonList(taskUuid));
     assertThat(insertedCharacteristics)
       .extracting(CeTaskCharacteristicDto::getKey, CeTaskCharacteristicDto::getValue)
       .containsOnly(tuple("incremental", "true"), tuple("pr", "mypr"));
@@ -158,7 +159,7 @@ public class ReportSubmitterTest {
     when(componentUpdater.create(any(), any(), isNull())).thenReturn(createdProject);
     when(
       permissionTemplateService.wouldUserHaveScanPermissionWithDefaultTemplate(any(), eq(organization.getUuid()), any(), eq(PROJECT_KEY), eq(Qualifiers.PROJECT)))
-        .thenReturn(true);
+      .thenReturn(true);
     when(permissionTemplateService.hasDefaultTemplateWithPermissionOnProjectCreator(any(), eq(organization.getUuid()), any())).thenReturn(true);
 
     underTest.submit(organization.getKey(), PROJECT_KEY, null, PROJECT_NAME, IOUtils.toInputStream("{binary}"));
@@ -179,7 +180,7 @@ public class ReportSubmitterTest {
     when(componentUpdater.create(any(), any(), isNull())).thenReturn(createdProject);
     when(permissionTemplateService.wouldUserHaveScanPermissionWithDefaultTemplate(any(), eq(defaultOrganizationUuid), any(),
       eq(PROJECT_KEY), eq(Qualifiers.PROJECT)))
-        .thenReturn(true);
+      .thenReturn(true);
     when(permissionTemplateService.hasDefaultTemplateWithPermissionOnProjectCreator(any(), eq(defaultOrganizationUuid), any())).thenReturn(false);
 
     underTest.submit(defaultOrganizationKey, PROJECT_KEY, null, PROJECT_NAME, IOUtils.toInputStream("{binary}"));
@@ -198,7 +199,7 @@ public class ReportSubmitterTest {
     when(componentUpdater.create(any(), any(), any())).thenReturn(project);
     when(permissionTemplateService.wouldUserHaveScanPermissionWithDefaultTemplate(any(), eq(defaultOrganizationUuid), any(),
       eq(PROJECT_KEY), eq(Qualifiers.PROJECT)))
-        .thenReturn(true);
+      .thenReturn(true);
 
     underTest.submit(defaultOrganizationKey, PROJECT_KEY, null, PROJECT_NAME, IOUtils.toInputStream("{binary}"));
 
@@ -289,7 +290,7 @@ public class ReportSubmitterTest {
     } catch (BadRequestException e) {
       assertThat(e.errors()).contains(
         format("The project '%s' is already defined in SonarQube but as a module of project '%s'. " +
-          "If you really want to stop directly analysing project '%s', please first delete it from SonarQube and then relaunch the analysis of project '%s'.",
+            "If you really want to stop directly analysing project '%s', please first delete it from SonarQube and then relaunch the analysis of project '%s'.",
           module.getKey(), project.getKey(), project.getKey(), module.getKey()));
     }
   }
