@@ -60,4 +60,15 @@ public class RuleRepositoryDao implements Dao {
       mapper.insert(dto, now);
     }
   }
+
+  public void insertOrUpdate(DbSession dbSession, Collection<RuleRepositoryDto> dtos) {
+    RuleRepositoryMapper mapper = dbSession.getMapper(RuleRepositoryMapper.class);
+    long now = system2.now();
+    for (RuleRepositoryDto dto : dtos) {
+      int updated = mapper.update(dto);
+      if (updated == 0) {
+        mapper.insert(dto, now);
+      }
+    }
+  }
 }

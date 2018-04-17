@@ -33,4 +33,12 @@
     #{now, jdbcType=BIGINT}
     )
   </insert>
+
+  <update id="update" parameterType="map">
+    update rule_repositories set
+      name = #{repository.name, jdbcType=VARCHAR},
+      language = #{repository.language, jdbcType=VARCHAR}
+    where
+      kee = #{repository.kee, jdbcType=VARCHAR}
+  </update>
 </mapper>

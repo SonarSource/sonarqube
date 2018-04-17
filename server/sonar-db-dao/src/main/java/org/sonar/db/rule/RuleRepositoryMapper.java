@@ -35,4 +35,6 @@ public interface RuleRepositoryMapper {
   void truncate();
 
   void insert(@Param("repository") RuleRepositoryDto repository, @Param("now") long now);
+
+  int update(@Param("repository") RuleRepositoryDto repository);
 }

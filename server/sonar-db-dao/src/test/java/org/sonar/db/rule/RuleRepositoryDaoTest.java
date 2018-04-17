@@ -23,21 +23,64 @@ import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
+import org.sonar.api.utils.internal.AlwaysIncreasingSystem2;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 
 public class RuleRepositoryDaoTest {
 
-  private System2 system2 = mock(System2.class);
+  private System2 system2 = new AlwaysIncreasingSystem2();
 
   @Rule
   public DbTester dbTester = DbTester.create(system2);
 
   private RuleRepositoryDao underTest = new RuleRepositoryDao(system2);
+
+  @Test
+  public void insertOrUpdate_insert_rows_that_do_not_exist() {
+    RuleRepositoryDto repo1 = new RuleRepositoryDto("findbugs", "java", "Findbugs");
+    RuleRepositoryDto repo2 = new RuleRepositoryDto("sonarjava", "java", "SonarJava");
+    RuleRepositoryDto repo3 = new RuleRepositoryDto("sonarcobol", "cobol", "SonarCobol");
+    underTest.insertOrUpdate(dbTester.getSession(), asList(repo1, repo2, repo3));
+
+    List<RuleRepositoryDto> rows = underTest.selectAll(dbTester.getSession());
+    assertThat(rows).hasSize(3);
+    // ordered by keys
+    assertThat(rows.get(0)).isEqualToComparingFieldByField(repo1);
+    assertThat(rows.get(1)).isEqualToComparingFieldByField(repo3);
+    assertThat(rows.get(2)).isEqualToComparingFieldByField(repo2);
+
+    assertThat(selectCreatedAtByKey(dbTester.getSession(), repo1.getKey()))
+      .isEqualTo(selectCreatedAtByKey(dbTester.getSession(), repo2.getKey()))
+      .isEqualTo(selectCreatedAtByKey(dbTester.getSession(), repo3.getKey()));
+  }
+
+  @Test
+  public void insertOrUpdate_update_rows_that_exist() {
+    RuleRepositoryDto repo1 = new RuleRepositoryDto("findbugs", "java", "Findbugs");
+    RuleRepositoryDto repo2 = new RuleRepositoryDto("sonarjava", "java", "SonarJava");
+    underTest.insertOrUpdate(dbTester.getSession(), asList(repo1, repo2));
+
+    // update sonarjava, insert sonarcobol
+    RuleRepositoryDto repo2bis = new RuleRepositoryDto("sonarjava", "java", "SonarJava");
+    RuleRepositoryDto repo3 = new RuleRepositoryDto("sonarcobol", "cobol", "SonarCobol");
+    underTest.insertOrUpdate(dbTester.getSession(), asList(repo2bis, repo3));
+
+    List<RuleRepositoryDto> rows = underTest.selectAll(dbTester.getSession());
+    assertThat(rows).hasSize(3);
+    // ordered by keys
+    assertThat(rows.get(0)).isEqualToComparingFieldByField(repo1);
+    assertThat(rows.get(1)).isEqualToComparingFieldByField(repo3);
+    assertThat(rows.get(2)).isEqualToComparingFieldByField(repo2bis);
+
+    assertThat(selectCreatedAtByKey(dbTester.getSession(), repo1.getKey()))
+      .isEqualTo(selectCreatedAtByKey(dbTester.getSession(), repo2.getKey()))
+      .isLessThan(selectCreatedAtByKey(dbTester.getSession(), repo3.getKey()));
+  }
+
 
   @Test
   public void test_insert_and_selectAll() {
@@ -100,4 +143,9 @@ public class RuleRepositoryDaoTest {
     assertThat(underTest.selectAll(dbSession)).isEmpty();
   }
 
+
+  private long selectCreatedAtByKey(DbSession dbSession, String key) {
+    return (long) dbTester.selectFirst(dbSession, "select created_at as \"created_at\" from rule_repositories where kee='" + key + "'")
+      .get("created_at");
+  }
 }
