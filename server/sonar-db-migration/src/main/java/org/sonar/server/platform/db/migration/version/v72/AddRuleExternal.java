@@ -21,7 +21,6 @@ package org.sonar.server.platform.db.migration.version.v72;
 
 import org.sonar.db.Database;
 import org.sonar.server.platform.db.migration.def.BooleanColumnDef;
-import org.sonar.server.platform.db.migration.def.VarcharColumnDef;
 import org.sonar.server.platform.db.migration.sql.AddColumnsBuilder;
 import org.sonar.server.platform.db.migration.step.DdlChange;
 
@@ -40,11 +39,6 @@ public class AddRuleExternal extends DdlChange {
         .setColumnName("is_external")
         .setIsNullable(true)
         .setDefaultValue(false)
-        .build())
-      .addColumn(VarcharColumnDef.newVarcharColumnDefBuilder()
-        .setColumnName("description_url")
-        .setIsNullable(true)
-        .setLimit(256)
         .build())
       .build());
   }

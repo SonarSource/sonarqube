@@ -478,7 +478,6 @@ public class RuleDaoTest {
       .setName("new name")
       .setDescription("new description")
       .setDescriptionFormat(RuleDto.Format.MARKDOWN)
-      .setDescriptionURL("https://eslint.org/docs/rules/no-cond-assign")
       .setStatus(RuleStatus.DEPRECATED)
       .setConfigKey("NewConfigKey")
       .setSeverity(Severity.INFO)
@@ -503,7 +502,6 @@ public class RuleDaoTest {
     assertThat(ruleDto.getName()).isEqualTo("new name");
     assertThat(ruleDto.getDescription()).isEqualTo("new description");
     assertThat(ruleDto.getDescriptionFormat()).isEqualTo(RuleDto.Format.MARKDOWN);
-    assertThat(ruleDto.getDescriptionURL()).isEqualTo("https://eslint.org/docs/rules/no-cond-assign");
     assertThat(ruleDto.getStatus()).isEqualTo(RuleStatus.DEPRECATED);
     assertThat(ruleDto.getRuleKey()).isEqualTo("NewRuleKey");
     assertThat(ruleDto.getRepositoryKey()).isEqualTo("plugin");
@@ -535,7 +533,6 @@ public class RuleDaoTest {
       .setName("new name")
       .setDescription("new description")
       .setDescriptionFormat(RuleDto.Format.MARKDOWN)
-      .setDescriptionURL("https://eslint.org/docs/rules/no-cond-assign")
       .setStatus(RuleStatus.DEPRECATED)
       .setConfigKey("NewConfigKey")
       .setSeverity(Severity.INFO)
@@ -559,7 +556,6 @@ public class RuleDaoTest {
     assertThat(ruleDto.getName()).isEqualTo("new name");
     assertThat(ruleDto.getDescription()).isEqualTo("new description");
     assertThat(ruleDto.getDescriptionFormat()).isEqualTo(RuleDto.Format.MARKDOWN);
-    assertThat(ruleDto.getDescriptionURL()).isEqualTo("https://eslint.org/docs/rules/no-cond-assign");
     assertThat(ruleDto.getStatus()).isEqualTo(RuleStatus.DEPRECATED);
     assertThat(ruleDto.getRuleKey()).isEqualTo("NewRuleKey");
     assertThat(ruleDto.getRepositoryKey()).isEqualTo("plugin");

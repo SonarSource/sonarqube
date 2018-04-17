@@ -92,7 +92,7 @@ public class DoTransitionAction implements IssuesWsAction {
     String issue = request.mandatoryParam(PARAM_ISSUE);
     try (DbSession dbSession = dbClient.openSession(false)) {
       IssueDto issueDto = issueFinder.getByKey(dbSession, issue);
-      checkRequest(!issueDto.isExternal(), "Transition are not allowed on issues imported from external rule engines");
+      checkRequest(!issueDto.isExternal(), "Transition is not allowed on issues imported from external rule engines");
       SearchResponseData preloadedSearchResponseData = doTransition(dbSession, issueDto, request.mandatoryParam(PARAM_TRANSITION));
       responseWriter.write(issue, preloadedSearchResponseData, request, response);
     }

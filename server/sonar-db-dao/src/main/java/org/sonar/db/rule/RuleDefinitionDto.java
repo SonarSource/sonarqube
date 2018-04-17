@@ -42,7 +42,6 @@ public class RuleDefinitionDto {
   private String ruleKey;
   private String description;
   private RuleDto.Format descriptionFormat;
-  private String descriptionURL;
   private RuleStatus status;
   private String name;
   private String configKey;
@@ -119,16 +118,6 @@ public class RuleDefinitionDto {
 
   public RuleDefinitionDto setDescription(String description) {
     this.description = description;
-    return this;
-  }
-
-  @CheckForNull
-  public String getDescriptionURL() {
-    return descriptionURL;
-  }
-
-  public RuleDefinitionDto setDescriptionURL(@Nullable String descriptionURL) {
-    this.descriptionURL = descriptionURL;
     return this;
   }
 
