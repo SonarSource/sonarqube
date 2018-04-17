@@ -20,12 +20,10 @@
 import { SELECT_PERMISSION } from './actions';
 
 const selectedPermission = (state = null, action = {}) => {
-  switch (action.type) {
-    case SELECT_PERMISSION:
-      return action.permission;
-    default:
-      return state;
+  if (action.type === SELECT_PERMISSION) {
+    return action.permission;
   }
+  return state;
 };
 
 export default selectedPermission;

@@ -4,7 +4,8 @@
     "plugin:import/errors",
     "plugin:react/recommended",
     "plugin:jsx-a11y/recommended",
-    "plugin:promise/recommended"
+    "plugin:promise/recommended",
+    "plugin:sonarjs/recommended"
   ],
 
   "env": {
@@ -30,7 +31,7 @@
 
   "parser": "typescript-eslint-parser",
 
-  "plugins": ["import", "jsx-a11y", "react", "promise"],
+  "plugins": ["import", "jsx-a11y", "react", "promise", "sonarjs"],
 
   "rules": {
     // possible errors
@@ -202,7 +203,11 @@
     "promise/catch-or-return": ["warn", { "allowThen": true }],
 
     "promise/always-return": "off",
-    "promise/avoid-new": "off"
+    "promise/avoid-new": "off",
+
+    // sonarjs
+    "sonarjs/cognitive-complexity": "warn",
+    "sonarjs/no-identical-functions": "warn"
   },
 
   "settings": {

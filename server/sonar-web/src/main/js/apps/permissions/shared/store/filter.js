@@ -20,12 +20,10 @@
 import { UPDATE_FILTER } from './actions';
 
 const filter = (state = 'all', action = {}) => {
-  switch (action.type) {
-    case UPDATE_FILTER:
-      return action.filter;
-    default:
-      return state;
+  if (action.type === UPDATE_FILTER) {
+    return action.filter;
   }
+  return state;
 };
 
 export default filter;
