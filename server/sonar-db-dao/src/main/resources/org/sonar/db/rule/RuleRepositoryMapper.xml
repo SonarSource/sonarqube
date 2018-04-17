@@ -41,4 +41,11 @@
     where
       kee = #{repository.kee, jdbcType=VARCHAR}
   </update>
+
+  <delete id="deleteIfKeyNotIn" parameterType="String">
+    delete from rule_repositories
+    <if test="!keys.isEmpty()">
+      where kee not in <foreach collection="keys" open="(" close=")" item="key" separator=",">#{key,jdbcType=VARCHAR}</foreach>
+    </if>
+  </delete>
 </mapper>

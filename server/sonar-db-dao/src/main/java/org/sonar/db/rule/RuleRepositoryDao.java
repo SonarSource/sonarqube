@@ -23,7 +23,10 @@ import java.util.Collection;
 import java.util.List;
 import org.sonar.api.utils.System2;
 import org.sonar.db.Dao;
+import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbSession;
+
+import static com.google.common.base.Preconditions.checkArgument;
 
 public class RuleRepositoryDao implements Dao {
 
@@ -70,5 +73,10 @@ public class RuleRepositoryDao implements Dao {
         mapper.insert(dto, now);
       }
     }
+  }
+
+  public void deleteIfKeyNotIn(DbSession dbSession, Collection<String> keys) {
+    checkArgument(keys.size() < DatabaseUtils.PARTITION_SIZE_FOR_ORACLE, "too many rule repositories: %s", keys.size());
+    dbSession.getMapper(RuleRepositoryMapper.class).deleteIfKeyNotIn(keys);
   }
 }

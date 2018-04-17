@@ -19,21 +19,29 @@
  */
 package org.sonar.db.rule;
 
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.internal.AlwaysIncreasingSystem2;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class RuleRepositoryDaoTest {
 
   private System2 system2 = new AlwaysIncreasingSystem2();
 
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public DbTester dbTester = DbTester.create(system2);
 
@@ -81,6 +89,38 @@ public class RuleRepositoryDaoTest {
       .isLessThan(selectCreatedAtByKey(dbTester.getSession(), repo3.getKey()));
   }
 
+  @Test
+  public void deleteIfKeyNotIn() {
+    RuleRepositoryDto repo1 = new RuleRepositoryDto("findbugs", "java", "Findbugs");
+    RuleRepositoryDto repo2 = new RuleRepositoryDto("sonarjava", "java", "SonarJava");
+    RuleRepositoryDto repo3 = new RuleRepositoryDto("sonarcobol", "cobol", "SonarCobol");
+    underTest.insertOrUpdate(dbTester.getSession(), asList(repo1, repo2, repo3));
+
+    underTest.deleteIfKeyNotIn(dbTester.getSession(), Arrays.asList(repo2.getKey(), "unknown"));
+    assertThat(underTest.selectAll(dbTester.getSession()))
+      .extracting(RuleRepositoryDto::getKey)
+      .containsExactly(repo2.getKey());
+  }
+
+  @Test
+  public void deleteIfKeyNotIn_truncates_table_if_keys_are_empty() {
+    RuleRepositoryDto repo1 = new RuleRepositoryDto("findbugs", "java", "Findbugs");
+    RuleRepositoryDto repo2 = new RuleRepositoryDto("sonarjava", "java", "SonarJava");
+    underTest.insertOrUpdate(dbTester.getSession(), asList(repo1, repo2));
+
+    underTest.deleteIfKeyNotIn(dbTester.getSession(), emptyList());
+
+    assertThat(underTest.selectAll(dbTester.getSession())).isEmpty();
+  }
+
+  @Test
+  public void deleteIfKeyNotIn_fails_if_more_than_1000_keys() {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("too many rule repositories: 1100");
+
+    Collection<String> keys = IntStream.range(0, 1_100).mapToObj(index -> "repo" + index).collect(Collectors.toSet());
+    underTest.deleteIfKeyNotIn(dbTester.getSession(), keys);
+  }
 
   @Test
   public void test_insert_and_selectAll() {
