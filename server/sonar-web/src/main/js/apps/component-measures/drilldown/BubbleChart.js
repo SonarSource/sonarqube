@@ -145,12 +145,12 @@ export default class BubbleChart extends React.PureComponent {
 
     return (
       <OriginalBubbleChart
-        items={items}
-        height={HEIGHT}
-        padding={[25, 60, 50, 60]}
         formatXTick={formatXTick}
         formatYTick={formatYTick}
+        height={HEIGHT}
+        items={items}
         onBubbleClick={this.handleBubbleClick}
+        padding={[25, 60, 50, 60]}
         yDomain={getBubbleYDomain(this.props.domain)}
       />
     );

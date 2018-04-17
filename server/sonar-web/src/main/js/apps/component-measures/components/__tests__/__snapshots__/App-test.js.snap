@@ -8,7 +8,7 @@ exports[`should render correctly 1`] = `
   <HelmetWrapper
     defer={true}
     encodeSpecialCharacters={true}
-    title="layout.measures"
+    title="Coverage"
   />
   <ScreenPositionHelper
     className="layout-page-side-outer"

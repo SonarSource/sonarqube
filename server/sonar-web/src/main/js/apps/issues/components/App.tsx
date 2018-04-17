@@ -995,7 +995,7 @@ export default class App extends React.PureComponent<Props, State> {
     const selectedIndex = this.getSelectedIndex();
     return (
       <div className="layout-page issues" id="issues-page">
-        <Helmet title={translate('issues.page')} />
+        <Helmet title={openIssue ? openIssue.message : translate('issues.page')} />
 
         {this.renderSide(openIssue)}
 

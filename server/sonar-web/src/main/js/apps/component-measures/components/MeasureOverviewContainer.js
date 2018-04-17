@@ -128,8 +128,8 @@ export default class MeasureOverviewContainer extends React.PureComponent {
         component={this.state.component}
         currentUser={this.props.currentUser}
         domain={this.props.domain}
-        loading={this.state.loading.component || this.state.loading.bubbles}
         leakPeriod={this.props.leakPeriod}
+        loading={this.state.loading.component || this.state.loading.bubbles}
         metrics={this.props.metrics}
         rootComponent={this.props.rootComponent}
         updateLoading={this.updateLoading}

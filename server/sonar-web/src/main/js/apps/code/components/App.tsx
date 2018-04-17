@@ -198,7 +198,7 @@ export default class App extends React.PureComponent<Props, State> {
 
     return (
       <div className="page page-limited">
-        <Helmet title={translate('code.page')} />
+        <Helmet title={sourceViewer !== undefined ? sourceViewer.name : translate('code.page')} />
 
         {error && <div className="alert alert-danger">{error}</div>}
 

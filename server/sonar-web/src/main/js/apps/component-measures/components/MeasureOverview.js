@@ -156,14 +156,14 @@ export default class MeasureOverview extends React.PureComponent {
               {component.key !== rootComponent.key &&
                 isLoggedIn && (
                   <MeasureFavoriteContainer
-                    component={component.key}
                     className="measure-favorite spacer-right"
+                    component={component.key}
                   />
                 )}
               <PageActions
                 current={this.state.components.length}
-                loading={this.props.loading}
                 isFile={isFile}
+                loading={this.props.loading}
                 paging={this.state.paging}
               />
             </div>

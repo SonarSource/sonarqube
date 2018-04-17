@@ -25,9 +25,13 @@ import MeasureContentContainer from './MeasureContentContainer';
 import MeasureOverviewContainer from './MeasureOverviewContainer';
 import Sidebar from '../sidebar/Sidebar';
 import ScreenPositionHelper from '../../../components/common/ScreenPositionHelper';
-import { hasBubbleChart, parseQuery, serializeQuery } from '../utils';
+import { isProjectOverview, hasBubbleChart, parseQuery, serializeQuery } from '../utils';
 import { isSameBranchLike, getBranchLikeQuery } from '../../../helpers/branches';
-import { translate } from '../../../helpers/l10n';
+import {
+  getLocalizedMetricDomain,
+  translateWithParameters,
+  translate
+} from '../../../helpers/l10n';
 import { getDisplayMetrics } from '../../../helpers/measures';
 /*:: import type { Component, Query, Period } from '../types'; */
 /*:: import type { RawQuery } from '../../../helpers/query'; */
@@ -147,6 +151,21 @@ export default class App extends React.PureComponent {
     });
   };
 
+  getHelmetTitle = (
+    metric /*: Metric */,
+    query /*: {metric: string, selected: string, view: string }*/
+  ) => {
+    if (metric == null && hasBubbleChart(query.metric)) {
+      return isProjectOverview(query.metric)
+        ? translate('component_measures.overview.project_overview.facet')
+        : translateWithParameters(
+            'component_measures.domain_x_overview',
+            getLocalizedMetricDomain(query.metric)
+          );
+    }
+    return metric != null ? metric.name : translate('layout.measures');
+  };
+
   render() {
     const isLoading = this.state.loading || this.props.metricsKey.length <= 0;
     if (isLoading) {
@@ -158,7 +177,7 @@ export default class App extends React.PureComponent {
     const metric = metrics[query.metric];
     return (
       <div className="layout-page" id="component-measures">
-        <Helmet title={translate('layout.measures')} />
+        <Helmet title={this.getHelmetTitle(metric, query)} />
 
         <ScreenPositionHelper className="layout-page-side-outer">
           {({ top }) => (
@@ -181,11 +200,11 @@ export default class App extends React.PureComponent {
             branchLike={branchLike}
             className="layout-page-main"
             currentUser={this.props.currentUser}
-            rootComponent={component}
             fetchMeasures={fetchMeasures}
             leakPeriod={leakPeriod}
             metric={metric}
             metrics={metrics}
+            rootComponent={component}
             router={this.props.router}
             selected={query.selected}
             updateQuery={this.updateQuery}
@@ -197,11 +216,11 @@ export default class App extends React.PureComponent {
             <MeasureOverviewContainer
               branchLike={branchLike}
               className="layout-page-main"
-              rootComponent={component}
               currentUser={this.props.currentUser}
               domain={query.metric}
               leakPeriod={leakPeriod}
               metrics={metrics}
+              rootComponent={component}
               router={this.props.router}
               selected={query.selected}
               updateQuery={this.updateQuery}
