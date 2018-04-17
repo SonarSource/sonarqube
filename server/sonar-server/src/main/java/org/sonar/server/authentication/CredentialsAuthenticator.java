@@ -55,6 +55,7 @@ public class CredentialsAuthenticator {
     UserDto localUser = dbClient.userDao().selectActiveUserByLogin(dbSession, userLogin);
     if (localUser != null && localUser.isLocal()) {
       localAuthentication.authenticate(dbSession, localUser, userPassword, method);
+      dbSession.commit();
       authenticationEvent.loginSuccess(request, userLogin, Source.local(method));
       return localUser;
     }
