@@ -1,5 +1,20 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`should loading stat 1`] = `
+<a
+  className="facet search-navigator-facet"
+  data-facet="bar"
+  href="#"
+  onClick={[Function]}
+>
+  <span
+    className="facet-name"
+  >
+    foo
+  </span>
+</a>
+`;
+
 exports[`should render active 1`] = `
 <a
   className="facet search-navigator-facet active"

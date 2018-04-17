@@ -28,6 +28,7 @@ import { translate } from '../../../helpers/l10n';
 
 interface Props {
   facetMode: string;
+  loading?: boolean;
   onChange: (changes: Partial<Query>) => void;
   onToggle: (property: string) => void;
   open: boolean;
@@ -81,6 +82,7 @@ export default class StatusFacet extends React.PureComponent<Props> {
         disabled={stat === 0 && !active}
         halfWidth={true}
         key={status}
+        loading={this.props.loading}
         name={this.renderStatus(status)}
         onClick={this.handleItemClick}
         stat={formatFacetStat(stat, this.props.facetMode)}

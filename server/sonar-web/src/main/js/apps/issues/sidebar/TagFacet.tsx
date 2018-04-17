@@ -32,6 +32,7 @@ import { translate } from '../../../helpers/l10n';
 interface Props {
   component: Component | undefined;
   facetMode: string;
+  loading?: boolean;
   onChange: (changes: Partial<Query>) => void;
   onToggle: (property: string) => void;
   open: boolean;
@@ -107,6 +108,7 @@ export default class TagFacet extends React.PureComponent<Props> {
           <FacetItem
             active={this.props.tags.includes(tag)}
             key={tag}
+            loading={this.props.loading}
             name={this.renderTag(tag)}
             onClick={this.handleItemClick}
             stat={formatFacetStat(this.getStat(tag), this.props.facetMode)}

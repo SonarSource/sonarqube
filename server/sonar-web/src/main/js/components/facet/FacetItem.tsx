@@ -25,6 +25,7 @@ export interface Props {
   className?: string;
   disabled?: boolean;
   halfWidth?: boolean;
+  loading?: boolean;
   name: React.ReactNode;
   onClick: (x: string) => void;
   stat?: React.ReactNode;
@@ -34,7 +35,8 @@ export interface Props {
 export default class FacetItem extends React.PureComponent<Props> {
   static defaultProps = {
     disabled: false,
-    halfWidth: false
+    halfWidth: false,
+    loading: false
   };
 
   handleClick = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
@@ -52,12 +54,16 @@ export default class FacetItem extends React.PureComponent<Props> {
     return this.props.disabled ? (
       <span className={className} data-facet={this.props.value}>
         <span className="facet-name">{this.props.name}</span>
-        {this.props.stat != null && <span className="facet-stat">{this.props.stat}</span>}
+        {this.props.stat != null && (
+          <span className="facet-stat">{this.props.loading ? '' : this.props.stat}</span>
+        )}
       </span>
     ) : (
       <a className={className} data-facet={this.props.value} href="#" onClick={this.handleClick}>
         <span className="facet-name">{this.props.name}</span>
-        {this.props.stat != null && <span className="facet-stat">{this.props.stat}</span>}
+        {this.props.stat != null && (
+          <span className="facet-stat">{this.props.loading ? '' : this.props.stat}</span>
+        )}
       </a>
     );
   }

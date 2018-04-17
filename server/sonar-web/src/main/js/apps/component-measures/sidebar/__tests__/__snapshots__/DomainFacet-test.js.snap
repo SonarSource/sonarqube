@@ -16,6 +16,7 @@ exports[`should display facet item list 1`] = `
       disabled={false}
       halfWidth={false}
       key="Reliability"
+      loading={false}
       name={
         <span
           id="measure-overview-Reliability-name"
@@ -46,6 +47,7 @@ exports[`should display facet item list 1`] = `
       disabled={false}
       halfWidth={false}
       key="new_bugs"
+      loading={false}
       name={
         <span
           className="big-spacer-left"
@@ -93,6 +95,7 @@ exports[`should display facet item list 1`] = `
       disabled={false}
       halfWidth={false}
       key="bugs"
+      loading={false}
       name={
         <span
           className="big-spacer-left"
@@ -150,6 +153,7 @@ exports[`should display facet item list with bugs selected 1`] = `
       disabled={false}
       halfWidth={false}
       key="Reliability"
+      loading={false}
       name={
         <span
           id="measure-overview-Reliability-name"
@@ -180,6 +184,7 @@ exports[`should display facet item list with bugs selected 1`] = `
       disabled={false}
       halfWidth={false}
       key="new_bugs"
+      loading={false}
       name={
         <span
           className="big-spacer-left"
@@ -227,6 +232,7 @@ exports[`should display facet item list with bugs selected 1`] = `
       disabled={false}
       halfWidth={false}
       key="bugs"
+      loading={false}
       name={
         <span
           className="big-spacer-left"
@@ -280,6 +286,7 @@ exports[`should not display subtitles of new measures if there is none 1`] = `
       disabled={false}
       halfWidth={false}
       key="Reliability"
+      loading={false}
       name={
         <span
           id="measure-overview-Reliability-name"
@@ -310,6 +317,7 @@ exports[`should not display subtitles of new measures if there is none 1`] = `
       disabled={false}
       halfWidth={false}
       key="bugs"
+      loading={false}
       name={
         <span
           className="big-spacer-left"
@@ -356,6 +364,7 @@ exports[`should not display subtitles of new measures if there is none, even on 
       disabled={false}
       halfWidth={false}
       key="Reliability"
+      loading={false}
       name={
         <span
           id="measure-overview-Reliability-name"
@@ -386,6 +395,7 @@ exports[`should not display subtitles of new measures if there is none, even on 
       disabled={false}
       halfWidth={false}
       key="new_bugs"
+      loading={false}
       name={
         <span
           className="big-spacer-left"

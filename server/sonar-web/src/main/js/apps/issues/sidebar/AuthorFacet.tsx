@@ -28,6 +28,7 @@ import { translate } from '../../../helpers/l10n';
 
 interface Props {
   facetMode: string;
+  loading?: boolean;
   onChange: (changes: Partial<Query>) => void;
   onToggle: (property: string) => void;
   open: boolean;
@@ -78,6 +79,7 @@ export default class AuthorFacet extends React.PureComponent<Props> {
           <FacetItem
             active={this.props.authors.includes(author)}
             key={author}
+            loading={this.props.loading}
             name={author}
             onClick={this.handleItemClick}
             stat={formatFacetStat(this.getStat(author), this.props.facetMode)}

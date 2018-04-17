@@ -41,6 +41,7 @@ interface Props {
   createdBefore: Date | undefined;
   createdInLast: string;
   facetMode: string;
+  loading?: boolean;
   onChange: (changes: Partial<Query>) => void;
   onToggle: (property: string) => void;
   open: boolean;
@@ -171,7 +172,7 @@ export default class CreationDateFacet extends React.PureComponent<Props> {
         createdBefore: endDate,
         tooltip,
         x: index,
-        y: stats[start]
+        y: this.props.loading ? 0 : stats[start]
       };
     });
 
@@ -225,6 +226,7 @@ export default class CreationDateFacet extends React.PureComponent<Props> {
       <div className="spacer-top issues-predefined-periods">
         <FacetItem
           active={!this.hasValue()}
+          loading={this.props.loading}
           name={translate('issues.facet.createdAt.all')}
           onClick={this.handlePeriodClick}
           value=""
@@ -232,6 +234,7 @@ export default class CreationDateFacet extends React.PureComponent<Props> {
         {component ? (
           <FacetItem
             active={sinceLeakPeriod}
+            loading={this.props.loading}
             name={translate('issues.leak_period')}
             onClick={this.handleLeakPeriodClick}
             value=""
@@ -240,18 +243,21 @@ export default class CreationDateFacet extends React.PureComponent<Props> {
           <>
             <FacetItem
               active={createdInLast === '1w'}
+              loading={this.props.loading}
               name={translate('issues.facet.createdAt.last_week')}
               onClick={this.handlePeriodClick}
               value="1w"
             />
             <FacetItem
               active={createdInLast === '1m'}
+              loading={this.props.loading}
               name={translate('issues.facet.createdAt.last_month')}
               onClick={this.handlePeriodClick}
               value="1m"
             />
             <FacetItem
               active={createdInLast === '1y'}
+              loading={this.props.loading}
               name={translate('issues.facet.createdAt.last_year')}
               onClick={this.handlePeriodClick}
               value="1y"

@@ -29,6 +29,7 @@ import { translate } from '../../../helpers/l10n';
 
 interface Props {
   facetMode: string;
+  loading?: boolean;
   onChange: (changes: Partial<Query>) => void;
   onToggle: (property: string) => void;
   open: boolean;
@@ -73,6 +74,7 @@ export default class TypeFacet extends React.PureComponent<Props> {
         active={active}
         disabled={stat === 0 && !active}
         key={type}
+        loading={this.props.loading}
         name={
           <span>
             <IssueTypeIcon query={type} /> {translate('issue.type', type)}

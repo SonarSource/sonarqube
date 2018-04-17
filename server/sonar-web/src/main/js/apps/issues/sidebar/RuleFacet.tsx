@@ -31,6 +31,7 @@ import { translate } from '../../../helpers/l10n';
 interface Props {
   facetMode: string;
   languages: string[];
+  loading?: boolean;
   onChange: (changes: Partial<Query>) => void;
   onToggle: (property: string) => void;
   open: boolean;
@@ -105,6 +106,7 @@ export default class RuleFacet extends React.PureComponent<Props> {
           <FacetItem
             active={this.props.rules.includes(rule)}
             key={rule}
+            loading={this.props.loading}
             name={this.getRuleName(rule)}
             onClick={this.handleItemClick}
             stat={formatFacetStat(this.getStat(rule), this.props.facetMode)}

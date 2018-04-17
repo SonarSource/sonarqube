@@ -34,6 +34,10 @@ it('should render stat', () => {
   expect(renderFacetItem({ stat: '13' })).toMatchSnapshot();
 });
 
+it('should loading stat', () => {
+  expect(renderFacetItem({ loading: true })).toMatchSnapshot();
+});
+
 it('should render disabled', () => {
   expect(renderFacetItem({ disabled: true })).toMatchSnapshot();
 });

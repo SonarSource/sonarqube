@@ -28,6 +28,7 @@ import { translate } from '../../../helpers/l10n';
 
 interface Props {
   facetMode: string;
+  loading?: boolean;
   onChange: (changes: Partial<Query>) => void;
   onToggle: (property: string) => void;
   open: boolean;
@@ -90,6 +91,7 @@ export default class ResolutionFacet extends React.PureComponent<Props> {
         disabled={stat === 0 && !active}
         halfWidth={true}
         key={resolution}
+        loading={this.props.loading}
         name={this.getFacetItemName(resolution)}
         onClick={this.handleItemClick}
         stat={formatFacetStat(stat, this.props.facetMode)}

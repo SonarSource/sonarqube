@@ -29,12 +29,13 @@ import { translate } from '../../../helpers/l10n';
 
 interface Props {
   facetMode: string;
+  languages: string[];
+  loading?: boolean;
   onChange: (changes: Partial<Query>) => void;
   onToggle: (property: string) => void;
   open: boolean;
-  stats: { [x: string]: number } | undefined;
   referencedLanguages: { [languageKey: string]: ReferencedLanguage };
-  languages: string[];
+  stats: { [x: string]: number } | undefined;
 }
 
 export default class LanguageFacet extends React.PureComponent<Props> {
@@ -90,6 +91,7 @@ export default class LanguageFacet extends React.PureComponent<Props> {
           <FacetItem
             active={this.props.languages.includes(language)}
             key={language}
+            loading={this.props.loading}
             name={this.getLanguageName(language)}
             onClick={this.handleItemClick}
             stat={formatFacetStat(this.getStat(language), this.props.facetMode)}

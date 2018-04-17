@@ -72,22 +72,21 @@ import Checkbox from '../../../components/controls/Checkbox';
 
 import '../styles.css';
 
+interface FetchIssuesPromise {
+  components: ReferencedComponent[];
+  facets: RawFacet[];
+  issues: Issue[];
+  languages: ReferencedLanguage[];
+  paging: Paging;
+  rules: { name: string }[];
+  users: ReferencedUser[];
+}
+
 interface Props {
   branchLike?: BranchLike;
   component?: Component;
   currentUser: CurrentUser;
-  fetchIssues: (
-    query: RawQuery,
-    requestOrganizations?: boolean
-  ) => Promise<{
-    components: ReferencedComponent[];
-    facets: RawFacet[];
-    issues: Issue[];
-    languages: ReferencedLanguage[];
-    paging: Paging;
-    rules: { name: string }[];
-    users: ReferencedUser[];
-  }>;
+  fetchIssues: (query: RawQuery, requestOrganizations?: boolean) => Promise<FetchIssuesPromise>;
   location: { pathname: string; query: RawQuery };
   myIssues?: boolean;
   onBranchesChange: () => void;
@@ -397,7 +396,11 @@ export default class App extends React.PureComponent<Props, State> {
     }
   };
 
-  fetchIssues = (additional: RawQuery, requestFacets = false, requestOrganizations = true) => {
+  fetchIssues = (
+    additional: RawQuery,
+    requestFacets = false,
+    requestOrganizations = true
+  ): Promise<FetchIssuesPromise> => {
     const { component, organization } = this.props;
     const { myIssues, openFacets, query } = this.state;
 
@@ -428,7 +431,10 @@ export default class App extends React.PureComponent<Props, State> {
       Object.assign(parameters, { assignees: '__me__' });
     }
 
-    return this.props.fetchIssues(parameters, requestOrganizations);
+    return this.props.fetchIssues(parameters, requestOrganizations).then(reponse => {
+      this.setState({ loading: false });
+      return reponse;
+    });
   };
 
   fetchFirstIssues() {
@@ -594,6 +600,7 @@ export default class App extends React.PureComponent<Props, State> {
   };
 
   handleFilterChange = (changes: Partial<Query>) => {
+    this.setState({ loading: true });
     this.context.router.push({
       pathname: this.props.location.pathname,
       query: {
@@ -854,6 +861,7 @@ export default class App extends React.PureComponent<Props, State> {
         <Sidebar
           component={component}
           facets={this.state.facets}
+          loading={this.state.loading}
           myIssues={this.state.myIssues}
           onFacetToggle={this.handleFacetToggle}
           onFilterChange={this.handleFilterChange}

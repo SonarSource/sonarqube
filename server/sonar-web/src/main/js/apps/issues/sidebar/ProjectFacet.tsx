@@ -34,6 +34,7 @@ import { translate } from '../../../helpers/l10n';
 interface Props {
   component: Component | undefined;
   facetMode: string;
+  loading?: boolean;
   onChange: (changes: Partial<Query>) => void;
   onToggle: (property: string) => void;
   open: boolean;
@@ -148,6 +149,7 @@ export default class ProjectFacet extends React.PureComponent<Props> {
           <FacetItem
             active={this.props.projects.includes(project)}
             key={project}
+            loading={this.props.loading}
             name={this.renderName(project)}
             onClick={this.handleItemClick}
             stat={formatFacetStat(this.getStat(project), this.props.facetMode)}
