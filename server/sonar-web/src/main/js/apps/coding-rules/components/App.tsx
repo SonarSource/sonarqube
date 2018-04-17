@@ -56,6 +56,7 @@ import { scrollToElement } from '../../../helpers/scrolling';
 import '../styles.css';
 
 const PAGE_SIZE = 100;
+const LIMIT_BEFORE_LOAD_MORE = 5;
 
 interface Props {
   location: { pathname: string; query: RawQuery };
@@ -287,13 +288,23 @@ export default class App extends React.PureComponent<Props, State> {
   };
 
   selectNextRule = () => {
-    const { rules } = this.state;
+    const { rules, loading, paging } = this.state;
     const selectedIndex = this.getSelectedIndex();
-    if (rules && selectedIndex !== undefined && selectedIndex < rules.length - 1) {
-      if (this.state.openRule) {
-        this.openRule(rules[selectedIndex + 1].key);
-      } else {
-        this.setState({ selected: rules[selectedIndex + 1].key });
+    if (selectedIndex !== undefined) {
+      if (
+        selectedIndex > rules.length - LIMIT_BEFORE_LOAD_MORE &&
+        !loading &&
+        paging &&
+        rules.length < paging.total
+      ) {
+        this.fetchMoreRules();
+      }
+      if (rules && selectedIndex < rules.length - 1) {
+        if (this.state.openRule) {
+          this.openRule(rules[selectedIndex + 1].key);
+        } else {
+          this.setState({ selected: rules[selectedIndex + 1].key });
+        }
       }
     }
   };
