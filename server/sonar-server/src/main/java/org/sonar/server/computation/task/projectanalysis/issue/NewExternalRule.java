@@ -22,7 +22,6 @@ package org.sonar.server.computation.task.projectanalysis.issue;
 import java.util.Collections;
 import java.util.Set;
 import javax.annotation.concurrent.Immutable;
-import org.apache.commons.lang.StringUtils;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rules.RuleType;
@@ -31,22 +30,15 @@ import org.sonar.api.server.debt.DebtRemediationFunction;
 @Immutable
 public class NewExternalRule implements Rule {
   private final RuleKey key;
-  private final String severity;
+  private final String name;
   private final RuleType type;
   private final String pluginKey;
 
   private NewExternalRule(Builder builder) {
     this.key = checkNotNull(builder.key, "key");
-    this.severity = checkNotEmpty(builder.severity, "severity");
     this.type = checkNotNull(builder.type, "type");
     this.pluginKey = builder.pluginKey;
-  }
-
-  private static String checkNotEmpty(String str, String name) {
-    if (StringUtils.isEmpty(str)) {
-      throw new IllegalStateException("'" + name + "' not expected to be empty for an external rule");
-    }
-    return str;
+    this.name = builder.name;
   }
 
   private static <T> T checkNotNull(T obj, String name) {
@@ -54,10 +46,6 @@ public class NewExternalRule implements Rule {
       throw new IllegalStateException("'" + name + "' not expected to be null for an external rule");
     }
     return obj;
-  }
-
-  public String getSeverity() {
-    return severity;
   }
 
   @Override
@@ -72,7 +60,7 @@ public class NewExternalRule implements Rule {
 
   @Override
   public String getName() {
-    return key.toString();
+    return name;
   }
 
   @Override
@@ -110,14 +98,15 @@ public class NewExternalRule implements Rule {
     private String severity;
     private RuleType type;
     private String pluginKey;
+    private String name;
 
     public Builder setKey(RuleKey key) {
       this.key = key;
       return this;
     }
 
-    public Builder setSeverity(String severity) {
-      this.severity = StringUtils.trimToNull(severity);
+    public Builder setName(String name) {
+      this.name = name;
       return this;
     }
 
@@ -132,6 +121,10 @@ public class NewExternalRule implements Rule {
 
     public RuleType type() {
       return type;
+    }
+
+    public String name() {
+      return name;
     }
 
     public NewExternalRule build() {

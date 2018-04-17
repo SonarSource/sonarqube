@@ -35,15 +35,17 @@ public class NewExternalRuleTest {
     NewExternalRule.Builder builder = new NewExternalRule.Builder()
       .setKey(RuleKey.of("repo", "rule"))
       .setPluginKey("repo")
+      .setName("name")
       .setSeverity("MAJOR")
       .setType(RuleType.BUG);
 
     assertThat(builder.severity()).isEqualTo("MAJOR");
     assertThat(builder.type()).isEqualTo(RuleType.BUG);
+    assertThat(builder.name()).isEqualTo("name");
 
     NewExternalRule rule = builder.build();
 
-    assertThat(rule.getName()).isEqualTo("repo:rule");
+    assertThat(rule.getName()).isEqualTo("name");
     assertThat(rule.getPluginKey()).isEqualTo("repo");
     assertThat(rule.getSeverity()).isEqualTo("MAJOR");
     assertThat(rule.getType()).isEqualTo(RuleType.BUG);

@@ -179,8 +179,13 @@ public class BatchReportReaderRule implements TestRule, BatchReportReader {
     return closeableIterator(externalIssues.get(componentRef));
   }
 
-  public BatchReportReaderRule putIssues(int componentRef, List<ScannerReport.Issue> issue) {
-    this.issues.put(componentRef, issue);
+  public BatchReportReaderRule putIssues(int componentRef, List<ScannerReport.Issue> issues) {
+    this.issues.put(componentRef, issues);
+    return this;
+  }
+  
+  public BatchReportReaderRule putExternalIssues(int componentRef, List<ScannerReport.ExternalIssue> externalIssues) {
+    this.externalIssues.put(componentRef, externalIssues);
     return this;
   }
 

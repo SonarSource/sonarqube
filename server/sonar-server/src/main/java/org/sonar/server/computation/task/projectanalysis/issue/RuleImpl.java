@@ -53,7 +53,7 @@ public class RuleImpl implements Rule {
     this.status = dto.getStatus();
     this.tags = union(dto.getSystemTags(), dto.getTags());
     this.remediationFunction = effectiveRemediationFunction(dto);
-    this.type = RuleType.valueOf(dto.getType());
+    this.type = RuleType.valueOfNullable(dto.getType());
     this.pluginKey = dto.getPluginKey();
     this.external = dto.isExternal();
   }

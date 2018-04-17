@@ -19,15 +19,13 @@
  */
 package org.sonar.server.platform.db.migration.version.v72;
 
+import java.sql.SQLException;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.db.CoreDbTester;
 
-import java.sql.SQLException;
-
 import static java.sql.Types.BOOLEAN;
-import static java.sql.Types.VARCHAR;
 import static org.junit.rules.ExpectedException.none;
 import static org.sonar.db.CoreDbTester.createForSchema;
 

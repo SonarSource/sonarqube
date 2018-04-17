@@ -190,12 +190,13 @@ public class RuleDoc extends BaseDoc {
     return this;
   }
 
+  @CheckForNull
   public RuleType type() {
-    return RuleType.valueOf(getField(RuleIndexDefinition.FIELD_RULE_TYPE));
+    return RuleType.valueOfNullable(getNullableField(RuleIndexDefinition.FIELD_RULE_TYPE));
   }
 
-  public RuleDoc setType(RuleType ruleType) {
-    setField(RuleIndexDefinition.FIELD_RULE_TYPE, ruleType.name());
+  public RuleDoc setType(@Nullable RuleType ruleType) {
+    setField(RuleIndexDefinition.FIELD_RULE_TYPE, ruleType == null ? null : ruleType.name());
     return this;
   }
 

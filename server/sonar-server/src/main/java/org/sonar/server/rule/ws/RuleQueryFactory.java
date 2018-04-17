@@ -72,7 +72,7 @@ public class RuleQueryFactory {
    */
   public RuleQuery createRuleSearchQuery(DbSession dbSession, Request request) {
     RuleQuery query = createRuleQuery(dbSession, request);
-    query.setIsExternal(request.paramAsBoolean(PARAM_IS_EXTERNAL));
+    query.setIsExternal(request.mandatoryParamAsBoolean(PARAM_IS_EXTERNAL));
     return query;
   }
 

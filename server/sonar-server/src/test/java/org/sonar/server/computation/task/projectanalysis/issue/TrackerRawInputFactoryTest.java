@@ -26,6 +26,7 @@ import org.junit.Test;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
+import org.sonar.api.utils.Duration;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.tracking.Input;
 import org.sonar.scanner.protocol.Constants;
@@ -62,7 +63,7 @@ public class TrackerRawInputFactoryTest {
 
   @Rule
   public SourceLinesRepositoryRule fileSourceRepository = new SourceLinesRepositoryRule();
-  
+
   @Rule
   public RuleRepositoryRule ruleRepository = new RuleRepositoryRule();
 
@@ -116,6 +117,68 @@ public class TrackerRawInputFactoryTest {
     assertThat(issue.line()).isEqualTo(2);
     assertThat(issue.effortToFix()).isEqualTo(3.14);
     assertThat(issue.gap()).isEqualTo(3.14);
+    assertThat(issue.message()).isEqualTo("the message");
+
+    // fields set by compute engine
+    assertThat(issue.checksum()).isEqualTo(input.getLineHashSequence().getHashForLine(2));
+    assertThat(issue.tags()).isEmpty();
+    assertInitializedIssue(issue);
+    assertThat(issue.debt()).isNull();
+  }
+
+  @Test
+  public void load_external_issues_from_report() {
+    fileSourceRepository.addLines(FILE_REF, "line 1;", "line 2;");
+    ScannerReport.ExternalIssue reportIssue = ScannerReport.ExternalIssue.newBuilder()
+      .setTextRange(TextRange.newBuilder().setStartLine(2).build())
+      .setMsg("the message")
+      .setRuleRepository("eslint")
+      .setRuleKey("S001")
+      .setSeverity(Constants.Severity.BLOCKER)
+      .setEffort(20l)
+      .build();
+    reportReader.putExternalIssues(FILE.getReportAttributes().getRef(), asList(reportIssue));
+    Input<DefaultIssue> input = underTest.create(FILE);
+
+    Collection<DefaultIssue> issues = input.getIssues();
+    assertThat(issues).hasSize(1);
+    DefaultIssue issue = Iterators.getOnlyElement(issues.iterator());
+
+    // fields set by analysis report
+    assertThat(issue.ruleKey()).isEqualTo(RuleKey.of("external_eslint", "S001"));
+    assertThat(issue.severity()).isEqualTo(Severity.BLOCKER);
+    assertThat(issue.line()).isEqualTo(2);
+    assertThat(issue.effort()).isEqualTo(Duration.create(20l));
+    assertThat(issue.message()).isEqualTo("the message");
+
+    // fields set by compute engine
+    assertThat(issue.checksum()).isEqualTo(input.getLineHashSequence().getHashForLine(2));
+    assertThat(issue.tags()).isEmpty();
+    assertInitializedIssue(issue);
+  }
+
+  @Test
+  public void load_external_issues_from_report_with_default_effort() {
+    fileSourceRepository.addLines(FILE_REF, "line 1;", "line 2;");
+    ScannerReport.ExternalIssue reportIssue = ScannerReport.ExternalIssue.newBuilder()
+      .setTextRange(TextRange.newBuilder().setStartLine(2).build())
+      .setMsg("the message")
+      .setRuleRepository("eslint")
+      .setRuleKey("S001")
+      .setSeverity(Constants.Severity.BLOCKER)
+      .build();
+    reportReader.putExternalIssues(FILE.getReportAttributes().getRef(), asList(reportIssue));
+    Input<DefaultIssue> input = underTest.create(FILE);
+
+    Collection<DefaultIssue> issues = input.getIssues();
+    assertThat(issues).hasSize(1);
+    DefaultIssue issue = Iterators.getOnlyElement(issues.iterator());
+
+    // fields set by analysis report
+    assertThat(issue.ruleKey()).isEqualTo(RuleKey.of("external_eslint", "S001"));
+    assertThat(issue.severity()).isEqualTo(Severity.BLOCKER);
+    assertThat(issue.line()).isEqualTo(2);
+    assertThat(issue.effort()).isEqualTo(Duration.create(0l));
     assertThat(issue.message()).isEqualTo("the message");
 
     // fields set by compute engine
@@ -198,6 +261,5 @@ public class TrackerRawInputFactoryTest {
     assertThat(issue.status()).isEqualTo(Issue.STATUS_OPEN);
     assertThat(issue.key()).isNull();
     assertThat(issue.authorLogin()).isNull();
-    assertThat(issue.debt()).isNull();
   }
 }

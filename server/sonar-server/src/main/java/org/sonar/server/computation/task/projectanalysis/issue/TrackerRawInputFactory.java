@@ -49,7 +49,7 @@ import static com.google.common.collect.Lists.newArrayList;
 import static org.apache.commons.lang.StringUtils.isNotEmpty;
 
 public class TrackerRawInputFactory {
-
+  private static final long DEFAULT_EXTERNAL_ISSUE_EFFORT = 0l;
   private final TreeRootHolder treeRootHolder;
   private final BatchReportReader reportReader;
   private final SourceLinesRepository sourceLinesRepository;
@@ -167,6 +167,7 @@ public class TrackerRawInputFactory {
           dbLocationsBuilder.addFlow(dbFlowBuilder);
         }
       }
+      issue.setFromExternalRuleEngine(false);
       issue.setLocations(dbLocationsBuilder.build());
       return issue;
     }
@@ -189,9 +190,7 @@ public class TrackerRawInputFactory {
       if (reportIssue.getSeverity() != Severity.UNSET_SEVERITY) {
         issue.setSeverity(reportIssue.getSeverity().name());
       }
-      if (reportIssue.getEffort() != 0) {
-        issue.setEffort(Duration.create(reportIssue.getEffort()));
-      }
+      issue.setEffort(Duration.create(reportIssue.getEffort() != 0 ? reportIssue.getEffort() : DEFAULT_EXTERNAL_ISSUE_EFFORT));
       DbIssues.Locations.Builder dbLocationsBuilder = DbIssues.Locations.newBuilder();
       if (reportIssue.hasTextRange()) {
         dbLocationsBuilder.setTextRange(convertTextRange(reportIssue.getTextRange()));
@@ -205,6 +204,7 @@ public class TrackerRawInputFactory {
           dbLocationsBuilder.addFlow(dbFlowBuilder);
         }
       }
+      issue.setFromExternalRuleEngine(true);
       issue.setLocations(dbLocationsBuilder.build());
       issue.setType(toRuleType(reportIssue.getType()));
 
@@ -215,8 +215,8 @@ public class TrackerRawInputFactory {
     private NewExternalRule toExternalRule(ScannerReport.ExternalIssue reportIssue) {
       NewExternalRule.Builder builder = new NewExternalRule.Builder()
         .setType(toRuleType(reportIssue.getType()))
-        .setKey(RuleKey.of(RuleKey.EXTERNAL_RULE_REPO_PREFIX + reportIssue.getRuleRepository(), reportIssue.getRuleKey()))
-        .setPluginKey(reportIssue.getRuleRepository());
+        .setName(RuleKey.of(reportIssue.getRuleRepository(), reportIssue.getRuleKey()).toString())
+        .setKey(RuleKey.of(RuleKey.EXTERNAL_RULE_REPO_PREFIX + reportIssue.getRuleRepository(), reportIssue.getRuleKey()));
 
       if (reportIssue.getSeverity() != Severity.UNSET_SEVERITY) {
         builder.setSeverity(reportIssue.getSeverity().name());

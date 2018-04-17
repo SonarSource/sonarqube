@@ -36,8 +36,9 @@ public interface Rule {
 
   RuleStatus getStatus();
 
+  @CheckForNull
   RuleType getType();
-  
+
   boolean isExternal();
 
   /**

@@ -26,6 +26,7 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.server.ws.internal.SimpleGetRequest;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
@@ -51,14 +52,13 @@ import static org.sonar.api.server.ws.WebService.Param.SORT;
 import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
 import static org.sonar.db.qualityprofile.ActiveRuleDto.INHERITED;
 import static org.sonar.db.qualityprofile.ActiveRuleDto.OVERRIDES;
-import static org.sonar.server.rule.ws.SearchAction.defineGenericRuleSearchParameters;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_ACTIVATION;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_ACTIVE_SEVERITIES;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_AVAILABLE_SINCE;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_COMPARE_TO_PROFILE;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_INHERITANCE;
-import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_IS_TEMPLATE;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_IS_EXTERNAL;
+import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_IS_TEMPLATE;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_LANGUAGES;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_ORGANIZATION;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_QPROFILE;
@@ -69,6 +69,7 @@ import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_STATUSES;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_TAGS;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_TEMPLATE_KEY;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_TYPES;
+import static org.sonar.server.rule.ws.SearchAction.defineGenericRuleSearchParameters;
 
 public class RuleQueryFactoryTest {
 
@@ -117,6 +118,50 @@ public class RuleQueryFactoryTest {
   }
 
   @Test
+  public void create_rule_search_query() {
+    QProfileDto qualityProfile = dbTester.qualityProfiles().insert(organization);
+    QProfileDto compareToQualityProfile = dbTester.qualityProfiles().insert(organization);
+
+    RuleQuery result = executeRuleSearchQuery(
+      PARAM_RULE_KEY, "ruleKey",
+
+      PARAM_ACTIVATION, "true",
+      PARAM_ACTIVE_SEVERITIES, "MINOR,MAJOR",
+      PARAM_AVAILABLE_SINCE, "2016-01-01",
+      PARAM_INHERITANCE, "INHERITED,OVERRIDES",
+      PARAM_IS_TEMPLATE, "true",
+      PARAM_IS_EXTERNAL, "false",
+      PARAM_LANGUAGES, "java,js",
+      TEXT_QUERY, "S001",
+      PARAM_ORGANIZATION, organization.getKey(),
+      PARAM_QPROFILE, qualityProfile.getKee(),
+      PARAM_COMPARE_TO_PROFILE, compareToQualityProfile.getKee(),
+      PARAM_REPOSITORIES, "pmd,checkstyle",
+      PARAM_SEVERITIES, "MINOR,CRITICAL",
+      PARAM_STATUSES, "DEPRECATED,READY",
+      PARAM_TAGS, "tag1,tag2",
+      PARAM_TEMPLATE_KEY, "architectural",
+      PARAM_TYPES, "CODE_SMELL,BUG",
+
+      SORT, "updatedAt",
+      ASCENDING, "false");
+
+    assertResult(result, qualityProfile, compareToQualityProfile);
+    assertThat(result.isExternal()).isFalse();
+  }
+
+  @Test
+  public void is_external_is_mandatory_for_rule_search_query() {
+    dbTester.qualityProfiles().insert(organization);
+    dbTester.qualityProfiles().insert(organization);
+    Request request = new SimpleGetRequest();
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("The 'is_external' parameter is missing");
+    underTest.createRuleSearchQuery(dbTester.getSession(), request);
+  }
+
+  @Test
   public void create_query() {
     QProfileDto qualityProfile = dbTester.qualityProfiles().insert(organization);
     QProfileDto compareToQualityProfile = dbTester.qualityProfiles().insert(organization);
@@ -128,7 +173,7 @@ public class RuleQueryFactoryTest {
       PARAM_ACTIVE_SEVERITIES, "MINOR,MAJOR",
       PARAM_AVAILABLE_SINCE, "2016-01-01",
       PARAM_INHERITANCE, "INHERITED,OVERRIDES",
-      PARAM_IS_TEMPLATE, "true",      
+      PARAM_IS_TEMPLATE, "true",
       PARAM_IS_EXTERNAL, "true",
       PARAM_LANGUAGES, "java,js",
       TEXT_QUERY, "S001",
@@ -145,6 +190,11 @@ public class RuleQueryFactoryTest {
       SORT, "updatedAt",
       ASCENDING, "false");
 
+    assertResult(result, qualityProfile, compareToQualityProfile);
+    assertThat(result.isExternal()).isNull();
+  }
+
+  private void assertResult(RuleQuery result, QProfileDto qualityProfile, QProfileDto compareToQualityProfile) {
     assertThat(result.getKey()).isEqualTo("ruleKey");
 
     assertThat(result.getActivation()).isTrue();
@@ -165,7 +215,6 @@ public class RuleQueryFactoryTest {
     assertThat(result.getTags()).containsOnly("tag1", "tag2");
     assertThat(result.templateKey()).isEqualTo("architectural");
     assertThat(result.getTypes()).containsOnly(BUG, CODE_SMELL);
-
     assertThat(result.getSortField()).isEqualTo("updatedAt");
   }
 
@@ -250,7 +299,8 @@ public class RuleQueryFactoryTest {
     QProfileDto compareToQualityProfile = dbTester.qualityProfiles().insert(otherOrganization);
 
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("The specified quality profile '" + compareToQualityProfile.getKee() + "' is not part of the specified organization '" + organization.getKey() + "'");
+    expectedException
+      .expectMessage("The specified quality profile '" + compareToQualityProfile.getKee() + "' is not part of the specified organization '" + organization.getKey() + "'");
 
     execute(PARAM_QPROFILE, qualityProfile.getKee(),
       PARAM_COMPARE_TO_PROFILE, compareToQualityProfile.getKee(),
@@ -296,6 +346,15 @@ public class RuleQueryFactoryTest {
     }
     request.execute();
     return fakeAction.getRuleQuery();
+  }
+
+  private RuleQuery executeRuleSearchQuery(String... paramsKeyAndValue) {
+    SimpleGetRequest request = new SimpleGetRequest();
+    for (int i = 0; i < paramsKeyAndValue.length; i += 2) {
+      request.setParam(paramsKeyAndValue[i], paramsKeyAndValue[i + 1]);
+    }
+
+    return underTest.createRuleSearchQuery(dbTester.getSession(), request);
   }
 
   private class FakeAction implements WsAction {

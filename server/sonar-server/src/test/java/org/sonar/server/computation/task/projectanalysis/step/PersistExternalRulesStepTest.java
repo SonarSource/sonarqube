@@ -81,6 +81,7 @@ public class PersistExternalRulesStepTest extends BaseStepTest {
       .setKey(ruleKey)
       .setPluginKey("eslint")
       .setSeverity(BLOCKER)
+      .setName("eslint:no-cond-assign")
       .setType(BUG)
       .build());
 

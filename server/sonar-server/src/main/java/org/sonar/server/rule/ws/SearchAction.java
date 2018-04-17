@@ -203,12 +203,16 @@ public class SearchAction implements RulesWsAction {
 
     // Rule-specific search parameters
     defineGenericRuleSearchParameters(action);
-    
+    defineIsExternalParam(action);
+  }
+
+  static void defineIsExternalParam(WebService.NewAction action) {
     action
-    .createParam(PARAM_IS_EXTERNAL)
-    .setDescription("Filter external engine rules")
-    .setBooleanPossibleValues()
-    .setSince("7.2");
+      .createParam(PARAM_IS_EXTERNAL)
+      .setDescription("Filter external engine rules")
+      .setDefaultValue(false)
+      .setBooleanPossibleValues()
+      .setSince("7.2");
   }
 
   public static void defineGenericRuleSearchParameters(WebService.NewAction action) {

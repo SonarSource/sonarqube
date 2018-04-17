@@ -19,7 +19,6 @@
  */
 package org.sonar.server.rule;
 
-import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -56,10 +55,7 @@ public class ExternalRuleCreator {
       .setPluginKey(external.getPluginKey())
       .setIsExternal(external.isExternal())
       .setName(external.getName())
-      .setType(external.getType())
       .setScope(ALL)
-      .setStatus(RuleStatus.READY)
-      .setSeverity(external.getSeverity())
       .setStatus(READY)
       .setCreatedAt(system2.now())
       .setUpdatedAt(system2.now()));

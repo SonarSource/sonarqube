@@ -22,6 +22,7 @@ package org.sonar.db.rule;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableSet;
 import java.util.Set;
+import javax.annotation.CheckForNull;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rules.RuleType;
@@ -121,8 +122,9 @@ public class RuleForIndexingDto {
     return updatedAt;
   }
 
+  @CheckForNull
   public RuleType getTypeAsRuleType() {
-    return RuleType.valueOf(type);
+    return RuleType.valueOfNullable(type);
   }
 
   public String getSeverityAsString() {

@@ -43,6 +43,8 @@ public interface IssueMapper {
   int updateIfBeforeSelectedDate(IssueDto issue);
 
   void scrollNonClosedByComponentUuid(@Param("componentUuid") String componentUuid, ResultHandler<IssueDto> handler);
+  
+  void scrollNonClosedByComponentUuidExcludingExternals(@Param("componentUuid") String componentUuid, ResultHandler<IssueDto> handler);
 
   void scrollNonClosedByModuleOrProject(
     @Param("projectUuid") String projectUuid,

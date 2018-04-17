@@ -30,7 +30,6 @@ import org.sonar.server.es.EsTester;
 import org.sonar.server.rule.index.RuleIndexer;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.api.rule.Severity.BLOCKER;
 import static org.sonar.api.rules.RuleType.BUG;
 
 public class ExternalRuleCreatorTest {
@@ -50,8 +49,8 @@ public class ExternalRuleCreatorTest {
     NewExternalRule externalRule = new NewExternalRule.Builder()
       .setKey(ruleKey)
       .setPluginKey("eslint")
-      .setSeverity(BLOCKER)
       .setType(BUG)
+      .setName("name")
       .build();
 
     Rule rule1 = underTest.persistAndIndex(dbSession, externalRule);
@@ -61,9 +60,8 @@ public class ExternalRuleCreatorTest {
     assertThat(rule1.getId()).isGreaterThan(0);
     assertThat(rule1.getKey()).isEqualTo(ruleKey);
     assertThat(rule1.getPluginKey()).isEqualTo("eslint");
-    assertThat(rule1.getName()).isEqualTo(ruleKey.toString());
-    assertThat(rule1.getType()).isEqualTo(BUG);
-
+    assertThat(rule1.getName()).isEqualTo("name");
+    assertThat(rule1.getType()).isNull();
   }
 
 }

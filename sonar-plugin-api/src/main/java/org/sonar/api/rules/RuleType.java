@@ -21,6 +21,7 @@ package org.sonar.api.rules;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
+import javax.annotation.CheckForNull;
 
 import static java.lang.String.format;
 import static java.util.Arrays.stream;
@@ -57,6 +58,20 @@ public enum RuleType {
       if (type.getDbConstant() == dbConstant) {
         return type;
       }
+    }
+    throw new IllegalArgumentException(format("Unsupported type value : %d", dbConstant));
+  }
+  
+  @CheckForNull
+  public static RuleType valueOfNullable(int dbConstant) {
+    // iterating the array is fast-enough as size is small. No need for a map.
+    for (RuleType type : values()) {
+      if (type.getDbConstant() == dbConstant) {
+        return type;
+      }
+    }
+    if (dbConstant == 0) {
+      return null;
     }
     throw new IllegalArgumentException(format("Unsupported type value : %d", dbConstant));
   }

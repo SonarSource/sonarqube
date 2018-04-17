@@ -192,6 +192,18 @@
     inner join projects p on p.uuid=i.component_uuid
     inner join projects root on root.uuid=i.project_uuid
     where
+    i.component_uuid = #{componentUuid,jdbcType=VARCHAR} and
+    i.status &lt;&gt; 'CLOSED'
+  </select>
+  
+  <select id="scrollNonClosedByComponentUuidExcludingExternals" parameterType="String" resultType="Issue" fetchSize="${_scrollFetchSize}" resultSetType="FORWARD_ONLY">
+    select
+    <include refid="issueColumns"/>
+    from issues i
+    inner join rules r on r.id=i.rule_id
+    inner join projects p on p.uuid=i.component_uuid
+    inner join projects root on root.uuid=i.project_uuid
+    where
     r.is_external = 'false' and
     i.component_uuid = #{componentUuid,jdbcType=VARCHAR} and
     i.status &lt;&gt; 'CLOSED'
