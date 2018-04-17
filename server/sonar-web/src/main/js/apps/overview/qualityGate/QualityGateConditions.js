@@ -88,7 +88,7 @@ export default class QualityGateConditions extends React.PureComponent {
   }
 
   render() {
-    const { branch, component } = this.props;
+    const { branchLike, component } = this.props;
     const { loading, conditions } = this.state;
 
     if (loading) {
@@ -103,14 +103,14 @@ export default class QualityGateConditions extends React.PureComponent {
 
     return (
       <div
-        id="overview-quality-gate-conditions-list"
-        className="overview-quality-gate-conditions-list clearfix">
+        className="overview-quality-gate-conditions-list clearfix"
+        id="overview-quality-gate-conditions-list">
         {sortedConditions.map(condition => (
           <QualityGateCondition
-            key={condition.measure.metric.key}
-            branch={branch}
+            branchLike={branchLike}
             component={component}
             condition={condition}
+            key={condition.measure.metric.key}
           />
         ))}
       </div>
