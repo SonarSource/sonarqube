@@ -103,22 +103,35 @@ export function getComponentIssuesUrl(componentKey: string, query?: Query): Loca
 /**
  * Generate URL for a component's drilldown page
  */
-export function getComponentDrilldownUrl(
+export function getComponentDrilldownUrl(options: {
+  componentKey: string;
+  metric: string;
+  branchLike?: BranchLike;
+  selectionKey?: string;
+  treemapView?: boolean;
+}): Location {
+  const { componentKey, metric, branchLike, selectionKey, treemapView } = options;
+  const query: Query = { id: componentKey, metric, ...getBranchLikeQuery(branchLike) };
+  if (treemapView) {
+    query.view = 'treemap';
+  }
+  if (selectionKey) {
+    query.selected = selectionKey;
+  }
+  return { pathname: '/component_measures', query };
+}
+
+export function getComponentDrilldownUrlWithSelection(
   componentKey: string,
+  selectionKey: string,
   metric: string,
   branchLike?: BranchLike
 ): Location {
-  return {
-    pathname: '/component_measures',
-    query: { id: componentKey, metric, ...getBranchLikeQuery(branchLike) }
-  };
+  return getComponentDrilldownUrl({ componentKey, selectionKey, metric, branchLike });
 }
 
-export function getMeasureTreemapUrl(component: string, metric: string) {
-  return {
-    pathname: '/component_measures',
-    query: { id: component, metric, view: 'treemap' }
-  };
+export function getMeasureTreemapUrl(componentKey: string, metric: string) {
+  return getComponentDrilldownUrl({ componentKey, metric, treemapView: true });
 }
 
 export function getActivityUrl(component: string, branchLike?: BranchLike) {

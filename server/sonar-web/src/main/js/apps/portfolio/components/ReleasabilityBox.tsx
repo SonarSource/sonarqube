@@ -41,7 +41,7 @@ export default function ReleasabilityBox({ component, measures }: Props) {
 
       {rating && (
         <Link
-          to={getComponentDrilldownUrl(component, 'alert_status')}
+          to={getComponentDrilldownUrl({ componentKey: component, metric: 'alert_status' })}
           className="portfolio-box-rating">
           <Rating value={rating} />
         </Link>
@@ -52,7 +52,8 @@ export default function ReleasabilityBox({ component, measures }: Props) {
       {effort &&
         Number(effort) > 0 && (
           <div className="portfolio-effort">
-            <Link to={getComponentDrilldownUrl(component, 'alert_status')}>
+            <Link
+              to={getComponentDrilldownUrl({ componentKey: component, metric: 'alert_status' })}>
               <span>
                 <Measure
                   className="little-spacer-right"

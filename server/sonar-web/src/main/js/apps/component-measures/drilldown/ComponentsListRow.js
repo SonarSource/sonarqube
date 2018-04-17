@@ -22,7 +22,7 @@ import React from 'react';
 import classNames from 'classnames';
 import ComponentCell from './ComponentCell';
 import MeasureCell from './MeasureCell';
-/*:: import type { ComponentEnhanced } from '../types'; */
+/*:: import type { Component, ComponentEnhanced } from '../types'; */
 /*:: import type { Metric } from '../../../store/metrics/actions'; */
 
 /*:: type Props = {|
@@ -31,11 +31,12 @@ import MeasureCell from './MeasureCell';
   isSelected: boolean,
   onClick: string => void,
   otherMetrics: Array<Metric>,
-  metric: Metric
+  metric: Metric,
+  rootComponent: Component
 |}; */
 
 export default function ComponentsListRow(props /*: Props */) {
-  const { branchLike, component } = props;
+  const { branchLike, component, rootComponent } = props;
   const otherMeasures = props.otherMetrics.map(metric => {
     const measure = component.measures.find(measure => measure.metric.key === metric.key);
     return { ...measure, metric };
@@ -45,14 +46,20 @@ export default function ComponentsListRow(props /*: Props */) {
   });
   return (
     <tr className={rowClass}>
-      <ComponentCell branchLike={branchLike} component={component} onClick={props.onClick} />
+      <ComponentCell
+        branchLike={branchLike}
+        component={component}
+        metric={props.metric}
+        onClick={props.onClick}
+        rootComponent={rootComponent}
+      />
 
       <MeasureCell component={component} metric={props.metric} />
 
       {otherMeasures.map(measure => (
         <MeasureCell
-          key={measure.metric.key}
           component={component}
+          key={measure.metric.key}
           measure={measure}
           metric={measure.metric}
         />

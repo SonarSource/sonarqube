@@ -39,13 +39,21 @@ export class BugsAndVulnerabilities extends React.PureComponent<ComposedProps> {
           <span>{translate('metric.bugs.name')}</span>
           <Link
             className="button button-small spacer-left text-text-bottom"
-            to={getComponentDrilldownUrl(component.key, 'Reliability', branchLike)}>
+            to={getComponentDrilldownUrl({
+              componentKey: component.key,
+              metric: 'Reliability',
+              branchLike
+            })}>
             <BubblesIcon size={14} />
           </Link>
           <span className="big-spacer-left">{translate('metric.vulnerabilities.name')}</span>
           <Link
             className="button button-small spacer-left text-text-bottom"
-            to={getComponentDrilldownUrl(component.key, 'Security', branchLike)}>
+            to={getComponentDrilldownUrl({
+              componentKey: component.key,
+              metric: 'Security',
+              branchLike
+            })}>
             <BubblesIcon size={14} />
           </Link>
         </div>

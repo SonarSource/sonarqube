@@ -138,13 +138,13 @@ export default class DrilldownLink extends React.PureComponent<Props> {
       return this.renderIssuesLink();
     }
 
-    const url = getComponentDrilldownUrl(
-      this.props.component,
-      this.props.metric,
-      this.props.branchLike
-    );
+    const url = getComponentDrilldownUrl({
+      componentKey: this.props.component,
+      metric: this.props.metric,
+      branchLike: this.props.branchLike
+    });
     return (
-      <Link to={url} className={this.props.className}>
+      <Link className={this.props.className} to={url}>
         {this.props.children}
       </Link>
     );

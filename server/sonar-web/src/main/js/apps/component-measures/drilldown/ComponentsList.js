@@ -23,7 +23,7 @@ import ComponentsListRow from './ComponentsListRow';
 import EmptyResult from './EmptyResult';
 import { complementary } from '../config/complementary';
 import { getLocalizedMetricName } from '../../../helpers/l10n';
-/*:: import type { ComponentEnhanced } from '../types'; */
+/*:: import type { Component, ComponentEnhanced } from '../types'; */
 /*:: import type { Metric } from '../../../store/metrics/actions'; */
 
 /*:: type Props = {|
@@ -32,11 +32,20 @@ import { getLocalizedMetricName } from '../../../helpers/l10n';
   onClick: string => void,
   metric: Metric,
   metrics: { [string]: Metric },
+  rootComponent: Component,
   selectedComponent?: ?string
 |}; */
 
 export default function ComponentsList(
-  { branchLike, components, onClick, metrics, metric, selectedComponent } /*: Props */
+  {
+    branchLike,
+    components,
+    onClick,
+    metrics,
+    metric,
+    rootComponent,
+    selectedComponent
+  } /*: Props */
 ) {
   if (!components.length) {
     return <EmptyResult />;
@@ -53,7 +62,7 @@ export default function ComponentsList(
               <span className="small">{getLocalizedMetricName(metric)}</span>
             </th>
             {otherMetrics.map(metric => (
-              <th key={metric.key} className="text-right">
+              <th className="text-right" key={metric.key}>
                 <span className="small">{getLocalizedMetricName(metric)}</span>
               </th>
             ))}
@@ -64,13 +73,14 @@ export default function ComponentsList(
       <tbody>
         {components.map(component => (
           <ComponentsListRow
-            key={component.id}
             branchLike={branchLike}
             component={component}
-            otherMetrics={otherMetrics}
             isSelected={component.key === selectedComponent}
+            key={component.id}
             metric={metric}
             onClick={onClick}
+            otherMetrics={otherMetrics}
+            rootComponent={rootComponent}
           />
         ))}
       </tbody>

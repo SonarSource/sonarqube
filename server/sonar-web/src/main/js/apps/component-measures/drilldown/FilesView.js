@@ -24,7 +24,7 @@ import { throttle } from 'lodash';
 import ComponentsList from './ComponentsList';
 import ListFooter from '../../../components/controls/ListFooter';
 import { scrollToElement } from '../../../helpers/scrolling';
-/*:: import type { ComponentEnhanced, Paging } from '../types'; */
+/*:: import type { Component, ComponentEnhanced, Paging } from '../types'; */
 /*:: import type { Metric } from '../../../store/metrics/actions'; */
 
 /*:: type Props = {|
@@ -36,6 +36,7 @@ import { scrollToElement } from '../../../helpers/scrolling';
   metric: Metric,
   metrics: { [string]: Metric },
   paging: ?Paging,
+  rootComponent: Component,
   selectedKey: ?string,
   selectedIdx: ?number
 |}; */
@@ -125,17 +126,18 @@ export default class ListView extends React.PureComponent {
         <ComponentsList
           branchLike={this.props.branchLike}
           components={this.props.components}
-          metrics={this.props.metrics}
           metric={this.props.metric}
+          metrics={this.props.metrics}
           onClick={this.props.handleOpen}
+          rootComponent={this.props.rootComponent}
           selectedComponent={this.props.selectedKey}
         />
         {this.props.paging &&
           this.props.components.length > 0 && (
             <ListFooter
               count={this.props.components.length}
-              total={this.props.paging.total}
               loadMore={this.props.fetchMore}
+              total={this.props.paging.total}
             />
           )}
       </div>

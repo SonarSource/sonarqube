@@ -31,7 +31,7 @@ export default function MeasuresButtonLink({ component, metric }: Props) {
   return (
     <Link
       className="button button-small spacer-left text-text-bottom"
-      to={getComponentDrilldownUrl(component, metric)}>
+      to={getComponentDrilldownUrl({ componentKey: component, metric })}>
       <BubblesIcon size={14} />
     </Link>
   );

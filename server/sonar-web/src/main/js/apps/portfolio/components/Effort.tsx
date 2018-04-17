@@ -39,7 +39,7 @@ export default function Effort({ component, effort, metricKey }: Props) {
         id="portfolio.x_in_y"
         values={{
           projects: (
-            <Link to={getComponentDrilldownUrl(component, metricKey)}>
+            <Link to={getComponentDrilldownUrl({ componentKey: component, metric: metricKey })}>
               <span>
                 <Measure
                   className="little-spacer-right"

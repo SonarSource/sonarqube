@@ -253,8 +253,9 @@ export default class MeasureContent extends React.PureComponent {
             metric={metric}
             metrics={this.props.metrics}
             paging={this.state.paging}
-            selectedKey={selectedIdx != null ? this.state.selected : null}
+            rootComponent={this.props.rootComponent}
             selectedIdx={selectedIdx}
+            selectedKey={selectedIdx != null ? this.state.selected : null}
           />
         );
       }

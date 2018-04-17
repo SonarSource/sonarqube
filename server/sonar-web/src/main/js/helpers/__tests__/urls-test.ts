@@ -81,14 +81,18 @@ describe('#getComponentIssuesUrl', () => {
 
 describe('#getComponentDrilldownUrl', () => {
   it('should return component drilldown url', () => {
-    expect(getComponentDrilldownUrl(SIMPLE_COMPONENT_KEY, METRIC)).toEqual({
+    expect(
+      getComponentDrilldownUrl({ componentKey: SIMPLE_COMPONENT_KEY, metric: METRIC })
+    ).toEqual({
       pathname: '/component_measures',
       query: { id: SIMPLE_COMPONENT_KEY, metric: METRIC }
     });
   });
 
   it('should not encode component key', () => {
-    expect(getComponentDrilldownUrl(COMPLEX_COMPONENT_KEY, METRIC)).toEqual({
+    expect(
+      getComponentDrilldownUrl({ componentKey: COMPLEX_COMPONENT_KEY, metric: METRIC })
+    ).toEqual({
       pathname: '/component_measures',
       query: { id: COMPLEX_COMPONENT_KEY, metric: METRIC }
     });

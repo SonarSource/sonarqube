@@ -23,27 +23,20 @@ import { Link } from 'react-router';
 import LinkIcon from '../../../components/icons-components/LinkIcon';
 import QualifierIcon from '../../../components/icons-components/QualifierIcon';
 import { splitPath } from '../../../helpers/path';
-import { getPathUrlAsString, getBranchLikeUrl } from '../../../helpers/urls';
-/*:: import type { ComponentEnhanced } from '../types'; */
+import { getBranchLikeUrl, getComponentDrilldownUrlWithSelection } from '../../../helpers/urls';
+/*:: import type { Component, ComponentEnhanced } from '../types'; */
+/*:: import type { Metric } from '../../../store/metrics/actions'; */
 
 /*:: type Props = {
   branchLike?: { id?: string; name: string },
   component: ComponentEnhanced,
-  onClick: string => void
+  onClick: string => void,
+  metric: Metric,
+  rootComponent: Component
 }; */
 
 export default class ComponentCell extends React.PureComponent {
   /*:: props: Props; */
-
-  handleClick = (e /*: MouseEvent */) => {
-    const isLeftClickEvent = e.button === 0;
-    const isModifiedEvent = !!(e.metaKey || e.altKey || e.ctrlKey || e.shiftKey);
-
-    if (isLeftClickEvent && !isModifiedEvent) {
-      e.preventDefault();
-      this.props.onClick(this.props.component.key);
-    }
-  };
 
   renderInner() {
     const { component } = this.props;
@@ -65,19 +58,22 @@ export default class ComponentCell extends React.PureComponent {
   }
 
   render() {
-    const { branchLike, component } = this.props;
+    const { branchLike, component, metric, rootComponent } = this.props;
     return (
       <td className="measure-details-component-cell">
         <div className="text-ellipsis">
-          {/* TODO make this <a> link a react-router <Link /> */}
           {component.refKey == null ? (
-            <a
-              id={'component-measures-component-link-' + component.key}
+            <Link
               className="link-no-underline"
-              href={getPathUrlAsString(getBranchLikeUrl(component.key, branchLike))}
-              onClick={this.handleClick}>
+              id={'component-measures-component-link-' + component.key}
+              to={getComponentDrilldownUrlWithSelection(
+                rootComponent.key,
+                component.key,
+                metric.key,
+                branchLike
+              )}>
               {this.renderInner()}
-            </a>
+            </Link>
           ) : (
             <Link
               className="link-no-underline"

@@ -85,7 +85,11 @@ export default function enhance(ComposedComponent: React.ComponentType<ComposedP
             <span>{label}</span>
             <Link
               className="button button-small spacer-left text-text-bottom"
-              to={getComponentDrilldownUrl(component.key, domain, branchLike)}>
+              to={getComponentDrilldownUrl({
+                componentKey: component.key,
+                metric: domain,
+                branchLike
+              })}>
               <BubblesIcon size={14} />
             </Link>
           </div>
