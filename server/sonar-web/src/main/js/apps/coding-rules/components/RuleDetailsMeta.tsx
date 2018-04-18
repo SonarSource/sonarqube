@@ -225,11 +225,13 @@ export default class RuleDetailsMeta extends React.PureComponent<Props, State> {
         <header className="page-header">
           <div className="pull-right">
             <span className="note text-middle">{ruleDetails.key}</span>
-            <Link
-              className="coding-rules-detail-permalink link-no-underline spacer-left text-middle"
-              to={getRuleUrl(ruleDetails.key, this.props.organization)}>
-              <LinkIcon />
-            </Link>
+            {!ruleDetails.isExternal && (
+              <Link
+                className="coding-rules-detail-permalink link-no-underline spacer-left text-middle"
+                to={getRuleUrl(ruleDetails.key, this.props.organization)}>
+                <LinkIcon />
+              </Link>
+            )}
             {!this.props.hideSimilarRulesFilter && (
               <SimilarRulesFilter onFilterChange={this.props.onFilterChange} rule={ruleDetails} />
             )}

@@ -70,8 +70,8 @@ a.badge {
 }
 
 .badge-tiny-height {
-  height: var(--tinyControlHeight);
-  line-height: calc(var(--tinyControlHeight) - 1px);
+  height: var(--tinyControlHeight) !important;
+  line-height: calc(var(--tinyControlHeight) - 1px) !important;
 }
 
 .badge-muted {

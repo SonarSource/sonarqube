@@ -65,6 +65,7 @@ export type Issue = {
   componentUuid: string,
   creationDate: string,
   effort?: string,
+  externalRuleEngine?: string,
   key: string,
   flows: Array<Array<FlowLocation>>,
   line?: number,

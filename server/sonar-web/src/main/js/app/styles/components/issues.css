@@ -90,6 +90,10 @@
   overflow: hidden;
 }
 
+.issue-message .button-link {
+  height: 16px;
+}
+
 .issue-rule {
   vertical-align: top;
   margin-top: 2px;

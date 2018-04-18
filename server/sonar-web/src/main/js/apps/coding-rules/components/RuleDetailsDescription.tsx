@@ -23,7 +23,7 @@ import { updateRule } from '../../../api/rules';
 import { RuleDetails } from '../../../app/types';
 import MarkdownTips from '../../../components/common/MarkdownTips';
 import { Button, ResetButtonLink } from '../../../components/ui/buttons';
-import { translate } from '../../../helpers/l10n';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
 
 interface Props {
   canWrite: boolean | undefined;
@@ -192,10 +192,16 @@ export default class RuleDetailsDescription extends React.PureComponent<Props, S
 
     return (
       <div className="js-rule-description">
-        <div
-          className="coding-rules-detail-description rule-desc markdown"
-          dangerouslySetInnerHTML={{ __html: ruleDetails.htmlDesc || '' }}
-        />
+        {ruleDetails.isExternal ? (
+          <div className="coding-rules-detail-description rule-desc markdown">
+            {translateWithParameters('issue.external_issue_description', ruleDetails.name)}
+          </div>
+        ) : (
+          <div
+            className="coding-rules-detail-description rule-desc markdown"
+            dangerouslySetInnerHTML={{ __html: ruleDetails.htmlDesc || '' }}
+          />
+        )}
 
         {!ruleDetails.templateKey && (
           <div className="coding-rules-detail-description coding-rules-detail-description-extra">

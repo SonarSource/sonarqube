@@ -75,7 +75,12 @@ export default function IssueTitleBar(props /*: Props */) {
 
   return (
     <div className="issue-row">
-      <IssueMessage message={issue.message} rule={issue.rule} organization={issue.organization} />
+      <IssueMessage
+        engine={issue.externalRuleEngine}
+        message={issue.message}
+        organization={issue.organization}
+        rule={issue.rule}
+      />
 
       <div className="issue-row-meta">
         <ul className="list-inline issue-meta-list">
@@ -84,8 +89,8 @@ export default function IssueTitleBar(props /*: Props */) {
               creationDate={issue.creationDate}
               isOpen={props.currentPopup === 'changelog'}
               issue={issue}
-              togglePopup={props.togglePopup}
               onFail={props.onFail}
+              togglePopup={props.togglePopup}
             />
           </li>
           {issue.textRange != null && (
@@ -120,9 +125,9 @@ export default function IssueTitleBar(props /*: Props */) {
               <SimilarIssuesFilter
                 isOpen={props.currentPopup === 'similarIssues'}
                 issue={issue}
-                togglePopup={props.togglePopup}
                 onFail={props.onFail}
                 onFilter={props.onFilter}
+                togglePopup={props.togglePopup}
               />
             </li>
           )}

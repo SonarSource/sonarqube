@@ -20,13 +20,15 @@
 // @flow
 import React from 'react';
 import PropTypes from 'prop-types';
-import { translate } from '../../../helpers/l10n';
+import Tooltip from '../../controls/Tooltip';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
 
 export default class IssueMessage extends React.PureComponent {
   /*:: props: {
+    engine?: string;
     message: string,
-    rule: string,
-    organization: string
+    organization: string,
+    rule: string
   };
   */
 
@@ -52,6 +54,14 @@ export default class IssueMessage extends React.PureComponent {
           aria-label={translate('issue.rule_details')}
           onClick={this.handleClick}
         />
+        {this.props.engine && (
+          <Tooltip
+            overlay={translateWithParameters('issue.from_external_rule_engine', this.props.engine)}>
+            <div className="outline-badge badge-tiny-height spacer-left vertical-text-top">
+              {this.props.engine}
+            </div>
+          </Tooltip>
+        )}
       </div>
     );
   }

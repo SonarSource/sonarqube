@@ -218,6 +218,7 @@ export interface Issue {
   componentUuid: string;
   creationDate: string;
   effort?: string;
+  fromExternalRule?: boolean;
   key: string;
   flows: FlowLocation[][];
   line?: number;
@@ -400,6 +401,7 @@ export interface RuleDetails extends Rule {
   htmlDesc?: string;
   htmlNote?: string;
   internalKey?: string;
+  isExternal?: boolean;
   mdDesc?: string;
   mdNote?: string;
   remFnBaseEffort?: string;
