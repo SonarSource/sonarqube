@@ -20,6 +20,7 @@
 import * as React from 'react';
 import { uniq } from 'lodash';
 import { connect } from 'react-redux';
+import { Helmet } from 'react-helmet';
 import QualityGate from '../qualityGate/QualityGate';
 import ApplicationQualityGate from '../qualityGate/ApplicationQualityGate';
 import BugsAndVulnerabilities from '../main/BugsAndVulnerabilities';
@@ -46,6 +47,7 @@ import { fetchMetrics } from '../../../store/rootActions';
 import { getMetrics } from '../../../store/rootReducer';
 import { BranchLike, Component, Metric } from '../../../app/types';
 import { translate } from '../../../helpers/l10n';
+import { getPathUrlAsString, getProjectUrl } from '../../../helpers/urls';
 import '../styles.css';
 
 interface OwnProps {
@@ -231,6 +233,10 @@ export class OverviewApp extends React.PureComponent<Props, State> {
     return (
       <div className="page page-limited">
         <div className="overview page-with-sidebar">
+          <Helmet>
+            <link href={getPathUrlAsString(getProjectUrl(component.key))} rel="canonical" />
+          </Helmet>
+
           {this.renderMain()}
 
           <div className="overview-sidebar page-sidebar-fixed">
