@@ -128,6 +128,7 @@ public class CeService extends BaseService {
   }
 
   /**
+   *
    * This is a GET request.
    * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/ce/info">Further information about this action online (including a response example)</a>
    * @since 7.2
@@ -136,6 +137,30 @@ public class CeService extends BaseService {
     return call(
       new GetRequest(path("info")),
       InfoWsResponse.parser());
+  }
+
+  /**
+   * This is a POST request.
+   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/ce/pause">Further information about this action online (including a response example)</a>
+   * @since 7.2
+   */
+  public void pause() {
+    call(
+      new PostRequest(path("pause"))
+        .setMediaType(MediaTypes.JSON)
+      ).content();
+  }
+
+  /**
+   * This is a POST request.
+   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/ce/resume">Further information about this action online (including a response example)</a>
+   * @since 7.2
+   */
+  public void resume() {
+    call(
+      new PostRequest(path("resume"))
+        .setMediaType(MediaTypes.JSON)
+      ).content();
   }
 
   /**
