@@ -29,10 +29,14 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.SonarQubeSide;
+import org.sonar.api.SonarRuntime;
+import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.utils.Version;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -43,6 +47,8 @@ import static org.sonar.server.ws.WebServiceFilterTest.WsUrl.newWsUrl;
 
 public class WebServiceFilterTest {
 
+  private static final String RUNTIME_VERSION = "7.1.0.1234";
+
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
@@ -52,7 +58,7 @@ public class WebServiceFilterTest {
   private HttpServletResponse response = mock(HttpServletResponse.class);
   private FilterChain chain = mock(FilterChain.class);
   private ServletOutputStream responseOutput = mock(ServletOutputStream.class);
-
+  private SonarRuntime runtime = SonarRuntimeImpl.forSonarQube(Version.parse(RUNTIME_VERSION), SonarQubeSide.SERVER);
   private WebServiceFilter underTest;
 
   @Before
@@ -93,8 +99,8 @@ public class WebServiceFilterTest {
   @Test
   public void does_not_match_servlet_filter_that_prefix_a_ws() {
     initWebServiceEngine(
-        newWsUrl("api/foo", "action").setHandler(ServletFilterHandler.INSTANCE),
-        newWsUrl("api/foo", "action_2"));
+      newWsUrl("api/foo", "action").setHandler(ServletFilterHandler.INSTANCE),
+      newWsUrl("api/foo", "action_2"));
 
     assertThat(underTest.doGetPattern().matches("/api/foo/action")).isFalse();
     assertThat(underTest.doGetPattern().matches("/api/foo/action_2")).isTrue();
@@ -109,12 +115,21 @@ public class WebServiceFilterTest {
   }
 
   @Test
-  public void execute_ws() throws Exception {
-    underTest = new WebServiceFilter(webServiceEngine);
+  public void execute_ws() {
+    underTest = new WebServiceFilter(webServiceEngine, runtime);
 
     underTest.doFilter(request, response, chain);
 
-    verify(webServiceEngine).execute(any(ServletRequest.class), any(org.sonar.server.ws.ServletResponse.class));
+    verify(webServiceEngine).execute(any(), any());
+  }
+
+  @Test
+  public void add_version_to_response_headers() {
+    underTest = new WebServiceFilter(webServiceEngine, runtime);
+
+    underTest.doFilter(request, response, chain);
+
+    verify(response).setHeader("Sonar-Version", RUNTIME_VERSION);
   }
 
   private void initWebServiceEngine(WsUrl... wsUrls) {
@@ -137,7 +152,7 @@ public class WebServiceFilterTest {
       controllers.add(wsController);
     }
     when(webServiceEngine.controllers()).thenReturn(controllers);
-    underTest = new WebServiceFilter(webServiceEngine);
+    underTest = new WebServiceFilter(webServiceEngine, runtime);
   }
 
   static final class WsUrl {
