@@ -383,6 +383,60 @@ public class CeQueueImplTest {
     assertThat(history.isPresent()).isFalse();
   }
 
+  @Test
+  public void pauseWorkers_marks_workers_as_paused_if_zero_tasks_in_progress() {
+    submit(CeTaskTypes.REPORT, "PROJECT_1");
+    // task is pending
+
+    assertThat(underTest.getWorkersPause()).isEmpty();
+
+    underTest.pauseWorkers();
+    assertThat(underTest.getWorkersPause()).hasValue(CeQueue.WorkersPause.PAUSED);
+  }
+
+  @Test
+  public void pauseWorkers_marks_workers_as_pausing_if_some_tasks_in_progress() {
+    submit(CeTaskTypes.REPORT, "PROJECT_1");
+    db.getDbClient().ceQueueDao().peek(session, WORKER_UUID, MAX_EXECUTION_COUNT);
+    // task is in-progress
+
+    assertThat(underTest.getWorkersPause()).isEmpty();
+
+    underTest.pauseWorkers();
+    assertThat(underTest.getWorkersPause()).hasValue(CeQueue.WorkersPause.PAUSING);
+  }
+
+  @Test
+  public void resumeWorkers_does_nothing_if_not_paused() {
+    assertThat(underTest.getWorkersPause()).isEmpty();
+
+    underTest.resumeWorkers();
+
+    assertThat(underTest.getWorkersPause()).isEmpty();
+  }
+
+  @Test
+  public void resumeWorkers_resumes_pausing_workers() {
+    submit(CeTaskTypes.REPORT, "PROJECT_1");
+    db.getDbClient().ceQueueDao().peek(session, WORKER_UUID, MAX_EXECUTION_COUNT);
+    // task is in-progress
+
+    underTest.pauseWorkers();
+    assertThat(underTest.getWorkersPause()).hasValue(CeQueue.WorkersPause.PAUSING);
+
+    underTest.resumeWorkers();
+    assertThat(underTest.getWorkersPause()).isEmpty();
+  }
+
+  @Test
+  public void resumeWorkers_resumes_paused_workers() {
+    underTest.pauseWorkers();
+    assertThat(underTest.getWorkersPause()).hasValue(CeQueue.WorkersPause.PAUSED);
+
+    underTest.resumeWorkers();
+    assertThat(underTest.getWorkersPause()).isEmpty();
+  }
+
   private void verifyCeTask(CeTaskSubmit taskSubmit, CeTask task, @Nullable ComponentDto componentDto) {
     if (componentDto == null) {
       assertThat(task.getOrganizationUuid()).isEqualTo(defaultOrganizationProvider.get().getUuid());

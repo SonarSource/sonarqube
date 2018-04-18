@@ -86,8 +86,35 @@ public interface CeQueue {
    */
   int cancelAll();
 
+  /**
+   * Requests workers to stop peeking tasks from queue. Does nothing if workers are already paused or being paused.
+   * The workers that are already processing tasks are not interrupted.
+   * This method is not restricted to the local workers. All the Compute Engine nodes are paused.
+   */
+  void pauseWorkers();
+
+  /**
+   * Resumes workers so that they can peek tasks from queue.
+   * This method is not restricted to the local workers. All the Compute Engine nodes are paused.
+   */
+  void resumeWorkers();
+
+  Optional<WorkersPause> getWorkersPause();
+
   enum SubmitOption {
     UNIQUE_QUEUE_PER_COMPONENT
+  }
+
+  enum WorkersPause {
+    /**
+     * Pause triggered but at least one task is still in-progress
+     */
+    PAUSING,
+
+    /**
+     * Paused, no tasks are in-progress. Tasks are pending.
+     */
+    PAUSED
   }
 
 }

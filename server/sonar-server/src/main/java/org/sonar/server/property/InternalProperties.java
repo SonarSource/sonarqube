@@ -35,6 +35,12 @@ public interface InternalProperties {
   String ORGANIZATION_ENABLED = "organization.enabled";
 
   String SERVER_ID_CHECKSUM = "server.idChecksum";
+
+  /**
+   * Compute Engine is pausing/paused if property value is "true".
+   */
+  String COMPUTE_ENGINE_PAUSE = "ce.pause";
+
   /**
    * Read the value of the specified property.
    *

@@ -89,6 +89,10 @@ public class InternalPropertiesDao implements Dao {
     mapper.insertAsEmpty(key, system2.now());
   }
 
+  public void delete(DbSession dbSession, String key) {
+    getMapper(dbSession).deleteByKey(key);
+  }
+
   /**
    * @return a Map with an {link Optional<String>} for each String in {@code keys}.
    */

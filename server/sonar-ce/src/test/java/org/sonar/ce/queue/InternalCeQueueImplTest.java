@@ -304,6 +304,20 @@ public class InternalCeQueueImplTest {
   }
 
   @Test
+  public void peek_is_paused_then_resumed() {
+    CeTask task = submit(CeTaskTypes.REPORT, "PROJECT_1");
+    underTest.pauseWorkers();
+
+    Optional<CeTask> peek = underTest.peek(WORKER_UUID_1);
+    assertThat(peek).isEmpty();
+
+    underTest.resumeWorkers();
+    peek = underTest.peek(WORKER_UUID_1);
+    assertThat(peek).isPresent();
+    assertThat(peek.get().getUuid()).isEqualTo(task.getUuid());
+  }
+
+  @Test
   public void peek_overrides_workerUuid_to_argument() {
     db.getDbClient().ceQueueDao().insert(session, new CeQueueDto()
       .setUuid("uuid")

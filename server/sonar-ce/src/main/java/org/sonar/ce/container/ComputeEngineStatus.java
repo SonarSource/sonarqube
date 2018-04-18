@@ -19,6 +19,9 @@
  */
 package org.sonar.ce.container;
 
+/**
+ * Status of the Compute Engine local node, but not of cluster of Compute Engine nodes.
+ */
 public interface ComputeEngineStatus {
 
   /**

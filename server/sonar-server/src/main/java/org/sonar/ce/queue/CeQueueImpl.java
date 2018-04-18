@@ -33,7 +33,7 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
-import org.sonar.api.ce.ComputeEngineSide;
+import org.sonar.api.server.ServerSide;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
@@ -42,6 +42,7 @@ import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.server.organization.DefaultOrganizationProvider;
+import org.sonar.server.property.InternalProperties;
 
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.FluentIterable.from;
@@ -51,7 +52,7 @@ import static org.sonar.ce.queue.CeQueue.SubmitOption.UNIQUE_QUEUE_PER_COMPONENT
 import static org.sonar.core.util.stream.MoreCollectors.toEnumSet;
 import static org.sonar.db.ce.CeQueueDto.Status.PENDING;
 
-@ComputeEngineSide
+@ServerSide
 public class CeQueueImpl implements CeQueue {
 
   private final DbClient dbClient;
@@ -176,7 +177,7 @@ public class CeQueueImpl implements CeQueue {
       .collect(Collectors.toSet());
     Map<String, ComponentDto> componentDtoByUuid = from(dbClient.componentDao()
       .selectByUuids(dbSession, componentUuids))
-      .uniqueIndex(ComponentDto::uuid);
+        .uniqueIndex(ComponentDto::uuid);
 
     return dtos.stream()
       .map(new CeQueueDtoToCeTask(defaultOrganizationProvider.get().getUuid(), componentDtoByUuid)::apply)
@@ -210,6 +211,37 @@ public class CeQueueImpl implements CeQueue {
         }
       }
       return count;
+    }
+  }
+
+  @Override
+  public void pauseWorkers() {
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      dbClient.internalPropertiesDao().save(dbSession, InternalProperties.COMPUTE_ENGINE_PAUSE, "true");
+      dbSession.commit();
+    }
+  }
+
+  @Override
+  public void resumeWorkers() {
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      dbClient.internalPropertiesDao().delete(dbSession, InternalProperties.COMPUTE_ENGINE_PAUSE);
+      dbSession.commit();
+    }
+  }
+
+  @Override
+  public java.util.Optional<WorkersPause> getWorkersPause() {
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      java.util.Optional<String> propValue = dbClient.internalPropertiesDao().selectByKey(dbSession, InternalProperties.COMPUTE_ENGINE_PAUSE);
+      if (!propValue.isPresent() || !propValue.get().equals("true")) {
+        return java.util.Optional.empty();
+      }
+      int countInProgress = dbClient.ceQueueDao().countByStatus(dbSession, CeQueueDto.Status.IN_PROGRESS);
+      if (countInProgress > 0) {
+        return java.util.Optional.of(WorkersPause.PAUSING);
+      }
+      return java.util.Optional.of(WorkersPause.PAUSED);
     }
   }
 

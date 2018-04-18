@@ -72,7 +72,7 @@ public class InternalCeQueueImpl extends CeQueueImpl implements InternalCeQueue 
   public Optional<CeTask> peek(String workerUuid) {
     requireNonNull(workerUuid, "workerUuid can't be null");
 
-    if (computeEngineStatus.getStatus() != ComputeEngineStatus.Status.STARTED) {
+    if (computeEngineStatus.getStatus() != ComputeEngineStatus.Status.STARTED || getWorkersPause().isPresent()) {
       return Optional.empty();
     }
     try (DbSession dbSession = dbClient.openSession(false)) {
