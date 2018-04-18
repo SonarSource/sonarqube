@@ -20,7 +20,7 @@
 package org.sonar.db.ce;
 
 import java.io.IOException;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import org.apache.commons.io.IOUtils;
 import org.junit.Rule;
@@ -73,11 +73,11 @@ public class LogsIteratorInputStreamTest {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("LogsIterator can't be empty or already read");
 
-    new LogsIteratorInputStream(iterator, Charset.forName("UTF-8"));
+    new LogsIteratorInputStream(iterator, StandardCharsets.UTF_8);
   }
 
   private static LogsIteratorInputStream create(String... lines) {
-    return new LogsIteratorInputStream(CloseableIterator.from(Arrays.asList(lines).iterator()), Charset.forName("UTF-8"));
+    return new LogsIteratorInputStream(CloseableIterator.from(Arrays.asList(lines).iterator()), StandardCharsets.UTF_8);
   }
 
   private static String read(LogsIteratorInputStream logsIteratorInputStream) throws IOException {

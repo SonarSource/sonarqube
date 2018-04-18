@@ -35,6 +35,7 @@ import org.sonar.api.web.page.Page;
 import org.sonar.api.web.page.Page.Qualifier;
 import org.sonar.api.web.page.PageDefinition;
 import org.sonar.core.component.DefaultResourceTypes;
+import org.sonar.core.platform.PluginInfo;
 import org.sonar.core.platform.PluginRepository;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
@@ -61,11 +62,11 @@ import org.sonar.server.qualityprofile.QualityProfile;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ui.PageRepository;
 import org.sonar.server.ws.WsActionTester;
+import org.sonar.updatecenter.common.Version;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.measures.CoreMetrics.QUALITY_PROFILES_KEY;
@@ -592,7 +593,8 @@ public class ComponentActionTest {
 
   private void init(Page... pages) {
     PluginRepository pluginRepository = mock(PluginRepository.class);
-    when(pluginRepository.hasPlugin(anyString())).thenReturn(true);
+    when(pluginRepository.hasPlugin(any())).thenReturn(true);
+    when(pluginRepository.getPluginInfo(any())).thenReturn(new PluginInfo("unused").setVersion(Version.create("1.0")));
     PageRepository pageRepository = new PageRepository(pluginRepository, new PageDefinition[] {context -> {
       for (Page page : pages) {
         context.addPage(page);

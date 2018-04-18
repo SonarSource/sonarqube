@@ -28,6 +28,7 @@ import org.sonar.api.resources.ResourceTypeTree;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.web.page.Page;
 import org.sonar.api.web.page.PageDefinition;
+import org.sonar.core.platform.PluginInfo;
 import org.sonar.core.platform.PluginRepository;
 import org.sonar.db.DbClient;
 import org.sonar.db.dialect.H2;
@@ -40,9 +41,10 @@ import org.sonar.server.platform.WebServer;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ui.PageRepository;
 import org.sonar.server.ws.WsActionTester;
+import org.sonar.updatecenter.common.Version;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -283,7 +285,8 @@ public class GlobalActionTest {
     when(dbClient.getDatabase().getDialect()).thenReturn(new H2());
     when(server.getVersion()).thenReturn("6.42");
     PluginRepository pluginRepository = mock(PluginRepository.class);
-    when(pluginRepository.hasPlugin(anyString())).thenReturn(true);
+    when(pluginRepository.hasPlugin(any())).thenReturn(true);
+    when(pluginRepository.getPluginInfo(any())).thenReturn(new PluginInfo("unused").setVersion(Version.create("1.0")));
     PageRepository pageRepository = new PageRepository(pluginRepository, new PageDefinition[] {context -> {
       for (Page page : pages) {
         context.addPage(page);

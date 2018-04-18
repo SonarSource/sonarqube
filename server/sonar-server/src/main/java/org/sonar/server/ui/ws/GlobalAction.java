@@ -32,6 +32,7 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService.NewController;
 import org.sonar.api.utils.text.JsonWriter;
+import org.sonar.api.web.page.Page;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.dialect.H2;
@@ -136,7 +137,7 @@ public class GlobalAction implements NavigationWsAction, Startable {
 
   private void writePages(JsonWriter json) {
     json.name("globalPages").beginArray();
-    for (org.sonar.api.web.page.Page page : pageRepository.getGlobalPages(false)) {
+    for (Page page : pageRepository.getGlobalPages(false)) {
       json.beginObject()
         .prop("key", page.getKey())
         .prop("name", page.getName())

@@ -20,182 +20,243 @@
 package org.sonar.server.plugins;
 
 import java.io.IOException;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
+import java.io.InputStream;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletResponse;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 import org.apache.catalina.connector.ClientAbortException;
+import org.apache.commons.io.IOUtils;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.servlet.ServletContextHandler;
+import org.eclipse.jetty.servlet.ServletHolder;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.Plugin;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
-import org.sonar.core.platform.ComponentContainer;
+import org.sonar.core.platform.PluginInfo;
 import org.sonar.core.platform.PluginRepository;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class StaticResourcesServletTest {
 
   @Rule
   public LogTester logTester = new LogTester();
+  private Server jetty;
 
-  private HttpServletRequest request = mock(HttpServletRequest.class);
-  private HttpServletResponse response = mock(HttpServletResponse.class);
-  private ComponentContainer componentContainer = mock(ComponentContainer.class);
   private PluginRepository pluginRepository = mock(PluginRepository.class);
-  private StaticResourcesServlet underTest = new StaticResourcesServlet() {
-    @Override
-    protected ComponentContainer getContainer() {
-      return componentContainer;
+  private TestSystem system = new TestSystem(pluginRepository);
+
+  @Before
+  public void setUp() throws Exception {
+    jetty = new Server(0);
+    ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
+    context.setContextPath("/");
+    ServletHolder servletHolder = new ServletHolder(new StaticResourcesServlet(system));
+    context.addServlet(servletHolder, "/static/*");
+    jetty.setHandler(context);
+    jetty.start();
+  }
+
+  @After
+  public void tearDown() throws Exception {
+    if (jetty != null) {
+      jetty.stop();
     }
-  };
+  }
 
-  @Test
-  public void shouldDeterminePluginKey() {
-    mockRequest("myplugin", "image.png");
-    assertThat(underTest.getPluginKey(request)).isEqualTo("myplugin");
-
-    mockRequest("myplugin", "images/image.png");
-    assertThat(underTest.getPluginKey(request)).isEqualTo("myplugin");
-
-    mockRequest("myplugin", "");
-    assertThat(underTest.getPluginKey(request)).isEqualTo("myplugin");
+  private Response call(String path) throws Exception {
+    OkHttpClient client = new OkHttpClient();
+    Request request = new Request.Builder()
+      .url(jetty.getURI().resolve(path).toString())
+      .build();
+    return client.newCall(request).execute();
   }
 
   @Test
-  public void shouldDetermineResourcePath() {
-    mockRequest("myplugin", "image.png");
-    assertThat(underTest.getResourcePath(request)).isEqualTo("static/image.png");
+  public void return_content_if_exists_in_installed_plugin() throws Exception {
+    system.answer = IOUtils.toInputStream("bar");
+    when(pluginRepository.hasPlugin("myplugin")).thenReturn(true);
 
-    mockRequest("myplugin", "images/image.png");
-    assertThat(underTest.getResourcePath(request)).isEqualTo("static/images/image.png");
+    Response response = call("/static/myplugin/foo.txt");
 
-    mockRequest("myplugin", "");
-    assertThat(underTest.getResourcePath(request)).isEqualTo("static/");
+    assertThat(response.isSuccessful()).isTrue();
+    assertThat(response.body().string()).isEqualTo("bar");
+    assertThat(system.calledResource).isEqualTo("static/foo.txt");
   }
 
   @Test
-  public void completeMimeType() {
-    HttpServletResponse response = mock(HttpServletResponse.class);
-    underTest.completeContentType(response, "static/sqale/sqale.css");
-    verify(response).setContentType("text/css");
+  public void return_content_of_folder_of_installed_plugin() throws Exception {
+    system.answer = IOUtils.toInputStream("bar");
+    when(pluginRepository.hasPlugin("myplugin")).thenReturn(true);
+
+    Response response = call("/static/myplugin/foo/bar.txt");
+
+    assertThat(response.isSuccessful()).isTrue();
+    assertThat(response.body().string()).isEqualTo("bar");
+    assertThat(system.calledResource).isEqualTo("static/foo/bar.txt");
   }
 
   @Test
-  public void does_not_fail_nor_log_ERROR_when_response_is_already_committed_and_plugin_does_not_exist() throws ServletException, IOException {
-    mockPluginForResourceDoesNotExist();
-    mockSendErrorOnCommittedResponse();
+  public void mime_type_is_set_on_response() throws Exception {
+    system.answer = IOUtils.toInputStream("bar");
+    when(pluginRepository.hasPlugin("myplugin")).thenReturn(true);
 
-    underTest.doGet(request, response);
+    Response response = call("/static/myplugin/foo.css");
 
+    assertThat(response.header("Content-Type")).isEqualTo("text/css");
+    assertThat(response.body().string()).isEqualTo("bar");
+  }
+
+  @Test
+  public void return_404_if_resource_not_found_in_installed_plugin() throws Exception {
+    system.answer = null;
+    when(pluginRepository.hasPlugin("myplugin")).thenReturn(true);
+
+    Response response = call("/static/myplugin/foo.css");
+
+    assertThat(response.code()).isEqualTo(404);
     assertThat(logTester.logs(LoggerLevel.ERROR)).isEmpty();
-    assertThat(logTester.logs(LoggerLevel.TRACE)).containsOnly("Response is committed. Cannot send error response code 404");
+    assertThat(logTester.logs(LoggerLevel.WARN)).isEmpty();
   }
 
   @Test
-  public void does_not_fail_nor_log_ERROR_when_sendError_throws_IOException_and_plugin_does_not_exist() throws ServletException, IOException {
-    mockPluginForResourceDoesNotExist();
-    mockSendErrorThrowsIOException();
+  public void return_404_if_plugin_does_not_exist() throws Exception {
+    system.answer = null;
+    when(pluginRepository.hasPlugin("myplugin")).thenReturn(false);
 
-    underTest.doGet(request, response);
+    Response response = call("/static/myplugin/foo.css");
 
+    assertThat(response.code()).isEqualTo(404);
     assertThat(logTester.logs(LoggerLevel.ERROR)).isEmpty();
-    assertThat(logTester.logs(LoggerLevel.TRACE)).containsOnly("Failed to send error code 404: java.io.IOException: Simulating sendError throwing IOException");
-  }
-
-  private void mockPluginForResourceDoesNotExist() {
-    String pluginKey = "myplugin";
-    mockRequest(pluginKey, "image.png");
-    when(pluginRepository.hasPlugin(pluginKey)).thenReturn(false);
-    when(componentContainer.getComponentByType(PluginRepository.class)).thenReturn(pluginRepository);
+    assertThat(logTester.logs(LoggerLevel.WARN)).isEmpty();
   }
 
   @Test
-  public void does_not_fail_nor_log_ERROR_when_response_is_already_committed_and_plugin_exists_but_not_resource() throws ServletException, IOException {
-    mockPluginExistsButNoResource();
-    mockSendErrorOnCommittedResponse();
+  public void return_resource_if_exists_in_requested_plugin() throws Exception {
+    system.answer = IOUtils.toInputStream("bar");
+    when(pluginRepository.hasPlugin("myplugin")).thenReturn(true);
+    when(pluginRepository.getPluginInfo("myplugin")).thenReturn(new PluginInfo("myplugin"));
 
-    underTest.doGet(request, response);
+    Response response = call("/static/myplugin/foo.css");
 
+    assertThat(response.isSuccessful()).isTrue();
+    assertThat(response.body().string()).isEqualTo("bar");
     assertThat(logTester.logs(LoggerLevel.ERROR)).isEmpty();
-    assertThat(logTester.logs(LoggerLevel.TRACE)).containsOnly("Response is committed. Cannot send error response code 404");
+    assertThat(logTester.logs(LoggerLevel.WARN)).isEmpty();
   }
 
   @Test
-  public void does_not_fail_nor_log_ERROR_when_sendError_throws_IOException_and_plugin_exists_but_not_resource() throws ServletException, IOException {
-    mockPluginExistsButNoResource();
-    mockSendErrorThrowsIOException();
+  public void do_not_fail_nor_log_ERROR_when_response_is_already_committed_and_plugin_does_not_exist() throws Exception {
+    system.answer = null;
+    system.isCommitted = true;
+    when(pluginRepository.hasPlugin("myplugin")).thenReturn(false);
 
-    underTest.doGet(request, response);
+    Response response = call("/static/myplugin/foo.css");
 
+    assertThat(response.code()).isEqualTo(200);
     assertThat(logTester.logs(LoggerLevel.ERROR)).isEmpty();
-    assertThat(logTester.logs(LoggerLevel.TRACE)).containsOnly("Failed to send error code 404: java.io.IOException: Simulating sendError throwing IOException");
-  }
-
-  private void mockPluginExistsButNoResource() {
-    String pluginKey = "myplugin";
-    mockRequest(pluginKey, "image.png");
-    when(pluginRepository.hasPlugin(pluginKey)).thenReturn(true);
-    when(pluginRepository.getPluginInstance(pluginKey)).thenReturn(mock(Plugin.class));
-    when(componentContainer.getComponentByType(PluginRepository.class)).thenReturn(pluginRepository);
+    assertThat(logTester.logs(LoggerLevel.TRACE)).contains("Response is committed. Cannot send error response code 404");
   }
 
   @Test
-  public void does_not_fail_nor_log_not_attempt_to_send_error_if_ClientAbortException_is_raised() throws ServletException, IOException {
-    String pluginKey = "myplugin";
-    mockRequest(pluginKey, "foo.txt");
-    when(pluginRepository.hasPlugin(pluginKey)).thenReturn(true);
-    when(pluginRepository.getPluginInstance(pluginKey)).thenReturn(new TestPluginA());
-    when(componentContainer.getComponentByType(PluginRepository.class)).thenReturn(pluginRepository);
-    when(response.getOutputStream()).thenThrow(new ClientAbortException("Simulating ClientAbortException"));
+  public void do_not_fail_nor_log_ERROR_when_sendError_throws_IOException_and_plugin_does_not_exist() throws Exception {
+    system.sendErrorException = new IOException("Simulating sendError throwing IOException");
+    when(pluginRepository.hasPlugin("myplugin")).thenReturn(false);
 
-    underTest.doGet(request, response);
+    Response response = call("/static/myplugin/foo.css");
 
+    assertThat(response.code()).isEqualTo(200);
     assertThat(logTester.logs(LoggerLevel.ERROR)).isEmpty();
-    assertThat(logTester.logs(LoggerLevel.TRACE)).containsOnly("Client canceled loading resource [static/foo.txt] from plugin [myplugin]: org.apache.catalina.connector.ClientAbortException: Simulating ClientAbortException");
-    verify(response, times(0)).sendError(anyInt());
+    assertThat(logTester.logs(LoggerLevel.TRACE)).contains("Failed to send error code 404: java.io.IOException: Simulating sendError throwing IOException");
   }
 
   @Test
-  public void does_not_fail_when_response_is_committed_after_other_error() throws ServletException, IOException {
-    mockRequest("myplugin", "image.png");
-    when(componentContainer.getComponentByType(PluginRepository.class)).thenThrow(new RuntimeException("Simulating a error"));
-    mockSendErrorOnCommittedResponse();
+  public void do_not_fail_nor_log_ERROR_when_response_is_already_committed_and_resource_does_not_exist_in_installed_plugin() throws Exception {
+    system.isCommitted = true;
+    system.answer = null;
+    when(pluginRepository.hasPlugin("myplugin")).thenReturn(true);
 
-    underTest.doGet(request, response);
+    Response response = call("/static/myplugin/foo.css");
 
-    assertThat(logTester.logs(LoggerLevel.ERROR)).containsOnly("Unable to load resource [static/image.png] from plugin [myplugin]");
+    assertThat(response.code()).isEqualTo(200);
+    assertThat(logTester.logs(LoggerLevel.ERROR)).isEmpty();
+    assertThat(logTester.logs(LoggerLevel.TRACE)).contains("Response is committed. Cannot send error response code 404");
   }
 
   @Test
-  public void does_not_fail_when_sendError_throws_IOException_after_other_error() throws ServletException, IOException {
-    mockRequest("myplugin", "image.png");
-    when(componentContainer.getComponentByType(PluginRepository.class)).thenThrow(new RuntimeException("Simulating a error"));
-    mockSendErrorThrowsIOException();
+  public void do_not_fail_nor_log_not_attempt_to_send_error_if_ClientAbortException_is_raised() throws Exception {
+    system.answerException = new ClientAbortException("Simulating ClientAbortException");
+    when(pluginRepository.hasPlugin("myplugin")).thenReturn(true);
 
-    underTest.doGet(request, response);
+    Response response = call("/static/myplugin/foo.css");
 
-    assertThat(logTester.logs(LoggerLevel.ERROR)).containsOnly("Unable to load resource [static/image.png] from plugin [myplugin]");
+    assertThat(response.code()).isEqualTo(200);
+    assertThat(logTester.logs(LoggerLevel.ERROR)).isEmpty();
+    assertThat(logTester.logs(LoggerLevel.TRACE)).contains(
+      "Client canceled loading resource [static/foo.css] from plugin [myplugin]: org.apache.catalina.connector.ClientAbortException: Simulating ClientAbortException");
   }
 
-  private void mockSendErrorThrowsIOException() throws IOException {
-    doThrow(new IOException("Simulating sendError throwing IOException")).when(response).sendError(anyInt());
+  @Test
+  public void do_not_fail_when_response_is_committed_after_other_error() throws Exception {
+    system.isCommitted = true;
+    system.answerException = new RuntimeException("Simulating a error");
+    when(pluginRepository.hasPlugin("myplugin")).thenReturn(true);
+
+    Response response = call("/static/myplugin/foo.css");
+
+    assertThat(response.code()).isEqualTo(200);
+    assertThat(logTester.logs(LoggerLevel.ERROR)).contains("Unable to load resource [static/foo.css] from plugin [myplugin]");
   }
 
-  private void mockSendErrorOnCommittedResponse() throws IOException {
-    when(response.isCommitted()).thenReturn(true);
-    doThrow(new IllegalStateException("Simulating sendError call when already committed")).when(response).sendError(anyInt());
-  }
+  private static class TestSystem extends StaticResourcesServlet.System {
+    private final PluginRepository pluginRepository;
+    @Nullable
+    private InputStream answer;
+    private Exception answerException = null;
+    @Nullable
+    private String calledResource;
+    private boolean isCommitted = false;
+    private IOException sendErrorException = null;
 
-  private void mockRequest(String plugin, String resource) {
-    when(request.getContextPath()).thenReturn("/");
-    when(request.getServletPath()).thenReturn("static");
-    when(request.getRequestURI()).thenReturn("/static/" + plugin + "/" + resource);
+    TestSystem(PluginRepository pluginRepository) {
+      this.pluginRepository = pluginRepository;
+    }
+
+    @Override
+    PluginRepository getPluginRepository() {
+      return pluginRepository;
+    }
+
+    @CheckForNull
+    @Override
+    InputStream openResourceStream(String pluginKey, String resource, PluginRepository pluginRepository) throws Exception {
+      calledResource = resource;
+      if (answerException != null) {
+        throw answerException;
+      }
+      return answer;
+    }
+
+    @Override
+    boolean isCommitted(HttpServletResponse response) {
+      return isCommitted;
+    }
+
+    @Override
+    void sendError(HttpServletResponse response, int error) throws IOException {
+      if (sendErrorException != null) {
+        throw sendErrorException;
+      } else {
+        super.sendError(response, error);
+      }
+    }
   }
 }

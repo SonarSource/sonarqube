@@ -21,7 +21,7 @@ package org.sonar.application.es;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Map;
 import org.yaml.snakeyaml.DumperOptions;
@@ -48,7 +48,7 @@ public class EsYmlSettings {
     Yaml yaml = new Yaml(dumperOptions);
     String output = ELASTICSEARCH_YML_OPTIONS_HEADER + yaml.dump(elasticsearchSettings);
     try {
-      Files.write(file.toPath(), output.getBytes(Charset.forName("UTF-8")));
+      Files.write(file.toPath(), output.getBytes(StandardCharsets.UTF_8));
     } catch (IOException e) {
       throw new IllegalStateException("Cannot write Elasticsearch yml settings file", e);
     }

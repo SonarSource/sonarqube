@@ -21,7 +21,7 @@ package org.sonar.application.command;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -63,7 +63,7 @@ public class EsJvmOptions extends JvmOptions<EsJvmOptions> {
     String jvmOptions = getAll().stream().collect(Collectors.joining("\n"));
     String jvmOptionsContent = ELASTICSEARCH_JVM_OPTIONS_HEADER + jvmOptions;
     try {
-      Files.write(file.toPath(), jvmOptionsContent.getBytes(Charset.forName("UTF-8")));
+      Files.write(file.toPath(), jvmOptionsContent.getBytes(StandardCharsets.UTF_8));
     } catch (IOException e) {
       throw new IllegalStateException("Cannot write Elasticsearch jvm options file", e);
     }

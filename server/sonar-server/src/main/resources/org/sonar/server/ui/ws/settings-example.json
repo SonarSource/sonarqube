@@ -2,8 +2,8 @@
   "showUpdateCenter": true,
   "extensions": [
     {
-      "name": "Views",
-      "url": "/plugins/configuration/views"
+      "name": "Sample",
+      "url": "/plugins/configuration/sample"
     }
   ]
 }

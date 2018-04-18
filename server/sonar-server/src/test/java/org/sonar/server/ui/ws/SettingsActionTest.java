@@ -24,13 +24,14 @@ import org.junit.Test;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.web.page.Page;
 import org.sonar.api.web.page.PageDefinition;
+import org.sonar.core.platform.PluginInfo;
 import org.sonar.core.platform.PluginRepository;
 import org.sonar.process.ProcessProperties;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ui.PageRepository;
 import org.sonar.server.ws.WsActionTester;
 
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.test.JsonAssert.assertJson;
@@ -80,7 +81,8 @@ public class SettingsActionTest {
 
   private void init(Page... pages) {
     PluginRepository pluginRepository = mock(PluginRepository.class);
-    when(pluginRepository.hasPlugin(anyString())).thenReturn(true);
+    when(pluginRepository.hasPlugin(any())).thenReturn(true);
+    when(pluginRepository.getPluginInfo(any())).thenReturn(new PluginInfo("unused"));
     PageRepository pageRepository = new PageRepository(pluginRepository, new PageDefinition[] {context -> {
       for (Page page : pages) {
         context.addPage(page);

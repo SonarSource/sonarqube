@@ -35,6 +35,9 @@ public interface PluginRepository {
 
   Collection<PluginInfo> getPluginInfos();
 
+  /**
+   * @throws IllegalArgumentException if the plugin does not exist
+   */
   PluginInfo getPluginInfo(String key);
 
   /**

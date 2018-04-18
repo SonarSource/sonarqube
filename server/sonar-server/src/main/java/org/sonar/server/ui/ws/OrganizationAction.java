@@ -20,7 +20,6 @@
 package org.sonar.server.ui.ws;
 
 import java.util.List;
-import java.util.function.Consumer;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -117,14 +116,10 @@ public class OrganizationAction implements NavigationWsAction {
 
   private static void writePages(JsonWriter json, List<Page> pages) {
     json.beginArray();
-    pages.forEach(writePage(json));
+    pages.forEach(p -> json.beginObject()
+      .prop("key", p.getKey())
+      .prop("name", p.getName())
+      .endObject());
     json.endArray();
-  }
-
-  private static Consumer<Page> writePage(JsonWriter json) {
-    return page -> json.beginObject()
-      .prop("key", page.getKey())
-      .prop("name", page.getName())
-      .endObject();
   }
 }

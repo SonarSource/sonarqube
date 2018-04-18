@@ -49,6 +49,7 @@ public class PageTest {
       .build();
 
     assertThat(result.getKey()).isEqualTo("governance/project_dump");
+    assertThat(result.getPluginKey()).isEqualTo("governance");
     assertThat(result.getName()).isEqualTo("Project Dump");
     assertThat(result.getComponentQualifiers()).containsOnly(PROJECT, MODULE);
     assertThat(result.getScope()).isEqualTo(COMPONENT);
@@ -133,5 +134,21 @@ public class PageTest {
     expectedException.expect(IllegalArgumentException.class);
 
     underTest.setComponentQualifiers(PROJECT).build();
+  }
+
+  @Test
+  public void fail_if_key_does_not_contain_a_slash() {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Page key [project_dump] is not valid. It must contain a single slash, for example my_plugin/my_page.");
+
+    Page.builder("project_dump").setName("Project Dump").build();
+  }
+
+  @Test
+  public void fail_if_key_contains_more_than_one_slash() {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Page key [governance/project/dump] is not valid. It must contain a single slash, for example my_plugin/my_page.");
+
+    Page.builder("governance/project/dump").setName("Project Dump").build();
   }
 }

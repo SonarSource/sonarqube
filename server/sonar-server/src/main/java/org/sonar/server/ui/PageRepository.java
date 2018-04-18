@@ -20,7 +20,6 @@
 package org.sonar.server.ui;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import java.util.Collections;
 import java.util.List;
@@ -46,8 +45,6 @@ import static org.sonar.core.util.stream.MoreCollectors.toList;
 
 @ServerSide
 public class PageRepository implements Startable {
-  private static final Splitter PAGE_KEY_SPLITTER = Splitter.on("/").omitEmptyStrings();
-
   private final PluginRepository pluginRepository;
   private final List<PageDefinition> definitions;
   private List<Page> pages;
@@ -60,15 +57,7 @@ public class PageRepository implements Startable {
 
   public PageRepository(PluginRepository pluginRepository, PageDefinition[] pageDefinitions) {
     this.pluginRepository = pluginRepository;
-    definitions = ImmutableList.copyOf(pageDefinitions);
-  }
-
-  private static Consumer<Page> checkWellFormed() {
-    return page -> {
-      boolean isWellFormed = PAGE_KEY_SPLITTER.splitToList(page.getKey()).size() == 2;
-      checkState(isWellFormed, "Page '%s' with key '%s' does not respect the format plugin_key/extension_point_key (ex: governance/project_dump)",
-        page.getName(), page.getKey());
-    };
+    this.definitions = ImmutableList.copyOf(pageDefinitions);
   }
 
   @Override
@@ -76,7 +65,6 @@ public class PageRepository implements Startable {
     Context context = new Context();
     definitions.forEach(definition -> definition.define(context));
     pages = context.getPages().stream()
-      .peek(checkWellFormed())
       .peek(checkPluginExists())
       .sorted(comparing(Page::getKey))
       .collect(toList());
@@ -115,9 +103,9 @@ public class PageRepository implements Startable {
 
   private Consumer<Page> checkPluginExists() {
     return page -> {
-      String plugin = PAGE_KEY_SPLITTER.splitToList(page.getKey()).get(0);
-      boolean pluginExists = pluginRepository.hasPlugin(plugin);
-      checkState(pluginExists, "Page '%s' references plugin '%s' that does not exist", page.getName(), plugin);
+      String pluginKey = page.getPluginKey();
+      boolean pluginExists = pluginRepository.hasPlugin(pluginKey);
+      checkState(pluginExists, "Page '%s' references plugin '%s' that does not exist", page.getName(), pluginKey);
     };
   }
 
