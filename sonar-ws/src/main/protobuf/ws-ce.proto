@@ -57,6 +57,12 @@ message ComponentResponse {
   optional Task current = 2;
 }
 
+// GET api/ce/info
+message InfoWsResponse {
+  optional bool workersPaused = 1;
+  optional bool workersPauseRequested = 2;
+}
+
 // GET api/ce/task_types
 message TaskTypesWsResponse {
   repeated string taskTypes = 1;
