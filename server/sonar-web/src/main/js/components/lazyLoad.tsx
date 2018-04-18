@@ -18,6 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { translate } from '../helpers/l10n';
+import { get, save } from '../helpers/storage';
 
 type ReactComponent<P> = React.ComponentClass<P> | React.StatelessComponent<P>;
 
@@ -25,9 +27,16 @@ interface Loader<P> {
   (): Promise<{ default: ReactComponent<P> }>;
 }
 
+export const LAST_FAILED_CHUNK_STORAGE_KEY = 'sonarqube.last_failed_chunk';
+
 export function lazyLoad<P>(loader: Loader<P>) {
+  interface ImportError {
+    request?: string;
+  }
+
   interface State {
     Component?: ReactComponent<P>;
+    error?: ImportError;
   }
 
   // use `React.Component`, not `React.PureComponent` to always re-render
@@ -38,7 +47,7 @@ export function lazyLoad<P>(loader: Loader<P>) {
 
     componentDidMount() {
       this.mounted = true;
-      loader().then(i => this.receiveComponent(i.default), () => {});
+      loader().then(i => this.receiveComponent(i.default), this.failToReceiveComponent);
     }
 
     componentWillUnmount() {
@@ -47,12 +56,35 @@ export function lazyLoad<P>(loader: Loader<P>) {
 
     receiveComponent = (Component: ReactComponent<P>) => {
       if (this.mounted) {
-        this.setState({ Component });
+        this.setState({ Component, error: undefined });
+      }
+    };
+
+    failToReceiveComponent = (error?: ImportError) => {
+      const lastFailedChunk = get(LAST_FAILED_CHUNK_STORAGE_KEY);
+      if (error && error.request === lastFailedChunk) {
+        // BOOM!
+        // this is the second time we try to load the same file
+        // usually that means the file does not exist on the server
+        // so we should not try to reload the page to not fall into infinite reloading
+        // just show the error message
+        if (this.mounted) {
+          this.setState({ Component: undefined, error });
+        }
+      } else {
+        if (error && error.request) {
+          save(LAST_FAILED_CHUNK_STORAGE_KEY, error.request);
+        }
+        window.location.reload();
       }
     };
 
     render() {
-      const { Component } = this.state;
+      const { Component, error } = this.state;
+
+      if (error && error.request) {
+        return <div className="alert alert-danger">{translate('default_error_message')}</div>;
+      }
 
       if (!Component) {
         return null;

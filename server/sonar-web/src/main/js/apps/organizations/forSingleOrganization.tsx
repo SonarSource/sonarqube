@@ -17,20 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
+import * as React from 'react';
 import { connect } from 'react-redux';
-import { withRouter } from 'react-router';
+import { withRouter, WithRouterProps } from 'react-router';
 import { areThereCustomOrganizations } from '../../store/rootReducer';
 
-const forSingleOrganization = (ComposedComponent /*: Object */) => {
-  class X extends React.PureComponent {
+type ReactComponent<P> = React.ComponentClass<P> | React.StatelessComponent<P>;
+
+export default function forSingleOrganization<P>(ComposedComponent: ReactComponent<P>) {
+  interface StateProps {
+    customOrganizations: boolean | undefined;
+  }
+
+  class ForSingleOrganization extends React.Component<StateProps & WithRouterProps> {
     static displayName = `forSingleOrganization(${ComposedComponent.displayName})}`;
 
     render() {
       const { customOrganizations, router, ...other } = this.props;
 
-      if (customOrganizations) {
+      if (!other.params.organizationKey && customOrganizations) {
         router.replace('/not_found');
         return null;
       }
@@ -39,11 +44,9 @@ const forSingleOrganization = (ComposedComponent /*: Object */) => {
     }
   }
 
-  const mapStateToProps = state => ({
+  const mapStateToProps = (state: any) => ({
     customOrganizations: areThereCustomOrganizations(state)
   });
 
-  return connect(mapStateToProps)(withRouter(X));
-};
-
-export default forSingleOrganization;
+  return connect(mapStateToProps)(withRouter(ForSingleOrganization));
+}

@@ -17,49 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { RouterState, IndexRouteProps, RouteComponent, withRouter } from 'react-router';
+import { lazyLoad } from '../../components/lazyLoad';
 
 const routes = [
   {
-    getComponent(state: RouterState, callback: (err: any, component: RouteComponent) => any) {
-      import('./components/AppContainer')
-        .then(i => i.default)
-        .then(AppContainer => {
-          if (state.params.organizationKey) {
-            callback(null, AppContainer);
-          } else {
-            import('../organizations/forSingleOrganization')
-              .then(i => i.default)
-              .then(forSingleOrganization => callback(null, forSingleOrganization(AppContainer)));
-          }
-        });
-    },
-    getIndexRoute(_: RouterState, callback: (err: any, route: IndexRouteProps) => any) {
-      import('./home/HomeContainer').then(i => callback(null, { component: i.default }));
-    },
+    component: lazyLoad(() => import('./components/AppContainer')),
+    indexRoute: { component: lazyLoad(() => import('./home/HomeContainer')) },
     childRoutes: [
       {
-        getComponent(_: RouterState, callback: (err: any, component: RouteComponent) => any) {
-          import('./components/ProfileContainer').then(i => callback(null, withRouter(i.default)));
-        },
+        component: lazyLoad(() => import('./components/ProfileContainer')),
         childRoutes: [
           {
             path: 'show',
-            getComponent(_: RouterState, callback: (err: any, component: RouteComponent) => any) {
-              import('./details/ProfileDetails').then(i => callback(null, i.default));
-            }
+            component: lazyLoad(() => import('./details/ProfileDetails'))
           },
           {
             path: 'changelog',
-            getComponent(_: RouterState, callback: (err: any, component: RouteComponent) => any) {
-              import('./changelog/ChangelogContainer').then(i => callback(null, i.default));
-            }
+            component: lazyLoad(() => import('./changelog/ChangelogContainer'))
           },
           {
             path: 'compare',
-            getComponent(_: RouterState, callback: (err: any, component: RouteComponent) => any) {
-              import('./compare/ComparisonContainer').then(i => callback(null, i.default));
-            }
+            component: lazyLoad(() => import('./compare/ComparisonContainer'))
           }
         ]
       }

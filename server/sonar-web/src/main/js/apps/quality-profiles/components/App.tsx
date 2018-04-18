@@ -21,14 +21,15 @@ import * as React from 'react';
 import { searchQualityProfiles, getExporters, Actions } from '../../../api/quality-profiles';
 import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
 import { sortProfiles } from '../utils';
-import { translate } from '../../../helpers/l10n';
-import OrganizationHelmet from '../../../components/common/OrganizationHelmet';
-import '../styles.css';
 import { Exporter, Profile } from '../types';
+import OrganizationHelmet from '../../../components/common/OrganizationHelmet';
+import { translate } from '../../../helpers/l10n';
+import { Languages } from '../../../store/languages/reducer';
+import '../styles.css';
 
 interface Props {
   children: React.ReactElement<any>;
-  languages: Array<{}>;
+  languages: Languages;
   onRequestFail: (reasong: any) => void;
   organization: { name: string; key: string } | null;
 }

@@ -17,50 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
+import * as React from 'react';
 import Modal from '../../../components/controls/Modal';
 import { translate } from '../../../helpers/l10n';
+import { lazyLoad } from '../../../components/lazyLoad';
 
-/*::
-type Props = {|
-  onFinish: () => void
-|};
-*/
+interface Props {
+  onFinish: () => void;
+}
 
-/*::
-type State = {
-  OnboardingContainer?: Object
-};
-*/
+const OnboardingContainer = lazyLoad(() => import('./OnboardingContainer'));
 
-export default class OnboardingModal extends React.PureComponent {
-  /*:: mounted: boolean; */
-  /*:: props: Props; */
-  state /*: State */ = {};
-
-  componentDidMount() {
-    this.mounted = true;
-    import('./OnboardingContainer').then(i => this.receiveComponent(i.default));
-  }
-
-  componentWillUnmount() {
-    this.mounted = false;
-  }
-
-  receiveComponent = (OnboardingContainer /*: Object */) => {
-    if (this.mounted) {
-      this.setState({ OnboardingContainer });
-    }
-  };
-
-  render() {
-    const { OnboardingContainer } = this.state;
-
-    return (
-      <Modal contentLabel={translate('tutorials.onboarding')} large={true}>
-        {OnboardingContainer != null && <OnboardingContainer onFinish={this.props.onFinish} />}
-      </Modal>
-    );
-  }
+export default function OnboardingModal({ onFinish }: Props) {
+  return (
+    <Modal contentLabel={translate('tutorials.onboarding')} large={true}>
+      <OnboardingContainer onFinish={onFinish} />
+    </Modal>
+  );
 }

@@ -20,26 +20,30 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import App from './App';
-import { Organization } from '../../app/types';
+import forSingleOrganization from '../organizations/forSingleOrganization';
+import { Organization, LoggedInUser } from '../../app/types';
 import { onFail } from '../../store/rootActions';
 import { getAppState, getOrganizationByKey, getCurrentUser } from '../../store/rootReducer';
 import { receiveOrganizations } from '../../store/organizations/duck';
 import { changeProjectVisibility } from '../../api/organizations';
 import { fetchOrganization } from '../../apps/organizations/actions';
 
-interface Props {
-  appState: {
-    defaultOrganization: string;
-    qualifiers: string[];
-  };
-  currentUser: { login: string };
-  fetchOrganization: (organization: string) => void;
-  onVisibilityChange: (organization: Organization, visibility: string) => void;
-  onRequestFail: (error: any) => void;
+interface StateProps {
+  appState: { defaultOrganization: string; qualifiers: string[] };
+  currentUser: LoggedInUser;
   organization?: Organization;
 }
 
-class AppContainer extends React.PureComponent<Props> {
+interface DispatchProps {
+  fetchOrganization: (organization: string) => void;
+  onVisibilityChange: (organization: Organization, visibility: string) => void;
+}
+
+interface OwnProps {
+  onRequestFail: (error: any) => void;
+}
+
+class AppContainer extends React.PureComponent<OwnProps & StateProps & DispatchProps> {
   componentDidMount() {
     // if there is no organization, that means we are in the global scope
     // let's fetch defails for the default organization in this case
@@ -75,9 +79,9 @@ class AppContainer extends React.PureComponent<Props> {
   }
 }
 
-const mapStateToProps = (state: any, ownProps: Props) => ({
+const mapStateToProps = (state: any, ownProps: any) => ({
   appState: getAppState(state),
-  currentUser: getCurrentUser(state),
+  currentUser: getCurrentUser(state) as LoggedInUser,
   organization:
     ownProps.organization || getOrganizationByKey(state, getAppState(state).defaultOrganization)
 });
@@ -99,4 +103,6 @@ const mapDispatchToProps = (dispatch: Function) => ({
     dispatch(onVisibilityChange(organization, visibility))
 });
 
-export default connect<any, any, any>(mapStateToProps, mapDispatchToProps)(AppContainer);
+export default forSingleOrganization(
+  connect<StateProps, DispatchProps, OwnProps>(mapStateToProps, mapDispatchToProps)(AppContainer)
+);

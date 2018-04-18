@@ -19,11 +19,21 @@
  */
 import { connect } from 'react-redux';
 import App from './App';
-import { getLanguages, getCurrentUser, getOrganizationByKey } from '../../../store/rootReducer';
+import forSingleOrganization from '../../organizations/forSingleOrganization';
+import { getLanguages, getOrganizationByKey } from '../../../store/rootReducer';
 import { onFail } from '../../../store/rootActions';
+import { Languages } from '../../../store/languages/reducer';
+
+interface StateProps {
+  languages: Languages;
+  organization: { name: string; key: string } | null;
+}
+
+interface DispatchProps {
+  onRequestFail: (reasong: any) => void;
+}
 
 const mapStateToProps = (state: any, ownProps: any) => ({
-  currentUser: getCurrentUser(state),
   languages: getLanguages(state),
   organization: ownProps.params.organizationKey
     ? getOrganizationByKey(state, ownProps.params.organizationKey)
@@ -34,4 +44,6 @@ const mapDispatchToProps = (dispatch: any) => ({
   onRequestFail: (error: any) => onFail(dispatch)(error)
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(App as any);
+export default forSingleOrganization(
+  connect<StateProps, DispatchProps>(mapStateToProps, mapDispatchToProps)(App)
+);

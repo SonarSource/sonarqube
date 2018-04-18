@@ -39,6 +39,7 @@ import {
 import { translate } from '../../helpers/l10n';
 import { Extension } from '../types';
 import { PluginPendingResult } from '../../api/plugins';
+import handleRequiredAuthorization from '../utils/handleRequiredAuthorization';
 
 interface Props {
   appState: {
@@ -63,10 +64,7 @@ class AdminContainer extends React.PureComponent<Props> {
 
   componentDidMount() {
     if (!this.context.canAdmin) {
-      // workaround cyclic dependencies
-      import('../utils/handleRequiredAuthorization').then(handleRequredAuthorization =>
-        handleRequredAuthorization.default()
-      );
+      handleRequiredAuthorization();
     } else {
       this.fetchNavigationSettings();
       this.props.fetchEditions(this.props.editionsUrl, this.props.appState.version);

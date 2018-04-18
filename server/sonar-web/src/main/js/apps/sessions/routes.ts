@@ -17,32 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { RouterState, RouteComponent } from 'react-router';
+import { lazyLoad } from '../../components/lazyLoad';
 
 const routes = [
   {
     path: 'new',
-    getComponent(_: RouterState, callback: (err: any, component: RouteComponent) => any) {
-      import('./components/LoginContainer').then(i => callback(null, i.default));
-    }
+    component: lazyLoad(() => import('./components/LoginContainer'))
   },
   {
     path: 'logout',
-    getComponent(_: RouterState, callback: (err: any, component: RouteComponent) => any) {
-      import('./components/Logout').then(i => callback(null, i.default));
-    }
+    component: lazyLoad(() => import('./components/Logout'))
   },
   {
     path: 'unauthorized',
-    getComponent(_: RouterState, callback: (err: any, component: RouteComponent) => any) {
-      import('./components/Unauthorized').then(i => callback(null, i.default));
-    }
+    component: lazyLoad(() => import('./components/Unauthorized'))
   },
   {
     path: 'email_already_exists',
-    getComponent(_: RouterState, callback: (err: any, component: RouteComponent) => any) {
-      import('./components/EmailAlreadyExists').then(i => callback(null, i.default));
-    }
+    component: lazyLoad(() => import('./components/EmailAlreadyExists'))
   }
 ];
 

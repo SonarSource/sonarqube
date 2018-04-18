@@ -25,13 +25,14 @@ import PageError from '../../shared/components/PageError';
 import Suggestions from '../../../../app/components/embed-docs-modal/Suggestions';
 import { translate } from '../../../../helpers/l10n';
 import { Organization } from '../../../../app/types';
+import forSingleOrganization from '../../../organizations/forSingleOrganization';
 import '../../styles.css';
 
 interface Props {
   organization?: Organization;
 }
 
-export default function App({ organization }: Props) {
+function App({ organization }: Props) {
   return (
     <div className="page page-limited">
       <Suggestions suggestions="global_permissions" />
@@ -42,3 +43,5 @@ export default function App({ organization }: Props) {
     </div>
   );
 }
+
+export default forSingleOrganization(App);

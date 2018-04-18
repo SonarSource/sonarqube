@@ -17,24 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { RouterState, IndexRouteProps, RouteComponent } from 'react-router';
+import { lazyLoad } from '../../components/lazyLoad';
 
 const routes = [
   {
-    getComponent(_: RouterState, callback: (err: any, component: RouteComponent) => any) {
-      import('./components/QualityGatesApp').then(i => callback(null, i.default));
-    },
+    component: lazyLoad(() => import('./components/QualityGatesApp')),
     childRoutes: [
       {
-        getIndexRoute(_: RouterState, callback: (err: any, route: IndexRouteProps) => any) {
-          import('./components/Intro').then(i => callback(null, { component: i.default }));
-        }
+        indexRoute: { component: lazyLoad(() => import('./components/Intro')) }
       },
       {
         path: 'show/:id',
-        getComponent(_: RouterState, callback: (err: any, component: RouteComponent) => any) {
-          import('./components/DetailsApp').then(i => callback(null, i.default));
-        }
+        component: lazyLoad(() => import('./components/DetailsApp'))
       }
     ]
   }

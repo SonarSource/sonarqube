@@ -79,6 +79,7 @@ import documentationRoutes from '../../apps/documentation/routes';
 import webhooksRoutes from '../../apps/webhooks/routes';
 import { maintenanceRoutes, setupRoutes } from '../../apps/maintenance/routes';
 import { globalPermissionsRoutes, projectPermissionsRoutes } from '../../apps/permissions/routes';
+import { lazyLoad } from '../../components/lazyLoad';
 
 function handleUpdate() {
   const { action } = this.state.location;
@@ -185,10 +186,7 @@ const startReactApp = () => {
                 <Route path="profiles" childRoutes={qualityProfilesRoutes} />
                 <Route path="web_api" childRoutes={webAPIRoutes} />
 
-                <Route
-                  getComponent={() =>
-                    import('../components/ComponentContainer').then(i => i.default)
-                  }>
+                <Route component={lazyLoad(() => import('../components/ComponentContainer'))}>
                   <Route path="code" childRoutes={codeRoutes} />
                   <Route path="component_measures" childRoutes={componentMeasuresRoutes} />
                   <Route path="dashboard" childRoutes={overviewRoutes} />

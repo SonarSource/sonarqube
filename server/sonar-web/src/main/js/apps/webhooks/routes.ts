@@ -17,15 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { RouterState, RouteComponent } from 'react-router';
+import { lazyLoad } from '../../components/lazyLoad';
 
 const routes = [
   {
-    indexRoute: {
-      getComponent(_: RouterState, callback: (err: any, component: RouteComponent) => any) {
-        import('./components/App').then(i => callback(null, i.default));
-      }
-    }
+    indexRoute: { component: lazyLoad(() => import('./components/App')) }
   }
 ];
 

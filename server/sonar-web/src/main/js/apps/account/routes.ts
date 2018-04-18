@@ -17,42 +17,30 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { RouterState, IndexRouteProps, RouteComponent } from 'react-router';
+import { lazyLoad } from '../../components/lazyLoad';
 
 const routes = [
   {
-    getComponent(_: RouterState, callback: (err: any, component: RouteComponent) => any) {
-      import('./components/Account').then(i => callback(null, i.default));
-    },
+    component: lazyLoad(() => import('./components/Account')),
     childRoutes: [
       {
-        getIndexRoute(_: RouterState, callback: (err: any, route: IndexRouteProps) => any) {
-          import('./profile/Profile').then(i => callback(null, { component: i.default }));
-        }
+        indexRoute: { component: lazyLoad(() => import('./profile/Profile')) }
       },
       {
         path: 'security',
-        getComponent(_: RouterState, callback: (err: any, component: RouteComponent) => any) {
-          import('./components/Security').then(i => callback(null, i.default));
-        }
+        component: lazyLoad(() => import('./components/Security'))
       },
       {
         path: 'projects',
-        getComponent(_: RouterState, callback: (err: any, component: RouteComponent) => any) {
-          import('./projects/ProjectsContainer').then(i => callback(null, i.default));
-        }
+        component: lazyLoad(() => import('./projects/ProjectsContainer'))
       },
       {
         path: 'notifications',
-        getComponent(_: RouterState, callback: (err: any, component: RouteComponent) => any) {
-          import('./notifications/Notifications').then(i => callback(null, i.default));
-        }
+        component: lazyLoad(() => import('./notifications/Notifications'))
       },
       {
         path: 'organizations',
-        getComponent(_: RouterState, callback: (err: any, component: RouteComponent) => any) {
-          import('./organizations/UserOrganizations').then(i => callback(null, i.default));
-        }
+        component: lazyLoad(() => import('./organizations/UserOrganizations'))
       }
     ]
   }

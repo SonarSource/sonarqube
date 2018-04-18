@@ -21,6 +21,7 @@ import * as React from 'react';
 import { Helmet } from 'react-helmet';
 import Header from './Header';
 import List from './List';
+import forSingleOrganization from '../../organizations/forSingleOrganization';
 import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
 import { searchUsersGroups, deleteGroup, updateGroup, createGroup } from '../../../api/user_groups';
 import { Group, Paging } from '../../../app/types';
@@ -39,146 +40,148 @@ interface State {
   query: string;
 }
 
-export default class App extends React.PureComponent<Props, State> {
-  mounted = false;
-  state: State = { loading: true, query: '' };
+export default forSingleOrganization(
+  class App extends React.PureComponent<Props, State> {
+    mounted = false;
+    state: State = { loading: true, query: '' };
 
-  componentDidMount() {
-    this.mounted = true;
-    this.fetchGroups();
-  }
-
-  componentWillUnmount() {
-    this.mounted = false;
-  }
-
-  get organization() {
-    return this.props.organization && this.props.organization.key;
-  }
-
-  makeFetchGroupsRequest = (data?: { p?: number; q?: string }) => {
-    this.setState({ loading: true });
-    return searchUsersGroups({
-      organization: this.organization,
-      q: this.state.query,
-      ...data
-    });
-  };
-
-  stopLoading = () => {
-    if (this.mounted) {
-      this.setState({ loading: false });
+    componentDidMount() {
+      this.mounted = true;
+      this.fetchGroups();
     }
-  };
 
-  fetchGroups = (data?: { p?: number; q?: string }) => {
-    this.makeFetchGroupsRequest(data).then(({ groups, paging }) => {
+    componentWillUnmount() {
+      this.mounted = false;
+    }
+
+    get organization() {
+      return this.props.organization && this.props.organization.key;
+    }
+
+    makeFetchGroupsRequest = (data?: { p?: number; q?: string }) => {
+      this.setState({ loading: true });
+      return searchUsersGroups({
+        organization: this.organization,
+        q: this.state.query,
+        ...data
+      });
+    };
+
+    stopLoading = () => {
       if (this.mounted) {
-        this.setState({ groups, loading: false, paging });
+        this.setState({ loading: false });
       }
-    }, this.stopLoading);
-  };
+    };
 
-  fetchMoreGroups = () => {
-    const { paging } = this.state;
-    if (paging && paging.total > paging.pageIndex * paging.pageSize) {
-      this.makeFetchGroupsRequest({ p: paging.pageIndex + 1 }).then(({ groups, paging }) => {
+    fetchGroups = (data?: { p?: number; q?: string }) => {
+      this.makeFetchGroupsRequest(data).then(({ groups, paging }) => {
         if (this.mounted) {
-          this.setState(({ groups: existingGroups = [] }) => ({
-            groups: [...existingGroups, ...groups],
-            loading: false,
-            paging
-          }));
+          this.setState({ groups, loading: false, paging });
         }
       }, this.stopLoading);
-    }
-  };
+    };
 
-  search = (query: string) => {
-    this.fetchGroups({ q: query });
-    this.setState({ query });
-  };
-
-  refresh = () => {
-    this.fetchGroups({ q: this.state.query });
-  };
-
-  handleCreate = (data: { description: string; name: string }) => {
-    return createGroup({ ...data, organization: this.organization }).then(group => {
-      if (this.mounted) {
-        this.setState(({ groups = [] }: State) => ({
-          groups: [...groups, group]
-        }));
+    fetchMoreGroups = () => {
+      const { paging } = this.state;
+      if (paging && paging.total > paging.pageIndex * paging.pageSize) {
+        this.makeFetchGroupsRequest({ p: paging.pageIndex + 1 }).then(({ groups, paging }) => {
+          if (this.mounted) {
+            this.setState(({ groups: existingGroups = [] }) => ({
+              groups: [...existingGroups, ...groups],
+              loading: false,
+              paging
+            }));
+          }
+        }, this.stopLoading);
       }
-    });
-  };
+    };
 
-  handleDelete = (name: string) => {
-    return deleteGroup({ name, organization: this.organization }).then(() => {
-      if (this.mounted) {
-        this.setState(({ groups = [] }: State) => ({
-          groups: groups.filter(group => group.name !== name)
-        }));
-      }
-    });
-  };
+    search = (query: string) => {
+      this.fetchGroups({ q: query });
+      this.setState({ query });
+    };
 
-  handleEdit = (data: { description?: string; id: number; name?: string }) => {
-    return updateGroup(data).then(() => {
-      if (this.mounted) {
-        this.setState(({ groups = [] }: State) => ({
-          groups: groups.map(group => (group.id === data.id ? { ...group, ...data } : group))
-        }));
-      }
-    });
-  };
+    refresh = () => {
+      this.fetchGroups({ q: this.state.query });
+    };
 
-  render() {
-    const { groups, loading, paging, query } = this.state;
+    handleCreate = (data: { description: string; name: string }) => {
+      return createGroup({ ...data, organization: this.organization }).then(group => {
+        if (this.mounted) {
+          this.setState(({ groups = [] }: State) => ({
+            groups: [...groups, group]
+          }));
+        }
+      });
+    };
 
-    const showAnyone =
-      this.props.organization === undefined && 'anyone'.includes(query.toLowerCase());
+    handleDelete = (name: string) => {
+      return deleteGroup({ name, organization: this.organization }).then(() => {
+        if (this.mounted) {
+          this.setState(({ groups = [] }: State) => ({
+            groups: groups.filter(group => group.name !== name)
+          }));
+        }
+      });
+    };
 
-    return (
-      <>
-        <Suggestions suggestions="user_groups" />
-        <Helmet title={translate('user_groups.page')} />
-        <div className="page page-limited" id="groups-page">
-          <Header loading={loading} onCreate={this.handleCreate} />
+    handleEdit = (data: { description?: string; id: number; name?: string }) => {
+      return updateGroup(data).then(() => {
+        if (this.mounted) {
+          this.setState(({ groups = [] }: State) => ({
+            groups: groups.map(group => (group.id === data.id ? { ...group, ...data } : group))
+          }));
+        }
+      });
+    };
 
-          <SearchBox
-            className="big-spacer-bottom"
-            id="groups-search"
-            minLength={2}
-            onChange={this.search}
-            placeholder={translate('search.search_by_name')}
-            value={query}
-          />
+    render() {
+      const { groups, loading, paging, query } = this.state;
 
-          {groups !== undefined && (
-            <List
-              groups={groups}
-              onDelete={this.handleDelete}
-              onEdit={this.handleEdit}
-              onEditMembers={this.refresh}
-              organization={this.organization}
-              showAnyone={showAnyone}
+      const showAnyone =
+        this.props.organization === undefined && 'anyone'.includes(query.toLowerCase());
+
+      return (
+        <>
+          <Suggestions suggestions="user_groups" />
+          <Helmet title={translate('user_groups.page')} />
+          <div className="page page-limited" id="groups-page">
+            <Header loading={loading} onCreate={this.handleCreate} />
+
+            <SearchBox
+              className="big-spacer-bottom"
+              id="groups-search"
+              minLength={2}
+              onChange={this.search}
+              placeholder={translate('search.search_by_name')}
+              value={query}
             />
-          )}
 
-          {groups !== undefined &&
-            paging !== undefined && (
-              <div id="groups-list-footer">
-                <ListFooter
-                  count={showAnyone ? groups.length + 1 : groups.length}
-                  loadMore={this.fetchMoreGroups}
-                  ready={!loading}
-                  total={showAnyone ? paging.total + 1 : paging.total}
-                />
-              </div>
+            {groups !== undefined && (
+              <List
+                groups={groups}
+                onDelete={this.handleDelete}
+                onEdit={this.handleEdit}
+                onEditMembers={this.refresh}
+                organization={this.organization}
+                showAnyone={showAnyone}
+              />
             )}
-        </div>
-      </>
-    );
+
+            {groups !== undefined &&
+              paging !== undefined && (
+                <div id="groups-list-footer">
+                  <ListFooter
+                    count={showAnyone ? groups.length + 1 : groups.length}
+                    loadMore={this.fetchMoreGroups}
+                    ready={!loading}
+                    total={showAnyone ? paging.total + 1 : paging.total}
+                  />
+                </div>
+              )}
+          </div>
+        </>
+      );
+    }
   }
-}
+);

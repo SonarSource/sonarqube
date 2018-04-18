@@ -17,8 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { RouterState, RouteComponent, RedirectFunction } from 'react-router';
+import { RouterState, RedirectFunction } from 'react-router';
 import { parseQuery, serializeQuery } from './query';
+import { lazyLoad } from '../../components/lazyLoad';
 import { RawQuery } from '../../helpers/query';
 
 function parseHash(hash: string): RawQuery {
@@ -47,9 +48,7 @@ const routes = [
           replace({ pathname: nextState.location.pathname, query: normalizedQuery });
         }
       },
-      getComponent(_: RouterState, callback: (err: any, component: RouteComponent) => any) {
-        import('./components/App').then(i => callback(null, i.default));
-      }
+      component: lazyLoad(() => import('./components/App'))
     }
   }
 ];

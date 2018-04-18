@@ -17,18 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { RouterState, IndexRouteProps } from 'react-router';
+import { lazyLoad } from '../../components/lazyLoad';
 
 const routes = [
   {
-    getIndexRoute(_: RouterState, callback: (err: any, route: IndexRouteProps) => any) {
-      Promise.all([
-        import('./AppContainer').then(i => i.default),
-        import('../organizations/forSingleOrganization').then(i => i.default)
-      ]).then(([AppContainer, forSingleOrganization]) =>
-        callback(null, { component: forSingleOrganization(AppContainer) })
-      );
-    }
+    indexRoute: { component: lazyLoad(() => import('./AppContainer')) }
   }
 ];
 

@@ -17,27 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { RouterState, IndexRouteProps } from 'react-router';
+import { lazyLoad } from '../../components/lazyLoad';
 
 export const globalPermissionsRoutes = [
   {
-    getIndexRoute(_: RouterState, callback: (err: any, route: IndexRouteProps) => any) {
-      Promise.all([
-        import('./global/components/App').then(i => i.default),
-        import('../organizations/forSingleOrganization').then(i => i.default)
-      ]).then(([App, forSingleOrganization]) =>
-        callback(null, { component: forSingleOrganization(App) })
-      );
-    }
+    indexRoute: { component: lazyLoad(() => import('./global/components/App')) }
   }
 ];
 
 export const projectPermissionsRoutes = [
   {
-    getIndexRoute(_: RouterState, callback: (err: any, route: IndexRouteProps) => any) {
-      import('./project/components/AppContainer').then(i =>
-        callback(null, { component: i.default })
-      );
-    }
+    indexRoute: { component: lazyLoad(() => import('./project/components/AppContainer')) }
   }
 ];
