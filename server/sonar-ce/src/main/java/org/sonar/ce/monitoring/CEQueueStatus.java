@@ -19,6 +19,9 @@
  */
 package org.sonar.ce.monitoring;
 
+import org.sonar.api.ce.ComputeEngineSide;
+
+@ComputeEngineSide
 public interface CEQueueStatus {
 
   /**
@@ -85,4 +88,6 @@ public interface CEQueueStatus {
    * Time spent processing batch reports since startup, in milliseconds.
    */
   long getProcessingTime();
+
+  boolean areWorkersPaused();
 }

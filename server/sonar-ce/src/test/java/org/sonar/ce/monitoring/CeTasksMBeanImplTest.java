@@ -88,10 +88,9 @@ public class CeTasksMBeanImplTest {
   public void export_system_info() {
     ProtobufSystemInfo.Section section = underTest.toProtobuf();
     assertThat(section.getName()).isEqualTo("Compute Engine Tasks");
-    assertThat(section.getAttributesCount()).isEqualTo(7);
+    assertThat(section.getAttributesCount()).isEqualTo(8);
   }
   private static class DumbCEQueueStatus implements CEQueueStatus {
-
 
     @Override
     public long getPendingCount() {
@@ -132,6 +131,12 @@ public class CeTasksMBeanImplTest {
     public long getProcessingTime() {
       return PROCESSING_TIME;
     }
+
+    @Override
+    public boolean areWorkersPaused() {
+      return false;
+    }
+
     private long methodNotImplemented() {
       throw new UnsupportedOperationException("Not Implemented");
     }

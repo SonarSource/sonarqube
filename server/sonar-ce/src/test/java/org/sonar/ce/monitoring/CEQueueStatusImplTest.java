@@ -19,14 +19,15 @@
  */
 package org.sonar.ce.monitoring;
 
+import java.util.Optional;
 import java.util.Random;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.Mockito;
 import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
 import org.sonar.db.ce.CeQueueDto;
+import org.sonar.server.property.InternalProperties;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -135,8 +136,20 @@ public class CEQueueStatusImplTest {
 
   @Test
   public void count_Pending_from_database() {
-    when(dbClient.ceQueueDao().countByStatus(any(DbSession.class), eq(CeQueueDto.Status.PENDING))).thenReturn(42);
+    when(dbClient.ceQueueDao().countByStatus(any(), eq(CeQueueDto.Status.PENDING))).thenReturn(42);
 
     assertThat(underTest.getPendingCount()).isEqualTo(42);
+  }
+
+  @Test
+  public void workers_pause_is_loaded_from_db() {
+    when(dbClient.internalPropertiesDao().selectByKey(any(), eq(InternalProperties.COMPUTE_ENGINE_PAUSE))).thenReturn(Optional.of("true"));
+
+    assertThat(underTest.areWorkersPaused()).isTrue();
+  }
+
+  @Test
+  public void workers_pause_is_false_by_default() {
+    assertThat(underTest.areWorkersPaused()).isFalse();
   }
 }

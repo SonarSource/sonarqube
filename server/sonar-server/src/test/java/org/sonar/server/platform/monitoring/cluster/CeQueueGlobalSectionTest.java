@@ -19,13 +19,14 @@
  */
 package org.sonar.server.platform.monitoring.cluster;
 
+import java.util.Optional;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.sonar.ce.configuration.WorkerCountProvider;
 import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
 import org.sonar.db.ce.CeQueueDto;
 import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
+import org.sonar.server.property.InternalProperties;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -36,11 +37,12 @@ import static org.sonar.server.platform.monitoring.SystemInfoTesting.assertThatA
 public class CeQueueGlobalSectionTest {
 
   private DbClient dbClient = mock(DbClient.class, Mockito.RETURNS_DEEP_STUBS);
+  private WorkerCountProvider workerCountProvider = mock(WorkerCountProvider.class);
 
   @Test
   public void test_queue_state_with_default_settings() {
-    when(dbClient.ceQueueDao().countByStatus(any(DbSession.class), eq(CeQueueDto.Status.PENDING))).thenReturn(10);
-    when(dbClient.ceQueueDao().countByStatus(any(DbSession.class), eq(CeQueueDto.Status.IN_PROGRESS))).thenReturn(1);
+    when(dbClient.ceQueueDao().countByStatus(any(), eq(CeQueueDto.Status.PENDING))).thenReturn(10);
+    when(dbClient.ceQueueDao().countByStatus(any(), eq(CeQueueDto.Status.IN_PROGRESS))).thenReturn(1);
 
     CeQueueGlobalSection underTest = new CeQueueGlobalSection(dbClient);
     ProtobufSystemInfo.Section section = underTest.toProtobuf();
@@ -52,9 +54,8 @@ public class CeQueueGlobalSectionTest {
 
   @Test
   public void test_queue_state_with_overridden_settings() {
-    when(dbClient.ceQueueDao().countByStatus(any(DbSession.class), eq(CeQueueDto.Status.PENDING))).thenReturn(10);
-    when(dbClient.ceQueueDao().countByStatus(any(DbSession.class), eq(CeQueueDto.Status.IN_PROGRESS))).thenReturn(2);
-    WorkerCountProvider workerCountProvider = mock(WorkerCountProvider.class);
+    when(dbClient.ceQueueDao().countByStatus(any(), eq(CeQueueDto.Status.PENDING))).thenReturn(10);
+    when(dbClient.ceQueueDao().countByStatus(any(), eq(CeQueueDto.Status.IN_PROGRESS))).thenReturn(2);
     when(workerCountProvider.get()).thenReturn(5);
 
     CeQueueGlobalSection underTest = new CeQueueGlobalSection(dbClient, workerCountProvider);
@@ -65,5 +66,21 @@ public class CeQueueGlobalSectionTest {
     assertThatAttributeIs(section, "Max Workers per Node", 5);
   }
 
+  @Test
+  public void test_workers_not_paused() {
+    CeQueueGlobalSection underTest = new CeQueueGlobalSection(dbClient, workerCountProvider);
+    ProtobufSystemInfo.Section section = underTest.toProtobuf();
 
+    assertThatAttributeIs(section, "Workers Paused", false);
+  }
+
+  @Test
+  public void test_workers_paused() {
+    when(dbClient.internalPropertiesDao().selectByKey(any(), eq(InternalProperties.COMPUTE_ENGINE_PAUSE))).thenReturn(Optional.of("true"));
+
+    CeQueueGlobalSection underTest = new CeQueueGlobalSection(dbClient, workerCountProvider);
+    ProtobufSystemInfo.Section section = underTest.toProtobuf();
+
+    assertThatAttributeIs(section, "Workers Paused", true);
+  }
 }

@@ -93,6 +93,7 @@ public class CeTasksMBeanImpl implements CeTasksMBean, Startable, SystemInfoSect
     builder.addAttributesBuilder().setKey("Processing Time (ms)").setLongValue(getProcessingTime()).build();
     builder.addAttributesBuilder().setKey("Worker Count").setLongValue(getWorkerCount()).build();
     builder.addAttributesBuilder().setKey("Max Worker Count").setLongValue(getWorkerMaxCount()).build();
+    builder.addAttributesBuilder().setKey("Workers Paused").setBooleanValue(queueStatus.areWorkersPaused()).build();
     return builder.build();
   }
 }

@@ -28,6 +28,7 @@ import org.sonar.db.ce.CeQueueDto;
 import org.sonar.process.systeminfo.Global;
 import org.sonar.process.systeminfo.SystemInfoSection;
 import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
+import org.sonar.server.property.InternalProperties;
 
 import static org.sonar.process.systeminfo.SystemInfoUtils.setAttribute;
 
@@ -57,6 +58,7 @@ public class CeQueueGlobalSection implements SystemInfoSection, Global {
       setAttribute(protobuf, "Total Pending", dbClient.ceQueueDao().countByStatus(dbSession, CeQueueDto.Status.PENDING));
       setAttribute(protobuf, "Total In Progress", dbClient.ceQueueDao().countByStatus(dbSession, CeQueueDto.Status.IN_PROGRESS));
       setAttribute(protobuf, "Max Workers per Node", workerCountProvider == null ? DEFAULT_NB_OF_WORKERS : workerCountProvider.get());
+      setAttribute(protobuf, "Workers Paused", "true".equals(dbClient.internalPropertiesDao().selectByKey(dbSession, InternalProperties.COMPUTE_ENGINE_PAUSE).orElse(null)));
     }
     return protobuf.build();
   }

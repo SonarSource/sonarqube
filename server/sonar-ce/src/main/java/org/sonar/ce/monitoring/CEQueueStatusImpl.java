@@ -19,10 +19,12 @@
  */
 package org.sonar.ce.monitoring;
 
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.ce.CeQueueDto;
+import org.sonar.server.property.InternalProperties;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
@@ -66,6 +68,14 @@ public class CEQueueStatusImpl implements CEQueueStatus {
   public long getPendingCount() {
     try (DbSession dbSession = dbClient.openSession(false)) {
       return dbClient.ceQueueDao().countByStatus(dbSession, CeQueueDto.Status.PENDING);
+    }
+  }
+
+  @Override
+  public boolean areWorkersPaused() {
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      Optional<String> val = dbClient.internalPropertiesDao().selectByKey(dbSession, InternalProperties.COMPUTE_ENGINE_PAUSE);
+      return "true".equals(val.orElse(null));
     }
   }
 
