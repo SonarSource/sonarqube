@@ -39,6 +39,7 @@ public class SearchRequest {
   private List<String> f;
   private List<String> facets;
   private List<String> inheritance;
+  private String isExternal;
   private String isTemplate;
   private List<String> languages;
   private String organization;
@@ -236,6 +237,24 @@ public class SearchRequest {
 
   public String getIsTemplate() {
     return isTemplate;
+  }
+  
+  /**
+   * Possible values:
+   * <ul>
+   *   <li>"true"</li>
+   *   <li>"false"</li>
+   *   <li>"yes"</li>
+   *   <li>"no"</li>
+   * </ul>
+   */
+  public SearchRequest setIsExternal(String isExternal) {
+    this.isExternal = isExternal;
+    return this;
+  }
+
+  public String getIsExternal() {
+    return isExternal;
   }
 
   /**

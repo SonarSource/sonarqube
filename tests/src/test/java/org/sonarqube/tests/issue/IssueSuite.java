@@ -33,6 +33,7 @@ import static util.ItUtils.xooPlugin;
   AutoAssignTest.class,
   CommonRulesTest.class,
   CustomRulesTest.class,
+  ExternalIssueTest.class,
   IssueActionTest.class,
   IssueBulkChangeTest.class,
   IssueChangelogTest.class,
