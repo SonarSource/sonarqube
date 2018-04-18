@@ -26,6 +26,7 @@ import org.junit.runners.Suite;
 import org.sonarqube.tests.analysis.FileExclusionsTest;
 import org.sonarqube.tests.analysis.IssueExclusionsTest;
 import org.sonarqube.tests.ce.CeTempDirTest;
+import org.sonarqube.tests.ce.CeWorkersPauseTest;
 import org.sonarqube.tests.ce.CeWsTest;
 import org.sonarqube.tests.qualityProfile.QualityProfilesUiTest;
 import org.sonarqube.tests.rule.RulesPageTest;
@@ -66,6 +67,7 @@ import static util.ItUtils.xooPlugin;
   RulesPageTest.class,
   LogsTest.class,
   // ce
+  CeWorkersPauseTest.class,
   CeWsTest.class,
   CeTempDirTest.class
 })
