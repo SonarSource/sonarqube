@@ -1,0 +1,32 @@
+{
+"issues" : [
+  { 
+    "engineId": "eslint",
+    "ruleId": "rule1",
+    "severity": "MAJOR",
+    "type": "CODE_SMELL",
+    "primaryLocation": {
+      "message": "fix the issue here",
+      "filePath": "file1.js",
+      "textRange": {
+        "startLine": 1,
+        "endLine": 2
+      }
+    }     
+  },
+  { 
+    "engineId": "eslint",
+    "severity": "MAJOR",
+    "type": "BUG",
+    "primaryLocation": {
+      "message": "fix the bug here",
+      "filePath": "file2.js",
+      "textRange": {
+        "startLine": 3,
+        "endLine": 4
+      }
+    }     
+  }
+]
+}
+   

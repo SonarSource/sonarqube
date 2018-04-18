@@ -41,7 +41,7 @@ public class NoOpNewExternalIssue implements NewExternalIssue {
   }
 
   @Override
-  public NewExternalIssue remediationEffort(Long effort) {
+  public NewExternalIssue remediationEffortMinutes(Long effort) {
     // no op
     return this;
   }

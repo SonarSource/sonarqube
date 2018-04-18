@@ -52,7 +52,7 @@ public class DefaultExternalIssue extends AbstractDefaultIssue<DefaultExternalIs
   }
 
   @Override
-  public DefaultExternalIssue severity(@Nullable Severity severity) {
+  public DefaultExternalIssue severity(Severity severity) {
     this.severity = severity;
     return this;
   }

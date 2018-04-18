@@ -64,7 +64,7 @@ public class ExternalIssueTest extends AbstractIssueTest {
     assertThat(issuesList).allMatch(issue -> RuleType.CODE_SMELL.equals(issue.getType()));
     assertThat(issuesList).allMatch(issue -> "sample:src/main/xoo/sample/Sample.xoo".equals(issue.getComponent()));
     assertThat(issuesList).allMatch(issue -> "OPEN".equals(issue.getStatus()));
-    assertThat(issuesList).allMatch(issue -> Boolean.TRUE.equals(issue.getFromExternalRule()));
+    assertThat(issuesList).allMatch(issue -> issue.getExternalRuleEngine().equals("xoo"));
 
     List<org.sonarqube.ws.Rules.Rule> rulesList = tester.wsClient().rules()
       .search(new org.sonarqube.ws.client.rules.SearchRequest().setIsExternal(Boolean.toString(true))).getRulesList();

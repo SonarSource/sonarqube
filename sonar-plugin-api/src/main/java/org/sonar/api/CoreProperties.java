@@ -75,6 +75,12 @@ public interface CoreProperties {
   String SUBCATEGORY_L10N = "localization";
 
   /**
+   * @since 7.2
+   */
+  String CATEGORY_EXTERNAL_ISSUES = "externalIssues";
+
+  
+  /**
    * @since 2.11
    */
   String CATEGORY_CODE_COVERAGE = "codeCoverage";

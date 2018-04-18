@@ -37,6 +37,7 @@ import org.sonar.api.utils.MessageException;
 import org.sonar.scanner.protocol.Constants.Severity;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.IssueLocation;
+import org.sonar.scanner.protocol.output.ScannerReport.IssueType;
 import org.sonar.scanner.report.ReportPublisher;
 
 /**
@@ -113,12 +114,14 @@ public class ModuleIssues {
   private static ScannerReport.ExternalIssue createReportExternalIssue(ExternalIssue issue, int componentRef) {
     String primaryMessage = Strings.isNullOrEmpty(issue.primaryLocation().message()) ? issue.ruleKey().toString() : issue.primaryLocation().message();
     Severity severity = Severity.valueOf(issue.severity().name());
-
+    IssueType issueType = IssueType.valueOf(issue.type().name());
+    
     ScannerReport.ExternalIssue.Builder builder = ScannerReport.ExternalIssue.newBuilder();
     ScannerReport.IssueLocation.Builder locationBuilder = IssueLocation.newBuilder();
     ScannerReport.TextRange.Builder textRangeBuilder = ScannerReport.TextRange.newBuilder();
     // non-null fields
     builder.setSeverity(severity);
+    builder.setType(issueType);
     builder.setRuleRepository(issue.ruleKey().repository());
     builder.setRuleKey(issue.ruleKey().rule());
     builder.setMsg(primaryMessage);
