@@ -22,11 +22,15 @@ package org.sonar.server.computation.task.projectanalysis.step;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
+import org.sonar.api.Plugin;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.System2;
 import org.sonar.ce.queue.CeTask;
@@ -39,7 +43,6 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.server.computation.task.projectanalysis.analysis.MutableAnalysisMetadataHolderRule;
 import org.sonar.server.computation.task.projectanalysis.analysis.Organization;
-import org.sonar.server.project.Project;
 import org.sonar.server.computation.task.projectanalysis.analysis.ScannerPlugin;
 import org.sonar.server.computation.task.projectanalysis.batch.BatchReportReaderRule;
 import org.sonar.server.computation.task.projectanalysis.component.BranchLoader;
@@ -47,7 +50,9 @@ import org.sonar.server.computation.task.step.ComputationStep;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.OrganizationFlags;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
+import org.sonar.server.project.Project;
 
+import static java.util.Arrays.stream;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.any;
@@ -71,7 +76,7 @@ public class LoadReportAnalysisMetadataHolderStepTest {
 
   private DbClient dbClient = db.getDbClient();
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
-  private PluginRepository pluginRepository = mock(PluginRepository.class);
+  private TestPluginRepository pluginRepository = new TestPluginRepository();
   private OrganizationFlags organizationFlags = mock(OrganizationFlags.class);
   private ComponentDto project;
   private ComputationStep underTest;
@@ -330,8 +335,8 @@ public class LoadReportAnalysisMetadataHolderStepTest {
     metadataBuilder
       .setOrganizationKey(organization1.getKey())
       .setProjectKey(projectInOrg1.getDbKey());
-    metadataBuilder.getMutableQprofilesPerLanguage().put("js", ScannerReport.Metadata.QProfile.newBuilder().setKey("jsInOrg1").setName("Sonar way").setLanguage("js").build());
-    metadataBuilder.getMutableQprofilesPerLanguage().put("php", ScannerReport.Metadata.QProfile.newBuilder().setKey("phpInOrg2").setName("PHP way").setLanguage("php").build());
+    metadataBuilder.putQprofilesPerLanguage("js", ScannerReport.Metadata.QProfile.newBuilder().setKey("jsInOrg1").setName("Sonar way").setLanguage("js").build());
+    metadataBuilder.putQprofilesPerLanguage("php", ScannerReport.Metadata.QProfile.newBuilder().setKey("phpInOrg2").setName("PHP way").setLanguage("php").build());
     reportReader.setMetadata(metadataBuilder.build());
 
     db.qualityProfiles().insert(organization1, p -> p.setLanguage("js").setKee("jsInOrg1"));
@@ -353,7 +358,7 @@ public class LoadReportAnalysisMetadataHolderStepTest {
     metadataBuilder
       .setOrganizationKey(organization.getKey())
       .setProjectKey(project.getDbKey());
-    metadataBuilder.getMutableQprofilesPerLanguage().put("js", ScannerReport.Metadata.QProfile.newBuilder().setKey("p1").setName("Sonar way").setLanguage("js").build());
+    metadataBuilder.putQprofilesPerLanguage("js", ScannerReport.Metadata.QProfile.newBuilder().setKey("p1").setName("Sonar way").setLanguage("js").build());
     reportReader.setMetadata(metadataBuilder.build());
 
     ComputationStep underTest = createStep(createCeTask(project.getDbKey(), organization.getUuid()));
@@ -363,22 +368,28 @@ public class LoadReportAnalysisMetadataHolderStepTest {
 
   @Test
   public void execute_read_plugins_from_report() {
-    ScannerReport.Metadata.Builder metadataBuilder = newBatchReportBuilder();
-    metadataBuilder.getMutablePluginsByKey().put("java", ScannerReport.Metadata.Plugin.newBuilder().setKey("java").setUpdatedAt(12345L).build());
-    metadataBuilder.getMutablePluginsByKey().put("php", ScannerReport.Metadata.Plugin.newBuilder().setKey("php").setUpdatedAt(678910L).build());
-    metadataBuilder.getMutablePluginsByKey().put("customjava", ScannerReport.Metadata.Plugin.newBuilder().setKey("customjava").setUpdatedAt(111111L).build());
-    when(pluginRepository.getPluginInfo("customjava")).thenReturn(new PluginInfo("customjava").setBasePlugin("java"));
+    // the installed plugins
+    pluginRepository.add(
+      new PluginInfo("java"),
+      new PluginInfo("customjava").setBasePlugin("java"),
+      new PluginInfo("php"));
 
+    // the plugins sent by scanner
+    ScannerReport.Metadata.Builder metadataBuilder = newBatchReportBuilder();
+    metadataBuilder.putPluginsByKey("java", ScannerReport.Metadata.Plugin.newBuilder().setKey("java").setUpdatedAt(10L).build());
+    metadataBuilder.putPluginsByKey("php", ScannerReport.Metadata.Plugin.newBuilder().setKey("php").setUpdatedAt(20L).build());
+    metadataBuilder.putPluginsByKey("customjava", ScannerReport.Metadata.Plugin.newBuilder().setKey("customjava").setUpdatedAt(30L).build());
+    metadataBuilder.putPluginsByKey("uninstalled", ScannerReport.Metadata.Plugin.newBuilder().setKey("uninstalled").setUpdatedAt(40L).build());
     reportReader.setMetadata(metadataBuilder.build());
 
     underTest.execute();
 
-    assertThat(analysisMetadataHolder.getScannerPluginsByKey()).containsOnlyKeys("java", "php", "customjava");
     assertThat(analysisMetadataHolder.getScannerPluginsByKey().values()).extracting(ScannerPlugin::getKey, ScannerPlugin::getBasePluginKey, ScannerPlugin::getUpdatedAt)
-      .containsOnly(
-        tuple("java", null, 12345L),
-        tuple("customjava", "java", 111111L),
-        tuple("php", null, 678910L));
+      .containsExactlyInAnyOrder(
+        tuple("java", null, 10L),
+        tuple("php", null, 20L),
+        tuple("customjava", "java", 30L),
+        tuple("uninstalled", null, 40L));
   }
 
   private LoadReportAnalysisMetadataHolderStep createStep(CeTask ceTask) {
@@ -398,4 +409,34 @@ public class LoadReportAnalysisMetadataHolderStepTest {
     return res;
   }
 
+  private static class TestPluginRepository implements PluginRepository {
+    private final Map<String, PluginInfo> pluginsMap = new HashMap<>();
+
+    void add(PluginInfo... plugins) {
+      stream(plugins).forEach(p -> pluginsMap.put(p.getKey(), p));
+    }
+
+    @Override
+    public Collection<PluginInfo> getPluginInfos() {
+      return pluginsMap.values();
+    }
+
+    @Override
+    public PluginInfo getPluginInfo(String key) {
+      if (!pluginsMap.containsKey(key)) {
+        throw new IllegalArgumentException();
+      }
+      return pluginsMap.get(key);
+    }
+
+    @Override
+    public Plugin getPluginInstance(String key) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean hasPlugin(String key) {
+      return pluginsMap.containsKey(key);
+    }
+  }
 }

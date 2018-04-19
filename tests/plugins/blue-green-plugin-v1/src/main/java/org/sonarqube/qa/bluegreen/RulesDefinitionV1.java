@@ -19,6 +19,7 @@
  */
 package org.sonarqube.qa.bluegreen;
 
+import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.rule.RulesDefinition;
 
 public class RulesDefinitionV1 implements RulesDefinition {
@@ -28,8 +29,16 @@ public class RulesDefinitionV1 implements RulesDefinition {
   @Override
   public void define(Context context) {
     NewRepository repo = context.createRepository(REPOSITORY_KEY, "xoo").setName("BlueGreen");
-    repo.createRule("a").setName("Rule A").setHtmlDescription("Rule A");
-    repo.createRule("b").setName("Rule B").setHtmlDescription("Rule B");
+    repo.createRule("a")
+      .setName("Rule A")
+      .setHtmlDescription("Rule A")
+      .setType(RuleType.VULNERABILITY);
+    NewRule ruleB = repo.createRule("b")
+      .setName("Rule B")
+      .setHtmlDescription("Rule B")
+      .setType(RuleType.VULNERABILITY);
+    ruleB.createParam("p1").setName("Param One");
+    ruleB.createParam("p2").setName("Param Two");
     repo.done();
   }
 }

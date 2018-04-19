@@ -29,7 +29,6 @@ import org.apache.commons.lang.StringUtils;
 import org.sonar.api.utils.MessageException;
 import org.sonar.ce.queue.CeTask;
 import org.sonar.core.component.ComponentKeys;
-import org.sonar.core.platform.PluginInfo;
 import org.sonar.core.platform.PluginRepository;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
@@ -42,13 +41,13 @@ import org.sonar.scanner.protocol.output.ScannerReport.Metadata.Plugin;
 import org.sonar.scanner.protocol.output.ScannerReport.Metadata.QProfile;
 import org.sonar.server.computation.task.projectanalysis.analysis.MutableAnalysisMetadataHolder;
 import org.sonar.server.computation.task.projectanalysis.analysis.Organization;
-import org.sonar.server.project.Project;
 import org.sonar.server.computation.task.projectanalysis.analysis.ScannerPlugin;
 import org.sonar.server.computation.task.projectanalysis.batch.BatchReportReader;
 import org.sonar.server.computation.task.projectanalysis.component.BranchLoader;
 import org.sonar.server.computation.task.step.ComputationStep;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.OrganizationFlags;
+import org.sonar.server.project.Project;
 import org.sonar.server.qualityprofile.QualityProfile;
 
 import static com.google.common.base.Preconditions.checkState;
@@ -153,13 +152,12 @@ public class LoadReportAnalysisMetadataHolderStep implements ComputationStep {
 
   @CheckForNull
   private String getBasePluginKey(Plugin p) {
-    PluginInfo pluginInfo = pluginRepository.getPluginInfo(p.getKey());
-    if (pluginInfo == null) {
+    if (!pluginRepository.hasPlugin(p.getKey())) {
       // May happen if plugin was uninstalled between start of scanner analysis and now.
       // But it doesn't matter since all active rules are removed anyway, so no issues will be reported
       return null;
     }
-    return pluginInfo.getBasePlugin();
+    return pluginRepository.getPluginInfo(p.getKey()).getBasePlugin();
   }
 
   /**

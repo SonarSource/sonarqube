@@ -19,18 +19,16 @@
  */
 package org.sonarqube.qa.bluegreen;
 
-import org.sonar.api.Plugin;
+import java.util.Arrays;
+import java.util.List;
+import org.sonar.api.measures.Metric;
+import org.sonar.api.measures.Metrics;
 
-public class BlueGreenPlugin implements Plugin {
-
+public class MetricsDefinitionV1 implements Metrics {
   @Override
-  public void define(Context context) {
-    context.addExtensions(
-      BuiltInProfilesV1.class,
-      MetricsDefinitionV1.class,
-      PageDefinitionV1.class,
-      RulesDefinitionV1.class,
-      SensorV1.class);
+  public List<Metric> getMetrics() {
+    return Arrays.asList(
+      new Metric.Builder("blue", "Blue", Metric.ValueType.INT).create(),
+      new Metric.Builder("bluegreen", "BlueGreen", Metric.ValueType.INT).create());
   }
-
 }

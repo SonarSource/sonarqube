@@ -25,7 +25,10 @@ public class BuiltInProfilesV2 implements BuiltInQualityProfilesDefinition {
   @Override
   public void define(Context context) {
     NewBuiltInQualityProfile profile = context.createBuiltInQualityProfile("Green Profile", "xoo");
-    profile.activateRule(RulesDefinitionV2.REPOSITORY_KEY, "b").overrideSeverity("MINOR");
+    NewBuiltInActiveRule activeB = profile.activateRule(RulesDefinitionV2.REPOSITORY_KEY, "b")
+      .overrideSeverity("MINOR");
+    activeB.overrideParam("p2", "two");
+    activeB.overrideParam("p3", "three");
     profile.activateRule(RulesDefinitionV2.REPOSITORY_KEY, "c").overrideSeverity("INFO");
     profile.done();
   }

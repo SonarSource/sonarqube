@@ -20,6 +20,7 @@
 package org.sonarqube.qa.bluegreen;
 
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.measure.MetricFinder;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
@@ -28,7 +29,13 @@ import org.sonar.api.rule.RuleKey;
 
 import static org.sonarqube.qa.bluegreen.RulesDefinitionV2.REPOSITORY_KEY;
 
-public class RuleSensorV2 implements Sensor {
+public class SensorV2 implements Sensor {
+
+  private final MetricFinder metricFinder;
+
+  public SensorV2(MetricFinder metricFinder) {
+    this.metricFinder = metricFinder;
+  }
 
   @Override
   public void describe(SensorDescriptor descriptor) {
@@ -43,6 +50,17 @@ public class RuleSensorV2 implements Sensor {
       saveIssue(context, inputFile, "b");
       saveIssue(context, inputFile, "c");
     }
+
+    context.newMeasure()
+      .forMetric(metricFinder.findByKey("bluegreen"))
+      .on(context.module())
+      .withValue(30)
+      .save();
+    context.newMeasure()
+      .forMetric(metricFinder.findByKey("green"))
+      .on(context.module())
+      .withValue(40)
+      .save();
   }
 
   private void saveIssue(SensorContext context, InputFile inputFile, String ruleKey) {

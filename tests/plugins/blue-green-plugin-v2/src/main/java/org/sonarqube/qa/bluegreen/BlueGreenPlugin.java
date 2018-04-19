@@ -27,9 +27,10 @@ public class BlueGreenPlugin implements Plugin {
   public void define(Context context) {
     context.addExtensions(
       BuiltInProfilesV2.class,
+      MetricsDefinitionV2.class,
       PageDefinitionV2.class,
       RulesDefinitionV2.class,
-      RuleSensorV2.class);
+      SensorV2.class);
   }
 
 }
