@@ -19,6 +19,7 @@
  */
 package org.sonar.application.process;
 
+import com.google.common.net.HostAndPort;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -36,12 +37,15 @@ import org.sonar.application.command.AbstractCommand;
 import org.sonar.application.command.EsScriptCommand;
 import org.sonar.application.command.JavaCommand;
 import org.sonar.application.command.JvmOptions;
+import org.sonar.application.es.EsConnectorImpl;
 import org.sonar.application.es.EsInstallation;
 import org.sonar.process.ProcessId;
 import org.sonar.process.sharedmemoryfile.AllProcessesCommands;
 import org.sonar.process.sharedmemoryfile.ProcessCommands;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
+import static java.util.Collections.singleton;
 import static java.util.Objects.requireNonNull;
 import static org.sonar.process.ProcessEntryPoint.PROPERTY_PROCESS_INDEX;
 import static org.sonar.process.ProcessEntryPoint.PROPERTY_PROCESS_KEY;
@@ -89,7 +93,10 @@ public class ProcessLauncherImpl implements ProcessLauncher {
     ProcessId processId = command.getProcessId();
     try {
       if (processId == ProcessId.ELASTICSEARCH) {
-        return new EsProcessMonitor(process, processId, command.getEsInstallation(), new EsConnectorImpl());
+        EsInstallation esInstallation = command.getEsInstallation();
+        checkArgument(esInstallation != null, "Incorrect configuration EsInstallation is null");
+        EsConnectorImpl esConnector = new EsConnectorImpl(esInstallation.getClusterName(), singleton(HostAndPort.fromParts(esInstallation.getHost(), esInstallation.getPort())));
+        return new EsProcessMonitor(process, processId, esConnector);
       } else {
         ProcessCommands commands = allProcessesCommands.createAfterClean(processId.getIpcIndex());
         return new ProcessCommandsProcessMonitor(process, processId, commands);

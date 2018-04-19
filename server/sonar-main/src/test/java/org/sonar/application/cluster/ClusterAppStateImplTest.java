@@ -28,6 +28,7 @@ import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
 import org.sonar.application.AppStateListener;
 import org.sonar.application.config.TestAppSettings;
+import org.sonar.application.es.EsConnector;
 import org.sonar.process.MessageException;
 import org.sonar.process.NetworkUtilsImpl;
 import org.sonar.process.ProcessId;
@@ -52,7 +53,7 @@ public class ClusterAppStateImplTest {
 
   @Test
   public void tryToLockWebLeader_returns_true_only_for_the_first_call() {
-    try (ClusterAppStateImpl underTest = new ClusterAppStateImpl(new TestAppSettings(), newHzMember())) {
+    try (ClusterAppStateImpl underTest = new ClusterAppStateImpl(new TestAppSettings(), newHzMember(), mock(EsConnector.class))) {
       assertThat(underTest.tryToLockWebLeader()).isEqualTo(true);
       assertThat(underTest.tryToLockWebLeader()).isEqualTo(false);
     }
@@ -61,7 +62,7 @@ public class ClusterAppStateImplTest {
   @Test
   public void test_listeners() {
     AppStateListener listener = mock(AppStateListener.class);
-    try (ClusterAppStateImpl underTest = new ClusterAppStateImpl(new TestAppSettings(), newHzMember())) {
+    try (ClusterAppStateImpl underTest = new ClusterAppStateImpl(new TestAppSettings(), newHzMember(), mock(EsConnector.class))) {
       underTest.addListener(listener);
 
       underTest.setOperational(ProcessId.ELASTICSEARCH);
@@ -77,7 +78,7 @@ public class ClusterAppStateImplTest {
   @Test
   public void registerSonarQubeVersion_publishes_version_on_first_call() {
 
-    try (ClusterAppStateImpl underTest = new ClusterAppStateImpl(new TestAppSettings(), newHzMember())) {
+    try (ClusterAppStateImpl underTest = new ClusterAppStateImpl(new TestAppSettings(), newHzMember(), mock(EsConnector.class))) {
       underTest.registerSonarQubeVersion("6.4.1.5");
 
       assertThat(underTest.getHazelcastMember().getAtomicReference(SONARQUBE_VERSION).get())
@@ -87,7 +88,7 @@ public class ClusterAppStateImplTest {
 
   @Test
   public void registerClusterName_publishes_clusterName_on_first_call() {
-    try (ClusterAppStateImpl underTest = new ClusterAppStateImpl(new TestAppSettings(), newHzMember())) {
+    try (ClusterAppStateImpl underTest = new ClusterAppStateImpl(new TestAppSettings(), newHzMember(), mock(EsConnector.class))) {
       underTest.registerClusterName("foo");
 
       assertThat(underTest.getHazelcastMember().getAtomicReference(CLUSTER_NAME).get())
@@ -97,7 +98,7 @@ public class ClusterAppStateImplTest {
 
   @Test
   public void reset_always_throws_ISE() {
-    try (ClusterAppStateImpl underTest = new ClusterAppStateImpl(new TestAppSettings(), newHzMember())) {
+    try (ClusterAppStateImpl underTest = new ClusterAppStateImpl(new TestAppSettings(), newHzMember(), mock(EsConnector.class))) {
       expectedException.expect(IllegalStateException.class);
       expectedException.expectMessage("state reset is not supported in cluster mode");
 
@@ -108,7 +109,7 @@ public class ClusterAppStateImplTest {
   @Test
   public void registerSonarQubeVersion_throws_ISE_if_initial_version_is_different() {
     // Now launch an instance that try to be part of the hzInstance cluster
-    try (ClusterAppStateImpl underTest = new ClusterAppStateImpl(new TestAppSettings(), newHzMember())) {
+    try (ClusterAppStateImpl underTest = new ClusterAppStateImpl(new TestAppSettings(), newHzMember(), mock(EsConnector.class))) {
       // Register first version
       underTest.getHazelcastMember().getAtomicReference(SONARQUBE_VERSION).set("6.6.0.1111");
 
@@ -122,7 +123,7 @@ public class ClusterAppStateImplTest {
 
   @Test
   public void registerClusterName_throws_MessageException_if_clusterName_is_different() {
-    try (ClusterAppStateImpl underTest = new ClusterAppStateImpl(new TestAppSettings(), newHzMember())) {
+    try (ClusterAppStateImpl underTest = new ClusterAppStateImpl(new TestAppSettings(), newHzMember(), mock(EsConnector.class))) {
       // Register first version
       underTest.getHazelcastMember().getAtomicReference(CLUSTER_NAME).set("goodClusterName");
 

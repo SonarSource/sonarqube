@@ -69,6 +69,7 @@ public class ProcessLauncherImplTest {
     command.setJvmOptions(new JvmOptions<>()
       .add("-Dfoo=bar")
       .add("-Dfoo2=bar2"));
+    command.setEsInstallation(createEsInstallation());
 
     ProcessMonitor monitor = underTest.launch(command);
 
@@ -193,8 +194,25 @@ public class ProcessLauncherImplTest {
     command.setEsInstallation(new EsInstallation(props)
       .setEsYmlSettings(mock(EsYmlSettings.class))
       .setEsJvmOptions(mock(EsJvmOptions.class))
-      .setLog4j2Properties(new Properties()));
+      .setLog4j2Properties(new Properties())
+      .setHost("localhost")
+      .setPort(9001)
+      .setClusterName("sonarqube"));
     return command;
+  }
+
+  private EsInstallation createEsInstallation() throws IOException {
+    return new EsInstallation(new Props(new Properties())
+      .set("sonar.path.home", temp.newFolder("home").getAbsolutePath())
+      .set("sonar.path.data", temp.newFolder("data").getAbsolutePath())
+      .set("sonar.path.temp", temp.newFolder("temp").getAbsolutePath())
+      .set("sonar.path.logs", temp.newFolder("logs").getAbsolutePath()))
+      .setClusterName("cluster")
+      .setPort(9001)
+      .setHost("localhost")
+      .setEsYmlSettings(new EsYmlSettings(new HashMap<>()))
+      .setEsJvmOptions(new EsJvmOptions())
+      .setLog4j2Properties(new Properties());
   }
 
   private static class TestProcessBuilder implements ProcessLauncherImpl.ProcessBuilder {

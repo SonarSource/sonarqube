@@ -175,6 +175,31 @@ public class ClusterSettingsTest {
   }
 
   @Test
+  public void shouldStartHazelcast_must_be_true_on_AppNode() {
+    TestAppSettings settings = newSettingsForAppNode();
+
+    assertThat(ClusterSettings.shouldStartHazelcast(settings)).isTrue();
+  }
+
+  @Test
+  public void shouldStartHazelcast_must_be_false_on_SearchNode() {
+    TestAppSettings settings = newSettingsForSearchNode();
+
+    assertThat(ClusterSettings.shouldStartHazelcast(settings)).isFalse();
+  }
+
+  @Test
+  public void shouldStartHazelcast_must_be_false_when_cluster_not_activated() {
+    TestAppSettings settings = newSettingsForSearchNode();
+    settings.set(CLUSTER_ENABLED.getKey(), "false");
+    assertThat(ClusterSettings.shouldStartHazelcast(settings)).isFalse();
+
+    settings = newSettingsForAppNode();
+    settings.set(CLUSTER_ENABLED.getKey(), "false");
+    assertThat(ClusterSettings.shouldStartHazelcast(settings)).isFalse();
+  }
+
+  @Test
   public void isLocalElasticsearchEnabled_returns_true_for_a_application_node() {
     TestAppSettings settings = newSettingsForAppNode();
 
@@ -221,6 +246,23 @@ public class ClusterSettingsTest {
     TestAppSettings settings = newSettingsForAppNode();
     settings.clearProperty("sonar.auth.jwtBase64Hs256Secret");
     assertThatPropertyIsMandatory(settings, "sonar.auth.jwtBase64Hs256Secret");
+  }
+
+  @Test
+  public void shouldStartHazelcast_should_return_false_when_cluster_not_enabled() {
+    TestAppSettings settings = new TestAppSettings();
+    assertThat(ClusterSettings.shouldStartHazelcast(settings)).isFalse();
+  }
+
+  @Test
+  public void shouldStartHazelcast_should_return_false_on_SearchNode() {
+    assertThat(ClusterSettings.shouldStartHazelcast(newSettingsForSearchNode())).isFalse();
+  }
+
+
+  @Test
+  public void shouldStartHazelcast_should_return_true_on_AppNode() {
+    assertThat(ClusterSettings.shouldStartHazelcast(newSettingsForAppNode())).isTrue();
   }
 
   private void assertThatPropertyIsMandatory(TestAppSettings settings, String key) {
