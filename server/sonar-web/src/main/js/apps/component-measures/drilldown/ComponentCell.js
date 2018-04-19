@@ -23,7 +23,11 @@ import { Link } from 'react-router';
 import LinkIcon from '../../../components/icons-components/LinkIcon';
 import QualifierIcon from '../../../components/icons-components/QualifierIcon';
 import { splitPath } from '../../../helpers/path';
-import { getBranchLikeUrl, getComponentDrilldownUrlWithSelection } from '../../../helpers/urls';
+import {
+  getPathUrlAsString,
+  getBranchLikeUrl,
+  getComponentDrilldownUrlWithSelection
+} from '../../../helpers/urls';
 /*:: import type { Component, ComponentEnhanced } from '../types'; */
 /*:: import type { Metric } from '../../../store/metrics/actions'; */
 
@@ -37,6 +41,16 @@ import { getBranchLikeUrl, getComponentDrilldownUrlWithSelection } from '../../.
 
 export default class ComponentCell extends React.PureComponent {
   /*:: props: Props; */
+
+  handleClick = (e /*: MouseEvent */) => {
+    const isLeftClickEvent = e.button === 0;
+    const isModifiedEvent = !!(e.metaKey || e.altKey || e.ctrlKey || e.shiftKey);
+
+    if (isLeftClickEvent && !isModifiedEvent) {
+      e.preventDefault();
+      this.props.onClick(this.props.component.key);
+    }
+  };
 
   renderInner() {
     const { component } = this.props;
@@ -63,17 +77,20 @@ export default class ComponentCell extends React.PureComponent {
       <td className="measure-details-component-cell">
         <div className="text-ellipsis">
           {component.refKey == null ? (
-            <Link
+            <a
               className="link-no-underline"
+              href={getPathUrlAsString(
+                getComponentDrilldownUrlWithSelection(
+                  rootComponent.key,
+                  component.key,
+                  metric.key,
+                  branchLike
+                )
+              )}
               id={'component-measures-component-link-' + component.key}
-              to={getComponentDrilldownUrlWithSelection(
-                rootComponent.key,
-                component.key,
-                metric.key,
-                branchLike
-              )}>
+              onClick={this.handleClick}>
               {this.renderInner()}
-            </Link>
+            </a>
           ) : (
             <Link
               className="link-no-underline"
