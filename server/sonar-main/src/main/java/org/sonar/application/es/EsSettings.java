@@ -40,10 +40,10 @@ public class EsSettings {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(EsSettings.class);
   private static final String STANDALONE_NODE_NAME = "sonarqube";
+  private static final String SECCOMP_PROPERTY = "bootstrap.system_call_filter";
 
   private final Props props;
   private final EsInstallation fileSystem;
-
   private final boolean clusterEnabled;
   private final String clusterName;
   private final String nodeName;
@@ -71,7 +71,7 @@ public class EsSettings {
     configureFileSystem(builder);
     configureNetwork(builder);
     configureCluster(builder);
-    configureAction(builder);
+    configureOthers(builder);
     return builder;
   }
 
@@ -142,7 +142,12 @@ public class EsSettings {
     builder.put("node.master", valueOf(true));
   }
 
-  private static void configureAction(Map<String, String> builder) {
+  private void configureOthers(Map<String, String> builder) {
     builder.put("action.auto_create_index", String.valueOf(false));
+
+    if (props.value("sonar.search.javaAdditionalOpts", "").contains("-D" + SECCOMP_PROPERTY + "=false")) {
+      builder.put(SECCOMP_PROPERTY, "false");
+    }
   }
+
 }
