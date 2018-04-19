@@ -39,10 +39,14 @@ import org.sonar.server.computation.task.projectanalysis.component.ReportCompone
 import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.server.computation.task.projectanalysis.issue.commonrule.CommonRuleEngine;
 import org.sonar.server.computation.task.projectanalysis.issue.filter.IssueFilter;
+import org.sonar.server.computation.task.projectanalysis.qualityprofile.ActiveRule;
+import org.sonar.server.computation.task.projectanalysis.qualityprofile.ActiveRulesHolderRule;
 import org.sonar.server.computation.task.projectanalysis.source.SourceLinesHashRepository;
 import org.sonar.server.rule.CommonRuleKeys;
 
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptyMap;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -58,17 +62,18 @@ public class TrackerRawInputFactoryTest {
 
   @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule().setRoot(PROJECT);
-
   @Rule
   public BatchReportReaderRule reportReader = new BatchReportReaderRule();
-
+  @Rule
+  public ActiveRulesHolderRule activeRulesHolder = new ActiveRulesHolderRule();
   @Rule
   public RuleRepositoryRule ruleRepository = new RuleRepositoryRule();
 
-  SourceLinesHashRepository sourceLinesHash = mock(SourceLinesHashRepository.class);
-  CommonRuleEngine commonRuleEngine = mock(CommonRuleEngine.class);
-  IssueFilter issueFilter = mock(IssueFilter.class);
-  TrackerRawInputFactory underTest = new TrackerRawInputFactory(treeRootHolder, reportReader, sourceLinesHash, commonRuleEngine, issueFilter, ruleRepository);
+  private SourceLinesHashRepository sourceLinesHash = mock(SourceLinesHashRepository.class);
+  private CommonRuleEngine commonRuleEngine = mock(CommonRuleEngine.class);
+  private IssueFilter issueFilter = mock(IssueFilter.class);
+  private TrackerRawInputFactory underTest = new TrackerRawInputFactory(treeRootHolder, reportReader, sourceLinesHash,
+    commonRuleEngine, issueFilter, ruleRepository, activeRulesHolder);
 
   @Test
   public void load_source_hash_sequences() {
@@ -93,17 +98,20 @@ public class TrackerRawInputFactoryTest {
 
   @Test
   public void load_issues_from_report() {
-    when(issueFilter.accept(any(DefaultIssue.class), eq(FILE))).thenReturn(true);
+    RuleKey ruleKey = RuleKey.of("java", "S001");
+    markRuleAsActive(ruleKey);
+    when(issueFilter.accept(any(), eq(FILE))).thenReturn(true);
+
     when(sourceLinesHash.getLineHashesMatchingDBVersion(FILE)).thenReturn(Collections.singletonList("line"));
     ScannerReport.Issue reportIssue = ScannerReport.Issue.newBuilder()
       .setTextRange(TextRange.newBuilder().setStartLine(2).build())
       .setMsg("the message")
-      .setRuleRepository("java")
-      .setRuleKey("S001")
+      .setRuleRepository(ruleKey.repository())
+      .setRuleKey(ruleKey.rule())
       .setSeverity(Constants.Severity.BLOCKER)
       .setGap(3.14)
       .build();
-    reportReader.putIssues(FILE.getReportAttributes().getRef(), asList(reportIssue));
+    reportReader.putIssues(FILE.getReportAttributes().getRef(), singletonList(reportIssue));
     Input<DefaultIssue> input = underTest.create(FILE);
 
     Collection<DefaultIssue> issues = input.getIssues();
@@ -111,7 +119,7 @@ public class TrackerRawInputFactoryTest {
     DefaultIssue issue = Iterators.getOnlyElement(issues.iterator());
 
     // fields set by analysis report
-    assertThat(issue.ruleKey()).isEqualTo(RuleKey.of("java", "S001"));
+    assertThat(issue.ruleKey()).isEqualTo(ruleKey);
     assertThat(issue.severity()).isEqualTo(Severity.BLOCKER);
     assertThat(issue.line()).isEqualTo(2);
     assertThat(issue.effortToFix()).isEqualTo(3.14);
@@ -153,7 +161,7 @@ public class TrackerRawInputFactoryTest {
     // fields set by compute engine
     assertThat(issue.checksum()).isEqualTo(input.getLineHashSequence().getHashForLine(2));
     assertThat(issue.tags()).isEmpty();
-    assertInitializedIssue(issue);
+    assertInitializedExternalIssue(issue);
   }
 
   @Test
@@ -183,22 +191,24 @@ public class TrackerRawInputFactoryTest {
     // fields set by compute engine
     assertThat(issue.checksum()).isEqualTo(input.getLineHashSequence().getHashForLine(2));
     assertThat(issue.tags()).isEmpty();
-    assertInitializedIssue(issue);
+    assertInitializedExternalIssue(issue);
   }
 
   @Test
-  public void ignore_issue_from_report() {
-    when(issueFilter.accept(any(DefaultIssue.class), eq(FILE))).thenReturn(false);
+  public void excludes_issues_on_inactive_rules() {
+    RuleKey ruleKey = RuleKey.of("java", "S001");
+    when(issueFilter.accept(any(), eq(FILE))).thenReturn(true);
+
     when(sourceLinesHash.getLineHashesMatchingDBVersion(FILE)).thenReturn(Collections.singletonList("line"));
     ScannerReport.Issue reportIssue = ScannerReport.Issue.newBuilder()
       .setTextRange(TextRange.newBuilder().setStartLine(2).build())
       .setMsg("the message")
-      .setRuleRepository("java")
-      .setRuleKey("S001")
+      .setRuleRepository(ruleKey.repository())
+      .setRuleKey(ruleKey.rule())
       .setSeverity(Constants.Severity.BLOCKER)
       .setGap(3.14)
       .build();
-    reportReader.putIssues(FILE.getReportAttributes().getRef(), asList(reportIssue));
+    reportReader.putIssues(FILE.getReportAttributes().getRef(), singletonList(reportIssue));
     Input<DefaultIssue> input = underTest.create(FILE);
 
     Collection<DefaultIssue> issues = input.getIssues();
@@ -206,15 +216,38 @@ public class TrackerRawInputFactoryTest {
   }
 
   @Test
-  public void ignore_report_issues_on_common_rules() {
+  public void filter_excludes_issues_from_report() {
+    RuleKey ruleKey = RuleKey.of("java", "S001");
+    markRuleAsActive(ruleKey);
+    when(issueFilter.accept(any(), eq(FILE))).thenReturn(false);
+    when(sourceLinesHash.getLineHashesMatchingDBVersion(FILE)).thenReturn(Collections.singletonList("line"));
+    ScannerReport.Issue reportIssue = ScannerReport.Issue.newBuilder()
+      .setTextRange(TextRange.newBuilder().setStartLine(2).build())
+      .setMsg("the message")
+      .setRuleRepository(ruleKey.repository())
+      .setRuleKey(ruleKey.rule())
+      .setSeverity(Constants.Severity.BLOCKER)
+      .setGap(3.14)
+      .build();
+    reportReader.putIssues(FILE.getReportAttributes().getRef(), singletonList(reportIssue));
+    Input<DefaultIssue> input = underTest.create(FILE);
+
+    Collection<DefaultIssue> issues = input.getIssues();
+    assertThat(issues).isEmpty();
+  }
+
+  @Test
+  public void exclude_issues_on_common_rules() {
+    RuleKey ruleKey = RuleKey.of(CommonRuleKeys.commonRepositoryForLang("java"), "S001");
+    markRuleAsActive(ruleKey);
     when(sourceLinesHash.getLineHashesMatchingDBVersion(FILE)).thenReturn(Collections.singletonList("line"));
     ScannerReport.Issue reportIssue = ScannerReport.Issue.newBuilder()
       .setMsg("the message")
-      .setRuleRepository(CommonRuleKeys.commonRepositoryForLang("java"))
-      .setRuleKey("S001")
+      .setRuleRepository(ruleKey.repository())
+      .setRuleKey(ruleKey.rule())
       .setSeverity(Constants.Severity.BLOCKER)
       .build();
-    reportReader.putIssues(FILE.getReportAttributes().getRef(), asList(reportIssue));
+    reportReader.putIssues(FILE.getReportAttributes().getRef(), singletonList(reportIssue));
 
     Input<DefaultIssue> input = underTest.create(FILE);
 
@@ -223,13 +256,15 @@ public class TrackerRawInputFactoryTest {
 
   @Test
   public void load_issues_of_compute_engine_common_rules() {
-    when(issueFilter.accept(any(DefaultIssue.class), eq(FILE))).thenReturn(true);
+    RuleKey ruleKey = RuleKey.of(CommonRuleKeys.commonRepositoryForLang("java"), "InsufficientCoverage");
+    markRuleAsActive(ruleKey);
+    when(issueFilter.accept(any(), eq(FILE))).thenReturn(true);
     when(sourceLinesHash.getLineHashesMatchingDBVersion(FILE)).thenReturn(Collections.singletonList("line"));
     DefaultIssue ceIssue = new DefaultIssue()
-      .setRuleKey(RuleKey.of(CommonRuleKeys.commonRepositoryForLang("java"), "InsufficientCoverage"))
+      .setRuleKey(ruleKey)
       .setMessage("not enough coverage")
       .setGap(10.0);
-    when(commonRuleEngine.process(FILE)).thenReturn(asList(ceIssue));
+    when(commonRuleEngine.process(FILE)).thenReturn(singletonList(ceIssue));
 
     Input<DefaultIssue> input = underTest.create(FILE);
 
@@ -238,14 +273,16 @@ public class TrackerRawInputFactoryTest {
   }
 
   @Test
-  public void ignore_issue_from_common_rule() {
-    when(issueFilter.accept(any(DefaultIssue.class), eq(FILE))).thenReturn(false);
+  public void filter_exclude_issues_on_common_rule() {
+    RuleKey ruleKey = RuleKey.of(CommonRuleKeys.commonRepositoryForLang("java"), "InsufficientCoverage");
+    markRuleAsActive(ruleKey);
+    when(issueFilter.accept(any(), eq(FILE))).thenReturn(false);
     when(sourceLinesHash.getLineHashesMatchingDBVersion(FILE)).thenReturn(Collections.singletonList("line"));
     DefaultIssue ceIssue = new DefaultIssue()
-      .setRuleKey(RuleKey.of(CommonRuleKeys.commonRepositoryForLang("java"), "InsufficientCoverage"))
+      .setRuleKey(ruleKey)
       .setMessage("not enough coverage")
       .setGap(10.0);
-    when(commonRuleEngine.process(FILE)).thenReturn(asList(ceIssue));
+    when(commonRuleEngine.process(FILE)).thenReturn(singletonList(ceIssue));
 
     Input<DefaultIssue> input = underTest.create(FILE);
 
@@ -260,5 +297,22 @@ public class TrackerRawInputFactoryTest {
     assertThat(issue.status()).isEqualTo(Issue.STATUS_OPEN);
     assertThat(issue.key()).isNull();
     assertThat(issue.authorLogin()).isNull();
+    assertThat(issue.effort()).isNull();
+    assertThat(issue.effortInMinutes()).isNull();
+    assertThat(issue.debt()).isNull();
+  }
+
+  private void assertInitializedExternalIssue(DefaultIssue issue) {
+    assertThat(issue.projectKey()).isEqualTo(PROJECT.getPublicKey());
+    assertThat(issue.componentKey()).isEqualTo(FILE.getPublicKey());
+    assertThat(issue.componentUuid()).isEqualTo(FILE.getUuid());
+    assertThat(issue.resolution()).isNull();
+    assertThat(issue.status()).isEqualTo(Issue.STATUS_OPEN);
+    assertThat(issue.key()).isNull();
+    assertThat(issue.authorLogin()).isNull();
+  }
+
+  private void markRuleAsActive(RuleKey ruleKey) {
+    activeRulesHolder.put(new ActiveRule(ruleKey, Severity.CRITICAL, emptyMap(), 1_000L, null));
   }
 }

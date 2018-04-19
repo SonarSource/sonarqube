@@ -29,6 +29,7 @@ import org.sonarqube.tests.marketplace.UpdateCenterTest;
 import org.sonarqube.tests.qualityProfile.ActiveRuleEsResilienceTest;
 import org.sonarqube.tests.qualityProfile.BuiltInQualityProfilesNotificationTest;
 import org.sonarqube.tests.rule.RuleEsResilienceTest;
+import org.sonarqube.tests.serverSystem.BlueGreenTest;
 import org.sonarqube.tests.serverSystem.RestartTest;
 import org.sonarqube.tests.serverSystem.ServerSystemRestartingOrchestrator;
 import org.sonarqube.tests.serverSystem.SystemStateTest;
@@ -52,6 +53,7 @@ import org.sonarqube.tests.user.UserEsResilienceTest;
 @Deprecated
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
+  BlueGreenTest.class,
   ServerSystemRestartingOrchestrator.class,
   RestartTest.class,
   SettingsTestRestartingOrchestrator.class,

@@ -42,6 +42,7 @@ import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolder;
 import org.sonar.server.computation.task.projectanalysis.issue.commonrule.CommonRuleEngine;
 import org.sonar.server.computation.task.projectanalysis.issue.filter.IssueFilter;
+import org.sonar.server.computation.task.projectanalysis.qualityprofile.ActiveRulesHolder;
 import org.sonar.server.computation.task.projectanalysis.source.SourceLinesHashRepository;
 import org.sonar.server.rule.CommonRuleKeys;
 
@@ -55,15 +56,18 @@ public class TrackerRawInputFactory {
   private final IssueFilter issueFilter;
   private final SourceLinesHashRepository sourceLinesHash;
   private final RuleRepository ruleRepository;
+  private final ActiveRulesHolder activeRulesHolder;
 
   public TrackerRawInputFactory(TreeRootHolder treeRootHolder, BatchReportReader reportReader,
-    SourceLinesHashRepository sourceLinesHash, CommonRuleEngine commonRuleEngine, IssueFilter issueFilter, RuleRepository ruleRepository) {
+    SourceLinesHashRepository sourceLinesHash, CommonRuleEngine commonRuleEngine, IssueFilter issueFilter, RuleRepository ruleRepository,
+    ActiveRulesHolder activeRulesHolder) {
     this.treeRootHolder = treeRootHolder;
     this.reportReader = reportReader;
     this.sourceLinesHash = sourceLinesHash;
     this.commonRuleEngine = commonRuleEngine;
     this.issueFilter = issueFilter;
     this.ruleRepository = ruleRepository;
+    this.activeRulesHolder = activeRulesHolder;
   }
 
   public Input<DefaultIssue> create(Component component) {
@@ -100,6 +104,9 @@ public class TrackerRawInputFactory {
         // as late as possible
         while (reportIssues.hasNext()) {
           ScannerReport.Issue reportIssue = reportIssues.next();
+          if (isOnInactiveRule(reportIssue)) {
+            continue;
+          }
           if (!isIssueOnUnsupportedCommonRule(reportIssue)) {
             Loggers.get(getClass()).debug("Ignored issue from analysis report on rule {}:{}", reportIssue.getRuleRepository(), reportIssue.getRuleKey());
             continue;
@@ -121,6 +128,11 @@ public class TrackerRawInputFactory {
       }
 
       return result;
+    }
+
+    private boolean isOnInactiveRule(ScannerReport.Issue reportIssue) {
+      RuleKey ruleKey = RuleKey.of(reportIssue.getRuleRepository(), reportIssue.getRuleKey());
+      return !activeRulesHolder.get(ruleKey).isPresent();
     }
 
     private boolean isIssueOnUnsupportedCommonRule(ScannerReport.Issue issue) {

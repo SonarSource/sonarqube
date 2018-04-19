@@ -16,6 +16,8 @@ def pluginsForITs = [
     ':tests:plugins:backdating-customplugin',
     ':tests:plugins:base-auth-plugin',
     ':tests:plugins:batch-plugin',
+    ':tests:plugins:blue-green-plugin-v1',
+    ':tests:plugins:blue-green-plugin-v2',
     ':tests:plugins:extension-lifecycle-plugin',
     ':tests:plugins:fake-billing-plugin',
     ':tests:plugins:fake-governance-plugin',

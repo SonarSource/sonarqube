@@ -53,8 +53,10 @@ import org.sonar.server.computation.task.projectanalysis.component.TypeAwareVisi
 import org.sonar.server.computation.task.projectanalysis.filemove.MovedFilesRepository;
 import org.sonar.server.computation.task.projectanalysis.issue.commonrule.CommonRuleEngineImpl;
 import org.sonar.server.computation.task.projectanalysis.issue.filter.IssueFilter;
+import org.sonar.server.computation.task.projectanalysis.qualityprofile.ActiveRulesHolder;
 import org.sonar.server.computation.task.projectanalysis.qualityprofile.ActiveRulesHolderRule;
 import org.sonar.server.computation.task.projectanalysis.source.SourceLinesHashRepository;
+import org.sonar.server.computation.task.projectanalysis.qualityprofile.AlwaysActiveRulesHolderImpl;
 import org.sonar.server.computation.task.projectanalysis.source.SourceLinesRepositoryRule;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -69,21 +71,21 @@ import static org.sonar.server.computation.task.projectanalysis.component.Report
 
 public class IntegrateIssuesVisitorTest {
 
-  static final String FILE_UUID = "FILE_UUID";
-  static final String FILE_UUID_ON_BRANCH = "FILE_UUID_BRANCH";
-  static final String FILE_KEY = "FILE_KEY";
-  static final int FILE_REF = 2;
+  private static final String FILE_UUID = "FILE_UUID";
+  private static final String FILE_UUID_ON_BRANCH = "FILE_UUID_BRANCH";
+  private static final String FILE_KEY = "FILE_KEY";
+  private static final int FILE_REF = 2;
 
-  static final Component FILE = builder(Component.Type.FILE, FILE_REF)
+  private static final Component FILE = builder(Component.Type.FILE, FILE_REF)
     .setKey(FILE_KEY)
     .setUuid(FILE_UUID)
     .build();
 
-  static final String PROJECT_KEY = "PROJECT_KEY";
-  static final String PROJECT_UUID = "PROJECT_UUID";
-  static final String PROJECT_UUID_ON_BRANCH = "PROJECT_UUID_BRANCH";
-  static final int PROJECT_REF = 1;
-  static final Component PROJECT = builder(Component.Type.PROJECT, PROJECT_REF)
+  private static final String PROJECT_KEY = "PROJECT_KEY";
+  private static final String PROJECT_UUID = "PROJECT_UUID";
+  private static final String PROJECT_UUID_ON_BRANCH = "PROJECT_UUID_BRANCH";
+  private static final int PROJECT_REF = 1;
+  private static final Component PROJECT = builder(Component.Type.PROJECT, PROJECT_REF)
     .setKey(PROJECT_KEY)
     .setUuid(PROJECT_UUID)
     .addChildren(FILE)
@@ -116,16 +118,17 @@ public class IntegrateIssuesVisitorTest {
   private MergeBranchComponentUuids mergeBranchComponentUuids = mock(MergeBranchComponentUuids.class);
   private SourceLinesHashRepository sourceLinesHash = mock(SourceLinesHashRepository.class);
 
-  ArgumentCaptor<DefaultIssue> defaultIssueCaptor;
+  private ArgumentCaptor<DefaultIssue> defaultIssueCaptor;
 
-  ComponentIssuesLoader issuesLoader = new ComponentIssuesLoader(dbTester.getDbClient(), ruleRepositoryRule, activeRulesHolderRule);
-  IssueTrackingDelegator trackingDelegator;
-  TrackerExecution tracker;
-  ShortBranchTrackerExecution shortBranchTracker;
-  MergeBranchTrackerExecution mergeBranchTracker;
-  IssueCache issueCache;
+  private ComponentIssuesLoader issuesLoader = new ComponentIssuesLoader(dbTester.getDbClient(), ruleRepositoryRule, activeRulesHolderRule);
+  private IssueTrackingDelegator trackingDelegator;
+  private TrackerExecution tracker;
+  private ShortBranchTrackerExecution shortBranchTracker;
+  private MergeBranchTrackerExecution mergeBranchTracker;
+  private ActiveRulesHolder activeRulesHolder = new AlwaysActiveRulesHolderImpl();
+  private IssueCache issueCache;
 
-  TypeAwareVisitor underTest;
+  private TypeAwareVisitor underTest;
 
   @Before
   public void setUp() throws Exception {
@@ -134,7 +137,7 @@ public class IntegrateIssuesVisitorTest {
     defaultIssueCaptor = ArgumentCaptor.forClass(DefaultIssue.class);
     when(movedFilesRepository.getOriginalFile(any(Component.class))).thenReturn(Optional.absent());
 
-    TrackerRawInputFactory rawInputFactory = new TrackerRawInputFactory(treeRootHolder, reportReader, sourceLinesHash, new CommonRuleEngineImpl(), issueFilter, ruleRepository);
+    TrackerRawInputFactory rawInputFactory = new TrackerRawInputFactory(treeRootHolder, reportReader, sourceLinesHash, new CommonRuleEngineImpl(), issueFilter, ruleRepository, activeRulesHolder);
     TrackerBaseInputFactory baseInputFactory = new TrackerBaseInputFactory(issuesLoader, dbTester.getDbClient(), movedFilesRepository);
     TrackerMergeBranchInputFactory mergeInputFactory = new TrackerMergeBranchInputFactory(issuesLoader, mergeBranchComponentsUuids, dbTester.getDbClient());
     tracker = new TrackerExecution(baseInputFactory, rawInputFactory, new Tracker<>());

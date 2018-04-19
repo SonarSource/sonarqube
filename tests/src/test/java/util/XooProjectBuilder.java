@@ -67,6 +67,10 @@ public class XooProjectBuilder {
       for (int i = 0; i < filesPerModule; i++) {
         File sourceFile = new File(sourceDir, "File" + i + ".xoo");
         FileUtils.write(sourceFile, "content of " + sourceFile.getName());
+
+        File measuresFile = new File(sourceFile + ".measures");
+        FileUtils.write(measuresFile, "ncloc:10\n" +
+          "comment_lines:3\n");
       }
       Properties props = new Properties();
       props.setProperty("sonar.projectKey", key);

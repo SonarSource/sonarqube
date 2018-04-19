@@ -90,8 +90,8 @@ public class IssueCreationDateCalculator extends IssueVisitor {
     if (rule.isExternal()) {
       getScmChangeDate(component, issue).ifPresent(changeDate -> updateDate(issue, changeDate));
     } else {
-      ActiveRule activeRule = toJavaUtilOptional(activeRulesHolder.get(issue.getRuleKey()))
-        .orElseThrow(illegalStateException("The rule %s raised an issue, but is not one of the active rules.", issue.getRuleKey()));
+      // Rule can't be inactive (see contract of IssueVisitor)
+      ActiveRule activeRule = activeRulesHolder.get(issue.getRuleKey()).get();
       if (firstAnalysis || activeRuleIsNew(activeRule, lastAnalysisOptional.get())
         || ruleImplementationChanged(activeRule.getRuleKey(), activeRule.getPluginKey(), lastAnalysisOptional.get())) {
         getScmChangeDate(component, issue).ifPresent(changeDate -> updateDate(issue, changeDate));
@@ -180,10 +180,6 @@ public class IssueCreationDateCalculator extends IssueVisitor {
     LOGGER.debug("Issue {} seems to be raised in consequence of a modification of the quality profile. Backdating the issue to {}.", issue,
       DateTimeFormatter.ISO_INSTANT.format(scmDate.toInstant()));
     issueUpdater.setCreationDate(issue, scmDate, changeContext);
-  }
-
-  private static <T> Optional<T> toJavaUtilOptional(com.google.common.base.Optional<T> scmInfo) {
-    return scmInfo.transform(Optional::of).or(Optional::empty);
   }
 
   private static Supplier<? extends IllegalStateException> illegalStateException(String str, Object... args) {

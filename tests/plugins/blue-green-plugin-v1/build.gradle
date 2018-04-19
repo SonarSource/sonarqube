@@ -1,0 +1,26 @@
+sonarqube {
+  skipProject = true
+}
+
+dependencies {
+  compileOnly 'com.google.code.findbugs:jsr305'
+  compileOnly project(path: ':sonar-plugin-api', configuration: 'shadow')
+}
+
+jar {
+  manifest {
+    attributes(
+      'Plugin-Key': 'bluegreen',
+      'Plugin-Version': '1.0',
+      'Plugin-Class': 'org.sonarqube.qa.bluegreen.BlueGreenPlugin',
+      'Plugin-ChildFirstClassLoader': 'false',
+      'Sonar-Version': version,
+      'SonarLint-Supported': 'false',
+      'Plugin-Name': 'BlueGreen',
+      'Plugin-License': 'GNU LGPL 3'
+    )
+  }
+  into('META-INF/lib') {
+    from configurations.compile
+  }
+}
