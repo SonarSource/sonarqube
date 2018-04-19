@@ -51,7 +51,7 @@ public class DefaultExternalIssueTest {
         .at(inputFile.selectLine(1))
         .message("Wrong way!"))
       .forRule(RuleKey.of("repo", "rule"))
-      .remediationEffort(10l)
+      .remediationEffortMinutes(10l)
       .type(RuleType.BUG)
       .severity(Severity.BLOCKER);
 
@@ -77,7 +77,7 @@ public class DefaultExternalIssueTest {
         .at(inputFile.selectLine(1))
         .message("Wrong way!"))
       .forRule(RuleKey.of("repo", "rule"))
-      .remediationEffort(10l)
+      .remediationEffortMinutes(10l)
       .severity(Severity.BLOCKER);
 
     exception.expect(IllegalStateException.class);
@@ -93,7 +93,7 @@ public class DefaultExternalIssueTest {
         .on(mock(InputComponent.class))
         .message("Wrong way!"))
       .forRule(RuleKey.of("repo", "rule"))
-      .remediationEffort(10l)
+      .remediationEffortMinutes(10l)
       .severity(Severity.BLOCKER);
 
     exception.expect(IllegalStateException.class);
@@ -110,7 +110,7 @@ public class DefaultExternalIssueTest {
         .at(inputFile.selectLine(1))
         .message("Wrong way!"))
       .forRule(RuleKey.of("repo", "rule"))
-      .remediationEffort(10l)
+      .remediationEffortMinutes(10l)
       .type(RuleType.BUG);
 
     exception.expect(IllegalStateException.class);

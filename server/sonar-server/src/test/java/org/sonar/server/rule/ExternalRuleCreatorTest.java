@@ -30,7 +30,6 @@ import org.sonar.server.es.EsTester;
 import org.sonar.server.rule.index.RuleIndexer;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.api.rules.RuleType.BUG;
 
 public class ExternalRuleCreatorTest {
 
@@ -49,7 +48,6 @@ public class ExternalRuleCreatorTest {
     NewExternalRule externalRule = new NewExternalRule.Builder()
       .setKey(ruleKey)
       .setPluginKey("eslint")
-      .setType(BUG)
       .setName("name")
       .build();
 

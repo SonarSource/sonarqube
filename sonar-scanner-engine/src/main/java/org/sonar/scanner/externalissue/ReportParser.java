@@ -108,6 +108,8 @@ public class ReportParser {
     String ruleId;
     String severity;
     String type;
+    @Nullable
+    Integer effortMinutes;
     Location primaryLocation;
     @Nullable
     Location[] secondaryLocations;

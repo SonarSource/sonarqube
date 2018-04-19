@@ -45,7 +45,7 @@ public class DefaultExternalIssue extends AbstractDefaultIssue<DefaultExternalIs
   }
 
   @Override
-  public DefaultExternalIssue remediationEffort(@Nullable Long effort) {
+  public DefaultExternalIssue remediationEffortMinutes(@Nullable Long effort) {
     Preconditions.checkArgument(effort == null || effort >= 0, format("effort must be greater than or equal 0 (got %s)", effort));
     this.effort = effort;
     return this;

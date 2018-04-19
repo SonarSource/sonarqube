@@ -39,8 +39,6 @@ import org.sonar.server.rule.index.RuleIndexDefinition;
 import org.sonar.server.rule.index.RuleIndexer;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.api.rule.Severity.BLOCKER;
-import static org.sonar.api.rules.RuleType.BUG;
 
 public class PersistExternalRulesStepTest extends BaseStepTest {
 
@@ -57,7 +55,7 @@ public class PersistExternalRulesStepTest extends BaseStepTest {
   private RuleRepositoryImpl ruleRepository;
 
   @org.junit.Rule
-  public EsTester es =  EsTester.create();
+  public EsTester es = EsTester.create();
 
   private RuleIndexer indexer = new RuleIndexer(es.client(), dbClient);
   private ExternalRuleCreator externalRuleCreator = new ExternalRuleCreator(dbClient, System2.INSTANCE, indexer);
@@ -80,9 +78,7 @@ public class PersistExternalRulesStepTest extends BaseStepTest {
     ruleRepository.insertNewExternalRuleIfAbsent(ruleKey, () -> new NewExternalRule.Builder()
       .setKey(ruleKey)
       .setPluginKey("eslint")
-      .setSeverity(BLOCKER)
       .setName("eslint:no-cond-assign")
-      .setType(BUG)
       .build());
 
     underTest.execute();
@@ -95,8 +91,8 @@ public class PersistExternalRulesStepTest extends BaseStepTest {
     assertThat(reloaded.getRuleKey()).isEqualTo("no-cond-assign");
     assertThat(reloaded.getRepositoryKey()).isEqualTo("eslint");
     assertThat(reloaded.isExternal()).isTrue();
-    assertThat(reloaded.getType()).isEqualTo(2);
-    assertThat(reloaded.getSeverity()).isEqualTo(4);
+    assertThat(reloaded.getType()).isEqualTo(0);
+    assertThat(reloaded.getSeverity()).isNull();
     assertThat(reloaded.getName()).isEqualTo("eslint:no-cond-assign");
     assertThat(reloaded.getPluginKey()).isEqualTo("eslint");
 
@@ -111,8 +107,6 @@ public class PersistExternalRulesStepTest extends BaseStepTest {
     ruleRepository.insertNewExternalRuleIfAbsent(ruleKey, () -> new NewExternalRule.Builder()
       .setKey(ruleKey)
       .setPluginKey("eslint")
-      .setSeverity(BLOCKER)
-      .setType(BUG)
       .build());
 
     underTest.execute();

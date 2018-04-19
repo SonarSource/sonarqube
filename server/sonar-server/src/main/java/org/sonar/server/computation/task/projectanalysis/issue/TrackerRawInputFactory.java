@@ -214,13 +214,9 @@ public class TrackerRawInputFactory {
 
     private NewExternalRule toExternalRule(ScannerReport.ExternalIssue reportIssue) {
       NewExternalRule.Builder builder = new NewExternalRule.Builder()
-        .setType(toRuleType(reportIssue.getType()))
         .setName(RuleKey.of(reportIssue.getRuleRepository(), reportIssue.getRuleKey()).toString())
         .setKey(RuleKey.of(RuleKey.EXTERNAL_RULE_REPO_PREFIX + reportIssue.getRuleRepository(), reportIssue.getRuleKey()));
 
-      if (reportIssue.getSeverity() != Severity.UNSET_SEVERITY) {
-        builder.setSeverity(reportIssue.getSeverity().name());
-      }
       return builder.build();
     }
 

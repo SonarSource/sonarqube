@@ -31,12 +31,10 @@ import org.sonar.api.server.debt.DebtRemediationFunction;
 public class NewExternalRule implements Rule {
   private final RuleKey key;
   private final String name;
-  private final RuleType type;
   private final String pluginKey;
 
   private NewExternalRule(Builder builder) {
     this.key = checkNotNull(builder.key, "key");
-    this.type = checkNotNull(builder.type, "type");
     this.pluginKey = builder.pluginKey;
     this.name = builder.name;
   }
@@ -70,7 +68,7 @@ public class NewExternalRule implements Rule {
 
   @Override
   public RuleType getType() {
-    return type;
+    return null;
   }
 
   @Override
@@ -95,8 +93,6 @@ public class NewExternalRule implements Rule {
 
   public static class Builder {
     private RuleKey key;
-    private String severity;
-    private RuleType type;
     private String pluginKey;
     private String name;
 
@@ -108,19 +104,6 @@ public class NewExternalRule implements Rule {
     public Builder setName(String name) {
       this.name = name;
       return this;
-    }
-
-    public Builder setType(RuleType type) {
-      this.type = type;
-      return this;
-    }
-
-    public String severity() {
-      return severity;
-    }
-
-    public RuleType type() {
-      return type;
     }
 
     public String name() {

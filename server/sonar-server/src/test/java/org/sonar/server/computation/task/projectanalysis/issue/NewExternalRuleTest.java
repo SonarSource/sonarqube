@@ -22,7 +22,6 @@ package org.sonar.server.computation.task.projectanalysis.issue;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.rules.RuleType;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -35,31 +34,14 @@ public class NewExternalRuleTest {
     NewExternalRule.Builder builder = new NewExternalRule.Builder()
       .setKey(RuleKey.of("repo", "rule"))
       .setPluginKey("repo")
-      .setName("name")
-      .setSeverity("MAJOR")
-      .setType(RuleType.BUG);
+      .setName("name");
 
-    assertThat(builder.severity()).isEqualTo("MAJOR");
-    assertThat(builder.type()).isEqualTo(RuleType.BUG);
     assertThat(builder.name()).isEqualTo("name");
 
     NewExternalRule rule = builder.build();
 
     assertThat(rule.getName()).isEqualTo("name");
     assertThat(rule.getPluginKey()).isEqualTo("repo");
-    assertThat(rule.getSeverity()).isEqualTo("MAJOR");
-    assertThat(rule.getType()).isEqualTo(RuleType.BUG);
-  }
-
-  @Test
-  public void fail_if_type_is_not_set() {
-    exception.expect(IllegalStateException.class);
-    exception.expectMessage("'type' not expected to be null for an external rule");
-
-    new NewExternalRule.Builder()
-      .setKey(RuleKey.of("repo", "rule"))
-      .setSeverity("MAJOR")
-      .build();
   }
 
   @Test
@@ -68,8 +50,6 @@ public class NewExternalRuleTest {
     exception.expectMessage("'key' not expected to be null for an external rule");
 
     new NewExternalRule.Builder()
-      .setSeverity("MAJOR")
-      .setType(RuleType.BUG)
       .build();
   }
 }

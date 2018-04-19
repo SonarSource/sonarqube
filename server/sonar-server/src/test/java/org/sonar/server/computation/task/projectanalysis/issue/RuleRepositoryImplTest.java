@@ -50,8 +50,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static org.mockito.internal.verification.VerificationModeFactory.times;
-import static org.sonar.api.rule.Severity.BLOCKER;
-import static org.sonar.api.rules.RuleType.BUG;
 
 public class RuleRepositoryImplTest {
 
@@ -274,13 +272,11 @@ public class RuleRepositoryImplTest {
     underTest.insertNewExternalRuleIfAbsent(ruleKey, () -> new NewExternalRule.Builder()
       .setKey(ruleKey)
       .setPluginKey("eslint")
-      .setSeverity(BLOCKER)
-      .setType(BUG)
       .build());
 
     assertThat(underTest.getByKey(ruleKey)).isNotNull();
     assertThat(underTest.getByKey(ruleKey).getPluginKey()).isEqualTo("eslint");
-    assertThat(underTest.getByKey(ruleKey).getType()).isEqualTo(BUG);
+    assertThat(underTest.getByKey(ruleKey).getType()).isNull();
 
     RuleDao ruleDao = dbClient.ruleDao();
     Optional<RuleDefinitionDto> ruleDefinitionDto = ruleDao.selectDefinitionByKey(dbClient.openSession(false), ruleKey);
@@ -295,8 +291,6 @@ public class RuleRepositoryImplTest {
     underTest.insertNewExternalRuleIfAbsent(ruleKey, () -> new NewExternalRule.Builder()
       .setKey(ruleKey)
       .setPluginKey("eslint")
-      .setSeverity(BLOCKER)
-      .setType(BUG)
       .build());
 
     underTest.persistNewExternalRules(db.getSession());

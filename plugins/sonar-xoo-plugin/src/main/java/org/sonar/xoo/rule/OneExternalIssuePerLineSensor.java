@@ -75,7 +75,7 @@ public class OneExternalIssuePerLineSensor implements Sensor {
           .at(file.selectLine(line))
           .message("This issue is generated on each line"))
         .severity(Severity.valueOf(SEVERITY))
-        .remediationEffort(EFFORT)
+        .remediationEffortMinutes(EFFORT)
         .type(type)
         .save();
     }

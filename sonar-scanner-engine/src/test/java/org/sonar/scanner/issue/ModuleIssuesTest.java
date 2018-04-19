@@ -33,6 +33,7 @@ import org.sonar.api.batch.sensor.issue.internal.DefaultIssue;
 import org.sonar.api.batch.sensor.issue.internal.DefaultIssueLocation;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
+import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.MessageException;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.report.ReportPublisher;
@@ -154,6 +155,7 @@ public class ModuleIssuesTest {
 
     DefaultExternalIssue issue = new DefaultExternalIssue()
       .at(new DefaultIssueLocation().on(file).at(file.selectLine(3)).message("Foo"))
+      .type(RuleType.BUG)
       .forRule(SQUID_RULE_KEY)
       .severity(org.sonar.api.batch.rule.Severity.CRITICAL);
 

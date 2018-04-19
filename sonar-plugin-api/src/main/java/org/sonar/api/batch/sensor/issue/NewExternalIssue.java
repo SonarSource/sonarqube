@@ -45,7 +45,7 @@ public interface NewExternalIssue {
   /**
    * Effort to fix the issue, in minutes.
    */
-  NewExternalIssue remediationEffort(@Nullable Long effort);
+  NewExternalIssue remediationEffortMinutes(@Nullable Long effortInMinutes);
 
   /**
    * Set the severity of the issue.
