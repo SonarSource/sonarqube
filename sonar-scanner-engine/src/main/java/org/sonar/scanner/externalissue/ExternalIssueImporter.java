@@ -55,28 +55,8 @@ public class ExternalIssueImporter {
     int issueCount = 0;
 
     for (Issue issue : report.issues) {
-      NewExternalIssue externalIssue = context.newExternalIssue()
-        .forRule(RuleKey.of(issue.engineId, issue.ruleId))
-        .severity(Severity.valueOf(issue.severity))
-        .remediationEffortMinutes(20L)
-        .type(RuleType.valueOf(issue.type));
-
-      NewIssueLocation primary = fillLocation(context, externalIssue.newLocation(), issue.primaryLocation);
-      if (primary != null) {
-        knownFiles.add(issue.primaryLocation.filePath);
-        externalIssue.at(primary);
-        if (issue.secondaryLocations != null) {
-          for (Location l : issue.secondaryLocations) {
-            NewIssueLocation secondary = fillLocation(context, externalIssue.newLocation(), l);
-            if (secondary != null) {
-              externalIssue.addLocation(secondary);
-            }
-          }
-        }
+      if (importIssue(issue)) {
         issueCount++;
-        externalIssue.save();
-      } else {
-        unknownFiles.add(issue.primaryLocation.filePath);
       }
     }
 
@@ -85,6 +65,33 @@ public class ExternalIssueImporter {
     if (numberOfUnknownFiles > 0) {
       LOG.info("External issues ignored for " + numberOfUnknownFiles + " unknown files, including: "
         + unknownFiles.stream().limit(MAX_UNKNOWN_FILE_PATHS_TO_PRINT).collect(Collectors.joining(", ")));
+    }
+  }
+
+  private boolean importIssue(Issue issue) {
+    NewExternalIssue externalIssue = context.newExternalIssue()
+      .forRule(RuleKey.of(issue.engineId, issue.ruleId))
+      .severity(Severity.valueOf(issue.severity))
+      .remediationEffortMinutes(20L)
+      .type(RuleType.valueOf(issue.type));
+
+    NewIssueLocation primary = fillLocation(context, externalIssue.newLocation(), issue.primaryLocation);
+    if (primary != null) {
+      knownFiles.add(issue.primaryLocation.filePath);
+      externalIssue.at(primary);
+      if (issue.secondaryLocations != null) {
+        for (Location l : issue.secondaryLocations) {
+          NewIssueLocation secondary = fillLocation(context, externalIssue.newLocation(), l);
+          if (secondary != null) {
+            externalIssue.addLocation(secondary);
+          }
+        }
+      }
+      externalIssue.save();
+      return true;
+    } else {
+      unknownFiles.add(issue.primaryLocation.filePath);
+      return false;
     }
   }
 
@@ -118,7 +125,7 @@ public class ExternalIssueImporter {
   }
 
   @CheckForNull
-  private InputFile findFile(SensorContext context, String filePath) {
+  private static InputFile findFile(SensorContext context, String filePath) {
     return context.fileSystem().inputFile(context.fileSystem().predicates().hasPath(filePath));
   }
 

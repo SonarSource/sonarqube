@@ -72,6 +72,7 @@ public class DefaultExternalIssue extends AbstractDefaultIssue<DefaultExternalIs
     requireNonNull(this.ruleKey, "Rule key is mandatory on external issue");
     checkState(primaryLocation != null, "Primary location is mandatory on every external issue");
     checkState(primaryLocation.inputComponent().isFile(), "External issues must be located in files");
+    checkState(primaryLocation.message() != null, "External issues must have a message");
     checkState(severity != null, "Severity is mandatory on every external issue");
     checkState(type != null, "Type is mandatory on every external issue");
     storage.store(this);

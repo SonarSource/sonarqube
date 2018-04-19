@@ -100,6 +100,23 @@ public class DefaultExternalIssueTest {
     exception.expectMessage("External issues must be located in files");
     issue.save();
   }
+  
+  @Test
+  public void fail_to_store_if_primary_location_has_no_message() {
+    SensorStorage storage = mock(SensorStorage.class);
+    DefaultExternalIssue issue = new DefaultExternalIssue(storage)
+      .at(new DefaultIssueLocation()
+        .on(inputFile)
+        .at(inputFile.selectLine(1)))
+      .forRule(RuleKey.of("repo", "rule"))
+      .remediationEffortMinutes(10l)
+      .type(RuleType.BUG)
+      .severity(Severity.BLOCKER);
+
+    exception.expect(IllegalStateException.class);
+    exception.expectMessage("External issues must have a message");
+    issue.save();
+  }
 
   @Test
   public void fail_to_store_if_no_severity() {
