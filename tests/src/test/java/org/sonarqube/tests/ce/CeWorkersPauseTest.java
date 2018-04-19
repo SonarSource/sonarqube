@@ -63,8 +63,7 @@ public class CeWorkersPauseTest {
   public void pause_and_resume_workers() throws IOException {
     tester.wsClient().ce().pause();
     // no in-progress tasks --> already paused
-    assertThat(tester.wsClient().ce().info().getWorkersPaused()).isTrue();
-    assertThat(tester.wsClient().ce().info().getWorkersPauseRequested()).isFalse();
+    assertThat(tester.wsClient().ce().info().getWorkersPauseStatus()).isEqualTo(Ce.WorkersPauseStatus.PAUSED);
 
     // run analysis
     File projectDir = temp.newFolder();
@@ -79,8 +78,7 @@ public class CeWorkersPauseTest {
 
     // workers are resumed
     tester.wsClient().ce().resume();
-    assertThat(tester.wsClient().ce().info().getWorkersPaused()).isFalse();
-    assertThat(tester.wsClient().ce().info().getWorkersPauseRequested()).isFalse();
+    assertThat(tester.wsClient().ce().info().getWorkersPauseStatus()).isEqualTo(Ce.WorkersPauseStatus.RESUMED);
 
     while (!isQueueEmpty()) {
       Uninterruptibles.sleepUninterruptibly(100, TimeUnit.MILLISECONDS);

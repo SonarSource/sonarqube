@@ -59,8 +59,13 @@ message ComponentResponse {
 
 // GET api/ce/info
 message InfoWsResponse {
-  optional bool workersPaused = 1;
-  optional bool workersPauseRequested = 2;
+  optional WorkersPauseStatus workersPauseStatus = 1;
+}
+
+enum WorkersPauseStatus {
+  RESUMED = 0;
+  PAUSING = 1;
+  PAUSED = 2;
 }
 
 // GET api/ce/task_types

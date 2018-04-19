@@ -388,10 +388,10 @@ public class CeQueueImplTest {
     submit(CeTaskTypes.REPORT, "PROJECT_1");
     // task is pending
 
-    assertThat(underTest.getWorkersPause()).isEmpty();
+    assertThat(underTest.getWorkersPauseStatus()).isEqualTo(CeQueue.WorkersPauseStatus.RESUMED);
 
     underTest.pauseWorkers();
-    assertThat(underTest.getWorkersPause()).hasValue(CeQueue.WorkersPause.PAUSED);
+    assertThat(underTest.getWorkersPauseStatus()).isEqualTo(CeQueue.WorkersPauseStatus.PAUSED);
   }
 
   @Test
@@ -400,19 +400,19 @@ public class CeQueueImplTest {
     db.getDbClient().ceQueueDao().peek(session, WORKER_UUID, MAX_EXECUTION_COUNT);
     // task is in-progress
 
-    assertThat(underTest.getWorkersPause()).isEmpty();
+    assertThat(underTest.getWorkersPauseStatus()).isEqualTo(CeQueue.WorkersPauseStatus.RESUMED);
 
     underTest.pauseWorkers();
-    assertThat(underTest.getWorkersPause()).hasValue(CeQueue.WorkersPause.PAUSING);
+    assertThat(underTest.getWorkersPauseStatus()).isEqualTo(CeQueue.WorkersPauseStatus.PAUSING);
   }
 
   @Test
   public void resumeWorkers_does_nothing_if_not_paused() {
-    assertThat(underTest.getWorkersPause()).isEmpty();
+    assertThat(underTest.getWorkersPauseStatus()).isEqualTo(CeQueue.WorkersPauseStatus.RESUMED);
 
     underTest.resumeWorkers();
 
-    assertThat(underTest.getWorkersPause()).isEmpty();
+    assertThat(underTest.getWorkersPauseStatus()).isEqualTo(CeQueue.WorkersPauseStatus.RESUMED);
   }
 
   @Test
@@ -422,19 +422,19 @@ public class CeQueueImplTest {
     // task is in-progress
 
     underTest.pauseWorkers();
-    assertThat(underTest.getWorkersPause()).hasValue(CeQueue.WorkersPause.PAUSING);
+    assertThat(underTest.getWorkersPauseStatus()).isEqualTo(CeQueue.WorkersPauseStatus.PAUSING);
 
     underTest.resumeWorkers();
-    assertThat(underTest.getWorkersPause()).isEmpty();
+    assertThat(underTest.getWorkersPauseStatus()).isEqualTo(CeQueue.WorkersPauseStatus.RESUMED);
   }
 
   @Test
   public void resumeWorkers_resumes_paused_workers() {
     underTest.pauseWorkers();
-    assertThat(underTest.getWorkersPause()).hasValue(CeQueue.WorkersPause.PAUSED);
+    assertThat(underTest.getWorkersPauseStatus()).isEqualTo(CeQueue.WorkersPauseStatus.PAUSED);
 
     underTest.resumeWorkers();
-    assertThat(underTest.getWorkersPause()).isEmpty();
+    assertThat(underTest.getWorkersPauseStatus()).isEqualTo(CeQueue.WorkersPauseStatus.RESUMED);
   }
 
   private void verifyCeTask(CeTaskSubmit taskSubmit, CeTask task, @Nullable ComponentDto componentDto) {

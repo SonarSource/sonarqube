@@ -36,7 +36,7 @@ public interface InternalCeQueue extends CeQueue {
   /**
    * Peek the oldest task in status {@link org.sonar.db.ce.CeQueueDto.Status#PENDING}.
    * The task status is changed to {@link org.sonar.db.ce.CeQueueDto.Status#IN_PROGRESS}.
-   * Does not return anything if workers are paused or being paused (see {@link #getWorkersPause()}.
+   * Does not return anything if workers are paused or being paused (see {@link #getWorkersPauseStatus()}.
    *
    * <p>Only a single task can be peeked by project.</p>
    *

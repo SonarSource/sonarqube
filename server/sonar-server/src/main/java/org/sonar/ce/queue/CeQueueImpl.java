@@ -231,17 +231,17 @@ public class CeQueueImpl implements CeQueue {
   }
 
   @Override
-  public java.util.Optional<WorkersPause> getWorkersPause() {
+  public WorkersPauseStatus getWorkersPauseStatus() {
     try (DbSession dbSession = dbClient.openSession(false)) {
       java.util.Optional<String> propValue = dbClient.internalPropertiesDao().selectByKey(dbSession, InternalProperties.COMPUTE_ENGINE_PAUSE);
       if (!propValue.isPresent() || !propValue.get().equals("true")) {
-        return java.util.Optional.empty();
+        return WorkersPauseStatus.RESUMED;
       }
       int countInProgress = dbClient.ceQueueDao().countByStatus(dbSession, CeQueueDto.Status.IN_PROGRESS);
       if (countInProgress > 0) {
-        return java.util.Optional.of(WorkersPause.PAUSING);
+        return WorkersPauseStatus.PAUSING;
       }
-      return java.util.Optional.of(WorkersPause.PAUSED);
+      return WorkersPauseStatus.PAUSED;
     }
   }
 

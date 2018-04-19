@@ -1,4 +1,3 @@
 {
-  "workersPaused": false,
-  "workersPauseRequested": true
+  "workersPauseStatus": "PAUSING"
 }

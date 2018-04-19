@@ -99,13 +99,13 @@ public interface CeQueue {
    */
   void resumeWorkers();
 
-  Optional<WorkersPause> getWorkersPause();
+  WorkersPauseStatus getWorkersPauseStatus();
 
   enum SubmitOption {
     UNIQUE_QUEUE_PER_COMPONENT
   }
 
-  enum WorkersPause {
+  enum WorkersPauseStatus {
     /**
      * Pause triggered but at least one task is still in-progress
      */
@@ -114,7 +114,12 @@ public interface CeQueue {
     /**
      * Paused, no tasks are in-progress. Tasks are pending.
      */
-    PAUSED
+    PAUSED,
+
+    /**
+     * Not paused nor pausing
+     */
+    RESUMED
   }
 
 }

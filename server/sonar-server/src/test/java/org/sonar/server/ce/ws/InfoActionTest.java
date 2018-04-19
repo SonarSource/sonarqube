@@ -19,7 +19,6 @@
  */
 package org.sonar.server.ce.ws;
 
-import java.util.Optional;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -60,7 +59,7 @@ public class InfoActionTest {
   @Test
   public void test_example_of_response() {
     userSession.logIn().setSystemAdministrator();
-    when(ceQueue.getWorkersPause()).thenReturn(Optional.of(CeQueue.WorkersPause.PAUSING));
+    when(ceQueue.getWorkersPauseStatus()).thenReturn(CeQueue.WorkersPauseStatus.PAUSING);
 
     ws.newRequest().execute().assertJson(ws.getDef().responseExampleAsString());
   }
@@ -68,31 +67,28 @@ public class InfoActionTest {
   @Test
   public void test_workers_in_pausing_state() {
     userSession.logIn().setSystemAdministrator();
-    when(ceQueue.getWorkersPause()).thenReturn(Optional.of(CeQueue.WorkersPause.PAUSING));
+    when(ceQueue.getWorkersPauseStatus()).thenReturn(CeQueue.WorkersPauseStatus.PAUSING);
 
     Ce.InfoWsResponse response = ws.newRequest().executeProtobuf(Ce.InfoWsResponse.class);
-    assertThat(response.getWorkersPaused()).isFalse();
-    assertThat(response.getWorkersPauseRequested()).isTrue();
+    assertThat(response.getWorkersPauseStatus()).isEqualTo(Ce.WorkersPauseStatus.PAUSING);
   }
 
   @Test
   public void test_workers_in_paused_state() {
     userSession.logIn().setSystemAdministrator();
-    when(ceQueue.getWorkersPause()).thenReturn(Optional.of(CeQueue.WorkersPause.PAUSED));
+    when(ceQueue.getWorkersPauseStatus()).thenReturn(CeQueue.WorkersPauseStatus.PAUSED);
 
     Ce.InfoWsResponse response = ws.newRequest().executeProtobuf(Ce.InfoWsResponse.class);
-    assertThat(response.getWorkersPaused()).isTrue();
-    assertThat(response.getWorkersPauseRequested()).isFalse();
+    assertThat(response.getWorkersPauseStatus()).isEqualTo(Ce.WorkersPauseStatus.PAUSED);
   }
 
   @Test
   public void test_workers_in_resumed_state() {
     userSession.logIn().setSystemAdministrator();
-    when(ceQueue.getWorkersPause()).thenReturn(Optional.empty());
+    when(ceQueue.getWorkersPauseStatus()).thenReturn(CeQueue.WorkersPauseStatus.RESUMED);
 
     Ce.InfoWsResponse response = ws.newRequest().executeProtobuf(Ce.InfoWsResponse.class);
-    assertThat(response.getWorkersPaused()).isFalse();
-    assertThat(response.getWorkersPauseRequested()).isFalse();
+    assertThat(response.getWorkersPauseStatus()).isEqualTo(Ce.WorkersPauseStatus.RESUMED);
   }
 
   @Test
@@ -120,10 +116,9 @@ public class InfoActionTest {
   public void authenticate_with_passcode() {
     userSession.anonymous();
     when(passcode.isValid(any())).thenReturn(true);
-    when(ceQueue.getWorkersPause()).thenReturn(Optional.empty());
+    when(ceQueue.getWorkersPauseStatus()).thenReturn(CeQueue.WorkersPauseStatus.RESUMED);
 
     Ce.InfoWsResponse response = ws.newRequest().executeProtobuf(Ce.InfoWsResponse.class);
-    assertThat(response.getWorkersPaused()).isFalse();
-    assertThat(response.getWorkersPauseRequested()).isFalse();
+    assertThat(response.getWorkersPauseStatus()).isEqualTo(Ce.WorkersPauseStatus.RESUMED);
   }
 }

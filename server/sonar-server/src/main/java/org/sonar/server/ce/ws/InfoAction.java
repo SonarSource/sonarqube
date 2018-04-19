@@ -19,7 +19,6 @@
  */
 package org.sonar.server.ce.ws;
 
-import java.util.Optional;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -60,17 +59,21 @@ public class InfoAction implements CeWsAction {
     }
 
     Ce.InfoWsResponse.Builder builder = Ce.InfoWsResponse.newBuilder();
-    Optional<CeQueue.WorkersPause> pause = ceQueue.getWorkersPause();
-    builder.setWorkersPaused(isPaused(pause));
-    builder.setWorkersPauseRequested(isPauseRequested(pause));
+    CeQueue.WorkersPauseStatus status = ceQueue.getWorkersPauseStatus();
+    builder.setWorkersPauseStatus(convert(status));
     WsUtils.writeProtobuf(builder.build(), request, response);
   }
 
-  private static boolean isPaused(Optional<CeQueue.WorkersPause> pause) {
-    return pause.isPresent() && pause.get() == CeQueue.WorkersPause.PAUSED;
-  }
-
-  private static boolean isPauseRequested(Optional<CeQueue.WorkersPause> pause) {
-    return pause.isPresent() && pause.get() == CeQueue.WorkersPause.PAUSING;
+  private Ce.WorkersPauseStatus convert(CeQueue.WorkersPauseStatus status) {
+    switch (status) {
+      case PAUSING:
+        return Ce.WorkersPauseStatus.PAUSING;
+      case PAUSED:
+        return Ce.WorkersPauseStatus.PAUSED;
+      case RESUMED:
+        return Ce.WorkersPauseStatus.RESUMED;
+      default:
+        throw new IllegalStateException("Unsupported WorkersPauseStatus: " + status);
+    }
   }
 }
