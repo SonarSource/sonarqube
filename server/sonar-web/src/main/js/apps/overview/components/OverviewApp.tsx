@@ -174,13 +174,17 @@ export class OverviewApp extends React.PureComponent<Props, State> {
   }
 
   renderEmpty() {
+    const { component } = this.props;
+    const isProject = component.qualifier === 'TRK';
     return (
       <div className="overview-main page-main">
         <h3>
           {!this.state.measures ||
           !this.state.measures.find(measure => measure.metric.key === 'projects')
-            ? translate('portfolio.app.empty')
-            : translate('portfolio.app.no_lines_of_code')}
+            ? translate(isProject ? 'overview.project.empty' : 'portfolio.app.empty')
+            : translate(
+                isProject ? 'overview.project.no_lines_of_code' : 'portfolio.app.no_lines_of_code'
+              )}
         </h3>
       </div>
     );
