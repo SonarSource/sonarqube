@@ -54,7 +54,7 @@ public class EsSettingsTest {
   private ListAppender listAppender;
 
   @After
-  public void tearDown() throws Exception {
+  public void tearDown() {
     if (listAppender != null) {
       ListAppender.detachMemoryAppenderToLoggerOf(EsSettings.class, listAppender);
     }
@@ -82,7 +82,7 @@ public class EsSettingsTest {
   }
 
   @Test
-  public void constructor_logs_warning_if_env_variable_ES_JVM_OPTIONS_is_set_and_non_empty() throws IOException {
+  public void constructor_logs_warning_if_env_variable_ES_JVM_OPTIONS_is_set_and_non_empty() {
     this.listAppender = ListAppender.attachMemoryAppenderToLoggerOf(EsSettings.class);
     Props props = minimalProps();
     System2 system2 = mock(System2.class);
@@ -293,6 +293,23 @@ public class EsSettingsTest {
     assertThat(settings.get("http.port")).isEqualTo("9010");
     assertThat(settings.get("http.host")).isEqualTo("127.0.0.2");
     assertThat(settings.get("http.enabled")).isEqualTo("true");
+  }
+
+  @Test
+  public void enable_seccomp_filter_by_default() throws Exception {
+    Props props = minProps(CLUSTER_DISABLED);
+    Map<String, String> settings = new EsSettings(props, new EsInstallation(props), System2.INSTANCE).build();
+
+    assertThat(settings.get("bootstrap.system_call_filter")).isNull();
+  }
+
+  @Test
+  public void disable_seccomp_filter_if_configured_in_search_additional_props() throws Exception {
+    Props props = minProps(CLUSTER_DISABLED);
+    props.set("sonar.search.javaAdditionalOpts", "-Xmx1G -Dbootstrap.system_call_filter=false -Dfoo=bar");
+    Map<String, String> settings = new EsSettings(props, new EsInstallation(props), System2.INSTANCE).build();
+
+    assertThat(settings.get("bootstrap.system_call_filter")).isEqualTo("false");
   }
 
   private Props minProps(boolean cluster) throws IOException {
