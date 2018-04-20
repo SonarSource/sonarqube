@@ -99,6 +99,7 @@ message Measure {
   optional string value = 2;
   optional PeriodsValue periods = 3;
   optional string component = 4;
+  optional bool bestValue = 5;
 }
 
 message PeriodsValue {
@@ -108,4 +109,5 @@ message PeriodsValue {
 message PeriodValue {
   optional int32 index = 1;
   optional string value = 2;
+  optional bool bestValue = 3;
 }

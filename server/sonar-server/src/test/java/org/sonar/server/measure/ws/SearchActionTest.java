@@ -44,6 +44,7 @@ import org.sonarqube.ws.Measures.Measure;
 import org.sonarqube.ws.Measures.SearchWsResponse;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Lists.transform;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
@@ -127,6 +128,29 @@ public class SearchActionTest {
   }
 
   @Test
+  public void return_best_value() {
+    ComponentDto project = db.components().insertPrivateProject(db.getDefaultOrganization());
+    userSession.addProjectPermission(UserRole.USER, project);
+    MetricDto matchBestValue = db.measures().insertMetric(m -> m.setValueType(FLOAT.name()).setBestValue(15.5d));
+    db.measures().insertLiveMeasure(project, matchBestValue, m -> m.setValue(15.5d));
+    MetricDto doesNotMatchBestValue = db.measures().insertMetric(m -> m.setValueType(INT.name()).setBestValue(50d));
+    db.measures().insertLiveMeasure(project, doesNotMatchBestValue, m -> m.setValue(40d));
+    MetricDto noBestValue = db.measures().insertMetric(m -> m.setValueType(INT.name()).setBestValue(null));
+    db.measures().insertLiveMeasure(project, noBestValue, m -> m.setValue(123d));
+
+    SearchWsResponse result = call(singletonList(project.getDbKey()),
+      asList(matchBestValue.getKey(), doesNotMatchBestValue.getKey(), noBestValue.getKey()));
+
+    List<Measure> measures = result.getMeasuresList();
+    assertThat(measures)
+      .extracting(Measure::getMetric, Measure::getValue, Measure::getBestValue, Measure::hasBestValue)
+      .containsExactlyInAnyOrder(
+        tuple(matchBestValue.getKey(), "15.5", true, true),
+        tuple(doesNotMatchBestValue.getKey(), "40", false, true),
+        tuple(noBestValue.getKey(), "123", false, false));
+  }
+
+  @Test
   public void return_measures_on_leak_period() {
     OrganizationDto organization = db.organizations().insert();
     ComponentDto project = db.components().insertPrivateProject(organization);
@@ -189,7 +213,6 @@ public class SearchActionTest {
     assertThat(measure.getValue()).isEqualTo("15.5");
   }
 
-
   @Test
   public void return_measures_on_application() {
     OrganizationDto organization = db.organizations().insert();
@@ -232,7 +255,7 @@ public class SearchActionTest {
     ComponentDto project2 = db.components().insertPrivateProject(db.getDefaultOrganization());
     db.measures().insertLiveMeasure(project1, metric, m -> m.setValue(15.5d));
     db.measures().insertLiveMeasure(project2, metric, m -> m.setValue(42.0d));
-    Arrays.stream(new ComponentDto[]{project1}).forEach(p -> userSession.addProjectPermission(UserRole.USER, p));
+    Arrays.stream(new ComponentDto[] {project1}).forEach(p -> userSession.addProjectPermission(UserRole.USER, p));
 
     SearchWsResponse result = call(asList(project1.getDbKey(), project2.getDbKey()), singletonList(metric.getKey()));
 

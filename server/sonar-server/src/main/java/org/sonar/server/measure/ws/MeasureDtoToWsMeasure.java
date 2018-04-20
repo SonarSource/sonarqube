@@ -20,12 +20,14 @@
 package org.sonar.server.measure.ws;
 
 import javax.annotation.Nullable;
+import org.sonar.core.util.Protobuf;
 import org.sonar.db.measure.LiveMeasureDto;
 import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonarqube.ws.Measures;
 import org.sonarqube.ws.Measures.Measure;
 
+import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.server.measure.ws.MeasureValueFormatter.formatMeasureValue;
 import static org.sonar.server.measure.ws.MeasureValueFormatter.formatNumericalValue;
 
@@ -49,18 +51,22 @@ class MeasureDtoToWsMeasure {
 
   static void updateMeasureBuilder(Measure.Builder measureBuilder, MetricDto metric, double doubleValue, @Nullable String stringValue, double variation) {
     measureBuilder.setMetric(metric.getKey());
+    Double bestValue = metric.getBestValue();
     // a measure value can be null, new_violations metric for example
     if (!Double.isNaN(doubleValue) || stringValue != null) {
       measureBuilder.setValue(formatMeasureValue(doubleValue, stringValue, metric));
+      setNullable(bestValue, v -> measureBuilder.setBestValue(doubleValue == v));
     }
 
     Measures.PeriodValue.Builder periodBuilder = Measures.PeriodValue.newBuilder();
     if (Double.isNaN(variation)) {
       return;
     }
-    measureBuilder.getPeriodsBuilder().addPeriodsValue(periodBuilder
+    Measures.PeriodValue.Builder builderForValue = periodBuilder
       .clear()
       .setIndex(1)
-      .setValue(formatNumericalValue(variation, metric)));
+      .setValue(formatNumericalValue(variation, metric));
+    setNullable(bestValue, v -> builderForValue.setBestValue(variation == v));
+    measureBuilder.getPeriodsBuilder().addPeriodsValue(builderForValue);
   }
 }

@@ -185,6 +185,7 @@ public class ComponentTreeAction implements MeasuresWsAction {
       .setHandler(this)
       .addPagingParams(100, MAX_SIZE)
       .setChangelog(
+        new Change("7.2", "field 'bestValue' is added to the response"),
         new Change("6.3", format("Number of metric keys is limited to %s", MAX_METRIC_KEYS)),
         new Change("6.6", "the response field id is deprecated. Use key instead."),
         new Change("6.6", "the response field refId is deprecated. Use refKey instead."));
@@ -382,7 +383,7 @@ public class ComponentTreeAction implements MeasuresWsAction {
   }
 
   private static Measures.Component.Builder toWsComponent(ComponentDto component, Map<MetricDto, ComponentTreeData.Measure> measures,
-                                                          Map<String, ComponentDto> referenceComponentsByUuid) {
+    Map<String, ComponentDto> referenceComponentsByUuid) {
     Measures.Component.Builder wsComponent = componentDtoToWsComponent(component);
     ComponentDto referenceComponent = referenceComponentsByUuid.get(component.getCopyResourceUuid());
     if (referenceComponent != null) {
@@ -406,16 +407,16 @@ public class ComponentTreeAction implements MeasuresWsAction {
       Optional<SnapshotDto> baseSnapshot = dbClient.snapshotDao().selectLastAnalysisByRootComponentUuid(dbSession, baseComponent.projectUuid());
       if (!baseSnapshot.isPresent()) {
         return ComponentTreeData.builder()
-                .setBaseComponent(baseComponent)
-                .build();
+          .setBaseComponent(baseComponent)
+          .build();
       }
 
       ComponentTreeQuery componentTreeQuery = toComponentTreeQuery(wsRequest, baseComponent);
       List<ComponentDto> components = searchComponents(dbSession, componentTreeQuery);
       List<MetricDto> metrics = searchMetrics(dbSession, wsRequest);
       Table<String, MetricDto, ComponentTreeData.Measure> measuresByComponentUuidAndMetric = searchMeasuresByComponentUuidAndMetric(dbSession, baseComponent, componentTreeQuery,
-              components,
-              metrics);
+        components,
+        metrics);
 
       components = filterComponents(components, measuresByComponentUuidAndMetric, metrics, wsRequest);
       components = sortComponents(components, wsRequest, metrics, measuresByComponentUuidAndMetric);
@@ -424,14 +425,14 @@ public class ComponentTreeAction implements MeasuresWsAction {
       components = paginateComponents(components, wsRequest);
 
       return ComponentTreeData.builder()
-              .setBaseComponent(baseComponent)
-              .setComponentsFromDb(components)
-              .setComponentCount(componentCount)
-              .setMeasuresByComponentUuidAndMetric(measuresByComponentUuidAndMetric)
-              .setMetrics(metrics)
-              .setPeriods(snapshotToWsPeriods(baseSnapshot.get()))
-              .setReferenceComponentsByUuid(searchReferenceComponentsById(dbSession, components))
-              .build();
+        .setBaseComponent(baseComponent)
+        .setComponentsFromDb(components)
+        .setComponentCount(componentCount)
+        .setMeasuresByComponentUuidAndMetric(measuresByComponentUuidAndMetric)
+        .setMetrics(metrics)
+        .setPeriods(snapshotToWsPeriods(baseSnapshot.get()))
+        .setReferenceComponentsByUuid(searchReferenceComponentsById(dbSession, components))
+        .build();
     }
   }
 
@@ -451,15 +452,15 @@ public class ComponentTreeAction implements MeasuresWsAction {
 
   private Map<String, ComponentDto> searchReferenceComponentsById(DbSession dbSession, List<ComponentDto> components) {
     List<String> referenceComponentUUids = components.stream()
-            .map(ComponentDto::getCopyResourceUuid)
-            .filter(Objects::nonNull)
-            .collect(MoreCollectors.toList(components.size()));
+      .map(ComponentDto::getCopyResourceUuid)
+      .filter(Objects::nonNull)
+      .collect(MoreCollectors.toList(components.size()));
     if (referenceComponentUUids.isEmpty()) {
       return emptyMap();
     }
 
     return FluentIterable.from(dbClient.componentDao().selectByUuids(dbSession, referenceComponentUUids))
-            .uniqueIndex(ComponentDto::uuid);
+      .uniqueIndex(ComponentDto::uuid);
   }
 
   private List<ComponentDto> searchComponents(DbSession dbSession, ComponentTreeQuery componentTreeQuery) {
@@ -476,16 +477,16 @@ public class ComponentTreeAction implements MeasuresWsAction {
     if (metrics.size() < metricKeys.size()) {
       List<String> foundMetricKeys = Lists.transform(metrics, MetricDto::getKey);
       Set<String> missingMetricKeys = Sets.difference(
-              new LinkedHashSet<>(metricKeys),
-              new LinkedHashSet<>(foundMetricKeys));
+        new LinkedHashSet<>(metricKeys),
+        new LinkedHashSet<>(foundMetricKeys));
 
       throw new NotFoundException(format("The following metric keys are not found: %s", COMMA_JOINER.join(missingMetricKeys)));
     }
     String forbiddenMetrics = metrics.stream()
-            .filter(metric -> ComponentTreeAction.FORBIDDEN_METRIC_TYPES.contains(metric.getValueType()))
-            .map(MetricDto::getKey)
-            .sorted()
-            .collect(MoreCollectors.join(COMMA_JOINER));
+      .filter(metric -> ComponentTreeAction.FORBIDDEN_METRIC_TYPES.contains(metric.getValueType()))
+      .map(MetricDto::getKey)
+      .sorted()
+      .collect(MoreCollectors.join(COMMA_JOINER));
     checkArgument(forbiddenMetrics.isEmpty(), "Metrics %s can't be requested in this web service. Please use api/measures/component", forbiddenMetrics);
     return metrics;
   }
@@ -495,19 +496,19 @@ public class ComponentTreeAction implements MeasuresWsAction {
 
     Map<Integer, MetricDto> metricsById = Maps.uniqueIndex(metrics, MetricDto::getId);
     MeasureTreeQuery measureQuery = MeasureTreeQuery.builder()
-            .setStrategy(MeasureTreeQuery.Strategy.valueOf(componentTreeQuery.getStrategy().name()))
-            .setNameOrKeyQuery(componentTreeQuery.getNameOrKeyQuery())
-            .setQualifiers(componentTreeQuery.getQualifiers())
-            .setMetricIds(new ArrayList<>(metricsById.keySet()))
-            .build();
+      .setStrategy(MeasureTreeQuery.Strategy.valueOf(componentTreeQuery.getStrategy().name()))
+      .setNameOrKeyQuery(componentTreeQuery.getNameOrKeyQuery())
+      .setQualifiers(componentTreeQuery.getQualifiers())
+      .setMetricIds(new ArrayList<>(metricsById.keySet()))
+      .build();
 
     Table<String, MetricDto, ComponentTreeData.Measure> measuresByComponentUuidAndMetric = HashBasedTable.create(components.size(), metrics.size());
     dbClient.liveMeasureDao().selectTreeByQuery(dbSession, baseComponent, measureQuery, result -> {
       LiveMeasureDto measureDto = result.getResultObject();
       measuresByComponentUuidAndMetric.put(
-              measureDto.getComponentUuid(),
-              metricsById.get(measureDto.getMetricId()),
-              ComponentTreeData.Measure.createFromMeasureDto(measureDto));
+        measureDto.getComponentUuid(),
+        metricsById.get(measureDto.getMetricId()),
+        ComponentTreeData.Measure.createFromMeasureDto(measureDto));
     });
 
     addBestValuesToMeasures(measuresByComponentUuidAndMetric, components, metrics);
@@ -523,11 +524,11 @@ public class ComponentTreeAction implements MeasuresWsAction {
    * </ul>
    */
   private static void addBestValuesToMeasures(Table<String, MetricDto, ComponentTreeData.Measure> measuresByComponentUuidAndMetric, List<ComponentDto> components,
-                                              List<MetricDto> metrics) {
+    List<MetricDto> metrics) {
     List<MetricDtoWithBestValue> metricDtosWithBestValueMeasure = metrics.stream()
-            .filter(MetricDtoFunctions.isOptimizedForBestValue())
-            .map(new MetricDtoToMetricDtoWithBestValue())
-            .collect(MoreCollectors.toList(metrics.size()));
+      .filter(MetricDtoFunctions.isOptimizedForBestValue())
+      .map(new MetricDtoToMetricDtoWithBestValue())
+      .collect(MoreCollectors.toList(metrics.size()));
     if (metricDtosWithBestValueMeasure.isEmpty()) {
       return;
     }
@@ -537,7 +538,7 @@ public class ComponentTreeAction implements MeasuresWsAction {
       for (MetricDtoWithBestValue metricWithBestValue : metricDtosWithBestValueMeasure) {
         if (measuresByComponentUuidAndMetric.get(component.uuid(), metricWithBestValue.getMetric()) == null) {
           measuresByComponentUuidAndMetric.put(component.uuid(), metricWithBestValue.getMetric(),
-                  ComponentTreeData.Measure.createFromMeasureDto(metricWithBestValue.getBestValue()));
+            ComponentTreeData.Measure.createFromMeasureDto(metricWithBestValue.getBestValue()));
         }
       }
     });
@@ -554,9 +555,9 @@ public class ComponentTreeAction implements MeasuresWsAction {
     checkState(metricToSort.isPresent(), "Metric '%s' not found", metricKeyToSort, wsRequest.getMetricKeys());
 
     return components
-            .stream()
-            .filter(new HasMeasure(measuresByComponentUuidAndMetric, metricToSort.get(), wsRequest.getMetricPeriodSort()))
-            .collect(MoreCollectors.toList(components.size()));
+      .stream()
+      .filter(new HasMeasure(measuresByComponentUuidAndMetric, metricToSort.get(), wsRequest.getMetricPeriodSort()))
+      .collect(MoreCollectors.toList(components.size()));
   }
 
   private static boolean componentWithMeasuresOnly(ComponentTreeRequest wsRequest) {
@@ -564,15 +565,15 @@ public class ComponentTreeAction implements MeasuresWsAction {
   }
 
   private static List<ComponentDto> sortComponents(List<ComponentDto> components, ComponentTreeRequest wsRequest, List<MetricDto> metrics,
-                                                   Table<String, MetricDto, ComponentTreeData.Measure> measuresByComponentUuidAndMetric) {
+    Table<String, MetricDto, ComponentTreeData.Measure> measuresByComponentUuidAndMetric) {
     return ComponentTreeSort.sortComponents(components, wsRequest, metrics, measuresByComponentUuidAndMetric);
   }
 
   private static List<ComponentDto> paginateComponents(List<ComponentDto> components, ComponentTreeRequest wsRequest) {
     return components.stream()
-            .skip(offset(wsRequest.getPage(), wsRequest.getPageSize()))
-            .limit(wsRequest.getPageSize())
-            .collect(MoreCollectors.toList(wsRequest.getPageSize()));
+      .skip(offset(wsRequest.getPage(), wsRequest.getPageSize()))
+      .limit(wsRequest.getPageSize())
+      .collect(MoreCollectors.toList(wsRequest.getPageSize()));
   }
 
   @CheckForNull
@@ -600,8 +601,8 @@ public class ComponentTreeAction implements MeasuresWsAction {
     List<String> childrenQualifiers = childrenQualifiers(wsRequest, baseComponent.qualifier());
 
     ComponentTreeQuery.Builder componentTreeQueryBuilder = ComponentTreeQuery.builder()
-            .setBaseUuid(baseComponent.uuid())
-            .setStrategy(STRATEGIES.get(wsRequest.getStrategy()));
+      .setBaseUuid(baseComponent.uuid())
+      .setStrategy(STRATEGIES.get(wsRequest.getStrategy()));
 
     if (wsRequest.getQuery() != null) {
       componentTreeQueryBuilder.setNameOrKeyQuery(wsRequest.getQuery());

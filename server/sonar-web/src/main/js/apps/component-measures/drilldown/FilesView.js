@@ -28,6 +28,7 @@ import { scrollToElement } from '../../../helpers/scrolling';
 /*:: import type { Metric } from '../../../store/metrics/actions'; */
 
 /*:: type Props = {|
+  bestValue?: string,
   branchLike?: { id?: string; name: string },
   components: Array<ComponentEnhanced>,
   fetchMore: () => void,
@@ -124,6 +125,7 @@ export default class ListView extends React.PureComponent {
     return (
       <div ref={elem => (this.listContainer = elem)}>
         <ComponentsList
+          bestValue={this.props.bestValue}
           branchLike={this.props.branchLike}
           components={this.props.components}
           metric={this.props.metric}

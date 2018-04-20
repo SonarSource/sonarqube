@@ -263,8 +263,8 @@ public class ComponentActionTest {
       .executeProtobuf(ComponentWsResponse.class);
 
     assertThat(response.getComponent().getMeasuresList())
-      .extracting(Measures.Measure::getMetric, Measures.Measure::getValue)
-      .containsExactly(tuple(metric.getKey(), "7"));
+      .extracting(Measures.Measure::getMetric, Measures.Measure::getValue, Measures.Measure::getBestValue)
+      .containsExactly(tuple(metric.getKey(), "7", true));
   }
 
   @Test

@@ -62,6 +62,7 @@ import { isSameBranchLike, getBranchLikeQuery } from '../../../helpers/branches'
 |}; */
 
 /*:: type State = {
+  bestValue?: string,
   components: Array<ComponentEnhanced>,
   metric: ?Metric,
   paging?: Paging,
@@ -117,6 +118,7 @@ export default class MeasureContent extends React.PureComponent {
     const metricKeys = [metric.key];
     const opts /*: Object */ = {
       ...getBranchLikeQuery(this.props.branchLike),
+      additionalFields: 'metrics',
       metricSortFilter: 'withMeasuresOnly'
     };
     const isDiff = isDiffMetric(metric.key);
@@ -151,6 +153,7 @@ export default class MeasureContent extends React.PureComponent {
         if (metric === this.props.metric) {
           if (this.mounted) {
             this.setState(({ selected } /*: State */) => ({
+              bestValue: r.metrics[0].bestValue,
               components: r.components.map(component =>
                 enhanceComponent(component, metric, metrics)
               ),
@@ -185,6 +188,7 @@ export default class MeasureContent extends React.PureComponent {
         if (metric === this.props.metric) {
           if (this.mounted) {
             this.setState(state => ({
+              bestValue: r.metrics[0].bestValue,
               components: [
                 ...state.components,
                 ...r.components.map(component => enhanceComponent(component, metric, metrics))
@@ -245,6 +249,7 @@ export default class MeasureContent extends React.PureComponent {
         const selectedIdx = this.getSelectedIndex();
         return (
           <FilesView
+            bestValue={this.state.bestValue}
             branchLike={this.props.branchLike}
             components={this.state.components}
             fetchMore={this.fetchMoreComponents}

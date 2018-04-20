@@ -51,9 +51,11 @@ import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Measures;
 import org.sonarqube.ws.Measures.ComponentTreeWsResponse;
+import org.sonarqube.ws.Measures.PeriodValue;
 
 import static java.lang.Double.parseDouble;
 import static java.lang.String.format;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_RATING_KEY;
@@ -251,12 +253,54 @@ public class ComponentTreeActionTest {
     assertThat(response.getComponentsList().get(0).getMeasuresList()).extracting("metric").containsOnly("coverage");
     // file measures
     List<Measures.Measure> fileMeasures = response.getComponentsList().get(1).getMeasuresList();
-    assertThat(fileMeasures).extracting("metric").containsOnly("ncloc", "coverage", "new_violations");
-    assertThat(fileMeasures).extracting("value").containsOnly("100", "15.5", "");
+    assertThat(fileMeasures)
+      .extracting(Measures.Measure::getMetric, Measures.Measure::getValue, Measures.Measure::getBestValue, Measures.Measure::hasBestValue)
+      .containsExactlyInAnyOrder(tuple("ncloc", "100", true, true),
+        tuple("coverage", "15.5", false, false),
+        tuple("new_violations", "", false, false));
 
     List<Common.Metric> metrics = response.getMetrics().getMetricsList();
     assertThat(metrics).extracting("bestValue").contains("100", "");
     assertThat(metrics).extracting("worstValue").contains("1000");
+  }
+
+  @Test
+  public void return_is_best_value_on_leak_measures() {
+    ComponentDto project = db.components().insertPrivateProject();
+    db.components().insertSnapshot(project);
+    userSession.anonymous().addProjectPermission(UserRole.USER, project);
+    ComponentDto file = newFileDto(project, null);
+    db.components().insertComponent(file);
+
+    MetricDto matchingBestValue = db.measures().insertMetric(m -> m
+      .setKey("new_lines")
+      .setValueType(INT.name())
+      .setBestValue(100d));
+    MetricDto doesNotMatchBestValue = db.measures().insertMetric(m -> m
+      .setKey("new_lines_2")
+      .setValueType(INT.name())
+      .setBestValue(100d));
+    MetricDto noBestValue = db.measures().insertMetric(m -> m
+      .setKey("new_violations")
+      .setValueType(INT.name())
+      .setBestValue(null));
+    db.measures().insertLiveMeasure(file, matchingBestValue, m -> m.setValue(null).setData((String) null).setVariation(100d));
+    db.measures().insertLiveMeasure(file, doesNotMatchBestValue, m -> m.setValue(null).setData((String) null).setVariation(10d));
+    db.measures().insertLiveMeasure(file, noBestValue, m -> m.setValue(null).setData((String) null).setVariation(42.0d));
+
+    ComponentTreeWsResponse response = ws.newRequest()
+      .setParam(PARAM_COMPONENT, project.getKey())
+      .setParam(PARAM_METRIC_KEYS, "new_lines,new_lines_2,new_violations")
+      .executeProtobuf(ComponentTreeWsResponse.class);
+
+    // file measures
+    List<Measures.Measure> fileMeasures = response.getComponentsList().get(0).getMeasuresList();
+    assertThat(fileMeasures)
+      .extracting(Measures.Measure::getMetric, m -> m.getPeriods().getPeriodsValueList())
+      .containsExactlyInAnyOrder(
+        tuple(matchingBestValue.getKey(), singletonList(PeriodValue.newBuilder().setIndex(1).setValue("100").setBestValue(true).build())),
+        tuple(doesNotMatchBestValue.getKey(), singletonList(PeriodValue.newBuilder().setIndex(1).setValue("10").setBestValue(false).build())),
+        tuple(noBestValue.getKey(), singletonList(PeriodValue.newBuilder().setIndex(1).setValue("42").build())));
   }
 
   @Test

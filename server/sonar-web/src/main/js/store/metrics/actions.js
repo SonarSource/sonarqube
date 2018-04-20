@@ -19,6 +19,7 @@
  */
 // @flow
 /*:: export type Metric = {
+  bestValue?: string,
   custom?: boolean,
   decimalScale?: number,
   description?: string,

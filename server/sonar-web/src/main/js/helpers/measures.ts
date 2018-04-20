@@ -25,6 +25,7 @@ const HOURS_IN_DAY = 8;
 export interface MeasurePeriod {
   index: number;
   value: string;
+  bestValue?: boolean;
 }
 
 export interface MeasureIntern {
@@ -88,6 +89,15 @@ export function getPeriodValue(
   const { periods } = measure;
   const period = periods && periods.find(period => period.index === periodIndex);
   return period ? period.value : undefined;
+}
+
+export function isPeriodBestValue(
+  measure: Measure | MeasureEnhanced,
+  periodIndex: number
+): boolean {
+  const { periods } = measure;
+  const period = periods && periods.find(period => period.index === periodIndex);
+  return (period && period.bestValue) || false;
 }
 
 /** Check if metric is differential */
