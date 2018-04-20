@@ -241,18 +241,20 @@ export default class RuleDetailsMeta extends React.PureComponent<Props, State> {
           </h3>
         </header>
 
-        <ul className="coding-rules-detail-properties">
-          {this.renderType()}
-          {this.renderSeverity()}
-          {this.renderStatus()}
-          {this.renderScope()}
-          {this.renderTags()}
-          {this.renderCreationDate()}
-          {this.renderRepository()}
-          {this.renderTemplate()}
-          {this.renderParentTemplate()}
-          {this.renderRemediation()}
-        </ul>
+        {!ruleDetails.isExternal && (
+          <ul className="coding-rules-detail-properties">
+            {this.renderType()}
+            {this.renderSeverity()}
+            {this.renderStatus()}
+            {this.renderScope()}
+            {this.renderTags()}
+            {this.renderCreationDate()}
+            {this.renderRepository()}
+            {this.renderTemplate()}
+            {this.renderParentTemplate()}
+            {this.renderRemediation()}
+          </ul>
+        )}
       </div>
     );
   }
