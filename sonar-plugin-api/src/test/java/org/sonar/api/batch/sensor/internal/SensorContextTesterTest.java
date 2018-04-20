@@ -113,14 +113,14 @@ public class SensorContextTesterTest {
     assertThat(tester.allExternalIssues()).isEmpty();
     NewExternalIssue newExternalIssue = tester.newExternalIssue();
     newExternalIssue
-      .at(newExternalIssue.newLocation().on(new TestInputFileBuilder("foo", "src/Foo.java").build()))
+      .at(newExternalIssue.newLocation().message("message").on(new TestInputFileBuilder("foo", "src/Foo.java").build()))
       .forRule(RuleKey.of("repo", "rule"))
       .type(RuleType.BUG)
       .severity(Severity.BLOCKER)
       .save();
     newExternalIssue = tester.newExternalIssue();
     newExternalIssue
-      .at(newExternalIssue.newLocation().on(new TestInputFileBuilder("foo", "src/Foo.java").build()))
+      .at(newExternalIssue.newLocation().message("message").on(new TestInputFileBuilder("foo", "src/Foo.java").build()))
       .type(RuleType.BUG)
       .severity(Severity.BLOCKER)
       .forRule(RuleKey.of("repo", "rule"))

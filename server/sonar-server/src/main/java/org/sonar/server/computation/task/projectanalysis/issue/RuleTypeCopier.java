@@ -35,6 +35,7 @@ public class RuleTypeCopier extends IssueVisitor {
     if (issue.type() == null) {
       Rule rule = ruleRepository.getByKey(issue.ruleKey());
       if (!rule.isExternal()) {
+        // rule type should never be null for rules created by plugins (non-external rules)
         issue.setType(rule.getType());
       }
     }

@@ -25,8 +25,7 @@
       "message": "fix the bug here",
       "filePath": "xources/hello/HelloJava.xoo",
       "textRange": {
-        "startLine": 3,
-        "endLine": 3
+        "startLine": 3
       }
     }     
   },
@@ -39,8 +38,7 @@
       "message": "fix the bug here",
       "filePath": "invalidFile",
       "textRange": {
-        "startLine": 3,
-        "endLine": 3
+        "startLine": 3
       }
     }     
   },

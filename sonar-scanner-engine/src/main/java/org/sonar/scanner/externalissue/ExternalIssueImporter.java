@@ -103,7 +103,7 @@ public class ExternalIssueImporter {
   }
 
   @CheckForNull
-  private NewIssueLocation fillLocation(SensorContext context, NewIssueLocation newLocation, Location location) {
+  private static NewIssueLocation fillLocation(SensorContext context, NewIssueLocation newLocation, Location location) {
     InputFile file = findFile(context, location.filePath);
     if (file != null) {
       newLocation

@@ -39,7 +39,7 @@ public class ReportParserTest {
     System.out.println(Paths.get("org/sonar/scanner/externalissue/report.json").toAbsolutePath());
     Report report = parser.parse();
 
-    assertThat(report.issues).hasSize(2);
+    assertThat(report.issues).hasSize(3);
     assertThat(report.issues[0].engineId).isEqualTo("eslint");
     assertThat(report.issues[0].ruleId).isEqualTo("rule1");
     assertThat(report.issues[0].severity).isEqualTo("MAJOR");
@@ -47,10 +47,10 @@ public class ReportParserTest {
     assertThat(report.issues[0].type).isEqualTo("CODE_SMELL");
     assertThat(report.issues[0].primaryLocation.filePath).isEqualTo("file1.js");
     assertThat(report.issues[0].primaryLocation.message).isEqualTo("fix the issue here");
-    assertThat(report.issues[0].primaryLocation.textRange.startColumn).isNull();
+    assertThat(report.issues[0].primaryLocation.textRange.startColumn).isEqualTo(2);
     assertThat(report.issues[0].primaryLocation.textRange.startLine).isEqualTo(1);
-    assertThat(report.issues[0].primaryLocation.textRange.endColumn).isNull();
-    assertThat(report.issues[0].primaryLocation.textRange.endLine).isEqualTo(2);
+    assertThat(report.issues[0].primaryLocation.textRange.endColumn).isEqualTo(4);
+    assertThat(report.issues[0].primaryLocation.textRange.endLine).isEqualTo(3);
     assertThat(report.issues[0].secondaryLocations).isNull();
   }
 

@@ -11,7 +11,9 @@
       "filePath": "file1.js",
       "textRange": {
         "startLine": 1,
-        "endLine": 2
+        "startColumn": 2,
+        "endLine": 3,
+        "endColumn": 4
       }
     }     
   },
@@ -24,11 +26,19 @@
       "message": "fix the bug here",
       "filePath": "file2.js",
       "textRange": {
-        "startLine": 3,
-        "endLine": 4
+        "startLine": 3
       }
+    } 
+  },  
+  { 
+    "engineId": "eslint",
+    "ruleId": "rule3",
+    "severity": "MAJOR",
+    "type": "BUG",
+    "primaryLocation": {
+      "message": "fix the bug here",
+      "filePath": "file3.js"
     }     
   }
 ]
 }
-   
