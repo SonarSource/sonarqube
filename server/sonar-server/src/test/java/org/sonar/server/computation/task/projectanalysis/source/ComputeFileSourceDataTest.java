@@ -45,7 +45,7 @@ public class ComputeFileSourceDataTest {
       lineHashesComputer);
 
     ComputeFileSourceData.Data data = computeFileSourceData.compute();
-    assertThat(data.getLineHashes()).isEqualTo("137f72c3708c6bd0de00a0e5a69c699b");
+    assertThat(data.getLineHashes()).containsOnly("137f72c3708c6bd0de00a0e5a69c699b");
     assertThat(data.getSrcHash()).isEqualTo("137f72c3708c6bd0de00a0e5a69c699b");
     assertThat(data.getFileSourceData().getLinesList()).hasSize(1);
     assertThat(data.getFileSourceData().getLines(0).getHighlighting()).isEqualTo("h-1");
@@ -65,7 +65,7 @@ public class ComputeFileSourceDataTest {
       lineHashesComputer);
 
     ComputeFileSourceData.Data data = computeFileSourceData.compute();
-    assertThat(data.getLineHashes()).isEqualTo("137f72c3708c6bd0de00a0e5a69c699b\ne6251bcf1a7dc3ba5e7933e325bbe605");
+    assertThat(data.getLineHashes()).containsOnly("137f72c3708c6bd0de00a0e5a69c699b", "e6251bcf1a7dc3ba5e7933e325bbe605");
     assertThat(data.getSrcHash()).isEqualTo("ee5a58024a155466b43bc559d953e018");
     assertThat(data.getFileSourceData().getLinesList()).hasSize(2);
     assertThat(data.getFileSourceData().getLines(0).getHighlighting()).isEqualTo("h-1");

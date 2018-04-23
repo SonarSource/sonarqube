@@ -21,8 +21,11 @@ package org.sonar.db.source;
 
 import java.util.Arrays;
 import java.util.Date;
+import java.util.Random;
 import java.util.function.Consumer;
+import java.util.stream.IntStream;
 import org.apache.commons.lang.math.RandomUtils;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.protobuf.DbFileSources;
@@ -44,7 +47,7 @@ public class FileSourceTester {
       .setFileUuid(file.uuid())
       .setSrcHash(randomAlphanumeric(50))
       .setDataHash(randomAlphanumeric(50))
-      .setLineHashes(randomAlphanumeric(50))
+      .setLineHashes(IntStream.range(0, new Random().nextInt(21)).mapToObj(String::valueOf).collect(MoreCollectors.toList()))
       .setRevision(randomAlphanumeric(100))
       .setSourceData(newRandomData(3).build())
       .setCreatedAt(new Date().getTime())

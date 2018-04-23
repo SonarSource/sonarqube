@@ -45,6 +45,7 @@ import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
 
+import static com.google.common.collect.ImmutableList.of;
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
@@ -728,7 +729,7 @@ public class ProjectDataLoaderTest {
       .setFileUuid(file.uuid())
       .setProjectUuid(file.projectUuid())
       .setDataHash("0263047cd758c68c27683625f072f010")
-      .setLineHashes("8d7b3d6b83c0a517eac07e1aac94b773")
+      .setLineHashes(of("8d7b3d6b83c0a517eac07e1aac94b773"))
       .setCreatedAt(System.currentTimeMillis())
       .setUpdatedAt(System.currentTimeMillis())
       .setDataType(FileSourceDto.Type.SOURCE)

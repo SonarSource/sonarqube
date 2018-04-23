@@ -19,8 +19,13 @@
  */
 package org.sonar.db.source;
 
+import com.google.common.base.Joiner;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Random;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -90,5 +95,45 @@ public class FileSourceDtoTest {
           .build());
     }
     return dataBuilder.build();
+  }
+
+  @Test
+  public void new_FileSourceDto_as_lineCount_0_and_rawLineHashes_to_null()  {
+    FileSourceDto underTest = new FileSourceDto();
+
+    assertThat(underTest.getLineCount()).isZero();
+    assertThat(underTest.getLineHashes()).isEmpty();
+    assertThat(underTest.getRawLineHashes()).isNull();
+  }
+
+  @Test
+  public void setLineHashes_null_sets_lineCount_to_0_and_rawLineHashes_to_null() {
+    FileSourceDto underTest = new FileSourceDto();
+    underTest.setLineHashes(null);
+
+    assertThat(underTest.getLineCount()).isZero();
+    assertThat(underTest.getLineHashes()).isEmpty();
+    assertThat(underTest.getRawLineHashes()).isNull();
+  }
+
+  @Test
+  public void setLineHashes_empty_sets_lineCount_to_1_and_rawLineHashes_to_null() {
+    FileSourceDto underTest = new FileSourceDto();
+    underTest.setLineHashes(Collections.emptyList());
+
+    assertThat(underTest.getLineCount()).isEqualTo(1);
+    assertThat(underTest.getLineHashes()).isEmpty();
+    assertThat(underTest.getRawLineHashes()).isNull();
+  }
+
+  @Test
+  public void setLineHashes_sets_lineCount_to_size_of_list_and_rawLineHashes_to_join_by_line_return() {
+    FileSourceDto underTest = new FileSourceDto();
+    int expected = 1 + new Random().nextInt(96);
+    List<String> lineHashes = IntStream.range(0, expected).mapToObj(String::valueOf).collect(Collectors.toList());
+    underTest.setLineHashes(lineHashes);
+
+    assertThat(underTest.getLineCount()).isEqualTo(expected);
+    assertThat(underTest.getRawLineHashes()).isEqualTo(Joiner.on('\n').join(lineHashes));
   }
 }

@@ -51,7 +51,7 @@ public class ComputeFileSourceData {
       read(fileSourceBuilder, currentLine, linesIterator.next(), linesIterator.hasNext());
     }
 
-    return new Data(fileSourceBuilder.build(), LINE_RETURN_JOINER.join(lineHashesComputer.getResult()), sourceHashComputer.getHash());
+    return new Data(fileSourceBuilder.build(), lineHashesComputer.getResult(), sourceHashComputer.getHash());
   }
 
   private void read(DbFileSources.Data.Builder fileSourceBuilder, int currentLine, String lineSource, boolean hasNextLine) {
@@ -70,10 +70,10 @@ public class ComputeFileSourceData {
 
   public static class Data {
     private final DbFileSources.Data fileSourceData;
-    private final String lineHashes;
+    private final List<String> lineHashes;
     private final String srcHash;
 
-    private Data(DbFileSources.Data fileSourceData, String lineHashes, String srcHash) {
+    private Data(DbFileSources.Data fileSourceData, List<String> lineHashes, String srcHash) {
       this.fileSourceData = fileSourceData;
       this.lineHashes = lineHashes;
       this.srcHash = srcHash;
@@ -83,7 +83,7 @@ public class ComputeFileSourceData {
       return srcHash;
     }
 
-    public String getLineHashes() {
+    public List<String> getLineHashes() {
       return lineHashes;
     }
 

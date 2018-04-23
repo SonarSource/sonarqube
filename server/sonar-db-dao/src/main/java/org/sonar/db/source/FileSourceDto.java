@@ -19,6 +19,8 @@
  */
 package org.sonar.db.source;
 
+import com.google.common.base.Joiner;
+import com.google.common.base.Splitter;
 import com.google.protobuf.CodedInputStream;
 import com.google.protobuf.InvalidProtocolBufferException;
 import java.io.ByteArrayInputStream;
@@ -26,6 +28,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -34,12 +37,16 @@ import net.jpountz.lz4.LZ4BlockOutputStream;
 import org.apache.commons.io.IOUtils;
 import org.sonar.db.protobuf.DbFileSources;
 
+import static com.google.common.base.Splitter.on;
 import static java.lang.String.format;
 
 public class FileSourceDto {
 
   private static final String SIZE_LIMIT_EXCEEDED_EXCEPTION_MESSAGE = "Protocol message was too large.  May be malicious.  " +
     "Use CodedInputStream.setSizeLimit() to increase the size limit.";
+  private static final Joiner LINE_RETURN_JOINER = Joiner.on('\n');
+  public static final Splitter LINES_HASHES_SPLITTER = on('\n');
+  public static final int LINE_COUNT_NOT_POPULATED = -1;
 
   private Long id;
   private String projectUuid;
@@ -47,8 +54,20 @@ public class FileSourceDto {
   private long createdAt;
   private long updatedAt;
   private String lineHashes;
+  /**
+   * When {@code line_count} column has been added, it's been populated with value {@link #LINE_COUNT_NOT_POPULATED -1},
+   * which implies all existing files sources have this value at the time SonarQube is upgraded.
+   * <p>
+   * Column {@code line_count} is populated with the correct value from every new files and for existing files as the
+   * project they belong to is analyzed for the first time after the migration.
+   * <p>
+   * Method {@link #getLineCount()} hides this migration-only-related complexity by either returning the value
+   * of column {@code line_count} when its been populated, or computed the returned value from the value of column
+   * {@code line_hashes}.
+   */
+  private int lineCount = LINE_COUNT_NOT_POPULATED;
   private String srcHash;
-  private byte[] binaryData;
+  private byte[] binaryData = new byte[0];
   private String dataType;
   private String dataHash;
   private String revision;
@@ -241,13 +260,43 @@ public class FileSourceDto {
     return this;
   }
 
-  @CheckForNull
-  public String getLineHashes() {
+  /** Used by MyBatis */
+  public String getRawLineHashes() {
     return lineHashes;
   }
 
-  public FileSourceDto setLineHashes(@Nullable String lineHashes) {
+  public void setRawLineHashes(@Nullable String lineHashes) {
     this.lineHashes = lineHashes;
+  }
+
+  public List<String> getLineHashes() {
+    if (lineHashes == null) {
+      return Collections.emptyList();
+    }
+    return LINES_HASHES_SPLITTER.splitToList(lineHashes);
+  }
+
+  /**
+   * @return the value of column {@code line_count} if populated, otherwise the size of {@link #getLineHashes()}.
+   */
+  public int getLineCount() {
+    if (lineCount == LINE_COUNT_NOT_POPULATED) {
+      return getLineHashes().size();
+    }
+    return lineCount;
+  }
+
+  public FileSourceDto setLineHashes(@Nullable List<String> lineHashes) {
+    if (lineHashes == null) {
+      this.lineHashes = null;
+      this.lineCount = 0;
+    } else if (lineHashes.isEmpty()) {
+      this.lineHashes = null;
+      this.lineCount = 1;
+    } else {
+      this.lineHashes = LINE_RETURN_JOINER.join(lineHashes);
+      this.lineCount = lineHashes.size();
+    }
     return this;
   }
 

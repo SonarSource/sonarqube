@@ -19,6 +19,7 @@
  */
 package org.sonar.db.source;
 
+import com.google.common.collect.ImmutableList;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.function.Consumer;
@@ -31,6 +32,9 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.source.FileSourceDto.Type;
 
+import static com.google.common.collect.ImmutableList.of;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 
@@ -93,24 +97,79 @@ public class FileSourceDaoTest {
 
   @Test
   public void insert() {
-    dbTester.prepareDbUnit(getClass(), "shared.xml");
-
-    underTest.insert(session, new FileSourceDto()
+    FileSourceDto expected = new FileSourceDto()
       .setProjectUuid("PRJ_UUID")
       .setFileUuid("FILE2_UUID")
       .setBinaryData("FILE2_BINARY_DATA".getBytes())
       .setDataHash("FILE2_DATA_HASH")
-      .setLineHashes("LINE1_HASH\\nLINE2_HASH")
+      .setLineHashes(of("LINE1_HASH", "LINE2_HASH"))
       .setSrcHash("FILE2_HASH")
       .setDataType(Type.SOURCE)
       .setCreatedAt(1500000000000L)
       .setUpdatedAt(1500000000001L)
       .setLineHashesVersion(1)
-      .setRevision("123456789"));
+      .setRevision("123456789");
+    underTest.insert(session, expected);
     session.commit();
 
-    dbTester.assertDbUnitTable(getClass(), "insert-result.xml", "file_sources",
-      "project_uuid", "file_uuid", "data_hash", "line_hashes", "src_hash", "created_at", "updated_at", "data_type", "revision", "line_hashes_version");
+    FileSourceDto fileSourceDto = underTest.selectSourceByFileUuid(session, expected.getFileUuid());
+
+    assertThat(fileSourceDto.getProjectUuid()).isEqualTo(expected.getProjectUuid());
+    assertThat(fileSourceDto.getFileUuid()).isEqualTo(expected.getFileUuid());
+    assertThat(fileSourceDto.getBinaryData()).isEqualTo(expected.getBinaryData());
+    assertThat(fileSourceDto.getDataHash()).isEqualTo(expected.getDataHash());
+    assertThat(fileSourceDto.getRawLineHashes()).isEqualTo(expected.getRawLineHashes());
+    assertThat(fileSourceDto.getLineHashes()).isEqualTo(expected.getLineHashes());
+    assertThat(fileSourceDto.getLineCount()).isEqualTo(expected.getLineCount());
+    assertThat(fileSourceDto.getSrcHash()).isEqualTo(expected.getSrcHash());
+    assertThat(fileSourceDto.getCreatedAt()).isEqualTo(expected.getCreatedAt());
+    assertThat(fileSourceDto.getUpdatedAt()).isEqualTo(expected.getUpdatedAt());
+    assertThat(fileSourceDto.getRevision()).isEqualTo(expected.getRevision());
+  }
+
+  @Test
+  public void insert_does_not_fail_on_FileSourceDto_with_only_non_nullable_data() {
+    FileSourceDto fileSourceDto = new FileSourceDto()
+      .setProjectUuid("Foo")
+      .setFileUuid("Bar")
+      .setCreatedAt(1500000000000L)
+      .setUpdatedAt(1500000000001L);
+    underTest.insert(session, fileSourceDto);
+    session.commit();
+  }
+
+  @Test
+  public void selectSourceByFileUuid_reads_source_without_line_hashes() {
+    FileSourceDto fileSourceDto = new FileSourceDto()
+      .setProjectUuid("Foo")
+      .setFileUuid("Bar")
+      .setDataType(Type.SOURCE)
+      .setCreatedAt(1500000000000L)
+      .setUpdatedAt(1500000000001L);
+    underTest.insert(session, fileSourceDto);
+    session.commit();
+
+    FileSourceDto res = underTest.selectSourceByFileUuid(session, fileSourceDto.getFileUuid());
+
+    assertThat(res.getLineCount()).isEqualTo(0);
+    assertThat(res.getLineHashes()).isEmpty();
+  }
+
+  @Test
+  public void selectTest_reads_test_without_line_hashes() {
+    FileSourceDto fileSourceDto = new FileSourceDto()
+      .setProjectUuid("Foo")
+      .setFileUuid("Bar")
+      .setDataType(Type.TEST)
+      .setCreatedAt(1500000000000L)
+      .setUpdatedAt(1500000000001L);
+    underTest.insert(session, fileSourceDto);
+    session.commit();
+
+    FileSourceDto res = underTest.selectTestByFileUuid(session, fileSourceDto.getFileUuid());
+
+    assertThat(res.getLineCount()).isEqualTo(0);
+    assertThat(res.getLineHashes()).isEmpty();
   }
 
   @Test
@@ -139,7 +198,7 @@ public class FileSourceDaoTest {
       .setFileUuid("FILE2_UUID")
       .setBinaryData("FILE2_BINARY_DATA".getBytes())
       .setDataHash("FILE2_DATA_HASH")
-      .setLineHashes("hashes")
+      .setLineHashes(singletonList("hashes"))
       .setSrcHash("FILE2_HASH")
       .setDataType(Type.SOURCE)
       .setCreatedAt(1500000000000L)
@@ -157,7 +216,7 @@ public class FileSourceDaoTest {
       .setFileUuid("FILE2_UUID")
       .setBinaryData("FILE2_BINARY_DATA".getBytes())
       .setDataHash("FILE2_DATA_HASH")
-      .setLineHashes("hashes")
+      .setLineHashes(singletonList("hashes"))
       .setSrcHash("FILE2_HASH")
       .setDataType(Type.SOURCE)
       .setCreatedAt(1500000000000L)
@@ -207,7 +266,7 @@ public class FileSourceDaoTest {
       .setBinaryData("updated data".getBytes())
       .setDataHash("NEW_DATA_HASH")
       .setSrcHash("NEW_FILE_HASH")
-      .setLineHashes("NEW_LINE_HASHES")
+      .setLineHashes(singletonList("NEW_LINE_HASHES"))
       .setDataType(Type.SOURCE)
       .setUpdatedAt(1500000000002L)
       .setLineHashesVersion(1)
@@ -216,6 +275,33 @@ public class FileSourceDaoTest {
 
     dbTester.assertDbUnitTable(getClass(), "update-result.xml", "file_sources", "project_uuid", "file_uuid",
       "data_hash", "line_hashes", "src_hash", "created_at", "updated_at", "data_type", "revision", "line_hashes_version");
+  }
+
+  @Test
+  public void update_to_no_line_hashes() {
+    ImmutableList<String> lineHashes = of("a", "b", "c");
+    FileSourceDto fileSourceDto = new FileSourceDto()
+      .setProjectUuid("Foo")
+      .setFileUuid("Bar")
+      .setDataType(Type.SOURCE)
+      .setLineHashes(lineHashes)
+      .setCreatedAt(1500000000000L)
+      .setUpdatedAt(1500000000001L);
+    underTest.insert(session, fileSourceDto);
+    session.commit();
+
+    FileSourceDto resBefore = underTest.selectSourceByFileUuid(session, fileSourceDto.getFileUuid());
+    assertThat(resBefore.getLineCount()).isEqualTo(lineHashes.size());
+    assertThat(resBefore.getLineHashes()).isEqualTo(lineHashes);
+
+    fileSourceDto.setId(resBefore.getId());
+    fileSourceDto.setLineHashes(emptyList());
+    underTest.update(session, fileSourceDto);
+    session.commit();
+
+    FileSourceDto res = underTest.selectSourceByFileUuid(session, fileSourceDto.getFileUuid());
+    assertThat(res.getLineHashes()).isEmpty();
+    assertThat(res.getLineCount()).isEqualTo(1);
   }
 
   private static class ReaderToStringConsumer implements Consumer<Reader> {
