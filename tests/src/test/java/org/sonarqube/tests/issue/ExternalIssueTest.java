@@ -19,10 +19,11 @@
  */
 package org.sonarqube.tests.issue;
 
-import com.sonar.orchestrator.build.SonarScanner;
+import com.sonar.orchestrator.Orchestrator;
+import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonarqube.qa.util.Tester;
@@ -35,8 +36,14 @@ import util.ItUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class ExternalIssueTest extends AbstractIssueTest {
+public class ExternalIssueTest {
   private static final String PROJECT_KEY = "project";
+
+  // This class uses its own instance of the server because it creates external rules in it
+  @ClassRule
+  public static final Orchestrator ORCHESTRATOR = ItUtils.newOrchestratorBuilder()
+    .addPlugin(ItUtils.xooPlugin())
+    .build();
 
   @Rule
   public Tester tester = new Tester(ORCHESTRATOR);
@@ -50,45 +57,95 @@ public class ExternalIssueTest extends AbstractIssueTest {
 
   @Test
   public void should_import_external_issues_and_create_external_rules() {
-    noExternalRuleAndNoIssues();
+    noIssues();
+    ruleDoesntExist("external_xoo:OneExternalIssuePerLine");
 
-    SonarScanner sonarScanner = ItUtils.runProjectAnalysis(ORCHESTRATOR, "shared/xoo-sample",
+    ItUtils.runProjectAnalysis(ORCHESTRATOR, "shared/xoo-sample",
       "sonar.oneExternalIssuePerLine.activate", "true");
     List<Issue> issuesList = tester.wsClient().issues().search(new SearchRequest()).getIssuesList();
     assertThat(issuesList).hasSize(17);
 
     assertThat(issuesList).allMatch(issue -> "external_xoo:OneExternalIssuePerLine".equals(issue.getRule()));
     assertThat(issuesList).allMatch(issue -> "This issue is generated on each line".equals(issue.getMessage()));
-    assertThat(issuesList).allMatch(issue -> "This issue is generated on each line".equals(issue.getMessage()));
     assertThat(issuesList).allMatch(issue -> Severity.MAJOR.equals(issue.getSeverity()));
-    assertThat(issuesList).allMatch(issue -> RuleType.CODE_SMELL.equals(issue.getType()));
+    assertThat(issuesList).allMatch(issue -> RuleType.BUG.equals(issue.getType()));
     assertThat(issuesList).allMatch(issue -> "sample:src/main/xoo/sample/Sample.xoo".equals(issue.getComponent()));
     assertThat(issuesList).allMatch(issue -> "OPEN".equals(issue.getStatus()));
     assertThat(issuesList).allMatch(issue -> issue.getExternalRuleEngine().equals("xoo"));
 
-    List<org.sonarqube.ws.Rules.Rule> rulesList = tester.wsClient().rules()
-      .search(new org.sonarqube.ws.client.rules.SearchRequest().setIsExternal(Boolean.toString(true))).getRulesList();
-    List<org.sonarqube.ws.Rules.Rule> externalRules = rulesList.stream().filter(rule -> rule.getIsExternal()).collect(Collectors.toList());
-
-    assertThat(externalRules).hasSize(1);
-    assertThat(externalRules.get(0).getKey()).isEqualTo("external_xoo:OneExternalIssuePerLine");
-    assertThat(externalRules.get(0).getIsTemplate()).isFalse();
-    assertThat(externalRules.get(0).getIsExternal()).isTrue();
-    assertThat(externalRules.get(0).getTags().getTagsCount()).isEqualTo(0);
-    assertThat(externalRules.get(0).getScope()).isEqualTo(RuleScope.ALL);
+    ruleExists("external_xoo:OneExternalIssuePerLine");
 
     // second analysis, issue tracking should work
-    sonarScanner = ItUtils.runProjectAnalysis(ORCHESTRATOR, "shared/xoo-sample",
+    ItUtils.runProjectAnalysis(ORCHESTRATOR, "shared/xoo-sample",
       "sonar.oneExternalIssuePerLine.activate", "true");
     issuesList = tester.wsClient().issues().search(new SearchRequest()).getIssuesList();
     assertThat(issuesList).hasSize(17);
   }
 
-  private void noExternalRuleAndNoIssues() {
-    List<org.sonarqube.ws.Rules.Rule> rulesList = tester.wsClient().rules()
-      .search(new org.sonarqube.ws.client.rules.SearchRequest().setIsExternal(Boolean.toString(true))).getRulesList();
-    assertThat(rulesList).noneMatch(rule -> rule.getIsExternal());
+  @Test
+  public void should_import_external_issues_from_json_report_and_create_external_rules() {
+    noIssues();
+    ruleDoesntExist("external_externalXoo:rule1");
+    ruleDoesntExist("external_externalXoo:rule2");
 
+    ItUtils.runProjectAnalysis(ORCHESTRATOR, "shared/xoo-sample",
+      "sonar.externalIssuesReportPaths", "externalIssues.json");
+
+    List<Issue> issuesList = tester.wsClient().issues().search(new SearchRequest()
+      .setRules(Collections.singletonList("external_externalXoo:rule1"))).getIssuesList();
+    assertThat(issuesList).hasSize(1);
+
+    assertThat(issuesList.get(0).getRule()).isEqualTo("external_externalXoo:rule1");
+    assertThat(issuesList.get(0).getMessage()).isEqualTo("fix the issue here");
+    assertThat(issuesList.get(0).getSeverity()).isEqualTo(Severity.MAJOR);
+    assertThat(issuesList.get(0).getType()).isEqualTo(RuleType.CODE_SMELL);
+    assertThat(issuesList.get(0).getComponent()).isEqualTo("sample:src/main/xoo/sample/Sample.xoo");
+    assertThat(issuesList.get(0).getStatus()).isEqualTo("OPEN");
+    assertThat(issuesList.get(0).getEffort()).isEqualTo("20min");
+    assertThat(issuesList.get(0).getExternalRuleEngine()).isEqualTo("externalXoo");
+
+    issuesList = tester.wsClient().issues().search(new SearchRequest()
+      .setRules(Collections.singletonList("external_externalXoo:rule2"))).getIssuesList();
+    assertThat(issuesList).hasSize(1);
+
+    assertThat(issuesList.get(0).getRule()).isEqualTo("external_externalXoo:rule2");
+    assertThat(issuesList.get(0).getMessage()).isEqualTo("fix the bug here");
+    assertThat(issuesList.get(0).getSeverity()).isEqualTo(Severity.CRITICAL);
+    assertThat(issuesList.get(0).getType()).isEqualTo(RuleType.BUG);
+    assertThat(issuesList.get(0).getComponent()).isEqualTo("sample:src/main/xoo/sample/Sample.xoo");
+    assertThat(issuesList.get(0).getStatus()).isEqualTo("OPEN");
+    assertThat(issuesList.get(0).getExternalRuleEngine()).isEqualTo("externalXoo");
+
+    ruleExists("external_externalXoo:rule1");
+    ruleExists("external_externalXoo:rule2");
+  }
+
+  private void ruleDoesntExist(String key) {
+    List<org.sonarqube.ws.Rules.Rule> rulesList = tester.wsClient().rules()
+      .search(new org.sonarqube.ws.client.rules.SearchRequest()
+        .setRuleKey(key)
+        .setIsExternal(Boolean.toString(true)))
+      .getRulesList();
+    assertThat(rulesList).isEmpty();
+
+  }
+
+  private void ruleExists(String key) {
+    List<org.sonarqube.ws.Rules.Rule> rulesList = tester.wsClient().rules()
+      .search(new org.sonarqube.ws.client.rules.SearchRequest()
+        .setRuleKey(key)
+        .setIsExternal(Boolean.toString(true)))
+      .getRulesList();
+
+    assertThat(rulesList).hasSize(1);
+    assertThat(rulesList.get(0).getKey()).isEqualTo(key);
+    assertThat(rulesList.get(0).getIsTemplate()).isFalse();
+    assertThat(rulesList.get(0).getIsExternal()).isTrue();
+    assertThat(rulesList.get(0).getTags().getTagsCount()).isEqualTo(0);
+    assertThat(rulesList.get(0).getScope()).isEqualTo(RuleScope.ALL);
+  }
+
+  private void noIssues() {
     List<Issue> issuesList = tester.wsClient().issues().search(new SearchRequest()).getIssuesList();
     assertThat(issuesList).isEmpty();
   }

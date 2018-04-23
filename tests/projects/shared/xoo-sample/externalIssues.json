@@ -1,0 +1,45 @@
+{
+"issues" : [
+  { 
+    "engineId": "externalXoo",
+    "ruleId": "rule1",
+    "severity": "MAJOR",
+    "type": "CODE_SMELL",
+    "effortMinutes": 50,
+    "primaryLocation": {
+      "message": "fix the issue here",
+      "filePath": "src/main/xoo/sample/Sample.xoo",
+      "textRange": {
+        "startLine": 5,
+        "startColumn": 2,
+        "endLine": 5,
+        "endColumn": 21
+      }
+    }     
+  },
+  { 
+    "engineId": "externalXoo",
+    "ruleId": "rule2",
+    "severity": "CRITICAL",
+    "type": "BUG",
+    "primaryLocation": {
+      "message": "fix the bug here",
+      "filePath": "src/main/xoo/sample/Sample.xoo"
+    },
+    "secondaryLocations": [
+      {
+        "filePath": "src/main/xoo/sample/Sample.xoo",
+        "textRange": {
+          "startLine": 1
+        }
+      },
+      {
+        "filePath": "unknown",
+        "textRange": {
+          "startLine": 3
+        }
+      }
+    ]     
+  }
+]
+}

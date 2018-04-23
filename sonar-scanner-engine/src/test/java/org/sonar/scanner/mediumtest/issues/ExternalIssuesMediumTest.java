@@ -28,7 +28,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.utils.log.LogTester;
-import org.sonar.api.utils.log.LoggersTest;
 import org.sonar.scanner.mediumtest.ScannerMediumTester;
 import org.sonar.scanner.mediumtest.TaskResult;
 import org.sonar.scanner.protocol.Constants.Severity;
@@ -111,18 +110,23 @@ public class ExternalIssuesMediumTest {
     assertThat(issue.getTextRange().getStartOffset()).isEqualTo(0);
     assertThat(issue.getTextRange().getEndOffset()).isEqualTo(24);
 
-    // One file-level issue in helloscala
+    // One file-level issue in helloscala, with secondary location
     List<ExternalIssue> externalIssues2 = result.externalIssuesFor(result.inputFile("xources/hello/helloscala.xoo"));
     assertThat(externalIssues2).hasSize(1);
 
     issue = externalIssues2.iterator().next();
-    assertThat(issue.getFlowCount()).isZero();
+    assertThat(issue.getFlowCount()).isEqualTo(2);
     assertThat(issue.getMsg()).isEqualTo("fix the bug here");
     assertThat(issue.getRuleKey()).isEqualTo("rule3");
     assertThat(issue.getSeverity()).isEqualTo(Severity.MAJOR);
     assertThat(issue.getType()).isEqualTo(IssueType.BUG);
     assertThat(issue.hasTextRange()).isFalse();
-    
+    assertThat(issue.getFlow(0).getLocationCount()).isOne();
+    assertThat(issue.getFlow(0).getLocation(0).getTextRange().getStartLine()).isOne();
+    assertThat(issue.getFlow(1).getLocationCount()).isOne();
+    assertThat(issue.getFlow(1).getLocation(0).getTextRange().getStartLine()).isEqualTo(3);
+
+
     // one issue is located in a non-existing file
     assertThat(logs.logs()).contains("External issues ignored for 1 unknown files, including: invalidFile");
 

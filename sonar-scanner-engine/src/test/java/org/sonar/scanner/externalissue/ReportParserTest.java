@@ -39,7 +39,7 @@ public class ReportParserTest {
     System.out.println(Paths.get("org/sonar/scanner/externalissue/report.json").toAbsolutePath());
     Report report = parser.parse();
 
-    assertThat(report.issues).hasSize(3);
+    assertThat(report.issues).hasSize(4);
     assertThat(report.issues[0].engineId).isEqualTo("eslint");
     assertThat(report.issues[0].ruleId).isEqualTo("rule1");
     assertThat(report.issues[0].severity).isEqualTo("MAJOR");
@@ -52,6 +52,19 @@ public class ReportParserTest {
     assertThat(report.issues[0].primaryLocation.textRange.endColumn).isEqualTo(4);
     assertThat(report.issues[0].primaryLocation.textRange.endLine).isEqualTo(3);
     assertThat(report.issues[0].secondaryLocations).isNull();
+
+    assertThat(report.issues[3].engineId).isEqualTo("eslint");
+    assertThat(report.issues[3].ruleId).isEqualTo("rule3");
+    assertThat(report.issues[3].severity).isEqualTo("MAJOR");
+    assertThat(report.issues[3].effortMinutes).isNull();
+    assertThat(report.issues[3].type).isEqualTo("BUG");
+    assertThat(report.issues[3].secondaryLocations).hasSize(2);
+    assertThat(report.issues[3].secondaryLocations[0].filePath).isEqualTo("file1.js");
+    assertThat(report.issues[3].secondaryLocations[0].message).isEqualTo("fix the bug here");
+    assertThat(report.issues[3].secondaryLocations[0].textRange.startLine).isEqualTo(1);
+    assertThat(report.issues[3].secondaryLocations[1].filePath).isEqualTo("file2.js");
+    assertThat(report.issues[3].secondaryLocations[1].message).isNull();
+    assertThat(report.issues[3].secondaryLocations[1].textRange.startLine).isEqualTo(2);
   }
 
   private Path path(String reportName) {
@@ -119,6 +132,14 @@ public class ReportParserTest {
     ReportParser parser = new ReportParser(path("report_missing_filePath.json"));
     exception.expect(IllegalStateException.class);
     exception.expectMessage("missing mandatory field 'filePath'");
+    parser.parse();
+  }
+  
+  @Test
+  public void fail_if_message_not_set_in_primaryLocation() {
+    ReportParser parser = new ReportParser(path("report_missing_message.json"));
+    exception.expect(IllegalStateException.class);
+    exception.expectMessage("missing mandatory field 'message'");
     parser.parse();
   }
 }

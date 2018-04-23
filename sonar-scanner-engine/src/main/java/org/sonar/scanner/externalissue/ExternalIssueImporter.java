@@ -107,8 +107,11 @@ public class ExternalIssueImporter {
     InputFile file = findFile(context, location.filePath);
     if (file != null) {
       newLocation
-        .message(location.message)
         .on(file);
+
+      if (location.message != null) {
+        newLocation.message(location.message);
+      }
 
       if (location.textRange != null) {
         if (location.textRange.startColumn != null) {

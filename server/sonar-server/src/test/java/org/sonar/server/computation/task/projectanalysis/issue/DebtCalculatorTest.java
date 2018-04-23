@@ -22,6 +22,7 @@ package org.sonar.server.computation.task.projectanalysis.issue;
 import org.junit.Test;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.debt.internal.DefaultDebtRemediationFunction;
+import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.Durations;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.db.rule.RuleTesting;
@@ -70,6 +71,16 @@ public class DebtCalculatorTest {
     rule.setFunction(new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.LINEAR, coefficient + "min", null));
 
     assertThat(underTest.calculate(issue).toMinutes()).isEqualTo((int) (coefficient * effortToFix));
+  }
+
+  @Test
+  public void copy_effort_for_external_issues() {
+    issue.setGap(null);
+    issue.setIsFromExternalRuleEngine(true);
+    issue.setEffort(Duration.create(20l));
+    rule.setFunction(null);
+
+    assertThat(underTest.calculate(issue).toMinutes()).isEqualTo(20l);
   }
 
   @Test

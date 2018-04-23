@@ -55,7 +55,7 @@ public abstract class CommonRule {
         issue.setSeverity(activeRule.get().getSeverity());
         issue.setLine(null);
         issue.setChecksum("");
-        issue.setFromExternalRuleEngine(false);
+        issue.setIsFromExternalRuleEngine(false);
       }
     }
     return issue;

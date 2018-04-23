@@ -733,7 +733,7 @@ public final class IssueDto implements Serializable {
     issue.setUpdateDate(longToDate(issueUpdateDate));
     issue.setSelectedAt(selectedAt);
     issue.setLocations(parseLocations());
-    issue.setFromExternalRuleEngine(isExternal);
+    issue.setIsFromExternalRuleEngine(isExternal);
     return issue;
   }
 }

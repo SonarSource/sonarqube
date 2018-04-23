@@ -50,7 +50,21 @@
     "primaryLocation": {
       "message": "fix the bug here",
       "filePath": "xources/hello/helloscala.xoo"
-    }     
+    },
+    "secondaryLocations": [
+      {
+        "filePath": "xources/hello/HelloJava.xoo",
+        "textRange": {
+          "startLine": 1
+        }
+      },
+      {
+        "filePath": "xources/hello/HelloJava.xoo",
+        "textRange": {
+          "startLine": 3
+        }
+      }
+    ]     
   }
 ]
 }

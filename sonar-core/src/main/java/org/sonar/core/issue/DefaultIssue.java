@@ -245,8 +245,8 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
     return isFromExternalRuleEngine;
   }
 
-  public DefaultIssue setFromExternalRuleEngine(boolean fromExternalRuleEngine) {
-    isFromExternalRuleEngine = fromExternalRuleEngine;
+  public DefaultIssue setIsFromExternalRuleEngine(boolean isFromExternalRuleEngine) {
+    this.isFromExternalRuleEngine = isFromExternalRuleEngine;
     return this;
   }
 

@@ -167,7 +167,7 @@ public class TrackerRawInputFactory {
           dbLocationsBuilder.addFlow(dbFlowBuilder);
         }
       }
-      issue.setFromExternalRuleEngine(false);
+      issue.setIsFromExternalRuleEngine(false);
       issue.setLocations(dbLocationsBuilder.build());
       return issue;
     }
@@ -204,7 +204,7 @@ public class TrackerRawInputFactory {
           dbLocationsBuilder.addFlow(dbFlowBuilder);
         }
       }
-      issue.setFromExternalRuleEngine(true);
+      issue.setIsFromExternalRuleEngine(true);
       issue.setLocations(dbLocationsBuilder.build());
       issue.setType(toRuleType(reportIssue.getType()));
 

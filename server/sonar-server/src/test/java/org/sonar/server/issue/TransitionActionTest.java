@@ -117,7 +117,7 @@ public class TransitionActionTest {
     loginAndAddProjectPermission("john", ISSUE_ADMIN);
 
     context.issue()
-      .setFromExternalRuleEngine(true)
+      .setIsFromExternalRuleEngine(true)
       .setStatus(STATUS_CLOSED);
 
     action.execute(ImmutableMap.of("transition", "close"), context);

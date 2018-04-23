@@ -170,7 +170,7 @@ public class DefaultIssueBuilder implements Issuable.IssueBuilder {
     issue.setCopied(false);
     issue.setBeingClosed(false);
     issue.setOnDisabledRule(false);
-    issue.setFromExternalRuleEngine(isFromExternalRuleEngine);
+    issue.setIsFromExternalRuleEngine(isFromExternalRuleEngine);
     return issue;
   }
 }

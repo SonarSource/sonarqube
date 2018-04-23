@@ -61,7 +61,6 @@ public class ExternalRuleCreator {
       .setUpdatedAt(system2.now()));
 
     Rule newRule = new RuleImpl(dao.selectOrFailByKey(dbSession, external.getKey()));
-    // TODO write rule repository if needed
     ruleIndexer.commitAndIndex(dbSession, newRule.getId());
     return newRule;
   }

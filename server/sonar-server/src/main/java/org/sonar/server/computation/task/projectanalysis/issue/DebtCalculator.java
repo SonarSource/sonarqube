@@ -40,19 +40,22 @@ public class DebtCalculator {
 
   @CheckForNull
   public Duration calculate(DefaultIssue issue) {
+    if (issue.isFromExternalRuleEngine()) {
+      return issue.effort();
+    }
     Rule rule = ruleRepository.getByKey(issue.ruleKey());
     DebtRemediationFunction fn = rule.getRemediationFunction();
     if (fn != null) {
       verifyEffortToFix(issue, fn);
 
       Duration debt = Duration.create(0);
-      String gapMultiplier =fn.gapMultiplier();
+      String gapMultiplier = fn.gapMultiplier();
       if (fn.type().usesGapMultiplier() && !Strings.isNullOrEmpty(gapMultiplier)) {
-        int effortToFixValue = MoreObjects.firstNonNull(issue.effortToFix(), 1).intValue();
+        int effortToFixValue = MoreObjects.firstNonNull(issue.gap(), 1).intValue();
         // TODO convert to Duration directly in Rule#remediationFunction -> better performance + error handling
         debt = durations.decode(gapMultiplier).multiply(effortToFixValue);
       }
-      String baseEffort= fn.baseEffort();
+      String baseEffort = fn.baseEffort();
       if (fn.type().usesBaseEffort() && !Strings.isNullOrEmpty(baseEffort)) {
         // TODO convert to Duration directly in Rule#remediationFunction -> better performance + error handling
         debt = debt.add(durations.decode(baseEffort));
@@ -63,7 +66,7 @@ public class DebtCalculator {
   }
 
   private static void verifyEffortToFix(DefaultIssue issue, DebtRemediationFunction fn) {
-    if (Type.CONSTANT_ISSUE.equals(fn.type()) && issue.effortToFix() != null) {
+    if (Type.CONSTANT_ISSUE.equals(fn.type()) && issue.gap() != null) {
       throw new IllegalArgumentException("Rule '" + issue.getRuleKey() + "' can not use 'Constant/issue' remediation function " +
         "because this rule does not have a fixed remediation cost.");
     }
