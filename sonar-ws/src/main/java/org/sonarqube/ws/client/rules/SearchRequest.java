@@ -39,7 +39,7 @@ public class SearchRequest {
   private List<String> f;
   private List<String> facets;
   private List<String> inheritance;
-  private String isExternal;
+  private String includeExternal;
   private String isTemplate;
   private List<String> languages;
   private String organization;
@@ -248,13 +248,13 @@ public class SearchRequest {
    *   <li>"no"</li>
    * </ul>
    */
-  public SearchRequest setIsExternal(String isExternal) {
-    this.isExternal = isExternal;
+  public SearchRequest setIncludeExternal(String includeExternal) {
+    this.includeExternal = includeExternal;
     return this;
   }
 
-  public String getIsExternal() {
-    return isExternal;
+  public String getIncludeExternal() {
+    return includeExternal;
   }
 
   /**

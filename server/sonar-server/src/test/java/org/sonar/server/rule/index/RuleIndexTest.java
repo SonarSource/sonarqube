@@ -32,13 +32,17 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
+import org.sonar.api.rule.Severity;
+import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.internal.AlwaysIncreasingSystem2;
 import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleMetadataDto;
+import org.sonar.db.rule.RuleDto.Scope;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.es.Facets;
 import org.sonar.server.es.SearchIdResult;
@@ -46,6 +50,7 @@ import org.sonar.server.es.SearchOptions;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 
 import static com.google.common.collect.ImmutableSet.of;
+import static com.google.common.collect.Sets.newHashSet;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptySet;
@@ -213,6 +218,30 @@ public class RuleIndexTest {
   }
 
   @Test
+  public void search_external_rule() {
+
+    RuleDefinitionDto rule = new RuleDefinitionDto()
+      .setId(123)
+      .setRuleKey("S001")
+      .setRepositoryKey("external_xoo")
+      .setName("xoo:S001")
+      .setSeverity(Severity.BLOCKER)
+      .setStatus(RuleStatus.READY)
+      .setIsTemplate(false)
+      .setIsExternal(true)
+      .setType(RuleType.BUG)
+      .setScope(Scope.ALL)
+      .setCreatedAt(1500000000000L)
+      .setUpdatedAt(1600000000000L);
+
+    db.rules().insert(rule);
+    index();
+
+    assertThat(underTest.search(new RuleQuery().setQueryText("external_xoo:S001"), new SearchOptions()).getIds())
+      .containsExactlyInAnyOrder(rule.getId());
+  }
+
+  @Test
   public void search_content_by_query() {
     RuleDefinitionDto rule1 = createJavaRule(rule -> rule.setRuleKey("123").setDescription("My great rule CWE-123 which makes your code 1000 times better!"));
     RuleDefinitionDto rule2 = createJavaRule(rule -> rule.setRuleKey("124").setDescription("Another great and shiny rule CWE-124"));
@@ -367,7 +396,7 @@ public class RuleIndexTest {
 
     // find all
     RuleQuery query = new RuleQuery();
-    SearchIdResult<Integer>  results = underTest.search(query, new SearchOptions());
+    SearchIdResult<Integer> results = underTest.search(query, new SearchOptions());
     assertThat(results.getIds()).hasSize(2);
 
     // Only template
@@ -385,7 +414,7 @@ public class RuleIndexTest {
     results = underTest.search(query, new SearchOptions());
     assertThat(results.getIds()).containsOnly(ruleIsTemplate.getId(), ruleNoTemplate.getId());
   }
-  
+
   @Test
   public void search_by_is_external() {
     RuleDefinitionDto ruleIsNotExternal = createRule(setIsExternal(false));
@@ -398,17 +427,17 @@ public class RuleIndexTest {
     assertThat(results.getIds()).hasSize(2);
 
     // Only external
-    query = new RuleQuery().setIsExternal(true);
+    query = new RuleQuery().setIncludeExternal(true);
     results = underTest.search(query, new SearchOptions());
     assertThat(results.getIds()).containsOnly(ruleIsExternal.getId());
 
     // Only not external
-    query = new RuleQuery().setIsExternal(false);
+    query = new RuleQuery().setIncludeExternal(false);
     results = underTest.search(query, new SearchOptions());
     assertThat(results.getIds()).containsOnly(ruleIsNotExternal.getId());
 
     // null => no filter
-    query = new RuleQuery().setIsExternal(null);
+    query = new RuleQuery().setIncludeExternal(null);
     results = underTest.search(query, new SearchOptions());
     assertThat(results.getIds()).containsOnly(ruleIsExternal.getId(), ruleIsNotExternal.getId());
   }

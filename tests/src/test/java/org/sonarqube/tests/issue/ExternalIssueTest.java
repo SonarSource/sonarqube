@@ -124,7 +124,7 @@ public class ExternalIssueTest {
     List<org.sonarqube.ws.Rules.Rule> rulesList = tester.wsClient().rules()
       .search(new org.sonarqube.ws.client.rules.SearchRequest()
         .setRuleKey(key)
-        .setIsExternal(Boolean.toString(true)))
+        .setIncludeExternal(Boolean.toString(true)))
       .getRulesList();
     assertThat(rulesList).isEmpty();
 
@@ -134,7 +134,7 @@ public class ExternalIssueTest {
     List<org.sonarqube.ws.Rules.Rule> rulesList = tester.wsClient().rules()
       .search(new org.sonarqube.ws.client.rules.SearchRequest()
         .setRuleKey(key)
-        .setIsExternal(Boolean.toString(true)))
+        .setIncludeExternal(Boolean.toString(true)))
       .getRulesList();
 
     assertThat(rulesList).hasSize(1);

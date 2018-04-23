@@ -84,8 +84,8 @@ import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_ACTIVATION;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_ACTIVE_SEVERITIES;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_AVAILABLE_SINCE;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_COMPARE_TO_PROFILE;
+import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_INCLUDE_EXTERNAL;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_INHERITANCE;
-import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_IS_EXTERNAL;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_IS_TEMPLATE;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_LANGUAGES;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_ORGANIZATION;
@@ -208,8 +208,8 @@ public class SearchAction implements RulesWsAction {
 
   static void defineIsExternalParam(WebService.NewAction action) {
     action
-      .createParam(PARAM_IS_EXTERNAL)
-      .setDescription("Filter external engine rules")
+      .createParam(PARAM_INCLUDE_EXTERNAL)
+      .setDescription("Include external engine rules in the results")
       .setDefaultValue(false)
       .setBooleanPossibleValues()
       .setSince("7.2");

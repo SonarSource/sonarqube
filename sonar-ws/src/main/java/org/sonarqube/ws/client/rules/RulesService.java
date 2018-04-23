@@ -143,7 +143,7 @@ public class RulesService extends BaseService {
         .setParam("facets", request.getFacets() == null ? null : request.getFacets().stream().collect(Collectors.joining(",")))
         .setParam("inheritance", request.getInheritance() == null ? null : request.getInheritance().stream().collect(Collectors.joining(",")))
         .setParam("is_template", request.getIsTemplate())
-        .setParam("is_external", request.getIsExternal())
+        .setParam("include_external", request.getIncludeExternal())
         .setParam("languages", request.getLanguages() == null ? null : request.getLanguages().stream().collect(Collectors.joining(",")))
         .setParam("organization", request.getOrganization())
         .setParam("p", request.getP())

@@ -57,7 +57,7 @@ import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_ACTIVE_SEVERITIES
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_AVAILABLE_SINCE;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_COMPARE_TO_PROFILE;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_INHERITANCE;
-import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_IS_EXTERNAL;
+import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_INCLUDE_EXTERNAL;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_IS_TEMPLATE;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_LANGUAGES;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_ORGANIZATION;
@@ -101,7 +101,7 @@ public class RuleQueryFactoryTest {
     assertThat(result.isAscendingSort()).isTrue();
     assertThat(result.getAvailableSinceLong()).isNull();
     assertThat(result.getInheritance()).isNull();
-    assertThat(result.isExternal()).isNull();
+    assertThat(result.includeExternal()).isNull();
     assertThat(result.isTemplate()).isNull();
     assertThat(result.getLanguages()).isNull();
     assertThat(result.getQueryText()).isNull();
@@ -130,7 +130,7 @@ public class RuleQueryFactoryTest {
       PARAM_AVAILABLE_SINCE, "2016-01-01",
       PARAM_INHERITANCE, "INHERITED,OVERRIDES",
       PARAM_IS_TEMPLATE, "true",
-      PARAM_IS_EXTERNAL, "false",
+      PARAM_INCLUDE_EXTERNAL, "false",
       PARAM_LANGUAGES, "java,js",
       TEXT_QUERY, "S001",
       PARAM_ORGANIZATION, organization.getKey(),
@@ -147,17 +147,17 @@ public class RuleQueryFactoryTest {
       ASCENDING, "false");
 
     assertResult(result, qualityProfile, compareToQualityProfile);
-    assertThat(result.isExternal()).isFalse();
+    assertThat(result.includeExternal()).isFalse();
   }
 
   @Test
-  public void is_external_is_mandatory_for_rule_search_query() {
+  public void include_external_is_mandatory_for_rule_search_query() {
     dbTester.qualityProfiles().insert(organization);
     dbTester.qualityProfiles().insert(organization);
     Request request = new SimpleGetRequest();
 
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("The 'is_external' parameter is missing");
+    expectedException.expectMessage("The 'include_external' parameter is missing");
     underTest.createRuleSearchQuery(dbTester.getSession(), request);
   }
 
@@ -174,7 +174,7 @@ public class RuleQueryFactoryTest {
       PARAM_AVAILABLE_SINCE, "2016-01-01",
       PARAM_INHERITANCE, "INHERITED,OVERRIDES",
       PARAM_IS_TEMPLATE, "true",
-      PARAM_IS_EXTERNAL, "true",
+      PARAM_INCLUDE_EXTERNAL, "true",
       PARAM_LANGUAGES, "java,js",
       TEXT_QUERY, "S001",
       PARAM_ORGANIZATION, organization.getKey(),
@@ -191,7 +191,7 @@ public class RuleQueryFactoryTest {
       ASCENDING, "false");
 
     assertResult(result, qualityProfile, compareToQualityProfile);
-    assertThat(result.isExternal()).isNull();
+    assertThat(result.includeExternal()).isNull();
   }
 
   private void assertResult(RuleQuery result, QProfileDto qualityProfile, QProfileDto compareToQualityProfile) {

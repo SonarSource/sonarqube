@@ -87,7 +87,7 @@ public class DeactivateRulesAction implements QProfileWsAction {
       OrganizationDto organization = wsSupport.getOrganization(dbSession, profile);
       wsSupport.checkCanEdit(dbSession, organization, profile);
       RuleQuery ruleQuery = ruleQueryFactory.createRuleQuery(dbSession, request);
-      ruleQuery.setIsExternal(false);
+      ruleQuery.setIncludeExternal(false);
       result = ruleActivator.bulkDeactivateAndCommit(dbSession, profile, ruleQuery);
     }
     writeResponse(result, response);
