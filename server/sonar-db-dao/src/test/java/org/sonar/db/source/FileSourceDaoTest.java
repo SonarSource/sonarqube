@@ -20,30 +20,43 @@
 package org.sonar.db.source;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import java.io.IOException;
 import java.io.Reader;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.Random;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import javax.annotation.Nullable;
 import org.apache.commons.io.IOUtils;
+import org.apache.ibatis.session.ResultContext;
+import org.apache.ibatis.session.ResultHandler;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.ComponentDto;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.source.FileSourceDto.Type;
 
 import static com.google.common.collect.ImmutableList.of;
 import static java.util.Collections.emptyList;
+import static java.util.Collections.emptySet;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
+import static org.sonar.db.component.ComponentTesting.newFileDto;
 
 public class FileSourceDaoTest {
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
-  private DbSession session = dbTester.getSession();
+  private DbSession dbSession = dbTester.getSession();
 
   private FileSourceDao underTest = dbTester.getDbClient().fileSourceDao();
 
@@ -51,7 +64,7 @@ public class FileSourceDaoTest {
   public void select() {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
 
-    FileSourceDto fileSourceDto = underTest.selectSourceByFileUuid(session, "FILE1_UUID");
+    FileSourceDto fileSourceDto = underTest.selectSourceByFileUuid(dbSession, "FILE1_UUID");
 
     assertThat(fileSourceDto.getBinaryData()).isNotEmpty();
     assertThat(fileSourceDto.getDataHash()).isEqualTo("hash");
@@ -70,7 +83,7 @@ public class FileSourceDaoTest {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
 
     ReaderToStringConsumer fn = new ReaderToStringConsumer();
-    underTest.readLineHashesStream(dbTester.getSession(), "FILE1_UUID", fn);
+    underTest.readLineHashesStream(dbSession, "FILE1_UUID", fn);
 
     assertThat(fn.result).isEqualTo("ABC\\nDEF\\nGHI");
   }
@@ -80,7 +93,7 @@ public class FileSourceDaoTest {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
 
     ReaderToStringConsumer fn = new ReaderToStringConsumer();
-    underTest.readLineHashesStream(dbTester.getSession(), "unknown", fn);
+    underTest.readLineHashesStream(dbSession, "unknown", fn);
 
     assertThat(fn.result).isNull();
   }
@@ -90,7 +103,7 @@ public class FileSourceDaoTest {
     dbTester.prepareDbUnit(getClass(), "no_line_hashes_when_only_test_data.xml");
 
     ReaderToStringConsumer fn = new ReaderToStringConsumer();
-    underTest.readLineHashesStream(dbTester.getSession(), "FILE1_UUID", fn);
+    underTest.readLineHashesStream(dbSession, "FILE1_UUID", fn);
 
     assertThat(fn.result).isNull();
   }
@@ -109,10 +122,10 @@ public class FileSourceDaoTest {
       .setUpdatedAt(1500000000001L)
       .setLineHashesVersion(1)
       .setRevision("123456789");
-    underTest.insert(session, expected);
-    session.commit();
+    underTest.insert(dbSession, expected);
+    dbSession.commit();
 
-    FileSourceDto fileSourceDto = underTest.selectSourceByFileUuid(session, expected.getFileUuid());
+    FileSourceDto fileSourceDto = underTest.selectSourceByFileUuid(dbSession, expected.getFileUuid());
 
     assertThat(fileSourceDto.getProjectUuid()).isEqualTo(expected.getProjectUuid());
     assertThat(fileSourceDto.getFileUuid()).isEqualTo(expected.getFileUuid());
@@ -134,8 +147,8 @@ public class FileSourceDaoTest {
       .setFileUuid("Bar")
       .setCreatedAt(1500000000000L)
       .setUpdatedAt(1500000000001L);
-    underTest.insert(session, fileSourceDto);
-    session.commit();
+    underTest.insert(dbSession, fileSourceDto);
+    dbSession.commit();
   }
 
   @Test
@@ -146,10 +159,10 @@ public class FileSourceDaoTest {
       .setDataType(Type.SOURCE)
       .setCreatedAt(1500000000000L)
       .setUpdatedAt(1500000000001L);
-    underTest.insert(session, fileSourceDto);
-    session.commit();
+    underTest.insert(dbSession, fileSourceDto);
+    dbSession.commit();
 
-    FileSourceDto res = underTest.selectSourceByFileUuid(session, fileSourceDto.getFileUuid());
+    FileSourceDto res = underTest.selectSourceByFileUuid(dbSession, fileSourceDto.getFileUuid());
 
     assertThat(res.getLineCount()).isEqualTo(0);
     assertThat(res.getLineHashes()).isEmpty();
@@ -163,10 +176,10 @@ public class FileSourceDaoTest {
       .setDataType(Type.TEST)
       .setCreatedAt(1500000000000L)
       .setUpdatedAt(1500000000001L);
-    underTest.insert(session, fileSourceDto);
-    session.commit();
+    underTest.insert(dbSession, fileSourceDto);
+    dbSession.commit();
 
-    FileSourceDto res = underTest.selectTestByFileUuid(session, fileSourceDto.getFileUuid());
+    FileSourceDto res = underTest.selectTestByFileUuid(dbSession, fileSourceDto.getFileUuid());
 
     assertThat(res.getLineCount()).isEqualTo(0);
     assertThat(res.getLineHashes()).isEmpty();
@@ -176,7 +189,7 @@ public class FileSourceDaoTest {
   public void selectLineHashes_does_not_fail_when_lineshashes_is_null() {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
 
-    underTest.insert(session, new FileSourceDto()
+    underTest.insert(dbSession, new FileSourceDto()
       .setProjectUuid("PRJ_UUID")
       .setFileUuid("FILE2_UUID")
       .setBinaryData("FILE2_BINARY_DATA".getBytes())
@@ -186,14 +199,14 @@ public class FileSourceDaoTest {
       .setCreatedAt(1500000000000L)
       .setUpdatedAt(1500000000001L)
       .setRevision("123456789"));
-    session.commit();
+    dbSession.commit();
 
-    assertThat(underTest.selectLineHashes(dbTester.getSession(), "FILE2_UUID")).isEmpty();
+    assertThat(underTest.selectLineHashes(dbSession, "FILE2_UUID")).isEmpty();
   }
 
   @Test
   public void selectLineHashesVersion_returns_without_significant_code_by_default() {
-    underTest.insert(session, new FileSourceDto()
+    underTest.insert(dbSession, new FileSourceDto()
       .setProjectUuid("PRJ_UUID")
       .setFileUuid("FILE2_UUID")
       .setBinaryData("FILE2_BINARY_DATA".getBytes())
@@ -204,14 +217,14 @@ public class FileSourceDaoTest {
       .setCreatedAt(1500000000000L)
       .setUpdatedAt(1500000000001L)
       .setRevision("123456789"));
-    session.commit();
+    dbSession.commit();
 
-    assertThat(underTest.selectLineHashesVersion(dbTester.getSession(), "FILE2_UUID")).isEqualTo(LineHashVersion.WITHOUT_SIGNIFICANT_CODE);
+    assertThat(underTest.selectLineHashesVersion(dbSession, "FILE2_UUID")).isEqualTo(LineHashVersion.WITHOUT_SIGNIFICANT_CODE);
   }
 
   @Test
   public void selectLineHashesVersion_succeeds() {
-    underTest.insert(session, new FileSourceDto()
+    underTest.insert(dbSession, new FileSourceDto()
       .setProjectUuid("PRJ_UUID")
       .setFileUuid("FILE2_UUID")
       .setBinaryData("FILE2_BINARY_DATA".getBytes())
@@ -223,16 +236,16 @@ public class FileSourceDaoTest {
       .setUpdatedAt(1500000000001L)
       .setLineHashesVersion(1)
       .setRevision("123456789"));
-    session.commit();
+    dbSession.commit();
 
-    assertThat(underTest.selectLineHashesVersion(dbTester.getSession(), "FILE2_UUID")).isEqualTo(LineHashVersion.WITH_SIGNIFICANT_CODE);
+    assertThat(underTest.selectLineHashesVersion(dbSession, "FILE2_UUID")).isEqualTo(LineHashVersion.WITH_SIGNIFICANT_CODE);
   }
 
   @Test
   public void readLineHashesStream_does_not_fail_when_lineshashes_is_null() {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
 
-    underTest.insert(session, new FileSourceDto()
+    underTest.insert(dbSession, new FileSourceDto()
       .setProjectUuid("PRJ_UUID")
       .setFileUuid("FILE2_UUID")
       .setBinaryData("FILE2_BINARY_DATA".getBytes())
@@ -242,10 +255,10 @@ public class FileSourceDaoTest {
       .setCreatedAt(1500000000000L)
       .setUpdatedAt(1500000000001L)
       .setRevision("123456789"));
-    session.commit();
+    dbSession.commit();
 
     boolean[] flag = {false};
-    underTest.readLineHashesStream(dbTester.getSession(), "FILE2_UUID", new Consumer<Reader>() {
+    underTest.readLineHashesStream(dbSession, "FILE2_UUID", new Consumer<Reader>() {
       @Override
       public void accept(@Nullable Reader input) {
         fail("function must never been called since there is no data to read");
@@ -256,10 +269,120 @@ public class FileSourceDaoTest {
   }
 
   @Test
+  public void scrollLineHashes_has_no_effect_if_no_keys() {
+    underTest.scrollLineHashes(dbSession, emptySet(), resultContext -> fail("handler should not be called"));
+  }
+
+  @Test
+  public void scrollLineHashes_scrolls_hashes_of_specific_keys() {
+    OrganizationDto organization = dbTester.organizations().insert();
+    ComponentDto project = new Random().nextBoolean() ? dbTester.components().insertPrivateProject(organization) : dbTester.components().insertPublicProject(organization);
+    ComponentDto file1 = dbTester.components().insertComponent(newFileDto(project));
+    FileSourceDto fileSource1 = dbTester.fileSources().insertFileSource(file1);
+    ComponentDto file2 = dbTester.components().insertComponent(newFileDto(project));
+    FileSourceDto fileSource2 = dbTester.fileSources().insertFileSource(file2);
+    ComponentDto file3 = dbTester.components().insertComponent(newFileDto(project));
+    FileSourceDto fileSource3 = dbTester.fileSources().insertFileSource(file3);
+
+    LineHashesWithKeyDtoHandler handler = scrollLineHashes(file1.getDbKey());
+    assertThat(handler.dtos).hasSize(1);
+    verifyLinesHashes(handler, file1, fileSource1);
+
+    handler = scrollLineHashes(file2.getDbKey());
+    assertThat(handler.dtos).hasSize(1);
+    verifyLinesHashes(handler, file2, fileSource2);
+
+    handler = scrollLineHashes(file2.getDbKey(), file1.getDbKey(), file3.getDbKey());
+    assertThat(handler.dtos).hasSize(3);
+    verifyLinesHashes(handler, file1, fileSource1);
+    verifyLinesHashes(handler, file2, fileSource2);
+    verifyLinesHashes(handler, file3, fileSource3);
+  }
+
+  @Test
+  public void scrollLineHashes_does_not_scroll_hashes_of_component_without_path() {
+    OrganizationDto organization = dbTester.organizations().insert();
+    ComponentDto project = new Random().nextBoolean() ? dbTester.components().insertPrivateProject(organization) : dbTester.components().insertPublicProject(organization);
+    ComponentDto file1 = dbTester.components().insertComponent(newFileDto(project));
+    FileSourceDto fileSource1 = dbTester.fileSources().insertFileSource(file1);
+    ComponentDto file2 = dbTester.components().insertComponent(newFileDto(project).setPath(null));
+    FileSourceDto fileSource2 = dbTester.fileSources().insertFileSource(file2);
+
+    LineHashesWithKeyDtoHandler handler = scrollLineHashes(file2.getDbKey(), file1.getDbKey());
+    assertThat(handler.dtos).hasSize(1);
+    verifyLinesHashes(handler, file1, fileSource1);
+  }
+
+  @Test
+  public void scrollLineHashes_does_not_scroll_hashes_of_component_with_TEST_source() {
+    OrganizationDto organization = dbTester.organizations().insert();
+    ComponentDto project = new Random().nextBoolean() ? dbTester.components().insertPrivateProject(organization) : dbTester.components().insertPublicProject(organization);
+    ComponentDto file1 = dbTester.components().insertComponent(newFileDto(project));
+    FileSourceDto fileSource1 = dbTester.fileSources().insertFileSource(file1);
+    ComponentDto file2 = dbTester.components().insertComponent(newFileDto(project));
+    FileSourceDto fileSource2 = dbTester.fileSources().insertFileSource(file2, t -> t.setDataType(Type.TEST));
+    ComponentDto file3 = dbTester.components().insertComponent(newFileDto(project));
+    FileSourceDto fileSource3 = dbTester.fileSources().insertFileSource(file3, t -> t.setDataType(Type.SOURCE));
+    FileSourceDto testFileSource3 = dbTester.fileSources().insertFileSource(file3, t -> t.setDataType(Type.TEST));
+
+    LineHashesWithKeyDtoHandler handler = scrollLineHashes(file2.getDbKey(), file1.getDbKey(), file3.getDbKey());
+    assertThat(handler.dtos).hasSize(2);
+    verifyLinesHashes(handler, file1, fileSource1);
+    verifyLinesHashes(handler, file3, fileSource3);
+  }
+
+  @Test
+  public void scrollLineHashes_handles_scrolling_more_than_1000_files() {
+    OrganizationDto organization = dbTester.organizations().insert();
+    ComponentDto project = new Random().nextBoolean() ? dbTester.components().insertPrivateProject(organization) : dbTester.components().insertPublicProject(organization);
+    List<ComponentDto> files = IntStream.range(0, 1001 + new Random().nextInt(5))
+      .mapToObj(i -> {
+        ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
+        dbTester.fileSources().insertFileSource(file);
+        return file;
+      })
+      .collect(Collectors.toList());
+
+    LineHashesWithKeyDtoHandler handler = new LineHashesWithKeyDtoHandler();
+    underTest.scrollLineHashes(dbSession, files.stream().map(ComponentDto::getDbKey).collect(Collectors.toSet()), handler);
+
+    assertThat(handler.dtos).hasSize(files.size());
+    files.forEach(t -> assertThat(handler.getByKey(t.getDbKey())).isPresent());
+  }
+
+  private LineHashesWithKeyDtoHandler scrollLineHashes(String... keys) {
+    LineHashesWithKeyDtoHandler handler = new LineHashesWithKeyDtoHandler();
+    underTest.scrollLineHashes(dbSession, ImmutableSet.copyOf(keys), handler);
+    return handler;
+  }
+
+  private static void verifyLinesHashes(LineHashesWithKeyDtoHandler handler, ComponentDto file, FileSourceDto fileSource) {
+    LineHashesWithKeyDto dto = handler.getByKey(file.getDbKey()).get();
+    assertThat(dto.getPath()).isEqualTo(file.path());
+    assertThat(dto.getRawLineHashes()).isEqualTo(fileSource.getRawLineHashes());
+    assertThat(dto.getLineHashes()).isEqualTo(fileSource.getLineHashes());
+  }
+
+  private static final class LineHashesWithKeyDtoHandler implements ResultHandler<LineHashesWithKeyDto> {
+    private final List<LineHashesWithKeyDto> dtos = new ArrayList<>();
+
+    @Override
+    public void handleResult(ResultContext<? extends LineHashesWithKeyDto> resultContext) {
+      dtos.add(resultContext.getResultObject());
+    }
+
+    public Optional<LineHashesWithKeyDto> getByKey(String key) {
+      return dtos.stream()
+        .filter(t -> key.equals(t.getKey()))
+        .findAny();
+    }
+  }
+
+  @Test
   public void update() {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
 
-    underTest.update(session, new FileSourceDto()
+    underTest.update(dbSession, new FileSourceDto()
       .setId(101L)
       .setProjectUuid("PRJ_UUID")
       .setFileUuid("FILE1_UUID")
@@ -271,7 +394,7 @@ public class FileSourceDaoTest {
       .setUpdatedAt(1500000000002L)
       .setLineHashesVersion(1)
       .setRevision("987654321"));
-    session.commit();
+    dbSession.commit();
 
     dbTester.assertDbUnitTable(getClass(), "update-result.xml", "file_sources", "project_uuid", "file_uuid",
       "data_hash", "line_hashes", "src_hash", "created_at", "updated_at", "data_type", "revision", "line_hashes_version");
@@ -287,19 +410,19 @@ public class FileSourceDaoTest {
       .setLineHashes(lineHashes)
       .setCreatedAt(1500000000000L)
       .setUpdatedAt(1500000000001L);
-    underTest.insert(session, fileSourceDto);
-    session.commit();
+    underTest.insert(dbSession, fileSourceDto);
+    dbSession.commit();
 
-    FileSourceDto resBefore = underTest.selectSourceByFileUuid(session, fileSourceDto.getFileUuid());
+    FileSourceDto resBefore = underTest.selectSourceByFileUuid(dbSession, fileSourceDto.getFileUuid());
     assertThat(resBefore.getLineCount()).isEqualTo(lineHashes.size());
     assertThat(resBefore.getLineHashes()).isEqualTo(lineHashes);
 
     fileSourceDto.setId(resBefore.getId());
     fileSourceDto.setLineHashes(emptyList());
-    underTest.update(session, fileSourceDto);
-    session.commit();
+    underTest.update(dbSession, fileSourceDto);
+    dbSession.commit();
 
-    FileSourceDto res = underTest.selectSourceByFileUuid(session, fileSourceDto.getFileUuid());
+    FileSourceDto res = underTest.selectSourceByFileUuid(dbSession, fileSourceDto.getFileUuid());
     assertThat(res.getLineHashes()).isEmpty();
     assertThat(res.getLineCount()).isEqualTo(1);
   }

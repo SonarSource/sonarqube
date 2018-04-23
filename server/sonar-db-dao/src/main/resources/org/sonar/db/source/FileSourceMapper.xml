@@ -28,9 +28,35 @@
   </select>
 
   <select id="selectHashesForProject" parameterType="map" resultType="org.sonar.db.source.FileSourceDto">
-    SELECT id, file_uuid as fileUuid, data_hash as dataHash, src_hash as srcHash, revision, updated_at as updatedAt
-    FROM file_sources
-    WHERE project_uuid = #{projectUuid} and data_type=#{dataType}
+    select
+      id,
+      file_uuid as fileUuid,
+      data_hash as dataHash,
+      src_hash as srcHash,
+      revision,
+      updated_at as updatedAt
+    from
+      file_sources
+    where
+      project_uuid = #{projectUuid}
+      and data_type=#{dataType}
+  </select>
+
+  <select id="scrollLineHashes" parameterType="map" resultType="org.sonar.db.source.LineHashesWithKeyDto" fetchSize="${_scrollFetchSize}" resultSetType="FORWARD_ONLY">
+    select
+      p.kee as kee,
+      p.path as path,
+      fs.line_hashes as rawLineHashes
+    from projects p
+    inner join file_sources fs on
+      fs.file_uuid = p.uuid
+      and fs.data_type = 'SOURCE'
+    where
+      p.kee in
+      <foreach collection="fileKeys" item="fileKey" open="(" close=")" separator=",">
+        #{fileKey,jdbcType=VARCHAR}
+      </foreach>
+      and p.path is not null
   </select>
 
   <select id="selectLineHashesVersion" parameterType="map" resultType="Integer">

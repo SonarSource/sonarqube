@@ -25,6 +25,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.stream.IntStream;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.io.FileUtils;
@@ -51,6 +52,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.server.computation.task.projectanalysis.component.ReportComponent.builder;
+import static org.sonar.server.computation.task.projectanalysis.filemove.FileMoveDetectionStep.MIN_REQUIRED_SCORE;
 
 public class FileMoveDetectionStepTest {
 
@@ -81,6 +83,9 @@ public class FileMoveDetectionStepTest {
     "package org.sonar.server.computation.task.projectanalysis.filemove;",
     "",
     "public class Foo {",
+    "  public String foo() {",
+    "    return \"Donut!\";",
+    "  }",
     "}"
   };
   private static final String[] CONTENT_EMPTY = {
@@ -218,7 +223,7 @@ public class FileMoveDetectionStepTest {
 
   private SourceLinesHashRepository sourceLinesHash = mock(SourceLinesHashRepository.class);
   private FileSimilarity fileSimilarity = new FileSimilarityImpl(new SourceSimilarityImpl());
-  private ScoreMatrixDumper scoreMatrixDumper = mock(ScoreMatrixDumper.class);
+  private CapturingScoreMatrixDumper scoreMatrixDumper = new CapturingScoreMatrixDumper();
 
   private FileMoveDetectionStep underTest = new FileMoveDetectionStep(analysisMetadataHolder, treeRootHolder, dbClient,
     fileSimilarity, movedFilesRepository, sourceLinesHash, scoreMatrixDumper);
@@ -313,6 +318,9 @@ public class FileMoveDetectionStepTest {
     underTest.execute();
 
     assertThat(movedFilesRepository.getComponentsWithOriginal()).isEmpty();
+    assertThat(scoreMatrixDumper.scoreMatrix.getMaxScore())
+      .isGreaterThan(0)
+      .isLessThan(MIN_REQUIRED_SCORE);
   }
 
   @Test
@@ -326,6 +334,7 @@ public class FileMoveDetectionStepTest {
     underTest.execute();
 
     assertThat(movedFilesRepository.getComponentsWithOriginal()).isEmpty();
+    assertThat(scoreMatrixDumper.scoreMatrix.getMaxScore()).isZero();
   }
 
   @Test
@@ -340,6 +349,7 @@ public class FileMoveDetectionStepTest {
     underTest.execute();
 
     assertThat(movedFilesRepository.getComponentsWithOriginal()).isEmpty();
+    assertThat(scoreMatrixDumper.scoreMatrix).isNull();
   }
 
   @Test
@@ -353,6 +363,7 @@ public class FileMoveDetectionStepTest {
     underTest.execute();
 
     assertThat(movedFilesRepository.getComponentsWithOriginal()).isEmpty();
+    assertThat(scoreMatrixDumper.scoreMatrix.getMaxScore()).isZero();
   }
 
   @Test
@@ -367,6 +378,7 @@ public class FileMoveDetectionStepTest {
     underTest.execute();
 
     assertThat(movedFilesRepository.getComponentsWithOriginal()).isEmpty();
+    assertThat(scoreMatrixDumper.scoreMatrix.getMaxScore()).isEqualTo(100);
   }
 
   @Test
@@ -381,6 +393,7 @@ public class FileMoveDetectionStepTest {
     underTest.execute();
 
     assertThat(movedFilesRepository.getComponentsWithOriginal()).isEmpty();
+    assertThat(scoreMatrixDumper.scoreMatrix.getMaxScore()).isEqualTo(100);
   }
 
   @Test
@@ -393,6 +406,7 @@ public class FileMoveDetectionStepTest {
     underTest.execute();
 
     assertThat(movedFilesRepository.getComponentsWithOriginal()).isEmpty();
+    assertThat(scoreMatrixDumper.scoreMatrix).isNull();
   }
 
   @Test
@@ -427,6 +441,31 @@ public class FileMoveDetectionStepTest {
     assertThat(originalFile5.getId()).isEqualTo(dtos[3].getId());
     assertThat(originalFile5.getKey()).isEqualTo(dtos[3].getDbKey());
     assertThat(originalFile5.getUuid()).isEqualTo(dtos[3].uuid());
+    assertThat(scoreMatrixDumper.scoreMatrix.getMaxScore()).isGreaterThan(MIN_REQUIRED_SCORE);
+  }
+
+  @Test
+  public void execute_does_not_compute_any_distance_if_all_files_sizes_are_all_too_different() {
+    analysisMetadataHolder.setBaseAnalysis(ANALYSIS);
+    Component file4 = fileComponent(5);
+    insertFiles(FILE_1.getKey(), FILE_2.getKey());
+    insertContentOfFileInDb(FILE_1.getKey(), arrayOf(100));
+    insertContentOfFileInDb(FILE_2.getKey(), arrayOf(30));
+    setFilesInReport(FILE_3, file4);
+    setFileLineHashesInReport(FILE_3, arrayOf(118));
+    setFileLineHashesInReport(file4, arrayOf(25));
+
+    underTest.execute();
+
+    assertThat(movedFilesRepository.getComponentsWithOriginal()).isEmpty();
+    assertThat(scoreMatrixDumper.scoreMatrix.getMaxScore()).isZero();
+  }
+
+  /**
+   * Creates an array of {@code numberOfElements} int values as String, starting with zero.
+   */
+  private static String[] arrayOf(int numberOfElements) {
+    return IntStream.range(0, numberOfElements).mapToObj(String::valueOf).toArray(String[]::new);
   }
 
   /**
@@ -536,4 +575,12 @@ public class FileMoveDetectionStepTest {
       .build();
   }
 
+  private static class CapturingScoreMatrixDumper implements ScoreMatrixDumper {
+    private ScoreMatrix scoreMatrix;
+
+    @Override
+    public void dumpAsCsv(ScoreMatrix scoreMatrix) {
+      this.scoreMatrix = scoreMatrix;
+    }
+  }
 }

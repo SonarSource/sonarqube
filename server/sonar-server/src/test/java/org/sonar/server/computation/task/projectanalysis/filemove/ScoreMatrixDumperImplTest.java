@@ -19,9 +19,6 @@
  */
 package org.sonar.server.computation.task.projectanalysis.filemove;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
@@ -39,6 +36,7 @@ import org.junit.runner.RunWith;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.ce.queue.CeTask;
+import org.sonar.server.computation.task.projectanalysis.filemove.ScoreMatrix.ScoreFile;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -48,8 +46,8 @@ import static org.mockito.Mockito.when;
 @RunWith(DataProviderRunner.class)
 public class ScoreMatrixDumperImplTest {
   private static final ScoreMatrix A_SCORE_MATRIX = new ScoreMatrix(
-    ImmutableSet.of("A", "B"),
-    ImmutableMap.of("1", new FileSimilarity.File("path_1", ImmutableList.of("foo", "bar"))),
+    new ScoreFile[] {new ScoreFile("A", 12), new ScoreFile("B", 8)},
+    new ScoreFile[] {new ScoreFile("1", 7)},
     new int[][] {{10}, {2}},
     10);
   private MapSettings settings = new MapSettings();

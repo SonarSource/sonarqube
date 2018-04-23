@@ -25,15 +25,19 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
 import javax.annotation.CheckForNull;
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.ibatis.session.ResultHandler;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.source.FileSourceDto.Type;
+
+import static org.sonar.db.DatabaseUtils.toUniqueAndSortedPartitions;
 
 public class FileSourceDao implements Dao {
 
@@ -77,6 +81,16 @@ public class FileSourceDao implements Dao {
       throw new IllegalStateException("Fail to read FILE_SOURCES.LINE_HASHES of file " + fileUuid, e);
     } finally {
       DbUtils.closeQuietly(connection, pstmt, rs);
+    }
+  }
+
+  /**
+   * Scroll line hashes of all <strong>enabled</strong> components (should be files, but not enforced) with specified
+   * keys in no specific order with 'SOURCE' source and a non null path.
+   */
+  public void scrollLineHashes(DbSession dbSession, Collection<String> fileKeys, ResultHandler<LineHashesWithKeyDto> rowHandler) {
+    for (List<String> partition : toUniqueAndSortedPartitions(fileKeys)) {
+      mapper(dbSession).scrollLineHashes(partition, rowHandler);
     }
   }
 

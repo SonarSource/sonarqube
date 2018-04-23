@@ -19,25 +19,39 @@
  */
 package org.sonar.db.source;
 
-import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
-import javax.annotation.CheckForNull;
-import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.session.ResultHandler;
+import javax.annotation.Nullable;
 
-public interface FileSourceMapper {
+import static org.sonar.db.source.FileSourceDto.LINES_HASHES_SPLITTER;
 
-  List<FileSourceDto> selectHashesForProject(@Param("projectUuid") String projectUuid, @Param("dataType") String dataType);
+public class LineHashesWithKeyDto {
+  private String kee;
+  private String path;
+  private String lineHashes;
 
-  @CheckForNull
-  FileSourceDto select(@Param("fileUuid") String fileUuid, @Param("dataType") String dataType);
+  public String getKey() {
+    return kee;
+  }
 
-  void scrollLineHashes(@Param("fileKeys") Collection<String> fileKeys, ResultHandler<LineHashesWithKeyDto> rowHandler);
+  public String getPath() {
+    return path;
+  }
 
-  @CheckForNull
-  Integer selectLineHashesVersion(@Param("fileUuid") String fileUuid, @Param("dataType") String dataType);
+  /** Used by MyBatis */
+  public String getRawLineHashes() {
+    return lineHashes;
+  }
 
-  void insert(FileSourceDto dto);
+  /** Used by MyBatis */
+  public void setRawLineHashes(@Nullable String lineHashes) {
+    this.lineHashes = lineHashes;
+  }
 
-  void update(FileSourceDto dto);
+  public List<String> getLineHashes() {
+    if (lineHashes == null) {
+      return Collections.emptyList();
+    }
+    return LINES_HASHES_SPLITTER.splitToList(lineHashes);
+  }
 }

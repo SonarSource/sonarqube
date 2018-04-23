@@ -17,27 +17,43 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.source;
+package org.sonar.db.component;
 
-import java.util.Collection;
-import java.util.List;
-import javax.annotation.CheckForNull;
-import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.session.ResultHandler;
+public class FileMoveRowDto {
+  private long id;
+  private String kee;
+  private String uuid;
+  private String path;
+  private int lineCount;
 
-public interface FileSourceMapper {
+  public long getId() {
+    return id;
+  }
 
-  List<FileSourceDto> selectHashesForProject(@Param("projectUuid") String projectUuid, @Param("dataType") String dataType);
+  public String getKey() {
+    return kee;
+  }
 
-  @CheckForNull
-  FileSourceDto select(@Param("fileUuid") String fileUuid, @Param("dataType") String dataType);
+  public String getUuid() {
+    return uuid;
+  }
 
-  void scrollLineHashes(@Param("fileKeys") Collection<String> fileKeys, ResultHandler<LineHashesWithKeyDto> rowHandler);
+  public String getPath() {
+    return path;
+  }
 
-  @CheckForNull
-  Integer selectLineHashesVersion(@Param("fileUuid") String fileUuid, @Param("dataType") String dataType);
+  public int getLineCount() {
+    return lineCount;
+  }
 
-  void insert(FileSourceDto dto);
-
-  void update(FileSourceDto dto);
+  @Override
+  public String toString() {
+    return "FileMoveRowDto{" +
+      "id=" + id +
+      ", kee='" + kee + '\'' +
+      ", uuid='" + uuid + '\'' +
+      ", path='" + path + '\'' +
+      ", lineCount=" + lineCount +
+      '}';
+  }
 }

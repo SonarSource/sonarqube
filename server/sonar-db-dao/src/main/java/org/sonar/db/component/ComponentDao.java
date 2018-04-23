@@ -334,6 +334,18 @@ public class ComponentDao implements Dao {
     return mapper(dbSession).selectProjectsByNameQuery(nameQueryForSql, includeModules);
   }
 
+  public List<KeyWithUuidDto> selectComponentKeysHavingIssuesToMerge(DbSession dbSession, String mergeBranchUuid) {
+    return mapper(dbSession).selectComponentKeysHavingIssuesToMerge(mergeBranchUuid);
+  }
+
+  /**
+   * Scroll all <strong>enabled</strong> files of the specified project (same project_uuid) in no specific order with
+   * 'SOURCE' source and a non null path.
+   */
+  public void scrollAllFilesForFileMove(DbSession session, String projectUuid, ResultHandler<FileMoveRowDto> handler) {
+    mapper(session).scrollAllFilesForFileMove(projectUuid, handler);
+  }
+
   public void insert(DbSession session, ComponentDto item) {
     mapper(session).insert(item);
   }
@@ -374,10 +386,6 @@ public class ComponentDao implements Dao {
 
   public void delete(DbSession session, long componentId) {
     mapper(session).delete(componentId);
-  }
-
-  public List<KeyWithUuidDto> selectComponentKeysHavingIssuesToMerge(DbSession dbSession, String mergeBranchUuid) {
-    return mapper(dbSession).selectComponentKeysHavingIssuesToMerge(mergeBranchUuid);
   }
 
   private static void checkThatNotTooManyComponents(ComponentQuery query) {
