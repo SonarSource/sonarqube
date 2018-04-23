@@ -35,6 +35,7 @@ public class ReportComputationSteps extends AbstractComputationSteps {
   private static final List<Class<? extends ComputationStep>> STEPS = Arrays.asList(
     ExtractReportStep.class,
     PersistScannerContextStep.class,
+    DbMigrationsStep.class,
     GenerateAnalysisUuid.class,
 
     // Builds Component tree

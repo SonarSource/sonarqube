@@ -41,6 +41,7 @@ import org.sonar.server.computation.task.projectanalysis.component.DisabledCompo
 import org.sonar.server.computation.task.projectanalysis.component.MergeBranchComponentUuids;
 import org.sonar.server.computation.task.projectanalysis.component.ShortBranchComponentsWithIssues;
 import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderImpl;
+import org.sonar.server.computation.task.projectanalysis.dbmigration.DbMigrationModule;
 import org.sonar.server.computation.task.projectanalysis.duplication.CrossProjectDuplicationStatusHolderImpl;
 import org.sonar.server.computation.task.projectanalysis.duplication.DuplicationMeasures;
 import org.sonar.server.computation.task.projectanalysis.duplication.DuplicationRepositoryImpl;
@@ -164,6 +165,8 @@ public final class ProjectAnalysisTaskContainerPopulator implements ContainerPop
 
       // File System
       new ComputationTempFolderProvider(),
+
+      DbMigrationModule.class,
 
       MetricModule.class,
 
