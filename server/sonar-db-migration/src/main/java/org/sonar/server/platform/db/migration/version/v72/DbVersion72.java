@@ -51,6 +51,9 @@ public class DbVersion72 implements DbVersion {
       .add(2121, "Rename NOTE_USER_LOGIN TO NOTE_USER_UUID on table RULES_METADATA", RenameNoteUserLoginToNoteUserUuidOnTableRulesMetadata.class)
       .add(2122, "Rename SUBMITTER_LOGIN TO SUBMITTER_UUID on table CE_QUEUE", RenameSubmitterLoginToSubmitterUuidOnTableCeQueue.class)
       .add(2123, "Rename SUBMITTER_LOGIN TO SUBMITTER_UUID on table CE_ACTIVITY", RenameSubmitterLoginToSubmitterUuidOnTableCeActivity.class)
+      .add(2124, "Add FILE_SOURCE.LINE_COUNT", AddFileSourceLineCount.class)
+      .add(2125, "Populate FILE_SOURCE.LINE_COUNT", PopulateFileSourceLineCount.class)
+      .add(2126, "Make FILE_SOURCE.LINE_COUNT not nullable", MakeFileSourceLineCountNotNullable.class)
     ;
   }
 }

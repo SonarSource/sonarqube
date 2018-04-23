@@ -19,22 +19,25 @@
  */
 package org.sonar.server.platform.db.migration.version.v72;
 
-import org.junit.Test;
+import java.sql.SQLException;
+import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.sql.AlterColumnsBuilder;
+import org.sonar.server.platform.db.migration.step.DdlChange;
 
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationCount;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
+import static org.sonar.server.platform.db.migration.def.IntegerColumnDef.newIntegerColumnDefBuilder;
 
-public class DbVersion72Test {
-  private DbVersion72 underTest = new DbVersion72();
-
-  @Test
-  public void migrationNumber_starts_at_2100() {
-    verifyMinimumMigrationNumber(underTest, 2100);
+public class MakeFileSourceLineCountNotNullable extends DdlChange {
+  public MakeFileSourceLineCountNotNullable(Database db) {
+    super(db);
   }
 
-  @Test
-  public void verify_migration_count() {
-    verifyMigrationCount(underTest, 27);
+  @Override
+  public void execute(Context context) throws SQLException {
+    context.execute(new AlterColumnsBuilder(getDialect(), "file_sources")
+      .updateColumn(newIntegerColumnDefBuilder()
+        .setColumnName("line_count")
+        .setIsNullable(false)
+        .build())
+      .build());
   }
-
 }
