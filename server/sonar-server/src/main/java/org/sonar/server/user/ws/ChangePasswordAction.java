@@ -28,9 +28,12 @@ import org.sonar.db.user.UserDto;
 import org.sonar.server.authentication.LocalAuthentication;
 import org.sonar.server.authentication.event.AuthenticationEvent;
 import org.sonar.server.authentication.event.AuthenticationException;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UpdateUser;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.user.UserUpdater;
+
+import static java.lang.String.format;
 
 public class ChangePasswordAction implements UsersWsAction {
 
@@ -82,23 +85,31 @@ public class ChangePasswordAction implements UsersWsAction {
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       String login = request.mandatoryParam(PARAM_LOGIN);
+      UserDto user = getUser(dbSession, login);
       if (login.equals(userSession.getLogin())) {
         String previousPassword = request.mandatoryParam(PARAM_PREVIOUS_PASSWORD);
-        checkCurrentPassword(dbSession, login, previousPassword);
+        checkCurrentPassword(dbSession, user, previousPassword);
       } else {
         userSession.checkIsSystemAdministrator();
       }
 
       String password = request.mandatoryParam(PARAM_PASSWORD);
-      UpdateUser updateUser = UpdateUser.create(login).setPassword(password);
-
-      userUpdater.updateAndCommit(dbSession, updateUser, u -> {});
+      UpdateUser updateUser = new UpdateUser().setPassword(password);
+      userUpdater.updateAndCommit(dbSession, user, updateUser, u -> {
+      });
     }
     response.noContent();
   }
 
-  private void checkCurrentPassword(DbSession dbSession, String login, String password) {
-    UserDto user = dbClient.userDao().selectOrFailByLogin(dbSession, login);
+  private UserDto getUser(DbSession dbSession, String login) {
+    UserDto user = dbClient.userDao().selectByLogin(dbSession, login);
+    if (user == null || !user.isActive()) {
+      throw new NotFoundException(format("User with login '%s' has not been found", login));
+    }
+    return user;
+  }
+
+  private void checkCurrentPassword(DbSession dbSession, UserDto user, String password) {
     try {
       localAuthentication.authenticate(dbSession, user, password, AuthenticationEvent.Method.BASIC);
     } catch (AuthenticationException ex) {

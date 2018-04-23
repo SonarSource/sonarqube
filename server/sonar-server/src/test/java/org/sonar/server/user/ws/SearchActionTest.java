@@ -45,7 +45,6 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.user.GroupTesting.newGroupDto;
-import static org.sonar.db.user.UserTesting.newUserDto;
 import static org.sonar.db.user.UserTokenTesting.newUserToken;
 import static org.sonar.test.JsonAssert.assertJson;
 
@@ -70,16 +69,16 @@ public class SearchActionTest {
 
   @Test
   public void test_json_example() throws Exception {
-    UserDto fmallet = db.users().insertUser(newUserDto("fmallet", "Freddy Mallet", "f@m.com")
+    UserDto fmallet = db.users().insertUser(u -> u.setLogin("fmallet").setName("Freddy Mallet").setEmail("f@m.com")
       .setActive(true)
       .setLocal(true)
       .setScmAccounts(emptyList())
-      .setExternalIdentity("fmallet")
+      .setExternalLogin("fmallet")
       .setExternalIdentityProvider("sonarqube"));
-    UserDto simon = db.users().insertUser(newUserDto("sbrandhof", "Simon", "s.brandhof@company.tld")
+    UserDto simon = db.users().insertUser(u -> u.setLogin("sbrandhof").setName("Simon").setEmail("s.brandhof@company.tld")
       .setActive(true)
       .setLocal(false)
-      .setExternalIdentity("sbrandhof@ldap.com")
+      .setExternalLogin("sbrandhof@ldap.com")
       .setExternalIdentityProvider("LDAP")
       .setScmAccounts(newArrayList("simon.brandhof", "s.brandhof@company.tld")));
     GroupDto sonarUsers = db.users().insertGroup(newGroupDto().setName("sonar-users"));
@@ -263,7 +262,7 @@ public class SearchActionTest {
   public void only_return_login_and_name_when_not_logged() throws Exception {
     userSession.anonymous();
 
-    dbClient.userDao().insert(dbSession, newUserDto("john", "John", "john@email.com"));
+    db.users().insertUser(u -> u.setLogin("john").setName("John").setEmail("john@email.com"));
     dbSession.commit();
     userIndexer.indexOnStartup(null);
 
@@ -288,14 +287,13 @@ public class SearchActionTest {
       String name = String.format("User %d", index);
       List<String> scmAccounts = singletonList(String.format("user-%d", index));
 
-      UserDto userDto = dbClient.userDao().insert(dbSession, newUserDto()
-        .setActive(true)
+      UserDto userDto = db.users().insertUser(u -> u.setActive(true)
         .setEmail(email)
         .setLogin(login)
         .setName(name)
         .setScmAccounts(scmAccounts)
         .setLocal(true)
-        .setExternalIdentity(login)
+        .setExternalLogin(login)
         .setExternalIdentityProvider("sonarqube"));
       userDtos.add(userDto);
 

@@ -137,7 +137,7 @@ public class SendIssueNotificationsStep implements ComputationStep {
   private void sendNewIssuesNotification(NewIssuesStatistics statistics, Component project, long analysisDate) {
     NewIssuesStatistics.Stats globalStatistics = statistics.globalStatistics();
     NewIssuesNotification notification = newIssuesNotificationFactory
-      .newNewIssuesNotication()
+      .newNewIssuesNotification()
       .setProject(project.getPublicKey(), project.getName(), getBranchName(), getPullRequest())
       .setProjectVersion(project.getReportAttributes().getVersion())
       .setAnalysisDate(new Date(analysisDate))

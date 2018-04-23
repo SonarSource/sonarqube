@@ -179,6 +179,16 @@
     and ps.organization_uuid=#{organizationUuid,jdbcType=VARCHAR}
   </select>
 
+  <select id="selectByKeyAndMatchingValue" parameterType="map" resultType="ScrapProperty">
+    select
+      <include refid="columnsToScrapPropertyDto"/>
+    from properties p
+    <where>
+      p.prop_key = #{key,jdbcType=VARCHAR}
+      and p.text_value like #{value,jdbcType=VARCHAR}
+    </where>
+  </select>
+
   <insert id="insertAsEmpty" parameterType="Map" useGeneratedKeys="false">
     insert into properties
     (

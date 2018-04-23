@@ -21,25 +21,16 @@ package org.sonar.server.issue.notification;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.Date;
-import java.util.Locale;
 import org.apache.commons.io.IOUtils;
-import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
-import org.mockito.stubbing.Answer;
 import org.sonar.api.config.EmailSettings;
+import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.notifications.Notification;
-import org.sonar.core.i18n.DefaultI18n;
 import org.sonar.plugins.emailnotifications.api.EmailMessage;
-import org.sonar.server.user.index.UserDoc;
-import org.sonar.server.user.index.UserIndex;
+import org.sonar.server.i18n.I18nRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 import static org.sonar.server.issue.notification.NewIssuesStatistics.Metric.COMPONENT;
 import static org.sonar.server.issue.notification.NewIssuesStatistics.Metric.EFFORT;
 import static org.sonar.server.issue.notification.NewIssuesStatistics.Metric.RULE;
@@ -48,27 +39,15 @@ import static org.sonar.server.issue.notification.NewIssuesStatistics.Metric.TAG
 
 public class MyNewIssuesEmailTemplateTest {
 
-  MyNewIssuesEmailTemplate underTest;
-  DefaultI18n i18n;
-  UserIndex userIndex;
-  Date date;
+  @Rule
+  public I18nRule i18n = new I18nRule()
+    .put("issue.type.BUG", "Bug")
+    .put("issue.type.CODE_SMELL", "Code Smell")
+    .put("issue.type.VULNERABILITY", "Vulnerability");
+  private MapSettings settings = new MapSettings()
+    .setProperty("sonar.core.serverBaseURL", "http://nemo.sonarsource.org");
 
-  @Before
-  public void setUp() {
-    EmailSettings settings = mock(EmailSettings.class);
-    when(settings.getServerBaseURL()).thenReturn("http://nemo.sonarsource.org");
-    i18n = mock(DefaultI18n.class);
-    date = new Date();
-    userIndex = mock(UserIndex.class);
-    // returns the login passed in parameter
-    when(userIndex.getNullableByLogin(anyString()))
-      .thenAnswer((Answer<UserDoc>) invocationOnMock -> new UserDoc().setName((String) invocationOnMock.getArguments()[0]));
-    when(i18n.message(any(Locale.class), eq("issue.type.BUG"), anyString())).thenReturn("Bug");
-    when(i18n.message(any(Locale.class), eq("issue.type.CODE_SMELL"), anyString())).thenReturn("Code Smell");
-    when(i18n.message(any(Locale.class), eq("issue.type.VULNERABILITY"), anyString())).thenReturn("Vulnerability");
-
-    underTest = new MyNewIssuesEmailTemplate(settings, i18n);
-  }
+  private MyNewIssuesEmailTemplate underTest = new MyNewIssuesEmailTemplate(new EmailSettings(settings.asConfig()), i18n);
 
   @Test
   public void no_format_if_not_the_correct_notif() {

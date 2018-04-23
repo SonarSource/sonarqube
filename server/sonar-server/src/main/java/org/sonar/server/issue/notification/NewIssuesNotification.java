@@ -40,9 +40,8 @@ import org.sonar.db.DbSession;
 import org.sonar.db.RowNotFoundException;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.user.UserDto;
 import org.sonar.server.issue.notification.NewIssuesStatistics.Metric;
-import org.sonar.server.user.index.UserDoc;
-import org.sonar.server.user.index.UserIndex;
 
 import static org.sonar.server.issue.notification.AbstractNewIssuesEmailTemplate.FIELD_BRANCH;
 import static org.sonar.server.issue.notification.AbstractNewIssuesEmailTemplate.FIELD_PROJECT_VERSION;
@@ -60,17 +59,15 @@ public class NewIssuesNotification extends Notification {
   private static final String LABEL = ".label";
   private static final String DOT = ".";
 
-  private final transient UserIndex userIndex;
   private final transient DbClient dbClient;
   private final transient Durations durations;
 
-  NewIssuesNotification(UserIndex userIndex, DbClient dbClient, Durations durations) {
-    this(TYPE, userIndex, dbClient, durations);
+  NewIssuesNotification(DbClient dbClient, Durations durations) {
+    this(TYPE, dbClient, durations);
   }
 
-  protected NewIssuesNotification(String type, UserIndex userIndex, DbClient dbClient, Durations durations) {
+  protected NewIssuesNotification(String type, DbClient dbClient, Durations durations) {
     super(type);
-    this.userIndex = userIndex;
     this.dbClient = dbClient;
     this.durations = durations;
   }
@@ -104,7 +101,7 @@ public class NewIssuesNotification extends Notification {
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       setRuleTypeStatistics(stats);
-      setAssigneesStatistics(stats);
+      setAssigneesStatistics(dbSession, stats);
       setTagsStatistics(stats);
       setComponentsStatistics(dbSession, stats);
       setRuleStatistics(dbSession, stats);
@@ -168,13 +165,13 @@ public class NewIssuesNotification extends Notification {
     }
   }
 
-  private void setAssigneesStatistics(NewIssuesStatistics.Stats stats) {
+  private void setAssigneesStatistics(DbSession dbSession, NewIssuesStatistics.Stats stats) {
     Metric metric = Metric.ASSIGNEE;
     int i = 1;
     for (Map.Entry<String, MetricStatsInt> assigneeStats : fiveBiggest(stats.getDistributedMetricStats(metric), MetricStatsInt::getOnLeak)) {
       String login = assigneeStats.getKey();
-      UserDoc user = userIndex.getNullableByLogin(login);
-      String name = user == null ? login : user.name();
+      UserDto user = dbClient.userDao().selectByLogin(dbSession, login);
+      String name = user == null ? login : user.getName();
       setFieldValue(metric + DOT + i + LABEL, name);
       setFieldValue(metric + DOT + i + COUNT, String.valueOf(assigneeStats.getValue().getOnLeak()));
       i++;

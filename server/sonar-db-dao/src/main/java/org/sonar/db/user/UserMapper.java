@@ -28,6 +28,9 @@ import org.sonar.api.user.UserQuery;
 public interface UserMapper {
 
   @CheckForNull
+  UserDto selectByUuid(String uuid);
+
+  @CheckForNull
   UserDto selectByLogin(String login);
 
   /**
@@ -50,10 +53,15 @@ public interface UserMapper {
 
   List<UserDto> selectByLogins(List<String> logins);
 
+  List<UserDto> selectByUuids(List<String> uuids);
+
   List<UserDto> selectByIds(@Param("ids") List<Integer> ids);
 
   @CheckForNull
   UserDto selectByEmail(String email);
+
+  @CheckForNull
+  UserDto selectByExternalIdAndIdentityProvider(@Param("externalId") String externalId, @Param("externalIdentityProvider") String externalExternalIdentityProvider);
 
   void scrollAll(ResultHandler<UserDto> handler);
 

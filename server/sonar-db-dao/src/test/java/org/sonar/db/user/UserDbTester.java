@@ -37,8 +37,10 @@ import org.sonar.db.permission.UserPermissionDto;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
+import static java.util.Arrays.stream;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
 import static org.sonar.db.user.GroupTesting.newGroupDto;
+import static org.sonar.db.user.UserTesting.newDisabledUser;
 import static org.sonar.db.user.UserTesting.newUserDto;
 
 public class UserDbTester {
@@ -61,9 +63,17 @@ public class UserDbTester {
     return insertUser(dto);
   }
 
-  public UserDto insertUser(Consumer<UserDto> populateUserDto) {
+  @SafeVarargs
+  public final UserDto insertUser(Consumer<UserDto>... populators) {
     UserDto dto = newUserDto().setActive(true);
-    populateUserDto.accept(dto);
+    stream(populators).forEach(p -> p.accept(dto));
+    return insertUser(dto);
+  }
+
+  @SafeVarargs
+  public final UserDto insertDisabledUser(Consumer<UserDto>... populators) {
+    UserDto dto = newDisabledUser();
+    stream(populators).forEach(p -> p.accept(dto));
     return insertUser(dto);
   }
 

@@ -44,8 +44,8 @@ import org.sonar.server.organization.TestOrganizationFlags;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.NewUserNotifier;
 import org.sonar.server.user.UserUpdater;
-import org.sonar.server.user.index.UserDoc;
 import org.sonar.server.user.index.UserIndex;
+import org.sonar.server.user.index.UserIndexDefinition;
 import org.sonar.server.user.index.UserIndexer;
 import org.sonar.server.user.ws.CreateAction.CreateRequest;
 import org.sonar.server.usergroups.DefaultGroupFinder;
@@ -54,13 +54,20 @@ import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Users.CreateWsResponse;
 import org.sonarqube.ws.Users.CreateWsResponse.User;
 
+import static java.lang.String.format;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
+import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.db.user.UserTesting.newUserDto;
+import static org.sonar.server.user.index.UserIndexDefinition.FIELD_EMAIL;
+import static org.sonar.server.user.index.UserIndexDefinition.FIELD_LOGIN;
+import static org.sonar.server.user.index.UserIndexDefinition.FIELD_NAME;
+import static org.sonar.server.user.index.UserIndexDefinition.FIELD_SCM_ACCOUNTS;
 
 public class CreateActionTest {
 
@@ -111,11 +118,14 @@ public class CreateActionTest {
       .extracting(User::getLogin, User::getName, User::getEmail, User::getScmAccountsList, User::getLocal)
       .containsOnly("john", "John", "john@email.com", singletonList("jn"), true);
 
-    UserDoc user = index.getNullableByLogin("john");
-    assertThat(user.login()).isEqualTo("john");
-    assertThat(user.name()).isEqualTo("John");
-    assertThat(user.email()).isEqualTo("john@email.com");
-    assertThat(user.scmAccounts()).containsOnly("jn");
+    // exists in index
+    assertThat(es.client().prepareSearch(UserIndexDefinition.INDEX_TYPE_USER)
+      .setQuery(boolQuery()
+        .must(termQuery(FIELD_LOGIN, "john"))
+        .must(termQuery(FIELD_NAME, "John"))
+        .must(termQuery(FIELD_EMAIL, "john@email.com"))
+        .must(termQuery(FIELD_SCM_ACCOUNTS, "jn")))
+      .get().getHits().getHits()).hasSize(1);
 
     // exists in db
     Optional<UserDto> dbUser = db.users().selectUserByLogin("john");
@@ -168,7 +178,7 @@ public class CreateActionTest {
       .build());
 
     assertThat(db.users().selectUserByLogin("john").get())
-      .extracting(UserDto::isLocal, UserDto::getExternalIdentityProvider, UserDto::getExternalIdentity, UserDto::isRoot)
+      .extracting(UserDto::isLocal, UserDto::getExternalIdentityProvider, UserDto::getExternalLogin, UserDto::isRoot)
       .containsOnly(true, "sonarqube", "john", false);
   }
 
@@ -183,7 +193,7 @@ public class CreateActionTest {
       .build());
 
     assertThat(db.users().selectUserByLogin("john").get())
-      .extracting(UserDto::isLocal, UserDto::getExternalIdentityProvider, UserDto::getExternalIdentity, UserDto::isRoot)
+      .extracting(UserDto::isLocal, UserDto::getExternalIdentityProvider, UserDto::getExternalLogin, UserDto::isRoot)
       .containsOnly(false, "sonarqube", "john", false);
   }
 
@@ -214,7 +224,7 @@ public class CreateActionTest {
       .build());
 
     assertThat(db.users().selectUserByLogin("john").get())
-      .extracting(UserDto::getExternalIdentity)
+      .extracting(UserDto::getExternalLogin)
       .containsOnly("john");
   }
 
@@ -262,6 +272,21 @@ public class CreateActionTest {
       .build());
 
     assertThat(db.users().selectUserByLogin("john").get().isActive()).isTrue();
+  }
+
+  @Test
+  public void fail_to_reactivate_user_when_active_user_exists() {
+    logInAsSystemAdministrator();
+    UserDto user = db.users().insertUser();
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage(format("An active user with login '%s' already exists", user.getLogin()));
+
+    call(CreateRequest.builder()
+      .setLogin(user.getLogin())
+      .setName("John")
+      .setPassword("1234")
+      .build());
   }
 
   @Test
@@ -341,10 +366,6 @@ public class CreateActionTest {
 
     expectedException.expect(ForbiddenException.class);
     executeRequest("john");
-  }
-
-  private void setDefaultGroupProperty(GroupDto adminGroup) {
-    settings.setProperty("sonar.defaultGroup", adminGroup.getName());
   }
 
   private CreateWsResponse executeRequest(String login) {

@@ -54,7 +54,8 @@ public class OAuth2IdentityProviderTest {
   private static String FAKE_PROVIDER_KEY = "fake-oauth2-id-provider";
 
   private static String USER_LOGIN = "john";
-  private static String USER_PROVIDER_ID = "fake-john";
+  private static String USER_PROVIDER_ID = "ABCD";
+  private static String USER_PROVIDER_LOGIN = "fake-john";
   private static String USER_NAME = "John";
   private static String USER_EMAIL = "john@email.com";
 
@@ -225,8 +226,24 @@ public class OAuth2IdentityProviderTest {
 
     user = tester.users().getByLogin(USER_LOGIN).get();
     assertThat(user.getLocal()).isFalse();
-    assertThat(user.getExternalIdentity()).isEqualTo(USER_PROVIDER_ID);
+    assertThat(user.getExternalIdentity()).isEqualTo(USER_PROVIDER_LOGIN);
     assertThat(user.getExternalProvider()).isEqualTo(FAKE_PROVIDER_KEY);
+  }
+
+  @Test
+  public void update_login() {
+    simulateRedirectionToCallback();
+    enablePlugin();
+
+    String oldLogin = "login_to_update@oauth2";
+    tester.settings().setGlobalSettings("sonar.auth.fake-oauth2-id-provider.user", oldLogin + "," + "login_to_update_id" + "," + "old_provider_login" + "," + USER_NAME + "," + USER_EMAIL);
+    authenticateWithFakeAuthProvider();
+
+    String newLogin = "new_logine@oauth2";
+    tester.settings().setGlobalSettings("sonar.auth.fake-oauth2-id-provider.user", newLogin + "," + "login_to_update_id" + "," + "new_provider_login" + "," + USER_NAME + "," + USER_EMAIL);
+    authenticateWithFakeAuthProvider();
+
+    verifyUser(newLogin, USER_NAME, USER_EMAIL);
   }
 
   private void verifyUser(String login, String name, String email) {
@@ -255,7 +272,7 @@ public class OAuth2IdentityProviderTest {
   private void enablePlugin() {
     tester.settings().setGlobalSettings("sonar.auth.fake-oauth2-id-provider.enabled", "true");
     tester.settings().setGlobalSettings("sonar.auth.fake-oauth2-id-provider.url", fakeServerAuthProviderUrl);
-    tester.settings().setGlobalSettings("sonar.auth.fake-oauth2-id-provider.user", USER_LOGIN + "," + USER_PROVIDER_ID + "," + USER_NAME + "," + USER_EMAIL);
+    tester.settings().setGlobalSettings("sonar.auth.fake-oauth2-id-provider.user", USER_LOGIN + "," + USER_PROVIDER_ID + "," + USER_PROVIDER_LOGIN + "," + USER_NAME + "," + USER_EMAIL);
   }
 
   private void assertThatUserDoesNotExist(String login) {

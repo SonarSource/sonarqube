@@ -38,8 +38,6 @@ import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.SnapshotTesting;
 import org.sonar.db.measure.custom.CustomMeasureDto;
 import org.sonar.db.metric.MetricDto;
-import org.sonar.db.user.UserDto;
-import org.sonar.db.user.UserTesting;
 import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -51,7 +49,6 @@ import org.sonar.server.ws.WsTester;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.measure.custom.CustomMeasureTesting.newCustomMeasureDto;
 import static org.sonar.db.metric.MetricTesting.newMetricDto;
-import static org.sonar.db.user.UserTesting.newUserDto;
 
 public class SearchActionTest {
 
@@ -79,14 +76,10 @@ public class SearchActionTest {
     ws = new WsTester(new CustomMeasuresWs(new SearchAction(dbClient, customMeasureJsonWriter, userSessionRule, TestComponentFinder.from(db))));
     defaultProject = insertDefaultProject();
     userSessionRule.logIn().addProjectPermission(UserRole.ADMIN, defaultProject);
-
-    db.getDbClient().userDao().insert(dbSession, newUserDto()
-      .setLogin("login")
+    db.users().insertUser(u -> u.setLogin("login")
       .setName("Login")
       .setEmail("login@login.com")
-      .setActive(true)
-      );
-    dbSession.commit();
+      .setActive(true));
   }
 
   @Test

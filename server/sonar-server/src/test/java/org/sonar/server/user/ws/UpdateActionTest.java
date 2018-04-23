@@ -240,6 +240,19 @@ public class UpdateActionTest {
   @Test
   public void fail_on_unknown_user() {
     expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage("User 'john' doesn't exist");
+
+    ws.newRequest()
+      .setParam("login", "john")
+      .execute();
+  }
+
+  @Test
+  public void fail_on_disabled_user() {
+    db.users().insertUser(u -> u.setLogin("john").setActive(false));
+
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage("User 'john' doesn't exist");
 
     ws.newRequest()
       .setParam("login", "john")
@@ -267,7 +280,7 @@ public class UpdateActionTest {
       .setScmAccounts(newArrayList("jn"))
       .setActive(true)
       .setLocal(true)
-      .setExternalIdentity("jo")
+      .setExternalLogin("jo")
       .setExternalIdentityProvider("sonarqube");
     dbClient.userDao().insert(dbSession, userDto);
     userIndexer.commitAndIndex(dbSession, userDto);

@@ -52,7 +52,7 @@ public class EmailAlreadyExistsException extends RuntimeException {
       encodeMessage(email),
       encodeMessage(userIdentity.getProviderLogin()),
       encodeMessage(provider.getKey()),
-      encodeMessage(existingUser.getExternalIdentity()),
+      encodeMessage(existingUser.getExternalLogin()),
       encodeMessage(existingUser.getExternalIdentityProvider()));
   }
 }

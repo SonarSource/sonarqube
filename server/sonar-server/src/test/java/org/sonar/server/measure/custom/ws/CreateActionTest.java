@@ -40,8 +40,6 @@ import org.sonar.db.metric.MetricDto;
 import org.sonar.db.metric.MetricTesting;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.OrganizationPermission;
-import org.sonar.db.user.UserDto;
-import org.sonar.db.user.UserTesting;
 import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.BadRequestException;
@@ -60,7 +58,6 @@ import static org.sonar.api.measures.Metric.ValueType.INT;
 import static org.sonar.api.measures.Metric.ValueType.LEVEL;
 import static org.sonar.api.measures.Metric.ValueType.STRING;
 import static org.sonar.api.measures.Metric.ValueType.WORK_DUR;
-import static org.sonar.db.user.UserTesting.newUserDto;
 import static org.sonar.server.util.TypeValidationsTesting.newFullTypeValidations;
 
 public class CreateActionTest {
@@ -87,12 +84,10 @@ public class CreateActionTest {
     ws = new WsTester(new CustomMeasuresWs(new CreateAction(dbClient, userSession, System2.INSTANCE, new CustomMeasureValidator(newFullTypeValidations()),
       new CustomMeasureJsonWriter(new UserJsonWriter(userSession)), TestComponentFinder.from(db))));
 
-    db.getDbClient().userDao().insert(dbSession, newUserDto()
-      .setLogin("login")
+    db.users().insertUser(u -> u.setLogin("login")
       .setName("Login")
       .setEmail("login@login.com")
       .setActive(true));
-    dbSession.commit();
 
     OrganizationDto organizationDto = db.organizations().insert();
     project = ComponentTesting.newPrivateProjectDto(organizationDto, DEFAULT_PROJECT_UUID).setDbKey(DEFAULT_PROJECT_KEY);

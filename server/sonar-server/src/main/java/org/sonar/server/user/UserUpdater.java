@@ -52,9 +52,9 @@ import static com.google.common.collect.Lists.newArrayList;
 import static java.lang.String.format;
 import static java.util.Arrays.stream;
 import static java.util.stream.Stream.concat;
+import static org.sonar.api.CoreProperties.DEFAULT_ISSUE_ASSIGNEE;
 import static org.sonar.core.config.CorePropertyDefinitions.ONBOARDING_TUTORIAL_SHOW_TO_NEW_USERS;
 import static org.sonar.core.util.stream.MoreCollectors.toList;
-import static org.sonar.server.ws.WsUtils.checkFound;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 
 @ServerSide
@@ -97,23 +97,19 @@ public class UserUpdater {
   }
 
   public UserDto createAndCommit(DbSession dbSession, NewUser newUser, Consumer<UserDto> beforeCommit, UserDto... otherUsersToIndex) {
-    String login = newUser.login();
-    UserDto userDto = dbClient.userDao().selectByLogin(dbSession, newUser.login());
-    if (userDto == null) {
-      userDto = saveUser(dbSession, createDto(dbSession, newUser));
-    } else {
-      reactivateUser(dbSession, userDto, login, newUser);
-    }
-    beforeCommit.accept(userDto);
-    userIndexer.commitAndIndex(dbSession, concat(Stream.of(userDto), stream(otherUsersToIndex)).collect(toList()));
-
-    notifyNewUser(userDto.getLogin(), userDto.getName(), newUser.email());
-    return userDto;
+    UserDto userDto = saveUser(dbSession, createDto(dbSession, newUser));
+    return commitUser(dbSession, userDto, beforeCommit, otherUsersToIndex);
   }
 
-  private void reactivateUser(DbSession dbSession, UserDto existingUser, String login, NewUser newUser) {
-    checkArgument(!existingUser.isActive(), "An active user with login '%s' already exists", login);
-    UpdateUser updateUser = UpdateUser.create(login)
+  public UserDto reactivateAndCommit(DbSession dbSession, UserDto disabledUser, NewUser newUser, Consumer<UserDto> beforeCommit, UserDto... otherUsersToIndex) {
+    checkArgument(!disabledUser.isActive(), "An active user with login '%s' already exists", disabledUser.getLogin());
+    reactivateUser(dbSession, disabledUser, newUser);
+    return commitUser(dbSession, disabledUser, beforeCommit, otherUsersToIndex);
+  }
+
+  private void reactivateUser(DbSession dbSession, UserDto disabledUser, NewUser newUser) {
+    UpdateUser updateUser = new UpdateUser()
+      .setLogin(newUser.login())
       .setName(newUser.name())
       .setEmail(newUser.email())
       .setScmAccounts(newUser.scmAccounts())
@@ -121,27 +117,30 @@ public class UserUpdater {
     if (newUser.password() != null) {
       updateUser.setPassword(newUser.password());
     }
-    setOnboarded(existingUser);
-    updateDto(dbSession, updateUser, existingUser);
-    updateUser(dbSession, existingUser);
-    addUserToDefaultOrganizationAndDefaultGroup(dbSession, existingUser);
+    setOnboarded(disabledUser);
+    updateDto(dbSession, updateUser, disabledUser);
+    updateUser(dbSession, disabledUser);
+    addUserToDefaultOrganizationAndDefaultGroup(dbSession, disabledUser);
   }
 
-  public void updateAndCommit(DbSession dbSession, UpdateUser updateUser, Consumer<UserDto> beforeCommit, UserDto... otherUsersToIndex) {
-    UserDto dto = dbClient.userDao().selectByLogin(dbSession, updateUser.login());
-    checkFound(dto, "User with login '%s' has not been found", updateUser.login());
+  public void updateAndCommit(DbSession dbSession, UserDto dto, UpdateUser updateUser, Consumer<UserDto> beforeCommit, UserDto... otherUsersToIndex) {
     boolean isUserUpdated = updateDto(dbSession, updateUser, dto);
     if (isUserUpdated) {
       // at least one change. Database must be updated and Elasticsearch re-indexed
       updateUser(dbSession, dto);
-      beforeCommit.accept(dto);
-      userIndexer.commitAndIndex(dbSession, concat(Stream.of(dto), stream(otherUsersToIndex)).collect(toList()));
-      notifyNewUser(dto.getLogin(), dto.getName(), dto.getEmail());
+      commitUser(dbSession, dto, beforeCommit, otherUsersToIndex);
     } else {
       // no changes but still execute the consumer
       beforeCommit.accept(dto);
       dbSession.commit();
     }
+  }
+
+  private UserDto commitUser(DbSession dbSession, UserDto userDto, Consumer<UserDto> beforeCommit, UserDto... otherUsersToIndex) {
+    beforeCommit.accept(userDto);
+    userIndexer.commitAndIndex(dbSession, concat(Stream.of(userDto), stream(otherUsersToIndex)).collect(toList()));
+    notifyNewUser(userDto.getLogin(), userDto.getName(), userDto.getEmail());
+    return userDto;
   }
 
   private UserDto createDto(DbSession dbSession, NewUser newUser) {
@@ -150,6 +149,7 @@ public class UserUpdater {
 
     String login = newUser.login();
     if (validateLoginFormat(login, messages)) {
+      checkLoginUniqueness(dbSession, login);
       userDto.setLogin(login);
     }
 
@@ -173,7 +173,7 @@ public class UserUpdater {
       userDto.setScmAccounts(scmAccounts);
     }
 
-    setExternalIdentity(userDto, newUser.externalIdentity());
+    setExternalIdentity(dbSession, userDto, newUser.externalIdentity());
     setOnboarded(userDto);
 
     checkRequest(messages.isEmpty(), messages);
@@ -182,13 +182,26 @@ public class UserUpdater {
 
   private boolean updateDto(DbSession dbSession, UpdateUser update, UserDto dto) {
     List<String> messages = newArrayList();
-    boolean changed = updateName(update, dto, messages);
+    boolean changed = updateLogin(dbSession, update, dto, messages);
+    changed |= updateName(update, dto, messages);
     changed |= updateEmail(update, dto, messages);
-    changed |= updateExternalIdentity(update, dto);
+    changed |= updateExternalIdentity(dbSession, update, dto);
     changed |= updatePassword(update, dto, messages);
     changed |= updateScmAccounts(dbSession, update, dto, messages);
     checkRequest(messages.isEmpty(), messages);
     return changed;
+  }
+
+  private boolean updateLogin(DbSession dbSession, UpdateUser updateUser, UserDto userDto, List<String> messages) {
+    String newLogin = updateUser.login();
+    if (updateUser.isLoginChanged() && validateLoginFormat(newLogin, messages) && !Objects.equals(userDto.getLogin(), newLogin)) {
+      checkLoginUniqueness(dbSession, newLogin);
+      dbClient.propertiesDao().selectByKeyAndMatchingValue(dbSession, DEFAULT_ISSUE_ASSIGNEE, userDto.getLogin())
+        .forEach(p -> dbClient.propertiesDao().saveProperty(p.setValue(newLogin)));
+      userDto.setLogin(newLogin);
+      return true;
+    }
+    return false;
   }
 
   private static boolean updateName(UpdateUser updateUser, UserDto userDto, List<String> messages) {
@@ -209,10 +222,10 @@ public class UserUpdater {
     return false;
   }
 
-  private static boolean updateExternalIdentity(UpdateUser updateUser, UserDto userDto) {
+  private boolean updateExternalIdentity(DbSession dbSession, UpdateUser updateUser, UserDto userDto) {
     ExternalIdentity externalIdentity = updateUser.externalIdentity();
     if (updateUser.isExternalIdentityChanged() && !isSameExternalIdentity(userDto, externalIdentity)) {
-      setExternalIdentity(userDto, externalIdentity);
+      setExternalIdentity(dbSession, userDto, externalIdentity);
       return true;
     }
     return false;
@@ -247,22 +260,29 @@ public class UserUpdater {
 
   private static boolean isSameExternalIdentity(UserDto dto, @Nullable ExternalIdentity externalIdentity) {
     return externalIdentity != null
-      && Objects.equals(dto.getExternalIdentity(), externalIdentity.getId())
+      && !dto.isLocal()
+      && Objects.equals(dto.getExternalId(), externalIdentity.getId())
+      && Objects.equals(dto.getExternalLogin(), externalIdentity.getLogin())
       && Objects.equals(dto.getExternalIdentityProvider(), externalIdentity.getProvider());
   }
 
-  private static void setExternalIdentity(UserDto dto, @Nullable ExternalIdentity externalIdentity) {
+  private void setExternalIdentity(DbSession dbSession, UserDto dto, @Nullable ExternalIdentity externalIdentity) {
     if (externalIdentity == null) {
-      dto.setExternalIdentity(dto.getLogin());
+      dto.setExternalLogin(dto.getLogin());
       dto.setExternalIdentityProvider(SQ_AUTHORITY);
+      dto.setExternalId(dto.getLogin());
       dto.setLocal(true);
     } else {
-      dto.setExternalIdentity(externalIdentity.getId());
+      dto.setExternalLogin(externalIdentity.getLogin());
       dto.setExternalIdentityProvider(externalIdentity.getProvider());
+      dto.setExternalId(externalIdentity.getId());
       dto.setLocal(false);
       dto.setSalt(null);
       dto.setCryptedPassword(null);
     }
+    UserDto existingUser = dbClient.userDao().selectByExternalIdAndIdentityProvider(dbSession, dto.getExternalId(), dto.getExternalIdentityProvider());
+    checkArgument(existingUser == null || Objects.equals(dto.getUuid(), existingUser.getUuid()),
+      "A user with provider id '%s' and identity provider '%s' already exists", dto.getExternalId(), dto.getExternalIdentityProvider());
   }
 
   private void setOnboarded(UserDto userDto) {
@@ -362,6 +382,11 @@ public class UserUpdater {
         .collect(toList(scmAccounts.size()));
     }
     return Collections.emptyList();
+  }
+
+  private void checkLoginUniqueness(DbSession dbSession, String login) {
+    UserDto existingUser = dbClient.userDao().selectByLogin(dbSession, login);
+    checkArgument(existingUser == null, "A user with login '%s' already exists", login);
   }
 
   private UserDto saveUser(DbSession dbSession, UserDto userDto) {

@@ -21,6 +21,7 @@ package org.sonar.server.organization.ws;
 
 import java.util.HashSet;
 import javax.annotation.Nullable;
+import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -47,6 +48,7 @@ import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.index.UserIndex;
+import org.sonar.server.user.index.UserIndexDefinition;
 import org.sonar.server.user.index.UserIndexer;
 import org.sonar.server.user.index.UserQuery;
 import org.sonar.server.ws.TestRequest;
@@ -57,6 +59,8 @@ import static java.net.HttpURLConnection.HTTP_NO_CONTENT;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
+import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
+import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 import static org.sonar.api.CoreProperties.DEFAULT_ISSUE_ASSIGNEE;
 import static org.sonar.api.web.UserRole.CODEVIEWER;
 import static org.sonar.api.web.UserRole.USER;
@@ -65,6 +69,8 @@ import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_GATES;
 import static org.sonar.db.permission.OrganizationPermission.SCAN;
 import static org.sonar.server.organization.ws.OrganizationsWsSupport.PARAM_ORGANIZATION;
+import static org.sonar.server.user.index.UserIndexDefinition.FIELD_ORGANIZATION_UUIDS;
+import static org.sonar.server.user.index.UserIndexDefinition.FIELD_UUID;
 
 public class RemoveMemberActionTest {
   @Rule
@@ -367,12 +373,30 @@ public class RemoveMemberActionTest {
 
   private void assertNotAMember(String organizationUuid, UserDto user) {
     assertThat(dbClient.organizationMemberDao().select(dbSession, organizationUuid, user.getId())).isNotPresent();
-    assertThat(userIndex.search(UserQuery.builder().setOrganizationUuid(organizationUuid).setTextQuery(user.getLogin()).build(), new SearchOptions()).getDocs()).isEmpty();
+    assertMemberInIndex(organizationUuid, user, false);
   }
 
   private void assertMember(String organizationUuid, UserDto user) {
     assertThat(dbClient.organizationMemberDao().select(dbSession, organizationUuid, user.getId())).isPresent();
-    assertThat(userIndex.getNullableByLogin(user.getLogin()).organizationUuids()).contains(organizationUuid);
+    assertThat(userIndex.search(UserQuery.builder()
+      .setOrganizationUuid(organizationUuid)
+      .setTextQuery(user.getLogin())
+      .build(),
+      new SearchOptions()).getDocs())
+        .hasSize(1);
+    assertMemberInIndex(organizationUuid, user, true);
+  }
+
+  private void assertMemberInIndex(String organizationUuid, UserDto user, boolean isMember) {
+    SearchRequestBuilder request = es.client().prepareSearch(UserIndexDefinition.INDEX_TYPE_USER)
+      .setQuery(boolQuery()
+        .must(termQuery(FIELD_ORGANIZATION_UUIDS, organizationUuid))
+        .must(termQuery(FIELD_UUID, user.getUuid())));
+    if (isMember) {
+      assertThat(request.get().getHits().getHits()).hasSize(1);
+    } else {
+      assertThat(request.get().getHits().getHits()).isEmpty();
+    }
   }
 
   private void assertOrgPermissionsOfUser(UserDto user, OrganizationDto organization, OrganizationPermission... permissions) {

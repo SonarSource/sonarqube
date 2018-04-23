@@ -58,6 +58,11 @@ public class UserDao implements Dao {
     return mapper(session).selectUser(userId);
   }
 
+  @CheckForNull
+  public UserDto selectByUuid(DbSession session, String uuid) {
+    return mapper(session).selectByUuid(uuid);
+  }
+
   /**
    * Select users by ids, including disabled users. An empty list is returned
    * if list of ids is empty, without any db round trips.
@@ -80,6 +85,14 @@ public class UserDao implements Dao {
    */
   public List<UserDto> selectByLogins(DbSession session, Collection<String> logins) {
     return executeLargeInputs(logins, mapper(session)::selectByLogins);
+  }
+
+  /**
+   * Select users by uuids, including disabled users. An empty list is returned
+   * if list of uuids is empty, without any db round trips.
+   */
+  public List<UserDto> selectByUuids(DbSession session, Collection<String> uuids) {
+    return executeLargeInputs(uuids, mapper(session)::selectByUuids);
   }
 
   /**
@@ -165,12 +178,17 @@ public class UserDao implements Dao {
     return mapper(dbSession).selectByEmail(email.toLowerCase(Locale.ENGLISH));
   }
 
-  public void scrollByLogins(DbSession dbSession, Collection<String> logins, Consumer<UserDto> consumer) {
+  @CheckForNull
+  public UserDto selectByExternalIdAndIdentityProvider(DbSession dbSession, String externalId, String externalIdentityProvider) {
+    return mapper(dbSession).selectByExternalIdAndIdentityProvider(externalId, externalIdentityProvider);
+  }
+
+  public void scrollByUuids(DbSession dbSession, Collection<String> uuids, Consumer<UserDto> consumer) {
     UserMapper mapper = mapper(dbSession);
 
-    executeLargeInputsWithoutOutput(logins,
-      pageOfLogins -> mapper
-        .selectByLogins(pageOfLogins)
+    executeLargeInputsWithoutOutput(uuids,
+      pageOfUuids -> mapper
+        .selectByUuids(pageOfUuids)
         .forEach(consumer));
   }
 

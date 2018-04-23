@@ -20,7 +20,6 @@
 package org.sonar.server.user.index;
 
 import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Maps;
@@ -44,6 +43,7 @@ import org.sonar.server.es.ResilientIndexer;
 
 import static java.util.Collections.singletonList;
 import static org.sonar.core.util.stream.MoreCollectors.toHashSet;
+import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.server.user.index.UserIndexDefinition.INDEX_TYPE_USER;
 
 public class UserIndexer implements ResilientIndexer {
@@ -64,35 +64,32 @@ public class UserIndexer implements ResilientIndexer {
   @Override
   public void indexOnStartup(Set<IndexType> uninitializedIndexTypes) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      ListMultimap<String, String> organizationUuidsByLogin = ArrayListMultimap.create();
-      dbClient.organizationMemberDao().selectAllForUserIndexing(dbSession, organizationUuidsByLogin::put);
+      ListMultimap<String, String> organizationUuidsByUserUuid = ArrayListMultimap.create();
+      dbClient.organizationMemberDao().selectAllForUserIndexing(dbSession, organizationUuidsByUserUuid::put);
 
       BulkIndexer bulkIndexer = newBulkIndexer(Size.LARGE, IndexingListener.FAIL_ON_ERROR);
       bulkIndexer.start();
       dbClient.userDao().scrollAll(dbSession,
         // only index requests, no deletion requests.
         // Deactivated users are not deleted but updated.
-        u -> bulkIndexer.add(newIndexRequest(u, organizationUuidsByLogin)));
+        u -> bulkIndexer.add(newIndexRequest(u, organizationUuidsByUserUuid)));
       bulkIndexer.stop();
     }
   }
 
   public void commitAndIndex(DbSession dbSession, UserDto user) {
-    commitAndIndexByLogins(dbSession, singletonList(user.getLogin()));
+    commitAndIndex(dbSession, singletonList(user));
   }
 
   public void commitAndIndex(DbSession dbSession, Collection<UserDto> users) {
-    commitAndIndexByLogins(dbSession, Collections2.transform(users, UserDto::getLogin));
-  }
-
-  public void commitAndIndexByLogins(DbSession dbSession, Collection<String> logins) {
-    List<EsQueueDto> items = logins.stream()
-      .map(l -> EsQueueDto.create(INDEX_TYPE_USER.format(), l))
+    List<String> uuids = users.stream().map(UserDto::getUuid).collect(toList());
+    List<EsQueueDto> items = uuids.stream()
+      .map(uuid -> EsQueueDto.create(INDEX_TYPE_USER.format(), uuid))
       .collect(MoreCollectors.toArrayList());
 
     dbClient.esQueueDao().insert(dbSession, items);
     dbSession.commit();
-    postCommit(dbSession, logins, items);
+    postCommit(dbSession, users.stream().map(UserDto::getLogin).collect(toList()), items);
   }
 
   /**
@@ -111,27 +108,27 @@ public class UserIndexer implements ResilientIndexer {
     if (items.isEmpty()) {
       return new IndexingResult();
     }
-    Set<String> logins = items
+    Set<String> uuids = items
       .stream()
       .map(EsQueueDto::getDocId)
       .collect(toHashSet(items.size()));
 
-    ListMultimap<String, String> organizationUuidsByLogin = ArrayListMultimap.create();
-    dbClient.organizationMemberDao().selectForUserIndexing(dbSession, logins, organizationUuidsByLogin::put);
+    ListMultimap<String, String> organizationUuidsByUserUuid = ArrayListMultimap.create();
+    dbClient.organizationMemberDao().selectForUserIndexing(dbSession, uuids, organizationUuidsByUserUuid::put);
 
     BulkIndexer bulkIndexer = newBulkIndexer(Size.REGULAR, new OneToOneResilientIndexingListener(dbClient, dbSession, items));
     bulkIndexer.start();
-    dbClient.userDao().scrollByLogins(dbSession, logins,
+    dbClient.userDao().scrollByUuids(dbSession, uuids,
       // only index requests, no deletion requests.
       // Deactivated users are not deleted but updated.
       u -> {
-        logins.remove(u.getLogin());
-        bulkIndexer.add(newIndexRequest(u, organizationUuidsByLogin));
+        uuids.remove(u.getUuid());
+        bulkIndexer.add(newIndexRequest(u, organizationUuidsByUserUuid));
       });
 
-    // the remaining logins reference rows that don't exist in db. They must
+    // the remaining uuids reference rows that don't exist in db. They must
     // be deleted from index.
-    logins.forEach(l -> bulkIndexer.addDeletion(INDEX_TYPE_USER, l));
+    uuids.forEach(uuid -> bulkIndexer.addDeletion(INDEX_TYPE_USER, uuid));
     return bulkIndexer.stop();
   }
 
@@ -139,15 +136,16 @@ public class UserIndexer implements ResilientIndexer {
     return new BulkIndexer(esClient, INDEX_TYPE_USER, bulkSize, listener);
   }
 
-  private static IndexRequest newIndexRequest(UserDto user, ListMultimap<String, String> organizationUuidsByLogins) {
+  private static IndexRequest newIndexRequest(UserDto user, ListMultimap<String, String> organizationUuidsByUserUuid) {
     UserDoc doc = new UserDoc(Maps.newHashMapWithExpectedSize(8));
     // all the keys must be present, even if value is null
+    doc.setUuid(user.getUuid());
     doc.setLogin(user.getLogin());
     doc.setName(user.getName());
     doc.setEmail(user.getEmail());
     doc.setActive(user.isActive());
     doc.setScmAccounts(UserDto.decodeScmAccounts(user.getScmAccounts()));
-    doc.setOrganizationUuids(organizationUuidsByLogins.get(user.getLogin()));
+    doc.setOrganizationUuids(organizationUuidsByUserUuid.get(user.getUuid()));
 
     return new IndexRequest(INDEX_TYPE_USER.getIndex(), INDEX_TYPE_USER.getType())
       .id(doc.getId())

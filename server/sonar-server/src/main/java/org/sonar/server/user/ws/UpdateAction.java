@@ -33,20 +33,22 @@ import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UpdateUser;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.user.UserUpdater;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.base.Strings.emptyToNull;
 import static com.google.common.base.Strings.isNullOrEmpty;
+import static java.lang.String.format;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.sonar.server.user.UserUpdater.EMAIL_MAX_LENGTH;
 import static org.sonar.server.user.UserUpdater.LOGIN_MAX_LENGTH;
 import static org.sonar.server.user.UserUpdater.NAME_MAX_LENGTH;
 import static org.sonar.server.user.ws.EmailValidator.isValidIfPresent;
-import static org.sonar.server.ws.WsUtils.checkFound;
 import static org.sonarqube.ws.client.user.UsersWsParameters.ACTION_UPDATE;
 import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_EMAIL;
 import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_LOGIN;
@@ -113,14 +115,16 @@ public class UpdateAction implements UsersWsAction {
     UpdateRequest updateRequest = toWsRequest(request);
     checkArgument(isValidIfPresent(updateRequest.getEmail()), "Email '%s' is not valid", updateRequest.getEmail());
     try (DbSession dbSession = dbClient.openSession(false)) {
-      doHandle(dbSession, toWsRequest(request));
-      writeUser(dbSession, response, updateRequest.getLogin());
+      UserDto user = getUser(dbSession, updateRequest.getLogin());
+      doHandle(dbSession, updateRequest);
+      writeUser(dbSession, response, user.getUuid());
     }
   }
 
   private void doHandle(DbSession dbSession, UpdateRequest request) {
     String login = request.getLogin();
-    UpdateUser updateUser = UpdateUser.create(login);
+    UserDto user = getUser(dbSession, login);
+    UpdateUser updateUser = new UpdateUser();
     if (request.getName() != null) {
       updateUser.setName(request.getName());
     }
@@ -130,17 +134,25 @@ public class UpdateAction implements UsersWsAction {
     if (!request.getScmAccounts().isEmpty()) {
       updateUser.setScmAccounts(request.getScmAccounts());
     }
-    userUpdater.updateAndCommit(dbSession, updateUser, u -> {
+    userUpdater.updateAndCommit(dbSession, user, updateUser, u -> {
     });
   }
 
-  private void writeUser(DbSession dbSession, Response response, String login) {
+  private UserDto getUser(DbSession dbSession, String login) {
+    UserDto user = dbClient.userDao().selectByLogin(dbSession, login);
+    if (user == null || !user.isActive()) {
+      throw new NotFoundException(format("User '%s' doesn't exist", login));
+    }
+    return user;
+  }
+
+  private void writeUser(DbSession dbSession, Response response, String uuid) {
     try (JsonWriter json = response.newJsonWriter()) {
       json.beginObject();
       json.name("user");
-      Set<String> groups = new HashSet<>();
-      UserDto user = checkFound(dbClient.userDao().selectByLogin(dbSession, login), "User '%s' doesn't exist", login);
-      groups.addAll(dbClient.groupMembershipDao().selectGroupsByLogins(dbSession, singletonList(login)).get(login));
+      UserDto user = dbClient.userDao().selectByUuid(dbSession, uuid);
+      checkState(user != null, "User with uuid '%s' doesn't exist", uuid);
+      Set<String> groups = new HashSet<>(dbClient.groupMembershipDao().selectGroupsByLogins(dbSession, singletonList(uuid)).get(uuid));
       userWriter.write(json, user, groups, UserJsonWriter.FIELDS);
       json.endObject().close();
     }

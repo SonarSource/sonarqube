@@ -66,7 +66,7 @@ public class UserJsonWriter {
       writeIfNeeded(json, user.getEmail(), FIELD_EMAIL, fields);
       writeIfNeeded(json, user.isActive(), FIELD_ACTIVE, fields);
       writeIfNeeded(json, user.isLocal(), FIELD_LOCAL, fields);
-      writeIfNeeded(json, user.getExternalIdentity(), FIELD_EXTERNAL_IDENTITY, fields);
+      writeIfNeeded(json, user.getExternalLogin(), FIELD_EXTERNAL_IDENTITY, fields);
       writeIfNeeded(json, user.getExternalIdentityProvider(), FIELD_EXTERNAL_PROVIDER, fields);
       writeGroupsIfNeeded(json, groups, fields);
       writeScmAccountsIfNeeded(json, fields, user);

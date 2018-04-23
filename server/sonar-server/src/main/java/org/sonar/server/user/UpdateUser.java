@@ -19,8 +19,6 @@
  */
 package org.sonar.server.user;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 import java.util.List;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -34,19 +32,22 @@ public class UpdateUser {
   private String password;
   private ExternalIdentity externalIdentity;
 
+  private boolean loginChanged;
   private boolean nameChanged;
   private boolean emailChanged;
   private boolean scmAccountsChanged;
   private boolean passwordChanged;
   private boolean externalIdentityChanged;
 
-  private UpdateUser(String login) {
-    // No direct call to this constructor
-    this.login = login;
-  }
-
+  @CheckForNull
   public String login() {
     return login;
+  }
+
+  public UpdateUser setLogin(@Nullable String login) {
+    this.login = login;
+    loginChanged = true;
+    return this;
   }
 
   @CheckForNull
@@ -107,6 +108,10 @@ public class UpdateUser {
     return this;
   }
 
+  public boolean isLoginChanged() {
+    return loginChanged;
+  }
+
   public boolean isNameChanged() {
     return nameChanged;
   }
@@ -127,8 +132,4 @@ public class UpdateUser {
     return externalIdentityChanged;
   }
 
-  public static UpdateUser create(String login) {
-    checkNotNull(login);
-    return new UpdateUser(login);
-  }
 }

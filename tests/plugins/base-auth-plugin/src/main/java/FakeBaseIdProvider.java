@@ -1,3 +1,4 @@
+
 /*
  * SonarQube
  * Copyright (C) 2009-2018 SonarSource SA
@@ -17,6 +18,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import java.io.IOException;
 import org.sonar.api.config.Settings;
 import org.sonar.api.server.authentication.BaseIdentityProvider;
@@ -56,10 +58,11 @@ public class FakeBaseIdProvider implements BaseIdentityProvider {
 
     String[] userInfos = userInfoProperty.split(",");
     UserIdentity.Builder builder = UserIdentity.builder()
-      .setLogin(userInfos[0])
-      .setProviderLogin(userInfos[1])
-      .setName(userInfos[2])
-      .setEmail(userInfos[3]);
+      .setLogin(emptyToNull(userInfos[0]))
+      .setProviderId(emptyToNull(userInfos[1]))
+      .setProviderLogin(emptyToNull(userInfos[2]))
+      .setName(emptyToNull(userInfos[3]))
+      .setEmail(emptyToNull(userInfos[4]));
 
     if (settings.getBoolean(ENABLED_GROUPS_SYNC)) {
       builder.setGroups(newHashSet(settings.getStringArray(GROUPS)));
@@ -103,5 +106,16 @@ public class FakeBaseIdProvider implements BaseIdentityProvider {
     }
     // If property is not defined, default behaviour is not always allow users to sign up
     return true;
+  }
+
+  private static String emptyToNull(String s) {
+    if (s == null) {
+      return null;
+    }
+    String trim = s.trim();
+    if (trim.isEmpty()) {
+      return null;
+    }
+    return trim;
   }
 }

@@ -38,8 +38,8 @@ public class OrganizationMemberDao implements Dao {
     return Optional.ofNullable(mapper(dbSession).select(organizationUuid, userId));
   }
 
-  public List<String> selectLoginsByOrganizationUuid(DbSession dbSession, String organizationUuid) {
-    return mapper(dbSession).selectLogins(organizationUuid);
+  public List<String> selectUserUuidsByOrganizationUuid(DbSession dbSession, String organizationUuid) {
+    return mapper(dbSession).selectUserUuids(organizationUuid);
   }
 
   public List<Integer> selectUserIdsByOrganizationUuid(DbSession dbSession, String organizationUuid) {
@@ -67,20 +67,19 @@ public class OrganizationMemberDao implements Dao {
   }
 
   /**
-   *
-   * @param loginOrganizationConsumer {@link BiConsumer}<String,String> (login, organization uuid)
+   * @param userUuidOrganizationConsumer {@link BiConsumer}<String,String> (uuid, organization uuid)
    */
-  public void selectForUserIndexing(DbSession dbSession, Collection<String> logins, BiConsumer<String, String> loginOrganizationConsumer) {
-    executeLargeInputsWithoutOutput(logins, list -> mapper(dbSession).selectForIndexing(list)
-      .forEach(row -> loginOrganizationConsumer.accept(row.get("login"), row.get("organizationUuid"))));
+  public void selectForUserIndexing(DbSession dbSession, Collection<String> uuids, BiConsumer<String, String> userUuidOrganizationConsumer) {
+    executeLargeInputsWithoutOutput(uuids, list -> mapper(dbSession).selectForIndexing(list)
+      .forEach(row -> userUuidOrganizationConsumer.accept(row.get("uuid"), row.get("organizationUuid"))));
   }
 
   /**
    *
-   * @param loginOrganizationConsumer {@link BiConsumer}<String,String> (login, organization uuid)
+   * @param userUuidOrganizationConsumer {@link BiConsumer}<String,String> (uuid, organization uuid)
    */
-  public void selectAllForUserIndexing(DbSession dbSession, BiConsumer<String, String> loginOrganizationConsumer) {
+  public void selectAllForUserIndexing(DbSession dbSession, BiConsumer<String, String> userUuidOrganizationConsumer) {
     mapper(dbSession).selectAllForIndexing()
-      .forEach(row -> loginOrganizationConsumer.accept(row.get("login"), row.get("organizationUuid")));
+      .forEach(row -> userUuidOrganizationConsumer.accept(row.get("uuid"), row.get("organizationUuid")));
   }
 }

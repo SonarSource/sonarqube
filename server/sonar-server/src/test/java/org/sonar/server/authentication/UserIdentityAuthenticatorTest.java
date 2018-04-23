@@ -60,6 +60,7 @@ public class UserIdentityAuthenticatorTest {
   private static String USER_LOGIN = "github-johndoo";
 
   private static UserIdentity USER_IDENTITY = UserIdentity.builder()
+    .setProviderId("ABCD")
     .setProviderLogin("johndoo")
     .setLogin(USER_LOGIN)
     .setName("John")
@@ -110,8 +111,9 @@ public class UserIdentityAuthenticatorTest {
     assertThat(user.isActive()).isTrue();
     assertThat(user.getName()).isEqualTo("John");
     assertThat(user.getEmail()).isEqualTo("john@email.com");
-    assertThat(user.getExternalIdentity()).isEqualTo("johndoo");
+    assertThat(user.getExternalLogin()).isEqualTo("johndoo");
     assertThat(user.getExternalIdentityProvider()).isEqualTo("github");
+    assertThat(user.getExternalId()).isEqualTo("ABCD");
     assertThat(user.isRoot()).isFalse();
     checkGroupMembership(user);
   }
@@ -196,6 +198,23 @@ public class UserIdentityAuthenticatorTest {
   }
 
   @Test
+  public void external_id_is_set_to_provider_login_when_null() {
+    organizationFlags.setEnabled(true);
+    UserIdentity newUser = UserIdentity.builder()
+      .setProviderId(null)
+      .setLogin("john")
+      .setProviderLogin("johndoo")
+      .setName("JOhn")
+      .build();
+
+    underTest.authenticate(newUser, IDENTITY_PROVIDER, Source.local(Method.BASIC), ALLOW);
+
+    assertThat(db.users().selectUserByLogin(newUser.getLogin()).get())
+      .extracting(UserDto::getLogin, UserDto::getExternalId, UserDto::getExternalLogin)
+      .contains("john", "johndoo", "johndoo");
+  }
+
+  @Test
   public void throw_EmailAlreadyExistException_when_authenticating_new_user_when_email_already_exists_and_strategy_is_WARN() {
     organizationFlags.setEnabled(true);
     UserDto existingUser = db.users().insertUser(u -> u.setEmail("john@email.com"));
@@ -243,23 +262,84 @@ public class UserIdentityAuthenticatorTest {
   }
 
   @Test
-  public void authenticate_existing_user() {
+  public void authenticate_existing_user_matching_login() {
     db.users().insertUser(u -> u
       .setLogin(USER_LOGIN)
       .setName("Old name")
       .setEmail("Old email")
-      .setExternalIdentity("old identity")
+      .setExternalId("old id")
+      .setExternalLogin("old identity")
       .setExternalIdentityProvider("old provide"));
 
     underTest.authenticate(USER_IDENTITY, IDENTITY_PROVIDER, Source.local(Method.BASIC), FORBID);
 
-    UserDto userDto = db.users().selectUserByLogin(USER_LOGIN).get();
-    assertThat(userDto.isActive()).isTrue();
-    assertThat(userDto.getName()).isEqualTo("John");
-    assertThat(userDto.getEmail()).isEqualTo("john@email.com");
-    assertThat(userDto.getExternalIdentity()).isEqualTo("johndoo");
-    assertThat(userDto.getExternalIdentityProvider()).isEqualTo("github");
-    assertThat(userDto.isRoot()).isFalse();
+    assertThat(db.users().selectUserByLogin(USER_LOGIN).get())
+      .extracting(UserDto::getName, UserDto::getEmail, UserDto::getExternalId, UserDto::getExternalLogin, UserDto::getExternalIdentityProvider, UserDto::isActive)
+      .contains("John", "john@email.com", "ABCD", "johndoo", "github", true);
+  }
+
+  @Test
+  public void authenticate_existing_user_matching_external_id() {
+    UserDto user = db.users().insertUser(u -> u
+      .setLogin("Old login")
+      .setName("Old name")
+      .setEmail("Old email")
+      .setExternalId(USER_IDENTITY.getProviderId())
+      .setExternalLogin("old identity")
+      .setExternalIdentityProvider(IDENTITY_PROVIDER.getKey()));
+
+    underTest.authenticate(USER_IDENTITY, IDENTITY_PROVIDER, Source.local(Method.BASIC), FORBID);
+
+    assertThat(db.users().selectUserByLogin("Old login")).isNotPresent();
+    assertThat(db.getDbClient().userDao().selectByUuid(db.getSession(), user.getUuid()))
+      .extracting(UserDto::getLogin, UserDto::getName, UserDto::getEmail, UserDto::getExternalId, UserDto::getExternalLogin, UserDto::getExternalIdentityProvider,
+        UserDto::isActive)
+      .contains(USER_LOGIN, "John", "john@email.com", "ABCD", "johndoo", "github", true);
+  }
+
+  @Test
+  public void authenticate_existing_user_and_update_only_login() {
+    UserDto user = db.users().insertUser(u -> u
+      .setLogin("old login")
+      .setName(USER_IDENTITY.getName())
+      .setEmail(USER_IDENTITY.getEmail())
+      .setExternalId(USER_IDENTITY.getProviderId())
+      .setExternalLogin("old identity")
+      .setExternalIdentityProvider(IDENTITY_PROVIDER.getKey()));
+
+    underTest.authenticate(USER_IDENTITY, IDENTITY_PROVIDER, Source.local(Method.BASIC), FORBID);
+
+    assertThat(db.users().selectUserByLogin("Old login")).isNotPresent();
+    assertThat(db.getDbClient().userDao().selectByUuid(db.getSession(), user.getUuid()))
+      .extracting(UserDto::getLogin, UserDto::getName, UserDto::getEmail, UserDto::getExternalId, UserDto::getExternalLogin, UserDto::getExternalIdentityProvider,
+        UserDto::isActive)
+      .containsExactlyInAnyOrder(USER_LOGIN, USER_IDENTITY.getName(), USER_IDENTITY.getEmail(), USER_IDENTITY.getProviderId(), USER_IDENTITY.getProviderLogin(), IDENTITY_PROVIDER.getKey(),
+        true);
+  }
+
+  @Test
+  public void authenticate_existing_user_matching_login_when_external_id_is_null() {
+    UserDto user = db.users().insertUser(u -> u
+      .setLogin(USER_LOGIN)
+      .setName("Old name")
+      .setEmail("Old email")
+      .setExternalId("Old id")
+      .setExternalLogin("old identity")
+      .setExternalIdentityProvider(IDENTITY_PROVIDER.getKey()));
+
+    underTest.authenticate(UserIdentity.builder()
+      .setProviderId(null)
+      .setProviderLogin("johndoo")
+      .setLogin(USER_LOGIN)
+      .setName("John")
+      .setEmail("john@email.com")
+      .build(),
+      IDENTITY_PROVIDER, Source.local(Method.BASIC), FORBID);
+
+    assertThat(db.getDbClient().userDao().selectByUuid(db.getSession(), user.getUuid()))
+      .extracting(UserDto::getLogin, UserDto::getName, UserDto::getEmail, UserDto::getExternalId, UserDto::getExternalLogin, UserDto::getExternalIdentityProvider,
+        UserDto::isActive)
+      .contains(user.getLogin(), "John", "john@email.com", "johndoo", "johndoo", "github", true);
   }
 
   @Test
@@ -270,7 +350,8 @@ public class UserIdentityAuthenticatorTest {
       .setActive(false)
       .setName("Old name")
       .setEmail("Old email")
-      .setExternalIdentity("old identity")
+      .setExternalId("old id")
+      .setExternalLogin("old identity")
       .setExternalIdentityProvider("old provide"));
 
     underTest.authenticate(USER_IDENTITY, IDENTITY_PROVIDER, Source.local(Method.BASIC_TOKEN), FORBID);
@@ -279,7 +360,8 @@ public class UserIdentityAuthenticatorTest {
     assertThat(userDto.isActive()).isTrue();
     assertThat(userDto.getName()).isEqualTo("John");
     assertThat(userDto.getEmail()).isEqualTo("john@email.com");
-    assertThat(userDto.getExternalIdentity()).isEqualTo("johndoo");
+    assertThat(userDto.getExternalId()).isEqualTo("ABCD");
+    assertThat(userDto.getExternalLogin()).isEqualTo("johndoo");
     assertThat(userDto.getExternalIdentityProvider()).isEqualTo("github");
     assertThat(userDto.isRoot()).isFalse();
   }

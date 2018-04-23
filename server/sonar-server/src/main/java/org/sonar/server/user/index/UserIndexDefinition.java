@@ -34,6 +34,7 @@ import static org.sonar.server.es.NewIndex.SettingsConfiguration.newBuilder;
 public class UserIndexDefinition implements IndexDefinition {
 
   public static final IndexType INDEX_TYPE_USER = new IndexType("users", "user");
+  public static final String FIELD_UUID = "uuid";
   public static final String FIELD_LOGIN = "login";
   public static final String FIELD_NAME = "name";
   public static final String FIELD_EMAIL = "email";
@@ -56,6 +57,7 @@ public class UserIndexDefinition implements IndexDefinition {
 
     // type "user"
     NewIndex.NewIndexType mapping = index.createType(INDEX_TYPE_USER.getType());
+    mapping.keywordFieldBuilder(FIELD_UUID).disableNorms().build();
     mapping.keywordFieldBuilder(FIELD_LOGIN).addSubFields(USER_SEARCH_GRAMS_ANALYZER).build();
     mapping.keywordFieldBuilder(FIELD_NAME).addSubFields(USER_SEARCH_GRAMS_ANALYZER).build();
     mapping.keywordFieldBuilder(FIELD_EMAIL).addSubFields(USER_SEARCH_GRAMS_ANALYZER, SORTABLE_ANALYZER).build();

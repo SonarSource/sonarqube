@@ -19,40 +19,27 @@
  */
 package org.sonar.server.issue.notification;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Lists;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.Date;
-import java.util.Random;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.rule.RuleKey;
-import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.Durations;
-import org.sonar.core.issue.DefaultIssue;
-import org.sonar.core.util.stream.MoreCollectors;
-import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
-import org.sonar.db.component.ComponentDao;
+import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.rule.RuleDao;
+import org.sonar.db.issue.IssueDto;
 import org.sonar.db.rule.RuleDefinitionDto;
-import org.sonar.server.user.index.UserIndex;
+import org.sonar.db.user.UserDto;
 
+import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyBoolean;
-import static org.mockito.ArgumentMatchers.anyCollection;
-import static org.mockito.ArgumentMatchers.same;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.sonar.api.rules.RuleType.BUG;
+import static org.sonar.api.rules.RuleType.CODE_SMELL;
+import static org.sonar.db.component.ComponentTesting.newDirectory;
+import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.server.issue.notification.NewIssuesStatistics.Metric.ASSIGNEE;
 import static org.sonar.server.issue.notification.NewIssuesStatistics.Metric.COMPONENT;
 import static org.sonar.server.issue.notification.NewIssuesStatistics.Metric.EFFORT;
@@ -62,24 +49,10 @@ import static org.sonar.server.issue.notification.NewIssuesStatistics.Metric.TAG
 
 public class NewIssuesNotificationTest {
 
-  private final Random random = new Random();
-  private final RuleType randomRuleType = RuleType.values()[random.nextInt(RuleType.values().length)];
-  private NewIssuesStatistics.Stats stats = new NewIssuesStatistics.Stats(i -> true);
-  private UserIndex userIndex = mock(UserIndex.class);
-  private DbClient dbClient = mock(DbClient.class);
-  private DbSession dbSession = mock(DbSession.class);
-  private ComponentDao componentDao = mock(ComponentDao.class);
-  private RuleDao ruleDao = mock(RuleDao.class);
-  private Durations durations = mock(Durations.class);
-  private NewIssuesNotification underTest = new NewIssuesNotification(userIndex, dbClient, durations);
+  @Rule
+  public DbTester db = DbTester.create();
 
-  @Before
-  public void setUp() throws Exception {
-    when(dbClient.openSession(anyBoolean())).thenReturn(dbSession);
-    when(dbClient.componentDao()).thenReturn(componentDao);
-    when(dbClient.ruleDao()).thenReturn(ruleDao);
-    when(componentDao.selectByUuids(same(dbSession), anyCollection())).thenReturn(Collections.emptyList());
-  }
+  private NewIssuesNotification underTest = new NewIssuesNotification(db.getDbClient(), new Durations());
 
   @Test
   public void set_project_without_branch() {
@@ -122,7 +95,6 @@ public class NewIssuesNotificationTest {
     underTest.setProjectVersion(null);
 
     assertThat(underTest.getFieldValue(NewIssuesEmailTemplate.FIELD_PROJECT_VERSION)).isNull();
-
   }
 
   @Test
@@ -136,19 +108,18 @@ public class NewIssuesNotificationTest {
 
   @Test
   public void set_statistics() {
-    addIssueNTimes(newIssue1(), 5);
-    addIssueNTimes(newIssue2(), 3);
-    when(componentDao.selectByUuids(dbSession, ImmutableSet.of("file-uuid", "directory-uuid")))
-      .thenReturn(Arrays.asList(
-        new ComponentDto().setUuid("file-uuid").setName("file-name"),
-        new ComponentDto().setUuid("directory-uuid").setName("directory-name")));
-    RuleKey rule1 = RuleKey.of("SonarQube", "rule-the-world");
-    RuleKey rule2 = RuleKey.of("SonarQube", "rule-the-universe");
-    when(ruleDao.selectDefinitionByKeys(dbSession, ImmutableSet.of(rule1, rule2)))
-      .thenReturn(
-        ImmutableList.of(newRule(rule1, "Rule the World", "Java"), newRule(rule2, "Rule the Universe", "Clojure")));
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto directory = db.components().insertComponent(newDirectory(project, "path"));
+    ComponentDto file = db.components().insertComponent(newFileDto(directory));
+    RuleDefinitionDto rule1 = db.rules().insert(r -> r.setRepositoryKey("SonarQube").setRuleKey("rule1-the-world").setName("Rule the World").setLanguage("Java"));
+    RuleDefinitionDto rule2 = db.rules().insert(r -> r.setRepositoryKey("SonarQube").setRuleKey("rule1-the-universe").setName("Rule the Universe").setLanguage("Clojure"));
+    IssueDto issue1 = db.issues().insert(rule1, project, file, i -> i.setType(BUG).setAssignee("maynard").setTags(asList("bug", "owasp")));
+    IssueDto issue2 = db.issues().insert(rule2, project, directory, i -> i.setType(CODE_SMELL).setAssignee("keenan").setTags(singletonList("owasp")));
+    NewIssuesStatistics.Stats stats = new NewIssuesStatistics.Stats(i -> true);
+    IntStream.rangeClosed(1, 5).forEach(i -> stats.add(issue1.toDefaultIssue()));
+    IntStream.rangeClosed(1, 3).forEach(i -> stats.add(issue2.toDefaultIssue()));
 
-    underTest.setStatistics("project-long-name", stats);
+    underTest.setStatistics(project.longName(), stats);
 
     assertThat(underTest.getFieldValue(RULE_TYPE + ".BUG.count")).isEqualTo("5");
     assertThat(underTest.getFieldValue(RULE_TYPE + ".CODE_SMELL.count")).isEqualTo("3");
@@ -160,130 +131,150 @@ public class NewIssuesNotificationTest {
     assertThat(underTest.getFieldValue(TAG + ".1.count")).isEqualTo("8");
     assertThat(underTest.getFieldValue(TAG + ".2.label")).isEqualTo("bug");
     assertThat(underTest.getFieldValue(TAG + ".2.count")).isEqualTo("5");
-    assertThat(underTest.getFieldValue(COMPONENT + ".1.label")).isEqualTo("file-name");
+    assertThat(underTest.getFieldValue(COMPONENT + ".1.label")).isEqualTo(file.name());
     assertThat(underTest.getFieldValue(COMPONENT + ".1.count")).isEqualTo("5");
-    assertThat(underTest.getFieldValue(COMPONENT + ".2.label")).isEqualTo("directory-name");
+    assertThat(underTest.getFieldValue(COMPONENT + ".2.label")).isEqualTo(directory.name());
     assertThat(underTest.getFieldValue(COMPONENT + ".2.count")).isEqualTo("3");
     assertThat(underTest.getFieldValue(RULE + ".1.label")).isEqualTo("Rule the World (Java)");
     assertThat(underTest.getFieldValue(RULE + ".1.count")).isEqualTo("5");
     assertThat(underTest.getFieldValue(RULE + ".2.label")).isEqualTo("Rule the Universe (Clojure)");
     assertThat(underTest.getFieldValue(RULE + ".2.count")).isEqualTo("3");
-    assertThat(underTest.getDefaultMessage()).startsWith("8 new issues on project-long-name");
+    assertThat(underTest.getDefaultMessage()).startsWith("8 new issues on " + project.longName());
+  }
+
+  @Test
+  public void set_assignee() {
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
+    RuleDefinitionDto rule = db.rules().insert();
+    UserDto user = db.users().insertUser();
+    IssueDto issue1 = db.issues().insert(rule, project, file, i -> i.setAssignee(user.getLogin()));
+    IssueDto issue2 = db.issues().insert(rule, project, file, i -> i.setAssignee("no_user"));
+    NewIssuesStatistics.Stats stats = new NewIssuesStatistics.Stats(i -> true);
+    IntStream.rangeClosed(1, 5).forEach(i -> stats.add(issue1.toDefaultIssue()));
+    IntStream.rangeClosed(1, 3).forEach(i -> stats.add(issue2.toDefaultIssue()));
+
+    underTest.setStatistics(project.longName(), stats);
+
+    assertThat(underTest.getFieldValue(ASSIGNEE + ".1.label")).isEqualTo(user.getName());
+    assertThat(underTest.getFieldValue(ASSIGNEE + ".1.count")).isEqualTo("5");
+    assertThat(underTest.getFieldValue(ASSIGNEE + ".2.label")).isEqualTo("no_user");
+    assertThat(underTest.getFieldValue(ASSIGNEE + ".2.count")).isEqualTo("3");
   }
 
   @Test
   public void add_only_5_assignees_with_biggest_issue_counts() {
-    String[] assignees = IntStream.range(0, 6 + random.nextInt(10)).mapToObj(s -> "assignee" + s).toArray(String[]::new);
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
+    RuleDefinitionDto rule = db.rules().insert();
     NewIssuesStatistics.Stats stats = new NewIssuesStatistics.Stats(i -> true);
-    int i = assignees.length;
-    for (String assignee : assignees) {
-      IntStream.range(0, i).mapToObj(j -> new DefaultIssue().setType(randomRuleType).setAssignee(assignee)).forEach(stats::add);
-      i--;
-    }
+    IntStream.rangeClosed(1, 10).forEach(i -> stats.add(db.issues().insert(rule, project, file, issue -> issue.setAssignee("assignee_1")).toDefaultIssue()));
+    IntStream.rangeClosed(1, 9).forEach(i -> stats.add(db.issues().insert(rule, project, file, issue -> issue.setAssignee("assignee_2")).toDefaultIssue()));
+    IntStream.rangeClosed(1, 8).forEach(i -> stats.add(db.issues().insert(rule, project, file, issue -> issue.setAssignee("assignee_3")).toDefaultIssue()));
+    IntStream.rangeClosed(1, 7).forEach(i -> stats.add(db.issues().insert(rule, project, file, issue -> issue.setAssignee("assignee_4")).toDefaultIssue()));
+    IntStream.rangeClosed(1, 6).forEach(i -> stats.add(db.issues().insert(rule, project, file, issue -> issue.setAssignee("assignee_5")).toDefaultIssue()));
+    IntStream.rangeClosed(1, 5).forEach(i -> stats.add(db.issues().insert(rule, project, file, issue -> issue.setAssignee("assignee_6")).toDefaultIssue()));
+    IntStream.rangeClosed(1, 4).forEach(i -> stats.add(db.issues().insert(rule, project, file, issue -> issue.setAssignee("assignee_7")).toDefaultIssue()));
+    IntStream.rangeClosed(1, 3).forEach(i -> stats.add(db.issues().insert(rule, project, file, issue -> issue.setAssignee("assignee_8")).toDefaultIssue()));
 
-    underTest.setStatistics(randomAlphanumeric(20), stats);
+    underTest.setStatistics(project.longName(), stats);
 
-    for (int j = 0; j < 5; j++) {
-      String fieldBase = ASSIGNEE + "." + (j + 1);
-      assertThat(underTest.getFieldValue(fieldBase + ".label")).as("label of %s", fieldBase).isEqualTo(assignees[j]);
-      assertThat(underTest.getFieldValue(fieldBase + ".count")).as("count of %s", fieldBase).isEqualTo(String.valueOf(assignees.length - j));
-    }
+    assertThat(underTest.getFieldValue(ASSIGNEE + ".1.label")).isEqualTo("assignee_1");
+    assertThat(underTest.getFieldValue(ASSIGNEE + ".1.count")).isEqualTo("10");
+    assertThat(underTest.getFieldValue(ASSIGNEE + ".2.label")).isEqualTo("assignee_2");
+    assertThat(underTest.getFieldValue(ASSIGNEE + ".2.count")).isEqualTo("9");
+    assertThat(underTest.getFieldValue(ASSIGNEE + ".3.label")).isEqualTo("assignee_3");
+    assertThat(underTest.getFieldValue(ASSIGNEE + ".3.count")).isEqualTo("8");
+    assertThat(underTest.getFieldValue(ASSIGNEE + ".4.label")).isEqualTo("assignee_4");
+    assertThat(underTest.getFieldValue(ASSIGNEE + ".4.count")).isEqualTo("7");
+    assertThat(underTest.getFieldValue(ASSIGNEE + ".5.label")).isEqualTo("assignee_5");
+    assertThat(underTest.getFieldValue(ASSIGNEE + ".5.count")).isEqualTo("6");
     assertThat(underTest.getFieldValue(ASSIGNEE + ".6.label")).isNull();
     assertThat(underTest.getFieldValue(ASSIGNEE + ".6.count")).isNull();
   }
 
   @Test
   public void add_only_5_components_with_biggest_issue_counts() {
-    String[] componentUuids = IntStream.range(0, 6 + random.nextInt(10)).mapToObj(s -> "component_uuid_" + s).toArray(String[]::new);
+    ComponentDto project = db.components().insertPrivateProject();
+    RuleDefinitionDto rule = db.rules().insert();
     NewIssuesStatistics.Stats stats = new NewIssuesStatistics.Stats(i -> true);
-    int i = componentUuids.length;
-    for (String component : componentUuids) {
-      IntStream.range(0, i).mapToObj(j -> new DefaultIssue().setType(randomRuleType).setComponentUuid(component)).forEach(stats::add);
-      i--;
-    }
-    when(componentDao.selectByUuids(dbSession, Arrays.stream(componentUuids).limit(5).collect(Collectors.toSet())))
-      .thenReturn(
-        Arrays.stream(componentUuids).map(uuid -> new ComponentDto().setUuid(uuid).setName("name_" + uuid)).collect(MoreCollectors.toList()));
+    ComponentDto file1 = db.components().insertComponent(newFileDto(project));
+    IntStream.rangeClosed(1, 10).forEach(i -> stats.add(db.issues().insert(rule, project, file1).toDefaultIssue()));
+    ComponentDto file2 = db.components().insertComponent(newFileDto(project));
+    IntStream.rangeClosed(1, 9).forEach(i -> stats.add(db.issues().insert(rule, project, file2).toDefaultIssue()));
+    ComponentDto file3 = db.components().insertComponent(newFileDto(project));
+    IntStream.rangeClosed(1, 8).forEach(i -> stats.add(db.issues().insert(rule, project, file3).toDefaultIssue()));
+    ComponentDto file4 = db.components().insertComponent(newFileDto(project));
+    IntStream.rangeClosed(1, 7).forEach(i -> stats.add(db.issues().insert(rule, project, file4).toDefaultIssue()));
+    ComponentDto file5 = db.components().insertComponent(newFileDto(project));
+    IntStream.rangeClosed(1, 6).forEach(i -> stats.add(db.issues().insert(rule, project, file5).toDefaultIssue()));
+    ComponentDto file6 = db.components().insertComponent(newFileDto(project));
+    IntStream.rangeClosed(1, 5).forEach(i -> stats.add(db.issues().insert(rule, project, file6).toDefaultIssue()));
+    ComponentDto file7 = db.components().insertComponent(newFileDto(project));
+    IntStream.rangeClosed(1, 4).forEach(i -> stats.add(db.issues().insert(rule, project, file7).toDefaultIssue()));
+    ComponentDto file8 = db.components().insertComponent(newFileDto(project));
+    IntStream.rangeClosed(1, 3).forEach(i -> stats.add(db.issues().insert(rule, project, file8).toDefaultIssue()));
 
-    underTest.setStatistics(randomAlphanumeric(20), stats);
+    underTest.setStatistics(project.longName(), stats);
 
-    for (int j = 0; j < 5; j++) {
-      String fieldBase = COMPONENT + "." + (j + 1);
-      assertThat(underTest.getFieldValue(fieldBase + ".label")).as("label of %s", fieldBase).isEqualTo("name_" + componentUuids[j]);
-      assertThat(underTest.getFieldValue(fieldBase + ".count")).as("count of %s", fieldBase).isEqualTo(String.valueOf(componentUuids.length - j));
-    }
+    assertThat(underTest.getFieldValue(COMPONENT + ".1.label")).isEqualTo(file1.name());
+    assertThat(underTest.getFieldValue(COMPONENT + ".1.count")).isEqualTo("10");
+    assertThat(underTest.getFieldValue(COMPONENT + ".2.label")).isEqualTo(file2.name());
+    assertThat(underTest.getFieldValue(COMPONENT + ".2.count")).isEqualTo("9");
+    assertThat(underTest.getFieldValue(COMPONENT + ".3.label")).isEqualTo(file3.name());
+    assertThat(underTest.getFieldValue(COMPONENT + ".3.count")).isEqualTo("8");
+    assertThat(underTest.getFieldValue(COMPONENT + ".4.label")).isEqualTo(file4.name());
+    assertThat(underTest.getFieldValue(COMPONENT + ".4.count")).isEqualTo("7");
+    assertThat(underTest.getFieldValue(COMPONENT + ".5.label")).isEqualTo(file5.name());
+    assertThat(underTest.getFieldValue(COMPONENT + ".5.count")).isEqualTo("6");
     assertThat(underTest.getFieldValue(COMPONENT + ".6.label")).isNull();
     assertThat(underTest.getFieldValue(COMPONENT + ".6.count")).isNull();
   }
 
   @Test
   public void add_only_5_rules_with_biggest_issue_counts() {
-    String repository = randomAlphanumeric(4);
-    String[] ruleKeys = IntStream.range(0, 6 + random.nextInt(10)).mapToObj(s -> "rule_" + s).toArray(String[]::new);
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
     NewIssuesStatistics.Stats stats = new NewIssuesStatistics.Stats(i -> true);
-    int i = ruleKeys.length;
-    for (String ruleKey : ruleKeys) {
-      IntStream.range(0, i).mapToObj(j -> new DefaultIssue().setType(randomRuleType).setRuleKey(RuleKey.of(repository, ruleKey))).forEach(stats::add);
-      i--;
-    }
-    when(ruleDao.selectDefinitionByKeys(dbSession, Arrays.stream(ruleKeys).limit(5).map(s -> RuleKey.of(repository, s)).collect(MoreCollectors.toSet(5))))
-      .thenReturn(
-        Arrays.stream(ruleKeys).limit(5).map(ruleKey -> new RuleDefinitionDto()
-          .setRuleKey(RuleKey.of(repository, ruleKey))
-          .setName("name_" + ruleKey)
-          .setLanguage("language_" + ruleKey))
-          .collect(MoreCollectors.toList(5)));
+    RuleDefinitionDto rule1 = db.rules().insert(r -> r.setLanguage("Java"));
+    IntStream.rangeClosed(1, 10).forEach(i -> stats.add(db.issues().insert(rule1, project, file).toDefaultIssue()));
+    RuleDefinitionDto rule2 = db.rules().insert(r -> r.setLanguage("Java"));
+    IntStream.rangeClosed(1, 9).forEach(i -> stats.add(db.issues().insert(rule2, project, file).toDefaultIssue()));
+    RuleDefinitionDto rule3 = db.rules().insert(r -> r.setLanguage("Java"));
+    IntStream.rangeClosed(1, 8).forEach(i -> stats.add(db.issues().insert(rule3, project, file).toDefaultIssue()));
+    RuleDefinitionDto rule4 = db.rules().insert(r -> r.setLanguage("Java"));
+    IntStream.rangeClosed(1, 7).forEach(i -> stats.add(db.issues().insert(rule4, project, file).toDefaultIssue()));
+    RuleDefinitionDto rule5 = db.rules().insert(r -> r.setLanguage("Java"));
+    IntStream.rangeClosed(1, 6).forEach(i -> stats.add(db.issues().insert(rule5, project, file).toDefaultIssue()));
+    RuleDefinitionDto rule6 = db.rules().insert(r -> r.setLanguage("Java"));
+    IntStream.rangeClosed(1, 5).forEach(i -> stats.add(db.issues().insert(rule6, project, file).toDefaultIssue()));
+    RuleDefinitionDto rule7 = db.rules().insert(r -> r.setLanguage("Java"));
+    IntStream.rangeClosed(1, 4).forEach(i -> stats.add(db.issues().insert(rule7, project, file).toDefaultIssue()));
+    RuleDefinitionDto rule8 = db.rules().insert(r -> r.setLanguage("Java"));
+    IntStream.rangeClosed(1, 3).forEach(i -> stats.add(db.issues().insert(rule8, project, file).toDefaultIssue()));
 
-    underTest.setStatistics(randomAlphanumeric(20), stats);
+    underTest.setStatistics(project.longName(), stats);
 
-    for (int j = 0; j < 5; j++) {
-      String fieldBase = RULE + "." + (j + 1);
-      assertThat(underTest.getFieldValue(fieldBase + ".label")).as("label of %s", fieldBase).isEqualTo("name_" + ruleKeys[j] + " (language_" + ruleKeys[j] + ")");
-      assertThat(underTest.getFieldValue(fieldBase + ".count")).as("count of %s", fieldBase).isEqualTo(String.valueOf(ruleKeys.length - j));
-    }
+    String javaSuffix = " (Java)";
+    assertThat(underTest.getFieldValue(RULE + ".1.label")).isEqualTo(rule1.getName() + javaSuffix);
+    assertThat(underTest.getFieldValue(RULE + ".1.count")).isEqualTo("10");
+    assertThat(underTest.getFieldValue(RULE + ".2.label")).isEqualTo(rule2.getName() + javaSuffix);
+    assertThat(underTest.getFieldValue(RULE + ".2.count")).isEqualTo("9");
+    assertThat(underTest.getFieldValue(RULE + ".3.label")).isEqualTo(rule3.getName() + javaSuffix);
+    assertThat(underTest.getFieldValue(RULE + ".3.count")).isEqualTo("8");
+    assertThat(underTest.getFieldValue(RULE + ".4.label")).isEqualTo(rule4.getName() + javaSuffix);
+    assertThat(underTest.getFieldValue(RULE + ".4.count")).isEqualTo("7");
+    assertThat(underTest.getFieldValue(RULE + ".5.label")).isEqualTo(rule5.getName() + javaSuffix);
+    assertThat(underTest.getFieldValue(RULE + ".5.count")).isEqualTo("6");
     assertThat(underTest.getFieldValue(RULE + ".6.label")).isNull();
     assertThat(underTest.getFieldValue(RULE + ".6.count")).isNull();
   }
 
   @Test
   public void set_debt() {
-    when(durations.format(any(Duration.class))).thenReturn("55 min");
-
     underTest.setDebt(Duration.create(55));
 
-    assertThat(underTest.getFieldValue(EFFORT + ".count")).isEqualTo("55 min");
+    assertThat(underTest.getFieldValue(EFFORT + ".count")).isEqualTo("55min");
   }
 
-  private void addIssueNTimes(DefaultIssue issue, int times) {
-    for (int i = 0; i < times; i++) {
-      stats.add(issue);
-    }
-  }
-
-  private DefaultIssue newIssue1() {
-    return new DefaultIssue()
-      .setAssignee("maynard")
-      .setComponentUuid("file-uuid")
-      .setType(RuleType.BUG)
-      .setTags(Lists.newArrayList("bug", "owasp"))
-      .setRuleKey(RuleKey.of("SonarQube", "rule-the-world"))
-      .setEffort(Duration.create(5L));
-  }
-
-  private DefaultIssue newIssue2() {
-    return new DefaultIssue()
-      .setAssignee("keenan")
-      .setComponentUuid("directory-uuid")
-      .setType(RuleType.CODE_SMELL)
-      .setTags(Lists.newArrayList("owasp"))
-      .setRuleKey(RuleKey.of("SonarQube", "rule-the-universe"))
-      .setEffort(Duration.create(10L));
-  }
-
-  private RuleDefinitionDto newRule(RuleKey ruleKey, String name, String language) {
-    return new RuleDefinitionDto()
-      .setRuleKey(ruleKey)
-      .setName(name)
-      .setLanguage(language);
-  }
 }

@@ -17,8 +17,8 @@
     and om.user_id = #{userId, jdbcType=INTEGER}
   </select>
 
-  <select id="selectLogins" resultType="string">
-    select u.login
+  <select id="selectUserUuids" resultType="string">
+    select u.uuid
     from organization_members om
       inner join users u on om.user_id = u.id
     where om.organization_uuid=#{organizationUuid,jdbcType=VARCHAR}
@@ -37,17 +37,17 @@
   </select>
 
   <select id="selectForIndexing" resultType="hashmap">
-    select u.login as "login", om.organization_uuid as "organizationUuid"
+    select u.uuid as "uuid", om.organization_uuid as "organizationUuid"
     from organization_members om
      inner join users u on om.user_id=u.id
-    where u.login in
-    <foreach collection="logins" open="(" close=")" item="login" separator=",">
-      #{login, jdbcType=VARCHAR}
+    where u.uuid in
+    <foreach collection="uuids" open="(" close=")" item="uuid" separator=",">
+      #{uuid, jdbcType=VARCHAR}
     </foreach>
   </select>
 
   <select id="selectAllForIndexing" resultType="hashmap">
-    select u.login as "login", om.organization_uuid as "organizationUuid"
+    select u.uuid as "uuid", om.organization_uuid as "organizationUuid"
     from organization_members om
     inner join users u on om.user_id=u.id
   </select>

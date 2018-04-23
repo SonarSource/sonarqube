@@ -38,6 +38,7 @@ import static org.apache.commons.lang.StringUtils.isNotBlank;
 @Immutable
 public final class UserIdentity {
 
+  private final String id;
   private final String providerLogin;
   private final String login;
   private final String name;
@@ -46,12 +47,26 @@ public final class UserIdentity {
   private final Set<String> groups;
 
   private UserIdentity(Builder builder) {
+    this.id = builder.id;
     this.providerLogin = builder.providerLogin;
     this.login = builder.login;
     this.name = builder.name;
     this.email = builder.email;
     this.groupsProvided = builder.groupsProvided;
     this.groups = builder.groups;
+  }
+
+  /**
+   * Optional unique ID for the related {@link IdentityProvider}.
+   * If two {@link IdentityProvider} define two users with the same ID, then users are considered as identical.
+   *
+   * When the ID is not provided, the provider login {@link #getProviderLogin()} is used.
+   *
+   * @since 7.2
+   */
+  @CheckForNull
+  public String getProviderId() {
+    return id;
   }
 
   /**
@@ -109,6 +124,7 @@ public final class UserIdentity {
   }
 
   public static class Builder {
+    private String id;
     private String providerLogin;
     private String login;
     private String name;
@@ -117,6 +133,15 @@ public final class UserIdentity {
     private Set<String> groups = new HashSet<>();
 
     private Builder() {
+    }
+
+    /**
+     * @see UserIdentity#getProviderId()
+     * @since 7.2
+     */
+    public Builder setProviderId(@Nullable String id) {
+      this.id = id;
+      return this;
     }
 
     /**
@@ -175,11 +200,16 @@ public final class UserIdentity {
     }
 
     public UserIdentity build() {
+      validateId(id);
       validateProviderLogin(providerLogin);
       validateLogin(login);
       validateName(name);
       validateEmail(email);
       return new UserIdentity(this);
+    }
+
+    private static void validateId(@Nullable String id) {
+      checkArgument(id == null || id.length() <= 255, "ID is too big (255 characters max)");
     }
 
     private static void validateProviderLogin(String providerLogin) {

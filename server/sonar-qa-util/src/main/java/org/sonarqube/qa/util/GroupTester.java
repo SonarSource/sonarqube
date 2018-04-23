@@ -57,6 +57,11 @@ public class GroupTester {
     return session.wsClient().userGroups().create(request).getGroup();
   }
 
+  @SafeVarargs
+  public final UserGroups.Group generate(Consumer<CreateRequest>... populators) {
+    return generate(null, populators);
+  }
+
   public List<Group> getGroupsOfUser(@Nullable Organizations.Organization organization, String userLogin) {
     GroupsRequest request = new GroupsRequest()
       .setOrganization(organization != null ? organization.getKey() : null)

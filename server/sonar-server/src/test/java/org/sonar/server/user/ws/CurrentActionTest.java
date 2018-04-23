@@ -79,7 +79,7 @@ public class CurrentActionTest {
       .setName("Obiwan Kenobi")
       .setEmail("obiwan.kenobi@starwars.com")
       .setLocal(true)
-      .setExternalIdentity("obiwan")
+      .setExternalLogin("obiwan")
       .setExternalIdentityProvider("sonarqube")
       .setScmAccounts(newArrayList("obiwan:github", "obiwan:bitbucket"))
       .setOnboarded(false));
@@ -102,7 +102,7 @@ public class CurrentActionTest {
       .setName("Obiwan Kenobi")
       .setEmail(null)
       .setLocal(true)
-      .setExternalIdentity("obiwan")
+      .setExternalLogin("obiwan")
       .setExternalIdentityProvider("sonarqube")
       .setScmAccounts((String) null));
     userSessionRule.logIn("obiwan.kenobi");
@@ -336,7 +336,7 @@ public class CurrentActionTest {
       .setName("Obiwan Kenobi")
       .setEmail("obiwan.kenobi@starwars.com")
       .setLocal(true)
-      .setExternalIdentity("obiwan.kenobi")
+      .setExternalLogin("obiwan.kenobi")
       .setExternalIdentityProvider("sonarqube")
       .setScmAccounts(newArrayList("obiwan:github", "obiwan:bitbucket"))
       .setOnboarded(true)

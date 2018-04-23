@@ -34,6 +34,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.db.qualityprofile.QProfileDto;
+import org.sonar.db.user.UserDto;
 import org.sonar.server.component.ComponentCleanerService;
 import org.sonar.server.organization.BillingValidations;
 import org.sonar.server.organization.BillingValidationsProxy;
@@ -177,14 +178,15 @@ public class DeleteAction implements OrganizationsWsAction {
   }
 
   private void deleteOrganization(DbSession dbSession, OrganizationDto organization) {
-    Collection<String> logins = dbClient.organizationMemberDao().selectLoginsByOrganizationUuid(dbSession, organization.getUuid());
+    Collection<String> uuids = dbClient.organizationMemberDao().selectUserUuidsByOrganizationUuid(dbSession, organization.getUuid());
     dbClient.organizationMemberDao().deleteByOrganizationUuid(dbSession, organization.getUuid());
     dbClient.organizationDao().deleteByUuid(dbSession, organization.getUuid());
     dbClient.userDao().cleanHomepage(dbSession, organization);
     dbClient.webhookDao().selectByOrganizationUuid(dbSession, organization.getUuid())
       .forEach(wh -> dbClient.webhookDeliveryDao().deleteByWebhook(dbSession, wh));
     dbClient.webhookDao().deleteByOrganization(dbSession, organization);
-    userIndexer.commitAndIndexByLogins(dbSession, logins);
+    List<UserDto> users = dbClient.userDao().selectByUuids(dbSession, uuids);
+    userIndexer.commitAndIndex(dbSession, users);
   }
 
   private static void preventDeletionOfDefaultOrganization(String key, DefaultOrganization defaultOrganization) {

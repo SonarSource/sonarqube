@@ -40,7 +40,7 @@ public class UserDoc extends BaseDoc implements User {
 
   @Override
   public String getId() {
-    return login();
+    return uuid();
   }
 
   @Override
@@ -51,6 +51,10 @@ public class UserDoc extends BaseDoc implements User {
   @Override
   public String getParent() {
     return null;
+  }
+
+  public String uuid() {
+    return getField(UserIndexDefinition.FIELD_UUID);
   }
 
   @Override
@@ -80,6 +84,11 @@ public class UserDoc extends BaseDoc implements User {
 
   public List<String> organizationUuids() {
     return getField(FIELD_ORGANIZATION_UUIDS);
+  }
+
+  public UserDoc setUuid(@Nullable String s) {
+    setField(UserIndexDefinition.FIELD_UUID, s);
+    return this;
   }
 
   public UserDoc setLogin(@Nullable String s) {

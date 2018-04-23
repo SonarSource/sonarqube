@@ -123,7 +123,7 @@ public class CurrentAction implements UsersWsAction {
       .setShowOnboardingTutorial(!user.isOnboarded());
     setNullable(emptyToNull(user.getEmail()), builder::setEmail);
     setNullable(emptyToNull(user.getEmail()), u -> builder.setAvatar(avatarResolver.create(user)));
-    setNullable(user.getExternalIdentity(), builder::setExternalIdentity);
+    setNullable(user.getExternalLogin(), builder::setExternalIdentity);
     setNullable(user.getExternalIdentityProvider(), builder::setExternalProvider);
     return builder.build();
   }

@@ -39,7 +39,8 @@ public class UserTesting {
       .setEmail(randomAlphanumeric(30))
       .setOnboarded(nextBoolean())
       .setScmAccounts(singletonList(randomAlphanumeric(40)))
-      .setExternalIdentity(randomAlphanumeric(40))
+      .setExternalId(randomAlphanumeric(40))
+      .setExternalLogin(randomAlphanumeric(40))
       .setExternalIdentityProvider(randomAlphanumeric(40))
       .setSalt(randomAlphanumeric(40))
       .setCryptedPassword(randomAlphanumeric(40))
@@ -60,7 +61,8 @@ public class UserTesting {
       .setName(name)
       .setEmail(email)
       .setLogin(login)
-      .setExternalIdentity(login)
+      .setExternalId(login)
+      .setExternalLogin(login)
       .setExternalIdentityProvider("sonarqube");
   }
 
@@ -70,18 +72,16 @@ public class UserTesting {
       .setName(name)
       .setEmail(email)
       .setLogin(login)
-      .setExternalIdentity(randomAlphanumeric(40))
+      .setExternalId(randomAlphanumeric(40))
+      .setExternalLogin(randomAlphanumeric(40))
       .setExternalIdentityProvider(randomAlphanumeric(40));
   }
 
-  public static UserDto newDisabledUser(String login) {
+  public static UserDto newDisabledUser() {
     return newUserDto()
-      .setLogin(login)
       .setActive(false)
       // All these fields are reset when disabling a user
       .setScmAccounts((String) null)
-      .setExternalIdentity(null)
-      .setExternalIdentityProvider(null)
       .setEmail(null)
       .setCryptedPassword(null)
       .setSalt(null);

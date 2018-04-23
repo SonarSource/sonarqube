@@ -161,6 +161,10 @@ public class PropertiesDao implements Dao {
     return executeLargeInputs(componentIds, getMapper(session)::selectByComponentIds);
   }
 
+  public List<PropertyDto> selectByKeyAndMatchingValue(DbSession session, String key, String value) {
+    return getMapper(session).selectByKeyAndMatchingValue(key, value);
+  }
+
   /**
    * Saves the specified property and its value.
    * <p>

@@ -32,9 +32,18 @@ public class ExternalIdentityTest {
 
   @Test
   public void create_external_identity() {
-    ExternalIdentity externalIdentity = new ExternalIdentity("github", "login");
-    assertThat(externalIdentity.getId()).isEqualTo("login");
+    ExternalIdentity externalIdentity = new ExternalIdentity("github", "login", "ABCD");
+    assertThat(externalIdentity.getLogin()).isEqualTo("login");
     assertThat(externalIdentity.getProvider()).isEqualTo("github");
+    assertThat(externalIdentity.getId()).isEqualTo("ABCD");
+  }
+
+  @Test
+  public void login_is_used_when_id_is_not_provided() {
+    ExternalIdentity externalIdentity = new ExternalIdentity("github", "login", null);
+    assertThat(externalIdentity.getLogin()).isEqualTo("login");
+    assertThat(externalIdentity.getProvider()).isEqualTo("github");
+    assertThat(externalIdentity.getId()).isEqualTo("login");
   }
 
   @Test
@@ -42,15 +51,15 @@ public class ExternalIdentityTest {
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("Identity provider cannot be null");
 
-    new ExternalIdentity(null, "login");
+    new ExternalIdentity(null, "login", "ABCD");
   }
 
   @Test
-  public void fail_with_NPE_when_identity_id_is_null() {
+  public void fail_with_NPE_when_identity_login_is_null() {
     thrown.expect(NullPointerException.class);
-    thrown.expectMessage("Identity id cannot be null");
+    thrown.expectMessage("Identity login cannot be null");
 
-    new ExternalIdentity("github", null);
+    new ExternalIdentity("github", null, "ABCD");
   }
 
 }

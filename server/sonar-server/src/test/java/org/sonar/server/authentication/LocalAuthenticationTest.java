@@ -29,7 +29,6 @@ import org.junit.rules.ExpectedException;
 import org.mindrot.jbcrypt.BCrypt;
 import org.sonar.db.DbTester;
 import org.sonar.db.user.UserDto;
-import org.sonar.db.user.UserTesting;
 import org.sonar.server.authentication.event.AuthenticationEvent;
 import org.sonar.server.authentication.event.AuthenticationException;
 
@@ -123,8 +122,8 @@ public class LocalAuthenticationTest {
     String salt = DigestUtils.sha1Hex(saltRandom);
 
     UserDto user = newUserDto()
-      .setHashMethod(SHA1.name())
       .setCryptedPassword(null)
+      .setHashMethod(SHA1.name())
       .setSalt(salt);
 
     expectedException.expect(AuthenticationException.class);
@@ -138,9 +137,9 @@ public class LocalAuthenticationTest {
     String password = randomAlphanumeric(60);
 
     UserDto user = newUserDto()
-      .setSalt(null)
       .setHashMethod(SHA1.name())
-      .setCryptedPassword(DigestUtils.sha1Hex("--0242b0b4c0a93ddfe09dd886de50bc25ba000b51--" + password + "--"));
+      .setCryptedPassword(DigestUtils.sha1Hex("--0242b0b4c0a93ddfe09dd886de50bc25ba000b51--" + password + "--"))
+      .setSalt(null);
 
     expectedException.expect(AuthenticationException.class);
     expectedException.expectMessage("null salt");

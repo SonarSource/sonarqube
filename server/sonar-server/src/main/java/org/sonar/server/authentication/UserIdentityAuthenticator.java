@@ -27,6 +27,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.sonar.api.server.authentication.IdentityProvider;
 import org.sonar.api.server.authentication.UserIdentity;
 import org.sonar.api.utils.log.Logger;
@@ -88,47 +90,50 @@ public class UserIdentityAuthenticator {
     this.defaultGroupFinder = defaultGroupFinder;
   }
 
-  public UserDto authenticate(UserIdentity user, IdentityProvider provider, AuthenticationEvent.Source source, ExistingEmailStrategy existingEmailStrategy) {
+  public UserDto authenticate(UserIdentity userIdentity, IdentityProvider provider, AuthenticationEvent.Source source, ExistingEmailStrategy existingEmailStrategy) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      String userLogin = user.getLogin();
-      UserDto userDto = dbClient.userDao().selectByLogin(dbSession, userLogin);
-      if (userDto != null && userDto.isActive()) {
-        registerExistingUser(dbSession, userDto, user, provider, source, existingEmailStrategy);
-        return userDto;
+      UserDto userDto = getUser(dbSession, userIdentity, provider);
+      if (userDto == null) {
+        return registerNewUser(dbSession, null, userIdentity, provider, source, existingEmailStrategy);
       }
-      return registerNewUser(dbSession, user, provider, source, existingEmailStrategy);
+      if (!userDto.isActive()) {
+        return registerNewUser(dbSession, userDto, userIdentity, provider, source, existingEmailStrategy);
+      }
+      return registerExistingUser(dbSession, userDto, userIdentity, provider, source, existingEmailStrategy);
     }
   }
 
-  private void registerExistingUser(DbSession dbSession, UserDto userDto, UserIdentity identity, IdentityProvider provider, AuthenticationEvent.Source source,
-    ExistingEmailStrategy existingEmailStrategy) {
-    UpdateUser update = UpdateUser.create(userDto.getLogin())
-      .setEmail(identity.getEmail())
-      .setName(identity.getName())
-      .setExternalIdentity(new ExternalIdentity(provider.getKey(), identity.getProviderLogin()));
-    Optional<UserDto> otherUserToIndex = validateEmail(dbSession, identity, provider, source, existingEmailStrategy);
-    userUpdater.updateAndCommit(dbSession, update, u -> syncGroups(dbSession, identity, u), toArray(otherUserToIndex));
+  @CheckForNull
+  private UserDto getUser(DbSession dbSession, UserIdentity userIdentity, IdentityProvider provider) {
+    String externalId = userIdentity.getProviderId();
+    UserDto user = dbClient.userDao().selectByExternalIdAndIdentityProvider(dbSession, externalId == null ? userIdentity.getProviderLogin() : externalId, provider.getKey());
+    // We need to search by login because :
+    // 1. external id may have not been set before,
+    // 2. user may have been provisioned,
+    // 3. user may have been disabled.
+    return user != null ? user : dbClient.userDao().selectByLogin(dbSession, userIdentity.getLogin());
   }
 
-  private UserDto registerNewUser(DbSession dbSession, UserIdentity identity, IdentityProvider provider, AuthenticationEvent.Source source,
+  private UserDto registerExistingUser(DbSession dbSession, UserDto userDto, UserIdentity identity, IdentityProvider provider, AuthenticationEvent.Source source,
     ExistingEmailStrategy existingEmailStrategy) {
-    if (!provider.allowsUsersToSignUp()) {
-      throw AuthenticationException.newBuilder()
-        .setSource(source)
-        .setLogin(identity.getLogin())
-        .setMessage(format("User signup disabled for provider '%s'", provider.getKey()))
-        .setPublicMessage(format("'%s' users are not allowed to sign up", provider.getKey()))
-        .build();
-    }
-    Optional<UserDto> otherUserToIndex = validateEmail(dbSession, identity, provider, source, existingEmailStrategy);
-    return userUpdater.createAndCommit(dbSession, NewUser.builder()
+    UpdateUser update = new UpdateUser()
       .setLogin(identity.getLogin())
       .setEmail(identity.getEmail())
       .setName(identity.getName())
-      .setExternalIdentity(new ExternalIdentity(provider.getKey(), identity.getProviderLogin()))
-      .build(),
-      u -> syncGroups(dbSession, identity, u),
-      toArray(otherUserToIndex));
+      .setExternalIdentity(new ExternalIdentity(provider.getKey(), identity.getProviderLogin(), identity.getProviderId()));
+    Optional<UserDto> otherUserToIndex = validateEmail(dbSession, identity, provider, source, existingEmailStrategy);
+    userUpdater.updateAndCommit(dbSession, userDto, update, u -> syncGroups(dbSession, identity, u), toArray(otherUserToIndex));
+    return userDto;
+  }
+
+  private UserDto registerNewUser(DbSession dbSession, @Nullable UserDto disabledUser, UserIdentity identity, IdentityProvider provider, AuthenticationEvent.Source source,
+    ExistingEmailStrategy existingEmailStrategy) {
+    Optional<UserDto> otherUserToIndex = validateEmail(dbSession, identity, provider, source, existingEmailStrategy);
+    NewUser newUser = createNewUser(identity, provider, source);
+    if (disabledUser == null) {
+      return userUpdater.createAndCommit(dbSession, newUser, u -> syncGroups(dbSession, identity, u), toArray(otherUserToIndex));
+    }
+    return userUpdater.reactivateAndCommit(dbSession, disabledUser, newUser, u -> syncGroups(dbSession, identity, u), toArray(otherUserToIndex));
   }
 
   private Optional<UserDto> validateEmail(DbSession dbSession, UserIdentity identity, IdentityProvider provider, AuthenticationEvent.Source source,
@@ -138,7 +143,9 @@ public class UserIdentityAuthenticator {
       return Optional.empty();
     }
     UserDto existingUser = dbClient.userDao().selectByEmail(dbSession, email);
-    if (existingUser == null || existingUser.getLogin().equals(identity.getLogin())) {
+    if (existingUser == null
+      || Objects.equals(existingUser.getLogin(), identity.getLogin())
+      || (Objects.equals(existingUser.getExternalId(), identity.getProviderId()) && Objects.equals(existingUser.getExternalIdentityProvider(), provider.getKey()))) {
       return Optional.empty();
     }
     switch (existingEmailStrategy) {
@@ -209,8 +216,25 @@ public class UserIdentityAuthenticator {
     return organizationFlags.isEnabled(dbSession) ? Optional.empty() : Optional.of(defaultGroupFinder.findDefaultGroup(dbSession, defaultOrganizationProvider.get().getUuid()));
   }
 
+  private static NewUser createNewUser(UserIdentity identity, IdentityProvider provider, AuthenticationEvent.Source source) {
+    if (!provider.allowsUsersToSignUp()) {
+      throw AuthenticationException.newBuilder()
+        .setSource(source)
+        .setLogin(identity.getLogin())
+        .setMessage(format("User signup disabled for provider '%s'", provider.getKey()))
+        .setPublicMessage(format("'%s' users are not allowed to sign up", provider.getKey()))
+        .build();
+    }
+    return NewUser.builder()
+      .setLogin(identity.getLogin())
+      .setEmail(identity.getEmail())
+      .setName(identity.getName())
+      .setExternalIdentity(new ExternalIdentity(provider.getKey(), identity.getProviderLogin(), identity.getProviderId()))
+      .build();
+  }
+
   private static UserDto[] toArray(Optional<UserDto> userDto) {
-    return userDto.map(u -> new UserDto[]{u}).orElse(new UserDto[]{});
+    return userDto.map(u -> new UserDto[] {u}).orElse(new UserDto[] {});
   }
 
 }

@@ -150,7 +150,7 @@ public class SearchAction implements UsersWsAction {
       setIfNeeded(FIELD_AVATAR, fields, emptyToNull(user.getEmail()), u -> userBuilder.setAvatar(avatarResolver.create(user)));
       setIfNeeded(FIELD_ACTIVE, fields, user.isActive(), userBuilder::setActive);
       setIfNeeded(FIELD_LOCAL, fields, user.isLocal(), userBuilder::setLocal);
-      setIfNeeded(FIELD_EXTERNAL_IDENTITY, fields, user.getExternalIdentity(), userBuilder::setExternalIdentity);
+      setIfNeeded(FIELD_EXTERNAL_IDENTITY, fields, user.getExternalLogin(), userBuilder::setExternalIdentity);
       setIfNeeded(FIELD_EXTERNAL_PROVIDER, fields, user.getExternalIdentityProvider(), userBuilder::setExternalProvider);
       setIfNeeded(FIELD_TOKENS_COUNT, fields, tokensCount, userBuilder::setTokensCount);
       setIfNeeded(isNeeded(FIELD_SCM_ACCOUNTS, fields) && !user.getScmAccountsAsList().isEmpty(), user.getScmAccountsAsList(),

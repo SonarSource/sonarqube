@@ -25,16 +25,16 @@ import org.junit.Test;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
+import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.user.UserDto;
 import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
 import org.sonar.server.computation.task.projectanalysis.analysis.Organization;
 import org.sonar.server.es.EsTester;
-import org.sonar.server.user.index.UserDoc;
 import org.sonar.server.user.index.UserIndex;
-import org.sonar.server.user.index.UserIndexDefinition;
+import org.sonar.server.user.index.UserIndexer;
 
 import static java.util.Arrays.asList;
-import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 
@@ -43,51 +43,40 @@ public class ScmAccountToUserLoaderTest {
   private static final String ORGANIZATION_UUID = "my-organization";
 
   @Rule
+  public DbTester db = DbTester.create();
+  @Rule
   public EsTester es = EsTester.create();
-
   @Rule
   public LogTester logTester = new LogTester();
 
   @Rule
-  public AnalysisMetadataHolderRule analysisMetadataHolder = new AnalysisMetadataHolderRule()
-    .setOrganization(Organization.from(new OrganizationDto().setUuid(ORGANIZATION_UUID).setKey("Key").setName("Name").setDefaultQualityGateUuid("QGate")));
+  public AnalysisMetadataHolderRule analysisMetadataHolder = new AnalysisMetadataHolderRule();
+
+  private UserIndexer userIndexer = new UserIndexer(db.getDbClient(), es.client());
 
   @Test
   public void load_login_for_scm_account() {
-    UserDoc user = new UserDoc()
-      .setLogin("charlie")
-      .setName("Charlie")
-      .setEmail("charlie@hebdo.com")
-      .setActive(true)
-      .setScmAccounts(asList("charlie", "jesuis@charlie.com"))
-      .setOrganizationUuids(singletonList(ORGANIZATION_UUID));
-    es.putDocuments(UserIndexDefinition.INDEX_TYPE_USER.getIndex(), UserIndexDefinition.INDEX_TYPE_USER.getType(), user);
+    UserDto user = db.users().insertUser(u -> u.setScmAccounts(asList("charlie", "jesuis@charlie.com")));
+    OrganizationDto organization = db.organizations().insert(o -> o.setUuid(ORGANIZATION_UUID));
+    analysisMetadataHolder.setOrganization(Organization.from(organization));
+    db.organizations().addMember(organization, user);
+    userIndexer.indexOnStartup(null);
 
     UserIndex index = new UserIndex(es.client(), System2.INSTANCE);
     ScmAccountToUserLoader underTest = new ScmAccountToUserLoader(index, analysisMetadataHolder);
 
     assertThat(underTest.load("missing")).isNull();
-    assertThat(underTest.load("jesuis@charlie.com")).isEqualTo("charlie");
+    assertThat(underTest.load("jesuis@charlie.com")).isEqualTo(user.getLogin());
   }
 
   @Test
   public void warn_if_multiple_users_share_the_same_scm_account() {
-    UserDoc user1 = new UserDoc()
-      .setLogin("charlie")
-      .setName("Charlie")
-      .setEmail("charlie@hebdo.com")
-      .setActive(true)
-      .setScmAccounts(asList("charlie", "jesuis@charlie.com"))
-      .setOrganizationUuids(singletonList(ORGANIZATION_UUID));
-    es.putDocuments(UserIndexDefinition.INDEX_TYPE_USER.getIndex(), UserIndexDefinition.INDEX_TYPE_USER.getType(), user1);
-
-    UserDoc user2 = new UserDoc()
-      .setLogin("another.charlie")
-      .setName("Another Charlie")
-      .setActive(true)
-      .setScmAccounts(singletonList("charlie"))
-      .setOrganizationUuids(singletonList(ORGANIZATION_UUID));
-    es.putDocuments(UserIndexDefinition.INDEX_TYPE_USER.getIndex(), UserIndexDefinition.INDEX_TYPE_USER.getType(), user2);
+    UserDto user1 = db.users().insertUser(u -> u.setLogin("charlie").setScmAccounts(asList("charlie", "jesuis@charlie.com")));
+    UserDto user2 = db.users().insertUser(u -> u.setLogin("another.charlie").setScmAccounts(asList("charlie")));
+    OrganizationDto organization = db.organizations().insert(o -> o.setUuid(ORGANIZATION_UUID));
+    analysisMetadataHolder.setOrganization(Organization.from(organization));
+    db.organizations().addMember(organization, user1, user2);
+    userIndexer.indexOnStartup(null);
 
     UserIndex index = new UserIndex(es.client(), System2.INSTANCE);
     ScmAccountToUserLoader underTest = new ScmAccountToUserLoader(index, analysisMetadataHolder);

@@ -25,6 +25,7 @@ import java.util.Locale;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
+import org.sonar.core.util.Uuids;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.es.SearchOptions;
 
@@ -46,33 +47,6 @@ public class UserIndexTest {
 
   private UserIndex underTest = new UserIndex(es.client(), System2.INSTANCE);
   private UserQuery.Builder userQuery = UserQuery.builder();
-
-  @Test
-  public void get_nullable_by_login() {
-    UserDoc user1 = newUser(USER1_LOGIN, asList("scmA", "scmB"));
-    es.putDocuments(INDEX_TYPE_USER, user1);
-    es.putDocuments(INDEX_TYPE_USER, newUser(USER2_LOGIN, Collections.emptyList()));
-
-    UserDoc userDoc = underTest.getNullableByLogin(USER1_LOGIN);
-    assertThat(userDoc).isNotNull();
-    assertThat(userDoc.login()).isEqualTo(user1.login());
-    assertThat(userDoc.name()).isEqualTo(user1.name());
-    assertThat(userDoc.email()).isEqualTo(user1.email());
-    assertThat(userDoc.active()).isTrue();
-    assertThat(userDoc.scmAccounts()).isEqualTo(user1.scmAccounts());
-
-    assertThat(underTest.getNullableByLogin("")).isNull();
-    assertThat(underTest.getNullableByLogin("unknown")).isNull();
-  }
-
-  @Test
-  public void getNullableByLogin_is_case_sensitive() {
-    UserDoc user1 = newUser(USER1_LOGIN, asList("scmA", "scmB"));
-    es.putDocuments(INDEX_TYPE_USER, user1);
-
-    assertThat(underTest.getNullableByLogin(USER1_LOGIN)).isNotNull();
-    assertThat(underTest.getNullableByLogin("UsEr1")).isNull();
-  }
 
   @Test
   public void getAtMostThreeActiveUsersForScmAccount_returns_the_users_with_specified_scm_account() {
@@ -199,6 +173,7 @@ public class UserIndexTest {
 
   private static UserDoc newUser(String login, List<String> scmAccounts) {
     return new UserDoc()
+      .setUuid(Uuids.createFast())
       .setLogin(login)
       .setName(login.toUpperCase(Locale.ENGLISH))
       .setEmail(login + "@mail.com")
@@ -209,6 +184,7 @@ public class UserIndexTest {
 
   private static UserDoc newUser(String login, String email, List<String> scmAccounts) {
     return new UserDoc()
+      .setUuid(Uuids.createFast())
       .setLogin(login)
       .setName(login.toUpperCase(Locale.ENGLISH))
       .setEmail(email)

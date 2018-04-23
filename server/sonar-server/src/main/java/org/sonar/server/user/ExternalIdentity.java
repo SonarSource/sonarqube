@@ -19,6 +19,8 @@
  */
 package org.sonar.server.user;
 
+import javax.annotation.Nullable;
+
 import static java.util.Objects.requireNonNull;
 
 public class ExternalIdentity {
@@ -26,15 +28,21 @@ public class ExternalIdentity {
   public static final String SQ_AUTHORITY = "sonarqube";
 
   private String provider;
+  private String login;
   private String id;
 
-  public ExternalIdentity(String provider, String id) {
+  public ExternalIdentity(String provider, String login, @Nullable String id) {
     this.provider = requireNonNull(provider, "Identity provider cannot be null");
-    this.id = requireNonNull(id, "Identity id cannot be null");
+    this.login = requireNonNull(login, "Identity login cannot be null");
+    this.id = id == null ? login : id;
   }
 
   public String getProvider() {
     return provider;
+  }
+
+  public String getLogin() {
+    return login;
   }
 
   public String getId() {

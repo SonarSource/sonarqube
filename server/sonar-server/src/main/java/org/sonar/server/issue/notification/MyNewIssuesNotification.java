@@ -21,7 +21,6 @@ package org.sonar.server.issue.notification;
 
 import org.sonar.api.utils.Durations;
 import org.sonar.db.DbClient;
-import org.sonar.server.user.index.UserIndex;
 
 import static org.sonar.server.issue.notification.AbstractNewIssuesEmailTemplate.FIELD_ASSIGNEE;
 
@@ -29,8 +28,8 @@ public class MyNewIssuesNotification extends NewIssuesNotification {
 
   public static final String MY_NEW_ISSUES_NOTIF_TYPE = "my-new-issues";
 
-  MyNewIssuesNotification(UserIndex userIndex, DbClient dbClient, Durations durations) {
-    super(MY_NEW_ISSUES_NOTIF_TYPE, userIndex, dbClient, durations);
+  MyNewIssuesNotification(DbClient dbClient, Durations durations) {
+    super(MY_NEW_ISSUES_NOTIF_TYPE, dbClient, durations);
   }
 
   public MyNewIssuesNotification setAssignee(String assignee) {

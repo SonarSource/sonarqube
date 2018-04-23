@@ -218,7 +218,7 @@ public class InitFilterTest {
 
   @Test
   public void redirect_when_failing_because_of_EmailAlreadyExistException() throws Exception {
-    UserDto existingUser = newUserDto().setEmail("john@email.com").setExternalIdentity("john.bitbucket").setExternalIdentityProvider("bitbucket");
+    UserDto existingUser = newUserDto().setEmail("john@email.com").setExternalLogin("john.bitbucket").setExternalIdentityProvider("bitbucket");
     FailWithEmailAlreadyExistException identityProvider = new FailWithEmailAlreadyExistException("failing", existingUser);
     when(request.getRequestURI()).thenReturn("/sessions/init/" + identityProvider.getKey());
     identityProviderRepository.addIdentityProvider(identityProvider);

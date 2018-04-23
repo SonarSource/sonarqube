@@ -45,13 +45,15 @@ import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.tester.UserSessionRule;
-import org.sonar.server.user.index.UserIndex;
+import org.sonar.server.user.index.UserIndexDefinition;
 import org.sonar.server.user.index.UserIndexer;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
+import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 import static org.sonar.api.web.UserRole.CODEVIEWER;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
@@ -62,6 +64,8 @@ import static org.sonar.db.permission.OrganizationPermission.SCAN;
 import static org.sonar.db.property.PropertyTesting.newUserPropertyDto;
 import static org.sonar.db.user.UserTesting.newUserDto;
 import static org.sonar.db.user.UserTokenTesting.newUserToken;
+import static org.sonar.server.user.index.UserIndexDefinition.FIELD_ACTIVE;
+import static org.sonar.server.user.index.UserIndexDefinition.FIELD_UUID;
 import static org.sonar.test.JsonAssert.assertJson;
 
 public class DeactivateActionTest {
@@ -81,7 +85,6 @@ public class DeactivateActionTest {
   public UserSessionRule userSession = UserSessionRule.standalone();
 
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
-  private UserIndex index = new UserIndex(es.client(), system2);
   private DbClient dbClient = db.getDbClient();
   private UserIndexer userIndexer = new UserIndexer(dbClient, es.client());
   private DbSession dbSession = db.getSession();
@@ -101,7 +104,11 @@ public class DeactivateActionTest {
     deactivate(user.getLogin()).getInput();
 
     verifyThatUserIsDeactivated(user.getLogin());
-    assertThat(index.getNullableByLogin(user.getLogin()).active()).isFalse();
+    assertThat(es.client().prepareSearch(UserIndexDefinition.INDEX_TYPE_USER)
+      .setQuery(boolQuery()
+        .must(termQuery(FIELD_UUID, user.getUuid()))
+        .must(termQuery(FIELD_ACTIVE, "false")))
+      .get().getHits().getHits()).hasSize(1);
   }
 
   @Test
@@ -173,7 +180,8 @@ public class DeactivateActionTest {
     deactivate(user.getLogin()).getInput();
 
     assertThat(db.getDbClient().permissionTemplateDao().selectUserPermissionsByTemplateId(dbSession, template.getId())).extracting(PermissionTemplateUserDto::getUserId).isEmpty();
-    assertThat(db.getDbClient().permissionTemplateDao().selectUserPermissionsByTemplateId(dbSession, anotherTemplate.getId())).extracting(PermissionTemplateUserDto::getUserId).isEmpty();
+    assertThat(db.getDbClient().permissionTemplateDao().selectUserPermissionsByTemplateId(dbSession, anotherTemplate.getId())).extracting(PermissionTemplateUserDto::getUserId)
+      .isEmpty();
   }
 
   @Test

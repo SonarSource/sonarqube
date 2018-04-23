@@ -52,7 +52,7 @@ public class UserTester {
       .filter(u -> !"admin".equals(u.getLogin()))
       .forEach(u -> {
         PostRequest request = new PostRequest("api/users/deactivate").setParam("login", u.getLogin());
-        session.wsClient().wsConnector().call(request);
+        session.wsClient().wsConnector().call(request).failIfNotSuccessful();
       });
   }
 

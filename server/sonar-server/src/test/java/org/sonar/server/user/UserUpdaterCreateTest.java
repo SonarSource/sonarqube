@@ -36,7 +36,6 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.user.GroupDto;
-import org.sonar.db.user.GroupTesting;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.authentication.LocalAuthentication;
 import org.sonar.server.authentication.LocalAuthentication.HashMethod;
@@ -60,7 +59,6 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.sonar.core.config.CorePropertyDefinitions.ONBOARDING_TUTORIAL_SHOW_TO_NEW_USERS;
-import static org.sonar.db.user.UserTesting.newDisabledUser;
 import static org.sonar.db.user.UserTesting.newLocalUser;
 import static org.sonar.server.user.ExternalIdentity.SQ_AUTHORITY;
 
@@ -103,7 +101,7 @@ public class UserUpdaterCreateTest {
       .setPassword("PASSWORD")
       .setScmAccounts(ImmutableList.of("u1", "u_1", "User 1"))
       .build(), u -> {
-    });
+      });
 
     assertThat(dto.getId()).isNotNull();
     assertThat(dto.getLogin()).isEqualTo("user");
@@ -138,7 +136,7 @@ public class UserUpdaterCreateTest {
       .setLogin("us")
       .setName("User")
       .build(), u -> {
-    });
+      });
 
     UserDto dto = dbClient.userDao().selectByLogin(session, "us");
     assertThat(dto.getId()).isNotNull();
@@ -158,10 +156,10 @@ public class UserUpdaterCreateTest {
       .setName("User")
       .setPassword("password")
       .build(), u -> {
-    });
+      });
 
     UserDto dto = dbClient.userDao().selectByLogin(session, "user");
-    assertThat(dto.getExternalIdentity()).isEqualTo("user");
+    assertThat(dto.getExternalLogin()).isEqualTo("user");
     assertThat(dto.getExternalIdentityProvider()).isEqualTo("sonarqube");
     assertThat(dto.isLocal()).isTrue();
   }
@@ -173,13 +171,14 @@ public class UserUpdaterCreateTest {
     underTest.createAndCommit(db.getSession(), NewUser.builder()
       .setLogin("user")
       .setName("User")
-      .setExternalIdentity(new ExternalIdentity("github", "github-user"))
+      .setExternalIdentity(new ExternalIdentity("github", "github-user", "ABCD"))
       .build(), u -> {
-    });
+      });
 
     UserDto dto = dbClient.userDao().selectByLogin(session, "user");
     assertThat(dto.isLocal()).isFalse();
-    assertThat(dto.getExternalIdentity()).isEqualTo("github-user");
+    assertThat(dto.getExternalId()).isEqualTo("ABCD");
+    assertThat(dto.getExternalLogin()).isEqualTo("github-user");
     assertThat(dto.getExternalIdentityProvider()).isEqualTo("github");
     assertThat(dto.getCryptedPassword()).isNull();
     assertThat(dto.getSalt()).isNull();
@@ -192,13 +191,14 @@ public class UserUpdaterCreateTest {
     underTest.createAndCommit(db.getSession(), NewUser.builder()
       .setLogin("user")
       .setName("User")
-      .setExternalIdentity(new ExternalIdentity(SQ_AUTHORITY, "user"))
+      .setExternalIdentity(new ExternalIdentity(SQ_AUTHORITY, "user", null))
       .build(), u -> {
-    });
+      });
 
     UserDto dto = dbClient.userDao().selectByLogin(session, "user");
     assertThat(dto.isLocal()).isFalse();
-    assertThat(dto.getExternalIdentity()).isEqualTo("user");
+    assertThat(dto.getExternalId()).isEqualTo("user");
+    assertThat(dto.getExternalLogin()).isEqualTo("user");
     assertThat(dto.getExternalIdentityProvider()).isEqualTo("sonarqube");
     assertThat(dto.getCryptedPassword()).isNull();
     assertThat(dto.getSalt()).isNull();
@@ -214,7 +214,7 @@ public class UserUpdaterCreateTest {
       .setPassword("password")
       .setScmAccounts(asList("u1", "", null))
       .build(), u -> {
-    });
+      });
 
     assertThat(dbClient.userDao().selectByLogin(session, "user").getScmAccountsAsList()).containsOnly("u1");
   }
@@ -229,7 +229,7 @@ public class UserUpdaterCreateTest {
       .setPassword("password")
       .setScmAccounts(asList(""))
       .build(), u -> {
-    });
+      });
 
     assertThat(dbClient.userDao().selectByLogin(session, "user").getScmAccounts()).isNull();
   }
@@ -244,7 +244,7 @@ public class UserUpdaterCreateTest {
       .setPassword("password")
       .setScmAccounts(asList("u1", "u1"))
       .build(), u -> {
-    });
+      });
 
     assertThat(dbClient.userDao().selectByLogin(session, "user").getScmAccountsAsList()).containsOnly("u1");
   }
@@ -258,7 +258,7 @@ public class UserUpdaterCreateTest {
       .setLogin("user")
       .setName("User")
       .build(), u -> {
-    });
+      });
 
     assertThat(dbClient.userDao().selectByLogin(session, "user").isOnboarded()).isTrue();
   }
@@ -272,7 +272,7 @@ public class UserUpdaterCreateTest {
       .setLogin("user")
       .setName("User")
       .build(), u -> {
-    });
+      });
 
     assertThat(dbClient.userDao().selectByLogin(session, "user").isOnboarded()).isFalse();
   }
@@ -288,9 +288,9 @@ public class UserUpdaterCreateTest {
       .setEmail("user@mail.com")
       .setPassword("PASSWORD")
       .build(), u -> {
-    }, otherUser);
+      }, otherUser);
 
-    assertThat(es.getIds(UserIndexDefinition.INDEX_TYPE_USER)).containsExactlyInAnyOrder(created.getLogin(), otherUser.getLogin());
+    assertThat(es.getIds(UserIndexDefinition.INDEX_TYPE_USER)).containsExactlyInAnyOrder(created.getUuid(), otherUser.getUuid());
   }
 
   @Test
@@ -304,7 +304,7 @@ public class UserUpdaterCreateTest {
       .setEmail("marius@mail.com")
       .setPassword("password")
       .build(), u -> {
-    });
+      });
   }
 
   @Test
@@ -318,7 +318,7 @@ public class UserUpdaterCreateTest {
       .setEmail("marius@mail.com")
       .setPassword("password")
       .build(), u -> {
-    });
+      });
   }
 
   @Test
@@ -332,7 +332,7 @@ public class UserUpdaterCreateTest {
       .setEmail("marius@mail.com")
       .setPassword("password")
       .build(), u -> {
-    });
+      });
   }
 
   @Test
@@ -346,7 +346,7 @@ public class UserUpdaterCreateTest {
       .setEmail("marius@mail.com")
       .setPassword("password")
       .build(), u -> {
-    });
+      });
   }
 
   @Test
@@ -360,7 +360,7 @@ public class UserUpdaterCreateTest {
       .setEmail("marius@mail.com")
       .setPassword("password")
       .build(), u -> {
-    });
+      });
   }
 
   @Test
@@ -374,7 +374,7 @@ public class UserUpdaterCreateTest {
       .setEmail("marius@mail.com")
       .setPassword("password")
       .build(), u -> {
-    });
+      });
   }
 
   @Test
@@ -388,7 +388,7 @@ public class UserUpdaterCreateTest {
       .setEmail("marius@mail.com")
       .setPassword("password")
       .build(), u -> {
-    });
+      });
   }
 
   @Test
@@ -402,7 +402,7 @@ public class UserUpdaterCreateTest {
       .setEmail(Strings.repeat("m", 101))
       .setPassword("password")
       .build(), u -> {
-    });
+      });
   }
 
   @Test
@@ -414,7 +414,7 @@ public class UserUpdaterCreateTest {
         .setEmail("marius@mail.com")
         .setPassword("")
         .build(), u -> {
-      });
+        });
       fail();
     } catch (BadRequestException e) {
       assertThat(e.errors()).hasSize(3);
@@ -435,7 +435,7 @@ public class UserUpdaterCreateTest {
       .setPassword("password")
       .setScmAccounts(asList("jo"))
       .build(), u -> {
-    });
+      });
   }
 
   @Test
@@ -453,7 +453,7 @@ public class UserUpdaterCreateTest {
       .setPassword("password")
       .setScmAccounts(asList("john@email.com"))
       .build(), u -> {
-    });
+      });
   }
 
   @Test
@@ -468,7 +468,7 @@ public class UserUpdaterCreateTest {
       .setPassword("password2")
       .setScmAccounts(asList(DEFAULT_LOGIN))
       .build(), u -> {
-    });
+      });
   }
 
   @Test
@@ -482,6 +482,38 @@ public class UserUpdaterCreateTest {
       .setEmail("marius2@mail.com")
       .setPassword("password2")
       .setScmAccounts(asList("marius2@mail.com"))
+      .build(), u -> {
+      });
+  }
+
+  @Test
+  public void fail_to_create_user_when_login_already_exists() {
+    createDefaultGroup();
+    UserDto existingUser = db.users().insertUser(u -> u.setLogin("existing_login"));
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("A user with login 'existing_login' already exists");
+
+    underTest.createAndCommit(db.getSession(), NewUser.builder()
+      .setLogin(existingUser.getLogin())
+      .setName("User")
+      .setPassword("PASSWORD")
+      .build(), u -> {
+      });
+  }
+
+  @Test
+  public void fail_to_create_user_when_external_id_and_external_provider_already_exists() {
+    createDefaultGroup();
+    UserDto existingUser = db.users().insertUser(u -> u.setExternalId("existing_external_id").setExternalIdentityProvider("existing_external_provider"));
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("A user with provider id 'existing_external_id' and identity provider 'existing_external_provider' already exists");
+
+    underTest.createAndCommit(db.getSession(), NewUser.builder()
+      .setLogin("new_login")
+      .setName("User")
+      .setExternalIdentity(new ExternalIdentity(existingUser.getExternalIdentityProvider(), existingUser.getExternalLogin(), existingUser.getExternalId()))
       .build(), u -> {
     });
   }
@@ -497,7 +529,7 @@ public class UserUpdaterCreateTest {
       .setPassword("password")
       .setScmAccounts(asList("u1", "u_1"))
       .build(), u -> {
-    });
+      });
 
     verify(newUserNotifier).onNewUser(newUserHandler.capture());
     assertThat(newUserHandler.getValue().getLogin()).isEqualTo("user");
@@ -516,7 +548,7 @@ public class UserUpdaterCreateTest {
       .setEmail("user@mail.com")
       .setPassword("password")
       .build(), u -> {
-    });
+      });
 
     Multimap<String, String> groups = dbClient.groupMembershipDao().selectGroupsByLogins(session, asList("user"));
     assertThat(groups.get("user")).containsOnly(defaultGroup.getName());
@@ -533,7 +565,7 @@ public class UserUpdaterCreateTest {
       .setEmail("user@mail.com")
       .setPassword("password")
       .build(), u -> {
-    });
+      });
 
     Multimap<String, String> groups = dbClient.groupMembershipDao().selectGroupsByLogins(session, asList("user"));
     assertThat(groups.get("user")).isEmpty();
@@ -551,7 +583,7 @@ public class UserUpdaterCreateTest {
       .setPassword("password")
       .setScmAccounts(asList("u1", "u_1"))
       .build(), u -> {
-    });
+      });
   }
 
   @Test
@@ -564,7 +596,7 @@ public class UserUpdaterCreateTest {
       .setEmail("user@mail.com")
       .setPassword("PASSWORD")
       .build(), u -> {
-    });
+      });
 
     verify(organizationCreation).createForUser(any(DbSession.class), eq(dto));
   }
@@ -580,7 +612,7 @@ public class UserUpdaterCreateTest {
       .setEmail("user@mail.com")
       .setPassword("PASSWORD")
       .build(), u -> {
-    });
+      });
 
     assertThat(dbClient.organizationMemberDao().select(db.getSession(), defaultOrganizationProvider.get().getUuid(), dto.getId())).isPresent();
   }
@@ -596,228 +628,9 @@ public class UserUpdaterCreateTest {
       .setEmail("user@mail.com")
       .setPassword("PASSWORD")
       .build(), u -> {
-    });
+      });
 
     assertThat(dbClient.organizationMemberDao().select(db.getSession(), defaultOrganizationProvider.get().getUuid(), dto.getId())).isNotPresent();
-  }
-
-  @Test
-  public void reactivate_user_when_creating_user_with_existing_login() {
-    UserDto user = db.users().insertUser(newDisabledUser(DEFAULT_LOGIN)
-      .setLocal(false));
-    createDefaultGroup();
-
-    UserDto dto = underTest.createAndCommit(db.getSession(), NewUser.builder()
-      .setLogin(DEFAULT_LOGIN)
-      .setName("Marius2")
-      .setEmail("marius2@mail.com")
-      .setPassword("password2")
-      .build(), u -> {
-    });
-    session.commit();
-
-    assertThat(dto.isActive()).isTrue();
-    assertThat(dto.getName()).isEqualTo("Marius2");
-    assertThat(dto.getEmail()).isEqualTo("marius2@mail.com");
-    assertThat(dto.getScmAccounts()).isNull();
-    assertThat(dto.isLocal()).isTrue();
-
-    assertThat(dto.getSalt()).isNull();
-    assertThat(dto.getHashMethod()).isEqualTo(HashMethod.BCRYPT.name());
-    assertThat(dto.getCryptedPassword()).isNotNull().isNotEqualTo("650d2261c98361e2f67f90ce5c65a95e7d8ea2fg");
-    assertThat(dto.getCreatedAt()).isEqualTo(user.getCreatedAt());
-    assertThat(dto.getUpdatedAt()).isGreaterThan(user.getCreatedAt());
-
-    assertThat(dbClient.userDao().selectByLogin(session, DEFAULT_LOGIN).isActive()).isTrue();
-  }
-
-  @Test
-  public void reactivate_user_not_having_password() {
-    UserDto user = db.users().insertUser(newDisabledUser("marius").setName("Marius").setEmail("marius@lesbronzes.fr")
-      .setSalt(null)
-      .setCryptedPassword(null));
-    createDefaultGroup();
-
-    UserDto dto = underTest.createAndCommit(db.getSession(), NewUser.builder()
-      .setLogin(DEFAULT_LOGIN)
-      .setName("Marius2")
-      .setEmail("marius2@mail.com")
-      .build(), u -> {
-    });
-    session.commit();
-
-    assertThat(dto.isActive()).isTrue();
-    assertThat(dto.getName()).isEqualTo("Marius2");
-    assertThat(dto.getEmail()).isEqualTo("marius2@mail.com");
-    assertThat(dto.getScmAccounts()).isNull();
-
-    assertThat(dto.getSalt()).isNull();
-    assertThat(dto.getCryptedPassword()).isNull();
-    assertThat(dto.getCreatedAt()).isEqualTo(user.getCreatedAt());
-    assertThat(dto.getUpdatedAt()).isGreaterThan(user.getCreatedAt());
-  }
-
-  @Test
-  public void reactivate_user_with_external_provider() {
-    db.users().insertUser(newDisabledUser(DEFAULT_LOGIN)
-      .setLocal(true));
-    createDefaultGroup();
-
-    underTest.createAndCommit(db.getSession(), NewUser.builder()
-      .setLogin(DEFAULT_LOGIN)
-      .setName("Marius2")
-      .setExternalIdentity(new ExternalIdentity("github", "john"))
-      .build(), u -> {
-    });
-    session.commit();
-
-    UserDto dto = dbClient.userDao().selectByLogin(session, DEFAULT_LOGIN);
-    assertThat(dto.isLocal()).isFalse();
-    assertThat(dto.getExternalIdentity()).isEqualTo("john");
-    assertThat(dto.getExternalIdentityProvider()).isEqualTo("github");
-  }
-
-  @Test
-  public void reactivate_user_with_local_provider() {
-    db.users().insertUser(newDisabledUser(DEFAULT_LOGIN)
-      .setLocal(true));
-    createDefaultGroup();
-
-    underTest.createAndCommit(db.getSession(), NewUser.builder()
-      .setLogin(DEFAULT_LOGIN)
-      .setName("Marius2")
-      .setPassword("password")
-      .build(), u -> {
-    });
-    session.commit();
-
-    UserDto dto = dbClient.userDao().selectByLogin(session, DEFAULT_LOGIN);
-    assertThat(dto.isLocal()).isTrue();
-    assertThat(dto.getExternalIdentity()).isEqualTo(DEFAULT_LOGIN);
-    assertThat(dto.getExternalIdentityProvider()).isEqualTo("sonarqube");
-  }
-
-  @Test
-  public void fail_to_reactivate_user_if_not_disabled() {
-    db.users().insertUser(newLocalUser("marius", "Marius", "marius@lesbronzes.fr"));
-    createDefaultGroup();
-
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("An active user with login 'marius' already exists");
-
-    underTest.createAndCommit(db.getSession(), NewUser.builder()
-      .setLogin(DEFAULT_LOGIN)
-      .setName("Marius2")
-      .setEmail("marius2@mail.com")
-      .setPassword("password2")
-      .build(), u -> {
-    });
-  }
-
-  @Test
-  public void associate_default_groups_when_reactivating_user_and_organizations_are_disabled() {
-    organizationFlags.setEnabled(false);
-    UserDto userDto = db.users().insertUser(newDisabledUser(DEFAULT_LOGIN)
-      .setLocal(true));
-    db.organizations().insertForUuid("org1");
-    GroupDto groupDto = db.users().insertGroup(GroupTesting.newGroupDto().setName("sonar-devs").setOrganizationUuid("org1"));
-    db.users().insertMember(groupDto, userDto);
-    GroupDto defaultGroup = createDefaultGroup();
-
-    underTest.createAndCommit(db.getSession(), NewUser.builder()
-      .setLogin(DEFAULT_LOGIN)
-      .setName("Marius2")
-      .setEmail("marius2@mail.com")
-      .setPassword("password2")
-      .build(), u -> {
-    });
-    session.commit();
-
-    Multimap<String, String> groups = dbClient.groupMembershipDao().selectGroupsByLogins(session, asList(DEFAULT_LOGIN));
-    assertThat(groups.get(DEFAULT_LOGIN).stream().anyMatch(g -> g.equals(defaultGroup.getName()))).isTrue();
-  }
-
-  @Test
-  public void does_not_associate_default_groups_when_reactivating_user_and_organizations_are_enabled() {
-    organizationFlags.setEnabled(true);
-    UserDto userDto = db.users().insertUser(newDisabledUser(DEFAULT_LOGIN)
-      .setLocal(true));
-    db.organizations().insertForUuid("org1");
-    GroupDto groupDto = db.users().insertGroup(GroupTesting.newGroupDto().setName("sonar-devs").setOrganizationUuid("org1"));
-    db.users().insertMember(groupDto, userDto);
-    GroupDto defaultGroup = createDefaultGroup();
-
-    underTest.createAndCommit(db.getSession(), NewUser.builder()
-      .setLogin(DEFAULT_LOGIN)
-      .setName("Marius2")
-      .setEmail("marius2@mail.com")
-      .setPassword("password2")
-      .build(), u -> {
-    });
-    session.commit();
-
-    Multimap<String, String> groups = dbClient.groupMembershipDao().selectGroupsByLogins(session, asList(DEFAULT_LOGIN));
-    assertThat(groups.get(DEFAULT_LOGIN).stream().anyMatch(g -> g.equals(defaultGroup.getName()))).isFalse();
-  }
-
-  @Test
-  public void add_user_as_member_of_default_organization_when_reactivating_user_and_organizations_are_disabled() {
-    organizationFlags.setEnabled(false);
-    db.users().insertUser(newDisabledUser(DEFAULT_LOGIN));
-    createDefaultGroup();
-
-    UserDto dto = underTest.createAndCommit(db.getSession(), NewUser.builder().setLogin(DEFAULT_LOGIN).setName("Name").build(), u -> {
-    });
-    session.commit();
-
-    assertThat(dbClient.organizationMemberDao().select(db.getSession(), defaultOrganizationProvider.get().getUuid(), dto.getId())).isPresent();
-  }
-
-  @Test
-  public void does_not_add_user_as_member_of_default_organization_when_reactivating_user_and_organizations_are_enabled() {
-    organizationFlags.setEnabled(true);
-    db.users().insertUser(newDisabledUser(DEFAULT_LOGIN));
-    createDefaultGroup();
-
-    UserDto dto = underTest.createAndCommit(db.getSession(), NewUser.builder().setLogin(DEFAULT_LOGIN).setName("Name").build(), u -> {
-    });
-    session.commit();
-
-    assertThat(dbClient.organizationMemberDao().select(db.getSession(), defaultOrganizationProvider.get().getUuid(), dto.getId())).isNotPresent();
-  }
-
-  @Test
-  public void reactivate_not_onboarded_user_if_onboarding_setting_is_set_to_false() {
-    settings.setProperty(ONBOARDING_TUTORIAL_SHOW_TO_NEW_USERS, false);
-    UserDto user = db.users().insertUser(u -> u
-      .setActive(false)
-      .setOnboarded(false));
-    createDefaultGroup();
-
-    underTest.createAndCommit(db.getSession(), NewUser.builder()
-      .setLogin(user.getLogin())
-      .setName("name")
-      .build(), u -> {
-    });
-
-    assertThat(dbClient.userDao().selectByLogin(session, user.getLogin()).isOnboarded()).isTrue();
-  }
-
-  @Test
-  public void reactivate_onboarded_user_if_onboarding_setting_is_set_to_true() {
-    settings.setProperty(ONBOARDING_TUTORIAL_SHOW_TO_NEW_USERS, true);
-    UserDto user = db.users().insertUser(u -> u
-      .setActive(false)
-      .setOnboarded(true));
-    createDefaultGroup();
-
-    underTest.createAndCommit(db.getSession(), NewUser.builder()
-      .setLogin(user.getLogin())
-      .setName("name")
-      .build(), u -> {
-    });
-
-    assertThat(dbClient.userDao().selectByLogin(session, user.getLogin()).isOnboarded()).isFalse();
   }
 
   private GroupDto createDefaultGroup() {

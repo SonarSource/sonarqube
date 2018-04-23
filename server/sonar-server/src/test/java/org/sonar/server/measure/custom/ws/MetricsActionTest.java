@@ -37,8 +37,6 @@ import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.tester.UserSessionRule;
-import org.sonar.server.user.index.UserDoc;
-import org.sonar.server.user.index.UserIndexDefinition;
 import org.sonar.server.ws.WsTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -46,7 +44,6 @@ import static org.sonar.db.measure.custom.CustomMeasureTesting.newCustomMeasureD
 import static org.sonar.db.metric.MetricTesting.newMetricDto;
 import static org.sonar.server.measure.custom.ws.CustomMeasuresWs.ENDPOINT;
 import static org.sonar.server.measure.custom.ws.MetricsAction.ACTION;
-
 
 public class MetricsActionTest {
   private static final String DEFAULT_PROJECT_UUID = "project-uuid";
@@ -63,19 +60,14 @@ public class MetricsActionTest {
 
   private final DbClient dbClient = db.getDbClient();
   private final DbSession dbSession = db.getSession();
-  private WsTester ws;
   private ComponentDto defaultProject;
+  private WsTester ws;
 
   @Before
   public void setUp() throws Exception {
-    es.putDocuments(UserIndexDefinition.INDEX_TYPE_USER.getIndex(), UserIndexDefinition.INDEX_TYPE_USER.getType(), new UserDoc()
-      .setLogin("login")
-      .setName("Login")
-      .setEmail("login@login.com")
-      .setActive(true));
-    ws = new WsTester(new CustomMeasuresWs(new MetricsAction(dbClient, userSession, TestComponentFinder.from(db))));
     defaultProject = insertDefaultProject();
     userSession.logIn().addProjectPermission(UserRole.ADMIN, defaultProject);
+    ws = new WsTester(new CustomMeasuresWs(new MetricsAction(dbClient, userSession, TestComponentFinder.from(db))));
   }
 
   @Test

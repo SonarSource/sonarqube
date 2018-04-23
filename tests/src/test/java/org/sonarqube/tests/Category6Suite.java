@@ -36,7 +36,6 @@ import org.sonarqube.tests.qualityProfile.QualityProfilesEditTest;
 import org.sonarqube.tests.qualityProfile.QualityProfilesWsTest;
 import org.sonarqube.tests.rule.RulesMarkdownTest;
 import org.sonarqube.tests.rule.RulesWsTest;
-import org.sonarqube.tests.user.OrganizationIdentityProviderTest;
 
 import static util.ItUtils.newOrchestratorBuilder;
 import static util.ItUtils.pluginArtifact;
@@ -51,7 +50,6 @@ import static util.ItUtils.xooPlugin;
 @Deprecated
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
-  OrganizationIdentityProviderTest.class,
   OrganizationIssuesPageTest.class,
   OrganizationQualityProfilesUiTest.class,
   BuiltInQualityProfilesTest.class,
@@ -78,7 +76,6 @@ public class Category6Suite {
     .setServerProperty("sonar.notifications.delay", "1")
 
     .addPlugin(xooPlugin())
-    .addPlugin(pluginArtifact("base-auth-plugin"))
     .addPlugin(pluginArtifact("ui-extensions-plugin"))
 
     .setServerProperty("sonar.sonarcloud.enabled", "true")

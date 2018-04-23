@@ -23,26 +23,23 @@ import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.Durations;
 import org.sonar.db.DbClient;
-import org.sonar.server.user.index.UserIndex;
 
 @ServerSide
 @ComputeEngineSide
 public class NewIssuesNotificationFactory {
-  private final UserIndex userIndex;
   private final DbClient dbClient;
   private final Durations durations;
 
-  public NewIssuesNotificationFactory(UserIndex userIndex, DbClient dbClient, Durations durations) {
-    this.userIndex = userIndex;
+  public NewIssuesNotificationFactory(DbClient dbClient, Durations durations) {
     this.dbClient = dbClient;
     this.durations = durations;
   }
 
   public MyNewIssuesNotification newMyNewIssuesNotification() {
-    return new MyNewIssuesNotification(userIndex, dbClient, durations);
+    return new MyNewIssuesNotification(dbClient, durations);
   }
 
-  public NewIssuesNotification newNewIssuesNotication() {
-    return new NewIssuesNotification(userIndex, dbClient, durations);
+  public NewIssuesNotification newNewIssuesNotification() {
+    return new NewIssuesNotification(dbClient, durations);
   }
 }

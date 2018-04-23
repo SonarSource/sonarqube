@@ -22,10 +22,7 @@ package org.sonar.server.user.index;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import javax.annotation.CheckForNull;
 import org.apache.commons.lang.StringUtils;
-import org.elasticsearch.action.get.GetRequestBuilder;
-import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.Operator;
@@ -63,18 +60,6 @@ public class UserIndex {
   public UserIndex(EsClient esClient, System2 system2) {
     this.esClient = esClient;
     this.system2 = system2;
-  }
-
-  @CheckForNull
-  public UserDoc getNullableByLogin(String login) {
-    GetRequestBuilder request = esClient.prepareGet(UserIndexDefinition.INDEX_TYPE_USER, login)
-      .setFetchSource(true)
-      .setRouting(login);
-    GetResponse response = request.get();
-    if (response.isExists()) {
-      return new UserDoc(response.getSource());
-    }
-    return null;
   }
 
   /**

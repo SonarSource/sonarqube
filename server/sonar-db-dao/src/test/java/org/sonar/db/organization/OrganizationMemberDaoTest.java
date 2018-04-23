@@ -20,7 +20,6 @@
 package org.sonar.db.organization;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -34,6 +33,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.user.UserDto;
 
+import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.assertj.core.api.Assertions.tuple;
@@ -62,7 +62,7 @@ public class OrganizationMemberDaoTest {
   }
 
   @Test
-  public void select_logins() {
+  public void select_user_uuids_by_organization_uuid() {
     OrganizationDto organization = db.organizations().insert();
     OrganizationDto anotherOrganization = db.organizations().insert();
     UserDto user = db.users().insertUser();
@@ -72,9 +72,9 @@ public class OrganizationMemberDaoTest {
     db.organizations().addMember(organization, anotherUser);
     db.organizations().addMember(anotherOrganization, userInAnotherOrganization);
 
-    List<String> result = underTest.selectLoginsByOrganizationUuid(dbSession, organization.getUuid());
+    List<String> result = underTest.selectUserUuidsByOrganizationUuid(dbSession, organization.getUuid());
 
-    assertThat(result).containsOnly(user.getLogin(), anotherUser.getLogin());
+    assertThat(result).containsOnly(user.getUuid(), anotherUser.getUuid());
   }
 
   @Test
@@ -110,24 +110,24 @@ public class OrganizationMemberDaoTest {
   public void select_for_indexing() {
     OrganizationDto org1 = db.organizations().insert(o -> o.setUuid("ORG_1"));
     OrganizationDto org2 = db.organizations().insert(o -> o.setUuid("ORG_2"));
-    UserDto user1 = db.users().insertUser("L_1");
-    UserDto user2 = db.users().insertUser("L_2");
+    UserDto user1 = db.users().insertUser();
+    UserDto user2 = db.users().insertUser();
     db.organizations().addMember(org1, user1);
     db.organizations().addMember(org1, user2);
     db.organizations().addMember(org2, user1);
     List<Tuple> result = new ArrayList<>();
 
-    underTest.selectForUserIndexing(dbSession, Arrays.asList("L_1", "L_2"), (login, org) -> result.add(tuple(login, org)));
+    underTest.selectForUserIndexing(dbSession, asList(user1.getUuid(), user2.getUuid()), (login, org) -> result.add(tuple(login, org)));
 
-    assertThat(result).containsOnly(tuple("L_1", "ORG_1"), tuple("L_1", "ORG_2"), tuple("L_2", "ORG_1"));
+    assertThat(result).containsOnly(tuple(user1.getUuid(), "ORG_1"), tuple(user1.getUuid(), "ORG_2"), tuple(user2.getUuid(), "ORG_1"));
   }
 
   @Test
   public void select_all_for_indexing() {
     OrganizationDto org1 = db.organizations().insert(o -> o.setUuid("ORG_1"));
     OrganizationDto org2 = db.organizations().insert(o -> o.setUuid("ORG_2"));
-    UserDto user1 = db.users().insertUser("L_1");
-    UserDto user2 = db.users().insertUser("L_2");
+    UserDto user1 = db.users().insertUser();
+    UserDto user2 = db.users().insertUser();
     db.organizations().addMember(org1, user1);
     db.organizations().addMember(org1, user2);
     db.organizations().addMember(org2, user1);
@@ -135,7 +135,7 @@ public class OrganizationMemberDaoTest {
 
     underTest.selectAllForUserIndexing(dbSession, (login, org) -> result.add(tuple(login, org)));
 
-    assertThat(result).containsOnly(tuple("L_1", "ORG_1"), tuple("L_1", "ORG_2"), tuple("L_2", "ORG_1"));
+    assertThat(result).containsOnly(tuple(user1.getUuid(), "ORG_1"), tuple(user1.getUuid(), "ORG_2"), tuple(user2.getUuid(), "ORG_1"));
   }
 
   @Test

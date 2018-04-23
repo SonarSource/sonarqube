@@ -55,7 +55,6 @@ import static org.mockito.Mockito.when;
 import static org.sonar.db.property.PropertyTesting.newComponentPropertyDto;
 import static org.sonar.db.property.PropertyTesting.newGlobalPropertyDto;
 import static org.sonar.db.property.PropertyTesting.newUserPropertyDto;
-import static org.sonar.db.user.UserTesting.newUserDto;
 
 @RunWith(DataProviderRunner.class)
 public class PropertiesDaoTest {
@@ -72,28 +71,28 @@ public class PropertiesDaoTest {
   @Rule
   public ExpectedException thrown = ExpectedException.none();
   @Rule
-  public DbTester dbTester = DbTester.create(system2);
+  public DbTester db = DbTester.create(system2);
 
-  private DbClient dbClient = dbTester.getDbClient();
-  private DbSession session = dbTester.getSession();
+  private DbClient dbClient = db.getDbClient();
+  private DbSession session = db.getSession();
 
-  private PropertiesDao underTest = dbTester.getDbClient().propertiesDao();
+  private PropertiesDao underTest = db.getDbClient().propertiesDao();
 
   @Test
-  public void shouldFindUsersForNotification() throws SQLException {
+  public void shouldFindUsersForNotification() {
     ComponentDto project1 = insertPrivateProject("uuid_45");
     ComponentDto project2 = insertPrivateProject("uuid_56");
-    UserDto user1 = dbTester.users().insertUser(u -> u.setLogin("user1"));
-    UserDto user2 = dbTester.users().insertUser(u -> u.setLogin("user2"));
-    UserDto user3 = dbTester.users().insertUser(u -> u.setLogin("user3"));
+    UserDto user1 = db.users().insertUser(u -> u.setLogin("user1"));
+    UserDto user2 = db.users().insertUser(u -> u.setLogin("user2"));
+    UserDto user3 = db.users().insertUser(u -> u.setLogin("user3"));
     insertProperty("notification.NewViolations.Email", "true", project1.getId(), user2.getId());
     insertProperty("notification.NewViolations.Twitter", "true", null, user3.getId());
     insertProperty("notification.NewViolations.Twitter", "true", project2.getId(), user1.getId());
     insertProperty("notification.NewViolations.Twitter", "true", project1.getId(), user2.getId());
     insertProperty("notification.NewViolations.Twitter", "true", project2.getId(), user3.getId());
-    dbTester.users().insertProjectPermissionOnUser(user2, UserRole.USER, project1);
-    dbTester.users().insertProjectPermissionOnUser(user3, UserRole.USER, project2);
-    dbTester.users().insertProjectPermissionOnUser(user1, UserRole.USER, project2);
+    db.users().insertProjectPermissionOnUser(user2, UserRole.USER, project1);
+    db.users().insertProjectPermissionOnUser(user3, UserRole.USER, project2);
+    db.users().insertProjectPermissionOnUser(user1, UserRole.USER, project2);
 
     assertThat(underTest.findUsersForNotification("NewViolations", "Email", null))
       .isEmpty();
@@ -121,9 +120,9 @@ public class PropertiesDaoTest {
   }
 
   @Test
-  public void hasNotificationSubscribers() throws SQLException {
-    int userId1 = dbTester.users().insertUser(u -> u.setLogin("user1")).getId();
-    int userId2 = dbTester.users().insertUser(u -> u.setLogin("user2")).getId();
+  public void hasNotificationSubscribers() {
+    int userId1 = db.users().insertUser(u -> u.setLogin("user1")).getId();
+    int userId2 = db.users().insertUser(u -> u.setLogin("user2")).getId();
     Long projectId = insertPrivateProject("PROJECT_A").getId();
     // global subscription
     insertProperty("notification.DispatcherWithGlobalSubscribers.Email", "true", null, userId2);
@@ -156,7 +155,7 @@ public class PropertiesDaoTest {
   }
 
   @Test
-  public void selectGlobalProperties() throws SQLException {
+  public void selectGlobalProperties() {
     // global
     long id1 = insertProperty("global.one", "one", null, null);
     long id2 = insertProperty("global.two", "two", null, null);
@@ -180,7 +179,7 @@ public class PropertiesDaoTest {
 
   @Test
   @UseDataProvider("allValuesForSelect")
-  public void selectGlobalProperties_supports_all_values(String dbValue, String expected) throws SQLException {
+  public void selectGlobalProperties_supports_all_values(String dbValue, String expected) {
     insertProperty("global.one", dbValue, null, null);
 
     List<PropertyDto> dtos = underTest.selectGlobalProperties();
@@ -194,7 +193,7 @@ public class PropertiesDaoTest {
   }
 
   @Test
-  public void selectGlobalProperty() throws SQLException {
+  public void selectGlobalProperty() {
     // global
     insertProperty("global.one", "one", null, null);
     insertProperty("global.two", "two", null, null);
@@ -215,7 +214,7 @@ public class PropertiesDaoTest {
 
   @Test
   @UseDataProvider("allValuesForSelect")
-  public void selectGlobalProperty_supports_all_values(String dbValue, String expected) throws SQLException {
+  public void selectGlobalProperty_supports_all_values(String dbValue, String expected) {
     insertProperty("global.one", dbValue, null, null);
 
     assertThatDto(underTest.selectGlobalProperty("global.one"))
@@ -225,7 +224,7 @@ public class PropertiesDaoTest {
   }
 
   @Test
-  public void selectProjectProperties() throws SQLException {
+  public void selectProjectProperties() {
     ComponentDto projectDto = insertPrivateProject("A");
     long projectId = projectDto.getId();
     // global
@@ -250,7 +249,7 @@ public class PropertiesDaoTest {
 
   @Test
   @UseDataProvider("allValuesForSelect")
-  public void selectProjectProperties_supports_all_values(String dbValue, String expected) throws SQLException {
+  public void selectProjectProperties_supports_all_values(String dbValue, String expected) {
     ComponentDto projectDto = insertPrivateProject("A");
     insertProperty("project.one", dbValue, projectDto.getId(), null);
 
@@ -274,7 +273,7 @@ public class PropertiesDaoTest {
   }
 
   @Test
-  public void selectProjectProperty() throws SQLException {
+  public void selectProjectProperty() {
     insertProperty("project.one", "one", 10L, null);
 
     PropertyDto property = underTest.selectProjectProperty(10L, "project.one");
@@ -288,34 +287,34 @@ public class PropertiesDaoTest {
 
   @Test
   public void selectEnabledDescendantModuleProperties() {
-    dbTester.prepareDbUnit(getClass(), "select_module_properties_tree.xml");
+    db.prepareDbUnit(getClass(), "select_module_properties_tree.xml");
 
-    List<PropertyDto> properties = underTest.selectEnabledDescendantModuleProperties("ABCD", dbTester.getSession());
+    List<PropertyDto> properties = underTest.selectEnabledDescendantModuleProperties("ABCD", db.getSession());
     assertThat(properties.size()).isEqualTo(4);
     assertThat(properties).extracting("key").containsOnly("struts.one", "core.one", "core.two", "data.one");
     assertThat(properties).extracting("value").containsOnly("one", "two");
 
-    properties = underTest.selectEnabledDescendantModuleProperties("EFGH", dbTester.getSession());
+    properties = underTest.selectEnabledDescendantModuleProperties("EFGH", db.getSession());
     assertThat(properties.size()).isEqualTo(3);
     assertThat(properties).extracting("key").containsOnly("core.one", "core.two", "data.one");
 
-    properties = underTest.selectEnabledDescendantModuleProperties("FGHI", dbTester.getSession());
+    properties = underTest.selectEnabledDescendantModuleProperties("FGHI", db.getSession());
     assertThat(properties.size()).isEqualTo(1);
     assertThat(properties).extracting("key").containsOnly("data.one");
 
-    assertThat(underTest.selectEnabledDescendantModuleProperties("unknown-result.xml", dbTester.getSession()).size()).isEqualTo(0);
+    assertThat(underTest.selectEnabledDescendantModuleProperties("unknown-result.xml", db.getSession()).size()).isEqualTo(0);
   }
 
   @Test
   @UseDataProvider("allValuesForSelect")
-  public void selectEnabledDescendantModuleProperties_supports_all_values(String dbValue, String expected) throws SQLException {
+  public void selectEnabledDescendantModuleProperties_supports_all_values(String dbValue, String expected) {
     String projectUuid = "A";
     ComponentDto project = ComponentTesting.newPrivateProjectDto(OrganizationTesting.newOrganizationDto(), projectUuid);
     dbClient.componentDao().insert(session, project);
     long projectId = project.getId();
     insertProperty("project.one", dbValue, projectId, null);
 
-    List<PropertyDto> dtos = underTest.selectEnabledDescendantModuleProperties(projectUuid, dbTester.getSession());
+    List<PropertyDto> dtos = underTest.selectEnabledDescendantModuleProperties(projectUuid, db.getSession());
     assertThat(dtos)
       .hasSize(1);
     assertThatDto(dtos.iterator().next())
@@ -326,7 +325,7 @@ public class PropertiesDaoTest {
   }
 
   @Test
-  public void select_by_query() throws SQLException {
+  public void select_by_query() {
     // global
     insertProperty("global.one", "one", null, null);
     insertProperty("global.two", "two", null, null);
@@ -340,19 +339,19 @@ public class PropertiesDaoTest {
     // other
     insertProperty("other.one", "one", 12L, null);
 
-    List<PropertyDto> results = underTest.selectByQuery(PropertyQuery.builder().setKey("user.two").setComponentId(10L).setUserId(100).build(), dbTester.getSession());
+    List<PropertyDto> results = underTest.selectByQuery(PropertyQuery.builder().setKey("user.two").setComponentId(10L).setUserId(100).build(), db.getSession());
     assertThat(results).hasSize(1);
     assertThat(results.get(0).getValue()).isEqualTo("two");
 
-    results = underTest.selectByQuery(PropertyQuery.builder().setKey("user.one").setUserId(100).build(), dbTester.getSession());
+    results = underTest.selectByQuery(PropertyQuery.builder().setKey("user.one").setUserId(100).build(), db.getSession());
     assertThat(results).hasSize(1);
     assertThat(results.get(0).getValue()).isEqualTo("one");
   }
 
   @Test
-  public void select_global_properties_by_keys() throws Exception {
+  public void select_global_properties_by_keys() {
     insertPrivateProject("A");
-    int userId = dbTester.users().insertUser(u -> u.setLogin("B")).getId();
+    int userId = db.users().insertUser(u -> u.setLogin("B")).getId();
 
     String key = "key";
     String anotherKey = "anotherKey";
@@ -376,9 +375,9 @@ public class PropertiesDaoTest {
 
   @Test
   public void select_component_properties_by_ids() {
-    ComponentDto project = dbTester.components().insertPrivateProject();
-    ComponentDto project2 = dbTester.components().insertPrivateProject();
-    UserDto user = dbTester.users().insertUser();
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project2 = db.components().insertPrivateProject();
+    UserDto user = db.users().insertUser();
 
     String key = "key";
     String anotherKey = "anotherKey";
@@ -402,9 +401,9 @@ public class PropertiesDaoTest {
 
   @Test
   public void select_properties_by_keys_and_component_ids() {
-    ComponentDto project = dbTester.components().insertPrivateProject();
-    ComponentDto project2 = dbTester.components().insertPrivateProject();
-    UserDto user = dbTester.users().insertUser();
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project2 = db.components().insertPrivateProject();
+    UserDto user = db.users().insertUser();
 
     String key = "key";
     String anotherKey = "anotherKey";
@@ -430,6 +429,25 @@ public class PropertiesDaoTest {
     assertThat(underTest.selectPropertiesByKeysAndComponentIds(session, newHashSet("unknown"), newHashSet(project.getId()))).isEmpty();
     assertThat(underTest.selectPropertiesByKeysAndComponentIds(session, newHashSet("key"), newHashSet(123456789L))).isEmpty();
     assertThat(underTest.selectPropertiesByKeysAndComponentIds(session, newHashSet("unknown"), newHashSet(123456789L))).isEmpty();
+  }
+
+  @Test
+  public void select_by_key_and_matching_value() {
+    ComponentDto project1 = db.components().insertPrivateProject();
+    ComponentDto project2 = db.components().insertPrivateProject();
+    db.properties().insertProperties(
+      newComponentPropertyDto("key", "value", project1),
+      newComponentPropertyDto("key", "value", project2),
+      newGlobalPropertyDto("key", "value"),
+      newComponentPropertyDto("another key", "value", project1));
+
+    assertThat(underTest.selectByKeyAndMatchingValue(db.getSession(), "key", "value"))
+    .extracting(PropertyDto::getValue, PropertyDto::getResourceId)
+    .containsExactlyInAnyOrder(
+      tuple("value", project1.getId()),
+      tuple("value", project2.getId()),
+      tuple("value", null)
+    );
   }
 
   @Test
@@ -654,7 +672,7 @@ public class PropertiesDaoTest {
   }
 
   @Test
-  public void delete_project_property() throws SQLException {
+  public void delete_project_property() {
     long projectId1 = insertPrivateProject("A").getId();
     long projectId2 = insertPrivateProject("B").getId();
     long projectId3 = insertPrivateProject("C").getId();
@@ -703,7 +721,7 @@ public class PropertiesDaoTest {
   }
 
   @Test
-  public void delete_project_properties() throws SQLException {
+  public void delete_project_properties() {
     long id1 = insertProperty("sonar.profile.java", "Sonar Way", 1L, null);
     long id2 = insertProperty("sonar.profile.java", "Sonar Way", 2L, null);
 
@@ -742,7 +760,7 @@ public class PropertiesDaoTest {
   }
 
   @Test
-  public void deleteGlobalProperty() throws SQLException {
+  public void deleteGlobalProperty() {
     // global
     long id1 = insertProperty("global.key", "new_global", null, null);
     long id2 = insertProperty("to_be_deleted", "xxx", null, null);
@@ -775,13 +793,13 @@ public class PropertiesDaoTest {
   }
 
   @Test
-  public void delete_by_organization_and_user() throws SQLException {
-    OrganizationDto organization = dbTester.organizations().insert();
-    OrganizationDto anotherOrganization = dbTester.organizations().insert();
-    ComponentDto project = dbTester.components().insertPrivateProject(organization);
-    ComponentDto anotherProject = dbTester.components().insertPrivateProject(anotherOrganization);
-    UserDto user = dbTester.users().insertUser();
-    UserDto anotherUser = dbTester.users().insertUser();
+  public void delete_by_organization_and_user() {
+    OrganizationDto organization = db.organizations().insert();
+    OrganizationDto anotherOrganization = db.organizations().insert();
+    ComponentDto project = db.components().insertPrivateProject(organization);
+    ComponentDto anotherProject = db.components().insertPrivateProject(anotherOrganization);
+    UserDto user = db.users().insertUser();
+    UserDto anotherUser = db.users().insertUser();
     insertProperty("KEY_11", "VALUE", project.getId(), user.getId());
     insertProperty("KEY_12", "VALUE", project.getId(), user.getId());
     insertProperty("KEY_11", "VALUE", project.getId(), anotherUser.getId());
@@ -797,13 +815,13 @@ public class PropertiesDaoTest {
   }
 
   @Test
-  public void delete_by_organization_and_matching_login() throws SQLException {
-    OrganizationDto organization = dbTester.organizations().insert();
-    OrganizationDto anotherOrganization = dbTester.organizations().insert();
-    ComponentDto project = dbTester.components().insertPrivateProject(organization);
-    ComponentDto anotherProject = dbTester.components().insertPrivateProject(anotherOrganization);
-    UserDto user = dbTester.users().insertUser();
-    UserDto anotherUser = dbTester.users().insertUser();
+  public void delete_by_organization_and_matching_login() {
+    OrganizationDto organization = db.organizations().insert();
+    OrganizationDto anotherOrganization = db.organizations().insert();
+    ComponentDto project = db.components().insertPrivateProject(organization);
+    ComponentDto anotherProject = db.components().insertPrivateProject(anotherOrganization);
+    UserDto user = db.users().insertUser();
+    UserDto anotherUser = db.users().insertUser();
     insertProperty("KEY_11", user.getLogin(), project.getId(), null);
     insertProperty("KEY_12", user.getLogin(), project.getId(), null);
     insertProperty("KEY_11", anotherUser.getLogin(), project.getId(), null);
@@ -819,9 +837,9 @@ public class PropertiesDaoTest {
   }
 
   @Test
-  public void delete_by_key_and_value() throws SQLException {
-    ComponentDto project = dbTester.components().insertPrivateProject();
-    ComponentDto anotherProject = dbTester.components().insertPrivateProject();
+  public void delete_by_key_and_value() {
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto anotherProject = db.components().insertPrivateProject();
     insertProperty("KEY", "VALUE", null, null);
     insertProperty("KEY", "VALUE", project.getId(), null);
     insertProperty("KEY", "VALUE", null, 100);
@@ -832,9 +850,9 @@ public class PropertiesDaoTest {
     insertProperty("ANOTHER_KEY", "VALUE", project.getId(), 100);
 
     underTest.deleteByKeyAndValue(session, "KEY", "VALUE");
-    dbTester.commit();
+    db.commit();
 
-    assertThat(dbTester.select("select prop_key as \"key\", text_value as \"value\", resource_id as \"projectId\", user_id as \"userId\" from properties"))
+    assertThat(db.select("select prop_key as \"key\", text_value as \"value\", resource_id as \"projectId\", user_id as \"userId\" from properties"))
       .extracting((row) -> row.get("key"), (row) -> row.get("value"), (row) -> row.get("projectId"), (row) -> row.get("userId"))
       .containsOnly(tuple("KEY", "ANOTHER_VALUE", null, null), tuple("ANOTHER_KEY", "VALUE", project.getId(), 100L));
   }
@@ -999,7 +1017,7 @@ public class PropertiesDaoTest {
     session.commit();
   }
 
-  private long insertProperty(String key, @Nullable String value, @Nullable Long resourceId, @Nullable Integer userId, long createdAt) throws SQLException {
+  private long insertProperty(String key, @Nullable String value, @Nullable Long resourceId, @Nullable Integer userId, long createdAt) {
     when(system2.now()).thenReturn(createdAt);
     return insertProperty(key, value, resourceId, userId);
   }
@@ -1009,20 +1027,16 @@ public class PropertiesDaoTest {
       .setResourceId(resourceId)
       .setUserId(userId)
       .setValue(value);
-    dbTester.properties().insertProperty(dto);
+    db.properties().insertProperty(dto);
 
-    return (long) dbTester.selectFirst(session, "select id as \"id\" from properties" +
+    return (long) db.selectFirst(session, "select id as \"id\" from properties" +
       " where prop_key='" + key + "'" +
       " and user_id" + (userId == null ? " is null" : "='" + userId + "'") +
       " and resource_id" + (resourceId == null ? " is null" : "='" + resourceId + "'")).get("id");
   }
 
   private ComponentDto insertPrivateProject(String uuid) {
-    String key = "project" + uuid;
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(dbTester.getDefaultOrganization(), uuid).setDbKey(key);
-    dbClient.componentDao().insert(session, project);
-    dbTester.commit();
-    return project;
+    return db.components().insertPrivateProject(db.getDefaultOrganization(), uuid);
   }
 
   private static PropertyDtoAssert assertThatDto(@Nullable PropertyDto dto) {
@@ -1030,15 +1044,15 @@ public class PropertiesDaoTest {
   }
 
   private PropertiesRowAssert assertThatPropertiesRow(String key, @Nullable Integer userId, @Nullable Integer componentId) {
-    return new PropertiesRowAssert(dbTester, key, userId, componentId);
+    return new PropertiesRowAssert(db, key, userId, componentId);
   }
 
   private PropertiesRowAssert assertThatPropertiesRow(String key) {
-    return new PropertiesRowAssert(dbTester, key);
+    return new PropertiesRowAssert(db, key);
   }
 
   private PropertiesRowAssert assertThatPropertiesRow(long id) {
-    return new PropertiesRowAssert(dbTester, id);
+    return new PropertiesRowAssert(db, id);
   }
 
 }

@@ -89,7 +89,7 @@ public class SsoAuthenticatorTest {
     .setLogin(DEFAULT_LOGIN)
     .setName(DEFAULT_NAME)
     .setEmail(DEFAULT_EMAIL)
-    .setExternalIdentity(DEFAULT_LOGIN)
+    .setExternalLogin(DEFAULT_LOGIN)
     .setExternalIdentityProvider("sonarqube");
 
   private GroupDto group1;
@@ -423,7 +423,7 @@ public class SsoAuthenticatorTest {
     assertThat(userDto.isActive()).isTrue();
     assertThat(userDto.getName()).isEqualTo(expectedName);
     assertThat(userDto.getEmail()).isEqualTo(expectedEmail);
-    assertThat(userDto.getExternalIdentity()).isEqualTo(expectedLogin);
+    assertThat(userDto.getExternalLogin()).isEqualTo(expectedLogin);
     assertThat(userDto.getExternalIdentityProvider()).isEqualTo("sonarqube");
     verityUserGroups(expectedLogin, expectedGroups);
   }

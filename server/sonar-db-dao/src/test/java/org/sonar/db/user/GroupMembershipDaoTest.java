@@ -34,8 +34,6 @@ import static org.assertj.core.data.MapEntry.entry;
 import static org.sonar.db.user.GroupMembershipQuery.IN;
 import static org.sonar.db.user.GroupMembershipQuery.OUT;
 import static org.sonar.db.user.GroupMembershipQuery.builder;
-import static org.sonar.db.user.UserTesting.newDisabledUser;
-import static org.sonar.db.user.UserTesting.newUserDto;
 
 public class GroupMembershipDaoTest {
 
@@ -55,9 +53,9 @@ public class GroupMembershipDaoTest {
   @Before
   public void setUp() throws Exception {
     organizationDto = db.organizations().insert();
-    user1 = db.users().insertUser(newUserDto("admin login", "Admin name", "admin@email.com"));
-    user2 = db.users().insertUser(newUserDto("not.admin", "Not Admin", "Not Admin"));
-    user3 = db.users().insertUser(newDisabledUser("inactive"));
+    user1 = db.users().insertUser(u -> u.setLogin("admin login").setName("Admin name").setEmail("admin@email.com"));
+    user2 = db.users().insertUser(u -> u.setLogin("not.admin").setName("Not Admin").setEmail("Not Admin"));
+    user3 = db.users().insertUser(u -> u.setLogin("inactive").setActive(false));
     group1 = db.users().insertGroup(organizationDto, "sonar-administrators");
     group2 = db.users().insertGroup(organizationDto, "sonar-users");
     group3 = db.users().insertGroup(organizationDto, "sonar-reviewers");

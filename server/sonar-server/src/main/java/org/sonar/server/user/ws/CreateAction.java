@@ -132,17 +132,24 @@ public class CreateAction implements UsersWsAction {
 
   private CreateWsResponse doHandle(CreateRequest request) {
     try (DbSession dbSession = dbClient.openSession(false)) {
+      String login = request.getLogin();
       NewUser.Builder newUser = NewUser.builder()
-        .setLogin(request.getLogin())
+        .setLogin(login)
         .setName(request.getName())
         .setEmail(request.getEmail())
         .setScmAccounts(request.getScmAccounts())
         .setPassword(request.getPassword());
       if (!request.isLocal()) {
-        newUser.setExternalIdentity(new ExternalIdentity(SQ_AUTHORITY, request.getLogin()));
+        newUser.setExternalIdentity(new ExternalIdentity(SQ_AUTHORITY, login, login));
       }
-      UserDto createdUser = userUpdater.createAndCommit(dbSession, newUser.build(), u -> {});
-      return buildResponse(createdUser);
+      UserDto existingUser = dbClient.userDao().selectByLogin(dbSession, login);
+      if (existingUser == null) {
+        return buildResponse(userUpdater.createAndCommit(dbSession, newUser.build(), u -> {
+        }));
+      }
+      checkArgument(!existingUser.isActive(), "An active user with login '%s' already exists", login);
+      return buildResponse(userUpdater.reactivateAndCommit(dbSession, existingUser, newUser.build(), u -> {
+      }));
     }
   }
 

@@ -14,7 +14,8 @@
         u.salt as "salt",
         u.crypted_password as "cryptedPassword",
         u.hash_method as "hashMethod",
-        u.external_identity as "externalIdentity",
+        u.external_id as "externalId",
+        u.external_login as "externalLogin",
         u.external_identity_provider as "externalIdentityProvider",
         u.user_local as "local",
         u.is_root as "root",
@@ -24,6 +25,13 @@
         u.homepage_type as "homepageType",
         u.homepage_parameter as "homepageParameter"
     </sql>
+
+    <select id="selectByUuid" parameterType="String" resultType="User">
+        SELECT
+        <include refid="userColumns"/>
+        FROM users u
+        WHERE u.uuid=#{uuid}
+    </select>
 
     <select id="selectByLogin" parameterType="String" resultType="User">
         SELECT
@@ -63,6 +71,16 @@
         WHERE u.login in
         <foreach collection="list" open="(" close=")" item="login" separator=",">
             #{login}
+        </foreach>
+    </select>
+
+    <select id="selectByUuids" parameterType="string" resultType="User">
+        SELECT
+        <include refid="userColumns"/>
+        FROM users u
+        WHERE u.uuid in
+        <foreach collection="list" open="(" close=")" item="uuid" separator=",">
+            #{uuid}
         </foreach>
     </select>
 
@@ -117,6 +135,13 @@
         AND u.active=${_true}
     </select>
 
+    <select id="selectByExternalIdAndIdentityProvider" parameterType="map" resultType="User">
+        SELECT
+        <include refid="userColumns"/>
+        FROM users u
+        WHERE u.external_id=#{externalId} AND u.external_identity_provider=#{externalIdentityProvider}
+    </select>
+
     <select id="countRootUsersButLogin" parameterType="String" resultType="long">
         select
         count(1)
@@ -133,8 +158,6 @@
         active = ${_false},
         email = null,
         scm_accounts = null,
-        external_identity = null,
-        external_identity_provider = null,
         salt = null,
         crypted_password = null,
         updated_at = #{now, jdbcType=BIGINT}
@@ -178,7 +201,8 @@
         email,
         active,
         scm_accounts,
-        external_identity,
+        external_id,
+        external_login,
         external_identity_provider,
         user_local,
         salt,
@@ -197,7 +221,8 @@
         #{user.email,jdbcType=VARCHAR},
         #{user.active,jdbcType=BOOLEAN},
         #{user.scmAccounts,jdbcType=VARCHAR},
-        #{user.externalIdentity,jdbcType=VARCHAR},
+        #{user.externalId,jdbcType=VARCHAR},
+        #{user.externalLogin,jdbcType=VARCHAR},
         #{user.externalIdentityProvider,jdbcType=VARCHAR},
         #{user.local,jdbcType=BOOLEAN},
         #{user.salt,jdbcType=VARCHAR},
@@ -214,11 +239,13 @@
 
     <update id="update" parameterType="map">
         update users set
+        login = #{user.login, jdbcType=VARCHAR},
         name = #{user.name, jdbcType=VARCHAR},
         email = #{user.email, jdbcType=VARCHAR},
         active = #{user.active, jdbcType=BOOLEAN},
         scm_accounts = #{user.scmAccounts, jdbcType=VARCHAR},
-        external_identity = #{user.externalIdentity, jdbcType=VARCHAR},
+        external_id = #{user.externalId, jdbcType=VARCHAR},
+        external_login = #{user.externalLogin, jdbcType=VARCHAR},
         external_identity_provider = #{user.externalIdentityProvider, jdbcType=VARCHAR},
         user_local = #{user.local, jdbcType=BOOLEAN},
         onboarded = #{user.onboarded, jdbcType=BOOLEAN},
@@ -229,7 +256,7 @@
         homepage_type = #{user.homepageType, jdbcType=VARCHAR},
         homepage_parameter = #{user.homepageParameter, jdbcType=VARCHAR}
         where
-        login = #{user.login, jdbcType=VARCHAR}
+        uuid = #{user.uuid, jdbcType=VARCHAR}
     </update>
 
 </mapper>

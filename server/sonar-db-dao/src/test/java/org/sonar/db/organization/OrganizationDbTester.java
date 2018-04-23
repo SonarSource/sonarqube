@@ -19,6 +19,7 @@
  */
 package org.sonar.db.organization;
 
+import java.util.Arrays;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
 import org.sonar.db.DbSession;
@@ -87,9 +88,8 @@ public class OrganizationDbTester {
     dbSession.commit();
   }
 
-  public void addMember(OrganizationDto organization, UserDto user) {
-    checkArgument(user.getId() != null, "User must be saved in database");
-    dbTester.getDbClient().organizationMemberDao().insert(dbTester.getSession(), new OrganizationMemberDto().setOrganizationUuid(organization.getUuid()).setUserId(user.getId()));
+  public void addMember(OrganizationDto organization, UserDto... users) {
+    Arrays.stream(users).forEach(u -> dbTester.getDbClient().organizationMemberDao().insert(dbTester.getSession(), new OrganizationMemberDto().setOrganizationUuid(organization.getUuid()).setUserId(u.getId())));
     dbTester.commit();
   }
 

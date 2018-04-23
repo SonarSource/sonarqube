@@ -36,6 +36,13 @@ public class DbVersion72 implements DbVersion {
       .add(2106, "Create PROJECT_MAPPINGS table", CreateProjectMappingsTable.class)
       .add(2107, "Add UUID on table USERS", AddUUIDtoUsers.class)
       .add(2108, "Populate USERS.UUID with USERS.LOGIN", PopulateUUIDOnUsers.class)
+      .add(2109, "Add EXTERNAL_ID on table users", AddExternalIdToUsers.class)
+      .add(2110, "Rename EXTERNAL_IDENTITY to EXTERNAL_LOGIN on table users", RenameExternalIdentityToExternalLoginOnUsers.class)
+      .add(2111, "Update null values from external columns and login of users", UpdateNullValuesFromExternalColumnsAndLoginOfUsers.class)
+      .add(2112, "Populate EXTERNAL_ID on table users", PopulateExternalIdOnUsers.class)
+      .add(2113, "Makes same columns of table users not nullable", MakeSomeColumnsOfUsersNotNullable.class)
+      .add(2114, "Add unique indexes on table users", AddUniqueIndexesOnUsers.class)
+
     ;
   }
 }

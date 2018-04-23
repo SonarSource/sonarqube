@@ -55,6 +55,7 @@ import org.sonar.server.organization.TestOrganizationFlags;
 import org.sonar.server.qualityprofile.BuiltInQProfileRepository;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.index.UserIndex;
+import org.sonar.server.user.index.UserIndexDefinition;
 import org.sonar.server.user.index.UserIndexer;
 import org.sonar.server.usergroups.DefaultGroupCreatorImpl;
 import org.sonar.server.ws.TestRequest;
@@ -65,12 +66,16 @@ import org.sonarqube.ws.Organizations.Organization;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
+import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
+import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 import static org.mockito.Mockito.mock;
 import static org.sonar.core.config.CorePropertyDefinitions.ORGANIZATIONS_ANYONE_CAN_CREATE;
 import static org.sonar.server.organization.ws.OrganizationsWsSupport.PARAM_KEY;
 import static org.sonar.server.organization.ws.OrganizationsWsSupport.PARAM_NAME;
 import static org.sonar.server.organization.ws.OrganizationsWsTestSupport.STRING_257_CHARS_LONG;
 import static org.sonar.server.organization.ws.OrganizationsWsTestSupport.STRING_65_CHARS_LONG;
+import static org.sonar.server.user.index.UserIndexDefinition.FIELD_ORGANIZATION_UUIDS;
+import static org.sonar.server.user.index.UserIndexDefinition.FIELD_UUID;
 import static org.sonar.test.JsonAssert.assertJson;
 
 public class CreateActionTest {
@@ -362,7 +367,7 @@ public class CreateActionTest {
   }
 
   @Test
-  public void request_set_user_as_member_of_organization() {
+  public void set_user_as_member_of_organization() {
     UserDto user = dbTester.users().insertUser();
     userSession.logIn(user).setSystemAdministrator();
     dbTester.qualityGates().insertBuiltInQualityGate();
@@ -371,7 +376,10 @@ public class CreateActionTest {
 
     OrganizationDto organization = dbClient.organizationDao().selectByKey(dbSession, "bar").get();
     assertThat(dbClient.organizationMemberDao().select(dbSession, organization.getUuid(), user.getId())).isPresent();
-    assertThat(userIndex.getNullableByLogin(user.getLogin()).organizationUuids()).contains(organization.getUuid());
+    assertThat(es.client().prepareSearch(UserIndexDefinition.INDEX_TYPE_USER)
+      .setQuery(boolQuery()
+        .must(termQuery(FIELD_ORGANIZATION_UUIDS, organization.getUuid()))
+        .must(termQuery(FIELD_UUID, user.getUuid()))).get().getHits().getHits()).hasSize(1);
   }
 
   @Test
@@ -603,7 +611,7 @@ public class CreateActionTest {
   }
 
   private static void populateRequest(@Nullable String name, @Nullable String key, @Nullable String description, @Nullable String url, @Nullable String avatar,
-                                      TestRequest request) {
+    TestRequest request) {
     OrganizationsWsTestSupport.setParam(request, "name", name);
     OrganizationsWsTestSupport.setParam(request, "key", key);
     OrganizationsWsTestSupport.setParam(request, "description", description);

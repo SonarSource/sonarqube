@@ -121,7 +121,7 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
     underTest = new SendIssueNotificationsStep(issueCache, ruleRepository, treeRootHolder, notificationService, analysisMetadataHolder,
       newIssuesNotificationFactory);
 
-    when(newIssuesNotificationFactory.newNewIssuesNotication()).thenReturn(newIssuesNotificationMock);
+    when(newIssuesNotificationFactory.newNewIssuesNotification()).thenReturn(newIssuesNotificationMock);
     when(newIssuesNotificationFactory.newMyNewIssuesNotification()).thenReturn(myNewIssuesNotificationMock);
   }
 

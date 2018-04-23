@@ -26,10 +26,12 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
 import static util.ItUtils.newOrchestratorBuilder;
+import static util.ItUtils.pluginArtifact;
 import static util.ItUtils.xooPlugin;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
+  OrganizationIdentityProviderTest.class,
   SonarCloudHomepageTest.class,
   SonarCloudNotificationsWsTest.class
 })
@@ -38,6 +40,9 @@ public class SonarCloudUserSuite {
   @ClassRule
   public static final Orchestrator ORCHESTRATOR = newOrchestratorBuilder()
     .addPlugin(xooPlugin())
+
+    // Used by OrganizationIdentityProviderTest
+    .addPlugin(pluginArtifact("base-auth-plugin"))
 
     .setServerProperty("sonar.sonarcloud.enabled", "true")
 

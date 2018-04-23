@@ -41,15 +41,17 @@ import org.sonarqube.qa.util.Tester;
 import org.sonarqube.qa.util.pageobjects.Navigation;
 import org.sonarqube.qa.util.pageobjects.SystemInfoPage;
 import org.sonarqube.qa.util.pageobjects.UsersManagementPage;
+import org.sonarqube.ws.Users.SearchWsResponse.User;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.WsResponse;
 import org.sonarqube.ws.client.users.CreateRequest;
+import org.sonarqube.ws.client.users.SearchRequest;
 import util.user.UserRule;
-import util.user.Users;
 
 import static java.net.HttpURLConnection.HTTP_OK;
 import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.groups.Tuple.tuple;
 import static org.junit.Assert.fail;
 import static util.ItUtils.newOrchestratorBuilder;
 import static util.ItUtils.newUserWsClient;
@@ -123,6 +125,7 @@ public class RealmAuthenticationTest {
     updateUsersInExtAuth(users);
     // Then
     verifyAuthenticationIsOk(username, password);
+    verifyUser();
 
     // with external details and groups
     runSelenese(orchestrator, "/user/ExternalAuthenticationTest/external-user-details.html");
@@ -150,6 +153,7 @@ public class RealmAuthenticationTest {
     updateUsersInExtAuth(users);
     // Then
     verifyAuthenticationIsOk(username, password);
+    verifyUser();
 
     // with external details and groups
     // TODO replace by WS ? Or with new Selenese utils
@@ -228,6 +232,7 @@ public class RealmAuthenticationTest {
     updateUsersInExtAuth(users);
     // Then
     verifyAuthenticationIsOk(username, password);
+    verifyUser();
     verifyAuthenticationIsNotOk(username, "wrong");
   }
 
@@ -257,6 +262,7 @@ public class RealmAuthenticationTest {
     updateUsersInExtAuth(users);
     // check that the deleted/deactivated user "tester" has been reactivated and can now log in
     verifyAuthenticationIsOk(login, password);
+    verifyUser();
   }
 
   /**
@@ -300,6 +306,7 @@ public class RealmAuthenticationTest {
     updateUsersInExtAuth(users);
 
     verifyAuthenticationIsOk(login, password);
+    verifyUser();
     verifyAuthenticationIsNotOk("wrong", password);
     verifyAuthenticationIsNotOk(login, "wrong");
     verifyAuthenticationIsNotOk(login, null);
@@ -339,9 +346,7 @@ public class RealmAuthenticationTest {
       USER_LOGIN + ".email", "tester@example.org"));
 
     verifyAuthenticationIsOk(USER_LOGIN, "123");
-    assertThat(userRule.getUserByLogin(USER_LOGIN).get())
-      .extracting(Users.User::isLocal, Users.User::getExternalIdentity, Users.User::getExternalProvider)
-      .containsOnly(false, USER_LOGIN, "sonarqube");
+    verifyUser();
   }
 
   @Test
@@ -412,6 +417,12 @@ public class RealmAuthenticationTest {
 
   private void verifyAuthenticationIsNotOk(String login, String password) {
     assertThat(checkAuthenticationWithWebService(login, password).code()).isEqualTo(HTTP_UNAUTHORIZED);
+  }
+
+  private void verifyUser(){
+    assertThat(tester.wsClient().users().search(new SearchRequest().setQ(USER_LOGIN)).getUsersList())
+    .extracting(User::getLogin, User::getExternalIdentity, User::getExternalProvider, User::getLocal)
+    .containsExactlyInAnyOrder(tuple(USER_LOGIN, USER_LOGIN, "sonarqube", false));
   }
 
   private WsResponse checkAuthenticationWithWebService(String login, String password) {

@@ -29,11 +29,11 @@ public interface OrganizationMemberMapper {
 
   Set<String> selectOrganizationUuidsByUser(@Param("userId") int userId);
 
-  List<String> selectLogins(String organizationUuid);
+  List<String> selectUserUuids(String organizationUuid);
 
   List<Integer> selectUserIds(String organizationUuid);
 
-  List<Map<String, String>> selectForIndexing(@Param("logins") List<String> logins);
+  List<Map<String, String>> selectForIndexing(@Param("uuids") List<String> uuids);
 
   List<Map<String, String>> selectAllForIndexing();
 

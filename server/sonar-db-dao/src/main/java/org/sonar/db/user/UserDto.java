@@ -41,7 +41,8 @@ public class UserDto {
   private String email;
   private boolean active = true;
   private String scmAccounts;
-  private String externalIdentity;
+  private String externalId;
+  private String externalLogin;
   private String externalIdentityProvider;
   // Hashed password that may be null in case of external authentication
   private String cryptedPassword;
@@ -151,12 +152,21 @@ public class UserDto {
     }
   }
 
-  public String getExternalIdentity() {
-    return externalIdentity;
+  public String getExternalId() {
+    return externalId;
   }
 
-  public UserDto setExternalIdentity(String authorithy) {
-    this.externalIdentity = authorithy;
+  public UserDto setExternalId(String externalId) {
+    this.externalId = externalId;
+    return this;
+  }
+
+  public String getExternalLogin() {
+    return externalLogin;
+  }
+
+  public UserDto setExternalLogin(String externalLogin) {
+    this.externalLogin = externalLogin;
     return this;
   }
 

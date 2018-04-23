@@ -90,7 +90,7 @@ public class UsersPageTest {
     String login = randomAlphabetic(10);
     String group = randomAlphabetic(10);
     tester.users().generate(u -> u.setLogin(login).setPassword(login));
-    tester.groups().generate(null, g -> g.setName(group));
+    tester.groups().generate(g -> g.setName(group));
     tester.groups().addMemberToGroups(tester.organizations().getDefaultOrganization(), login, group);
 
     List<Users.GroupsWsResponse.Group> result = tester.as(adminUser.getLogin()).wsClient().users().groups(new GroupsRequest().setLogin(login)).getGroupsList();
