@@ -302,10 +302,10 @@ public class RuleIndex {
         QueryBuilders.termQuery(FIELD_RULE_IS_TEMPLATE, Boolean.toString(isTemplate)));
     }
 
-    Boolean isExternal = query.includeExternal();
-    if (isExternal != null) {
+    boolean includeExternal = query.includeExternal();
+    if (!includeExternal) {
       filters.put(FIELD_RULE_IS_EXTERNAL,
-        QueryBuilders.termQuery(FIELD_RULE_IS_EXTERNAL, Boolean.toString(isExternal)));
+        QueryBuilders.termQuery(FIELD_RULE_IS_EXTERNAL, false));
     }
 
     String template = query.templateKey();

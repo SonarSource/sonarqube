@@ -135,7 +135,7 @@ public class SearchAction implements RulesWsAction {
       .setChangelog(new Change("7.1", "The field 'scope' has been added to the response"))
       .setChangelog(new Change("7.1", "The field 'scope' has been added to the 'f' parameter"))
       .setChangelog(new Change("7.2", "The field 'isExternal' has been added to the response"))
-      .setChangelog(new Change("7.2", "The field 'isExternal' has been added to the 'f' parameter"));
+      .setChangelog(new Change("7.2", "The field 'includeExternal' has been added to the 'f' parameter"));
 
     action.createParam(FACETS)
       .setDescription("Comma-separated list of the facets to be computed. No facet is computed by default.")

@@ -54,7 +54,7 @@ public class RuleQuery {
   private String internalKey;
   private String ruleKey;
   private OrganizationDto organization;
-  private Boolean includeExternal;
+  private boolean includeExternal;
 
   @CheckForNull
   public QProfileDto getQProfile() {
@@ -206,11 +206,11 @@ public class RuleQuery {
     return this;
   }
 
-  public Boolean includeExternal() {
+  public boolean includeExternal() {
     return includeExternal;
   }
 
-  public RuleQuery setIncludeExternal(@Nullable Boolean b) {
+  public RuleQuery setIncludeExternal(boolean b) {
     this.includeExternal = b;
     return this;
   }

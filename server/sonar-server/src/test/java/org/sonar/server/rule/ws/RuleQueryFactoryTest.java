@@ -101,7 +101,7 @@ public class RuleQueryFactoryTest {
     assertThat(result.isAscendingSort()).isTrue();
     assertThat(result.getAvailableSinceLong()).isNull();
     assertThat(result.getInheritance()).isNull();
-    assertThat(result.includeExternal()).isNull();
+    assertThat(result.includeExternal()).isFalse();
     assertThat(result.isTemplate()).isNull();
     assertThat(result.getLanguages()).isNull();
     assertThat(result.getQueryText()).isNull();
@@ -191,7 +191,7 @@ public class RuleQueryFactoryTest {
       ASCENDING, "false");
 
     assertResult(result, qualityProfile, compareToQualityProfile);
-    assertThat(result.includeExternal()).isNull();
+    assertThat(result.includeExternal()).isFalse();
   }
 
   private void assertResult(RuleQuery result, QProfileDto qualityProfile, QProfileDto compareToQualityProfile) {
