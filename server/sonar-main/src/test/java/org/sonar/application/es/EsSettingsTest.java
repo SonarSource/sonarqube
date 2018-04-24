@@ -311,6 +311,23 @@ public class EsSettingsTest {
     assertThat(settings.get("http.enabled")).isEqualTo("true");
   }
 
+  @Test
+  public void enable_seccomp_filter_by_default() throws Exception {
+    Props props = minProps(CLUSTER_DISABLED);
+    Map<String, String> settings = new EsSettings(props, new EsInstallation(props), System2.INSTANCE).build();
+
+    assertThat(settings.get("bootstrap.system_call_filter")).isNull();
+  }
+
+  @Test
+  public void disable_seccomp_filter_if_configured_in_search_additional_props() throws Exception {
+    Props props = minProps(CLUSTER_DISABLED);
+    props.set("sonar.search.javaAdditionalOpts", "-Xmx1G -Dbootstrap.system_call_filter=false -Dfoo=bar");
+    Map<String, String> settings = new EsSettings(props, new EsInstallation(props), System2.INSTANCE).build();
+
+    assertThat(settings.get("bootstrap.system_call_filter")).isEqualTo("false");
+  }
+
   private Props minProps(boolean cluster) throws IOException {
     File homeDir = temp.newFolder();
     Props props = new Props(new Properties());
