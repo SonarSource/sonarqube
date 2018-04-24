@@ -34,6 +34,7 @@ import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.measure.MetricFinder;
+import org.sonar.api.batch.sensor.code.internal.DefaultSignificantCode;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
 import org.sonar.api.batch.sensor.highlighting.internal.DefaultHighlighting;
 import org.sonar.api.batch.sensor.issue.ExternalIssue;
@@ -216,6 +217,33 @@ public class DefaultSensorStorageTest {
   }
 
   @Test
+  public void should_skip_significant_code_on_pull_request_when_file_status_is_SAME() {
+    DefaultInputFile file = new TestInputFileBuilder("foo", "src/Foo.php")
+      .setStatus(InputFile.Status.SAME)
+      .setContents("foo")
+      .build();
+    when(branchConfiguration.isShortOrPullRequest()).thenReturn(true);
+
+    underTest.store(new DefaultSignificantCode()
+      .onFile(file)
+      .addRange(file.selectLine(1)));
+
+    assertThat(reportWriter.hasComponentData(FileStructure.Domain.SGNIFICANT_CODE, file.batchId())).isFalse();
+  }
+
+  @Test
+  public void should_save_significant_code() {
+    DefaultInputFile file = new TestInputFileBuilder("foo", "src/Foo.php")
+      .setContents("foo")
+      .build();
+    underTest.store(new DefaultSignificantCode()
+      .onFile(file)
+      .addRange(file.selectLine(1)));
+
+    assertThat(reportWriter.hasComponentData(FileStructure.Domain.SGNIFICANT_CODE, file.batchId())).isTrue();
+  }
+
+  @Test
   public void should_save_project_measure() throws IOException {
     String projectKey = "myProject";
     DefaultInputModule module = new DefaultInputModule(ProjectDefinition.create().setKey(projectKey).setBaseDir(temp.newFolder()).setWorkDir(temp.newFolder()));
@@ -238,6 +266,16 @@ public class DefaultSensorStorageTest {
     InputFile inputFile = new TestInputFileBuilder("foo", "src/Foo.java")
       .setModuleBaseDir(temp.newFolder().toPath()).build();
     DefaultHighlighting h = new DefaultHighlighting(null)
+      .onFile(inputFile);
+    underTest.store(h);
+    underTest.store(h);
+  }
+
+  @Test(expected = UnsupportedOperationException.class)
+  public void duplicateSignificantCode() throws Exception {
+    InputFile inputFile = new TestInputFileBuilder("foo", "src/Foo.java")
+      .setModuleBaseDir(temp.newFolder().toPath()).build();
+    DefaultSignificantCode h = new DefaultSignificantCode(null)
       .onFile(inputFile);
     underTest.store(h);
     underTest.store(h);

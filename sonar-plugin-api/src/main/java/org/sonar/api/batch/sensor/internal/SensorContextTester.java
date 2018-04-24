@@ -47,6 +47,8 @@ import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
+import org.sonar.api.batch.sensor.code.NewSignificantCode;
+import org.sonar.api.batch.sensor.code.internal.DefaultSignificantCode;
 import org.sonar.api.batch.sensor.coverage.NewCoverage;
 import org.sonar.api.batch.sensor.coverage.internal.DefaultCoverage;
 import org.sonar.api.batch.sensor.cpd.NewCpdTokens;
@@ -268,6 +270,17 @@ public class SensorContextTester implements SensorContext {
   }
 
   @CheckForNull
+  public TextRange significantCodeTextRange(String fileKey, int line) {
+    if (sensorStorage.significantCodePerComponent.containsKey(fileKey)) {
+      return sensorStorage.significantCodePerComponent.get(fileKey)
+        .significantCodePerLine()
+        .get(line);
+    }
+    return null;
+
+  }
+
+  @CheckForNull
   public static Integer maxOrNull(@Nullable Integer o1, @Nullable Integer o2) {
     return o1 == null ? o2 : Math.max(o1, o2);
   }
@@ -365,5 +378,10 @@ public class SensorContextTester implements SensorContext {
   public void markForPublishing(InputFile inputFile) {
     DefaultInputFile file = (DefaultInputFile) inputFile;
     file.setPublished(true);
+  }
+
+  @Override
+  public NewSignificantCode newSignificantCode() {
+    return new DefaultSignificantCode(sensorStorage);
   }
 }

@@ -42,7 +42,8 @@ public class FileStructure {
     COVERAGES("coverages-", Domain.PB),
     TESTS("tests-", Domain.PB),
     COVERAGE_DETAILS("coverage-details-", Domain.PB),
-    SOURCE("source-", ".txt");
+    SOURCE("source-", ".txt"),
+    SGNIFICANT_CODE("sgnificant-code-", Domain.PB);
 
     private static final String PB = ".pb";
     private final String filePrefix;
@@ -82,7 +83,7 @@ public class FileStructure {
   public File contextProperties() {
     return new File(dir, "context-props.pb");
   }
-  
+
   public File root() {
     return dir;
   }

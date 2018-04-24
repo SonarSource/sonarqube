@@ -47,7 +47,6 @@ import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.RuleType;
-import org.sonar.api.utils.SonarException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
@@ -176,7 +175,7 @@ public class SensorContextTesterTest {
     assertThat(tester.measure("foo", "directories")).isNotNull();
   }
 
-  @Test(expected = SonarException.class)
+  @Test(expected = IllegalStateException.class)
   public void duplicateMeasures() {
     tester.<Integer>newMeasure()
       .on(new TestInputFileBuilder("foo", "src/Foo.java").build())

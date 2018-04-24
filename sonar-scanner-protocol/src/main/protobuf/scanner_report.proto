@@ -263,6 +263,12 @@ message TextRange {
   int32 end_offset = 4;
 }
 
+message LineSgnificantCode {
+  int32 line = 1;
+  int32 start_offset = 2;
+  int32 end_offset = 3;
+}
+
 message Symbol {
   TextRange declaration = 1;
   repeated TextRange reference = 2;

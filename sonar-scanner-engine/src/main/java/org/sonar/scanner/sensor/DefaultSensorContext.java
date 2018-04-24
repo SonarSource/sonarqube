@@ -29,6 +29,8 @@ import org.sonar.api.batch.fs.InputModule;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.sensor.SensorContext;
+import org.sonar.api.batch.sensor.code.NewSignificantCode;
+import org.sonar.api.batch.sensor.code.internal.DefaultSignificantCode;
 import org.sonar.api.batch.sensor.coverage.NewCoverage;
 import org.sonar.api.batch.sensor.coverage.internal.DefaultCoverage;
 import org.sonar.api.batch.sensor.cpd.NewCpdTokens;
@@ -54,6 +56,7 @@ import org.sonar.scanner.sensor.noop.NoOpNewCoverage;
 import org.sonar.scanner.sensor.noop.NoOpNewCpdTokens;
 import org.sonar.scanner.sensor.noop.NoOpNewExternalIssue;
 import org.sonar.scanner.sensor.noop.NoOpNewHighlighting;
+import org.sonar.scanner.sensor.noop.NoOpNewSignificantCode;
 import org.sonar.scanner.sensor.noop.NoOpNewSymbolTable;
 
 @ThreadSafe
@@ -65,6 +68,7 @@ public class DefaultSensorContext implements SensorContext {
   static final NoOpNewAnalysisError NO_OP_NEW_ANALYSIS_ERROR = new NoOpNewAnalysisError();
   static final NoOpNewCoverage NO_OP_NEW_COVERAGE = new NoOpNewCoverage();
   static final NoOpNewExternalIssue NO_OP_NEW_EXTERNAL_ISSUE = new NoOpNewExternalIssue();
+  static final NoOpNewSignificantCode NO_OP_NEW_SIGNIFICANT_CODE = new NoOpNewSignificantCode();
 
   private final Settings mutableSettings;
   private final FileSystem fs;
@@ -196,4 +200,11 @@ public class DefaultSensorContext implements SensorContext {
     file.setPublished(true);
   }
 
+  @Override
+  public NewSignificantCode newSignificantCode() {
+    if (analysisMode.isIssues()) {
+      return NO_OP_NEW_SIGNIFICANT_CODE;
+    }
+    return new DefaultSignificantCode(sensorStorage);
+  }
 }

@@ -36,6 +36,7 @@ import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.measure.Metric;
 import org.sonar.api.batch.measure.MetricFinder;
+import org.sonar.api.batch.sensor.code.internal.DefaultSignificantCode;
 import org.sonar.api.batch.sensor.coverage.internal.DefaultCoverage;
 import org.sonar.api.batch.sensor.cpd.internal.DefaultCpdTokens;
 import org.sonar.api.batch.sensor.error.AnalysisError;
@@ -424,7 +425,7 @@ public class DefaultSensorStorage implements SensorStorage {
     inputFile.setPublished(true);
     int componentRef = inputFile.batchId();
     if (writer.hasComponentData(FileStructure.Domain.SYMBOLS, componentRef)) {
-      throw new UnsupportedOperationException("Trying to save symbol table twice for the same file is not supported: " + symbolTable.inputFile().absolutePath());
+      throw new UnsupportedOperationException("Trying to save symbol table twice for the same file is not supported: " + symbolTable.inputFile());
     }
     final ScannerReport.Symbol.Builder builder = ScannerReport.Symbol.newBuilder();
     final ScannerReport.TextRange.Builder rangeBuilder = ScannerReport.TextRange.newBuilder();
@@ -507,4 +508,28 @@ public class DefaultSensorStorage implements SensorStorage {
     contextPropertiesCache.put(key, value);
   }
 
+  @Override
+  public void store(DefaultSignificantCode significantCode) {
+    ScannerReportWriter writer = reportPublisher.getWriter();
+    DefaultInputFile inputFile = (DefaultInputFile) significantCode.inputFile();
+    if (shouldSkipStorage(inputFile)) {
+      return;
+    }
+    inputFile.setPublished(true);
+    int componentRef = inputFile.batchId();
+    if (writer.hasComponentData(FileStructure.Domain.SGNIFICANT_CODE, componentRef)) {
+      throw new UnsupportedOperationException(
+        "Trying to save significant code information twice for the same file is not supported: " + significantCode.inputFile());
+    }
+
+    List<ScannerReport.LineSgnificantCode> protobuf = significantCode.significantCodePerLine().values().stream()
+      .map(range -> ScannerReport.LineSgnificantCode.newBuilder()
+        .setLine(range.start().line())
+        .setStartOffset(range.start().lineOffset())
+        .setEndOffset(range.end().lineOffset())
+        .build())
+      .collect(Collectors.toList());
+
+    writer.writeComponentSignificantCode(componentRef, protobuf);
+  }
 }

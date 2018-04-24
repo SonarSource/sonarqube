@@ -73,6 +73,12 @@ public class ScannerReportWriter {
     return file;
   }
 
+  public File writeComponentSignificantCode(int componentRef, Iterable<ScannerReport.LineSgnificantCode> lineSignificantCode) {
+    File file = fileStructure.fileFor(FileStructure.Domain.SGNIFICANT_CODE, componentRef);
+    Protobuf.writeStream(lineSignificantCode, file, false);
+    return file;
+  }
+
   public void appendComponentIssue(int componentRef, ScannerReport.Issue issue) {
     File file = fileStructure.fileFor(FileStructure.Domain.ISSUES, componentRef);
     try (OutputStream out = new BufferedOutputStream(new FileOutputStream(file, true))) {

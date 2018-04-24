@@ -88,6 +88,14 @@ public class DefaultSensorContextTest {
     assertThat(adaptor.newMeasure()).isNotNull();
     assertThat(adaptor.newAnalysisError()).isEqualTo(DefaultSensorContext.NO_OP_NEW_ANALYSIS_ERROR);
     assertThat(adaptor.isCancelled()).isFalse();
+    assertThat(adaptor.newSignificantCode()).isNotNull();
+  }
+
+  @Test
+  public void shouldSkipSignificantCodeOnPreviewMode() {
+    when(analysisMode.isIssues()).thenReturn(true);
+    assertThat(adaptor.newSignificantCode()).isEqualTo(DefaultSensorContext.NO_OP_NEW_SIGNIFICANT_CODE);
+
   }
 
   @Test

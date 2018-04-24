@@ -284,6 +284,21 @@ public class ScannerReportWriterTest {
   }
 
   @Test
+  public void write_line_significant_code() {
+    // no data yet
+    assertThat(underTest.hasComponentData(FileStructure.Domain.SGNIFICANT_CODE, 1)).isFalse();
+
+    underTest.writeComponentSignificantCode(1, asList(
+      ScannerReport.LineSgnificantCode.newBuilder()
+        .setLine(1)
+        .setStartOffset(2)
+        .setEndOffset(3)
+        .build()));
+
+    assertThat(underTest.hasComponentData(FileStructure.Domain.SGNIFICANT_CODE, 1)).isTrue();
+  }
+
+  @Test
   public void write_coverage() {
     // no data yet
     assertThat(underTest.hasComponentData(FileStructure.Domain.COVERAGES, 1)).isFalse();

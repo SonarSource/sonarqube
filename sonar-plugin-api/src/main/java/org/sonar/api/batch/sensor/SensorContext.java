@@ -26,6 +26,7 @@ import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputModule;
 import org.sonar.api.batch.rule.ActiveRules;
+import org.sonar.api.batch.sensor.code.NewSignificantCode;
 import org.sonar.api.batch.sensor.coverage.NewCoverage;
 import org.sonar.api.batch.sensor.cpd.NewCpdTokens;
 import org.sonar.api.batch.sensor.error.NewAnalysisError;
@@ -161,6 +162,16 @@ public interface SensorContext {
    * @since 6.0
    */
   NewAnalysisError newAnalysisError();
+
+  /**
+   * Builder to declare which parts of the code is significant code. 
+   * Ranges that are not reported as significant code will be ignored and won't be considered when calculating which lines were modified.
+   * 
+   * If the significant code is not reported for a file, it is assumed that the entire file is significant code.
+   * 
+   * @since 7.2
+   */
+  NewSignificantCode newSignificantCode();
 
   /**
    * Add a property to the scanner context. This context is available
