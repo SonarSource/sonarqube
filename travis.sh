@@ -127,7 +127,7 @@ case "$TARGET" in
 
 BUILD)
 
-  installJdk8
+  installJDK8
   installMaven
   installNode
   fixBuildVersion
