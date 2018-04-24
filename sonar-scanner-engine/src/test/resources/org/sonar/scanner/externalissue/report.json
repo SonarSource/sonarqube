@@ -5,7 +5,7 @@
     "ruleId": "rule1",
     "severity": "MAJOR",
     "type": "CODE_SMELL",
-    "effortMinutes": 20,
+    "effortMinutes": 40,
     "primaryLocation": {
       "message": "fix the issue here",
       "filePath": "file1.js",

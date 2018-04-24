@@ -92,6 +92,7 @@ public class ExternalIssuesMediumTest {
     assertThat(issue.getMsg()).isEqualTo("fix the issue here");
     assertThat(issue.getRuleKey()).isEqualTo("rule1");
     assertThat(issue.getSeverity()).isEqualTo(Severity.MAJOR);
+    assertThat(issue.getEffort()).isEqualTo(50l);
     assertThat(issue.getType()).isEqualTo(IssueType.CODE_SMELL);
     assertThat(issue.getTextRange().getStartLine()).isEqualTo(5);
     assertThat(issue.getTextRange().getEndLine()).isEqualTo(5);
@@ -105,6 +106,7 @@ public class ExternalIssuesMediumTest {
     assertThat(issue.getRuleKey()).isEqualTo("rule2");
     assertThat(issue.getSeverity()).isEqualTo(Severity.CRITICAL);
     assertThat(issue.getType()).isEqualTo(IssueType.BUG);
+    assertThat(issue.getEffort()).isZero();
     assertThat(issue.getTextRange().getStartLine()).isEqualTo(3);
     assertThat(issue.getTextRange().getEndLine()).isEqualTo(3);
     assertThat(issue.getTextRange().getStartOffset()).isEqualTo(0);

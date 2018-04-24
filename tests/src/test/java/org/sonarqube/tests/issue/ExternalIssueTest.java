@@ -101,7 +101,7 @@ public class ExternalIssueTest {
     assertThat(issuesList.get(0).getType()).isEqualTo(RuleType.CODE_SMELL);
     assertThat(issuesList.get(0).getComponent()).isEqualTo("sample:src/main/xoo/sample/Sample.xoo");
     assertThat(issuesList.get(0).getStatus()).isEqualTo("OPEN");
-    assertThat(issuesList.get(0).getEffort()).isEqualTo("20min");
+    assertThat(issuesList.get(0).getEffort()).isEqualTo("50min");
     assertThat(issuesList.get(0).getExternalRuleEngine()).isEqualTo("externalXoo");
 
     issuesList = tester.wsClient().issues().search(new SearchRequest()

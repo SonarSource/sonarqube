@@ -43,7 +43,7 @@ public class ReportParserTest {
     assertThat(report.issues[0].engineId).isEqualTo("eslint");
     assertThat(report.issues[0].ruleId).isEqualTo("rule1");
     assertThat(report.issues[0].severity).isEqualTo("MAJOR");
-    assertThat(report.issues[0].effortMinutes).isEqualTo(20);
+    assertThat(report.issues[0].effortMinutes).isEqualTo(40);
     assertThat(report.issues[0].type).isEqualTo("CODE_SMELL");
     assertThat(report.issues[0].primaryLocation.filePath).isEqualTo("file1.js");
     assertThat(report.issues[0].primaryLocation.message).isEqualTo("fix the issue here");

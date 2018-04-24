@@ -72,8 +72,11 @@ public class ExternalIssueImporter {
     NewExternalIssue externalIssue = context.newExternalIssue()
       .forRule(RuleKey.of(issue.engineId, issue.ruleId))
       .severity(Severity.valueOf(issue.severity))
-      .remediationEffortMinutes(20L)
       .type(RuleType.valueOf(issue.type));
+
+    if (issue.effortMinutes != null) {
+      externalIssue.remediationEffortMinutes(Long.valueOf(issue.effortMinutes));
+    }
 
     NewIssueLocation primary = fillLocation(context, externalIssue.newLocation(), issue.primaryLocation);
     if (primary != null) {

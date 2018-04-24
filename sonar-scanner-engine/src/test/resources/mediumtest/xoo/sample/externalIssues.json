@@ -5,6 +5,7 @@
     "ruleId": "rule1",
     "severity": "MAJOR",
     "type": "CODE_SMELL",
+    "effortMinutes": 50,
     "primaryLocation": {
       "message": "fix the issue here",
       "filePath": "xources/hello/HelloJava.xoo",
