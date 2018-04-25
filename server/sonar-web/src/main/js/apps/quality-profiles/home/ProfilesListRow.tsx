@@ -28,6 +28,7 @@ import { getRulesUrl } from '../../../helpers/urls';
 import { isStagnant } from '../utils';
 import { Profile } from '../types';
 import Tooltip from '../../../components/controls/Tooltip';
+import DocTooltip from '../../../components/docs/DocTooltip';
 
 interface Props {
   onRequestFail: (reason: any) => void;
@@ -41,14 +42,21 @@ export default class ProfilesListRow extends React.PureComponent<Props> {
     const { profile } = this.props;
     const offset = 25 * (profile.depth - 1);
     return (
-      <div style={{ paddingLeft: offset }}>
-        <ProfileLink
-          language={profile.language}
-          name={profile.name}
-          organization={this.props.organization}>
-          {profile.name}
-        </ProfileLink>
-        {profile.isBuiltIn && <BuiltInQualityProfileBadge className="spacer-left" />}
+      <div className="display-flex-center" style={{ paddingLeft: offset }}>
+        <div>
+          <ProfileLink
+            language={profile.language}
+            name={profile.name}
+            organization={this.props.organization}>
+            {profile.name}
+          </ProfileLink>
+        </div>
+        {profile.isBuiltIn && (
+          <>
+            <BuiltInQualityProfileBadge className="spacer-left" />
+            <DocTooltip className="spacer-left" doc="quality-profiles/built-in-quality-profile" />
+          </>
+        )}
       </div>
     );
   }
@@ -57,7 +65,12 @@ export default class ProfilesListRow extends React.PureComponent<Props> {
     const { profile } = this.props;
 
     if (profile.isDefault) {
-      return <span className="badge">{translate('default')}</span>;
+      return (
+        <>
+          <span className="badge">{translate('default')}</span>
+          <DocTooltip className="table-cell-doc" doc="quality-profiles/default-quality-profile" />
+        </>
+      );
     }
 
     return <span>{profile.projectCount}</span>;
@@ -122,23 +135,23 @@ export default class ProfilesListRow extends React.PureComponent<Props> {
   render() {
     return (
       <tr
-        className="quality-profiles-table-row"
+        className="quality-profiles-table-row text-middle"
         data-key={this.props.profile.key}
         data-name={this.props.profile.name}>
-        <td className="quality-profiles-table-name">{this.renderName()}</td>
-        <td className="quality-profiles-table-projects thin nowrap text-right">
+        <td className="quality-profiles-table-name text-middle">{this.renderName()}</td>
+        <td className="quality-profiles-table-projects thin nowrap text-middle text-right">
           {this.renderProjects()}
         </td>
-        <td className="quality-profiles-table-rules thin nowrap text-right">
+        <td className="quality-profiles-table-rules thin nowrap text-middle text-right">
           {this.renderRules()}
         </td>
-        <td className="quality-profiles-table-date thin nowrap text-right">
+        <td className="quality-profiles-table-date thin nowrap text-middle text-right">
           {this.renderUpdateDate()}
         </td>
-        <td className="quality-profiles-table-date thin nowrap text-right">
+        <td className="quality-profiles-table-date thin nowrap text-middle text-right">
           {this.renderUsageDate()}
         </td>
-        <td className="quality-profiles-table-actions thin nowrap text-right">
+        <td className="quality-profiles-table-actions thin nowrap text-middle text-right">
           <ProfileActions
             fromList={true}
             onRequestFail={this.props.onRequestFail}

@@ -1,29 +1,24 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`renders 1`] = `
-<BubblePopup
-  customClass="bubble-popup-bottom"
->
-  <div
-    className="abs-width-400"
+<React.Fragment>
+  <h6
+    className="spacer-bottom"
   >
-    <h6
-      className="spacer-bottom"
-    >
-      branches.learn_how_to_analyze
-    </h6>
-    <p
-      className="big-spacer-bottom markdown"
-    >
-      branches.learn_how_to_analyze.text
-    </p>
-    <a
-      className="button"
-      href="https://redirect.sonarsource.com/doc/branches.html"
-      target="_blank"
-    >
-      about_page.read_documentation
-    </a>
-  </div>
-</BubblePopup>
+    branches.learn_how_to_analyze
+  </h6>
+  <p
+    className="big-spacer-bottom markdown"
+  >
+    branches.learn_how_to_analyze.text
+  </p>
+  <a
+    className="button"
+    href="https://redirect.sonarsource.com/doc/branches.html"
+    rel="noopener noreferrer"
+    target="_blank"
+  >
+    about_page.read_documentation
+  </a>
+</React.Fragment>
 `;

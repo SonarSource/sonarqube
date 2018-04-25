@@ -65,6 +65,14 @@
   line-height: 1.5;
 }
 
+.markdown.cut-margins > *:first-child {
+  margin-top: 0 !important;
+}
+
+.markdown.cut-margins > *:last-child {
+  margin-bottom: 0 !important;
+}
+
 .rule-desc p,
 .markdown p,
 .rule-desc ul,

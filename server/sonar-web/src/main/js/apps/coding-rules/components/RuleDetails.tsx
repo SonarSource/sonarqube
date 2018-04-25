@@ -31,6 +31,7 @@ import { getRuleDetails, deleteRule, updateRule } from '../../../api/rules';
 import { RuleActivation, RuleDetails as IRuleDetails } from '../../../app/types';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import ConfirmButton from '../../../components/controls/ConfirmButton';
+import DocTooltip from '../../../components/docs/DocTooltip';
 import { Button } from '../../../components/ui/buttons';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 
@@ -175,7 +176,7 @@ export default class RuleDetails extends React.PureComponent<Props, State> {
           {params.length > 0 && <RuleDetailsParameters params={params} />}
 
           {isEditable && (
-            <div className="coding-rules-detail-description">
+            <div className="coding-rules-detail-description display-flex-center">
               {/* `templateRule` is used to get rule meta data, `customRule` is used to get parameter values */}
               {/* it's expected to pass the same rule to both parameters */}
               <CustomRuleButton
@@ -202,12 +203,15 @@ export default class RuleDetails extends React.PureComponent<Props, State> {
                 modalHeader={translate('coding_rules.delete_rule')}
                 onConfirm={this.handleDelete}>
                 {({ onClick }) => (
-                  <Button
-                    className="button-red spacer-left js-delete"
-                    id="coding-rules-detail-rule-delete"
-                    onClick={onClick}>
-                    {translate('delete')}
-                  </Button>
+                  <>
+                    <Button
+                      className="button-red spacer-left js-delete"
+                      id="coding-rules-detail-rule-delete"
+                      onClick={onClick}>
+                      {translate('delete')}
+                    </Button>
+                    <DocTooltip className="spacer-left" doc="rules/custom-rule-removal" />
+                  </>
                 )}
               </ConfirmButton>
             </div>

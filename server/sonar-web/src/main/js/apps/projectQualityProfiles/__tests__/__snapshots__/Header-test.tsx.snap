@@ -4,11 +4,17 @@ exports[`renders 1`] = `
 <header
   className="page-header"
 >
-  <h1
-    className="page-title"
+  <div
+    className="page-title display-flex-center"
   >
-    project_quality_profiles.page
-  </h1>
+    <h1>
+      project_quality_profiles.page
+    </h1>
+    <DocTooltip
+      className="spacer-left"
+      doc="quality-profiles/quality-profile-projects"
+    />
+  </div>
   <div
     className="page-description"
   >

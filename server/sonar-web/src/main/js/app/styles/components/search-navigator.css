@@ -464,7 +464,6 @@ a.search-navigator-facet:focus .facet-stat {
 
 .search-navigator-facet-header-value {
   display: block;
-  padding: 8px 0;
   overflow: hidden;
 }
 

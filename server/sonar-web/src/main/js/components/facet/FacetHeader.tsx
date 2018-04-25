@@ -25,8 +25,9 @@ import { Button } from '../ui/buttons';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 
 interface Props {
+  children?: React.ReactNode;
   helper?: string;
-  name: string;
+  name: React.ReactNode;
   onClear?: () => void;
   onClick?: () => void;
   open: boolean;
@@ -89,6 +90,8 @@ export default class FacetHeader extends React.PureComponent<Props> {
             {this.renderHelper()}
           </span>
         )}
+
+        {this.props.children}
 
         <span className="search-navigator-facet-header-value spacer-left spacer-right ">
           {this.renderValueIndicator()}

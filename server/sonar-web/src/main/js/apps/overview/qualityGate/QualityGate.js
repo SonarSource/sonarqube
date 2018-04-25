@@ -25,6 +25,7 @@ import * as theme from '../../../app/theme';
 import { translate } from '../../../helpers/l10n';
 import Level from '../../../components/ui/Level';
 import Tooltip from '../../../components/controls/Tooltip';
+import DocTooltip from '../../../components/docs/DocTooltip';
 import HelpIcon from '../../../components/icons-components/HelpIcon';
 /*:: import type { Component, MeasuresList } from '../types'; */
 
@@ -64,10 +65,11 @@ export default function QualityGate({ branchLike, component, measures } /*: Prop
 
   return (
     <div className="overview-quality-gate" id="overview-quality-gate">
-      <h2 className="overview-title">
-        {translate('overview.quality_gate')}
-        <Level level={level} />
-      </h2>
+      <div className="display-flex-center">
+        <h2 className="overview-title">{translate('overview.quality_gate')}</h2>
+        <DocTooltip className="spacer-left" doc="quality-gates/project-homepage-quality-gate" />
+        <Level className="big-spacer-left" level={level} />
+      </div>
 
       {ignoredConditions && (
         <div className="alert alert-info display-inline-block big-spacer-top">

@@ -1,0 +1,61 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render 1`] = `
+<div
+  className="display-flex-center"
+>
+  <Tooltip
+    classNameSpace="popup"
+    overlay={
+      <div
+        className="abs-width-300"
+      >
+        <i
+          className="spinner"
+        />
+      </div>
+    }
+    visible={true}
+  >
+    <a
+      className="display-flex-center link-no-underline"
+      href="#"
+      onClick={[Function]}
+    >
+      <HelpIcon
+        fill="#cdcdcd"
+        size={12}
+      />
+    </a>
+  </Tooltip>
+</div>
+`;
+
+exports[`should render 2`] = `
+<div
+  className="display-flex-center"
+>
+  <Tooltip
+    classNameSpace="popup"
+    overlay={
+      <OutsideClickHandler
+        onClickOutside={[Function]}
+      >
+        [Function]
+      </OutsideClickHandler>
+    }
+    visible={true}
+  >
+    <a
+      className="display-flex-center link-no-underline"
+      href="#"
+      onClick={[Function]}
+    >
+      <HelpIcon
+        fill="#cdcdcd"
+        size={12}
+      />
+    </a>
+  </Tooltip>
+</div>
+`;

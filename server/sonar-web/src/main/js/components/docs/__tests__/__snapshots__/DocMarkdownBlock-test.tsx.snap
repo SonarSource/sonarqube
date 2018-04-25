@@ -1,0 +1,32 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render simple markdown 1`] = `
+<div
+  className="markdown"
+>
+  <React.Fragment
+    key="h-1"
+  >
+    <p
+      key="h-2"
+    >
+      this is 
+      <em
+        key="h-3"
+      >
+        bold
+      </em>
+       text
+    </p>
+  </React.Fragment>
+</div>
+`;
+
+exports[`should render use custom component for links 1`] = `
+<DocLink
+  href="#quality-profiles"
+  key="h-3"
+>
+  link
+</DocLink>
+`;

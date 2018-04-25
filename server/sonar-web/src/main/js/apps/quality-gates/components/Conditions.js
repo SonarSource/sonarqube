@@ -21,6 +21,7 @@ import React from 'react';
 import { sortBy, uniqBy } from 'lodash';
 import AddConditionForm from './AddConditionForm';
 import Condition from './Condition';
+import DocTooltip from '../../../components/docs/DocTooltip';
 import { translate, getLocalizedMetricName } from '../../../helpers/l10n';
 
 function getKey(condition, index) {
@@ -89,7 +90,10 @@ export default class Conditions extends React.PureComponent {
     }));
     return (
       <div className="quality-gate-section" id="quality-gate-conditions">
-        <h3 className="spacer-bottom">{translate('quality_gates.conditions')}</h3>
+        <header className="display-flex-center spacer-bottom">
+          <h3>{translate('quality_gates.conditions')}</h3>
+          <DocTooltip className="spacer-left" doc="quality-gates/quality-gate-conditions" />
+        </header>
 
         <div className="big-spacer-bottom">{translate('quality_gates.introduction')}</div>
 

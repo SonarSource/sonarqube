@@ -143,6 +143,7 @@ a.badge-focus:active {
   color: var(--secondFontColor);
   font-size: var(--smallFontSize);
   font-weight: 400;
+  white-space: nowrap;
 }
 
 .outline-badge.active {

@@ -5,14 +5,23 @@ exports[`renders message about ignored conditions 1`] = `
   className="overview-quality-gate"
   id="overview-quality-gate"
 >
-  <h2
-    className="overview-title"
+  <div
+    className="display-flex-center"
   >
-    overview.quality_gate
+    <h2
+      className="overview-title"
+    >
+      overview.quality_gate
+    </h2>
+    <DocTooltip
+      className="spacer-left"
+      doc="quality-gates/project-homepage-quality-gate"
+    />
     <Level
+      className="big-spacer-left"
       level="OK"
     />
-  </h2>
+  </div>
   <div
     className="alert alert-info display-inline-block big-spacer-top"
   >

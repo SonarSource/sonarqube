@@ -114,10 +114,7 @@ it('renders single branch popup', () => {
     />,
     { context: { branchesEnabled: true } }
   );
-  expect(wrapper).toMatchSnapshot();
-  expect(wrapper.find('BubblePopupHelper').prop('isOpen')).toBe(false);
-  click(wrapper.find('a'));
-  expect(wrapper.find('BubblePopupHelper').prop('isOpen')).toBe(true);
+  expect(wrapper.find('Popup')).toMatchSnapshot();
 });
 
 it('renders no branch support popup', () => {
@@ -130,10 +127,7 @@ it('renders no branch support popup', () => {
     />,
     { context: { branchesEnabled: false } }
   );
-  expect(wrapper).toMatchSnapshot();
-  expect(wrapper.find('BubblePopupHelper').prop('isOpen')).toBe(false);
-  click(wrapper.find('a'));
-  expect(wrapper.find('BubblePopupHelper').prop('isOpen')).toBe(true);
+  expect(wrapper.find('Popup')).toMatchSnapshot();
 });
 
 it('renders nothing on SonarCloud without branch support', () => {

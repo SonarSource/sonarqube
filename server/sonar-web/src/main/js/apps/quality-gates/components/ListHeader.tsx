@@ -21,6 +21,7 @@ import * as React from 'react';
 import CreateQualityGateForm from '../components/CreateQualityGateForm';
 import { QualityGate } from '../../../api/quality-gates';
 import { Organization } from '../../../app/types';
+import DocTooltip from '../../../components/docs/DocTooltip';
 import { Button } from '../../../components/ui/buttons';
 import { translate } from '../../../helpers/l10n';
 
@@ -50,7 +51,6 @@ export default class ListHeader extends React.PureComponent<Props, State> {
 
     return (
       <header className="page-header">
-        <h1 className="page-title">{translate('quality_gates.page')}</h1>
         {this.props.canCreate && (
           <div className="page-actions">
             <Button id="quality-gate-add" onClick={this.openCreateQualityGateForm}>
@@ -58,6 +58,10 @@ export default class ListHeader extends React.PureComponent<Props, State> {
             </Button>
           </div>
         )}
+        <div className="display-flex-center">
+          <h1 className="page-title">{translate('quality_gates.page')}</h1>
+          <DocTooltip className="spacer-left" doc="quality-gates/quality-gate" />
+        </div>
         {this.state.createQualityGateOpen && (
           <CreateQualityGateForm
             onClose={this.closeCreateQualityGateForm}

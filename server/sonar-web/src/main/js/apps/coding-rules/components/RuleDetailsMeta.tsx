@@ -27,6 +27,7 @@ import { getRuleUrl } from '../../../helpers/urls';
 import LinkIcon from '../../../components/icons-components/LinkIcon';
 import RuleScopeIcon from '../../../components/icons-components/RuleScopeIcon';
 import Tooltip from '../../../components/controls/Tooltip';
+import DocTooltip from '../../../components/docs/DocTooltip';
 import { translate } from '../../../helpers/l10n';
 import IssueTypeIcon from '../../../components/ui/IssueTypeIcon';
 import SeverityHelper from '../../../components/shared/SeverityHelper';
@@ -174,16 +175,15 @@ export default class RuleDetailsMeta extends React.PureComponent<Props, State> {
       return null;
     }
     return (
-      <Tooltip overlay={translate('coding_rules.custom_rule.title')}>
-        <li className="coding-rules-detail-property">
-          {translate('coding_rules.custom_rule')}
-          {' ('}
-          <Link to={getRuleUrl(ruleDetails.templateKey, this.props.organization)}>
-            {translate('coding_rules.show_template')}
-          </Link>
-          {')'}
-        </li>
-      </Tooltip>
+      <li className="coding-rules-detail-property">
+        {translate('coding_rules.custom_rule')}
+        {' ('}
+        <Link to={getRuleUrl(ruleDetails.templateKey, this.props.organization)}>
+          {translate('coding_rules.show_template')}
+        </Link>
+        {')'}
+        <DocTooltip className="little-spacer-left" doc="rules/custom-rules" />
+      </li>
     );
   };
 

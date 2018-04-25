@@ -33,7 +33,11 @@ module.exports = ({ production = true }) => ({
   devtool: production ? 'source-map' : 'cheap-module-source-map',
   resolve: {
     // Add '.ts' and '.tsx' as resolvable extensions.
-    extensions: ['.ts', '.tsx', '.js', '.json']
+    extensions: ['.ts', '.tsx', '.js', '.json'],
+    // import from 'Docs/foo.md' is rewritten to import from 'sonar-docs/src/foo.md'
+    alias: {
+      Docs: path.resolve(__dirname, '../../sonar-docs/src/tooltips')
+    }
   },
   entry: [
     !production && require.resolve('react-dev-utils/webpackHotDevClient'),
@@ -68,6 +72,10 @@ module.exports = ({ production = true }) => ({
           utils.cssLoader({ production }),
           utils.postcssLoader()
         ].filter(Boolean)
+      },
+      {
+        test: /\.md$/,
+        use: 'raw-loader'
       },
       { test: require.resolve('lodash'), loader: 'expose-loader?_' },
       { test: require.resolve('react'), loader: 'expose-loader?React' },

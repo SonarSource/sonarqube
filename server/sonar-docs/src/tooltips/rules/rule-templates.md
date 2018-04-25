@@ -1,0 +1,1 @@
+Rule Templates allow users to easily define their own rules. They are like cookie cutters from which you can stamp out new, "custom rules". The rules created from a template are listed on its rule detail page.

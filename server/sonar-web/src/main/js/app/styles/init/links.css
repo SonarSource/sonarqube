@@ -52,10 +52,6 @@ a:focus {
   border-bottom-color: var(--lightBlue);
 }
 
-.tooltip a {
-  color: var(--lightBlue);
-}
-
 .link-no-underline {
   border-bottom: none;
 }

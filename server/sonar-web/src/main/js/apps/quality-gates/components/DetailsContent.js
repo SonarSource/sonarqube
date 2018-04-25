@@ -20,6 +20,7 @@
 import React from 'react';
 import Conditions from './Conditions';
 import Projects from './Projects';
+import DocTooltip from '../../../components/docs/DocTooltip';
 import { translate } from '../../../helpers/l10n';
 
 export default class DetailsContent extends React.PureComponent {
@@ -47,7 +48,10 @@ export default class DetailsContent extends React.PureComponent {
         />
 
         <div id="quality-gate-projects" className="quality-gate-section">
-          <h3 className="spacer-bottom">{translate('quality_gates.projects')}</h3>
+          <header className="display-flex-center spacer-bottom">
+            <h3>{translate('quality_gates.projects')}</h3>
+            <DocTooltip className="spacer-left" doc="quality-gates/quality-gate-projects" />
+          </header>
           {gate.isDefault ? (
             defaultMessage
           ) : (

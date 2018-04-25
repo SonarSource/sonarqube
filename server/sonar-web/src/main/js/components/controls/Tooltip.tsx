@@ -25,6 +25,7 @@ import './Tooltip.css';
 export type Placement = 'bottom' | 'right' | 'left' | 'top';
 
 interface Props {
+  classNameSpace?: string;
   children: React.ReactElement<{}>;
   mouseEnterDelay?: number;
   onShow?: () => void;
@@ -244,6 +245,8 @@ export class TooltipInner extends React.Component<Props, State> {
   };
 
   render() {
+    const { classNameSpace = 'tooltip' } = this.props;
+
     return (
       <>
         {React.cloneElement(this.props.children, {
@@ -253,7 +256,7 @@ export class TooltipInner extends React.Component<Props, State> {
         {this.isVisible() && (
           <TooltipPortal>
             <div
-              className={`tooltip ${this.getPlacement()}`}
+              className={`${classNameSpace} ${this.getPlacement()}`}
               ref={this.tooltipNodeRef}
               style={
                 isMeasured(this.state)
@@ -265,9 +268,9 @@ export class TooltipInner extends React.Component<Props, State> {
                     }
                   : undefined
               }>
-              <div className="tooltip-inner">{this.props.overlay}</div>
+              <div className={`${classNameSpace}-inner`}>{this.props.overlay}</div>
               <div
-                className="tooltip-arrow"
+                className={`${classNameSpace}-arrow`}
                 style={
                   isMeasured(this.state)
                     ? { marginLeft: -this.state.leftFix, marginTop: -this.state.topFix }

@@ -21,6 +21,7 @@
 .navbar-context-branches {
   display: inline-flex;
   justify-content: center;
+  align-items: center;
   flex-shrink: 1 !important;
   min-width: 0;
   line-height: calc(2 * var(--gridSize));

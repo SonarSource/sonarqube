@@ -76,6 +76,7 @@ table.data > thead:after {
 }
 
 table.data > thead > tr > th {
+  position: relative;
   vertical-align: top;
   line-height: 18px;
   padding: 8px 10px;
@@ -96,6 +97,7 @@ table.data > tfoot > tr > td {
 }
 
 table.data > tbody > tr > td {
+  position: relative;
   padding: 8px 10px;
   vertical-align: text-top;
   line-height: 16px;
@@ -262,4 +264,12 @@ table.form td img {
 
 table#project-history tr > td {
   vertical-align: top;
+}
+
+.table-cell-doc {
+  position: absolute;
+  z-index: var(--aboveNormalZIndex);
+  right: -8px;
+  top: 50%;
+  margin-top: -6px;
 }

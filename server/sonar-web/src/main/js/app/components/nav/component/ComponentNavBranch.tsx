@@ -34,8 +34,8 @@ import {
   isPullRequest
 } from '../../../../helpers/branches';
 import { translate } from '../../../../helpers/l10n';
-import HelpIcon from '../../../../components/icons-components/HelpIcon';
-import BubblePopupHelper from '../../../../components/common/BubblePopupHelper';
+import PlusCircleIcon from '../../../../components/icons-components/PlusCircleIcon';
+import Popup from '../../../../components/controls/Popup';
 import Tooltip from '../../../../components/controls/Tooltip';
 
 interface Props {
@@ -47,8 +47,6 @@ interface Props {
 
 interface State {
   dropdownOpen: boolean;
-  noBranchSupportPopupOpen: boolean;
-  singleBranchPopupOpen: boolean;
 }
 
 export default class ComponentNavBranch extends React.PureComponent<Props, State> {
@@ -59,14 +57,9 @@ export default class ComponentNavBranch extends React.PureComponent<Props, State
     onSonarCloud: PropTypes.bool
   };
 
-  constructor(props: Props) {
-    super(props);
-    this.state = {
-      dropdownOpen: false,
-      noBranchSupportPopupOpen: false,
-      singleBranchPopupOpen: false
-    };
-  }
+  state: State = {
+    dropdownOpen: false
+  };
 
   componentDidMount() {
     this.mounted = true;
@@ -78,7 +71,7 @@ export default class ComponentNavBranch extends React.PureComponent<Props, State
       !isSameBranchLike(nextProps.currentBranchLike, this.props.currentBranchLike) ||
       nextProps.location !== this.props.location
     ) {
-      this.setState({ dropdownOpen: false, singleBranchPopupOpen: false });
+      this.setState({ dropdownOpen: false });
     }
   }
 
@@ -97,34 +90,6 @@ export default class ComponentNavBranch extends React.PureComponent<Props, State
     if (this.mounted) {
       this.setState({ dropdownOpen: false });
     }
-  };
-
-  toggleSingleBranchPopup = (show?: boolean) => {
-    if (show !== undefined) {
-      this.setState({ singleBranchPopupOpen: show });
-    } else {
-      this.setState(state => ({ singleBranchPopupOpen: !state.singleBranchPopupOpen }));
-    }
-  };
-
-  toggleNoBranchSupportPopup = (show?: boolean) => {
-    if (show !== undefined) {
-      this.setState({ noBranchSupportPopupOpen: show });
-    } else {
-      this.setState(state => ({ noBranchSupportPopupOpen: !state.noBranchSupportPopupOpen }));
-    }
-  };
-
-  handleSingleBranchClick = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
-    event.preventDefault();
-    event.stopPropagation();
-    this.toggleSingleBranchPopup();
-  };
-
-  handleNoBranchSupportClick = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
-    event.preventDefault();
-    event.stopPropagation();
-    this.toggleNoBranchSupportPopup();
   };
 
   renderDropdown = () => {
@@ -174,31 +139,23 @@ export default class ComponentNavBranch extends React.PureComponent<Props, State
   };
 
   renderSingleBranchPopup = () => (
-    <div className="display-inline-block spacer-left">
-      <a className="link-no-underline" href="#" onClick={this.handleSingleBranchClick}>
-        <HelpIcon fill={theme.blue} />
-      </a>
-      <BubblePopupHelper
-        isOpen={this.state.singleBranchPopupOpen}
-        popup={<SingleBranchHelperPopup />}
-        position="bottomleft"
-        togglePopup={this.toggleSingleBranchPopup}
-      />
-    </div>
+    <Popup overlay={<SingleBranchHelperPopup />}>
+      {({ onClick }) => (
+        <a className="display-flex-center spacer-left link-no-underline" href="#" onClick={onClick}>
+          <PlusCircleIcon fill={theme.blue} size={12} />
+        </a>
+      )}
+    </Popup>
   );
 
   renderNoBranchSupportPopup = () => (
-    <div className="display-inline-block spacer-left">
-      <a className="link-no-underline" href="#" onClick={this.handleNoBranchSupportClick}>
-        <HelpIcon fill={theme.gray80} />
-      </a>
-      <BubblePopupHelper
-        isOpen={this.state.noBranchSupportPopupOpen}
-        popup={<NoBranchSupportPopup />}
-        position="bottomleft"
-        togglePopup={this.toggleNoBranchSupportPopup}
-      />
-    </div>
+    <Popup overlay={<NoBranchSupportPopup />}>
+      {({ onClick }) => (
+        <a className="display-flex-center spacer-left link-no-underline" href="#" onClick={onClick}>
+          <PlusCircleIcon fill={theme.gray80} size={12} />
+        </a>
+      )}
+    </Popup>
   );
 
   render() {

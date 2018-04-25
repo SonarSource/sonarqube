@@ -1,0 +1,1 @@
+A Quality Gate is a set of measure-based Boolean conditions. It helps you know immediately whether your project is production-ready. If your current status is not Passed, you'll see which values caused the problem and the value required to pass.

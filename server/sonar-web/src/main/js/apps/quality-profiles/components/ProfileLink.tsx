@@ -32,8 +32,8 @@ interface Props {
 export default function ProfileLink({ name, language, organization, children, ...other }: Props) {
   return (
     <Link
-      to={getProfilePath(name, language, organization)}
       activeClassName="link-no-underline"
+      to={getProfilePath(name, language, organization)}
       {...other}>
       {children}
     </Link>

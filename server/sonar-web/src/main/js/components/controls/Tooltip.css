@@ -17,49 +17,74 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-.tooltip {
+.tooltip,
+.popup {
   position: absolute;
   z-index: var(--tooltipZIndex);
   display: block;
   height: auto;
   box-sizing: border-box;
+}
+
+.tooltip {
   font-size: var(--smallFontSize);
   font-weight: 300;
   line-height: 1.5;
   animation: fadeIn 0.3s forwards;
 }
 
-.tooltip.top {
+.popup {
+  font-size: var(--baseFontSize);
+  font-weight: normal;
+}
+
+.tooltip.top,
+.popup.top {
   padding: 5px 0;
   margin-top: -3px;
 }
 
-.tooltip.right {
+.tooltip.right,
+.popup.right {
   padding: 0 5px;
   margin-left: 3px;
 }
 
-.tooltip.bottom {
+.tooltip.bottom,
+.popup.bottom {
   padding: 5px 0;
   margin-top: 3px;
 }
 
-.tooltip.left {
+.tooltip.left,
+.popup.left {
   padding: 0 5px;
   margin-left: -3px;
 }
 
-.tooltip-inner {
+.tooltip-inner,
+.popup-inner {
   max-width: 300px;
-  padding: 3px 8px;
-  color: #fff;
   text-align: left;
   text-decoration: none;
-  background-color: #475760;
   border-radius: 4px;
-  letter-spacing: 0.04em;
   overflow: hidden;
   word-break: break-word;
+}
+
+.tooltip-inner {
+  padding: 3px 8px;
+  color: #fff;
+  background-color: #475760;
+  letter-spacing: 0.04em;
+}
+
+.popup-inner {
+  padding: calc(2 * var(--gridSize));
+  border: 1px solid var(--barBorderColor);
+  color: var(--baseFontColor);
+  background-color: #fff;
+  box-shadow: var(--defaultShadow);
 }
 
 .tooltip-inner .alert {
@@ -67,22 +92,45 @@
   border-radius: 4px;
 }
 
-.tooltip-arrow {
+.tooltip-inner a {
+  color: var(--lightBlue);
+}
+
+.tooltip-arrow,
+.popup-arrow,
+.popup-arrow::after {
   position: absolute;
   width: 0;
   height: 0;
   border: solid transparent;
 }
 
-.tooltip.top .tooltip-arrow {
+.tooltip.top .tooltip-arrow,
+.popup.top .popup-arrow,
+.popup.top .popup-arrow::after {
   bottom: 0;
   left: 50%;
   border-width: 5px 5px 0;
-  border-top-color: #475760;
   transform: translateX(-5px);
 }
 
-.tooltip.right .tooltip-arrow {
+.tooltip.top .tooltip-arrow {
+  border-top-color: #475760;
+}
+
+.popup.top .popup-arrow {
+  border-top-color: var(--barBorderColor);
+}
+
+.popup.top .popup-arrow::after {
+  content: '';
+  border-top-color: #fff;
+  transform: translateX(-5px) translateY(-1px);
+}
+
+.tooltip.right .tooltip-arrow,
+.popup.right .popup-arrow,
+.popup.right .popup-arrow::after {
   top: 50%;
   left: 0;
   transform: translateY(-5px);
@@ -90,7 +138,23 @@
   border-right-color: #475760;
 }
 
-.tooltip.left .tooltip-arrow {
+.tooltip.right .tooltip-arrow {
+  border-right-color: #475760;
+}
+
+.popup.right .popup-arrow {
+  border-right-color: var(--barBorderColor);
+}
+
+.popup.right .popup-arrow::after {
+  content: '';
+  border-right-color: #fff;
+  transform: translateY(-5px) translateX(1px);
+}
+
+.tooltip.left .tooltip-arrow,
+.popup.left .popup-arrow,
+.popup.left .popup-arrow::after {
   top: 50%;
   right: 0;
   transform: translateY(-5px);
@@ -98,12 +162,42 @@
   border-left-color: #475760;
 }
 
-.tooltip.bottom .tooltip-arrow {
+.tooltip.left .tooltip-arrow {
+  border-left-color: #475760;
+}
+
+.popup.left .popup-arrow {
+  border-left-color: var(--barBorderColor);
+}
+
+.popup.left .popup-arrow::after {
+  content: '';
+  border-left-color: #fff;
+  transform: translateY(-5px) translateX(-1px);
+}
+
+.tooltip.bottom .tooltip-arrow,
+.popup.bottom .popup-arrow,
+.popup.bottom .popup-arrow::after {
   top: 0;
   left: 50%;
   transform: translateX(-5px);
   border-width: 0 5px 5px;
   border-bottom-color: #475760;
+}
+
+.tooltip.bottom .tooltip-arrow {
+  border-bottom-color: #475760;
+}
+
+.popup.bottom .popup-arrow {
+  border-bottom-color: var(--barBorderColor);
+}
+
+.popup.bottom .popup-arrow::after {
+  content: '';
+  border-bottom-color: #fff;
+  transform: translateX(-5px) translateY(1px);
 }
 
 @keyframes fadeIn {

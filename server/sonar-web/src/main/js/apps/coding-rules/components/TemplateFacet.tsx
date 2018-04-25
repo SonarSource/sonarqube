@@ -20,6 +20,7 @@
 import * as React from 'react';
 import Facet, { BasicProps } from './Facet';
 import { Omit } from '../../../app/types';
+import DocTooltip from '../../../components/docs/DocTooltip';
 import { translate } from '../../../helpers/l10n';
 
 interface Props extends Omit<BasicProps, 'onChange' | 'values'> {
@@ -55,8 +56,9 @@ export default class TemplateFacet extends React.PureComponent<Props> {
         renderName={this.renderName}
         renderTextName={this.renderName}
         singleSelection={true}
-        values={value !== undefined ? [String(value)] : []}
-      />
+        values={value !== undefined ? [String(value)] : []}>
+        <DocTooltip className="spacer-left" doc="rules/rule-templates" />
+      </Facet>
     );
   }
 }

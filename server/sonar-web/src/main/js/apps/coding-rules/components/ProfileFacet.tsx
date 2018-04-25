@@ -22,6 +22,7 @@ import { sortBy } from 'lodash';
 import * as classNames from 'classnames';
 import { Query, FacetKey } from '../query';
 import { Profile } from '../../../api/quality-profiles';
+import DocTooltip from '../../../components/docs/DocTooltip';
 import FacetBox from '../../../components/facet/FacetBox';
 import FacetHeader from '../../../components/facet/FacetHeader';
 import FacetItem from '../../../components/facet/FacetItem';
@@ -161,8 +162,9 @@ export default class ProfileFacet extends React.PureComponent<Props> {
           onClear={this.handleClear}
           onClick={this.handleHeaderClick}
           open={this.props.open}
-          values={this.getTextValue()}
-        />
+          values={this.getTextValue()}>
+          <DocTooltip className="spacer-left" doc="rules/rules-quality-profiles" />
+        </FacetHeader>
 
         {this.props.open && <FacetItemsList>{profiles.map(this.renderItem)}</FacetItemsList>}
       </FacetBox>

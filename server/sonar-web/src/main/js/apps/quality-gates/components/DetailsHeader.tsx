@@ -23,6 +23,7 @@ import RenameQualityGateForm from './RenameQualityGateForm';
 import CopyQualityGateForm from './CopyQualityGateForm';
 import DeleteQualityGateForm from './DeleteQualityGateForm';
 import { fetchQualityGate, QualityGate, setQualityGateAsDefault } from '../../../api/quality-gates';
+import DocTooltip from '../../../components/docs/DocTooltip';
 import { Button } from '../../../components/ui/buttons';
 import { translate } from '../../../helpers/l10n';
 
@@ -73,10 +74,15 @@ export default class DetailsHeader extends React.PureComponent<Props, State> {
       <div className="layout-page-header-panel layout-page-main-header issues-main-header">
         <div className="layout-page-header-panel-inner layout-page-main-header-inner">
           <div className="layout-page-main-inner">
-            <h2 className="pull-left">
-              {qualityGate.name}
-              {qualityGate.isBuiltIn && <BuiltInQualityGateBadge className="spacer-left" />}
-            </h2>
+            <div className="pull-left display-flex-center">
+              <h2>{qualityGate.name}</h2>
+              {qualityGate.isBuiltIn && (
+                <>
+                  <BuiltInQualityGateBadge className="spacer-left" />
+                  <DocTooltip className="spacer-left" doc="quality-gates/built-in-quality-gate" />
+                </>
+              )}
+            </div>
 
             <div className="pull-right">
               {actions.rename && (

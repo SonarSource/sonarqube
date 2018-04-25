@@ -32,6 +32,10 @@ interface Props {
   position: BubblePopupPosition;
 }
 
+/**
+ * Deprecated.
+ * Use <Popup /> instead.
+ */
 export default function BubblePopup(props: Props) {
   const popupClass = classNames('bubble-popup', props.customClass);
   const popupStyle = { ...props.position };

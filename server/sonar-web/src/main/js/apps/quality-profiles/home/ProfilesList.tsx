@@ -21,6 +21,7 @@ import * as React from 'react';
 import { groupBy, pick, sortBy } from 'lodash';
 import ProfilesListRow from './ProfilesListRow';
 import ProfilesListHeader from './ProfilesListHeader';
+import DocTooltip from '../../../components/docs/DocTooltip';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { Profile } from '../types';
 
@@ -61,7 +62,13 @@ export default class ProfilesList extends React.PureComponent<Props> {
             {', '}
             {translateWithParameters('quality_profiles.x_profiles', profilesCount)}
           </th>
-          <th className="text-right nowrap">{translate('quality_profiles.list.projects')}</th>
+          <th className="text-right nowrap">
+            {translate('quality_profiles.list.projects')}
+            <DocTooltip
+              className="table-cell-doc"
+              doc="quality-profiles/quality-profile-projects"
+            />
+          </th>
           <th className="text-right nowrap">{translate('quality_profiles.list.rules')}</th>
           <th className="text-right nowrap">{translate('quality_profiles.list.updated')}</th>
           <th className="text-right nowrap">{translate('quality_profiles.list.used')}</th>
