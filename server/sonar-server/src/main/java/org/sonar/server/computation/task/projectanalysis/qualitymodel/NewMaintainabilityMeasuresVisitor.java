@@ -165,7 +165,7 @@ public class NewMaintainabilityMeasuresVisitor extends PathAwareVisitorAdapter<N
       return;
     }
 
-    Optional<ScmInfo> scmInfoOptional = scmInfoRepository.getScmInfo(file);
+    java.util.Optional<ScmInfo> scmInfoOptional = scmInfoRepository.getScmInfo(file);
     if (!scmInfoOptional.isPresent()) {
       LOG.trace(String.format("No changeset for file %s. Dev cost will be zero.", file.getKey()));
       return;

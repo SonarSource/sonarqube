@@ -53,7 +53,7 @@ public interface BatchReportReader {
   CloseableIterator<ScannerReport.LineCoverage> readComponentCoverage(int fileRef);
 
   /**
-   * Reads file source line by line. Return an absent optional if the file doest not exist
+   * Reads a file's source code, line by line. Returns an absent optional if the file does not exist
    */
   Optional<CloseableIterator<String>> readFileSource(int fileRef);
 
@@ -62,4 +62,6 @@ public interface BatchReportReader {
   CloseableIterator<ScannerReport.CoverageDetail> readCoverageDetails(int testFileRef);
 
   CloseableIterator<ScannerReport.ContextProperty> readContextProperties();
+  
+  CloseableIterator<ScannerReport.LineSgnificantCode> readComponentSignificantCode(int fileRef);
 }

@@ -139,7 +139,7 @@ public class IssueCreationDateCalculator extends IssueVisitor {
   }
 
   private Optional<ScmInfo> getScmInfo(Component component) {
-    return toJavaUtilOptional(scmInfoRepository.getScmInfo(component));
+    return scmInfoRepository.getScmInfo(component);
   }
 
   private static Optional<Changeset> getChangeset(Component component, ScmInfo scmInfo, DefaultIssue issue) {

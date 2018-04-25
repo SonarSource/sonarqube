@@ -206,7 +206,7 @@ public class FileSourceDto {
   }
 
   /**
-   * Compressed value of serialized protobuf message {@link org.sonar.db.protobuf.DbFileSources.Data}
+   * Decompressed value of serialized protobuf message {@link org.sonar.db.protobuf.DbFileSources.Data}
    */
   public DbFileSources.Data getSourceData() {
     return decodeSourceData(binaryData);

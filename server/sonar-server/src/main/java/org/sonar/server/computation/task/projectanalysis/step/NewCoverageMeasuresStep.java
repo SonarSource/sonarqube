@@ -251,7 +251,7 @@ public class NewCoverageMeasuresStep implements ComputationStep {
     @Override
     public void initialize(CounterInitializationContext context) {
       Component fileComponent = context.getLeaf();
-      Optional<ScmInfo> scmInfoOptional = scmInfoRepository.getScmInfo(fileComponent);
+      java.util.Optional<ScmInfo> scmInfoOptional = scmInfoRepository.getScmInfo(fileComponent);
       if (!scmInfoOptional.isPresent() || !context.hasPeriod()) {
         return;
       }

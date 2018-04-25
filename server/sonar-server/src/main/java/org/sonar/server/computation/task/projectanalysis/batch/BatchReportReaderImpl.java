@@ -36,6 +36,7 @@ import org.apache.commons.io.LineIterator;
 import org.sonar.core.util.CloseableIterator;
 import org.sonar.core.util.LineReaderIterator;
 import org.sonar.scanner.protocol.output.ScannerReport;
+import org.sonar.scanner.protocol.output.ScannerReport.LineSgnificantCode;
 
 public class BatchReportReaderImpl implements BatchReportReader {
 
@@ -253,5 +254,11 @@ public class BatchReportReaderImpl implements BatchReportReader {
     protected void doClose() throws Exception {
       fileInputStream.close();
     }
+  }
+
+  @Override
+  public CloseableIterator<LineSgnificantCode> readComponentSignificantCode(int fileRef) {
+    ensureInitialized();
+    return delegate.readComponentSignificantCode(fileRef);
   }
 }

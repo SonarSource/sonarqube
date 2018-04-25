@@ -28,15 +28,8 @@ import org.sonar.api.utils.log.Loggers;
 
 public class SourceLinesDiffFinder {
   private static final Logger LOG = Loggers.get(SourceLinesDiffFinder.class);
-  private final List<String> left;
-  private final List<String> right;
 
-  public SourceLinesDiffFinder(List<String> left, List<String> right) {
-    this.left = left;
-    this.right = right;
-  }
-
-  public int[] findMatchingLines() {
+  public int[] findMatchingLines(List<String> left, List<String> right) {
     int[] index = new int[right.size()];
 
     int dbLine = left.size();

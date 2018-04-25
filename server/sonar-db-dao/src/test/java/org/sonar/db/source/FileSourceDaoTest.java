@@ -21,7 +21,7 @@ package org.sonar.db.source;
 
 import java.io.IOException;
 import java.io.Reader;
-import java.util.function.Function;
+import java.util.function.Consumer;
 import javax.annotation.Nullable;
 import org.apache.commons.io.IOUtils;
 import org.junit.Rule;
@@ -63,7 +63,7 @@ public class FileSourceDaoTest {
   public void select_line_hashes() {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
 
-    ReaderToStringFunction fn = new ReaderToStringFunction();
+    ReaderToStringConsumer fn = new ReaderToStringConsumer();
     underTest.readLineHashesStream(dbTester.getSession(), "FILE1_UUID", fn);
 
     assertThat(fn.result).isEqualTo("ABC\\nDEF\\nGHI");
@@ -73,7 +73,7 @@ public class FileSourceDaoTest {
   public void no_line_hashes_on_unknown_file() {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
 
-    ReaderToStringFunction fn = new ReaderToStringFunction();
+    ReaderToStringConsumer fn = new ReaderToStringConsumer();
     underTest.readLineHashesStream(dbTester.getSession(), "unknown", fn);
 
     assertThat(fn.result).isNull();
@@ -83,7 +83,7 @@ public class FileSourceDaoTest {
   public void no_line_hashes_when_only_test_data() {
     dbTester.prepareDbUnit(getClass(), "no_line_hashes_when_only_test_data.xml");
 
-    ReaderToStringFunction fn = new ReaderToStringFunction();
+    ReaderToStringConsumer fn = new ReaderToStringConsumer();
     underTest.readLineHashesStream(dbTester.getSession(), "FILE1_UUID", fn);
 
     assertThat(fn.result).isNull();
@@ -115,15 +115,15 @@ public class FileSourceDaoTest {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
 
     underTest.insert(session, new FileSourceDto()
-        .setProjectUuid("PRJ_UUID")
-        .setFileUuid("FILE2_UUID")
-        .setBinaryData("FILE2_BINARY_DATA".getBytes())
-        .setDataHash("FILE2_DATA_HASH")
-        .setSrcHash("FILE2_HASH")
-        .setDataType(Type.SOURCE)
-        .setCreatedAt(1500000000000L)
-        .setUpdatedAt(1500000000001L)
-        .setRevision("123456789"));
+      .setProjectUuid("PRJ_UUID")
+      .setFileUuid("FILE2_UUID")
+      .setBinaryData("FILE2_BINARY_DATA".getBytes())
+      .setDataHash("FILE2_DATA_HASH")
+      .setSrcHash("FILE2_HASH")
+      .setDataType(Type.SOURCE)
+      .setCreatedAt(1500000000000L)
+      .setUpdatedAt(1500000000001L)
+      .setRevision("123456789"));
     session.commit();
 
     assertThat(underTest.selectLineHashes(dbTester.getSession(), "FILE2_UUID")).isEmpty();
@@ -134,25 +134,23 @@ public class FileSourceDaoTest {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
 
     underTest.insert(session, new FileSourceDto()
-        .setProjectUuid("PRJ_UUID")
-        .setFileUuid("FILE2_UUID")
-        .setBinaryData("FILE2_BINARY_DATA".getBytes())
-        .setDataHash("FILE2_DATA_HASH")
-        .setSrcHash("FILE2_HASH")
-        .setDataType(Type.SOURCE)
-        .setCreatedAt(1500000000000L)
-        .setUpdatedAt(1500000000001L)
-        .setRevision("123456789"));
+      .setProjectUuid("PRJ_UUID")
+      .setFileUuid("FILE2_UUID")
+      .setBinaryData("FILE2_BINARY_DATA".getBytes())
+      .setDataHash("FILE2_DATA_HASH")
+      .setSrcHash("FILE2_HASH")
+      .setDataType(Type.SOURCE)
+      .setCreatedAt(1500000000000L)
+      .setUpdatedAt(1500000000001L)
+      .setRevision("123456789"));
     session.commit();
 
     boolean[] flag = {false};
-    underTest.readLineHashesStream(dbTester.getSession(), "FILE2_UUID", new Function<Reader, Void>() {
-      @Nullable
+    underTest.readLineHashesStream(dbTester.getSession(), "FILE2_UUID", new Consumer<Reader>() {
       @Override
-      public Void apply(@Nullable Reader input) {
+      public void accept(@Nullable Reader input) {
         fail("function must never been called since there is no data to read");
         flag[0] = true;
-        return null;
       }
     });
     assertThat(flag[0]).isFalse();
@@ -179,15 +177,14 @@ public class FileSourceDaoTest {
       "project_uuid", "file_uuid", "data_hash", "line_hashes", "src_hash", "created_at", "updated_at", "data_type", "revision");
   }
 
-  private static class ReaderToStringFunction implements Function<Reader, String> {
+  private static class ReaderToStringConsumer implements Consumer<Reader> {
 
     String result = null;
 
     @Override
-    public String apply(Reader input) {
+    public void accept(Reader input) {
       try {
         result = IOUtils.toString(input);
-        return IOUtils.toString(input);
       } catch (IOException e) {
         throw new RuntimeException(e);
       }

@@ -33,10 +33,12 @@ public class SourceService {
 
   private final DbClient dbClient;
   private final HtmlSourceDecorator htmlDecorator;
+  private final Function<DbFileSources.Line, String> lineToHtml;
 
   public SourceService(DbClient dbClient, HtmlSourceDecorator htmlDecorator) {
     this.dbClient = dbClient;
     this.htmlDecorator = htmlDecorator;
+    this.lineToHtml = lineToHtml();
   }
 
   /**
@@ -57,7 +59,7 @@ public class SourceService {
   }
 
   public Optional<Iterable<String>> getLinesAsHtml(DbSession dbSession, String fileUuid, int from, int toInclusive) {
-    return getLines(dbSession, fileUuid, from, toInclusive, lineToHtml());
+    return getLines(dbSession, fileUuid, from, toInclusive, lineToHtml);
   }
 
   private <E> Optional<Iterable<E>> getLines(DbSession dbSession, String fileUuid, int from, int toInclusive, Function<DbFileSources.Line, E> function) {

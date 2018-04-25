@@ -49,7 +49,7 @@ public class ScmInfoDbLoader {
       return Optional.empty();
     }
 
-    LOGGER.trace("Reading SCM info from db for file '{}'", uuid.get());
+    LOGGER.trace("Reading SCM info from DB for file '{}'", uuid.get());
     try (DbSession dbSession = dbClient.openSession(false)) {
       FileSourceDto dto = dbClient.fileSourceDao().selectSourceByFileUuid(dbSession, uuid.get());
       if (dto == null) {

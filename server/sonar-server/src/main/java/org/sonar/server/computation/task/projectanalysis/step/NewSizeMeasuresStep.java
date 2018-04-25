@@ -109,7 +109,7 @@ public class NewSizeMeasuresStep implements ComputationStep {
     @Override
     public void initialize(CounterInitializationContext context) {
       Component leaf = context.getLeaf();
-      Optional<ScmInfo> scmInfo = scmInfoRepository.getScmInfo(leaf);
+      java.util.Optional<ScmInfo> scmInfo = scmInfoRepository.getScmInfo(leaf);
       if (!scmInfo.isPresent() || !context.hasPeriod()) {
         return;
       }

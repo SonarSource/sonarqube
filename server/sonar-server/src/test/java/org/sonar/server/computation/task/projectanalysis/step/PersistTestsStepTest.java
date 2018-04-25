@@ -104,7 +104,7 @@ public class PersistTestsStepTest extends BaseStepTest {
   public void no_test_in_database_and_batch_report() {
     underTest.execute();
 
-    assertThat(dbClient.fileSourceDao().selectTest(db.getSession(), TEST_FILE_UUID_1)).isNull();
+    assertThat(dbClient.fileSourceDao().selectTestByFileUuid(db.getSession(), TEST_FILE_UUID_1)).isNull();
     assertThat(log.logs()).isEmpty();
   }
 
@@ -121,7 +121,7 @@ public class PersistTestsStepTest extends BaseStepTest {
 
     assertThat(db.countRowsOfTable("file_sources")).isEqualTo(1);
 
-    FileSourceDto dto = dbClient.fileSourceDao().selectTest(db.getSession(), TEST_FILE_UUID_1);
+    FileSourceDto dto = dbClient.fileSourceDao().selectTestByFileUuid(db.getSession(), TEST_FILE_UUID_1);
     assertThat(dto.getCreatedAt()).isEqualTo(now);
     assertThat(dto.getUpdatedAt()).isEqualTo(now);
     assertThat(dto.getProjectUuid()).isEqualTo(PROJECT_UUID);
@@ -142,7 +142,7 @@ public class PersistTestsStepTest extends BaseStepTest {
 
     underTest.execute();
 
-    FileSourceDto dto = dbClient.fileSourceDao().selectTest(db.getSession(), TEST_FILE_UUID_1);
+    FileSourceDto dto = dbClient.fileSourceDao().selectTestByFileUuid(db.getSession(), TEST_FILE_UUID_1);
     assertThat(dto.getCreatedAt()).isEqualTo(now);
     assertThat(dto.getUpdatedAt()).isEqualTo(now);
     assertThat(dto.getProjectUuid()).isEqualTo(PROJECT_UUID);
@@ -168,7 +168,7 @@ public class PersistTestsStepTest extends BaseStepTest {
 
     underTest.execute();
 
-    FileSourceDto dto = dbClient.fileSourceDao().selectTest(db.getSession(), TEST_FILE_UUID_1);
+    FileSourceDto dto = dbClient.fileSourceDao().selectTestByFileUuid(db.getSession(), TEST_FILE_UUID_1);
     assertThat(dto.getFileUuid()).isEqualTo(TEST_FILE_UUID_1);
     List<DbFileSources.Test> tests = dto.getTestData();
     assertThat(tests).hasSize(1);
@@ -203,7 +203,7 @@ public class PersistTestsStepTest extends BaseStepTest {
 
     underTest.execute();
 
-    FileSourceDto dto = dbClient.fileSourceDao().selectTest(db.getSession(), TEST_FILE_UUID_1);
+    FileSourceDto dto = dbClient.fileSourceDao().selectTestByFileUuid(db.getSession(), TEST_FILE_UUID_1);
     List<Integer> coveredLines = dto.getTestData().get(0).getCoveredFile(0).getCoveredLineList();
     assertThat(coveredLines).containsOnly(1, 2, 3, 4);
   }
@@ -225,7 +225,7 @@ public class PersistTestsStepTest extends BaseStepTest {
       .setCreatedAt(100_000)
       .setUpdatedAt(100_000));
     db.getSession().commit();
-    assertThat(dbClient.fileSourceDao().selectTest(db.getSession(), TEST_FILE_UUID_1)).isNotNull();
+    assertThat(dbClient.fileSourceDao().selectTestByFileUuid(db.getSession(), TEST_FILE_UUID_1)).isNotNull();
 
     ScannerReport.Test newBatchTest = newTest(1);
     reportReader.putTests(TEST_FILE_REF_1, Arrays.asList(newBatchTest));
@@ -237,7 +237,7 @@ public class PersistTestsStepTest extends BaseStepTest {
     underTest.execute();
 
     // ASSERT
-    FileSourceDto dto = dbClient.fileSourceDao().selectTest(db.getSession(), TEST_FILE_UUID_1);
+    FileSourceDto dto = dbClient.fileSourceDao().selectTestByFileUuid(db.getSession(), TEST_FILE_UUID_1);
     assertThat(dto.getCreatedAt()).isEqualTo(100_000);
     assertThat(dto.getUpdatedAt()).isEqualTo(now);
     assertThat(dto.getTestData()).hasSize(1);

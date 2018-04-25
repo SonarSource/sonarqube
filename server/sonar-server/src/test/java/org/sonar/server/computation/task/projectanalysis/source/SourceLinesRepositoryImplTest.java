@@ -92,7 +92,7 @@ public class SourceLinesRepositoryImplTest {
   @Test
   public void fail_with_NPE_to_read_lines_on_null_component() {
     thrown.expect(NullPointerException.class);
-    thrown.expectMessage("Component should not be bull");
+    thrown.expectMessage("Component should not be null");
 
     underTest.readLines(null);
   }

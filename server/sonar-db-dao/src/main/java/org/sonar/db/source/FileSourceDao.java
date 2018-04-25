@@ -27,7 +27,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collections;
 import java.util.List;
-import java.util.function.Function;
+import java.util.function.Consumer;
 import javax.annotation.CheckForNull;
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.io.IOUtils;
@@ -45,7 +45,7 @@ public class FileSourceDao implements Dao {
   }
 
   @CheckForNull
-  public FileSourceDto selectTest(DbSession dbSession, String fileUuid) {
+  public FileSourceDto selectTestByFileUuid(DbSession dbSession, String fileUuid) {
     return mapper(dbSession).select(fileUuid, Type.TEST);
   }
 
@@ -74,7 +74,7 @@ public class FileSourceDao implements Dao {
     }
   }
 
-  public <T> void readLineHashesStream(DbSession dbSession, String fileUuid, Function<Reader, T> function) {
+  public void readLineHashesStream(DbSession dbSession, String fileUuid, Consumer<Reader> consumer) {
     Connection connection = dbSession.getConnection();
     PreparedStatement pstmt = null;
     ResultSet rs = null;
@@ -87,7 +87,7 @@ public class FileSourceDao implements Dao {
       if (rs.next()) {
         reader = rs.getCharacterStream(1);
         if (reader != null) {
-          function.apply(reader);
+          consumer.accept(reader);
         }
       }
     } catch (SQLException e) {

@@ -19,12 +19,12 @@
  */
 package org.sonar.server.computation.task.projectanalysis.step;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -48,14 +48,14 @@ import org.sonar.server.computation.task.projectanalysis.scm.Changeset;
 import org.sonar.server.computation.task.projectanalysis.scm.ScmInfo;
 import org.sonar.server.computation.task.projectanalysis.scm.ScmInfoRepository;
 import org.sonar.server.computation.task.projectanalysis.source.ComputeFileSourceData;
-import org.sonar.server.computation.task.projectanalysis.source.CoverageLineReader;
-import org.sonar.server.computation.task.projectanalysis.source.DuplicationLineReader;
-import org.sonar.server.computation.task.projectanalysis.source.HighlightingLineReader;
-import org.sonar.server.computation.task.projectanalysis.source.LineReader;
-import org.sonar.server.computation.task.projectanalysis.source.RangeOffsetConverter;
-import org.sonar.server.computation.task.projectanalysis.source.ScmLineReader;
 import org.sonar.server.computation.task.projectanalysis.source.SourceLinesRepository;
-import org.sonar.server.computation.task.projectanalysis.source.SymbolsLineReader;
+import org.sonar.server.computation.task.projectanalysis.source.linereader.CoverageLineReader;
+import org.sonar.server.computation.task.projectanalysis.source.linereader.DuplicationLineReader;
+import org.sonar.server.computation.task.projectanalysis.source.linereader.HighlightingLineReader;
+import org.sonar.server.computation.task.projectanalysis.source.linereader.LineReader;
+import org.sonar.server.computation.task.projectanalysis.source.linereader.RangeOffsetConverter;
+import org.sonar.server.computation.task.projectanalysis.source.linereader.ScmLineReader;
+import org.sonar.server.computation.task.projectanalysis.source.linereader.SymbolsLineReader;
 import org.sonar.server.computation.task.step.ComputationStep;
 
 import static org.sonar.server.computation.task.projectanalysis.component.ComponentVisitor.Order.PRE_ORDER;
@@ -220,10 +220,7 @@ public class PersistFileSourcesStep implements ComputationStep {
 
     @CheckForNull
     public Changeset getLatestChangeWithRevision() {
-      if (scmLineReader == null) {
-        return null;
-      }
-      return scmLineReader.getLatestChangeWithRevision();
+      return scmLineReader == null ? null : scmLineReader.getLatestChangeWithRevision();
     }
   }
 

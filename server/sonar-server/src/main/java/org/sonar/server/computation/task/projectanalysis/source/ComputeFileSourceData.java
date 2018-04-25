@@ -25,6 +25,7 @@ import java.util.List;
 import org.sonar.core.hash.SourceHashComputer;
 import org.sonar.core.hash.SourceLinesHashesComputer;
 import org.sonar.db.protobuf.DbFileSources;
+import org.sonar.server.computation.task.projectanalysis.source.linereader.LineReader;
 
 public class ComputeFileSourceData {
 
@@ -50,12 +51,13 @@ public class ComputeFileSourceData {
     return data;
   }
 
-  private void read(Data data, String source, boolean hasNextLine) {
-    data.linesHashesComputer.addLine(source);
-    data.sourceHashComputer.addLine(source, hasNextLine);
+  private void read(Data data, String lineSource, boolean hasNextLine) {
+    data.linesHashesComputer.addLine(lineSource);
+    data.sourceHashComputer.addLine(lineSource, hasNextLine);
 
-    DbFileSources.Line.Builder lineBuilder = data.fileSourceBuilder.addLinesBuilder()
-      .setSource(source)
+    DbFileSources.Line.Builder lineBuilder = data.fileSourceBuilder
+      .addLinesBuilder()
+      .setSource(lineSource)
       .setLine(currentLine);
     for (LineReader lineReader : lineReaders) {
       lineReader.read(lineBuilder);

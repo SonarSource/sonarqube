@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.computation.task.projectanalysis.source;
+package org.sonar.server.computation.task.projectanalysis.source.linereader;
 
 import com.google.common.collect.ImmutableSet;
 import java.util.Arrays;
@@ -32,6 +32,7 @@ import org.sonar.server.computation.task.projectanalysis.duplication.Duplication
 import org.sonar.server.computation.task.projectanalysis.duplication.InProjectDuplicate;
 import org.sonar.server.computation.task.projectanalysis.duplication.InnerDuplicate;
 import org.sonar.server.computation.task.projectanalysis.duplication.TextBlock;
+import org.sonar.server.computation.task.projectanalysis.source.linereader.DuplicationLineReader;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

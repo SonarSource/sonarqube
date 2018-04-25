@@ -19,9 +19,9 @@
  */
 package org.sonar.core.hash;
 
-import com.google.common.collect.ImmutableList;
 import java.security.MessageDigest;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -52,7 +52,7 @@ public class SourceLinesHashesComputer {
   }
 
   public List<String> getLineHashes() {
-    return ImmutableList.copyOf(lineHashes);
+    return Collections.unmodifiableList(lineHashes);
   }
 
   private String computeHash(String line) {

@@ -19,9 +19,9 @@
  */
 package org.sonar.server.computation.task.projectanalysis.issue;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 import java.util.Date;
+import java.util.Optional;
 import javax.annotation.CheckForNull;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.utils.log.Logger;

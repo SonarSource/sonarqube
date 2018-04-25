@@ -19,9 +19,9 @@
  */
 package org.sonar.server.computation.task.projectanalysis.scm;
 
-import com.google.common.base.Optional;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import org.junit.rules.ExternalResource;
@@ -42,7 +42,7 @@ public class ScmInfoRepositoryRule extends ExternalResource implements ScmInfoRe
   public Optional<ScmInfo> getScmInfo(Component component) {
     checkNotNull(component, "Component cannot be bull");
     ScmInfo scmInfo = scmInfoByFileRef.get(component.getReportAttributes().getRef());
-    return Optional.fromNullable(scmInfo);
+    return Optional.ofNullable(scmInfo);
   }
 
   public ScmInfoRepositoryRule setScmInfo(int fileRef, Changeset... changesetList) {

@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.computation.task.projectanalysis.source;
+package org.sonar.server.computation.task.projectanalysis.source.linereader;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -32,7 +32,9 @@ import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.SyntaxHighlightingRule.HighlightingType;
 import org.sonar.scanner.protocol.output.ScannerReport.TextRange;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
-import org.sonar.server.computation.task.projectanalysis.source.RangeOffsetConverter.RangeOffsetConverterException;
+import org.sonar.server.computation.task.projectanalysis.source.linereader.HighlightingLineReader;
+import org.sonar.server.computation.task.projectanalysis.source.linereader.RangeOffsetConverter;
+import org.sonar.server.computation.task.projectanalysis.source.linereader.RangeOffsetConverter.RangeOffsetConverterException;
 
 import static com.google.common.collect.ImmutableMap.of;
 import static org.assertj.core.api.Assertions.assertThat;

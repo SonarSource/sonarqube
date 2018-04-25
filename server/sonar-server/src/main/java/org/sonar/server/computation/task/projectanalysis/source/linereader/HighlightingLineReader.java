@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.computation.task.projectanalysis.source;
+package org.sonar.server.computation.task.projectanalysis.source.linereader;
 
 import com.google.common.collect.ImmutableMap;
 import java.util.Iterator;
@@ -30,12 +30,12 @@ import org.sonar.db.protobuf.DbFileSources;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.SyntaxHighlightingRule.HighlightingType;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
-import org.sonar.server.computation.task.projectanalysis.source.RangeOffsetConverter.RangeOffsetConverterException;
+import org.sonar.server.computation.task.projectanalysis.source.linereader.RangeOffsetConverter.RangeOffsetConverterException;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static java.lang.String.format;
-import static org.sonar.server.computation.task.projectanalysis.source.RangeOffsetConverter.OFFSET_SEPARATOR;
-import static org.sonar.server.computation.task.projectanalysis.source.RangeOffsetConverter.SYMBOLS_SEPARATOR;
+import static org.sonar.server.computation.task.projectanalysis.source.linereader.RangeOffsetConverter.OFFSET_SEPARATOR;
+import static org.sonar.server.computation.task.projectanalysis.source.linereader.RangeOffsetConverter.SYMBOLS_SEPARATOR;
 
 public class HighlightingLineReader implements LineReader {
 

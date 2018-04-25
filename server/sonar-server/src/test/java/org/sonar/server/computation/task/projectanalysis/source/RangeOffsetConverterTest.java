@@ -23,7 +23,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.scanner.protocol.output.ScannerReport;
-import org.sonar.server.computation.task.projectanalysis.source.RangeOffsetConverter.RangeOffsetConverterException;
+import org.sonar.server.computation.task.projectanalysis.source.linereader.RangeOffsetConverter;
+import org.sonar.server.computation.task.projectanalysis.source.linereader.RangeOffsetConverter.RangeOffsetConverterException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

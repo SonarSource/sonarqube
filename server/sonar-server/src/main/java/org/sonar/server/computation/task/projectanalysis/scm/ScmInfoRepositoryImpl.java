@@ -58,18 +58,14 @@ public class ScmInfoRepositoryImpl implements ScmInfoRepository {
   }
 
   @Override
-  public com.google.common.base.Optional<ScmInfo> getScmInfo(Component component) {
+  public Optional<ScmInfo> getScmInfo(Component component) {
     requireNonNull(component, "Component cannot be null");
 
     if (component.getType() != Component.Type.FILE) {
-      return com.google.common.base.Optional.absent();
+      return Optional.empty();
     }
 
-    return toGuavaOptional(scmInfoCache.computeIfAbsent(component, this::getScmInfoForComponent));
-  }
-
-  private static com.google.common.base.Optional<ScmInfo> toGuavaOptional(Optional<ScmInfo> scmInfo) {
-    return com.google.common.base.Optional.fromNullable(scmInfo.orElse(null));
+    return scmInfoCache.computeIfAbsent(component, this::getScmInfoForComponent);
   }
 
   private Optional<ScmInfo> getScmInfoForComponent(Component component) {
@@ -77,7 +73,7 @@ public class ScmInfoRepositoryImpl implements ScmInfoRepository {
 
     if (changesets == null) {
       LOGGER.trace("No SCM info for file '{}'", component.getKey());
-      // SCM not available. It might have been available before - don't keep author and revision.
+      // SCM not available. It might have been available before - copy information for unchanged lines but don't keep author and revision.
       return generateAndMergeDb(component, false);
     }
 
@@ -111,6 +107,12 @@ public class ScmInfoRepositoryImpl implements ScmInfoRepository {
     return Changeset.newChangesetBuilder().setDate(changeset.getDate()).build();
   }
 
+  /**
+   * Get SCM information in the DB, if it exists, and use it for lines that didn't change. It optionally removes author and revision 
+   * information (only keeping change dates).
+   * If the information is not present in the DB or some lines don't match existing lines in the DB, 
+   * we generate change dates based on the analysis date. 
+   */
   private Optional<ScmInfo> generateAndMergeDb(Component file, boolean keepAuthorAndRevision) {
     Optional<DbScmInfo> dbInfoOpt = scmInfoDbLoader.getScmInfo(file);
     if (!dbInfoOpt.isPresent()) {
@@ -125,7 +127,7 @@ public class ScmInfoRepositoryImpl implements ScmInfoRepository {
     }
 
     // generate date for new/changed lines
-    int[] matchingLines = sourceLinesDiff.getMatchingLines(file);
+    int[] matchingLines = sourceLinesDiff.computeMatchingLines(file);
 
     return Optional.of(GeneratedScmInfo.create(analysisMetadata.getAnalysisDate(), matchingLines, scmInfo));
   }

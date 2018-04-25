@@ -82,7 +82,7 @@ public class SourceLinesDiffImplTest {
     setFileContentInReport(FILE_REF, CONTENT);
 
     Component component = fileComponent(FILE_REF);
-    assertThat(underTest.getMatchingLines(component)).containsExactly(1, 2, 3, 4, 5, 6, 7);
+    assertThat(underTest.computeMatchingLines(component)).containsExactly(1, 2, 3, 4, 5, 6, 7);
 
   }
 

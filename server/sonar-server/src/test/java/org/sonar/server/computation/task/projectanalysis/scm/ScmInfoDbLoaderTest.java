@@ -83,7 +83,7 @@ public class ScmInfoDbLoaderTest {
     assertThat(scmInfo.getAllChangesets()).hasSize(1);
     assertThat(scmInfo.fileHash()).isEqualTo(hash);
 
-    assertThat(logTester.logs(TRACE)).containsOnly("Reading SCM info from db for file 'FILE_UUID'");
+    assertThat(logTester.logs(TRACE)).containsOnly("Reading SCM info from DB for file 'FILE_UUID'");
   }
 
   @Test
@@ -101,7 +101,7 @@ public class ScmInfoDbLoaderTest {
     DbScmInfo scmInfo = underTest.getScmInfo(FILE).get();
     assertThat(scmInfo.getAllChangesets()).hasSize(1);
     assertThat(scmInfo.fileHash()).isEqualTo(hash);
-    assertThat(logTester.logs(TRACE)).containsOnly("Reading SCM info from db for file 'mergeFileUuid'");
+    assertThat(logTester.logs(TRACE)).containsOnly("Reading SCM info from DB for file 'mergeFileUuid'");
   }
   
   @Test
@@ -111,7 +111,7 @@ public class ScmInfoDbLoaderTest {
     
     Optional<DbScmInfo> scmInfo = underTest.getScmInfo(FILE);
     
-    assertThat(logTester.logs(TRACE)).containsOnly("Reading SCM info from db for file 'FILE_UUID'");
+    assertThat(logTester.logs(TRACE)).containsOnly("Reading SCM info from DB for file 'FILE_UUID'");
     assertThat(scmInfo).isEmpty();
   }
 

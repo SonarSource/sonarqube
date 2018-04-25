@@ -120,6 +120,19 @@ public class ScannerReportReader {
     return file.exists();
   }
 
+  public CloseableIterator<ScannerReport.LineSgnificantCode> readComponentSignificantCode(int fileRef) {
+    File file = fileStructure.fileFor(FileStructure.Domain.SGNIFICANT_CODE, fileRef);
+    if (fileExists(file)) {
+      return Protobuf.readStream(file, ScannerReport.LineSgnificantCode.parser());
+    }
+    return emptyCloseableIterator();
+  }
+
+  public boolean hasSignificantCode(int fileRef) {
+    File file = fileStructure.fileFor(FileStructure.Domain.SGNIFICANT_CODE, fileRef);
+    return fileExists(file);
+  }
+
   public CloseableIterator<ScannerReport.SyntaxHighlightingRule> readComponentSyntaxHighlighting(int fileRef) {
     File file = fileStructure.fileFor(FileStructure.Domain.SYNTAX_HIGHLIGHTINGS, fileRef);
     if (fileExists(file)) {

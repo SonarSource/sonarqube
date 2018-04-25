@@ -39,7 +39,7 @@ public class SourceLinesRepositoryImpl implements SourceLinesRepository {
 
   @Override
   public CloseableIterator<String> readLines(Component file) {
-    requireNonNull(file, "Component should not be bull");
+    requireNonNull(file, "Component should not be null");
     checkArgument(file.getType() == FILE, "Component '%s' is not a file", file);
 
     Optional<CloseableIterator<String>> linesIteratorOptional = reportReader.readFileSource(file.getReportAttributes().getRef());
@@ -90,7 +90,7 @@ public class SourceLinesRepositoryImpl implements SourceLinesRepository {
 
     @Override
     protected String doNext() {
-      throw new UnsupportedOperationException("No implemented because hasNext and next are override");
+      throw new UnsupportedOperationException("Not implemented because hasNext() and next() are overriden");
     }
 
     @Override

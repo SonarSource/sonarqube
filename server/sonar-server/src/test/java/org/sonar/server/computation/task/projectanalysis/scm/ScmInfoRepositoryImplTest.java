@@ -50,7 +50,6 @@ import org.sonar.server.computation.task.projectanalysis.source.SourceHashReposi
 import org.sonar.server.computation.task.projectanalysis.source.SourceLinesDiff;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.guava.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -93,7 +92,7 @@ public class ScmInfoRepositoryImplTest {
   public void return_empty_if_component_is_not_file() {
     Component c = mock(Component.class);
     when(c.getType()).thenReturn(Type.DIRECTORY);
-    assertThat(underTest.getScmInfo(c)).isAbsent();
+    assertThat(underTest.getScmInfo(c)).isEmpty();
   }
 
   @Test
@@ -205,7 +204,7 @@ public class ScmInfoRepositoryImplTest {
   @Test
   public void generate_scm_info_for_new_and_changed_lines_when_report_is_empty() {
     createDbScmInfoWithOneLine("hash");
-    when(diff.getMatchingLines(FILE)).thenReturn(new int[] {1, 0, 0});
+    when(diff.computeMatchingLines(FILE)).thenReturn(new int[] {1, 0, 0});
     addFileSourceInReport(3);
     ScmInfo scmInfo = underTest.getScmInfo(FILE).get();
     assertThat(scmInfo.getAllChangesets()).hasSize(3);
@@ -215,7 +214,7 @@ public class ScmInfoRepositoryImplTest {
     assertChangeset(scmInfo.getChangesetForLine(3), null, null, analysisDate.getTime());
 
     verify(dbLoader).getScmInfo(FILE);
-    verify(diff).getMatchingLines(FILE);
+    verify(diff).computeMatchingLines(FILE);
     verifyNoMoreInteractions(dbLoader);
     verifyZeroInteractions(sourceHashRepository);
     verifyNoMoreInteractions(diff);
@@ -235,7 +234,7 @@ public class ScmInfoRepositoryImplTest {
     BatchReportReader batchReportReader = mock(BatchReportReader.class);
     ScmInfoRepositoryImpl underTest = new ScmInfoRepositoryImpl(batchReportReader, analysisMetadata, dbLoader, diff, sourceHashRepository);
 
-    assertThat(underTest.getScmInfo(component)).isAbsent();
+    assertThat(underTest.getScmInfo(component)).isEmpty();
 
     verifyZeroInteractions(batchReportReader, dbLoader);
   }

@@ -19,7 +19,7 @@
  */
 package org.sonar.server.computation.task.projectanalysis.scm;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 
 /**

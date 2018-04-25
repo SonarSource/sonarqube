@@ -22,6 +22,7 @@ package org.sonar.server.computation.task.projectanalysis.source;
 import com.google.common.collect.Lists;
 import org.junit.Test;
 import org.sonar.db.protobuf.DbFileSources;
+import org.sonar.server.computation.task.projectanalysis.source.linereader.LineReader;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;

@@ -78,7 +78,7 @@ public class LastCommitVisitor extends PathAwareVisitorAdapter<LastCommitVisitor
     // since previous analysis (optimization to decrease execution of blame commands). In this case
     // the date is loaded from database, as it did not change from previous analysis.
 
-    Optional<ScmInfo> scmInfoOptional = scmInfoRepository.getScmInfo(file);
+    java.util.Optional<ScmInfo> scmInfoOptional = scmInfoRepository.getScmInfo(file);
     if (scmInfoOptional.isPresent()) {
       ScmInfo scmInfo = scmInfoOptional.get();
       path.current().addDate(scmInfo.getLatestChangeset().getDate());

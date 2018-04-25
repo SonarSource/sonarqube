@@ -363,7 +363,7 @@ public class IssueCreationDateCalculatorTest {
 
   private void noScm() {
     when(scmInfoRepository.getScmInfo(component))
-      .thenReturn(Optional.absent());
+      .thenReturn(java.util.Optional.empty());
   }
 
   private void withScm(long blame) {
@@ -376,7 +376,7 @@ public class IssueCreationDateCalculatorTest {
     if (scmInfo == null) {
       scmInfo = mock(ScmInfo.class);
       when(scmInfoRepository.getScmInfo(component))
-        .thenReturn(Optional.of(scmInfo));
+        .thenReturn(java.util.Optional.empty());
     }
   }
 
