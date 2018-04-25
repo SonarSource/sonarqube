@@ -36,7 +36,7 @@ public interface Issue extends IIssue {
      */
     List<IssueLocation> locations();
   }
-  
+
   /**
    * Effort to fix the issue. Used by technical debt model.
    * @deprecated since 5.5 use {@link #gap()}
@@ -51,13 +51,13 @@ public interface Issue extends IIssue {
    */
   @CheckForNull
   Double gap();
-  
+
   /**
    * Overridden severity.
    */
   @CheckForNull
   Severity overriddenSeverity();
-  
+
   /**
    * Primary locations for this issue.
    * @since 5.2

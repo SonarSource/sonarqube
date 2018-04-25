@@ -39,8 +39,6 @@ public class PersistExternalRulesStep implements ComputationStep {
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       ruleRepository.persistNewExternalRules(dbSession);
-      dbSession.flushStatements();
-      dbSession.commit();
     }
 
   }

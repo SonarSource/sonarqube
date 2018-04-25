@@ -36,6 +36,9 @@ public interface Rule {
 
   RuleStatus getStatus();
 
+  /**
+   * Will be null for external rules
+   */
   @CheckForNull
   RuleType getType();
 

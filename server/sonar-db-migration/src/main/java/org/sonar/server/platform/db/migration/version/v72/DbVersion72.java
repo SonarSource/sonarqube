@@ -30,6 +30,7 @@ public class DbVersion72 implements DbVersion {
       .add(2100, "Increase size of USERS.CRYPTED_PASSWORD", IncreaseCryptedPasswordSize.class)
       .add(2101, "Add HASH_METHOD to table users", AddHashMethodToUsersTable.class)
       .add(2102, "Populate HASH_METHOD on table users", PopulateHashMethodOnUsers.class)
-      .add(2103, "Add isExternal boolean to rules", AddRuleExternal.class);
+      .add(2103, "Add isExternal boolean to rules", AddRuleExternal.class)
+      ;
   }
 }

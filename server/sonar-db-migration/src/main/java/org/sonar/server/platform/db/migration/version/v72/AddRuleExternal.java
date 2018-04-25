@@ -38,7 +38,6 @@ public class AddRuleExternal extends DdlChange {
       .addColumn(BooleanColumnDef.newBooleanColumnDefBuilder()
         .setColumnName("is_external")
         .setIsNullable(true)
-        .setDefaultValue(false)
         .build())
       .build());
   }

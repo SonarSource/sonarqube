@@ -537,7 +537,6 @@ public class RuleDaoTest {
       .setConfigKey("NewConfigKey")
       .setSeverity(Severity.INFO)
       .setIsTemplate(true)
-      .setIsExternal(true)
       .setLanguage("dart")
       .setTemplateId(3)
       .setDefRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.toString())
@@ -563,7 +562,7 @@ public class RuleDaoTest {
     assertThat(ruleDto.getSeverity()).isEqualTo(0);
     assertThat(ruleDto.getLanguage()).isEqualTo("dart");
     assertThat(ruleDto.isTemplate()).isTrue();
-    assertThat(ruleDto.isExternal()).isTrue();
+    assertThat(ruleDto.isExternal()).isFalse();
     assertThat(ruleDto.getTemplateId()).isEqualTo(3);
     assertThat(ruleDto.getDefRemediationFunction()).isEqualTo("LINEAR_OFFSET");
     assertThat(ruleDto.getDefRemediationGapMultiplier()).isEqualTo("5d");
@@ -834,10 +833,10 @@ public class RuleDaoTest {
     assertThat(firstRule.getType()).isEqualTo(r1.getType());
     assertThat(firstRule.getCreatedAt()).isEqualTo(r1.getCreatedAt());
     assertThat(firstRule.getUpdatedAt()).isEqualTo(r1.getUpdatedAt());
-    
+
     RuleForIndexingDto secondRule = it.next();
     assertThat(secondRule.isExternal()).isTrue();
-    
+
   }
 
   @Test
@@ -988,8 +987,7 @@ public class RuleDaoTest {
       .extracting(DeprecatedRuleKeyDto::getNewRepositoryKey, DeprecatedRuleKeyDto::getNewRuleKey)
       .containsExactly(
         tuple(null, null),
-        tuple(null, null)
-      );
+        tuple(null, null));
   }
 
   @Test
@@ -1019,7 +1017,7 @@ public class RuleDaoTest {
   @Test
   public void deleteDeprecatedRuleKeys() {
     DeprecatedRuleKeyDto deprecatedRuleKeyDto1 = db.rules().insertDeprecatedKey();
-    db.rules().insertDeprecatedKey();;
+    db.rules().insertDeprecatedKey();
 
     assertThat(underTest.selectAllDeprecatedRuleKeys(db.getSession())).hasSize(2);
 

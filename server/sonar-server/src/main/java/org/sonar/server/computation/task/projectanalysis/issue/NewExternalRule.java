@@ -20,6 +20,7 @@
 package org.sonar.server.computation.task.projectanalysis.issue;
 
 import java.util.Collections;
+import java.util.Objects;
 import java.util.Set;
 import javax.annotation.concurrent.Immutable;
 import org.sonar.api.rule.RuleKey;
@@ -34,16 +35,10 @@ public class NewExternalRule implements Rule {
   private final String pluginKey;
 
   private NewExternalRule(Builder builder) {
-    this.key = checkNotNull(builder.key, "key");
+    Objects.requireNonNull(builder.key, "'key' not expected to be null for an external rule");
+    this.key = builder.key;
     this.pluginKey = builder.pluginKey;
     this.name = builder.name;
-  }
-
-  private static <T> T checkNotNull(T obj, String name) {
-    if (obj == null) {
-      throw new IllegalStateException("'" + name + "' not expected to be null for an external rule");
-    }
-    return obj;
   }
 
   @Override

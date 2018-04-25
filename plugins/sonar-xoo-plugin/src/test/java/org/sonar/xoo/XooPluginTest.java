@@ -27,6 +27,7 @@ import org.sonar.api.internal.PluginContextImpl;
 import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.utils.Version;
 import org.sonar.xoo.lang.CpdTokenizerSensor;
+import org.sonar.xoo.rule.OneExternalIssuePerLineSensor;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -61,6 +62,6 @@ public class XooPluginTest {
     SonarRuntime runtime = SonarRuntimeImpl.forSonarQube(Version.parse("7.2"), SonarQubeSide.SCANNER);
     Plugin.Context context = new PluginContextImpl.Builder().setSonarRuntime(runtime).build();
     new XooPlugin().define(context);
-    assertThat(context.getExtensions()).hasSize(52).contains(CpdTokenizerSensor.class);
+    assertThat(context.getExtensions()).hasSize(52).contains(OneExternalIssuePerLineSensor.class);
   }
 }

@@ -46,7 +46,7 @@ public class NewExternalRuleTest {
 
   @Test
   public void fail_if_rule_key_is_not_set() {
-    exception.expect(IllegalStateException.class);
+    exception.expect(NullPointerException.class);
     exception.expectMessage("'key' not expected to be null for an external rule");
 
     new NewExternalRule.Builder()

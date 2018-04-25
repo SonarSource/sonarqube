@@ -28,7 +28,7 @@ public class DbVersion72Test {
   private DbVersion72 underTest = new DbVersion72();
 
   @Test
-  public void migrationNumber_starts_at_2000() {
+  public void migrationNumber_starts_at_2100() {
     verifyMinimumMigrationNumber(underTest, 2100);
   }
 

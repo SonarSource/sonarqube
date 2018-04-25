@@ -50,7 +50,6 @@ import org.sonar.server.computation.task.projectanalysis.issue.IssueCache;
 import org.sonar.server.computation.task.projectanalysis.issue.RuleRepositoryImpl;
 import org.sonar.server.computation.task.projectanalysis.issue.UpdateConflictResolver;
 import org.sonar.server.computation.task.step.ComputationStep;
-import org.sonar.server.es.EsTester;
 import org.sonar.server.rule.ExternalRuleCreator;
 import org.sonar.server.util.cache.DiskCache;
 
@@ -83,9 +82,6 @@ public class PersistIssuesStepTest extends BaseStepTest {
   private System2 system2;
   private IssueCache issueCache;
   private ComputationStep step;
-
-  @org.junit.Rule
-  public EsTester es = EsTester.create();
 
   private ExternalRuleCreator externalRuleCreator = mock(ExternalRuleCreator.class);
 
