@@ -52,6 +52,16 @@ public class FileSourceDto {
   private String dataType;
   private String dataHash;
   private String revision;
+  private Integer lineHashesVersion;
+
+  public Integer getLineHashesVersion() {
+    return lineHashesVersion != null ? lineHashesVersion : LineHashVersion.WITHOUT_SIGNIFICANT_CODE.getDbValue();
+  }
+
+  public FileSourceDto setLineHashesVersion(@Nullable Integer lineHashesVersion) {
+    this.lineHashesVersion = lineHashesVersion;
+    return this;
+  }
 
   public Long getId() {
     return id;

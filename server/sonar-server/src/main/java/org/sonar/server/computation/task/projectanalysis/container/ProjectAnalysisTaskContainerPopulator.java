@@ -112,9 +112,13 @@ import org.sonar.server.computation.task.projectanalysis.qualitymodel.Reliabilit
 import org.sonar.server.computation.task.projectanalysis.qualityprofile.ActiveRulesHolderImpl;
 import org.sonar.server.computation.task.projectanalysis.scm.ScmInfoDbLoader;
 import org.sonar.server.computation.task.projectanalysis.scm.ScmInfoRepositoryImpl;
+import org.sonar.server.computation.task.projectanalysis.source.DbLineHashVersion;
 import org.sonar.server.computation.task.projectanalysis.source.LastCommitVisitor;
+import org.sonar.server.computation.task.projectanalysis.source.SignificantCodeRepository;
 import org.sonar.server.computation.task.projectanalysis.source.SourceHashRepositoryImpl;
 import org.sonar.server.computation.task.projectanalysis.source.SourceLinesDiffImpl;
+import org.sonar.server.computation.task.projectanalysis.source.SourceLinesHashCache;
+import org.sonar.server.computation.task.projectanalysis.source.SourceLinesHashRepositoryImpl;
 import org.sonar.server.computation.task.projectanalysis.source.SourceLinesRepositoryImpl;
 import org.sonar.server.computation.task.projectanalysis.step.ReportComputationSteps;
 import org.sonar.server.computation.task.projectanalysis.step.SmallChangesetQualityGateSpecialCase;
@@ -194,6 +198,10 @@ public final class ProjectAnalysisTaskContainerPopulator implements ContainerPop
       ScmInfoRepositoryImpl.class,
       ScmInfoDbLoader.class,
       DuplicationRepositoryImpl.class,
+      SourceLinesHashRepositoryImpl.class,
+      DbLineHashVersion.class,
+      SignificantCodeRepository.class,
+      SourceLinesHashCache.class,
 
       // issues
       RuleRepositoryImpl.class,

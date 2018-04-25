@@ -120,12 +120,13 @@ public class ScannerReportReader {
     return file.exists();
   }
 
+  @CheckForNull
   public CloseableIterator<ScannerReport.LineSgnificantCode> readComponentSignificantCode(int fileRef) {
     File file = fileStructure.fileFor(FileStructure.Domain.SGNIFICANT_CODE, fileRef);
     if (fileExists(file)) {
       return Protobuf.readStream(file, ScannerReport.LineSgnificantCode.parser());
     }
-    return emptyCloseableIterator();
+    return null;
   }
 
   public boolean hasSignificantCode(int fileRef) {

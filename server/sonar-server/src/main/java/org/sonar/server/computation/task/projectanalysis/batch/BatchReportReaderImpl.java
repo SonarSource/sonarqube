@@ -255,10 +255,14 @@ public class BatchReportReaderImpl implements BatchReportReader {
       fileInputStream.close();
     }
   }
+  
+  public boolean hasSignificantCode(int fileRef) {
+    return delegate.hasSignificantCode(fileRef);
+  }
 
   @Override
-  public CloseableIterator<LineSgnificantCode> readComponentSignificantCode(int fileRef) {
+  public Optional<CloseableIterator<LineSgnificantCode>> readComponentSignificantCode(int fileRef) {
     ensureInitialized();
-    return delegate.readComponentSignificantCode(fileRef);
+    return Optional.ofNullable(delegate.readComponentSignificantCode(fileRef));
   }
 }

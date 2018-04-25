@@ -23,68 +23,72 @@ import com.google.common.base.Joiner;
 import java.util.Iterator;
 import java.util.List;
 import org.sonar.core.hash.SourceHashComputer;
-import org.sonar.core.hash.SourceLinesHashesComputer;
 import org.sonar.db.protobuf.DbFileSources;
+import org.sonar.server.computation.task.projectanalysis.source.SourceLinesHashRepositoryImpl.LineHashesComputer;
 import org.sonar.server.computation.task.projectanalysis.source.linereader.LineReader;
 
 public class ComputeFileSourceData {
+  private static final Joiner LINE_RETURN_JOINER = Joiner.on('\n');
 
   private final List<LineReader> lineReaders;
   private final Iterator<String> linesIterator;
+  private final SourceHashComputer sourceHashComputer;
+  private final LineHashesComputer lineHashesComputer;
 
-  private final int numberOfLines;
-  private int currentLine;
-
-  public ComputeFileSourceData(Iterator<String> sourceLinesIterator, List<LineReader> dataLineReaders, int numberOfLines) {
+  public ComputeFileSourceData(Iterator<String> sourceLinesIterator, List<LineReader> dataLineReaders, LineHashesComputer lineHashesComputer) {
     this.lineReaders = dataLineReaders;
     this.linesIterator = sourceLinesIterator;
-    this.numberOfLines = numberOfLines;
-    this.currentLine = 0;
+    this.lineHashesComputer = lineHashesComputer;
+    this.sourceHashComputer = new SourceHashComputer();
   }
 
   public Data compute() {
-    Data data = new Data(numberOfLines);
+    DbFileSources.Data.Builder fileSourceBuilder = DbFileSources.Data.newBuilder();
+    int currentLine = 0;
+
     while (linesIterator.hasNext()) {
       currentLine++;
-      read(data, linesIterator.next(), linesIterator.hasNext());
+      read(fileSourceBuilder, currentLine, linesIterator.next(), linesIterator.hasNext());
     }
-    return data;
+
+    return new Data(fileSourceBuilder.build(), LINE_RETURN_JOINER.join(lineHashesComputer.getResult()), sourceHashComputer.getHash());
   }
 
-  private void read(Data data, String lineSource, boolean hasNextLine) {
-    data.linesHashesComputer.addLine(lineSource);
-    data.sourceHashComputer.addLine(lineSource, hasNextLine);
+  private void read(DbFileSources.Data.Builder fileSourceBuilder, int currentLine, String lineSource, boolean hasNextLine) {
+    sourceHashComputer.addLine(lineSource, hasNextLine);
+    lineHashesComputer.addLine(lineSource);
 
-    DbFileSources.Line.Builder lineBuilder = data.fileSourceBuilder
+    DbFileSources.Line.Builder lineBuilder = fileSourceBuilder
       .addLinesBuilder()
       .setSource(lineSource)
       .setLine(currentLine);
+
     for (LineReader lineReader : lineReaders) {
       lineReader.read(lineBuilder);
     }
   }
 
   public static class Data {
-    private static final Joiner LINE_RETURN_JOINER = Joiner.on('\n');
+    private final DbFileSources.Data fileSourceData;
+    private final String lineHashes;
+    private final String srcHash;
 
-    private final SourceLinesHashesComputer linesHashesComputer;
-    private final SourceHashComputer sourceHashComputer = new SourceHashComputer();
-    private final DbFileSources.Data.Builder fileSourceBuilder = DbFileSources.Data.newBuilder();
-
-    public Data(int lineCount) {
-      this.linesHashesComputer = new SourceLinesHashesComputer(lineCount);
+    private Data(DbFileSources.Data fileSourceData, String lineHashes, String srcHash) {
+      this.fileSourceData = fileSourceData;
+      this.lineHashes = lineHashes;
+      this.srcHash = srcHash;
     }
 
     public String getSrcHash() {
-      return sourceHashComputer.getHash();
+      return srcHash;
     }
 
     public String getLineHashes() {
-      return LINE_RETURN_JOINER.join(linesHashesComputer.getLineHashes());
+      return lineHashes;
     }
 
     public DbFileSources.Data getFileSourceData() {
-      return fileSourceBuilder.build();
+      return fileSourceData;
     }
   }
 

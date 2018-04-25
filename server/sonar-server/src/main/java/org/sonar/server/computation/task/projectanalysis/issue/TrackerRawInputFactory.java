@@ -42,26 +42,25 @@ import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolder;
 import org.sonar.server.computation.task.projectanalysis.issue.commonrule.CommonRuleEngine;
 import org.sonar.server.computation.task.projectanalysis.issue.filter.IssueFilter;
-import org.sonar.server.computation.task.projectanalysis.source.SourceLinesRepository;
+import org.sonar.server.computation.task.projectanalysis.source.SourceLinesHashRepository;
 import org.sonar.server.rule.CommonRuleKeys;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static org.apache.commons.lang.StringUtils.isNotEmpty;
 
 public class TrackerRawInputFactory {
   private static final long DEFAULT_EXTERNAL_ISSUE_EFFORT = 0l;
   private final TreeRootHolder treeRootHolder;
   private final BatchReportReader reportReader;
-  private final SourceLinesRepository sourceLinesRepository;
   private final CommonRuleEngine commonRuleEngine;
   private final IssueFilter issueFilter;
+  private final SourceLinesHashRepository sourceLinesHash;
   private final RuleRepository ruleRepository;
 
   public TrackerRawInputFactory(TreeRootHolder treeRootHolder, BatchReportReader reportReader,
-    SourceLinesRepository sourceLinesRepository, CommonRuleEngine commonRuleEngine, IssueFilter issueFilter, RuleRepository ruleRepository) {
+    SourceLinesHashRepository sourceLinesHash, CommonRuleEngine commonRuleEngine, IssueFilter issueFilter, RuleRepository ruleRepository) {
     this.treeRootHolder = treeRootHolder;
     this.reportReader = reportReader;
-    this.sourceLinesRepository = sourceLinesRepository;
+    this.sourceLinesHash = sourceLinesHash;
     this.commonRuleEngine = commonRuleEngine;
     this.issueFilter = issueFilter;
     this.ruleRepository = ruleRepository;
@@ -80,15 +79,11 @@ public class TrackerRawInputFactory {
 
     @Override
     protected LineHashSequence loadLineHashSequence() {
-      List<String> lines;
       if (component.getType() == Component.Type.FILE) {
-        try (CloseableIterator<String> linesIt = sourceLinesRepository.readLines(component)) {
-          lines = newArrayList(linesIt);
-        }
+        return new LineHashSequence(sourceLinesHash.getMatchingDB(component));
       } else {
-        lines = Collections.emptyList();
+        return new LineHashSequence(Collections.emptyList());
       }
-      return LineHashSequence.createForLines(lines);
     }
 
     @Override

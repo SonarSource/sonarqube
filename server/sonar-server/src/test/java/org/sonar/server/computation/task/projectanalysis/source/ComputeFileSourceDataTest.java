@@ -22,33 +22,47 @@ package org.sonar.server.computation.task.projectanalysis.source;
 import com.google.common.collect.Lists;
 import org.junit.Test;
 import org.sonar.db.protobuf.DbFileSources;
+import org.sonar.server.computation.task.projectanalysis.source.SourceLinesHashRepositoryImpl.LineHashesComputer;
 import org.sonar.server.computation.task.projectanalysis.source.linereader.LineReader;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 public class ComputeFileSourceDataTest {
 
+  private LineHashesComputer lineHashesComputer = mock(LineHashesComputer.class);
+
   @Test
   public void compute_one_line() {
+    when(lineHashesComputer.getResult()).thenReturn(Lists.newArrayList("137f72c3708c6bd0de00a0e5a69c699b"));
     ComputeFileSourceData computeFileSourceData = new ComputeFileSourceData(
       newArrayList("line1").iterator(),
       Lists.newArrayList(new MockLineReader()),
-      1);
+      lineHashesComputer);
 
     ComputeFileSourceData.Data data = computeFileSourceData.compute();
     assertThat(data.getLineHashes()).isEqualTo("137f72c3708c6bd0de00a0e5a69c699b");
     assertThat(data.getSrcHash()).isEqualTo("137f72c3708c6bd0de00a0e5a69c699b");
     assertThat(data.getFileSourceData().getLinesList()).hasSize(1);
     assertThat(data.getFileSourceData().getLines(0).getHighlighting()).isEqualTo("h-1");
+
+    verify(lineHashesComputer).addLine("line1");
+    verify(lineHashesComputer).getResult();
+    verifyNoMoreInteractions(lineHashesComputer);
   }
 
   @Test
   public void compute_two_lines() {
+    when(lineHashesComputer.getResult()).thenReturn(Lists.newArrayList("137f72c3708c6bd0de00a0e5a69c699b", "e6251bcf1a7dc3ba5e7933e325bbe605"));
+
     ComputeFileSourceData computeFileSourceData = new ComputeFileSourceData(
       newArrayList("line1", "line2").iterator(),
       Lists.newArrayList(new MockLineReader()),
-      2);
+      lineHashesComputer);
 
     ComputeFileSourceData.Data data = computeFileSourceData.compute();
     assertThat(data.getLineHashes()).isEqualTo("137f72c3708c6bd0de00a0e5a69c699b\ne6251bcf1a7dc3ba5e7933e325bbe605");
@@ -56,27 +70,11 @@ public class ComputeFileSourceDataTest {
     assertThat(data.getFileSourceData().getLinesList()).hasSize(2);
     assertThat(data.getFileSourceData().getLines(0).getHighlighting()).isEqualTo("h-1");
     assertThat(data.getFileSourceData().getLines(1).getHighlighting()).isEqualTo("h-2");
-  }
 
-  @Test
-  public void remove_tabs_and_spaces_in_line_hashes() {
-    String refLineHashes = new ComputeFileSourceData(
-      newArrayList("line1").iterator(),
-      Lists.newArrayList(new MockLineReader()),
-      1).compute().getLineHashes();
-
-    assertThat(new ComputeFileSourceData(
-      newArrayList(" line\t \t 1  ").iterator(),
-      Lists.newArrayList(new MockLineReader()),
-      1).compute().getLineHashes()).isEqualTo(refLineHashes);
-  }
-
-  @Test
-  public void compute_line_hashes_of_empty_lines() {
-    assertThat(new ComputeFileSourceData(
-      newArrayList("   ").iterator(),
-      Lists.newArrayList(new MockLineReader()),
-      1).compute().getLineHashes()).isEqualTo("");
+    verify(lineHashesComputer).addLine("line1");
+    verify(lineHashesComputer).addLine("line2");
+    verify(lineHashesComputer).getResult();
+    verifyNoMoreInteractions(lineHashesComputer);
   }
 
   private static class MockLineReader implements LineReader {

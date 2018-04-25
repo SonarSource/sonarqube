@@ -19,22 +19,17 @@
  */
 package org.sonar.server.computation.task.projectanalysis.source;
 
-import com.google.common.base.Splitter;
+import java.util.Arrays;
 import javax.annotation.Nullable;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.core.hash.SourceLinesHashesComputer;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDao;
 import org.sonar.db.source.FileSourceDao;
-import org.sonar.db.source.FileSourceDto;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 
-import static com.google.common.base.Joiner.on;
 import static java.lang.String.valueOf;
-import static java.util.Arrays.stream;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -43,17 +38,13 @@ import static org.sonar.server.computation.task.projectanalysis.component.Report
 
 public class SourceLinesDiffImplTest {
 
-  @Rule
-  public SourceLinesRepositoryRule sourceLinesRepository = new SourceLinesRepositoryRule();
-
   private DbClient dbClient = mock(DbClient.class);
   private DbSession dbSession = mock(DbSession.class);
   private ComponentDao componentDao = mock(ComponentDao.class);
   private FileSourceDao fileSourceDao = mock(FileSourceDao.class);
+  private SourceLinesHashRepository sourceLinesHash = mock(SourceLinesHashRepository.class);
 
-  private static final Splitter END_OF_LINE_SPLITTER = Splitter.on('\n');
-
-  private SourceLinesDiffImpl underTest = new SourceLinesDiffImpl(dbClient, fileSourceDao, sourceLinesRepository);
+  private SourceLinesDiffImpl underTest = new SourceLinesDiffImpl(dbClient, fileSourceDao, sourceLinesHash);
 
   private static final int FILE_REF = 1;
   private static final String FILE_KEY = valueOf(FILE_REF);
@@ -77,25 +68,18 @@ public class SourceLinesDiffImplTest {
 
   @Test
   public void should_find_no_diff_when_report_and_db_content_are_identical() {
-
-    mockContentOfFileInDb("" + FILE_KEY, CONTENT);
-    setFileContentInReport(FILE_REF, CONTENT);
-
     Component component = fileComponent(FILE_REF);
+
+    mockLineHashesInDb("" + FILE_KEY, CONTENT);
+    setLineHashesInReport(component, CONTENT);
+
     assertThat(underTest.computeMatchingLines(component)).containsExactly(1, 2, 3, 4, 5, 6, 7);
 
   }
 
-  private void mockContentOfFileInDb(String key, @Nullable String[] content) {
-    FileSourceDto dto = new FileSourceDto();
-    if (content != null) {
-      SourceLinesHashesComputer linesHashesComputer = new SourceLinesHashesComputer();
-      stream(content).forEach(linesHashesComputer::addLine);
-      dto.setLineHashes(on('\n').join(linesHashesComputer.getLineHashes()));
-    }
-
+  private void mockLineHashesInDb(String key, @Nullable String[] lineHashes) {
     when(fileSourceDao.selectLineHashes(dbSession, componentUuidOf(key)))
-      .thenReturn(END_OF_LINE_SPLITTER.splitToList(dto.getLineHashes()));
+      .thenReturn(Arrays.asList(lineHashes));
   }
 
   private static String componentUuidOf(String key) {
@@ -109,7 +93,7 @@ public class SourceLinesDiffImplTest {
       .build();
   }
 
-  private void setFileContentInReport(int ref, String[] content) {
-    sourceLinesRepository.addLines(ref, content);
+  private void setLineHashesInReport(Component component, String[] content) {
+    when(sourceLinesHash.getMatchingDB(component)).thenReturn(Arrays.asList(content));
   }
 }

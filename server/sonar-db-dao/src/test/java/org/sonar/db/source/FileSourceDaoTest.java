@@ -57,6 +57,8 @@ public class FileSourceDaoTest {
     assertThat(fileSourceDto.getUpdatedAt()).isEqualTo(1500000000000L);
     assertThat(fileSourceDto.getDataType()).isEqualTo(Type.SOURCE);
     assertThat(fileSourceDto.getRevision()).isEqualTo("123456789");
+    assertThat(fileSourceDto.getLineHashesVersion()).isEqualTo(0);
+
   }
 
   @Test
@@ -103,11 +105,12 @@ public class FileSourceDaoTest {
       .setDataType(Type.SOURCE)
       .setCreatedAt(1500000000000L)
       .setUpdatedAt(1500000000001L)
+      .setLineHashesVersion(2)
       .setRevision("123456789"));
     session.commit();
 
     dbTester.assertDbUnitTable(getClass(), "insert-result.xml", "file_sources",
-      "project_uuid", "file_uuid", "data_hash", "line_hashes", "src_hash", "created_at", "updated_at", "data_type", "revision");
+      "project_uuid", "file_uuid", "data_hash", "line_hashes", "src_hash", "created_at", "updated_at", "data_type", "revision", "line_hashes_version");
   }
 
   @Test
@@ -127,6 +130,47 @@ public class FileSourceDaoTest {
     session.commit();
 
     assertThat(underTest.selectLineHashes(dbTester.getSession(), "FILE2_UUID")).isEmpty();
+  }
+
+  @Test
+  public void selectLineHashesVersion_returns_by_default() {
+    dbTester.prepareDbUnit(getClass(), "shared.xml");
+
+    underTest.insert(session, new FileSourceDto()
+      .setProjectUuid("PRJ_UUID")
+      .setFileUuid("FILE2_UUID")
+      .setBinaryData("FILE2_BINARY_DATA".getBytes())
+      .setDataHash("FILE2_DATA_HASH")
+      .setLineHashes("hashes")
+      .setSrcHash("FILE2_HASH")
+      .setDataType(Type.SOURCE)
+      .setCreatedAt(1500000000000L)
+      .setUpdatedAt(1500000000001L)
+      .setRevision("123456789"));
+    session.commit();
+
+    assertThat(underTest.selectLineHashesVersion(dbTester.getSession(), "FILE2_UUID")).isEqualTo(LineHashVersion.WITHOUT_SIGNIFICANT_CODE);
+  }
+
+  @Test
+  public void selectLineHashesVersion_succeeds() {
+    dbTester.prepareDbUnit(getClass(), "shared.xml");
+
+    underTest.insert(session, new FileSourceDto()
+      .setProjectUuid("PRJ_UUID")
+      .setFileUuid("FILE2_UUID")
+      .setBinaryData("FILE2_BINARY_DATA".getBytes())
+      .setDataHash("FILE2_DATA_HASH")
+      .setLineHashes("hashes")
+      .setSrcHash("FILE2_HASH")
+      .setDataType(Type.SOURCE)
+      .setCreatedAt(1500000000000L)
+      .setUpdatedAt(1500000000001L)
+      .setLineHashesVersion(1)
+      .setRevision("123456789"));
+    session.commit();
+
+    assertThat(underTest.selectLineHashesVersion(dbTester.getSession(), "FILE2_UUID")).isEqualTo(LineHashVersion.WITH_SIGNIFICANT_CODE);
   }
 
   @Test
@@ -170,11 +214,12 @@ public class FileSourceDaoTest {
       .setLineHashes("NEW_LINE_HASHES")
       .setDataType(Type.SOURCE)
       .setUpdatedAt(1500000000002L)
+      .setLineHashesVersion(4)
       .setRevision("987654321"));
     session.commit();
 
-    dbTester.assertDbUnitTable(getClass(), "update-result.xml", "file_sources",
-      "project_uuid", "file_uuid", "data_hash", "line_hashes", "src_hash", "created_at", "updated_at", "data_type", "revision");
+    dbTester.assertDbUnitTable(getClass(), "update-result.xml", "file_sources", "project_uuid", "file_uuid",
+      "data_hash", "line_hashes", "src_hash", "created_at", "updated_at", "data_type", "revision", "line_hashes_version");
   }
 
   private static class ReaderToStringConsumer implements Consumer<Reader> {

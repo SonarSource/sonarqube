@@ -17,24 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v72;
+package org.sonar.core.hash;
 
-import org.junit.Test;
+import com.google.common.base.Preconditions;
 
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationCount;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
+public class LineRange {
+  private final int startOffset;
+  private final int endOffset;
 
-public class DbVersion72Test {
-  private DbVersion72 underTest = new DbVersion72();
-
-  @Test
-  public void migrationNumber_starts_at_2100() {
-    verifyMinimumMigrationNumber(underTest, 2100);
+  public LineRange(int startOffset, int endOffset) {
+    Preconditions.checkArgument(startOffset <= endOffset, "Line range is not valid: %s must be greater or equal than %s", endOffset, startOffset);
+    this.startOffset = startOffset;
+    this.endOffset = endOffset;
   }
 
-  @Test
-  public void verify_migration_count() {
-    verifyMigrationCount(underTest, 6);
+  public int startOffset() {
+    return startOffset;
   }
 
+  public int endOffset() {
+    return endOffset;
+  }
 }

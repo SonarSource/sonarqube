@@ -17,24 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v72;
+package org.sonar.core.hash;
 
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationCount;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
+import static org.assertj.core.api.Assertions.assertThat;
 
-public class DbVersion72Test {
-  private DbVersion72 underTest = new DbVersion72();
+public class LineRangeTest {
+  @Rule
+  public ExpectedException exception = ExpectedException.none();
 
   @Test
-  public void migrationNumber_starts_at_2100() {
-    verifyMinimumMigrationNumber(underTest, 2100);
+  public void should_throw_ISE_if_range_is_invalid() {
+    exception.expect(IllegalArgumentException.class);
+    exception.expectMessage("Line range is not valid: 1 must be greater or equal than 2");
+    new LineRange(2, 1);
   }
 
   @Test
-  public void verify_migration_count() {
-    verifyMigrationCount(underTest, 6);
+  public void check_getters() {
+    LineRange range = new LineRange(1, 2);
+    assertThat(range.startOffset()).isEqualTo(1);
+    assertThat(range.endOffset()).isEqualTo(2);
   }
-
 }

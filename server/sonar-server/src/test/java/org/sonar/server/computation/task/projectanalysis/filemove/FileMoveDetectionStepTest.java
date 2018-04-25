@@ -34,7 +34,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.sonar.core.hash.SourceLinesHashesComputer;
+import org.sonar.core.hash.SourceLineHashesComputer;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDao;
@@ -47,7 +47,7 @@ import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetada
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.component.ReportComponent;
 import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
-import org.sonar.server.computation.task.projectanalysis.source.SourceLinesRepositoryRule;
+import org.sonar.server.computation.task.projectanalysis.source.SourceLinesHashRepository;
 
 import static com.google.common.base.Joiner.on;
 import static java.util.Arrays.stream;
@@ -219,19 +219,18 @@ public class FileMoveDetectionStepTest {
   @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
   @Rule
-  public SourceLinesRepositoryRule sourceLinesRepository = new SourceLinesRepositoryRule();
-  @Rule
   public MutableMovedFilesRepositoryRule movedFilesRepository = new MutableMovedFilesRepositoryRule();
 
   private DbClient dbClient = mock(DbClient.class);
   private DbSession dbSession = mock(DbSession.class);
   private ComponentDao componentDao = mock(ComponentDao.class);
+  private SourceLinesHashRepository sourceLinesHash = mock(SourceLinesHashRepository.class);
   private FileSourceDao fileSourceDao = mock(FileSourceDao.class);
   private FileSimilarity fileSimilarity = new FileSimilarityImpl(new SourceSimilarityImpl());
   private long dbIdGenerator = 0;
 
   private FileMoveDetectionStep underTest = new FileMoveDetectionStep(analysisMetadataHolder, treeRootHolder, dbClient,
-    sourceLinesRepository, fileSimilarity, movedFilesRepository);
+    fileSimilarity, movedFilesRepository, sourceLinesHash);
 
   @Before
   public void setUp() throws Exception {
@@ -316,7 +315,7 @@ public class FileMoveDetectionStepTest {
     ComponentDto[] dtos = mockComponents(FILE_1.getKey());
     mockContentOfFileInDb(FILE_1.getKey(), CONTENT1);
     setFilesInReport(FILE_2);
-    setFileContentInReport(FILE_2_REF, CONTENT1);
+    setFileLineHashesInReport(FILE_2, CONTENT1);
 
     underTest.execute();
 
@@ -333,7 +332,7 @@ public class FileMoveDetectionStepTest {
     mockComponents(FILE_1.getKey());
     mockContentOfFileInDb(FILE_1.getKey(), CONTENT1);
     setFilesInReport(FILE_2);
-    setFileContentInReport(FILE_2_REF, LESS_CONTENT1);
+    setFileLineHashesInReport(FILE_2, LESS_CONTENT1);
 
     underTest.execute();
 
@@ -346,7 +345,7 @@ public class FileMoveDetectionStepTest {
     mockComponents(FILE_1.getKey());
     mockContentOfFileInDb(FILE_1.getKey(), CONTENT_EMPTY);
     setFilesInReport(FILE_2);
-    setFileContentInReport(FILE_2_REF, CONTENT1);
+    setFileLineHashesInReport(FILE_2, CONTENT1);
 
     underTest.execute();
 
@@ -360,7 +359,7 @@ public class FileMoveDetectionStepTest {
     mockComponents(key -> newComponentDto(key).setPath(null), FILE_1.getKey());
     mockContentOfFileInDb(FILE_1.getKey(), CONTENT1);
     setFilesInReport(FILE_2);
-    setFileContentInReport(FILE_2_REF, CONTENT1);
+    setFileLineHashesInReport(FILE_2, CONTENT1);
 
     underTest.execute();
 
@@ -373,7 +372,7 @@ public class FileMoveDetectionStepTest {
     mockComponents(FILE_1.getKey());
     mockContentOfFileInDb(FILE_1.getKey(), CONTENT1);
     setFilesInReport(FILE_2);
-    setFileContentInReport(FILE_2_REF, CONTENT_EMPTY);
+    setFileLineHashesInReport(FILE_2, CONTENT_EMPTY);
 
     underTest.execute();
 
@@ -386,8 +385,8 @@ public class FileMoveDetectionStepTest {
     mockComponents(FILE_1.getKey());
     mockContentOfFileInDb(FILE_1.getKey(), CONTENT1);
     setFilesInReport(FILE_2, FILE_3);
-    setFileContentInReport(FILE_2_REF, CONTENT1);
-    setFileContentInReport(FILE_3_REF, CONTENT1);
+    setFileLineHashesInReport(FILE_2, CONTENT1);
+    setFileLineHashesInReport(FILE_3, CONTENT1);
 
     underTest.execute();
 
@@ -401,7 +400,7 @@ public class FileMoveDetectionStepTest {
     mockContentOfFileInDb(FILE_1.getKey(), CONTENT1);
     mockContentOfFileInDb(FILE_2.getKey(), CONTENT1);
     setFilesInReport(FILE_3);
-    setFileContentInReport(FILE_3_REF, CONTENT1);
+    setFileLineHashesInReport(FILE_3, CONTENT1);
 
     underTest.execute();
 
@@ -437,9 +436,9 @@ public class FileMoveDetectionStepTest {
     mockContentOfFileInDb(file4.getKey(), new String[] {"e", "f", "g", "h", "i"});
     mockContentOfFileInDb(file5.getKey(), CONTENT2);
     setFilesInReport(FILE_3, file4, file6);
-    setFileContentInReport(FILE_3_REF, CONTENT1);
-    setFileContentInReport(file4.getReportAttributes().getRef(), new String[] {"a", "b"});
-    setFileContentInReport(file6.getReportAttributes().getRef(), LESS_CONTENT2);
+    setFileLineHashesInReport(FILE_3, CONTENT1);
+    setFileLineHashesInReport(file4, new String[] {"a", "b"});
+    setFileLineHashesInReport(file6, LESS_CONTENT2);
 
     underTest.execute();
 
@@ -470,11 +469,13 @@ public class FileMoveDetectionStepTest {
     Map<String, Component> comps = new HashMap<>();
     int i = 1;
     for (File f : FileUtils.listFiles(new File("src/test/resources/org/sonar/server/computation/task/projectanalysis/filemove/FileMoveDetectionStepTest/v2"), null, false)) {
-      comps.put(f.getName(), builder(Component.Type.FILE, i)
+      Component c = builder(Component.Type.FILE, i++)
         .setKey(f.getName())
         .setPath(f.getName())
-        .build());
-      setFileContentInReport(i++, readLines(f));
+        .build();
+
+      comps.put(f.getName(), c);
+      setFileLineHashesInReport(c, readLines(f));
     }
 
     setFilesInReport(comps.values().toArray(new Component[0]));
@@ -503,14 +504,18 @@ public class FileMoveDetectionStepTest {
       .toArray(new String[0]);
   }
 
-  private void setFileContentInReport(int ref, String[] content) {
-    sourceLinesRepository.addLines(ref, content);
+  private void setFileLineHashesInReport(Component file, String[] content) {
+    SourceLineHashesComputer computer = new SourceLineHashesComputer();
+    for (String line : content) {
+      computer.addLine(line);
+    }
+    when(sourceLinesHash.getMatchingDB(file)).thenReturn(computer.getLineHashes());
   }
 
   private void mockContentOfFileInDb(String key, @Nullable String[] content) {
     FileSourceDto dto = new FileSourceDto();
     if (content != null) {
-      SourceLinesHashesComputer linesHashesComputer = new SourceLinesHashesComputer();
+      SourceLineHashesComputer linesHashesComputer = new SourceLineHashesComputer();
       stream(content).forEach(linesHashesComputer::addLine);
       dto.setLineHashes(on('\n').join(linesHashesComputer.getLineHashes()));
     }

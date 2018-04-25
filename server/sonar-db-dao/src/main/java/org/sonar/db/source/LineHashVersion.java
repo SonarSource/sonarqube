@@ -17,24 +17,31 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v72;
+package org.sonar.db.source;
 
-import org.junit.Test;
+import javax.annotation.Nullable;
 
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationCount;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
+public enum LineHashVersion {
+  WITHOUT_SIGNIFICANT_CODE(0), WITH_SIGNIFICANT_CODE(1);
 
-public class DbVersion72Test {
-  private DbVersion72 underTest = new DbVersion72();
+  private int value;
 
-  @Test
-  public void migrationNumber_starts_at_2100() {
-    verifyMinimumMigrationNumber(underTest, 2100);
+  LineHashVersion(int value) {
+    this.value = value;
   }
 
-  @Test
-  public void verify_migration_count() {
-    verifyMigrationCount(underTest, 6);
+  public int getDbValue() {
+    return value;
   }
 
+  public static LineHashVersion valueOf(@Nullable Integer version) {
+    if (version == null) {
+      return LineHashVersion.WITHOUT_SIGNIFICANT_CODE;
+    }
+    if (version > 1 || version < 0) {
+      throw new IllegalArgumentException("Unknown line hash version: " + version);
+    }
+
+    return LineHashVersion.values()[version];
+  }
 }

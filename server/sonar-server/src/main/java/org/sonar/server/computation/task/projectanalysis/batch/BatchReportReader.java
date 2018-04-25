@@ -63,5 +63,5 @@ public interface BatchReportReader {
 
   CloseableIterator<ScannerReport.ContextProperty> readContextProperties();
   
-  CloseableIterator<ScannerReport.LineSgnificantCode> readComponentSignificantCode(int fileRef);
+  Optional<CloseableIterator<ScannerReport.LineSgnificantCode>> readComponentSignificantCode(int fileRef);
 }

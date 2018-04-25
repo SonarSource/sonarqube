@@ -34,6 +34,7 @@ import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
 import org.sonar.core.util.CloseableIterator;
 import org.sonar.scanner.protocol.output.ScannerReport;
+import org.sonar.scanner.protocol.output.ScannerReport.LineSgnificantCode;
 
 public class BatchReportReaderRule implements TestRule, BatchReportReader {
   private ScannerReport.Metadata metadata;
@@ -53,6 +54,7 @@ public class BatchReportReaderRule implements TestRule, BatchReportReader {
   private Map<Integer, List<String>> fileSources = new HashMap<>();
   private Map<Integer, List<ScannerReport.Test>> tests = new HashMap<>();
   private Map<Integer, List<ScannerReport.CoverageDetail>> coverageDetails = new HashMap<>();
+  private Map<Integer, List<ScannerReport.LineSgnificantCode>> significantCode = new HashMap<>();
 
   @Override
   public Statement apply(final Statement statement, Description description) {
@@ -83,6 +85,7 @@ public class BatchReportReaderRule implements TestRule, BatchReportReader {
     this.fileSources.clear();
     this.tests.clear();
     this.coverageDetails.clear();
+    this.significantCode.clear();
   }
 
   @Override
@@ -136,11 +139,7 @@ public class BatchReportReaderRule implements TestRule, BatchReportReader {
 
   @Override
   public CloseableIterator<ScannerReport.Measure> readComponentMeasures(int componentRef) {
-    List<ScannerReport.Measure> res = this.measures.get(componentRef);
-    if (res == null) {
-      return CloseableIterator.emptyCloseableIterator();
-    }
-    return CloseableIterator.from(res.iterator());
+    return closeableIterator(this.measures.get(componentRef));
   }
 
   public BatchReportReaderRule putMeasures(int componentRef, List<ScannerReport.Measure> measures) {
@@ -223,14 +222,20 @@ public class BatchReportReaderRule implements TestRule, BatchReportReader {
     return this;
   }
 
+  public BatchReportReaderRule putSignificantCode(int fileRef, List<ScannerReport.LineSgnificantCode> significantCode) {
+    this.significantCode.put(fileRef, significantCode);
+    return this;
+  }
+
+  @Override
+  public Optional<CloseableIterator<LineSgnificantCode>> readComponentSignificantCode(int fileRef) {
+    List<LineSgnificantCode> list = significantCode.get(fileRef);
+    return list == null ? Optional.empty() : Optional.of(CloseableIterator.from(list.iterator()));
+  }
+
   @Override
   public CloseableIterator<ScannerReport.SyntaxHighlightingRule> readComponentSyntaxHighlighting(int fileRef) {
-    List<ScannerReport.SyntaxHighlightingRule> res = this.syntaxHighlightings.get(fileRef);
-    if (res == null) {
-      return CloseableIterator.emptyCloseableIterator();
-    }
-
-    return CloseableIterator.from(res.iterator());
+    return closeableIterator(this.syntaxHighlightings.get(fileRef));
   }
 
   public BatchReportReaderRule putSyntaxHighlighting(int fileRef, List<ScannerReport.SyntaxHighlightingRule> syntaxHighlightings) {
@@ -240,12 +245,7 @@ public class BatchReportReaderRule implements TestRule, BatchReportReader {
 
   @Override
   public CloseableIterator<ScannerReport.LineCoverage> readComponentCoverage(int fileRef) {
-    List<ScannerReport.LineCoverage> res = this.coverages.get(fileRef);
-    if (res == null) {
-      return CloseableIterator.emptyCloseableIterator();
-    }
-
-    return CloseableIterator.from(res.iterator());
+    return closeableIterator(this.coverages.get(fileRef));
   }
 
   public BatchReportReaderRule putCoverage(int fileRef, List<ScannerReport.LineCoverage> coverages) {
@@ -276,12 +276,7 @@ public class BatchReportReaderRule implements TestRule, BatchReportReader {
 
   @Override
   public CloseableIterator<ScannerReport.Test> readTests(int testFileRef) {
-    List<ScannerReport.Test> res = this.tests.get(testFileRef);
-    if (res == null) {
-      return CloseableIterator.emptyCloseableIterator();
-    }
-
-    return CloseableIterator.from(res.iterator());
+    return closeableIterator(this.tests.get(testFileRef));
   }
 
   public BatchReportReaderRule putTests(int testFileRed, List<ScannerReport.Test> tests) {
@@ -291,16 +286,12 @@ public class BatchReportReaderRule implements TestRule, BatchReportReader {
 
   @Override
   public CloseableIterator<ScannerReport.CoverageDetail> readCoverageDetails(int testFileRef) {
-    List<ScannerReport.CoverageDetail> res = this.coverageDetails.get(testFileRef);
-    if (res == null) {
-      return CloseableIterator.emptyCloseableIterator();
-    }
-
-    return CloseableIterator.from(res.iterator());
+    return closeableIterator(this.coverageDetails.get(testFileRef));
   }
 
   public BatchReportReaderRule putCoverageDetails(int testFileRef, List<ScannerReport.CoverageDetail> coverageDetails) {
     this.coverageDetails.put(testFileRef, coverageDetails);
     return this;
   }
+
 }

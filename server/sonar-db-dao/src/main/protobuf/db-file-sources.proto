@@ -62,6 +62,11 @@ message Line {
   optional int32 covered_conditions = 20;
 }
 
+message Range {
+  optional int32 startOffset = 1;
+  optional int32 endOffset = 2;
+}
+
 // TODO should be dropped as it prevents streaming
 message Data {
   repeated Line lines = 1;

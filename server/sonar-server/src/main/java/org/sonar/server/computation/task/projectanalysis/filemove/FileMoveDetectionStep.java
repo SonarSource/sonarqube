@@ -37,8 +37,6 @@ import javax.annotation.concurrent.Immutable;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.core.hash.SourceLinesHashesComputer;
-import org.sonar.core.util.CloseableIterator;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
@@ -52,7 +50,7 @@ import org.sonar.server.computation.task.projectanalysis.component.DepthTraversa
 import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolder;
 import org.sonar.server.computation.task.projectanalysis.component.TypeAwareVisitorAdapter;
 import org.sonar.server.computation.task.projectanalysis.filemove.FileSimilarity.File;
-import org.sonar.server.computation.task.projectanalysis.source.SourceLinesRepository;
+import org.sonar.server.computation.task.projectanalysis.source.SourceLinesHashRepository;
 import org.sonar.server.computation.task.step.ComputationStep;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
@@ -70,18 +68,18 @@ public class FileMoveDetectionStep implements ComputationStep {
   private final AnalysisMetadataHolder analysisMetadataHolder;
   private final TreeRootHolder rootHolder;
   private final DbClient dbClient;
-  private final SourceLinesRepository sourceLinesRepository;
   private final FileSimilarity fileSimilarity;
   private final MutableMovedFilesRepository movedFilesRepository;
+  private final SourceLinesHashRepository sourceLinesHash;
 
   public FileMoveDetectionStep(AnalysisMetadataHolder analysisMetadataHolder, TreeRootHolder rootHolder, DbClient dbClient,
-    SourceLinesRepository sourceLinesRepository, FileSimilarity fileSimilarity, MutableMovedFilesRepository movedFilesRepository) {
+    FileSimilarity fileSimilarity, MutableMovedFilesRepository movedFilesRepository, SourceLinesHashRepository sourceLinesHash) {
     this.analysisMetadataHolder = analysisMetadataHolder;
     this.rootHolder = rootHolder;
     this.dbClient = dbClient;
-    this.sourceLinesRepository = sourceLinesRepository;
     this.fileSimilarity = fileSimilarity;
     this.movedFilesRepository = movedFilesRepository;
+    this.sourceLinesHash = sourceLinesHash;
   }
 
   @Override
@@ -179,17 +177,9 @@ public class FileMoveDetectionStep implements ComputationStep {
   private Map<String, File> getReportFileSourcesByKey(Map<String, Component> reportFilesByKey, Set<String> addedFileKeys) {
     ImmutableMap.Builder<String, File> builder = ImmutableMap.builder();
     for (String fileKey : addedFileKeys) {
-      // FIXME computation of sourceHash and lineHashes might be done multiple times for some files: here, in ComputeFileSourceData, in
-      // SourceHashRepository
       Component component = reportFilesByKey.get(fileKey);
-      SourceLinesHashesComputer linesHashesComputer = new SourceLinesHashesComputer();
-      try (CloseableIterator<String> lineIterator = sourceLinesRepository.readLines(component)) {
-        while (lineIterator.hasNext()) {
-          String line = lineIterator.next();
-          linesHashesComputer.addLine(line);
-        }
-      }
-      builder.put(fileKey, new File(component.getReportAttributes().getPath(), linesHashesComputer.getLineHashes()));
+      List<String> lineHashes = sourceLinesHash.getMatchingDB(component);
+      builder.put(fileKey, new File(component.getReportAttributes().getPath(), lineHashes));
     }
     return builder.build();
   }

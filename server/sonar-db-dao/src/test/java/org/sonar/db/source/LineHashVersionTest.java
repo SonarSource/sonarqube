@@ -17,24 +17,30 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v72;
+package org.sonar.db.source;
 
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationCount;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
+import static org.assertj.core.api.Assertions.assertThat;
 
-public class DbVersion72Test {
-  private DbVersion72 underTest = new DbVersion72();
+public class LineHashVersionTest {
+  @Rule
+  public ExpectedException exception = ExpectedException.none();
 
   @Test
-  public void migrationNumber_starts_at_2100() {
-    verifyMinimumMigrationNumber(underTest, 2100);
+  public void should_create_from_int() {
+    assertThat(LineHashVersion.valueOf((Integer) null)).isEqualTo(LineHashVersion.WITHOUT_SIGNIFICANT_CODE);
+    assertThat(LineHashVersion.valueOf(0)).isEqualTo(LineHashVersion.WITHOUT_SIGNIFICANT_CODE);
+    assertThat(LineHashVersion.valueOf(1)).isEqualTo(LineHashVersion.WITH_SIGNIFICANT_CODE);
   }
 
   @Test
-  public void verify_migration_count() {
-    verifyMigrationCount(underTest, 6);
-  }
+  public void should_throw_exception_if_version_is_unknown() {
+    exception.expect(IllegalArgumentException.class);
+    exception.expectMessage("Unknown line hash version: 2");
+    LineHashVersion.valueOf(2);
 
+  }
 }

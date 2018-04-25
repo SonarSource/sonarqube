@@ -7,7 +7,7 @@
   <select id="select" parameterType="map" resultType="org.sonar.db.source.FileSourceDto">
     SELECT id, project_uuid as projectUuid, file_uuid as fileUuid, created_at as createdAt, updated_at as updatedAt,
     binary_data as binaryData, line_hashes as lineHashes, data_hash as dataHash, src_hash as srcHash, data_type as
-    dataType, revision
+    dataType, revision, line_hashes_version as lineHashesVersion
     FROM file_sources
     WHERE file_uuid = #{fileUuid} and data_type = #{dataType}
   </select>
@@ -20,11 +20,11 @@
 
   <insert id="insert" parameterType="org.sonar.db.source.FileSourceDto" useGeneratedKeys="false">
     INSERT INTO file_sources (project_uuid, file_uuid, created_at, updated_at, binary_data, line_hashes, data_hash,
-    src_hash, data_type, revision)
+    src_hash, data_type, revision, line_hashes_version)
     VALUES (#{projectUuid,jdbcType=VARCHAR}, #{fileUuid,jdbcType=VARCHAR}, #{createdAt,jdbcType=BIGINT},
     #{updatedAt,jdbcType=BIGINT}, #{binaryData,jdbcType=BLOB}, #{lineHashes,jdbcType=CLOB},
     #{dataHash,jdbcType=VARCHAR}, #{srcHash,jdbcType=VARCHAR},#{dataType,jdbcType=VARCHAR},
-    #{revision,jdbcType=VARCHAR})
+    #{revision,jdbcType=VARCHAR}, #{lineHashesVersion,jdbcType=INTEGER})
   </insert>
 
   <update id="update" parameterType="org.sonar.db.source.FileSourceDto" useGeneratedKeys="false">
@@ -34,7 +34,8 @@
     line_hashes = #{lineHashes,jdbcType=CLOB},
     data_hash = #{dataHash,jdbcType=VARCHAR},
     src_hash = #{srcHash,jdbcType=VARCHAR},
-    revision = #{revision,jdbcType=VARCHAR}
+    revision = #{revision,jdbcType=VARCHAR},
+    line_hashes_version = #{lineHashesVersion,jdbcType=INTEGER}
     WHERE id = #{id}
   </update>
 

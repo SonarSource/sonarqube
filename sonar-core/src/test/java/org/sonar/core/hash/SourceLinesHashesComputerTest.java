@@ -37,7 +37,7 @@ public class SourceLinesHashesComputerTest {
     expectedException.expect(NullPointerException.class);
     expectedException.expectMessage("line can not be null");
 
-    new SourceLinesHashesComputer(1).addLine(null);
+    new SourceLineHashesComputer(1).addLine(null);
   }
 
   @Test
@@ -70,7 +70,7 @@ public class SourceLinesHashesComputerTest {
     String line2 = "line 1 + 1";
     String line3 = "line 10 - 7";
 
-    SourceLinesHashesComputer underTest = new SourceLinesHashesComputer();
+    SourceLineHashesComputer underTest = new SourceLineHashesComputer();
     underTest.addLine(line1);
     underTest.addLine(line2);
     underTest.addLine(line3);
@@ -80,7 +80,7 @@ public class SourceLinesHashesComputerTest {
   }
 
   private static String hashSingleLine(@Nullable String line) {
-    SourceLinesHashesComputer sourceLinesHashesComputer = new SourceLinesHashesComputer(1);
+    SourceLineHashesComputer sourceLinesHashesComputer = new SourceLineHashesComputer(1);
     sourceLinesHashesComputer.addLine(line);
     return sourceLinesHashesComputer.getLineHashes().iterator().next();
   }

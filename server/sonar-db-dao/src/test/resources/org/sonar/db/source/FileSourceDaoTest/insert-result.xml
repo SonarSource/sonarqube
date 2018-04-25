@@ -4,7 +4,8 @@
                 binary_data="abcde" data_hash="hash"
                 line_hashes="ABC\nDEF\nGHI"
                 src_hash="FILE_HASH" revision="123456789"
-                created_at="1500000000000" updated_at="1500000000000"  data_type="SOURCE" />
+                created_at="1500000000000" updated_at="1500000000000"  data_type="SOURCE" 
+                line_hashes_version="[null]" />
 
 
   <file_sources id="102" project_uuid="PRJ_UUID" file_uuid="FILE2_UUID"
@@ -12,6 +13,7 @@
                 data_hash="FILE2_DATA_HASH"
                 line_hashes="LINE1_HASH\nLINE2_HASH"
                 src_hash="FILE2_HASH" revision="123456789"
-                created_at="1500000000000" updated_at="1500000000001"  data_type="SOURCE" />
+                created_at="1500000000000" updated_at="1500000000001"  data_type="SOURCE" 
+                line_hashes_version="2" />
 
 </dataset>

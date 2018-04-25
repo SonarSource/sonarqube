@@ -34,15 +34,15 @@ import static java.util.Objects.requireNonNull;
  * Computes the hash of each line of a given file by simply added lines of that file one by one in order with
  * {@link #addLine(String)}.
  */
-public class SourceLinesHashesComputer {
+public class SourceLineHashesComputer {
   private final MessageDigest md5Digest = DigestUtils.getMd5Digest();
   private final List<String> lineHashes;
 
-  public SourceLinesHashesComputer() {
+  public SourceLineHashesComputer() {
     this.lineHashes = new ArrayList<>();
   }
 
-  public SourceLinesHashesComputer(int expectedLineCount) {
+  public SourceLineHashesComputer(int expectedLineCount) {
     this.lineHashes = new ArrayList<>(expectedLineCount);
   }
 

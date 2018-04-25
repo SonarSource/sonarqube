@@ -19,11 +19,13 @@
  */
 package org.sonar.server.computation.task.projectanalysis.step;
 
+import com.google.common.collect.Lists;
 import java.util.Arrays;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.mockito.Mockito;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -31,6 +33,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.protobuf.DbFileSources;
 import org.sonar.db.source.FileSourceDto;
 import org.sonar.db.source.FileSourceDto.Type;
+import org.sonar.db.source.LineHashVersion;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.Component.ComponentType;
 import org.sonar.scanner.protocol.output.ScannerReport.SyntaxHighlightingRule.HighlightingType;
@@ -45,6 +48,8 @@ import org.sonar.server.computation.task.projectanalysis.duplication.InnerDuplic
 import org.sonar.server.computation.task.projectanalysis.duplication.TextBlock;
 import org.sonar.server.computation.task.projectanalysis.scm.Changeset;
 import org.sonar.server.computation.task.projectanalysis.scm.ScmInfoRepositoryRule;
+import org.sonar.server.computation.task.projectanalysis.source.SourceLinesHashRepository;
+import org.sonar.server.computation.task.projectanalysis.source.SourceLinesHashRepositoryImpl.LineHashesComputer;
 import org.sonar.server.computation.task.projectanalysis.source.SourceLinesRepositoryRule;
 import org.sonar.server.computation.task.step.ComputationStep;
 
@@ -56,18 +61,15 @@ import static org.mockito.Mockito.when;
 public class PersistFileSourcesStepTest extends BaseStepTest {
 
   private static final int FILE1_REF = 3;
-  private static final int FILE2_REF = 4;
   private static final String PROJECT_UUID = "PROJECT";
   private static final String PROJECT_KEY = "PROJECT_KEY";
   private static final String FILE1_UUID = "FILE1";
-  private static final String FILE2_UUID = "FILE2";
   private static final long NOW = 123456789L;
 
   private System2 system2 = mock(System2.class);
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
-
   @Rule
   public DbTester dbTester = DbTester.create(system2);
   @Rule
@@ -81,6 +83,9 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
   @Rule
   public DuplicationRepositoryRule duplicationRepository = DuplicationRepositoryRule.create(treeRootHolder);
 
+  private SourceLinesHashRepository sourceLinesHashRepository = mock(SourceLinesHashRepository.class);
+  private LineHashesComputer lineHashesComputer = mock(LineHashesComputer.class);
+
   private DbClient dbClient = dbTester.getDbClient();
   private DbSession session = dbTester.getSession();
 
@@ -89,8 +94,9 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
   @Before
   public void setup() {
     when(system2.now()).thenReturn(NOW);
+    when(sourceLinesHashRepository.getLineProcessorToPersist(Mockito.any(Component.class))).thenReturn(lineHashesComputer);
     underTest = new PersistFileSourcesStep(dbClient, system2, treeRootHolder, reportReader, fileSourceRepository, scmInfoRepository,
-      duplicationRepository);
+      duplicationRepository, sourceLinesHashRepository);
   }
 
   @Override
@@ -101,7 +107,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
   @Test
   public void persist_sources() {
     initBasicReport(2);
-
+    when(lineHashesComputer.getResult()).thenReturn(Lists.newArrayList("137f72c3708c6bd0de00a0e5a69c699b","e6251bcf1a7dc3ba5e7933e325bbe605"));
     underTest.execute();
 
     assertThat(dbTester.countRowsOfTable("file_sources")).isEqualTo(1);
@@ -110,6 +116,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
     assertThat(fileSourceDto.getFileUuid()).isEqualTo(FILE1_UUID);
     assertThat(fileSourceDto.getBinaryData()).isNotEmpty();
     assertThat(fileSourceDto.getDataHash()).isNotEmpty();
+    assertThat(fileSourceDto.getLineHashesVersion()).isEqualTo(LineHashVersion.WITHOUT_SIGNIFICANT_CODE.getDbValue());
     assertThat(fileSourceDto.getLineHashes()).isNotEmpty();
     assertThat(fileSourceDto.getCreatedAt()).isEqualTo(NOW);
     assertThat(fileSourceDto.getUpdatedAt()).isEqualTo(NOW);
@@ -125,7 +132,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
   @Test
   public void persist_source_hashes() {
     initBasicReport(2);
-
+    when(lineHashesComputer.getResult()).thenReturn(Lists.newArrayList("137f72c3708c6bd0de00a0e5a69c699b","e6251bcf1a7dc3ba5e7933e325bbe605"));
     underTest.execute();
 
     assertThat(dbTester.countRowsOfTable("file_sources")).isEqualTo(1);
@@ -328,6 +335,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
       .setSrcHash(srcHash)
       .setLineHashes(lineHashes)
       .setDataHash(dataHash)
+      .setLineHashesVersion(LineHashVersion.WITHOUT_SIGNIFICANT_CODE.getDbValue())
       .setSourceData(DbFileSources.Data.newBuilder()
         .addLines(DbFileSources.Line.newBuilder()
           .setLine(1)

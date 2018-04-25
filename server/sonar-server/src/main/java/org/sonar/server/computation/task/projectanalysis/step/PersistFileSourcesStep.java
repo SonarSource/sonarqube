@@ -48,6 +48,8 @@ import org.sonar.server.computation.task.projectanalysis.scm.Changeset;
 import org.sonar.server.computation.task.projectanalysis.scm.ScmInfo;
 import org.sonar.server.computation.task.projectanalysis.scm.ScmInfoRepository;
 import org.sonar.server.computation.task.projectanalysis.source.ComputeFileSourceData;
+import org.sonar.server.computation.task.projectanalysis.source.SourceLinesHashRepositoryImpl.LineHashesComputer;
+import org.sonar.server.computation.task.projectanalysis.source.SourceLinesHashRepository;
 import org.sonar.server.computation.task.projectanalysis.source.SourceLinesRepository;
 import org.sonar.server.computation.task.projectanalysis.source.linereader.CoverageLineReader;
 import org.sonar.server.computation.task.projectanalysis.source.linereader.DuplicationLineReader;
@@ -69,9 +71,10 @@ public class PersistFileSourcesStep implements ComputationStep {
   private final SourceLinesRepository sourceLinesRepository;
   private final ScmInfoRepository scmInfoRepository;
   private final DuplicationRepository duplicationRepository;
+  private final SourceLinesHashRepository sourceLinesHash;
 
   public PersistFileSourcesStep(DbClient dbClient, System2 system2, TreeRootHolder treeRootHolder, BatchReportReader reportReader, SourceLinesRepository sourceLinesRepository,
-    ScmInfoRepository scmInfoRepository, DuplicationRepository duplicationRepository) {
+    ScmInfoRepository scmInfoRepository, DuplicationRepository duplicationRepository, SourceLinesHashRepository sourceLinesHash) {
     this.dbClient = dbClient;
     this.system2 = system2;
     this.treeRootHolder = treeRootHolder;
@@ -79,6 +82,7 @@ public class PersistFileSourcesStep implements ComputationStep {
     this.sourceLinesRepository = sourceLinesRepository;
     this.scmInfoRepository = scmInfoRepository;
     this.duplicationRepository = duplicationRepository;
+    this.sourceLinesHash = sourceLinesHash;
   }
 
   @Override
@@ -116,32 +120,35 @@ public class PersistFileSourcesStep implements ComputationStep {
     public void visitFile(Component file) {
       try (CloseableIterator<String> linesIterator = sourceLinesRepository.readLines(file);
         LineReaders lineReaders = new LineReaders(reportReader, scmInfoRepository, duplicationRepository, file)) {
-        ComputeFileSourceData computeFileSourceData = new ComputeFileSourceData(linesIterator, lineReaders.readers(), file.getFileAttributes().getLines());
+        LineHashesComputer lineHashesComputer = sourceLinesHash.getLineProcessorToPersist(file);
+        ComputeFileSourceData computeFileSourceData = new ComputeFileSourceData(linesIterator, lineReaders.readers(), lineHashesComputer);
         ComputeFileSourceData.Data fileSourceData = computeFileSourceData.compute();
-        persistSource(fileSourceData, file.getUuid(), lineReaders.getLatestChangeWithRevision());
+        persistSource(fileSourceData, file, lineReaders.getLatestChangeWithRevision());
       } catch (Exception e) {
         throw new IllegalStateException(String.format("Cannot persist sources of %s", file.getKey()), e);
       }
     }
 
-    private void persistSource(ComputeFileSourceData.Data fileSourceData, String componentUuid, @Nullable Changeset latestChangeWithRevision) {
+    private void persistSource(ComputeFileSourceData.Data fileSourceData, Component file, @Nullable Changeset latestChangeWithRevision) {
       DbFileSources.Data fileData = fileSourceData.getFileSourceData();
 
       byte[] data = FileSourceDto.encodeSourceData(fileData);
       String dataHash = DigestUtils.md5Hex(data);
       String srcHash = fileSourceData.getSrcHash();
       String lineHashes = fileSourceData.getLineHashes();
-      FileSourceDto previousDto = previousFileSourcesByUuid.get(componentUuid);
+      FileSourceDto previousDto = previousFileSourcesByUuid.get(file.getUuid());
+      Integer lineHashesVersion = sourceLinesHash.getLineHashesVersion(file);
 
       if (previousDto == null) {
         FileSourceDto dto = new FileSourceDto()
           .setProjectUuid(projectUuid)
-          .setFileUuid(componentUuid)
+          .setFileUuid(file.getUuid())
           .setDataType(Type.SOURCE)
           .setBinaryData(data)
           .setSrcHash(srcHash)
           .setDataHash(dataHash)
           .setLineHashes(lineHashes)
+          .setLineHashesVersion(lineHashesVersion)
           .setCreatedAt(system2.now())
           .setUpdatedAt(system2.now())
           .setRevision(computeRevision(latestChangeWithRevision));
@@ -153,12 +160,14 @@ public class PersistFileSourcesStep implements ComputationStep {
         boolean srcHashUpdated = !srcHash.equals(previousDto.getSrcHash());
         String revision = computeRevision(latestChangeWithRevision);
         boolean revisionUpdated = !ObjectUtils.equals(revision, previousDto.getRevision());
-        if (binaryDataUpdated || srcHashUpdated || revisionUpdated) {
+        boolean lineHashesVersionUpdated = previousDto.getLineHashesVersion() != lineHashesVersion;
+        if (binaryDataUpdated || srcHashUpdated || revisionUpdated || lineHashesVersionUpdated) {
           previousDto
             .setBinaryData(data)
             .setDataHash(dataHash)
             .setSrcHash(srcHash)
             .setLineHashes(lineHashes)
+            .setLineHashesVersion(lineHashesVersion)
             .setRevision(revision)
             .setUpdatedAt(system2.now());
           dbClient.fileSourceDao().update(session, previousDto);

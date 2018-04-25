@@ -34,7 +34,6 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.protobuf.DbFileSources;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
-import org.sonar.server.computation.task.projectanalysis.source.linereader.RangeOffsetConverter.RangeOffsetConverterException;
 
 import static java.lang.String.format;
 import static org.sonar.server.computation.task.projectanalysis.source.linereader.RangeOffsetConverter.OFFSET_SEPARATOR;

@@ -21,6 +21,7 @@ package org.sonar.server.computation.task.projectanalysis.issue;
 
 import com.google.common.collect.Iterators;
 import java.util.Collection;
+import java.util.Collections;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.issue.Issue;
@@ -38,7 +39,7 @@ import org.sonar.server.computation.task.projectanalysis.component.ReportCompone
 import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.server.computation.task.projectanalysis.issue.commonrule.CommonRuleEngine;
 import org.sonar.server.computation.task.projectanalysis.issue.filter.IssueFilter;
-import org.sonar.server.computation.task.projectanalysis.source.SourceLinesRepositoryRule;
+import org.sonar.server.computation.task.projectanalysis.source.SourceLinesHashRepository;
 import org.sonar.server.rule.CommonRuleKeys;
 
 import static java.util.Arrays.asList;
@@ -62,23 +63,21 @@ public class TrackerRawInputFactoryTest {
   public BatchReportReaderRule reportReader = new BatchReportReaderRule();
 
   @Rule
-  public SourceLinesRepositoryRule fileSourceRepository = new SourceLinesRepositoryRule();
-
-  @Rule
   public RuleRepositoryRule ruleRepository = new RuleRepositoryRule();
 
+  SourceLinesHashRepository sourceLinesHash = mock(SourceLinesHashRepository.class);
   CommonRuleEngine commonRuleEngine = mock(CommonRuleEngine.class);
   IssueFilter issueFilter = mock(IssueFilter.class);
-  TrackerRawInputFactory underTest = new TrackerRawInputFactory(treeRootHolder, reportReader, fileSourceRepository, commonRuleEngine, issueFilter, ruleRepository);
+  TrackerRawInputFactory underTest = new TrackerRawInputFactory(treeRootHolder, reportReader, sourceLinesHash, commonRuleEngine, issueFilter, ruleRepository);
 
   @Test
   public void load_source_hash_sequences() {
-    fileSourceRepository.addLines(FILE_REF, "line 1;", "line 2;");
+    when(sourceLinesHash.getMatchingDB(FILE)).thenReturn(Collections.singletonList("line"));
     Input<DefaultIssue> input = underTest.create(FILE);
 
     assertThat(input.getLineHashSequence()).isNotNull();
-    assertThat(input.getLineHashSequence().getHashForLine(1)).isNotEmpty();
-    assertThat(input.getLineHashSequence().getHashForLine(2)).isNotEmpty();
+    assertThat(input.getLineHashSequence().getHashForLine(1)).isEqualTo("line");
+    assertThat(input.getLineHashSequence().getHashForLine(2)).isEmpty();
     assertThat(input.getLineHashSequence().getHashForLine(3)).isEmpty();
 
     assertThat(input.getBlockHashSequence()).isNotNull();
@@ -95,7 +94,7 @@ public class TrackerRawInputFactoryTest {
   @Test
   public void load_issues_from_report() {
     when(issueFilter.accept(any(DefaultIssue.class), eq(FILE))).thenReturn(true);
-    fileSourceRepository.addLines(FILE_REF, "line 1;", "line 2;");
+    when(sourceLinesHash.getMatchingDB(FILE)).thenReturn(Collections.singletonList("line"));
     ScannerReport.Issue reportIssue = ScannerReport.Issue.newBuilder()
       .setTextRange(TextRange.newBuilder().setStartLine(2).build())
       .setMsg("the message")
@@ -128,7 +127,7 @@ public class TrackerRawInputFactoryTest {
 
   @Test
   public void load_external_issues_from_report() {
-    fileSourceRepository.addLines(FILE_REF, "line 1;", "line 2;");
+    when(sourceLinesHash.getMatchingDB(FILE)).thenReturn(Collections.singletonList("line"));
     ScannerReport.ExternalIssue reportIssue = ScannerReport.ExternalIssue.newBuilder()
       .setTextRange(TextRange.newBuilder().setStartLine(2).build())
       .setMsg("the message")
@@ -159,7 +158,7 @@ public class TrackerRawInputFactoryTest {
 
   @Test
   public void load_external_issues_from_report_with_default_effort() {
-    fileSourceRepository.addLines(FILE_REF, "line 1;", "line 2;");
+    when(sourceLinesHash.getMatchingDB(FILE)).thenReturn(Collections.singletonList("line"));
     ScannerReport.ExternalIssue reportIssue = ScannerReport.ExternalIssue.newBuilder()
       .setTextRange(TextRange.newBuilder().setStartLine(2).build())
       .setMsg("the message")
@@ -190,7 +189,7 @@ public class TrackerRawInputFactoryTest {
   @Test
   public void ignore_issue_from_report() {
     when(issueFilter.accept(any(DefaultIssue.class), eq(FILE))).thenReturn(false);
-    fileSourceRepository.addLines(FILE_REF, "line 1;", "line 2;");
+    when(sourceLinesHash.getMatchingDB(FILE)).thenReturn(Collections.singletonList("line"));
     ScannerReport.Issue reportIssue = ScannerReport.Issue.newBuilder()
       .setTextRange(TextRange.newBuilder().setStartLine(2).build())
       .setMsg("the message")
@@ -208,7 +207,7 @@ public class TrackerRawInputFactoryTest {
 
   @Test
   public void ignore_report_issues_on_common_rules() {
-    fileSourceRepository.addLines(FILE_REF, "line 1;", "line 2;");
+    when(sourceLinesHash.getMatchingDB(FILE)).thenReturn(Collections.singletonList("line"));
     ScannerReport.Issue reportIssue = ScannerReport.Issue.newBuilder()
       .setMsg("the message")
       .setRuleRepository(CommonRuleKeys.commonRepositoryForLang("java"))
@@ -225,7 +224,7 @@ public class TrackerRawInputFactoryTest {
   @Test
   public void load_issues_of_compute_engine_common_rules() {
     when(issueFilter.accept(any(DefaultIssue.class), eq(FILE))).thenReturn(true);
-    fileSourceRepository.addLines(FILE_REF, "line 1;", "line 2;");
+    when(sourceLinesHash.getMatchingDB(FILE)).thenReturn(Collections.singletonList("line"));
     DefaultIssue ceIssue = new DefaultIssue()
       .setRuleKey(RuleKey.of(CommonRuleKeys.commonRepositoryForLang("java"), "InsufficientCoverage"))
       .setMessage("not enough coverage")
@@ -241,7 +240,7 @@ public class TrackerRawInputFactoryTest {
   @Test
   public void ignore_issue_from_common_rule() {
     when(issueFilter.accept(any(DefaultIssue.class), eq(FILE))).thenReturn(false);
-    fileSourceRepository.addLines(FILE_REF, "line 1;", "line 2;");
+    when(sourceLinesHash.getMatchingDB(FILE)).thenReturn(Collections.singletonList("line"));
     DefaultIssue ceIssue = new DefaultIssue()
       .setRuleKey(RuleKey.of(CommonRuleKeys.commonRepositoryForLang("java"), "InsufficientCoverage"))
       .setMessage("not enough coverage")

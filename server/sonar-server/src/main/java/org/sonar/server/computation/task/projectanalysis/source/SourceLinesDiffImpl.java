@@ -21,8 +21,6 @@ package org.sonar.server.computation.task.projectanalysis.source;
 
 import java.util.Collections;
 import java.util.List;
-import org.sonar.core.hash.SourceLinesHashesComputer;
-import org.sonar.core.util.CloseableIterator;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.source.FileSourceDao;
@@ -30,20 +28,18 @@ import org.sonar.server.computation.task.projectanalysis.component.Component;
 
 public class SourceLinesDiffImpl implements SourceLinesDiff {
 
-  private final SourceLinesRepository sourceLinesRepository;
-
   private final DbClient dbClient;
   private final FileSourceDao fileSourceDao;
+  private final SourceLinesHashRepository sourceLinesHash;
 
-  public SourceLinesDiffImpl(DbClient dbClient, FileSourceDao fileSourceDao, SourceLinesRepository sourceLinesRepository) {
+  public SourceLinesDiffImpl(DbClient dbClient, FileSourceDao fileSourceDao, SourceLinesHashRepository sourceLinesHash) {
     this.dbClient = dbClient;
     this.fileSourceDao = fileSourceDao;
-    this.sourceLinesRepository = sourceLinesRepository;
+    this.sourceLinesHash = sourceLinesHash;
   }
 
   @Override
   public int[] computeMatchingLines(Component component) {
-
     List<String> database = getDBLines(component);
     List<String> report = getReportLines(component);
 
@@ -61,14 +57,7 @@ public class SourceLinesDiffImpl implements SourceLinesDiff {
   }
 
   private List<String> getReportLines(Component component) {
-    SourceLinesHashesComputer linesHashesComputer = new SourceLinesHashesComputer();
-    try (CloseableIterator<String> lineIterator = sourceLinesRepository.readLines(component)) {
-      while (lineIterator.hasNext()) {
-        String line = lineIterator.next();
-        linesHashesComputer.addLine(line);
-      }
-    }
-    return linesHashesComputer.getLineHashes();
+    return sourceLinesHash.getMatchingDB(component);
   }
 
 }

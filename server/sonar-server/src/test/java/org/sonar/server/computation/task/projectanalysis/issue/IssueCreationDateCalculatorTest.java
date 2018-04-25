@@ -376,7 +376,7 @@ public class IssueCreationDateCalculatorTest {
     if (scmInfo == null) {
       scmInfo = mock(ScmInfo.class);
       when(scmInfoRepository.getScmInfo(component))
-        .thenReturn(java.util.Optional.empty());
+        .thenReturn(java.util.Optional.of(scmInfo));
     }
   }
 

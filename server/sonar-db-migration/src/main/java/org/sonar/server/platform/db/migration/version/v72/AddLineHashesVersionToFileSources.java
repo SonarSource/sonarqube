@@ -19,20 +19,26 @@
  */
 package org.sonar.server.platform.db.migration.version.v72;
 
-import org.sonar.server.platform.db.migration.step.MigrationStepRegistry;
-import org.sonar.server.platform.db.migration.version.DbVersion;
+import java.sql.SQLException;
+import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.def.IntegerColumnDef;
+import org.sonar.server.platform.db.migration.sql.AddColumnsBuilder;
+import org.sonar.server.platform.db.migration.step.DdlChange;
 
-public class DbVersion72 implements DbVersion {
+public class AddLineHashesVersionToFileSources extends DdlChange {
+
+  public AddLineHashesVersionToFileSources(Database db) {
+    super(db);
+  }
 
   @Override
-  public void addSteps(MigrationStepRegistry registry) {
-    registry
-      .add(2100, "Increase size of USERS.CRYPTED_PASSWORD", IncreaseCryptedPasswordSize.class)
-      .add(2101, "Add HASH_METHOD to table users", AddHashMethodToUsersTable.class)
-      .add(2102, "Populate HASH_METHOD on table users", PopulateHashMethodOnUsers.class)
-      .add(2103, "Add isExternal boolean to rules", AddRuleExternal.class)
-      .add(2104, "Create ALM_APP_INSTALLS table", CreateAlmAppInstallsTable.class)
-      .add(2105, "Add LINE_HASHES_VERSION to table FILE_SOURCES", AddLineHashesVersionToFileSources.class)
-    ;
+  public void execute(Context context) throws SQLException {
+    context.execute(new AddColumnsBuilder(getDialect(), "file_sources")
+      .addColumn(IntegerColumnDef.newIntegerColumnDefBuilder()
+        .setColumnName("line_hashes_version")
+        .setIsNullable(true)
+        .build())
+      .build());
   }
+
 }

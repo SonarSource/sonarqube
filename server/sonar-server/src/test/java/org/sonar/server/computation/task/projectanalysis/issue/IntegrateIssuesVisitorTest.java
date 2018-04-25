@@ -54,6 +54,7 @@ import org.sonar.server.computation.task.projectanalysis.filemove.MovedFilesRepo
 import org.sonar.server.computation.task.projectanalysis.issue.commonrule.CommonRuleEngineImpl;
 import org.sonar.server.computation.task.projectanalysis.issue.filter.IssueFilter;
 import org.sonar.server.computation.task.projectanalysis.qualityprofile.ActiveRulesHolderRule;
+import org.sonar.server.computation.task.projectanalysis.source.SourceLinesHashRepository;
 import org.sonar.server.computation.task.projectanalysis.source.SourceLinesRepositoryRule;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -113,6 +114,7 @@ public class IntegrateIssuesVisitorTest {
   private MergeBranchComponentUuids mergeBranchComponentsUuids = mock(MergeBranchComponentUuids.class);
   private ShortBranchIssueMerger issueStatusCopier = mock(ShortBranchIssueMerger.class);
   private MergeBranchComponentUuids mergeBranchComponentUuids = mock(MergeBranchComponentUuids.class);
+  private SourceLinesHashRepository sourceLinesHash = mock(SourceLinesHashRepository.class);
 
   ArgumentCaptor<DefaultIssue> defaultIssueCaptor;
 
@@ -132,8 +134,7 @@ public class IntegrateIssuesVisitorTest {
     defaultIssueCaptor = ArgumentCaptor.forClass(DefaultIssue.class);
     when(movedFilesRepository.getOriginalFile(any(Component.class))).thenReturn(Optional.absent());
 
-    TrackerRawInputFactory rawInputFactory = new TrackerRawInputFactory(treeRootHolder, reportReader, fileSourceRepository, new CommonRuleEngineImpl(),
-      issueFilter, ruleRepository);
+    TrackerRawInputFactory rawInputFactory = new TrackerRawInputFactory(treeRootHolder, reportReader, sourceLinesHash, new CommonRuleEngineImpl(), issueFilter, ruleRepository);
     TrackerBaseInputFactory baseInputFactory = new TrackerBaseInputFactory(issuesLoader, dbTester.getDbClient(), movedFilesRepository);
     TrackerMergeBranchInputFactory mergeInputFactory = new TrackerMergeBranchInputFactory(issuesLoader, mergeBranchComponentsUuids, dbTester.getDbClient());
     tracker = new TrackerExecution(baseInputFactory, rawInputFactory, new Tracker<>());
