@@ -360,7 +360,7 @@ public class UserDaoTest {
       .setLocal(true)
       .setOnboarded(false));
 
-    UserDto userUpdate = new UserDto()
+    UserDto userUpdate = newUserDto()
       .setId(1)
       .setLogin("john")
       .setName("John Doo")
@@ -488,7 +488,7 @@ public class UserDaoTest {
 
   @Test
   public void does_not_fail_to_deactivate_missing_user() {
-    underTest.deactivateUser(session, UserTesting.newUserDto());
+    underTest.deactivateUser(session, newUserDto());
   }
 
   @Test

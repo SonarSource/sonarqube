@@ -29,11 +29,13 @@ import org.junit.rules.ExpectedException;
 import org.mindrot.jbcrypt.BCrypt;
 import org.sonar.db.DbTester;
 import org.sonar.db.user.UserDto;
+import org.sonar.db.user.UserTesting;
 import org.sonar.server.authentication.event.AuthenticationEvent;
 import org.sonar.server.authentication.event.AuthenticationException;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.db.user.UserTesting.newUserDto;
 import static org.sonar.server.authentication.LocalAuthentication.HashMethod.BCRYPT;
 import static org.sonar.server.authentication.LocalAuthentication.HashMethod.SHA1;
 
@@ -49,7 +51,7 @@ public class LocalAuthenticationTest {
 
   @Test
   public void incorrect_hash_should_throw_AuthenticationException() {
-    UserDto user = new UserDto()
+    UserDto user = newUserDto()
       .setHashMethod("ALGON2");
 
     expectedException.expect(AuthenticationException.class);
@@ -60,7 +62,7 @@ public class LocalAuthenticationTest {
 
   @Test
   public void null_hash_should_throw_AuthenticationException() {
-    UserDto user = new UserDto();
+    UserDto user = newUserDto();
 
     expectedException.expect(AuthenticationException.class);
     expectedException.expectMessage("null hash method");
@@ -72,7 +74,7 @@ public class LocalAuthenticationTest {
   public void authentication_with_bcrypt_with_correct_password_should_work() {
     String password = randomAlphanumeric(60);
 
-    UserDto user = new UserDto()
+    UserDto user = newUserDto()
       .setHashMethod(BCRYPT.name())
       .setCryptedPassword(BCrypt.hashpw(password, BCrypt.gensalt(12)));
 
@@ -87,7 +89,7 @@ public class LocalAuthenticationTest {
     RANDOM.nextBytes(saltRandom);
     String salt = DigestUtils.sha1Hex(saltRandom);
 
-    UserDto user = new UserDto()
+    UserDto user = newUserDto()
       .setHashMethod(SHA1.name())
       .setCryptedPassword(DigestUtils.sha1Hex("--" + salt + "--" + password + "--"))
       .setSalt(salt);
@@ -103,7 +105,7 @@ public class LocalAuthenticationTest {
     RANDOM.nextBytes(saltRandom);
     String salt = DigestUtils.sha1Hex(saltRandom);
 
-    UserDto user = new UserDto()
+    UserDto user = newUserDto()
       .setHashMethod(SHA1.name())
       .setCryptedPassword(DigestUtils.sha1Hex("--" + salt + "--" + password + "--"))
       .setSalt(salt);
@@ -120,8 +122,9 @@ public class LocalAuthenticationTest {
     RANDOM.nextBytes(saltRandom);
     String salt = DigestUtils.sha1Hex(saltRandom);
 
-    UserDto user = new UserDto()
+    UserDto user = newUserDto()
       .setHashMethod(SHA1.name())
+      .setCryptedPassword(null)
       .setSalt(salt);
 
     expectedException.expect(AuthenticationException.class);
@@ -134,7 +137,8 @@ public class LocalAuthenticationTest {
   public void authentication_with_sha1_with_empty_salt_should_throw_AuthenticationException() {
     String password = randomAlphanumeric(60);
 
-    UserDto user = new UserDto()
+    UserDto user = newUserDto()
+      .setSalt(null)
       .setHashMethod(SHA1.name())
       .setCryptedPassword(DigestUtils.sha1Hex("--0242b0b4c0a93ddfe09dd886de50bc25ba000b51--" + password + "--"));
 
@@ -148,7 +152,7 @@ public class LocalAuthenticationTest {
   public void authentication_with_bcrypt_with_incorrect_password_should_throw_AuthenticationException() {
     String password = randomAlphanumeric(60);
 
-    UserDto user = new UserDto()
+    UserDto user = newUserDto()
       .setHashMethod(BCRYPT.name())
       .setCryptedPassword(BCrypt.hashpw(password, BCrypt.gensalt(12)));
 
@@ -166,7 +170,7 @@ public class LocalAuthenticationTest {
     RANDOM.nextBytes(saltRandom);
     String salt = DigestUtils.sha1Hex(saltRandom);
 
-    UserDto user = new UserDto()
+    UserDto user = newUserDto()
       .setLogin("myself")
       .setHashMethod(SHA1.name())
       .setCryptedPassword(DigestUtils.sha1Hex("--" + salt + "--" + password + "--"))

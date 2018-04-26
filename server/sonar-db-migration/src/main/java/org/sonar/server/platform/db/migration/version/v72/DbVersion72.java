@@ -34,6 +34,8 @@ public class DbVersion72 implements DbVersion {
       .add(2104, "Create ALM_APP_INSTALLS table", CreateAlmAppInstallsTable.class)
       .add(2105, "Add LINE_HASHES_VERSION to table FILE_SOURCES", AddLineHashesVersionToFileSources.class)
       .add(2106, "Create PROJECT_MAPPINGS table", CreateProjectMappingsTable.class)
+      .add(2107, "Add UUID on table USERS", AddUUIDtoUsers.class)
+      .add(2108, "Populate USERS.UUID with USERS.LOGIN", PopulateUUIDOnUsers.class)
     ;
   }
 }

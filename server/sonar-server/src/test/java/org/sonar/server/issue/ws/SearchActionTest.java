@@ -51,6 +51,7 @@ import org.sonar.db.protobuf.DbIssues;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.db.user.UserDto;
+import org.sonar.db.user.UserTesting;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.es.StartupIndexer;
@@ -76,6 +77,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
 import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
+import static org.sonar.db.user.UserTesting.newUserDto;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_BRANCH;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.DEPRECATED_FACET_MODE_DEBT;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.FACET_MODE_EFFORT;
@@ -183,8 +185,8 @@ public class SearchActionTest {
 
   @Test
   public void response_contains_all_fields_except_additional_fields() {
-    dbClient.userDao().insert(session, new UserDto().setLogin("simon").setName("Simon").setEmail("simon@email.com"));
-    dbClient.userDao().insert(session, new UserDto().setLogin("fabrice").setName("Fabrice").setEmail("fabrice@email.com"));
+    db.users().insertUser(u -> u.setLogin("simon").setName("Simon").setEmail("simon@email.com"));
+    db.users().insertUser(u -> u.setLogin("fabrice").setName("Fabrice").setEmail("fabrice@email.com"));
 
     ComponentDto project = insertComponent(ComponentTesting.newPublicProjectDto(otherOrganization2, "PROJECT_ID").setDbKey("PROJECT_KEY"));
     indexPermissions();
@@ -280,8 +282,8 @@ public class SearchActionTest {
 
   @Test
   public void issue_with_comments() {
-    dbClient.userDao().insert(session, new UserDto().setLogin("john").setName("John"));
-    dbClient.userDao().insert(session, new UserDto().setLogin("fabrice").setName("Fabrice").setEmail("fabrice@email.com"));
+    db.users().insertUser(u -> u.setLogin("john").setName("John"));
+    db.users().insertUser(u -> u.setLogin("fabrice").setName("Fabrice").setEmail("fabrice@email.com"));
 
     ComponentDto project = insertComponent(ComponentTesting.newPublicProjectDto(otherOrganization2, "PROJECT_ID").setDbKey("PROJECT_KEY"));
     indexPermissions();
@@ -316,8 +318,8 @@ public class SearchActionTest {
 
   @Test
   public void issue_with_comment_hidden() {
-    dbClient.userDao().insert(session, new UserDto().setLogin("john").setName("John").setEmail("john@email.com"));
-    dbClient.userDao().insert(session, new UserDto().setLogin("fabrice").setName("Fabrice").setEmail("fabrice@email.com"));
+    db.users().insertUser(u -> u.setLogin("john").setName("John").setEmail("john@email.com"));
+    db.users().insertUser(u -> u.setLogin("fabrice").setName("Fabrice").setEmail("fabrice@email.com"));
 
     ComponentDto project = insertComponent(ComponentTesting.newPublicProjectDto(otherOrganization1, "PROJECT_ID").setDbKey("PROJECT_KEY"));
     indexPermissions();
@@ -351,8 +353,9 @@ public class SearchActionTest {
 
   @Test
   public void load_additional_fields() {
-    dbClient.userDao().insert(session, new UserDto().setLogin("simon").setName("Simon").setEmail("simon@email.com"));
-    dbClient.userDao().insert(session, new UserDto().setLogin("fabrice").setName("Fabrice").setEmail("fabrice@email.com"));
+    db.users().insertUser(u -> u.setLogin("simon").setName("Simon").setEmail("simon@email.com"));
+    db.users().insertUser(u -> u.setLogin("fabrice").setName("Fabrice").setEmail("fabrice@email.com"));
+
     ComponentDto project = insertComponent(ComponentTesting.newPublicProjectDto(otherOrganization2, "PROJECT_ID").setDbKey("PROJECT_KEY").setLanguage("java"));
     indexPermissions();
     ComponentDto file = insertComponent(newFileDto(project, null, "FILE_ID").setDbKey("FILE_KEY").setLanguage("js"));
@@ -373,8 +376,8 @@ public class SearchActionTest {
 
   @Test
   public void load_additional_fields_with_issue_admin_permission() {
-    dbClient.userDao().insert(session, new UserDto().setLogin("simon").setName("Simon").setEmail("simon@email.com"));
-    dbClient.userDao().insert(session, new UserDto().setLogin("fabrice").setName("Fabrice").setEmail("fabrice@email.com"));
+    db.users().insertUser(u -> u.setLogin("simon").setName("Simon").setEmail("simon@email.com"));
+    db.users().insertUser(u -> u.setLogin("fabrice").setName("Fabrice").setEmail("fabrice@email.com"));
     ComponentDto project = insertComponent(ComponentTesting.newPublicProjectDto(otherOrganization1, "PROJECT_ID").setDbKey("PROJECT_KEY").setLanguage("java"));
     grantPermissionToAnyone(project, ISSUE_ADMIN);
     indexPermissions();
@@ -567,7 +570,7 @@ public class SearchActionTest {
 
   @Test
   public void filter_by_assigned_to_me() {
-    dbClient.userDao().insert(session, new UserDto().setLogin("john").setName("John").setEmail("john@email.com"));
+    dbClient.userDao().insert(session, newUserDto().setLogin("john").setName("John").setEmail("john@email.com"));
 
     ComponentDto project = insertComponent(ComponentTesting.newPublicProjectDto(defaultOrganization, "PROJECT_ID").setDbKey("PROJECT_KEY"));
     indexPermissions();
@@ -641,7 +644,7 @@ public class SearchActionTest {
 
   @Test
   public void assigned_to_me_facet_is_sticky_relative_to_assignees() {
-    dbClient.userDao().insert(session, new UserDto().setLogin("alice").setName("Alice").setEmail("alice@email.com"));
+    dbClient.userDao().insert(session, newUserDto().setLogin("alice").setName("Alice").setEmail("alice@email.com"));
 
     ComponentDto project = insertComponent(ComponentTesting.newPublicProjectDto(otherOrganization2, "PROJECT_ID").setDbKey("PROJECT_KEY"));
     indexPermissions();

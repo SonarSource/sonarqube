@@ -33,6 +33,8 @@ import org.sonar.core.user.DefaultUser;
 public class UserDto {
   public static final char SCM_ACCOUNTS_SEPARATOR = '\n';
 
+  /** Technical unique identifier, can't be null */
+  private String uuid;
   private Integer id;
   private String login;
   private String name;
@@ -54,6 +56,15 @@ public class UserDto {
   private boolean local = true;
   private boolean root = false;
   private boolean onboarded = false;
+
+  public String getUuid() {
+    return uuid;
+  }
+
+  UserDto setUuid(String uuid) {
+    this.uuid = uuid;
+    return this;
+  }
 
   public Integer getId() {
     return id;

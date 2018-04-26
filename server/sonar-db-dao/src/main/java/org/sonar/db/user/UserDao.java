@@ -32,6 +32,7 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import org.sonar.api.user.UserQuery;
 import org.sonar.api.utils.System2;
+import org.sonar.core.util.UuidFactory;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.RowNotFoundException;
@@ -44,9 +45,12 @@ import static org.sonar.db.DatabaseUtils.executeLargeInputsWithoutOutput;
 public class UserDao implements Dao {
 
   private final System2 system2;
+  private final UuidFactory uuidFactory;
 
-  public UserDao(System2 system2) {
+
+  public UserDao(System2 system2, UuidFactory uuidFactory) {
     this.system2 = system2;
+    this.uuidFactory = uuidFactory;
   }
 
   @CheckForNull
@@ -102,16 +106,12 @@ public class UserDao implements Dao {
 
   public UserDto insert(DbSession session, UserDto dto) {
     long now = system2.now();
-    mapper(session).insert(dto, now);
-    dto.setCreatedAt(now);
-    dto.setUpdatedAt(now);
+    mapper(session).insert(dto.setUuid(uuidFactory.create()).setCreatedAt(now).setUpdatedAt(now));
     return dto;
   }
 
   public UserDto update(DbSession session, UserDto dto) {
-    long now = system2.now();
-    mapper(session).update(dto, now);
-    dto.setUpdatedAt(now);
+    mapper(session).update(dto.setUpdatedAt(system2.now()));
     return dto;
   }
 

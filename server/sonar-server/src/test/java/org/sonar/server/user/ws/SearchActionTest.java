@@ -263,7 +263,7 @@ public class SearchActionTest {
   public void only_return_login_and_name_when_not_logged() throws Exception {
     userSession.anonymous();
 
-    dbClient.userDao().insert(dbSession, UserTesting.newUserDto("john", "John", "john@email.com"));
+    dbClient.userDao().insert(dbSession, newUserDto("john", "John", "john@email.com"));
     dbSession.commit();
     userIndexer.indexOnStartup(null);
 
@@ -288,7 +288,7 @@ public class SearchActionTest {
       String name = String.format("User %d", index);
       List<String> scmAccounts = singletonList(String.format("user-%d", index));
 
-      UserDto userDto = dbClient.userDao().insert(dbSession, new UserDto()
+      UserDto userDto = dbClient.userDao().insert(dbSession, newUserDto()
         .setActive(true)
         .setEmail(email)
         .setLogin(login)

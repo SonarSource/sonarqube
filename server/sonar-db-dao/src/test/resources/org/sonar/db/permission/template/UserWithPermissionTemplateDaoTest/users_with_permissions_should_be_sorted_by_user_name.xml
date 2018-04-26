@@ -1,18 +1,21 @@
 <dataset>
 
   <users id="200"
+         uuid="user3uuid"
          login="user3"
          name="User3"
          active="[true]"
          is_root="[false]"
          onboarded="[true]"/>
   <users id="201"
+         uuid="user1uuid"
          login="user1"
          name="User1"
          active="[true]"
          is_root="[false]"
          onboarded="[true]"/>
   <users id="202"
+         uuid="user2uuid"
          login="user2"
          name="User2"
          active="[true]"

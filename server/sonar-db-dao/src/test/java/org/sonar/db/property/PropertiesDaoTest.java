@@ -44,7 +44,6 @@ import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.organization.OrganizationTesting;
 import org.sonar.db.user.UserDto;
-import org.sonar.db.user.UserTesting;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
@@ -56,6 +55,7 @@ import static org.mockito.Mockito.when;
 import static org.sonar.db.property.PropertyTesting.newComponentPropertyDto;
 import static org.sonar.db.property.PropertyTesting.newGlobalPropertyDto;
 import static org.sonar.db.property.PropertyTesting.newUserPropertyDto;
+import static org.sonar.db.user.UserTesting.newUserDto;
 
 @RunWith(DataProviderRunner.class)
 public class PropertiesDaoTest {
@@ -83,9 +83,9 @@ public class PropertiesDaoTest {
   public void shouldFindUsersForNotification() throws SQLException {
     ComponentDto project1 = insertPrivateProject("uuid_45");
     ComponentDto project2 = insertPrivateProject("uuid_56");
-    UserDto user1 = insertUser("user1");
-    UserDto user2 = insertUser("user2");
-    UserDto user3 = insertUser("user3");
+    UserDto user1 = dbTester.users().insertUser(u -> u.setLogin("user1"));
+    UserDto user2 = dbTester.users().insertUser(u -> u.setLogin("user2"));
+    UserDto user3 = dbTester.users().insertUser(u -> u.setLogin("user3"));
     insertProperty("notification.NewViolations.Email", "true", project1.getId(), user2.getId());
     insertProperty("notification.NewViolations.Twitter", "true", null, user3.getId());
     insertProperty("notification.NewViolations.Twitter", "true", project2.getId(), user1.getId());
@@ -122,8 +122,8 @@ public class PropertiesDaoTest {
 
   @Test
   public void hasNotificationSubscribers() throws SQLException {
-    int userId1 = insertUser("user1").getId();
-    int userId2 = insertUser("user2").getId();
+    int userId1 = dbTester.users().insertUser(u -> u.setLogin("user1")).getId();
+    int userId2 = dbTester.users().insertUser(u -> u.setLogin("user2")).getId();
     Long projectId = insertPrivateProject("PROJECT_A").getId();
     // global subscription
     insertProperty("notification.DispatcherWithGlobalSubscribers.Email", "true", null, userId2);
@@ -352,7 +352,7 @@ public class PropertiesDaoTest {
   @Test
   public void select_global_properties_by_keys() throws Exception {
     insertPrivateProject("A");
-    int userId = insertUser("B").getId();
+    int userId = dbTester.users().insertUser(u -> u.setLogin("B")).getId();
 
     String key = "key";
     String anotherKey = "anotherKey";
@@ -378,9 +378,7 @@ public class PropertiesDaoTest {
   public void select_component_properties_by_ids() {
     ComponentDto project = dbTester.components().insertPrivateProject();
     ComponentDto project2 = dbTester.components().insertPrivateProject();
-
-    UserDto user = UserTesting.newUserDto();
-    dbClient.userDao().insert(session, user);
+    UserDto user = dbTester.users().insertUser();
 
     String key = "key";
     String anotherKey = "anotherKey";
@@ -406,9 +404,7 @@ public class PropertiesDaoTest {
   public void select_properties_by_keys_and_component_ids() {
     ComponentDto project = dbTester.components().insertPrivateProject();
     ComponentDto project2 = dbTester.components().insertPrivateProject();
-
-    UserDto user = UserTesting.newUserDto();
-    dbClient.userDao().insert(session, user);
+    UserDto user = dbTester.users().insertUser();
 
     String key = "key";
     String anotherKey = "anotherKey";
@@ -1027,14 +1023,6 @@ public class PropertiesDaoTest {
     dbClient.componentDao().insert(session, project);
     dbTester.commit();
     return project;
-  }
-
-  private UserDto insertUser(String login) {
-    UserDto dto = new UserDto().setLogin(login);
-    DbSession session = dbTester.getSession();
-    dbClient.userDao().insert(session, dto);
-    session.commit();
-    return dto;
   }
 
   private static PropertyDtoAssert assertThatDto(@Nullable PropertyDto dto) {

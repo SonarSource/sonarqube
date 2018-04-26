@@ -37,6 +37,7 @@ import org.sonar.db.metric.MetricDto;
 import org.sonar.db.metric.MetricTesting;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.UserDto;
+import org.sonar.db.user.UserTesting;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.ServerException;
@@ -50,6 +51,7 @@ import static org.assertj.core.data.Offset.offset;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.measure.custom.CustomMeasureTesting.newCustomMeasureDto;
+import static org.sonar.db.user.UserTesting.newUserDto;
 import static org.sonar.server.measure.custom.ws.UpdateAction.PARAM_DESCRIPTION;
 import static org.sonar.server.measure.custom.ws.UpdateAction.PARAM_ID;
 import static org.sonar.server.measure.custom.ws.UpdateAction.PARAM_VALUE;
@@ -76,7 +78,7 @@ public class UpdateActionTest {
 
     ws = new WsTester(new CustomMeasuresWs(new UpdateAction(dbClient, userSessionRule, system, validator, new CustomMeasureJsonWriter(new UserJsonWriter(userSessionRule)))));
 
-    db.getDbClient().userDao().insert(dbSession, new UserDto()
+    db.getDbClient().userDao().insert(dbSession, newUserDto()
       .setLogin("login")
       .setName("Login")
       .setEmail("login@login.com")

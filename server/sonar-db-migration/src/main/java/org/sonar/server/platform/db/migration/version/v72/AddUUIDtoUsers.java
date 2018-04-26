@@ -19,22 +19,30 @@
  */
 package org.sonar.server.platform.db.migration.version.v72;
 
-import org.junit.Test;
+import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.def.VarcharColumnDef;
+import org.sonar.server.platform.db.migration.sql.AddColumnsBuilder;
+import org.sonar.server.platform.db.migration.step.DdlChange;
 
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationCount;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
+import java.sql.SQLException;
 
-public class DbVersion72Test {
-  private DbVersion72 underTest = new DbVersion72();
+public class AddUUIDtoUsers extends DdlChange {
 
-  @Test
-  public void migrationNumber_starts_at_2100() {
-    verifyMinimumMigrationNumber(underTest, 2100);
+  private static final String TABLE_NAME = "users";
+  private static final String UUID_COLUMN_NAME = "uuid";
+  private static final int UUID_LENGTH = 40;
+
+  public AddUUIDtoUsers(Database db) {
+    super(db);
   }
 
-  @Test
-  public void verify_migration_count() {
-    verifyMigrationCount(underTest, 9);
+  @Override public void execute(Context context) throws SQLException {
+    context.execute(new AddColumnsBuilder(getDialect(), TABLE_NAME)
+      .addColumn(VarcharColumnDef.newVarcharColumnDefBuilder()
+        .setColumnName(UUID_COLUMN_NAME)
+        .setIsNullable(true)
+        .setLimit(UUID_LENGTH)
+        .build())
+      .build());
   }
-
 }
