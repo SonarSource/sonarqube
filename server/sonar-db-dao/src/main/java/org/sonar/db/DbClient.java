@@ -37,6 +37,7 @@ import org.sonar.db.es.EsQueueDao;
 import org.sonar.db.event.EventDao;
 import org.sonar.db.issue.IssueChangeDao;
 import org.sonar.db.issue.IssueDao;
+import org.sonar.db.alm.AlmAppInstallDao;
 import org.sonar.db.measure.LiveMeasureDao;
 import org.sonar.db.measure.MeasureDao;
 import org.sonar.db.measure.custom.CustomMeasureDao;
@@ -87,6 +88,7 @@ public class DbClient {
   private final OrganizationMemberDao organizationMemberDao;
   private final QualityProfileDao qualityProfileDao;
   private final PropertiesDao propertiesDao;
+  private final AlmAppInstallDao almAppInstallDao;
   private final InternalPropertiesDao internalPropertiesDao;
   private final SnapshotDao snapshotDao;
   private final ComponentDao componentDao;
@@ -144,6 +146,7 @@ public class DbClient {
     for (Dao dao : daos) {
       map.put(dao.getClass(), dao);
     }
+    almAppInstallDao = getDao(map, AlmAppInstallDao.class);
     schemaMigrationDao = getDao(map, SchemaMigrationDao.class);
     authorizationDao = getDao(map, AuthorizationDao.class);
     organizationDao = getDao(map, OrganizationDao.class);
@@ -205,6 +208,10 @@ public class DbClient {
 
   public Database getDatabase() {
     return database;
+  }
+
+  public AlmAppInstallDao almAppInstallDao() {
+    return almAppInstallDao;
   }
 
   public SchemaMigrationDao schemaMigrationDao() {
@@ -422,7 +429,7 @@ public class DbClient {
   }
 
   public WebhookDao webhookDao() {
-    return webhookDao ;
+    return webhookDao;
   }
 
   public WebhookDeliveryDao webhookDeliveryDao() {

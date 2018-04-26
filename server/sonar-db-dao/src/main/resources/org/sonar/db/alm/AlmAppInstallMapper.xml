@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd">
+
+<mapper namespace="org.sonar.db.alm.AlmAppInstallMapper">
+
+  <select id="selectInstallId" parameterType="Map" resultType="String">
+    select
+      install_id as installId
+    from
+      alm_app_installs
+    where
+      alm_id = #{almId, jdbcType=VARCHAR}
+      and owner_id = #{ownerId, jdbcType=VARCHAR}
+  </select>
+
+  <insert id="insert" parameterType="Map" useGeneratedKeys="false">
+    INSERT INTO alm_app_installs
+    (
+      uuid,
+      alm_id,
+      owner_id,
+      install_id,
+      created_at,
+      updated_at
+    )
+    VALUES (
+      #{uuid, jdbcType=VARCHAR},
+      #{almId, jdbcType=VARCHAR},
+      #{ownerId, jdbcType=VARCHAR},
+      #{installId, jdbcType=VARCHAR},
+      #{now, jdbcType=BIGINT},
+      #{now, jdbcType=BIGINT}
+    )
+  </insert>
+
+  <update id="update" parameterType="map">
+    update alm_app_installs set
+      install_id = #{installId, jdbcType=VARCHAR},
+      updated_at = #{now, jdbcType=BIGINT}
+    where
+      alm_id = #{almId, jdbcType=VARCHAR}
+      and owner_id = #{ownerId, jdbcType=VARCHAR}
+  </update>
+
+  <delete id="deleteByOwnerId" parameterType="Map">
+    delete from alm_app_installs
+    where
+      alm_id = #{almId, jdbcType=VARCHAR}
+      and owner_id = #{ownerId, jdbcType=VARCHAR}
+  </delete>
+
+
+</mapper>

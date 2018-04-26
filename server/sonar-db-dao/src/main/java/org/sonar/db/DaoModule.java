@@ -39,6 +39,7 @@ import org.sonar.db.es.EsQueueDao;
 import org.sonar.db.event.EventDao;
 import org.sonar.db.issue.IssueChangeDao;
 import org.sonar.db.issue.IssueDao;
+import org.sonar.db.alm.AlmAppInstallDao;
 import org.sonar.db.measure.LiveMeasureDao;
 import org.sonar.db.measure.MeasureDao;
 import org.sonar.db.measure.custom.CustomMeasureDao;
@@ -102,6 +103,7 @@ public class DaoModule extends Module {
     GroupDao.class,
     GroupMembershipDao.class,
     GroupPermissionDao.class,
+    AlmAppInstallDao.class,
     InternalPropertiesDao.class,
     IssueChangeDao.class,
     IssueDao.class,
