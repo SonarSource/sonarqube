@@ -90,47 +90,50 @@ public class ComputeEngineContainerImplTest {
       .start(new Props(properties));
 
     MutablePicoContainer picoContainer = underTest.getComponentContainer().getPicoContainer();
-    assertThat(picoContainer.getComponentAdapters())
-      .hasSize(
+    try {
+      assertThat(picoContainer.getComponentAdapters())
+        .hasSize(
+          CONTAINER_ITSELF
+            + 83 // level 4
+            + 21 // content of QualityGateModule
+            + 6 // content of CeConfigurationModule
+            + 4 // content of CeQueueModule
+            + 4 // content of CeHttpModule
+            + 3 // content of CeTaskCommonsModule
+            + 4 // content of ProjectAnalysisTaskModule
+            + 7 // content of CeTaskProcessorModule
+            + 4 // content of ReportAnalysisFailureNotificationModule
+            + 3 // CeCleaningModule + its content
+            + 4 // WebhookModule
+            + 1 // CeDistributedInformation
+      );
+      assertThat(picoContainer.getParent().getComponentAdapters()).hasSize(
         CONTAINER_ITSELF
-          + 83 // level 4
-          + 21 // content of QualityGateModule
-          + 6 // content of CeConfigurationModule
-          + 4 // content of CeQueueModule
-          + 4 // content of CeHttpModule
-          + 3 // content of CeTaskCommonsModule
-          + 4 // content of ProjectAnalysisTaskModule
-          + 7 // content of CeTaskProcessorModule
-          + 4 // content of ReportAnalysisFailureNotificationModule
-          + 3 // CeCleaningModule + its content
-          + 4 // WebhookModule
-          + 1 // CeDistributedInformation
-    );
-    assertThat(picoContainer.getParent().getComponentAdapters()).hasSize(
-      CONTAINER_ITSELF
-        + 7 // level 3
-    );
-    assertThat(picoContainer.getParent().getParent().getComponentAdapters()).hasSize(
-      CONTAINER_ITSELF
-        + 16 // MigrationConfigurationModule
-        + 17 // level 2
-    );
-    assertThat(picoContainer.getParent().getParent().getParent().getComponentAdapters()).hasSize(
-      COMPONENTS_IN_LEVEL_1_AT_CONSTRUCTION
-        + 26 // level 1
-        + 53 // content of DaoModule
-        + 3 // content of EsModule
-        + 59 // content of CorePropertyDefinitions
-        + 1 // StopFlagContainer
-    );
-    assertThat(
-      picoContainer.getComponentAdapters().stream()
-        .map(ComponentAdapter::getComponentImplementation)
-        .collect(Collectors.toList())).doesNotContain(
-          (Class) CeDistributedInformationImpl.class).contains(
-            (Class) StandaloneCeDistributedInformation.class);
-    assertThat(picoContainer.getParent().getParent().getParent().getParent()).isNull();
-    underTest.stop();
+          + 7 // level 3
+      );
+      assertThat(picoContainer.getParent().getParent().getComponentAdapters()).hasSize(
+        CONTAINER_ITSELF
+          + 16 // MigrationConfigurationModule
+          + 17 // level 2
+      );
+      assertThat(picoContainer.getParent().getParent().getParent().getComponentAdapters()).hasSize(
+        COMPONENTS_IN_LEVEL_1_AT_CONSTRUCTION
+          + 26 // level 1
+          + 53 // content of DaoModule
+          + 3 // content of EsModule
+          + 59 // content of CorePropertyDefinitions
+          + 1 // StopFlagContainer
+      );
+      assertThat(
+        picoContainer.getComponentAdapters().stream()
+          .map(ComponentAdapter::getComponentImplementation)
+          .collect(Collectors.toList())).doesNotContain(
+            (Class) CeDistributedInformationImpl.class).contains(
+              (Class) StandaloneCeDistributedInformation.class);
+      assertThat(picoContainer.getParent().getParent().getParent().getParent()).isNull();
+    } finally {
+      underTest.stop();
+    }
 
     assertThat(picoContainer.getLifecycleState().isStarted()).isFalse();
     assertThat(picoContainer.getLifecycleState().isStopped()).isFalse();
