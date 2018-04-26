@@ -29,6 +29,7 @@ import Footer from './Footer';
 import StatsContainer from '../components/StatsContainer';
 import Search from '../components/Search';
 import Tasks from '../components/Tasks';
+import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
 import {
   getTypes,
   getActivity,
@@ -227,6 +228,7 @@ class BackgroundTasksApp extends React.PureComponent {
 
     return (
       <div className="page page-limited">
+        <Suggestions suggestions="background_tasks" />
         <Helmet title={translate('background_tasks.page')} />
         <Header component={component} />
 

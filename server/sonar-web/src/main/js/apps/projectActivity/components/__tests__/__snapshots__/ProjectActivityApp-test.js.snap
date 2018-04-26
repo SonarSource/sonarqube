@@ -5,6 +5,9 @@ exports[`should render correctly 1`] = `
   className="page page-limited"
   id="project-activity"
 >
+  <Suggestions
+    suggestions="project_activity"
+  />
   <HelmetWrapper
     defer={true}
     encodeSpecialCharacters={true}

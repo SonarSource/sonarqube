@@ -23,6 +23,7 @@ import { Link } from 'react-router';
 import { SuggestionLink } from './SuggestionsProvider';
 import BubblePopup, { BubblePopupPosition } from '../../../components/common/BubblePopup';
 import { translate } from '../../../helpers/l10n';
+import { getBaseUrl } from '../../../helpers/urls';
 
 interface Props {
   onClose: () => void;
@@ -72,7 +73,7 @@ export default class EmbedDocsPopup extends React.PureComponent<Props> {
           alt={text}
           className="spacer-right"
           height="18"
-          src={'/images/embed-doc/' + icon}
+          src={`${getBaseUrl()}/images/embed-doc/${icon}`}
           width="18"
         />
         {text}

@@ -17,23 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
-import { Link } from 'react-router';
+import { lazyLoad } from '../../components/lazyLoad';
 
-export default function DocLink(props: React.AnchorHTMLAttributes<HTMLAnchorElement>) {
-  const { children, href, ...other } = props;
-
-  if (href && href.startsWith('/')) {
-    return (
-      <Link to={`/documentation/${href.substr(1)}`} {...other}>
-        {children}
-      </Link>
-    );
+const routes = [
+  {
+    indexRoute: { component: lazyLoad(() => import('./components/App')) }
+  },
+  {
+    path: '**',
+    indexRoute: { component: lazyLoad(() => import('./components/App')) }
   }
+];
 
-  return (
-    <a href={href} {...other}>
-      {children}
-    </a>
-  );
-}
+export default routes;

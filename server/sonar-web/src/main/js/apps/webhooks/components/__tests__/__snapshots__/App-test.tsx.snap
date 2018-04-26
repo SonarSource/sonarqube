@@ -2,6 +2,9 @@
 
 exports[`should be in loading status 1`] = `
 <React.Fragment>
+  <Suggestions
+    suggestions="webhooks"
+  />
   <HelmetWrapper
     defer={true}
     encodeSpecialCharacters={true}
@@ -25,6 +28,9 @@ exports[`should be in loading status 1`] = `
 
 exports[`should fetch webhooks and display them 1`] = `
 <React.Fragment>
+  <Suggestions
+    suggestions="webhooks"
+  />
   <HelmetWrapper
     defer={true}
     encodeSpecialCharacters={true}

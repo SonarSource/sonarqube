@@ -21,6 +21,7 @@ import * as React from 'react';
 import { Helmet } from 'react-helmet';
 import Header from './Header';
 import List from './List';
+import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
 import { searchUsersGroups, deleteGroup, updateGroup, createGroup } from '../../../api/user_groups';
 import { Group, Paging } from '../../../app/types';
 import ListFooter from '../../../components/controls/ListFooter';
@@ -140,6 +141,7 @@ export default class App extends React.PureComponent<Props, State> {
 
     return (
       <>
+        <Suggestions suggestions="user_groups" />
         <Helmet title={translate('user_groups.page')} />
         <div className="page page-limited" id="groups-page">
           <Header loading={loading} onCreate={this.handleCreate} />

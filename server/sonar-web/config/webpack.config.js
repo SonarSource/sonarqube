@@ -36,7 +36,7 @@ module.exports = ({ production = true }) => ({
     extensions: ['.ts', '.tsx', '.js', '.json'],
     // import from 'Docs/foo.md' is rewritten to import from 'sonar-docs/src/foo.md'
     alias: {
-      Docs: path.resolve(__dirname, '../../sonar-docs/src/tooltips')
+      Docs: path.resolve(__dirname, '../../sonar-docs/src')
     }
   },
   entry: [
@@ -79,12 +79,24 @@ module.exports = ({ production = true }) => ({
       },
       { test: require.resolve('lodash'), loader: 'expose-loader?_' },
       { test: require.resolve('react'), loader: 'expose-loader?React' },
-      { test: require.resolve('react-dom'), loader: 'expose-loader?ReactDOM' }
+      { test: require.resolve('react-dom'), loader: 'expose-loader?ReactDOM' },
+      {
+        test: /\.directory-loader\.js$/,
+        loader: path.resolve(__dirname, 'documentation-loader/index.js')
+      }
     ].filter(Boolean)
   },
   plugins: [
     // `allowExternal: true` to remove files outside of the current dir
     production && new CleanWebpackPlugin([paths.appBuild], { allowExternal: true, verbose: false }),
+
+    production &&
+      new CopyWebpackPlugin([
+        {
+          from: paths.docImages,
+          to: paths.appBuild + '/images/embed-doc/images'
+        }
+      ]),
 
     production &&
       new CopyWebpackPlugin([

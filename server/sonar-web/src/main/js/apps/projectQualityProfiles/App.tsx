@@ -28,6 +28,7 @@ import {
   Profile
 } from '../../api/quality-profiles';
 import { Component } from '../../app/types';
+import Suggestions from '../../app/components/embed-docs-modal/Suggestions';
 import addGlobalSuccessMessage from '../../app/utils/addGlobalSuccessMessage';
 import handleRequiredAuthorization from '../../app/utils/handleRequiredAuthorization';
 import { translate, translateWithParameters } from '../../helpers/l10n';
@@ -118,6 +119,7 @@ export default class QualityProfiles extends React.PureComponent<Props, State> {
 
     return (
       <div className="page page-limited">
+        <Suggestions suggestions="project_quality_profiles" />
         <Helmet title={translate('project_quality_profiles.page')} />
 
         <Header />

@@ -75,6 +75,7 @@ import settingsRoutes from '../../apps/settings/routes';
 import systemRoutes from '../../apps/system/routes';
 import usersRoutes from '../../apps/users/routes';
 import webAPIRoutes from '../../apps/web-api/routes';
+import documentationRoutes from '../../apps/documentation/routes';
 import webhooksRoutes from '../../apps/webhooks/routes';
 import { maintenanceRoutes, setupRoutes } from '../../apps/maintenance/routes';
 import { globalPermissionsRoutes, projectPermissionsRoutes } from '../../apps/permissions/routes';
@@ -170,6 +171,7 @@ const startReactApp = () => {
                 <Route path="account" childRoutes={accountRoutes} />
                 <Route path="coding_rules" childRoutes={codingRulesRoutes} />
                 <Route path="component" childRoutes={componentRoutes} />
+                <Route path="documentation" childRoutes={documentationRoutes} />
                 <Route path="explore" component={Explore}>
                   <Route path="issues" component={ExploreIssues} />
                   <Route path="projects" component={ExploreProjects} />

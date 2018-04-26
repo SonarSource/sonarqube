@@ -24,6 +24,7 @@ import ClusterSysInfos from './ClusterSysInfos';
 import PageHeader from './PageHeader';
 import StandaloneSysInfos from './StandaloneSysInfos';
 import SystemUpgradeNotif from './system-upgrade/SystemUpgradeNotif';
+import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
 import { translate } from '../../../helpers/l10n';
 import { ClusterSysInfo, getSystemInfo, SysInfo } from '../../../api/system';
 import {
@@ -128,6 +129,7 @@ export default class App extends React.PureComponent<Props, State> {
     const { loading, sysInfoData } = this.state;
     return (
       <div className="page page-limited">
+        <Suggestions suggestions="system_info" />
         <Helmet title={translate('system_info.page')} />
         <SystemUpgradeNotif />
         <PageHeader

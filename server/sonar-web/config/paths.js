@@ -22,5 +22,7 @@ const path = require('path');
 module.exports = {
   appBuild: path.join(__dirname, '../build/webapp'),
   appPublic: path.join(__dirname, '../public'),
-  appHtml: path.join(__dirname, '../public/index.html')
+  appHtml: path.join(__dirname, '../public/index.html'),
+  docRoot: path.join(__dirname, '../../sonar-docs/src'),
+  docImages: path.join(__dirname, '../../sonar-docs/src/images')
 };

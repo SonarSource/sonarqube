@@ -19,7 +19,8 @@
  */
 import * as React from 'react';
 import * as PropTypes from 'prop-types';
-import * as suggestionsJson from './EmbedDocsSuggestions.json';
+//eslint-disable-next-line import/no-extraneous-dependencies
+import * as suggestionsJson from 'Docs/EmbedDocsSuggestions.json';
 import { SuggestionsContext } from './SuggestionsContext';
 
 export interface SuggestionLink {

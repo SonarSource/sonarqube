@@ -22,6 +22,7 @@ import PropTypes from 'prop-types';
 import Home from './Home';
 import Template from './Template';
 import OrganizationHelmet from '../../../components/common/OrganizationHelmet';
+import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
 import { getPermissionTemplates } from '../../../api/permissions';
 import { sortPermissions, mergePermissionsToTemplates, mergeDefaultsToTemplates } from '../utils';
 import { translate } from '../../../helpers/l10n';
@@ -103,6 +104,7 @@ export default class App extends React.PureComponent {
     const { id } = this.props.location.query;
     return (
       <div>
+        <Suggestions suggestions="permission_templates" />
         <OrganizationHelmet
           title={translate('permission_templates.page')}
           organization={this.props.organization}

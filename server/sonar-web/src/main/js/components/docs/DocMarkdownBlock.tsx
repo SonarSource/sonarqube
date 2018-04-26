@@ -21,27 +21,39 @@ import * as React from 'react';
 import * as classNames from 'classnames';
 import remark from 'remark';
 import reactRenderer from 'remark-react';
+import * as matter from 'gray-matter';
 import DocLink from './DocLink';
+import DocParagraph from './DocParagraph';
+import DocImg from './DocImg';
 
 interface Props {
   className?: string;
   content: string | undefined;
+  displayH1?: boolean;
 }
 
-export default function DocMarkdownBlock({ className, content }: Props) {
+export default function DocMarkdownBlock({ className, content, displayH1 }: Props) {
+  const parsed = matter(content || '');
   return (
     <div className={classNames('markdown', className)}>
+      {displayH1 && <h1>{parsed.data.title}</h1>}
       {
         remark()
+          // .use(remarkInclude)
           .use(reactRenderer, {
             remarkReactComponents: {
               // do not render outer <div />
               div: React.Fragment,
               // use custom link to render documentation anchors
-              a: DocLink
-            }
+              a: DocLink,
+              // used to handle `@include`
+              p: DocParagraph,
+              // use custom img tag to render documentation images
+              img: DocImg
+            },
+            toHast: {}
           })
-          .processSync(content).contents
+          .processSync(parsed.content).contents
       }
     </div>
   );

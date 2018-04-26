@@ -34,7 +34,7 @@ jest.mock('../../../app/utils/handleRequiredAuthorization', () => ({
 }));
 
 import * as React from 'react';
-import { mount } from 'enzyme';
+import { shallow } from 'enzyme';
 import App from '../App';
 import { Component } from '../../../app/types';
 
@@ -73,7 +73,7 @@ beforeEach(() => {
 
 it('checks permissions', () => {
   handleRequiredAuthorization.mockClear();
-  mount(
+  shallow(
     <App
       component={{ ...component, configuration: undefined } as Component}
       onComponentChange={jest.fn()}
@@ -85,7 +85,7 @@ it('checks permissions', () => {
 it('fetches quality gates', () => {
   fetchQualityGates.mockClear();
   getGateForProject.mockClear();
-  mount(<App component={component} onComponentChange={jest.fn()} />);
+  shallow(<App component={component} onComponentChange={jest.fn()} />);
   expect(fetchQualityGates).toBeCalledWith({ organization: 'org' });
   expect(getGateForProject).toBeCalledWith({ organization: 'org', project: 'component' });
 });
@@ -140,7 +140,7 @@ function randomGate(id: string, isDefault = false) {
 }
 
 function mountRender(allGates: any[], gate?: any) {
-  const wrapper = mount(<App component={component} onComponentChange={jest.fn()} />);
+  const wrapper = shallow(<App component={component} onComponentChange={jest.fn()} />);
   wrapper.setState({ allGates, loading: false, gate });
   return wrapper;
 }

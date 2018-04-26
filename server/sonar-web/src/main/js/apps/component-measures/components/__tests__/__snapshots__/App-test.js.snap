@@ -5,6 +5,9 @@ exports[`should render correctly 1`] = `
   className="layout-page"
   id="component-measures"
 >
+  <Suggestions
+    suggestions="component_measures"
+  />
   <HelmetWrapper
     defer={true}
     encodeSpecialCharacters={true}

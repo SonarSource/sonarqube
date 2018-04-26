@@ -1,0 +1,53 @@
+{
+  "account": [],
+  "api_documentation": [],
+  "background_tasks": [],
+  "code": [],
+  "coding_rules": [
+    {
+      "link": "/documentation/quality-profiles",
+      "text": "Quality Profiles"
+    }
+  ],
+  "component_measures": [
+    {
+      "link": "/documentation/fixing-the-water-leak",
+      "text": "Fixing the Water Leak"
+    }
+  ],
+  "custom_measures": [],
+  "custom_metrics": [],
+  "global_permissions": [],
+  "issues": [],
+  "marketplace": [],
+  "overview": [
+    {
+      "link": "/documentation/fixing-the-water-leak",
+      "text": "Fixing the Water Leak"
+    }
+  ],
+  "permission_templates": [],
+  "profiles": [],
+  "project_activity": [],
+  "project_quality_gate": [],
+  "project_quality_profiles": [],
+  "projects_management": [],
+  "projects": [],
+  "quality_gates": [
+    {
+      "link": "/documentation/fixing-the-water-leak",
+      "text": "Fixing the Water Leak"
+    }
+  ],
+  "quality_profiles": [
+    {
+      "link": "/documentation/quality-profiles",
+      "text": "Quality Profiles"
+    }
+  ],
+  "settings": [],
+  "system_info": [],
+  "user_groups": [],
+  "users": [],
+  "webhooks": []
+}

@@ -25,6 +25,7 @@ import ProjectActivityAnalysesList from './ProjectActivityAnalysesList';
 import ProjectActivityGraphs from './ProjectActivityGraphs';
 import { parseDate } from '../../../helpers/dates';
 import { translate } from '../../../helpers/l10n';
+import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
 import './projectActivity.css';
 /*:: import type { Analysis, MeasureHistory, Metric, Query } from '../types'; */
 
@@ -61,6 +62,7 @@ export default function ProjectActivityApp(props /*: Props */) {
   const canDeleteAnalyses = configuration ? configuration.showHistory : false;
   return (
     <div id="project-activity" className="page page-limited">
+      <Suggestions suggestions="project_activity" />
       <Helmet title={translate('project_activity.page')} />
 
       <ProjectActivityPageHeader

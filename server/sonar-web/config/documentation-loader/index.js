@@ -17,23 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
-import { Link } from 'react-router';
+const path = require('path');
+const parseDirectory = require('./parse-directory');
+const fetchMatter = require('./fetch-matter');
 
-export default function DocLink(props: React.AnchorHTMLAttributes<HTMLAnchorElement>) {
-  const { children, href, ...other } = props;
+module.exports = function(source) {
+  this.cacheable();
 
-  if (href && href.startsWith('/')) {
-    return (
-      <Link to={`/documentation/${href.substr(1)}`} {...other}>
-        {children}
-      </Link>
-    );
-  }
+  const failure = this.async();
+  const success = failure.bind(null, null);
 
-  return (
-    <a href={href} {...other}>
-      {children}
-    </a>
-  );
-}
+  const config = this.exec(source, this.resourcePath);
+  const root = path.resolve(path.dirname(this.resourcePath), config.root);
+  this.addContextDependency(root);
+
+  parseDirectory(root)
+    .then(files => fetchMatter(root, files))
+    .then(result => `module.exports = ${JSON.stringify(result)};`)
+    .then(success)
+    .catch(failure);
+};

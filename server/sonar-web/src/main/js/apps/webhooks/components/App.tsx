@@ -23,6 +23,7 @@ import PageActions from './PageActions';
 import PageHeader from './PageHeader';
 import WebhooksList from './WebhooksList';
 import { createWebhook, deleteWebhook, searchWebhooks, updateWebhook } from '../../../api/webhooks';
+import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
 import { LightComponent, Organization, Webhook } from '../../../app/types';
 import { translate } from '../../../helpers/l10n';
 
@@ -113,6 +114,7 @@ export default class App extends React.PureComponent<Props, State> {
 
     return (
       <>
+        <Suggestions suggestions="webhooks" />
         <Helmet title={translate('webhooks.page')} />
 
         <div className="page page-limited">

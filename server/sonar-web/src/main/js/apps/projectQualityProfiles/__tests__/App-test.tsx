@@ -33,7 +33,7 @@ jest.mock('../../../app/utils/handleRequiredAuthorization', () => ({
 }));
 
 import * as React from 'react';
-import { mount } from 'enzyme';
+import { shallow } from 'enzyme';
 import App from '../App';
 
 const associateProject = require('../../../api/quality-profiles').associateProject as jest.Mock<
@@ -66,13 +66,13 @@ const component = {
 
 it('checks permissions', () => {
   handleRequiredAuthorization.mockClear();
-  mount(<App component={{ ...component, configuration: undefined }} />);
+  shallow(<App component={{ ...component, configuration: undefined }} />);
   expect(handleRequiredAuthorization).toBeCalled();
 });
 
 it('fetches profiles', () => {
   searchQualityProfiles.mockClear();
-  mount(<App component={component} />);
+  shallow(<App component={component} />);
   expect(searchQualityProfiles.mock.calls).toHaveLength(2);
   expect(searchQualityProfiles).toBeCalledWith({ organization: 'org' });
   expect(searchQualityProfiles).toBeCalledWith({ organization: 'org', project: 'foo' });
@@ -82,7 +82,7 @@ it('changes profile', () => {
   associateProject.mockClear();
   dissociateProject.mockClear();
   addGlobalSuccessMessage.mockClear();
-  const wrapper = mount(<App component={component} />);
+  const wrapper = shallow(<App component={component} />);
 
   const fooJava = randomProfile('foo-java', 'java');
   const fooJs = randomProfile('foo-js', 'js');

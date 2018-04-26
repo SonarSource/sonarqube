@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import { searchQualityProfiles, getExporters, Actions } from '../../../api/quality-profiles';
+import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
 import { sortProfiles } from '../utils';
 import { translate } from '../../../helpers/l10n';
 import OrganizationHelmet from '../../../components/common/OrganizationHelmet';
@@ -109,6 +110,7 @@ export default class App extends React.PureComponent<Props, State> {
   render() {
     return (
       <div className="page page-limited">
+        <Suggestions suggestions="quality_profiles" />
         <OrganizationHelmet
           title={translate('quality_profiles.page')}
           organization={this.props.organization}

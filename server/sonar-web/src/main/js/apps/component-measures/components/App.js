@@ -27,6 +27,7 @@ import Sidebar from '../sidebar/Sidebar';
 import ScreenPositionHelper from '../../../components/common/ScreenPositionHelper';
 import { isProjectOverview, hasBubbleChart, parseQuery, serializeQuery } from '../utils';
 import { isSameBranchLike, getBranchLikeQuery } from '../../../helpers/branches';
+import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
 import {
   getLocalizedMetricDomain,
   translateWithParameters,
@@ -177,6 +178,7 @@ export default class App extends React.PureComponent {
     const metric = metrics[query.metric];
     return (
       <div className="layout-page" id="component-measures">
+        <Suggestions suggestions="component_measures" />
         <Helmet title={this.getHelmetTitle(metric, query)} />
 
         <ScreenPositionHelper className="layout-page-side-outer">

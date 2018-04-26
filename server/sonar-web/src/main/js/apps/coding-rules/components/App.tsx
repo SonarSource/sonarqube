@@ -27,6 +27,7 @@ import FacetsList from './FacetsList';
 import PageActions from './PageActions';
 import RuleDetails from './RuleDetails';
 import RuleListItem from './RuleListItem';
+import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
 import {
   Facets,
   Query,
@@ -466,6 +467,7 @@ export default class App extends React.PureComponent<Props, State> {
 
     return (
       <>
+        <Suggestions suggestions="coding_rules" />
         <Helmet title={translate('coding_rules.page')}>
           <meta content="noindex" name="robots" />
         </Helmet>

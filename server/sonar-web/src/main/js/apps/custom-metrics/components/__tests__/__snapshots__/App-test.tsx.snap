@@ -2,6 +2,9 @@
 
 exports[`should work 1`] = `
 <React.Fragment>
+  <Suggestions
+    suggestions="custom_metrics"
+  />
   <HelmetWrapper
     defer={true}
     encodeSpecialCharacters={true}
@@ -21,6 +24,9 @@ exports[`should work 1`] = `
 
 exports[`should work 2`] = `
 <React.Fragment>
+  <Suggestions
+    suggestions="custom_metrics"
+  />
   <HelmetWrapper
     defer={true}
     encodeSpecialCharacters={true}

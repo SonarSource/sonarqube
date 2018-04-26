@@ -12,7 +12,11 @@
     "lib": ["es2017", "dom"],
     "module": "esnext",
     "moduleResolution": "node",
-    "sourceMap": true
+    "sourceMap": true,
+    "baseUrl": ".",
+    "paths": {
+      "*": ["./src/main/js/@types/*"]
+    }
   },
   "include": ["./src/main/js/**/*"]
 }

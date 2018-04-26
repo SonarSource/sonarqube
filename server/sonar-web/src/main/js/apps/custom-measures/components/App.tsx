@@ -28,6 +28,7 @@ import {
   deleteCustomMeasure
 } from '../../../api/measures';
 import { Paging, CustomMeasure } from '../../../app/types';
+import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
 import ListFooter from '../../../components/controls/ListFooter';
 import { translate } from '../../../helpers/l10n';
 
@@ -133,6 +134,7 @@ export default class App extends React.PureComponent<Props, State> {
 
     return (
       <>
+        <Suggestions suggestions="custom_measures" />
         <Helmet title={translate('custom_measures.page')} />
         <div className="page page-limited">
           <Header

@@ -25,6 +25,7 @@ import UserCard from './UserCard';
 import { getCurrentUser, areThereCustomOrganizations } from '../../../store/rootReducer';
 import { translate } from '../../../helpers/l10n';
 import handleRequiredAuthentication from '../../../app/utils/handleRequiredAuthentication';
+import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
 import '../account.css';
 
 class Account extends React.PureComponent {
@@ -44,6 +45,7 @@ class Account extends React.PureComponent {
     const title = translate('my_account.page');
     return (
       <div id="account-page">
+        <Suggestions suggestions="account" />
         <Helmet defaultTitle={title} titleTemplate={'%s - ' + title} />
         <header className="account-header">
           <div className="account-container clearfix">

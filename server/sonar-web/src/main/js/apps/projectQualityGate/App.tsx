@@ -28,6 +28,7 @@ import {
   dissociateGateWithProject,
   QualityGate
 } from '../../api/quality-gates';
+import Suggestions from '../../app/components/embed-docs-modal/Suggestions';
 import addGlobalSuccessMessage from '../../app/utils/addGlobalSuccessMessage';
 import handleRequiredAuthorization from '../../app/utils/handleRequiredAuthorization';
 import { Component } from '../../app/types';
@@ -128,6 +129,7 @@ export default class App extends React.PureComponent<Props> {
 
     return (
       <div id="project-quality-gate" className="page page-limited">
+        <Suggestions suggestions="project_quality_gate" />
         <Helmet title={translate('project_quality_gate.page')} />
         <Header />
         {loading ? (

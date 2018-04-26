@@ -18,22 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { Link } from 'react-router';
 
-export default function DocLink(props: React.AnchorHTMLAttributes<HTMLAnchorElement>) {
-  const { children, href, ...other } = props;
+export default function DocImg(props: React.ImgHTMLAttributes<HTMLImageElement>) {
+  const { alt, src, ...other } = props;
 
-  if (href && href.startsWith('/')) {
-    return (
-      <Link to={`/documentation/${href.substr(1)}`} {...other}>
-        {children}
-      </Link>
-    );
+  if (process.env.NODE_ENV === 'development') {
+    return <img alt={alt} className="max-width-100" src={'/' + src} {...other} />;
   }
 
-  return (
-    <a href={href} {...other}>
-      {children}
-    </a>
-  );
+  return <img alt={alt} className="max-width-100" src={'/images/embed-doc/' + src} {...other} />;
 }

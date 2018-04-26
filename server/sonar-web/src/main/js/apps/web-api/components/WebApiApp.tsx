@@ -29,6 +29,7 @@ import ScreenPositionHelper from '../../../components/common/ScreenPositionHelpe
 import { getActionKey, isDomainPathActive } from '../utils';
 import { scrollToElement } from '../../../helpers/scrolling';
 import { translate } from '../../../helpers/l10n';
+import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
 import '../styles/web-api.css';
 
 interface Props {
@@ -148,6 +149,7 @@ export default class WebApiApp extends React.PureComponent<Props, State> {
 
     return (
       <div className="layout-page">
+        <Suggestions suggestions="api_documentation" />
         <Helmet title={translate('api_documentation.page')} />
         <ScreenPositionHelper className="layout-page-side-outer">
           {({ top }) => (

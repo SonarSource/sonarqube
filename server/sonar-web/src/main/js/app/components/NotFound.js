@@ -21,11 +21,18 @@ import React from 'react';
 import { Link } from 'react-router';
 import SimpleContainer from './SimpleContainer';
 
-export default function NotFound() {
+/*::
+type Props = {
+  withContainer?: boolean;
+};
+*/
+
+export default function NotFound({ withContainer = true } /*: Props*/) {
+  const Container = withContainer ? SimpleContainer : React.Fragment;
   return (
-    <SimpleContainer>
-      <div id="bd" className="page-wrapper-simple">
-        <div id="nonav" className="page-simple">
+    <Container>
+      <div className="page-wrapper-simple" id="bd">
+        <div className="page-simple" id="nonav">
           <h2 className="big-spacer-bottom">The page you were looking for does not exist.</h2>
           <p className="spacer-bottom">
             You may have mistyped the address or the page may have moved.
@@ -35,6 +42,6 @@ export default function NotFound() {
           </p>
         </div>
       </div>
-    </SimpleContainer>
+    </Container>
   );
 }

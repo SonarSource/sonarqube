@@ -26,6 +26,7 @@ import Projects from './Projects';
 import CreateProjectForm from './CreateProjectForm';
 import { PAGE_SIZE, Project } from './utils';
 import ListFooter from '../../components/controls/ListFooter';
+import Suggestions from '../../app/components/embed-docs-modal/Suggestions';
 import { getComponents } from '../../api/components';
 import { Organization } from '../../app/types';
 import { toNotSoISOString } from '../../helpers/dates';
@@ -164,6 +165,7 @@ export default class App extends React.PureComponent<Props, State> {
   render() {
     return (
       <div className="page page-limited" id="projects-management-page">
+        <Suggestions suggestions="projects_management" />
         <Helmet title={translate('projects_management')} />
 
         <Header

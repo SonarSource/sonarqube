@@ -22,6 +22,7 @@ import { Helmet } from 'react-helmet';
 import { MetricProps } from './Form';
 import Header from './Header';
 import List from './List';
+import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
 import {
   getMetricDomains,
   getMetricTypes,
@@ -146,6 +147,7 @@ export default class App extends React.PureComponent<Props, State> {
 
     return (
       <>
+        <Suggestions suggestions="custom_metrics" />
         <Helmet title={translate('custom_metrics.page')} />
         <div className="page page-limited" id="custom-metrics-page">
           <Header domains={domains} loading={loading} onCreate={this.handleCreate} types={types} />

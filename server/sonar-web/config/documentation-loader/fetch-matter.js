@@ -17,23 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
-import { Link } from 'react-router';
+const fs = require('fs');
+const path = require('path');
+const matter = require('gray-matter');
 
-export default function DocLink(props: React.AnchorHTMLAttributes<HTMLAnchorElement>) {
-  const { children, href, ...other } = props;
+const compare = (a, b) => {
+  if (a.order === b.order) return a.title.localeCompare(b.title);
+  if (a.order === -1) return 1;
+  if (b.order === -1) return -1;
+  return a.order - b.order;
+};
 
-  if (href && href.startsWith('/')) {
-    return (
-      <Link to={`/documentation/${href.substr(1)}`} {...other}>
-        {children}
-      </Link>
-    );
-  }
-
-  return (
-    <a href={href} {...other}>
-      {children}
-    </a>
-  );
-}
+module.exports = (root, files) => {
+  return files
+    .map(file => {
+      const content = fs.readFileSync(root + '/' + file, 'utf8');
+      const headerData = matter(content).data;
+      return {
+        name: path.basename(file).slice(0, -3),
+        relativeName: file.slice(0, -3),
+        title: headerData.title || file,
+        order: headerData.order || -1
+      };
+    })
+    .sort(compare);
+};

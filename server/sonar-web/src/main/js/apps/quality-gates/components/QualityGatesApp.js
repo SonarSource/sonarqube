@@ -23,6 +23,7 @@ import Helmet from 'react-helmet';
 import ListHeader from './ListHeader';
 import List from './List';
 import ScreenPositionHelper from '../../../components/common/ScreenPositionHelper';
+import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
 import { fetchQualityGates } from '../../../api/quality-gates';
 import { translate } from '../../../helpers/l10n';
 import { getQualityGateUrl } from '../../../helpers/urls';
@@ -79,6 +80,7 @@ export default class QualityGatesApp extends Component {
     const defaultTitle = translate('quality_gates.page');
     return (
       <div id="quality-gates-page" className="layout-page">
+        <Suggestions suggestions="quality_gates" />
         <Helmet defaultTitle={defaultTitle} titleTemplate={'%s - ' + defaultTitle} />
 
         <ScreenPositionHelper className="layout-page-side-outer">

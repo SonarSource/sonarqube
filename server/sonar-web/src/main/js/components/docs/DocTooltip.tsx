@@ -59,7 +59,7 @@ export default class DocTooltip extends React.PureComponent<Props, State> {
 
   fetchContent = () => {
     this.setState({ loading: true });
-    import(`Docs/${this.props.doc}.md`).then(
+    import(`Docs/tooltips/${this.props.doc}.md`).then(
       ({ default: content }) => {
         if (this.mounted) {
           this.setState({ content, loading: false });

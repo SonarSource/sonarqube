@@ -29,6 +29,7 @@ import Coverage from '../main/Coverage';
 import Duplications from '../main/Duplications';
 import Meta from '../meta/Meta';
 import throwGlobalError from '../../../app/utils/throwGlobalError';
+import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
 import { getMeasuresAndMeta } from '../../../api/measures';
 import { getAllTimeMachineData, History } from '../../../api/time-machine';
 import { parseDate } from '../../../helpers/dates';
@@ -237,6 +238,7 @@ export class OverviewApp extends React.PureComponent<Props, State> {
     return (
       <div className="page page-limited">
         <div className="overview page-with-sidebar">
+          <Suggestions suggestions="overview" />
           <Helmet>
             <link href={getPathUrlAsString(getProjectUrl(component.key))} rel="canonical" />
           </Helmet>

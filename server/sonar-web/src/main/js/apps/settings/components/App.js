@@ -24,6 +24,7 @@ import PageHeader from './PageHeader';
 import CategoryDefinitionsList from './CategoryDefinitionsList';
 import AllCategoriesList from './AllCategoriesList';
 import WildcardsHelp from './WildcardsHelp';
+import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
 import { translate } from '../../../helpers/l10n';
 import '../styles.css';
 
@@ -68,6 +69,7 @@ export default class App extends React.PureComponent {
 
     return (
       <div id="settings-page" className="page page-limited">
+        <Suggestions suggestions="settings" />
         <Helmet title={translate('settings.page')} />
 
         <PageHeader component={this.props.component} />

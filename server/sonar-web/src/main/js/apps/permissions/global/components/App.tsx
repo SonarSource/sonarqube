@@ -22,6 +22,7 @@ import Helmet from 'react-helmet';
 import PageHeader from './PageHeader';
 import AllHoldersListContainer from './AllHoldersListContainer';
 import PageError from '../../shared/components/PageError';
+import Suggestions from '../../../../app/components/embed-docs-modal/Suggestions';
 import { translate } from '../../../../helpers/l10n';
 import { Organization } from '../../../../app/types';
 import '../../styles.css';
@@ -33,6 +34,7 @@ interface Props {
 export default function App({ organization }: Props) {
   return (
     <div className="page page-limited">
+      <Suggestions suggestions="global_permissions" />
       <Helmet title={translate('global_permissions.permission')} />
       <PageHeader organization={organization} />
       <PageError />

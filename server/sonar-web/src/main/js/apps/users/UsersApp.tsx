@@ -26,6 +26,7 @@ import Search from './Search';
 import UsersList from './UsersList';
 import { parseQuery, Query, serializeQuery } from './utils';
 import ListFooter from '../../components/controls/ListFooter';
+import Suggestions from '../../app/components/embed-docs-modal/Suggestions';
 import { getIdentityProviders, searchUsers } from '../../api/users';
 import { Paging, IdentityProvider, User } from '../../app/types';
 import { translate } from '../../helpers/l10n';
@@ -124,6 +125,7 @@ export default class UsersApp extends React.PureComponent<Props, State> {
     const { loading, paging, users } = this.state;
     return (
       <div id="users-page" className="page page-limited">
+        <Suggestions suggestions="users" />
         <Helmet title={translate('users.page')} />
         <Header loading={loading} onUpdateUsers={this.fetchUsers} />
         <Search query={query} updateQuery={this.updateQuery} />

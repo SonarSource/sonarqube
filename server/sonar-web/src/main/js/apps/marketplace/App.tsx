@@ -27,6 +27,7 @@ import Footer from './Footer';
 import PluginsList from './PluginsList';
 import Search from './Search';
 import { filterPlugins, parseQuery, Query, serializeQuery } from './utils';
+import Suggestions from '../../app/components/embed-docs-modal/Suggestions';
 import {
   getAvailablePlugins,
   getInstalledPluginsWithUpdates,
@@ -136,6 +137,7 @@ export default class App extends React.PureComponent<Props, State> {
 
     return (
       <div className="page page-limited" id="marketplace-page">
+        <Suggestions suggestions="marketplace" />
         <Helmet title={translate('marketplace.page')} />
         <Header />
         <EditionBoxes

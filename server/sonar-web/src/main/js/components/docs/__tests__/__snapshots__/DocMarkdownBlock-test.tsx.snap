@@ -7,7 +7,7 @@ exports[`should render simple markdown 1`] = `
   <React.Fragment
     key="h-1"
   >
-    <p
+    <DocParagraph
       key="h-2"
     >
       this is 
@@ -17,7 +17,7 @@ exports[`should render simple markdown 1`] = `
         bold
       </em>
        text
-    </p>
+    </DocParagraph>
   </React.Fragment>
 </div>
 `;

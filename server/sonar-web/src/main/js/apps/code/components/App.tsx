@@ -29,6 +29,7 @@ import { retrieveComponentChildren, retrieveComponent, loadMoreChildren } from '
 import { Component, BranchLike } from '../../../app/types';
 import ListFooter from '../../../components/controls/ListFooter';
 import SourceViewer from '../../../components/SourceViewer/SourceViewer';
+import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
 import { isSameBranchLike } from '../../../helpers/branches';
 import { translate } from '../../../helpers/l10n';
 import { parseError } from '../../../helpers/request';
@@ -198,6 +199,7 @@ export default class App extends React.PureComponent<Props, State> {
 
     return (
       <div className="page page-limited">
+        <Suggestions suggestions="code" />
         <Helmet title={sourceViewer !== undefined ? sourceViewer.name : translate('code.page')} />
 
         {error && <div className="alert alert-danger">{error}</div>}

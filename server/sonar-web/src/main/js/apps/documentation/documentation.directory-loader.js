@@ -17,23 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
-import { Link } from 'react-router';
+const path = require('path');
 
-export default function DocLink(props: React.AnchorHTMLAttributes<HTMLAnchorElement>) {
-  const { children, href, ...other } = props;
-
-  if (href && href.startsWith('/')) {
-    return (
-      <Link to={`/documentation/${href.substr(1)}`} {...other}>
-        {children}
-      </Link>
-    );
-  }
-
-  return (
-    <a href={href} {...other}>
-      {children}
-    </a>
-  );
-}
+module.exports = {
+  root: path.resolve(__dirname, '../../../../../../sonar-docs/src/pages')
+};

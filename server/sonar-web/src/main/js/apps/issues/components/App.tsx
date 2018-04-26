@@ -34,6 +34,7 @@ import PageActions from './PageActions';
 import ConciseIssuesList from '../conciseIssuesList/ConciseIssuesList';
 import ConciseIssuesListHeader from '../conciseIssuesList/ConciseIssuesListHeader';
 import Sidebar from '../sidebar/Sidebar';
+import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
 import * as actions from '../actions';
 import {
   areMyIssuesSelected,
@@ -1003,6 +1004,7 @@ export default class App extends React.PureComponent<Props, State> {
     const selectedIndex = this.getSelectedIndex();
     return (
       <div className="layout-page issues" id="issues-page">
+        <Suggestions suggestions="issues" />
         <Helmet title={openIssue ? openIssue.message : translate('issues.page')} />
 
         {this.renderSide(openIssue)}

@@ -5,6 +5,9 @@ exports[`should render correctly 1`] = `
   className="page page-limited"
   id="users-page"
 >
+  <Suggestions
+    suggestions="users"
+  />
   <HelmetWrapper
     defer={true}
     encodeSpecialCharacters={true}
@@ -43,6 +46,9 @@ exports[`should render correctly 2`] = `
   className="page page-limited"
   id="users-page"
 >
+  <Suggestions
+    suggestions="users"
+  />
   <HelmetWrapper
     defer={true}
     encodeSpecialCharacters={true}
