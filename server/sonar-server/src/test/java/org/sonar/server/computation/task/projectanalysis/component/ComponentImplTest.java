@@ -26,6 +26,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.server.computation.task.projectanalysis.component.Component.Status;
 
+import static com.google.common.base.Strings.repeat;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.sonar.server.computation.task.projectanalysis.component.Component.Type.FILE;
@@ -37,7 +38,7 @@ public class ComponentImplTest {
   static final String UUID = "UUID";
 
   @Rule
-  public ExpectedException thrown = ExpectedException.none();
+  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void verify_key_uuid_and_name() {
@@ -50,21 +51,21 @@ public class ComponentImplTest {
 
   @Test
   public void builder_throws_NPE_if_component_arg_is_Null() {
-    thrown.expect(NullPointerException.class);
+    expectedException.expect(NullPointerException.class);
 
     builder(null);
   }
 
   @Test
   public void builder_throws_NPE_if_status_arg_is_Null() {
-    thrown.expect(NullPointerException.class);
+    expectedException.expect(NullPointerException.class);
 
     builder(FILE).setStatus(null);
   }
 
   @Test
   public void builder_throws_NPE_if_status_is_Null() {
-    thrown.expect(NullPointerException.class);
+    expectedException.expect(NullPointerException.class);
 
     builder(Component.Type.DIRECTORY)
       .setName("DIR")
@@ -76,28 +77,28 @@ public class ComponentImplTest {
 
   @Test
   public void set_key_throws_NPE_if_component_arg_is_Null() {
-    thrown.expect(NullPointerException.class);
+    expectedException.expect(NullPointerException.class);
 
     builder(FILE).setUuid(null);
   }
 
   @Test
   public void set_uuid_throws_NPE_if_component_arg_is_Null() {
-    thrown.expect(NullPointerException.class);
+    expectedException.expect(NullPointerException.class);
 
     builder(FILE).setKey(null);
   }
 
   @Test
   public void build_without_key_throws_NPE_if_component_arg_is_Null() {
-    thrown.expect(NullPointerException.class);
+    expectedException.expect(NullPointerException.class);
 
     builder(FILE).setUuid("ABCD").build();
   }
 
   @Test
   public void build_without_uuid_throws_NPE_if_component_arg_is_Null() {
-    thrown.expect(NullPointerException.class);
+    expectedException.expect(NullPointerException.class);
 
     builder(FILE).setKey(KEY).build();
   }
@@ -167,6 +168,30 @@ public class ComponentImplTest {
     ComponentImpl component = buildSimpleComponent(FILE, "file").setFileAttributes(new FileAttributes(false, languageKey, 1)).build();
 
     assertThat(component.getFileAttributes().getLanguageKey()).isEqualTo(languageKey);
+  }
+
+  @Test
+  public void keep_500_first_characters_of_name() {
+    String veryLongString = repeat("a", 3_000);
+
+    ComponentImpl underTest = buildSimpleComponent(FILE, "file")
+      .setName(veryLongString)
+      .build();
+
+    String expectedName = repeat("a", 500-3) + "...";
+    assertThat(underTest.getName()).isEqualTo(expectedName);
+  }
+
+  @Test
+  public void keep_2000_first_characters_of_description() {
+    String veryLongString = repeat("a", 3_000);
+
+    ComponentImpl underTest = buildSimpleComponent(FILE, "file")
+      .setDescription(veryLongString)
+      .build();
+
+    String expectedDescription = repeat("a", 2_000-3) + "...";
+    assertThat(underTest.getDescription()).isEqualTo(expectedDescription);
   }
 
   @Test

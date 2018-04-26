@@ -19,6 +19,8 @@
  */
 package org.sonar.server.project.ws;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -32,9 +34,7 @@ import org.sonar.server.project.Visibility;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Projects.CreateWsResponse;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
+import static org.apache.commons.lang.StringUtils.abbreviate;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.core.component.ComponentKeys.MAX_COMPONENT_KEY_LENGTH;
 import static org.sonar.db.component.ComponentValidator.MAX_COMPONENT_NAME_LENGTH;
@@ -88,9 +88,8 @@ public class CreateAction implements ProjectsWsAction {
       .setExampleValue(KEY_PROJECT_EXAMPLE_001);
 
     action.createParam(PARAM_NAME)
-      .setDescription("Name of the project")
+      .setDescription("Name of the project. If name is longer than %d, it is abbreviated.", MAX_COMPONENT_NAME_LENGTH)
       .setRequired(true)
-      .setMaximumLength(MAX_COMPONENT_NAME_LENGTH)
       .setExampleValue("SonarQube");
 
     action.createParam(PARAM_BRANCH)
@@ -138,7 +137,7 @@ public class CreateAction implements ProjectsWsAction {
     return CreateRequest.builder()
       .setOrganization(request.param(PARAM_ORGANIZATION))
       .setKey(request.mandatoryParam(PARAM_PROJECT))
-      .setName(request.mandatoryParam(PARAM_NAME))
+      .setName(abbreviate(request.mandatoryParam(PARAM_NAME), MAX_COMPONENT_NAME_LENGTH))
       .setBranch(request.param(PARAM_BRANCH))
       .setVisibility(request.param(PARAM_VISIBILITY))
       .build();

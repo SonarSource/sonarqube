@@ -24,7 +24,9 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 import static org.sonar.db.component.ComponentValidator.checkComponentKey;
+import static org.sonar.db.component.ComponentValidator.checkComponentLongName;
 import static org.sonar.db.component.ComponentValidator.checkComponentName;
+import static org.sonar.db.component.ComponentValidator.checkDescription;
 
 public class ResourceDto {
 
@@ -142,7 +144,7 @@ public class ResourceDto {
   }
 
   public ResourceDto setLongName(String longName) {
-    this.longName = longName;
+    this.longName = checkComponentLongName(longName);
     return this;
   }
 
@@ -178,7 +180,7 @@ public class ResourceDto {
   }
 
   public ResourceDto setDescription(String description) {
-    this.description = description;
+    this.description = checkDescription(description);
     return this;
   }
 

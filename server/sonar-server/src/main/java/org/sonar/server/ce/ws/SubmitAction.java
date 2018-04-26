@@ -33,6 +33,8 @@ import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.ws.WsUtils;
 import org.sonarqube.ws.Ce;
 
+import static org.apache.commons.lang.StringUtils.abbreviate;
+import static org.apache.commons.lang.StringUtils.defaultIfBlank;
 import static org.sonar.core.component.ComponentKeys.MAX_COMPONENT_KEY_LENGTH;
 import static org.sonar.db.component.ComponentValidator.MAX_COMPONENT_NAME_LENGTH;
 import static org.sonar.server.ws.WsUtils.checkRequest;
@@ -86,8 +88,7 @@ public class SubmitAction implements CeWsAction {
     action
       .createParam(PARAM_PROJECT_NAME)
       .setRequired(false)
-      .setMaximumLength(MAX_COMPONENT_NAME_LENGTH)
-      .setDescription("Optional name of the project, used only if the project does not exist yet.")
+      .setDescription("Optional name of the project, used only if the project does not exist yet. If name is longer than %d, it is abbreviated.", MAX_COMPONENT_NAME_LENGTH)
       .setExampleValue("My Project");
 
     action
@@ -110,7 +111,7 @@ public class SubmitAction implements CeWsAction {
       .or(defaultOrganizationProvider.get()::getKey);
     String projectKey = wsRequest.mandatoryParam(PARAM_PROJECT_KEY);
     String projectBranch = wsRequest.param(PARAM_PROJECT_BRANCH);
-    String projectName = StringUtils.defaultIfBlank(wsRequest.param(PARAM_PROJECT_NAME), projectKey);
+    String projectName = abbreviate(defaultIfBlank(wsRequest.param(PARAM_PROJECT_NAME), projectKey), MAX_COMPONENT_NAME_LENGTH);
 
     Map<String, String> characteristics = parseTaskCharacteristics(wsRequest);
 

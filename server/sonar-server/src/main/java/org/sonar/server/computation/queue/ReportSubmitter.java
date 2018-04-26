@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
-import org.apache.commons.lang.StringUtils;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.server.ServerSide;
@@ -52,6 +51,7 @@ import org.sonar.server.user.UserSession;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
+import static org.apache.commons.lang.StringUtils.defaultIfBlank;
 import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
 import static org.sonar.server.component.NewComponent.newComponentBuilder;
 import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
@@ -161,7 +161,7 @@ public class ReportSubmitter {
     NewComponent newProject = newComponentBuilder()
       .setOrganizationUuid(organization.getUuid())
       .setKey(projectKey)
-      .setName(StringUtils.defaultIfBlank(projectName, projectKey))
+      .setName(defaultIfBlank(projectName, projectKey))
       .setBranch(deprecatedBranch)
       .setQualifier(Qualifiers.PROJECT)
       .setPrivate(newProjectPrivate)

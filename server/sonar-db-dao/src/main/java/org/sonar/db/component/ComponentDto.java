@@ -36,6 +36,7 @@ import static java.lang.String.format;
 import static org.apache.commons.lang.StringUtils.substringBeforeLast;
 import static org.sonar.db.DaoDatabaseUtils.buildLikeValue;
 import static org.sonar.db.component.ComponentValidator.checkComponentKey;
+import static org.sonar.db.component.ComponentValidator.checkComponentLongName;
 import static org.sonar.db.component.ComponentValidator.checkComponentName;
 import static org.sonar.db.component.DbTagsReader.readDbTags;
 
@@ -338,7 +339,7 @@ public class ComponentDto {
   }
 
   public ComponentDto setLongName(String longName) {
-    this.longName = longName;
+    this.longName = checkComponentLongName(longName);
     return this;
   }
 

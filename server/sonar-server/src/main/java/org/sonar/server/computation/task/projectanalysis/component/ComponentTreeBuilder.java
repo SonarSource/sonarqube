@@ -149,7 +149,7 @@ public class ComponentTreeBuilder {
     if (branch.isMain()) {
       builder
         .setName(nameOfProject(component))
-        .setDescription(trimToNull(component.getDescription()));
+        .setDescription(component.getDescription());
     } else {
       builder
         .setName(project.getName())

@@ -90,11 +90,11 @@ public class NewComponentTest {
   public void build_fails_with_IAE_when_name_is_longer_than_2000_characters() {
     underTest.setOrganizationUuid(ORGANIZATION_UUID)
       .setKey(KEY)
-      .setName(repeat("a", 2001));
+      .setName(repeat("a", 501));
 
     expectBuildException(
       IllegalArgumentException.class,
-      "Component name length (2001) is longer than the maximum authorized (2000)");
+      "Component name length (501) is longer than the maximum authorized (500)");
   }
 
   @Test

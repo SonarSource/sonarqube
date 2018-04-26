@@ -19,12 +19,17 @@
  */
 package org.sonar.db.component;
 
+import javax.annotation.Nullable;
+
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static org.sonar.core.component.ComponentKeys.MAX_COMPONENT_KEY_LENGTH;
 
 public class ComponentValidator {
-  public static final int MAX_COMPONENT_NAME_LENGTH = 2000;
+  // b_name column is 500 characters wide
+  public static final int MAX_COMPONENT_NAME_LENGTH = 500;
+  public static final int MAX_COMPONENT_DESCRIPTION_LENGTH = 2_000;
+  private static final int MAX_COMPONENT_TAGS_LENGTH = 500;
   private static final int MAX_COMPONENT_QUALIFIER_LENGTH = 10;
 
   private ComponentValidator() {
@@ -36,6 +41,35 @@ public class ComponentValidator {
     checkArgument(name.length() <= MAX_COMPONENT_NAME_LENGTH, "Component name length (%s) is longer than the maximum authorized (%s). '%s' was provided.",
       name.length(), MAX_COMPONENT_NAME_LENGTH, name);
     return name;
+  }
+
+  public static String checkComponentLongName(@Nullable String value) {
+    if (value == null) {
+      return null;
+    }
+    checkArgument(value.length() <= MAX_COMPONENT_NAME_LENGTH, "Component name length (%s) is longer than the maximum authorized (%s). '%s' was provided.",
+      value.length(), MAX_COMPONENT_NAME_LENGTH, value);
+    return value;
+  }
+
+  public static String checkDescription(@Nullable String value) {
+    if (value == null) {
+      return null;
+    }
+
+    checkArgument(value.length() <= MAX_COMPONENT_NAME_LENGTH, "Component description length (%s) is longer than the maximum authorized (%s). '%s' was provided.",
+      value.length(), MAX_COMPONENT_DESCRIPTION_LENGTH, value);
+    return value;
+  }
+
+  public static String checkTags(@Nullable String value) {
+    if (value == null) {
+      return null;
+    }
+
+    checkArgument(value.length() <= MAX_COMPONENT_NAME_LENGTH, "Component tags length (%s) is longer than the maximum authorized (%s). '%s' was provided.",
+      value.length(), MAX_COMPONENT_TAGS_LENGTH, value);
+    return value;
   }
 
   public static String checkComponentKey(String key) {

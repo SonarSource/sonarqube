@@ -19,7 +19,7 @@
  */
 package org.sonar.server.project.ws;
 
-import org.assertj.core.api.AssertionsForClassTypes;
+import com.google.common.base.Strings;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -212,7 +212,23 @@ public class CreateActionTest {
       .setParam("visibility", "public")
       .executeProtobuf(CreateWsResponse.class);
 
-    AssertionsForClassTypes.assertThat(result.getProject().getVisibility()).isEqualTo("public");
+    assertThat(result.getProject().getVisibility()).isEqualTo("public");
+  }
+
+  @Test
+  public void abbreviate_project_name_if_very_long() {
+    OrganizationDto organization = db.organizations().insert();
+    userSession.addPermission(PROVISION_PROJECTS, organization);
+    String longName = Strings.repeat("a", 1_000);
+
+    ws.newRequest()
+      .setParam("key", DEFAULT_PROJECT_KEY)
+      .setParam("name", longName)
+      .setParam("organization", organization.getKey())
+      .executeProtobuf(CreateWsResponse.class);
+
+    assertThat(db.getDbClient().componentDao().selectByKey(db.getSession(), DEFAULT_PROJECT_KEY).get().name())
+      .isEqualTo(Strings.repeat("a", 497) + "...");
   }
 
   @Test
@@ -335,7 +351,7 @@ public class CreateActionTest {
 
     WebService.Param name = definition.param(PARAM_NAME);
     assertThat(name.isRequired()).isTrue();
-    assertThat(name.maximumLength()).isEqualTo(2000);
+    assertThat(name.description()).isEqualTo("Name of the project. If name is longer than 500, it is abbreviated.");
   }
 
   private CreateWsResponse call(CreateRequest request) {

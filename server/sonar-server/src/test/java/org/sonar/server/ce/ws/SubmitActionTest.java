@@ -19,6 +19,7 @@
  */
 package org.sonar.server.ce.ws;
 
+import com.google.common.base.Strings;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.Arrays;
@@ -110,6 +111,27 @@ public class SubmitActionTest {
       map.capture(), any(InputStream.class));
 
     assertThat(map.getValue()).containsOnly(entry("branch", "branch1"), entry("key", "value1=value2"));
+  }
+
+  @Test
+  public void abbreviate_long_name() {
+    String longName = Strings.repeat("a", 1_000);
+    String expectedName = Strings.repeat("a", 497) + "...";
+    when(reportSubmitter.submit(eq(organizationKey), eq("my_project"), isNull(), eq(expectedName),
+      anyMap(), any())).thenReturn(A_CE_TASK);
+
+    Ce.SubmitResponse submitResponse = tester.newRequest()
+      .setParam("projectKey", "my_project")
+      .setParam("projectName", longName)
+      .setPart("report", new ByteArrayInputStream("{binary}".getBytes()), "foo.bar")
+      .setMethod("POST")
+      .executeProtobuf(Ce.SubmitResponse.class);
+
+    verify(reportSubmitter).submit(eq(organizationKey), eq("my_project"), isNull(), eq(expectedName),
+      anyMap(), any());
+
+    assertThat(submitResponse.getTaskId()).isEqualTo("TASK_1");
+    assertThat(submitResponse.getProjectId()).isEqualTo("PROJECT_1");
   }
 
   @Test

@@ -29,7 +29,10 @@ import javax.annotation.concurrent.Immutable;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.Objects.requireNonNull;
+import static org.apache.commons.lang.StringUtils.abbreviate;
 import static org.apache.commons.lang.StringUtils.trimToNull;
+import static org.sonar.db.component.ComponentValidator.MAX_COMPONENT_DESCRIPTION_LENGTH;
+import static org.sonar.db.component.ComponentValidator.MAX_COMPONENT_NAME_LENGTH;
 
 @Immutable
 public class ComponentImpl implements Component {
@@ -186,12 +189,12 @@ public class ComponentImpl implements Component {
     }
 
     public Builder setName(String name) {
-      this.name = requireNonNull(name, NAME_CANNOT_BE_NULL);
+      this.name = abbreviate(requireNonNull(name, NAME_CANNOT_BE_NULL), MAX_COMPONENT_NAME_LENGTH);
       return this;
     }
 
     public Builder setDescription(@Nullable String description) {
-      this.description = trimToNull(description);
+      this.description = abbreviate(trimToNull(description), MAX_COMPONENT_DESCRIPTION_LENGTH);
       return this;
     }
 

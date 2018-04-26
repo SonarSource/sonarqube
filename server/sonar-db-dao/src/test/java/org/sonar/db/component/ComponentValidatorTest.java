@@ -33,17 +33,17 @@ public class ComponentValidatorTest {
 
   @Test
   public void check_name() {
-    String name = repeat("a", 2000);
+    String name = repeat("a", 500);
 
     assertThat(ComponentValidator.checkComponentName(name)).isEqualTo(name);
   }
 
   @Test
-  public void fail_when_name_longer_than_2000_characters() {
+  public void fail_when_name_longer_than_500_characters() {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Component name length");
 
-    ComponentValidator.checkComponentName(repeat("a", 2000 + 1));
+    ComponentValidator.checkComponentName(repeat("a", 500 + 1));
   }
 
   @Test
