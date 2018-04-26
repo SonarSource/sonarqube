@@ -19,7 +19,7 @@
  */
 package org.sonar.scanner.mediumtest;
 
-import com.google.common.collect.HashMultimap;
+import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Multimap;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
 import org.sonar.batch.bootstrapper.LogOutput;
 
 public class LogOutputRecorder implements LogOutput {
-  private final Multimap<String, String> recordedByLevel = HashMultimap.create();
+  private final Multimap<String, String> recordedByLevel = LinkedHashMultimap.create();
   private final List<String> recorded = new LinkedList<>();
   private final StringBuffer asString = new StringBuffer();
 

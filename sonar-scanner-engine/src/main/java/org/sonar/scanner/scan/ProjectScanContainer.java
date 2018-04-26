@@ -25,6 +25,7 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
+import org.sonar.api.batch.fs.internal.SensorStrategy;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.resources.ResourceTypes;
@@ -189,6 +190,8 @@ public class ProjectScanContainer extends ComponentContainer {
       // context
       ContextPropertiesCache.class,
       ContextPropertiesPublisher.class,
+
+      SensorStrategy.class,
 
       MutableProjectSettings.class,
       new ProjectSettingsProvider(),
