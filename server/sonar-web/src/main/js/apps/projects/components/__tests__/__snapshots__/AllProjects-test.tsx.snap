@@ -5,6 +5,9 @@ exports[`renders 1`] = `
   className="layout-page projects-page"
   id="projects-page"
 >
+  <Suggestions
+    suggestions="projects"
+  />
   <HelmetWrapper
     defer={true}
     encodeSpecialCharacters={true}
@@ -134,6 +137,9 @@ exports[`renders 2`] = `
   className="layout-page projects-page"
   id="projects-page"
 >
+  <Suggestions
+    suggestions="projects"
+  />
   <HelmetWrapper
     defer={true}
     encodeSpecialCharacters={true}

@@ -19,7 +19,7 @@
  */
 /* eslint-disable import/order */
 import * as React from 'react';
-import { mount, shallow } from 'enzyme';
+import { shallow } from 'enzyme';
 import AllProjects, { Props } from '../AllProjects';
 import { get, save } from '../../../../helpers/storage';
 
@@ -71,7 +71,7 @@ it('renders', () => {
 });
 
 it('fetches projects', () => {
-  mountRender();
+  shallowRender();
   expect(fetchProjects).lastCalledWith(
     {
       coverage: undefined,
@@ -104,7 +104,7 @@ it('redirects to the saved search', () => {
     (key: string) => (key === 'sonarqube.projects.view' ? 'leak' : null)
   );
   const replace = jest.fn();
-  mountRender({}, jest.fn(), replace);
+  shallowRender({}, jest.fn(), replace);
   expect(replace).lastCalledWith({ pathname: '/projects', query: { view: 'leak' } });
 });
 
@@ -160,19 +160,6 @@ it('changes perspective to risk visualization', () => {
   expect(save).toHaveBeenCalledWith('sonarqube.projects.view', 'visualizations', undefined);
   expect(save).toHaveBeenCalledWith('sonarqube.projects.visualization', 'risk', undefined);
 });
-
-function mountRender(props: any = {}, push: Function = jest.fn(), replace: Function = jest.fn()) {
-  return mount(
-    <AllProjects
-      currentUser={{ isLoggedIn: true }}
-      fetchProjects={jest.fn()}
-      isFavorite={false}
-      location={{ pathname: '/projects', query: {} }}
-      {...props}
-    />,
-    { context: { router: { push, replace } } }
-  );
-}
 
 function shallowRender(
   props: Partial<Props> = {},

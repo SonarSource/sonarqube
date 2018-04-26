@@ -18,32 +18,36 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import * as classNames from 'classnames';
-
-export interface BubblePopupPosition {
-  top?: number;
-  left?: number;
-  right?: number;
-}
+import * as PropTypes from 'prop-types';
+import { SuggestionsContext } from './SuggestionsContext';
 
 interface Props {
-  customClass?: string;
-  children: React.ReactNode;
-  position?: BubblePopupPosition;
+  suggestions: string;
 }
 
-/**
- * Deprecated.
- * Use <Popup /> instead.
- */
-export default function BubblePopup(props: Props) {
-  const popupClass = classNames('bubble-popup', props.customClass);
-  const popupStyle = { ...props.position };
+export default class Suggestions extends React.PureComponent<Props> {
+  context!: { suggestions: SuggestionsContext };
 
-  return (
-    <div className={popupClass} style={popupStyle}>
-      {props.children}
-      <div className="bubble-popup-arrow" />
-    </div>
-  );
+  static contextTypes = {
+    suggestions: PropTypes.object.isRequired
+  };
+
+  componentDidMount() {
+    this.context.suggestions.addSuggestions(this.props.suggestions);
+  }
+
+  componentDidUpdate(prevProps: Props) {
+    if (prevProps.suggestions !== this.props.suggestions) {
+      this.context.suggestions.removeSuggestions(this.props.suggestions);
+      this.context.suggestions.addSuggestions(prevProps.suggestions);
+    }
+  }
+
+  componentWillUnmount() {
+    this.context.suggestions.removeSuggestions(this.props.suggestions);
+  }
+
+  render() {
+    return null;
+  }
 }

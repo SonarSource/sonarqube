@@ -26,9 +26,9 @@ const WebpackDevServer = require('webpack-dev-server');
 const clearConsole = require('react-dev-utils/clearConsole');
 const formatWebpackMessages = require('react-dev-utils/formatWebpackMessages');
 const errorOverlayMiddleware = require('react-error-overlay/middleware');
+const getMessages = require('./utils/getMessages');
 const getConfig = require('../config/webpack.config');
 const paths = require('../config/paths');
-const getMessages = require('./utils/getMessages');
 
 const config = getConfig({ production: false });
 
@@ -107,7 +107,6 @@ function runDevServer(compiler, host, port, protocol) {
     proxy: {
       '/api': proxy,
       '/fonts': proxy,
-      '/images': proxy,
       '/static': proxy,
       '/integration': proxy
     }

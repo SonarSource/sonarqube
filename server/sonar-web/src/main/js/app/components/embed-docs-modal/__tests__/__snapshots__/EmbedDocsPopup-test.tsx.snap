@@ -1,0 +1,151 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should display suggestion links 1`] = `
+<BubblePopup
+  customClass="bubble-popup-bottom bubble-popup-menu abs-width-240 embed-docs-popup"
+>
+  <ul
+    className="menu"
+  >
+    <React.Fragment>
+      <li
+        className="dropdown-header"
+      >
+        embed_docs.suggestion
+      </li>
+      <li
+        key="0"
+      >
+        <a
+          href="#"
+          target="_blank"
+        >
+          foo
+           
+          <i
+            className="icon-detach"
+          />
+        </a>
+      </li>
+      <li
+        key="1"
+      >
+        <a
+          href="#"
+          target="_blank"
+        >
+          bar
+           
+          <i
+            className="icon-detach"
+          />
+        </a>
+      </li>
+      <li
+        className="divider"
+      />
+    </React.Fragment>
+    <li>
+      <Link
+        onlyActiveOnIndex={false}
+        style={Object {}}
+        target="_blank"
+        to="/documentation"
+      >
+        embed_docs.documentation_index
+         
+        <i
+          className="icon-detach"
+        />
+      </Link>
+    </li>
+    <React.Fragment>
+      <li>
+        <a
+          href="#"
+          onClick={[Function]}
+        >
+          embed_docs.analyze_new_project
+        </a>
+      </li>
+      <li
+        className="divider"
+      />
+      <li
+        className="dropdown-header"
+      >
+        embed_docs.get_support
+      </li>
+      <li>
+        <a
+          href="https://groups.google.com/forum/#!forum/sonarqube"
+          rel="noopener noreferrer"
+          target="_blank"
+        >
+          <img
+            alt="Google Groups"
+            className="spacer-right"
+            height="18"
+            src="/images/embed-doc/google-group-icon.svg"
+            width="18"
+          />
+          Google Groups
+        </a>
+      </li>
+      <li>
+        <a
+          href="http://stackoverflow.com/questions/tagged/sonarqube"
+          rel="noopener noreferrer"
+          target="_blank"
+        >
+          <img
+            alt="Stack Overflow"
+            className="spacer-right"
+            height="18"
+            src="/images/embed-doc/so-icon.svg"
+            width="18"
+          />
+          Stack Overflow
+        </a>
+      </li>
+      <li
+        className="dropdown-header"
+      >
+        embed_docs.stay_connected
+      </li>
+      <li>
+        <a
+          href="https://blog.sonarsource.com/"
+          rel="noopener noreferrer"
+          target="_blank"
+        >
+          <img
+            alt="Product News"
+            className="spacer-right"
+            height="18"
+            src="/images/embed-doc/sq-icon.svg"
+            width="18"
+          />
+          Product News
+        </a>
+      </li>
+      <li>
+        <a
+          href="https://twitter.com/SonarQube"
+          rel="noopener noreferrer"
+          target="_blank"
+        >
+          <img
+            alt="Twitter"
+            className="spacer-right"
+            height="18"
+            src="/images/embed-doc/twitter-icon.svg"
+            width="18"
+          />
+          Twitter
+        </a>
+      </li>
+    </React.Fragment>
+  </ul>
+</BubblePopup>
+`;

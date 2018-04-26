@@ -59,6 +59,7 @@ module.exports = {
   gridSize: `${grid}px`,
 
   baseFontSize: '13px',
+  verySmallFontSize: '10px',
   smallFontSize: '12px',
   mediumFontSize: '14px',
   bigFontSize: '16px',

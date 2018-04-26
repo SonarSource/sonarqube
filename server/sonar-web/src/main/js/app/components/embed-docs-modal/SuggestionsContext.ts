@@ -17,33 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
-import * as classNames from 'classnames';
-
-export interface BubblePopupPosition {
-  top?: number;
-  left?: number;
-  right?: number;
-}
-
-interface Props {
-  customClass?: string;
-  children: React.ReactNode;
-  position?: BubblePopupPosition;
-}
-
-/**
- * Deprecated.
- * Use <Popup /> instead.
- */
-export default function BubblePopup(props: Props) {
-  const popupClass = classNames('bubble-popup', props.customClass);
-  const popupStyle = { ...props.position };
-
-  return (
-    <div className={popupClass} style={popupStyle}>
-      {props.children}
-      <div className="bubble-popup-arrow" />
-    </div>
-  );
+export interface SuggestionsContext {
+  addSuggestions: (key: string) => void;
+  removeSuggestions: (key: string) => void;
 }

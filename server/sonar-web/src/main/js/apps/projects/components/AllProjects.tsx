@@ -24,6 +24,7 @@ import { omitBy } from 'lodash';
 import PageHeader from './PageHeader';
 import ProjectsList from './ProjectsList';
 import PageSidebar from './PageSidebar';
+import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
 import Visualizations from '../visualizations/Visualizations';
 import { CurrentUser, isLoggedIn } from '../../../app/types';
 import handleRequiredAuthentication from '../../../app/utils/handleRequiredAuthentication';
@@ -317,6 +318,7 @@ export default class AllProjects extends React.PureComponent<Props, State> {
   render() {
     return (
       <div className="layout-page projects-page" id="projects-page">
+        <Suggestions suggestions="projects" />
         <Helmet title={translate('projects.page')} />
 
         {this.renderSide()}

@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import * as classNames from 'classnames';
+import { BubblePopupPosition } from './BubblePopup';
 
 interface Props {
   className?: string;
@@ -31,7 +32,7 @@ interface Props {
 }
 
 interface State {
-  position: { top: number; left?: number; right?: number };
+  position: BubblePopupPosition;
 }
 
 export default class BubblePopupHelper extends React.PureComponent<Props, State> {

@@ -17,26 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
-import { translate } from '../../../helpers/l10n';
-
-/*::
-type Props = { onTutorialSelect: () => void };
-*/
-
-export default function TutorialsHelp({ onTutorialSelect } /*: Props */) {
-  const handleClick = (event /*: Event */) => {
-    event.preventDefault();
-    onTutorialSelect();
-  };
-
-  return (
-    <div>
-      <h2 className="spacer-top spacer-bottom">{translate('help.section.tutorials')}</h2>
-      <a href="#" onClick={handleClick}>
-        {translate('tutorials.onboarding')}
-      </a>
-    </div>
-  );
+declare module '*.json' {
+  const value: any;
+  export default value;
 }

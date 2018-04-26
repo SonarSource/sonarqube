@@ -18,13 +18,16 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { CurrentUser, AppState } from '../../types';
+import { shallow } from 'enzyme';
+import EmbedDocsPopups from '../EmbedDocsPopup';
 
-export interface Props {
-  currentUser: CurrentUser;
-  onClose: () => void;
-  onSonarCloud?: boolean;
-  onTutorialSelect: () => void;
-}
+const suggestions = [{ link: '#', text: 'foo' }, { link: '#', text: 'bar' }];
 
-export default class GlobalHelp extends React.PureComponent<Props> {}
+it('should display suggestion links', () => {
+  const context = {};
+  const wrapper = shallow(<EmbedDocsPopups onClose={jest.fn()} suggestions={suggestions} />, {
+    context
+  });
+  wrapper.update();
+  expect(wrapper).toMatchSnapshot();
+});

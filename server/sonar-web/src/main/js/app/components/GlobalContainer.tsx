@@ -22,6 +22,7 @@ import * as PropTypes from 'prop-types';
 import GlobalNav from './nav/global/GlobalNav';
 import GlobalFooterContainer from './GlobalFooterContainer';
 import GlobalMessagesContainer from './GlobalMessagesContainer';
+import SuggestionsProvider from './embed-docs-modal/SuggestionsProvider';
 import Workspace from '../../components/workspace/Workspace';
 
 interface Props {
@@ -59,23 +60,28 @@ export default class GlobalContainer extends React.PureComponent<Props, State> {
     // it is important to pass `location` down to `GlobalNav` to trigger render on url change
 
     return (
-      <div className="global-container">
-        <div className="page-wrapper" id="container">
-          <div className="page-container">
-            <Workspace>
-              <GlobalNav
-                closeOnboardingTutorial={this.closeOnboardingTutorial}
-                isOnboardingTutorialOpen={this.state.isOnboardingTutorialOpen}
-                location={this.props.location}
-                openOnboardingTutorial={this.openOnboardingTutorial}
-              />
-              <GlobalMessagesContainer />
-              {this.props.children}
-            </Workspace>
+      <SuggestionsProvider>
+        {({ suggestions }) => (
+          <div className="global-container">
+            <div className="page-wrapper" id="container">
+              <div className="page-container">
+                <Workspace>
+                  <GlobalNav
+                    closeOnboardingTutorial={this.closeOnboardingTutorial}
+                    isOnboardingTutorialOpen={this.state.isOnboardingTutorialOpen}
+                    location={this.props.location}
+                    openOnboardingTutorial={this.openOnboardingTutorial}
+                    suggestions={suggestions}
+                  />
+                  <GlobalMessagesContainer />
+                  {this.props.children}
+                </Workspace>
+              </div>
+            </div>
+            <GlobalFooterContainer />
           </div>
-        </div>
-        <GlobalFooterContainer />
-      </div>
+        )}
+      </SuggestionsProvider>
     );
   }
 }

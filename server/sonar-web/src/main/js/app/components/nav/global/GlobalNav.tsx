@@ -25,16 +25,16 @@ import GlobalNavExplore from './GlobalNavExplore';
 import GlobalNavUserContainer from './GlobalNavUserContainer';
 import GlobalNavPlus from './GlobalNavPlus';
 import Search from '../../search/Search';
-import GlobalHelp from '../../help/GlobalHelp';
+import EmbedDocsPopupHelper from '../../embed-docs-modal/EmbedDocsPopupHelper';
 import * as theme from '../../../theme';
 import { isLoggedIn, CurrentUser, AppState } from '../../../types';
 import OnboardingModal from '../../../../apps/tutorials/onboarding/OnboardingModal';
 import NavBar from '../../../../components/nav/NavBar';
 import Tooltip from '../../../../components/controls/Tooltip';
-import HelpIcon from '../../../../components/icons-components/HelpIcon';
 import { translate } from '../../../../helpers/l10n';
 import { getCurrentUser, getAppState, getGlobalSettingValue } from '../../../../store/rootReducer';
 import { skipOnboarding } from '../../../../store/users/actions';
+import { SuggestionLink } from '../../embed-docs-modal/SuggestionsProvider';
 import './GlobalNav.css';
 
 interface StateProps {
@@ -52,6 +52,7 @@ interface Props extends StateProps, DispatchProps {
   isOnboardingTutorialOpen: boolean;
   location: { pathname: string };
   openOnboardingTutorial: () => void;
+  suggestions: Array<SuggestionLink>;
 }
 
 interface State {
@@ -64,7 +65,6 @@ class GlobalNav extends React.PureComponent<Props, State> {
   state: State = { helpOpen: false, onboardingTutorialTooltip: false };
 
   componentDidMount() {
-    window.addEventListener('keypress', this.onKeyPress);
     if (this.props.currentUser.showOnboardingTutorial) {
       this.openOnboardingTutorial();
     }
@@ -74,27 +74,7 @@ class GlobalNav extends React.PureComponent<Props, State> {
     if (this.interval) {
       clearInterval(this.interval);
     }
-    window.removeEventListener('keypress', this.onKeyPress);
   }
-
-  onKeyPress = (event: KeyboardEvent) => {
-    const { tagName } = event.target as HTMLElement;
-    const code = event.keyCode || event.which;
-    const isInput = tagName === 'INPUT' || tagName === 'SELECT' || tagName === 'TEXTAREA';
-    const isTriggerKey = code === 63;
-    if (!isInput && isTriggerKey) {
-      this.openHelp();
-    }
-  };
-
-  handleHelpClick = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
-    event.preventDefault();
-    this.openHelp();
-  };
-
-  openHelp = () => this.setState({ helpOpen: true });
-
-  closeHelp = () => this.setState({ helpOpen: false });
 
   openOnboardingTutorial = () => {
     this.setState({ helpOpen: false });
@@ -120,13 +100,11 @@ class GlobalNav extends React.PureComponent<Props, State> {
         <ul className="global-navbar-menu pull-right">
           <GlobalNavExplore location={this.props.location} onSonarCloud={this.props.onSonarCloud} />
           <li>
-            <Tooltip
-              overlay={this.props.onSonarCloud ? undefined : translate('tutorials.follow_later')}
-              visible={this.state.onboardingTutorialTooltip}>
-              <a className="navbar-help" href="#" onClick={this.handleHelpClick}>
-                <HelpIcon />
-              </a>
-            </Tooltip>
+            <EmbedDocsPopupHelper
+              showTooltip={this.state.onboardingTutorialTooltip}
+              suggestions={this.props.suggestions}
+              tooltip={!this.props.onSonarCloud}
+            />
           </li>
           <Search appState={this.props.appState} currentUser={this.props.currentUser} />
           {isLoggedIn(this.props.currentUser) &&
@@ -139,15 +117,6 @@ class GlobalNav extends React.PureComponent<Props, State> {
             )}
           <GlobalNavUserContainer {...this.props} />
         </ul>
-
-        {this.state.helpOpen && (
-          <GlobalHelp
-            currentUser={this.props.currentUser}
-            onClose={this.closeHelp}
-            onSonarCloud={this.props.onSonarCloud}
-            onTutorialSelect={this.openOnboardingTutorial}
-          />
-        )}
 
         {this.props.isOnboardingTutorialOpen && (
           <OnboardingModal onFinish={this.closeOnboardingTutorial} />
