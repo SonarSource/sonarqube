@@ -32,7 +32,6 @@ import org.sonar.application.es.EsConnector;
 import org.sonar.process.MessageException;
 import org.sonar.process.NetworkUtilsImpl;
 import org.sonar.process.ProcessId;
-import org.sonar.process.cluster.NodeType;
 import org.sonar.process.cluster.hz.HazelcastMember;
 import org.sonar.process.cluster.hz.HazelcastMemberBuilder;
 
@@ -140,7 +139,6 @@ public class ClusterAppStateImplTest {
     InetAddress loopback = InetAddress.getLoopbackAddress();
 
     return new HazelcastMemberBuilder()
-      .setNodeType(NodeType.APPLICATION)
       .setProcessId(ProcessId.COMPUTE_ENGINE)
       .setNodeName("bar")
       .setPort(NetworkUtilsImpl.INSTANCE.getNextAvailablePort(loopback))

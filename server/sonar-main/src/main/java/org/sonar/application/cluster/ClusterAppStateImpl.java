@@ -48,11 +48,9 @@ import org.sonar.application.es.EsConnector;
 import org.sonar.process.MessageException;
 import org.sonar.process.NetworkUtilsImpl;
 import org.sonar.process.ProcessId;
-import org.sonar.process.cluster.NodeType;
 import org.sonar.process.cluster.hz.HazelcastMember;
 
 import static java.lang.String.format;
-import static org.sonar.process.cluster.hz.HazelcastMember.Attribute.NODE_TYPE;
 import static org.sonar.process.cluster.hz.HazelcastObjects.CLUSTER_NAME;
 import static org.sonar.process.cluster.hz.HazelcastObjects.LEADER;
 import static org.sonar.process.cluster.hz.HazelcastObjects.OPERATIONAL_PROCESSES;
@@ -282,8 +280,7 @@ public class ClusterAppStateImpl implements ClusterAppState {
     @Override
     public void memberRemoved(MembershipEvent membershipEvent) {
       removeOperationalProcess(membershipEvent.getMember().getUuid());
-      if (membershipEvent.getMembers().stream()
-        .noneMatch(this::isAppNode)) {
+      if (membershipEvent.getMembers().isEmpty()) {
         purgeSharedMemoryForAppNodes();
       }
     }
@@ -291,10 +288,6 @@ public class ClusterAppStateImpl implements ClusterAppState {
     @Override
     public void memberAttributeChanged(MemberAttributeEvent memberAttributeEvent) {
       // Nothing to do
-    }
-
-    private boolean isAppNode(Member member) {
-      return NodeType.APPLICATION.getValue().equals(member.getStringAttribute(NODE_TYPE.getKey()));
     }
 
     private void removeOperationalProcess(String uuid) {

@@ -37,7 +37,6 @@ import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
 import org.sonar.process.NetworkUtilsImpl;
 import org.sonar.process.ProcessId;
-import org.sonar.process.cluster.NodeType;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -112,7 +111,6 @@ public class HazelcastMemberImplTest {
 
   private static HazelcastMember newHzMember(int port, int... otherPorts) {
     return new HazelcastMemberBuilder()
-      .setNodeType(NodeType.APPLICATION)
       .setProcessId(ProcessId.COMPUTE_ENGINE)
       .setNodeName("name" + port)
       .setPort(port)

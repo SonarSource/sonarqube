@@ -27,7 +27,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.locks.Lock;
 import org.sonar.process.ProcessId;
-import org.sonar.process.cluster.NodeType;
 
 public interface HazelcastMember extends AutoCloseable {
 
@@ -36,11 +35,6 @@ public interface HazelcastMember extends AutoCloseable {
      * The key of the node name attribute of a member
      */
     NODE_NAME("NODE_NAME"),
-    /**
-     * The role of the sonar-application inside the SonarQube cluster
-     * {@link NodeType}
-     */
-    NODE_TYPE("NODE_TYPE"),
     /**
      * Key of process as defined by {@link ProcessId#getKey()}
      */
