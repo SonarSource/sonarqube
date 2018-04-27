@@ -26,6 +26,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.LoggerFactory;
 import org.sonar.process.MessageException;
 import org.sonar.process.NetworkUtils;
 import org.sonar.process.ProcessId;
@@ -42,6 +43,7 @@ import static org.sonar.process.ProcessProperties.Property.AUTH_JWT_SECRET;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_ENABLED;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_HOSTS;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_HOST;
+import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_PORT;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_TYPE;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_SEARCH_HOSTS;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_WEB_STARTUP_LEADER;
@@ -78,6 +80,9 @@ public class ClusterSettings implements Consumer<Props> {
       case SEARCH:
         requireValue(props, SEARCH_HOST.getKey());
         ensureLocalButNotLoopbackAddress(props, SEARCH_HOST.getKey());
+        if (props.contains(CLUSTER_NODE_PORT.getKey())) {
+          LoggerFactory.getLogger(getClass()).warn("Property {} is ignored on search nodes since 7.2", CLUSTER_NODE_PORT.getKey());
+        }
         break;
       default:
         throw new UnsupportedOperationException("Unknown value: " + nodeType);
