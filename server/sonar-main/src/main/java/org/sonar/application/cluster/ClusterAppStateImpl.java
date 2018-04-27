@@ -280,9 +280,6 @@ public class ClusterAppStateImpl implements ClusterAppState {
     @Override
     public void memberRemoved(MembershipEvent membershipEvent) {
       removeOperationalProcess(membershipEvent.getMember().getUuid());
-      if (membershipEvent.getMembers().isEmpty()) {
-        purgeSharedMemoryForAppNodes();
-      }
     }
 
     @Override
@@ -297,12 +294,6 @@ public class ClusterAppStateImpl implements ClusterAppState {
           hzMember.getReplicatedMap(OPERATIONAL_PROCESSES).put(clusterProcess, Boolean.FALSE);
         }
       }
-    }
-
-    private void purgeSharedMemoryForAppNodes() {
-      LOGGER.info("No more application nodes, clearing cluster information about application nodes.");
-      hzMember.getAtomicReference(LEADER).clear();
-      hzMember.getAtomicReference(SONARQUBE_VERSION).clear();
     }
   }
 }
