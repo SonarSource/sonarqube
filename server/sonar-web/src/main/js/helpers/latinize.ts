@@ -403,5 +403,6 @@ for (let i = 0; i < defaultDiacriticsRemovalap.length; i++) {
 
 // "what?" version ... http://jsperf.com/diacritics/12
 export default function removeDiacritics(str: string): string {
+  // eslint-disable-next-line no-control-regex
   return str.replace(/[^\u0000-\u007E]/g, a => diacriticsMap[a] || a);
 }
