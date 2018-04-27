@@ -34,3 +34,19 @@ it('logs in with identity provider', () => {
   );
   expect(wrapper).toMatchSnapshot();
 });
+
+it('logs in with simple form', () => {
+  expect(
+    shallow(
+      <LoginSonarCloud
+        identityProviders={[identityProvider]}
+        onSubmit={jest.fn()}
+        returnTo=""
+        showForm={true}
+      />
+    )
+  ).toMatchSnapshot();
+  expect(
+    shallow(<LoginSonarCloud identityProviders={[]} onSubmit={jest.fn()} returnTo="" />)
+  ).toMatchSnapshot();
+});

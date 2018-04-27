@@ -37,3 +37,57 @@ exports[`logs in with identity provider 1`] = `
   />
 </div>
 `;
+
+exports[`logs in with simple form 1`] = `
+<div
+  className="sonarcloud-login-page boxed-group boxed-group-inner sonarcloud-login-page-large"
+  id="login_form"
+>
+  <div
+    className="text-center"
+  >
+    <img
+      alt="SonarCloud logo"
+      height={36}
+      src="null/images/sc-icon.svg"
+      width={36}
+    />
+    <h1
+      className="sonarcloud-login-title"
+    >
+      login.login_or_signup_to_sonarcloud
+    </h1>
+  </div>
+  <LoginForm
+    onSubmit={[MockFunction]}
+    returnTo=""
+  />
+</div>
+`;
+
+exports[`logs in with simple form 2`] = `
+<div
+  className="sonarcloud-login-page boxed-group boxed-group-inner sonarcloud-login-page-large"
+  id="login_form"
+>
+  <div
+    className="text-center"
+  >
+    <img
+      alt="SonarCloud logo"
+      height={36}
+      src="null/images/sc-icon.svg"
+      width={36}
+    />
+    <h1
+      className="sonarcloud-login-title"
+    >
+      login.login_or_signup_to_sonarcloud
+    </h1>
+  </div>
+  <LoginForm
+    onSubmit={[MockFunction]}
+    returnTo=""
+  />
+</div>
+`;

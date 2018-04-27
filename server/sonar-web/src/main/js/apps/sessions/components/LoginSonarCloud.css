@@ -25,6 +25,10 @@
   padding: calc(2 * var(--gridSize)) 20px;
 }
 
+.sonarcloud-login-page-large {
+  width: 300px;
+}
+
 .sonarcloud-login-title {
   line-height: 1.5;
   font-size: var(--bigFontSize);
@@ -38,7 +42,6 @@
 }
 
 .sonarcloud-oauth-providers.oauth-providers > ul > li > a > span {
-  font-weight: 600;
   padding-left: calc(1.5 * var(--gridSize));
 }
 

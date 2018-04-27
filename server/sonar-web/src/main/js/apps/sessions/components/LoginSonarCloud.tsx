@@ -18,6 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import * as classNames from 'classnames';
+import LoginForm from './LoginForm';
 import OAuthProviders from './OAuthProviders';
 import { IdentityProvider } from '../../../app/types';
 import { getHostUrl } from '../../../helpers/urls';
@@ -26,12 +28,24 @@ import './LoginSonarCloud.css';
 
 interface Props {
   identityProviders: IdentityProvider[];
+  onSubmit: (login: string, password: string) => Promise<void>;
   returnTo: string;
+  showForm?: boolean;
 }
 
-export default function LoginSonarCloud({ identityProviders, returnTo }: Props) {
+export default function LoginSonarCloud({
+  identityProviders,
+  onSubmit,
+  returnTo,
+  showForm
+}: Props) {
+  const displayForm = showForm || identityProviders.length <= 0;
   return (
-    <div className="sonarcloud-login-page boxed-group boxed-group-inner" id="login_form">
+    <div
+      className={classNames('sonarcloud-login-page boxed-group boxed-group-inner', {
+        'sonarcloud-login-page-large': displayForm
+      })}
+      id="login_form">
       <div className="text-center">
         <img
           alt="SonarCloud logo"
@@ -44,12 +58,16 @@ export default function LoginSonarCloud({ identityProviders, returnTo }: Props) 
         </h1>
       </div>
 
-      <OAuthProviders
-        className="sonarcloud-oauth-providers"
-        formatLabel={formatLabel}
-        identityProviders={identityProviders}
-        returnTo={returnTo}
-      />
+      {displayForm ? (
+        <LoginForm onSubmit={onSubmit} returnTo={returnTo} />
+      ) : (
+        <OAuthProviders
+          className="sonarcloud-oauth-providers"
+          formatLabel={formatLabel}
+          identityProviders={identityProviders}
+          returnTo={returnTo}
+        />
+      )}
     </div>
   );
 }

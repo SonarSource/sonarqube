@@ -27,16 +27,22 @@ import { getIdentityProviders } from '../../../api/users';
 import { IdentityProvider } from '../../../app/types';
 import { getBaseUrl } from '../../../helpers/urls';
 
-interface Props {
-  doLogin: (login: string, password: string) => Promise<void>;
+interface OwnProps {
   location: {
     hash?: string;
     pathName: string;
     query: {
+      advanced?: string;
       return_to?: string; // eslint-disable-line camelcase
     };
   };
 }
+
+interface DispatchToProps {
+  doLogin: (login: string, password: string) => Promise<void>;
+}
+
+type Props = OwnProps & DispatchToProps;
 
 interface State {
   identityProviders?: IdentityProvider[];
@@ -84,6 +90,7 @@ class LoginContainer extends React.PureComponent<Props, State> {
   };
 
   render() {
+    const { location } = this.props;
     const { identityProviders } = this.state;
     if (!identityProviders) {
       return null;
@@ -95,6 +102,7 @@ class LoginContainer extends React.PureComponent<Props, State> {
           identityProviders={identityProviders}
           onSubmit={this.handleSubmit}
           returnTo={this.getReturnUrl()}
+          showForm={location.query['advanced'] !== undefined}
         />
       );
     }
@@ -110,6 +118,8 @@ class LoginContainer extends React.PureComponent<Props, State> {
 }
 
 const mapStateToProps = null;
-const mapDispatchToProps = { doLogin };
+const mapDispatchToProps = { doLogin: doLogin as any };
 
-export default connect(mapStateToProps, mapDispatchToProps)(LoginContainer as any);
+export default connect<{}, DispatchToProps, OwnProps>(mapStateToProps, mapDispatchToProps)(
+  LoginContainer
+);
