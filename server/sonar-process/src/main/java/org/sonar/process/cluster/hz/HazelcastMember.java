@@ -22,7 +22,6 @@ package org.sonar.process.cluster.hz;
 import com.hazelcast.core.Cluster;
 import com.hazelcast.core.IAtomicReference;
 import com.hazelcast.core.MemberSelector;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.locks.Lock;
@@ -52,21 +51,6 @@ public interface HazelcastMember extends AutoCloseable {
   }
 
   <E> IAtomicReference<E> getAtomicReference(String name);
-
-  /**
-   * Gets the set shared by the cluster and identified by name
-   */
-  <E> Set<E> getSet(String name);
-
-  /**
-   * Gets the list shared by the cluster and identified by name
-   */
-  <E> List<E> getList(String name);
-
-  /**
-   * Gets the map shared by the cluster and identified by name
-   */
-  <K, V> Map<K, V> getMap(String name);
 
   /**
    * Gets the replicated map shared by the cluster and identified by name.

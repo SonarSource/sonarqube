@@ -61,9 +61,6 @@ public class HazelcastMemberBuilderTest {
     assertThat(member.getAtomicReference("baz")).isNotNull();
     assertThat(member.getLock("baz")).isNotNull();
     assertThat(member.getReplicatedMap("baz")).isNotNull();
-    assertThat(member.getList("baz")).isNotNull();
-    assertThat(member.getMap("baz")).isNotNull();
-    assertThat(member.getSet("baz")).isNotNull();
 
     member.close();
   }

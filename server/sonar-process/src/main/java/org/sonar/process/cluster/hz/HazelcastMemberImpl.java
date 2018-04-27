@@ -26,7 +26,6 @@ import com.hazelcast.core.IAtomicReference;
 import com.hazelcast.core.IExecutorService;
 import com.hazelcast.core.Member;
 import com.hazelcast.core.MemberSelector;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
@@ -48,21 +47,6 @@ class HazelcastMemberImpl implements HazelcastMember {
   @Override
   public <E> IAtomicReference<E> getAtomicReference(String name) {
     return hzInstance.getAtomicReference(name);
-  }
-
-  @Override
-  public <E> Set<E> getSet(String s) {
-    return hzInstance.getSet(s);
-  }
-
-  @Override
-  public <E> List<E> getList(String s) {
-    return hzInstance.getList(s);
-  }
-
-  @Override
-  public <K, V> Map<K, V> getMap(String s) {
-    return hzInstance.getMap(s);
   }
 
   @Override
