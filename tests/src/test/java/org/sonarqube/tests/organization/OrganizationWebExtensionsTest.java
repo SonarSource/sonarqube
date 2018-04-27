@@ -45,7 +45,9 @@ public class OrganizationWebExtensionsTest {
   @Test
   public void organization_page() {
     Organization organization = tester.organizations().generate();
-    tester.openBrowser().open("/organizations/" + organization.getKey() + "/projects");
+    User administrator = tester.users().generateAdministrator(organization);
+    tester.openBrowser().logIn().submitCredentials(administrator.getLogin())
+      .open("/organizations/" + organization.getKey() + "/projects");
 
     $("#organization-navigation-more").click();
     $(By.linkText("Organization Page")).shouldBe(Condition.visible).click();

@@ -78,10 +78,6 @@ const routes = [
         childRoutes: qualityGatesRoutes
       },
       {
-        path: 'extension/:pluginKey/:extensionKey',
-        component: OrganizationPageExtension
-      },
-      {
         component: OrganizationAdminContainer,
         childRoutes: [
           { path: 'delete', component: OrganizationDelete },
@@ -90,7 +86,11 @@ const routes = [
           { path: 'permissions', component: GlobalPermissionsApp },
           { path: 'permission_templates', component: PermissionTemplateApp },
           { path: 'projects_management', component: ProjectManagementApp },
-          { path: 'webhooks', childRoutes: webhooksRoutes }
+          { path: 'webhooks', childRoutes: webhooksRoutes },
+          {
+            path: 'extension/:pluginKey/:extensionKey',
+            component: OrganizationPageExtension
+          }
         ]
       }
     ]
