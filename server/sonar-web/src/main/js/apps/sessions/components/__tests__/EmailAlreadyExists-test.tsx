@@ -30,7 +30,7 @@ jest.mock('../../../../api/users', () => ({
           key: 'bitbucket',
           name: 'Bitbucket',
           iconPath: '/static/authbitbucket/bitbucket.svg',
-          backgroundColor: '#205081'
+          backgroundColor: '#0052cc'
         },
         {
           key: 'github',

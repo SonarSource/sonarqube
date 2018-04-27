@@ -31,7 +31,7 @@ exports[`render 1`] = `
         className="identity-provider"
         style={
           Object {
-            "backgroundColor": "#205081",
+            "backgroundColor": "#0052cc",
             "color": "#fff",
           }
         }

@@ -17,23 +17,40 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import * as React from 'react';
+import { shallow } from 'enzyme';
+import OAuthProviders from '../OAuthProviders';
 
-.login-form {
-  width: 300px;
-  margin-left: auto;
-  margin-right: auto;
-}
+const identityProviders = [
+  {
+    backgroundColor: '#000',
+    iconPath: '/some/path',
+    key: 'foo',
+    name: 'Foo'
+  },
+  {
+    backgroundColor: '#00F',
+    helpMessage: 'Help message!',
+    iconPath: '/icon/path',
+    key: 'bar',
+    name: 'Bar'
+  }
+];
 
-.login-input {
-  width: 100% !important;
-  height: auto !important;
-  padding: 5px 12px !important;
-  font-size: 20px;
-  font-weight: 300;
-}
+it('should render correctly', () => {
+  expect(
+    shallow(<OAuthProviders identityProviders={identityProviders} returnTo="" />)
+  ).toMatchSnapshot();
+});
 
-.login-label {
-  display: none;
-  margin-bottom: 8px;
-  font-size: 15px;
-}
+it('should use the custom label formatter', () => {
+  expect(
+    shallow(
+      <OAuthProviders
+        formatLabel={name => 'custom_format.' + name}
+        identityProviders={[identityProviders[0]]}
+        returnTo=""
+      />
+    )
+  ).toMatchSnapshot();
+});

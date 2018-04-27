@@ -1,0 +1,50 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`logs in with form alone 1`] = `
+<div
+  className="login-page"
+  id="login_form"
+>
+  <h1
+    className="login-title text-center"
+  >
+    login.login_to_sonarqube
+  </h1>
+  <LoginForm
+    collapsed={false}
+    onSubmit={[MockFunction]}
+    returnTo=""
+  />
+</div>
+`;
+
+exports[`logs in with identity provider 1`] = `
+<div
+  className="login-page"
+  id="login_form"
+>
+  <h1
+    className="login-title text-center"
+  >
+    login.login_to_sonarqube
+  </h1>
+  <OAuthProviders
+    identityProviders={
+      Array [
+        Object {
+          "backgroundColor": "#000",
+          "iconPath": "/some/path",
+          "key": "foo",
+          "name": "foo",
+        },
+      ]
+    }
+    returnTo=""
+  />
+  <LoginForm
+    collapsed={true}
+    onSubmit={[MockFunction]}
+    returnTo=""
+  />
+</div>
+`;

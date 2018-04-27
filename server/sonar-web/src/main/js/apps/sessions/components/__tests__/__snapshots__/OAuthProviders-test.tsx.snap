@@ -1,0 +1,99 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<section
+  className="oauth-providers"
+>
+  <ul>
+    <li
+      key="foo"
+    >
+      <a
+        href="/sessions/init/foo?return_to="
+        style={
+          Object {
+            "backgroundColor": "#000",
+            "color": "#fff",
+          }
+        }
+      >
+        <img
+          alt="Foo"
+          height="20"
+          src="/some/path"
+          width="20"
+        />
+        <span>
+          login.login_with_x.Foo
+        </span>
+      </a>
+    </li>
+    <li
+      key="bar"
+    >
+      <a
+        href="/sessions/init/bar?return_to="
+        style={
+          Object {
+            "backgroundColor": "#00F",
+            "color": "#fff",
+          }
+        }
+      >
+        <img
+          alt="Bar"
+          height="20"
+          src="/icon/path"
+          width="20"
+        />
+        <span>
+          login.login_with_x.Bar
+        </span>
+      </a>
+      <Tooltip
+        overlay="Help message!"
+      >
+        <div
+          className="oauth-providers-help"
+        >
+          <HelpIcon
+            fill="#4b9fd5"
+          />
+        </div>
+      </Tooltip>
+    </li>
+  </ul>
+</section>
+`;
+
+exports[`should use the custom label formatter 1`] = `
+<section
+  className="oauth-providers"
+>
+  <ul>
+    <li
+      key="foo"
+    >
+      <a
+        href="/sessions/init/foo?return_to="
+        style={
+          Object {
+            "backgroundColor": "#000",
+            "color": "#fff",
+          }
+        }
+      >
+        <img
+          alt="Foo"
+          height="20"
+          src="/some/path"
+          width="20"
+        />
+        <span>
+          custom_format.Foo
+        </span>
+      </a>
+    </li>
+  </ul>
+</section>
+`;

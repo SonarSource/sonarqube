@@ -17,23 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import * as React from 'react';
+import { shallow } from 'enzyme';
+import Login from '../Login';
 
-.login-form {
-  width: 300px;
-  margin-left: auto;
-  margin-right: auto;
-}
+const identityProvider = {
+  backgroundColor: '#000',
+  iconPath: '/some/path',
+  key: 'foo',
+  name: 'foo'
+};
 
-.login-input {
-  width: 100% !important;
-  height: auto !important;
-  padding: 5px 12px !important;
-  font-size: 20px;
-  font-weight: 300;
-}
+it('logs in with form alone', () => {
+  const wrapper = shallow(<Login identityProviders={[]} onSubmit={jest.fn()} returnTo="" />);
+  expect(wrapper).toMatchSnapshot();
+});
 
-.login-label {
-  display: none;
-  margin-bottom: 8px;
-  font-size: 15px;
-}
+it('logs in with identity provider', () => {
+  const wrapper = shallow(
+    <Login identityProviders={[identityProvider]} onSubmit={jest.fn()} returnTo="" />
+  );
+  expect(wrapper).toMatchSnapshot();
+});

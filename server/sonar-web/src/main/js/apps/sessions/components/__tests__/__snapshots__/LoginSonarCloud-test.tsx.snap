@@ -1,0 +1,39 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`logs in with identity provider 1`] = `
+<div
+  className="sonarcloud-login-page boxed-group boxed-group-inner"
+  id="login_form"
+>
+  <div
+    className="text-center"
+  >
+    <img
+      alt="SonarCloud logo"
+      height={36}
+      src="null/images/sc-icon.svg"
+      width={36}
+    />
+    <h1
+      className="sonarcloud-login-title"
+    >
+      login.login_or_signup_to_sonarcloud
+    </h1>
+  </div>
+  <OAuthProviders
+    className="sonarcloud-oauth-providers"
+    formatLabel={[Function]}
+    identityProviders={
+      Array [
+        Object {
+          "backgroundColor": "#000",
+          "iconPath": "/some/path",
+          "key": "foo",
+          "name": "foo",
+        },
+      ]
+    }
+    returnTo=""
+  />
+</div>
+`;

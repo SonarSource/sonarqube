@@ -17,23 +17,39 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
-.login-form {
-  width: 300px;
+.sonarcloud-login-page {
+  margin-top: 15vh;
+  width: 200px;
   margin-left: auto;
   margin-right: auto;
+  padding: calc(2 * var(--gridSize)) 20px;
 }
 
-.login-input {
-  width: 100% !important;
-  height: auto !important;
-  padding: 5px 12px !important;
-  font-size: 20px;
+.sonarcloud-login-title {
+  line-height: 1.5;
+  font-size: var(--bigFontSize);
   font-weight: 300;
+  width: 135px;
+  margin: var(--gridSize) auto calc(2 * var(--gridSize));
 }
 
-.login-label {
-  display: none;
-  margin-bottom: 8px;
-  font-size: 15px;
+.sonarcloud-oauth-providers.oauth-providers > ul > li {
+  margin-bottom: var(--gridSize);
+}
+
+.sonarcloud-oauth-providers.oauth-providers > ul > li > a > span {
+  font-weight: 600;
+  padding-left: calc(1.5 * var(--gridSize));
+}
+
+.sonarcloud-oauth-providers.oauth-providers > ul > li > a > span::before {
+  content: '';
+  border-left: 1px var(--gray71) solid;
+  height: 10px;
+  opacity: 0.4;
+  margin-right: calc(1.5 * var(--gridSize));
+}
+
+.sonarcloud-oauth-providers.oauth-providers .oauth-providers-help {
+  right: -22px;
 }

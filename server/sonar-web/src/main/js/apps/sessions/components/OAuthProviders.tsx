@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import * as classNames from 'classnames';
 import { translateWithParameters } from '../../../helpers/l10n';
 import * as theme from '../../../app/theme';
 import { IdentityProvider } from '../../../app/types';
@@ -28,13 +29,16 @@ import { getBaseUrl } from '../../../helpers/urls';
 import './OAuthProviders.css';
 
 interface Props {
+  className?: string;
+  formatLabel?: (name: string) => React.ReactNode;
   identityProviders: IdentityProvider[];
   returnTo: string;
 }
 
 export default function OAuthProviders(props: Props) {
+  const formatFunction = props.formatLabel || defaultFormatLabel;
   return (
-    <section className="oauth-providers">
+    <section className={classNames('oauth-providers', props.className)}>
       <ul>
         {props.identityProviders.map(identityProvider => (
           <li key={identityProvider.key}>
@@ -49,11 +53,11 @@ export default function OAuthProviders(props: Props) {
               }}>
               <img
                 alt={identityProvider.name}
-                width="20"
                 height="20"
                 src={getBaseUrl() + identityProvider.iconPath}
+                width="20"
               />
-              <span>{defaultFormatLabel(identityProvider.name)}</span>
+              <span>{formatFunction(identityProvider.name)}</span>
             </a>
             {identityProvider.helpMessage && (
               <Tooltip overlay={identityProvider.helpMessage}>

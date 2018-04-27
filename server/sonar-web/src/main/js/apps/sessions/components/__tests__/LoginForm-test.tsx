@@ -22,18 +22,9 @@ import { shallow } from 'enzyme';
 import LoginForm from '../LoginForm';
 import { change, click, submit, waitAndUpdate } from '../../../../helpers/testUtils';
 
-const identityProvider = {
-  backgroundColor: '#000',
-  iconPath: '/some/path',
-  key: 'foo',
-  name: 'foo'
-};
-
 it('logs in with simple credentials', () => {
   const onSubmit = jest.fn(() => Promise.resolve());
-  const wrapper = shallow(
-    <LoginForm identityProviders={[]} onSonarCloud={false} onSubmit={onSubmit} returnTo="" />
-  );
+  const wrapper = shallow(<LoginForm onSubmit={onSubmit} returnTo="" />);
   expect(wrapper).toMatchSnapshot();
 
   change(wrapper.find('#login'), 'admin');
@@ -45,9 +36,7 @@ it('logs in with simple credentials', () => {
 
 it('should display a spinner and disabled button while loading', async () => {
   const onSubmit = jest.fn(() => Promise.resolve());
-  const wrapper = shallow(
-    <LoginForm identityProviders={[]} onSonarCloud={false} onSubmit={onSubmit} returnTo="" />
-  );
+  const wrapper = shallow(<LoginForm onSubmit={onSubmit} returnTo="" />);
 
   change(wrapper.find('#login'), 'admin');
   change(wrapper.find('#password'), 'admin');
@@ -58,27 +47,8 @@ it('should display a spinner and disabled button while loading', async () => {
   await waitAndUpdate(wrapper);
 });
 
-it('logs in with identity provider', () => {
-  const wrapper = shallow(
-    <LoginForm
-      identityProviders={[identityProvider]}
-      onSonarCloud={false}
-      onSubmit={jest.fn()}
-      returnTo=""
-    />
-  );
-  expect(wrapper).toMatchSnapshot();
-});
-
 it('expands more options', () => {
-  const wrapper = shallow(
-    <LoginForm
-      identityProviders={[identityProvider]}
-      onSonarCloud={false}
-      onSubmit={jest.fn()}
-      returnTo=""
-    />
-  );
+  const wrapper = shallow(<LoginForm collapsed={true} onSubmit={jest.fn()} returnTo="" />);
   expect(wrapper).toMatchSnapshot();
 
   click(wrapper.find('.js-more-options'));

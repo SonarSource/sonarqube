@@ -2,342 +2,239 @@
 
 exports[`expands more options 1`] = `
 <div
-  className="login-page"
-  id="login_form"
+  className="text-center"
 >
-  <h1
-    className="login-title text-center"
+  <a
+    className="small text-muted js-more-options"
+    href="#"
+    onClick={[Function]}
   >
-    login.login_to_sonarqube
-  </h1>
-  <OAuthProviders
-    identityProviders={
-      Array [
-        Object {
-          "backgroundColor": "#000",
-          "iconPath": "/some/path",
-          "key": "foo",
-          "name": "foo",
-        },
-      ]
-    }
-    returnTo=""
-  />
-  <div
-    className="text-center"
-  >
-    <a
-      className="small text-muted js-more-options"
-      href="#"
-      onClick={[Function]}
-    >
-      login.more_options
-    </a>
-  </div>
+    login.more_options
+  </a>
 </div>
 `;
 
 exports[`expands more options 2`] = `
-<div
-  className="login-page"
-  id="login_form"
+<form
+  className="login-form"
+  onSubmit={[Function]}
 >
-  <h1
-    className="login-title text-center"
-  >
-    login.login_to_sonarqube
-  </h1>
-  <OAuthProviders
-    identityProviders={
-      Array [
-        Object {
-          "backgroundColor": "#000",
-          "iconPath": "/some/path",
-          "key": "foo",
-          "name": "foo",
-        },
-      ]
-    }
-    returnTo=""
-  />
-  <form
-    className="login-form"
-    onSubmit={[Function]}
-  >
-    <Connect(GlobalMessages) />
-    <div
-      className="big-spacer-bottom"
-    >
-      <label
-        className="login-label"
-        htmlFor="login"
-      >
-        login
-      </label>
-      <input
-        autoFocus={true}
-        className="login-input"
-        id="login"
-        maxLength={255}
-        name="login"
-        onChange={[Function]}
-        placeholder="login"
-        required={true}
-        type="text"
-        value=""
-      />
-    </div>
-    <div
-      className="big-spacer-bottom"
-    >
-      <label
-        className="login-label"
-        htmlFor="password"
-      >
-        password
-      </label>
-      <input
-        className="login-input"
-        id="password"
-        name="password"
-        onChange={[Function]}
-        placeholder="password"
-        required={true}
-        type="password"
-        value=""
-      />
-    </div>
-    <div>
-      <div
-        className="text-right overflow-hidden"
-      >
-        <DeferredSpinner
-          className="spacer-right"
-          loading={false}
-          timeout={100}
-        />
-        <SubmitButton
-          className=""
-        >
-          sessions.log_in
-        </SubmitButton>
-        <Link
-          className="spacer-left"
-          onlyActiveOnIndex={false}
-          style={Object {}}
-          to="/"
-        >
-          cancel
-        </Link>
-      </div>
-    </div>
-  </form>
-</div>
-`;
-
-exports[`logs in with identity provider 1`] = `
-<div
-  className="login-page"
-  id="login_form"
->
-  <h1
-    className="login-title text-center"
-  >
-    login.login_to_sonarqube
-  </h1>
-  <OAuthProviders
-    identityProviders={
-      Array [
-        Object {
-          "backgroundColor": "#000",
-          "iconPath": "/some/path",
-          "key": "foo",
-          "name": "foo",
-        },
-      ]
-    }
-    returnTo=""
-  />
+  <Connect(GlobalMessages) />
   <div
-    className="text-center"
+    className="big-spacer-bottom"
   >
-    <a
-      className="small text-muted js-more-options"
-      href="#"
-      onClick={[Function]}
+    <label
+      className="login-label"
+      htmlFor="login"
     >
-      login.more_options
-    </a>
+      login
+    </label>
+    <input
+      autoFocus={true}
+      className="login-input"
+      id="login"
+      maxLength={255}
+      name="login"
+      onChange={[Function]}
+      placeholder="login"
+      required={true}
+      type="text"
+      value=""
+    />
   </div>
-</div>
+  <div
+    className="big-spacer-bottom"
+  >
+    <label
+      className="login-label"
+      htmlFor="password"
+    >
+      password
+    </label>
+    <input
+      className="login-input"
+      id="password"
+      name="password"
+      onChange={[Function]}
+      placeholder="password"
+      required={true}
+      type="password"
+      value=""
+    />
+  </div>
+  <div>
+    <div
+      className="text-right overflow-hidden"
+    >
+      <DeferredSpinner
+        className="spacer-right"
+        loading={false}
+        timeout={100}
+      />
+      <SubmitButton
+        disabled={false}
+      >
+        sessions.log_in
+      </SubmitButton>
+      <Link
+        className="spacer-left"
+        onlyActiveOnIndex={false}
+        style={Object {}}
+        to="/"
+      >
+        cancel
+      </Link>
+    </div>
+  </div>
+</form>
 `;
 
 exports[`logs in with simple credentials 1`] = `
-<div
-  className="login-page"
-  id="login_form"
+<form
+  className="login-form"
+  onSubmit={[Function]}
 >
-  <h1
-    className="login-title text-center"
+  <Connect(GlobalMessages) />
+  <div
+    className="big-spacer-bottom"
   >
-    login.login_to_sonarqube
-  </h1>
-  <form
-    className="login-form"
-    onSubmit={[Function]}
+    <label
+      className="login-label"
+      htmlFor="login"
+    >
+      login
+    </label>
+    <input
+      autoFocus={true}
+      className="login-input"
+      id="login"
+      maxLength={255}
+      name="login"
+      onChange={[Function]}
+      placeholder="login"
+      required={true}
+      type="text"
+      value=""
+    />
+  </div>
+  <div
+    className="big-spacer-bottom"
   >
-    <Connect(GlobalMessages) />
-    <div
-      className="big-spacer-bottom"
+    <label
+      className="login-label"
+      htmlFor="password"
     >
-      <label
-        className="login-label"
-        htmlFor="login"
-      >
-        login
-      </label>
-      <input
-        autoFocus={true}
-        className="login-input"
-        id="login"
-        maxLength={255}
-        name="login"
-        onChange={[Function]}
-        placeholder="login"
-        required={true}
-        type="text"
-        value=""
-      />
-    </div>
+      password
+    </label>
+    <input
+      className="login-input"
+      id="password"
+      name="password"
+      onChange={[Function]}
+      placeholder="password"
+      required={true}
+      type="password"
+      value=""
+    />
+  </div>
+  <div>
     <div
-      className="big-spacer-bottom"
+      className="text-right overflow-hidden"
     >
-      <label
-        className="login-label"
-        htmlFor="password"
-      >
-        password
-      </label>
-      <input
-        className="login-input"
-        id="password"
-        name="password"
-        onChange={[Function]}
-        placeholder="password"
-        required={true}
-        type="password"
-        value=""
+      <DeferredSpinner
+        className="spacer-right"
+        loading={false}
+        timeout={100}
       />
-    </div>
-    <div>
-      <div
-        className="text-right overflow-hidden"
+      <SubmitButton
+        disabled={false}
       >
-        <DeferredSpinner
-          className="spacer-right"
-          loading={false}
-          timeout={100}
-        />
-        <SubmitButton
-          className=""
-        >
-          sessions.log_in
-        </SubmitButton>
-        <Link
-          className="spacer-left"
-          onlyActiveOnIndex={false}
-          style={Object {}}
-          to="/"
-        >
-          cancel
-        </Link>
-      </div>
+        sessions.log_in
+      </SubmitButton>
+      <Link
+        className="spacer-left"
+        onlyActiveOnIndex={false}
+        style={Object {}}
+        to="/"
+      >
+        cancel
+      </Link>
     </div>
-  </form>
-</div>
+  </div>
+</form>
 `;
 
 exports[`should display a spinner and disabled button while loading 1`] = `
-<div
-  className="login-page"
-  id="login_form"
+<form
+  className="login-form"
+  onSubmit={[Function]}
 >
-  <h1
-    className="login-title text-center"
+  <Connect(GlobalMessages) />
+  <div
+    className="big-spacer-bottom"
   >
-    login.login_to_sonarqube
-  </h1>
-  <form
-    className="login-form"
-    onSubmit={[Function]}
+    <label
+      className="login-label"
+      htmlFor="login"
+    >
+      login
+    </label>
+    <input
+      autoFocus={true}
+      className="login-input"
+      id="login"
+      maxLength={255}
+      name="login"
+      onChange={[Function]}
+      placeholder="login"
+      required={true}
+      type="text"
+      value="admin"
+    />
+  </div>
+  <div
+    className="big-spacer-bottom"
   >
-    <Connect(GlobalMessages) />
-    <div
-      className="big-spacer-bottom"
+    <label
+      className="login-label"
+      htmlFor="password"
     >
-      <label
-        className="login-label"
-        htmlFor="login"
-      >
-        login
-      </label>
-      <input
-        autoFocus={true}
-        className="login-input"
-        id="login"
-        maxLength={255}
-        name="login"
-        onChange={[Function]}
-        placeholder="login"
-        required={true}
-        type="text"
-        value="admin"
-      />
-    </div>
+      password
+    </label>
+    <input
+      className="login-input"
+      id="password"
+      name="password"
+      onChange={[Function]}
+      placeholder="password"
+      required={true}
+      type="password"
+      value="admin"
+    />
+  </div>
+  <div>
     <div
-      className="big-spacer-bottom"
+      className="text-right overflow-hidden"
     >
-      <label
-        className="login-label"
-        htmlFor="password"
-      >
-        password
-      </label>
-      <input
-        className="login-input"
-        id="password"
-        name="password"
-        onChange={[Function]}
-        placeholder="password"
-        required={true}
-        type="password"
-        value="admin"
+      <DeferredSpinner
+        className="spacer-right"
+        loading={true}
+        timeout={100}
       />
-    </div>
-    <div>
-      <div
-        className="text-right overflow-hidden"
+      <SubmitButton
+        disabled={true}
       >
-        <DeferredSpinner
-          className="spacer-right"
-          loading={true}
-          timeout={100}
-        />
-        <SubmitButton
-          className="disabled"
-        >
-          sessions.log_in
-        </SubmitButton>
-        <Link
-          className="spacer-left"
-          onlyActiveOnIndex={false}
-          style={Object {}}
-          to="/"
-        >
-          cancel
-        </Link>
-      </div>
+        sessions.log_in
+      </SubmitButton>
+      <Link
+        className="spacer-left"
+        onlyActiveOnIndex={false}
+        style={Object {}}
+        to="/"
+      >
+        cancel
+      </Link>
     </div>
-  </form>
-</div>
+  </div>
+</form>
 `;

@@ -20,7 +20,8 @@
 import * as React from 'react';
 import * as PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import LoginForm from './LoginForm';
+import Login from './Login';
+import LoginSonarCloud from './LoginSonarCloud';
 import { doLogin } from '../../../store/rootActions';
 import { getIdentityProviders } from '../../../api/users';
 import { IdentityProvider } from '../../../app/types';
@@ -28,14 +29,20 @@ import { getBaseUrl } from '../../../helpers/urls';
 
 interface Props {
   doLogin: (login: string, password: string) => Promise<void>;
-  location: { hash?: string; pathName: string; query: { return_to?: string } };
+  location: {
+    hash?: string;
+    pathName: string;
+    query: {
+      return_to?: string; // eslint-disable-line camelcase
+    };
+  };
 }
 
 interface State {
   identityProviders?: IdentityProvider[];
 }
 
-class LoginFormContainer extends React.PureComponent<Props, State> {
+class LoginContainer extends React.PureComponent<Props, State> {
   mounted = false;
 
   static contextTypes = {
@@ -82,10 +89,19 @@ class LoginFormContainer extends React.PureComponent<Props, State> {
       return null;
     }
 
+    if (this.context.onSonarCloud) {
+      return (
+        <LoginSonarCloud
+          identityProviders={identityProviders}
+          onSubmit={this.handleSubmit}
+          returnTo={this.getReturnUrl()}
+        />
+      );
+    }
+
     return (
-      <LoginForm
+      <Login
         identityProviders={identityProviders}
-        onSonarCloud={this.context.onSonarCloud}
         onSubmit={this.handleSubmit}
         returnTo={this.getReturnUrl()}
       />
@@ -96,4 +112,4 @@ class LoginFormContainer extends React.PureComponent<Props, State> {
 const mapStateToProps = null;
 const mapDispatchToProps = { doLogin };
 
-export default connect(mapStateToProps, mapDispatchToProps)(LoginFormContainer as any);
+export default connect(mapStateToProps, mapDispatchToProps)(LoginContainer as any);

@@ -23,7 +23,7 @@ const routes = [
   {
     path: 'new',
     getComponent(_: RouterState, callback: (err: any, component: RouteComponent) => any) {
-      import('./components/LoginFormContainer').then(i => callback(null, i.default));
+      import('./components/LoginContainer').then(i => callback(null, i.default));
     }
   },
   {
