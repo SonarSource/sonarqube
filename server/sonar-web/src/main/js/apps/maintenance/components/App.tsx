@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import * as classNames from 'classnames';
+import Helmet from 'react-helmet';
 import { getMigrationStatus, getSystemStatus, migrateDatabase } from '../../../api/system';
 import DateFromNow from '../../../components/intl/DateFromNow';
 import TimeFormatter from '../../../components/intl/TimeFormatter';
@@ -129,156 +130,163 @@ export default class App extends React.PureComponent<Props, State> {
     const { state, status } = this.state;
 
     return (
-      <div className="page-wrapper-simple" id="bd">
-        <div
-          className={classNames('page-simple', { 'panel-warning': state === 'MIGRATION_REQUIRED' })}
-          id="nonav">
-          {status === 'OFFLINE' && (
-            <>
-              <h1 className="maintenance-title text-danger">
-                {translate('maintenance.sonarqube_is_offline')}
-              </h1>
-              <p className="maintenance-text">
-                {translate('maintenance.sonarqube_is_offline.text')}
-              </p>
-              <p className="maintenance-text text-center">
-                <a href={getBaseUrl() + '/'}>{translate('maintenance.try_again')}</a>
-              </p>
-            </>
-          )}
-
-          {status === 'UP' && (
-            <>
-              <h1 className="maintenance-title">{translate('maintenance.sonarqube_is_up')}</h1>
-              <p className="maintenance-text text-center">
-                {translate('maintenance.all_systems_opetational')}
-              </p>
-              <p className="maintenance-text text-center">
-                <a href={getBaseUrl() + '/'}>{translate('layout.home')}</a>
-              </p>
-            </>
-          )}
-
-          {status === 'STARTING' && (
-            <>
-              <h1 className="maintenance-title">
-                {translate('maintenance.sonarqube_is_starting')}
-              </h1>
-              <p className="maintenance-spinner">
-                <i className="spinner" />
-              </p>
-            </>
-          )}
-
-          {status === 'DOWN' && (
-            <>
-              <h1 className="maintenance-title text-danger">
-                {translate('maintenance.sonarqube_is_down')}
-              </h1>
-              <p className="maintenance-text">{translate('maintenance.sonarqube_is_down.text')}</p>
-              <p className="maintenance-text text-center">
-                <a href={getBaseUrl() + '/'}>{translate('maintenance.try_again')}</a>
-              </p>
-            </>
-          )}
-
-          {(status === 'DB_MIGRATION_NEEDED' || status === 'DB_MIGRATION_RUNNING') && (
-            <>
-              <h1 className="maintenance-title">
-                {translate('maintenance.sonarqube_is_under_maintenance')}
-              </h1>
-              <p
-                className="maintenance-text"
-                dangerouslySetInnerHTML={{
-                  __html: translate('maintenance.sonarqube_is_under_maintenance.1')
-                }}
-              />
-              <p
-                className="maintenance-text"
-                dangerouslySetInnerHTML={{
-                  __html: translate('maintenance.sonarqube_is_under_maintenance.2')
-                }}
-              />
-            </>
-          )}
-
-          {state === 'NO_MIGRATION' && (
-            <>
-              <h1 className="maintenance-title">
-                {translate('maintenance.database_is_up_to_date')}
-              </h1>
-              <p className="maintenance-text text-center">
-                <a href={getBaseUrl() + '/'}>{translate('layout.home')}</a>
-              </p>
-            </>
-          )}
-
-          {state === 'MIGRATION_REQUIRED' && (
-            <>
-              <h1 className="maintenance-title">{translate('maintenance.upgrade_database')}</h1>
-              <p className="maintenance-text">{translate('maintenance.upgrade_database.1')}</p>
-              <p className="maintenance-text">{translate('maintenance.upgrade_database.2')}</p>
-              <p className="maintenance-text">{translate('maintenance.upgrade_database.3')}</p>
-              <div className="maintenance-spinner">
-                <Button id="start-migration" onClick={this.handleMigrateClick}>
-                  {translate('maintenance.upgrade')}
-                </Button>
-              </div>
-            </>
-          )}
-
-          {state === 'NOT_SUPPORTED' && (
-            <>
-              <h1 className="maintenance-title text-danger">
-                {translate('maintenance.migration_not_supported')}
-              </h1>
-              <p>{translate('maintenance.migration_not_supported.text')}</p>
-            </>
-          )}
-
-          {state === 'MIGRATION_RUNNING' && (
-            <>
-              <h1 className="maintenance-title">{translate('maintenance.database_migration')}</h1>
-              {this.state.message && (
-                <p className="maintenance-text text-center">{this.state.message}</p>
-              )}
-              {this.state.startedAt && (
-                <p className="maintenance-text text-center">
-                  {translate('background_tasks.table.started')}{' '}
-                  <DateFromNow date={this.state.startedAt} />
-                  <br />
-                  <small className="text-muted">
-                    <TimeFormatter date={this.state.startedAt} long={true} />
-                  </small>
+      <>
+        <Helmet defaultTitle={translate('maintenance.page')} />
+        <div className="page-wrapper-simple" id="bd">
+          <div
+            className={classNames('page-simple', {
+              'panel-warning': state === 'MIGRATION_REQUIRED'
+            })}
+            id="nonav">
+            {status === 'OFFLINE' && (
+              <>
+                <h1 className="maintenance-title text-danger">
+                  {translate('maintenance.sonarqube_is_offline')}
+                </h1>
+                <p className="maintenance-text">
+                  {translate('maintenance.sonarqube_is_offline.text')}
                 </p>
-              )}
-              <p className="maintenance-spinner">
-                <i className="spinner" />
-              </p>
-            </>
-          )}
+                <p className="maintenance-text text-center">
+                  <a href={getBaseUrl() + '/'}>{translate('maintenance.try_again')}</a>
+                </p>
+              </>
+            )}
 
-          {state === 'MIGRATION_SUCCEEDED' && (
-            <>
-              <h1 className="maintenance-title text-success">
-                {translate('maintenance.database_is_up_to_date')}
-              </h1>
-              <p className="maintenance-text text-center">
-                <a href={getBaseUrl() + '/'}>{translate('layout.home')}</a>
-              </p>
-            </>
-          )}
+            {status === 'UP' && (
+              <>
+                <h1 className="maintenance-title">{translate('maintenance.sonarqube_is_up')}</h1>
+                <p className="maintenance-text text-center">
+                  {translate('maintenance.all_systems_opetational')}
+                </p>
+                <p className="maintenance-text text-center">
+                  <a href={getBaseUrl() + '/'}>{translate('layout.home')}</a>
+                </p>
+              </>
+            )}
 
-          {state === 'MIGRATION_FAILED' && (
-            <>
-              <h1 className="maintenance-title text-danger">
-                {translate('maintenance.upgrade_failed')}
-              </h1>
-              <p className="maintenance-text">{translate('maintenance.upgrade_failed.text')}</p>
-            </>
-          )}
+            {status === 'STARTING' && (
+              <>
+                <h1 className="maintenance-title">
+                  {translate('maintenance.sonarqube_is_starting')}
+                </h1>
+                <p className="maintenance-spinner">
+                  <i className="spinner" />
+                </p>
+              </>
+            )}
+
+            {status === 'DOWN' && (
+              <>
+                <h1 className="maintenance-title text-danger">
+                  {translate('maintenance.sonarqube_is_down')}
+                </h1>
+                <p className="maintenance-text">
+                  {translate('maintenance.sonarqube_is_down.text')}
+                </p>
+                <p className="maintenance-text text-center">
+                  <a href={getBaseUrl() + '/'}>{translate('maintenance.try_again')}</a>
+                </p>
+              </>
+            )}
+
+            {(status === 'DB_MIGRATION_NEEDED' || status === 'DB_MIGRATION_RUNNING') && (
+              <>
+                <h1 className="maintenance-title">
+                  {translate('maintenance.sonarqube_is_under_maintenance')}
+                </h1>
+                <p
+                  className="maintenance-text"
+                  dangerouslySetInnerHTML={{
+                    __html: translate('maintenance.sonarqube_is_under_maintenance.1')
+                  }}
+                />
+                <p
+                  className="maintenance-text"
+                  dangerouslySetInnerHTML={{
+                    __html: translate('maintenance.sonarqube_is_under_maintenance.2')
+                  }}
+                />
+              </>
+            )}
+
+            {state === 'NO_MIGRATION' && (
+              <>
+                <h1 className="maintenance-title">
+                  {translate('maintenance.database_is_up_to_date')}
+                </h1>
+                <p className="maintenance-text text-center">
+                  <a href={getBaseUrl() + '/'}>{translate('layout.home')}</a>
+                </p>
+              </>
+            )}
+
+            {state === 'MIGRATION_REQUIRED' && (
+              <>
+                <h1 className="maintenance-title">{translate('maintenance.upgrade_database')}</h1>
+                <p className="maintenance-text">{translate('maintenance.upgrade_database.1')}</p>
+                <p className="maintenance-text">{translate('maintenance.upgrade_database.2')}</p>
+                <p className="maintenance-text">{translate('maintenance.upgrade_database.3')}</p>
+                <div className="maintenance-spinner">
+                  <Button id="start-migration" onClick={this.handleMigrateClick}>
+                    {translate('maintenance.upgrade')}
+                  </Button>
+                </div>
+              </>
+            )}
+
+            {state === 'NOT_SUPPORTED' && (
+              <>
+                <h1 className="maintenance-title text-danger">
+                  {translate('maintenance.migration_not_supported')}
+                </h1>
+                <p>{translate('maintenance.migration_not_supported.text')}</p>
+              </>
+            )}
+
+            {state === 'MIGRATION_RUNNING' && (
+              <>
+                <h1 className="maintenance-title">{translate('maintenance.database_migration')}</h1>
+                {this.state.message && (
+                  <p className="maintenance-text text-center">{this.state.message}</p>
+                )}
+                {this.state.startedAt && (
+                  <p className="maintenance-text text-center">
+                    {translate('background_tasks.table.started')}{' '}
+                    <DateFromNow date={this.state.startedAt} />
+                    <br />
+                    <small className="text-muted">
+                      <TimeFormatter date={this.state.startedAt} long={true} />
+                    </small>
+                  </p>
+                )}
+                <p className="maintenance-spinner">
+                  <i className="spinner" />
+                </p>
+              </>
+            )}
+
+            {state === 'MIGRATION_SUCCEEDED' && (
+              <>
+                <h1 className="maintenance-title text-success">
+                  {translate('maintenance.database_is_up_to_date')}
+                </h1>
+                <p className="maintenance-text text-center">
+                  <a href={getBaseUrl() + '/'}>{translate('layout.home')}</a>
+                </p>
+              </>
+            )}
+
+            {state === 'MIGRATION_FAILED' && (
+              <>
+                <h1 className="maintenance-title text-danger">
+                  {translate('maintenance.upgrade_failed')}
+                </h1>
+                <p className="maintenance-text">{translate('maintenance.upgrade_failed.text')}</p>
+              </>
+            )}
+          </div>
         </div>
-      </div>
+      </>
     );
   }
 }

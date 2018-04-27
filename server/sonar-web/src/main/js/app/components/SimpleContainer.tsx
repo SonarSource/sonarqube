@@ -18,11 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import * as PropTypes from 'prop-types';
-import GlobalLoading from './GlobalLoading';
 import GlobalFooterContainer from './GlobalFooterContainer';
 import * as theme from '../theme';
-import { tryGetGlobalNavigation } from '../../api/nav';
 import NavBar from '../../components/nav/NavBar';
 
 interface Props {
@@ -30,57 +27,14 @@ interface Props {
   hideLoggedInInfo?: boolean;
 }
 
-interface State {
-  loading: boolean;
-  onSonarCloud: boolean;
-}
-
-export default class SimpleContainer extends React.PureComponent<Props, State> {
-  mounted = false;
-
-  static childContextTypes = {
-    onSonarCloud: PropTypes.bool
-  };
-
-  state: State = { loading: true, onSonarCloud: false };
-
-  getChildContext() {
-    return { onSonarCloud: this.state.onSonarCloud };
-  }
-
-  componentDidMount() {
-    this.mounted = true;
-    tryGetGlobalNavigation().then(
-      appState => {
-        if (this.mounted) {
-          this.setState({
-            loading: false,
-            onSonarCloud: Boolean(
-              appState.settings && appState.settings['sonar.sonarcloud.enabled'] === 'true'
-            )
-          });
-        }
-      },
-      () => {}
-    );
-  }
-
-  componentWillUnmount() {
-    this.mounted = false;
-  }
-
-  render() {
-    if (this.state.loading) {
-      return <GlobalLoading />;
-    }
-    return (
-      <div className="global-container">
-        <div className="page-wrapper" id="container">
-          <NavBar className="navbar-global" height={theme.globalNavHeightRaw} />
-          {this.props.children}
-        </div>
-        <GlobalFooterContainer hideLoggedInInfo={this.props.hideLoggedInInfo} />
+export default function SimpleContainer({ children, hideLoggedInInfo }: Props) {
+  return (
+    <div className="global-container">
+      <div className="page-wrapper" id="container">
+        <NavBar className="navbar-global" height={theme.globalNavHeightRaw} />
+        {children}
       </div>
-    );
-  }
+      <GlobalFooterContainer hideLoggedInInfo={hideLoggedInInfo} />
+    </div>
+  );
 }

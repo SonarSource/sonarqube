@@ -18,12 +18,16 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import Helmet from 'react-helmet';
 
 export default function GlobalLoading() {
   return (
-    <div className="global-loading">
-      <i className="spinner global-loading-spinner" />
-      <span className="global-loading-text">Loading...</span>
-    </div>
+    <>
+      <Helmet defaultTitle={'Loading...'} />
+      <div className="global-loading">
+        <i className="spinner global-loading-spinner" />
+        <span className="global-loading-text">Loading...</span>
+      </div>
+    </>
   );
 }

@@ -18,8 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { connect } from 'react-redux';
 import * as PropTypes from 'prop-types';
+import { connect } from 'react-redux';
+import Helmet from 'react-helmet';
 import GlobalLoading from './GlobalLoading';
 import { CurrentUser } from '../types';
 import { fetchCurrentUser } from '../../store/users/actions';
@@ -117,7 +118,12 @@ class App extends React.PureComponent<Props, State> {
     if (this.state.loading) {
       return <GlobalLoading />;
     }
-    return this.props.children;
+    return (
+      <>
+        <Helmet defaultTitle={this.state.onSonarCloud ? 'SonarCloud' : 'SonarQube'} />
+        {this.props.children}
+      </>
+    );
   }
 }
 

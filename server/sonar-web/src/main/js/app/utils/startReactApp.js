@@ -17,13 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+/* eslint-disable react/jsx-sort-props */
 import React from 'react';
 import { render } from 'react-dom';
 import { Router, Route, IndexRoute, Redirect } from 'react-router';
 import { Provider } from 'react-redux';
 import getStore from './getStore';
 import getHistory from './getHistory';
-import DefaultHelmetContainer from '../components/DefaultHelmetContainer';
+import AppContextContainer from '../components/AppContextContainer';
 import LocalizationContainer from '../components/LocalizationContainer';
 import MigrationContainer from '../components/MigrationContainer';
 import App from '../components/App';
@@ -148,99 +149,95 @@ const startReactApp = () => {
 
         <Route path="markdown/help" component={MarkdownHelp} />
 
-        <Route component={DefaultHelmetContainer}>
-          <Route component={LocalizationContainer}>
-            <Route component={SimpleContainer}>
-              <Route path="maintenance">{maintenanceRoutes}</Route>
-              <Route path="setup">{setupRoutes}</Route>
-            </Route>
+        <Route component={LocalizationContainer}>
+          <Route component={SimpleContainer}>
+            <Route path="maintenance">{maintenanceRoutes}</Route>
+            <Route path="setup">{setupRoutes}</Route>
+          </Route>
 
-            <Route component={MigrationContainer}>
+          <Route component={MigrationContainer}>
+            <Route component={AppContextContainer}>
               <Route component={SimpleSessionsContainer}>
                 <Route path="/sessions" childRoutes={sessionsRoutes} />
               </Route>
+            </Route>
 
-              <Route path="/" component={App}>
-                <IndexRoute component={Landing} />
+            <Route path="/" component={App}>
+              <IndexRoute component={Landing} />
 
-                <Route component={GlobalContainer}>
-                  <Route path="about" childRoutes={aboutRoutes} />
-                  <Route path="account" childRoutes={accountRoutes} />
-                  <Route path="coding_rules" childRoutes={codingRulesRoutes} />
-                  <Route path="component" childRoutes={componentRoutes} />
-                  <Route path="explore" component={Explore}>
-                    <Route path="issues" component={ExploreIssues} />
-                    <Route path="projects" component={ExploreProjects} />
-                  </Route>
+              <Route component={GlobalContainer}>
+                <Route path="about" childRoutes={aboutRoutes} />
+                <Route path="account" childRoutes={accountRoutes} />
+                <Route path="coding_rules" childRoutes={codingRulesRoutes} />
+                <Route path="component" childRoutes={componentRoutes} />
+                <Route path="explore" component={Explore}>
+                  <Route path="issues" component={ExploreIssues} />
+                  <Route path="projects" component={ExploreProjects} />
+                </Route>
+                <Route path="extension/:pluginKey/:extensionKey" component={GlobalPageExtension} />
+                <Route path="issues" component={IssuesPageSelector} />
+                <Route path="organizations" childRoutes={organizationsRoutes} />
+                <Route path="projects" childRoutes={projectsRoutes} />
+                <Route path="quality_gates" childRoutes={qualityGatesRoutes} />
+                <Route path="portfolios" component={PortfoliosPage} />
+                <Route path="profiles" childRoutes={qualityProfilesRoutes} />
+                <Route path="web_api" childRoutes={webAPIRoutes} />
+
+                <Route
+                  getComponent={() =>
+                    import('../components/ComponentContainer').then(i => i.default)
+                  }>
+                  <Route path="code" childRoutes={codeRoutes} />
+                  <Route path="component_measures" childRoutes={componentMeasuresRoutes} />
+                  <Route path="dashboard" childRoutes={overviewRoutes} />
+                  <Route path="portfolio" childRoutes={portfolioRoutes} />
+                  <Route path="project/activity" childRoutes={projectActivityRoutes} />
                   <Route
-                    path="extension/:pluginKey/:extensionKey"
-                    component={GlobalPageExtension}
+                    path="project/extension/:pluginKey/:extensionKey"
+                    component={ProjectPageExtension}
                   />
-                  <Route path="issues" component={IssuesPageSelector} />
-                  <Route path="organizations" childRoutes={organizationsRoutes} />
-                  <Route path="projects" childRoutes={projectsRoutes} />
-                  <Route path="quality_gates" childRoutes={qualityGatesRoutes} />
-                  <Route path="portfolios" component={PortfoliosPage} />
-                  <Route path="profiles" childRoutes={qualityProfilesRoutes} />
-                  <Route path="web_api" childRoutes={webAPIRoutes} />
-
+                  <Route path="project/issues" component={Issues} />
+                  <Route path="project/quality_gate" childRoutes={projectQualityGateRoutes} />
                   <Route
-                    getComponent={() =>
-                      import('../components/ComponentContainer').then(i => i.default)
-                    }>
-                    <Route path="code" childRoutes={codeRoutes} />
-                    <Route path="component_measures" childRoutes={componentMeasuresRoutes} />
-                    <Route path="dashboard" childRoutes={overviewRoutes} />
-                    <Route path="portfolio" childRoutes={portfolioRoutes} />
-                    <Route path="project/activity" childRoutes={projectActivityRoutes} />
+                    path="project/quality_profiles"
+                    childRoutes={projectQualityProfilesRoutes}
+                  />
+                  <Route component={ProjectAdminContainer}>
+                    <Route path="custom_measures" childRoutes={customMeasuresRoutes} />
                     <Route
-                      path="project/extension/:pluginKey/:extensionKey"
-                      component={ProjectPageExtension}
+                      path="project/admin/extension/:pluginKey/:extensionKey"
+                      component={ProjectAdminPageExtension}
                     />
-                    <Route path="project/issues" component={Issues} />
-                    <Route path="project/quality_gate" childRoutes={projectQualityGateRoutes} />
-                    <Route
-                      path="project/quality_profiles"
-                      childRoutes={projectQualityProfilesRoutes}
-                    />
-                    <Route component={ProjectAdminContainer}>
-                      <Route path="custom_measures" childRoutes={customMeasuresRoutes} />
-                      <Route
-                        path="project/admin/extension/:pluginKey/:extensionKey"
-                        component={ProjectAdminPageExtension}
-                      />
-                      <Route path="project/background_tasks" childRoutes={backgroundTasksRoutes} />
-                      <Route path="project/branches" childRoutes={projectBranchesRoutes} />
-                      <Route path="project/settings" childRoutes={settingsRoutes} />
-                      <Route path="project_roles" childRoutes={projectPermissionsRoutes} />
-                      <Route path="project/webhooks" childRoutes={webhooksRoutes} />
-                    </Route>
-                    {projectAdminRoutes}
+                    <Route path="project/background_tasks" childRoutes={backgroundTasksRoutes} />
+                    <Route path="project/branches" childRoutes={projectBranchesRoutes} />
+                    <Route path="project/settings" childRoutes={settingsRoutes} />
+                    <Route path="project_roles" childRoutes={projectPermissionsRoutes} />
+                    <Route path="project/webhooks" childRoutes={webhooksRoutes} />
                   </Route>
-
-                  <Route component={AdminContainer} path="admin">
-                    <Route
-                      path="extension/:pluginKey/:extensionKey"
-                      component={GlobalAdminPageExtension}
-                    />
-                    <Route path="background_tasks" childRoutes={backgroundTasksRoutes} />
-                    <Route path="custom_metrics" childRoutes={customMetricsRoutes} />
-                    <Route path="groups" childRoutes={groupsRoutes} />
-                    <Route path="permission_templates" childRoutes={permissionTemplatesRoutes} />
-                    <Route path="roles/global" childRoutes={globalPermissionsRoutes} />
-                    <Route path="permissions" childRoutes={globalPermissionsRoutes} />
-                    <Route path="projects_management" childRoutes={projectsManagementRoutes} />
-                    <Route path="settings" childRoutes={settingsRoutes} />
-                    <Route path="system" childRoutes={systemRoutes} />
-                    <Route path="marketplace" childRoutes={marketplaceRoutes} />
-                    <Route path="users" childRoutes={usersRoutes} />
-                    <Route path="webhooks" childRoutes={webhooksRoutes} />
-                  </Route>
+                  {projectAdminRoutes}
                 </Route>
 
-                <Route path="not_found" component={NotFound} />
-                <Route path="*" component={NotFound} />
+                <Route component={AdminContainer} path="admin">
+                  <Route
+                    path="extension/:pluginKey/:extensionKey"
+                    component={GlobalAdminPageExtension}
+                  />
+                  <Route path="background_tasks" childRoutes={backgroundTasksRoutes} />
+                  <Route path="custom_metrics" childRoutes={customMetricsRoutes} />
+                  <Route path="groups" childRoutes={groupsRoutes} />
+                  <Route path="permission_templates" childRoutes={permissionTemplatesRoutes} />
+                  <Route path="roles/global" childRoutes={globalPermissionsRoutes} />
+                  <Route path="permissions" childRoutes={globalPermissionsRoutes} />
+                  <Route path="projects_management" childRoutes={projectsManagementRoutes} />
+                  <Route path="settings" childRoutes={settingsRoutes} />
+                  <Route path="system" childRoutes={systemRoutes} />
+                  <Route path="marketplace" childRoutes={marketplaceRoutes} />
+                  <Route path="users" childRoutes={usersRoutes} />
+                  <Route path="webhooks" childRoutes={webhooksRoutes} />
+                </Route>
               </Route>
+              <Route path="not_found" component={NotFound} />
+              <Route path="*" component={NotFound} />
             </Route>
           </Route>
         </Route>

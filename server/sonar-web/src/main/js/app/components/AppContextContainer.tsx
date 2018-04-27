@@ -18,64 +18,59 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { addLocaleData, IntlProvider, Locale } from 'react-intl';
+import * as PropTypes from 'prop-types';
+import Helmet from 'react-helmet';
 import GlobalLoading from './GlobalLoading';
-import { DEFAULT_LANGUAGE, requestMessages } from '../../helpers/l10n';
+import { tryGetGlobalNavigation } from '../../api/nav';
 
 interface Props {
-  children?: any;
+  children?: React.ReactNode;
 }
 
 interface State {
   loading: boolean;
-  lang?: string;
+  onSonarCloud: boolean;
 }
 
-export default class LocalizationContainer extends React.PureComponent<Props, State> {
+export default class AppContextContainer extends React.PureComponent<Props, State> {
   mounted = false;
+  static childContextTypes = { onSonarCloud: PropTypes.bool };
+  state: State = { loading: true, onSonarCloud: false };
 
-  state: State = { loading: true };
+  getChildContext() {
+    return { onSonarCloud: this.state.onSonarCloud };
+  }
 
   componentDidMount() {
     this.mounted = true;
-    requestMessages().then(this.bundleLoaded, this.bundleLoaded);
+    tryGetGlobalNavigation().then(
+      appState => {
+        if (this.mounted) {
+          this.setState({
+            loading: false,
+            onSonarCloud: Boolean(
+              appState.settings && appState.settings['sonar.sonarcloud.enabled'] === 'true'
+            )
+          });
+        }
+      },
+      () => {}
+    );
   }
 
   componentWillUnmount() {
     this.mounted = false;
   }
 
-  bundleLoaded = (lang: string) => {
-    const langToLoad = lang || DEFAULT_LANGUAGE;
-
-    // No need to load english bundle, it's coming wiht react-intl, use english if it fails
-    if (langToLoad !== 'en') {
-      import('react-intl/locale-data/' + langToLoad).then(
-        i => this.updateLang(langToLoad, i),
-        () => {}
-      );
-    } else {
-      this.setState({ loading: false, lang: langToLoad });
-    }
-  };
-
-  updateLang = (lang: string, intlBundle: Locale[]) => {
-    if (this.mounted) {
-      addLocaleData(intlBundle);
-      this.setState({ loading: false, lang });
-    }
-  };
-
   render() {
     if (this.state.loading) {
       return <GlobalLoading />;
     }
     return (
-      <IntlProvider
-        defaultLocale={this.state.lang || DEFAULT_LANGUAGE}
-        locale={this.state.lang || DEFAULT_LANGUAGE}>
+      <>
+        <Helmet defaultTitle={this.state.onSonarCloud ? 'SonarCloud' : 'SonarQube'} />
         {this.props.children}
-      </IntlProvider>
+      </>
     );
   }
 }
