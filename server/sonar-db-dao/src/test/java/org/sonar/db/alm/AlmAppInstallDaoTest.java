@@ -19,6 +19,7 @@
  */
 package org.sonar.db.alm;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import javax.annotation.CheckForNull;
@@ -105,6 +106,28 @@ public class AlmAppInstallDaoTest {
       .hasInstallId(AN_INSTALL)
       .hasCreatedAt(DATE)
       .hasUpdatedAt(DATE);
+  }
+
+  @Test
+  public void delete() {
+    when(uuidFactory.create()).thenReturn(A_UUID);
+    when(system2.now()).thenReturn(DATE);
+    underTest.insertOrUpdate(dbSession, GITHUB, A_OWNER, AN_INSTALL);
+
+    assertThatAlmAppInstall(GITHUB, A_OWNER)
+      .hasInstallId(AN_INSTALL)
+      .hasCreatedAt(DATE)
+      .hasUpdatedAt(DATE);
+
+    underTest.delete(dbSession, GITHUB, A_OWNER);
+    assertThatAlmAppInstall(GITHUB, A_OWNER).doesNotExist();
+  }
+
+  @Test
+  public void delete_doesn_t_fail() {
+    assertThatAlmAppInstall(GITHUB, A_OWNER).doesNotExist();
+
+    underTest.delete(dbSession, GITHUB, A_OWNER);
   }
 
   @Test
@@ -202,16 +225,22 @@ public class AlmAppInstallDaoTest {
     }
 
     private static AlmAppInstall asAlmAppInstall(DbTester dbTester, DbSession dbSession, AlmAppInstallDao.ALM alm, String ownerId) {
-      Map<String, Object> row = dbTester.selectFirst(
+      List<Map<String, Object>> rows = dbTester.select(
         dbSession,
         "select" +
           " install_id as \"installId\", created_at as \"createdAt\", updated_at as \"updatedAt\"" +
           " from alm_app_installs" +
           " where alm_id='" + alm.getId() + "' and owner_id='" + ownerId + "'");
+      if (rows.isEmpty()) {
+        return null;
+      }
+      if (rows.size() > 1) {
+        throw new IllegalStateException("Unique index violation");
+      }
       return new AlmAppInstall(
-        (String) row.get("installId"),
-        (Long) row.get("createdAt"),
-        (Long) row.get("updatedAt"));
+        (String) rows.get(0).get("installId"),
+        (Long) rows.get(0).get("createdAt"),
+        (Long) rows.get(0).get("updatedAt"));
     }
 
     public void doesNotExist() {

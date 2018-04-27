@@ -79,6 +79,14 @@ public class AlmAppInstallDao implements Dao {
     return Optional.ofNullable(mapper.selectInstallId(alm.getId(), ownerId));
   }
 
+  public void delete(DbSession dbSession, ALM alm, String ownerId) {
+    checkAlm(alm);
+    checkOwnerId(ownerId);
+
+    AlmAppInstallMapper mapper = getMapper(dbSession);
+    mapper.delete(alm.getId(), ownerId);
+  }
+
   private static void checkAlm(@Nullable ALM alm) {
     Objects.requireNonNull(alm, "alm can't be null");
   }

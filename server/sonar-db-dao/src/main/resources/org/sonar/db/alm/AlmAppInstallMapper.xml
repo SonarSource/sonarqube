@@ -42,7 +42,7 @@
       and owner_id = #{ownerId, jdbcType=VARCHAR}
   </update>
 
-  <delete id="deleteByOwnerId" parameterType="Map">
+  <delete id="delete" parameterType="Map">
     delete from alm_app_installs
     where
       alm_id = #{almId, jdbcType=VARCHAR}

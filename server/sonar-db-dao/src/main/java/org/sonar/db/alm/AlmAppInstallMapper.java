@@ -31,4 +31,5 @@ public interface AlmAppInstallMapper {
 
   int update(@Param("almId") String almId, @Param("ownerId") String ownerId, @Param("installId") String installId, @Param("now") long now);
 
+  void delete(@Param("almId") String almId, @Param("ownerId") String ownerId);
 }
