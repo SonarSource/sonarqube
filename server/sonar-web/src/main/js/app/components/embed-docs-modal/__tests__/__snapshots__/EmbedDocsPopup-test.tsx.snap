@@ -16,30 +16,38 @@ exports[`should display suggestion links 1`] = `
       <li
         key="0"
       >
-        <a
-          href="#"
+        <Link
+          className="display-flex-center"
+          onlyActiveOnIndex={false}
+          style={Object {}}
           target="_blank"
+          to="#"
         >
           foo
-           
-          <i
-            className="icon-detach"
+          <DetachIcon
+            className="spacer-left"
+            fill="#cdcdcd"
+            size={12}
           />
-        </a>
+        </Link>
       </li>
       <li
         key="1"
       >
-        <a
-          href="#"
+        <Link
+          className="display-flex-center"
+          onlyActiveOnIndex={false}
+          style={Object {}}
           target="_blank"
+          to="#"
         >
           bar
-           
-          <i
-            className="icon-detach"
+          <DetachIcon
+            className="spacer-left"
+            fill="#cdcdcd"
+            size={12}
           />
-        </a>
+        </Link>
       </li>
       <li
         className="divider"
@@ -47,15 +55,17 @@ exports[`should display suggestion links 1`] = `
     </React.Fragment>
     <li>
       <Link
+        className="display-flex-center"
         onlyActiveOnIndex={false}
         style={Object {}}
         target="_blank"
         to="/documentation"
       >
         embed_docs.documentation_index
-         
-        <i
-          className="icon-detach"
+        <DetachIcon
+          className="spacer-left"
+          fill="#cdcdcd"
+          size={12}
         />
       </Link>
     </li>

@@ -21,6 +21,7 @@ import * as React from 'react';
 import { isProvided, getLinkName } from './utils';
 import { ProjectLink } from '../../../app/types';
 import ConfirmButton from '../../../components/controls/ConfirmButton';
+import DetachIcon from '../../../components/icons-components/DetachIcon';
 import BugTrackerIcon from '../../../components/ui/BugTrackerIcon';
 import { Button } from '../../../components/ui/buttons';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
@@ -70,7 +71,7 @@ export default class LinkRow extends React.PureComponent<Props> {
 
     return (
       <div>
-        {this.renderIcon('icon-detach')}
+        <DetachIcon className="little-spacer-right" />
         <div className="display-inline-block text-top">
           <span className="js-name">{link.name}</span>
         </div>

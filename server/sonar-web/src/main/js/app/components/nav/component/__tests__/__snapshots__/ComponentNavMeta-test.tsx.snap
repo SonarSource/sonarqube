@@ -41,14 +41,15 @@ exports[`renders meta for pull request 1`] = `
     className="navbar-context-meta-secondary"
   >
     <a
-      className="big-spacer-right"
+      className="display-inline-flex-center big-spacer-right"
       href="https://example.com/pull/1234"
       rel="nofollow"
       target="_blank"
     >
       branches.see_the_pr
-      <i
-        className="icon-detach little-spacer-left"
+      <DetachIcon
+        className="little-spacer-left"
+        size={12}
       />
     </a>
     <BranchStatus

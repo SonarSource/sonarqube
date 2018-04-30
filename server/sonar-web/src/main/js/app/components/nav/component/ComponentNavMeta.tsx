@@ -32,6 +32,7 @@ import DateTimeFormatter from '../../../../components/intl/DateTimeFormatter';
 import Favorite from '../../../../components/controls/Favorite';
 import HomePageSelect from '../../../../components/controls/HomePageSelect';
 import Tooltip from '../../../../components/controls/Tooltip';
+import DetachIcon from '../../../../components/icons-components/DetachIcon';
 import {
   isShortLivingBranch,
   isLongLivingBranch,
@@ -89,9 +90,13 @@ export function ComponentNavMeta({ branchLike, component, currentUser }: Props) 
         <div className="navbar-context-meta-secondary">
           {isPullRequest(branchLike) &&
             branchLike.url !== undefined && (
-              <a className="big-spacer-right" href={branchLike.url} rel="nofollow" target="_blank">
+              <a
+                className="display-inline-flex-center big-spacer-right"
+                href={branchLike.url}
+                rel="nofollow"
+                target="_blank">
                 {translate('branches.see_the_pr')}
-                <i className="icon-detach little-spacer-left" />
+                <DetachIcon className="little-spacer-left" size={12} />
               </a>
             )}
           <BranchStatus branchLike={branchLike} />

@@ -491,11 +491,6 @@ a:hover > .icon-radio {
   font-size: var(--bigFontSize);
 }
 
-.icon-detach:before {
-  content: '\f08e';
-  font-size: var(--mediumFontSize);
-}
-
 .icon-chevron-left:before {
   content: '\f104';
   font-size: var(--mediumFontSize);

@@ -21,7 +21,9 @@ import * as React from 'react';
 import * as PropTypes from 'prop-types';
 import { Link } from 'react-router';
 import { SuggestionLink } from './SuggestionsProvider';
+import * as theme from '../../../app/theme';
 import BubblePopup, { BubblePopupPosition } from '../../../components/common/BubblePopup';
+import DetachIcon from '../../../components/icons-components/DetachIcon';
 import { translate } from '../../../helpers/l10n';
 import { getBaseUrl } from '../../../helpers/urls';
 
@@ -56,9 +58,10 @@ export default class EmbedDocsPopup extends React.PureComponent<Props> {
         {this.renderTitle(translate('embed_docs.suggestion'))}
         {this.props.suggestions.map((suggestion, index) => (
           <li key={index}>
-            <a href={suggestion.link} target="_blank">
-              {suggestion.text} <i className="icon-detach" />
-            </a>
+            <Link className="display-flex-center" target="_blank" to={suggestion.link}>
+              {suggestion.text}
+              <DetachIcon className="spacer-left" fill={theme.gray80} size={12} />
+            </Link>
           </li>
         ))}
         <li className="divider" />
@@ -147,8 +150,9 @@ export default class EmbedDocsPopup extends React.PureComponent<Props> {
         <ul className="menu">
           {this.renderSuggestions()}
           <li>
-            <Link target="_blank" to="/documentation">
-              {translate('embed_docs.documentation_index')} <i className="icon-detach" />
+            <Link className="display-flex-center" target="_blank" to="/documentation">
+              {translate('embed_docs.documentation_index')}
+              <DetachIcon className="spacer-left" fill={theme.gray80} size={12} />
             </Link>
           </li>
           {this.context.onSonarCloud && this.renderSonarCloudLinks()}

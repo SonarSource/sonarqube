@@ -20,6 +20,7 @@
 import * as React from 'react';
 import { isProvided, getLinkName } from '../../project-admin/links/utils';
 import { ProjectLink } from '../../../app/types';
+import DetachIcon from '../../../components/icons-components/DetachIcon';
 import BugTrackerIcon from '../../../components/ui/BugTrackerIcon';
 
 interface Props {
@@ -41,9 +42,5 @@ function MetaLinkIcon({ link }: Props) {
     return <BugTrackerIcon />;
   }
 
-  return isProvided(link) ? (
-    <i className={`icon-color-link icon-${link.type}`} />
-  ) : (
-    <i className="icon-color-link icon-detach" />
-  );
+  return isProvided(link) ? <i className={`icon-color-link icon-${link.type}`} /> : <DetachIcon />;
 }
