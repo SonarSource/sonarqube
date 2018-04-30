@@ -257,7 +257,7 @@
     inner join projects p on p.uuid = i.component_uuid
     inner join projects root on root.uuid = i.project_uuid
     where
-    r.is_external = 'false' and
+    r.is_external = ${_false} and
     i.project_uuid = #{projectUuid, jdbcType=VARCHAR} and
     p.module_uuid_path like  #{likeModuleUuidPath, jdbcType=VARCHAR} escape '/' and
     i.status &lt;&gt; 'CLOSED'
