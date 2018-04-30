@@ -21,9 +21,7 @@ import * as React from 'react';
 import * as PropTypes from 'prop-types';
 import { Link } from 'react-router';
 import { SuggestionLink } from './SuggestionsProvider';
-import * as theme from '../../../app/theme';
 import BubblePopup, { BubblePopupPosition } from '../../../components/common/BubblePopup';
-import DetachIcon from '../../../components/icons-components/DetachIcon';
 import { translate } from '../../../helpers/l10n';
 import { getBaseUrl } from '../../../helpers/urls';
 
@@ -58,9 +56,8 @@ export default class EmbedDocsPopup extends React.PureComponent<Props> {
         {this.renderTitle(translate('embed_docs.suggestion'))}
         {this.props.suggestions.map((suggestion, index) => (
           <li key={index}>
-            <Link className="display-flex-center" target="_blank" to={suggestion.link}>
+            <Link onClick={this.props.onClose} to={suggestion.link}>
               {suggestion.text}
-              <DetachIcon className="spacer-left" fill={theme.gray80} size={12} />
             </Link>
           </li>
         ))}
@@ -150,9 +147,8 @@ export default class EmbedDocsPopup extends React.PureComponent<Props> {
         <ul className="menu">
           {this.renderSuggestions()}
           <li>
-            <Link className="display-flex-center" target="_blank" to="/documentation">
+            <Link onClick={this.props.onClose} to="/documentation">
               {translate('embed_docs.documentation_index')}
-              <DetachIcon className="spacer-left" fill={theme.gray80} size={12} />
             </Link>
           </li>
           <li>

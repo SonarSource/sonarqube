@@ -17,36 +17,24 @@ exports[`should display suggestion links 1`] = `
         key="0"
       >
         <Link
-          className="display-flex-center"
+          onClick={[MockFunction]}
           onlyActiveOnIndex={false}
           style={Object {}}
-          target="_blank"
           to="#"
         >
           foo
-          <DetachIcon
-            className="spacer-left"
-            fill="#cdcdcd"
-            size={12}
-          />
         </Link>
       </li>
       <li
         key="1"
       >
         <Link
-          className="display-flex-center"
+          onClick={[MockFunction]}
           onlyActiveOnIndex={false}
           style={Object {}}
-          target="_blank"
           to="#"
         >
           bar
-          <DetachIcon
-            className="spacer-left"
-            fill="#cdcdcd"
-            size={12}
-          />
         </Link>
       </li>
       <li
@@ -55,18 +43,12 @@ exports[`should display suggestion links 1`] = `
     </React.Fragment>
     <li>
       <Link
-        className="display-flex-center"
+        onClick={[MockFunction]}
         onlyActiveOnIndex={false}
         style={Object {}}
-        target="_blank"
         to="/documentation"
       >
         embed_docs.documentation_index
-        <DetachIcon
-          className="spacer-left"
-          fill="#cdcdcd"
-          size={12}
-        />
       </Link>
     </li>
     <li>
