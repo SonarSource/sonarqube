@@ -69,6 +69,16 @@ exports[`should display suggestion links 1`] = `
         />
       </Link>
     </li>
+    <li>
+      <Link
+        onClick={[MockFunction]}
+        onlyActiveOnIndex={false}
+        style={Object {}}
+        to="/web_api"
+      >
+        api_documentation.page
+      </Link>
+    </li>
     <React.Fragment>
       <li>
         <a

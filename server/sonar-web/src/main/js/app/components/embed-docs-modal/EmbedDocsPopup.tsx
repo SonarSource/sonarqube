@@ -155,6 +155,11 @@ export default class EmbedDocsPopup extends React.PureComponent<Props> {
               <DetachIcon className="spacer-left" fill={theme.gray80} size={12} />
             </Link>
           </li>
+          <li>
+            <Link onClick={this.props.onClose} to="/web_api">
+              {translate('api_documentation.page')}
+            </Link>
+          </li>
           {this.context.onSonarCloud && this.renderSonarCloudLinks()}
           {!this.context.onSonarCloud && this.renderSonarQubeLinks()}
         </ul>
