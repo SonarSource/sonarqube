@@ -43,7 +43,7 @@ public class FileCacheBuilderTest {
 
   @Test
   public void user_home_property_can_be_null() {
-    FileCache cache = new FileCacheBuilder(mock(Logger.class)).setUserHome((String) null).build();
+    FileCache cache = new FileCacheBuilder(mock(Logger.class)).setUserHome(null).build();
 
     // does not fail. It uses default path or env variable
     assertThat(cache.getDir()).isDirectory().exists();

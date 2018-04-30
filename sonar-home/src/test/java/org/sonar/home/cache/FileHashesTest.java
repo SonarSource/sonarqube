@@ -45,10 +45,10 @@ import static org.mockito.Mockito.when;
 
 public class FileHashesTest {
 
-  SecureRandom secureRandom = new SecureRandom();
+  private SecureRandom secureRandom = new SecureRandom();
 
   @Rule
-  public ExpectedException thrown = ExpectedException.none();
+  public ExpectedException expectedException = ExpectedException.none();
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
@@ -92,16 +92,16 @@ public class FileHashesTest {
     File file = temp.newFile("does_not_exist");
     FileUtils.forceDelete(file);
 
-    thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("Fail to compute hash of: " + file.getAbsolutePath());
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("Fail to compute hash of: " + file.getAbsolutePath());
 
     new FileHashes().of(file);
   }
 
   @Test
   public void fail_if_stream_is_closed() throws Exception {
-    thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("Fail to compute hash");
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("Fail to compute hash");
 
     InputStream input = mock(InputStream.class);
     when(input.read(any(byte[].class), anyInt(), anyInt())).thenThrow(new IllegalThreadStateException());

@@ -19,6 +19,7 @@
  */
 package org.sonar.scanner.bootstrap;
 
+import java.io.File;
 import org.picocontainer.injectors.ProviderAdapter;
 import org.sonar.api.config.Configuration;
 import org.sonar.home.cache.FileCache;
@@ -29,7 +30,9 @@ public class FileCacheProvider extends ProviderAdapter {
 
   public FileCache provide(Configuration settings) {
     if (cache == null) {
-      String home = settings.get("sonar.userHome").orElse(null);
+      File home = settings.get("sonar.userHome")
+        .map(File::new)
+        .orElse(null);
       cache = new FileCacheBuilder(new Slf4jLogger()).setUserHome(home).build();
     }
     return cache;

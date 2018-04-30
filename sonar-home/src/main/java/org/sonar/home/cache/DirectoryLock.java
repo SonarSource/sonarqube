@@ -39,20 +39,6 @@ public class DirectoryLock {
     this.lockFilePath = directory.resolve(LOCK_FILE_NAME).toAbsolutePath();
   }
 
-  public String getFileLockName() {
-    return LOCK_FILE_NAME;
-  }
-  
-  public void lock() {
-    try {
-      lockRandomAccessFile = new RandomAccessFile(lockFilePath.toFile(), "rw");
-      lockChannel = lockRandomAccessFile.getChannel();
-      lockFile = lockChannel.lock(0, 1024, false);
-    } catch (IOException e) {
-      throw new IllegalStateException("Failed to create lock in " + lockFilePath.toString(), e);
-    }
-  }
-  
   public boolean tryLock() {
     try {
       lockRandomAccessFile = new RandomAccessFile(lockFilePath.toFile(), "rw");

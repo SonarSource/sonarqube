@@ -19,37 +19,26 @@
  */
 package org.sonar.home.cache;
 
-import static org.mockito.Mockito.mock;
-import static org.assertj.core.api.Assertions.assertThat;
-
-import org.junit.rules.ExpectedException;
-
-import java.nio.channels.OverlappingFileLockException;
 import java.nio.file.Paths;
-
-import org.junit.Test;
 import org.junit.Before;
 import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 public class DirectoryLockTest {
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
   @Rule
-  public ExpectedException exception = ExpectedException.none();
+  public ExpectedException expectedException = ExpectedException.none();
   private DirectoryLock lock;
 
   @Before
   public void setUp() {
     lock = new DirectoryLock(temp.getRoot().toPath(), mock(Logger.class));
-  }
-
-  @Test
-  public void lock() {
-    assertThat(temp.getRoot().list()).isEmpty();
-    lock.lock();
-    assertThat(temp.getRoot().toPath().resolve(".sonar_lock")).exists();
-    lock.unlock();
   }
 
   @Test
@@ -60,33 +49,18 @@ public class DirectoryLockTest {
     lock.unlock();
   }
 
-  @Test(expected = OverlappingFileLockException.class)
-  public void error_2locks() {
-    assertThat(temp.getRoot().list()).isEmpty();
-    lock.lock();
-    lock.lock();
-  }
-
   @Test
   public void unlockWithoutLock() {
     lock.unlock();
   }
 
   @Test
-  public void errorCreatingLock() {
-    lock = new DirectoryLock(Paths.get("non", "existing", "path"), mock(Logger.class));
-
-    exception.expect(IllegalStateException.class);
-    exception.expectMessage("Failed to create lock");
-    lock.lock();
-  }
-
-  @Test
   public void errorTryLock() {
     lock = new DirectoryLock(Paths.get("non", "existing", "path"), mock(Logger.class));
 
-    exception.expect(IllegalStateException.class);
-    exception.expectMessage("Failed to create lock");
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("Failed to create lock");
+
     lock.tryLock();
   }
 }

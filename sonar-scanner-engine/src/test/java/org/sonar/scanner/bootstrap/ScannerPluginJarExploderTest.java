@@ -38,8 +38,8 @@ public class ScannerPluginJarExploderTest {
   @ClassRule
   public static TemporaryFolder temp = new TemporaryFolder();
 
-  File userHome;
-  ScannerPluginJarExploder underTest;
+  private File userHome;
+  private ScannerPluginJarExploder underTest;
 
   @Before
   public void setUp() throws IOException {
@@ -55,7 +55,7 @@ public class ScannerPluginJarExploderTest {
 
     assertThat(exploded.getKey()).isEqualTo("checkstyle");
     assertThat(exploded.getMain()).isFile().exists();
-    assertThat(exploded.getLibs()).extracting("name").containsOnly("antlr-2.7.6.jar", "checkstyle-5.1.jar", "commons-cli-1.0.jar");
+    assertThat(exploded.getLibs()).extracting(File::getName).containsExactlyInAnyOrder("antlr-2.7.6.jar", "checkstyle-5.1.jar", "commons-cli-1.0.jar");
     assertThat(new File(fileFromCache.getParent(), "sonar-checkstyle-plugin-2.8.jar")).exists();
     assertThat(new File(fileFromCache.getParent(), "sonar-checkstyle-plugin-2.8.jar_unzip/META-INF/lib/checkstyle-5.1.jar")).exists();
   }
@@ -70,7 +70,7 @@ public class ScannerPluginJarExploderTest {
     assertThat(new File(fileFromCache.getParent(), "sonar-checkstyle-plugin-2.8.jar_unzip/org/sonar/plugins/checkstyle/CheckstyleVersion.class")).doesNotExist();
   }
 
-  File getFileFromCache(String filename) throws IOException {
+  private File getFileFromCache(String filename) throws IOException {
     File src = FileUtils.toFile(getClass().getResource(this.getClass().getSimpleName() + "/" + filename));
     File destFile = new File(new File(userHome, "" + filename.hashCode()), filename);
     FileUtils.copyFile(src, destFile);

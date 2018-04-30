@@ -35,54 +35,37 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 public class FileCacheTest {
-  private FileHashes fileHashes;
-  private FileCache cache;
-
-  @Before
-  public void setUp() throws IOException {
-    fileHashes = mock(FileHashes.class);
-    cache = new FileCache(tempFolder.getRoot(), fileHashes, mock(Logger.class));
-  }
 
   @Rule
   public TemporaryFolder tempFolder = new TemporaryFolder();
-
   @Rule
-  public ExpectedException thrown = ExpectedException.none();
+  public ExpectedException expectedException = ExpectedException.none();
 
-  @Test
-  public void not_in_cache() throws IOException {
-    assertThat(cache.get("sonar-foo-plugin-1.5.jar", "ABCDE")).isNull();
-  }
+  private FileHashes fileHashes = mock(FileHashes.class);
+  private FileCache cache;
 
-  @Test
-  public void found_in_cache() throws IOException {
-    // populate the cache. Assume that hash is correct.
-    File cachedFile = new File(new File(cache.getDir(), "ABCDE"), "sonar-foo-plugin-1.5.jar");
-    FileUtils.write(cachedFile, "body");
-
-    assertThat(cache.get("sonar-foo-plugin-1.5.jar", "ABCDE")).isNotNull().exists().isEqualTo(cachedFile);
+  @Before
+  public void setUp() {
+    cache = new FileCache(tempFolder.getRoot(), fileHashes, mock(Logger.class));
   }
 
   @Test
   public void fail_to_download() {
     when(fileHashes.of(any(File.class))).thenReturn("ABCDE");
 
-    FileCache.Downloader downloader = new FileCache.Downloader() {
-      public void download(String filename, File toFile) throws IOException {
-        throw new IOException("fail");
-      }
+    FileCache.Downloader downloader = (filename, toFile) -> {
+      throw new IOException("fail");
     };
-    thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("Fail to download");
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("Fail to download");
     cache.get("sonar-foo-plugin-1.5.jar", "ABCDE", downloader);
   }
 
   @Test
   public void fail_create_hash_dir() throws IOException {
     File file = tempFolder.newFile();
-    thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("Unable to create user cache");
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("Unable to create user cache");
     cache = new FileCache(file, fileHashes, mock(Logger.class));
   }
 
@@ -92,8 +75,8 @@ public class FileCacheTest {
 
     File hashDir = new File(cache.getDir(), "ABCDE");
     hashDir.createNewFile();
-    thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("Fail to create cache directory");
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("Fail to create cache directory");
     cache.get("sonar-foo-plugin-1.5.jar", "ABCDE", mock(FileCache.Downloader.class));
   }
 
@@ -101,11 +84,7 @@ public class FileCacheTest {
   public void download_and_add_to_cache() throws IOException {
     when(fileHashes.of(any(File.class))).thenReturn("ABCDE");
 
-    FileCache.Downloader downloader = new FileCache.Downloader() {
-      public void download(String filename, File toFile) throws IOException {
-        FileUtils.write(toFile, "body");
-      }
-    };
+    FileCache.Downloader downloader = (filename, toFile) -> FileUtils.write(toFile, "body");
     File cachedFile = cache.get("sonar-foo-plugin-1.5.jar", "ABCDE", downloader);
     assertThat(cachedFile).isNotNull().exists().isFile();
     assertThat(cachedFile.getName()).isEqualTo("sonar-foo-plugin-1.5.jar");
@@ -114,14 +93,10 @@ public class FileCacheTest {
   }
 
   @Test
-  public void download_and_add_to_cache_compressed_file() throws IOException {
+  public void download_and_add_to_cache_compressed_file() {
     when(fileHashes.of(any(File.class))).thenReturn("ABCDE");
 
-    FileCache.Downloader downloader = new FileCache.Downloader() {
-      public void download(String filename, File toFile) throws IOException {
-        FileUtils.copyFile(compressedFile(), toFile);
-      }
-    };
+    FileCache.Downloader downloader = (filename, toFile) -> FileUtils.copyFile(compressedFile(), toFile);
     File cachedFile = cache.getCompressed("sonar-foo-plugin-1.5.pack.gz", "ABCDE", downloader);
     assertThat(cachedFile).isNotNull().exists().isFile();
 
@@ -168,17 +143,13 @@ public class FileCacheTest {
   }
 
   @Test
-  public void download_corrupted_file() throws IOException {
-    thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("INVALID HASH");
+  public void download_corrupted_file() {
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("INVALID HASH");
 
     when(fileHashes.of(any(File.class))).thenReturn("VWXYZ");
 
-    FileCache.Downloader downloader = new FileCache.Downloader() {
-      public void download(String filename, File toFile) throws IOException {
-        FileUtils.write(toFile, "corrupted body");
-      }
-    };
+    FileCache.Downloader downloader = (filename, toFile) -> FileUtils.write(toFile, "corrupted body");
     cache.get("sonar-foo-plugin-1.5.jar", "ABCDE", downloader);
   }
 
@@ -186,14 +157,12 @@ public class FileCacheTest {
   public void concurrent_download() throws IOException {
     when(fileHashes.of(any(File.class))).thenReturn("ABCDE");
 
-    FileCache.Downloader downloader = new FileCache.Downloader() {
-      public void download(String filename, File toFile) throws IOException {
-        // Emulate a concurrent download that adds file to cache before
-        File cachedFile = new File(new File(cache.getDir(), "ABCDE"), "sonar-foo-plugin-1.5.jar");
-        FileUtils.write(cachedFile, "downloaded by other");
+    FileCache.Downloader downloader = (filename, toFile) -> {
+      // Emulate a concurrent download that adds file to cache before
+      File cachedFile = new File(new File(cache.getDir(), "ABCDE"), "sonar-foo-plugin-1.5.jar");
+      FileUtils.write(cachedFile, "downloaded by other");
 
-        FileUtils.write(toFile, "downloaded by me");
-      }
+      FileUtils.write(toFile, "downloaded by me");
     };
 
     // do not fail

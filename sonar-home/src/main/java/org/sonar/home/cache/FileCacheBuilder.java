@@ -31,13 +31,8 @@ public class FileCacheBuilder {
     this.logger = logger;
   }
 
-  public FileCacheBuilder setUserHome(File d) {
-    this.userHome = d;
-    return this;
-  }
-
-  public FileCacheBuilder setUserHome(@Nullable String path) {
-    this.userHome = (path == null) ? null : new File(path);
+  public FileCacheBuilder setUserHome(@Nullable File dir) {
+    this.userHome = dir;
     return this;
   }
 

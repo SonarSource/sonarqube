@@ -29,7 +29,6 @@ import java.nio.file.Path;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Pack200;
 import java.util.zip.GZIPInputStream;
-import javax.annotation.CheckForNull;
 
 /**
  * This class is responsible for managing Sonar batch file cache. You can put file into cache and
@@ -62,24 +61,15 @@ public class FileCache {
     return cacheDir;
   }
 
-  /**
-   * Look for a file in the cache by its filename and md5 checksum. If the file is not
-   * present then return null.
-   */
-  @CheckForNull
-  public File get(String filename, String hash) {
-    File cachedFile = new File(new File(cacheDir, hash), filename);
-    if (cachedFile.exists()) {
-      return cachedFile;
-    }
-    logger.debug(String.format("No file found in the cache with name %s and hash %s", filename, hash));
-    return null;
-  }
-
   public interface Downloader {
     void download(String filename, File toFile) throws IOException;
   }
 
+  /**
+   * Look for a file in the cache by its filename and md5 checksum. If the file is not
+   * present then try to download it. In case of error or if the file is not found
+   * an exception is thrown. {@code null} is never returned.
+   */
   public File get(String filename, String hash, Downloader downloader) {
     // Does not fail if another process tries to create the directory at the same time.
     File hashDir = hashDir(hash);
