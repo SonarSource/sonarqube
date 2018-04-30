@@ -43,7 +43,7 @@ public class QualityGateFinder {
   /**
    * Return effective quality gate of a project.
    *
-   * It will first try to get the quality gate explicitly defined on a project, if none it will try to return default quality gate ofI the organization
+   * It will first try to get the quality gate explicitly defined on a project, if none it will try to return default quality gate of the organization
    */
   public QualityGateData getQualityGate(DbSession dbSession, OrganizationDto organization, ComponentDto component) {
     Optional<Long> qualityGateId = dbClient.projectQgateAssociationDao().selectQGateIdByComponentId(dbSession, component.getId());

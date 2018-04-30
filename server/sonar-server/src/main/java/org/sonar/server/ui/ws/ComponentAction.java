@@ -106,7 +106,7 @@ public class ComponentAction implements NavigationWsAction {
 
   @Override
   public void define(NewController context) {
-    NewAction projectNavigation = context.createAction("component")
+    NewAction action = context.createAction("component")
       .setDescription("Get information concerning component navigation for the current user. " +
         "Requires the 'Browse' permission on the component's project.")
       .setHandler(this)
@@ -116,18 +116,18 @@ public class ComponentAction implements NavigationWsAction {
       .setChangelog(
         new Change("6.4", "The 'visibility' field is added"));
 
-    projectNavigation.createParam(PARAM_COMPONENT)
+    action.createParam(PARAM_COMPONENT)
       .setDescription("A component key.")
       .setDeprecatedKey("componentKey", "6.4")
       .setExampleValue(KEY_PROJECT_EXAMPLE_001);
 
-    projectNavigation
+    action
       .createParam(PARAM_BRANCH)
       .setDescription("Branch key")
       .setInternal(true)
       .setExampleValue(KEY_BRANCH_EXAMPLE_001);
 
-    projectNavigation
+    action
       .createParam(PARAM_PULL_REQUEST)
       .setDescription("Pull request id")
       .setInternal(true)
@@ -141,6 +141,7 @@ public class ComponentAction implements NavigationWsAction {
       String branch = request.param(PARAM_BRANCH);
       String pullRequest = request.param(PARAM_PULL_REQUEST);
       ComponentDto component = componentFinder.getByKeyAndOptionalBranchOrPullRequest(session, componentKey, branch, pullRequest);
+      ComponentDto project = component.getMainBranchProjectUuid() == null ? component : componentFinder.getByUuid(session, component.getMainBranchProjectUuid());
       if (!userSession.hasComponentPermission(USER, component) &&
         !userSession.hasComponentPermission(ADMIN, component) &&
         !userSession.isSystemAdministrator()) {
@@ -153,7 +154,7 @@ public class ComponentAction implements NavigationWsAction {
       json.beginObject();
       writeComponent(json, session, component, org, analysis.orElse(null));
       writeProfiles(json, session, component);
-      writeQualityGate(json, session, org, component);
+      writeQualityGate(json, session, org, project);
       if (userSession.hasComponentPermission(ADMIN, component) ||
         userSession.hasPermission(ADMINISTER_QUALITY_PROFILES, org) ||
         userSession.hasPermission(ADMINISTER_QUALITY_GATES, org)) {

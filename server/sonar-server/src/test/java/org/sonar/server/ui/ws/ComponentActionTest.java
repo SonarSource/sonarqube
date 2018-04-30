@@ -38,6 +38,7 @@ import org.sonar.core.component.DefaultResourceTypes;
 import org.sonar.core.platform.PluginRepository;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
@@ -251,6 +252,26 @@ public class ComponentActionTest {
     init();
 
     executeAndVerify(project.getDbKey(), "return_quality_gate.json");
+  }
+
+  @Test
+  public void quality_gate_for_a_long_living_branch() {
+    OrganizationDto organization = db.organizations().insert(o -> o.setKey("my-org"));
+    db.qualityGates().createDefaultQualityGate(organization);
+    ComponentDto project = db.components().insertPrivateProject(organization);
+    ComponentDto longLivingBranch = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.LONG));
+    QualityGateDto qualityGateDto = db.qualityGates().insertQualityGate(organization, qg -> qg.setName("Sonar way"));
+    db.qualityGates().associateProjectToQualityGate(project, qualityGateDto);
+    userSession.addProjectPermission(UserRole.USER, project);
+    init();
+
+    String json = ws.newRequest()
+      .setParam("componentKey", longLivingBranch.getKey())
+      .setParam("branch", longLivingBranch.getBranch())
+      .execute()
+      .getInput();
+
+    verify(json, "return_quality_gate.json");
   }
 
   @Test
@@ -587,8 +608,8 @@ public class ComponentActionTest {
     return ws.newRequest().setParam("componentKey", componentKey).execute().getInput();
   }
 
-  private void verify(String json, String expectedJson) {
-    assertJson(json).isSimilarTo(getClass().getResource(ComponentActionTest.class.getSimpleName() + "/" + expectedJson));
+  private void verify(String json, String jsonFile) {
+    assertJson(json).isSimilarTo(getClass().getResource(ComponentActionTest.class.getSimpleName() + "/" + jsonFile));
   }
 
   private void executeAndVerify(String componentKey, String expectedJson) {
