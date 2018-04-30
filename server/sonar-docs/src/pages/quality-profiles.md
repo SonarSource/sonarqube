@@ -40,7 +40,7 @@ Additionally, users with Quality Profile administration privileges are notified 
 
 Use the **Back up** feature on the source instance to export the profile to an XML file. Use the **Restore Profile** feature on the target instance to import the file. Note that some [limitations](https://jira.sonarsource.com/browse/SONAR-5366) on this feature exist.
 
-![Restore Quality Profile](../images/restore-quality-profile.jpeg)
+![Restore Quality Profile](/images/restore-quality-profile.jpeg)
 
 ### Apply a core set of rules plus additional rules to a project?
 

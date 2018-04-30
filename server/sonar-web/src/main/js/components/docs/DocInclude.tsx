@@ -54,7 +54,9 @@ export default class DocInclude extends React.PureComponent<Props, State> {
   }
 
   fetchContent = () => {
-    import(`Docs/${this.props.path}.md`).then(
+    // even if `this.props.path` starts with `/`,
+    // it is important to keep `Docs/` in the string to let webpack correctly resolve imports
+    import(`Docs/${this.props.path.substr(1)}.md`).then(
       ({ default: content }) => {
         if (this.mounted) {
           this.setState({ content });

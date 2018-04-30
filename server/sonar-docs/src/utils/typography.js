@@ -17,14 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
+import Typography from 'typography';
 
-export default function DocImg(props: React.ImgHTMLAttributes<HTMLImageElement>) {
-  const { alt, src, ...other } = props;
+const fontFamily = 'Roboto';
 
-  if (process.env.NODE_ENV === 'development') {
-    return <img alt={alt} className="max-width-100" src={src} {...other} />;
-  }
+const typography = new Typography({
+  bodyFontFamily: [fontFamily, 'serif'],
+  headerFontFamily: [fontFamily, 'serif'],
+  baseFontSize: '18px',
+  bodyWeight: '300',
+  headerWeight: '300',
+  googleFonts: [{ name: fontFamily, styles: ['300,700'] }],
+  overrideStyles: () => ({
+    a: {
+      color: '#439ccd'
+    }
+  })
+});
 
-  return <img alt={alt} className="max-width-100" src={'/images/embed-doc' + src} {...other} />;
-}
+export default typography;

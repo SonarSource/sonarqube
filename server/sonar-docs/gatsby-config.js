@@ -17,14 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
-
-export default function DocImg(props: React.ImgHTMLAttributes<HTMLImageElement>) {
-  const { alt, src, ...other } = props;
-
-  if (process.env.NODE_ENV === 'development') {
-    return <img alt={alt} className="max-width-100" src={src} {...other} />;
-  }
-
-  return <img alt={alt} className="max-width-100" src={'/images/embed-doc' + src} {...other} />;
-}
+module.exports = {
+  siteMetadata: {
+    title: 'SonarQube Documentation'
+  },
+  plugins: [
+    {
+      resolve: 'gatsby-source-filesystem',
+      options: { name: 'src', path: `${__dirname}/src/` }
+    },
+    'gatsby-plugin-react-helmet',
+    {
+      resolve: 'gatsby-plugin-typography',
+      options: { pathToConfigModule: `src/utils/typography` }
+    },
+    'gatsby-transformer-remark',
+    'gatsby-plugin-glamor'
+  ]
+};

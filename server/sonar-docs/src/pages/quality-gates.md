@@ -31,13 +31,13 @@ Don't forget also that quality gate conditions must use differential values. The
 
 ### Recommended Quality Gate
 
-![Recommended Quality Gate](../images/recommended-quality-gate.png)
+![Recommended Quality Gate](/images/recommended-quality-gate.png)
 
 ## Quality Gate Status
 
 The current status is displayed prominently at the top of the Project Page:
 
-![Quality Gate Status](../images/quality-gate-status.jpeg)
+![Quality Gate Status](/images/quality-gate-status.jpeg)
 
 ## Getting Notified When a Quality Gate Fails
 

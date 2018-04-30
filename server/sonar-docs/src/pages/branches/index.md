@@ -23,9 +23,9 @@ This corresponds to Pull/Merge Requests or Feature Branches. This kind of branch
   and there is no Leak Period concept as such; it's all leak period
   tracks all the new issues related to the code that changed on it.
 
-![conceptual illustration of short-lived branches.](images/short-lived-branch-concept.png)
+![conceptual illustration of short-lived branches.](/images/short-lived-branch-concept.png)
 
-For more, see [Short-lived Branches](short-lived-branches)
+For more, see [Short-lived Branches](/branches/short-lived-branches)
 
 ### Long-lived
 
@@ -37,9 +37,9 @@ This kind of branch will:
 * house several release versions, each of which must pass the quality gate
   to go to production not be expected to be merged into another branch
 
-![conceptual illustration of long-lived branches.](images/long-lived-branch-concept.png)
+![conceptual illustration of long-lived branches.](/images/long-lived-branch-concept.png)
 
-For more, see [Long-lived Branches](long-lived-branches)
+For more, see [Long-lived Branches](/branches/long-lived-branches)
 
 ### Master / Main Branch
 
