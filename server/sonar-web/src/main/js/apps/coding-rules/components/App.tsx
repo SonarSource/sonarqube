@@ -466,7 +466,9 @@ export default class App extends React.PureComponent<Props, State> {
 
     return (
       <>
-        <Helmet title={translate('coding_rules.page')} />
+        <Helmet title={translate('coding_rules.page')}>
+          <meta content="noindex" name="robots" />
+        </Helmet>
         <div className="layout-page" id="coding-rules-page">
           <ScreenPositionHelper className="layout-page-side-outer">
             {({ top }) => (
@@ -486,9 +488,9 @@ export default class App extends React.PureComponent<Props, State> {
                       facets={this.state.facets}
                       onFacetToggle={this.handleFacetToggle}
                       onFilterChange={this.handleFilterChange}
+                      openFacets={this.state.openFacets}
                       organization={organization}
                       organizationsEnabled={this.context.organizationsEnabled}
-                      openFacets={this.state.openFacets}
                       query={this.state.query}
                       referencedProfiles={this.state.referencedProfiles}
                       referencedRepositories={this.state.referencedRepositories}
