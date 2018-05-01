@@ -22,7 +22,9 @@ import React from 'react';
 import EventInner from './EventInner';
 import ChangeEventForm from './forms/ChangeEventForm';
 import RemoveEventForm from './forms/RemoveEventForm';
+import Tooltip from '../../../components/controls/Tooltip';
 import { DeleteButton, EditButton } from '../../../components/ui/buttons';
+import { translate } from '../../../helpers/l10n';
 /*:: import type { Event as EventType } from '../types'; */
 
 /*::
@@ -94,10 +96,17 @@ export default class Event extends React.PureComponent {
         {showActions && (
           <div className="project-activity-event-actions spacer-left">
             {canChange && (
-              <EditButton className="js-change-event button-small" onClick={this.startChanging} />
+              <Tooltip overlay={translate('project_activity.events.tooltip.edit')}>
+                <EditButton className="js-change-event button-small" onClick={this.startChanging} />
+              </Tooltip>
             )}
             {canDelete && (
-              <DeleteButton className="js-delete-event button-small" onClick={this.startDeleting} />
+              <Tooltip overlay={translate('project_activity.events.tooltip.delete')}>
+                <DeleteButton
+                  className="js-delete-event button-small"
+                  onClick={this.startDeleting}
+                />
+              </Tooltip>
             )}
           </div>
         )}
