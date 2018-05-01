@@ -5,95 +5,116 @@ exports[`should render correctly 1`] = `
   className="oauth-providers"
 >
   <ul>
-    <li
+    <OAuthProvider
+      format={[Function]}
+      identityProvider={
+        Object {
+          "backgroundColor": "#000",
+          "iconPath": "/some/path",
+          "key": "foo",
+          "name": "Foo",
+        }
+      }
       key="foo"
-    >
-      <a
-        href="/sessions/init/foo?return_to="
-        style={
-          Object {
-            "backgroundColor": "#000",
-            "color": "#fff",
-          }
+      returnTo=""
+    />
+    <OAuthProvider
+      format={[Function]}
+      identityProvider={
+        Object {
+          "backgroundColor": "#00F",
+          "helpMessage": "Help message!",
+          "iconPath": "/icon/path",
+          "key": "bar",
+          "name": "Bar",
         }
-      >
-        <img
-          alt="Foo"
-          height="20"
-          src="/some/path"
-          width="20"
-        />
-        <span>
-          login.login_with_x.Foo
-        </span>
-      </a>
-    </li>
-    <li
+      }
       key="bar"
-    >
-      <a
-        href="/sessions/init/bar?return_to="
-        style={
-          Object {
-            "backgroundColor": "#00F",
-            "color": "#fff",
-          }
-        }
-      >
-        <img
-          alt="Bar"
-          height="20"
-          src="/icon/path"
-          width="20"
-        />
-        <span>
-          login.login_with_x.Bar
-        </span>
-      </a>
-      <Tooltip
-        overlay="Help message!"
-      >
-        <div
-          className="oauth-providers-help"
-        >
-          <HelpIcon
-            fill="#4b9fd5"
-          />
-        </div>
-      </Tooltip>
-    </li>
+      returnTo=""
+    />
   </ul>
 </section>
 `;
 
-exports[`should use the custom label formatter 1`] = `
-<section
-  className="oauth-providers"
->
-  <ul>
-    <li
-      key="foo"
+exports[`should render correctly 2`] = `
+<li>
+  <a
+    className=""
+    href="/sessions/init/foo?return_to="
+    style={
+      Object {
+        "backgroundColor": "#000",
+      }
+    }
+  >
+    <img
+      alt="Foo"
+      height="20"
+      src="/some/path"
+      width="20"
+    />
+    <span>
+      login.login_with_x.Foo
+    </span>
+  </a>
+</li>
+`;
+
+exports[`should render correctly 3`] = `
+<li>
+  <a
+    className=""
+    href="/sessions/init/bar?return_to="
+    style={
+      Object {
+        "backgroundColor": "#00F",
+      }
+    }
+  >
+    <img
+      alt="Bar"
+      height="20"
+      src="/icon/path"
+      width="20"
+    />
+    <span>
+      login.login_with_x.Bar
+    </span>
+  </a>
+  <Tooltip
+    overlay="Help message!"
+  >
+    <div
+      className="oauth-providers-help"
     >
-      <a
-        href="/sessions/init/foo?return_to="
-        style={
-          Object {
-            "backgroundColor": "#000",
-            "color": "#fff",
-          }
-        }
-      >
-        <img
-          alt="Foo"
-          height="20"
-          src="/some/path"
-          width="20"
-        />
-        <span>
-          custom_format.Foo
-        </span>
-      </a>
-    </li>
-  </ul>
-</section>
+      <HelpIcon
+        fill="#4b9fd5"
+      />
+    </div>
+  </Tooltip>
+</li>
+`;
+
+exports[`should use the custom label formatter 1`] = `
+<li>
+  <a
+    className=""
+    href="/sessions/init/foo?return_to="
+    style={
+      Object {
+        "backgroundColor": "#000",
+      }
+    }
+  >
+    <img
+      alt="Foo"
+      height="20"
+      src="/some/path"
+      width="20"
+    />
+    <span>
+      custom_format.Foo
+    </span>
+  </a>
+</li>
 `;

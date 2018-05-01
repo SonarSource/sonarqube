@@ -24,7 +24,7 @@ import * as theme from '../../../app/theme';
 import { IdentityProvider } from '../../../app/types';
 import Tooltip from '../../../components/controls/Tooltip';
 import HelpIcon from '../../../components/icons-components/HelpIcon';
-import { getTextColor } from '../../../helpers/colors';
+import { isDarkColor } from '../../../helpers/colors';
 import { getBaseUrl } from '../../../helpers/urls';
 import './OAuthProviders.css';
 
@@ -41,35 +41,52 @@ export default function OAuthProviders(props: Props) {
     <section className={classNames('oauth-providers', props.className)}>
       <ul>
         {props.identityProviders.map(identityProvider => (
-          <li key={identityProvider.key}>
-            <a
-              href={
-                `${getBaseUrl()}/sessions/init/${identityProvider.key}` +
-                `?return_to=${encodeURIComponent(props.returnTo)}`
-              }
-              style={{
-                backgroundColor: identityProvider.backgroundColor,
-                color: getTextColor(identityProvider.backgroundColor, theme.secondFontColor)
-              }}>
-              <img
-                alt={identityProvider.name}
-                height="20"
-                src={getBaseUrl() + identityProvider.iconPath}
-                width="20"
-              />
-              <span>{formatFunction(identityProvider.name)}</span>
-            </a>
-            {identityProvider.helpMessage && (
-              <Tooltip overlay={identityProvider.helpMessage}>
-                <div className="oauth-providers-help">
-                  <HelpIcon fill={theme.blue} />
-                </div>
-              </Tooltip>
-            )}
-          </li>
+          <OAuthProvider
+            format={formatFunction}
+            identityProvider={identityProvider}
+            key={identityProvider.key}
+            returnTo={props.returnTo}
+          />
         ))}
       </ul>
     </section>
+  );
+}
+
+interface ItemProps {
+  format: (name: string) => React.ReactNode;
+  identityProvider: IdentityProvider;
+  returnTo: string;
+}
+
+function OAuthProvider({ format, identityProvider, returnTo }: ItemProps) {
+  const hasDarkBackground = isDarkColor(identityProvider.backgroundColor);
+
+  return (
+    <li>
+      <a
+        className={classNames({ 'dark-text': !hasDarkBackground })}
+        href={
+          `${getBaseUrl()}/sessions/init/${identityProvider.key}` +
+          `?return_to=${encodeURIComponent(returnTo)}`
+        }
+        style={{ backgroundColor: identityProvider.backgroundColor }}>
+        <img
+          alt={identityProvider.name}
+          height="20"
+          src={getBaseUrl() + identityProvider.iconPath}
+          width="20"
+        />
+        <span>{format(identityProvider.name)}</span>
+      </a>
+      {identityProvider.helpMessage && (
+        <Tooltip overlay={identityProvider.helpMessage}>
+          <div className="oauth-providers-help">
+            <HelpIcon fill={theme.blue} />
+          </div>
+        </Tooltip>
+      )}
+    </li>
   );
 }
 

@@ -38,19 +38,23 @@ const identityProviders = [
 ];
 
 it('should render correctly', () => {
-  expect(
-    shallow(<OAuthProviders identityProviders={identityProviders} returnTo="" />)
-  ).toMatchSnapshot();
+  const wrapper = shallow(<OAuthProviders identityProviders={identityProviders} returnTo="" />);
+  expect(wrapper).toMatchSnapshot();
+  wrapper.find('OAuthProvider').forEach(node => expect(node.dive()).toMatchSnapshot());
 });
 
 it('should use the custom label formatter', () => {
+  const wrapper = shallow(
+    <OAuthProviders
+      formatLabel={name => 'custom_format.' + name}
+      identityProviders={[identityProviders[0]]}
+      returnTo=""
+    />
+  );
   expect(
-    shallow(
-      <OAuthProviders
-        formatLabel={name => 'custom_format.' + name}
-        identityProviders={[identityProviders[0]]}
-        returnTo=""
-      />
-    )
+    wrapper
+      .find('OAuthProvider')
+      .first()
+      .dive()
   ).toMatchSnapshot();
 });
