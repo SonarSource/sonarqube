@@ -120,6 +120,7 @@ task integrationTest(type: Test) {
         includeTestsMatching 'org.sonarqube.tests.Category4Suite'
         includeTestsMatching 'org.sonarqube.tests.duplication.*Suite'
         includeTestsMatching 'org.sonarqube.tests.user.*Suite'
+        includeTestsMatching 'org.sonarqube.tests.ui.*Suite'
         includeTestsMatching 'org.sonarqube.tests.webhook.*Suite'
         break
       case 'Category5':

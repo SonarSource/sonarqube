@@ -86,6 +86,10 @@ public class Navigation {
     return open("/", Navigation.class);
   }
 
+  public DocumentationPage openDocumentation() {
+    return open("/documentation", DocumentationPage.class);
+  }
+
   public ProjectsPage openProjects() {
     return open("/projects", ProjectsPage.class);
   }
@@ -232,7 +236,7 @@ public class Navigation {
   }
 
   public WebhooksPage openProjectWebhooks(String projectKey) {
-    return open("/project/webhooks?id="+ projectKey, WebhooksPage.class);
+    return open("/project/webhooks?id=" + projectKey, WebhooksPage.class);
   }
 
   public LoginPage openLogin() {

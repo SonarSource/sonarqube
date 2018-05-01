@@ -40,7 +40,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class UiExtensionsTest {
 
   @ClassRule
-  public static Orchestrator orchestrator = Category4Suite.ORCHESTRATOR;
+  public static Orchestrator orchestrator = UiSuite.ORCHESTRATOR;
 
   @Rule
   public Tester tester = new Tester(orchestrator).disableOrganizations();

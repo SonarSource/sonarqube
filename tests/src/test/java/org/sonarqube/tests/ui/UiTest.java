@@ -27,7 +27,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonarqube.qa.util.Tester;
 import org.sonarqube.qa.util.pageobjects.Navigation;
-import org.sonarqube.tests.Category4Suite;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.WsResponse;
 import util.ItUtils;
@@ -44,7 +43,7 @@ import static util.ItUtils.projectDir;
 public class UiTest {
 
   @ClassRule
-  public static final Orchestrator orchestrator = Category4Suite.ORCHESTRATOR;
+  public static final Orchestrator orchestrator = UiSuite.ORCHESTRATOR;
 
   @Rule
   public Tester tester = new Tester(orchestrator).disableOrganizations();

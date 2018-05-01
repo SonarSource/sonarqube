@@ -59,10 +59,6 @@ import static util.ItUtils.xooPlugin;
   IssueExclusionsTest.class,
   // http
   HttpHeadersTest.class,
-  // ui
-  UiTest.class,
-  // ui extensions
-  UiExtensionsTest.class,
   WsLocalCallTest.class,
   WsTest.class,
   // quality profiles
