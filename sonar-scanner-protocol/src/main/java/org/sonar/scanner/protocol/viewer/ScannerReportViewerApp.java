@@ -104,6 +104,8 @@ public class ScannerReportViewerApp {
   private JEditorPane pluginEditor;
   private JScrollPane cpdTextBlocksTab;
   private JEditorPane cpdTextBlocksEditor;
+  private JScrollPane significantCodeTab;
+  private JEditorPane significantCodeEditor;
 
   /**
    * Create the application.
@@ -255,6 +257,7 @@ public class ScannerReportViewerApp {
     updateMeasures(component);
     updateScm(component);
     updateCpdTextBlocks(component);
+    updateSignificantCode(component);
   }
 
   private void updateCpdTextBlocks(Component component) {
@@ -267,6 +270,22 @@ public class ScannerReportViewerApp {
         }
       } catch (Exception e) {
         throw new IllegalStateException("Can't read CPD text blocks for " + getNodeName(component), e);
+      }
+    }
+  }
+
+  private void updateSignificantCode(Component component) {
+    significantCodeEditor.setText("");
+    if (reader.hasCoverage(component.getRef())) {
+      try (CloseableIterator<ScannerReport.LineSgnificantCode> it = reader.readComponentSignificantCode(component.getRef())) {
+        if (it != null) {
+          while (it.hasNext()) {
+            ScannerReport.LineSgnificantCode textBlock = it.next();
+            significantCodeEditor.getDocument().insertString(significantCodeEditor.getDocument().getEndPosition().getOffset(), textBlock + "\n", null);
+          }
+        }
+      } catch (Exception e) {
+        throw new IllegalStateException("Can't read significant code for " + getNodeName(component), e);
       }
     }
   }
@@ -552,6 +571,12 @@ public class ScannerReportViewerApp {
 
     cpdTextBlocksEditor = new JEditorPane();
     cpdTextBlocksTab.setViewportView(cpdTextBlocksEditor);
+
+    significantCodeTab = new JScrollPane();
+    tabbedPane.addTab("Significant Code Ranges", null, significantCodeTab, null);
+    
+    significantCodeEditor = new JEditorPane();
+    significantCodeTab.setViewportView(significantCodeEditor);
 
     treeScrollPane = new JScrollPane();
     treeScrollPane.setPreferredSize(new Dimension(200, 400));
