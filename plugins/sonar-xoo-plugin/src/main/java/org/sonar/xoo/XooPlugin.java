@@ -34,6 +34,7 @@ import org.sonar.xoo.global.GlobalSensor;
 import org.sonar.xoo.lang.CpdTokenizerSensor;
 import org.sonar.xoo.lang.LineMeasureSensor;
 import org.sonar.xoo.lang.MeasureSensor;
+import org.sonar.xoo.lang.SignificantCodeSensor;
 import org.sonar.xoo.lang.SymbolReferencesSensor;
 import org.sonar.xoo.lang.SyntaxHighlightingSensor;
 import org.sonar.xoo.lang.XooCpdMapping;
@@ -173,7 +174,9 @@ public class XooPlugin implements Plugin {
       context.addExtension(GlobalSensor.class);
     }
     if (context.getSonarQubeVersion().isGreaterThanOrEqual(Version.create(7, 2))) {
-      context.addExtension(OneExternalIssuePerLineSensor.class);
+      context.addExtensions(
+        OneExternalIssuePerLineSensor.class,
+        SignificantCodeSensor.class);
     }
   }
 

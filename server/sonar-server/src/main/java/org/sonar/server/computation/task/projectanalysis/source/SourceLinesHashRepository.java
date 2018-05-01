@@ -31,7 +31,7 @@ public interface SourceLinesHashRepository {
   List<String> getMatchingDB(Component component);
 
   /**
-   * The line processor will return line hashes taking into account significant code (if it was provided by a code analyzer).
+   * The line computer will compute line hashes taking into account significant code (if it was provided by a code analyzer).
    * It will use a cached value, if possible. If it's generated, it's not cached since it's assumed that it won't be 
    * needed again after it is persisted.
    */
