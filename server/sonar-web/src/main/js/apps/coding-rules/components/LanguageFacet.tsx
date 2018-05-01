@@ -50,6 +50,7 @@ class LanguageFacet extends React.PureComponent<Props> {
       <LanguageFacetFooter
         onSelect={this.handleSelect}
         referencedLanguages={this.props.referencedLanguages}
+        selected={Object.keys(this.props.stats)}
       />
     );
   };

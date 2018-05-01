@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { difference } from 'lodash';
 import Select from '../../../components/controls/Select';
 import { translate } from '../../../helpers/l10n';
 
@@ -26,16 +27,24 @@ type Option = { label: string; value: string };
 interface Props {
   referencedLanguages: { [language: string]: { key: string; name: string } };
   onSelect: (value: string) => void;
+  selected: string[];
 }
 
 export default class LanguageFacetFooter extends React.PureComponent<Props> {
   handleChange = (option: Option) => this.props.onSelect(option.value);
 
   render() {
-    const options = Object.values(this.props.referencedLanguages).map(language => ({
-      label: language.name,
-      value: language.key
+    const options = difference(
+      Object.keys(this.props.referencedLanguages),
+      this.props.selected
+    ).map(key => ({
+      label: this.props.referencedLanguages[key].name,
+      value: key
     }));
+
+    if (options.length === 0) {
+      return null;
+    }
 
     return (
       <div className="search-navigator-facet-footer">

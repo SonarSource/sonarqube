@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import { connect } from 'react-redux';
+import { differenceWith } from 'lodash';
 import Select from '../../../components/controls/Select';
 import { translate } from '../../../helpers/l10n';
 import { getLanguages } from '../../../store/rootReducer';
@@ -26,6 +27,7 @@ import { getLanguages } from '../../../store/rootReducer';
 interface Props {
   languages: Array<{ key: string; name: string }>;
   onSelect: (value: string) => void;
+  selected: string[];
 }
 
 class LanguageFacetFooter extends React.PureComponent<Props> {
@@ -34,10 +36,15 @@ class LanguageFacetFooter extends React.PureComponent<Props> {
   };
 
   render() {
-    const options = this.props.languages.map(language => ({
-      label: language.name,
-      value: language.key
-    }));
+    const options = differenceWith(
+      this.props.languages,
+      this.props.selected,
+      (language, key) => language.key === key
+    ).map(language => ({ label: language.name, value: language.key }));
+
+    if (options.length === 0) {
+      return null;
+    }
 
     return (
       <div className="search-navigator-facet-footer">

@@ -107,7 +107,9 @@ export default class LanguageFacet extends React.PureComponent<Props> {
       return null;
     }
 
-    return <LanguageFacetFooter onSelect={this.handleSelect} />;
+    return (
+      <LanguageFacetFooter onSelect={this.handleSelect} selected={Object.keys(this.props.stats)} />
+    );
   }
 
   render() {
