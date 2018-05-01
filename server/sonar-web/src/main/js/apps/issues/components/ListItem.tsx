@@ -109,6 +109,7 @@ export default class ListItem extends React.PureComponent<Props, State> {
               branchLike={branchLike}
               component={component}
               issue={this.props.issue}
+              link={false}
               organization={this.props.organization}
             />
           </div>

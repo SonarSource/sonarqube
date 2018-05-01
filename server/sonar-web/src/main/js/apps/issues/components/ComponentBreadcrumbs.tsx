@@ -40,6 +40,7 @@ interface Props {
     | 'subProject'
     | 'subProjectName'
   >;
+  link?: boolean;
   organization: { key: string } | undefined;
   selectedFlowIndex?: number;
   selectedLocationIndex?: number;
@@ -48,6 +49,7 @@ interface Props {
 export default function ComponentBreadcrumbs({
   branchLike,
   component,
+  link = true,
   issue,
   organization,
   selectedFlowIndex,
@@ -65,14 +67,22 @@ export default function ComponentBreadcrumbs({
   return (
     <div className="component-name text-ellipsis">
       {displayOrganization && (
-        <Organization linkClassName="link-no-underline" organizationKey={issue.organization} />
+        <Organization
+          link={link}
+          linkClassName="link-no-underline"
+          organizationKey={issue.organization}
+        />
       )}
 
       {displayProject && (
         <span title={issue.projectName}>
-          <Link className="link-no-underline" to={getBranchLikeUrl(issue.project, branchLike)}>
-            {limitComponentName(issue.projectName)}
-          </Link>
+          {link ? (
+            <Link className="link-no-underline" to={getBranchLikeUrl(issue.project, branchLike)}>
+              {limitComponentName(issue.projectName)}
+            </Link>
+          ) : (
+            limitComponentName(issue.projectName)
+          )}
           <span className="slash-separator" />
         </span>
       )}
@@ -81,16 +91,28 @@ export default function ComponentBreadcrumbs({
         issue.subProject !== undefined &&
         issue.subProjectName !== undefined && (
           <span title={issue.subProjectName}>
-            <Link className="link-no-underline" to={getBranchLikeUrl(issue.subProject, branchLike)}>
-              {limitComponentName(issue.subProjectName)}
-            </Link>
+            {link ? (
+              <Link
+                className="link-no-underline"
+                to={getBranchLikeUrl(issue.subProject, branchLike)}>
+                {limitComponentName(issue.subProjectName)}
+              </Link>
+            ) : (
+              limitComponentName(issue.subProjectName)
+            )}
             <span className="slash-separator" />
           </span>
         )}
 
-      <Link className="link-no-underline" to={getCodeUrl(issue.project, branchLike, componentKey)}>
-        <span title={componentName}>{collapsePath(componentName || '')}</span>
-      </Link>
+      {link ? (
+        <Link
+          className="link-no-underline"
+          to={getCodeUrl(issue.project, branchLike, componentKey)}>
+          <span title={componentName}>{collapsePath(componentName || '')}</span>
+        </Link>
+      ) : (
+        collapsePath(componentName || '')
+      )}
     </div>
   );
 }

@@ -5,6 +5,7 @@ exports[`renders 1`] = `
   className="component-name text-ellipsis"
 >
   <Connect(Organization)
+    link={true}
     linkClassName="link-no-underline"
     organizationKey="org"
   />
@@ -58,6 +59,7 @@ exports[`renders with branch 1`] = `
   className="component-name text-ellipsis"
 >
   <Connect(Organization)
+    link={true}
     linkClassName="link-no-underline"
     organizationKey="org"
   />
@@ -138,6 +140,7 @@ exports[`renders with sub-project 1`] = `
   className="component-name text-ellipsis"
 >
   <Connect(Organization)
+    link={true}
     linkClassName="link-no-underline"
     organizationKey="org"
   />
