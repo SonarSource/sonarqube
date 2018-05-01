@@ -30,7 +30,7 @@ import MigrationContainer from '../components/MigrationContainer';
 import App from '../components/App';
 import GlobalContainer from '../components/GlobalContainer';
 import SimpleContainer from '../components/SimpleContainer';
-import SimpleSessionsContainer from '../../apps/sessions/components/SimpleSessionsContainer';
+import SimpleSessionsContainer from '../components/SimpleSessionsContainer';
 import Landing from '../components/Landing';
 import ProjectAdminContainer from '../components/ProjectAdminContainer';
 import ProjectPageExtension from '../components/extensions/ProjectPageExtension';

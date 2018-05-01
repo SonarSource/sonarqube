@@ -24,17 +24,16 @@ import NavBar from '../../components/nav/NavBar';
 
 interface Props {
   children?: React.ReactNode;
-  hideLoggedInInfo?: boolean;
 }
 
-export default function SimpleContainer({ children, hideLoggedInInfo }: Props) {
+export default function SimpleContainer({ children }: Props) {
   return (
     <div className="global-container">
       <div className="page-wrapper" id="container">
         <NavBar className="navbar-global" height={theme.globalNavHeightRaw} />
         {children}
       </div>
-      <GlobalFooterContainer hideLoggedInInfo={hideLoggedInInfo} />
+      <GlobalFooterContainer />
     </div>
   );
 }

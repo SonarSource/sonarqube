@@ -18,12 +18,19 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import SimpleContainer from '../../../app/components/SimpleContainer';
+import GlobalFooterContainer from './GlobalFooterContainer';
 
 interface Props {
   children?: React.ReactNode;
 }
 
 export default function SimpleSessionsContainer({ children }: Props) {
-  return <SimpleContainer hideLoggedInInfo={true}>{children}</SimpleContainer>;
+  return (
+    <div className="global-container">
+      <div className="page-wrapper" id="container">
+        {children}
+      </div>
+      <GlobalFooterContainer hideLoggedInInfo={true} />
+    </div>
+  );
 }
