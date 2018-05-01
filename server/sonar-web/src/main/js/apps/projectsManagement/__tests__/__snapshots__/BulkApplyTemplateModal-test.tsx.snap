@@ -82,7 +82,6 @@ exports[`bulk applies template to all results 2`] = `
             },
           ]
         }
-        searchable={false}
         value="foo"
       />
     </div>
@@ -156,7 +155,6 @@ exports[`bulk applies template to all results 3`] = `
             },
           ]
         }
-        searchable={false}
         value="foo"
       />
     </div>
@@ -299,7 +297,6 @@ exports[`bulk applies template to selected results 2`] = `
             },
           ]
         }
-        searchable={false}
         value="foo"
       />
     </div>
@@ -373,7 +370,6 @@ exports[`bulk applies template to selected results 3`] = `
             },
           ]
         }
-        searchable={false}
         value="foo"
       />
     </div>

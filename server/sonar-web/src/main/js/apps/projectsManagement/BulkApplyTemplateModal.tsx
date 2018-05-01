@@ -144,7 +144,6 @@ export default class BulkApplyTemplateModal extends React.PureComponent<Props, S
         disabled={this.state.submitting}
         onChange={this.handlePermissionTemplateChange}
         options={this.state.permissionTemplates!.map(t => ({ label: t.name, value: t.id }))}
-        searchable={false}
         value={this.state.permissionTemplate}
       />
     </div>
