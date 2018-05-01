@@ -22,6 +22,18 @@ dependencies {
   testCompile 'org.mockito:mockito-core'
 }
 
+//create a single Jar with all dependencies
+task fatJar(type: Jar) {
+  manifest {
+    attributes 'Main-Class': 'org.sonar.scanner.protocol.viewer.ScannerReportViewerApp'
+  }
+  baseName = project.name + '-all'
+  from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+  with jar
+}
+
+build.dependsOn fatJar
+
 // Used by sonar-db-core to run DB Unit Tests
 artifactoryPublish.skip = false
 publishing {
