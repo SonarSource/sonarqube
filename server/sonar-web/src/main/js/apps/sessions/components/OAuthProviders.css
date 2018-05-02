@@ -63,8 +63,8 @@
 
 .oauth-providers-help {
   position: absolute;
-  top: 12px;
-  right: -32px;
+  top: 15px;
+  right: -24px;
 }
 
 .oauth-providers + .login-form {

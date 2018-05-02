@@ -80,14 +80,15 @@ exports[`renders list 1`] = `
       <li
         className="dropdown-header"
       >
-        branches.orphan_branches
-        <Tooltip
-          overlay="branches.orphan_branches.tooltip"
+        <div
+          className="display-inline-block text-middle"
         >
-          <i
-            className="icon-help spacer-left"
-          />
-        </Tooltip>
+          branches.orphan_branches
+        </div>
+        <HelpTooltip
+          className="spacer-left"
+          overlay="branches.orphan_branches.tooltip"
+        />
       </li>
       <ComponentNavBranchesMenuItem
         branchLike={
@@ -177,14 +178,15 @@ exports[`renders list 1`] = `
       <li
         className="dropdown-header"
       >
-        branches.orphan_branches
-        <Tooltip
-          overlay="branches.orphan_branches.tooltip"
+        <div
+          className="display-inline-block text-middle"
         >
-          <i
-            className="icon-help spacer-left"
-          />
-        </Tooltip>
+          branches.orphan_branches
+        </div>
+        <HelpTooltip
+          className="spacer-left"
+          overlay="branches.orphan_branches.tooltip"
+        />
       </li>
       <ComponentNavBranchesMenuItem
         branchLike={

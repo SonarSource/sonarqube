@@ -32,6 +32,7 @@ import LicenseEditionSet from '../../apps/marketplace/components/LicenseEditionS
 import HomePageSelect from '../../components/controls/HomePageSelect';
 import ListFooter from '../../components/controls/ListFooter';
 import Modal from '../../components/controls/Modal';
+import HelpTooltip from '../../components/controls/HelpTooltip';
 import SearchBox from '../../components/controls/SearchBox';
 import Select from '../../components/controls/Select';
 import Tooltip from '../../components/controls/Tooltip';
@@ -60,6 +61,7 @@ const exposeLibraries = () => {
     DuplicationsRating,
     EditButton,
     FavoriteContainer,
+    HelpTooltip,
     HomePageSelect,
     Level,
     LicenseEditionSet,

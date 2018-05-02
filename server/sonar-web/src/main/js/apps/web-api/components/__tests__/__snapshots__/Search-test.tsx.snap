@@ -15,6 +15,7 @@ exports[`should render correctly 1`] = `
   >
     <Checkbox
       checked={false}
+      className="text-middle"
       onCheck={[Function]}
       thirdState={false}
     >
@@ -24,21 +25,17 @@ exports[`should render correctly 1`] = `
         api_documentation.show_internal
       </span>
     </Checkbox>
-    <Tooltip
+    <HelpTooltip
+      className="spacer-left"
       overlay="api_documentation.internal_tooltip"
-    >
-      <span>
-        <HelpIcon
-          className="spacer-left text-info"
-        />
-      </span>
-    </Tooltip>
+    />
   </div>
   <div
     className="spacer-top"
   >
     <Checkbox
       checked={false}
+      className="text-middle"
       onCheck={[Function]}
       thirdState={false}
     >
@@ -48,15 +45,10 @@ exports[`should render correctly 1`] = `
         api_documentation.show_deprecated
       </span>
     </Checkbox>
-    <Tooltip
+    <HelpTooltip
+      className="spacer-left"
       overlay="api_documentation.deprecation_tooltip"
-    >
-      <span>
-        <HelpIcon
-          className="spacer-left text-info"
-        />
-      </span>
-    </Tooltip>
+    />
   </div>
 </div>
 `;

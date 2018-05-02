@@ -89,17 +89,13 @@ exports[`renders 1`] = `
     <span
       className="measure-details-bubble-chart-title"
     >
-      <Tooltip
+      <span
+        className="text-middle"
+      />
+      <HelpTooltip
+        className="spacer-left"
         overlay="foobar"
-      >
-        <span
-          className="spacer-left text-info"
-        >
-          <HelpIcon
-            className="text-bottom"
-          />
-        </span>
-      </Tooltip>
+      />
     </span>
     <div>
       <span

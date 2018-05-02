@@ -10,6 +10,8 @@ exports[`should open & close 1`] = `
   <TooltipPortal>
     <div
       className="tooltip bottom"
+      onMouseEnter={[Function]}
+      onMouseLeave={[Function]}
     >
       <div
         className="tooltip-inner"
@@ -56,6 +58,8 @@ exports[`should render 2`] = `
   <TooltipPortal>
     <div
       className="tooltip bottom"
+      onMouseEnter={[Function]}
+      onMouseLeave={[Function]}
     >
       <div
         className="tooltip-inner"

@@ -25,9 +25,16 @@ const suggestions = [{ link: '#', text: 'foo' }, { link: '#', text: 'bar' }];
 
 it('should display suggestion links', () => {
   const context = {};
-  const wrapper = shallow(<EmbedDocsPopups onClose={jest.fn()} suggestions={suggestions} />, {
-    context
-  });
+  const wrapper = shallow(
+    <EmbedDocsPopups
+      currentUser={{ isLoggedIn: true }}
+      onClose={jest.fn()}
+      suggestions={suggestions}
+    />,
+    {
+      context
+    }
+  );
   wrapper.update();
   expect(wrapper).toMatchSnapshot();
 });

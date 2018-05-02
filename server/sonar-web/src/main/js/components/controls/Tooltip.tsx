@@ -28,6 +28,7 @@ interface Props {
   classNameSpace?: string;
   children: React.ReactElement<{}>;
   mouseEnterDelay?: number;
+  mouseLeaveDelay?: number;
   onShow?: () => void;
   onHide?: () => void;
   overlay: React.ReactNode;
@@ -65,8 +66,10 @@ export default function Tooltip(props: Props) {
 export class TooltipInner extends React.Component<Props, State> {
   throttledPositionTooltip: (() => void);
   mouseEnterInterval?: number;
+  mouseLeaveInterval?: number;
   tooltipNode?: HTMLElement | null;
   mounted = false;
+  mouseIn = false;
 
   static defaultProps = {
     mouseEnterDelay: 0.1
@@ -113,6 +116,7 @@ export class TooltipInner extends React.Component<Props, State> {
   componentWillUnmount() {
     this.mounted = false;
     this.removeEventListeners();
+    this.clearIntervals();
   }
 
   addEventListeners = () => {
@@ -123,6 +127,11 @@ export class TooltipInner extends React.Component<Props, State> {
   removeEventListeners = () => {
     window.removeEventListener('resize', this.throttledPositionTooltip);
     window.removeEventListener('scroll', this.throttledPositionTooltip);
+  };
+
+  clearIntervals = () => {
+    window.clearInterval(this.mouseEnterInterval);
+    window.clearInterval(this.mouseLeaveInterval);
   };
 
   isVisible = () => {
@@ -235,13 +244,29 @@ export class TooltipInner extends React.Component<Props, State> {
       window.clearInterval(this.mouseEnterInterval);
       this.mouseEnterInterval = undefined;
     }
-    if (this.props.visible === undefined) {
-      this.setState({ visible: false });
-    }
 
-    if (this.props.onHide) {
-      this.props.onHide();
+    if (!this.mouseIn) {
+      this.mouseLeaveInterval = window.setTimeout(() => {
+        if (this.mounted) {
+          if (this.props.visible === undefined && !this.mouseIn) {
+            this.setState({ visible: false });
+          }
+        }
+      }, (this.props.mouseLeaveDelay || 0) * 1000);
+
+      if (this.props.onHide) {
+        this.props.onHide();
+      }
     }
+  };
+
+  handleOverlayMouseEnter = () => {
+    this.mouseIn = true;
+  };
+
+  handleOverlayMouseLeave = () => {
+    this.mouseIn = false;
+    this.handleMouseLeave();
   };
 
   render() {
@@ -257,6 +282,8 @@ export class TooltipInner extends React.Component<Props, State> {
           <TooltipPortal>
             <div
               className={`${classNameSpace} ${this.getPlacement()}`}
+              onMouseEnter={this.handleOverlayMouseEnter}
+              onMouseLeave={this.handleOverlayMouseLeave}
               ref={this.tooltipNodeRef}
               style={
                 isMeasured(this.state)

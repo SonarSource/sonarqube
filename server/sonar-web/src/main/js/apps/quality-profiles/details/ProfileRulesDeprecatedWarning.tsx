@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { Link } from 'react-router';
-import Tooltip from '../../../components/controls/Tooltip';
+import HelpTooltip from '../../../components/controls/HelpTooltip';
 import { getDeprecatedActiveRulesUrl } from '../../../helpers/urls';
 import { translate } from '../../../helpers/l10n';
 
@@ -33,10 +33,11 @@ export default function ProfileRulesDeprecatedWarning(props: Props) {
   return (
     <div className="quality-profile-rules-deprecated clearfix">
       <span className="pull-left">
-        {translate('quality_profiles.deprecated_rules')}
-        <Tooltip overlay={translate('quality_profiles.deprecated_rules_description')}>
-          <i className="icon-help spacer-left" />
-        </Tooltip>
+        <span className="text-middle">{translate('quality_profiles.deprecated_rules')}</span>
+        <HelpTooltip
+          className="spacer-left"
+          overlay={translate('quality_profiles.deprecated_rules_description')}
+        />
       </span>
       <Link
         className="pull-right"

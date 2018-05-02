@@ -20,7 +20,6 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import DocTooltip from '../DocTooltip';
-import { click } from '../../../helpers/testUtils';
 
 jest.useFakeTimers();
 
@@ -37,12 +36,4 @@ it('should reset state when receiving new doc', () => {
   wrapper.setState({ content: 'this is *bold* text', open: true });
   wrapper.setProps({ doc: 'baz' });
   expect(wrapper.state()).toEqual({ content: undefined, loading: false, open: false });
-});
-
-it('should toggle', () => {
-  const wrapper = shallow(<DocTooltip doc="foo/bar" />);
-  expect(wrapper.state('open')).toBe(false);
-  click(wrapper.find('a'));
-  jest.runAllTimers();
-  expect(wrapper.state('open')).toBe(true);
 });

@@ -19,8 +19,7 @@
  */
 import * as React from 'react';
 import OpenCloseIcon from '../icons-components/OpenCloseIcon';
-import HelpIcon from '../icons-components/HelpIcon';
-import Tooltip from '../controls/Tooltip';
+import HelpTooltip from '../controls/HelpTooltip';
 import { Button } from '../ui/buttons';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 
@@ -47,13 +46,7 @@ export default class FacetHeader extends React.PureComponent<Props> {
     if (!this.props.helper) {
       return null;
     }
-    return (
-      <Tooltip overlay={this.props.helper}>
-        <span>
-          <HelpIcon className="spacer-left text-info" />
-        </span>
-      </Tooltip>
-    );
+    return <HelpTooltip className="spacer-left" overlay={this.props.helper} />;
   }
 
   renderValueIndicator() {
@@ -77,7 +70,7 @@ export default class FacetHeader extends React.PureComponent<Props> {
     return (
       <div className="search-navigator-facet-header-wrapper">
         {this.props.onClick ? (
-          <span className="search-navigator-facet-header">
+          <span className="search-navigator-facet-header display-flex-center">
             <a href="#" onClick={this.handleClick}>
               <OpenCloseIcon className="little-spacer-right" open={this.props.open} />
               {this.props.name}
@@ -85,7 +78,7 @@ export default class FacetHeader extends React.PureComponent<Props> {
             {this.renderHelper()}
           </span>
         ) : (
-          <span className="search-navigator-facet-header">
+          <span className="search-navigator-facet-header display-flex-center">
             {this.props.name}
             {this.renderHelper()}
           </span>

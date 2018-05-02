@@ -20,12 +20,14 @@
 import * as React from 'react';
 import EmbedDocsPopup from './EmbedDocsPopup';
 import { SuggestionLink } from './SuggestionsProvider';
+import { CurrentUser } from '../../types';
 import BubblePopupHelper from '../../../components/common/BubblePopupHelper';
 import HelpIcon from '../../../components/icons-components/HelpIcon';
 import Tooltip from '../../../components/controls/Tooltip';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {
+  currentUser: CurrentUser;
   showTooltip: boolean;
   suggestions: Array<SuggestionLink>;
   tooltip: boolean;
@@ -79,7 +81,13 @@ export default class EmbedDocsPopupHelper extends React.PureComponent<Props, Sta
       <BubblePopupHelper
         isOpen={this.state.helpOpen}
         offset={{ horizontal: 12, vertical: -10 }}
-        popup={<EmbedDocsPopup onClose={this.closeHelp} suggestions={this.props.suggestions} />}
+        popup={
+          <EmbedDocsPopup
+            currentUser={this.props.currentUser}
+            onClose={this.closeHelp}
+            suggestions={this.props.suggestions}
+          />
+        }
         position="bottomleft"
         togglePopup={this.setHelpDisplay}>
         <Tooltip

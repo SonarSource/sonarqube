@@ -25,18 +25,15 @@ exports[`renders message about ignored conditions 1`] = `
   <div
     className="alert alert-info display-inline-block big-spacer-top"
   >
-    overview.quality_gate.ignored_conditions
-    <Tooltip
-      overlay="overview.quality_gate.ignored_conditions.tooltip"
+    <span
+      className="text-middle"
     >
-      <span
-        className="spacer-left"
-      >
-        <HelpIcon
-          fill="#4b9fd5"
-        />
-      </span>
-    </Tooltip>
+      overview.quality_gate.ignored_conditions
+    </span>
+    <HelpTooltip
+      className="spacer-left"
+      overlay="overview.quality_gate.ignored_conditions.tooltip"
+    />
   </div>
 </div>
 `;

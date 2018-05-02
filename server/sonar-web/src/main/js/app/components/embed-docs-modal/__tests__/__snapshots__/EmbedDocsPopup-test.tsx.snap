@@ -48,7 +48,7 @@ exports[`should display suggestion links 1`] = `
         style={Object {}}
         to="/documentation"
       >
-        embed_docs.documentation_index
+        embed_docs.documentation
       </Link>
     </li>
     <li>
@@ -110,6 +110,9 @@ exports[`should display suggestion links 1`] = `
           Stack Overflow
         </a>
       </li>
+      <li
+        className="divider"
+      />
       <li
         className="dropdown-header"
       >

@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import HelpTooltip from '../../../../components/controls/HelpTooltip';
 import Tooltip from '../../../../components/controls/Tooltip';
 import { translate, translateWithParameters } from '../../../../helpers/l10n';
 
@@ -69,13 +70,11 @@ export default class PermissionHeader extends React.PureComponent<Props> {
               'global_permissions.filter_by_x_permission',
               permission.name
             )}>
-            <a href="#" onClick={this.handlePermissionClick}>
+            <a className="text-middle" href="#" onClick={this.handlePermissionClick}>
               {permission.name}
             </a>
           </Tooltip>
-          <Tooltip overlay={this.renderTooltip(permission)}>
-            <i className="icon-help little-spacer-left" />
-          </Tooltip>
+          <HelpTooltip className="spacer-left" overlay={this.renderTooltip(permission)} />
         </div>
       </th>
     );

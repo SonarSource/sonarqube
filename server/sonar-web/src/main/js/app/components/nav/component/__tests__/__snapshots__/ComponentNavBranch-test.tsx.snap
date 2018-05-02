@@ -36,9 +36,15 @@ exports[`renders main branch 1`] = `
 `;
 
 exports[`renders no branch support popup 1`] = `
-<Popup
-  overlay={<NoBranchSupportPopup />}
-/>
+<DocTooltip
+  className="spacer-left"
+  doc="branches/no-branch-support"
+>
+  <PlusCircleIcon
+    fill="#b4b4b4"
+    size={12}
+  />
+</DocTooltip>
 `;
 
 exports[`renders pull request 1`] = `
@@ -150,7 +156,13 @@ exports[`renders short-living branch 1`] = `
 `;
 
 exports[`renders single branch popup 1`] = `
-<Popup
-  overlay={<SingleBranchHelperPopup />}
-/>
+<DocTooltip
+  className="spacer-left"
+  doc="branches/single-branch"
+>
+  <PlusCircleIcon
+    fill="#4b9fd5"
+    size={12}
+  />
+</DocTooltip>
 `;

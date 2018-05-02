@@ -21,13 +21,13 @@ exports[`should render correctly 1`] = `
       id="webhooks.description"
       values={
         Object {
-          "url": <a
-            href="https://redirect.sonarsource.com/doc/webhooks.html"
-            rel="noopener noreferrer"
-            target="_blank"
+          "url": <Link
+            onlyActiveOnIndex={false}
+            style={Object {}}
+            to="/documentation/webhooks"
           >
             webhooks.documentation_link
-          </a>,
+          </Link>,
         }
       }
     />

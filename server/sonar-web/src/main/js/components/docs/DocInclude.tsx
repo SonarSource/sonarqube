@@ -21,6 +21,7 @@ import * as React from 'react';
 import DocMarkdownBlock from './DocMarkdownBlock';
 
 interface Props {
+  className?: string;
   path: string;
 }
 
@@ -67,6 +68,6 @@ export default class DocInclude extends React.PureComponent<Props, State> {
   };
 
   render() {
-    return <DocMarkdownBlock content={this.state.content} />;
+    return <DocMarkdownBlock className={this.props.className} content={this.state.content} />;
   }
 }

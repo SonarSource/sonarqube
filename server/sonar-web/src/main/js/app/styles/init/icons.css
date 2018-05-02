@@ -430,12 +430,6 @@ a:hover > .icon-radio {
   }
 }
 
-.icon-help:before {
-  content: '\f059';
-  color: var(--blue);
-  font-size: var(--bigFontSize);
-}
-
 .icon-close:before {
   content: '\f00d';
   font-size: var(--bigFontSize);

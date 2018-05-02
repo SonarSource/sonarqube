@@ -18,15 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import * as classNames from 'classnames';
 import DocMarkdownBlock from './DocMarkdownBlock';
-import HelpIcon from '../icons-components/HelpIcon';
-import Tooltip from '../controls/Tooltip';
-import OutsideClickHandler from '../controls/OutsideClickHandler';
-import * as theme from '../../app/theme';
+import HelpTooltip from '../controls/HelpTooltip';
 
 interface Props {
   className?: string;
+  children?: React.ReactNode;
   /** Key of the documentation chunk */
   doc: string;
 }
@@ -77,23 +74,6 @@ export default class DocTooltip extends React.PureComponent<Props, State> {
     this.setState({ open: false });
   };
 
-  handleHelpClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
-    event.preventDefault();
-    event.currentTarget.blur();
-    if (!this.state.open && !this.state.loading && this.state.content === undefined) {
-      this.fetchContent();
-    }
-
-    if (this.state.open) {
-      this.setState({ open: false });
-    } else {
-      // defer opening to not trigger OutsideClickHandler.onClickOutside callback
-      setTimeout(() => {
-        this.setState({ open: true });
-      }, 0);
-    }
-  };
-
   renderOverlay() {
     if (this.state.loading) {
       return (
@@ -103,32 +83,17 @@ export default class DocTooltip extends React.PureComponent<Props, State> {
       );
     }
 
-    return (
-      <OutsideClickHandler onClickOutside={this.close}>
-        {({ ref }) => (
-          <div ref={ref}>
-            <DocMarkdownBlock className="cut-margins abs-width-300" content={this.state.content} />
-          </div>
-        )}
-      </OutsideClickHandler>
-    );
+    return <DocMarkdownBlock className="cut-margins abs-width-300" content={this.state.content} />;
   }
 
   render() {
     return (
-      <div className={classNames('display-flex-center', this.props.className)}>
-        <Tooltip
-          classNameSpace="popup"
-          overlay={this.renderOverlay()}
-          visible={this.state.content !== undefined && this.state.open}>
-          <a
-            className="display-flex-center link-no-underline"
-            href="#"
-            onClick={this.handleHelpClick}>
-            <HelpIcon fill={theme.gray80} size={12} />
-          </a>
-        </Tooltip>
-      </div>
+      <HelpTooltip
+        className={this.props.className}
+        onShow={this.fetchContent}
+        overlay={this.renderOverlay()}>
+        {this.props.children}
+      </HelpTooltip>
     );
   }
 }

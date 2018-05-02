@@ -5,7 +5,7 @@ exports[`should clear 1`] = `
   className="search-navigator-facet-header-wrapper"
 >
   <span
-    className="search-navigator-facet-header"
+    className="search-navigator-facet-header display-flex-center"
   >
     <a
       href="#"
@@ -42,7 +42,7 @@ exports[`should render closed facet with value 1`] = `
   className="search-navigator-facet-header-wrapper"
 >
   <span
-    className="search-navigator-facet-header"
+    className="search-navigator-facet-header display-flex-center"
   >
     <a
       href="#"
@@ -73,7 +73,7 @@ exports[`should render closed facet without value 1`] = `
   className="search-navigator-facet-header-wrapper"
 >
   <span
-    className="search-navigator-facet-header"
+    className="search-navigator-facet-header display-flex-center"
   >
     <a
       href="#"
@@ -97,7 +97,7 @@ exports[`should render open facet with value 1`] = `
   className="search-navigator-facet-header-wrapper"
 >
   <span
-    className="search-navigator-facet-header"
+    className="search-navigator-facet-header display-flex-center"
   >
     <a
       href="#"
@@ -121,7 +121,7 @@ exports[`should render open facet without value 1`] = `
   className="search-navigator-facet-header-wrapper"
 >
   <span
-    className="search-navigator-facet-header"
+    className="search-navigator-facet-header display-flex-center"
   >
     <a
       href="#"
@@ -145,7 +145,7 @@ exports[`should render without link 1`] = `
   className="search-navigator-facet-header-wrapper"
 >
   <span
-    className="search-navigator-facet-header"
+    className="search-navigator-facet-header display-flex-center"
   >
     foo
   </span>

@@ -167,16 +167,10 @@ exports[`renders status of short-living branches 4`] = `
       className="little-spacer-left"
     />
   </li>
-  <Tooltip
+  <HelpTooltip
+    className="spacer-left"
     overlay="branches.short_lived.quality_gate.description.1"
-  >
-    <li
-      className="spacer-left"
-    >
-      <HelpIcon
-        className="text-info"
-      />
-    </li>
-  </Tooltip>
+    tagName="li"
+  />
 </ul>
 `;

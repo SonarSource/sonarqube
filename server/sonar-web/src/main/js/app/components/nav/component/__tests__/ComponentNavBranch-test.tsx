@@ -114,7 +114,7 @@ it('renders single branch popup', () => {
     />,
     { context: { branchesEnabled: true } }
   );
-  expect(wrapper.find('Popup')).toMatchSnapshot();
+  expect(wrapper.find('DocTooltip')).toMatchSnapshot();
 });
 
 it('renders no branch support popup', () => {
@@ -127,7 +127,7 @@ it('renders no branch support popup', () => {
     />,
     { context: { branchesEnabled: false } }
   );
-  expect(wrapper.find('Popup')).toMatchSnapshot();
+  expect(wrapper.find('DocTooltip')).toMatchSnapshot();
 });
 
 it('renders nothing on SonarCloud without branch support', () => {

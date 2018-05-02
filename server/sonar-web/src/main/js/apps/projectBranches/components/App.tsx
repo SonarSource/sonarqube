@@ -32,7 +32,7 @@ import {
 import { translate } from '../../../helpers/l10n';
 import { getValues } from '../../../api/settings';
 import { formatMeasure } from '../../../helpers/measures';
-import Tooltip from '../../../components/controls/Tooltip';
+import HelpTooltip from '../../../components/controls/HelpTooltip';
 
 interface Props {
   branchLikes: BranchLike[];
@@ -154,10 +154,13 @@ export default class App extends React.PureComponent<Props, State> {
                   <React.Fragment key={getBranchLikeKey(branchLike)}>
                     {showOrphanHeader && (
                       <li className="dropdown-header">
-                        {translate('branches.orphan_branches')}
-                        <Tooltip overlay={translate('branches.orphan_branches.tooltip')}>
-                          <i className="icon-help spacer-left" />
-                        </Tooltip>
+                        <div className="display-inline-block text-middle">
+                          {translate('branches.orphan_branches')}
+                        </div>
+                        <HelpTooltip
+                          className="spacer-left"
+                          overlay={translate('branches.orphan_branches.tooltip')}
+                        />
                       </li>
                     )}
                     <BranchRow

@@ -20,14 +20,14 @@
 import * as React from 'react';
 import * as classNames from 'classnames';
 import Tooltip from '../../../components/controls/Tooltip';
+import DocInclude from '../../../components/docs/DocInclude';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {
   className?: string;
-  tooltip?: boolean;
 }
 
-export default function BuiltInQualityGateBadge({ className, tooltip = true }: Props) {
+export default function BuiltInQualityGateBadge({ className }: Props) {
   const badge = (
     <div className={classNames('outline-badge', className)}>
       {translate('quality_gates.built_in')}
@@ -35,13 +35,11 @@ export default function BuiltInQualityGateBadge({ className, tooltip = true }: P
   );
 
   const overlay = (
-    <div>
-      <span>{translate('quality_gates.built_in.description.1')}</span>
-      <span className="little-spacer-left">
-        {translate('quality_gates.built_in.description.2')}
-      </span>
-    </div>
+    <DocInclude
+      className="abs-width-300 cut-margins"
+      path="/tooltips/quality-gates/built-in-quality-gate"
+    />
   );
 
-  return <Tooltip overlay={tooltip ? overlay : undefined}>{badge}</Tooltip>;
+  return <Tooltip overlay={overlay}>{badge}</Tooltip>;
 }

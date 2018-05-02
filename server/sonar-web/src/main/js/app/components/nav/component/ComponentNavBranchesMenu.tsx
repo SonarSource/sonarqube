@@ -34,7 +34,7 @@ import {
 import { translate } from '../../../../helpers/l10n';
 import { getBranchLikeUrl } from '../../../../helpers/urls';
 import SearchBox from '../../../../components/controls/SearchBox';
-import Tooltip from '../../../../components/controls/Tooltip';
+import HelpTooltip from '../../../../components/controls/HelpTooltip';
 
 interface Props {
   branchLikes: BranchLike[];
@@ -196,10 +196,13 @@ export default class ComponentNavBranchesMenu extends React.PureComponent<Props,
           {showDivider && <li className="divider" />}
           {showOrphanHeader && (
             <li className="dropdown-header">
-              {translate('branches.orphan_branches')}
-              <Tooltip overlay={translate('branches.orphan_branches.tooltip')}>
-                <i className="icon-help spacer-left" />
-              </Tooltip>
+              <div className="display-inline-block text-middle">
+                {translate('branches.orphan_branches')}
+              </div>
+              <HelpTooltip
+                className="spacer-left"
+                overlay={translate('branches.orphan_branches.tooltip')}
+              />
             </li>
           )}
           {showPullRequestHeader && (

@@ -25,8 +25,7 @@ import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { RATING_COLORS } from '../../../helpers/constants';
 import { getProjectUrl } from '../../../helpers/urls';
 import { Project } from '../types';
-import Tooltip from '../../../components/controls/Tooltip';
-import HelpIcon from '../../../components/icons-components/HelpIcon';
+import HelpTooltip from '../../../components/controls/HelpTooltip';
 
 export interface Metric {
   key: string;
@@ -129,12 +128,8 @@ export default class SimpleBubbleChart extends React.PureComponent<Props> {
         </div>
         <div className="measure-details-bubble-chart-axis size">
           <span className="measure-details-bubble-chart-title">
-            {this.props.title}
-            <Tooltip overlay={this.props.helpText}>
-              <span className="spacer-left text-info">
-                <HelpIcon className="text-bottom" />
-              </span>
-            </Tooltip>
+            <span className="text-middle">{this.props.title}</span>
+            <HelpTooltip className="spacer-left" overlay={this.props.helpText} />
           </span>
           <div>
             {colorMetric != null && (

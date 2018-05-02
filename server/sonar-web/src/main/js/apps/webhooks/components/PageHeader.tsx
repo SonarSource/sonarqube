@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
+import { Link } from 'react-router';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {
@@ -40,12 +41,7 @@ export default function PageHeader({ children, loading }: Props) {
           id={'webhooks.description'}
           values={{
             url: (
-              <a
-                href="https://redirect.sonarsource.com/doc/webhooks.html"
-                rel="noopener noreferrer"
-                target="_blank">
-                {translate('webhooks.documentation_link')}
-              </a>
+              <Link to="/documentation/webhooks">{translate('webhooks.documentation_link')}</Link>
             )
           }}
         />

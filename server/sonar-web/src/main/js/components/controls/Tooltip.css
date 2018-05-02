@@ -17,8 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-.tooltip,
-.popup {
+.tooltip {
   position: absolute;
   z-index: var(--tooltipZIndex);
   display: block;
@@ -33,37 +32,27 @@
   animation: fadeIn 0.3s forwards;
 }
 
-.popup {
-  font-size: var(--baseFontSize);
-  font-weight: normal;
-}
-
-.tooltip.top,
-.popup.top {
+.tooltip.top {
   padding: 5px 0;
   margin-top: -3px;
 }
 
-.tooltip.right,
-.popup.right {
+.tooltip.right {
   padding: 0 5px;
   margin-left: 3px;
 }
 
-.tooltip.bottom,
-.popup.bottom {
+.tooltip.bottom {
   padding: 5px 0;
   margin-top: 3px;
 }
 
-.tooltip.left,
-.popup.left {
+.tooltip.left {
   padding: 0 5px;
   margin-left: -3px;
 }
 
-.tooltip-inner,
-.popup-inner {
+.tooltip-inner {
   max-width: 300px;
   text-align: left;
   text-decoration: none;
@@ -73,18 +62,10 @@
 }
 
 .tooltip-inner {
-  padding: 3px 8px;
+  padding: 12px 17px;
   color: #fff;
   background-color: #475760;
   letter-spacing: 0.04em;
-}
-
-.popup-inner {
-  padding: calc(2 * var(--gridSize));
-  border: 1px solid var(--barBorderColor);
-  color: var(--baseFontColor);
-  background-color: #fff;
-  box-shadow: var(--defaultShadow);
 }
 
 .tooltip-inner .alert {
@@ -93,21 +74,22 @@
 }
 
 .tooltip-inner a {
-  color: var(--lightBlue);
+  border-bottom-color: #8da6b3;
+  color: #a5d0ea;
 }
 
-.tooltip-arrow,
-.popup-arrow,
-.popup-arrow::after {
+.tooltip-inner hr {
+  background-color: #5d6d75;
+}
+
+.tooltip-arrow {
   position: absolute;
   width: 0;
   height: 0;
   border: solid transparent;
 }
 
-.tooltip.top .tooltip-arrow,
-.popup.top .popup-arrow,
-.popup.top .popup-arrow::after {
+.tooltip.top .tooltip-arrow {
   bottom: 0;
   left: 50%;
   border-width: 5px 5px 0;
@@ -118,19 +100,7 @@
   border-top-color: #475760;
 }
 
-.popup.top .popup-arrow {
-  border-top-color: var(--barBorderColor);
-}
-
-.popup.top .popup-arrow::after {
-  content: '';
-  border-top-color: #fff;
-  transform: translateX(-5px) translateY(-1px);
-}
-
-.tooltip.right .tooltip-arrow,
-.popup.right .popup-arrow,
-.popup.right .popup-arrow::after {
+.tooltip.right .tooltip-arrow {
   top: 50%;
   left: 0;
   transform: translateY(-5px);
@@ -142,19 +112,7 @@
   border-right-color: #475760;
 }
 
-.popup.right .popup-arrow {
-  border-right-color: var(--barBorderColor);
-}
-
-.popup.right .popup-arrow::after {
-  content: '';
-  border-right-color: #fff;
-  transform: translateY(-5px) translateX(1px);
-}
-
-.tooltip.left .tooltip-arrow,
-.popup.left .popup-arrow,
-.popup.left .popup-arrow::after {
+.tooltip.left .tooltip-arrow {
   top: 50%;
   right: 0;
   transform: translateY(-5px);
@@ -166,19 +124,7 @@
   border-left-color: #475760;
 }
 
-.popup.left .popup-arrow {
-  border-left-color: var(--barBorderColor);
-}
-
-.popup.left .popup-arrow::after {
-  content: '';
-  border-left-color: #fff;
-  transform: translateY(-5px) translateX(-1px);
-}
-
-.tooltip.bottom .tooltip-arrow,
-.popup.bottom .popup-arrow,
-.popup.bottom .popup-arrow::after {
+.tooltip.bottom .tooltip-arrow {
   top: 0;
   left: 50%;
   transform: translateX(-5px);
@@ -188,16 +134,6 @@
 
 .tooltip.bottom .tooltip-arrow {
   border-bottom-color: #475760;
-}
-
-.popup.bottom .popup-arrow {
-  border-bottom-color: var(--barBorderColor);
-}
-
-.popup.bottom .popup-arrow::after {
-  content: '';
-  border-bottom-color: #fff;
-  transform: translateX(-5px) translateY(1px);
 }
 
 @keyframes fadeIn {

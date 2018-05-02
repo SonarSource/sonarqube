@@ -101,18 +101,15 @@ exports[`render qualifiers filter 1`] = `
             thirdState={false}
           >
             <span
-              className="little-spacer-left"
+              className="text-middle little-spacer-left"
             >
               provisioning.only_provisioned
-              <Tooltip
-                overlay="provisioning.only_provisioned.tooltip"
-              >
-                <i
-                  className="spacer-left icon-help"
-                />
-              </Tooltip>
             </span>
           </Checkbox>
+          <HelpTooltip
+            className="spacer-left"
+            overlay="provisioning.only_provisioned.tooltip"
+          />
         </td>
         <td
           className="text-middle"
@@ -188,18 +185,15 @@ exports[`renders 1`] = `
             thirdState={false}
           >
             <span
-              className="little-spacer-left"
+              className="text-middle little-spacer-left"
             >
               provisioning.only_provisioned
-              <Tooltip
-                overlay="provisioning.only_provisioned.tooltip"
-              >
-                <i
-                  className="spacer-left icon-help"
-                />
-              </Tooltip>
             </span>
           </Checkbox>
+          <HelpTooltip
+            className="spacer-left"
+            overlay="provisioning.only_provisioned.tooltip"
+          />
         </td>
         <td
           className="text-middle"

@@ -20,10 +20,8 @@
 import * as React from 'react';
 import * as classNames from 'classnames';
 import { translateWithParameters } from '../../../helpers/l10n';
-import * as theme from '../../../app/theme';
 import { IdentityProvider } from '../../../app/types';
-import Tooltip from '../../../components/controls/Tooltip';
-import HelpIcon from '../../../components/icons-components/HelpIcon';
+import HelpTooltip from '../../../components/controls/HelpTooltip';
 import { isDarkColor } from '../../../helpers/colors';
 import { getBaseUrl } from '../../../helpers/urls';
 import './OAuthProviders.css';
@@ -80,11 +78,7 @@ function OAuthProvider({ format, identityProvider, returnTo }: ItemProps) {
         <span>{format(identityProvider.name)}</span>
       </a>
       {identityProvider.helpMessage && (
-        <Tooltip overlay={identityProvider.helpMessage}>
-          <div className="oauth-providers-help">
-            <HelpIcon fill={theme.blue} />
-          </div>
-        </Tooltip>
+        <HelpTooltip className="oauth-providers-help" overlay={identityProvider.helpMessage} />
       )}
     </li>
   );

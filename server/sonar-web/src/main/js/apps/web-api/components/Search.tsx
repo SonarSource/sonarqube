@@ -19,8 +19,7 @@
  */
 import * as React from 'react';
 import Checkbox from '../../../components/controls/Checkbox';
-import HelpIcon from '../../../components/icons-components/HelpIcon';
-import Tooltip from '../../../components/controls/Tooltip';
+import HelpTooltip from '../../../components/controls/HelpTooltip';
 import { translate } from '../../../helpers/l10n';
 import SearchBox from '../../../components/controls/SearchBox';
 
@@ -42,27 +41,25 @@ export default function Search(props: Props) {
       </div>
 
       <div className="big-spacer-top">
-        <Checkbox checked={showInternal} onCheck={onToggleInternal}>
+        <Checkbox checked={showInternal} className="text-middle" onCheck={onToggleInternal}>
           <span className="little-spacer-left">{translate('api_documentation.show_internal')}</span>
         </Checkbox>
-        <Tooltip overlay={translate('api_documentation.internal_tooltip')}>
-          <span>
-            <HelpIcon className="spacer-left text-info" />
-          </span>
-        </Tooltip>
+        <HelpTooltip
+          className="spacer-left"
+          overlay={translate('api_documentation.internal_tooltip')}
+        />
       </div>
 
       <div className="spacer-top">
-        <Checkbox checked={showDeprecated} onCheck={onToggleDeprecated}>
+        <Checkbox checked={showDeprecated} className="text-middle" onCheck={onToggleDeprecated}>
           <span className="little-spacer-left">
             {translate('api_documentation.show_deprecated')}
           </span>
         </Checkbox>
-        <Tooltip overlay={translate('api_documentation.deprecation_tooltip')}>
-          <span>
-            <HelpIcon className="spacer-left text-info" />
-          </span>
-        </Tooltip>
+        <HelpTooltip
+          className="spacer-left"
+          overlay={translate('api_documentation.deprecation_tooltip')}
+        />
       </div>
     </div>
   );

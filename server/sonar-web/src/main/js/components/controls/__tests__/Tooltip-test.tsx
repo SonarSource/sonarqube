@@ -56,6 +56,8 @@ it('should open & close', () => {
   expect(onShow).toBeCalled();
 
   wrapper.find('#tooltip').simulate('mouseleave');
+  jest.runOnlyPendingTimers();
+  wrapper.update();
   expect(wrapper).toMatchSnapshot();
   expect(onHide).toBeCalled();
 });

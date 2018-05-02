@@ -20,7 +20,7 @@
 import * as React from 'react';
 import ProfileLink from '../components/ProfileLink';
 import BuiltInQualityProfileBadge from '../components/BuiltInQualityProfileBadge';
-import Tooltip from '../../../components/controls/Tooltip';
+import HelpTooltip from '../../../components/controls/HelpTooltip';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 
 interface Props {
@@ -50,19 +50,21 @@ export default function ProfileInheritanceBox({ displayLink = true, ...props }: 
         <div style={{ paddingLeft: offset }}>
           {displayLink ? (
             <ProfileLink
+              className="text-middle"
               language={props.language}
               name={profile.name}
               organization={props.organization}>
               {profile.name}
             </ProfileLink>
           ) : (
-            profile.name
+            <span className="text-middle">{profile.name}</span>
           )}
           {profile.isBuiltIn && <BuiltInQualityProfileBadge className="spacer-left" />}
           {extendsBuiltIn && (
-            <Tooltip overlay={translate('quality_profiles.extends_built_in')}>
-              <i className="icon-help spacer-left" />
-            </Tooltip>
+            <HelpTooltip
+              className="spacer-left"
+              overlay={translate('quality_profiles.extends_built_in')}
+            />
           )}
         </div>
       </td>

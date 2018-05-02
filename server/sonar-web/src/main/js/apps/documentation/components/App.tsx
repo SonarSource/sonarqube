@@ -27,6 +27,7 @@ import ScreenPositionHelper from '../../../components/common/ScreenPositionHelpe
 import DocMarkdownBlock from '../../../components/docs/DocMarkdownBlock';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import { translate } from '../../../helpers/l10n';
+import '../styles.css';
 
 interface Props {
   params: { splat?: string };
@@ -87,7 +88,7 @@ export default class App extends React.PureComponent<Props, State> {
     return (
       <div className="boxed-group">
         <DocMarkdownBlock
-          className="cut-margins boxed-group-inner"
+          className="documentation-content cut-margins boxed-group-inner"
           content={this.state.content}
           displayH1={true}
         />
@@ -122,7 +123,9 @@ export default class App extends React.PureComponent<Props, State> {
         </ScreenPositionHelper>
 
         <div className="layout-page-main">
-          <div className="layout-page-main-inner">{this.renderContent()}</div>
+          <div className="layout-page-main-inner documentation-layout-inner">
+            {this.renderContent()}
+          </div>
         </div>
       </div>
     );

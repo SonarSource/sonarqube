@@ -7,14 +7,15 @@ exports[`should render correctly 1`] = `
   <span
     className="pull-left"
   >
-    quality_profiles.deprecated_rules
-    <Tooltip
-      overlay="quality_profiles.deprecated_rules_description"
+    <span
+      className="text-middle"
     >
-      <i
-        className="icon-help spacer-left"
-      />
-    </Tooltip>
+      quality_profiles.deprecated_rules
+    </span>
+    <HelpTooltip
+      className="spacer-left"
+      overlay="quality_profiles.deprecated_rules_description"
+    />
   </span>
   <Link
     className="pull-right"

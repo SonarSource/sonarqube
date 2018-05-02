@@ -1,7 +1,16 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should render simple link 1`] = `
-<a
-  href="http://sample.com"
-/>
+<React.Fragment>
+  <a
+    className="text-middle"
+    href="http://sample.com"
+    rel="noopener noreferrer"
+    target="_blank"
+  />
+  <DetachIcon
+    className="text-middle text-muted little-spacer-left little-spacer-right"
+    size={12}
+  />
+</React.Fragment>
 `;

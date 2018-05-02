@@ -18,9 +18,28 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { shallow } from 'enzyme';
-import SingleBranchHelperPopup from '../SingleBranchHelperPopup';
+import * as classNames from 'classnames';
+import Tooltip from './Tooltip';
+import HelpIcon from '../icons-components/HelpIcon';
+import * as theme from '../../app/theme';
+import './HelpTooltip.css';
 
-it('renders', () => {
-  expect(shallow(<SingleBranchHelperPopup />)).toMatchSnapshot();
-});
+interface Props {
+  className?: string;
+  children?: React.ReactNode;
+  onShow?: () => void;
+  overlay: React.ReactNode;
+  tagName?: string;
+}
+
+export default function HelpTooltip(props: Props) {
+  const { children = <HelpIcon fill={theme.gray71} size={12} />, tagName = 'div' } = props;
+
+  return React.createElement(
+    tagName,
+    { className: classNames('help-tooltip', props.className) },
+    <Tooltip mouseLeaveDelay={0.25} onShow={props.onShow} overlay={props.overlay}>
+      <span className="display-inline-flex-center">{children}</span>
+    </Tooltip>
+  );
+}

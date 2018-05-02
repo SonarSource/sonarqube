@@ -101,6 +101,7 @@ class GlobalNav extends React.PureComponent<Props, State> {
           <GlobalNavExplore location={this.props.location} onSonarCloud={this.props.onSonarCloud} />
           <li>
             <EmbedDocsPopupHelper
+              currentUser={this.props.currentUser}
               showTooltip={this.state.onboardingTutorialTooltip}
               suggestions={this.props.suggestions}
               tooltip={!this.props.onSonarCloud}

@@ -21,11 +21,13 @@ import * as React from 'react';
 import * as PropTypes from 'prop-types';
 import { Link } from 'react-router';
 import { SuggestionLink } from './SuggestionsProvider';
+import { CurrentUser, isLoggedIn } from '../../types';
 import BubblePopup, { BubblePopupPosition } from '../../../components/common/BubblePopup';
 import { translate } from '../../../helpers/l10n';
 import { getBaseUrl } from '../../../helpers/urls';
 
 interface Props {
+  currentUser: CurrentUser;
   onClose: () => void;
   popupPosition?: BubblePopupPosition;
   suggestions: Array<SuggestionLink>;
@@ -93,6 +95,7 @@ export default class EmbedDocsPopup extends React.PureComponent<Props> {
             translate('embed_docs.contact_form')
           )}
         </li>
+        <li className="divider" />
         {this.renderTitle(translate('embed_docs.stay_connected'))}
         <li>
           {this.renderIconLink('https://about.sonarcloud.io/news/', 'sc-icon.svg', 'Product News')}
@@ -107,11 +110,13 @@ export default class EmbedDocsPopup extends React.PureComponent<Props> {
   renderSonarQubeLinks() {
     return (
       <React.Fragment>
-        <li>
-          <a href="#" onClick={this.onAnalyzeProjectClick}>
-            {translate('embed_docs.analyze_new_project')}
-          </a>
-        </li>
+        {isLoggedIn(this.props.currentUser) && (
+          <li>
+            <a href="#" onClick={this.onAnalyzeProjectClick}>
+              {translate('embed_docs.analyze_new_project')}
+            </a>
+          </li>
+        )}
         <li className="divider" />
         {this.renderTitle(translate('embed_docs.get_support'))}
         <li>
@@ -128,6 +133,7 @@ export default class EmbedDocsPopup extends React.PureComponent<Props> {
             'Stack Overflow'
           )}
         </li>
+        <li className="divider" />
         {this.renderTitle(translate('embed_docs.stay_connected'))}
         <li>
           {this.renderIconLink('https://blog.sonarsource.com/', 'sq-icon.svg', 'Product News')}
@@ -148,7 +154,7 @@ export default class EmbedDocsPopup extends React.PureComponent<Props> {
           {this.renderSuggestions()}
           <li>
             <Link onClick={this.props.onClose} to="/documentation">
-              {translate('embed_docs.documentation_index')}
+              {translate('embed_docs.documentation')}
             </Link>
           </li>
           <li>

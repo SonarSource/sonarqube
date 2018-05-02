@@ -100,16 +100,15 @@ exports[`renders 1`] = `
     <span
       className="measure-details-bubble-chart-title"
     >
-      projects.visualization.risk
-      <Tooltip
-        overlay="foobar"
+      <span
+        className="text-middle"
       >
-        <span
-          className="spacer-left text-info"
-        >
-          <HelpIcon />
-        </span>
-      </Tooltip>
+        projects.visualization.risk
+      </span>
+      <HelpTooltip
+        className="spacer-left"
+        overlay="foobar"
+      />
     </span>
     <div>
       <span

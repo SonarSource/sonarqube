@@ -30,13 +30,13 @@ public class QualityProfilePage {
   public QualityProfilePage shouldHaveMissingSonarWayRules(Integer nbRules) {
     Selenide.$(".quality-profile-rules-sonarway-missing")
       .shouldBe(Condition.visible)
-      .$("a").shouldHave(Condition.text(nbRules.toString()));
+      .shouldHave(Condition.text(nbRules.toString()));
     return this;
   }
 
   public RulesPage showMissingSonarWayRules() {
     Selenide.$(".quality-profile-rules-sonarway-missing")
-      .shouldBe(Condition.visible).$("a").click();
+      .shouldBe(Condition.visible).$("[data-test=\"rules\"]").click();
     return Selenide.page(RulesPage.class);
   }
 

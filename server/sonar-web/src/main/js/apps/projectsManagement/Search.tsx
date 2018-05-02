@@ -26,7 +26,7 @@ import { Organization } from '../../app/types';
 import Checkbox from '../../components/controls/Checkbox';
 import { translate } from '../../helpers/l10n';
 import QualifierIcon from '../../components/shared/QualifierIcon';
-import Tooltip from '../../components/controls/Tooltip';
+import HelpTooltip from '../../components/controls/HelpTooltip';
 import DateInput from '../../components/controls/DateInput';
 import Select from '../../components/controls/Select';
 import SearchBox from '../../components/controls/SearchBox';
@@ -156,13 +156,14 @@ export default class Search extends React.PureComponent<Props, State> {
           className="link-checkbox-control"
           id="projects-provisioned"
           onCheck={this.props.onProvisionedChanged}>
-          <span className="little-spacer-left">
+          <span className="text-middle little-spacer-left">
             {translate('provisioning.only_provisioned')}
-            <Tooltip overlay={translate('provisioning.only_provisioned.tooltip')}>
-              <i className="spacer-left icon-help" />
-            </Tooltip>
           </span>
         </Checkbox>
+        <HelpTooltip
+          className="spacer-left"
+          overlay={translate('provisioning.only_provisioned.tooltip')}
+        />
       </td>
     ) : null;
 

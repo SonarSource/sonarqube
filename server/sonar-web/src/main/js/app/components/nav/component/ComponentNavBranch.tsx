@@ -22,8 +22,7 @@ import * as classNames from 'classnames';
 import * as PropTypes from 'prop-types';
 import { FormattedMessage } from 'react-intl';
 import ComponentNavBranchesMenu from './ComponentNavBranchesMenu';
-import SingleBranchHelperPopup from './SingleBranchHelperPopup';
-import NoBranchSupportPopup from './NoBranchSupportPopup';
+import DocTooltip from '../../../../components/docs/DocTooltip';
 import { BranchLike, Component } from '../../../types';
 import * as theme from '../../../theme';
 import BranchIcon from '../../../../components/icons-components/BranchIcon';
@@ -35,7 +34,7 @@ import {
 } from '../../../../helpers/branches';
 import { translate } from '../../../../helpers/l10n';
 import PlusCircleIcon from '../../../../components/icons-components/PlusCircleIcon';
-import Popup from '../../../../components/controls/Popup';
+import HelpTooltip from '../../../../components/controls/HelpTooltip';
 import Tooltip from '../../../../components/controls/Tooltip';
 
 interface Props {
@@ -110,10 +109,11 @@ export default class ComponentNavBranch extends React.PureComponent<Props, State
     if (isShortLivingBranch(currentBranchLike)) {
       return currentBranchLike.isOrphan ? (
         <span className="note big-spacer-left text-ellipsis flex-shrink">
-          {translate('branches.orphan_branch')}
-          <Tooltip overlay={translate('branches.orphan_branches.tooltip')}>
-            <i className="icon-help spacer-left" />
-          </Tooltip>
+          <span className="text-middle">{translate('branches.orphan_branch')}</span>
+          <HelpTooltip
+            className="spacer-left"
+            overlay={translate('branches.orphan_branches.tooltip')}
+          />
         </span>
       ) : (
         <span className="note big-spacer-left">
@@ -138,26 +138,6 @@ export default class ComponentNavBranch extends React.PureComponent<Props, State
     }
   };
 
-  renderSingleBranchPopup = () => (
-    <Popup overlay={<SingleBranchHelperPopup />}>
-      {({ onClick }) => (
-        <a className="display-flex-center spacer-left link-no-underline" href="#" onClick={onClick}>
-          <PlusCircleIcon fill={theme.blue} size={12} />
-        </a>
-      )}
-    </Popup>
-  );
-
-  renderNoBranchSupportPopup = () => (
-    <Popup overlay={<NoBranchSupportPopup />}>
-      {({ onClick }) => (
-        <a className="display-flex-center spacer-left link-no-underline" href="#" onClick={onClick}>
-          <PlusCircleIcon fill={theme.gray80} size={12} />
-        </a>
-      )}
-    </Popup>
-  );
-
   render() {
     const { branchLikes, currentBranchLike } = this.props;
 
@@ -176,7 +156,9 @@ export default class ComponentNavBranch extends React.PureComponent<Props, State
             fill={theme.gray80}
           />
           <span className="note">{displayName}</span>
-          {this.renderNoBranchSupportPopup()}
+          <DocTooltip className="spacer-left" doc="branches/no-branch-support">
+            <PlusCircleIcon fill={theme.gray71} size={12} />
+          </DocTooltip>
         </div>
       );
     }
@@ -186,7 +168,9 @@ export default class ComponentNavBranch extends React.PureComponent<Props, State
         <div className="navbar-context-branches">
           <BranchIcon branchLike={currentBranchLike} className="little-spacer-right" />
           <span className="note">{displayName}</span>
-          {this.renderSingleBranchPopup()}
+          <DocTooltip className="spacer-left" doc="branches/single-branch">
+            <PlusCircleIcon fill={theme.blue} size={12} />
+          </DocTooltip>
         </div>
       );
     }

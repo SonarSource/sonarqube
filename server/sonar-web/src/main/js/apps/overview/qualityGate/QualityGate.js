@@ -21,12 +21,10 @@
 import React from 'react';
 import QualityGateConditions from './QualityGateConditions';
 import EmptyQualityGate from './EmptyQualityGate';
-import * as theme from '../../../app/theme';
 import { translate } from '../../../helpers/l10n';
 import Level from '../../../components/ui/Level';
-import Tooltip from '../../../components/controls/Tooltip';
+import HelpTooltip from '../../../components/controls/HelpTooltip';
 import DocTooltip from '../../../components/docs/DocTooltip';
-import HelpIcon from '../../../components/icons-components/HelpIcon';
 /*:: import type { Component, MeasuresList } from '../types'; */
 
 function parseQualityGateDetails(rawDetails /*: string */) {
@@ -73,12 +71,13 @@ export default function QualityGate({ branchLike, component, measures } /*: Prop
 
       {ignoredConditions && (
         <div className="alert alert-info display-inline-block big-spacer-top">
-          {translate('overview.quality_gate.ignored_conditions')}
-          <Tooltip overlay={translate('overview.quality_gate.ignored_conditions.tooltip')}>
-            <span className="spacer-left">
-              <HelpIcon fill={theme.blue} />
-            </span>
-          </Tooltip>
+          <span className="text-middle">
+            {translate('overview.quality_gate.ignored_conditions')}
+          </span>
+          <HelpTooltip
+            className="spacer-left"
+            overlay={translate('overview.quality_gate.ignored_conditions.tooltip')}
+          />
         </div>
       )}
 

@@ -28,7 +28,7 @@ import SearchSelect from '../../../components/controls/SearchSelect';
 import Checkbox from '../../../components/controls/Checkbox';
 import Modal from '../../../components/controls/Modal';
 import Select from '../../../components/controls/Select';
-import Tooltip from '../../../components/controls/Tooltip';
+import HelpTooltip from '../../../components/controls/HelpTooltip';
 import SeverityHelper from '../../../components/shared/SeverityHelper';
 import Avatar from '../../../components/ui/Avatar';
 import { SubmitButton } from '../../../components/ui/buttons';
@@ -457,10 +457,11 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
     return (
       <div className="modal-field">
         <label htmlFor="comment">
-          {translate('issue.comment.formlink')}
-          <Tooltip overlay={translate('issue_bulk_change.comment.help')}>
-            <i className="icon-help little-spacer-left" />
-          </Tooltip>
+          <span className="text-middle">{translate('issue.comment.formlink')}</span>
+          <HelpTooltip
+            className="spacer-left"
+            overlay={translate('issue_bulk_change.comment.help')}
+          />
         </label>
         <div>
           <textarea

@@ -22,7 +22,7 @@ import StatusIndicator from './StatusIndicator';
 import Level from '../ui/Level';
 import BugIcon from '../icons-components/BugIcon';
 import CodeSmellIcon from '../icons-components/CodeSmellIcon';
-import HelpIcon from '../icons-components/HelpIcon';
+import HelpTooltip from '../controls/HelpTooltip';
 import Tooltip from '../controls/Tooltip';
 import VulnerabilityIcon from '../icons-components/VulnerabilityIcon';
 import { BranchLike } from '../../app/types';
@@ -81,15 +81,14 @@ export default function BranchStatus({ branchLike, concise = false }: Props) {
           <CodeSmellIcon className="little-spacer-left" />
         </li>
         {shouldDisplayHelper && (
-          <Tooltip
+          <HelpTooltip
+            className="spacer-left"
             overlay={translateWithParameters(
               'branches.short_lived.quality_gate.description',
               totalIssues
-            )}>
-            <li className="spacer-left">
-              <HelpIcon className="text-info" />
-            </li>
-          </Tooltip>
+            )}
+            tagName="li"
+          />
         )}
       </ul>
     );

@@ -22,8 +22,7 @@ import React from 'react';
 import EmptyResult from './EmptyResult';
 import OriginalBubbleChart from '../../../components/charts/BubbleChart';
 import ColorRatingsLegend from '../../../components/charts/ColorRatingsLegend';
-import Tooltip from '../../../components/controls/Tooltip';
-import HelpIcon from '../../../components/icons-components/HelpIcon';
+import HelpTooltip from '../../../components/controls/HelpTooltip';
 import { formatMeasure, isDiffMetric } from '../../../helpers/measures';
 import {
   getLocalizedMetricDomain,
@@ -170,12 +169,8 @@ export default class BubbleChart extends React.PureComponent {
     return (
       <div className="measure-overview-bubble-chart-header">
         <span className="measure-overview-bubble-chart-title">
-          {title}
-          <Tooltip overlay={this.getDescription(domain)}>
-            <span className="spacer-left text-info">
-              <HelpIcon />
-            </span>
-          </Tooltip>
+          <span className="text-middle">{title}</span>
+          <HelpTooltip className="spacer-left" overlay={this.getDescription(domain)} />
         </span>
         <span className="measure-overview-bubble-chart-legend">
           <span className="note">

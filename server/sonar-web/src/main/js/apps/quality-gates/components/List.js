@@ -40,7 +40,7 @@ export default function List({ organization, qualityGates }) {
                 <td className="thin nowrap spacer-left text-right">
                   {qualityGate.isDefault && <span className="badge">{translate('default')}</span>}
                   {qualityGate.isBuiltIn && (
-                    <BuiltInQualityGateBadge className="little-spacer-left" tooltip={false} />
+                    <BuiltInQualityGateBadge className="little-spacer-left" />
                   )}
                 </td>
               </tr>

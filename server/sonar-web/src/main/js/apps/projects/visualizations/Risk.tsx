@@ -25,8 +25,7 @@ import { formatMeasure } from '../../../helpers/measures';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { RATING_COLORS } from '../../../helpers/constants';
 import { getProjectUrl } from '../../../helpers/urls';
-import Tooltip from '../../../components/controls/Tooltip';
-import HelpIcon from '../../../components/icons-components/HelpIcon';
+import HelpTooltip from '../../../components/controls/HelpTooltip';
 
 const X_METRIC = 'sqale_index';
 const X_METRIC_TYPE = 'SHORT_WORK_DUR';
@@ -138,12 +137,8 @@ export default class Risk extends React.PureComponent<Props> {
         </div>
         <div className="measure-details-bubble-chart-axis size">
           <span className="measure-details-bubble-chart-title">
-            {translate('projects.visualization.risk')}
-            <Tooltip overlay={this.props.helpText}>
-              <span className="spacer-left text-info">
-                <HelpIcon />
-              </span>
-            </Tooltip>
+            <span className="text-middle">{translate('projects.visualization.risk')}</span>
+            <HelpTooltip className="spacer-left" overlay={this.props.helpText} />
           </span>
           <div>
             <span className="spacer-right">

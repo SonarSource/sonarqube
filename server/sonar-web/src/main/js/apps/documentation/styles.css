@@ -17,10 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
-import { shallow } from 'enzyme';
-import NoBranchSupportPopup from '../NoBranchSupportPopup';
+.documentation-layout-inner {
+  max-width: 740px;
+}
 
-it('renders', () => {
-  expect(shallow(<NoBranchSupportPopup />)).toMatchSnapshot();
-});
+.documentation-content > h1 {
+  margin-bottom: calc(4 * var(--gridSize));
+  font-size: 20px;
+}

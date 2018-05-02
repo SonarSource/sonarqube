@@ -81,17 +81,10 @@ exports[`should render correctly 3`] = `
       login.login_with_x.Bar
     </span>
   </a>
-  <Tooltip
+  <HelpTooltip
+    className="oauth-providers-help"
     overlay="Help message!"
-  >
-    <div
-      className="oauth-providers-help"
-    >
-      <HelpIcon
-        fill="#4b9fd5"
-      />
-    </div>
-  </Tooltip>
+  />
 </li>
 `;
 

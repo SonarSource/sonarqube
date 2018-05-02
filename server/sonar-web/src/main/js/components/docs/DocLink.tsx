@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import { Link } from 'react-router';
+import DetachIcon from '../../components/icons-components/DetachIcon';
 
 export default function DocLink(props: React.AnchorHTMLAttributes<HTMLAnchorElement>) {
   const { children, href, ...other } = props;
@@ -32,8 +33,14 @@ export default function DocLink(props: React.AnchorHTMLAttributes<HTMLAnchorElem
   }
 
   return (
-    <a href={href} {...other}>
-      {children}
-    </a>
+    <>
+      <a className="text-middle" href={href} rel="noopener noreferrer" target="_blank" {...other}>
+        {children}
+      </a>
+      <DetachIcon
+        className="text-middle text-muted little-spacer-left little-spacer-right"
+        size={12}
+      />
+    </>
   );
 }

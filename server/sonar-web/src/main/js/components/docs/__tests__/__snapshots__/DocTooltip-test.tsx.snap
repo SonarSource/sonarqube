@@ -1,61 +1,28 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should render 1`] = `
-<div
-  className="display-flex-center"
->
-  <Tooltip
-    classNameSpace="popup"
-    overlay={
-      <div
-        className="abs-width-300"
-      >
-        <i
-          className="spinner"
-        />
-      </div>
-    }
-    visible={true}
-  >
-    <a
-      className="display-flex-center link-no-underline"
-      href="#"
-      onClick={[Function]}
+<HelpTooltip
+  onShow={[Function]}
+  overlay={
+    <div
+      className="abs-width-300"
     >
-      <HelpIcon
-        fill="#cdcdcd"
-        size={12}
+      <i
+        className="spinner"
       />
-    </a>
-  </Tooltip>
-</div>
+    </div>
+  }
+/>
 `;
 
 exports[`should render 2`] = `
-<div
-  className="display-flex-center"
->
-  <Tooltip
-    classNameSpace="popup"
-    overlay={
-      <OutsideClickHandler
-        onClickOutside={[Function]}
-      >
-        [Function]
-      </OutsideClickHandler>
-    }
-    visible={true}
-  >
-    <a
-      className="display-flex-center link-no-underline"
-      href="#"
-      onClick={[Function]}
-    >
-      <HelpIcon
-        fill="#cdcdcd"
-        size={12}
-      />
-    </a>
-  </Tooltip>
-</div>
+<HelpTooltip
+  onShow={[Function]}
+  overlay={
+    <DocMarkdownBlock
+      className="cut-margins abs-width-300"
+      content="this is *bold* text"
+    />
+  }
+/>
 `;

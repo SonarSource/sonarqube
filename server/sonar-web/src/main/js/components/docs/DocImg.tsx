@@ -18,13 +18,21 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { getBaseUrl } from '../../helpers/urls';
 
 export default function DocImg(props: React.ImgHTMLAttributes<HTMLImageElement>) {
   const { alt, src, ...other } = props;
 
   if (process.env.NODE_ENV === 'development') {
-    return <img alt={alt} className="max-width-100" src={src} {...other} />;
+    return <img alt={alt} className="max-width-100" src={getBaseUrl() + src} {...other} />;
   }
 
-  return <img alt={alt} className="max-width-100" src={'/images/embed-doc' + src} {...other} />;
+  return (
+    <img
+      alt={alt}
+      className="max-width-100"
+      src={getBaseUrl() + '/images/embed-doc' + src}
+      {...other}
+    />
+  );
 }

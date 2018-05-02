@@ -19,7 +19,7 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import Tooltip from '../../../components/controls/Tooltip';
+import HelpTooltip from '../../../components/controls/HelpTooltip';
 import { translate } from '../../../helpers/l10n';
 
 export default class ListHeader extends React.PureComponent {
@@ -42,11 +42,9 @@ export default class ListHeader extends React.PureComponent {
 
   render() {
     const cells = this.props.permissions.map(permission => (
-      <th key={permission.key} className="permission-column">
-        {translate('projects_role', permission.key)}
-        <Tooltip overlay={this.renderTooltip(permission)}>
-          <i className="icon-help little-spacer-left" />
-        </Tooltip>
+      <th className="permission-column" key={permission.key}>
+        <span className="text-middle">{translate('projects_role', permission.key)}</span>
+        <HelpTooltip className="spacer-left" overlay={this.renderTooltip(permission)} />
       </th>
     ));
 

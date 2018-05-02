@@ -18,27 +18,25 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import BubblePopup from '../../../components/common/BubblePopup';
 import { translate } from '../../../helpers/l10n';
 
-interface Props {
-  popupPosition?: any;
-}
-
-export default function NoWorkersSupportPopup(props: Props) {
+export default function NoWorkersSupportPopup() {
   return (
-    <BubblePopup position={props.popupPosition} customClass="bubble-popup-bottom-right">
-      <div className="abs-width-400">
-        <h6 className="spacer-bottom">{translate('background_tasks.add_more_workers')}</h6>
-        <p className="big-spacer-bottom markdown">
-          {translate('background_tasks.add_more_workers.text')}
-        </p>
-        <p>
-          <a href="https://redirect.sonarsource.com/editions/enterprise.html" target="_blank">
-            {translate('learn_more')}
-          </a>
-        </p>
-      </div>
-    </BubblePopup>
+    <>
+      <p className="spacer-bottom">
+        <strong>{translate('background_tasks.add_more_workers')}</strong>
+      </p>
+      <p className="big-spacer-bottom markdown">
+        {translate('background_tasks.add_more_workers.text')}
+      </p>
+      <p>
+        <a
+          href="https://redirect.sonarsource.com/editions/enterprise.html"
+          rel="noopener noreferrer"
+          target="_blank">
+          {translate('learn_more')}
+        </a>
+      </p>
+    </>
   );
 }
