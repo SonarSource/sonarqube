@@ -250,6 +250,10 @@ public class AbstractDbTester<T extends CoreTestDb> extends ExternalResource {
     return rows;
   }
 
+  /**
+   * @deprecated do not use DBUnit
+   */
+  @Deprecated
   public void prepareDbUnit(Class testClass, String... testNames) {
     InputStream[] streams = new InputStream[testNames.length];
     try {
@@ -289,6 +293,10 @@ public class AbstractDbTester<T extends CoreTestDb> extends ExternalResource {
     }
   }
 
+  /**
+   * @deprecated do not use DBUnit
+   */
+  @Deprecated
   public void assertDbUnitTable(Class testClass, String filename, String table, String... columns) {
     IDatabaseConnection connection = dbUnitConnection();
     try {
@@ -307,10 +315,18 @@ public class AbstractDbTester<T extends CoreTestDb> extends ExternalResource {
     }
   }
 
+  /**
+   * @deprecated do not use DBUnit
+   */
+  @Deprecated
   public void assertDbUnit(Class testClass, String filename, String... tables) {
     assertDbUnit(testClass, filename, new String[0], tables);
   }
 
+  /**
+   * @deprecated do not use DBUnit
+   */
+  @Deprecated
   public void assertDbUnit(Class testClass, String filename, String[] excludedColumnNames, String... tables) {
     IDatabaseConnection connection = null;
     try {
