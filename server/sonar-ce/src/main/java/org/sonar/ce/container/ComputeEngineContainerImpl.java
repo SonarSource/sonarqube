@@ -20,6 +20,7 @@
 package org.sonar.ce.container;
 
 import com.google.common.annotations.VisibleForTesting;
+import java.time.Clock;
 import java.util.List;
 import javax.annotation.CheckForNull;
 import org.sonar.api.SonarQubeSide;
@@ -258,6 +259,7 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
       ServerFileSystemImpl.class,
       new TempFolderProvider(),
       System2.INSTANCE,
+      Clock.systemDefaultZone(),
 
       // user session
       CeUserSession.class,
