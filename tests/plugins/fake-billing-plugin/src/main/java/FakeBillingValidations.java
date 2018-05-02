@@ -77,4 +77,9 @@ public class FakeBillingValidations implements BillingValidationsExtension {
     }
     return !settings.getBoolean(PREVENT_UPDATING_PROJECTS_VISIBILITY_TO_PRIVATE_SETTING);
   }
+
+  @Override
+  public void onDelete(Organization organization) {
+    // do nothing
+  }
 }

@@ -55,4 +55,12 @@ public class BillingValidationsProxyImpl implements BillingValidationsProxy {
   public boolean canUpdateProjectVisibilityToPrivate(Organization organization) {
     return billingValidationsExtension == null || billingValidationsExtension.canUpdateProjectVisibilityToPrivate(organization);
   }
+
+  @Override
+  public void onDelete(Organization organization) {
+    if (billingValidationsExtension == null) {
+      return;
+    }
+    billingValidationsExtension.onDelete(organization);
+  }
 }

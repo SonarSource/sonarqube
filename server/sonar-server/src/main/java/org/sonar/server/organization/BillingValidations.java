@@ -48,6 +48,11 @@ public interface BillingValidations {
    */
   boolean canUpdateProjectVisibilityToPrivate(Organization organization);
 
+  /**
+   * Actions to do on an organization deletion
+   */
+  void onDelete(Organization organization);
+
   class Organization {
     private final String key;
     private final String uuid;

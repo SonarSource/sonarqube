@@ -35,6 +35,8 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.server.component.ComponentCleanerService;
+import org.sonar.server.organization.BillingValidations;
+import org.sonar.server.organization.BillingValidationsProxy;
 import org.sonar.server.organization.DefaultOrganization;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.OrganizationFlags;
@@ -62,10 +64,11 @@ public class DeleteAction implements OrganizationsWsAction {
   private final UserIndexer userIndexer;
   private final QProfileFactory qProfileFactory;
   private final ProjectLifeCycleListeners projectLifeCycleListeners;
+  private final BillingValidationsProxy billingValidations;
 
-  public DeleteAction(UserSession userSession, DbClient dbClient, DefaultOrganizationProvider defaultOrganizationProvider,
-    ComponentCleanerService componentCleanerService, OrganizationFlags organizationFlags, UserIndexer userIndexer,
-    QProfileFactory qProfileFactory, ProjectLifeCycleListeners projectLifeCycleListeners) {
+  public DeleteAction(UserSession userSession, DbClient dbClient, DefaultOrganizationProvider defaultOrganizationProvider, ComponentCleanerService componentCleanerService,
+    OrganizationFlags organizationFlags, UserIndexer userIndexer, QProfileFactory qProfileFactory, ProjectLifeCycleListeners projectLifeCycleListeners,
+    BillingValidationsProxy billingValidations) {
     this.userSession = userSession;
     this.dbClient = dbClient;
     this.defaultOrganizationProvider = defaultOrganizationProvider;
@@ -74,6 +77,7 @@ public class DeleteAction implements OrganizationsWsAction {
     this.userIndexer = userIndexer;
     this.qProfileFactory = qProfileFactory;
     this.projectLifeCycleListeners = projectLifeCycleListeners;
+    this.billingValidations = billingValidations;
   }
 
   @Override
@@ -116,6 +120,7 @@ public class DeleteAction implements OrganizationsWsAction {
       deleteQualityProfiles(dbSession, organization);
       deleteQualityGates(dbSession, organization);
       deleteOrganization(dbSession, organization);
+      billingValidations.onDelete(new BillingValidations.Organization(organization.getKey(), organization.getUuid()));
 
       response.noContent();
     }

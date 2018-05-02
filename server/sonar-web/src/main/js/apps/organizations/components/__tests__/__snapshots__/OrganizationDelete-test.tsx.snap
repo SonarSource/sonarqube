@@ -1,0 +1,84 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should show a info message for paying organization 1`] = `
+<React.Fragment>
+  <HelmetWrapper
+    defer={true}
+    encodeSpecialCharacters={true}
+    title="organization.delete"
+  />
+  <div
+    className="page page-limited"
+  >
+    <header
+      className="page-header"
+    >
+      <h1
+        className="page-title"
+      >
+        organization.delete
+      </h1>
+      <div
+        className="page-description"
+      >
+        organization.delete.description.sonarcloud
+      </div>
+    </header>
+    <ConfirmButton
+      confirmButtonText="delete"
+      isDestructive={true}
+      modalBody={
+        <div>
+          organization.delete.question
+          <p
+            className="alert alert-warn big-spacer-top"
+          >
+            organization.delete.sonarcloud.paid_plan_info
+          </p>
+        </div>
+      }
+      modalHeader="organization.delete"
+      onConfirm={[Function]}
+    />
+  </div>
+</React.Fragment>
+`;
+
+exports[`smoke test 1`] = `
+<React.Fragment>
+  <HelmetWrapper
+    defer={true}
+    encodeSpecialCharacters={true}
+    title="organization.delete"
+  />
+  <div
+    className="page page-limited"
+  >
+    <header
+      className="page-header"
+    >
+      <h1
+        className="page-title"
+      >
+        organization.delete
+      </h1>
+      <div
+        className="page-description"
+      >
+        organization.delete.description
+      </div>
+    </header>
+    <ConfirmButton
+      confirmButtonText="delete"
+      isDestructive={true}
+      modalBody={
+        <div>
+          organization.delete.question
+        </div>
+      }
+      modalHeader="organization.delete"
+      onConfirm={[Function]}
+    />
+  </div>
+</React.Fragment>
+`;

@@ -104,3 +104,20 @@ export function changeProjectVisibility(
 ): Promise<void> {
   return post('/api/organizations/update_project_visibility', { organization, projectVisibility });
 }
+
+export interface OrganizationBilling {
+  nclocCount: number;
+  subscription: {
+    plan?: {
+      maxNcloc: number;
+      price: number;
+    };
+    nextBillingDate?: string;
+    status: 'active' | 'inactive' | 'suspended';
+    trial: boolean;
+  };
+}
+
+export function getOrganizationBilling(organization: string): Promise<OrganizationBilling> {
+  return getJSON('/api/billing/show', { organization, p: 1, ps: 1 });
+}

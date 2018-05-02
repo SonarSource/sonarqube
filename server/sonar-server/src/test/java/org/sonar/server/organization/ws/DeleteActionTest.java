@@ -59,6 +59,8 @@ import org.sonar.server.es.SearchOptions;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
+import org.sonar.server.organization.BillingValidations;
+import org.sonar.server.organization.BillingValidationsProxy;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.organization.TestOrganizationFlags;
 import org.sonar.server.project.Project;
@@ -119,11 +121,13 @@ public class DeleteActionTest {
   private final WebhookDeliveryDao deliveryDao = dbClient.webhookDeliveryDao();
   private final WebhookDeliveryDbTester webhookDeliveryDbTester = db.webhookDelivery();
   private ProjectLifeCycleListeners projectLifeCycleListeners = mock(ProjectLifeCycleListeners.class);
+  private BillingValidationsProxy billingValidationsProxy = mock(BillingValidationsProxy.class);
   private WsActionTester wsTester = new WsActionTester(
-    new DeleteAction(userSession, dbClient, defaultOrganizationProvider, spiedComponentCleanerService, organizationFlags, userIndexer, qProfileFactory, projectLifeCycleListeners));
+    new DeleteAction(userSession, dbClient, defaultOrganizationProvider, spiedComponentCleanerService, organizationFlags, userIndexer, qProfileFactory, projectLifeCycleListeners,
+      billingValidationsProxy));
 
   @Test
-  public void test_definition() {
+  public void definition() {
     WebService.Action action = wsTester.getDef();
     assertThat(action.key()).isEqualTo("delete");
     assertThat(action.isPost()).isTrue();
@@ -540,6 +544,16 @@ public class DeleteActionTest {
       assertThat(e).isSameAs(expectedException);
       verify(projectLifeCycleListeners).onProjectsDeleted(Arrays.stream(projects).map(Project::from).collect(toSet()));
     }
+  }
+
+  @Test
+  public void call_billing_validation_on_delete() {
+    OrganizationDto organization = db.organizations().insert();
+    logInAsAdministrator(organization);
+
+    sendRequest(organization);
+
+    verify(billingValidationsProxy).onDelete(any(BillingValidations.Organization.class));
   }
 
   @DataProvider
