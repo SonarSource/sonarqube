@@ -42,6 +42,37 @@ public class ConfigurationTest {
   }
 
   @Test
+  public void getBoolean_returns_false_if_value_is_not_true() {
+    verifyBooleanFalse("false");
+    verifyBooleanFalse("False");
+    verifyBooleanFalse("FALSE");
+    verifyBooleanFalse("  false  ");
+    verifyBooleanFalse("foo");
+    verifyBooleanFalse("xxx");
+    verifyBooleanFalse("___");
+    verifyBooleanFalse("yes");
+    verifyBooleanFalse("no");
+  }
+
+  @Test
+  public void getBoolean_returns_true_if_value_is_true_ignore_case() {
+    verifyBooleanTrue("true");
+    verifyBooleanTrue("TRUE");
+    verifyBooleanTrue("True");
+    verifyBooleanTrue(" True ");
+  }
+
+  private void verifyBooleanFalse(String value) {
+    underTest.put("foo", value);
+    assertThat(underTest.getBoolean("foo")).hasValue(false);
+  }
+
+  private void verifyBooleanTrue(String value) {
+    underTest.put("foo", value);
+    assertThat(underTest.getBoolean("foo")).hasValue(true);
+  }
+
+  @Test
   public void getInt() {
     int value = new Random().nextInt();
 
