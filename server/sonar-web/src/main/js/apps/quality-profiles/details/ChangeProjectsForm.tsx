@@ -104,6 +104,7 @@ export default class ChangeProjectsForm extends React.PureComponent<Props> {
 
         <div className="modal-body" id="profile-projects">
           <SelectList
+            allowBulkSelection={true}
             elements={this.state.projects.map(project => project.key)}
             labelAll={translate('quality_gates.projects.all')}
             labelSelected={translate('quality_gates.projects.with')}

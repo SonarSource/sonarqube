@@ -31,6 +31,7 @@ export enum Filter {
 }
 
 interface Props {
+  allowBulkSelection?: boolean;
   elements: string[];
   disabledElements?: string[];
   labelSelected?: string;
@@ -114,6 +115,7 @@ export default class SelectList extends React.PureComponent<Props, State> {
           />
         </div>
         <SelectListListContainer
+          allowBulkSelection={this.props.allowBulkSelection}
           disabledElements={this.props.disabledElements || []}
           elements={this.props.elements}
           filter={this.getFilter()}

@@ -20,8 +20,12 @@
 import * as React from 'react';
 import { Filter } from './SelectList';
 import SelectListListElement from './SelectListListElement';
+import Checkbox from '../controls/Checkbox';
+import DeferredSpinner from '../common/DeferredSpinner';
+import { translate } from '../../helpers/l10n';
 
 interface Props {
+  allowBulkSelection?: boolean;
   elements: string[];
   disabledElements: string[];
   filter: Filter;
@@ -31,7 +35,28 @@ interface Props {
   selectedElements: string[];
 }
 
-export default class SelectListListContainer extends React.PureComponent<Props> {
+interface State {
+  loading: boolean;
+}
+
+export default class SelectListListContainer extends React.PureComponent<Props, State> {
+  mounted = false;
+  state: State = { loading: false };
+
+  componentDidMount() {
+    this.mounted = true;
+  }
+
+  componentWillUnmount() {
+    this.mounted = false;
+  }
+
+  stopLoading = () => {
+    if (this.mounted) {
+      this.setState({ loading: false });
+    }
+  };
+
   isDisabled = (element: string): boolean => {
     return this.props.disabledElements.includes(element);
   };
@@ -40,8 +65,42 @@ export default class SelectListListContainer extends React.PureComponent<Props> 
     return this.props.selectedElements.includes(element);
   };
 
+  handleBulkChange = (checked: boolean) => {
+    this.setState({ loading: true });
+    if (checked) {
+      Promise.all(this.props.elements.map(element => this.props.onSelect(element)))
+        .then(this.stopLoading)
+        .catch(this.stopLoading);
+    } else {
+      Promise.all(this.props.selectedElements.map(element => this.props.onUnselect(element)))
+        .then(this.stopLoading)
+        .catch(this.stopLoading);
+    }
+  };
+
+  renderBulkSelector() {
+    const { elements, selectedElements } = this.props;
+    return (
+      <>
+        <li>
+          <Checkbox
+            checked={selectedElements.length > 0}
+            disabled={this.state.loading}
+            onCheck={this.handleBulkChange}
+            thirdState={selectedElements.length > 0 && elements.length !== selectedElements.length}>
+            <span className="big-spacer-left">
+              {translate('update_key.bulk_update')}
+              <DeferredSpinner className="spacer-left" loading={this.state.loading} timeout={10} />
+            </span>
+          </Checkbox>
+        </li>
+        <li className="divider" />
+      </>
+    );
+  }
+
   render() {
-    const { elements, filter } = this.props;
+    const { allowBulkSelection, elements, filter } = this.props;
     const filteredElements = elements.filter(element => {
       if (filter === Filter.All) {
         return true;
@@ -53,6 +112,10 @@ export default class SelectListListContainer extends React.PureComponent<Props> 
     return (
       <div className="select-list-list-container spacer-top">
         <ul className="menu">
+          {allowBulkSelection &&
+            elements.length > 0 &&
+            filter === Filter.All &&
+            this.renderBulkSelector()}
           {filteredElements.map(element => (
             <SelectListListElement
               disabled={this.isDisabled(element)}
