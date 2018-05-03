@@ -21,7 +21,9 @@ exports[`should show a info message for paying organization 1`] = `
       <div
         className="page-description"
       >
-        organization.delete.description.sonarcloud
+        <InstanceMessage
+          message="organization.delete.description"
+        />
       </div>
     </header>
     <ConfirmButton
@@ -65,7 +67,9 @@ exports[`smoke test 1`] = `
       <div
         className="page-description"
       >
-        organization.delete.description
+        <InstanceMessage
+          message="organization.delete.description"
+        />
       </div>
     </header>
     <ConfirmButton

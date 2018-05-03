@@ -7,13 +7,8 @@ exports[`renders correctly 1`] = `
   >
     onboarding.analysis.java.gradle.header
   </h4>
-  <p
-    className="spacer-bottom markdown"
-    dangerouslySetInnerHTML={
-      Object {
-        "__html": "onboarding.analysis.java.gradle.text.1",
-      }
-    }
+  <InstanceMessage
+    message="onboarding.analysis.java.gradle.text.1"
   />
   <CodeSnippet
     snippet="plugins {
@@ -61,13 +56,8 @@ exports[`renders correctly 2`] = `
   >
     onboarding.analysis.java.gradle.header
   </h4>
-  <p
-    className="spacer-bottom markdown"
-    dangerouslySetInnerHTML={
-      Object {
-        "__html": "onboarding.analysis.java.gradle.text.1",
-      }
-    }
+  <InstanceMessage
+    message="onboarding.analysis.java.gradle.text.1"
   />
   <CodeSnippet
     snippet="plugins {

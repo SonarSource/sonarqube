@@ -20,6 +20,7 @@
 // @flow
 import React from 'react';
 import PropTypes from 'prop-types';
+import InstanceMessage from '../../../components/common/InstanceMessage';
 import { translate } from '../../../helpers/l10n';
 
 export default class PageHeader extends React.PureComponent {
@@ -34,9 +35,11 @@ export default class PageHeader extends React.PureComponent {
         : translate('settings.page');
 
     const description =
-      this.props.component != null
-        ? translate('project_settings.page.description')
-        : translate('settings.page.description');
+      this.props.component != null ? (
+        translate('project_settings.page.description')
+      ) : (
+        <InstanceMessage message={translate('settings.page.description')} />
+      );
 
     return (
       <header className="page-header">

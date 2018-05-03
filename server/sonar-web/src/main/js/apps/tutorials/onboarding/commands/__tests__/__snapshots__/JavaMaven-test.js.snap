@@ -10,7 +10,9 @@ exports[`renders correctly 1`] = `
   <p
     className="spacer-bottom markdown"
   >
-    onboarding.analysis.java.maven.text
+    <InstanceMessage
+      message="onboarding.analysis.java.maven.text"
+    />
   </p>
   <CodeSnippet
     snippet={
@@ -51,7 +53,9 @@ exports[`renders correctly 2`] = `
   <p
     className="spacer-bottom markdown"
   >
-    onboarding.analysis.java.maven.text
+    <InstanceMessage
+      message="onboarding.analysis.java.maven.text"
+    />
   </p>
   <CodeSnippet
     snippet={

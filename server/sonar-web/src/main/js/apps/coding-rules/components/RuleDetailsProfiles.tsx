@@ -25,12 +25,13 @@ import RuleInheritanceIcon from './RuleInheritanceIcon';
 import { Profile, deactivateRule, activateRule } from '../../../api/quality-profiles';
 import { RuleActivation, RuleDetails, RuleInheritance } from '../../../app/types';
 import ConfirmButton from '../../../components/controls/ConfirmButton';
-import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { getQualityProfileUrl } from '../../../helpers/urls';
 import BuiltInQualityProfileBadge from '../../quality-profiles/components/BuiltInQualityProfileBadge';
-import Tooltip from '../../../components/controls/Tooltip';
+import InstanceMessage from '../../../components/common/InstanceMessage';
 import SeverityHelper from '../../../components/shared/SeverityHelper';
+import Tooltip from '../../../components/controls/Tooltip';
 import { Button } from '../../../components/ui/buttons';
+import { getQualityProfileUrl } from '../../../helpers/urls';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
 
 interface Props {
   activations: RuleActivation[] | undefined;
@@ -262,7 +263,7 @@ export default class RuleDetailsProfiles extends React.PureComponent<Props, Stat
           <div className="coding-rule-section-separator" />
 
           <h3 className="coding-rules-detail-title">
-            {translate('coding_rules.quality_profiles')}
+            <InstanceMessage message={translate('coding_rules.quality_profiles')} />
           </h3>
 
           {canActivate && (

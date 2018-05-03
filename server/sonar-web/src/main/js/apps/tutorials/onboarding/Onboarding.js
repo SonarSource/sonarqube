@@ -25,10 +25,11 @@ import TokenStep from './TokenStep';
 import OrganizationStep from './OrganizationStep';
 import AnalysisStep from './AnalysisStep';
 import ProjectWatcher from './ProjectWatcher';
+import InstanceMessage from '../../../components/common/InstanceMessage';
+import handleRequiredAuthentication from '../../../app/utils/handleRequiredAuthentication';
 import { skipOnboarding } from '../../../api/users';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { getProjectUrl } from '../../../helpers/urls';
-import handleRequiredAuthentication from '../../../app/utils/handleRequiredAuthentication';
 import './styles.css';
 
 /*::
@@ -148,15 +149,17 @@ export default class Onboarding extends React.PureComponent {
 
     let stepNumber = 1;
 
-    const header = translate(sonarCloud ? 'onboarding.header.sonarcloud' : 'onboarding.header');
-
     return (
       <div className="modal-container">
-        <Helmet title={header} titleTemplate="%s" />
+        <InstanceMessage message={translate('onboarding.header')}>
+          {transformedMessage => <Helmet title={transformedMessage} titleTemplate="%s" />}
+        </InstanceMessage>
 
         <div className="page page-limited onboarding">
           <header className="page-header">
-            <h1 className="page-title">{header}</h1>
+            <h1 className="page-title">
+              <InstanceMessage message={translate('onboarding.header')} />
+            </h1>
             <div className="page-actions">
               {this.state.skipping ? (
                 <i className="spinner" />

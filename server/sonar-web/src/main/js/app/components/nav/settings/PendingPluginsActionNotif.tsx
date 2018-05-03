@@ -19,11 +19,12 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
+import InstanceMessage from '../../../../components/common/InstanceMessage';
+import NavBarNotif from '../../../../components/nav/NavBarNotif';
 import RestartForm from '../../../../components/common/RestartForm';
 import { cancelPendingPlugins, PluginPendingResult } from '../../../../api/plugins';
 import { Button } from '../../../../components/ui/buttons';
 import { translate } from '../../../../helpers/l10n';
-import NavBarNotif from '../../../../components/nav/NavBarNotif';
 
 interface Props {
   pending: PluginPendingResult;
@@ -59,7 +60,7 @@ export default class PendingPluginsActionNotif extends React.PureComponent<Props
     return (
       <NavBarNotif className="alert alert-info js-pending">
         <span className="little-spacer-right">
-          {translate('marketplace.sonarqube_needs_to_be_restarted_to')}
+          <InstanceMessage message={translate('marketplace.instance_needs_to_be_restarted_to')} />
         </span>
         {[
           { length: installing.length, msg: 'marketplace.install_x_plugins' },

@@ -13,7 +13,9 @@ exports[`renders 1`] = `
     <div
       className="big-spacer-bottom big-spacer-right markdown"
     >
-      my_account.tokens_description
+      <InstanceMessage
+        message="my_account.tokens_description"
+      />
     </div>
     <TokensForm
       login="user"

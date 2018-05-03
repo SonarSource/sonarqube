@@ -21,6 +21,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import HelpTooltip from '../../../components/controls/HelpTooltip';
 import { translate } from '../../../helpers/l10n';
+import InstanceMessage from '../../../components/common/InstanceMessage';
 
 export default class ListHeader extends React.PureComponent {
   static propTypes = {
@@ -31,13 +32,13 @@ export default class ListHeader extends React.PureComponent {
   renderTooltip = permission =>
     permission.key === 'user' || permission.key === 'codeviewer' ? (
       <div>
-        {translate('projects_role', permission.key, 'desc')}
+        <InstanceMessage message={translate('projects_role', permission.key, 'desc')} />
         <div className="alert alert-warning spacer-top">
           {translate('projects_role.public_projects_warning')}
         </div>
       </div>
     ) : (
-      translate('projects_role', permission.key, 'desc')
+      <InstanceMessage message={translate('projects_role', permission.key, 'desc')} />
     );
 
   render() {

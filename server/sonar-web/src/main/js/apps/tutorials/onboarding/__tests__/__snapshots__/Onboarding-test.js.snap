@@ -4,11 +4,8 @@ exports[`guides for on-premise 1`] = `
 <div
   className="modal-container"
 >
-  <HelmetWrapper
-    defer={true}
-    encodeSpecialCharacters={true}
-    title="onboarding.header"
-    titleTemplate="%s"
+  <InstanceMessage
+    message="onboarding.header"
   />
   <div
     className="page page-limited onboarding"
@@ -19,7 +16,9 @@ exports[`guides for on-premise 1`] = `
       <h1
         className="page-title"
       >
-        onboarding.header
+        <InstanceMessage
+          message="onboarding.header"
+        />
       </h1>
       <div
         className="page-actions"
@@ -71,11 +70,8 @@ exports[`guides for on-premise 2`] = `
 <div
   className="modal-container"
 >
-  <HelmetWrapper
-    defer={true}
-    encodeSpecialCharacters={true}
-    title="onboarding.header"
-    titleTemplate="%s"
+  <InstanceMessage
+    message="onboarding.header"
   />
   <div
     className="page page-limited onboarding"
@@ -86,7 +82,9 @@ exports[`guides for on-premise 2`] = `
       <h1
         className="page-title"
       >
-        onboarding.header
+        <InstanceMessage
+          message="onboarding.header"
+        />
       </h1>
       <div
         className="page-actions"
@@ -139,11 +137,8 @@ exports[`guides for sonarcloud 1`] = `
 <div
   className="modal-container"
 >
-  <HelmetWrapper
-    defer={true}
-    encodeSpecialCharacters={true}
-    title="onboarding.header.sonarcloud"
-    titleTemplate="%s"
+  <InstanceMessage
+    message="onboarding.header"
   />
   <div
     className="page page-limited onboarding"
@@ -154,7 +149,9 @@ exports[`guides for sonarcloud 1`] = `
       <h1
         className="page-title"
       >
-        onboarding.header.sonarcloud
+        <InstanceMessage
+          message="onboarding.header"
+        />
       </h1>
       <div
         className="page-actions"
@@ -219,11 +216,8 @@ exports[`guides for sonarcloud 2`] = `
 <div
   className="modal-container"
 >
-  <HelmetWrapper
-    defer={true}
-    encodeSpecialCharacters={true}
-    title="onboarding.header.sonarcloud"
-    titleTemplate="%s"
+  <InstanceMessage
+    message="onboarding.header"
   />
   <div
     className="page page-limited onboarding"
@@ -234,7 +228,9 @@ exports[`guides for sonarcloud 2`] = `
       <h1
         className="page-title"
       >
-        onboarding.header.sonarcloud
+        <InstanceMessage
+          message="onboarding.header"
+        />
       </h1>
       <div
         className="page-actions"
@@ -300,11 +296,8 @@ exports[`guides for sonarcloud 3`] = `
 <div
   className="modal-container"
 >
-  <HelmetWrapper
-    defer={true}
-    encodeSpecialCharacters={true}
-    title="onboarding.header.sonarcloud"
-    titleTemplate="%s"
+  <InstanceMessage
+    message="onboarding.header"
   />
   <div
     className="page page-limited onboarding"
@@ -315,7 +308,9 @@ exports[`guides for sonarcloud 3`] = `
       <h1
         className="page-title"
       >
-        onboarding.header.sonarcloud
+        <InstanceMessage
+          message="onboarding.header"
+        />
       </h1>
       <div
         className="page-actions"

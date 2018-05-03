@@ -236,7 +236,9 @@ exports[`should show the db warning message 1`] = `
     footer.production_database_warning
   </p>
   <p>
-    footer.production_database_explanation
+    <InstanceMessage
+      message="footer.production_database_explanation"
+    />
   </p>
 </div>
 `;

@@ -22,6 +22,7 @@ import * as PropTypes from 'prop-types';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 import ConfirmButton from '../../../components/controls/ConfirmButton';
+import InstanceMessage from '../../../components/common/InstanceMessage';
 import { translate } from '../../../helpers/l10n';
 import { deleteOrganization } from '../actions';
 import { Organization } from '../../../app/types';
@@ -87,7 +88,6 @@ export class OrganizationDelete extends React.PureComponent<Props, State> {
 
   render() {
     const { hasPaidPlan } = this.state;
-    const { onSonarCloud } = this.context;
     const title = translate('organization.delete');
     return (
       <>
@@ -96,9 +96,7 @@ export class OrganizationDelete extends React.PureComponent<Props, State> {
           <header className="page-header">
             <h1 className="page-title">{title}</h1>
             <div className="page-description">
-              {onSonarCloud
-                ? translate('organization.delete.description.sonarcloud')
-                : translate('organization.delete.description')}
+              <InstanceMessage message={translate('organization.delete.description')} />
             </div>
           </header>
           <ConfirmButton

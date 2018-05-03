@@ -20,6 +20,7 @@
 // @flow
 import React from 'react';
 import CodeSnippet from '../../../../components/common/CodeSnippet';
+import InstanceMessage from '../../../../components/common/InstanceMessage';
 import { translate } from '../../../../helpers/l10n';
 
 /*::
@@ -43,10 +44,14 @@ export default function JavaGradle(props /*: Props */) {
   return (
     <div>
       <h4 className="spacer-bottom">{translate('onboarding.analysis.java.gradle.header')}</h4>
-      <p
-        className="spacer-bottom markdown"
-        dangerouslySetInnerHTML={{ __html: translate('onboarding.analysis.java.gradle.text.1') }}
-      />
+      <InstanceMessage message={translate('onboarding.analysis.java.gradle.text.1')}>
+        {transformedMessage => (
+          <p
+            className="spacer-bottom markdown"
+            dangerouslySetInnerHTML={{ __html: transformedMessage }}
+          />
+        )}
+      </InstanceMessage>
       <CodeSnippet snippet={config} />
       <p className="spacer-top spacer-bottom markdown">
         {translate('onboarding.analysis.java.gradle.text.2')}

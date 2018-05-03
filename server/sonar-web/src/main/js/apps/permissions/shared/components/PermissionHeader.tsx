@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import HelpTooltip from '../../../../components/controls/HelpTooltip';
+import InstanceMessage from '../../../../components/common/InstanceMessage';
 import Tooltip from '../../../../components/controls/Tooltip';
 import { translate, translateWithParameters } from '../../../../helpers/l10n';
 
@@ -46,14 +47,14 @@ export default class PermissionHeader extends React.PureComponent<Props> {
     if (this.props.showPublicProjectsWarning && ['user', 'codeviewer'].includes(permission.key)) {
       return (
         <div>
-          {permission.description}
+          <InstanceMessage message={permission.description} />
           <div className="alert alert-warning spacer-top">
             {translate('projects_role.public_projects_warning')}
           </div>
         </div>
       );
     }
-    return permission.description;
+    return <InstanceMessage message={permission.description} />;
   };
 
   render() {

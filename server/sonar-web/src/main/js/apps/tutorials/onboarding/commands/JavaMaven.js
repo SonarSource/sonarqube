@@ -20,6 +20,7 @@
 // @flow
 import React from 'react';
 import CodeSnippet from '../../../../components/common/CodeSnippet';
+import InstanceMessage from '../../../../components/common/InstanceMessage';
 import { translate } from '../../../../helpers/l10n';
 
 /*::
@@ -41,7 +42,9 @@ export default function JavaMaven(props /*: Props */) {
   return (
     <div>
       <h4 className="spacer-bottom">{translate('onboarding.analysis.java.maven.header')}</h4>
-      <p className="spacer-bottom markdown">{translate('onboarding.analysis.java.maven.text')}</p>
+      <p className="spacer-bottom markdown">
+        <InstanceMessage message={translate('onboarding.analysis.java.maven.text')} />
+      </p>
       <CodeSnippet snippet={command} />
       <p
         className="big-spacer-top markdown"

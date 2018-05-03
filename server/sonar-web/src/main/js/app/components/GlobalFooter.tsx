@@ -22,6 +22,7 @@ import * as PropTypes from 'prop-types';
 import { Link } from 'react-router';
 import GlobalFooterSonarCloud from './GlobalFooterSonarCloud';
 import GlobalFooterBranding from './GlobalFooterBranding';
+import InstanceMessage from '../../components/common/InstanceMessage';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 
 interface Props {
@@ -48,7 +49,9 @@ export default class GlobalFooter extends React.PureComponent<Props> {
             <p className="big" id="evaluation_warning">
               {translate('footer.production_database_warning')}
             </p>
-            <p>{translate('footer.production_database_explanation')}</p>
+            <p>
+              <InstanceMessage message={translate('footer.production_database_explanation')} />
+            </p>
           </div>
         )}
 

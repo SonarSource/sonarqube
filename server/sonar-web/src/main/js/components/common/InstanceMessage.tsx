@@ -18,25 +18,31 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import InstanceMessage from '../../../components/common/InstanceMessage';
-import TokenForm from '../../users/components/TokensForm';
-import { translate } from '../../../helpers/l10n';
+import * as PropTypes from 'prop-types';
 
 interface Props {
-  login: string;
+  children?: (transformedMessage: string) => React.ReactNode;
+  message: string;
 }
 
-export default function Tokens({ login }: Props) {
-  return (
-    <div className="boxed-group">
-      <h2>{translate('users.tokens')}</h2>
-      <div className="boxed-group-inner">
-        <div className="big-spacer-bottom big-spacer-right markdown">
-          <InstanceMessage message={translate('my_account.tokens_description')} />
-        </div>
-
-        <TokenForm login={login} />
-      </div>
-    </div>
+const InstanceMessage: React.SFC<Props> = (
+  { children, message }: Props,
+  context: { onSonarCloud: boolean }
+) => {
+  const transformedMessage = message.replace(
+    /\{instance\}/gim,
+    context.onSonarCloud ? 'SonarCloud' : 'SonarQube'
   );
-}
+
+  if (children) {
+    return children(transformedMessage);
+  }
+
+  return transformedMessage as any;
+};
+
+InstanceMessage.contextTypes = {
+  onSonarCloud: PropTypes.bool
+};
+
+export default InstanceMessage;
