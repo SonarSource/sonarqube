@@ -232,6 +232,8 @@ public class ServletFilterTest {
       "*.css.map",
       "*.ico",
       "*.png",
+      "*.jpg",
+      "*.jpeg",
       "*.gif",
       "*.svg",
       "*.js",
@@ -247,7 +249,7 @@ public class ServletFilterTest {
   }
 
   @Test
-  public void test_label() throws Exception {
+  public void test_label() {
     assertThat(ServletFilter.UrlPattern.builder().build().label()).isEqualTo("UrlPattern{inclusions=[], exclusions=[]}");
     assertThat(ServletFilter.UrlPattern.builder()
       .includes("/foo/*")
