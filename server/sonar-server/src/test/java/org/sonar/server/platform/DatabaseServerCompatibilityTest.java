@@ -23,6 +23,7 @@ import java.util.Optional;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
@@ -38,6 +39,9 @@ public class DatabaseServerCompatibilityTest {
   public ExpectedException thrown = ExpectedException.none();
   @Rule
   public LogTester logTester = new LogTester();
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
+  private MapSettings settings = new MapSettings();
 
   @Test
   public void fail_if_requires_downgrade() {
@@ -46,7 +50,7 @@ public class DatabaseServerCompatibilityTest {
 
     DatabaseVersion version = mock(DatabaseVersion.class);
     when(version.getStatus()).thenReturn(DatabaseVersion.Status.REQUIRES_DOWNGRADE);
-    new DatabaseServerCompatibility(version).start();
+    new DatabaseServerCompatibility(version, settings.asConfig()).start();
   }
 
   @Test
@@ -57,7 +61,7 @@ public class DatabaseServerCompatibilityTest {
     DatabaseVersion version = mock(DatabaseVersion.class);
     when(version.getStatus()).thenReturn(DatabaseVersion.Status.REQUIRES_UPGRADE);
     when(version.getVersion()).thenReturn(Optional.of(12L));
-    new DatabaseServerCompatibility(version).start();
+    new DatabaseServerCompatibility(version, settings.asConfig()).start();
   }
 
   @Test
@@ -65,7 +69,7 @@ public class DatabaseServerCompatibilityTest {
     DatabaseVersion version = mock(DatabaseVersion.class);
     when(version.getStatus()).thenReturn(DatabaseVersion.Status.REQUIRES_UPGRADE);
     when(version.getVersion()).thenReturn(Optional.of(DatabaseVersion.MIN_UPGRADE_VERSION));
-    new DatabaseServerCompatibility(version).start();
+    new DatabaseServerCompatibility(version, settings.asConfig()).start();
 
     assertThat(logTester.logs()).hasSize(2);
     assertThat(logTester.logs(LoggerLevel.WARN)).contains(
@@ -79,7 +83,20 @@ public class DatabaseServerCompatibilityTest {
   public void do_nothing_if_up_to_date() {
     DatabaseVersion version = mock(DatabaseVersion.class);
     when(version.getStatus()).thenReturn(DatabaseVersion.Status.UP_TO_DATE);
-    new DatabaseServerCompatibility(version).start();
+    new DatabaseServerCompatibility(version, settings.asConfig()).start();
     // no error
+  }
+
+  @Test
+  public void fail_if_upgrade_required_on_blue_green_deployment() {
+    settings.setProperty("sonar.blueGreenEnabled", "true");
+    DatabaseVersion version = mock(DatabaseVersion.class);
+    when(version.getStatus()).thenReturn(DatabaseVersion.Status.REQUIRES_UPGRADE);
+    when(version.getVersion()).thenReturn(Optional.of(DatabaseVersion.MIN_UPGRADE_VERSION));
+
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("Blue/green deployment is not supported. Database must be upgraded.");
+
+    new DatabaseServerCompatibility(version, settings.asConfig()).start();
   }
 }

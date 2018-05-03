@@ -21,8 +21,10 @@ package org.sonar.server.platform;
 
 import java.util.Optional;
 import org.picocontainer.Startable;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.process.ProcessProperties;
 import org.sonar.server.platform.db.migration.version.DatabaseVersion;
 
 import static org.sonar.server.app.ServerProcessLogging.STARTUP_LOGGER_NAME;
@@ -30,10 +32,13 @@ import static org.sonar.server.app.ServerProcessLogging.STARTUP_LOGGER_NAME;
 public class DatabaseServerCompatibility implements Startable {
 
   private static final String HIGHLIGHTER = "################################################################################";
-  private DatabaseVersion version;
 
-  public DatabaseServerCompatibility(DatabaseVersion version) {
+  private final DatabaseVersion version;
+  private final Configuration configuration;
+
+  public DatabaseServerCompatibility(DatabaseVersion version, Configuration configuration) {
     this.version = version;
+    this.configuration = configuration;
   }
 
   @Override
@@ -43,6 +48,10 @@ public class DatabaseServerCompatibility implements Startable {
       throw MessageException.of("Database was upgraded to a more recent of SonarQube. Backup must probably be restored or db settings are incorrect.");
     }
     if (status == DatabaseVersion.Status.REQUIRES_UPGRADE) {
+      if (configuration.getBoolean(ProcessProperties.Property.BLUE_GREEN_ENABLED.getKey()).orElse(false)) {
+        throw new IllegalStateException("Blue/green deployment is not supported. Database must be upgraded.");
+      }
+
       Optional<Long> currentVersion = this.version.getVersion();
       if (currentVersion.isPresent() && currentVersion.get() < DatabaseVersion.MIN_UPGRADE_VERSION) {
         throw MessageException.of("Current version is too old. Please upgrade to Long Term Support version firstly.");
