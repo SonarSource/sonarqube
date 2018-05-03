@@ -112,7 +112,12 @@ public class ProcessProperties {
     /**
      * Used by Orchestrator to ask for shutdown of monitor process
      */
-    ENABLE_STOP_COMMAND("sonar.enableStopCommand");
+    ENABLE_STOP_COMMAND("sonar.enableStopCommand"),
+
+    // whether the blue/green deployment of server is enabled
+    BLUE_GREEN_ENABLED("sonar.blueGreenEnabled", "false");
+
+
 
     private final String key;
     private final String defaultValue;

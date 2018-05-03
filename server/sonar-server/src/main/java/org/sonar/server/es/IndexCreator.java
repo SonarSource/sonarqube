@@ -35,6 +35,7 @@ import org.sonar.api.config.Configuration;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.process.ProcessProperties;
 import org.sonar.server.es.IndexDefinitions.Index;
 import org.sonar.server.es.metadata.EsDbCompatibility;
 import org.sonar.server.es.metadata.MetadataIndex;
@@ -82,6 +83,7 @@ public class IndexCreator implements Startable {
     for (Index index : definitions.getIndices().values()) {
       boolean exists = client.prepareIndicesExist(index.getName()).get().isExists();
       if (exists && !index.getName().equals(MetadataIndexDefinition.INDEX_TYPE_METADATA.getIndex()) && hasDefinitionChange(index)) {
+        verifyNotBlueGreenDeployment(index.getName());
         LOGGER.info("Delete Elasticsearch index {} (structure changed)", index.getName());
         deleteIndex(index.getName());
         exists = false;
@@ -89,6 +91,12 @@ public class IndexCreator implements Startable {
       if (!exists) {
         createIndex(index, true);
       }
+    }
+  }
+
+  private void verifyNotBlueGreenDeployment(String indexToBeDeleted) {
+    if (configuration.getBoolean(ProcessProperties.Property.BLUE_GREEN_ENABLED.getKey()).orElse(false)) {
+      throw new IllegalStateException("Blue/green deployment is not supported. Elasticsearch index [" + indexToBeDeleted + "] changed and needs to be dropped.");
     }
   }
 

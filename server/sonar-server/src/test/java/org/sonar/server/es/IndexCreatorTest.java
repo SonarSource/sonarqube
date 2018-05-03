@@ -28,6 +28,7 @@ import org.elasticsearch.cluster.metadata.MappingMetaData;
 import org.elasticsearch.common.collect.ImmutableOpenMap;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
@@ -46,7 +47,8 @@ public class IndexCreatorTest {
 
   @Rule
   public LogTester logTester = new LogTester();
-
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public EsTester es = EsTester.createCustom();
 
@@ -60,16 +62,20 @@ public class IndexCreatorTest {
     IndexCreator underTest = startNewCreator(new FakeIndexDefinition());
 
     // check that index is created with related mapping
-    ImmutableOpenMap<String, ImmutableOpenMap<String, MappingMetaData>> mappings = mappings();
-    MappingMetaData mapping = mappings.get("fakes").get("fake");
-    assertThat(mapping.type()).isEqualTo("fake");
-    assertThat(mapping.getSourceAsMap()).isNotEmpty();
-    assertThat(countMappingFields(mapping)).isEqualTo(2);
-    assertThat(field(mapping, "updatedAt").get("type")).isEqualTo("date");
+    verifyFakeIndex();
 
     // of course do not delete indices on stop
     underTest.stop();
     assertThat(mappings()).isNotEmpty();
+  }
+
+  @Test
+  public void creation_of_new_index_is_supported_in_blue_green_deployment() {
+    enableBlueGreenDeployment();
+
+    startNewCreator(new FakeIndexDefinition());
+
+    verifyFakeIndex();
   }
 
   @Test
@@ -105,6 +111,24 @@ public class IndexCreatorTest {
     assertThat(field(mapping, "newField").get("type")).isEqualTo("integer");
 
     assertThat(es.client().prepareGet(fakeIndexType, id).get().isExists()).isFalse();
+  }
+
+  @Test
+  public void fail_to_recreate_index_on_definition_changes_if_blue_green_deployment() {
+    enableBlueGreenDeployment();
+
+    // v1
+    startNewCreator(new FakeIndexDefinition());
+
+    // v2
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("Blue/green deployment is not supported. Elasticsearch index [fakes] changed and needs to be dropped.");
+
+    startNewCreator(new FakeIndexDefinitionV2());
+  }
+
+  private void enableBlueGreenDeployment() {
+    settings.setProperty("sonar.blueGreenEnabled", "true");
   }
 
   @Test
@@ -219,7 +243,17 @@ public class IndexCreatorTest {
     es.putDocuments(FakeIndexDefinition.INDEX_TYPE, ImmutableMap.of("key", "foo"));
   }
 
+  private void verifyFakeIndex() {
+    ImmutableOpenMap<String, ImmutableOpenMap<String, MappingMetaData>> mappings = mappings();
+    MappingMetaData mapping = mappings.get("fakes").get("fake");
+    assertThat(mapping.type()).isEqualTo("fake");
+    assertThat(mapping.getSourceAsMap()).isNotEmpty();
+    assertThat(countMappingFields(mapping)).isEqualTo(2);
+    assertThat(field(mapping, "updatedAt").get("type")).isEqualTo("date");
+  }
+
   private static class FakeIndexDefinition implements IndexDefinition {
+
     private static final IndexType INDEX_TYPE = new IndexType("fakes", "fake");
 
     @Override
@@ -230,8 +264,8 @@ public class IndexCreatorTest {
       mapping.createDateTimeField("updatedAt");
     }
   }
-
   private static class FakeIndexDefinitionV2 implements IndexDefinition {
+
     @Override
     public void define(IndexDefinitionContext context) {
       NewIndex index = context.create("fakes", SETTINGS_CONFIGURATION);
