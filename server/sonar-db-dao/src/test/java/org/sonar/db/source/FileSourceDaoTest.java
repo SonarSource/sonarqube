@@ -105,7 +105,7 @@ public class FileSourceDaoTest {
       .setDataType(Type.SOURCE)
       .setCreatedAt(1500000000000L)
       .setUpdatedAt(1500000000001L)
-      .setLineHashesVersion(2)
+      .setLineHashesVersion(1)
       .setRevision("123456789"));
     session.commit();
 
@@ -133,9 +133,7 @@ public class FileSourceDaoTest {
   }
 
   @Test
-  public void selectLineHashesVersion_returns_by_default() {
-    dbTester.prepareDbUnit(getClass(), "shared.xml");
-
+  public void selectLineHashesVersion_returns_without_significant_code_by_default() {
     underTest.insert(session, new FileSourceDto()
       .setProjectUuid("PRJ_UUID")
       .setFileUuid("FILE2_UUID")
@@ -154,8 +152,6 @@ public class FileSourceDaoTest {
 
   @Test
   public void selectLineHashesVersion_succeeds() {
-    dbTester.prepareDbUnit(getClass(), "shared.xml");
-
     underTest.insert(session, new FileSourceDto()
       .setProjectUuid("PRJ_UUID")
       .setFileUuid("FILE2_UUID")
@@ -214,7 +210,7 @@ public class FileSourceDaoTest {
       .setLineHashes("NEW_LINE_HASHES")
       .setDataType(Type.SOURCE)
       .setUpdatedAt(1500000000002L)
-      .setLineHashesVersion(4)
+      .setLineHashesVersion(1)
       .setRevision("987654321"));
     session.commit();
 

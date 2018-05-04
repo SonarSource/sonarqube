@@ -30,6 +30,9 @@ public interface FileSourceMapper {
   @CheckForNull
   FileSourceDto select(@Param("fileUuid") String fileUuid, @Param("dataType") String dataType);
 
+  @CheckForNull
+  Integer selectLineHashesVersion(@Param("fileUuid") String fileUuid, @Param("dataType") String dataType);
+
   void insert(FileSourceDto dto);
 
   void update(FileSourceDto dto);

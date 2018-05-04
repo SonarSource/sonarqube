@@ -18,6 +18,12 @@
     WHERE project_uuid = #{projectUuid} and data_type=#{dataType}
   </select>
 
+  <select id="selectLineHashesVersion" parameterType="map" resultType="Integer">
+    SELECT line_hashes_version 
+    FROM file_sources
+    WHERE file_uuid = #{fileUuid,jdbcType=VARCHAR} and data_type=#{dataType,jdbcType=VARCHAR}
+  </select>
+
   <insert id="insert" parameterType="org.sonar.db.source.FileSourceDto" useGeneratedKeys="false">
     INSERT INTO file_sources (project_uuid, file_uuid, created_at, updated_at, binary_data, line_hashes, data_hash,
     src_hash, data_type, revision, line_hashes_version)

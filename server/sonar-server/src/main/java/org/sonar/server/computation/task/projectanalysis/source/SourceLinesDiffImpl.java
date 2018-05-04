@@ -57,7 +57,7 @@ public class SourceLinesDiffImpl implements SourceLinesDiff {
   }
 
   private List<String> getReportLines(Component component) {
-    return sourceLinesHash.getMatchingDB(component);
+    return sourceLinesHash.getLineHashesMatchingDBVersion(component);
   }
 
 }

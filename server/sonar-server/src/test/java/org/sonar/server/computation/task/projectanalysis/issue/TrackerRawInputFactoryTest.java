@@ -72,7 +72,7 @@ public class TrackerRawInputFactoryTest {
 
   @Test
   public void load_source_hash_sequences() {
-    when(sourceLinesHash.getMatchingDB(FILE)).thenReturn(Collections.singletonList("line"));
+    when(sourceLinesHash.getLineHashesMatchingDBVersion(FILE)).thenReturn(Collections.singletonList("line"));
     Input<DefaultIssue> input = underTest.create(FILE);
 
     assertThat(input.getLineHashSequence()).isNotNull();
@@ -94,7 +94,7 @@ public class TrackerRawInputFactoryTest {
   @Test
   public void load_issues_from_report() {
     when(issueFilter.accept(any(DefaultIssue.class), eq(FILE))).thenReturn(true);
-    when(sourceLinesHash.getMatchingDB(FILE)).thenReturn(Collections.singletonList("line"));
+    when(sourceLinesHash.getLineHashesMatchingDBVersion(FILE)).thenReturn(Collections.singletonList("line"));
     ScannerReport.Issue reportIssue = ScannerReport.Issue.newBuilder()
       .setTextRange(TextRange.newBuilder().setStartLine(2).build())
       .setMsg("the message")
@@ -127,7 +127,7 @@ public class TrackerRawInputFactoryTest {
 
   @Test
   public void load_external_issues_from_report() {
-    when(sourceLinesHash.getMatchingDB(FILE)).thenReturn(Collections.singletonList("line"));
+    when(sourceLinesHash.getLineHashesMatchingDBVersion(FILE)).thenReturn(Collections.singletonList("line"));
     ScannerReport.ExternalIssue reportIssue = ScannerReport.ExternalIssue.newBuilder()
       .setTextRange(TextRange.newBuilder().setStartLine(2).build())
       .setMsg("the message")
@@ -158,7 +158,7 @@ public class TrackerRawInputFactoryTest {
 
   @Test
   public void load_external_issues_from_report_with_default_effort() {
-    when(sourceLinesHash.getMatchingDB(FILE)).thenReturn(Collections.singletonList("line"));
+    when(sourceLinesHash.getLineHashesMatchingDBVersion(FILE)).thenReturn(Collections.singletonList("line"));
     ScannerReport.ExternalIssue reportIssue = ScannerReport.ExternalIssue.newBuilder()
       .setTextRange(TextRange.newBuilder().setStartLine(2).build())
       .setMsg("the message")
@@ -189,7 +189,7 @@ public class TrackerRawInputFactoryTest {
   @Test
   public void ignore_issue_from_report() {
     when(issueFilter.accept(any(DefaultIssue.class), eq(FILE))).thenReturn(false);
-    when(sourceLinesHash.getMatchingDB(FILE)).thenReturn(Collections.singletonList("line"));
+    when(sourceLinesHash.getLineHashesMatchingDBVersion(FILE)).thenReturn(Collections.singletonList("line"));
     ScannerReport.Issue reportIssue = ScannerReport.Issue.newBuilder()
       .setTextRange(TextRange.newBuilder().setStartLine(2).build())
       .setMsg("the message")
@@ -207,7 +207,7 @@ public class TrackerRawInputFactoryTest {
 
   @Test
   public void ignore_report_issues_on_common_rules() {
-    when(sourceLinesHash.getMatchingDB(FILE)).thenReturn(Collections.singletonList("line"));
+    when(sourceLinesHash.getLineHashesMatchingDBVersion(FILE)).thenReturn(Collections.singletonList("line"));
     ScannerReport.Issue reportIssue = ScannerReport.Issue.newBuilder()
       .setMsg("the message")
       .setRuleRepository(CommonRuleKeys.commonRepositoryForLang("java"))
@@ -224,7 +224,7 @@ public class TrackerRawInputFactoryTest {
   @Test
   public void load_issues_of_compute_engine_common_rules() {
     when(issueFilter.accept(any(DefaultIssue.class), eq(FILE))).thenReturn(true);
-    when(sourceLinesHash.getMatchingDB(FILE)).thenReturn(Collections.singletonList("line"));
+    when(sourceLinesHash.getLineHashesMatchingDBVersion(FILE)).thenReturn(Collections.singletonList("line"));
     DefaultIssue ceIssue = new DefaultIssue()
       .setRuleKey(RuleKey.of(CommonRuleKeys.commonRepositoryForLang("java"), "InsufficientCoverage"))
       .setMessage("not enough coverage")
@@ -240,7 +240,7 @@ public class TrackerRawInputFactoryTest {
   @Test
   public void ignore_issue_from_common_rule() {
     when(issueFilter.accept(any(DefaultIssue.class), eq(FILE))).thenReturn(false);
-    when(sourceLinesHash.getMatchingDB(FILE)).thenReturn(Collections.singletonList("line"));
+    when(sourceLinesHash.getLineHashesMatchingDBVersion(FILE)).thenReturn(Collections.singletonList("line"));
     DefaultIssue ceIssue = new DefaultIssue()
       .setRuleKey(RuleKey.of(CommonRuleKeys.commonRepositoryForLang("java"), "InsufficientCoverage"))
       .setMessage("not enough coverage")

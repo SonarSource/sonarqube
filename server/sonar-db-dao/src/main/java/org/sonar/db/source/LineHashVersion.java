@@ -19,8 +19,6 @@
  */
 package org.sonar.db.source;
 
-import javax.annotation.Nullable;
-
 public enum LineHashVersion {
   WITHOUT_SIGNIFICANT_CODE(0), WITH_SIGNIFICANT_CODE(1);
 
@@ -34,10 +32,7 @@ public enum LineHashVersion {
     return value;
   }
 
-  public static LineHashVersion valueOf(@Nullable Integer version) {
-    if (version == null) {
-      return LineHashVersion.WITHOUT_SIGNIFICANT_CODE;
-    }
+  public static LineHashVersion valueOf(int version) {
     if (version > 1 || version < 0) {
       throw new IllegalArgumentException("Unknown line hash version: " + version);
     }

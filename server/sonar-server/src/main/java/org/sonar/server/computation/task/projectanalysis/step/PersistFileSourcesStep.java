@@ -120,7 +120,7 @@ public class PersistFileSourcesStep implements ComputationStep {
     public void visitFile(Component file) {
       try (CloseableIterator<String> linesIterator = sourceLinesRepository.readLines(file);
         LineReaders lineReaders = new LineReaders(reportReader, scmInfoRepository, duplicationRepository, file)) {
-        LineHashesComputer lineHashesComputer = sourceLinesHash.getLineProcessorToPersist(file);
+        LineHashesComputer lineHashesComputer = sourceLinesHash.getLineHashesComputerToPersist(file);
         ComputeFileSourceData computeFileSourceData = new ComputeFileSourceData(linesIterator, lineReaders.readers(), lineHashesComputer);
         ComputeFileSourceData.Data fileSourceData = computeFileSourceData.compute();
         persistSource(fileSourceData, file, lineReaders.getLatestChangeWithRevision());

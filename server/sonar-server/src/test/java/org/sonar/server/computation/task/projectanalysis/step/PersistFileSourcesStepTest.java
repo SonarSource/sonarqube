@@ -94,7 +94,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
   @Before
   public void setup() {
     when(system2.now()).thenReturn(NOW);
-    when(sourceLinesHashRepository.getLineProcessorToPersist(Mockito.any(Component.class))).thenReturn(lineHashesComputer);
+    when(sourceLinesHashRepository.getLineHashesComputerToPersist(Mockito.any(Component.class))).thenReturn(lineHashesComputer);
     underTest = new PersistFileSourcesStep(dbClient, system2, treeRootHolder, reportReader, fileSourceRepository, scmInfoRepository,
       duplicationRepository, sourceLinesHashRepository);
   }

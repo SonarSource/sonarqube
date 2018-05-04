@@ -26,6 +26,7 @@ public class LineRange {
   private final int endOffset;
 
   public LineRange(int startOffset, int endOffset) {
+    Preconditions.checkArgument(startOffset >= 0, "Start offset not valid: %s", startOffset);
     Preconditions.checkArgument(startOffset <= endOffset, "Line range is not valid: %s must be greater or equal than %s", endOffset, startOffset);
     this.startOffset = startOffset;
     this.endOffset = endOffset;

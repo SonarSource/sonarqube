@@ -51,23 +51,8 @@ public class FileSourceDao implements Dao {
 
   @CheckForNull
   public LineHashVersion selectLineHashesVersion(DbSession dbSession, String fileUuid) {
-    Connection connection = dbSession.getConnection();
-    PreparedStatement pstmt = null;
-    ResultSet rs = null;
-    try {
-      pstmt = connection.prepareStatement("SELECT line_hashes_version FROM file_sources WHERE file_uuid=? AND data_type=?");
-      pstmt.setString(1, fileUuid);
-      pstmt.setString(2, Type.SOURCE);
-      rs = pstmt.executeQuery();
-      if (rs.next()) {
-        return LineHashVersion.valueOf(rs.getInt(1));
-      }
-      return null;
-    } catch (SQLException e) {
-      throw new IllegalStateException("Fail to read FILE_SOURCES.LINE_HASHES_VERSION of file " + fileUuid, e);
-    } finally {
-      DbUtils.closeQuietly(connection, pstmt, rs);
-    }
+    Integer version = mapper(dbSession).selectLineHashesVersion(fileUuid, Type.SOURCE);
+    return version == null ? LineHashVersion.WITHOUT_SIGNIFICANT_CODE : LineHashVersion.valueOf(version);
   }
 
   @CheckForNull

@@ -89,7 +89,7 @@ public class SourceLinesHashRepositoryImplTest {
   @Test
   public void should_create_hash_without_significant_code_if_db_has_no_significant_code() {
     when(dbLineHashVersion.hasLineHashesWithSignificantCode(file)).thenReturn(false);
-    List<String> lineHashes = underTest.getMatchingDB(file);
+    List<String> lineHashes = underTest.getLineHashesMatchingDBVersion(file);
 
     assertLineHashes(lineHashes, "line1", "line2", "line3");
     verify(dbLineHashVersion).hasLineHashesWithSignificantCode(file);
@@ -102,7 +102,7 @@ public class SourceLinesHashRepositoryImplTest {
     when(dbLineHashVersion.hasLineHashesWithSignificantCode(file)).thenReturn(true);
     when(significantCodeRepository.getRangesPerLine(file)).thenReturn(Optional.empty());
 
-    List<String> lineHashes = underTest.getMatchingDB(file);
+    List<String> lineHashes = underTest.getLineHashesMatchingDBVersion(file);
 
     assertLineHashes(lineHashes, "line1", "line2", "line3");
     verify(dbLineHashVersion).hasLineHashesWithSignificantCode(file);
@@ -118,7 +118,7 @@ public class SourceLinesHashRepositoryImplTest {
     when(dbLineHashVersion.hasLineHashesWithSignificantCode(file)).thenReturn(true);
     when(significantCodeRepository.getRangesPerLine(file)).thenReturn(Optional.of(lineRanges));
 
-    List<String> lineHashes = underTest.getMatchingDB(file);
+    List<String> lineHashes = underTest.getLineHashesMatchingDBVersion(file);
 
     assertLineHashes(lineHashes, "l", "", "ine3");
     verify(dbLineHashVersion).hasLineHashesWithSignificantCode(file);
@@ -157,7 +157,7 @@ public class SourceLinesHashRepositoryImplTest {
     when(dbLineHashVersion.hasLineHashesWithSignificantCode(file)).thenReturn(true);
     when(significantCodeRepository.getRangesPerLine(file)).thenReturn(Optional.of(lineRanges));
 
-    LineHashesComputer hashesComputer = underTest.getLineProcessorToPersist(file);
+    LineHashesComputer hashesComputer = underTest.getLineHashesComputerToPersist(file);
 
     assertThat(hashesComputer).isInstanceOf(CachedLineHashesComputer.class);
     assertThat(hashesComputer.getResult()).isEqualTo(lineHashes);
@@ -171,7 +171,7 @@ public class SourceLinesHashRepositoryImplTest {
     when(dbLineHashVersion.hasLineHashesWithSignificantCode(file)).thenReturn(false);
     when(significantCodeRepository.getRangesPerLine(file)).thenReturn(Optional.empty());
 
-    LineHashesComputer hashesComputer = underTest.getLineProcessorToPersist(file);
+    LineHashesComputer hashesComputer = underTest.getLineHashesComputerToPersist(file);
 
     assertThat(hashesComputer).isInstanceOf(CachedLineHashesComputer.class);
     assertThat(hashesComputer.getResult()).isEqualTo(lineHashes);
@@ -188,7 +188,7 @@ public class SourceLinesHashRepositoryImplTest {
     when(dbLineHashVersion.hasLineHashesWithSignificantCode(file)).thenReturn(false);
     when(significantCodeRepository.getRangesPerLine(file)).thenReturn(Optional.of(lineRanges));
 
-    LineHashesComputer hashesComputer = underTest.getLineProcessorToPersist(file);
+    LineHashesComputer hashesComputer = underTest.getLineHashesComputerToPersist(file);
 
     assertThat(hashesComputer).isInstanceOf(SignificantCodeLineHashesComputer.class);
   }

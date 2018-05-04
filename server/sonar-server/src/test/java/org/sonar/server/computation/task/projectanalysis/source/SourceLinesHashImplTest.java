@@ -42,7 +42,7 @@ public class SourceLinesHashImplTest {
   public void should_generate_correct_version_of_line_hashes() {
     Component component = createComponent(1);
 
-    underTest.getMatchingDB(component);
+    underTest.getLineHashesMatchingDBVersion(component);
 
   }
 

@@ -80,7 +80,7 @@ public class TrackerRawInputFactory {
     @Override
     protected LineHashSequence loadLineHashSequence() {
       if (component.getType() == Component.Type.FILE) {
-        return new LineHashSequence(sourceLinesHash.getMatchingDB(component));
+        return new LineHashSequence(sourceLinesHash.getLineHashesMatchingDBVersion(component));
       } else {
         return new LineHashSequence(Collections.emptyList());
       }

@@ -94,6 +94,6 @@ public class SourceLinesDiffImplTest {
   }
 
   private void setLineHashesInReport(Component component, String[] content) {
-    when(sourceLinesHash.getMatchingDB(component)).thenReturn(Arrays.asList(content));
+    when(sourceLinesHash.getLineHashesMatchingDBVersion(component)).thenReturn(Arrays.asList(content));
   }
 }

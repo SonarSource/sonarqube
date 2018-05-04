@@ -31,16 +31,21 @@ public class LineHashVersionTest {
 
   @Test
   public void should_create_from_int() {
-    assertThat(LineHashVersion.valueOf((Integer) null)).isEqualTo(LineHashVersion.WITHOUT_SIGNIFICANT_CODE);
     assertThat(LineHashVersion.valueOf(0)).isEqualTo(LineHashVersion.WITHOUT_SIGNIFICANT_CODE);
     assertThat(LineHashVersion.valueOf(1)).isEqualTo(LineHashVersion.WITH_SIGNIFICANT_CODE);
   }
 
   @Test
-  public void should_throw_exception_if_version_is_unknown() {
+  public void should_throw_exception_if_version_is_too_high() {
     exception.expect(IllegalArgumentException.class);
     exception.expectMessage("Unknown line hash version: 2");
     LineHashVersion.valueOf(2);
+  }
 
+  @Test
+  public void should_throw_exception_if_version_is_too_low() {
+    exception.expect(IllegalArgumentException.class);
+    exception.expectMessage("Unknown line hash version: -1");
+    LineHashVersion.valueOf(-1);
   }
 }

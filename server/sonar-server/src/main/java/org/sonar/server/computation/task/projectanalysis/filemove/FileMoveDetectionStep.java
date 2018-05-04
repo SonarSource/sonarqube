@@ -178,7 +178,7 @@ public class FileMoveDetectionStep implements ComputationStep {
     ImmutableMap.Builder<String, File> builder = ImmutableMap.builder();
     for (String fileKey : addedFileKeys) {
       Component component = reportFilesByKey.get(fileKey);
-      List<String> lineHashes = sourceLinesHash.getMatchingDB(component);
+      List<String> lineHashes = sourceLinesHash.getLineHashesMatchingDBVersion(component);
       builder.put(fileKey, new File(component.getReportAttributes().getPath(), lineHashes));
     }
     return builder.build();

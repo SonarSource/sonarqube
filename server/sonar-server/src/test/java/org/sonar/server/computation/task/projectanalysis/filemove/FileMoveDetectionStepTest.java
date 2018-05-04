@@ -509,7 +509,7 @@ public class FileMoveDetectionStepTest {
     for (String line : content) {
       computer.addLine(line);
     }
-    when(sourceLinesHash.getMatchingDB(file)).thenReturn(computer.getLineHashes());
+    when(sourceLinesHash.getLineHashesMatchingDBVersion(file)).thenReturn(computer.getLineHashes());
   }
 
   private void mockContentOfFileInDb(String key, @Nullable String[] content) {

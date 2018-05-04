@@ -58,7 +58,7 @@ public class FileSourceDto {
     return lineHashesVersion != null ? lineHashesVersion : LineHashVersion.WITHOUT_SIGNIFICANT_CODE.getDbValue();
   }
 
-  public FileSourceDto setLineHashesVersion(@Nullable Integer lineHashesVersion) {
+  public FileSourceDto setLineHashesVersion(int lineHashesVersion) {
     this.lineHashesVersion = lineHashesVersion;
     return this;
   }

@@ -52,7 +52,7 @@ public class SignificantCodeRepository {
         currentLine = lineRanges.next();
       }
 
-      if (currentLine.getLine() == i+1) {
+      if (currentLine.getLine() == i + 1) {
         ranges[i] = new LineRange(currentLine.getStartOffset(), currentLine.getEndOffset());
         currentLine = null;
       }

@@ -35,6 +35,13 @@ public class LineRangeTest {
     exception.expectMessage("Line range is not valid: 1 must be greater or equal than 2");
     new LineRange(2, 1);
   }
+  
+  @Test
+  public void should_throw_ISE_if_startOffset_is_invalid() {
+    exception.expect(IllegalArgumentException.class);
+    exception.expectMessage("Start offset not valid: -1");
+    new LineRange(-1, 1);
+  }
 
   @Test
   public void check_getters() {

@@ -14,6 +14,6 @@
                 line_hashes="LINE1_HASH\nLINE2_HASH"
                 src_hash="FILE2_HASH" revision="123456789"
                 created_at="1500000000000" updated_at="1500000000001"  data_type="SOURCE" 
-                line_hashes_version="2" />
+                line_hashes_version="1" />
 
 </dataset>

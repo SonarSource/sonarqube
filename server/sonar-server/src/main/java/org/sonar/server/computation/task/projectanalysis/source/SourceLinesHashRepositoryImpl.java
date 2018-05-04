@@ -43,12 +43,12 @@ public class SourceLinesHashRepositoryImpl implements SourceLinesHashRepository 
   }
 
   @Override
-  public List<String> getMatchingDB(Component component) {
+  public List<String> getLineHashesMatchingDBVersion(Component component) {
     return cache.computeIfAbsent(component, this::createLineHashesMatchingDBVersion);
   }
 
   @Override
-  public Integer getLineHashesVersion(Component component) {
+  public int getLineHashesVersion(Component component) {
     if (significantCodeRepository.getRangesPerLine(component).isPresent()) {
       return LineHashVersion.WITH_SIGNIFICANT_CODE.getDbValue();
     } else {
@@ -57,7 +57,7 @@ public class SourceLinesHashRepositoryImpl implements SourceLinesHashRepository 
   }
 
   @Override
-  public LineHashesComputer getLineProcessorToPersist(Component component) {
+  public LineHashesComputer getLineHashesComputerToPersist(Component component) {
     boolean cacheHit = cache.contains(component);
 
     // check if line hashes are cached and if we can use it

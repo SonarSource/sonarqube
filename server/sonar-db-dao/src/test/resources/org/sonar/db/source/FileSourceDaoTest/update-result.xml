@@ -6,7 +6,7 @@
                 line_hashes="NEW_LINE_HASHES"
                 src_hash="NEW_FILE_HASH" revision="987654321"
                 created_at="1500000000000" updated_at="1500000000002"  data_type="SOURCE"
-                line_hashes_version="4" />
+                line_hashes_version="1" />
 
 
 </dataset>
