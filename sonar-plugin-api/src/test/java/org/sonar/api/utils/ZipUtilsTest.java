@@ -20,19 +20,20 @@
 package org.sonar.api.utils;
 
 import com.google.common.collect.Iterators;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
+import java.util.Iterator;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 import org.apache.commons.io.FileUtils;
 import org.assertj.core.util.Files;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Iterator;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -40,6 +41,8 @@ public class ZipUtilsTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void zip_directory() throws IOException {
@@ -104,6 +107,30 @@ public class ZipUtilsTest {
 
     ZipUtils.unzip(zip, toDir, (ZipUtils.ZipEntryFilter)ze -> ze.getName().equals("foo.txt"));
     assertThat(toDir.listFiles()).containsOnly(new File(toDir, "foo.txt"));
+  }
+
+  @Test
+  public void fail_if_unzipping_file_outside_target_directory() throws Exception {
+    File zip = new File(getClass().getResource("ZipUtilsTest/zip-slip.zip").toURI());
+    File toDir = temp.newFolder();
+
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("Unzipping an entry outside the target directory is not allowed: ../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../tmp/evil.txt");
+
+    ZipUtils.unzip(zip, toDir);
+  }
+
+  @Test
+  public void fail_if_unzipping_stream_outside_target_directory() throws Exception {
+    File zip = new File(getClass().getResource("ZipUtilsTest/zip-slip.zip").toURI());
+    File toDir = temp.newFolder();
+
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("Unzipping an entry outside the target directory is not allowed: ../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../tmp/evil.txt");
+
+    try (InputStream input = new FileInputStream(zip)) {
+      ZipUtils.unzip(input, toDir);
+    }
   }
 
   private URL urlToZip() {
