@@ -18,13 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { getYear } from 'date-fns';
 import { translate } from '../../helpers/l10n';
 
 export default function GlobalFooterSonarCloud() {
   return (
-    <div id="footer" className="page-footer page-container">
+    <div className="page-footer page-container" id="footer">
       <div>
-        © 2008-2018, SonarCloud by{' '}
+        {`© 2008-${getYear(new Date())}, SonarCloud by `}
         <a href="http://www.sonarsource.com" title="SonarSource SA">
           SonarSource SA
         </a>
