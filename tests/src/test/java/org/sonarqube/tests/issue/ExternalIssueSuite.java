@@ -17,52 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 package org.sonarqube.tests.issue;
 
 import com.sonar.orchestrator.Orchestrator;
 import org.junit.ClassRule;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
-
-import static util.ItUtils.newOrchestratorBuilder;
-import static util.ItUtils.pluginArtifact;
-import static util.ItUtils.xooPlugin;
+import util.ItUtils;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
-  AutoAssignTest.class,
-  CommonRulesTest.class,
-  CustomRulesTest.class,
-  IssueActionTest.class,
-  IssueBulkChangeTest.class,
-  IssueChangelogTest.class,
-  IssueCreationTest.class,
-  IssueFilterOnCommonRulesTest.class,
-  IssueFilterTest.class,
-  IssueFilterExtensionTest.class,
-  IssueMeasureTest.class,
-  IssueNotificationsTest.class,
-  IssuePurgeTest.class,
-  IssueSearchTest.class,
-  IssueTrackingTest.class,
-  IssueWorkflowTest.class,
-  NewIssuesMeasureTest.class,
-  IssueCreationDateQPChangedTest.class,
-  IssuesPageTest.class
+  ExternalIssueTest.class
 })
-public class IssueSuite {
+/**
+ * This test uses its own suite because it creates external rules
+ */
+public class ExternalIssueSuite {
 
   @ClassRule
-  public static final Orchestrator ORCHESTRATOR = newOrchestratorBuilder()
-    .setServerProperty("sonar.search.httpPort", "9025")
-    .addPlugin(xooPlugin())
-
-    // issue
-    .addPlugin(pluginArtifact("issue-filter-plugin"))
-
-    // 1 second. Required for notification test.
-    .setServerProperty("sonar.notifications.delay", "1")
-
+  public static final Orchestrator ORCHESTRATOR = ItUtils.newOrchestratorBuilder()
+    .addPlugin(ItUtils.xooPlugin())
     .build();
-
 }

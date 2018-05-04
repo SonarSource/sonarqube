@@ -39,20 +39,17 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ExternalIssueTest {
   private static final String PROJECT_KEY = "project";
 
-  // This class uses its own instance of the server because it creates external rules in it
   @ClassRule
-  public static final Orchestrator ORCHESTRATOR = ItUtils.newOrchestratorBuilder()
-    .addPlugin(ItUtils.xooPlugin())
-    .build();
+  public static final Orchestrator orchestrator = ExternalIssueSuite.ORCHESTRATOR;
 
   @Rule
-  public Tester tester = new Tester(ORCHESTRATOR);
+  public Tester tester = new Tester(orchestrator);
 
   @Before
   public void setUp() {
-    ORCHESTRATOR.getServer().provisionProject(PROJECT_KEY, PROJECT_KEY);
-    ItUtils.restoreProfile(ORCHESTRATOR, getClass().getResource("/issue/ExternalIssueTest/no-rules.xml"));
-    ORCHESTRATOR.getServer().associateProjectToQualityProfile(PROJECT_KEY, "xoo", "no-rules");
+    orchestrator.getServer().provisionProject(PROJECT_KEY, PROJECT_KEY);
+    ItUtils.restoreProfile(orchestrator, getClass().getResource("/issue/ExternalIssueTest/no-rules.xml"));
+    orchestrator.getServer().associateProjectToQualityProfile(PROJECT_KEY, "xoo", "no-rules");
   }
 
   @Test
@@ -60,7 +57,7 @@ public class ExternalIssueTest {
     noIssues();
     ruleDoesntExist("external_xoo:OneExternalIssuePerLine");
 
-    ItUtils.runProjectAnalysis(ORCHESTRATOR, "shared/xoo-sample",
+    ItUtils.runProjectAnalysis(orchestrator, "shared/xoo-sample",
       "sonar.oneExternalIssuePerLine.activate", "true");
     List<Issue> issuesList = tester.wsClient().issues().search(new SearchRequest()).getIssuesList();
     assertThat(issuesList).hasSize(17);
@@ -76,7 +73,7 @@ public class ExternalIssueTest {
     ruleExists("external_xoo:OneExternalIssuePerLine");
 
     // second analysis, issue tracking should work
-    ItUtils.runProjectAnalysis(ORCHESTRATOR, "shared/xoo-sample",
+    ItUtils.runProjectAnalysis(orchestrator, "shared/xoo-sample",
       "sonar.oneExternalIssuePerLine.activate", "true");
     issuesList = tester.wsClient().issues().search(new SearchRequest()).getIssuesList();
     assertThat(issuesList).hasSize(17);
@@ -88,7 +85,7 @@ public class ExternalIssueTest {
     ruleDoesntExist("external_externalXoo:rule1");
     ruleDoesntExist("external_externalXoo:rule2");
 
-    ItUtils.runProjectAnalysis(ORCHESTRATOR, "shared/xoo-sample",
+    ItUtils.runProjectAnalysis(orchestrator, "shared/xoo-sample",
       "sonar.externalIssuesReportPaths", "externalIssues.json");
 
     List<Issue> issuesList = tester.wsClient().issues().search(new SearchRequest()
