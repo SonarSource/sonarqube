@@ -304,20 +304,22 @@ public class BaseIdentityProviderTest {
   @Test
   public void update_login() {
     enablePlugin();
-    String oldLogin = "login_to_update@base";
-    setUserCreatedByAuthPlugin(oldLogin, "login_to_update_id", "old_provider_login", USER_NAME, USER_EMAIL);
+    String oldLogin = tester.users().generateLogin();
+    String providerId = tester.users().generateProviderId();
+    setUserCreatedByAuthPlugin(oldLogin, providerId, tester.users().generateLogin(), USER_NAME, USER_EMAIL);
     assertThat(tester.users().getByLogin(USER_LOGIN)).isNotPresent();
     authenticateWithFakeAuthProvider();
 
     // Login is updated
-    String newLogin = "new_login@base";
-    setUserCreatedByAuthPlugin(newLogin, "login_to_update_id", "new_provider_login", USER_NAME, USER_EMAIL);
+    String newLogin = tester.users().generateLogin();
+    String newProviderLogin = tester.users().generateLogin();
+    setUserCreatedByAuthPlugin(newLogin, providerId, newProviderLogin, USER_NAME, USER_EMAIL);
     authenticateWithFakeAuthProvider();
 
     assertThat(tester.users().getByLogin(oldLogin)).isNotPresent();
     assertThat(tester.users().service().search(new SearchRequest().setQ(newLogin)).getUsersList())
       .extracting(User::getLogin, User::getName, User::getEmail, User::getExternalProvider, User::getExternalIdentity, User::getLocal)
-      .containsExactlyInAnyOrder(tuple(newLogin, USER_NAME, USER_EMAIL, FAKE_PROVIDER_KEY, "new_provider_login", false));
+      .containsExactlyInAnyOrder(tuple(newLogin, USER_NAME, USER_EMAIL, FAKE_PROVIDER_KEY, newProviderLogin, false));
     // Check that searching for old login return nothing
     assertThat(tester.users().service().search(new SearchRequest().setQ(oldLogin)).getPaging().getTotal()).isZero();
   }
@@ -325,8 +327,8 @@ public class BaseIdentityProviderTest {
   @Test
   public void authenticate_with_external_id_null() {
     enablePlugin();
-    String login = "no_external_id_login";
-    setUserCreatedByAuthPlugin(login, null, "no_external_id_provider_login", USER_NAME, USER_EMAIL);
+    String login = tester.users().generateLogin();
+    setUserCreatedByAuthPlugin(login, null, login, USER_NAME, USER_EMAIL);
 
     // First authentication
     authenticateWithFakeAuthProvider();
@@ -341,12 +343,12 @@ public class BaseIdentityProviderTest {
   @Test
   public void update_external_id() {
     enablePlugin();
-    String login = "update_external_id_login";
-    setUserCreatedByAuthPlugin(login, "old_external_id", login, USER_NAME, USER_EMAIL);
+    String login = tester.users().generateLogin();
+    setUserCreatedByAuthPlugin(login, tester.users().generateProviderId(), login, USER_NAME, USER_EMAIL);
     authenticateWithFakeAuthProvider();
     assertThat(tester.users().getByLogin(login)).isPresent();
 
-    setUserCreatedByAuthPlugin(login, "new_external_id", login, USER_NAME, USER_EMAIL);
+    setUserCreatedByAuthPlugin(login, tester.users().generateProviderId(), login, USER_NAME, USER_EMAIL);
     authenticateWithFakeAuthProvider();
     assertThat(tester.users().getByLogin(login)).isPresent();
   }
@@ -356,7 +358,8 @@ public class BaseIdentityProviderTest {
   }
 
   private void setUserCreatedByAuthPlugin(String login, @Nullable String providerId, String providerLogin, String name, String email) {
-    tester.settings().setGlobalSettings("sonar.auth.fake-base-id-provider.user", login + "," + (providerId == null ? "" : providerId) + "," + providerLogin + "," + name + "," + email);
+    tester.settings().setGlobalSettings("sonar.auth.fake-base-id-provider.user",
+      login + "," + (providerId == null ? "" : providerId) + "," + providerLogin + "," + name + "," + email);
   }
 
   private void setGroupsReturnedByAuthPlugin(String... groups) {

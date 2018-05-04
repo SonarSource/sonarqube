@@ -70,8 +70,7 @@ public class OrganizationDaoTest {
     .setUrl("the url 1")
     .setAvatarUrl("the avatar url 1")
     .setGuarded(false)
-    .setDefaultQualityGateUuid("1")
-    .setUserId(1_000);
+    .setDefaultQualityGateUuid("1");
   private static final OrganizationDto ORGANIZATION_DTO_2 = new OrganizationDto()
     .setUuid("uuid 2")
     .setKey("the_key 2")
@@ -80,20 +79,19 @@ public class OrganizationDaoTest {
     .setUrl("the url 2")
     .setAvatarUrl("the avatar url 2")
     .setGuarded(true)
-    .setDefaultQualityGateUuid("1")
-    .setUserId(2_000);
+    .setDefaultQualityGateUuid("1");
   private static final String PERMISSION_1 = "foo";
   private static final String PERMISSION_2 = "bar";
 
   private System2 system2 = mock(System2.class);
 
   @Rule
-  public final DbTester dbTester = DbTester.create(system2).setDisableDefaultOrganization(true);
+  public final DbTester db = DbTester.create(system2).setDisableDefaultOrganization(true);
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private DbClient dbClient = dbTester.getDbClient();
-  private DbSession dbSession = dbTester.getSession();
+  private DbClient dbClient = db.getDbClient();
+  private DbSession dbSession = db.getSession();
 
   private OrganizationDao underTest = dbClient.organizationDao();
 
@@ -146,7 +144,7 @@ public class OrganizationDaoTest {
   @Test
   public void description_url_avatarUrl_and_userId_are_optional() {
     when(system2.now()).thenReturn(SOME_DATE);
-    insertOrganization(copyOf(ORGANIZATION_DTO_1).setDescription(null).setUrl(null).setAvatarUrl(null).setUserId(null));
+    insertOrganization(copyOf(ORGANIZATION_DTO_1).setDescription(null).setUrl(null).setAvatarUrl(null));
 
     Map<String, Object> row = selectSingleRow();
     assertThat(row.get("uuid")).isEqualTo(ORGANIZATION_DTO_1.getUuid());
@@ -165,7 +163,7 @@ public class OrganizationDaoTest {
   }
 
   private Object toBool(boolean guarded) {
-    Dialect dialect = dbTester.database().getDialect();
+    Dialect dialect = db.database().getDialect();
     if (dialect.getId().equals(Oracle.ID)) {
       return guarded ? 1L : 0L;
     }
@@ -504,12 +502,12 @@ public class OrganizationDaoTest {
 
   @Test
   public void selectByQuery_filter_on_a_member() {
-    OrganizationDto organization = dbTester.organizations().insert();
-    OrganizationDto anotherOrganization = dbTester.organizations().insert();
-    OrganizationDto organizationWithoutMember = dbTester.organizations().insert();
-    UserDto user = dbTester.users().insertUser();
-    dbTester.organizations().addMember(organization, user);
-    dbTester.organizations().addMember(anotherOrganization, user);
+    OrganizationDto organization = db.organizations().insert();
+    OrganizationDto anotherOrganization = db.organizations().insert();
+    OrganizationDto organizationWithoutMember = db.organizations().insert();
+    UserDto user = db.users().insertUser();
+    db.organizations().addMember(organization, user);
+    db.organizations().addMember(anotherOrganization, user);
 
     List<OrganizationDto> result = underTest.selectByQuery(dbSession, OrganizationQuery.newOrganizationQueryBuilder().setMember(user.getId()).build(), forPage(1).andSize(100));
 
@@ -520,14 +518,14 @@ public class OrganizationDaoTest {
 
   @Test
   public void selectByQuery_filter_on_a_member_and_keys() {
-    OrganizationDto organization = dbTester.organizations().insert();
-    OrganizationDto anotherOrganization = dbTester.organizations().insert();
-    OrganizationDto organizationWithoutKeyProvided = dbTester.organizations().insert();
-    OrganizationDto organizationWithoutMember = dbTester.organizations().insert();
-    UserDto user = dbTester.users().insertUser();
-    dbTester.organizations().addMember(organization, user);
-    dbTester.organizations().addMember(anotherOrganization, user);
-    dbTester.organizations().addMember(organizationWithoutKeyProvided, user);
+    OrganizationDto organization = db.organizations().insert();
+    OrganizationDto anotherOrganization = db.organizations().insert();
+    OrganizationDto organizationWithoutKeyProvided = db.organizations().insert();
+    OrganizationDto organizationWithoutMember = db.organizations().insert();
+    UserDto user = db.users().insertUser();
+    db.organizations().addMember(organization, user);
+    db.organizations().addMember(anotherOrganization, user);
+    db.organizations().addMember(organizationWithoutKeyProvided, user);
 
     List<OrganizationDto> result = underTest.selectByQuery(dbSession, OrganizationQuery.newOrganizationQueryBuilder()
       .setKeys(Arrays.asList(organization.getKey(), anotherOrganization.getKey(), organizationWithoutMember.getKey()))
@@ -669,11 +667,11 @@ public class OrganizationDaoTest {
   @Test
   public void setDefaultQualityGate() {
     when(system2.now()).thenReturn(DATE_3);
-    OrganizationDto organization = dbTester.organizations().insert();
-    QGateWithOrgDto qualityGate = dbTester.qualityGates().insertQualityGate(organization);
+    OrganizationDto organization = db.organizations().insert();
+    QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization);
 
     underTest.setDefaultQualityGate(dbSession, organization, qualityGate);
-    dbTester.commit();
+    db.commit();
 
     assertThat(dbClient.qualityGateDao().selectDefault(dbSession, organization).getUuid()).isEqualTo(qualityGate.getUuid());
     verifyOrganizationUpdatedAt(organization.getUuid(), DATE_3);
@@ -725,7 +723,7 @@ public class OrganizationDaoTest {
   }
 
   @Test
-  public void update_does_not_update_key_nor_createdAt() {
+  public void update_does_not_update_createdAt() {
     when(system2.now()).thenReturn(DATE_1);
     insertOrganization(ORGANIZATION_DTO_1);
 
@@ -743,7 +741,7 @@ public class OrganizationDaoTest {
 
     Map<String, Object> row = selectSingleRow();
     assertThat(row.get("uuid")).isEqualTo(ORGANIZATION_DTO_1.getUuid());
-    assertThat(row.get("key")).isEqualTo(ORGANIZATION_DTO_1.getKey());
+    assertThat(row.get("key")).isEqualTo("new key");
     assertThat(row.get("name")).isEqualTo("new name");
     assertThat(row.get("description")).isEqualTo("new description");
     assertThat(row.get("url")).isEqualTo("new url");
@@ -781,32 +779,32 @@ public class OrganizationDaoTest {
     String anotherUuid = "uuid";
     insertOrganization(copyOf(ORGANIZATION_DTO_1).setUuid(anotherUuid).setKey("key"));
 
-    assertThat(dbTester.countRowsOfTable("organizations")).isEqualTo(2);
+    assertThat(db.countRowsOfTable("organizations")).isEqualTo(2);
     assertThat(underTest.deleteByUuid(dbSession, anotherUuid)).isEqualTo(1);
     dbSession.commit();
 
     assertThat(underTest.selectByUuid(dbSession, anotherUuid)).isEmpty();
     assertThat(underTest.selectByUuid(dbSession, ORGANIZATION_DTO_1.getUuid())).isNotEmpty();
-    assertThat(dbTester.countRowsOfTable("organizations")).isEqualTo(1);
+    assertThat(db.countRowsOfTable("organizations")).isEqualTo(1);
 
     assertThat(underTest.deleteByUuid(dbSession, anotherUuid)).isEqualTo(0);
     assertThat(underTest.deleteByUuid(dbSession, ORGANIZATION_DTO_1.getUuid())).isEqualTo(1);
     dbSession.commit();
 
     assertThat(underTest.selectByUuid(dbSession, ORGANIZATION_DTO_1.getUuid())).isEmpty();
-    assertThat(dbTester.countRowsOfTable("organizations")).isEqualTo(0);
+    assertThat(db.countRowsOfTable("organizations")).isEqualTo(0);
   }
 
   @Test
   public void selectByPermission_returns_organization_when_user_has_ADMIN_user_permission_on_some_organization() {
-    UserDto user = dbTester.users().insertUser();
-    OrganizationDto organization1 = dbTester.organizations().insert();
-    dbTester.users().insertPermissionOnUser(organization1, user, PERMISSION_2);
-    OrganizationDto organization2 = dbTester.organizations().insert();
-    dbTester.users().insertPermissionOnUser(organization2, user, PERMISSION_2);
-    UserDto otherUser = dbTester.users().insertUser();
-    OrganizationDto organization3 = dbTester.organizations().insert();
-    dbTester.users().insertPermissionOnUser(organization3, otherUser, PERMISSION_2);
+    UserDto user = db.users().insertUser();
+    OrganizationDto organization1 = db.organizations().insert();
+    db.users().insertPermissionOnUser(organization1, user, PERMISSION_2);
+    OrganizationDto organization2 = db.organizations().insert();
+    db.users().insertPermissionOnUser(organization2, user, PERMISSION_2);
+    UserDto otherUser = db.users().insertUser();
+    OrganizationDto organization3 = db.organizations().insert();
+    db.users().insertPermissionOnUser(organization3, otherUser, PERMISSION_2);
 
     assertThat(underTest.selectByPermission(dbSession, user.getId(), PERMISSION_2))
       .extracting(OrganizationDto::getUuid)
@@ -822,20 +820,20 @@ public class OrganizationDaoTest {
 
   @Test
   public void selectByPermission_returns_organization_when_user_has_ADMIN_group_permission_on_some_organization() {
-    UserDto user = dbTester.users().insertUser();
-    OrganizationDto organization1 = dbTester.organizations().insert();
-    GroupDto defaultGroup = dbTester.users().insertGroup(organization1);
-    dbTester.users().insertPermissionOnGroup(defaultGroup, PERMISSION_1);
-    dbTester.users().insertMember(defaultGroup, user);
-    OrganizationDto organization2 = dbTester.organizations().insert();
-    GroupDto group1 = dbTester.users().insertGroup(organization2);
-    dbTester.users().insertPermissionOnGroup(group1, PERMISSION_1);
-    dbTester.users().insertMember(group1, user);
-    UserDto otherUser = dbTester.users().insertUser();
-    OrganizationDto organization3 = dbTester.organizations().insert();
-    GroupDto group2 = dbTester.users().insertGroup(organization3);
-    dbTester.users().insertPermissionOnGroup(group2, PERMISSION_1);
-    dbTester.users().insertMember(group2, otherUser);
+    UserDto user = db.users().insertUser();
+    OrganizationDto organization1 = db.organizations().insert();
+    GroupDto defaultGroup = db.users().insertGroup(organization1);
+    db.users().insertPermissionOnGroup(defaultGroup, PERMISSION_1);
+    db.users().insertMember(defaultGroup, user);
+    OrganizationDto organization2 = db.organizations().insert();
+    GroupDto group1 = db.users().insertGroup(organization2);
+    db.users().insertPermissionOnGroup(group1, PERMISSION_1);
+    db.users().insertMember(group1, user);
+    UserDto otherUser = db.users().insertUser();
+    OrganizationDto organization3 = db.organizations().insert();
+    GroupDto group2 = db.users().insertGroup(organization3);
+    db.users().insertPermissionOnGroup(group2, PERMISSION_1);
+    db.users().insertMember(group2, otherUser);
 
     assertThat(underTest.selectByPermission(dbSession, user.getId(), PERMISSION_1))
       .extracting(OrganizationDto::getUuid)
@@ -852,15 +850,15 @@ public class OrganizationDaoTest {
   @Test
   public void selectByPermission_return_organization_only_once_even_if_user_has_ADMIN_permission_twice_or_more() {
     String permission = "destroy";
-    UserDto user = dbTester.users().insertUser();
-    OrganizationDto organization = dbTester.organizations().insert();
-    GroupDto group1 = dbTester.users().insertGroup(organization);
-    dbTester.users().insertPermissionOnGroup(group1, permission);
-    dbTester.users().insertMember(group1, user);
-    GroupDto group2 = dbTester.users().insertGroup(organization);
-    dbTester.users().insertPermissionOnGroup(group2, permission);
-    dbTester.users().insertMember(group2, user);
-    dbTester.users().insertPermissionOnUser(organization, user, permission);
+    UserDto user = db.users().insertUser();
+    OrganizationDto organization = db.organizations().insert();
+    GroupDto group1 = db.users().insertGroup(organization);
+    db.users().insertPermissionOnGroup(group1, permission);
+    db.users().insertMember(group1, user);
+    GroupDto group2 = db.users().insertGroup(organization);
+    db.users().insertPermissionOnGroup(group2, permission);
+    db.users().insertMember(group2, user);
+    db.users().insertPermissionOnUser(organization, user, permission);
 
     assertThat(underTest.selectByPermission(dbSession, user.getId(), permission))
       .extracting(OrganizationDto::getUuid)
@@ -869,14 +867,14 @@ public class OrganizationDaoTest {
 
   @Test
   public void selectByPermission_returns_organization_only_if_user_has_specific_permission_by_user_permission() {
-    OrganizationDto organization = dbTester.organizations().insert();
-    OrganizationDto otherOrganization = dbTester.organizations().insert();
-    UserDto user = dbTester.users().insertUser();
-    dbTester.users().insertPermissionOnUser(organization, user, PERMISSION_1);
-    dbTester.users().insertPermissionOnUser(otherOrganization, user, PERMISSION_2);
-    UserDto otherUser = dbTester.users().insertUser();
-    dbTester.users().insertPermissionOnUser(organization, otherUser, PERMISSION_2);
-    dbTester.users().insertPermissionOnUser(otherOrganization, otherUser, PERMISSION_1);
+    OrganizationDto organization = db.organizations().insert();
+    OrganizationDto otherOrganization = db.organizations().insert();
+    UserDto user = db.users().insertUser();
+    db.users().insertPermissionOnUser(organization, user, PERMISSION_1);
+    db.users().insertPermissionOnUser(otherOrganization, user, PERMISSION_2);
+    UserDto otherUser = db.users().insertUser();
+    db.users().insertPermissionOnUser(organization, otherUser, PERMISSION_2);
+    db.users().insertPermissionOnUser(otherOrganization, otherUser, PERMISSION_1);
 
     assertThat(underTest.selectByPermission(dbSession, user.getId(), PERMISSION_1))
       .extracting(OrganizationDto::getUuid)
@@ -894,22 +892,22 @@ public class OrganizationDaoTest {
 
   @Test
   public void selectByPermission_returns_organization_only_if_user_has_specific_permission_by_group_permission() {
-    OrganizationDto organization = dbTester.organizations().insert();
-    OrganizationDto otherOrganization = dbTester.organizations().insert();
-    GroupDto group1 = dbTester.users().insertGroup(organization);
-    GroupDto group2 = dbTester.users().insertGroup(organization);
-    GroupDto otherGroup1 = dbTester.users().insertGroup(otherOrganization);
-    GroupDto otherGroup2 = dbTester.users().insertGroup(otherOrganization);
-    dbTester.users().insertPermissionOnGroup(group1, PERMISSION_1);
-    dbTester.users().insertPermissionOnGroup(otherGroup2, PERMISSION_2);
-    dbTester.users().insertPermissionOnGroup(group2, PERMISSION_2);
-    dbTester.users().insertPermissionOnGroup(otherGroup1, PERMISSION_1);
-    UserDto user = dbTester.users().insertUser();
-    dbTester.users().insertMember(group1, user);
-    dbTester.users().insertMember(otherGroup2, user);
-    UserDto otherUser = dbTester.users().insertUser();
-    dbTester.users().insertMember(group2, otherUser);
-    dbTester.users().insertMember(otherGroup1, otherUser);
+    OrganizationDto organization = db.organizations().insert();
+    OrganizationDto otherOrganization = db.organizations().insert();
+    GroupDto group1 = db.users().insertGroup(organization);
+    GroupDto group2 = db.users().insertGroup(organization);
+    GroupDto otherGroup1 = db.users().insertGroup(otherOrganization);
+    GroupDto otherGroup2 = db.users().insertGroup(otherOrganization);
+    db.users().insertPermissionOnGroup(group1, PERMISSION_1);
+    db.users().insertPermissionOnGroup(otherGroup2, PERMISSION_2);
+    db.users().insertPermissionOnGroup(group2, PERMISSION_2);
+    db.users().insertPermissionOnGroup(otherGroup1, PERMISSION_1);
+    UserDto user = db.users().insertUser();
+    db.users().insertMember(group1, user);
+    db.users().insertMember(otherGroup2, user);
+    UserDto otherUser = db.users().insertUser();
+    db.users().insertMember(group2, otherUser);
+    db.users().insertMember(otherGroup1, otherUser);
 
     assertThat(underTest.selectByPermission(dbSession, user.getId(), PERMISSION_1))
       .extracting(OrganizationDto::getUuid)
@@ -936,7 +934,7 @@ public class OrganizationDaoTest {
   }
 
   private void dirtyInsertWithDefaultTemplate(String organizationUuid, @Nullable String project, @Nullable String view) {
-    try (Connection connection = dbTester.database().getDataSource().getConnection();
+    try (Connection connection = db.database().getDataSource().getConnection();
       PreparedStatement preparedStatement = connection.prepareStatement(
         "insert into organizations" +
           "    (" +
@@ -998,7 +996,6 @@ public class OrganizationDaoTest {
     assertThat(dto.getUrl()).isEqualTo(ORGANIZATION_DTO_1.getUrl());
     assertThat(dto.isGuarded()).isEqualTo(ORGANIZATION_DTO_1.isGuarded());
     assertThat(dto.getAvatarUrl()).isEqualTo(ORGANIZATION_DTO_1.getAvatarUrl());
-    assertThat(dto.getUserId()).isEqualTo(ORGANIZATION_DTO_1.getUserId());
     assertThat(dto.getCreatedAt()).isEqualTo(ORGANIZATION_DTO_1.getCreatedAt());
     assertThat(dto.getUpdatedAt()).isEqualTo(ORGANIZATION_DTO_1.getUpdatedAt());
   }
@@ -1010,16 +1007,15 @@ public class OrganizationDaoTest {
     assertThat(dto.getDescription()).isEqualTo(expected.getDescription());
     assertThat(dto.getUrl()).isEqualTo(expected.getUrl());
     assertThat(dto.isGuarded()).isEqualTo(expected.isGuarded());
-    assertThat(dto.getUserId()).isEqualTo(expected.getUserId());
     assertThat(dto.getAvatarUrl()).isEqualTo(expected.getAvatarUrl());
     assertThat(dto.getCreatedAt()).isEqualTo(expected.getCreatedAt());
     assertThat(dto.getUpdatedAt()).isEqualTo(expected.getUpdatedAt());
   }
 
   private Map<String, Object> selectSingleRow() {
-    List<Map<String, Object>> rows = dbTester.select("select" +
+    List<Map<String, Object>> rows = db.select("select" +
       " uuid as \"uuid\", kee as \"key\", name as \"name\",  description as \"description\", url as \"url\", avatar_url as \"avatarUrl\"," +
-      " guarded as \"guarded\", user_id as \"userId\"," +
+      " guarded as \"guarded\"," +
       " created_at as \"createdAt\", updated_at as \"updatedAt\"," +
       " default_perm_template_project as \"projectDefaultPermTemplate\"," +
       " default_perm_template_view as \"viewDefaultPermTemplate\"," +
@@ -1054,7 +1050,7 @@ public class OrganizationDaoTest {
   }
 
   private void verifyOrganizationUpdatedAt(String organization, Long updatedAt) {
-    Map<String, Object> row = dbTester.selectFirst(dbTester.getSession(), String.format("select updated_at as \"updatedAt\" from organizations where uuid='%s'", organization));
+    Map<String, Object> row = db.selectFirst(db.getSession(), String.format("select updated_at as \"updatedAt\" from organizations where uuid='%s'", organization));
     assertThat(row.get("updatedAt")).isEqualTo(updatedAt);
   }
 }

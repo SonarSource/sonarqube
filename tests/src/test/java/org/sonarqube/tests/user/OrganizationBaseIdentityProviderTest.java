@@ -32,7 +32,7 @@ import org.sonarqube.ws.Users.CreateWsResponse.User;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.organizations.AddMemberRequest;
 
-public class OrganizationIdentityProviderTest {
+public class OrganizationBaseIdentityProviderTest {
 
   @ClassRule
   public static Orchestrator orchestrator = SonarCloudUserSuite.ORCHESTRATOR;
@@ -57,19 +57,20 @@ public class OrganizationIdentityProviderTest {
   }
 
   @Test
-  public void default_group_is_not_added_for_new_user() {
+  public void synchronize_groups_for_new_user() {
     Group group = tester.groups().generate();
-    enableUserCreationByAuthPlugin("aLogin");
+    String login = tester.users().generateLogin();
+    enableUserCreationByAuthPlugin(login);
     setGroupsReturnedByAuthPlugin(group.getName());
 
     authenticateWithFakeAuthProvider();
 
     // No default group membership
-    tester.groups().assertThatUserIsOnlyMemberOf(null, "aLogin", group.getName());
+    tester.groups().assertThatUserIsOnlyMemberOf(null, login, group.getName());
   }
 
   @Test
-  public void default_group_is_not_sync_for_existing_user() {
+  public void synchronize_groups_for_existing_user() {
     Group group = tester.groups().generate();
     User user = tester.users().generate();
     enableUserCreationByAuthPlugin(user.getLogin());
@@ -99,7 +100,7 @@ public class OrganizationIdentityProviderTest {
   }
 
   private void enableUserCreationByAuthPlugin(String login) {
-    tester.settings().setGlobalSettings("sonar.auth.fake-base-id-provider.user", login +"," + login + ",fake-" + login + ",John,john@email.com");
+    tester.settings().setGlobalSettings("sonar.auth.fake-base-id-provider.user", login + "," + login + ",fake-" + login + ",John,john@email.com");
   }
 
   private void setGroupsReturnedByAuthPlugin(String... groups) {

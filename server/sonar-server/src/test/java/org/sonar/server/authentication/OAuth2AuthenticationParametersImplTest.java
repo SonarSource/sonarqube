@@ -44,7 +44,7 @@ public class OAuth2AuthenticationParametersImplTest {
   private HttpServletResponse response = mock(HttpServletResponse.class);
   private HttpServletRequest request = mock(HttpServletRequest.class);
 
-  private OAuth2AuthenticationParametersImpl underTest = new OAuth2AuthenticationParametersImpl();
+  private OAuth2AuthenticationParameters underTest = new OAuth2AuthenticationParametersImpl();
 
   @Before
   public void setUp() throws Exception {
@@ -52,9 +52,8 @@ public class OAuth2AuthenticationParametersImplTest {
   }
 
   @Test
-  public void init_create_cookie_containing_parameters_from_request() {
+  public void init_create_cookie() {
     when(request.getParameter("return_to")).thenReturn("/settings");
-    when(request.getParameter("allowEmailShift")).thenReturn("true");
 
     underTest.init(request, response);
 
@@ -79,6 +78,7 @@ public class OAuth2AuthenticationParametersImplTest {
   public void init_does_not_create_cookie_when_parameters_are_empty() {
     when(request.getParameter("return_to")).thenReturn("");
     when(request.getParameter("allowEmailShift")).thenReturn("");
+    when(request.getParameter("allowUpdateLogin")).thenReturn("");
 
     underTest.init(request, response);
 
@@ -89,6 +89,7 @@ public class OAuth2AuthenticationParametersImplTest {
   public void init_does_not_create_cookie_when_parameters_are_null() {
     when(request.getParameter("return_to")).thenReturn(null);
     when(request.getParameter("allowEmailShift")).thenReturn(null);
+    when(request.getParameter("allowUpdateLogin")).thenReturn(null);
 
     underTest.init(request, response);
 
@@ -149,6 +150,34 @@ public class OAuth2AuthenticationParametersImplTest {
     Optional<Boolean> allowEmailShift = underTest.getAllowEmailShift(request);
 
     assertThat(allowEmailShift).isEmpty();
+  }
+
+  @Test
+  public void getAllowUpdateLogin() {
+    when(request.getCookies()).thenReturn(new Cookie[] {new Cookie(AUTHENTICATION_COOKIE_NAME, "{\"allowUpdateLogin\":\"true\"}")});
+
+    Optional<Boolean> allowLoginUpdate = underTest.getAllowUpdateLogin(request);
+
+    assertThat(allowLoginUpdate).isNotEmpty();
+    assertThat(allowLoginUpdate.get()).isTrue();
+  }
+
+  @Test
+  public void getAllowUpdateLogin_is_empty_when_no_cookie() {
+    when(request.getCookies()).thenReturn(new Cookie[] {});
+
+    Optional<Boolean> allowLoginUpdate = underTest.getAllowUpdateLogin(request);
+
+    assertThat(allowLoginUpdate).isEmpty();
+  }
+
+  @Test
+  public void getAllowUpdateLogin_is_empty_when_no_value() {
+    when(request.getCookies()).thenReturn(new Cookie[] {new Cookie(AUTHENTICATION_COOKIE_NAME, "{}")});
+
+    Optional<Boolean> allowLoginUpdate = underTest.getAllowUpdateLogin(request);
+
+    assertThat(allowLoginUpdate).isEmpty();
   }
 
   @Test

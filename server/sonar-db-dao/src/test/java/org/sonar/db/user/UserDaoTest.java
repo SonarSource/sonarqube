@@ -346,10 +346,11 @@ public class UserDaoTest {
       .setExternalIdentityProvider("github")
       .setExternalId("EXT_ID")
       .setLocal(true)
-      .setCreatedAt(date)
-      .setUpdatedAt(date)
       .setHomepageType("project")
-      .setHomepageParameter("OB1");
+      .setHomepageParameter("OB1")
+      .setOrganizationUuid("ORG_UUID")
+      .setCreatedAt(date)
+      .setUpdatedAt(date);
     underTest.insert(db.getSession(), userDto);
     db.getSession().commit();
 
@@ -372,6 +373,7 @@ public class UserDaoTest {
     assertThat(user.isRoot()).isFalse();
     assertThat(user.getHomepageType()).isEqualTo("project");
     assertThat(user.getHomepageParameter()).isEqualTo("OB1");
+    assertThat(user.getOrganizationUuid()).isEqualTo("ORG_UUID");
   }
 
   @Test
@@ -382,7 +384,8 @@ public class UserDaoTest {
       .setEmail("jo@hn.com")
       .setActive(true)
       .setLocal(true)
-      .setOnboarded(false));
+      .setOnboarded(false)
+      .setOrganizationUuid("OLD_ORG_UUID"));
 
     underTest.update(db.getSession(), newUserDto()
       .setUuid(user.getUuid())
@@ -400,7 +403,8 @@ public class UserDaoTest {
       .setExternalId("EXT_ID")
       .setLocal(false)
       .setHomepageType("project")
-      .setHomepageParameter("OB1"));
+      .setHomepageParameter("OB1")
+      .setOrganizationUuid("ORG_UUID"));
 
     UserDto reloaded = underTest.selectByUuid(db.getSession(), user.getUuid());
     assertThat(reloaded).isNotNull();
@@ -421,6 +425,7 @@ public class UserDaoTest {
     assertThat(reloaded.isRoot()).isFalse();
     assertThat(reloaded.getHomepageType()).isEqualTo("project");
     assertThat(reloaded.getHomepageParameter()).isEqualTo("OB1");
+    assertThat(reloaded.getOrganizationUuid()).isEqualTo("ORG_UUID");
   }
 
   @Test

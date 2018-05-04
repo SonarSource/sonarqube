@@ -100,7 +100,7 @@ import org.sonar.server.metric.ws.MetricsWsModule;
 import org.sonar.server.notification.NotificationModule;
 import org.sonar.server.notification.ws.NotificationWsModule;
 import org.sonar.server.organization.BillingValidationsProxyImpl;
-import org.sonar.server.organization.OrganizationCreationImpl;
+import org.sonar.server.organization.OrganizationUpdaterImpl;
 import org.sonar.server.organization.OrganizationValidationImpl;
 import org.sonar.server.organization.ws.OrganizationsWsModule;
 import org.sonar.server.permission.GroupPermissionChanger;
@@ -295,7 +295,7 @@ public class PlatformLevel4 extends PlatformLevel {
 
       // organizations
       OrganizationValidationImpl.class,
-      OrganizationCreationImpl.class,
+      OrganizationUpdaterImpl.class,
       OrganizationsWsModule.class,
       BillingValidationsProxyImpl.class,
 

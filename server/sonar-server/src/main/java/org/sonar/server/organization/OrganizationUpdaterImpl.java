@@ -62,9 +62,9 @@ import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.db.permission.OrganizationPermission.SCAN;
-import static org.sonar.server.organization.OrganizationCreation.NewOrganization.newOrganizationBuilder;
+import static org.sonar.server.organization.OrganizationUpdater.NewOrganization.newOrganizationBuilder;
 
-public class OrganizationCreationImpl implements OrganizationCreation {
+public class OrganizationUpdaterImpl implements OrganizationUpdater {
 
   private final DbClient dbClient;
   private final System2 system2;
@@ -75,7 +75,7 @@ public class OrganizationCreationImpl implements OrganizationCreation {
   private final DefaultGroupCreator defaultGroupCreator;
   private final UserIndexer userIndexer;
 
-  public OrganizationCreationImpl(DbClient dbClient, System2 system2, UuidFactory uuidFactory,
+  public OrganizationUpdaterImpl(DbClient dbClient, System2 system2, UuidFactory uuidFactory,
     OrganizationValidation organizationValidation, Configuration config, UserIndexer userIndexer,
     BuiltInQProfileRepository builtInQProfileRepository, DefaultGroupCreator defaultGroupCreator) {
     this.dbClient = dbClient;
@@ -129,14 +129,12 @@ public class OrganizationCreationImpl implements OrganizationCreation {
       .setName(toName(nameOrLogin))
       .setDescription(format(PERSONAL_ORGANIZATION_DESCRIPTION_PATTERN, nameOrLogin))
       .build();
-    checkState(!organizationKeyIsUsed(dbSession, newOrganization.getKey()),
-      "Can't create organization with key '%s' for new user '%s' because an organization with this key already exists",
-      newOrganization.getKey(),
-      newUser.getLogin());
+    checkKey(dbSession, newOrganization.getKey());
 
     QualityGateDto builtInQualityGate = dbClient.qualityGateDao().selectBuiltIn(dbSession);
     OrganizationDto organization = insertOrganization(dbSession, newOrganization, builtInQualityGate,
-      dto -> dto.setGuarded(true).setUserId(newUser.getId()));
+      dto -> dto.setGuarded(true));
+    dbClient.userDao().update(dbSession, newUser.setOrganizationUuid(organization.getUuid()));
     insertOrganizationMember(dbSession, organization, newUser.getId());
     GroupDto defaultGroup = defaultGroupCreator.create(dbSession, organization.getUuid());
     dbClient.qualityGateDao().associate(dbSession, uuidFactory.create(), organization, builtInQualityGate);
@@ -154,6 +152,21 @@ public class OrganizationCreationImpl implements OrganizationCreation {
 
       return Optional.of(organization);
     }
+  }
+
+  @Override
+  public void updateOrganizationKey(DbSession dbSession, OrganizationDto organization, String newKey) {
+    String sanitizedKey = organizationValidation.generateKeyFrom(newKey);
+    if (organization.getKey().equals(sanitizedKey)) {
+      return;
+    }
+    checkKey(dbSession, sanitizedKey);
+    dbClient.organizationDao().update(dbSession, organization.setKey(sanitizedKey));
+  }
+
+  private void checkKey(DbSession dbSession, String key) {
+    checkState(!organizationKeyIsUsed(dbSession, key),
+      "Can't create organization with key '%s' because an organization with this key already exists", key);
   }
 
   private static String nameOrLogin(UserDto newUser) {

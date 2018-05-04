@@ -31,14 +31,14 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.UserDto;
-import org.sonar.server.organization.OrganizationCreation;
 import org.sonar.server.organization.OrganizationFlags;
+import org.sonar.server.organization.OrganizationUpdater;
 import org.sonar.server.organization.OrganizationValidation;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Organizations.CreateWsResponse;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static org.sonar.server.organization.OrganizationCreation.NewOrganization.newOrganizationBuilder;
+import static org.sonar.server.organization.OrganizationUpdater.NewOrganization.newOrganizationBuilder;
 import static org.sonar.server.organization.OrganizationValidation.KEY_MAX_LENGTH;
 import static org.sonar.server.organization.ws.OrganizationsWsSupport.PARAM_KEY;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
@@ -51,17 +51,17 @@ public class CreateAction implements OrganizationsWsAction {
   private final DbClient dbClient;
   private final OrganizationsWsSupport wsSupport;
   private final OrganizationValidation organizationValidation;
-  private final OrganizationCreation organizationCreation;
+  private final OrganizationUpdater organizationUpdater;
   private final OrganizationFlags organizationFlags;
 
   public CreateAction(Configuration config, UserSession userSession, DbClient dbClient, OrganizationsWsSupport wsSupport,
-    OrganizationValidation organizationValidation, OrganizationCreation organizationCreation, OrganizationFlags organizationFlags) {
+                      OrganizationValidation organizationValidation, OrganizationUpdater organizationUpdater, OrganizationFlags organizationFlags) {
     this.config = config;
     this.userSession = userSession;
     this.dbClient = dbClient;
     this.wsSupport = wsSupport;
     this.organizationValidation = organizationValidation;
-    this.organizationCreation = organizationCreation;
+    this.organizationUpdater = organizationUpdater;
     this.organizationFlags = organizationFlags;
   }
 
@@ -107,7 +107,7 @@ public class CreateAction implements OrganizationsWsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
       organizationFlags.checkEnabled(dbSession);
       UserDto currentUser = dbClient.userDao().selectActiveUserByLogin(dbSession, userSession.getLogin());
-      OrganizationDto organization = organizationCreation.create(
+      OrganizationDto organization = organizationUpdater.create(
         dbSession,
         currentUser,
         newOrganizationBuilder()
@@ -119,7 +119,7 @@ public class CreateAction implements OrganizationsWsAction {
           .build());
 
       writeResponse(request, response, organization);
-    } catch (OrganizationCreation.KeyConflictException e) {
+    } catch (OrganizationUpdater.KeyConflictException e) {
       checkArgument(requestKey == null, "Key '%s' is already used. Specify another one.", key);
       checkArgument(requestKey != null, "Key '%s' generated from name '%s' is already used. Specify one.", key, name);
     }

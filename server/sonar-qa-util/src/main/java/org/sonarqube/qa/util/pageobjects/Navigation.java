@@ -299,6 +299,10 @@ public class Navigation {
     return new EmailAlreadyExistsPage();
   }
 
+  public UpdateLoginPage asUpdateLoginPage() {
+    return new UpdateLoginPage();
+  }
+
   private static SelenideElement logInLink() {
     return Selenide.$(By.linkText("Log in"));
   }

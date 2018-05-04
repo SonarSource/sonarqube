@@ -27,12 +27,13 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.mockito.ArgumentCaptor;
 import org.sonar.api.platform.Server;
 import org.sonar.api.server.authentication.OAuth2IdentityProvider;
 import org.sonar.api.server.authentication.UserIdentity;
-import org.sonar.api.utils.System2;
-import org.sonar.db.DbTester;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.authentication.UserIdentityAuthenticatorParameters.ExistingEmailStrategy;
+import org.sonar.server.authentication.UserIdentityAuthenticatorParameters.UpdateLoginStrategy;
 import org.sonar.server.user.TestUserSessionFactory;
 import org.sonar.server.user.ThreadLocalUserSession;
 import org.sonar.server.user.UserSession;
@@ -43,9 +44,6 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.sonar.server.authentication.UserIdentityAuthenticator.ExistingEmailStrategy.ALLOW;
-import static org.sonar.server.authentication.UserIdentityAuthenticator.ExistingEmailStrategy.WARN;
-import static org.sonar.server.authentication.event.AuthenticationEvent.Source;
 
 public class OAuth2ContextFactoryTest {
 
@@ -53,6 +51,7 @@ public class OAuth2ContextFactoryTest {
   private static final String SECURED_PUBLIC_ROOT_URL = "https://mydomain.com";
   private static final String PROVIDER_NAME = "provider name";
   private static final UserIdentity USER_IDENTITY = UserIdentity.builder()
+    .setProviderId("ABCD")
     .setProviderLogin("johndoo")
     .setLogin("id:johndoo")
     .setName("John")
@@ -62,11 +61,8 @@ public class OAuth2ContextFactoryTest {
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
-  @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
-
   private ThreadLocalUserSession threadLocalUserSession = mock(ThreadLocalUserSession.class);
-  private UserIdentityAuthenticator userIdentityAuthenticator = mock(UserIdentityAuthenticator.class);
+  private TestUserIdentityAuthenticator userIdentityAuthenticator = new TestUserIdentityAuthenticator();
   private Server server = mock(Server.class);
   private OAuthCsrfVerifier csrfVerifier = mock(OAuthCsrfVerifier.class);
   private JwtHttpHandler jwtHttpHandler = mock(JwtHttpHandler.class);
@@ -129,27 +125,62 @@ public class OAuth2ContextFactoryTest {
 
   @Test
   public void authenticate() {
-    UserDto userDto = dbTester.users().insertUser();
-    when(userIdentityAuthenticator.authenticate(USER_IDENTITY, identityProvider, Source.oauth2(identityProvider), WARN)).thenReturn(userDto);
     OAuth2IdentityProvider.CallbackContext callback = newCallbackContext();
 
     callback.authenticate(USER_IDENTITY);
 
-    verify(userIdentityAuthenticator).authenticate(USER_IDENTITY, identityProvider, Source.oauth2(identityProvider), WARN);
-    verify(jwtHttpHandler).generateToken(any(UserDto.class), eq(request), eq(response));
+    assertThat(userIdentityAuthenticator.isAuthenticated()).isTrue();
     verify(threadLocalUserSession).set(any(UserSession.class));
+    ArgumentCaptor<UserDto> userArgumentCaptor = ArgumentCaptor.forClass(UserDto.class);
+    verify(jwtHttpHandler).generateToken(userArgumentCaptor.capture(), eq(request), eq(response));
+    assertThat(userArgumentCaptor.getValue().getLogin()).isEqualTo(USER_IDENTITY.getLogin());
+    assertThat(userArgumentCaptor.getValue().getExternalId()).isEqualTo(USER_IDENTITY.getProviderId());
+    assertThat(userArgumentCaptor.getValue().getExternalLogin()).isEqualTo(USER_IDENTITY.getProviderLogin());
+    assertThat(userArgumentCaptor.getValue().getExternalIdentityProvider()).isEqualTo(PROVIDER_KEY);
   }
 
   @Test
   public void authenticate_with_allow_email_shift() {
     when(oAuthParameters.getAllowEmailShift(request)).thenReturn(Optional.of(true));
-    UserDto userDto = dbTester.users().insertUser();
-    when(userIdentityAuthenticator.authenticate(USER_IDENTITY, identityProvider, Source.oauth2(identityProvider), ALLOW)).thenReturn(userDto);
     OAuth2IdentityProvider.CallbackContext callback = newCallbackContext();
 
     callback.authenticate(USER_IDENTITY);
 
-    verify(userIdentityAuthenticator).authenticate(USER_IDENTITY, identityProvider, Source.oauth2(identityProvider), ALLOW);
+    assertThat(userIdentityAuthenticator.isAuthenticated()).isTrue();
+    assertThat(userIdentityAuthenticator.getAuthenticatorParameters().getExistingEmailStrategy()).isEqualTo(ExistingEmailStrategy.ALLOW);
+  }
+
+  @Test
+  public void authenticate_without_email_shift() {
+    when(oAuthParameters.getAllowEmailShift(request)).thenReturn(Optional.of(false));
+    OAuth2IdentityProvider.CallbackContext callback = newCallbackContext();
+
+    callback.authenticate(USER_IDENTITY);
+
+    assertThat(userIdentityAuthenticator.isAuthenticated()).isTrue();
+    assertThat(userIdentityAuthenticator.getAuthenticatorParameters().getExistingEmailStrategy()).isEqualTo(ExistingEmailStrategy.WARN);
+  }
+
+  @Test
+  public void authenticate_with_allow_login_update() {
+    when(oAuthParameters.getAllowUpdateLogin(request)).thenReturn(Optional.of(true));
+    OAuth2IdentityProvider.CallbackContext callback = newCallbackContext();
+
+    callback.authenticate(USER_IDENTITY);
+
+    assertThat(userIdentityAuthenticator.isAuthenticated()).isTrue();
+    assertThat(userIdentityAuthenticator.getAuthenticatorParameters().getUpdateLoginStrategy()).isEqualTo(UpdateLoginStrategy.ALLOW);
+  }
+
+  @Test
+  public void authenticate_without_allowing_login_update() {
+    when(oAuthParameters.getAllowUpdateLogin(request)).thenReturn(Optional.of(false));
+    OAuth2IdentityProvider.CallbackContext callback = newCallbackContext();
+
+    callback.authenticate(USER_IDENTITY);
+
+    assertThat(userIdentityAuthenticator.isAuthenticated()).isTrue();
+    assertThat(userIdentityAuthenticator.getAuthenticatorParameters().getUpdateLoginStrategy()).isEqualTo(UpdateLoginStrategy.WARN);
   }
 
   @Test

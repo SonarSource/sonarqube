@@ -234,13 +234,16 @@ public class OAuth2IdentityProviderTest {
   public void update_login() {
     simulateRedirectionToCallback();
     enablePlugin();
+    String providerId = tester.users().generateProviderId();
 
-    String oldLogin = "login_to_update@oauth2";
-    tester.settings().setGlobalSettings("sonar.auth.fake-oauth2-id-provider.user", oldLogin + "," + "login_to_update_id" + "," + "old_provider_login" + "," + USER_NAME + "," + USER_EMAIL);
+    String oldLogin = tester.users().generateLogin();
+    tester.settings().setGlobalSettings("sonar.auth.fake-oauth2-id-provider.user",
+      oldLogin + "," + providerId + "," + tester.users().generateLogin() + "," + USER_NAME + "," + USER_EMAIL);
     authenticateWithFakeAuthProvider();
 
-    String newLogin = "new_logine@oauth2";
-    tester.settings().setGlobalSettings("sonar.auth.fake-oauth2-id-provider.user", newLogin + "," + "login_to_update_id" + "," + "new_provider_login" + "," + USER_NAME + "," + USER_EMAIL);
+    String newLogin = tester.users().generateLogin();
+    tester.settings().setGlobalSettings("sonar.auth.fake-oauth2-id-provider.user",
+      newLogin + "," + providerId + "," + tester.users().generateLogin() + "," + USER_NAME + "," + USER_EMAIL);
     authenticateWithFakeAuthProvider();
 
     verifyUser(newLogin, USER_NAME, USER_EMAIL);
@@ -272,7 +275,8 @@ public class OAuth2IdentityProviderTest {
   private void enablePlugin() {
     tester.settings().setGlobalSettings("sonar.auth.fake-oauth2-id-provider.enabled", "true");
     tester.settings().setGlobalSettings("sonar.auth.fake-oauth2-id-provider.url", fakeServerAuthProviderUrl);
-    tester.settings().setGlobalSettings("sonar.auth.fake-oauth2-id-provider.user", USER_LOGIN + "," + USER_PROVIDER_ID + "," + USER_PROVIDER_LOGIN + "," + USER_NAME + "," + USER_EMAIL);
+    tester.settings().setGlobalSettings("sonar.auth.fake-oauth2-id-provider.user",
+      USER_LOGIN + "," + USER_PROVIDER_ID + "," + USER_PROVIDER_LOGIN + "," + USER_NAME + "," + USER_EMAIL);
   }
 
   private void assertThatUserDoesNotExist(String login) {

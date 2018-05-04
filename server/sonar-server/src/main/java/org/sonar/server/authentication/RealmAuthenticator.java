@@ -37,6 +37,8 @@ import org.sonar.api.server.authentication.UserIdentity;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.authentication.UserIdentityAuthenticatorParameters.ExistingEmailStrategy;
+import org.sonar.server.authentication.UserIdentityAuthenticatorParameters.UpdateLoginStrategy;
 import org.sonar.server.authentication.event.AuthenticationEvent;
 import org.sonar.server.authentication.event.AuthenticationEvent.Source;
 import org.sonar.server.authentication.event.AuthenticationException;
@@ -45,7 +47,6 @@ import org.sonar.server.user.SecurityRealmFactory;
 import static java.util.Objects.requireNonNull;
 import static org.apache.commons.lang.StringUtils.isEmpty;
 import static org.apache.commons.lang.StringUtils.trimToNull;
-import static org.sonar.server.authentication.UserIdentityAuthenticator.ExistingEmailStrategy.FORBID;
 import static org.sonar.server.user.ExternalIdentity.SQ_AUTHORITY;
 
 public class RealmAuthenticator implements Startable {
@@ -139,7 +140,14 @@ public class RealmAuthenticator implements Startable {
       Collection<String> groups = externalGroupsProvider.doGetGroups(context);
       userIdentityBuilder.setGroups(new HashSet<>(groups));
     }
-    return userIdentityAuthenticator.authenticate(userIdentityBuilder.build(), new ExternalIdentityProvider(), realmEventSource(method), FORBID);
+    return userIdentityAuthenticator.authenticate(
+      UserIdentityAuthenticatorParameters.builder()
+        .setUserIdentity(userIdentityBuilder.build())
+        .setProvider(new ExternalIdentityProvider())
+        .setSource(realmEventSource(method))
+        .setExistingEmailStrategy(ExistingEmailStrategy.FORBID)
+        .setUpdateLoginStrategy(UpdateLoginStrategy.ALLOW)
+        .build());
   }
 
   private String getLogin(String userLogin) {

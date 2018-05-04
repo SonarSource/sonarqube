@@ -110,13 +110,6 @@ public class UserTester {
     return user;
   }
 
-  @SafeVarargs
-  public final User generateMemberOfDefaultOrganization(Consumer<CreateRequest>... populators) {
-    User user = generate(populators);
-    session.wsClient().organizations().addMember(new AddMemberRequest().setOrganization(DEFAULT_ORGANIZATION_KEY).setLogin(user.getLogin()));
-    return user;
-  }
-
   public UsersService service() {
     return session.wsClient().users();
   }
@@ -127,5 +120,15 @@ public class UserTester {
       return Optional.of(users.get(0));
     }
     return Optional.empty();
+  }
+
+  public final String generateLogin() {
+    int id = ID_GENERATOR.getAndIncrement();
+    return "login" + id;
+  }
+
+  public final String generateProviderId() {
+    int id = ID_GENERATOR.getAndIncrement();
+    return "providerId" + id;
   }
 }

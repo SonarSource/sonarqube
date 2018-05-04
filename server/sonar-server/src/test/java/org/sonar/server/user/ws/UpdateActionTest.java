@@ -35,7 +35,7 @@ import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.organization.DefaultOrganizationProvider;
-import org.sonar.server.organization.OrganizationCreation;
+import org.sonar.server.organization.OrganizationUpdater;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.organization.TestOrganizationFlags;
 import org.sonar.server.tester.UserSessionRule;
@@ -53,7 +53,7 @@ import static org.sonar.db.user.UserTesting.newUserDto;
 
 public class UpdateActionTest {
 
-  private static final OrganizationCreation ORGANIZATION_CREATION_NOT_USED_FOR_UPDATE = null;
+  private static final OrganizationUpdater ORGANIZATION_CREATION_NOT_USED_FOR_UPDATE = null;
   private MapSettings settings = new MapSettings();
   private System2 system2 = new System2();
 

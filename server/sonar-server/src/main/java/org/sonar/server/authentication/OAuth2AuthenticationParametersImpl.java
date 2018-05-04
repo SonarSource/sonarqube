@@ -54,6 +54,11 @@ public class OAuth2AuthenticationParametersImpl implements OAuth2AuthenticationP
    */
   private static final String ALLOW_EMAIL_SHIFT_PARAMETER = "allowEmailShift";
 
+  /**
+   * This parameter is used to allow the update of login
+   */
+  private static final String ALLOW_LOGIN_UPDATE_PARAMETER = "allowUpdateLogin";
+
   private static final Type JSON_MAP_TYPE = new TypeToken<HashMap<String, String>>() {
   }.getType();
 
@@ -61,12 +66,16 @@ public class OAuth2AuthenticationParametersImpl implements OAuth2AuthenticationP
   public void init(HttpServletRequest request, HttpServletResponse response) {
     String returnTo = request.getParameter(RETURN_TO_PARAMETER);
     String allowEmailShift = request.getParameter(ALLOW_EMAIL_SHIFT_PARAMETER);
+    String allowLoginUpdate = request.getParameter(ALLOW_LOGIN_UPDATE_PARAMETER);
     Map<String, String> parameters = new HashMap<>();
     if (isNotBlank(returnTo)) {
       parameters.put(RETURN_TO_PARAMETER, returnTo);
     }
     if (isNotBlank(allowEmailShift)) {
       parameters.put(ALLOW_EMAIL_SHIFT_PARAMETER, allowEmailShift);
+    }
+    if (isNotBlank(allowLoginUpdate)) {
+      parameters.put(ALLOW_LOGIN_UPDATE_PARAMETER, allowLoginUpdate);
     }
     if (parameters.isEmpty()) {
       return;
@@ -87,6 +96,12 @@ public class OAuth2AuthenticationParametersImpl implements OAuth2AuthenticationP
   @Override
   public Optional<Boolean> getAllowEmailShift(HttpServletRequest request) {
     Optional<String> parameter = getParameter(request, ALLOW_EMAIL_SHIFT_PARAMETER);
+    return parameter.map(Boolean::parseBoolean);
+  }
+
+  @Override
+  public Optional<Boolean> getAllowUpdateLogin(HttpServletRequest request) {
+    Optional<String> parameter = getParameter(request, ALLOW_LOGIN_UPDATE_PARAMETER);
     return parameter.map(Boolean::parseBoolean);
   }
 

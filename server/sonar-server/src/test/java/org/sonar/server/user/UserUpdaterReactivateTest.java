@@ -36,7 +36,7 @@ import org.sonar.server.authentication.LocalAuthentication;
 import org.sonar.server.authentication.LocalAuthentication.HashMethod;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.organization.DefaultOrganizationProvider;
-import org.sonar.server.organization.OrganizationCreation;
+import org.sonar.server.organization.OrganizationUpdater;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.organization.TestOrganizationFlags;
 import org.sonar.server.user.index.UserIndexer;
@@ -65,12 +65,12 @@ public class UserUpdaterReactivateTest {
   private NewUserNotifier newUserNotifier = mock(NewUserNotifier.class);
   private DbSession session = db.getSession();
   private UserIndexer userIndexer = new UserIndexer(dbClient, es.client());
-  private OrganizationCreation organizationCreation = mock(OrganizationCreation.class);
+  private OrganizationUpdater organizationUpdater = mock(OrganizationUpdater.class);
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
   private TestOrganizationFlags organizationFlags = TestOrganizationFlags.standalone();
   private MapSettings settings = new MapSettings();
   private LocalAuthentication localAuthentication = new LocalAuthentication(db.getDbClient());
-  private UserUpdater underTest = new UserUpdater(newUserNotifier, dbClient, userIndexer, organizationFlags, defaultOrganizationProvider, organizationCreation,
+  private UserUpdater underTest = new UserUpdater(newUserNotifier, dbClient, userIndexer, organizationFlags, defaultOrganizationProvider, organizationUpdater,
     new DefaultGroupFinder(dbClient), settings.asConfig(), localAuthentication);
 
   @Test

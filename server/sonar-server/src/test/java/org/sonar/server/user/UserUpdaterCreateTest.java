@@ -42,7 +42,7 @@ import org.sonar.server.authentication.LocalAuthentication.HashMethod;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.organization.DefaultOrganizationProvider;
-import org.sonar.server.organization.OrganizationCreation;
+import org.sonar.server.organization.OrganizationUpdater;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.organization.TestOrganizationFlags;
 import org.sonar.server.user.index.UserIndexDefinition;
@@ -82,12 +82,12 @@ public class UserUpdaterCreateTest {
   private ArgumentCaptor<NewUserHandler.Context> newUserHandler = ArgumentCaptor.forClass(NewUserHandler.Context.class);
   private DbSession session = db.getSession();
   private UserIndexer userIndexer = new UserIndexer(dbClient, es.client());
-  private OrganizationCreation organizationCreation = mock(OrganizationCreation.class);
+  private OrganizationUpdater organizationUpdater = mock(OrganizationUpdater.class);
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
   private TestOrganizationFlags organizationFlags = TestOrganizationFlags.standalone();
   private MapSettings settings = new MapSettings();
   private LocalAuthentication localAuthentication = new LocalAuthentication(db.getDbClient());
-  private UserUpdater underTest = new UserUpdater(newUserNotifier, dbClient, userIndexer, organizationFlags, defaultOrganizationProvider, organizationCreation,
+  private UserUpdater underTest = new UserUpdater(newUserNotifier, dbClient, userIndexer, organizationFlags, defaultOrganizationProvider, organizationUpdater,
     new DefaultGroupFinder(dbClient), settings.asConfig(), localAuthentication);
 
   @Test
@@ -598,7 +598,7 @@ public class UserUpdaterCreateTest {
       .build(), u -> {
       });
 
-    verify(organizationCreation).createForUser(any(DbSession.class), eq(dto));
+    verify(organizationUpdater).createForUser(any(DbSession.class), eq(dto));
   }
 
   @Test

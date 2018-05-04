@@ -50,13 +50,14 @@ public class UserDto {
   private String salt;
   // Hash method used to generate cryptedPassword, my be null in case of external authentication
   private String hashMethod;
-  private Long createdAt;
-  private Long updatedAt;
   private String homepageType;
   private String homepageParameter;
   private boolean local = true;
   private boolean root = false;
   private boolean onboarded = false;
+  private String organizationUuid;
+  private Long createdAt;
+  private Long updatedAt;
 
   public String getUuid() {
     return uuid;
@@ -218,24 +219,6 @@ public class UserDto {
     return this;
   }
 
-  public Long getCreatedAt() {
-    return createdAt;
-  }
-
-  UserDto setCreatedAt(long createdAt) {
-    this.createdAt = createdAt;
-    return this;
-  }
-
-  public Long getUpdatedAt() {
-    return updatedAt;
-  }
-
-  UserDto setUpdatedAt(long updatedAt) {
-    this.updatedAt = updatedAt;
-    return this;
-  }
-
   @CheckForNull
   public String getHomepageType() {
     return homepageType;
@@ -278,6 +261,34 @@ public class UserDto {
 
   public UserDto setOnboarded(boolean onboarded) {
     this.onboarded = onboarded;
+    return this;
+  }
+
+  @CheckForNull
+  public String getOrganizationUuid() {
+    return organizationUuid;
+  }
+
+  public UserDto setOrganizationUuid(@Nullable String organizationUuid) {
+    this.organizationUuid = organizationUuid;
+    return this;
+  }
+
+  public Long getCreatedAt() {
+    return createdAt;
+  }
+
+  UserDto setCreatedAt(long createdAt) {
+    this.createdAt = createdAt;
+    return this;
+  }
+
+  public Long getUpdatedAt() {
+    return updatedAt;
+  }
+
+  UserDto setUpdatedAt(long updatedAt) {
+    this.updatedAt = updatedAt;
     return this;
   }
 

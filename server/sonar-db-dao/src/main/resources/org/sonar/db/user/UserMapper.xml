@@ -20,10 +20,11 @@
         u.user_local as "local",
         u.is_root as "root",
         u.onboarded as "onboarded",
-        u.created_at as "createdAt",
-        u.updated_at as "updatedAt",
         u.homepage_type as "homepageType",
-        u.homepage_parameter as "homepageParameter"
+        u.homepage_parameter as "homepageParameter",
+        u.organization_uuid as organizationUuid,
+        u.created_at as "createdAt",
+        u.updated_at as "updatedAt"
     </sql>
 
     <select id="selectByUuid" parameterType="String" resultType="User">
@@ -210,10 +211,11 @@
         hash_method,
         is_root,
         onboarded,
-        created_at,
-        updated_at,
         homepage_type,
-        homepage_parameter
+        homepage_parameter,
+        organization_uuid,
+        created_at,
+        updated_at
         ) values (
         #{user.uuid,jdbcType=VARCHAR},
         #{user.login,jdbcType=VARCHAR},
@@ -230,10 +232,11 @@
         #{user.hashMethod,jdbcType=VARCHAR},
         #{user.root,jdbcType=BOOLEAN},
         #{user.onboarded,jdbcType=BOOLEAN},
-        #{user.createdAt,jdbcType=BIGINT},
-        #{user.updatedAt,jdbcType=BIGINT},
         #{user.homepageType,jdbcType=VARCHAR},
-        #{user.homepageParameter,jdbcType=VARCHAR}
+        #{user.homepageParameter,jdbcType=VARCHAR},
+        #{user.organizationUuid,jdbcType=VARCHAR},
+        #{user.createdAt,jdbcType=BIGINT},
+        #{user.updatedAt,jdbcType=BIGINT}
         )
     </insert>
 
@@ -252,9 +255,10 @@
         salt = #{user.salt, jdbcType=VARCHAR},
         crypted_password = #{user.cryptedPassword, jdbcType=BIGINT},
         hash_method = #{user.hashMethod, jdbcType=VARCHAR},
-        updated_at = #{user.updatedAt,jdbcType=BIGINT},
         homepage_type = #{user.homepageType, jdbcType=VARCHAR},
-        homepage_parameter = #{user.homepageParameter, jdbcType=VARCHAR}
+        homepage_parameter = #{user.homepageParameter, jdbcType=VARCHAR},
+        organization_uuid = #{user.organizationUuid, jdbcType=VARCHAR},
+        updated_at = #{user.updatedAt,jdbcType=BIGINT}
         where
         uuid = #{user.uuid, jdbcType=VARCHAR}
     </update>

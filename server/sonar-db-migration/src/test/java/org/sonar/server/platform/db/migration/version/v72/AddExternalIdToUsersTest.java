@@ -44,7 +44,7 @@ public class AddExternalIdToUsersTest {
   }
 
   @Test
-  public void migration_is_reentrant() throws SQLException {
+  public void migration_is_not_reentrant() throws SQLException {
     underTest.execute();
 
     expectedException.expect(IllegalStateException.class);

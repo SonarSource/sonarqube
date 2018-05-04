@@ -47,8 +47,8 @@ import org.sonar.db.user.UserMembershipQuery;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
-import org.sonar.server.organization.OrganizationCreation;
-import org.sonar.server.organization.OrganizationCreationImpl;
+import org.sonar.server.organization.OrganizationUpdater;
+import org.sonar.server.organization.OrganizationUpdaterImpl;
 import org.sonar.server.organization.OrganizationValidation;
 import org.sonar.server.organization.OrganizationValidationImpl;
 import org.sonar.server.organization.TestOrganizationFlags;
@@ -99,7 +99,7 @@ public class CreateActionTest {
   private OrganizationValidation organizationValidation = new OrganizationValidationImpl();
   private UserIndexer userIndexer = new UserIndexer(dbClient, es.client());
   private UserIndex userIndex = new UserIndex(es.client(), System2.INSTANCE);
-  private OrganizationCreation organizationCreation = new OrganizationCreationImpl(dbClient, system2, UuidFactoryFast.getInstance(), organizationValidation, settings.asConfig(),
+  private OrganizationUpdater organizationUpdater = new OrganizationUpdaterImpl(dbClient, system2, UuidFactoryFast.getInstance(), organizationValidation, settings.asConfig(),
     userIndexer,
     mock(BuiltInQProfileRepository.class), new DefaultGroupCreatorImpl(dbClient));
   private TestOrganizationFlags organizationFlags = TestOrganizationFlags.standalone().setEnabled(true);
@@ -107,7 +107,7 @@ public class CreateActionTest {
   private WsActionTester wsTester = new WsActionTester(
     new CreateAction(settings.asConfig(), userSession, dbClient, new OrganizationsWsSupport(organizationValidation),
       organizationValidation,
-      organizationCreation, organizationFlags));
+      organizationUpdater, organizationFlags));
 
   @Test
   public void verify_define() {

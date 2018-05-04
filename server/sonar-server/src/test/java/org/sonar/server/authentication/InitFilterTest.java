@@ -39,6 +39,7 @@ import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.authentication.event.AuthenticationEvent;
 import org.sonar.server.authentication.event.AuthenticationException;
+import org.sonar.server.authentication.exception.EmailAlreadyExistsRedirectionException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
@@ -297,7 +298,7 @@ public class InitFilterTest {
 
     @Override
     public void init(Context context) {
-      throw new EmailAlreadyExistsException(existingUser.getEmail(), existingUser, UserIdentity.builder()
+      throw new EmailAlreadyExistsRedirectionException(existingUser.getEmail(), existingUser, UserIdentity.builder()
         .setProviderLogin("john.github")
         .setLogin("john.github")
         .setName(existingUser.getName())

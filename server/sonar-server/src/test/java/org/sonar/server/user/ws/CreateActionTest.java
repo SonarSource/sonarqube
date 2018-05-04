@@ -38,7 +38,7 @@ import org.sonar.server.authentication.LocalAuthentication;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.organization.DefaultOrganizationProvider;
-import org.sonar.server.organization.OrganizationCreation;
+import org.sonar.server.organization.OrganizationUpdater;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.organization.TestOrganizationFlags;
 import org.sonar.server.tester.UserSessionRule;
@@ -89,12 +89,12 @@ public class CreateActionTest {
   private GroupDto defaultGroupInDefaultOrg;
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
   private TestOrganizationFlags organizationFlags = TestOrganizationFlags.standalone();
-  private OrganizationCreation organizationCreation = mock(OrganizationCreation.class);
+  private OrganizationUpdater organizationUpdater = mock(OrganizationUpdater.class);
   private LocalAuthentication localAuthentication = new LocalAuthentication(db.getDbClient());
   private WsActionTester tester = new WsActionTester(new CreateAction(
     db.getDbClient(),
     new UserUpdater(mock(NewUserNotifier.class), db.getDbClient(), userIndexer, organizationFlags, defaultOrganizationProvider,
-      organizationCreation, new DefaultGroupFinder(db.getDbClient()), settings.asConfig(), localAuthentication),
+      organizationUpdater, new DefaultGroupFinder(db.getDbClient()), settings.asConfig(), localAuthentication),
     userSessionRule));
 
   @Before
@@ -389,7 +389,7 @@ public class CreateActionTest {
     assertThat(dbUser).isPresent();
 
     ArgumentCaptor<UserDto> userCaptor = ArgumentCaptor.forClass(UserDto.class);
-    verify(organizationCreation).createForUser(any(DbSession.class), userCaptor.capture());
+    verify(organizationUpdater).createForUser(any(DbSession.class), userCaptor.capture());
     assertThat(userCaptor.getValue().getId()).isEqualTo(dbUser.get().getId());
   }
 

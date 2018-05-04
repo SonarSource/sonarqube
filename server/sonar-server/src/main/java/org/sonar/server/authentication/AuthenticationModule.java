@@ -37,7 +37,7 @@ public class AuthenticationModule extends Module {
       IdentityProviderRepository.class,
       BaseContextFactory.class,
       OAuth2ContextFactory.class,
-      UserIdentityAuthenticator.class,
+      UserIdentityAuthenticatorImpl.class,
       OAuthCsrfVerifier.class,
       UserSessionInitializer.class,
       JwtSerializer.class,

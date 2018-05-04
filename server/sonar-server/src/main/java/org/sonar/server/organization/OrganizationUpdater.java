@@ -31,7 +31,7 @@ import org.sonar.server.usergroups.DefaultGroupCreatorImpl;
 
 import static java.util.Objects.requireNonNull;
 
-public interface OrganizationCreation {
+public interface OrganizationUpdater {
   String OWNERS_GROUP_NAME = "Owners";
   String OWNERS_GROUP_DESCRIPTION_PATTERN = "Owners of organization %s";
   String PERM_TEMPLATE_NAME = "Default template";
@@ -116,6 +116,16 @@ public interface OrganizationCreation {
    * @throws IllegalStateException if an organization with the key generated from the login already exists
    */
   Optional<OrganizationDto> createForUser(DbSession dbSession, UserDto newUser);
+
+  /**
+   * Update the personal organization key of a user.
+   * No update will be performed if generated key match the same key as existing one.
+   *
+   * @throws IllegalStateException if user has no no personal organization
+   * @throws IllegalStateException if personal organization uuid does not exist
+   * @throws IllegalStateException if an organization with the key generated from the login already exists
+   */
+  void updateOrganizationKey(DbSession dbSession, OrganizationDto organization, String newKey);
 
   final class KeyConflictException extends Exception {
     KeyConflictException(String message) {

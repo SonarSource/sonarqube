@@ -42,7 +42,9 @@ public class DbVersion72 implements DbVersion {
       .add(2112, "Populate EXTERNAL_ID on table users", PopulateExternalIdOnUsers.class)
       .add(2113, "Makes same columns of table users not nullable", MakeSomeColumnsOfUsersNotNullable.class)
       .add(2114, "Add unique indexes on table users", AddUniqueIndexesOnUsers.class)
-
+      .add(2115, "Add ORGANIZATION_UUID on table users", AddOrganizationUuidToUsers.class)
+      .add(2116, "Populate ORGANIZATION_UUID in table users", PopulateOrganizationUuidOnUsers.class)
+      .add(2117, "Drop USER_ID from table organizations", DropUserIdFromOrganizations.class)
     ;
   }
 }

@@ -112,16 +112,6 @@ public class OrganizationDto {
   }
 
   @CheckForNull
-  public Integer getUserId() {
-    return userId;
-  }
-
-  public OrganizationDto setUserId(@Nullable Integer userId) {
-    this.userId = userId;
-    return this;
-  }
-
-  @CheckForNull
   public Integer getDefaultGroupId() {
     return defaultGroupId;
   }

@@ -23,15 +23,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.sonar.api.platform.Server;
 import org.sonar.api.server.authentication.BaseIdentityProvider;
 import org.sonar.api.server.authentication.UserIdentity;
-import org.sonar.api.utils.System2;
-import org.sonar.db.DbTester;
 import org.sonar.db.user.UserDto;
-import org.sonar.server.authentication.event.AuthenticationEvent.Source;
 import org.sonar.server.user.TestUserSessionFactory;
 import org.sonar.server.user.ThreadLocalUserSession;
 import org.sonar.server.user.UserSession;
@@ -42,25 +39,22 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.sonar.server.authentication.UserIdentityAuthenticator.ExistingEmailStrategy.FORBID;
 
 public class BaseContextFactoryTest {
 
   private static final String PUBLIC_ROOT_URL = "https://mydomain.com";
 
   private static final UserIdentity USER_IDENTITY = UserIdentity.builder()
+    .setProviderId("ABCD")
     .setProviderLogin("johndoo")
     .setLogin("id:johndoo")
     .setName("John")
     .setEmail("john@email.com")
     .build();
 
-  @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
-
   private ThreadLocalUserSession threadLocalUserSession = mock(ThreadLocalUserSession.class);
 
-  private UserIdentityAuthenticator userIdentityAuthenticator = mock(UserIdentityAuthenticator.class);
+  private TestUserIdentityAuthenticator userIdentityAuthenticator = new TestUserIdentityAuthenticator();
   private Server server = mock(Server.class);
 
   private HttpServletRequest request = mock(HttpServletRequest.class);
@@ -74,7 +68,8 @@ public class BaseContextFactoryTest {
   @Before
   public void setUp() throws Exception {
     when(server.getPublicRootUrl()).thenReturn(PUBLIC_ROOT_URL);
-    when(identityProvider.getName()).thenReturn("provIdeur Nameuh");
+    when(identityProvider.getName()).thenReturn("GitHub");
+    when(identityProvider.getKey()).thenReturn("github");
     when(request.getSession()).thenReturn(mock(HttpSession.class));
   }
 
@@ -89,15 +84,18 @@ public class BaseContextFactoryTest {
 
   @Test
   public void authenticate() {
-    UserDto userDto = dbTester.users().insertUser();
-    when(userIdentityAuthenticator.authenticate(USER_IDENTITY, identityProvider, Source.external(identityProvider), FORBID)).thenReturn(userDto);
     BaseIdentityProvider.Context context = underTest.newContext(request, response, identityProvider);
+    ArgumentCaptor<UserDto> userArgumentCaptor = ArgumentCaptor.forClass(UserDto.class);
 
     context.authenticate(USER_IDENTITY);
 
-    verify(userIdentityAuthenticator).authenticate(USER_IDENTITY, identityProvider, Source.external(identityProvider), FORBID);
-    verify(jwtHttpHandler).generateToken(any(UserDto.class), eq(request), eq(response));
+    assertThat(userIdentityAuthenticator.isAuthenticated()).isTrue();
     verify(threadLocalUserSession).set(any(UserSession.class));
+    verify(jwtHttpHandler).generateToken(userArgumentCaptor.capture(), eq(request), eq(response));
+    assertThat(userArgumentCaptor.getValue().getLogin()).isEqualTo(USER_IDENTITY.getLogin());
+    assertThat(userArgumentCaptor.getValue().getExternalId()).isEqualTo(USER_IDENTITY.getProviderId());
+    assertThat(userArgumentCaptor.getValue().getExternalLogin()).isEqualTo(USER_IDENTITY.getProviderLogin());
+    assertThat(userArgumentCaptor.getValue().getExternalIdentityProvider()).isEqualTo("github");
   }
 
 }

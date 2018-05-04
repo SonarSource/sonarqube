@@ -18,41 +18,42 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.authentication;
+package org.sonar.server.authentication.exception;
 
 import org.sonar.api.server.authentication.IdentityProvider;
 import org.sonar.api.server.authentication.UserIdentity;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.UserDto;
 
 import static java.lang.String.format;
 import static org.sonar.server.authentication.AuthenticationRedirection.encodeMessage;
 
 /**
- * This exception is used to redirect the user to a page explaining him that his email is already used by another account,
- * and where he has the ability to authenticate by "steeling" this email.
+ * This exception is used to redirect the user to a page explaining him that his login will be updated.
  */
-public class EmailAlreadyExistsException extends RuntimeException {
+public class UpdateLoginRedirectionException extends RedirectionException {
 
-  private static final String PATH = "/sessions/email_already_exists?email=%s&login=%s&provider=%s&existingLogin=%s&existingProvider=%s";
+  private static final String PATH = "/sessions/update_login?login=%s&providerKey=%s&providerName=%s&oldLogin=%s&oldOrganizationKey=%s";
 
-  private final String email;
-  private final UserDto existingUser;
   private final UserIdentity userIdentity;
   private final IdentityProvider provider;
+  private final UserDto user;
+  private final OrganizationDto organization;
 
-  EmailAlreadyExistsException(String email, UserDto existingUser, UserIdentity userIdentity, IdentityProvider provider) {
-    this.email = email;
-    this.existingUser = existingUser;
+  public UpdateLoginRedirectionException(UserIdentity userIdentity, IdentityProvider provider, UserDto user, OrganizationDto organization) {
     this.userIdentity = userIdentity;
     this.provider = provider;
+    this.user = user;
+    this.organization = organization;
   }
 
+  @Override
   public String getPath(String contextPath) {
     return contextPath + format(PATH,
-      encodeMessage(email),
       encodeMessage(userIdentity.getProviderLogin()),
       encodeMessage(provider.getKey()),
-      encodeMessage(existingUser.getExternalLogin()),
-      encodeMessage(existingUser.getExternalIdentityProvider()));
+      encodeMessage(provider.getName()),
+      encodeMessage(user.getLogin()),
+      encodeMessage(organization.getKey()));
   }
 }

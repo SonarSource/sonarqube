@@ -42,7 +42,7 @@ import org.sonar.server.authentication.event.AuthenticationEvent;
 import org.sonar.server.authentication.event.AuthenticationEvent.Source;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.organization.DefaultOrganizationProvider;
-import org.sonar.server.organization.OrganizationCreation;
+import org.sonar.server.organization.OrganizationUpdater;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.organization.TestOrganizationFlags;
 import org.sonar.server.user.NewUserNotifier;
@@ -97,17 +97,17 @@ public class SsoAuthenticatorTest {
   private GroupDto sonarUsers;
 
   private System2 system2 = mock(System2.class);
-  private OrganizationCreation organizationCreation = mock(OrganizationCreation.class);
+  private OrganizationUpdater organizationUpdater = mock(OrganizationUpdater.class);
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
   private TestOrganizationFlags organizationFlags = TestOrganizationFlags.standalone();
   private LocalAuthentication localAuthentication = new LocalAuthentication(db.getDbClient());
 
   private UserIndexer userIndexer = new UserIndexer(db.getDbClient(), es.client());
-  private UserIdentityAuthenticator userIdentityAuthenticator = new UserIdentityAuthenticator(
+  private UserIdentityAuthenticatorImpl userIdentityAuthenticator = new UserIdentityAuthenticatorImpl(
     db.getDbClient(),
-    new UserUpdater(mock(NewUserNotifier.class), db.getDbClient(), userIndexer, organizationFlags, defaultOrganizationProvider, organizationCreation,
+    new UserUpdater(mock(NewUserNotifier.class), db.getDbClient(), userIndexer, organizationFlags, defaultOrganizationProvider, organizationUpdater,
       new DefaultGroupFinder(db.getDbClient()), settings.asConfig(), localAuthentication),
-    defaultOrganizationProvider, organizationFlags, new DefaultGroupFinder(db.getDbClient()));
+    defaultOrganizationProvider, organizationFlags, mock(OrganizationUpdater.class), new DefaultGroupFinder(db.getDbClient()));
 
   private HttpServletResponse response = mock(HttpServletResponse.class);
   private JwtHttpHandler jwtHttpHandler = mock(JwtHttpHandler.class);

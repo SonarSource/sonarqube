@@ -44,6 +44,8 @@ public class UserTesting {
       .setExternalIdentityProvider(randomAlphanumeric(40))
       .setSalt(randomAlphanumeric(40))
       .setCryptedPassword(randomAlphanumeric(40))
+      // Default quality gate should be set explicitly when needed in tests
+      .setOrganizationUuid("_NOT_SET_")
       .setCreatedAt(nextLong())
       .setUpdatedAt(nextLong());
   }

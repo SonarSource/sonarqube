@@ -33,6 +33,7 @@ import org.sonar.api.server.authentication.UnauthorizedException;
 import org.sonar.api.server.authentication.UserIdentity;
 import org.sonar.server.authentication.event.AuthenticationEvent;
 import org.sonar.server.authentication.event.AuthenticationException;
+import org.sonar.server.authentication.exception.RedirectionException;
 
 import static java.lang.String.format;
 import static org.sonar.server.authentication.AuthenticationError.handleAuthenticationError;
@@ -81,7 +82,7 @@ public class OAuth2CallbackFilter extends AuthenticationFilter {
       oauth2Parameters.delete(request, response);
       authenticationEvent.loginFailure(request, e);
       handleAuthenticationError(e, response, getContextPath());
-    } catch (EmailAlreadyExistsException e) {
+    } catch (RedirectionException e) {
       oauth2Parameters.delete(request, response);
       redirectTo(response, e.getPath(getContextPath()));
     } catch (Exception e) {

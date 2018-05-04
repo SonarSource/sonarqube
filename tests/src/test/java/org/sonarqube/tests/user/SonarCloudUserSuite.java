@@ -31,9 +31,11 @@ import static util.ItUtils.xooPlugin;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
-  OrganizationIdentityProviderTest.class,
+  OrganizationBaseIdentityProviderTest.class,
   SonarCloudHomepageTest.class,
-  SonarCloudNotificationsWsTest.class
+  SonarCloudNotificationsWsTest.class,
+  SonarCloudOAuth2IdentityProviderTest.class,
+  SonarCloudUpdateLoginDuringAuthenticationTest.class
 })
 public class SonarCloudUserSuite {
 
@@ -41,13 +43,18 @@ public class SonarCloudUserSuite {
   public static final Orchestrator ORCHESTRATOR = newOrchestratorBuilder()
     .addPlugin(xooPlugin())
 
-    // Used by OrganizationIdentityProviderTest
+    // Used by OrganizationBaseIdentityProviderTest
     .addPlugin(pluginArtifact("base-auth-plugin"))
 
+    // Used in OrganizationOAuth2IdentityProviderTest
+    .addPlugin(pluginArtifact("oauth2-auth-plugin"))
+
     .setServerProperty("sonar.sonarcloud.enabled", "true")
+    .setServerProperty("sonar.organizations.createPersonalOrg", "true")
 
     // reduce memory for Elasticsearch
     .setServerProperty("sonar.search.javaOpts", "-Xms128m -Xmx128m")
+    .setServerProperty("sonar.web.javaAdditionalOpts", "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=8001")
 
     .build();
 

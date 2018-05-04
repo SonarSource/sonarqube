@@ -26,17 +26,25 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.server.authentication.UserIdentity;
+import org.sonar.api.utils.System2;
 import org.sonar.api.utils.internal.AlwaysIncreasingSystem2;
+import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
-import org.sonar.server.authentication.event.AuthenticationEvent.Method;
+import org.sonar.server.authentication.UserIdentityAuthenticatorParameters.ExistingEmailStrategy;
+import org.sonar.server.authentication.UserIdentityAuthenticatorParameters.UpdateLoginStrategy;
+import org.sonar.server.authentication.event.AuthenticationEvent;
 import org.sonar.server.authentication.event.AuthenticationEvent.Source;
+import org.sonar.server.authentication.exception.EmailAlreadyExistsRedirectionException;
+import org.sonar.server.authentication.exception.UpdateLoginRedirectionException;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.organization.DefaultOrganizationProvider;
-import org.sonar.server.organization.OrganizationCreation;
+import org.sonar.server.organization.OrganizationUpdater;
+import org.sonar.server.organization.OrganizationUpdaterImpl;
+import org.sonar.server.organization.OrganizationValidationImpl;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.organization.TestOrganizationFlags;
 import org.sonar.server.user.NewUserNotifier;
@@ -50,12 +58,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.sonar.core.config.CorePropertyDefinitions.ONBOARDING_TUTORIAL_SHOW_TO_NEW_USERS;
 import static org.sonar.db.user.UserTesting.newUserDto;
-import static org.sonar.server.authentication.UserIdentityAuthenticator.ExistingEmailStrategy.ALLOW;
-import static org.sonar.server.authentication.UserIdentityAuthenticator.ExistingEmailStrategy.FORBID;
-import static org.sonar.server.authentication.UserIdentityAuthenticator.ExistingEmailStrategy.WARN;
+import static org.sonar.server.authentication.UserIdentityAuthenticatorParameters.ExistingEmailStrategy.FORBID;
+import static org.sonar.server.authentication.event.AuthenticationEvent.Method.BASIC;
 import static org.sonar.server.authentication.event.AuthenticationExceptionMatcher.authenticationException;
 
-public class UserIdentityAuthenticatorTest {
+public class UserIdentityAuthenticatorImplTest {
 
   private static String USER_LOGIN = "github-johndoo";
 
@@ -83,7 +90,7 @@ public class UserIdentityAuthenticatorTest {
   public EsTester es = EsTester.create();
   private UserIndexer userIndexer = new UserIndexer(db.getDbClient(), es.client());
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
-  private OrganizationCreation organizationCreation = mock(OrganizationCreation.class);
+  private OrganizationUpdater organizationUpdater = mock(OrganizationUpdater.class);
   private TestOrganizationFlags organizationFlags = TestOrganizationFlags.standalone();
   private LocalAuthentication localAuthentication = new LocalAuthentication(db.getDbClient());
   private UserUpdater userUpdater = new UserUpdater(
@@ -92,19 +99,27 @@ public class UserIdentityAuthenticatorTest {
     userIndexer,
     organizationFlags,
     defaultOrganizationProvider,
-    organizationCreation,
+    organizationUpdater,
     new DefaultGroupFinder(db.getDbClient()),
     settings.asConfig(),
     localAuthentication);
 
-  private UserIdentityAuthenticator underTest = new UserIdentityAuthenticator(db.getDbClient(), userUpdater, defaultOrganizationProvider, organizationFlags,
+  private UserIdentityAuthenticatorImpl underTest = new UserIdentityAuthenticatorImpl(db.getDbClient(), userUpdater, defaultOrganizationProvider, organizationFlags,
+    new OrganizationUpdaterImpl(db.getDbClient(), mock(System2.class), UuidFactoryFast.getInstance(),
+      new OrganizationValidationImpl(), settings.asConfig(), null, null, null),
     new DefaultGroupFinder(db.getDbClient()));
 
   @Test
   public void authenticate_new_user() {
     organizationFlags.setEnabled(true);
 
-    underTest.authenticate(USER_IDENTITY, IDENTITY_PROVIDER, Source.realm(Method.BASIC, IDENTITY_PROVIDER.getName()), FORBID);
+    underTest.authenticate(UserIdentityAuthenticatorParameters.builder()
+      .setUserIdentity(USER_IDENTITY)
+      .setProvider(IDENTITY_PROVIDER)
+      .setSource(Source.realm(BASIC, IDENTITY_PROVIDER.getName()))
+      .setExistingEmailStrategy(ExistingEmailStrategy.FORBID)
+      .setUpdateLoginStrategy(UpdateLoginStrategy.ALLOW)
+      .build());
 
     UserDto user = db.users().selectUserByLogin(USER_LOGIN).get();
     assertThat(user).isNotNull();
@@ -163,7 +178,13 @@ public class UserIdentityAuthenticatorTest {
     organizationFlags.setEnabled(true);
     settings.setProperty(ONBOARDING_TUTORIAL_SHOW_TO_NEW_USERS, true);
 
-    underTest.authenticate(USER_IDENTITY, IDENTITY_PROVIDER, Source.realm(Method.BASIC, IDENTITY_PROVIDER.getName()), FORBID);
+    underTest.authenticate(UserIdentityAuthenticatorParameters.builder()
+      .setUserIdentity(USER_IDENTITY)
+      .setProvider(IDENTITY_PROVIDER)
+      .setSource(Source.local(BASIC))
+      .setExistingEmailStrategy(ExistingEmailStrategy.FORBID)
+      .setUpdateLoginStrategy(UpdateLoginStrategy.ALLOW)
+      .build());
 
     assertThat(db.users().selectUserByLogin(USER_LOGIN).get().isOnboarded()).isFalse();
   }
@@ -173,9 +194,38 @@ public class UserIdentityAuthenticatorTest {
     organizationFlags.setEnabled(true);
     settings.setProperty(ONBOARDING_TUTORIAL_SHOW_TO_NEW_USERS, false);
 
-    underTest.authenticate(USER_IDENTITY, IDENTITY_PROVIDER, Source.realm(Method.BASIC, IDENTITY_PROVIDER.getName()), FORBID);
+    underTest.authenticate(UserIdentityAuthenticatorParameters.builder()
+      .setUserIdentity(USER_IDENTITY)
+      .setProvider(IDENTITY_PROVIDER)
+      .setSource(Source.local(BASIC))
+      .setExistingEmailStrategy(ExistingEmailStrategy.FORBID)
+      .setUpdateLoginStrategy(UpdateLoginStrategy.ALLOW)
+      .build());
 
     assertThat(db.users().selectUserByLogin(USER_LOGIN).get().isOnboarded()).isTrue();
+  }
+
+  @Test
+  public void external_id_is_set_to_provider_login_when_null() {
+    organizationFlags.setEnabled(true);
+    UserIdentity newUser = UserIdentity.builder()
+      .setProviderId(null)
+      .setLogin("john")
+      .setProviderLogin("johndoo")
+      .setName("JOhn")
+      .build();
+
+    underTest.authenticate(UserIdentityAuthenticatorParameters.builder()
+      .setUserIdentity(newUser)
+      .setProvider(IDENTITY_PROVIDER)
+      .setSource(Source.local(BASIC))
+      .setExistingEmailStrategy(ExistingEmailStrategy.FORBID)
+      .setUpdateLoginStrategy(UpdateLoginStrategy.ALLOW)
+      .build());
+
+    assertThat(db.users().selectUserByLogin(newUser.getLogin()).get())
+      .extracting(UserDto::getLogin, UserDto::getExternalId, UserDto::getExternalLogin)
+      .contains("john", "johndoo", "johndoo");
   }
 
   @Test
@@ -189,29 +239,18 @@ public class UserIdentityAuthenticatorTest {
       .setEmail(existingUser.getEmail())
       .build();
 
-    underTest.authenticate(newUser, IDENTITY_PROVIDER, Source.local(Method.BASIC), ALLOW);
+    underTest.authenticate(UserIdentityAuthenticatorParameters.builder()
+      .setUserIdentity(newUser)
+      .setProvider(IDENTITY_PROVIDER)
+      .setSource(Source.local(BASIC))
+      .setExistingEmailStrategy(ExistingEmailStrategy.ALLOW)
+      .setUpdateLoginStrategy(UpdateLoginStrategy.ALLOW)
+      .build());
 
     UserDto newUserReloaded = db.users().selectUserByLogin(newUser.getLogin()).get();
     assertThat(newUserReloaded.getEmail()).isEqualTo(existingUser.getEmail());
     UserDto existingUserReloaded = db.users().selectUserByLogin(existingUser.getLogin()).get();
     assertThat(existingUserReloaded.getEmail()).isNull();
-  }
-
-  @Test
-  public void external_id_is_set_to_provider_login_when_null() {
-    organizationFlags.setEnabled(true);
-    UserIdentity newUser = UserIdentity.builder()
-      .setProviderId(null)
-      .setLogin("john")
-      .setProviderLogin("johndoo")
-      .setName("JOhn")
-      .build();
-
-    underTest.authenticate(newUser, IDENTITY_PROVIDER, Source.local(Method.BASIC), ALLOW);
-
-    assertThat(db.users().selectUserByLogin(newUser.getLogin()).get())
-      .extracting(UserDto::getLogin, UserDto::getExternalId, UserDto::getExternalLogin)
-      .contains("john", "johndoo", "johndoo");
   }
 
   @Test
@@ -225,9 +264,15 @@ public class UserIdentityAuthenticatorTest {
       .setEmail(existingUser.getEmail())
       .build();
 
-    expectedException.expect(EmailAlreadyExistsException.class);
+    expectedException.expect(EmailAlreadyExistsRedirectionException.class);
 
-    underTest.authenticate(newUser, IDENTITY_PROVIDER, Source.local(Method.BASIC), WARN);
+    underTest.authenticate(UserIdentityAuthenticatorParameters.builder()
+      .setUserIdentity(newUser)
+      .setProvider(IDENTITY_PROVIDER)
+      .setSource(Source.local(BASIC))
+      .setExistingEmailStrategy(ExistingEmailStrategy.WARN)
+      .setUpdateLoginStrategy(UpdateLoginStrategy.ALLOW)
+      .build());
   }
 
   @Test
@@ -236,7 +281,7 @@ public class UserIdentityAuthenticatorTest {
       .setLogin("Existing user with same email")
       .setActive(true)
       .setEmail("john@email.com"));
-    Source source = Source.realm(Method.FORM, IDENTITY_PROVIDER.getName());
+    Source source = Source.realm(AuthenticationEvent.Method.FORM, IDENTITY_PROVIDER.getName());
 
     expectedException.expect(authenticationException().from(source)
       .withLogin(USER_IDENTITY.getLogin())
@@ -244,7 +289,14 @@ public class UserIdentityAuthenticatorTest {
         "This means that you probably already registered with another account."));
     expectedException.expectMessage("Email 'john@email.com' is already used");
 
-    underTest.authenticate(USER_IDENTITY, IDENTITY_PROVIDER, source, FORBID);
+    underTest.authenticate(UserIdentityAuthenticatorParameters.builder()
+      .setUserIdentity(USER_IDENTITY)
+      .setProvider(IDENTITY_PROVIDER)
+      .setSource(source)
+      .setExistingEmailStrategy(FORBID)
+      .setExistingEmailStrategy(ExistingEmailStrategy.FORBID)
+      .setUpdateLoginStrategy(UpdateLoginStrategy.ALLOW)
+      .build());
   }
 
   @Test
@@ -254,11 +306,18 @@ public class UserIdentityAuthenticatorTest {
       .setName("Github")
       .setEnabled(true)
       .setAllowsUsersToSignUp(false);
-    Source source = Source.realm(Method.FORM, identityProvider.getName());
+    Source source = Source.realm(AuthenticationEvent.Method.FORM, identityProvider.getName());
 
     expectedException.expect(authenticationException().from(source).withLogin(USER_IDENTITY.getLogin()).andPublicMessage("'github' users are not allowed to sign up"));
     expectedException.expectMessage("User signup disabled for provider 'github'");
-    underTest.authenticate(USER_IDENTITY, identityProvider, source, FORBID);
+
+    underTest.authenticate(UserIdentityAuthenticatorParameters.builder()
+      .setUserIdentity(USER_IDENTITY)
+      .setProvider(identityProvider)
+      .setSource(source)
+      .setExistingEmailStrategy(ExistingEmailStrategy.FORBID)
+      .setUpdateLoginStrategy(UpdateLoginStrategy.ALLOW)
+      .build());
   }
 
   @Test
@@ -271,7 +330,13 @@ public class UserIdentityAuthenticatorTest {
       .setExternalLogin("old identity")
       .setExternalIdentityProvider("old provide"));
 
-    underTest.authenticate(USER_IDENTITY, IDENTITY_PROVIDER, Source.local(Method.BASIC), FORBID);
+    underTest.authenticate(UserIdentityAuthenticatorParameters.builder()
+      .setUserIdentity(USER_IDENTITY)
+      .setProvider(IDENTITY_PROVIDER)
+      .setSource(Source.local(BASIC))
+      .setExistingEmailStrategy(ExistingEmailStrategy.FORBID)
+      .setUpdateLoginStrategy(UpdateLoginStrategy.ALLOW)
+      .build());
 
     assertThat(db.users().selectUserByLogin(USER_LOGIN).get())
       .extracting(UserDto::getName, UserDto::getEmail, UserDto::getExternalId, UserDto::getExternalLogin, UserDto::getExternalIdentityProvider, UserDto::isActive)
@@ -288,7 +353,13 @@ public class UserIdentityAuthenticatorTest {
       .setExternalLogin("old identity")
       .setExternalIdentityProvider(IDENTITY_PROVIDER.getKey()));
 
-    underTest.authenticate(USER_IDENTITY, IDENTITY_PROVIDER, Source.local(Method.BASIC), FORBID);
+    underTest.authenticate(UserIdentityAuthenticatorParameters.builder()
+      .setUserIdentity(USER_IDENTITY)
+      .setProvider(IDENTITY_PROVIDER)
+      .setSource(Source.local(BASIC))
+      .setExistingEmailStrategy(ExistingEmailStrategy.FORBID)
+      .setUpdateLoginStrategy(UpdateLoginStrategy.ALLOW)
+      .build());
 
     assertThat(db.users().selectUserByLogin("Old login")).isNotPresent();
     assertThat(db.getDbClient().userDao().selectByUuid(db.getSession(), user.getUuid()))
@@ -307,13 +378,20 @@ public class UserIdentityAuthenticatorTest {
       .setExternalLogin("old identity")
       .setExternalIdentityProvider(IDENTITY_PROVIDER.getKey()));
 
-    underTest.authenticate(USER_IDENTITY, IDENTITY_PROVIDER, Source.local(Method.BASIC), FORBID);
+    underTest.authenticate(UserIdentityAuthenticatorParameters.builder()
+      .setUserIdentity(USER_IDENTITY)
+      .setProvider(IDENTITY_PROVIDER)
+      .setSource(Source.local(BASIC))
+      .setExistingEmailStrategy(ExistingEmailStrategy.FORBID)
+      .setUpdateLoginStrategy(UpdateLoginStrategy.ALLOW)
+      .build());
 
     assertThat(db.users().selectUserByLogin("Old login")).isNotPresent();
     assertThat(db.getDbClient().userDao().selectByUuid(db.getSession(), user.getUuid()))
       .extracting(UserDto::getLogin, UserDto::getName, UserDto::getEmail, UserDto::getExternalId, UserDto::getExternalLogin, UserDto::getExternalIdentityProvider,
         UserDto::isActive)
-      .containsExactlyInAnyOrder(USER_LOGIN, USER_IDENTITY.getName(), USER_IDENTITY.getEmail(), USER_IDENTITY.getProviderId(), USER_IDENTITY.getProviderLogin(), IDENTITY_PROVIDER.getKey(),
+      .containsExactlyInAnyOrder(USER_LOGIN, USER_IDENTITY.getName(), USER_IDENTITY.getEmail(), USER_IDENTITY.getProviderId(), USER_IDENTITY.getProviderLogin(),
+        IDENTITY_PROVIDER.getKey(),
         true);
   }
 
@@ -327,19 +405,138 @@ public class UserIdentityAuthenticatorTest {
       .setExternalLogin("old identity")
       .setExternalIdentityProvider(IDENTITY_PROVIDER.getKey()));
 
-    underTest.authenticate(UserIdentity.builder()
-      .setProviderId(null)
-      .setProviderLogin("johndoo")
-      .setLogin(USER_LOGIN)
-      .setName("John")
-      .setEmail("john@email.com")
-      .build(),
-      IDENTITY_PROVIDER, Source.local(Method.BASIC), FORBID);
+    underTest.authenticate(UserIdentityAuthenticatorParameters.builder()
+      .setUserIdentity(UserIdentity.builder()
+        .setProviderId(null)
+        .setProviderLogin("johndoo")
+        .setLogin(USER_LOGIN)
+        .setName("John")
+        .setEmail("john@email.com")
+        .build())
+      .setProvider(IDENTITY_PROVIDER)
+      .setSource(Source.local(BASIC))
+      .setExistingEmailStrategy(ExistingEmailStrategy.FORBID)
+      .setUpdateLoginStrategy(UpdateLoginStrategy.ALLOW)
+      .build());
 
     assertThat(db.getDbClient().userDao().selectByUuid(db.getSession(), user.getUuid()))
       .extracting(UserDto::getLogin, UserDto::getName, UserDto::getEmail, UserDto::getExternalId, UserDto::getExternalLogin, UserDto::getExternalIdentityProvider,
         UserDto::isActive)
       .contains(user.getLogin(), "John", "john@email.com", "johndoo", "johndoo", "github", true);
+  }
+
+  @Test
+  public void authenticate_existing_user_with_login_update_and_strategy_is_ALLOW() {
+    UserDto user = db.users().insertUser(u -> u
+      .setLogin("Old login")
+      .setExternalId(USER_IDENTITY.getProviderId())
+      .setExternalLogin("old identity")
+      .setExternalIdentityProvider(IDENTITY_PROVIDER.getKey()));
+
+    underTest.authenticate(UserIdentityAuthenticatorParameters.builder()
+      .setUserIdentity(USER_IDENTITY)
+      .setProvider(IDENTITY_PROVIDER)
+      .setSource(Source.local(BASIC))
+      .setExistingEmailStrategy(ExistingEmailStrategy.FORBID)
+      .setUpdateLoginStrategy(UpdateLoginStrategy.ALLOW)
+      .build());
+
+    assertThat(db.getDbClient().userDao().selectByUuid(db.getSession(), user.getUuid()))
+      .extracting(UserDto::getLogin, UserDto::getExternalLogin)
+      .contains(USER_LOGIN, USER_IDENTITY.getProviderLogin());
+  }
+
+  @Test
+  public void authenticate_existing_user_with_login_update_and_personal_org_does_not_exits_and_strategy_is_WARN() {
+    organizationFlags.setEnabled(true);
+    UserDto user = db.users().insertUser(u -> u
+      .setLogin("Old login")
+      .setExternalId(USER_IDENTITY.getProviderId())
+      .setExternalLogin("old identity")
+      .setExternalIdentityProvider(IDENTITY_PROVIDER.getKey())
+      .setOrganizationUuid(null));
+
+    underTest.authenticate(UserIdentityAuthenticatorParameters.builder()
+      .setUserIdentity(USER_IDENTITY)
+      .setProvider(IDENTITY_PROVIDER)
+      .setSource(Source.local(BASIC))
+      .setExistingEmailStrategy(ExistingEmailStrategy.FORBID)
+      .setUpdateLoginStrategy(UpdateLoginStrategy.WARN)
+      .build());
+
+    assertThat(db.getDbClient().userDao().selectByUuid(db.getSession(), user.getUuid()))
+      .extracting(UserDto::getLogin, UserDto::getExternalLogin)
+      .contains(USER_LOGIN, USER_IDENTITY.getProviderLogin());
+  }
+
+  @Test
+  public void throw_UpdateLoginRedirectionException_when_authenticating_with_login_update_and_personal_org_exists_and_strategy_is_WARN() {
+    organizationFlags.setEnabled(true);
+    OrganizationDto organization = db.organizations().insert(o -> o.setKey("Old login"));
+    db.users().insertUser(u -> u
+      .setLogin("Old login")
+      .setExternalId(USER_IDENTITY.getProviderId())
+      .setExternalLogin("old identity")
+      .setExternalIdentityProvider(IDENTITY_PROVIDER.getKey())
+      .setOrganizationUuid(organization.getUuid()));
+
+    expectedException.expect(UpdateLoginRedirectionException.class);
+
+    underTest.authenticate(UserIdentityAuthenticatorParameters.builder()
+      .setUserIdentity(USER_IDENTITY)
+      .setProvider(IDENTITY_PROVIDER)
+      .setSource(Source.local(BASIC))
+      .setExistingEmailStrategy(ExistingEmailStrategy.FORBID)
+      .setUpdateLoginStrategy(UpdateLoginStrategy.WARN)
+      .build());
+  }
+
+  @Test
+  public void authenticate_existing_user_and_update_personal_og_key_when_personal_org_exists_and_strategy_is_ALLOW() {
+    organizationFlags.setEnabled(true);
+    OrganizationDto personalOrganization = db.organizations().insert(o -> o.setKey("Old login"));
+    UserDto user = db.users().insertUser(u -> u
+      .setLogin("Old login")
+      .setExternalId(USER_IDENTITY.getProviderId())
+      .setExternalLogin("old identity")
+      .setExternalIdentityProvider(IDENTITY_PROVIDER.getKey())
+      .setOrganizationUuid(personalOrganization.getUuid()));
+
+    underTest.authenticate(UserIdentityAuthenticatorParameters.builder()
+      .setUserIdentity(USER_IDENTITY)
+      .setProvider(IDENTITY_PROVIDER)
+      .setSource(Source.local(BASIC))
+      .setExistingEmailStrategy(ExistingEmailStrategy.FORBID)
+      .setUpdateLoginStrategy(UpdateLoginStrategy.ALLOW)
+      .build());
+
+    assertThat(db.getDbClient().userDao().selectByUuid(db.getSession(), user.getUuid()))
+      .extracting(UserDto::getLogin, UserDto::getExternalLogin)
+      .contains(USER_LOGIN, USER_IDENTITY.getProviderLogin());
+    OrganizationDto organizationReloaded = db.getDbClient().organizationDao().selectByUuid(db.getSession(), personalOrganization.getUuid()).get();
+    assertThat(organizationReloaded.getKey()).isEqualTo(USER_LOGIN);
+  }
+
+  @Test
+  public void fail_to_authenticate_existing_user_when_personal_org_does_not_exist() {
+    organizationFlags.setEnabled(true);
+    db.users().insertUser(u -> u
+      .setLogin("Old login")
+      .setExternalId(USER_IDENTITY.getProviderId())
+      .setExternalLogin("old identity")
+      .setExternalIdentityProvider(IDENTITY_PROVIDER.getKey())
+      .setOrganizationUuid("unknown"));
+
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("Cannot find personal organization uuid 'unknown' for user 'Old login'");
+
+    underTest.authenticate(UserIdentityAuthenticatorParameters.builder()
+      .setUserIdentity(USER_IDENTITY)
+      .setProvider(IDENTITY_PROVIDER)
+      .setSource(Source.local(BASIC))
+      .setExistingEmailStrategy(ExistingEmailStrategy.FORBID)
+      .setUpdateLoginStrategy(UpdateLoginStrategy.ALLOW)
+      .build());
   }
 
   @Test
@@ -354,7 +551,13 @@ public class UserIdentityAuthenticatorTest {
       .setExternalLogin("old identity")
       .setExternalIdentityProvider("old provide"));
 
-    underTest.authenticate(USER_IDENTITY, IDENTITY_PROVIDER, Source.local(Method.BASIC_TOKEN), FORBID);
+    underTest.authenticate(UserIdentityAuthenticatorParameters.builder()
+      .setUserIdentity(USER_IDENTITY)
+      .setProvider(IDENTITY_PROVIDER)
+      .setSource(Source.local(BASIC))
+      .setExistingEmailStrategy(ExistingEmailStrategy.FORBID)
+      .setUpdateLoginStrategy(UpdateLoginStrategy.ALLOW)
+      .build());
 
     UserDto userDto = db.users().selectUserByLogin(USER_LOGIN).get();
     assertThat(userDto.isActive()).isTrue();
@@ -378,7 +581,13 @@ public class UserIdentityAuthenticatorTest {
       .setEmail("john@email.com")
       .build();
 
-    underTest.authenticate(userIdentity, IDENTITY_PROVIDER, Source.local(Method.BASIC), ALLOW);
+    underTest.authenticate(UserIdentityAuthenticatorParameters.builder()
+      .setUserIdentity(userIdentity)
+      .setProvider(IDENTITY_PROVIDER)
+      .setSource(Source.local(BASIC))
+      .setExistingEmailStrategy(ExistingEmailStrategy.ALLOW)
+      .setUpdateLoginStrategy(UpdateLoginStrategy.ALLOW)
+      .build());
 
     UserDto currentUserReloaded = db.users().selectUserByLogin(currentUser.getLogin()).get();
     assertThat(currentUserReloaded.getEmail()).isEqualTo("john@email.com");
@@ -398,9 +607,15 @@ public class UserIdentityAuthenticatorTest {
       .setEmail("john@email.com")
       .build();
 
-    expectedException.expect(EmailAlreadyExistsException.class);
+    expectedException.expect(EmailAlreadyExistsRedirectionException.class);
 
-    underTest.authenticate(userIdentity, IDENTITY_PROVIDER, Source.local(Method.BASIC), WARN);
+    underTest.authenticate(UserIdentityAuthenticatorParameters.builder()
+      .setUserIdentity(userIdentity)
+      .setProvider(IDENTITY_PROVIDER)
+      .setSource(Source.local(BASIC))
+      .setExistingEmailStrategy(ExistingEmailStrategy.WARN)
+      .setUpdateLoginStrategy(UpdateLoginStrategy.ALLOW)
+      .build());
   }
 
   @Test
@@ -415,13 +630,19 @@ public class UserIdentityAuthenticatorTest {
       .setEmail("john@email.com")
       .build();
 
-    expectedException.expect(authenticationException().from(Source.realm(Method.FORM, IDENTITY_PROVIDER.getName()))
+    expectedException.expect(authenticationException().from(Source.realm(AuthenticationEvent.Method.FORM, IDENTITY_PROVIDER.getName()))
       .withLogin(userIdentity.getLogin())
       .andPublicMessage("You can't sign up because email 'john@email.com' is already used by an existing user. " +
         "This means that you probably already registered with another account."));
     expectedException.expectMessage("Email 'john@email.com' is already used");
 
-    underTest.authenticate(userIdentity, IDENTITY_PROVIDER, Source.realm(Method.FORM, IDENTITY_PROVIDER.getName()), FORBID);
+    underTest.authenticate(UserIdentityAuthenticatorParameters.builder()
+      .setUserIdentity(userIdentity)
+      .setProvider(IDENTITY_PROVIDER)
+      .setSource(Source.realm(AuthenticationEvent.Method.FORM, IDENTITY_PROVIDER.getName()))
+      .setExistingEmailStrategy(ExistingEmailStrategy.FORBID)
+      .setUpdateLoginStrategy(UpdateLoginStrategy.ALLOW)
+      .build());
   }
 
   @Test
@@ -435,7 +656,13 @@ public class UserIdentityAuthenticatorTest {
       .setEmail("john@email.com")
       .build();
 
-    underTest.authenticate(userIdentity, IDENTITY_PROVIDER, Source.local(Method.BASIC), FORBID);
+    underTest.authenticate(UserIdentityAuthenticatorParameters.builder()
+      .setUserIdentity(userIdentity)
+      .setProvider(IDENTITY_PROVIDER)
+      .setSource(Source.local(BASIC))
+      .setExistingEmailStrategy(ExistingEmailStrategy.FORBID)
+      .setUpdateLoginStrategy(UpdateLoginStrategy.ALLOW)
+      .build());
 
     UserDto currentUserReloaded = db.users().selectUserByLogin(currentUser.getLogin()).get();
     assertThat(currentUserReloaded.getEmail()).isEqualTo("john@email.com");
@@ -516,24 +743,36 @@ public class UserIdentityAuthenticatorTest {
     GroupDto groupInOrg = db.users().insertGroup(org, groupName);
 
     // adding a group with the same name than in non-default organization
-    underTest.authenticate(UserIdentity.builder()
-      .setProviderLogin("johndoo")
-      .setLogin(user.getLogin())
-      .setName(user.getName())
-      .setGroups(newHashSet(groupName))
-      .build(), IDENTITY_PROVIDER, Source.sso(), FORBID);
+    underTest.authenticate(UserIdentityAuthenticatorParameters.builder()
+      .setUserIdentity(UserIdentity.builder()
+        .setProviderLogin("johndoo")
+        .setLogin(user.getLogin())
+        .setName(user.getName())
+        .setGroups(newHashSet(groupName))
+        .build())
+      .setProvider(IDENTITY_PROVIDER)
+      .setSource(Source.local(BASIC))
+      .setExistingEmailStrategy(ExistingEmailStrategy.FORBID)
+      .setUpdateLoginStrategy(UpdateLoginStrategy.ALLOW)
+      .build());
 
     checkGroupMembership(user, groupInDefaultOrg);
   }
 
   private void authenticate(String login, String... groups) {
-    underTest.authenticate(UserIdentity.builder()
-      .setProviderLogin("johndoo")
-      .setLogin(login)
-      .setName("John")
-      // No group
-      .setGroups(stream(groups).collect(MoreCollectors.toSet()))
-      .build(), IDENTITY_PROVIDER, Source.sso(), FORBID);
+    underTest.authenticate(UserIdentityAuthenticatorParameters.builder()
+      .setUserIdentity(UserIdentity.builder()
+        .setProviderLogin("johndoo")
+        .setLogin(login)
+        .setName("John")
+        // No group
+        .setGroups(stream(groups).collect(MoreCollectors.toSet()))
+        .build())
+      .setProvider(IDENTITY_PROVIDER)
+      .setSource(Source.local(BASIC))
+      .setExistingEmailStrategy(ExistingEmailStrategy.FORBID)
+      .setUpdateLoginStrategy(UpdateLoginStrategy.ALLOW)
+      .build());
   }
 
   private void checkGroupMembership(UserDto user, GroupDto... expectedGroups) {
@@ -543,4 +782,5 @@ public class UserIdentityAuthenticatorTest {
   private GroupDto insertDefaultGroup() {
     return db.users().insertDefaultGroup(db.getDefaultOrganization(), "sonar-users");
   }
+
 }

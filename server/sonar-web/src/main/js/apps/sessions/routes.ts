@@ -35,6 +35,10 @@ const routes = [
   {
     path: 'email_already_exists',
     component: lazyLoad(() => import('./components/EmailAlreadyExists'))
+  },
+  {
+    path: 'update_login',
+    component: lazyLoad(() => import('./components/UpdateLogin'))
   }
 ];
 

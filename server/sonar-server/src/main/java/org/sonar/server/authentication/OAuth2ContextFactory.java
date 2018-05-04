@@ -28,14 +28,14 @@ import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.authentication.OAuth2IdentityProvider;
 import org.sonar.api.server.authentication.UserIdentity;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.authentication.UserIdentityAuthenticatorParameters.ExistingEmailStrategy;
+import org.sonar.server.authentication.UserIdentityAuthenticatorParameters.UpdateLoginStrategy;
 import org.sonar.server.authentication.event.AuthenticationEvent;
 import org.sonar.server.user.ThreadLocalUserSession;
 import org.sonar.server.user.UserSessionFactory;
 
 import static java.lang.String.format;
 import static org.sonar.server.authentication.OAuth2CallbackFilter.CALLBACK_PATH;
-import static org.sonar.server.authentication.UserIdentityAuthenticator.ExistingEmailStrategy.ALLOW;
-import static org.sonar.server.authentication.UserIdentityAuthenticator.ExistingEmailStrategy.WARN;
 
 @ServerSide
 public class OAuth2ContextFactory {
@@ -127,7 +127,15 @@ public class OAuth2ContextFactory {
     @Override
     public void authenticate(UserIdentity userIdentity) {
       Boolean allowEmailShift = oAuthParameters.getAllowEmailShift(request).orElse(false);
-      UserDto userDto = userIdentityAuthenticator.authenticate(userIdentity, identityProvider, AuthenticationEvent.Source.oauth2(identityProvider), allowEmailShift ? ALLOW : WARN);
+      Boolean allowUpdateLogin = oAuthParameters.getAllowUpdateLogin(request).orElse(false);
+      UserDto userDto = userIdentityAuthenticator.authenticate(
+        UserIdentityAuthenticatorParameters.builder()
+          .setUserIdentity(userIdentity)
+          .setProvider(identityProvider)
+          .setSource(AuthenticationEvent.Source.oauth2(identityProvider))
+          .setExistingEmailStrategy(allowEmailShift ? ExistingEmailStrategy.ALLOW : ExistingEmailStrategy.WARN)
+          .setUpdateLoginStrategy(allowUpdateLogin ? UpdateLoginStrategy.ALLOW : UpdateLoginStrategy.WARN)
+          .build());
       jwtHttpHandler.generateToken(userDto, request, response);
       threadLocalUserSession.set(userSessionFactory.create(userDto));
     }

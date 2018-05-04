@@ -42,6 +42,8 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.user.UserDto;
 import org.sonar.process.ProcessProperties;
+import org.sonar.server.authentication.UserIdentityAuthenticatorParameters.ExistingEmailStrategy;
+import org.sonar.server.authentication.UserIdentityAuthenticatorParameters.UpdateLoginStrategy;
 import org.sonar.server.authentication.event.AuthenticationEvent;
 import org.sonar.server.authentication.event.AuthenticationEvent.Source;
 import org.sonar.server.authentication.event.AuthenticationException;
@@ -54,7 +56,6 @@ import static org.sonar.process.ProcessProperties.Property.SONAR_WEB_SSO_GROUPS_
 import static org.sonar.process.ProcessProperties.Property.SONAR_WEB_SSO_LOGIN_HEADER;
 import static org.sonar.process.ProcessProperties.Property.SONAR_WEB_SSO_NAME_HEADER;
 import static org.sonar.process.ProcessProperties.Property.SONAR_WEB_SSO_REFRESH_INTERVAL_IN_MINUTES;
-import static org.sonar.server.authentication.UserIdentityAuthenticator.ExistingEmailStrategy.FORBID;
 import static org.sonar.server.user.ExternalIdentity.SQ_AUTHORITY;
 
 public class SsoAuthenticator implements Startable {
@@ -161,7 +162,14 @@ public class SsoAuthenticator implements Startable {
       String groupsValue = getHeaderValue(headerValuesByNames, SONAR_WEB_SSO_GROUPS_HEADER.getKey());
       userIdentityBuilder.setGroups(groupsValue == null ? Collections.emptySet() : new HashSet<>(COMA_SPLITTER.splitToList(groupsValue)));
     }
-    return userIdentityAuthenticator.authenticate(userIdentityBuilder.build(), new SsoIdentityProvider(), Source.sso(), FORBID);
+    return userIdentityAuthenticator.authenticate(
+      UserIdentityAuthenticatorParameters.builder()
+        .setUserIdentity(userIdentityBuilder.build())
+        .setProvider(new SsoIdentityProvider())
+        .setSource(Source.sso())
+        .setExistingEmailStrategy(ExistingEmailStrategy.FORBID)
+        .setUpdateLoginStrategy(UpdateLoginStrategy.ALLOW)
+        .build());
   }
 
   @CheckForNull

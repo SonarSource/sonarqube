@@ -39,6 +39,8 @@ public interface OAuth2AuthenticationParameters {
 
   Optional<Boolean> getAllowEmailShift(HttpServletRequest request);
 
+  Optional<Boolean> getAllowUpdateLogin(HttpServletRequest request);
+
   void delete(HttpServletRequest request, HttpServletResponse response);
 
 }

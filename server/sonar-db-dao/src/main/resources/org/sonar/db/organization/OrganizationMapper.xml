@@ -11,7 +11,6 @@
     org.url as "url",
     org.avatar_url as "avatarUrl",
     org.guarded as "guarded",
-    org.user_id as "userId",
     org.created_at as "createdAt",
     org.updated_at as "updatedAt"
   </sql>
@@ -163,7 +162,6 @@
       avatar_url,
       guarded,
       new_project_private,
-      user_id,
       default_quality_gate_uuid,
       created_at,
       updated_at
@@ -178,7 +176,6 @@
       #{organization.avatarUrl, jdbcType=VARCHAR},
       #{organization.guarded, jdbcType=BOOLEAN},
       #{newProjectPrivate, jdbcType=BOOLEAN},
-      #{organization.userId, jdbcType=INTEGER},
       #{organization.defaultQualityGateUuid, jdbcType=VARCHAR},
       #{organization.createdAt, jdbcType=BIGINT},
       #{organization.updatedAt, jdbcType=BIGINT}
@@ -188,6 +185,7 @@
   <update id="update" parameterType="Organization">
     update organizations
     set
+      kee = #{organization.key, jdbcType=VARCHAR},
       name = #{organization.name, jdbcType=VARCHAR},
       description = #{organization.description, jdbcType=VARCHAR},
       url = #{organization.url, jdbcType=VARCHAR},

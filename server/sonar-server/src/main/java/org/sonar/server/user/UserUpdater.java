@@ -40,8 +40,8 @@ import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserGroupDto;
 import org.sonar.server.authentication.LocalAuthentication;
 import org.sonar.server.organization.DefaultOrganizationProvider;
-import org.sonar.server.organization.OrganizationCreation;
 import org.sonar.server.organization.OrganizationFlags;
+import org.sonar.server.organization.OrganizationUpdater;
 import org.sonar.server.user.index.UserIndexer;
 import org.sonar.server.usergroups.DefaultGroupFinder;
 import org.sonar.server.util.Validation;
@@ -77,20 +77,20 @@ public class UserUpdater {
   private final UserIndexer userIndexer;
   private final OrganizationFlags organizationFlags;
   private final DefaultOrganizationProvider defaultOrganizationProvider;
-  private final OrganizationCreation organizationCreation;
+  private final OrganizationUpdater organizationUpdater;
   private final DefaultGroupFinder defaultGroupFinder;
   private final Configuration config;
   private final LocalAuthentication localAuthentication;
 
   public UserUpdater(NewUserNotifier newUserNotifier, DbClient dbClient, UserIndexer userIndexer, OrganizationFlags organizationFlags,
-    DefaultOrganizationProvider defaultOrganizationProvider, OrganizationCreation organizationCreation, DefaultGroupFinder defaultGroupFinder, Configuration config,
-    LocalAuthentication localAuthentication) {
+                     DefaultOrganizationProvider defaultOrganizationProvider, OrganizationUpdater organizationUpdater, DefaultGroupFinder defaultGroupFinder, Configuration config,
+                     LocalAuthentication localAuthentication) {
     this.newUserNotifier = newUserNotifier;
     this.dbClient = dbClient;
     this.userIndexer = userIndexer;
     this.organizationFlags = organizationFlags;
     this.defaultOrganizationProvider = defaultOrganizationProvider;
-    this.organizationCreation = organizationCreation;
+    this.organizationUpdater = organizationUpdater;
     this.defaultGroupFinder = defaultGroupFinder;
     this.config = config;
     this.localAuthentication = localAuthentication;
@@ -393,7 +393,7 @@ public class UserUpdater {
     userDto.setActive(true);
     UserDto res = dbClient.userDao().insert(dbSession, userDto);
     addUserToDefaultOrganizationAndDefaultGroup(dbSession, userDto);
-    organizationCreation.createForUser(dbSession, userDto);
+    organizationUpdater.createForUser(dbSession, userDto);
     return res;
   }
 
