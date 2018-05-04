@@ -33,6 +33,7 @@ exports[`renders list 1`] = `
             "key": "component",
           }
         }
+        innerRef={[Function]}
         key="branch-master"
         onSelect={[Function]}
         selected={true}
@@ -66,6 +67,7 @@ exports[`renders list 1`] = `
             "key": "component",
           }
         }
+        innerRef={[Function]}
         key="pull-request-1234"
         onSelect={[Function]}
         selected={false}
@@ -111,6 +113,7 @@ exports[`renders list 1`] = `
             "key": "component",
           }
         }
+        innerRef={[Function]}
         key="branch-baz"
         onSelect={[Function]}
         selected={false}
@@ -140,6 +143,7 @@ exports[`renders list 1`] = `
             "key": "component",
           }
         }
+        innerRef={[Function]}
         key="branch-foo"
         onSelect={[Function]}
         selected={false}
@@ -164,6 +168,7 @@ exports[`renders list 1`] = `
             "key": "component",
           }
         }
+        innerRef={[Function]}
         key="branch-bar"
         onSelect={[Function]}
         selected={false}
@@ -209,6 +214,7 @@ exports[`renders list 1`] = `
             "key": "component",
           }
         }
+        innerRef={[Function]}
         key="branch-baz"
         onSelect={[Function]}
         selected={false}
@@ -265,6 +271,7 @@ exports[`searches 1`] = `
             "key": "component",
           }
         }
+        innerRef={[Function]}
         key="branch-foobar"
         onSelect={[Function]}
         selected={true}
@@ -289,6 +296,7 @@ exports[`searches 1`] = `
             "key": "component",
           }
         }
+        innerRef={[Function]}
         key="branch-bar"
         onSelect={[Function]}
         selected={false}

@@ -31,6 +31,7 @@ import {
   isPullRequest,
   isBranch
 } from '../../../../helpers/branches';
+import { scrollToElement } from '../../../../helpers/scrolling';
 import { translate } from '../../../../helpers/l10n';
 import { getBranchLikeUrl } from '../../../../helpers/urls';
 import SearchBox from '../../../../components/controls/SearchBox';
@@ -51,6 +52,8 @@ interface State {
 
 export default class ComponentNavBranchesMenu extends React.PureComponent<Props, State> {
   private node?: HTMLElement | null;
+  private listNode?: HTMLUListElement | null;
+  private selectedBranchNode?: HTMLLIElement | null;
 
   static contextTypes = {
     router: PropTypes.object
@@ -63,10 +66,24 @@ export default class ComponentNavBranchesMenu extends React.PureComponent<Props,
 
   componentDidMount() {
     window.addEventListener('click', this.handleClickOutside);
+    this.scrollToSelectedBranch(false);
+  }
+
+  componentDidUpdate() {
+    this.scrollToSelectedBranch(true);
   }
 
   componentWillUnmount() {
     window.removeEventListener('click', this.handleClickOutside);
+  }
+
+  scrollToSelectedBranch(smooth: boolean) {
+    if (this.listNode && this.selectedBranchNode) {
+      scrollToElement(this.selectedBranchNode, {
+        parent: this.listNode,
+        smooth
+      });
+    }
   }
 
   getFilteredBranchLikes = () => {
@@ -190,7 +207,7 @@ export default class ComponentNavBranchesMenu extends React.PureComponent<Props,
         !showOrphanHeader && isPullRequest(branchLike) && !isPullRequest(previous);
       const showShortLivingBranchHeader =
         !showOrphanHeader && isShortLivingBranch(branchLike) && !isShortLivingBranch(previous);
-
+      const isSelected = isSameBranchLike(branchLike, selected);
       return (
         <React.Fragment key={getBranchLikeKey(branchLike)}>
           {showDivider && <li className="divider" />}
@@ -218,15 +235,22 @@ export default class ComponentNavBranchesMenu extends React.PureComponent<Props,
           <ComponentNavBranchesMenuItem
             branchLike={branchLike}
             component={this.props.component}
+            innerRef={node =>
+              (this.selectedBranchNode = isSelected ? node : this.selectedBranchNode)
+            }
             key={getBranchLikeKey(branchLike)}
             onSelect={this.handleSelect}
-            selected={isSameBranchLike(branchLike, selected)}
+            selected={isSelected}
           />
         </React.Fragment>
       );
     });
 
-    return <ul className="menu menu-vertically-limited">{items}</ul>;
+    return (
+      <ul className="menu menu-vertically-limited" ref={node => (this.listNode = node)}>
+        {items}
+      </ul>
+    );
   };
 
   render() {

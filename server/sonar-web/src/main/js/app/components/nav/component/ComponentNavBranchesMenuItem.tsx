@@ -39,6 +39,7 @@ export interface Props {
   component: Component;
   onSelect: (branchLike: BranchLike) => void;
   selected: boolean;
+  innerRef?: (node: HTMLLIElement) => void;
 }
 
 export default function ComponentNavBranchesMenuItem({ branchLike, ...props }: Props) {
@@ -51,7 +52,7 @@ export default function ComponentNavBranchesMenuItem({ branchLike, ...props }: P
     (isShortLivingBranch(branchLike) && !branchLike.isOrphan) || isPullRequest(branchLike);
 
   return (
-    <li key={getBranchLikeKey(branchLike)} onMouseEnter={handleMouseEnter}>
+    <li key={getBranchLikeKey(branchLike)} onMouseEnter={handleMouseEnter} ref={props.innerRef}>
       <Link
         className={classNames('navbar-context-meta-branch-menu-item', {
           active: props.selected
