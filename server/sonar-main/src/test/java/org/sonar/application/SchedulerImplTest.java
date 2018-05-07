@@ -58,7 +58,7 @@ import static org.sonar.process.ProcessId.WEB_SERVER;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_ENABLED;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_HOST;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_NAME;
-import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_PORT;
+import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_HZ_PORT;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_TYPE;
 
 public class SchedulerImplTest {
@@ -321,7 +321,7 @@ public class SchedulerImplTest {
   private void addRequiredNodeProperties() {
     settings.set(CLUSTER_NODE_NAME.getKey(), randomAlphanumeric(4));
     settings.set(CLUSTER_NODE_HOST.getKey(), randomAlphanumeric(4));
-    settings.set(CLUSTER_NODE_PORT.getKey(), String.valueOf(1 + new Random().nextInt(999)));
+    settings.set(CLUSTER_NODE_HZ_PORT.getKey(), String.valueOf(1 + new Random().nextInt(999)));
   }
 
   private class TestCommandFactory implements CommandFactory {

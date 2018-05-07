@@ -31,7 +31,7 @@ import org.sonar.process.ProcessId;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_PORT;
+import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_HZ_PORT;
 
 public class HazelcastMemberBuilderTest {
 
@@ -70,9 +70,9 @@ public class HazelcastMemberBuilderTest {
     underTest.setMembers(asList("foo", "bar:9100", "1.2.3.4"));
 
     assertThat(underTest.getMembers()).containsExactly(
-      "foo:" + CLUSTER_NODE_PORT.getDefaultValue(),
+      "foo:" + CLUSTER_NODE_HZ_PORT.getDefaultValue(),
       "bar:9100",
-      "1.2.3.4:" + CLUSTER_NODE_PORT.getDefaultValue());
+      "1.2.3.4:" + CLUSTER_NODE_HZ_PORT.getDefaultValue());
   }
 
   @Test

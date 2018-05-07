@@ -35,7 +35,7 @@ import org.sonar.process.cluster.hz.HazelcastMember.Attribute;
 import static java.lang.String.format;
 import static java.util.Collections.singletonList;
 import static java.util.Objects.requireNonNull;
-import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_PORT;
+import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_HZ_PORT;
 
 public class HazelcastMemberBuilder {
 
@@ -79,7 +79,7 @@ public class HazelcastMemberBuilder {
    */
   public HazelcastMemberBuilder setMembers(Collection<String> c) {
     this.members = c.stream()
-      .map(host -> host.contains(":") ? host : format("%s:%s", host, CLUSTER_NODE_PORT.getDefaultValue()))
+      .map(host -> host.contains(":") ? host : format("%s:%s", host, CLUSTER_NODE_HZ_PORT.getDefaultValue()))
       .collect(Collectors.toList());
     return this;
   }

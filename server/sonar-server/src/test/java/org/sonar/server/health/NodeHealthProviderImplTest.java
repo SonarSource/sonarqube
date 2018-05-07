@@ -39,7 +39,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_HOST;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_NAME;
-import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_PORT;
+import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_HZ_PORT;
 
 public class NodeHealthProviderImplTest {
   @Rule
@@ -127,7 +127,7 @@ public class NodeHealthProviderImplTest {
     String name = randomAlphanumeric(3);
     int port = 1 + random.nextInt(4);
     mapSettings.setProperty(CLUSTER_NODE_NAME.getKey(), name);
-    mapSettings.setProperty(CLUSTER_NODE_PORT.getKey(), port);
+    mapSettings.setProperty(CLUSTER_NODE_HZ_PORT.getKey(), port);
     setStartedAt();
     when(healthChecker.checkNode()).thenReturn(Health.newHealthCheckBuilder()
       .setStatus(Health.Status.values()[random.nextInt(Health.Status.values().length)])
@@ -153,7 +153,7 @@ public class NodeHealthProviderImplTest {
   public void get_returns_host_from_property_if_set_at_constructor_time() {
     String host = randomAlphanumeric(4);
     mapSettings.setProperty(CLUSTER_NODE_NAME.getKey(), randomAlphanumeric(3));
-    mapSettings.setProperty(CLUSTER_NODE_PORT.getKey(), 1 + random.nextInt(4));
+    mapSettings.setProperty(CLUSTER_NODE_HZ_PORT.getKey(), 1 + random.nextInt(4));
     mapSettings.setProperty(CLUSTER_NODE_HOST.getKey(), host);
     setStartedAt();
     when(healthChecker.checkNode()).thenReturn(Health.newHealthCheckBuilder()
@@ -237,6 +237,6 @@ public class NodeHealthProviderImplTest {
 
   private void setRequiredPropertiesForConstructor() {
     mapSettings.setProperty(CLUSTER_NODE_NAME.getKey(), randomAlphanumeric(3));
-    mapSettings.setProperty(CLUSTER_NODE_PORT.getKey(), 1 + random.nextInt(4));
+    mapSettings.setProperty(CLUSTER_NODE_HZ_PORT.getKey(), 1 + random.nextInt(4));
   }
 }

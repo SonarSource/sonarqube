@@ -29,7 +29,7 @@ import org.sonar.process.cluster.health.NodeHealthProvider;
 
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_HOST;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_NAME;
-import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_PORT;
+import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_HZ_PORT;
 
 public class SearchNodeHealthProvider implements NodeHealthProvider {
 
@@ -46,7 +46,7 @@ public class SearchNodeHealthProvider implements NodeHealthProvider {
       .setType(NodeDetails.Type.SEARCH)
       .setName(props.nonNullValue(CLUSTER_NODE_NAME.getKey()))
       .setHost(getHost(props, networkUtils))
-      .setPort(Integer.valueOf(props.nonNullValue(CLUSTER_NODE_PORT.getKey())))
+      .setPort(Integer.valueOf(props.nonNullValue(CLUSTER_NODE_HZ_PORT.getKey())))
       .setStartedAt(clock.now())
       .build();
   }

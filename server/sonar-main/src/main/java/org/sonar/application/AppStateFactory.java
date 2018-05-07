@@ -34,11 +34,11 @@ import org.sonar.process.cluster.hz.HazelcastMember;
 import org.sonar.process.cluster.hz.HazelcastMemberBuilder;
 
 import static java.util.Arrays.asList;
-import static org.sonar.process.ProcessProperties.Property.CLUSTER_HOSTS;
+import static org.sonar.process.ProcessProperties.Property.CLUSTER_HZ_HOSTS;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_NAME;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_HOST;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_NAME;
-import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_PORT;
+import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_HZ_PORT;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_SEARCH_HOSTS;
 
 public class AppStateFactory {
@@ -61,9 +61,9 @@ public class AppStateFactory {
   private static HazelcastMember createHzMember(Props props) {
     HazelcastMemberBuilder builder = new HazelcastMemberBuilder()
       .setNetworkInterface(props.nonNullValue(CLUSTER_NODE_HOST.getKey()))
-      .setMembers(asList(props.nonNullValue(CLUSTER_HOSTS.getKey()).split(",")))
+      .setMembers(asList(props.nonNullValue(CLUSTER_HZ_HOSTS.getKey()).split(",")))
       .setNodeName(props.nonNullValue(CLUSTER_NODE_NAME.getKey()))
-      .setPort(Integer.parseInt(props.nonNullValue(CLUSTER_NODE_PORT.getKey())))
+      .setPort(Integer.parseInt(props.nonNullValue(CLUSTER_NODE_HZ_PORT.getKey())))
       .setProcessId(ProcessId.APP);
     return builder.build();
   }

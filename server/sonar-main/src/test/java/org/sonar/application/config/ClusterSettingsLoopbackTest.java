@@ -33,7 +33,7 @@ import org.sonar.process.NetworkUtilsImpl;
 import static org.junit.Assume.assumeThat;
 import static org.mockito.Mockito.spy;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_ENABLED;
-import static org.sonar.process.ProcessProperties.Property.CLUSTER_HOSTS;
+import static org.sonar.process.ProcessProperties.Property.CLUSTER_HZ_HOSTS;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_HOST;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_TYPE;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_SEARCH_HOSTS;
@@ -61,7 +61,7 @@ public class ClusterSettingsLoopbackTest {
   public void ClusterSettings_throws_MessageException_if_host_of_search_node_is_loopback() {
     verifySearchFailureIfLoopback(CLUSTER_NODE_HOST.getKey());
     verifySearchFailureIfLoopback(CLUSTER_SEARCH_HOSTS.getKey());
-    verifySearchFailureIfLoopback(CLUSTER_HOSTS.getKey());
+    verifySearchFailureIfLoopback(CLUSTER_HZ_HOSTS.getKey());
     verifySearchFailureIfLoopback(SEARCH_HOST.getKey());
   }
 
@@ -69,7 +69,7 @@ public class ClusterSettingsLoopbackTest {
   public void ClusterSettings_throws_MessageException_if_host_of_app_node_is_loopback() {
     verifyAppFailureIfLoopback(CLUSTER_NODE_HOST.getKey());
     verifyAppFailureIfLoopback(CLUSTER_SEARCH_HOSTS.getKey());
-    verifyAppFailureIfLoopback(CLUSTER_HOSTS.getKey());
+    verifyAppFailureIfLoopback(CLUSTER_HZ_HOSTS.getKey());
   }
 
   private void verifySearchFailureIfLoopback(String propertyKey) {
@@ -96,7 +96,7 @@ public class ClusterSettingsLoopbackTest {
       .set(CLUSTER_ENABLED.getKey(), "true")
       .set(CLUSTER_NODE_TYPE.getKey(), "application")
       .set(CLUSTER_NODE_HOST.getKey(), nonLoopbackLocal.getHostAddress())
-      .set(CLUSTER_HOSTS.getKey(), nonLoopbackLocal.getHostAddress())
+      .set(CLUSTER_HZ_HOSTS.getKey(), nonLoopbackLocal.getHostAddress())
       .set(CLUSTER_SEARCH_HOSTS.getKey(), nonLoopbackLocal.getHostAddress())
       .set("sonar.auth.jwtBase64Hs256Secret", "abcde")
       .set(JDBC_URL.getKey(), "jdbc:mysql://localhost:3306/sonar");
@@ -107,7 +107,7 @@ public class ClusterSettingsLoopbackTest {
       .set(CLUSTER_ENABLED.getKey(), "true")
       .set(CLUSTER_NODE_TYPE.getKey(), "search")
       .set(CLUSTER_NODE_HOST.getKey(), nonLoopbackLocal.getHostAddress())
-      .set(CLUSTER_HOSTS.getKey(), nonLoopbackLocal.getHostAddress())
+      .set(CLUSTER_HZ_HOSTS.getKey(), nonLoopbackLocal.getHostAddress())
       .set(CLUSTER_SEARCH_HOSTS.getKey(), nonLoopbackLocal.getHostAddress())
       .set(SEARCH_HOST.getKey(), nonLoopbackLocal.getHostAddress());
   }

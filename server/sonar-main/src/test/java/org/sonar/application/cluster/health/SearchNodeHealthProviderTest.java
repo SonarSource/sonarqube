@@ -39,7 +39,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_HOST;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_NAME;
-import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_PORT;
+import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_HZ_PORT;
 
 public class SearchNodeHealthProviderTest {
   @Rule
@@ -89,7 +89,7 @@ public class SearchNodeHealthProviderTest {
     String port = randomAlphabetic(3);
     Properties properties = new Properties();
     properties.put(CLUSTER_NODE_NAME.getKey(), randomAlphanumeric(3));
-    properties.put(CLUSTER_NODE_PORT.getKey(), port);
+    properties.put(CLUSTER_NODE_HZ_PORT.getKey(), port);
     when(networkUtils.getHostname()).thenReturn(randomAlphanumeric(34));
     Props props = new Props(properties);
 
@@ -105,7 +105,7 @@ public class SearchNodeHealthProviderTest {
     int port = 1 + random.nextInt(4);
     Properties properties = new Properties();
     properties.setProperty(CLUSTER_NODE_NAME.getKey(), name);
-    properties.setProperty(CLUSTER_NODE_PORT.getKey(), valueOf(port));
+    properties.setProperty(CLUSTER_NODE_HZ_PORT.getKey(), valueOf(port));
     when(networkUtils.getHostname()).thenReturn(randomAlphanumeric(34));
     when(clock.now()).thenReturn(1L + random.nextInt(87));
     SearchNodeHealthProvider underTest = new SearchNodeHealthProvider(new Props(properties), clusterAppState, networkUtils, clock);
@@ -117,7 +117,7 @@ public class SearchNodeHealthProviderTest {
 
     // change values in properties
     properties.setProperty(CLUSTER_NODE_NAME.getKey(), randomAlphanumeric(6));
-    properties.setProperty(CLUSTER_NODE_PORT.getKey(), valueOf(1 + random.nextInt(99)));
+    properties.setProperty(CLUSTER_NODE_HZ_PORT.getKey(), valueOf(1 + random.nextInt(99)));
 
     NodeHealth newNodeHealth = underTest.get();
 
@@ -130,7 +130,7 @@ public class SearchNodeHealthProviderTest {
     String host = randomAlphanumeric(55);
     Properties properties = new Properties();
     properties.setProperty(CLUSTER_NODE_NAME.getKey(), randomAlphanumeric(3));
-    properties.setProperty(CLUSTER_NODE_PORT.getKey(), valueOf(1 + random.nextInt(4)));
+    properties.setProperty(CLUSTER_NODE_HZ_PORT.getKey(), valueOf(1 + random.nextInt(4)));
     properties.setProperty(CLUSTER_NODE_HOST.getKey(), host);
     when(clock.now()).thenReturn(1L + random.nextInt(87));
     SearchNodeHealthProvider underTest = new SearchNodeHealthProvider(new Props(properties), clusterAppState, networkUtils, clock);
@@ -161,7 +161,7 @@ public class SearchNodeHealthProviderTest {
     String host = randomAlphanumeric(34);
     Properties properties = new Properties();
     properties.setProperty(CLUSTER_NODE_NAME.getKey(), randomAlphanumeric(3));
-    properties.setProperty(CLUSTER_NODE_PORT.getKey(), valueOf(1 + random.nextInt(4)));
+    properties.setProperty(CLUSTER_NODE_HZ_PORT.getKey(), valueOf(1 + random.nextInt(4)));
     if (hostPropertyValue != null) {
       properties.setProperty(CLUSTER_NODE_HOST.getKey(), hostPropertyValue);
     }
@@ -226,7 +226,7 @@ public class SearchNodeHealthProviderTest {
 
   private long setRequiredPropertiesAndMocks(Properties properties) {
     properties.setProperty(CLUSTER_NODE_NAME.getKey(), randomAlphanumeric(3));
-    properties.setProperty(CLUSTER_NODE_PORT.getKey(), valueOf(1 + random.nextInt(4)));
+    properties.setProperty(CLUSTER_NODE_HZ_PORT.getKey(), valueOf(1 + random.nextInt(4)));
     long now = 1L + random.nextInt(87);
     when(clock.now()).thenReturn(now);
     when(networkUtils.getHostname()).thenReturn(randomAlphanumeric(34));
