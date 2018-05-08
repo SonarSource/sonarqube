@@ -20,39 +20,33 @@
 import * as React from 'react';
 import DeleteConditionForm from './DeleteConditionForm';
 import ThresholdInput from './ThresholdInput';
-import {
-  Condition as ICondition,
-  ConditionBase,
-  createCondition,
-  QualityGate,
-  updateCondition
-} from '../../../api/quality-gates';
-import { Metric } from '../../../app/types';
+import { createCondition, updateCondition } from '../../../api/quality-gates';
+import { Condition as ICondition, Metric, QualityGate } from '../../../app/types';
 import Checkbox from '../../../components/controls/Checkbox';
 import Select from '../../../components/controls/Select';
 import { Button, ResetButtonLink } from '../../../components/ui/buttons';
 import { translate, getLocalizedMetricName } from '../../../helpers/l10n';
-import { formatMeasure } from '../../../helpers/measures';
+import { formatMeasure, isDiffMetric } from '../../../helpers/measures';
 
 interface Props {
   condition: ICondition;
-  edit: boolean;
+  canEdit: boolean;
   metric: Metric;
-  organization: string;
-  onDeleteCondition: (condition: ICondition) => void;
+  organization?: string;
+  onAddCondition: (metric: string) => void;
   onError: (error: any) => void;
+  onRemoveCondition: (Condition: ICondition) => void;
   onResetError: () => void;
-  onSaveCondition: (condition: ICondition, newCondition: ICondition) => void;
+  onSaveCondition: (newCondition: ICondition, oldCondition: ICondition) => void;
   qualityGate: QualityGate;
 }
 
 interface State {
   changed: boolean;
-  period?: number;
-  op?: string;
-  openDeleteCondition: boolean;
-  warning: string;
   error: string;
+  op?: string;
+  period?: number;
+  warning: string;
 }
 
 export default class Condition extends React.PureComponent<Props, State> {
@@ -62,11 +56,30 @@ export default class Condition extends React.PureComponent<Props, State> {
       changed: false,
       period: props.condition.period,
       op: props.condition.op,
-      openDeleteCondition: false,
       warning: props.condition.warning || '',
       error: props.condition.error || ''
     };
   }
+
+  getUpdatedCondition = () => {
+    const { metric } = this.props;
+    const data: ICondition = {
+      metric: metric.key,
+      op: metric.type === 'RATING' ? 'GT' : this.state.op,
+      warning: this.state.warning,
+      error: this.state.error
+    };
+
+    const { period } = this.state;
+    if (period && metric.type !== 'RATING') {
+      data.period = period;
+    }
+
+    if (isDiffMetric(metric.key)) {
+      data.period = 1;
+    }
+    return data;
+  };
 
   handleOperatorChange = ({ value }: any) => this.setState({ changed: true, op: value });
 
@@ -80,23 +93,8 @@ export default class Condition extends React.PureComponent<Props, State> {
   handleErrorChange = (error: string) => this.setState({ changed: true, error });
 
   handleSaveClick = () => {
-    const { qualityGate, condition, metric, organization } = this.props;
-    const { period } = this.state;
-    const data: ConditionBase = {
-      metric: condition.metric,
-      op: metric.type === 'RATING' ? 'GT' : this.state.op,
-      warning: this.state.warning,
-      error: this.state.error
-    };
-
-    if (period && metric.type !== 'RATING') {
-      data.period = period;
-    }
-
-    if (metric.key.indexOf('new_') === 0) {
-      data.period = 1;
-    }
-
+    const { qualityGate, organization } = this.props;
+    const data = this.getUpdatedCondition();
     createCondition({ gateId: qualityGate.id, organization, ...data }).then(
       this.handleConditionResponse,
       this.props.onError
@@ -104,23 +102,11 @@ export default class Condition extends React.PureComponent<Props, State> {
   };
 
   handleUpdateClick = () => {
-    const { condition, metric, organization } = this.props;
-    const { period } = this.state;
+    const { condition, organization } = this.props;
     const data: ICondition = {
       id: condition.id,
-      metric: condition.metric,
-      op: metric.type === 'RATING' ? 'GT' : this.state.op,
-      warning: this.state.warning,
-      error: this.state.error
+      ...this.getUpdatedCondition()
     };
-
-    if (period && metric.type !== 'RATING') {
-      data.period = period;
-    }
-
-    if (metric.key.indexOf('new_') === 0) {
-      data.period = 1;
-    }
 
     updateCondition({ organization, ...data }).then(
       this.handleConditionResponse,
@@ -129,30 +115,21 @@ export default class Condition extends React.PureComponent<Props, State> {
   };
 
   handleConditionResponse = (newCondition: ICondition) => {
-    this.setState({ changed: false });
-    this.props.onSaveCondition(this.props.condition, newCondition);
+    this.props.onSaveCondition(newCondition, this.props.condition);
     this.props.onResetError();
+    this.setState({ changed: false });
   };
 
   handleCancelClick = () => {
-    this.props.onDeleteCondition(this.props.condition);
-  };
-
-  openDeleteConditionForm = () => {
-    this.setState({ openDeleteCondition: true });
-  };
-
-  closeDeleteConditionForm = () => {
-    this.setState({ openDeleteCondition: false });
+    this.props.onRemoveCondition(this.props.condition);
   };
 
   renderPeriodValue() {
     const { condition, metric } = this.props;
     const isLeakSelected = !!this.state.period;
-    const isDiffMetric = condition.metric.indexOf('new_') === 0;
     const isRating = metric.type === 'RATING';
 
-    if (isDiffMetric) {
+    if (isDiffMetric(condition.metric)) {
       return (
         <span className="note">{translate('quality_gates.condition.leak.unconditional')}</span>
       );
@@ -168,13 +145,11 @@ export default class Condition extends React.PureComponent<Props, State> {
   }
 
   renderPeriod() {
-    const { condition, metric, edit } = this.props;
-
-    const isDiffMetric = condition.metric.indexOf('new_') === 0;
+    const { condition, metric, canEdit } = this.props;
     const isRating = metric.type === 'RATING';
     const isLeakSelected = !!this.state.period;
 
-    if (isRating || isDiffMetric || !edit) {
+    if (isRating || isDiffMetric(condition.metric) || !canEdit) {
       return this.renderPeriodValue();
     }
 
@@ -182,9 +157,9 @@ export default class Condition extends React.PureComponent<Props, State> {
   }
 
   renderOperator() {
-    const { condition, edit, metric } = this.props;
+    const { condition, canEdit, metric } = this.props;
 
-    if (!edit && condition.op) {
+    if (!canEdit && condition.op) {
       return metric.type === 'RATING'
         ? translate('quality_gates.operator', condition.op, 'rating')
         : translate('quality_gates.operator', condition.op);
@@ -215,7 +190,7 @@ export default class Condition extends React.PureComponent<Props, State> {
   }
 
   render() {
-    const { condition, edit, metric, organization } = this.props;
+    const { condition, canEdit, metric, organization } = this.props;
     return (
       <tr>
         <td className="text-middle">
@@ -230,7 +205,7 @@ export default class Condition extends React.PureComponent<Props, State> {
         <td className="thin text-middle nowrap">{this.renderOperator()}</td>
 
         <td className="thin text-middle nowrap">
-          {edit ? (
+          {canEdit ? (
             <ThresholdInput
               metric={metric}
               name="warning"
@@ -243,7 +218,7 @@ export default class Condition extends React.PureComponent<Props, State> {
         </td>
 
         <td className="thin text-middle nowrap">
-          {edit ? (
+          {canEdit ? (
             <ThresholdInput
               metric={metric}
               name="error"
@@ -255,7 +230,7 @@ export default class Condition extends React.PureComponent<Props, State> {
           )}
         </td>
 
-        {edit && (
+        {canEdit && (
           <td className="thin text-middle nowrap">
             {condition.id ? (
               <div>
@@ -265,20 +240,12 @@ export default class Condition extends React.PureComponent<Props, State> {
                   onClick={this.handleUpdateClick}>
                   {translate('update_verb')}
                 </Button>
-                <Button
-                  className="button-red delete-condition little-spacer-left"
-                  onClick={this.openDeleteConditionForm}>
-                  {translate('delete')}
-                </Button>
-                {this.state.openDeleteCondition && (
-                  <DeleteConditionForm
-                    condition={condition}
-                    metric={metric}
-                    onClose={this.closeDeleteConditionForm}
-                    onDelete={this.props.onDeleteCondition}
-                    organization={organization}
-                  />
-                )}
+                <DeleteConditionForm
+                  condition={condition}
+                  metric={metric}
+                  onDelete={this.props.onRemoveCondition}
+                  organization={organization}
+                />
               </div>
             ) : (
               <div>

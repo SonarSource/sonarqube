@@ -30,7 +30,6 @@ import organizationsMembers, * as fromOrganizationsMembers from './organizations
 import globalMessages, * as fromGlobalMessages from './globalMessages/duck';
 import permissionsApp, * as fromPermissionsApp from '../apps/permissions/shared/store/rootReducer';
 import projectAdminApp, * as fromProjectAdminApp from '../apps/project-admin/store/rootReducer';
-import qualityGatesApp from '../apps/quality-gates/store/rootReducer';
 import settingsApp, * as fromSettingsApp from '../apps/settings/store/rootReducer';
 
 export default combineReducers({
@@ -48,7 +47,6 @@ export default combineReducers({
   // apps
   permissionsApp,
   projectAdminApp,
-  qualityGatesApp,
   settingsApp
 });
 
@@ -123,8 +121,6 @@ export const getOrganizationMembersLogins = (state, organization) =>
 
 export const getOrganizationMembersState = (state, organization) =>
   fromOrganizationsMembers.getOrganizationMembersState(state.organizationsMembers, organization);
-
-export const getQualityGatesAppState = state => state.qualityGatesApp;
 
 export const getPermissionsAppUsers = state => fromPermissionsApp.getUsers(state.permissionsApp);
 

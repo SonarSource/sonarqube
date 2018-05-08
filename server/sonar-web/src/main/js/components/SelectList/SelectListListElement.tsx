@@ -61,7 +61,7 @@ export default class SelectListListElement extends React.PureComponent<Props, St
 
   render() {
     return (
-      <li>
+      <li className={classNames({ 'select-list-list-disabled': this.props.disabled })}>
         <Checkbox
           checked={this.props.selected}
           className={classNames('select-list-list-checkbox', { active: this.props.active })}

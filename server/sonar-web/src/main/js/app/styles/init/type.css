@@ -246,7 +246,7 @@ small,
 }
 
 .text-muted {
-  color: var(--secondFontColor) !important;
+  color: var(--secondFontColor);
 }
 
 .text-muted-2 {

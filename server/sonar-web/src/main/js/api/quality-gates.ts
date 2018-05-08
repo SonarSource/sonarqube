@@ -19,35 +19,7 @@
  */
 import { getJSON, post, postJSON } from '../helpers/request';
 import throwGlobalError from '../app/utils/throwGlobalError';
-import { Metric } from '../app/types';
-
-export interface ConditionBase {
-  error: string;
-  metric: string;
-  op?: string;
-  period?: number;
-  warning: string;
-}
-
-export interface Condition extends ConditionBase {
-  id: number;
-}
-
-export interface QualityGate {
-  actions?: {
-    associateProjects: boolean;
-    copy: boolean;
-    delete: boolean;
-    manageConditions: boolean;
-    rename: boolean;
-    setAsDefault: boolean;
-  };
-  conditions?: Condition[];
-  id: number;
-  isBuiltIn?: boolean;
-  isDefault?: boolean;
-  name: string;
-}
+import { Condition, Metric, QualityGate } from '../app/types';
 
 export function fetchQualityGates(data: {
   organization?: string;
@@ -106,7 +78,7 @@ export function createCondition(
   data: {
     gateId: number;
     organization?: string;
-  } & ConditionBase
+  } & Condition
 ): Promise<Condition> {
   return postJSON('/api/qualitygates/create_condition', data);
 }
@@ -136,10 +108,11 @@ export function getGateForProject(data: {
 export function searchGates(data: {
   gateId: number;
   organization?: string;
-  page: number;
-  pageSize: number;
-  selected: string;
-}): Promise<void | Response> {
+  page?: number;
+  pageSize?: number;
+  query?: string;
+  selected?: string;
+}): Promise<{ more: boolean; results: Array<{ id: string; name: string; selected: boolean }> }> {
   return getJSON('/api/qualitygates/search', data).catch(throwGlobalError);
 }
 

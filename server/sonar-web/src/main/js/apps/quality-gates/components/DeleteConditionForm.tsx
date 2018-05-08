@@ -18,79 +18,47 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { Condition, deleteCondition } from '../../../api/quality-gates';
-import { Metric } from '../../../app/types';
-import Modal from '../../../components/controls/Modal';
-import { SubmitButton, ResetButtonLink } from '../../../components/ui/buttons';
+import { deleteCondition } from '../../../api/quality-gates';
+import { Metric, Condition } from '../../../app/types';
+import ConfirmButton from '../../../components/controls/ConfirmButton';
+import { Button } from '../../../components/ui/buttons';
 import { getLocalizedMetricName, translate, translateWithParameters } from '../../../helpers/l10n';
 
 interface Props {
   condition: Condition;
   metric: Metric;
-  onClose: () => void;
   onDelete: (condition: Condition) => void;
   organization?: string;
 }
 
-interface State {
-  loading: boolean;
-}
-
-export default class DeleteConditionForm extends React.PureComponent<Props, State> {
-  mounted = false;
-  state: State = { loading: false };
-
-  componentDidMount() {
-    this.mounted = true;
-  }
-
-  componentWillUnmount() {
-    this.mounted = false;
-  }
-
-  handleFormSubmit = (event: React.SyntheticEvent<HTMLFormElement>) => {
-    event.preventDefault();
+export default class DeleteConditionForm extends React.PureComponent<Props> {
+  onDelete = () => {
     const { organization, condition } = this.props;
-    this.setState({ loading: true });
-    deleteCondition({ id: condition.id, organization }).then(
-      () => this.props.onDelete(condition),
-      () => {
-        if (this.mounted) {
-          this.setState({ loading: false });
-        }
-      }
-    );
+    if (condition.id !== undefined) {
+      return deleteCondition({ id: condition.id, organization }).then(() =>
+        this.props.onDelete(condition)
+      );
+    }
+    return undefined;
   };
 
   render() {
-    const { metric } = this.props;
-    const header = translate('quality_gates.delete_condition');
-
     return (
-      <Modal contentLabel={header} onRequestClose={this.props.onClose}>
-        <form id="delete-profile-form" onSubmit={this.handleFormSubmit}>
-          <div className="modal-head">
-            <h2>{header}</h2>
-          </div>
-          <div className="modal-body">
-            <p>
-              {translateWithParameters(
-                'quality_gates.delete_condition.confirm.message',
-                getLocalizedMetricName(metric)
-              )}
-            </p>
-          </div>
-          <div className="modal-foot">
-            {this.state.loading && <i className="spinner spacer-right" />}
-            <SubmitButton className="js-delete button-red" disabled={this.state.loading}>
-              {translate('delete')}
-            </SubmitButton>
-            <ResetButtonLink className="js-modal-close" onClick={this.props.onClose}>
-              {translate('cancel')}
-            </ResetButtonLink>
-          </div>
-        </form>
-      </Modal>
+      <ConfirmButton
+        confirmButtonText={translate('delete')}
+        isDestructive={true}
+        modalBody={translateWithParameters(
+          'quality_gates.delete_condition.confirm.message',
+          getLocalizedMetricName(this.props.metric)
+        )}
+        modalHeader={translate('quality_gates.delete_condition')}
+        onConfirm={this.onDelete}>
+        {({ onClick }) => (
+          <Button className="delete-condition little-spacer-left button-red" onClick={onClick}>
+            {translate('delete')}
+          </Button>
+        )}
+      </ConfirmButton>
     );
   }
 }

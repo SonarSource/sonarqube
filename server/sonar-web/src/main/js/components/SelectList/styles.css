@@ -95,6 +95,14 @@
   margin-right: 10px;
 }
 
+.select-list-list-disabled {
+  cursor: not-allowed;
+}
+
+.select-list-list-disabled > a {
+  pointer-events: none;
+}
+
 .select-list-list-item {
   display: inline-block;
   vertical-align: middle;

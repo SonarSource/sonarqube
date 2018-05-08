@@ -17,54 +17,58 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import { sortBy, uniqBy } from 'lodash';
-import AddConditionForm from './AddConditionForm';
+import * as React from 'react';
+import { differenceWith, map, sortBy, uniqBy } from 'lodash';
+import AddConditionSelect from './AddConditionSelect';
 import Condition from './Condition';
 import DocTooltip from '../../../components/docs/DocTooltip';
 import { translate, getLocalizedMetricName } from '../../../helpers/l10n';
+import { Condition as ICondition, Metric, QualityGate } from '../../../app/types';
+import { parseError } from '../../../helpers/request';
 
-function getKey(condition, index) {
-  return condition.id ? condition.id : `new-${index}`;
+interface Props {
+  canEdit: boolean;
+  conditions: ICondition[];
+  metrics: { [key: string]: Metric };
+  onAddCondition: (metric: string) => void;
+  onSaveCondition: (newCondition: ICondition, oldCondition: ICondition) => void;
+  onRemoveCondition: (Condition: ICondition) => void;
+  organization?: string;
+  qualityGate: QualityGate;
 }
 
-export default class Conditions extends React.PureComponent {
-  state = {
-    error: null
+interface State {
+  error?: string;
+}
+
+export default class Conditions extends React.PureComponent<Props, State> {
+  state: State = {};
+
+  componentWillUpdate(nextProps: Props) {
+    if (nextProps.qualityGate !== this.props.qualityGate) {
+      this.setState({ error: undefined });
+    }
+  }
+
+  getConditionKey = (condition: ICondition, index: number) => {
+    return condition.id ? condition.id : `new-${index}`;
   };
 
-  componentWillUpdate(nextProps) {
-    if (nextProps.qualityGate !== this.props.qualityGate) {
-      this.setState({ error: null });
-    }
-  }
-
-  handleError(error) {
-    try {
-      error.response.json().then(r => {
-        const message = r.errors.map(e => e.msg).join('. ');
+  handleError = (error: any) => {
+    parseError(error).then(
+      message => {
         this.setState({ error: message });
-      });
-    } catch (ex) {
-      this.setState({ error: translate('default_error_message') });
-    }
-  }
+      },
+      () => {}
+    );
+  };
 
-  handleResetError() {
-    this.setState({ error: null });
-  }
+  handleResetError = () => {
+    this.setState({ error: undefined });
+  };
 
   render() {
-    const {
-      qualityGate,
-      conditions,
-      metrics,
-      edit,
-      onAddCondition,
-      onSaveCondition,
-      onDeleteCondition,
-      organization
-    } = this.props;
+    const { qualityGate, conditions, metrics, canEdit, organization } = this.props;
 
     const existingConditions = conditions.filter(condition => metrics[condition.metric]);
 
@@ -73,7 +77,7 @@ export default class Conditions extends React.PureComponent {
       condition => metrics[condition.metric] && metrics[condition.metric].name
     );
 
-    const duplicates = [];
+    const duplicates: ICondition[] = [];
     const savedConditions = existingConditions.filter(condition => condition.id != null);
     savedConditions.forEach(condition => {
       const sameCount = savedConditions.filter(
@@ -88,6 +92,15 @@ export default class Conditions extends React.PureComponent {
       ...condition,
       metric: metrics[condition.metric]
     }));
+
+    const availableMetrics = differenceWith(
+      map(metrics, metric => metric).filter(
+        metric => !metric.hidden && !['DATA', 'DISTRIB'].includes(metric.type)
+      ),
+      conditions,
+      (metric, condition) => metric.key === condition.metric
+    );
+
     return (
       <div className="quality-gate-section" id="quality-gate-conditions">
         <header className="display-flex-center spacer-bottom">
@@ -119,22 +132,23 @@ export default class Conditions extends React.PureComponent {
                 <th className="thin nowrap">{translate('quality_gates.conditions.operator')}</th>
                 <th className="thin nowrap">{translate('quality_gates.conditions.warning')}</th>
                 <th className="thin nowrap">{translate('quality_gates.conditions.error')}</th>
-                {edit && <th />}
+                {canEdit && <th />}
               </tr>
             </thead>
             <tbody>
               {sortedConditions.map((condition, index) => (
                 <Condition
-                  key={getKey(condition, index)}
-                  qualityGate={qualityGate}
+                  canEdit={canEdit}
                   condition={condition}
+                  key={this.getConditionKey(condition, index)}
                   metric={metrics[condition.metric]}
-                  edit={edit}
-                  onSaveCondition={onSaveCondition}
-                  onDeleteCondition={onDeleteCondition}
-                  onError={this.handleError.bind(this)}
-                  onResetError={this.handleResetError.bind(this)}
+                  onAddCondition={this.props.onAddCondition}
+                  onError={this.handleError}
+                  onRemoveCondition={this.props.onRemoveCondition}
+                  onResetError={this.handleResetError}
+                  onSaveCondition={this.props.onSaveCondition}
                   organization={organization}
+                  qualityGate={qualityGate}
                 />
               ))}
             </tbody>
@@ -143,7 +157,12 @@ export default class Conditions extends React.PureComponent {
           <div className="big-spacer-top">{translate('quality_gates.no_conditions')}</div>
         )}
 
-        {edit && <AddConditionForm metrics={metrics} onSelect={onAddCondition} />}
+        {canEdit && (
+          <AddConditionSelect
+            metrics={availableMetrics}
+            onAddCondition={this.props.onAddCondition}
+          />
+        )}
       </div>
     );
   }

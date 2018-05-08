@@ -19,57 +19,28 @@
  */
 import * as React from 'react';
 import CreateQualityGateForm from '../components/CreateQualityGateForm';
-import { QualityGate } from '../../../api/quality-gates';
-import { Organization } from '../../../app/types';
 import DocTooltip from '../../../components/docs/DocTooltip';
-import { Button } from '../../../components/ui/buttons';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {
   canCreate: boolean;
-  onAdd: (qualityGate: QualityGate) => void;
-  organization?: Organization;
+  refreshQualityGates: () => Promise<void>;
+  organization?: string;
 }
 
-interface State {
-  createQualityGateOpen: boolean;
-}
-
-export default class ListHeader extends React.PureComponent<Props, State> {
-  state = { createQualityGateOpen: false };
-
-  openCreateQualityGateForm = () => {
-    this.setState({ createQualityGateOpen: true });
-  };
-
-  closeCreateQualityGateForm = () => {
-    this.setState({ createQualityGateOpen: false });
-  };
-
-  render() {
-    const { organization } = this.props;
-
-    return (
-      <header className="page-header">
-        {this.props.canCreate && (
-          <div className="page-actions">
-            <Button id="quality-gate-add" onClick={this.openCreateQualityGateForm}>
-              {translate('create')}
-            </Button>
-          </div>
-        )}
-        <div className="display-flex-center">
-          <h1 className="page-title">{translate('quality_gates.page')}</h1>
-          <DocTooltip className="spacer-left" doc="quality-gates/quality-gate" />
+export default function ListHeader({ canCreate, refreshQualityGates, organization }: Props) {
+  return (
+    <header className="page-header">
+      {canCreate && (
+        <div className="page-actions">
+          <CreateQualityGateForm onCreate={refreshQualityGates} organization={organization} />
         </div>
-        {this.state.createQualityGateOpen && (
-          <CreateQualityGateForm
-            onClose={this.closeCreateQualityGateForm}
-            onCreate={this.props.onAdd}
-            organization={organization && organization.key}
-          />
-        )}
-      </header>
-    );
-  }
+      )}
+
+      <div className="display-flex-center">
+        <h1 className="page-title">{translate('quality_gates.page')}</h1>
+        <DocTooltip className="spacer-left" doc="quality-gates/quality-gate" />
+      </div>
+    </header>
+  );
 }

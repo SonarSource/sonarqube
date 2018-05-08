@@ -22,7 +22,7 @@ import { RouterState, IndexRouteProps, RouteComponent } from 'react-router';
 const routes = [
   {
     getComponent(_: RouterState, callback: (err: any, component: RouteComponent) => any) {
-      import('./containers/QualityGatesAppContainer').then(i => callback(null, i.default));
+      import('./components/QualityGatesApp').then(i => callback(null, i.default));
     },
     childRoutes: [
       {
@@ -33,7 +33,7 @@ const routes = [
       {
         path: 'show/:id',
         getComponent(_: RouterState, callback: (err: any, component: RouteComponent) => any) {
-          import('./containers/DetailsContainer').then(i => callback(null, i.default));
+          import('./components/DetailsApp').then(i => callback(null, i.default));
         }
       }
     ]

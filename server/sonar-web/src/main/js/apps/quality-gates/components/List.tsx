@@ -17,13 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
+import * as React from 'react';
 import { Link } from 'react-router';
 import BuiltInQualityGateBadge from './BuiltInQualityGateBadge';
 import { translate } from '../../../helpers/l10n';
 import { getQualityGateUrl } from '../../../helpers/urls';
+import { QualityGate } from '../../../app/types';
 
-export default function List({ organization, qualityGates }) {
+interface Props {
+  organization?: string;
+  qualityGates: QualityGate[];
+}
+
+export default function List({ organization, qualityGates }: Props) {
   return (
     <div className="list-group">
       {qualityGates.map(qualityGate => (
@@ -32,7 +38,7 @@ export default function List({ organization, qualityGates }) {
           className="list-group-item"
           data-id={qualityGate.id}
           key={qualityGate.id}
-          to={getQualityGateUrl(String(qualityGate.id), organization && organization.key)}>
+          to={getQualityGateUrl(String(qualityGate.id), organization)}>
           <table>
             <tbody>
               <tr>

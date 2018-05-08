@@ -1,7 +1,9 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should display a loader when checking 1`] = `
-<li>
+<li
+  className=""
+>
   <Checkbox
     checked={false}
     className="select-list-list-checkbox"
@@ -18,7 +20,9 @@ exports[`should display a loader when checking 1`] = `
 `;
 
 exports[`should display a loader when checking 2`] = `
-<li>
+<li
+  className=""
+>
   <Checkbox
     checked={false}
     className="select-list-list-checkbox"

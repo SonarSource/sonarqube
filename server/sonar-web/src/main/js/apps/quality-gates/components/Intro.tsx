@@ -17,17 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { connect } from 'react-redux';
-import { setState, addQualityGate, deleteQualityGate } from '../store/actions';
-import QualityGateApp from '../components/QualityGatesApp';
-import { getQualityGatesAppState } from '../../../store/rootReducer';
+import * as React from 'react';
+import { translate } from '../../../helpers/l10n';
 
-const mapStateToProps = state => getQualityGatesAppState(state);
-
-const mapDispatchToProps = dispatch => ({
-  updateStore: nextState => dispatch(setState(nextState)),
-  addQualityGate: qualityGate => dispatch(addQualityGate(qualityGate)),
-  deleteQualityGate: qualityGate => dispatch(deleteQualityGate(qualityGate))
-});
-
-export default connect(mapStateToProps, mapDispatchToProps)(QualityGateApp);
+export default function Intro() {
+  return (
+    <div className="layout-page-main">
+      <div className="layout-page-main-inner">
+        <div className="search-navigator-intro markdown">
+          <p>{translate('quality_gates.intro.1')}</p>
+          <p>{translate('quality_gates.intro.2')}</p>
+        </div>
+      </div>
+    </div>
+  );
+}

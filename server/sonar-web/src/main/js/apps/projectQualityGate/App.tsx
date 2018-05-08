@@ -25,13 +25,12 @@ import {
   fetchQualityGates,
   getGateForProject,
   associateGateWithProject,
-  dissociateGateWithProject,
-  QualityGate
+  dissociateGateWithProject
 } from '../../api/quality-gates';
 import Suggestions from '../../app/components/embed-docs-modal/Suggestions';
 import addGlobalSuccessMessage from '../../app/utils/addGlobalSuccessMessage';
 import handleRequiredAuthorization from '../../app/utils/handleRequiredAuthorization';
-import { Component } from '../../app/types';
+import { Component, QualityGate } from '../../app/types';
 import { translate } from '../../helpers/l10n';
 
 interface Props {
@@ -128,7 +127,7 @@ export default class App extends React.PureComponent<Props> {
     const { allGates, gate, loading } = this.state;
 
     return (
-      <div id="project-quality-gate" className="page page-limited">
+      <div className="page page-limited" id="project-quality-gate">
         <Suggestions suggestions="project_quality_gate" />
         <Helmet title={translate('project_quality_gate.page')} />
         <Header />

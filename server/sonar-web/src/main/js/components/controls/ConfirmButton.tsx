@@ -32,6 +32,7 @@ interface Props {
   children: (props: ChildrenProps) => React.ReactNode;
   confirmButtonText: string;
   confirmData?: string;
+  confirmDisable?: boolean;
   isDestructive?: boolean;
   modalBody: React.ReactNode;
   modalHeader: string;
@@ -82,7 +83,7 @@ export default class ConfirmButton extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const { confirmButtonText, isDestructive, modalBody, modalHeader } = this.props;
+    const { confirmButtonText, confirmDisable, isDestructive, modalBody, modalHeader } = this.props;
 
     return (
       <>
@@ -107,7 +108,7 @@ export default class ConfirmButton extends React.PureComponent<Props, State> {
                   <DeferredSpinner className="spacer-right" loading={submitting} />
                   <SubmitButton
                     className={isDestructive ? 'button-red' : undefined}
-                    disabled={submitting}>
+                    disabled={submitting || confirmDisable}>
                     {confirmButtonText}
                   </SubmitButton>
                   <ResetButtonLink disabled={submitting} onClick={onCloseClick}>

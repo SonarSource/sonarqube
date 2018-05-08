@@ -17,48 +17,54 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
+import * as React from 'react';
 import Conditions from './Conditions';
 import Projects from './Projects';
 import DocTooltip from '../../../components/docs/DocTooltip';
 import { translate } from '../../../helpers/l10n';
+import { Condition as ICondition, Metric, QualityGate } from '../../../app/types';
 
-export default class DetailsContent extends React.PureComponent {
+interface Props {
+  isDefault?: boolean;
+  metrics: { [key: string]: Metric };
+  organization?: string;
+  onAddCondition: (metric: string) => void;
+  onRemoveCondition: (Condition: ICondition) => void;
+  onSaveCondition: (newCondition: ICondition, oldCondition: ICondition) => void;
+  qualityGate: QualityGate;
+}
+
+export default class DetailsContent extends React.PureComponent<Props> {
   render() {
-    const { gate, metrics, organization } = this.props;
-    const { onAddCondition, onDeleteCondition, onSaveCondition } = this.props;
-    const conditions = gate.conditions || [];
-    const actions = gate.actions || {};
-
-    const defaultMessage = actions.associateProjects
-      ? translate('quality_gates.projects_for_default.edit')
-      : translate('quality_gates.projects_for_default');
+    const { isDefault, metrics, organization, qualityGate } = this.props;
+    const conditions = qualityGate.conditions || [];
+    const actions = qualityGate.actions || ({} as any);
 
     return (
       <div className="layout-page-main-inner">
         <Conditions
-          qualityGate={gate}
+          canEdit={actions.manageConditions}
           conditions={conditions}
           metrics={metrics}
-          edit={actions.manageConditions}
-          onAddCondition={onAddCondition}
-          onSaveCondition={onSaveCondition}
-          onDeleteCondition={onDeleteCondition}
+          onAddCondition={this.props.onAddCondition}
+          onRemoveCondition={this.props.onRemoveCondition}
+          onSaveCondition={this.props.onSaveCondition}
           organization={organization}
+          qualityGate={qualityGate}
         />
 
-        <div id="quality-gate-projects" className="quality-gate-section">
+        <div className="quality-gate-section" id="quality-gate-projects">
           <header className="display-flex-center spacer-bottom">
             <h3>{translate('quality_gates.projects')}</h3>
             <DocTooltip className="spacer-left" doc="quality-gates/quality-gate-projects" />
           </header>
-          {gate.isDefault ? (
-            defaultMessage
+          {isDefault ? (
+            translate('quality_gates.projects_for_default')
           ) : (
             <Projects
-              qualityGate={gate}
-              edit={actions.associateProjects}
+              canEdit={actions.associateProjects}
               organization={organization}
+              qualityGate={qualityGate}
             />
           )}
         </div>

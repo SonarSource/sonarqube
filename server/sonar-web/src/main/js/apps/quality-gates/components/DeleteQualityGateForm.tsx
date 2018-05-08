@@ -19,83 +19,55 @@
  */
 import * as React from 'react';
 import * as PropTypes from 'prop-types';
-import { deleteQualityGate, QualityGate } from '../../../api/quality-gates';
-import Modal from '../../../components/controls/Modal';
-import { SubmitButton, ResetButtonLink } from '../../../components/ui/buttons';
+import { deleteQualityGate } from '../../../api/quality-gates';
+import ConfirmButton from '../../../components/controls/ConfirmButton';
+import { Button } from '../../../components/ui/buttons';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { getQualityGatesUrl } from '../../../helpers/urls';
+import { QualityGate } from '../../../app/types';
 
 interface Props {
-  onClose: () => void;
-  onDelete: (qualityGate: QualityGate) => void;
+  onDelete: () => Promise<void>;
   organization?: string;
   qualityGate: QualityGate;
 }
 
-interface State {
-  loading: boolean;
-}
-
-export default class DeleteQualityGateForm extends React.PureComponent<Props, State> {
-  mounted = false;
-
+export default class DeleteQualityGateForm extends React.PureComponent<Props> {
   static contextTypes = {
     router: PropTypes.object
   };
 
-  state: State = { loading: false };
-
-  componentDidMount() {
-    this.mounted = true;
-  }
-
-  componentWillUnmount() {
-    this.mounted = false;
-  }
-
-  handleFormSubmit = (event: React.SyntheticEvent<HTMLFormElement>) => {
-    event.preventDefault();
+  onDelete = () => {
     const { organization, qualityGate } = this.props;
-    this.setState({ loading: true });
-    deleteQualityGate({ id: qualityGate.id, organization }).then(
-      () => {
-        this.props.onDelete(qualityGate);
-        this.context.router.replace(getQualityGatesUrl(organization));
-      },
-      () => {
-        if (this.mounted) {
-          this.setState({ loading: false });
-        }
-      }
-    );
+    return deleteQualityGate({ id: qualityGate.id, organization })
+      .then(this.props.onDelete)
+      .then(() => {
+        this.context.router.push(getQualityGatesUrl(organization));
+      });
   };
 
   render() {
     const { qualityGate } = this.props;
-    const header = translate('quality_gates.delete');
 
     return (
-      <Modal contentLabel={header} onRequestClose={this.props.onClose}>
-        <form id="delete-profile-form" onSubmit={this.handleFormSubmit}>
-          <div className="modal-head">
-            <h2>{header}</h2>
-          </div>
-          <div className="modal-body">
-            <p>
-              {translateWithParameters('quality_gates.delete.confirm.message', qualityGate.name)}
-            </p>
-          </div>
-          <div className="modal-foot">
-            {this.state.loading && <i className="spinner spacer-right" />}
-            <SubmitButton className="js-delete button-red" disabled={this.state.loading}>
-              {translate('delete')}
-            </SubmitButton>
-            <ResetButtonLink className="js-modal-close" onClick={this.props.onClose}>
-              {translate('cancel')}
-            </ResetButtonLink>
-          </div>
-        </form>
-      </Modal>
+      <ConfirmButton
+        confirmButtonText={translate('delete')}
+        isDestructive={true}
+        modalBody={translateWithParameters(
+          'quality_gates.delete.confirm.message',
+          qualityGate.name
+        )}
+        modalHeader={translate('quality_gates.delete')}
+        onConfirm={this.onDelete}>
+        {({ onClick }) => (
+          <Button
+            className="little-spacer-left button-red"
+            id="quality-gate-delete"
+            onClick={onClick}>
+            {translate('delete')}
+          </Button>
+        )}
+      </ConfirmButton>
     );
   }
 }

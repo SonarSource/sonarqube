@@ -26,7 +26,7 @@ describe('on strings', () => {
   const metric = { id: '1', key: 'foo', name: 'Foo', type: 'INTEGER' };
   it('should render text input', () => {
     const input = shallow(
-      <ThresholdInput name="foo" value="2" metric={metric} onChange={jest.fn()} />
+      <ThresholdInput metric={metric} name="foo" onChange={jest.fn()} value="2" />
     ).find('input');
     expect(input.length).toEqual(1);
     expect(input.prop('name')).toEqual('foo');
@@ -36,7 +36,7 @@ describe('on strings', () => {
   it('should change', () => {
     const onChange = jest.fn();
     const input = shallow(
-      <ThresholdInput name="foo" value="2" metric={metric} onChange={onChange} />
+      <ThresholdInput metric={metric} name="foo" onChange={onChange} value="2" />
     ).find('input');
     change(input, 'bar');
     expect(onChange).toBeCalledWith('bar');
@@ -47,7 +47,7 @@ describe('on ratings', () => {
   const metric = { id: '1', key: 'foo', name: 'Foo', type: 'RATING' };
   it('should render Select', () => {
     const select = shallow(
-      <ThresholdInput name="foo" value="2" metric={metric} onChange={jest.fn()} />
+      <ThresholdInput metric={metric} name="foo" onChange={jest.fn()} value="2" />
     ).find('Select');
     expect(select.length).toEqual(1);
     expect(select.prop('value')).toEqual('2');
@@ -56,7 +56,7 @@ describe('on ratings', () => {
   it('should set', () => {
     const onChange = jest.fn();
     const select = shallow(
-      <ThresholdInput name="foo" value="2" metric={metric} onChange={onChange} />
+      <ThresholdInput metric={metric} name="foo" onChange={onChange} value="2" />
     ).find('Select');
     (select.prop('onChange') as Function)({ label: 'D', value: '4' });
     expect(onChange).toBeCalledWith('4');
@@ -65,7 +65,7 @@ describe('on ratings', () => {
   it('should unset', () => {
     const onChange = jest.fn();
     const select = shallow(
-      <ThresholdInput name="foo" value="2" metric={metric} onChange={onChange} />
+      <ThresholdInput metric={metric} name="foo" onChange={onChange} value="2" />
     ).find('Select');
     (select.prop('onChange') as Function)(null);
     expect(onChange).toBeCalledWith('');

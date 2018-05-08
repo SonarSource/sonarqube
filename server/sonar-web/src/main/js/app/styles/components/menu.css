@@ -62,6 +62,10 @@
   pointer-events: none !important;
 }
 
+.menu > li > a.text-muted {
+  color: var(--secondFontColor);
+}
+
 .menu > li > a:hover,
 .menu > li > a:focus {
   text-decoration: none;

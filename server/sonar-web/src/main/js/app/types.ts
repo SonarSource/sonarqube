@@ -82,6 +82,15 @@ interface ComponentConfiguration {
   showUpdateKey?: boolean;
 }
 
+export interface Condition {
+  error: string;
+  id?: number;
+  metric: string;
+  op?: string;
+  period?: number;
+  warning: string;
+}
+
 export interface CoveredFile {
   key: string;
   longName: string;
@@ -363,6 +372,22 @@ export interface PullRequest {
   };
   title: string;
   url?: string;
+}
+
+export interface QualityGate {
+  actions?: {
+    associateProjects?: boolean;
+    copy?: boolean;
+    delete?: boolean;
+    manageConditions?: boolean;
+    rename?: boolean;
+    setAsDefault?: boolean;
+  };
+  conditions?: Condition[];
+  id: number;
+  isBuiltIn?: boolean;
+  isDefault?: boolean;
+  name: string;
 }
 
 export interface Rule {

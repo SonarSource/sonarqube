@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
+import * as React from 'react';
 import { find, without } from 'lodash';
 import SelectList, { Filter } from '../../../components/SelectList/SelectList';
 import { translate } from '../../../helpers/l10n';
@@ -26,23 +26,27 @@ import {
   associateGateWithProject,
   dissociateGateWithProject
 } from '../../../api/quality-gates';
-/*:: import { Project } from '../../projects/types'; */
+import { QualityGate } from '../../../app/types';
 
-/*::
-type State = {
-  projects: Projects[],
-  selectedProjects: string[]
-};
-*/
+interface Props {
+  canEdit?: boolean;
+  organization?: string;
+  qualityGate: QualityGate;
+}
 
-export default class Projects extends React.PureComponent {
-  state /*: State */ = { projects: [], selectedProjects: [] };
+interface State {
+  projects: Array<{ id: string; name: string; selected: boolean }>;
+  selectedProjects: string[];
+}
+
+export default class Projects extends React.PureComponent<Props, State> {
+  state: State = { projects: [], selectedProjects: [] };
 
   componentDidMount() {
     this.handleSearch('', Filter.Selected);
   }
 
-  handleSearch = (query /*: string*/, selected /*: string */) => {
+  handleSearch = (query: string, selected: string) => {
     return searchGates({
       gateId: this.props.qualityGate.id,
       organization: this.props.organization,
@@ -59,26 +63,26 @@ export default class Projects extends React.PureComponent {
     });
   };
 
-  handleSelect = (id /*: string*/) => {
+  handleSelect = (id: string) => {
     return associateGateWithProject({
       gateId: this.props.qualityGate.id,
       organization: this.props.organization,
       projectId: id
     }).then(() => {
-      this.setState((state /*: State*/) => ({
+      this.setState(state => ({
         selectedProjects: [...state.selectedProjects, id]
       }));
     });
   };
 
-  handleUnselect = (id /*: string*/) => {
+  handleUnselect = (id: string) => {
     return dissociateGateWithProject({
       gateId: this.props.qualityGate.id,
       organization: this.props.organization,
       projectId: id
     }).then(
       () => {
-        this.setState((state /*: State*/) => ({
+        this.setState(state => ({
           selectedProjects: without(state.selectedProjects, id)
         }));
       },
@@ -86,7 +90,7 @@ export default class Projects extends React.PureComponent {
     );
   };
 
-  renderElement = (id /*: string*/) /*: React.ReactNode*/ => {
+  renderElement = (id: string): React.ReactNode => {
     const project = find(this.state.projects, { id });
     return project === undefined ? id : project.name;
   };
@@ -101,6 +105,7 @@ export default class Projects extends React.PureComponent {
         onSearch={this.handleSearch}
         onSelect={this.handleSelect}
         onUnselect={this.handleUnselect}
+        readOnly={!this.props.canEdit}
         renderElement={this.renderElement}
         selectedElements={this.state.selectedProjects}
       />

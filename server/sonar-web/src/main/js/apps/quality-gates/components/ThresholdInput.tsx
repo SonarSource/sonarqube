@@ -74,12 +74,12 @@ export default class ThresholdInput extends React.PureComponent<Props> {
 
     return (
       <input
-        name={name}
-        type="text"
         className="input-tiny text-middle"
-        value={value}
         data-type={metric.type}
+        name={name}
         onChange={this.handleChange}
+        type="text"
+        value={value}
       />
     );
   }

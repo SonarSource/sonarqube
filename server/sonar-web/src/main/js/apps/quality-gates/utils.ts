@@ -17,14 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export function checkIfDefault(qualityGate, list) {
-  const finding = list.find(candidate => candidate.id === qualityGate.id);
 
-  return finding ? finding.isDefault : false;
+import { QualityGate, Condition } from '../../app/types';
+
+export function checkIfDefault(qualityGate: QualityGate, list: QualityGate[]): boolean {
+  const finding = list.find(candidate => candidate.id === qualityGate.id);
+  return (finding && finding.isDefault) || false;
 }
 
-export function addCondition(qualityGate, metric) {
-  const condition = {
+export function addCondition(qualityGate: QualityGate, metric: string): QualityGate {
+  const condition: Condition = {
     metric,
     op: 'LT',
     warning: '',
@@ -32,19 +34,24 @@ export function addCondition(qualityGate, metric) {
   };
   const oldConditions = qualityGate.conditions || [];
   const conditions = [...oldConditions, condition];
-
   return { ...qualityGate, conditions };
 }
 
-export function deleteCondition(qualityGate, condition) {
-  const conditions = qualityGate.conditions.filter(candidate => candidate !== condition);
-
+export function deleteCondition(qualityGate: QualityGate, condition: Condition): QualityGate {
+  const conditions =
+    qualityGate.conditions && qualityGate.conditions.filter(candidate => candidate !== condition);
   return { ...qualityGate, conditions };
 }
 
-export function replaceCondition(qualityGate, oldCondition, newCondition) {
-  const conditions = qualityGate.conditions.map(candidate => {
-    return candidate === oldCondition ? newCondition : candidate;
-  });
+export function replaceCondition(
+  qualityGate: QualityGate,
+  newCondition: Condition,
+  oldCondition: Condition
+): QualityGate {
+  const conditions =
+    qualityGate.conditions &&
+    qualityGate.conditions.map(candidate => {
+      return candidate === oldCondition ? newCondition : candidate;
+    });
   return { ...qualityGate, conditions };
 }
