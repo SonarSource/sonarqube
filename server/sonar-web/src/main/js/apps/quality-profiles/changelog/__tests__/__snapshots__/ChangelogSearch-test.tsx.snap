@@ -15,7 +15,7 @@ exports[`should render 1`] = `
     }
   />
   <Button
-    className="spacer-left"
+    className="spacer-left vertical-top"
     onClick={[MockFunction]}
   >
     reset_verb

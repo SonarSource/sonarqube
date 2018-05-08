@@ -33,7 +33,7 @@ export default class ChangelogSearch extends React.PureComponent<Props> {
     return (
       <div className="display-inline-block" id="quality-profile-changelog-form">
         <DateRangeInput onChange={this.props.onDateRangeChange} value={this.props.dateRange} />
-        <Button className="spacer-left" onClick={this.props.onReset}>
+        <Button className="spacer-left vertical-top" onClick={this.props.onReset}>
           {translate('reset_verb')}
         </Button>
       </div>

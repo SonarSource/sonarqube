@@ -201,10 +201,12 @@ label[for] {
 
 .radio-toggle > li > label {
   display: inline-block;
-  padding: 3px 12px 5px;
+  padding: 0 12px;
   margin: 0;
   border: 1px solid var(--darkBlue);
   color: var(--darkBlue);
+  height: calc(var(--controlHeight) - 2px);
+  line-height: calc(var(--controlHeight) - 2px);
 }
 
 .radio-toggle input[type='radio'] {

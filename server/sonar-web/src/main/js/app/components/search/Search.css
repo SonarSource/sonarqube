@@ -34,6 +34,10 @@
   border-color: #fff;
 }
 
+.navbar-search .search-box-note {
+  line-height: calc(var(--globalNavContentHeight) - 2px);
+}
+
 .navbar-search .search-box-magnifier,
 .navbar-search .search-box-clear {
   top: calc((var(--globalNavContentHeight) - 16px) / 2);

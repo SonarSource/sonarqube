@@ -64,7 +64,7 @@
   top: 1px;
   left: 40px;
   right: var(--controlHeight);
-  line-height: calc(var(--controlHeight));
+  line-height: var(--controlHeight);
   color: var(--secondFontColor);
   font-size: var(--smallFontSize);
   text-align: right;
