@@ -217,12 +217,22 @@ public class RuleIndexTest {
 
   @Test
   public void search_content_by_query() {
-    RuleDefinitionDto rule1 = createJavaRule(rule -> rule.setRuleKey("123").setDescription("My great rule CWE-123 which makes your code 1000 times better!"));
-    RuleDefinitionDto rule2 = createJavaRule(rule -> rule.setRuleKey("124").setDescription("Another great and shiny rule CWE-124"));
-    RuleDefinitionDto rule3 = createJavaRule(rule -> rule.setRuleKey("1000").setDescription("Another great rule CWE-1000"));
+    // it's important to set all the fields being used by the search (name, desc, key, lang, ...),
+    // otherwise the generated random values may raise false-positives
+    RuleDefinitionDto rule1 = createJavaRule(rule -> rule.setRuleKey("123")
+      .setName("rule 123")
+      .setDescription("My great rule CWE-123 which makes your code 1000 times better!"));
+    RuleDefinitionDto rule2 = createJavaRule(rule -> rule.setRuleKey("124")
+      .setName("rule 124")
+      .setDescription("Another great and shiny rule CWE-124"));
+    RuleDefinitionDto rule3 = createJavaRule(rule -> rule.setRuleKey("1000")
+      .setName("rule 1000")
+      .setDescription("Another great rule CWE-1000"));
     RuleDefinitionDto rule4 = createJavaRule(rule -> rule.setRuleKey("404")
+      .setName("rule 404")
       .setDescription("<h1>HTML-Geeks</h1><p style=\"color:blue\">special formatting!</p><table><tr><td>inside</td><td>tables</td></tr></table>"));
     RuleDefinitionDto rule5 = createJavaRule(rule -> rule.setRuleKey("405")
+      .setName("rule 405")
       .setDescription("internationalization missunderstandings alsdkjfnadklsjfnadkdfnsksdjfn"));
     index();
 
