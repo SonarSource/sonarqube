@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import * as classNames from 'classnames';
 import { Filter } from './SelectList';
 import SelectListListElement from './SelectListListElement';
 import Checkbox from '../controls/Checkbox';
@@ -31,6 +32,7 @@ interface Props {
   filter: Filter;
   onSelect: (element: string) => Promise<void>;
   onUnselect: (element: string) => Promise<void>;
+  readOnly?: boolean;
   renderElement: (element: string) => React.ReactNode;
   selectedElements: string[];
 }
@@ -58,7 +60,7 @@ export default class SelectListListContainer extends React.PureComponent<Props, 
   };
 
   isDisabled = (element: string): boolean => {
-    return this.props.disabledElements.includes(element);
+    return this.props.readOnly || this.props.disabledElements.includes(element);
   };
 
   isSelected = (element: string): boolean => {
@@ -79,13 +81,13 @@ export default class SelectListListContainer extends React.PureComponent<Props, 
   };
 
   renderBulkSelector() {
-    const { elements, selectedElements } = this.props;
+    const { elements, readOnly, selectedElements } = this.props;
     return (
       <>
         <li>
           <Checkbox
             checked={selectedElements.length > 0}
-            disabled={this.state.loading}
+            disabled={this.state.loading || readOnly}
             onCheck={this.handleBulkChange}
             thirdState={selectedElements.length > 0 && elements.length !== selectedElements.length}>
             <span className="big-spacer-left">
@@ -110,7 +112,7 @@ export default class SelectListListContainer extends React.PureComponent<Props, 
     });
 
     return (
-      <div className="select-list-list-container spacer-top">
+      <div className={classNames('select-list-list-container spacer-top')}>
         <ul className="menu">
           {allowBulkSelection &&
             elements.length > 0 &&

@@ -40,6 +40,7 @@ interface Props {
   onSearch: (query: string, tab: Filter) => Promise<void>;
   onSelect: (element: string) => Promise<void>;
   onUnselect: (element: string) => Promise<void>;
+  readOnly?: boolean;
   renderElement: (element: string) => React.ReactNode;
   selectedElements: string[];
 }
@@ -121,6 +122,7 @@ export default class SelectList extends React.PureComponent<Props, State> {
           filter={this.getFilter()}
           onSelect={this.props.onSelect}
           onUnselect={this.props.onUnselect}
+          readOnly={this.props.readOnly}
           renderElement={this.props.renderElement}
           selectedElements={this.props.selectedElements}
         />

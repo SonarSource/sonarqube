@@ -54,7 +54,8 @@ export default class Checkbox extends React.PureComponent<Props> {
       return (
         <a
           className={classNames('link-checkbox', this.props.className, {
-            'text-muted': this.props.disabled
+            'text-muted': this.props.disabled,
+            disabled: this.props.disabled
           })}
           href="#"
           id={this.props.id}
