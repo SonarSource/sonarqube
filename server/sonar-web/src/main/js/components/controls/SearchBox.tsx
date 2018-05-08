@@ -105,7 +105,7 @@ export default class SearchBox extends React.PureComponent<Props, State> {
 
   handleResetClick = () => {
     this.changeValue('', false);
-    if (this.props.value === undefined) {
+    if (this.props.value === undefined || this.props.value === '') {
       this.setState({ value: '' });
     }
     if (this.input) {
