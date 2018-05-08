@@ -25,7 +25,7 @@ import PreviewGraph from '../../../components/preview-graph/PreviewGraph';
 import { translate } from '../../../helpers/l10n';
 import { Metric, Component, BranchLike } from '../../../app/types';
 import { History } from '../../../api/time-machine';
-import { getBranchLikeQuery } from '../../../helpers/branches';
+import { getBranchLikeQuery, isSameBranchLike } from '../../../helpers/branches';
 import { getActivityUrl } from '../../../helpers/urls';
 
 interface Props {
@@ -53,7 +53,10 @@ export default class AnalysesList extends React.PureComponent<Props, State> {
   }
 
   componentDidUpdate(prevProps: Props) {
-    if (prevProps.component !== this.props.component) {
+    if (
+      prevProps.component.key !== this.props.component.key ||
+      !isSameBranchLike(prevProps.branchLike, this.props.branchLike)
+    ) {
       this.fetchData();
     }
   }
