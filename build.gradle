@@ -202,7 +202,7 @@ subprojects {
       dependency 'org.postgresql:postgresql:42.2.1'
       dependency 'org.reflections:reflections:0.9.9'
       dependency 'org.simpleframework:simple:4.1.21'
-      dependency 'org.sonarsource.orchestrator:sonar-orchestrator:3.17.0.1491'
+      dependency 'org.sonarsource.orchestrator:sonar-orchestrator:3.18.0.1547'
       dependency('org.sonarsource:sonar-persistit:3.3.2') {
         exclude 'commons-logging:commons-logging'
       }
