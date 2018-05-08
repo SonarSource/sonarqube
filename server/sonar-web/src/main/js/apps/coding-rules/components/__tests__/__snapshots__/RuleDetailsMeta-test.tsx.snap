@@ -1,0 +1,35 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should edit tags 1`] = `
+<li
+  className="coding-rules-detail-property"
+  data-meta="tags"
+>
+  <Dropdown
+    closeOnClick={false}
+    closeOnClickOutside={true}
+    overlay={
+      <RuleDetailsTagsPopup
+        organization={undefined}
+        setTags={[MockFunction]}
+        sysTags={Array []}
+        tags={Array []}
+      />
+    }
+    overlayPlacement="bottom-left"
+  >
+    <Button
+      className="button-link"
+    >
+      <TagsList
+        allowUpdate={true}
+        tags={
+          Array [
+            "coding_rules.no_tags",
+          ]
+        }
+      />
+    </Button>
+  </Dropdown>
+</li>
+`;

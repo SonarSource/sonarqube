@@ -1,0 +1,16 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render tags 1`] = `
+<TagsSelector
+  listSize={10}
+  onSearch={[Function]}
+  onSelect={[Function]}
+  onUnselect={[Function]}
+  selectedTags={
+    Array [
+      "foo",
+    ]
+  }
+  tags={Array []}
+/>
+`;

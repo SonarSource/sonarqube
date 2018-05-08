@@ -22,7 +22,7 @@ import { without, uniq, difference } from 'lodash';
 import TagsSelector from '../../../components/tags/TagsSelector';
 import { getRuleTags } from '../../../api/rules';
 
-interface Props {
+export interface Props {
   organization: string | undefined;
   setTags: (tags: string[]) => void;
   sysTags: string[];
