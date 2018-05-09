@@ -21,6 +21,7 @@ package org.sonar.server.ce.ws;
 
 import java.util.Collections;
 import java.util.Date;
+import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.DateUtils;
@@ -35,6 +36,7 @@ import org.sonarqube.ws.Ce;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -158,7 +160,8 @@ public class TaskFormatterTest {
 
   @Test
   public void formatActivity() {
-    CeActivityDto dto = newActivity("UUID", "COMPONENT_UUID", CeActivityDto.Status.FAILED);
+    UserDto user = db.users().insertUser();
+    CeActivityDto dto = newActivity("UUID", "COMPONENT_UUID", CeActivityDto.Status.FAILED, user);
 
     Ce.Task wsTask = underTest.formatActivity(db.getSession(), dto, null);
 
@@ -166,6 +169,7 @@ public class TaskFormatterTest {
     assertThat(wsTask.getId()).isEqualTo("UUID");
     assertThat(wsTask.getStatus()).isEqualTo(Ce.TaskStatus.FAILED);
     assertThat(wsTask.getSubmittedAt()).isEqualTo(DateUtils.formatDateTime(new Date(1_450_000_000_000L)));
+    assertThat(wsTask.getSubmitterLogin()).isEqualTo(user.getLogin());
     assertThat(wsTask.getExecutionTimeMs()).isEqualTo(500L);
     assertThat(wsTask.getAnalysisId()).isEqualTo("U1");
     assertThat(wsTask.getLogs()).isFalse();
@@ -174,7 +178,7 @@ public class TaskFormatterTest {
 
   @Test
   public void formatActivity_set_scanner_context_if_argument_is_non_null() {
-    CeActivityDto dto = newActivity("UUID", "COMPONENT_UUID", CeActivityDto.Status.FAILED);
+    CeActivityDto dto = newActivity("UUID", "COMPONENT_UUID", CeActivityDto.Status.FAILED, null);
 
     String expected = "scanner context baby!";
     Ce.Task wsTask = underTest.formatActivity(db.getSession(), dto, expected);
@@ -185,17 +189,23 @@ public class TaskFormatterTest {
 
   @Test
   public void formatActivities() {
-    CeActivityDto dto1 = newActivity("UUID1", "COMPONENT_UUID", CeActivityDto.Status.FAILED);
-    CeActivityDto dto2 = newActivity("UUID2", "COMPONENT_UUID", CeActivityDto.Status.SUCCESS);
+    UserDto user1 = db.users().insertUser();
+    UserDto user2 = db.users().insertUser();
+    CeActivityDto dto1 = newActivity("UUID1", "COMPONENT_UUID", CeActivityDto.Status.FAILED, user1);
+    CeActivityDto dto2 = newActivity("UUID2", "COMPONENT_UUID", CeActivityDto.Status.SUCCESS, user2);
 
     Iterable<Ce.Task> wsTasks = underTest.formatActivity(db.getSession(), asList(dto1, dto2));
 
-    assertThat(wsTasks).extracting("id").containsExactly("UUID1", "UUID2");
+    assertThat(wsTasks)
+      .extracting(Ce.Task::getId, Ce.Task::getSubmitterLogin)
+      .containsExactlyInAnyOrder(
+        tuple("UUID1", user1.getLogin()),
+        tuple("UUID2", user2.getLogin()));
   }
 
   @Test
   public void formatActivity_with_both_error_message_and_stacktrace() {
-    CeActivityDto dto = newActivity("UUID", "COMPONENT_UUID", CeActivityDto.Status.FAILED)
+    CeActivityDto dto = newActivity("UUID", "COMPONENT_UUID", CeActivityDto.Status.FAILED, null)
       .setErrorMessage("error msg")
       .setErrorStacktrace("error stacktrace")
       .setErrorType("anErrorType");
@@ -209,7 +219,7 @@ public class TaskFormatterTest {
 
   @Test
   public void formatActivity_with_both_error_message_only() {
-    CeActivityDto dto = newActivity("UUID", "COMPONENT_UUID", CeActivityDto.Status.FAILED)
+    CeActivityDto dto = newActivity("UUID", "COMPONENT_UUID", CeActivityDto.Status.FAILED, null)
       .setErrorMessage("error msg");
 
     Ce.Task task = underTest.formatActivity(db.getSession(), Collections.singletonList(dto)).iterator().next();
@@ -220,7 +230,7 @@ public class TaskFormatterTest {
 
   @Test
   public void formatActivity_with_both_error_message_and_only_stacktrace_flag() {
-    CeActivityDto dto = newActivity("UUID", "COMPONENT_UUID", CeActivityDto.Status.FAILED)
+    CeActivityDto dto = newActivity("UUID", "COMPONENT_UUID", CeActivityDto.Status.FAILED, null)
       .setErrorMessage("error msg");
 
     Ce.Task task = underTest.formatActivity(db.getSession(), Collections.singletonList(dto)).iterator().next();
@@ -229,16 +239,16 @@ public class TaskFormatterTest {
     assertThat(task.hasErrorStacktrace()).isFalse();
   }
 
-  private CeActivityDto newActivity(String taskUuid, String componentUuid, CeActivityDto.Status status) {
-    CeQueueDto queueDto = new CeQueueDto();
-    queueDto.setCreatedAt(1_450_000_000_000L);
-    queueDto.setTaskType(CeTaskTypes.REPORT);
-    queueDto.setComponentUuid(componentUuid);
-    queueDto.setUuid(taskUuid);
-    CeActivityDto activityDto = new CeActivityDto(queueDto);
-    activityDto.setStatus(status);
-    activityDto.setExecutionTimeMs(500L);
-    activityDto.setAnalysisUuid("U1");
-    return activityDto;
+  private CeActivityDto newActivity(String taskUuid, String componentUuid, CeActivityDto.Status status, @Nullable UserDto user) {
+    CeQueueDto queueDto = new CeQueueDto()
+      .setCreatedAt(1_450_000_000_000L)
+      .setTaskType(CeTaskTypes.REPORT)
+      .setComponentUuid(componentUuid)
+      .setSubmitterUuid(user == null ? null : user.getUuid())
+      .setUuid(taskUuid);
+    return new CeActivityDto(queueDto)
+      .setStatus(status)
+      .setExecutionTimeMs(500L)
+      .setAnalysisUuid("U1");
   }
 }

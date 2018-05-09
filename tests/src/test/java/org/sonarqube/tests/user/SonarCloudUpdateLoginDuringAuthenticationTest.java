@@ -20,6 +20,7 @@
 package org.sonarqube.tests.user;
 
 import com.sonar.orchestrator.Orchestrator;
+import com.sonar.orchestrator.build.BuildResult;
 import com.sonar.orchestrator.build.SonarScanner;
 import java.util.List;
 import org.json.JSONException;
@@ -30,6 +31,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonarqube.qa.util.Tester;
 import org.sonarqube.qa.util.TesterSession;
+import org.sonarqube.ws.Ce;
 import org.sonarqube.ws.Issues;
 import org.sonarqube.ws.Issues.Issue;
 import org.sonarqube.ws.Organizations.Organization;
@@ -42,6 +44,8 @@ import org.sonarqube.ws.UserTokens;
 import org.sonarqube.ws.Users;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.WsClient;
+import org.sonarqube.ws.client.ce.ActivityRequest;
+import org.sonarqube.ws.client.ce.TaskRequest;
 import org.sonarqube.ws.client.custommeasures.CreateRequest;
 import org.sonarqube.ws.client.issues.AssignRequest;
 import org.sonarqube.ws.client.organizations.AddMemberRequest;
@@ -58,6 +62,7 @@ import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.skyscreamer.jsonassert.JSONAssert.assertEquals;
+import static util.ItUtils.extractCeTaskId;
 import static util.ItUtils.projectDir;
 
 public class SonarCloudUpdateLoginDuringAuthenticationTest {
@@ -361,11 +366,50 @@ public class SonarCloudUpdateLoginDuringAuthenticationTest {
         .containsExactlyInAnyOrder(tuple("xoo:OneIssuePerLine", newLogin, "A user note"));
   }
 
+  @Test
+  public void ce_task_and_activity_after_login_update() {
+    String providerId = tester.users().generateProviderId();
+    String oldLogin = tester.users().generateLogin();
+
+    // Create user using authentication
+    authenticate(oldLogin, providerId);
+    String userToken = tester.wsClient().userTokens().generate(new GenerateRequest().setLogin(oldLogin).setName("token")).getToken();
+
+    // Execute an analysis using user token
+    Organization organization = tester.organizations().generate();
+    Project project = tester.projects().provision(organization);
+    tester.organizations().service().addMember(new AddMemberRequest().setOrganization(organization.getKey()).setLogin(oldLogin));
+    tester.wsClient().permissions().addUser(new AddUserRequest().setLogin(oldLogin).setOrganization(organization.getKey()).setPermission("scan"));
+    String analysisTaskId = executeAnalysisOnSampleProject(organization, project, userToken);
+
+    // Check login in ce task and activity
+    assertThat(tester.wsClient().ce().task(new TaskRequest().setId(analysisTaskId)).getTask().getSubmitterLogin()).isEqualTo(oldLogin);
+    assertThat(tester.wsClient().ce().activity(new ActivityRequest().setQ(analysisTaskId)).getTasksList())
+      .extracting(Ce.Task::getComponentKey, Ce.Task::getSubmitterLogin)
+      .containsExactlyInAnyOrder(tuple(project.getKey(), oldLogin));
+
+    // Update login during authentication, check ce task and activity contains new login
+    String newLogin = tester.users().generateLogin();
+    authenticate(newLogin, providerId);
+    assertThat(tester.wsClient().ce().task(new TaskRequest().setId(analysisTaskId)).getTask().getSubmitterLogin()).isEqualTo(newLogin);
+    assertThat(tester.wsClient().ce().activity(new ActivityRequest().setQ(analysisTaskId)).getTasksList())
+      .extracting(Ce.Task::getComponentKey, Ce.Task::getSubmitterLogin)
+      .containsExactlyInAnyOrder(tuple(project.getKey(), newLogin));
+  }
+
   private void authenticate(String login, String providerId) {
     tester.settings().setGlobalSettings("sonar.auth.fake-base-id-provider.user", login + "," + providerId + ",fake-" + login + ",John,john@email.com");
     tester.wsClient().wsConnector().call(
       new GetRequest("/sessions/init/fake-base-id-provider"))
       .failIfNotSuccessful();
+  }
+
+  private static String executeAnalysisOnSampleProject(Organization organization, Project project, String userToken) {
+    BuildResult buildResult = orchestrator.executeBuild(SonarScanner.create(projectDir("shared/xoo-sample"),
+      "sonar.organization", organization.getKey(),
+      "sonar.projectKey", project.getKey(),
+      "sonar.login", userToken));
+    return extractCeTaskId(buildResult);
   }
 
   private Issue getIssue(Organization organization, String issueKey) {

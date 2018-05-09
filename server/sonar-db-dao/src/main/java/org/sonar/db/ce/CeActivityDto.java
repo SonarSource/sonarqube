@@ -42,7 +42,7 @@ public class CeActivityDto {
   private String taskType;
   private boolean isLast;
   private String isLastKey;
-  private String submitterLogin;
+  private String submitterUuid;
   private String workerUuid;
   private long submittedAt;
   private Long startedAt;
@@ -92,8 +92,7 @@ public class CeActivityDto {
     this.taskType = queueDto.getTaskType();
     this.componentUuid = queueDto.getComponentUuid();
     this.isLastKey = format("%s%s", taskType, Strings.nullToEmpty(componentUuid));
-    // FIXME
-    this.submitterLogin = queueDto.getSubmitterUuid();
+    this.submitterUuid = queueDto.getSubmitterUuid();
     this.workerUuid = queueDto.getWorkerUuid();
     this.submittedAt = queueDto.getCreatedAt();
     this.startedAt = queueDto.getStartedAt();
@@ -152,8 +151,8 @@ public class CeActivityDto {
   }
 
   @CheckForNull
-  public String getSubmitterLogin() {
-    return submitterLogin;
+  public String getSubmitterUuid() {
+    return submitterUuid;
   }
 
   public long getSubmittedAt() {
@@ -294,7 +293,7 @@ public class CeActivityDto {
       ", taskType='" + taskType + '\'' +
       ", isLast=" + isLast +
       ", isLastKey='" + isLastKey + '\'' +
-      ", submitterLogin='" + submitterLogin + '\'' +
+      ", submitterUuid='" + submitterUuid + '\'' +
       ", workerUuid='" + workerUuid + '\'' +
       ", submittedAt=" + submittedAt +
       ", startedAt=" + startedAt +

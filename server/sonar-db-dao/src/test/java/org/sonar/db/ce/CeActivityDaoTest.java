@@ -63,7 +63,7 @@ public class CeActivityDaoTest {
     assertThat(dto.getUuid()).isEqualTo("TASK_1");
     assertThat(dto.getComponentUuid()).isEqualTo("PROJECT_1");
     assertThat(dto.getStatus()).isEqualTo(CeActivityDto.Status.SUCCESS);
-    assertThat(dto.getSubmitterLogin()).isEqualTo("submitter uuid");
+    assertThat(dto.getSubmitterUuid()).isEqualTo("submitter uuid");
     assertThat(dto.getSubmittedAt()).isEqualTo(1_300_000_000_000L);
     assertThat(dto.getWorkerUuid()).isEqualTo("worker uuid");
     assertThat(dto.getIsLast()).isTrue();

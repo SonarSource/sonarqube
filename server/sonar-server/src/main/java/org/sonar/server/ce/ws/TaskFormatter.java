@@ -68,36 +68,30 @@ public class TaskFormatter {
 
   public List<Ce.Task> formatQueue(DbSession dbSession, List<CeQueueDto> dtos) {
     DtoCache cache = DtoCache.forQueueDtos(dbClient, dbSession, dtos);
-    Map<String, UserDto> usersByUuid = getUsersByUuid(dbSession, dtos);
-    return dtos.stream().map(input -> formatQueue(input, cache, usersByUuid)).collect(MoreCollectors.toList(dtos.size()));
+    return dtos.stream().map(input -> formatQueue(input, cache)).collect(MoreCollectors.toList(dtos.size()));
   }
 
   public Ce.Task formatQueue(DbSession dbSession, CeQueueDto queue) {
-    return formatQueue(queue, DtoCache.forQueueDtos(dbClient, dbSession, singletonList(queue)), getUsersByUuid(dbSession, singletonList(queue)));
+    return formatQueue(queue, DtoCache.forQueueDtos(dbClient, dbSession, singletonList(queue)));
   }
 
-  private Map<String, UserDto> getUsersByUuid(DbSession dbSession, Collection<CeQueueDto> dtos) {
-    Set<String> submitterUuids = dtos.stream().map(CeQueueDto::getSubmitterUuid).filter(Objects::nonNull).collect(toSet());
-    return dbClient.userDao().selectByUuids(dbSession, submitterUuids).stream().collect(uniqueIndex(UserDto::getUuid));
-  }
-
-  private Ce.Task formatQueue(CeQueueDto dto, DtoCache componentDtoCache, Map<String, UserDto> usersByUuid) {
+  private Ce.Task formatQueue(CeQueueDto dto, DtoCache cache) {
     Ce.Task.Builder builder = Ce.Task.newBuilder();
-    String organizationKey = componentDtoCache.getOrganizationKey(dto.getComponentUuid());
+    String organizationKey = cache.getOrganizationKey(dto.getComponentUuid());
     setNullable(organizationKey, builder::setOrganization);
     if (dto.getComponentUuid() != null) {
       builder.setComponentId(dto.getComponentUuid());
-      setComponent(builder, dto.getComponentUuid(), componentDtoCache);
+      setComponent(builder, dto.getComponentUuid(), cache);
     }
     builder.setId(dto.getUuid());
     builder.setStatus(Ce.TaskStatus.valueOf(dto.getStatus().name()));
     builder.setType(dto.getTaskType());
     builder.setLogs(false);
-    setNullable(dto.getSubmitterUuid(), s -> builder.setSubmitterLogin(usersByUuid.get(s).getLogin()));
+    cache.getUser(dto.getSubmitterUuid()).ifPresent(user -> builder.setSubmitterLogin(user.getLogin()));
     builder.setSubmittedAt(formatDateTime(new Date(dto.getCreatedAt())));
     setNullable(dto.getStartedAt(), builder::setStartedAt, DateUtils::formatDateTime);
     setNullable(computeExecutionTimeMs(dto), builder::setExecutionTimeMs);
-    setBranchOrPullRequest(builder, dto.getUuid(), componentDtoCache);
+    setBranchOrPullRequest(builder, dto.getUuid(), cache);
     return builder.build();
   }
 
@@ -112,20 +106,20 @@ public class TaskFormatter {
       .collect(MoreCollectors.toList(dtos.size()));
   }
 
-  private static Ce.Task formatActivity(CeActivityDto dto, DtoCache componentDtoCache, @Nullable String scannerContext) {
+  private static Ce.Task formatActivity(CeActivityDto dto, DtoCache cache, @Nullable String scannerContext) {
     Ce.Task.Builder builder = Ce.Task.newBuilder();
-    String organizationKey = componentDtoCache.getOrganizationKey(dto.getComponentUuid());
+    String organizationKey = cache.getOrganizationKey(dto.getComponentUuid());
     setNullable(organizationKey, builder::setOrganization);
     builder.setId(dto.getUuid());
     builder.setStatus(Ce.TaskStatus.valueOf(dto.getStatus().name()));
     builder.setType(dto.getTaskType());
     builder.setLogs(false);
-    setNullable(dto.getComponentUuid(), uuid -> setComponent(builder, uuid, componentDtoCache).setComponentId(uuid));
+    setNullable(dto.getComponentUuid(), uuid -> setComponent(builder, uuid, cache).setComponentId(uuid));
     String analysisUuid = dto.getAnalysisUuid();
     setNullable(analysisUuid, builder::setAnalysisId);
-    setBranchOrPullRequest(builder, dto.getUuid(), componentDtoCache);
+    setBranchOrPullRequest(builder, dto.getUuid(), cache);
     setNullable(analysisUuid, builder::setAnalysisId);
-    setNullable(dto.getSubmitterLogin(), builder::setSubmitterLogin);
+    cache.getUser(dto.getSubmitterUuid()).ifPresent(user -> builder.setSubmitterLogin(user.getLogin()));
     builder.setSubmittedAt(formatDateTime(new Date(dto.getSubmittedAt())));
     setNullable(dto.getStartedAt(), builder::setStartedAt, DateUtils::formatDateTime);
     setNullable(dto.getExecutedAt(), builder::setExecutedAt, DateUtils::formatDateTime);
@@ -172,12 +166,14 @@ public class TaskFormatter {
     private final Map<String, ComponentDto> componentsByUuid;
     private final Map<String, OrganizationDto> organizationsByUuid;
     private final Multimap<String, CeTaskCharacteristicDto> characteristicsByTaskUuid;
+    private final Map<String, UserDto> usersByUuid;
 
     private DtoCache(Map<String, ComponentDto> componentsByUuid, Map<String, OrganizationDto> organizationsByUuid,
-      Multimap<String, CeTaskCharacteristicDto> characteristicsByTaskUuid) {
+      Multimap<String, CeTaskCharacteristicDto> characteristicsByTaskUuid, Map<String, UserDto> usersByUuid) {
       this.componentsByUuid = componentsByUuid;
       this.organizationsByUuid = organizationsByUuid;
       this.characteristicsByTaskUuid = characteristicsByTaskUuid;
+      this.usersByUuid = usersByUuid;
     }
 
     static DtoCache forQueueDtos(DbClient dbClient, DbSession dbSession, Collection<CeQueueDto> ceQueueDtos) {
@@ -187,7 +183,9 @@ public class TaskFormatter {
       Multimap<String, CeTaskCharacteristicDto> characteristicsByTaskUuid = dbClient.ceTaskCharacteristicsDao()
         .selectByTaskUuids(dbSession, ceQueueDtos.stream().map(CeQueueDto::getUuid).collect(Collectors.toList()))
         .stream().collect(MoreCollectors.index(CeTaskCharacteristicDto::getTaskUuid));
-      return new DtoCache(componentsByUuid, buildOrganizationsByUuid(dbClient, dbSession, componentsByUuid), characteristicsByTaskUuid);
+      Set<String> submitterUuids = ceQueueDtos.stream().map(CeQueueDto::getSubmitterUuid).filter(Objects::nonNull).collect(toSet());
+      Map<String, UserDto> usersByUuid = dbClient.userDao().selectByUuids(dbSession, submitterUuids).stream().collect(uniqueIndex(UserDto::getUuid));
+      return new DtoCache(componentsByUuid, buildOrganizationsByUuid(dbClient, dbSession, componentsByUuid), characteristicsByTaskUuid, usersByUuid);
     }
 
     private static Set<String> componentUuidsOfCeQueues(Collection<CeQueueDto> ceQueueDtos) {
@@ -207,7 +205,9 @@ public class TaskFormatter {
       Multimap<String, CeTaskCharacteristicDto> characteristicsByTaskUuid = dbClient.ceTaskCharacteristicsDao()
         .selectByTaskUuids(dbSession, ceActivityDtos.stream().map(CeActivityDto::getUuid).collect(Collectors.toList()))
         .stream().collect(MoreCollectors.index(CeTaskCharacteristicDto::getTaskUuid));
-      return new DtoCache(componentsByUuid, buildOrganizationsByUuid(dbClient, dbSession, componentsByUuid), characteristicsByTaskUuid);
+      Set<String> submitterUuids = ceActivityDtos.stream().map(CeActivityDto::getSubmitterUuid).filter(Objects::nonNull).collect(toSet());
+      Map<String, UserDto> usersByUuid = dbClient.userDao().selectByUuids(dbSession, submitterUuids).stream().collect(uniqueIndex(UserDto::getUuid));
+      return new DtoCache(componentsByUuid, buildOrganizationsByUuid(dbClient, dbSession, componentsByUuid), characteristicsByTaskUuid, usersByUuid);
     }
 
     private static Set<String> getComponentUuidsOfCeActivities(Collection<CeActivityDto> ceActivityDtos) {
@@ -270,6 +270,13 @@ public class TaskFormatter {
         .filter(c -> c.getKey().equals(CeTaskCharacteristicDto.PULL_REQUEST))
         .map(CeTaskCharacteristicDto::getValue)
         .findAny();
+    }
+
+    Optional<UserDto> getUser(@Nullable String userUuid) {
+      if (userUuid == null) {
+        return Optional.empty();
+      }
+      return Optional.ofNullable(usersByUuid.get(userUuid));
     }
   }
 
