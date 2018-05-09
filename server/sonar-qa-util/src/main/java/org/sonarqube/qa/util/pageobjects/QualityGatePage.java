@@ -44,7 +44,7 @@ public class QualityGatePage {
     $("#quality-gate-add").click();
     $(".modal-head").should(exist).shouldHave(text("Create Quality Gate"));
     $("#quality-gate-form-name").sendKeys(name);
-    $(".js-confirm").click();
+    $(".modal form").submit();
     return this;
   }
 
