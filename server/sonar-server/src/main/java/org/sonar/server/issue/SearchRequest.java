@@ -28,7 +28,7 @@ public class SearchRequest {
   private List<String> additionalFields;
   private Boolean asc;
   private Boolean assigned;
-  private List<String> assignees;
+  private List<String> assigneesUuid;
   private List<String> authors;
   private List<String> componentKeys;
   private List<String> componentRootUuids;
@@ -106,12 +106,12 @@ public class SearchRequest {
   }
 
   @CheckForNull
-  public List<String> getAssignees() {
-    return assignees;
+  public List<String> getAssigneeUuids() {
+    return assigneesUuid;
   }
 
-  public SearchRequest setAssignees(@Nullable List<String> assignees) {
-    this.assignees = assignees;
+  public SearchRequest setAssigneesUuid(@Nullable List<String> assigneesUuid) {
+    this.assigneesUuid = assigneesUuid;
     return this;
   }
 

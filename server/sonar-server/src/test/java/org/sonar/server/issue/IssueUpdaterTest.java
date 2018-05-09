@@ -38,6 +38,7 @@ import org.sonar.db.issue.IssueTesting;
 import org.sonar.db.rule.RuleDbTester;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
+import org.sonar.db.user.UserDto;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.issue.index.IssueIteratorFactory;
@@ -99,10 +100,14 @@ public class IssueUpdaterTest {
 
   @Test
   public void verify_notification() {
+    UserDto user = dbTester.users().insertUser();
     RuleDto rule = ruleDbTester.insertRule(newRuleDto());
     ComponentDto project = componentDbTester.insertPrivateProject();
     ComponentDto file = componentDbTester.insertComponent(newFileDto(project));
-    DefaultIssue issue = issueDbTester.insertIssue(IssueTesting.newIssue(rule.getDefinition(), project, file)).setSeverity(MAJOR).toDefaultIssue();
+    DefaultIssue issue = issueDbTester.insertIssue(IssueTesting.newIssue(rule.getDefinition(), project, file))
+      .setSeverity(MAJOR)
+      .setAssigneeUuid(user.getUuid())
+      .toDefaultIssue();
     IssueChangeContext context = IssueChangeContext.createUser(new Date(), "john");
     issueFieldsSetter.setSeverity(issue, BLOCKER, context);
 
@@ -120,6 +125,7 @@ public class IssueUpdaterTest {
     assertThat(issueChangeNotification.getFieldValue("ruleName")).isEqualTo(rule.getName());
     assertThat(issueChangeNotification.getFieldValue("changeAuthor")).isEqualTo("john");
     assertThat(issueChangeNotification.getFieldValue("comment")).isEqualTo("increase severity");
+    assertThat(issueChangeNotification.getFieldValue("assignee")).isEqualTo(user.getLogin());
   }
 
   @Test

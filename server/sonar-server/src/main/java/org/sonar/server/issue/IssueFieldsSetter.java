@@ -28,7 +28,7 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.Set;
 import javax.annotation.Nullable;
-import org.apache.commons.lang.StringUtils;
+
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.ServerSide;
@@ -110,16 +110,11 @@ public class IssueFieldsSetter {
     }
     return false;
   }
-
   public boolean assign(DefaultIssue issue, @Nullable UserDto user, IssueChangeContext context) {
-    String sanitizedAssignee = null;
-    if (user != null) {
-      sanitizedAssignee = StringUtils.defaultIfBlank(user.getLogin(), null);
-    }
-    if (!Objects.equals(sanitizedAssignee, issue.assignee())) {
-      String newAssigneeName = user != null ? user.getName() : null;
-      issue.setFieldChange(context, ASSIGNEE, UNUSED, newAssigneeName);
-      issue.setAssignee(sanitizedAssignee);
+    String assigneeUuid = user != null ? user.getUuid() : null;
+    if (!Objects.equals(assigneeUuid, issue.assignee())) {
+      issue.setFieldChange(context, ASSIGNEE, UNUSED, user != null ? user.getUuid() : null);
+      issue.setAssigneeUuid(user != null ? user.getUuid() : null);
       issue.setUpdateDate(context.date());
       issue.setChanged(true);
       issue.setSendNotifications(true);
@@ -131,13 +126,13 @@ public class IssueFieldsSetter {
   /**
    * Used to set the assignee when it was null
    */
-  public boolean setNewAssignee(DefaultIssue issue, @Nullable String newAssignee, IssueChangeContext context) {
-    if (newAssignee == null) {
+  public boolean setNewAssignee(DefaultIssue issue, @Nullable String newAssigneeUuid, IssueChangeContext context) {
+    if (newAssigneeUuid == null) {
       return false;
     }
     checkState(issue.assignee() == null, "It's not possible to update the assignee with this method, please use assign()");
-    issue.setFieldChange(context, ASSIGNEE, UNUSED, newAssignee);
-    issue.setAssignee(newAssignee);
+    issue.setFieldChange(context, ASSIGNEE, UNUSED, newAssigneeUuid);
+    issue.setAssigneeUuid(newAssigneeUuid);
     issue.setUpdateDate(context.date());
     issue.setChanged(true);
     issue.setSendNotifications(true);

@@ -35,6 +35,7 @@ import org.sonar.server.user.index.UserIndex;
 import org.sonar.server.user.index.UserIndexer;
 
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 
@@ -66,7 +67,7 @@ public class ScmAccountToUserLoaderTest {
     ScmAccountToUserLoader underTest = new ScmAccountToUserLoader(index, analysisMetadataHolder);
 
     assertThat(underTest.load("missing")).isNull();
-    assertThat(underTest.load("jesuis@charlie.com")).isEqualTo(user.getLogin());
+    assertThat(underTest.load("jesuis@charlie.com")).isEqualTo(user.getUuid());
   }
 
   @Test
@@ -90,7 +91,7 @@ public class ScmAccountToUserLoaderTest {
     UserIndex index = new UserIndex(es.client(), System2.INSTANCE);
     ScmAccountToUserLoader underTest = new ScmAccountToUserLoader(index, analysisMetadataHolder);
     try {
-      underTest.loadAll(Collections.emptyList());
+      underTest.loadAll(emptyList());
       fail();
     } catch (UnsupportedOperationException ignored) {
     }

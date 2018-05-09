@@ -34,10 +34,10 @@ public class IssuesFinderSortTest {
 
   @Test
   public void should_sort_by_assignee() {
-    IssueDto issue1 = new IssueDto().setId(1L).setAssignee("perceval");
-    IssueDto issue2 = new IssueDto().setId(2L).setAssignee("arthur");
-    IssueDto issue3 = new IssueDto().setId(3L).setAssignee("vincent");
-    IssueDto issue4 = new IssueDto().setId(4L).setAssignee(null);
+    IssueDto issue1 = new IssueDto().setId(1L).setAssigneeUuid("perceval");
+    IssueDto issue2 = new IssueDto().setId(2L).setAssigneeUuid("arthur");
+    IssueDto issue3 = new IssueDto().setId(3L).setAssigneeUuid("vincent");
+    IssueDto issue4 = new IssueDto().setId(4L).setAssigneeUuid(null);
     List<IssueDto> dtoList = newArrayList(issue1, issue2, issue3, issue4);
 
     IssueQuery query = IssueQuery.builder().sort(IssueQuery.SORT_BY_ASSIGNEE).asc(true).build();
@@ -46,10 +46,10 @@ public class IssuesFinderSortTest {
     List<IssueDto> result = newArrayList(issuesFinderSort.sort());
 
     assertThat(result).hasSize(4);
-    assertThat(result.get(0).getAssignee()).isEqualTo("arthur");
-    assertThat(result.get(1).getAssignee()).isEqualTo("perceval");
-    assertThat(result.get(2).getAssignee()).isEqualTo("vincent");
-    assertThat(result.get(3).getAssignee()).isNull();
+    assertThat(result.get(0).getAssigneeUuid()).isEqualTo("arthur");
+    assertThat(result.get(1).getAssigneeUuid()).isEqualTo("perceval");
+    assertThat(result.get(2).getAssigneeUuid()).isEqualTo("vincent");
+    assertThat(result.get(3).getAssigneeUuid()).isNull();
   }
 
   @Test
@@ -174,10 +174,10 @@ public class IssuesFinderSortTest {
 
   @Test
   public void should_not_sort_with_null_sort() {
-    IssueDto issue1 = new IssueDto().setId(1L).setAssignee("perceval");
-    IssueDto issue2 = new IssueDto().setId(2L).setAssignee("arthur");
-    IssueDto issue3 = new IssueDto().setId(3L).setAssignee("vincent");
-    IssueDto issue4 = new IssueDto().setId(4L).setAssignee(null);
+    IssueDto issue1 = new IssueDto().setId(1L).setAssigneeUuid("perceval");
+    IssueDto issue2 = new IssueDto().setId(2L).setAssigneeUuid("arthur");
+    IssueDto issue3 = new IssueDto().setId(3L).setAssigneeUuid("vincent");
+    IssueDto issue4 = new IssueDto().setId(4L).setAssigneeUuid(null);
     List<IssueDto> dtoList = newArrayList(issue1, issue2, issue3, issue4);
 
     IssueQuery query = IssueQuery.builder().sort(null).build();
@@ -186,10 +186,10 @@ public class IssuesFinderSortTest {
     List<IssueDto> result = newArrayList(issuesFinderSort.sort());
 
     assertThat(result).hasSize(4);
-    assertThat(result.get(0).getAssignee()).isEqualTo("perceval");
-    assertThat(result.get(1).getAssignee()).isEqualTo("arthur");
-    assertThat(result.get(2).getAssignee()).isEqualTo("vincent");
-    assertThat(result.get(3).getAssignee()).isNull();
+    assertThat(result.get(0).getAssigneeUuid()).isEqualTo("perceval");
+    assertThat(result.get(1).getAssigneeUuid()).isEqualTo("arthur");
+    assertThat(result.get(2).getAssigneeUuid()).isEqualTo("vincent");
+    assertThat(result.get(3).getAssigneeUuid()).isNull();
   }
 
   @Test

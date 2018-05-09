@@ -36,13 +36,13 @@ import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.rule.RuleDbTester;
 import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.tester.UserSessionRule;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.guava.api.Assertions.entry;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -70,6 +70,7 @@ public class IssueQueryFactoryTest {
 
   @Test
   public void create_from_parameters() {
+    UserDto user = db.users().insertUser(u -> u.setLogin("joanna"));
     OrganizationDto organization = db.organizations().insert();
     ComponentDto project = db.components().insertPrivateProject(organization);
     ComponentDto module = db.components().insertComponent(newModuleDto(project));
@@ -88,7 +89,7 @@ public class IssueQueryFactoryTest {
       .setModuleUuids(asList(module.uuid()))
       .setDirectories(asList("aDirPath"))
       .setFileUuids(asList(file.uuid()))
-      .setAssignees(asList("joanna"))
+      .setAssigneesUuid(asList(user.getUuid()))
       .setLanguages(asList("xoo"))
       .setTags(asList("tag1", "tag2"))
       .setOrganization(organization.getKey())
@@ -109,7 +110,7 @@ public class IssueQueryFactoryTest {
     assertThat(query.projectUuids()).containsOnly(project.uuid());
     assertThat(query.moduleUuids()).containsOnly(module.uuid());
     assertThat(query.fileUuids()).containsOnly(file.uuid());
-    assertThat(query.assignees()).containsOnly("joanna");
+    assertThat(query.assignees()).containsOnly(user.getUuid());
     assertThat(query.languages()).containsOnly("xoo");
     assertThat(query.tags()).containsOnly("tag1", "tag2");
     assertThat(query.organizationUuid()).isEqualTo(organization.getUuid());

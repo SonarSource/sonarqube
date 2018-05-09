@@ -32,6 +32,7 @@ public class SafeModeUserSessionTest {
   @Test
   public void session_is_anonymous() {
     assertThat(underTest.getLogin()).isNull();
+    assertThat(underTest.getUuid()).isNull();
     assertThat(underTest.isLoggedIn()).isFalse();
     assertThat(underTest.getName()).isNull();
     assertThat(underTest.getUserId()).isNull();

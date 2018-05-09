@@ -21,6 +21,9 @@ package org.sonar.server.issue.notification;
 
 import org.sonar.api.utils.Durations;
 import org.sonar.db.DbClient;
+import org.sonar.db.user.UserDto;
+
+import javax.annotation.Nullable;
 
 import static org.sonar.server.issue.notification.AbstractNewIssuesEmailTemplate.FIELD_ASSIGNEE;
 
@@ -32,9 +35,11 @@ public class MyNewIssuesNotification extends NewIssuesNotification {
     super(MY_NEW_ISSUES_NOTIF_TYPE, dbClient, durations);
   }
 
-  public MyNewIssuesNotification setAssignee(String assignee) {
-    setFieldValue(FIELD_ASSIGNEE, assignee);
-
+  public MyNewIssuesNotification setAssignee(@Nullable UserDto assignee) {
+    if (assignee == null) {
+      return this;
+    }
+    setFieldValue(FIELD_ASSIGNEE, assignee.getLogin());
     return this;
   }
 

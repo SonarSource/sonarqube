@@ -63,6 +63,7 @@ public class ServerUserSessionTest {
     UserSession session = newAnonymousSession();
 
     assertThat(session.getLogin()).isNull();
+    assertThat(session.getUuid()).isNull();
     assertThat(session.isLoggedIn()).isFalse();
   }
 

@@ -33,6 +33,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.user.UserDto;
 import org.sonar.scanner.protocol.Constants.Severity;
 import org.sonar.scanner.protocol.input.ScannerInput.ServerIssue;
 import org.sonar.server.component.TestComponentFinder;
@@ -81,7 +82,7 @@ public class IssuesActionTest {
       .setMessage(null)
       .setLine(null)
       .setChecksum(null)
-      .setAssignee(null));
+      .setAssigneeUuid(null));
     addPermissionTo(project);
 
     ServerIssue serverIssue = call(project.getKey());
@@ -105,6 +106,7 @@ public class IssuesActionTest {
 
   @Test
   public void test_fields_with_non_null_values() throws Exception {
+    UserDto user = db.users().insertUser(u -> u.setLogin("simon").setName("Simon").setEmail("simon@email.com"));
     RuleDefinitionDto rule = db.rules().insert();
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto module = db.components().insertComponent(newModuleDto(project));
@@ -117,7 +119,7 @@ public class IssuesActionTest {
       .setMessage("the message")
       .setLine(10)
       .setChecksum("ABC")
-      .setAssignee("foo"));
+      .setAssigneeUuid(user.getUuid()));
     addPermissionTo(project);
 
     ServerIssue serverIssue = call(project.getKey());
@@ -135,7 +137,7 @@ public class IssuesActionTest {
     assertThat(serverIssue.getMsg()).isEqualTo(issue.getMessage());
     assertThat(serverIssue.getResolution()).isEqualTo(issue.getResolution());
     assertThat(serverIssue.getChecksum()).isEqualTo(issue.getChecksum());
-    assertThat(serverIssue.getAssigneeLogin()).isEqualTo(issue.getAssignee());
+    assertThat(serverIssue.getAssigneeLogin()).isEqualTo(user.getLogin());
   }
 
   @Test

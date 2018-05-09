@@ -45,9 +45,9 @@ public class NewIssuesStatistics {
 
   public void add(DefaultIssue issue) {
     globalStatistics.add(issue);
-    String login = issue.assignee();
-    if (login != null) {
-      assigneesStatistics.computeIfAbsent(login, a -> new Stats(onLeakPredicate)).add(issue);
+    String userUuid = issue.assignee();
+    if (userUuid != null) {
+      assigneesStatistics.computeIfAbsent(userUuid, a -> new Stats(onLeakPredicate)).add(issue);
     }
   }
 
@@ -117,9 +117,9 @@ public class NewIssuesStatistics {
       if (ruleKey != null) {
         distributions.get(RULE).increment(ruleKey.toString(), isOnLeak);
       }
-      String assignee = issue.assignee();
-      if (assignee != null) {
-        distributions.get(ASSIGNEE).increment(assignee, isOnLeak);
+      String assigneeUuid = issue.assignee();
+      if (assigneeUuid != null) {
+        distributions.get(ASSIGNEE).increment(assigneeUuid, isOnLeak);
       }
       for (String tag : issue.tags()) {
         distributions.get(TAG).increment(tag, isOnLeak);

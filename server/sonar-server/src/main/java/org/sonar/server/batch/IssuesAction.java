@@ -20,11 +20,13 @@
 package org.sonar.server.batch;
 
 import com.google.common.base.Splitter;
+
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import org.apache.ibatis.session.ResultHandler;
+
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.ws.Request;
@@ -34,6 +36,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueDto;
+import org.sonar.db.user.UserDto;
 import org.sonar.scanner.protocol.input.ScannerInput;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.user.UserSession;
@@ -42,6 +45,8 @@ import org.sonarqube.ws.MediaTypes;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Maps.newHashMap;
 import static java.lang.String.format;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
@@ -96,26 +101,35 @@ public class IssuesAction implements BatchWsAction {
       response.stream().setMediaType(MediaTypes.PROTOBUF);
       OutputStream output = response.stream().output();
 
-      ResultHandler<IssueDto> handler = resultContext -> {
-        IssueDto issue = resultContext.getResultObject();
-        handleIssue(issue, responseBuilder, keysByUUid, output);
-      };
+      List<IssueDto> issueDtos = new ArrayList<>();
       switch (component.scope()) {
         case Scopes.PROJECT:
-          dbClient.issueDao().scrollNonClosedByModuleOrProjectExcludingExternals(dbSession, component, handler);
+          issueDtos.addAll(dbClient.issueDao().selectNonClosedByModuleOrProjectExcludingExternals(dbSession, component));
           break;
         case Scopes.FILE:
-          dbClient.issueDao().scrollNonClosedByComponentUuidExcludingExternals(dbSession, component.uuid(), handler);
+          issueDtos.addAll(dbClient.issueDao().selectNonClosedByComponentUuidExcludingExternals(dbSession, component.uuid()));
           break;
         default:
           // only projects, modules and files are supported. Other types of components are not allowed.
           throw new IllegalArgumentException(format("Component of scope '%s' is not allowed", component.scope()));
       }
+
+      List<String> usersUuids = issueDtos.stream()
+        .filter(issue -> issue.getAssigneeUuid() != null)
+        .map(IssueDto::getAssigneeUuid)
+        .collect(toList());
+
+      Map<String, String> userLoginsByUserUuids = dbClient.userDao().selectByUuids(dbSession, usersUuids)
+        .stream().collect(toMap(UserDto::getUuid, UserDto::getLogin));
+
+      issueDtos.forEach(issue -> {
+        issue.setAssigneeUuid(userLoginsByUserUuids.get(issue.getAssigneeUuid()));
+        handleIssue(issue, responseBuilder, keysByUUid, output);
+      });
     }
   }
 
-  private static void handleIssue(IssueDto issue, ScannerInput.ServerIssue.Builder issueBuilder,
-    Map<String, String> keysByUUid, OutputStream out) {
+  private static void handleIssue(IssueDto issue, ScannerInput.ServerIssue.Builder issueBuilder, Map<String, String> keysByUUid, OutputStream out) {
     issueBuilder.setKey(issue.getKey());
     String moduleUuid = extractModuleUuid(issue);
     issueBuilder.setModuleKey(keysByUUid.get(moduleUuid));
@@ -123,7 +137,7 @@ public class IssuesAction implements BatchWsAction {
     issueBuilder.setRuleRepository(issue.getRuleRepo());
     issueBuilder.setRuleKey(issue.getRule());
     setNullable(issue.getChecksum(), issueBuilder::setChecksum);
-    setNullable(issue.getAssignee(), issueBuilder::setAssigneeLogin);
+    setNullable(issue.getAssigneeUuid(), issueBuilder::setAssigneeLogin);
     setNullable(issue.getLine(), issueBuilder::setLine);
     setNullable(issue.getMessage(), issueBuilder::setMsg);
     issueBuilder.setSeverity(org.sonar.scanner.protocol.Constants.Severity.valueOf(issue.getSeverity()));

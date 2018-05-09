@@ -111,8 +111,8 @@ public class IssueDoc extends BaseDoc {
   }
 
   @CheckForNull
-  public String assignee() {
-    return getNullableField(IssueIndexDefinition.FIELD_ISSUE_ASSIGNEE);
+  public String assigneeUuid() {
+    return getNullableField(IssueIndexDefinition.FIELD_ISSUE_ASSIGNEE_UUID);
   }
 
   /**
@@ -225,8 +225,8 @@ public class IssueDoc extends BaseDoc {
     return this;
   }
 
-  public IssueDoc setAssignee(@Nullable String s) {
-    setField(IssueIndexDefinition.FIELD_ISSUE_ASSIGNEE, s);
+  public IssueDoc setAssigneeUuid(@Nullable String s) {
+    setField(IssueIndexDefinition.FIELD_ISSUE_ASSIGNEE_UUID, s);
     return this;
   }
 

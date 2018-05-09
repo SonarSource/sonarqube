@@ -35,7 +35,6 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
-import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueChangeDto;
 import org.sonar.db.issue.IssueDbTester;
@@ -46,7 +45,6 @@ import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.es.EsTester;
-import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.issue.Action;
 import org.sonar.server.issue.IssueFieldsSetter;
@@ -201,7 +199,7 @@ public class BulkChangeActionTest {
   @Test
   public void remove_assignee() {
     setUserProjectPermissions(USER);
-    IssueDto issueDto = db.issues().insertIssue(newUnresolvedIssue().setAssignee("arthur"));
+    IssueDto issueDto = db.issues().insertIssue(newUnresolvedIssue().setAssigneeUuid("arthur"));
 
     BulkChangeWsResponse response = call(builder()
       .setIssues(singletonList(issueDto.getKey()))
@@ -210,7 +208,7 @@ public class BulkChangeActionTest {
 
     checkResponse(response, 1, 1, 0, 0);
     IssueDto reloaded = getIssueByKeys(issueDto.getKey()).get(0);
-    assertThat(reloaded.getAssignee()).isNull();
+    assertThat(reloaded.getAssigneeUuid()).isNull();
     assertThat(reloaded.getUpdatedAt()).isEqualTo(NOW);
 
     // no need to refresh measures
@@ -242,9 +240,9 @@ public class BulkChangeActionTest {
     UserDto userToAssign = db.users().insertUser("arthur");
     db.organizations().addMember(organization, user);
     db.organizations().addMember(organization, userToAssign);
-    IssueDto issue1 = db.issues().insertIssue(newUnresolvedIssue().setAssignee(user.getLogin())).setType(BUG).setSeverity(MINOR);
-    IssueDto issue2 = db.issues().insertIssue(newUnresolvedIssue().setAssignee(userToAssign.getLogin())).setType(BUG).setSeverity(MAJOR);
-    IssueDto issue3 = db.issues().insertIssue(newUnresolvedIssue().setAssignee(null)).setType(VULNERABILITY).setSeverity(MAJOR);
+    IssueDto issue1 = db.issues().insertIssue(newUnresolvedIssue().setAssigneeUuid(user.getUuid())).setType(BUG).setSeverity(MINOR);
+    IssueDto issue2 = db.issues().insertIssue(newUnresolvedIssue().setAssigneeUuid(userToAssign.getLogin())).setType(BUG).setSeverity(MAJOR);
+    IssueDto issue3 = db.issues().insertIssue(newUnresolvedIssue().setAssigneeUuid(null)).setType(VULNERABILITY).setSeverity(MAJOR);
 
     BulkChangeWsResponse response = call(builder()
       .setIssues(asList(issue1.getKey(), issue2.getKey(), issue3.getKey()))
@@ -255,11 +253,11 @@ public class BulkChangeActionTest {
 
     checkResponse(response, 3, 3, 0, 0);
     assertThat(getIssueByKeys(issue1.getKey(), issue2.getKey(), issue3.getKey()))
-      .extracting(IssueDto::getKey, IssueDto::getAssignee, IssueDto::getType, IssueDto::getSeverity, IssueDto::getUpdatedAt)
+      .extracting(IssueDto::getKey, IssueDto::getAssigneeUuid, IssueDto::getType, IssueDto::getSeverity, IssueDto::getUpdatedAt)
       .containsOnly(
-        tuple(issue1.getKey(), userToAssign.getLogin(), VULNERABILITY.getDbConstant(), MINOR, NOW),
-        tuple(issue2.getKey(), userToAssign.getLogin(), VULNERABILITY.getDbConstant(), MINOR, NOW),
-        tuple(issue3.getKey(), userToAssign.getLogin(), VULNERABILITY.getDbConstant(), MINOR, NOW));
+        tuple(issue1.getKey(), userToAssign.getUuid(), VULNERABILITY.getDbConstant(), MINOR, NOW),
+        tuple(issue2.getKey(), userToAssign.getUuid(), VULNERABILITY.getDbConstant(), MINOR, NOW),
+        tuple(issue3.getKey(), userToAssign.getUuid(), VULNERABILITY.getDbConstant(), MINOR, NOW));
 
     verifyPostProcessorCalled(file);
   }
@@ -524,7 +522,6 @@ public class BulkChangeActionTest {
       .setResolution(null)
       .setRuleId(rule.getId())
       .setRuleKey(rule.getRuleKey(), rule.getRepositoryKey())
-      .setAssignee(user.getLogin())
       .setType(BUG)
       .setSeverity(MINOR));
 
@@ -533,7 +530,6 @@ public class BulkChangeActionTest {
       .setResolution(null)
       .setRuleId(rule.getId())
       .setRuleKey(rule.getRuleKey(), rule.getRepositoryKey())
-      .setAssignee(user.getLogin())
       .setType(BUG)
       .setSeverity(MAJOR));
 

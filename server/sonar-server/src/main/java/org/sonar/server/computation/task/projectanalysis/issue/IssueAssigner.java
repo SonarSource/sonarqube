@@ -19,11 +19,9 @@
  */
 package org.sonar.server.computation.task.projectanalysis.issue;
 
-import com.google.common.base.Strings;
 import java.util.Date;
 import java.util.Optional;
 import javax.annotation.CheckForNull;
-import org.apache.commons.lang.StringUtils;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.issue.DefaultIssue;
@@ -35,6 +33,7 @@ import org.sonar.server.computation.task.projectanalysis.scm.ScmInfo;
 import org.sonar.server.computation.task.projectanalysis.scm.ScmInfoRepository;
 import org.sonar.server.issue.IssueFieldsSetter;
 
+import static com.google.common.base.Strings.isNullOrEmpty;
 import static org.apache.commons.lang.StringUtils.defaultIfEmpty;
 import static org.sonar.core.issue.IssueChangeContext.createScan;
 
@@ -71,7 +70,7 @@ public class IssueAssigner extends IssueVisitor {
       loadScmChangesets(component);
       String scmAuthor = guessScmAuthor(issue);
 
-      if (!Strings.isNullOrEmpty(scmAuthor)) {
+      if (!isNullOrEmpty(scmAuthor)) {
         if (scmAuthor.length() <= IssueDto.AUTHOR_MAX_SIZE) {
           issueUpdater.setNewAuthor(issue, scmAuthor, changeContext);
         } else {
@@ -80,10 +79,9 @@ public class IssueAssigner extends IssueVisitor {
       }
 
       if (issue.assignee() == null) {
-        String author = Strings.isNullOrEmpty(scmAuthor) ? null : scmAccountToUser.getNullable(scmAuthor);
-        String assigneeLogin = StringUtils.defaultIfEmpty(author, defaultAssignee.loadDefaultAssigneeLogin());
-
-        issueUpdater.setNewAssignee(issue, assigneeLogin, changeContext);
+        String assigneeUuid = isNullOrEmpty(scmAuthor) ? null : scmAccountToUser.getNullable(scmAuthor);
+        assigneeUuid = defaultIfEmpty(assigneeUuid, defaultAssignee.loadDefaultAssigneeUuid());
+        issueUpdater.setNewAssignee(issue, assigneeUuid, changeContext);
       }
     }
   }

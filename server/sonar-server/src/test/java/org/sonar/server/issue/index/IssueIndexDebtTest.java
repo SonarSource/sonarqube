@@ -28,7 +28,6 @@ import org.sonar.api.issue.Issue;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
-import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.internal.TestSystem2;
 import org.sonar.db.DbTester;
@@ -49,6 +48,9 @@ import org.sonar.server.tester.UserSessionRule;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
+import static org.sonar.api.issue.Issue.STATUS_CLOSED;
+import static org.sonar.api.issue.Issue.STATUS_OPEN;
+import static org.sonar.api.utils.DateUtils.parseDateTime;
 import static org.sonar.db.organization.OrganizationTesting.newOrganizationDto;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.DEPRECATED_FACET_MODE_DEBT;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.FACET_MODE_EFFORT;
@@ -149,9 +151,9 @@ public class IssueIndexDebtTest {
     ComponentDto file = ComponentTesting.newFileDto(project, null);
 
     indexIssues(
-      IssueDocTesting.newDoc("I1", file).setStatus(Issue.STATUS_CLOSED).setEffort(10L),
-      IssueDocTesting.newDoc("I2", file).setStatus(Issue.STATUS_CLOSED).setEffort(10L),
-      IssueDocTesting.newDoc("I3", file).setStatus(Issue.STATUS_OPEN).setEffort(10L));
+      IssueDocTesting.newDoc("I1", file).setStatus(STATUS_CLOSED).setEffort(10L),
+      IssueDocTesting.newDoc("I2", file).setStatus(STATUS_CLOSED).setEffort(10L),
+      IssueDocTesting.newDoc("I3", file).setStatus(STATUS_OPEN).setEffort(10L));
 
     Facets facets = search("statuses");
     assertThat(facets.getNames()).containsOnly("statuses", FACET_MODE_EFFORT);
@@ -199,14 +201,14 @@ public class IssueIndexDebtTest {
     ComponentDto file = ComponentTesting.newFileDto(project, null);
 
     indexIssues(
-      IssueDocTesting.newDoc("I1", file).setAssignee("steph").setEffort(10L),
-      IssueDocTesting.newDoc("I2", file).setAssignee("simon").setEffort(10L),
-      IssueDocTesting.newDoc("I3", file).setAssignee("simon").setEffort(10L),
-      IssueDocTesting.newDoc("I4", file).setAssignee(null).setEffort(10L));
+      IssueDocTesting.newDoc("I1", file).setAssigneeUuid("uuid-steph").setEffort(10L),
+      IssueDocTesting.newDoc("I2", file).setAssigneeUuid("uuid-simon").setEffort(10L),
+      IssueDocTesting.newDoc("I3", file).setAssigneeUuid("uuid-simon").setEffort(10L),
+      IssueDocTesting.newDoc("I4", file).setAssigneeUuid(null).setEffort(10L));
 
     Facets facets = new Facets(underTest.search(newQueryBuilder().build(), new SearchOptions().addFacets(asList("assignees"))), system2.getDefaultTimeZone());
     assertThat(facets.getNames()).containsOnly("assignees", FACET_MODE_EFFORT);
-    assertThat(facets.get("assignees")).containsOnly(entry("steph", 10L), entry("simon", 20L), entry("", 10L));
+    assertThat(facets.get("assignees")).containsOnly(entry("uuid-steph", 10L), entry("uuid-simon", 20L), entry("", 10L));
     assertThat(facets.get(FACET_MODE_EFFORT)).containsOnly(entry("total", 40L));
   }
 
@@ -231,7 +233,7 @@ public class IssueIndexDebtTest {
   public void facet_on_created_at() {
     SearchOptions searchOptions = fixtureForCreatedAtFacet();
 
-    Builder query = newQueryBuilder().createdBefore(DateUtils.parseDateTime("2016-01-01T00:00:00+0100"));
+    Builder query = newQueryBuilder().createdBefore(parseDateTime("2016-01-01T00:00:00+0100"));
     Map<String, Long> createdAt = new Facets(underTest.search(query.build(), searchOptions), system2.getDefaultTimeZone()).get("createdAt");
     assertThat(createdAt).containsOnly(
       entry("2011-01-01", 10L),
@@ -263,13 +265,13 @@ public class IssueIndexDebtTest {
     ComponentDto project = ComponentTesting.newPrivateProjectDto(newOrganizationDto());
     ComponentDto file = ComponentTesting.newFileDto(project, null);
 
-    IssueDoc issue0 = IssueDocTesting.newDoc("ISSUE0", file).setEffort(10L).setFuncCreationDate(DateUtils.parseDateTime("2011-04-25T01:05:13+0100"));
-    IssueDoc issue1 = IssueDocTesting.newDoc("I1", file).setEffort(10L).setFuncCreationDate(DateUtils.parseDateTime("2014-09-01T12:34:56+0100"));
-    IssueDoc issue2 = IssueDocTesting.newDoc("I2", file).setEffort(10L).setFuncCreationDate(DateUtils.parseDateTime("2014-09-01T23:46:00+0100"));
-    IssueDoc issue3 = IssueDocTesting.newDoc("I3", file).setEffort(10L).setFuncCreationDate(DateUtils.parseDateTime("2014-09-02T12:34:56+0100"));
-    IssueDoc issue4 = IssueDocTesting.newDoc("I4", file).setEffort(10L).setFuncCreationDate(DateUtils.parseDateTime("2014-09-05T12:34:56+0100"));
-    IssueDoc issue5 = IssueDocTesting.newDoc("I5", file).setEffort(10L).setFuncCreationDate(DateUtils.parseDateTime("2014-09-20T12:34:56+0100"));
-    IssueDoc issue6 = IssueDocTesting.newDoc("I6", file).setEffort(10L).setFuncCreationDate(DateUtils.parseDateTime("2015-01-18T12:34:56+0100"));
+    IssueDoc issue0 = IssueDocTesting.newDoc("ISSUE0", file).setEffort(10L).setFuncCreationDate(parseDateTime("2011-04-25T01:05:13+0100"));
+    IssueDoc issue1 = IssueDocTesting.newDoc("I1", file).setEffort(10L).setFuncCreationDate(parseDateTime("2014-09-01T12:34:56+0100"));
+    IssueDoc issue2 = IssueDocTesting.newDoc("I2", file).setEffort(10L).setFuncCreationDate(parseDateTime("2014-09-01T23:46:00+0100"));
+    IssueDoc issue3 = IssueDocTesting.newDoc("I3", file).setEffort(10L).setFuncCreationDate(parseDateTime("2014-09-02T12:34:56+0100"));
+    IssueDoc issue4 = IssueDocTesting.newDoc("I4", file).setEffort(10L).setFuncCreationDate(parseDateTime("2014-09-05T12:34:56+0100"));
+    IssueDoc issue5 = IssueDocTesting.newDoc("I5", file).setEffort(10L).setFuncCreationDate(parseDateTime("2014-09-20T12:34:56+0100"));
+    IssueDoc issue6 = IssueDocTesting.newDoc("I6", file).setEffort(10L).setFuncCreationDate(parseDateTime("2015-01-18T12:34:56+0100"));
 
     indexIssues(issue0, issue1, issue2, issue3, issue4, issue5, issue6);
 

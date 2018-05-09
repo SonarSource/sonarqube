@@ -22,6 +22,8 @@ package org.sonar.server.issue.ws;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ListMultimap;
+
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -30,6 +32,7 @@ import java.util.Map;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueChangeDto;
 import org.sonar.db.issue.IssueDto;
@@ -48,7 +51,7 @@ public class SearchResponseData {
   private final List<IssueDto> issues;
 
   private Long effortTotal = null;
-  private List<UserDto> users = null;
+  private final Map<String, UserDto> usersByUuid = new HashMap<>();
   private List<RuleDefinitionDto> rules = null;
   private final Map<String, String> organizationKeysByUuid = new HashMap<>();
   private final Map<String, ComponentDto> componentsByUuid = new HashMap<>();
@@ -80,9 +83,8 @@ public class SearchResponseData {
     return componentsByUuid.get(uuid);
   }
 
-  @CheckForNull
   public List<UserDto> getUsers() {
-    return users;
+    return new ArrayList<>(usersByUuid.values());
   }
 
   @CheckForNull
@@ -120,8 +122,10 @@ public class SearchResponseData {
     return null;
   }
 
-  public void setUsers(@Nullable List<UserDto> users) {
-    this.users = users;
+  public void addUsers(@Nullable List<UserDto> users) {
+    if (users != null) {
+      users.forEach(u -> usersByUuid.put(u.getUuid(), u));
+    }
   }
 
   public void setRules(@Nullable List<RuleDefinitionDto> rules) {
@@ -169,5 +173,14 @@ public class SearchResponseData {
 
   public void addOrganization(OrganizationDto organizationDto) {
     this.organizationKeysByUuid.put(organizationDto.getUuid(), organizationDto.getKey());
+  }
+
+  @CheckForNull
+  public String getLoginByUserUuid(@Nullable String userUuid) {
+    UserDto userDto = usersByUuid.get(userUuid);
+    if (userDto != null) {
+      return userDto.getLogin();
+    }
+    return null;
   }
 }

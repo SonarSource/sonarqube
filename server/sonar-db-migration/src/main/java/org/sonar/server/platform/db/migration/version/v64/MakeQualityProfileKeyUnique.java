@@ -25,7 +25,6 @@ import org.sonar.server.platform.db.migration.step.DdlChange;
 
 import java.sql.SQLException;
 
-import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.UUID_SIZE;
 import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.newVarcharColumnDefBuilder;
 
 public class MakeQualityProfileKeyUnique extends DdlChange {

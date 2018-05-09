@@ -28,6 +28,7 @@ import org.sonar.api.notifications.Notification;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.FieldDiffs;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.user.UserDto;
 
 import static org.sonar.server.issue.notification.AbstractNewIssuesEmailTemplate.FIELD_BRANCH;
 import static org.sonar.server.issue.notification.AbstractNewIssuesEmailTemplate.FIELD_PROJECT_KEY;
@@ -44,7 +45,6 @@ public class IssueChangeNotification extends Notification {
 
   public IssueChangeNotification setIssue(DefaultIssue issue) {
     setFieldValue("key", issue.key());
-    setFieldValue("assignee", issue.assignee());
     setFieldValue("message", issue.message());
     FieldDiffs currentChange = issue.currentChange();
     if (currentChange != null) {
@@ -108,5 +108,12 @@ public class IssueChangeNotification extends Notification {
   @CheckForNull
   private static String neverEmptySerializableToString(@Nullable Serializable s) {
     return s != null ? Strings.emptyToNull(s.toString()) : null;
+  }
+
+  public IssueChangeNotification setAssignee(@Nullable UserDto assignee) {
+    if (assignee != null) {
+      setFieldValue("assignee", assignee.getLogin());
+    }
+    return this;
   }
 }

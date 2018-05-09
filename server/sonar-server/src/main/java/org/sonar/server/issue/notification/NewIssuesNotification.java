@@ -24,6 +24,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.ToIntFunction;
@@ -43,6 +44,8 @@ import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.issue.notification.NewIssuesStatistics.Metric;
 
+import static java.util.stream.Collectors.toMap;
+import static java.util.stream.Collectors.toSet;
 import static org.sonar.server.issue.notification.AbstractNewIssuesEmailTemplate.FIELD_BRANCH;
 import static org.sonar.server.issue.notification.AbstractNewIssuesEmailTemplate.FIELD_PROJECT_VERSION;
 import static org.sonar.server.issue.notification.AbstractNewIssuesEmailTemplate.FIELD_PULL_REQUEST;
@@ -166,12 +169,18 @@ public class NewIssuesNotification extends Notification {
   }
 
   private void setAssigneesStatistics(DbSession dbSession, NewIssuesStatistics.Stats stats) {
+
     Metric metric = Metric.ASSIGNEE;
+    List<Map.Entry<String, MetricStatsInt>> entries = fiveBiggest(stats.getDistributedMetricStats(metric), MetricStatsInt::getOnLeak);
+
+    Set<String> assigneeUuids = entries.stream().map(Map.Entry::getKey).filter(Objects::nonNull).collect(toSet());
+    Map<String, UserDto> userDtoByUuid = dbClient.userDao().selectByUuids(dbSession, assigneeUuids).stream().collect(toMap(UserDto::getUuid, u -> u));
+
     int i = 1;
-    for (Map.Entry<String, MetricStatsInt> assigneeStats : fiveBiggest(stats.getDistributedMetricStats(metric), MetricStatsInt::getOnLeak)) {
-      String login = assigneeStats.getKey();
-      UserDto user = dbClient.userDao().selectByLogin(dbSession, login);
-      String name = user == null ? login : user.getName();
+    for (Map.Entry<String, MetricStatsInt> assigneeStats : entries) {
+      String assigneeUuid = assigneeStats.getKey();
+      UserDto user = userDtoByUuid.get(assigneeUuid);
+      String name = user == null ? assigneeUuid : user.getName();
       setFieldValue(metric + DOT + i + LABEL, name);
       setFieldValue(metric + DOT + i + COUNT, String.valueOf(assigneeStats.getValue().getOnLeak()));
       i++;

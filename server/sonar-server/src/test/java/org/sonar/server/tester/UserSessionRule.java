@@ -247,6 +247,12 @@ public class UserSessionRule implements TestRule, UserSession {
 
   @Override
   @CheckForNull
+  public String getUuid() {
+    return currentUserSession.getUuid();
+  }
+
+  @Override
+  @CheckForNull
   public String getName() {
     return currentUserSession.getName();
   }

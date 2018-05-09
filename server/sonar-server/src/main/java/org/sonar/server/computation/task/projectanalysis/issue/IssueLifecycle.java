@@ -166,7 +166,7 @@ public class IssueLifecycle {
     toIssue.setCloseDate(fromIssue.closeDate());
     toIssue.setResolution(fromIssue.resolution());
     toIssue.setStatus(fromIssue.status());
-    toIssue.setAssignee(fromIssue.assignee());
+    toIssue.setAssigneeUuid(fromIssue.assignee());
     toIssue.setAuthorLogin(fromIssue.authorLogin());
     toIssue.setTags(fromIssue.tags());
     toIssue.setAttributes(fromIssue.attributes());

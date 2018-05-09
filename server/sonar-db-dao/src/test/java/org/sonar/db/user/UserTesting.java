@@ -32,6 +32,7 @@ public class UserTesting {
   public static UserDto newUserDto() {
     return new UserDto()
       .setId(nextInt())
+      .setUuid(randomAlphanumeric(40))
       .setActive(true)
       .setLocal(nextBoolean())
       .setLogin(randomAlphanumeric(30))

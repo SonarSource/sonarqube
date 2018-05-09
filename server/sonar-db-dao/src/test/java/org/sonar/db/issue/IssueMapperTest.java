@@ -79,7 +79,7 @@ public class IssueMapperTest {
     assertThat(result.getStatus()).isEqualTo("RESOLVED");
     assertThat(result.getSeverity()).isEqualTo("BLOCKER");
     assertThat(result.getAuthorLogin()).isEqualTo("morgan");
-    assertThat(result.getAssignee()).isEqualTo("karadoc");
+    assertThat(result.getAssigneeUuid()).isEqualTo("karadoc");
     assertThat(result.getIssueAttributes()).isEqualTo("JIRA=FOO-1234");
     assertThat(result.getChecksum()).isEqualTo("123456789");
     assertThat(result.getMessage()).isEqualTo("the message");
@@ -109,7 +109,7 @@ public class IssueMapperTest {
     update.setStatus("RESOLVED");
     update.setSeverity("BLOCKER");
     update.setAuthorLogin("morgan");
-    update.setAssignee("karadoc");
+    update.setAssigneeUuid("karadoc");
     update.setIssueAttributes("JIRA=FOO-1234");
     update.setChecksum("123456789");
     update.setMessage("the message");
@@ -139,7 +139,7 @@ public class IssueMapperTest {
     assertThat(result.getStatus()).isEqualTo("RESOLVED");
     assertThat(result.getSeverity()).isEqualTo("BLOCKER");
     assertThat(result.getAuthorLogin()).isEqualTo("morgan");
-    assertThat(result.getAssignee()).isEqualTo("karadoc");
+    assertThat(result.getAssigneeUuid()).isEqualTo("karadoc");
     assertThat(result.getIssueAttributes()).isEqualTo("JIRA=FOO-1234");
     assertThat(result.getChecksum()).isEqualTo("123456789");
     assertThat(result.getMessage()).isEqualTo("the message");
@@ -227,7 +227,7 @@ public class IssueMapperTest {
       .setStatus("RESOLVED")
       .setSeverity("BLOCKER")
       .setAuthorLogin("morgan")
-      .setAssignee("karadoc")
+      .setAssigneeUuid("karadoc")
       .setIssueAttributes("JIRA=FOO-1234")
       .setChecksum("123456789")
       .setMessage("the message")

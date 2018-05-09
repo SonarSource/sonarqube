@@ -98,7 +98,7 @@ public class IssueQuery {
     this.files = defaultCollection(builder.files);
     this.views = defaultCollection(builder.views);
     this.rules = defaultCollection(builder.rules);
-    this.assignees = defaultCollection(builder.assignees);
+    this.assignees = defaultCollection(builder.assigneeUuids);
     this.authors = defaultCollection(builder.authors);
     this.languages = defaultCollection(builder.languages);
     this.tags = defaultCollection(builder.tags);
@@ -275,7 +275,7 @@ public class IssueQuery {
     private Collection<String> files;
     private Collection<String> views;
     private Collection<RuleDefinitionDto> rules;
-    private Collection<String> assignees;
+    private Collection<String> assigneeUuids;
     private Collection<String> authors;
     private Collection<String> languages;
     private Collection<String> tags;
@@ -359,8 +359,8 @@ public class IssueQuery {
       return this;
     }
 
-    public Builder assignees(@Nullable Collection<String> l) {
-      this.assignees = l;
+    public Builder assigneeUuids(@Nullable Collection<String> l) {
+      this.assigneeUuids = l;
       return this;
     }
 

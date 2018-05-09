@@ -180,7 +180,7 @@ public class SearchResponseFormat {
       issueBuilder.setExternalRuleEngine(engineNameFrom(dto.getRuleKey()));
     }
     issueBuilder.setSeverity(Common.Severity.valueOf(dto.getSeverity()));
-    setNullable(emptyToNull(dto.getAssignee()), issueBuilder::setAssignee);
+    setNullable(data.getLoginByUserUuid(dto.getAssigneeUuid()), issueBuilder::setAssignee);
     setNullable(emptyToNull(dto.getResolution()), issueBuilder::setResolution);
     issueBuilder.setStatus(dto.getStatus());
     issueBuilder.setMessage(nullToEmpty(dto.getMessage()));
@@ -288,7 +288,7 @@ public class SearchResponseFormat {
         wsComment
           .clear()
           .setKey(comment.getKey())
-          .setLogin(nullToEmpty(comment.getUserLogin()))
+          .setLogin(nullToEmpty(data.getLoginByUserUuid(comment.getUserLogin())))
           .setUpdatable(data.isUpdatableComment(comment.getKey()))
           .setCreatedAt(DateUtils.formatDateTime(new Date(comment.getIssueChangeCreationDate())));
         if (markdown != null) {

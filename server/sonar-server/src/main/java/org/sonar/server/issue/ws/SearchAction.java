@@ -22,6 +22,7 @@ package org.sonar.server.issue.ws;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.EnumSet;
@@ -52,6 +53,7 @@ import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.user.UserDto;
 import org.sonar.server.es.Facets;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.issue.IssueQuery;
@@ -63,14 +65,18 @@ import org.sonarqube.ws.Issues.SearchWsResponse;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Strings.nullToEmpty;
 import static com.google.common.collect.Iterables.concat;
 import static com.google.common.collect.Sets.newHashSet;
 import static java.lang.String.format;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
+import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.toList;
 import static org.sonar.api.utils.Paging.forPageIndex;
 import static org.sonar.core.util.stream.MoreCollectors.toSet;
 import static org.sonar.server.es.SearchOptions.MAX_LIMIT;
+import static org.sonar.server.issue.IssueQueryFactory.UNKNOWN;
 import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PULL_REQUEST_EXAMPLE_001;
@@ -120,6 +126,8 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_TAGS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_TYPES;
 
 public class SearchAction implements IssuesWsAction {
+
+  public static final String LOGIN_MYSELF = "__me__";
 
   private static final String INTERNAL_PARAMETER_DISCLAIMER = "This parameter is mostly used by the Issues page, please prefer usage of the componentKeys parameter. ";
   private static final Set<String> IGNORED_FACETS = newHashSet(PARAM_PLANNED, DEPRECATED_PARAM_ACTION_PLANS, PARAM_REPORTERS);
@@ -339,14 +347,45 @@ public class SearchAction implements IssuesWsAction {
 
   @Override
   public final void handle(Request request, Response response) {
-    SearchWsResponse searchWsResponse = doHandle(toSearchWsRequest(request), request);
+    SearchRequest searchRequest = toSearchWsRequest(request)
+      .setAssigneesUuid(getLogins(request));
+    SearchWsResponse searchWsResponse = doHandle(searchRequest, request);
     writeProtobuf(searchWsResponse, request, response);
+  }
+
+  private List<String> getLogins(Request request) {
+
+    List<String> assigneeLogins = request.paramAsStrings(PARAM_ASSIGNEES);
+
+    List<String> onlyLogins = new ArrayList<>();
+    for (String login : ofNullable(assigneeLogins).orElse(emptyList())) {
+      if (LOGIN_MYSELF.equals(login)) {
+        if (userSession.getLogin() == null) {
+          onlyLogins.add(UNKNOWN);
+        } else {
+          onlyLogins.add(userSession.getLogin());
+        }
+      } else {
+        onlyLogins.add(login);
+      }
+    }
+
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      List<UserDto> userDtos = dbClient.userDao().selectByLogins(dbSession, onlyLogins);
+      List<String> assigneeUuid = userDtos.stream().map(UserDto::getUuid).collect(toList());
+
+      if ((assigneeLogins != null) && firstNonNull(assigneeUuid, emptyList()).isEmpty()) {
+        assigneeUuid = ImmutableList.of("non-existent-uuid");
+      }
+      return assigneeUuid;
+    }
   }
 
   private SearchWsResponse doHandle(SearchRequest request, Request wsRequest) {
     // prepare the Elasticsearch request
     SearchOptions options = createSearchOptionsFromRequest(request);
     EnumSet<SearchAdditionalField> additionalFields = SearchAdditionalField.getFromRequest(request);
+
     IssueQuery query = issueQueryFactory.create(request);
 
     // execute request
@@ -372,7 +411,7 @@ public class SearchAction implements IssuesWsAction {
         .filter(FACETS_REQUIRING_PROJECT_OR_ORGANIZATION::contains)
         .collect(toSet());
       checkArgument(facetsRequiringProjectOrOrganizationParameter.isEmpty() ||
-        (!query.projectUuids().isEmpty()) || query.organizationUuid() != null, "Facet(s) '%s' require to also filter by project or organization",
+          (!query.projectUuids().isEmpty()) || query.organizationUuid() != null, "Facet(s) '%s' require to also filter by project or organization",
         COMA_JOINER.join(facetsRequiringProjectOrOrganizationParameter));
     }
     SearchResponseData preloadedData = new SearchResponseData(emptyList());
@@ -386,11 +425,28 @@ public class SearchAction implements IssuesWsAction {
     // can be used to get total debt.
     facets = reorderFacets(facets, options.getFacets());
     replaceRuleIdsByRuleKeys(facets, firstNonNull(data.getRules(), emptyList()));
+    replaceAssigneeUuidByUserLogin(facets, data, PARAM_ASSIGNEES);
+    replaceAssigneeUuidByUserLogin(facets, data, FACET_ASSIGNED_TO_ME);
 
     // FIXME allow long in Paging
     Paging paging = forPageIndex(options.getPage()).withPageSize(options.getLimit()).andTotal((int) result.getHits().getTotalHits());
 
     return searchResponseFormat.formatSearch(additionalFields, data, paging, facets);
+  }
+
+  private static void replaceAssigneeUuidByUserLogin(@Nullable Facets facets, SearchResponseData data, String facet) {
+    if (facets == null) {
+      return;
+    }
+    LinkedHashMap<String, Long> assigneeFacets = facets.get(facet);
+    if (assigneeFacets == null) {
+      return;
+    }
+
+    LinkedHashMap<String, Long> newAssigneeFacets = new LinkedHashMap<>();
+    assigneeFacets.forEach((k, v) -> newAssigneeFacets.put(nullToEmpty(data.getLoginByUserUuid(k)), v));
+    assigneeFacets.clear();
+    assigneeFacets.putAll(newAssigneeFacets);
   }
 
   private void replaceRuleIdsByRuleKeys(@Nullable Facets facets, List<RuleDefinitionDto> alreadyLoadedRules) {
@@ -417,7 +473,7 @@ public class SearchAction implements IssuesWsAction {
         alreadyLoadedRules
           .stream()
           .map(RuleDefinitionDto::getId)
-          .collect(Collectors.toList()));
+          .collect(toList()));
 
       List<RuleDefinitionDto> ruleDefinitions = Stream.concat(
         alreadyLoadedRules.stream(),
@@ -483,13 +539,13 @@ public class SearchAction implements IssuesWsAction {
     addMandatoryValuesToFacet(facets, PARAM_PROJECT_UUIDS, request.getProjectUuids());
 
     List<String> assignees = Lists.newArrayList("");
-    List<String> assigneesFromRequest = request.getAssignees();
+    List<String> assigneesFromRequest = request.getAssigneeUuids();
     if (assigneesFromRequest != null) {
       assignees.addAll(assigneesFromRequest);
-      assignees.remove(IssueQueryFactory.LOGIN_MYSELF);
+      assignees.remove(LOGIN_MYSELF);
     }
     addMandatoryValuesToFacet(facets, PARAM_ASSIGNEES, assignees);
-    addMandatoryValuesToFacet(facets, FACET_ASSIGNED_TO_ME, singletonList(userSession.getLogin()));
+    addMandatoryValuesToFacet(facets, FACET_ASSIGNED_TO_ME, singletonList(userSession.getUuid()));
     addMandatoryValuesToFacet(facets, PARAM_RULES, request.getRules());
     addMandatoryValuesToFacet(facets, PARAM_LANGUAGES, request.getLanguages());
     addMandatoryValuesToFacet(facets, PARAM_TAGS, request.getTags());
@@ -502,6 +558,7 @@ public class SearchAction implements IssuesWsAction {
     }
     requestedFacets.stream()
       .filter(facetName -> !FACET_ASSIGNED_TO_ME.equals(facetName))
+      .filter(facetName -> !PARAM_ASSIGNEES.equals(facetName))
       .filter(facetName -> !IGNORED_FACETS.contains(facetName))
       .forEach(facetName -> {
         LinkedHashMap<String, Long> buckets = facets.get(facetName);
@@ -510,7 +567,7 @@ public class SearchAction implements IssuesWsAction {
           return;
         }
         requestParams.stream()
-          .filter(param -> !buckets.containsKey(param) && !IssueQueryFactory.LOGIN_MYSELF.equals(param))
+          .filter(param -> !buckets.containsKey(param) && !LOGIN_MYSELF.equals(param))
           // Prevent appearance of a glitch value due to dedicated parameter for this facet
           .forEach(param -> buckets.put(param, 0L));
       });
@@ -529,7 +586,7 @@ public class SearchAction implements IssuesWsAction {
 
   private void collectLoggedInUser(SearchResponseLoader.Collector collector) {
     if (userSession.isLoggedIn()) {
-      collector.add(SearchAdditionalField.USERS, userSession.getLogin());
+      collector.add(SearchAdditionalField.USERS, userSession.getUuid());
     }
   }
 
@@ -550,7 +607,7 @@ public class SearchAction implements IssuesWsAction {
     collector.addComponentUuids(request.getFileUuids());
     collector.addComponentUuids(request.getModuleUuids());
     collector.addComponentUuids(request.getComponentRootUuids());
-    collector.addAll(SearchAdditionalField.USERS, request.getAssignees());
+    collector.addAll(SearchAdditionalField.USERS, request.getAssigneeUuids());
   }
 
   private static SearchRequest toSearchWsRequest(Request request) {
@@ -558,7 +615,6 @@ public class SearchAction implements IssuesWsAction {
       .setAdditionalFields(request.paramAsStrings(PARAM_ADDITIONAL_FIELDS))
       .setAsc(request.paramAsBoolean(PARAM_ASC))
       .setAssigned(request.paramAsBoolean(PARAM_ASSIGNED))
-      .setAssignees(request.paramAsStrings(PARAM_ASSIGNEES))
       .setAuthors(request.paramAsStrings(PARAM_AUTHORS))
       .setComponentKeys(request.paramAsStrings(PARAM_COMPONENT_KEYS))
       .setComponentRootUuids(request.paramAsStrings(PARAM_COMPONENT_ROOT_UUIDS))

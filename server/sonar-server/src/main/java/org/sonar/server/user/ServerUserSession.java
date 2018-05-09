@@ -85,6 +85,12 @@ public class ServerUserSession extends AbstractUserSession {
 
   @Override
   @CheckForNull
+  public String getUuid() {
+    return userDto == null ? null : userDto.getUuid();
+  }
+
+  @Override
+  @CheckForNull
   public String getName() {
     return userDto == null ? null : userDto.getName();
   }

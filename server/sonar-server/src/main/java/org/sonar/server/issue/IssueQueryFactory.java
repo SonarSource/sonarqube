@@ -21,7 +21,6 @@ package org.sonar.server.issue;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
 import java.time.Clock;
 import java.time.OffsetDateTime;
 import java.time.Period;
@@ -82,10 +81,7 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_SINCE_LEAK_
 @ServerSide
 public class IssueQueryFactory {
 
-  public static final String LOGIN_MYSELF = "__me__";
-
-  private static final String UNKNOWN = "<UNKNOWN>";
-
+  public static final String UNKNOWN = "<UNKNOWN>";
   private static final ComponentDto UNKNOWN_COMPONENT = new ComponentDto().setUuid(UNKNOWN).setProjectUuid(UNKNOWN);
 
   private final DbClient dbClient;
@@ -107,7 +103,7 @@ public class IssueQueryFactory {
         .resolutions(request.getResolutions())
         .resolved(request.getResolved())
         .rules(ruleKeysToRuleId(dbSession, request.getRules()))
-        .assignees(buildAssignees(request.getAssignees()))
+        .assigneeUuids(request.getAssigneeUuids())
         .languages(request.getLanguages())
         .tags(request.getTags())
         .types(request.getTypes())
@@ -172,22 +168,6 @@ public class IssueQueryFactory {
   private Date findCreatedAfterFromComponentUuid(DbSession dbSession, ComponentDto component) {
     Optional<SnapshotDto> snapshot = dbClient.snapshotDao().selectLastAnalysisByComponentUuid(dbSession, component.uuid());
     return snapshot.map(s -> longToDate(s.getPeriodDate())).orElse(null);
-  }
-
-  private List<String> buildAssignees(@Nullable List<String> assigneesFromParams) {
-    List<String> assignees = Lists.newArrayList();
-    if (assigneesFromParams != null) {
-      assignees.addAll(assigneesFromParams);
-    }
-    if (assignees.contains(LOGIN_MYSELF)) {
-      String login = userSession.getLogin();
-      if (login == null) {
-        assignees.add(UNKNOWN);
-      } else {
-        assignees.add(login);
-      }
-    }
-    return assignees;
   }
 
   private boolean mergeDeprecatedComponentParameters(DbSession session, SearchRequest request, List<ComponentDto> allComponents) {

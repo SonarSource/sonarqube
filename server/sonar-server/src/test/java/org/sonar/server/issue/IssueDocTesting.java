@@ -58,7 +58,7 @@ public class IssueDocTesting {
     doc.setKey(Uuids.createFast());
     doc.setRuleId(nextInt(1000));
     doc.setType(RuleType.CODE_SMELL);
-    doc.setAssignee("assignee_" + randomAlphabetic(5));
+    doc.setAssigneeUuid("assignee_uuid_" + randomAlphabetic(26));
     doc.setAuthorLogin("author_" + randomAlphabetic(5));
     doc.setLanguage("language_" + randomAlphabetic(5));
     doc.setComponentUuid(Uuids.createFast());

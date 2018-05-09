@@ -34,6 +34,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.sonar.api.issue.Issue.STATUS_OPEN;
+import static org.sonar.api.rules.RuleType.CODE_SMELL;
 
 public class UpdateConflictResolverTest {
 
@@ -41,28 +43,28 @@ public class UpdateConflictResolverTest {
   public void should_reload_issue_and_resolve_conflict() {
     DefaultIssue issue = new DefaultIssue()
       .setKey("ABCDE")
-      .setType(RuleType.CODE_SMELL)
+      .setType(CODE_SMELL)
       .setRuleKey(RuleKey.of("squid", "AvoidCycles"))
       .setProjectUuid("U1")
       .setComponentUuid("U2")
       .setNew(false)
-      .setStatus(Issue.STATUS_OPEN);
+      .setStatus(STATUS_OPEN);
 
     // Issue as seen and changed by end-user
     IssueMapper mapper = mock(IssueMapper.class);
     when(mapper.selectByKey("ABCDE")).thenReturn(
       new IssueDto()
         .setKee("ABCDE")
-        .setType(RuleType.CODE_SMELL)
+        .setType(CODE_SMELL)
         .setRuleId(10)
         .setRuleKey("squid", "AvoidCycles")
         .setProjectUuid("U1")
         .setComponentUuid("U2")
         .setLine(10)
-        .setStatus(Issue.STATUS_OPEN)
+        .setStatus(STATUS_OPEN)
 
         // field changed by user
-        .setAssignee("arthur")
+        .setAssigneeUuid("arthur-uuid")
       );
 
     new UpdateConflictResolver().resolve(issue, mapper);
@@ -71,7 +73,7 @@ public class UpdateConflictResolverTest {
     verify(mapper).update(argument.capture());
     IssueDto updatedIssue = argument.getValue();
     assertThat(updatedIssue.getKee()).isEqualTo("ABCDE");
-    assertThat(updatedIssue.getAssignee()).isEqualTo("arthur");
+    assertThat(updatedIssue.getAssigneeUuid()).isEqualTo("arthur-uuid");
   }
 
   @Test
@@ -83,7 +85,7 @@ public class UpdateConflictResolverTest {
       .setNew(false);
 
     // Before starting scan
-    issue.setAssignee(null);
+    issue.setAssigneeUuid(null);
     issue.setCreationDate(DateUtils.parseDate("2012-01-01"));
     issue.setUpdateDate(DateUtils.parseDate("2012-02-02"));
 
@@ -106,7 +108,7 @@ public class UpdateConflictResolverTest {
       .setLine(10)
       .setResolution(Issue.RESOLUTION_FALSE_POSITIVE)
       .setStatus(Issue.STATUS_RESOLVED)
-      .setAssignee("arthur")
+      .setAssigneeUuid("arthur")
       .setSeverity(Severity.MAJOR)
       .setManualSeverity(false);
 
@@ -133,7 +135,7 @@ public class UpdateConflictResolverTest {
       .setRuleKey(RuleKey.of("squid", "AvoidCycles"))
       .setComponentKey("struts:org.apache.struts.Action")
       .setNew(false)
-      .setStatus(Issue.STATUS_OPEN);
+      .setStatus(STATUS_OPEN);
 
     // Changed by scan
     issue.setSeverity(Severity.BLOCKER);
@@ -142,7 +144,7 @@ public class UpdateConflictResolverTest {
     // Issue as seen and changed by end-user
     IssueDto dbIssue = new IssueDto()
       .setKee("ABCDE")
-      .setStatus(Issue.STATUS_OPEN)
+      .setStatus(STATUS_OPEN)
       .setSeverity(Severity.INFO)
       .setManualSeverity(true);
 

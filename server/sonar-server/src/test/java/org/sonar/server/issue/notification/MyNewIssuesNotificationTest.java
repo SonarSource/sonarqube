@@ -22,6 +22,8 @@ package org.sonar.server.issue.notification;
 import org.junit.Test;
 import org.sonar.api.utils.Durations;
 import org.sonar.db.DbClient;
+import org.sonar.db.user.UserDto;
+import org.sonar.db.user.UserTesting;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -33,14 +35,15 @@ public class MyNewIssuesNotificationTest {
 
   @Test
   public void set_assignee() {
-    underTest.setAssignee("myAssignee");
+    UserDto user = UserTesting.newUserDto();
 
-    assertThat(underTest.getFieldValue(FIELD_ASSIGNEE)).isEqualTo("myAssignee");
+    underTest.setAssignee(user);
+
+    assertThat(underTest.getFieldValue(FIELD_ASSIGNEE)).isEqualTo(user.getLogin());
   }
 
   @Test
   public void set_with_a_specific_type() {
     assertThat(underTest.getType()).isEqualTo(MyNewIssuesNotification.MY_NEW_ISSUES_NOTIF_TYPE);
-
   }
 }

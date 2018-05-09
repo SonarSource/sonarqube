@@ -108,13 +108,16 @@ public class NewIssuesNotificationTest {
 
   @Test
   public void set_statistics() {
+    UserDto maynard = db.users().insertUser(u-> u.setLogin("maynard"));
+    UserDto keenan = db.users().insertUser(u-> u.setLogin("keenan"));
+
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto directory = db.components().insertComponent(newDirectory(project, "path"));
     ComponentDto file = db.components().insertComponent(newFileDto(directory));
     RuleDefinitionDto rule1 = db.rules().insert(r -> r.setRepositoryKey("SonarQube").setRuleKey("rule1-the-world").setName("Rule the World").setLanguage("Java"));
     RuleDefinitionDto rule2 = db.rules().insert(r -> r.setRepositoryKey("SonarQube").setRuleKey("rule1-the-universe").setName("Rule the Universe").setLanguage("Clojure"));
-    IssueDto issue1 = db.issues().insert(rule1, project, file, i -> i.setType(BUG).setAssignee("maynard").setTags(asList("bug", "owasp")));
-    IssueDto issue2 = db.issues().insert(rule2, project, directory, i -> i.setType(CODE_SMELL).setAssignee("keenan").setTags(singletonList("owasp")));
+    IssueDto issue1 = db.issues().insert(rule1, project, file, i -> i.setType(BUG).setAssigneeUuid(maynard.getUuid()).setTags(asList("bug", "owasp")));
+    IssueDto issue2 = db.issues().insert(rule2, project, directory, i -> i.setType(CODE_SMELL).setAssigneeUuid(keenan.getUuid()).setTags(singletonList("owasp")));
     NewIssuesStatistics.Stats stats = new NewIssuesStatistics.Stats(i -> true);
     IntStream.rangeClosed(1, 5).forEach(i -> stats.add(issue1.toDefaultIssue()));
     IntStream.rangeClosed(1, 3).forEach(i -> stats.add(issue2.toDefaultIssue()));
@@ -123,9 +126,9 @@ public class NewIssuesNotificationTest {
 
     assertThat(underTest.getFieldValue(RULE_TYPE + ".BUG.count")).isEqualTo("5");
     assertThat(underTest.getFieldValue(RULE_TYPE + ".CODE_SMELL.count")).isEqualTo("3");
-    assertThat(underTest.getFieldValue(ASSIGNEE + ".1.label")).isEqualTo("maynard");
+    assertThat(underTest.getFieldValue(ASSIGNEE + ".1.label")).isEqualTo(maynard.getName());
     assertThat(underTest.getFieldValue(ASSIGNEE + ".1.count")).isEqualTo("5");
-    assertThat(underTest.getFieldValue(ASSIGNEE + ".2.label")).isEqualTo("keenan");
+    assertThat(underTest.getFieldValue(ASSIGNEE + ".2.label")).isEqualTo(keenan.getName());
     assertThat(underTest.getFieldValue(ASSIGNEE + ".2.count")).isEqualTo("3");
     assertThat(underTest.getFieldValue(TAG + ".1.label")).isEqualTo("owasp");
     assertThat(underTest.getFieldValue(TAG + ".1.count")).isEqualTo("8");
@@ -148,46 +151,51 @@ public class NewIssuesNotificationTest {
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     RuleDefinitionDto rule = db.rules().insert();
     UserDto user = db.users().insertUser();
-    IssueDto issue1 = db.issues().insert(rule, project, file, i -> i.setAssignee(user.getLogin()));
-    IssueDto issue2 = db.issues().insert(rule, project, file, i -> i.setAssignee("no_user"));
+    IssueDto issue = db.issues().insert(rule, project, file, i -> i.setAssigneeUuid(user.getUuid()));
     NewIssuesStatistics.Stats stats = new NewIssuesStatistics.Stats(i -> true);
-    IntStream.rangeClosed(1, 5).forEach(i -> stats.add(issue1.toDefaultIssue()));
-    IntStream.rangeClosed(1, 3).forEach(i -> stats.add(issue2.toDefaultIssue()));
+    IntStream.rangeClosed(1, 5).forEach(i -> stats.add(issue.toDefaultIssue()));
 
     underTest.setStatistics(project.longName(), stats);
 
     assertThat(underTest.getFieldValue(ASSIGNEE + ".1.label")).isEqualTo(user.getName());
     assertThat(underTest.getFieldValue(ASSIGNEE + ".1.count")).isEqualTo("5");
-    assertThat(underTest.getFieldValue(ASSIGNEE + ".2.label")).isEqualTo("no_user");
-    assertThat(underTest.getFieldValue(ASSIGNEE + ".2.count")).isEqualTo("3");
   }
 
   @Test
   public void add_only_5_assignees_with_biggest_issue_counts() {
+    UserDto user1 = db.users().insertUser();
+    UserDto user2 = db.users().insertUser();
+    UserDto user3 = db.users().insertUser();
+    UserDto user4 = db.users().insertUser();
+    UserDto user5 = db.users().insertUser();
+    UserDto user6 = db.users().insertUser();
+    UserDto user7 = db.users().insertUser();
+    UserDto user8 = db.users().insertUser();
+
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     RuleDefinitionDto rule = db.rules().insert();
     NewIssuesStatistics.Stats stats = new NewIssuesStatistics.Stats(i -> true);
-    IntStream.rangeClosed(1, 10).forEach(i -> stats.add(db.issues().insert(rule, project, file, issue -> issue.setAssignee("assignee_1")).toDefaultIssue()));
-    IntStream.rangeClosed(1, 9).forEach(i -> stats.add(db.issues().insert(rule, project, file, issue -> issue.setAssignee("assignee_2")).toDefaultIssue()));
-    IntStream.rangeClosed(1, 8).forEach(i -> stats.add(db.issues().insert(rule, project, file, issue -> issue.setAssignee("assignee_3")).toDefaultIssue()));
-    IntStream.rangeClosed(1, 7).forEach(i -> stats.add(db.issues().insert(rule, project, file, issue -> issue.setAssignee("assignee_4")).toDefaultIssue()));
-    IntStream.rangeClosed(1, 6).forEach(i -> stats.add(db.issues().insert(rule, project, file, issue -> issue.setAssignee("assignee_5")).toDefaultIssue()));
-    IntStream.rangeClosed(1, 5).forEach(i -> stats.add(db.issues().insert(rule, project, file, issue -> issue.setAssignee("assignee_6")).toDefaultIssue()));
-    IntStream.rangeClosed(1, 4).forEach(i -> stats.add(db.issues().insert(rule, project, file, issue -> issue.setAssignee("assignee_7")).toDefaultIssue()));
-    IntStream.rangeClosed(1, 3).forEach(i -> stats.add(db.issues().insert(rule, project, file, issue -> issue.setAssignee("assignee_8")).toDefaultIssue()));
+    IntStream.rangeClosed(1, 10).forEach(i -> stats.add(db.issues().insert(rule, project, file, issue -> issue.setAssigneeUuid(user1.getUuid())).toDefaultIssue()));
+    IntStream.rangeClosed(1, 9).forEach(i -> stats.add(db.issues().insert(rule, project, file, issue -> issue.setAssigneeUuid(user2.getUuid())).toDefaultIssue()));
+    IntStream.rangeClosed(1, 8).forEach(i -> stats.add(db.issues().insert(rule, project, file, issue -> issue.setAssigneeUuid(user3.getUuid())).toDefaultIssue()));
+    IntStream.rangeClosed(1, 7).forEach(i -> stats.add(db.issues().insert(rule, project, file, issue -> issue.setAssigneeUuid(user4.getUuid())).toDefaultIssue()));
+    IntStream.rangeClosed(1, 6).forEach(i -> stats.add(db.issues().insert(rule, project, file, issue -> issue.setAssigneeUuid(user5.getUuid())).toDefaultIssue()));
+    IntStream.rangeClosed(1, 5).forEach(i -> stats.add(db.issues().insert(rule, project, file, issue -> issue.setAssigneeUuid(user6.getUuid())).toDefaultIssue()));
+    IntStream.rangeClosed(1, 4).forEach(i -> stats.add(db.issues().insert(rule, project, file, issue -> issue.setAssigneeUuid(user7.getUuid())).toDefaultIssue()));
+    IntStream.rangeClosed(1, 3).forEach(i -> stats.add(db.issues().insert(rule, project, file, issue -> issue.setAssigneeUuid(user8.getUuid())).toDefaultIssue()));
 
     underTest.setStatistics(project.longName(), stats);
 
-    assertThat(underTest.getFieldValue(ASSIGNEE + ".1.label")).isEqualTo("assignee_1");
+    assertThat(underTest.getFieldValue(ASSIGNEE + ".1.label")).isEqualTo(user1.getName());
     assertThat(underTest.getFieldValue(ASSIGNEE + ".1.count")).isEqualTo("10");
-    assertThat(underTest.getFieldValue(ASSIGNEE + ".2.label")).isEqualTo("assignee_2");
+    assertThat(underTest.getFieldValue(ASSIGNEE + ".2.label")).isEqualTo(user2.getName());
     assertThat(underTest.getFieldValue(ASSIGNEE + ".2.count")).isEqualTo("9");
-    assertThat(underTest.getFieldValue(ASSIGNEE + ".3.label")).isEqualTo("assignee_3");
+    assertThat(underTest.getFieldValue(ASSIGNEE + ".3.label")).isEqualTo(user3.getName());
     assertThat(underTest.getFieldValue(ASSIGNEE + ".3.count")).isEqualTo("8");
-    assertThat(underTest.getFieldValue(ASSIGNEE + ".4.label")).isEqualTo("assignee_4");
+    assertThat(underTest.getFieldValue(ASSIGNEE + ".4.label")).isEqualTo(user4.getName());
     assertThat(underTest.getFieldValue(ASSIGNEE + ".4.count")).isEqualTo("7");
-    assertThat(underTest.getFieldValue(ASSIGNEE + ".5.label")).isEqualTo("assignee_5");
+    assertThat(underTest.getFieldValue(ASSIGNEE + ".5.label")).isEqualTo(user5.getName());
     assertThat(underTest.getFieldValue(ASSIGNEE + ".5.count")).isEqualTo("6");
     assertThat(underTest.getFieldValue(ASSIGNEE + ".6.label")).isNull();
     assertThat(underTest.getFieldValue(ASSIGNEE + ".6.count")).isNull();

@@ -24,7 +24,9 @@ import com.google.common.collect.ImmutableSet;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
@@ -33,6 +35,9 @@ import org.sonar.api.issue.Issue;
 import org.sonar.api.utils.Duration;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.util.CloseableIterator;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.db.user.UserDto;
 import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.server.computation.task.projectanalysis.analysis.Branch;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
@@ -50,6 +55,9 @@ import org.sonar.server.issue.notification.NewIssuesNotificationFactory;
 import org.sonar.server.issue.notification.NewIssuesStatistics;
 import org.sonar.server.notification.NotificationService;
 
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
+import static java.util.stream.StreamSupport.stream;
 import static org.sonar.db.component.BranchType.PULL_REQUEST;
 import static org.sonar.server.computation.task.projectanalysis.component.ComponentVisitor.Order.POST_ORDER;
 
@@ -70,17 +78,20 @@ public class SendIssueNotificationsStep implements ComputationStep {
   private final NotificationService service;
   private final AnalysisMetadataHolder analysisMetadataHolder;
   private final NewIssuesNotificationFactory newIssuesNotificationFactory;
+  private final DbClient dbClient;
+
   private Map<String, Component> componentsByDbKey;
 
   public SendIssueNotificationsStep(IssueCache issueCache, RuleRepository rules, TreeRootHolder treeRootHolder,
     NotificationService service, AnalysisMetadataHolder analysisMetadataHolder,
-    NewIssuesNotificationFactory newIssuesNotificationFactory) {
+    NewIssuesNotificationFactory newIssuesNotificationFactory, DbClient dbClient) {
     this.issueCache = issueCache;
     this.rules = rules;
     this.treeRootHolder = treeRootHolder;
     this.service = service;
     this.analysisMetadataHolder = analysisMetadataHolder;
     this.newIssuesNotificationFactory = newIssuesNotificationFactory;
+    this.dbClient = dbClient;
   }
 
   @Override
@@ -95,8 +106,14 @@ public class SendIssueNotificationsStep implements ComputationStep {
     long analysisDate = analysisMetadataHolder.getAnalysisDate();
     Predicate<DefaultIssue> isOnLeakPredicate = i -> i.isNew() && i.creationDate().getTime() >= truncateToSeconds(analysisDate);
     NewIssuesStatistics newIssuesStats = new NewIssuesStatistics(isOnLeakPredicate);
+    Map<String, UserDto> usersDtoByUuids;
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      Iterable<DefaultIssue> iterable = issueCache::traverse;
+      List<String> assigneeUuids = stream(iterable.spliterator(), false).map(DefaultIssue::assignee).filter(Objects::nonNull).collect(toList());
+      usersDtoByUuids = dbClient.userDao().selectByUuids(dbSession, assigneeUuids).stream().collect(toMap(UserDto::getUuid, dto -> dto));
+    }
     try (CloseableIterator<DefaultIssue> issues = issueCache.traverse()) {
-      processIssues(newIssuesStats, issues, project);
+      processIssues(newIssuesStats, issues, project, usersDtoByUuids);
     }
     if (newIssuesStats.hasIssuesOnLeak()) {
       sendNewIssuesNotification(newIssuesStats, project, analysisDate);
@@ -114,21 +131,22 @@ public class SendIssueNotificationsStep implements ComputationStep {
     return Date.from(instant).getTime();
   }
 
-  private void processIssues(NewIssuesStatistics newIssuesStats, CloseableIterator<DefaultIssue> issues, Component project) {
+  private void processIssues(NewIssuesStatistics newIssuesStats, CloseableIterator<DefaultIssue> issues, Component project, Map<String, UserDto> usersDtoByUuids) {
     while (issues.hasNext()) {
       DefaultIssue issue = issues.next();
       if (issue.isNew() && issue.resolution() == null) {
         newIssuesStats.add(issue);
       } else if (issue.isChanged() && issue.mustSendNotifications()) {
-        sendIssueChangeNotification(issue, project);
+        sendIssueChangeNotification(issue, project, usersDtoByUuids);
       }
     }
   }
 
-  private void sendIssueChangeNotification(DefaultIssue issue, Component project) {
+  private void sendIssueChangeNotification(DefaultIssue issue, Component project, Map<String, UserDto> usersDtoByUuids) {
     IssueChangeNotification changeNotification = new IssueChangeNotification();
     changeNotification.setRuleName(rules.getByKey(issue.ruleKey()).getName());
     changeNotification.setIssue(issue);
+    changeNotification.setAssignee(usersDtoByUuids.get(issue.assignee()));
     changeNotification.setProject(project.getPublicKey(), project.getName(), getBranchName(), getPullRequest());
     getComponentKey(issue).ifPresent(c -> changeNotification.setComponent(c.getPublicKey(), c.getName()));
     service.deliver(changeNotification);
@@ -147,15 +165,16 @@ public class SendIssueNotificationsStep implements ComputationStep {
   }
 
   private void sendNewIssuesNotificationToAssignees(NewIssuesStatistics statistics, Component project, long analysisDate) {
+    Map<String, UserDto> userDtoByUuid = loadUserDtoByUuid(statistics);
     statistics.getAssigneesStatistics().entrySet()
       .stream()
       .filter(e -> e.getValue().hasIssuesOnLeak())
       .forEach(e -> {
-        String assignee = e.getKey();
+        String assigneeUuid = e.getKey();
         NewIssuesStatistics.Stats assigneeStatistics = e.getValue();
         MyNewIssuesNotification myNewIssuesNotification = newIssuesNotificationFactory
           .newMyNewIssuesNotification()
-          .setAssignee(assignee);
+          .setAssignee(userDtoByUuid.get(assigneeUuid));
         myNewIssuesNotification
           .setProject(project.getPublicKey(), project.getName(), getBranchName(), getPullRequest())
           .setProjectVersion(project.getReportAttributes().getVersion())
@@ -165,6 +184,15 @@ public class SendIssueNotificationsStep implements ComputationStep {
 
         service.deliver(myNewIssuesNotification);
       });
+  }
+
+  private Map<String, UserDto> loadUserDtoByUuid(NewIssuesStatistics statistics) {
+    List<Map.Entry<String, NewIssuesStatistics.Stats>> entriesWithIssuesOnLeak = statistics.getAssigneesStatistics().entrySet()
+      .stream().filter(e -> e.getValue().hasIssuesOnLeak()).collect(toList());
+    List<String> assigneeUuids = entriesWithIssuesOnLeak.stream().map(Map.Entry::getKey).collect(toList());
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      return dbClient.userDao().selectByUuids(dbSession, assigneeUuids).stream().collect(toMap(UserDto::getUuid, u -> u));
+    }
   }
 
   private Optional<Component> getComponentKey(DefaultIssue issue) {

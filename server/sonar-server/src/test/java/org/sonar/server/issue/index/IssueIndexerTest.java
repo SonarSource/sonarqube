@@ -52,6 +52,7 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptySet;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.rules.ExpectedException.none;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.server.issue.IssueDocTesting.newDoc;
 import static org.sonar.server.issue.index.IssueIndexDefinition.INDEX_TYPE_ISSUE;
@@ -64,7 +65,7 @@ public class IssueIndexerTest {
   @Rule
   public DbTester db = DbTester.create();
   @Rule
-  public ExpectedException expectedException = ExpectedException.none();
+  public ExpectedException expectedException = none();
   @Rule
   public LogTester logTester = new LogTester();
 
@@ -117,7 +118,7 @@ public class IssueIndexerTest {
     IssueDoc doc = es.getDocuments(INDEX_TYPE_ISSUE, IssueDoc.class).get(0);
     assertThat(doc.getId()).isEqualTo(issue.getKey());
     assertThat(doc.organizationUuid()).isEqualTo(organization.getUuid());
-    assertThat(doc.assignee()).isEqualTo(issue.getAssignee());
+    assertThat(doc.assigneeUuid()).isEqualTo(issue.getAssigneeUuid());
     assertThat(doc.authorLogin()).isEqualTo(issue.getAuthorLogin());
     assertThat(doc.componentUuid()).isEqualTo(file.uuid());
     assertThat(doc.projectUuid()).isEqualTo(project.uuid());

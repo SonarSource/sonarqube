@@ -42,22 +42,24 @@ import org.sonar.server.tester.UserSessionRule;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.rules.ExpectedException.none;
+import static org.sonar.server.tester.UserSessionRule.standalone;
 
 public class AssignActionTest {
 
-  private static final String ISSUE_CURRENT_ASSIGNEE = "current assignee";
+  private static final String ISSUE_CURRENT_ASSIGNEE_UUID = "current assignee uuid";
 
   @Rule
-  public ExpectedException expectedException = ExpectedException.none();
+  public ExpectedException expectedException = none();
 
   @Rule
-  public UserSessionRule userSession = UserSessionRule.standalone();
+  public UserSessionRule userSession = standalone();
 
   @Rule
   public DbTester db = DbTester.create();
 
   private IssueChangeContext issueChangeContext = IssueChangeContext.createUser(new Date(), "emmerik");
-  private DefaultIssue issue = new DefaultIssue().setKey("ABC").setAssignee(ISSUE_CURRENT_ASSIGNEE);
+  private DefaultIssue issue = new DefaultIssue().setKey("ABC").setAssigneeUuid(ISSUE_CURRENT_ASSIGNEE_UUID);
   private ComponentDto project;
   private Action.Context context;
   private OrganizationDto issueOrganizationDto;
@@ -81,7 +83,7 @@ public class AssignActionTest {
     boolean executeResult = underTest.execute(properties, context);
 
     assertThat(executeResult).isTrue();
-    assertThat(issue.assignee()).isEqualTo(assignee.getLogin());
+    assertThat(issue.assignee()).isEqualTo(assignee.getUuid());
   }
 
   @Test

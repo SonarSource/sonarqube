@@ -133,7 +133,7 @@ public class ServerIssueStorageTest {
       .setEffort(Duration.create(10L))
       .setChecksum("FFFFF")
       .setAuthorLogin("simon")
-      .setAssignee("loic")
+      .setAssigneeUuid("loic")
       .setFieldChange(context, "severity", "INFO", "BLOCKER")
       .setResolution("FIXED")
       .setStatus("RESOLVED")

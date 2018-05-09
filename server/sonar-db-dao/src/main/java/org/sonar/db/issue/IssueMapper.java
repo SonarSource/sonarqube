@@ -44,12 +44,9 @@ public interface IssueMapper {
 
   void scrollNonClosedByComponentUuid(@Param("componentUuid") String componentUuid, ResultHandler<IssueDto> handler);
   
-  void scrollNonClosedByComponentUuidExcludingExternals(@Param("componentUuid") String componentUuid, ResultHandler<IssueDto> handler);
+  List<IssueDto> selectNonClosedByComponentUuidExcludingExternals(@Param("componentUuid") String componentUuid);
 
-  void scrollNonClosedByModuleOrProject(
-    @Param("projectUuid") String projectUuid,
-    @Param("likeModuleUuidPath") String likeModuleUuidPath,
-    ResultHandler<IssueDto> handler);
+  List<IssueDto> selectNonClosedByModuleOrProject(@Param("projectUuid") String projectUuid, @Param("likeModuleUuidPath") String likeModuleUuidPath);
 
   Collection<IssueGroupDto> selectIssueGroupsByBaseComponent(
     @Param("baseComponent") ComponentDto baseComponent,

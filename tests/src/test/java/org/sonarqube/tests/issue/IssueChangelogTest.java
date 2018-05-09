@@ -21,6 +21,7 @@ package org.sonarqube.tests.issue;
 
 import java.util.List;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.sonar.wsclient.issue.Issue;
 import org.sonarqube.ws.Issues;
@@ -48,6 +49,7 @@ public class IssueChangelogTest extends AbstractIssueTest {
   }
 
   @Test
+  @Ignore // TODO GJT when adressing ticket on IssueChangesUuid
   public void update_changelog_when_assigning_issue_by_user() {
     runProjectAnalysis(ORCHESTRATOR, "shared/xoo-sample");
     Issue issue = searchRandomIssue();

@@ -118,7 +118,7 @@ public class IssueAssignerTest {
   public void set_default_assignee_if_author_not_found() {
     addScmUser("john", null);
     setSingleChangeset("john", 123456789L, "rev-1");
-    when(defaultAssignee.loadDefaultAssigneeLogin()).thenReturn("John C");
+    when(defaultAssignee.loadDefaultAssigneeUuid()).thenReturn("John C");
     DefaultIssue issue = new DefaultIssue().setLine(1);
 
     underTest.onIssue(FILE, issue);
@@ -144,7 +144,7 @@ public class IssueAssignerTest {
     setSingleChangeset("john", 123456789L, "rev-1");
     DefaultIssue issue = new DefaultIssue().setLine(1)
       .setAuthorLogin("john")
-      .setAssignee(null);
+      .setAssigneeUuid(null);
 
     underTest.onIssue(FILE, issue);
 
@@ -179,7 +179,7 @@ public class IssueAssignerTest {
   public void when_noscm_data_is_available_defaultAssignee_should_be_used() {
     DefaultIssue issue = new DefaultIssue().setLine(null);
 
-    when(defaultAssignee.loadDefaultAssigneeLogin()).thenReturn("DefaultAssignee");
+    when(defaultAssignee.loadDefaultAssigneeUuid()).thenReturn("DefaultAssignee");
     underTest.onIssue(FILE, issue);
 
     assertThat(issue.assignee()).isEqualTo("DefaultAssignee");
@@ -212,7 +212,7 @@ public class IssueAssignerTest {
       "No SCM info has been found for issue DefaultIssue[key=<null>,type=VULNERABILITY,componentUuid=<null>,componentKey=<null>," +
         "moduleUuid=<null>,moduleUuidPath=<null>,projectUuid=<null>,projectKey=<null>,ruleKey=<null>,language=<null>,severity=<null>," +
         "manualSeverity=false,message=<null>,line=2,gap=<null>,effort=<null>,status=<null>,resolution=<null>," +
-        "assignee=<null>,checksum=<null>,attributes=<null>,authorLogin=<null>,comments=<null>,tags=<null>," +
+        "assigneeUuid=<null>,checksum=<null>,attributes=<null>,authorLogin=<null>,comments=<null>,tags=<null>," +
         "locations=<null>,isFromExternalRuleEngine=false,creationDate=<null>,updateDate=<null>,closeDate=<null>,currentChange=<null>,changes=<null>,isNew=true,isCopied=false," +
         "beingClosed=false,onDisabledRule=false,isChanged=false,sendNotifications=false,selectedAt=<null>]");
   }
@@ -226,8 +226,8 @@ public class IssueAssignerTest {
         .build());
   }
 
-  private void addScmUser(String scmAccount, String userName) {
-    when(scmAccountToUser.getNullable(scmAccount)).thenReturn(userName);
+  private void addScmUser(String scmAccount, String userUuid) {
+    when(scmAccountToUser.getNullable(scmAccount)).thenReturn(userUuid);
   }
 
 }

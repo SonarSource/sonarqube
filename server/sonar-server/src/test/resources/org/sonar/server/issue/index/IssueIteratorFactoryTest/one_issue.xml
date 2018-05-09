@@ -67,7 +67,7 @@
       status="RESOLVED"
       severity="BLOCKER"
       manual_severity="[false]"
-      assignee="guy1"
+      assignee="uuid-of-guy1"
       author_login="guy2"
       checksum="FFFFF"
       gap="2"

@@ -27,6 +27,7 @@ import org.sonar.api.issue.Issue;
 import org.sonar.api.utils.System2;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.user.UserDto;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.permission.index.AuthorizationTypeSupport;
 import org.sonar.server.permission.index.PermissionIndexerDao;
@@ -44,6 +45,7 @@ import static org.sonar.db.component.ComponentTesting.newBranchDto;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.db.component.ComponentTesting.newProjectBranch;
 import static org.sonar.db.organization.OrganizationTesting.newOrganizationDto;
+import static org.sonar.db.user.UserTesting.newUserDto;
 import static org.sonar.server.issue.IssueDocTesting.newDoc;
 
 public class IssueIndexProjectStatisticsTest {
@@ -73,13 +75,13 @@ public class IssueIndexProjectStatisticsTest {
 
   @Test
   public void searchProjectStatistics_returns_something() {
-    OrganizationDto org = newOrganizationDto();
-    ComponentDto project = newPrivateProjectDto(org);
-    String userLogin = randomAlphanumeric(20);
+    OrganizationDto organization = newOrganizationDto();
+    ComponentDto project = newPrivateProjectDto(organization);
+    String userUuid = randomAlphanumeric(40);
     long from = 1_111_234_567_890L;
-    indexIssues(newDoc("issue1", project).setAssignee(userLogin).setFuncCreationDate(new Date(from + 1L)));
+    indexIssues(newDoc("issue1", project).setAssigneeUuid(userUuid).setFuncCreationDate(new Date(from + 1L)));
 
-    List<ProjectStatistics> result = underTest.searchProjectStatistics(singletonList(project.uuid()), singletonList(from), userLogin);
+    List<ProjectStatistics> result = underTest.searchProjectStatistics(singletonList(project.uuid()), singletonList(from), userUuid);
 
     assertThat(result).extracting(ProjectStatistics::getProjectUuid).containsExactly(project.uuid());
   }
@@ -88,12 +90,12 @@ public class IssueIndexProjectStatisticsTest {
   public void searchProjectStatistics_does_not_return_results_if_assignee_does_not_match() {
     OrganizationDto org1 = newOrganizationDto();
     ComponentDto project = newPrivateProjectDto(org1);
-    String userLogin1 = randomAlphanumeric(20);
-    String userLogin2 = randomAlphanumeric(20);
+    String user1Uuid = randomAlphanumeric(40);
+    String user2Uuid = randomAlphanumeric(40);
     long from = 1_111_234_567_890L;
-    indexIssues(newDoc("issue1", project).setAssignee(userLogin1).setFuncCreationDate(new Date(from + 1L)));
+    indexIssues(newDoc("issue1", project).setAssigneeUuid(user1Uuid).setFuncCreationDate(new Date(from + 1L)));
 
-    List<ProjectStatistics> result = underTest.searchProjectStatistics(singletonList(project.uuid()), singletonList(from), userLogin2);
+    List<ProjectStatistics> result = underTest.searchProjectStatistics(singletonList(project.uuid()), singletonList(from), user2Uuid);
 
     assertThat(result).isEmpty();
   }
@@ -102,11 +104,11 @@ public class IssueIndexProjectStatisticsTest {
   public void searchProjectStatistics_returns_results_if_assignee_matches() {
     OrganizationDto org1 = newOrganizationDto();
     ComponentDto project = newPrivateProjectDto(org1);
-    String userLogin1 = randomAlphanumeric(20);
+    String user1Uuid = randomAlphanumeric(40);
     long from = 1_111_234_567_890L;
-    indexIssues(newDoc("issue1", project).setAssignee(userLogin1).setFuncCreationDate(new Date(from + 1L)));
+    indexIssues(newDoc("issue1", project).setAssigneeUuid(user1Uuid).setFuncCreationDate(new Date(from + 1L)));
 
-    List<ProjectStatistics> result = underTest.searchProjectStatistics(singletonList(project.uuid()), singletonList(from), userLogin1);
+    List<ProjectStatistics> result = underTest.searchProjectStatistics(singletonList(project.uuid()), singletonList(from), user1Uuid);
 
     assertThat(result).extracting(ProjectStatistics::getProjectUuid).containsExactly(project.uuid());
   }
@@ -115,11 +117,11 @@ public class IssueIndexProjectStatisticsTest {
   public void searchProjectStatistics_returns_results_if_functional_date_is_strictly_after_from_date() {
     OrganizationDto org1 = newOrganizationDto();
     ComponentDto project = newPrivateProjectDto(org1);
-    String userLogin1 = randomAlphanumeric(20);
+    String userUuid = randomAlphanumeric(40);
     long from = 1_111_234_567_890L;
-    indexIssues(newDoc("issue1", project).setAssignee(userLogin1).setFuncCreationDate(new Date(from + 1L)));
+    indexIssues(newDoc("issue1", project).setAssigneeUuid(userUuid).setFuncCreationDate(new Date(from + 1L)));
 
-    List<ProjectStatistics> result = underTest.searchProjectStatistics(singletonList(project.uuid()), singletonList(from), userLogin1);
+    List<ProjectStatistics> result = underTest.searchProjectStatistics(singletonList(project.uuid()), singletonList(from), userUuid);
 
     assertThat(result).extracting(ProjectStatistics::getProjectUuid).containsExactly(project.uuid());
   }
@@ -128,11 +130,11 @@ public class IssueIndexProjectStatisticsTest {
   public void searchProjectStatistics_does_not_return_results_if_functional_date_is_same_as_from_date() {
     OrganizationDto org1 = newOrganizationDto();
     ComponentDto project = newPrivateProjectDto(org1);
-    String userLogin1 = randomAlphanumeric(20);
+    String userUuid = randomAlphanumeric(40);
     long from = 1_111_234_567_890L;
-    indexIssues(newDoc("issue1", project).setAssignee(userLogin1).setFuncCreationDate(new Date(from)));
+    indexIssues(newDoc("issue1", project).setAssigneeUuid(userUuid).setFuncCreationDate(new Date(from)));
 
-    List<ProjectStatistics> result = underTest.searchProjectStatistics(singletonList(project.uuid()), singletonList(from), userLogin1);
+    List<ProjectStatistics> result = underTest.searchProjectStatistics(singletonList(project.uuid()), singletonList(from), userUuid);
 
     assertThat(result).extracting(ProjectStatistics::getProjectUuid).containsExactly(project.uuid());
   }
@@ -141,15 +143,15 @@ public class IssueIndexProjectStatisticsTest {
   public void searchProjectStatistics_does_not_return_resolved_issues() {
     OrganizationDto org1 = newOrganizationDto();
     ComponentDto project = newPrivateProjectDto(org1);
-    String userLogin1 = randomAlphanumeric(20);
+    String userUuid = randomAlphanumeric(40);
     long from = 1_111_234_567_890L;
     indexIssues(
-      newDoc("issue1", project).setAssignee(userLogin1).setFuncCreationDate(new Date(from + 1L)).setResolution(Issue.RESOLUTION_FALSE_POSITIVE),
-      newDoc("issue1", project).setAssignee(userLogin1).setFuncCreationDate(new Date(from + 1L)).setResolution(Issue.RESOLUTION_FIXED),
-      newDoc("issue1", project).setAssignee(userLogin1).setFuncCreationDate(new Date(from + 1L)).setResolution(Issue.RESOLUTION_REMOVED),
-      newDoc("issue1", project).setAssignee(userLogin1).setFuncCreationDate(new Date(from + 1L)).setResolution(Issue.RESOLUTION_WONT_FIX));
+      newDoc("issue1", project).setAssigneeUuid(userUuid).setFuncCreationDate(new Date(from + 1L)).setResolution(Issue.RESOLUTION_FALSE_POSITIVE),
+      newDoc("issue1", project).setAssigneeUuid(userUuid).setFuncCreationDate(new Date(from + 1L)).setResolution(Issue.RESOLUTION_FIXED),
+      newDoc("issue1", project).setAssigneeUuid(userUuid).setFuncCreationDate(new Date(from + 1L)).setResolution(Issue.RESOLUTION_REMOVED),
+      newDoc("issue1", project).setAssigneeUuid(userUuid).setFuncCreationDate(new Date(from + 1L)).setResolution(Issue.RESOLUTION_WONT_FIX));
 
-    List<ProjectStatistics> result = underTest.searchProjectStatistics(singletonList(project.uuid()), singletonList(from), userLogin1);
+    List<ProjectStatistics> result = underTest.searchProjectStatistics(singletonList(project.uuid()), singletonList(from), userUuid);
 
     assertThat(result).isEmpty();
   }
@@ -158,11 +160,11 @@ public class IssueIndexProjectStatisticsTest {
   public void searchProjectStatistics_does_not_return_results_if_functional_date_is_before_from_date() {
     OrganizationDto org1 = newOrganizationDto();
     ComponentDto project = newPrivateProjectDto(org1);
-    String userLogin1 = randomAlphanumeric(20);
+    String userUuid = randomAlphanumeric(40);
     long from = 1_111_234_567_890L;
-    indexIssues(newDoc("issue1", project).setAssignee(userLogin1).setFuncCreationDate(new Date(from - 1000L)));
+    indexIssues(newDoc("issue1", project).setAssigneeUuid(userUuid).setFuncCreationDate(new Date(from - 1000L)));
 
-    List<ProjectStatistics> result = underTest.searchProjectStatistics(singletonList(project.uuid()), singletonList(from), userLogin1);
+    List<ProjectStatistics> result = underTest.searchProjectStatistics(singletonList(project.uuid()), singletonList(from), userUuid);
 
     assertThat(result).isEmpty();
   }
@@ -171,14 +173,14 @@ public class IssueIndexProjectStatisticsTest {
   public void searchProjectStatistics_returns_issue_count() {
     OrganizationDto org1 = newOrganizationDto();
     ComponentDto project = newPrivateProjectDto(org1);
-    String userLogin1 = randomAlphanumeric(20);
+    String userUuid = randomAlphanumeric(40);
     long from = 1_111_234_567_890L;
     indexIssues(
-      newDoc("issue1", project).setAssignee(userLogin1).setFuncCreationDate(new Date(from + 1L)),
-      newDoc("issue2", project).setAssignee(userLogin1).setFuncCreationDate(new Date(from + 1L)),
-      newDoc("issue3", project).setAssignee(userLogin1).setFuncCreationDate(new Date(from + 1L)));
+      newDoc("issue1", project).setAssigneeUuid(userUuid).setFuncCreationDate(new Date(from + 1L)),
+      newDoc("issue2", project).setAssigneeUuid(userUuid).setFuncCreationDate(new Date(from + 1L)),
+      newDoc("issue3", project).setAssigneeUuid(userUuid).setFuncCreationDate(new Date(from + 1L)));
 
-    List<ProjectStatistics> result = underTest.searchProjectStatistics(singletonList(project.uuid()), singletonList(from), userLogin1);
+    List<ProjectStatistics> result = underTest.searchProjectStatistics(singletonList(project.uuid()), singletonList(from), userUuid);
 
     assertThat(result).extracting(ProjectStatistics::getIssueCount).containsExactly(3L);
   }
@@ -189,20 +191,20 @@ public class IssueIndexProjectStatisticsTest {
     ComponentDto project1 = newPrivateProjectDto(org1);
     ComponentDto project2 = newPrivateProjectDto(org1);
     ComponentDto project3 = newPrivateProjectDto(org1);
-    String userLogin1 = randomAlphanumeric(20);
+    String userUuid = randomAlphanumeric(40);
     long from = 1_111_234_567_890L;
     indexIssues(
-      newDoc("issue1", project1).setAssignee(userLogin1).setFuncCreationDate(new Date(from + 1L)),
-      newDoc("issue2", project1).setAssignee(userLogin1).setFuncCreationDate(new Date(from + 1L)),
-      newDoc("issue3", project1).setAssignee(userLogin1).setFuncCreationDate(new Date(from + 1L)),
+      newDoc("issue1", project1).setAssigneeUuid(userUuid).setFuncCreationDate(new Date(from + 1L)),
+      newDoc("issue2", project1).setAssigneeUuid(userUuid).setFuncCreationDate(new Date(from + 1L)),
+      newDoc("issue3", project1).setAssigneeUuid(userUuid).setFuncCreationDate(new Date(from + 1L)),
 
-      newDoc("issue4", project3).setAssignee(userLogin1).setFuncCreationDate(new Date(from + 1L)),
-      newDoc("issue5", project3).setAssignee(userLogin1).setFuncCreationDate(new Date(from + 1L)));
+      newDoc("issue4", project3).setAssigneeUuid(userUuid).setFuncCreationDate(new Date(from + 1L)),
+      newDoc("issue5", project3).setAssigneeUuid(userUuid).setFuncCreationDate(new Date(from + 1L)));
 
     List<ProjectStatistics> result = underTest.searchProjectStatistics(
       asList(project1.uuid(), project2.uuid(), project3.uuid()),
       asList(from, from, from),
-      userLogin1);
+      userUuid);
 
     assertThat(result)
       .extracting(ProjectStatistics::getProjectUuid, ProjectStatistics::getIssueCount)
@@ -217,20 +219,20 @@ public class IssueIndexProjectStatisticsTest {
     ComponentDto project1 = newPrivateProjectDto(org1);
     ComponentDto project2 = newPrivateProjectDto(org1);
     ComponentDto project3 = newPrivateProjectDto(org1);
-    String userLogin1 = randomAlphanumeric(20);
+    String userUuid = randomAlphanumeric(40);
     long from = 1_111_234_567_000L;
     indexIssues(
-      newDoc("issue1", project1).setAssignee(userLogin1).setFuncCreationDate(new Date(from + 1_000L)),
-      newDoc("issue2", project1).setAssignee(userLogin1).setFuncCreationDate(new Date(from + 2_000L)),
-      newDoc("issue3", project1).setAssignee(userLogin1).setFuncCreationDate(new Date(from + 3_000L)),
+      newDoc("issue1", project1).setAssigneeUuid(userUuid).setFuncCreationDate(new Date(from + 1_000L)),
+      newDoc("issue2", project1).setAssigneeUuid(userUuid).setFuncCreationDate(new Date(from + 2_000L)),
+      newDoc("issue3", project1).setAssigneeUuid(userUuid).setFuncCreationDate(new Date(from + 3_000L)),
 
-      newDoc("issue4", project3).setAssignee(userLogin1).setFuncCreationDate(new Date(from + 4_000L)),
-      newDoc("issue5", project3).setAssignee(userLogin1).setFuncCreationDate(new Date(from + 5_000L)));
+      newDoc("issue4", project3).setAssigneeUuid(userUuid).setFuncCreationDate(new Date(from + 4_000L)),
+      newDoc("issue5", project3).setAssigneeUuid(userUuid).setFuncCreationDate(new Date(from + 5_000L)));
 
     List<ProjectStatistics> result = underTest.searchProjectStatistics(
       asList(project1.uuid(), project2.uuid(), project3.uuid()),
       asList(from, from, from),
-      userLogin1);
+      userUuid);
 
     assertThat(result)
       .extracting(ProjectStatistics::getProjectUuid, ProjectStatistics::getLastIssueDate)
@@ -244,14 +246,14 @@ public class IssueIndexProjectStatisticsTest {
     OrganizationDto organization = newOrganizationDto();
     ComponentDto project = newPrivateProjectDto(organization);
     ComponentDto branch = newProjectBranch(project, newBranchDto(project).setKey("branch"));
-    String userLogin = randomAlphanumeric(20);
+    String userUuid = randomAlphanumeric(40);
     long from = 1_111_234_567_890L;
     indexIssues(
-      newDoc("issue1", branch).setAssignee(userLogin).setFuncCreationDate(new Date(from + 1L)),
-      newDoc("issue2", branch).setAssignee(userLogin).setFuncCreationDate(new Date(from + 2L)),
-      newDoc("issue3", project).setAssignee(userLogin).setFuncCreationDate(new Date(from + 1L)));
+      newDoc("issue1", branch).setAssigneeUuid(userUuid).setFuncCreationDate(new Date(from + 1L)),
+      newDoc("issue2", branch).setAssigneeUuid(userUuid).setFuncCreationDate(new Date(from + 2L)),
+      newDoc("issue3", project).setAssigneeUuid(userUuid).setFuncCreationDate(new Date(from + 1L)));
 
-    List<ProjectStatistics> result = underTest.searchProjectStatistics(singletonList(project.uuid()), singletonList(from), userLogin);
+    List<ProjectStatistics> result = underTest.searchProjectStatistics(singletonList(project.uuid()), singletonList(from), userUuid);
 
     assertThat(result)
       .extracting(ProjectStatistics::getIssueCount, ProjectStatistics::getProjectUuid, ProjectStatistics::getLastIssueDate)

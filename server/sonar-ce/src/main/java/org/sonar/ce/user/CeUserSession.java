@@ -42,6 +42,10 @@ public class CeUserSession implements UserSession {
     throw notImplemented();
   }
 
+  @Override public String getUuid() {
+    throw notImplemented();
+  }
+
   @Override
   public String getName() {
     throw notImplemented();

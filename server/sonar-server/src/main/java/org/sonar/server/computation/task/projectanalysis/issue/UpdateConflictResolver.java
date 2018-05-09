@@ -74,6 +74,6 @@ public class UpdateConflictResolver {
   }
 
   private void resolveAssignee(IssueDto dbIssue, DefaultIssue issue) {
-    issue.setAssignee(dbIssue.getAssignee());
+    issue.setAssigneeUuid(dbIssue.getAssigneeUuid());
   }
 }

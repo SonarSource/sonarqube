@@ -57,7 +57,7 @@ public class IssueTesting {
       .setResolution(null)
       .setSeverity(Severity.ALL.get(nextInt(Severity.ALL.size())))
       .setEffort((long) RandomUtils.nextInt(10))
-      .setAssignee("assignee_" + randomAlphabetic(5))
+      .setAssigneeUuid("assignee-uuid_" + randomAlphabetic(26))
       .setAuthorLogin("author_" + randomAlphabetic(5))
       // Adding one to the generated random value in order to never get 0 (as it's a forbidden value)
       .setLine(nextInt(1_000) + 1)

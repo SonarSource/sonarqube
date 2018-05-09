@@ -73,7 +73,7 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
   private Duration effort;
   private String status;
   private String resolution;
-  private String assignee;
+  private String assigneeUuid;
   private String checksum;
   private Map<String, String> attributes = null;
   private String authorLogin = null;
@@ -359,11 +359,11 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
   @Override
   @CheckForNull
   public String assignee() {
-    return assignee;
+    return assigneeUuid;
   }
 
-  public DefaultIssue setAssignee(@Nullable String s) {
-    this.assignee = s;
+  public DefaultIssue setAssigneeUuid(@Nullable String s) {
+    this.assigneeUuid = s;
     return this;
   }
 

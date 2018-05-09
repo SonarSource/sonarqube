@@ -41,7 +41,7 @@ public class DefaultIssueBuilder implements Issuable.IssueBuilder {
   private String message;
   private String severity;
   private Double effortToFix;
-  private String assignee;
+  private String assigneeUuid;
   private RuleType type;
   private Map<String, String> attributes;
   private boolean isFromExternalRuleEngine;
@@ -124,8 +124,8 @@ public class DefaultIssueBuilder implements Issuable.IssueBuilder {
     return this;
   }
 
-  public DefaultIssueBuilder assignee(@Nullable String s) {
-    this.assignee = s;
+  public DefaultIssueBuilder assigneeUuid(@Nullable String s) {
+    this.assigneeUuid = s;
     return this;
   }
 
@@ -161,7 +161,7 @@ public class DefaultIssueBuilder implements Issuable.IssueBuilder {
     issue.setManualSeverity(false);
     issue.setGap(effortToFix);
     issue.setLine(line);
-    issue.setAssignee(assignee);
+    issue.setAssigneeUuid(assigneeUuid);
     issue.setAttributes(attributes);
     issue.setResolution(null);
     issue.setStatus(Issue.STATUS_OPEN);

@@ -77,7 +77,7 @@ public class IssueDtoTest {
       .setSeverity("BLOCKER")
       .setMessage("message")
       .setManualSeverity(true)
-      .setAssignee("perceval")
+      .setAssigneeUuid("perceval")
       .setIssueAttributes("key=value")
       .setAuthorLogin("pierre")
       .setIssueCreationDate(createdAt)

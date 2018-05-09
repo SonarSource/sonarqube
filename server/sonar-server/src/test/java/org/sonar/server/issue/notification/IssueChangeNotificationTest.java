@@ -23,8 +23,10 @@ import org.junit.Test;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.FieldDiffs;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.user.UserDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.db.user.UserTesting.newUserDto;
 
 public class IssueChangeNotificationTest {
 
@@ -32,27 +34,30 @@ public class IssueChangeNotificationTest {
 
   @Test
   public void set_issue() {
+
+    UserDto assignee = newUserDto();
+
     DefaultIssue issue = new DefaultIssue()
       .setKey("ABCD")
-      .setAssignee("simon")
+      .setAssigneeUuid(assignee.getUuid())
       .setMessage("Remove this useless method")
       .setComponentKey("MyService")
       .setCurrentChange(new FieldDiffs().setDiff("resolution", "FALSE-POSITIVE", "FIXED"));
 
-    IssueChangeNotification result = notification.setIssue(issue);
+    IssueChangeNotification result = notification.setIssue(issue).setAssignee(assignee);
 
     assertThat(result.getFieldValue("key")).isEqualTo("ABCD");
-    assertThat(result.getFieldValue("assignee")).isEqualTo("simon");
     assertThat(result.getFieldValue("message")).isEqualTo("Remove this useless method");
     assertThat(result.getFieldValue("old.resolution")).isEqualTo("FALSE-POSITIVE");
     assertThat(result.getFieldValue("new.resolution")).isEqualTo("FIXED");
+    assertThat(result.getFieldValue("assignee")).isEqualTo(assignee.getLogin());
   }
 
   @Test
   public void set_issue_with_current_change_having_no_old_value() {
     DefaultIssue issue = new DefaultIssue()
       .setKey("ABCD")
-      .setAssignee("simon")
+      .setAssigneeUuid("simon")
       .setMessage("Remove this useless method")
       .setComponentKey("MyService");
 
@@ -69,7 +74,7 @@ public class IssueChangeNotificationTest {
   public void set_issue_with_current_change_having_no_new_value() {
     DefaultIssue issue = new DefaultIssue()
       .setKey("ABCD")
-      .setAssignee("simon")
+      .setAssigneeUuid("simon")
       .setMessage("Remove this useless method")
       .setComponentKey("MyService");
 

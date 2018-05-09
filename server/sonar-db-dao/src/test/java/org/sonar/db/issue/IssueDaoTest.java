@@ -19,13 +19,11 @@
  */
 package org.sonar.db.issue;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import org.apache.ibatis.session.ResultContext;
-import org.apache.ibatis.session.ResultHandler;
+
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -45,6 +43,7 @@ import org.sonar.db.rule.RuleTesting;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.rules.ExpectedException.none;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
 
@@ -59,7 +58,7 @@ public class IssueDaoTest {
   private static final String ISSUE_KEY2 = "I2";
 
   @Rule
-  public ExpectedException expectedException = ExpectedException.none();
+  public ExpectedException expectedException = none();
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
@@ -87,7 +86,7 @@ public class IssueDaoTest {
     assertThat(issue.getResolution()).isEqualTo("FIXED");
     assertThat(issue.getChecksum()).isEqualTo("123456789");
     assertThat(issue.getAuthorLogin()).isEqualTo("morgan");
-    assertThat(issue.getAssignee()).isEqualTo("karadoc");
+    assertThat(issue.getAssigneeUuid()).isEqualTo("karadoc");
     assertThat(issue.getIssueAttributes()).isEqualTo("JIRA=FOO-1234");
     assertThat(issue.getIssueCreationDate()).isNotNull();
     assertThat(issue.getIssueUpdateDate()).isNotNull();
@@ -136,17 +135,15 @@ public class IssueDaoTest {
     RuleDefinitionDto external = db.rules().insert(ruleDefinitionDto -> ruleDefinitionDto.setIsExternal(true));
     IssueDto issueFromExteralruleOnFile = db.issues().insert(external, project, file, i -> i.setKee("ON_FILE_FROM_EXTERNAL"));
 
-    Accumulator accumulator = new Accumulator();
-    underTest.scrollNonClosedByComponentUuidExcludingExternals(db.getSession(), file.uuid(), accumulator);
-    accumulator.assertThatContainsOnly(openIssue1OnFile, openIssue2OnFile);
+    assertThat(underTest.selectNonClosedByComponentUuidExcludingExternals(db.getSession(), file.uuid()))
+      .extracting(IssueDto::getKey)
+      .containsExactlyInAnyOrder(Arrays.stream(new IssueDto[] {openIssue1OnFile, openIssue2OnFile}).map(IssueDto::getKey).toArray(String[]::new));
 
-    accumulator.clear();
-    underTest.scrollNonClosedByComponentUuidExcludingExternals(db.getSession(), project.uuid(), accumulator);
-    accumulator.assertThatContainsOnly(openIssueOnProject);
+    assertThat(underTest.selectNonClosedByComponentUuidExcludingExternals(db.getSession(), project.uuid()))
+      .extracting(IssueDto::getKey)
+      .containsExactlyInAnyOrder(Arrays.stream(new IssueDto[] {openIssueOnProject}).map(IssueDto::getKey).toArray(String[]::new));
 
-    accumulator.clear();
-    underTest.scrollNonClosedByComponentUuidExcludingExternals(db.getSession(), "does_not_exist", accumulator);
-    assertThat(accumulator.list).isEmpty();
+    assertThat(underTest.selectNonClosedByComponentUuidExcludingExternals(db.getSession(), "does_not_exist")).isEmpty();
   }
 
   @Test
@@ -166,18 +163,16 @@ public class IssueDaoTest {
     RuleDefinitionDto external = db.rules().insert(ruleDefinitionDto -> ruleDefinitionDto.setIsExternal(true));
     IssueDto issueFromExteralruleOnFile = db.issues().insert(external, project, file, i -> i.setKee("ON_FILE_FROM_EXTERNAL"));
 
-    Accumulator accumulator = new Accumulator();
-    underTest.scrollNonClosedByModuleOrProjectExcludingExternals(db.getSession(), project, accumulator);
-    accumulator.assertThatContainsOnly(openIssue1OnFile, openIssue2OnFile, openIssueOnModule, openIssueOnProject);
+    assertThat(underTest.selectNonClosedByModuleOrProjectExcludingExternals(db.getSession(), project))
+      .extracting(IssueDto::getKey)
+      .containsExactlyInAnyOrder(Arrays.stream(new IssueDto[] {openIssue1OnFile, openIssue2OnFile, openIssueOnModule, openIssueOnProject}).map(IssueDto::getKey).toArray(String[]::new));
 
-    accumulator.clear();
-    underTest.scrollNonClosedByModuleOrProjectExcludingExternals(db.getSession(), module, accumulator);
-    accumulator.assertThatContainsOnly(openIssue1OnFile, openIssue2OnFile, openIssueOnModule);
+    assertThat(underTest.selectNonClosedByModuleOrProjectExcludingExternals(db.getSession(), module))
+      .extracting(IssueDto::getKey)
+      .containsExactlyInAnyOrder(Arrays.stream(new IssueDto[] {openIssue1OnFile, openIssue2OnFile, openIssueOnModule}).map(IssueDto::getKey).toArray(String[]::new));
 
-    accumulator.clear();
     ComponentDto notPersisted = ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization());
-    underTest.scrollNonClosedByModuleOrProjectExcludingExternals(db.getSession(), notPersisted, accumulator);
-    assertThat(accumulator.list).isEmpty();
+    assertThat(underTest.selectNonClosedByModuleOrProjectExcludingExternals(db.getSession(), notPersisted)).isEmpty();
   }
 
   @Test
@@ -298,7 +293,7 @@ public class IssueDaoTest {
     dto.setStatus("RESOLVED");
     dto.setSeverity("BLOCKER");
     dto.setAuthorLogin("morgan");
-    dto.setAssignee("karadoc");
+    dto.setAssigneeUuid("karadoc");
     dto.setIssueAttributes("JIRA=FOO-1234");
     dto.setChecksum("123456789");
     dto.setMessage("the message");
@@ -325,24 +320,5 @@ public class IssueDaoTest {
       .setComponentUuid(FILE_UUID)
       .setProjectUuid(PROJECT_UUID));
     db.getSession().commit();
-  }
-
-  private static class Accumulator implements ResultHandler<IssueDto> {
-    private final List<IssueDto> list = new ArrayList<>();
-
-    private void clear() {
-      list.clear();
-    }
-
-    @Override
-    public void handleResult(ResultContext<? extends IssueDto> resultContext) {
-      list.add(resultContext.getResultObject());
-    }
-
-    private void assertThatContainsOnly(IssueDto... issues) {
-      assertThat(list)
-        .extracting(IssueDto::getKey)
-        .containsExactlyInAnyOrder(Arrays.stream(issues).map(IssueDto::getKey).toArray(String[]::new));
-    }
   }
 }

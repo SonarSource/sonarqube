@@ -72,6 +72,11 @@ public final class DoPrivileged {
       }
 
       @Override
+      public String getUuid() {
+        return null;
+      }
+
+      @Override
       public String getName() {
         return null;
       }

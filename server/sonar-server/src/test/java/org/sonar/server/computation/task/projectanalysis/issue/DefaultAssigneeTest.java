@@ -59,7 +59,7 @@ public class DefaultAssigneeTest {
 
   @Test
   public void no_default_assignee() {
-    assertThat(underTest.loadDefaultAssigneeLogin()).isNull();
+    assertThat(underTest.loadDefaultAssigneeUuid()).isNull();
   }
 
   @Test
@@ -68,14 +68,14 @@ public class DefaultAssigneeTest {
     UserDto userDto = db.users().insertUser("erik");
     db.organizations().addMember(organizationDto, userDto);
 
-    assertThat(underTest.loadDefaultAssigneeLogin()).isEqualTo("erik");
+    assertThat(underTest.loadDefaultAssigneeUuid()).isEqualTo(userDto.getUuid());
   }
 
   @Test
   public void configured_login_does_not_exist() {
     settings.setProperty(CoreProperties.DEFAULT_ISSUE_ASSIGNEE, "erik");
 
-    assertThat(underTest.loadDefaultAssigneeLogin()).isNull();
+    assertThat(underTest.loadDefaultAssigneeUuid()).isNull();
   }
 
   @Test
@@ -83,7 +83,7 @@ public class DefaultAssigneeTest {
     settings.setProperty(CoreProperties.DEFAULT_ISSUE_ASSIGNEE, "erik");
     db.users().insertUser(user -> user.setLogin("erik").setActive(false));
 
-    assertThat(underTest.loadDefaultAssigneeLogin()).isNull();
+    assertThat(underTest.loadDefaultAssigneeUuid()).isNull();
   }
 
   @Test
@@ -93,7 +93,7 @@ public class DefaultAssigneeTest {
     UserDto userDto = db.users().insertUser("erik");
     db.organizations().addMember(otherOrganization, userDto);
 
-    assertThat(underTest.loadDefaultAssigneeLogin()).isNull();
+    assertThat(underTest.loadDefaultAssigneeUuid()).isNull();
   }
 
   @Test
@@ -101,10 +101,10 @@ public class DefaultAssigneeTest {
     settings.setProperty(CoreProperties.DEFAULT_ISSUE_ASSIGNEE, "erik");
     UserDto userDto = db.users().insertUser("erik");
     db.organizations().addMember(organizationDto, userDto);
-    assertThat(underTest.loadDefaultAssigneeLogin()).isEqualTo("erik");
+    assertThat(underTest.loadDefaultAssigneeUuid()).isEqualTo(userDto.getUuid());
 
     // The setting is updated but the assignee hasn't changed
     settings.setProperty(CoreProperties.DEFAULT_ISSUE_ASSIGNEE, "other");
-    assertThat(underTest.loadDefaultAssigneeLogin()).isEqualTo("erik");
+    assertThat(underTest.loadDefaultAssigneeUuid()).isEqualTo(userDto.getUuid());
   }
 }

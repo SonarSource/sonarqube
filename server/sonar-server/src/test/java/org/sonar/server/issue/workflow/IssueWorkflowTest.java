@@ -225,7 +225,7 @@ public class IssueWorkflowTest {
       .setKey("ABCDE")
       .setStatus(STATUS_OPEN)
       .setRuleKey(RuleKey.of("squid", "AvoidCycle"))
-      .setAssignee("morgan");
+      .setAssigneeUuid("morgan");
 
     workflow.start();
     workflow.doTransition(issue, DefaultTransitions.FALSE_POSITIVE, IssueChangeContext.createScan(new Date()));
@@ -243,7 +243,7 @@ public class IssueWorkflowTest {
       .setKey("ABCDE")
       .setStatus(STATUS_OPEN)
       .setRuleKey(RuleKey.of("squid", "AvoidCycle"))
-      .setAssignee("morgan");
+      .setAssigneeUuid("morgan");
 
     workflow.start();
     workflow.doTransition(issue, DefaultTransitions.WONT_FIX, IssueChangeContext.createScan(new Date()));

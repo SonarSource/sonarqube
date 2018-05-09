@@ -54,6 +54,12 @@ public class SafeModeUserSession extends AbstractUserSession {
 
   @CheckForNull
   @Override
+  public String getUuid() {
+    return null;
+  }
+
+  @CheckForNull
+  @Override
   public String getName() {
     return null;
   }

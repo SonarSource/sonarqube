@@ -51,7 +51,7 @@ public class ScmAccountToUserLoader implements CacheLoader<String, String> {
   public String load(String scmAccount) {
     List<UserDoc> users = index.getAtMostThreeActiveUsersForScmAccount(scmAccount, analysisMetadataHolder.getOrganization().getUuid());
     if (users.size() == 1) {
-      return users.get(0).login();
+      return users.get(0).uuid();
     }
     if (!users.isEmpty()) {
       // multiple users are associated to the same SCM account, for example

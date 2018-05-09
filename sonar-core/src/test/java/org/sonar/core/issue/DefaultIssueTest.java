@@ -53,7 +53,7 @@ public class DefaultIssueTest {
       .setEffort(Duration.create(28800L))
       .setStatus(Issue.STATUS_CLOSED)
       .setResolution(Issue.RESOLUTION_FIXED)
-      .setAssignee("julien")
+      .setAssigneeUuid("julien")
       .setAuthorLogin("steph")
       .setChecksum("c7b5db46591806455cf082bb348631e8")
       .setNew(true)

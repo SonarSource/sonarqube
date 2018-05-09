@@ -32,6 +32,7 @@ public class MockUserSessionTest {
     MockUserSession mock = new MockUserSession("foo").setGroups(group);
 
     assertThat(mock.getLogin()).isEqualTo("foo");
+    assertThat(mock.getUuid()).isEqualTo("foouuid");
     assertThat(mock.getGroups()).extracting(GroupDto::getId).containsOnly(group.getId());
     assertThat(mock.isLoggedIn()).isTrue();
   }

@@ -164,7 +164,7 @@ public class IssueIndex {
     this.authorizationTypeSupport = authorizationTypeSupport;
 
     this.sorting = new Sorting();
-    this.sorting.add(IssueQuery.SORT_BY_ASSIGNEE, IssueIndexDefinition.FIELD_ISSUE_ASSIGNEE);
+    this.sorting.add(IssueQuery.SORT_BY_ASSIGNEE, IssueIndexDefinition.FIELD_ISSUE_ASSIGNEE_UUID);
     this.sorting.add(IssueQuery.SORT_BY_STATUS, IssueIndexDefinition.FIELD_ISSUE_STATUS);
     this.sorting.add(IssueQuery.SORT_BY_SEVERITY, IssueIndexDefinition.FIELD_ISSUE_SEVERITY_VALUE);
     this.sorting.add(IssueQuery.SORT_BY_CREATION_DATE, IssueIndexDefinition.FIELD_ISSUE_FUNC_CREATED_AT);
@@ -274,7 +274,7 @@ public class IssueIndex {
   }
 
   private static AggregationBuilder createAssigneesFacet(IssueQuery query, Map<String, QueryBuilder> filters, QueryBuilder queryBuilder) {
-    String fieldName = IssueIndexDefinition.FIELD_ISSUE_ASSIGNEE;
+    String fieldName = IssueIndexDefinition.FIELD_ISSUE_ASSIGNEE_UUID;
     String facetName = PARAM_ASSIGNEES;
 
     // Same as in super.stickyFacetBuilder
@@ -387,9 +387,9 @@ public class IssueIndex {
 
     // Issue is assigned Filter
     if (BooleanUtils.isTrue(query.assigned())) {
-      filters.put(IS_ASSIGNED_FILTER, existsQuery(IssueIndexDefinition.FIELD_ISSUE_ASSIGNEE));
+      filters.put(IS_ASSIGNED_FILTER, existsQuery(IssueIndexDefinition.FIELD_ISSUE_ASSIGNEE_UUID));
     } else if (BooleanUtils.isFalse(query.assigned())) {
-      filters.put(IS_ASSIGNED_FILTER, boolQuery().mustNot(existsQuery(IssueIndexDefinition.FIELD_ISSUE_ASSIGNEE)));
+      filters.put(IS_ASSIGNED_FILTER, boolQuery().mustNot(existsQuery(IssueIndexDefinition.FIELD_ISSUE_ASSIGNEE_UUID)));
     }
 
     // Issue is Resolved Filter
@@ -402,7 +402,7 @@ public class IssueIndex {
 
     // Field Filters
     filters.put(IssueIndexDefinition.FIELD_ISSUE_KEY, createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_KEY, query.issueKeys()));
-    filters.put(IssueIndexDefinition.FIELD_ISSUE_ASSIGNEE, createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_ASSIGNEE, query.assignees()));
+    filters.put(IssueIndexDefinition.FIELD_ISSUE_ASSIGNEE_UUID, createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_ASSIGNEE_UUID, query.assignees()));
 
     addComponentRelatedFilters(query, filters);
 
@@ -578,13 +578,13 @@ public class IssueIndex {
   }
 
   private void addAssignedToMeFacetIfNeeded(SearchRequestBuilder builder, SearchOptions options, IssueQuery query, Map<String, QueryBuilder> filters, QueryBuilder queryBuilder) {
-    String login = userSession.getLogin();
+    String uuid = userSession.getUuid();
 
-    if (!options.getFacets().contains(FACET_ASSIGNED_TO_ME) || StringUtils.isEmpty(login)) {
+    if (!options.getFacets().contains(FACET_ASSIGNED_TO_ME) || StringUtils.isEmpty(uuid)) {
       return;
     }
 
-    String fieldName = IssueIndexDefinition.FIELD_ISSUE_ASSIGNEE;
+    String fieldName = IssueIndexDefinition.FIELD_ISSUE_ASSIGNEE_UUID;
     String facetName = FACET_ASSIGNED_TO_ME;
 
     // Same as in super.stickyFacetBuilder
@@ -595,7 +595,7 @@ public class IssueIndex {
       .filter(facetName + "__filter", facetFilter)
       .subAggregation(addEffortAggregationIfNeeded(query, AggregationBuilders.terms(facetName + "__terms")
         .field(fieldName)
-        .includeExclude(new IncludeExclude(escapeSpecialRegexChars(login), null))));
+        .includeExclude(new IncludeExclude(escapeSpecialRegexChars(uuid), null))));
 
     builder.addAggregation(
       AggregationBuilders.global(facetName)
@@ -677,7 +677,7 @@ public class IssueIndex {
     return boolQuery;
   }
 
-  public List<ProjectStatistics> searchProjectStatistics(List<String> projectUuids, List<Long> froms, String assignee) {
+  public List<ProjectStatistics> searchProjectStatistics(List<String> projectUuids, List<Long> froms, @Nullable String assigneeUuid) {
     checkState(projectUuids.size() == froms.size(),
       "Expected same size for projectUuids (had size %s) and froms (had size %s)", projectUuids.size(), froms.size());
     if (projectUuids.isEmpty()) {
@@ -687,7 +687,7 @@ public class IssueIndex {
       .setQuery(
         boolQuery()
           .mustNot(existsQuery(IssueIndexDefinition.FIELD_ISSUE_RESOLUTION))
-          .filter(termQuery(IssueIndexDefinition.FIELD_ISSUE_ASSIGNEE, assignee)))
+          .filter(termQuery(IssueIndexDefinition.FIELD_ISSUE_ASSIGNEE_UUID, assigneeUuid)))
       .setSize(0);
     IntStream.range(0, projectUuids.size()).forEach(i -> {
       String projectUuid = projectUuids.get(i);

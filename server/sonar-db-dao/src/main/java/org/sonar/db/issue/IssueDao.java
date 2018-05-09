@@ -23,7 +23,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import org.apache.ibatis.session.ResultHandler;
+
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.RowNotFoundException;
@@ -61,13 +61,13 @@ public class IssueDao implements Dao {
     return mapper(session).selectComponentUuidsOfOpenIssuesForProjectUuid(projectUuid);
   }
 
-  public void scrollNonClosedByComponentUuidExcludingExternals(DbSession dbSession, String componentUuid, ResultHandler<IssueDto> handler) {
-    mapper(dbSession).scrollNonClosedByComponentUuidExcludingExternals(componentUuid, handler);
+  public List<IssueDto> selectNonClosedByComponentUuidExcludingExternals(DbSession dbSession, String componentUuid) {
+    return mapper(dbSession).selectNonClosedByComponentUuidExcludingExternals(componentUuid);
   }
 
-  public void scrollNonClosedByModuleOrProjectExcludingExternals(DbSession dbSession, ComponentDto module, ResultHandler<IssueDto> handler) {
+  public List<IssueDto> selectNonClosedByModuleOrProjectExcludingExternals(DbSession dbSession, ComponentDto module) {
     String likeModuleUuidPath = buildLikeValue(module.moduleUuidPath(), WildcardPosition.AFTER);
-    mapper(dbSession).scrollNonClosedByModuleOrProject(module.projectUuid(), likeModuleUuidPath, handler);
+    return mapper(dbSession).selectNonClosedByModuleOrProject(module.projectUuid(), likeModuleUuidPath);
   }
 
   public List<ShortBranchIssueDto> selectOpenByComponentUuids(DbSession dbSession, Collection<String> componentUuids) {

@@ -71,7 +71,7 @@ public final class IssueDto implements Serializable {
   private String status;
   private String resolution;
   private String checksum;
-  private String assignee;
+  private String assigneeUuid;
   private String authorLogin;
   private String issueAttributes;
   private byte[] locations;
@@ -117,7 +117,7 @@ public final class IssueDto implements Serializable {
       .setSeverity(issue.severity())
       .setManualSeverity(issue.manualSeverity())
       .setChecksum(issue.checksum())
-      .setAssignee(issue.assignee())
+      .setAssigneeUuid(issue.assignee())
       .setRuleId(ruleId)
       .setRuleKey(issue.ruleKey().repository(), issue.ruleKey().rule())
       .setExternal(issue.isFromExternalRuleEngine())
@@ -164,7 +164,7 @@ public final class IssueDto implements Serializable {
       .setSeverity(issue.severity())
       .setChecksum(issue.checksum())
       .setManualSeverity(issue.manualSeverity())
-      .setAssignee(issue.assignee())
+      .setAssigneeUuid(issue.assignee())
       .setIssueAttributes(KeyValueFormat.format(issue.attributes()))
       .setAuthorLogin(issue.authorLogin())
       .setRuleKey(issue.ruleKey().repository(), issue.ruleKey().rule())
@@ -339,13 +339,13 @@ public final class IssueDto implements Serializable {
   }
 
   @CheckForNull
-  public String getAssignee() {
-    return assignee;
+  public String getAssigneeUuid() {
+    return assigneeUuid;
   }
 
-  public IssueDto setAssignee(@Nullable String s) {
-    checkArgument(s == null || s.length() <= 255, "Value is too long for issue assignee: %s", s);
-    this.assignee = s;
+  public IssueDto setAssigneeUuid(@Nullable String s) {
+    checkArgument(s == null || s.length() <= 255, "Value is too long for issue assigneeUuid: %s", s);
+    this.assigneeUuid = s;
     return this;
   }
 
@@ -714,7 +714,7 @@ public final class IssueDto implements Serializable {
     issue.setLine(line);
     issue.setChecksum(checksum);
     issue.setSeverity(severity);
-    issue.setAssignee(assignee);
+    issue.setAssigneeUuid(assigneeUuid);
     issue.setAttributes(KeyValueFormat.parse(MoreObjects.firstNonNull(issueAttributes, "")));
     issue.setComponentKey(componentKey);
     issue.setComponentUuid(componentUuid);

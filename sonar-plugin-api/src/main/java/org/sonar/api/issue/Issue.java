@@ -153,7 +153,7 @@ public interface Issue extends Serializable {
   String reporter();
 
   /**
-   * Login of the user who is assigned to this issue. Null if the issue is not assigned.
+   * UUID of the user who is assigned to this issue. Null if the issue is not assigned.
    */
   @CheckForNull
   String assignee();

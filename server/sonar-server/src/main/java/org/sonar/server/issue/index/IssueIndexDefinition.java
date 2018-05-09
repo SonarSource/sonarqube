@@ -35,7 +35,7 @@ import static org.sonar.server.es.NewIndex.SettingsConfiguration.newBuilder;
 public class IssueIndexDefinition implements IndexDefinition {
 
   public static final IndexType INDEX_TYPE_ISSUE = new IndexType("issues", "issue");
-  public static final String FIELD_ISSUE_ASSIGNEE = "assignee";
+  public static final String FIELD_ISSUE_ASSIGNEE_UUID = "assignee";
   public static final String FIELD_ISSUE_AUTHOR_LOGIN = "authorLogin";
   public static final String FIELD_ISSUE_COMPONENT_UUID = "component";
   public static final String FIELD_ISSUE_EFFORT = "effort";
@@ -126,7 +126,7 @@ public class IssueIndexDefinition implements IndexDefinition {
     type.requireProjectAuthorization();
     type.setEnableSource(enableSource);
 
-    type.keywordFieldBuilder(FIELD_ISSUE_ASSIGNEE).disableNorms().addSubFields(SORTABLE_ANALYZER).build();
+    type.keywordFieldBuilder(FIELD_ISSUE_ASSIGNEE_UUID).disableNorms().addSubFields(SORTABLE_ANALYZER).build();
     type.keywordFieldBuilder(FIELD_ISSUE_AUTHOR_LOGIN).disableNorms().build();
     type.keywordFieldBuilder(FIELD_ISSUE_COMPONENT_UUID).disableNorms().build();
     type.createLongField(FIELD_ISSUE_EFFORT);

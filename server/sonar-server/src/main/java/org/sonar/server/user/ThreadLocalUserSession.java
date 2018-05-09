@@ -63,6 +63,12 @@ public class ThreadLocalUserSession implements UserSession {
 
   @Override
   @CheckForNull
+  public String getUuid() {
+    return get().getUuid();
+  }
+
+  @Override
+  @CheckForNull
   public String getName() {
     return get().getName();
   }

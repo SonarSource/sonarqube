@@ -27,6 +27,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -55,6 +56,7 @@ import static com.google.common.collect.ImmutableSet.copyOf;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.difference;
 import static java.util.Collections.emptyList;
+import static java.util.Optional.ofNullable;
 import static java.util.stream.Stream.concat;
 import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
 import static org.sonar.core.util.stream.MoreCollectors.toList;
@@ -96,10 +98,9 @@ public class SearchResponseLoader {
       collector.collect(result.getIssues());
 
       loadRules(preloadedResponseData, collector, dbSession, result);
-      // order is important - loading of comments complete the list of users: loadComments() is
-      // before loadUsers()
+      // order is important - loading of comments complete the list of users: loadComments() is before loadUsers()
       loadComments(collector, dbSession, result);
-      loadUsers(preloadedResponseData, collector, dbSession, result);
+      loadUsers(preloadedResponseData, collector, dbSession, result, facets);
       loadComponents(preloadedResponseData, collector, dbSession, result);
       loadOrganizations(dbSession, result);
       loadActionsAndTransitions(collector, result);
@@ -130,20 +131,34 @@ public class SearchResponseLoader {
       .collect(Collectors.toList());
   }
 
-  private void loadUsers(SearchResponseData preloadedResponseData, Collector collector, DbSession dbSession, SearchResponseData result) {
-    if (collector.contains(USERS)) {
-      List<UserDto> preloadedUsers = firstNonNull(preloadedResponseData.getUsers(), emptyList());
-      Set<String> preloadedLogins = preloadedUsers.stream().map(UserDto::getLogin).collect(MoreCollectors.toSet(preloadedUsers.size()));
-      Set<String> requestedLogins = collector.get(USERS);
-      Set<String> loginsToLoad = copyOf(difference(requestedLogins, preloadedLogins));
+  private void loadUsers(SearchResponseData preloadedResponseData, Collector collector, DbSession dbSession, SearchResponseData result, @Nullable Facets facets) {
+    Set<String> usersUuidToLoad = new HashSet<>();
+    // logged in user
+    ofNullable(userSession.getUuid()).ifPresent(usersUuidToLoad::add);
 
-      if (loginsToLoad.isEmpty()) {
-        result.setUsers(preloadedUsers);
-      } else {
-        List<UserDto> loadedUsers = dbClient.userDao().selectByLogins(dbSession, loginsToLoad);
-        result.setUsers(concat(preloadedUsers.stream(), loadedUsers.stream()).collect(toList(preloadedUsers.size() + loadedUsers.size())));
-      }
+    // add from issues (uuid -> login)
+    result.getIssues().forEach(issue -> ofNullable(issue.getAssigneeUuid()).ifPresent(usersUuidToLoad::add));
+
+    // add from facets (uuid -> login)
+    if (facets != null) {
+      getAssigneesFacet(facets).forEach((key, value) -> usersUuidToLoad.add(key));
     }
+
+    // from facets
+    if (collector.contains(USERS)) {
+      usersUuidToLoad.addAll(collector.get(USERS));
+    }
+
+    List<UserDto> preloadedUsers = firstNonNull(preloadedResponseData.getUsers(), emptyList());
+    result.addUsers(preloadedUsers);
+    preloadedUsers.forEach(userDto -> usersUuidToLoad.remove(userDto.getUuid()));
+
+    result.addUsers(dbClient.userDao().selectByUuids(dbSession, usersUuidToLoad));
+  }
+
+  private static HashMap<String, Long> getAssigneesFacet(Facets facets) {
+    LinkedHashMap<String, Long> assigneeFacet = facets.get("assignees");
+    return assigneeFacet != null ? assigneeFacet : new LinkedHashMap<>();
   }
 
   private void loadComponents(SearchResponseData preloadedResponseData, Collector collector, DbSession dbSession, SearchResponseData result) {
@@ -210,6 +225,7 @@ public class SearchResponseLoader {
       List<IssueChangeDto> comments = dbClient.issueChangeDao().selectByTypeAndIssueKeys(dbSession, collector.getIssueKeys(), IssueChangeDto.TYPE_COMMENT);
       result.setComments(comments);
       for (IssueChangeDto comment : comments) {
+        // TODO GJT when addressing ticket on IssueChangesUuid
         collector.add(USERS, comment.getUserLogin());
         if (canEditOrDelete(comment)) {
           result.addUpdatableComment(comment.getKey());
@@ -301,7 +317,7 @@ public class SearchResponseLoader {
         componentUuids.add(issue.getComponentUuid());
         projectUuids.add(issue.getProjectUuid());
         ruleIds.add(issue.getRuleId());
-        add(USERS, issue.getAssignee());
+        add(USERS, issue.getAssigneeUuid());
         collectComponentsFromIssueLocations(issue);
       }
     }

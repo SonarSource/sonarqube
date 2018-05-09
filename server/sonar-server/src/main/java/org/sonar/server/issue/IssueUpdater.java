@@ -32,6 +32,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.user.UserDto;
 import org.sonar.server.issue.notification.IssueChangeNotification;
 import org.sonar.server.issue.ws.SearchResponseData;
 import org.sonar.server.notification.NotificationManager;
@@ -60,6 +61,7 @@ public class IssueUpdater {
    */
   public SearchResponseData saveIssueAndPreloadSearchResponseData(DbSession dbSession, DefaultIssue issue, IssueChangeContext context,
     @Nullable String comment, boolean refreshMeasures) {
+
     Optional<RuleDefinitionDto> rule = getRuleByKey(dbSession, issue.getRuleKey());
     ComponentDto project = dbClient.componentDao().selectOrFailByUuid(dbSession, issue.projectUuid());
     ComponentDto component = dbClient.componentDao().selectOrFailByUuid(dbSession, issue.componentUuid());
@@ -88,8 +90,11 @@ public class IssueUpdater {
   private IssueDto doSaveIssue(DbSession session, DefaultIssue issue, IssueChangeContext context, @Nullable String comment,
     Optional<RuleDefinitionDto> rule, ComponentDto project, ComponentDto component) {
     IssueDto issueDto = issueStorage.save(session, issue);
+    String assigneeUuid = issue.assignee();
+    UserDto assignee = assigneeUuid == null ? null : dbClient.userDao().selectByUuid(session, assigneeUuid);
     notificationService.scheduleForSending(new IssueChangeNotification()
       .setIssue(issue)
+      .setAssignee(assignee)
       .setChangeAuthorLogin(context.login())
       .setRuleName(rule.map(RuleDefinitionDto::getName).orElse(null))
       .setProject(project)

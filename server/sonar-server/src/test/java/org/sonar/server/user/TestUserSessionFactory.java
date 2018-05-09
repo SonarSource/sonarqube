@@ -67,6 +67,11 @@ public class TestUserSessionFactory implements UserSessionFactory {
     }
 
     @Override
+    public String getUuid() {
+      return user != null ? user.getUuid() : null;
+    }
+
+    @Override
     public String getName() {
       return user != null ? user.getName() : null;
     }

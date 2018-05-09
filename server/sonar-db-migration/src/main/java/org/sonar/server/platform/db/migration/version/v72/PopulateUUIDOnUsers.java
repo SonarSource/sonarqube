@@ -48,7 +48,8 @@ public class PopulateUUIDOnUsers extends DataChange {
       if (login == null) {
         login = uuidFactory.create();
       }
-      update.setString(1, login); // login -> uuid
+      // login -> uuid
+      update.setString(1, login);
       update.setLong(2, system2.now());
       update.setLong(3, row.getLong(1));
       return true;

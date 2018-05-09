@@ -46,7 +46,7 @@ public class IssueIteratorFactoryTest {
     assertThat(issue.resolution()).isEqualTo("FIXED");
     assertThat(issue.status()).isEqualTo("RESOLVED");
     assertThat(issue.severity()).isEqualTo("BLOCKER");
-    assertThat(issue.assignee()).isEqualTo("guy1");
+    assertThat(issue.assigneeUuid()).isEqualTo("uuid-of-guy1");
     assertThat(issue.authorLogin()).isEqualTo("guy2");
     assertThat(issue.line()).isEqualTo(444);
     assertThat(issue.ruleId()).isEqualTo(200);
@@ -70,7 +70,7 @@ public class IssueIteratorFactoryTest {
 
     IssueDoc issue = issuesByKey.get("ABC");
     assertThat(issue.key()).isEqualTo("ABC");
-    assertThat(issue.assignee()).isEqualTo("guy1");
+    assertThat(issue.assigneeUuid()).isEqualTo("uuid-of-guy1");
     assertThat(issue.componentUuid()).isEqualTo("FILE1");
     assertThat(issue.projectUuid()).isEqualTo("PROJECT1");
     assertThat(issue.moduleUuid()).isEqualTo("PROJECT1");
@@ -83,7 +83,7 @@ public class IssueIteratorFactoryTest {
 
     issue = issuesByKey.get("BCD");
     assertThat(issue.key()).isEqualTo("BCD");
-    assertThat(issue.assignee()).isEqualTo("guy1");
+    assertThat(issue.assigneeUuid()).isEqualTo("uuid-of-guy1");
     assertThat(issue.componentUuid()).isEqualTo("MODULE1");
     assertThat(issue.projectUuid()).isEqualTo("PROJECT1");
     assertThat(issue.moduleUuid()).isEqualTo("MODULE1");
@@ -96,7 +96,7 @@ public class IssueIteratorFactoryTest {
 
     issue = issuesByKey.get("DEF");
     assertThat(issue.key()).isEqualTo("DEF");
-    assertThat(issue.assignee()).isEqualTo("guy2");
+    assertThat(issue.assigneeUuid()).isEqualTo("uuid-of-guy2");
     assertThat(issue.componentUuid()).isEqualTo("FILE1");
     assertThat(issue.projectUuid()).isEqualTo("PROJECT1");
     assertThat(issue.moduleUuid()).isEqualTo("PROJECT1");
@@ -109,7 +109,7 @@ public class IssueIteratorFactoryTest {
 
     issue = issuesByKey.get("EFG");
     assertThat(issue.key()).isEqualTo("EFG");
-    assertThat(issue.assignee()).isEqualTo("guy1");
+    assertThat(issue.assigneeUuid()).isEqualTo("uuid-of-guy1");
     assertThat(issue.componentUuid()).isEqualTo("DIR1");
     assertThat(issue.projectUuid()).isEqualTo("PROJECT1");
     assertThat(issue.moduleUuid()).isEqualTo("MODULE1");

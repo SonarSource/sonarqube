@@ -55,6 +55,7 @@ public class ThreadLocalUserSessionTest {
   public void get_session_for_user() {
     GroupDto group = GroupTesting.newGroupDto();
     MockUserSession expected = new MockUserSession("karadoc")
+      .setUuid("karadoc-uuid")
       .setUserId(123)
       .setGroups(group);
     threadLocalUserSession.set(expected);
@@ -63,6 +64,7 @@ public class ThreadLocalUserSessionTest {
     assertThat(session).isSameAs(expected);
     assertThat(threadLocalUserSession.getUserId()).isEqualTo(123);
     assertThat(threadLocalUserSession.getLogin()).isEqualTo("karadoc");
+    assertThat(threadLocalUserSession.getUuid()).isEqualTo("karadoc-uuid");
     assertThat(threadLocalUserSession.isLoggedIn()).isTrue();
     assertThat(threadLocalUserSession.getGroups()).extracting(GroupDto::getId).containsOnly(group.getId());
   }

@@ -27,7 +27,6 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.TimeZone;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import org.assertj.core.api.Fail;
@@ -63,9 +62,11 @@ import static com.google.common.collect.ImmutableSortedSet.of;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
+import static java.util.TimeZone.getTimeZone;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.assertj.core.api.Assertions.tuple;
+import static org.junit.rules.ExpectedException.none;
 import static org.sonar.api.issue.Issue.RESOLUTION_FIXED;
 import static org.sonar.api.rules.RuleType.BUG;
 import static org.sonar.api.rules.RuleType.CODE_SMELL;
@@ -81,18 +82,20 @@ import static org.sonar.db.rule.RuleTesting.newRule;
 import static org.sonar.db.user.GroupTesting.newGroupDto;
 import static org.sonar.db.user.UserTesting.newUserDto;
 import static org.sonar.server.issue.IssueDocTesting.newDoc;
+import static org.sonar.server.tester.UserSessionRule.standalone;
 
 public class IssueIndexTest {
 
   @Rule
   public EsTester es = EsTester.create();
   @Rule
-  public UserSessionRule userSessionRule = UserSessionRule.standalone();
+  public UserSessionRule userSessionRule = standalone();
   @Rule
-  public ExpectedException expectedException = ExpectedException.none();
-  private System2 system2 = new TestSystem2().setNow(1_500_000_000_000L).setDefaultTimeZone(TimeZone.getTimeZone("GMT-01:00"));
+  public ExpectedException expectedException = none();
+  private System2 system2 = new TestSystem2().setNow(1_500_000_000_000L).setDefaultTimeZone(getTimeZone("GMT-01:00"));
   @Rule
   public DbTester db = DbTester.create(system2);
+
   private IssueIndexer issueIndexer = new IssueIndexer(es.client(), db.getDbClient(), new IssueIteratorFactory(db.getDbClient()));
   private ViewIndexer viewIndexer = new ViewIndexer(db.getDbClient(), es.client());
   private RuleIndexer ruleIndexer = new RuleIndexer(es.client(), db.getDbClient());
@@ -553,13 +556,13 @@ public class IssueIndexTest {
     ComponentDto file = newFileDto(project, null);
 
     indexIssues(
-      newDoc("I1", file).setAssignee("steph"),
-      newDoc("I2", file).setAssignee("marcel"),
-      newDoc("I3", file).setAssignee(null));
+      newDoc("I1", file).setAssigneeUuid("steph-uuid"),
+      newDoc("I2", file).setAssigneeUuid("marcel-uuid"),
+      newDoc("I3", file).setAssigneeUuid(null));
 
-    assertThatSearchReturnsOnly(IssueQuery.builder().assignees(singletonList("steph")), "I1");
-    assertThatSearchReturnsOnly(IssueQuery.builder().assignees(asList("steph", "marcel")), "I1", "I2");
-    assertThatSearchReturnsEmpty(IssueQuery.builder().assignees(singletonList("unknown")));
+    assertThatSearchReturnsOnly(IssueQuery.builder().assigneeUuids(singletonList("steph-uuid")), "I1");
+    assertThatSearchReturnsOnly(IssueQuery.builder().assigneeUuids(asList("steph-uuid", "marcel-uuid")), "I1", "I2");
+    assertThatSearchReturnsEmpty(IssueQuery.builder().assigneeUuids(singletonList("unknown")));
   }
 
   @Test
@@ -568,12 +571,12 @@ public class IssueIndexTest {
     ComponentDto file = newFileDto(project, null);
 
     indexIssues(
-      newDoc("I1", file).setAssignee("steph"),
-      newDoc("I2", file).setAssignee("marcel"),
-      newDoc("I3", file).setAssignee("marcel"),
-      newDoc("I4", file).setAssignee(null));
+      newDoc("I1", file).setAssigneeUuid("steph-uuid"),
+      newDoc("I2", file).setAssigneeUuid("marcel-uuid"),
+      newDoc("I3", file).setAssigneeUuid("marcel-uuid"),
+      newDoc("I4", file).setAssigneeUuid(null));
 
-    assertThatFacetHasOnly(IssueQuery.builder(), "assignees", entry("steph", 1L), entry("marcel", 2L), entry("", 1L));
+    assertThatFacetHasOnly(IssueQuery.builder(), "assignees", entry("steph-uuid", 1L), entry("marcel-uuid", 2L), entry("", 1L));
   }
 
   @Test
@@ -582,12 +585,13 @@ public class IssueIndexTest {
     ComponentDto file = newFileDto(project, null);
 
     indexIssues(
-      newDoc("I1", file).setAssignee("j-b"),
-      newDoc("I2", file).setAssignee("marcel"),
-      newDoc("I3", file).setAssignee("marcel"),
-      newDoc("I4", file).setAssignee(null));
+      newDoc("I1", file).setAssigneeUuid("j-b-uuid"),
+      newDoc("I2", file).setAssigneeUuid("marcel-uuid"),
+      newDoc("I3", file).setAssigneeUuid("marcel-uuid"),
+      newDoc("I4", file).setAssigneeUuid(null));
 
-    assertThatFacetHasOnly(IssueQuery.builder().assignees(singletonList("j-b")), "assignees", entry("j-b", 1L), entry("marcel", 2L), entry("", 1L));
+    assertThatFacetHasOnly(IssueQuery.builder().assigneeUuids(singletonList("j-b")),
+      "assignees", entry("j-b-uuid", 1L), entry("marcel-uuid", 2L), entry("", 1L));
   }
 
   @Test
@@ -596,9 +600,9 @@ public class IssueIndexTest {
     ComponentDto file = newFileDto(project, null);
 
     indexIssues(
-      newDoc("I1", file).setAssignee("steph"),
-      newDoc("I2", file).setAssignee(null),
-      newDoc("I3", file).setAssignee(null));
+      newDoc("I1", file).setAssigneeUuid("steph-uuid"),
+      newDoc("I2", file).setAssigneeUuid(null),
+      newDoc("I3", file).setAssigneeUuid(null));
 
     assertThatSearchReturnsOnly(IssueQuery.builder().assigned(true), "I1");
     assertThatSearchReturnsOnly(IssueQuery.builder().assigned(false), "I2", "I3");
@@ -613,7 +617,7 @@ public class IssueIndexTest {
     indexIssues(
       newDoc("I1", file).setAuthorLogin("steph"),
       newDoc("I2", file).setAuthorLogin("marcel"),
-      newDoc("I3", file).setAssignee(null));
+      newDoc("I3", file).setAssigneeUuid(null));
 
     assertThatSearchReturnsOnly(IssueQuery.builder().authors(singletonList("steph")), "I1");
     assertThatSearchReturnsOnly(IssueQuery.builder().authors(asList("steph", "marcel")), "I1", "I2");
@@ -991,8 +995,8 @@ public class IssueIndexTest {
     ComponentDto file = newFileDto(project, null);
 
     indexIssues(
-      newDoc("I1", file).setAssignee("steph"),
-      newDoc("I2", file).setAssignee("marcel"));
+      newDoc("I1", file).setAssigneeUuid("steph-uuid"),
+      newDoc("I2", file).setAssigneeUuid("marcel-uuid"));
 
     IssueQuery.Builder query = IssueQuery.builder().sort(IssueQuery.SORT_BY_ASSIGNEE).asc(true);
     assertThatSearchReturnsOnly(query, "I2", "I1");

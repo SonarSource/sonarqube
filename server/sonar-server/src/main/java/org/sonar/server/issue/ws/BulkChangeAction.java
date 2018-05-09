@@ -25,11 +25,11 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 import org.sonar.api.issue.DefaultTransitions;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
@@ -50,6 +50,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.user.UserDto;
 import org.sonar.server.issue.Action;
 import org.sonar.server.issue.AddTagsAction;
 import org.sonar.server.issue.AssignAction;
@@ -65,6 +66,8 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.ImmutableMap.of;
 import static java.lang.String.format;
 import static java.util.function.Function.identity;
+import static java.util.stream.Collectors.toMap;
+import static java.util.stream.Collectors.toSet;
 import static org.sonar.api.issue.DefaultTransitions.REOPEN;
 import static org.sonar.api.rule.Severity.BLOCKER;
 import static org.sonar.api.rules.RuleType.BUG;
@@ -196,7 +199,10 @@ public class BulkChangeAction implements IssuesWsAction {
 
     refreshLiveMeasures(dbSession, bulkChangeData, result);
 
-    items.forEach(sendNotification(issueChangeContext, bulkChangeData));
+    Set<String> assigneeUuids = items.stream().map(DefaultIssue::assignee).filter(Objects::nonNull).collect(toSet());
+    Map<String, UserDto> userDtoByUuid = dbClient.userDao().selectByUuids(dbSession, assigneeUuids).stream().collect(toMap(UserDto::getUuid, u -> u));
+
+    items.forEach(sendNotification(issueChangeContext, bulkChangeData, userDtoByUuid));
 
     return result;
   }
@@ -207,7 +213,7 @@ public class BulkChangeAction implements IssuesWsAction {
     }
     Set<String> touchedComponentUuids = result.success.stream()
       .map(DefaultIssue::componentUuid)
-      .collect(Collectors.toSet());
+      .collect(toSet());
     List<ComponentDto> touchedComponents = touchedComponentUuids.stream()
       .map(data.componentsByUuid::get)
       .collect(MoreCollectors.toList(touchedComponentUuids.size()));
@@ -244,11 +250,13 @@ public class BulkChangeAction implements IssuesWsAction {
     bulkChangeData.getCommentAction().ifPresent(action -> action.execute(bulkChangeData.getProperties(action.key()), actionContext));
   }
 
-  private Consumer<DefaultIssue> sendNotification(IssueChangeContext issueChangeContext, BulkChangeData bulkChangeData) {
+  private Consumer<DefaultIssue> sendNotification(IssueChangeContext issueChangeContext, BulkChangeData bulkChangeData,
+    Map<String, UserDto> userDtoByUuid) {
     return issue -> {
       if (bulkChangeData.sendNotification) {
         notificationService.scheduleForSending(new IssueChangeNotification()
           .setIssue(issue)
+          .setAssignee(userDtoByUuid.get(issue.assignee()))
           .setChangeAuthorLogin(issueChangeContext.login())
           .setRuleName(bulkChangeData.rulesByKey.get(issue.ruleKey()).getName())
           .setProject(bulkChangeData.projectsByUuid.get(issue.projectUuid()))

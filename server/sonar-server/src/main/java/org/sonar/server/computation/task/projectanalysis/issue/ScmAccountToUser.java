@@ -22,7 +22,7 @@ package org.sonar.server.computation.task.projectanalysis.issue;
 import org.sonar.server.util.cache.MemoryCache;
 
 /**
- * Cache of dictionary {SCM account -> SQ user login}. Kept in memory
+ * Cache of dictionary {SCM account -> SQ user uuid}. Kept in memory
  * during the execution of Compute Engine.
  */
 public class ScmAccountToUser extends MemoryCache<String,String> {

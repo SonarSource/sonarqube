@@ -31,6 +31,7 @@ import static java.util.Arrays.asList;
 
 public class MockUserSession extends AbstractMockUserSession<MockUserSession> {
   private final String login;
+  private String uuid;
   private boolean root = false;
   private Integer userId;
   private String name;
@@ -40,6 +41,7 @@ public class MockUserSession extends AbstractMockUserSession<MockUserSession> {
     super(MockUserSession.class);
     checkArgument(!login.isEmpty());
     this.login = login;
+    setUuid(login + "uuid");
     setUserId(login.hashCode());
     setName(login + " name");
   }
@@ -48,6 +50,7 @@ public class MockUserSession extends AbstractMockUserSession<MockUserSession> {
     super(MockUserSession.class);
     checkArgument(!userDto.getLogin().isEmpty());
     this.login = userDto.getLogin();
+    setUuid(userDto.getUuid());
     setUserId(userDto.getId());
     setName(userDto.getName());
   }
@@ -69,6 +72,16 @@ public class MockUserSession extends AbstractMockUserSession<MockUserSession> {
   @Override
   public String getLogin() {
     return this.login;
+  }
+
+  @Override
+  public String getUuid() {
+    return this.uuid;
+  }
+
+  public MockUserSession setUuid(String uuid) {
+    this.uuid = Objects.requireNonNull(uuid);
+    return this;
   }
 
   @Override

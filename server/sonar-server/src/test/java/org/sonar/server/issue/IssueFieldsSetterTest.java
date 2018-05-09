@@ -33,6 +33,7 @@ import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.db.user.UserDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.rules.ExpectedException.none;
 import static org.sonar.db.user.UserTesting.newUserDto;
 import static org.sonar.server.issue.IssueFieldsSetter.ASSIGNEE;
 import static org.sonar.server.issue.IssueFieldsSetter.RESOLUTION;
@@ -44,30 +45,29 @@ import static org.sonar.server.issue.IssueFieldsSetter.UNUSED;
 public class IssueFieldsSetterTest {
 
   @Rule
-  public ExpectedException thrown = ExpectedException.none();
+  public ExpectedException thrown = none();
 
-  DefaultIssue issue = new DefaultIssue();
-  IssueChangeContext context = IssueChangeContext.createUser(new Date(), "emmerik");
-
-  IssueFieldsSetter updater = new IssueFieldsSetter();
+  private DefaultIssue issue = new DefaultIssue();
+  private IssueChangeContext context = IssueChangeContext.createUser(new Date(), "emmerik");
+  private IssueFieldsSetter underTest = new IssueFieldsSetter();
 
   @Test
   public void assign() {
     UserDto user = newUserDto().setLogin("emmerik").setName("Emmerik");
 
-    boolean updated = updater.assign(issue, user, context);
+    boolean updated = underTest.assign(issue, user, context);
     assertThat(updated).isTrue();
-    assertThat(issue.assignee()).isEqualTo("emmerik");
+    assertThat(issue.assignee()).isEqualTo(user.getUuid());
     assertThat(issue.mustSendNotifications()).isTrue();
     FieldDiffs.Diff diff = issue.currentChange().get(ASSIGNEE);
     assertThat(diff.oldValue()).isEqualTo(UNUSED);
-    assertThat(diff.newValue()).isEqualTo("Emmerik");
+    assertThat(diff.newValue()).isEqualTo(user.getUuid());
   }
 
   @Test
   public void unassign() {
-    issue.setAssignee("morgan");
-    boolean updated = updater.assign(issue, null, context);
+    issue.setAssigneeUuid("morgan");
+    boolean updated = underTest.assign(issue, null, context);
     assertThat(updated).isTrue();
     assertThat(issue.assignee()).isNull();
     assertThat(issue.mustSendNotifications()).isTrue();
@@ -80,22 +80,22 @@ public class IssueFieldsSetterTest {
   public void change_assignee() {
     UserDto user = newUserDto().setLogin("emmerik").setName("Emmerik");
 
-    issue.setAssignee("morgan");
-    boolean updated = updater.assign(issue, user, context);
+    issue.setAssigneeUuid("morgan");
+    boolean updated = underTest.assign(issue, user, context);
     assertThat(updated).isTrue();
-    assertThat(issue.assignee()).isEqualTo("emmerik");
+    assertThat(issue.assignee()).isEqualTo(user.getUuid());
     assertThat(issue.mustSendNotifications()).isTrue();
     FieldDiffs.Diff diff = issue.currentChange().get(ASSIGNEE);
     assertThat(diff.oldValue()).isEqualTo(UNUSED);
-    assertThat(diff.newValue()).isEqualTo("Emmerik");
+    assertThat(diff.newValue()).isEqualTo(user.getUuid());
   }
 
   @Test
   public void not_change_assignee() {
     UserDto user = newUserDto().setLogin("morgan").setName("Morgan");
 
-    issue.setAssignee("morgan");
-    boolean updated = updater.assign(issue, user, context);
+    issue.setAssigneeUuid(user.getUuid());
+    boolean updated = underTest.assign(issue, user, context);
     assertThat(updated).isFalse();
     assertThat(issue.currentChange()).isNull();
     assertThat(issue.mustSendNotifications()).isFalse();
@@ -103,7 +103,7 @@ public class IssueFieldsSetterTest {
 
   @Test
   public void set_new_assignee() {
-    boolean updated = updater.setNewAssignee(issue, "simon", context);
+    boolean updated = underTest.setNewAssignee(issue, "simon", context);
     assertThat(updated).isTrue();
     assertThat(issue.assignee()).isEqualTo("simon");
     assertThat(issue.mustSendNotifications()).isTrue();
@@ -114,7 +114,7 @@ public class IssueFieldsSetterTest {
 
   @Test
   public void not_set_new_assignee_if_new_assignee_is_null() {
-    boolean updated = updater.setNewAssignee(issue, null, context);
+    boolean updated = underTest.setNewAssignee(issue, null, context);
     assertThat(updated).isFalse();
     assertThat(issue.currentChange()).isNull();
     assertThat(issue.mustSendNotifications()).isFalse();
@@ -122,16 +122,16 @@ public class IssueFieldsSetterTest {
 
   @Test
   public void fail_with_ISE_when_setting_new_assignee_on_already_assigned_issue() {
-    issue.setAssignee("simon");
+    issue.setAssigneeUuid("simon");
 
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("It's not possible to update the assignee with this method, please use assign()");
-    updater.setNewAssignee(issue, "julien", context);
+    underTest.setNewAssignee(issue, "julien", context);
   }
 
   @Test
   public void set_severity() {
-    boolean updated = updater.setSeverity(issue, "BLOCKER", context);
+    boolean updated = underTest.setSeverity(issue, "BLOCKER", context);
     assertThat(updated).isTrue();
     assertThat(issue.severity()).isEqualTo("BLOCKER");
     assertThat(issue.manualSeverity()).isFalse();
@@ -145,7 +145,7 @@ public class IssueFieldsSetterTest {
   @Test
   public void set_past_severity() {
     issue.setSeverity("BLOCKER");
-    boolean updated = updater.setPastSeverity(issue, "INFO", context);
+    boolean updated = underTest.setPastSeverity(issue, "INFO", context);
     assertThat(updated).isTrue();
     assertThat(issue.severity()).isEqualTo("BLOCKER");
     assertThat(issue.mustSendNotifications()).isFalse();
@@ -158,7 +158,7 @@ public class IssueFieldsSetterTest {
   @Test
   public void update_severity() {
     issue.setSeverity("BLOCKER");
-    boolean updated = updater.setSeverity(issue, "MINOR", context);
+    boolean updated = underTest.setSeverity(issue, "MINOR", context);
 
     assertThat(updated).isTrue();
     assertThat(issue.severity()).isEqualTo("MINOR");
@@ -171,7 +171,7 @@ public class IssueFieldsSetterTest {
   @Test
   public void not_change_severity() {
     issue.setSeverity("MINOR");
-    boolean updated = updater.setSeverity(issue, "MINOR", context);
+    boolean updated = underTest.setSeverity(issue, "MINOR", context);
     assertThat(updated).isFalse();
     assertThat(issue.mustSendNotifications()).isFalse();
     assertThat(issue.currentChange()).isNull();
@@ -181,7 +181,7 @@ public class IssueFieldsSetterTest {
   public void not_revert_manual_severity() {
     issue.setSeverity("MINOR").setManualSeverity(true);
     try {
-      updater.setSeverity(issue, "MAJOR", context);
+      underTest.setSeverity(issue, "MAJOR", context);
     } catch (IllegalStateException e) {
       assertThat(e).hasMessage("Severity can't be changed");
     }
@@ -190,7 +190,7 @@ public class IssueFieldsSetterTest {
   @Test
   public void set_manual_severity() {
     issue.setSeverity("BLOCKER");
-    boolean updated = updater.setManualSeverity(issue, "MINOR", context);
+    boolean updated = underTest.setManualSeverity(issue, "MINOR", context);
 
     assertThat(updated).isTrue();
     assertThat(issue.severity()).isEqualTo("MINOR");
@@ -204,7 +204,7 @@ public class IssueFieldsSetterTest {
   @Test
   public void not_change_manual_severity() {
     issue.setSeverity("MINOR").setManualSeverity(true);
-    boolean updated = updater.setManualSeverity(issue, "MINOR", context);
+    boolean updated = underTest.setManualSeverity(issue, "MINOR", context);
     assertThat(updated).isFalse();
     assertThat(issue.currentChange()).isNull();
     assertThat(issue.mustSendNotifications()).isFalse();
@@ -212,7 +212,7 @@ public class IssueFieldsSetterTest {
 
   @Test
   public void set_line() {
-    boolean updated = updater.setLine(issue, 123);
+    boolean updated = underTest.setLine(issue, 123);
     assertThat(updated).isTrue();
     assertThat(issue.line()).isEqualTo(123);
     assertThat(issue.mustSendNotifications()).isFalse();
@@ -223,7 +223,7 @@ public class IssueFieldsSetterTest {
   @Test
   public void set_past_line() {
     issue.setLine(42);
-    boolean updated = updater.setPastLine(issue, 123);
+    boolean updated = underTest.setPastLine(issue, 123);
     assertThat(updated).isTrue();
     assertThat(issue.line()).isEqualTo(42);
     assertThat(issue.mustSendNotifications()).isFalse();
@@ -235,7 +235,7 @@ public class IssueFieldsSetterTest {
   @Test
   public void line_is_not_changed() {
     issue.setLine(123);
-    boolean updated = updater.setLine(issue, 123);
+    boolean updated = underTest.setLine(issue, 123);
     assertThat(updated).isFalse();
     assertThat(issue.line()).isEqualTo(123);
     assertThat(issue.currentChange()).isNull();
@@ -245,7 +245,7 @@ public class IssueFieldsSetterTest {
   @Test
   public void change_locations() {
     issue.setLocations("[1-3]");
-    boolean updated = updater.setLocations(issue, "[1-4]");
+    boolean updated = underTest.setLocations(issue, "[1-4]");
     assertThat(updated).isTrue();
     assertThat(issue.getLocations().toString()).isEqualTo("[1-4]");
     assertThat(issue.currentChange()).isNull();
@@ -255,7 +255,7 @@ public class IssueFieldsSetterTest {
   @Test
   public void do_not_change_locations() {
     issue.setLocations("[1-3]");
-    boolean updated = updater.setLocations(issue, "[1-3]");
+    boolean updated = underTest.setLocations(issue, "[1-3]");
     assertThat(updated).isFalse();
     assertThat(issue.getLocations().toString()).isEqualTo("[1-3]");
     assertThat(issue.currentChange()).isNull();
@@ -265,7 +265,7 @@ public class IssueFieldsSetterTest {
   @Test
   public void set_locations_for_the_first_time() {
     issue.setLocations(null);
-    boolean updated = updater.setLocations(issue, "[1-4]");
+    boolean updated = underTest.setLocations(issue, "[1-4]");
     assertThat(updated).isTrue();
     assertThat(issue.getLocations().toString()).isEqualTo("[1-4]");
     assertThat(issue.currentChange()).isNull();
@@ -274,7 +274,7 @@ public class IssueFieldsSetterTest {
 
   @Test
   public void set_resolution() {
-    boolean updated = updater.setResolution(issue, "OPEN", context);
+    boolean updated = underTest.setResolution(issue, "OPEN", context);
     assertThat(updated).isTrue();
     assertThat(issue.resolution()).isEqualTo("OPEN");
 
@@ -287,7 +287,7 @@ public class IssueFieldsSetterTest {
   @Test
   public void not_change_resolution() {
     issue.setResolution("FIXED");
-    boolean updated = updater.setResolution(issue, "FIXED", context);
+    boolean updated = underTest.setResolution(issue, "FIXED", context);
     assertThat(updated).isFalse();
     assertThat(issue.resolution()).isEqualTo("FIXED");
     assertThat(issue.currentChange()).isNull();
@@ -296,7 +296,7 @@ public class IssueFieldsSetterTest {
 
   @Test
   public void set_status() {
-    boolean updated = updater.setStatus(issue, "OPEN", context);
+    boolean updated = underTest.setStatus(issue, "OPEN", context);
     assertThat(updated).isTrue();
     assertThat(issue.status()).isEqualTo("OPEN");
 
@@ -309,7 +309,7 @@ public class IssueFieldsSetterTest {
   @Test
   public void not_change_status() {
     issue.setStatus("CLOSED");
-    boolean updated = updater.setStatus(issue, "CLOSED", context);
+    boolean updated = underTest.setStatus(issue, "CLOSED", context);
     assertThat(updated).isFalse();
     assertThat(issue.status()).isEqualTo("CLOSED");
     assertThat(issue.currentChange()).isNull();
@@ -318,7 +318,7 @@ public class IssueFieldsSetterTest {
 
   @Test
   public void set_new_attribute_value() {
-    boolean updated = updater.setAttribute(issue, "JIRA", "FOO-123", context);
+    boolean updated = underTest.setAttribute(issue, "JIRA", "FOO-123", context);
     assertThat(updated).isTrue();
     assertThat(issue.attribute("JIRA")).isEqualTo("FOO-123");
     assertThat(issue.currentChange().diffs()).hasSize(1);
@@ -330,7 +330,7 @@ public class IssueFieldsSetterTest {
   @Test
   public void unset_attribute() {
     issue.setAttribute("JIRA", "FOO-123");
-    boolean updated = updater.setAttribute(issue, "JIRA", null, context);
+    boolean updated = underTest.setAttribute(issue, "JIRA", null, context);
     assertThat(updated).isTrue();
     assertThat(issue.attribute("JIRA")).isNull();
     assertThat(issue.currentChange().diffs()).hasSize(1);
@@ -342,14 +342,14 @@ public class IssueFieldsSetterTest {
   @Test
   public void not_update_attribute() {
     issue.setAttribute("JIRA", "FOO-123");
-    boolean updated = updater.setAttribute(issue, "JIRA", "FOO-123", context);
+    boolean updated = underTest.setAttribute(issue, "JIRA", "FOO-123", context);
     assertThat(updated).isFalse();
     assertThat(issue.mustSendNotifications()).isFalse();
   }
 
   @Test
   public void set_effort_to_fix() {
-    boolean updated = updater.setGap(issue, 3.14, context);
+    boolean updated = underTest.setGap(issue, 3.14, context);
     assertThat(updated).isTrue();
     assertThat(issue.isChanged()).isTrue();
     assertThat(issue.effortToFix()).isEqualTo(3.14);
@@ -359,7 +359,7 @@ public class IssueFieldsSetterTest {
   @Test
   public void not_set_effort_to_fix_if_unchanged() {
     issue.setGap(3.14);
-    boolean updated = updater.setGap(issue, 3.14, context);
+    boolean updated = underTest.setGap(issue, 3.14, context);
     assertThat(updated).isFalse();
     assertThat(issue.isChanged()).isFalse();
     assertThat(issue.effortToFix()).isEqualTo(3.14);
@@ -369,7 +369,7 @@ public class IssueFieldsSetterTest {
   @Test
   public void set_past_effort() {
     issue.setGap(3.14);
-    boolean updated = updater.setPastGap(issue, 1.0, context);
+    boolean updated = underTest.setPastGap(issue, 1.0, context);
     assertThat(updated).isTrue();
     assertThat(issue.effortToFix()).isEqualTo(3.14);
 
@@ -383,7 +383,7 @@ public class IssueFieldsSetterTest {
     Duration newDebt = Duration.create(15 * 8 * 60);
     Duration previousDebt = Duration.create(10 * 8 * 60);
     issue.setEffort(newDebt);
-    boolean updated = updater.setPastEffort(issue, previousDebt, context);
+    boolean updated = underTest.setPastEffort(issue, previousDebt, context);
     assertThat(updated).isTrue();
     assertThat(issue.debt()).isEqualTo(newDebt);
     assertThat(issue.mustSendNotifications()).isFalse();
@@ -397,7 +397,7 @@ public class IssueFieldsSetterTest {
   public void set_past_technical_debt_without_previous_value() {
     Duration newDebt = Duration.create(15 * 8 * 60);
     issue.setEffort(newDebt);
-    boolean updated = updater.setPastEffort(issue, null, context);
+    boolean updated = underTest.setPastEffort(issue, null, context);
     assertThat(updated).isTrue();
     assertThat(issue.debt()).isEqualTo(newDebt);
     assertThat(issue.mustSendNotifications()).isFalse();
@@ -411,7 +411,7 @@ public class IssueFieldsSetterTest {
   public void set_past_technical_debt_with_null_new_value() {
     issue.setEffort(null);
     Duration previousDebt = Duration.create(10 * 8 * 60);
-    boolean updated = updater.setPastEffort(issue, previousDebt, context);
+    boolean updated = underTest.setPastEffort(issue, previousDebt, context);
     assertThat(updated).isTrue();
     assertThat(issue.debt()).isNull();
     assertThat(issue.mustSendNotifications()).isFalse();
@@ -423,7 +423,7 @@ public class IssueFieldsSetterTest {
 
   @Test
   public void set_message() {
-    boolean updated = updater.setMessage(issue, "the message", context);
+    boolean updated = underTest.setMessage(issue, "the message", context);
     assertThat(updated).isTrue();
     assertThat(issue.isChanged()).isTrue();
     assertThat(issue.message()).isEqualTo("the message");
@@ -433,7 +433,7 @@ public class IssueFieldsSetterTest {
   @Test
   public void set_past_message() {
     issue.setMessage("new message");
-    boolean updated = updater.setPastMessage(issue, "past message", context);
+    boolean updated = underTest.setPastMessage(issue, "past message", context);
     assertThat(updated).isTrue();
     assertThat(issue.message()).isEqualTo("new message");
 
@@ -444,7 +444,7 @@ public class IssueFieldsSetterTest {
 
   @Test
   public void set_author() {
-    boolean updated = updater.setAuthorLogin(issue, "eric", context);
+    boolean updated = underTest.setAuthorLogin(issue, "eric", context);
     assertThat(updated).isTrue();
     assertThat(issue.authorLogin()).isEqualTo("eric");
 
@@ -456,7 +456,7 @@ public class IssueFieldsSetterTest {
 
   @Test
   public void set_new_author() {
-    boolean updated = updater.setNewAuthor(issue, "simon", context);
+    boolean updated = underTest.setNewAuthor(issue, "simon", context);
     assertThat(updated).isTrue();
 
     FieldDiffs.Diff diff = issue.currentChange().get("author");
@@ -467,7 +467,7 @@ public class IssueFieldsSetterTest {
 
   @Test
   public void not_set_new_author_if_new_author_is_null() {
-    boolean updated = updater.setNewAuthor(issue, null, context);
+    boolean updated = underTest.setNewAuthor(issue, null, context);
     assertThat(updated).isFalse();
     assertThat(issue.currentChange()).isNull();
     assertThat(issue.mustSendNotifications()).isFalse();
@@ -479,7 +479,7 @@ public class IssueFieldsSetterTest {
 
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("It's not possible to update the author with this method, please use setAuthorLogin()");
-    updater.setNewAuthor(issue, "julien", context);
+    underTest.setNewAuthor(issue, "julien", context);
   }
 
   @Test
@@ -487,7 +487,7 @@ public class IssueFieldsSetterTest {
     String componentUuid = "a";
     issue.setComponentUuid(componentUuid);
 
-    updater.setIssueMoved(issue, componentUuid, context);
+    underTest.setIssueMoved(issue, componentUuid, context);
 
     assertThat(issue.changes()).isEmpty();
     assertThat(issue.componentUuid()).isEqualTo(componentUuid);
@@ -502,7 +502,7 @@ public class IssueFieldsSetterTest {
     String newComponentUuid = "b";
     issue.setComponentUuid(oldComponentUuid);
 
-    updater.setIssueMoved(issue, newComponentUuid, context);
+    underTest.setIssueMoved(issue, newComponentUuid, context);
 
     assertThat(issue.changes()).hasSize(1);
     FieldDiffs fieldDiffs = issue.changes().get(0);

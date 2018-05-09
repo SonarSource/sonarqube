@@ -18,7 +18,7 @@
     i.status as status,
     i.resolution as resolution,
     i.checksum as checksum,
-    i.assignee as assignee,
+    i.assignee as assigneeUuid,
     i.author_login as authorLogin,
     i.tags as tagsString,
     i.issue_attributes as issueAttributes,
@@ -51,7 +51,7 @@
           i.status as status
         </when>
         <when test="'ASSIGNEE'.equals(query.sort())">
-          i.assignee as assignee
+          i.assignee as assigneeUuid
         </when>
         <when test="'CREATION_DATE'.equals(query.sort())">
           i.issue_creation_date as issueCreationTime
@@ -109,8 +109,10 @@
     #{manualSeverity,jdbcType=BOOLEAN}, #{message,jdbcType=VARCHAR}, #{line,jdbcType=INTEGER},
     #{locations,jdbcType=BINARY},
     #{gap,jdbcType=DOUBLE}, #{effort,jdbcType=INTEGER}, #{status,jdbcType=VARCHAR},
-    #{tagsString,jdbcType=VARCHAR}, #{resolution,jdbcType=VARCHAR}, #{checksum,jdbcType=VARCHAR},
-    #{assignee,jdbcType=VARCHAR}, #{authorLogin,jdbcType=VARCHAR},
+    #{tagsString,jdbcType=VARCHAR}, #{resolution,jdbcType=VARCHAR},
+    #{checksum,jdbcType=VARCHAR},
+    #{assigneeUuid,jdbcType=VARCHAR},
+    #{authorLogin,jdbcType=VARCHAR},
     #{issueAttributes,jdbcType=VARCHAR},
     #{issueCreationTime,jdbcType=BIGINT},#{issueUpdateTime,jdbcType=BIGINT}, #{issueCloseTime,jdbcType=BIGINT},
     #{createdAt,jdbcType=BIGINT}, #{updatedAt,jdbcType=BIGINT},
@@ -132,7 +134,7 @@
     status=#{status,jdbcType=VARCHAR},
     resolution=#{resolution,jdbcType=VARCHAR},
     checksum=#{checksum,jdbcType=VARCHAR},
-    assignee=#{assignee,jdbcType=VARCHAR},
+    assignee=#{assigneeUuid,jdbcType=VARCHAR},
     author_login=#{authorLogin,jdbcType=VARCHAR},
     tags=#{tagsString,jdbcType=VARCHAR},
     project_uuid=#{projectUuid,jdbcType=VARCHAR},
@@ -160,7 +162,7 @@
     status=#{status,jdbcType=VARCHAR},
     resolution=#{resolution,jdbcType=VARCHAR},
     checksum=#{checksum,jdbcType=VARCHAR},
-    assignee=#{assignee,jdbcType=VARCHAR},
+    assignee=#{assigneeUuid,jdbcType=VARCHAR},
     author_login=#{authorLogin,jdbcType=VARCHAR},
     tags=#{tagsString,jdbcType=VARCHAR},
     component_uuid=#{componentUuid,jdbcType=VARCHAR},
@@ -195,8 +197,8 @@
     i.component_uuid = #{componentUuid,jdbcType=VARCHAR} and
     i.status &lt;&gt; 'CLOSED'
   </select>
-  
-  <select id="scrollNonClosedByComponentUuidExcludingExternals" parameterType="String" resultType="Issue" fetchSize="${_scrollFetchSize}" resultSetType="FORWARD_ONLY">
+
+  <select id="selectNonClosedByComponentUuidExcludingExternals" parameterType="String" resultType="Issue">
     select
     <include refid="issueColumns"/>
     from issues i
@@ -249,7 +251,7 @@
       and i.status &lt;&gt; 'CLOSED'
   </select>
 
-  <select id="scrollNonClosedByModuleOrProject" parameterType="map" resultType="Issue" fetchSize="${_scrollFetchSize}" resultSetType="FORWARD_ONLY">
+  <select id="selectNonClosedByModuleOrProject" parameterType="map" resultType="Issue">
     select
     <include refid="issueColumns"/>
     from issues i

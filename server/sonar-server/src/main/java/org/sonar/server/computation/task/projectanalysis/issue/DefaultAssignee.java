@@ -19,7 +19,6 @@
  */
 package org.sonar.server.computation.task.projectanalysis.issue;
 
-import com.google.common.base.Strings;
 import javax.annotation.CheckForNull;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -29,6 +28,7 @@ import org.sonar.db.user.UserDto;
 import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.server.computation.task.projectanalysis.component.ConfigurationRepository;
 
+import static com.google.common.base.Strings.isNullOrEmpty;
 import static org.sonar.api.CoreProperties.DEFAULT_ISSUE_ASSIGNEE;
 
 /**
@@ -44,7 +44,7 @@ public class DefaultAssignee {
   private final AnalysisMetadataHolder analysisMetadataHolder;
 
   private boolean loaded = false;
-  private String login = null;
+  private String userUuid = null;
 
   public DefaultAssignee(DbClient dbClient, ConfigurationRepository configRepository, AnalysisMetadataHolder analysisMetadataHolder) {
     this.dbClient = dbClient;
@@ -53,30 +53,30 @@ public class DefaultAssignee {
   }
 
   @CheckForNull
-  public String loadDefaultAssigneeLogin() {
+  public String loadDefaultAssigneeUuid() {
     if (loaded) {
-      return login;
+      return userUuid;
     }
-    String configuredLogin = configRepository.getConfiguration().get(DEFAULT_ISSUE_ASSIGNEE).orElse(null);
-    if (!Strings.isNullOrEmpty(configuredLogin) && isValidLogin(configuredLogin)) {
-      this.login = configuredLogin;
+    String login = configRepository.getConfiguration().get(DEFAULT_ISSUE_ASSIGNEE).orElse(null);
+    if (!isNullOrEmpty(login)) {
+      userUuid = findValidUserUuidFromLogin(login);
     }
     loaded = true;
-    return login;
+    return userUuid;
   }
 
-  private boolean isValidLogin(String login) {
+  private String findValidUserUuidFromLogin(String login) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       UserDto user = dbClient.userDao().selectActiveUserByLogin(dbSession, login);
       if (user == null) {
         LOG.info("Property {} is set with an unknown login: {}", DEFAULT_ISSUE_ASSIGNEE, login);
-        return false;
+        return null;
       }
       if (!isUserMemberOfOrganization(dbSession, user)) {
         LOG.info("Property {} is set with a user which is not member of the organization of the project : {}", DEFAULT_ISSUE_ASSIGNEE, login);
-        return false;
+        return null;
       }
-      return true;
+      return user.getUuid();
     }
   }
 

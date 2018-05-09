@@ -109,7 +109,7 @@ class IssuesFinderSort {
   static class AssigneeSortIssueProcessor extends TextSortIssueProcessor {
     @Override
     String sortField(IssueDto issueDto) {
-      return issueDto.getAssignee();
+      return issueDto.getAssigneeUuid();
     }
   }
 

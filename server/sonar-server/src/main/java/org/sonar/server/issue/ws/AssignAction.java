@@ -111,11 +111,11 @@ public class AssignAction implements IssuesWsAction {
     responseWriter.write(key, preloadedResponseData, request, response);
   }
 
-  private SearchResponseData assign(String issueKey, @Nullable String assignee) {
+  private SearchResponseData assign(String issueKey, @Nullable String login) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       IssueDto issueDto = issueFinder.getByKey(dbSession, issueKey);
       DefaultIssue issue = issueDto.toDefaultIssue();
-      UserDto user = getUser(dbSession, assignee);
+      UserDto user = getUser(dbSession, login);
       if (user != null) {
         checkMembership(dbSession, issueDto, user);
       }

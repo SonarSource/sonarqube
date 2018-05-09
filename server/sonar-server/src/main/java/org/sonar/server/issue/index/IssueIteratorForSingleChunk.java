@@ -190,7 +190,7 @@ class IssueIteratorForSingleChunk implements IssueIterator {
 
       // all the fields must be present, even if value is null
       doc.setKey(key);
-      doc.setAssignee(rs.getString(2));
+      doc.setAssigneeUuid(rs.getString(2));
       doc.setLine(DatabaseUtils.getInt(rs, 3));
       doc.setResolution(rs.getString(4));
       doc.setSeverity(rs.getString(5));
