@@ -19,32 +19,21 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import EditButton from '../EditButton';
-import { click } from '../../../../helpers/testUtils';
+import { Popup, PopupPlacement, PopupArrow } from '../popups';
 
-it('should edit metric', () => {
-  const measure = {
-    createdAt: '2017-01-01',
-    description: 'my custom measure',
-    id: '1',
-    metric: { key: 'custom', name: 'custom-metric', type: 'STRING' },
-    projectKey: 'foo',
-    user: { active: true, login: 'user', name: 'user' },
-    value: 'custom-value'
-  };
-  const onEdit = jest.fn();
+it('should render Popup', () => {
+  expect(
+    shallow(
+      <Popup
+        arrowStyle={{ top: -5 }}
+        className="foo"
+        placement={PopupPlacement.LeftTop}
+        style={{ left: -5 }}
+      />
+    )
+  ).toMatchSnapshot();
+});
 
-  const wrapper = shallow(<EditButton measure={measure} onEdit={onEdit} />);
-  expect(wrapper).toMatchSnapshot();
-
-  click(wrapper.find('.js-custom-measure-update'));
-  wrapper.update();
-  expect(wrapper).toMatchSnapshot();
-
-  wrapper.find('Form').prop<Function>('onSubmit')({
-    ...measure,
-    description: 'new-description',
-    value: 'new-value'
-  });
-  expect(onEdit).toBeCalledWith({ ...measure, description: 'new-description', value: 'new-value' });
+it('should render PopupArrow', () => {
+  expect(shallow(<PopupArrow style={{ left: -5 }} />)).toMatchSnapshot();
 });

@@ -22,8 +22,9 @@ import { Link } from 'react-router';
 import * as PropTypes from 'prop-types';
 import { groupBy, sortBy } from 'lodash';
 import { BranchLike, DuplicatedFile, DuplicationBlock, SourceViewerFile } from '../../../app/types';
-import BubblePopup from '../../common/BubblePopup';
+import { DropdownOverlay } from '../../controls/Dropdown';
 import QualifierIcon from '../../shared/QualifierIcon';
+import { PopupPlacement } from '../../ui/popups';
 import { WorkspaceContext } from '../../workspace/context';
 import { translate } from '../../../helpers/l10n';
 import { collapsedDirFromPath, fileFromPath } from '../../../helpers/path';
@@ -90,8 +91,8 @@ export default class DuplicationPopup extends React.PureComponent<Props> {
     );
 
     return (
-      <BubblePopup customClass="source-viewer-bubble-popup" position={this.props.popupPosition}>
-        <div className="bubble-popup-container">
+      <DropdownOverlay placement={PopupPlacement.RightTop}>
+        <div className="source-viewer-bubble-popup abs-width-400">
           {this.props.inRemovedComponent && (
             <div className="alert alert-warning">
               {translate('duplications.dups_found_on_deleted_resource')}
@@ -99,11 +100,11 @@ export default class DuplicationPopup extends React.PureComponent<Props> {
           )}
           {duplications.length > 0 && (
             <>
-              <div className="bubble-popup-title">
+              <h6 className="spacer-bottom">
                 {translate('component_viewer.transition.duplication')}
-              </div>
+              </h6>
               {duplications.map(duplication => (
-                <div className="bubble-popup-section" key={duplication.file.key}>
+                <div className="spacer-top text-ellipsis" key={duplication.file.key}>
                   <div className="component-name">
                     {this.isDifferentComponent(duplication.file, this.props.sourceViewerFile) && (
                       <>
@@ -164,7 +165,7 @@ export default class DuplicationPopup extends React.PureComponent<Props> {
             </>
           )}
         </div>
-      </BubblePopup>
+      </DropdownOverlay>
     );
   }
 }

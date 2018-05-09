@@ -8,22 +8,9 @@ exports[`should open & close 1`] = `
     onMouseLeave={[Function]}
   />
   <TooltipPortal>
-    <div
-      className="tooltip bottom"
-      onMouseEnter={[Function]}
-      onMouseLeave={[Function]}
-    >
-      <div
-        className="tooltip-inner"
-      >
-        <span
-          id="overlay"
-        />
-      </div>
-      <div
-        className="tooltip-arrow"
-      />
-    </div>
+    <ScreenPositionFixer
+      ready={false}
+    />
   </TooltipPortal>
 </React.Fragment>
 `;
@@ -56,22 +43,9 @@ exports[`should render 2`] = `
     onMouseLeave={[Function]}
   />
   <TooltipPortal>
-    <div
-      className="tooltip bottom"
-      onMouseEnter={[Function]}
-      onMouseLeave={[Function]}
-    >
-      <div
-        className="tooltip-inner"
-      >
-        <span
-          id="overlay"
-        />
-      </div>
-      <div
-        className="tooltip-arrow"
-      />
-    </div>
+    <ScreenPositionFixer
+      ready={false}
+    />
   </TooltipPortal>
 </React.Fragment>
 `;

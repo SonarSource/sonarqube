@@ -20,17 +20,16 @@
 // @flow
 import React from 'react';
 import { translate } from '../../../helpers/l10n';
-import BubblePopup from '../../../components/common/BubblePopup';
 import SelectList from '../../../components/common/SelectList';
 import SelectListItem from '../../../components/common/SelectListItem';
 import SeverityIcon from '../../../components/shared/SeverityIcon';
+import { DropdownOverlay } from '../../controls/Dropdown';
 /*:: import type { Issue } from '../types'; */
 
 /*::
 type Props = {
   issue: Issue,
   onSelect: string => void,
-  popupPosition?: {}
 };
 */
 
@@ -41,21 +40,19 @@ export default class SetSeverityPopup extends React.PureComponent {
 
   render() {
     return (
-      <BubblePopup
-        position={this.props.popupPosition}
-        customClass="bubble-popup-menu bubble-popup-bottom">
+      <DropdownOverlay>
         <SelectList
-          items={SEVERITY}
           currentItem={this.props.issue.severity}
+          items={SEVERITY}
           onSelect={this.props.onSelect}>
           {SEVERITY.map(severity => (
-            <SelectListItem key={severity} item={severity}>
+            <SelectListItem item={severity} key={severity}>
               <SeverityIcon className="little-spacer-right" severity={severity} />
               {translate('severity', severity)}
             </SelectListItem>
           ))}
         </SelectList>
-      </BubblePopup>
+      </DropdownOverlay>
     );
   }
 }

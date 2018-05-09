@@ -52,5 +52,5 @@ it('renders dropdown', () => {
       organizations={organizations}
     />
   );
-  expect(wrapper.find('Dropdown').dive()).toMatchSnapshot();
+  expect(wrapper.find('Dropdown')).toMatchSnapshot();
 });

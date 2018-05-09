@@ -84,7 +84,7 @@ it('should open the popup when the button is clicked', () => {
       togglePopup={toggle}
     />
   );
-  click(element.find('button'));
+  click(element.find('Button'));
   expect(toggle.mock.calls).toMatchSnapshot();
   element.setProps({ isOpen: true });
   expect(element).toMatchSnapshot();

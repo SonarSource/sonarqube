@@ -22,9 +22,9 @@ import React from 'react';
 import { getIssueChangelog } from '../../../api/issues';
 import { translate } from '../../../helpers/l10n';
 import Avatar from '../../../components/ui/Avatar';
-import BubblePopup from '../../../components/common/BubblePopup';
 import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
 import IssueChangelogDiff from '../components/IssueChangelogDiff';
+import { DropdownOverlay } from '../../controls/Dropdown';
 /*:: import type { ChangelogDiff } from '../components/IssueChangelogDiff'; */
 /*:: import type { Issue } from '../types'; */
 
@@ -80,8 +80,8 @@ export default class ChangelogPopup extends React.PureComponent {
     const { issue } = this.props;
     const { author } = issue;
     return (
-      <BubblePopup position={this.props.popupPosition} customClass="bubble-popup-bottom-right">
-        <div className="issue-changelog">
+      <DropdownOverlay>
+        <div className="menu is-container issue-changelog">
           <table className="spaced">
             <tbody>
               <tr>
@@ -110,14 +110,14 @@ export default class ChangelogPopup extends React.PureComponent {
                         {item.userName}
                       </p>
                     )}
-                    {item.diffs.map(diff => <IssueChangelogDiff key={diff.key} diff={diff} />)}
+                    {item.diffs.map(diff => <IssueChangelogDiff diff={diff} key={diff.key} />)}
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
-      </BubblePopup>
+      </DropdownOverlay>
     );
   }
 }

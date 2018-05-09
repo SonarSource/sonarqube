@@ -56,7 +56,7 @@ public class MemberItem {
     tds.shouldHave(CollectionCondition.sizeGreaterThan(3));
     SelenideElement actionTd = tds.get(3);
     actionTd.$("button").should(Condition.exist).click();
-    actionTd.$$(".dropdown-menu > li").get(2).shouldBe(Condition.visible).click();
+    actionTd.$$(".menu > li > a").get(1).shouldBe(Condition.visible).click();
     SelenideElement modal = getModal("Remove user");
     modal.$("button.button-red").shouldBe(Condition.visible).click();
     return this;
@@ -67,7 +67,7 @@ public class MemberItem {
     tds.shouldHave(CollectionCondition.sizeGreaterThan(3));
     SelenideElement actionTd = tds.get(3);
     actionTd.$("button").should(Condition.exist).click();
-    actionTd.$$(".dropdown-menu > li").get(0).shouldBe(Condition.visible).click();
+    actionTd.$$(".menu > li > a").get(0).shouldBe(Condition.visible).click();
     getModal("Manage groups");
     return this;
   }

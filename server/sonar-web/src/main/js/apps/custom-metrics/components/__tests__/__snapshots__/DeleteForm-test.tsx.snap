@@ -1,0 +1,46 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render 1`] = `
+<Modal
+  contentLabel="custom_metrics.delete_metric"
+  onRequestClose={[MockFunction]}
+>
+  <form
+    onSubmit={[Function]}
+  >
+    <header
+      className="modal-head"
+    >
+      <h2>
+        custom_metrics.delete_metric
+      </h2>
+    </header>
+    <div
+      className="modal-body"
+    >
+      custom_metrics.delete_metric.confirmation.Foo
+    </div>
+    <footer
+      className="modal-foot"
+    >
+      <DeferredSpinner
+        className="spacer-right"
+        loading={false}
+        timeout={100}
+      />
+      <SubmitButton
+        className="button-red"
+        disabled={false}
+      >
+        delete
+      </SubmitButton>
+      <ResetButtonLink
+        disabled={false}
+        onClick={[Function]}
+      >
+        cancel
+      </ResetButtonLink>
+    </footer>
+  </form>
+</Modal>
+`;

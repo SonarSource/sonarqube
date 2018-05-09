@@ -20,11 +20,9 @@
 import * as React from 'react';
 import { without, difference } from 'lodash';
 import TagsSelector from '../../../components/tags/TagsSelector';
-import { BubblePopupPosition } from '../../../components/common/BubblePopup';
 import { searchProjectTags } from '../../../api/components';
 
 interface Props {
-  position: BubblePopupPosition;
   project: string;
   selectedTags: string[];
   setProjectTags: (tags: string[]) => void;
@@ -78,7 +76,6 @@ export default class MetaTagsSelector extends React.PureComponent<Props, State> 
         onSearch={this.onSearch}
         onSelect={this.onSelect}
         onUnselect={this.onUnselect}
-        position={this.props.position}
         selectedTags={this.props.selectedTags}
         tags={availableTags}
       />

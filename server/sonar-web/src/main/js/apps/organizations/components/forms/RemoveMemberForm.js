@@ -20,69 +20,48 @@
 // @flow
 import React from 'react';
 import Modal from '../../../../components/controls/Modal';
-import { ActionsDropdownItem } from '../../../../components/controls/ActionsDropdown';
 import { translate, translateWithParameters } from '../../../../helpers/l10n';
 /*:: import type { Member } from '../../../../store/organizationsMembers/actions'; */
 /*:: import type { Organization } from '../../../../store/organizations/duck'; */
 
 /*::
 type Props = {
+  onClose: () => void;
   member: Member,
   organization: Organization,
   removeMember: (member: Member) => void
 };
 */
 
-/*::
-type State = {
-  open: boolean
-};
-*/
-
 export default class RemoveMemberForm extends React.PureComponent {
   /*:: props: Props; */
-
-  state /*: State */ = {
-    open: false
-  };
-
-  openForm = () => {
-    this.setState({ open: true });
-  };
-
-  closeForm = () => {
-    this.setState({ open: false });
-  };
-
   handleSubmit = (e /*: Object */) => {
     e.preventDefault();
     this.props.removeMember(this.props.member);
-    this.closeForm();
+    this.props.onClose();
   };
 
-  renderModal() {
+  render() {
     const header = translate('users.remove');
     return (
-      <Modal key="remove-member-modal" contentLabel={header} onRequestClose={this.closeForm}>
+      <Modal contentLabel={header} key="remove-member-modal" onRequestClose={this.props.onClose}>
         <header className="modal-head">
           <h2>{header}</h2>
         </header>
         <form onSubmit={this.handleSubmit}>
-          <div className="modal-body markdown">
-            <p>
-              {translateWithParameters(
-                'organization.members.remove_x',
-                this.props.member.name,
-                this.props.organization.name
-              )}
-            </p>
+          <div className="modal-body">
+            {translateWithParameters(
+              'organization.members.remove_x',
+              this.props.member.name,
+              this.props.organization.name
+            )}
           </div>
           <footer className="modal-foot">
             <div>
-              <button type="submit" className="button-red" autoFocus={true}>
+              <button autoFocus={true} className="button-red" type="submit">
                 {translate('remove')}
               </button>
-              <button type="reset" className="button-link" onClick={this.closeForm}>
+              <button className="button-link" onClick={this.props.onClose} type="reset">
                 {translate('cancel')}
               </button>
             </div>
@@ -90,17 +69,5 @@ export default class RemoveMemberForm extends React.PureComponent {
         </form>
       </Modal>
     );
-  }
-
-  render() {
-    const buttonComponent = (
-      <ActionsDropdownItem destructive={true} onClick={this.openForm}>
-        {translate('organization.members.remove')}
-      </ActionsDropdownItem>
-    );
-    if (this.state.open) {
-      return [buttonComponent, this.renderModal()];
-    }
-    return buttonComponent;
   }
 }

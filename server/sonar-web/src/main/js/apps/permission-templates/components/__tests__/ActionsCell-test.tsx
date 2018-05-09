@@ -17,23 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import * as React from 'react';
 import { shallow } from 'enzyme';
-import React from 'react';
-import ActionsCell from '../ActionsCell';
+import ActionsCell, { Props } from '../ActionsCell';
 
 const SAMPLE = {
+  createdAt: '2018-01-01',
   id: 'id',
   name: 'name',
   permissions: [],
   defaultFor: []
 };
 
-function renderActionsCell(props) {
+function renderActionsCell(props?: Partial<Props>) {
   return shallow(
     <ActionsCell
       permissionTemplate={SAMPLE}
-      topQualifiers={['TRK', 'VW']}
       refresh={() => true}
+      topQualifiers={['TRK', 'VW']}
       {...props}
     />
   );
@@ -53,7 +54,7 @@ it('should not set default', () => {
 });
 
 it('should display all qualifiers for default organization', () => {
-  const organization = { isDefault: true };
+  const organization = { isDefault: true, key: 'org' };
   const setDefault = renderActionsCell({ organization }).find('.js-set-default');
   expect(setDefault.length).toBe(2);
   expect(setDefault.at(0).prop('data-qualifier')).toBe('TRK');
@@ -61,7 +62,7 @@ it('should display all qualifiers for default organization', () => {
 });
 
 it('should display only projects for custom organization', () => {
-  const organization = { isDefault: false };
+  const organization = { isDefault: false, key: 'org' };
   const setDefault = renderActionsCell({ organization }).find('.js-set-default');
   expect(setDefault.length).toBe(1);
   expect(setDefault.at(0).prop('data-qualifier')).toBe('TRK');

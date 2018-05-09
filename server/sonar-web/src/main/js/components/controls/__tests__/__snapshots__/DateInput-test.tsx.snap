@@ -3,274 +3,284 @@
 exports[`should render 1`] = `
 <OutsideClickHandler
   onClickOutside={[Function]}
-/>
+>
+  <span
+    className="date-input-control"
+  >
+    <input
+      className="date-input-control-input"
+      onFocus={[Function]}
+      placeholder="placeholder"
+      readOnly={true}
+      type="text"
+      value=""
+    />
+    <CalendarIcon
+      className="date-input-control-icon"
+      fill=""
+    />
+  </span>
+</OutsideClickHandler>
 `;
 
 exports[`should render 2`] = `
-<span
-  className="date-input-control"
+<OutsideClickHandler
+  onClickOutside={[Function]}
 >
-  <input
-    className="date-input-control-input"
-    onFocus={[Function]}
-    placeholder="placeholder"
-    readOnly={true}
-    type="text"
-    value=""
-  />
-  <CalendarIcon
-    className="date-input-control-icon"
-    fill=""
-  />
-</span>
+  <span
+    className="date-input-control"
+  >
+    <input
+      className="date-input-control-input is-filled"
+      onFocus={[Function]}
+      placeholder="placeholder"
+      readOnly={true}
+      type="text"
+      value="Jan 17, 2018"
+    />
+    <CalendarIcon
+      className="date-input-control-icon"
+      fill=""
+    />
+    <ButtonIcon
+      className="button-tiny date-input-control-reset"
+      color="#999"
+      onClick={[Function]}
+    >
+      <ClearIcon
+        size={12}
+      />
+    </ButtonIcon>
+  </span>
+</OutsideClickHandler>
 `;
 
 exports[`should render 3`] = `
-<span
-  className="date-input-control"
+<OutsideClickHandler
+  onClickOutside={[Function]}
 >
-  <input
-    className="date-input-control-input is-filled"
-    onFocus={[Function]}
-    placeholder="placeholder"
-    readOnly={true}
-    type="text"
-    value="Jan 17, 2018"
-  />
-  <CalendarIcon
-    className="date-input-control-icon"
-    fill=""
-  />
-  <ButtonIcon
-    className="button-tiny date-input-control-reset"
-    color="#999"
-    onClick={[Function]}
+  <span
+    className="date-input-control"
   >
-    <ClearIcon
-      size={12}
+    <input
+      className="date-input-control-input is-filled"
+      onFocus={[Function]}
+      placeholder="placeholder"
+      readOnly={true}
+      type="text"
+      value="Jan 17, 2018"
     />
-  </ButtonIcon>
-</span>
-`;
-
-exports[`should render 4`] = `
-<span
-  className="date-input-control"
->
-  <input
-    className="date-input-control-input is-filled"
-    onFocus={[Function]}
-    placeholder="placeholder"
-    readOnly={true}
-    type="text"
-    value="Jan 17, 2018"
-  />
-  <CalendarIcon
-    className="date-input-control-icon"
-    fill=""
-  />
-  <ButtonIcon
-    className="button-tiny date-input-control-reset"
-    color="#999"
-    onClick={[Function]}
-  >
-    <ClearIcon
-      size={12}
+    <CalendarIcon
+      className="date-input-control-icon"
+      fill=""
     />
-  </ButtonIcon>
-  <div
-    className="date-input-calendar"
-  >
-    <nav
-      className="date-input-calendar-nav"
+    <ButtonIcon
+      className="button-tiny date-input-control-reset"
+      color="#999"
+      onClick={[Function]}
     >
-      <ButtonIcon
-        className="button-small"
-        onClick={[Function]}
+      <ClearIcon
+        size={12}
+      />
+    </ButtonIcon>
+    <div
+      className="date-input-calendar"
+    >
+      <nav
+        className="date-input-calendar-nav"
       >
-        <ChevronLeftIcon />
-      </ButtonIcon>
-      <div
-        className="date-input-calender-month"
-      >
-        <Select
-          className="date-input-calender-month-select"
-          onChange={[Function]}
-          options={
-            Array [
-              Object {
-                "label": "Jan",
-                "value": 0,
-              },
-              Object {
-                "label": "Feb",
-                "value": 1,
-              },
-              Object {
-                "label": "Mar",
-                "value": 2,
-              },
-              Object {
-                "label": "Apr",
-                "value": 3,
-              },
-              Object {
-                "label": "May",
-                "value": 4,
-              },
-              Object {
-                "label": "Jun",
-                "value": 5,
-              },
-              Object {
-                "label": "Jul",
-                "value": 6,
-              },
-              Object {
-                "label": "Aug",
-                "value": 7,
-              },
-              Object {
-                "label": "Sep",
-                "value": 8,
-              },
-              Object {
-                "label": "Oct",
-                "value": 9,
-              },
-              Object {
-                "label": "Nov",
-                "value": 10,
-              },
-              Object {
-                "label": "Dec",
-                "value": 11,
-              },
-            ]
+        <ButtonIcon
+          className="button-small"
+          onClick={[Function]}
+        >
+          <ChevronLeftIcon />
+        </ButtonIcon>
+        <div
+          className="date-input-calender-month"
+        >
+          <Select
+            className="date-input-calender-month-select"
+            onChange={[Function]}
+            options={
+              Array [
+                Object {
+                  "label": "Jan",
+                  "value": 0,
+                },
+                Object {
+                  "label": "Feb",
+                  "value": 1,
+                },
+                Object {
+                  "label": "Mar",
+                  "value": 2,
+                },
+                Object {
+                  "label": "Apr",
+                  "value": 3,
+                },
+                Object {
+                  "label": "May",
+                  "value": 4,
+                },
+                Object {
+                  "label": "Jun",
+                  "value": 5,
+                },
+                Object {
+                  "label": "Jul",
+                  "value": 6,
+                },
+                Object {
+                  "label": "Aug",
+                  "value": 7,
+                },
+                Object {
+                  "label": "Sep",
+                  "value": 8,
+                },
+                Object {
+                  "label": "Oct",
+                  "value": 9,
+                },
+                Object {
+                  "label": "Nov",
+                  "value": 10,
+                },
+                Object {
+                  "label": "Dec",
+                  "value": 11,
+                },
+              ]
+            }
+            value={0}
+          />
+          <Select
+            className="date-input-calender-month-select spacer-left"
+            onChange={[Function]}
+            options={
+              Array [
+                Object {
+                  "label": "2008",
+                  "value": 2008,
+                },
+                Object {
+                  "label": "2009",
+                  "value": 2009,
+                },
+                Object {
+                  "label": "2010",
+                  "value": 2010,
+                },
+                Object {
+                  "label": "2011",
+                  "value": 2011,
+                },
+                Object {
+                  "label": "2012",
+                  "value": 2012,
+                },
+                Object {
+                  "label": "2013",
+                  "value": 2013,
+                },
+                Object {
+                  "label": "2014",
+                  "value": 2014,
+                },
+                Object {
+                  "label": "2015",
+                  "value": 2015,
+                },
+                Object {
+                  "label": "2016",
+                  "value": 2016,
+                },
+                Object {
+                  "label": "2017",
+                  "value": 2017,
+                },
+                Object {
+                  "label": "2018",
+                  "value": 2018,
+                },
+              ]
+            }
+            value={2018}
+          />
+        </div>
+        <ButtonIcon
+          className="button-small"
+          onClick={[Function]}
+        >
+          <ChevronRightIcon />
+        </ButtonIcon>
+      </nav>
+      <DayPicker
+        captionElement={<NullComponent />}
+        disabledDays={
+          Object {
+            "after": 2018-02-05T00:00:00.000Z,
+            "before": 2018-01-17T00:00:00.000Z,
           }
-          value={0}
-        />
-        <Select
-          className="date-input-calender-month-select spacer-left"
-          onChange={[Function]}
-          options={
-            Array [
-              Object {
-                "label": "2008",
-                "value": 2008,
-              },
-              Object {
-                "label": "2009",
-                "value": 2009,
-              },
-              Object {
-                "label": "2010",
-                "value": 2010,
-              },
-              Object {
-                "label": "2011",
-                "value": 2011,
-              },
-              Object {
-                "label": "2012",
-                "value": 2012,
-              },
-              Object {
-                "label": "2013",
-                "value": 2013,
-              },
-              Object {
-                "label": "2014",
-                "value": 2014,
-              },
-              Object {
-                "label": "2015",
-                "value": 2015,
-              },
-              Object {
-                "label": "2016",
-                "value": 2016,
-              },
-              Object {
-                "label": "2017",
-                "value": 2017,
-              },
-              Object {
-                "label": "2018",
-                "value": 2018,
-              },
-            ]
-          }
-          value={2018}
-        />
-      </div>
-      <ButtonIcon
-        className="button-small"
-        onClick={[Function]}
-      >
-        <ChevronRightIcon />
-      </ButtonIcon>
-    </nav>
-    <DayPicker
-      captionElement={<NullComponent />}
-      disabledDays={
-        Object {
-          "after": 2018-02-05T00:00:00.000Z,
-          "before": 2018-01-17T00:00:00.000Z,
         }
-      }
-      firstDayOfWeek={1}
-      month={2018-01-17T00:00:00.000Z}
-      navbarElement={<NullComponent />}
-      onDayClick={[Function]}
-      onDayMouseEnter={[Function]}
-      selectedDays={
-        Array [
-          2018-01-17T00:00:00.000Z,
-        ]
-      }
-      weekdaysLong={
-        Array [
-          "Sunday",
-          "Monday",
-          "Tuesday",
-          "Wednesday",
-          "Thursday",
-          "Friday",
-          "Saturday",
-        ]
-      }
-      weekdaysShort={
-        Array [
-          "Sun",
-          "Mon",
-          "Tue",
-          "Wed",
-          "Thu",
-          "Fri",
-          "Sat",
-        ]
-      }
-    />
-  </div>
-</span>
+        firstDayOfWeek={1}
+        month={2018-01-17T00:00:00.000Z}
+        navbarElement={<NullComponent />}
+        onDayClick={[Function]}
+        onDayMouseEnter={[Function]}
+        selectedDays={
+          Array [
+            2018-01-17T00:00:00.000Z,
+          ]
+        }
+        weekdaysLong={
+          Array [
+            "Sunday",
+            "Monday",
+            "Tuesday",
+            "Wednesday",
+            "Thursday",
+            "Friday",
+            "Saturday",
+          ]
+        }
+        weekdaysShort={
+          Array [
+            "Sun",
+            "Mon",
+            "Tue",
+            "Wed",
+            "Thu",
+            "Fri",
+            "Sat",
+          ]
+        }
+      />
+    </div>
+  </span>
+</OutsideClickHandler>
 `;
 
 exports[`should select a day 1`] = `
-<span
-  className="date-input-control"
+<OutsideClickHandler
+  onClickOutside={[Function]}
 >
-  <input
-    className="date-input-control-input"
-    onFocus={[Function]}
-    placeholder="placeholder"
-    readOnly={true}
-    type="text"
-    value=""
-  />
-  <CalendarIcon
-    className="date-input-control-icon"
-    fill=""
-  />
-</span>
+  <span
+    className="date-input-control"
+  >
+    <input
+      className="date-input-control-input"
+      onFocus={[Function]}
+      placeholder="placeholder"
+      readOnly={true}
+      type="text"
+      value=""
+    />
+    <CalendarIcon
+      className="date-input-control-icon"
+      fill=""
+    />
+  </span>
+</OutsideClickHandler>
 `;

@@ -23,6 +23,7 @@ import * as classNames from 'classnames';
 import { Organization } from '../../../app/types';
 import { translate } from '../../../helpers/l10n';
 import Dropdown from '../../../components/controls/Dropdown';
+import DropdownIcon from '../../../components/icons-components/DropdownIcon';
 
 interface Props {
   location: { pathname: string };
@@ -40,31 +41,28 @@ export default function OrganizationNavigationExtensions({ location, organizatio
   );
 
   return (
-    <Dropdown>
-      {({ onToggleClick, open }) => (
-        <li className={classNames('dropdown', { open })}>
-          <a
-            className={classNames('dropdown-toggle', { active })}
-            id="organization-navigation-more"
-            href="#"
-            onClick={onToggleClick}>
-            {translate('more')}
-            <i className="icon-dropdown little-spacer-left" />
-          </a>
-
-          <ul className="dropdown-menu">
-            {extensions.map(extension => (
-              <li key={extension.key}>
-                <Link
-                  to={`/organizations/${organization.key}/extension/${extension.key}`}
-                  activeClassName="active">
-                  {extension.name}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </li>
-      )}
+    <Dropdown
+      overlay={
+        <ul className="menu">
+          {extensions.map(extension => (
+            <li key={extension.key}>
+              <Link
+                activeClassName="active"
+                to={`/organizations/${organization.key}/extension/${extension.key}`}>
+                {extension.name}
+              </Link>
+            </li>
+          ))}
+        </ul>
+      }
+      tagName="li">
+      <a
+        className={classNames('dropdown-toggle', { active })}
+        href="#"
+        id="organization-navigation-more">
+        {translate('more')}
+        <DropdownIcon className="little-spacer-left" />
+      </a>
     </Dropdown>
   );
 }

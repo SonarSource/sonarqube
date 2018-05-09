@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import * as classNames from 'classnames';
 import BulkChangeModal from './BulkChangeModal';
 import { Query } from '../query';
 import { Profile } from '../../../api/quality-profiles';
@@ -40,7 +39,6 @@ interface State {
 }
 
 export default class BulkChange extends React.PureComponent<Props, State> {
-  closeDropdown?: () => void;
   state: State = { modal: false };
 
   getSelectedProfile = () => {
@@ -53,36 +51,24 @@ export default class BulkChange extends React.PureComponent<Props, State> {
   handleActivateClick = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     event.currentTarget.blur();
-    if (this.closeDropdown) {
-      this.closeDropdown();
-    }
     this.setState({ action: 'activate', modal: true, profile: undefined });
   };
 
   handleActivateInProfileClick = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     event.currentTarget.blur();
-    if (this.closeDropdown) {
-      this.closeDropdown();
-    }
     this.setState({ action: 'activate', modal: true, profile: this.getSelectedProfile() });
   };
 
   handleDeactivateClick = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     event.currentTarget.blur();
-    if (this.closeDropdown) {
-      this.closeDropdown();
-    }
     this.setState({ action: 'deactivate', modal: true, profile: undefined });
   };
 
   handleDeactivateInProfileClick = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     event.currentTarget.blur();
-    if (this.closeDropdown) {
-      this.closeDropdown();
-    }
     this.setState({ action: 'deactivate', modal: true, profile: this.getSelectedProfile() });
   };
 
@@ -105,45 +91,39 @@ export default class BulkChange extends React.PureComponent<Props, State> {
 
     return (
       <>
-        <Dropdown>
-          {({ closeDropdown, onToggleClick, open }) => {
-            this.closeDropdown = closeDropdown;
-            return (
-              <div className={classNames('pull-left dropdown', { open })}>
-                <Button className="js-bulk-change" onClick={onToggleClick}>
-                  {translate('bulk_change')}
-                </Button>
-                <ul className="dropdown-menu">
+        <Dropdown
+          className="pull-left"
+          overlay={
+            <ul className="menu">
+              <li>
+                <a href="#" onClick={this.handleActivateClick}>
+                  {translate('coding_rules.activate_in')}…
+                </a>
+              </li>
+              {allowActivateOnProfile &&
+                profile && (
                   <li>
-                    <a href="#" onClick={this.handleActivateClick}>
-                      {translate('coding_rules.activate_in')}…
+                    <a href="#" onClick={this.handleActivateInProfileClick}>
+                      {translate('coding_rules.activate_in')} <strong>{profile.name}</strong>
                     </a>
                   </li>
-                  {allowActivateOnProfile &&
-                    profile && (
-                      <li>
-                        <a href="#" onClick={this.handleActivateInProfileClick}>
-                          {translate('coding_rules.activate_in')} <strong>{profile.name}</strong>
-                        </a>
-                      </li>
-                    )}
+                )}
+              <li>
+                <a href="#" onClick={this.handleDeactivateClick}>
+                  {translate('coding_rules.deactivate_in')}…
+                </a>
+              </li>
+              {allowDeactivateOnProfile &&
+                profile && (
                   <li>
-                    <a href="#" onClick={this.handleDeactivateClick}>
-                      {translate('coding_rules.deactivate_in')}…
+                    <a href="#" onClick={this.handleDeactivateInProfileClick}>
+                      {translate('coding_rules.deactivate_in')} <strong>{profile.name}</strong>
                     </a>
                   </li>
-                  {allowDeactivateOnProfile &&
-                    profile && (
-                      <li>
-                        <a href="#" onClick={this.handleDeactivateInProfileClick}>
-                          {translate('coding_rules.deactivate_in')} <strong>{profile.name}</strong>
-                        </a>
-                      </li>
-                    )}
-                </ul>
-              </div>
-            );
-          }}
+                )}
+            </ul>
+          }>
+          <Button className="js-bulk-change">{translate('bulk_change')}</Button>
         </Dropdown>
         {this.state.modal &&
           this.state.action && (

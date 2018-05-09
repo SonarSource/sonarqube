@@ -54,19 +54,19 @@ function getMountedForm(updateFunc = jest.fn()) {
   const wrapper = shallow(
     <ManageMemberGroupsForm
       member={member}
+      onClose={jest.fn()}
       organization={organization}
       organizationGroups={organizationGroups}
       updateMemberGroups={updateFunc}
-    />
+    />,
+    { disableLifecycleMethods: true }
   );
   const instance = wrapper.instance();
-  instance.loadUserGroups = jest.fn(() => {
-    instance.setState({ loading: false, userGroups });
-  });
+  wrapper.setState({ loading: false, userGroups });
   return { wrapper, instance };
 }
 
-it('should render and open the modal', () => {
+it('should render', () => {
   const wrapper = shallow(
     <ManageMemberGroupsForm
       member={member}
@@ -76,21 +76,10 @@ it('should render and open the modal', () => {
     />
   );
   expect(wrapper).toMatchSnapshot();
-  wrapper.setState({ open: true });
-  expect(wrapper.first().getElements()).toMatchSnapshot();
-});
-
-it('should correctly handle user interactions', () => {
-  const form = getMountedForm();
-  form.wrapper.find('ActionsDropdownItem').prop('onClick')();
-  expect(form.wrapper.state('open')).toBeTruthy();
-  expect(form.instance.loadUserGroups).toBeCalled();
-  expect(form.wrapper.state()).toMatchSnapshot();
 });
 
 it('should correctly select the groups', () => {
   const form = getMountedForm();
-  form.instance.openForm(mockEvent);
   expect(form.instance.isGroupSelected(11)).toBeTruthy();
   expect(form.instance.isGroupSelected(7)).toBeFalsy();
   form.instance.onCheck(11, false);
@@ -103,21 +92,9 @@ it('should correctly select the groups', () => {
 it('should correctly handle the submit event and close the modal', () => {
   const updateMemberGroups = jest.fn();
   const form = getMountedForm(updateMemberGroups);
-  form.instance.openForm(mockEvent);
   form.instance.onCheck(11, false);
   form.instance.onCheck(7, true);
   form.instance.handleSubmit(mockEvent);
   expect(updateMemberGroups.mock.calls).toMatchSnapshot();
-  expect(form.wrapper.state()).toMatchSnapshot();
-});
-
-it('should reset the selected groups when the modal is opened', () => {
-  const form = getMountedForm();
-  form.instance.openForm(mockEvent);
-  form.instance.onCheck(11, false);
-  form.instance.onCheck(7, true);
-  expect(form.wrapper.state()).toMatchSnapshot();
-  form.instance.closeForm();
-  form.instance.openForm(mockEvent);
   expect(form.wrapper.state()).toMatchSnapshot();
 });

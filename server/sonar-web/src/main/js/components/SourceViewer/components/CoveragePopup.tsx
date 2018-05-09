@@ -22,8 +22,9 @@ import { groupBy } from 'lodash';
 import * as PropTypes from 'prop-types';
 import { getTests } from '../../../api/components';
 import { BranchLike, SourceLine, TestCase } from '../../../app/types';
-import BubblePopup from '../../common/BubblePopup';
+import { DropdownOverlay } from '../../controls/Dropdown';
 import TestStatusIcon from '../../shared/TestStatusIcon';
+import { PopupPlacement } from '../../ui/popups';
 import { WorkspaceContext } from '../../workspace/context';
 import { isSameBranchLike, getBranchLikeQuery } from '../../../helpers/branches';
 import { translate } from '../../../helpers/l10n';
@@ -34,7 +35,6 @@ interface Props {
   componentKey: string;
   line: SourceLine;
   onClose: () => void;
-  popupPosition?: any;
 }
 
 interface State {
@@ -114,53 +114,55 @@ export default class CoveragePopup extends React.PureComponent<Props, State> {
     });
 
     return (
-      <BubblePopup customClass="source-viewer-bubble-popup" position={this.props.popupPosition}>
-        <div className="bubble-popup-title">
-          {translate('source_viewer.covered')}
-          {!!line.conditions && (
-            <div>
-              {'('}
-              {line.coveredConditions || '0'}
-              {' of '}
-              {line.conditions} {translate('source_viewer.conditions')}
-              {')'}
-            </div>
+      <DropdownOverlay placement={PopupPlacement.RightTop}>
+        <div className="abs-width-400">
+          <h6 className="spacer-bottom">
+            {translate('source_viewer.covered')}
+            {!!line.conditions && (
+              <div>
+                {'('}
+                {line.coveredConditions || '0'}
+                {' of '}
+                {line.conditions} {translate('source_viewer.conditions')}
+                {')'}
+              </div>
+            )}
+          </h6>
+          {this.state.loading ? (
+            <i className="spinner" />
+          ) : (
+            <>
+              {testFiles.length === 0 &&
+                translate('source_viewer.tooltip.no_information_about_tests')}
+              {testFiles.map(testFile => (
+                <div className="spacer-top text-ellipsis" key={testFile.file.key}>
+                  <a
+                    data-key={testFile.file.key}
+                    href="#"
+                    onClick={this.handleTestClick}
+                    title={testFile.file.longName}>
+                    <span>{collapsePath(testFile.file.longName)}</span>
+                  </a>
+                  <ul>
+                    {testFile.tests.map(testCase => (
+                      <li
+                        className="display-flex-center little-spacer-top"
+                        key={testCase.id}
+                        title={testCase.name}>
+                        <TestStatusIcon className="spacer-right" status={testCase.status} />
+                        <div className="display-inline-block text-ellipsis">{testCase.name}</div>
+                        {testCase.status !== 'SKIPPED' && (
+                          <span className="spacer-left note">{testCase.durationInMs}ms</span>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </>
           )}
         </div>
-        {this.state.loading ? (
-          <i className="spinner" />
-        ) : (
-          <>
-            {testFiles.length === 0 &&
-              translate('source_viewer.tooltip.no_information_about_tests')}
-            {testFiles.map(testFile => (
-              <div className="bubble-popup-section" key={testFile.file.key}>
-                <a
-                  data-key={testFile.file.key}
-                  href="#"
-                  onClick={this.handleTestClick}
-                  title={testFile.file.longName}>
-                  <span>{collapsePath(testFile.file.longName)}</span>
-                </a>
-                <ul className="bubble-popup-list">
-                  {testFile.tests.map(testCase => (
-                    <li
-                      className="component-viewer-popup-test"
-                      key={testCase.id}
-                      title={testCase.name}>
-                      <TestStatusIcon className="spacer-right" status={testCase.status} />
-                      {testCase.name}
-                      {testCase.status !== 'SKIPPED' && (
-                        <span className="spacer-left note">{testCase.durationInMs}ms</span>
-                      )}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-          </>
-        )}
-      </BubblePopup>
+      </DropdownOverlay>
     );
   }
 }

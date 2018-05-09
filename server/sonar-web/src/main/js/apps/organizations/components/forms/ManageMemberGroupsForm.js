@@ -24,12 +24,12 @@ import { getUserGroups } from '../../../../api/users';
 import Modal from '../../../../components/controls/Modal';
 import { translate, translateWithParameters } from '../../../../helpers/l10n';
 import OrganizationGroupCheckbox from '../OrganizationGroupCheckbox';
-import { ActionsDropdownItem } from '../../../../components/controls/ActionsDropdown';
 /*:: import type { Member } from '../../../../store/organizationsMembers/actions'; */
 /*:: import type { Organization, OrgGroup } from '../../../../store/organizations/duck'; */
 
 /*::
 type Props = {
+  onClose: () => void;
   member: Member,
   organization: Organization,
   organizationGroups: Array<OrgGroup>,
@@ -39,7 +39,6 @@ type Props = {
 
 /*::
 type State = {
-  open: boolean,
   userGroups?: {},
   loading?: boolean
 };
@@ -48,27 +47,16 @@ type State = {
 export default class ManageMemberGroupsForm extends React.PureComponent {
   /*:: mounted: boolean */
   /*:: props: Props; */
-
-  state /*: State */ = {
-    open: false
-  };
+  state /*: State */ = {};
 
   componentDidMount() {
     this.mounted = true;
+    this.loadUserGroups();
   }
 
   componentWillUnmount() {
     this.mounted = false;
   }
-
-  openForm = () => {
-    this.loadUserGroups();
-    this.setState({ open: true });
-  };
-
-  closeForm = () => {
-    this.setState({ open: false });
-  };
 
   loadUserGroups = () => {
     this.setState({ loading: true });
@@ -119,13 +107,13 @@ export default class ManageMemberGroupsForm extends React.PureComponent {
       Object.keys(pickBy(this.state.userGroups, group => group.status === 'add')),
       Object.keys(pickBy(this.state.userGroups, group => group.status === 'remove'))
     );
-    this.closeForm();
+    this.props.onClose();
   };
 
-  renderModal() {
+  render() {
     const header = translate('organization.members.manage_groups');
     return (
-      <Modal key="manage-member-modal" contentLabel={header} onRequestClose={this.closeForm}>
+      <Modal contentLabel={header} onRequestClose={this.props.onClose}>
         <header className="modal-head">
           <h2>{header}</h2>
         </header>
@@ -142,9 +130,9 @@ export default class ManageMemberGroupsForm extends React.PureComponent {
               <ul className="list-spaced">
                 {this.props.organizationGroups.map(group => (
                   <OrganizationGroupCheckbox
-                    key={group.id}
-                    group={group}
                     checked={this.isGroupSelected(group.name)}
+                    group={group}
+                    key={group.id}
                     onCheck={this.onCheck}
                   />
                 ))}
@@ -154,7 +142,7 @@ export default class ManageMemberGroupsForm extends React.PureComponent {
           <footer className="modal-foot">
             <div>
               <button type="submit">{translate('save')}</button>
-              <button type="reset" className="button-link" onClick={this.closeForm}>
+              <button className="button-link" onClick={this.props.onClose} type="reset">
                 {translate('cancel')}
               </button>
             </div>
@@ -162,17 +150,5 @@ export default class ManageMemberGroupsForm extends React.PureComponent {
         </form>
       </Modal>
     );
-  }
-
-  render() {
-    const buttonComponent = (
-      <ActionsDropdownItem onClick={this.openForm}>
-        {translate('organization.members.manage_groups')}
-      </ActionsDropdownItem>
-    );
-    if (this.state.open) {
-      return [buttonComponent, this.renderModal()];
-    }
-    return buttonComponent;
   }
 }

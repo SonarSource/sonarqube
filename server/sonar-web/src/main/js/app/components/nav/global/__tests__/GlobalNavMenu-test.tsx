@@ -32,7 +32,7 @@ it('should work with extensions', () => {
   const wrapper = shallow(
     <GlobalNavMenu appState={appState} currentUser={currentUser} location={{ pathname: '' }} />
   );
-  expect(wrapper.find('Dropdown').dive()).toMatchSnapshot();
+  expect(wrapper.find('Dropdown')).toMatchSnapshot();
 });
 
 it('should show administration menu if the user has the rights', () => {

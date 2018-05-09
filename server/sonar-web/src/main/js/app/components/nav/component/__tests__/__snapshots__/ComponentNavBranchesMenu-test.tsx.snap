@@ -1,8 +1,8 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`renders list 1`] = `
-<div
-  className="dropdown-menu"
+<DropdownOverlay
+  noPadding={true}
 >
   <div
     className="menu-search"
@@ -43,7 +43,7 @@ exports[`renders list 1`] = `
       key="pull-request-1234"
     >
       <li
-        className="dropdown-header navbar-context-meta-branch-menu-title"
+        className="menu-header navbar-context-meta-branch-menu-title"
       >
         branches.pull_requests
       </li>
@@ -80,7 +80,7 @@ exports[`renders list 1`] = `
         className="divider"
       />
       <li
-        className="dropdown-header"
+        className="menu-header"
       >
         <div
           className="display-inline-block text-middle"
@@ -181,7 +181,7 @@ exports[`renders list 1`] = `
         className="divider"
       />
       <li
-        className="dropdown-header"
+        className="menu-header"
       >
         <div
           className="display-inline-block text-middle"
@@ -221,12 +221,12 @@ exports[`renders list 1`] = `
       />
     </React.Fragment>
   </ul>
-</div>
+</DropdownOverlay>
 `;
 
 exports[`searches 1`] = `
-<div
-  className="dropdown-menu"
+<DropdownOverlay
+  noPadding={true}
 >
   <div
     className="menu-search"
@@ -246,7 +246,7 @@ exports[`searches 1`] = `
       key="branch-foobar"
     >
       <li
-        className="dropdown-header navbar-context-meta-branch-menu-title"
+        className="menu-header navbar-context-meta-branch-menu-title"
       >
         branches.short_lived_branches
       </li>
@@ -303,5 +303,5 @@ exports[`searches 1`] = `
       />
     </React.Fragment>
   </ul>
-</div>
+</DropdownOverlay>
 `;

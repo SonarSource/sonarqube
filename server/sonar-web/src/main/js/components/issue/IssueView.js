@@ -51,15 +51,14 @@ export default class IssueView extends React.PureComponent {
 
   handleCheck = (event /*: Event */) => {
     event.preventDefault();
-    event.stopPropagation();
     if (this.props.onCheck) {
       this.props.onCheck(this.props.issue.key, event);
     }
   };
 
   handleClick = (event /*: Event & { target: HTMLElement } */) => {
-    event.preventDefault();
-    if (this.props.onClick) {
+    if (!isClickable(event.target) && this.props.onClick) {
+      event.preventDefault();
       this.props.onClick(this.props.issue.key);
     }
   };
@@ -100,12 +99,12 @@ export default class IssueView extends React.PureComponent {
           togglePopup={this.props.togglePopup}
         />
         <IssueActionsBar
-          issue={issue}
           currentPopup={this.props.currentPopup}
+          issue={issue}
           onAssign={this.props.onAssign}
+          onChange={this.props.onChange}
           onFail={this.props.onFail}
           togglePopup={this.props.togglePopup}
-          onChange={this.props.onChange}
         />
         {issue.comments &&
           issue.comments.length > 0 && (
@@ -114,8 +113,8 @@ export default class IssueView extends React.PureComponent {
                 <IssueCommentLine
                   comment={comment}
                   key={comment.key}
-                  onEdit={this.editComment}
                   onDelete={this.deleteComment}
+                  onEdit={this.editComment}
                 />
               ))}
             </div>
@@ -136,4 +135,13 @@ export default class IssueView extends React.PureComponent {
       </div>
     );
   }
+}
+
+function isClickable(node /*: any */) {
+  if (!node) {
+    return false;
+  }
+  const clickableTags = ['A', 'BUTTON', 'INPUT', 'TEXTAREA'];
+  const tagName = (node.tagName || '').toUpperCase();
+  return clickableTags.includes(tagName) || isClickable(node.parentNode);
 }

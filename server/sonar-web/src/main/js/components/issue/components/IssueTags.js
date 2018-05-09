@@ -20,10 +20,11 @@
 // @flow
 import React from 'react';
 import { updateIssue } from '../actions';
-import BubblePopupHelper from '../../../components/common/BubblePopupHelper';
 import SetIssueTagsPopup from '../popups/SetIssueTagsPopup';
-import TagsList from '../../../components/tags/TagsList';
 import { setIssueTags } from '../../../api/issues';
+import Toggler from '../../../components/controls/Toggler';
+import TagsList from '../../../components/tags/TagsList';
+import { Button } from '../../../components/ui/buttons';
 import { translate } from '../../../helpers/l10n';
 /*:: import type { Issue } from '../types'; */
 
@@ -57,32 +58,39 @@ export default class IssueTags extends React.PureComponent {
     );
   };
 
+  handleClose = () => {
+    this.toggleSetTags(false);
+  };
+
   render() {
     const { issue } = this.props;
     const { tags = [] } = issue;
 
     if (this.props.canSetTags) {
       return (
-        <BubblePopupHelper
-          isOpen={this.props.isOpen}
-          popup={
-            <SetIssueTagsPopup
-              organization={issue.projectOrganization}
-              selectedTags={tags}
-              setTags={this.setTags}
-            />
-          }
-          position="bottomright"
-          togglePopup={this.toggleSetTags}>
-          <button
-            className={'js-issue-edit-tags button-link issue-action issue-action-with-options'}
-            onClick={this.toggleSetTags}>
-            <TagsList
-              allowUpdate={this.props.canSetTags}
-              tags={issue.tags && issue.tags.length > 0 ? issue.tags : [translate('issue.no_tag')]}
-            />
-          </button>
-        </BubblePopupHelper>
+        <div className="dropdown">
+          <Toggler
+            onRequestClose={this.handleClose}
+            open={this.props.isOpen}
+            overlay={
+              <SetIssueTagsPopup
+                organization={issue.projectOrganization}
+                selectedTags={tags}
+                setTags={this.setTags}
+              />
+            }>
+            <Button
+              className={'js-issue-edit-tags button-link issue-action issue-action-with-options'}
+              onClick={this.toggleSetTags}>
+              <TagsList
+                allowUpdate={this.props.canSetTags}
+                tags={
+                  issue.tags && issue.tags.length > 0 ? issue.tags : [translate('issue.no_tag')]
+                }
+              />
+            </Button>
+          </Toggler>
+        </div>
       );
     } else {
       return (

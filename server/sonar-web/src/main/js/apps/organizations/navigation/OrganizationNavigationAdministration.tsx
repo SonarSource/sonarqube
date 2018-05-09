@@ -48,71 +48,69 @@ export default function OrganizationNavigationAdministration({ location, organiz
   );
 
   return (
-    <Dropdown>
-      {({ onToggleClick, open }) => (
-        <li className={classNames('dropdown', { open })}>
-          <a
-            className={classNames('dropdown-toggle', { active: adminActive })}
-            id="organization-navigation-admin"
-            href="#"
-            onClick={onToggleClick}>
-            {translate('layout.settings')}
-            <DropdownIcon className="little-spacer-left" />
-          </a>
-          <ul className="dropdown-menu">
-            {extensions.map(extension => (
-              <li key={extension.key}>
-                <Link
-                  to={`/organizations/${organization.key}/extension/${extension.key}`}
-                  activeClassName="active">
-                  {extension.name}
-                </Link>
-              </li>
-            ))}
-            <li>
-              <Link to={`/organizations/${organization.key}/groups`} activeClassName="active">
-                {translate('user_groups.page')}
-              </Link>
-            </li>
-            <li>
-              <Link to={`/organizations/${organization.key}/permissions`} activeClassName="active">
-                {translate('permissions.page')}
-              </Link>
-            </li>
-            <li>
+    <Dropdown
+      overlay={
+        <ul className="menu">
+          {extensions.map(extension => (
+            <li key={extension.key}>
               <Link
-                to={`/organizations/${organization.key}/permission_templates`}
-                activeClassName="active">
-                {translate('permission_templates')}
+                activeClassName="active"
+                to={`/organizations/${organization.key}/extension/${extension.key}`}>
+                {extension.name}
               </Link>
             </li>
+          ))}
+          <li>
+            <Link activeClassName="active" to={`/organizations/${organization.key}/groups`}>
+              {translate('user_groups.page')}
+            </Link>
+          </li>
+          <li>
+            <Link activeClassName="active" to={`/organizations/${organization.key}/permissions`}>
+              {translate('permissions.page')}
+            </Link>
+          </li>
+          <li>
+            <Link
+              activeClassName="active"
+              to={`/organizations/${organization.key}/permission_templates`}>
+              {translate('permission_templates')}
+            </Link>
+          </li>
+          <li>
+            <Link
+              activeClassName="active"
+              to={`/organizations/${organization.key}/projects_management`}>
+              {translate('projects_management')}
+            </Link>
+          </li>
+          <li>
+            <Link activeClassName="active" to={`/organizations/${organization.key}/webhooks`}>
+              {translate('webhooks.page')}
+            </Link>
+          </li>
+          <li>
+            <Link activeClassName="active" to={`/organizations/${organization.key}/edit`}>
+              {translate('edit')}
+            </Link>
+          </li>
+          {organization.canDelete && (
             <li>
-              <Link
-                to={`/organizations/${organization.key}/projects_management`}
-                activeClassName="active">
-                {translate('projects_management')}
+              <Link activeClassName="active" to={`/organizations/${organization.key}/delete`}>
+                {translate('delete')}
               </Link>
             </li>
-            <li>
-              <Link to={`/organizations/${organization.key}/webhooks`} activeClassName="active">
-                {translate('webhooks.page')}
-              </Link>
-            </li>
-            <li>
-              <Link to={`/organizations/${organization.key}/edit`} activeClassName="active">
-                {translate('edit')}
-              </Link>
-            </li>
-            {organization.canDelete && (
-              <li>
-                <Link to={`/organizations/${organization.key}/delete`} activeClassName="active">
-                  {translate('delete')}
-                </Link>
-              </li>
-            )}
-          </ul>
-        </li>
-      )}
+          )}
+        </ul>
+      }
+      tagName="li">
+      <a
+        className={classNames('dropdown-toggle', { active: adminActive })}
+        href="#"
+        id="organization-navigation-admin">
+        {translate('layout.settings')}
+        <DropdownIcon className="little-spacer-left" />
+      </a>
     </Dropdown>
   );
 }

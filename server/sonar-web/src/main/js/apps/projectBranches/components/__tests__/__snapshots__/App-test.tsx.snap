@@ -147,19 +147,21 @@ exports[`renders sorted list of branches 1`] = `
         <React.Fragment
           key="branch-feature"
         >
-          <li
-            className="dropdown-header"
-          >
-            <div
-              className="display-inline-block text-middle"
+          <tr>
+            <td
+              colSpan={4}
             >
-              branches.orphan_branches
-            </div>
-            <HelpTooltip
-              className="spacer-left"
-              overlay="branches.orphan_branches.tooltip"
-            />
-          </li>
+              <div
+                className="display-inline-block text-middle"
+              >
+                branches.orphan_branches
+              </div>
+              <HelpTooltip
+                className="spacer-left"
+                overlay="branches.orphan_branches.tooltip"
+              />
+            </td>
+          </tr>
           <BranchRow
             branchLike={
               Object {

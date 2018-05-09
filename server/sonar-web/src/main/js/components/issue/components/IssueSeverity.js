@@ -19,10 +19,12 @@
  */
 // @flow
 import React from 'react';
-import BubblePopupHelper from '../../../components/common/BubblePopupHelper';
 import SetSeverityPopup from '../popups/SetSeverityPopup';
-import SeverityHelper from '../../../components/shared/SeverityHelper';
 import { setIssueSeverity } from '../../../api/issues';
+import Toggler from '../../../components/controls/Toggler';
+import DropdownIcon from '../../../components/icons-components/DropdownIcon';
+import SeverityHelper from '../../../components/shared/SeverityHelper';
+import { Button } from '../../../components/ui/buttons';
 /*:: import type { Issue } from '../types'; */
 
 /*::
@@ -42,28 +44,31 @@ export default class IssueSeverity extends React.PureComponent {
     this.props.togglePopup('set-severity', open);
   };
 
-  setSeverity = (severity /*: string */) =>
+  setSeverity = (severity /*: string */) => {
     this.props.setIssueProperty('severity', 'set-severity', setIssueSeverity, severity);
+  };
+
+  handleClose = () => {
+    this.toggleSetSeverity(false);
+  };
 
   render() {
     const { issue } = this.props;
     if (this.props.canSetSeverity) {
       return (
-        <BubblePopupHelper
-          isOpen={this.props.isOpen && this.props.canSetSeverity}
-          position="bottomleft"
-          togglePopup={this.toggleSetSeverity}
-          popup={<SetSeverityPopup issue={issue} onSelect={this.setSeverity} />}>
-          <button
-            className="button-link issue-action issue-action-with-options js-issue-set-severity"
-            onClick={this.toggleSetSeverity}>
-            <SeverityHelper
-              className="issue-meta-label little-spacer-right"
-              severity={issue.severity}
-            />
-            <i className="little-spacer-left icon-dropdown" />
-          </button>
-        </BubblePopupHelper>
+        <div className="dropdown">
+          <Toggler
+            onRequestClose={this.handleClose}
+            open={this.props.isOpen && this.props.canSetSeverity}
+            overlay={<SetSeverityPopup issue={issue} onSelect={this.setSeverity} />}>
+            <Button
+              className="button-link issue-action issue-action-with-options js-issue-set-severity"
+              onClick={this.toggleSetSeverity}>
+              <SeverityHelper className="issue-meta-label" severity={issue.severity} />
+              <DropdownIcon className="little-spacer-left" />
+            </Button>
+          </Toggler>
+        </div>
       );
     } else {
       return <SeverityHelper className="issue-meta-label" severity={issue.severity} />;

@@ -20,7 +20,6 @@
 // @flow
 import React from 'react';
 import Modal from '../../../../components/controls/Modal';
-import { ActionsDropdownItem } from '../../../../components/controls/ActionsDropdown';
 import { translate } from '../../../../helpers/l10n';
 /*:: import type { Analysis } from '../../types'; */
 
@@ -28,13 +27,13 @@ import { translate } from '../../../../helpers/l10n';
 type Props = {
   addEvent: (analysis: string, name: string, category?: string) => Promise<*>,
   analysis: Analysis,
-  addEventButtonText: string
+  addEventButtonText: string,
+  onClose: () => void;
 };
 */
 
 /*::
 type State = {
-  open: boolean,
   processing: boolean,
   name: string
 };
@@ -44,7 +43,6 @@ export default class AddEventForm extends React.PureComponent {
   /*:: mounted: boolean; */
   /*:: props: Props; */
   state /*: State */ = {
-    open: false,
     processing: false,
     name: ''
   };
@@ -56,16 +54,6 @@ export default class AddEventForm extends React.PureComponent {
   componentWillUnmount() {
     this.mounted = false;
   }
-
-  openForm = () => {
-    this.setState({ open: true });
-  };
-
-  closeForm = () => {
-    if (this.mounted) {
-      this.setState({ open: false, name: '' });
-    }
-  };
 
   changeInput = (e /*: Object */) => {
     if (this.mounted) {
@@ -79,24 +67,18 @@ export default class AddEventForm extends React.PureComponent {
     }
   };
 
-  stopProcessingAndClose = () => {
-    if (this.mounted) {
-      this.setState({ open: false, processing: false, name: '' });
-    }
-  };
-
   handleSubmit = (e /*: Object */) => {
     e.preventDefault();
     this.setState({ processing: true });
     this.props
       .addEvent(this.props.analysis.key, this.state.name)
-      .then(this.stopProcessingAndClose, this.stopProcessing);
+      .then(this.props.onClose, this.stopProcessing);
   };
 
-  renderModal() {
+  render() {
     const header = translate(this.props.addEventButtonText);
     return (
-      <Modal key="add-event-modal" contentLabel={header} onRequestClose={this.closeForm}>
+      <Modal contentLabel={header} key="add-event-modal" onRequestClose={this.props.onClose}>
         <header className="modal-head">
           <h2>{header}</h2>
         </header>
@@ -106,11 +88,11 @@ export default class AddEventForm extends React.PureComponent {
             <div className="modal-field">
               <label>{translate('name')}</label>
               <input
-                value={this.state.name}
                 autoFocus={true}
                 disabled={this.state.processing}
-                type="text"
                 onChange={this.changeInput}
+                type="text"
+                value={this.state.name}
               />
             </div>
           </div>
@@ -121,7 +103,7 @@ export default class AddEventForm extends React.PureComponent {
             ) : (
               <div>
                 <button type="submit">{translate('save')}</button>
-                <button type="reset" className="button-link" onClick={this.closeForm}>
+                <button className="button-link" onClick={this.props.onClose} type="reset">
                   {translate('cancel')}
                 </button>
               </div>
@@ -130,17 +112,5 @@ export default class AddEventForm extends React.PureComponent {
         </form>
       </Modal>
     );
-  }
-
-  render() {
-    const linkComponent = (
-      <ActionsDropdownItem className="js-add-event" onClick={this.openForm}>
-        {translate(this.props.addEventButtonText)}
-      </ActionsDropdownItem>
-    );
-    if (this.state.open) {
-      return [linkComponent, this.renderModal()];
-    }
-    return linkComponent;
   }
 }

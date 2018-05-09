@@ -5,7 +5,7 @@ exports[`renders "Show More" link 1`] = `
   className="menu"
 >
   <li
-    className="dropdown-header"
+    className="menu-header"
     key="header-TRK"
   >
     qualifiers.TRK
@@ -34,7 +34,7 @@ exports[`renders "Show More" link 1`] = `
     key="divider-BRC"
   />
   <li
-    className="dropdown-header"
+    className="menu-header"
     key="header-BRC"
   >
     qualifiers.BRC
@@ -57,7 +57,7 @@ exports[`renders different components and dividers between them 1`] = `
   className="menu"
 >
   <li
-    className="dropdown-header"
+    className="menu-header"
     key="header-TRK"
   >
     qualifiers.TRK
@@ -77,7 +77,7 @@ exports[`renders different components and dividers between them 1`] = `
     key="divider-BRC"
   />
   <li
-    className="dropdown-header"
+    className="menu-header"
     key="header-BRC"
   >
     qualifiers.BRC
@@ -97,7 +97,7 @@ exports[`renders different components and dividers between them 1`] = `
     key="divider-FIL"
   />
   <li
-    className="dropdown-header"
+    className="menu-header"
     key="header-FIL"
   >
     qualifiers.FIL

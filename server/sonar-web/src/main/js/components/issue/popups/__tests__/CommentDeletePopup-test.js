@@ -26,6 +26,6 @@ it('should render the comment delete popup correctly', () => {
   const onDelete = jest.fn();
   const element = shallow(<CommentDeletePopup onDelete={onDelete} />);
   expect(element).toMatchSnapshot();
-  click(element.find('button'));
+  click(element.find('Button'));
   expect(onDelete.mock.calls.length).toBe(1);
 });

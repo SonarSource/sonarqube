@@ -19,8 +19,10 @@
  */
 // @flow
 import React from 'react';
-import BubblePopupHelper from '../../../components/common/BubblePopupHelper';
 import SimilarIssuesPopup from '../popups/SimilarIssuesPopup';
+import Toggler from '../../../components/controls/Toggler';
+import DropdownIcon from '../../../components/icons-components/DropdownIcon';
+import { Button } from '../../../components/ui/buttons';
 import { translate } from '../../../helpers/l10n';
 /*:: import type { Issue } from '../types'; */
 
@@ -51,20 +53,26 @@ export default class SimilarIssuesFilter extends React.PureComponent {
     this.props.togglePopup('similarIssues', open);
   };
 
+  handleClose = () => {
+    this.togglePopup(false);
+  };
+
   render() {
     return (
-      <BubblePopupHelper
-        isOpen={this.props.isOpen}
-        position="bottomright"
-        togglePopup={this.togglePopup}
-        popup={<SimilarIssuesPopup issue={this.props.issue} onFilter={this.handleFilter} />}>
-        <button
-          className="js-issue-filter button-link issue-action issue-action-with-options"
-          aria-label={translate('issue.filter_similar_issues')}
-          onClick={this.handleClick}>
-          <i className="icon-filter icon-half-transparent" /> <i className="icon-dropdown" />
-        </button>
-      </BubblePopupHelper>
+      <div className="dropdown">
+        <Toggler
+          onRequestClose={this.handleClose}
+          open={this.props.isOpen}
+          overlay={<SimilarIssuesPopup issue={this.props.issue} onFilter={this.handleFilter} />}>
+          <Button
+            aria-label={translate('issue.filter_similar_issues')}
+            className="js-issue-filter button-link issue-action issue-action-with-options"
+            onClick={this.handleClick}>
+            <i className="icon-filter icon-half-transparent" />
+            <DropdownIcon className="little-spacer-left" />
+          </Button>
+        </Toggler>
+      </div>
     );
   }
 }

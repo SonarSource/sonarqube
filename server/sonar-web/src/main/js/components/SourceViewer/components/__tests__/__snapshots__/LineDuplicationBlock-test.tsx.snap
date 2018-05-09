@@ -9,19 +9,19 @@ exports[`render duplicated line 1`] = `
   role="button"
   tabIndex={0}
 >
-  <Tooltip
-    overlay="source_viewer.tooltip.duplicated_block"
-    placement="right"
+  <Toggler
+    onRequestClose={[Function]}
+    open={false}
   >
-    <div
-      className="source-line-bar"
-    />
-  </Tooltip>
-  <BubblePopupHelper
-    isOpen={false}
-    position="bottomright"
-    togglePopup={[Function]}
-  />
+    <Tooltip
+      overlay="source_viewer.tooltip.duplicated_block"
+      placement="right"
+    >
+      <div
+        className="source-line-bar"
+      />
+    </Tooltip>
+  </Toggler>
 </td>
 `;
 

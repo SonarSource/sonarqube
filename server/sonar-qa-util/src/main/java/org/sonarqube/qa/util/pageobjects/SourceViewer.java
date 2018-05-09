@@ -34,7 +34,7 @@ public class SourceViewer {
 
   public SelenideElement openCoverageDetails(int line) {
     this.el.$(".source-line-coverage[data-line-number=\"" + line + "\"").click();
-    return $(".bubble-popup").shouldBe(visible);
+    return $(".popup").shouldBe(visible);
   }
 
   public SourceViewer shouldHaveNewLines(int ...lines) {

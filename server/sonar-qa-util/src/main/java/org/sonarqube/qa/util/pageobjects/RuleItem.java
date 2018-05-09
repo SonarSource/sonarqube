@@ -33,7 +33,7 @@ public class RuleItem {
 
   public RuleItem filterSimilarRules(String field) {
     elt.$(".js-rule-filter").click();
-    elt.$(".dropdown-menu a[data-field=\"" + field + "\"]").click();
+    elt.$(".menu a[data-field=\"" + field + "\"]").click();
     return this;
   }
 

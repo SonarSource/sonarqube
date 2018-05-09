@@ -1,9 +1,10 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should not add separators if not needed 1`] = `
-<BubblePopup
-  customClass="bubble-popup-right disabled-pointer-events"
-  position={
+<Popup
+  className="disabled-pointer-events"
+  placement="left-top"
+  style={
     Object {
       "left": 476,
       "top": 30,
@@ -32,13 +33,14 @@ exports[`should not add separators if not needed 1`] = `
       />
     </table>
   </div>
-</BubblePopup>
+</Popup>
 `;
 
 exports[`should render correctly for issues graphs 1`] = `
-<BubblePopup
-  customClass="bubble-popup-right disabled-pointer-events"
-  position={
+<Popup
+  className="disabled-pointer-events"
+  placement="left-top"
+  style={
     Object {
       "left": 476,
       "top": 30,
@@ -90,13 +92,14 @@ exports[`should render correctly for issues graphs 1`] = `
       </tbody>
     </table>
   </div>
-</BubblePopup>
+</Popup>
 `;
 
 exports[`should render correctly for random graphs 1`] = `
-<BubblePopup
-  customClass="bubble-popup-right disabled-pointer-events"
-  position={
+<Popup
+  className="disabled-pointer-events"
+  placement="left-top"
+  style={
     Object {
       "left": 476,
       "top": 30,
@@ -142,5 +145,5 @@ exports[`should render correctly for random graphs 1`] = `
       </tbody>
     </table>
   </div>
-</BubblePopup>
+</Popup>
 `;

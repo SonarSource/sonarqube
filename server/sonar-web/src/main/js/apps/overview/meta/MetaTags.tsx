@@ -22,58 +22,20 @@ import MetaTagsSelector from './MetaTagsSelector';
 import { setProjectTags } from '../../../api/components';
 import { translate } from '../../../helpers/l10n';
 import TagsList from '../../../components/tags/TagsList';
-import { BubblePopupPosition } from '../../../components/common/BubblePopup';
 import { Component } from '../../../app/types';
 import { Button } from '../../../components/ui/buttons';
+import Dropdown from '../../../components/controls/Dropdown';
+import { PopupPlacement } from '../../../components/ui/popups';
 
 interface Props {
   component: Component;
   onComponentChange: (changes: {}) => void;
 }
 
-interface State {
-  popupOpen: boolean;
-  popupPosition: BubblePopupPosition;
-}
-
-export default class MetaTags extends React.PureComponent<Props, State> {
+export default class MetaTags extends React.PureComponent<Props> {
   card?: HTMLDivElement | null;
   tagsList?: HTMLElement | null;
   tagsSelector?: HTMLDivElement | null;
-  state: State = { popupOpen: false, popupPosition: { top: 0, right: 0 } };
-
-  componentDidMount() {
-    if (this.canUpdateTags() && this.tagsList && this.card) {
-      const buttonPos = this.tagsList.getBoundingClientRect();
-      const cardPos = this.card.getBoundingClientRect();
-      this.setState({ popupPosition: this.getPopupPos(buttonPos, cardPos) });
-
-      window.addEventListener('keydown', this.handleKey, false);
-      window.addEventListener('click', this.handleOutsideClick, false);
-    }
-  }
-
-  componentWillUnmount() {
-    window.removeEventListener('keydown', this.handleKey);
-    window.removeEventListener('click', this.handleOutsideClick);
-  }
-
-  handleKey = (evt: KeyboardEvent) => {
-    // Escape key
-    if (evt.keyCode === 27) {
-      this.setState({ popupOpen: false });
-    }
-  };
-
-  handleOutsideClick = (evt: Event) => {
-    if (!this.tagsSelector || !this.tagsSelector.contains(evt.target as Node)) {
-      this.setState({ popupOpen: false });
-    }
-  };
-
-  handleClick = () => {
-    this.setState(state => ({ popupOpen: !state.popupOpen }));
-  };
 
   canUpdateTags = () => {
     const { configuration } = this.props.component;
@@ -94,29 +56,29 @@ export default class MetaTags extends React.PureComponent<Props, State> {
 
   render() {
     const { key } = this.props.component;
-    const { popupOpen, popupPosition } = this.state;
     const tags = this.props.component.tags || [];
 
     if (this.canUpdateTags()) {
       return (
         <div className="big-spacer-top overview-meta-tags" ref={card => (this.card = card)}>
-          <Button
-            className="button-link"
-            innerRef={tagsList => (this.tagsList = tagsList)}
-            onClick={this.handleClick}
-            stopPropagation={true}>
-            <TagsList allowUpdate={true} tags={tags.length ? tags : [translate('no_tags')]} />
-          </Button>
-          {popupOpen && (
-            <div ref={tagsSelector => (this.tagsSelector = tagsSelector)}>
+          <Dropdown
+            closeOnClick={false}
+            closeOnClickOutside={true}
+            overlay={
               <MetaTagsSelector
-                position={popupPosition}
                 project={key}
                 selectedTags={tags}
                 setProjectTags={this.handleSetProjectTags}
               />
-            </div>
-          )}
+            }
+            overlayPlacement={PopupPlacement.BottomLeft}>
+            <Button
+              className="button-link"
+              innerRef={tagsList => (this.tagsList = tagsList)}
+              stopPropagation={true}>
+              <TagsList allowUpdate={true} tags={tags.length ? tags : [translate('no_tags')]} />
+            </Button>
+          </Dropdown>
         </div>
       );
     } else {

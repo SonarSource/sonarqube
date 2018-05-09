@@ -28,45 +28,26 @@ exports[`should groups at 0 if the groupCount field is not defined (just added u
   >
     organization.members.x_groups.0
   </td>
-  <td
-    className="nowrap text-middle text-right"
-  >
-    <ActionsDropdown>
-      <ManageMemberGroupsForm
-        member={
-          Object {
-            "avatar": "7daf6c79d4802916d83f6266e24850af",
-            "login": "john",
-            "name": "John Doe",
-          }
-        }
-        organization={
-          Object {
-            "canAdmin": true,
-            "key": "foo",
-            "name": "Foo",
-          }
-        }
-      />
-      <ActionsDropdownDivider />
-      <RemoveMemberForm
-        member={
-          Object {
-            "avatar": "7daf6c79d4802916d83f6266e24850af",
-            "login": "john",
-            "name": "John Doe",
-          }
-        }
-        organization={
-          Object {
-            "canAdmin": true,
-            "key": "foo",
-            "name": "Foo",
-          }
-        }
-      />
-    </ActionsDropdown>
-  </td>
+  <React.Fragment>
+    <td
+      className="nowrap text-middle text-right"
+    >
+      <ActionsDropdown>
+        <ActionsDropdownItem
+          onClick={[Function]}
+        >
+          organization.members.manage_groups
+        </ActionsDropdownItem>
+        <ActionsDropdownDivider />
+        <ActionsDropdownItem
+          destructive={true}
+          onClick={[Function]}
+        >
+          organization.members.remove
+        </ActionsDropdownItem>
+      </ActionsDropdown>
+    </td>
+  </React.Fragment>
 </tr>
 `;
 
@@ -124,46 +105,25 @@ exports[`should render actions and groups for admin 1`] = `
   >
     organization.members.x_groups.3
   </td>
-  <td
-    className="nowrap text-middle text-right"
-  >
-    <ActionsDropdown>
-      <ManageMemberGroupsForm
-        member={
-          Object {
-            "avatar": "",
-            "groupCount": 3,
-            "login": "admin",
-            "name": "Admin Istrator",
-          }
-        }
-        organization={
-          Object {
-            "canAdmin": true,
-            "key": "foo",
-            "name": "Foo",
-          }
-        }
-      />
-      <ActionsDropdownDivider />
-      <RemoveMemberForm
-        member={
-          Object {
-            "avatar": "",
-            "groupCount": 3,
-            "login": "admin",
-            "name": "Admin Istrator",
-          }
-        }
-        organization={
-          Object {
-            "canAdmin": true,
-            "key": "foo",
-            "name": "Foo",
-          }
-        }
-      />
-    </ActionsDropdown>
-  </td>
+  <React.Fragment>
+    <td
+      className="nowrap text-middle text-right"
+    >
+      <ActionsDropdown>
+        <ActionsDropdownItem
+          onClick={[Function]}
+        >
+          organization.members.manage_groups
+        </ActionsDropdownItem>
+        <ActionsDropdownDivider />
+        <ActionsDropdownItem
+          destructive={true}
+          onClick={[Function]}
+        >
+          organization.members.remove
+        </ActionsDropdownItem>
+      </ActionsDropdown>
+    </td>
+  </React.Fragment>
 </tr>
 `;

@@ -153,19 +153,20 @@ export default class GlobalNavMenu extends React.PureComponent<Props> {
       return null;
     }
     return (
-      <Dropdown>
+      <Dropdown
+        overlay={<ul className="menu">{withoutPortfolios.map(this.renderGlobalPageLink)}</ul>}
+        tagName="li">
         {({ onToggleClick, open }) => (
-          <li className={classNames('dropdown', { open })}>
-            <a
-              className={classNames('dropdown-toggle', { active: open })}
-              href="#"
-              id="global-navigation-more"
-              onClick={onToggleClick}>
-              {translate('more')}
-              <span className="icon-dropdown little-spacer-left" />
-            </a>
-            <ul className="dropdown-menu">{withoutPortfolios.map(this.renderGlobalPageLink)}</ul>
-          </li>
+          <a
+            aria-expanded={String(open)}
+            aria-haspopup="true"
+            className={classNames('dropdown-toggle', { active: open })}
+            href="#"
+            id="global-navigation-more"
+            onClick={onToggleClick}>
+            {translate('more')}
+            <span className="icon-dropdown little-spacer-left" />
+          </a>
         )}
       </Dropdown>
     );

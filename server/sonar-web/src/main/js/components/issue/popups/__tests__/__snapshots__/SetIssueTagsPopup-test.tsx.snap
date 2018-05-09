@@ -1,22 +1,25 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should render tags popup correctly 1`] = `
-<TagsSelector
-  listSize={10}
-  onSearch={[Function]}
-  onSelect={[Function]}
-  onUnselect={[Function]}
-  position={Object {}}
-  selectedTags={
-    Array [
-      "mytag",
-    ]
-  }
-  tags={
-    Array [
-      "test",
-      "second",
-    ]
-  }
-/>
+<DropdownOverlay
+  placement="bottom-right"
+>
+  <TagsSelector
+    listSize={10}
+    onSearch={[Function]}
+    onSelect={[Function]}
+    onUnselect={[Function]}
+    selectedTags={
+      Array [
+        "mytag",
+      ]
+    }
+    tags={
+      Array [
+        "test",
+        "second",
+      ]
+    }
+  />
+</DropdownOverlay>
 `;

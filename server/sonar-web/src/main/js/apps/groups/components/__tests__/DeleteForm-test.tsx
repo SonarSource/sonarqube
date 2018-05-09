@@ -17,20 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import * as React from 'react';
 import { shallow } from 'enzyme';
-import React from 'react';
-import BubblePopup from '../BubblePopup';
+import DeleteForm from '../DeleteForm';
 
-const props = {
-  position: { top: 0, right: 0 },
-  customClass: 'custom'
-};
-
-it('should render popup', () => {
-  const popup = shallow(
-    <BubblePopup {...props}>
-      <span>test</span>
-    </BubblePopup>
-  );
-  expect(popup).toMatchSnapshot();
+it('should render', () => {
+  const group = { id: 3, name: 'Foo', membersCount: 5 };
+  expect(
+    shallow(<DeleteForm group={group} onClose={jest.fn()} onSubmit={jest.fn()} />).dive()
+  ).toMatchSnapshot();
 });

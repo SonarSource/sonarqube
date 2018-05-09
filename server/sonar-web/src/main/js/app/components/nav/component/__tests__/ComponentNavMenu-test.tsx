@@ -41,8 +41,8 @@ it('should work with extensions', () => {
   const wrapper = shallow(<ComponentNavMenu branchLike={mainBranch} component={component} />, {
     context: { branchesEnabled: true }
   });
-  expect(wrapper.find('Dropdown[data-test="extensions"]').dive()).toMatchSnapshot();
-  expect(wrapper.find('Dropdown[data-test="admin-extensions"]').dive()).toMatchSnapshot();
+  expect(wrapper.find('Dropdown[data-test="extensions"]')).toMatchSnapshot();
+  expect(wrapper.find('Dropdown[data-test="administration"]')).toMatchSnapshot();
 });
 
 it('should work with multiple extensions', () => {
@@ -60,8 +60,8 @@ it('should work with multiple extensions', () => {
   const wrapper = shallow(<ComponentNavMenu branchLike={mainBranch} component={component} />, {
     context: { branchesEnabled: true }
   });
-  expect(wrapper.find('Dropdown[data-test="extensions"]').dive()).toMatchSnapshot();
-  expect(wrapper.find('Dropdown[data-test="admin-extensions"]').dive()).toMatchSnapshot();
+  expect(wrapper.find('Dropdown[data-test="extensions"]')).toMatchSnapshot();
+  expect(wrapper.find('Dropdown[data-test="administration"]')).toMatchSnapshot();
 });
 
 it('should work for short-living branches', () => {

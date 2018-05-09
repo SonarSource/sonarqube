@@ -19,10 +19,12 @@
  */
 // @flow
 import React from 'react';
-import BubblePopupHelper from '../../../components/common/BubblePopupHelper';
-import IssueTypeIcon from '../../../components/ui/IssueTypeIcon';
 import SetTypePopup from '../popups/SetTypePopup';
 import { setIssueType } from '../../../api/issues';
+import Toggler from '../../../components/controls/Toggler';
+import DropdownIcon from '../../../components/icons-components/DropdownIcon';
+import { Button } from '../../../components/ui/buttons';
+import IssueTypeIcon from '../../../components/ui/IssueTypeIcon';
 import { translate } from '../../../helpers/l10n';
 /*:: import type { Issue } from '../types'; */
 
@@ -43,26 +45,32 @@ export default class IssueType extends React.PureComponent {
     this.props.togglePopup('set-type', open);
   };
 
-  setType = (type /*: string */) =>
+  setType = (type /*: string */) => {
     this.props.setIssueProperty('type', 'set-type', setIssueType, type);
+  };
+
+  handleClose = () => {
+    this.toggleSetType(false);
+  };
 
   render() {
     const { issue } = this.props;
     if (this.props.canSetSeverity) {
       return (
-        <BubblePopupHelper
-          isOpen={this.props.isOpen && this.props.canSetSeverity}
-          position="bottomleft"
-          togglePopup={this.toggleSetType}
-          popup={<SetTypePopup issue={issue} onSelect={this.setType} />}>
-          <button
-            className="button-link issue-action issue-action-with-options js-issue-set-type"
-            onClick={this.toggleSetType}>
-            <IssueTypeIcon className="little-spacer-right" query={issue.type} />
-            {translate('issue.type', issue.type)}
-            <i className="little-spacer-left icon-dropdown" />
-          </button>
-        </BubblePopupHelper>
+        <div className="dropdown">
+          <Toggler
+            onRequestClose={this.handleClose}
+            open={this.props.isOpen && this.props.canSetSeverity}
+            overlay={<SetTypePopup issue={issue} onSelect={this.setType} />}>
+            <Button
+              className="button-link issue-action issue-action-with-options js-issue-set-type"
+              onClick={this.toggleSetType}>
+              <IssueTypeIcon className="little-spacer-right" query={issue.type} />
+              {translate('issue.type', issue.type)}
+              <DropdownIcon className="little-spacer-left" />
+            </Button>
+          </Toggler>
+        </div>
       );
     } else {
       return (

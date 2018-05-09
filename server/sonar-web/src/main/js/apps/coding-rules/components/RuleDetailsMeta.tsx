@@ -31,10 +31,11 @@ import DocTooltip from '../../../components/docs/DocTooltip';
 import { translate } from '../../../helpers/l10n';
 import IssueTypeIcon from '../../../components/ui/IssueTypeIcon';
 import SeverityHelper from '../../../components/shared/SeverityHelper';
-import BubblePopupHelper from '../../../components/common/BubblePopupHelper';
+import Dropdown from '../../../components/controls/Dropdown';
 import TagsList from '../../../components/tags/TagsList';
 import DateFormatter from '../../../components/intl/DateFormatter';
 import { Button } from '../../../components/ui/buttons';
+import { PopupPlacement } from '../../../components/ui/popups';
 
 interface Props {
   canWrite: boolean | undefined;
@@ -46,19 +47,7 @@ interface Props {
   ruleDetails: RuleDetails;
 }
 
-interface State {
-  tagsPopup: boolean;
-}
-
-export default class RuleDetailsMeta extends React.PureComponent<Props, State> {
-  state: State = { tagsPopup: false };
-
-  handleTagsClick = () => {
-    this.setState(state => ({ tagsPopup: !state.tagsPopup }));
-  };
-
-  handleTagsPopupToggle = (show: boolean) => this.setState({ tagsPopup: show });
-
+export default class RuleDetailsMeta extends React.PureComponent<Props> {
   renderType = () => {
     const { ruleDetails } = this.props;
     return (
@@ -106,9 +95,10 @@ export default class RuleDetailsMeta extends React.PureComponent<Props, State> {
     return (
       <li className="coding-rules-detail-property" data-meta="tags">
         {this.props.canWrite ? (
-          <BubblePopupHelper
-            isOpen={this.state.tagsPopup}
-            popup={
+          <Dropdown
+            closeOnClick={false}
+            closeOnClickOutside={true}
+            overlay={
               <RuleDetailsTagsPopup
                 organization={this.props.organization}
                 setTags={this.props.onTagsChange}
@@ -116,15 +106,14 @@ export default class RuleDetailsMeta extends React.PureComponent<Props, State> {
                 tags={allTags}
               />
             }
-            position="bottomleft"
-            togglePopup={this.handleTagsPopupToggle}>
-            <Button className="button-link" onClick={this.handleTagsClick}>
+            overlayPlacement={PopupPlacement.BottomLeft}>
+            <Button className="button-link">
               <TagsList
                 allowUpdate={canWrite}
                 tags={allTags.length > 0 ? allTags : [translate('coding_rules.no_tags')]}
               />
             </Button>
-          </BubblePopupHelper>
+          </Dropdown>
         ) : (
           <TagsList
             allowUpdate={canWrite}

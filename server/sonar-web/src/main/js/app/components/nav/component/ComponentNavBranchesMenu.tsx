@@ -36,6 +36,7 @@ import { translate } from '../../../../helpers/l10n';
 import { getBranchLikeUrl } from '../../../../helpers/urls';
 import SearchBox from '../../../../components/controls/SearchBox';
 import HelpTooltip from '../../../../components/controls/HelpTooltip';
+import { DropdownOverlay } from '../../../../components/controls/Dropdown';
 
 interface Props {
   branchLikes: BranchLike[];
@@ -51,7 +52,6 @@ interface State {
 }
 
 export default class ComponentNavBranchesMenu extends React.PureComponent<Props, State> {
-  private node?: HTMLElement | null;
   private listNode?: HTMLUListElement | null;
   private selectedBranchNode?: HTMLLIElement | null;
 
@@ -59,22 +59,14 @@ export default class ComponentNavBranchesMenu extends React.PureComponent<Props,
     router: PropTypes.object
   };
 
-  constructor(props: Props) {
-    super(props);
-    this.state = { query: '', selected: undefined };
-  }
+  state: State = { query: '', selected: undefined };
 
   componentDidMount() {
-    window.addEventListener('click', this.handleClickOutside);
     this.scrollToSelectedBranch(false);
   }
 
   componentDidUpdate() {
     this.scrollToSelectedBranch(true);
-  }
-
-  componentWillUnmount() {
-    window.removeEventListener('click', this.handleClickOutside);
   }
 
   scrollToSelectedBranch(smooth: boolean) {
@@ -95,12 +87,6 @@ export default class ComponentNavBranchesMenu extends React.PureComponent<Props,
         (branchLike.title.includes(query) || branchLike.key.includes(query));
       return matchBranchName || matchPullRequestTitleOrId;
     });
-  };
-
-  handleClickOutside = (event: Event) => {
-    if (!this.node || !this.node.contains(event.target as HTMLElement)) {
-      this.props.onClose();
-    }
   };
 
   handleSearchChange = (query: string) => this.setState({ query, selected: undefined });
@@ -212,7 +198,7 @@ export default class ComponentNavBranchesMenu extends React.PureComponent<Props,
         <React.Fragment key={getBranchLikeKey(branchLike)}>
           {showDivider && <li className="divider" />}
           {showOrphanHeader && (
-            <li className="dropdown-header">
+            <li className="menu-header">
               <div className="display-inline-block text-middle">
                 {translate('branches.orphan_branches')}
               </div>
@@ -223,12 +209,12 @@ export default class ComponentNavBranchesMenu extends React.PureComponent<Props,
             </li>
           )}
           {showPullRequestHeader && (
-            <li className="dropdown-header navbar-context-meta-branch-menu-title">
+            <li className="menu-header navbar-context-meta-branch-menu-title">
               {translate('branches.pull_requests')}
             </li>
           )}
           {showShortLivingBranchHeader && (
-            <li className="dropdown-header navbar-context-meta-branch-menu-title">
+            <li className="menu-header navbar-context-meta-branch-menu-title">
               {translate('branches.short_lived_branches')}
             </li>
           )}
@@ -261,7 +247,7 @@ export default class ComponentNavBranchesMenu extends React.PureComponent<Props,
       component.configuration.showSettings;
 
     return (
-      <div className="dropdown-menu" ref={node => (this.node = node)}>
+      <DropdownOverlay noPadding={true}>
         {this.renderSearch()}
         {this.renderBranchesList()}
         {showManageLink && (
@@ -273,7 +259,7 @@ export default class ComponentNavBranchesMenu extends React.PureComponent<Props,
             </Link>
           </div>
         )}
-      </div>
+      </DropdownOverlay>
     );
   }
 }

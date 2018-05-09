@@ -18,16 +18,33 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import * as classNames from 'classnames';
+import ScreenPositionFixer from './ScreenPositionFixer';
+import Toggler from './Toggler';
+import { Popup, PopupPlacement } from '../ui/popups';
+
+interface OnClickCallback {
+  (event?: React.SyntheticEvent<HTMLElement>): void;
+}
 
 interface RenderProps {
   closeDropdown: () => void;
-  onToggleClick: (event?: React.SyntheticEvent<HTMLElement>) => void;
+  onToggleClick: OnClickCallback;
   open: boolean;
 }
 
 interface Props {
-  children: (renderProps: RenderProps) => JSX.Element;
+  children:
+    | ((renderProps: RenderProps) => JSX.Element)
+    | React.ReactElement<{ onClick: OnClickCallback }>;
+  className?: string;
+  closeOnClick?: boolean;
+  closeOnClickOutside?: boolean;
   onOpen?: () => void;
+  overlay: React.ReactNode;
+  overlayPlacement?: PopupPlacement;
+  noOverlayPadding?: boolean;
+  tagName?: string;
 }
 
 interface State {
@@ -35,49 +52,18 @@ interface State {
 }
 
 export default class Dropdown extends React.PureComponent<Props, State> {
-  toggleNode?: HTMLElement;
-
-  constructor(props: Props) {
-    super(props);
-    this.state = { open: false };
-  }
+  state: State = { open: false };
 
   componentDidUpdate(_: Props, prevState: State) {
-    if (!prevState.open && this.state.open) {
-      this.addClickHandler();
-      if (this.props.onOpen) {
-        this.props.onOpen();
-      }
-    }
-
-    if (prevState.open && !this.state.open) {
-      this.removeClickHandler();
+    if (!prevState.open && this.state.open && this.props.onOpen) {
+      this.props.onOpen();
     }
   }
-
-  componentWillUnmount() {
-    this.removeClickHandler();
-  }
-
-  addClickHandler = () => {
-    window.addEventListener('click', this.handleWindowClick);
-  };
-
-  removeClickHandler = () => {
-    window.removeEventListener('click', this.handleWindowClick);
-  };
-
-  handleWindowClick = (event: MouseEvent) => {
-    if (!this.toggleNode || !this.toggleNode.contains(event.target as Node)) {
-      this.closeDropdown();
-    }
-  };
 
   closeDropdown = () => this.setState({ open: false });
 
   handleToggleClick = (event?: React.SyntheticEvent<HTMLElement>) => {
     if (event) {
-      this.toggleNode = event.currentTarget;
       event.preventDefault();
       event.currentTarget.blur();
     }
@@ -85,10 +71,89 @@ export default class Dropdown extends React.PureComponent<Props, State> {
   };
 
   render() {
-    return this.props.children({
-      closeDropdown: this.closeDropdown,
-      onToggleClick: this.handleToggleClick,
-      open: this.state.open
-    });
+    const a11yAttrs = {
+      'aria-expanded': String(this.state.open),
+      'aria-haspopup': 'true'
+    };
+
+    const child = React.isValidElement(this.props.children)
+      ? React.cloneElement(this.props.children, { onClick: this.handleToggleClick, ...a11yAttrs })
+      : this.props.children({
+          closeDropdown: this.closeDropdown,
+          onToggleClick: this.handleToggleClick,
+          open: this.state.open
+        });
+
+    const { closeOnClick = true, closeOnClickOutside = false } = this.props;
+
+    const toggler = (
+      <Toggler
+        closeOnClick={closeOnClick}
+        closeOnClickOutside={closeOnClickOutside}
+        onRequestClose={this.closeDropdown}
+        open={this.state.open}
+        overlay={
+          <DropdownOverlay
+            noPadding={this.props.noOverlayPadding}
+            placement={this.props.overlayPlacement}>
+            {this.props.overlay}
+          </DropdownOverlay>
+        }>
+        {child}
+      </Toggler>
+    );
+
+    return React.createElement(
+      this.props.tagName || 'div',
+      { className: classNames('dropdown', this.props.className) },
+      toggler
+    );
+  }
+}
+
+interface OverlayProps {
+  className?: string;
+  children: React.ReactNode;
+  noPadding?: boolean;
+  placement?: PopupPlacement;
+}
+
+// TODO use the same styling for <Select />
+// TODO use the same styling for <DateInput />
+
+export class DropdownOverlay extends React.Component<OverlayProps> {
+  get placement() {
+    return this.props.placement || PopupPlacement.Bottom;
+  }
+
+  renderPopup = (leftFix?: number, topFix?: number) => (
+    <Popup
+      arrowStyle={
+        leftFix !== undefined && topFix !== undefined
+          ? { transform: `translate(${-leftFix}px, ${-topFix}px)` }
+          : undefined
+      }
+      className={this.props.className}
+      noPadding={this.props.noPadding}
+      placement={this.placement}
+      style={
+        leftFix !== undefined && topFix !== undefined
+          ? { marginLeft: `calc(50% + ${leftFix}px)` }
+          : undefined
+      }>
+      {this.props.children}
+    </Popup>
+  );
+
+  render() {
+    if (this.placement === PopupPlacement.Bottom) {
+      return (
+        <ScreenPositionFixer>
+          {({ leftFix, topFix }) => this.renderPopup(leftFix, topFix)}
+        </ScreenPositionFixer>
+      );
+    } else {
+      return this.renderPopup();
+    }
   }
 }

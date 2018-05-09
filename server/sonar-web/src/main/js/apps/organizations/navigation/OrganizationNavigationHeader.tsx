@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import * as classNames from 'classnames';
 import { sortBy } from 'lodash';
 import { Organization } from '../../../app/types';
 import OrganizationAvatar from '../../../components/common/OrganizationAvatar';
@@ -38,20 +37,19 @@ export default function OrganizationNavigationHeader({ organization, organizatio
     <header className="navbar-context-header">
       <OrganizationAvatar organization={organization} />
       {other.length ? (
-        <Dropdown>
-          {({ onToggleClick, open }) => (
-            <div className={classNames('organization-switch', 'dropdown', { open })}>
-              <a className="dropdown-toggle" href="#" onClick={onToggleClick}>
-                {organization.name}
-                <DropdownIcon className="little-spacer-left" />
-              </a>
-              <ul className="dropdown-menu">
-                {sortBy(other, org => org.name.toLowerCase()).map(organization => (
-                  <OrganizationListItem key={organization.key} organization={organization} />
-                ))}
-              </ul>
-            </div>
-          )}
+        <Dropdown
+          className="display-inline-block"
+          overlay={
+            <ul className="menu">
+              {sortBy(other, org => org.name.toLowerCase()).map(organization => (
+                <OrganizationListItem key={organization.key} organization={organization} />
+              ))}
+            </ul>
+          }>
+          <a className="spacer-left link-base-color link-no-underline" href="#">
+            {organization.name}
+            <DropdownIcon className="little-spacer-left" />
+          </a>
         </Dropdown>
       ) : (
         <span className="spacer-left">{organization.name}</span>

@@ -183,19 +183,21 @@ export default class ComponentNavMenu extends React.PureComponent<Props> {
     }
 
     return (
-      <Dropdown data-test="extensions">
+      <Dropdown
+        data-test="administration"
+        overlay={<ul className="menu">{adminLinks}</ul>}
+        tagName="li">
         {({ onToggleClick, open }) => (
-          <li className={classNames('dropdown', { open })}>
-            <a
-              className={classNames('dropdown-toggle', { active: isSettingsActive || open })}
-              href="#"
-              id="component-navigation-admin"
-              onClick={onToggleClick}>
-              {translate('layout.settings')}
-              <i className="icon-dropdown little-spacer-left" />
-            </a>
-            <ul className="dropdown-menu">{adminLinks}</ul>
-          </li>
+          <a
+            aria-expanded={String(open)}
+            aria-haspopup="true"
+            className={classNames('dropdown-toggle', { active: isSettingsActive || open })}
+            href="#"
+            id="component-navigation-admin"
+            onClick={onToggleClick}>
+            {translate('layout.settings')}
+            <i className="icon-dropdown little-spacer-left" />
+          </a>
         )}
       </Dropdown>
     );
@@ -421,19 +423,21 @@ export default class ComponentNavMenu extends React.PureComponent<Props> {
     }
 
     return (
-      <Dropdown data-test="admin-extensions">
+      <Dropdown
+        data-test="extensions"
+        overlay={<ul className="menu">{extensions.map(e => this.renderExtension(e, false))}</ul>}
+        tagName="li">
         {({ onToggleClick, open }) => (
-          <li className={classNames('dropdown', { open })}>
-            <a
-              className={classNames('dropdown-toggle', { active: open })}
-              href="#"
-              id="component-navigation-more"
-              onClick={onToggleClick}>
-              {translate('more')}
-              <i className="icon-dropdown little-spacer-left" />
-            </a>
-            <ul className="dropdown-menu">{extensions.map(e => this.renderExtension(e, false))}</ul>
-          </li>
+          <a
+            aria-expanded={String(open)}
+            aria-haspopup="true"
+            className={classNames('dropdown-toggle', { active: open })}
+            href="#"
+            id="component-navigation-more"
+            onClick={onToggleClick}>
+            {translate('more')}
+            <i className="icon-dropdown little-spacer-left" />
+          </a>
         )}
       </Dropdown>
     );

@@ -22,7 +22,8 @@ import React from 'react';
 import { find, sortBy } from 'lodash';
 import AddGraphMetricPopup from './AddGraphMetricPopup';
 import DropdownIcon from '../../../../components/icons-components/DropdownIcon';
-import BubblePopupHelper from '../../../../components/common/BubblePopupHelper';
+import Dropdown from '../../../../components/controls/Dropdown';
+import { Button } from '../../../../components/ui/buttons';
 import { isDiffMetric } from '../../../../helpers/measures';
 import { getLocalizedMetricName, translate } from '../../../../helpers/l10n';
 /*:: import type { Metric } from '../../types'; */
@@ -40,7 +41,6 @@ type Props = {
 
 /*::
 type State = {
-  open: boolean,
   query: string,
 };
 */
@@ -48,7 +48,6 @@ type State = {
 export default class AddGraphMetric extends React.PureComponent {
   /*:: props: Props; */
   state /*: State */ = {
-    open: false,
     metrics: [],
     query: '',
     selectedMetrics: []
@@ -107,12 +106,6 @@ export default class AddGraphMetric extends React.PureComponent {
     return metric === undefined ? key : getLocalizedMetricName(metric);
   };
 
-  toggleForm = () => {
-    this.setState(state => {
-      return { open: !state.open };
-    });
-  };
-
   onSearch = (query /*: string */) => {
     this.setState({ query });
     return Promise.resolve();
@@ -138,10 +131,6 @@ export default class AddGraphMetric extends React.PureComponent {
     });
   };
 
-  togglePopup = (open /*: boolean*/) => {
-    this.setState({ open });
-  };
-
   render() {
     const { query } = this.state;
     const filteredMetrics = this.filterMetricsElements(this.props, query);
@@ -151,34 +140,27 @@ export default class AddGraphMetric extends React.PureComponent {
       query
     );
     return (
-      <div className="display-inline-block">
-        <BubblePopupHelper
-          isOpen={this.state.open}
-          offset={{ horizontal: 16, vertical: 0 }}
-          popup={
-            <AddGraphMetricPopup
-              elements={filteredMetrics}
-              filterSelected={this.filterSelected}
-              metricsTypeFilter={this.props.metricsTypeFilter}
-              onSearch={this.onSearch}
-              onSelect={this.onSelect}
-              onUnselect={this.onUnselect}
-              renderLabel={element => this.getLocalizedMetricNameFromKey(element)}
-              selectedElements={selectedMetrics}
-            />
-          }
-          position="bottomright"
-          togglePopup={this.togglePopup}>
-          <button className="spacer-left" onClick={this.toggleForm} type="button">
-            <span>
-              <span className="text-ellipsis spacer-right">
-                {translate('project_activity.graphs.custom.add')}
-              </span>
-              <DropdownIcon className="vertical-text-top" />
-            </span>
-          </button>
-        </BubblePopupHelper>
-      </div>
+      <Dropdown
+        className="display-inline-block"
+        overlay={
+          <AddGraphMetricPopup
+            elements={filteredMetrics}
+            filterSelected={this.filterSelected}
+            metricsTypeFilter={this.props.metricsTypeFilter}
+            onSearch={this.onSearch}
+            onSelect={this.onSelect}
+            onUnselect={this.onUnselect}
+            renderLabel={element => this.getLocalizedMetricNameFromKey(element)}
+            selectedElements={selectedMetrics}
+          />
+        }>
+        <Button className="spacer-left">
+          <span className="text-ellipsis text-middle">
+            {translate('project_activity.graphs.custom.add')}
+          </span>
+          <DropdownIcon className="text-top little-spacer-left" />
+        </Button>
+      </Dropdown>
     );
   }
 }

@@ -19,24 +19,26 @@
  */
 import * as React from 'react';
 import { SourceLine } from '../../../app/types';
-import BubblePopup from '../../common/BubblePopup';
+import { DropdownOverlay } from '../../controls/Dropdown';
 import DateFormatter from '../../intl/DateFormatter';
+import { PopupPlacement } from '../../ui/popups';
 
 interface Props {
   line: SourceLine;
-  popupPosition?: any;
 }
 
-export default function SCMPopup({ line, popupPosition }: Props) {
+export default function SCMPopup({ line }: Props) {
   return (
-    <BubblePopup customClass="source-viewer-bubble-popup" position={popupPosition}>
-      <div className="bubble-popup-section">{line.scmAuthor}</div>
-      {line.scmDate && (
-        <div className="bubble-popup-section">
-          <DateFormatter date={line.scmDate} />
-        </div>
-      )}
-      {line.scmRevision && <div className="bubble-popup-section">{line.scmRevision}</div>}
-    </BubblePopup>
+    <DropdownOverlay placement={PopupPlacement.RightTop}>
+      <div className="source-viewer-bubble-popup abs-width-400">
+        <div>{line.scmAuthor}</div>
+        {line.scmDate && (
+          <div className="spacer-top">
+            <DateFormatter date={line.scmDate} />
+          </div>
+        )}
+        {line.scmRevision && <div className="spacer-top">{line.scmRevision}</div>}
+      </div>
+    </DropdownOverlay>
   );
 }

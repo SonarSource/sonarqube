@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import * as classNames from 'classnames';
 import * as PropTypes from 'prop-types';
 import { FormattedMessage } from 'react-intl';
 import ComponentNavBranchesMenu from './ComponentNavBranchesMenu';
@@ -35,6 +34,7 @@ import {
 import { translate } from '../../../../helpers/l10n';
 import PlusCircleIcon from '../../../../components/icons-components/PlusCircleIcon';
 import HelpTooltip from '../../../../components/controls/HelpTooltip';
+import Toggler from '../../../../components/controls/Toggler';
 import Tooltip from '../../../../components/controls/Tooltip';
 
 interface Props {
@@ -91,19 +91,6 @@ export default class ComponentNavBranch extends React.PureComponent<Props, State
     }
   };
 
-  renderDropdown = () => {
-    const { configuration } = this.props.component;
-    return this.state.dropdownOpen ? (
-      <ComponentNavBranchesMenu
-        branchLikes={this.props.branchLikes}
-        canAdmin={configuration && configuration.showSettings}
-        component={this.props.component}
-        currentBranchLike={this.props.currentBranchLike}
-        onClose={this.closeDropdown}
-      />
-    ) : null;
-  };
-
   renderMergeBranch = () => {
     const { currentBranchLike } = this.props;
     if (isShortLivingBranch(currentBranchLike)) {
@@ -140,6 +127,7 @@ export default class ComponentNavBranch extends React.PureComponent<Props, State
 
   render() {
     const { branchLikes, currentBranchLike } = this.props;
+    const { configuration } = this.props.component;
 
     if (this.context.onSonarCloud && !this.context.branchesEnabled) {
       return null;
@@ -176,18 +164,32 @@ export default class ComponentNavBranch extends React.PureComponent<Props, State
     }
 
     return (
-      <div
-        className={classNames('navbar-context-branches', 'dropdown', {
-          open: this.state.dropdownOpen
-        })}>
-        <a className="link-base-color link-no-underline nowrap" href="#" onClick={this.handleClick}>
-          <BranchIcon branchLike={currentBranchLike} className="little-spacer-right" />
-          <Tooltip mouseEnterDelay={1} overlay={displayName}>
-            <span className="text-limited text-top">{displayName}</span>
-          </Tooltip>
-          <i className="icon-dropdown little-spacer-left" />
-        </a>
-        {this.renderDropdown()}
+      <div className="navbar-context-branches">
+        <div className="dropdown">
+          <Toggler
+            onRequestClose={this.closeDropdown}
+            open={this.state.dropdownOpen}
+            overlay={
+              <ComponentNavBranchesMenu
+                branchLikes={this.props.branchLikes}
+                canAdmin={configuration && configuration.showSettings}
+                component={this.props.component}
+                currentBranchLike={this.props.currentBranchLike}
+                onClose={this.closeDropdown}
+              />
+            }>
+            <a
+              className="link-base-color link-no-underline nowrap"
+              href="#"
+              onClick={this.handleClick}>
+              <BranchIcon branchLike={currentBranchLike} className="little-spacer-right" />
+              <Tooltip mouseEnterDelay={1} overlay={displayName}>
+                <span className="text-limited text-top">{displayName}</span>
+              </Tooltip>
+              <i className="icon-dropdown little-spacer-left" />
+            </a>
+          </Toggler>
+        </div>
         {this.renderMergeBranch()}
       </div>
     );

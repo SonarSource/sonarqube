@@ -21,8 +21,8 @@ import * as React from 'react';
 import * as classNames from 'classnames';
 import { SourceLine } from '../../../app/types';
 import Tooltip from '../../controls/Tooltip';
+import Toggler from '../../controls/Toggler';
 import { translate } from '../../../helpers/l10n';
-import BubblePopupHelper from '../../common/BubblePopupHelper';
 
 interface Props {
   duplicated: boolean;
@@ -54,6 +54,10 @@ export default class LineDuplicationBlock extends React.PureComponent<Props> {
     });
   };
 
+  closePopup = () => {
+    this.handleTogglePopup(false);
+  };
+
   render() {
     const { duplicated, index, line, popupOpen } = this.props;
     const className = classNames('source-meta', 'source-line-duplications-extra', {
@@ -71,15 +75,14 @@ export default class LineDuplicationBlock extends React.PureComponent<Props> {
         // eslint-disable-next-line jsx-a11y/no-noninteractive-element-to-interactive-role
         role="button"
         tabIndex={0}>
-        <Tooltip overlay={translate('source_viewer.tooltip.duplicated_block')} placement="right">
-          {cell}
-        </Tooltip>
-        <BubblePopupHelper
-          isOpen={popupOpen}
-          popup={this.props.renderDuplicationPopup(index, line.line)}
-          position="bottomright"
-          togglePopup={this.handleTogglePopup}
-        />
+        <Toggler
+          onRequestClose={this.closePopup}
+          open={popupOpen}
+          overlay={this.props.renderDuplicationPopup(index, line.line)}>
+          <Tooltip overlay={translate('source_viewer.tooltip.duplicated_block')} placement="right">
+            {cell}
+          </Tooltip>
+        </Toggler>
       </td>
     ) : (
       <td className={className} data-index={index} data-line-number={line.line}>

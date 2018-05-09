@@ -20,7 +20,7 @@
 // @flow
 import React from 'react';
 import Avatar from '../../../components/ui/Avatar';
-import BubblePopupHelper from '../../../components/common/BubblePopupHelper';
+import Toggler from '../../../components/controls/Toggler';
 import EditIcon from '../../../components/icons-components/EditIcon';
 import { EditButton, DeleteButton } from '../../../components/ui/buttons';
 import CommentDeletePopup from '../popups/CommentDeletePopup';
@@ -48,12 +48,6 @@ export default class IssueCommentLine extends React.PureComponent {
     openPopup: ''
   };
 
-  handleCommentClick = (event /*: Event & {target: HTMLElement}*/) => {
-    if (event.target.tagName === 'A') {
-      event.stopPropagation();
-    }
-  };
-
   handleEdit = (text /*: string */) => {
     this.props.onEdit(this.props.comment.key, text);
     this.toggleEditPopup(false);
@@ -75,9 +69,17 @@ export default class IssueCommentLine extends React.PureComponent {
     });
   };
 
-  toggleDeletePopup = (force /*: ?boolean */) => this.togglePopup('delete', force);
+  toggleDeletePopup = (force /*: ?boolean */) => {
+    this.togglePopup('delete', force);
+  };
 
-  toggleEditPopup = (force /*: ?boolean */) => this.togglePopup('edit', force);
+  toggleEditPopup = (force /*: ?boolean */) => {
+    this.togglePopup('edit', force);
+  };
+
+  closePopups = () => {
+    this.setState({ openPopup: '' });
+  };
 
   render() {
     const { comment } = this.props;
@@ -95,49 +97,45 @@ export default class IssueCommentLine extends React.PureComponent {
         <div
           className="issue-comment-text markdown"
           dangerouslySetInnerHTML={{ __html: comment.htmlText }}
-          onClick={this.handleCommentClick}
-          role="Listitem"
-          tabIndex={0}
         />
         <div className="issue-comment-age">
           <DateFromNow date={comment.createdAt} />
         </div>
         <div className="issue-comment-actions">
           {comment.updatable && (
-            <BubblePopupHelper
-              className="bubble-popup-helper-inline"
-              isOpen={this.state.openPopup === 'edit'}
-              offset={{ vertical: 0, horizontal: -6 }}
-              position="bottomright"
-              togglePopup={this.toggleDeletePopup}
-              popup={
-                <CommentPopup
-                  comment={comment}
-                  customClass="issue-edit-comment-bubble-popup"
-                  onComment={this.handleEdit}
-                  placeholder=""
-                  toggleComment={this.toggleEditPopup}
+            <div className="dropdown">
+              <Toggler
+                className="display-inline-block"
+                onRequestClose={this.closePopups}
+                open={this.state.openPopup === 'edit'}
+                overlay={
+                  <CommentPopup
+                    comment={comment}
+                    onComment={this.handleEdit}
+                    placeholder=""
+                    toggleComment={this.toggleEditPopup}
+                  />
+                }>
+                <EditButton
+                  className="js-issue-comment-edit button-small"
+                  onClick={this.toggleEditPopup}
                 />
-              }>
-              <EditButton
-                className="js-issue-comment-edit button-small"
-                onClick={this.toggleEditPopup}
-              />
-            </BubblePopupHelper>
+              </Toggler>
+            </div>
           )}
           {comment.updatable && (
-            <BubblePopupHelper
-              className="bubble-popup-helper-inline"
-              isOpen={this.state.openPopup === 'delete'}
-              offset={{ vertical: 0, horizontal: -10 }}
-              position="bottomright"
-              togglePopup={this.toggleDeletePopup}
-              popup={<CommentDeletePopup onDelete={this.handleDelete} />}>
-              <DeleteButton
-                className="js-issue-comment-delete button-small"
-                onClick={this.toggleDeletePopup}
-              />
-            </BubblePopupHelper>
+            <div className="dropdown">
+              <Toggler
+                className="display-inline-block"
+                onRequestClose={this.closePopups}
+                open={this.state.openPopup === 'delete'}
+                overlay={<CommentDeletePopup onDelete={this.handleDelete} />}>
+                <DeleteButton
+                  className="js-issue-comment-delete button-small"
+                  onClick={this.toggleDeletePopup}
+                />
+              </Toggler>
+            </div>
           )}
         </div>
       </div>

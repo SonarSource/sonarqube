@@ -200,7 +200,6 @@
 }
 
 .property pre,
-.bubble-popup pre,
 .coding-rules-detail-parameter pre {
   display: inline-block;
   min-width: 100%;
@@ -213,7 +212,6 @@
 }
 
 .property blockquote,
-.bubble-popup blockquote,
 .coding-rules-detail-parameter blockquote {
   margin-top: 10px;
   padding: 10px;

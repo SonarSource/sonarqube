@@ -20,7 +20,7 @@
 import * as React from 'react';
 import LineOptionsPopup from './LineOptionsPopup';
 import { BranchLike, SourceLine } from '../../../app/types';
-import BubblePopupHelper from '../../common/BubblePopupHelper';
+import Toggler from '../../controls/Toggler';
 
 interface Props {
   branchLike: BranchLike | undefined;
@@ -42,6 +42,10 @@ export default class LineNumber extends React.PureComponent<Props> {
     this.props.onPopupToggle({ line: this.props.line.line, name: 'line-number', open });
   };
 
+  closePopup = () => {
+    this.handleTogglePopup(false);
+  };
+
   render() {
     const { branchLike, componentKey, line, popupOpen } = this.props;
     const { line: lineNumber } = line;
@@ -54,14 +58,12 @@ export default class LineNumber extends React.PureComponent<Props> {
         // eslint-disable-next-line jsx-a11y/no-noninteractive-element-to-interactive-role
         role="button"
         tabIndex={0}>
-        <BubblePopupHelper
-          isOpen={popupOpen}
-          offset={{ vertical: -18, horizontal: 0 }}
-          popup={
+        <Toggler
+          onRequestClose={this.closePopup}
+          open={popupOpen}
+          overlay={
             <LineOptionsPopup branchLike={branchLike} componentKey={componentKey} line={line} />
           }
-          position="bottomright"
-          togglePopup={this.handleTogglePopup}
         />
       </td>
     ) : (

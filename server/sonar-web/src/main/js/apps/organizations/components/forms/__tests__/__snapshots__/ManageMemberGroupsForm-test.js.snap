@@ -22,7 +22,6 @@ Array [
 exports[`should correctly handle the submit event and close the modal 2`] = `
 Object {
   "loading": false,
-  "open": false,
   "userGroups": Object {
     "11": Object {
       "description": "Technical accounts",
@@ -33,21 +32,6 @@ Object {
     },
     "7": Object {
       "status": "add",
-    },
-  },
-}
-`;
-
-exports[`should correctly handle user interactions 1`] = `
-Object {
-  "loading": false,
-  "open": true,
-  "userGroups": Object {
-    "11": Object {
-      "description": "Technical accounts",
-      "id": 11,
-      "name": "pull-request-analysers",
-      "selected": true,
     },
   },
 }
@@ -68,136 +52,48 @@ Object {
 }
 `;
 
-exports[`should render and open the modal 1`] = `
-<ActionsDropdownItem
-  onClick={[Function]}
+exports[`should render 1`] = `
+<Modal
+  contentLabel="organization.members.manage_groups"
 >
-  organization.members.manage_groups
-</ActionsDropdownItem>
-`;
-
-exports[`should render and open the modal 2`] = `
-Array [
-  <ActionsDropdownItem
-    onClick={[Function]}
+  <header
+    className="modal-head"
   >
-    organization.members.manage_groups
-  </ActionsDropdownItem>,
-  <Modal
-    contentLabel="organization.members.manage_groups"
-    onRequestClose={[Function]}
+    <h2>
+      organization.members.manage_groups
+    </h2>
+  </header>
+  <form
+    onSubmit={[Function]}
   >
-    <header
-      className="modal-head"
+    <div
+      className="modal-body"
     >
-      <h2>
-        organization.members.manage_groups
-      </h2>
-    </header>
-    <form
-      onSubmit={[Function]}
+      <strong>
+        organization.members.members_groups.Admin Istrator
+      </strong>
+       
+      <i
+        className="spinner"
+      />
+    </div>
+    <footer
+      className="modal-foot"
     >
-      <div
-        className="modal-body"
-      >
-        <strong>
-          organization.members.members_groups.Admin Istrator
-        </strong>
-         
-        <ul
-          className="list-spaced"
+      <div>
+        <button
+          type="submit"
         >
-          <OrganizationGroupCheckbox
-            checked={false}
-            group={
-              Object {
-                "description": "",
-                "id": "7",
-                "membersCount": 12,
-                "name": "professionals",
-              }
-            }
-            onCheck={[Function]}
-          />
-          <OrganizationGroupCheckbox
-            checked={false}
-            group={
-              Object {
-                "description": "Technical accounts",
-                "id": "11",
-                "membersCount": 3,
-                "name": "pull-request-analysers",
-              }
-            }
-            onCheck={[Function]}
-          />
-          <OrganizationGroupCheckbox
-            checked={false}
-            group={
-              Object {
-                "description": "System administrators",
-                "id": "1",
-                "membersCount": 17,
-                "name": "sonar-administrators",
-              }
-            }
-            onCheck={[Function]}
-          />
-        </ul>
+          save
+        </button>
+        <button
+          className="button-link"
+          type="reset"
+        >
+          cancel
+        </button>
       </div>
-      <footer
-        className="modal-foot"
-      >
-        <div>
-          <button
-            type="submit"
-          >
-            save
-          </button>
-          <button
-            className="button-link"
-            onClick={[Function]}
-            type="reset"
-          >
-            cancel
-          </button>
-        </div>
-      </footer>
-    </form>
-  </Modal>,
-]
-`;
-
-exports[`should reset the selected groups when the modal is opened 1`] = `
-Object {
-  "loading": false,
-  "open": true,
-  "userGroups": Object {
-    "11": Object {
-      "description": "Technical accounts",
-      "id": 11,
-      "name": "pull-request-analysers",
-      "selected": true,
-      "status": "remove",
-    },
-    "7": Object {
-      "status": "add",
-    },
-  },
-}
-`;
-
-exports[`should reset the selected groups when the modal is opened 2`] = `
-Object {
-  "loading": false,
-  "open": true,
-  "userGroups": Object {
-    "11": Object {
-      "description": "Technical accounts",
-      "id": 11,
-      "name": "pull-request-analysers",
-      "selected": true,
-    },
-  },
-}
+    </footer>
+  </form>
+</Modal>
 `;

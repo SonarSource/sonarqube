@@ -31,6 +31,11 @@
   outline: none;
 }
 
+.menu.is-container {
+  padding: 5px;
+}
+
+.menu-item,
 .menu > li > a,
 .menu > li > span {
   display: block;
@@ -85,6 +90,11 @@
   background-color: var(--barBackgroundColor);
 }
 
+.menu > li > a.text-danger,
+.menu > li > a.text-danger:hover {
+  color: var(--red) !important;
+}
+
 .menu .menu-vertically-limited,
 .menu.menu-vertically-limited {
   max-height: 300px;
@@ -115,7 +125,7 @@
 
 .menu-search {
   position: relative;
-  padding: 4px 16px 0;
+  padding: var(--gridSize) calc(2 * var(--gridSize)) 0;
 }
 
 .menu-search .search-box,
@@ -142,4 +152,16 @@
   display: block;
   padding: 4px 16px;
   line-height: 16px;
+}
+
+.menu-header {
+  padding: var(--gridSize);
+  font-size: 12px;
+  color: #777;
+  white-space: nowrap;
+}
+
+.menu-header:first-child,
+.divider + .menu-header {
+  padding-top: calc(var(--gridSize) - 5px);
 }

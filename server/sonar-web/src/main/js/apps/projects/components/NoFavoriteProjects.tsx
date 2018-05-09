@@ -19,7 +19,6 @@
  */
 import * as React from 'react';
 import { Link } from 'react-router';
-import * as classNames from 'classnames';
 import { connect } from 'react-redux';
 import * as PropTypes from 'prop-types';
 import { sortBy } from 'lodash';
@@ -61,23 +60,19 @@ export class NoFavoriteProjects extends React.PureComponent<Props> {
               <a className="button" href="#" onClick={this.onAnalyzeProjectClick}>
                 {translate('my_account.analyze_new_project')}
               </a>
-              <Dropdown>
-                {({ onToggleClick, open }) => (
-                  <div
-                    className={classNames('display-inline-block', 'big-spacer-left', 'dropdown', {
-                      open
-                    })}>
-                    <a className="button" href="#" onClick={onToggleClick}>
-                      {translate('projects.no_favorite_projects.favorite_projects_from_orgs')}
-                      <DropdownIcon className="little-spacer-left" />
-                    </a>
-                    <ul className="dropdown-menu">
-                      {sortBy(organizations, org => org.name.toLowerCase()).map(organization => (
-                        <OrganizationListItem key={organization.key} organization={organization} />
-                      ))}
-                    </ul>
-                  </div>
-                )}
+              <Dropdown
+                className="display-inline-block big-spacer-left"
+                overlay={
+                  <ul className="menu">
+                    {sortBy(organizations, org => org.name.toLowerCase()).map(organization => (
+                      <OrganizationListItem key={organization.key} organization={organization} />
+                    ))}
+                  </ul>
+                }>
+                <a className="button" href="#">
+                  {translate('projects.no_favorite_projects.favorite_projects_from_orgs')}
+                  <DropdownIcon className="little-spacer-left" />
+                </a>
               </Dropdown>
               <Link className="button big-spacer-left" to="/explore/projects">
                 {translate('projects.no_favorite_projects.favorite_public_projects')}
@@ -90,7 +85,7 @@ export class NoFavoriteProjects extends React.PureComponent<Props> {
               {translate('projects.no_favorite_projects.engagement')}
             </p>
             <p className="big-spacer-top">
-              <Link to="/projects/all" className="button">
+              <Link className="button" to="/projects/all">
                 {translate('projects.explore_projects')}
               </Link>
             </p>

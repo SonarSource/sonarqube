@@ -19,10 +19,10 @@
  */
 import * as React from 'react';
 import { IndexLink } from 'react-router';
-import * as classNames from 'classnames';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { getProfilesPath, getProfilesForLanguagePath } from '../utils';
 import Dropdown from '../../../components/controls/Dropdown';
+import DropdownIcon from '../../../components/icons-components/DropdownIcon';
 
 interface Props {
   currentFilter?: string;
@@ -48,36 +48,31 @@ export default function ProfilesListHeader({ currentFilter, languages, organizat
 
   return (
     <header className="quality-profiles-list-header clearfix">
-      <Dropdown>
-        {({ onToggleClick, open }) => (
-          <div className={classNames('dropdown', { open })}>
-            <a
-              className="dropdown-toggle link-no-underline js-language-filter"
-              href="#"
-              onClick={onToggleClick}>
-              {label}
-              <i className="icon-dropdown little-spacer-left" />
-            </a>
-
-            <ul className="dropdown-menu">
-              <li>
-                <IndexLink to={getProfilesPath(organization)}>
-                  {translate('quality_profiles.all_profiles')}
+      <Dropdown
+        className="display-inline-block"
+        overlay={
+          <ul className="menu">
+            <li>
+              <IndexLink to={getProfilesPath(organization)}>
+                {translate('quality_profiles.all_profiles')}
+              </IndexLink>
+            </li>
+            {languages.map(language => (
+              <li key={language.key}>
+                <IndexLink
+                  className="js-language-filter-option"
+                  data-language={language.key}
+                  to={getProfilesForLanguagePath(language.key, organization)}>
+                  {language.name}
                 </IndexLink>
               </li>
-              {languages.map(language => (
-                <li key={language.key}>
-                  <IndexLink
-                    className="js-language-filter-option"
-                    data-language={language.key}
-                    to={getProfilesForLanguagePath(language.key, organization)}>
-                    {language.name}
-                  </IndexLink>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
+            ))}
+          </ul>
+        }>
+        <a className="dropdown-toggle link-no-underline js-language-filter" href="#">
+          <span className="text-middle">{label}</span>
+          <DropdownIcon className="little-spacer-left text-middle" />
+        </a>
       </Dropdown>
     </header>
   );

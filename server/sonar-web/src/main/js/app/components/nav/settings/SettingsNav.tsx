@@ -91,51 +91,54 @@ export default class SettingsNav extends React.PureComponent<Props> {
       extension => extension.key !== 'license/support'
     );
     return (
-      <Dropdown>
+      <Dropdown
+        overlay={
+          <ul className="menu">
+            <li>
+              <IndexLink activeClassName="active" to="/admin/settings">
+                {translate('settings.page')}
+              </IndexLink>
+            </li>
+            <li>
+              <IndexLink activeClassName="active" to="/admin/settings/encryption">
+                {translate('property.category.security.encryption')}
+              </IndexLink>
+            </li>
+            <li>
+              <IndexLink activeClassName="active" to="/admin/custom_metrics">
+                {translate('custom_metrics.page')}
+              </IndexLink>
+            </li>
+            {!organizationsEnabled && (
+              <li>
+                <IndexLink activeClassName="active" to="/admin/webhooks">
+                  {translate('webhooks.page')}
+                </IndexLink>
+              </li>
+            )}
+            {extensionsWithoutSupport.map(this.renderExtension)}
+          </ul>
+        }
+        tagName="li">
         {({ onToggleClick, open }) => (
-          <li className={classNames('dropdown', { open })}>
-            <a
-              className={classNames('dropdown-toggle', {
-                active:
-                  open ||
-                  (!this.isSecurityActive() &&
-                    !this.isProjectsActive() &&
-                    !this.isSystemActive() &&
-                    !this.isSomethingActive(['/admin/extension/license/support']) &&
-                    !this.isMarketplace())
-              })}
-              href="#"
-              id="settings-navigation-configuration"
-              onClick={onToggleClick}>
-              {translate('sidebar.project_settings')}
-              <i className="icon-dropdown little-spacer-left" />
-            </a>
-            <ul className="dropdown-menu">
-              <li>
-                <IndexLink activeClassName="active" to="/admin/settings">
-                  {translate('settings.page')}
-                </IndexLink>
-              </li>
-              <li>
-                <IndexLink activeClassName="active" to="/admin/settings/encryption">
-                  {translate('property.category.security.encryption')}
-                </IndexLink>
-              </li>
-              <li>
-                <IndexLink activeClassName="active" to="/admin/custom_metrics">
-                  {translate('custom_metrics.page')}
-                </IndexLink>
-              </li>
-              {!organizationsEnabled && (
-                <li>
-                  <IndexLink activeClassName="active" to="/admin/webhooks">
-                    {translate('webhooks.page')}
-                  </IndexLink>
-                </li>
-              )}
-              {extensionsWithoutSupport.map(this.renderExtension)}
-            </ul>
-          </li>
+          <a
+            aria-expanded={String(open)}
+            aria-haspopup="true"
+            className={classNames('dropdown-toggle', {
+              active:
+                open ||
+                (!this.isSecurityActive() &&
+                  !this.isProjectsActive() &&
+                  !this.isSystemActive() &&
+                  !this.isSomethingActive(['/admin/extension/license/support']) &&
+                  !this.isMarketplace())
+            })}
+            href="#"
+            id="settings-navigation-configuration"
+            onClick={onToggleClick}>
+            {translate('sidebar.project_settings')}
+            <i className="icon-dropdown little-spacer-left" />
+          </a>
         )}
       </Dropdown>
     );
@@ -144,30 +147,33 @@ export default class SettingsNav extends React.PureComponent<Props> {
   renderProjectsTab() {
     const { organizationsEnabled } = this.props;
     return (
-      <Dropdown>
-        {({ onToggleClick, open }) => (
-          <li className={classNames('dropdown', { open })}>
-            <a
-              className={classNames('dropdown-toggle', { active: open || this.isProjectsActive() })}
-              href="#"
-              onClick={onToggleClick}>
-              {translate('sidebar.projects')} <i className="icon-dropdown" />
-            </a>
-            <ul className="dropdown-menu">
-              {!organizationsEnabled && (
-                <li>
-                  <IndexLink activeClassName="active" to="/admin/projects_management">
-                    {translate('management')}
-                  </IndexLink>
-                </li>
-              )}
+      <Dropdown
+        overlay={
+          <ul className="menu">
+            {!organizationsEnabled && (
               <li>
-                <IndexLink activeClassName="active" to="/admin/background_tasks">
-                  {translate('background_tasks.page')}
+                <IndexLink activeClassName="active" to="/admin/projects_management">
+                  {translate('management')}
                 </IndexLink>
               </li>
-            </ul>
-          </li>
+            )}
+            <li>
+              <IndexLink activeClassName="active" to="/admin/background_tasks">
+                {translate('background_tasks.page')}
+              </IndexLink>
+            </li>
+          </ul>
+        }
+        tagName="li">
+        {({ onToggleClick, open }) => (
+          <a
+            aria-expanded={String(open)}
+            aria-haspopup="true"
+            className={classNames('dropdown-toggle', { active: open || this.isProjectsActive() })}
+            href="#"
+            onClick={onToggleClick}>
+            {translate('sidebar.projects')} <i className="icon-dropdown" />
+          </a>
         )}
       </Dropdown>
     );
@@ -176,44 +182,47 @@ export default class SettingsNav extends React.PureComponent<Props> {
   renderSecurityTab() {
     const { organizationsEnabled } = this.props;
     return (
-      <Dropdown>
-        {({ onToggleClick, open }) => (
-          <li className={classNames('dropdown', { open })}>
-            <a
-              className={classNames('dropdown-toggle', { active: open || this.isSecurityActive() })}
-              href="#"
-              onClick={onToggleClick}>
-              {translate('sidebar.security')} <i className="icon-dropdown" />
-            </a>
-            <ul className="dropdown-menu">
+      <Dropdown
+        overlay={
+          <ul className="menu">
+            <li>
+              <IndexLink activeClassName="active" to="/admin/users">
+                {translate('users.page')}
+              </IndexLink>
+            </li>
+            {!organizationsEnabled && (
               <li>
-                <IndexLink activeClassName="active" to="/admin/users">
-                  {translate('users.page')}
+                <IndexLink activeClassName="active" to="/admin/groups">
+                  {translate('user_groups.page')}
                 </IndexLink>
               </li>
-              {!organizationsEnabled && (
-                <li>
-                  <IndexLink activeClassName="active" to="/admin/groups">
-                    {translate('user_groups.page')}
-                  </IndexLink>
-                </li>
-              )}
-              {!organizationsEnabled && (
-                <li>
-                  <IndexLink activeClassName="active" to="/admin/permissions">
-                    {translate('global_permissions.page')}
-                  </IndexLink>
-                </li>
-              )}
-              {!organizationsEnabled && (
-                <li>
-                  <IndexLink activeClassName="active" to="/admin/permission_templates">
-                    {translate('permission_templates')}
-                  </IndexLink>
-                </li>
-              )}
-            </ul>
-          </li>
+            )}
+            {!organizationsEnabled && (
+              <li>
+                <IndexLink activeClassName="active" to="/admin/permissions">
+                  {translate('global_permissions.page')}
+                </IndexLink>
+              </li>
+            )}
+            {!organizationsEnabled && (
+              <li>
+                <IndexLink activeClassName="active" to="/admin/permission_templates">
+                  {translate('permission_templates')}
+                </IndexLink>
+              </li>
+            )}
+          </ul>
+        }
+        tagName="li">
+        {({ onToggleClick, open }) => (
+          <a
+            aria-expanded={String(open)}
+            aria-haspopup="true"
+            className={classNames('dropdown-toggle', { active: open || this.isSecurityActive() })}
+            href="#"
+            onClick={onToggleClick}>
+            {translate('sidebar.security')} <i className="icon-dropdown" />
+          </a>
         )}
       </Dropdown>
     );

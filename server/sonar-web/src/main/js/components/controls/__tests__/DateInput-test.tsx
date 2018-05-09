@@ -39,13 +39,12 @@ it('should render', () => {
   const { wrapper } = shallowRender();
 
   expect(wrapper).toMatchSnapshot();
-  expect(wrapper.dive()).toMatchSnapshot();
 
   wrapper.setProps({ value: dateA });
-  expect(wrapper.dive()).toMatchSnapshot();
+  expect(wrapper).toMatchSnapshot();
 
   wrapper.setState({ open: true });
-  expect(wrapper.dive()).toMatchSnapshot();
+  expect(wrapper).toMatchSnapshot();
 });
 
 it('should change current month', () => {
@@ -76,8 +75,9 @@ it('should select a day', () => {
 
   instance.handleDayClick(dateA, { outside: undefined, today: undefined });
   expect(onChange).lastCalledWith(dateA);
+  wrapper.update();
   expect(wrapper.state().open).toBe(false);
-  expect(wrapper.dive()).toMatchSnapshot();
+  expect(wrapper).toMatchSnapshot();
 
   instance.handleResetClick();
   expect(onChange).lastCalledWith(undefined);
@@ -90,7 +90,7 @@ it('should hightlightFrom range', () => {
   const dateC = addDays(dateA, 3);
   instance.handleDayMouseEnter(dateC, { outside: undefined, today: undefined });
   wrapper.update();
-  const dayPicker = wrapper.dive().find('DayPicker');
+  const dayPicker = wrapper.find('DayPicker');
   expect(dayPicker.prop('modifiers')).toEqual({ highlighted: { from: dateA, to: dateC } });
   expect(dayPicker.prop('selectedDays')).toEqual([dateA]);
 });
@@ -102,7 +102,7 @@ it('should hightlightTo range', () => {
   const dateC = subDays(dateB, 5);
   instance.handleDayMouseEnter(dateC, { outside: undefined, today: undefined });
   wrapper.update();
-  const dayPicker = wrapper.dive().find('DayPicker');
+  const dayPicker = wrapper.find('DayPicker');
   expect(dayPicker.prop('modifiers')).toEqual({ highlighted: { from: dateC, to: dateB } });
   expect(dayPicker.prop('selectedDays')).toEqual([dateB]);
 });

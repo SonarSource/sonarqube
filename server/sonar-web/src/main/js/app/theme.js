@@ -56,6 +56,7 @@ module.exports = {
   snippetFontColor: '#f0f0f0',
 
   // sizes
+  grid,
   gridSize: `${grid}px`,
 
   baseFontSize: '13px',
@@ -105,5 +106,5 @@ module.exports = {
   modalZIndex: '6001',
   modalOverlayZIndex: '6000',
 
-  bubblePopupZIndex: '5000'
+  popupZIndex: '5000'
 };

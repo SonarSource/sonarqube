@@ -20,7 +20,8 @@
 import * as React from 'react';
 import { Link } from 'react-router';
 import { BranchLike, SourceLine } from '../../../app/types';
-import BubblePopup from '../../common/BubblePopup';
+import { DropdownOverlay } from '../../controls/Dropdown';
+import { PopupPlacement } from '../../ui/popups';
 import { translate } from '../../../helpers/l10n';
 import { getBranchLikeQuery } from '../../../helpers/branches';
 
@@ -28,21 +29,20 @@ interface Props {
   branchLike: BranchLike | undefined;
   componentKey: string;
   line: SourceLine;
-  popupPosition?: any;
 }
 
-export default function LineOptionsPopup({ branchLike, componentKey, line, popupPosition }: Props) {
+export default function LineOptionsPopup({ branchLike, componentKey, line }: Props) {
   const permalink = {
     pathname: '/component',
     query: { id: componentKey, line: line.line, ...getBranchLikeQuery(branchLike) }
   };
   return (
-    <BubblePopup customClass="source-viewer-bubble-popup" position={popupPosition}>
-      <div className="bubble-popup-section">
+    <DropdownOverlay placement={PopupPlacement.RightTop}>
+      <div className="source-viewer-bubble-popup nowrap">
         <Link className="js-get-permalink" to={permalink}>
           {translate('component_viewer.get_permalink')}
         </Link>
       </div>
-    </BubblePopup>
+    </DropdownOverlay>
   );
 }

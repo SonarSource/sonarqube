@@ -1,0 +1,46 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render 1`] = `
+<Modal
+  contentLabel="groups.delete_group"
+  onRequestClose={[MockFunction]}
+>
+  <form
+    onSubmit={[Function]}
+  >
+    <header
+      className="modal-head"
+    >
+      <h2>
+        groups.delete_group
+      </h2>
+    </header>
+    <div
+      className="modal-body"
+    >
+      groups.delete_group.confirmation.Foo
+    </div>
+    <footer
+      className="modal-foot"
+    >
+      <DeferredSpinner
+        className="spacer-right"
+        loading={false}
+        timeout={100}
+      />
+      <SubmitButton
+        className="button-red"
+        disabled={false}
+      >
+        delete
+      </SubmitButton>
+      <ResetButtonLink
+        disabled={false}
+        onClick={[Function]}
+      >
+        cancel
+      </ResetButtonLink>
+    </footer>
+  </form>
+</Modal>
+`;

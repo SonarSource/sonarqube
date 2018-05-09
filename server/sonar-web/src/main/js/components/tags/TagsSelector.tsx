@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import BubblePopup, { BubblePopupPosition } from '../common/BubblePopup';
 import MultiSelect from '../common/MultiSelect';
 import { translate } from '../../helpers/l10n';
 import './TagsList.css';
@@ -28,27 +27,22 @@ interface Props {
   onSearch: (query: string) => Promise<void>;
   onSelect: (item: string) => void;
   onUnselect: (item: string) => void;
-  position: BubblePopupPosition;
   selectedTags: string[];
   tags: string[];
 }
 
 export default function TagsSelector(props: Props) {
   return (
-    <BubblePopup
-      customClass="bubble-popup-bottom-right bubble-popup-menu abs-width-300"
-      position={props.position}>
-      <MultiSelect
-        elements={props.tags}
-        listSize={props.listSize}
-        onSearch={props.onSearch}
-        onSelect={props.onSelect}
-        onUnselect={props.onUnselect}
-        placeholder={translate('search.search_for_tags')}
-        selectedElements={props.selectedTags}
-        validateSearchInput={validateTag}
-      />
-    </BubblePopup>
+    <MultiSelect
+      elements={props.tags}
+      listSize={props.listSize}
+      onSearch={props.onSearch}
+      onSelect={props.onSelect}
+      onUnselect={props.onUnselect}
+      placeholder={translate('search.search_for_tags')}
+      selectedElements={props.selectedTags}
+      validateSearchInput={validateTag}
+    />
   );
 }
 

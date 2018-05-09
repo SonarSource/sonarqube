@@ -34,8 +34,8 @@ it('should render without the action when the correct rights are missing', () =>
       canAssign={false}
       isOpen={false}
       issue={issue}
-      onFail={jest.fn()}
       onAssign={jest.fn()}
+      onFail={jest.fn()}
       togglePopup={jest.fn()}
     />
   );
@@ -48,8 +48,8 @@ it('should render with the action', () => {
       canAssign={true}
       isOpen={false}
       issue={issue}
-      onFail={jest.fn()}
       onAssign={jest.fn()}
+      onFail={jest.fn()}
       togglePopup={jest.fn()}
     />
   );
@@ -63,12 +63,12 @@ it('should open the popup when the button is clicked', () => {
       canAssign={true}
       isOpen={false}
       issue={issue}
-      onFail={jest.fn()}
       onAssign={jest.fn()}
+      onFail={jest.fn()}
       togglePopup={toggle}
     />
   );
-  click(element.find('button'));
+  click(element.find('Button'));
   expect(toggle.mock.calls).toMatchSnapshot();
   element.setProps({ isOpen: true });
   expect(element).toMatchSnapshot();

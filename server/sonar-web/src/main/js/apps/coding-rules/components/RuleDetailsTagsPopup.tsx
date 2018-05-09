@@ -21,11 +21,9 @@ import * as React from 'react';
 import { without, uniq, difference } from 'lodash';
 import TagsSelector from '../../../components/tags/TagsSelector';
 import { getRuleTags } from '../../../api/rules';
-import { BubblePopupPosition } from '../../../components/common/BubblePopup';
 
 interface Props {
   organization: string | undefined;
-  popupPosition?: BubblePopupPosition;
   setTags: (tags: string[]) => void;
   sysTags: string[];
   tags: string[];
@@ -81,7 +79,6 @@ export default class RuleDetailsTagsPopup extends React.PureComponent<Props, Sta
         onSearch={this.onSearch}
         onSelect={this.onSelect}
         onUnselect={this.onUnselect}
-        position={this.props.popupPosition || {}}
         selectedTags={this.props.tags}
         tags={availableTags}
       />

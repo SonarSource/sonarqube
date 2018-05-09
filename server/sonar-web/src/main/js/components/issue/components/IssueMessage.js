@@ -38,7 +38,6 @@ export default class IssueMessage extends React.PureComponent {
 
   handleClick = (e /*: MouseEvent */) => {
     e.preventDefault();
-    e.stopPropagation();
     this.context.workspace.openRule({
       key: this.props.rule,
       organization: this.props.organization

@@ -48,24 +48,20 @@ exports[`should delete group 1`] = `
     className="thin nowrap text-right"
   >
     <ActionsDropdown>
-      <EditGroup
-        group={
-          Object {
-            "id": 3,
-            "membersCount": 5,
-            "name": "Foo",
-          }
-        }
-        onEdit={[MockFunction]}
-      />
+      <ActionsDropdownItem
+        className="js-group-update"
+        onClick={[Function]}
+      >
+        update_details
+      </ActionsDropdownItem>
       <ActionsDropdownDivider />
-      <ConfirmButton
-        confirmButtonText="delete"
-        isDestructive={true}
-        modalBody="groups.delete_group.confirmation.Foo"
-        modalHeader="groups.delete_group"
-        onConfirm={[Function]}
-      />
+      <ActionsDropdownItem
+        className="js-group-delete"
+        destructive={true}
+        onClick={[Function]}
+      >
+        delete
+      </ActionsDropdownItem>
     </ActionsDropdown>
   </td>
 </tr>

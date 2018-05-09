@@ -20,7 +20,7 @@
 import * as React from 'react';
 import SCMPopup from './SCMPopup';
 import { SourceLine } from '../../../app/types';
-import BubblePopupHelper from '../../common/BubblePopupHelper';
+import Toggler from '../../controls/Toggler';
 
 interface Props {
   line: SourceLine;
@@ -41,6 +41,10 @@ export default class LineSCM extends React.PureComponent<Props> {
     this.props.onPopupToggle({ line: this.props.line.line, name: 'scm', open });
   };
 
+  closePopup = () => {
+    this.handleTogglePopup(false);
+  };
+
   render() {
     const { line, popupOpen, previousLine } = this.props;
     const hasPopup = !!line.line;
@@ -55,14 +59,12 @@ export default class LineSCM extends React.PureComponent<Props> {
         // eslint-disable-next-line jsx-a11y/no-noninteractive-element-to-interactive-role
         role="button"
         tabIndex={0}>
-        {cell}
-        <BubblePopupHelper
-          isOpen={popupOpen}
-          offset={{ vertical: -18, horizontal: 0 }}
-          popup={<SCMPopup line={line} />}
-          position="bottomright"
-          togglePopup={this.handleTogglePopup}
-        />
+        <Toggler
+          onRequestClose={this.closePopup}
+          open={popupOpen}
+          overlay={<SCMPopup line={line} />}>
+          {cell}
+        </Toggler>
       </td>
     ) : (
       <td className="source-meta source-line-scm" data-line-number={line.line}>

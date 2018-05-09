@@ -81,12 +81,12 @@ export default class MeasuresOverlayCoveredFiles extends React.PureComponent<Pro
               testCase.status !== 'FAILURE' &&
               coveredFiles !== undefined && (
                 <>
-                  <div className="bubble-popup-title">
+                  <h6 className="spacer-bottom">
                     {translate('component_viewer.transition.covers')}
-                  </div>
+                  </h6>
                   {coveredFiles.length > 0
                     ? coveredFiles.map(coveredFile => (
-                        <div className="bubble-popup-section" key={coveredFile.key}>
+                        <div className="spacer-top" key={coveredFile.key}>
                           <Link to={getProjectUrl(coveredFile.key)}>{coveredFile.longName}</Link>
                           <span className="note spacer-left">
                             {translateWithParameters(
@@ -102,7 +102,7 @@ export default class MeasuresOverlayCoveredFiles extends React.PureComponent<Pro
 
             {testCase.status !== 'OK' && (
               <>
-                <div className="bubble-popup-title">{translate('component_viewer.details')}</div>
+                <h6 className="spacer-bottom">{translate('component_viewer.details')}</h6>
                 {testCase.message && <pre>{testCase.message}</pre>}
                 <pre>{testCase.stacktrace}</pre>
               </>

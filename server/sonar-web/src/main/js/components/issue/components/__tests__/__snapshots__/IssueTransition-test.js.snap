@@ -4,118 +4,118 @@ exports[`should open the popup when the button is clicked 1`] = `
 Array [
   Array [
     "transition",
-    Object {
-      "currentTarget": Object {
-        "blur": [Function],
-      },
-      "preventDefault": [Function],
-      "stopPropagation": [Function],
-      "target": Object {
-        "blur": [Function],
-      },
-    },
+    undefined,
   ],
 ]
 `;
 
 exports[`should open the popup when the button is clicked 2`] = `
-<BubblePopupHelper
-  isOpen={true}
-  popup={
-    <SetTransitionPopup
-      onSelect={[Function]}
-      transitions={
-        Array [
-          "confirm",
-          "resolve",
-          "falsepositive",
-          "wontfix",
-        ]
-      }
-    />
-  }
-  position="bottomleft"
-  togglePopup={[Function]}
+<div
+  className="dropdown"
 >
-  <button
-    className="button-link issue-action issue-action-with-options js-issue-transition"
-    onClick={[Function]}
+  <Toggler
+    onRequestClose={[Function]}
+    open={true}
+    overlay={
+      <SetTransitionPopup
+        onSelect={[Function]}
+        transitions={
+          Array [
+            "confirm",
+            "resolve",
+            "falsepositive",
+            "wontfix",
+          ]
+        }
+      />
+    }
   >
-    <StatusHelper
-      className="issue-meta-label little-spacer-right"
-      status="OPEN"
-    />
-    <i
-      className="little-spacer-left icon-dropdown"
-    />
-  </button>
-</BubblePopupHelper>
+    <Button
+      className="button-link issue-action issue-action-with-options js-issue-transition"
+      onClick={[Function]}
+    >
+      <StatusHelper
+        className="issue-meta-label"
+        status="OPEN"
+      />
+      <DropdownIcon
+        className="little-spacer-left"
+      />
+    </Button>
+  </Toggler>
+</div>
 `;
 
 exports[`should render with a resolution 1`] = `
-<BubblePopupHelper
-  isOpen={false}
-  popup={
-    <SetTransitionPopup
-      onSelect={[Function]}
-      transitions={
-        Array [
-          "reopen",
-        ]
-      }
-    />
-  }
-  position="bottomleft"
-  togglePopup={[Function]}
+<div
+  className="dropdown"
 >
-  <button
-    className="button-link issue-action issue-action-with-options js-issue-transition"
-    onClick={[Function]}
+  <Toggler
+    onRequestClose={[Function]}
+    open={false}
+    overlay={
+      <SetTransitionPopup
+        onSelect={[Function]}
+        transitions={
+          Array [
+            "reopen",
+          ]
+        }
+      />
+    }
   >
-    <StatusHelper
-      className="issue-meta-label little-spacer-right"
-      resolution="FIXED"
-      status="RESOLVED"
-    />
-    <i
-      className="little-spacer-left icon-dropdown"
-    />
-  </button>
-</BubblePopupHelper>
+    <Button
+      className="button-link issue-action issue-action-with-options js-issue-transition"
+      onClick={[Function]}
+    >
+      <StatusHelper
+        className="issue-meta-label"
+        resolution="FIXED"
+        status="RESOLVED"
+      />
+      <DropdownIcon
+        className="little-spacer-left"
+      />
+    </Button>
+  </Toggler>
+</div>
 `;
 
 exports[`should render with the action 1`] = `
-<BubblePopupHelper
-  isOpen={false}
-  popup={
-    <SetTransitionPopup
-      onSelect={[Function]}
-      transitions={
-        Array [
-          "confirm",
-          "resolve",
-          "falsepositive",
-          "wontfix",
-        ]
-      }
-    />
-  }
-  position="bottomleft"
-  togglePopup={[Function]}
+<div
+  className="dropdown"
 >
-  <button
-    className="button-link issue-action issue-action-with-options js-issue-transition"
-    onClick={[Function]}
+  <Toggler
+    onRequestClose={[Function]}
+    open={false}
+    overlay={
+      <SetTransitionPopup
+        onSelect={[Function]}
+        transitions={
+          Array [
+            "confirm",
+            "resolve",
+            "falsepositive",
+            "wontfix",
+          ]
+        }
+      />
+    }
   >
-    <StatusHelper
-      className="issue-meta-label little-spacer-right"
-      status="OPEN"
-    />
-    <i
-      className="little-spacer-left icon-dropdown"
-    />
-  </button>
-</BubblePopupHelper>
+    <Button
+      className="button-link issue-action issue-action-with-options js-issue-transition"
+      onClick={[Function]}
+    >
+      <StatusHelper
+        className="issue-meta-label"
+        status="OPEN"
+      />
+      <DropdownIcon
+        className="little-spacer-left"
+      />
+    </Button>
+  </Toggler>
+</div>
 `;
 
 exports[`should render without the action when there is no transitions 1`] = `

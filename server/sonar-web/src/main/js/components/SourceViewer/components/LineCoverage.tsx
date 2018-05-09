@@ -21,8 +21,8 @@ import * as React from 'react';
 import CoveragePopup from './CoveragePopup';
 import { BranchLike, SourceLine } from '../../../app/types';
 import Tooltip from '../../controls/Tooltip';
+import Toggler from '../../controls/Toggler';
 import { translate } from '../../../helpers/l10n';
-import BubblePopupHelper from '../../common/BubblePopupHelper';
 
 interface Props {
   branchLike: BranchLike | undefined;
@@ -59,7 +59,9 @@ export default class LineCoverage extends React.PureComponent<Props> {
       line.coverageStatus === 'covered' || line.coverageStatus === 'partially-covered';
 
     const cell = line.coverageStatus ? (
-      <Tooltip overlay={translate('source_viewer.tooltip', line.coverageStatus)} placement="right">
+      <Tooltip
+        overlay={popupOpen ? undefined : translate('source_viewer.tooltip', line.coverageStatus)}
+        placement="right">
         <div className="source-line-bar" />
       </Tooltip>
     ) : (
@@ -75,20 +77,19 @@ export default class LineCoverage extends React.PureComponent<Props> {
           // eslint-disable-next-line jsx-a11y/no-noninteractive-element-to-interactive-role
           role="button"
           tabIndex={0}>
-          {cell}
-          <BubblePopupHelper
-            isOpen={popupOpen}
-            popup={
+          <Toggler
+            onRequestClose={this.closePopup}
+            open={popupOpen}
+            overlay={
               <CoveragePopup
                 branchLike={branchLike}
                 componentKey={componentKey}
                 line={line}
                 onClose={this.closePopup}
               />
-            }
-            position="bottomright"
-            togglePopup={this.handleTogglePopup}
-          />
+            }>
+            {cell}
+          </Toggler>
         </td>
       );
     }

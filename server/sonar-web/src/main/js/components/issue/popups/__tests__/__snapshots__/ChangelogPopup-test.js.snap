@@ -1,11 +1,9 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should render the changelog popup correctly 1`] = `
-<BubblePopup
-  customClass="bubble-popup-bottom-right"
->
+<DropdownOverlay>
   <div
-    className="issue-changelog"
+    className="menu is-container issue-changelog"
   >
     <table
       className="spaced"
@@ -62,5 +60,5 @@ exports[`should render the changelog popup correctly 1`] = `
       </tbody>
     </table>
   </div>
-</BubblePopup>
+</DropdownOverlay>
 `;

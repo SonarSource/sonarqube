@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import * as classNames from 'classnames';
 import ChangeLogLevelForm from './ChangeLogLevelForm';
 import RestartForm from '../../../components/common/RestartForm';
 import { getFileNameSuffix } from '../utils';
@@ -102,53 +101,52 @@ export default class PageActions extends React.PureComponent<Props, State> {
           />
         </span>
         {this.props.canDownloadLogs && (
-          <Dropdown>
-            {({ onToggleClick, open }) => (
-              <div className={classNames('display-inline-block dropdown spacer-left', { open })}>
-                <Button onClick={onToggleClick}>
-                  {translate('system.download_logs')}
-                  <i className="icon-dropdown little-spacer-left" />
-                </Button>
-                <ul className="dropdown-menu">
-                  <li>
-                    <a
-                      download="sonarqube_app.log"
-                      href={logsUrl + '?process=app'}
-                      id="logs-link"
-                      target="_blank">
-                      Main Process
-                    </a>
-                  </li>
-                  <li>
-                    <a
-                      download="sonarqube_ce.log"
-                      href={logsUrl + '?process=ce'}
-                      id="ce-logs-link"
-                      target="_blank">
-                      Compute Engine
-                    </a>
-                  </li>
-                  <li>
-                    <a
-                      download="sonarqube_es.log"
-                      href={logsUrl + '?process=es'}
-                      id="es-logs-link"
-                      target="_blank">
-                      Search Engine
-                    </a>
-                  </li>
-                  <li>
-                    <a
-                      download="sonarqube_web.log"
-                      href={logsUrl + '?process=web'}
-                      id="web-logs-link"
-                      target="_blank">
-                      Web Server
-                    </a>
-                  </li>
-                </ul>
-              </div>
-            )}
+          <Dropdown
+            className="display-inline-block spacer-left"
+            overlay={
+              <ul className="menu">
+                <li>
+                  <a
+                    download="sonarqube_app.log"
+                    href={logsUrl + '?process=app'}
+                    id="logs-link"
+                    target="_blank">
+                    Main Process
+                  </a>
+                </li>
+                <li>
+                  <a
+                    download="sonarqube_ce.log"
+                    href={logsUrl + '?process=ce'}
+                    id="ce-logs-link"
+                    target="_blank">
+                    Compute Engine
+                  </a>
+                </li>
+                <li>
+                  <a
+                    download="sonarqube_es.log"
+                    href={logsUrl + '?process=es'}
+                    id="es-logs-link"
+                    target="_blank">
+                    Search Engine
+                  </a>
+                </li>
+                <li>
+                  <a
+                    download="sonarqube_web.log"
+                    href={logsUrl + '?process=web'}
+                    id="web-logs-link"
+                    target="_blank">
+                    Web Server
+                  </a>
+                </li>
+              </ul>
+            }>
+            <Button>
+              {translate('system.download_logs')}
+              <i className="icon-dropdown little-spacer-left" />
+            </Button>
           </Dropdown>
         )}
         <a

@@ -1,61 +1,41 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should render with selected tags 1`] = `
-<BubblePopup
-  customClass="bubble-popup-bottom-right bubble-popup-menu abs-width-300"
-  position={
-    Object {
-      "right": 0,
-      "top": 0,
-    }
+<MultiSelect
+  elements={
+    Array [
+      "foo",
+      "bar",
+      "baz",
+    ]
   }
->
-  <MultiSelect
-    elements={
-      Array [
-        "foo",
-        "bar",
-        "baz",
-      ]
-    }
-    filterSelected={[Function]}
-    listSize={10}
-    onSearch={[Function]}
-    onSelect={[Function]}
-    onUnselect={[Function]}
-    placeholder="search.search_for_tags"
-    renderLabel={[Function]}
-    selectedElements={
-      Array [
-        "bar",
-      ]
-    }
-    validateSearchInput={[Function]}
-  />
-</BubblePopup>
+  filterSelected={[Function]}
+  listSize={10}
+  onSearch={[Function]}
+  onSelect={[Function]}
+  onUnselect={[Function]}
+  placeholder="search.search_for_tags"
+  renderLabel={[Function]}
+  selectedElements={
+    Array [
+      "bar",
+    ]
+  }
+  validateSearchInput={[Function]}
+/>
 `;
 
 exports[`should render without tags at all 1`] = `
-<BubblePopup
-  customClass="bubble-popup-bottom-right bubble-popup-menu abs-width-300"
-  position={
-    Object {
-      "right": 0,
-      "top": 0,
-    }
-  }
->
-  <MultiSelect
-    elements={Array []}
-    filterSelected={[Function]}
-    listSize={10}
-    onSearch={[Function]}
-    onSelect={[Function]}
-    onUnselect={[Function]}
-    placeholder="search.search_for_tags"
-    renderLabel={[Function]}
-    selectedElements={Array []}
-    validateSearchInput={[Function]}
-  />
-</BubblePopup>
+<MultiSelect
+  elements={Array []}
+  filterSelected={[Function]}
+  listSize={10}
+  onSearch={[Function]}
+  onSelect={[Function]}
+  onUnselect={[Function]}
+  placeholder="search.search_for_tags"
+  renderLabel={[Function]}
+  selectedElements={Array []}
+  validateSearchInput={[Function]}
+/>
 `;

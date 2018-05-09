@@ -1,112 +1,42 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`should open the tag selector on click 1`] = `
-<div
-  className="big-spacer-top overview-meta-tags"
->
-  <Button
-    className="button-link"
-    innerRef={[Function]}
-    onClick={[Function]}
-    stopPropagation={true}
-  >
-    <TagsList
-      allowUpdate={true}
-      tags={
-        Array [
-          "foo",
-          "bar",
-        ]
-      }
-    />
-  </Button>
-</div>
-`;
-
-exports[`should open the tag selector on click 2`] = `
-<div
-  className="big-spacer-top overview-meta-tags"
->
-  <Button
-    className="button-link"
-    innerRef={[Function]}
-    onClick={[Function]}
-    stopPropagation={true}
-  >
-    <TagsList
-      allowUpdate={true}
-      tags={
-        Array [
-          "foo",
-          "bar",
-        ]
-      }
-    />
-  </Button>
-  <div>
-    <MetaTagsSelector
-      position={
-        Object {
-          "right": 0,
-          "top": 0,
-        }
-      }
-      project="my-second-project"
-      selectedTags={
-        Array [
-          "foo",
-          "bar",
-        ]
-      }
-      setProjectTags={[Function]}
-    />
-  </div>
-</div>
-`;
-
-exports[`should open the tag selector on click 3`] = `
-<div
-  className="big-spacer-top overview-meta-tags"
->
-  <Button
-    className="button-link"
-    innerRef={[Function]}
-    onClick={[Function]}
-    stopPropagation={true}
-  >
-    <TagsList
-      allowUpdate={true}
-      tags={
-        Array [
-          "foo",
-          "bar",
-        ]
-      }
-    />
-  </Button>
-</div>
-`;
-
 exports[`should render with tags and admin rights 1`] = `
 <div
   className="big-spacer-top overview-meta-tags"
 >
-  <Button
-    className="button-link"
-    innerRef={[Function]}
-    onClick={[Function]}
-    stopPropagation={true}
+  <Dropdown
+    closeOnClick={false}
+    closeOnClickOutside={true}
+    overlay={
+      <MetaTagsSelector
+        project="my-second-project"
+        selectedTags={
+          Array [
+            "foo",
+            "bar",
+          ]
+        }
+        setProjectTags={[Function]}
+      />
+    }
+    overlayPlacement="bottom-left"
   >
-    <TagsList
-      allowUpdate={true}
-      tags={
-        Array [
-          "foo",
-          "bar",
-        ]
-      }
-    />
-  </Button>
+    <Button
+      className="button-link"
+      innerRef={[Function]}
+      stopPropagation={true}
+    >
+      <TagsList
+        allowUpdate={true}
+        tags={
+          Array [
+            "foo",
+            "bar",
+          ]
+        }
+      />
+    </Button>
+  </Dropdown>
 </div>
 `;
 

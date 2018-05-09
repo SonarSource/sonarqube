@@ -2,9 +2,7 @@
 
 exports[`should render correctly 1`] = `
 <React.Fragment>
-  <ActionsDropdown
-    menuClassName="dropdown-menu-right"
-  >
+  <ActionsDropdown>
     <ActionsDropdownItem
       className="js-user-update"
       onClick={[Function]}

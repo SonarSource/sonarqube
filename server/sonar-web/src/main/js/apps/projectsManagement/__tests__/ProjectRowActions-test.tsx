@@ -44,7 +44,7 @@ it('restores access', async () => {
   const wrapper = shallowRender();
   expect(wrapper).toMatchSnapshot();
 
-  wrapper.prop<Function>('onOpen')();
+  wrapper.find('ActionsDropdown').prop<Function>('onOpen')();
   await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot();
 

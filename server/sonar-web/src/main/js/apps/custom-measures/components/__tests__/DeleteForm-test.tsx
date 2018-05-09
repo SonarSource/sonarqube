@@ -19,9 +19,9 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import DeleteButton from '../DeleteButton';
+import DeleteForm from '../DeleteForm';
 
-it('should delete custom measure', () => {
+it('should render', () => {
   const measure = {
     createdAt: '2017-01-01',
     description: 'my custom measure',
@@ -31,10 +31,7 @@ it('should delete custom measure', () => {
     user: { active: true, login: 'user', name: 'user' },
     value: 'custom-value'
   };
-  const onDelete = jest.fn();
-  const wrapper = shallow(<DeleteButton measure={measure} onDelete={onDelete} />);
-  expect(wrapper).toMatchSnapshot();
-
-  wrapper.find('ConfirmButton').prop<Function>('onConfirm')('1');
-  expect(onDelete).toBeCalledWith('1');
+  expect(
+    shallow(<DeleteForm measure={measure} onClose={jest.fn()} onSubmit={jest.fn()} />).dive()
+  ).toMatchSnapshot();
 });

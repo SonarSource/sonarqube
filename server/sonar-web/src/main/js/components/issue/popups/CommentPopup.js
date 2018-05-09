@@ -19,16 +19,15 @@
  */
 // @flow
 import React from 'react';
-import classNames from 'classnames';
-import BubblePopup from '../../../components/common/BubblePopup';
 import MarkdownTips from '../../../components/common/MarkdownTips';
+import { Button, ResetButtonLink } from '../../../components/ui/buttons';
 import { translate } from '../../../helpers/l10n';
+import { DropdownOverlay } from '../../controls/Dropdown';
 /*:: import type { IssueComment } from '../types'; */
 
 /*::
 type Props = {
   comment?: IssueComment,
-  customClass?: string,
   onComment: string => void,
   toggleComment: boolean => void,
   placeholder: string,
@@ -63,8 +62,7 @@ export default class CommentPopup extends React.PureComponent {
     }
   };
 
-  handleCancelClick = (evt /*: MouseEvent */) => {
-    evt.preventDefault();
+  handleCancelClick = () => {
     this.props.toggleComment(false);
   };
 
@@ -81,37 +79,37 @@ export default class CommentPopup extends React.PureComponent {
   render() {
     const { comment } = this.props;
     return (
-      <BubblePopup
-        position={this.props.popupPosition}
-        customClass={classNames(this.props.customClass, 'bubble-popup-bottom-right')}>
-        <div className="issue-comment-form-text">
-          <textarea
-            autoFocus={true}
-            placeholder={this.props.placeholder}
-            onChange={this.handleCommentChange}
-            onKeyDown={this.handleKeyboard}
-            value={this.state.textComment}
-            rows="2"
-          />
-        </div>
-        <div className="issue-comment-form-footer">
-          <div className="issue-comment-form-actions">
-            <button
-              className="js-issue-comment-submit little-spacer-right"
-              disabled={this.state.textComment.trim().length < 1}
-              onClick={this.handleCommentClick}>
-              {comment && translate('save')}
-              {!comment && translate('issue.comment.submit')}
-            </button>
-            <a href="#" className="js-issue-comment-cancel" onClick={this.handleCancelClick}>
-              {translate('cancel')}
-            </a>
+      <DropdownOverlay>
+        <div className="issue-comment-bubble-popup">
+          <div className="issue-comment-form-text">
+            <textarea
+              autoFocus={true}
+              onChange={this.handleCommentChange}
+              onKeyDown={this.handleKeyboard}
+              placeholder={this.props.placeholder}
+              rows="2"
+              value={this.state.textComment}
+            />
           </div>
-          <div className="issue-comment-form-tips">
-            <MarkdownTips />
+          <div className="issue-comment-form-footer">
+            <div className="issue-comment-form-actions">
+              <Button
+                className="js-issue-comment-submit little-spacer-right"
+                disabled={this.state.textComment.trim().length < 1}
+                onClick={this.handleCommentClick}>
+                {comment && translate('save')}
+                {!comment && translate('issue.comment.submit')}
+              </Button>
+              <ResetButtonLink className="js-issue-comment-cancel" onClick={this.handleCancelClick}>
+                {translate('cancel')}
+              </ResetButtonLink>
+            </div>
+            <div className="issue-comment-form-tips">
+              <MarkdownTips />
+            </div>
           </div>
         </div>
-      </BubblePopup>
+      </DropdownOverlay>
     );
   }
 }

@@ -18,15 +18,36 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { shallow } from 'enzyme';
-import DeleteButton from '../DeleteButton';
 
-it('should delete metric', () => {
-  const metric = { id: '3', key: 'foo', name: 'Foo', type: 'INT' };
-  const onDelete = jest.fn();
-  const wrapper = shallow(<DeleteButton metric={metric} onDelete={onDelete} />);
-  expect(wrapper).toMatchSnapshot();
+interface Props {
+  children: React.ReactNode;
+  onClick: () => void;
+}
 
-  wrapper.find('ConfirmButton').prop<Function>('onConfirm')('foo');
-  expect(onDelete).toBeCalledWith('foo');
-});
+export default class DocumentClickHandler extends React.Component<Props> {
+  componentDidMount() {
+    setTimeout(() => {
+      this.addClickHandler();
+    }, 0);
+  }
+
+  componentWillUnmount() {
+    this.removeClickHandler();
+  }
+
+  addClickHandler = () => {
+    document.addEventListener('click', this.handleDocumentClick);
+  };
+
+  removeClickHandler = () => {
+    document.removeEventListener('click', this.handleDocumentClick);
+  };
+
+  handleDocumentClick = () => {
+    this.props.onClick();
+  };
+
+  render() {
+    return this.props.children;
+  }
+}

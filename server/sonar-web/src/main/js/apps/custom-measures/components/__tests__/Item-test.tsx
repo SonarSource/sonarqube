@@ -19,31 +19,47 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import EditButton from '../EditButton';
+import Item from '../Item';
 import { click } from '../../../../helpers/testUtils';
 
+const measure = {
+  createdAt: '2017-01-01',
+  description: 'my custom measure',
+  id: '1',
+  metric: { key: 'custom', name: 'custom-metric', type: 'STRING' },
+  projectKey: 'foo',
+  user: { active: true, login: 'user', name: 'user' },
+  value: 'custom-value'
+};
+
+it('should render', () => {
+  expect(
+    shallow(<Item measure={measure} onDelete={jest.fn()} onEdit={jest.fn()} />)
+  ).toMatchSnapshot();
+});
+
 it('should edit metric', () => {
-  const metric = { id: '3', key: 'foo', name: 'Foo', type: 'INT' };
   const onEdit = jest.fn();
+  const wrapper = shallow(<Item measure={measure} onDelete={jest.fn()} onEdit={onEdit} />);
 
-  const wrapper = shallow(
-    <EditButton
-      domains={['Coverage', 'Issues']}
-      metric={metric}
-      onEdit={onEdit}
-      types={['INT', 'STRING']}
-    />
-  );
-  expect(wrapper).toMatchSnapshot();
-
-  click(wrapper.find('.js-metric-update'));
+  click(wrapper.find('.js-custom-measure-update'));
   wrapper.update();
-  expect(wrapper).toMatchSnapshot();
 
   wrapper.find('Form').prop<Function>('onSubmit')({
-    ...metric,
-    description: 'bla bla',
-    domain: 'Coverage'
+    ...measure,
+    description: 'new-description',
+    value: 'new-value'
   });
-  expect(onEdit).toBeCalledWith({ ...metric, description: 'bla bla', domain: 'Coverage' });
+  expect(onEdit).toBeCalledWith({ ...measure, description: 'new-description', value: 'new-value' });
+});
+
+it('should delete custom measure', () => {
+  const onDelete = jest.fn();
+  const wrapper = shallow(<Item measure={measure} onDelete={onDelete} onEdit={jest.fn()} />);
+
+  click(wrapper.find('.js-custom-measure-delete'));
+  wrapper.update();
+
+  wrapper.find('DeleteForm').prop<Function>('onSubmit')();
+  expect(onDelete).toBeCalledWith('1');
 });

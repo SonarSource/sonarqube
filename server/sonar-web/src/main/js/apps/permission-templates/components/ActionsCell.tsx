@@ -20,6 +20,7 @@
 import * as React from 'react';
 import * as PropTypes from 'prop-types';
 import { difference } from 'lodash';
+import DeleteForm from './DeleteForm';
 import Form from './Form';
 import {
   setDefaultPermissionTemplate,
@@ -28,11 +29,10 @@ import {
 } from '../../../api/permissions';
 import { PermissionTemplate } from '../../../app/types';
 import ActionsDropdown, { ActionsDropdownItem } from '../../../components/controls/ActionsDropdown';
-import ConfirmButton from '../../../components/controls/ConfirmButton';
 import QualifierIcon from '../../../components/shared/QualifierIcon';
-import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { translate } from '../../../helpers/l10n';
 
-interface Props {
+export interface Props {
   fromDetails?: boolean;
   organization?: { isDefault?: boolean; key: string };
   permissionTemplate: PermissionTemplate;
@@ -41,6 +41,7 @@ interface Props {
 }
 
 interface State {
+  deleteForm: boolean;
   updateModal: boolean;
 }
 
@@ -51,7 +52,7 @@ export default class ActionsCell extends React.PureComponent<Props, State> {
     router: PropTypes.object
   };
 
-  state: State = { updateModal: false };
+  state: State = { deleteForm: false, updateModal: false };
 
   componentDidMount() {
     this.mounted = true;
@@ -81,8 +82,18 @@ export default class ActionsCell extends React.PureComponent<Props, State> {
     );
   };
 
-  handleDelete = (templateId: string) => {
-    return deletePermissionTemplate({ templateId }).then(() => {
+  handleDeleteClick = () => {
+    this.setState({ deleteForm: true });
+  };
+
+  handleCloseDeleteForm = () => {
+    if (this.mounted) {
+      this.setState({ deleteForm: false });
+    }
+  };
+
+  handleDeleteSubmit = () => {
+    return deletePermissionTemplate({ templateId: this.props.permissionTemplate.id }).then(() => {
       const pathname = this.props.organization
         ? `/organizations/${this.props.organization.key}/permission_templates`
         : '/permission_templates';
@@ -159,18 +170,30 @@ export default class ActionsCell extends React.PureComponent<Props, State> {
       : '/permission_templates';
 
     return (
-      <ActionsDropdown>
-        {this.renderSetDefaultsControl()}
+      <>
+        <ActionsDropdown>
+          {this.renderSetDefaultsControl()}
 
-        {!this.props.fromDetails && (
-          <ActionsDropdownItem to={{ pathname, query: { id: t.id } }}>
-            {translate('edit_permissions')}
+          {!this.props.fromDetails && (
+            <ActionsDropdownItem to={{ pathname, query: { id: t.id } }}>
+              {translate('edit_permissions')}
+            </ActionsDropdownItem>
+          )}
+
+          <ActionsDropdownItem className="js-update" onClick={this.handleUpdateClick}>
+            {translate('update_details')}
           </ActionsDropdownItem>
-        )}
 
-        <ActionsDropdownItem className="js-update" onClick={this.handleUpdateClick}>
-          {translate('update_details')}
-        </ActionsDropdownItem>
+          {t.defaultFor.length === 0 && (
+            <ActionsDropdownItem
+              className="js-delete"
+              destructive={true}
+              onClick={this.handleDeleteClick}>
+              {translate('delete')}
+            </ActionsDropdownItem>
+          )}
+        </ActionsDropdown>
+
         {this.state.updateModal && (
           <Form
             confirmButtonText={translate('update_verb')}
@@ -181,25 +204,14 @@ export default class ActionsCell extends React.PureComponent<Props, State> {
           />
         )}
 
-        {t.defaultFor.length === 0 && (
-          <ConfirmButton
-            confirmButtonText={translate('delete')}
-            confirmData={t.id}
-            isDestructive={true}
-            modalBody={translateWithParameters(
-              'permission_template.do_you_want_to_delete_template_xxx',
-              t.name
-            )}
-            modalHeader={translate('permission_template.delete_confirm_title')}
-            onConfirm={this.handleDelete}>
-            {({ onClick }) => (
-              <ActionsDropdownItem className="js-delete" destructive={true} onClick={onClick}>
-                {translate('delete')}
-              </ActionsDropdownItem>
-            )}
-          </ConfirmButton>
+        {this.state.deleteForm && (
+          <DeleteForm
+            onClose={this.handleCloseDeleteForm}
+            onSubmit={this.handleDeleteSubmit}
+            permissionTemplate={t}
+          />
         )}
-      </ActionsDropdown>
+      </>
     );
   }
 }

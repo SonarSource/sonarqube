@@ -4,88 +4,85 @@ exports[`should open the popup when the button is clicked 1`] = `
 Array [
   Array [
     "edit-tags",
-    Object {
-      "currentTarget": Object {
-        "blur": [Function],
-      },
-      "preventDefault": [Function],
-      "stopPropagation": [Function],
-      "target": Object {
-        "blur": [Function],
-      },
-    },
+    undefined,
   ],
 ]
 `;
 
 exports[`should open the popup when the button is clicked 2`] = `
-<BubblePopupHelper
-  isOpen={true}
-  popup={
-    <SetIssueTagsPopup
-      organization="foo"
-      selectedTags={
-        Array [
-          "mytag",
-          "test",
-        ]
-      }
-      setTags={[Function]}
-    />
-  }
-  position="bottomright"
-  togglePopup={[Function]}
+<div
+  className="dropdown"
 >
-  <button
-    className="js-issue-edit-tags button-link issue-action issue-action-with-options"
-    onClick={[Function]}
+  <Toggler
+    onRequestClose={[Function]}
+    open={true}
+    overlay={
+      <SetIssueTagsPopup
+        organization="foo"
+        selectedTags={
+          Array [
+            "mytag",
+            "test",
+          ]
+        }
+        setTags={[Function]}
+      />
+    }
   >
-    <TagsList
-      allowUpdate={true}
-      tags={
-        Array [
-          "mytag",
-          "test",
-        ]
-      }
-    />
-  </button>
-</BubblePopupHelper>
+    <Button
+      className="js-issue-edit-tags button-link issue-action issue-action-with-options"
+      onClick={[Function]}
+    >
+      <TagsList
+        allowUpdate={true}
+        tags={
+          Array [
+            "mytag",
+            "test",
+          ]
+        }
+      />
+    </Button>
+  </Toggler>
+</div>
 `;
 
 exports[`should render with the action 1`] = `
-<BubblePopupHelper
-  isOpen={false}
-  popup={
-    <SetIssueTagsPopup
-      organization="foo"
-      selectedTags={
-        Array [
-          "mytag",
-          "test",
-        ]
-      }
-      setTags={[Function]}
-    />
-  }
-  position="bottomright"
-  togglePopup={[Function]}
+<div
+  className="dropdown"
 >
-  <button
-    className="js-issue-edit-tags button-link issue-action issue-action-with-options"
-    onClick={[Function]}
+  <Toggler
+    onRequestClose={[Function]}
+    open={false}
+    overlay={
+      <SetIssueTagsPopup
+        organization="foo"
+        selectedTags={
+          Array [
+            "mytag",
+            "test",
+          ]
+        }
+        setTags={[Function]}
+      />
+    }
   >
-    <TagsList
-      allowUpdate={true}
-      tags={
-        Array [
-          "mytag",
-          "test",
-        ]
-      }
-    />
-  </button>
-</BubblePopupHelper>
+    <Button
+      className="js-issue-edit-tags button-link issue-action issue-action-with-options"
+      onClick={[Function]}
+    >
+      <TagsList
+        allowUpdate={true}
+        tags={
+          Array [
+            "mytag",
+            "test",
+          ]
+        }
+      />
+    </Button>
+  </Toggler>
+</div>
 `;
 
 exports[`should render without the action when the correct rights are missing 1`] = `

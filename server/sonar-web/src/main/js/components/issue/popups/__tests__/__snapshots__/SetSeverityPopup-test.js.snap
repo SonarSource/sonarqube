@@ -1,9 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should render tags popup correctly 1`] = `
-<BubblePopup
-  customClass="bubble-popup-menu bubble-popup-bottom"
->
+<DropdownOverlay>
   <SelectList
     currentItem="MAJOR"
     items={
@@ -68,5 +66,5 @@ exports[`should render tags popup correctly 1`] = `
       severity.INFO
     </SelectListItem>
   </SelectList>
-</BubblePopup>
+</DropdownOverlay>
 `;

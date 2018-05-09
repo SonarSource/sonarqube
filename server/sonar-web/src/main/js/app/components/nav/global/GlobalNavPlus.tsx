@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import * as classNames from 'classnames';
 import * as PropTypes from 'prop-types';
 import CreateOrganizationForm from '../../../../apps/account/organizations/CreateOrganizationForm';
 import PlusIcon from '../../../../components/icons-components/PlusIcon';
@@ -65,35 +64,41 @@ export default class GlobalNavPlus extends React.PureComponent<Props, State> {
 
   render() {
     return (
-      <Dropdown>
+      <Dropdown
+        overlay={
+          <ul className="menu">
+            <li>
+              <a className="js-new-project" href="#" onClick={this.handleNewProjectClick}>
+                {translate('my_account.analyze_new_project')}
+              </a>
+            </li>
+            <li className="divider" />
+            <li>
+              <a className="js-new-organization" href="#" onClick={this.handleNewOrganizationClick}>
+                {translate('my_account.create_new_organization')}
+              </a>
+            </li>
+          </ul>
+        }
+        tagName="li">
         {({ onToggleClick, open }) => (
-          <li className={classNames('dropdown', { open })}>
-            <a className="navbar-plus" href="#" onClick={onToggleClick}>
+          <>
+            <a
+              aria-expanded={String(open)}
+              aria-haspopup="true"
+              className="navbar-plus"
+              href="#"
+              onClick={onToggleClick}>
               <PlusIcon />
             </a>
-            <ul className="dropdown-menu dropdown-menu-right">
-              <li>
-                <a className="js-new-project" href="#" onClick={this.handleNewProjectClick}>
-                  {translate('my_account.analyze_new_project')}
-                </a>
-              </li>
-              <li className="divider" />
-              <li>
-                <a
-                  className="js-new-organization"
-                  href="#"
-                  onClick={this.handleNewOrganizationClick}>
-                  {translate('my_account.create_new_organization')}
-                </a>
-              </li>
-            </ul>
+
             {this.state.createOrganization && (
               <CreateOrganizationForm
                 onClose={this.closeCreateOrganizationForm}
                 onCreate={this.handleCreateOrganization}
               />
             )}
-          </li>
+          </>
         )}
       </Dropdown>
     );

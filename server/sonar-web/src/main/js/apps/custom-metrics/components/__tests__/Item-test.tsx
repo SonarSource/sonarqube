@@ -19,40 +19,48 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import EditGroup from '../EditGroup';
+import Item from '../Item';
+import { click } from '../../../../helpers/testUtils';
 
-it('should edit group', () => {
-  const group = { id: 3, name: 'Foo', membersCount: 5 };
+const metric = { id: '3', key: 'foo', name: 'Foo', type: 'INT' };
+
+it('should render', () => {
+  expect(
+    shallow(<Item metric={metric} onDelete={jest.fn()} onEdit={jest.fn()} />)
+  ).toMatchSnapshot();
+});
+
+it('should edit metric', () => {
   const onEdit = jest.fn();
-  const newDescription = 'bla bla';
-  let onClick: any;
 
   const wrapper = shallow(
-    <EditGroup group={group} onEdit={onEdit}>
-      {props => {
-        ({ onClick } = props);
-        return <div />;
-      }}
-    </EditGroup>
+    <Item
+      domains={['Coverage', 'Issues']}
+      metric={metric}
+      onDelete={jest.fn()}
+      onEdit={onEdit}
+      types={['INT', 'STRING']}
+    />
   );
-  expect(wrapper).toMatchSnapshot();
 
-  onClick();
+  click(wrapper.find('.js-metric-update'));
   wrapper.update();
-  expect(wrapper).toMatchSnapshot();
 
-  // change name
-  wrapper.find('Form').prop<Function>('onSubmit')({ name: 'Bar', description: newDescription });
-  expect(onEdit).lastCalledWith({ description: newDescription, id: 3, name: 'Bar' });
-
-  // change description
   wrapper.find('Form').prop<Function>('onSubmit')({
-    name: group.name,
-    description: newDescription
+    ...metric,
+    description: 'bla bla',
+    domain: 'Coverage'
   });
-  expect(onEdit).lastCalledWith({ description: newDescription, id: group.id });
+  expect(onEdit).toBeCalledWith({ ...metric, description: 'bla bla', domain: 'Coverage' });
+});
 
-  wrapper.find('Form').prop<Function>('onClose')();
+it('should delete metric', () => {
+  const onDelete = jest.fn();
+  const wrapper = shallow(<Item metric={metric} onDelete={onDelete} onEdit={jest.fn()} />);
+
+  click(wrapper.find('.js-metric-delete'));
   wrapper.update();
-  expect(wrapper).toMatchSnapshot();
+
+  wrapper.find('DeleteForm').prop<Function>('onSubmit')();
+  expect(onDelete).toBeCalledWith('foo');
 });

@@ -8,15 +8,10 @@ exports[`does not render scm details 1`] = `
   role="button"
   tabIndex={0}
 >
-  <BubblePopupHelper
-    isOpen={false}
-    offset={
-      Object {
-        "horizontal": 0,
-        "vertical": -18,
-      }
-    }
-    popup={
+  <Toggler
+    onRequestClose={[Function]}
+    open={false}
+    overlay={
       <SCMPopup
         line={
           Object {
@@ -27,8 +22,6 @@ exports[`does not render scm details 1`] = `
         }
       />
     }
-    position="bottomright"
-    togglePopup={[Function]}
   />
 </td>
 `;
@@ -41,19 +34,10 @@ exports[`render scm details 1`] = `
   role="button"
   tabIndex={0}
 >
-  <div
-    className="source-line-scm-inner"
-    data-author="foo"
-  />
-  <BubblePopupHelper
-    isOpen={false}
-    offset={
-      Object {
-        "horizontal": 0,
-        "vertical": -18,
-      }
-    }
-    popup={
+  <Toggler
+    onRequestClose={[Function]}
+    open={false}
+    overlay={
       <SCMPopup
         line={
           Object {
@@ -64,9 +48,12 @@ exports[`render scm details 1`] = `
         }
       />
     }
-    position="bottomright"
-    togglePopup={[Function]}
-  />
+  >
+    <div
+      className="source-line-scm-inner"
+      data-author="foo"
+    />
+  </Toggler>
 </td>
 `;
 
@@ -78,19 +65,10 @@ exports[`render scm details for the first line 1`] = `
   role="button"
   tabIndex={0}
 >
-  <div
-    className="source-line-scm-inner"
-    data-author="foo"
-  />
-  <BubblePopupHelper
-    isOpen={false}
-    offset={
-      Object {
-        "horizontal": 0,
-        "vertical": -18,
-      }
-    }
-    popup={
+  <Toggler
+    onRequestClose={[Function]}
+    open={false}
+    overlay={
       <SCMPopup
         line={
           Object {
@@ -101,8 +79,11 @@ exports[`render scm details for the first line 1`] = `
         }
       />
     }
-    position="bottomright"
-    togglePopup={[Function]}
-  />
+  >
+    <div
+      className="source-line-scm-inner"
+      data-author="foo"
+    />
+  </Toggler>
 </td>
 `;

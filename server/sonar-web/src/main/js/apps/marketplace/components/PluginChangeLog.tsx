@@ -19,36 +19,32 @@
  */
 import * as React from 'react';
 import PluginChangeLogItem from './PluginChangeLogItem';
-import BubblePopup from '../../../components/common/BubblePopup';
 import { Release, Update } from '../../../api/plugins';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {
-  popupPosition?: any;
   release: Release;
   update: Update;
 }
 
-export default function PluginChangeLog({ popupPosition, release, update }: Props) {
+export default function PluginChangeLog({ release, update }: Props) {
   return (
-    <BubblePopup position={popupPosition} customClass="bubble-popup-bottom-right">
-      <div className="abs-width-300 bubble-popup-container">
-        <div className="bubble-popup-title">{translate('changelog')}</div>
-        <ul className="js-plugin-changelog-list">
-          {update.previousUpdates &&
-            update.previousUpdates.map(
-              previousUpdate =>
-                previousUpdate.release ? (
-                  <PluginChangeLogItem
-                    key={previousUpdate.release.version}
-                    release={previousUpdate.release}
-                    update={previousUpdate}
-                  />
-                ) : null
-            )}
-          <PluginChangeLogItem release={release} update={update} />
-        </ul>
-      </div>
-    </BubblePopup>
+    <div className="abs-width-300">
+      <h6>{translate('changelog')}</h6>
+      <ul className="js-plugin-changelog-list">
+        {update.previousUpdates &&
+          update.previousUpdates.map(
+            previousUpdate =>
+              previousUpdate.release ? (
+                <PluginChangeLogItem
+                  key={previousUpdate.release.version}
+                  release={previousUpdate.release}
+                  update={previousUpdate}
+                />
+              ) : null
+          )}
+        <PluginChangeLogItem release={release} update={update} />
+      </ul>
+    </div>
   );
 }

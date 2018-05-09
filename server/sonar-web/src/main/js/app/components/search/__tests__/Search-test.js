@@ -94,13 +94,3 @@ it('shows warning about short input', () => {
   form.setState({ query: 'foobar x' });
   expect(form.find('.navbar-search-input-hint')).toMatchSnapshot();
 });
-
-it('closes on click outside', () => {
-  const form = mount(
-    <Search appState={{ organizationsEnabled: false }} currentUser={{ isLoggedIn: false }} />
-  );
-  form.instance().openSearch();
-  expect(form.state().open).toBe(true);
-  clickOutside();
-  expect(form.state().open).toBe(false);
-});

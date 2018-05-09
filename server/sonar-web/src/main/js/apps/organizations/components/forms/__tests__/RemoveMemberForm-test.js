@@ -22,30 +22,31 @@ import { shallow } from 'enzyme';
 import { click, mockEvent } from '../../../../../helpers/testUtils';
 import RemoveMemberForm from '../RemoveMemberForm';
 
-jest.mock('react-dom');
-
 const member = { login: 'admin', name: 'Admin Istrator', avatar: '', groupCount: 3 };
 const organization = { name: 'MyOrg' };
 
-it('should render and open the modal', () => {
+it('should render ', () => {
   const wrapper = shallow(
-    <RemoveMemberForm member={member} removeMember={jest.fn()} organization={organization} />
+    <RemoveMemberForm member={member} organization={organization} removeMember={jest.fn()} />
   );
   expect(wrapper).toMatchSnapshot();
-  wrapper.setState({ open: true });
-  expect(wrapper.first().getElements()).toMatchSnapshot();
 });
 
 it('should correctly handle user interactions', () => {
   const removeMember = jest.fn();
   const wrapper = shallow(
-    <RemoveMemberForm member={member} removeMember={removeMember} organization={organization} />
+    <RemoveMemberForm
+      member={member}
+      onClose={jest.fn()}
+      organization={organization}
+      removeMember={removeMember}
+    />
   );
-  const instance = wrapper.instance();
-  wrapper.find('ActionsDropdownItem').prop('onClick')();
-  expect(wrapper.state('open')).toBeTruthy();
-  instance.handleSubmit(mockEvent);
-  expect(removeMember.mock.calls).toMatchSnapshot();
-  instance.closeForm();
-  expect(wrapper.state('open')).toBeFalsy();
+  wrapper.instance().handleSubmit(mockEvent);
+  expect(removeMember).toBeCalledWith({
+    avatar: '',
+    groupCount: 3,
+    login: 'admin',
+    name: 'Admin Istrator'
+  });
 });

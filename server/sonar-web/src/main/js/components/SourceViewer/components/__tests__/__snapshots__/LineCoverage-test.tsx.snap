@@ -8,17 +8,10 @@ exports[`render covered line 1`] = `
   role="button"
   tabIndex={0}
 >
-  <Tooltip
-    overlay="source_viewer.tooltip.covered"
-    placement="right"
-  >
-    <div
-      className="source-line-bar"
-    />
-  </Tooltip>
-  <BubblePopupHelper
-    isOpen={false}
-    popup={
+  <Toggler
+    onRequestClose={[Function]}
+    open={false}
+    overlay={
       <CoveragePopup
         branchLike={undefined}
         componentKey="foo"
@@ -31,9 +24,16 @@ exports[`render covered line 1`] = `
         onClose={[Function]}
       />
     }
-    position="bottomright"
-    togglePopup={[Function]}
-  />
+  >
+    <Tooltip
+      overlay="source_viewer.tooltip.covered"
+      placement="right"
+    >
+      <div
+        className="source-line-bar"
+      />
+    </Tooltip>
+  </Toggler>
 </td>
 `;
 

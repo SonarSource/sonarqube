@@ -19,9 +19,11 @@
  */
 // @flow
 import React from 'react';
-import Avatar from '../../../components/ui/Avatar';
-import BubblePopupHelper from '../../../components/common/BubblePopupHelper';
 import SetAssigneePopup from '../popups/SetAssigneePopup';
+import Avatar from '../../../components/ui/Avatar';
+import Toggler from '../../../components/controls/Toggler';
+import DropdownIcon from '../../../components/icons-components/DropdownIcon';
+import { Button } from '../../../components/ui/buttons';
 import { translate } from '../../../helpers/l10n';
 /*:: import type { Issue } from '../types'; */
 
@@ -41,6 +43,10 @@ export default class IssueAssign extends React.PureComponent {
 
   toggleAssign = (open /*: boolean | void */) => {
     this.props.togglePopup('assign', open);
+  };
+
+  handleClose = () => {
+    this.toggleAssign(false);
   };
 
   renderAssignee() {
@@ -67,24 +73,26 @@ export default class IssueAssign extends React.PureComponent {
   render() {
     if (this.props.canAssign) {
       return (
-        <BubblePopupHelper
-          isOpen={this.props.isOpen && this.props.canAssign}
-          position="bottomleft"
-          togglePopup={this.toggleAssign}
-          popup={
-            <SetAssigneePopup
-              issue={this.props.issue}
-              onFail={this.props.onFail}
-              onSelect={this.props.onAssign}
-            />
-          }>
-          <button
-            className="button-link issue-action issue-action-with-options js-issue-assign"
-            onClick={this.toggleAssign}>
-            {this.renderAssignee()}
-            <i className="little-spacer-left icon-dropdown" />
-          </button>
-        </BubblePopupHelper>
+        <div className="dropdown">
+          <Toggler
+            closeOnEscape={true}
+            onRequestClose={this.handleClose}
+            open={this.props.isOpen && this.props.canAssign}
+            overlay={
+              <SetAssigneePopup
+                issue={this.props.issue}
+                onFail={this.props.onFail}
+                onSelect={this.props.onAssign}
+              />
+            }>
+            <Button
+              className="button-link issue-action issue-action-with-options js-issue-assign"
+              onClick={this.toggleAssign}>
+              {this.renderAssignee()}
+              <DropdownIcon className="little-spacer-left" />
+            </Button>
+          </Toggler>
+        </div>
       );
     } else {
       return this.renderAssignee();

@@ -99,9 +99,9 @@ it('opens menu', () => {
     />,
     { context: { branchesEnabled: true } }
   );
-  expect(wrapper.find('ComponentNavBranchesMenu')).toHaveLength(0);
+  expect(wrapper.find('Toggler').prop('open')).toBe(false);
   click(wrapper.find('a'));
-  expect(wrapper.find('ComponentNavBranchesMenu')).toHaveLength(1);
+  expect(wrapper.find('Toggler').prop('open')).toBe(true);
 });
 
 it('renders single branch popup', () => {

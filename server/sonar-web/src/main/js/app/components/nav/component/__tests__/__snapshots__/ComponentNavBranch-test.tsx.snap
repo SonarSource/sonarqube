@@ -2,36 +2,71 @@
 
 exports[`renders main branch 1`] = `
 <div
-  className="navbar-context-branches dropdown"
+  className="navbar-context-branches"
 >
-  <a
-    className="link-base-color link-no-underline nowrap"
-    href="#"
-    onClick={[Function]}
+  <div
+    className="dropdown"
   >
-    <BranchIcon
-      branchLike={
-        Object {
-          "isMain": true,
-          "name": "master",
-        }
+    <Toggler
+      onRequestClose={[Function]}
+      open={false}
+      overlay={
+        <ComponentNavBranchesMenu
+          branchLikes={
+            Array [
+              Object {
+                "isMain": true,
+                "name": "master",
+              },
+              Object {
+                "isMain": false,
+                "name": "foo",
+                "type": "LONG",
+              },
+            ]
+          }
+          canAdmin={undefined}
+          component={Object {}}
+          currentBranchLike={
+            Object {
+              "isMain": true,
+              "name": "master",
+            }
+          }
+          onClose={[Function]}
+        />
       }
-      className="little-spacer-right"
-    />
-    <Tooltip
-      mouseEnterDelay={1}
-      overlay="master"
     >
-      <span
-        className="text-limited text-top"
+      <a
+        className="link-base-color link-no-underline nowrap"
+        href="#"
+        onClick={[Function]}
       >
-        master
-      </span>
-    </Tooltip>
-    <i
-      className="icon-dropdown little-spacer-left"
-    />
-  </a>
+        <BranchIcon
+          branchLike={
+            Object {
+              "isMain": true,
+              "name": "master",
+            }
+          }
+          className="little-spacer-right"
+        />
+        <Tooltip
+          mouseEnterDelay={1}
+          overlay="master"
+        >
+          <span
+            className="text-limited text-top"
+          >
+            master
+          </span>
+        </Tooltip>
+        <i
+          className="icon-dropdown little-spacer-left"
+        />
+      </a>
+    </Toggler>
+  </div>
 </div>
 `;
 
@@ -49,39 +84,80 @@ exports[`renders no branch support popup 1`] = `
 
 exports[`renders pull request 1`] = `
 <div
-  className="navbar-context-branches dropdown"
+  className="navbar-context-branches"
 >
-  <a
-    className="link-base-color link-no-underline nowrap"
-    href="#"
-    onClick={[Function]}
+  <div
+    className="dropdown"
   >
-    <BranchIcon
-      branchLike={
-        Object {
-          "base": "master",
-          "branch": "feature",
-          "key": "1234",
-          "title": "Feature PR",
-          "url": "https://example.com/pull/1234",
-        }
+    <Toggler
+      onRequestClose={[Function]}
+      open={false}
+      overlay={
+        <ComponentNavBranchesMenu
+          branchLikes={
+            Array [
+              Object {
+                "base": "master",
+                "branch": "feature",
+                "key": "1234",
+                "title": "Feature PR",
+                "url": "https://example.com/pull/1234",
+              },
+              Object {
+                "isMain": false,
+                "name": "foo",
+                "type": "LONG",
+              },
+            ]
+          }
+          canAdmin={undefined}
+          component={Object {}}
+          currentBranchLike={
+            Object {
+              "base": "master",
+              "branch": "feature",
+              "key": "1234",
+              "title": "Feature PR",
+              "url": "https://example.com/pull/1234",
+            }
+          }
+          onClose={[Function]}
+        />
       }
-      className="little-spacer-right"
-    />
-    <Tooltip
-      mouseEnterDelay={1}
-      overlay="1234 – Feature PR"
     >
-      <span
-        className="text-limited text-top"
+      <a
+        className="link-base-color link-no-underline nowrap"
+        href="#"
+        onClick={[Function]}
       >
-        1234 – Feature PR
-      </span>
-    </Tooltip>
-    <i
-      className="icon-dropdown little-spacer-left"
-    />
-  </a>
+        <BranchIcon
+          branchLike={
+            Object {
+              "base": "master",
+              "branch": "feature",
+              "key": "1234",
+              "title": "Feature PR",
+              "url": "https://example.com/pull/1234",
+            }
+          }
+          className="little-spacer-right"
+        />
+        <Tooltip
+          mouseEnterDelay={1}
+          overlay="1234 – Feature PR"
+        >
+          <span
+            className="text-limited text-top"
+          >
+            1234 – Feature PR
+          </span>
+        </Tooltip>
+        <i
+          className="icon-dropdown little-spacer-left"
+        />
+      </a>
+    </Toggler>
+  </div>
   <span
     className="note big-spacer-left text-ellipsis flex-shrink"
   >
@@ -105,44 +181,95 @@ exports[`renders pull request 1`] = `
 
 exports[`renders short-living branch 1`] = `
 <div
-  className="navbar-context-branches dropdown"
+  className="navbar-context-branches"
 >
-  <a
-    className="link-base-color link-no-underline nowrap"
-    href="#"
-    onClick={[Function]}
+  <div
+    className="dropdown"
   >
-    <BranchIcon
-      branchLike={
-        Object {
-          "isMain": false,
-          "mergeBranch": "master",
-          "name": "foo",
-          "status": Object {
-            "bugs": 0,
-            "codeSmells": 0,
-            "qualityGateStatus": "OK",
-            "vulnerabilities": 0,
-          },
-          "type": "SHORT",
-        }
+    <Toggler
+      onRequestClose={[Function]}
+      open={false}
+      overlay={
+        <ComponentNavBranchesMenu
+          branchLikes={
+            Array [
+              Object {
+                "isMain": false,
+                "mergeBranch": "master",
+                "name": "foo",
+                "status": Object {
+                  "bugs": 0,
+                  "codeSmells": 0,
+                  "qualityGateStatus": "OK",
+                  "vulnerabilities": 0,
+                },
+                "type": "SHORT",
+              },
+              Object {
+                "isMain": false,
+                "name": "foo",
+                "type": "LONG",
+              },
+            ]
+          }
+          canAdmin={undefined}
+          component={Object {}}
+          currentBranchLike={
+            Object {
+              "isMain": false,
+              "mergeBranch": "master",
+              "name": "foo",
+              "status": Object {
+                "bugs": 0,
+                "codeSmells": 0,
+                "qualityGateStatus": "OK",
+                "vulnerabilities": 0,
+              },
+              "type": "SHORT",
+            }
+          }
+          onClose={[Function]}
+        />
       }
-      className="little-spacer-right"
-    />
-    <Tooltip
-      mouseEnterDelay={1}
-      overlay="foo"
     >
-      <span
-        className="text-limited text-top"
+      <a
+        className="link-base-color link-no-underline nowrap"
+        href="#"
+        onClick={[Function]}
       >
-        foo
-      </span>
-    </Tooltip>
-    <i
-      className="icon-dropdown little-spacer-left"
-    />
-  </a>
+        <BranchIcon
+          branchLike={
+            Object {
+              "isMain": false,
+              "mergeBranch": "master",
+              "name": "foo",
+              "status": Object {
+                "bugs": 0,
+                "codeSmells": 0,
+                "qualityGateStatus": "OK",
+                "vulnerabilities": 0,
+              },
+              "type": "SHORT",
+            }
+          }
+          className="little-spacer-right"
+        />
+        <Tooltip
+          mouseEnterDelay={1}
+          overlay="foo"
+        >
+          <span
+            className="text-limited text-top"
+          >
+            foo
+          </span>
+        </Tooltip>
+        <i
+          className="icon-dropdown little-spacer-left"
+        />
+      </a>
+    </Toggler>
+  </div>
   <span
     className="note big-spacer-left"
   >

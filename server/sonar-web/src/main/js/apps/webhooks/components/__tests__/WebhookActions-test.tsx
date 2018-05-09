@@ -55,14 +55,9 @@ it('should display the update webhook form', () => {
 it('should display the delete webhook form', () => {
   const onDelete = jest.fn(() => Promise.resolve());
   const wrapper = getWrapper({ onDelete });
-  click(
-    wrapper
-      .find('ConfirmButton')
-      .dive()
-      .find('.js-webhook-delete')
-  );
-  expect(wrapper.find('ConfirmButton').exists()).toBeTruthy();
-  wrapper.find('ConfirmButton').prop<Function>('onConfirm')();
+  click(wrapper.find('.js-webhook-delete'));
+  expect(wrapper.find('DeleteWebhookForm').exists()).toBeTruthy();
+  wrapper.find('DeleteWebhookForm').prop<Function>('onSubmit')();
   expect(onDelete).lastCalledWith(webhook.key);
 });
 

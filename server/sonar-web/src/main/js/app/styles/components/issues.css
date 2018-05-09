@@ -168,8 +168,7 @@
 }
 
 .issue-changelog {
-  min-width: 450px;
-  max-width: 540px;
+  width: 450px;
   max-height: 320px;
   overflow: auto;
   white-space: normal;
@@ -345,12 +344,7 @@ input.issue-action-options-search {
 
 .issue-comment-bubble-popup {
   width: 440px;
-  margin-left: -220px;
   font-size: var(--smallFontSize);
-}
-
-.issue-comment-bubble-popup .bubble-popup-arrow {
-  left: 220px;
 }
 
 .issue-edit-comment-bubble-popup {
@@ -481,7 +475,7 @@ input.issue-action-options-search {
   background-color: #ccc;
 }
 
-.issue .menu:not(.issues-similar-issues-menu) {
+.issue .menu:not(.issues-similar-issues-menu):not(.issue-changelog) {
   max-height: 120px;
   overflow: auto;
 }

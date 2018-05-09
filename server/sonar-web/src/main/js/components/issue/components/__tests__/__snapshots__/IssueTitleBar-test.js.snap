@@ -68,7 +68,6 @@ exports[`should render the titlebar correctly 1`] = `
       >
         <Link
           className="js-issue-permalink link-no-underline"
-          onClick={[Function]}
           onlyActiveOnIndex={false}
           style={Object {}}
           target="_blank"
@@ -152,7 +151,6 @@ exports[`should render the titlebar with the filter 1`] = `
       >
         <Link
           className="js-issue-permalink link-no-underline"
-          onClick={[Function]}
           onlyActiveOnIndex={false}
           style={Object {}}
           target="_blank"

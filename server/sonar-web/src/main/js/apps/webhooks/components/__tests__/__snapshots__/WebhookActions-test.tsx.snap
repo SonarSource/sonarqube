@@ -18,13 +18,13 @@ exports[`should display the deliveries form 1`] = `
       webhooks.deliveries.show
     </ActionsDropdownItem>
     <ActionsDropdownDivider />
-    <ConfirmButton
-      confirmButtonText="delete"
-      isDestructive={true}
-      modalBody="webhooks.delete.confirm.foo"
-      modalHeader="webhooks.delete"
-      onConfirm={[Function]}
-    />
+    <ActionsDropdownItem
+      className="js-webhook-delete"
+      destructive={true}
+      onClick={[Function]}
+    >
+      delete
+    </ActionsDropdownItem>
   </ActionsDropdown>
 </React.Fragment>
 `;
@@ -41,13 +41,13 @@ exports[`should render correctly 1`] = `
       update_verb
     </ActionsDropdownItem>
     <ActionsDropdownDivider />
-    <ConfirmButton
-      confirmButtonText="delete"
-      isDestructive={true}
-      modalBody="webhooks.delete.confirm.foo"
-      modalHeader="webhooks.delete"
-      onConfirm={[Function]}
-    />
+    <ActionsDropdownItem
+      className="js-webhook-delete"
+      destructive={true}
+      onClick={[Function]}
+    >
+      delete
+    </ActionsDropdownItem>
   </ActionsDropdown>
 </React.Fragment>
 `;

@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import BubblePopup from '../../../../components/common/BubblePopup';
 import MultiSelect from '../../../../components/common/MultiSelect';
 import { translate, translateWithParameters } from '../../../../helpers/l10n';
 
@@ -58,9 +57,7 @@ export default function AddGraphMetricPopup({ elements, metricsTypeFilter, ...pr
   }
 
   return (
-    <BubblePopup
-      customClass="bubble-popup-bottom-right  bubble-popup-menu abs-width-300"
-      position={props.popupPosition}>
+    <div className="menu abs-width-300">
       <MultiSelect
         allowNewElements={false}
         allowSelection={props.selectedElements.length < 6}
@@ -74,6 +71,6 @@ export default function AddGraphMetricPopup({ elements, metricsTypeFilter, ...pr
         renderLabel={props.renderLabel}
         selectedElements={props.selectedElements}
       />
-    </BubblePopup>
+    </div>
   );
 }

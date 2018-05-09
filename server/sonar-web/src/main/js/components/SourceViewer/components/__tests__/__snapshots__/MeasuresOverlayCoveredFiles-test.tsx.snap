@@ -12,11 +12,11 @@ exports[`should render ERROR test 1`] = `
       className="source-viewer-measures-card source-viewer-measures-card-fixed-height"
     >
       <React.Fragment>
-        <div
-          className="bubble-popup-title"
+        <h6
+          className="spacer-bottom"
         >
           component_viewer.details
-        </div>
+        </h6>
         <pre>
           Something failed
         </pre>
@@ -39,13 +39,13 @@ exports[`should render OK test 1`] = `
       className="source-viewer-measures-card source-viewer-measures-card-fixed-height"
     >
       <React.Fragment>
-        <div
-          className="bubble-popup-title"
+        <h6
+          className="spacer-bottom"
         >
           component_viewer.transition.covers
-        </div>
+        </h6>
         <div
-          className="bubble-popup-section"
+          className="spacer-top"
           key="project:src/file.js"
         >
           <Link

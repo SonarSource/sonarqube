@@ -1,9 +1,10 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should render correctly 1`] = `
-<BubblePopup
-  customClass="bubble-popup-right disabled-pointer-events"
-  position={
+<Popup
+  className="overview-analysis-graph-popup disabled-pointer-events"
+  placement="left-top"
+  style={
     Object {
       "left": -135,
       "top": 16,
@@ -47,5 +48,5 @@ exports[`should render correctly 1`] = `
       </tbody>
     </table>
   </div>
-</BubblePopup>
+</Popup>
 `;

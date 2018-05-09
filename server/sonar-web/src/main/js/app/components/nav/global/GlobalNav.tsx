@@ -99,14 +99,12 @@ class GlobalNav extends React.PureComponent<Props, State> {
 
         <ul className="global-navbar-menu pull-right">
           <GlobalNavExplore location={this.props.location} onSonarCloud={this.props.onSonarCloud} />
-          <li>
-            <EmbedDocsPopupHelper
-              currentUser={this.props.currentUser}
-              showTooltip={this.state.onboardingTutorialTooltip}
-              suggestions={this.props.suggestions}
-              tooltip={!this.props.onSonarCloud}
-            />
-          </li>
+          <EmbedDocsPopupHelper
+            currentUser={this.props.currentUser}
+            showTooltip={this.state.onboardingTutorialTooltip}
+            suggestions={this.props.suggestions}
+            tooltip={!this.props.onSonarCloud}
+          />
           <Search appState={this.props.appState} currentUser={this.props.currentUser} />
           {isLoggedIn(this.props.currentUser) &&
             this.props.onSonarCloud && (

@@ -29,7 +29,7 @@ jest.mock('../../utils', () => ({
 it('should render correctly', () => {
   const wrapper = getWrapper({ serverId: 'MyServerId' });
   expect(wrapper).toMatchSnapshot();
-  expect(wrapper.find('Dropdown').dive()).toMatchSnapshot();
+  expect(wrapper.find('Dropdown')).toMatchSnapshot();
 });
 
 it('should render without restart and log download', () => {

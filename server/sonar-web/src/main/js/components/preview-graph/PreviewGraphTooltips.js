@@ -18,10 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import classNames from 'classnames';
 import PreviewGraphTooltipsContent from './PreviewGraphTooltipsContent';
-import BubblePopup from '../common/BubblePopup';
 import DateFormatter from '../intl/DateFormatter';
+import { Popup, PopupPlacement } from '../ui/popups';
 /*:: import type { Metric } from '../types'; */
 /*:: import type { Serie } from '../charts/AdvancedTimeline'; */
 
@@ -47,16 +46,17 @@ export default class PreviewGraphTooltips extends React.PureComponent {
     const { tooltipIdx } = this.props;
     const top = 16;
     let left = this.props.tooltipPos;
-    let customClass;
+    let placement = PopupPlacement.RightTop;
     if (left > this.props.graphWidth - TOOLTIP_WIDTH) {
       left -= TOOLTIP_WIDTH;
-      customClass = 'bubble-popup-right';
+      placement = PopupPlacement.LeftTop;
     }
 
     return (
-      <BubblePopup
-        customClass={classNames(customClass, 'disabled-pointer-events')}
-        position={{ top, left, width: TOOLTIP_WIDTH }}>
+      <Popup
+        className="overview-analysis-graph-popup disabled-pointer-events"
+        placement={placement}
+        style={{ top, left, width: TOOLTIP_WIDTH }}>
         <div className="overview-analysis-graph-tooltip">
           <div className="overview-analysis-graph-tooltip-title">
             <DateFormatter date={this.props.selectedDate} long={true} />
@@ -80,7 +80,7 @@ export default class PreviewGraphTooltips extends React.PureComponent {
             </tbody>
           </table>
         </div>
-      </BubblePopup>
+      </Popup>
     );
   }
 }

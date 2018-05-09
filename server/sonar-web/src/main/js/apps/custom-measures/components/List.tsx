@@ -19,16 +19,9 @@
  */
 import * as React from 'react';
 import { sortBy } from 'lodash';
-import DeleteButton from './DeleteButton';
-import EditButton from './EditButton';
+import Item from './Item';
 import { CustomMeasure } from '../../../app/types';
-import ActionsDropdown, {
-  ActionsDropdownDivider
-} from '../../../components/controls/ActionsDropdown';
 import { translate } from '../../../helpers/l10n';
-import Tooltip from '../../../components/controls/Tooltip';
-import { formatMeasure } from '../../../helpers/measures';
-import DateFormatter from '../../../components/intl/DateFormatter';
 
 interface Props {
   measures: CustomMeasure[];
@@ -52,44 +45,7 @@ export default function List({ measures, onDelete, onEdit }: Props) {
           </thead>
           <tbody>
             {sortBy(measures, measure => measure.metric.name.toLowerCase()).map(measure => (
-              <tr data-metric={measure.metric.key} key={measure.id}>
-                <td className="nowrap">
-                  <div>
-                    <span className="js-custom-measure-metric-name">{measure.metric.name}</span>
-                    {measure.pending && (
-                      <Tooltip overlay={translate('custom_measures.pending_tooltip')}>
-                        <span className="js-custom-measure-pending badge badge-warning spacer-left">
-                          {translate('custom_measures.pending')}
-                        </span>
-                      </Tooltip>
-                    )}
-                  </div>
-                  <span className="js-custom-measure-domain note">{measure.metric.domain}</span>
-                </td>
-
-                <td className="nowrap">
-                  <strong className="js-custom-measure-value">
-                    {formatMeasure(measure.value, measure.metric.type)}
-                  </strong>
-                </td>
-
-                <td>
-                  <span className="js-custom-measure-description">{measure.description}</span>
-                </td>
-
-                <td>
-                  <MeasureDate measure={measure} /> {translate('by_')}{' '}
-                  <span className="js-custom-measure-user">{measure.user.name}</span>
-                </td>
-
-                <td className="thin nowrap">
-                  <ActionsDropdown>
-                    <EditButton measure={measure} onEdit={onEdit} />
-                    <ActionsDropdownDivider />
-                    <DeleteButton measure={measure} onDelete={onDelete} />
-                  </ActionsDropdown>
-                </td>
-              </tr>
+              <Item key={measure.id} measure={measure} onDelete={onDelete} onEdit={onEdit} />
             ))}
           </tbody>
         </table>
@@ -98,28 +54,4 @@ export default function List({ measures, onDelete, onEdit }: Props) {
       )}
     </div>
   );
-}
-
-function MeasureDate({ measure }: { measure: CustomMeasure }) {
-  if (measure.updatedAt) {
-    return (
-      <>
-        {translate('updated_on')}{' '}
-        <span className="js-custom-measure-created-at">
-          <DateFormatter date={measure.updatedAt} />
-        </span>
-      </>
-    );
-  } else if (measure.createdAt) {
-    return (
-      <>
-        {translate('created_on')}{' '}
-        <span className="js-custom-measure-created-at">
-          <DateFormatter date={measure.createdAt} />
-        </span>
-      </>
-    );
-  } else {
-    return <>{translate('created')}</>;
-  }
 }

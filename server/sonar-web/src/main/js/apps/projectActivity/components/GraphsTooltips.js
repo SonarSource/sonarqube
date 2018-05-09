@@ -19,15 +19,14 @@
  */
 // @flow
 import React from 'react';
-import classNames from 'classnames';
 import GraphsTooltipsContent from './GraphsTooltipsContent';
 import GraphsTooltipsContentEvents from './GraphsTooltipsContentEvents';
 import GraphsTooltipsContentCoverage from './GraphsTooltipsContentCoverage';
 import GraphsTooltipsContentDuplication from './GraphsTooltipsContentDuplication';
 import GraphsTooltipsContentIssues from './GraphsTooltipsContentIssues';
 import { DEFAULT_GRAPH } from '../utils';
-import BubblePopup from '../../../components/common/BubblePopup';
 import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
+import { Popup, PopupPlacement } from '../../../components/ui/popups';
 /*:: import type { Event, MeasureHistory } from '../types'; */
 /*:: import type { Serie } from '../../../components/charts/AdvancedTimeline'; */
 
@@ -88,17 +87,18 @@ export default class GraphsTooltips extends React.PureComponent {
     const { events, measuresHistory, tooltipIdx } = this.props;
     const top = 30;
     let left = this.props.tooltipPos + 60;
-    let customClass;
+    let placement = PopupPlacement.RightTop;
     if (left > this.props.graphWidth - TOOLTIP_WIDTH - 50) {
       left -= TOOLTIP_WIDTH;
-      customClass = 'bubble-popup-right';
+      placement = PopupPlacement.LeftTop;
     }
     const tooltipContent = this.renderContent().filter(Boolean);
     const addSeparator = tooltipContent.length > 0;
     return (
-      <BubblePopup
-        customClass={classNames(customClass, 'disabled-pointer-events')}
-        position={{ top, left, width: TOOLTIP_WIDTH }}>
+      <Popup
+        className="disabled-pointer-events"
+        placement={placement}
+        style={{ top, left, width: TOOLTIP_WIDTH }}>
         <div className="project-activity-graph-tooltip">
           <div className="project-activity-graph-tooltip-title spacer-bottom">
             <DateTimeFormatter date={this.props.selectedDate} />
@@ -125,7 +125,7 @@ export default class GraphsTooltips extends React.PureComponent {
               )}
           </table>
         </div>
-      </BubblePopup>
+      </Popup>
     );
   }
 }

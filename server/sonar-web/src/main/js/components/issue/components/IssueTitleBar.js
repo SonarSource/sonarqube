@@ -45,8 +45,6 @@ type Props = {|
 |};
 */
 
-const stopPropagation = (event /*: Event */) => event.stopPropagation();
-
 export default function IssueTitleBar(props /*: Props */) {
   const { issue } = props;
   const hasSimilarIssuesFilter = props.onFilter != null;
@@ -103,7 +101,7 @@ export default function IssueTitleBar(props /*: Props */) {
           {displayLocations && (
             <li className="issue-meta">
               {props.displayLocationsLink ? (
-                <Link onClick={stopPropagation} target="_blank" to={issueUrl}>
+                <Link target="_blank" to={issueUrl}>
                   {locationsBadge}
                 </Link>
               ) : (
@@ -112,11 +110,7 @@ export default function IssueTitleBar(props /*: Props */) {
             </li>
           )}
           <li className="issue-meta">
-            <Link
-              className="js-issue-permalink link-no-underline"
-              onClick={stopPropagation}
-              target="_blank"
-              to={issueUrl}>
+            <Link className="js-issue-permalink link-no-underline" target="_blank" to={issueUrl}>
               <LinkIcon />
             </Link>
           </li>

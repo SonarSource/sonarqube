@@ -19,13 +19,9 @@
  */
 import * as React from 'react';
 import { sortBy } from 'lodash';
-import DeleteButton from './DeleteButton';
-import EditButton from './EditButton';
 import { MetricProps } from './Form';
+import Item from './Item';
 import { Metric } from '../../../app/types';
-import ActionsDropdown, {
-  ActionsDropdownDivider
-} from '../../../components/controls/ActionsDropdown';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {
@@ -43,42 +39,14 @@ export default function List({ domains, metrics, onDelete, onEdit, types }: Prop
         <table className="data zebra zebra-hover">
           <tbody>
             {sortBy(metrics, metric => metric.name.toLowerCase()).map(metric => (
-              <tr data-metric={metric.key} key={metric.key}>
-                <td className="width-30">
-                  <div>
-                    <strong className="js-metric-name">{metric.name}</strong>
-                    <span className="js-metric-key note little-spacer-left">{metric.key}</span>
-                  </div>
-                </td>
-
-                <td className="width-20">
-                  <span className="js-metric-domain">{metric.domain}</span>
-                </td>
-
-                <td className="width-20">
-                  <span className="js-metric-type">{translate('metric.type', metric.type)}</span>
-                </td>
-
-                <td className="width-20" title={metric.description}>
-                  <span className="js-metric-description">{metric.description}</span>
-                </td>
-
-                <td className="thin nowrap">
-                  <ActionsDropdown>
-                    {domains &&
-                      types && (
-                        <EditButton
-                          domains={domains}
-                          metric={metric}
-                          onEdit={onEdit}
-                          types={types}
-                        />
-                      )}
-                    <ActionsDropdownDivider />
-                    <DeleteButton metric={metric} onDelete={onDelete} />
-                  </ActionsDropdown>
-                </td>
-              </tr>
+              <Item
+                domains={domains}
+                key={metric.key}
+                metric={metric}
+                onDelete={onDelete}
+                onEdit={onEdit}
+                types={types}
+              />
             ))}
           </tbody>
         </table>

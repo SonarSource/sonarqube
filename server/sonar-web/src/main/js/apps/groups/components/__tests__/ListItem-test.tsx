@@ -20,6 +20,27 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import ListItem from '../ListItem';
+import { click } from '../../../../helpers/testUtils';
+
+it('should edit group', () => {
+  const group = { id: 3, name: 'Foo', membersCount: 5 };
+  const onEdit = jest.fn();
+  const wrapper = shallow(
+    <ListItem
+      group={group}
+      onDelete={jest.fn()}
+      onEdit={onEdit}
+      onEditMembers={jest.fn()}
+      organization="org"
+    />
+  );
+
+  click(wrapper.find('.js-group-update'));
+  wrapper.update();
+
+  wrapper.find('Form').prop<Function>('onSubmit')({ name: 'Bar', description: 'bla bla' });
+  expect(onEdit).lastCalledWith({ description: 'bla bla', id: 3, name: 'Bar' });
+});
 
 it('should delete group', () => {
   const group = { id: 3, name: 'Foo', membersCount: 5 };
@@ -35,7 +56,10 @@ it('should delete group', () => {
   );
   expect(wrapper).toMatchSnapshot();
 
-  wrapper.find('ConfirmButton').prop<Function>('onConfirm')();
+  click(wrapper.find('.js-group-delete'));
+  wrapper.update();
+
+  wrapper.find('DeleteForm').prop<Function>('onSubmit')();
   expect(onDelete).toBeCalledWith('Foo');
 });
 

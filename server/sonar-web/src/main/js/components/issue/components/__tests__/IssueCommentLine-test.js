@@ -53,9 +53,9 @@ it('should open the right popups when the buttons are clicked', () => {
   const element = shallow(
     <IssueCommentLine comment={comment} onDelete={jest.fn()} onEdit={jest.fn()} />
   );
-  element.find('.js-issue-comment-edit').prop('onClick')();
+  click(element.find('.js-issue-comment-edit'));
   expect(element.state()).toMatchSnapshot();
-  element.find('.js-issue-comment-delete').prop('onClick')();
+  click(element.find('.js-issue-comment-delete'));
   expect(element.state()).toMatchSnapshot();
   element.update();
   expect(element).toMatchSnapshot();

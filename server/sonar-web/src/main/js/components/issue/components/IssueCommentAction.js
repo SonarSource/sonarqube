@@ -20,7 +20,8 @@
 // @flow
 import React from 'react';
 import { updateIssue } from '../actions';
-import BubblePopupHelper from '../../../components/common/BubblePopupHelper';
+import Toggler from '../../../components/controls/Toggler';
+import { Button } from '../../../components/ui/buttons';
 import CommentPopup from '../popups/CommentPopup';
 import { addIssueComment } from '../../../api/issues';
 import { translate } from '../../../helpers/l10n';
@@ -49,29 +50,33 @@ export default class IssueCommentAction extends React.PureComponent {
     this.props.toggleComment(false);
   };
 
-  handleCommentClick = () => this.props.toggleComment();
+  handleCommentClick = () => {
+    this.props.toggleComment();
+  };
+
+  handleClose = () => {
+    this.props.toggleComment(false);
+  };
 
   render() {
     return (
-      <li className="issue-meta">
-        <BubblePopupHelper
-          isOpen={this.props.currentPopup === 'comment'}
-          position="bottomleft"
-          togglePopup={this.props.toggleComment}
-          popup={
+      <li className="issue-meta dropdown">
+        <Toggler
+          onRequestClose={this.handleClose}
+          open={this.props.currentPopup === 'comment'}
+          overlay={
             <CommentPopup
-              customClass="issue-comment-bubble-popup"
-              placeholder={this.props.commentPlaceholder}
               onComment={this.addComment}
+              placeholder={this.props.commentPlaceholder}
               toggleComment={this.props.toggleComment}
             />
           }>
-          <button
+          <Button
             className="button-link issue-action js-issue-comment"
             onClick={this.handleCommentClick}>
             <span className="issue-meta-label">{translate('issue.comment.formlink')}</span>
-          </button>
-        </BubblePopupHelper>
+          </Button>
+        </Toggler>
       </li>
     );
   }

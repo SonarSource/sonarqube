@@ -35,9 +35,6 @@ exports[`should open the right popups when the buttons are clicked 3`] = `
         "__html": "<b>test</b>",
       }
     }
-    onClick={[Function]}
-    role="Listitem"
-    tabIndex={0}
   />
   <div
     className="issue-comment-age"
@@ -49,63 +46,56 @@ exports[`should open the right popups when the buttons are clicked 3`] = `
   <div
     className="issue-comment-actions"
   >
-    <BubblePopupHelper
-      className="bubble-popup-helper-inline"
-      isOpen={false}
-      offset={
-        Object {
-          "horizontal": -6,
-          "vertical": 0,
-        }
-      }
-      popup={
-        <CommentPopup
-          comment={
-            Object {
-              "authorAvatar": "gravatarhash",
-              "authorName": "John Doe",
-              "createdAt": "2017-03-01T09:36:01+0100",
-              "htmlText": "<b>test</b>",
-              "key": "comment-key",
-              "updatable": true,
+    <div
+      className="dropdown"
+    >
+      <Toggler
+        className="display-inline-block"
+        onRequestClose={[Function]}
+        open={false}
+        overlay={
+          <CommentPopup
+            comment={
+              Object {
+                "authorAvatar": "gravatarhash",
+                "authorName": "John Doe",
+                "createdAt": "2017-03-01T09:36:01+0100",
+                "htmlText": "<b>test</b>",
+                "key": "comment-key",
+                "updatable": true,
+              }
             }
-          }
-          customClass="issue-edit-comment-bubble-popup"
-          onComment={[Function]}
-          placeholder=""
-          toggleComment={[Function]}
-        />
-      }
-      position="bottomright"
-      togglePopup={[Function]}
-    >
-      <EditButton
-        className="js-issue-comment-edit button-small"
-        onClick={[Function]}
-      />
-    </BubblePopupHelper>
-    <BubblePopupHelper
-      className="bubble-popup-helper-inline"
-      isOpen={true}
-      offset={
-        Object {
-          "horizontal": -10,
-          "vertical": 0,
+            onComment={[Function]}
+            placeholder=""
+            toggleComment={[Function]}
+          />
         }
-      }
-      popup={
-        <CommentDeletePopup
-          onDelete={[Function]}
+      >
+        <EditButton
+          className="js-issue-comment-edit button-small"
+          onClick={[Function]}
         />
-      }
-      position="bottomright"
-      togglePopup={[Function]}
+      </Toggler>
+    </div>
+    <div
+      className="dropdown"
     >
-      <DeleteButton
-        className="js-issue-comment-delete button-small"
-        onClick={[Function]}
-      />
-    </BubblePopupHelper>
+      <Toggler
+        className="display-inline-block"
+        onRequestClose={[Function]}
+        open={true}
+        overlay={
+          <CommentDeletePopup
+            onDelete={[Function]}
+          />
+        }
+      >
+        <DeleteButton
+          className="js-issue-comment-delete button-small"
+          onClick={[Function]}
+        />
+      </Toggler>
+    </div>
   </div>
 </div>
 `;
@@ -133,9 +123,6 @@ exports[`should render correctly a comment that is not updatable 1`] = `
         "__html": "<b>test</b>",
       }
     }
-    onClick={[Function]}
-    role="Listitem"
-    tabIndex={0}
   />
   <div
     className="issue-comment-age"
@@ -173,9 +160,6 @@ exports[`should render correctly a comment that is updatable 1`] = `
         "__html": "<b>test</b>",
       }
     }
-    onClick={[Function]}
-    role="Listitem"
-    tabIndex={0}
   />
   <div
     className="issue-comment-age"
@@ -187,63 +171,56 @@ exports[`should render correctly a comment that is updatable 1`] = `
   <div
     className="issue-comment-actions"
   >
-    <BubblePopupHelper
-      className="bubble-popup-helper-inline"
-      isOpen={false}
-      offset={
-        Object {
-          "horizontal": -6,
-          "vertical": 0,
-        }
-      }
-      popup={
-        <CommentPopup
-          comment={
-            Object {
-              "authorAvatar": "gravatarhash",
-              "authorName": "John Doe",
-              "createdAt": "2017-03-01T09:36:01+0100",
-              "htmlText": "<b>test</b>",
-              "key": "comment-key",
-              "updatable": true,
+    <div
+      className="dropdown"
+    >
+      <Toggler
+        className="display-inline-block"
+        onRequestClose={[Function]}
+        open={false}
+        overlay={
+          <CommentPopup
+            comment={
+              Object {
+                "authorAvatar": "gravatarhash",
+                "authorName": "John Doe",
+                "createdAt": "2017-03-01T09:36:01+0100",
+                "htmlText": "<b>test</b>",
+                "key": "comment-key",
+                "updatable": true,
+              }
             }
-          }
-          customClass="issue-edit-comment-bubble-popup"
-          onComment={[Function]}
-          placeholder=""
-          toggleComment={[Function]}
-        />
-      }
-      position="bottomright"
-      togglePopup={[Function]}
-    >
-      <EditButton
-        className="js-issue-comment-edit button-small"
-        onClick={[Function]}
-      />
-    </BubblePopupHelper>
-    <BubblePopupHelper
-      className="bubble-popup-helper-inline"
-      isOpen={false}
-      offset={
-        Object {
-          "horizontal": -10,
-          "vertical": 0,
+            onComment={[Function]}
+            placeholder=""
+            toggleComment={[Function]}
+          />
         }
-      }
-      popup={
-        <CommentDeletePopup
-          onDelete={[Function]}
+      >
+        <EditButton
+          className="js-issue-comment-edit button-small"
+          onClick={[Function]}
         />
-      }
-      position="bottomright"
-      togglePopup={[Function]}
+      </Toggler>
+    </div>
+    <div
+      className="dropdown"
     >
-      <DeleteButton
-        className="js-issue-comment-delete button-small"
-        onClick={[Function]}
-      />
-    </BubblePopupHelper>
+      <Toggler
+        className="display-inline-block"
+        onRequestClose={[Function]}
+        open={false}
+        overlay={
+          <CommentDeletePopup
+            onDelete={[Function]}
+          />
+        }
+      >
+        <DeleteButton
+          className="js-issue-comment-delete button-small"
+          onClick={[Function]}
+        />
+      </Toggler>
+    </div>
   </div>
 </div>
 `;

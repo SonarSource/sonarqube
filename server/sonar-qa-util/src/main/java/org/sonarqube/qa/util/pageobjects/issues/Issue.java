@@ -54,8 +54,8 @@ public class Issue {
   public Issue assigneeSearchResultCount(String query, Integer count) {
     SelenideElement assignLink = elt.find(".js-issue-assign");
     assignLink.click();
-    SelenideElement popupMenu = Selenide.$(".bubble-popup ul.menu").shouldBe(Condition.visible);
-    Selenide.$(".bubble-popup input.search-box-input").shouldBe(Condition.visible).val("").sendKeys(query);
+    SelenideElement popupMenu = Selenide.$(".popup ul.menu").shouldBe(Condition.visible);
+    Selenide.$(".popup input.search-box-input").shouldBe(Condition.visible).val("").sendKeys(query);
     popupMenu.$("li a[data-text='Not assigned']").shouldNot(Condition.exist);
     popupMenu.$$("li").shouldHaveSize(count);
     assignLink.click();

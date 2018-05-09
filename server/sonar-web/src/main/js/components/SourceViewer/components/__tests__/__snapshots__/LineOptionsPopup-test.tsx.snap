@@ -1,11 +1,11 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should render 1`] = `
-<BubblePopup
-  customClass="source-viewer-bubble-popup"
+<DropdownOverlay
+  placement="right-top"
 >
   <div
-    className="bubble-popup-section"
+    className="source-viewer-bubble-popup nowrap"
   >
     <Link
       className="js-get-permalink"
@@ -25,5 +25,5 @@ exports[`should render 1`] = `
       component_viewer.get_permalink
     </Link>
   </div>
-</BubblePopup>
+</DropdownOverlay>
 `;

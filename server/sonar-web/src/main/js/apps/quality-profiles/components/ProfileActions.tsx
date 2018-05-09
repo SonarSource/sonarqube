@@ -138,58 +138,60 @@ export default class ProfileActions extends React.PureComponent<Props, State> {
     );
 
     return (
-      <ActionsDropdown className={this.props.className}>
-        {actions.edit && (
-          <ActionsDropdownItem to={activateMoreUrl} id="quality-profile-activate-more-rules">
-            {translate('quality_profiles.activate_more_rules')}
-          </ActionsDropdownItem>
-        )}
+      <>
+        <ActionsDropdown className={this.props.className}>
+          {actions.edit && (
+            <ActionsDropdownItem id="quality-profile-activate-more-rules" to={activateMoreUrl}>
+              {translate('quality_profiles.activate_more_rules')}
+            </ActionsDropdownItem>
+          )}
 
-        {!profile.isBuiltIn && (
+          {!profile.isBuiltIn && (
+            <ActionsDropdownItem
+              download={`${profile.key}.xml`}
+              id="quality-profile-backup"
+              to={backupUrl}>
+              {translate('backup_verb')}
+            </ActionsDropdownItem>
+          )}
+
           <ActionsDropdownItem
-            download={`${profile.key}.xml`}
-            id="quality-profile-backup"
-            to={backupUrl}>
-            {translate('backup_verb')}
+            id="quality-profile-compare"
+            to={getProfileComparePath(profile.name, profile.language, this.props.organization)}>
+            {translate('compare')}
           </ActionsDropdownItem>
-        )}
 
-        <ActionsDropdownItem
-          id="quality-profile-compare"
-          to={getProfileComparePath(profile.name, profile.language, this.props.organization)}>
-          {translate('compare')}
-        </ActionsDropdownItem>
+          {actions.copy && (
+            <ActionsDropdownItem id="quality-profile-copy" onClick={this.handleCopyClick}>
+              {translate('copy')}
+            </ActionsDropdownItem>
+          )}
 
-        {actions.copy && (
-          <ActionsDropdownItem id="quality-profile-copy" onClick={this.handleCopyClick}>
-            {translate('copy')}
-          </ActionsDropdownItem>
-        )}
+          {actions.edit && (
+            <ActionsDropdownItem id="quality-profile-rename" onClick={this.handleRenameClick}>
+              {translate('rename')}
+            </ActionsDropdownItem>
+          )}
 
-        {actions.edit && (
-          <ActionsDropdownItem id="quality-profile-rename" onClick={this.handleRenameClick}>
-            {translate('rename')}
-          </ActionsDropdownItem>
-        )}
+          {actions.setAsDefault && (
+            <ActionsDropdownItem
+              id="quality-profile-set-as-default"
+              onClick={this.handleSetDefaultClick}>
+              {translate('set_as_default')}
+            </ActionsDropdownItem>
+          )}
 
-        {actions.setAsDefault && (
-          <ActionsDropdownItem
-            id="quality-profile-set-as-default"
-            onClick={this.handleSetDefaultClick}>
-            {translate('set_as_default')}
-          </ActionsDropdownItem>
-        )}
+          {actions.delete && <ActionsDropdownDivider />}
 
-        {actions.delete && <ActionsDropdownDivider />}
-
-        {actions.delete && (
-          <ActionsDropdownItem
-            destructive={true}
-            id="quality-profile-delete"
-            onClick={this.handleDeleteClick}>
-            {translate('delete')}
-          </ActionsDropdownItem>
-        )}
+          {actions.delete && (
+            <ActionsDropdownItem
+              destructive={true}
+              id="quality-profile-delete"
+              onClick={this.handleDeleteClick}>
+              {translate('delete')}
+            </ActionsDropdownItem>
+          )}
+        </ActionsDropdown>
 
         {this.state.copyFormOpen && (
           <CopyProfileForm
@@ -217,7 +219,7 @@ export default class ProfileActions extends React.PureComponent<Props, State> {
             profile={profile}
           />
         )}
-      </ActionsDropdown>
+      </>
     );
   }
 }

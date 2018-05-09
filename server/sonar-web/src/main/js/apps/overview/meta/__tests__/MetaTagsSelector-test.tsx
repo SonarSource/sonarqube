@@ -38,26 +38,14 @@ it('searches tags on mount', () => {
   (searchProjectTags as jest.Mock).mockImplementation(() =>
     Promise.resolve({ tags: ['foo', 'bar'] })
   );
-  mount(
-    <MetaTagsSelector
-      position={{ top: 0, right: 0 }}
-      project="foo"
-      selectedTags={[]}
-      setProjectTags={jest.fn()}
-    />
-  );
+  mount(<MetaTagsSelector project="foo" selectedTags={[]} setProjectTags={jest.fn()} />);
   expect(searchProjectTags).toBeCalledWith({ ps: 9, q: '' });
 });
 
 it('selects and deselects tags', () => {
   const setProjectTags = jest.fn();
   const wrapper = shallow(
-    <MetaTagsSelector
-      position={{ top: 0, right: 0 }}
-      project="foo"
-      selectedTags={['foo', 'bar']}
-      setProjectTags={setProjectTags}
-    />
+    <MetaTagsSelector project="foo" selectedTags={['foo', 'bar']} setProjectTags={setProjectTags} />
   );
 
   const tagSelect: any = wrapper.find('TagsSelector');

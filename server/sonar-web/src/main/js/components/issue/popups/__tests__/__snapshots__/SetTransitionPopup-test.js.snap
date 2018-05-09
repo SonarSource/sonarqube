@@ -1,9 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should render tags popup correctly 1`] = `
-<BubblePopup
-  customClass="bubble-popup-menu bubble-popup-bottom"
->
+<DropdownOverlay>
   <SelectList
     currentItem="confirm"
     items={
@@ -45,5 +43,5 @@ exports[`should render tags popup correctly 1`] = `
       issue.transition.wontfix
     </SelectListItem>
   </SelectList>
-</BubblePopup>
+</DropdownOverlay>
 `;

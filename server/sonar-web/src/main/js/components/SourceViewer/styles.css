@@ -396,10 +396,6 @@
   clear: both;
 }
 
-.source-viewer-measures .bubble-popup-section {
-  width: 100%;
-}
-
 .source-viewer-measures + .source-viewer-measures {
   margin-top: 40px;
 }
@@ -508,9 +504,6 @@
 }
 
 .source-viewer-bubble-popup {
-  top: -16px;
-  left: 100%;
-  width: 480px;
   font-family: var(--baseFontFamily);
   font-size: var(--baseFontSize);
   text-align: left;

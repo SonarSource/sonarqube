@@ -22,7 +22,62 @@ exports[`should render correctly 1`] = `
       onClick={[Function]}
     />
   </span>
-  <Dropdown />
+  <Dropdown
+    className="display-inline-block spacer-left"
+    overlay={
+      <ul
+        className="menu"
+      >
+        <li>
+          <a
+            download="sonarqube_app.log"
+            href="/api/system/logs?process=app"
+            id="logs-link"
+            target="_blank"
+          >
+            Main Process
+          </a>
+        </li>
+        <li>
+          <a
+            download="sonarqube_ce.log"
+            href="/api/system/logs?process=ce"
+            id="ce-logs-link"
+            target="_blank"
+          >
+            Compute Engine
+          </a>
+        </li>
+        <li>
+          <a
+            download="sonarqube_es.log"
+            href="/api/system/logs?process=es"
+            id="es-logs-link"
+            target="_blank"
+          >
+            Search Engine
+          </a>
+        </li>
+        <li>
+          <a
+            download="sonarqube_web.log"
+            href="/api/system/logs?process=web"
+            id="web-logs-link"
+            target="_blank"
+          >
+            Web Server
+          </a>
+        </li>
+      </ul>
+    }
+  >
+    <Button>
+      system.download_logs
+      <i
+        className="icon-dropdown little-spacer-left"
+      />
+    </Button>
+  </Dropdown>
   <a
     className="button spacer-left"
     download="sonarqube-support-info-filesuffix(MyServerId).json"
@@ -44,62 +99,62 @@ exports[`should render correctly 1`] = `
 `;
 
 exports[`should render correctly 2`] = `
-<div
-  className="display-inline-block dropdown spacer-left"
+<Dropdown
+  className="display-inline-block spacer-left"
+  overlay={
+    <ul
+      className="menu"
+    >
+      <li>
+        <a
+          download="sonarqube_app.log"
+          href="/api/system/logs?process=app"
+          id="logs-link"
+          target="_blank"
+        >
+          Main Process
+        </a>
+      </li>
+      <li>
+        <a
+          download="sonarqube_ce.log"
+          href="/api/system/logs?process=ce"
+          id="ce-logs-link"
+          target="_blank"
+        >
+          Compute Engine
+        </a>
+      </li>
+      <li>
+        <a
+          download="sonarqube_es.log"
+          href="/api/system/logs?process=es"
+          id="es-logs-link"
+          target="_blank"
+        >
+          Search Engine
+        </a>
+      </li>
+      <li>
+        <a
+          download="sonarqube_web.log"
+          href="/api/system/logs?process=web"
+          id="web-logs-link"
+          target="_blank"
+        >
+          Web Server
+        </a>
+      </li>
+    </ul>
+  }
 >
-  <Button
-    onClick={[Function]}
-  >
+  <Button>
     system.download_logs
     <i
       className="icon-dropdown little-spacer-left"
     />
   </Button>
-  <ul
-    className="dropdown-menu"
-  >
-    <li>
-      <a
-        download="sonarqube_app.log"
-        href="/api/system/logs?process=app"
-        id="logs-link"
-        target="_blank"
-      >
-        Main Process
-      </a>
-    </li>
-    <li>
-      <a
-        download="sonarqube_ce.log"
-        href="/api/system/logs?process=ce"
-        id="ce-logs-link"
-        target="_blank"
-      >
-        Compute Engine
-      </a>
-    </li>
-    <li>
-      <a
-        download="sonarqube_es.log"
-        href="/api/system/logs?process=es"
-        id="es-logs-link"
-        target="_blank"
-      >
-        Search Engine
-      </a>
-    </li>
-    <li>
-      <a
-        download="sonarqube_web.log"
-        href="/api/system/logs?process=web"
-        id="web-logs-link"
-        target="_blank"
-      >
-        Web Server
-      </a>
-    </li>
-  </ul>
-</div>
+</Dropdown>
 `;
 
 exports[`should render without restart and log download 1`] = `

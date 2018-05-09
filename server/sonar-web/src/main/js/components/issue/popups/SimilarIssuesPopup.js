@@ -19,9 +19,9 @@
  */
 // @flow
 import React from 'react';
-import BubblePopup from '../../../components/common/BubblePopup';
 import SelectList from '../../../components/common/SelectList';
 import SelectListItem from '../../../components/common/SelectListItem';
+import { DropdownOverlay } from '../../../components/controls/Dropdown';
 import SeverityHelper from '../../../components/shared/SeverityHelper';
 import StatusHelper from '../../../components/shared/StatusHelper';
 import QualifierIcon from '../../../components/shared/QualifierIcon';
@@ -35,7 +35,6 @@ import { fileFromPath, limitComponentName } from '../../../helpers/path';
 type Props = {|
   issue: Issue,
   onFilter: (property: string, issue: Issue) => void,
-  popupPosition?: {}
 |};
 */
 
@@ -64,9 +63,7 @@ export default class SimilarIssuesPopup extends React.PureComponent {
     ].filter(item => item);
 
     return (
-      <BubblePopup
-        position={this.props.popupPosition}
-        customClass="bubble-popup-menu bubble-popup-bottom-right">
+      <DropdownOverlay noPadding={true}>
         <header className="menu-search">
           <h6>{translate('issue.filter_similar_issues')}</h6>
         </header>
@@ -118,7 +115,7 @@ export default class SimilarIssuesPopup extends React.PureComponent {
 
           {issue.tags != null &&
             issue.tags.map(tag => (
-              <SelectListItem key={`tag###${tag}`} item={`tag###${tag}`}>
+              <SelectListItem item={`tag###${tag}`} key={`tag###${tag}`}>
                 <i className="icon-tags icon-half-transparent little-spacer-right" />
                 {tag}
               </SelectListItem>
@@ -143,7 +140,7 @@ export default class SimilarIssuesPopup extends React.PureComponent {
             {fileFromPath(issue.componentLongName)}
           </SelectListItem>
         </SelectList>
-      </BubblePopup>
+      </DropdownOverlay>
     );
   }
 }

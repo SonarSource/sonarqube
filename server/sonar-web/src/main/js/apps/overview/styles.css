@@ -389,13 +389,9 @@
   border: none;
 }
 
-.overview-analysis-graph .bubble-popup {
+.overview-analysis-graph-popup {
   opacity: 0.8;
   padding: 0;
-}
-
-.overview-analysis-graph .bubble-popup-arrow {
-  top: 7px;
 }
 
 .overview-analysis-graph-tooltip {

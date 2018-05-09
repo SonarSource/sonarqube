@@ -33,5 +33,5 @@ it('renders', () => {
       }}
     />
   );
-  expect(wrapper.find('Dropdown').dive()).toMatchSnapshot();
+  expect(wrapper.find('Dropdown')).toMatchSnapshot();
 });

@@ -22,44 +22,43 @@ exports[`renders 1`] = `
 `;
 
 exports[`renders dropdown 1`] = `
-<div
-  className="organization-switch dropdown"
+<Dropdown
+  className="display-inline-block"
+  overlay={
+    <ul
+      className="menu"
+    >
+      <OrganizationListItem
+        organization={
+          Object {
+            "isAdmin": true,
+            "key": "org1",
+            "name": "org1",
+            "projectVisibility": "public",
+          }
+        }
+      />
+      <OrganizationListItem
+        organization={
+          Object {
+            "isAdmin": false,
+            "key": "org2",
+            "name": "org2",
+            "projectVisibility": "public",
+          }
+        }
+      />
+    </ul>
+  }
 >
   <a
-    className="dropdown-toggle"
+    className="spacer-left link-base-color link-no-underline"
     href="#"
-    onClick={[Function]}
   >
     Foo
     <DropdownIcon
       className="little-spacer-left"
     />
   </a>
-  <ul
-    className="dropdown-menu"
-  >
-    <OrganizationListItem
-      key="org1"
-      organization={
-        Object {
-          "isAdmin": true,
-          "key": "org1",
-          "name": "org1",
-          "projectVisibility": "public",
-        }
-      }
-    />
-    <OrganizationListItem
-      key="org2"
-      organization={
-        Object {
-          "isAdmin": false,
-          "key": "org2",
-          "name": "org2",
-          "projectVisibility": "public",
-        }
-      }
-    />
-  </ul>
-</div>
+</Dropdown>
 `;

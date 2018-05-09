@@ -25,8 +25,8 @@ import { click } from '../../../../helpers/testUtils';
 it('should render correctly', () => {
   const element = shallow(
     <IssueCommentAction
-      issueKey="issue-key"
       currentPopup={null}
+      issueKey="issue-key"
       onFail={jest.fn()}
       onIssueChange={jest.fn()}
       toggleComment={jest.fn()}
@@ -39,14 +39,14 @@ it('should open the popup when the button is clicked', () => {
   const toggle = jest.fn();
   const element = shallow(
     <IssueCommentAction
-      issueKey="issue-key"
       currentPopup={null}
+      issueKey="issue-key"
       onFail={jest.fn()}
       onIssueChange={jest.fn()}
       toggleComment={toggle}
     />
   );
-  click(element.find('button'));
+  click(element.find('Button'));
   expect(toggle.mock.calls.length).toBe(1);
   element.setProps({ currentPopup: 'comment' });
   expect(element).toMatchSnapshot();

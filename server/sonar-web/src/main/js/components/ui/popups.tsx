@@ -19,31 +19,46 @@
  */
 import * as React from 'react';
 import * as classNames from 'classnames';
+import './popups.css';
 
-export interface BubblePopupPosition {
-  top?: number;
-  left?: number;
-  right?: number;
+export enum PopupPlacement {
+  Bottom = 'bottom',
+  BottomLeft = 'bottom-left',
+  BottomRight = 'bottom-right',
+  LeftTop = 'left-top',
+  RightTop = 'right-top'
 }
 
-interface Props {
-  customClass?: string;
-  children: React.ReactNode;
-  position?: BubblePopupPosition;
+interface PopupProps {
+  arrowStyle?: React.CSSProperties;
+  children?: React.ReactNode;
+  className?: string;
+  noPadding?: boolean;
+  placement?: PopupPlacement;
+  style?: React.CSSProperties;
 }
 
-/**
- * Deprecated.
- * Use <Popup /> instead.
- */
-export default function BubblePopup(props: Props) {
-  const popupClass = classNames('bubble-popup', props.customClass);
-  const popupStyle = { ...props.position };
-
+export function Popup(props: PopupProps) {
+  const { placement = PopupPlacement.Bottom } = props;
   return (
-    <div className={popupClass} style={popupStyle}>
+    <div
+      className={classNames(
+        'popup',
+        `is-${placement}`,
+        { 'no-padding': props.noPadding },
+        props.className
+      )}
+      style={props.style}>
       {props.children}
-      <div className="bubble-popup-arrow" />
+      <PopupArrow style={props.arrowStyle} />
     </div>
   );
+}
+
+interface PopupArrowProps {
+  style?: React.CSSProperties;
+}
+
+export function PopupArrow(props: PopupArrowProps) {
+  return <div className="popup-arrow" style={props.style} />;
 }

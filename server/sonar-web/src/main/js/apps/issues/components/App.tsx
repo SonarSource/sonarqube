@@ -19,7 +19,6 @@
  */
 import * as React from 'react';
 import Helmet from 'react-helmet';
-import * as classNames from 'classnames';
 import * as key from 'keymaster';
 import { keyBy, union, without } from 'lodash';
 import * as PropTypes from 'prop-types';
@@ -804,27 +803,26 @@ export default class App extends React.PureComponent<Props, State> {
           thirdState={thirdState}
         />
         {checked.length > 0 ? (
-          <Dropdown>
-            {({ onToggleClick, open }) => (
-              <div className={classNames('dropdown display-inline-block', { open })}>
-                <Button id="issues-bulk-change" onClick={onToggleClick}>
-                  {translate('bulk_change')}
-                  <i className="icon-dropdown little-spacer-left" />
-                </Button>
-                <ul className="dropdown-menu">
-                  <li>
-                    <a href="#" onClick={this.handleBulkChangeClick}>
-                      {translateWithParameters('issues.bulk_change', paging ? paging.total : 0)}
-                    </a>
-                  </li>
-                  <li>
-                    <a href="#" onClick={this.handleBulkChangeSelectedClick}>
-                      {translateWithParameters('issues.bulk_change_selected', checked.length)}
-                    </a>
-                  </li>
-                </ul>
-              </div>
-            )}
+          <Dropdown
+            className="display-inline-block"
+            overlay={
+              <ul className="menu">
+                <li>
+                  <a href="#" onClick={this.handleBulkChangeClick}>
+                    {translateWithParameters('issues.bulk_change', paging ? paging.total : 0)}
+                  </a>
+                </li>
+                <li>
+                  <a href="#" onClick={this.handleBulkChangeSelectedClick}>
+                    {translateWithParameters('issues.bulk_change_selected', checked.length)}
+                  </a>
+                </li>
+              </ul>
+            }>
+            <Button id="issues-bulk-change">
+              {translate('bulk_change')}
+              <i className="icon-dropdown little-spacer-left" />
+            </Button>
           </Dropdown>
         ) : (
           <Button id="issues-bulk-change" onClick={this.handleBulkChangeClick}>

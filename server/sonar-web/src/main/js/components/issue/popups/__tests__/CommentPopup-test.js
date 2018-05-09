@@ -25,10 +25,10 @@ import { click } from '../../../../helpers/testUtils';
 it('should render the comment popup correctly without existing comment', () => {
   const element = shallow(
     <CommentPopup
-      onComment={jest.fn()}
-      toggleComment={jest.fn()}
-      placeholder="placeholder test"
       customClass="myclass"
+      onComment={jest.fn()}
+      placeholder="placeholder test"
+      toggleComment={jest.fn()}
     />
   );
   expect(element).toMatchSnapshot();
@@ -37,12 +37,10 @@ it('should render the comment popup correctly without existing comment', () => {
 it('should render the comment popup correctly when changing a comment', () => {
   const element = shallow(
     <CommentPopup
-      comment={{
-        markdown: '*test*'
-      }}
+      comment={{ markdown: '*test*' }}
       onComment={jest.fn()}
-      toggleComment={jest.fn()}
       placeholder=""
+      toggleComment={jest.fn()}
     />
   );
   expect(element).toMatchSnapshot();
@@ -52,15 +50,15 @@ it('should render not allow to send comment with only spaces', () => {
   const onComment = jest.fn();
   const element = shallow(
     <CommentPopup
-      onComment={onComment}
-      toggleComment={jest.fn()}
-      placeholder="placeholder test"
       customClass="myclass"
+      onComment={onComment}
+      placeholder="placeholder test"
+      toggleComment={jest.fn()}
     />
   );
-  click(element.find('button.js-issue-comment-submit'));
+  click(element.find('.js-issue-comment-submit'));
   expect(onComment.mock.calls.length).toBe(0);
   element.setState({ textComment: 'mycomment' });
-  click(element.find('button.js-issue-comment-submit'));
+  click(element.find('.js-issue-comment-submit'));
   expect(onComment.mock.calls.length).toBe(1);
 });

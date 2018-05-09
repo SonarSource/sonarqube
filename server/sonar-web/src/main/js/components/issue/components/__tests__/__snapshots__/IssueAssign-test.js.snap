@@ -4,112 +4,111 @@ exports[`should open the popup when the button is clicked 1`] = `
 Array [
   Array [
     "assign",
-    Object {
-      "currentTarget": Object {
-        "blur": [Function],
-      },
-      "preventDefault": [Function],
-      "stopPropagation": [Function],
-      "target": Object {
-        "blur": [Function],
-      },
-    },
+    undefined,
   ],
 ]
 `;
 
 exports[`should open the popup when the button is clicked 2`] = `
-<BubblePopupHelper
-  isOpen={true}
-  popup={
-    <Connect(SetAssigneePopup)
-      issue={
-        Object {
-          "assignee": "john",
-          "assigneeAvatar": "gravatarhash",
-          "assigneeName": "John Doe",
-        }
-      }
-      onFail={[MockFunction]}
-      onSelect={[MockFunction]}
-    />
-  }
-  position="bottomleft"
-  togglePopup={[Function]}
+<div
+  className="dropdown"
 >
-  <button
-    className="button-link issue-action issue-action-with-options js-issue-assign"
-    onClick={[Function]}
+  <Toggler
+    closeOnEscape={true}
+    onRequestClose={[Function]}
+    open={true}
+    overlay={
+      <Connect(SetAssigneePopup)
+        issue={
+          Object {
+            "assignee": "john",
+            "assigneeAvatar": "gravatarhash",
+            "assigneeName": "John Doe",
+          }
+        }
+        onFail={[MockFunction]}
+        onSelect={[MockFunction]}
+      />
+    }
   >
-    <span>
-      <span
-        className="text-top"
-      >
-        <Connect(Avatar)
-          className="little-spacer-right"
-          hash="gravatarhash"
-          name="John Doe"
-          size={16}
-        />
+    <Button
+      className="button-link issue-action issue-action-with-options js-issue-assign"
+      onClick={[Function]}
+    >
+      <span>
+        <span
+          className="text-top"
+        >
+          <Connect(Avatar)
+            className="little-spacer-right"
+            hash="gravatarhash"
+            name="John Doe"
+            size={16}
+          />
+        </span>
+        <span
+          className="issue-meta-label"
+        >
+          John Doe
+        </span>
       </span>
-      <span
-        className="issue-meta-label"
-      >
-        John Doe
-      </span>
-    </span>
-    <i
-      className="little-spacer-left icon-dropdown"
-    />
-  </button>
-</BubblePopupHelper>
+      <DropdownIcon
+        className="little-spacer-left"
+      />
+    </Button>
+  </Toggler>
+</div>
 `;
 
 exports[`should render with the action 1`] = `
-<BubblePopupHelper
-  isOpen={false}
-  popup={
-    <Connect(SetAssigneePopup)
-      issue={
-        Object {
-          "assignee": "john",
-          "assigneeAvatar": "gravatarhash",
-          "assigneeName": "John Doe",
-        }
-      }
-      onFail={[MockFunction]}
-      onSelect={[MockFunction]}
-    />
-  }
-  position="bottomleft"
-  togglePopup={[Function]}
+<div
+  className="dropdown"
 >
-  <button
-    className="button-link issue-action issue-action-with-options js-issue-assign"
-    onClick={[Function]}
+  <Toggler
+    closeOnEscape={true}
+    onRequestClose={[Function]}
+    open={false}
+    overlay={
+      <Connect(SetAssigneePopup)
+        issue={
+          Object {
+            "assignee": "john",
+            "assigneeAvatar": "gravatarhash",
+            "assigneeName": "John Doe",
+          }
+        }
+        onFail={[MockFunction]}
+        onSelect={[MockFunction]}
+      />
+    }
   >
-    <span>
-      <span
-        className="text-top"
-      >
-        <Connect(Avatar)
-          className="little-spacer-right"
-          hash="gravatarhash"
-          name="John Doe"
-          size={16}
-        />
+    <Button
+      className="button-link issue-action issue-action-with-options js-issue-assign"
+      onClick={[Function]}
+    >
+      <span>
+        <span
+          className="text-top"
+        >
+          <Connect(Avatar)
+            className="little-spacer-right"
+            hash="gravatarhash"
+            name="John Doe"
+            size={16}
+          />
+        </span>
+        <span
+          className="issue-meta-label"
+        >
+          John Doe
+        </span>
       </span>
-      <span
-        className="issue-meta-label"
-      >
-        John Doe
-      </span>
-    </span>
-    <i
-      className="little-spacer-left icon-dropdown"
-    />
-  </button>
-</BubblePopupHelper>
+      <DropdownIcon
+        className="little-spacer-left"
+      />
+    </Button>
+  </Toggler>
+</div>
 `;
 
 exports[`should render without the action when the correct rights are missing 1`] = `

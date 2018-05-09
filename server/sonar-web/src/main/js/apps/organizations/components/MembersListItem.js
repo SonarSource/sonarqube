@@ -22,10 +22,11 @@ import React from 'react';
 import RemoveMemberForm from './forms/RemoveMemberForm';
 import ManageMemberGroupsForm from './forms/ManageMemberGroupsForm';
 import Avatar from '../../../components/ui/Avatar';
-import { translateWithParameters } from '../../../helpers/l10n';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { formatMeasure } from '../../../helpers/measures';
 import ActionsDropdown, {
-  ActionsDropdownDivider
+  ActionsDropdownDivider,
+  ActionsDropdownItem
 } from '../../../components/controls/ActionsDropdown';
 /*:: import type { Member } from '../../../store/organizationsMembers/actions'; */
 /*:: import type { Organization, OrgGroup } from '../../../store/organizations/duck'; */
@@ -38,12 +39,47 @@ type Props = {
   removeMember: Member => void,
   updateMemberGroups: (member: Member, add: Array<string>, remove: Array<string>) => void
 };
+
+type State = {
+  removeMemberForm: bool,
+  manageGroupsForm: bool
+}
 */
 
 const AVATAR_SIZE /*: number */ = 36;
 
 export default class MembersListItem extends React.PureComponent {
+  mounted /*: bool */ = false;
   /*:: props: Props; */
+  state /*: State */ = { removeMemberForm: false, manageGroupsForm: false };
+
+  componentDidMount() {
+    this.mounted = true;
+  }
+
+  componentWillUnmount() {
+    this.mounted = false;
+  }
+
+  handleManageGroupsClick = () => {
+    this.setState({ manageGroupsForm: true });
+  };
+
+  closeManageGroupsForm = () => {
+    if (this.mounted) {
+      this.setState({ manageGroupsForm: false });
+    }
+  };
+
+  handleRemoveMemberClick = () => {
+    this.setState({ removeMemberForm: true });
+  };
+
+  closeRemoveMemberForm = () => {
+    if (this.mounted) {
+      this.setState({ removeMemberForm: false });
+    }
+  };
 
   render() {
     const { member, organization } = this.props;
@@ -65,22 +101,38 @@ export default class MembersListItem extends React.PureComponent {
           </td>
         )}
         {organization.canAdmin && (
-          <td className="nowrap text-middle text-right">
-            <ActionsDropdown>
+          <React.Fragment>
+            <td className="nowrap text-middle text-right">
+              <ActionsDropdown>
+                <ActionsDropdownItem onClick={this.handleManageGroupsClick}>
+                  {translate('organization.members.manage_groups')}
+                </ActionsDropdownItem>
+                <ActionsDropdownDivider />
+                <ActionsDropdownItem destructive={true} onClick={this.handleRemoveMemberClick}>
+                  {translate('organization.members.remove')}
+                </ActionsDropdownItem>
+              </ActionsDropdown>
+            </td>
+
+            {this.state.manageGroupsForm && (
               <ManageMemberGroupsForm
-                organizationGroups={this.props.organizationGroups}
-                organization={this.props.organization}
-                updateMemberGroups={this.props.updateMemberGroups}
                 member={this.props.member}
+                onClose={this.closeManageGroupsForm}
+                organization={this.props.organization}
+                organizationGroups={this.props.organizationGroups}
+                updateMemberGroups={this.props.updateMemberGroups}
               />
-              <ActionsDropdownDivider />
+            )}
+
+            {this.state.removeMemberForm && (
               <RemoveMemberForm
+                member={this.props.member}
+                onClose={this.closeRemoveMemberForm}
                 organization={this.props.organization}
                 removeMember={this.props.removeMember}
-                member={this.props.member}
               />
-            </ActionsDropdown>
-          </td>
+            )}
+          </React.Fragment>
         )}
       </tr>
     );

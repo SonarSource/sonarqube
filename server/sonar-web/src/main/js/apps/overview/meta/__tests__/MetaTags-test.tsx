@@ -19,7 +19,6 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import { click } from '../../../../helpers/testUtils';
 import MetaTags from '../MetaTags';
 
 const component = {
@@ -60,22 +59,4 @@ it('should render with tags and admin rights', () => {
       disableLifecycleMethods: true
     })
   ).toMatchSnapshot();
-});
-
-it('should open the tag selector on click', () => {
-  const wrapper = shallow(
-    <MetaTags component={componentWithTags} onComponentChange={jest.fn()} />,
-    {
-      disableLifecycleMethods: true
-    }
-  );
-  expect(wrapper).toMatchSnapshot();
-
-  // open
-  click(wrapper.find('Button'));
-  expect(wrapper).toMatchSnapshot();
-
-  // close
-  click(wrapper.find('Button'));
-  expect(wrapper).toMatchSnapshot();
 });

@@ -19,11 +19,12 @@
  */
 // @flow
 import React from 'react';
-import BubblePopupHelper from '../../../components/common/BubblePopupHelper';
 import ChangelogPopup from '../popups/ChangelogPopup';
 import DateFromNow from '../../../components/intl/DateFromNow';
 import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
+import Toggler from '../../../components/controls/Toggler';
 import Tooltip from '../../../components/controls/Tooltip';
+import { Button } from '../../../components/ui/buttons';
 /*:: import type { Issue } from '../types'; */
 
 /*::
@@ -39,35 +40,39 @@ type Props = {
 export default class IssueChangelog extends React.PureComponent {
   /*:: props: Props; */
 
-  handleClick = (evt /*: SyntheticInputEvent */) => {
-    evt.preventDefault();
-    this.toggleChangelog();
-  };
-
   toggleChangelog = (open /*: boolean | void */) => {
     this.props.togglePopup('changelog', open);
   };
 
+  handleClick = () => {
+    this.toggleChangelog();
+  };
+
+  handleClose = () => {
+    this.toggleChangelog(false);
+  };
+
   render() {
     return (
-      <BubblePopupHelper
-        isOpen={this.props.isOpen}
-        position="bottomright"
-        togglePopup={this.toggleChangelog}
-        popup={<ChangelogPopup issue={this.props.issue} onFail={this.props.onFail} />}>
-        <Tooltip
-          mouseEnterDelay={0.5}
-          overlay={<DateTimeFormatter date={this.props.creationDate} />}>
-          <button
-            className="button-link issue-action issue-action-with-options js-issue-show-changelog"
-            onClick={this.handleClick}>
-            <span className="issue-meta-label">
-              <DateFromNow date={this.props.creationDate} />
-            </span>
-            <i className="icon-dropdown little-spacer-left" />
-          </button>
-        </Tooltip>
-      </BubblePopupHelper>
+      <div className="dropdown">
+        <Toggler
+          onRequestClose={this.handleClose}
+          open={this.props.isOpen}
+          overlay={<ChangelogPopup issue={this.props.issue} onFail={this.props.onFail} />}>
+          <Tooltip
+            mouseEnterDelay={0.5}
+            overlay={<DateTimeFormatter date={this.props.creationDate} />}>
+            <Button
+              className="button-link issue-action issue-action-with-options js-issue-show-changelog"
+              onClick={this.handleClick}>
+              <span className="issue-meta-label">
+                <DateFromNow date={this.props.creationDate} />
+              </span>
+              <i className="icon-dropdown little-spacer-left" />
+            </Button>
+          </Tooltip>
+        </Toggler>
+      </div>
     );
   }
 }

@@ -23,7 +23,6 @@ import { map } from 'lodash';
 import { connect } from 'react-redux';
 import * as PropTypes from 'prop-types';
 import Avatar from '../../../components/ui/Avatar';
-import BubblePopup from '../../../components/common/BubblePopup';
 import SelectList from '../../../components/common/SelectList';
 import SelectListItem from '../../../components/common/SelectListItem';
 import SearchBox from '../../../components/controls/SearchBox';
@@ -31,6 +30,7 @@ import { searchMembers } from '../../../api/organizations';
 import { searchUsers } from '../../../api/users';
 import { translate } from '../../../helpers/l10n';
 import { getCurrentUser } from '../../../store/rootReducer';
+import { DropdownOverlay } from '../../controls/Dropdown';
 /*:: import type { Issue } from '../types'; */
 
 /*::
@@ -123,9 +123,7 @@ class SetAssigneePopup extends React.PureComponent {
 
   render() {
     return (
-      <BubblePopup
-        customClass="bubble-popup-menu bubble-popup-bottom"
-        position={this.props.popupPosition}>
+      <DropdownOverlay noPadding={true}>
         <div className="multi-select">
           <div className="menu-search">
             <SearchBox
@@ -142,7 +140,7 @@ class SetAssigneePopup extends React.PureComponent {
             items={map(this.state.users, 'login')}
             onSelect={this.props.onSelect}>
             {this.state.users.map(user => (
-              <SelectListItem key={user.login} item={user.login}>
+              <SelectListItem item={user.login} key={user.login}>
                 {!!user.login && (
                   <Avatar className="spacer-right" hash={user.avatar} name={user.name} size={16} />
                 )}
@@ -155,7 +153,7 @@ class SetAssigneePopup extends React.PureComponent {
             ))}
           </SelectList>
         </div>
-      </BubblePopup>
+      </DropdownOverlay>
     );
   }
 }

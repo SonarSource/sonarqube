@@ -30,7 +30,7 @@ interface Props {
 export default function OrganizationListItem({ organization }: Props) {
   return (
     <li>
-      <OrganizationLink className="dropdown-item-flex" organization={organization}>
+      <OrganizationLink className="display-flex-center" organization={organization}>
         <div>
           <OrganizationAvatar organization={organization} small={true} />
           <span className="spacer-left">{organization.name}</span>

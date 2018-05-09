@@ -52,7 +52,45 @@ exports[`renders for SonarCloud 1`] = `
       >
         my_account.analyze_new_project
       </a>
-      <Dropdown />
+      <Dropdown
+        className="display-inline-block big-spacer-left"
+        overlay={
+          <ul
+            className="menu"
+          >
+            <OrganizationListItem
+              organization={
+                Object {
+                  "isAdmin": true,
+                  "key": "org1",
+                  "name": "org1",
+                  "projectVisibility": "public",
+                }
+              }
+            />
+            <OrganizationListItem
+              organization={
+                Object {
+                  "isAdmin": false,
+                  "key": "org2",
+                  "name": "org2",
+                  "projectVisibility": "public",
+                }
+              }
+            />
+          </ul>
+        }
+      >
+        <a
+          className="button"
+          href="#"
+        >
+          projects.no_favorite_projects.favorite_projects_from_orgs
+          <DropdownIcon
+            className="little-spacer-left"
+          />
+        </a>
+      </Dropdown>
       <Link
         className="button big-spacer-left"
         onlyActiveOnIndex={false}

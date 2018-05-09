@@ -20,17 +20,16 @@
 // @flow
 import React from 'react';
 import { translate } from '../../../helpers/l10n';
-import BubblePopup from '../../../components/common/BubblePopup';
 import IssueTypeIcon from '../../../components/ui/IssueTypeIcon';
 import SelectList from '../../../components/common/SelectList';
 import SelectListItem from '../../../components/common/SelectListItem';
+import { DropdownOverlay } from '../../controls/Dropdown';
 /*:: import type { Issue } from '../types'; */
 
 /*::
 type Props = {
   issue: Issue,
   onSelect: string => void,
-  popupPosition?: {}
 };
 */
 
@@ -41,21 +40,19 @@ export default class SetTypePopup extends React.PureComponent {
 
   render() {
     return (
-      <BubblePopup
-        position={this.props.popupPosition}
-        customClass="bubble-popup-menu bubble-popup-bottom">
+      <DropdownOverlay>
         <SelectList
-          items={TYPES}
           currentItem={this.props.issue.type}
+          items={TYPES}
           onSelect={this.props.onSelect}>
           {TYPES.map(type => (
-            <SelectListItem key={type} item={type}>
+            <SelectListItem item={type} key={type}>
               <IssueTypeIcon className="little-spacer-right" query={type} />
               {translate('issue.type', type)}
             </SelectListItem>
           ))}
         </SelectList>
-      </BubblePopup>
+      </DropdownOverlay>
     );
   }
 }

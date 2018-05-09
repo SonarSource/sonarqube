@@ -19,12 +19,12 @@
  */
 import * as React from 'react';
 import { difference, without } from 'lodash';
-import { BubblePopupPosition } from '../../../components/common/BubblePopup';
 import TagsSelector from '../../../components/tags/TagsSelector';
 import { searchIssueTags } from '../../../api/issues';
+import { DropdownOverlay } from '../../controls/Dropdown';
+import { PopupPlacement } from '../../ui/popups';
 
 interface Props {
-  popupPosition: BubblePopupPosition;
   organization: string;
   selectedTags: string[];
   setTags: (tags: string[]) => void;
@@ -74,15 +74,16 @@ export default class SetIssueTagsPopup extends React.PureComponent<Props, State>
   render() {
     const availableTags = difference(this.state.searchResult, this.props.selectedTags);
     return (
-      <TagsSelector
-        listSize={LIST_SIZE}
-        onSearch={this.onSearch}
-        onSelect={this.onSelect}
-        onUnselect={this.onUnselect}
-        position={this.props.popupPosition}
-        selectedTags={this.props.selectedTags}
-        tags={availableTags}
-      />
+      <DropdownOverlay placement={PopupPlacement.BottomRight}>
+        <TagsSelector
+          listSize={LIST_SIZE}
+          onSearch={this.onSearch}
+          onSelect={this.onSelect}
+          onUnselect={this.onUnselect}
+          selectedTags={this.props.selectedTags}
+          tags={availableTags}
+        />
+      </DropdownOverlay>
     );
   }
 }

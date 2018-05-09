@@ -1,23 +1,21 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should render the comment delete popup correctly 1`] = `
-<BubblePopup
-  customClass="bubble-popup-bottom-right"
->
+<DropdownOverlay>
   <div
-    className="text-right"
+    className="menu is-container"
   >
     <div
       className="spacer-bottom"
     >
       issue.comment.delete_confirm_message
     </div>
-    <button
+    <Button
       className="button-red"
       onClick={[MockFunction]}
     >
       delete
-    </button>
+    </Button>
   </div>
-</BubblePopup>
+</DropdownOverlay>
 `;

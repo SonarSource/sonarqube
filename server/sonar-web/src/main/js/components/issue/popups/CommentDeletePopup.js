@@ -19,8 +19,9 @@
  */
 // @flow
 import React from 'react';
+import { Button } from '../../../components/ui/buttons';
 import { translate } from '../../../helpers/l10n';
-import BubblePopup from '../../../components/common/BubblePopup';
+import { DropdownOverlay } from '../../controls/Dropdown';
 
 /*::
 type Props = {
@@ -31,13 +32,13 @@ type Props = {
 
 export default function CommentDeletePopup(props /*: Props */) {
   return (
-    <BubblePopup position={props.popupPosition} customClass="bubble-popup-bottom-right">
-      <div className="text-right">
+    <DropdownOverlay>
+      <div className="menu is-container">
         <div className="spacer-bottom">{translate('issue.comment.delete_confirm_message')}</div>
-        <button className="button-red" onClick={props.onDelete}>
+        <Button className="button-red" onClick={props.onDelete}>
           {translate('delete')}
-        </button>
+        </Button>
       </div>
-    </BubblePopup>
+    </DropdownOverlay>
   );
 }

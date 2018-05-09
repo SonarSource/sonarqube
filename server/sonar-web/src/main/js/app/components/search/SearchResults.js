@@ -49,12 +49,12 @@ export default class SearchResults extends React.PureComponent {
       const components = this.props.results[qualifier];
 
       if (components.length > 0 && renderedComponents.length > 0) {
-        renderedComponents.push(<li key={`divider-${qualifier}`} className="divider" />);
+        renderedComponents.push(<li className="divider" key={`divider-${qualifier}`} />);
       }
 
       if (components.length > 0) {
         renderedComponents.push(
-          <li key={`header-${qualifier}`} className="dropdown-header">
+          <li className="menu-header" key={`header-${qualifier}`}>
             {translate('qualifiers', qualifier)}
           </li>
         );

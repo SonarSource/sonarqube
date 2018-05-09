@@ -251,24 +251,15 @@ export default class AdvancedTimeline extends React.PureComponent {
 
   handleMouseOut = (evt /*: Event & { relatedTarget: HTMLElement } */) => {
     const { updateTooltip } = this.props;
-    const targetClass =
-      evt.relatedTarget && typeof evt.relatedTarget.className === 'string'
-        ? evt.relatedTarget.className
-        : '';
-    if (
-      !updateTooltip ||
-      targetClass.includes('bubble-popup') ||
-      targetClass.includes('graph-tooltip')
-    ) {
-      return;
+    if (updateTooltip) {
+      this.setState({
+        mouseOver: false,
+        selectedDate: null,
+        selectedDateXPos: null,
+        selectedDateIdx: null
+      });
+      updateTooltip(null, null, null);
     }
-    this.setState({
-      mouseOver: false,
-      selectedDate: null,
-      selectedDateXPos: null,
-      selectedDateIdx: null
-    });
-    updateTooltip(null, null, null);
   };
 
   handleClick = () => {

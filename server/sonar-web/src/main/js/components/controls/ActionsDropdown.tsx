@@ -28,34 +28,24 @@ import { Button } from '../ui/buttons';
 interface Props {
   className?: string;
   children: React.ReactNode;
-  menuClassName?: string;
-  menuPosition?: 'left' | 'right';
   onOpen?: () => void;
   small?: boolean;
   toggleClassName?: string;
 }
 
-export default function ActionsDropdown({ menuPosition = 'right', ...props }: Props) {
+export default function ActionsDropdown(props: Props) {
   return (
-    <Dropdown onOpen={props.onOpen}>
-      {({ onToggleClick, open }) => (
-        <div className={classNames('dropdown', props.className, { open })}>
-          <Button
-            className={classNames('dropdown-toggle', props.toggleClassName, {
-              'button-small': props.small
-            })}
-            onClick={onToggleClick}>
-            <SettingsIcon className="text-text-bottom" />
-            <i className="icon-dropdown little-spacer-left" />
-          </Button>
-          <ul
-            className={classNames('dropdown-menu', props.menuClassName, {
-              'dropdown-menu-right': menuPosition === 'right'
-            })}>
-            {props.children}
-          </ul>
-        </div>
-      )}
+    <Dropdown
+      className={props.className}
+      onOpen={props.onOpen}
+      overlay={<ul className="menu">{props.children}</ul>}>
+      <Button
+        className={classNames('dropdown-toggle', props.toggleClassName, {
+          'button-small': props.small
+        })}>
+        <SettingsIcon className="text-text-bottom" />
+        <i className="icon-dropdown little-spacer-left" />
+      </Button>
     </Dropdown>
   );
 }

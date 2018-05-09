@@ -21,9 +21,9 @@ import * as React from 'react';
 import EmbedDocsPopup from './EmbedDocsPopup';
 import { SuggestionLink } from './SuggestionsProvider';
 import { CurrentUser } from '../../types';
-import BubblePopupHelper from '../../../components/common/BubblePopupHelper';
-import HelpIcon from '../../../components/icons-components/HelpIcon';
+import Toggler from '../../../components/controls/Toggler';
 import Tooltip from '../../../components/controls/Tooltip';
+import HelpIcon from '../../../components/icons-components/HelpIcon';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {
@@ -63,6 +63,7 @@ export default class EmbedDocsPopupHelper extends React.PureComponent<Props, Sta
 
   handleClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
     event.preventDefault();
+    event.currentTarget.blur();
     this.toggleHelp();
   };
 
@@ -78,26 +79,26 @@ export default class EmbedDocsPopupHelper extends React.PureComponent<Props, Sta
 
   render() {
     return (
-      <BubblePopupHelper
-        isOpen={this.state.helpOpen}
-        offset={{ horizontal: 12, vertical: -10 }}
-        popup={
-          <EmbedDocsPopup
-            currentUser={this.props.currentUser}
-            onClose={this.closeHelp}
-            suggestions={this.props.suggestions}
-          />
-        }
-        position="bottomleft"
-        togglePopup={this.setHelpDisplay}>
-        <Tooltip
-          overlay={this.props.tooltip ? translate('tutorials.follow_later') : undefined}
-          visible={this.props.showTooltip}>
-          <a className="navbar-help" href="#" onClick={this.handleClick}>
-            <HelpIcon />
-          </a>
-        </Tooltip>
-      </BubblePopupHelper>
+      <li className="dropdown">
+        <Toggler
+          onRequestClose={this.closeHelp}
+          open={this.state.helpOpen}
+          overlay={
+            <EmbedDocsPopup
+              currentUser={this.props.currentUser}
+              onClose={this.closeHelp}
+              suggestions={this.props.suggestions}
+            />
+          }>
+          <Tooltip
+            overlay={this.props.tooltip ? translate('tutorials.follow_later') : undefined}
+            visible={this.props.showTooltip}>
+            <a className="navbar-help" href="#" onClick={this.handleClick}>
+              <HelpIcon />
+            </a>
+          </Tooltip>
+        </Toggler>
+      </li>
     );
   }
 }

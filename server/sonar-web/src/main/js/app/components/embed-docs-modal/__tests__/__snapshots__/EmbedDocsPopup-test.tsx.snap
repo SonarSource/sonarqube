@@ -1,15 +1,13 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should display suggestion links 1`] = `
-<BubblePopup
-  customClass="bubble-popup-bottom bubble-popup-menu abs-width-240 embed-docs-popup"
->
+<DropdownOverlay>
   <ul
-    className="menu"
+    className="menu abs-width-240"
   >
     <React.Fragment>
       <li
-        className="dropdown-header"
+        className="menu-header"
       >
         embed_docs.suggestion
       </li>
@@ -74,7 +72,7 @@ exports[`should display suggestion links 1`] = `
         className="divider"
       />
       <li
-        className="dropdown-header"
+        className="menu-header"
       >
         embed_docs.get_support
       </li>
@@ -114,7 +112,7 @@ exports[`should display suggestion links 1`] = `
         className="divider"
       />
       <li
-        className="dropdown-header"
+        className="menu-header"
       >
         embed_docs.stay_connected
       </li>
@@ -152,5 +150,5 @@ exports[`should display suggestion links 1`] = `
       </li>
     </React.Fragment>
   </ul>
-</BubblePopup>
+</DropdownOverlay>
 `;

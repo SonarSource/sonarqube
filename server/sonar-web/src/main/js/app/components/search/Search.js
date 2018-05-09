@@ -20,7 +20,6 @@
 // @flow
 import React from 'react';
 import PropTypes from 'prop-types';
-import classNames from 'classnames';
 import key from 'keymaster';
 import { debounce, keyBy, uniqBy } from 'lodash';
 import { FormattedMessage } from 'react-intl';
@@ -31,12 +30,14 @@ import { sortQualifiers } from './utils';
 import RecentHistory from '../../components/RecentHistory';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import ClockIcon from '../../../components/common/ClockIcon';
+import OutsideClickHandler from '../../../components/controls/OutsideClickHandler';
 import SearchBox from '../../../components/controls/SearchBox';
 import { getSuggestions } from '../../../api/components';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { scrollToElement } from '../../../helpers/scrolling';
 import { getProjectUrl } from '../../../helpers/urls';
 import './Search.css';
+import { DropdownOverlay } from '../../../components/controls/Dropdown';
 
 /*::
 type Props = {|
@@ -115,17 +116,22 @@ export default class Search extends React.PureComponent {
   componentWillUnmount() {
     this.mounted = false;
     key.unbind('s');
-    window.removeEventListener('click', this.handleClickOutside);
   }
 
-  handleClickOutside = (event /*: { target: HTMLElement } */) => {
-    if (!this.node || !this.node.contains(event.target)) {
-      this.closeSearch(false);
+  handleClickOutside = () => {
+    this.closeSearch(false);
+  };
+
+  handleFocus = () => {
+    // simulate click to close any other dropdowns
+    const body = document.documentElement;
+    if (body) {
+      body.click();
     }
+    this.openSearch();
   };
 
   openSearch = () => {
-    window.addEventListener('click', this.handleClickOutside);
     if (!this.state.open && !this.state.query) {
       this.search('');
     }
@@ -136,7 +142,6 @@ export default class Search extends React.PureComponent {
     if (this.input) {
       this.input.blur();
     }
-    window.removeEventListener('click', this.handleClickOutside);
     this.setState(
       clear
         ? {
@@ -304,10 +309,6 @@ export default class Search extends React.PureComponent {
     this.setState({ selected });
   };
 
-  handleClick = (event /*: Event */) => {
-    event.stopPropagation();
-  };
-
   innerRef = (component /*: string */, node /*: HTMLElement */) => {
     this.nodes[component] = node;
   };
@@ -337,61 +338,65 @@ export default class Search extends React.PureComponent {
   );
 
   render() {
-    const dropdownClassName = classNames('dropdown', 'navbar-search', { open: this.state.open });
-
-    return (
-      <li className={dropdownClassName}>
+    const search = (
+      <li className="navbar-search dropdown">
         <DeferredSpinner className="navbar-search-icon" loading={this.state.loading} />
 
         <SearchBox
+          autoFocus={this.state.open}
           innerRef={this.searchInputRef}
           minLength={2}
           onChange={this.handleQueryChange}
-          onClick={this.handleClick}
-          onFocus={this.openSearch}
+          onFocus={this.handleFocus}
           onKeyDown={this.handleKeyDown}
           placeholder={translate('search.placeholder')}
           value={this.state.query}
         />
 
         {this.state.shortQuery && (
-          <span className={classNames('navbar-search-input-hint')}>
+          <span className="navbar-search-input-hint">
             {translateWithParameters('select2.tooShort', 2)}
           </span>
         )}
 
         {this.state.open &&
           Object.keys(this.state.results).length > 0 && (
-            <div
-              className="dropdown-menu dropdown-menu-right global-navbar-search-dropdown"
-              ref={node => (this.node = node)}>
-              <SearchResults
-                allowMore={this.state.query.length !== 1}
-                loadingMore={this.state.loadingMore}
-                more={this.state.more}
-                onMoreClick={this.searchMore}
-                onSelect={this.handleSelect}
-                renderNoResults={this.renderNoResults}
-                renderResult={this.renderResult}
-                results={this.state.results}
-                selected={this.state.selected}
-              />
-              <div className="dropdown-bottom-hint">
-                <div className="pull-right">
-                  <ClockIcon className="little-spacer-right" size={12} />
-                  {translate('recently_browsed')}
-                </div>
-                <FormattedMessage
-                  defaultMessage={translate('search.shortcut_hint')}
-                  id="search.shortcut_hint"
-                  values={{
-                    shortcut: <span className="shortcut-button shortcut-button-small">s</span>
-                  }}
+            <DropdownOverlay noPadding={true}>
+              <div className="global-navbar-search-dropdown" ref={node => (this.node = node)}>
+                <SearchResults
+                  allowMore={this.state.query.length !== 1}
+                  loadingMore={this.state.loadingMore}
+                  more={this.state.more}
+                  onMoreClick={this.searchMore}
+                  onSelect={this.handleSelect}
+                  renderNoResults={this.renderNoResults}
+                  renderResult={this.renderResult}
+                  results={this.state.results}
+                  selected={this.state.selected}
                 />
+                <div className="dropdown-bottom-hint">
+                  <div className="pull-right">
+                    <ClockIcon className="little-spacer-right" size={12} />
+                    {translate('recently_browsed')}
+                  </div>
+                  <FormattedMessage
+                    defaultMessage={translate('search.shortcut_hint')}
+                    id="search.shortcut_hint"
+                    values={{
+                      shortcut: <span className="shortcut-button shortcut-button-small">s</span>
+                    }}
+                  />
+                </div>
               </div>
-            </div>
+            </DropdownOverlay>
           )}
       </li>
+    );
+
+    return this.state.open ? (
+      <OutsideClickHandler onClickOutside={this.handleClickOutside}>{search}</OutsideClickHandler>
+    ) : (
+      search
     );
   }
 }

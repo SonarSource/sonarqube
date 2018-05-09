@@ -24,7 +24,6 @@ import OrganizationNavigationMenu from './OrganizationNavigationMenu';
 import * as theme from '../../../app/theme';
 import ContextNavBar from '../../../components/nav/ContextNavBar';
 import { Organization } from '../../../app/types';
-import './OrganizationNavigation.css';
 
 interface Props {
   location: { pathname: string };

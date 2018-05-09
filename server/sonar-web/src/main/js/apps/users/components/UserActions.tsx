@@ -49,7 +49,7 @@ export default class UserActions extends React.PureComponent<Props, State> {
   renderActions = () => {
     const { user } = this.props;
     return (
-      <ActionsDropdown menuClassName="dropdown-menu-right">
+      <ActionsDropdown>
         <ActionsDropdownItem className="js-user-update" onClick={this.handleOpenUpdateForm}>
           {translate('update_details')}
         </ActionsDropdownItem>

@@ -20,20 +20,19 @@
 // @flow
 import React from 'react';
 import Modal from '../../../../components/controls/Modal';
-import { ActionsDropdownItem } from '../../../../components/controls/ActionsDropdown';
 import { translate } from '../../../../helpers/l10n';
 /*:: import type { Analysis } from '../../types'; */
 
 /*::
 type Props = {
   analysis: Analysis,
-  deleteAnalysis: (analysis: string) => Promise<*>
+  deleteAnalysis: (analysis: string) => Promise<*>,
+  onClose: () => void;
 };
 */
 
 /*::
 type State = {
-  open: boolean,
   processing: boolean
 };
 */
@@ -42,7 +41,6 @@ export default class RemoveAnalysisForm extends React.PureComponent {
   /*:: mounted: boolean; */
   /*:: props: Props; */
   state /*: State */ = {
-    open: false,
     processing: false
   };
 
@@ -54,25 +52,9 @@ export default class RemoveAnalysisForm extends React.PureComponent {
     this.mounted = false;
   }
 
-  openForm = () => {
-    this.setState({ open: true });
-  };
-
-  closeForm = () => {
-    if (this.mounted) {
-      this.setState({ open: false });
-    }
-  };
-
   stopProcessing = () => {
     if (this.mounted) {
       this.setState({ processing: false });
-    }
-  };
-
-  stopProcessingAndClose = () => {
-    if (this.mounted) {
-      this.setState({ open: false, processing: false });
     }
   };
 
@@ -81,13 +63,13 @@ export default class RemoveAnalysisForm extends React.PureComponent {
     this.setState({ processing: true });
     this.props
       .deleteAnalysis(this.props.analysis.key)
-      .then(this.stopProcessingAndClose, this.stopProcessing);
+      .then(this.props.onClose, this.stopProcessing);
   };
 
-  renderModal() {
+  render() {
     const header = translate('project_activity.delete_analysis');
     return (
-      <Modal key="delete-analysis-modal" contentLabel={header} onRequestClose={this.closeForm}>
+      <Modal contentLabel={header} key="delete-analysis-modal" onRequestClose={this.props.onClose}>
         <header className="modal-head">
           <h2>{header}</h2>
         </header>
@@ -100,10 +82,10 @@ export default class RemoveAnalysisForm extends React.PureComponent {
               <i className="spinner" />
             ) : (
               <div>
-                <button type="submit" className="button-red" autoFocus={true}>
+                <button autoFocus={true} className="button-red" type="submit">
                   {translate('delete')}
                 </button>
-                <button type="reset" className="button-link" onClick={this.closeForm}>
+                <button className="button-link" onClick={this.props.onClose} type="reset">
                   {translate('cancel')}
                 </button>
               </div>
@@ -112,20 +94,5 @@ export default class RemoveAnalysisForm extends React.PureComponent {
         </form>
       </Modal>
     );
-  }
-
-  render() {
-    const linkComponent = (
-      <ActionsDropdownItem
-        className="js-delete-analysis"
-        destructive={true}
-        onClick={this.openForm}>
-        {translate('project_activity.delete_analysis')}
-      </ActionsDropdownItem>
-    );
-    if (this.state.open) {
-      return [linkComponent, this.renderModal()];
-    }
-    return linkComponent;
   }
 }

@@ -20,7 +20,7 @@
 import * as React from 'react';
 import PluginChangeLog from './PluginChangeLog';
 import { Release, Update } from '../../../api/plugins';
-import BubblePopupHelper from '../../../components/common/BubblePopupHelper';
+import Dropdown from '../../../components/controls/Dropdown';
 import { Button } from '../../../components/ui/buttons';
 
 interface Props {
@@ -28,39 +28,12 @@ interface Props {
   update: Update;
 }
 
-interface State {
-  changelogOpen: boolean;
-}
-
-export default class PluginChangeLogButton extends React.PureComponent<Props, State> {
-  state: State = { changelogOpen: false };
-
-  toggleChangelog = (show?: boolean) => {
-    if (show !== undefined) {
-      this.setState({ changelogOpen: show });
-    } else {
-      this.setState(state => ({ changelogOpen: !state.changelogOpen }));
-    }
-  };
-
-  handleClick = () => {
-    this.toggleChangelog();
-  };
-
-  render() {
-    return (
-      <div className="display-inline-block little-spacer-left">
-        <Button
-          className="button-link js-changelog issue-rule icon-ellipsis-h"
-          onClick={this.handleClick}
-        />
-        <BubblePopupHelper
-          isOpen={this.state.changelogOpen}
-          popup={<PluginChangeLog release={this.props.release} update={this.props.update} />}
-          position="bottomright"
-          togglePopup={this.toggleChangelog}
-        />
-      </div>
-    );
-  }
+export default function PluginChangeLogButton({ release, update }: Props) {
+  return (
+    <Dropdown
+      className="display-inline-block little-spacer-left"
+      overlay={<PluginChangeLog release={release} update={update} />}>
+      <Button className="button-link js-changelog issue-rule icon-ellipsis-h" />
+    </Dropdown>
+  );
 }

@@ -153,15 +153,17 @@ export default class App extends React.PureComponent<Props, State> {
                 return (
                   <React.Fragment key={getBranchLikeKey(branchLike)}>
                     {showOrphanHeader && (
-                      <li className="dropdown-header">
-                        <div className="display-inline-block text-middle">
-                          {translate('branches.orphan_branches')}
-                        </div>
-                        <HelpTooltip
-                          className="spacer-left"
-                          overlay={translate('branches.orphan_branches.tooltip')}
-                        />
-                      </li>
+                      <tr>
+                        <td colSpan={4}>
+                          <div className="display-inline-block text-middle">
+                            {translate('branches.orphan_branches')}
+                          </div>
+                          <HelpTooltip
+                            className="spacer-left"
+                            overlay={translate('branches.orphan_branches.tooltip')}
+                          />
+                        </td>
+                      </tr>
                     )}
                     <BranchRow
                       branchLike={branchLike}

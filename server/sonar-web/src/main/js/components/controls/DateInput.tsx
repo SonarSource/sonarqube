@@ -151,73 +151,71 @@ export default class DateInput extends React.PureComponent<Props, State> {
 
     return (
       <OutsideClickHandler onClickOutside={this.closeCalendar}>
-        {({ ref }) => (
-          <span className={classNames('date-input-control', this.props.className)} ref={ref}>
-            <input
-              className={classNames('date-input-control-input', this.props.inputClassName, {
-                'is-filled': this.props.value !== undefined
-              })}
-              name={this.props.name}
-              onFocus={this.openCalendar}
-              placeholder={this.props.placeholder}
-              readOnly={true}
-              ref={node => (this.input = node)}
-              type="text"
-              value={formattedValue || ''}
-            />
-            <CalendarIcon className="date-input-control-icon" fill="" />
-            {this.props.value !== undefined && (
-              <ButtonIcon
-                className="button-tiny date-input-control-reset"
-                color={theme.gray60}
-                onClick={this.handleResetClick}>
-                <ClearIcon size={12} />
-              </ButtonIcon>
-            )}
-            {this.state.open && (
-              <div className="date-input-calendar">
-                <nav className="date-input-calendar-nav">
-                  <ButtonIcon className="button-small" onClick={this.handlePreviousMonthClick}>
-                    <ChevronLeftIcon />
-                  </ButtonIcon>
-                  <div className="date-input-calender-month">
-                    <Select
-                      className="date-input-calender-month-select"
-                      onChange={this.handleCurrentMonthChange}
-                      options={months.map(month => ({
-                        label: getShortMonthName(month),
-                        value: month
-                      }))}
-                      value={this.state.currentMonth.getMonth()}
-                    />
-                    <Select
-                      className="date-input-calender-month-select spacer-left"
-                      onChange={this.handleCurrentYearChange}
-                      options={years.map(year => ({ label: String(year), value: year }))}
-                      value={this.state.currentMonth.getFullYear()}
-                    />
-                  </div>
-                  <ButtonIcon className="button-small" onClick={this.handleNextMonthClick}>
-                    <ChevronRightIcon />
-                  </ButtonIcon>
-                </nav>
-                <DayPicker
-                  captionElement={<NullComponent />}
-                  disabledDays={{ after, before: minDate }}
-                  firstDayOfWeek={1}
-                  modifiers={modifiers}
-                  month={this.state.currentMonth}
-                  navbarElement={<NullComponent />}
-                  onDayClick={this.handleDayClick}
-                  onDayMouseEnter={this.handleDayMouseEnter}
-                  selectedDays={selectedDays}
-                  weekdaysLong={weekdaysLong}
-                  weekdaysShort={weekdaysShort}
-                />
-              </div>
-            )}
-          </span>
-        )}
+        <span className={classNames('date-input-control', this.props.className)}>
+          <input
+            className={classNames('date-input-control-input', this.props.inputClassName, {
+              'is-filled': this.props.value !== undefined
+            })}
+            name={this.props.name}
+            onFocus={this.openCalendar}
+            placeholder={this.props.placeholder}
+            readOnly={true}
+            ref={node => (this.input = node)}
+            type="text"
+            value={formattedValue || ''}
+          />
+          <CalendarIcon className="date-input-control-icon" fill="" />
+          {this.props.value !== undefined && (
+            <ButtonIcon
+              className="button-tiny date-input-control-reset"
+              color={theme.gray60}
+              onClick={this.handleResetClick}>
+              <ClearIcon size={12} />
+            </ButtonIcon>
+          )}
+          {this.state.open && (
+            <div className="date-input-calendar">
+              <nav className="date-input-calendar-nav">
+                <ButtonIcon className="button-small" onClick={this.handlePreviousMonthClick}>
+                  <ChevronLeftIcon />
+                </ButtonIcon>
+                <div className="date-input-calender-month">
+                  <Select
+                    className="date-input-calender-month-select"
+                    onChange={this.handleCurrentMonthChange}
+                    options={months.map(month => ({
+                      label: getShortMonthName(month),
+                      value: month
+                    }))}
+                    value={this.state.currentMonth.getMonth()}
+                  />
+                  <Select
+                    className="date-input-calender-month-select spacer-left"
+                    onChange={this.handleCurrentYearChange}
+                    options={years.map(year => ({ label: String(year), value: year }))}
+                    value={this.state.currentMonth.getFullYear()}
+                  />
+                </div>
+                <ButtonIcon className="button-small" onClick={this.handleNextMonthClick}>
+                  <ChevronRightIcon />
+                </ButtonIcon>
+              </nav>
+              <DayPicker
+                captionElement={<NullComponent />}
+                disabledDays={{ after, before: minDate }}
+                firstDayOfWeek={1}
+                modifiers={modifiers}
+                month={this.state.currentMonth}
+                navbarElement={<NullComponent />}
+                onDayClick={this.handleDayClick}
+                onDayMouseEnter={this.handleDayMouseEnter}
+                selectedDays={selectedDays}
+                weekdaysLong={weekdaysLong}
+                weekdaysShort={weekdaysShort}
+              />
+            </div>
+          )}
+        </span>
       </OutsideClickHandler>
     );
   }

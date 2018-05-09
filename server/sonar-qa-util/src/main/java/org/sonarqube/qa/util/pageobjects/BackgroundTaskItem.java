@@ -37,7 +37,7 @@ public class BackgroundTaskItem {
 
   public BackgroundTaskItem openActions() {
     elt.$(".js-task-action > .dropdown-toggle").click();
-    elt.$(".js-task-action > .dropdown-menu").shouldBe(Condition.visible);
+    elt.$(".js-task-action .menu").shouldBe(Condition.visible);
     return this;
   }
 

@@ -33,5 +33,5 @@ it('should work with extensions', () => {
     />
   );
   expect(wrapper).toMatchSnapshot();
-  expect(wrapper.find('Dropdown').map(x => x.dive())).toMatchSnapshot();
+  expect(wrapper.find('Dropdown')).toMatchSnapshot();
 });

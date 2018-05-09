@@ -20,6 +20,7 @@
 import * as React from 'react';
 import { createPortal, findDOMNode } from 'react-dom';
 import { throttle } from 'lodash';
+import ScreePositionFixer from './ScreenPositionFixer';
 import './Tooltip.css';
 
 export type Placement = 'bottom' | 'right' | 'left' | 'top';
@@ -39,9 +40,7 @@ interface Props {
 interface Measurements {
   height: number;
   left: number;
-  leftFix: number;
   top: number;
-  topFix: number;
   width: number;
 }
 
@@ -54,8 +53,6 @@ type State = OwnState & Partial<Measurements>;
 function isMeasured(state: State): state is OwnState & Measurements {
   return state.height !== undefined;
 }
-
-const EDGE_MARGIN = 4;
 
 export default function Tooltip(props: Props) {
   // allows to pass `undefined` to `overlay` to avoid rendering a tooltip
@@ -182,31 +179,11 @@ export class TooltipInner extends React.Component<Props, State> {
           break;
       }
 
-      // make sure the tooltip fits in the document
-      // it may go out of the current viewport, if it has scrolls
-      const { scrollWidth, scrollHeight } = document.documentElement;
-
-      let leftFix = 0;
-      if (left < EDGE_MARGIN) {
-        leftFix = EDGE_MARGIN - left;
-      } else if (left + width > scrollWidth - EDGE_MARGIN) {
-        leftFix = scrollWidth - EDGE_MARGIN - left - width;
-      }
-
-      let topFix = 0;
-      if (top < EDGE_MARGIN) {
-        topFix = EDGE_MARGIN - top;
-      } else if (top + height > scrollHeight - EDGE_MARGIN) {
-        topFix = scrollHeight - EDGE_MARGIN - top - height;
-      }
-
       // save width and height (and later set in `render`) to avoid resizing the tooltip element,
       // when it's placed close to the window edge
       const measurements: Measurements = {
         left: window.pageXOffset + left,
-        leftFix,
         top: window.pageYOffset + top,
-        topFix,
         width,
         height
       };
@@ -217,9 +194,7 @@ export class TooltipInner extends React.Component<Props, State> {
   clearPosition = () => {
     this.setState({
       left: undefined,
-      leftFix: undefined,
       top: undefined,
-      topFix: undefined,
       width: undefined,
       height: undefined
     });
@@ -280,31 +255,35 @@ export class TooltipInner extends React.Component<Props, State> {
         })}
         {this.isVisible() && (
           <TooltipPortal>
-            <div
-              className={`${classNameSpace} ${this.getPlacement()}`}
-              onMouseEnter={this.handleOverlayMouseEnter}
-              onMouseLeave={this.handleOverlayMouseLeave}
-              ref={this.tooltipNodeRef}
-              style={
-                isMeasured(this.state)
-                  ? {
-                      left: this.state.left + this.state.leftFix,
-                      top: this.state.top + this.state.topFix,
-                      width: this.state.width,
-                      height: this.state.height
+            <ScreePositionFixer ready={isMeasured(this.state)}>
+              {({ leftFix = 0, topFix = 0 }) => (
+                <div
+                  className={`${classNameSpace} ${this.getPlacement()}`}
+                  onMouseEnter={this.handleOverlayMouseEnter}
+                  onMouseLeave={this.handleOverlayMouseLeave}
+                  ref={this.tooltipNodeRef}
+                  style={
+                    isMeasured(this.state)
+                      ? {
+                          left: this.state.left + leftFix,
+                          top: this.state.top + topFix,
+                          width: this.state.width,
+                          height: this.state.height
+                        }
+                      : undefined
+                  }>
+                  <div className={`${classNameSpace}-inner`}>{this.props.overlay}</div>
+                  <div
+                    className={`${classNameSpace}-arrow`}
+                    style={
+                      isMeasured(this.state)
+                        ? { marginLeft: -leftFix, marginTop: -topFix }
+                        : undefined
                     }
-                  : undefined
-              }>
-              <div className={`${classNameSpace}-inner`}>{this.props.overlay}</div>
-              <div
-                className={`${classNameSpace}-arrow`}
-                style={
-                  isMeasured(this.state)
-                    ? { marginLeft: -this.state.leftFix, marginTop: -this.state.topFix }
-                    : undefined
-                }
-              />
-            </div>
+                  />
+                </div>
+              )}
+            </ScreePositionFixer>
           </TooltipPortal>
         )}
       </>

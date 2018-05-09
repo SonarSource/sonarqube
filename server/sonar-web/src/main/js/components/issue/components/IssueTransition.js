@@ -20,10 +20,12 @@
 // @flow
 import React from 'react';
 import { updateIssue } from '../actions';
-import BubblePopupHelper from '../../../components/common/BubblePopupHelper';
 import SetTransitionPopup from '../popups/SetTransitionPopup';
-import StatusHelper from '../../../components/shared/StatusHelper';
 import { setIssueTransition } from '../../../api/issues';
+import Toggler from '../../../components/controls/Toggler';
+import DropdownIcon from '../../../components/icons-components/DropdownIcon';
+import StatusHelper from '../../../components/shared/StatusHelper';
+import { Button } from '../../../components/ui/buttons';
 /*:: import type { Issue } from '../types'; */
 
 /*::
@@ -53,36 +55,41 @@ export default class IssueTransition extends React.PureComponent {
     this.props.togglePopup('transition', open);
   };
 
+  handleClose = () => {
+    this.toggleSetTransition(false);
+  };
+
   render() {
     const { issue } = this.props;
 
     if (this.props.hasTransitions) {
       return (
-        <BubblePopupHelper
-          isOpen={this.props.isOpen && this.props.hasTransitions}
-          position="bottomleft"
-          togglePopup={this.toggleSetTransition}
-          popup={
-            <SetTransitionPopup transitions={issue.transitions} onSelect={this.setTransition} />
-          }>
-          <button
-            className="button-link issue-action issue-action-with-options js-issue-transition"
-            onClick={this.toggleSetTransition}>
-            <StatusHelper
-              className="issue-meta-label little-spacer-right"
-              status={issue.status}
-              resolution={issue.resolution}
-            />
-            <i className="little-spacer-left icon-dropdown" />
-          </button>
-        </BubblePopupHelper>
+        <div className="dropdown">
+          <Toggler
+            onRequestClose={this.handleClose}
+            open={this.props.isOpen && this.props.hasTransitions}
+            overlay={
+              <SetTransitionPopup onSelect={this.setTransition} transitions={issue.transitions} />
+            }>
+            <Button
+              className="button-link issue-action issue-action-with-options js-issue-transition"
+              onClick={this.toggleSetTransition}>
+              <StatusHelper
+                className="issue-meta-label"
+                resolution={issue.resolution}
+                status={issue.status}
+              />
+              <DropdownIcon className="little-spacer-left" />
+            </Button>
+          </Toggler>
+        </div>
       );
     } else {
       return (
         <StatusHelper
           className="issue-meta-label"
-          status={issue.status}
           resolution={issue.resolution}
+          status={issue.status}
         />
       );
     }

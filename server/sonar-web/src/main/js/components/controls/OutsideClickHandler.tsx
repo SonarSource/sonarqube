@@ -18,9 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { findDOMNode } from 'react-dom';
 
 interface Props {
-  children: (props: { ref: React.Ref<Element> }) => React.ReactNode;
+  children: React.ReactNode;
   onClickOutside: () => void;
 }
 
@@ -28,7 +29,9 @@ export default class OutsideClickHandler extends React.Component<Props> {
   element?: Element | null;
 
   componentDidMount() {
-    this.addClickHandler();
+    setTimeout(() => {
+      this.addClickHandler();
+    }, 0);
   }
 
   componentWillUnmount() {
@@ -44,16 +47,14 @@ export default class OutsideClickHandler extends React.Component<Props> {
   };
 
   handleWindowClick = (event: MouseEvent) => {
-    if (!this.element || !this.element.contains(event.target as Node)) {
+    // eslint-disable-next-line react/no-find-dom-node
+    const node = findDOMNode(this);
+    if (!node || !node.contains(event.target as Node)) {
       this.props.onClickOutside();
     }
   };
 
-  handleRef = (element: Element | null) => {
-    this.element = element;
-  };
-
   render() {
-    return this.props.children({ ref: this.handleRef });
+    return this.props.children;
   }
 }

@@ -25,14 +25,16 @@ import { click } from '../../../../../helpers/testUtils';
 it('render', () => {
   const wrapper = shallow(<GlobalNavPlus openOnboardingTutorial={jest.fn()} />);
   expect(wrapper.is('Dropdown')).toBe(true);
-  expect(wrapper.find('Dropdown').shallow()).toMatchSnapshot();
+  expect(wrapper.find('Dropdown')).toMatchSnapshot();
 });
 
 it('opens onboarding', () => {
   const openOnboardingTutorial = jest.fn();
-  const wrapper = shallow(<GlobalNavPlus openOnboardingTutorial={openOnboardingTutorial} />)
-    .find('Dropdown')
-    .shallow();
+  const wrapper = shallow(
+    shallow(<GlobalNavPlus openOnboardingTutorial={openOnboardingTutorial} />)
+      .find('Dropdown')
+      .prop('overlay')
+  );
   click(wrapper.find('.js-new-project'));
   expect(openOnboardingTutorial).toBeCalled();
 });

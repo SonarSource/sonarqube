@@ -106,24 +106,28 @@ export default class ProjectRowActions extends React.PureComponent<Props, State>
     const { hasAccess } = this.state;
 
     return (
-      <ActionsDropdown onOpen={this.handleDropdownOpen}>
-        {hasAccess === true && (
-          <ActionsDropdownItem to={getComponentPermissionsUrl(this.props.project.key)}>
-            {translate('edit_permissions')}
-          </ActionsDropdownItem>
-        )}
+      <>
+        <ActionsDropdown onOpen={this.handleDropdownOpen}>
+          {hasAccess === true && (
+            <ActionsDropdownItem to={getComponentPermissionsUrl(this.props.project.key)}>
+              {translate('edit_permissions')}
+            </ActionsDropdownItem>
+          )}
 
-        {hasAccess === false && (
+          {hasAccess === false && (
+            <ActionsDropdownItem
+              className="js-restore-access"
+              onClick={this.handleRestoreAccessClick}>
+              {translate('global_permissions.restore_access')}
+            </ActionsDropdownItem>
+          )}
+
           <ActionsDropdownItem
-            className="js-restore-access"
-            onClick={this.handleRestoreAccessClick}>
-            {translate('global_permissions.restore_access')}
+            className="js-apply-template"
+            onClick={this.handleApplyTemplateClick}>
+            {translate('projects_role.apply_template')}
           </ActionsDropdownItem>
-        )}
-
-        <ActionsDropdownItem className="js-apply-template" onClick={this.handleApplyTemplateClick}>
-          {translate('projects_role.apply_template')}
-        </ActionsDropdownItem>
+        </ActionsDropdown>
 
         {this.state.restoreAccessModal && (
           <RestoreAccessModal
@@ -141,7 +145,7 @@ export default class ProjectRowActions extends React.PureComponent<Props, State>
             project={this.props.project}
           />
         )}
-      </ActionsDropdown>
+      </>
     );
   }
 }

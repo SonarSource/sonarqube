@@ -77,34 +77,22 @@ exports[`should show administration menu if the user has the rights 1`] = `
 `;
 
 exports[`should work with extensions 1`] = `
-<li
-  className="dropdown"
->
-  <a
-    className="dropdown-toggle"
-    href="#"
-    id="global-navigation-more"
-    onClick={[Function]}
-  >
-    more
-    <span
-      className="icon-dropdown little-spacer-left"
-    />
-  </a>
-  <ul
-    className="dropdown-menu"
-  >
-    <li
-      key="foo"
+<Dropdown
+  overlay={
+    <ul
+      className="menu"
     >
-      <Link
-        onlyActiveOnIndex={false}
-        style={Object {}}
-        to="/extension/foo"
-      >
-        Foo
-      </Link>
-    </li>
-  </ul>
-</li>
+      <li>
+        <Link
+          onlyActiveOnIndex={false}
+          style={Object {}}
+          to="/extension/foo"
+        >
+          Foo
+        </Link>
+      </li>
+    </ul>
+  }
+  tagName="li"
+/>
 `;

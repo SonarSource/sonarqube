@@ -22,14 +22,13 @@ import * as PropTypes from 'prop-types';
 import { Link } from 'react-router';
 import { SuggestionLink } from './SuggestionsProvider';
 import { CurrentUser, isLoggedIn } from '../../types';
-import BubblePopup, { BubblePopupPosition } from '../../../components/common/BubblePopup';
 import { translate } from '../../../helpers/l10n';
 import { getBaseUrl } from '../../../helpers/urls';
+import { DropdownOverlay } from '../../../components/controls/Dropdown';
 
 interface Props {
   currentUser: CurrentUser;
   onClose: () => void;
-  popupPosition?: BubblePopupPosition;
   suggestions: Array<SuggestionLink>;
 }
 
@@ -46,7 +45,7 @@ export default class EmbedDocsPopup extends React.PureComponent<Props> {
   };
 
   renderTitle(text: string) {
-    return <li className="dropdown-header">{text}</li>;
+    return <li className="menu-header">{text}</li>;
   }
 
   renderSuggestions() {
@@ -147,10 +146,8 @@ export default class EmbedDocsPopup extends React.PureComponent<Props> {
 
   render() {
     return (
-      <BubblePopup
-        customClass="bubble-popup-bottom bubble-popup-menu abs-width-240 embed-docs-popup"
-        position={this.props.popupPosition}>
-        <ul className="menu">
+      <DropdownOverlay>
+        <ul className="menu abs-width-240">
           {this.renderSuggestions()}
           <li>
             <Link onClick={this.props.onClose} to="/documentation">
@@ -165,7 +162,7 @@ export default class EmbedDocsPopup extends React.PureComponent<Props> {
           {this.context.onSonarCloud && this.renderSonarCloudLinks()}
           {!this.context.onSonarCloud && this.renderSonarQubeLinks()}
         </ul>
-      </BubblePopup>
+      </DropdownOverlay>
     );
   }
 }
