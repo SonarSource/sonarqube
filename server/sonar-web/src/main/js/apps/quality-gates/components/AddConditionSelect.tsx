@@ -67,14 +67,12 @@ export default class AddConditionSelect extends React.PureComponent<Props> {
     });
 
     return (
-      <div className="big-spacer-top panel bg-muted">
-        <Select
-          className="text-middle input-large"
-          onChange={this.handleChange}
-          options={optionsWithDomains}
-          placeholder={translate('quality_gates.add_condition')}
-        />
-      </div>
+      <Select
+        className="text-middle input-large"
+        onChange={this.handleChange}
+        options={optionsWithDomains}
+        placeholder={translate('quality_gates.add_condition')}
+      />
     );
   }
 }

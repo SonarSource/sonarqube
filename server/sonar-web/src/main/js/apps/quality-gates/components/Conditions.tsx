@@ -21,6 +21,7 @@ import * as React from 'react';
 import { differenceWith, map, sortBy, uniqBy } from 'lodash';
 import AddConditionSelect from './AddConditionSelect';
 import Condition from './Condition';
+import AddConditionButton from './AddConditionButton';
 import DocTooltip from '../../../components/docs/DocTooltip';
 import { translate, getLocalizedMetricName } from '../../../helpers/l10n';
 import { Condition as ICondition, Metric, QualityGate } from '../../../app/types';
@@ -103,6 +104,9 @@ export default class Conditions extends React.PureComponent<Props, State> {
 
     return (
       <div className="quality-gate-section" id="quality-gate-conditions">
+        <div className="pull-right">
+          <AddConditionButton metrics={availableMetrics} />
+        </div>
         <header className="display-flex-center spacer-bottom">
           <h3>{translate('quality_gates.conditions')}</h3>
           <DocTooltip className="spacer-left" doc="quality-gates/quality-gate-conditions" />
