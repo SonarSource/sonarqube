@@ -25,13 +25,7 @@ export function checkIfDefault(qualityGate: QualityGate, list: QualityGate[]): b
   return (finding && finding.isDefault) || false;
 }
 
-export function addCondition(qualityGate: QualityGate, metric: string): QualityGate {
-  const condition: Condition = {
-    metric,
-    op: 'LT',
-    warning: '',
-    error: ''
-  };
+export function addCondition(qualityGate: QualityGate, condition: Condition): QualityGate {
   const oldConditions = qualityGate.conditions || [];
   const conditions = [...oldConditions, condition];
   return { ...qualityGate, conditions };

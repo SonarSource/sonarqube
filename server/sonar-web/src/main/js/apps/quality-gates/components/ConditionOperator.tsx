@@ -19,45 +19,54 @@
  */
 import * as React from 'react';
 import Select from '../../../components/controls/Select';
-import { Condition as ICondition, Metric } from '../../../app/types';
+import { Metric } from '../../../app/types';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {
-  condition: ICondition;
+  op?: string;
   canEdit: boolean;
   metric: Metric;
-  onOperatorChange: ({ value }: any) => void;
+  onOperatorChange?: (op: string) => void;
 }
 
-export default function ConditionOperator({ condition, canEdit, metric, onOperatorChange }: Props) {
-  if (!canEdit && condition.op) {
-    return metric.type === 'RATING' ? (
-      <span className="note">{translate('quality_gates.operator', condition.op, 'rating')}</span>
-    ) : (
-      <span className="note">{translate('quality_gates.operator', condition.op)}</span>
+export default class ConditionOperator extends React.PureComponent<Props> {
+  handleChange = ({ value }: { label: string; value: string }) => {
+    if (this.props.onOperatorChange) {
+      this.props.onOperatorChange(value);
+    }
+  };
+
+  render() {
+    const { canEdit, metric, op } = this.props;
+    if (!canEdit && op) {
+      return metric.type === 'RATING' ? (
+        <span className="note">{translate('quality_gates.operator', op, 'rating')}</span>
+      ) : (
+        <span className="note">{translate('quality_gates.operator', op)}</span>
+      );
+    }
+
+    if (metric.type === 'RATING') {
+      return <span className="note">{translate('quality_gates.operator.GT.rating')}</span>;
+    }
+
+    const operators = ['LT', 'GT', 'EQ', 'NE'];
+    const operatorOptions = operators.map(op => {
+      const label = translate('quality_gates.operator', op);
+      return { label, value: op };
+    });
+
+    return (
+      <Select
+        autofocus={true}
+        className="input-medium"
+        clearable={false}
+        name="operator"
+        onChange={this.handleChange}
+        options={operatorOptions}
+        searchable={false}
+        value={op}
+      />
     );
   }
-
-  if (metric.type === 'RATING') {
-    return <span className="note">{translate('quality_gates.operator.GT.rating')}</span>;
-  }
-
-  const operators = ['LT', 'GT', 'EQ', 'NE'];
-  const operatorOptions = operators.map(op => {
-    const label = translate('quality_gates.operator', op);
-    return { label, value: op };
-  });
-
-  return (
-    <Select
-      autofocus={true}
-      className="input-medium"
-      clearable={false}
-      name="operator"
-      onChange={onOperatorChange}
-      options={operatorOptions}
-      searchable={false}
-      value={condition.op}
-    />
-  );
 }

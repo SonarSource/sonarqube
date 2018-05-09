@@ -167,6 +167,10 @@ ul.modal-head-metadata li {
   font-weight: bold;
 }
 
+.modal-field .note {
+  line-height: var(--controlHeight);
+}
+
 .readonly-field {
   padding-top: 5px;
   margin-left: -5px;

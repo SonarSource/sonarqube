@@ -93,12 +93,12 @@ export class DetailsApp extends React.PureComponent<Props, State> {
     );
   };
 
-  handleAddCondition = (metric: string) => {
+  handleAddCondition = (condition: Condition) => {
     this.setState(({ qualityGate }) => {
       if (!qualityGate) {
         return undefined;
       }
-      return { qualityGate: addCondition(qualityGate, metric) };
+      return { qualityGate: addCondition(qualityGate, condition) };
     });
   };
 

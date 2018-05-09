@@ -19,19 +19,17 @@
  */
 import * as React from 'react';
 import { differenceWith, map, sortBy, uniqBy } from 'lodash';
-import AddConditionSelect from './AddConditionSelect';
 import Condition from './Condition';
 import AddConditionButton from './AddConditionButton';
 import DocTooltip from '../../../components/docs/DocTooltip';
 import { translate, getLocalizedMetricName } from '../../../helpers/l10n';
 import { Condition as ICondition, Metric, QualityGate } from '../../../app/types';
-import { parseError } from '../../../helpers/request';
 
 interface Props {
   canEdit: boolean;
   conditions: ICondition[];
   metrics: { [key: string]: Metric };
-  onAddCondition: (metric: string) => void;
+  onAddCondition: (condition: ICondition) => void;
   onSaveCondition: (newCondition: ICondition, oldCondition: ICondition) => void;
   onRemoveCondition: (Condition: ICondition) => void;
   organization?: string;
@@ -53,19 +51,6 @@ export default class Conditions extends React.PureComponent<Props, State> {
 
   getConditionKey = (condition: ICondition, index: number) => {
     return condition.id ? condition.id : `new-${index}`;
-  };
-
-  handleError = (error: any) => {
-    parseError(error).then(
-      message => {
-        this.setState({ error: message });
-      },
-      () => {}
-    );
-  };
-
-  handleResetError = () => {
-    this.setState({ error: undefined });
   };
 
   render() {
@@ -104,9 +89,16 @@ export default class Conditions extends React.PureComponent<Props, State> {
 
     return (
       <div className="quality-gate-section" id="quality-gate-conditions">
-        <div className="pull-right">
-          <AddConditionButton metrics={availableMetrics} />
-        </div>
+        {canEdit && (
+          <div className="pull-right">
+            <AddConditionButton
+              metrics={availableMetrics}
+              onAddCondition={this.props.onAddCondition}
+              organization={organization}
+              qualityGate={qualityGate}
+            />
+          </div>
+        )}
         <header className="display-flex-center spacer-bottom">
           <h3>{translate('quality_gates.conditions')}</h3>
           <DocTooltip className="spacer-left" doc="quality-gates/quality-gate-conditions" />
@@ -146,10 +138,7 @@ export default class Conditions extends React.PureComponent<Props, State> {
                   condition={condition}
                   key={this.getConditionKey(condition, index)}
                   metric={metrics[condition.metric]}
-                  onAddCondition={this.props.onAddCondition}
-                  onError={this.handleError}
                   onRemoveCondition={this.props.onRemoveCondition}
-                  onResetError={this.handleResetError}
                   onSaveCondition={this.props.onSaveCondition}
                   organization={organization}
                   qualityGate={qualityGate}
@@ -159,13 +148,6 @@ export default class Conditions extends React.PureComponent<Props, State> {
           </table>
         ) : (
           <div className="big-spacer-top">{translate('quality_gates.no_conditions')}</div>
-        )}
-
-        {canEdit && (
-          <AddConditionSelect
-            metrics={availableMetrics}
-            onAddCondition={this.props.onAddCondition}
-          />
         )}
       </div>
     );

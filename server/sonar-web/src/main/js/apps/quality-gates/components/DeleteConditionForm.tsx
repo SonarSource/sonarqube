@@ -21,7 +21,7 @@ import * as React from 'react';
 import { deleteCondition } from '../../../api/quality-gates';
 import { Metric, Condition } from '../../../app/types';
 import ConfirmButton from '../../../components/controls/ConfirmButton';
-import { Button } from '../../../components/ui/buttons';
+import { ActionsDropdownItem } from '../../../components/controls/ActionsDropdown';
 import { getLocalizedMetricName, translate, translateWithParameters } from '../../../helpers/l10n';
 
 interface Props {
@@ -54,9 +54,12 @@ export default class DeleteConditionForm extends React.PureComponent<Props> {
         modalHeader={translate('quality_gates.delete_condition')}
         onConfirm={this.onDelete}>
         {({ onClick }) => (
-          <Button className="delete-condition little-spacer-left button-red" onClick={onClick}>
+          <ActionsDropdownItem
+            className="js-condition-deactivate"
+            destructive={true}
+            onClick={onClick}>
             {translate('delete')}
-          </Button>
+          </ActionsDropdownItem>
         )}
       </ConfirmButton>
     );

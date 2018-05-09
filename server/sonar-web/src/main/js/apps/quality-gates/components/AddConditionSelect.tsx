@@ -25,27 +25,34 @@ import { Metric } from '../../../app/types';
 
 interface Props {
   metrics: Metric[];
-  onAddCondition: (metric: string) => void;
+  onAddCondition: (metric: Metric) => void;
+}
+
+interface State {
+  value: number;
 }
 
 interface Option {
   disabled?: boolean;
   domain?: string;
   label: string;
-  value: string;
+  value: number;
 }
 
-export default class AddConditionSelect extends React.PureComponent<Props> {
-  handleChange = (option: Option) => {
-    this.props.onAddCondition(option.value);
+export default class AddConditionSelect extends React.PureComponent<Props, State> {
+  state = { value: -1 };
+
+  handleChange = ({ value }: Option) => {
+    this.setState({ value });
+    this.props.onAddCondition(this.props.metrics[value]);
   };
 
   render() {
     const { metrics } = this.props;
 
     const options: Option[] = sortBy(
-      metrics.map(metric => ({
-        value: metric.key,
+      metrics.map((metric, index) => ({
+        value: index,
         label: getLocalizedMetricName(metric),
         domain: metric.domain
       })),
@@ -58,7 +65,7 @@ export default class AddConditionSelect extends React.PureComponent<Props> {
       const previous = index > 0 ? options[index - 1] : null;
       if (option.domain && (!previous || previous.domain !== option.domain)) {
         optionsWithDomains.push({
-          value: option.domain,
+          value: 0,
           label: getLocalizedMetricDomain(option.domain),
           disabled: true
         });
@@ -72,6 +79,7 @@ export default class AddConditionSelect extends React.PureComponent<Props> {
         onChange={this.handleChange}
         options={optionsWithDomains}
         placeholder={translate('quality_gates.add_condition')}
+        value={this.state.value}
       />
     );
   }

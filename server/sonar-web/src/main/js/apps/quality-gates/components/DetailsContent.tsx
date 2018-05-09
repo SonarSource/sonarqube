@@ -28,7 +28,7 @@ interface Props {
   isDefault?: boolean;
   metrics: { [key: string]: Metric };
   organization?: string;
-  onAddCondition: (metric: string) => void;
+  onAddCondition: (condition: ICondition) => void;
   onRemoveCondition: (Condition: ICondition) => void;
   onSaveCondition: (newCondition: ICondition, oldCondition: ICondition) => void;
   qualityGate: QualityGate;

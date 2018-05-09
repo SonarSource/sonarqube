@@ -21,10 +21,13 @@ import * as React from 'react';
 import ConditionModal from './ConditionModal';
 import { Button } from '../../../components/ui/buttons';
 import { translate } from '../../../helpers/l10n';
-import { Metric } from '../../../app/types';
+import { Metric, QualityGate, Condition } from '../../../app/types';
 
 interface Props {
   metrics: Metric[];
+  organization?: string;
+  onAddCondition: (condition: Condition) => void;
+  qualityGate: QualityGate;
 }
 
 interface State {
@@ -61,7 +64,10 @@ export default class AddConditionButton extends React.PureComponent<Props, State
           <ConditionModal
             header={translate('quality_gates.add_condition')}
             metrics={this.props.metrics}
+            onAddCondition={this.props.onAddCondition}
             onClose={this.handleModalClose}
+            organization={this.props.organization}
+            qualityGate={this.props.qualityGate}
           />
         )}
       </>
