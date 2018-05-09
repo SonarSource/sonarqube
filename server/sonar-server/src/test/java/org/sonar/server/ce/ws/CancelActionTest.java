@@ -20,7 +20,6 @@
 package org.sonar.server.ce.ws;
 
 import javax.annotation.Nullable;
-
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -176,7 +175,7 @@ public class CancelActionTest {
     CeTaskSubmit.Builder submission = queue.prepareSubmit();
     submission.setType(CeTaskTypes.REPORT);
     submission.setComponentUuid(componentUuid);
-    submission.setSubmitterLogin(null);
+    submission.setSubmitterUuid(null);
     CeTask task = queue.submit(submission.build());
     return db.getDbClient().ceQueueDao().selectByUuid(db.getSession(), task.getUuid()).get();
   }

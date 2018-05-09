@@ -789,7 +789,7 @@ public class PurgeDaoTest {
     queueDto.setUuid(Uuids.create());
     queueDto.setTaskType(REPORT);
     queueDto.setComponentUuid(component.uuid());
-    queueDto.setSubmitterLogin("henri");
+    queueDto.setSubmitterUuid("submitter uuid");
     queueDto.setCreatedAt(1_300_000_000_000L);
     queueDto.setStatus(status);
     return queueDto;

@@ -56,7 +56,7 @@ public class CeQueueDaoTest {
   private static final String COMPONENT_UUID_2 = "PROJECT_2";
   private static final String TASK_UUID_3 = "TASK_3";
   private static final String SELECT_QUEUE_UUID_AND_STATUS_QUERY = "select uuid,status from ce_queue";
-  private static final String SUBMITTER_LOGIN = "henri";
+  private static final String SUBMITTER_LOGIN = "submitter uuid";
   private static final String WORKER_UUID_1 = "worker uuid 1";
   private static final String WORKER_UUID_2 = "worker uuid 2";
 
@@ -78,7 +78,7 @@ public class CeQueueDaoTest {
       .setTaskType(CeTaskTypes.REPORT)
       .setComponentUuid(COMPONENT_UUID_1)
       .setStatus(PENDING)
-      .setSubmitterLogin(SUBMITTER_LOGIN)
+      .setSubmitterUuid(SUBMITTER_LOGIN)
       .setWorkerUuid(WORKER_UUID_1);
 
     mockSystem2ForSingleCall(now);
@@ -99,7 +99,7 @@ public class CeQueueDaoTest {
         assertThat(saved.getTaskType()).isEqualTo(CeTaskTypes.REPORT);
         assertThat(saved.getComponentUuid()).isEqualTo(COMPONENT_UUID_1);
         assertThat(saved.getStatus()).isEqualTo(PENDING);
-        assertThat(saved.getSubmitterLogin()).isEqualTo(SUBMITTER_LOGIN);
+        assertThat(saved.getSubmitterUuid()).isEqualTo(SUBMITTER_LOGIN);
         assertThat(saved.getWorkerUuid()).isEqualTo(WORKER_UUID_1);
         assertThat(saved.getCreatedAt()).isEqualTo(now);
         assertThat(saved.getUpdatedAt()).isEqualTo(now);
@@ -110,7 +110,7 @@ public class CeQueueDaoTest {
     assertThat(saved.getTaskType()).isEqualTo(CeTaskTypes.REPORT);
     assertThat(saved.getComponentUuid()).isEqualTo(COMPONENT_UUID_1);
     assertThat(saved.getStatus()).isEqualTo(PENDING);
-    assertThat(saved.getSubmitterLogin()).isEqualTo(SUBMITTER_LOGIN);
+    assertThat(saved.getSubmitterUuid()).isEqualTo(SUBMITTER_LOGIN);
     assertThat(saved.getWorkerUuid()).isEqualTo(WORKER_UUID_1);
     assertThat(saved.getCreatedAt()).isEqualTo(6_888_777L);
     assertThat(saved.getUpdatedAt()).isEqualTo(8_000_999L);
@@ -127,7 +127,7 @@ public class CeQueueDaoTest {
     assertThat(saved.getTaskType()).isEqualTo(CeTaskTypes.REPORT);
     assertThat(saved.getComponentUuid()).isEqualTo(COMPONENT_UUID_1);
     assertThat(saved.getStatus()).isEqualTo(PENDING);
-    assertThat(saved.getSubmitterLogin()).isEqualTo("henri");
+    assertThat(saved.getSubmitterUuid()).isEqualTo("henri");
     assertThat(saved.getWorkerUuid()).isNull();
     assertThat(saved.getCreatedAt()).isEqualTo(INIT_TIME);
     assertThat(saved.getUpdatedAt()).isEqualTo(INIT_TIME);
@@ -507,7 +507,7 @@ public class CeQueueDaoTest {
     dto.setUuid(uuid);
     dto.setTaskType(CeTaskTypes.REPORT);
     dto.setStatus(status);
-    dto.setSubmitterLogin("henri");
+    dto.setSubmitterUuid("henri");
     underTestAlwaysIncreasingSystem2.insert(db.getSession(), dto);
     db.getSession().commit();
     return dto;
@@ -518,7 +518,7 @@ public class CeQueueDaoTest {
     dto.setUuid(uuid);
     dto.setTaskType(CeTaskTypes.REPORT);
     dto.setStatus(status);
-    dto.setSubmitterLogin("henri");
+    dto.setSubmitterUuid("henri");
     dto.setWorkerUuid(workerUuid);
     dto.setStartedAt(startedAt);
     underTestAlwaysIncreasingSystem2.insert(db.getSession(), dto);
@@ -532,7 +532,7 @@ public class CeQueueDaoTest {
     dto.setTaskType(CeTaskTypes.REPORT);
     dto.setComponentUuid(componentUuid);
     dto.setStatus(status);
-    dto.setSubmitterLogin("henri");
+    dto.setSubmitterUuid("henri");
     underTest.insert(db.getSession(), dto);
     db.getSession().commit();
     return dto;

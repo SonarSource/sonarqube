@@ -507,7 +507,7 @@ public class CeWorkerImplTest {
       .setOrganizationUuid("org1")
       .setUuid("TASK_1").setType(CeTaskTypes.REPORT)
       .setComponentUuid("PROJECT_1")
-      .setSubmitterLogin(submitterLogin)
+      .setSubmitterUuid(submitterLogin)
       .build();
   }
 

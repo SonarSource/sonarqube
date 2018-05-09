@@ -30,6 +30,7 @@ import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.user.UserDto;
 import org.sonarqube.ws.Ce;
 
 import static java.util.Arrays.asList;
@@ -77,6 +78,7 @@ public class TaskFormatterTest {
     String uuid = "COMPONENT_UUID";
     OrganizationDto organizationDto = db.organizations().insert();
     db.components().insertPrivateProject(organizationDto, (t) -> t.setUuid(uuid).setDbKey("COMPONENT_KEY").setName("Component Name"));
+    UserDto user = db.users().insertUser();
 
     CeQueueDto dto = new CeQueueDto();
     dto.setUuid("UUID");
@@ -85,7 +87,7 @@ public class TaskFormatterTest {
     dto.setCreatedAt(1_450_000_000_000L);
     dto.setStartedAt(1_451_000_000_000L);
     dto.setComponentUuid(uuid);
-    dto.setSubmitterLogin("rob");
+    dto.setSubmitterUuid(user.getUuid());
 
     Ce.Task wsTask = underTest.formatQueue(db.getSession(), dto);
 
@@ -97,7 +99,7 @@ public class TaskFormatterTest {
     assertThat(wsTask.getComponentQualifier()).isEqualTo("TRK");
     assertThat(wsTask.getStatus()).isEqualTo(Ce.TaskStatus.IN_PROGRESS);
     assertThat(wsTask.getLogs()).isFalse();
-    assertThat(wsTask.getSubmitterLogin()).isEqualTo("rob");
+    assertThat(wsTask.getSubmitterLogin()).isEqualTo(user.getLogin());
     assertThat(wsTask.hasExecutionTimeMs()).isTrue();
     assertThat(wsTask.hasExecutedAt()).isFalse();
     assertThat(wsTask.hasScannerContext()).isFalse();

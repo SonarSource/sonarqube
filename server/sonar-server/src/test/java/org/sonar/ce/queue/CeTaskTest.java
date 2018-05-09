@@ -94,7 +94,7 @@ public class CeTaskTest {
     underTest.setOrganizationUuid("org1");
     underTest.setType("TYPE_1");
     underTest.setUuid("UUID_1");
-    underTest.setSubmitterLogin("LOGIN_1");
+    underTest.setSubmitterUuid("LOGIN_1");
     underTest.setComponentKey("COMPONENT_KEY_1");
     underTest.setComponentUuid("COMPONENT_UUID_1");
     underTest.setComponentName("The component");
@@ -104,7 +104,7 @@ public class CeTaskTest {
     assertThat(task.getOrganizationUuid()).isEqualTo("org1");
     assertThat(task.getUuid()).isEqualTo("UUID_1");
     assertThat(task.getType()).isEqualTo("TYPE_1");
-    assertThat(task.getSubmitterLogin()).isEqualTo("LOGIN_1");
+    assertThat(task.getSubmitterUuid()).isEqualTo("LOGIN_1");
     assertThat(task.getComponentKey()).isEqualTo("COMPONENT_KEY_1");
     assertThat(task.getComponentUuid()).isEqualTo("COMPONENT_UUID_1");
     assertThat(task.getComponentName()).isEqualTo("The component");
@@ -126,10 +126,10 @@ public class CeTaskTest {
   @Test
   public void empty_in_submitterLogin_is_considered_as_null() {
     CeTask ceTask = underTest.setOrganizationUuid("org1").setUuid("uuid").setType("type")
-      .setSubmitterLogin("")
+      .setSubmitterUuid("")
       .build();
 
-    assertThat(ceTask.getSubmitterLogin()).isNull();
+    assertThat(ceTask.getSubmitterUuid()).isNull();
   }
 
   @Test

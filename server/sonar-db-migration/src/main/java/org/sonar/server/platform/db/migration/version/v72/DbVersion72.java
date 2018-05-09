@@ -49,6 +49,7 @@ public class DbVersion72 implements DbVersion {
       .add(2119, "Rename LOGIN TO USER_UUID on table USER_TOKENS", RenameLoginToUserUuidOnTableUserTokens.class)
       .add(2120, "Rename USER_LOGIN TO USER_UUID on table MANUAL_MEASURES", RenameUserLoginToUserUuidOnTableManualMeasures.class)
       .add(2121, "Rename NOTE_USER_LOGIN TO NOTE_USER_UUID on table RULES_METADATA", RenameNoteUserLoginToNoteUserUuidOnTableRulesMetadata.class)
+      .add(2122, "Rename SUBMITTER_LOGIN TO SUBMITTER_UUID on table CE_QUEUE", RenameSubmitterLoginToSubmitterUuidOnTableCeQueue.class)
     ;
   }
 }

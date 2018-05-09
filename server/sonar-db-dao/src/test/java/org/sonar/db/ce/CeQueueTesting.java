@@ -33,7 +33,7 @@ public class CeQueueTesting {
       .setComponentUuid(randomAlphanumeric(40))
       .setStatus(CeQueueDto.Status.PENDING)
       .setTaskType(CeTaskTypes.REPORT)
-      .setSubmitterLogin(randomAlphanumeric(255))
+      .setSubmitterUuid(randomAlphanumeric(255))
       .setCreatedAt(nextLong())
       .setUpdatedAt(nextLong())
       .setStartedAt(nextLong());

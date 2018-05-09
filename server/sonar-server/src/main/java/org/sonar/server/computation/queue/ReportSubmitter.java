@@ -183,7 +183,7 @@ public class ReportSubmitter {
 
     submit.setType(CeTaskTypes.REPORT);
     submit.setComponentUuid(project.uuid());
-    submit.setSubmitterLogin(userSession.getLogin());
+    submit.setSubmitterUuid(userSession.getUuid());
     return queue.submit(submit.build());
   }
 

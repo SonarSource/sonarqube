@@ -194,7 +194,7 @@ public class CeWorkerImpl implements CeWorker {
       .addContext("project", task.getComponentKey())
       .addContext("type", task.getType())
       .addContext("id", task.getUuid());
-    String submitterLogin = task.getSubmitterLogin();
+    String submitterLogin = task.getSubmitterUuid();
     if (submitterLogin != null) {
       profiler.addContext("submitter", submitterLogin);
     }

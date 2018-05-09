@@ -605,7 +605,7 @@ public class InternalCeQueueImplTest {
       assertThat(task.getComponentKey()).isEqualTo(componentDto.getDbKey());
       assertThat(task.getComponentName()).isEqualTo(componentDto.name());
     }
-    assertThat(task.getSubmitterLogin()).isEqualTo(taskSubmit.getSubmitterLogin());
+    assertThat(task.getSubmitterUuid()).isEqualTo(taskSubmit.getSubmitterUuid());
   }
 
   private void verifyCeQueueDtoForTaskSubmit(CeTaskSubmit taskSubmit) {
@@ -614,7 +614,7 @@ public class InternalCeQueueImplTest {
     CeQueueDto dto = queueDto.get();
     assertThat(dto.getTaskType()).isEqualTo(taskSubmit.getType());
     assertThat(dto.getComponentUuid()).isEqualTo(taskSubmit.getComponentUuid());
-    assertThat(dto.getSubmitterLogin()).isEqualTo(taskSubmit.getSubmitterLogin());
+    assertThat(dto.getSubmitterUuid()).isEqualTo(taskSubmit.getSubmitterUuid());
     assertThat(dto.getCreatedAt()).isEqualTo(dto.getUpdatedAt()).isNotNull();
   }
 
@@ -630,11 +630,11 @@ public class InternalCeQueueImplTest {
     return createTaskSubmit(type, null, null);
   }
 
-  private CeTaskSubmit createTaskSubmit(String type, @Nullable String componentUuid, @Nullable String submitterLogin) {
+  private CeTaskSubmit createTaskSubmit(String type, @Nullable String componentUuid, @Nullable String submitterUuid) {
     CeTaskSubmit.Builder submission = underTest.prepareSubmit();
     submission.setType(type);
     submission.setComponentUuid(componentUuid);
-    submission.setSubmitterLogin(submitterLogin);
+    submission.setSubmitterUuid(submitterUuid);
     return submission.build();
   }
 

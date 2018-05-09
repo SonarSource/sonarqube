@@ -32,13 +32,13 @@ public final class CeTaskSubmit {
   private final String uuid;
   private final String type;
   private final String componentUuid;
-  private final String submitterLogin;
+  private final String submitterUuid;
 
   private CeTaskSubmit(Builder builder) {
     this.uuid = Objects.requireNonNull(emptyToNull(builder.uuid));
     this.type = Objects.requireNonNull(emptyToNull(builder.type));
     this.componentUuid = emptyToNull(builder.componentUuid);
-    this.submitterLogin = emptyToNull(builder.submitterLogin);
+    this.submitterUuid = emptyToNull(builder.submitterUuid);
   }
 
   public String getType() {
@@ -55,15 +55,15 @@ public final class CeTaskSubmit {
   }
 
   @CheckForNull
-  public String getSubmitterLogin() {
-    return submitterLogin;
+  public String getSubmitterUuid() {
+    return submitterUuid;
   }
 
   public static final class Builder {
     private final String uuid;
     private String type;
     private String componentUuid;
-    private String submitterLogin;
+    private String submitterUuid;
 
     public Builder(String uuid) {
       this.uuid = uuid;
@@ -83,8 +83,8 @@ public final class CeTaskSubmit {
       return this;
     }
 
-    public Builder setSubmitterLogin(@Nullable String s) {
-      this.submitterLogin = s;
+    public Builder setSubmitterUuid(@Nullable String s) {
+      this.submitterUuid = s;
       return this;
     }
 

@@ -78,10 +78,10 @@ public class CeQueueDtoTest {
 
   @Test
   public void setSubmitterLogin_accepts_null_empty_and_string_255_chars_or_less() {
-    underTest.setSubmitterLogin(null);
-    underTest.setSubmitterLogin("");
-    underTest.setSubmitterLogin("bar");
-    underTest.setSubmitterLogin(STR_255_CHARS);
+    underTest.setSubmitterUuid(null);
+    underTest.setSubmitterUuid("");
+    underTest.setSubmitterUuid("bar");
+    underTest.setSubmitterUuid(STR_255_CHARS);
   }
 
   @Test
@@ -89,9 +89,9 @@ public class CeQueueDtoTest {
     String str_256_chars = STR_255_CHARS + "a";
 
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Value of submitter login is too long: " + str_256_chars);
+    expectedException.expectMessage("Value of submitter uuid is too long: " + str_256_chars);
 
-    underTest.setSubmitterLogin(str_256_chars);
+    underTest.setSubmitterUuid(str_256_chars);
   }
 
   @Test

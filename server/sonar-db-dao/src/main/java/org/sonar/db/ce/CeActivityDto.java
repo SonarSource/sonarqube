@@ -92,7 +92,8 @@ public class CeActivityDto {
     this.taskType = queueDto.getTaskType();
     this.componentUuid = queueDto.getComponentUuid();
     this.isLastKey = format("%s%s", taskType, Strings.nullToEmpty(componentUuid));
-    this.submitterLogin = queueDto.getSubmitterLogin();
+    // FIXME
+    this.submitterLogin = queueDto.getSubmitterUuid();
     this.workerUuid = queueDto.getWorkerUuid();
     this.submittedAt = queueDto.getCreatedAt();
     this.startedAt = queueDto.getStartedAt();

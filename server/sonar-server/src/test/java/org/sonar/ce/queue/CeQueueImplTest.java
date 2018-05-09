@@ -70,7 +70,7 @@ public class CeQueueImplTest {
 
   @Test
   public void submit_returns_task_populated_from_CeTaskSubmit_and_creates_CeQueue_row() {
-    CeTaskSubmit taskSubmit = createTaskSubmit(CeTaskTypes.REPORT, "PROJECT_1", "rob");
+    CeTaskSubmit taskSubmit = createTaskSubmit(CeTaskTypes.REPORT, "PROJECT_1", "submitter uuid");
 
     CeTask task = underTest.submit(taskSubmit);
 
@@ -189,7 +189,7 @@ public class CeQueueImplTest {
 
   @Test
   public void massSubmit_returns_tasks_for_each_CeTaskSubmit_populated_from_CeTaskSubmit_and_creates_CeQueue_row_for_each() {
-    CeTaskSubmit taskSubmit1 = createTaskSubmit(CeTaskTypes.REPORT, "PROJECT_1", "rob");
+    CeTaskSubmit taskSubmit1 = createTaskSubmit(CeTaskTypes.REPORT, "PROJECT_1", "submitter uuid");
     CeTaskSubmit taskSubmit2 = createTaskSubmit("some type");
 
     List<CeTask> tasks = underTest.massSubmit(asList(taskSubmit1, taskSubmit2));
@@ -452,7 +452,7 @@ public class CeQueueImplTest {
       assertThat(task.getComponentKey()).isEqualTo(componentDto.getDbKey());
       assertThat(task.getComponentName()).isEqualTo(componentDto.name());
     }
-    assertThat(task.getSubmitterLogin()).isEqualTo(taskSubmit.getSubmitterLogin());
+    assertThat(task.getSubmitterUuid()).isEqualTo(taskSubmit.getSubmitterUuid());
   }
 
   private void verifyCeQueueDtoForTaskSubmit(CeTaskSubmit taskSubmit) {
@@ -460,7 +460,7 @@ public class CeQueueImplTest {
     assertThat(queueDto.isPresent()).isTrue();
     assertThat(queueDto.get().getTaskType()).isEqualTo(taskSubmit.getType());
     assertThat(queueDto.get().getComponentUuid()).isEqualTo(taskSubmit.getComponentUuid());
-    assertThat(queueDto.get().getSubmitterLogin()).isEqualTo(taskSubmit.getSubmitterLogin());
+    assertThat(queueDto.get().getSubmitterUuid()).isEqualTo(taskSubmit.getSubmitterUuid());
     assertThat(queueDto.get().getCreatedAt()).isEqualTo(1_450_000_000_000L);
   }
 
@@ -472,11 +472,11 @@ public class CeQueueImplTest {
     return createTaskSubmit(type, null, null);
   }
 
-  private CeTaskSubmit createTaskSubmit(String type, @Nullable String componentUuid, @Nullable String submitterLogin) {
+  private CeTaskSubmit createTaskSubmit(String type, @Nullable String componentUuid, @Nullable String submitterUuid) {
     CeTaskSubmit.Builder submission = underTest.prepareSubmit();
     submission.setType(type);
     submission.setComponentUuid(componentUuid);
-    submission.setSubmitterLogin(submitterLogin);
+    submission.setSubmitterUuid(submitterUuid);
     return submission.build();
   }
 

@@ -37,13 +37,13 @@ import org.sonar.db.ce.CeTaskCharacteristicDto;
 import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Ce;
 import org.sonarqube.ws.Common;
-import org.sonarqube.ws.Ce;
 
 import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -79,14 +79,15 @@ public class TaskActionTest {
 
   @Test
   public void task_is_in_queue() {
-    logInAsRoot();
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user).setRoot();
 
     CeQueueDto queueDto = new CeQueueDto();
     queueDto.setTaskType(CeTaskTypes.REPORT);
     queueDto.setUuid(SOME_TASK_UUID);
     queueDto.setComponentUuid(project.uuid());
     queueDto.setStatus(CeQueueDto.Status.PENDING);
-    queueDto.setSubmitterLogin("john");
+    queueDto.setSubmitterUuid(user.getUuid());
     persist(queueDto);
 
     Ce.TaskResponse taskResponse = ws.newRequest()
@@ -95,7 +96,7 @@ public class TaskActionTest {
     assertThat(taskResponse.getTask().getOrganization()).isEqualTo(organizationDto.getKey());
     assertThat(taskResponse.getTask().getId()).isEqualTo(SOME_TASK_UUID);
     assertThat(taskResponse.getTask().getStatus()).isEqualTo(Ce.TaskStatus.PENDING);
-    assertThat(taskResponse.getTask().getSubmitterLogin()).isEqualTo("john");
+    assertThat(taskResponse.getTask().getSubmitterLogin()).isEqualTo(user.getLogin());
     assertThat(taskResponse.getTask().getComponentId()).isEqualTo(project.uuid());
     assertThat(taskResponse.getTask().getComponentKey()).isEqualTo(project.getDbKey());
     assertThat(taskResponse.getTask().getComponentName()).isEqualTo(project.name());
@@ -105,7 +106,8 @@ public class TaskActionTest {
 
   @Test
   public void task_is_archived() {
-    logInAsRoot();
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user).setRoot();
 
     CeActivityDto activityDto = createActivityDto(SOME_TASK_UUID);
     persist(activityDto);
@@ -147,9 +149,10 @@ public class TaskActionTest {
 
   @Test
   public void long_living_branch_in_queue_analysis() {
-    logInAsRoot();
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user).setRoot();
     String branch = "my_branch";
-    CeQueueDto queueDto = createAndPersistQueueTask(null);
+    CeQueueDto queueDto = createAndPersistQueueTask(null, user);
     insertCharacteristic(queueDto, BRANCH_KEY, branch);
     insertCharacteristic(queueDto, BRANCH_TYPE_KEY, LONG.name());
 
@@ -264,24 +267,27 @@ public class TaskActionTest {
 
   @Test
   public void get_project_queue_task_with_scan_permission_on_project() {
-    userSession.logIn().addProjectPermission(GlobalPermissions.SCAN_EXECUTION, project);
-    CeQueueDto task = createAndPersistQueueTask(project);
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user).addProjectPermission(GlobalPermissions.SCAN_EXECUTION, project);
+    CeQueueDto task = createAndPersistQueueTask(project, user);
 
     call(task.getUuid());
   }
 
   @Test
   public void get_project_queue_task_with_scan_permission_on_organization_but_not_on_project() {
-    userSession.logIn().addPermission(SCAN, project.getOrganizationUuid());
-    CeQueueDto task = createAndPersistQueueTask(project);
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user).addPermission(SCAN, project.getOrganizationUuid());
+    CeQueueDto task = createAndPersistQueueTask(project, user);
 
     call(task.getUuid());
   }
 
   @Test
   public void getting_project_queue_task_throws_ForbiddenException_if_no_admin_nor_scan_permissions() {
-    userSession.logIn();
-    CeQueueDto task = createAndPersistQueueTask(project);
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user);
+    CeQueueDto task = createAndPersistQueueTask(project, user);
 
     expectedException.expect(ForbiddenException.class);
 
@@ -290,16 +296,18 @@ public class TaskActionTest {
 
   @Test
   public void getting_global_queue_task_requires_to_be_system_administrator() {
-    logInAsSystemAdministrator();
-    CeQueueDto task = createAndPersistQueueTask(null);
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user).setSystemAdministrator();
+    CeQueueDto task = createAndPersistQueueTask(null, user);
 
     call(task.getUuid());
   }
 
   @Test
   public void getting_global_queue_throws_ForbiddenException_if_not_system_administrator() {
-    userSession.logIn().setNonSystemAdministrator();
-    CeQueueDto task = createAndPersistQueueTask(null);
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user).setNonSystemAdministrator();
+    CeQueueDto task = createAndPersistQueueTask(null, user);
 
     expectedException.expect(ForbiddenException.class);
 
@@ -377,12 +385,12 @@ public class TaskActionTest {
     return activityDto;
   }
 
-  private CeQueueDto createAndPersistQueueTask(@Nullable ComponentDto component) {
+  private CeQueueDto createAndPersistQueueTask(@Nullable ComponentDto component, UserDto user) {
     CeQueueDto dto = new CeQueueDto();
     dto.setTaskType(CeTaskTypes.REPORT);
     dto.setUuid(SOME_TASK_UUID);
     dto.setStatus(CeQueueDto.Status.PENDING);
-    dto.setSubmitterLogin("john");
+    dto.setSubmitterUuid(user.getUuid());
     if (component != null) {
       dto.setComponentUuid(component.uuid());
     }

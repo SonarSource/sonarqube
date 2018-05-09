@@ -44,6 +44,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.OrganizationPermission;
+import org.sonar.db.user.UserDto;
 import org.sonar.server.component.ComponentUpdater;
 import org.sonar.server.component.NewComponent;
 import org.sonar.server.exceptions.BadRequestException;
@@ -134,7 +135,8 @@ public class ReportSubmitterTest {
   @Test
   public void submit_a_report_on_existing_project() {
     ComponentDto project = db.components().insertPrivateProject(db.getDefaultOrganization());
-    userSession.logIn().addProjectPermission(SCAN_EXECUTION, project);
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user).addProjectPermission(SCAN_EXECUTION, project);
 
     mockSuccessfulPrepareSubmitCall();
 
@@ -144,7 +146,10 @@ public class ReportSubmitterTest {
     verifyZeroInteractions(permissionTemplateService);
     verifyZeroInteractions(favoriteUpdater);
     verify(queue).submit(argThat(submit ->
-      submit.getType().equals(CeTaskTypes.REPORT) && submit.getComponentUuid().equals(project.uuid()) && submit.getUuid().equals(TASK_UUID)));
+      submit.getType().equals(CeTaskTypes.REPORT)
+        && submit.getComponentUuid().equals(project.uuid())
+        && submit.getSubmitterUuid().equals(user.getUuid())
+        && submit.getUuid().equals(TASK_UUID)));
   }
 
   @Test

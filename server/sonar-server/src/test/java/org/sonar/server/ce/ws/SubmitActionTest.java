@@ -56,7 +56,8 @@ public class SubmitActionTest {
     .setOrganizationUuid("org1")
     .setUuid("TASK_1")
     .setType(CeTaskTypes.REPORT)
-    .setComponentUuid("PROJECT_1").setSubmitterLogin("robert")
+    .setComponentUuid("PROJECT_1")
+    .setSubmitterUuid("robert")
     .build();
 
   @Captor

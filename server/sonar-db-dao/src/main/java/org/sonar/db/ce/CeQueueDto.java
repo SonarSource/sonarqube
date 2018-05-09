@@ -34,7 +34,7 @@ public class CeQueueDto {
   private String taskType;
   private String componentUuid;
   private Status status;
-  private String submitterLogin;
+  private String submitterUuid;
   /**
    * UUID of the worker that is executing, or of the last worker that executed, the current task.
    */
@@ -84,13 +84,13 @@ public class CeQueueDto {
   }
 
   @CheckForNull
-  public String getSubmitterLogin() {
-    return submitterLogin;
+  public String getSubmitterUuid() {
+    return submitterUuid;
   }
 
-  public CeQueueDto setSubmitterLogin(@Nullable String s) {
-    checkArgument(s == null || s.length() <= 255, "Value of submitter login is too long: %s", s);
-    this.submitterLogin = s;
+  public CeQueueDto setSubmitterUuid(@Nullable String s) {
+    checkArgument(s == null || s.length() <= 255, "Value of submitter uuid is too long: %s", s);
+    this.submitterUuid = s;
     return this;
   }
 
@@ -139,7 +139,7 @@ public class CeQueueDto {
       ", taskType='" + taskType + '\'' +
       ", componentUuid='" + componentUuid + '\'' +
       ", status=" + status +
-      ", submitterLogin='" + submitterLogin + '\'' +
+      ", submitterLogin='" + submitterUuid + '\'' +
       ", workerUuid='" + workerUuid + '\'' +
       ", startedAt=" + startedAt +
       ", createdAt=" + createdAt +

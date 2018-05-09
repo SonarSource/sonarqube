@@ -152,7 +152,7 @@ public class CeQueueImpl implements CeQueue {
     dto.setTaskType(submission.getType());
     dto.setComponentUuid(submission.getComponentUuid());
     dto.setStatus(PENDING);
-    dto.setSubmitterLogin(submission.getSubmitterLogin());
+    dto.setSubmitterUuid(submission.getSubmitterUuid());
     dto.setStartedAt(null);
     dbClient.ceQueueDao().insert(dbSession, dto);
     return dto;
@@ -271,7 +271,7 @@ public class CeQueueImpl implements CeQueue {
       CeTask.Builder builder = new CeTask.Builder();
       builder.setUuid(dto.getUuid());
       builder.setType(dto.getTaskType());
-      builder.setSubmitterLogin(dto.getSubmitterLogin());
+      builder.setSubmitterUuid(dto.getSubmitterUuid());
       String componentUuid = dto.getComponentUuid();
       if (componentUuid != null) {
         builder.setComponentUuid(componentUuid);

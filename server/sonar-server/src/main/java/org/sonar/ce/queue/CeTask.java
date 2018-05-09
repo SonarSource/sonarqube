@@ -36,7 +36,7 @@ public class CeTask {
   private final String componentUuid;
   private final String componentKey;
   private final String componentName;
-  private final String submitterLogin;
+  private final String submitterUuid;
 
   private CeTask(Builder builder) {
     this.organizationUuid = requireNonNull(emptyToNull(builder.organizationUuid), "organizationUuid can't be null nor empty");
@@ -45,7 +45,7 @@ public class CeTask {
     this.componentUuid = emptyToNull(builder.componentUuid);
     this.componentKey = emptyToNull(builder.componentKey);
     this.componentName = emptyToNull(builder.componentName);
-    this.submitterLogin = emptyToNull(builder.submitterLogin);
+    this.submitterUuid = emptyToNull(builder.submitterUuid);
   }
 
   public String getOrganizationUuid() {
@@ -76,8 +76,8 @@ public class CeTask {
   }
 
   @CheckForNull
-  public String getSubmitterLogin() {
-    return submitterLogin;
+  public String getSubmitterUuid() {
+    return submitterUuid;
   }
 
   @Override
@@ -89,7 +89,7 @@ public class CeTask {
       .add("componentUuid", componentUuid)
       .add("componentKey", componentKey)
       .add("componentName", componentName)
-      .add("submitterLogin", submitterLogin)
+      .add("submitterUuid", submitterUuid)
       .toString();
   }
 
@@ -117,7 +117,7 @@ public class CeTask {
     private String componentUuid;
     private String componentKey;
     private String componentName;
-    private String submitterLogin;
+    private String submitterUuid;
 
     public Builder setOrganizationUuid(String organizationUuid) {
       this.organizationUuid = organizationUuid;
@@ -154,8 +154,8 @@ public class CeTask {
       return this;
     }
 
-    public Builder setSubmitterLogin(@Nullable String s) {
-      this.submitterLogin = s;
+    public Builder setSubmitterUuid(@Nullable String s) {
+      this.submitterUuid = s;
       return this;
     }
 
