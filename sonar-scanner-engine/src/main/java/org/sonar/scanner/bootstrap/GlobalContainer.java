@@ -93,7 +93,7 @@ public class GlobalContainer extends ComponentContainer {
       new GlobalTempFolderProvider(),
       DefaultHttpDownloader.class,
       UriReader.class,
-      new FileCacheProvider(),
+      PluginFiles.class,
       System2.INSTANCE,
       Clock.systemDefaultZone(),
       new MetricsRepositoryProvider(),

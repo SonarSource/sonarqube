@@ -28,53 +28,55 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.core.platform.ExplodedPlugin;
 import org.sonar.core.platform.PluginInfo;
-import org.sonar.home.cache.FileCache;
-import org.sonar.home.cache.FileCacheBuilder;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class ScannerPluginJarExploderTest {
 
   @ClassRule
   public static TemporaryFolder temp = new TemporaryFolder();
 
-  private File userHome;
+  private File tempDir;
   private ScannerPluginJarExploder underTest;
 
   @Before
   public void setUp() throws IOException {
-    userHome = temp.newFolder();
-    FileCache fileCache = new FileCacheBuilder(new Slf4jLogger()).setUserHome(userHome).build();
-    underTest = new ScannerPluginJarExploder(fileCache);
+    tempDir = temp.newFolder();
+    PluginFiles pluginFiles = mock(PluginFiles.class);
+    when(pluginFiles.createTempDir()).thenReturn(tempDir);
+    underTest = new ScannerPluginJarExploder(pluginFiles);
   }
 
   @Test
   public void copy_and_extract_libs() throws IOException {
-    File fileFromCache = getFileFromCache("sonar-checkstyle-plugin-2.8.jar");
-    ExplodedPlugin exploded = underTest.explode(PluginInfo.create(fileFromCache));
+    File jar = loadFile("sonar-checkstyle-plugin-2.8.jar");
+    ExplodedPlugin exploded = underTest.explode(PluginInfo.create(jar));
 
     assertThat(exploded.getKey()).isEqualTo("checkstyle");
     assertThat(exploded.getMain()).isFile().exists();
     assertThat(exploded.getLibs()).extracting(File::getName).containsExactlyInAnyOrder("antlr-2.7.6.jar", "checkstyle-5.1.jar", "commons-cli-1.0.jar");
-    assertThat(new File(fileFromCache.getParent(), "sonar-checkstyle-plugin-2.8.jar")).exists();
-    assertThat(new File(fileFromCache.getParent(), "sonar-checkstyle-plugin-2.8.jar_unzip/META-INF/lib/checkstyle-5.1.jar")).exists();
+    assertThat(new File(jar.getParent(), "sonar-checkstyle-plugin-2.8.jar")).exists();
+    assertThat(new File(jar.getParent(), "sonar-checkstyle-plugin-2.8.jar_unzip/META-INF/lib/checkstyle-5.1.jar")).exists();
   }
 
   @Test
   public void extract_only_libs() throws IOException {
-    File fileFromCache = getFileFromCache("sonar-checkstyle-plugin-2.8.jar");
-    underTest.explode(PluginInfo.create(fileFromCache));
+    File jar = loadFile("sonar-checkstyle-plugin-2.8.jar");
 
-    assertThat(new File(fileFromCache.getParent(), "sonar-checkstyle-plugin-2.8.jar")).exists();
-    assertThat(new File(fileFromCache.getParent(), "sonar-checkstyle-plugin-2.8.jar_unzip/META-INF/MANIFEST.MF")).doesNotExist();
-    assertThat(new File(fileFromCache.getParent(), "sonar-checkstyle-plugin-2.8.jar_unzip/org/sonar/plugins/checkstyle/CheckstyleVersion.class")).doesNotExist();
+    underTest.explode(PluginInfo.create(jar));
+
+    assertThat(new File(jar.getParent(), "sonar-checkstyle-plugin-2.8.jar")).exists();
+    assertThat(new File(jar.getParent(), "sonar-checkstyle-plugin-2.8.jar_unzip/META-INF/MANIFEST.MF")).doesNotExist();
+    assertThat(new File(jar.getParent(), "sonar-checkstyle-plugin-2.8.jar_unzip/org/sonar/plugins/checkstyle/CheckstyleVersion.class")).doesNotExist();
   }
 
-  private File getFileFromCache(String filename) throws IOException {
-    File src = FileUtils.toFile(getClass().getResource(this.getClass().getSimpleName() + "/" + filename));
-    File destFile = new File(new File(userHome, "" + filename.hashCode()), filename);
-    FileUtils.copyFile(src, destFile);
-    return destFile;
+  private File loadFile(String filename) throws IOException {
+    File src = FileUtils.toFile(getClass().getResource(getClass().getSimpleName() + "/" + filename));
+    File dest = new File(temp.newFolder(), filename);
+    FileUtils.copyFile(src, dest);
+    return dest;
   }
 
 }

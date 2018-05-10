@@ -53,10 +53,17 @@ public class WsTestUtil {
     when(mock.call(any(WsRequest.class))).thenReturn(response);
   }
 
-  public static void mockReader(ScannerWsClient mock, String path, Reader reader) {
+  public static void mockReader(ScannerWsClient mock, String path, Reader reader, Reader... others) {
     WsResponse response = mock(WsResponse.class);
     when(response.contentReader()).thenReturn(reader);
-    when(mock.call(argThat(new RequestMatcher(path)))).thenReturn(response);
+    WsResponse[] otherResponses = new WsResponse[others.length];
+    for (int i = 0; i < others.length; i++) {
+      WsResponse otherResponse = mock(WsResponse.class);
+      when(otherResponse.contentReader()).thenReturn(others[i]);
+      otherResponses[i] = otherResponse;
+    }
+
+    when(mock.call(argThat(new RequestMatcher(path)))).thenReturn(response, otherResponses);
   }
 
   public static void mockException(ScannerWsClient mock, Exception e) {

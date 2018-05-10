@@ -28,17 +28,16 @@ import org.sonar.api.utils.ZipUtils;
 import org.sonar.core.platform.ExplodedPlugin;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.core.platform.PluginJarExploder;
-import org.sonar.home.cache.FileCache;
 
 import static org.sonar.core.util.FileUtils.deleteQuietly;
 
 @ScannerSide
 public class ScannerPluginJarExploder extends PluginJarExploder {
 
-  private final FileCache fileCache;
+  private final PluginFiles pluginFiles;
 
-  public ScannerPluginJarExploder(FileCache fileCache) {
-    this.fileCache = fileCache;
+  public ScannerPluginJarExploder(PluginFiles pluginFiles) {
+    this.pluginFiles = pluginFiles;
   }
 
   @Override
@@ -62,7 +61,7 @@ public class ScannerPluginJarExploder extends PluginJarExploder {
         try {
           // Recheck in case of concurrent processes
           if (!destDir.exists()) {
-            File tempDir = fileCache.createTempDir();
+            File tempDir = pluginFiles.createTempDir();
             ZipUtils.unzip(cachedFile, tempDir, newLibFilter());
             FileUtils.moveDirectory(tempDir, destDir);
           }

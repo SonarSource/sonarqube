@@ -19,102 +19,95 @@
  */
 package org.sonar.scanner.bootstrap;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.gson.Gson;
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
 import java.io.Reader;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import javax.annotation.Nullable;
-import org.apache.commons.io.FileUtils;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
 import org.sonar.core.platform.PluginInfo;
-import org.sonar.home.cache.FileCache;
 import org.sonarqube.ws.client.GetRequest;
-import org.sonarqube.ws.client.WsResponse;
 
 import static java.lang.String.format;
 
 /**
  * Downloads the plugins installed on server and stores them in a local user cache
- * (see {@link FileCacheProvider}).
  */
 public class ScannerPluginInstaller implements PluginInstaller {
 
   private static final Logger LOG = Loggers.get(ScannerPluginInstaller.class);
-  private static final String PLUGINS_WS_URL = "/api/plugins/installed";
+  private static final String PLUGINS_WS_URL = "api/plugins/installed";
 
-  private final FileCache fileCache;
+  private final PluginFiles pluginFiles;
   private final ScannerPluginPredicate pluginPredicate;
   private final ScannerWsClient wsClient;
 
-  public ScannerPluginInstaller(ScannerWsClient wsClient, FileCache fileCache, ScannerPluginPredicate pluginPredicate) {
-    this.fileCache = fileCache;
+  public ScannerPluginInstaller(PluginFiles pluginFiles, ScannerPluginPredicate pluginPredicate, ScannerWsClient wsClient) {
+    this.pluginFiles = pluginFiles;
     this.pluginPredicate = pluginPredicate;
     this.wsClient = wsClient;
   }
 
   @Override
   public Map<String, ScannerPlugin> installRemotes() {
-    return loadPlugins(listInstalledPlugins());
+    Profiler profiler = Profiler.create(LOG).startInfo("Load/download plugins");
+    try {
+      Map<String, ScannerPlugin> result = new HashMap<>();
+      Loaded loaded = loadPlugins(result);
+      if (!loaded.ok) {
+        // retry once, a plugin may have been uninstalled during downloads
+        result.clear();
+        loaded = loadPlugins(result);
+        if (!loaded.ok) {
+          throw new IllegalStateException(format("Fail to download plugin [%s]. Not found.", loaded.notFoundPlugin));
+        }
+      }
+      return result;
+    } finally {
+      profiler.stopInfo();
+    }
   }
 
-  private Map<String, ScannerPlugin> loadPlugins(InstalledPlugin[] remotePlugins) {
-    Map<String, ScannerPlugin> infosByKey = new HashMap<>(remotePlugins.length);
+  private Loaded loadPlugins(Map<String, ScannerPlugin> result) {
+    for (InstalledPlugin plugin : listInstalledPlugins()) {
+      if (pluginPredicate.apply(plugin.key)) {
+        Optional<File> jarFile = pluginFiles.get(plugin);
+        if (!jarFile.isPresent()) {
+          return new Loaded(false, plugin.key);
+        }
 
-    Profiler profiler = Profiler.create(LOG).startInfo("Load/download plugins");
-
-    for (InstalledPlugin installedPlugin : remotePlugins) {
-      if (pluginPredicate.apply(installedPlugin.key)) {
-        File jarFile = download(installedPlugin);
-        PluginInfo info = PluginInfo.create(jarFile);
-        infosByKey.put(info.getKey(), new ScannerPlugin(installedPlugin.key, installedPlugin.updatedAt, info));
+        PluginInfo info = PluginInfo.create(jarFile.get());
+        result.put(info.getKey(), new ScannerPlugin(plugin.key, plugin.updatedAt, info));
       }
     }
-    profiler.stopInfo();
-    return infosByKey;
+    return new Loaded(true, null);
   }
 
   /**
    * Returns empty on purpose. This method is used only by medium tests.
-   * @see org.sonar.scanner.mediumtest.ScannerMediumTester
    */
   @Override
   public List<Object[]> installLocals() {
     return Collections.emptyList();
   }
 
-  @VisibleForTesting
-  File download(final InstalledPlugin remote) {
-    try {
-      if (remote.compressedFilename != null) {
-        return fileCache.getCompressed(remote.compressedFilename, remote.compressedHash, new FileDownloader(remote.key));
-      } else {
-        return fileCache.get(remote.filename, remote.hash, new FileDownloader(remote.key));
-      }
-    } catch (Exception e) {
-      throw new IllegalStateException("Fail to download plugin: " + remote.key, e);
-    }
-  }
-
   /**
    * Gets information about the plugins installed on server (filename, checksum)
    */
-  @VisibleForTesting
-  InstalledPlugin[] listInstalledPlugins() {
+  private InstalledPlugin[] listInstalledPlugins() {
     Profiler profiler = Profiler.create(LOG).startInfo("Load plugins index");
     GetRequest getRequest = new GetRequest(PLUGINS_WS_URL);
     InstalledPlugins installedPlugins;
     try (Reader reader = wsClient.call(getRequest).contentReader()) {
       installedPlugins = new Gson().fromJson(reader, InstalledPlugins.class);
-    } catch (IOException e) {
-      throw new IllegalStateException(e);
+    } catch (Exception e) {
+      throw new IllegalStateException("Fail to parse response of " + PLUGINS_WS_URL, e);
     }
 
     profiler.stopInfo();
@@ -128,34 +121,17 @@ public class ScannerPluginInstaller implements PluginInstaller {
   static class InstalledPlugin {
     String key;
     String hash;
-    String filename;
     long updatedAt;
-    @Nullable
-    String compressedHash;
-    @Nullable
-    String compressedFilename;
   }
 
-  private class FileDownloader implements FileCache.Downloader {
-    private String key;
+  private static class Loaded {
+    private final boolean ok;
+    @Nullable
+    private final String notFoundPlugin;
 
-    FileDownloader(String key) {
-      this.key = key;
-    }
-
-    @Override
-    public void download(String filename, File toFile) throws IOException {
-      String url = format("/deploy/plugins/%s/%s", key, filename);
-      if (LOG.isDebugEnabled()) {
-        LOG.debug("Download plugin '{}' to '{}'", filename, toFile);
-      } else {
-        LOG.debug("Download '{}'", filename);
-      }
-
-      WsResponse response = wsClient.call(new GetRequest(url));
-      try (InputStream stream = response.contentStream()) {
-        FileUtils.copyInputStreamToFile(stream, toFile);
-      }
+    private Loaded(boolean ok, @Nullable String notFoundPlugin) {
+      this.ok = ok;
+      this.notFoundPlugin = notFoundPlugin;
     }
   }
 }

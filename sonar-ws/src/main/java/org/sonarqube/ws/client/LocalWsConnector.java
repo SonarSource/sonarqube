@@ -140,5 +140,13 @@ class LocalWsConnector implements WsConnector {
     public String content() {
       return new String(bytes, UTF_8);
     }
+
+    /**
+     * Not implemented yet
+     */
+    @Override
+    public Optional<String> header(String name) {
+      return Optional.empty();
+    }
   }
 }

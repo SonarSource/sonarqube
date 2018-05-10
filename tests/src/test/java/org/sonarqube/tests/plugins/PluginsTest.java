@@ -120,6 +120,10 @@ public class PluginsTest {
     installPlugin(builder, "com.sonarsource.license", "sonar-dev-license-plugin");
 
     builder.activateLicense();
+
+    // use compression of plugin JARs, just to check that it does not fail
+    builder.setServerProperty("sonar.pluginsCompression.enable", "true");
+
     ORCHESTRATOR = builder.build();
     ORCHESTRATOR.start();
   }

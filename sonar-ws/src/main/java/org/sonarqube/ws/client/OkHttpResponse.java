@@ -19,12 +19,12 @@
  */
 package org.sonarqube.ws.client;
 
-import okhttp3.Response;
-import okhttp3.ResponseBody;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
+import java.util.Optional;
+import okhttp3.Response;
+import okhttp3.ResponseBody;
 
 class OkHttpResponse extends BaseResponse {
 
@@ -47,6 +47,11 @@ class OkHttpResponse extends BaseResponse {
   @Override
   public String contentType() {
     return okResponse.header("Content-Type");
+  }
+
+  @Override
+  public Optional<String> header(String name) {
+    return Optional.ofNullable(okResponse.header(name));
   }
 
   /**

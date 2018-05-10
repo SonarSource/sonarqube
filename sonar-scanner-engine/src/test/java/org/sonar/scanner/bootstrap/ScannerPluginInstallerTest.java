@@ -20,89 +20,136 @@
 package org.sonar.scanner.bootstrap;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
-import org.junit.Before;
+import java.io.StringReader;
+import java.util.Map;
+import java.util.Optional;
+import java.util.jar.Attributes;
+import java.util.jar.JarOutputStream;
+import java.util.jar.Manifest;
+import org.apache.commons.io.FileUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.home.cache.FileCache;
 import org.sonar.scanner.WsTestUtil;
-import org.sonar.scanner.bootstrap.ScannerPluginInstaller.InstalledPlugin;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class ScannerPluginInstallerTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
-
   @Rule
-  public ExpectedException thrown = ExpectedException.none();
+  public ExpectedException expectedException = ExpectedException.none();
 
-  private FileCache fileCache = mock(FileCache.class);
-  private ScannerWsClient wsClient;
   private ScannerPluginPredicate pluginPredicate = mock(ScannerPluginPredicate.class);
+  private PluginFiles pluginFiles = mock(PluginFiles.class);
+  private ScannerWsClient wsClient = mock(ScannerWsClient.class);
+  private ScannerPluginInstaller underTest = new ScannerPluginInstaller(pluginFiles, pluginPredicate, wsClient);
 
-  @Before
-  public void setUp() {
-    wsClient = mock(ScannerWsClient.class);
+  @Test
+  public void download_installed_plugins() throws IOException {
+    WsTestUtil.mockReader(wsClient, "api/plugins/installed", new InputStreamReader(getClass().getResourceAsStream("ScannerPluginInstallerTest/installed-plugins-ws.json")));
+    enqueueDownload("scmgit", "abc");
+    enqueueDownload("java", "def");
+    when(pluginPredicate.apply(any())).thenReturn(true);
+
+    Map<String, ScannerPlugin> result = underTest.installRemotes();
+
+    assertThat(result.keySet()).containsExactlyInAnyOrder("scmgit", "java");
+    ScannerPlugin gitPlugin = result.get("scmgit");
+    assertThat(gitPlugin.getKey()).isEqualTo("scmgit");
+    assertThat(gitPlugin.getInfo().getNonNullJarFile()).exists().isFile();
+    assertThat(gitPlugin.getUpdatedAt()).isEqualTo(100L);
+
+    ScannerPlugin javaPlugin = result.get("java");
+    assertThat(javaPlugin.getKey()).isEqualTo("java");
+    assertThat(javaPlugin.getInfo().getNonNullJarFile()).exists().isFile();
+    assertThat(javaPlugin.getUpdatedAt()).isEqualTo(200L);
   }
 
   @Test
-  public void listRemotePlugins() {
-    WsTestUtil.mockReader(wsClient, "/api/plugins/installed",
-      new InputStreamReader(this.getClass().getResourceAsStream("ScannerPluginInstallerTest/installed-plugins-ws.json"), StandardCharsets.UTF_8));
-    ScannerPluginInstaller underTest = new ScannerPluginInstaller(wsClient, fileCache, pluginPredicate);
+  public void filter_blacklisted_plugins() throws IOException {
+    WsTestUtil.mockReader(wsClient, "api/plugins/installed", new InputStreamReader(getClass().getResourceAsStream("ScannerPluginInstallerTest/installed-plugins-ws.json")));
+    enqueueDownload("scmgit", "abc");
+    enqueueDownload("java", "def");
+    when(pluginPredicate.apply("scmgit")).thenReturn(true);
+    when(pluginPredicate.apply("java")).thenReturn(false);
 
-    InstalledPlugin[] remotePlugins = underTest.listInstalledPlugins();
-    assertThat(remotePlugins).extracting("key").containsOnly("scmgit", "java", "scmsvn");
+    Map<String, ScannerPlugin> result = underTest.installRemotes();
+
+    assertThat(result.keySet()).containsExactlyInAnyOrder("scmgit");
+    verify(pluginFiles, times(1)).get(any());
   }
 
   @Test
-  public void should_download_plugin() throws Exception {
-    File pluginJar = temp.newFile();
-    when(fileCache.get(eq("checkstyle-plugin.jar"), eq("fakemd5_1"), any(FileCache.Downloader.class))).thenReturn(pluginJar);
+  public void fail_if_json_of_installed_plugins_is_not_valid() {
+    WsTestUtil.mockReader(wsClient, "api/plugins/installed", new StringReader("not json"));
 
-    ScannerPluginInstaller underTest = new ScannerPluginInstaller(wsClient, fileCache, pluginPredicate);
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("Fail to parse response of api/plugins/installed");
 
-    InstalledPlugin remote = new InstalledPlugin();
-    remote.key = "checkstyle";
-    remote.filename = "checkstyle-plugin.jar";
-    remote.hash = "fakemd5_1";
-    File file = underTest.download(remote);
-
-    assertThat(file).isEqualTo(pluginJar);
+    underTest.installRemotes();
   }
 
   @Test
-  public void should_download_compressed_plugin() throws Exception {
-    File pluginJar = temp.newFile();
-    when(fileCache.getCompressed(eq("checkstyle-plugin.pack.gz"), eq("hash"), any(FileCache.Downloader.class))).thenReturn(pluginJar);
+  public void reload_list_if_plugin_uninstalled_during_blue_green_switch() throws IOException {
+    WsTestUtil.mockReader(wsClient, "api/plugins/installed",
+      new InputStreamReader(getClass().getResourceAsStream("ScannerPluginInstallerTest/blue-installed.json")),
+      new InputStreamReader(getClass().getResourceAsStream("ScannerPluginInstallerTest/green-installed.json")));
+    enqueueNotFoundDownload("scmgit", "abc");
+    enqueueDownload("java", "def");
+    enqueueDownload("cobol", "ghi");
+    when(pluginPredicate.apply(any())).thenReturn(true);
 
-    ScannerPluginInstaller underTest = new ScannerPluginInstaller(wsClient, fileCache, pluginPredicate);
+    Map<String, ScannerPlugin> result = underTest.installRemotes();
 
-    InstalledPlugin remote = new InstalledPlugin();
-    remote.key = "checkstyle";
-    remote.filename = "checkstyle-plugin.jar";
-    remote.hash = "fakemd5_1";
-    remote.compressedFilename = "checkstyle-plugin.pack.gz";
-    remote.compressedHash = "hash";
-    File file = underTest.download(remote);
-
-    assertThat(file).isEqualTo(pluginJar);
+    assertThat(result.keySet()).containsExactlyInAnyOrder("java", "cobol");
   }
 
   @Test
-  public void should_fail_to_get_plugin_index() {
-    WsTestUtil.mockException(wsClient, "/api/plugins/installed", new IllegalStateException());
-    thrown.expect(IllegalStateException.class);
+  public void fail_if_plugin_not_found_two_times() throws IOException {
+    WsTestUtil.mockReader(wsClient, "api/plugins/installed",
+      new InputStreamReader(getClass().getResourceAsStream("ScannerPluginInstallerTest/blue-installed.json")),
+      new InputStreamReader(getClass().getResourceAsStream("ScannerPluginInstallerTest/green-installed.json")));
+    enqueueDownload("scmgit", "abc");
+    enqueueDownload("cobol", "ghi");
+    enqueueNotFoundDownload("java", "def");
+    when(pluginPredicate.apply(any())).thenReturn(true);
 
-    new ScannerPluginInstaller(wsClient, fileCache, pluginPredicate).installRemotes();
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("Fail to download plugin [java]. Not found.");
+
+    underTest.installRemotes();
+  }
+
+  @Test
+  public void installLocals_always_returns_empty() {
+    // this method is used only by medium tests
+    assertThat(underTest.installLocals()).isEmpty();
+  }
+
+  private void enqueueDownload(String pluginKey, String pluginHash) throws IOException {
+    File jar = temp.newFile();
+    Manifest manifest = new Manifest();
+    manifest.getMainAttributes().put(Attributes.Name.MANIFEST_VERSION, "1.0");
+    manifest.getMainAttributes().putValue("Plugin-Key", pluginKey);
+    try (JarOutputStream output = new JarOutputStream(FileUtils.openOutputStream(jar), manifest)) {
+
+    }
+    doReturn(Optional.of(jar)).when(pluginFiles).get(argThat(p -> pluginKey.equals(p.key) && pluginHash.equals(p.hash)));
+  }
+
+  private void enqueueNotFoundDownload(String pluginKey, String pluginHash) {
+    doReturn(Optional.empty()).when(pluginFiles).get(argThat(p -> pluginKey.equals(p.key) && pluginHash.equals(p.hash)));
   }
 }

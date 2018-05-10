@@ -42,7 +42,7 @@ abstract class BaseResponse implements WsResponse {
   public boolean hasContent() {
     return code() != HTTP_NO_CONTENT;
   }
-  
+
   @Override
   public void close() {
     // override if needed
