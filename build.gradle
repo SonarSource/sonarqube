@@ -95,7 +95,7 @@ subprojects {
       dependency 'commons-codec:commons-codec:1.8'
       dependency 'commons-dbcp:commons-dbcp:1.4'
       dependency 'commons-dbutils:commons-dbutils:1.5'
-      dependency 'commons-io:commons-io:2.4'
+      dependency 'commons-io:commons-io:2.6'
       dependency 'commons-lang:commons-lang:2.6'
       dependencySet(group: 'com.fasterxml.jackson.core', version: '2.9.5') {
         entry 'jackson-core'
@@ -108,7 +108,7 @@ subprojects {
         exclude 'junit:junit'
       }
       dependency 'com.google.code.findbugs:jsr305:3.0.2'
-      dependency 'com.google.code.gson:gson:2.3.1'
+      dependency 'com.google.code.gson:gson:2.8.4'
       dependency 'com.google.guava:guava:18.0'
       dependency "com.google.protobuf:protobuf-java:${protobufVersion}"
       dependency 'com.h2database:h2:1.3.176'
@@ -147,8 +147,8 @@ subprojects {
           exclude 'org.eclipse.jdt.core.compiler:ecj'
         }
       }
-      dependency 'org.assertj:assertj-core:3.9.0'
-      dependency 'org.assertj:assertj-guava:3.1.0'
+      dependency 'org.assertj:assertj-core:3.9.1'
+      dependency 'org.assertj:assertj-guava:3.2.0'
       dependency('org.codehaus.sonar:sonar-channel:4.1') {
         exclude 'org.slf4j:slf4j-api'
       }

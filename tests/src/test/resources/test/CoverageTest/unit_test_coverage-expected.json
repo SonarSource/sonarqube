@@ -2,23 +2,23 @@
   "sources":[
     {
       "line": 1,
-      "code": "package sample;",
+      "code": "package sample;"
     },
     {
       "line": 2,
-      "code": "",
+      "code": ""
     },
     {
       "line": 3,
-      "code": "public class Sample {",
+      "code": "public class Sample {"
     },
     {
       "line": 4,
-      "code": "\t",
+      "code": "\t"
     },
     {
       "line": 5,
-      "code": "\tpublic Sample(int i) {",
+      "code": "\tpublic Sample(int i) {"
     },
     {
       "line": 6,
@@ -28,15 +28,15 @@
     },
     {
       "line": 7,
-      "code": "\t}",
+      "code": "\t}"
     },
     {
       "line": 8,
-      "code": "\t",
+      "code": "\t"
     },
     {
       "line": 9,
-      "code": "\tprivate String myMethod() {",
+      "code": "\tprivate String myMethod() {"
     },
     {
       "line": 10,
@@ -56,7 +56,7 @@
     },
     {
       "line": 12,
-      "code": "\t\t} else {",
+      "code": "\t\t} else {"
     },
     {
       "line": 13,
@@ -66,19 +66,19 @@
     },
     {
       "line": 14,
-      "code": "\t\t}",
+      "code": "\t\t}"
     },
     {
       "line": 15,
-      "code": "\t}",
+      "code": "\t}"
     },
     {
       "line": 16,
-      "code": "}",
+      "code": "}"
     },
     {
       "line": 17,
-      "code": "",
+      "code": ""
     }
   ]
 }

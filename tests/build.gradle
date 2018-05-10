@@ -62,7 +62,7 @@ dependencies {
   testCompile 'org.eclipse.jetty:jetty-servlet'
   testCompile "org.jboss.byteman:byteman-submit:${bytemanVersion}"
   testCompile 'org.postgresql:postgresql'
-  testCompile 'org.skyscreamer:jsonassert:1.2.0'
+  testCompile 'org.skyscreamer:jsonassert:1.5.0'
   testCompile 'org.sonarsource.orchestrator:sonar-orchestrator'
   testCompile 'org.subethamail:subethasmtp'
   testCompile project(':server:sonar-qa-util')

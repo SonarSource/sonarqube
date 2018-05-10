@@ -38,6 +38,8 @@ import org.sonar.core.util.LineReaderIterator;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.LineSgnificantCode;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 public class BatchReportReaderImpl implements BatchReportReader {
 
   private final BatchReportDirectoryHolder batchReportDirectoryHolder;
@@ -72,7 +74,7 @@ public class BatchReportReaderImpl implements BatchReportReader {
       return CloseableIterator.emptyCloseableIterator();
     }
     try {
-      InputStreamReader reader = new InputStreamReader(FileUtils.openInputStream(file), StandardCharsets.UTF_8);
+      InputStreamReader reader = new InputStreamReader(FileUtils.openInputStream(file), UTF_8);
       return new LineReaderIterator(reader);
     } catch (IOException e) {
       throw new IllegalStateException("Fail to open file " + file, e);
@@ -155,7 +157,7 @@ public class BatchReportReaderImpl implements BatchReportReader {
     }
 
     try {
-      return Optional.of(new CloseableLineIterator(IOUtils.lineIterator(FileUtils.openInputStream(file), StandardCharsets.UTF_8)));
+      return Optional.of(new CloseableLineIterator(IOUtils.lineIterator(FileUtils.openInputStream(file), UTF_8)));
     } catch (IOException e) {
       throw new IllegalStateException("Fail to traverse file: " + file, e);
     }
@@ -185,7 +187,7 @@ public class BatchReportReaderImpl implements BatchReportReader {
     }
 
     @Override
-    protected void doClose() {
+    protected void doClose() throws IOException {
       lineIterator.close();
     }
   }
