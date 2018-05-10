@@ -20,6 +20,7 @@
 package org.sonar.db.plugin;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 public class PluginDto {
@@ -59,7 +60,7 @@ public class PluginDto {
     return basePluginKey;
   }
 
-  public PluginDto setBasePluginKey(String s) {
+  public PluginDto setBasePluginKey(@Nullable String s) {
     this.basePluginKey = s;
     return this;
   }

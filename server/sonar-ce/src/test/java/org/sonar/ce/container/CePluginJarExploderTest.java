@@ -103,11 +103,6 @@ public class CePluginJarExploderTest {
     }
 
     @Override
-    public File getDeployDir() {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
     public File getHomeDir() {
       throw new UnsupportedOperationException();
     }

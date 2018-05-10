@@ -22,6 +22,7 @@ package org.sonar.server.plugins.ws;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSortedSet;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
@@ -42,6 +43,8 @@ import org.sonar.updatecenter.common.Plugin;
 import static com.google.common.collect.FluentIterable.from;
 import static com.google.common.collect.ImmutableSet.copyOf;
 import static com.google.common.io.Resources.getResource;
+import static org.sonar.server.plugins.ws.PluginWSCommons.NAME_KEY_PLUGIN_METADATA_COMPARATOR;
+import static org.sonar.server.plugins.ws.PluginWSCommons.categoryOrNull;
 import static org.sonar.server.plugins.ws.PluginWSCommons.compatiblePluginsByKey;
 
 /**
@@ -56,18 +59,15 @@ public class PendingAction implements PluginsWsAction {
   private final UserSession userSession;
   private final PluginDownloader pluginDownloader;
   private final ServerPluginRepository installer;
-  private final PluginWSCommons pluginWSCommons;
   private final UpdateCenterMatrixFactory updateCenterMatrixFactory;
   private final PluginUninstaller pluginUninstaller;
 
   public PendingAction(UserSession userSession, PluginDownloader pluginDownloader,
-    ServerPluginRepository installer, PluginUninstaller pluginUninstaller,
-    PluginWSCommons pluginWSCommons, UpdateCenterMatrixFactory updateCenterMatrixFactory) {
+    ServerPluginRepository installer, PluginUninstaller pluginUninstaller, UpdateCenterMatrixFactory updateCenterMatrixFactory) {
     this.userSession = userSession;
     this.pluginDownloader = pluginDownloader;
     this.installer = installer;
     this.pluginUninstaller = pluginUninstaller;
-    this.pluginWSCommons = pluginWSCommons;
     this.updateCenterMatrixFactory = updateCenterMatrixFactory;
   }
 
@@ -111,9 +111,19 @@ public class PendingAction implements PluginsWsAction {
       }
     }
 
-    pluginWSCommons.writePluginInfoList(json, newPlugins, compatiblePluginsByKey, ARRAY_INSTALLING);
-    pluginWSCommons.writePluginInfoList(json, updatedPlugins, compatiblePluginsByKey, ARRAY_UPDATING);
-    pluginWSCommons.writePluginInfoList(json, uninstalledPlugins, compatiblePluginsByKey, ARRAY_REMOVING);
+    writePlugin(json, ARRAY_INSTALLING, newPlugins, compatiblePluginsByKey);
+    writePlugin(json, ARRAY_UPDATING, updatedPlugins, compatiblePluginsByKey);
+    writePlugin(json, ARRAY_REMOVING, uninstalledPlugins, compatiblePluginsByKey);
+  }
+
+  private static void writePlugin(JsonWriter json, String propertyName, Collection<PluginInfo> plugins, Map<String, Plugin> compatiblePluginsByKey) {
+    json.name(propertyName);
+    json.beginArray();
+    for (PluginInfo pluginInfo : ImmutableSortedSet.copyOf(NAME_KEY_PLUGIN_METADATA_COMPARATOR, plugins)) {
+      Plugin plugin = compatiblePluginsByKey.get(pluginInfo.getKey());
+      PluginWSCommons.writePluginInfo(json, pluginInfo, categoryOrNull(plugin), null, null);
+    }
+    json.endArray();
   }
 
   private enum PluginInfoToKey implements Function<PluginInfo, String> {

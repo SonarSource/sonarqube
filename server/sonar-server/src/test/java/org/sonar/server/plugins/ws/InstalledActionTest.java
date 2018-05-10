@@ -20,32 +20,34 @@
 package org.sonar.server.plugins.ws;
 
 import com.google.common.base.Optional;
+import com.hazelcast.com.eclipsesource.json.Json;
+import com.hazelcast.com.eclipsesource.json.JsonObject;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.io.File;
-import java.util.Arrays;
-import java.util.Collections;
+import java.io.IOException;
 import java.util.Random;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
+import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Action;
-import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.System2;
 import org.sonar.core.platform.PluginInfo;
-import org.sonar.core.platform.RemotePluginFile;
 import org.sonar.db.DbTester;
-import org.sonar.server.plugins.PluginCompression;
-import org.sonar.server.plugins.ServerPluginRepository;
+import org.sonar.server.plugins.InstalledPlugin;
+import org.sonar.server.plugins.InstalledPlugin.FileAndMd5;
+import org.sonar.server.plugins.PluginFileSystem;
 import org.sonar.server.plugins.UpdateCenterMatrixFactory;
 import org.sonar.server.ws.WsActionTester;
 import org.sonar.updatecenter.common.Plugin;
 import org.sonar.updatecenter.common.UpdateCenter;
 import org.sonar.updatecenter.common.Version;
 
-import static com.google.common.collect.ImmutableList.of;
+import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
@@ -62,14 +64,14 @@ public class InstalledActionTest {
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
-
+  @Rule
+  public TemporaryFolder temp = new TemporaryFolder();
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
-  private ServerPluginRepository pluginRepository = mock(ServerPluginRepository.class);
   private UpdateCenterMatrixFactory updateCenterMatrixFactory = mock(UpdateCenterMatrixFactory.class, RETURNS_DEEP_STUBS);
-  private PluginCompression pluginCompression = mock(PluginCompression.class);
-  private InstalledAction underTest = new InstalledAction(pluginRepository, pluginCompression, new PluginWSCommons(), updateCenterMatrixFactory, db.getDbClient());
+  private PluginFileSystem pluginFileSystem = mock(PluginFileSystem.class);
+  private InstalledAction underTest = new InstalledAction(pluginFileSystem, updateCenterMatrixFactory, db.getDbClient());
   private WsActionTester tester = new WsActionTester(underTest);
 
   @Test
@@ -98,39 +100,62 @@ public class InstalledActionTest {
   }
 
   @Test
-  public void empty_fields_are_not_serialized_to_json() {
-    when(pluginRepository.getPluginInfos()).thenReturn(
-      of(new PluginInfo("").setName("").setJarFile(new File(""))));
+  public void empty_fields_are_not_serialized_to_json() throws IOException {
+    when(pluginFileSystem.getInstalledFiles()).thenReturn(
+      singletonList(newInstalledPlugin(new PluginInfo("foo")
+        .setName("")
+        .setDescription("")
+        .setLicense("")
+        .setOrganizationName("")
+        .setOrganizationUrl("")
+        .setImplementationBuild("")
+        .setHomepageUrl("")
+        .setIssueTrackerUrl(""))));
     db.pluginDbTester().insertPlugin(
-      p -> p.setKee(""),
-      p -> p.setFileHash("abcdA"),
-      p -> p.setUpdatedAt(111111L));
+      p -> p.setKee("foo"),
+      p -> p.setUpdatedAt(100L));
 
     String response = tester.newRequest().execute().getInput();
+    JsonObject json = Json.parse(response).asObject().get("plugins").asArray().get(0).asObject();
+    assertThat(json.get("key")).isNotNull();
+    assertThat(json.get("name")).isNull();
+    assertThat(json.get("description")).isNull();
+    assertThat(json.get("license")).isNull();
+    assertThat(json.get("organizationName")).isNull();
+    assertThat(json.get("organizationUrl")).isNull();
+    assertThat(json.get("homepageUrl")).isNull();
+    assertThat(json.get("issueTrackerUrl")).isNull();
 
-    assertThat(response).doesNotContain("name").doesNotContain("key");
+  }
+
+  private InstalledPlugin newInstalledPlugin(PluginInfo plugin) throws IOException {
+    FileAndMd5 jar = new FileAndMd5(temp.newFile());
+    return new InstalledPlugin(plugin.setJarFile(jar.getFile()), jar, null);
+  }
+
+  private InstalledPlugin newInstalledPluginWithCompression(PluginInfo plugin) throws IOException {
+    FileAndMd5 jar = new FileAndMd5(temp.newFile());
+    FileAndMd5 compressedJar = new FileAndMd5(temp.newFile());
+    return new InstalledPlugin(plugin.setJarFile(jar.getFile()), jar, compressedJar);
   }
 
   @Test
-  public void verify_properties_displayed_in_json_per_plugin() throws Exception {
-    String jarFilename = getClass().getSimpleName() + "/" + "some.jar";
-    when(pluginRepository.getPluginInfos()).thenReturn(of(
-      new PluginInfo("plugKey")
-        .setName("plugName")
-        .setDescription("desc_it")
-        .setVersion(Version.create("1.0"))
-        .setLicense("license_hey")
-        .setOrganizationName("org_name")
-        .setOrganizationUrl("org_url")
-        .setHomepageUrl("homepage_url")
-        .setIssueTrackerUrl("issueTracker_url")
-        .setImplementationBuild("sou_rev_sha1")
-        .setSonarLintSupported(true)
-        .setJarFile(new File(getClass().getResource(jarFilename).toURI()))));
+  public void return_default_fields() throws Exception {
+    InstalledPlugin plugin = newInstalledPlugin(new PluginInfo("foo")
+      .setName("plugName")
+      .setDescription("desc_it")
+      .setVersion(Version.create("1.0"))
+      .setLicense("license_hey")
+      .setOrganizationName("org_name")
+      .setOrganizationUrl("org_url")
+      .setHomepageUrl("homepage_url")
+      .setIssueTrackerUrl("issueTracker_url")
+      .setImplementationBuild("sou_rev_sha1")
+      .setSonarLintSupported(true));
+    when(pluginFileSystem.getInstalledFiles()).thenReturn(singletonList(plugin));
     db.pluginDbTester().insertPlugin(
-      p -> p.setKee("plugKey"),
-      p -> p.setFileHash("abcdplugKey"),
-      p -> p.setUpdatedAt(111111L));
+      p -> p.setKee(plugin.getPluginInfo().getKey()),
+      p -> p.setUpdatedAt(100L));
 
     String response = tester.newRequest().execute().getInput();
 
@@ -140,7 +165,7 @@ public class InstalledActionTest {
         "  \"plugins\":" +
         "  [" +
         "    {" +
-        "      \"key\": \"plugKey\"," +
+        "      \"key\": \"foo\"," +
         "      \"name\": \"plugName\"," +
         "      \"description\": \"desc_it\"," +
         "      \"version\": \"1.0\"," +
@@ -152,37 +177,32 @@ public class InstalledActionTest {
         "      \"issueTrackerUrl\": \"issueTracker_url\"," +
         "      \"implementationBuild\": \"sou_rev_sha1\"," +
         "      \"sonarLintSupported\": true," +
-        "      \"filename\": \"some.jar\"," +
-        "      \"hash\": \"abcdplugKey\"," +
-        "      \"updatedAt\": 111111" +
+        "      \"filename\": \"" + plugin.getLoadedJar().getFile().getName() + "\"," +
+        "      \"hash\": \"" + plugin.getLoadedJar().getMd5() + "\"," +
+        "      \"updatedAt\": 100" +
         "    }" +
         "  ]" +
         "}");
   }
 
   @Test
-  public void add_compressed_plugin_info() throws Exception {
-    RemotePluginFile compressedInfo = new RemotePluginFile("compressed.pack.gz", "hash");
-    when(pluginCompression.getPlugins()).thenReturn(Collections.singletonMap("plugKey", compressedInfo));
+  public void return_compression_fields_if_available() throws Exception {
+    InstalledPlugin plugin = newInstalledPluginWithCompression(new PluginInfo("foo")
+      .setName("plugName")
+      .setDescription("desc_it")
+      .setVersion(Version.create("1.0"))
+      .setLicense("license_hey")
+      .setOrganizationName("org_name")
+      .setOrganizationUrl("org_url")
+      .setHomepageUrl("homepage_url")
+      .setIssueTrackerUrl("issueTracker_url")
+      .setImplementationBuild("sou_rev_sha1")
+      .setSonarLintSupported(true));
+    when(pluginFileSystem.getInstalledFiles()).thenReturn(singletonList(plugin));
 
-    String jarFilename = getClass().getSimpleName() + "/" + "some.jar";
-    when(pluginRepository.getPluginInfos()).thenReturn(of(
-      new PluginInfo("plugKey")
-        .setName("plugName")
-        .setDescription("desc_it")
-        .setVersion(Version.create("1.0"))
-        .setLicense("license_hey")
-        .setOrganizationName("org_name")
-        .setOrganizationUrl("org_url")
-        .setHomepageUrl("homepage_url")
-        .setIssueTrackerUrl("issueTracker_url")
-        .setImplementationBuild("sou_rev_sha1")
-        .setSonarLintSupported(true)
-        .setJarFile(new File(getClass().getResource(jarFilename).toURI()))));
     db.pluginDbTester().insertPlugin(
-      p -> p.setKee("plugKey"),
-      p -> p.setFileHash("abcdplugKey"),
-      p -> p.setUpdatedAt(111111L));
+      p -> p.setKee(plugin.getPluginInfo().getKey()),
+      p -> p.setUpdatedAt(100L));
 
     String response = tester.newRequest().execute().getInput();
 
@@ -192,13 +212,11 @@ public class InstalledActionTest {
         "  \"plugins\":" +
         "  [" +
         "    {" +
-        "      \"key\": \"plugKey\"," +
+        "      \"key\": \"foo\"," +
         "      \"name\": \"plugName\"," +
         "      \"description\": \"desc_it\"," +
         "      \"version\": \"1.0\"," +
         "      \"license\": \"license_hey\"," +
-        "      \"compressedFilename\": \"compressed.pack.gz\"," +
-        "      \"compressedHash\": \"hash\"," +
         "      \"organizationName\": \"org_name\"," +
         "      \"organizationUrl\": \"org_url\",\n" +
         "      \"editionBundled\": false," +
@@ -206,9 +224,9 @@ public class InstalledActionTest {
         "      \"issueTrackerUrl\": \"issueTracker_url\"," +
         "      \"implementationBuild\": \"sou_rev_sha1\"," +
         "      \"sonarLintSupported\": true," +
-        "      \"filename\": \"some.jar\"," +
-        "      \"hash\": \"abcdplugKey\"," +
-        "      \"updatedAt\": 111111" +
+        "      \"filename\": \"" + plugin.getLoadedJar().getFile().getName() + "\"," +
+        "      \"hash\": \"" + plugin.getLoadedJar().getMd5() + "\"," +
+        "      \"updatedAt\": 100" +
         "    }" +
         "  ]" +
         "}");
@@ -217,8 +235,9 @@ public class InstalledActionTest {
   @Test
   public void category_is_returned_when_in_additional_fields() throws Exception {
     String jarFilename = getClass().getSimpleName() + "/" + "some.jar";
-    when(pluginRepository.getPluginInfos()).thenReturn(of(
-      new PluginInfo("plugKey")
+    File jar = new File(getClass().getResource(jarFilename).toURI());
+    when(pluginFileSystem.getInstalledFiles()).thenReturn(asList(
+      new InstalledPlugin(new PluginInfo("plugKey")
         .setName("plugName")
         .setDescription("desc_it")
         .setVersion(Version.create("1.0"))
@@ -228,11 +247,11 @@ public class InstalledActionTest {
         .setHomepageUrl("homepage_url")
         .setIssueTrackerUrl("issueTracker_url")
         .setImplementationBuild("sou_rev_sha1")
-        .setJarFile(new File(getClass().getResource(jarFilename).toURI()))));
+        .setJarFile(jar), new FileAndMd5(jar), null)));
     UpdateCenter updateCenter = mock(UpdateCenter.class);
     when(updateCenterMatrixFactory.getUpdateCenter(false)).thenReturn(Optional.of(updateCenter));
     when(updateCenter.findAllCompatiblePlugins()).thenReturn(
-      Arrays.asList(
+      asList(
         Plugin.factory("plugKey")
           .setCategory("cat_1")));
 
@@ -242,7 +261,7 @@ public class InstalledActionTest {
       p -> p.setUpdatedAt(111111L));
 
     String response = tester.newRequest()
-      .setParam(Param.FIELDS, "category")
+      .setParam(WebService.Param.FIELDS, "category")
       .execute().getInput();
 
     assertJson(response).isSimilarTo(
@@ -268,9 +287,9 @@ public class InstalledActionTest {
   }
 
   @Test
-  public void plugins_are_sorted_by_name_then_key_and_only_one_plugin_can_have_a_specific_name() {
-    when(pluginRepository.getPluginInfos()).thenReturn(
-      of(
+  public void plugins_are_sorted_by_name_then_key_and_only_one_plugin_can_have_a_specific_name() throws IOException {
+    when(pluginFileSystem.getInstalledFiles()).thenReturn(
+      asList(
         plugin("A", "name2"),
         plugin("B", "name1"),
         plugin("C", "name0"),
@@ -314,14 +333,15 @@ public class InstalledActionTest {
     Random random = new Random();
     String organization = random.nextBoolean() ? "SonarSource" : "SONARSOURCE";
     String pluginKey = "plugKey";
-    when(pluginRepository.getPluginInfos()).thenReturn(of(
-      new PluginInfo(pluginKey)
+    File jar = new File(getClass().getResource(jarFilename).toURI());
+    when(pluginFileSystem.getInstalledFiles()).thenReturn(asList(
+      new InstalledPlugin(new PluginInfo(pluginKey)
         .setName("plugName")
         .setVersion(Version.create("1.0"))
         .setLicense(license)
         .setOrganizationName(organization)
         .setImplementationBuild("sou_rev_sha1")
-        .setJarFile(new File(getClass().getResource(jarFilename).toURI()))));
+        .setJarFile(jar), new FileAndMd5(jar), null)));
     db.pluginDbTester().insertPlugin(
       p -> p.setKee(pluginKey),
       p -> p.setFileHash("abcdplugKey"),
@@ -369,9 +389,9 @@ public class InstalledActionTest {
   }
 
   @Test
-  public void only_one_plugin_can_have_a_specific_name_and_key() {
-    when(pluginRepository.getPluginInfos()).thenReturn(
-      of(
+  public void only_one_plugin_can_have_a_specific_name_and_key() throws IOException {
+    when(pluginFileSystem.getInstalledFiles()).thenReturn(
+      asList(
         plugin("A", "name2"),
         plugin("A", "name2")));
 
@@ -392,8 +412,13 @@ public class InstalledActionTest {
     assertThat(response).containsOnlyOnce("name2");
   }
 
-  private PluginInfo plugin(String key, String name) {
-    return new PluginInfo(key).setName(name).setVersion(Version.create("1.0")).setJarFile(new File("sonar-" + key + "-plugin-1.0.jar"));
+  private InstalledPlugin plugin(String key, String name) throws IOException {
+    File file = temp.newFile();
+    PluginInfo info = new PluginInfo(key)
+      .setName(name)
+      .setVersion(Version.create("1.0"));
+    info.setJarFile(file);
+    return new InstalledPlugin(info, new FileAndMd5(file), null);
   }
 
 }

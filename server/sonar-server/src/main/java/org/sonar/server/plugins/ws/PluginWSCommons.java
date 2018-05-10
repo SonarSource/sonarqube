@@ -22,21 +22,19 @@ package org.sonar.server.plugins.ws;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
-import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Ordering;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.platform.PluginInfo;
-import org.sonar.core.platform.RemotePluginFile;
 import org.sonar.db.plugin.PluginDto;
+import org.sonar.server.plugins.InstalledPlugin;
 import org.sonar.server.plugins.UpdateCenterMatrixFactory;
 import org.sonar.server.plugins.edition.EditionBundledPlugins;
 import org.sonar.updatecenter.common.Artifact;
@@ -46,7 +44,6 @@ import org.sonar.updatecenter.common.Release;
 import org.sonar.updatecenter.common.UpdateCenter;
 import org.sonar.updatecenter.common.Version;
 
-import static com.google.common.collect.ImmutableSortedSet.copyOf;
 import static com.google.common.collect.Iterables.filter;
 import static com.google.common.collect.Iterables.transform;
 import static java.lang.String.CASE_INSENSITIVE_ORDER;
@@ -57,9 +54,7 @@ public class PluginWSCommons {
   private static final String PROPERTY_KEY = "key";
   private static final String PROPERTY_NAME = "name";
   private static final String PROPERTY_HASH = "hash";
-  private static final String PROPERTY_COMPRESSED_HASH = "compressedHash";
   private static final String PROPERTY_FILENAME = "filename";
-  private static final String PROPERTY_COMPRESSED_FILENAME = "compressedFilename";
   private static final String PROPERTY_SONARLINT_SUPPORTED = "sonarLintSupported";
   private static final String PROPERTY_DESCRIPTION = "description";
   private static final String PROPERTY_LICENSE = "license";
@@ -86,6 +81,9 @@ public class PluginWSCommons {
   public static final Ordering<PluginInfo> NAME_KEY_PLUGIN_METADATA_COMPARATOR = Ordering.natural()
     .onResultOf(PluginInfo::getName)
     .compound(Ordering.natural().onResultOf(PluginInfo::getKey));
+  public static final Comparator<InstalledPlugin> NAME_KEY_COMPARATOR = Comparator
+    .comparing((java.util.function.Function<InstalledPlugin, String>) installedPluginFile -> installedPluginFile.getPluginInfo().getName())
+    .thenComparing(f -> f.getPluginInfo().getKey());
   public static final Comparator<Plugin> NAME_KEY_PLUGIN_ORDERING = Ordering.from(CASE_INSENSITIVE_ORDER)
     .onResultOf(PluginToName.INSTANCE)
     .compound(
@@ -93,22 +91,10 @@ public class PluginWSCommons {
   public static final Comparator<PluginUpdate> NAME_KEY_PLUGIN_UPDATE_ORDERING = Ordering.from(NAME_KEY_PLUGIN_ORDERING)
     .onResultOf(PluginUpdateToPlugin.INSTANCE);
 
-  void writePluginInfo(JsonWriter json, PluginInfo pluginInfo, @Nullable String category, @Nullable PluginDto pluginDto, @Nullable RemotePluginFile compressedPlugin) {
+  public static void writePluginInfo(JsonWriter json, PluginInfo pluginInfo, @Nullable String category, @Nullable PluginDto pluginDto, @Nullable InstalledPlugin installedFile) {
     json.beginObject();
-
     json.prop(PROPERTY_KEY, pluginInfo.getKey());
     json.prop(PROPERTY_NAME, pluginInfo.getName());
-    if (pluginDto != null) {
-      json.prop(PROPERTY_FILENAME, pluginInfo.getNonNullJarFile().getName());
-      json.prop(PROPERTY_SONARLINT_SUPPORTED, pluginInfo.isSonarLintSupported());
-      json.prop(PROPERTY_HASH, pluginDto.getFileHash());
-      json.prop(PROPERTY_UPDATED_AT, pluginDto.getUpdatedAt());
-    }
-    if (compressedPlugin != null) {
-      json.prop(PROPERTY_COMPRESSED_FILENAME, compressedPlugin.getFilename());
-      json.prop(PROPERTY_COMPRESSED_HASH, compressedPlugin.getHash());
-    }
-
     json.prop(PROPERTY_DESCRIPTION, pluginInfo.getDescription());
     Version version = pluginInfo.getVersion();
     if (version != null) {
@@ -123,29 +109,15 @@ public class PluginWSCommons {
     json.prop(PROPERTY_HOMEPAGE_URL, pluginInfo.getHomepageUrl());
     json.prop(PROPERTY_ISSUE_TRACKER_URL, pluginInfo.getIssueTrackerUrl());
     json.prop(PROPERTY_IMPLEMENTATION_BUILD, pluginInfo.getImplementationBuild());
-
-    json.endObject();
-  }
-
-  public void writePluginInfoList(JsonWriter json, Iterable<PluginInfo> plugins, Map<String, Plugin> compatiblePluginsByKey, String propertyName) {
-    writePluginInfoList(json, plugins, compatiblePluginsByKey, propertyName, null, null);
-  }
-
-  public void writePluginInfoList(JsonWriter json, Iterable<PluginInfo> plugins, Map<String, Plugin> compatiblePluginsByKey, String propertyName,
-    @Nullable Map<String, PluginDto> pluginDtos, @Nullable Map<String, RemotePluginFile> compressedPlugins) {
-    json.name(propertyName);
-    json.beginArray();
-    for (PluginInfo pluginInfo : copyOf(NAME_KEY_PLUGIN_METADATA_COMPARATOR, plugins)) {
-      PluginDto pluginDto = null;
-      if (pluginDtos != null) {
-        pluginDto = pluginDtos.get(pluginInfo.getKey());
-        Preconditions.checkNotNull(pluginDto, "Plugin %s is installed but not in DB", pluginInfo.getKey());
-      }
-      RemotePluginFile compressedPlugin = compressedPlugins != null ? compressedPlugins.get(pluginInfo.getKey()) : null;
-      Plugin plugin = compatiblePluginsByKey.get(pluginInfo.getKey());
-      writePluginInfo(json, pluginInfo, categoryOrNull(plugin), pluginDto, compressedPlugin);
+    if (pluginDto != null) {
+      json.prop(PROPERTY_UPDATED_AT, pluginDto.getUpdatedAt());
     }
-    json.endArray();
+    if (installedFile != null) {
+      json.prop(PROPERTY_FILENAME, installedFile.getLoadedJar().getFile().getName());
+      json.prop(PROPERTY_SONARLINT_SUPPORTED, installedFile.getPluginInfo().isSonarLintSupported());
+      json.prop(PROPERTY_HASH, installedFile.getLoadedJar().getMd5());
+    }
+    json.endObject();
   }
 
   public void writePlugin(JsonWriter jsonWriter, Plugin plugin) {

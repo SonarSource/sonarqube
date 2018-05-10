@@ -21,7 +21,6 @@ package org.sonar.server.plugins;
 
 import java.io.File;
 import org.apache.commons.io.FileUtils;
-import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.ZipUtils;
 import org.sonar.core.platform.ExplodedPlugin;
@@ -32,14 +31,13 @@ import org.sonar.server.platform.ServerFileSystem;
 import static org.apache.commons.io.FileUtils.forceMkdir;
 
 @ServerSide
-@ComputeEngineSide
 public class ServerPluginJarExploder extends PluginJarExploder {
   private final ServerFileSystem fs;
-  private final PluginCompression pluginCompression;
+  private final PluginFileSystem pluginFileSystem;
 
-  public ServerPluginJarExploder(ServerFileSystem fs, PluginCompression pluginCompression) {
+  public ServerPluginJarExploder(ServerFileSystem fs, PluginFileSystem pluginFileSystem) {
     this.fs = fs;
-    this.pluginCompression = pluginCompression;
+    this.pluginFileSystem = pluginFileSystem;
   }
 
   /**
@@ -58,9 +56,10 @@ public class ServerPluginJarExploder extends PluginJarExploder {
       File jarTarget = new File(toDir, jarSource.getName());
 
       FileUtils.copyFile(jarSource, jarTarget);
-      pluginCompression.compressJar(pluginInfo.getKey(), jarSource.toPath().getParent(), jarTarget.toPath());
       ZipUtils.unzip(jarSource, toDir, newLibFilter());
-      return explodeFromUnzippedDir(pluginInfo.getKey(), jarTarget, toDir);
+      ExplodedPlugin explodedPlugin = explodeFromUnzippedDir(pluginInfo.getKey(), jarTarget, toDir);
+      pluginFileSystem.addInstalledPlugin(pluginInfo, jarTarget);
+      return explodedPlugin;
     } catch (Exception e) {
       throw new IllegalStateException(String.format(
         "Fail to unzip plugin [%s] %s to %s", pluginInfo.getKey(), pluginInfo.getNonNullJarFile().getAbsolutePath(), toDir.getAbsolutePath()), e);

@@ -32,28 +32,33 @@ import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
-import org.sonar.core.platform.PluginInfo;
-import org.sonar.core.platform.PluginRepository;
-import org.sonar.core.platform.RemotePlugin;
 import org.sonar.server.platform.ServerFileSystem;
+import org.sonar.server.plugins.InstalledPlugin;
+import org.sonar.server.plugins.PluginFileSystem;
 
+/**
+ * The file deploy/plugins/index.txt is required for old versions of SonarLint.
+ * They don't use the web service api/plugins/installed to get the list
+ * of installed plugins.
+ * https://jira.sonarsource.com/browse/SLCORE-146
+ */
 @ServerSide
 public final class GeneratePluginIndex implements Startable {
 
   private static final Logger LOG = Loggers.get(GeneratePluginIndex.class);
 
-  private final ServerFileSystem fileSystem;
-  private final PluginRepository repository;
+  private final ServerFileSystem serverFs;
+  private final PluginFileSystem pluginFs;
 
-  public GeneratePluginIndex(ServerFileSystem fileSystem, PluginRepository repository) {
-    this.fileSystem = fileSystem;
-    this.repository = repository;
+  public GeneratePluginIndex(ServerFileSystem serverFs, PluginFileSystem pluginFs) {
+    this.serverFs = serverFs;
+    this.pluginFs = pluginFs;
   }
 
   @Override
   public void start() {
     Profiler profiler = Profiler.create(LOG).startInfo("Generate scanner plugin index");
-    writeIndex(fileSystem.getPluginIndex());
+    writeIndex(serverFs.getPluginIndex());
     profiler.stopDebug();
   }
 
@@ -62,12 +67,12 @@ public final class GeneratePluginIndex implements Startable {
     // Nothing to do
   }
 
-  void writeIndex(File indexFile) {
+  private void writeIndex(File indexFile) {
     try {
       FileUtils.forceMkdir(indexFile.getParentFile());
       try (Writer writer = new OutputStreamWriter(new FileOutputStream(indexFile), StandardCharsets.UTF_8)) {
-        for (PluginInfo pluginInfo : repository.getPluginInfos()) {
-          writer.append(RemotePlugin.create(pluginInfo).marshal());
+        for (InstalledPlugin plugin : pluginFs.getInstalledFiles()) {
+          writer.append(toRow(plugin));
           writer.append(CharUtils.LF);
         }
         writer.flush();
@@ -76,4 +81,17 @@ public final class GeneratePluginIndex implements Startable {
       throw new IllegalStateException("Unable to generate plugin index at " + indexFile, e);
     }
   }
+
+  private static String toRow(InstalledPlugin file) {
+    StringBuilder sb = new StringBuilder();
+    sb.append(file.getPluginInfo().getKey())
+      .append(",")
+      .append(file.getPluginInfo().isSonarLintSupported())
+      .append(",")
+      .append(file.getLoadedJar().getFile().getName())
+      .append("|")
+      .append(file.getLoadedJar().getMd5());
+    return sb.toString();
+  }
+
 }

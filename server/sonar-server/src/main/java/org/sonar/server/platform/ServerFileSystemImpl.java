@@ -76,13 +76,8 @@ public class ServerFileSystemImpl implements ServerFileSystem, org.sonar.api.pla
   }
 
   @Override
-  public File getDeployDir() {
-    return deployDir;
-  }
-
-  @Override
   public File getDeployedPluginsDir() {
-    return new File(getDeployDir(), "plugins");
+    return new File(deployDir, "plugins");
   }
 
   @Override
@@ -107,7 +102,7 @@ public class ServerFileSystemImpl implements ServerFileSystem, org.sonar.api.pla
 
   @Override
   public File getPluginIndex() {
-    return new File(getDeployDir(), "plugins/index.txt");
+    return new File(deployDir, "plugins/index.txt");
   }
 
   @Override

@@ -60,7 +60,7 @@ public class PendingActionTest {
   private ServerPluginRepository serverPluginRepository = mock(ServerPluginRepository.class);
   private UpdateCenterMatrixFactory updateCenterMatrixFactory = mock(UpdateCenterMatrixFactory.class, RETURNS_DEEP_STUBS);
   private PendingAction underTest = new PendingAction(userSession, pluginDownloader, serverPluginRepository,
-    pluginUninstaller, new PluginWSCommons(), updateCenterMatrixFactory);
+    pluginUninstaller, updateCenterMatrixFactory);
   private Request request = mock(Request.class);
   private WsTester.TestResponse response = new WsTester.TestResponse();
 

@@ -229,7 +229,6 @@ public class PluginInfo implements Comparable<PluginInfo> {
     return useChildFirstClassLoader;
   }
 
-  @CheckForNull
   public boolean isSonarLintSupported() {
     return sonarLintSupported;
   }

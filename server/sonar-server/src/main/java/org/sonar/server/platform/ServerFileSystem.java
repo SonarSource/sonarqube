@@ -24,8 +24,6 @@ import java.io.File;
 /**
  * Replaces the incomplete {@link org.sonar.api.platform.ServerFileSystem} as many directories can't be
  * published in API.
- *
- * @since 6.0
  */
 public interface ServerFileSystem {
 
@@ -34,12 +32,6 @@ public interface ServerFileSystem {
    * @return an existing directory
    */
   File getDataDir();
-
-  /**
-   * Directory accessible by scanners through web server
-   * @return a directory which may or not exist
-   */
-  File getDeployDir();
 
   /**
    * Root directory of the server installation
@@ -89,7 +81,9 @@ public interface ServerFileSystem {
   /**
    * The file listing all the installed plugins. Used by scanner only.
    * @return an existing file
+   * @deprecated see {@link org.sonar.server.startup.GeneratePluginIndex}
    */
+  @Deprecated
   File getPluginIndex();
 
   /**

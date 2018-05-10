@@ -22,6 +22,7 @@ package org.sonar.server.startup;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import javax.annotation.Nullable;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Rule;
@@ -32,7 +33,8 @@ import org.sonar.core.platform.PluginInfo;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
-import org.sonar.server.plugins.ServerPluginRepository;
+import org.sonar.server.plugins.InstalledPlugin;
+import org.sonar.server.plugins.PluginFileSystem;
 
 import static java.util.Arrays.asList;
 import static org.mockito.Mockito.mock;
@@ -46,17 +48,13 @@ public class RegisterPluginsTest {
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
-  DbClient dbClient = dbTester.getDbClient();
-
-  private ServerPluginRepository serverPluginRepository;
-  private UuidFactory uuidFactory;
-  private System2 system2;
+  private DbClient dbClient = dbTester.getDbClient();
+  private PluginFileSystem pluginFileSystem = mock(PluginFileSystem.class);
+  private UuidFactory uuidFactory = mock(UuidFactory.class);
+  private System2 system2 = mock(System2.class);
 
   @Before
-  public void prepare() {
-    serverPluginRepository = mock(ServerPluginRepository.class);
-    uuidFactory = mock(UuidFactory.class);
-    system2 = mock(System2.class);
+  public void setUp() {
     when(system2.now()).thenReturn(12345L).thenThrow(new IllegalStateException("Should be called only once"));
   }
 
@@ -71,13 +69,16 @@ public class RegisterPluginsTest {
     FileUtils.write(fakeJavaJar, "fakejava", StandardCharsets.UTF_8);
     File fakeJavaCustomJar = temp.newFile();
     FileUtils.write(fakeJavaCustomJar, "fakejavacustom", StandardCharsets.UTF_8);
-    when(serverPluginRepository.getPluginInfos()).thenReturn(asList(new PluginInfo("java").setJarFile(fakeJavaJar),
-      new PluginInfo("javacustom").setJarFile(fakeJavaCustomJar).setBasePlugin("java")));
+    when(pluginFileSystem.getInstalledFiles()).thenReturn(asList(
+      newPlugin("java", fakeJavaJar, null),
+      newPlugin("javacustom", fakeJavaCustomJar, "java")));
     when(uuidFactory.create()).thenReturn("a").thenReturn("b").thenThrow(new IllegalStateException("Should be called only twice"));
-    RegisterPlugins register = new RegisterPlugins(serverPluginRepository, dbClient, uuidFactory, system2);
+    RegisterPlugins register = new RegisterPlugins(pluginFileSystem, dbClient, uuidFactory, system2);
     register.start();
-    register.stop(); // For coverage
+
     dbTester.assertDbUnit(getClass(), "insert_new_plugins-result.xml", "plugins");
+
+    register.stop();
   }
 
   /**
@@ -89,11 +90,20 @@ public class RegisterPluginsTest {
 
     File fakeJavaCustomJar = temp.newFile();
     FileUtils.write(fakeJavaCustomJar, "fakejavacustomchanged", StandardCharsets.UTF_8);
-    when(serverPluginRepository.getPluginInfos()).thenReturn(asList(new PluginInfo("javacustom").setJarFile(fakeJavaCustomJar).setBasePlugin("java2")));
+    when(pluginFileSystem.getInstalledFiles()).thenReturn(asList(
+      newPlugin("javacustom", fakeJavaCustomJar, "java2")));
 
-    new RegisterPlugins(serverPluginRepository, dbClient, uuidFactory, system2).start();
+    new RegisterPlugins(pluginFileSystem, dbClient, uuidFactory, system2).start();
 
     dbTester.assertDbUnit(getClass(), "update_only_changed_plugins-result.xml", "plugins");
+  }
+
+  private static InstalledPlugin newPlugin(String key, File file, @Nullable String basePlugin) {
+    InstalledPlugin.FileAndMd5 jar = new InstalledPlugin.FileAndMd5(file);
+    PluginInfo info = new PluginInfo(key)
+      .setBasePlugin(basePlugin)
+      .setJarFile(file);
+    return new InstalledPlugin(info, jar, null);
   }
 
 }

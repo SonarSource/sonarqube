@@ -21,9 +21,9 @@ package org.sonar.server.plugins.ws;
 
 import com.google.common.io.Resources;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.SortedSet;
 import java.util.function.Function;
 import org.sonar.api.server.ws.Change;
@@ -31,20 +31,21 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.core.platform.PluginInfo;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.plugin.PluginDto;
-import org.sonar.server.plugins.PluginCompression;
-import org.sonar.server.plugins.ServerPluginRepository;
+import org.sonar.server.plugins.InstalledPlugin;
+import org.sonar.server.plugins.PluginFileSystem;
 import org.sonar.server.plugins.UpdateCenterMatrixFactory;
 import org.sonar.updatecenter.common.Plugin;
 
 import static com.google.common.collect.ImmutableSortedSet.copyOf;
 import static java.lang.String.format;
+import static java.util.Collections.emptyMap;
 import static java.util.Collections.singleton;
 import static java.util.stream.Collectors.toMap;
-import static org.sonar.server.plugins.ws.PluginWSCommons.NAME_KEY_PLUGIN_METADATA_COMPARATOR;
+import static org.sonar.server.plugins.ws.PluginWSCommons.NAME_KEY_COMPARATOR;
+import static org.sonar.server.plugins.ws.PluginWSCommons.categoryOrNull;
 import static org.sonar.server.plugins.ws.PluginWSCommons.compatiblePluginsByKey;
 
 /**
@@ -54,17 +55,13 @@ public class InstalledAction implements PluginsWsAction {
   private static final String ARRAY_PLUGINS = "plugins";
   private static final String FIELD_CATEGORY = "category";
 
-  private final ServerPluginRepository pluginRepository;
-  private final PluginWSCommons pluginWSCommons;
+  private final PluginFileSystem pluginFileSystem;
   private final UpdateCenterMatrixFactory updateCenterMatrixFactory;
   private final DbClient dbClient;
-  private final PluginCompression compression;
 
-  public InstalledAction(ServerPluginRepository pluginRepository, PluginCompression compression, PluginWSCommons pluginWSCommons,
+  public InstalledAction(PluginFileSystem pluginFileSystem,
     UpdateCenterMatrixFactory updateCenterMatrixFactory, DbClient dbClient) {
-    this.pluginRepository = pluginRepository;
-    this.compression = compression;
-    this.pluginWSCommons = pluginWSCommons;
+    this.pluginFileSystem = pluginFileSystem;
     this.updateCenterMatrixFactory = updateCenterMatrixFactory;
     this.dbClient = dbClient;
   }
@@ -93,31 +90,33 @@ public class InstalledAction implements PluginsWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    Collection<PluginInfo> pluginInfoList = searchPluginInfoList();
-    Map<String, PluginDto> pluginDtosByKey;
+    Collection<InstalledPlugin> installedPlugins = loadInstalledPlugins();
+    Map<String, PluginDto> dtosByKey;
     try (DbSession dbSession = dbClient.openSession(false)) {
-      pluginDtosByKey = dbClient.pluginDao().selectAll(dbSession).stream().collect(toMap(PluginDto::getKee, Function.identity()));
+      dtosByKey = dbClient.pluginDao().selectAll(dbSession).stream().collect(toMap(PluginDto::getKee, Function.identity()));
     }
 
-    JsonWriter jsonWriter = response.newJsonWriter();
-    jsonWriter.setSerializeEmptys(false);
-    jsonWriter.beginObject();
+    JsonWriter json = response.newJsonWriter();
+    json.setSerializeEmptys(false);
+    json.beginObject();
 
     List<String> additionalFields = request.paramAsStrings(WebService.Param.FIELDS);
-    writePluginInfoList(jsonWriter, pluginInfoList, additionalFields == null ? Collections.emptyList() : additionalFields, pluginDtosByKey);
+    Map<String, Plugin> updateCenterPlugins = (additionalFields == null || additionalFields.isEmpty()) ? emptyMap() : compatiblePluginsByKey(updateCenterMatrixFactory);
 
-    jsonWriter.endObject();
-    jsonWriter.close();
+    json.name(ARRAY_PLUGINS);
+    json.beginArray();
+    for (InstalledPlugin installedPlugin : copyOf(NAME_KEY_COMPARATOR, installedPlugins)) {
+      PluginDto pluginDto = dtosByKey.get(installedPlugin.getPluginInfo().getKey());
+      Objects.requireNonNull(pluginDto, () -> format("Plugin %s is installed but not in DB", installedPlugin.getPluginInfo().getKey()));
+      Plugin updateCenterPlugin = updateCenterPlugins.get(installedPlugin.getPluginInfo().getKey());
+      PluginWSCommons.writePluginInfo(json, installedPlugin.getPluginInfo(), categoryOrNull(updateCenterPlugin), pluginDto, installedPlugin);
+    }
+    json.endArray();
+    json.endObject();
+    json.close();
   }
 
-  private SortedSet<PluginInfo> searchPluginInfoList() {
-    return copyOf(NAME_KEY_PLUGIN_METADATA_COMPARATOR, pluginRepository.getPluginInfos());
-  }
-
-  private void writePluginInfoList(JsonWriter jsonWriter, Collection<PluginInfo> pluginInfoList, List<String> additionalFields, Map<String, PluginDto> pluginDtos) {
-    Map<String, Plugin> compatiblesPluginsFromUpdateCenter = additionalFields.isEmpty()
-      ? Collections.emptyMap()
-      : compatiblePluginsByKey(updateCenterMatrixFactory);
-    pluginWSCommons.writePluginInfoList(jsonWriter, pluginInfoList, compatiblesPluginsFromUpdateCenter, ARRAY_PLUGINS, pluginDtos, compression.getPlugins());
+  private SortedSet<InstalledPlugin> loadInstalledPlugins() {
+    return copyOf(NAME_KEY_COMPARATOR, pluginFileSystem.getInstalledFiles());
   }
 }

@@ -37,16 +37,16 @@ public class ServerPluginJarExploderTest {
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
-  ServerFileSystem fs = mock(ServerFileSystem.class);
-  PluginCompression pluginCompression = mock(PluginCompression.class);
-  ServerPluginJarExploder underTest = new ServerPluginJarExploder(fs, pluginCompression);
+  private ServerFileSystem fs = mock(ServerFileSystem.class);
+  private PluginFileSystem pluginFileSystem = mock(PluginFileSystem.class);
+  private ServerPluginJarExploder underTest = new ServerPluginJarExploder(fs, pluginFileSystem);
 
   @Test
   public void copy_all_classloader_files_to_dedicated_directory() throws Exception {
     File deployDir = temp.newFolder();
     when(fs.getDeployedPluginsDir()).thenReturn(deployDir);
-    File jar = TestProjectUtils.jarOf("test-libs-plugin");
-    PluginInfo info = PluginInfo.create(jar);
+    File sourceJar = TestProjectUtils.jarOf("test-libs-plugin");
+    PluginInfo info = PluginInfo.create(sourceJar);
 
     ExplodedPlugin exploded = underTest.explode(info);
 
@@ -61,6 +61,7 @@ public class ServerPluginJarExploderTest {
       assertThat(lib).exists().isFile();
       assertThat(lib.getCanonicalPath()).startsWith(pluginDeployDir.getCanonicalPath());
     }
-    verify(pluginCompression).compressJar(info.getKey(), jar.toPath().getParent(), exploded.getMain().toPath());
+    File targetJar = new File(fs.getDeployedPluginsDir(), "testlibs/test-libs-plugin-0.1-SNAPSHOT.jar");
+    verify(pluginFileSystem).addInstalledPlugin(info, targetJar);
   }
 }
