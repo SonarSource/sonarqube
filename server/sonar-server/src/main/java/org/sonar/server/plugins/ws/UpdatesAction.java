@@ -19,14 +19,12 @@
  */
 package org.sonar.server.plugins.ws;
 
-import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableSortedSet;
 import com.google.common.collect.Ordering;
 import com.google.common.io.Resources;
 import java.util.Collection;
 import java.util.List;
-import javax.annotation.Nonnull;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -48,7 +46,7 @@ public class UpdatesAction implements PluginsWsAction {
   private static final String ARRAY_UPDATES = "updates";
 
   private static final Ordering<PluginUpdateAggregate> NAME_KEY_PLUGIN_UPGRADE_AGGREGATE_ORDERING = Ordering.from(PluginWSCommons.NAME_KEY_PLUGIN_ORDERING)
-    .onResultOf(PluginUpdateAggregateToPlugin.INSTANCE);
+    .onResultOf(PluginUpdateAggregate::getPlugin);
   private static final Ordering<PluginUpdate> PLUGIN_UPDATE_BY_VERSION_ORDERING = Ordering.natural()
     .onResultOf(input -> input.getRelease().getVersion().toString());
 
@@ -135,14 +133,5 @@ public class UpdatesAction implements PluginsWsAction {
     return ImmutableSortedSet.copyOf(
       NAME_KEY_PLUGIN_UPGRADE_AGGREGATE_ORDERING,
       aggregator.aggregate(pluginUpdates));
-  }
-
-  private enum PluginUpdateAggregateToPlugin implements Function<PluginUpdateAggregate, Plugin> {
-    INSTANCE;
-
-    @Override
-    public Plugin apply(@Nonnull PluginUpdateAggregate input) {
-      return input.getPlugin();
-    }
   }
 }

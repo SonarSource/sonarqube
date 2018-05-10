@@ -20,19 +20,16 @@
 package org.sonar.server.plugins.ws;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import org.sonar.updatecenter.common.Plugin;
-import org.sonar.updatecenter.common.PluginUpdate;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import javax.annotation.Nullable;
+import org.sonar.updatecenter.common.Plugin;
+import org.sonar.updatecenter.common.PluginUpdate;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -57,16 +54,7 @@ public class PluginUpdateAggregator {
       builder.add(pluginUpdate);
     }
 
-    return Lists.newArrayList(transform(builders.values(), BuilderToPluginUpdateAggregate.INSTANCE));
-  }
-
-  private enum BuilderToPluginUpdateAggregate implements Function<PluginUpdateAggregateBuilder, PluginUpdateAggregate> {
-    INSTANCE;
-
-    @Override
-    public PluginUpdateAggregate apply(@Nonnull PluginUpdateAggregateBuilder input) {
-      return input.build();
-    }
+    return Lists.newArrayList(transform(builders.values(), PluginUpdateAggregateBuilder::build));
   }
 
   @VisibleForTesting

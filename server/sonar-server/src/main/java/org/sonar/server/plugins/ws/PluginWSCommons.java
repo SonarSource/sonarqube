@@ -20,7 +20,6 @@
 package org.sonar.server.plugins.ws;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
@@ -29,7 +28,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import javax.annotation.CheckForNull;
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.platform.PluginInfo;
@@ -83,11 +81,11 @@ public class PluginWSCommons {
     .comparing((java.util.function.Function<InstalledPlugin, String>) installedPluginFile -> installedPluginFile.getPluginInfo().getName())
     .thenComparing(f -> f.getPluginInfo().getKey());
   public static final Comparator<Plugin> NAME_KEY_PLUGIN_ORDERING = Ordering.from(CASE_INSENSITIVE_ORDER)
-    .onResultOf(PluginToName.INSTANCE)
+    .onResultOf(Plugin::getName)
     .compound(
-      Ordering.from(CASE_INSENSITIVE_ORDER).onResultOf(PluginToKeyFunction.INSTANCE));
+      Ordering.from(CASE_INSENSITIVE_ORDER).onResultOf(Artifact::getKey));
   public static final Comparator<PluginUpdate> NAME_KEY_PLUGIN_UPDATE_ORDERING = Ordering.from(NAME_KEY_PLUGIN_ORDERING)
-    .onResultOf(PluginUpdateToPlugin.INSTANCE);
+    .onResultOf(PluginUpdate::getPlugin);
 
   private PluginWSCommons() {
     // prevent instantiation
@@ -199,7 +197,7 @@ public class PluginWSCommons {
 
     jsonWriter.name(ARRAY_REQUIRES).beginArray();
     Release release = pluginUpdate.getRelease();
-    for (Plugin child : filter(transform(release.getOutgoingDependencies(), ReleaseToArtifact.INSTANCE), Plugin.class)) {
+    for (Plugin child : filter(transform(release.getOutgoingDependencies(), Release::getArtifact), Plugin.class)) {
       jsonWriter.beginObject();
       jsonWriter.prop(PROPERTY_KEY, child.getKey());
       jsonWriter.prop(PROPERTY_NAME, child.getName());
@@ -237,40 +235,6 @@ public class PluginWSCommons {
     }
   }
 
-  enum PluginToKeyFunction implements Function<Plugin, String> {
-    INSTANCE;
-
-    @Override
-    public String apply(@Nonnull Plugin input) {
-      return input.getKey();
-    }
-  }
-
-  private enum ReleaseToArtifact implements Function<Release, Artifact> {
-    INSTANCE;
-    @Override
-    public Artifact apply(@Nonnull Release input) {
-      return input.getArtifact();
-    }
-
-  }
-
-  private enum PluginUpdateToPlugin implements Function<PluginUpdate, Plugin> {
-    INSTANCE;
-    @Override
-    public Plugin apply(@Nonnull PluginUpdate input) {
-      return input.getPlugin();
-    }
-  }
-
-  private enum PluginToName implements Function<Plugin, String> {
-    INSTANCE;
-    @Override
-    public String apply(@Nonnull Plugin input) {
-      return input.getName();
-    }
-  }
-
   @CheckForNull
   static String categoryOrNull(@Nullable Plugin plugin) {
     return plugin != null ? plugin.getCategory() : null;
@@ -283,6 +247,6 @@ public class PluginWSCommons {
 
   static ImmutableMap<String, Plugin> compatiblePluginsByKey(UpdateCenterMatrixFactory updateCenterMatrixFactory) {
     List<Plugin> compatiblePlugins = compatiblePlugins(updateCenterMatrixFactory);
-    return Maps.uniqueIndex(compatiblePlugins, PluginToKeyFunction.INSTANCE);
+    return Maps.uniqueIndex(compatiblePlugins, Artifact::getKey);
   }
 }

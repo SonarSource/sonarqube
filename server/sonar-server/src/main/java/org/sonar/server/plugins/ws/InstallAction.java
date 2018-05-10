@@ -20,9 +20,7 @@
 package org.sonar.server.plugins.ws;
 
 import com.google.common.base.Optional;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
-import javax.annotation.Nullable;
+import java.util.Objects;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -41,7 +39,6 @@ import static org.sonar.server.plugins.edition.EditionBundledPlugins.isEditionBu
 public class InstallAction implements PluginsWsAction {
 
   private static final String PARAM_KEY = "key";
-  private static final PluginUpdate MISSING_PLUGIN = null;
 
   private final UpdateCenterMatrixFactory updateCenterFactory;
   private final PluginDownloader pluginDownloader;
@@ -81,17 +78,19 @@ public class InstallAction implements PluginsWsAction {
   }
 
   private PluginUpdate findAvailablePluginByKey(String key) {
-    PluginUpdate pluginUpdate = MISSING_PLUGIN;
+    PluginUpdate pluginUpdate = null;
 
     Optional<UpdateCenter> updateCenter = updateCenterFactory.getUpdateCenter(false);
     if (updateCenter.isPresent()) {
-      pluginUpdate = Iterables.find(
-        updateCenter.get().findAvailablePlugins(),
-        hasKey(key),
-        MISSING_PLUGIN);
+      pluginUpdate = updateCenter.get().findAvailablePlugins()
+        .stream()
+        .filter(Objects::nonNull)
+        .filter(u -> key.equals(u.getPlugin().getKey()))
+        .findFirst()
+        .orElse(null);
     }
 
-    if (pluginUpdate == MISSING_PLUGIN) {
+    if (pluginUpdate == null) {
       throw new IllegalArgumentException(
         format("No plugin with key '%s' or plugin '%s' is already installed in latest version", key, key));
     }
@@ -102,22 +101,5 @@ public class InstallAction implements PluginsWsAction {
     }
 
     return pluginUpdate;
-  }
-
-  private static PluginKeyPredicate hasKey(String key) {
-    return new PluginKeyPredicate(key);
-  }
-
-  private static class PluginKeyPredicate implements Predicate<PluginUpdate> {
-    private final String key;
-
-    public PluginKeyPredicate(String key) {
-      this.key = key;
-    }
-
-    @Override
-    public boolean apply(@Nullable PluginUpdate input) {
-      return input != null && key.equals(input.getPlugin().getKey());
-    }
   }
 }
