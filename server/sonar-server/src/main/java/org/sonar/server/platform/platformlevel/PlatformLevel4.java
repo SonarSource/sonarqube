@@ -143,6 +143,7 @@ import org.sonar.server.plugins.privileged.PrivilegedPluginsBootstraper;
 import org.sonar.server.plugins.privileged.PrivilegedPluginsStopper;
 import org.sonar.server.plugins.ws.AvailableAction;
 import org.sonar.server.plugins.ws.CancelAllAction;
+import org.sonar.server.plugins.ws.DownloadAction;
 import org.sonar.server.plugins.ws.InstallAction;
 import org.sonar.server.plugins.ws.InstalledAction;
 import org.sonar.server.plugins.ws.PendingAction;
@@ -529,6 +530,7 @@ public class PlatformLevel4 extends PlatformLevel {
       PluginUpdateAggregator.class,
       InstalledAction.class,
       AvailableAction.class,
+      DownloadAction.class,
       UpdatesAction.class,
       PendingAction.class,
       InstallAction.class,
