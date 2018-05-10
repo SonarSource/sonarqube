@@ -192,22 +192,6 @@ public class PluginWSCommonsTest {
       "  }" +
       "}");
   }
-
-  @Test
-  public void writeArtifact_from_release_writes_artifact_object_and_file_name() {
-    jsonWriter.beginObject();
-    PluginWSCommons.writeArtifact(jsonWriter, release("pkey").setDownloadUrl("http://toto.com/file.jar"));
-    jsonWriter.endObject();
-
-    jsonWriter.close();
-    assertJson(response.outputAsString()).withStrictArrayOrder().isSimilarTo("{" +
-      "  \"artifact\": {" +
-      "     \"name\": \"file.jar\"," +
-      "     \"url\": \"http://toto.com/file.jar\"" +
-      "  }" +
-      "}");
-  }
-
   @Test
   public void status_COMPATIBLE_is_displayed_COMPATIBLE_in_JSON() {
     assertThat(toJSon(COMPATIBLE)).isEqualTo("COMPATIBLE");

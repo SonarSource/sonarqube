@@ -158,15 +158,6 @@ public class PluginWSCommons {
     jsonWriter.endObject();
   }
 
-  public static void writeArtifact(JsonWriter jsonWriter, Release release) {
-    jsonWriter.name(OBJECT_ARTIFACT).beginObject();
-
-    jsonWriter.prop(PROPERTY_NAME, release.getFilename());
-    jsonWriter.prop(PROPERTY_URL, release.getDownloadUrl());
-
-    jsonWriter.endObject();
-  }
-
   /**
    * Write an "update" object to the specified jsonwriter.
    * <pre>
@@ -182,7 +173,7 @@ public class PluginWSCommons {
    * }
    * </pre>
    */
-  public static void writeUpdate(JsonWriter jsonWriter, PluginUpdate pluginUpdate) {
+  static void writeUpdate(JsonWriter jsonWriter, PluginUpdate pluginUpdate) {
     jsonWriter.name(OBJECT_UPDATE).beginObject();
 
     writeUpdateProperties(jsonWriter, pluginUpdate);
