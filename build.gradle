@@ -199,7 +199,7 @@ subprojects {
         entry 'log4j-over-slf4j'
         entry 'slf4j-api'
       }
-      dependency 'org.postgresql:postgresql:42.2.1'
+      dependency 'org.postgresql:postgresql:42.2.2'
       dependency 'org.reflections:reflections:0.9.9'
       dependency 'org.simpleframework:simple:4.1.21'
       dependency 'org.sonarsource.orchestrator:sonar-orchestrator:3.18.0.1547'
