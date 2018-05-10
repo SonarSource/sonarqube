@@ -26,7 +26,6 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.server.plugins.UpdateCenterMatrixFactory;
-import org.sonar.server.plugins.ws.PluginWSCommons;
 import org.sonar.server.ws.WsActionTester;
 import org.sonar.server.ws.WsTester;
 import org.sonar.updatecenter.common.Plugin;
@@ -52,7 +51,7 @@ public class UpgradesActionTest {
 
   private UpdateCenterMatrixFactory updateCenterFactory = mock(UpdateCenterMatrixFactory.class);
   private UpdateCenter updateCenter = mock(UpdateCenter.class);
-  private UpgradesAction underTest = new UpgradesAction(updateCenterFactory, new PluginWSCommons());
+  private UpgradesAction underTest = new UpgradesAction(updateCenterFactory);
 
   private Request request = mock(Request.class);
   private WsTester.TestResponse response = new WsTester.TestResponse();

@@ -55,11 +55,9 @@ public class UpgradesAction implements SystemWsAction {
   private static final String ARRAY_INCOMPATIBLE = "incompatible";
 
   private final UpdateCenterMatrixFactory updateCenterFactory;
-  private final PluginWSCommons pluginWSCommons;
 
-  public UpgradesAction(UpdateCenterMatrixFactory updateCenterFactory, PluginWSCommons pluginWSCommons) {
+  public UpgradesAction(UpdateCenterMatrixFactory updateCenterFactory) {
     this.updateCenterFactory = updateCenterFactory;
-    this.pluginWSCommons = pluginWSCommons;
   }
 
   private static void writeMetadata(JsonWriter jsonWriter, Release release) {
@@ -87,10 +85,7 @@ public class UpgradesAction implements SystemWsAction {
   public void handle(Request request, Response response) throws Exception {
     try (JsonWriter jsonWriter = response.newJsonWriter()) {
       jsonWriter.setSerializeEmptys(false);
-
       writeResponse(jsonWriter);
-
-      jsonWriter.close();
     }
   }
 
@@ -106,7 +101,7 @@ public class UpgradesAction implements SystemWsAction {
     jsonWriter.endObject();
   }
 
-  private void writeUpgrades(JsonWriter jsonWriter, Optional<UpdateCenter> updateCenter) {
+  private static void writeUpgrades(JsonWriter jsonWriter, Optional<UpdateCenter> updateCenter) {
     jsonWriter.name(ARRAY_UPGRADES).beginArray();
 
     if (updateCenter.isPresent()) {
@@ -118,7 +113,7 @@ public class UpgradesAction implements SystemWsAction {
     jsonWriter.endArray();
   }
 
-  private void writeUpgrade(JsonWriter jsonWriter, SonarUpdate sonarUpdate) {
+  private static void writeUpgrade(JsonWriter jsonWriter, SonarUpdate sonarUpdate) {
     jsonWriter.beginObject();
 
     writeMetadata(jsonWriter, sonarUpdate.getRelease());
@@ -128,7 +123,7 @@ public class UpgradesAction implements SystemWsAction {
     jsonWriter.endObject();
   }
 
-  private void writePlugins(JsonWriter jsonWriter, SonarUpdate sonarUpdate) {
+  private static void writePlugins(JsonWriter jsonWriter, SonarUpdate sonarUpdate) {
     jsonWriter.name(OBJECT_PLUGINS).beginObject();
 
     writePluginsToUpdate(jsonWriter, sonarUpdate.getPluginsToUpgrade());
@@ -138,12 +133,12 @@ public class UpgradesAction implements SystemWsAction {
     jsonWriter.endObject();
   }
 
-  private void writePluginsToUpdate(JsonWriter jsonWriter, List<Release> pluginsToUpgrade) {
+  private static void writePluginsToUpdate(JsonWriter jsonWriter, List<Release> pluginsToUpgrade) {
     jsonWriter.name(ARRAY_REQUIRE_UPDATE).beginArray();
     for (Release release : pluginsToUpgrade) {
       jsonWriter.beginObject();
 
-      pluginWSCommons.writePlugin(jsonWriter, (Plugin) release.getArtifact());
+      PluginWSCommons.writePlugin(jsonWriter, (Plugin) release.getArtifact());
       String version = isNotBlank(release.getDisplayVersion()) ? release.getDisplayVersion() : release.getVersion().toString();
       jsonWriter.prop(PROPERTY_VERSION, version);
 
@@ -153,12 +148,12 @@ public class UpgradesAction implements SystemWsAction {
     jsonWriter.endArray();
   }
 
-  private void writeIncompatiblePlugins(JsonWriter jsonWriter, List<Plugin> incompatiblePlugins) {
+  private static void writeIncompatiblePlugins(JsonWriter jsonWriter, List<Plugin> incompatiblePlugins) {
     jsonWriter.name(ARRAY_INCOMPATIBLE).beginArray();
 
     for (Plugin incompatiblePlugin : incompatiblePlugins) {
       jsonWriter.beginObject();
-      pluginWSCommons.writePlugin(jsonWriter, incompatiblePlugin);
+      PluginWSCommons.writePlugin(jsonWriter, incompatiblePlugin);
       jsonWriter.endObject();
     }
 

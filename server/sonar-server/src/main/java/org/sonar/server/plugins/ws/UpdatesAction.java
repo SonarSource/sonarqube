@@ -54,15 +54,12 @@ public class UpdatesAction implements PluginsWsAction {
 
   private final UserSession userSession;
   private final UpdateCenterMatrixFactory updateCenterMatrixFactory;
-  private final PluginWSCommons pluginWSCommons;
   private final PluginUpdateAggregator aggregator;
 
   public UpdatesAction(UserSession userSession, UpdateCenterMatrixFactory updateCenterMatrixFactory,
-    PluginWSCommons pluginWSCommons,
     PluginUpdateAggregator aggregator) {
     this.userSession = userSession;
     this.updateCenterMatrixFactory = updateCenterMatrixFactory;
-    this.pluginWSCommons = pluginWSCommons;
     this.aggregator = aggregator;
   }
 
@@ -93,7 +90,7 @@ public class UpdatesAction implements PluginsWsAction {
 
     writePlugins(jsonWriter, updateCenter);
 
-    pluginWSCommons.writeUpdateCenterProperties(jsonWriter, updateCenter);
+    PluginWSCommons.writeUpdateCenterProperties(jsonWriter, updateCenter);
 
     jsonWriter.endObject();
     jsonWriter.close();
@@ -110,23 +107,23 @@ public class UpdatesAction implements PluginsWsAction {
     jsonWriter.endArray();
   }
 
-  private void writePluginUpdateAggregate(JsonWriter jsonWriter, PluginUpdateAggregate aggregate) {
+  private static void writePluginUpdateAggregate(JsonWriter jsonWriter, PluginUpdateAggregate aggregate) {
     jsonWriter.beginObject();
     Plugin plugin = aggregate.getPlugin();
 
-    pluginWSCommons.writePlugin(jsonWriter, plugin);
+    PluginWSCommons.writePlugin(jsonWriter, plugin);
 
     writeUpdates(jsonWriter, aggregate.getUpdates());
 
     jsonWriter.endObject();
   }
 
-  private void writeUpdates(JsonWriter jsonWriter, Collection<PluginUpdate> pluginUpdates) {
+  private static void writeUpdates(JsonWriter jsonWriter, Collection<PluginUpdate> pluginUpdates) {
     jsonWriter.name(ARRAY_UPDATES).beginArray();
     for (PluginUpdate pluginUpdate : ImmutableSortedSet.copyOf(PLUGIN_UPDATE_BY_VERSION_ORDERING, pluginUpdates)) {
       jsonWriter.beginObject();
-      pluginWSCommons.writeRelease(jsonWriter, pluginUpdate.getRelease());
-      pluginWSCommons.writeUpdateProperties(jsonWriter, pluginUpdate);
+      PluginWSCommons.writeRelease(jsonWriter, pluginUpdate.getRelease());
+      PluginWSCommons.writeUpdateProperties(jsonWriter, pluginUpdate);
       jsonWriter.endObject();
     }
     jsonWriter.endArray();

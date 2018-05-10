@@ -68,8 +68,6 @@ public class PluginWSCommons {
   private static final String PROPERTY_HOMEPAGE_URL = "homepageUrl";
   private static final String PROPERTY_ISSUE_TRACKER_URL = "issueTrackerUrl";
   private static final String PROPERTY_EDITION_BUNDLED = "editionBundled";
-  private static final String OBJECT_ARTIFACT = "artifact";
-  private static final String PROPERTY_URL = "url";
   private static final String PROPERTY_TERMS_AND_CONDITIONS_URL = "termsAndConditionsUrl";
   private static final String OBJECT_UPDATE = "update";
   private static final String OBJECT_RELEASE = "release";
@@ -90,6 +88,10 @@ public class PluginWSCommons {
       Ordering.from(CASE_INSENSITIVE_ORDER).onResultOf(PluginToKeyFunction.INSTANCE));
   public static final Comparator<PluginUpdate> NAME_KEY_PLUGIN_UPDATE_ORDERING = Ordering.from(NAME_KEY_PLUGIN_ORDERING)
     .onResultOf(PluginUpdateToPlugin.INSTANCE);
+
+  private PluginWSCommons() {
+    // prevent instantiation
+  }
 
   public static void writePluginInfo(JsonWriter json, PluginInfo pluginInfo, @Nullable String category, @Nullable PluginDto pluginDto, @Nullable InstalledPlugin installedFile) {
     json.beginObject();
@@ -120,7 +122,7 @@ public class PluginWSCommons {
     json.endObject();
   }
 
-  public void writePlugin(JsonWriter jsonWriter, Plugin plugin) {
+  public static void writePlugin(JsonWriter jsonWriter, Plugin plugin) {
     jsonWriter.prop(PROPERTY_KEY, plugin.getKey());
     jsonWriter.prop(PROPERTY_NAME, plugin.getName());
     jsonWriter.prop(PROPERTY_CATEGORY, plugin.getCategory());
@@ -134,7 +136,7 @@ public class PluginWSCommons {
     jsonWriter.prop(PROPERTY_EDITION_BUNDLED, isEditionBundled(plugin));
   }
 
-  public void writePluginUpdate(JsonWriter json, PluginUpdate pluginUpdate) {
+  public static void writePluginUpdate(JsonWriter json, PluginUpdate pluginUpdate) {
     Plugin plugin = pluginUpdate.getPlugin();
 
     json.beginObject();
@@ -144,7 +146,7 @@ public class PluginWSCommons {
     json.endObject();
   }
 
-  public void writeRelease(JsonWriter jsonWriter, Release release) {
+  public static void writeRelease(JsonWriter jsonWriter, Release release) {
     jsonWriter.name(OBJECT_RELEASE).beginObject();
 
     String version = isNotBlank(release.getDisplayVersion()) ? release.getDisplayVersion() : release.getVersion().toString();
@@ -156,7 +158,7 @@ public class PluginWSCommons {
     jsonWriter.endObject();
   }
 
-  public void writeArtifact(JsonWriter jsonWriter, Release release) {
+  public static void writeArtifact(JsonWriter jsonWriter, Release release) {
     jsonWriter.name(OBJECT_ARTIFACT).beginObject();
 
     jsonWriter.prop(PROPERTY_NAME, release.getFilename());
@@ -180,7 +182,7 @@ public class PluginWSCommons {
    * }
    * </pre>
    */
-  public void writeUpdate(JsonWriter jsonWriter, PluginUpdate pluginUpdate) {
+  public static void writeUpdate(JsonWriter jsonWriter, PluginUpdate pluginUpdate) {
     jsonWriter.name(OBJECT_UPDATE).beginObject();
 
     writeUpdateProperties(jsonWriter, pluginUpdate);
@@ -201,7 +203,7 @@ public class PluginWSCommons {
    * ]
    * </pre>
    */
-  public void writeUpdateProperties(JsonWriter jsonWriter, PluginUpdate pluginUpdate) {
+  public static void writeUpdateProperties(JsonWriter jsonWriter, PluginUpdate pluginUpdate) {
     jsonWriter.prop(PROPERTY_STATUS, toJSon(pluginUpdate.getStatus()));
 
     jsonWriter.name(ARRAY_REQUIRES).beginArray();
@@ -238,7 +240,7 @@ public class PluginWSCommons {
    * "updateCenterRefresh": "2015-04-24T16:08:36+0200"
    * </pre>
    */
-  public void writeUpdateCenterProperties(JsonWriter json, Optional<UpdateCenter> updateCenter) {
+  public static void writeUpdateCenterProperties(JsonWriter json, Optional<UpdateCenter> updateCenter) {
     if (updateCenter.isPresent()) {
       json.propDateTime(PROPERTY_UPDATE_CENTER_REFRESH, updateCenter.get().getDate());
     }

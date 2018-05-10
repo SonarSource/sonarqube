@@ -148,7 +148,6 @@ import org.sonar.server.plugins.ws.InstallAction;
 import org.sonar.server.plugins.ws.InstalledAction;
 import org.sonar.server.plugins.ws.PendingAction;
 import org.sonar.server.plugins.ws.PluginUpdateAggregator;
-import org.sonar.server.plugins.ws.PluginWSCommons;
 import org.sonar.server.plugins.ws.PluginsWs;
 import org.sonar.server.plugins.ws.UninstallAction;
 import org.sonar.server.plugins.ws.UpdatesAction;
@@ -526,7 +525,6 @@ public class PlatformLevel4 extends PlatformLevel {
       SystemWs.class,
 
       // Plugins WS
-      PluginWSCommons.class,
       PluginUpdateAggregator.class,
       InstalledAction.class,
       AvailableAction.class,
@@ -582,7 +580,7 @@ public class PlatformLevel4 extends PlatformLevel {
 
     // edition
     addIfStartupLeader(FinalizeEditionChange.class);
-    
+
     // system info
     addIfCluster(WebSystemInfoModule.forClusterMode()).otherwiseAdd(WebSystemInfoModule.forStandaloneMode());
 

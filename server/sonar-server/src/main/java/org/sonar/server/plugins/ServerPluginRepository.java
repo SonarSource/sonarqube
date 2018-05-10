@@ -105,7 +105,6 @@ public class ServerPluginRepository implements PluginRepository, Startable {
 
   @Override
   public void start() {
-    long begin = System.currentTimeMillis();
     loadPreInstalledPlugins();
     copyBundledPlugins();
     moveDownloadedPlugins();

@@ -51,7 +51,6 @@ public class PluginWSCommonsTest {
 
   private WsTester.TestResponse response = new WsTester.TestResponse();
   private JsonWriter jsonWriter = response.newJsonWriter();
-  private PluginWSCommons underTest = new PluginWSCommons();
 
   @Test
   public void verify_properties_written_by_writePluginMetadata() {
@@ -139,7 +138,7 @@ public class PluginWSCommonsTest {
 
   @Test
   public void verify_properties_written_by_writePluginUpdate() {
-    underTest.writePluginUpdate(jsonWriter, PluginUpdate.createForPluginRelease(newRelease(), version("1.0")));
+    PluginWSCommons.writePluginUpdate(jsonWriter, PluginUpdate.createForPluginRelease(newRelease(), version("1.0")));
 
     jsonWriter.close();
     assertJson(response.outputAsString()).isSimilarTo("{" +
@@ -161,7 +160,7 @@ public class PluginWSCommonsTest {
   @Test
   public void verify_properties_written_by_writeMetadata_from_plugin() {
     jsonWriter.beginObject();
-    underTest.writePlugin(jsonWriter, newPlugin());
+    PluginWSCommons.writePlugin(jsonWriter, newPlugin());
     jsonWriter.endObject();
 
     jsonWriter.close();
@@ -180,7 +179,7 @@ public class PluginWSCommonsTest {
   @Test
   public void writeRelease() {
     jsonWriter.beginObject();
-    underTest.writeRelease(jsonWriter, newRelease().setDisplayVersion("1.0 (build 42)"));
+    PluginWSCommons.writeRelease(jsonWriter, newRelease().setDisplayVersion("1.0 (build 42)"));
     jsonWriter.endObject();
 
     jsonWriter.close();
@@ -197,7 +196,7 @@ public class PluginWSCommonsTest {
   @Test
   public void writeArtifact_from_release_writes_artifact_object_and_file_name() {
     jsonWriter.beginObject();
-    underTest.writeArtifact(jsonWriter, release("pkey").setDownloadUrl("http://toto.com/file.jar"));
+    PluginWSCommons.writeArtifact(jsonWriter, release("pkey").setDownloadUrl("http://toto.com/file.jar"));
     jsonWriter.endObject();
 
     jsonWriter.close();
@@ -236,7 +235,7 @@ public class PluginWSCommonsTest {
       new Release(newPlugin(), version("1.0")).addOutgoingDependency(newRelease()));
 
     jsonWriter.beginObject();
-    underTest.writeUpdate(jsonWriter, pluginUpdate);
+    PluginWSCommons.writeUpdate(jsonWriter, pluginUpdate);
     jsonWriter.endObject();
 
     jsonWriter.close();

@@ -41,12 +41,10 @@ public class AvailableAction implements PluginsWsAction {
 
   private final UserSession userSession;
   private final UpdateCenterMatrixFactory updateCenterFactory;
-  private final PluginWSCommons pluginWSCommons;
 
-  public AvailableAction(UserSession userSession, UpdateCenterMatrixFactory updateCenterFactory, PluginWSCommons pluginWSCommons) {
+  public AvailableAction(UserSession userSession, UpdateCenterMatrixFactory updateCenterFactory) {
     this.userSession = userSession;
     this.updateCenterFactory = updateCenterFactory;
-    this.pluginWSCommons = pluginWSCommons;
   }
 
   @Override
@@ -79,17 +77,17 @@ public class AvailableAction implements PluginsWsAction {
     Optional<UpdateCenter> updateCenter = updateCenterFactory.getUpdateCenter(DO_NOT_FORCE_REFRESH);
 
     writePlugins(jsonWriter, updateCenter);
-    pluginWSCommons.writeUpdateCenterProperties(jsonWriter, updateCenter);
+    PluginWSCommons.writeUpdateCenterProperties(jsonWriter, updateCenter);
 
     jsonWriter.endObject();
     jsonWriter.close();
   }
 
-  private void writePlugins(JsonWriter jsonWriter, Optional<UpdateCenter> updateCenter) {
+  private static void writePlugins(JsonWriter jsonWriter, Optional<UpdateCenter> updateCenter) {
     jsonWriter.name(ARRAY_PLUGINS).beginArray();
     if (updateCenter.isPresent()) {
       for (PluginUpdate pluginUpdate : retrieveAvailablePlugins(updateCenter.get())) {
-        pluginWSCommons.writePluginUpdate(jsonWriter, pluginUpdate);
+        PluginWSCommons.writePluginUpdate(jsonWriter, pluginUpdate);
       }
     }
     jsonWriter.endArray();

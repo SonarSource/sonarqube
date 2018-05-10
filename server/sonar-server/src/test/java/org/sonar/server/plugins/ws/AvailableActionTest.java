@@ -32,7 +32,6 @@ import org.sonar.server.ws.WsTester;
 import org.sonar.updatecenter.common.Plugin;
 import org.sonar.updatecenter.common.PluginUpdate;
 import org.sonar.updatecenter.common.Release;
-import org.sonar.updatecenter.common.UpdateCenter;
 
 import static com.google.common.collect.ImmutableList.of;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -67,7 +66,7 @@ public class AvailableActionTest extends AbstractUpdateCenterBasedPluginsWsActio
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private AvailableAction underTest = new AvailableAction(userSession, updateCenterFactory, new PluginWSCommons());
+  private AvailableAction underTest = new AvailableAction(userSession, updateCenterFactory);
 
   @Test
   public void action_available_is_defined() {
