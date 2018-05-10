@@ -28,7 +28,6 @@ dependencies {
   compile 'org.slf4j:slf4j-api'
   compile 'org.sonarsource:sonar-persistit'
   compile project(':sonar-core')
-  compile project(':sonar-home')
   compile project(':sonar-scanner-protocol')
   compile project(':sonar-ws')
   runtime project(path: ':sonar-plugin-api', configuration: 'shadow')

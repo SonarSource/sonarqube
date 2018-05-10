@@ -17,25 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.home.cache;
+package org.sonar.scanner.scan;
 
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.nio.file.Path;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DirectoryLock {
+  private static final Logger LOGGER = LoggerFactory.getLogger(DirectoryLock.class);
   public static final String LOCK_FILE_NAME = ".sonar_lock";
+
   private final Path lockFilePath;
-  private final Logger logger;
 
   private RandomAccessFile lockRandomAccessFile;
   private FileChannel lockChannel;
   private FileLock lockFile;
 
-  public DirectoryLock(Path directory, Logger logger) {
-    this.logger = logger;
+  public DirectoryLock(Path directory) {
     this.lockFilePath = directory.resolve(LOCK_FILE_NAME).toAbsolutePath();
   }
 
@@ -57,7 +59,7 @@ public class DirectoryLock {
         lockFile.release();
         lockFile = null;
       } catch (IOException e) {
-        logger.error("Error releasing lock", e);
+        LOGGER.error("Error releasing lock", e);
       }
     }
     if (lockChannel != null) {
@@ -65,7 +67,7 @@ public class DirectoryLock {
         lockChannel.close();
         lockChannel = null;
       } catch (IOException e) {
-        logger.error("Error closing file channel", e);
+        LOGGER.error("Error closing file channel", e);
       }
     }
     if (lockRandomAccessFile != null) {
@@ -73,7 +75,7 @@ public class DirectoryLock {
         lockRandomAccessFile.close();
         lockRandomAccessFile = null;
       } catch (IOException e) {
-        logger.error("Error closing file", e);
+        LOGGER.error("Error closing file", e);
       }
     }
   }

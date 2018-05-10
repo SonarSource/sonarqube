@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.home.cache;
+package org.sonar.scanner.scan;
 
 import java.nio.file.Paths;
 import org.junit.Before;
@@ -27,7 +27,6 @@ import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 
 public class DirectoryLockTest {
   @Rule
@@ -38,7 +37,7 @@ public class DirectoryLockTest {
 
   @Before
   public void setUp() {
-    lock = new DirectoryLock(temp.getRoot().toPath(), mock(Logger.class));
+    lock = new DirectoryLock(temp.getRoot().toPath());
   }
 
   @Test
@@ -56,7 +55,7 @@ public class DirectoryLockTest {
 
   @Test
   public void errorTryLock() {
-    lock = new DirectoryLock(Paths.get("non", "existing", "path"), mock(Logger.class));
+    lock = new DirectoryLock(Paths.get("non", "existing", "path"));
 
     expectedException.expect(IllegalStateException.class);
     expectedException.expectMessage("Failed to create lock");

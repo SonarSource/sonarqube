@@ -25,8 +25,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import org.picocontainer.Startable;
 import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
-import org.sonar.home.cache.DirectoryLock;
-import org.sonar.scanner.bootstrap.Slf4jLogger;
 
 public class ProjectLock implements Startable {
   private final DirectoryLock lock;
@@ -40,7 +38,7 @@ public class ProjectLock implements Startable {
     } catch (IOException e) {
       throw new IllegalStateException("Failed to create work directory", e);
     }
-    this.lock = new DirectoryLock(directory.toAbsolutePath(), new Slf4jLogger());
+    this.lock = new DirectoryLock(directory.toAbsolutePath());
   }
 
   public void tryLock() {
