@@ -27,8 +27,10 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.metric.MetricDto;
+import org.sonar.db.organization.OrganizationDto;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
@@ -36,6 +38,7 @@ import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
+import static org.sonar.api.measures.Metric.ValueType.INT;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.db.measure.MeasureTesting.newLiveMeasure;
@@ -54,7 +57,7 @@ public class LiveMeasureDaoTest {
   }
 
   @Test
-  public void test_selectByComponentUuidsAndMetricIds() {
+  public void selectByComponentUuidsAndMetricIds() {
     LiveMeasureDto measure1 = newLiveMeasure().setMetricId(metric.getId());
     LiveMeasureDto measure2 = newLiveMeasure().setMetricId(metric.getId());
     underTest.insert(db.getSession(), measure1);
@@ -94,7 +97,7 @@ public class LiveMeasureDaoTest {
   }
 
   @Test
-  public void test_selectByComponentUuidsAndMetricKeys() {
+  public void selectByComponentUuidsAndMetricKeys() {
     LiveMeasureDto measure1 = newLiveMeasure().setMetricId(metric.getId());
     LiveMeasureDto measure2 = newLiveMeasure().setMetricId(metric.getId());
     underTest.insert(db.getSession(), measure1);
@@ -133,7 +136,7 @@ public class LiveMeasureDaoTest {
   }
 
   @Test
-  public void test_selectMeasure() {
+  public void selectMeasure() {
     MetricDto metric = db.measures().insertMetric();
     LiveMeasureDto stored = newLiveMeasure().setMetricId(metric.getId());
     underTest.insert(db.getSession(), stored);
@@ -199,6 +202,39 @@ public class LiveMeasureDaoTest {
   }
 
   @Test
+  public void countNcloc() {
+    OrganizationDto organization = db.organizations().insert();
+    MetricDto ncloc = db.measures().insertMetric(m -> m.setKey("ncloc").setValueType(INT.toString()));
+    MetricDto lines = db.measures().insertMetric(m -> m.setKey("lines").setValueType(INT.toString()));
+
+    ComponentDto simpleProject = db.components().insertMainBranch(organization);
+    db.measures().insertLiveMeasure(simpleProject, ncloc, m -> m.setValue(10d));
+
+    ComponentDto projectWithBiggerLongLivingBranch = db.components().insertMainBranch(organization);
+    ComponentDto bigLongLivingBranch = db.components().insertProjectBranch(projectWithBiggerLongLivingBranch, b -> b.setBranchType(BranchType.LONG));
+    db.measures().insertLiveMeasure(projectWithBiggerLongLivingBranch, ncloc, m -> m.setValue(100d));
+    db.measures().insertLiveMeasure(bigLongLivingBranch, ncloc, m -> m.setValue(200d));
+
+    ComponentDto projectWithLinesButNoLoc = db.components().insertMainBranch(organization);
+    db.measures().insertLiveMeasure(projectWithLinesButNoLoc, lines, m -> m.setValue(365d));
+    db.measures().insertLiveMeasure(projectWithLinesButNoLoc, ncloc, m -> m.setValue(0d));
+
+    long result = underTest.sumNclocOfBiggestLongLivingBranch(db.getSession());
+
+    assertThat(result).isEqualTo(10L + 200L);
+  }
+
+  @Test
+  public void countNcloc_empty() {
+    db.measures().insertMetric(m -> m.setKey("ncloc").setValueType(INT.toString()));
+    db.measures().insertMetric(m -> m.setKey("lines").setValueType(INT.toString()));
+
+    long result = underTest.sumNclocOfBiggestLongLivingBranch(db.getSession());
+
+    assertThat(result).isEqualTo(0L);
+  }
+
+  @Test
   public void insert_data() {
     byte[] data = "text_value".getBytes(StandardCharsets.UTF_8);
     MetricDto metric = db.measures().insertMetric();
@@ -215,7 +251,7 @@ public class LiveMeasureDaoTest {
   }
 
   @Test
-  public void test_insertOrUpdate() {
+  public void insertOrUpdate() {
     // insert
     LiveMeasureDto dto = newLiveMeasure();
     underTest.insertOrUpdate(db.getSession(), dto, "foo");

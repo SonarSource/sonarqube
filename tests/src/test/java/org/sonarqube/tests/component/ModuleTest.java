@@ -28,10 +28,10 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonarqube.qa.util.Tester;
+import org.sonarqube.qa.util.XooProjectBuilder;
 import org.sonarqube.ws.client.components.ShowRequest;
 import org.sonarqube.ws.client.components.TreeRequest;
 import org.sonarqube.ws.client.projects.UpdateKeyRequest;
-import util.XooProjectBuilder;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;

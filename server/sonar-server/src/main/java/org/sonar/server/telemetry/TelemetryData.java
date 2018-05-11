@@ -28,7 +28,6 @@ public class TelemetryData {
   private final String serverId;
   private final String version;
   private final Map<String, String> plugins;
-  private final long lines;
   private final long ncloc;
   private final long userCount;
   private final long projectCount;
@@ -41,8 +40,7 @@ public class TelemetryData {
     serverId = builder.serverId;
     version = builder.version;
     plugins = builder.plugins;
-    lines = builder.projectMeasuresStatistics.getLines();
-    ncloc = builder.projectMeasuresStatistics.getNcloc();
+    ncloc = builder.ncloc;
     userCount = builder.userCount;
     projectCount = builder.projectMeasuresStatistics.getProjectCount();
     usingBranches = builder.usingBranches;
@@ -61,10 +59,6 @@ public class TelemetryData {
 
   public Map<String, String> getPlugins() {
     return plugins;
-  }
-
-  public long getLines() {
-    return lines;
   }
 
   public long getNcloc() {
@@ -106,6 +100,7 @@ public class TelemetryData {
     private Map<String, String> plugins;
     private Database database;
     private ProjectMeasuresStatistics projectMeasuresStatistics;
+    private Long ncloc;
     private Boolean usingBranches;
 
     private Builder() {
@@ -122,16 +117,24 @@ public class TelemetryData {
       return this;
     }
 
-    void setUserCount(long userCount) {
+    Builder setUserCount(long userCount) {
       this.userCount = userCount;
+      return this;
     }
 
-    void setPlugins(Map<String, String> plugins) {
+    Builder setPlugins(Map<String, String> plugins) {
       this.plugins = plugins;
+      return this;
     }
 
-    void setProjectMeasuresStatistics(ProjectMeasuresStatistics projectMeasuresStatistics) {
+    Builder setProjectMeasuresStatistics(ProjectMeasuresStatistics projectMeasuresStatistics) {
       this.projectMeasuresStatistics = projectMeasuresStatistics;
+      return this;
+    }
+
+    Builder setNcloc(long ncloc) {
+      this.ncloc = ncloc;
+      return this;
     }
 
     Builder setDatabase(Database database) {
@@ -149,6 +152,7 @@ public class TelemetryData {
       requireNonNull(version);
       requireNonNull(plugins);
       requireNonNull(projectMeasuresStatistics);
+      requireNonNull(ncloc);
       requireNonNull(database);
       requireNonNull(usingBranches);
 

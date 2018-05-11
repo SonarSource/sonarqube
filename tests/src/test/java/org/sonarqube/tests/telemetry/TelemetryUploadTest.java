@@ -91,7 +91,6 @@ public class TelemetryUploadTest {
     List<String> plugins = ((List<Map<String, String>>) json.get("plugins")).stream().map(p -> p.get("name")).collect(Collectors.toList());
     assertThat(plugins).contains("xoo");
     assertThat(getInteger(json.get("ncloc"))).isEqualTo(13 * 2 + 7);
-    assertThat(getInteger(json.get("lines"))).isEqualTo(17 * 3);
     List<Map<String, String>> projectCountByLanguage = (List<Map<String, String>>) json.get("projectCountByLanguage");
     assertThat(projectCountByLanguage).extracting(p -> p.get("language"), p -> getInteger(p.get("count")))
       .contains(tuple("xoo", 2), tuple("xoo2", 1));

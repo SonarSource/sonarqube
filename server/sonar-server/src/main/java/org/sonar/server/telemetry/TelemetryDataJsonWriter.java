@@ -21,7 +21,6 @@ package org.sonar.server.telemetry;
 
 import org.sonar.api.utils.text.JsonWriter;
 
-import static org.sonar.api.measures.CoreMetrics.LINES_KEY;
 import static org.sonar.api.measures.CoreMetrics.NCLOC_KEY;
 
 public class TelemetryDataJsonWriter {
@@ -50,7 +49,6 @@ public class TelemetryDataJsonWriter {
     json.prop("userCount", statistics.getUserCount());
     json.prop("projectCount", statistics.getProjectCount());
     json.prop("usingBranches", statistics.isUsingBranches());
-    json.prop(LINES_KEY, statistics.getLines());
     json.prop(NCLOC_KEY, statistics.getNcloc());
     json.name("projectCountByLanguage");
     json.beginArray();

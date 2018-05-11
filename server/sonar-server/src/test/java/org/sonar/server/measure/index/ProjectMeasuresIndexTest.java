@@ -1373,18 +1373,16 @@ public class ProjectMeasuresIndexTest {
   @Test
   public void search_statistics() {
     es.putDocuments(INDEX_TYPE_PROJECT_MEASURES,
-      newDoc("lines", 10, "ncloc", 20, "coverage", 80)
+      newDoc("lines", 10, "coverage", 80)
         .setLanguages(Arrays.asList("java", "cs", "js"))
         .setNclocLanguageDistributionFromMap(ImmutableMap.of("java", 200, "cs", 250, "js", 50)),
-      newDoc("lines", 20, "ncloc", 30, "coverage", 80)
+      newDoc("lines", 20, "coverage", 80)
         .setLanguages(Arrays.asList("java", "python", "kotlin"))
         .setNclocLanguageDistributionFromMap(ImmutableMap.of("java", 300, "python", 100, "kotlin", 404)));
 
     ProjectMeasuresStatistics result = underTest.searchTelemetryStatistics();
 
     assertThat(result.getProjectCount()).isEqualTo(2);
-    assertThat(result.getLines()).isEqualTo(30);
-    assertThat(result.getNcloc()).isEqualTo(50);
     assertThat(result.getProjectCountByLanguage()).containsOnly(
       entry("java", 2L), entry("cs", 1L), entry("js", 1L), entry("python", 1L), entry("kotlin", 1L));
     assertThat(result.getNclocByLanguage()).containsOnly(

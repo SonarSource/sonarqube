@@ -22,19 +22,16 @@ package org.sonar.server.measure.index;
 import java.util.Map;
 
 import static java.util.Objects.requireNonNull;
-import static org.sonar.api.measures.CoreMetrics.LINES_KEY;
 import static org.sonar.api.measures.CoreMetrics.NCLOC_KEY;
 
 public class ProjectMeasuresStatistics {
   private final long projectCount;
-  private final long lines;
   private final long ncloc;
   private final Map<String, Long> projectCountByLanguage;
   private final Map<String, Long> nclocByLanguage;
 
   private ProjectMeasuresStatistics(Builder builder) {
     projectCount = builder.projectCount;
-    lines = builder.lines;
     ncloc = builder.ncloc;
     projectCountByLanguage = builder.projectCountByLanguage;
     nclocByLanguage = builder.nclocByLanguage;
@@ -44,10 +41,10 @@ public class ProjectMeasuresStatistics {
     return projectCount;
   }
 
-  public long getLines() {
-    return lines;
-  }
-
+  /**
+   * @deprecated since 7.2 Global Ncloc computation should rely on org.sonar.db.measure.LiveMeasureDao#countNcloc(org.sonar.db.DbSession)
+   */
+  @Deprecated
   public long getNcloc() {
     return ncloc;
   }
@@ -66,7 +63,6 @@ public class ProjectMeasuresStatistics {
 
   public static class Builder {
     private Long projectCount;
-    private Long lines;
     private Long ncloc;
     private Map<String, Long> projectCountByLanguage;
     private Map<String, Long> nclocByLanguage;
@@ -81,15 +77,10 @@ public class ProjectMeasuresStatistics {
     }
 
     public Builder setSum(String metric, long value) {
-      switch (metric) {
-        case LINES_KEY:
-          this.lines = value;
-          break;
-        case NCLOC_KEY:
-          this.ncloc = value;
-          break;
-        default:
-          throw new IllegalStateException("Metric not supported: " + metric);
+      if (NCLOC_KEY.equals(metric)) {
+        this.ncloc = value;
+      } else {
+        throw new IllegalStateException("Metric not supported: " + metric);
       }
       return this;
     }
@@ -105,7 +96,6 @@ public class ProjectMeasuresStatistics {
 
     public ProjectMeasuresStatistics build() {
       requireNonNull(projectCount);
-      requireNonNull(lines);
       requireNonNull(ncloc);
       requireNonNull(projectCountByLanguage);
       requireNonNull(nclocByLanguage);

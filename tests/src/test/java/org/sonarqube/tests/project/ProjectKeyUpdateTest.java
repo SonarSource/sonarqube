@@ -37,6 +37,7 @@ import org.junit.rules.TemporaryFolder;
 import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
 import org.sonarqube.qa.util.Tester;
+import org.sonarqube.qa.util.XooProjectBuilder;
 import org.sonarqube.ws.Components;
 import org.sonarqube.ws.Organizations;
 import org.sonarqube.ws.Projects;
@@ -49,7 +50,6 @@ import org.sonarqube.ws.client.components.TreeRequest;
 import org.sonarqube.ws.client.projects.BulkUpdateKeyRequest;
 import org.sonarqube.ws.client.projects.UpdateKeyRequest;
 import util.ItUtils;
-import util.XooProjectBuilder;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;

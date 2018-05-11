@@ -24,6 +24,8 @@ import java.util.List;
 import javax.annotation.Nullable;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.session.ResultHandler;
+import org.sonar.db.component.BranchType;
+import org.sonar.db.component.KeyType;
 
 public interface LiveMeasureMapper {
 
@@ -40,6 +42,11 @@ public interface LiveMeasureMapper {
     @Param("baseUuid") String baseUuid,
     @Param("baseUuidPath") String baseUuidPath,
     ResultHandler<LiveMeasureDto> resultHandler);
+
+  Long sumNclocOfBiggestLongLivingBranch(
+    @Param("ncloc") String nclocKey,
+    @Param("branch") KeyType branchOrPullRequest,
+    @Param("branchType") BranchType branchType);
 
   void insert(
     @Param("dto") LiveMeasureDto dto,

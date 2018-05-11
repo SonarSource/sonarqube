@@ -75,7 +75,6 @@ import static org.elasticsearch.search.sort.SortOrder.DESC;
 import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
 import static org.sonar.api.measures.CoreMetrics.COVERAGE_KEY;
 import static org.sonar.api.measures.CoreMetrics.DUPLICATED_LINES_DENSITY_KEY;
-import static org.sonar.api.measures.CoreMetrics.LINES_KEY;
 import static org.sonar.api.measures.CoreMetrics.NCLOC_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_COVERAGE_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_DUPLICATED_LINES_DENSITY_KEY;
@@ -105,8 +104,8 @@ import static org.sonarqube.ws.client.project.ProjectsWsParameters.FILTER_LANGUA
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.FILTER_TAGS;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.MAX_PAGE_SIZE;
 
-@ComputeEngineSide
 @ServerSide
+@ComputeEngineSide
 public class ProjectMeasuresIndex {
 
   public static final List<String> SUPPORTED_FACETS = ImmutableList.of(
@@ -203,16 +202,15 @@ public class ProjectMeasuresIndex {
         .order(Terms.Order.count(false))
         .subAggregation(sum(FIELD_DISTRIB_NCLOC).field(FIELD_DISTRIB_NCLOC))));
 
-    Stream.of(LINES_KEY, NCLOC_KEY)
-      .forEach(metric -> request.addAggregation(AggregationBuilders.nested(metric, FIELD_MEASURES)
-        .subAggregation(AggregationBuilders.filter(metric + "_filter", termQuery(FIELD_MEASURES_KEY, metric))
-          .subAggregation(sum(metric + "_filter_sum").field(FIELD_MEASURES_VALUE)))));
+    request.addAggregation(AggregationBuilders.nested(NCLOC_KEY, FIELD_MEASURES)
+      .subAggregation(AggregationBuilders.filter(NCLOC_KEY + "_filter", termQuery(FIELD_MEASURES_KEY, NCLOC_KEY))
+        .subAggregation(sum(NCLOC_KEY + "_filter_sum").field(FIELD_MEASURES_VALUE))));
 
     ProjectMeasuresStatistics.Builder statistics = ProjectMeasuresStatistics.builder();
 
     SearchResponse response = request.get();
     statistics.setProjectCount(response.getHits().getTotalHits());
-    Stream.of(LINES_KEY, NCLOC_KEY)
+    Stream.of(NCLOC_KEY)
       .map(metric -> (Nested) response.getAggregations().get(metric))
       .map(nested -> (Filter) nested.getAggregations().get(nested.getName() + "_filter"))
       .map(filter -> (Sum) filter.getAggregations().get(filter.getName() + "_sum"))

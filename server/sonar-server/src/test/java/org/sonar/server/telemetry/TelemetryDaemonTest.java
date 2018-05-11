@@ -163,7 +163,7 @@ public class TelemetryDaemonTest {
   }
 
   @Test
-  public void exclude_branches() throws IOException {
+  public void take_biggest_long_living_branches() throws IOException {
     initTelemetrySettingsToDefaultValues();
     settings.setProperty("sonar.telemetry.frequencyInSeconds", "1");
     server.setId("AU-TpxcB-iU5OvuD2FL7").setVersion("7.5.4");
@@ -181,7 +181,7 @@ public class TelemetryDaemonTest {
     ArgumentCaptor<String> jsonCaptor = ArgumentCaptor.forClass(String.class);
     verify(client, timeout(2_000).atLeastOnce()).upload(jsonCaptor.capture());
     assertJson(jsonCaptor.getValue()).isSimilarTo("{\n" +
-      "  \"ncloc\": 10\n" +
+      "  \"ncloc\": 20\n" +
       "}\n");
   }
 

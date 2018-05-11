@@ -70,7 +70,7 @@ public class ClusterSystemInfoWriterTest {
       + "\"Application Nodes\":[{\"Name\":\"appNodes\",\"\":{\"name\":\"appNodes\"}}],"
       + "\"Search Nodes\":[{\"Name\":\"searchNodes\",\"\":{\"name\":\"searchNodes\"}}],"
       + "\"Statistics\":{\"id\":\"\",\"version\":\"\",\"database\":{\"name\":\"\",\"version\":\"\"},\"plugins\":[],"
-      + "\"userCount\":0,\"projectCount\":0,\"usingBranches\":false,\"lines\":0,\"ncloc\":0,\"projectCountByLanguage\":[],\"nclocByLanguage\":[]}}");
+      + "\"userCount\":0,\"projectCount\":0,\"usingBranches\":false,\"ncloc\":0,\"projectCountByLanguage\":[],\"nclocByLanguage\":[]}}");
   }
 
   private static NodeInfo createNodeInfo(String name) {

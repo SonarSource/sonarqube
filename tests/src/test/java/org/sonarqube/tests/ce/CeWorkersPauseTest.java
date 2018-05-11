@@ -34,10 +34,10 @@ import org.junit.rules.TemporaryFolder;
 import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
 import org.sonarqube.qa.util.Tester;
+import org.sonarqube.qa.util.XooProjectBuilder;
 import org.sonarqube.tests.Category4Suite;
 import org.sonarqube.ws.Ce;
 import org.sonarqube.ws.client.ce.ActivityStatusRequest;
-import util.XooProjectBuilder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

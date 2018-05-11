@@ -19,55 +19,50 @@
  */
 package org.sonar.server.edition.ws;
 
-import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
-import java.io.IOException;
-import java.util.Arrays;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.sonar.api.platform.Server;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.server.edition.EditionManagementState;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbTester;
+import org.sonar.db.component.ComponentDto;
+import org.sonar.db.metric.MetricDto;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
-import org.sonar.server.measure.index.ProjectMeasuresIndex;
-import org.sonar.server.measure.index.ProjectMeasuresStatistics;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
-import org.sonar.test.JsonAssert;
-import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.Editions.FormDataResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.sonar.server.edition.EditionManagementState.PendingStatus.NONE;
+import static org.sonar.api.measures.CoreMetrics.NCLOC_KEY;
+import static org.sonar.api.measures.Metric.ValueType.INT;
+import static org.sonar.test.JsonAssert.assertJson;
 
 @RunWith(DataProviderRunner.class)
 public class FormDataActionTest {
+
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
+  @Rule
+  public DbTester db = DbTester.create();
 
   private Server server = mock(Server.class);
-  private ProjectMeasuresStatistics stats = mock(ProjectMeasuresStatistics.class);
-  private ProjectMeasuresIndex measuresIndex = mock(ProjectMeasuresIndex.class);
-  private FormDataAction underTest = new FormDataAction(userSessionRule, server, measuresIndex);
-  private WsActionTester actionTester = new WsActionTester(underTest);
+  private DbClient dbClient = db.getDbClient();
+  private FormDataAction underTest = new FormDataAction(userSessionRule, server, dbClient);
 
-  @Before
-  public void setUp() {
-    when(measuresIndex.searchTelemetryStatistics()).thenReturn(stats);
-  }
+  private WsActionTester ws = new WsActionTester(underTest);
 
   @Test
-  public void verify_definition() {
-    WebService.Action def = actionTester.getDef();
+  public void definition() {
+    WebService.Action def = ws.getDef();
 
     assertThat(def.key()).isEqualTo("form_data");
     assertThat(def.since()).isEqualTo("6.7");
@@ -80,7 +75,7 @@ public class FormDataActionTest {
   @Test
   public void request_fails_if_user_not_logged_in() {
     userSessionRule.anonymous();
-    TestRequest request = actionTester.newRequest();
+    TestRequest request = ws.newRequest();
 
     expectedException.expect(UnauthorizedException.class);
     expectedException.expectMessage("Authentication is required");
@@ -91,7 +86,7 @@ public class FormDataActionTest {
   @Test
   public void request_fails_if_user_is_not_system_administer() {
     userSessionRule.logIn();
-    TestRequest request = actionTester.newRequest();
+    TestRequest request = ws.newRequest();
 
     expectedException.expect(ForbiddenException.class);
     expectedException.expectMessage("Insufficient privileges");
@@ -100,37 +95,36 @@ public class FormDataActionTest {
   }
 
   @Test
-  public void verify_example() {
+  public void json_example() {
     userSessionRule.logIn().setSystemAdministrator();
     when(server.getId()).thenReturn("uuid");
-    when(stats.getNcloc()).thenReturn(12345L);
+    setNcloc(12345L);
 
-    TestRequest request = actionTester.newRequest();
+    String result = ws.newRequest().execute().getInput();
 
-    JsonAssert.assertJson(request.execute().getInput()).isSimilarTo(actionTester.getDef().responseExampleAsString());
+    assertJson(result).isSimilarTo(ws.getDef().responseExampleAsString());
   }
 
   @Test
-  public void returns_server_id_and_nloc() throws IOException {
+  public void returns_server_id_and_nloc() {
     userSessionRule.logIn().setSystemAdministrator();
     when(server.getId()).thenReturn("myserver");
-    when(stats.getNcloc()).thenReturn(1000L);
+    long ncloc = 256L;
+    setNcloc(ncloc);
 
     FormDataResponse expectedResponse = FormDataResponse.newBuilder()
       .setServerId("myserver")
-      .setNcloc(1000L)
+      .setNcloc(ncloc)
       .build();
 
-    TestRequest request = actionTester.newRequest().setMediaType(MediaTypes.PROTOBUF);
+    FormDataResponse result = ws.newRequest().executeProtobuf(FormDataResponse.class);
 
-    assertThat(FormDataResponse.parseFrom(request.execute().getInputStream())).isEqualTo(expectedResponse);
+    assertThat(result).isEqualTo(expectedResponse);
   }
 
-  @DataProvider
-  public static Object[][] notNonePendingInstallationStatuses() {
-    return Arrays.stream(EditionManagementState.PendingStatus.values())
-      .filter(s -> s != NONE)
-      .map(s -> new Object[] {s})
-      .toArray(Object[][]::new);
+  private void setNcloc(double ncloc) {
+    ComponentDto project = db.components().insertMainBranch();
+    MetricDto nclocMetric = db.measures().insertMetric(m -> m.setValueType(INT.toString()).setKey(NCLOC_KEY));
+    db.measures().insertLiveMeasure(project, nclocMetric, m -> m.setValue(ncloc));
   }
 }

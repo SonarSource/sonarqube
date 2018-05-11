@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package util;
+package org.sonarqube.qa.util;
 
 import java.io.File;
 import java.io.IOException;
@@ -34,6 +34,7 @@ public class XooProjectBuilder {
   private final String key;
   private final List<String> moduleKeys = new ArrayList<>();
   private int filesPerModule = 1;
+  private Properties projectProperties = new Properties();
 
   public XooProjectBuilder(String projectKey) {
     this.key = projectKey;
@@ -50,13 +51,19 @@ public class XooProjectBuilder {
     return this;
   }
 
+  public XooProjectBuilder addProjectProperties(String... keyValueProperties) {
+    for (int i = 0; i < keyValueProperties.length; i += 2) {
+      this.projectProperties.setProperty(keyValueProperties[i], keyValueProperties[i + 1]);
+    }
+    return this;
+  }
+
   public File build(File dir) {
     for (String moduleKey : moduleKeys) {
       generateModule(moduleKey, new File(dir, moduleKey), new Properties());
     }
-    Properties additionalProps = new Properties();
-    additionalProps.setProperty("sonar.modules", StringUtils.join(moduleKeys, ","));
-    generateModule(key, dir, additionalProps);
+    projectProperties.setProperty("sonar.modules", StringUtils.join(moduleKeys, ","));
+    generateModule(key, dir, projectProperties);
     return dir;
   }
 

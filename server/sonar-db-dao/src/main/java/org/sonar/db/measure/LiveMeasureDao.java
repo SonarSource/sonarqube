@@ -29,9 +29,12 @@ import org.sonar.api.utils.System2;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.KeyType;
 
 import static java.util.Collections.singletonList;
+import static org.sonar.api.measures.CoreMetrics.NCLOC_KEY;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
 public class LiveMeasureDao implements Dao {
@@ -76,6 +79,17 @@ public class LiveMeasureDao implements Dao {
       return;
     }
     mapper(dbSession).selectTreeByQuery(query, baseComponent.uuid(), query.getUuidPath(baseComponent), resultHandler);
+  }
+
+  /**
+   * Example:
+   * If Main Branch = 0 LOCs (provisioned but never analyzed) and the "largest long-lived branch" is 120 LOCs, I'm expecting to consider the value 120.
+   * If Main Branch = 100 LOCs and the "largest long-lived branch" is 120 LOCs, I'm expecting to consider the value 120.
+   * If Main Branch = 100 LOCs and the "largest long-lived branch" is 80 LOCs, I'm expecting to consider the value 100.
+   */
+  public long sumNclocOfBiggestLongLivingBranch(DbSession dbSession) {
+    Long ncloc = mapper(dbSession).sumNclocOfBiggestLongLivingBranch(NCLOC_KEY, KeyType.BRANCH, BranchType.LONG);
+    return ncloc == null ? 0L : ncloc;
   }
 
   public void insert(DbSession dbSession, LiveMeasureDto dto) {

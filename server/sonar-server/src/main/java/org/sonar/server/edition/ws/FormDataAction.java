@@ -23,20 +23,22 @@ import org.sonar.api.platform.Server;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.server.measure.index.ProjectMeasuresIndex;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
 import org.sonar.server.user.UserSession;
-import org.sonar.server.ws.WsUtils;
 import org.sonarqube.ws.Editions.FormDataResponse;
+
+import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class FormDataAction implements EditionsWsAction {
   private final UserSession userSession;
   private final Server server;
-  private final ProjectMeasuresIndex measuresIndex;
+  private final DbClient dbClient;
 
-  public FormDataAction(UserSession userSession, Server server, ProjectMeasuresIndex measuresIndex) {
+  public FormDataAction(UserSession userSession, Server server, DbClient dbClient) {
     this.userSession = userSession;
     this.server = server;
-    this.measuresIndex = measuresIndex;
+    this.dbClient = dbClient;
   }
 
   @Override
@@ -56,13 +58,16 @@ public class FormDataAction implements EditionsWsAction {
       .checkLoggedIn()
       .checkIsSystemAdministrator();
 
-    String serverId = server.getId();
-    long nloc = measuresIndex.searchTelemetryStatistics().getNcloc();
-
     FormDataResponse responsePayload = FormDataResponse.newBuilder()
-      .setNcloc(nloc)
-      .setServerId(serverId)
+      .setNcloc(computeNcloc())
+      .setServerId(server.getId())
       .build();
-    WsUtils.writeProtobuf(responsePayload, request, response);
+    writeProtobuf(responsePayload, request, response);
+  }
+
+  private long computeNcloc() {
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      return dbClient.liveMeasureDao().sumNclocOfBiggestLongLivingBranch(dbSession);
+    }
   }
 }

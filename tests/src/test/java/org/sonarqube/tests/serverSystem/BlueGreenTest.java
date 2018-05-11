@@ -33,13 +33,13 @@ import org.junit.rules.TemporaryFolder;
 import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
 import org.sonarqube.qa.util.Tester;
+import org.sonarqube.qa.util.XooProjectBuilder;
 import org.sonarqube.ws.Ce;
 import org.sonarqube.ws.Projects;
 import org.sonarqube.ws.client.ce.ActivityStatusRequest;
 import org.sonarqube.ws.client.plugins.UninstallRequest;
 import org.sonarqube.ws.client.qualityprofiles.AddProjectRequest;
 import util.ItUtils;
-import util.XooProjectBuilder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.newOrchestratorBuilder;

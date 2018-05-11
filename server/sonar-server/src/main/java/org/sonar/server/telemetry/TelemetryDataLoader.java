@@ -23,6 +23,7 @@ import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 import java.util.Map;
 import java.util.function.Function;
+import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.platform.Server;
 import org.sonar.api.server.ServerSide;
 import org.sonar.core.platform.PluginInfo;
@@ -37,6 +38,7 @@ import org.sonar.server.telemetry.TelemetryData.Database;
 import org.sonar.server.user.index.UserIndex;
 import org.sonar.server.user.index.UserQuery;
 
+@ComputeEngineSide
 @ServerSide
 public class TelemetryDataLoader {
   private final Server server;
@@ -68,6 +70,7 @@ public class TelemetryDataLoader {
     try (DbSession dbSession = dbClient.openSession(false)) {
       data.setDatabase(loadDatabaseMetadata(dbSession));
       data.setUsingBranches(dbClient.branchDao().hasNonMainBranches(dbSession));
+      data.setNcloc(dbClient.liveMeasureDao().sumNclocOfBiggestLongLivingBranch(dbSession));
     }
 
     return data.build();
