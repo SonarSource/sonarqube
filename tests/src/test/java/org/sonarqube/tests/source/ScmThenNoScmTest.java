@@ -35,12 +35,12 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonarqube.qa.util.Tester;
 
+import static com.sonar.orchestrator.util.ZipUtils.unzip;
 import static org.apache.commons.io.FileUtils.copyDirectory;
 import static org.apache.commons.io.FileUtils.deleteDirectory;
 import static org.apache.commons.io.FileUtils.moveFile;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonarqube.tests.source.SourceSuite.ORCHESTRATOR;
-import static org.sonarqube.tests.source.ZipUtils.unzip;
 import static util.ItUtils.projectDir;
 
 public class ScmThenNoScmTest {
@@ -64,7 +64,7 @@ public class ScmThenNoScmTest {
   public void with_and_then_without_scm_on_same_file() throws ParseException, IOException {
 
     File source = disposableWorkspaceFor("xoo-sample-with-then-without-scm");
-    unzip(new File(source, "scm-repository.zip"), source.getAbsolutePath());
+    unzip(new File(source, "scm-repository.zip"), source);
 
     // First run
     SonarScanner scanner = SonarScanner.create(source)
@@ -99,7 +99,7 @@ public class ScmThenNoScmTest {
   public void with_and_then_without_scm_on_modified_file() throws ParseException, IOException {
 
     File source = disposableWorkspaceFor("xoo-sample-with-then-without-scm");
-    unzip(new File(source, "scm-repository.zip"), source.getAbsolutePath());
+    unzip(new File(source, "scm-repository.zip"), source);
 
     // First run
     SonarScanner scanner = SonarScanner.create(source)

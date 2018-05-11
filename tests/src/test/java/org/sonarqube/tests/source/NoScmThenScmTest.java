@@ -33,11 +33,11 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonarqube.qa.util.Tester;
 
+import static com.sonar.orchestrator.util.ZipUtils.unzip;
 import static org.apache.commons.io.FileUtils.copyDirectory;
 import static org.apache.commons.io.FileUtils.moveFile;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonarqube.tests.source.SourceSuite.ORCHESTRATOR;
-import static org.sonarqube.tests.source.ZipUtils.unzip;
 import static util.ItUtils.projectDir;
 
 public class NoScmThenScmTest {
@@ -77,7 +77,7 @@ public class NoScmThenScmTest {
     assertThat(scmData.get(1).date).isInSameMinuteWindowAs(new Date());
 
     // Restore SCM Repository
-    unzip(new File(source, "scm-repository.zip"), source.getAbsolutePath());
+    unzip(new File(source, "scm-repository.zip"), source);
 
     // 2nd run
     orchestrator.executeBuild(newScannerWithSCM(source));
@@ -104,7 +104,7 @@ public class NoScmThenScmTest {
     assertThat(scmData.get(1).date).isInSameMinuteWindowAs(new Date());
 
     // Restore SCM Repository
-    unzip(new File(source, "scm-repository.zip"), source.getAbsolutePath());
+    unzip(new File(source, "scm-repository.zip"), source);
 
     // Swap analysed fo to a modified one
     File sample = new File(source, PATH_TO_SAMPLE);
@@ -140,7 +140,7 @@ public class NoScmThenScmTest {
     assertThat(scmData.get(1).date).isInSameMinuteWindowAs(new Date());
 
     // Restore SCM Repository
-    unzip(new File(source, "scm-repository.zip"), source.getAbsolutePath());
+    unzip(new File(source, "scm-repository.zip"), source);
 
     // Swap analysed fo to a modified one
     File sample = new File(source, PATH_TO_SAMPLE);
