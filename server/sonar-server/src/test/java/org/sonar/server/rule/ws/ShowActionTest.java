@@ -47,6 +47,7 @@ import org.sonar.db.rule.RuleDto.Scope;
 import org.sonar.db.rule.RuleMetadataDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.db.rule.RuleTesting;
+import org.sonar.db.user.UserDto;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.es.StartupIndexer;
@@ -59,6 +60,7 @@ import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.rule.NewCustomRule;
 import org.sonar.server.rule.RuleCreator;
 import org.sonar.server.rule.index.RuleIndexer;
+import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.text.MacroInterpreter;
 import org.sonar.server.util.TypeValidations;
 import org.sonar.server.ws.TestResponse;
@@ -87,21 +89,23 @@ public class ShowActionTest {
   private static final String INTERPRETED = "interpreted";
 
   @org.junit.Rule
-  public DbTester dbTester = DbTester.create();
+  public UserSessionRule userSession = UserSessionRule.standalone();
+  @org.junit.Rule
+  public DbTester db = DbTester.create();
   @org.junit.Rule
   public EsTester es = EsTester.create();
   @org.junit.Rule
   public ExpectedException thrown = ExpectedException.none();
 
-  private DbClient dbClient = dbTester.getDbClient();
+  private DbClient dbClient = db.getDbClient();
   private EsClient esClient = es.client();
 
-  private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(dbTester);
+  private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
   private MacroInterpreter macroInterpreter = mock(MacroInterpreter.class);
   private Languages languages = new Languages(LanguageTesting.newLanguage("xoo", "Xoo"));
   private RuleMapper mapper = new RuleMapper(languages, macroInterpreter);
   private ActiveRuleCompleter activeRuleCompleter = mock(ActiveRuleCompleter.class);
-  private WsAction underTest = new ShowAction(dbClient, mapper, activeRuleCompleter, defaultOrganizationProvider);
+  private WsAction underTest = new ShowAction(dbClient, mapper, activeRuleCompleter, new RuleWsSupport(db.getDbClient(), userSession, defaultOrganizationProvider));
   private WsActionTester actionTester = new WsActionTester(underTest);
 
   private RuleIndexer ruleIndexer = new RuleIndexer(esClient, dbClient);
@@ -124,7 +128,7 @@ public class ShowActionTest {
   @Test
   public void should_show_rule_tags_in_default_organization() {
     RuleDefinitionDto rule = insertRule();
-    RuleMetadataDto metadata = insertMetadata(dbTester.getDefaultOrganization(), rule, setTags("tag1", "tag2"));
+    RuleMetadataDto metadata = insertMetadata(db.getDefaultOrganization(), rule, setTags("tag1", "tag2"), m -> m.setNoteData(null).setNoteUserUuid(null));
 
     Rules.ShowResponse result = actionTester.newRequest()
       .setParam(PARAM_KEY, rule.getKey().toString())
@@ -136,8 +140,8 @@ public class ShowActionTest {
   @Test
   public void should_show_rule_tags_in_specific_organization() {
     RuleDefinitionDto rule = insertRule();
-    OrganizationDto organization = dbTester.organizations().insert();
-    RuleMetadataDto metadata = insertMetadata(organization, rule, setTags("tag1", "tag2"));
+    OrganizationDto organization = db.organizations().insert();
+    RuleMetadataDto metadata = insertMetadata(organization, rule, setTags("tag1", "tag2"), m -> m.setNoteData(null).setNoteUserUuid(null));
 
     Rules.ShowResponse result = actionTester.newRequest()
       .setParam(PARAM_KEY, rule.getKey().toString())
@@ -149,14 +153,13 @@ public class ShowActionTest {
 
   @Test
   public void show_rule_with_activation() {
-    OrganizationDto organization = dbTester.organizations().insert();
-
+    OrganizationDto organization = db.organizations().insert();
     QProfileDto profile = QProfileTesting.newXooP1(organization);
-    dbClient.qualityProfileDao().insert(dbTester.getSession(), profile);
-    dbTester.commit();
+    dbClient.qualityProfileDao().insert(db.getSession(), profile);
+    db.commit();
 
     RuleDefinitionDto rule = insertRule();
-    RuleMetadataDto ruleMetadata = dbTester.rules().insertOrUpdateMetadata(rule, organization);
+    RuleMetadataDto ruleMetadata = db.rules().insertOrUpdateMetadata(rule, organization, m -> m.setNoteData(null).setNoteUserUuid(null));
 
     ArgumentCaptor<OrganizationDto> orgCaptor = ArgumentCaptor.forClass(OrganizationDto.class);
     ArgumentCaptor<RuleDefinitionDto> ruleCaptor = ArgumentCaptor.forClass(RuleDefinitionDto.class);
@@ -192,16 +195,16 @@ public class ShowActionTest {
 
   @Test
   public void show_rule_without_activation() {
-    OrganizationDto organization = dbTester.organizations().insert();
+    OrganizationDto organization = db.organizations().insert();
 
     QProfileDto profile = QProfileTesting.newXooP1(organization);
-    dbClient.qualityProfileDao().insert(dbTester.getSession(), profile);
-    dbTester.commit();
+    dbClient.qualityProfileDao().insert(db.getSession(), profile);
+    db.commit();
 
     RuleDefinitionDto rule = insertRule();
-    RuleMetadataDto ruleMetadata = dbTester.rules().insertOrUpdateMetadata(rule, organization);
+    RuleMetadataDto ruleMetadata = db.rules().insertOrUpdateMetadata(rule, organization, m -> m.setNoteData(null).setNoteUserUuid(null));
 
-    dbTester.qualityProfiles().activateRule(profile, rule, a -> a.setSeverity("BLOCKER"));
+    db.qualityProfiles().activateRule(profile, rule, a -> a.setSeverity("BLOCKER"));
     ActiveRuleIndexer activeRuleIndexer = new ActiveRuleIndexer(dbClient, esClient);
     activeRuleIndexer.indexOnStartup(activeRuleIndexer.getIndexTypes());
 
@@ -221,7 +224,7 @@ public class ShowActionTest {
 
   @Test
   public void throw_NotFoundException_if_organization_cannot_be_found() {
-    RuleDefinitionDto rule = dbTester.rules().insert();
+    RuleDefinitionDto rule = db.rules().insert();
 
     thrown.expect(NotFoundException.class);
 
@@ -232,8 +235,8 @@ public class ShowActionTest {
   }
 
   @Test
-  public void show_rule() throws Exception {
-    RuleDto ruleDto = RuleTesting.newDto(RuleKey.of("java", "S001"), dbTester.getDefaultOrganization())
+  public void show_rule() {
+    RuleDto ruleDto = RuleTesting.newDto(RuleKey.of("java", "S001"), db.getDefaultOrganization())
       .setName("Rule S001")
       .setDescription("Rule S001 <b>description</b>")
       .setDescriptionFormat(Format.HTML)
@@ -247,7 +250,7 @@ public class ShowActionTest {
       .setScope(Scope.ALL);
     RuleDefinitionDto definition = ruleDto.getDefinition();
     RuleDao ruleDao = dbClient.ruleDao();
-    DbSession session = dbTester.getSession();
+    DbSession session = db.getSession();
     ruleDao.insert(session, definition);
     ruleDao.insertOrUpdate(session, ruleDto.getMetadata().setRuleId(ruleDto.getId()));
     RuleParamDto param = RuleParamDto.createFor(definition).setName("regex").setType("STRING").setDescription("Reg *exp*").setDefaultValue(".*");
@@ -261,8 +264,8 @@ public class ShowActionTest {
   }
 
   @Test
-  public void show_rule_with_default_debt_infos() throws Exception {
-    RuleDto ruleDto = RuleTesting.newDto(RuleKey.of("java", "S001"), dbTester.getDefaultOrganization())
+  public void show_rule_with_default_debt_infos() {
+    RuleDto ruleDto = RuleTesting.newDto(RuleKey.of("java", "S001"), db.getDefaultOrganization())
       .setName("Rule S001")
       .setDescription("Rule S001 <b>description</b>")
       .setSeverity(MINOR)
@@ -277,7 +280,7 @@ public class ShowActionTest {
       .setRemediationBaseEffort(null)
       .setScope(Scope.ALL);
     RuleDao ruleDao = dbClient.ruleDao();
-    DbSession session = dbTester.getSession();
+    DbSession session = db.getSession();
     ruleDao.insert(session, ruleDto.getDefinition());
     ruleDao.insertOrUpdate(session, ruleDto.getMetadata());
     session.commit();
@@ -290,8 +293,8 @@ public class ShowActionTest {
   }
 
   @Test
-  public void show_rule_with_overridden_debt() throws Exception {
-    RuleDto ruleDto = RuleTesting.newDto(RuleKey.of("java", "S001"), dbTester.getDefaultOrganization())
+  public void show_rule_with_overridden_debt() {
+    RuleDto ruleDto = RuleTesting.newDto(RuleKey.of("java", "S001"), db.getDefaultOrganization())
       .setName("Rule S001")
       .setDescription("Rule S001 <b>description</b>")
       .setSeverity(MINOR)
@@ -306,7 +309,7 @@ public class ShowActionTest {
       .setRemediationBaseEffort("10h")
       .setScope(Scope.ALL);
     RuleDao ruleDao = dbClient.ruleDao();
-    DbSession session = dbTester.getSession();
+    DbSession session = db.getSession();
     ruleDao.insert(session, ruleDto.getDefinition());
     ruleDao.insertOrUpdate(session, ruleDto.getMetadata().setRuleId(ruleDto.getId()));
     session.commit();
@@ -318,8 +321,8 @@ public class ShowActionTest {
   }
 
   @Test
-  public void show_rule_with_default_and_overridden_debt_infos() throws Exception {
-    RuleDto ruleDto = RuleTesting.newDto(RuleKey.of("java", "S001"), dbTester.getDefaultOrganization())
+  public void show_rule_with_default_and_overridden_debt_infos() {
+    RuleDto ruleDto = RuleTesting.newDto(RuleKey.of("java", "S001"), db.getDefaultOrganization())
       .setName("Rule S001")
       .setDescription("Rule S001 <b>description</b>")
       .setSeverity(MINOR)
@@ -334,7 +337,7 @@ public class ShowActionTest {
       .setRemediationBaseEffort("10h")
       .setScope(Scope.ALL);
     RuleDao ruleDao = dbClient.ruleDao();
-    DbSession session = dbTester.getSession();
+    DbSession session = db.getSession();
     ruleDao.insert(session, ruleDto.getDefinition());
     ruleDao.insertOrUpdate(session, ruleDto.getMetadata().setRuleId(ruleDto.getId()));
     session.commit();
@@ -346,7 +349,7 @@ public class ShowActionTest {
   }
 
   @Test
-  public void show_rule_with_no_default_and_no_overridden_debt() throws Exception {
+  public void show_rule_with_no_default_and_no_overridden_debt() {
     RuleDefinitionDto ruleDto = RuleTesting.newRule(RuleKey.of("java", "S001"))
       .setName("Rule S001")
       .setDescription("Rule S001 <b>description</b>")
@@ -360,7 +363,7 @@ public class ShowActionTest {
       .setDefRemediationBaseEffort(null)
       .setScope(Scope.ALL);
     RuleDao ruleDao = dbClient.ruleDao();
-    DbSession session = dbTester.getSession();
+    DbSession session = db.getSession();
     ruleDao.insert(session, ruleDto);
     session.commit();
     session.clearCache();
@@ -375,7 +378,7 @@ public class ShowActionTest {
     // Template rule
     RuleDto templateRule = RuleTesting.newTemplateRule(RuleKey.of("java", "S001"));
     RuleDao ruleDao = dbClient.ruleDao();
-    DbSession session = dbTester.getSession();
+    DbSession session = db.getSession();
     ruleDao.insert(session, templateRule.getDefinition());
     session.commit();
 
@@ -385,7 +388,7 @@ public class ShowActionTest {
       .setSeverity(MINOR)
       .setStatus(RuleStatus.READY)
       .setMarkdownDescription("<div>line1\nline2</div>");
-    RuleKey customRuleKey = new RuleCreator(System2.INSTANCE, ruleIndexer, dbClient, new TypeValidations(asList()), TestDefaultOrganizationProvider.from(dbTester)).create(session, customRule);
+    RuleKey customRuleKey = new RuleCreator(System2.INSTANCE, ruleIndexer, dbClient, new TypeValidations(asList()), TestDefaultOrganizationProvider.from(db)).create(session, customRule);
     session.clearCache();
 
     doReturn("&lt;div&gt;line1<br/>line2&lt;/div&gt;").when(macroInterpreter).interpret("<div>line1\nline2</div>");
@@ -402,8 +405,8 @@ public class ShowActionTest {
   }
 
   @Test
-  public void show_deprecated_rule_rem_function_fields() throws Exception {
-    RuleDto ruleDto = RuleTesting.newDto(RuleKey.of("java", "S001"), dbTester.getDefaultOrganization())
+  public void show_deprecated_rule_rem_function_fields() {
+    RuleDto ruleDto = RuleTesting.newDto(RuleKey.of("java", "S001"), db.getDefaultOrganization())
       .setName("Rule S001")
       .setDescription("Rule S001 <b>description</b>")
       .setSeverity(MINOR)
@@ -418,7 +421,7 @@ public class ShowActionTest {
       .setRemediationBaseEffort("10h")
       .setScope(Scope.ALL);
     RuleDao ruleDao = dbClient.ruleDao();
-    DbSession session = dbTester.getSession();
+    DbSession session = db.getSession();
     ruleDao.insert(session, ruleDto.getDefinition());
     ruleDao.insertOrUpdate(session, ruleDto.getMetadata().setRuleId(ruleDto.getId()));
     session.commit();
@@ -429,7 +432,7 @@ public class ShowActionTest {
   }
 
   @Test
-  public void show_rule_when_activated() throws Exception {
+  public void show_rule_when_activated() {
     RuleDefinitionDto ruleDto = RuleTesting.newRule(RuleKey.of("java", "S001"))
       .setName("Rule S001")
       .setDescription("Rule S001 <b>description</b>")
@@ -442,7 +445,7 @@ public class ShowActionTest {
       .setUpdatedAt(new Date().getTime())
       .setScope(Scope.ALL);
     RuleDao ruleDao = dbClient.ruleDao();
-    DbSession session = dbTester.getSession();
+    DbSession session = db.getSession();
     ruleDao.insert(session, ruleDto);
     session.commit();
     ruleIndexer.commitAndIndex(session, ruleDto.getId());
@@ -473,13 +476,29 @@ public class ShowActionTest {
     activeRuleIndexer.indexOnStartup(activeRuleIndexer.getIndexTypes());
 
     ActiveRuleCompleter activeRuleCompleter = new ActiveRuleCompleter(dbClient, languages);
-    WsAction underTest = new ShowAction(dbClient, mapper, activeRuleCompleter, defaultOrganizationProvider);
+    WsAction underTest = new ShowAction(dbClient, mapper, activeRuleCompleter, new RuleWsSupport(db.getDbClient(), userSession, defaultOrganizationProvider));
     WsActionTester actionTester = new WsActionTester(underTest);
 
     actionTester.newRequest()
       .setParam("key", ruleDto.getKey().toString())
       .setParam("actives", "true")
       .execute().assertJson(getClass(), "show_rule_when_activated.json");
+  }
+
+  @Test
+  public void show_rule_with_note_login() {
+    RuleDefinitionDto rule = insertRule();
+    UserDto user = db.users().insertUser();
+    OrganizationDto organization = db.organizations().insert();
+    db.rules().insertOrUpdateMetadata(rule, user, organization);
+    ruleIndexer.commitAndIndex(db.getSession(), rule.getId(), organization);
+
+    Rules.ShowResponse result = actionTester.newRequest()
+      .setParam(PARAM_KEY, rule.getKey().toString())
+      .setParam(PARAM_ORGANIZATION, organization.getKey())
+      .executeProtobuf(Rules.ShowResponse.class);
+
+    assertThat(result.getRule().getNoteLogin()).isEqualTo(user.getLogin());
   }
 
   private void assertEqual(RuleDefinitionDto rule, RuleMetadataDto ruleMetadata, Rule resultRule) {
@@ -497,15 +516,15 @@ public class ShowActionTest {
   }
 
   private RuleDefinitionDto insertRule() {
-    RuleDefinitionDto rule = dbTester.rules().insert();
-    ruleIndexer.commitAndIndex(dbTester.getSession(), rule.getId());
+    RuleDefinitionDto rule = db.rules().insert();
+    ruleIndexer.commitAndIndex(db.getSession(), rule.getId());
     return rule;
   }
 
   @SafeVarargs
   private final RuleMetadataDto insertMetadata(OrganizationDto organization, RuleDefinitionDto rule, Consumer<RuleMetadataDto>... populaters) {
-    RuleMetadataDto metadata = dbTester.rules().insertOrUpdateMetadata(rule, organization, populaters);
-    ruleIndexer.commitAndIndex(dbTester.getSession(), rule.getId(), organization);
+    RuleMetadataDto metadata = db.rules().insertOrUpdateMetadata(rule, organization, populaters);
+    ruleIndexer.commitAndIndex(db.getSession(), rule.getId(), organization);
     return metadata;
   }
 }

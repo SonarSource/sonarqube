@@ -33,6 +33,7 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleMetadataDto;
 import org.sonar.db.rule.RuleTesting;
+import org.sonar.db.user.UserDto;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -63,6 +64,7 @@ import static org.sonar.server.rule.ws.UpdateAction.DEPRECATED_PARAM_REMEDIATION
 import static org.sonar.server.rule.ws.UpdateAction.DEPRECATED_PARAM_REMEDIATION_FN_OFFSET;
 import static org.sonar.server.rule.ws.UpdateAction.DEPRECATED_PARAM_REMEDIATION_FN_TYPE;
 import static org.sonar.server.rule.ws.UpdateAction.PARAM_KEY;
+import static org.sonar.server.rule.ws.UpdateAction.PARAM_MARKDOWN_NOTE;
 import static org.sonar.server.rule.ws.UpdateAction.PARAM_ORGANIZATION;
 import static org.sonar.server.rule.ws.UpdateAction.PARAM_REMEDIATION_FN_BASE_EFFORT;
 import static org.sonar.server.rule.ws.UpdateAction.PARAM_REMEDIATION_FN_GAP_MULTIPLIER;
@@ -94,7 +96,7 @@ public class UpdateActionTest {
   private RuleMapper mapper = new RuleMapper(languages, createMacroInterpreter());
   private RuleIndexer ruleIndexer = new RuleIndexer(esClient, dbClient);
   private RuleUpdater ruleUpdater = new RuleUpdater(dbClient, ruleIndexer, System2.INSTANCE);
-  private WsAction underTest = new UpdateAction(dbClient, ruleUpdater, mapper, userSession, defaultOrganizationProvider);
+  private WsAction underTest = new UpdateAction(dbClient, ruleUpdater, mapper, userSession, new RuleWsSupport(db.getDbClient(), userSession, defaultOrganizationProvider));
   private WsActionTester ws = new WsActionTester(underTest);
 
   @Test
@@ -153,7 +155,7 @@ public class UpdateActionTest {
     logInAsQProfileAdministrator();
 
     RuleDefinitionDto rule = db.rules().insert(setSystemTags("stag1", "stag2"));
-    db.rules().insertOrUpdateMetadata(rule, db.getDefaultOrganization(), setTags("tag1", "tag2"));
+    db.rules().insertOrUpdateMetadata(rule, db.getDefaultOrganization(), setTags("tag1", "tag2"), m -> m.setNoteData(null).setNoteUserUuid(null));
 
     Rules.UpdateResponse result = ws.newRequest().setMethod("POST")
       .setParam(PARAM_KEY, rule.getKey().toString())
@@ -174,7 +176,7 @@ public class UpdateActionTest {
     logInAsQProfileAdministrator(organization.getUuid());
 
     RuleDefinitionDto rule = db.rules().insert(setSystemTags("stag1", "stag2"));
-    db.rules().insertOrUpdateMetadata(rule, organization, setTags("tagAlt1", "tagAlt2"));
+    db.rules().insertOrUpdateMetadata(rule, organization, setTags("tagAlt1", "tagAlt2"), m -> m.setNoteData(null).setNoteUserUuid(null));
 
     Rules.UpdateResponse result = ws.newRequest().setMethod("POST")
       .setParam(PARAM_KEY, rule.getKey().toString())
@@ -277,6 +279,33 @@ public class UpdateActionTest {
     assertThat(updatedRule.getRemFnGapMultiplier()).isEqualTo(newCoeff);
     assertThat(updatedRule.getRemFnBaseEffort()).isEqualTo(newOffset);
     assertThat(updatedRule.getGapDescription()).isEqualTo(rule.getGapDescription());
+  }
+
+  @Test
+  public void update_note() {
+    OrganizationDto organization = db.organizations().insert();
+    RuleDefinitionDto rule = db.rules().insert();
+    UserDto userHavingUpdatingNote = db.users().insertUser();
+    db.rules().insertOrUpdateMetadata(rule, userHavingUpdatingNote, organization, m -> m.setNoteData("old data"));
+    UserDto userAuthenticated = db.users().insertUser();
+    userSession.logIn(userAuthenticated).addPermission(ADMINISTER_QUALITY_PROFILES, organization);
+
+    Rules.UpdateResponse result = ws.newRequest().setMethod("POST")
+      .setParam(PARAM_KEY, rule.getKey().toString())
+      .setParam(PARAM_MARKDOWN_NOTE, "new data")
+      .setParam(PARAM_ORGANIZATION, organization.getKey())
+      .executeProtobuf(Rules.UpdateResponse.class);
+
+    Rules.Rule updatedRule = result.getRule();
+
+    // check response
+    assertThat(updatedRule.getMdNote()).isEqualTo("new data");
+    assertThat(updatedRule.getNoteLogin()).isEqualTo(userAuthenticated.getLogin());
+
+    // check database
+    RuleMetadataDto metadataOfSpecificOrg = db.getDbClient().ruleDao().selectMetadataByKey(db.getSession(), rule.getKey(), organization).get();
+    assertThat(metadataOfSpecificOrg.getNoteData()).isEqualTo("new data");
+    assertThat(metadataOfSpecificOrg.getNoteUserUuid()).isEqualTo(userAuthenticated.getUuid());
   }
 
   @Test

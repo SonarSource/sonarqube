@@ -36,6 +36,7 @@ import org.sonarqube.ws.Organizations.Organization;
 import org.sonarqube.ws.Projects;
 import org.sonarqube.ws.Projects.CreateWsResponse.Project;
 import org.sonarqube.ws.Qualityprofiles;
+import org.sonarqube.ws.Rules;
 import org.sonarqube.ws.Settings;
 import org.sonarqube.ws.UserTokens;
 import org.sonarqube.ws.Users;
@@ -47,6 +48,7 @@ import org.sonarqube.ws.client.organizations.AddMemberRequest;
 import org.sonarqube.ws.client.organizations.SearchRequest;
 import org.sonarqube.ws.client.permissions.AddUserRequest;
 import org.sonarqube.ws.client.qualityprofiles.ChangelogRequest;
+import org.sonarqube.ws.client.rules.UpdateRequest;
 import org.sonarqube.ws.client.settings.SetRequest;
 import org.sonarqube.ws.client.settings.ValuesRequest;
 import org.sonarqube.ws.client.usertokens.GenerateRequest;
@@ -54,6 +56,7 @@ import org.sonarqube.ws.client.usertokens.GenerateRequest;
 import static java.util.Collections.singletonList;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.skyscreamer.jsonassert.JSONAssert.assertEquals;
 import static util.ItUtils.projectDir;
 
@@ -324,6 +327,38 @@ public class SonarCloudUpdateLoginDuringAuthenticationTest {
         "}",
       tester.wsClient().customMeasures().search(new org.sonarqube.ws.client.custommeasures.SearchRequest().setProjectKey(project.getKey())),
       false);
+  }
+
+  @Test
+  public void rule_note_login_after_login_update() {
+    tester.settings().setGlobalSettings("sonar.organizations.anyoneCanCreate", "true");
+    String providerId = tester.users().generateProviderId();
+    String oldLogin = tester.users().generateLogin();
+
+    // Create user using authentication
+    authenticate(oldLogin, providerId);
+    String userToken = tester.wsClient().userTokens().generate(new GenerateRequest().setLogin(oldLogin).setName("token")).getToken();
+    WsClient userWsClient = tester.as(userToken, null).wsClient();
+
+    // Grant user the qprofile admin permission on the organization
+    Organization organization = tester.organizations().generate();
+    tester.organizations().service().addMember(new AddMemberRequest().setOrganization(organization.getKey()).setLogin(oldLogin));
+    tester.wsClient().permissions().addUser(new AddUserRequest().setLogin(oldLogin).setOrganization(organization.getKey()).setPermission("profileadmin"));
+
+    // Add a note on a rule
+    userWsClient.rules().update(new UpdateRequest().setOrganization(organization.getKey()).setKey("xoo:OneIssuePerLine").setMarkdownNote("A user note"));
+    assertThat(
+      tester.wsClient().rules().search(new org.sonarqube.ws.client.rules.SearchRequest().setOrganization(organization.getKey()).setRuleKey("xoo:OneIssuePerLine")).getRulesList())
+        .extracting(Rules.Rule::getKey, Rules.Rule::getNoteLogin, Rules.Rule::getMdNote)
+        .containsExactlyInAnyOrder(tuple("xoo:OneIssuePerLine", oldLogin, "A user note"));
+
+    // Update login during authentication, check rule note contains new user login
+    String newLogin = tester.users().generateLogin();
+    authenticate(newLogin, providerId);
+    assertThat(
+      tester.wsClient().rules().search(new org.sonarqube.ws.client.rules.SearchRequest().setOrganization(organization.getKey()).setRuleKey("xoo:OneIssuePerLine")).getRulesList())
+        .extracting(Rules.Rule::getKey, Rules.Rule::getNoteLogin, Rules.Rule::getMdNote)
+        .containsExactlyInAnyOrder(tuple("xoo:OneIssuePerLine", newLogin, "A user note"));
   }
 
   private void authenticate(String login, String providerId) {

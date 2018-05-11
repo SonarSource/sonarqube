@@ -33,7 +33,7 @@ public class RuleMetadataDto {
   private int ruleId;
   private String organizationUuid;
   private String noteData;
-  private String noteUserLogin;
+  private String noteUserUuid;
   private Long noteCreatedAt;
   private Long noteUpdatedAt;
   private String remediationFunction;
@@ -72,12 +72,12 @@ public class RuleMetadataDto {
   }
 
   @CheckForNull
-  public String getNoteUserLogin() {
-    return noteUserLogin;
+  public String getNoteUserUuid() {
+    return noteUserUuid;
   }
 
-  public RuleMetadataDto setNoteUserLogin(@Nullable String noteUserLogin) {
-    this.noteUserLogin = noteUserLogin;
+  public RuleMetadataDto setNoteUserUuid(@Nullable String noteUserUuid) {
+    this.noteUserUuid = noteUserUuid;
     return this;
   }
 
@@ -178,7 +178,7 @@ public class RuleMetadataDto {
       "ruleId=" + ruleId +
       ", organizationUuid='" + organizationUuid + '\'' +
       ", noteData='" + noteData + '\'' +
-      ", noteUserLogin='" + noteUserLogin + '\'' +
+      ", noteUserUuid='" + noteUserUuid + '\'' +
       ", noteCreatedAt=" + noteCreatedAt +
       ", noteUpdatedAt=" + noteUpdatedAt +
       ", remediationFunction='" + remediationFunction + '\'' +

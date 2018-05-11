@@ -40,11 +40,9 @@ import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.rule.RuleUpdate;
 import org.sonar.server.rule.RuleUpdater;
 import org.sonar.server.user.UserSession;
-import org.sonar.server.ws.WsUtils;
 import org.sonarqube.ws.Rules.UpdateResponse;
 
 import static com.google.common.collect.Sets.newHashSet;
@@ -79,15 +77,14 @@ public class UpdateAction implements RulesWsAction {
   private final RuleUpdater ruleUpdater;
   private final RuleMapper mapper;
   private final UserSession userSession;
-  private final DefaultOrganizationProvider defaultOrganizationProvider;
+  private final RuleWsSupport ruleWsSupport;
 
-  public UpdateAction(DbClient dbClient, RuleUpdater ruleUpdater, RuleMapper mapper, UserSession userSession,
-    DefaultOrganizationProvider defaultOrganizationProvider) {
+  public UpdateAction(DbClient dbClient, RuleUpdater ruleUpdater, RuleMapper mapper, UserSession userSession, RuleWsSupport ruleWsSupport) {
     this.dbClient = dbClient;
     this.ruleUpdater = ruleUpdater;
     this.mapper = mapper;
     this.userSession = userSession;
-    this.defaultOrganizationProvider = defaultOrganizationProvider;
+    this.ruleWsSupport = ruleWsSupport;
   }
 
   @Override
@@ -181,7 +178,7 @@ public class UpdateAction implements RulesWsAction {
   public void handle(Request request, Response response) throws Exception {
     userSession.checkLoggedIn();
     try (DbSession dbSession = dbClient.openSession(false)) {
-      OrganizationDto organization = getOrganization(request, dbSession);
+      OrganizationDto organization = ruleWsSupport.getOrganizationByKey(dbSession, request.param(PARAM_ORGANIZATION));
       userSession.checkPermission(ADMINISTER_QUALITY_PROFILES, organization);
       RuleUpdate update = readRequest(dbSession, request, organization);
       ruleUpdater.update(dbSession, update, organization, userSession);
@@ -189,14 +186,6 @@ public class UpdateAction implements RulesWsAction {
 
       writeProtobuf(updateResponse, request, response);
     }
-  }
-
-  private OrganizationDto getOrganization(Request request, DbSession dbSession) {
-    String organizationKey = ofNullable(request.param(PARAM_ORGANIZATION))
-      .orElseGet(() -> defaultOrganizationProvider.get().getKey());
-    return WsUtils.checkFoundWithOptional(
-      dbClient.organizationDao().selectByKey(dbSession, organizationKey),
-      "No organization with key '%s'", organizationKey);
   }
 
   private RuleUpdate readRequest(DbSession dbSession, Request request, OrganizationDto organization) {
@@ -289,7 +278,8 @@ public class UpdateAction implements RulesWsAction {
       .setTemplateRules(templateRules)
       .setRuleParameters(ruleParameters)
       .setTotal(1L);
-    responseBuilder.setRule(mapper.toWsRule(rule.getDefinition(), searchResult, Collections.emptySet(), rule.getMetadata()));
+    responseBuilder
+      .setRule(mapper.toWsRule(rule.getDefinition(), searchResult, Collections.emptySet(), rule.getMetadata(), ruleWsSupport.getUsersByUuid(dbSession, singletonList(rule))));
 
     return responseBuilder.build();
   }

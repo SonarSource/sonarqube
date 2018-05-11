@@ -49,6 +49,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
+import org.sonar.db.user.UserDto;
 import org.sonar.server.es.Facets;
 import org.sonar.server.es.SearchIdResult;
 import org.sonar.server.es.SearchOptions;
@@ -118,13 +119,16 @@ public class SearchAction implements RulesWsAction {
   private final RuleIndex ruleIndex;
   private final ActiveRuleCompleter activeRuleCompleter;
   private final RuleMapper mapper;
+  private final RuleWsSupport ruleWsSupport;
 
-  public SearchAction(RuleIndex ruleIndex, ActiveRuleCompleter activeRuleCompleter, RuleQueryFactory ruleQueryFactory, DbClient dbClient, RuleMapper mapper) {
+  public SearchAction(RuleIndex ruleIndex, ActiveRuleCompleter activeRuleCompleter, RuleQueryFactory ruleQueryFactory, DbClient dbClient, RuleMapper mapper,
+    RuleWsSupport ruleWsSupport) {
     this.ruleIndex = ruleIndex;
     this.activeRuleCompleter = activeRuleCompleter;
     this.ruleQueryFactory = ruleQueryFactory;
     this.dbClient = dbClient;
     this.mapper = mapper;
+    this.ruleWsSupport = ruleWsSupport;
   }
 
   @Override
@@ -330,10 +334,9 @@ public class SearchAction implements RulesWsAction {
       .setSince("6.4");
   }
 
-  private void writeRules(SearchResponse.Builder response, SearchResult result, SearchOptions context) {
-    for (RuleDto rule : result.rules) {
-      response.addRules(mapper.toWsRule(rule.getDefinition(), result, context.getFields(), rule.getMetadata()));
-    }
+  private void writeRules(DbSession dbSession, SearchResponse.Builder response, SearchResult result, SearchOptions context) {
+    Map<String, UserDto> usersByUuid = ruleWsSupport.getUsersByUuid(dbSession, result.rules);
+    result.rules.forEach(rule -> response.addRules(mapper.toWsRule(rule.getDefinition(), result, context.getFields(), rule.getMetadata(), usersByUuid)));
   }
 
   private static SearchOptions buildSearchOptions(SearchRequest request) {
@@ -392,7 +395,7 @@ public class SearchAction implements RulesWsAction {
 
   private void doContextResponse(DbSession dbSession, SearchRequest request, SearchResult result, SearchResponse.Builder response, RuleQuery query) {
     SearchOptions contextForResponse = loadCommonContext(request);
-    writeRules(response, result, contextForResponse);
+    writeRules(dbSession, response, result, contextForResponse);
     if (contextForResponse.getFields().contains("actives")) {
       activeRuleCompleter.completeSearch(dbSession, query, result.rules, response);
     }

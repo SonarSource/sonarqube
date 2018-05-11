@@ -33,6 +33,7 @@ import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.rule.RuleDto.Format;
 import org.sonar.db.rule.RuleDto.Scope;
+import org.sonar.db.user.UserDto;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.ImmutableSet.copyOf;
@@ -96,7 +97,7 @@ public class RuleTesting {
       .setRemediationFunction("LINEAR_OFFSET")
       .setTags(newHashSet("tag_" + randomAlphanumeric(5), "tag_" + randomAlphanumeric(5)))
       .setNoteData("noteData_" + randomAlphanumeric(5))
-      .setNoteUserLogin("noteLogin_" + randomAlphanumeric(5))
+      .setNoteUserUuid("noteUserUuid_" + randomAlphanumeric(5))
       .setNoteCreatedAt(System.currentTimeMillis() - 200)
       .setNoteUpdatedAt(System.currentTimeMillis() - 150)
       .setCreatedAt(System.currentTimeMillis() - 100)
@@ -107,6 +108,11 @@ public class RuleTesting {
     return newRuleMetadata()
       .setRuleId(rule.getId())
       .setOrganizationUuid(organization.getUuid());
+  }
+
+  public static RuleMetadataDto newRuleMetadata(RuleDefinitionDto rule, UserDto noteUser, OrganizationDto organization) {
+    return newRuleMetadata(rule, organization)
+      .setNoteUserUuid(noteUser.getUuid());
   }
 
   public static RuleParamDto newRuleParam(RuleDefinitionDto rule) {

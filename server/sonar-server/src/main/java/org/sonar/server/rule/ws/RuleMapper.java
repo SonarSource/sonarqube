@@ -23,6 +23,7 @@ import com.google.common.base.Function;
 import com.google.common.collect.FluentIterable;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
@@ -34,6 +35,7 @@ import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto.Scope;
 import org.sonar.db.rule.RuleMetadataDto;
 import org.sonar.db.rule.RuleParamDto;
+import org.sonar.db.user.UserDto;
 import org.sonar.markdown.Markdown;
 import org.sonar.server.rule.ws.SearchAction.SearchResult;
 import org.sonar.server.text.MacroInterpreter;
@@ -63,10 +65,10 @@ import static org.sonar.server.rule.ws.RulesWsParameters.FIELD_PARAMS;
 import static org.sonar.server.rule.ws.RulesWsParameters.FIELD_REM_FUNCTION;
 import static org.sonar.server.rule.ws.RulesWsParameters.FIELD_REM_FUNCTION_OVERLOADED;
 import static org.sonar.server.rule.ws.RulesWsParameters.FIELD_REPO;
+import static org.sonar.server.rule.ws.RulesWsParameters.FIELD_SCOPE;
 import static org.sonar.server.rule.ws.RulesWsParameters.FIELD_SEVERITY;
 import static org.sonar.server.rule.ws.RulesWsParameters.FIELD_STATUS;
 import static org.sonar.server.rule.ws.RulesWsParameters.FIELD_SYSTEM_TAGS;
-import static org.sonar.server.rule.ws.RulesWsParameters.FIELD_SCOPE;
 import static org.sonar.server.rule.ws.RulesWsParameters.FIELD_TAGS;
 import static org.sonar.server.rule.ws.RulesWsParameters.FIELD_TEMPLATE_KEY;
 
@@ -89,10 +91,10 @@ public class RuleMapper {
     return ruleResponse.build();
   }
 
-  public Rules.Rule toWsRule(RuleDefinitionDto ruleDefinitionDto, SearchResult result, Set<String> fieldsToReturn, RuleMetadataDto metadata) {
+  public Rules.Rule toWsRule(RuleDefinitionDto ruleDefinitionDto, SearchResult result, Set<String> fieldsToReturn, RuleMetadataDto metadata, Map<String, UserDto> usersByUuid) {
     Rules.Rule.Builder ruleResponse = Rules.Rule.newBuilder();
     applyRuleDefinition(ruleResponse, ruleDefinitionDto, result, fieldsToReturn);
-    applyRuleMetadata(ruleResponse, metadata, fieldsToReturn);
+    applyRuleMetadata(ruleResponse, metadata, usersByUuid, fieldsToReturn);
     setDebtRemediationFunctionFields(ruleResponse, ruleDefinitionDto, metadata, fieldsToReturn);
     return ruleResponse.build();
   }
@@ -101,7 +103,7 @@ public class RuleMapper {
 
     // Mandatory fields
     ruleResponse.setKey(ruleDefinitionDto.getKey().toString());
-    ruleResponse.setType(Common.RuleType.valueOf(ruleDefinitionDto.getType()));
+    ruleResponse.setType(Common.RuleType.forNumber(ruleDefinitionDto.getType()));
 
     // Optional fields
     setRepository(ruleResponse, ruleDefinitionDto, fieldsToReturn);
@@ -124,9 +126,9 @@ public class RuleMapper {
     return ruleResponse;
   }
 
-  private void applyRuleMetadata(Rules.Rule.Builder ruleResponse, RuleMetadataDto metadata, Set<String> fieldsToReturn) {
+  private void applyRuleMetadata(Rules.Rule.Builder ruleResponse, RuleMetadataDto metadata, Map<String, UserDto> usersByUuid, Set<String> fieldsToReturn) {
     setTags(ruleResponse, metadata, fieldsToReturn);
-    setNotesFields(ruleResponse, metadata, fieldsToReturn);
+    setNotesFields(ruleResponse, metadata, usersByUuid, fieldsToReturn);
     setIsRemediationFunctionOverloaded(ruleResponse, metadata, fieldsToReturn);
   }
 
@@ -282,21 +284,24 @@ public class RuleMapper {
     }
   }
 
-  private void setNotesFields(Rules.Rule.Builder ruleResponse, RuleMetadataDto ruleDto, Set<String> fieldsToReturn) {
-    if (shouldReturnField(fieldsToReturn, "htmlNote") && ruleDto.getNoteData() != null) {
-      ruleResponse.setHtmlNote(macroInterpreter.interpret(Markdown.convertToHtml(ruleDto.getNoteData())));
+  private void setNotesFields(Rules.Rule.Builder ruleResponse, RuleMetadataDto ruleDto, Map<String, UserDto> usersByUuid, Set<String> fieldsToReturn) {
+    String noteData = ruleDto.getNoteData();
+    if (shouldReturnField(fieldsToReturn, "htmlNote") && noteData != null) {
+      ruleResponse.setHtmlNote(macroInterpreter.interpret(Markdown.convertToHtml(noteData)));
     }
-    if (shouldReturnField(fieldsToReturn, "mdNote") && ruleDto.getNoteData() != null) {
-      ruleResponse.setMdNote(ruleDto.getNoteData());
+    if (shouldReturnField(fieldsToReturn, "mdNote") && noteData != null) {
+      ruleResponse.setMdNote(noteData);
     }
-    if (shouldReturnField(fieldsToReturn, FIELD_NOTE_LOGIN) && ruleDto.getNoteUserLogin() != null) {
-      ruleResponse.setNoteLogin(ruleDto.getNoteUserLogin());
+    String userUuid = ruleDto.getNoteUserUuid();
+    if (shouldReturnField(fieldsToReturn, FIELD_NOTE_LOGIN) && userUuid != null) {
+      ruleResponse.setNoteLogin(usersByUuid.get(userUuid).getLogin());
     }
   }
 
   private static void setSeverity(Rules.Rule.Builder ruleResponse, RuleDefinitionDto ruleDto, Set<String> fieldsToReturn) {
-    if (shouldReturnField(fieldsToReturn, FIELD_SEVERITY) && ruleDto.getSeverityString() != null) {
-      ruleResponse.setSeverity(ruleDto.getSeverityString());
+    String severity = ruleDto.getSeverityString();
+    if (shouldReturnField(fieldsToReturn, FIELD_SEVERITY) && severity != null) {
+      ruleResponse.setSeverity(severity);
     }
   }
 
@@ -307,8 +312,9 @@ public class RuleMapper {
   }
 
   private static void setLanguage(Rules.Rule.Builder ruleResponse, RuleDefinitionDto ruleDto, Set<String> fieldsToReturn) {
-    if (shouldReturnField(fieldsToReturn, FIELD_LANGUAGE) && ruleDto.getLanguage() != null) {
-      ruleResponse.setLang(ruleDto.getLanguage());
+    String language = ruleDto.getLanguage();
+    if (shouldReturnField(fieldsToReturn, FIELD_LANGUAGE) && language != null) {
+      ruleResponse.setLang(language);
     }
   }
 
@@ -385,8 +391,9 @@ public class RuleMapper {
       if (param.getDescription() != null) {
         paramResponse.setHtmlDesc(Markdown.convertToHtml(param.getDescription()));
       }
-      if (param.getDefaultValue() != null) {
-        paramResponse.setDefaultValue(param.getDefaultValue());
+      String defaultValue = param.getDefaultValue();
+      if (defaultValue != null) {
+        paramResponse.setDefaultValue(defaultValue);
       }
       if (param.getType() != null) {
         paramResponse.setType(param.getType());

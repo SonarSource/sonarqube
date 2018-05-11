@@ -33,8 +33,6 @@ import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.organization.DefaultOrganizationProvider;
-import org.sonar.server.ws.WsUtils;
 import org.sonarqube.ws.Rules.ShowResponse;
 
 import static java.util.Collections.singletonList;
@@ -53,13 +51,13 @@ public class ShowAction implements RulesWsAction {
   private final DbClient dbClient;
   private final RuleMapper mapper;
   private final ActiveRuleCompleter activeRuleCompleter;
-  private final DefaultOrganizationProvider defaultOrganizationProvider;
+  private final RuleWsSupport ruleWsSupport;
 
-  public ShowAction(DbClient dbClient, RuleMapper mapper, ActiveRuleCompleter activeRuleCompleter, DefaultOrganizationProvider defaultOrganizationProvider) {
+  public ShowAction(DbClient dbClient, RuleMapper mapper, ActiveRuleCompleter activeRuleCompleter, RuleWsSupport ruleWsSupport) {
     this.dbClient = dbClient;
     this.activeRuleCompleter = activeRuleCompleter;
     this.mapper = mapper;
-    this.defaultOrganizationProvider = defaultOrganizationProvider;
+    this.ruleWsSupport = ruleWsSupport;
   }
 
   @Override
@@ -105,7 +103,7 @@ public class ShowAction implements RulesWsAction {
   public void handle(Request request, Response response) throws Exception {
     RuleKey key = RuleKey.parse(request.mandatoryParam(PARAM_KEY));
     try (DbSession dbSession = dbClient.openSession(false)) {
-      OrganizationDto organization = getOrganization(request, dbSession);
+      OrganizationDto organization = ruleWsSupport.getOrganizationByKey(dbSession, request.param(PARAM_ORGANIZATION));
       RuleDto rule = dbClient.ruleDao().selectByKey(dbSession, organization, key)
         .orElseThrow(() -> new NotFoundException(String.format("Rule not found: %s", key)));
 
@@ -124,24 +122,15 @@ public class ShowAction implements RulesWsAction {
     }
   }
 
-  private OrganizationDto getOrganization(Request request, DbSession dbSession) {
-    String organizationKey = ofNullable(request.param(PARAM_ORGANIZATION))
-      .orElseGet(() -> defaultOrganizationProvider.get().getKey());
-    return WsUtils.checkFoundWithOptional(
-      dbClient.organizationDao().selectByKey(dbSession, organizationKey),
-      "No organization with key '%s'", organizationKey);
-  }
-
   private ShowResponse buildResponse(DbSession dbSession, OrganizationDto organization, Request request, SearchAction.SearchResult searchResult) {
     ShowResponse.Builder responseBuilder = ShowResponse.newBuilder();
     RuleDto rule = searchResult.getRules().get(0);
-    responseBuilder.setRule(mapper.toWsRule(rule.getDefinition(), searchResult, Collections.emptySet(), rule.getMetadata()));
-
+    responseBuilder.setRule(mapper.toWsRule(rule.getDefinition(), searchResult, Collections.emptySet(), rule.getMetadata(),
+      ruleWsSupport.getUsersByUuid(dbSession, searchResult.getRules())));
     if (request.mandatoryParamAsBoolean(PARAM_ACTIVES)) {
-      activeRuleCompleter.completeShow(dbSession, organization, rule.getDefinition()).stream()
-        .forEach(responseBuilder::addActives);
+      activeRuleCompleter.completeShow(dbSession, organization, rule.getDefinition()).forEach(responseBuilder::addActives);
     }
-
     return responseBuilder.build();
   }
+
 }

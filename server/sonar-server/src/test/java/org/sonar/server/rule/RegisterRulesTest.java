@@ -269,7 +269,7 @@ public class RegisterRulesTest {
     // user adds tags and sets markdown note
     rule1.setTags(newHashSet("usertag1", "usertag2"));
     rule1.setNoteData("user *note*");
-    rule1.setNoteUserLogin("marius");
+    rule1.setNoteUserUuid("marius");
     dbClient.ruleDao().insertOrUpdate(dbTester.getSession(), rule1.getMetadata());
     dbTester.getSession().commit();
 
@@ -285,7 +285,7 @@ public class RegisterRulesTest {
     assertThat(rule1.getSystemTags()).containsOnly("tag1", "tag4");
     assertThat(rule1.getConfigKey()).isEqualTo("config1 v2");
     assertThat(rule1.getNoteData()).isEqualTo("user *note*");
-    assertThat(rule1.getNoteUserLogin()).isEqualTo("marius");
+    assertThat(rule1.getNoteUserUuid()).isEqualTo("marius");
     assertThat(rule1.getStatus()).isEqualTo(RuleStatus.READY);
     assertThat(rule1.getType()).isEqualTo(RuleType.BUG.getDbConstant());
     assertThat(rule1.getCreatedAt()).isEqualTo(DATE1.getTime());

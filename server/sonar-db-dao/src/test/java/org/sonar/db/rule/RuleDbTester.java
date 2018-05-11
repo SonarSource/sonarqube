@@ -24,6 +24,7 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.user.UserDto;
 
 import static java.util.Arrays.asList;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
@@ -75,6 +76,13 @@ public class RuleDbTester {
   @SafeVarargs
   public final RuleMetadataDto insertOrUpdateMetadata(RuleDefinitionDto rule, OrganizationDto organization, Consumer<RuleMetadataDto>... populaters) {
     RuleMetadataDto dto = RuleTesting.newRuleMetadata(rule, organization);
+    asList(populaters).forEach(populater -> populater.accept(dto));
+    return insertOrUpdateMetadata(dto);
+  }
+
+  @SafeVarargs
+  public final RuleMetadataDto insertOrUpdateMetadata(RuleDefinitionDto rule, UserDto noteUser, OrganizationDto organization, Consumer<RuleMetadataDto>... populaters) {
+    RuleMetadataDto dto = RuleTesting.newRuleMetadata(rule, noteUser, organization);
     asList(populaters).forEach(populater -> populater.accept(dto));
     return insertOrUpdateMetadata(dto);
   }

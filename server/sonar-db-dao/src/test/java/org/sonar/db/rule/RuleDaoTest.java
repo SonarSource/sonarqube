@@ -584,7 +584,7 @@ public class RuleDaoTest {
       .setRuleId(1)
       .setOrganizationUuid(organizationUuid)
       .setNoteData("My note")
-      .setNoteUserLogin("admin")
+      .setNoteUserUuid("admin")
       .setNoteCreatedAt(DateUtils.parseDate("2013-12-19").getTime())
       .setNoteUpdatedAt(DateUtils.parseDate("2013-12-20").getTime())
       .setRemediationFunction(DebtRemediationFunction.Type.LINEAR.toString())
@@ -611,7 +611,7 @@ public class RuleDaoTest {
     assertThat(ruleDto.isTemplate()).isFalse();
     assertThat(ruleDto.getTemplateId()).isNull();
     assertThat(ruleDto.getNoteData()).isEqualTo("My note");
-    assertThat(ruleDto.getNoteUserLogin()).isEqualTo("admin");
+    assertThat(ruleDto.getNoteUserUuid()).isEqualTo("admin");
     assertThat(ruleDto.getNoteCreatedAt()).isNotNull();
     assertThat(ruleDto.getNoteUpdatedAt()).isNotNull();
     assertThat(ruleDto.getRemediationFunction()).isEqualTo("LINEAR");
@@ -642,7 +642,7 @@ public class RuleDaoTest {
       .setRuleId(1)
       .setOrganizationUuid(organizationUuid)
       .setNoteData("My note")
-      .setNoteUserLogin("admin")
+      .setNoteUserUuid("admin")
       .setNoteCreatedAt(DateUtils.parseDate("2013-12-19").getTime())
       .setNoteUpdatedAt(DateUtils.parseDate("2013-12-20").getTime())
       .setRemediationFunction(DebtRemediationFunction.Type.LINEAR.toString())
@@ -669,7 +669,7 @@ public class RuleDaoTest {
     assertThat(ruleDto.isTemplate()).isFalse();
     assertThat(ruleDto.getTemplateId()).isNull();
     assertThat(ruleDto.getNoteData()).isNull();
-    assertThat(ruleDto.getNoteUserLogin()).isNull();
+    assertThat(ruleDto.getNoteUserUuid()).isNull();
     assertThat(ruleDto.getNoteCreatedAt()).isNull();
     assertThat(ruleDto.getNoteUpdatedAt()).isNull();
     assertThat(ruleDto.getRemediationFunction()).isNull();
@@ -701,7 +701,7 @@ public class RuleDaoTest {
     assertThat(ruleDto.isTemplate()).isFalse();
     assertThat(ruleDto.getTemplateId()).isNull();
     assertThat(ruleDto.getNoteData()).isEqualTo("My note");
-    assertThat(ruleDto.getNoteUserLogin()).isEqualTo("admin");
+    assertThat(ruleDto.getNoteUserUuid()).isEqualTo("admin");
     assertThat(ruleDto.getNoteCreatedAt()).isNotNull();
     assertThat(ruleDto.getNoteUpdatedAt()).isNotNull();
     assertThat(ruleDto.getRemediationFunction()).isEqualTo("LINEAR");

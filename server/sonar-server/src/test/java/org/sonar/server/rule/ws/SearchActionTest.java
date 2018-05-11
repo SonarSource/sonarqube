@@ -43,6 +43,7 @@ import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleMetadataDto;
 import org.sonar.db.rule.RuleParamDto;
+import org.sonar.db.user.UserDto;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.language.LanguageTesting;
@@ -113,7 +114,8 @@ public class SearchActionTest {
   private RuleQueryFactory ruleQueryFactory = new RuleQueryFactory(db.getDbClient(), wsSupport);
   private MacroInterpreter macroInterpreter = mock(MacroInterpreter.class);
   private RuleMapper ruleMapper = new RuleMapper(languages, macroInterpreter);
-  private SearchAction underTest = new SearchAction(ruleIndex, activeRuleCompleter, ruleQueryFactory, db.getDbClient(), ruleMapper);
+  private SearchAction underTest = new SearchAction(ruleIndex, activeRuleCompleter, ruleQueryFactory, db.getDbClient(), ruleMapper,
+    new RuleWsSupport(db.getDbClient(), userSession, defaultOrganizationProvider));
   private TypeValidations typeValidations = new TypeValidations(asList(new StringTypeValidation(), new IntegerTypeValidation()));
   private RuleActivator ruleActivator = new RuleActivator(System2.INSTANCE, db.getDbClient(), typeValidations, userSession);
   private QProfileRules qProfileRules = new QProfileRulesImpl(db.getDbClient(), ruleActivator, ruleIndex, activeRuleIndexer);
@@ -160,6 +162,29 @@ public class SearchActionTest {
 
     verify(r -> {
     }, rule1, rule2);
+  }
+
+  @Test
+  public void return_note_login() {
+    OrganizationDto organization = db.organizations().insert();
+    UserDto user1 = db.users().insertUser();
+    RuleDefinitionDto rule1 = db.rules().insert();
+    db.rules().insertOrUpdateMetadata(rule1, user1, organization);
+    UserDto disableUser = db.users().insertDisabledUser();
+    RuleDefinitionDto rule2 = db.rules().insert();
+    db.rules().insertOrUpdateMetadata(rule2, disableUser, organization);
+    indexRules();
+
+    SearchResponse result = ws.newRequest()
+      .setParam("f", "noteLogin")
+      .setParam("organization", organization.getKey())
+      .executeProtobuf(SearchResponse.class);
+
+    assertThat(result.getRulesList())
+      .extracting(Rule::getKey, Rule::getNoteLogin)
+      .containsExactlyInAnyOrder(
+        tuple(rule1.getKey().toString(), user1.getLogin()),
+        tuple(rule2.getKey().toString(), disableUser.getLogin()));
   }
 
   @Test
@@ -324,6 +349,7 @@ public class SearchActionTest {
     indexRules();
 
     SearchResponse result = ws.newRequest()
+      .setParam("f", "repo,name")
       .setParam("facets", "tags")
       .setParam("organization", organization.getKey())
       .executeProtobuf(SearchResponse.class);
@@ -341,6 +367,7 @@ public class SearchActionTest {
     indexRules();
 
     SearchResponse result = ws.newRequest()
+      .setParam("f", "repo,name")
       .setParam("facets", "tags")
       .setParam("organization", organization.getKey())
       .executeProtobuf(SearchResponse.class);
@@ -409,8 +436,7 @@ public class SearchActionTest {
       .extracting(v -> tuple(v.getVal(), v.getCount()))
       .containsExactly(
         tuple("system1", 1L),
-        tuple("system2", 1L)
-      );
+        tuple("system2", 1L));
   }
 
   @Test
@@ -455,11 +481,10 @@ public class SearchActionTest {
 
   @Test
   public void search_debt_rules_with_default_and_overridden_debt_values() {
-    RuleDefinitionDto rule = db.rules().insert(r ->
-      r.setLanguage("java")
-        .setDefRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
-        .setDefRemediationGapMultiplier("1h")
-        .setDefRemediationBaseEffort("15min"));
+    RuleDefinitionDto rule = db.rules().insert(r -> r.setLanguage("java")
+      .setDefRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
+      .setDefRemediationGapMultiplier("1h")
+      .setDefRemediationBaseEffort("15min"));
 
     RuleMetadataDto metadata = insertMetadata(db.getDefaultOrganization(), rule,
       r -> r.setRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
@@ -490,11 +515,10 @@ public class SearchActionTest {
 
   @Test
   public void search_debt_rules_with_default_linear_offset_and_overridden_constant_debt() {
-    RuleDefinitionDto rule = db.rules().insert(r ->
-      r.setLanguage("java")
-        .setDefRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
-        .setDefRemediationGapMultiplier("1h")
-        .setDefRemediationBaseEffort("15min"));
+    RuleDefinitionDto rule = db.rules().insert(r -> r.setLanguage("java")
+      .setDefRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
+      .setDefRemediationGapMultiplier("1h")
+      .setDefRemediationBaseEffort("15min"));
 
     RuleMetadataDto metadata = insertMetadata(db.getDefaultOrganization(), rule,
       r -> r.setRemediationFunction(DebtRemediationFunction.Type.CONSTANT_ISSUE.name())
@@ -525,11 +549,10 @@ public class SearchActionTest {
 
   @Test
   public void search_debt_rules_with_default_linear_offset_and_overridden_linear_debt() {
-    RuleDefinitionDto rule = db.rules().insert(r ->
-      r.setLanguage("java")
-        .setDefRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
-        .setDefRemediationGapMultiplier("1h")
-        .setDefRemediationBaseEffort("15min"));
+    RuleDefinitionDto rule = db.rules().insert(r -> r.setLanguage("java")
+      .setDefRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
+      .setDefRemediationGapMultiplier("1h")
+      .setDefRemediationBaseEffort("15min"));
 
     RuleMetadataDto metadata = insertMetadata(db.getDefaultOrganization(), rule,
       r -> r.setRemediationFunction(DebtRemediationFunction.Type.LINEAR.name())
@@ -560,12 +583,10 @@ public class SearchActionTest {
 
   @Test
   public void search_template_rules() {
-    RuleDefinitionDto templateRule = db.rules().insert(r ->
-      r.setLanguage("java")
-        .setIsTemplate(true));
-    RuleDefinitionDto rule = db.rules().insert(r ->
-      r.setLanguage("java")
-        .setTemplateId(templateRule.getId()));
+    RuleDefinitionDto templateRule = db.rules().insert(r -> r.setLanguage("java")
+      .setIsTemplate(true));
+    RuleDefinitionDto rule = db.rules().insert(r -> r.setLanguage("java")
+      .setTemplateId(templateRule.getId()));
 
     indexRules();
 
@@ -584,12 +605,10 @@ public class SearchActionTest {
 
   @Test
   public void search_custom_rules_from_template_key() {
-    RuleDefinitionDto templateRule = db.rules().insert(r ->
-      r.setLanguage("java")
-        .setIsTemplate(true));
-    RuleDefinitionDto rule = db.rules().insert(r ->
-      r.setLanguage("java")
-        .setTemplateId(templateRule.getId()));
+    RuleDefinitionDto templateRule = db.rules().insert(r -> r.setLanguage("java")
+      .setIsTemplate(true));
+    RuleDefinitionDto rule = db.rules().insert(r -> r.setLanguage("java")
+      .setTemplateId(templateRule.getId()));
 
     indexRules();
 
@@ -639,24 +658,21 @@ public class SearchActionTest {
 
     RuleDefinitionDto rule = createJavaRule();
 
-    RuleParamDto ruleParam1 = db.rules().insertRuleParam(rule, p ->
-      p.setDefaultValue("some value")
-        .setType("STRING")
-        .setDescription("My small description")
-        .setName("my_var"));
+    RuleParamDto ruleParam1 = db.rules().insertRuleParam(rule, p -> p.setDefaultValue("some value")
+      .setType("STRING")
+      .setDescription("My small description")
+      .setName("my_var"));
 
-    RuleParamDto ruleParam2 = db.rules().insertRuleParam(rule, p ->
-      p.setDefaultValue("1")
-        .setType("INTEGER")
-        .setDescription("My small description")
-        .setName("the_var"));
+    RuleParamDto ruleParam2 = db.rules().insertRuleParam(rule, p -> p.setDefaultValue("1")
+      .setType("INTEGER")
+      .setDescription("My small description")
+      .setName("the_var"));
 
     // SONAR-7083
-    RuleParamDto ruleParam3 = db.rules().insertRuleParam(rule, p ->
-      p.setDefaultValue(null)
-        .setType("STRING")
-        .setDescription("Empty Param")
-        .setName("empty_var"));
+    RuleParamDto ruleParam3 = db.rules().insertRuleParam(rule, p -> p.setDefaultValue(null)
+      .setType("STRING")
+      .setDescription("Empty Param")
+      .setName("empty_var"));
 
     RuleActivation activation = RuleActivation.create(rule.getId());
     List<ActiveRuleChange> activeRuleChanges1 = qProfileRules.activateAndCommit(db.getSession(), profile, singleton(activation));
@@ -688,8 +704,7 @@ public class SearchActionTest {
     assertThat(activeList.getParamsCount()).isEqualTo(2);
     assertThat(activeList.getParamsList()).extracting("key", "value").containsExactlyInAnyOrder(
       tuple(ruleParam1.getName(), ruleParam1.getDefaultValue()),
-      tuple(ruleParam2.getName(), ruleParam2.getDefaultValue())
-    );
+      tuple(ruleParam2.getName(), ruleParam2.getDefaultValue()));
 
     String unknownProfile = "unknown_profile" + randomAlphanumeric(5);
     expectedException.expect(NotFoundException.class);
@@ -708,11 +723,10 @@ public class SearchActionTest {
 
     RuleDefinitionDto rule = createJavaRule();
 
-    RuleParamDto ruleParam = db.rules().insertRuleParam(rule, p ->
-      p.setDefaultValue("some value")
-        .setType("STRING")
-        .setDescription("My small description")
-        .setName("my_var"));
+    RuleParamDto ruleParam = db.rules().insertRuleParam(rule, p -> p.setDefaultValue("some value")
+      .setType("STRING")
+      .setDescription("My small description")
+      .setName("my_var"));
 
     RuleActivation activation = RuleActivation.create(rule.getId());
     List<ActiveRuleChange> activeRuleChanges = qProfileRules.activateAndCommit(db.getSession(), profile, singleton(activation));
@@ -744,8 +758,7 @@ public class SearchActionTest {
     assertThat(activeList.getParamsCount()).isEqualTo(2);
     assertThat(activeList.getParamsList()).extracting("key", "value").containsExactlyInAnyOrder(
       tuple(ruleParam.getName(), ruleParam.getDefaultValue()),
-      tuple(activeRuleParam.getKey(), "")
-    );
+      tuple(activeRuleParam.getKey(), ""));
   }
 
   /**
@@ -757,8 +770,7 @@ public class SearchActionTest {
     OrganizationDto organization = db.organizations().insert();
 
     QProfileDto profile = db.qualityProfiles().insert(organization, q -> q
-      .setLanguage("language1")
-    );
+      .setLanguage("language1"));
 
     // on same language, not activated => match
     RuleDefinitionDto rule1 = db.rules().insert(r -> r
@@ -811,51 +823,45 @@ public class SearchActionTest {
         tuple(rule1.getLanguage(), 1L),
 
         // known limitation: irrelevant languages are shown in this case (SONAR-9683)
-        tuple(rule3.getLanguage(), 1L)
-      );
+        tuple(rule3.getLanguage(), 1L));
 
     assertThat(result.getFacets().getFacetsList().stream().filter(f -> "tags".equals(f.getProperty())).findAny().get().getValuesList())
       .extracting(Common.FacetValue::getVal, Common.FacetValue::getCount)
       .as("Facet tags")
       .containsExactlyInAnyOrder(
-        tuple(rule1.getSystemTags().iterator().next(), 1L)
-      );
+        tuple(rule1.getSystemTags().iterator().next(), 1L));
 
     assertThat(result.getFacets().getFacetsList().stream().filter(f -> "repositories".equals(f.getProperty())).findAny().get().getValuesList())
       .extracting(Common.FacetValue::getVal, Common.FacetValue::getCount)
       .as("Facet repositories")
       .containsExactlyInAnyOrder(
-        tuple(rule1.getRepositoryKey(), 1L)
-      );
+        tuple(rule1.getRepositoryKey(), 1L));
 
     assertThat(result.getFacets().getFacetsList().stream().filter(f -> "severities".equals(f.getProperty())).findAny().get().getValuesList())
       .extracting(Common.FacetValue::getVal, Common.FacetValue::getCount)
       .as("Facet severities")
       .containsExactlyInAnyOrder(
-        tuple("BLOCKER" /*rule2*/, 0L),
-        tuple("CRITICAL"/*rule1*/, 1L),
+        tuple("BLOCKER" /* rule2 */, 0L),
+        tuple("CRITICAL"/* rule1 */, 1L),
         tuple("MAJOR", 0L),
         tuple("MINOR", 0L),
-        tuple("INFO", 0L)
-      );
+        tuple("INFO", 0L));
 
     assertThat(result.getFacets().getFacetsList().stream().filter(f -> "statuses".equals(f.getProperty())).findAny().get().getValuesList())
       .extracting(Common.FacetValue::getVal, Common.FacetValue::getCount)
       .as("Facet statuses")
       .containsExactlyInAnyOrder(
-        tuple("READY"/*rule2*/, 0L),
-        tuple("BETA" /*rule1*/, 1L),
-        tuple("DEPRECATED", 0L)
-      );
+        tuple("READY"/* rule2 */, 0L),
+        tuple("BETA" /* rule1 */, 1L),
+        tuple("DEPRECATED", 0L));
 
     assertThat(result.getFacets().getFacetsList().stream().filter(f -> "types".equals(f.getProperty())).findAny().get().getValuesList())
       .extracting(Common.FacetValue::getVal, Common.FacetValue::getCount)
       .as("Facet types")
       .containsExactlyInAnyOrder(
-        tuple("BUG"       /*rule2*/, 0L),
-        tuple("CODE_SMELL"/*rule1*/, 1L),
-        tuple("VULNERABILITY", 0L)
-      );
+        tuple("BUG" /* rule2 */, 0L),
+        tuple("CODE_SMELL"/* rule1 */, 1L),
+        tuple("VULNERABILITY", 0L));
   }
 
   @Test
@@ -875,8 +881,7 @@ public class SearchActionTest {
     assertThat(result.getRulesList()).extracting("key", "status.name").containsExactlyInAnyOrder(
       tuple(rule1.getKey().toString(), rule1.getStatus().name()),
       tuple(rule2.getKey().toString(), rule2.getStatus().name()),
-      tuple(rule3.getKey().toString(), rule3.getStatus().name())
-    );
+      tuple(rule3.getKey().toString(), rule3.getStatus().name()));
   }
 
   @Test

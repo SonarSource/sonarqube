@@ -361,12 +361,12 @@ public class RuleDto {
   }
 
   @CheckForNull
-  public String getNoteUserLogin() {
-    return metadata.getNoteUserLogin();
+  public String getNoteUserUuid() {
+    return metadata.getNoteUserUuid();
   }
 
-  public RuleDto setNoteUserLogin(@Nullable String noteUserLogin) {
-    metadata.setNoteUserLogin(noteUserLogin);
+  public RuleDto setNoteUserUuid(@Nullable String noteUserUuid) {
+    metadata.setNoteUserUuid(noteUserUuid);
     return this;
   }
 
