@@ -22,12 +22,14 @@ package org.sonarqube.tests.user;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
 import java.util.List;
+import org.json.JSONException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonarqube.qa.util.Tester;
+import org.sonarqube.qa.util.TesterSession;
 import org.sonarqube.ws.Issues;
 import org.sonarqube.ws.Issues.Issue;
 import org.sonarqube.ws.Organizations.Organization;
@@ -39,11 +41,14 @@ import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.issues.AssignRequest;
 import org.sonarqube.ws.client.organizations.AddMemberRequest;
 import org.sonarqube.ws.client.organizations.SearchRequest;
+import org.sonarqube.ws.client.qualityprofiles.ChangelogRequest;
 import org.sonarqube.ws.client.settings.SetRequest;
 import org.sonarqube.ws.client.settings.ValuesRequest;
+import org.sonarqube.ws.client.usertokens.GenerateRequest;
 
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.skyscreamer.jsonassert.JSONAssert.assertEquals;
 import static util.ItUtils.projectDir;
 
 public class SonarCloudUpdateLoginDuringAuthenticationTest {
@@ -174,6 +179,59 @@ public class SonarCloudUpdateLoginDuringAuthenticationTest {
       .getSettingsList())
         .extracting(Settings.Setting::getValue)
         .containsExactlyInAnyOrder(newLogin);
+  }
+
+  @Test
+  public void qprofile_changes_after_login_update() throws JSONException {
+    tester.settings().setGlobalSettings("sonar.organizations.anyoneCanCreate", "true");
+    String providerId = tester.users().generateProviderId();
+    String oldLogin = tester.users().generateLogin();
+    authenticate(oldLogin, providerId);
+
+    // Activate a rule on a new quality profile
+    String userToken = tester.wsClient().userTokens().generate(new GenerateRequest().setLogin(oldLogin).setName("token")).getToken();
+    TesterSession userSession = tester.as(userToken, null);
+    Organization organization = userSession.organizations().generate();
+    Qualityprofiles.CreateWsResponse.QualityProfile qProfile = userSession.qProfiles().createXooProfile(organization);
+    userSession.qProfiles().activateRule(qProfile, "xoo:OneIssuePerLine");
+
+    // Check changelog contain user login
+    String changelog = tester.qProfiles().service().changelog(new ChangelogRequest()
+      .setOrganization(organization.getKey())
+      .setQualityProfile(qProfile.getName())
+      .setLanguage(qProfile.getLanguage()));
+    assertEquals(
+      "{\n" +
+        "  \"events\": [\n" +
+        "    {\n" +
+        "      \"ruleKey\": \"xoo:OneIssuePerLine\",\n" +
+        "      \"authorLogin\": \"" + oldLogin + "\",\n" +
+        "      \"action\": \"ACTIVATED\"\n" +
+        "    }\n" +
+        "  ]\n" +
+        "}",
+      changelog,
+      false);
+
+    // Update login during authentication, check changelog contains new user login
+    String newLogin = tester.users().generateLogin();
+    authenticate(newLogin, providerId);
+    String changelogReloaded = tester.qProfiles().service().changelog(new ChangelogRequest()
+      .setOrganization(organization.getKey())
+      .setQualityProfile(qProfile.getName())
+      .setLanguage(qProfile.getLanguage()));
+    assertEquals(
+      "{\n" +
+        "  \"events\": [\n" +
+        "    {\n" +
+        "      \"ruleKey\": \"xoo:OneIssuePerLine\",\n" +
+        "      \"authorLogin\": \"" + newLogin + "\",\n" +
+        "      \"action\": \"ACTIVATED\"\n" +
+        "    }\n" +
+        "  ]\n" +
+        "}",
+      changelogReloaded,
+      false);
   }
 
   private void authenticate(String login, String providerId) {

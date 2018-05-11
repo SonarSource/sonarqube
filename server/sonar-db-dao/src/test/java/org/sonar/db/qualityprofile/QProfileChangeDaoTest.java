@@ -51,7 +51,7 @@ public class QProfileChangeDaoTest {
 
   @Test
   public void insert() {
-    QProfileChangeDto dto = insertChange("P1", "ACTIVATED", "marcel", "some_data");
+    QProfileChangeDto dto = insertChange("P1", "ACTIVATED", "marcel_uuid", "some_data");
 
     verifyInserted(dto);
   }
@@ -71,7 +71,7 @@ public class QProfileChangeDaoTest {
     assertThat(reloaded.getUuid()).isEqualTo(dto.getUuid());
     assertThat(reloaded.getChangeType()).isEqualTo(dto.getChangeType());
     assertThat(reloaded.getData()).isEqualTo(dto.getData());
-    assertThat(reloaded.getLogin()).isEqualTo(dto.getLogin());
+    assertThat(reloaded.getUserUuid()).isEqualTo(dto.getUserUuid());
     assertThat(reloaded.getRulesProfileUuid()).isEqualTo(dto.getRulesProfileUuid());
     assertThat(reloaded.getCreatedAt()).isPositive();
   }
@@ -180,7 +180,7 @@ public class QProfileChangeDaoTest {
     assertThat(result).hasSize(1);
     QProfileChangeDto change = result.get(0);
     assertThat(change.getRulesProfileUuid()).isEqualTo(inserted.getRulesProfileUuid());
-    assertThat(change.getLogin()).isEqualTo(inserted.getLogin());
+    assertThat(change.getUserUuid()).isEqualTo(inserted.getUserUuid());
     assertThat(change.getData()).isEqualTo(inserted.getData());
     assertThat(change.getChangeType()).isEqualTo(inserted.getChangeType());
     assertThat(change.getUuid()).isEqualTo(inserted.getUuid());
@@ -238,10 +238,10 @@ public class QProfileChangeDaoTest {
     return insertChange(profile.getRulesProfileUuid(), type, login, data);
   }
 
-  private QProfileChangeDto insertChange(String rulesProfileUuid, String type, @Nullable String login, @Nullable String data) {
+  private QProfileChangeDto insertChange(String rulesProfileUuid, String type, @Nullable String userUuid, @Nullable String data) {
     QProfileChangeDto dto = new QProfileChangeDto()
       .setRulesProfileUuid(rulesProfileUuid)
-      .setLogin(login)
+      .setUserUuid(userUuid)
       .setChangeType(type)
       .setData(data);
     underTest.insert(dbSession, dto);
@@ -250,13 +250,13 @@ public class QProfileChangeDaoTest {
 
   private QProfileChangeDto selectChangeByUuid(String uuid) {
     Map<String, Object> map = db.selectFirst(dbSession,
-      "select kee as \"uuid\", rules_profile_uuid as \"rulesProfileUuid\", created_at as \"createdAt\", user_login as \"login\", change_type as \"changeType\", change_data as \"changeData\" from qprofile_changes where kee='"
+      "select kee as \"uuid\", rules_profile_uuid as \"rulesProfileUuid\", created_at as \"createdAt\", user_uuid as \"userUuid\", change_type as \"changeType\", change_data as \"changeData\" from qprofile_changes where kee='"
         + uuid + "'");
     return new QProfileChangeDto()
       .setUuid((String) map.get("uuid"))
       .setRulesProfileUuid((String) map.get("rulesProfileUuid"))
       .setCreatedAt((long) map.get("createdAt"))
-      .setLogin((String) map.get("login"))
+      .setUserUuid((String) map.get("userUuid"))
       .setChangeType((String) map.get("changeType"))
       .setData((String) map.get("changeData"));
   }

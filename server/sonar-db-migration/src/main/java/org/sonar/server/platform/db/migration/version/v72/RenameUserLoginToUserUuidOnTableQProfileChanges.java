@@ -19,22 +19,28 @@
  */
 package org.sonar.server.platform.db.migration.version.v72;
 
-import org.junit.Test;
+import java.sql.SQLException;
+import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.sql.RenameColumnsBuilder;
+import org.sonar.server.platform.db.migration.step.DdlChange;
 
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationCount;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
+import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.newVarcharColumnDefBuilder;
 
-public class DbVersion72Test {
-  private DbVersion72 underTest = new DbVersion72();
+public class RenameUserLoginToUserUuidOnTableQProfileChanges extends DdlChange {
 
-  @Test
-  public void migrationNumber_starts_at_2100() {
-    verifyMinimumMigrationNumber(underTest, 2100);
+  public RenameUserLoginToUserUuidOnTableQProfileChanges(Database db) {
+    super(db);
   }
 
-  @Test
-  public void verify_migration_count() {
-    verifyMigrationCount(underTest, 19);
+  @Override
+  public void execute(Context context) throws SQLException {
+    context.execute(new RenameColumnsBuilder(getDialect(), "qprofile_changes")
+      .renameColumn("user_login",
+        newVarcharColumnDefBuilder()
+          .setColumnName("user_uuid")
+          .setLimit(255)
+          .setIsNullable(true)
+          .build())
+      .build());
   }
-
 }

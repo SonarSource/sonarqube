@@ -242,7 +242,7 @@ public class RuleActivator {
       activeRule = doUpdate(change, context, dbSession);
     }
     change.setActiveRule(activeRule);
-    db.qProfileChangeDao().insert(dbSession, change.toDto(userSession.getLogin()));
+    db.qProfileChangeDao().insert(dbSession, change.toDto(userSession.getUuid()));
   }
 
   private ActiveRuleDto doInsert(ActiveRuleChange change, RuleActivationContext context, DbSession dbSession) {

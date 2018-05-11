@@ -115,11 +115,11 @@ public class ActiveRuleChange {
     return this;
   }
 
-  public QProfileChangeDto toDto(@Nullable String login) {
+  public QProfileChangeDto toDto(@Nullable String userUuid) {
     QProfileChangeDto dto = new QProfileChangeDto();
     dto.setChangeType(type.name());
     dto.setRulesProfileUuid(getKey().getRuleProfileUuid());
-    dto.setLogin(login);
+    dto.setUserUuid(userUuid);
     Map<String, String> data = new HashMap<>();
     data.put("ruleId", String.valueOf(getRuleId()));
 

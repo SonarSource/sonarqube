@@ -32,7 +32,7 @@ public class QProfileChangeDto {
   private String uuid;
   private String rulesProfileUuid;
   private String changeType;
-  private String login;
+  private String userUuid;
   private String data;
   private long createdAt;
 
@@ -73,12 +73,12 @@ public class QProfileChangeDto {
   }
 
   @CheckForNull
-  public String getLogin() {
-    return login;
+  public String getUserUuid() {
+    return userUuid;
   }
 
-  public QProfileChangeDto setLogin(@Nullable String s) {
-    this.login = s;
+  public QProfileChangeDto setUserUuid(@Nullable String s) {
+    this.userUuid = s;
     return this;
   }
 

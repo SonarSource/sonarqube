@@ -24,7 +24,6 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -33,23 +32,18 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.internal.TestSystem2;
-import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.QProfileChangeDto;
 import org.sonar.db.qualityprofile.QProfileDto;
-import org.sonar.db.qualityprofile.QualityProfileTesting;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.qualityprofile.ActiveRuleChange;
 import org.sonar.server.qualityprofile.ActiveRuleInheritance;
 import org.sonar.server.tester.UserSessionRule;
-import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
-import org.sonar.test.JsonAssert;
 
 import static java.lang.String.valueOf;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -62,29 +56,20 @@ import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.
 
 public class ChangelogActionTest {
 
-  private TestSystem2 system2 = new TestSystem2().setNow(1_500_000_000_000L);
+  private static final String DATE = "2011-04-25T01:15:42+0100";
+
+  private TestSystem2 system2 = new TestSystem2().setNow(DateUtils.parseDateTime(DATE).getTime());
 
   @Rule
-  public DbTester dbTester = DbTester.create(system2);
+  public DbTester db = DbTester.create(system2);
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
-  private WsActionTester ws;
-  private QProfileWsSupport wsSupport;
-  private OrganizationDto organization;
-  private DefaultOrganizationProvider defaultOrganizationProvider;
-
-  @Before
-  public void before() {
-    system2.setNow(DateUtils.parseDateTime("2011-04-25T01:15:42+0100").getTime());
-    defaultOrganizationProvider = TestDefaultOrganizationProvider.from(dbTester);
-    wsSupport = new QProfileWsSupport(dbTester.getDbClient(), userSession, defaultOrganizationProvider);
-    ws = new WsActionTester(
-      new ChangelogAction(wsSupport, new Languages(), dbTester.getDbClient()));
-    organization = dbTester.organizations().insert();
-  }
+  private QProfileWsSupport wsSupport = new QProfileWsSupport(db.getDbClient(), userSession, TestDefaultOrganizationProvider.from(db));
+  private WsActionTester ws = new WsActionTester(
+    new ChangelogAction(wsSupport, new Languages(), db.getDbClient()));
 
   @Test
   public void definition() {
@@ -101,34 +86,33 @@ public class ChangelogActionTest {
 
   @Test
   public void example() {
-    QProfileDto profile = dbTester.qualityProfiles().insert(organization);
+    OrganizationDto organization = db.organizations().insert();
+    QProfileDto profile = db.qualityProfiles().insert(organization);
     String profileUuid = profile.getRulesProfileUuid();
 
     system2.setNow(DateUtils.parseDateTime("2015-02-23T17:58:39+0100").getTime());
-    RuleDefinitionDto rule1 = dbTester.rules().insert(RuleKey.of("squid", "S2438"), r -> r.setName("\"Threads\" should not be used where \"Runnables\" are expected"));
-    UserDto user1 = dbTester.users().insertUser(u -> u.setLogin("anakin.skywalker").setName("Anakin Skywalker"));
-    insertChange(profile, c -> c.setRulesProfileUuid(profileUuid)
-      .setLogin(user1.getLogin())
+    RuleDefinitionDto rule1 = db.rules().insert(RuleKey.of("squid", "S2438"), r -> r.setName("\"Threads\" should not be used where \"Runnables\" are expected"));
+    UserDto user1 = db.users().insertUser(u -> u.setLogin("anakin.skywalker").setName("Anakin Skywalker"));
+    insertChange(c -> c.setRulesProfileUuid(profileUuid)
+      .setUserUuid(user1.getUuid())
       .setChangeType(ActiveRuleChange.Type.ACTIVATED.name())
       .setData(ImmutableMap.of("severity", "CRITICAL", "ruleId", valueOf(rule1.getId()))));
 
     system2.setNow(DateUtils.parseDateTime("2015-02-23T17:58:18+0100").getTime());
-    RuleDefinitionDto rule2 = dbTester.rules().insert(RuleKey.of("squid", "S2162"), r -> r.setName("\"equals\" methods should be symmetric and work for subclasses"));
-    UserDto user2 = dbTester.users().insertUser(u -> u.setLogin("padme.amidala").setName("Padme Amidala"));
-    QProfileChangeDto change2 = insertChange(profile, c -> c.setRulesProfileUuid(profileUuid)
-      .setLogin(user2.getLogin())
+    RuleDefinitionDto rule2 = db.rules().insert(RuleKey.of("squid", "S2162"), r -> r.setName("\"equals\" methods should be symmetric and work for subclasses"));
+    UserDto user2 = db.users().insertUser(u -> u.setLogin("padme.amidala").setName("Padme Amidala"));
+    QProfileChangeDto change2 = insertChange(c -> c.setRulesProfileUuid(profileUuid)
+      .setUserUuid(user2.getUuid())
       .setChangeType(ActiveRuleChange.Type.DEACTIVATED.name())
       .setData(ImmutableMap.of("ruleId", valueOf(rule2.getId()))));
 
     system2.setNow(DateUtils.parseDateTime("2014-09-12T15:20:46+0200").getTime());
-    RuleDefinitionDto rule3 = dbTester.rules().insert(RuleKey.of("squid", "S00101"), r -> r.setName("Class names should comply with a naming convention"));
-    UserDto user3 = dbTester.users().insertUser(u -> u.setLogin("obiwan.kenobi").setName("Obiwan Kenobi"));
-    QProfileChangeDto change3 = insertChange(profile, c -> c.setRulesProfileUuid(profileUuid)
-      .setLogin(user3.getLogin())
+    RuleDefinitionDto rule3 = db.rules().insert(RuleKey.of("squid", "S00101"), r -> r.setName("Class names should comply with a naming convention"));
+    UserDto user3 = db.users().insertUser(u -> u.setLogin("obiwan.kenobi").setName("Obiwan Kenobi"));
+    QProfileChangeDto change3 = insertChange(c -> c.setRulesProfileUuid(profileUuid)
+      .setUserUuid(user3.getUuid())
       .setChangeType(ActiveRuleChange.Type.ACTIVATED.name())
       .setData(ImmutableMap.of("severity", "MAJOR", "param_format", "^[A-Z][a-zA-Z0-9]*$", "ruleId", valueOf(rule3.getId()))));
-
-    dbTester.commit();
 
     String response = ws.newRequest()
       .setMethod("GET")
@@ -141,161 +125,17 @@ public class ChangelogActionTest {
   }
 
   @Test
-  public void find_changelog_by_profile_key() {
-    QProfileDto profile = dbTester.qualityProfiles().insert(organization);
-
-    String response = ws.newRequest()
-      .setMethod("GET")
-      .setParam(PARAM_KEY, profile.getKee())
-      .execute()
-      .getInput();
-
-    assertThat(response).isNotEmpty();
-  }
-
-  @Test
-  public void find_changelog_by_language_and_name() {
-    QProfileDto qualityProfile = dbTester.qualityProfiles().insert(dbTester.getDefaultOrganization());
-
-    String response = ws.newRequest()
-      .setMethod("GET")
-      .setParam(PARAM_LANGUAGE, qualityProfile.getLanguage())
-      .setParam(PARAM_QUALITY_PROFILE, qualityProfile.getName())
-      .execute()
-      .getInput();
-
-    assertThat(response).isNotEmpty();
-  }
-
-  @Test
-  public void find_changelog_by_organization_and_language_and_name() {
-    QProfileDto qualityProfile = dbTester.qualityProfiles().insert(organization);
-
-    String response = ws.newRequest()
-      .setMethod("GET")
-      .setParam(PARAM_LANGUAGE, qualityProfile.getLanguage())
-      .setParam(PARAM_QUALITY_PROFILE, qualityProfile.getName())
-      .setParam(PARAM_ORGANIZATION, organization.getKey())
-      .execute()
-      .getInput();
-
-    assertThat(response).isNotEmpty();
-  }
-
-  @Test
-  public void do_not_find_changelog_by_wrong_organization_and_language_and_name() {
-    OrganizationDto organization1 = dbTester.organizations().insert();
-    OrganizationDto organization2 = dbTester.organizations().insert();
-
-    QProfileDto qualityProfile = dbTester.qualityProfiles().insert(organization1);
-
-    TestRequest request = ws.newRequest()
-      .setMethod("GET")
-      .setParam(PARAM_LANGUAGE, qualityProfile.getLanguage())
-      .setParam(PARAM_QUALITY_PROFILE, qualityProfile.getName())
-      .setParam(PARAM_ORGANIZATION, organization2.getKey());
-
-    thrown.expect(NotFoundException.class);
-
-    request.execute();
-  }
-
-  @Test
-  public void changelog_empty() {
-    QProfileDto qualityProfile = dbTester.qualityProfiles().insert(organization);
-
-    String response = ws.newRequest()
-      .setMethod("GET")
-      .setParam(PARAM_KEY, qualityProfile.getKee())
-      .execute()
-      .getInput();
-
-    assertThat(response).contains("\"total\":0");
-    assertThat(response).contains("\"events\":[]");
-  }
-
-  @Test
-  public void changelog_not_empty() {
-    QProfileDto qualityProfile = dbTester.qualityProfiles().insert(organization);
-    QProfileChangeDto change = QualityProfileTesting.newQProfileChangeDto()
-      .setUuid(null)
-      .setCreatedAt(0)
-      .setRulesProfileUuid(qualityProfile.getRulesProfileUuid());
-    DbSession session = dbTester.getSession();
-    dbTester.getDbClient().qProfileChangeDao().insert(session, change);
-    session.commit();
-
-    String response = ws.newRequest()
-      .setMethod("GET")
-      .setParam(PARAM_KEY, qualityProfile.getKee())
-      .execute()
-      .getInput();
-
-    assertThat(response).contains("\"total\":1");
-  }
-
-  @Test
-  public void changelog_filter_by_since() {
-    QProfileDto qualityProfile = dbTester.qualityProfiles().insert(organization);
-    system2.setNow(DateUtils.parseDateTime("2011-04-25T01:15:42+0100").getTime());
-    QProfileChangeDto change = QualityProfileTesting.newQProfileChangeDto()
-      .setUuid(null)
-      .setCreatedAt(0)
-      .setRulesProfileUuid(qualityProfile.getRulesProfileUuid());
-    DbSession session = dbTester.getSession();
-    dbTester.getDbClient().qProfileChangeDao().insert(session, change);
-    session.commit();
-
-    String response = ws.newRequest()
-      .setMethod("GET")
-      .setParam(PARAM_KEY, qualityProfile.getKee())
-      .setParam(PARAM_SINCE, "2011-04-25T01:15:42+0100")
-      .execute()
-      .getInput();
-
-    assertThat(response).contains("\"total\":1");
-
-    String response2 = ws.newRequest()
-      .setMethod("GET")
-      .setParam(PARAM_KEY, qualityProfile.getKee())
-      .setParam(PARAM_SINCE, "2011-04-25T01:15:43+0100")
-      .execute()
-      .getInput();
-
-    assertThat(response2).contains("\"total\":0");
-  }
-
-  @Test
-  public void sort_changelog_events_in_reverse_chronological_order() {
-    QProfileDto profile = dbTester.qualityProfiles().insert(organization);
-    system2.setNow(DateUtils.parseDateTime("2011-04-25T01:15:42+0100").getTime());
-    QProfileChangeDto change1 = insertChange(profile, ActiveRuleChange.Type.ACTIVATED, null, null);
-    system2.setNow(DateUtils.parseDateTime("2011-04-25T01:15:43+0100").getTime());
-    QProfileChangeDto change2 = insertChange(profile, ActiveRuleChange.Type.DEACTIVATED, "mazout", null);
-    dbTester.commit();
-
-    String response = ws.newRequest()
-      .setMethod("GET")
-      .setParam(PARAM_KEY, profile.getKee())
-      .execute()
-      .getInput();
-
-    assertThat(response).containsSubsequence("15:43", "15:42");
-  }
-
-  @Test
   public void return_change_with_all_fields() {
-    QProfileDto profile = dbTester.qualityProfiles().insert(organization);
-    RuleDefinitionDto rule1 = dbTester.rules().insert(RuleKey.of("java", "S001"));
-
-    Map<String, Object> data = ImmutableMap.of(
-      "ruleId", valueOf(rule1.getId()),
+    OrganizationDto organization = db.organizations().insert();
+    QProfileDto profile = db.qualityProfiles().insert(organization);
+    UserDto user = db.users().insertUser();
+    RuleDefinitionDto rule = db.rules().insert(RuleKey.of("java", "S001"));
+    insertChange(profile, ActiveRuleChange.Type.ACTIVATED, user, ImmutableMap.of(
+      "ruleId", valueOf(rule.getId()),
       "severity", "MINOR",
       "inheritance", ActiveRuleInheritance.INHERITED.name(),
       "param_foo", "foo_value",
-      "param_bar", "bar_value");
-    QProfileChangeDto change = insertChange(profile, ActiveRuleChange.Type.ACTIVATED, "theLogin", data);
-    dbTester.commit();
+      "param_bar", "bar_value"));
 
     String response = ws.newRequest()
       .setMethod("GET")
@@ -303,16 +143,18 @@ public class ChangelogActionTest {
       .execute()
       .getInput();
 
-    JsonAssert.assertJson(response).isSimilarTo("{\n" +
+    assertJson(response).isSimilarTo("{\n" +
       "  \"total\": 1,\n" +
       "  \"p\": 1,\n" +
       "  \"ps\": 50,\n" +
       "  \"events\": [\n" +
       "    {\n" +
-      "      \"date\": \"2011-04-25T02:15:42+0200\",\n" +
-      "      \"authorLogin\": \"theLogin\",\n" +
+      "      \"date\": \"" + DATE + "\",\n" +
+      "      \"authorLogin\": \"" + user.getLogin() + "\",\n" +
+      "      \"authorName\": \"" + user.getName() + "\",\n" +
       "      \"action\": \"ACTIVATED\",\n" +
-      "      \"ruleKey\": \"java:S001\",\n" +
+      "      \"ruleKey\": \"" + rule.getKey() + "\",\n" +
+      "      \"ruleName\": \"" + rule.getName() + "\",\n" +
       "      \"params\": {\n" +
       "        \"severity\": \"MINOR\",\n" +
       "        \"bar\": \"bar_value\",\n" +
@@ -323,17 +165,300 @@ public class ChangelogActionTest {
       "}");
   }
 
-  private QProfileChangeDto insertChange(QProfileDto profile, ActiveRuleChange.Type type, @Nullable String login, @Nullable Map<String, Object> data) {
-    return insertChange(profile, c -> c.setRulesProfileUuid(profile.getRulesProfileUuid())
-      .setLogin(login)
+  @Test
+  public void find_changelog_by_profile_key() {
+    OrganizationDto organization = db.organizations().insert();
+    QProfileDto profile = db.qualityProfiles().insert(organization);
+    RuleDefinitionDto rule = db.rules().insert();
+    UserDto user = db.users().insertUser();
+    insertChange(profile, ActiveRuleChange.Type.ACTIVATED, user,
+      ImmutableMap.of(
+        "ruleId", valueOf(rule.getId()),
+        "severity", "MINOR"));
+
+    String response = ws.newRequest()
+      .setMethod("GET")
+      .setParam(PARAM_KEY, profile.getKee())
+      .execute()
+      .getInput();
+
+    assertJson(response).isSimilarTo("{\n" +
+      "  \"events\": [\n" +
+      "    {\n" +
+      "      \"date\": \"" + DATE + "\",\n" +
+      "      \"authorLogin\": \"" + user.getLogin() + "\",\n" +
+      "      \"action\": \"ACTIVATED\",\n" +
+      "      \"ruleKey\": \"" + rule.getKey() + "\",\n" +
+      "      \"ruleName\": \"" + rule.getName() + "\",\n" +
+      "      \"params\": {\n" +
+      "        \"severity\": \"MINOR\"\n" +
+      "      }\n" +
+      "    }\n" +
+      "  ]\n" +
+      "}");
+  }
+
+  @Test
+  public void find_changelog_by_language_and_name() {
+    QProfileDto qualityProfile = db.qualityProfiles().insert(db.getDefaultOrganization());
+    RuleDefinitionDto rule = db.rules().insert();
+    UserDto user = db.users().insertUser();
+    insertChange(qualityProfile, ActiveRuleChange.Type.ACTIVATED, user,
+      ImmutableMap.of(
+        "ruleId", valueOf(rule.getId()),
+        "severity", "MINOR"));
+
+    String response = ws.newRequest()
+      .setMethod("GET")
+      .setParam(PARAM_LANGUAGE, qualityProfile.getLanguage())
+      .setParam(PARAM_QUALITY_PROFILE, qualityProfile.getName())
+      .execute()
+      .getInput();
+
+    assertJson(response).isSimilarTo("{\n" +
+      "  \"events\": [\n" +
+      "    {\n" +
+      "      \"date\": \"" + DATE + "\",\n" +
+      "      \"authorLogin\": \"" + user.getLogin() + "\",\n" +
+      "      \"action\": \"ACTIVATED\",\n" +
+      "      \"ruleKey\": \"" + rule.getKey() + "\",\n" +
+      "      \"ruleName\": \"" + rule.getName() + "\",\n" +
+      "      \"params\": {\n" +
+      "        \"severity\": \"MINOR\"\n" +
+      "      }\n" +
+      "    }\n" +
+      "  ]\n" +
+      "}");
+  }
+
+  @Test
+  public void find_changelog_by_organization_and_language_and_name() {
+    OrganizationDto organization = db.organizations().insert();
+    QProfileDto qualityProfile = db.qualityProfiles().insert(organization);
+    RuleDefinitionDto rule = db.rules().insert();
+    UserDto user = db.users().insertUser();
+    insertChange(qualityProfile, ActiveRuleChange.Type.ACTIVATED, user,
+      ImmutableMap.of(
+        "ruleId", valueOf(rule.getId()),
+        "severity", "MINOR"));
+
+    String response = ws.newRequest()
+      .setMethod("GET")
+      .setParam(PARAM_LANGUAGE, qualityProfile.getLanguage())
+      .setParam(PARAM_QUALITY_PROFILE, qualityProfile.getName())
+      .setParam(PARAM_ORGANIZATION, organization.getKey())
+      .execute()
+      .getInput();
+
+    assertJson(response).isSimilarTo("{\n" +
+      "  \"events\": [\n" +
+      "    {\n" +
+      "      \"date\": \"" + DATE + "\",\n" +
+      "      \"authorLogin\": \"" + user.getLogin() + "\",\n" +
+      "      \"action\": \"ACTIVATED\",\n" +
+      "      \"ruleKey\": \"" + rule.getKey() + "\",\n" +
+      "      \"ruleName\": \"" + rule.getName() + "\",\n" +
+      "      \"params\": {\n" +
+      "        \"severity\": \"MINOR\"\n" +
+      "      }\n" +
+      "    }\n" +
+      "  ]\n" +
+      "}");
+  }
+
+  @Test
+  public void changelog_empty() {
+    OrganizationDto organization = db.organizations().insert();
+    QProfileDto qualityProfile = db.qualityProfiles().insert(organization);
+
+    String response = ws.newRequest()
+      .setMethod("GET")
+      .setParam(PARAM_KEY, qualityProfile.getKee())
+      .execute()
+      .getInput();
+
+    assertJson(response).isSimilarTo("{\"total\":0,\"p\":1,\"ps\":50,\"events\":[]}");
+  }
+
+  @Test
+  public void changelog_filter_by_since() {
+    OrganizationDto organization = db.organizations().insert();
+    QProfileDto qualityProfile = db.qualityProfiles().insert(organization);
+    system2.setNow(DateUtils.parseDateTime("2011-04-25T01:15:42+0100").getTime());
+    RuleDefinitionDto rule = db.rules().insert();
+    UserDto user = db.users().insertUser();
+    insertChange(qualityProfile, ActiveRuleChange.Type.ACTIVATED, user,
+      ImmutableMap.of(
+        "ruleId", valueOf(rule.getId()),
+        "severity", "MINOR"));
+
+    assertJson(ws.newRequest()
+      .setMethod("GET")
+      .setParam(PARAM_KEY, qualityProfile.getKee())
+      .setParam(PARAM_SINCE, "2011-04-25T01:15:42+0100")
+      .execute()
+      .getInput()).isSimilarTo("{\n" +
+        "  \"events\": [\n" +
+        "    {\n" +
+        "      \"date\": \"2011-04-25T01:15:42+0100\",\n" +
+        "      \"authorLogin\": \"" + user.getLogin() + "\",\n" +
+        "      \"action\": \"ACTIVATED\",\n" +
+        "      \"ruleKey\": \"" + rule.getKey() + "\",\n" +
+        "      \"ruleName\": \"" + rule.getName() + "\",\n" +
+        "    }\n" +
+        "  ]\n" +
+        "}");
+
+    assertJson(ws.newRequest()
+      .setMethod("GET")
+      .setParam(PARAM_KEY, qualityProfile.getKee())
+      .setParam(PARAM_SINCE, "2011-04-25T01:15:43+0100")
+      .execute()
+      .getInput()).isSimilarTo("{\n" +
+        "  \"events\": []\n" +
+        "}");
+  }
+
+  @Test
+  public void sort_changelog_events_in_reverse_chronological_order() {
+    OrganizationDto organization = db.organizations().insert();
+    QProfileDto profile = db.qualityProfiles().insert(organization);
+    system2.setNow(DateUtils.parseDateTime("2011-04-25T01:15:42+0100").getTime());
+    RuleDefinitionDto rule1 = db.rules().insert();
+    insertChange(profile, ActiveRuleChange.Type.ACTIVATED, null,
+      ImmutableMap.of(
+        "ruleId", valueOf(rule1.getId()),
+        "severity", "MINOR"));
+    system2.setNow(DateUtils.parseDateTime("2011-04-25T01:15:43+0100").getTime());
+    UserDto user = db.users().insertUser();
+    RuleDefinitionDto rule2 = db.rules().insert();
+    insertChange(profile, ActiveRuleChange.Type.DEACTIVATED, user,
+      ImmutableMap.of("ruleId", valueOf(rule2.getId())));
+
+    String response = ws.newRequest()
+      .setMethod("GET")
+      .setParam(PARAM_KEY, profile.getKee())
+      .execute()
+      .getInput();
+
+    assertJson(response).isSimilarTo("{\n" +
+      "\"events\": [\n" +
+      "    {\n" +
+      "      \"date\": \"2011-04-25T02:15:43+0200\",\n" +
+      "      \"action\": \"DEACTIVATED\",\n" +
+      "      \"authorLogin\": \"" + user.getLogin() + "\",\n" +
+      "      \"ruleKey\": \"" + rule2.getKey() + "\",\n" +
+      "      \"ruleName\": \"" + rule2.getName() + "\",\n" +
+      "      \"params\": {}\n" +
+      "    },\n" +
+      "    {\n" +
+      "      \"date\": \"2011-04-25T02:15:42+0200\",\n" +
+      "      \"action\": \"ACTIVATED\",\n" +
+      "      \"ruleKey\": \"" + rule1.getKey() + "\",\n" +
+      "      \"ruleName\": \"" + rule1.getName() + "\",\n" +
+      "      \"params\": {\n" +
+      "        \"severity\": \"MINOR\"\n" +
+      "      }\n" +
+      "    }\n" +
+      "  ]" +
+      "}");
+  }
+
+  @Test
+  public void changelog_on_no_more_existing_rule() {
+    OrganizationDto organization = db.organizations().insert();
+    QProfileDto qualityProfile = db.qualityProfiles().insert(organization);
+    UserDto user = db.users().insertUser();
+    insertChange(qualityProfile, ActiveRuleChange.Type.ACTIVATED, user,
+      ImmutableMap.of("ruleId", "123"));
+
+    String response = ws.newRequest()
+      .setMethod("GET")
+      .setParam(PARAM_LANGUAGE, qualityProfile.getLanguage())
+      .setParam(PARAM_QUALITY_PROFILE, qualityProfile.getName())
+      .setParam(PARAM_ORGANIZATION, organization.getKey())
+      .execute()
+      .getInput();
+
+    assertJson(response).isSimilarTo("{\n" +
+      "  \"events\": [\n" +
+      "    {\n" +
+      "      \"date\": \"" + DATE + "\",\n" +
+      "      \"action\": \"ACTIVATED\",\n" +
+      "      \"params\": {}\n" +
+      "    }\n" +
+      "  ]\n" +
+      "}");
+    assertThat(response).doesNotContain("ruleKey", "ruleName");
+  }
+
+  @Test
+  public void changelog_on_no_more_existing_user() {
+    OrganizationDto organization = db.organizations().insert();
+    QProfileDto qualityProfile = db.qualityProfiles().insert(organization);
+    RuleDefinitionDto rule = db.rules().insert();
+    insertChange(c -> c.setRulesProfileUuid(qualityProfile.getRulesProfileUuid())
+      .setUserUuid("UNKNOWN")
+      .setChangeType(ActiveRuleChange.Type.ACTIVATED.name())
+      .setData(ImmutableMap.of("ruleId", rule.getId())));
+
+    String response = ws.newRequest()
+      .setMethod("GET")
+      .setParam(PARAM_LANGUAGE, qualityProfile.getLanguage())
+      .setParam(PARAM_QUALITY_PROFILE, qualityProfile.getName())
+      .setParam(PARAM_ORGANIZATION, organization.getKey())
+      .execute()
+      .getInput();
+
+    assertJson(response).isSimilarTo("{\n" +
+      "  \"events\": [\n" +
+      "    {\n" +
+      "      \"date\": \"" + DATE + "\",\n" +
+      "      \"ruleKey\": \"" + rule.getKey() + "\",\n" +
+      "      \"ruleName\": \"" + rule.getName() + "\",\n" +
+      "      \"action\": \"ACTIVATED\",\n" +
+      "      \"params\": {}\n" +
+      "    }\n" +
+      "  ]\n" +
+      "}");
+    assertThat(response).doesNotContain("authorLogin", "authorName");
+  }
+
+  @Test
+  public void do_not_find_changelog_by_wrong_organization_and_language_and_name() {
+    OrganizationDto organization1 = db.organizations().insert();
+    OrganizationDto organization2 = db.organizations().insert();
+    QProfileDto qualityProfile = db.qualityProfiles().insert(organization1);
+    RuleDefinitionDto rule = db.rules().insert();
+    UserDto user = db.users().insertUser();
+    insertChange(qualityProfile, ActiveRuleChange.Type.ACTIVATED, user,
+      ImmutableMap.of(
+        "ruleId", valueOf(rule.getId()),
+        "severity", "MINOR"));
+
+    thrown.expect(NotFoundException.class);
+
+    ws.newRequest()
+      .setMethod("GET")
+      .setParam(PARAM_LANGUAGE, qualityProfile.getLanguage())
+      .setParam(PARAM_QUALITY_PROFILE, qualityProfile.getName())
+      .setParam(PARAM_ORGANIZATION, organization2.getKey())
+      .execute();
+  }
+
+  private QProfileChangeDto insertChange(QProfileDto profile, ActiveRuleChange.Type type, @Nullable UserDto user, @Nullable Map<String, Object> data) {
+    return insertChange(c -> c.setRulesProfileUuid(profile.getRulesProfileUuid())
+      .setUserUuid(user == null ? null : user.getUuid())
       .setChangeType(type.name())
       .setData(data));
   }
 
-  private QProfileChangeDto insertChange(QProfileDto profile, Consumer<QProfileChangeDto>... consumers) {
+  @SafeVarargs
+  private final QProfileChangeDto insertChange(Consumer<QProfileChangeDto>... consumers) {
     QProfileChangeDto dto = new QProfileChangeDto();
     Arrays.stream(consumers).forEach(c -> c.accept(dto));
-    dbTester.getDbClient().qProfileChangeDao().insert(dbTester.getSession(), dto);
+    db.getDbClient().qProfileChangeDao().insert(db.getSession(), dto);
+    db.commit();
     return dto;
   }
 }

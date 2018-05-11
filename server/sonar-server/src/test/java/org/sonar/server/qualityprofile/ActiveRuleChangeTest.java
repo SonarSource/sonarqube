@@ -33,7 +33,7 @@ import static org.sonar.server.qualityprofile.ActiveRuleChange.Type.ACTIVATED;
 
 public class ActiveRuleChangeTest {
 
-  private static final String A_LOGIN = "A_LOGIN";
+  private static final String A_USER_UUID = "A_USER_UUID";
 
   @Test
   public void toDto() {
@@ -42,11 +42,11 @@ public class ActiveRuleChangeTest {
     int ruleId = new Random().nextInt(963);
     ActiveRuleChange underTest = new ActiveRuleChange(ACTIVATED, key, new RuleDefinitionDto().setId(ruleId));
 
-    QProfileChangeDto result = underTest.toDto(A_LOGIN);
+    QProfileChangeDto result = underTest.toDto(A_USER_UUID);
 
     assertThat(result.getChangeType()).isEqualTo(ACTIVATED.name());
     assertThat(result.getRulesProfileUuid()).isEqualTo(profile.getRulesProfileUuid());
-    assertThat(result.getLogin()).isEqualTo(A_LOGIN);
+    assertThat(result.getUserUuid()).isEqualTo(A_USER_UUID);
     assertThat(result.getDataAsMap().get("ruleId")).isEqualTo(String.valueOf(ruleId));
   }
 }

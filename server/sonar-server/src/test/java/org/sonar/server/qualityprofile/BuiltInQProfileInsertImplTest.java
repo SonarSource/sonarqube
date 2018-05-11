@@ -193,7 +193,7 @@ public class BuiltInQProfileInsertImplTest {
     assertThat(change.getChangeType()).isEqualTo(ActiveRuleChange.Type.ACTIVATED.name());
     assertThat(change.getCreatedAt()).isPositive();
     assertThat(change.getUuid()).isNotEmpty();
-    assertThat(change.getLogin()).isNull();
+    assertThat(change.getUserUuid()).isNull();
     assertThat(change.getRulesProfileUuid()).isEqualTo(profile.getRulesProfileUuid());
     assertThat(change.getDataAsMap().get("severity")).isEqualTo(expectedSeverity);
   }

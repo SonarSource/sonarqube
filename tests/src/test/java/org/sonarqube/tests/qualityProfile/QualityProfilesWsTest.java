@@ -25,7 +25,6 @@ import org.json.JSONException;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
-import org.skyscreamer.jsonassert.JSONAssert;
 import org.skyscreamer.jsonassert.JSONCompareMode;
 import org.sonarqube.qa.util.Tester;
 import org.sonarqube.tests.Category6Suite;
@@ -35,24 +34,21 @@ import org.sonarqube.ws.Qualityprofiles.SearchWsResponse;
 import org.sonarqube.ws.Qualityprofiles.ShowResponse;
 import org.sonarqube.ws.Qualityprofiles.ShowResponse.CompareToSonarWay;
 import org.sonarqube.ws.Qualityprofiles.ShowResponse.QualityProfile;
+import org.sonarqube.ws.Users.CreateWsResponse.User;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsResponse;
+import org.sonarqube.ws.client.permissions.AddUserRequest;
 import org.sonarqube.ws.client.qualityprofiles.ChangelogRequest;
 import org.sonarqube.ws.client.qualityprofiles.SearchRequest;
 import org.sonarqube.ws.client.qualityprofiles.ShowRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.skyscreamer.jsonassert.JSONAssert.assertEquals;
 
 public class QualityProfilesWsTest {
   private static final String RULE_ONE_BUG_PER_LINE = "xoo:OneBugIssuePerLine";
   private static final String RULE_ONE_ISSUE_PER_LINE = "xoo:OneIssuePerLine";
-
-  private static final String EXPECTED_CHANGELOG = "{\"total\":2,\"p\":1,\"ps\":50,\"events\":[" +
-    "{\"authorLogin\":\"admin\",\"authorName\":\"Administrator\",\"action\":\"ACTIVATED\",\"ruleKey\":\"xoo:OneIssuePerLine\",\"ruleName\":\"One Issue Per Line\",\"params\":{\"severity\":\"MAJOR\"}}," +
-    "{\"authorLogin\":\"admin\",\"authorName\":\"Administrator\",\"action\":\"ACTIVATED\",\"ruleKey\":\"xoo:OneBugIssuePerLine\",\"ruleName\":\"One Bug Issue Per Line\",\"params\":{\"severity\":\"MAJOR\"}}" +
-    "]}";
-  private static final String EXPECTED_CHANGELOG_EMPTY = "{\"total\":0,\"p\":1,\"ps\":50,\"events\":[]}";
 
   @ClassRule
   public static Orchestrator orchestrator = Category6Suite.ORCHESTRATOR;
@@ -111,8 +107,8 @@ public class QualityProfilesWsTest {
     assertThat(tester.qProfiles().service().show(new ShowRequest()
       .setKey(xooProfile.getKey())
       .setCompareToSonarWay("true")).getCompareToSonarWay())
-      .extracting(CompareToSonarWay::getProfile, CompareToSonarWay::getProfileName, CompareToSonarWay::getMissingRuleCount)
-      .containsExactly(sonarWay.getKey(), sonarWay.getName(), 0L);
+        .extracting(CompareToSonarWay::getProfile, CompareToSonarWay::getProfileName, CompareToSonarWay::getMissingRuleCount)
+        .containsExactly(sonarWay.getKey(), sonarWay.getName(), 0L);
   }
 
   @Test
@@ -125,7 +121,7 @@ public class QualityProfilesWsTest {
     // Check 'name' parameter is taken into account
     assertThat(tester.wsClient().wsConnector()
       .call(new GetRequest("profiles/export?language=xoo&qualityProfile=empty&format=XooFakeExporter")).content())
-      .isEqualTo("xoo -> empty -> 0");
+        .isEqualTo("xoo -> empty -> 0");
   }
 
   @Test
@@ -137,23 +133,36 @@ public class QualityProfilesWsTest {
       .setOrganization(org.getKey())
       .setLanguage(profile.getLanguage())
       .setQualityProfile(profile.getName()));
-    JSONAssert.assertEquals(EXPECTED_CHANGELOG_EMPTY, changelog, JSONCompareMode.STRICT);
+    assertEquals("{\"total\":0,\"p\":1,\"ps\":50,\"events\":[]}",
+      changelog, JSONCompareMode.STRICT);
 
+    User user = tester.users().generateMember(org);
+    tester.permissions().service().addUser(new AddUserRequest().setOrganization(org.getKey()).setLogin(user.getLogin()).setPermission("profileadmin"));
+    tester.as(user.getLogin()).qProfiles().activateRule(profile, RULE_ONE_ISSUE_PER_LINE);
     tester.qProfiles().activateRule(profile, RULE_ONE_BUG_PER_LINE);
-    tester.qProfiles().activateRule(profile, RULE_ONE_ISSUE_PER_LINE);
 
     String changelog2 = tester.wsClient().qualityprofiles().changelog(new ChangelogRequest()
       .setOrganization(org.getKey())
       .setLanguage(profile.getLanguage())
       .setQualityProfile(profile.getName()));
-    JSONAssert.assertEquals(EXPECTED_CHANGELOG, changelog2, JSONCompareMode.LENIENT);
+    assertEquals("{\"total\":2,\"p\":1,\"ps\":50,\"events\":[" +
+      "{\"authorLogin\":\"" + user.getLogin() + "\",\"authorName\":\"" + user.getName() + "\"," +
+      "\"action\":\"ACTIVATED\"," +
+      "\"ruleKey\":\"xoo:OneIssuePerLine\",\"ruleName\":\"One Issue Per Line\"," +
+      "\"params\":{\"severity\":\"MAJOR\"}}," +
+      "{\"authorLogin\":\"admin\",\"authorName\":\"Administrator\"," +
+      "\"action\":\"ACTIVATED\"," +
+      "\"ruleKey\":\"xoo:OneBugIssuePerLine\",\"ruleName\":\"One Bug Issue Per Line\"," +
+      "\"params\":{\"severity\":\"MAJOR\"}}" + "]}",
+      changelog2, JSONCompareMode.LENIENT);
 
     String changelog3 = tester.wsClient().qualityprofiles().changelog(new ChangelogRequest()
       .setOrganization(org.getKey())
       .setLanguage(profile.getLanguage())
       .setQualityProfile(profile.getName())
       .setSince("2999-12-31T23:59:59+0000"));
-    JSONAssert.assertEquals(EXPECTED_CHANGELOG_EMPTY, changelog3, JSONCompareMode.STRICT);
+    assertEquals("{\"total\":0,\"p\":1,\"ps\":50,\"events\":[]}",
+      changelog3, JSONCompareMode.STRICT);
   }
 
   private SearchWsResponse.QualityProfile getProfile(Organization organization, Predicate<SearchWsResponse.QualityProfile> filter) {

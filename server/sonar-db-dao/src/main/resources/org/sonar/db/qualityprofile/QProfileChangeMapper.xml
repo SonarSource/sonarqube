@@ -7,7 +7,7 @@
     qpc.kee as "uuid",
     qpc.rules_profile_uuid as rulesProfileUuid,
     qpc.created_at as createdAt,
-    qpc.user_login as login,
+    qpc.user_uuid as userUuid,
     qpc.change_type as changeType,
     qpc.change_data as data
   </sql>
@@ -18,14 +18,14 @@
       kee,
       rules_profile_uuid,
       created_at,
-      user_login,
+      user_uuid,
       change_type,
       change_data
     ) values (
       #{uuid, jdbcType=VARCHAR},
       #{rulesProfileUuid, jdbcType=VARCHAR},
       #{createdAt, jdbcType=BIGINT},
-      #{login, jdbcType=VARCHAR},
+      #{userUuid, jdbcType=VARCHAR},
       #{changeType, jdbcType=VARCHAR},
       #{data, jdbcType=VARCHAR}
     )
@@ -53,8 +53,8 @@
   </select>
 
   <select id="selectByQuery" databaseId="oracle" resultType="org.sonar.db.qualityprofile.QProfileChangeDto">
-    select "uuid", rulesProfileUuid, createdAt, login, changeType, data from (
-    select rownum rnum, "uuid", rulesProfileUuid, createdAt, login, changeType, data from (
+    select "uuid", rulesProfileUuid, createdAt, userUuid, changeType, data from (
+    select rownum rnum, "uuid", rulesProfileUuid, createdAt, userUuid, changeType, data from (
     select <include refid="selectColumns" />
     <include refid="sqlSelectByQuery" />
     order by qpc.created_at desc

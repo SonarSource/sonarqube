@@ -57,7 +57,7 @@ public class QualityProfileTesting {
       .setRulesProfileUuid(randomAlphanumeric(40))
       .setCreatedAt(nextLong())
       .setChangeType("ACTIVATED")
-      .setLogin(randomAlphanumeric(10));
+      .setUserUuid("userUuid_" + randomAlphanumeric(10));
   }
 
   /**
