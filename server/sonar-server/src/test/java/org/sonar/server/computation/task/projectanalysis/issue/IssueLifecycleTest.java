@@ -23,7 +23,6 @@ import com.google.common.collect.ImmutableMap;
 import java.util.Date;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.issue.IssueComment;
 import org.sonar.api.utils.Duration;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.DefaultIssueComment;
@@ -52,22 +51,23 @@ import static org.sonar.api.utils.DateUtils.parseDate;
 
 public class IssueLifecycleTest {
 
-  static final Date DEFAULT_DATE = new Date();
+  private static final Date DEFAULT_DATE = new Date();
 
-  static final Duration DEFAULT_DURATION = Duration.create(10);
-
-  IssueChangeContext issueChangeContext = IssueChangeContext.createUser(DEFAULT_DATE, "julien");
-
-  IssueWorkflow workflow = mock(IssueWorkflow.class);
-
-  IssueFieldsSetter updater = mock(IssueFieldsSetter.class);
-
-  DebtCalculator debtCalculator = mock(DebtCalculator.class);
+  private static final Duration DEFAULT_DURATION = Duration.create(10);
 
   @Rule
   public AnalysisMetadataHolderRule analysisMetadataHolder = new AnalysisMetadataHolderRule();
 
-  IssueLifecycle underTest = new IssueLifecycle(analysisMetadataHolder, issueChangeContext, workflow, updater, debtCalculator);
+  private IssueChangeContext issueChangeContext = IssueChangeContext.createUser(DEFAULT_DATE, "default_user_uuid");
+
+  private IssueWorkflow workflow = mock(IssueWorkflow.class);
+
+  private IssueFieldsSetter updater = mock(IssueFieldsSetter.class);
+
+  private DebtCalculator debtCalculator = mock(DebtCalculator.class);
+
+
+  private IssueLifecycle underTest = new IssueLifecycle(analysisMetadataHolder, issueChangeContext, workflow, updater, debtCalculator);
 
   @Test
   public void initNewOpenIssue() {
@@ -98,7 +98,7 @@ public class IssueLifecycleTest {
     fromShort.addComment(new DefaultIssueComment()
       .setIssueKey("short")
       .setCreatedAt(commentDate)
-      .setUserLogin("user")
+      .setUserUuid("user_uuid")
       .setMarkdownText("A comment"));
 
     Date diffDate = new Date();
@@ -106,13 +106,13 @@ public class IssueLifecycleTest {
     fromShort.addChange(new FieldDiffs()
       .setCreationDate(diffDate)
       .setIssueKey("short")
-      .setUserLogin("user")
+      .setUserUuid("user_uuid")
       .setDiff("file", "uuidA1", "uuidB1"));
     // file diff with another field
     fromShort.addChange(new FieldDiffs()
       .setCreationDate(diffDate)
       .setIssueKey("short")
-      .setUserLogin("user")
+      .setUserUuid("user_uuid")
       .setDiff("severity", "MINOR", "MAJOR")
       .setDiff("file", "uuidA2", "uuidB2"));
 
@@ -124,14 +124,14 @@ public class IssueLifecycleTest {
 
     assertThat(raw.resolution()).isEqualTo("resolution");
     assertThat(raw.status()).isEqualTo("status");
-    assertThat(raw.comments()).extracting(IssueComment::issueKey, IssueComment::createdAt, IssueComment::userLogin, IssueComment::markdownText)
-      .containsOnly(tuple("raw", commentDate, "user", "A comment"));
+    assertThat(raw.defaultIssueComments()).extracting(DefaultIssueComment::issueKey, DefaultIssueComment::createdAt, DefaultIssueComment::userUuid, DefaultIssueComment::markdownText)
+      .containsOnly(tuple("raw", commentDate, "user_uuid", "A comment"));
     assertThat(raw.changes()).hasSize(2);
     assertThat(raw.changes().get(0).creationDate()).isEqualTo(diffDate);
-    assertThat(raw.changes().get(0).userLogin()).isEqualTo("user");
+    assertThat(raw.changes().get(0).userUuid()).isEqualTo("user_uuid");
     assertThat(raw.changes().get(0).issueKey()).isEqualTo("raw");
     assertThat(raw.changes().get(0).diffs()).containsOnlyKeys("severity");
-    assertThat(raw.changes().get(1).userLogin()).isEqualTo("julien");
+    assertThat(raw.changes().get(1).userUuid()).isEqualTo("default_user_uuid");
     assertThat(raw.changes().get(1).diffs()).containsOnlyKeys(IssueFieldsSetter.FROM_SHORT_BRANCH);
     assertThat(raw.changes().get(1).get(IssueFieldsSetter.FROM_SHORT_BRANCH).oldValue()).isEqualTo("feature/foo");
     assertThat(raw.changes().get(1).get(IssueFieldsSetter.FROM_SHORT_BRANCH).newValue()).isEqualTo("master");
@@ -160,7 +160,7 @@ public class IssueLifecycleTest {
       .setResolution(RESOLUTION_FIXED)
       .setStatus(STATUS_CLOSED)
       .setSeverity(BLOCKER)
-      .setAssigneeUuid("base assignee")
+      .setAssigneeUuid("base assignee uuid")
       .setAuthorLogin("base author")
       .setTags(newArrayList("base tag"))
       .setOnDisabledRule(true)
@@ -189,7 +189,7 @@ public class IssueLifecycleTest {
     assertThat(raw.closeDate()).isEqualTo(base.closeDate());
     assertThat(raw.resolution()).isEqualTo(RESOLUTION_FIXED);
     assertThat(raw.status()).isEqualTo(STATUS_CLOSED);
-    assertThat(raw.assignee()).isEqualTo("base assignee");
+    assertThat(raw.assignee()).isEqualTo("base assignee uuid");
     assertThat(raw.authorLogin()).isEqualTo("base author");
     assertThat(raw.tags()).containsOnly("base tag");
     assertThat(raw.debt()).isEqualTo(DEFAULT_DURATION);
@@ -233,7 +233,7 @@ public class IssueLifecycleTest {
       .setResolution(RESOLUTION_FIXED)
       .setStatus(STATUS_CLOSED)
       .setSeverity(BLOCKER)
-      .setAssigneeUuid("base assignee")
+      .setAssigneeUuid("base assignee uuid")
       .setAuthorLogin("base author")
       .setTags(newArrayList("base tag"))
       .setOnDisabledRule(true)
@@ -256,7 +256,7 @@ public class IssueLifecycleTest {
     assertThat(raw.closeDate()).isEqualTo(base.closeDate());
     assertThat(raw.resolution()).isEqualTo(RESOLUTION_FIXED);
     assertThat(raw.status()).isEqualTo(STATUS_CLOSED);
-    assertThat(raw.assignee()).isEqualTo("base assignee");
+    assertThat(raw.assignee()).isEqualTo("base assignee uuid");
     assertThat(raw.authorLogin()).isEqualTo("base author");
     assertThat(raw.tags()).containsOnly("base tag");
     assertThat(raw.debt()).isEqualTo(DEFAULT_DURATION);

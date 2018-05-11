@@ -36,6 +36,7 @@ import static com.google.common.collect.Sets.newHashSet;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.apache.commons.lang.math.RandomUtils.nextInt;
+import static org.apache.commons.lang.math.RandomUtils.nextLong;
 
 public class IssueTesting {
 
@@ -68,6 +69,18 @@ public class IssueTesting {
       .setIssueUpdateDate(new Date(System.currentTimeMillis() - 1_500))
       .setCreatedAt(System.currentTimeMillis() - 1_000)
       .setUpdatedAt(System.currentTimeMillis() - 500);
+  }
+
+  public static IssueChangeDto newIssuechangeDto(IssueDto issue) {
+    return new IssueChangeDto()
+      .setKey("uuid_" + randomAlphabetic(10))
+      .setIssueKey(issue.getKey())
+      .setChangeData("data_" + randomAlphanumeric(40))
+      .setChangeType(IssueChangeDto.TYPE_FIELD_CHANGE)
+      .setUserUuid("userUuid_" + randomAlphanumeric(40))
+      .setIssueChangeCreationDate(nextLong())
+      .setCreatedAt(nextLong())
+      .setUpdatedAt(nextLong());
   }
 
   /**

@@ -26,22 +26,22 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class IssueChangeContextTest {
   @Test
-  public void test_scan_context() throws Exception {
+  public void test_scan_context() {
     Date now = new Date();
     IssueChangeContext context = IssueChangeContext.createScan(now);
 
     assertThat(context.scan()).isTrue();
-    assertThat(context.login()).isNull();
+    assertThat(context.userUuid()).isNull();
     assertThat(context.date()).isEqualTo(now);
   }
 
   @Test
-  public void test_end_user_context() throws Exception {
+  public void test_end_user_context() {
     Date now = new Date();
-    IssueChangeContext context = IssueChangeContext.createUser(now, "emmerik");
+    IssueChangeContext context = IssueChangeContext.createUser(now, "user_uuid");
 
     assertThat(context.scan()).isFalse();
-    assertThat(context.login()).isEqualTo("emmerik");
+    assertThat(context.userUuid()).isEqualTo("user_uuid");
     assertThat(context.date()).isEqualTo(now);
   }
 }

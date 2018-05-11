@@ -30,12 +30,9 @@ import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
-import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.issue.IssueDbTester;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.issue.IssueTesting;
-import org.sonar.db.rule.RuleDbTester;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.user.UserDto;
@@ -55,8 +52,6 @@ import static org.mockito.Mockito.verify;
 import static org.sonar.api.rule.Severity.BLOCKER;
 import static org.sonar.api.rule.Severity.MAJOR;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
-import static org.sonar.db.issue.IssueTesting.newDto;
-import static org.sonar.db.rule.RuleTesting.newRuleDto;
 
 public class IssueUpdaterTest {
 
@@ -66,17 +61,14 @@ public class IssueUpdaterTest {
   public ExpectedException expectedException = ExpectedException.none();
 
   @Rule
-  public DbTester dbTester = DbTester.create(system2);
+  public DbTester db = DbTester.create(system2);
 
   @Rule
   public EsTester es = EsTester.create();
 
-  private DbClient dbClient = dbTester.getDbClient();
-  private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(dbTester);
+  private DbClient dbClient = db.getDbClient();
+  private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
 
-  private RuleDbTester ruleDbTester = new RuleDbTester(dbTester);
-  private IssueDbTester issueDbTester = new IssueDbTester(dbTester);
-  private ComponentDbTester componentDbTester = new ComponentDbTester(dbTester);
   private IssueFieldsSetter issueFieldsSetter = new IssueFieldsSetter();
   private NotificationManager notificationManager = mock(NotificationManager.class);
   private ArgumentCaptor<IssueChangeNotification> notificationArgumentCaptor = ArgumentCaptor.forClass(IssueChangeNotification.class);
@@ -88,30 +80,31 @@ public class IssueUpdaterTest {
 
   @Test
   public void update_issue() {
-    DefaultIssue issue = issueDbTester.insertIssue(newIssue().setSeverity(MAJOR)).toDefaultIssue();
-    IssueChangeContext context = IssueChangeContext.createUser(new Date(), "john");
+    DefaultIssue issue = db.issues().insertIssue(i -> i.setSeverity(MAJOR)).toDefaultIssue();
+    IssueChangeContext context = IssueChangeContext.createUser(new Date(), "user_uuid");
     issueFieldsSetter.setSeverity(issue, BLOCKER, context);
 
-    underTest.saveIssue(dbTester.getSession(), issue, context, null);
+    underTest.saveIssue(db.getSession(), issue, context, null);
 
-    IssueDto issueReloaded = dbClient.issueDao().selectByKey(dbTester.getSession(), issue.key()).get();
+    IssueDto issueReloaded = dbClient.issueDao().selectByKey(db.getSession(), issue.key()).get();
     assertThat(issueReloaded.getSeverity()).isEqualTo(BLOCKER);
   }
 
   @Test
   public void verify_notification() {
-    UserDto user = dbTester.users().insertUser();
-    RuleDto rule = ruleDbTester.insertRule(newRuleDto());
-    ComponentDto project = componentDbTester.insertPrivateProject();
-    ComponentDto file = componentDbTester.insertComponent(newFileDto(project));
-    DefaultIssue issue = issueDbTester.insertIssue(IssueTesting.newIssue(rule.getDefinition(), project, file))
+    UserDto assignee = db.users().insertUser();
+    RuleDto rule = db.rules().insertRule();
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
+    DefaultIssue issue = db.issues().insertIssue(IssueTesting.newIssue(rule.getDefinition(), project, file))
       .setSeverity(MAJOR)
-      .setAssigneeUuid(user.getUuid())
+      .setAssigneeUuid(assignee.getUuid())
       .toDefaultIssue();
-    IssueChangeContext context = IssueChangeContext.createUser(new Date(), "john");
+    UserDto changeAuthor = db.users().insertUser();
+    IssueChangeContext context = IssueChangeContext.createUser(new Date(), changeAuthor.getUuid());
     issueFieldsSetter.setSeverity(issue, BLOCKER, context);
 
-    underTest.saveIssue(dbTester.getSession(), issue, context, "increase severity");
+    underTest.saveIssue(db.getSession(), issue, context, "increase severity");
 
     verify(notificationManager).scheduleForSending(notificationArgumentCaptor.capture());
     IssueChangeNotification issueChangeNotification = notificationArgumentCaptor.getValue();
@@ -123,22 +116,22 @@ public class IssueUpdaterTest {
     assertThat(issueChangeNotification.getFieldValue("projectKey")).isEqualTo(project.getDbKey());
     assertThat(issueChangeNotification.getFieldValue("projectName")).isEqualTo(project.name());
     assertThat(issueChangeNotification.getFieldValue("ruleName")).isEqualTo(rule.getName());
-    assertThat(issueChangeNotification.getFieldValue("changeAuthor")).isEqualTo("john");
+    assertThat(issueChangeNotification.getFieldValue("changeAuthor")).isEqualTo(changeAuthor.getLogin());
     assertThat(issueChangeNotification.getFieldValue("comment")).isEqualTo("increase severity");
-    assertThat(issueChangeNotification.getFieldValue("assignee")).isEqualTo(user.getLogin());
+    assertThat(issueChangeNotification.getFieldValue("assignee")).isEqualTo(assignee.getLogin());
   }
 
   @Test
   public void verify_notification_on_branch() {
-    RuleDto rule = ruleDbTester.insertRule(newRuleDto());
-    ComponentDto project = componentDbTester.insertMainBranch();
-    ComponentDto branch = componentDbTester.insertProjectBranch(project);
-    ComponentDto file = componentDbTester.insertComponent(newFileDto(branch));
-    DefaultIssue issue = issueDbTester.insertIssue(IssueTesting.newIssue(rule.getDefinition(), branch, file)).setSeverity(MAJOR).toDefaultIssue();
-    IssueChangeContext context = IssueChangeContext.createUser(new Date(), "john");
+    RuleDto rule = db.rules().insertRule();
+    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto branch = db.components().insertProjectBranch(project);
+    ComponentDto file = db.components().insertComponent(newFileDto(branch));
+    DefaultIssue issue = db.issues().insertIssue(IssueTesting.newIssue(rule.getDefinition(), branch, file)).setSeverity(MAJOR).toDefaultIssue();
+    IssueChangeContext context = IssueChangeContext.createUser(new Date(), "user_uuid");
     issueFieldsSetter.setSeverity(issue, BLOCKER, context);
 
-    underTest.saveIssue(dbTester.getSession(), issue, context, "increase severity");
+    underTest.saveIssue(db.getSession(), issue, context, "increase severity");
 
     verify(notificationManager).scheduleForSending(notificationArgumentCaptor.capture());
     IssueChangeNotification issueChangeNotification = notificationArgumentCaptor.getValue();
@@ -150,37 +143,54 @@ public class IssueUpdaterTest {
 
   @Test
   public void verify_notification_when_issue_is_linked_on_removed_rule() {
-    RuleDto rule = ruleDbTester.insertRule(newRuleDto().setStatus(RuleStatus.REMOVED));
-    ComponentDto project = componentDbTester.insertPrivateProject();
-    ComponentDto file = componentDbTester.insertComponent(newFileDto(project));
-    DefaultIssue issue = issueDbTester.insertIssue(IssueTesting.newIssue(rule.getDefinition(), project, file)).setSeverity(MAJOR).toDefaultIssue();
-    IssueChangeContext context = IssueChangeContext.createUser(new Date(), "john");
+    RuleDto rule = db.rules().insertRule(r -> r.setStatus(RuleStatus.REMOVED));
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
+    DefaultIssue issue = db.issues().insertIssue(IssueTesting.newIssue(rule.getDefinition(), project, file)).setSeverity(MAJOR).toDefaultIssue();
+    IssueChangeContext context = IssueChangeContext.createUser(new Date(), "user_uuid");
     issueFieldsSetter.setSeverity(issue, BLOCKER, context);
 
-    underTest.saveIssue(dbTester.getSession(), issue, context, null);
+    underTest.saveIssue(db.getSession(), issue, context, null);
 
     verify(notificationManager).scheduleForSending(notificationArgumentCaptor.capture());
     assertThat(notificationArgumentCaptor.getValue().getFieldValue("ruleName")).isNull();
   }
 
-  private IssueDto newIssue() {
-    RuleDto rule = ruleDbTester.insertRule(newRuleDto());
-    ComponentDto project = componentDbTester.insertPrivateProject();
-    ComponentDto file = componentDbTester.insertComponent(newFileDto(project));
-    return newDto(rule, file, project);
+  @Test
+  public void verify_notification_when_assignee_has_changed() {
+    UserDto oldAssignee = db.users().insertUser();
+    RuleDto rule = db.rules().insertRule();
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
+    DefaultIssue issue = db.issues().insertIssue(IssueTesting.newIssue(rule.getDefinition(), project, file))
+      .setAssigneeUuid(oldAssignee.getUuid())
+      .toDefaultIssue();
+    UserDto changeAuthor = db.users().insertUser();
+    IssueChangeContext context = IssueChangeContext.createUser(new Date(), changeAuthor.getUuid());
+    UserDto newAssignee = db.users().insertUser();
+    issueFieldsSetter.assign(issue, newAssignee, context);
+
+    underTest.saveIssue(db.getSession(), issue, context, null);
+
+    verify(notificationManager).scheduleForSending(notificationArgumentCaptor.capture());
+    IssueChangeNotification issueChangeNotification = notificationArgumentCaptor.getValue();
+    assertThat(issueChangeNotification.getFieldValue("key")).isEqualTo(issue.key());
+    assertThat(issueChangeNotification.getFieldValue("new.assignee")).isEqualTo(newAssignee.getName());
+    assertThat(issueChangeNotification.getFieldValue("old.assignee")).isNull();
+    assertThat(issueChangeNotification.getFieldValue("assignee")).isEqualTo(newAssignee.getLogin());
   }
 
   @Test
   public void saveIssue_populates_specified_SearchResponseData_with_rule_project_and_component_retrieved_from_DB() {
-    RuleDto rule = ruleDbTester.insertRule(newRuleDto());
-    ComponentDto project = componentDbTester.insertPrivateProject();
-    ComponentDto file = componentDbTester.insertComponent(newFileDto(project));
+    RuleDto rule = db.rules().insertRule();
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
     IssueDto issueDto = IssueTesting.newIssue(rule.getDefinition(), project, file);
-    DefaultIssue issue = issueDbTester.insertIssue(issueDto).setSeverity(MAJOR).toDefaultIssue();
-    IssueChangeContext context = IssueChangeContext.createUser(new Date(), "john");
+    DefaultIssue issue = db.issues().insertIssue(issueDto).setSeverity(MAJOR).toDefaultIssue();
+    IssueChangeContext context = IssueChangeContext.createUser(new Date(), "user_uuid");
     issueFieldsSetter.setSeverity(issue, BLOCKER, context);
 
-    SearchResponseData preloadedSearchResponseData = underTest.saveIssueAndPreloadSearchResponseData(dbTester.getSession(), issue, context, null, true);
+    SearchResponseData preloadedSearchResponseData = underTest.saveIssueAndPreloadSearchResponseData(db.getSession(), issue, context, null, true);
 
     assertThat(preloadedSearchResponseData.getIssues())
       .hasSize(1);
@@ -197,15 +207,15 @@ public class IssueUpdaterTest {
 
   @Test
   public void saveIssue_populates_specified_SearchResponseData_with_no_rule_but_with_project_and_component_if_rule_is_removed() {
-    RuleDto rule = ruleDbTester.insertRule(newRuleDto().setStatus(RuleStatus.REMOVED));
-    ComponentDto project = componentDbTester.insertPrivateProject();
-    ComponentDto file = componentDbTester.insertComponent(newFileDto(project));
+    RuleDto rule = db.rules().insertRule(r -> r.setStatus(RuleStatus.REMOVED));
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
     IssueDto issueDto = IssueTesting.newIssue(rule.getDefinition(), project, file);
-    DefaultIssue issue = issueDbTester.insertIssue(issueDto).setSeverity(MAJOR).toDefaultIssue();
-    IssueChangeContext context = IssueChangeContext.createUser(new Date(), "john");
+    DefaultIssue issue = db.issues().insertIssue(issueDto).setSeverity(MAJOR).toDefaultIssue();
+    IssueChangeContext context = IssueChangeContext.createUser(new Date(), "user_uuid");
     issueFieldsSetter.setSeverity(issue, BLOCKER, context);
 
-    SearchResponseData preloadedSearchResponseData = underTest.saveIssueAndPreloadSearchResponseData(dbTester.getSession(), issue, context, null, false);
+    SearchResponseData preloadedSearchResponseData = underTest.saveIssueAndPreloadSearchResponseData(db.getSession(), issue, context, null, false);
 
     assertThat(preloadedSearchResponseData.getIssues())
       .hasSize(1);
@@ -216,4 +226,5 @@ public class IssueUpdaterTest {
       .extracting(ComponentDto::uuid)
       .containsOnly(project.uuid(), file.uuid());
   }
+
 }

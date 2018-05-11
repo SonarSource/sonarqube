@@ -228,7 +228,7 @@ public class BulkChangeActionTest {
 
     checkResponse(response, 1, 1, 0, 0);
     IssueChangeDto issueComment = dbClient.issueChangeDao().selectByTypeAndIssueKeys(db.getSession(), singletonList(issueDto.getKey()), TYPE_COMMENT).get(0);
-    assertThat(issueComment.getUserLogin()).isEqualTo("john");
+    assertThat(issueComment.getUserUuid()).isEqualTo(user.getUuid());
     assertThat(issueComment.getChangeData()).isEqualTo("type was badly defined");
 
     verifyPostProcessorCalled(file);
@@ -237,7 +237,7 @@ public class BulkChangeActionTest {
   @Test
   public void bulk_change_many_issues() {
     setUserProjectPermissions(USER, ISSUE_ADMIN);
-    UserDto userToAssign = db.users().insertUser("arthur");
+    UserDto userToAssign = db.users().insertUser();
     db.organizations().addMember(organization, user);
     db.organizations().addMember(organization, userToAssign);
     IssueDto issue1 = db.issues().insertIssue(newUnresolvedIssue().setAssigneeUuid(user.getUuid())).setType(BUG).setSeverity(MINOR);

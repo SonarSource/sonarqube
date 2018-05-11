@@ -83,14 +83,6 @@ public class ComponentDao implements Dao {
     return session.getMapper(ComponentMapper.class);
   }
 
-  public ComponentDto selectOrFailById(DbSession session, long id) {
-    Optional<ComponentDto> componentDto = selectById(session, id);
-    if (!componentDto.isPresent()) {
-      throw new RowNotFoundException(String.format("Component id does not exist: %d", id));
-    }
-    return componentDto.get();
-  }
-
   public Optional<ComponentDto> selectById(DbSession session, long id) {
     return Optional.fromNullable(mapper(session).selectById(id));
   }

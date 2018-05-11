@@ -56,6 +56,7 @@ import static com.google.common.collect.ImmutableSet.copyOf;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.difference;
 import static java.util.Collections.emptyList;
+import static java.util.Objects.requireNonNull;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Stream.concat;
 import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
@@ -225,8 +226,7 @@ public class SearchResponseLoader {
       List<IssueChangeDto> comments = dbClient.issueChangeDao().selectByTypeAndIssueKeys(dbSession, collector.getIssueKeys(), IssueChangeDto.TYPE_COMMENT);
       result.setComments(comments);
       for (IssueChangeDto comment : comments) {
-        // TODO GJT when addressing ticket on IssueChangesUuid
-        collector.add(USERS, comment.getUserLogin());
+        collector.add(USERS, comment.getUserUuid());
         if (canEditOrDelete(comment)) {
           result.addUpdatableComment(comment.getKey());
         }
@@ -235,7 +235,7 @@ public class SearchResponseLoader {
   }
 
   private boolean canEditOrDelete(IssueChangeDto dto) {
-    return userSession.isLoggedIn() && userSession.getLogin().equals(dto.getUserLogin());
+    return userSession.isLoggedIn() && requireNonNull(userSession.getUuid(), "User uuid should not be null").equals(dto.getUserUuid());
   }
 
   private void loadOrganizations(DbSession dbSession, SearchResponseData result) {

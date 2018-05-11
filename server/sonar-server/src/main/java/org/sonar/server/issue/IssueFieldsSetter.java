@@ -28,7 +28,6 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.Set;
 import javax.annotation.Nullable;
-
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.ServerSide;
@@ -110,10 +109,12 @@ public class IssueFieldsSetter {
     }
     return false;
   }
+
   public boolean assign(DefaultIssue issue, @Nullable UserDto user, IssueChangeContext context) {
     String assigneeUuid = user != null ? user.getUuid() : null;
     if (!Objects.equals(assigneeUuid, issue.assignee())) {
-      issue.setFieldChange(context, ASSIGNEE, UNUSED, user != null ? user.getUuid() : null);
+      String newAssigneeName = user == null ? null : user.getName();
+      issue.setFieldChange(context, ASSIGNEE, UNUSED, newAssigneeName);
       issue.setAssigneeUuid(user != null ? user.getUuid() : null);
       issue.setUpdateDate(context.date());
       issue.setChanged(true);
@@ -239,7 +240,7 @@ public class IssueFieldsSetter {
   }
 
   public void addComment(DefaultIssue issue, String text, IssueChangeContext context) {
-    issue.addComment(DefaultIssueComment.create(issue.key(), context.login(), text));
+    issue.addComment(DefaultIssueComment.create(issue.key(), context.userUuid(), text));
     issue.setUpdateDate(context.date());
     issue.setChanged(true);
   }

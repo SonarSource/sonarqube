@@ -43,7 +43,10 @@ public final class IssueChangeDto implements Serializable {
   private Long id;
   private String kee;
   private String issueKey;
-  private String userLogin;
+  /**
+   * The column USER_LOGIN hasn't been renamed to USER_UUID because we don't know yet the cost of renaming a column on a table that can contain huge number of data
+   */
+  private String userUuid;
   private String changeType;
   private String changeData;
 
@@ -60,7 +63,7 @@ public final class IssueChangeDto implements Serializable {
     dto.setKey(comment.key());
     dto.setChangeType(IssueChangeDto.TYPE_COMMENT);
     dto.setChangeData(comment.markdownText());
-    dto.setUserLogin(comment.userLogin());
+    dto.setUserUuid(comment.userUuid());
     Date createdAt = requireNonNull(comment.createdAt(), "Comment created at must not be null");
     dto.setIssueChangeCreationDate(createdAt.getTime());
     return dto;
@@ -70,7 +73,7 @@ public final class IssueChangeDto implements Serializable {
     IssueChangeDto dto = newDto(issueKey);
     dto.setChangeType(IssueChangeDto.TYPE_FIELD_CHANGE);
     dto.setChangeData(diffs.toString());
-    dto.setUserLogin(diffs.userLogin());
+    dto.setUserUuid(diffs.userUuid());
     Date createdAt = requireNonNull(diffs.creationDate(), "Diffs created at must not be null");
     dto.setIssueChangeCreationDate(createdAt.getTime());
     return dto;
@@ -115,12 +118,12 @@ public final class IssueChangeDto implements Serializable {
   }
 
   @CheckForNull
-  public String getUserLogin() {
-    return userLogin;
+  public String getUserUuid() {
+    return userUuid;
   }
 
-  public IssueChangeDto setUserLogin(@Nullable String userLogin) {
-    this.userLogin = userLogin;
+  public IssueChangeDto setUserUuid(@Nullable String userUuid) {
+    this.userUuid = userUuid;
     return this;
   }
 
@@ -181,14 +184,14 @@ public final class IssueChangeDto implements Serializable {
       .setKey(kee)
       .setCreatedAt(new Date(getIssueChangeCreationDate()))
       .setUpdatedAt(updatedAt == null ? null : new Date(updatedAt))
-      .setUserLogin(userLogin)
+      .setUserUuid(userUuid)
       .setIssueKey(issueKey)
       .setNew(false);
   }
 
   public FieldDiffs toFieldDiffs() {
     return FieldDiffs.parse(changeData)
-      .setUserLogin(userLogin)
+      .setUserUuid(userUuid)
       .setCreationDate(new Date(getIssueChangeCreationDate()))
       .setIssueKey(issueKey);
   }

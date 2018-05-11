@@ -110,7 +110,7 @@
                  issue_key="ABCDE"
                  created_at="[null]"
                  updated_at="[null]"
-                 user_login="admin"
+                 user_login="admin_uuid"
                  change_type="comment"
                  change_data="this is a comment"/>
 

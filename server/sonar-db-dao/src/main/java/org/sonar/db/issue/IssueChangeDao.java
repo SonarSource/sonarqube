@@ -39,11 +39,6 @@ public class IssueChangeDao implements Dao {
       .collect(MoreCollectors.toList());
   }
 
-  public List<IssueChangeDto> selectChangelogOfNonClosedIssuesByComponent(DbSession session, String componentUuid) {
-    IssueChangeMapper mapper = mapper(session);
-    return mapper.selectChangelogOfNonClosedIssuesByComponent(componentUuid, IssueChangeDto.TYPE_FIELD_CHANGE);
-  }
-
   public List<IssueChangeDto> selectByTypeAndIssueKeys(DbSession session, Collection<String> issueKeys, String changeType) {
     return executeLargeInputs(issueKeys, issueKeys1 -> mapper(session).selectByIssuesAndType(issueKeys1, changeType));
   }

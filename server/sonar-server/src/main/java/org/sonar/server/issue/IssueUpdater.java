@@ -37,6 +37,7 @@ import org.sonar.server.issue.notification.IssueChangeNotification;
 import org.sonar.server.issue.ws.SearchResponseData;
 import org.sonar.server.notification.NotificationManager;
 
+import static com.google.common.base.Preconditions.checkState;
 import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
 
@@ -64,7 +65,7 @@ public class IssueUpdater {
 
     Optional<RuleDefinitionDto> rule = getRuleByKey(dbSession, issue.getRuleKey());
     ComponentDto project = dbClient.componentDao().selectOrFailByUuid(dbSession, issue.projectUuid());
-    ComponentDto component = dbClient.componentDao().selectOrFailByUuid(dbSession, issue.componentUuid());
+    ComponentDto component = getComponent(dbSession, issue, issue.componentUuid());
     IssueDto issueDto = doSaveIssue(dbSession, issue, context, comment, rule, project, component);
 
     SearchResponseData result = new SearchResponseData(issueDto);
@@ -82,8 +83,8 @@ public class IssueUpdater {
 
   public IssueDto saveIssue(DbSession session, DefaultIssue issue, IssueChangeContext context, @Nullable String comment) {
     Optional<RuleDefinitionDto> rule = getRuleByKey(session, issue.getRuleKey());
-    ComponentDto project = dbClient.componentDao().selectOrFailByUuid(session, issue.projectUuid());
-    ComponentDto component = dbClient.componentDao().selectOrFailByUuid(session, issue.componentUuid());
+    ComponentDto project = getComponent(session, issue, issue.projectUuid());
+    ComponentDto component = getComponent(session, issue, issue.componentUuid());
     return doSaveIssue(session, issue, context, comment, rule, project, component);
   }
 
@@ -92,15 +93,25 @@ public class IssueUpdater {
     IssueDto issueDto = issueStorage.save(session, issue);
     String assigneeUuid = issue.assignee();
     UserDto assignee = assigneeUuid == null ? null : dbClient.userDao().selectByUuid(session, assigneeUuid);
+    String authorUuid = context.userUuid();
+    UserDto author = authorUuid == null ? null : dbClient.userDao().selectByUuid(session, authorUuid);
     notificationService.scheduleForSending(new IssueChangeNotification()
       .setIssue(issue)
       .setAssignee(assignee)
-      .setChangeAuthorLogin(context.login())
+      .setChangeAuthor(author)
       .setRuleName(rule.map(RuleDefinitionDto::getName).orElse(null))
       .setProject(project)
       .setComponent(component)
       .setComment(comment));
     return issueDto;
+  }
+
+  private ComponentDto getComponent(DbSession dbSession, DefaultIssue issue, @Nullable String componentUuid) {
+    String issueKey = issue.key();
+    checkState(componentUuid != null, "Issue '%s' has no component", issueKey);
+    ComponentDto component = dbClient.componentDao().selectByUuid(dbSession, componentUuid).orNull();
+    checkState(component != null, "Component uuid '%s' for issue key '%s' cannot be found", componentUuid, issueKey);
+    return component;
   }
 
   private Optional<RuleDefinitionDto> getRuleByKey(DbSession session, RuleKey ruleKey) {

@@ -31,7 +31,6 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonarqube.qa.util.Tester;
@@ -118,7 +117,6 @@ public class IssueNotificationsTest {
   }
 
   @Test
-  @Ignore // TODO GJT when adressing ticket on IssueChangesUuid
   public void notification_for_ChangesOnMyIssue() throws Exception {
     String version = RandomStringUtils.randomAlphanumeric(10);
     Project project = tester.projects().provision();

@@ -45,17 +45,17 @@ public class IssueStorageTest {
   private static final System2 system2 = System2.INSTANCE;
 
   @org.junit.Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  public DbTester db = DbTester.create(System2.INSTANCE);
 
-  private IssueChangeContext context = IssueChangeContext.createUser(new Date(system2.now()), "emmerik");
+  private IssueChangeContext context = IssueChangeContext.createUser(new Date(system2.now()), "user_uuid");
 
-  private DbClient dbClient = dbTester.getDbClient();
+  private DbClient dbClient = db.getDbClient();
 
   @Test
   public void batch_insert_new_issues() {
     FakeBatchSaver saver = new FakeBatchSaver(dbClient, new FakeRuleFinder());
 
-    DefaultIssueComment comment = DefaultIssueComment.create("ABCDE", "emmerik", "the comment");
+    DefaultIssueComment comment = DefaultIssueComment.create("ABCDE", "user_uuid", "the comment");
     // override generated key
     comment.setKey("FGHIJ");
 
@@ -83,7 +83,7 @@ public class IssueStorageTest {
 
     saver.save(issue);
 
-    dbTester.assertDbUnit(getClass(), "should_insert_new_issues-result.xml",
+    db.assertDbUnit(getClass(), "should_insert_new_issues-result.xml",
       new String[] {"id", "created_at", "updated_at", "issue_change_creation_date"}, "issues", "issue_changes");
   }
 
@@ -91,7 +91,7 @@ public class IssueStorageTest {
   public void batch_insert_new_issues_with_session() {
     FakeBatchSaver saver = new FakeBatchSaver(dbClient, new FakeRuleFinder());
 
-    DefaultIssueComment comment = DefaultIssueComment.create("ABCDE", "emmerik", "the comment");
+    DefaultIssueComment comment = DefaultIssueComment.create("ABCDE", "user_uuid", "the comment");
     // override generated key
     comment.setKey("FGHIJ");
 
@@ -117,10 +117,10 @@ public class IssueStorageTest {
       .setProjectUuid("uuid-10")
       .setComponentKey("struts:Action");
 
-    saver.save(dbTester.getSession(), issue);
-    dbTester.getSession().commit();
+    saver.save(db.getSession(), issue);
+    db.getSession().commit();
 
-    dbTester.assertDbUnit(getClass(), "should_insert_new_issues-result.xml",
+    db.assertDbUnit(getClass(), "should_insert_new_issues-result.xml",
       new String[] {"id", "created_at", "updated_at", "issue_change_creation_date"}, "issues", "issue_changes");
   }
 
@@ -130,7 +130,7 @@ public class IssueStorageTest {
     ComponentDto component = new ComponentDto().setId(100L).setUuid("uuid-100");
     FakeServerSaver saver = new FakeServerSaver(dbClient, new FakeRuleFinder(), component, project);
 
-    DefaultIssueComment comment = DefaultIssueComment.create("ABCDE", "emmerik", "the comment");
+    DefaultIssueComment comment = DefaultIssueComment.create("ABCDE", "user_uuid", "the comment");
     // override generated key
     comment.setKey("FGHIJ");
 
@@ -156,20 +156,20 @@ public class IssueStorageTest {
       .setComponentUuid("component-uuid")
       .setProjectUuid("project-uuid");
 
-    saver.save(dbTester.getSession(), issue);
-    dbTester.getSession().commit();
+    saver.save(db.getSession(), issue);
+    db.getSession().commit();
 
-    dbTester.assertDbUnit(getClass(), "should_insert_new_issues-result.xml",
-      new String[] {"id", "created_at", "updated_at", "issue_change_creation_date"}, "issues", "issue_changes");
+    db.assertDbUnit(getClass(), "should_insert_new_issues-result.xml", new String[] {"id", "created_at", "updated_at",
+      "issue_change_creation_date"}, "issues", "issue_changes");
   }
 
   @Test
   public void batch_update_issues() {
-    dbTester.prepareDbUnit(getClass(), "should_update_issues.xml");
+    db.prepareDbUnit(getClass(), "should_update_issues.xml");
 
     FakeBatchSaver saver = new FakeBatchSaver(dbClient, new FakeRuleFinder());
 
-    DefaultIssueComment comment = DefaultIssueComment.create("ABCDE", "emmerik", "the comment");
+    DefaultIssueComment comment = DefaultIssueComment.create("ABCDE", "user_uuid", "the comment");
     // override generated key
     comment.setKey("FGHIJ");
 
@@ -204,18 +204,18 @@ public class IssueStorageTest {
 
     saver.save(issue);
 
-    dbTester.assertDbUnit(getClass(), "should_update_issues-result.xml", new String[] {"id", "created_at", "updated_at", "issue_change_creation_date"}, "issues", "issue_changes");
+    db.assertDbUnit(getClass(), "should_update_issues-result.xml", new String[] {"id", "created_at", "updated_at", "issue_change_creation_date"}, "issues", "issue_changes");
   }
 
   @Test
   public void server_update_issues() {
-    dbTester.prepareDbUnit(getClass(), "should_update_issues.xml");
+    db.prepareDbUnit(getClass(), "should_update_issues.xml");
 
     ComponentDto project = new ComponentDto().setId(10L).setUuid("whatever-uuid");
     ComponentDto component = new ComponentDto().setId(100L).setUuid("whatever-uuid-2");
     FakeServerSaver saver = new FakeServerSaver(dbClient, new FakeRuleFinder(), component, project);
 
-    DefaultIssueComment comment = DefaultIssueComment.create("ABCDE", "emmerik", "the comment");
+    DefaultIssueComment comment = DefaultIssueComment.create("ABCDE", "user_uuid", "the comment");
     // override generated key
     comment.setKey("FGHIJ");
 
@@ -249,7 +249,7 @@ public class IssueStorageTest {
 
     saver.save(issue);
 
-    dbTester.assertDbUnit(getClass(), "should_update_issues-result.xml", new String[] {"id", "created_at", "updated_at", "issue_change_creation_date"}, "issues", "issue_changes");
+    db.assertDbUnit(getClass(), "should_update_issues-result.xml", new String[] {"id", "created_at", "updated_at", "issue_change_creation_date"}, "issues", "issue_changes");
   }
 
   static class FakeBatchSaver extends IssueStorage {

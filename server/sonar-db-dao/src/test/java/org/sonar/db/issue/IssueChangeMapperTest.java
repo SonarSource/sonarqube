@@ -34,7 +34,7 @@ public class IssueChangeMapperTest {
   public void insert_diff() {
     IssueChangeDto dto = new IssueChangeDto();
     dto.setKey(null /* no key on field changes */);
-    dto.setUserLogin("emmerik");
+    dto.setUserUuid("user_uuid");
     dto.setIssueKey("ABCDE");
     dto.setChangeType(IssueChangeDto.TYPE_FIELD_CHANGE);
     dto.setChangeData("severity=INFO|BLOCKER");
@@ -51,7 +51,7 @@ public class IssueChangeMapperTest {
   public void insert_comment() {
     IssueChangeDto dto = new IssueChangeDto();
     dto.setKey("COMMENT-1234");
-    dto.setUserLogin("emmerik");
+    dto.setUserUuid("user_uuid");
     dto.setIssueKey("ABCDE");
     dto.setChangeType(IssueChangeDto.TYPE_COMMENT);
     dto.setChangeData("the comment");

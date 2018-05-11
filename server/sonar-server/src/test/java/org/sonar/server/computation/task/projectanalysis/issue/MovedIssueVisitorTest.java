@@ -126,7 +126,7 @@ public class MovedIssueVisitorTest {
     ArgumentCaptor<IssueChangeContext> issueChangeContextCaptor = ArgumentCaptor.forClass(IssueChangeContext.class);
     verify(issue).setFieldChange(issueChangeContextCaptor.capture(), eq("file"), eq(originalFile.getUuid()), eq(FILE.getUuid()));
     assertThat(issueChangeContextCaptor.getValue().date()).isEqualTo(new Date(ANALYSIS_DATE));
-    assertThat(issueChangeContextCaptor.getValue().login()).isNull();
+    assertThat(issueChangeContextCaptor.getValue().userUuid()).isNull();
     assertThat(issueChangeContextCaptor.getValue().scan()).isFalse();
   }
 

@@ -27,19 +27,19 @@ import javax.annotation.Nullable;
 
 public class IssueChangeContext implements Serializable {
 
-  private final String login;
+  private final String userUuid;
   private final Date date;
   private final boolean scan;
 
-  private IssueChangeContext(@Nullable String login, Date date, boolean scan) {
-    this.login = login;
+  private IssueChangeContext(@Nullable String userUuid, Date date, boolean scan) {
+    this.userUuid = userUuid;
     this.date = date;
     this.scan = scan;
   }
 
   @CheckForNull
-  public String login() {
-    return login;
+  public String userUuid() {
+    return userUuid;
   }
 
   public Date date() {
@@ -54,8 +54,8 @@ public class IssueChangeContext implements Serializable {
     return new IssueChangeContext(null, date, true);
   }
 
-  public static IssueChangeContext createUser(Date date, @Nullable String login) {
-    return new IssueChangeContext(login, date, false);
+  public static IssueChangeContext createUser(Date date, @Nullable String userUuid) {
+    return new IssueChangeContext(userUuid, date, false);
   }
 
   @Override
@@ -68,19 +68,19 @@ public class IssueChangeContext implements Serializable {
     }
     IssueChangeContext that = (IssueChangeContext) o;
     return scan == that.scan &&
-      Objects.equals(login, that.login) &&
+      Objects.equals(userUuid, that.userUuid) &&
       Objects.equals(date, that.date);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(login, date, scan);
+    return Objects.hash(userUuid, date, scan);
   }
 
   @Override
   public String toString() {
     return "IssueChangeContext{" +
-      "login='" + login + '\'' +
+      "userUuid='" + userUuid + '\'' +
       ", date=" + date +
       ", scan=" + scan +
       '}';

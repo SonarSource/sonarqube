@@ -119,7 +119,7 @@ public class AssignAction implements IssuesWsAction {
       if (user != null) {
         checkMembership(dbSession, issueDto, user);
       }
-      IssueChangeContext context = IssueChangeContext.createUser(new Date(system2.now()), userSession.getLogin());
+      IssueChangeContext context = IssueChangeContext.createUser(new Date(system2.now()), userSession.getUuid());
       if (issueFieldsSetter.assign(issue, user, context)) {
         return issueUpdater.saveIssueAndPreloadSearchResponseData(dbSession, issue, context, null, false);
       }

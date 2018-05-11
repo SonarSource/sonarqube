@@ -31,7 +31,7 @@ public class IssueChangeDtoTest {
 
   @Test
   public void create_from_comment() {
-    DefaultIssueComment comment = DefaultIssueComment.create("ABCDE", "emmerik", "the comment");
+    DefaultIssueComment comment = DefaultIssueComment.create("ABCDE", "user_uuid", "the comment");
 
     IssueChangeDto dto = IssueChangeDto.of(comment);
 
@@ -41,12 +41,12 @@ public class IssueChangeDtoTest {
     assertThat(dto.getUpdatedAt()).isNotNull();
     assertThat(dto.getIssueChangeCreationDate()).isNotNull();
     assertThat(dto.getIssueKey()).isEqualTo("ABCDE");
-    assertThat(dto.getUserLogin()).isEqualTo("emmerik");
+    assertThat(dto.getUserUuid()).isEqualTo("user_uuid");
   }
 
   @Test
   public void create_from_comment_with_created_at() {
-    DefaultIssueComment comment = DefaultIssueComment.create("ABCDE", "emmerik", "the comment");
+    DefaultIssueComment comment = DefaultIssueComment.create("ABCDE", "user_uuid", "the comment");
     comment.setCreatedAt(parseDate("2015-01-13"));
 
     IssueChangeDto dto = IssueChangeDto.of(comment);
@@ -58,7 +58,7 @@ public class IssueChangeDtoTest {
   public void create_from_diff() {
     FieldDiffs diffs = new FieldDiffs();
     diffs.setDiff("severity", "INFO", "BLOCKER");
-    diffs.setUserLogin("emmerik");
+    diffs.setUserUuid("user_uuid");
     diffs.setCreationDate(parseDate("2015-01-13"));
 
     IssueChangeDto dto = IssueChangeDto.of("ABCDE", diffs);
@@ -68,7 +68,7 @@ public class IssueChangeDtoTest {
     assertThat(dto.getCreatedAt()).isNotNull();
     assertThat(dto.getUpdatedAt()).isNotNull();
     assertThat(dto.getIssueKey()).isEqualTo("ABCDE");
-    assertThat(dto.getUserLogin()).isEqualTo("emmerik");
+    assertThat(dto.getUserUuid()).isEqualTo("user_uuid");
     assertThat(dto.getIssueChangeCreationDate()).isEqualTo(parseDate("2015-01-13").getTime());
   }
 
@@ -76,7 +76,7 @@ public class IssueChangeDtoTest {
   public void create_from_diff_with_created_at() {
     FieldDiffs diffs = new FieldDiffs();
     diffs.setDiff("severity", "INFO", "BLOCKER");
-    diffs.setUserLogin("emmerik");
+    diffs.setUserUuid("user_uuid");
     diffs.setCreationDate(parseDate("2015-01-13"));
 
     IssueChangeDto dto = IssueChangeDto.of("ABCDE", diffs);
@@ -88,7 +88,7 @@ public class IssueChangeDtoTest {
   public void to_comment() {
     IssueChangeDto changeDto = new IssueChangeDto()
       .setKey("EFGH")
-      .setUserLogin("emmerik")
+      .setUserUuid("user_uuid")
       .setChangeData("Some text")
       .setIssueKey("ABCDE")
       .setCreatedAt(System2.INSTANCE.now())
@@ -99,7 +99,7 @@ public class IssueChangeDtoTest {
     assertThat(comment.markdownText()).isEqualTo("Some text");
     assertThat(comment.createdAt()).isNotNull();
     assertThat(comment.updatedAt()).isNotNull();
-    assertThat(comment.userLogin()).isEqualTo("emmerik");
+    assertThat(comment.userUuid()).isEqualTo("user_uuid");
     assertThat(comment.issueKey()).isEqualTo("ABCDE");
   }
 
@@ -107,13 +107,13 @@ public class IssueChangeDtoTest {
   public void to_field_diffs_with_issue_creation_date() {
     IssueChangeDto changeDto = new IssueChangeDto()
       .setKey("EFGH")
-      .setUserLogin("emmerik")
+      .setUserUuid("user_uuid")
       .setChangeData("Some text")
       .setIssueKey("ABCDE")
       .setIssueChangeCreationDate(System2.INSTANCE.now());
 
     FieldDiffs diffs = changeDto.toFieldDiffs();
-    assertThat(diffs.userLogin()).isEqualTo("emmerik");
+    assertThat(diffs.userUuid()).isEqualTo("user_uuid");
     assertThat(diffs.issueKey()).isEqualTo("ABCDE");
     assertThat(diffs.creationDate()).isNotNull();
   }
@@ -122,13 +122,13 @@ public class IssueChangeDtoTest {
   public void to_field_diffs_with_create_at() {
     IssueChangeDto changeDto = new IssueChangeDto()
       .setKey("EFGH")
-      .setUserLogin("emmerik")
+      .setUserUuid("user_uuid")
       .setChangeData("Some text")
       .setIssueKey("ABCDE")
       .setCreatedAt(System2.INSTANCE.now());
 
     FieldDiffs diffs = changeDto.toFieldDiffs();
-    assertThat(diffs.userLogin()).isEqualTo("emmerik");
+    assertThat(diffs.userUuid()).isEqualTo("user_uuid");
     assertThat(diffs.issueKey()).isEqualTo("ABCDE");
     assertThat(diffs.creationDate()).isNotNull();
   }
@@ -137,7 +137,7 @@ public class IssueChangeDtoTest {
   public void getIssueChangeCreationDate_fallback_to_createAt_when_null() {
     IssueChangeDto changeDto = new IssueChangeDto()
       .setKey("EFGH")
-      .setUserLogin("emmerik")
+      .setUserUuid("user_uuid")
       .setChangeData("Some text")
       .setIssueKey("ABCDE")
       .setCreatedAt(10_000_000L)
@@ -148,7 +148,7 @@ public class IssueChangeDtoTest {
 
   @Test
   public void to_string() {
-    DefaultIssueComment comment = DefaultIssueComment.create("ABCDE", "emmerik", "the comment");
+    DefaultIssueComment comment = DefaultIssueComment.create("ABCDE", "user_uuid", "the comment");
     IssueChangeDto dto = IssueChangeDto.of(comment);
     assertThat(dto.toString()).contains("ABCDE");
   }

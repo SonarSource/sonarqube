@@ -30,7 +30,7 @@ import static org.sonar.db.user.UserTesting.newUserDto;
 
 public class IssueChangeNotificationTest {
 
-  IssueChangeNotification notification = new IssueChangeNotification();
+  private IssueChangeNotification notification = new IssueChangeNotification();
 
   @Test
   public void set_issue() {
@@ -120,8 +120,9 @@ public class IssueChangeNotificationTest {
 
   @Test
   public void set_change_author_login() {
-    IssueChangeNotification result = notification.setChangeAuthorLogin("stephane");
-    assertThat(result.getFieldValue("changeAuthor")).isEqualTo("stephane");
+    UserDto user = newUserDto();
+    IssueChangeNotification result = notification.setChangeAuthor(user);
+    assertThat(result.getFieldValue("changeAuthor")).isEqualTo(user.getLogin());
   }
 
   @Test

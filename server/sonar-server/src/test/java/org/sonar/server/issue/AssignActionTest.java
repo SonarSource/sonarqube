@@ -58,7 +58,7 @@ public class AssignActionTest {
   @Rule
   public DbTester db = DbTester.create();
 
-  private IssueChangeContext issueChangeContext = IssueChangeContext.createUser(new Date(), "emmerik");
+  private IssueChangeContext issueChangeContext = IssueChangeContext.createUser(new Date(), "user_uuid");
   private DefaultIssue issue = new DefaultIssue().setKey("ABC").setAssigneeUuid(ISSUE_CURRENT_ASSIGNEE_UUID);
   private ComponentDto project;
   private Action.Context context;

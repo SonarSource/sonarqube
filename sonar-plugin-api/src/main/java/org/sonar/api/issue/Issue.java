@@ -196,7 +196,10 @@ public interface Issue extends Serializable {
    * <br>
    * IMPORTANT: existing comments are not loaded when this method is called when analyzing project
    * (from {@link ScannerSide}).
+   *
+   * @deprecated since 7.2, comments are not more available
    */
+  @Deprecated
   List<IssueComment> comments();
 
   /**

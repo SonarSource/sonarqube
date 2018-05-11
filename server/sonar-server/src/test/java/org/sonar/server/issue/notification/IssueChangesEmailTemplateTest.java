@@ -28,11 +28,11 @@ import org.sonar.api.config.EmailSettings;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.notifications.Notification;
 import org.sonar.db.DbTester;
+import org.sonar.db.user.UserDto;
 import org.sonar.plugins.emailnotifications.api.EmailMessage;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.CoreProperties.SERVER_BASE_URL;
-import static org.sonar.db.user.UserTesting.newUserDto;
 
 public class IssueChangesEmailTemplateTest {
 
@@ -166,26 +166,26 @@ public class IssueChangesEmailTemplateTest {
 
   @Test
   public void notification_sender_should_be_the_author_of_change() {
-    db.users().insertUser(newUserDto().setLogin("simon").setName("Simon"));
+    UserDto user = db.users().insertUser();
 
     Notification notification = new IssueChangeNotification()
-      .setChangeAuthorLogin("simon")
+      .setChangeAuthor(user)
       .setProject("Struts", "org.apache:struts", null, null);
 
     EmailMessage message = underTest.format(notification);
-    assertThat(message.getFrom()).isEqualTo("Simon");
+    assertThat(message.getFrom()).isEqualTo(user.getName());
   }
 
   @Test
   public void notification_contains_user_login_when_user_is_removed() {
-    db.users().insertUser(newUserDto().setLogin("simon").setName("Simon").setActive(false));
+    UserDto user = db.users().insertDisabledUser();
 
     Notification notification = new IssueChangeNotification()
-      .setChangeAuthorLogin("simon")
+      .setChangeAuthor(user)
       .setProject("Struts", "org.apache:struts", null, null);
 
     EmailMessage message = underTest.format(notification);
-    assertThat(message.getFrom()).isEqualTo("simon");
+    assertThat(message.getFrom()).isEqualTo(user.getLogin());
   }
 
   private static Notification generateNotification() {

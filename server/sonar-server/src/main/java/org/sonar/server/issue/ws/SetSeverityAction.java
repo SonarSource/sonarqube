@@ -105,7 +105,7 @@ public class SetSeverityAction implements IssuesWsAction {
     DefaultIssue issue = issueDto.toDefaultIssue();
     userSession.checkComponentUuidPermission(ISSUE_ADMIN, issue.projectUuid());
 
-    IssueChangeContext context = IssueChangeContext.createUser(new Date(), userSession.getLogin());
+    IssueChangeContext context = IssueChangeContext.createUser(new Date(), userSession.getUuid());
     if (issueFieldsSetter.setManualSeverity(issue, severity, context)) {
       return issueUpdater.saveIssueAndPreloadSearchResponseData(session, issue, context, null, true);
     }

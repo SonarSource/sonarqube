@@ -21,9 +21,7 @@ package org.sonar.server.issue;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
-
 import java.util.Date;
-
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -71,7 +69,7 @@ public class TransitionActionTest {
   public void setUp() throws Exception {
     workflow.start();
     when(context.issue()).thenReturn(issue);
-    when(context.issueChangeContext()).thenReturn(IssueChangeContext.createUser(new Date(), "john"));
+    when(context.issueChangeContext()).thenReturn(IssueChangeContext.createUser(new Date(), "user_uuid"));
   }
 
   @Test

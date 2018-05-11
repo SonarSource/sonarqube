@@ -65,7 +65,6 @@ import org.sonarqube.ws.Issues.SearchWsResponse;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Strings.nullToEmpty;
 import static com.google.common.collect.Iterables.concat;
 import static com.google.common.collect.Sets.newHashSet;
 import static java.lang.String.format;
@@ -411,7 +410,7 @@ public class SearchAction implements IssuesWsAction {
         .filter(FACETS_REQUIRING_PROJECT_OR_ORGANIZATION::contains)
         .collect(toSet());
       checkArgument(facetsRequiringProjectOrOrganizationParameter.isEmpty() ||
-          (!query.projectUuids().isEmpty()) || query.organizationUuid() != null, "Facet(s) '%s' require to also filter by project or organization",
+        (!query.projectUuids().isEmpty()) || query.organizationUuid() != null, "Facet(s) '%s' require to also filter by project or organization",
         COMA_JOINER.join(facetsRequiringProjectOrOrganizationParameter));
     }
     SearchResponseData preloadedData = new SearchResponseData(emptyList());
@@ -444,7 +443,11 @@ public class SearchAction implements IssuesWsAction {
     }
 
     LinkedHashMap<String, Long> newAssigneeFacets = new LinkedHashMap<>();
-    assigneeFacets.forEach((k, v) -> newAssigneeFacets.put(nullToEmpty(data.getLoginByUserUuid(k)), v));
+    assigneeFacets
+      .forEach((userUuid, v) -> {
+        UserDto user = data.getUserByUuid(userUuid);
+        newAssigneeFacets.put(user == null ? "" : user.getLogin(), v);
+      });
     assigneeFacets.clear();
     assigneeFacets.putAll(newAssigneeFacets);
   }

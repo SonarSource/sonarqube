@@ -118,7 +118,7 @@ public class AddCommentActionTest {
 
     IssueChangeDto issueComment = dbClient.issueChangeDao().selectByTypeAndIssueKeys(dbTester.getSession(), singletonList(issueDto.getKey()), TYPE_COMMENT).get(0);
     assertThat(issueComment.getKey()).isNotNull();
-    assertThat(issueComment.getUserLogin()).isEqualTo("john");
+    assertThat(issueComment.getUserUuid()).isEqualTo(userSession.getUuid());
     assertThat(issueComment.getChangeType()).isEqualTo(TYPE_COMMENT);
     assertThat(issueComment.getChangeData()).isEqualTo("please fix it");
     assertThat(issueComment.getCreatedAt()).isNotNull();

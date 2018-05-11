@@ -19,9 +19,13 @@
  */
 package org.sonar.api.issue;
 
-import javax.annotation.CheckForNull;
 import java.util.Date;
+import javax.annotation.CheckForNull;
 
+/**
+ * @deprecated since 7.2, comments are no more available
+ */
+@Deprecated
 public interface IssueComment {
   String markdownText();
 

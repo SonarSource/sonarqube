@@ -23,7 +23,7 @@
           issue_type="2"
       />
 
-  <issue_changes id="1" kee="FGHIJ" issue_key="ABCDE" change_type="comment" user_login="emmerik"
+  <issue_changes id="1" kee="FGHIJ" issue_key="ABCDE" change_type="comment" user_login="user_uuid"
                  change_data="the comment"
                  created_at="[null]" updated_at="[null]" issue_change_creation_date="[null]"/>
 

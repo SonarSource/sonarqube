@@ -108,7 +108,7 @@ public class SetTypeAction implements IssuesWsAction {
     DefaultIssue issue = issueDto.toDefaultIssue();
     userSession.checkComponentUuidPermission(ISSUE_ADMIN, issue.projectUuid());
 
-    IssueChangeContext context = IssueChangeContext.createUser(new Date(system2.now()), userSession.getLogin());
+    IssueChangeContext context = IssueChangeContext.createUser(new Date(system2.now()), userSession.getUuid());
     if (issueFieldsSetter.setType(issue, ruleType, context)) {
       return issueUpdater.saveIssueAndPreloadSearchResponseData(session, issue, context, null, true);
     }

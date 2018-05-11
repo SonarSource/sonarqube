@@ -3,7 +3,7 @@
     id="1"
     kee="[null]"
     issue_key="ABCDE"
-    user_login="emmerik"
+    user_login="user_uuid"
     change_type="diff"
     change_data="severity=INFO|BLOCKER"
     created_at="1500000000000"

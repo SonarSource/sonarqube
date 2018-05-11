@@ -28,7 +28,9 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.user.UserDto;
 
+import static java.util.Arrays.stream;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.issue.IssueTesting.newIssue;
 
@@ -40,14 +42,10 @@ public class IssueDbTester {
     this.db = db;
   }
 
-  public IssueDto insert(RuleDefinitionDto rule, ComponentDto project, ComponentDto file) {
+  @SafeVarargs
+  public final IssueDto insert(RuleDefinitionDto rule, ComponentDto project, ComponentDto file, Consumer<IssueDto>... populators) {
     IssueDto issue = newIssue(rule, project, file);
-    return insertIssue(issue);
-  }
-
-  public IssueDto insert(RuleDefinitionDto rule, ComponentDto project, ComponentDto file, Consumer<IssueDto> populator) {
-    IssueDto issue = newIssue(rule, project, file);
-    populator.accept(issue);
+    stream(populators).forEach(p -> p.accept(issue));
     return insertIssue(issue);
   }
 
@@ -57,27 +55,26 @@ public class IssueDbTester {
     return issueDto;
   }
 
-  public IssueDto insertIssue() {
-    return insertIssue(issueDto -> {
-    });
-  }
-
-  public IssueDto insertIssue(Consumer<IssueDto> populateIssueDto) {
+  @SafeVarargs
+  public final IssueDto insertIssue(Consumer<IssueDto>... populateIssueDto) {
     return insertIssue(db.getDefaultOrganization(), populateIssueDto);
   }
 
-  public IssueDto insertIssue(OrganizationDto organizationDto) {
-    return insertIssue(organizationDto, issueDto -> {
-    });
-  }
-
-  public IssueDto insertIssue(OrganizationDto organizationDto, Consumer<IssueDto> populateIssueDto) {
+  @SafeVarargs
+  public final IssueDto insertIssue(OrganizationDto organizationDto, Consumer<IssueDto>... populators) {
     RuleDefinitionDto rule = db.rules().insert();
     ComponentDto project = db.components().insertPrivateProject(organizationDto);
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     IssueDto issue = newIssue(rule, project, file);
-    populateIssueDto.accept(issue);
+    stream(populators).forEach(p -> p.accept(issue));
     return insertIssue(issue);
+  }
+
+  @SafeVarargs
+  public final IssueChangeDto insertChange(IssueDto issueDto, Consumer<IssueChangeDto>... populators) {
+    IssueChangeDto dto = IssueTesting.newIssuechangeDto(issueDto);
+    stream(populators).forEach(p -> p.accept(dto));
+    return insertChange(dto);
   }
 
   public IssueChangeDto insertChange(IssueChangeDto issueChangeDto) {
@@ -86,8 +83,8 @@ public class IssueDbTester {
     return issueChangeDto;
   }
 
-  public IssueChangeDto insertComment(IssueDto issueDto, @Nullable String login, String text) {
-    IssueChangeDto issueChangeDto = IssueChangeDto.of(DefaultIssueComment.create(issueDto.getKey(), login, text));
+  public IssueChangeDto insertComment(IssueDto issueDto, @Nullable UserDto user, String text) {
+    IssueChangeDto issueChangeDto = IssueChangeDto.of(DefaultIssueComment.create(issueDto.getKey(), user == null ? null : user.getUuid(), text));
     return insertChange(issueChangeDto);
   }
 

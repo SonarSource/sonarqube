@@ -77,7 +77,7 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
   private String checksum;
   private Map<String, String> attributes = null;
   private String authorLogin = null;
-  private List<IssueComment> comments = null;
+  private List<DefaultIssueComment> comments = null;
   private Set<String> tags = null;
   // temporarily an Object as long as DefaultIssue is used by sonar-batch
   private Object locations = null;
@@ -528,7 +528,7 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
     if (!Objects.equals(oldValue, newValue)) {
       if (currentChange == null) {
         currentChange = new FieldDiffs();
-        currentChange.setUserLogin(context.login());
+        currentChange.setUserUuid(context.userUuid());
         currentChange.setCreationDate(context.date());
       }
       currentChange.setDiff(field, oldValue, newValue);
@@ -576,8 +576,16 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
     return this;
   }
 
+  /**
+   * @deprecated since 7.2, comments are not more available
+   */
   @Override
+  @Deprecated
   public List<IssueComment> comments() {
+    return Collections.emptyList();
+  }
+
+  public List<DefaultIssueComment> defaultIssueComments() {
     if (comments == null) {
       return Collections.emptyList();
     }

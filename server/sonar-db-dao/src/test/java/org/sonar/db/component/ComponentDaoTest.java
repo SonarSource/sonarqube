@@ -346,7 +346,7 @@ public class ComponentDaoTest {
   public void get_by_id() {
     ComponentDto project = db.components().insertPrivateProject();
 
-    assertThat(underTest.selectOrFailById(dbSession, project.getId())).isNotNull();
+    assertThat(underTest.selectById(dbSession, project.getId())).isNotNull();
   }
 
   @Test
@@ -357,15 +357,6 @@ public class ComponentDaoTest {
     Optional<ComponentDto> result = underTest.selectById(dbSession, disabledProject.getId());
     assertThat(result).isPresent();
     assertThat(result.get().isEnabled()).isFalse();
-  }
-
-  @Test
-  public void fail_to_get_by_id_when_project_not_found() {
-    ComponentDto project = db.components().insertPrivateProject();
-
-    expectedException.expect(RowNotFoundException.class);
-
-    underTest.selectOrFailById(dbSession, 0L);
   }
 
   @Test

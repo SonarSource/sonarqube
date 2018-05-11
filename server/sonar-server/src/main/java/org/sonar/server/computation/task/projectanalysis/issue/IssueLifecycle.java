@@ -23,7 +23,6 @@ import com.google.common.annotations.VisibleForTesting;
 import java.util.Date;
 import java.util.Optional;
 import org.sonar.api.issue.Issue;
-import org.sonar.api.issue.IssueComment;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.DefaultIssueComment;
 import org.sonar.core.issue.FieldDiffs;
@@ -94,18 +93,18 @@ public class IssueLifecycle {
   }
 
   private static void copyChanges(DefaultIssue raw, DefaultIssue base) {
-    base.comments().forEach(c -> raw.addComment(copy(raw.key(), c)));
+    base.defaultIssueComments().forEach(c -> raw.addComment(copy(raw.key(), c)));
     base.changes().forEach(c -> copy(raw.key(), c).ifPresent(raw::addChange));
   }
 
   /**
    * Copy a comment from another issue
    */
-  private static DefaultIssueComment copy(String issueKey, IssueComment c) {
+  private static DefaultIssueComment copy(String issueKey, DefaultIssueComment c) {
     DefaultIssueComment comment = new DefaultIssueComment();
     comment.setIssueKey(issueKey);
     comment.setKey(Uuids.create());
-    comment.setUserLogin(c.userLogin());
+    comment.setUserUuid(c.userUuid());
     comment.setMarkdownText(c.markdownText());
     comment.setCreatedAt(c.createdAt()).setUpdatedAt(c.updatedAt());
     comment.setNew(true);
@@ -118,7 +117,7 @@ public class IssueLifecycle {
   private static Optional<FieldDiffs> copy(String issueKey, FieldDiffs c) {
     FieldDiffs result = new FieldDiffs();
     result.setIssueKey(issueKey);
-    result.setUserLogin(c.userLogin());
+    result.setUserUuid(c.userUuid());
     result.setCreationDate(c.creationDate());
     // Don't copy "file" changelogs as they refer to file uuids that might later be purged
     c.diffs().entrySet().stream().filter(e -> !e.getKey().equals(IssueFieldsSetter.FILE))

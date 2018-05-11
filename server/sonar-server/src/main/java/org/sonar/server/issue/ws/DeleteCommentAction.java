@@ -113,7 +113,7 @@ public class DeleteCommentAction implements IssuesWsAction {
         .orElseThrow(() -> new NotFoundException(format("Comment with key '%s' does not exist", commentKey)));
       // Load issue now to quickly fail if user hasn't permission to see it
       this.issueDto = issueFinder.getByKey(dbSession, issueChangeDto.getIssueKey());
-      checkArgument(Objects.equals(issueChangeDto.getUserLogin(), userSession.getLogin()), "You can only delete your own comments");
+      checkArgument(Objects.equals(issueChangeDto.getUserUuid(), userSession.getUuid()), "You can only delete your own comments");
     }
 
     IssueChangeDto getIssueChangeDto() {

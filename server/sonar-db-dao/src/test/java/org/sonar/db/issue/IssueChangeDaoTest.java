@@ -19,7 +19,6 @@
  */
 package org.sonar.db.issue;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import org.junit.Rule;
@@ -29,7 +28,13 @@ import org.sonar.api.utils.System2;
 import org.sonar.core.issue.FieldDiffs;
 import org.sonar.db.DbTester;
 
+import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
+import static org.sonar.db.issue.IssueChangeDto.TYPE_COMMENT;
+import static org.sonar.db.issue.IssueChangeDto.TYPE_FIELD_CHANGE;
 
 public class IssueChangeDaoTest {
 
@@ -40,44 +45,53 @@ public class IssueChangeDaoTest {
 
   @Test
   public void select_issue_changelog_from_issue_key() {
-    db.prepareDbUnit(getClass(), "shared.xml");
+    IssueDto issue1 = db.issues().insertIssue();
+    db.issues().insertChange(issue1, c -> c.setChangeType(TYPE_FIELD_CHANGE).setChangeData("severity=MAJOR|BLOCKER"));
+    IssueDto issue2 = db.issues().insertIssue();
+    db.issues().insertChange(issue2);
 
-    List<FieldDiffs> changelog = underTest.selectChangelogByIssue(db.getSession(), "1000");
+    List<FieldDiffs> changelog = underTest.selectChangelogByIssue(db.getSession(), issue1.getKey());
+
     assertThat(changelog).hasSize(1);
     assertThat(changelog.get(0).diffs()).hasSize(1);
     assertThat(changelog.get(0).diffs().get("severity").newValue()).isEqualTo("BLOCKER");
     assertThat(changelog.get(0).diffs().get("severity").oldValue()).isEqualTo("MAJOR");
+
+    assertThat(underTest.selectChangelogByIssue(db.getSession(), "unknown")).isEmpty();
   }
 
   @Test
-  public void select_issue_changes_from_issues_key() {
-    db.prepareDbUnit(getClass(), "shared.xml");
+  public void select_issue_changes_from_issues_keys() {
+    IssueDto issue1 = db.issues().insertIssue();
+    db.issues().insertChange(issue1);
+    db.issues().insertChange(issue1);
+    db.issues().insertChange(issue1);
+    db.issues().insertChange(issue1);
+    IssueDto issue2 = db.issues().insertIssue();
+    db.issues().insertChange(issue2);
+    IssueDto issue3 = db.issues().insertIssue();
 
-    List<IssueChangeDto> changelog = underTest.selectByIssueKeys(db.getSession(), Arrays.asList("1000", "1001"));
+    List<IssueChangeDto> changelog = underTest.selectByIssueKeys(db.getSession(), asList(issue1.getKey(), issue2.getKey(), issue3.getKey()));
+
     assertThat(changelog).hasSize(5);
-  }
 
-  @Test
-  public void selectChangelogOfNonClosedIssuesByComponent() {
-    db.prepareDbUnit(getClass(), "selectChangelogOfNonClosedIssuesByComponent.xml");
-
-    List<IssueChangeDto> dtos = underTest.selectChangelogOfNonClosedIssuesByComponent(db.getSession(), "FILE_1");
-    // no need to have ordered results (see NewDebtCalculator)
-    assertThat(dtos).extracting("id").containsOnly(100L, 103L);
+    assertThat(underTest.selectByIssueKeys(db.getSession(), singletonList("unknown"))).isEmpty();
+    assertThat(underTest.selectByIssueKeys(db.getSession(), emptyList())).isEmpty();
   }
 
   @Test
   public void select_comment_by_key() {
-    IssueDto issueDto = db.issues().insertIssue();
-    IssueChangeDto comment = db.issues().insertComment(issueDto, "john", "some comment");
+    IssueDto issue = db.issues().insertIssue();
+    IssueChangeDto issueChange = db.issues().insertChange(issue, c -> c.setChangeType(TYPE_COMMENT));
+    db.issues().insertChange(issue, c -> c.setChangeType(TYPE_COMMENT));
 
-    Optional<IssueChangeDto> issueChangeDto = underTest.selectCommentByKey(db.getSession(), comment.getKey());
+    Optional<IssueChangeDto> issueChangeDto = underTest.selectCommentByKey(db.getSession(), issueChange.getKey());
 
     assertThat(issueChangeDto).isPresent();
-    assertThat(issueChangeDto.get().getKey()).isEqualTo(comment.getKey());
-    assertThat(issueChangeDto.get().getChangeType()).isEqualTo(IssueChangeDto.TYPE_COMMENT);
-    assertThat(issueChangeDto.get().getUserLogin()).isEqualTo("john");
-    assertThat(issueChangeDto.get().getChangeData()).isEqualTo("some comment");
+    assertThat(issueChangeDto.get().getKey()).isEqualTo(issueChange.getKey());
+    assertThat(issueChangeDto.get().getChangeType()).isEqualTo(TYPE_COMMENT);
+    assertThat(issueChangeDto.get().getUserUuid()).isEqualTo(issueChange.getUserUuid());
+    assertThat(issueChangeDto.get().getChangeData()).isEqualTo(issueChange.getChangeData());
     assertThat(issueChangeDto.get().getIssueChangeCreationDate()).isNotNull();
     assertThat(issueChangeDto.get().getCreatedAt()).isNotNull();
     assertThat(issueChangeDto.get().getUpdatedAt()).isNotNull();
@@ -85,29 +99,32 @@ public class IssueChangeDaoTest {
 
   @Test
   public void delete() {
-    db.prepareDbUnit(getClass(), "delete.xml");
+    IssueDto issue = db.issues().insertIssue();
+    IssueChangeDto issueChange1 = db.issues().insertChange(issue);
+    IssueChangeDto issueChange2 = db.issues().insertChange(issue);
 
-    assertThat(underTest.delete(db.getSession(), "COMMENT-2")).isTrue();
-    db.commit();
+    assertThat(underTest.delete(db.getSession(), issueChange1.getKey())).isTrue();
 
-    db.assertDbUnit(getClass(), "delete-result.xml", "issue_changes");
+    assertThat(db.countRowsOfTable(db.getSession(), "issue_changes")).isEqualTo(1);
   }
 
   @Test
   public void delete_unknown_key() {
-    db.prepareDbUnit(getClass(), "delete.xml");
+    IssueDto issue = db.issues().insertIssue();
+    db.issues().insertChange(issue);
 
     assertThat(underTest.delete(db.getSession(), "UNKNOWN")).isFalse();
   }
 
   @Test
   public void insert() {
+    IssueDto issue = db.issues().insertIssue();
     IssueChangeDto changeDto = new IssueChangeDto()
       .setKey("EFGH")
-      .setUserLogin("emmerik")
+      .setUserUuid("user_uuid")
       .setChangeData("Some text")
       .setChangeType("comment")
-      .setIssueKey("ABCDE")
+      .setIssueKey(issue.getKey())
       .setCreatedAt(1_500_000_000_000L)
       .setUpdatedAt(1_501_000_000_000L)
       .setIssueChangeCreationDate(1_502_000_000_000L);
@@ -115,36 +132,56 @@ public class IssueChangeDaoTest {
     underTest.insert(db.getSession(), changeDto);
     db.getSession().commit();
 
-    db.assertDbUnit(getClass(), "insert-result.xml", new String[] {"id"}, "issue_changes");
+    assertThat(underTest.selectByIssueKeys(db.getSession(), singletonList(issue.getKey())))
+      .extracting(IssueChangeDto::getKey, IssueChangeDto::getIssueKey, IssueChangeDto::getChangeData, IssueChangeDto::getChangeType,
+        IssueChangeDto::getIssueChangeCreationDate, IssueChangeDto::getCreatedAt, IssueChangeDto::getUpdatedAt)
+      .containsExactlyInAnyOrder(
+        tuple("EFGH", issue.getKey(), "Some text", TYPE_COMMENT, 1_502_000_000_000L, 1_500_000_000_000L, 1_501_000_000_000L));
   }
 
   @Test
   public void update() {
-    db.prepareDbUnit(getClass(), "update.xml");
+    IssueDto issue = db.issues().insertIssue();
+    IssueChangeDto issueChange = db.issues().insertChange(issue);
 
-    IssueChangeDto change = new IssueChangeDto();
-    change.setKey("COMMENT-2");
-
-    // Only the following fields can be updated:
-    change.setChangeData("new comment");
-    change.setUpdatedAt(1_500_000_000_000L);
-
-    assertThat(underTest.update(db.getSession(), change)).isTrue();
+    assertThat(underTest.update(db.getSession(), new IssueChangeDto()
+      .setKey(issueChange.getKey())
+      // Only the following fields can be updated:
+      .setChangeData("new comment")
+      .setUpdatedAt(1_500_000_000_000L)
+      // Should not be taking into account
+      .setIssueKey("other_issue_uuid")
+      .setUserUuid("other_user_uuid")
+      .setCreatedAt(10_000_000_000L)
+      .setIssueChangeCreationDate(30_000_000_000L))).isTrue();
     db.commit();
 
-    db.assertDbUnit(getClass(), "update-result.xml", "issue_changes");
+    assertThat(underTest.selectByIssueKeys(db.getSession(), singletonList(issue.getKey())))
+      .extracting(IssueChangeDto::getKey, IssueChangeDto::getIssueKey, IssueChangeDto::getChangeData, IssueChangeDto::getChangeType,
+        IssueChangeDto::getIssueChangeCreationDate, IssueChangeDto::getCreatedAt, IssueChangeDto::getUpdatedAt)
+      .containsExactlyInAnyOrder(
+        tuple(issueChange.getKey(), issue.getKey(), "new comment", issueChange.getChangeType(), issueChange.getIssueChangeCreationDate(), issueChange.getCreatedAt(),
+          1_500_000_000_000L));
   }
 
   @Test
   public void update_unknown_key() {
-    db.prepareDbUnit(getClass(), "update.xml");
+    IssueDto issue = db.issues().insertIssue();
+    IssueChangeDto issueChange = db.issues().insertChange(issue);
 
-    IssueChangeDto change = new IssueChangeDto();
-    change.setKey("UNKNOWN");
-    change.setChangeData("new comment");
-    change.setUpdatedAt(DateUtils.parseDate("2013-06-30").getTime());
+    assertThat(underTest.update(db.getSession(), new IssueChangeDto()
+      .setKey("UNKNOWN")
+      .setIssueKey("other_issue_uuid")
+      .setChangeData("new comment")
+      .setUpdatedAt(DateUtils.parseDate("2013-06-30").getTime())))
+        .isFalse();
 
-    assertThat(underTest.update(db.getSession(), change)).isFalse();
+    assertThat(underTest.selectByIssueKeys(db.getSession(), singletonList(issue.getKey())))
+      .extracting(IssueChangeDto::getKey, IssueChangeDto::getIssueKey, IssueChangeDto::getChangeData, IssueChangeDto::getChangeType,
+        IssueChangeDto::getIssueChangeCreationDate, IssueChangeDto::getCreatedAt, IssueChangeDto::getUpdatedAt)
+      .containsExactlyInAnyOrder(
+        tuple(issueChange.getKey(), issue.getKey(), issueChange.getChangeData(), issueChange.getChangeType(), issueChange.getIssueChangeCreationDate(), issueChange.getCreatedAt(),
+          issueChange.getUpdatedAt()));
   }
 
 }

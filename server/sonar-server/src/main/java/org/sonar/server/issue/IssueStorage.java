@@ -27,7 +27,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import org.sonar.api.issue.Issue;
-import org.sonar.api.issue.IssueComment;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.utils.System2;
@@ -153,10 +152,9 @@ public abstract class IssueStorage {
   protected abstract IssueDto doUpdate(DbSession batchSession, long now, DefaultIssue issue);
 
   public static void insertChanges(IssueChangeMapper mapper, DefaultIssue issue) {
-    for (IssueComment comment : issue.comments()) {
-      DefaultIssueComment c = (DefaultIssueComment) comment;
-      if (c.isNew()) {
-        IssueChangeDto changeDto = IssueChangeDto.of(c);
+    for (DefaultIssueComment comment : issue.defaultIssueComments()) {
+      if (comment.isNew()) {
+        IssueChangeDto changeDto = IssueChangeDto.of(comment);
         mapper.insert(changeDto);
       }
     }

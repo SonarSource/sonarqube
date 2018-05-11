@@ -130,14 +130,14 @@ public class PersistIssuesStepTest extends BaseStepTest {
       .addComment(new DefaultIssueComment()
         .setKey("COMMENT")
         .setIssueKey("ISSUE")
-        .setUserLogin("john")
+        .setUserUuid("john_uuid")
         .setMarkdownText("Some text")
         .setCreatedAt(new Date(NOW))
         .setNew(true))
       .setCurrentChange(
         new FieldDiffs()
           .setIssueKey("ISSUE")
-          .setUserLogin("john")
+          .setUserUuid("john_uuid")
           .setDiff("technicalDebt", null, 1L)
           .setCreationDate(new Date(NOW))))
       .close();
@@ -182,13 +182,13 @@ public class PersistIssuesStepTest extends BaseStepTest {
       .addComment(new DefaultIssueComment()
         .setKey("COMMENT")
         .setIssueKey("ISSUE")
-        .setUserLogin("john")
+        .setUserUuid("john_uuid")
         .setMarkdownText("Some text")
         .setCreatedAt(new Date(NOW))
         .setNew(true))
       .setCurrentChange(new FieldDiffs()
         .setIssueKey("ISSUE")
-        .setUserLogin("john")
+        .setUserUuid("john_uuid")
         .setDiff("technicalDebt", null, 1L)
         .setCreationDate(new Date(NOW))))
       .close();
@@ -290,7 +290,7 @@ public class PersistIssuesStepTest extends BaseStepTest {
         .addComment(new DefaultIssueComment()
           .setKey("COMMENT")
           .setIssueKey(issue.getKey())
-          .setUserLogin("john")
+          .setUserUuid("john_uuid")
           .setMarkdownText("Some text")
           .setCreatedAt(new Date(NOW))
           .setNew(true)))
@@ -299,9 +299,9 @@ public class PersistIssuesStepTest extends BaseStepTest {
 
     IssueChangeDto issueChangeDto = db.getDbClient().issueChangeDao().selectByIssueKeys(db.getSession(), singletonList(issue.getKey())).get(0);
     assertThat(issueChangeDto)
-      .extracting(IssueChangeDto::getChangeType, IssueChangeDto::getUserLogin, IssueChangeDto::getChangeData, IssueChangeDto::getIssueKey,
+      .extracting(IssueChangeDto::getChangeType, IssueChangeDto::getUserUuid, IssueChangeDto::getChangeData, IssueChangeDto::getIssueKey,
         IssueChangeDto::getIssueChangeCreationDate)
-      .containsOnly(IssueChangeDto.TYPE_COMMENT, "john", "Some text", issue.getKey(), NOW);
+      .containsOnly(IssueChangeDto.TYPE_COMMENT, "john_uuid", "Some text", issue.getKey(), NOW);
   }
 
   @Test
@@ -325,7 +325,7 @@ public class PersistIssuesStepTest extends BaseStepTest {
         .setChanged(true)
         .setCurrentChange(new FieldDiffs()
           .setIssueKey("ISSUE")
-          .setUserLogin("john")
+          .setUserUuid("john_uuid")
           .setDiff("technicalDebt", null, 1L)
           .setCreationDate(new Date(NOW))))
       .close();
@@ -333,9 +333,9 @@ public class PersistIssuesStepTest extends BaseStepTest {
 
     IssueChangeDto issueChangeDto = db.getDbClient().issueChangeDao().selectByIssueKeys(db.getSession(), singletonList(issue.getKey())).get(0);
     assertThat(issueChangeDto)
-      .extracting(IssueChangeDto::getChangeType, IssueChangeDto::getUserLogin, IssueChangeDto::getChangeData, IssueChangeDto::getIssueKey,
+      .extracting(IssueChangeDto::getChangeType, IssueChangeDto::getUserUuid, IssueChangeDto::getChangeData, IssueChangeDto::getIssueKey,
         IssueChangeDto::getIssueChangeCreationDate)
-      .containsOnly(IssueChangeDto.TYPE_FIELD_CHANGE, "john", "technicalDebt=1", issue.getKey(), NOW);
+      .containsOnly(IssueChangeDto.TYPE_FIELD_CHANGE, "john_uuid", "technicalDebt=1", issue.getKey(), NOW);
   }
 
 }

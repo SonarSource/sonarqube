@@ -107,7 +107,7 @@
                  issue_key="ISSUE-3"
                  created_at="[null]"
                  updated_at="[null]"
-                 user_login="admin"
+                 user_login="admin_uuid"
                  change_type="comment"
                  change_data="abc"
                  issue_change_creation_date="[null]"/>
@@ -145,7 +145,7 @@
                  issue_key="ISSUE-4"
                  created_at="[null]"
                  updated_at="[null]"
-                 user_login="admin"
+                 user_login="admin_uuid"
                  change_type="comment"
                  change_data="abc"
                  issue_change_creation_date="[null]"/>

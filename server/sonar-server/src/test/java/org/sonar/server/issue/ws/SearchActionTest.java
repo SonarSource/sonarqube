@@ -24,11 +24,9 @@ import com.google.gson.JsonParser;
 import java.time.Clock;
 import java.util.Arrays;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.issue.Issue;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.server.ws.WebService;
@@ -287,7 +285,6 @@ public class SearchActionTest {
   }
 
   @Test
-  @Ignore // TODO GJT when adressing ticket on IssueChangesUuid
   public void issue_with_comments() {
     UserDto john = db.users().insertUser(u -> u.setLogin("john").setName("John"));
     UserDto fabrice = db.users().insertUser(u -> u.setLogin("fabrice").setName("Fabrice").setEmail("fabrice@email.com"));
@@ -304,14 +301,14 @@ public class SearchActionTest {
         .setKey("COMMENT-ABCD")
         .setChangeData("*My comment*")
         .setChangeType(IssueChangeDto.TYPE_COMMENT)
-        .setUserLogin(john.getUuid())
+        .setUserUuid(john.getUuid())
         .setIssueChangeCreationDate(DateUtils.parseDateTime("2014-09-09T12:00:00+0000").getTime()));
     dbClient.issueChangeDao().insert(session,
       new IssueChangeDto().setIssueKey(issue.getKey())
         .setKey("COMMENT-ABCE")
         .setChangeData("Another comment")
         .setChangeType(IssueChangeDto.TYPE_COMMENT)
-        .setUserLogin(fabrice.getUuid())
+        .setUserUuid(fabrice.getUuid())
         .setIssueChangeCreationDate(DateUtils.parseDateTime("2014-09-10T12:00:00+0000").getTime()));
     session.commit();
     indexIssues();
@@ -325,8 +322,8 @@ public class SearchActionTest {
 
   @Test
   public void issue_with_comment_hidden() {
-    db.users().insertUser(u -> u.setLogin("john").setName("John").setEmail("john@email.com"));
-    db.users().insertUser(u -> u.setLogin("fabrice").setName("Fabrice").setEmail("fabrice@email.com"));
+    UserDto john = db.users().insertUser(u -> u.setLogin("john").setName("John").setEmail("john@email.com"));
+    UserDto fabrice = db.users().insertUser(u -> u.setLogin("fabrice").setName("Fabrice").setEmail("fabrice@email.com"));
 
     ComponentDto project = insertComponent(ComponentTesting.newPublicProjectDto(otherOrganization1, "PROJECT_ID").setDbKey("PROJECT_KEY"));
     indexPermissions();
@@ -340,22 +337,22 @@ public class SearchActionTest {
         .setKey("COMMENT-ABCD")
         .setChangeData("*My comment*")
         .setChangeType(IssueChangeDto.TYPE_COMMENT)
-        .setUserLogin("john")
+        .setUserUuid(john.getUuid())
         .setCreatedAt(DateUtils.parseDateTime("2014-09-09T12:00:00+0000").getTime()));
     dbClient.issueChangeDao().insert(session,
       new IssueChangeDto().setIssueKey(issue.getKey())
         .setKey("COMMENT-ABCE")
         .setChangeData("Another comment")
         .setChangeType(IssueChangeDto.TYPE_COMMENT)
-        .setUserLogin("fabrice")
+        .setUserUuid(fabrice.getUuid())
         .setCreatedAt(DateUtils.parseDateTime("2014-09-10T19:10:03+0000").getTime()));
     session.commit();
     indexIssues();
 
-    userSessionRule.logIn("john");
+    userSessionRule.logIn(john);
     TestResponse result = ws.newRequest().setParam(PARAM_HIDE_COMMENTS, "true").execute();
     result.assertJson(this.getClass(), "issue_with_comment_hidden.json");
-    assertThat(result.getInput()).doesNotContain("fabrice");
+    assertThat(result.getInput()).doesNotContain(fabrice.getLogin());
   }
 
   @Test

@@ -70,7 +70,7 @@ public class SetSeverityActionTest {
     IssueDto issueDto = newIssue().setSeverity(MAJOR);
     DefaultIssue issue = issueDto.toDefaultIssue();
     setUserWithBrowseAndAdministerIssuePermission(issueDto);
-    BulkChangeAction.ActionContext context = new BulkChangeAction.ActionContext(issue, IssueChangeContext.createUser(NOW, userSession.getLogin()), null);
+    BulkChangeAction.ActionContext context = new BulkChangeAction.ActionContext(issue, IssueChangeContext.createUser(NOW, userSession.getUuid()), null);
 
     action.execute(ImmutableMap.of("severity", MINOR), context);
 

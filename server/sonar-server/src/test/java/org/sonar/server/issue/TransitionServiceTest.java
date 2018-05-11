@@ -92,7 +92,7 @@ public class TransitionServiceTest {
   public void do_transition() {
     DefaultIssue issue = newIssue().setStatus(STATUS_OPEN).setResolution(null).toDefaultIssue();
 
-    boolean result = underTest.doTransition(issue, IssueChangeContext.createUser(new Date(), "john"), "confirm");
+    boolean result = underTest.doTransition(issue, IssueChangeContext.createUser(new Date(), "user_uuid"), "confirm");
 
     assertThat(result).isTrue();
     assertThat(issue.status()).isEqualTo(STATUS_CONFIRMED);

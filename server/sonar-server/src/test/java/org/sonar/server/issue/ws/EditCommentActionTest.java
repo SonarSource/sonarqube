@@ -34,6 +34,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.issue.IssueChangeDto;
 import org.sonar.db.issue.IssueDbTester;
 import org.sonar.db.issue.IssueDto;
+import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
@@ -81,8 +82,9 @@ public class EditCommentActionTest {
   @Test
   public void edit_comment() {
     IssueDto issueDto = issueDbTester.insertIssue();
-    IssueChangeDto commentDto = issueDbTester.insertComment(issueDto, "john", "please fix it");
-    loginWithBrowsePermission("john", USER, issueDto);
+    UserDto user = dbTester.users().insertUser();
+    IssueChangeDto commentDto = issueDbTester.insertComment(issueDto, user, "please fix it");
+    loginWithBrowsePermission(user, USER, issueDto);
 
     call(commentDto.getKey(), "please have a look");
 
@@ -97,8 +99,9 @@ public class EditCommentActionTest {
   @Test
   public void edit_comment_using_deprecated_key_parameter() {
     IssueDto issueDto = issueDbTester.insertIssue();
-    IssueChangeDto commentDto = issueDbTester.insertComment(issueDto, "john", "please fix it");
-    loginWithBrowsePermission("john", USER, issueDto);
+    UserDto user = dbTester.users().insertUser();
+    IssueChangeDto commentDto = issueDbTester.insertComment(issueDto, user, "please fix it");
+    loginWithBrowsePermission(user, USER, issueDto);
 
     tester.newRequest().setParam("key", commentDto.getKey()).setParam("text", "please have a look").execute();
 
@@ -113,8 +116,10 @@ public class EditCommentActionTest {
   @Test
   public void fail_when_comment_does_not_belong_to_current_user() {
     IssueDto issueDto = issueDbTester.insertIssue();
-    IssueChangeDto commentDto = issueDbTester.insertComment(issueDto, "john", "please fix it");
-    loginWithBrowsePermission("another", USER, issueDto);
+    UserDto user = dbTester.users().insertUser();
+    IssueChangeDto commentDto = issueDbTester.insertComment(issueDto, user, "please fix it");
+    UserDto another = dbTester.users().insertUser();
+    loginWithBrowsePermission(another, USER, issueDto);
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("You can only edit your own comments");
@@ -124,8 +129,9 @@ public class EditCommentActionTest {
   @Test
   public void fail_when_comment_has_not_user() {
     IssueDto issueDto = issueDbTester.insertIssue();
+    UserDto user = dbTester.users().insertUser();
     IssueChangeDto commentDto = issueDbTester.insertComment(issueDto, null, "please fix it");
-    loginWithBrowsePermission("john", USER, issueDto);
+    loginWithBrowsePermission(user, USER, issueDto);
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("You can only edit your own comments");
@@ -159,8 +165,9 @@ public class EditCommentActionTest {
   @Test
   public void fail_when_empty_comment_text() {
     IssueDto issueDto = issueDbTester.insertIssue();
-    IssueChangeDto commentDto = issueDbTester.insertComment(issueDto, "john", "please fix it");
-    loginWithBrowsePermission("john", USER, issueDto);
+    UserDto user = dbTester.users().insertUser();
+    IssueChangeDto commentDto = issueDbTester.insertComment(issueDto, user, "please fix it");
+    loginWithBrowsePermission(user, USER, issueDto);
 
     expectedException.expect(IllegalArgumentException.class);
     call(commentDto.getKey(), "");
@@ -175,8 +182,9 @@ public class EditCommentActionTest {
   @Test
   public void fail_when_not_enough_permission() {
     IssueDto issueDto = issueDbTester.insertIssue();
-    IssueChangeDto commentDto = issueDbTester.insertComment(issueDto, "john", "please fix it");
-    loginWithBrowsePermission("john", CODEVIEWER, issueDto);
+    UserDto user = dbTester.users().insertUser();
+    IssueChangeDto commentDto = issueDbTester.insertComment(issueDto, user, "please fix it");
+    loginWithBrowsePermission(user, CODEVIEWER, issueDto);
 
     expectedException.expect(ForbiddenException.class);
     call(commentDto.getKey(), "please have a look");
@@ -199,8 +207,8 @@ public class EditCommentActionTest {
     return request.execute();
   }
 
-  private void loginWithBrowsePermission(String login, String permission, IssueDto issueDto) {
-    userSession.logIn(login).addProjectPermission(permission,
+  private void loginWithBrowsePermission(UserDto user, String permission, IssueDto issueDto) {
+    userSession.logIn(user).addProjectPermission(permission,
       dbClient.componentDao().selectByUuid(dbTester.getSession(), issueDto.getProjectUuid()).get(),
       dbClient.componentDao().selectByUuid(dbTester.getSession(), issueDto.getComponentUuid()).get());
   }

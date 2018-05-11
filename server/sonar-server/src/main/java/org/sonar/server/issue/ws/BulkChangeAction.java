@@ -63,8 +63,10 @@ import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Issues;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.ImmutableMap.of;
 import static java.lang.String.format;
+import static java.util.Objects.requireNonNull;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
@@ -190,7 +192,7 @@ public class BulkChangeAction implements IssuesWsAction {
   private BulkChangeResult executeBulkChange(DbSession dbSession, Request request) {
     BulkChangeData bulkChangeData = new BulkChangeData(dbSession, request);
     BulkChangeResult result = new BulkChangeResult(bulkChangeData.issues.size());
-    IssueChangeContext issueChangeContext = IssueChangeContext.createUser(new Date(system2.now()), userSession.getLogin());
+    IssueChangeContext issueChangeContext = IssueChangeContext.createUser(new Date(system2.now()), userSession.getUuid());
 
     List<DefaultIssue> items = bulkChangeData.issues.stream()
       .filter(bulkChange(issueChangeContext, bulkChangeData, result))
@@ -201,8 +203,10 @@ public class BulkChangeAction implements IssuesWsAction {
 
     Set<String> assigneeUuids = items.stream().map(DefaultIssue::assignee).filter(Objects::nonNull).collect(toSet());
     Map<String, UserDto> userDtoByUuid = dbClient.userDao().selectByUuids(dbSession, assigneeUuids).stream().collect(toMap(UserDto::getUuid, u -> u));
-
-    items.forEach(sendNotification(issueChangeContext, bulkChangeData, userDtoByUuid));
+    String authorUuid = requireNonNull(userSession.getUuid(), "User uuid cannot be null");
+    UserDto author = dbClient.userDao().selectByUuid(dbSession, authorUuid);
+    checkState(author != null, "User with uuid '%s' does not exist");
+    items.forEach(sendNotification(bulkChangeData, userDtoByUuid, author));
 
     return result;
   }
@@ -250,14 +254,13 @@ public class BulkChangeAction implements IssuesWsAction {
     bulkChangeData.getCommentAction().ifPresent(action -> action.execute(bulkChangeData.getProperties(action.key()), actionContext));
   }
 
-  private Consumer<DefaultIssue> sendNotification(IssueChangeContext issueChangeContext, BulkChangeData bulkChangeData,
-    Map<String, UserDto> userDtoByUuid) {
+  private Consumer<DefaultIssue> sendNotification(BulkChangeData bulkChangeData, Map<String, UserDto> userDtoByUuid, UserDto author) {
     return issue -> {
       if (bulkChangeData.sendNotification) {
         notificationService.scheduleForSending(new IssueChangeNotification()
           .setIssue(issue)
           .setAssignee(userDtoByUuid.get(issue.assignee()))
-          .setChangeAuthorLogin(issueChangeContext.login())
+          .setChangeAuthor(author)
           .setRuleName(bulkChangeData.rulesByKey.get(issue.ruleKey()).getName())
           .setProject(bulkChangeData.projectsByUuid.get(issue.projectUuid()))
           .setComponent(bulkChangeData.componentsByUuid.get(issue.componentUuid())));

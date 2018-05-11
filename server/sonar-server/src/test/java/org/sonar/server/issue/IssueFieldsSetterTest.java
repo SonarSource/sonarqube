@@ -48,7 +48,7 @@ public class IssueFieldsSetterTest {
   public ExpectedException thrown = none();
 
   private DefaultIssue issue = new DefaultIssue();
-  private IssueChangeContext context = IssueChangeContext.createUser(new Date(), "emmerik");
+  private IssueChangeContext context = IssueChangeContext.createUser(new Date(), "user_uuid");
   private IssueFieldsSetter underTest = new IssueFieldsSetter();
 
   @Test
@@ -61,12 +61,12 @@ public class IssueFieldsSetterTest {
     assertThat(issue.mustSendNotifications()).isTrue();
     FieldDiffs.Diff diff = issue.currentChange().get(ASSIGNEE);
     assertThat(diff.oldValue()).isEqualTo(UNUSED);
-    assertThat(diff.newValue()).isEqualTo(user.getUuid());
+    assertThat(diff.newValue()).isEqualTo(user.getName());
   }
 
   @Test
   public void unassign() {
-    issue.setAssigneeUuid("morgan");
+    issue.setAssigneeUuid("user_uuid");
     boolean updated = underTest.assign(issue, null, context);
     assertThat(updated).isTrue();
     assertThat(issue.assignee()).isNull();
@@ -80,14 +80,14 @@ public class IssueFieldsSetterTest {
   public void change_assignee() {
     UserDto user = newUserDto().setLogin("emmerik").setName("Emmerik");
 
-    issue.setAssigneeUuid("morgan");
+    issue.setAssigneeUuid("user_uuid");
     boolean updated = underTest.assign(issue, user, context);
     assertThat(updated).isTrue();
     assertThat(issue.assignee()).isEqualTo(user.getUuid());
     assertThat(issue.mustSendNotifications()).isTrue();
     FieldDiffs.Diff diff = issue.currentChange().get(ASSIGNEE);
     assertThat(diff.oldValue()).isEqualTo(UNUSED);
-    assertThat(diff.newValue()).isEqualTo(user.getUuid());
+    assertThat(diff.newValue()).isEqualTo(user.getName());
   }
 
   @Test
@@ -103,13 +103,13 @@ public class IssueFieldsSetterTest {
 
   @Test
   public void set_new_assignee() {
-    boolean updated = underTest.setNewAssignee(issue, "simon", context);
+    boolean updated = underTest.setNewAssignee(issue, "user_uuid", context);
     assertThat(updated).isTrue();
-    assertThat(issue.assignee()).isEqualTo("simon");
+    assertThat(issue.assignee()).isEqualTo("user_uuid");
     assertThat(issue.mustSendNotifications()).isTrue();
     FieldDiffs.Diff diff = issue.currentChange().get(ASSIGNEE);
     assertThat(diff.oldValue()).isEqualTo(UNUSED);
-    assertThat(diff.newValue()).isEqualTo("simon");
+    assertThat(diff.newValue()).isEqualTo("user_uuid");
   }
 
   @Test
@@ -122,11 +122,11 @@ public class IssueFieldsSetterTest {
 
   @Test
   public void fail_with_ISE_when_setting_new_assignee_on_already_assigned_issue() {
-    issue.setAssigneeUuid("simon");
+    issue.setAssigneeUuid("user_uuid");
 
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("It's not possible to update the assignee with this method, please use assign()");
-    underTest.setNewAssignee(issue, "julien", context);
+    underTest.setNewAssignee(issue, "another_user_uuid", context);
   }
 
   @Test

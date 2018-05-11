@@ -41,6 +41,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.issue.IssueTesting;
 import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.user.UserDto;
 import org.sonar.server.computation.task.projectanalysis.component.ShortBranchComponentsWithIssues;
 import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
 
@@ -190,13 +191,15 @@ public class ShortBranchIssueMergerTest {
 
   @Test
   public void lazy_load_changes() {
+    UserDto user1 = db.users().insertUser();
     IssueDto issue1 = db.issues()
       .insertIssue(IssueTesting.newIssue(rule, branch1Dto, fileOnBranch1Dto).setKee("issue1").setStatus(Issue.STATUS_REOPENED).setLine(1).setChecksum("checksum"));
-    db.issues().insertComment(issue1, "user1", "A comment 1");
+    db.issues().insertComment(issue1, user1, "A comment 1");
     db.issues().insertFieldDiffs(issue1, FieldDiffs.parse("severity=BLOCKER|INFO,assignee=toto|titi").setCreationDate(new Date()));
+    UserDto user2 = db.users().insertUser();
     IssueDto issue2 = db.issues()
       .insertIssue(IssueTesting.newIssue(rule, branch2Dto, fileOnBranch2Dto).setKee("issue2").setStatus(Issue.STATUS_CONFIRMED).setLine(1).setChecksum("checksum"));
-    db.issues().insertComment(issue2, "user2", "A comment 2");
+    db.issues().insertComment(issue2, user2, "A comment 2");
     db.issues().insertFieldDiffs(issue2, FieldDiffs.parse("severity=BLOCKER|MINOR,assignee=foo|bar").setCreationDate(new Date()));
     DefaultIssue newIssue = createIssue("newIssue", rule.getKey(), Issue.STATUS_OPEN, null, new Date());
 
@@ -206,7 +209,7 @@ public class ShortBranchIssueMergerTest {
     verify(issueLifecycle).mergeConfirmedOrResolvedFromShortLivingBranch(eq(newIssue), issueToMerge.capture(), eq("myBranch2"));
 
     assertThat(issueToMerge.getValue().key()).isEqualTo("issue2");
-    assertThat(issueToMerge.getValue().comments()).isNotEmpty();
+    assertThat(issueToMerge.getValue().defaultIssueComments()).isNotEmpty();
     assertThat(issueToMerge.getValue().changes()).isNotEmpty();
   }
 

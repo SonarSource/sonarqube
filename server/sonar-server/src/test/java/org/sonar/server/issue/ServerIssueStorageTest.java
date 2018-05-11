@@ -80,7 +80,7 @@ public class ServerIssueStorageTest {
   public void should_insert_new_issues() {
     dbTester.prepareDbUnit(getClass(), "should_insert_new_issues.xml");
 
-    DefaultIssueComment comment = DefaultIssueComment.create("ABCDE", "emmerik", "the comment");
+    DefaultIssueComment comment = DefaultIssueComment.create("ABCDE", "user_uuid", "the comment");
     // override generated key
     comment.setKey("FGHIJ");
 
@@ -114,9 +114,9 @@ public class ServerIssueStorageTest {
   public void should_update_issues() {
     dbTester.prepareDbUnit(getClass(), "should_update_issues.xml");
 
-    IssueChangeContext context = IssueChangeContext.createUser(new Date(), "emmerik");
+    IssueChangeContext context = IssueChangeContext.createUser(new Date(), "user_uuid");
 
-    DefaultIssueComment comment = DefaultIssueComment.create("ABCDE", "emmerik", "the comment");
+    DefaultIssueComment comment = DefaultIssueComment.create("ABCDE", "user_uuid", "the comment");
     // override generated key
     comment.setKey("FGHIJ");
 

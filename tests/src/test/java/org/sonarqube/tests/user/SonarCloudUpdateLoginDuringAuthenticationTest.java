@@ -32,7 +32,6 @@ import org.junit.Test;
 import org.sonarqube.qa.util.Tester;
 import org.sonarqube.qa.util.TesterSession;
 import org.sonarqube.ws.Ce;
-import org.sonarqube.ws.Issues;
 import org.sonarqube.ws.Issues.Issue;
 import org.sonarqube.ws.Organizations.Organization;
 import org.sonarqube.ws.Projects;
@@ -47,6 +46,7 @@ import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.ce.ActivityRequest;
 import org.sonarqube.ws.client.ce.TaskRequest;
 import org.sonarqube.ws.client.custommeasures.CreateRequest;
+import org.sonarqube.ws.client.issues.AddCommentRequest;
 import org.sonarqube.ws.client.issues.AssignRequest;
 import org.sonarqube.ws.client.organizations.AddMemberRequest;
 import org.sonarqube.ws.client.organizations.SearchRequest;
@@ -136,30 +136,68 @@ public class SonarCloudUpdateLoginDuringAuthenticationTest {
     String oldLogin = tester.users().generateLogin();
     String providerId = tester.users().generateProviderId();
 
-    // Create user using authentication
+    // Create user using authentication, and set user as member of the organization
     authenticate(oldLogin, providerId);
-
-    // Set user as member of the organization
     Organization organization = tester.organizations().generate();
     tester.organizations().service().addMember(new AddMemberRequest().setOrganization(organization.getKey()).setLogin(oldLogin));
+
+    // Execute analysis and assign an issue to the user
     Projects.CreateWsResponse.Project project = tester.projects().provision(organization);
     Qualityprofiles.CreateWsResponse.QualityProfile profile = tester.qProfiles().createXooProfile(organization);
     tester.qProfiles().assignQProfileToProject(profile, project);
     tester.qProfiles().activateRule(profile.getKey(), "xoo:OneIssuePerLine");
-
-    // Execute project and assignee an issue to the user
     orchestrator.executeBuild(SonarScanner.create(projectDir("shared/xoo-sample"),
       "sonar.organization", organization.getKey(),
       "sonar.projectKey", project.getKey(),
       "sonar.login", "admin",
       "sonar.password", "admin"));
-    Issues.Issue issue = tester.wsClient().issues().search(new org.sonarqube.ws.client.issues.SearchRequest().setOrganization(organization.getKey())).getIssuesList().get(0);
+    Issue issue = tester.wsClient().issues().search(new org.sonarqube.ws.client.issues.SearchRequest().setOrganization(organization.getKey())).getIssuesList().get(0);
     tester.wsClient().issues().assign(new AssignRequest().setIssue(issue.getKey()).setAssignee(oldLogin));
+    assertThat(getIssue(organization, issue.getKey()).getAssignee()).isEqualTo(oldLogin);
 
     // Update login during authentication, check issue is assigned to new login
     String newLogin = tester.users().generateLogin();
     authenticate(newLogin, providerId);
-    tester.wsClient().issues().assign(new AssignRequest().setIssue(issue.getKey()).setAssignee(newLogin));
+    assertThat(getIssue(organization, issue.getKey()).getAssignee()).isEqualTo(newLogin);
+  }
+
+  @Test
+  public void issue_changes_after_login_update() {
+    String oldLogin = tester.users().generateLogin();
+    String providerId = tester.users().generateProviderId();
+
+    // Create user using authentication
+    authenticate(oldLogin, providerId);
+    Organization organization = tester.organizations().generate();
+    tester.organizations().service().addMember(new AddMemberRequest().setOrganization(organization.getKey()).setLogin(oldLogin));
+    String userToken = tester.wsClient().userTokens().generate(new GenerateRequest().setLogin(oldLogin).setName("token")).getToken();
+    WsClient userWsClient = tester.as(userToken, null).wsClient();
+
+    // Execute analysis, then the user assign an issue to himself and add a comment
+    Projects.CreateWsResponse.Project project = tester.projects().provision(organization);
+    Qualityprofiles.CreateWsResponse.QualityProfile profile = tester.qProfiles().createXooProfile(organization);
+    tester.qProfiles().assignQProfileToProject(profile, project);
+    tester.qProfiles().activateRule(profile.getKey(), "xoo:OneIssuePerLine");
+    orchestrator.executeBuild(SonarScanner.create(projectDir("shared/xoo-sample"),
+      "sonar.organization", organization.getKey(),
+      "sonar.projectKey", project.getKey(),
+      "sonar.login", "admin",
+      "sonar.password", "admin"));
+    Issue issue = tester.wsClient().issues().search(new org.sonarqube.ws.client.issues.SearchRequest().setOrganization(organization.getKey())).getIssuesList().get(0);
+    userWsClient.issues().assign(new AssignRequest().setIssue(issue.getKey()).setAssignee(oldLogin));
+    userWsClient.issues().addComment(new AddCommentRequest().setIssue(issue.getKey()).setText("some comment"));
+
+    // Comment and changelog contain old login
+    assertThat(getIssue(organization, issue.getKey()).getComments().getComments(0).getLogin()).isEqualTo(oldLogin);
+    assertThat(tester.wsClient().issues().changelog(new org.sonarqube.ws.client.issues.ChangelogRequest().setIssue(issue.getKey()))
+      .getChangelog(0).getUser()).isEqualTo(oldLogin);
+
+    // Update login during authentication, check comment and issue changelog contain new login
+    String newLogin = tester.users().generateLogin();
+    authenticate(newLogin, providerId);
+    assertThat(getIssue(organization, issue.getKey()).getComments().getComments(0).getLogin()).isEqualTo(newLogin);
+    assertThat(tester.wsClient().issues().changelog(new org.sonarqube.ws.client.issues.ChangelogRequest().setIssue(issue.getKey()))
+      .getChangelog(0).getUser()).isEqualTo(newLogin);
   }
 
   @Test

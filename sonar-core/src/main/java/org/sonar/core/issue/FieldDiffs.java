@@ -40,7 +40,7 @@ public class FieldDiffs implements Serializable {
   public static final Splitter FIELDS_SPLITTER = Splitter.on(',').omitEmptyStrings();
 
   private String issueKey;
-  private String userLogin;
+  private String userUuid;
   private Date creationDate;
 
   private final Map<String, Diff> diffs = Maps.newLinkedHashMap();
@@ -54,12 +54,12 @@ public class FieldDiffs implements Serializable {
   }
 
   @CheckForNull
-  public String userLogin() {
-    return userLogin;
+  public String userUuid() {
+    return userUuid;
   }
 
-  public FieldDiffs setUserLogin(@Nullable String s) {
-    this.userLogin = s;
+  public FieldDiffs setUserUuid(@Nullable String s) {
+    this.userUuid = s;
     return this;
   }
 

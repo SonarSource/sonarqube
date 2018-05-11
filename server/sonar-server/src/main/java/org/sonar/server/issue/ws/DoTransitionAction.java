@@ -37,6 +37,7 @@ import org.sonar.server.issue.IssueFinder;
 import org.sonar.server.issue.IssueUpdater;
 import org.sonar.server.issue.TransitionService;
 import org.sonar.server.user.UserSession;
+
 import static org.sonar.server.ws.WsUtils.checkRequest;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.ACTION_DO_TRANSITION;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ISSUE;
@@ -100,7 +101,7 @@ public class DoTransitionAction implements IssuesWsAction {
 
   private SearchResponseData doTransition(DbSession session, IssueDto issueDto, String transitionKey) {
     DefaultIssue defaultIssue = issueDto.toDefaultIssue();
-    IssueChangeContext context = IssueChangeContext.createUser(new Date(system2.now()), userSession.getLogin());
+    IssueChangeContext context = IssueChangeContext.createUser(new Date(system2.now()), userSession.getUuid());
     transitionService.checkTransitionPermission(transitionKey, defaultIssue);
     if (transitionService.doTransition(defaultIssue, context, transitionKey)) {
       return issueUpdater.saveIssueAndPreloadSearchResponseData(session, defaultIssue, context, null, true);

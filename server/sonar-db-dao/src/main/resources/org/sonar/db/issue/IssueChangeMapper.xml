@@ -8,7 +8,7 @@
     c.id,
     c.kee as kee,
     c.issue_key as issueKey,
-    c.user_login as userLogin,
+    c.user_login as userUuid,
     c.change_type as changeType,
     c.change_data as changeData,
     c.created_at as createdAt,
@@ -19,7 +19,7 @@
   <insert id="insert" parameterType="IssueChange" useGeneratedKeys="false" keyProperty="id">
     INSERT INTO issue_changes (kee, issue_key, user_login, change_type, change_data, created_at, updated_at,
     issue_change_creation_date)
-    VALUES (#{kee,jdbcType=VARCHAR}, #{issueKey,jdbcType=VARCHAR}, #{userLogin,jdbcType=VARCHAR},
+    VALUES (#{kee,jdbcType=VARCHAR}, #{issueKey,jdbcType=VARCHAR}, #{userUuid,jdbcType=VARCHAR},
     #{changeType,jdbcType=VARCHAR}, #{changeData,jdbcType=VARCHAR}, #{createdAt,jdbcType=BIGINT},
     #{updatedAt,jdbcType=BIGINT}, #{issueChangeCreationDate,jdbcType=BIGINT})
   </insert>
@@ -68,14 +68,5 @@
     order by created_at asc
   </select>
 
-  <select id="selectChangelogOfNonClosedIssuesByComponent" parameterType="map" resultType="IssueChange">
-    select
-    <include refid="issueChangeColumns"/>
-    from issue_changes c
-    inner join issues i on i.kee = c.issue_key
-    where i.component_uuid=#{componentUuid,jdbcType=VARCHAR}
-    and c.change_type=#{changeType,jdbcType=VARCHAR}
-    and i.status &lt;&gt; 'CLOSED'
-  </select>
 </mapper>
 

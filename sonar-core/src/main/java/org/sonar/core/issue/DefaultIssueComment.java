@@ -23,37 +23,35 @@ import java.io.Serializable;
 import java.util.Date;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.sonar.api.issue.IssueComment;
 import org.sonar.core.util.Uuids;
 
 /**
- * PLUGINS MUST NOT BE USED THIS CLASS, EXCEPT FOR UNIT TESTING.
+ * PLUGINS MUST NOT BE USED THIS CLASS
  *
  * @since 3.6
  */
-public class DefaultIssueComment implements Serializable, IssueComment {
+public class DefaultIssueComment implements Serializable {
 
   private String issueKey;
-  private String userLogin;
+  private String userUuid;
   private Date createdAt;
   private Date updatedAt;
   private String key;
   private String markdownText;
   private boolean isNew;
 
-  public static DefaultIssueComment create(String issueKey, @Nullable String login, String markdownText) {
+  public static DefaultIssueComment create(String issueKey, @Nullable String userUuid, String markdownText) {
     DefaultIssueComment comment = new DefaultIssueComment();
     comment.setIssueKey(issueKey);
     comment.setKey(Uuids.create());
     Date now = new Date();
-    comment.setUserLogin(login);
+    comment.setUserUuid(userUuid);
     comment.setMarkdownText(markdownText);
     comment.setCreatedAt(now).setUpdatedAt(now);
     comment.setNew(true);
     return comment;
   }
 
-  @Override
   public String markdownText() {
     return markdownText;
   }
@@ -63,7 +61,6 @@ public class DefaultIssueComment implements Serializable, IssueComment {
     return this;
   }
 
-  @Override
   public String issueKey() {
     return issueKey;
   }
@@ -73,7 +70,6 @@ public class DefaultIssueComment implements Serializable, IssueComment {
     return this;
   }
 
-  @Override
   public String key() {
     return key;
   }
@@ -84,20 +80,18 @@ public class DefaultIssueComment implements Serializable, IssueComment {
   }
 
   /**
-   * The user who created the comment. Null if it was automatically generated during project scan.
+   * The user uuid who created the comment. Null if it was automatically generated during project scan.
    */
-  @Override
   @CheckForNull
-  public String userLogin() {
-    return userLogin;
+  public String userUuid() {
+    return userUuid;
   }
 
-  public DefaultIssueComment setUserLogin(@Nullable String userLogin) {
-    this.userLogin = userLogin;
+  public DefaultIssueComment setUserUuid(@Nullable String userUuid) {
+    this.userUuid = userUuid;
     return this;
   }
 
-  @Override
   public Date createdAt() {
     return createdAt;
   }
@@ -107,7 +101,6 @@ public class DefaultIssueComment implements Serializable, IssueComment {
     return this;
   }
 
-  @Override
   public Date updatedAt() {
     return updatedAt;
   }

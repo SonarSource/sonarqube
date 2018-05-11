@@ -3,7 +3,7 @@
     id="1"
     kee="COMMENT-1234"
     issue_key="ABCDE"
-    user_login="emmerik"
+    user_login="user_uuid"
     change_type="comment"
     change_data="the comment"
     created_at="1500000000000"

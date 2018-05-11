@@ -113,10 +113,10 @@ public class ChangelogAction implements IssuesWsAction {
 
   private Function<FieldDiffs, Changelog> toWsChangelog(ChangeLogResults results) {
     return change -> {
-      String userLogin = change.userLogin();
+      String userUUuid = change.userUuid();
       Changelog.Builder changelogBuilder = Changelog.newBuilder();
       changelogBuilder.setCreationDate(formatDateTime(change.creationDate()));
-      UserDto user = userLogin == null ? null : results.users.get(userLogin);
+      UserDto user = userUUuid == null ? null : results.users.get(userUUuid);
       if (user != null) {
         changelogBuilder.setUser(user.getLogin());
         changelogBuilder.setUserName(user.getName());
@@ -155,8 +155,8 @@ public class ChangelogAction implements IssuesWsAction {
     ChangeLogResults(DbSession dbSession, String issueKey) {
       IssueDto dbIssue = issueFinder.getByKey(dbSession, issueKey);
       this.changes = dbClient.issueChangeDao().selectChangelogByIssue(dbSession, dbIssue.getKey());
-      List<String> logins = changes.stream().filter(change -> change.userLogin() != null).map(FieldDiffs::userLogin).collect(MoreCollectors.toList());
-      this.users = dbClient.userDao().selectByLogins(dbSession, logins).stream().collect(MoreCollectors.uniqueIndex(UserDto::getLogin));
+      List<String> userUuids = changes.stream().filter(change -> change.userUuid() != null).map(FieldDiffs::userUuid).collect(MoreCollectors.toList());
+      this.users = dbClient.userDao().selectByUuids(dbSession, userUuids).stream().collect(MoreCollectors.uniqueIndex(UserDto::getUuid));
       this.files = dbClient.componentDao().selectByUuids(dbSession, getFileUuids(changes)).stream().collect(MoreCollectors.uniqueIndex(ComponentDto::uuid, Function.identity()));
     }
 

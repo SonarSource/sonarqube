@@ -22,7 +22,6 @@ package org.sonar.server.issue.ws;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ListMultimap;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -32,7 +31,6 @@ import java.util.Map;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueChangeDto;
 import org.sonar.db.issue.IssueDto;
@@ -176,11 +174,11 @@ public class SearchResponseData {
   }
 
   @CheckForNull
-  public String getLoginByUserUuid(@Nullable String userUuid) {
+  public UserDto getUserByUuid(@Nullable String userUuid) {
     UserDto userDto = usersByUuid.get(userUuid);
-    if (userDto != null) {
-      return userDto.getLogin();
+    if (userDto == null) {
+      return null;
     }
-    return null;
+    return userDto;
   }
 }

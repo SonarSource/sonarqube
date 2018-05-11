@@ -84,10 +84,11 @@ public class IssueChangeNotification extends Notification {
     return this;
   }
 
-  public IssueChangeNotification setChangeAuthorLogin(@Nullable String s) {
-    if (s != null) {
-      setFieldValue("changeAuthor", s);
+  public IssueChangeNotification setChangeAuthor(@Nullable UserDto author) {
+    if (author == null) {
+      return this;
     }
+    setFieldValue("changeAuthor", author.getLogin());
     return this;
   }
 
