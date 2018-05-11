@@ -990,22 +990,6 @@ public class IssueIndexTest {
   }
 
   @Test
-  public void sort_by_assignee() {
-    ComponentDto project = newPrivateProjectDto(newOrganizationDto());
-    ComponentDto file = newFileDto(project, null);
-
-    indexIssues(
-      newDoc("I1", file).setAssigneeUuid("steph-uuid"),
-      newDoc("I2", file).setAssigneeUuid("marcel-uuid"));
-
-    IssueQuery.Builder query = IssueQuery.builder().sort(IssueQuery.SORT_BY_ASSIGNEE).asc(true);
-    assertThatSearchReturnsOnly(query, "I2", "I1");
-
-    query = IssueQuery.builder().sort(IssueQuery.SORT_BY_ASSIGNEE).asc(false);
-    assertThatSearchReturnsOnly(query, "I1", "I2");
-  }
-
-  @Test
   public void sort_by_creation_date() {
     ComponentDto project = newPrivateProjectDto(newOrganizationDto());
     ComponentDto file = newFileDto(project, null);

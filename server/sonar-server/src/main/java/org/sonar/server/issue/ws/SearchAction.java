@@ -75,6 +75,7 @@ import static java.util.stream.Collectors.toList;
 import static org.sonar.api.utils.Paging.forPageIndex;
 import static org.sonar.core.util.stream.MoreCollectors.toSet;
 import static org.sonar.server.es.SearchOptions.MAX_LIMIT;
+import static org.sonar.server.issue.IssueQuery.SORT_BY_ASSIGNEE;
 import static org.sonar.server.issue.IssueQueryFactory.UNKNOWN;
 import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
@@ -171,7 +172,8 @@ public class SearchAction implements IssuesWsAction {
         new Change("5.5", "response fields 'reporter' and 'actionPlan' are removed (drop of action plan and manual issue features)"),
         new Change("5.5", "parameters 'reporters', 'actionPlans' and 'planned' are dropped and therefore ignored (drop of action plan and manual issue features)"),
         new Change("5.5", "response field 'debt' is renamed 'effort'"),
-        new Change("7.2", "response field 'externalRuleEngine' added to issues that have been imported from an external rule engine"))
+        new Change("7.2", "response field 'externalRuleEngine' added to issues that have been imported from an external rule engine"),
+        new Change("7.2", format("value '%s' in parameter '%s' is deprecated, it won't have any effect", SORT_BY_ASSIGNEE, Param.SORT)))
       .setResponseExample(getClass().getResource("search-example.json"));
 
     action.addPagingParams(100, MAX_LIMIT);

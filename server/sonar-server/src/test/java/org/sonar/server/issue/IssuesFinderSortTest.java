@@ -33,26 +33,6 @@ import static org.mockito.Mockito.when;
 public class IssuesFinderSortTest {
 
   @Test
-  public void should_sort_by_assignee() {
-    IssueDto issue1 = new IssueDto().setId(1L).setAssigneeUuid("perceval");
-    IssueDto issue2 = new IssueDto().setId(2L).setAssigneeUuid("arthur");
-    IssueDto issue3 = new IssueDto().setId(3L).setAssigneeUuid("vincent");
-    IssueDto issue4 = new IssueDto().setId(4L).setAssigneeUuid(null);
-    List<IssueDto> dtoList = newArrayList(issue1, issue2, issue3, issue4);
-
-    IssueQuery query = IssueQuery.builder().sort(IssueQuery.SORT_BY_ASSIGNEE).asc(true).build();
-    IssuesFinderSort issuesFinderSort = new IssuesFinderSort(dtoList, query);
-
-    List<IssueDto> result = newArrayList(issuesFinderSort.sort());
-
-    assertThat(result).hasSize(4);
-    assertThat(result.get(0).getAssigneeUuid()).isEqualTo("arthur");
-    assertThat(result.get(1).getAssigneeUuid()).isEqualTo("perceval");
-    assertThat(result.get(2).getAssigneeUuid()).isEqualTo("vincent");
-    assertThat(result.get(3).getAssigneeUuid()).isNull();
-  }
-
-  @Test
   public void should_sort_by_status() {
     IssueDto issue1 = new IssueDto().setId(1L).setStatus("CLOSED");
     IssueDto issue2 = new IssueDto().setId(2L).setStatus("REOPENED");

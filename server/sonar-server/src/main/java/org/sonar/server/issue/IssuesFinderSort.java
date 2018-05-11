@@ -51,9 +51,6 @@ class IssuesFinderSort {
   }
 
   private static IssueProcessor getIssueProcessor(String sort) {
-    if (IssueQuery.SORT_BY_ASSIGNEE.equals(sort)) {
-      return new AssigneeSortIssueProcessor();
-    }
     if (IssueQuery.SORT_BY_SEVERITY.equals(sort)) {
       return new SeveritySortIssueProcessor();
     }
@@ -103,13 +100,6 @@ class IssuesFinderSort {
         ordering = ordering.reverse();
       }
       return ordering;
-    }
-  }
-
-  static class AssigneeSortIssueProcessor extends TextSortIssueProcessor {
-    @Override
-    String sortField(IssueDto issueDto) {
-      return issueDto.getAssigneeUuid();
     }
   }
 

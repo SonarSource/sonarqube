@@ -60,7 +60,7 @@ public class IssueQueryTest {
       .createdBefore(new Date())
       .createdAt(new Date())
       .resolved(true)
-      .sort(IssueQuery.SORT_BY_ASSIGNEE)
+      .sort(IssueQuery.SORT_BY_CREATION_DATE)
       .asc(true)
       .build();
     assertThat(query.issueKeys()).containsOnly("ABCDE");
@@ -83,7 +83,7 @@ public class IssueQueryTest {
     assertThat(query.createdBefore()).isNotNull();
     assertThat(query.createdAt()).isNotNull();
     assertThat(query.resolved()).isTrue();
-    assertThat(query.sort()).isEqualTo(IssueQuery.SORT_BY_ASSIGNEE);
+    assertThat(query.sort()).isEqualTo(IssueQuery.SORT_BY_CREATION_DATE);
     assertThat(query.asc()).isTrue();
   }
 

@@ -41,6 +41,10 @@ public class IssueQuery {
   public static final String SORT_BY_CREATION_DATE = "CREATION_DATE";
   public static final String SORT_BY_UPDATE_DATE = "UPDATE_DATE";
   public static final String SORT_BY_CLOSE_DATE = "CLOSE_DATE";
+  /**
+   * @deprecated since 7.2, it's no more possible to sort by assignee
+   */
+  @Deprecated
   public static final String SORT_BY_ASSIGNEE = "ASSIGNEE";
   public static final String SORT_BY_SEVERITY = "SEVERITY";
   public static final String SORT_BY_STATUS = "STATUS";
