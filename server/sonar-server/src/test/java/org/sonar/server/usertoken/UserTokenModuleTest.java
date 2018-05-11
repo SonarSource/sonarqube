@@ -29,6 +29,6 @@ public class UserTokenModuleTest {
   public void verify_count_of_added_components() {
     ComponentContainer container = new ComponentContainer();
     new UserTokenModule().configure(container);
-    assertThat(container.size()).isEqualTo(8);
+    assertThat(container.size()).isEqualTo(9);
   }
 }

@@ -22,17 +22,17 @@ package org.sonar.db.user;
 import static org.sonar.db.user.UserTokenValidator.checkTokenHash;
 
 public class UserTokenDto {
-  private String login;
+  private String userUuid;
   private String name;
   private String tokenHash;
   private Long createdAt;
 
-  public String getLogin() {
-    return login;
+  public String getUserUuid() {
+    return userUuid;
   }
 
-  public UserTokenDto setLogin(String login) {
-    this.login = login;
+  public UserTokenDto setUserUuid(String userUuid) {
+    this.userUuid = userUuid;
     return this;
   }
 

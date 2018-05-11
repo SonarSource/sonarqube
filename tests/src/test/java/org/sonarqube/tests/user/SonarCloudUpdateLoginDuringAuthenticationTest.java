@@ -36,8 +36,10 @@ import org.sonarqube.ws.Organizations.Organization;
 import org.sonarqube.ws.Projects;
 import org.sonarqube.ws.Qualityprofiles;
 import org.sonarqube.ws.Settings;
+import org.sonarqube.ws.UserTokens;
 import org.sonarqube.ws.Users;
 import org.sonarqube.ws.client.GetRequest;
+import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.issues.AssignRequest;
 import org.sonarqube.ws.client.organizations.AddMemberRequest;
 import org.sonarqube.ws.client.organizations.SearchRequest;
@@ -232,6 +234,32 @@ public class SonarCloudUpdateLoginDuringAuthenticationTest {
         "}",
       changelogReloaded,
       false);
+  }
+
+  @Test
+  public void user_tokens_after_login_update() {
+    String providerId = tester.users().generateProviderId();
+    String oldLogin = tester.users().generateLogin();
+
+    // First authentication to create the user, then create a ws-client using a token
+    authenticate(oldLogin, providerId);
+    String userToken = tester.wsClient().userTokens().generate(new GenerateRequest().setLogin(oldLogin).setName("auth-token")).getToken();
+    WsClient userWsClient = tester.as(userToken, null).wsClient();
+
+    // Generate some user tokens
+    userWsClient.userTokens().generate(new GenerateRequest().setName("token1"));
+    userWsClient.userTokens().generate(new GenerateRequest().setName("token2"));
+    assertThat(userWsClient.userTokens().search(new org.sonarqube.ws.client.usertokens.SearchRequest()).getUserTokensList())
+      .extracting(UserTokens.SearchWsResponse.UserToken::getName)
+      .contains("token1", "token2");
+
+    // Update login during authentication, check user tokens are still there
+    String newLogin = tester.users().generateLogin();
+    authenticate(newLogin, providerId);
+
+    assertThat(userWsClient.userTokens().search(new org.sonarqube.ws.client.usertokens.SearchRequest()).getUserTokensList())
+      .extracting(UserTokens.SearchWsResponse.UserToken::getName)
+      .contains("token1", "token2");
   }
 
   private void authenticate(String login, String providerId) {

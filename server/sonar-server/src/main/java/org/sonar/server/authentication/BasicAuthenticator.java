@@ -106,16 +106,16 @@ public class BasicAuthenticator {
   }
 
   private UserDto authenticateFromUserToken(String token) {
-    Optional<String> authenticatedLogin = userTokenAuthenticator.authenticate(token);
-    if (!authenticatedLogin.isPresent()) {
+    Optional<String> authenticatedUserUuid = userTokenAuthenticator.authenticate(token);
+    if (!authenticatedUserUuid.isPresent()) {
       throw AuthenticationException.newBuilder()
         .setSource(Source.local(Method.BASIC_TOKEN))
         .setMessage("Token doesn't exist")
         .build();
     }
     try (DbSession dbSession = dbClient.openSession(false)) {
-      UserDto userDto = dbClient.userDao().selectActiveUserByLogin(dbSession, authenticatedLogin.get());
-      if (userDto == null) {
+      UserDto userDto = dbClient.userDao().selectByUuid(dbSession, authenticatedUserUuid.get());
+      if (userDto == null || !userDto.isActive()) {
         throw AuthenticationException.newBuilder()
           .setSource(Source.local(Method.BASIC_TOKEN))
           .setMessage("User doesn't exist")

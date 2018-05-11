@@ -19,22 +19,17 @@
  */
 package org.sonar.db.user;
 
-import com.google.common.base.Optional;
 import java.util.Map;
-import org.assertj.guava.api.Assertions;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.RowNotFoundException;
 
-import static com.google.common.collect.Lists.newArrayList;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.user.UserTokenTesting.newUserToken;
-
 
 public class UserTokenDaoTest {
   @Rule
@@ -42,106 +37,88 @@ public class UserTokenDaoTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  DbSession dbSession;
+  private DbSession dbSession = db.getSession();
 
-  UserTokenDao underTest;
-
-  @Before
-  public void setUp() {
-    underTest = db.getDbClient().userTokenDao();
-    dbSession = db.getSession();
-  }
+  private UserTokenDao underTest = db.getDbClient().userTokenDao();
 
   @Test
   public void insert_token() {
     UserTokenDto userToken = newUserToken();
 
-    insertToken(userToken);
+    underTest.insert(db.getSession(), userToken);
 
-    UserTokenDto userTokenFromDb = underTest.selectOrFailByTokenHash(dbSession, userToken.getTokenHash());
+    UserTokenDto userTokenFromDb = underTest.selectByTokenHash(db.getSession(), userToken.getTokenHash());
     assertThat(userTokenFromDb).isNotNull();
     assertThat(userTokenFromDb.getName()).isEqualTo(userToken.getName());
     assertThat(userTokenFromDb.getCreatedAt()).isEqualTo(userToken.getCreatedAt());
     assertThat(userTokenFromDb.getTokenHash()).isEqualTo(userToken.getTokenHash());
-    assertThat(userTokenFromDb.getLogin()).isEqualTo(userToken.getLogin());
+    assertThat(userTokenFromDb.getUserUuid()).isEqualTo(userToken.getUserUuid());
   }
 
   @Test
   public void select_by_token_hash() {
+    UserDto user = db.users().insertUser();
     String tokenHash = "123456789";
-    insertToken(newUserToken().setTokenHash(tokenHash));
+    db.users().insertToken(user, t -> t.setTokenHash(tokenHash));
 
-    Optional<UserTokenDto> result = underTest.selectByTokenHash(dbSession, tokenHash);
+    UserTokenDto result = underTest.selectByTokenHash(db.getSession(), tokenHash);
 
-    Assertions.assertThat(result).isPresent();
+    assertThat(result).isNotNull();
   }
 
   @Test
-  public void fail_if_token_is_not_found() {
-    expectedException.expect(RowNotFoundException.class);
-    expectedException.expectMessage("User token with token hash 'unknown-token-hash' not found");
+  public void select_by_user_and_name() {
+    UserDto user = db.users().insertUser();
+    UserTokenDto userToken = db.users().insertToken(user, t -> t.setName("name").setTokenHash("token"));
 
-    underTest.selectOrFailByTokenHash(dbSession, "unknown-token-hash");
-  }
-
-  @Test
-  public void select_by_login_and_name() {
-    UserTokenDto userToken = newUserToken().setLogin("login").setName("name").setTokenHash("token");
-    insertToken(userToken);
-
-    Optional<UserTokenDto> optionalResultByLoginAndName = underTest.selectByLoginAndName(dbSession, userToken.getLogin(), userToken.getName());
-    UserTokenDto resultByLoginAndName = optionalResultByLoginAndName.get();
-    Optional<UserTokenDto> unfoundResult1 = underTest.selectByLoginAndName(dbSession, "unknown-login", userToken.getName());
-    Optional<UserTokenDto> unfoundResult2 = underTest.selectByLoginAndName(dbSession, userToken.getLogin(), "unknown-name");
-
-    Assertions.assertThat(unfoundResult1).isAbsent();
-    Assertions.assertThat(unfoundResult2).isAbsent();
-    assertThat(resultByLoginAndName.getLogin()).isEqualTo(userToken.getLogin());
+    UserTokenDto resultByLoginAndName = underTest.selectByUserAndName(db.getSession(), user, userToken.getName());
+    assertThat(resultByLoginAndName.getUserUuid()).isEqualTo(user.getUuid());
     assertThat(resultByLoginAndName.getName()).isEqualTo(userToken.getName());
     assertThat(resultByLoginAndName.getCreatedAt()).isEqualTo(userToken.getCreatedAt());
     assertThat(resultByLoginAndName.getTokenHash()).isEqualTo(userToken.getTokenHash());
+
+    assertThat(underTest.selectByUserAndName(db.getSession(), user, "unknown-name")).isNull();
   }
 
   @Test
-  public void delete_tokens_by_login() {
-    insertToken(newUserToken().setLogin("login-to-delete"));
-    insertToken(newUserToken().setLogin("login-to-delete"));
-    insertToken(newUserToken().setLogin("login-to-keep"));
+  public void delete_tokens_by_user() {
+    UserDto user1 = db.users().insertUser();
+    UserDto user2 = db.users().insertUser();
+    db.users().insertToken(user1);
+    db.users().insertToken(user1);
+    db.users().insertToken(user2);
 
-    underTest.deleteByLogin(dbSession, "login-to-delete");
+    underTest.deleteByUser(dbSession, user1);
     db.commit();
 
-    assertThat(underTest.selectByLogin(dbSession, "login-to-delete")).isEmpty();
-    assertThat(underTest.selectByLogin(dbSession, "login-to-keep")).hasSize(1);
+    assertThat(underTest.selectByUser(dbSession, user1)).isEmpty();
+    assertThat(underTest.selectByUser(dbSession, user2)).hasSize(1);
   }
 
   @Test
-  public void delete_token_by_login_and_name() {
-    insertToken(newUserToken().setLogin("login").setName("name"));
-    insertToken(newUserToken().setLogin("login").setName("another-name"));
-    insertToken(newUserToken().setLogin("another-login").setName("name"));
+  public void delete_token_by_user_and_name() {
+    UserDto user1 = db.users().insertUser();
+    UserDto user2 = db.users().insertUser();
+    db.users().insertToken(user1, t -> t.setName("name"));
+    db.users().insertToken(user1, t -> t.setName("another-name"));
+    db.users().insertToken(user2, t -> t.setName("name"));
 
-    underTest.deleteByLoginAndName(dbSession, "login", "name");
-    db.commit();
+    underTest.deleteByUserAndName(dbSession, user1, "name");
 
-    Assertions.assertThat(underTest.selectByLoginAndName(dbSession, "login", "name")).isAbsent();
-    Assertions.assertThat(underTest.selectByLoginAndName(dbSession, "login", "another-name")).isPresent();
-    Assertions.assertThat(underTest.selectByLoginAndName(dbSession, "another-login", "name")).isPresent();
+    assertThat(underTest.selectByUserAndName(dbSession, user1, "name")).isNull();
+    assertThat(underTest.selectByUserAndName(dbSession, user1, "another-name")).isNotNull();
+    assertThat(underTest.selectByUserAndName(dbSession, user2, "name")).isNotNull();
   }
 
   @Test
-  public void count_tokens_by_login() {
-    insertToken(newUserToken().setLogin("login").setName("name"));
-    insertToken(newUserToken().setLogin("login").setName("another-name"));
+  public void count_tokens_by_user() {
+    UserDto user = db.users().insertUser();
+    db.users().insertToken(user, t -> t.setName("name"));
+    db.users().insertToken(user, t -> t.setName("another-name"));
 
-    Map<String, Integer> result = underTest.countTokensByLogins(dbSession, newArrayList("login"));
+    Map<String, Integer> result = underTest.countTokensByUsers(dbSession, singletonList(user));
 
-    assertThat(result.get("login")).isEqualTo(2);
-    assertThat(result.get("unknown-login")).isNull();
-  }
-
-  private void insertToken(UserTokenDto userToken) {
-    underTest.insert(dbSession, userToken);
-    dbSession.commit();
+    assertThat(result.get(user.getUuid())).isEqualTo(2);
+    assertThat(result.get("unknown-user_uuid")).isNull();
   }
 }

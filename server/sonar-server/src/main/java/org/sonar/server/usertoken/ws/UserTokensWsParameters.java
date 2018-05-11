@@ -20,13 +20,6 @@
 package org.sonar.server.usertoken.ws;
 
 public class UserTokensWsParameters {
-  public static final String CONTROLLER = "api/user_tokens";
-  public static final String ACTION_GENERATE = "generate";
-  public static final String ACTION_REVOKE = "revoke";
-  public static final String ACTION_SEARCH = "search";
-
-  public static final String PARAM_LOGIN = "login";
-  public static final String PARAM_NAME = "name";
 
   private UserTokensWsParameters() {
     // constants only

@@ -19,15 +19,15 @@
  */
 package org.sonar.db.user;
 
-import com.google.common.base.Optional;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.annotation.CheckForNull;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
-import org.sonar.db.RowNotFoundException;
 
-import static java.lang.String.format;
+import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
 public class UserTokenDao implements Dao {
@@ -35,35 +35,28 @@ public class UserTokenDao implements Dao {
     mapper(dbSession).insert(userTokenDto);
   }
 
-  public UserTokenDto selectOrFailByTokenHash(DbSession dbSession, String tokenHash) {
-    UserTokenDto userToken = mapper(dbSession).selectByTokenHash(tokenHash);
-    if (userToken == null) {
-      throw new RowNotFoundException(format("User token with token hash '%s' not found", tokenHash));
-    }
-
-    return userToken;
+  @CheckForNull
+  public UserTokenDto selectByTokenHash(DbSession dbSession, String tokenHash) {
+    return mapper(dbSession).selectByTokenHash(tokenHash);
   }
 
-  public Optional<UserTokenDto> selectByTokenHash(DbSession dbSession, String tokenHash) {
-    return Optional.fromNullable(mapper(dbSession).selectByTokenHash(tokenHash));
+  @CheckForNull
+  public UserTokenDto selectByUserAndName(DbSession dbSession, UserDto user, String name) {
+    return mapper(dbSession).selectByUserUuidAndName(user.getUuid(), name);
   }
 
-  public Optional<UserTokenDto> selectByLoginAndName(DbSession dbSession, String login, String name) {
-    return Optional.fromNullable(mapper(dbSession).selectByLoginAndName(login, name));
+  public List<UserTokenDto> selectByUser(DbSession dbSession, UserDto user) {
+    return mapper(dbSession).selectByUserUuid(user.getUuid());
   }
 
-  public List<UserTokenDto> selectByLogin(DbSession dbSession, String login) {
-    return mapper(dbSession).selectByLogin(login);
-  }
-
-  public Map<String, Integer> countTokensByLogins(DbSession dbSession, List<String> logins) {
-    Map<String, Integer> result = new HashMap<>(logins.size());
+  public Map<String, Integer> countTokensByUsers(DbSession dbSession, Collection<UserDto> users) {
+    Map<String, Integer> result = new HashMap<>(users.size());
     executeLargeInputs(
-      logins,
+      users.stream().map(UserDto::getUuid).collect(toList()),
       input -> {
-        List<UserTokenCount> userTokenCounts = mapper(dbSession).countTokensByLogins(input);
+        List<UserTokenCount> userTokenCounts = mapper(dbSession).countTokensByUserUuids(input);
         for (UserTokenCount userTokenCount : userTokenCounts) {
-          result.put(userTokenCount.getLogin(), userTokenCount.tokenCount());
+          result.put(userTokenCount.getUserUuid(), userTokenCount.tokenCount());
         }
         return userTokenCounts;
       });
@@ -71,12 +64,12 @@ public class UserTokenDao implements Dao {
     return result;
   }
 
-  public void deleteByLogin(DbSession dbSession, String login) {
-    mapper(dbSession).deleteByLogin(login);
+  public void deleteByUser(DbSession dbSession, UserDto user) {
+    mapper(dbSession).deleteByUserUuid(user.getUuid());
   }
 
-  public void deleteByLoginAndName(DbSession dbSession, String login, String name) {
-    mapper(dbSession).deleteByLoginAndName(login, name);
+  public void deleteByUserAndName(DbSession dbSession, UserDto user, String name) {
+    mapper(dbSession).deleteByUserUuidAndName(user.getUuid(), name);
   }
 
   private static UserTokenMapper mapper(DbSession dbSession) {

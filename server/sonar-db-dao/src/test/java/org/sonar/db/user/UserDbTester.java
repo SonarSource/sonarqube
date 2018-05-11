@@ -42,6 +42,7 @@ import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
 import static org.sonar.db.user.GroupTesting.newGroupDto;
 import static org.sonar.db.user.UserTesting.newDisabledUser;
 import static org.sonar.db.user.UserTesting.newUserDto;
+import static org.sonar.db.user.UserTokenTesting.newUserToken;
 
 public class UserDbTester {
   private final DbTester db;
@@ -227,7 +228,7 @@ public class UserDbTester {
     checkArgument(!project.isPrivate(), "No permission to group AnyOne can be granted on a private project");
     checkArgument(!ProjectPermissions.PUBLIC_PERMISSIONS.contains(permission),
       "permission %s can't be granted on a public project", permission);
-    checkArgument(project.getMainBranchProjectUuid()==null, "Permissions can't be granted on branches");
+    checkArgument(project.getMainBranchProjectUuid() == null, "Permissions can't be granted on branches");
     GroupPermissionDto dto = new GroupPermissionDto()
       .setOrganizationUuid(project.getOrganizationUuid())
       .setGroupId(null)
@@ -247,7 +248,7 @@ public class UserDbTester {
     checkArgument(group.getOrganizationUuid().equals(project.getOrganizationUuid()), "Different organizations");
     checkArgument(project.isPrivate() || !ProjectPermissions.PUBLIC_PERMISSIONS.contains(permission),
       "%s can't be granted on a public project", permission);
-    checkArgument(project.getMainBranchProjectUuid()==null, "Permissions can't be granted on branches");
+    checkArgument(project.getMainBranchProjectUuid() == null, "Permissions can't be granted on branches");
     GroupPermissionDto dto = new GroupPermissionDto()
       .setOrganizationUuid(group.getOrganizationUuid())
       .setGroupId(group.getId())
@@ -320,7 +321,7 @@ public class UserDbTester {
   public UserPermissionDto insertProjectPermissionOnUser(UserDto user, String permission, ComponentDto project) {
     checkArgument(project.isPrivate() || !ProjectPermissions.PUBLIC_PERMISSIONS.contains(permission),
       "%s can't be granted on a public project", permission);
-    checkArgument(project.getMainBranchProjectUuid()==null, "Permissions can't be granted on branches");
+    checkArgument(project.getMainBranchProjectUuid() == null, "Permissions can't be granted on branches");
     UserPermissionDto dto = new UserPermissionDto(project.getOrganizationUuid(), permission, user.getId(), project.getId());
     db.getDbClient().userPermissionDao().insert(db.getSession(), dto);
     db.commit();
@@ -342,4 +343,14 @@ public class UserDbTester {
       .map(OrganizationPermission::fromKey)
       .collect(MoreCollectors.toList());
   }
+
+  @SafeVarargs
+  public final UserTokenDto insertToken(UserDto user, Consumer<UserTokenDto>... populators) {
+    UserTokenDto dto = newUserToken().setUserUuid(user.getUuid());
+    stream(populators).forEach(p -> p.accept(dto));
+    db.getDbClient().userTokenDao().insert(db.getSession(), dto);
+    db.commit();
+    return dto;
+  }
+
 }

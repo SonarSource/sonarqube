@@ -62,11 +62,11 @@ public class BasicAuthenticatorTest {
   public ExpectedException expectedException = none();
 
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  public DbTester db = DbTester.create(System2.INSTANCE);
 
-  private DbClient dbClient = dbTester.getDbClient();
+  private DbClient dbClient = db.getDbClient();
 
-  private DbSession dbSession = dbTester.getSession();
+  private DbSession dbSession = db.getSession();
 
   private CredentialsAuthenticator credentialsAuthenticator = mock(CredentialsAuthenticator.class);
   private UserTokenAuthenticator userTokenAuthenticator = mock(UserTokenAuthenticator.class);
@@ -139,20 +139,19 @@ public class BasicAuthenticatorTest {
 
   @Test
   public void authenticate_from_user_token() {
-    insertUser(UserTesting.newUserDto().setLogin(LOGIN));
-    when(userTokenAuthenticator.authenticate("token")).thenReturn(Optional.of(LOGIN));
+    UserDto user = db.users().insertUser();
+    when(userTokenAuthenticator.authenticate("token")).thenReturn(Optional.of(user.getUuid()));
     when(request.getHeader("Authorization")).thenReturn("Basic " + toBase64("token:"));
 
-    Optional<UserDto> userDto = underTest.authenticate(request);
+    Optional<UserDto> userAuthenticated = underTest.authenticate(request);
 
-    assertThat(userDto.isPresent()).isTrue();
-    assertThat(userDto.get().getLogin()).isEqualTo(LOGIN);
-    verify(authenticationEvent).loginSuccess(request, LOGIN, Source.local(BASIC_TOKEN));
+    assertThat(userAuthenticated.isPresent()).isTrue();
+    assertThat(userAuthenticated.get().getLogin()).isEqualTo(user.getLogin());
+    verify(authenticationEvent).loginSuccess(request, user.getLogin(), Source.local(BASIC_TOKEN));
   }
 
   @Test
   public void does_not_authenticate_from_user_token_when_token_is_invalid() {
-    insertUser(UserTesting.newUserDto().setLogin(LOGIN));
     when(userTokenAuthenticator.authenticate("token")).thenReturn(Optional.empty());
     when(request.getHeader("Authorization")).thenReturn("Basic " + toBase64("token:"));
 
@@ -165,8 +164,7 @@ public class BasicAuthenticatorTest {
   }
 
   @Test
-  public void does_not_authenticate_from_user_token_when_token_does_not_match_active_user() {
-    insertUser(UserTesting.newUserDto().setLogin(LOGIN));
+  public void does_not_authenticate_from_user_token_when_token_does_not_match_existing_user() {
     when(userTokenAuthenticator.authenticate("token")).thenReturn(Optional.of("Unknown user"));
     when(request.getHeader("Authorization")).thenReturn("Basic " + toBase64("token:"));
 
@@ -178,10 +176,18 @@ public class BasicAuthenticatorTest {
     }
   }
 
-  private UserDto insertUser(UserDto userDto) {
-    dbClient.userDao().insert(dbSession, userDto);
-    dbSession.commit();
-    return userDto;
+  @Test
+  public void does_not_authenticate_from_user_token_when_token_does_not_match_active_user() {
+    UserDto user = db.users().insertDisabledUser();
+    when(userTokenAuthenticator.authenticate("token")).thenReturn(Optional.of(user.getUuid()));
+    when(request.getHeader("Authorization")).thenReturn("Basic " + toBase64("token:"));
+
+    expectedException.expect(authenticationException().from(Source.local(Method.BASIC_TOKEN)).withoutLogin().andNoPublicMessage());
+    try {
+      underTest.authenticate(request);
+    } finally {
+      verifyZeroInteractions(authenticationEvent);
+    }
   }
 
   private static String toBase64(String text) {

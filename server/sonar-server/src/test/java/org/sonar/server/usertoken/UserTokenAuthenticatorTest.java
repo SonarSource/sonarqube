@@ -19,48 +19,44 @@
  */
 package org.sonar.server.usertoken;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import static org.sonar.db.user.UserTokenTesting.newUserToken;
-
 import java.util.Optional;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
-import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.user.UserDto;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class UserTokenAuthenticatorTest {
-  static final String GRACE_HOPPER = "grace.hopper";
-  static final String ADA_LOVELACE = "ada.lovelace";
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
-  DbClient dbClient = db.getDbClient();
-  DbSession dbSession = db.getSession();
-  TokenGenerator tokenGenerator = mock(TokenGenerator.class);
 
-  UserTokenAuthenticator underTest = new UserTokenAuthenticator(tokenGenerator, db.getDbClient());
+  private TokenGenerator tokenGenerator = mock(TokenGenerator.class);
+
+  private UserTokenAuthenticator underTest = new UserTokenAuthenticator(tokenGenerator, db.getDbClient());
 
   @Test
   public void return_login_when_token_hash_found_in_db() {
     String token = "known-token";
     String tokenHash = "123456789";
     when(tokenGenerator.hash(token)).thenReturn(tokenHash);
-    dbClient.userTokenDao().insert(dbSession, newUserToken().setLogin(GRACE_HOPPER).setTokenHash(tokenHash));
-    dbClient.userTokenDao().insert(dbSession, newUserToken().setLogin(ADA_LOVELACE).setTokenHash("another-token-hash"));
-    db.commit();
+    UserDto user1 = db.users().insertUser();
+    db.users().insertToken(user1, t -> t.setTokenHash(tokenHash));
+    UserDto user2 = db.users().insertUser();
+    db.users().insertToken(user2, t -> t.setTokenHash("another-token-hash"));
 
     Optional<String> login = underTest.authenticate(token);
 
     assertThat(login.isPresent()).isTrue();
-    assertThat(login.get()).isEqualTo(GRACE_HOPPER);
+    assertThat(login.get()).isEqualTo(user1.getUuid());
   }
 
   @Test

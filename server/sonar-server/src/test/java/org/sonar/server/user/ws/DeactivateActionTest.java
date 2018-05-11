@@ -20,6 +20,7 @@
 package org.sonar.server.user.ws;
 
 import java.util.Optional;
+import java.util.function.Consumer;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -62,8 +63,6 @@ import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
 import static org.sonar.db.permission.OrganizationPermission.SCAN;
 import static org.sonar.db.property.PropertyTesting.newUserPropertyDto;
-import static org.sonar.db.user.UserTesting.newUserDto;
-import static org.sonar.db.user.UserTokenTesting.newUserToken;
 import static org.sonar.server.user.index.UserIndexDefinition.FIELD_ACTIVE;
 import static org.sonar.server.user.index.UserIndexDefinition.FIELD_UUID;
 import static org.sonar.test.JsonAssert.assertJson;
@@ -94,7 +93,7 @@ public class DeactivateActionTest {
 
   @Test
   public void deactivate_user_and_delete_his_related_data() {
-    UserDto user = insertUser(newUserDto()
+    UserDto user = insertUser(u -> u
       .setLogin("ada.lovelace")
       .setEmail("ada.lovelace@noteg.com")
       .setName("Ada Lovelace")
@@ -114,7 +113,7 @@ public class DeactivateActionTest {
   @Test
   public void deactivate_user_deletes_his_group_membership() {
     logInAsSystemAdministrator();
-    UserDto user = insertUser(newUserDto());
+    UserDto user = insertUser();
     GroupDto group1 = db.users().insertGroup();
     db.users().insertGroup();
     db.users().insertMember(group1, user);
@@ -127,20 +126,20 @@ public class DeactivateActionTest {
   @Test
   public void deactivate_user_deletes_his_tokens() {
     logInAsSystemAdministrator();
-    UserDto user = insertUser(newUserDto());
-    db.getDbClient().userTokenDao().insert(dbSession, newUserToken().setLogin(user.getLogin()));
-    db.getDbClient().userTokenDao().insert(dbSession, newUserToken().setLogin(user.getLogin()));
+    UserDto user = insertUser();
+    db.users().insertToken(user);
+    db.users().insertToken(user);
     db.commit();
 
     deactivate(user.getLogin()).getInput();
 
-    assertThat(db.getDbClient().userTokenDao().selectByLogin(dbSession, user.getLogin())).isEmpty();
+    assertThat(db.getDbClient().userTokenDao().selectByUser(dbSession, user)).isEmpty();
   }
 
   @Test
   public void deactivate_user_deletes_his_properties() {
     logInAsSystemAdministrator();
-    UserDto user = insertUser(newUserDto());
+    UserDto user = insertUser();
     ComponentDto project = db.components().insertPrivateProject();
     db.properties().insertProperty(newUserPropertyDto(user));
     db.properties().insertProperty(newUserPropertyDto(user));
@@ -155,7 +154,7 @@ public class DeactivateActionTest {
   @Test
   public void deactivate_user_deletes_his_permissions() {
     logInAsSystemAdministrator();
-    UserDto user = insertUser(newUserDto());
+    UserDto user = insertUser();
     ComponentDto project = db.components().insertPrivateProject();
     db.users().insertPermissionOnUser(user, SCAN);
     db.users().insertPermissionOnUser(user, ADMINISTER_QUALITY_PROFILES);
@@ -171,7 +170,7 @@ public class DeactivateActionTest {
   @Test
   public void deactivate_user_deletes_his_permission_templates() {
     logInAsSystemAdministrator();
-    UserDto user = insertUser(newUserDto());
+    UserDto user = insertUser();
     PermissionTemplateDto template = db.permissionTemplates().insertTemplate();
     PermissionTemplateDto anotherTemplate = db.permissionTemplates().insertTemplate();
     db.permissionTemplates().addUserToTemplate(template.getId(), user.getId(), USER);
@@ -187,7 +186,7 @@ public class DeactivateActionTest {
   @Test
   public void deactivate_user_deletes_his_qprofiles_permissions() {
     logInAsSystemAdministrator();
-    UserDto user = insertUser(newUserDto());
+    UserDto user = insertUser();
     QProfileDto profile = db.qualityProfiles().insert(db.getDefaultOrganization());
     db.qualityProfiles().addUserPermission(profile, user);
 
@@ -199,7 +198,7 @@ public class DeactivateActionTest {
   @Test
   public void deactivate_user_deletes_his_default_assignee_settings() {
     logInAsSystemAdministrator();
-    UserDto user = insertUser(newUserDto());
+    UserDto user = insertUser();
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto anotherProject = db.components().insertPrivateProject();
     db.properties().insertProperty(new PropertyDto().setKey("sonar.issues.defaultAssigneeLogin").setValue(user.getLogin()).setResourceId(project.getId()));
@@ -215,7 +214,7 @@ public class DeactivateActionTest {
   @Test
   public void deactivate_user_deletes_his_organization_membership() {
     logInAsSystemAdministrator();
-    UserDto user = insertUser(newUserDto());
+    UserDto user = insertUser();
     OrganizationDto organization = db.organizations().insert();
     db.organizations().addMember(organization, user);
     OrganizationDto anotherOrganization = db.organizations().insert();
@@ -294,7 +293,7 @@ public class DeactivateActionTest {
   public void fail_to_deactivate_last_administrator_of_organization() {
     // user1 is the unique administrator of org1 and org2.
     // user1 and user2 are both administrators of org3
-    UserDto user1 = insertUser(newUserDto().setLogin("test"));
+    UserDto user1 = insertUser(u -> u.setLogin("test"));
     OrganizationDto org1 = db.organizations().insert(newOrganizationDto().setKey("org1"));
     OrganizationDto org2 = db.organizations().insert(newOrganizationDto().setKey("org2"));
     OrganizationDto org3 = db.organizations().insert(newOrganizationDto().setKey("org3"));
@@ -335,7 +334,7 @@ public class DeactivateActionTest {
 
   @Test
   public void test_example() {
-    UserDto user = insertUser(newUserDto()
+    UserDto user = insertUser(u -> u
       .setLogin("ada.lovelace")
       .setEmail("ada.lovelace@noteg.com")
       .setName("Ada Lovelace")
@@ -349,13 +348,14 @@ public class DeactivateActionTest {
   }
 
   private UserDto createUser() {
-    return insertUser(newUserDto());
+    return insertUser();
   }
 
-  private UserDto insertUser(UserDto user) {
-    dbClient.userDao().insert(dbSession, user);
-    dbClient.userTokenDao().insert(dbSession, newUserToken().setLogin(user.getLogin()));
-    dbClient.propertiesDao().saveProperty(dbSession, new PropertyDto().setUserId(user.getId()).setKey("foo").setValue("bar"));
+  @SafeVarargs
+  private final UserDto insertUser(Consumer<UserDto>... populators) {
+    UserDto user = db.users().insertUser(populators);
+    db.users().insertToken(user);
+    db.properties().insertProperties(new PropertyDto().setUserId(user.getId()).setKey("foo").setValue("bar"));
     userIndexer.commitAndIndex(dbSession, user);
     return user;
   }

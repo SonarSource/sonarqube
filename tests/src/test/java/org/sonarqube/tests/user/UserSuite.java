@@ -40,7 +40,8 @@ import static util.ItUtils.xooPlugin;
   NotificationsWsTest.class,
   OAuth2IdentityProviderTest.class,
   RootUserInStandaloneModeTest.class,
-  UsersPageTest.class
+  UsersPageTest.class,
+  UserTokensTest.class
 })
 public class UserSuite {
 

@@ -20,7 +20,6 @@
 package org.sonar.server.usertoken.ws;
 
 import javax.annotation.Nullable;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -28,23 +27,20 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserTokenDto;
 import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.db.user.UserTokenTesting.newUserToken;
-import static org.sonar.server.usertoken.ws.UserTokensWsParameters.PARAM_LOGIN;
-import static org.sonar.server.usertoken.ws.UserTokensWsParameters.PARAM_NAME;
-
+import static org.sonar.server.usertoken.ws.UserTokenSupport.PARAM_LOGIN;
+import static org.sonar.server.usertoken.ws.UserTokenSupport.PARAM_NAME;
 
 public class RevokeActionTest {
-  private static final String GRACE_HOPPER = "grace.hopper";
-  private static final String ADA_LOVELACE = "ada.lovelace";
-  private static final String TOKEN_NAME = "token-name";
 
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
@@ -54,67 +50,82 @@ public class RevokeActionTest {
   public ExpectedException expectedException = ExpectedException.none();
 
   private DbClient dbClient = db.getDbClient();
-  private final DbSession dbSession = db.getSession();
-  private WsActionTester ws;
-
-  @Before
-  public void setUp() {
-    ws = new WsActionTester(
-      new RevokeAction(dbClient, userSession));
-  }
+  private DbSession dbSession = db.getSession();
+  private WsActionTester ws = new WsActionTester(new RevokeAction(dbClient, new UserTokenSupport(db.getDbClient(), userSession)));
 
   @Test
   public void delete_token_in_db() {
     logInAsSystemAdministrator();
-    insertUserToken(newUserToken().setLogin(GRACE_HOPPER).setName("token-to-delete"));
-    insertUserToken(newUserToken().setLogin(GRACE_HOPPER).setName("token-to-keep-1"));
-    insertUserToken(newUserToken().setLogin(GRACE_HOPPER).setName("token-to-keep-2"));
-    insertUserToken(newUserToken().setLogin(ADA_LOVELACE).setName("token-to-delete"));
+    UserDto user1 = db.users().insertUser();
+    UserDto user2 = db.users().insertUser();
+    UserTokenDto tokenToDelete = db.users().insertToken(user1);
+    UserTokenDto tokenToKeep1 = db.users().insertToken(user1);
+    UserTokenDto tokenToKeep2 = db.users().insertToken(user1);
+    UserTokenDto tokenFromAnotherUser = db.users().insertToken(user2);
 
-    String response = newRequest(GRACE_HOPPER, "token-to-delete");
+    String response = newRequest(user1.getLogin(), tokenToDelete.getName());
 
     assertThat(response).isEmpty();
-    assertThat(dbClient.userTokenDao().selectByLogin(dbSession, GRACE_HOPPER)).extracting("name").containsOnly("token-to-keep-1", "token-to-keep-2");
-    assertThat(dbClient.userTokenDao().selectByLogin(dbSession, ADA_LOVELACE)).extracting("name").containsOnly("token-to-delete");
+    assertThat(dbClient.userTokenDao().selectByUser(dbSession, user1))
+      .extracting(UserTokenDto::getName)
+      .containsExactlyInAnyOrder(tokenToKeep1.getName(), tokenToKeep2.getName());
+    assertThat(dbClient.userTokenDao().selectByUser(dbSession, user2))
+      .extracting(UserTokenDto::getName)
+      .containsExactlyInAnyOrder(tokenFromAnotherUser.getName());
   }
 
   @Test
   public void user_can_delete_its_own_tokens() {
-    userSession.logIn(GRACE_HOPPER);
-    insertUserToken(newUserToken().setLogin(GRACE_HOPPER).setName("token-to-delete"));
+    UserDto user = db.users().insertUser();
+    UserTokenDto token = db.users().insertToken(user);
+    userSession.logIn(user);
 
-    String response = newRequest(null, "token-to-delete");
+    String response = newRequest(null, token.getName());
 
     assertThat(response).isEmpty();
-    assertThat(dbClient.userTokenDao().selectByLogin(dbSession, GRACE_HOPPER)).isEmpty();
+    assertThat(dbClient.userTokenDao().selectByUser(dbSession, user)).isEmpty();
   }
 
   @Test
   public void does_not_fail_when_incorrect_login_or_name() {
-    logInAsSystemAdministrator();
-    insertUserToken(newUserToken().setLogin(GRACE_HOPPER).setName(TOKEN_NAME));
+    UserDto user = db.users().insertUser();
+    db.users().insertToken(user);
 
-    newRequest(ADA_LOVELACE, "another-token-name");
+    logInAsSystemAdministrator();
+
+    newRequest(user.getLogin(), "another-token-name");
   }
 
   @Test
   public void throw_ForbiddenException_if_non_administrator_revokes_token_of_someone_else() {
+    UserDto user = db.users().insertUser();
+    UserTokenDto token = db.users().insertToken(user);
     userSession.logIn();
-    insertUserToken(newUserToken().setLogin(GRACE_HOPPER).setName(TOKEN_NAME));
 
     expectedException.expect(ForbiddenException.class);
 
-    newRequest(GRACE_HOPPER, TOKEN_NAME);
+    newRequest(user.getLogin(), token.getName());
   }
 
   @Test
   public void throw_UnauthorizedException_if_not_logged_in() {
+    UserDto user = db.users().insertUser();
+    UserTokenDto token = db.users().insertToken(user);
     userSession.anonymous();
-    insertUserToken(newUserToken().setLogin(GRACE_HOPPER).setName(TOKEN_NAME));
 
     expectedException.expect(UnauthorizedException.class);
 
-    newRequest(GRACE_HOPPER, TOKEN_NAME);
+    newRequest(user.getLogin(), token.getName());
+  }
+
+  @Test
+  public void fail_if_login_does_not_exist() {
+    logInAsSystemAdministrator();
+
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage("User with login 'unknown-login' doesn't exist");
+
+    newRequest("unknown-login", "any-name");
   }
 
   private String newRequest(@Nullable String login, String name) {
@@ -125,11 +136,6 @@ public class RevokeActionTest {
     }
 
     return testRequest.execute().getInput();
-  }
-
-  private void insertUserToken(UserTokenDto userToken) {
-    dbClient.userTokenDao().insert(dbSession, userToken);
-    dbSession.commit();
   }
 
   private void logInAsSystemAdministrator() {

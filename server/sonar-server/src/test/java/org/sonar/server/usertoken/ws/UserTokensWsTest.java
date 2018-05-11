@@ -24,7 +24,6 @@ import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
-import org.sonar.server.user.UserSession;
 import org.sonar.server.usertoken.TokenGenerator;
 import org.sonar.server.ws.WsTester;
 
@@ -38,15 +37,15 @@ public class UserTokensWsTest {
 
   @Before
   public void setUp() {
-    UserSession userSession = mock(UserSession.class);
     DbClient dbClient = mock(DbClient.class);
     System2 system = mock(System2.class);
     TokenGenerator tokenGenerator = mock(TokenGenerator.class);
+    UserTokenSupport userTokenSupport = mock(UserTokenSupport.class);
 
     ws = new WsTester(new UserTokensWs(
-      new GenerateAction(dbClient, userSession, system, tokenGenerator),
-      new RevokeAction(dbClient, userSession),
-      new SearchAction(dbClient, userSession)));
+      new GenerateAction(dbClient, system, tokenGenerator, userTokenSupport),
+      new RevokeAction(dbClient, userTokenSupport),
+      new SearchAction(dbClient, userTokenSupport)));
   }
 
   @Test

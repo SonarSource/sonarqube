@@ -20,15 +20,15 @@
 package org.sonar.db.user;
 
 public class UserTokenCount {
-  private String login;
+  private String userUuid;
   private Integer tokenCount;
 
-  public String getLogin() {
-    return login;
+  public String getUserUuid() {
+    return userUuid;
   }
 
-  public UserTokenCount setLogin(String login) {
-    this.login = login;
+  public UserTokenCount setUserUuid(String userUuid) {
+    this.userUuid = userUuid;
     return this;
   }
 

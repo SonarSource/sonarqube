@@ -4,7 +4,7 @@
 <mapper namespace="org.sonar.db.user.UserTokenMapper">
 
   <sql id="userTokensColumns">
-    t.login as "login",
+    t.user_uuid as "userUuid",
     t.name as "name",
     t.token_hash as "tokenHash",
     t.created_at as "createdAt"
@@ -12,12 +12,12 @@
 
   <insert id="insert" parameterType="UserToken" keyColumn="id" useGeneratedKeys="false" keyProperty="id">
     insert into user_tokens (
-    login,
+    user_uuid,
     name,
     token_hash,
     created_at
     ) values (
-    #{login,jdbcType=VARCHAR},
+    #{userUuid,jdbcType=VARCHAR},
     #{name,jdbcType=VARCHAR},
     #{tokenHash,jdbcType=VARCHAR},
     #{createdAt,jdbcType=BIGINT}
@@ -31,36 +31,36 @@
     WHERE t.token_hash=#{tokenHash}
   </select>
 
-  <select id="selectByLoginAndName" parameterType="map" resultType="UserToken">
+  <select id="selectByUserUuidAndName" parameterType="map" resultType="UserToken">
     SELECT
     <include refid="userTokensColumns"/>
     FROM user_tokens t
-    WHERE t.login=#{login} and t.name=#{name}
+    WHERE t.user_uuid=#{userUuid} and t.name=#{name}
   </select>
 
-  <select id="selectByLogin" parameterType="map" resultType="UserToken">
+  <select id="selectByUserUuid" parameterType="map" resultType="UserToken">
     SELECT
     <include refid="userTokensColumns"/>
     FROM user_tokens t
-    WHERE t.login=#{login}
+    WHERE t.user_uuid=#{userUuid}
   </select>
   
-  <select id="countTokensByLogins" parameterType="map" resultType="UserTokenCount">
-    SELECT t.login as "login", count(t.name) as "tokenCount"
+  <select id="countTokensByUserUuids" parameterType="map" resultType="UserTokenCount">
+    SELECT t.user_uuid as "userUuid", count(t.name) as "tokenCount"
     FROM user_tokens t
-    WHERE t.login in
-    <foreach collection="logins" open="(" close=")" item="login" separator=",">
-      #{login}
+    WHERE t.user_uuid in
+    <foreach collection="userUuids" open="(" close=")" item="userUuid" separator=",">
+      #{userUuid}
     </foreach>
-    GROUP BY t.login
+    GROUP BY t.user_uuid
   </select>
 
-  <delete id="deleteByLogin">
-    DELETE FROM user_tokens WHERE login=#{login}
+  <delete id="deleteByUserUuid">
+    DELETE FROM user_tokens WHERE user_uuid=#{userUuid}
   </delete>
 
-  <delete id="deleteByLoginAndName">
-    DELETE FROM user_tokens WHERE login=#{login} and name=#{name}
+  <delete id="deleteByUserUuidAndName">
+    DELETE FROM user_tokens WHERE user_uuid=#{userUuid} and name=#{name}
   </delete>
 
 </mapper>

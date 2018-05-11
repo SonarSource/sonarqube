@@ -123,8 +123,8 @@ public class SearchAction implements UsersWsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
       List<String> logins = result.getDocs().stream().map(UserDoc::login).collect(toList());
       Multimap<String, String> groupsByLogin = dbClient.groupMembershipDao().selectGroupsByLogins(dbSession, logins);
-      Map<String, Integer> tokenCountsByLogin = dbClient.userTokenDao().countTokensByLogins(dbSession, logins);
       List<UserDto> users = dbClient.userDao().selectByOrderedLogins(dbSession, logins);
+      Map<String, Integer> tokenCountsByLogin = dbClient.userTokenDao().countTokensByUsers(dbSession, users);
       Paging paging = forPageIndex(request.getPage()).withPageSize(request.getPageSize()).andTotal((int) result.getTotal());
       return buildResponse(users, groupsByLogin, tokenCountsByLogin, fields, paging);
     }
@@ -133,7 +133,7 @@ public class SearchAction implements UsersWsAction {
   private SearchWsResponse buildResponse(List<UserDto> users, Multimap<String, String> groupsByLogin, Map<String, Integer> tokenCountsByLogin,
     @Nullable List<String> fields, Paging paging) {
     SearchWsResponse.Builder responseBuilder = newBuilder();
-    users.forEach(user -> responseBuilder.addUsers(towsUser(user, firstNonNull(tokenCountsByLogin.get(user.getLogin()), 0), groupsByLogin.get(user.getLogin()), fields)));
+    users.forEach(user -> responseBuilder.addUsers(towsUser(user, firstNonNull(tokenCountsByLogin.get(user.getUuid()), 0), groupsByLogin.get(user.getLogin()), fields)));
     responseBuilder.getPagingBuilder()
       .setPageIndex(paging.pageIndex())
       .setPageSize(paging.pageSize())

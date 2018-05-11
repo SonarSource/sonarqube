@@ -19,10 +19,12 @@
  */
 package org.sonar.server.usertoken;
 
-import com.google.common.base.Optional;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.user.UserTokenDto;
+
+import static java.util.Optional.empty;
+import static java.util.Optional.of;
 
 public class UserTokenAuthenticator {
   private final TokenGenerator tokenGenerator;
@@ -34,18 +36,18 @@ public class UserTokenAuthenticator {
   }
 
   /**
-   * Returns the user login if the token hash is found, else {@code Optional.absent()}.
-   * The returned login is not validated. If database is corrupted (table USER_TOKENS badly purged
-   * for instance), then the login may not relate to a valid user.
+   * Returns the user uuid if the token hash is found, else {@code Optional.absent()}.
+   * The returned uuid is not validated. If database is corrupted (table USER_TOKENS badly purged
+   * for instance), then the uuid may not relate to a valid user.
    */
   public java.util.Optional<String> authenticate(String token) {
     String tokenHash = tokenGenerator.hash(token);
     try (DbSession dbSession = dbClient.openSession(false)) {
-      Optional<UserTokenDto> userToken = dbClient.userTokenDao().selectByTokenHash(dbSession, tokenHash);
-      if (userToken.isPresent()) {
-        return java.util.Optional.of(userToken.get().getLogin());
+      UserTokenDto userToken = dbClient.userTokenDao().selectByTokenHash(dbSession, tokenHash);
+      if (userToken == null) {
+        return empty();
       }
-      return java.util.Optional.empty();
+      return of(userToken.getUserUuid());
     }
   }
 }

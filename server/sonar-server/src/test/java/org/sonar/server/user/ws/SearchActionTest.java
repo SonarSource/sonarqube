@@ -22,6 +22,7 @@ package org.sonar.server.user.ws;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.stream.IntStream;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.server.ws.WebService.Param;
@@ -32,7 +33,6 @@ import org.sonar.db.DbTester;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserGroupDto;
-import org.sonar.db.user.UserTesting;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.issue.ws.AvatarResolverImpl;
 import org.sonar.server.tester.UserSessionRule;
@@ -45,7 +45,6 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.user.GroupTesting.newGroupDto;
-import static org.sonar.db.user.UserTokenTesting.newUserToken;
 import static org.sonar.test.JsonAssert.assertJson;
 
 public class SearchActionTest {
@@ -86,12 +85,11 @@ public class SearchActionTest {
     dbClient.userGroupDao().insert(dbSession, new UserGroupDto().setUserId(simon.getId()).setGroupId(sonarUsers.getId()));
     dbClient.userGroupDao().insert(dbSession, new UserGroupDto().setUserId(fmallet.getId()).setGroupId(sonarUsers.getId()));
     dbClient.userGroupDao().insert(dbSession, new UserGroupDto().setUserId(fmallet.getId()).setGroupId(sonarAdministrators.getId()));
-
-    for (int i = 0; i < 3; i++) {
-      dbClient.userTokenDao().insert(dbSession, newUserToken().setLogin(simon.getLogin()));
-    }
-    dbClient.userTokenDao().insert(dbSession, newUserToken().setLogin(fmallet.getLogin()));
     db.commit();
+    for (int i = 0; i < 3; i++) {
+      db.users().insertToken(simon);
+    }
+    db.users().insertToken(fmallet);
     userIndexer.indexOnStartup(null);
     loginAsSystemAdministrator();
 
@@ -297,15 +295,10 @@ public class SearchActionTest {
         .setExternalIdentityProvider("sonarqube"));
       userDtos.add(userDto);
 
-      for (int tokenIndex = 0; tokenIndex < index; tokenIndex++) {
-        dbClient.userTokenDao().insert(dbSession, newUserToken()
-          .setLogin(login)
-          .setName(String.format("%s-%d", login, tokenIndex)));
-      }
+      IntStream.range(0, index).forEach(i -> db.users().insertToken(userDto, t -> t.setName(String.format("%s-%d", login, i))));
       db.users().insertMember(group1, userDto);
       db.users().insertMember(group2, userDto);
     }
-    dbSession.commit();
     userIndexer.indexOnStartup(null);
     return userDtos;
   }

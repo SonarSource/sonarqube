@@ -27,13 +27,13 @@ public interface UserTokenMapper {
 
   UserTokenDto selectByTokenHash(String tokenHash);
 
-  UserTokenDto selectByLoginAndName(@Param("login") String login, @Param("name") String name);
+  UserTokenDto selectByUserUuidAndName(@Param("userUuid") String userUuid, @Param("name") String name);
 
-  List<UserTokenDto> selectByLogin(String login);
+  List<UserTokenDto> selectByUserUuid(String userUuid);
 
-  void deleteByLogin(String login);
+  void deleteByUserUuid(String userUuid);
 
-  void deleteByLoginAndName(@Param("login") String login, @Param("name") String name);
+  void deleteByUserUuidAndName(@Param("userUuid") String userUuid, @Param("name") String name);
 
-  List<UserTokenCount> countTokensByLogins(@Param("logins") List<String> logins);
+  List<UserTokenCount> countTokensByUserUuids(@Param("userUuids") List<String> userUuids);
 }
