@@ -198,22 +198,6 @@ public class MetricDaoTest {
   }
 
   @Test
-  public void selectOrFailById() {
-    MetricDto metric = underTest.insert(dbSession, newMetricDto());
-
-    MetricDto result = underTest.selectOrFailById(dbSession, metric.getId());
-
-    assertThat(result).isNotNull();
-  }
-
-  @Test
-  public void fail_when_no_id_selectOrFailById() {
-    expectedException.expect(RowNotFoundException.class);
-
-    underTest.selectOrFailById(dbSession, 42L);
-  }
-
-  @Test
   public void selectByIds() {
     MetricDto metric1 = underTest.insert(dbSession, newMetricDto());
     MetricDto metric2 = underTest.insert(dbSession, newMetricDto());

@@ -25,7 +25,6 @@ import org.apache.ibatis.session.RowBounds;
 import org.sonar.db.Dao;
 import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbSession;
-import org.sonar.db.RowNotFoundException;
 
 public class CustomMeasureDao implements Dao {
   public void insert(DbSession session, CustomMeasureDto customMeasureDto) {
@@ -47,14 +46,6 @@ public class CustomMeasureDao implements Dao {
   @CheckForNull
   public CustomMeasureDto selectById(DbSession session, long id) {
     return mapper(session).selectById(id);
-  }
-
-  public CustomMeasureDto selectOrFail(DbSession session, long id) {
-    CustomMeasureDto customMeasure = selectById(session, id);
-    if (customMeasure == null) {
-      throw new RowNotFoundException(String.format("Custom measure '%d' not found.", id));
-    }
-    return customMeasure;
   }
 
   public List<CustomMeasureDto> selectByMetricId(DbSession session, int metricId) {

@@ -29,6 +29,8 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.measure.custom.CustomMeasureDto;
 import org.sonar.server.user.UserSession;
 
+import static com.google.common.base.Preconditions.checkArgument;
+
 public class DeleteAction implements CustomMeasuresWsAction {
 
   private static final String ACTION = "delete";
@@ -61,7 +63,8 @@ public class DeleteAction implements CustomMeasuresWsAction {
     long id = request.mandatoryParamAsLong(PARAM_ID);
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      CustomMeasureDto customMeasure = dbClient.customMeasureDao().selectOrFail(dbSession, id);
+      CustomMeasureDto customMeasure = dbClient.customMeasureDao().selectById(dbSession, id);
+      checkArgument(customMeasure != null, "Custom measure with id '%s' does not exist", id);
       checkPermission(dbSession, customMeasure);
       dbClient.customMeasureDao().delete(dbSession, id);
       dbSession.commit();

@@ -33,6 +33,9 @@ import org.sonar.db.metric.MetricDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.user.UserSession;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkState;
+import static java.util.Objects.requireNonNull;
 import static org.sonar.server.measure.custom.ws.CustomMeasureValidator.checkPermissions;
 import static org.sonar.server.measure.custom.ws.CustomMeasureValueDescription.measureValueDescription;
 
@@ -86,15 +89,20 @@ public class UpdateAction implements CustomMeasuresWsAction {
     checkParameters(value, description);
 
     try (DbSession dbSession = dbClient.openSession(true)) {
-      CustomMeasureDto customMeasure = dbClient.customMeasureDao().selectOrFail(dbSession, id);
-      MetricDto metric = dbClient.metricDao().selectOrFailById(dbSession, customMeasure.getMetricId());
+      CustomMeasureDto customMeasure = dbClient.customMeasureDao().selectById(dbSession, id);
+      checkArgument(customMeasure != null, "Custom measure with id '%s' does not exist", id);
+      int customMetricId = customMeasure.getMetricId();
+      MetricDto metric = dbClient.metricDao().selectById(dbSession, customMetricId);
+      checkState(metric != null, "Metric with id '%s' does not exist", customMetricId);
       ComponentDto component = dbClient.componentDao().selectOrFailByUuid(dbSession, customMeasure.getComponentUuid());
       checkPermissions(userSession, component);
-      UserDto user = dbClient.userDao().selectOrFailByLogin(dbSession, userSession.getLogin());
+      String userUuid = requireNonNull(userSession.getUuid(), "User uuid should not be null");
+      UserDto user = dbClient.userDao().selectByUuid(dbSession, userUuid);
+      checkState(user != null, "User with uuid '%s' does not exist", userUuid);
 
       setValue(customMeasure, value, metric);
       setDescription(customMeasure, description);
-      customMeasure.setUserLogin(user.getLogin());
+      customMeasure.setUserUuid(user.getUuid());
       customMeasure.setUpdatedAt(system.now());
       dbClient.customMeasureDao().update(dbSession, customMeasure);
       dbSession.commit();

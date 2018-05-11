@@ -26,7 +26,6 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.user.UserQuery;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
@@ -34,7 +33,6 @@ import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.RowNotFoundException;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
 
@@ -43,7 +41,6 @@ import static java.util.Collections.emptyList;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
-import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.user.GroupTesting.newGroupDto;
@@ -54,8 +51,6 @@ public class UserDaoTest {
 
   private System2 system2 = mock(System2.class);
 
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
   @Rule
   public DbTester db = DbTester.create(system2);
 
@@ -509,7 +504,7 @@ public class UserDaoTest {
     underTest.insert(session, user);
     session.commit();
 
-    underTest.cleanHomepage(session,user);
+    underTest.cleanHomepage(session, user);
 
     UserDto reloaded = underTest.selectUserById(session, user.getId());
     assertThat(reloaded.getUpdatedAt()).isEqualTo(NOW);
@@ -538,7 +533,7 @@ public class UserDaoTest {
     UserDto user2 = db.users().insertUser();
     underTest.setRoot(session, user2.getLogin(), true);
 
-    UserDto dto = underTest.selectOrFailByLogin(session, user1.getLogin());
+    UserDto dto = underTest.selectByLogin(session, user1.getLogin());
     assertThat(dto.getId()).isEqualTo(user1.getId());
     assertThat(dto.getLogin()).isEqualTo("marius");
     assertThat(dto.getName()).isEqualTo("Marius");
@@ -553,7 +548,7 @@ public class UserDaoTest {
     assertThat(dto.getHomepageType()).isEqualTo("project");
     assertThat(dto.getHomepageParameter()).isEqualTo("OB1");
 
-    dto = underTest.selectOrFailByLogin(session, user2.getLogin());
+    dto = underTest.selectByLogin(session, user2.getLogin());
     assertThat(dto.isRoot()).isTrue();
   }
 
@@ -577,16 +572,6 @@ public class UserDaoTest {
     List<UserDto> results = underTest.selectByScmAccountOrLoginOrEmail(session, "marius@lesbronzes.fr");
 
     assertThat(results).hasSize(2);
-  }
-
-  @Test
-  public void select_by_login_with_unknown_login() {
-    try {
-      underTest.selectOrFailByLogin(session, "unknown");
-      fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(RowNotFoundException.class).hasMessage("User with login 'unknown' has not been found");
-    }
   }
 
   @Test

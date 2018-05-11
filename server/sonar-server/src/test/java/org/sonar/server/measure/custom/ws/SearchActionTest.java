@@ -19,150 +19,300 @@
  */
 package org.sonar.server.measure.custom.ws;
 
+import java.util.ArrayList;
 import java.util.Date;
-import org.apache.commons.lang.StringUtils;
-import org.junit.Before;
+import java.util.List;
+import java.util.stream.IntStream;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.measures.Metric.ValueType;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
-import org.sonar.api.web.UserRole;
-import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.ComponentTesting;
-import org.sonar.db.component.SnapshotTesting;
 import org.sonar.db.measure.custom.CustomMeasureDto;
 import org.sonar.db.metric.MetricDto;
+import org.sonar.db.user.UserDto;
 import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.ws.UserJsonWriter;
-import org.sonar.server.ws.WsTester;
+import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.db.measure.custom.CustomMeasureTesting.newCustomMeasureDto;
-import static org.sonar.db.metric.MetricTesting.newMetricDto;
+import static org.sonar.api.measures.Metric.ValueType.STRING;
+import static org.sonar.api.web.UserRole.ADMIN;
+import static org.sonar.api.web.UserRole.USER;
+import static org.sonar.test.JsonAssert.assertJson;
 
 public class SearchActionTest {
-
-  private static final String DEFAULT_PROJECT_UUID = "project-uuid";
-  private static final String DEFAULT_PROJECT_KEY = "project-key";
-  private static final String METRIC_KEY_PREFIX = "metric-key-";
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
   @Rule
-  public UserSessionRule userSessionRule = UserSessionRule.standalone();
+  public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
   @Rule
   public EsTester es = EsTester.create();
 
-  private WsTester ws;
-  private DbClient dbClient = db.getDbClient();
-  private DbSession dbSession = db.getSession();
-  private ComponentDto defaultProject;
+  private WsActionTester ws = new WsActionTester(
+    new SearchAction(db.getDbClient(), new CustomMeasureJsonWriter(new UserJsonWriter(userSession)), userSession, TestComponentFinder.from(db)));
 
-  @Before
-  public void setUp() {
-    CustomMeasureJsonWriter customMeasureJsonWriter = new CustomMeasureJsonWriter(new UserJsonWriter(userSessionRule));
-    ws = new WsTester(new CustomMeasuresWs(new SearchAction(dbClient, customMeasureJsonWriter, userSessionRule, TestComponentFinder.from(db))));
-    defaultProject = insertDefaultProject();
-    userSessionRule.logIn().addProjectPermission(UserRole.ADMIN, defaultProject);
-    db.users().insertUser(u -> u.setLogin("login")
-      .setName("Login")
-      .setEmail("login@login.com")
-      .setActive(true));
+  @Test
+  public void json_well_formatted() {
+    ComponentDto project = db.components().insertPrivateProject();
+    UserDto userAuthenticated = db.users().insertUser();
+    userSession.logIn(userAuthenticated).addProjectPermission(ADMIN, project);
+    UserDto userMeasureCreator = db.users().insertUser();
+    MetricDto metric1 = db.measures().insertMetric(m -> m.setUserManaged(true).setValueType(STRING.name()));
+    MetricDto metric2 = db.measures().insertMetric(m -> m.setUserManaged(true).setValueType(STRING.name()));
+    MetricDto metric3 = db.measures().insertMetric(m -> m.setUserManaged(true).setValueType(STRING.name()));
+    CustomMeasureDto customMeasure1 = db.measures().insertCustomMeasure(userMeasureCreator, project, metric1, m -> m.setValue(0d));
+    CustomMeasureDto customMeasure2 = db.measures().insertCustomMeasure(userMeasureCreator, project, metric2, m -> m.setValue(0d));
+    CustomMeasureDto customMeasure3 = db.measures().insertCustomMeasure(userMeasureCreator, project, metric3, m -> m.setValue(0d));
+
+    String response = ws.newRequest()
+      .setParam(SearchAction.PARAM_PROJECT_ID, project.uuid())
+      .execute()
+      .getInput();
+
+    assertJson(response).isSimilarTo("{\n" +
+      "  \"customMeasures\": [\n" +
+      "    {\n" +
+      "      \"id\": \"" + customMeasure1.getId() + "\",\n" +
+      "      \"value\": \"" + customMeasure1.getTextValue() + "\",\n" +
+      "      \"description\": \"" + customMeasure1.getDescription() + "\",\n" +
+      "      \"metric\": {\n" +
+      "        \"id\": \"" + metric1.getId() + "\",\n" +
+      "        \"key\": \"" + metric1.getKey() + "\",\n" +
+      "        \"type\": \"" + metric1.getValueType() + "\",\n" +
+      "        \"name\": \"" + metric1.getShortName() + "\",\n" +
+      "        \"domain\": \"" + metric1.getDomain() + "\"\n" +
+      "      },\n" +
+      "      \"projectId\": \"" + project.uuid() + "\",\n" +
+      "      \"projectKey\": \"" + project.getKey() + "\",\n" +
+      "      \"pending\": true,\n" +
+      "    },\n" +
+      "    {\n" +
+      "      \"id\": \"" + customMeasure2.getId() + "\",\n" +
+      "      \"value\": \"" + customMeasure2.getTextValue() + "\",\n" +
+      "      \"description\": \"" + customMeasure2.getDescription() + "\",\n" +
+      "      \"metric\": {\n" +
+      "        \"id\": \"" + metric2.getId() + "\",\n" +
+      "        \"key\": \"" + metric2.getKey() + "\",\n" +
+      "        \"type\": \"" + metric2.getValueType() + "\",\n" +
+      "        \"name\": \"" + metric2.getShortName() + "\",\n" +
+      "        \"domain\": \"" + metric2.getDomain() + "\"\n" +
+      "      },\n" +
+      "      \"projectId\": \"" + project.uuid() + "\",\n" +
+      "      \"projectKey\": \"" + project.getKey() + "\",\n" +
+      "      \"pending\": true,\n" +
+      "    },\n" +
+      "    {\n" +
+      "      \"id\": \"" + customMeasure3.getId() + "\",\n" +
+      "      \"value\": \"" + customMeasure3.getTextValue() + "\",\n" +
+      "      \"description\": \"" + customMeasure3.getDescription() + "\",\n" +
+      "      \"metric\": {\n" +
+      "        \"id\": \"" + metric3.getId() + "\",\n" +
+      "        \"key\": \"" + metric3.getKey() + "\",\n" +
+      "        \"type\": \"" + metric3.getValueType() + "\",\n" +
+      "        \"name\": \"" + metric3.getShortName() + "\",\n" +
+      "        \"domain\": \"" + metric3.getDomain() + "\"\n" +
+      "      },\n" +
+      "      \"projectId\": \"" + project.uuid() + "\",\n" +
+      "      \"projectKey\": \"" + project.getKey() + "\",\n" +
+      "      \"pending\": true,\n" +
+      "    }\n" +
+      "  ],\n" +
+      "  \"total\": 3,\n" +
+      "  \"p\": 1,\n" +
+      "  \"ps\": 100\n" +
+      "}");
   }
 
   @Test
-  public void json_well_formatted() throws Exception {
-    MetricDto metric1 = insertCustomMetric(1);
-    MetricDto metric2 = insertCustomMetric(2);
-    MetricDto metric3 = insertCustomMetric(3);
-    CustomMeasureDto customMeasure1 = insertCustomMeasure(1, metric1);
-    CustomMeasureDto customMeasure2 = insertCustomMeasure(2, metric2);
-    CustomMeasureDto customMeasure3 = insertCustomMeasure(3, metric3);
+  public void return_users() {
+    ComponentDto project = db.components().insertPrivateProject();
+    UserDto userAuthenticated = db.users().insertUser();
+    userSession.logIn(userAuthenticated).addProjectPermission(ADMIN, project);
+    UserDto user1 = db.users().insertUser();
+    UserDto user2 = db.users().insertUser();
+    MetricDto metric1 = db.measures().insertMetric(m -> m.setUserManaged(true).setValueType(STRING.name()));
+    MetricDto metric2 = db.measures().insertMetric(m -> m.setUserManaged(true).setValueType(STRING.name()));
+    MetricDto metric3 = db.measures().insertMetric(m -> m.setUserManaged(true).setValueType(STRING.name()));
+    CustomMeasureDto customMeasure1 = db.measures().insertCustomMeasure(user1, project, metric1, m -> m.setValue(0d));
+    CustomMeasureDto customMeasure2 = db.measures().insertCustomMeasure(user1, project, metric2, m -> m.setValue(0d));
+    CustomMeasureDto customMeasure3 = db.measures().insertCustomMeasure(user2, project, metric3, m -> m.setValue(0d));
 
-    WsTester.Result response = newRequest()
-      .setParam(SearchAction.PARAM_PROJECT_ID, DEFAULT_PROJECT_UUID)
-      .execute();
+    String response = ws.newRequest()
+      .setParam(SearchAction.PARAM_PROJECT_ID, project.uuid())
+      .execute()
+      .getInput();
 
-    response.assertJson(getClass(), "custom-measures.json");
-    String responseAsString = response.outputAsString();
-    assertThat(responseAsString).matches(nameStringValuePattern("id", metric1.getId().toString()));
-    assertThat(responseAsString).matches(nameStringValuePattern("id", metric2.getId().toString()));
-    assertThat(responseAsString).matches(nameStringValuePattern("id", metric3.getId().toString()));
-    assertThat(responseAsString).matches(nameStringValuePattern("id", String.valueOf(customMeasure1.getId())));
-    assertThat(responseAsString).matches(nameStringValuePattern("id", String.valueOf(customMeasure2.getId())));
-    assertThat(responseAsString).matches(nameStringValuePattern("id", String.valueOf(customMeasure3.getId())));
-    assertThat(responseAsString).contains("createdAt", "updatedAt");
+    assertJson(response).isSimilarTo("{\n" +
+      "  \"customMeasures\": [\n" +
+      "    {\n" +
+      "      \"id\": \"" + customMeasure1.getId() + "\",\n" +
+      "      \"user\": {\n" +
+      "        \"login\": \"" + user1.getLogin() +"\",\n" +
+      "        \"name\": \"" + user1.getName() +"\",\n" +
+      "        \"email\": \"" + user1.getEmail() +"\",\n" +
+      "        \"active\": true\n" +
+      "      }" +
+      "    },\n" +
+      "    {\n" +
+      "      \"id\": \"" + customMeasure2.getId() + "\",\n" +
+      "      \"user\": {\n" +
+      "        \"login\": \"" + user1.getLogin() +"\",\n" +
+      "        \"name\": \"" + user1.getName() +"\",\n" +
+      "        \"email\": \"" + user1.getEmail() +"\",\n" +
+      "        \"active\": true\n" +
+      "      }" +
+      "    },\n" +
+      "    {\n" +
+      "      \"id\": \"" + customMeasure3.getId() + "\",\n" +
+      "      \"user\": {\n" +
+      "        \"login\": \"" + user2.getLogin() +"\",\n" +
+      "        \"name\": \"" + user2.getName() +"\",\n" +
+      "        \"email\": \"" + user2.getEmail() +"\",\n" +
+      "        \"active\": true\n" +
+      "      }" +
+      "    }\n" +
+      "  ]\n" +
+      "}");
   }
 
   @Test
-  public void search_by_project_uuid() throws Exception {
-    MetricDto metric1 = insertCustomMetric(1);
-    MetricDto metric2 = insertCustomMetric(2);
-    MetricDto metric3 = insertCustomMetric(3);
-    insertCustomMeasure(1, metric1);
-    insertCustomMeasure(2, metric2);
-    insertCustomMeasure(3, metric3);
+  public void search_by_project_uuid() {
+    ComponentDto project = db.components().insertPrivateProject();
+    UserDto userAuthenticated = db.users().insertUser();
+    userSession.logIn(userAuthenticated).addProjectPermission(ADMIN, project);
+    UserDto userMeasureCreator = db.users().insertUser();
+    MetricDto metric1 = db.measures().insertMetric(m -> m.setUserManaged(true).setValueType(STRING.name()));
+    MetricDto metric2 = db.measures().insertMetric(m -> m.setUserManaged(true).setValueType(STRING.name()));
+    MetricDto metric3 = db.measures().insertMetric(m -> m.setUserManaged(true).setValueType(STRING.name()));
+    CustomMeasureDto customMeasure1 = db.measures().insertCustomMeasure(userMeasureCreator, project, metric1, m -> m.setValue(0d));
+    CustomMeasureDto customMeasure2 = db.measures().insertCustomMeasure(userMeasureCreator, project, metric2, m -> m.setValue(0d));
+    CustomMeasureDto customMeasure3 = db.measures().insertCustomMeasure(userMeasureCreator, project, metric3, m -> m.setValue(0d));
 
-    String response = newRequest()
-      .setParam(SearchAction.PARAM_PROJECT_ID, DEFAULT_PROJECT_UUID)
-      .execute().outputAsString();
+    String response = ws.newRequest()
+      .setParam(SearchAction.PARAM_PROJECT_ID, project.uuid())
+      .execute()
+      .getInput();
 
-    assertThat(response).contains("text-value-1", "text-value-2", "text-value-3");
+    assertJson(response).isSimilarTo("{\n" +
+      "  \"customMeasures\": [\n" +
+      "    {\n" +
+      "      \"id\": \"" + customMeasure1.getId() + "\",\n" +
+      "      \"value\": \"" + customMeasure1.getTextValue() + "\"\n" +
+      "    },\n" +
+      "    {\n" +
+      "      \"id\": \"" + customMeasure2.getId() + "\",\n" +
+      "      \"value\": \"" + customMeasure2.getTextValue() + "\"\n" +
+      "    },\n" +
+      "    {\n" +
+      "      \"id\": \"" + customMeasure3.getId() + "\",\n" +
+      "      \"value\": \"" + customMeasure3.getTextValue() + "\"\n" +
+      "    }\n" +
+      "  ],\n" +
+      "  \"total\": 3,\n" +
+      "  \"p\": 1,\n" +
+      "  \"ps\": 100\n" +
+      "}");
   }
 
   @Test
-  public void search_by_project_key() throws Exception {
-    MetricDto metric1 = insertCustomMetric(1);
-    MetricDto metric2 = insertCustomMetric(2);
-    MetricDto metric3 = insertCustomMetric(3);
-    insertCustomMeasure(1, metric1);
-    insertCustomMeasure(2, metric2);
-    insertCustomMeasure(3, metric3);
+  public void search_by_project_key() {
+    ComponentDto project = db.components().insertPrivateProject();
+    UserDto userAuthenticated = db.users().insertUser();
+    userSession.logIn(userAuthenticated).addProjectPermission(ADMIN, project);
+    UserDto userMeasureCreator = db.users().insertUser();
+    MetricDto metric1 = db.measures().insertMetric(m -> m.setUserManaged(true).setValueType(STRING.name()));
+    MetricDto metric2 = db.measures().insertMetric(m -> m.setUserManaged(true).setValueType(STRING.name()));
+    MetricDto metric3 = db.measures().insertMetric(m -> m.setUserManaged(true).setValueType(STRING.name()));
+    CustomMeasureDto customMeasure1 = db.measures().insertCustomMeasure(userMeasureCreator, project, metric1, m -> m.setValue(0d));
+    CustomMeasureDto customMeasure2 = db.measures().insertCustomMeasure(userMeasureCreator, project, metric2, m -> m.setValue(0d));
+    CustomMeasureDto customMeasure3 = db.measures().insertCustomMeasure(userMeasureCreator, project, metric3, m -> m.setValue(0d));
 
-    String response = newRequest()
-      .setParam(SearchAction.PARAM_PROJECT_KEY, DEFAULT_PROJECT_KEY)
-      .execute().outputAsString();
+    String response = ws.newRequest()
+      .setParam(SearchAction.PARAM_PROJECT_KEY, project.getKey())
+      .execute()
+      .getInput();
 
-    assertThat(response).contains("text-value-1", "text-value-2", "text-value-3");
+    assertJson(response).isSimilarTo("{\n" +
+      "  \"customMeasures\": [\n" +
+      "    {\n" +
+      "      \"id\": \"" + customMeasure1.getId() + "\",\n" +
+      "      \"value\": \"" + customMeasure1.getTextValue() + "\"\n" +
+      "    },\n" +
+      "    {\n" +
+      "      \"id\": \"" + customMeasure2.getId() + "\",\n" +
+      "      \"value\": \"" + customMeasure2.getTextValue() + "\"\n" +
+      "    },\n" +
+      "    {\n" +
+      "      \"id\": \"" + customMeasure3.getId() + "\",\n" +
+      "      \"value\": \"" + customMeasure3.getTextValue() + "\"\n" +
+      "    }\n" +
+      "  ],\n" +
+      "  \"total\": 3,\n" +
+      "  \"p\": 1,\n" +
+      "  \"ps\": 100\n" +
+      "}");
   }
 
   @Test
-  public void search_with_pagination() throws Exception {
-    for (int i = 0; i < 10; i++) {
-      MetricDto metric = insertCustomMetric(i);
-      insertCustomMeasure(i, metric);
-    }
+  public void search_with_pagination() {
+    ComponentDto project = db.components().insertPrivateProject();
+    UserDto userAuthenticated = db.users().insertUser();
+    userSession.logIn(userAuthenticated).addProjectPermission(ADMIN, project);
+    UserDto userMeasureCreator = db.users().insertUser();
+    List<CustomMeasureDto> measureById = new ArrayList<>();
+    IntStream.range(0, 10).forEach(i -> {
+      MetricDto metric = db.measures().insertMetric(m -> m.setUserManaged(true));
+      CustomMeasureDto customMeasure = db.measures().insertCustomMeasure(userMeasureCreator, project, metric);
+      measureById.add(customMeasure);
+    });
 
-    String response = newRequest()
-      .setParam(SearchAction.PARAM_PROJECT_KEY, DEFAULT_PROJECT_KEY)
+    String response = ws.newRequest()
+      .setParam(SearchAction.PARAM_PROJECT_KEY, project.getKey())
       .setParam(WebService.Param.PAGE, "3")
       .setParam(WebService.Param.PAGE_SIZE, "4")
-      .execute().outputAsString();
+      .execute()
+      .getInput();
 
-    assertThat(StringUtils.countMatches(response, "text-value")).isEqualTo(2);
+    assertJson(response).isSimilarTo("{\n" +
+      "  \"customMeasures\": [\n" +
+      "    {\n" +
+      "      \"id\": \"" + measureById.get(8).getId() + "\",\n" +
+      "    },\n" +
+      "    {\n" +
+      "      \"id\": \"" + measureById.get(9).getId() + "\",\n" +
+      "    },\n" +
+      "  ],\n" +
+      "  \"total\": 10,\n" +
+      "  \"p\": 3,\n" +
+      "  \"ps\": 4\n" +
+      "}");
   }
 
   @Test
-  public void search_with_selectable_fields() throws Exception {
-    MetricDto metric = insertCustomMetric(1);
-    insertCustomMeasure(1, metric);
+  public void search_with_selectable_fields() {
+    ComponentDto project = db.components().insertPrivateProject();
+    UserDto userAuthenticated = db.users().insertUser();
+    userSession.logIn(userAuthenticated).addProjectPermission(ADMIN, project);
+    UserDto userMeasureCreator = db.users().insertUser();
+    MetricDto metric = db.measures().insertMetric(m -> m.setUserManaged(true).setValueType(STRING.name()));
+    db.measures().insertCustomMeasure(userMeasureCreator, project, metric, m -> m.setValue(0d));
 
-    String response = newRequest()
-      .setParam(SearchAction.PARAM_PROJECT_KEY, DEFAULT_PROJECT_KEY)
+    String response = ws.newRequest()
+      .setParam(SearchAction.PARAM_PROJECT_KEY, project.getKey())
       .setParam(WebService.Param.FIELDS, "value, description")
-      .execute().outputAsString();
+      .execute()
+      .getInput();
 
     assertThat(response).contains("id", "value", "description")
       .doesNotContain("createdAt")
@@ -172,137 +322,99 @@ public class SearchActionTest {
   }
 
   @Test
-  public void search_with_more_recent_analysis() throws Exception {
+  public void search_with_more_recent_analysis() {
     long yesterday = DateUtils.addDays(new Date(), -1).getTime();
-    MetricDto metric = insertCustomMetric(1);
-    dbClient.customMeasureDao().insert(dbSession, newCustomMeasure(1, metric)
-      .setCreatedAt(yesterday)
-      .setUpdatedAt(yesterday));
-    dbClient.snapshotDao().insert(dbSession, SnapshotTesting.newAnalysis(defaultProject));
-    dbSession.commit();
+    ComponentDto project = db.components().insertPrivateProject();
+    UserDto userAuthenticated = db.users().insertUser();
+    userSession.logIn(userAuthenticated).addProjectPermission(ADMIN, project);
+    UserDto userMeasureCreator = db.users().insertUser();
+    MetricDto metric = db.measures().insertMetric(m -> m.setUserManaged(true).setValueType(STRING.name()));
+    CustomMeasureDto customMeasure = db.measures().insertCustomMeasure(userMeasureCreator, project, metric, m -> m.setCreatedAt(yesterday).setUpdatedAt(yesterday));
+    db.components().insertSnapshot(project);
 
-    String response = newRequest()
-      .setParam(SearchAction.PARAM_PROJECT_ID, DEFAULT_PROJECT_UUID)
-      .execute().outputAsString();
+    String response = ws.newRequest()
+      .setParam(SearchAction.PARAM_PROJECT_ID, project.uuid())
+      .execute()
+      .getInput();
 
-    assertThat(response).matches(nameValuePattern("pending", "false"));
+    assertJson(response).isSimilarTo("{\n" +
+      "  \"customMeasures\": [\n" +
+      "    {\n" +
+      "      \"id\": \"" + customMeasure.getId() + "\",\n" +
+      "      \"value\": \"" + customMeasure.getTextValue() + "\",\n" +
+      "      \"pending\": false\n" +
+      "    },\n" +
+      "  ]\n" +
+      "}");
   }
 
   @Test
-  public void search_as_project_admin() throws Exception {
-    userSessionRule.logIn("login").addProjectPermission(UserRole.ADMIN, defaultProject);
-    MetricDto metric1 = insertCustomMetric(1);
-    insertCustomMeasure(1, metric1);
+  public void empty_json_when_no_measure() {
+    ComponentDto project = db.components().insertPrivateProject();
+    UserDto userAuthenticated = db.users().insertUser();
+    userSession.logIn(userAuthenticated).addProjectPermission(ADMIN, project);
 
-    String response = newRequest()
-      .setParam(SearchAction.PARAM_PROJECT_ID, DEFAULT_PROJECT_UUID)
-      .execute().outputAsString();
+    String response = ws.newRequest()
+      .setParam(SearchAction.PARAM_PROJECT_KEY, project.getKey())
+      .execute()
+      .getInput();
 
-    assertThat(response).contains("text-value-1");
+    assertJson(response).isSimilarTo("{\n" +
+      "  \"customMeasures\": [],\n" +
+      "  \"total\": 0,\n" +
+      "  \"p\": 1,\n" +
+      "  \"ps\": 100\n" +
+      "}");
   }
 
   @Test
-  public void empty_json_when_no_measure() throws Exception {
-    WsTester.Result response = newRequest()
-      .setParam(SearchAction.PARAM_PROJECT_KEY, DEFAULT_PROJECT_KEY)
-      .execute();
+  public void fail_when_project_id_and_project_key_provided() {
+    ComponentDto project = db.components().insertPrivateProject();
+    UserDto userAuthenticated = db.users().insertUser();
+    userSession.logIn(userAuthenticated).addProjectPermission(ADMIN, project);
 
-    response.assertJson(getClass(), "empty.json");
-  }
-
-  @Test
-  public void fail_when_project_id_and_project_key_provided() throws Exception {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Either 'projectId' or 'projectKey' must be provided");
 
-    newRequest()
-      .setParam(SearchAction.PARAM_PROJECT_ID, DEFAULT_PROJECT_UUID)
-      .setParam(SearchAction.PARAM_PROJECT_KEY, DEFAULT_PROJECT_KEY)
+    ws.newRequest()
+      .setParam(SearchAction.PARAM_PROJECT_ID, project.uuid())
+      .setParam(SearchAction.PARAM_PROJECT_KEY, project.getKey())
       .execute();
   }
 
   @Test
-  public void fail_when_project_id_nor_project_key_provided() throws Exception {
+  public void fail_when_project_id_nor_project_key_provided() {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Either 'projectId' or 'projectKey' must be provided");
-    newRequest().execute();
+
+    ws.newRequest()
+      .execute();
   }
 
   @Test
-  public void fail_when_project_not_found_in_db() throws Exception {
+  public void fail_when_project_not_found_in_db() {
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("Component id 'wrong-project-uuid' not found");
 
-    newRequest().setParam(SearchAction.PARAM_PROJECT_ID, "wrong-project-uuid").execute();
+    ws.newRequest()
+      .setParam(SearchAction.PARAM_PROJECT_ID, "wrong-project-uuid")
+      .execute();
   }
 
   @Test
-  public void fail_when_not_enough_privileges() throws Exception {
-    expectedException.expect(ForbiddenException.class);
-    userSessionRule.logIn("login");
-    MetricDto metric1 = insertCustomMetric(1);
-    insertCustomMeasure(1, metric1);
+  public void fail_when_not_enough_privileges() {
+    ComponentDto project = db.components().insertPrivateProject();
+    UserDto userAuthenticated = db.users().insertUser();
+    userSession.logIn(userAuthenticated).addProjectPermission(USER, project);
 
-    String response = newRequest()
-      .setParam(SearchAction.PARAM_PROJECT_ID, DEFAULT_PROJECT_UUID)
-      .execute().outputAsString();
+    expectedException.expect(ForbiddenException.class);
+
+    String response = ws.newRequest()
+      .setParam(SearchAction.PARAM_PROJECT_ID, project.uuid())
+      .execute()
+      .getInput();
 
     assertThat(response).contains("text-value-1");
   }
 
-  private ComponentDto insertDefaultProject() {
-    return insertProject(DEFAULT_PROJECT_UUID, DEFAULT_PROJECT_KEY);
-  }
-
-  private ComponentDto insertProject(String projectUuid, String projectKey) {
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(db.organizations().insert(), projectUuid)
-      .setDbKey(projectKey);
-    dbClient.componentDao().insert(dbSession, project);
-    dbSession.commit();
-
-    return project;
-  }
-
-  private MetricDto insertCustomMetric(int id) {
-    MetricDto metric = newCustomMetric(METRIC_KEY_PREFIX + id);
-    dbClient.metricDao().insert(dbSession, metric);
-    dbSession.commit();
-
-    return metric;
-  }
-
-  private static MetricDto newCustomMetric(String metricKey) {
-    return newMetricDto().setEnabled(true).setUserManaged(true).setKey(metricKey).setDomain(metricKey + "-domain").setShortName(metricKey + "-name")
-      .setValueType(ValueType.STRING.name());
-  }
-
-  private CustomMeasureDto insertCustomMeasure(int id, MetricDto metric) {
-    CustomMeasureDto customMeasure = newCustomMeasure(id, metric);
-    dbClient.customMeasureDao().insert(dbSession, customMeasure);
-    dbSession.commit();
-
-    return customMeasure;
-  }
-
-  private CustomMeasureDto newCustomMeasure(int id, MetricDto metric) {
-    return newCustomMeasureDto()
-      .setUserLogin("login")
-      .setValue(id)
-      .setTextValue("text-value-" + id)
-      .setDescription("description-" + id)
-      .setMetricId(metric.getId())
-      .setComponentUuid(defaultProject.uuid());
-  }
-
-  private WsTester.TestRequest newRequest() {
-    return ws.newGetRequest(CustomMeasuresWs.ENDPOINT, SearchAction.ACTION);
-  }
-
-  private static String nameStringValuePattern(String name, String value) {
-    return String.format(".*\"%s\"\\s*:\\s*\"%s\".*", name, value);
-  }
-
-  private static String nameValuePattern(String name, String value) {
-    return String.format(".*\"%s\"\\s*:\\s*%s.*", name, value);
-  }
 }

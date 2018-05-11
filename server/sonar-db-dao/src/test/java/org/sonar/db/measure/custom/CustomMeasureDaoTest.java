@@ -19,49 +19,48 @@
  */
 package org.sonar.db.measure.custom;
 
-import java.util.Arrays;
 import java.util.List;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.RowNotFoundException;
+import org.sonar.db.component.ComponentDto;
+import org.sonar.db.metric.MetricDto;
+import org.sonar.db.user.UserDto;
 
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.offset;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.db.measure.custom.CustomMeasureTesting.newCustomMeasureDto;
-
 
 public class CustomMeasureDaoTest {
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
-  CustomMeasureDao underTest;
-  DbSession session;
+  private DbSession session = db.getSession();
 
-  @Before
-  public void setUp() {
-    session = db.getSession();
-    underTest = new CustomMeasureDao();
-  }
+  private CustomMeasureDao underTest = new CustomMeasureDao();
 
   @Test
   public void insert() {
-    CustomMeasureDto measure = newCustomMeasureDto();
+    UserDto user = db.users().insertUser();
+    ComponentDto project = db.components().insertPrivateProject();
+    MetricDto metric = db.measures().insertMetric(m -> m.setUserManaged(true));
+    CustomMeasureDto measure = newCustomMeasureDto()
+      .setComponentUuid(project.uuid())
+      .setMetricId(metric.getId())
+      .setUserUuid(user.getUuid());
 
     underTest.insert(session, measure);
 
-    CustomMeasureDto result = underTest.selectOrFail(session, measure.getId());
+    CustomMeasureDto result = underTest.selectById(session, measure.getId());
     assertThat(result.getId()).isEqualTo(measure.getId());
-    assertThat(result.getMetricId()).isEqualTo(measure.getMetricId());
-    assertThat(result.getComponentUuid()).isEqualTo(measure.getComponentUuid());
+    assertThat(result.getMetricId()).isEqualTo(metric.getId());
+    assertThat(result.getComponentUuid()).isEqualTo(project.uuid());
+    assertThat(result.getUserUuid()).isEqualTo(user.getUuid());
     assertThat(result.getDescription()).isEqualTo(measure.getDescription());
-    assertThat(result.getUserLogin()).isEqualTo(measure.getUserLogin());
     assertThat(result.getTextValue()).isEqualTo(measure.getTextValue());
     assertThat(result.getValue()).isCloseTo(measure.getValue(), offset(0.001d));
     assertThat(result.getCreatedAt()).isEqualTo(measure.getCreatedAt());
@@ -70,60 +69,76 @@ public class CustomMeasureDaoTest {
 
   @Test
   public void delete_by_metric_id() {
-    CustomMeasureDto measure = newCustomMeasureDto();
-    underTest.insert(session, measure);
-    assertThat(underTest.selectById(session, measure.getId())).isNotNull();
+    UserDto user = db.users().insertUser();
+    ComponentDto project = db.components().insertPrivateProject();
+    MetricDto metric = db.measures().insertMetric(m -> m.setUserManaged(true));
+    CustomMeasureDto measure = db.measures().insertCustomMeasure(user, project, metric);
 
-    underTest.deleteByMetricIds(session, Arrays.asList(measure.getMetricId()));
+    underTest.deleteByMetricIds(session, singletonList(measure.getMetricId()));
 
     assertThat(underTest.selectById(session, measure.getId())).isNull();
   }
 
   @Test
   public void update() {
-    CustomMeasureDto measure = newCustomMeasureDto().setDescription("old-description");
-    underTest.insert(session, measure);
-    measure.setDescription("new-description");
+    UserDto user = db.users().insertUser();
+    ComponentDto project = db.components().insertPrivateProject();
+    MetricDto metric = db.measures().insertMetric(m -> m.setUserManaged(true));
+    CustomMeasureDto measure = db.measures().insertCustomMeasure(user, project, metric, m -> m.setDescription("old-description"));
 
-    underTest.update(session, measure);
+    underTest.update(session, measure.setDescription("new-description"));
 
     assertThat(underTest.selectById(session, measure.getId()).getDescription()).isEqualTo("new-description");
   }
 
   @Test
   public void delete() {
-    CustomMeasureDto measure = newCustomMeasureDto();
-    underTest.insert(session, measure);
+    UserDto user = db.users().insertUser();
+    ComponentDto project = db.components().insertPrivateProject();
+    MetricDto metric = db.measures().insertMetric(m -> m.setUserManaged(true));
+    CustomMeasureDto measure = db.measures().insertCustomMeasure(user, project, metric);
 
     underTest.delete(session, measure.getId());
+
     assertThat(underTest.selectById(session, measure.getId())).isNull();
   }
 
   @Test
   public void select_by_component_uuid() {
-    underTest.insert(session, newCustomMeasureDto().setComponentUuid("u1"));
-    underTest.insert(session, newCustomMeasureDto().setComponentUuid("u1"));
-    underTest.insert(session, newCustomMeasureDto().setComponentUuid("u2"));
-    session.commit();
+    UserDto user = db.users().insertUser();
+    MetricDto metric = db.measures().insertMetric(m -> m.setUserManaged(true));
+    ComponentDto project1 = db.components().insertPrivateProject();
+    CustomMeasureDto measure1 = db.measures().insertCustomMeasure(user, project1, metric);
+    CustomMeasureDto measure2 = db.measures().insertCustomMeasure(user, project1, metric);
+    ComponentDto project2 = db.components().insertPrivateProject();
+    CustomMeasureDto measure3 = db.measures().insertCustomMeasure(user, project2, metric);
 
-    List<CustomMeasureDto> result = underTest.selectByComponentUuid(session, "u1");
+    assertThat(underTest.selectByComponentUuid(session, project1.uuid()))
+      .extracting(CustomMeasureDto::getId, CustomMeasureDto::getComponentUuid)
+      .containsOnly(
+        tuple(measure1.getId(), project1.uuid()),
+        tuple(measure2.getId(), project1.uuid()))
+      .doesNotContain(tuple(measure3.getId(), project2.uuid()));
 
-    assertThat(result).hasSize(2);
-    assertThat(result).extracting("componentUuid").containsOnly("u1");
-    assertThat(underTest.countByComponentUuid(session, "u1")).isEqualTo(2);
+    assertThat(underTest.countByComponentUuid(session, project1.uuid())).isEqualTo(2);
   }
 
   @Test
   public void select_by_component_uuid_with_options() {
-    underTest.insert(session, newCustomMeasureDto().setComponentUuid("u1"));
-    underTest.insert(session, newCustomMeasureDto().setComponentUuid("u1"));
-    underTest.insert(session, newCustomMeasureDto().setComponentUuid("u2"));
-    session.commit();
+    UserDto user = db.users().insertUser();
+    MetricDto metric = db.measures().insertMetric(m -> m.setUserManaged(true));
+    ComponentDto project1 = db.components().insertPrivateProject();
+    CustomMeasureDto measure1 = db.measures().insertCustomMeasure(user, project1, metric);
+    CustomMeasureDto measure2 = db.measures().insertCustomMeasure(user, project1, metric);
+    ComponentDto project2 = db.components().insertPrivateProject();
+    CustomMeasureDto measure3 = db.measures().insertCustomMeasure(user, project2, metric);
 
-    List<CustomMeasureDto> result = underTest.selectByComponentUuid(session, "u1", 0, 100);
-
-    assertThat(result).hasSize(2);
-    assertThat(result).extracting("componentUuid").containsOnly("u1");
+    assertThat(underTest.selectByComponentUuid(session, project1.uuid(), 0, 100))
+      .extracting(CustomMeasureDto::getId, CustomMeasureDto::getComponentUuid)
+      .containsOnly(
+        tuple(measure1.getId(), project1.uuid()),
+        tuple(measure2.getId(), project1.uuid()))
+      .doesNotContain(tuple(measure3.getId(), project2.uuid()));
   }
 
   @Test
@@ -147,21 +162,20 @@ public class CustomMeasureDaoTest {
   }
 
   @Test
-  public void select_by_id_fail_if_no_measure_found() {
-    expectedException.expect(RowNotFoundException.class);
-
-    underTest.selectOrFail(session, 42L);
-  }
-
-  @Test
   public void select_by_metric_key_and_text_value() {
-    db.prepareDbUnit(getClass(), "select_by_metric_key_and_text_value.xml");
+    UserDto user = db.users().insertUser();
+    ComponentDto project = db.components().insertPrivateProject();
+    MetricDto metric = db.measures().insertMetric(m -> m.setUserManaged(true));
+    CustomMeasureDto customMeasure1 = db.measures().insertCustomMeasure(user, project, metric, m -> m.setTextValue("value"));
+    CustomMeasureDto customMeasure2 = db.measures().insertCustomMeasure(user, project, metric, m -> m.setTextValue("value"));
+    CustomMeasureDto customMeasure3 = db.measures().insertCustomMeasure(user, project, metric, m -> m.setTextValue("other value"));
 
-    List<CustomMeasureDto> result = underTest.selectByMetricKeyAndTextValue(session, "customKey", "value1");
+    assertThat(underTest.selectByMetricKeyAndTextValue(session, metric.getKey(), "value"))
+      .extracting(CustomMeasureDto::getId)
+      .containsExactlyInAnyOrder(customMeasure1.getId(), customMeasure2.getId())
+      .doesNotContain(customMeasure3.getId());
 
-    assertThat(result).extracting("id").containsOnly(20L, 21L);
-
-    assertThat(underTest.selectByMetricKeyAndTextValue(session, "customKey", "unknown")).isEmpty();
-    assertThat(underTest.selectByMetricKeyAndTextValue(session, "unknown", "value1")).isEmpty();
+    assertThat(underTest.selectByMetricKeyAndTextValue(session, metric.getKey(), "unknown")).isEmpty();
+    assertThat(underTest.selectByMetricKeyAndTextValue(session, "unknown", "value")).isEmpty();
   }
 }

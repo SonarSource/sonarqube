@@ -32,7 +32,7 @@ public class CustomMeasureTesting {
     return new CustomMeasureDto()
       .setDescription(RandomStringUtils.randomAlphanumeric(255))
       .setTextValue(RandomStringUtils.randomAlphanumeric(255))
-      .setUserLogin(RandomStringUtils.randomAlphanumeric(255))
+      .setUserUuid("userUuid" + RandomStringUtils.randomAlphanumeric(100))
       .setValue(RandomUtils.nextDouble())
       .setMetricId(RandomUtils.nextInt())
       .setComponentUuid(RandomStringUtils.randomAlphanumeric(50))

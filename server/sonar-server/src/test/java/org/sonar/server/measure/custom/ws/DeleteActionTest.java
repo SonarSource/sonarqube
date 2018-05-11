@@ -28,7 +28,6 @@ import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.RowNotFoundException;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.measure.custom.CustomMeasureDto;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -74,7 +73,8 @@ public class DeleteActionTest {
 
   @Test
   public void throw_RowNotFoundException_if_id_does_not_exist() throws Exception {
-    expectedException.expect(RowNotFoundException.class);
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Custom measure with id '42' does not exist");
 
     newRequest().setParam(PARAM_ID, "42").execute();
   }

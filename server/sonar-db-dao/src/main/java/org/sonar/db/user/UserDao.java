@@ -35,7 +35,6 @@ import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
-import org.sonar.db.RowNotFoundException;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
 
@@ -151,14 +150,6 @@ public class UserDao implements Dao {
   @CheckForNull
   public UserDto selectByLogin(DbSession session, String login) {
     return mapper(session).selectByLogin(login);
-  }
-
-  public UserDto selectOrFailByLogin(DbSession session, String login) {
-    UserDto user = selectByLogin(session, login);
-    if (user == null) {
-      throw new RowNotFoundException(String.format("User with login '%s' has not been found", login));
-    }
-    return user;
   }
 
   public List<UserDto> selectByScmAccountOrLoginOrEmail(DbSession session, String scmAccountOrLoginOrEmail) {

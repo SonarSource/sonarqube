@@ -19,6 +19,7 @@
  */
 package org.sonar.db.measure;
 
+import com.google.common.base.Preconditions;
 import java.util.Arrays;
 import java.util.function.Consumer;
 import org.sonar.db.DbClient;
@@ -26,10 +27,13 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
+import org.sonar.db.measure.custom.CustomMeasureDto;
 import org.sonar.db.metric.MetricDto;
+import org.sonar.db.user.UserDto;
 
 import static org.sonar.db.measure.MeasureTesting.newLiveMeasure;
 import static org.sonar.db.measure.MeasureTesting.newMeasureDto;
+import static org.sonar.db.measure.custom.CustomMeasureTesting.newCustomMeasureDto;
 import static org.sonar.db.metric.MetricTesting.newMetricDto;
 
 public class MeasureDbTester {
@@ -42,7 +46,7 @@ public class MeasureDbTester {
   }
 
   @SafeVarargs
-  public final MeasureDto insertMeasure(ComponentDto component, SnapshotDto analysis, MetricDto metricDto, Consumer<MeasureDto>... consumers){
+  public final MeasureDto insertMeasure(ComponentDto component, SnapshotDto analysis, MetricDto metricDto, Consumer<MeasureDto>... consumers) {
     MeasureDto measureDto = newMeasureDto(metricDto, component, analysis);
     Arrays.stream(consumers).forEach(c -> c.accept(measureDto));
     dbClient.measureDao().insert(dbSession, measureDto);
@@ -51,7 +55,7 @@ public class MeasureDbTester {
   }
 
   @SafeVarargs
-  public final LiveMeasureDto insertLiveMeasure(ComponentDto component, MetricDto metric, Consumer<LiveMeasureDto>... consumers){
+  public final LiveMeasureDto insertLiveMeasure(ComponentDto component, MetricDto metric, Consumer<LiveMeasureDto>... consumers) {
     LiveMeasureDto dto = newLiveMeasure(component, metric);
     Arrays.stream(consumers).forEach(c -> c.accept(dto));
     dbClient.liveMeasureDao().insert(dbSession, dto);
@@ -60,7 +64,17 @@ public class MeasureDbTester {
   }
 
   @SafeVarargs
-  public final MetricDto insertMetric(Consumer<MetricDto>... consumers){
+  public final CustomMeasureDto insertCustomMeasure(UserDto user, ComponentDto component, MetricDto metricDto, Consumer<CustomMeasureDto>... consumers) {
+    Preconditions.checkArgument(metricDto.isUserManaged(),"Custom measure must be created from a custom metric");
+    CustomMeasureDto dto = newCustomMeasureDto().setUserUuid(user.getUuid()).setComponentUuid(component.uuid()).setMetricId(metricDto.getId());
+    Arrays.stream(consumers).forEach(c -> c.accept(dto));
+    dbClient.customMeasureDao().insert(dbSession, dto);
+    dbSession.commit();
+    return dto;
+  }
+
+  @SafeVarargs
+  public final MetricDto insertMetric(Consumer<MetricDto>... consumers) {
     MetricDto metricDto = newMetricDto();
     Arrays.stream(consumers).forEach(c -> c.accept(metricDto));
     dbClient.metricDao().insert(dbSession, metricDto);

@@ -34,21 +34,25 @@ import org.sonarqube.ws.Issues;
 import org.sonarqube.ws.Issues.Issue;
 import org.sonarqube.ws.Organizations.Organization;
 import org.sonarqube.ws.Projects;
+import org.sonarqube.ws.Projects.CreateWsResponse.Project;
 import org.sonarqube.ws.Qualityprofiles;
 import org.sonarqube.ws.Settings;
 import org.sonarqube.ws.UserTokens;
 import org.sonarqube.ws.Users;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.WsClient;
+import org.sonarqube.ws.client.custommeasures.CreateRequest;
 import org.sonarqube.ws.client.issues.AssignRequest;
 import org.sonarqube.ws.client.organizations.AddMemberRequest;
 import org.sonarqube.ws.client.organizations.SearchRequest;
+import org.sonarqube.ws.client.permissions.AddUserRequest;
 import org.sonarqube.ws.client.qualityprofiles.ChangelogRequest;
 import org.sonarqube.ws.client.settings.SetRequest;
 import org.sonarqube.ws.client.settings.ValuesRequest;
 import org.sonarqube.ws.client.usertokens.GenerateRequest;
 
 import static java.util.Collections.singletonList;
+import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.skyscreamer.jsonassert.JSONAssert.assertEquals;
 import static util.ItUtils.projectDir;
@@ -260,6 +264,66 @@ public class SonarCloudUpdateLoginDuringAuthenticationTest {
     assertThat(userWsClient.userTokens().search(new org.sonarqube.ws.client.usertokens.SearchRequest()).getUserTokensList())
       .extracting(UserTokens.SearchWsResponse.UserToken::getName)
       .contains("token1", "token2");
+  }
+
+  @Test
+  public void manual_measure_after_login_update() throws JSONException {
+    tester.settings().setGlobalSettings("sonar.organizations.anyoneCanCreate", "true");
+    String providerId = tester.users().generateProviderId();
+    String oldLogin = tester.users().generateLogin();
+
+    // Create user using authentication
+    authenticate(oldLogin, providerId);
+    String userToken = tester.wsClient().userTokens().generate(new GenerateRequest().setLogin(oldLogin).setName("token")).getToken();
+    WsClient userWsClient = tester.as(userToken, null).wsClient();
+
+    // Grant user the admin permission on a project
+    Organization organization = tester.organizations().generate();
+    Project project = tester.projects().provision(organization);
+    tester.organizations().service().addMember(new AddMemberRequest().setOrganization(organization.getKey()).setLogin(oldLogin));
+    String customMetricKey = randomAlphanumeric(50);
+    tester.wsClient().metrics().create(new org.sonarqube.ws.client.metrics.CreateRequest().setKey(customMetricKey).setName("custom").setType("INT"));
+    tester.wsClient().permissions().addUser(new AddUserRequest().setLogin(oldLogin).setProjectKey(project.getKey()).setPermission("admin"));
+
+    // Create a manual metric and a manual measure on it
+    userWsClient.customMeasures().create(new CreateRequest().setMetricKey(customMetricKey).setProjectKey(project.getKey()).setValue("50"));
+    String manualMeasures = tester.wsClient().customMeasures().search(new org.sonarqube.ws.client.custommeasures.SearchRequest().setProjectKey(project.getKey()));
+    assertEquals(
+      "{\n" +
+        "  \"customMeasures\": [\n" +
+        "    {\n" +
+        "      \"projectKey\": \"" + project.getKey() + "\",\n" +
+        "      \"user\": {\n" +
+        "        \"login\": \"" + oldLogin + "\",\n" +
+        "        \"name\": \"John\",\n" +
+        "        \"email\": \"john@email.com\",\n" +
+        "        \"active\": true\n" +
+        "      }" +
+        "    }" +
+        "  ]\n" +
+        "}",
+      manualMeasures,
+      false);
+
+    // Update login during authentication, check manual measure contains new user login
+    String newLogin = tester.users().generateLogin();
+    authenticate(newLogin, providerId);
+    assertEquals(
+      "{\n" +
+        "  \"customMeasures\": [\n" +
+        "    {\n" +
+        "      \"projectKey\": \"" + project.getKey() + "\",\n" +
+        "      \"user\": {\n" +
+        "        \"login\": \"" + newLogin + "\",\n" +
+        "        \"name\": \"John\",\n" +
+        "        \"email\": \"john@email.com\",\n" +
+        "        \"active\": true\n" +
+        "      }" +
+        "    }" +
+        "  ]\n" +
+        "}",
+      tester.wsClient().customMeasures().search(new org.sonarqube.ws.client.custommeasures.SearchRequest().setProjectKey(project.getKey())),
+      false);
   }
 
   private void authenticate(String login, String providerId) {

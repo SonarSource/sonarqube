@@ -141,11 +141,4 @@ public class MetricDao implements Dao {
     return mapper(session).selectById(id);
   }
 
-  public MetricDto selectOrFailById(DbSession session, long id) {
-    MetricDto metric = mapper(session).selectById(id);
-    if (metric == null) {
-      throw new RowNotFoundException(String.format("Metric id '%d' not found", id));
-    }
-    return metric;
-  }
 }

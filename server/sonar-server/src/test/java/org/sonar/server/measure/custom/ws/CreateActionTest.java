@@ -19,51 +19,42 @@
  */
 package org.sonar.server.measure.custom.ws;
 
-import java.util.List;
-import org.assertj.core.data.Offset;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.measures.Metric;
-import org.sonar.api.measures.Metric.ValueType;
 import org.sonar.api.utils.System2;
-import org.sonar.api.web.UserRole;
-import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.RowNotFoundException;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.measure.custom.CustomMeasureDto;
 import org.sonar.db.metric.MetricDto;
-import org.sonar.db.metric.MetricTesting;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.permission.OrganizationPermission;
+import org.sonar.db.user.UserDto;
 import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.exceptions.ServerException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.ws.UserJsonWriter;
-import org.sonar.server.ws.WsTester;
+import org.sonar.server.ws.WsActionTester;
 
+import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.data.Offset.offset;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.api.measures.Metric.ValueType.BOOL;
 import static org.sonar.api.measures.Metric.ValueType.FLOAT;
 import static org.sonar.api.measures.Metric.ValueType.INT;
 import static org.sonar.api.measures.Metric.ValueType.LEVEL;
 import static org.sonar.api.measures.Metric.ValueType.STRING;
 import static org.sonar.api.measures.Metric.ValueType.WORK_DUR;
+import static org.sonar.api.web.UserRole.ADMIN;
+import static org.sonar.db.component.ComponentTesting.newModuleDto;
 import static org.sonar.server.util.TypeValidationsTesting.newFullTypeValidations;
+import static org.sonar.test.JsonAssert.assertJson;
 
 public class CreateActionTest {
-
-  private static final String DEFAULT_PROJECT_UUID = "project-uuid";
-  private static final String DEFAULT_PROJECT_KEY = "project-key";
 
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
@@ -74,284 +65,311 @@ public class CreateActionTest {
   @Rule
   public EsTester es = EsTester.create();
 
-  private DbClient dbClient = db.getDbClient();
-  private ComponentDto project;
-  private final DbSession dbSession = db.getSession();
-  private WsTester ws;
-
-  @Before
-  public void setUp() {
-    ws = new WsTester(new CustomMeasuresWs(new CreateAction(dbClient, userSession, System2.INSTANCE, new CustomMeasureValidator(newFullTypeValidations()),
-      new CustomMeasureJsonWriter(new UserJsonWriter(userSession)), TestComponentFinder.from(db))));
-
-    db.users().insertUser(u -> u.setLogin("login")
-      .setName("Login")
-      .setEmail("login@login.com")
-      .setActive(true));
-
-    OrganizationDto organizationDto = db.organizations().insert();
-    project = ComponentTesting.newPrivateProjectDto(organizationDto, DEFAULT_PROJECT_UUID).setDbKey(DEFAULT_PROJECT_KEY);
-    dbClient.componentDao().insert(dbSession, project);
-    dbSession.commit();
-    userSession.logIn("login").addProjectPermission(UserRole.ADMIN, project);
-  }
+  private WsActionTester ws = new WsActionTester(
+    new CreateAction(db.getDbClient(), userSession, System2.INSTANCE, new CustomMeasureValidator(newFullTypeValidations()),
+      new CustomMeasureJsonWriter(new UserJsonWriter(userSession)), TestComponentFinder.from(db)));
 
   @Test
-  public void create_boolean_custom_measure_in_db() throws Exception {
-    MetricDto metric = insertMetric(BOOL);
+  public void create_boolean_custom_measure_in_db() {
+    MetricDto metric = db.measures().insertMetric(m -> m.setUserManaged(true).setValueType(BOOL.name()));
+    ComponentDto project = db.components().insertPrivateProject();
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user).addProjectPermission(ADMIN, project);
 
-    newRequest()
-      .setParam(CreateAction.PARAM_PROJECT_ID, DEFAULT_PROJECT_UUID)
-      .setParam(CreateAction.PARAM_METRIC_ID, metric.getId().toString())
+    ws.newRequest()
+      .setParam(CreateAction.PARAM_PROJECT_ID, project.uuid())
+      .setParam(CreateAction.PARAM_METRIC_ID, Integer.toString(metric.getId()))
       .setParam(CreateAction.PARAM_DESCRIPTION, "custom-measure-description")
       .setParam(CreateAction.PARAM_VALUE, "true")
       .execute();
 
-    List<CustomMeasureDto> customMeasures = dbClient.customMeasureDao().selectByMetricId(dbSession, metric.getId());
-    CustomMeasureDto customMeasure = customMeasures.get(0);
-    assertThat(customMeasures).hasSize(1);
-    assertThat(customMeasure.getDescription()).isEqualTo("custom-measure-description");
-    assertThat(customMeasure.getTextValue()).isNullOrEmpty();
-    assertThat(customMeasure.getValue()).isCloseTo(1.0d, offset(0.01d));
-    assertThat(customMeasure.getComponentUuid()).isEqualTo(DEFAULT_PROJECT_UUID);
+    assertThat(db.getDbClient().customMeasureDao().selectByMetricId(db.getSession(), metric.getId()))
+      .extracting(CustomMeasureDto::getDescription, CustomMeasureDto::getTextValue, CustomMeasureDto::getValue, CustomMeasureDto::getComponentUuid)
+      .containsExactlyInAnyOrder(tuple("custom-measure-description", null, 1d, project.uuid()));
   }
 
   @Test
-  public void create_int_custom_measure_in_db() throws Exception {
-    MetricDto metric = insertMetric(INT);
+  public void create_int_custom_measure_in_db() {
+    MetricDto metric = db.measures().insertMetric(m -> m.setUserManaged(true).setValueType(INT.name()));
+    ComponentDto project = db.components().insertPrivateProject();
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user).addProjectPermission(ADMIN, project);
 
-    newRequest()
-      .setParam(CreateAction.PARAM_PROJECT_ID, DEFAULT_PROJECT_UUID)
+    ws.newRequest()
+      .setParam(CreateAction.PARAM_PROJECT_ID, project.uuid())
       .setParam(CreateAction.PARAM_METRIC_ID, metric.getId().toString())
       .setParam(CreateAction.PARAM_VALUE, "42")
       .execute();
 
-    CustomMeasureDto customMeasure = dbClient.customMeasureDao().selectByMetricId(dbSession, metric.getId()).get(0);
-    assertThat(customMeasure.getTextValue()).isNullOrEmpty();
-    assertThat(customMeasure.getValue()).isCloseTo(42.0d, offset(0.01d));
+    assertThat(db.getDbClient().customMeasureDao().selectByMetricId(db.getSession(), metric.getId()))
+      .extracting(CustomMeasureDto::getDescription, CustomMeasureDto::getTextValue, CustomMeasureDto::getValue, CustomMeasureDto::getComponentUuid)
+      .containsExactlyInAnyOrder(tuple(null, null, 42d, project.uuid()));
   }
 
   @Test
-  public void create_text_custom_measure_in_db() throws Exception {
-    MetricDto metric = insertMetric(STRING);
+  public void create_text_custom_measure_in_db() {
+    MetricDto metric = db.measures().insertMetric(m -> m.setUserManaged(true).setValueType(STRING.name()));
+    ComponentDto project = db.components().insertPrivateProject();
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user).addProjectPermission(ADMIN, project);
 
-    newRequest()
-      .setParam(CreateAction.PARAM_PROJECT_ID, DEFAULT_PROJECT_UUID)
+    ws.newRequest()
+      .setParam(CreateAction.PARAM_PROJECT_ID, project.uuid())
       .setParam(CreateAction.PARAM_METRIC_ID, metric.getId().toString())
       .setParam(CreateAction.PARAM_VALUE, "custom-measure-free-text")
       .execute();
 
-    CustomMeasureDto customMeasure = dbClient.customMeasureDao().selectByMetricId(dbSession, metric.getId()).get(0);
-    assertThat(customMeasure.getTextValue()).isEqualTo("custom-measure-free-text");
+    assertThat(db.getDbClient().customMeasureDao().selectByMetricId(db.getSession(), metric.getId()))
+      .extracting(CustomMeasureDto::getDescription, CustomMeasureDto::getTextValue, CustomMeasureDto::getValue, CustomMeasureDto::getComponentUuid)
+      .containsExactlyInAnyOrder(tuple(null, "custom-measure-free-text", 0d, project.uuid()));
   }
 
   @Test
-  public void create_text_custom_measure_as_project_admin() throws Exception {
-    MetricDto metric = insertMetric(STRING);
-    userSession.logIn("login").addProjectPermission(UserRole.ADMIN, project);
+  public void create_text_custom_measure_with_metric_key() {
+    MetricDto metric = db.measures().insertMetric(m -> m.setUserManaged(true).setValueType(STRING.name()));
+    ComponentDto project = db.components().insertPrivateProject();
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user).addProjectPermission(ADMIN, project);
 
-    newRequest()
-      .setParam(CreateAction.PARAM_PROJECT_ID, DEFAULT_PROJECT_UUID)
-      .setParam(CreateAction.PARAM_METRIC_ID, metric.getId().toString())
-      .setParam(CreateAction.PARAM_VALUE, "custom-measure-free-text")
-      .execute();
-
-    CustomMeasureDto customMeasure = dbClient.customMeasureDao().selectByMetricId(dbSession, metric.getId()).get(0);
-    assertThat(customMeasure).isNotNull();
-  }
-
-  @Test
-  public void create_text_custom_measure_with_metric_key() throws Exception {
-    MetricDto metric = insertMetric(STRING);
-
-    newRequest()
-      .setParam(CreateAction.PARAM_PROJECT_ID, DEFAULT_PROJECT_UUID)
+    ws.newRequest()
+      .setParam(CreateAction.PARAM_PROJECT_ID, project.uuid())
       .setParam(CreateAction.PARAM_METRIC_KEY, metric.getKey())
       .setParam(CreateAction.PARAM_VALUE, "whatever-value")
       .execute();
 
-    CustomMeasureDto customMeasure = dbClient.customMeasureDao().selectByMetricId(dbSession, metric.getId()).get(0);
-    assertThat(customMeasure).isNotNull();
+    assertThat(db.getDbClient().customMeasureDao().selectByMetricId(db.getSession(), metric.getId()))
+      .extracting(CustomMeasureDto::getDescription, CustomMeasureDto::getTextValue, CustomMeasureDto::getValue, CustomMeasureDto::getComponentUuid)
+      .containsExactlyInAnyOrder(tuple(null, "whatever-value", 0d, project.uuid()));
   }
 
   @Test
-  public void create_text_custom_measure_with_project_key() throws Exception {
-    MetricDto metric = insertMetric(STRING);
+  public void create_text_custom_measure_with_project_key() {
+    MetricDto metric = db.measures().insertMetric(m -> m.setUserManaged(true).setValueType(STRING.name()));
+    ComponentDto project = db.components().insertPrivateProject();
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user).addProjectPermission(ADMIN, project);
 
-    newRequest()
-      .setParam(CreateAction.PARAM_PROJECT_KEY, DEFAULT_PROJECT_KEY)
+    ws.newRequest()
+      .setParam(CreateAction.PARAM_PROJECT_KEY, project.getKey())
       .setParam(CreateAction.PARAM_METRIC_ID, metric.getId().toString())
       .setParam(CreateAction.PARAM_VALUE, "whatever-value")
       .execute();
 
-    CustomMeasureDto customMeasure = dbClient.customMeasureDao().selectByMetricId(dbSession, metric.getId()).get(0);
-    assertThat(customMeasure).isNotNull();
+    assertThat(db.getDbClient().customMeasureDao().selectByMetricId(db.getSession(), metric.getId()))
+      .extracting(CustomMeasureDto::getDescription, CustomMeasureDto::getTextValue, CustomMeasureDto::getValue, CustomMeasureDto::getComponentUuid)
+      .containsExactlyInAnyOrder(tuple(null, "whatever-value", 0d, project.uuid()));
   }
 
   @Test
-  public void create_float_custom_measure_in_db() throws Exception {
-    MetricDto metric = insertMetric(FLOAT);
+  public void create_float_custom_measure_in_db() {
+    MetricDto metric = db.measures().insertMetric(m -> m.setUserManaged(true).setValueType(FLOAT.name()));
+    ComponentDto project = db.components().insertPrivateProject();
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user).addProjectPermission(ADMIN, project);
 
-    newRequest()
-      .setParam(CreateAction.PARAM_PROJECT_ID, DEFAULT_PROJECT_UUID)
+    ws.newRequest()
+      .setParam(CreateAction.PARAM_PROJECT_ID, project.uuid())
       .setParam(CreateAction.PARAM_METRIC_ID, metric.getId().toString())
       .setParam(CreateAction.PARAM_VALUE, "4.2")
       .execute();
 
-    CustomMeasureDto customMeasure = dbClient.customMeasureDao().selectByMetricId(dbSession, metric.getId()).get(0);
-    assertThat(customMeasure.getValue()).isCloseTo(4.2d, Offset.offset(0.01d));
-    assertThat(customMeasure.getTextValue()).isNullOrEmpty();
+    assertThat(db.getDbClient().customMeasureDao().selectByMetricId(db.getSession(), metric.getId()))
+      .extracting(CustomMeasureDto::getDescription, CustomMeasureDto::getTextValue, CustomMeasureDto::getValue, CustomMeasureDto::getComponentUuid)
+      .containsExactlyInAnyOrder(tuple(null, null, 4.2d, project.uuid()));
   }
 
   @Test
-  public void create_work_duration_custom_measure_in_db() throws Exception {
-    MetricDto metric = insertMetric(WORK_DUR);
+  public void create_work_duration_custom_measure_in_db() {
+    MetricDto metric = db.measures().insertMetric(m -> m.setUserManaged(true).setValueType(WORK_DUR.name()));
+    ComponentDto project = db.components().insertPrivateProject();
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user).addProjectPermission(ADMIN, project);
 
-    newRequest()
-      .setParam(CreateAction.PARAM_PROJECT_ID, DEFAULT_PROJECT_UUID)
+    ws.newRequest()
+      .setParam(CreateAction.PARAM_PROJECT_ID, project.uuid())
       .setParam(CreateAction.PARAM_METRIC_ID, metric.getId().toString())
       .setParam(CreateAction.PARAM_VALUE, "253")
       .execute();
 
-    CustomMeasureDto customMeasure = dbClient.customMeasureDao().selectByMetricId(dbSession, metric.getId()).get(0);
-    assertThat(customMeasure.getTextValue()).isNullOrEmpty();
-    assertThat(customMeasure.getValue()).isCloseTo(253, offset(0.01d));
+    assertThat(db.getDbClient().customMeasureDao().selectByMetricId(db.getSession(), metric.getId()))
+      .extracting(CustomMeasureDto::getDescription, CustomMeasureDto::getTextValue, CustomMeasureDto::getValue, CustomMeasureDto::getComponentUuid)
+      .containsExactlyInAnyOrder(tuple(null, null, 253d, project.uuid()));
   }
 
   @Test
-  public void create_level_type_custom_measure_in_db() throws Exception {
-    MetricDto metric = insertMetric(LEVEL);
+  public void create_level_type_custom_measure_in_db() {
+    MetricDto metric = db.measures().insertMetric(m -> m.setUserManaged(true).setValueType(LEVEL.name()));
+    ComponentDto project = db.components().insertPrivateProject();
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user).addProjectPermission(ADMIN, project);
 
-    newRequest()
-      .setParam(CreateAction.PARAM_PROJECT_ID, DEFAULT_PROJECT_UUID)
+    ws.newRequest()
+      .setParam(CreateAction.PARAM_PROJECT_ID, project.uuid())
       .setParam(CreateAction.PARAM_METRIC_ID, metric.getId().toString())
       .setParam(CreateAction.PARAM_VALUE, Metric.Level.WARN.name())
       .execute();
 
-    CustomMeasureDto customMeasure = dbClient.customMeasureDao().selectByMetricId(dbSession, metric.getId()).get(0);
-    assertThat(customMeasure.getTextValue()).isEqualTo(Metric.Level.WARN.name());
+    assertThat(db.getDbClient().customMeasureDao().selectByMetricId(db.getSession(), metric.getId()))
+      .extracting(CustomMeasureDto::getDescription, CustomMeasureDto::getTextValue, CustomMeasureDto::getValue, CustomMeasureDto::getComponentUuid)
+      .containsExactlyInAnyOrder(tuple(null, Metric.Level.WARN.name(), 0d, project.uuid()));
   }
 
   @Test
-  public void response_with_object_and_id() throws Exception {
-    MetricDto metric = insertMetric(STRING);
+  public void response_with_object_and_id() {
+    MetricDto metric = db.measures().insertMetric(m -> m.setUserManaged(true).setValueType(STRING.name()));
+    ComponentDto project = db.components().insertPrivateProject();
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user).addProjectPermission(ADMIN, project);
 
-    WsTester.Result response = newRequest()
-      .setParam(CreateAction.PARAM_PROJECT_ID, DEFAULT_PROJECT_UUID)
+    String response = ws.newRequest()
+      .setParam(CreateAction.PARAM_PROJECT_ID, project.uuid())
       .setParam(CreateAction.PARAM_METRIC_ID, metric.getId().toString())
       .setParam(CreateAction.PARAM_DESCRIPTION, "custom-measure-description")
       .setParam(CreateAction.PARAM_VALUE, "custom-measure-free-text")
-      .execute();
+      .execute()
+      .getInput();
 
-    CustomMeasureDto customMeasure = dbClient.customMeasureDao().selectByMetricId(dbSession, metric.getId()).get(0);
-    response.assertJson(getClass(), "custom-measure.json");
-    assertThat(response.outputAsString()).matches(String.format(".*\"id\"\\s*:\\s*\"%d\".*", customMeasure.getId()));
-    assertThat(response.outputAsString()).matches(String.format(".*\"id\"\\s*:\\s*\"%d\".*", metric.getId()));
+    CustomMeasureDto customMeasure = db.getDbClient().customMeasureDao().selectByMetricId(db.getSession(), metric.getId()).get(0);
+    assertJson(response).isSimilarTo("{\n" +
+      "  \"id\": \"" + customMeasure.getId() + "\",\n" +
+      "  \"value\": \"custom-measure-free-text\",\n" +
+      "  \"description\": \"custom-measure-description\",\n" +
+      "  \"metric\": {\n" +
+      "    \"id\": \"" + metric.getId() + "\",\n" +
+      "    \"key\": \"" + metric.getKey() + "\",\n" +
+      "    \"type\": \"" + metric.getValueType() + "\",\n" +
+      "    \"name\": \"" + metric.getShortName() + "\",\n" +
+      "    \"domain\": \"" + metric.getDomain() + "\"\n" +
+      "  },\n" +
+      "  \"projectId\": \"" + project.uuid() + "\",\n" +
+      "  \"projectKey\": \"" + project.getKey() + "\",\n" +
+      "  \"pending\": true\n" +
+      "}");
   }
 
   @Test
-  public void create_custom_measure_on_a_view() throws Exception {
-    String viewUuid = "VIEW_UUID";
-    ComponentDto view = ComponentTesting.newView(db.organizations().insert(), viewUuid);
-    dbClient.componentDao().insert(dbSession, view);
-    dbSession.commit();
-    MetricDto metric = insertMetric(BOOL);
-    userSession.logIn("login").addProjectPermission(UserRole.ADMIN, view);
+  public void create_custom_measure_on_module() {
+    MetricDto metric = db.measures().insertMetric(m -> m.setUserManaged(true).setValueType(BOOL.name()));
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto module = db.components().insertComponent(newModuleDto(project));
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user).addProjectPermission(ADMIN, project);
 
-    newRequest()
-      .setParam(CreateAction.PARAM_PROJECT_ID, viewUuid)
+    ws.newRequest()
+      .setParam(CreateAction.PARAM_PROJECT_ID, module.uuid())
+      .setParam(CreateAction.PARAM_METRIC_ID, Integer.toString(metric.getId()))
+      .setParam(CreateAction.PARAM_DESCRIPTION, "custom-measure-description")
+      .setParam(CreateAction.PARAM_VALUE, "true")
+      .execute();
+
+    assertThat(db.getDbClient().customMeasureDao().selectByMetricId(db.getSession(), metric.getId()))
+      .extracting(CustomMeasureDto::getDescription, CustomMeasureDto::getTextValue, CustomMeasureDto::getValue, CustomMeasureDto::getComponentUuid)
+      .containsExactlyInAnyOrder(tuple("custom-measure-description", null, 1d, module.uuid()));
+  }
+
+  @Test
+  public void create_custom_measure_on_a_view() {
+    MetricDto metric = db.measures().insertMetric(m -> m.setUserManaged(true).setValueType(BOOL.name()));
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto view = db.components().insertPrivatePortfolio(organization);
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user).addProjectPermission(ADMIN, view);
+
+    ws.newRequest()
+      .setParam(CreateAction.PARAM_PROJECT_ID, view.uuid())
       .setParam(CreateAction.PARAM_METRIC_ID, metric.getId().toString())
       .setParam(CreateAction.PARAM_DESCRIPTION, "custom-measure-description")
       .setParam(CreateAction.PARAM_VALUE, "true")
       .execute();
 
-    List<CustomMeasureDto> customMeasures = dbClient.customMeasureDao().selectByMetricId(dbSession, metric.getId());
-    CustomMeasureDto customMeasure = customMeasures.get(0);
-    assertThat(customMeasures).hasSize(1);
-    assertThat(customMeasure.getComponentUuid()).isEqualTo(viewUuid);
+    assertThat(db.getDbClient().customMeasureDao().selectByMetricId(db.getSession(), metric.getId()))
+      .extracting(CustomMeasureDto::getDescription, CustomMeasureDto::getTextValue, CustomMeasureDto::getValue, CustomMeasureDto::getComponentUuid)
+      .containsExactlyInAnyOrder(tuple("custom-measure-description", null, 1d, view.uuid()));
   }
 
   @Test
-  public void create_custom_measure_on_a_sub_view() throws Exception {
-    String subViewUuid = "SUB_VIEW_UUID";
+  public void create_custom_measure_on_a_sub_view() {
+    MetricDto metric = db.measures().insertMetric(m -> m.setUserManaged(true).setValueType(BOOL.name()));
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto view = db.components().insertPrivatePortfolio(organization);
+    ComponentDto subView = db.components().insertSubView(view);
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user).addProjectPermission(ADMIN, view);
 
-    ComponentDto view = ComponentTesting.newView(db.organizations().insert());
-    dbClient.componentDao().insert(dbSession, view);
-    dbClient.componentDao().insert(dbSession, ComponentTesting.newSubView(view, subViewUuid, "SUB_VIEW_KEY"));
-    dbSession.commit();
-    MetricDto metric = insertMetric(BOOL);
-    userSession.logIn("login").addProjectPermission(UserRole.ADMIN, view);
-
-    newRequest()
-      .setParam(CreateAction.PARAM_PROJECT_ID, subViewUuid)
+    ws.newRequest()
+      .setParam(CreateAction.PARAM_PROJECT_ID, subView.uuid())
       .setParam(CreateAction.PARAM_METRIC_ID, metric.getId().toString())
       .setParam(CreateAction.PARAM_DESCRIPTION, "custom-measure-description")
       .setParam(CreateAction.PARAM_VALUE, "true")
       .execute();
 
-    List<CustomMeasureDto> customMeasures = dbClient.customMeasureDao().selectByMetricId(dbSession, metric.getId());
-    CustomMeasureDto customMeasure = customMeasures.get(0);
-    assertThat(customMeasures).hasSize(1);
-    assertThat(customMeasure.getComponentUuid()).isEqualTo(subViewUuid);
+    assertThat(db.getDbClient().customMeasureDao().selectByMetricId(db.getSession(), metric.getId()))
+      .extracting(CustomMeasureDto::getDescription, CustomMeasureDto::getTextValue, CustomMeasureDto::getValue, CustomMeasureDto::getComponentUuid)
+      .containsExactlyInAnyOrder(tuple("custom-measure-description", null, 1d, subView.uuid()));
   }
 
   @Test
-  public void fail_when_get_request() throws Exception {
-    expectedException.expect(ServerException.class);
+  public void fail_when_project_id_nor_project_key_provided() {
+    MetricDto metric = db.measures().insertMetric(m -> m.setUserManaged(true).setValueType(STRING.name()));
+    ComponentDto project = db.components().insertPrivateProject();
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user).addProjectPermission(ADMIN, project);
 
-    ws.newGetRequest(CustomMeasuresWs.ENDPOINT, CreateAction.ACTION)
-      .setParam(CreateAction.PARAM_PROJECT_ID, DEFAULT_PROJECT_UUID)
-      .setParam(CreateAction.PARAM_METRIC_ID, "whatever-id")
-      .setParam(CreateAction.PARAM_VALUE, "custom-measure-free-text")
-      .execute();
-  }
-
-  @Test
-  public void fail_when_project_id_nor_project_key_provided() throws Exception {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Either 'projectId' or 'projectKey' must be provided");
-    MetricDto metric = insertMetric(STRING);
 
-    newRequest()
+    ws.newRequest()
       .setParam(CreateAction.PARAM_METRIC_ID, "whatever-id")
       .setParam(CreateAction.PARAM_VALUE, metric.getId().toString())
       .execute();
   }
 
   @Test
-  public void fail_when_project_id_and_project_key_are_provided() throws Exception {
+  public void fail_when_project_id_and_project_key_are_provided() {
+    MetricDto metric = db.measures().insertMetric(m -> m.setUserManaged(true).setValueType(STRING.name()));
+    ComponentDto project = db.components().insertPrivateProject();
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user).addProjectPermission(ADMIN, project);
+
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Either 'projectId' or 'projectKey' must be provided");
-    MetricDto metric = insertMetric(STRING);
 
-    newRequest()
-      .setParam(CreateAction.PARAM_PROJECT_ID, DEFAULT_PROJECT_UUID)
-      .setParam(CreateAction.PARAM_PROJECT_KEY, DEFAULT_PROJECT_KEY)
+    ws.newRequest()
+      .setParam(CreateAction.PARAM_PROJECT_ID, project.uuid())
+      .setParam(CreateAction.PARAM_PROJECT_KEY, project.getKey())
       .setParam(CreateAction.PARAM_METRIC_ID, metric.getId().toString())
       .setParam(CreateAction.PARAM_VALUE, "whatever-value")
       .execute();
   }
 
   @Test
-  public void fail_when_project_key_does_not_exist_in_db() throws Exception {
+  public void fail_when_project_key_does_not_exist_in_db() {
+    MetricDto metric = db.measures().insertMetric(m -> m.setUserManaged(true).setValueType(STRING.name()));
+    ComponentDto project = db.components().insertPrivateProject();
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user).addProjectPermission(ADMIN, project);
+
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("Component key 'another-project-key' not found");
-    insertMetric(STRING);
 
-    newRequest()
+    ws.newRequest()
       .setParam(CreateAction.PARAM_PROJECT_KEY, "another-project-key")
-      .setParam(CreateAction.PARAM_METRIC_ID, "whatever-id")
+      .setParam(CreateAction.PARAM_METRIC_ID, metric.getId().toString())
       .setParam(CreateAction.PARAM_VALUE, "whatever-value")
       .execute();
   }
 
   @Test
-  public void fail_when_project_id_does_not_exist_in_db() throws Exception {
+  public void fail_when_project_id_does_not_exist_in_db() {
+    MetricDto metric = db.measures().insertMetric(m -> m.setUserManaged(true).setValueType(STRING.name()));
+    ComponentDto project = db.components().insertPrivateProject();
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user).addProjectPermission(ADMIN, project);
+
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("Component id 'another-project-uuid' not found");
-    MetricDto metric = insertMetric(STRING);
 
-    newRequest()
+    ws.newRequest()
       .setParam(CreateAction.PARAM_PROJECT_ID, "another-project-uuid")
       .setParam(CreateAction.PARAM_METRIC_ID, metric.getId().toString())
       .setParam(CreateAction.PARAM_VALUE, "whatever-value")
@@ -359,25 +377,32 @@ public class CreateActionTest {
   }
 
   @Test
-  public void fail_when_metric_id_nor_metric_key_is_provided() throws Exception {
+  public void fail_when_metric_id_nor_metric_key_is_provided() {
+    ComponentDto project = db.components().insertPrivateProject();
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user).addProjectPermission(ADMIN, project);
+
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Either the metric id or the metric key must be provided");
-    insertMetric(STRING);
 
-    newRequest()
-      .setParam(CreateAction.PARAM_PROJECT_ID, DEFAULT_PROJECT_UUID)
+    ws.newRequest()
+      .setParam(CreateAction.PARAM_PROJECT_ID, project.uuid())
       .setParam(CreateAction.PARAM_VALUE, "whatever-value")
       .execute();
   }
 
   @Test
-  public void fail_when_metric_id_and_metric_key_are_provided() throws Exception {
+  public void fail_when_metric_id_and_metric_key_are_provided() {
+    MetricDto metric = db.measures().insertMetric(m -> m.setUserManaged(true).setValueType(STRING.name()));
+    ComponentDto project = db.components().insertPrivateProject();
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user).addProjectPermission(ADMIN, project);
+
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Either the metric id or the metric key must be provided");
-    MetricDto metric = insertMetric(STRING);
 
-    newRequest()
-      .setParam(CreateAction.PARAM_PROJECT_ID, DEFAULT_PROJECT_UUID)
+    ws.newRequest()
+      .setParam(CreateAction.PARAM_PROJECT_ID, project.uuid())
       .setParam(CreateAction.PARAM_METRIC_ID, metric.getId().toString())
       .setParam(CreateAction.PARAM_METRIC_KEY, metric.getKey())
       .setParam(CreateAction.PARAM_VALUE, "whatever-value")
@@ -385,89 +410,104 @@ public class CreateActionTest {
   }
 
   @Test
-  public void fail_when_metric_is_not_found_in_db() throws Exception {
-    expectedException.expect(RowNotFoundException.class);
-    expectedException.expectMessage("Metric id '42' not found");
+  public void fail_when_metric_key_is_not_found_in_db() {
+    ComponentDto project = db.components().insertPrivateProject();
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user).addProjectPermission(ADMIN, project);
 
-    newRequest()
-      .setParam(CreateAction.PARAM_PROJECT_ID, DEFAULT_PROJECT_UUID)
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Metric with key 'unknown' does not exist");
+
+    ws.newRequest()
+      .setParam(CreateAction.PARAM_PROJECT_ID, project.uuid())
+      .setParam(CreateAction.PARAM_METRIC_KEY, "unknown")
+      .setParam(CreateAction.PARAM_VALUE, "whatever-value")
+      .execute();
+  }
+
+  @Test
+  public void fail_when_metric_id_is_not_found_in_db() {
+    ComponentDto project = db.components().insertPrivateProject();
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user).addProjectPermission(ADMIN, project);
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Metric with id '42' does not exist");
+
+    ws.newRequest()
+      .setParam(CreateAction.PARAM_PROJECT_ID, project.uuid())
       .setParam(CreateAction.PARAM_METRIC_ID, "42")
       .setParam(CreateAction.PARAM_VALUE, "whatever-value")
       .execute();
   }
 
   @Test
-  public void fail_when_measure_already_exists_on_same_project_and_same_metric() throws Exception {
-    MetricDto metric = insertMetric(STRING);
+  public void fail_when_measure_already_exists_on_same_project_and_same_metric() {
+    MetricDto metric = db.measures().insertMetric(m -> m.setUserManaged(true).setValueType(STRING.name()));
+    ComponentDto project = db.components().insertPrivateProject();
+    UserDto userMeasureCreator = db.users().insertUser();
+    db.measures().insertCustomMeasure(userMeasureCreator, project, metric);
+    UserDto userAuthenticated = db.users().insertUser();
+    userSession.logIn(userAuthenticated).addProjectPermission(ADMIN, project);
 
-    expectedException.expect(ServerException.class);
-    expectedException.expectMessage(String.format("A measure already exists for project 'project-key' (id: project-uuid) and metric 'metric-key' (id: '%d')", metric.getId()));
+    expectedException.expect(BadRequestException.class);
+    expectedException.expectMessage(format("A measure already exists for project '%s' and metric '%s'", project.getKey(), metric.getKey()));
 
-    newRequest()
-      .setParam(CreateAction.PARAM_PROJECT_ID, DEFAULT_PROJECT_UUID)
-      .setParam(CreateAction.PARAM_METRIC_ID, metric.getId().toString())
-      .setParam(CreateAction.PARAM_VALUE, "whatever-value")
-      .execute();
-    newRequest()
-      .setParam(CreateAction.PARAM_PROJECT_ID, DEFAULT_PROJECT_UUID)
+    ws.newRequest()
+      .setParam(CreateAction.PARAM_PROJECT_ID, project.uuid())
       .setParam(CreateAction.PARAM_METRIC_ID, metric.getId().toString())
       .setParam(CreateAction.PARAM_VALUE, "whatever-value")
       .execute();
   }
 
   @Test
-  public void fail_when_value_is_not_well_formatted() throws Exception {
-    MetricDto metric = insertMetric(BOOL);
+  public void fail_when_value_is_not_well_formatted() {
+    MetricDto metric = db.measures().insertMetric(m -> m.setUserManaged(true).setValueType(BOOL.name()));
+    ComponentDto project = db.components().insertPrivateProject();
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user).addProjectPermission(ADMIN, project);
 
     expectedException.expect(BadRequestException.class);
+    expectedException.expectMessage("Value 'non-correct-boolean-value' must be one of \"true\" or \"false\"");
 
-    newRequest()
-      .setParam(CreateAction.PARAM_PROJECT_ID, DEFAULT_PROJECT_UUID)
+    ws.newRequest()
+      .setParam(CreateAction.PARAM_PROJECT_ID, project.uuid())
       .setParam(CreateAction.PARAM_METRIC_ID, metric.getId().toString())
       .setParam(CreateAction.PARAM_VALUE, "non-correct-boolean-value")
       .execute();
   }
 
   @Test
-  public void fail_when_system_administrator() throws Exception {
-    userSession.logIn().setSystemAdministrator().addPermission(OrganizationPermission.ADMINISTER, db.getDefaultOrganization());
-    MetricDto metric = insertMetric(STRING);
+  public void fail_when_system_administrator() {
+    MetricDto metric = db.measures().insertMetric(m -> m.setUserManaged(true).setValueType(BOOL.name()));
+    ComponentDto project = db.components().insertPrivateProject();
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user).setSystemAdministrator();
 
     expectedException.expect(ForbiddenException.class);
 
-    newRequest()
-      .setParam(CreateAction.PARAM_PROJECT_ID, DEFAULT_PROJECT_UUID)
+    ws.newRequest()
+      .setParam(CreateAction.PARAM_PROJECT_ID, project.uuid())
       .setParam(CreateAction.PARAM_METRIC_ID, metric.getId().toString())
       .setParam(CreateAction.PARAM_VALUE, "whatever-value")
       .execute();
   }
 
   @Test
-  public void fail_when_not_a_project() throws Exception {
-    MetricDto metric = MetricTesting.newMetricDto().setEnabled(true).setValueType(STRING.name()).setKey("metric-key");
-    dbClient.metricDao().insert(dbSession, metric);
-    dbClient.componentDao().insert(dbSession, ComponentTesting.newDirectory(project, "directory-uuid", "path/to/directory").setDbKey("directory-key"));
-    dbSession.commit();
+  public void fail_when_not_a_project() {
+    MetricDto metric = db.measures().insertMetric(m -> m.setUserManaged(true).setValueType(BOOL.name()));
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto directory = db.components().insertComponent(ComponentTesting.newDirectory(project, "dir"));
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user).addProjectPermission(ADMIN, project);
 
-    expectedException.expect(ServerException.class);
-    expectedException.expectMessage("Component 'directory-key' (id: directory-uuid) must be a project or a module.");
+    expectedException.expect(BadRequestException.class);
+    expectedException.expectMessage(format("Component '%s' must be a project or a module.", directory.getKey()));
 
-    newRequest()
-      .setParam(CreateAction.PARAM_PROJECT_ID, "directory-uuid")
+    ws.newRequest()
+      .setParam(CreateAction.PARAM_PROJECT_ID, directory.uuid())
       .setParam(CreateAction.PARAM_METRIC_ID, metric.getId().toString())
       .setParam(CreateAction.PARAM_VALUE, "whatever-value")
       .execute();
   }
-
-  private WsTester.TestRequest newRequest() {
-    return ws.newPostRequest(CustomMeasuresWs.ENDPOINT, CreateAction.ACTION);
-  }
-
-  private MetricDto insertMetric(ValueType metricType) {
-    MetricDto metric = MetricTesting.newMetricDto().setEnabled(true).setValueType(metricType.name()).setKey("metric-key");
-    dbClient.metricDao().insert(dbSession, metric);
-    dbSession.commit();
-    return metric;
-  }
-
 }

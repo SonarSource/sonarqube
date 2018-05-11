@@ -47,6 +47,7 @@ public class DbVersion72 implements DbVersion {
       .add(2117, "Drop USER_ID from table organizations", DropUserIdFromOrganizations.class)
       .add(2118, "Rename USER_LOGIN TO USER_UUID on table QPROFILE_CHANGES", RenameUserLoginToUserUuidOnTableQProfileChanges.class)
       .add(2119, "Rename LOGIN TO USER_UUID on table USER_TOKENS", RenameLoginToUserUuidOnTableUserTokens.class)
+      .add(2120, "Rename USER_LOGIN TO USER_UUID on table MANUAL_MEASURES", RenameUserLoginToUserUuidOnTableManualMeasures.class);
     ;
   }
 }

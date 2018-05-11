@@ -84,7 +84,7 @@ public class ChangePasswordActionTest {
       .setPassword("Valar Dohaeris")
       .build(), u -> {
     });
-    String oldCryptedPassword = db.getDbClient().userDao().selectOrFailByLogin(db.getSession(), "john").getCryptedPassword();
+    String oldCryptedPassword = db.getDbClient().userDao().selectByLogin(db.getSession(), "john").getCryptedPassword();
     userSessionRule.logIn("john");
 
     TestResponse response = tester.newRequest()
@@ -94,7 +94,7 @@ public class ChangePasswordActionTest {
       .execute();
 
     assertThat(response.getStatus()).isEqualTo(204);
-    String newCryptedPassword = db.getDbClient().userDao().selectOrFailByLogin(db.getSession(), "john").getCryptedPassword();
+    String newCryptedPassword = db.getDbClient().userDao().selectByLogin(db.getSession(), "john").getCryptedPassword();
     assertThat(newCryptedPassword).isNotEqualTo(oldCryptedPassword);
   }
 
@@ -102,14 +102,14 @@ public class ChangePasswordActionTest {
   public void system_administrator_can_update_password_of_user() {
     userSessionRule.logIn().setSystemAdministrator();
     createLocalUser();
-    String originalPassword = db.getDbClient().userDao().selectOrFailByLogin(db.getSession(), "john").getCryptedPassword();
+    String originalPassword = db.getDbClient().userDao().selectByLogin(db.getSession(), "john").getCryptedPassword();
 
     tester.newRequest()
       .setParam("login", "john")
       .setParam("password", "Valar Morghulis")
       .execute();
 
-    String newPassword = db.getDbClient().userDao().selectOrFailByLogin(db.getSession(), "john").getCryptedPassword();
+    String newPassword = db.getDbClient().userDao().selectByLogin(db.getSession(), "john").getCryptedPassword();
     assertThat(newPassword).isNotEqualTo(originalPassword);
   }
 

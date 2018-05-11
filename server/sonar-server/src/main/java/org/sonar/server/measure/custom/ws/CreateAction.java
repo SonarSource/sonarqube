@@ -35,6 +35,8 @@ import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.user.UserSession;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkState;
+import static java.util.Objects.requireNonNull;
 import static org.sonar.server.component.ComponentFinder.ParamNames.PROJECT_ID_AND_KEY;
 import static org.sonar.server.measure.custom.ws.CustomMeasureValidator.checkPermissions;
 import static org.sonar.server.measure.custom.ws.CustomMeasureValueDescription.measureValueDescription;
@@ -115,12 +117,14 @@ public class CreateAction implements CustomMeasuresWsAction {
       checkPermissions(userSession, component);
       checkIsProjectOrModule(component);
       checkMeasureDoesNotExistAlready(dbSession, component, metric);
-      UserDto user = dbClient.userDao().selectOrFailByLogin(dbSession, userSession.getLogin());
+      String userUuid = requireNonNull(userSession.getUuid(), "User uuid should not be null");
+      UserDto user = dbClient.userDao().selectByUuid(dbSession, userUuid);
+      checkState(user != null, "User with uuid '%s' does not exist", userUuid);
       CustomMeasureDto measure = new CustomMeasureDto()
         .setComponentUuid(component.uuid())
         .setMetricId(metric.getId())
         .setDescription(description)
-        .setUserLogin(user.getLogin())
+        .setUserUuid(user.getUuid())
         .setCreatedAt(now)
         .setUpdatedAt(now);
       validator.setMeasureValue(measure, valueAsString, metric);
@@ -134,14 +138,14 @@ public class CreateAction implements CustomMeasuresWsAction {
   }
 
   private static void checkIsProjectOrModule(ComponentDto component) {
-    checkRequest(Scopes.PROJECT.equals(component.scope()), "Component '%s' (id: %s) must be a project or a module.", component.getDbKey(), component.uuid());
+    checkRequest(Scopes.PROJECT.equals(component.scope()), "Component '%s' must be a project or a module.", component.getDbKey());
   }
 
   private void checkMeasureDoesNotExistAlready(DbSession dbSession, ComponentDto component, MetricDto metric) {
     int nbMeasuresOnSameMetricAndMeasure = dbClient.customMeasureDao().countByComponentIdAndMetricId(dbSession, component.uuid(), metric.getId());
     checkRequest(nbMeasuresOnSameMetricAndMeasure == 0,
-      "A measure already exists for project '%s' (id: %s) and metric '%s' (id: '%d')",
-      component.getDbKey(), component.uuid(), metric.getKey(), metric.getId());
+      "A measure already exists for project '%s' and metric '%s'",
+      component.getDbKey(), metric.getKey());
   }
 
   private MetricDto searchMetric(DbSession dbSession, Request request) {
@@ -149,10 +153,13 @@ public class CreateAction implements CustomMeasuresWsAction {
     String metricKey = request.param(PARAM_METRIC_KEY);
     checkArgument(metricId != null ^ metricKey != null, "Either the metric id or the metric key must be provided");
 
-    if (metricId != null) {
-      return dbClient.metricDao().selectOrFailById(dbSession, metricId);
+    if (metricId == null) {
+      MetricDto metric = dbClient.metricDao().selectByKey(dbSession, metricKey);
+      checkArgument(metric != null, "Metric with key '%s' does not exist", metricKey);
+      return metric;
     }
-
-    return dbClient.metricDao().selectOrFailByKey(dbSession, metricKey);
+    MetricDto metric = dbClient.metricDao().selectById(dbSession, metricId);
+    checkArgument(metric != null, "Metric with id '%s' does not exist", metricId);
+    return metric;
   }
 }

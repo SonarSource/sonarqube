@@ -19,246 +19,196 @@
  */
 package org.sonar.server.measure.custom.ws;
 
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.measures.Metric.ValueType;
 import org.sonar.api.utils.System2;
-import org.sonar.api.web.UserRole;
-import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
+import org.sonar.api.utils.internal.TestSystem2;
 import org.sonar.db.DbTester;
-import org.sonar.db.RowNotFoundException;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.measure.custom.CustomMeasureDto;
 import org.sonar.db.metric.MetricDto;
-import org.sonar.db.metric.MetricTesting;
-import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.user.UserDto;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.ForbiddenException;
-import org.sonar.server.exceptions.ServerException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.ws.UserJsonWriter;
-import org.sonar.server.ws.WsTester;
+import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.data.Offset.offset;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import static org.sonar.db.measure.custom.CustomMeasureTesting.newCustomMeasureDto;
+import static org.assertj.core.api.Assertions.tuple;
+import static org.sonar.api.measures.Metric.ValueType.INT;
+import static org.sonar.api.measures.Metric.ValueType.STRING;
+import static org.sonar.api.web.UserRole.ADMIN;
+import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.server.measure.custom.ws.UpdateAction.PARAM_DESCRIPTION;
 import static org.sonar.server.measure.custom.ws.UpdateAction.PARAM_ID;
 import static org.sonar.server.measure.custom.ws.UpdateAction.PARAM_VALUE;
 import static org.sonar.server.util.TypeValidationsTesting.newFullTypeValidations;
+import static org.sonar.test.JsonAssert.assertJson;
 
 public class UpdateActionTest {
+
+  private static final long NOW = 10_000_000_000L;
+
+  private System2 system = new TestSystem2().setNow(NOW);
+
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
   @Rule
-  public UserSessionRule userSessionRule = UserSessionRule.standalone();
+  public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  public DbTester db = DbTester.create();
   @Rule
   public EsTester es = EsTester.create();
 
-  private DbClient dbClient = db.getDbClient();
-  private DbSession dbSession = db.getSession();
-  private System2 system = mock(System2.class);
-  private WsTester ws;
-
-  @Before
-  public void setUp() {
-    CustomMeasureValidator validator = new CustomMeasureValidator(newFullTypeValidations());
-
-    ws = new WsTester(new CustomMeasuresWs(new UpdateAction(dbClient, userSessionRule, system, validator, new CustomMeasureJsonWriter(new UserJsonWriter(userSessionRule)))));
-
-    db.users().insertUser(u -> u.setLogin("login")
-      .setName("Login")
-      .setEmail("login@login.com")
-      .setActive(true)
-      );
-    dbSession.commit();
-  }
+  private WsActionTester ws = new WsActionTester(new UpdateAction(db.getDbClient(), userSession, system, new CustomMeasureValidator(newFullTypeValidations()),
+    new CustomMeasureJsonWriter(new UserJsonWriter(userSession))));
 
   @Test
-  public void update_text_value_and_description_in_db() throws Exception {
-    MetricDto metric = insertNewMetric(ValueType.STRING);
-    ComponentDto component = db.components().insertPrivateProject(db.getDefaultOrganization(), "project-uuid");
-    CustomMeasureDto customMeasure = newCustomMeasure(component, metric)
-      .setDescription("custom-measure-description")
-      .setTextValue("text-measure-value");
-    dbClient.customMeasureDao().insert(dbSession, customMeasure);
-    dbSession.commit();
-    when(system.now()).thenReturn(123_456_789L);
-    logInAsProjectAdministrator(component);
+  public void update_text_value_and_description_in_db() {
+    ComponentDto project = db.components().insertPrivateProject();
+    UserDto userAuthenticated = db.users().insertUser();
+    userSession.logIn(userAuthenticated).addProjectPermission(ADMIN, project);
+    MetricDto metric = db.measures().insertMetric(m -> m.setUserManaged(true).setValueType(STRING.name()));
+    UserDto userMeasureCreator = db.users().insertUser();
+    CustomMeasureDto customMeasure = db.measures().insertCustomMeasure(userMeasureCreator, project, metric, m -> m.setValue(0d));
 
-    ws.newPostRequest(CustomMeasuresWs.ENDPOINT, UpdateAction.ACTION)
+    ws.newRequest()
       .setParam(PARAM_ID, String.valueOf(customMeasure.getId()))
       .setParam(PARAM_DESCRIPTION, "new-custom-measure-description")
       .setParam(PARAM_VALUE, "new-text-measure-value")
       .execute();
-    logInAsProjectAdministrator(component);
 
-    CustomMeasureDto updatedCustomMeasure = dbClient.customMeasureDao().selectOrFail(dbSession, customMeasure.getId());
-    assertThat(updatedCustomMeasure.getTextValue()).isEqualTo("new-text-measure-value");
-    assertThat(updatedCustomMeasure.getDescription()).isEqualTo("new-custom-measure-description");
-    assertThat(updatedCustomMeasure.getUpdatedAt()).isEqualTo(123_456_789L);
-    assertThat(customMeasure.getCreatedAt()).isEqualTo(updatedCustomMeasure.getCreatedAt());
+    assertThat(db.getDbClient().customMeasureDao().selectByMetricId(db.getSession(), metric.getId()))
+      .extracting(CustomMeasureDto::getDescription, CustomMeasureDto::getTextValue, CustomMeasureDto::getValue, CustomMeasureDto::getUserUuid, CustomMeasureDto::getComponentUuid,
+        CustomMeasureDto::getCreatedAt, CustomMeasureDto::getUpdatedAt)
+      .containsExactlyInAnyOrder(
+        tuple("new-custom-measure-description", "new-text-measure-value", 0d, userAuthenticated.getUuid(), project.uuid(), customMeasure.getCreatedAt(), NOW));
   }
 
   @Test
-  public void update_double_value_and_description_in_db() throws Exception {
-    MetricDto metric = insertNewMetric(ValueType.INT);
-    OrganizationDto organizationDto = db.organizations().insert();
-    ComponentDto component = db.components().insertPrivateProject(organizationDto, "project-uuid");
-    CustomMeasureDto customMeasure = newCustomMeasure(component, metric)
-      .setDescription("custom-measure-description")
-      .setValue(42d);
-    dbClient.customMeasureDao().insert(dbSession, customMeasure);
-    dbSession.commit();
-    logInAsProjectAdministrator(component);
+  public void update_int_value_and_description_in_db() {
+    ComponentDto project = db.components().insertPrivateProject();
+    UserDto userAuthenticated = db.users().insertUser();
+    userSession.logIn(userAuthenticated).addProjectPermission(ADMIN, project);
+    MetricDto metric = db.measures().insertMetric(m -> m.setUserManaged(true).setValueType(INT.name()));
+    UserDto userMeasureCreator = db.users().insertUser();
+    CustomMeasureDto customMeasure = db.measures().insertCustomMeasure(userMeasureCreator, project, metric, m -> m.setValue(42d).setTextValue(null));
 
-    ws.newPostRequest(CustomMeasuresWs.ENDPOINT, UpdateAction.ACTION)
+    ws.newRequest()
       .setParam(PARAM_ID, String.valueOf(customMeasure.getId()))
       .setParam(PARAM_DESCRIPTION, "new-custom-measure-description")
       .setParam(PARAM_VALUE, "1984")
       .execute();
 
-    CustomMeasureDto updatedCustomMeasure = dbClient.customMeasureDao().selectOrFail(dbSession, customMeasure.getId());
-    assertThat(updatedCustomMeasure.getValue()).isCloseTo(1984d, offset(0.01d));
-    assertThat(updatedCustomMeasure.getDescription()).isEqualTo("new-custom-measure-description");
-    assertThat(customMeasure.getCreatedAt()).isEqualTo(updatedCustomMeasure.getCreatedAt());
+    assertThat(db.getDbClient().customMeasureDao().selectByMetricId(db.getSession(), metric.getId()))
+      .extracting(CustomMeasureDto::getDescription, CustomMeasureDto::getTextValue, CustomMeasureDto::getValue, CustomMeasureDto::getUserUuid, CustomMeasureDto::getComponentUuid,
+        CustomMeasureDto::getCreatedAt, CustomMeasureDto::getUpdatedAt)
+      .containsExactlyInAnyOrder(
+        tuple("new-custom-measure-description", null, 1984d, userAuthenticated.getUuid(), project.uuid(), customMeasure.getCreatedAt(), NOW));
   }
 
   @Test
-  public void returns_full_object_in_response() throws Exception {
-    MetricDto metric = MetricTesting.newMetricDto().setEnabled(true)
-      .setValueType(ValueType.STRING.name())
-      .setKey("metric-key");
-    dbClient.metricDao().insert(dbSession, metric);
-    OrganizationDto organizationDto = db.organizations().insert();
-    ComponentDto component = ComponentTesting.newPrivateProjectDto(organizationDto, "project-uuid").setDbKey("project-key");
-    dbClient.componentDao().insert(dbSession, component);
-    CustomMeasureDto customMeasure = newCustomMeasure(component, metric)
-      .setCreatedAt(100_000_000L)
-      .setDescription("custom-measure-description")
-      .setTextValue("text-measure-value");
-    dbClient.customMeasureDao().insert(dbSession, customMeasure);
-    dbSession.commit();
-    when(system.now()).thenReturn(123_456_789L);
-    logInAsProjectAdministrator(component);
+  public void returns_full_object_in_response() {
+    ComponentDto project = db.components().insertPrivateProject();
+    UserDto userAuthenticated = db.users().insertUser();
+    userSession.logIn(userAuthenticated).addProjectPermission(ADMIN, project);
+    MetricDto metric = db.measures().insertMetric(m -> m.setUserManaged(true).setValueType(STRING.name()));
+    UserDto userMeasureCreator = db.users().insertUser();
+    CustomMeasureDto customMeasure = db.measures().insertCustomMeasure(userMeasureCreator, project, metric, m -> m.setValue(0d).setCreatedAt(100_000_000L));
 
-    WsTester.Result response = ws.newPostRequest(CustomMeasuresWs.ENDPOINT, UpdateAction.ACTION)
+    String response = ws.newRequest()
       .setParam(PARAM_ID, String.valueOf(customMeasure.getId()))
       .setParam(PARAM_DESCRIPTION, "new-custom-measure-description")
       .setParam(PARAM_VALUE, "new-text-measure-value")
-      .execute();
+      .execute()
+      .getInput();
 
-    response.assertJson(getClass(), "custom-measure.json");
-    String responseAsString = response.outputAsString();
-    assertThat(responseAsString).matches(String.format(".*\"id\"\\s*:\\s*\"%s\".*", customMeasure.getId()));
-    assertThat(responseAsString).matches(String.format(".*\"id\"\\s*:\\s*\"%s\".*", metric.getId()));
-    assertThat(responseAsString).matches(".*createdAt.*updatedAt.*");
+    assertJson(response).isSimilarTo("{\n" +
+      "  \"id\": \"" + customMeasure.getId() + "\",\n" +
+      "  \"value\": \"new-text-measure-value\",\n" +
+      "  \"description\": \"new-custom-measure-description\",\n" +
+      "  \"metric\": {\n" +
+      "    \"id\": \"" + metric.getId() + "\",\n" +
+      "    \"key\": \"" + metric.getKey() + "\",\n" +
+      "    \"type\": \"" + metric.getValueType() + "\",\n" +
+      "    \"name\": \"" + metric.getShortName() + "\",\n" +
+      "    \"domain\": \"" + metric.getDomain() + "\"\n" +
+      "  },\n" +
+      "  \"projectId\": \"" + project.uuid() + "\",\n" +
+      "  \"projectKey\": \"" + project.getKey() + "\",\n" +
+      "}");
   }
 
   @Test
-  public void update_value_only() throws Exception {
-    MetricDto metric = insertNewMetric(ValueType.STRING);
-    ComponentDto component = db.components().insertPrivateProject(db.getDefaultOrganization(), "project-uuid");
-    CustomMeasureDto customMeasure = newCustomMeasure(component, metric)
-      .setDescription("custom-measure-description")
-      .setTextValue("text-measure-value");
-    dbClient.customMeasureDao().insert(dbSession, customMeasure);
-    dbSession.commit();
-    when(system.now()).thenReturn(123_456_789L);
-    logInAsProjectAdministrator(component);
+  public void update_description_only() {
+    ComponentDto project = db.components().insertPrivateProject();
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user).addProjectPermission(ADMIN, project);
+    MetricDto metric = db.measures().insertMetric(m -> m.setUserManaged(true).setValueType(STRING.name()));
+    CustomMeasureDto customMeasure = db.measures().insertCustomMeasure(user, project, metric);
 
-    ws.newPostRequest(CustomMeasuresWs.ENDPOINT, UpdateAction.ACTION)
+    ws.newRequest()
       .setParam(PARAM_ID, String.valueOf(customMeasure.getId()))
       .setParam(PARAM_DESCRIPTION, "new-custom-measure-description")
       .execute();
-    logInAsProjectAdministrator(component);
 
-    CustomMeasureDto updatedCustomMeasure = dbClient.customMeasureDao().selectOrFail(dbSession, customMeasure.getId());
-    assertThat(updatedCustomMeasure.getTextValue()).isEqualTo("text-measure-value");
-    assertThat(updatedCustomMeasure.getDescription()).isEqualTo("new-custom-measure-description");
-    assertThat(updatedCustomMeasure.getUpdatedAt()).isEqualTo(123_456_789L);
-    assertThat(customMeasure.getCreatedAt()).isEqualTo(updatedCustomMeasure.getCreatedAt());
+    assertThat(db.getDbClient().customMeasureDao().selectByMetricId(db.getSession(), metric.getId()))
+      .extracting(CustomMeasureDto::getDescription, CustomMeasureDto::getTextValue, CustomMeasureDto::getValue)
+      .containsExactlyInAnyOrder(
+        tuple("new-custom-measure-description", customMeasure.getTextValue(), customMeasure.getValue()));
   }
 
   @Test
-  public void update_description_only() throws Exception {
-    MetricDto metric = insertNewMetric(ValueType.STRING);
-    OrganizationDto organizationDto = db.organizations().insert();
-    ComponentDto component = db.components().insertPrivateProject(organizationDto, "project-uuid");
-    CustomMeasureDto customMeasure = newCustomMeasure(component, metric)
-      .setMetricId(metric.getId())
-      .setComponentUuid(component.uuid())
-      .setCreatedAt(system.now())
-      .setDescription("custom-measure-description")
-      .setTextValue("text-measure-value");
-    dbClient.customMeasureDao().insert(dbSession, customMeasure);
-    dbSession.commit();
-    when(system.now()).thenReturn(123_456_789L);
-    logInAsProjectAdministrator(component);
+  public void update_value_only() {
+    ComponentDto project = db.components().insertPrivateProject();
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user).addProjectPermission(ADMIN, project);
+    MetricDto metric = db.measures().insertMetric(m -> m.setUserManaged(true).setValueType(STRING.name()));
+    CustomMeasureDto customMeasure = db.measures().insertCustomMeasure(user, project, metric);
 
-    ws.newPostRequest(CustomMeasuresWs.ENDPOINT, UpdateAction.ACTION)
+    ws.newRequest()
       .setParam(PARAM_ID, String.valueOf(customMeasure.getId()))
       .setParam(PARAM_VALUE, "new-text-measure-value")
       .execute();
 
-    CustomMeasureDto updatedCustomMeasure = dbClient.customMeasureDao().selectOrFail(dbSession, customMeasure.getId());
-    assertThat(updatedCustomMeasure.getTextValue()).isEqualTo("new-text-measure-value");
-    assertThat(updatedCustomMeasure.getDescription()).isEqualTo("custom-measure-description");
-    assertThat(updatedCustomMeasure.getUpdatedAt()).isEqualTo(123_456_789L);
-    assertThat(customMeasure.getCreatedAt()).isEqualTo(updatedCustomMeasure.getCreatedAt());
+    assertThat(db.getDbClient().customMeasureDao().selectByMetricId(db.getSession(), metric.getId()))
+      .extracting(CustomMeasureDto::getDescription, CustomMeasureDto::getTextValue, CustomMeasureDto::getValue)
+      .containsExactlyInAnyOrder(
+        tuple(customMeasure.getDescription(), "new-text-measure-value", customMeasure.getValue()));
   }
 
   @Test
-  public void fail_if_get_request() throws Exception {
-    expectedException.expect(ServerException.class);
+  public void fail_if_measure_is_not_in_db() {
+    ComponentDto project = db.components().insertPrivateProject();
+    MetricDto metric = db.measures().insertMetric(m -> m.setUserManaged(true).setValueType(STRING.name()));
+    UserDto user = db.users().insertUser();
+    db.measures().insertCustomMeasure(user, project, metric);
+    userSession.logIn(user).addProjectPermission(ADMIN, project);
 
-    ws.newGetRequest(CustomMeasuresWs.ENDPOINT, UpdateAction.ACTION)
-      .setParam(PARAM_ID, "42")
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Custom measure with id '0' does not exist");
+
+    ws.newRequest()
+      .setParam(PARAM_ID, "0")
       .setParam(PARAM_DESCRIPTION, "new-custom-measure-description")
       .setParam(PARAM_VALUE, "1984")
       .execute();
   }
 
   @Test
-  public void fail_if_not_in_db() throws Exception {
-    expectedException.expect(RowNotFoundException.class);
-    expectedException.expectMessage("Custom measure '42' not found.");
-
-    ws.newPostRequest(CustomMeasuresWs.ENDPOINT, UpdateAction.ACTION)
-      .setParam(PARAM_ID, "42")
-      .setParam(PARAM_DESCRIPTION, "new-custom-measure-description")
-      .setParam(PARAM_VALUE, "1984")
-      .execute();
-  }
-
-  @Test
-  public void fail_if_insufficient_privileges() throws Exception {
-    userSessionRule.logIn();
-    MetricDto metric = MetricTesting.newMetricDto().setEnabled(true).setValueType(ValueType.STRING.name());
-    dbClient.metricDao().insert(dbSession, metric);
-    ComponentDto component = ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization(), "project-uuid");
-    dbClient.componentDao().insert(dbSession, component);
-    CustomMeasureDto customMeasure = newCustomMeasureDto()
-      .setMetricId(metric.getId())
-      .setComponentUuid(component.uuid())
-      .setCreatedAt(system.now())
-      .setDescription("custom-measure-description")
-      .setTextValue("text-measure-value");
-    dbClient.customMeasureDao().insert(dbSession, customMeasure);
-    dbSession.commit();
+  public void fail_if_insufficient_privileges() {
+    ComponentDto project = db.components().insertPrivateProject();
+    MetricDto metric = db.measures().insertMetric(m -> m.setUserManaged(true).setValueType(STRING.name()));
+    UserDto user = db.users().insertUser();
+    CustomMeasureDto customMeasure = db.measures().insertCustomMeasure(user, project, metric);
+    userSession.logIn(user).addProjectPermission(USER, project);
 
     expectedException.expect(ForbiddenException.class);
 
-    ws.newPostRequest(CustomMeasuresWs.ENDPOINT, UpdateAction.ACTION)
+    ws.newRequest()
       .setParam(PARAM_ID, String.valueOf(customMeasure.getId()))
       .setParam(PARAM_DESCRIPTION, "new-custom-measure-description")
       .setParam(PARAM_VALUE, "1984")
@@ -266,24 +216,16 @@ public class UpdateActionTest {
   }
 
   @Test
-  public void fail_if_not_logged_in() throws Exception {
-    userSessionRule.anonymous();
+  public void fail_if_not_logged_in() {
+    ComponentDto project = db.components().insertPrivateProject();
+    UserDto user = db.users().insertUser();
+    MetricDto metric = db.measures().insertMetric(m -> m.setUserManaged(true).setValueType(STRING.name()));
+    CustomMeasureDto customMeasure = db.measures().insertCustomMeasure(user, project, metric);
+    userSession.anonymous();
+
     expectedException.expect(UnauthorizedException.class);
-    MetricDto metric = MetricTesting.newMetricDto().setEnabled(true).setValueType(ValueType.STRING.name());
-    dbClient.metricDao().insert(dbSession, metric);
-    OrganizationDto organizationDto = db.organizations().insert();
-    ComponentDto component = ComponentTesting.newPrivateProjectDto(organizationDto, "project-uuid");
-    dbClient.componentDao().insert(dbSession, component);
-    CustomMeasureDto customMeasure = newCustomMeasureDto()
-      .setMetricId(metric.getId())
-      .setComponentUuid(component.uuid())
-      .setCreatedAt(system.now())
-      .setDescription("custom-measure-description")
-      .setTextValue("text-measure-value");
-    dbClient.customMeasureDao().insert(dbSession, customMeasure);
-    dbSession.commit();
 
-    ws.newPostRequest(CustomMeasuresWs.ENDPOINT, UpdateAction.ACTION)
+    ws.newRequest()
       .setParam(PARAM_ID, String.valueOf(customMeasure.getId()))
       .setParam(PARAM_DESCRIPTION, "new-custom-measure-description")
       .setParam(PARAM_VALUE, "1984")
@@ -291,39 +233,36 @@ public class UpdateActionTest {
   }
 
   @Test
-  public void fail_if_custom_measure_id_is_missing_in_request() throws Exception {
-    expectedException.expect(IllegalArgumentException.class);
+  public void fail_if_custom_measure_id_is_missing_in_request() {
+    ComponentDto project = db.components().insertPrivateProject();
+    MetricDto metric = db.measures().insertMetric(m -> m.setUserManaged(true).setValueType(STRING.name()));
+    UserDto user = db.users().insertUser();
+    db.measures().insertCustomMeasure(user, project, metric);
+    userSession.logIn(user).addProjectPermission(ADMIN, project);
 
-    ws.newPostRequest(CustomMeasuresWs.ENDPOINT, UpdateAction.ACTION)
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("The 'id' parameter is missing");
+
+    ws.newRequest()
       .setParam(PARAM_DESCRIPTION, "new-custom-measure-description")
       .setParam(PARAM_VALUE, "1984")
       .execute();
   }
 
   @Test
-  public void fail_if_custom_measure_value_and_description_are_missing_in_request() throws Exception {
-    expectedException.expect(IllegalArgumentException.class);
+  public void fail_if_custom_measure_value_and_description_are_missing_in_request() {
+    ComponentDto project = db.components().insertPrivateProject();
+    MetricDto metric = db.measures().insertMetric(m -> m.setUserManaged(true).setValueType(STRING.name()));
+    UserDto user = db.users().insertUser();
+    db.measures().insertCustomMeasure(user, project, metric);
+    userSession.logIn(user).addProjectPermission(ADMIN, project);
 
-    ws.newPostRequest(CustomMeasuresWs.ENDPOINT, UpdateAction.ACTION)
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Value or description must be provided.");
+
+    ws.newRequest()
       .setParam(PARAM_ID, "42")
       .execute();
   }
 
-  private MetricDto insertNewMetric(ValueType metricType) {
-    MetricDto metric = MetricTesting.newMetricDto().setEnabled(true).setValueType(metricType.name());
-    dbClient.metricDao().insert(dbSession, metric);
-
-    return metric;
-  }
-
-  private CustomMeasureDto newCustomMeasure(ComponentDto project, MetricDto metric) {
-    return newCustomMeasureDto()
-      .setMetricId(metric.getId())
-      .setComponentUuid(project.uuid())
-      .setCreatedAt(system.now());
-  }
-
-  private void logInAsProjectAdministrator(ComponentDto component) {
-    userSessionRule.logIn("login").addProjectPermission(UserRole.ADMIN, component);
-  }
 }

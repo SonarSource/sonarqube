@@ -8,7 +8,7 @@
     m.component_uuid as componentUuid,
     m.value,
     m.text_value as textValue,
-    m.user_login as userLogin,
+    m.user_uuid as userUuid,
     m.description,
     m.created_at as createdAt,
     m.updated_at as updatedAt
@@ -47,11 +47,11 @@
 
   <insert id="insert" parameterType="CustomMeasure" useGeneratedKeys="true" keyColumn="id" keyProperty="id">
     INSERT INTO manual_measures (
-    metric_id, component_uuid, value, text_value, user_login, description, created_at, updated_at
+    metric_id, component_uuid, value, text_value, user_uuid, description, created_at, updated_at
     )
     VALUES (
     #{metricId, jdbcType=INTEGER}, #{componentUuid, jdbcType=VARCHAR},
-    #{value, jdbcType=DOUBLE}, #{textValue, jdbcType=VARCHAR}, #{userLogin, jdbcType=VARCHAR},
+    #{value, jdbcType=DOUBLE}, #{textValue, jdbcType=VARCHAR}, #{userUuid, jdbcType=VARCHAR},
     #{description, jdbcType=VARCHAR}, #{createdAt, jdbcType=BIGINT}, #{updatedAt, jdbcType=BIGINT}
     )
   </insert>
@@ -61,7 +61,7 @@
     set value = #{value, jdbcType=DOUBLE},
     text_value = #{textValue, jdbcType=VARCHAR},
     description = #{description, jdbcType=VARCHAR},
-    user_login = #{userLogin, jdbcType=VARCHAR},
+    user_uuid = #{userUuid, jdbcType=VARCHAR},
     updated_at = #{updatedAt, jdbcType=BIGINT}
     where id = #{id}
   </update>

@@ -29,26 +29,27 @@ public class CustomMeasureDto {
   private String componentUuid;
   private double value;
   private String textValue;
-  private String userLogin;
+  private String userUuid;
   private String description;
   private long createdAt;
   private long updatedAt;
 
+  @CheckForNull
   public String getDescription() {
     return description;
   }
 
-  public CustomMeasureDto setDescription(String description) {
+  public CustomMeasureDto setDescription(@Nullable String description) {
     this.description = description;
     return this;
   }
 
-  public String getUserLogin() {
-    return userLogin;
+  public String getUserUuid() {
+    return userUuid;
   }
 
-  public CustomMeasureDto setUserLogin(String userLogin) {
-    this.userLogin = userLogin;
+  public CustomMeasureDto setUserUuid(String userUuid) {
+    this.userUuid = userUuid;
     return this;
   }
 
