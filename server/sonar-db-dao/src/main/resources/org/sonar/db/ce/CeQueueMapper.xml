@@ -10,7 +10,6 @@
     cq.status as status,
     cq.submitter_login as submitterLogin,
     cq.worker_uuid as workerUuid,
-    cq.execution_count as executionCount,
     cq.started_at as startedAt,
     cq.created_at as createdAt,
     cq.updated_at as updatedAt
@@ -127,33 +126,32 @@
     </where>
   </sql>
 
-  <select id="selectEligibleForPeek" resultType="org.sonar.db.ce.EligibleTaskDto">
-    select
-      <include refid="columnsSelectEligibleForPeek"/>
+  <select id="selectEligibleForPeek" resultType="String">
+    select cq.uuid
     <include refid="sqlSelectEligibleForPeek"/>
     <include refid="orderBySelectEligibleForPeek"/>
     limit #{pagination.pageSize,jdbcType=INTEGER} offset #{pagination.offset,jdbcType=INTEGER}
   </select>
 
-  <select id="selectEligibleForPeek" parameterType="map" resultType="org.sonar.db.ce.EligibleTaskDto" databaseId="mssql">
-    select * from (
+  <select id="selectEligibleForPeek" parameterType="map" resultType="String" databaseId="mssql">
+    select query.uuid from (
       select
         row_number() over(<include refid="orderBySelectEligibleForPeek"/>) as number,
         <include refid="columnsSelectEligibleForPeek"/>
       <include refid="sqlSelectEligibleForPeek"/>
     ) as query
     where
-      query.number between #{pagination.startRowNumber,jdbcType=INTEGER} and #{pagination.endRowNumber,jdbcType=INTEGER}
+    query.number between #{pagination.startRowNumber,jdbcType=INTEGER} and #{pagination.endRowNumber,jdbcType=INTEGER}
     <include refid="orderBySelectEligibleForPeek"/>
   </select>
 
-  <select id="selectEligibleForPeek" parameterType="map" resultType="org.sonar.db.ce.EligibleTaskDto" databaseId="oracle">
-    select * from (
-      select rownum as rn, t.* from (
+  <select id="selectEligibleForPeek" parameterType="map" resultType="String" databaseId="oracle">
+    select taskuuid from (
+      select rownum as rn, t."uuid" as taskuuid from (
         select
           <include refid="columnsSelectEligibleForPeek"/>
-        <include refid="sqlSelectEligibleForPeek" />
-        <include refid="orderBySelectEligibleForPeek"/>
+          <include refid="sqlSelectEligibleForPeek" />
+          <include refid="orderBySelectEligibleForPeek"/>
       ) t
     ) t
     where
@@ -162,7 +160,6 @@
 
   <sql id="columnsSelectEligibleForPeek">
     cq.uuid as "uuid",
-    cq.execution_count as "executionCount",
     cq.created_at as "created_at",
     cq.id as "id"
   </sql>
@@ -172,7 +169,6 @@
       ce_queue cq
     where
       cq.status='PENDING'
-      and cq.execution_count &lt; #{maxExecutionCount,jdbcType=INTEGER}
       and not exists (
         select
           1
@@ -190,14 +186,13 @@
       id asc
   </sql>
 
-  <select id="selectPendingByMinimumExecutionCount" resultType="org.sonar.db.ce.CeQueueDto">
+  <select id="selectPending" resultType="org.sonar.db.ce.CeQueueDto">
     select
       <include refid="columns"/>
     from
       ce_queue cq
     where
       cq.status = 'PENDING'
-      and cq.execution_count >= #{minExecutionCount,jdbcType=INTEGER}
   </select>
 
   <insert id="insert" parameterType="org.sonar.db.ce.CeQueueDto" useGeneratedKeys="false">
@@ -221,7 +216,7 @@
       #{status,jdbcType=VARCHAR},
       #{submitterLogin,jdbcType=VARCHAR},
       #{workerUuid,jdbcType=VARCHAR},
-      #{executionCount,jdbcType=INTEGER},
+      0,
       #{startedAt,jdbcType=BIGINT},
       #{createdAt,jdbcType=BIGINT},
       #{updatedAt,jdbcType=BIGINT}
@@ -241,14 +236,12 @@
   <update id="updateIf" parameterType="map">
     update ce_queue set
       status=#{new.status,jdbcType=VARCHAR},
-      execution_count=#{new.executionCount,jdbcType=INTEGER},
       worker_uuid=#{new.workerUuid,jdbcType=VARCHAR},
       started_at=#{new.startedAt,jdbcType=BIGINT},
       updated_at=#{new.updatedAt,jdbcType=BIGINT}
     where
       uuid=#{uuid,jdbcType=VARCHAR}
       and status=#{old.status,jdbcType=VARCHAR}
-      and execution_count=#{old.executionCount,jdbcType=INTEGER}
   </update>
 
   <delete id="deleteByUuid">

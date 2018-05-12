@@ -50,30 +50,11 @@ public class CeCleaningSchedulerImplTest {
     CeDistributedInformation mockedCeDistributedInformation = mockCeDistributedInformation(jobLock);
     CeCleaningSchedulerImpl underTest = mockCeCleaningSchedulerImpl(mockedInternalCeQueue, mockedCeDistributedInformation);
     Exception exception = new IllegalArgumentException("faking unchecked exception thrown by cancelWornOuts");
-    doThrow(exception).when(mockedInternalCeQueue).cancelWornOuts();
     doThrow(exception).when(mockedInternalCeQueue).resetTasksWithUnknownWorkerUUIDs(any());
 
     underTest.startScheduling();
 
-    verify(mockedInternalCeQueue).cancelWornOuts();
     verify(mockedInternalCeQueue).resetTasksWithUnknownWorkerUUIDs(any());
-  }
-
-  @Test
-  public void startScheduling_fails_if_cancelWornOuts_send_an_Error() {
-    InternalCeQueue mockedInternalCeQueue = mock(InternalCeQueue.class);
-    CeDistributedInformation mockedCeDistributedInformation = mockCeDistributedInformation(jobLock);
-    CeCleaningSchedulerImpl underTest = mockCeCleaningSchedulerImpl(mockedInternalCeQueue, mockedCeDistributedInformation);
-    Error expected = new Error("faking Error thrown by cancelWornOuts");
-    doThrow(expected).when(mockedInternalCeQueue).cancelWornOuts();
-
-    try {
-      underTest.startScheduling();
-      fail("the error should have been thrown");
-    } catch (Error e) {
-      assertThat(e).isSameAs(expected);
-    }
-    verify(mockedInternalCeQueue).cancelWornOuts();
   }
 
   @Test
@@ -120,7 +101,6 @@ public class CeCleaningSchedulerImplTest {
     verify(jobLock, times(0)).unlock();
     // since lock cannot be locked, cleaning job methods must not be called
     verify(mockedInternalCeQueue, times(0)).resetTasksWithUnknownWorkerUUIDs(any());
-    verify(mockedInternalCeQueue, times(0)).cancelWornOuts();
   }
 
   @Test
@@ -159,7 +139,6 @@ public class CeCleaningSchedulerImplTest {
 
     underTest.startScheduling();
     assertThat(executorService.schedulerCounter).isEqualTo(1);
-    verify(mockedInternalCeQueue).cancelWornOuts();
   }
 
   private CeConfiguration mockCeConfiguration(long cleanCeTasksInitialDelay, long cleanCeTasksDelay) {

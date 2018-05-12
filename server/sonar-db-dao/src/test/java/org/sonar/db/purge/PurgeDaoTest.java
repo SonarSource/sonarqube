@@ -802,7 +802,6 @@ public class PurgeDaoTest {
       .setTaskType("foo")
       .setComponentUuid(project.uuid())
       .setStatus(Status.PENDING)
-      .setExecutionCount(0)
       .setCreatedAt(1_2323_222L)
       .setUpdatedAt(1_2323_222L);
     dbClient.ceQueueDao().insert(dbSession, res);

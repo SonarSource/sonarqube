@@ -19,7 +19,6 @@
  */
 package org.sonar.db.ce;
 
-import java.util.Random;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -111,15 +110,5 @@ public class CeQueueDtoTest {
     expectedException.expectMessage("worker uuid is too long: " + str_41_chars);
 
     underTest.setWorkerUuid(str_41_chars);
-  }
-
-  @Test
-  public void setExecutionCount_throws_IAE_if_value_is_less_than_0() {
-    int lessThanZero = -1-(Math.abs(new Random().nextInt()));
-
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("execution count can't be < 0");
-
-    underTest.setExecutionCount(lessThanZero);
   }
 }

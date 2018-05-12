@@ -24,7 +24,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.util.List;
 import java.util.Optional;
-import java.util.Random;
 import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
@@ -49,7 +48,6 @@ import org.sonar.server.computation.task.step.TypedException;
 import org.sonar.server.organization.DefaultOrganization;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -258,13 +256,12 @@ public class InternalCeQueueImplTest {
   }
 
   @Test
-  public void remove_copies_executionCount_and_workerUuid() {
+  public void remove_copies_workerUuid() {
     db.getDbClient().ceQueueDao().insert(session, new CeQueueDto()
       .setUuid("uuid")
       .setTaskType("foo")
       .setStatus(CeQueueDto.Status.PENDING)
-      .setWorkerUuid("Dustin")
-      .setExecutionCount(2));
+      .setWorkerUuid("Dustin"));
     db.commit();
 
     underTest.remove(new CeTask.Builder()
@@ -274,7 +271,6 @@ public class InternalCeQueueImplTest {
       .build(), CeActivityDto.Status.SUCCESS, null, null);
 
     CeActivityDto dto = db.getDbClient().ceActivityDao().selectByUuid(db.getSession(), "uuid").get();
-    assertThat(dto.getExecutionCount()).isEqualTo(2);
     assertThat(dto.getWorkerUuid()).isEqualTo("Dustin");
   }
 
@@ -342,77 +338,35 @@ public class InternalCeQueueImplTest {
   }
 
   @Test
-  public void peek_peeks_pending_tasks_with_executionCount_equal_to_0_and_increases_it() {
+  public void peek_peeks_pending_task() {
     db.getDbClient().ceQueueDao().insert(session, new CeQueueDto()
       .setUuid("uuid")
       .setTaskType("foo")
-      .setStatus(CeQueueDto.Status.PENDING)
-      .setExecutionCount(0));
+      .setStatus(CeQueueDto.Status.PENDING));
     db.commit();
 
     assertThat(underTest.peek(WORKER_UUID_1).get().getUuid()).isEqualTo("uuid");
-    assertThat(db.getDbClient().ceQueueDao().selectByUuid(session, "uuid").get().getExecutionCount()).isEqualTo(1);
   }
 
   @Test
-  public void peek_ignores_pending_tasks_with_executionCount_equal_to_1() {
-    db.getDbClient().ceQueueDao().insert(session, new CeQueueDto()
-      .setUuid("uuid")
-      .setTaskType("foo")
-      .setStatus(CeQueueDto.Status.PENDING)
-      .setExecutionCount(1));
-    db.commit();
-
-    assertThat(underTest.peek(WORKER_UUID_1).isPresent()).isFalse();
-  }
-
-  @Test
-  public void peek_ignores_pending_tasks_with_executionCount_equal_to_2() {
-    db.getDbClient().ceQueueDao().insert(session, new CeQueueDto()
-      .setUuid("uuid")
-      .setTaskType("foo")
-      .setStatus(CeQueueDto.Status.PENDING)
-      .setExecutionCount(2));
-    db.commit();
-
-    assertThat(underTest.peek(WORKER_UUID_1).isPresent()).isFalse();
-  }
-
-  @Test
-  public void peek_ignores_pending_tasks_with_executionCount_greater_than_2() {
-    db.getDbClient().ceQueueDao().insert(session, new CeQueueDto()
-      .setUuid("uuid")
-      .setTaskType("foo")
-      .setStatus(CeQueueDto.Status.PENDING)
-      .setExecutionCount(2 + Math.abs(new Random().nextInt(100))));
-    db.commit();
-
-    assertThat(underTest.peek(WORKER_UUID_1).isPresent()).isFalse();
-  }
-
-  @Test
-  public void peek_resets_to_pending_any_task_in_progress_for_specified_worker_uuid_and_updates_updatedAt_no_matter_execution_count() {
-    insertPending("u0", "doesn't matter", 0); // add a pending one that will be picked so that u1 isn't peek and status reset is visible in DB
-    CeQueueDto u1 = insertPending("u1", WORKER_UUID_1, 2);// won't be peeked because it's worn-out
-    CeQueueDto u2 = insertInProgress("u2", WORKER_UUID_1, 3);// will be reset but won't be picked because it's worn-out
-    CeQueueDto u3 = insertPending("u3", WORKER_UUID_1, 1);// will be picked-because older than any of the reset ones
-    CeQueueDto u4 = insertInProgress("u4", WORKER_UUID_1, 1);// will be reset
+  public void peek_resets_to_pending_any_task_in_progress_for_specified_worker_uuid_and_updates_updatedAt() {
+    insertPending("u0", "doesn't matter"); // add a pending one that will be picked so that u1 isn't peek and status reset is visible in DB
+    CeQueueDto u1 = insertPending("u1", WORKER_UUID_1);// will be picked-because older than any of the reset ones
+    CeQueueDto u2 = insertInProgress("u2", WORKER_UUID_1);// will be reset
 
     assertThat(underTest.peek(WORKER_UUID_1).get().getUuid()).isEqualTo("u0");
 
     verifyUnmodifiedTask(u1);
     verifyResetTask(u2);
-    verifyUnmodifiedTask(u3);
-    verifyResetTask(u4);
   }
 
   @Test
   public void peek_resets_to_pending_any_task_in_progress_for_specified_worker_uuid_and_only_this_uuid() {
-    insertPending("u0", "doesn't matter", 0); // add a pending one that will be picked so that u1 isn't peek and status reset is visible in DB
-    CeQueueDto u1 = insertInProgress("u1", WORKER_UUID_1, 3);
-    CeQueueDto u2 = insertInProgress("u2", WORKER_UUID_2, 3);
-    CeQueueDto u3 = insertInProgress("u3", WORKER_UUID_1, 3);
-    CeQueueDto u4 = insertInProgress("u4", WORKER_UUID_2, 1);
+    insertPending("u0", "doesn't matter"); // add a pending one that will be picked so that u1 isn't peek and status reset is visible in DB
+    CeQueueDto u1 = insertInProgress("u1", WORKER_UUID_1);
+    CeQueueDto u2 = insertInProgress("u2", WORKER_UUID_2);
+    CeQueueDto u3 = insertInProgress("u3", WORKER_UUID_1);
+    CeQueueDto u4 = insertInProgress("u4", WORKER_UUID_2);
 
     assertThat(underTest.peek(WORKER_UUID_1).get().getUuid()).isEqualTo("u0");
 
@@ -422,32 +376,9 @@ public class InternalCeQueueImplTest {
     verifyUnmodifiedTask(u4);
   }
 
-  @Test
-  public void peek_resets_to_pending_any_task_in_progress_for_specified_worker_uuid_and_peeks_the_oldest_non_worn_out_no_matter_if_it_has_been_reset_or_not() {
-    insertPending("u1", WORKER_UUID_1, 3); // won't be picked because worn out
-    insertInProgress("u2", WORKER_UUID_1, 3); // will be reset but won't be picked because worn out
-    insertInProgress("u3", WORKER_UUID_1, 1); // will be reset but won't be picked because worn out
-    insertPending("u4", WORKER_UUID_1, 0); // will be picked
-
-    Optional<CeTask> ceTask = underTest.peek(WORKER_UUID_1);
-    assertThat(ceTask.get().getUuid()).isEqualTo("u4");
-  }
-
-  @Test
-  public void peek_resets_to_pending_any_task_in_progress_for_specified_worker_uuid_and_peeks_reset_tasks_if_is_the_oldest_non_worn_out() {
-    insertPending("u1", WORKER_UUID_1, 3); // won't be picked because worn out
-    insertInProgress("u2", WORKER_UUID_1, 3); // will be reset but won't be picked because worn out
-    insertInProgress("u3", WORKER_UUID_1, 1); // won't be picked because worn out
-    insertPending("u4", WORKER_UUID_1, 0); // will be picked second
-
-    Optional<CeTask> ceTask = underTest.peek(WORKER_UUID_1);
-    assertThat(ceTask.get().getUuid()).isEqualTo("u4");
-  }
-
   private void verifyResetTask(CeQueueDto originalDto) {
     CeQueueDto dto = db.getDbClient().ceQueueDao().selectByUuid(session, originalDto.getUuid()).get();
     assertThat(dto.getStatus()).isEqualTo(CeQueueDto.Status.PENDING);
-    assertThat(dto.getExecutionCount()).isEqualTo(originalDto.getExecutionCount());
     assertThat(dto.getCreatedAt()).isEqualTo(originalDto.getCreatedAt());
     assertThat(dto.getUpdatedAt()).isGreaterThan(originalDto.getUpdatedAt());
   }
@@ -455,32 +386,27 @@ public class InternalCeQueueImplTest {
   private void verifyUnmodifiedTask(CeQueueDto originalDto) {
     CeQueueDto dto = db.getDbClient().ceQueueDao().selectByUuid(session, originalDto.getUuid()).get();
     assertThat(dto.getStatus()).isEqualTo(originalDto.getStatus());
-    assertThat(dto.getExecutionCount()).isEqualTo(originalDto.getExecutionCount());
     assertThat(dto.getCreatedAt()).isEqualTo(originalDto.getCreatedAt());
     assertThat(dto.getUpdatedAt()).isEqualTo(originalDto.getUpdatedAt());
   }
 
-  private CeQueueDto insertInProgress(String uuid, String workerUuid, int executionCount) {
-    checkArgument(executionCount > 0, "execution count less than 1 does not make sense for an in progress task");
+  private CeQueueDto insertInProgress(String uuid, String workerUuid) {
     CeQueueDto dto = new CeQueueDto()
       .setUuid(uuid)
       .setTaskType("foo")
       .setStatus(CeQueueDto.Status.IN_PROGRESS)
-      .setWorkerUuid(workerUuid)
-      .setExecutionCount(executionCount);
+      .setWorkerUuid(workerUuid);
     db.getDbClient().ceQueueDao().insert(session, dto);
     db.commit();
     return dto;
   }
 
-  private CeQueueDto insertPending(String uuid, String workerUuid, int executionCount) {
-    checkArgument(executionCount > -1, "execution count less than 0 does not make sense for a pending task");
+  private CeQueueDto insertPending(String uuid, String workerUuid) {
     CeQueueDto dto = new CeQueueDto()
       .setUuid(uuid)
       .setTaskType("foo")
       .setStatus(CeQueueDto.Status.PENDING)
-      .setWorkerUuid(workerUuid)
-      .setExecutionCount(executionCount);
+      .setWorkerUuid(workerUuid);
     db.getDbClient().ceQueueDao().insert(session, dto);
     db.commit();
     return dto;
@@ -499,19 +425,17 @@ public class InternalCeQueueImplTest {
   }
 
   @Test
-  public void cancel_copies_executionCount_and_workerUuid() {
+  public void cancel_copies_workerUuid() {
     CeQueueDto ceQueueDto = db.getDbClient().ceQueueDao().insert(session, new CeQueueDto()
       .setUuid("uuid")
       .setTaskType("foo")
       .setStatus(CeQueueDto.Status.PENDING)
-      .setWorkerUuid("Dustin")
-      .setExecutionCount(2));
+      .setWorkerUuid("Dustin"));
     db.commit();
 
     underTest.cancel(db.getSession(), ceQueueDto);
 
     CeActivityDto dto = db.getDbClient().ceActivityDao().selectByUuid(db.getSession(), "uuid").get();
-    assertThat(dto.getExecutionCount()).isEqualTo(2);
     assertThat(dto.getWorkerUuid()).isEqualTo("Dustin");
   }
 
@@ -546,38 +470,15 @@ public class InternalCeQueueImplTest {
   }
 
   @Test
-  public void cancelWornOuts_cancels_pending_tasks_with_executionCount_greater_or_equal_to_1() {
-    CeQueueDto u1 = insertCeQueueDto("u1", CeQueueDto.Status.PENDING, 0, "worker1");
-    CeQueueDto u2 = insertCeQueueDto("u2", CeQueueDto.Status.PENDING, 1, "worker1");
-    CeQueueDto u3 = insertCeQueueDto("u3", CeQueueDto.Status.PENDING, 2, "worker1");
-    CeQueueDto u4 = insertCeQueueDto("u4", CeQueueDto.Status.PENDING, 3, "worker1");
-    CeQueueDto u5 = insertCeQueueDto("u5", CeQueueDto.Status.IN_PROGRESS, 0, "worker1");
-    CeQueueDto u6 = insertCeQueueDto("u6", CeQueueDto.Status.IN_PROGRESS, 1, "worker1");
-    CeQueueDto u7 = insertCeQueueDto("u7", CeQueueDto.Status.IN_PROGRESS, 2, "worker1");
-    CeQueueDto u8 = insertCeQueueDto("u8", CeQueueDto.Status.IN_PROGRESS, 3, "worker1");
-
-    underTest.cancelWornOuts();
-
-    verifyUnmodified(u1);
-    verifyCanceled(u2);
-    verifyCanceled(u3);
-    verifyCanceled(u4);
-    verifyUnmodified(u5);
-    verifyUnmodified(u6);
-    verifyUnmodified(u7);
-    verifyUnmodified(u8);
-  }
-
-  @Test
   public void resetTasksWithUnknownWorkerUUIDs_reset_only_in_progress_tasks() {
-    CeQueueDto u1 = insertCeQueueDto("u1", CeQueueDto.Status.PENDING, 0, null);
-    CeQueueDto u2 = insertCeQueueDto("u2", CeQueueDto.Status.PENDING, 1, "worker1");
-    CeQueueDto u3 = insertCeQueueDto("u3", CeQueueDto.Status.PENDING, 2, null);
-    CeQueueDto u4 = insertCeQueueDto("u4", CeQueueDto.Status.PENDING, 3, "worker2");
-    CeQueueDto u5 = insertCeQueueDto("u5", CeQueueDto.Status.IN_PROGRESS, 0, null);
-    CeQueueDto u6 = insertCeQueueDto("u6", CeQueueDto.Status.IN_PROGRESS, 1, "worker1");
-    CeQueueDto u7 = insertCeQueueDto("u7", CeQueueDto.Status.IN_PROGRESS, 2, "worker2");
-    CeQueueDto u8 = insertCeQueueDto("u8", CeQueueDto.Status.IN_PROGRESS, 3, "worker3");
+    CeQueueDto u1 = insertCeQueueDto("u1", CeQueueDto.Status.PENDING, null);
+    CeQueueDto u2 = insertCeQueueDto("u2", CeQueueDto.Status.PENDING, "worker1");
+    CeQueueDto u3 = insertCeQueueDto("u3", CeQueueDto.Status.PENDING, null);
+    CeQueueDto u4 = insertCeQueueDto("u4", CeQueueDto.Status.PENDING, "worker2");
+    CeQueueDto u5 = insertCeQueueDto("u5", CeQueueDto.Status.IN_PROGRESS, null);
+    CeQueueDto u6 = insertCeQueueDto("u6", CeQueueDto.Status.IN_PROGRESS, "worker1");
+    CeQueueDto u7 = insertCeQueueDto("u7", CeQueueDto.Status.IN_PROGRESS, "worker2");
+    CeQueueDto u8 = insertCeQueueDto("u8", CeQueueDto.Status.IN_PROGRESS, "worker3");
 
     underTest.resetTasksWithUnknownWorkerUUIDs(ImmutableSet.of("worker2", "worker3"));
 
@@ -598,14 +499,14 @@ public class InternalCeQueueImplTest {
 
   @Test
   public void resetTasksWithUnknownWorkerUUIDs_with_empty_set_will_reset_all_in_progress_tasks() {
-    CeQueueDto u1 = insertCeQueueDto("u1", CeQueueDto.Status.PENDING, 0, null);
-    CeQueueDto u2 = insertCeQueueDto("u2", CeQueueDto.Status.PENDING, 1, "worker1");
-    CeQueueDto u3 = insertCeQueueDto("u3", CeQueueDto.Status.PENDING, 2, null);
-    CeQueueDto u4 = insertCeQueueDto("u4", CeQueueDto.Status.PENDING, 3, "worker2");
-    CeQueueDto u5 = insertCeQueueDto("u5", CeQueueDto.Status.IN_PROGRESS, 0, null);
-    CeQueueDto u6 = insertCeQueueDto("u6", CeQueueDto.Status.IN_PROGRESS, 1, "worker1");
-    CeQueueDto u7 = insertCeQueueDto("u7", CeQueueDto.Status.IN_PROGRESS, 2, "worker2");
-    CeQueueDto u8 = insertCeQueueDto("u8", CeQueueDto.Status.IN_PROGRESS, 3, "worker3");
+    CeQueueDto u1 = insertCeQueueDto("u1", CeQueueDto.Status.PENDING, null);
+    CeQueueDto u2 = insertCeQueueDto("u2", CeQueueDto.Status.PENDING, "worker1");
+    CeQueueDto u3 = insertCeQueueDto("u3", CeQueueDto.Status.PENDING, null);
+    CeQueueDto u4 = insertCeQueueDto("u4", CeQueueDto.Status.PENDING, "worker2");
+    CeQueueDto u5 = insertCeQueueDto("u5", CeQueueDto.Status.IN_PROGRESS, null);
+    CeQueueDto u6 = insertCeQueueDto("u6", CeQueueDto.Status.IN_PROGRESS, "worker1");
+    CeQueueDto u7 = insertCeQueueDto("u7", CeQueueDto.Status.IN_PROGRESS, "worker2");
+    CeQueueDto u8 = insertCeQueueDto("u8", CeQueueDto.Status.IN_PROGRESS, "worker3");
 
     underTest.resetTasksWithUnknownWorkerUUIDs(ImmutableSet.of());
 
@@ -624,14 +525,14 @@ public class InternalCeQueueImplTest {
 
   @Test
   public void resetTasksWithUnknownWorkerUUIDs_with_worker_without_tasks_will_reset_all_in_progress_tasks() {
-    CeQueueDto u1 = insertCeQueueDto("u1", CeQueueDto.Status.PENDING, 0, null);
-    CeQueueDto u2 = insertCeQueueDto("u2", CeQueueDto.Status.PENDING, 1, "worker1");
-    CeQueueDto u3 = insertCeQueueDto("u3", CeQueueDto.Status.PENDING, 2, null);
-    CeQueueDto u4 = insertCeQueueDto("u4", CeQueueDto.Status.PENDING, 3, "worker2");
-    CeQueueDto u5 = insertCeQueueDto("u5", CeQueueDto.Status.IN_PROGRESS, 0, null);
-    CeQueueDto u6 = insertCeQueueDto("u6", CeQueueDto.Status.IN_PROGRESS, 1, "worker1");
-    CeQueueDto u7 = insertCeQueueDto("u7", CeQueueDto.Status.IN_PROGRESS, 2, "worker2");
-    CeQueueDto u8 = insertCeQueueDto("u8", CeQueueDto.Status.IN_PROGRESS, 3, "worker3");
+    CeQueueDto u1 = insertCeQueueDto("u1", CeQueueDto.Status.PENDING, null);
+    CeQueueDto u2 = insertCeQueueDto("u2", CeQueueDto.Status.PENDING, "worker1");
+    CeQueueDto u3 = insertCeQueueDto("u3", CeQueueDto.Status.PENDING, null);
+    CeQueueDto u4 = insertCeQueueDto("u4", CeQueueDto.Status.PENDING, "worker2");
+    CeQueueDto u5 = insertCeQueueDto("u5", CeQueueDto.Status.IN_PROGRESS, null);
+    CeQueueDto u6 = insertCeQueueDto("u6", CeQueueDto.Status.IN_PROGRESS, "worker1");
+    CeQueueDto u7 = insertCeQueueDto("u7", CeQueueDto.Status.IN_PROGRESS, "worker2");
+    CeQueueDto u8 = insertCeQueueDto("u8", CeQueueDto.Status.IN_PROGRESS, "worker3");
 
     underTest.resetTasksWithUnknownWorkerUUIDs(ImmutableSet.of("worker1000", "worker1001"));
 
@@ -650,8 +551,7 @@ public class InternalCeQueueImplTest {
 
   private void verifyReset(CeQueueDto original) {
     CeQueueDto dto = db.getDbClient().ceQueueDao().selectByUuid(db.getSession(), original.getUuid()).get();
-    // We do not touch ExecutionCount nor CreatedAt
-    assertThat(dto.getExecutionCount()).isEqualTo(original.getExecutionCount());
+    // We do not touch CreatedAt
     assertThat(dto.getCreatedAt()).isEqualTo(original.getCreatedAt());
 
     // Status must have changed to PENDING and must not be equal to previous status
@@ -667,7 +567,6 @@ public class InternalCeQueueImplTest {
   private void verifyUnmodified(CeQueueDto original) {
     CeQueueDto dto = db.getDbClient().ceQueueDao().selectByUuid(db.getSession(), original.getUuid()).get();
     assertThat(dto.getStatus()).isEqualTo(original.getStatus());
-    assertThat(dto.getExecutionCount()).isEqualTo(original.getExecutionCount());
     assertThat(dto.getCreatedAt()).isEqualTo(original.getCreatedAt());
     assertThat(dto.getUpdatedAt()).isEqualTo(original.getUpdatedAt());
   }
@@ -676,16 +575,14 @@ public class InternalCeQueueImplTest {
     assertThat(db.getDbClient().ceQueueDao().selectByUuid(db.getSession(), original.getUuid())).isEmpty();
     CeActivityDto dto = db.getDbClient().ceActivityDao().selectByUuid(db.getSession(), original.getUuid()).get();
     assertThat(dto.getStatus()).isEqualTo(CeActivityDto.Status.CANCELED);
-    assertThat(dto.getExecutionCount()).isEqualTo(original.getExecutionCount());
     assertThat(dto.getWorkerUuid()).isEqualTo(original.getWorkerUuid());
   }
 
-  private CeQueueDto insertCeQueueDto(String uuid, CeQueueDto.Status status, int executionCount, String workerUuid) {
+  private CeQueueDto insertCeQueueDto(String uuid, CeQueueDto.Status status, String workerUuid) {
     CeQueueDto dto = new CeQueueDto()
       .setUuid(uuid)
       .setTaskType("foo")
       .setStatus(status)
-      .setExecutionCount(executionCount)
       .setWorkerUuid(workerUuid);
     db.getDbClient().ceQueueDao().insert(db.getSession(), dto);
     db.commit();

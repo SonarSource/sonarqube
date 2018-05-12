@@ -44,7 +44,6 @@ public class CeActivityDto {
   private String isLastKey;
   private String submitterLogin;
   private String workerUuid;
-  private int executionCount;
   private long submittedAt;
   private Long startedAt;
   private Long executedAt;
@@ -95,7 +94,6 @@ public class CeActivityDto {
     this.isLastKey = format("%s%s", taskType, Strings.nullToEmpty(componentUuid));
     this.submitterLogin = queueDto.getSubmitterLogin();
     this.workerUuid = queueDto.getWorkerUuid();
-    this.executionCount = queueDto.getExecutionCount();
     this.submittedAt = queueDto.getCreatedAt();
     this.startedAt = queueDto.getStartedAt();
   }
@@ -235,15 +233,6 @@ public class CeActivityDto {
     return this;
   }
 
-  public int getExecutionCount() {
-    return executionCount;
-  }
-
-  public CeActivityDto setExecutionCount(int executionCount) {
-    this.executionCount = executionCount;
-    return this;
-  }
-
   @CheckForNull
   public String getErrorMessage() {
     return errorMessage;
@@ -306,7 +295,6 @@ public class CeActivityDto {
       ", isLastKey='" + isLastKey + '\'' +
       ", submitterLogin='" + submitterLogin + '\'' +
       ", workerUuid='" + workerUuid + '\'' +
-      ", executionCount=" + executionCount +
       ", submittedAt=" + submittedAt +
       ", startedAt=" + startedAt +
       ", executedAt=" + executedAt +

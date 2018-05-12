@@ -37,15 +37,15 @@ public interface CeQueueMapper {
 
   int countByQuery(@Param("query") CeTaskQuery query);
 
-  List<EligibleTaskDto> selectEligibleForPeek(@Param("maxExecutionCount") int maxExecutionCount, @Param("pagination") Pagination pagination);
+  List<String> selectEligibleForPeek(@Param("pagination") Pagination pagination);
 
   @CheckForNull
   CeQueueDto selectByUuid(@Param("uuid") String uuid);
 
   /**
-   * Select all pending tasks which execution count is greater than or equal to the specified {@code minExecutionCount}.
+   * Select all pending tasks
    */
-  List<CeQueueDto> selectPendingByMinimumExecutionCount(@Param("minExecutionCount") int minExecutionCount);
+  List<CeQueueDto> selectPending();
 
   /**
    * Select all tasks whose worker UUID is not present in {@code knownWorkerUUIDs}

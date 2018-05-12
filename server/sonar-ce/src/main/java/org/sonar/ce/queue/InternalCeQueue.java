@@ -66,7 +66,5 @@ public interface InternalCeQueue extends CeQueue {
    */
   void remove(CeTask task, Status status, @Nullable CeTaskResult taskResult, @Nullable Throwable error);
 
-  void cancelWornOuts();
-
   void resetTasksWithUnknownWorkerUUIDs(Set<String> knownWorkerUUIDs);
 }

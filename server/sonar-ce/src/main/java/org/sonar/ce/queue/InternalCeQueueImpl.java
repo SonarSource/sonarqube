@@ -52,8 +52,6 @@ import static java.util.Objects.requireNonNull;
 public class InternalCeQueueImpl extends CeQueueImpl implements InternalCeQueue {
   private static final Logger LOG = Loggers.get(InternalCeQueueImpl.class);
 
-  private static final int MAX_EXECUTION_COUNT = 1;
-
   private final System2 system2;
   private final DbClient dbClient;
   private final CEQueueStatus queueStatus;
@@ -81,7 +79,7 @@ public class InternalCeQueueImpl extends CeQueueImpl implements InternalCeQueue 
       if (i > 0) {
         LOG.debug("{} in progress tasks reset for worker uuid {}", i, workerUuid);
       }
-      Optional<CeQueueDto> dto = ceQueueDao.peek(dbSession, workerUuid, MAX_EXECUTION_COUNT);
+      Optional<CeQueueDto> dto = ceQueueDao.peek(dbSession, workerUuid);
       CeTask task = null;
       if (dto.isPresent()) {
         task = loadTask(dbSession, dto.get());
@@ -101,7 +99,7 @@ public class InternalCeQueueImpl extends CeQueueImpl implements InternalCeQueue 
     checkArgument(error == null || status == CeActivityDto.Status.FAILED, "Error can be provided only when status is FAILED");
     try (DbSession dbSession = dbClient.openSession(false)) {
       CeQueueDto queueDto = dbClient.ceQueueDao().selectByUuid(dbSession, task.getUuid())
-      .orElseThrow(() -> new IllegalStateException("Task does not exist anymore: " + task));
+        .orElseThrow(() -> new IllegalStateException("Task does not exist anymore: " + task));
       CeActivityDto activityDto = new CeActivityDto(queueDto);
       activityDto.setStatus(status);
       updateQueueStatus(status, activityDto);
@@ -162,19 +160,6 @@ public class InternalCeQueueImpl extends CeQueueImpl implements InternalCeQueue 
       queueStatus.addSuccess(executionTimeInMs);
     } else {
       queueStatus.addError(executionTimeInMs);
-    }
-  }
-
-  @Override
-  public void cancelWornOuts() {
-    try (DbSession dbSession = dbClient.openSession(false)) {
-      List<CeQueueDto> wornOutTasks = dbClient.ceQueueDao().selectPendingByMinimumExecutionCount(dbSession, MAX_EXECUTION_COUNT);
-      wornOutTasks.forEach(queueDto -> {
-        CeActivityDto activityDto = new CeActivityDto(queueDto);
-        activityDto.setStatus(CeActivityDto.Status.CANCELED);
-        updateQueueStatus(CeActivityDto.Status.CANCELED, activityDto);
-        remove(dbSession, queueDto, activityDto);
-      });
     }
   }
 

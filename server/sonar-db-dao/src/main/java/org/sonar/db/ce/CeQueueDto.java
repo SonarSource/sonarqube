@@ -39,10 +39,6 @@ public class CeQueueDto {
    * UUID of the worker that is executing, or of the last worker that executed, the current task.
    */
   private String workerUuid;
-  /**
-   * This counter is incremented by 1 each time the tasks switches to status {@link Status#IN_PROGRESS IN_PROGRESS}.
-   */
-  private int executionCount = 0;
   private Long startedAt;
   private long createdAt;
   private long updatedAt;
@@ -108,16 +104,6 @@ public class CeQueueDto {
     return this;
   }
 
-  public int getExecutionCount() {
-    return executionCount;
-  }
-
-  public CeQueueDto setExecutionCount(int executionCount) {
-    checkArgument(executionCount >= 0, "execution count can't be < 0");
-    this.executionCount = executionCount;
-    return this;
-  }
-
   @CheckForNull
   public Long getStartedAt() {
     return startedAt;
@@ -155,7 +141,6 @@ public class CeQueueDto {
       ", status=" + status +
       ", submitterLogin='" + submitterLogin + '\'' +
       ", workerUuid='" + workerUuid + '\'' +
-      ", executionCount=" + executionCount +
       ", startedAt=" + startedAt +
       ", createdAt=" + createdAt +
       ", updatedAt=" + updatedAt +

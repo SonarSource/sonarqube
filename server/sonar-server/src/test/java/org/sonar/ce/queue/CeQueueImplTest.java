@@ -53,7 +53,6 @@ import static org.sonar.ce.queue.CeQueue.SubmitOption.UNIQUE_QUEUE_PER_COMPONENT
 public class CeQueueImplTest {
 
   private static final String WORKER_UUID = "workerUuid";
-  private static final int MAX_EXECUTION_COUNT = 3;
 
   private System2 system2 = new TestSystem2().setNow(1_450_000_000_000L);
 
@@ -356,7 +355,7 @@ public class CeQueueImplTest {
   @Test
   public void fail_to_cancel_if_in_progress() {
     submit(CeTaskTypes.REPORT, "PROJECT_1");
-    CeQueueDto ceQueueDto = db.getDbClient().ceQueueDao().peek(session, WORKER_UUID, MAX_EXECUTION_COUNT).get();
+    CeQueueDto ceQueueDto = db.getDbClient().ceQueueDao().peek(session, WORKER_UUID).get();
 
     expectedException.expect(IllegalStateException.class);
     expectedException.expectMessage(startsWith("Task is in progress and can't be canceled"));
@@ -370,7 +369,7 @@ public class CeQueueImplTest {
     CeTask pendingTask1 = submit(CeTaskTypes.REPORT, "PROJECT_2");
     CeTask pendingTask2 = submit(CeTaskTypes.REPORT, "PROJECT_3");
 
-    db.getDbClient().ceQueueDao().peek(session, WORKER_UUID, MAX_EXECUTION_COUNT);
+    db.getDbClient().ceQueueDao().peek(session, WORKER_UUID);
 
     int canceledCount = underTest.cancelAll();
     assertThat(canceledCount).isEqualTo(2);
@@ -397,7 +396,7 @@ public class CeQueueImplTest {
   @Test
   public void pauseWorkers_marks_workers_as_pausing_if_some_tasks_in_progress() {
     submit(CeTaskTypes.REPORT, "PROJECT_1");
-    db.getDbClient().ceQueueDao().peek(session, WORKER_UUID, MAX_EXECUTION_COUNT);
+    db.getDbClient().ceQueueDao().peek(session, WORKER_UUID);
     // task is in-progress
 
     assertThat(underTest.getWorkersPauseStatus()).isEqualTo(CeQueue.WorkersPauseStatus.RESUMED);
@@ -418,7 +417,7 @@ public class CeQueueImplTest {
   @Test
   public void resumeWorkers_resumes_pausing_workers() {
     submit(CeTaskTypes.REPORT, "PROJECT_1");
-    db.getDbClient().ceQueueDao().peek(session, WORKER_UUID, MAX_EXECUTION_COUNT);
+    db.getDbClient().ceQueueDao().peek(session, WORKER_UUID);
     // task is in-progress
 
     underTest.pauseWorkers();

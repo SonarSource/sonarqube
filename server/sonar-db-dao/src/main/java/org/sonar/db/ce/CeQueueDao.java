@@ -85,8 +85,8 @@ public class CeQueueDao implements Dao {
     return Optional.ofNullable(mapper(session).selectByUuid(uuid));
   }
 
-  public List<CeQueueDto> selectPendingByMinimumExecutionCount(DbSession dbSession, int minExecutionCount) {
-    return mapper(dbSession).selectPendingByMinimumExecutionCount(minExecutionCount);
+  public List<CeQueueDto> selectPending(DbSession dbSession) {
+    return mapper(dbSession).selectPending();
   }
 
   public void resetTasksWithUnknownWorkerUUIDs(DbSession dbSession, Set<String> knownWorkerUUIDs) {
@@ -151,26 +151,26 @@ public class CeQueueDao implements Dao {
     return builder.build();
   }
 
-  public Optional<CeQueueDto> peek(DbSession session, String workerUuid, int maxExecutionCount) {
-    List<EligibleTaskDto> eligibles = mapper(session).selectEligibleForPeek(maxExecutionCount, ONE_RESULT_PAGINATION);
+  public Optional<CeQueueDto> peek(DbSession session, String workerUuid) {
+    List<String> eligibles = mapper(session).selectEligibleForPeek(ONE_RESULT_PAGINATION);
     if (eligibles.isEmpty()) {
       return Optional.empty();
     }
 
-    EligibleTaskDto eligible = eligibles.get(0);
+    String eligible = eligibles.get(0);
     return tryToPeek(session, eligible, workerUuid);
   }
 
-  private Optional<CeQueueDto> tryToPeek(DbSession session, EligibleTaskDto eligible, String workerUuid) {
+  private Optional<CeQueueDto> tryToPeek(DbSession session, String eligibleTaskUuid, String workerUuid) {
     long now = system2.now();
-    int touchedRows = mapper(session).updateIf(eligible.getUuid(),
-      new UpdateIf.NewProperties(IN_PROGRESS, workerUuid, eligible.getExecutionCount() + 1, now, now),
-      new UpdateIf.OldProperties(PENDING, eligible.getExecutionCount()));
+    int touchedRows = mapper(session).updateIf(eligibleTaskUuid,
+      new UpdateIf.NewProperties(IN_PROGRESS, workerUuid, now, now),
+      new UpdateIf.OldProperties(PENDING));
     if (touchedRows != 1) {
       return Optional.empty();
     }
 
-    CeQueueDto result = mapper(session).selectByUuid(eligible.getUuid());
+    CeQueueDto result = mapper(session).selectByUuid(eligibleTaskUuid);
     session.commit();
     return Optional.ofNullable(result);
   }

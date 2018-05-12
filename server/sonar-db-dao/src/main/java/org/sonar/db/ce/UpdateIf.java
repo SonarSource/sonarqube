@@ -34,15 +34,13 @@ final class UpdateIf {
   public static class NewProperties {
     private final CeQueueDto.Status status;
     private final String workerUuid;
-    private final int executionCount;
     private final Long startedAt;
     private final long updatedAt;
 
-    NewProperties(CeQueueDto.Status status, @Nullable String workerUuid, int executionCount,
+    NewProperties(CeQueueDto.Status status, @Nullable String workerUuid,
       Long startedAt, long updatedAt) {
       this.status = requireNonNull(status, "status can't be null");
       this.workerUuid = workerUuid;
-      this.executionCount = executionCount;
       this.startedAt = startedAt;
       this.updatedAt = updatedAt;
     }
@@ -54,10 +52,6 @@ final class UpdateIf {
     @CheckForNull
     public String getWorkerUuid() {
       return workerUuid;
-    }
-
-    public int getExecutionCount() {
-      return executionCount;
     }
 
     @CheckForNull
@@ -73,19 +67,13 @@ final class UpdateIf {
   @Immutable
   public static class OldProperties {
     private final CeQueueDto.Status status;
-    private final int executionCount;
 
-    OldProperties(CeQueueDto.Status status, int executionCount) {
+    OldProperties(CeQueueDto.Status status) {
       this.status = requireNonNull(status, "status can't be null");
-      this.executionCount = executionCount;
     }
 
     public CeQueueDto.Status getStatus() {
       return status;
-    }
-
-    public int getExecutionCount() {
-      return executionCount;
     }
   }
 
