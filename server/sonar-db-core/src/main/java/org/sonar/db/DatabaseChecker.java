@@ -46,7 +46,7 @@ public class DatabaseChecker implements Startable {
     MsSql.ID, Version.create(12, 0, 0),
     MySql.ID, Version.create(5, 6, 0),
     Oracle.ID, Version.create(11, 0, 0),
-    PostgreSql.ID, Version.create(8, 0, 0));
+    PostgreSql.ID, Version.create(9, 3, 0));
 
   private final Database db;
 
