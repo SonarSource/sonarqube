@@ -19,10 +19,9 @@
  */
 package org.sonar.db.dialect;
 
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterators;
-import java.util.NoSuchElementException;
-import javax.annotation.CheckForNull;
+import java.util.Arrays;
+import java.util.Optional;
+import java.util.function.Predicate;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.utils.MessageException;
 
@@ -33,31 +32,24 @@ public final class DialectUtils {
   private DialectUtils() {
     // only static stuff
   }
-  
-  public static Dialect find(final String dialectId, final String jdbcConnectionUrl) {
-    Dialect match = StringUtils.isNotBlank(dialectId) ? findById(dialectId) : findByJdbcUrl(jdbcConnectionUrl);
-    if (match == null) {
-      throw MessageException.of("Unable to determine database dialect to use within sonar with dialect " + dialectId + " jdbc url " + jdbcConnectionUrl);
-    }
-    return match;
+
+  public static Dialect find(String dialectId, String jdbcConnectionUrl) {
+    Optional<Dialect> match = StringUtils.isNotBlank(dialectId) ? findById(dialectId) : findByJdbcUrl(jdbcConnectionUrl);
+    return match.orElseThrow(() -> MessageException.of(
+      "Unable to determine database dialect to use within sonar with dialect " + dialectId + " jdbc url " + jdbcConnectionUrl));
   }
 
-  @CheckForNull
-  private static Dialect findByJdbcUrl(final String jdbcConnectionUrl) {
+  private static Optional<Dialect> findByJdbcUrl(String jdbcConnectionUrl) {
     return findDialect(dialect -> dialect != null && dialect.matchesJdbcURL(StringUtils.trimToEmpty(jdbcConnectionUrl)));
   }
 
-  @CheckForNull
-  private static Dialect findById(final String dialectId) {
+  private static Optional<Dialect> findById(String dialectId) {
     return findDialect(dialect -> dialect != null && dialect.getId().equals(dialectId));
   }
 
-  @CheckForNull
-  private static Dialect findDialect(Predicate<Dialect> predicate) {
-    try {
-      return Iterators.find(Iterators.forArray(DIALECTS), predicate);
-    } catch (NoSuchElementException ex) {
-      return null;
-    }
+  private static Optional<Dialect> findDialect(Predicate<Dialect> predicate) {
+    return Arrays.stream(DIALECTS)
+      .filter(predicate)
+      .findFirst();
   }
 }
