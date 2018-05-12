@@ -128,7 +128,7 @@ subprojects {
       dependency 'javax.servlet:javax.servlet-api:3.0.1'
       dependency 'javax.xml.bind:jaxb-api:2.3.0'
       dependency 'junit:junit:4.12'
-      dependency 'mysql:mysql-connector-java:5.1.42'
+      dependency 'mysql:mysql-connector-java:5.1.46'
       dependency 'net.jpountz.lz4:lz4:1.3.0'
       dependency 'org.apache.commons:commons-csv:1.4'
       dependency 'org.apache.commons:commons-email:1.5'
