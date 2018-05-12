@@ -38,25 +38,25 @@ public class DropTableBuilderTest {
   @Test
   public void drop_tables_on_mysql() {
     assertThat(new DropTableBuilder(new MySql(), "issues")
-      .build()).containsOnly("DROP TABLE issues");
+      .build()).containsOnly("drop table if exists issues");
   }
 
   @Test
   public void drop_tables_on_postgresql() {
     assertThat(new DropTableBuilder(new PostgreSql(), "issues")
-      .build()).containsOnly("DROP TABLE issues");
+      .build()).containsOnly("drop table if exists issues");
   }
 
   @Test
   public void drop_tables_on_mssql() {
     assertThat(new DropTableBuilder(new MsSql(), "issues")
-      .build()).containsOnly("DROP TABLE issues");
+      .build()).containsOnly("drop table issues");
   }
 
   @Test
   public void drop_tables_on_h2() {
     assertThat(new DropTableBuilder(new H2(), "issues")
-      .build()).containsOnly("DROP TABLE issues");
+      .build()).containsOnly("drop table if exists issues");
   }
 
   @Test
@@ -64,22 +64,29 @@ public class DropTableBuilderTest {
     assertThat(new DropTableBuilder(new Oracle(), "issues")
       .build()).containsExactly(
         "BEGIN\n" +
-          "  EXECUTE IMMEDIATE 'DROP SEQUENCE issues_seq';\n" +
+          "EXECUTE IMMEDIATE 'DROP SEQUENCE issues_seq';\n" +
           "EXCEPTION\n" +
-          "  WHEN OTHERS THEN\n" +
-          "    IF SQLCODE != -2289 THEN\n" +
-          "      RAISE;\n" +
-          "    END IF;\n" +
+          "WHEN OTHERS THEN\n" +
+          "  IF SQLCODE != -2289 THEN\n" +
+          "  RAISE;\n" +
+          "  END IF;\n" +
           "END;",
         "BEGIN\n" +
-          "  EXECUTE IMMEDIATE 'DROP TRIGGER issues_idt';\n" +
+          "EXECUTE IMMEDIATE 'DROP TRIGGER issues_idt';\n" +
           "EXCEPTION\n" +
-          "  WHEN OTHERS THEN\n" +
-          "    IF SQLCODE != -4080 THEN\n" +
-          "      RAISE;\n" +
-          "    END IF;\n" +
+          "WHEN OTHERS THEN\n" +
+          "  IF SQLCODE != -4080 THEN\n" +
+          "  RAISE;\n" +
+          "  END IF;\n" +
           "END;",
-        "DROP TABLE issues");
+        "BEGIN\n" +
+          "EXECUTE IMMEDIATE 'DROP TABLE issues';\n" +
+          "EXCEPTION\n" +
+          "WHEN OTHERS THEN\n" +
+          "  IF SQLCODE != -942 THEN\n" +
+          "  RAISE;\n" +
+          "  END IF;\n" +
+          "END;");
   }
 
   @Test

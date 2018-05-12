@@ -21,7 +21,11 @@ package org.sonar.server.platform.db.migration.sql;
 
 import java.util.List;
 import org.sonar.db.dialect.Dialect;
+import org.sonar.db.dialect.H2;
+import org.sonar.db.dialect.MsSql;
+import org.sonar.db.dialect.MySql;
 import org.sonar.db.dialect.Oracle;
+import org.sonar.db.dialect.PostgreSql;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
@@ -39,41 +43,36 @@ public class DropTableBuilder {
   }
 
   public List<String> build() {
-    if (Oracle.ID.equals(dialect.getId())) {
-      return dropOracleSequenceAndTriggerAndTableStatements();
+    switch (dialect.getId()) {
+      case Oracle.ID:
+        return forOracle(tableName);
+      case H2.ID:
+      case MySql.ID:
+      case PostgreSql.ID:
+        return singletonList("drop table if exists " + tableName);
+      case MsSql.ID:
+        // "if exists" is supported only since MSSQL 2016.
+        return singletonList("drop table " + tableName);
+      default:
+        throw new IllegalStateException("Unsupported DB: " + dialect.getId());
     }
-    return singletonList(dropTableStatement());
   }
 
-  private String dropTableStatement() {
-    return "DROP TABLE " + tableName;
+  private static List<String> forOracle(String tableName) {
+    return asList(
+      dropIfExistsOnOracle("DROP SEQUENCE " + tableName + "_seq", -2289),
+      dropIfExistsOnOracle("DROP TRIGGER " + tableName + "_idt", -4080),
+      dropIfExistsOnOracle("DROP TABLE " + tableName, -942));
   }
 
-  private List<String> dropOracleSequenceAndTriggerAndTableStatements() {
-    return asList(dropSequenceFor(tableName), dropTriggerFor(tableName), dropTableStatement());
-  }
-
-  private static String dropSequenceFor(String tableName) {
+  private static String dropIfExistsOnOracle(String command, int codeIfNotExists) {
     return "BEGIN\n" +
-      "  EXECUTE IMMEDIATE 'DROP SEQUENCE " + tableName + "_seq';\n" +
+      "EXECUTE IMMEDIATE '" + command + "';\n" +
       "EXCEPTION\n" +
-      "  WHEN OTHERS THEN\n" +
-      "    IF SQLCODE != -2289 THEN\n" +
-      "      RAISE;\n" +
-      "    END IF;\n" +
+      "WHEN OTHERS THEN\n" +
+      "  IF SQLCODE != " + codeIfNotExists + " THEN\n" +
+      "  RAISE;\n" +
+      "  END IF;\n" +
       "END;";
   }
-
-  private static String dropTriggerFor(String tableName) {
-    return "BEGIN\n" +
-      "  EXECUTE IMMEDIATE 'DROP TRIGGER " + tableName + "_idt';\n" +
-      "EXCEPTION\n" +
-      "  WHEN OTHERS THEN\n" +
-      "    IF SQLCODE != -4080 THEN\n" +
-      "      RAISE;\n" +
-      "    END IF;\n" +
-      "END;";
-
-  }
-
 }

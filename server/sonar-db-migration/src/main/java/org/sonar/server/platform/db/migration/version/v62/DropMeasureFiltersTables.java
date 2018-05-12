@@ -19,47 +19,29 @@
  */
 package org.sonar.server.platform.db.migration.version.v62;
 
-import com.google.common.collect.ImmutableList;
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
-import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.Database;
-import org.sonar.db.DatabaseUtils;
 import org.sonar.server.platform.db.migration.sql.DropTableBuilder;
 import org.sonar.server.platform.db.migration.step.DdlChange;
 
+import static java.util.Arrays.asList;
 import static org.sonar.core.util.stream.MoreCollectors.toList;
 
 public class DropMeasureFiltersTables extends DdlChange {
 
-  private static final Logger LOGGER = Loggers.get(DropMeasureFiltersTables.class);
-
-  private static final List<String> TABLES_TO_DROP = ImmutableList.of("measure_filters", "measure_filter_favourites");
-
-  private final Database db;
-
   public DropMeasureFiltersTables(Database db) {
     super(db);
-    this.db = db;
   }
 
   @Override
   public void execute(Context context) throws SQLException {
-    List<String> tablesToDrop = getEffectiveTablesToDrop();
-    LOGGER.info("Removing tables {}", tablesToDrop);
-    context.execute(tablesToDrop
+    List<String> tables = asList("measure_filters", "measure_filter_favourites");
+    Loggers.get(getClass()).info("Removing tables {}", tables);
+    context.execute(tables
       .stream()
-      .flatMap(table -> new DropTableBuilder(db.getDialect(), table).build().stream())
+      .flatMap(table -> new DropTableBuilder(getDialect(), table).build().stream())
       .collect(toList()));
-  }
-
-  private List<String> getEffectiveTablesToDrop() throws SQLException {
-    try (Connection connection = db.getDataSource().getConnection()) {
-      return TABLES_TO_DROP.stream()
-        .filter(table -> DatabaseUtils.tableExists(table, connection))
-        .collect(toList());
-    }
   }
 }

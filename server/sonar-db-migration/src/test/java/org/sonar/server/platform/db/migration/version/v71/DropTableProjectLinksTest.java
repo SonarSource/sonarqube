@@ -23,15 +23,12 @@ package org.sonar.server.platform.db.migration.version.v71;
 import java.sql.SQLException;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.db.CoreDbTester;
 
 public class DropTableProjectLinksTest {
 
   @Rule
   public final CoreDbTester dbTester = CoreDbTester.createForSchema(DropTableProjectLinksTest.class, "project_links.sql");
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private DropTableProjectLinks underTest = new DropTableProjectLinks(dbTester.database());
 
@@ -43,12 +40,11 @@ public class DropTableProjectLinksTest {
   }
 
   @Test
-  public void migration_is_not_reentrant() throws SQLException {
+  public void migration_is_reentrant() throws SQLException {
+    underTest.execute();
     underTest.execute();
 
-    expectedException.expect(IllegalStateException.class);
-
-    underTest.execute();
+    dbTester.assertTableDoesNotExist("project_links");
   }
 
 }

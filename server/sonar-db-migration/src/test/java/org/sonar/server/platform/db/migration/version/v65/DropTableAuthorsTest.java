@@ -22,14 +22,11 @@ package org.sonar.server.platform.db.migration.version.v65;
 import java.sql.SQLException;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.db.CoreDbTester;
 
 public class DropTableAuthorsTest {
   @Rule
   public CoreDbTester db = CoreDbTester.createForSchema(DropTableAuthorsTest.class, "authors.sql");
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private DropTableAuthors underTest = new DropTableAuthors(db.database());
 
@@ -42,12 +39,11 @@ public class DropTableAuthorsTest {
   }
 
   @Test
-  public void execute_is_not_reentrant() throws Exception {
+  public void execute_is_reentrant() throws Exception {
+    underTest.execute();
     underTest.execute();
 
-    expectedException.expect(IllegalStateException.class);
-    
-    underTest.execute();
+    db.assertTableDoesNotExist("authors");
   }
 
 }

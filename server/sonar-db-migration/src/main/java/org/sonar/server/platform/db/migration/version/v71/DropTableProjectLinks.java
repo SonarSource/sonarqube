@@ -26,15 +26,13 @@ import org.sonar.server.platform.db.migration.step.DdlChange;
 
 public class DropTableProjectLinks extends DdlChange {
 
-  private static final String TABLE_NAME = "project_links";
-
   public DropTableProjectLinks(Database db) {
     super(db);
   }
 
   @Override
   public void execute(Context context) throws SQLException {
-    context.execute(new DropTableBuilder(getDialect(), TABLE_NAME).build());
+    context.execute(new DropTableBuilder(getDialect(), "project_links").build());
   }
 
 }

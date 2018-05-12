@@ -22,14 +22,9 @@ package org.sonar.server.platform.db.migration.version.v63;
 import java.sql.SQLException;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.sonar.api.utils.System2;
 import org.sonar.db.CoreDbTester;
 
 public class DropTableResourceIndexTest {
-
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Rule
   public CoreDbTester db = CoreDbTester.createForSchema(DropTableResourceIndexTest.class, "schema.sql");
@@ -44,10 +39,10 @@ public class DropTableResourceIndexTest {
   }
 
   @Test
-  public void migration_is_not_re_entrant() throws Exception {
+  public void migration_is_reentrant() throws Exception {
+    underTest.execute();
     underTest.execute();
 
-    expectedException.expect(IllegalStateException.class);
-    underTest.execute();
+    db.assertTableDoesNotExist("resource_index");
   }
 }

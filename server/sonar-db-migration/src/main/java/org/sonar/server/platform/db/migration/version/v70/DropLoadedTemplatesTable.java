@@ -19,33 +19,19 @@
  */
 package org.sonar.server.platform.db.migration.version.v70;
 
-import java.sql.Connection;
 import java.sql.SQLException;
 import org.sonar.db.Database;
-import org.sonar.db.DatabaseUtils;
 import org.sonar.server.platform.db.migration.sql.DropTableBuilder;
 import org.sonar.server.platform.db.migration.step.DdlChange;
 
 public class DropLoadedTemplatesTable extends DdlChange {
 
-  private static final String LOADED_TEMPLATES = "loaded_templates";
-  private final Database db;
-
   public DropLoadedTemplatesTable(Database db) {
     super(db);
-    this.db = db;
   }
 
   @Override
   public void execute(Context context) throws SQLException {
-    if (tableExists()) {
-      context.execute(new DropTableBuilder(db.getDialect(), LOADED_TEMPLATES).build());
-    }
-  }
-
-  private boolean tableExists() throws SQLException {
-    try (Connection connection = db.getDataSource().getConnection()) {
-      return DatabaseUtils.tableExists(LOADED_TEMPLATES, connection);
-    }
+    context.execute(new DropTableBuilder(getDialect(), "loaded_templates").build());
   }
 }
